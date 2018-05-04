@@ -22,7 +22,6 @@ class Distribution
   attr_accessor :preferred_georeference_only
 
   # @param [Hash] args
-  # @return [Ignored]
   def initialize(
     source_object_types: [
       :asserted_distribution,
@@ -82,7 +81,6 @@ class Distribution
   # @param [Otu] otu
   # @param [Source] source
   # @param [String] type
-  # @return [Ignored]
   def insert_for_collecting_event_georeference(otu, source, type)
     georeferences = (preferred_georeference_only ? [source.georeferences.first] : source.georeferences)
     georeferences.each do |g|
@@ -183,7 +181,7 @@ class Distribution
     result
   end
   # rubocop:enable Metrics/MethodLength
-  
+
   # @param [JSON] json
   # @param [AssertedDistribution] asserted_distribution
   # @param [Object] data

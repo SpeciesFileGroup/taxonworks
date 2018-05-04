@@ -11,7 +11,6 @@ module Queries
   class CollectingEventAutocompleteQuery
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(string)
       build_terms(string)
     end

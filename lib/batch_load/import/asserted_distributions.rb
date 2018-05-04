@@ -7,7 +7,6 @@ module BatchLoad
     attr_accessor :data_origin
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(data_origin: nil, **args)
       @asserted_distributions = {}
       @data_origin            = data_origin

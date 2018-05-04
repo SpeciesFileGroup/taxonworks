@@ -64,7 +64,7 @@ class ContentsController < ApplicationController
   # DELETE /contents/1
   # DELETE /contents/1.json
   def destroy
-    @content.destroy
+    @content.destroy!
     respond_to do |format|
       format.html { redirect_to contents_url }
       format.json { head :no_content }
@@ -77,7 +77,8 @@ class ContentsController < ApplicationController
 
   def search
     if params[:id].blank?
-      redirect_to content_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to content_path,
+                  notice: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to content_path(params[:id])
     end
@@ -106,7 +107,9 @@ class ContentsController < ApplicationController
 
   # GET /contents/download
   def download
-    send_data Content.generate_download( Content.where(project_id: sessions_current_project_id) ), type: 'text', filename: "contents_#{DateTime.now}.csv"
+    send_data(Download.generate_csv(Content.where(project_id: sessions_current_project_id)),
+              type:     'text',
+              filename: "contents_#{DateTime.now}.csv")
   end
 
   private

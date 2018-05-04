@@ -178,12 +178,10 @@ namespace :tw do
         handle_dist_ucd
 
         print "\n\n !! Pre soft validation done. End time: #{Time.now} \n\n"
-        
+
+        invalid_relationship_remove
+        invalid_relationship_remove
 #end
-
-        invalid_relationship_remove
-        invalid_relationship_remove
-
         soft_validations_ucd
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
@@ -2059,6 +2057,8 @@ namespace :tw do
         TaxonName.where(project_id: $project_id).find_each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
+#          next if i < 7346
+#          byebug
           t.soft_validate
           t.fix_soft_validations
           t.soft_validations.soft_validations.each do |f|
@@ -2211,26 +2211,33 @@ namespace :tw do
                   if !s.valid?
                     s = Protonym.find(s.id)
                     TaxonNameRelationship.create!(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating')
-         #           c1 = Combination.match_exists?(s.get_full_name, genus: s.genus.try(:id), subgenus: s.subgenus.try(:id), species: s.species.try(:id), subspecies: s.subspecies.try(:id))
-         #           c1 = Combination.matching_protonyms(s.get_full_name_html, genus: s.genus.try(:id), subgenus: s.subgenus.try(:id), species: s.species.try(:id), subspecies: s.subspecies.try(:id)).first if c1.blank?
-         #           byebug if c1.blank?
-         #           s = c1
                   else
                     TaxonNameRelationship.where(project_id: $project_id, subject_taxon_name_id: s.id).with_type_contains('Combination').each do |z|
                       z.object_taxon_name.verbatim_name = z.object_taxon_name.cached if z.object_taxon_name.type = 'Combination' && z.object_taxon_name.verbatim_name.blank?
                       z.subject_taxon_name_id = o.id
                       z.save
                       z.subject_taxon_name.save
-#                      byebug if !z.valid?
-#                      byebug if !z.object_taxon_name.valid?
+                      fixed += 1
+                    end
+                    TaxonNameRelationship.where(project_id: $project_id, subject_taxon_name_id: s.id).select{|i| i.type !~ /Combination/}.each do |z|
+                      z.subject_taxon_name_id = o.id
+                      z.save
+                      fixed += 1
+                    end
+                    TaxonNameRelationship.where(project_id: $project_id, subject_taxon_name_id: s.id).select{|i| i.type =~ /Combination/}.each do |z|
+                      z.object_taxon_name.verbatim_name = z.object_taxon_name.cached if z.object_taxon_name.type = 'Combination' && z.object_taxon_name.verbatim_name.blank?
+                      z.subject_taxon_name_id = o.id
+                      z.save
+                      fixed += 1
+                    end
+                    TaxonNameRelationship.where(project_id: $project_id, object_taxon_name_id: s.id).select{|i| i.type !~ /Combination/}.each do |z|
+                      z.object_taxon_name_id = o.id
+                      z.save
                       fixed += 1
                     end
                   end
 
 
-#              elsif s.cached_valid_taxon_name_id == svalid && o.citations.empty? && !s.citations.empty? && o.taxon_name_classifications.empty?
-#                fixed += 1
-#                TaxonNameRelationship.create!(subject_taxon_name: o, object_taxon_name: s, type: 'TaxonNameRelationship::Iczn::Invalidating')
               elsif s.cached_valid_taxon_name_id != svalid
                 TaxonNameRelationship.create!(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating')
               else

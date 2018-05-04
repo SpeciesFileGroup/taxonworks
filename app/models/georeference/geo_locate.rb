@@ -108,7 +108,6 @@ class Georeference::GeoLocate < Georeference
   # @todo get geoJson results and handle all this automatically?
   # @param [RGeo::Polygon] uncertainty_polygon
   # @param [Integer] uncertainty_radius in meters
-  # @return [Ignored]
   def make_error_geographic_item(uncertainty_polygon, uncertainty_radius)
     self.error_radius = uncertainty_radius if !uncertainty_radius.nil?
     unless uncertainty_polygon.nil?
@@ -193,7 +192,6 @@ class Georeference::GeoLocate < Georeference
     attr_reader :request_params, :request_params_string, :request_params_hash
 
     # @param [ActionController::Parameters] request_params
-    # @return [Ignored]
     def initialize(request_params)
       @request_params_hash = REQUEST_PARAMS.merge(request_params)
       build_param_string
@@ -247,18 +245,17 @@ class Georeference::GeoLocate < Georeference
     attr_reader :request_params, :response, :request_param_string
 
     # @param [ActionController::Parameters] request_params
-    # @return [Ignored]
     def initialize(request_params)
       @request_params = REQUEST_PARAMS.merge(request_params)
       @succeeded      = nil
     end
 
-    # @return [Ignored] sets the response attribute.
+    # sets the response attribute.
     def locate
       @response = Georeference::GeoLocate::Response.new(self)
     end
 
-    # @return [Ignored] sets the @request_param_string attribute.
+    # sets the @request_param_string attribute.
     def build_param_string
       @request_param_string ||= @request_params.collect { |key, value| "#{key}=#{value}" }.join('&')
     end
@@ -284,7 +281,6 @@ class Georeference::GeoLocate < Georeference
     attr_accessor :result
 
     # @param [JSON object] request
-    # @return [Ignored]
     def initialize(request)
       @result           = JSON.parse(call_api(Georeference::GeoLocate::URI_HOST, request))
       request.succeeded = true if @result['numResults'].to_i == 1
