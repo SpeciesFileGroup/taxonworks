@@ -8,7 +8,7 @@ describe Source, type: :model, group: :sources do
   }
 
   specify '#is_in_project? 1' do
-    expect(source.is_in_project?(1)).to be_falsey  
+    expect(source.is_in_project?(1)).to be_falsey
   end
 
   context 'associations' do
@@ -67,9 +67,9 @@ describe Source, type: :model, group: :sources do
     end
 
     specify 'returns a mixed array of objects' do
-      c = Citation.create!(source: a, citation_object: o)
+      Citation.create!(source: a, citation_object: o)
       a.reload
-      expect(a.cited_objects.include?(o)).to be(true)
+      expect(a.cited_objects.include?(o)).to be_truthy
     end
   end
 

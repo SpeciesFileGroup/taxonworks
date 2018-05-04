@@ -763,14 +763,14 @@ class Source::Bibtex < Source
   def authority_name
     if !authors.reload.any? # no normalized people, use string, !! not .any? because of in-memory setting?!
       if author.blank?
-       return nil
+        return nil
       else
         b = to_bibtex
         b.parse_names
-        return Utilities::Strings.authorship_sentence( b.author.tokens.collect{|t| t.last} )
+        return Utilities::Strings.authorship_sentence(b.author.tokens.collect { |t| t.last })
       end
     else # use normalized records
-      return Utilities::Strings.authorship_sentence( authors.reload.collect{|a| a.full_last_name} )
+      return Utilities::Strings.authorship_sentence(authors.reload.collect { |a| a.full_last_name })
     end
   end
 
@@ -809,15 +809,15 @@ class Source::Bibtex < Source
 
   # @param [Source] source
   # @return [Boolean]
-  def similar(source)
-    false
-  end
+  # def similar(source)
+  #   false
+  # end
 
   # @param [Source] source
   # @return [Boolean]
-  def identical(source)
-    false
-  end
+  # def identical(source)
+  #   false
+  # end
 
   protected
 

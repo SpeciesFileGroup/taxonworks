@@ -1,5 +1,6 @@
 require 'rails_helper'
 
+# rubocop:disable Rails/SaveBang
 describe Source::Bibtex, type: :model, group: :sources do
 
   let(:bibtex) { FactoryBot.build(:source_bibtex) }
@@ -632,7 +633,7 @@ describe Source::Bibtex, type: :model, group: :sources do
             specify 'SourceAuthor role' do
               a = Person.parse_to_people('Dmitriev, D.A.').first
               a.save
-              sa = SourceAuthor.create!(person_id: a.id, role_object: source_bibtex)
+              SourceAuthor.create!(person_id: a.id, role_object: source_bibtex)
               expect(source_bibtex.cached_author_string).to eq('Dmitriev')
             end
           end
@@ -1020,7 +1021,7 @@ describe Source::Bibtex, type: :model, group: :sources do
 
     context 'associations' do
       context 'roles' do
-        let(:vp1) { Person.create!(last_name: 'Smith')  } 
+        let(:vp1) { Person.create!(last_name: 'Smith')  }
         let(:vp2) { Person.create!(last_name: 'Adams', first_name: 'John', prefix: 'Von') }
 
         specify 'after create/saved populate author/editor roles' do
@@ -1415,3 +1416,4 @@ describe Source::Bibtex, type: :model, group: :sources do
 
   end
 end
+# rubocop:enable Rails/SaveBang

@@ -18,15 +18,15 @@ class Source::Human < Source
 
   # @param [Source] source
   # @return [Boolean]
-  def similar(source)
-    false
-  end
+  # def similar(source)
+  #   false
+  # end
 
   # @param [Source] source
   # @return [Boolean]
-  def identical(source)
-    false
-  end
+  # def identical(source)
+  #   false
+  # end
 
   protected
 
