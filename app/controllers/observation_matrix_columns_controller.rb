@@ -12,7 +12,7 @@ class ObservationMatrixColumnsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json { 
-        @observation_matrix_columns = ObservationMatrixColumn.where(filter_params).with_project_id(sessions_current_project_id).order('observation_matrix_columns.position')
+        @observation_matrix_columns = ObservationMatrixColumn.where(filter_params).where(project_id: sessions_current_project_id).order('observation_matrix_columns.position')
       }
     end
   end

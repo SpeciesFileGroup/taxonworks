@@ -69,7 +69,7 @@ export default {
       let data = {
         controlled_vocabulary_term_id: item.id,
         observation_matrix_id: this.matrixId,
-        type: 'ObservationMatrixColumnItem::TaggedColumnItem'
+        type: 'ObservationMatrixColumnItem::TaggedDescriptor'
       }
       this.$store.dispatch(ActionNames.CreateColumnItem, data)
     }

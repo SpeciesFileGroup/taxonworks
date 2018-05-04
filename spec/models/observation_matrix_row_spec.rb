@@ -79,10 +79,21 @@ RSpec.describe ObservationMatrixRow, type: :model, group: :matrix do
           expect(ObservationMatrixRow.create(observation_matrix_id: observation_matrix.id, otu_id: otu.id).id).to be_falsey
         end
 
+        specify 'creating 2 MatrixRow with same matrix and same otu 2' do
+          ObservationMatrixRow.create!(observation_matrix: observation_matrix, otu: otu)
+          expect(ObservationMatrixRow.create(observation_matrix: observation_matrix, otu: otu).id).to be_falsey
+        end
+
         specify 'creating 2 MatrixRow with same matrix and same collection object' do
           ObservationMatrixRow.create!(observation_matrix_id: observation_matrix.id, collection_object_id: collection_object.id)
           expect(ObservationMatrixRow.create(observation_matrix_id: observation_matrix.id, collection_object_id: collection_object.id).id).to be_falsey
         end
+
+        specify 'creating 2 MatrixRow with same matrix and same collection object 2' do
+          ObservationMatrixRow.create!(observation_matrix: observation_matrix, collection_object: collection_object)
+          expect(ObservationMatrixRow.create(observation_matrix: observation_matrix, collection_object: collection_object).id).to be_falsey
+        end
+
       end
     end
   end

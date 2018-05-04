@@ -106,6 +106,7 @@ class ObservationMatrixColumnItemsController < ApplicationController
 
   def observation_matrix_column_item_params
     params.require(:observation_matrix_column_item).permit(
+      :controlled_vocabulary_term_id,
       :observation_matrix_id,
       :type,
       :descriptor_id,

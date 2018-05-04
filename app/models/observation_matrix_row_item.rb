@@ -49,7 +49,7 @@ class ObservationMatrixRowItem < ApplicationRecord
   end
 
   def cleanup_matrix_rows
-    rows = Array.new
+    rows = []
     rows.push *ObservationMatrixRow.where(observation_matrix: observation_matrix, otu_id: otus.map(&:id)) if otus
     rows.push *ObservationMatrixRow.where(observation_matrix: observation_matrix, collection_object_id: collection_objects.map(&:id)) if collection_objects
 
@@ -62,7 +62,7 @@ class ObservationMatrixRowItem < ApplicationRecord
     mr = nil
 
     if object.is_a? Otu
-      mr = ObservationMatrixRow.find_or_create_by(observation_matrix: observation_matrix, otu: object, )
+      mr = ObservationMatrixRow.find_or_create_by(observation_matrix: observation_matrix, otu: object )
     elsif object.is_a? CollectionObject
       mr = ObservationMatrixRow.find_or_create_by(observation_matrix: observation_matrix, collection_object: object)
     end

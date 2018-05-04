@@ -17,6 +17,7 @@ class ObservationMatrixRow < ApplicationRecord
   validates_presence_of :observation_matrix
   validate :otu_and_collection_object_blank
   validate :otu_and_collection_object_given
+  
   validates_uniqueness_of :otu_id, scope: [:observation_matrix_id], if: -> {!otu_id.nil?}
   validates_uniqueness_of :collection_object_id, scope: [:observation_matrix_id], if: -> {!collection_object_id.nil?}
 

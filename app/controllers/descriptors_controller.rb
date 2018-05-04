@@ -13,7 +13,7 @@ class DescriptorsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @descriptors = Descriptor.all.limit(20)
+        @descriptors = Descriptor.where(project_id: sessions_current_project_id).limit(20)
       }
     end
   end
