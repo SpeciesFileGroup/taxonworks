@@ -12,7 +12,8 @@ if ApplicationRecord.connection.table_exists? 'identifiers'
       all: Identifier::Global.descendants.inject({}){|hsh, a| hsh.merge!( a.name => { label: a.name.demodulize.underscore.humanize.downcase} )},
       common: [  
         'Identifier::Global::Doi',
-        'Identifier::Global::Orcid' 
+        'Identifier::Global::Orcid',
+        'Identifier::Global::Lsid' 
       ]
     }, 
     local: {

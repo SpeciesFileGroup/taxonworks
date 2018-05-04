@@ -11,7 +11,6 @@ module Queries
       #
 
       # @param [Hash] args
-      # @return [Ignored]
       def initialize(string, roles: :all)
         @limit_to_roles = roles
         super

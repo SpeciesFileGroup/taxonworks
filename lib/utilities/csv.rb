@@ -6,7 +6,6 @@ module Utilities::Csv
   #   - validate object collection is uniformly classed (all the same)
   # @param [Array] of objects
   # @param [Hash] of options
-  # @return [Ignored]
   def self.to_csv(objects, options = {col_sep: "\t", headers: true, encoding: 'UTF-8'})
     return if objects.size == 0
     column_names = objects.first.class.column_names

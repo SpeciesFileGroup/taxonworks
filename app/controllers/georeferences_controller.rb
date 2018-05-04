@@ -34,7 +34,7 @@ class GeoreferencesController < ApplicationController
   # GET /georeferences/skip
   def skip
     target = @georeference.collecting_event.next_without_georeference
-    target = @georeference.collecting_event if target.nil?
+    target = @georeference.collecting_event if target.nil?  # TODO: check on subsequent use of 'target'
 
     respond_to do |format|
       format.html { redirect_to target, notice: 'All collecting events have georeferences.' }
@@ -42,6 +42,7 @@ class GeoreferencesController < ApplicationController
     end
   end
 
+  # rubocop:disable Metrics/MethodLength, Metrics/BlockNesting
   # POST /georeferences
   # POST /georeferences.json
   def create
@@ -49,35 +50,35 @@ class GeoreferencesController < ApplicationController
     if params['skip_next'].nil?
       respond_to do |format|
         if @georeference.save
-       
+
         # target = @georeference.collecting_event
 
         # unless params['commit_next'].nil?
         #   new_target = @georeference.collecting_event.next_without_georeference
         #   target     = new_target unless new_target.nil?
         # end
-       
-          format.html {   
+
+          format.html {
             if false
 
-            else    
+            else
               redirect_to collecting_event_path(@georeference.collecting_event), notice: 'Georeference was successfully created.'
             end
           }
 
           format.json { render action: 'show', status: :created }
-        
+
         else
-          
-          format.html { 
-            if @georeference.method_name 
+
+          format.html {
+            if @georeference.method_name
               render "/georeferences/#{@georeference.method_name}/new"
             else
               if @georeference.collecting_event
                 redirect_to collecting_event_path(@georeference.collecting_event), notice: 'Georeference not created, check verbatim values of collecting event'
               else
                 redirect_to georeferences_path, notice: 'Georeference not created.  Contact administrator with details if you recieved this message.'
-              end 
+              end
             end
           }
 
@@ -88,6 +89,7 @@ class GeoreferencesController < ApplicationController
       skip
     end
   end
+  # rubocop:enable Metrics/MethodLength, Metrics/BlockNesting
 
   def batch_create
 
@@ -98,7 +100,7 @@ class GeoreferencesController < ApplicationController
   #  def update
   #    respond_to do |format|
   #      if @georeference.update(georeference_params)
-  #  
+  #
   #        format.html { redirect_to @georeference.metamorphosize, notice: 'Georeference was successfully updated.' }
   #        format.json { head :no_content }
   #      else
@@ -111,7 +113,7 @@ class GeoreferencesController < ApplicationController
   # DELETE /georeferences/1
   # DELETE /georeferences/1.json
   def destroy
-    @georeference.destroy
+    @georeference.destroy!
     respond_to do |format|
       format.html { redirect_to georeferences_url }
       format.json { head :no_content }
@@ -120,14 +122,16 @@ class GeoreferencesController < ApplicationController
 
   # GET /georeferences/download
   def download
-    send_data Georeference.generate_download(Georeference.where(project_id: sessions_current_project_id)), type: 'text', filename: "georeferences_#{DateTime.now}.csv"
+    send_data(Download.generate_csv(Georeference.where(project_id: sessions_current_project_id)),
+              type:     'text',
+              filename: "georeferences_#{DateTime.now}.csv")
   end
 
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_georeference
     @georeference = Georeference.with_project_id(sessions_current_project_id).find(params[:id])
-    @recent_object = @georeference 
+    @recent_object = @georeference
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.
@@ -146,7 +150,7 @@ class GeoreferencesController < ApplicationController
                                          :is_undefined_z,
                                          :is_median_z,
                                          geographic_item_attributes: [:shape],
-                                         origin_citation_attributes: [:id, :_destroy, :source_id, :pages] 
-                                        ) 
+                                         origin_citation_attributes: [:id, :_destroy, :source_id, :pages]
+                                        )
   end
 end

@@ -209,6 +209,21 @@ describe Combination, type: :model, group: :nomenclature do
       species.save!
       expect(Combination.matching_protonyms("Aus bus", genus: genus.id, subgenus: genus.id, species: species.id, subspecies: nil).to_a).to contain_exactly()
     end
+    specify '.matching_protonyms 4' do
+      species.original_genus = genus
+      species.original_subgenus = genus
+      species.original_species = species
+      species.save!
+      expect(Combination.matching_protonyms(nil, genus: genus.id, subgenus: genus.id, species: species.id, subspecies: nil).to_a).to contain_exactly(species)
+    end
+    specify '.matching_protonyms 5' do
+      species.original_genus = genus
+      species.original_subgenus = genus
+      species.original_species = species
+      species.save!
+      expect(Combination.matching_protonyms(nil, genus: genus.id, subgenus: nil, species: species.id, subspecies: nil).to_a).to contain_exactly()
+    end
+
   end
 
   context 'instance methods' do
@@ -340,7 +355,7 @@ describe Combination, type: :model, group: :nomenclature do
     specify 'missing source and year' do
       combination.soft_validate(:missing_fields)
       expect(combination.soft_validations.messages_on(:base).empty?).to be_falsey
-      expect(combination.soft_validations.messages_on(:year_of_publication).empty?).to be_falsey
+      expect(combination.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
     end
 
     specify 'year of combination and year of source do not match' do

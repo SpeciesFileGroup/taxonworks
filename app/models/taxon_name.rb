@@ -141,9 +141,18 @@ class TaxonName < ApplicationRecord
     'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters',
     'TaxonNameClassification::Iczn::Unavailable::NotLatinizedAfter1899',
     'TaxonNameClassification::Iczn::Unavailable::NotLatinizedBefore1900AndNotAccepted',
-    'TaxonNameClassification::Iczn::Unavailable::NonBinomial',
-    'TaxonNameClassification::Iczn::Available::Invalid::FamilyGroupNameForm'
+    'TaxonNameClassification::Iczn::Unavailable::NonBinomial'
+    #'TaxonNameClassification::Iczn::Available::Invalid::FamilyGroupNameForm'
   ].freeze
+
+  EXCEPTED_FORM_TAXON_NAME_RELATIONSHIPS = [
+      'TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling',
+      'TaxonNameRelationship::Icnb::Unaccepting::Usage::Misspelling',
+      'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm',
+      'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling',
+      'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling'
+      ].freeze
+
 
   NO_CACHED_MESSAGE = 'REBUILD PROJECT TAXON NAME CACHE'.freeze
 
@@ -556,6 +565,10 @@ class TaxonName < ApplicationRecord
   def hybrid?
     taxon_name_classifications.where_taxon_name(self).with_type_contains('Hybrid').any?
     #   !TaxonNameClassification.where_taxon_name(self).with_type_contains('Hybrid').empty? ? true : false
+  end
+
+  def is_genus_or_species_rank?
+    false
   end
 
   # @return [TaxonName]
@@ -987,6 +1000,7 @@ class TaxonName < ApplicationRecord
     p = nil
 
     misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::Invalidating::Misapplication')
+    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
 
     if self.type == 'Combination'
       c = self.protonyms_by_rank
@@ -996,8 +1010,14 @@ class TaxonName < ApplicationRecord
       taxon = self
     end
 
-    a = [taxon.try(:author_string)]
-    y = [taxon.try(:year_integer)]
+    mobj = misspelling.empty? ? nil : misspelling.first.object_taxon_name
+    if !mobj.blank?
+      a = [mobj.try(:author_string)]
+      y = [mobj.try(:year_integer)]
+    else
+      a = [taxon.try(:author_string)]
+      y = [taxon.try(:year_integer)]
+    end
 
     if a[0] =~ /^\(.+\)$/ # (Author)
       a[0] = a[0][1..-2] ## remove parentheses in the author string
@@ -1140,7 +1160,7 @@ class TaxonName < ApplicationRecord
       end
 
       old_rank_group = rank_class_was.safe_constantize.parent
-      if rank_class.parent != old_rank_group
+      if type == 'Protonym' && rank_class.parent != old_rank_group
         errors.add(:rank_class, "A new taxon rank (#{rank_name}) should be in the #{old_rank_group.rank_name} rank group")
       end
     end
@@ -1195,10 +1215,10 @@ class TaxonName < ApplicationRecord
     soft_validations.add(:base, 'Original publication is not selected') if self.source.nil?
     soft_validations.add(:verbatim_author, 'Author is missing',
                          fix: :sv_fix_missing_author,
-                         success_message: 'Author was updated') if self.author_string.nil?
+                         success_message: 'Author was updated') if self.author_string.nil? && self.type != 'Combination'
     soft_validations.add(:year_of_publication, 'Year is missing',
                          fix: :sv_fix_missing_year,
-                         success_message: 'Year was updated') if self.year_integer.nil?
+                         success_message: 'Year was updated') if self.year_integer.nil? && self.type != 'Combination'
   end
 
   def sv_fix_missing_author
@@ -1246,7 +1266,7 @@ class TaxonName < ApplicationRecord
     else # TODO: This seems like a different validation, split with above?
       classifications = self.taxon_name_classifications.reload
       classification_names = classifications.map { |i| i.type_name }
-      compare              = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID & classification_names
+      compare = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID & classification_names
       unless compare.empty?
 
         unless Protonym.with_parent_taxon_name(self).without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?

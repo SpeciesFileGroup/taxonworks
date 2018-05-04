@@ -48,6 +48,14 @@ module TaxonWorks
         #   a memoized result of the matching TW protonyms per rank
         attr_reader :protonym_result
 
+        # @return [Combination]
+        #   a memoized result of disambiguated_combination
+        attr_reader :disambiguated_combination
+
+        # @return [Combination]
+        #   a memoized combiantion with only unambiguous elements 
+        attr_reader :combination
+
         # query_string:
         #
         # mode:
@@ -65,6 +73,9 @@ module TaxonWorks
         # @return [@parse_result]
         #   a Biodiversity name parser result
         def parse
+          @combination = nil
+          @disambiguated_combination = nil
+
           n, @citation = preparse
 
           begin
@@ -143,6 +154,12 @@ module TaxonWorks
           nil 
         end
 
+        # @return [Integer]
+        #   the total monomials in the epithet
+        def name_count 
+          detail.keys.count
+        end
+
         # @return [Symbol, nil] like `:genus`
         def finest_rank
           RANK_MAP.keys.reverse.each do |k|
@@ -216,6 +233,7 @@ module TaxonWorks
 
         # @return [Array]
         #   the ranks, as symbols, at which there are multiple (>1) Protonym matches
+        #   !! subtly different than unambiguous_at, probably should use that?!
         def ambiguous_ranks
           a = [ ]
           protonym_result.each do |k, v|
@@ -230,7 +248,7 @@ module TaxonWorks
         #      a) there is an *ambiguous* result at the rank AND
         #      b) there is a Protonym with the id provided in the ambiguous result
         #   If a and b are both true then the combination once ambiguous result is set to the id provided in targeted_protonym_ids
-        def disambiguated_combination(target_protonym_ids = {})
+        def disambiguate_combination(target_protonym_ids = {})
           return nil unless target_protonym_ids.any?
           c = combination
           b = ambiguous_ranks
@@ -240,7 +258,7 @@ module TaxonWorks
               c.send("#{rank}_id=", id) if protonym_result[rank].map(&:id).include?(id)
             end
           end
-          c
+          @disambiguated_combination = c
         end
 
         # @return [ String, false ]
@@ -346,6 +364,10 @@ module TaxonWorks
         # @return [Combination]
         #   ranks that are unambiguous have their Protonym set
         def combination
+          @combination ||= set_combination
+        end
+
+        def set_combination
           c = Combination.new
           RANK_MAP.each_key do |r|
             c.send("#{r}=", unambiguous_at?(r))
@@ -404,7 +426,6 @@ module TaxonWorks
 
           h
         end
-
 
       end
     end

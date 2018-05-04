@@ -7,7 +7,6 @@ module BatchLoad
     attr_accessor :ce_namespace
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(ce_namespace: nil, **args)
       @collecting_events = {}
       @ce_namespace      = ce_namespace

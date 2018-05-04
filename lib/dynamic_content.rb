@@ -6,7 +6,6 @@ class DynamicContent
   attr_accessor :otu
 
   # @param [Hash] args
-  # @return [Ignored]
   def initialize(otu: nil, keywords: nil)
     @otu = otu
     # return false if otu.nil?

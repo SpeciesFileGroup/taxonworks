@@ -574,7 +574,7 @@ namespace :tw do
                   @data.people[author] = a
                 end
               end
-              sa = SourceAuthor.create(person_id: a, role_object: source, position: i + 1) unless a.nil?
+              sa = SourceAuthor.create!(person_id: a, role_object: source, position: i + 1) unless a.nil?
             end
             source.save!
             source.project_sources.create!
@@ -718,6 +718,7 @@ namespace :tw do
             #parent = row['Parent'].blank? ? @root : Protonym.with_identifier('3i_Taxon_ID ' + row['Parent']).find_by(project_id: $project_id)
             parent = row['Parent'].blank? ? @root : @data.incertae_sedis[row['Parent']] ? TaxonName.find(@data.incertae_sedis[row['Parent']]) : find_taxon_3i(row['Parent'])
 
+            byebug if parent.nil?
             if row['Rank'] == '0'
               rank = parent.rank_class
               if rank.parent.to_s == 'NomenclaturalRank::Iczn::FamilyGroup'
@@ -881,6 +882,7 @@ namespace :tw do
           taxon = find_taxon_3i(row['Key'])
           if !taxon.nil? ### original combinations, synonyms, types
             taxon.original_genus = find_taxon_3i(row['OrigGen']) unless row['OrigGen'].blank?
+            taxon.original_subgenus = find_taxon_3i(row['OrigSubGen']) unless row['OrigSubGen'].blank?
             taxon.original_species = find_taxon_3i(row['OriginalSpecies']) unless row['OriginalSpecies'].blank?
             taxon.original_subspecies = find_taxon_3i(row['OriginalSubSpecies']) unless row['OriginalSubSpecies'].blank?
             taxon.original_variety = taxon if row['Name'].include?(' var. ')
@@ -1004,10 +1006,15 @@ namespace :tw do
               end
               #
             elsif taxon.rank_string =~ /Family/
-              c.family = taxon
+              c = Protonym.new(origin_citation_attributes: {source_id: source, pages: row['Page']}, verbatim_author: row['Author'], year_of_publication: row['Year'])
+              tnr = c.taxon_name_relationships.new(object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm')
+              c.name = taxon.name
+              c.rank_class = taxon.rank_class
+              #c.family = taxon
               c.verbatim_name = row['Name'].to_s
-              #tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm')
-              #byebug unless tnr.valid?
+              c.parent_id = taxon.parent_id
+              c.save
+              byebug if c.id.nil?
             end
             c.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['YearRem'].id, value: row['YearRem']) unless row['YearRem'].blank?
 
@@ -1019,7 +1026,7 @@ namespace :tw do
 
 
             begin
-              if !i3_combination.blank? && i3_combination != c.cached
+              if c.type == 'Combination' && !i3_combination.blank? && i3_combination != c.cached
                 #c.data_attributes.create(type: 'ImportAttribute', import_predicate: 'combination_in_3i', value: i3_combination)
                 #c.data_attributes.create(type: 'ImportAttribute', import_predicate: 'name_in_3i', value: row['Name'])
                 c.verbatim_name = i3_combination if c.verbatim_name.blank?
@@ -1041,13 +1048,13 @@ namespace :tw do
             else
               taxonid = taxon.id
             end
-            taxon.verbatim_name = row['Name'].split(' ').last
             taxon.original_species_relationship.destroy unless taxon.original_species_relationship.blank?
             taxon.original_subspecies_relationship.destroy unless taxon.original_subspecies_relationship.blank?
             taxon.original_variety_relationship.destroy unless taxon.original_variety_relationship.blank?
             taxon.original_form_relationship.destroy unless taxon.original_form_relationship.blank?
 
             taxon = TaxonName.find(taxonid) ## Do not delete this line
+            taxon.verbatim_name = row['Name'].split(' ').last
             taxon.original_species = find_taxon_3i(row['OriginalSpecies']) unless row['OriginalSpecies'].blank?
             taxon.original_subspecies = find_taxon_3i(row['OrigOriginalSubSpecies']) unless row['OriginalSubSpecies'].blank?
             taxon.original_variety = taxon if row['Name'].include?(' var. ')

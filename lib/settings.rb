@@ -59,7 +59,6 @@ module Settings
   # @param [Hash] config
   # @param [String] path
   # @param [Symbol] set_name
-  # @return [Ignored]
   def self.load_from_file(config, path, set_name)
     hash = YAML.load_file(path)
     if hash.keys.include?(set_name.to_s)
@@ -72,7 +71,6 @@ module Settings
 
   # @param [Hash] config
   # @param [Symbol] set_name
-  # @return [Ignored]
   def self.load_from_settings_file(config, set_name)
     self.load_from_file(config, 'config/application_settings.yml', set_name) if File.exist?('config/application_settings.yml')
   end
@@ -113,7 +111,6 @@ module Settings
   end
 
   # @param [String] path
-  # @return [Ignored]
   def self.setup_directory(path)
     if !Dir.exists?(path)
       # TODO: use/open a logger
@@ -147,7 +144,6 @@ module Settings
 
   # @param [Hash] config
   # @param [Hash] settings
-  # @return [Ignored]
   def self.load_exception_notification(config, settings)
     if settings
       config.middleware.use ExceptionNotification::Rack, email: process_exception_notification(settings)
@@ -171,7 +167,6 @@ module Settings
   end
 
   # @param [Hash] settings
-  # @return [Ignored]
   def self.load_interface(settings)
     if settings
       invalid = settings.keys - [:sandbox_mode]

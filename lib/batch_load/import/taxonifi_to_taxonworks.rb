@@ -22,7 +22,6 @@ module BatchLoad
     attr_accessor :project_id
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(nomenclature_code: nil, parent_taxon_name_id: nil, also_create_otu: false, **args)
       @nomenclature_code    = nomenclature_code
       @also_create_otu      = also_create_otu
@@ -64,7 +63,6 @@ module BatchLoad
 
     protected
 
-    # @return [Ignored]
     def build_name_collection
       begin
         @name_collection ||= ::Taxonifi::Lumper.create_name_collection(csv: csv)

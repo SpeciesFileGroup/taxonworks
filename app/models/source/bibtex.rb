@@ -554,7 +554,7 @@ class Source::Bibtex < Source
           end
         end
 
-        if !bibtex.editors.blank?
+        unless bibtex.editors.blank?
           bibtex.editors.each do |a|
             p = Source::Bibtex.bibtex_author_to_person(a)
             p.save!
@@ -761,16 +761,16 @@ class Source::Bibtex < Source
   #   last names formatted as displayed in nomenclatural authority (iczn), prioritizes
   #   normalized people records before bibtex author string
   def authority_name
-    if authors.count == 0 # no normalized people, use string, !! not .any? because of in-memory setting?!
+    if !authors.reload.any? # no normalized people, use string, !! not .any? because of in-memory setting?!
       if author.blank?
-        return nil
+       return nil
       else
         b = to_bibtex
         b.parse_names
         return Utilities::Strings.authorship_sentence( b.author.tokens.collect{|t| t.last} )
       end
     else # use normalized records
-      return Utilities::Strings.authorship_sentence( authors.collect{|a| a.full_last_name} )
+      return Utilities::Strings.authorship_sentence( authors.reload.collect{|a| a.full_last_name} )
     end
   end
 

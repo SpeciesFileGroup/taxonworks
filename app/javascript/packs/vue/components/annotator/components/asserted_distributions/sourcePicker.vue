@@ -6,6 +6,7 @@
         url="/sources/autocomplete"
         label="label"
         min="2"
+        ref="autocomplete"
         :send-label="autocompleteLabel"
         @getItem="citation.source_id = $event.id"
         placeholder="Select a source"
@@ -47,6 +48,12 @@
       DefaultElement,
       Autocomplete
     },
+    props: {
+      display: {
+        type: String,
+        default: ''
+      }
+    },
     computed: {
       validateFields() {
         return this.citation.source_id
@@ -64,6 +71,9 @@
           this.sendCitation()
         },
         deep: true
+      },
+      display(newVal) {
+        this.autocompleteLabel = newVal
       }
     },
     methods: {
@@ -78,6 +88,9 @@
         if(this.validateFields) {
           this.$emit('create', this.citation);
         }
+      },
+      cleanInput() {
+        this.$refs.autocomplete.cleanInput()
       },
       cleanCitation() {
         this.autocompleteLabel = undefined

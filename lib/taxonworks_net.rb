@@ -20,7 +20,6 @@ module TaxonworksNet
     end
   end
 
-  # @return [Ignored]
   def self.commit_sha
     file = Rails.root + 'REVISION'
     if File.exists?(file)

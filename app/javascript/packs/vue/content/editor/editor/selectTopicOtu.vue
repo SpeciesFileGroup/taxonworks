@@ -91,6 +91,7 @@
         this.$store.commit(MutationNames.OpenOtuPanel, true)
       },
       closeModal: function () {
+        this.closeAll()
         if (this.otu && this.topic) {
           this.showModal = false
         }
