@@ -1,5 +1,7 @@
 class ProjectMembersController < ApplicationController
-  before_action :require_superuser_sign_in
+
+  before_action :require_superuser_sign_in, except: [:update_clipboard]
+  before_action :require_sign_in_and_project_selection, only: [:update_clipboard]
 
   before_action :set_project_member, only: [:edit, :update, :destroy]
   before_action :set_member_project, only: [:many_new, :new, :create_many]
@@ -64,6 +66,16 @@ class ProjectMembersController < ApplicationController
         format.html { render :edit }
         format.json { render json: @project_member.errors, status: :unprocessable_entity }
       end
+    end
+  end
+
+  # PATCH /project_members/1/update_clipboard.json
+  def update_clipboard
+    @project_member = sessions_current_user.project_members.where(project_id: sessions_current_project_id)  
+    if @project_member.update( params.require(:project_member).permit(:clipboard) )
+      render :show, status: :ok, location: @project_member 
+    else
+      render json: @project_member.errors, status: :unprocessable_entity 
     end
   end
 

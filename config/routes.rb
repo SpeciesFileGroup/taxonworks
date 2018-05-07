@@ -68,6 +68,9 @@ TaxonWorks::Application.routes.draw do
       get :many_new
       post :create_many
     end
+    member do
+      put :update_clipboard, defaults: {format: :json}
+    end
   end
 
   resources :pinboard_items, only: [:create, :destroy, :update] do
@@ -76,7 +79,6 @@ TaxonWorks::Application.routes.draw do
       post 'update_type_position'
     end
   end
-
 
   ### Data routes
 

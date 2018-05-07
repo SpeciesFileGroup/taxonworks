@@ -31,6 +31,15 @@ describe ProjectMember, type: :model do
     end
   end
 
+  context '#clipboard' do
+    before { project_member.clipboard = {'1' => 'foo', '2' => 'bar', '5' => 'stuff'} }
+
+    specify 'slots 1' do
+      expect(project_member.clipboard['1']).to eq('foo')
+    end
+
+  end
+
   context 'concerns' do
     it_behaves_like 'is_data'
   end
