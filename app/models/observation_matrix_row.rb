@@ -48,7 +48,7 @@ class ObservationMatrixRow < ApplicationRecord
   end
 
   def previous_row
-    observation_matrix.observation_matrix_rows.where("position < ?", position).order(:position).first 
+    observation_matrix.observation_matrix_rows.where("position < ?", position).order('position DESC').first 
   end
 
   private
