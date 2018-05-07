@@ -1,19 +1,19 @@
 <template>
   <div>
-    <smart-selector 
-      :options="tabs"
-      name="annotation"
-      :add-option="['all']"
-      v-model="view"/>
+    <smart-selector
+        :options="tabs"
+        name="annotation"
+        :add-option="['all']"
+        v-model="view"/>
     <button
-      v-if="view"
-      v-for="item in list[view]"
-      :key="item.id"
-      type="button"
-      :class="{ ' button-submit': (selectedList.hasOwnProperty(item.id))}"
-      class="button normal-input button-default biocuration-toggle-button"
-      @click="selectFor(item)"
-      v-html="item.name"/>
+        v-if="view"
+        v-for="item in list[view]"
+        :key="item.id"
+        type="button"
+        :class="{ ' button-submit': (selectedList.hasOwnProperty(item.id))}"
+        class="button normal-input button-default biocuration-toggle-button"
+        @click="selectFor(item)"
+        v-html="item.name"/>
   </div>
 </template>
 
@@ -40,7 +40,7 @@
     },
     watch: {
       onModel(newVal) {
-        if(this.selectOptionsUrl)
+        if (this.selectOptionsUrl)
           this.getSelectOptions(newVal)
       }
     },
@@ -55,7 +55,7 @@
     },
     methods: {
       selectFor(item) {
-        if(this.selectedList.hasOwnProperty(item.id)) {
+        if (this.selectedList.hasOwnProperty(item.id)) {
           this.$delete(this.selectedList, item.id)
         }
         else {
@@ -64,17 +64,17 @@
         this.$emit('input', this.selectedList);
       },
       getSelectOptions(onModel) {
-        this.$http.get(this.selectOptionsUrl, { params: { klass: this.onModel } }).then( response => {
+        this.$http.get(this.selectOptionsUrl, {params: {klass: this.onModel}}).then(response => {
           this.tabs = Object.keys(response.body);
           console.log(Object.keys(response.body));
           this.list = response.body;
           console.log(response.body);
-        this.$http.get(this.allSelectOptionUrl).then( response => {
-          this.list['all'] = response.body;
-          console.log(response.body);
-        })
+          this.$http.get(this.allSelectOptionUrl).then(response => {
+            this.list['all'] = response.body;
+            console.log(response.body);
+          })
         })
       }
-     }
+    }
   }
 </script>
