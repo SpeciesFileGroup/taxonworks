@@ -1,7 +1,7 @@
 
 
 <%= content_for :tasks do -%>
-  <%= content_tag(:li, link_to('Edit (task)', new_matrix_task_task_url(@observation_matrix), data: {turbolinks: false} )) %>
+  <%= content_tag(:li, link_to('Edit (task)', new_matrix_task_url(@observation_matrix), data: {turbolinks: false} )) %>
 <% end %>
 
 <%= content_for :associated do -%>
