@@ -40,7 +40,7 @@
       return {
         typesList: {},
         result: undefined,
-          selected: {}
+        selected: {}
       }
     },
     mounted: function () {
