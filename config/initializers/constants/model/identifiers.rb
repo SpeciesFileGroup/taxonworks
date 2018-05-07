@@ -1,7 +1,7 @@
 # Be sure to restart your server (or console) when you modify this file.
 #
 # Only initialize if the table exists (migrations are done)
-if ApplicationRecord.connection.table_exists? 'identifiers'
+if ActiveRecord::Base.connected? && ApplicationRecord.connection.table_exists?('identifiers')
 
   Dir[Rails.root.to_s + '/app/models/identifier/**/*.rb'].sort.each{
     |file| require_dependency file } 
