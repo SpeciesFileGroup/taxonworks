@@ -99,7 +99,6 @@ export default {
     },
 
     url: {
-      type: String,
       required: true
     },
 

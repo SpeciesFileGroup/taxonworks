@@ -6,76 +6,136 @@ TW.views.tasks.nomenclature.browse = TW.views.tasks.nomenclature.browse || {};
 
 Object.assign(TW.views.tasks.nomenclature.browse, {
 
-	init: function() {
-		var soft_validations = undefined;
-		function fillSoftValidation() {
-			if(soft_validations == undefined) {
-				if ($('[data-global-id]').length) {
-					soft_validations = {};
-					$('[data-filter=".soft_validation_anchor"]').mx_spinner('show');
-					$('[data-global-id]').each(function() {
-						var 
-							that = this;
-						$.ajax({
-							url: "/soft_validations/validate?global_id=" + $(this).attr("data-global-id"),
-							dataType: "json",
-						}).done(function(response) {
-							if(response.validations.soft_validations.length) {
-								if(!soft_validations.hasOwnProperty($(that).attr('id'))) {
-							  		Object.defineProperty(soft_validations, $(that).attr('id'), { value: response.validations.soft_validations });
-							  	}
-							}
-							else {
-							  	$(that).remove();
-							}
-						});
-					});
-				}
-			}
-		}
+  init: function () {
+    var soft_validations = undefined;
+    function fillSoftValidation() {
+      if (soft_validations == undefined) {
+        if ($('[data-global-id]').length) {
+          soft_validations = {};
+          $('[data-filter=".soft_validation_anchor"]').mx_spinner('show');
+          $('[data-global-id]').each(function () {
+            var
+              that = this;
+            $.ajax({
+              url: "/soft_validations/validate?global_id=" + $(this).attr("data-global-id"),
+              dataType: "json",
+            }).done(function (response) {
+              if (response.validations.soft_validations.length) {
+                if (!soft_validations.hasOwnProperty($(that).attr('id'))) {
+                  Object.defineProperty(soft_validations, $(that).attr('id'), { value: response.validations.soft_validations });
+                }
+              }
+              else {
+                $(that).remove();
+              }
+            });
+          });
+        }
+      }
+    }
 
-		TW.workbench.keyboard.createShortcut((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + "+t","Edit taxon name", "Browse nomenclature", function() {
-			window.location.replace($('[data-task="new_taxon_name"]').attr('href'));
-		});
+    TW.workbench.keyboard.createShortcut((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + "+t", "Edit taxon name", "Browse nomenclature", function () {
+      window.location.replace($('[data-task="new_taxon_name"]').attr('href'));
+    });
 
-		$('.filter .open').on('click', function() {
-			$(this).css('transform', 'rotate(' + ($(this).rotationInfo().deg + 180) + 'deg)');
-			if($(this).rotationInfo().deg == 360) { 
-				$(this).css('transform', 'rotate(1deg)');
-			}
-		});
+    $('.filter .open').on('click', function () {
+      $(this).css('transform', 'rotate(' + ($(this).rotationInfo().deg + 180) + 'deg)');
+      if ($(this).rotationInfo().deg == 360) {
+        $(this).css('transform', 'rotate(1deg)');
+      }
+    });
 
     // TODO: move to an external generic utilities helper
-		function isActive(tag, className) {
-			if($(tag).hasClass(className)) {
-				$(tag).removeClass(className);
-				return true;
-			}
-			else {
-				$(tag).addClass(className);
-				return false;
-			}
-		}
+    function isActive(tag, className) {
+      if ($(tag).hasClass(className)) {
+        $(tag).removeClass(className);
+        return true;
+      }
+      else {
+        $(tag).addClass(className);
+        return false;
+      }
+    }
 
-		$('[data-history-valid-name="true"]').each(function() {
-			if(!$(this).has('[data-icon="ok"]').length) {
-				$(this).prepend('<span data-icon="ok"></span>');
-			}
-		})
-		$('[data-history-origin]').each(function() {
-			var type = $(this).attr("data-history-origin");
-			$(this).prepend('<span class="history__origin ' + type + '">' + type + '</span>');
-		})
+    function checkStates(element) {
+      var filters = JSON.parse($(element).attr('data-hidden'))
+      if (!filters.length) {
+        $(element).show(255);
+      }
+      else {
+        $(element).hide(255);
+      }
+    }
 
-		$('[data-global-id]').on('click', function() {
-			var list = '';
-			if(soft_validations.hasOwnProperty($(this).attr('id'))) {
+    function elementFilter(type, hide) {
+      $(type).each(function () {
+        if (hide) {
+          addHiddenData($(this), type);
+        }
+        else {
+          removeHiddenData($(this), type);
+        }
+        checkStates($(this))
+      })
+    }
 
-				soft_validations[$(this).attr('id')].forEach(function(item) {
-					list += '<li class="list">' + item.message + '</li>';
-				});
+    function retrieveElementFilters(element) {
+      var attributes = $(element).attr('data-hidden');
+      if (attributes) {
+        attributes = JSON.parse(attributes)
+      }
+      if (Array.isArray(attributes)) {
+        return attributes
+      }
+      else {
+        return []
+      }
+    }
 
-				$('#browse-view').append(' \
+    function getFilterPosition(list, type) {
+      return list.findIndex(function (item) {
+        return item == type
+      })
+    }
+
+    function addHiddenData(element, type) {
+      var attributes = retrieveElementFilters($(element));
+
+      if (getFilterPosition(attributes, type) < 0) {
+        attributes.push(type)
+        $(element).attr('data-hidden', JSON.stringify(attributes))
+      }
+    }
+
+    function removeHiddenData(element, type) {
+      var attributes = retrieveElementFilters($(element));
+      var position = getFilterPosition(attributes, type)
+
+      if (position > -1) {
+        attributes.splice(position, 1);
+        $(element).attr('data-hidden', JSON.stringify(attributes))
+      }
+    }
+
+    $('[data-history-valid-name="true"]').each(function () {
+      if (!$(this).has('[data-icon="ok"]').length) {
+        $(this).prepend('<span data-icon="ok"></span>');
+      }
+    })
+    $('[data-history-origin]').each(function () {
+      var type = $(this).attr("data-history-origin");
+      $(this).prepend('<span class="history__origin ' + type + '">' + type + '</span>');
+    })
+
+    $('[data-global-id]').on('click', function () {
+      var list = '';
+      if (soft_validations.hasOwnProperty($(this).attr('id'))) {
+
+        soft_validations[$(this).attr('id')].forEach(function (item) {
+          list += '<li class="list">' + item.message + '</li>';
+        });
+
+        $('#browse-view').append(' \
 				<div class="modal-mask"> \
 			      <div class="modal-wrapper"> \
 			        <div class="modal-container"> \
@@ -93,80 +153,84 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 			        </div>\
 			      </div> \
 			    </div>');
-			}
-		});
+      }
+    });
 
-		$(document).ajaxStop(function() {
-		   $('[data-filter=".soft_validation_anchor"]').mx_spinner('hide');
-		});
-		
-		$(document).on('click', '.modal-close', function() {
-			$('.modal-mask').remove();
-		});		
+    $(document).ajaxStop(function () {
+      $('[data-filter=".soft_validation_anchor"]').mx_spinner('hide');
+    });
 
-		$.fn.rotationInfo = function() {
-		    var el = $(this),
-		        tr = el.css("-webkit-transform") || el.css("-moz-transform") || el.css("-ms-transform") || el.css("-o-transform") || '',
-		        info = {rad: 0, deg: 0};
-		    if (tr = tr.match('matrix\\((.*)\\)')) {
-		        tr = tr[1].split(',');
-		        if(typeof tr[0] != 'undefined' && typeof tr[1] != 'undefined') {
-		            info.rad = Math.atan2(tr[1], tr[0]);
-		            info.deg = parseFloat((info.rad * 180 / Math.PI).toFixed(1));
-		        }
-		    }
-		    return info;
-		};
-		
-		$('#filterBrowse_button').on('click', function() {
-			$('[data-filter-slide]').slideToggle(250);
-		});
+    $(document).on('click', '.modal-close', function () {
+      $('.modal-mask').remove();
+    });
 
-		$('#filterBrowse').on('click', '[data-filter=".soft_validation_anchor"]', function(selector) {
-			fillSoftValidation();
-		});
+    $.fn.rotationInfo = function () {
+      var el = $(this),
+        tr = el.css("-webkit-transform") || el.css("-moz-transform") || el.css("-ms-transform") || el.css("-o-transform") || '',
+        info = { rad: 0, deg: 0 };
+      if (tr = tr.match('matrix\\((.*)\\)')) {
+        tr = tr[1].split(',');
+        if (typeof tr[0] != 'undefined' && typeof tr[1] != 'undefined') {
+          info.rad = Math.atan2(tr[1], tr[0]);
+          info.deg = parseFloat((info.rad * 180 / Math.PI).toFixed(1));
+        }
+      }
+      return info;
+    };
 
-		$('#filterBrowse').on('click', '.navigation-item', function(selector) {
+    $('#filterBrowse_button').on('click', function () {
+      $('[data-filter-slide]').slideToggle(250);
+    });
 
-			if($(this).attr('data-filter-reset') === 'reset') {
-				fillSoftValidation();
-				$('[data-filter], [data-filter-font], [data-filter-row]').each( function(element) {
-					if($(this).hasClass("active")) {
-						isActive($(this),'active');
-					}
-					$($(this).attr('data-filter-font')).animate({
-	            		fontSize: '100%'
-	        		});
-	        		$($(this).attr('data-filter-row')).parents('.history__record').show(255);
-	        		$($(this).attr('data-filter')).show(255);
-					$($(this).children()).attr('data-icon', 'show');
-				});
-			}
-			else {
-				isActive($(this),'active');
-				if($(this).children().attr('data-icon') == "show") {
-					$($(this).children()).attr('data-icon', 'hide');
-					$($(this).attr('data-filter-font')).animate({
-	            		fontSize: '0px'
-	        		});
-					$($(this).attr('data-filter-row')).hide(255);
-					$($(this).attr('data-filter')).hide(255);
-				}
-				else {
-					$($(this).children()).attr('data-icon', 'show');
-					$($(this).attr('data-filter-font')).animate({
-	            	fontSize: '100%'
-	        		});
-	        		$($(this).attr('data-filter-row')).show(255);		
-	        		$($(this).attr('data-filter')).show(255);
-				}
-			}
-		});
-	}
+    $('#filterBrowse').on('click', '[data-filter=".soft_validation_anchor"]', function (selector) {
+      fillSoftValidation();
+    });
+
+    $('#filterBrowse').on('click', '.navigation-item', function (selector) {
+
+      if ($(this).attr('data-filter-reset') === 'reset') {
+        fillSoftValidation();
+        $('[data-filter], [data-filter-font], [data-filter-row]').each(function (element) {
+          if ($(this).hasClass("active")) {
+            isActive($(this), 'active');
+          }
+          $($(this).attr('data-filter-font')).animate({
+            fontSize: '100%'
+          });
+          $($(this).attr('data-filter-row')).removeAttr('data-hidden');
+          $($(this).attr('data-filter-row')).show(255);
+          $($(this).attr('data-filter-row')).parents('.history__record').show(255);
+          $($(this).attr('data-filter')).show(255);
+          $($(this).children()).attr('data-icon', 'show');
+        });
+      }
+      else {
+        isActive($(this), 'active');
+        if ($(this).children().attr('data-icon') == "show") {
+          $($(this).children()).attr('data-icon', 'hide');
+          $($(this).attr('data-filter-font')).animate({
+            fontSize: '0px'
+          });
+
+          elementFilter($(this).attr('data-filter-row'), true)
+          $($(this).attr('data-filter')).hide(255);
+        }
+        else {
+          $($(this).children()).attr('data-icon', 'show');
+          $($(this).attr('data-filter-font')).animate({
+            fontSize: '100%'
+          });
+
+          elementFilter($(this).attr('data-filter-row'), false)
+          $($(this).attr('data-filter')).show(255);
+        }
+      }
+    });
+  }
 });
 
-$(document).on('turbolinks:load', function() {
-  if($("#browse-view").length) {
+$(document).on('turbolinks:load', function () {
+  if ($("#browse-view").length) {
     TW.views.tasks.nomenclature.browse.init();
   }
 });

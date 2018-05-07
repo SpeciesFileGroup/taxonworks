@@ -19,6 +19,7 @@ export const MutationNames = {
   SetSampleMinFor: `setSampleMinFor`,
   SetSampleNFor: `setSampleNFor`,
   SetSampleUnitFor: `setSampleUnitFor`,
+  SetMatrixRow: `setMatrixRow`,
   ClearObservation: 'clearObservation',
   ObservationSaved: `observationSaved`,
   CountdownStartedFor: `countdownStartedFor`,
@@ -53,6 +54,7 @@ import countdownStartedFor from './countdownStartedFor'
 import setDescriptorSaving from './setDescriptorSaving'
 import setDescriptorSavedOnce from './setDescriptorSavedOnce'
 import setObservationId from './setObservationId'
+import setMatrixRow from './setMatrixRow'
 
 export const MutationFunctions = {
   [MutationNames.SetDescriptors]: setDescriptors,
@@ -80,5 +82,6 @@ export const MutationFunctions = {
   [MutationNames.CountdownStartedFor]: countdownStartedFor,
   [MutationNames.SetDescriptorSaving]: setDescriptorSaving,
   [MutationNames.SetDescriptorSavedOnce]: setDescriptorSavedOnce,
-  [MutationNames.SetObservationId]: setObservationId
+  [MutationNames.SetObservationId]: setObservationId,
+  [MutationNames.SetMatrixRow]: setMatrixRow
 }

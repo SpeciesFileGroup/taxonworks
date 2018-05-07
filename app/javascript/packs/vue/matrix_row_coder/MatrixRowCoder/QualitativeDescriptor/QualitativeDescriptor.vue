@@ -2,7 +2,9 @@
   <div class="qualitative-descriptor">
     <summary-view :descriptor="descriptor">
       <ul>
-        <li v-for="characterState in descriptor.characterStates">
+        <li
+          class="horizontal-left-content"
+          v-for="characterState in descriptor.characterStates">
           <label>
             <input
               type="checkbox"
@@ -11,36 +13,10 @@
 
             {{ characterState.label }}: {{ characterState.name }}
           </label>
+          <radial-annotator :global-id="characterState.globalId"/>
         </li>
       </ul>
     </summary-view>
-
-    <zoomed-view :descriptor="descriptor">
-      <h2 class="qualitative-descriptor__descriptor-title">{{ descriptor.title }}</h2>
-      <div class="qualitative-descriptor__descriptor-details">
-        <descriptor-details :descriptor="descriptor"/>
-      </div>
-      <div class="qualitative-descriptor__character-state-list">
-        <div
-          class="qualitative-descriptor__character-state"
-          v-for="characterState in descriptor.characterStates">
-
-          <div class="qualitative-descriptor__character-state-details">
-            <label>
-              <input
-                type="checkbox"
-                :checked="isStateChecked(characterState.id)"
-                @change="updateStateChecked(characterState.id, $event)" >
-
-              {{ characterState.label }}: {{ characterState.name }}
-            </label>
-          </div>
-          <div class="qualitative-descriptor__observation-details">
-            <observation-details :observation="getCharacterStateObservation(characterState.id)"/>
-          </div>
-        </div>
-      </div>
-    </zoomed-view>
   </div>
 </template>
 
@@ -52,9 +28,8 @@ import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
 
 import summaryView from '../SummaryView/SummaryView.vue'
-import zoomedView from '../ZoomedView/ZoomedView.vue'
+import RadialAnnotator from '../../../components/annotator/annotator'
 
-import observationDetails from '../ObservationDetails/ObservationDetails.vue'
 import descriptorDetails from '../DescriptorDetails/DescriptorDetails.vue'
 
 export default {
@@ -105,9 +80,8 @@ export default {
   },
   components: {
     summaryView,
-    zoomedView,
-    observationDetails,
-    descriptorDetails
+    descriptorDetails,
+    RadialAnnotator
   }
 }
 </script>

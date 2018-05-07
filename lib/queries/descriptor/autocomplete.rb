@@ -1,5 +1,5 @@
 module Queries
-  class DescriptorAutocompleteQuery < Queries::Query
+  class Descriptor::Autocomplete < Queries::Query
     # @return [String]
     def where_sql
       with_project_id.and(or_clauses).to_sql
@@ -27,12 +27,12 @@ module Queries
 
     # @return [Scope]
     def all
-      Descriptor.where(where_sql)
+      ::Descriptor.where(where_sql)
     end
 
     # @return [Arel::Table]
     def table
-      Descriptor.arel_table
+      ::Descriptor.arel_table
     end
   end
 end

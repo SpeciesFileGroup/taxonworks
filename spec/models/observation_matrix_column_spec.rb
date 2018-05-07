@@ -23,7 +23,18 @@ RSpec.describe ObservationMatrixColumn, type: :model, group: :matrix do
       expect(mc.valid?).to be_falsey
       expect(mc.errors.include?(:descriptor_id)).to be_truthy 
     end
+  end
 
+  context '#sort' do
+    let!(:column1) { FactoryBot.create(:valid_observation_matrix_column, observation_matrix: observation_matrix) }
+    let!(:column2) { FactoryBot.create(:valid_observation_matrix_column, observation_matrix: observation_matrix) }
+    let!(:column3) { FactoryBot.create(:valid_observation_matrix_column, observation_matrix: observation_matrix) }
+
+    specify '#sort 1' do
+      ObservationMatrixColumn.sort([column2.id, column3.id, column1.id])
+      expect(column2.reload.position < column3.reload.position).to be_truthy
+      expect(column3.reload.position < column1.reload.position).to be_truthy
+    end
   end
 
 end
