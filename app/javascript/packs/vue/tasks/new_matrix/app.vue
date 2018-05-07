@@ -1,6 +1,12 @@
 <template>
   <div id="vue_new_matrix_task">
-    <h1>New matrix</h1>
+    <div class="flex-separate middle">
+      <h1>New matrix</h1>
+      <radial-annotator 
+        v-if="matrix.id"
+        type="annotations"
+        :global-id="matrix.global_id"/>
+    </div>
     <div class="flexbox horizontal-center-content align-start">
       <div class="cleft">
         <new-matrix/>
@@ -30,6 +36,7 @@ import NewMatrix from './components/newMatrix/newMatrix'
 import TablesComponent from './components/tables/view'
 import RowsFixed from './components/rows/fixed'
 import columnsFixed from './components/columns/fixed'
+import RadialAnnotator from '../../components/annotator/annotator'
 
 import rowsDynamic from './components/rows/dynamic'
 import columnDynamic from './components/columns/dynamic'
@@ -44,7 +51,8 @@ export default {
     rowsDynamic,
     TablesComponent,
     columnsFixed,
-    columnDynamic
+    columnDynamic,
+    RadialAnnotator
   },
   computed: {
     matrix() {

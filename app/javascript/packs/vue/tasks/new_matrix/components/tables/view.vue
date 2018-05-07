@@ -28,8 +28,8 @@
         :list="columnsListDynamic"
         :matrix-id="matrixId"
         :header="['Dynamic column', 'Options']"
-        :attributes="[['descriptor', 'object_tag']]"
-        :global-id-path="['descriptor', 'global_id']"
+        :attributes="['object_tag']"
+        :global-id-path="['global_id']"
         @delete="removeColumn"
         @order="updateColumnsOrder"/>
       <columns-table

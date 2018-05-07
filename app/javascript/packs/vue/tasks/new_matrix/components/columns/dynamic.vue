@@ -52,15 +52,15 @@ export default {
   },
   data() {
     return {
-      smartOptions: [],
-      moreOptions: ['tags', 'search'],
+      smartOptions: ['quick', 'recent', 'pinboard'],
+      moreOptions: ['search'],
       selectorLists: undefined,
       view: undefined
     }
   },
   mounted() {
     GetSmartSelector('keywords').then(response => {
-      this.smartOptions = Object.keys(response)
+      this.smartOptions = this.smartOptions.filter(value => Object.keys(response).includes(value))
       this.selectorLists = response
     })
   },

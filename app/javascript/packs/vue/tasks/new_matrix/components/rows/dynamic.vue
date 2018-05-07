@@ -49,7 +49,7 @@ export default {
   },
   data() {
     return {
-      smartOptions: [],
+      smartOptions: ['quick', 'recent', 'pinboard', 'tag'],
       moreOptions: ['search'],
       selectorLists: undefined,
       view: undefined
@@ -57,7 +57,7 @@ export default {
   },
   mounted() {
     GetSmartSelector('keywords').then(response => {
-      this.smartOptions = Object.keys(response)
+      this.smartOptions = this.smartOptions.filter(value => Object.keys(response).includes(value))
       this.selectorLists = response
     })
   },
