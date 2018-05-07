@@ -47,6 +47,15 @@ class BiologicalAssociation < ApplicationRecord
   attr_accessor :subject_global_id
   attr_accessor :object_global_id
 
+  def subject_class_name
+    biological_association_subject.try(:class).base_class.name
+  end
+
+  def object_class_name
+    biological_association_object.try(:class).base_class.name
+  end
+
+
   def subject_global_id=(value)
     o = GlobalID::Locator.locate(value)
     write_attribute(:biological_association_subject_id, o.id)

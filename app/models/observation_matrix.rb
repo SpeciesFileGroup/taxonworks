@@ -1,3 +1,5 @@
+# A view to a set of observations.
+# 
 class ObservationMatrix < ApplicationRecord
   include Housekeeping
   include Shared::Citations
@@ -8,16 +10,20 @@ class ObservationMatrix < ApplicationRecord
   include Shared::DataAttributes
 
   validates_presence_of :name
+  validates_uniqueness_of :name, scope: [:project_id]
 
-  has_many :observation_matrix_column_items, dependent: :destroy
-  has_many :observation_matrix_row_items, dependent: :destroy
+  has_many :observation_matrix_column_items, dependent: :destroy, inverse_of: :observation_matrix
+  has_many :observation_matrix_row_items, dependent: :destroy, inverse_of: :observation_matrix
 
-  has_many :observation_matrix_rows
-  has_many :observation_matrix_columns
+  # TODO: restrict this, you can not directly create these
+  has_many :observation_matrix_rows, inverse_of: :observation_matrix
+  has_many :observation_matrix_columns, inverse_of: :observation_matrix
 
-  has_many :otus, through: :observation_matrix_rows
-  has_many :collection_objects, through: :observation_matrix_rows
+  # TODO: restrict this- you can not directly create these!
+  has_many :otus, through: :observation_matrix_rows, inverse_of: :observation_matrices
+  has_many :collection_objects, through: :observation_matrix_rows, inverse_of: :observation_matrices
 
-  has_many :descriptors, through: :observation_matrix_columns
+  # TODO: restrict these- you can not directly create these!
+  has_many :descriptors, through: :observation_matrix_columns, inverse_of: :observation_matrices
 
 end

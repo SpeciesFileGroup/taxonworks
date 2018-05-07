@@ -276,7 +276,6 @@ class CollectingEvent < ApplicationRecord
   soft_validate(:sv_minimally_check_for_a_label)
 
   # @param [String]
-  # @return [Ignored]
   def verbatim_label=(value)
     write_attribute(:verbatim_label, value)
     write_attribute(:md5_of_verbatim_label, Utilities::Strings.generate_md5(value))
@@ -394,6 +393,7 @@ class CollectingEvent < ApplicationRecord
       sql_string = st_string + (allow_partial ? ' or ' : ' and ') + en_string + special_part
       sql_string
     end
+
     # rubocop:enable Metrics/MethodLength
 
     # @param [String] search_start_date string in form 'yyyy/mm/dd'
@@ -459,21 +459,8 @@ class CollectingEvent < ApplicationRecord
 
       collecting_events
     end
+
     # rubocop:enable Metrics/MethodLength
-
-    # @param [Scope]
-    # @return [CSV]
-    def generate_download(scope)
-      CSV.generate do |csv|
-        csv << column_names
-        scope.order(id: :asc).each do |o|
-          csv << o.attributes.values_at(*column_names).collect { |i|
-            i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-          }
-        end
-      end
-    end
-
     # @return [Boolean] always true
     #   A development method only. Attempts to create a verbatim georeference for every
     #   collecting event record that doesn't have one.
@@ -541,7 +528,8 @@ class CollectingEvent < ApplicationRecord
   # @param [Integer] project_id
   # @param [Boolean] include_values true if to include records whicgh already have verbatim lat/longs
   # @return [Scope] of matching collecting events
-  def similar_dates(lat, long, project_id, piece = '', include_values = true)
+  # TODO: try to figure out *why* this routine has lat/long/pieces as parameters
+  def similar_dates(_lat, _long, project_id, _piece = '', include_values = true)
     sql = '('
     sql += ')'
     sql += ' and (verbatim_date is null)' unless include_values
@@ -820,24 +808,25 @@ class CollectingEvent < ApplicationRecord
 
   def get_geographic_name_classification
     case geographic_name_classification_method
-      when :preferred_georeference
-        # quick
-        r = preferred_georeference.geographic_item.quick_geographic_name_hierarchy # almost never the case, UI not setup to do this
-        # slow
-        r = preferred_georeference.geographic_item.inferred_geographic_name_hierarchy if r == {} # therefor defaults to slow
-      when :geographic_area_with_shape # geographic_area.try(:has_shape?)
-        # quick
-        r = geographic_area.geographic_name_classification # do not round trip to the geographic_item, it just points back to the geographic area
-        # slow
-        r = geographic_area.default_geographic_item.inferred_geographic_name_hierarchy if r == {}
-      when :geographic_area # elsif geographic_area
-        # quick
-        r = geographic_area.geographic_name_classification
-      when :verbatim_map_center # elsif map_center
-        # slowest
-        r = GeographicItem.point_inferred_geographic_name_hierarchy(verbatim_map_center)
+    when :preferred_georeference
+      # quick
+      r = preferred_georeference.geographic_item.quick_geographic_name_hierarchy # almost never the case, UI not setup to do this
+      # slow
+      r = preferred_georeference.geographic_item.inferred_geographic_name_hierarchy if r == {} # therefor defaults to slow
+    when :geographic_area_with_shape # geographic_area.try(:has_shape?)
+      # quick
+      r = geographic_area.geographic_name_classification # do not round trip to the geographic_item, it just points back to the geographic area
+      # slow
+      r = geographic_area.default_geographic_item.inferred_geographic_name_hierarchy if r == {}
+    when :geographic_area # elsif geographic_area
+      # quick
+      r = geographic_area.geographic_name_classification
+    when :verbatim_map_center # elsif map_center
+      # slowest
+      r = GeographicItem.point_inferred_geographic_name_hierarchy(verbatim_map_center)
     end
     r ||= {}
+    r
   end
 
   def has_cached_geographic_names?
@@ -1022,12 +1011,12 @@ class CollectingEvent < ApplicationRecord
     }
 
     focus = case lat_long_source
-              when :georeference
-                preferred_georeference.geographic_item
-              when :geographic_area
-                geographic_area.geographic_area_map_focus
-              else
-                nil
+            when :georeference
+              preferred_georeference.geographic_item
+            when :geographic_area
+              geographic_area.geographic_area_map_focus
+            else
+              nil
             end
 
     parameters.merge!(
@@ -1085,6 +1074,7 @@ class CollectingEvent < ApplicationRecord
     end
     base
   end
+
   # rubocop:enable Style/StringHashKeys
 
   # @return [CollectingEvent]
@@ -1130,14 +1120,14 @@ class CollectingEvent < ApplicationRecord
   # @return [Rgeo::Geographic::ProjectedPointImpl, nil]
   def map_center
     case map_center_method
-      when :geographic_area
-        geographic_area.default_geographic_item.geo_object.centroid
-      when :verbatim_map_center
-        verbatim_map_center
-      when :preferred_georeference
-        preferred_georeference.geographic_item.centroid
-      else
-        nil
+    when :geographic_area
+      geographic_area.default_geographic_item.geo_object.centroid
+    when :verbatim_map_center
+      verbatim_map_center
+    when :preferred_georeference
+      preferred_georeference.geographic_item.centroid
+    else
+      nil
     end
   end
 

@@ -20,7 +20,6 @@ module NomenclatureCatalog
     attr_accessor :reference_taxon_name
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(taxon_name = nil)
       @items = []
       @reference_taxon_name = taxon_name

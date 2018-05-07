@@ -17,7 +17,6 @@ module Queries
     # end
     #
     # @param [Hash] params
-    # @return [Ignored]
     def initialize(params)
       params.reject! { |_k, v| v.blank? }
 

@@ -29,7 +29,6 @@ module Queries
       attr_accessor :exact
 
       # @param [Hash] args
-      # @return [Ignored]
       def initialize(string, project_id: nil, valid: nil, nomenclature_group: [], type: [], parent_id: [], exact: false)
         @nomenclature_group = nomenclature_group
         @valid = valid == 'true' ? true : (valid == 'false' ? false : nil)

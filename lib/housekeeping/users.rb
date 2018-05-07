@@ -66,7 +66,6 @@ module Housekeeping::Users
 
   protected
 
-  # @return [Ignored]
   def set_created_by_id
     self.created_by_id ||= $user_id
   end
@@ -75,7 +74,6 @@ module Housekeeping::Users
   # does not apply (?) It _may_ be called in an 'after_save' situation through some other model.
   # It may help to unwind the logic.
   # WRT .changed? vs .saved_changes? Deprecation warning
-  # @return [Ignored]
   def set_updated_by_id
     ActiveSupport::Deprecation.silence do
       if (self.changed? || self.new_record?) && !self.updated_by_id_changed? && self.by.blank?

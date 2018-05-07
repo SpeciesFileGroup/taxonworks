@@ -69,7 +69,7 @@ class Serial < ApplicationRecord
   # .to_a will return an array of serials - single succeeding chronology will be multiple serials if there is a split
 
   accepts_nested_attributes_for :alternate_values, reject_if: lambda { |av| av[:value].blank? },
-                                allow_destroy: true
+                                allow_destroy:                true
 
   # TODO handle translations (which are simultaneous)
 
@@ -106,13 +106,15 @@ class Serial < ApplicationRecord
   soft_validate(:sv_duplicate?)
 
   # Class methods
+  # @param [ActionController::Paramaters] params
+  # @return [Scope]
   def self.find_for_autocomplete(params)
-    t = params[:term]
+    t     = params[:term]
     limit = 10
     case t.length
-      when 0..3
-      else
-        limit = 20
+    when 0..3
+    else
+      limit = 20
     end
 
     where(['name LIKE ?', t.to_s]).order(:name).limit(limit)
@@ -124,6 +126,9 @@ class Serial < ApplicationRecord
   # Serials may also have a language note with Predicate 'Serial Language Note'
 
 
+  # @param [String] compared_string
+  # @param [String] column
+  # @param [Integer] limit
   # @return [Scope]
   #   Levenshtein calculated related records per supplied column
   def nearest_by_levenshtein(compared_string = nil, column = 'name', limit = 10)
@@ -134,22 +139,22 @@ class Serial < ApplicationRecord
                             ["levenshtein(Substring(serials.#{column} from 0 for 250), ?)",
                              compared_string[0..250]])
 
-    Serial.where('id <> ?', self.to_param).
-      order(order_str).
-      limit(limit)
+    Serial.where('id <> ?', self.to_param)
+      .order(order_str)
+      .limit(limit)
   end
 
   # @return [Boolean]
   #   is there another serial with the same name?  Also checkes alternate values.
   def duplicate?
-    ret_val = false
+    # ret_val = false
     if self.new_record?
       ret_val = Serial.exists?(name: self.name)
     else
       name_str = ActiveRecord::Base.send(:sanitize_sql_array, ['name = ? AND NOT (id = ?)',
                                                                Utilities::Strings.escape_single_quote(self.name),
                                                                self.id])
-      ret_val = Serial.where(name_str).to_a.size > 0
+      ret_val  = Serial.where(name_str).to_a.size > 0
     end
 
     if ret_val == false
@@ -169,6 +174,8 @@ class Serial < ApplicationRecord
   end
 =end
 
+  # @param [Serial] start_serial
+  # @return [Array]
   def all_previous(start_serial = self)
     # provides an array of all previous incarnations of me
 
@@ -182,6 +189,8 @@ class Serial < ApplicationRecord
     return out_array
   end
 
+  # @param [Serial] start_serial
+  # @return [Array]
   def all_succeeding(start_serial = self)
     # provides an array of all succeeding incarnations of me
     out_array = []
@@ -194,19 +203,9 @@ class Serial < ApplicationRecord
     return out_array
   end
 
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).find_each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
-  end
-
   protected
 
+  # @return [Boolean]
   def sv_duplicate?
     if self.duplicate?
       soft_validations.add(:name, 'There is another serial with this name in the database.')
@@ -214,6 +213,7 @@ class Serial < ApplicationRecord
     # TODO soft validation of name matching an alternate value for name of a different serial
   end
 
+  # @return [Nil]
   def match_alternate_value?
     #Select value from AlternateValue WHERE alternate_value_object_type = 'Serial'
     # AND alternate_value_object_attribute = 'name'

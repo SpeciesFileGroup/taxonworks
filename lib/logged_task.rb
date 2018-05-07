@@ -3,9 +3,9 @@ module LoggedTask
   @@task_number = 0
   @@root_task_number = nil
   @@loggers = []
+
 # @param [Array] args
 # @param [Block] block
-# @return [Ignored]
   def self.define(*args, &block)
     task_number = @@task_number += 1
 
@@ -40,7 +40,6 @@ module LoggedTask
   class TaskLogger
 
     # @param [String] task_full_name
-    # @return [Ignored]
     def initialize(task_full_name)
       names = task_full_name.split(':')
       task_name = names.pop
@@ -55,14 +54,12 @@ module LoggedTask
 
     # @param [String] msg
     # @param [Object] object
-    # @return [Ignored]
     def info(msg, object=nil)
       write("[INFO]#{time_str}: #{msg}", object)
     end
 
     # @param [String] msg
     # @param [Object] object
-    # @return [Ignored]
     def warn(msg, object=nil)
       msg = "[WARN]#{time_str}: #{msg}"
       @warns_and_errors << { msg: msg, color: Term::ANSIColor.yellow }
@@ -71,14 +68,12 @@ module LoggedTask
 
     # @param [String] msg
     # @param [Object] object
-    # @return [Ignored]
     def error(msg, object=nil)
       msg = "[ERROR]#{time_str}: #{msg}"
       @warns_and_errors << { msg: msg, color: Term::ANSIColor.red }
       write(msg, object, Term::ANSIColor.red)
     end
 
-    # @return [Ignored]
     def summary
       # TODO: Write all warnings and errors together
       write("=== Summary of warnings and errors for task #{@task_full_name} ===", nil)
@@ -100,7 +95,6 @@ module LoggedTask
     # @param [String] msg
     # @param [Object] object
     # @param [Term::ANSIColor] color
-    # @return [Ignored]
     def write(msg, object, color=nil)
       write_file(@log_file, msg, object, true)
       @log_file.fsync
@@ -114,7 +108,6 @@ module LoggedTask
     # @param [String] msg
     # @param [Object] object
     # @param [Boolean] plain
-    # @return [Ignored]
     def write_file(fd, msg, object, plain)
       fd.puts msg
       fd.puts object.ai(plain: plain) unless object.nil?

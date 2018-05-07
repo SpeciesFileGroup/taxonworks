@@ -5,14 +5,15 @@ import makeEmptyObservationsFor from '../helpers/makeEmptyObservationsFor'
 
 export default function ({commit, state}, args) {
   const {
-    matrixId,
+    rowId,
     otuId
   } = args
 
-  return state.request.getMatrixRow(matrixId, otuId)
+  return state.request.getMatrixRow(rowId, otuId)
     .then(response => {
       const descriptors = response.descriptors.map(transformDescriptorForViewmodel)
       commit(MutationNames.SetDescriptors, descriptors)
+      commit(MutationNames.SetMatrixRow, response)
 
       const emptyObservations = makeEmptyObservationsForDescriptors(descriptors)
       emptyObservations.forEach(o => commit(MutationNames.SetObservation, o))
@@ -21,10 +22,10 @@ export default function ({commit, state}, args) {
 
       function addOtuToState () {
         const {
-          id,
+          global_id,
           object_tag
-        } = response.otu
-        commit(MutationNames.SetTaxonId, id)
+        } = response.row_object
+        commit(MutationNames.SetTaxonId, global_id)
         commit(MutationNames.SetTaxonTitle, object_tag)
       }
     })
@@ -41,6 +42,7 @@ function makeBaseDescriptor (descriptorData) {
     id: descriptorData.id,
     componentName: getComponentNameForDescriptorType(descriptorData),
     title: descriptorData.object_tag,
+    globalId: descriptorData.global_id,
     description: getDescription(descriptorData),
     isZoomed: false,
     isUnsaved: false,
@@ -76,6 +78,7 @@ function transformCharacterStateForViewmodel (characterStateData) {
     id: characterStateData.id,
     name: characterStateData.name,
     label: characterStateData.label,
+    globalId: characterStateData.global_id,
     description: characterStateData.description || null
   }
 }

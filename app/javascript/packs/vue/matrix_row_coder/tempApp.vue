@@ -1,8 +1,43 @@
 <template>
-  <div class="content-menu">
-    <input type="number" placeholder="Matrix ID" v-model="initializeData.matrixId">
-    <input type="number" placeholder="Otu ID" v-model="initializeData.otuId">
-    <button type="button" @click="loadMatrix">Change</button>
+  <div>
+    <template v-if="matrixRow">
+      <h1>Matrix row coder</h1>
+      <span>Matrix: </span><b><span v-html="matrixRow.observation_matrix.object_tag"/></b>
+      <a :href="`/tasks/observation_matrices/new_matrix/${matrixRow.observation_matrix.id}`">
+        Edit observation matrix
+      </a>
+    </template>
+    <div class="content-menu">
+      <template v-if="!matrixRow">
+        <input
+          type="number"
+          placeholder="Observation matrix row ID"
+          v-model="initializeData.rowId">
+        <button
+          type="button"
+          class="button normal-input button-default"
+          :disabled="!initializeData.rowId"
+          @click="loadMatrix">Change
+        </button>
+      </template>
+      <template v-if="matrixRow">
+        <p>
+          Navigate adjacent rows:
+          <button
+            type="button"
+            class="button normal-input button-default"
+            v-if="matrixRow.hasOwnProperty('previous_row')"
+            @click="initializeData.rowId = matrixRow.previous_row.id; loadMatrix()"
+            v-html="matrixRow.previous_row.row_object.object_tag"/>
+          <button
+            type="button"
+            class="button normal-input button-default"
+            v-if="matrixRow.hasOwnProperty('next_row')"
+            @click="initializeData.rowId = matrixRow.next_row.id; loadMatrix()"
+            v-html="matrixRow.next_row.row_object.object_tag"/>
+        </p>
+      </template>
+    </div>
   </div>
 </template>
 <script>
@@ -16,30 +51,54 @@ export default {
   data: function () {
     return {
       initializeData: {
-				  matrixId: 2,
-				  otuId: 121574,
-				  apiBase: '',
-				  apiParams: {
-				    project_id: 1,
-				    token: ''
-				  }
-      }
+        rowId: undefined,
+        otuId: 121574,
+        apiBase: '',
+        apiParams: {
+          project_id: '',
+          token: ''
+        }
+      },
+      matrixRow: undefined
     }
   },
+  mounted() {
+    this.GetParams()
+  },
   methods: {
+    GetParams() {
+      let urlParams = new URLSearchParams(window.location.search)
+      let rowId = urlParams.get('observation_matrix_row_id')
+
+      if ((/^\d+$/).test(rowId)) {
+        this.initializeData.rowId = Number(rowId)
+        this.loadMatrix()
+      }
+    },
+    getMatrix() {
+      let request = new MatrixRowCoderRequest()
+      request.setApi({
+        apiBase: this.initializeData.apiBase,
+        apiParams: this.initializeData.apiParams
+      })
+      request.getMatrixRow(this.initializeData.rowId).then(response => {
+        this.matrixRow = response
+        console.log(response)
+      })
+    },
     loadMatrix () {
       var props = this.initializeData
       const store = newStore(new MatrixRowCoderRequest())
-
       new Vue({
-				    el: '#matrix_row_coder',
-				    store,
-				    render: function (createElement) {
-				        return createElement(MatrixRowCoder, {
-				            props
-				        })
-				    }
+        el: '#matrix_row_coder',
+        store,
+        render: function (createElement) {
+          return createElement(MatrixRowCoder, {
+            props
+          })
+        }
       })
+      this.getMatrix()
     }
   }
 }

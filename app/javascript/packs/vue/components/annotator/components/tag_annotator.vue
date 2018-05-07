@@ -5,7 +5,7 @@
       v-if="preferences">
       <template
       v-for="(item, index) in tabOptions">
-        <template v-if="item == 'new' || preferences[item].length && preferences[item].find(keyword => { return !tagAlreadyCreated(keyword) })">
+        <template v-if="item == 'new keyword' || preferences[item].length && preferences[item].find(keyword => { return !tagAlreadyCreated(keyword) })">
           <input
             v-model="view"
             :value="item"
@@ -25,7 +25,7 @@
     <modal
       class="transparent-modal"
       v-if="view == 'all'"
-      @close="view = 'new'">
+      @close="view = 'new keyword'">
       <h3 slot="header">Keywords</h3>
       <div slot="body">
         <template v-for="keyword in preferences[view]">
@@ -39,7 +39,7 @@
       </div>
     </modal>
 
-    <template v-if="preferences && view != 'new' && view != 'all'">
+    <template v-if="preferences && view != 'new keyword' && view != 'all'">
       <div class="field separate-bottom">
         <template v-for="keyword in preferences[view]">
           <button
@@ -51,7 +51,7 @@
       </div>
     </template>
 
-    <div class="separate-bottom" v-if="view == 'new'">
+    <div class="separate-bottom" v-if="view == 'new keyword'">
       <autocomplete
         url="/controlled_vocabulary_terms/autocomplete"
         label="label"
@@ -112,7 +112,7 @@ export default {
     return {
       preferences: undefined,
       view: 'quick',
-      tabOptions: ['quick', 'recent', 'pinboard', 'all', 'new'],
+      tabOptions: ['quick', 'recent', 'pinboard', 'all', 'new keyword'],
       tag: {
         keyword_attributes: {
           name: '',
@@ -178,6 +178,9 @@ export default {
 		.vue-autocomplete-input {
 			width: 100%;
 		}
+    .switch-radio label {
+      width: 80px;
+    }
 	}
 }
 </style>

@@ -57,7 +57,7 @@ class ImagesController < ApplicationController
   # DELETE /images/1
   # DELETE /images/1.json
   def destroy
-    @image.destroy
+    @image.destroy!
     respond_to do |format|
       format.html { redirect_to images_url, notice: 'Image was successfully destroyed.' }
       format.json { head :no_content }
@@ -80,12 +80,12 @@ class ImagesController < ApplicationController
     @images = Image.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model
 
     data = @images.collect do |t|
-      {id:              t.id,
-       label:           ImagesHelper.image_tag(t), # in helper
+      {id: t.id,
+       label: ImagesHelper.image_tag(t), # in helper
        response_values: {
          params[:method] => t.id
        },
-       label_html:      ImagesHelper.image_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: ImagesHelper.image_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
     end
     render json: data
@@ -93,7 +93,9 @@ class ImagesController < ApplicationController
 
   # GET /images/download
   def download
-    send_data Image.generate_download( Image.where(project_id: sessions_current_project_id) ), type: 'text', filename: "images_#{DateTime.now}.csv"
+    send_data(Download.generate_csv(Image.where(project_id: sessions_current_project_id)),
+              type: 'text',
+              filename: "images_#{DateTime.now}.csv")
   end
 
   # GET /images/:id/extract/:x/:y/:height/:width
@@ -102,7 +104,7 @@ class ImagesController < ApplicationController
   end
 
   # GET /images/:id/extract/:x/:y/:height/:width/:new_height/:new_width
-  def scale 
+  def scale
     send_data Image.resized_blob(params), type: 'image/jpg', disposition: 'inline'
   end
 
@@ -112,19 +114,20 @@ class ImagesController < ApplicationController
   end
 
   # GET /images/:id/ocr/:x/:y/:height/:width
-  def ocr 
-    tempfile = Tempfile.new(['ocr', '.jpg'], "#{Rails.root}/public/images/tmp", encoding: 'ASCII-8BIT' ) 
-    tempfile.write( Image.cropped_blob(params) )
+  def ocr
+    tempfile = Tempfile.new(['ocr', '.jpg'], "#{Rails.root}/public/images/tmp", encoding: 'ASCII-8BIT')
+    tempfile.write(Image.cropped_blob(params))
     tempfile.rewind
 
-    render json: {text:  RTesseract.new(Magick::Image.read(tempfile.path).first).to_s.strip }
+    render json: {text: RTesseract.new(Magick::Image.read(tempfile.path).first).to_s.strip}
   end
 
   private
+
   # Use callbacks to share common setup or constraints between actions.
   def set_image
     @image = Image.with_project_id(sessions_current_project_id).find(params[:id])
-    @recent_object = @image 
+    @recent_object = @image
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

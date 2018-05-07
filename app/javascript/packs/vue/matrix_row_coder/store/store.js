@@ -12,6 +12,7 @@ function makeInitialState (requestModule) {
     request: requestModule,
     taxonTitle: '',
     taxonId: null,
+    matrixRow: undefined,
     descriptors: [],
     observations: [],
     confidenceLevels: null

@@ -7,7 +7,6 @@ module BatchLoad
     attr_accessor :otus
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(**args)
       @otus = {}
       super(args)
