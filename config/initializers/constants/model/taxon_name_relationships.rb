@@ -1,7 +1,9 @@
 # Be sure to restart your server (or console) when you modify this file.
+
+
 #
 # Only initialize if the table exists (migrations are done)
-if ApplicationRecord.connection.table_exists? 'taxon_name_relationships'
+if ActiveRecord::Base.connected? && ApplicationRecord.connection.table_exists?('taxon_name_relationships')
 
   # JSON supporting
   module TaxonNameRelationshipsConstantHelper

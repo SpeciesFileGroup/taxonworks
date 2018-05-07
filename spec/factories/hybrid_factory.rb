@@ -1,13 +1,17 @@
-def root
-  t = TaxonName.where(project_id: $project_id, parent_id: nil).limit(1).first
-  t ? t : nil
+if ActiveRecord::Base.connected? 
+
+  def root
+    t = TaxonName.where(project_id: $project_id, parent_id: nil).limit(1).first
+    t ? t : nil
+  end
+
 end
 
 FactoryBot.define do
   factory :hybrid, traits: [:housekeeping] do
-    name nil
-    factory :valid_hybrid, traits: [:parent_is_root] do
 
+    factory :valid_hybrid, traits: [:parent_is_root] do
+      name nil
       after(:create) do |hybrid|
         g = Protonym.create(name: 'Aus', rank_class: Ranks.lookup(:icn, :genus), parent: root)
         a = Protonym.create(name: 'cus', rank_class: Ranks.lookup(:icn, :species), parent: g)
