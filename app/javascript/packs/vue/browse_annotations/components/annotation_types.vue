@@ -29,9 +29,9 @@
     },
     watch: {
       value: {
-        handler(newVal) {
-          // this.getResult(newVal)
-          this.selectType(newVal)
+        handler(newVal, oldVal) {
+          if(newVal.type != oldVal.type)
+            this.selectType(newVal.type)
         },
         deep: true
       }
@@ -40,7 +40,7 @@
       return {
         typesList: {},
         result: undefined,
-          selected: {}
+        selected: {}
       }
     },
     mounted: function () {
