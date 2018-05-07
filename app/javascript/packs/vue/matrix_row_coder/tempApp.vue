@@ -1,8 +1,8 @@
 <template>
   <div>
     <template v-if="matrixRow">
-    <h1
-      v-html="matrixRow.observation_matrix.object_tag"/>
+      <h1>Matrix row coder</h1>
+      <span>Matrix: </span><b><span v-html="matrixRow.observation_matrix.object_tag"/></b>
       <a :href="`/tasks/observation_matrices/new_matrix/${matrixRow.observation_matrix.id}`">
         Edit observation matrix
       </a>
@@ -82,6 +82,7 @@ export default {
       })
       request.getMatrixRow(this.initializeData.rowId).then(response => {
         this.matrixRow = response
+        console.log(response)
       })
     },
     loadMatrix () {
