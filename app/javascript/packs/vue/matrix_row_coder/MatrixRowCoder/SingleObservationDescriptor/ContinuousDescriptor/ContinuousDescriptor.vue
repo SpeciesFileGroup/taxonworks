@@ -8,12 +8,12 @@
           <input type="number" :value="continuousValue" @input="updateContinuousValue">
         </label>
         <unit-selector v-model="continuousUnit"/>
-        <button
+        <span
           type="button"
           class="circle-button btn-delete"
           @click="removeObservation">
           Remove
-        </button>
+        </span>
       </div>
     </summary-view>
 

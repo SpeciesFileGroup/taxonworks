@@ -22,6 +22,7 @@
       </template>
       <template v-if="matrixRow">
         <p>
+          Navigate adjacent rows:
           <button
             type="button"
             class="button normal-input button-default"
