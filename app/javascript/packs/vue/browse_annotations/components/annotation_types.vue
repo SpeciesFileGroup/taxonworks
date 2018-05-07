@@ -27,15 +27,15 @@
         required: true
       }
     },
-    watch: {
-      value: {
-        handler(newVal) {
-          // this.getResult(newVal)
-          this.selectType(newVal)
-        },
-        deep: true
-      }
-    },
+    // watch: {
+    //   value: {
+    //     handler(newVal) {
+    //      // this.getResult(newVal)
+    //       this.selectType(newVal)
+        // },
+        // deep: true
+      // }
+    // },
     data: function () {
       return {
         typesList: {},
@@ -58,7 +58,7 @@
         };
         this.$emit('input', this.selected);
         this.$emit('annotation_type_selected', this.typesList[type]);
-        this.result = this.selected.type;
+        // this.result = this.selected.type;
       }
       // ,
       // getResult(newVal) {
