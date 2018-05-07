@@ -352,30 +352,43 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+
+  match 'observation_matrices/row/', to: 'observation_matrices#row', via: :get, method: :json
   resources :observation_matrices do
     concerns [:data_routes]
-    member do
-      get 'row', {format: :json}
-    end
 
     resources :observation_matrix_columns, shallow: true, only: [:index], defaults: {format: :json}
     resources :observation_matrix_rows, shallow: true, only: [:index], defaults: {format: :json}
+    resources :observation_matrix_row_items, shallow: true, only: [:index], defaults: {format: :json}
+    resources :observation_matrix_column_items, shallow: true, only: [:index], defaults: {format: :json}
   end
 
   resources :observation_matrix_columns, only: [:index, :show] do
     concerns [:data_routes]
+    collection do
+      patch 'sort', {format: :json}
+    end
   end
 
   resources :observation_matrix_rows, only: [:index, :show] do
     concerns [:data_routes]
+    collection do
+      patch 'sort', {format: :json}
+    end
   end
 
   resources :observation_matrix_column_items do
     concerns [:data_routes]
+    collection do
+      post :batch_create
+    end
   end
 
   resources :observation_matrix_row_items do
     concerns [:data_routes]
+    collection do
+      post :batch_create
+    end
   end
 
   resources :notes, except: [:show] do
@@ -629,6 +642,12 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :observation_matrices do
+      scope :new_matrix, controller: 'tasks/observation_matrices/new_matrix' do
+        get 'observation_matrix_row_item_metadata', as: 'observation_matrix_row_item_metdata', defaults: {format: :json}
+        get 'observation_matrix_column_item_metadata', as: 'observation_matrix_column_item_metdata', defaults: {format: :json}
+        get '(:id)', action: :index, as: 'new_matrix_task_task'
+      end
+
       scope :row_coder, controller: 'tasks/observation_matrices/row_coder' do
         get 'index', as: 'index_row_coder_task'
         get 'set', as: 'set_row_coder_task'

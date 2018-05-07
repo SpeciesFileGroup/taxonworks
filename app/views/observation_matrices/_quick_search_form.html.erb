@@ -1,11 +1,12 @@
-<%= form_tag(search_matrices_path, {method: :get}) do %>
-    <%= render partial: '/workbench/elements/forms/ajax_select',
-               locals:  {controller: 'matrices',
-                         object:     nil,
-                         method:     'id',
-                         autofocus: true,
-                         send_select: true,
-                         tag_id:     'matrix_id_for_quick_search_form',
-                         size:       '',
-                         display:    ''} %>
+<%= form_tag(search_observation_matrices_path, {method: :get}) do %>
+  <%= render partial: '/workbench/elements/forms/ajax_select',
+    locals: {
+    controller: 'observation_matrices',
+    object: nil,
+    method: 'id',
+    autofocus: true,
+    send_select: true,
+    tag_id: 'observation_matrix_id_for_quick_search_form',
+    size:  '',
+    display: ''} %>
 <% end %>

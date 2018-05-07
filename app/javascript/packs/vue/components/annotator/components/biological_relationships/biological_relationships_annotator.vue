@@ -3,7 +3,7 @@
     <div class="separate-bottom">
       <template>
         <h3 v-if="biologicalRelationship">
-          {{ biologicalRelationship.name }}
+          {{ (biologicalRelationship.hasOwnProperty('label') ? biologicalRelationship.label : biologicalRelationship.name) }}
           <span
             @click="biologicalRelationship = undefined"
             class="separate-left"

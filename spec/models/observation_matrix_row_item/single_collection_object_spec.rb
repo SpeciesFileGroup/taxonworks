@@ -53,10 +53,16 @@ RSpec.describe ObservationMatrixRowItem::SingleCollectionObject, type: :model, g
           expect(ObservationMatrixRow.first.reference_count).to eq 1
         end
 
+        specify '#cached_observation_matrix_row_item_id is set for correlated observation_matrix_row' do
+          expect(ObservationMatrixColumn.first.cached_observation_matrix_row_item_id).to eq observation_matrix_row_item.id
+        end
+
         specify 'destroying a record removes collection_object from observation_matrix_rows' do
           observation_matrix_row_item.destroy
           expect(ObservationMatrixRow.count).to eq 0
         end
+
+
       end
 
       specify 'collection_object can only be added once to observation_matrix_row_item' do

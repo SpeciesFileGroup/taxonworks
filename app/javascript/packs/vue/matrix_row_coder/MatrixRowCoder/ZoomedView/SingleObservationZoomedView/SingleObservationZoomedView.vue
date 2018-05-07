@@ -4,13 +4,6 @@
       <div class="single-observation-zoomed-view__descriptor-details">
         <h2 class="single-observation-zoomed-view__descriptor-title">{{ descriptor.title }}</h2>
         <slot/>
-        <descriptor-details :descriptor="descriptor"/>
-      </div>
-      <div
-        v-if="observation"
-        class="single-observation-zoomed-view__observation-details">
-
-        <observation-details :observation="observation"/>
       </div>
     </div>
   </zoomed-view>
@@ -27,7 +20,6 @@ export default {
   name: 'SingleObservationZoomedView',
   props: ['descriptor', 'observation'],
   components: {
-    observationDetails,
     descriptorDetails,
     zoomedView
   }

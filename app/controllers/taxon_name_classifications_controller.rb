@@ -9,12 +9,12 @@ class TaxonNameClassificationsController < ApplicationController
     respond_to do |format|
       format.html do
         @recent_objects = TaxonNameClassification.recent_from_project_id(sessions_current_project_id)
-                            .order(updated_at: :desc).limit(10)
+          .order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       end
       format.json {
         @taxon_name_classifications = TaxonNameClassification.where(filter_params)
-                                        .with_project_id(sessions_current_project_id)
+          .with_project_id(sessions_current_project_id)
       }
     end
   end
@@ -31,7 +31,7 @@ class TaxonNameClassificationsController < ApplicationController
     respond_to do |format|
       if @taxon_name_classification.save
         format.html { redirect_to url_for(@taxon_name_classification.taxon_name.metamorphosize),
-                                  notice: 'Taxon name classification was successfully created.' }
+                      notice: 'Taxon name classification was successfully created.' }
         format.json { render :show, status: :created, location: @taxon_name_classification.metamorphosize }
       else
         format.html { redirect_back(fallback_location: (request.referer || root_path),
@@ -84,15 +84,15 @@ class TaxonNameClassificationsController < ApplicationController
 
   def list
     @taxon_name_classifications = TaxonNameClassification.with_project_id(sessions_current_project_id)
-                                    .order(:id).page(params[:page])
+      .order(:id).page(params[:page])
   end
 
   # GET /taxon_name_classifications/search
   def search
     if params[:id].blank?
       redirect_to taxon_name_classification_path,
-                  notice: 'You must select an item from the list with a click or ' \
-                            'tab press before clicking show.'
+        notice: 'You must select an item from the list with a click or ' \
+        'tab press before clicking show.'
     else
       redirect_to taxon_name_classification_path(params[:id])
     end
@@ -118,7 +118,7 @@ class TaxonNameClassificationsController < ApplicationController
   # GET /taxon_name_classifications/download
   def download
     send_data Download.generate_csv(TaxonNameClassification.where(project_id: session_current_project_id)),
-              type: 'text', filename: "taxon_name_classifications_#{DateTime.now}.csv"
+      type: 'text', filename: "taxon_name_classifications_#{DateTime.now}.csv"
   end
 
   def taxon_name_classification_types
