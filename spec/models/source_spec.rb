@@ -2,6 +2,21 @@ require 'rails_helper'
 
 describe Source, type: :model, group: :sources do
   let(:source) { Source.new }
+  let(:string1) {'This is a base string.'}
+  let!(:s1) { FactoryBot.create(:valid_source_verbatim, verbatim: string1) }
+  let(:s1a) {
+    s = s1.dup
+    s.save!
+    s
+  }
+  let(:s1b) { FactoryBot.create(:valid_source_verbatim,
+                                verbatim: string1,
+                                year: 2001,
+                                month: 9,
+                                day: 11) }
+  let!(:s3) { FactoryBot.create(:valid_source_verbatim, verbatim: 'This is a roof string.') }
+  let!(:s2) { FactoryBot.create(:valid_source_verbatim, verbatim: string1) }
+  let!(:s4) { FactoryBot.create(:valid_source_verbatim, verbatim: 'This is a r00f string.') }
 
   after(:all) {
     Source.destroy_all
@@ -75,11 +90,6 @@ describe Source, type: :model, group: :sources do
 
   context 'fuzzy matching' do
 
-    let!(:s1) { FactoryBot.create(:valid_source_verbatim, verbatim: 'This is a base string.') }
-    let!(:s3) { FactoryBot.create(:valid_source_verbatim, verbatim: 'This is a roof string.') }
-    let!(:s2) { FactoryBot.create(:valid_source_verbatim, verbatim: 'This is a base string.') }
-    let!(:s4) { FactoryBot.create(:valid_source_verbatim, verbatim: 'This is a r00f string.') }
-
     specify '#nearest_by_levenshtein(compared_string, column, limit) 1' do
       expect(s1.nearest_by_levenshtein(s1.verbatim, :cached).first).to eq(s2)
     end
@@ -97,11 +107,214 @@ describe Source, type: :model, group: :sources do
     end
   end
 
+  context 'matching' do
+    context 'instance methods' do
+      context '#identical' do
+        xspecify 'full matching' do
+          # duplicate record
+          [s1, s1a, s1b]
+          expect(s1.identical.ids).to contain_exactly(s1a.id)
+        end
+
+        xspecify 'full match test life years' do
+          # life year mismatch
+          [person1, person1a, person1b]
+          expect(person1.identical.ids).to contain_exactly(person1a.id)
+        end
+
+        xspecify 'full match test active years' do
+          # active year mismatch
+          [person1, person1a, person1b]
+          person1.year_born = 2000
+          person1.year_died = 2015
+          person1.save!
+          expect(person1.identical.count).to eq(0)
+        end
+
+        xspecify 'full match test active years only' do
+          # life year mismatch, active year match
+          [person1, person1a, person1b]
+          person1.year_active_start = 2012
+          person1.year_active_end = 2015
+          person1.save!
+          expect(person1.identical.count).to eq(0)
+        end
+
+        xspecify 'full match all years' do
+          # role count mismatch with no taxon name authorship
+          [person1, person1a, person1b]
+          person1.year_born = 2000
+          person1.year_died = 2015
+          person1.year_active_start = 2012
+          person1.year_active_end = 2015
+          person1.save!
+          expect(person1.identical.ids).to contain_exactly(person1b.id)
+        end
+      end
+
+      context '#similar' do
+        xspecify 'full matching' do
+          # duplicate record
+          [person1, person1a, person1b, person2, person3, person4]
+          expect(person1.similar.ids).to contain_exactly(person1a.id, person1b.id)
+        end
+
+        xspecify 'full match test life years' do
+          # life year mismatch
+          [person1, person1a, person1b, person2, person3, person4]
+          expect(person1.similar.ids).to contain_exactly(person1a.id, person1b.id)
+        end
+
+        xspecify 'full match test active years' do
+          # active year mismatch
+          [person1, person1a, person1b, person2, person3, person4]
+          person1.year_born = 2000
+          person1.year_died = 2015
+          person1.save!
+          expect(person1.similar.ids).to contain_exactly(person1b.id)
+        end
+
+        xspecify 'full match test active years only' do
+          # life year mismatch, active year match
+          [person1, person1a, person1b, person2, person3, person4]
+          person1.year_active_start = 2012
+          person1.year_active_end = 2015
+          person1.save!
+          expect(person1.similar.ids).to contain_exactly(person1b.id)
+        end
+
+        xspecify 'full match all years' do
+          # role count mismatch with no taxon name authorship
+          [person1, person1a, person1b, person2, person3, person4]
+          person1.year_born = 2000
+          person1.year_died = 2015
+          person1.year_active_start = 2012
+          person1.year_active_end = 2015
+          person1.save!
+          expect(person1.similar.ids).to contain_exactly(person1b.id)
+        end
+
+        xspecify 'initials only' do
+          [person1, person1a, person1b, person2, person3, person4]
+          person1.first_name = 'J.'
+          person1.save!
+          test_person = Person.new(first_name: 'J.')
+          expect(test_person.similar.ids).to contain_exactly(person2.id, person1.id)
+        end
+      end
+    end
+
+    context 'class methods' do
+      context '#identical' do
+        xspecify 'full matching' do
+          # duplicate record
+          [person1, person1a, person1b]
+          expect(Person.identical(person1.attributes).ids).to contain_exactly(person1.id, person1a.id)
+        end
+
+        xspecify 'full match test life years' do
+          # life year mismatch
+          [person1, person1a, person1b]
+          expect(Person.identical(person1.attributes).ids).to contain_exactly(person1a.id, person1.id)
+        end
+
+        xspecify 'full match test active years' do
+          # active year mismatch
+          [person1, person1a, person1b]
+          person1.year_born = 2000
+          person1.year_died = 2015
+          person1.save!
+          expect(Person.identical(person1.attributes).ids).to contain_exactly(person1.id)
+        end
+
+        xspecify 'full match test active years only' do
+          # life year mismatch, active year match
+          [person1, person1a, person1b]
+          person1.year_active_start = 2012
+          person1.year_active_end = 2015
+          person1.save!
+          expect(Person.identical(person1.attributes).ids).to contain_exactly(person1.id)
+        end
+
+        xspecify 'full match all years' do
+          # role count mismatch with no taxon name authorship
+          [person1, person1a, person1b]
+          person1.year_born = 2000
+          person1.year_died = 2015
+          person1.year_active_start = 2012
+          person1.year_active_end = 2015
+          person1.save!
+          expect(Person.identical(person1.attributes).ids).to contain_exactly(person1b.id, person1.id)
+        end
+
+        xspecify 'initials only' do
+          [person1, person1a, person1b, person2, person3, person4]
+          person1.first_name = 'J.'
+          person1.save!
+          test_person = Person.new(first_name: 'J.')
+          expect(Person.identical(test_person.attributes)).to be_empty
+        end
+      end
+
+      context '#similar' do
+        xspecify 'full matching' do
+          # duplicate record
+          [person1, person1a, person1b, person2, person3, person4]
+          expect(Person.similar(person1.attributes).ids).to contain_exactly(person1a.id, person1b.id, person1.id)
+        end
+
+        xspecify 'full match test life years' do
+          # life year mismatch
+          [person1, person1a, person1b, person2, person3, person4]
+          expect(Person.similar(person1.attributes).ids).to contain_exactly(person1a.id, person1b.id, person1.id)
+        end
+
+        xspecify 'full match test active years' do
+          # active year mismatch
+          [person1, person1a, person1b, person2, person3, person4]
+          person1.year_born = 2000
+          person1.year_died = 2015
+          person1.save!
+          expect(Person.similar(person1.attributes).ids).to contain_exactly(person1b.id, person1.id)
+        end
+
+        xspecify 'full match test active years only' do
+          # life year mismatch, active year match
+          [person1, person1a, person1b, person2, person3, person4]
+          person1.year_active_start = 2012
+          person1.year_active_end = 2015
+          person1.save!
+          expect(Person.similar(person1.attributes).ids).to contain_exactly(person1b.id, person1.id)
+        end
+
+        xspecify 'full match all years' do
+          # role count mismatch with no taxon name authorship
+          [person1, person1a, person1b, person2, person3, person4]
+          person1.year_born = 2000
+          person1.year_died = 2015
+          person1.year_active_start = 2012
+          person1.year_active_end = 2015
+          person1.save!
+          expect(Person.similar(person1.attributes).ids).to contain_exactly(person1b.id, person1.id)
+        end
+
+        xspecify 'initials only' do
+          [person1, person1a, person1b, person2, person3, person4]
+          person1.first_name = 'J.'
+          person1.save!
+          test_person = Person.new(first_name: 'J.')
+          expect(Person.similar(test_person.attributes).ids).to contain_exactly(person2.id, person1.id)
+        end
+      end
+    end
+  end
+
   context 'duplicate record tests' do
 =begin
     Species File conventions to remember:
       Two references are considered a match even if access code or th3 editor, OSF copy, or citation flags are different.
-      Two references are considered different if they have different verbatim reference fields (including different capitalization), even if everything else matches!
+      Two references are considered different if they have different verbatim reference fields
+        (including different capitalization), even if everything else matches!
       A reference is considered different if author, pub or containing ref aren't identical
       A reference is considered similar if years, title, volume or pages are either the same or missing.
       a similar reference may be added to the db by user request
