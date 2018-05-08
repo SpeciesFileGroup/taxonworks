@@ -45,15 +45,26 @@ class GeographicItem < ApplicationRecord
                 :multi_polygon,
                 :geometry_collection].freeze
 
-  GEOMETRY_SQL = "CASE geographic_items.type
-         WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
-         WHEN 'GeographicItem::Point' THEN point::geometry
-         WHEN 'GeographicItem::LineString' THEN line_string::geometry
-         WHEN 'GeographicItem::Polygon' THEN polygon::geometry
-         WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geometry
-         WHEN 'GeographicItem::MultiPoint' THEN multi_point::geometry
-         WHEN 'GeographicItem::GeometryCollection' THEN geometry_collection::geometry
-      END".freeze
+  GEOMETRY_SQL = Arel::Nodes::Case.new(arel_table[:type])
+    .when('GeographicItem::MultiPolygon').then( Arel::Nodes::NamedFunction.new("CAST", [ arel_table[:multi_polygon].as('geometry')]))
+    .when('GeographicItem::Point').then( Arel::Nodes::NamedFunction.new("CAST", [ arel_table[:point].as('geometry')]))
+    .when('GeographicItem::LineString').then( Arel::Nodes::NamedFunction.new("CAST", [ arel_table[:line_string].as('geometry')]))
+    .when('GeographicItem::Polygon').then( Arel::Nodes::NamedFunction.new("CAST", [ arel_table[:polygon].as('geometry')]))
+    .when('GeographicItem::MultiLineString').then( Arel::Nodes::NamedFunction.new("CAST", [ arel_table[:multi_line_string].as('geometry')]))
+    .when('GeographicItem::MultiPoint').then( Arel::Nodes::NamedFunction.new("CAST", [ arel_table[:multi_point].as('geometry')]))
+    .when('GeographicItem::GeometryCollection').then( Arel::Nodes::NamedFunction.new("CAST", [ arel_table[:geometry_collection].as('geometry')]))
+    .freeze
+
+
+# "CASE geographic_items.type
+#        WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
+#        WHEN 'GeographicItem::Point' THEN point::geometry
+#        WHEN 'GeographicItem::LineString' THEN line_string::geometry
+#        WHEN 'GeographicItem::Polygon' THEN polygon::geometry
+#        WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geometry
+#        WHEN 'GeographicItem::MultiPoint' THEN multi_point::geometry
+#        WHEN 'GeographicItem::GeometryCollection' THEN geometry_collection::geometry
+#     END".freeze
 
   GEOGRAPHY_SQL = "CASE geographic_items.type
      WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon
@@ -1100,15 +1111,11 @@ class GeographicItem < ApplicationRecord
   # @return [Double] distance in meters (faster, less accurate)
   def st_distance_spheroid(geographic_item_id)
     q1 = "ST_Distance_Spheroid((#{GeographicItem.select_geometry_sql(id)})," \
-                    "(#{GeographicItem.select_geometry_sql(geographic_item_id)}),'#{Gis::SPHEROID}') as distance"
+      "(#{GeographicItem.select_geometry_sql(geographic_item_id)}),'#{Gis::SPHEROID}') as distance"
     q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance_Spheroid((?),(?),?) as distance',
-                                                       GeographicItem.select_geometry_sql(self.id),
+                                                       GeographicItem.select_geometry_sql(id),
                                                        GeographicItem.select_geometry_sql(geographic_item_id),
                                                        Gis::SPHEROID])
-    # q3 = self.class.sanitize_sql_array(["ST_Distance_Spheroid((:sql1),(:sql2),:sphere) as distance",
-    #                                     sql1: GeographicItem.select_geometry_sql(self.id),
-    #                                     sql2: GeographicItem.select_geometry_sql(geographic_item_id),
-    #                                     sphere: Gis::SPHEROID])
     GeographicItem.where(id: id).pluck(q1).first
   end
 
@@ -1116,7 +1123,7 @@ class GeographicItem < ApplicationRecord
   #   a WKT POINT representing the centroid of the geographic item
   def st_centroid
     GeographicItem.where(id: to_param)
-      .pluck("ST_AsEWKT(ST_Centroid(#{GeographicItem::GEOMETRY_SQL}))")
+      .pluck("ST_AsEWKT(ST_Centroid(#{GeographicItem::GEOMETRY_SQL.to_sql}))")
       .first.gsub(/SRID=\d*;/, '')
   end
 
