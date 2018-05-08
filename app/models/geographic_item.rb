@@ -1037,7 +1037,7 @@ class GeographicItem < ApplicationRecord
         .joins(:geographic_areas_geographic_items)
         .merge(GeographicAreasGeographicItem
                  .ordered_by_data_origin)
-        .order('geographic_areas.name').limit(1)).each do |a|
+        .order(geographic_areas: [:name]).limit(1)).each do |a|
       v.merge!(a.categorize)
     end
     v
