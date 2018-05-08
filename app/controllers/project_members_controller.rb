@@ -76,12 +76,17 @@ class ProjectMembersController < ApplicationController
 
   # PATCH /project_members/1/update_clipboard.json
   def update_clipboard
-    @project_member = sessions_current_user.project_members.where(project_id: sessions_current_project_id)  
+    @project_member = sessions_current_user.project_members.where(project_id: sessions_current_project_id).first  
     if @project_member.update( params.require(:project_member).permit(:clipboard) )
       render :show, status: :ok, location: @project_member 
     else
       render json: @project_member.errors, status: :unprocessable_entity 
     end
+  end
+
+  def clipboard
+    @project_member = sessions_current_user.project_members.where(project_id: sessions_current_project_id).first  
+    render :show
   end
 
   # DELETE /project_members/1

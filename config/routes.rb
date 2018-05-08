@@ -68,11 +68,13 @@ TaxonWorks::Application.routes.draw do
       get :many_new
       get :index, defaults: {format: :json}
       post :create_many
-    end
-    member do
+      
+      get :clipboard, defaults: {format: :json}
       put :update_clipboard, defaults: {format: :json}
     end
   end
+
+
 
   resources :pinboard_items, only: [:create, :destroy, :update] do
     collection do
