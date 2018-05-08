@@ -199,7 +199,7 @@ class GeographicItem < ApplicationRecord
     # @return [String]
     #   a SQL select statement that returns the *geometry* for the geographic_item with the specified id
     def select_geometry_sql(geographic_item_id)
-      "SELECT #{GeographicItem::GEOMETRY_SQL} from geographic_items where geographic_items.id = #{geographic_item_id}"
+      "SELECT #{GeographicItem::GEOMETRY_SQL.to_sql} from geographic_items where geographic_items.id = #{geographic_item_id}"
     end
 
     # @param [Integer, String]
@@ -207,7 +207,7 @@ class GeographicItem < ApplicationRecord
     #   a SQL select statement that returns the geography for the geographic_item with the specified id
     def select_geography_sql(geographic_item_id)
       ActiveRecord::Base.send(:sanitize_sql_for_conditions, [
-        "SELECT #{GeographicItem::GEOMETRY_SQL} from geographic_items where geographic_items.id = ?",
+        "SELECT #{GeographicItem::GEOMETRY_SQL.to_sql} from geographic_items where geographic_items.id = ?",
         geographic_item_id])
     end
 
@@ -321,7 +321,7 @@ class GeographicItem < ApplicationRecord
       ActiveRecord::Base.send(:sanitize_sql_for_conditions, [
         "SELECT ST_Collect(f.the_geom) AS single_geometry
        FROM (
-          SELECT (ST_DUMP(#{GeographicItem::GEOMETRY_SQL})).geom as the_geom
+          SELECT (ST_DUMP(#{GeographicItem::GEOMETRY_SQL.to_sql})).geom as the_geom
           FROM geographic_items
           WHERE id in (?))
         AS f", geographic_item_ids ])
@@ -478,7 +478,7 @@ class GeographicItem < ApplicationRecord
     def containing_where_for_point_sql(rgeo_point)
       "ST_CoveredBy(
         ST_GeomFromText('#{rgeo_point}', 4326),
-        #{GeographicItem::GEOMETRY_SQL}
+        #{GeographicItem::GEOMETRY_SQL.to_sql}
        )"
     end
 
@@ -486,7 +486,7 @@ class GeographicItem < ApplicationRecord
     # @return [String] SQL for geometries
     # example, not used
     def geometry_for_sql(geographic_item_id)
-      'SELECT ' + GeographicItem::GEOMETRY_SQL + ' AS geometry FROM geographic_items WHERE id = ' \
+      'SELECT ' + GeographicItem::GEOMETRY_SQL.to_sql + ' AS geometry FROM geographic_items WHERE id = ' \
             "#{geographic_item_id} LIMIT 1"
     end
 
@@ -494,7 +494,7 @@ class GeographicItem < ApplicationRecord
     # @return [String] SQL for geometries
     # example, not used
     def geometry_for_collection_sql(*geographic_item_ids)
-      'SELECT ' + GeographicItem::GEOMETRY_SQL + ' AS geometry FROM geographic_items WHERE id IN ' \
+      'SELECT ' + GeographicItem::GEOMETRY_SQL.to_sql + ' AS geometry FROM geographic_items WHERE id IN ' \
             "( #{geographic_item_ids.join(',')} )"
     end
 
@@ -528,7 +528,7 @@ class GeographicItem < ApplicationRecord
     # @param [String] 'ASC' or 'DESC'
     # @return [Scope]
     def ordered_by_area(direction = 'ASC')
-      order("ST_Area(#{GeographicItem::GEOMETRY_SQL}) #{direction}")
+      order("ST_Area(#{GeographicItem::GEOMETRY_SQL.to_sql}) #{direction}")
     end
 
     # @return [Scope]
@@ -857,7 +857,7 @@ class GeographicItem < ApplicationRecord
     # @param [Integer] geographic_item_id
     # @return [RGeo::Geographic object]
     def geometry_for(geographic_item_id)
-      GeographicItem.select(GeographicItem::GEOMETRY_SQL + ' AS geometry').find(geographic_item_id)['geometry']
+      GeographicItem.select(GeographicItem::GEOMETRY_SQL.to_sql + ' AS geometry').find(geographic_item_id)['geometry']
     end
 
     # example, not used
@@ -867,7 +867,7 @@ class GeographicItem < ApplicationRecord
       GeographicItem.find_by_sql(
         "SELECT ST_Multi(ST_Collect(g.the_geom)) AS singlegeom
        FROM (
-          SELECT (ST_DUMP(#{GeographicItem::GEOMETRY_SQL})).geom AS the_geom
+          SELECT (ST_DUMP(#{GeographicItem::GEOMETRY_SQL.to_sql})).geom AS the_geom
           FROM geographic_items
           WHERE id IN (?))
         AS g;", geographic_item_ids.flatten
@@ -1077,9 +1077,9 @@ class GeographicItem < ApplicationRecord
   # @return [Array]
   #   the lat, long, as STRINGs for the centroid of this geographic item
   def center_coords
-    r = GeographicItem.find_by_sql("Select split_part(ST_AsLatLonText(ST_Centroid(#{GeographicItem::GEOMETRY_SQL}), " \
+    r = GeographicItem.find_by_sql("Select split_part(ST_AsLatLonText(ST_Centroid(#{GeographicItem::GEOMETRY_SQL.to_sql}), " \
                     "'D.DDDDDD'), ' ', 1) latitude, split_part(ST_AsLatLonText(ST_Centroid" \
-                    "(#{GeographicItem::GEOMETRY_SQL}), 'D.DDDDDD'), ' ', 2) " \
+                    "(#{GeographicItem::GEOMETRY_SQL.to_sql}), 'D.DDDDDD'), ' ', 2) " \
                     "longitude from geographic_items where id = #{id};")[0]
 
     [r.latitude, r.longitude]
@@ -1130,7 +1130,7 @@ class GeographicItem < ApplicationRecord
   # @return [Integer]
   #   the number of points in the geometry
   def st_npoints
-    GeographicItem.where(id: id).pluck("ST_NPoints(#{GeographicItem::GEOMETRY_SQL}) as npoints").first
+    GeographicItem.where(id: id).pluck("ST_NPoints(#{GeographicItem::GEOMETRY_SQL.to_sql}) as npoints").first
   end
 
   # @return [Symbol]
