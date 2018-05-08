@@ -308,7 +308,7 @@ new_descriptor_task:
     - matrix
   status: prototype
   description: 'Create and update descriptors (e.g. phylogenetic or descriptive characters).'
-new_matrix_task_task:
+new_matrix_task:
   hub: true
   name: 'New observation matrix'
   related:
