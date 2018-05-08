@@ -317,3 +317,12 @@ new_matrix_task:
     - matrix
   status: prototype
   description: 'Assign the rows and columns of observation matrices.'
+comprehensive_collection_object_task:
+  hub: true
+  name: 'Comprehensive collection object form'
+  related:
+    - collection_objects
+  categories:
+    - collection_object
+  status: prototype
+  description: 'An all-in-one task for digitizing collectiong objects.'

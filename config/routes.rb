@@ -754,6 +754,10 @@ TaxonWorks::Application.routes.draw do
     # Scopes arranged alphabetically first level below :tasks
 
     scope :accessions do
+      scope :comprehensive, controller: 'tasks/accessions/comprehensive' do
+        get 'index', as: 'comprehensive_collection_object_task'
+      end
+
       scope :report do
         scope :dwc, controller: 'tasks/accessions/report/dwc' do
           get '', action: :index, as: 'report_dwc_task'
