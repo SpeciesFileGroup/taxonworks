@@ -15,9 +15,8 @@ class AlternateValuesController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @alternate_values = AlternateValue.where(project_id: sessions_current_project_id).where(
-          polymorphic_filter_params('alternate_value_object', AlternateValue.related_foreign_keys )
-        )
+        @alternate_values = Queries::AlternateValue::Filter.new(params).all
+          .where(project_id: sessions_current_project_id).order(:id)
       }
     end
   end

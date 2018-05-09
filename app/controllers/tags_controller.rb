@@ -12,9 +12,8 @@ class TagsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @tags = Tag.where(project_id: sessions_current_project_id).where(
-          polymorphic_filter_params('tag_object', Tag.related_foreign_keys)
-        )
+        @tags = Queries::Tag::Filter.new(params).all
+          .where(project_id: sessions_current_project_id)
       }
     end
   end

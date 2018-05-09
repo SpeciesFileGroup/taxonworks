@@ -13,9 +13,8 @@ class NotesController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @notes = Note.where(project_id: sessions_current_project_id).where(
-          polymorphic_filter_params('note_object', Note.related_foreign_keys)
-        )
+        @notes = Queries::Note::Filter.new(params).all
+          .where(project_id: sessions_current_project_id)
       }
     end
   end
