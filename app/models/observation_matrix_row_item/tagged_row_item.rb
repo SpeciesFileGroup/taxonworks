@@ -21,4 +21,8 @@ class ObservationMatrixRowItem::TaggedRowItem < ObservationMatrixRowItem
     controlled_vocabulary_term 
   end
 
+  def is_dynamic?
+    true
+  end
+
 end

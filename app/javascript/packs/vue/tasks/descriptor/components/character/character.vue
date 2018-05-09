@@ -96,6 +96,11 @@ export default {
         label: this.label,
       }]
       this.$emit('save', newDescriptor)
+      this.resetInputs()
+    },
+    resetInputs() {
+      this.label = undefined,
+      this.name = undefined
     },
     removeCharacter(index) {
       this.list[index]['_destroy'] = true

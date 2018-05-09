@@ -53,15 +53,26 @@
     },
     methods: {
       loadTabList() {
-        this.getList(`/biological_relationships/select_options`).then(response => {
-          let result = response.body
+        let promises = []
+        let that = this
+        let result
+        let allList
+
+        promises.push(this.getList(`/biological_relationships/select_options`).then(response => {
+          result = response.body
+        }))
+        promises.push(this.getList(`/biological_relationships.json`).then(response => {
+          allList = response.body
+        }))
+        Promise.all(promises).then(() => {
+          result['all'] = allList
           Object.keys(result).forEach(key => (!result[key].length) && delete result[key])
-          this.list = result;
+          that.list = result;
           if(Object.keys(result).length) {
-            this.view = Object.keys(result)[0]
+            that.view = Object.keys(result)[0]
           }
           else {
-            this.view = 'search'
+            that.view = 'search'
           }
         })
       },
