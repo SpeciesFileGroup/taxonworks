@@ -305,60 +305,59 @@ class Source::Bibtex < Source
 
   # TW required fields (must have one of these fields filled in)
   # either year or stated_year is acceptable
-  TW_REQUIRED_FIELDS = [
-    :author,
-    :editor,
-    :booktitle,
-    :title,
-    :url,
-    :journal,
-    :year,
-    :stated_year
-  ].freeze
+  TW_REQUIRED_FIELDS = [:author, :editor, :booktitle, :title, :url, :journal, :year, :stated_year].freeze
+
+  IGNORE_SIMILAR     = [:verbatim, :cached, :cached_author_string, :cached_nomenclature_date].freeze
+  IGNORE_IDENTICAL   = IGNORE_SIMILAR.dup.freeze
+
 
   belongs_to :serial, inverse_of: :sources
   belongs_to :source_language, class_name: 'Language', foreign_key: :language_id, inverse_of: :sources
   # above to handle clash with bibtex language field.
 
-  has_many :author_roles, -> {order('roles.position ASC')}, class_name: 'SourceAuthor', as: :role_object, validate: true
-  has_many :authors, -> {order('roles.position ASC')}, through: :author_roles, source: :person, validate: true # self.author & self.authors should match or one of them should be empty
-  has_many :editor_roles, -> {order('roles.position ASC')}, class_name: 'SourceEditor', as: :role_object, validate: true # ditto for self.editor & self.editors
-  has_many :editors, -> {order('roles.position ASC')}, through: :editor_roles, source: :person, validate: true
+  has_many :author_roles, -> { order('roles.position ASC') }, class_name: 'SourceAuthor',
+           as: :role_object, validate: true
+  has_many :authors, -> { order('roles.position ASC') },
+           through: :author_roles, source: :person, validate: true
+  # self.author & self.authors should match or one of them should be empty
+  has_many :editor_roles, -> { order('roles.position ASC') }, class_name: 'SourceEditor',
+           as: :role_object, validate: true # ditto for self.editor & self.editors
+  has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person, validate: true
   accepts_nested_attributes_for :authors, :editors, :author_roles, :editor_roles, allow_destroy: true
 
-  before_validation :create_authors, if: -> {!authors_to_create.nil?}
+  before_validation :create_authors, if: -> { !authors_to_create.nil? }
   before_validation :check_has_field
 
   validates_inclusion_of :bibtex_type,
-    in: ::VALID_BIBTEX_TYPES,
-    message: '"%{value}" is not a valid source type'
+                         in:      ::VALID_BIBTEX_TYPES,
+                         message: '"%{value}" is not a valid source type'
 
   validates_presence_of :year,
-    if: -> {!month.blank? || !stated_year.blank?},
-    message: 'is required when month or stated_year is provided'
+                        if:      -> { !month.blank? || !stated_year.blank? },
+                        message: 'is required when month or stated_year is provided'
 
   # @todo refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
   validates :year, date_year: {min_year: 1000, max_year: Time.now.year + 2,
-                               message: 'must be an integer greater than 999 and no more than 2 years in the future'}
+                               message:  'must be an integer greater than 999 and no more than 2 years in the future'}
 
   validates_presence_of :month,
-    unless: -> {day.nil?},
-    message: 'is required when day is provided'
+                        unless:  -> { day.nil? },
+                        message: 'is required when day is provided'
 
   validates_inclusion_of :month,
-    in: ::VALID_BIBTEX_MONTHS,
-    allow_blank: true,
-    message: ' month'
+                         in:          ::VALID_BIBTEX_MONTHS,
+                         allow_blank: true,
+                         message:     ' month'
 
   validates :day, date_day: {year_sym: :year, month_sym: :month},
-    unless: -> {year.nil? || month.nil?}
+            unless:         -> { year.nil? || month.nil? }
 
-  validates :url, format: {
-    with: URI::regexp(%w(http https ftp)),
+  validates :url, format:                                   {
+    with:    URI::regexp(%w(http https ftp)),
     message: '[%{value}] is not a valid URL'}, allow_blank: true
 
   # includes nil last, exclude it explicitly with another condition if need be
-  scope :order_by_nomenclature_date, -> {order(:cached_nomenclature_date)}
+  scope :order_by_nomenclature_date, -> { order(:cached_nomenclature_date) }
 
   soft_validate(:sv_has_some_type_of_year, set: :recommended_fields)
   soft_validate(:sv_contains_a_writer, set: :recommended_fields)
@@ -432,9 +431,10 @@ class Source::Bibtex < Source
     b.author = self.compute_bibtex_names('author') unless (!self.authors.any? && self.author.blank?)
     b.editor = self.compute_bibtex_names('editor') unless (!self.editors.any? && self.editor.blank?)
 
-    b.key = self.id unless self.new_record?
+    b.key    = self.id unless self.new_record?
     b
   end
+
   # rubocop:enable Metrics/MethodLength
 
   # @param [String] type either `author` or `editor`
@@ -451,7 +451,7 @@ class Source::Bibtex < Source
       when 1
         return self.send(methods).first.bibtex_name
       else
-        return self.send(methods).collect{|a| a.bibtex_name}.join(' and ')
+        return self.send(methods).collect { |a| a.bibtex_name }.join(' and ')
     end
   end
 
@@ -469,7 +469,7 @@ class Source::Bibtex < Source
       when 1
         return self.send(methods).first.name
       else
-        return self.send(methods).collect {|a| a.name}.to_sentence(last_word_connector: ' & ')
+        return self.send(methods).collect { |a| a.name }.to_sentence(last_word_connector: ' & ')
     end
   end
 
@@ -567,6 +567,7 @@ class Source::Bibtex < Source
     end
     true
   end
+
   # rubocop:enable Metrics/MethodLength
 
   # @param [BibTeX::Name] bibtex_author
@@ -744,7 +745,7 @@ class Source::Bibtex < Source
   #  Month handling allows values from bibtex like 'may' to be handled
   # @return [Time]
   def nomenclature_date
-    Utilities::Dates.nomenclature_date( day,  Utilities::Dates.month_index(month), year)
+    Utilities::Dates.nomenclature_date(day, Utilities::Dates.month_index(month), year)
   end
 
   # @return [Date]
@@ -839,10 +840,10 @@ class Source::Bibtex < Source
   # @return [Ignored]
   def set_cached
     if errors.empty?
-      attributes_to_update = {
-        cached: cached_string('text'),
+      attributes_to_update          = {
+        cached:                   cached_string('text'),
         cached_nomenclature_date: nomenclature_date,
-        cached_author_string: authority_name
+        cached_author_string:     authority_name
       }
 
       attributes_to_update[:author] = compute_bibtex_names('author') if author.blank? && authors.size > 0

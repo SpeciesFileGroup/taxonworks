@@ -2,6 +2,16 @@
 # Harry decided that this species is the same as that but haven't written it up yet.)
 class Source::Human < Source
 
+  IGNORE_IDENTICAL = [:serial_id, :address, :annote, :booktitle, :chapter, :crossref,
+                      :edition, :editor, :howpublished, :institution, :journal, :key,
+                      :month, :note, :number, :organization, :pages, :publisher, :school,
+                      :series, :title, :volume, :doi, :abstract, :copyright, :language,
+                      :stated_year, :verbatim, :bibtex_type, :day, :year, :isbn, :issn,
+                      :verbatim_contents, :verbatim_keywords, :language_id, :translator,
+                      :year_suffix, :url, :author, :cached, :cached_author_string,
+                      :cached_nomenclature_date].freeze
+  IGNORE_SIMILAR   = IGNORE_IDENTICAL.dup.freeze
+
   has_many :source_source_roles, class_name: 'SourceSource', as: :role_object
   has_many :people, through: :source_source_roles, source: :person, validate: true
 
