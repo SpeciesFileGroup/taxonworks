@@ -9,7 +9,14 @@
 #
 class Source::Verbatim < Source
 
-  IGNORE_IDENTICAL = (Source.column_names - %w{type, verbatim}).collect { |n| n.to_sym }.freeze
+  IGNORE_IDENTICAL = [:serial_id, :address, :annote, :booktitle, :chapter, :crossref,
+                      :edition, :editor, :howpublished, :institution, :journal, :key,
+                      :month, :note, :number, :organization, :pages, :publisher, :school,
+                      :series, :title, :volume, :doi, :abstract, :copyright, :language,
+                      :stated_year, :bibtex_type, :day, :year, :isbn, :issn,
+                      :verbatim_contents, :verbatim_keywords, :language_id, :translator,
+                      :year_suffix, :url, :author, :cached, :cached_author_string,
+                      :cached_nomenclature_date].freeze
   IGNORE_SIMILAR   = IGNORE_IDENTICAL.dup.freeze
 
   validates_presence_of :verbatim
