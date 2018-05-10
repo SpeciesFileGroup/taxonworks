@@ -3,7 +3,7 @@
 <table class="tablesorter">
   <thead>
   <tr>
-    <%= fancy_th_tag(name: 'Matrix') -%>
+    <%= fancy_th_tag(name: 'Observation Matrix') -%>
     <%= fancy_th_tag(name: 'Otu') -%>
     <%= fancy_th_tag(name: 'Collection Object') -%>
     <%= fancy_th_tag(name: 'Controlled vocabulary term') -%>
@@ -13,13 +13,13 @@
   </thead>
 
   <tbody>
-  <% @observation_matrix_row_items.each do |matrix_row_item| %>
+  <% @observation_matrix_row_items.each do |observation_matrix_row_item| %>
       <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
-          <td><%= matrix_tag(matrix_row_item.matrix) %></td>
-          <td><%= otu_tag(matrix_row_item.otu) -%></td>
-          <td><%= collection_object_tag(matrix_row_item.collection_object) -%></td>
-          <td><%= controlled_vocabulary_term_tag(matrix_row_item.controlled_vocabulary_term) -%></td>
-          <%= fancy_metadata_cells_tag(matrix_row_item) -%>
+          <td><%= observation_matrix_tag(observation_matrix_row_item.observation_matrix) %></td>
+          <td><%= otu_tag(observation_matrix_row_item.otu) if observation_matrix_row_item.respond_to?(:otu) -%></td>
+          <td><%= collection_object_tag(observation_matrix_row_item.collection_object) if observation_matrix_row_item.respond_to?(:collection_object) -%></td>
+          <td><%= controlled_vocabulary_term_tag(observation_matrix_row_item.controlled_vocabulary_term) if observation_matrix_row_item.respond_to?(:controlled_vocabulary_term) -%></td>
+          <%= fancy_metadata_cells_tag(observation_matrix_row_item) -%>
       <% end %>
   <% end %>
   </tbody>

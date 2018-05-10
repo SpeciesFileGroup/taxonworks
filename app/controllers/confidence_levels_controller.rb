@@ -17,7 +17,7 @@ class ConfidenceLevelsController < ApplicationController
   end
 
   def autocomplete
-    confidence_levels = ConfidenceLevel.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)).distinct
+    confidence_levels = Queries::ControlledVocabularyTerm::Autocomplete.new(params[:term], project_id: sessions_current_project_id, of_type: ['ConfidenceLevel']).autocomplete
 
     data = confidence_levels.collect do |t|
       str = t.name + ': ' + t.definition

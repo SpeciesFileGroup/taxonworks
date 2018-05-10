@@ -1,7 +1,7 @@
 class ObservationMatricesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_matrix, only: [:show, :edit, :update, :destroy, :row]
+  before_action :set_matrix, only: [:show, :edit, :update, :destroy]
 
   # GET /observation_matrices
   # GET /observation_matrices.json
@@ -69,38 +69,30 @@ class ObservationMatricesController < ApplicationController
   end
 
   def autocomplete
-    @observation_matrices = ObservationMatrix.where(project_id: sessions_current_project_id).where('name like ?', "#{params[:term]}%")
-    data                  = @observation_matrices.collect do |t|
-      {id:              t.id,
-       label:           t.name, 
-       gid: t.to_global_id.to_s,
-       response_values: {
-         params[:method] => t.id
-       },
-       label_html:      t.name 
-      }
-    end
-    render json: data
+    @observation_matrices = ObservationMatrix.where(project_id: sessions_current_project_id).where('name ilike ?', "#{params[:term]}%")
   end
 
   def search
     if params[:id].blank?
       redirect_to observationMatrices_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
     else
-      redirect_to observationMatrix_path(params[:id])
+      redirect_to observation_matrix_path(params[:id])
     end
   end
 
-  # GET /observation_matrices/:id/row.json?otu_id=1
+  # GET /observation_matrices/row.json?observation_matrix_row_id=1
   def row
-    @descriptors = @observation_matrix.descriptors
-    @otu = Otu.find(params[:otu_id])
+    @observation_matrix_row = ObservationMatrixRow.where(project_id: sessions_current_project_id).find(params.require(:observation_matrix_row_id))
+  end
+
+  def download
+    send_data Download.generate_csv(ObservationMatrix.where(project_id: sessions_current_project_id)), type: 'text', filename: "observation_matrices_#{DateTime.now}.csv"
   end
 
   private
 
   def set_matrix
-    @observation_matrix = ObservationMatrix.find(params[:id])
+    @observation_matrix = ObservationMatrix.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def observation_matrix_params

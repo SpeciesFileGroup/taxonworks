@@ -49,6 +49,10 @@ RSpec.describe ObservationMatrixColumnItem::SingleDescriptor, type: :model, grou
           expect(ObservationMatrixColumn.first.reference_count).to eq 1
         end
 
+        specify '#cached_observation_matrix_column_item_id is set for correlated observation_matrix_column' do
+          expect(ObservationMatrixColumn.first.cached_observation_matrix_column_item_id).to eq observation_matrix_column_item.id
+        end
+
         specify 'destroying a record removes descriptor from observation_matrix_columns' do
           observation_matrix_column_item.destroy
           expect(ObservationMatrixColumn.count).to eq(0)

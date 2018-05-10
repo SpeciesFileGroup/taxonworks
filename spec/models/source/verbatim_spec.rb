@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Source::Verbatim, type: :model do
+describe Source::Verbatim, type: :model, group: :sources do
 
   let(:verbatim_source) { Source::Verbatim.new }
   let(:citation) { '111111111111111111111111111111' }
