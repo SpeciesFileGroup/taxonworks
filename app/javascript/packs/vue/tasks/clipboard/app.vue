@@ -1,16 +1,19 @@
 <template>
   <div id="vue-clipboard-app">
-    <button
-      type="button"
-      @click="CreateTest">
-      CreateTest
-    </button>
-    <template v-for="(clip, index) in clipboard">
-      <div>
-        <span>Ctrl + {{ index }}</span>
-        <textarea v-model="clipboard[index]"/>
-      </div>
-    </template>
+    <ul class="slide-panel-category-content">
+      <li
+        v-for="(clip, index) in clipboard"
+        class="slide-panel-category-item">
+        <div>
+          <p>Shortcut: <b>Ctrl + {{ index }}</b></p>
+          <div class="middle">
+            <textarea
+              v-model="clipboard[index]"
+              @blur="saveClipboard"/>
+          </div>
+        </div>
+      </li>
+    </ul>
   </div>
 </template>
 <script>
@@ -18,52 +21,94 @@
   import Spinner from '../../components/spinner.vue'
   import { GetClipboard, UpdateClipboard } from './request/resources'
 
-  import KeyPress from './helpers/checkKey'
-
   export default {
     components: {
       Spinner
     },
     computed: {
+      isInput() {
+        return (document.activeElement.tagName == 'INPUT' || 
+            document.activeElement.tagName == 'TEXTAREA')
+      }
     },
     data() {
       return {
-        clipboard: [],
-        data: 'Hello'
+        clipboard: {
+          1: '',
+          2: '',
+          3: '',
+          4: '',
+          5: '',
+        },
+        keys: []
       }
     },
     mounted() {
-      document.addEventListener("keydown", this.KeyPress);
-
-    },
-    destroy() {
       $(document).off("keydown");
+      $(document).on("keyup")
+      $(document).on("keydown", this.KeyPress);
+      $(document).on("keyup", this.removeKey)
+      GetClipboard().then(response => {
+        Object.assign(this.clipboard, response.clipboard)
+      })
     },
     methods: {
-      CreateTest() {
-        UpdateClipboard({ '1': 'text' }).then(response => {
-          GetClipboard().then(response => {
-            this.clipboard = response.clipboard
-          })
-        })
-      },
       KeyPress(e) {
-      let evtobj = window.event? event : e
-      if(evtobj.ctrlKey) {
-        switch(evtobj.keyCode) {
-          case 49:
-            alert(1)
-          break;
-          case 50:
-          alert(2)
-          break;
-          case 51:
-          alert(3)
-          break;
+        this.addKey(e)
+        let evtobj = window.event? event : e
+
+        if(evtobj.ctrlKey) {
+          if(this.keys.includes(67) && (this.keys.length == 3)) {
+            let keys = this.keys.filter(key => { return (key > 48 && key < 54) })
+            let that = this
+            keys.forEach(item => {
+              that.setClipboard((item - 48))
+            })
+          }
+          else {
+            if(evtobj.keyCode > 48 && evtobj.keyCode < 54) {
+              this.pasteClipboard((evtobj.keyCode - 48))
+            }
+          }
         }
-      }
-        if (evtobj.keyCode == 90 && evtobj.ctrlKey) alert("Ctrl+z");
+      },
+      pasteClipboard(clipboardIndex) {
+        if(this.clipboard[clipboardIndex]) {
+          if(this.isInput) {
+            document.activeElement.value = this.clipboard[clipboardIndex]
+          }
+        }
+      },
+      saveClipboard() {
+        UpdateClipboard(this.clipboard).then(response => {
+          this.clipboard = response.clipboard
+        })        
+      },
+      setClipboard(index) {
+        if(this.isInput && (document.activeElement.value.length > 0)) {
+          this.clipboard[index] = document.activeElement.value
+          this.saveClipboard()
+        }
+      },
+      addKey(e) {
+        let evtobj = window.event? event : e
+        if(!this.keys.includes(evtobj.keyCode)) {
+          this.keys.push(evtobj.keyCode)
+        }
+      },
+      removeKey(e) {
+        let evtobj = window.event? event : e
+        let position = this.keys.findIndex(key => { return evtobj.keyCode == key} )
+        if(position > -1) {
+          this.keys.splice(position, 1)
+        }
       }
     }
   }
 </script>
+<style scoped>
+  input, textarea {
+    width: 340px;
+    height: 50px;
+  }
+</style>

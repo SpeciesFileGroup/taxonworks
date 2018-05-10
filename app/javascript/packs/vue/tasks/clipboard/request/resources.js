@@ -6,9 +6,7 @@ Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csr
 
 const ajaxCall = function (type, url, data = null) {
   return new Promise(function (resolve, reject) {
-    console.log(data)
     Vue.http[type](url, data).then(response => {
-      console.log(response)
       return resolve(response.body)
     }, response => {
       handleError(response.body)
