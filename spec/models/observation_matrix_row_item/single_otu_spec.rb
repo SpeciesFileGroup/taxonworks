@@ -54,7 +54,7 @@ RSpec.describe ObservationMatrixRowItem::SingleOtu, type: :model, group: :observ
         end
 
         specify '#cached_observation_matrix_row_item_id is set for correlated observation_matrix_row' do
-          expect(ObservationMatrixColumn.first.cached_observation_matrix_row_item_id).to eq observation_matrix_row_item.id
+          expect(ObservationMatrixRow.first.cached_observation_matrix_row_item_id).to eq observation_matrix_row_item.id
         end
 
         specify 'destroying a record removes otu from observation_matrix_rows' do
