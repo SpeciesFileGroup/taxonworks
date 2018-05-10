@@ -2,14 +2,7 @@
 # Harry decided that this species is the same as that but haven't written it up yet.)
 class Source::Human < Source
 
-  IGNORE_IDENTICAL = [:serial_id, :address, :annote, :booktitle, :chapter, :crossref,
-                      :edition, :editor, :howpublished, :institution, :journal, :key,
-                      :month, :note, :number, :organization, :pages, :publisher, :school,
-                      :series, :title, :volume, :doi, :abstract, :copyright, :language,
-                      :stated_year, :verbatim, :bibtex_type, :day, :year, :isbn, :issn,
-                      :verbatim_contents, :verbatim_keywords, :language_id, :translator,
-                      :year_suffix, :url, :author, :cached, :cached_author_string,
-                      :cached_nomenclature_date].freeze
+  IGNORE_IDENTICAL = (Source.column_names - %w{type}).collect { |n| n.to_sym }.freeze
   IGNORE_SIMILAR   = IGNORE_IDENTICAL.dup.freeze
 
   has_many :source_source_roles, class_name: 'SourceSource', as: :role_object
@@ -22,21 +15,32 @@ class Source::Human < Source
   # @return [String]
   def authority_name
     Utilities::Strings.authorship_sentence(
-      people.collect{|p| p.last_name}
+      people.collect { |p| p.last_name }
     )
   end
 
-  # @param [Source] source
-  # @return [Boolean]
-  # def similar(source)
-  #   false
-  # end
+  # TODO: Special case of Source::Human needs to check for roles of 'SourceSource' matching.
+  # @param [Hash] attr of matchable attributes
+  # @return [Scope]
+  def self.similar(attr)
+    Source::Human.none
+  end
 
-  # @param [Source] source
-  # @return [Boolean]
-  # def identical(source)
-  #   false
-  # end
+  # @param [Hash] attr of matchable attributes
+  # @return [Scope]
+  def self.identical(attr)
+    Source::Human.none
+  end
+
+  # @return [Scope]
+  def similar
+    Source::Human.none
+  end
+
+  # @return [Scope]
+  def identical
+    Source::Human.none
+  end
 
   protected
 
