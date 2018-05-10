@@ -34,6 +34,7 @@ module Queries
       c.push t[:created_at].gteq(params[:created_after]) if params[:created_after]
       c.push t[klass.annotator_type].eq_any(params[:on]) if params[:on]
       c.push t[:id].eq_any(params[:id]) if params[:id]
+      c.push t[:created_by_id].eq_any(params[:by]) if params[:by]
 
       c.compact!
 
