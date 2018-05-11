@@ -47,7 +47,7 @@ namespace :tw do
                       :parent_id_index, :statuses, :taxon_index, :citation_to_publication_index, :keywords,
                       :incertae_sedis, :emendation, :original_combination, :unique_host_plant_index,
                       :host_plant_index, :topics, :nouns, :countries, :geographic_areas, :museums, :namespaces, :biocuration_classes,
-                      :people, :source_ay, :source_checked_taxonomy, :keyn, :chars, :states, :morph
+                      :people, :source_ay, :source_checked_taxonomy, :keyn, :chars, :states, :morph, :contents
         def initialize()
           @keywords = {}                  # keyword -> ControlledVocabularyTerm
           @people_index = {}              # PeopleID -> Person object
@@ -79,6 +79,7 @@ namespace :tw do
           @chars = {}
           @states = {}
           @morph = {}
+          @contents
         end
       end
 
@@ -266,11 +267,11 @@ namespace :tw do
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 
         $project_id = 1
-#=begin
         handle_controlled_vocabulary_3i
+        handle_transl_3i
+=begin
         handle_litauthors_3i
         handle_references_3i
-        handle_transl_3i
         handle_taxonomy_3i
         handle_taxon_name_relationships_3i
         handle_citation_topics_3i
@@ -280,11 +281,15 @@ namespace :tw do
         handle_distribution_3i
         handle_parasitoids_3i
         handle_localities_3i
+#end
 
         handle_characters_3i
         handle_state_3i
         handle_chartable_3i
-#end
+
+        handle_content_types_3i
+        handle_contents_3i
+=end
         soft_validations_3i
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
@@ -962,7 +967,7 @@ namespace :tw do
             if synonym_statuses.include?(row['Status']) # %w(1 6 10 11 14 17 22 23 24 26 27 28 29)
               if TaxonNameRelationship.where_subject_is_taxon_name(taxon.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').first.nil?
                 tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: @relationship_classes[row['Status'].to_i])
-                byebug if tnr.id.nil?
+                #byebug if tnr.id.nil?
               end
             end
             if homonym_statuses.include?(row['Status']) && row['Rank'] == '0'
@@ -2065,6 +2070,56 @@ namespace :tw do
         end
       end
 
+      def handle_content_types_3i
+        # id
+        # sti_type
+        # name
+        # can_markup
+        # subject
+        path = @args[:data_directory] + 'deitz_content_type.txt'
+        print "\ndeitz_content_type\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true)
+        i = 0
+        file.each do |row|
+          i += 1
+          print "\r#{i}"
+          @data.contents.merge!(
+              row['id'].to_s => Topic.find_or_create_by!(name: row['name'].to_s, definition: 'OUT topic ' + row['name'].to_s + ' from mx Membracidae', project_id: $project_id).id )
+        end
+      end
+
+      def handle_contents_3i
+        # Key
+        # id
+        # otu_id
+        # content_type_id
+        # text
+        # is_public
+        # pub_content_id
+        # creator_id
+        # updator_id
+        # updated_on
+        # created_on
+        # license
+        # copyright_holder
+        # maker
+        # editor
+        # is_image_box
+        path = @args[:data_directory] + 'deitz_content.txt'
+        print "\ndeitz_content\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true)
+        i = 0
+        file.each do |row|
+          i += 1
+          print "\r#{i}"
+
+        end
+
+      end
+
+
       def soft_validations_3i
         fixed = 0
         print "\nApply soft validation fixes to taxa 1st pass \n"
@@ -2075,7 +2130,7 @@ namespace :tw do
           t.soft_validate
           t.fix_soft_validations
           t.soft_validations.soft_validations.each do |f|
-            byebug if fixed == 0 && f.fixed?
+#            byebug if fixed == 0 && f.fixed?
             fixed += 1  if f.fixed?
           end
         end
