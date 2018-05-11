@@ -58,7 +58,6 @@ RUN rm config/database.yml
 RUN mkdir -p /etc/my_init.d
 ADD config/docker/nginx/init.sh /etc/my_init.d/init.sh
 RUN chmod +x /etc/my_init.d/init.sh && \
-    mkdir /app/log && \
     mkdir /app/public/images/tmp && \
     chmod +x /app/public/images/tmp && \
     rm -f /etc/service/nginx/down
