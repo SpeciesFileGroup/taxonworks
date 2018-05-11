@@ -29,6 +29,9 @@
       isInput() {
         return (document.activeElement.tagName == 'INPUT' || 
             document.activeElement.tagName == 'TEXTAREA')
+      },
+      actionKey() {
+        return (navigator.platform.indexOf('Mac') > -1 ? 17 : 18)
       }
     },
     data() {
@@ -56,8 +59,7 @@
       KeyPress(e) {
         this.addKey(e)
         let evtobj = window.event? event : e
-
-        if(evtobj.ctrlKey) {
+        if(this.keys.includes(this.actionKey)) {
           if(this.keys.includes(67) && (this.keys.length == 3)) {
             let keys = this.keys.filter(key => { return (key > 48 && key < 54) })
             let that = this
@@ -75,7 +77,9 @@
       pasteClipboard(clipboardIndex) {
         if(this.clipboard[clipboardIndex]) {
           if(this.isInput) {
-            document.activeElement.value = this.clipboard[clipboardIndex]
+            let position = document.activeElement.selectionStart
+            let text = document.activeElement.value
+            document.activeElement.value = text.substr(0, position) + this.clipboard[clipboardIndex] + text.substr(position)
           }
         }
       },
