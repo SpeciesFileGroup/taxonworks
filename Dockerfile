@@ -46,11 +46,13 @@ RUN gem update --system
 WORKDIR /app
 
 COPY . /app
+
+RUN bundle install --without=development test
+
+# Fake the database to allow for the precompile
 RUN cp config/database.yml.precompile config/database.yml
 RUN bundle exec rake assets:precompile 
 RUN rm config/database.yml
-
-RUN bundle install --without=development test
 
 # See https://github.com/phusion/passenger-docker 
 RUN mkdir -p /etc/my_init.d
