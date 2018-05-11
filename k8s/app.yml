@@ -44,7 +44,7 @@ spec:
             claimName: taxonworks-staging-pv-claim
       containers:
         - name: taxonworks
-          image: sfgrp/taxonworks:0.3.4
+          image: sfgrp/taxonworks:0.3.6
           ports:
             - containerPort: 80
               name: http
@@ -73,7 +73,10 @@ spec:
             - name: SERVER_NAME
               value: sfg.taxonworks.org 
             - name: POSTGRES_HOST
-              value: taxonworks-db
+              valueFrom: 
+                configMapKeyRef:
+                  name: taxonworks
+                  key: db.host
             - name: POSTGRES_DB
               valueFrom:
                 configMapKeyRef:
