@@ -25,7 +25,7 @@ namespace :tw do
           Rake::Task['db:migrate'].invoke
         rescue
           # Stage 3, migration failed, restore from last.
-          Rake::Task['db:restore_last'].invoke
+          Rake::Task['tw:db:restore_last'].invoke
           raise TaxonWorks::Error, "Unable to migrate, restored from #{ENV['file']}."
         end
       

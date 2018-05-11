@@ -46,6 +46,9 @@ RUN gem update --system
 WORKDIR /app
 
 COPY . /app
+RUN cp config/database.yml.precompile config/database.yml
+RUN bundle exec rake assets:precompile 
+RUN rm config/database.yml
 
 RUN bundle install --without=development test
 
