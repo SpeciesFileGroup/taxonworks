@@ -1,6 +1,6 @@
-FROM phusion/passenger-ruby24:0.9.30
+FROM phusion/passenger-ruby24:0.9.31
 MAINTAINER Matt Yoder
-ENV LAST_FULL_REBUILD 2017-03-19
+ENV LAST_FULL_REBUILD 2018-05-10
 
 # From Phusion
 ENV HOME /root
