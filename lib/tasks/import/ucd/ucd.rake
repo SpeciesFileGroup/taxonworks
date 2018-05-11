@@ -298,9 +298,9 @@ namespace :tw do
         if !@data.done?(handle)
           puts 'as new'
 
-          tags = {'1' => Keyword.find_or_create_by(name: '1', definition: 'Taxonomic...............', project_id: $project_id),
-                  '2' => Keyword.find_or_create_by(name: '2', definition: 'Biological...............', project_id: $project_id),
-                  '3' => Keyword.find_or_create_by(name: '3', definition: 'Economic...............', project_id: $project_id),
+          tags = {'1' => Keyword.find_or_create_by(name: '1', definition: 'Taxonomic (Definition is needed for the term)', project_id: $project_id),
+                  '2' => Keyword.find_or_create_by(name: '2', definition: 'Biological (Definition is needed for the term)', project_id: $project_id),
+                  '3' => Keyword.find_or_create_by(name: '3', definition: 'Economic (Definition is needed for the term)', project_id: $project_id),
           }.freeze
           
           path = @args[:data_directory] + 'KEYWORDS.txt'
@@ -311,11 +311,12 @@ namespace :tw do
           file.each_with_index do |row, i|
             print "\r#{i}"
            
-            definition = row['Meaning'].to_s.length < 4 ? row['Meaning'] + '.' : row['Meaning']
-            definition = definition + '(' + row['KeyWords'] + ')'
-            definition = row['Meaning'].to_s.length < 21 ? row['Meaning'] + '.................' : row['Meaning']
+            #definition = row['Meaning'].to_s.length < 4 ? row['Meaning'] + '.' : row['Meaning']
+            #definition = definition + '(' + row['KeyWords'] + ')'
+            #definition = row['Meaning'].to_s.length < 21 ? row['Meaning'] + '.................' : row['Meaning']
+            n = row['Meaning'].to_s + '(' + row['KeyWords'] + ')'
 
-            topic = Topic.find_or_create_by!(name: definition, definition: definition, project_id: $project_id)
+            topic = Topic.find_or_create_by!(name: n, definition: 'Definition is needed for the term: ' + n, project_id: $project_id)
 
             topic.tags.create(keyword: tags[row['Category']]) unless row['Category'].blank?
             
