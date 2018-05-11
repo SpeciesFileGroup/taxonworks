@@ -12,7 +12,7 @@ ADD config/docker/nginx/gzip_max.conf /etc/nginx/conf.d/gzip_max.conf
 # Update repos
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_7.x | bash -
 
 # Until we move to update Ubuntu
 RUN apt install wget

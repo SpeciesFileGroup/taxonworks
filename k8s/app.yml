@@ -44,7 +44,7 @@ spec:
             claimName: taxonworks-staging-pv-claim
       containers:
         - name: taxonworks
-          image: sfgrp/taxonworks:0.3.9
+          image: sfgrp/taxonworks:0.3.11
           ports:
             - containerPort: 80
               name: http
@@ -59,13 +59,13 @@ spec:
             httpGet:
               path: /ping
               port: 80
-            initialDelaySeconds: 1500 # 30 
+            initialDelaySeconds: 840 # 30 
             timeoutSeconds: 3
           livenessProbe:
             httpGet:
               path: /ping
               port: 80
-            initialDelaySeconds: 1500 # 180
+            initialDelaySeconds: 840 # 180
             timeoutSeconds: 3
           env:
             - name: RAILS_ENV

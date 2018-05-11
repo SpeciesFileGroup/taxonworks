@@ -57,7 +57,7 @@ namespace :tw do
     # 1) Drop fails because database is in use by other processes.
     #    Remedy: Ensure your database is not used by other processes. Check to see how many connections to the database exist.
     #    Do not modify this task to make that check, nest this in checks if needed
-    desc "Restores a database generated from dump 'rake tw:db:restore backup_directory=/your/path/ file=2017-07-10_154344UTC.dump'"
+    desc "Restores a database generated from dump 'rake tw:db:restore backup_directory=/your/path/ database_host=0.0.0.0 file=2017-07-10_154344UTC.dump'"
     task restore: ['environment', 'tw:backup_exists', 'tw:database_user', 'db:drop', 'db:create' ] do
       puts Rainbow("Initializing restore for #{Rails.env} environment").yellow
       database = ApplicationRecord.connection.current_database

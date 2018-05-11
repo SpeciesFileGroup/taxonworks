@@ -12,6 +12,7 @@
 .ruby-version
 *.md
 *.orig
+.DS_Store
 
 /tags
 tags/
