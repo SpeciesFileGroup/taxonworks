@@ -7,10 +7,12 @@ ENV HOME /root
 RUN rm /etc/nginx/sites-enabled/default
 ADD config/docker/nginx/gzip_max.conf /etc/nginx/conf.d/gzip_max.conf
 
+
+
 # Update repos
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_7.x | bash -
 
 # Until we move to update Ubuntu
 RUN apt install wget
@@ -41,23 +43,18 @@ ENV RAILS_ENV production
 RUN echo 'gem: --no-rdoc --no-ri >> "$HOME/.gemrc"'
 RUN gem update --system
 
-ADD Gemfile /app/
-ADD Gemfile.lock /app/
 WORKDIR /app
-
-RUN bundle install --without=development test
 
 COPY . /app
 
-# Fake the database to allow for the precompile
-RUN cp config/database.yml.precompile /app/config/database.yml
-RUN bundle exec rake assets:precompile 
-RUN rm config/database.yml
+RUN bundle install --without=development test
 
 # See https://github.com/phusion/passenger-docker 
 RUN mkdir -p /etc/my_init.d
 ADD config/docker/nginx/init.sh /etc/my_init.d/init.sh
 RUN chmod +x /etc/my_init.d/init.sh && \
+    mkdir /app/tmp && \
+    mkdir /app/log && \
     mkdir /app/public/images/tmp && \
     chmod +x /app/public/images/tmp && \
     rm -f /etc/service/nginx/down

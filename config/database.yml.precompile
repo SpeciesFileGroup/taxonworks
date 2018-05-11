@@ -1,6 +1,0 @@
----
-production:
-  username: precompile 
-  password: precompile 
-  database: precompile
-  adapter: postgis
