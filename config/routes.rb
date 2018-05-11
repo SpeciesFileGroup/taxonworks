@@ -113,7 +113,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     collection do
       get :select_options, defaults: {format: :json}
-  end
+    end
   end
 
   resources :character_states do
@@ -751,8 +751,6 @@ TaxonWorks::Application.routes.draw do
       end
     end
 
-    get '/:id' => "shortener/shortened_urls#show"
-
     # Scopes arranged alphabetically first level below :tasks
 
     scope :accessions do
@@ -916,6 +914,10 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+  scope :s do
+    get ':id' => 'shortener/shortened_urls#show'
+  end
+
   ### End of task scopes, user related below ###
 
   resources :users, except: :new do
@@ -1005,7 +1007,6 @@ TaxonWorks::Application.routes.draw do
         to: 'taxon_names#autocomplete'
     end
   end
-
 end
 
 require_relative 'routes/api'
