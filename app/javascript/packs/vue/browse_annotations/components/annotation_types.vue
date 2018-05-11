@@ -48,7 +48,7 @@
           all_select_option_url: this.typesList[type].all_select_option_url
         };
         this.$emit('input', this.selected);
-        this.$emit('annotation_type_selected', this.typesList[type]);
+        // this.$emit('annotation_type_selected', this.typesList[type]);
         // this.result = this.selected.type;
       }
     }

@@ -46,6 +46,7 @@ export default {
   methods: {
     selectModel(type) {
       this.$emit("input", type.valueOf());
+      // this.$emit("model_selected", type.valueOf());
     }
   }
 };
