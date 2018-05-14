@@ -2,8 +2,8 @@
   <div class="flexbox">
     <div class="annotation_type">
       <annotation-types
-        v-model="filter.annotation_type"
-        @annotation_type_selected="filter.common = $event"/>
+        v-model="filter.annotation_type" />
+      <!--@annotation_type_selected="filter.common = $event"-->
       <!--<span>Selected: {{ filter.annotation_type }}</span>-->
     </div>
     <div class="annotation_for">
