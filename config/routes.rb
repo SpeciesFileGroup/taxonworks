@@ -66,9 +66,15 @@ TaxonWorks::Application.routes.draw do
   resources :project_members, except: [:index, :show] do
     collection do
       get :many_new
+      get :index, defaults: {format: :json}
       post :create_many
+      
+      get :clipboard, defaults: {format: :json}
+      put :update_clipboard, defaults: {format: :json}
     end
   end
+
+
 
   resources :pinboard_items, only: [:create, :destroy, :update] do
     collection do
@@ -76,7 +82,6 @@ TaxonWorks::Application.routes.draw do
       post 'update_type_position'
     end
   end
-
 
   ### Data routes
 

@@ -51,6 +51,8 @@ WORKDIR /app
 
 COPY Gemfile /app/
 COPY Gemfile.lock /app/
+
+RUN gem update --system
 RUN bundle install  
 
 COPY . /app

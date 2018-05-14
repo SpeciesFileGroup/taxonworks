@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180501183528) do
+ActiveRecord::Schema.define(version: 20180507141440) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1071,6 +1071,7 @@ ActiveRecord::Schema.define(version: 20180501183528) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "reference_count"
+    t.integer "cached_observation_matrix_column_item_id"
     t.index ["created_by_id"], name: "index_observation_matrix_columns_on_created_by_id"
     t.index ["descriptor_id"], name: "index_observation_matrix_columns_on_descriptor_id"
     t.index ["observation_matrix_id"], name: "imc_om_index"
@@ -1110,6 +1111,7 @@ ActiveRecord::Schema.define(version: 20180501183528) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "reference_count"
+    t.integer "cached_observation_matrix_row_item_id"
     t.index ["collection_object_id"], name: "index_observation_matrix_rows_on_collection_object_id"
     t.index ["created_by_id"], name: "index_observation_matrix_rows_on_created_by_id"
     t.index ["observation_matrix_id"], name: "omr_om_index"
@@ -1276,6 +1278,7 @@ ActiveRecord::Schema.define(version: 20180501183528) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.boolean "is_project_administrator"
+    t.jsonb "clipboard", default: {}
     t.index ["created_by_id"], name: "index_project_members_on_created_by_id"
     t.index ["project_id"], name: "index_project_members_on_project_id"
     t.index ["updated_by_id"], name: "index_project_members_on_updated_by_id"
@@ -1454,22 +1457,6 @@ ActiveRecord::Schema.define(version: 20180501183528) do
     t.index ["primary_language_id"], name: "index_serials_on_primary_language_id"
     t.index ["translated_from_serial_id"], name: "index_serials_on_translated_from_serial_id"
     t.index ["updated_by_id"], name: "index_serials_on_updated_by_id"
-  end
-
-  create_table "shortened_urls", id: :serial, force: :cascade do |t|
-    t.integer "owner_id"
-    t.string "owner_type", limit: 20
-    t.text "url", null: false
-    t.string "unique_key", limit: 10, null: false
-    t.string "category"
-    t.integer "use_count", default: 0, null: false
-    t.datetime "expires_at"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.index ["category"], name: "index_shortened_urls_on_category"
-    t.index ["owner_id", "owner_type"], name: "index_shortened_urls_on_owner_id_and_owner_type"
-    t.index ["unique_key"], name: "index_shortened_urls_on_unique_key", unique: true
-    t.index ["url"], name: "index_shortened_urls_on_url"
   end
 
   create_table "sources", id: :serial, force: :cascade do |t|

@@ -644,7 +644,7 @@ describe Source::Bibtex, type: :model, group: :sources do
               source_bibtex.save
               expect(source_bibtex.authority_name).to eq(nil)
               expect(source_bibtex.cached_author_string).to eq(nil)
-            end
+        end
           end
 
         end
