@@ -3,23 +3,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  namespace: tw
-  name: taxonworks-media-pv-claim
-spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 4700Gi
-  selector:
-    matchLabels:
-      name: taxonworks-media-pv
-      
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  namespace: tw
+  namespace: sandbox 
   name: taxonworks-staging-pv-claim
 spec:
   accessModes:

@@ -2,10 +2,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: taxonworks
+  name: tw-sandpaper # taxonworks
   namespace: sandbox
   labels:
-    app: taxonworks
+    app: tw-sandpaper # taxonworks
     tier: frontend
 spec:
   type: NodePort
@@ -13,26 +13,26 @@ spec:
     - port: 80
       targetPort: 80
   selector:
-    app: taxonworks
+    app: tw-sandpaper #  taxonworks
     tier: frontend
 
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: taxonworks
+  name: tw-sandpaper # taxonworks
   namespace: sandbox 
 spec:
   replicas: 1 # must always be 1 in sandbox
   template:
     metadata:
       namespace: sandbox
-      name: 
-      valueFrom:
-        configMapKeyRef:
-          name: taxonworks
-          key: db
-          # name: taxonworks # value from (?) == tw-sandpaper (name of pod)
+    # name: name 
+    # valueFrom:
+    #  configMapKeyRef:
+    #    name: taxonworks
+    #    key: db
+      name: tw-sandpaper # sandpaper # taxonworks # value from (?) == tw-sandpaper (name of pod)
       labels:
         app: taxonworks
         tier: frontend
@@ -42,7 +42,7 @@ spec:
           persistentVolumeClaim:
             claimName: taxonworks-staging-pv-claim
       containers:
-        - name: taxonworks
+        - name: tw-sandpaper # taxonworks
           image: sfgrp/taxonworks:latest
           ports:
             - containerPort: 80
@@ -67,84 +67,84 @@ spec:
               value: production
             - name: SERVER_NAME
               valueFrom:
-                secretKeyRef:
-                  name: server 
-                  key: name 
+                configMapKeyRef:
+                  name: tw-sandpaper
+                  key: server.name 
               # value: sfg.taxonworks.org  # valueFrom
             - name: POSTGRES_HOST
               value: taxonworks-db # valueFrom
             - name: POSTGRES_DB
               valueFrom:
                 configMapKeyRef:
-                  name: data  # was taxonworks
+                  name: tw-sandpaper 
                   key: db
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: taxonworks
+                  name: tw-sandpaper 
                   key: db.user
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: taxonworks
+                  name: tw-sandpaper
                   key: db.user.password
             - name: NGINX_SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: taxonworks 
+                  name: tw-sandpaper 
                   key: nginx.secret 
             - name: SECRET_KEY_BASE
               valueFrom:
                 secretKeyRef:
-                  name: taxonworks
+                  name: tw-sandpaper
                   key: secret_key_base
             - name: TW_EXCEPTION_NOTIFICATION_EMAIL_PREFIX
               valueFrom:
                 configMapKeyRef:
-                  name: taxonworks 
+                  name: tw-sandpaper 
                   key: tw.exception_notification.email_prefix
             - name: TW_EXCEPTION_NOTIFICATION_SENDER_ADDRESS
               valueFrom:
                 configMapKeyRef:
-                  name: taxonworks 
+                  name: tw-sandpaper 
                   key: tw.exception_notification.sender_address
             - name: TW_EXCEPTION_RECIPIENTS
               valueFrom:
                 configMapKeyRef:
-                  name: taxonworks 
+                  name: tw-sandpaper 
                   key: tw.exception_recipients
             - name: TW_ACTION_MAILER_SMTP_SETTINGS_ADDRESS
               valueFrom:
                 configMapKeyRef:
-                  name: taxonworks 
+                  name: tw-sandpaper 
                   key: tw.action_mailer_smtp_settings.address
             - name: TW_ACTION_MAILER_SMTP_SETTINGS_PORT
               valueFrom:
                 configMapKeyRef:
-                  name: taxonworks 
+                  name: tw-sandpaper 
                   key: tw.action_mailer_smtp_settings.port
             - name: TW_ACTION_MAILER_SMTP_SETTINGS_DOMAIN
               valueFrom:
                 configMapKeyRef:
-                  name: taxonworks 
+                  name: tw-sandpaper 
                   key: tw.action_mailer_smtp_settings.domain
             - name: TW_ACTION_MAILER_URL_HOST
               valueFrom:
                 configMapKeyRef:
-                  name: taxonworks 
+                  name: tw-sandpaper 
                   key: tw.action_mailer_url_host
             - name: TW_MAIL_DOMAIN
               valueFrom:
                 configMapKeyRef:
-                  name: taxonworks 
+                  name: tw-sandpaper 
                   key: tw.mail_domain
             - name: TW_PATHS_STAGING
               valueFrom:
                 configMapKeyRef:
-                  name: taxonworks 
+                  name: tw-sandpaper 
                   key: tw.paths.staging
             - name: TW_PATHS_BACKUP
               valueFrom:
                configMapKeyRef:
-                 name: taxonworks 
+                 name: tw-sandpaper 
                  key: tw.paths.backup
