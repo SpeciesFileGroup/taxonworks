@@ -26,8 +26,13 @@ spec:
   replicas: 1 # must always be 1 in sandbox
   template:
     metadata:
-      namespace: sandbox 
-      name: taxonworks # value from (?) == tw-sandpaper (name of pod)
+      namespace: sandbox
+      name: 
+      valueFrom:
+        configMapKeyRef:
+          name: taxonworks
+          key: db
+          # name: taxonworks # value from (?) == tw-sandpaper (name of pod)
       labels:
         app: taxonworks
         tier: frontend
@@ -61,19 +66,20 @@ spec:
             - name: RAILS_ENV
               value: production
             - name: SERVER_NAME
-              value: sfg.taxonworks.org  # valueFrom
+              valueFrom:
+                secretKeyRef:
+                  name: server 
+                  key: name 
+              # value: sfg.taxonworks.org  # valueFrom
             - name: POSTGRES_HOST
               value: taxonworks-db # valueFrom
             - name: POSTGRES_DB
               valueFrom:
                 configMapKeyRef:
-                  name: taxonworks
+                  name: data  # was taxonworks
                   key: db
             - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: taxonworks
-                  key: db.user
+              value: sandbox
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
