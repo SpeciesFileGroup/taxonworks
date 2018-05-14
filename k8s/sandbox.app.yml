@@ -34,22 +34,22 @@ spec:
     #    key: db
       name: tw-sandpaper # sandpaper # taxonworks # value from (?) == tw-sandpaper (name of pod)
       labels:
-        app: taxonworks
+        app: tw-sandpaper # taxonworks
         tier: frontend
     spec:
-      volumes:
-        - name: taxonworks-staging-vol
-          persistentVolumeClaim:
-            claimName: taxonworks-staging-pv-claim
+#     volumes:
+#       - name: taxonworks-staging-vol
+#         persistentVolumeClaim:
+#           claimName: taxonworks-staging-pv-claim
       containers:
         - name: tw-sandpaper # taxonworks
-          image: sfgrp/taxonworks:latest
+          image: sfgrp/taxonworks:development
           ports:
             - containerPort: 80
               name: http
-          volumeMounts:
-            - mountPath: /staging
-              name: taxonworks-staging-vol
+#         volumeMounts:
+#           - mountPath: /staging
+#             name: taxonworks-staging-vol
           readinessProbe:
             httpGet:
               path: /ping
@@ -72,7 +72,10 @@ spec:
                   key: server.name 
               # value: sfg.taxonworks.org  # valueFrom
             - name: POSTGRES_HOST
-              value: taxonworks-db # valueFrom
+              valueFrom:
+                configMapKeyRef:
+                  name: tw-sandpaper
+                  key: db.host
             - name: POSTGRES_DB
               valueFrom:
                 configMapKeyRef:
