@@ -55,8 +55,6 @@ COPY . /app
 RUN mkdir -p /etc/my_init.d
 ADD config/docker/nginx/init.sh /etc/my_init.d/init.sh
 RUN chmod +x /etc/my_init.d/init.sh && \
-    mkdir /app/public && \
-    mkdir /app/public/system && \
     mkdir /app/tmp && \
     mkdir /app/log && \
     mkdir /app/public/images/tmp && \

@@ -79,7 +79,10 @@ spec:
                   name: data  # was taxonworks
                   key: db
             - name: POSTGRES_USER
-              value: sandbox
+              valueFrom:
+                secretKeyRef:
+                  name: taxonworks
+                  key: db.user
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
