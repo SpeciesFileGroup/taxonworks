@@ -918,6 +918,10 @@ TaxonWorks::Application.routes.draw do
     get ':id' => 'shortener/shortened_urls#show'
   end
 
+  # constraints subdomain: 's' do
+  #   get '/:id' => "shortener/shortened_urls#show"
+  # end
+
   ### End of task scopes, user related below ###
 
   resources :users, except: :new do
