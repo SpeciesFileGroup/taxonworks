@@ -6,9 +6,9 @@ class PingController < ApplicationController
 
   def pingz
     if asset_exists?('zzzz.css')
-      render json: '{"pong": true}', status: :ok and return if !pathname.nil?
+      render json: '{"pong": true}', status: :ok 
     else
-      render json: '{"pong": false}', status: :service_unavailable 
+      head :service_unavailable 
     end
   end
 
