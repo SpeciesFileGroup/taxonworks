@@ -40,7 +40,7 @@ import { MutationNames } from '../../../store/mutations/mutations'
 import SingleObservationDescriptor from '../SingleObservationDescriptor'
 import UnitSelector from '../../UnitSelector/UnitSelector.vue'
 
-module.exports = {
+export default {
   mixins: [SingleObservationDescriptor],
   name: 'continuous-descriptor',
   computed: {
