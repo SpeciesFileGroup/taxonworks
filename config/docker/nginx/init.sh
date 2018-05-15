@@ -19,4 +19,4 @@ chmod 0600 /root/.pgpass
 bundle exec rake tw:production:deploy:update_database database_user=$POSTGRES_USER database_host=$TAXONWORKS_DB_PORT_5432_TCP_ADDR 
 
 # Create a fake asset for liveness probe
-touch app/public/assets/zzzz.css
+touch app/public/assets/stylesheets/zzzz.css
