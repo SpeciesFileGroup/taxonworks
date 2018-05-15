@@ -63,43 +63,43 @@ namespace :tw do
               end
             end
 
-            # if row['SourceID'].to_i > 0
-            #   title += ", source_id = #{get_tw_source_id[row['SourceID']]}"
-            # end
+            if row['SourceID'].to_i > 0
+              title += ", source_id = #{get_tw_source_id[row['SourceID']]}"
+            end
 
             logger.info "attribute_subject_id = #{attribute_subject_id}, attribute_subject_type = #{attribute_subject_type}, title = #{title}"
 
-            begin
-              da = DataAttribute.create!(type: 'ImportAttribute',
-                                         attribute_subject_id: attribute_subject_id,
-                                         attribute_subject_type: attribute_subject_type,
-                                         import_predicate: title,
-                                         value: row['Content'],
-                                         project_id: project_id,
-                                         created_at: row['CreatedOn'],
-                                         updated_at: row['LastUpdate'],
-                                         created_by_id: get_tw_user_id[row['CreatedBy']],
-                                         updated_by_id: get_tw_user_id[row['ModifiedBy']])
+            da = DataAttribute.new(type: 'ImportAttribute',
+                                   attribute_subject_id: attribute_subject_id,
+                                   attribute_subject_type: attribute_subject_type,
+                                   import_predicate: title,
+                                   value: row['Content'],
+                                   project_id: project_id,
+                                   created_at: row['CreatedOn'],
+                                   updated_at: row['LastUpdate'],
+                                   created_by_id: get_tw_user_id[row['CreatedBy']],
+                                   updated_by_id: get_tw_user_id[row['ModifiedBy']])
 
+             begin
+              da.save!
+              # data_attributes are not citable
+              # if row['SourceID'].to_i > 0
+              #   Citation.create!(source_id: get_tw_source_id[row['SourceID']],
+              #                    citation_object: da,
+              #                    created_at: row['CreatedOn'],
+              #                    updated_at: row['LastUpdate'],
+              #                    created_by_id: get_tw_user_id[row['CreatedBy']],
+              #                    updated_by_id: get_tw_user_id[row['ModifiedBy']])
+              # end
             rescue ActiveRecord::RecordInvalid
-              byebug
               logger.error "DataAttribute ERROR" + da.errors.full_messages.join(';')
               # Validation failed: Value has already been taken
               # next
             end
-
-            if row['SourceID'].to_i > 0
-              Citation.create!(source_id: get_tw_source_id[row['SourceID']],
-                               citation_object: da,
-                               created_at: row['CreatedOn'],
-                               updated_at: row['LastUpdate'],
-                               created_by_id: get_tw_user_id[row['CreatedBy']],
-                               updated_by_id: get_tw_user_id[row['ModifiedBy']])
-            end
           end
         end
 
-      end   # namespaces below
+      end # namespaces below
     end
   end
 end
