@@ -196,7 +196,7 @@
     }
   }
 </script>
-<style type="text/css" lang="scss">
+<style lang="scss">
 
   .radial-annotator {
     .view-title {

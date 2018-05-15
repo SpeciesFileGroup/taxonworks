@@ -124,7 +124,7 @@ export default {
   }
 }
 </script>
-<style type="text/css" lang="scss">
+<style lang="scss">
 .radial-annotator {
 	.data_attribute_annotator {
 		button {

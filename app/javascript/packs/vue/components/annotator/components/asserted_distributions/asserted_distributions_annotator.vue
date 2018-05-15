@@ -178,7 +178,7 @@
     },
   }
 </script>
-<style type="text/css" lang="scss">
+<style lang="scss">
   .radial-annotator {
     .biological_relationships_annotator {
       overflow-y: scroll;

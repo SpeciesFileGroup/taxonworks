@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "@ibm/type": "^0.5.4",
-    "@rails/webpacker": "3.5",
+    "@rails/webpacker": "4.0.0-pre.2",
     "babel-preset-stage-0": "^6.24.1",
     "browser-request": "^0.3.3",
     "file-loader": "^1.1.11",
@@ -10,7 +10,7 @@
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.2",
     "vue": "^2.5.16",
-    "vue-loader": "14.2.2",
+    "vue-loader": "^15.0.10",
     "vue-resource": "^1.5.0",
     "vue-shortkey": "^3.1.4",
     "vue-template-compiler": "^2.5.16",
@@ -19,6 +19,18 @@
   },
   "devDependencies": {
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
-    "webpack-dev-server": "2.11.2"
+    "webpack-dev-server": "^3.1.4",
+    "eslint": "^4.19.1",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.7.0",
+    "eslint-plugin-standard": "^3.1.0",
+    "eslint-plugin-vue": "^4.5.0"
+  },
+  "scripts": {
+    "webpack-dev-server": "NODE_OPTIONS=$NODE_OPTIONS' --max_old_space_size=4096' ./bin/webpack-dev-server",
+    "eslint-webpack": "node_modules/.bin/eslint app/javascript/packs/** --ext .vue, .js; exit 0",
+    "eslint-webpack-fix": "node_modules/.bin/eslint app/javascript/packs/** --ext .vue, .js --fix; exit 0"
   }
 }

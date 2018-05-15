@@ -183,7 +183,7 @@ export default {
   }
 }
 </script>
-<style type="text/css">
+<style>
 	.tw-spinner {
 		margin: 0 auto;
 		height: auto;

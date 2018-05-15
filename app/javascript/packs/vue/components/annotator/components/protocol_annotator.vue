@@ -48,7 +48,7 @@ export default {
   }
 }
 </script>
-<style type="text/css" lang="scss">
+<style lang="scss">
 .radial-annotator {
 	.protocols_annotator {
 		.vue-autocomplete-input {
