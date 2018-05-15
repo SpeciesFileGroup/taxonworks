@@ -3,8 +3,7 @@ class ObservationMatrixRowsController < ApplicationController
 
   before_action :set_matrix_row, only: [:show]
 
-  # GET /matrices
-  # GET /matrices.json
+  # GET /observation_matrix_rows.json
   def index
     respond_to do |format|
       format.html do
@@ -12,28 +11,33 @@ class ObservationMatrixRowsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @observation_matrix_rows = ObservationMatrixRow.where(filter_params).with_project_id(sessions_current_project_id)
+        @observation_matrix_rows = ObservationMatrixRow.where(filter_params).where(project_id: sessions_current_project_id)
       }
     end
   end
 
-  # GET /matrix_rows/1
-  # GET /matrix_rows/1.json
+  # GET /observation_matrix_rows/1
+  # GET /observation_matrix_rows/1.json
   def show
   end
 
   def list
-    @observation_matrix_rows = ObservationMatrixRow.with_project_id(sessions_current_project_id).page(params[:page])
+    @observation_matrix_rows = ObservationMatrixRow.where(project_id: sessions_current_project_id).page(params[:page])
+  end
+
+  # POST /observation_matrix_rows/sort?id[]=1&id[]=2
+  def sort
+    ObservationMatrixRow.sort(params.require(:ids))
+    head :no_content 
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
+  
   def set_matrix_row
-    @observation_matrix_row = ObservationMatrixRow.find(params[:id])
+    @observation_matrix_row = ObservationMatrixRow.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def filter_params
-    params.permit(:matrix_id)
+    params.permit(:observation_matrix_id, :collection_object_id, :otu_id)
   end
-
 end

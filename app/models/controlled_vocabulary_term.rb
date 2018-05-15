@@ -52,6 +52,7 @@ class ControlledVocabularyTerm < ApplicationRecord
 
   protected
 
+  # @return [Object]
   def uri_relation_is_a_skos_relation
     errors.add(:uri_relation, 'is not a valid uri relation') if !SKOS_RELATIONS.keys.include?(uri_relation)
   end

@@ -14,7 +14,6 @@ module Queries
     attr_accessor :start_date, :end_date, :user_date_start, :user_date_end
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(params)
       params.reject! { |_k, v| v.blank? } # dump all entries with empty values
 
@@ -37,7 +36,6 @@ module Queries
     end
 
     # Only set (and therefor ultimately use) dates if they were provided!
-    # @return [Ignored]
     def set_and_order_dates
       if query_start_date || query_end_date
         @start_date, @end_date = Utilities::Dates.normalize_and_order_dates(query_start_date, query_end_date)

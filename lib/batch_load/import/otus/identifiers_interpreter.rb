@@ -2,7 +2,6 @@ module BatchLoad
   class Import::Otus::IdentifiersInterpreter < BatchLoad::Import
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(**args)
       super(args)
     end

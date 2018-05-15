@@ -7,6 +7,7 @@ export const GetterNames = {
   GetSampleMaxFor: 'getSampleMaxFor',
   GetSampleUnitFor: 'getSampleUnitFor',
   GetSampleNFor: 'getSampleNFor',
+  GetMatrixRow: 'getMatrixRow',
   GetCharacterStateChecked: `getCharacterStateChecked`,
   IsDescriptorUnsaved: 'isDescriptorUnsaved',
   DoesDescriptorNeedCountdown: 'doesDescriptorNeedCountdown'
@@ -23,6 +24,7 @@ import getSampleNFor from './getSampleNFor'
 import getCharacterStateChecked from './getCharacterStateChecked'
 import isDescriptorUnsaved from './isDescriptorUnsaved'
 import doesDescriptorNeedCountdown from './doesDescriptorNeedCountdown'
+import getMatrixRow from './getMatrixRow'
 
 export const GetterFunctions = {
   [GetterNames.GetObservationsFor]: getObservationsFor,
@@ -33,6 +35,7 @@ export const GetterFunctions = {
   [GetterNames.GetSampleMaxFor]: getSampleMaxFor,
   [GetterNames.GetSampleUnitFor]: getSampleUnitFor,
   [GetterNames.GetSampleNFor]: getSampleNFor,
+  [GetterNames.GetMatrixRow]: getMatrixRow,
   [GetterNames.GetCharacterStateChecked]: getCharacterStateChecked,
   [GetterNames.IsDescriptorUnsaved]: isDescriptorUnsaved,
   [GetterNames.DoesDescriptorNeedCountdown]: doesDescriptorNeedCountdown

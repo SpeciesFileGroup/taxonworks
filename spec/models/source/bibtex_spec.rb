@@ -1,5 +1,6 @@
 require 'rails_helper'
 
+# rubocop:disable Rails/SaveBang
 describe Source::Bibtex, type: :model, group: :sources do
 
   let(:bibtex) { FactoryBot.build(:source_bibtex) }
@@ -109,7 +110,7 @@ describe Source::Bibtex, type: :model, group: :sources do
 
       # WHY?
       specify 'simple identity' do
-        expect( BibTeX::Entry.new()).to eq(BibTeX::Entry.new())
+        expect(BibTeX::Entry.new()).to eq(BibTeX::Entry.new())
       end
 
       specify 'complex(?) entity identity ' do
@@ -128,9 +129,9 @@ describe Source::Bibtex, type: :model, group: :sources do
                                     journal = "{Bib}TeX journal of \{funny\} ch\'{a}r{\aa}cter{\$}",
                                     year = {2003}})
 
-        a               = BibTeX.parse(citation_string).convert(:latex)
-        entry           = a.first
-        src             = Source::Bibtex.new_from_bibtex(entry)
+        a     = BibTeX.parse(citation_string).convert(:latex)
+        entry = a.first
+        src   = Source::Bibtex.new_from_bibtex(entry)
         expect(src.valid?).to be_truthy
         expect(src.save).to be_truthy
 
@@ -149,9 +150,9 @@ describe Source::Bibtex, type: :model, group: :sources do
             author = {August Brauer},
             title = {Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer.}
           }"
-        a  = BibTeX.parse(citation_string).convert(:latex)
-        entry  = a.first
-        src  = Source::Bibtex.new_from_bibtex(entry)
+        a               = BibTeX.parse(citation_string).convert(:latex)
+        entry           = a.first
+        src             = Source::Bibtex.new_from_bibtex(entry)
         expect(src.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution. Available from: http://dx.doi.org/10.5962/bhl.title.1086.')
       end
 
@@ -169,9 +170,9 @@ describe Source::Bibtex, type: :model, group: :sources do
             title = {A review of the Nearctic genus Prostoia (Ricker) (Plecoptera, Nemouridae), with the description of a new species and a surprising range extension for P.~hallasi Kondratieff {\&} Kirchner},
             journal = {{ZooKeys}}
           }"
-        a = BibTeX.parse(citation_string).convert(:latex)
-        entry = a.first
-        src  = Source::Bibtex.new_from_bibtex(entry)
+        a               = BibTeX.parse(citation_string).convert(:latex)
+        entry           = a.first
+        src             = Source::Bibtex.new_from_bibtex(entry)
         expect(src.cached_string('html')).to eq('Grubbs, S., Baumann, R., DeWalt, R. &amp; Tweddale, T. (2014) A review of the Nearctic genus Prostoia (Ricker) (Plecoptera, Nemouridae), with the description of a new species and a surprising range extension for P. hallasi Kondratieff &amp; Kirchner. <i>ZooKeys</i> 401, 11–30.')
       end
     end
@@ -282,7 +283,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       #   end
       context 'TW serial conversion' do
         let(:src) { FactoryBot.build(:soft_valid_bibtex_source_article) }
-        let(:serial1) { FactoryBot.create(:valid_serial) }  # create so serial1 has an ID
+        let(:serial1) { FactoryBot.create(:valid_serial) } # create so serial1 has an ID
 
         specify 'serial gets converted properly to bibtex journal' do
           expect(src.valid?).to be_truthy
@@ -302,10 +303,10 @@ describe Source::Bibtex, type: :model, group: :sources do
 
         specify 'issn gets converted properly' do
           issn = FactoryBot.build(:issn_identifier)
-          serial1.identifiers <<  issn
+          serial1.identifiers << issn
           expect(serial1.save).to be_truthy
           src.serial = serial1
-          expect(src.save ).to be_truthy
+          expect(src.save).to be_truthy
           src.soft_validate()
           expect(src.soft_valid?).to be_truthy
           bib = src.to_bibtex
@@ -375,9 +376,9 @@ describe Source::Bibtex, type: :model, group: :sources do
     #  end
 
     specify 'with an isbn in a BibTeX::Entry, convert it to an Identifier' do
-      identifier  = '1-84356-028-3'
+      identifier                 = '1-84356-028-3'
       valid_gem_bibtex_book.isbn = identifier
-      s  = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
+      s                          = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
       expect(s.identifiers.to_a.size).to eq(1)
       expect(s.identifiers.first.identifier).to eq(identifier)
       expect(s.save).to be_truthy
@@ -388,9 +389,9 @@ describe Source::Bibtex, type: :model, group: :sources do
     context 'with an issn in a BibTeX::Entry, convert it to an Identifier' do
       %w{2049-3630 1050-124x 1050-124X}.each do |n|
         specify "ISSN #{n}" do
-          identifier = "ISSN #{n}"
+          identifier                 = "ISSN #{n}"
           valid_gem_bibtex_book.issn = identifier
-          s = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
+          s                          = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
           expect(s.identifiers.to_a.size).to eq(1)
           expect(s.identifiers.first.identifier).to eq(identifier)
           expect(s.save).to be_truthy
@@ -615,7 +616,7 @@ describe Source::Bibtex, type: :model, group: :sources do
             end
 
             specify 'multiple authors' do
-              source_bibtex.author ='Thomas, D. and Fowler, Chad and Hunt, Andy'
+              source_bibtex.author = 'Thomas, D. and Fowler, Chad and Hunt, Andy'
               source_bibtex.save
               expect(source_bibtex.cached_author_string).to eq('Thomas, Fowler & Hunt')
               expect(source_bibtex.authority_name).to eq('Thomas, Fowler & Hunt')
@@ -632,7 +633,7 @@ describe Source::Bibtex, type: :model, group: :sources do
             specify 'SourceAuthor role' do
               a = Person.parse_to_people('Dmitriev, D.A.').first
               a.save
-              sa = SourceAuthor.create!(person_id: a.id, role_object: source_bibtex)
+              SourceAuthor.create!(person_id: a.id, role_object: source_bibtex)
               expect(source_bibtex.cached_author_string).to eq('Dmitriev')
             end
           end
@@ -643,7 +644,7 @@ describe Source::Bibtex, type: :model, group: :sources do
               source_bibtex.save
               expect(source_bibtex.authority_name).to eq(nil)
               expect(source_bibtex.cached_author_string).to eq(nil)
-            end
+        end
           end
 
         end
@@ -661,12 +662,12 @@ describe Source::Bibtex, type: :model, group: :sources do
       expect(src.valid?).to be_truthy # nil url is valid
       src.url = 'bad url'
       expect(src.valid?).to be_falsey
-      expect(src.errors.messages[:url].include?('['+src.url+err)).to be_truthy
+      expect(src.errors.messages[:url].include?('[' + src.url + err)).to be_truthy
       src.url = 'http://speciesfile.org'
       expect(src.valid?).to be_truthy
       src.url = 'speciesfile.org'
       expect(src.valid?).to be_falsey
-      expect(src.errors.messages[:url].include?('['+src.url+err)).to be_truthy
+      expect(src.errors.messages[:url].include?('[' + src.url + err)).to be_truthy
       src.url = 'https://google.com'
       expect(src.valid?).to be_truthy
       src.url = 'ftp://test.edu'
@@ -967,15 +968,15 @@ describe Source::Bibtex, type: :model, group: :sources do
       context 'Must facilitate letter annotations on year' do
         specify 'correctly generates year suffix from BibTeX entry' do
           bibtex_entry_year = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James', year: '1921b')
-          src = Source::Bibtex.new_from_bibtex(bibtex_entry_year)
+          src               = Source::Bibtex.new_from_bibtex(bibtex_entry_year)
           expect(src.year.to_s).to eq('1921') # year is an int by default
           expect(src.year_suffix).to eq('b')
           expect(src.year_with_suffix).to eq('1921b')
         end
 
         specify 'correctly converts year suffix to BibTeX entry' do
-          src = FactoryBot.create(:valid_source_bibtex)
-          src[:year] = '1922'
+          src               = FactoryBot.create(:valid_source_bibtex)
+          src[:year]        = '1922'
           src[:year_suffix] = 'c'
           expect(src.year_with_suffix).to eq('1922c')
           bibtex_entry = src.to_bibtex
@@ -1020,7 +1021,7 @@ describe Source::Bibtex, type: :model, group: :sources do
 
     context 'associations' do
       context 'roles' do
-        let(:vp1) { Person.create!(last_name: 'Smith')  } 
+        let(:vp1) { Person.create!(last_name: 'Smith') }
         let(:vp2) { Person.create!(last_name: 'Adams', first_name: 'John', prefix: 'Von') }
 
         specify 'after create/saved populate author/editor roles' do
@@ -1099,8 +1100,39 @@ describe Source::Bibtex, type: :model, group: :sources do
         # pending 'test TW identifiers'
       end
     end
-  end
 
+    context 'matching through concerns' do
+      let(:bib1) { FactoryBot.create(:valid_thesis) }
+      let(:bib1a) {
+        b = bib1.dup
+        b.save!
+        b
+      }
+      let(:bib2) { FactoryBot.create(:valid_thesis) }
+      let(:bib3) { FactoryBot.create(:valid_misc, day: 5) }
+      let(:bib4) { FactoryBot.create(:valid_misc, author: 'Anon, Test') }
+      let(:trial) {
+        Source::Bibtex.new(bibtex_type: bib3.bibtex_type,
+                           title:       bib3.title,
+                           year:        bib3.year,
+                           month:       'jul')
+      }
+
+      context '#identical' do
+        specify 'full matching' do
+          [bib1, bib2, bib3, bib4, bib1a]
+          expect(bib1.identical.ids).to contain_exactly(bib2.id, bib1a.id)
+        end
+      end
+
+      context '#similar' do
+        specify 'full matching' do
+          [bib1, bib2, bib3, bib4, bib1a]
+          expect(trial.similar.ids).to contain_exactly(bib3.id, bib4.id)
+        end
+      end
+    end
+  end
 
   context 'class methods' do
 
@@ -1139,6 +1171,38 @@ describe Source::Bibtex, type: :model, group: :sources do
       context 'parameters' do
         specify '{use_vetted_people: true} - uses exactly matching Person::Vetted found, otherwise creates new editors/authors' do
           # skip
+        end
+      end
+    end
+
+    context 'matching through concerns' do
+      let(:bib1) { FactoryBot.create(:valid_thesis) }
+      let(:bib1a) {
+        b = bib1.dup
+        b.save!
+        b
+      }
+      let(:bib2) { FactoryBot.create(:valid_thesis) }
+      let(:bib3) { FactoryBot.create(:valid_misc, day: 5) }
+      let(:bib4) { FactoryBot.create(:valid_misc, author: 'Anon, Test') }
+      let(:trial) {
+        Source::Bibtex.new(bibtex_type: bib3.bibtex_type,
+                           title:       bib3.title,
+                           year:        bib3.year,
+                           month:       'jul')
+      }
+
+      context '#identical' do
+        specify 'full matching' do
+          [bib1, bib2, bib3, bib4, bib1a]
+          expect(Source.identical(bib1.attributes).ids).to contain_exactly(bib2.id, bib1.id, bib1a.id)
+        end
+      end
+
+      context '#similar' do
+        specify 'full matching' do
+          [bib1, bib2, bib3, bib4, bib1a]
+          expect(Source.similar(trial.attributes).ids).to contain_exactly(bib3.id, bib4.id)
         end
       end
     end
@@ -1318,14 +1382,13 @@ describe Source::Bibtex, type: :model, group: :sources do
           expect(b.authors.reload.count).to eq(3)
           expect(b.authority_name).to eq('un, deux & trois')
           expect(b.update(params)).to be_truthy
-          expect(b.authors.reload.collect {|a| a.last_name}).to eq(%w{deux trois un})
+          expect(b.authors.reload.collect { |a| a.last_name }).to eq(%w{deux trois un})
           expect(b.authors.reload.count).to eq(3)
           expect(b.authority_name).to eq('deux, trois & un')
         end
       end
     end
   end
-
 
   context('Beth') do
 =begin
@@ -1415,3 +1478,4 @@ describe Source::Bibtex, type: :model, group: :sources do
 
   end
 end
+# rubocop:enable Rails/SaveBang

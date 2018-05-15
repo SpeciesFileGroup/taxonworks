@@ -1,4 +1,3 @@
-
 class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationController
   include TaskControllerConfiguration
 

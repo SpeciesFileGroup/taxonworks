@@ -16,7 +16,6 @@ module BatchLoad::ColumnResolver
     # reasons can be added here
     attr_accessor :error_messages
 
-    # @return [Ignored]
     def initialize
       @error_messages = []
       @items = []

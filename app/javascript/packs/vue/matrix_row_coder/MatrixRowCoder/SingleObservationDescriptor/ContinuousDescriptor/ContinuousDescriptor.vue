@@ -2,17 +2,19 @@
   <div class="continuous-descriptor">
     <summary-view
     :descriptor="descriptor">
-
-      <label>
-        Amount:
-        <input type="number" :value="continuousValue" @input="updateContinuousValue">
-      </label>
-      <unit-selector v-model="continuousUnit"/>
-      <button
-        type="button"
-        @click="removeObservation">
-        Remove
-      </button>
+      <div class="horizontal-left-content">
+        <label>
+          Amount:
+          <input type="number" :value="continuousValue" @input="updateContinuousValue">
+        </label>
+        <unit-selector v-model="continuousUnit"/>
+        <span
+          type="button"
+          class="circle-button btn-delete"
+          @click="removeObservation">
+          Remove
+        </span>
+      </div>
     </summary-view>
 
     <single-observation-zoomed-view

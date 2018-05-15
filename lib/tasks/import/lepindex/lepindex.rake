@@ -8,6 +8,31 @@ namespace :tw do
   namespace :project_import do
     namespace :lepindex do
 
+      task :validate_images => [:environment, :data_directory] do 
+        path = @args[:data_directory] + 'image_index.tab' 
+        errors = 0 
+        passed = 0
+
+        file = CSV.foreach(path, col_sep: "\t")
+        file.each_slice(100) do |slice|
+          slice.each do |row|
+            id = row[0]
+            f = row[1]
+            
+            f.strip!
+            f.downcase!
+
+            unless File.exists?(f)
+              errors += 1
+            else
+              passed +=1
+            end
+          end
+        end
+        puts Rainbow("Errors: #{errors}.").red
+        puts Rainbow("Passed: #{passed}.").yellow
+      end
+
       # @import_name = 'lepindex'
 
       # A utility class to index data.
@@ -48,6 +73,8 @@ namespace :tw do
               slice.each do |row|
                 id = row[0]
                 f = row[1]
+                f.strip!
+                f.downcase!
 
                 if File.exists?(f)
                  
@@ -59,14 +86,14 @@ namespace :tw do
                   puts "processing #{f}, for #{id}"
 
                   begin
-                    image = Image.new(image_file: File.open(f))
-                    Depiction.create!(image_attributes: { image_file: f }, depiction_object_id: id, depiction_object_type: 'TaxonName')
+                    p = File.open(f)
+                    Depiction.create!(image_attributes: { image_file: p }, depiction_object_id: id, depiction_object_type: 'TaxonName')
                   ensure
-                    f.close
+                    p.close
                   end
 
                 else
-                  puts Rainbow("Error: Can not find image #{f}, for id: #{id}, skipping!").red
+                  puts Rainbow("Error: Can not find image #{f}, for id: #{id}, skipped").red
                 end
               end
               puts Rainbow('group handled').yellow
@@ -74,8 +101,8 @@ namespace :tw do
             end
 
           rescue ActiveRecord::RecordInvalid
-            puts Rainbow("\nrecord is invalid, group is aborted").red
-            raise
+            puts Rainbow(" Error: record is invalid, row skipped").red
+            next 
           end
         end
       end
@@ -203,7 +230,7 @@ namespace :tw do
         project_name = 'Lepindex' +  Time.now.to_s
 
         user = User.where(email: email).first
-        user ||= User.create!(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name, self_created: true, flagged_for_password_reset: true)
+        user ||= User.create!(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name, self_created: true, is_flagged_for_password_reset: true)
         $user_id = user.id
 
         # Always start with a new project 
@@ -246,8 +273,6 @@ namespace :tw do
         path = @args[:data_directory] + 'BUTMOTH_SPECIESFILE_REFS_UNIQUE.txt'
         print "\nHandling references\n"
         raise "file #{path} not found" if not File.exists?(path)
-
-        # TODO: use a converter here (blank cells)
 
         file = CSV.foreach(path, col_sep: "\t", encoding: 'iso-8859-1:UTF-8', headers: true)
 
@@ -439,14 +464,6 @@ namespace :tw do
             print "\n#{rank}\n"
 
             file.each_with_index do |row, i|
-              #if rank == 'GENUS' || i > 0 && i < 1500
-
-              #              break if i == 2000
-
-              #              if i % 2000 == 0
-              #                GC.start
-              #              end
-              #  break if i > 200
 
               print "\r#{i}"
               if row['Current_rank_of_name'] == rank
@@ -621,7 +638,14 @@ namespace :tw do
                     citation = brow.nil? ? nil : @data.citations_index[brow['GENUS_REF']]
                     c = Citation.create!(citation_object: protonym, is_original: true, source_id: ref, pages: citation['PAGE']) unless ref.nil? || citation.nil?
 
-                    @list_of_relationships << {'taxon' => protonym.id, 'relationship' => 'type species', 'type species' => brow['TS_SPECIES'], 'type species reference' => brow['TS_REF'], 'type designation' => brow['TSD_DESIGNATION'], 'ButmothNo' => brow['ButmothNo'].to_i, 'valid genus' => row['valid_parent_id']} unless brow.nil?
+                    @list_of_relationships << {
+                      'taxon' => protonym.id,
+                      'relationship' => 'type species',
+                      'type species' => brow['TS_SPECIES'],
+                      'type species reference' => brow['TS_REF'],
+                      'type designation' => brow['TSD_DESIGNATION'],
+                      'ButmothNo' => brow['ButmothNo'].to_i,
+                      'valid genus' => row['valid_parent_id']} unless brow.nil?
                   end
 
                   unless @classification_classes[availability].nil?
@@ -656,7 +680,6 @@ namespace :tw do
 
         puts Rainbow('All invalid (unrecognized) relationships:').red 
         ap Rainbow(@invalid_relationships).red
-
 
         print "\nAdding relationships\n"
         @list_of_relationships.each_with_index do |r, i|
@@ -725,8 +748,6 @@ namespace :tw do
                 citation = @data.citations_index[r['type species reference']]
                 print "\nTS_REF #{r['type species reference']} is invalid\n" if citation.nil?
 
-                # TODO: !! FIX
-                #        children.first.source_id = ref unless ref.nil?
                 Citation.create(citation_object: children.first, is_original: true, source_id: ref, pages: citation['PAGE']) unless ref.nil? || citation.nil?
 
                 children.first.save

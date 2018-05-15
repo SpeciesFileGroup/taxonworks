@@ -5,6 +5,10 @@ module Workbench::NavigationHelper
 
   # Slideout panels
 
+  def slideout_clipboard
+    render(partial: '/shared/data/slideout/clipboard')  if sessions_current_project && sessions_signed_in?
+  end
+
   def slideout_pinboard
     render(partial: '/shared/data/slideout/pinboard')  if sessions_current_project && sessions_signed_in?
   end

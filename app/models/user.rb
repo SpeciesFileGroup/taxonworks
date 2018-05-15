@@ -216,6 +216,7 @@ class User < ApplicationRecord
 
   # @param [Integer] project_id
   # @return [Scope] of ids for users in the project
+  # TODO: get rid of $project_id
   def self.in_project(project_id = $project_id)
     ProjectMember.where(project_id: project_id).distinct.pluck(:user_id)
   end
@@ -279,7 +280,6 @@ class User < ApplicationRecord
   # rubocop:enable Style/StringHashKeys
 
   # @param [Hash] options
-  # @return [Ignored]
   def remove_page_from_favorites(options = {}) # name: nil, kind: nil, project_id: nil
     validate_favorite_options(options)
     new_routes = hub_favorites.clone
@@ -295,7 +295,6 @@ class User < ApplicationRecord
     true
   end
 
-  # @return [Ignored]
   def update_last_seen_at
 
     a = 0
@@ -419,7 +418,6 @@ class User < ApplicationRecord
     password.present? || password_confirmation.present? || @require_password_presence
   end
 
-  # @return [Ignored]
   def configure_self_created
     if !self.new_record? && self.creator.nil? && self.updater.nil?
       self.update_columns(created_by_id: self.id, updated_by_id: self.id) # !?

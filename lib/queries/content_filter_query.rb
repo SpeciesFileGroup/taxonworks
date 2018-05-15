@@ -10,7 +10,6 @@ module Queries
     attr_accessor :most_recent_updates
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(topic_id: nil, otu_id: nil, hours_ago: nil, query_string: nil, most_recent_updates: nil)
       raise ArgumentError.new('missing a filter') if topic_id.nil? && otu_id.nil? && hours_ago.nil? && most_recent_updates.nil? # TODO: support query_string
 
