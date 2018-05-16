@@ -32,11 +32,14 @@ export default {
     }
   },
 
-  watch: {
-    value(newVal) {
-      this.list = {};
-    },
-  },
+  // watch: {
+  //   value(newVal) {
+  //     this.annotationType.used_on = {};
+  //   },
+  //   annotationType(newVal) {
+  //     this.annotationType.used_on = {};
+  //   }
+  // },
   data() {
     return {
       list: {},
