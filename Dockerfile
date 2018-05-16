@@ -46,6 +46,7 @@ RUN gem update --system
 ADD package.json /app/
 ADD Gemfile /app/
 ADD Gemfile.lock /app/
+
 WORKDIR /app
 
 RUN npm install && npm run increase-memory-limit
