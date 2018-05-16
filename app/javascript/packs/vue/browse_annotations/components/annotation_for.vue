@@ -40,6 +40,7 @@
     },
     watch: {
       onModel(newVal) {
+        this.list = {};
         if (this.selectOptionsUrl)
           this.getSelectOptions(newVal)
       }

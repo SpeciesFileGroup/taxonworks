@@ -3,9 +3,9 @@
     <div class="annotation_type">
       <annotation-types
         v-model="filter.annotation_type" />
-      <!--@annotation_type_selected="filter.common = $event"-->
-      <!--<span>Selected: {{ filter.annotation_type }}</span>-->
     </div>
+    <!--@annotation_type_selected="filter.common = $event"-->
+    <!--<span>Selected: {{ filter.annotation_type }}</span>-->
     <div class="annotation_for">
       <annotation-for
         v-model="filter.for_selected"
@@ -20,10 +20,10 @@
     <div class="annotation_on">
       <annotation-on
         v-model="filter.model"
-        :used-on="filter.annotation_type.used_on"
         :annotation-type="filter.annotation_type"
         @model_selected="filter.common = $event"
         @result="filter.result = $event"/>
+      <!--:used-on="filter.annotation_type.used_on"-->
       <!--<span>Selected: {{ filter.model }}</span>-->
     </div>
     <div class="annotation_by">

@@ -30,7 +30,6 @@
     data: function () {
       return {
         typesList: {},
-        result: undefined,
         selected: {}
       }
     },
