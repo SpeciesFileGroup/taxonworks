@@ -122,7 +122,7 @@ export default {
   }
 }
 </script>
-<style type="text/css">
+<style>
   .ranks-list ul {
     list-style: none;
     padding-left: 0px;

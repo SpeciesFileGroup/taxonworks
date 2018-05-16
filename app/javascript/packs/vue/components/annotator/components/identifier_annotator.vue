@@ -194,7 +194,7 @@ export default {
   }
 }
 </script>
-<style type="text/css" lang="scss">
+<style lang="scss">
 .radial-annotator {
 	.identifier_annotator {
 		button {

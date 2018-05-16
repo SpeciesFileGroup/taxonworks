@@ -56,7 +56,7 @@ export default {
   }
 }
 </script>
-<style type="text/css" lang="scss">
+<style lang="scss">
 .radial-annotator {
 	.notes_annotator {
 		button {

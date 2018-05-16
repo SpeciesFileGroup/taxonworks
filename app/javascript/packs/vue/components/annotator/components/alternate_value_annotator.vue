@@ -120,7 +120,7 @@
     }
   }
 </script>
-<style type="text/css" lang="scss">
+<style lang="scss">
   .radial-annotator {
     .alternate_values_annotator {
       .field input {
