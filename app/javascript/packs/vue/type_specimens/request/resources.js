@@ -109,6 +109,7 @@ export {
   GetDepictions,
   GetPreparationTypes,
   GetRepository,
+  GetBiocuration,
   GetBiocurationsTypes,
   GetCollectionEvent,
   UpdateTypeMaterial,

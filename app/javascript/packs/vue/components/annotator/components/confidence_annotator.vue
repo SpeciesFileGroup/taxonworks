@@ -159,7 +159,7 @@
     }
   }
 </script>
-<style type="text/css" lang="scss">
+<style lang="scss">
   .radial-annotator {
     .confidence_annotator {
       textarea {

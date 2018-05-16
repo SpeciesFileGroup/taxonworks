@@ -70,7 +70,7 @@ export default {
 }
 </script>
 
-<style type="text/css" lang="scss">
+<style lang="scss">
 .radial-annotator {
 	.depiction_annotator {
 		button {
