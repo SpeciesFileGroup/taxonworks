@@ -43,10 +43,12 @@ ENV RAILS_ENV production
 RUN echo 'gem: --no-rdoc --no-ri >> "$HOME/.gemrc"'
 RUN gem update --system
 
+ADD package.json /app/
 ADD Gemfile /app/
 ADD Gemfile.lock /app/
 WORKDIR /app
 
+RUN npm install && npm run increase-memory-limit
 RUN bundle install --without=development test
 
 COPY . /app
