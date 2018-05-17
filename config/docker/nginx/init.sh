@@ -12,11 +12,9 @@ bundle exec erb /app/config/docker/secrets.yml.erb > /app/config/secrets.yml
 bundle exec erb /app/config/docker/database.yml.erb > /app/config/database.yml
 bundle exec erb /app/config/docker/application_settings.yml.erb > /app/config/application_settings.yml
 
-bundle exec rake assets:precompile 
+RAILS_ENV=production bin/bundle exec rake assets:precompile
 
 bundle exec erb /app/config/docker/pgpass.erb > /root/.pgpass
 chmod 0600 /root/.pgpass
 bundle exec rake tw:production:deploy:update_database database_user=$POSTGRES_USER database_host=$POSTGRES_HOST
 
-# Create a fake asset for liveness probe
-# touch app/public/assets/stylesheets/zzzz.css
