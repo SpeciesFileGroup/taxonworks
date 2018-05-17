@@ -1048,7 +1048,7 @@ class GeographicItem < ApplicationRecord
         .joins(:geographic_areas_geographic_items)
         .merge(GeographicAreasGeographicItem
                  .ordered_by_data_origin)
-        .order(geographic_areas: [:name]).limit(1)).each do |a|
+        .order('geographic_areas.name').limit(1)).each do |a|
       v.merge!(a.categorize)
     end
     v
@@ -1110,9 +1110,9 @@ class GeographicItem < ApplicationRecord
   # @param [Integer] geographic_item_id
   # @return [Double] distance in meters (faster, less accurate)
   def st_distance_spheroid(geographic_item_id)
-    q1 = "ST_Distance_Spheroid((#{GeographicItem.select_geometry_sql(id)})," \
+    q1 = "ST_DistanceSpheroid((#{GeographicItem.select_geometry_sql(id)})," \
       "(#{GeographicItem.select_geometry_sql(geographic_item_id)}),'#{Gis::SPHEROID}') as distance"
-    q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance_Spheroid((?),(?),?) as distance',
+    q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_DistanceSpheroid((?),(?),?) as distance',
                                                        GeographicItem.select_geometry_sql(id),
                                                        GeographicItem.select_geometry_sql(geographic_item_id),
                                                        Gis::SPHEROID])

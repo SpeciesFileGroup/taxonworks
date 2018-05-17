@@ -1070,7 +1070,8 @@ class CollectingEvent < ApplicationRecord
 
     if geographic_items.any?
       geo_item_id      = geographic_items.select(:id).first.id
-      base['geometry'] = JSON.parse(GeographicItem.select("ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL}::geometry) geo_json").find(geo_item_id).geo_json)
+      query = "ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL.to_sql}::geometry) geo_json"
+      base['geometry'] = JSON.parse(GeographicItem.select(query).find(geo_item_id).geo_json)
     end
     base
   end
