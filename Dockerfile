@@ -43,8 +43,8 @@ ENV RAILS_ENV production
 RUN echo 'gem: --no-rdoc --no-ri >> "$HOME/.gemrc"'
 RUN gem update --system
 
-# ADD package.json /app/
-# ADD package-lock.json /app/
+ADD package.json /app/
+ADD package-lock.json /app/
 ADD Gemfile /app/
 ADD Gemfile.lock /app/
 
