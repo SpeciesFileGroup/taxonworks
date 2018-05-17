@@ -3186,7 +3186,7 @@ glob@^6.0.4:
     once "^1.3.0"
     path-is-absolute "^1.0.0"
 
-glob@^7.0.0, glob@^7.0.3, glob@^7.0.5, glob@^7.1.2, glob@~7.1.1:
+glob@^7.0.0, glob@^7.0.3, glob@^7.0.5, glob@^7.1.1, glob@^7.1.2, glob@~7.1.1:
   version "7.1.2"
   resolved "https://registry.yarnpkg.com/glob/-/glob-7.1.2.tgz#c19c9df9a028702d678612384a6552404c636d15"
   dependencies:
@@ -3623,6 +3623,12 @@ imurmurhash@^0.1.4:
 in-publish@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/in-publish/-/in-publish-2.0.0.tgz#e20ff5e3a2afc2690320b6dc552682a9c7fadf51"
+
+increase-memory-limit@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/increase-memory-limit/-/increase-memory-limit-1.0.6.tgz#0bac263c248ba8242939976142e8a706a81b0cfc"
+  dependencies:
+    glob "^7.1.1"
 
 indent-string@^2.1.0:
   version "2.1.0"
