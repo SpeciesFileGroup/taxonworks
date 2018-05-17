@@ -14,3 +14,19 @@ spec:
   selector:
     matchLabels:
       name: sandbox-staging-pv
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: sandbox 
+  name: sandbox-backup-pv-claim
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 4700Gi
+  selector:
+    matchLabels:
+      name: sandbox-backup-pv

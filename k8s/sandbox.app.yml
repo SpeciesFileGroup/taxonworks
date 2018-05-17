@@ -41,6 +41,9 @@ spec:
         - name: sandbox-staging-vol
           persistentVolumeClaim:
             claimName: sandbox-staging-pv-claim
+        - name: sandbox-backup-vol
+          persistentVolumeClaim:
+            claimName: sandbox-backup-pv-claim
       containers:
         - name: tw-sandpaper # taxonworks
           image: sfgrp/taxonworks:latest
@@ -55,6 +58,8 @@ spec:
           volumeMounts:
             - mountPath: /staging
               name: sandbox-staging-vol
+            - mountPath: /backup
+              name: sandbox-backup-vol
           readinessProbe:
             httpGet:
               path: /ping
