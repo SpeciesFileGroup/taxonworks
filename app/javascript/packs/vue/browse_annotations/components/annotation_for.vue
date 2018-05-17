@@ -7,7 +7,7 @@
         v-model="view"/>
     <button
         v-if="view"
-        v-for="item in list[view]"
+        v-for="item in showList[view]"
         :key="item.id"
         type="button"
         :class="{ ' button-submit': (selectedList.hasOwnProperty(item.id))}"
@@ -39,10 +39,21 @@
       },
     },
     watch: {
+      selectOptionsUrl() {
+        this.selectedList = {}
+        this.list = {}
+        this.view = undefined
+        this.tabs = []
+      },
       onModel(newVal) {
-        this.list = {};
+        this.selectedList = {}
         if (this.selectOptionsUrl)
           this.getSelectOptions(newVal)
+      }
+    },
+    computed: {
+      showList() {
+        return this.list
       }
     },
     data() {
@@ -71,7 +82,7 @@
           this.list = response.body;
           console.log(response.body);
           this.$http.get(this.allSelectOptionUrl).then(response => {
-            this.list['all'] = response.body;
+            this.$set(this.list, 'all', response.body);
             console.log(response.body);
           })
         })
