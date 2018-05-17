@@ -23,10 +23,6 @@ export default {
       type: String,
       default: ''
     },
-    // usedOn: {
-    //   type: Object,
-    //   default: undefined
-    // },
     annotationType: {
       type: Object,
       required: true
@@ -34,12 +30,8 @@ export default {
   },
 
   watch: {
-    // value(newVal) {
-    //   this.selectModel(newVal);
-    // },
     annotationType() {
-      this.$emit('input', undefined);
-      // this.annotationType.used_on = {};
+      this.$emit('input', undefined); //
     }
   },
   data() {
@@ -49,11 +41,9 @@ export default {
     };
   },
   methods: {
-    selectModel(type) {   // click one of the types provided from usedOn
+    selectModel(type) {   // clicked one of the types provided from usedOn
       this.$emit("input", type.valueOf());
-      // this.$emit("model_selected", type.valueOf());
-    }//,
-    //setType()
+    }
   }
 };
 </script>

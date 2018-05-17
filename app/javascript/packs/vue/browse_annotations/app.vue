@@ -4,8 +4,6 @@
       <annotation-types
         v-model="filter.annotation_type" />
     </div>
-    <!--@annotation_type_selected="filter.common = $event"-->
-    <!--<span>Selected: {{ filter.annotation_type }}</span>-->
     <div class="annotation_for">
       <annotation-for
         v-model="filter.for_selected"
@@ -23,8 +21,6 @@
         :annotation-type="filter.annotation_type"
         @model_selected="filter.common = $event"
         @result="filter.result = $event"/>
-      <!--:used-on="filter.annotation_type.used_on"-->
-      <!--<span>Selected: {{ filter.model }}</span>-->
     </div>
     <div class="annotation_by">
       <annotation-by
@@ -34,7 +30,6 @@
       <annotation-dates 
         v-model="filter.annotation_dates" 
         @annotation_dates_selected="filter.common = $event"/>
-      <!--<span>Selected: {{ filter.annotation_dates.start }} - {{ filter.annotation_dates.end }}</span>-->
     </div>
     <div 
       class="annotation_logic"
@@ -42,10 +37,7 @@
       <annotation-logic
         v-model="filter.annotation_logic"
         @annotation_logic_selected="filter.common = $event"/>
-    <!--<span>Selected: {{ // filter.annotation_logic.andOr }}</span>-->
     </div>
-    <!--<span v-for="whatever in filter.result">{{ whatever }}</span>-->
-    <!--<span v-if="filter.common">{{ filter.common }}</span>-->
     <span>{{ filter.common }}</span>
     <button
       @click="processCall"
