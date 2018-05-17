@@ -37,10 +37,10 @@ spec:
         app: tw-sandpaper # taxonworks
         tier: frontend
     spec:
-#     volumes:
-#       - name: taxonworks-staging-vol
-#         persistentVolumeClaim:
-#           claimName: taxonworks-staging-pv-claim
+     volumes:
+       - name: sandbox-staging-vol
+         persistentVolumeClaim:
+           claimName: sandbox-staging-pv-claim
       containers:
         - name: tw-sandpaper # taxonworks
           image: sfgrp/taxonworks:latest
@@ -59,13 +59,13 @@ spec:
             httpGet:
               path: /ping
               port: 80
-            initialDelaySeconds: 1500 # 30 
+            initialDelaySeconds: 30 # 30 
             timeoutSeconds: 3
           livenessProbe:
             httpGet:
               path: /ping
               port: 80
-            initialDelaySeconds: 1500 # 180
+            initialDelaySeconds: 30 # 180
             timeoutSeconds: 3
           env:
             - name: RAILS_ENV
