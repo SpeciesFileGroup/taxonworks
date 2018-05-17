@@ -37,10 +37,10 @@ spec:
         app: tw-sandpaper # taxonworks
         tier: frontend
     spec:
-     volumes:
-       - name: sandbox-staging-vol
-         persistentVolumeClaim:
-           claimName: sandbox-staging-pv-claim
+      volumes:
+        - name: sandbox-staging-vol
+          persistentVolumeClaim:
+            claimName: sandbox-staging-pv-claim
       containers:
         - name: tw-sandpaper # taxonworks
           image: sfgrp/taxonworks:latest
@@ -49,12 +49,12 @@ spec:
               name: http
           resources:
             limits:
-              memory: "32Gi"
+              memory: "8Gi"
             requests:
               memory: "8Gi"
-#         volumeMounts:
-#           - mountPath: /staging
-#             name: taxonworks-staging-vol
+          volumeMounts:
+            - mountPath: /staging
+              name: sandbox-staging-vol
           readinessProbe:
             httpGet:
               path: /ping
