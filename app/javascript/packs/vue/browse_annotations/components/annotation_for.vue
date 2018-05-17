@@ -47,7 +47,7 @@
       },
       onModel(newVal) {
         this.selectedList = {}
-        if (this.selectOptionsUrl)
+        if (this.selectOptionsUrl && newVal)
           this.getSelectOptions(newVal)
       }
     },
