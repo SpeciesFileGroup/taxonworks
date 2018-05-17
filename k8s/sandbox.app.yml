@@ -47,6 +47,11 @@ spec:
           ports:
             - containerPort: 80
               name: http
+          resources:
+            limits:
+              memory: "32Gi"
+            requests:
+              memory: "8Gi"
 #         volumeMounts:
 #           - mountPath: /staging
 #             name: taxonworks-staging-vol
