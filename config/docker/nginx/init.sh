@@ -12,7 +12,7 @@ bundle exec erb /app/config/docker/secrets.yml.erb > /app/config/secrets.yml
 bundle exec erb /app/config/docker/database.yml.erb > /app/config/database.yml
 bundle exec erb /app/config/docker/application_settings.yml.erb > /app/config/application_settings.yml
 
-bundle exec rake assets:precompile
+# bundle exec rake assets:precompile
 
 bundle exec erb /app/config/docker/pgpass.erb > /root/.pgpass
 chmod 0600 /root/.pgpass
