@@ -8,7 +8,8 @@
           type="button"
           :class="{ 'button-default': (key != value)}"
           class="button normal-input"
-          @click="selectModel(key)">{{ label }}
+          @click="selectModel(key)">
+          {{ label }}
         </button>
       </li>
     </ul>
@@ -32,14 +33,15 @@ export default {
     }
   },
 
-  // watch: {
-  //   value(newVal) {
-  //     this.annotationType.used_on = {};
-  //   },
-  //   annotationType(newVal) {
-  //     this.annotationType.used_on = {};
-  //   }
-  // },
+  watch: {
+    // value(newVal) {
+    //   this.selectModel(newVal);
+    // },
+    annotationType() {
+      this.$emit('input', undefined);
+      // this.annotationType.used_on = {};
+    }
+  },
   data() {
     return {
       list: {},
