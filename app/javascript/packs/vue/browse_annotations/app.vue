@@ -11,7 +11,7 @@
         :all-select-option-url="filter.annotation_type.all_select_option_url"
         :on-model="filter.model"
         :annotation-type="filter.annotation_type"
-        @for_selected="filter.common = $event"
+        @for_selected="filter.selected_for = $event"
         @result="filter.result = $event"/>
       <span>Result: {{ filter.result }}</span>
     </div>
@@ -19,7 +19,7 @@
       <annotation-on
         v-model="filter.model"
         :annotation-type="filter.annotation_type"
-        @model_selected="filter.common = $event"
+        @model_selected="filter.selected_on = $event"
         @result="filter.result = $event"/>
     </div>
     <div class="annotation_by">
@@ -77,6 +77,11 @@
             start: undefined,
             end: undefined
           },
+          selected_type: undefined,
+          selected_for: {
+
+          },
+          selected_on: undefined,
           model: undefined,
           common: undefined,
           result: 'initial result'
@@ -95,7 +100,7 @@
     methods: {
       processCall() {
         let data = {} // Here would be the structure that you will need to make for the response, but could be directly done on data()
-        this.$http.post('/tasks/browse_annotations/process_submit', data).then(response => {
+        this.$http.get('/' + this.filter.annotation_type.type + '.json', data.selected_on).then(response => {
           //Here is the example of how to make a post and get the data from the response
           console.log(response)
         })
