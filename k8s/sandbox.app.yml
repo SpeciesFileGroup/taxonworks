@@ -64,16 +64,18 @@ spec:
             httpGet:
               path: /ping
               port: 80
-            initialDelaySeconds: 60 # 30 
+            initialDelaySeconds: 2000 # 30 
             timeoutSeconds: 3
           livenessProbe:
             httpGet:
               path: /ping
               port: 80
-            initialDelaySeconds: 60 # 180
+            initialDelaySeconds: 2000 # 180
             timeoutSeconds: 3
           env:
             - name: RAILS_ENV
+              value: production
+            - name: NODE_ENV
               value: production
             - name: SERVER_NAME
               valueFrom:
