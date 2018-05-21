@@ -2,10 +2,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: tw-sandpaper # taxonworks
+  name: tw-sandpaper 
   namespace: sandbox
   labels:
-    app: tw-sandpaper # taxonworks
+    app: tw-sandpaper 
     tier: frontend
 spec:
   type: NodePort
@@ -13,28 +13,23 @@ spec:
     - port: 80
       nodePort: 30833
   selector:
-    app: tw-sandpaper #  taxonworks
+    app: tw-sandpaper 
     tier: frontend
 
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: tw-sandpaper # taxonworks
+  name: tw-sandpaper 
   namespace: sandbox 
 spec:
-  replicas: 1 # must always be 1 in sandbox
+  replicas: 1 # must be 1 in sandbox
   template:
     metadata:
       namespace: sandbox
-    # name: name 
-    # valueFrom:
-    #  configMapKeyRef:
-    #    name: taxonworks
-    #    key: db
-      name: tw-sandpaper # sandpaper # taxonworks # value from (?) == tw-sandpaper (name of pod)
+      name: tw-sandpaper 
       labels:
-        app: tw-sandpaper # taxonworks
+        app: tw-sandpaper
         tier: frontend
     spec:
       volumes:
@@ -45,7 +40,7 @@ spec:
           persistentVolumeClaim:
             claimName: sandbox-backup-pv-claim
       containers:
-        - name: tw-sandpaper # taxonworks
+        - name: tw-sandpaper 
           image: sfgrp/taxonworks:latest
           ports:
             - containerPort: 80
@@ -64,13 +59,13 @@ spec:
             httpGet:
               path: /ping
               port: 80
-            initialDelaySeconds: 2000 # 30 
+            initialDelaySeconds: 2000 
             timeoutSeconds: 3
           livenessProbe:
             httpGet:
               path: /ping
               port: 80
-            initialDelaySeconds: 2000 # 180
+            initialDelaySeconds: 2000 
             timeoutSeconds: 3
           env:
             - name: RAILS_ENV
@@ -82,7 +77,6 @@ spec:
                 configMapKeyRef:
                   name: tw-sandpaper
                   key: server.name 
-              # value: sfg.taxonworks.org  # valueFrom
             - name: POSTGRES_HOST
               valueFrom:
                 configMapKeyRef:
