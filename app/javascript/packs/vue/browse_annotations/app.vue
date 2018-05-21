@@ -12,8 +12,6 @@
         :on-model="filter.model"
         :annotation-type="filter.annotation_type"
         @selected_for="filter.selected_for = $event"
-        @result="filter.result = $event"/>
-      <span>Result: {{ filter.result }}</span>
     </div>
     <div class="annotation_on">
       <annotation-on
@@ -40,7 +38,7 @@
     </div>
     <span>{{ filter.common }}</span>
     <button
-      @click="processCall"
+      @click="processResult"
       type="submit">Process
     </button>
   </div>
@@ -91,28 +89,24 @@
     //   //This will check if any value inside of filter object has change
     //   filter: {
     //     handler() {
-    //       this.processCall()
+    //       this.processResult()
     //     },
     //     deep: true
     //   }
     // },
     methods: {
-      processCall() {
-        // let data = {} // Here would be the structure that you will need to make for the response, but could be directly done on data()
+      processResult() {
         console.log('params: ');
 
         let params = {
           params: { 
             for: Object.values(this.filter.selected_for).map(item => item.id),
-            // on: Object.values(this.filter.selected_on).map(item => item.value),
             on: [this.filter.model],
             by: Object.values(this.filter.selected_by).map(item => item.id)
           }
         };
         console.log(params);
         this.$http.get(`/${this.filter.annotation_type.type}.json`, params).then(response => {
-          //Here is the example of how to make a post and get the data from the response
-          /* on: this.selected_on by: this.selected_by*/
           console.log(response.body);
         })
       }
