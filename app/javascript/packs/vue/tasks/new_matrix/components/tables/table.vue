@@ -18,12 +18,20 @@
             v-html="getValue(item, label)"/>
           <td class="vue-table-options">
             <template v-if="!item.is_dynamic">
-              <a
-                v-if="edit"
-                type="button"
-                target="_blank"
-                class="circle-button btn-edit"
-                :href="getUrlType(item.row_object.type, item.row_object.id)"/>
+              <template v-if="edit">
+                <a
+                  v-if="row"
+                  type="button"
+                  target="_blank"
+                  class="circle-button btn-edit"
+                  :href="getUrlType(item.row_object.type, item.row_object.id)"/>
+                <a
+                  v-else
+                  type="button"
+                  target="_blank"
+                  class="circle-button btn-edit"
+                  :href="`/tasks/descriptors/new_descriptor/${item.descriptor_id}`"/>
+              </template>               
               <a
                 v-if="code"
                 type="button"
@@ -33,11 +41,16 @@
               <radial-annotator
               :global-id="getValue(item, globalIdPath)"/>
             </template>
-            <span
-              v-if="filterRemove(item)"
-              class="circle-button btn-delete"
-              @click="$emit('delete', item)">Remove
-            </span>
+            <template>
+              <span
+                v-if="filterRemove(item)"
+                class="circle-button btn-delete"
+                @click="$emit('delete', item)">Remove
+              </span>
+              <span
+                v-else
+                class="empty-option"/>
+            </template>
           </td>
         </tr>
       </draggable>
@@ -61,6 +74,10 @@
       list: {
         type: Array,
         required: true
+      },
+      row: {
+        type: Boolean,
+        default: true
       },
       matrixId: {
         type: Number,
@@ -150,6 +167,10 @@
       display: flex;
       flex-direction: row;
       justify-content: flex-end;
+      .empty-option {
+        width: 24px;
+        margin: 5px;
+      }
     }
     tr {
       cursor: default;

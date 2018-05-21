@@ -1,7 +1,7 @@
 <template>
   <div id="vue_new_matrix_task">
     <div class="flex-separate middle">
-      <h1>New matrix</h1>
+      <h1>{{ (matrix.id ? 'Edit' : 'New') }} matrix</h1>
       <radial-annotator 
         v-if="matrix.id"
         type="annotations"

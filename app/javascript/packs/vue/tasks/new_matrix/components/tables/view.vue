@@ -28,6 +28,7 @@
       <columns-table
         :list="columnsListDynamic"
         :matrix-id="matrixId"
+        :row="false"
         :header="['Dynamic column', 'Options']"
         :attributes="['object_tag']"
         :global-id-path="['global_id']"
@@ -36,6 +37,8 @@
       <columns-table
         :list="columnsList"
         :matrix-id="matrixId"
+        :row="false"
+        :edit="true"
         :header="['Columns (all)', 'Options']"
         :attributes="[['descriptor', 'object_tag']]"
         :global-id-path="['descriptor', 'global_id']"
