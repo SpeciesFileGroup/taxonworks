@@ -21,6 +21,7 @@
         :global-id-path="['observation_matrix_row_object_global_id']"
         @delete="removeRow"
         :edit="true"
+        :code="true"
         @order="updateRowsOrder"/>
     </div>
     <div>

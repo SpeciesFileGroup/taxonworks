@@ -23,6 +23,12 @@
                 type="button"
                 target="_blank"
                 class="circle-button btn-edit"
+                :href="getUrlType(item.row_object.type, item.row_object.id)"/>
+              <a
+                v-if="code"
+                type="button"
+                target="_blank"
+                class="circle-button btn-row-coder"
                 :href="`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${item.id}`"/>
               <radial-annotator
               :global-id="getValue(item, globalIdPath)"/>
@@ -60,6 +66,10 @@
         type: Number,
         required: true
       },
+      code: {
+        type: Boolean,
+        default: false
+      },
       attributes: {
         type: Array,
         required: true
@@ -83,7 +93,12 @@
     },
     data() {
       return {
-        newList: []
+        newList: [],
+        urlTypes: {
+          'Otu': '/otus/',
+          'Specimen': '/collection_objects/',
+          'Descriptor': '/tasks/descriptors/new_descriptor/'
+        }
       }
     },
     watch: {
@@ -114,6 +129,9 @@
           return obj
         }
         return object[attributes]
+      },
+      getUrlType(type, id) {
+        return `${this.urlTypes[type]}${id}`
       }
     }
   }
