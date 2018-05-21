@@ -101,16 +101,19 @@
         // let data = {} // Here would be the structure that you will need to make for the response, but could be directly done on data()
         console.log('params: ');
 
-        let data = {
+        let params = {
           params: { 
-            for: Object.values(this.filter.selected_for).map(item => item.id)
+            for: Object.values(this.filter.selected_for).map(item => item.id),
+            // on: Object.values(this.filter.selected_on).map(item => item.value),
+            on: [this.filter.model],
+            by: Object.values(this.filter.selected_by).map(item => item.id)
           }
-        }
-        console.log(data)
-        this.$http.get(`/${this.filter.annotation_type.type}.json`, data).then(response => {
+        };
+        console.log(params);
+        this.$http.get(`/${this.filter.annotation_type.type}.json`, params).then(response => {
           //Here is the example of how to make a post and get the data from the response
           /* on: this.selected_on by: this.selected_by*/
-          console.log(response)
+          console.log(response.body);
         })
       }
     }
