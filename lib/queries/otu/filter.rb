@@ -8,14 +8,6 @@ module Queries
     attr_accessor :query_author_ids, :query_and_or_select
     attr_accessor :query_verbatim_author_string
 
-    # def a=(value)
-    #   @a = value
-    # end
-    #
-    # def a
-    #   @a
-    # end
-    #
     # @param [Hash] params
     def initialize(params)
       params.reject! { |_k, v| v.blank? }
