@@ -40,13 +40,13 @@
     },
     watch: {
       selectOptionsUrl() {
-        this.selectedList = {}
-        this.list = {}
-        this.view = undefined
-        this.tabs = []
+        this.selectedList = {};   // clear the selected items list
+        this.list = {};           // clear the displayable lists
+        this.view = undefined;    // delelect which view of the displayable list
+        this.tabs = []            // clear the tabs in the smart selector
       },
       onModel(newVal) {
-        this.selectedList = {}
+        this.selectedList = {};
         if (this.selectOptionsUrl && newVal)
           this.getSelectOptions(newVal)
       }
@@ -74,6 +74,7 @@
           this.$set(this.selectedList, item.id, item);
         }
         this.$emit('input', this.selectedList);
+        this.$emit('selected_for', this.selectedList);
       },
       getSelectOptions(onModel) {
         this.$http.get(this.selectOptionsUrl, {params: {klass: this.onModel}}).then(response => {

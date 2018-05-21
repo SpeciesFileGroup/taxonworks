@@ -26,12 +26,16 @@ export default {
     annotationType: {
       type: Object,
       required: true
+    },
+    onModel: {
+      type: String,
+      default: ''
     }
   },
 
   watch: {
     annotationType() {
-      this.$emit('input', undefined); //
+      this.$emit('input', undefined); // clear the selected annotation_on model button
     }
   },
   data() {

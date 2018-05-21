@@ -6,12 +6,12 @@
     </div>
     <div class="annotation_for">
       <annotation-for
-        v-model="filter.for_selected"
+        v-model="filter.selected_for"
         :select-options-url="filter.annotation_type.select_options_url"
         :all-select-option-url="filter.annotation_type.all_select_option_url"
         :on-model="filter.model"
         :annotation-type="filter.annotation_type"
-        @for_selected="filter.selected_for = $event"
+        @selected_for="filter.selected_for = $event"
         @result="filter.result = $event"/>
       <span>Result: {{ filter.result }}</span>
     </div>
@@ -24,7 +24,7 @@
     </div>
     <div class="annotation_by">
       <annotation-by
-        v-model="filter.member_selected" />
+        v-model="filter.selected_by" />
     </div>
     <div class="annotation_dates">
       <annotation-dates 
@@ -78,10 +78,9 @@
             end: undefined
           },
           selected_type: undefined,
-          selected_for: {
-
-          },
+          selected_for: {          },
           selected_on: undefined,
+          selected_by: undefined,
           model: undefined,
           common: undefined,
           result: 'initial result'
@@ -99,9 +98,11 @@
     // },
     methods: {
       processCall() {
-        let data = {} // Here would be the structure that you will need to make for the response, but could be directly done on data()
-        this.$http.get('/' + this.filter.annotation_type.type + '.json', data.selected_on).then(response => {
+        // let data = {} // Here would be the structure that you will need to make for the response, but could be directly done on data()
+        console.log('params:\n' + this.filter.selected_for);
+        this.$http.get('/' + this.filter.annotation_type.type + '.json', {params: {for: this.filter.selected_for}}).then(response => {
           //Here is the example of how to make a post and get the data from the response
+          /* on: this.selected_on by: this.selected_by*/
           console.log(response)
         })
       }
