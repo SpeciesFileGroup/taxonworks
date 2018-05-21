@@ -18,20 +18,39 @@
             v-html="getValue(item, label)"/>
           <td class="vue-table-options">
             <template v-if="!item.is_dynamic">
+              <template v-if="edit">
+                <a
+                  v-if="row"
+                  type="button"
+                  target="_blank"
+                  class="circle-button btn-edit"
+                  :href="getUrlType(item.row_object.type, item.row_object.id)"/>
+                <a
+                  v-else
+                  type="button"
+                  target="_blank"
+                  class="circle-button btn-edit"
+                  :href="`/tasks/descriptors/new_descriptor/${item.descriptor_id}`"/>
+              </template>               
               <a
-                v-if="edit"
+                v-if="code"
                 type="button"
                 target="_blank"
-                class="circle-button btn-edit"
+                class="circle-button btn-row-coder"
                 :href="`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${item.id}`"/>
               <radial-annotator
               :global-id="getValue(item, globalIdPath)"/>
             </template>
-            <span
-              v-if="filterRemove(item)"
-              class="circle-button btn-delete"
-              @click="$emit('delete', item)">Remove
-            </span>
+            <template>
+              <span
+                v-if="filterRemove(item)"
+                class="circle-button btn-delete"
+                @click="$emit('delete', item)">Remove
+              </span>
+              <span
+                v-else
+                class="empty-option"/>
+            </template>
           </td>
         </tr>
       </draggable>
@@ -56,9 +75,17 @@
         type: Array,
         required: true
       },
+      row: {
+        type: Boolean,
+        default: true
+      },
       matrixId: {
         type: Number,
         required: true
+      },
+      code: {
+        type: Boolean,
+        default: false
       },
       attributes: {
         type: Array,
@@ -83,7 +110,12 @@
     },
     data() {
       return {
-        newList: []
+        newList: [],
+        urlTypes: {
+          'Otu': '/otus/',
+          'Specimen': '/collection_objects/',
+          'Descriptor': '/tasks/descriptors/new_descriptor/'
+        }
       }
     },
     watch: {
@@ -114,6 +146,9 @@
           return obj
         }
         return object[attributes]
+      },
+      getUrlType(type, id) {
+        return `${this.urlTypes[type]}${id}`
       }
     }
   }
@@ -132,6 +167,10 @@
       display: flex;
       flex-direction: row;
       justify-content: flex-end;
+      .empty-option {
+        width: 24px;
+        margin: 5px;
+      }
     }
     tr {
       cursor: default;

@@ -99,8 +99,8 @@
 #
 # @!attribute type
 #   @return [String]
-#     An exception to the 1:1 modelling.  We retain for Rails STI usage. Either Source::Verbatim or Source::Bibtex.  
-#     The former can only consist of a single field (the full citation as a string).  
+#     An exception to the 1:1 modelling.  We retain for Rails STI usage. Either Source::Verbatim or Source::Bibtex.
+#     The former can only consist of a single field (the full citation as a string).
 #     The latter is a Bibtex model.  See "bibtex_type" for the bibtex attribute "type".
 #
 # @!attribute bibtex_type
@@ -192,7 +192,7 @@ class Source < ApplicationRecord
   include Shared::Notes
   include Shared::SharedAcrossProjects
   include Shared::Tags
-  include Shared::Documentation 
+  include Shared::Documentation
   include Shared::HasRoles
   include Shared::IsData
   include Shared::HasPapertrail
@@ -247,6 +247,8 @@ class Source < ApplicationRecord
     end
   end
 
+  # @param [String] doi
+  # @return [Source::Bibtex, Boolean]
   def self.new_from_doi(doi: nil)
     return false unless doi
     bibtex_string = Ref2bibtex.get_bibtex(doi)
@@ -258,6 +260,8 @@ class Source < ApplicationRecord
   end
 
   # Redirect type here
+  # @param [String] file
+  # @return [Array]
   def self.batch_preview(file)
     bibliography = BibTeX.parse(file.read.force_encoding('UTF-8'), filter: :latex)
     sources = []
@@ -270,11 +274,13 @@ class Source < ApplicationRecord
     sources
   end
 
+  # @param [String] file
+  # @return [Array, Boolean]
   def self.batch_create(file)
     sources = []
     valid  = 0
     begin
-      error_msg = []
+      # error_msg = []
       Source.transaction do
         bibliography = BibTeX.parse(file.read.force_encoding('UTF-8'), filter: :latex)
         bibliography.each do |record|
@@ -285,7 +291,7 @@ class Source < ApplicationRecord
             end
             a.soft_validate()
           else
-            error_msg = a.errors.messages.to_s
+            # error_msg = a.errors.messages.to_s
           end
           sources.push(a)
         end
@@ -302,6 +308,7 @@ class Source < ApplicationRecord
     self.citations.collect { |t| t.citation_object }
   end
 
+  # @return [Boolean]
   def is_bibtex?
     type == 'Source::Bibtex'
   end
@@ -311,13 +318,15 @@ class Source < ApplicationRecord
     projects.where(id: project_id).any?
   end
 
-
   protected
 
   # Defined in subclasses
+  # @return [Nil]
   def set_cached
   end
 
+  # @param [Hash] attributed
+  # @return [Boolean]
   def reject_project_sources(attributed)
     return true if attributed['project_id'].blank?
     return true if ProjectSource.where(project_id: attributed['project_id'], source_id: id).any?

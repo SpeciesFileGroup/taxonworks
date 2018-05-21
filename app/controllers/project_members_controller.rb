@@ -1,20 +1,17 @@
 class ProjectMembersController < ApplicationController
-  before_action :require_superuser_sign_in
+
+  before_action :require_superuser_sign_in, except: [:update_clipboard]
+  before_action :require_sign_in_and_project_selection, only: [:update_clipboard]
 
   before_action :set_project_member, only: [:edit, :update, :destroy]
   before_action :set_member_project, only: [:many_new, :new, :create_many]
   before_action :set_available_users, only: [:many_new, :new]
   before_action :set_form_variables, only: [:many_new]
 
-
-  # GET /project_members.json
-  def index
-    @project_members = ProjectMember.where(project_id: sessions_current_project_id)
-  end
-
-  def show
-    @project_member = ProjectMember.where(project_id: sessions_current_project_id).find(params[:id])
-  end
+    # GET /project_members.json
+    def index
+      @project_members = ProjectMember.where(project_id: sessions_current_project_id)
+    end
 
   # GET /project_members/new
   def new
@@ -22,7 +19,7 @@ class ProjectMembersController < ApplicationController
     redirect_to project_path(@project_member.project), alert: 'There are no additional users available to add to this project.' if !@available_users.any?
   end
 
-  # GET /project_members/1/edit
+    # GET /project_members/1/edit
   def edit
   end
 
@@ -32,11 +29,11 @@ class ProjectMembersController < ApplicationController
 
     respond_to do |format|
       if @project_member.save
-        format.html {redirect_to project_path(@project_member.project),
-                                 notice: "User #{@project_member.user.name}' was successfully added to #{@project_member.project.name}."}
+        format.html { redirect_to project_path(@project_member.project),
+                      notice: "User #{@project_member.user.name}' was successfully added to #{@project_member.project.name}." }
       else
         set_available_users
-        format.html {render action: 'new'}
+        format.html { render action: 'new' }
       end
     end
   end
@@ -68,13 +65,28 @@ class ProjectMembersController < ApplicationController
   def update
     respond_to do |format|
       if @project_member.update(project_member_params)
-        format.html {redirect_to project_path(@project_member.project), notice: 'Project member was successfully updated.'}
-        format.json {render :show, status: :ok, location: @project_member}
+        format.html { redirect_to  project_path(@project_member.project), notice: 'Project member was successfully updated.' }
+        format.json { render :show, status: :ok, location: @project_member }
       else
-        format.html {render :edit}
-        format.json {render json: @project_member.errors, status: :unprocessable_entity}
+        format.html { render :edit }
+        format.json { render json: @project_member.errors, status: :unprocessable_entity }
       end
     end
+  end
+
+  # PATCH /project_members/1/update_clipboard.json
+  def update_clipboard
+    @project_member = sessions_current_user.project_members.where(project_id: sessions_current_project_id).first  
+    if @project_member.update( params.require(:project_member).permit(clipboard: {}) )
+      render :show, status: :ok, location: @project_member 
+    else
+      render json: @project_member.errors, status: :unprocessable_entity 
+    end
+  end
+
+  def clipboard
+    @project_member = sessions_current_user.project_members.where(project_id: sessions_current_project_id).first  
+    render :show
   end
 
   # DELETE /project_members/1
@@ -82,8 +94,8 @@ class ProjectMembersController < ApplicationController
   def destroy
     @project_member.destroy
     respond_to do |format|
-      format.html {redirect_to project_path(@project_member.project), notice: 'Project member was successfully destroyed.'}
-      format.json {head :no_content}
+      format.html { redirect_to project_path(@project_member.project), notice: 'Project member was successfully destroyed.' }
+      format.json { head :no_content }
     end
   end
 
@@ -101,8 +113,8 @@ class ProjectMembersController < ApplicationController
     @project_member = ProjectMember.find(params[:id])
   end
 
-  def set_member_project
-    @member_project = Project.find(project_id_param)
+ def set_member_project
+   @member_project = Project.find(project_id_param)
   end
 
   def project_member_params

@@ -9,7 +9,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 4Gi
+      storage: 50Gi
   selector:
     matchLabels:
       name: taxonworks-db-pv
@@ -25,26 +25,10 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: 4Gi
+      storage: 4700Gi
   selector:
     matchLabels:
       name: taxonworks-media-pv
-
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  namespace: tw
-  name: taxonworks-staging-pv-claim
-spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 4Gi
-  selector:
-    matchLabels:
-      name: taxonworks-staging-pv
 
 ---
 apiVersion: v1
@@ -57,7 +41,23 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: 4Gi
+      storage: 4700Gi
   selector:
     matchLabels:
       name: taxonworks-backup-pv
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: tw
+  name: taxonworks-staging-pv-claim
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 4700Gi
+  selector:
+    matchLabels:
+      name: taxonworks-staging-pv

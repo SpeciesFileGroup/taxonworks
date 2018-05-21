@@ -216,6 +216,7 @@ class User < ApplicationRecord
 
   # @param [Integer] project_id
   # @return [Scope] of ids for users in the project
+  # TODO: get rid of $project_id
   def self.in_project(project_id = $project_id)
     ProjectMember.where(project_id: project_id).distinct.pluck(:user_id)
   end

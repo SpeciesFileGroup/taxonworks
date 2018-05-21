@@ -111,6 +111,17 @@ $default-padding: 2em;
   }
 }
 
+.slide-clipboard {
+  .slide-panel-header {
+    background-color: #004b77;
+  }
+  .slide-panel-circle-icon {
+    top: calc(50vh + 65px);
+    background-color: #004b77;
+    background-image: image-url('paper-clips.svg');
+  }
+}
+
 .slide-document {
   .slide-panel-header {
     background-color: #770000;

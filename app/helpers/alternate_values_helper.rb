@@ -36,9 +36,8 @@ module AlternateValuesHelper
 
   def link_to_add_alternate_value(link_text, f)
     new_object =
-      f.object.class.reflect_on_association(:alternate_values).
-        klass.new({
-                    alternate_value_object_type:      f.object.class.base_class.name,
+      f.object.class.reflect_on_association(:alternate_values)
+        .klass.new({alternate_value_object_type:      f.object.class.base_class.name,
                     alternate_value_object_id:        f.object.id,
                     alternate_value_object_attribute: 'name'})
     if f.object.alternate_values.any?
@@ -80,7 +79,7 @@ module AlternateValuesHelper
   # @return [True]
   #   indicates a custom partial should be used, see list_helper.rb
   def alternate_values_recent_objects_partial
-    true 
+    true
   end
 
 end

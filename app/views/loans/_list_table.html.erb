@@ -8,10 +8,12 @@
     <%= fancy_th_tag(name: 'Date sent') -%>
     <%= fancy_th_tag(name: 'Date received') -%>
     <%= fancy_th_tag(name: 'Date return expected') -%>
+    <%= fancy_th_tag(name: 'Recipient name') -%>
     <%= fancy_th_tag(name: 'Recipient address') -%>
     <%= fancy_th_tag(name: 'Recipient email') -%>
     <%= fancy_th_tag(name: 'Recipient phone') -%>
     <%= fancy_th_tag(name: 'Recipient country') -%>
+    <%= fancy_th_tag(name: 'Supervisor name') -%>
     <%= fancy_th_tag(name: 'Supervisor email') -%>
     <%= fancy_th_tag(name: 'Supervisor phone') -%>
     <%= fancy_th_tag(name: 'Date closed') -%>
@@ -30,10 +32,12 @@
           <td><%= loan.date_sent %></td>
           <td><%= loan.date_received %></td>
           <td><%= loan.date_return_expected %></td>
+          <td><%= loan.loan_recipients.collect{|p| person_tag(p)}.join('; ') %></td>
           <td><%= loan.recipient_address %></td>
           <td><%= loan.recipient_email %></td>
           <td><%= loan.recipient_phone %></td>
           <td><%= loan.recipient_country %></td>
+          <td><%= loan.loan_supervisors.collect{|p| person_tag(p)}.join('; ') %></td>
           <td><%= loan.supervisor_email %></td>
           <td><%= loan.supervisor_phone %></td>
           <td><%= loan.date_closed %></td>

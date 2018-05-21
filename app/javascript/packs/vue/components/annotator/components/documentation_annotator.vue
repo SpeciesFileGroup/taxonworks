@@ -123,7 +123,7 @@
     }
   }
 </script>
-<style type="text/css" lang="scss">
+<style lang="scss">
   .radial-annotator {
     .documentation_annotator {
       textarea {

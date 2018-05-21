@@ -327,6 +327,17 @@ class Georeference < ApplicationRecord
 
   # @return [Boolean]
   #   true if geographic_item is completely contained in error_box
+  # def check_obj_inside_err_radius
+  #   # case 2
+  #   retval = true
+  #   if !error_radius.blank? && geographic_item && geographic_item.geo_object
+  #     retval = error_box.contains?(geographic_item.geo_object)
+  #   end
+  #   retval
+  # end
+
+  # @return [Boolean]
+  #   true if geographic_item is completely contained in error_box
   def check_obj_inside_err_radius
     # case 2
     retval = true

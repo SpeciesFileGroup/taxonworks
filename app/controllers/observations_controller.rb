@@ -15,7 +15,7 @@ class ObservationsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @observations = Observation.where(filter_params).with_project_id(sessions_current_project_id)
+        @observations = Queries::Observation::Filter.new(filter_params).all.with_project_id(sessions_current_project_id)
       }
     end
   end
@@ -105,6 +105,6 @@ class ObservationsController < ApplicationController
   end
 
   def filter_params
-    params.permit(:otu_id, :descriptor_id, :collection_object_id)
+    params.permit(:otu_id, :descriptor_id, :collection_object_id, :observation_object_global_id)
   end
 end
