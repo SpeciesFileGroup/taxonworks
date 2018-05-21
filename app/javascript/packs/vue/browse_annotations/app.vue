@@ -103,7 +103,8 @@
 
         let data = {
           params: { 
-            for: Object.values(this.filter.selected_for).map(item => item.id)
+            for: Object.values(this.filter.selected_for).map(item => item.id),
+            on: this.filter.model
           }
         }
         console.log(data)
