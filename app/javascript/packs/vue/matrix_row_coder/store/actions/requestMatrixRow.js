@@ -44,13 +44,14 @@ function makeBaseDescriptor (descriptorData) {
     title: descriptorData.object_tag,
     globalId: descriptorData.global_id,
     description: getDescription(descriptorData),
+    type: getComponentNameForDescriptorType(descriptorData),
     isZoomed: false,
     isUnsaved: false,
     needsCountdown: false,
     isSaving: false,
     hasSavedAtLeastOnce: false,
     notes: null,
-    depictions: null
+    depictions: null,
   }
 }
 
