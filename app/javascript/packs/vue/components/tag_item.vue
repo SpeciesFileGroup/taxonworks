@@ -2,7 +2,8 @@
   <button
     @click="sendItem(item.id)"
     type="button"
-    class="normal-input button tag_button button-data"
+    class="normal-input button tag_button"
+    :class="[ submit ? 'button-submit': 'button-data']"
     v-html="item[display]"/>
 </template>
 
@@ -16,6 +17,10 @@
       display: {
         type: String,
         required: true
+      },
+      submit: {
+        type: Boolean,
+        default: true
       }
     },
     methods: {
