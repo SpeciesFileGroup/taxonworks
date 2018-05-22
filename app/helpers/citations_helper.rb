@@ -48,12 +48,12 @@ module CitationsHelper
   def citation_author_year_tag(citation)
     return nil if citation.nil?
     case citation.source.type
-      when 'Source::Verbatim'
-        citation.source.verbatim
-      when 'Source::Bibtex'
-        citation.source.author_year
-      else
-        'NOT PROVIDED/CACHE ERROR'
+    when 'Source::Verbatim'
+      citation.source.verbatim
+    when 'Source::Bibtex'
+      citation.source.author_year
+    else
+      'NOT PROVIDED/CACHE ERROR'
     end
   end
 

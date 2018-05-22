@@ -41,7 +41,7 @@ module TaxonNames::CatalogHelper
       history_topics(c),                          # Topics on the citation
 #      (i.object.class.name == 'Protonym' ? history_type_material(t, i.is_subsequent?) : nil), # Type material reference 
       history_type_material(i),
-    ].compact.join("\n").html_safe
+    ].compact.join.html_safe
   end
 
 # def history_origin(i)
@@ -170,7 +170,7 @@ module TaxonNames::CatalogHelper
       b = citation_author_year_tag(c)
 
       if a != b
-        return content_tag(:span,  ": #{b}", class: [:history__in])
+        return content_tag(:span,  content_tag(:em, ' in ') + b, class: [:history__in])
       end
     end
   end
