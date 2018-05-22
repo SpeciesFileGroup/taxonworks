@@ -1,11 +1,11 @@
 <template>
   <div>
     <tag-item
-      class="button-submit"
       v-for="(item, key) in list"
       v-if="!isAlreadyCreated(item)"
       :key="key"
       :item="item"
+      :submit="false"
       display="object_tag"
       @select="sendItem"/>
   </div>

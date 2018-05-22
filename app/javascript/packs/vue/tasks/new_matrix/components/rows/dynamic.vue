@@ -6,7 +6,6 @@
     <div class="body">
       <smart-selector
         :options="smartOptions"
-        :add-option="moreOptions"
         v-model="view"
         name="rows-smart"/>
       <component 
@@ -50,7 +49,6 @@ export default {
   data() {
     return {
       smartOptions: ['quick', 'recent', 'pinboard', 'tag'],
-      moreOptions: ['search'],
       selectorLists: undefined,
       view: undefined
     }
