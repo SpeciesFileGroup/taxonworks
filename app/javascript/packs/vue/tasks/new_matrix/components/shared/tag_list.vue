@@ -5,7 +5,6 @@
       v-if="!isAlreadyCreated(item)"
       :key="key"
       :item="item"
-      :submit="false"
       display="object_tag"
       @select="sendItem"/>
   </div>
