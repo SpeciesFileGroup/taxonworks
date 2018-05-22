@@ -17,10 +17,10 @@ require('./vue/otu_radial_init/main.js')
 require('./vue/otu_button_init/main.js')
 require('./vue/type_specimens/main.js')
 require('./vue/new_combination/main.js')
-require('./vue/annotate_objects/main.js')
+require('./vue/browse_annotations/main.js')
 require('./vue/tasks/descriptor/main.js')
 require('./vue/tasks/new_matrix/main.js')
-require('./vue/tasks/clipboard/main.js')
+//require('./vue/tasks/clipboard/main.js')
 
 // Styles
 require('./style/application.scss')
