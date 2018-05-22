@@ -1,5 +1,11 @@
 <template>
-  <div class="summary-view" :class="{ 'summary-view--unsaved': isUnsaved, 'summary-view--saved-at-least-once': savedAtLeastOnce }">
+  <div
+    class="summary-view" 
+    :class="{ 'summary-view--unsaved': isUnsaved, 'summary-view--saved-at-least-once': savedAtLeastOnce }">
+    <spinner
+      legend="Saving changes..."
+      :logo-size="{ width: '50px', height: '50px'}"
+      v-if="isSaving"/>
     <h2 class="summary-view__title flex-separate">
       <div class="horizontal-left-content">
         {{ descriptor.title }}
@@ -25,6 +31,7 @@
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
 
+import Spinner from '../../../components/spinner.vue'
 import saveCountdown from '../SaveCountdown/SaveCountdown.vue'
 import RadialAnnotator from '../../../components/annotator/annotator'
 
@@ -37,6 +44,9 @@ export default {
     },
     savedAtLeastOnce: function () {
       return this.$props.descriptor.hasSavedAtLeastOnce
+    },
+    isSaving: function () {
+      return this.$store.getters[GetterNames.IsDescriptorSaving](this.$props.descriptor.id)
     }
   },
   methods: {
@@ -52,7 +62,8 @@ export default {
   },
   components: {
     saveCountdown,
-    RadialAnnotator
+    RadialAnnotator,
+    Spinner
   }
 }
 </script>

@@ -10,6 +10,7 @@ export const GetterNames = {
   GetMatrixRow: 'getMatrixRow',
   GetCharacterStateChecked: `getCharacterStateChecked`,
   IsDescriptorUnsaved: 'isDescriptorUnsaved',
+  IsDescriptorSaving: 'isDescriptorSaving',
   DoesDescriptorNeedCountdown: 'doesDescriptorNeedCountdown'
 }
 
@@ -23,6 +24,7 @@ import getSampleUnitFor from './getSampleUnitFor'
 import getSampleNFor from './getSampleNFor'
 import getCharacterStateChecked from './getCharacterStateChecked'
 import isDescriptorUnsaved from './isDescriptorUnsaved'
+import isDescriptorSaving from './isDescriptorSaving'
 import doesDescriptorNeedCountdown from './doesDescriptorNeedCountdown'
 import getMatrixRow from './getMatrixRow'
 
@@ -38,5 +40,6 @@ export const GetterFunctions = {
   [GetterNames.GetMatrixRow]: getMatrixRow,
   [GetterNames.GetCharacterStateChecked]: getCharacterStateChecked,
   [GetterNames.IsDescriptorUnsaved]: isDescriptorUnsaved,
+  [GetterNames.IsDescriptorSaving]: isDescriptorSaving,
   [GetterNames.DoesDescriptorNeedCountdown]: doesDescriptorNeedCountdown
 }
