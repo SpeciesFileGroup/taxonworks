@@ -11,6 +11,12 @@
         <h2>Annotation type</h2>
         <annotation-types v-model="filter.annotation_type"/>
       </div>
+      <div class="annotation_on">
+        <h2>On</h2>
+        <annotation-on
+          v-model="filter.model"
+          :annotation-type="filter.annotation_type"/>
+      </div>
       <div class="annotation_for">
         <h2>For</h2>
         <annotation-for
@@ -19,12 +25,6 @@
           :all-select-option-url="filter.annotation_type.all_select_option_url"
           :on-model="filter.model"
           @selected_for="filter.selected_for = $event"/>
-      </div>
-      <div class="annotation_on">
-        <h2>On</h2>
-        <annotation-on
-          v-model="filter.model"
-          :annotation-type="filter.annotation_type"/>
       </div>
       <div class="annotation_by">
         <h2>By</h2>
@@ -114,7 +114,12 @@
         console.log(params)
         this.isLoading = true
         this.$http.get(`/${this.filter.annotation_type.type}.json`, { params: params } ).then(response => {
-          this.resultList = response.body
+          if(this.filter.annotation_logic == 'replace') {
+            this.resultList = response.body
+          }
+          else {
+            this.resultList = this.resultList.concat(response.body)
+          }
           this.isLoading = false
         })
       }

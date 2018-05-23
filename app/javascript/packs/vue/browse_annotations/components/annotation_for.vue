@@ -3,7 +3,7 @@
     <smart-selector
       :options="tabs"
       name="annotation"
-      :add-option="['all']"
+      :add-option="moreOptions"
       v-model="view"/>
     <button
       v-if="view"
@@ -44,6 +44,7 @@
         this.list = {};           // clear the displayable lists
         this.view = undefined;    // delelect which view of the displayable list
         this.tabs = []            // clear the tabs in the smart selector
+        this.moreOptions = []
       },
       onModel(newVal) {
         this.selectedList = {};
@@ -60,6 +61,7 @@
       return {
         list: {},
         tabs: [],
+        moreOptions: [],
         view: undefined,
         result: undefined,
         selectedList: {}
@@ -81,6 +83,9 @@
           this.tabs = Object.keys(response.body);
           this.list = response.body;
           this.$http.get(this.allSelectOptionUrl).then(response => {
+            if(response.body.length) {
+              this.moreOptions = ['all']
+            }
             this.$set(this.list, 'all', response.body);
           })
         })

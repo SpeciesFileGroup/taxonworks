@@ -24,11 +24,6 @@
         type: String,
       }
     },
-    watch: {
-      value(newVal) {
-        this.getResult(newVal)
-      }
-    },
     data: function () {
       return {
         options: ['replace', 'append']
