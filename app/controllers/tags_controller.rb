@@ -12,7 +12,7 @@ class TagsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @tags = Queries::Tag::Filter.new(params).all.limit(500)
+        @tags = Queries::Tag::Filter.new(filter_params).all.limit(500)
           .where(project_id: sessions_current_project_id)
       }
     end
@@ -160,6 +160,10 @@ class TagsController < ApplicationController
   def taggable_object
     whitelist_constantize(params.require(:tag_object_type)).find(params.require(:tag_object_id))
   end
+ 
+  def filter_params
+    params.permit(:keyword_id, :created_after, :created_before, on: [], by: [], id: []) 
+  end 
 
 end
 

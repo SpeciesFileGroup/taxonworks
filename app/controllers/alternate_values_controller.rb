@@ -15,7 +15,7 @@ class AlternateValuesController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @alternate_values = Queries::AlternateValue::Filter.new(params).all.limit(500)
+        @alternate_values = Queries::AlternateValue::Filter.new(filter_params).all.limit(500)
           .where(project_id: sessions_current_project_id).order(:id)
       }
     end
@@ -128,6 +128,11 @@ class AlternateValuesController < ApplicationController
   #                                                 })
   #   a_v_params.require(:alternate_value).permit(:value, :type, :language_id, :alternate_value_object_type, :alternate_value_object_id, :alternate_value_object_attribute, :project_members_only)
   # end
+
+  def filter_params
+    params.permit(:value, :language_id, :type, :alternatevalue_object_attribute, 
+                  :created_after, :created_before, on: [], by: [], id: []) 
+  end
 
   def breakout_types(collection)
     collection
