@@ -17,7 +17,7 @@ module Queries
         @value = params[:value]
         @predicate_id = params[:predicate_id]
         @import_predicate = params[:import_predicate]
-        @options = params 
+        @options = params.permit(:created_after, :created_before, on: [], by: [], id: []) 
       end
 
       # @return [ActiveRecord::Relation]

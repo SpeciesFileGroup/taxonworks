@@ -17,7 +17,7 @@ module Queries
 
       def initialize(params)
         @confidence_level_id = [params[:confidence_level_id]].flatten.compact
-        @options = params 
+        @options = params.permit(:created_after, :created_before, on: [], by: [], id: []) 
       end
 
       # @return [ActiveRecord::Relation]

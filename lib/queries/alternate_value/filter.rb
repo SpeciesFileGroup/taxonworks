@@ -18,8 +18,7 @@ module Queries
         @language_id = params[:language_id]
         @type = params[:type]
         @alternate_value_object_attribute = params[:alternate_value_object_attribute]
-        
-        @options = params 
+        @options = params.permit(:created_after, :created_before, on: [], by: [], id: []) 
       end
 
       # @return [ActiveRecord::Relation]

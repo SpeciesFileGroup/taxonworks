@@ -15,7 +15,7 @@ module Queries
 
       def initialize(params)
         @text = params[:text]
-        @options = params 
+        @options = params.permit(:created_after, :created_before, on: [], by: [], id: []) 
       end
 
       # @return [ActiveRecord::Relation]
