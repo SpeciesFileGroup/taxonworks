@@ -43,7 +43,9 @@
         type="submit">Process
       </button>
     </div>
-    <view-list :list="resultList"/>
+    <view-list 
+      :type="filter.annotation_type.type"
+      :list="resultList"/>
   </div>
 </template>
 <script>
@@ -111,6 +113,7 @@
 
         this.$http.get(`/${this.filter.annotation_type.type}.json`, { params: params } ).then(response => {
           this.resultList = response.body
+          console.log(this.resultList)
         })
       }
     }

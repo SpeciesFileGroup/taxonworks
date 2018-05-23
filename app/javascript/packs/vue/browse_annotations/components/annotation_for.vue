@@ -1,19 +1,19 @@
 <template>
   <div>
     <smart-selector
-        :options="tabs"
-        name="annotation"
-        :add-option="['all']"
-        v-model="view"/>
+      :options="tabs"
+      name="annotation"
+      :add-option="['all']"
+      v-model="view"/>
     <button
-        v-if="view"
-        v-for="item in showList[view]"
-        :key="item.id"
-        type="button"
-        :class="{ ' button-submit': (selectedList.hasOwnProperty(item.id))}"
-        class="button normal-input button-default biocuration-toggle-button"
-        @click="selectFor(item)"
-        v-html="item.name"/>
+      v-if="view"
+      v-for="item in showList[view]"
+      :key="item.id"
+      type="button"
+      :class="{ ' button-submit': (selectedList.hasOwnProperty(item.id))}"
+      class="button normal-input button-default biocuration-toggle-button"
+      @click="selectFor(item)"
+      v-html="item.name"/>
   </div>
 </template>
 
@@ -77,15 +77,11 @@
         this.$emit('selected_for', this.selectedList);
       },
       getSelectOptions(onModel) {
-        console.log("asdfasfda")
         this.$http.get(this.selectOptionsUrl, {params: {klass: this.onModel}}).then(response => {
           this.tabs = Object.keys(response.body);
-          console.log(Object.keys(response.body));
           this.list = response.body;
-          console.log(response.body);
           this.$http.get(this.allSelectOptionUrl).then(response => {
             this.$set(this.list, 'all', response.body);
-            console.log(response.body);
           })
         })
       }

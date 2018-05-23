@@ -64,8 +64,7 @@ TaxonWorks::Application.routes.draw do
     get 'data_overview'
   end
 
-  resources :project_members, except: [:index, :show] do
-
+  resources :project_members, except: [:index] do
     collection do
       get :many_new
       get :index, defaults: {format: :json}
@@ -74,14 +73,7 @@ TaxonWorks::Application.routes.draw do
       get :clipboard, defaults: {format: :json}
       put :update_clipboard, defaults: {format: :json}
     end
-    
-    member do
-      get :show, defaults: {format: :json}, constraints: { id: /\d/ }
-    end
-
   end
-
-
 
   resources :pinboard_items, only: [:create, :destroy, :update] do
     collection do

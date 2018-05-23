@@ -91,6 +91,11 @@
           }
           return obj
         }
+        else {
+          if(attributes.substr(0,1) === "@") {
+            return attributes.substr(1, attributes.length)
+          }
+        }
         return object[attributes]
       }
     }
