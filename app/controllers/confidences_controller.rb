@@ -13,7 +13,7 @@ class ConfidencesController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @confidences = Queries::Confidence::Filter.new(params).all.limit(500)
+        @confidences = Queries::Confidence::Filter.new(filter_params).all.limit(500)
           .where(project_id: sessions_current_project_id)
  
       }
@@ -121,6 +121,10 @@ class ConfidencesController < ApplicationController
       :confidence_level_id,
       confidence_level_attributes: [:_destroy, :id, :name, :definition, :uri, :uri_relation]
     )
+  end
+
+  def filter_params
+    params.permit(:confidence_level_id, :created_after, :created_before, on: [], by: [], id: []) 
   end
 
 end

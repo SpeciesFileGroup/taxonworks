@@ -17,7 +17,7 @@ module Queries
 
       def initialize(params)
         @keyword_id = [params[:keyword_id]].flatten.compact
-        @options = params.permit(:created_after, :created_before, on: [], by: [], id: []) 
+        @options = params 
       end
 
       # @return [ActiveRecord::Relation]
