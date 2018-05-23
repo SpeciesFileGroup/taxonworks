@@ -1,8 +1,10 @@
 <template>
   <div v-if="url">
     <hr>
-    <span>JSON Request: {{ decodeURIComponent(url) }} </span>
-    <span>({{ total }} records.)</span>
+    <div class="flex-separate">
+      <span>JSON Request: {{ decodeURIComponent(url) }} </span>
+      <span>({{ total }} records.)</span>
+    </div>
     <hr>
   </div>
 </template>

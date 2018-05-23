@@ -6,7 +6,7 @@
       name="dateStart"
       type="date"
       @change="getResult()">
-    <label>Before:</label>
+    <label class="separate-top">Before:</label>
     <input
       v-model="annotation_dates.before"
       name="dateEnd"
