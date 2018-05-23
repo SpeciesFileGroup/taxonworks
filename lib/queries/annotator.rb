@@ -30,8 +30,8 @@ module Queries
 
       c = [ polymorphic_params(params, klass) ]
 
-      c.push t[:created_at].lteq(Date.new(*params[:created_before].split('-'))) if params[:created_before]
-      c.push t[:created_at].gteq(Date.new(*params[:created_after].split('-'))) if params[:created_after]
+      c.push t[:created_at].lteq(Date.new(*params[:created_before].split('-').map(&:to_i))) if params[:created_before]
+      c.push t[:created_at].gteq(Date.new(*params[:created_after].split('-').map(&:to_i))) if params[:created_after]
       c.push t[klass.annotator_type].eq_any(params[:on]) if params[:on]
       c.push t[:id].eq_any(params[:id]) if params[:id]
       c.push t[:created_by_id].eq_any(params[:by]) if params[:by]
