@@ -43,14 +43,14 @@ class ObservationMatrixColumnItem < ApplicationRecord
 
   def cleanup_matrix_columns
     ObservationMatrixColumn.where(descriptor_id: descriptors.map(&:id), observation_matrix: observation_matrix).each do |mc|
-      cleanup_single_matrix_column mc.descriptor_id, mc
+      cleanup_single_matrix_column(mc.descriptor_id, mc)
     end
     true
   end
 
   def update_matrix_columns
     descriptors.each do |d|
-      update_single_matrix_column d
+      update_single_matrix_column(d)
     end
   end
 
@@ -60,11 +60,16 @@ class ObservationMatrixColumnItem < ApplicationRecord
       observation_matrix: observation_matrix
     ).first
 
+    decrement_matrix_column_reference_count(mc)
+  end
+
+  def decrement_matrix_column_reference_count(mc)
     current = mc.reference_count - 1
     if current == 0
       mc.delete
     else
       mc.update_columns(reference_count: current)
+      mr.update_columns(cached_observation_matrix_column_item_id: nil) if current == 1 && type =~ /Single/ # we've deleted the only single, so the last must be a Dynamic/Tagged
     end
   end
 
@@ -72,9 +77,13 @@ class ObservationMatrixColumnItem < ApplicationRecord
     mc = ObservationMatrixColumn.find_or_create_by(
       observation_matrix: observation_matrix, 
       descriptor: descriptor)
-    mc.update_columns(reference_count: (mc.reference_count || 0) + 1)
-    mc.update_columns(cached_observation_matrix_column_item_id: id) if type =~ /Single/ 
+    increment_matrix_column_reference_count(mc)
   end
+
+  def increment_matrix_column_reference_count(mc)
+    mc.update_columns(reference_count: (mc.reference_count || 0) + 1)
+    mc.update_columns(cached_observation_matrix_column_item_id: id)  if type =~ /Single/
+  end 
 
   def self.human_name
     self.name.demodulize.humanize
