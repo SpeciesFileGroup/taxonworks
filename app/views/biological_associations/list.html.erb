@@ -5,7 +5,12 @@
   <tr>
     <%= fancy_th_tag(name: 'Biological association subject') -%>
     <%= fancy_th_tag(name: 'Biological association subject type') -%>
+
+    <%= fancy_th_tag(name: 'Subject attributes') -%>
     <%= fancy_th_tag(name: 'Biological relationship') -%>
+
+    <%= fancy_th_tag(name: 'Object attributes') -%>
+
     <%= fancy_th_tag(name: 'Biological association object') -%>
     <%= fancy_th_tag(name: 'Biological association object type') -%>
     <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
@@ -18,7 +23,15 @@
       <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
           <td><%= object_tag(biological_association.biological_association_subject) %></td>
           <td><%= biological_association.biological_association_subject_type %></td>
+
+          <td><%= biological_association.biological_relationship.subject_biological_properties.collect{|a| a.name}.join(';') %></td>
+
           <td><%= biological_relationship_tag(biological_association.biological_relationship) %></td>
+
+
+          <td><%= biological_association.biological_relationship.object_biological_properties.collect{|a| a.name}.join(';') %></td>
+
+          
           <td><%= object_tag(biological_association.biological_association_object) %></td>
           <td><%= biological_association.biological_association_object_type %></td>
           <%= fancy_metadata_cells_tag(biological_association) -%>

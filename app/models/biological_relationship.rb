@@ -26,9 +26,21 @@ class BiologicalRelationship < ApplicationRecord
 
   validates_presence_of :name
   has_many :biological_relationship_types, inverse_of: :biological_relationship
-  has_many :biological_associations, inverse_of: :biological_relationship
+
+  has_many :subject_biological_relationship_types, -> () {where(type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')}, class_name: 'BiologicalRelationshipType'
+  has_many :object_biological_relationship_types, -> () {where(type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')}, class_name: 'BiologicalRelationshipType'
+
   has_many :biological_properties, through: :biological_relationship_types
- 
+  has_many :subject_biological_properties, through: :subject_biological_relationship_types, source: :biological_property
+  has_many :object_biological_properties, through: :object_biological_relationship_types, source: :biological_property
+
+
+  has_many :biological_associations, inverse_of: :biological_relationship
+
+
+
+
+
   # TODO: move to /lib/queries
   def self.find_for_autocomplete(params)
     t = params[:term]
