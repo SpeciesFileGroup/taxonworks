@@ -38,15 +38,15 @@ export default {
         },
         notes: {
           header: ['Type', 'Object type', 'Object', 'Note', 'Created by', 'Created at'],
-          attributes: ['@Note', 'confidences_object_type', 'object_tag', 'note', 'created_by', 'created_at']
+          attributes: ['@Note', 'note_object_type', 'object_tag', 'text', 'created_by', 'created_at']
         },
         alternate_values: {
-          header: ['Type', 'Object type', 'Object', 'Annotation', 'Value', 'Created by', 'Created at'],
-          attributes: ['@Alternate value', 'confidences_object_type', 'object_tag', ['keyword', 'object_tag'], 'value', 'created_by', 'created_at']
+          header: ['Type', 'Object type', 'Object', 'Annotation', 'Value', 'Object attribute', 'Created by', 'Created at'],
+          attributes: ['@Alternate value', 'alternate_value_object_type', 'object_tag', ['alternate_value', 'type'], 'value', 'attribute_column', 'created_by', 'created_at']
         },
         data_attributes: {
           header: ['Type', 'Object type', 'Object', 'Annotation', 'Value', 'Created by', 'Created at'],
-          attributes: ['type', 'confidences_object_type', 'object_tag', ['keyword', 'object_tag'], 'value', 'created_by', 'created_at']
+          attributes: ['type', 'attribute_subject_type', 'object_tag', 'predicate_name', 'value', 'created_by', 'created_at']
         }
       },
       listWithCreators: [],
@@ -68,7 +68,7 @@ export default {
       let that = this;
       list.forEach((item, index) => {
         let member = that.membersList.find((o) => { return o.user.id == item.created_by_id })
-        
+
         if(member) {
           list[index]['created_by'] = member.user.name
         }
