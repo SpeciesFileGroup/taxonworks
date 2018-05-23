@@ -19,6 +19,7 @@ module Queries
 
       # @return [String]
       def where_sql
+        return ::Source.none if or_clauses.nil?
         or_clauses.to_sql
       end
 
@@ -36,6 +37,7 @@ module Queries
 
       # @return [ActiveRecord::Relation]
       def all
+        return ::Source.none.limit(0) if query_string.blank?
         ::Source.where(where_sql).limit(500).distinct.order(:cached)
       end
 
