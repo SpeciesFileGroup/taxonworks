@@ -12,7 +12,7 @@ class TagsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @tags = Queries::Tag::Filter.new(params).all
+        @tags = Queries::Tag::Filter.new(params).all.limit(500)
           .where(project_id: sessions_current_project_id)
       }
     end
