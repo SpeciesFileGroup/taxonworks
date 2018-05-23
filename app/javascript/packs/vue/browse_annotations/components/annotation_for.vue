@@ -77,6 +77,7 @@
         this.$emit('selected_for', this.selectedList);
       },
       getSelectOptions(onModel) {
+        console.log("asdfasfda")
         this.$http.get(this.selectOptionsUrl, {params: {klass: this.onModel}}).then(response => {
           this.tabs = Object.keys(response.body);
           console.log(Object.keys(response.body));
