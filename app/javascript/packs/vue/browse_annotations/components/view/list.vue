@@ -3,17 +3,18 @@
     <table-list 
       :attributes="types[type].attributes"
       :header="types[type].header"
+      :annotator="true"
       :list="listWithCreators"/>
   </div>
 </template>
 
 <script>
 
-import TableList from '../../../components/table_list'
+import TableList from '../../../components/table_list.vue'
 
 export default {
   components: {
-    TableList
+    TableList,
   },
   props: {
     list: {
