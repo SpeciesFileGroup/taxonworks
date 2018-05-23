@@ -1,6 +1,6 @@
 <template>
   <div>
-    <ul>
+    <ul class="no_bullets">
       <li
         v-for="(item, key) in typesList"
         :key="key">

@@ -1,5 +1,6 @@
 <template>
   <div>
+    <h1>Browse Annotations</h1>
     <spinner
       v-if="isLoading"
       :full-screen="true"
@@ -7,9 +8,11 @@
       :logo-size="{ width: '100px', height: '100px'}"/>
     <div class="flexbox">
       <div class="annotation_type">
+        <h2>Annotation type</h2>
         <annotation-types v-model="filter.annotation_type"/>
       </div>
       <div class="annotation_for">
+        <h2>For</h2>
         <annotation-for
           v-model="filter.selected_for"
           :select-options-url="filter.annotation_type.select_options_url"
@@ -18,25 +21,30 @@
           @selected_for="filter.selected_for = $event"/>
       </div>
       <div class="annotation_on">
+        <h2>On</h2>
         <annotation-on
           v-model="filter.model"
           :annotation-type="filter.annotation_type"/>
       </div>
       <div class="annotation_by">
+        <h2>By</h2>
         <annotation-by v-model="filter.selected_by"/>
       </div>
       <div class="annotation_dates">
+        <h2>When</h2>
         <annotation-dates v-model="filter.annotation_dates"/>
       </div>
-      <div 
-        class="annotation_logic"
-        style="alignment: center">
+      <div class="annotation_logic">
+        <h2>Place result</h2>
         <annotation-logic v-model="filter.annotation_logic"/>
       </div>
-      <button
-        @click="processResult"
-        type="submit">Process
-      </button>
+      <div>
+        <h2>Submit</h2>
+        <button
+          @click="processResult"
+          type="submit">Process
+        </button>
+      </div>
     </div>
     <view-list 
       :type="filter.annotation_type.type"

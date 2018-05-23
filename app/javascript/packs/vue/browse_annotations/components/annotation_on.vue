@@ -1,6 +1,6 @@
 <template>
   <div>
-    <ul>
+    <ul class="no_bullets">
       <li
         v-for="(label, key) in annotationType.used_on"
         :key=label >

@@ -1,16 +1,16 @@
 <template>
   <div>
     <table-list 
-      :attributes="types[type].attributes"
-      :header="types[type].header"
+      :header="header"
       :annotator="true"
+      :types="types"
       :list="listWithCreators"/>
   </div>
 </template>
 
 <script>
 
-import TableList from '../../../components/table_list.vue'
+import TableList from './table.vue'
 
 export default {
   components: {
@@ -28,27 +28,26 @@ export default {
   },
   data() {
     return {
+      header: ['Type', 'Object type', 'Object', 'Annotation', 'Value', 'Object attribute', 'Created by', 'Created at'],
       types: {
-        tags: {
-          header: ['Type', 'Object type', 'Object', 'Annotation', 'Created by', 'Created at'],
-          attributes: ['@Tag', 'tag_object_type', 'object_tag', ['keyword', 'object_tag'], 'created_by', 'created_at']
+        Tag: {
+          attributes: ['type', 'tag_object_type', 'object_tag', ['keyword', 'object_tag'], 'value', 'object_attribute', 'created_by', 'created_at']
         },
-        confidences: {
-          header: ['Type', 'Object type', 'Object', 'Annotation', 'Created by', 'Created at'],
-          attributes: ['@Confidences', 'confidence_object_type', 'object_tag', ['confidence_level', 'object_tag'], 'created_by', 'created_at']
+        Confidence: {
+          attributes: ['type', 'confidence_object_type', 'object_tag', ['confidence_level', 'object_tag'], 'value', 'object_attribute','created_by', 'created_at']
         },
-        notes: {
-          header: ['Type', 'Object type', 'Object', 'Note', 'Created by', 'Created at'],
-          attributes: ['@Note', 'note_object_type', 'object_tag', 'text', 'created_by', 'created_at']
+        Note: {
+          attributes: ['type', 'note_object_type', 'object_tag', 'annotation', 'text', 'object_attribute', 'created_by', 'created_at']
         },
-        alternate_values: {
-          header: ['Type', 'Object type', 'Object', 'Annotation', 'Value', 'Object attribute', 'Created by', 'Created at'],
-          attributes: ['@Alternate value', 'alternate_value_object_type', 'object_tag', ['alternate_value', 'type'], 'value', 'attribute_column', 'created_by', 'created_at']
+        Alternate_value: {
+          attributes: ['type', 'alternate_value_object_type', 'object_tag', 'annotation', ['alternate_value', 'type'], 'value', 'attribute_column', 'created_by', 'created_at']
         },
-        data_attributes: {
-          header: ['Type', 'Object type', 'Object', 'Annotation', 'Value', 'Created by', 'Created at'],
-          attributes: ['type', 'attribute_subject_type', 'object_tag', 'predicate_name', 'value', 'created_by', 'created_at']
-        }
+        ImportAttribute: {
+          attributes: ['type', 'attribute_subject_type', 'object_tag', 'predicate_name', 'value', 'object_attribute', 'created_by', 'created_at']
+        },
+        InternalAttribute: {
+          attributes: ['type', 'attribute_subject_type', 'object_tag', 'predicate_name', 'value', 'object_attribute', 'created_by', 'created_at']
+        },
       },
       listWithCreators: [],
       membersList: []

@@ -1,20 +1,20 @@
 <template>
-    <div class="flexbox">
-        <ul>
-            <li v-for="(label, key) in list">
-                <label @click="selectLogic(key)">
-                    <input
-                            :checked="value === key"
-                            name="annotation-logic"
-                            type="radio"
-                            :value="key">
-                    <span
-                            class="new-combination-rank-list-taxon-name"
-                            v-html="label"/>
-                </label>
-            </li>
-        </ul>
-    </div>
+  <div class="flexbox">
+    <ul class="no_bullets">
+      <li v-for="option in options">
+        <label @click="selectLogic(option)">
+          <input
+            :checked="value === option"
+            name="annotation-logic"
+            type="radio"
+            :value="option">
+          <span
+            class="capitalize"
+            v-html="option"/>
+        </label>
+      </li>
+    </ul>
+  </div>
 </template>
 
 <script>
@@ -31,19 +31,12 @@
     },
     data: function () {
       return {
-        annotation_logic: {
-          andOr: undefined
-        },
-        result: undefined,
-        list: {
-          and: 'And',
-          or: 'Or'
-        }
+        options: ['replace', 'append']
       }
     },
     methods: {
       selectLogic(type) {
-        this.$emit('input', type.valueOf())
+        this.$emit('input', type)
       }
     }
   }
