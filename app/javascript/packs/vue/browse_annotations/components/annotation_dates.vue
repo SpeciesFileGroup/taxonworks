@@ -1,18 +1,16 @@
 <template>
-  <div class="flexbox">
-    Start: <input v-model="annotation_dates.start"
-                  name="dateStart"
-                  type="date"
-                  @change="getResult()"
-    />
-    <br>
-    End: <input v-model="annotation_dates.end"
-                name="dateEnd"
-                type="date"
-                @change="getResult()"
-    />
-
-    <!--<span v-for="(item, key) in result"> {{ key }} : {{ item }} <br></span>-->
+  <div class="flexbox middle">
+    After:
+    <input
+      v-model="annotation_dates.after"
+      name="dateStart"
+      type="date"
+      @change="getResult()">Before:
+    <input
+      v-model="annotation_dates.before"
+      name="dateEnd"
+      type="date"
+      @change="getResult()">
   </div>
 </template>
 
@@ -26,19 +24,19 @@
     data: function () {
       return {
         annotation_dates: {
-          start: undefined,
-          end: undefined
+          after: undefined,
+          before: undefined
         },
-        result: undefined
+      }
+    },
+    watch: {
+      value(newVal) {
+        this.annotation_dates = newVal
       }
     },
     methods: {
       getResult() {
-        this.$http.post('/tasks/browse_annotations/set_dates', {annotationDates: this.annotation_dates}).then(response => {
-          this.$emit('input', response.body.annotationDates);
-          this.$emit('annotation_dates_selected', response.body);
-          this.result = response.body;
-        })
+          this.$emit('input', this.annotation_dates);
       }
     }
   }

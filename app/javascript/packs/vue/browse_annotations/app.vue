@@ -38,14 +38,11 @@
         <h2>Place result</h2>
         <annotation-logic v-model="filter.annotation_logic"/>
       </div>
-      <div>
-        <h2>Submit</h2>
-        <button
-          @click="processResult"
-          type="submit">Process
-        </button>
-      </div>
     </div>
+    <button
+      @click="processResult"
+      type="submit">Submit
+    </button>
     <view-list 
       :type="filter.annotation_type.type"
       :list="resultList"/>
@@ -86,9 +83,10 @@
             all_select_option_url: undefined
           },
           annotation_dates: {
-            start: undefined,
-            end: undefined
+            after: undefined,
+            before: undefined
           },
+          annotation_logic: 'replace',
           selected_type: undefined,
           selected_for: {},
           selected_by: {},
@@ -97,24 +95,23 @@
         },
         isLoading: false,
         resultList: [],
+        for: {
+          tags: 'keyword_id',
+          data_attributes: 'controlled_vocabulary_term',
+          confidences: 'confidence_level_id',
+        }
       }
     },
-    // watch: {
-    //   //This will check if any value inside of filter object has change
-    //   filter: {
-    //     handler() {
-    //       this.processResult()
-    //     },
-    //     deep: true
-    //   }
-    // },
     methods: {
       processResult() {
         let params = {
-          for: Object.values(this.filter.selected_for).map(item => item.id),
           on: [this.filter.model],
-          by: Object.values(this.filter.selected_by).map(item => item.user_id)
+          by: Object.values(this.filter.selected_by).map(item => item.user_id),
+          created_after: this.filter.annotation_dates.after,
+          created_before: this.filter.annotation_dates.before
         }
+        params[this.for[this.filter.annotation_type.type]] = Object.values(this.filter.selected_for).map(item => item.id)
+        console.log(params)
         this.isLoading = true
         this.$http.get(`/${this.filter.annotation_type.type}.json`, { params: params } ).then(response => {
           this.resultList = response.body
