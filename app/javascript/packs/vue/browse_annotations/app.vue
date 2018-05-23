@@ -113,7 +113,7 @@
         let params = {
           for: Object.values(this.filter.selected_for).map(item => item.id),
           on: [this.filter.model],
-          by: Object.values(this.filter.selected_by).map(item => item.id)
+          by: Object.values(this.filter.selected_by).map(item => item.user_id)
         }
         this.isLoading = true
         this.$http.get(`/${this.filter.annotation_type.type}.json`, { params: params } ).then(response => {
