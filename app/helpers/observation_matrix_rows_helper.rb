@@ -13,4 +13,14 @@ module ObservationMatrixRowsHelper
   def get_observation_matrix_row_name(observation_matrix_row)
     object_tag(observation_matrix_row.row_object)
   end
+
+  # @return [Id, nil]
+  #   if destroyable (represented by only a single OMRI of type Single) then return the ID
+  def observation_matrix_row_destroyable?(observation_matrix_row)
+    if !observation_matrix_row.cached_observation_matrix_row_item_id.blank?
+      return observation_matrix_row.id if observation_matrix_row.reference_count == 1
+    end
+    nil 
+  end
+
 end
