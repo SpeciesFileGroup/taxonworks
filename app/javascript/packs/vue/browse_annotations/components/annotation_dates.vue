@@ -1,11 +1,12 @@
 <template>
-  <div class="flexbox middle">
-    After:
+  <div class="flex-wrap-column">
+    <label>After:</label>
     <input
       v-model="annotation_dates.after"
       name="dateStart"
       type="date"
-      @change="getResult()">Before:
+      @change="getResult()">
+    <label>Before:</label>
     <input
       v-model="annotation_dates.before"
       name="dateEnd"
@@ -41,3 +42,8 @@
     }
   }
 </script>
+<style scoped>
+  input {
+    width: 150px;
+  }
+</style>
