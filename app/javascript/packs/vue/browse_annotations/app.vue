@@ -7,17 +7,17 @@
       legend="Loading..."
       :logo-size="{ width: '100px', height: '100px'}"/>
     <div class="flexbox">
-      <div class="annotation_type">
+      <div class="annotation_type separate-right">
         <h2>Annotation type</h2>
         <annotation-types v-model="filter.annotation_type"/>
       </div>
-      <div class="annotation_on">
+      <div class="annotation_on separate-right separate-left">
         <h2>On</h2>
         <annotation-on
           v-model="filter.model"
           :annotation-type="filter.annotation_type"/>
       </div>
-      <div class="annotation_for">
+      <div class="annotation_for separate-right separate-left">
         <h2>For</h2>
         <annotation-for
           v-model="filter.selected_for"
@@ -26,15 +26,15 @@
           :on-model="filter.model"
           @selected_for="filter.selected_for = $event"/>
       </div>
-      <div class="annotation_by">
+      <div class="annotation_by separate-right separate-left">
         <h2>By</h2>
         <annotation-by v-model="filter.selected_by"/>
       </div>
-      <div class="annotation_dates">
+      <div class="annotation_dates separate-right separate-left">
         <h2>When</h2>
         <annotation-dates v-model="filter.annotation_dates"/>
       </div>
-      <div class="annotation_logic">
+      <div class="annotation_logic separate-left">
         <h2>Place result</h2>
         <annotation-logic v-model="filter.annotation_logic"/>
       </div>
