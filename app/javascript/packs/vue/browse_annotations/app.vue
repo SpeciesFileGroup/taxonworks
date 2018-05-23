@@ -40,6 +40,7 @@
       </div>
     </div>
     <button
+      class="button button-default"
       @click="processResult"
       type="submit">Submit
     </button>
@@ -118,7 +119,14 @@
             this.resultList = response.body
           }
           else {
-            this.resultList = this.resultList.concat(response.body)
+            let concat = this.resultList.concat(response.body)
+            
+            concat = concat.filter((item, index, self) =>
+              index === self.findIndex((i) => (
+                i.id === item.id && i.type === item.type
+              ))
+            )
+            this.resultList = concat
           }
           this.isLoading = false
         })
