@@ -20,15 +20,11 @@ export default {
     list: {
       type: Array,
       required: true
-    },
-    type: {
-      type: String,
-      required: true
     }
   },
   data() {
     return {
-      header: ['Type', 'Object type', 'Object', 'Annotation', 'Value', 'Object attribute', 'Created by', 'Created at'],
+      header: ['Type', 'Object type', 'Object', 'Annotation', 'Value', 'Object attribute', 'Created by', 'Created at', ''],
       types: {
         Tag: {
           attributes: ['type', 'tag_object_type', 'object_tag', ['keyword', 'object_tag'], 'value', 'object_attribute', 'created_by', 'created_at']

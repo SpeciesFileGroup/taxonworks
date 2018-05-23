@@ -7,7 +7,7 @@
         <button
           type="button"
           :class="{ 'button-default': (key != value)}"
-          class="button normal-input"
+          class="button normal-input biocuration-toggle-button"
           @click="selectModel(key)">
           {{ label }}
         </button>

@@ -40,12 +40,15 @@
       </div>
     </div>
     <button
-      class="button button-default"
+      class="button normal-input button-default"
       @click="processResult"
+      :disabled="submitAvailable"
       type="submit">Submit
     </button>
+    <request-bar
+      :url="request.url"
+      :total="request.total"/>
     <view-list 
-      :type="filter.annotation_type.type"
       :list="resultList"/>
   </div>
 </template>
@@ -60,6 +63,7 @@
   import AnnotationBy from "./components/annotation_by";
   //
   import ViewList from './components/view/list.vue'
+  import RequestBar from './components/view/requestBar.vue'
 
   import Spinner from '../components/spinner.vue'
 
@@ -72,7 +76,13 @@
       AnnotationDates,
       AnnotationLogic,
       ViewList,
+      RequestBar,
       Spinner
+    },
+    computed: {
+      submitAvailable() {
+        return !this.filter.annotation_type.type || !this.filter.model
+      }
     },
     data() {
       return {
@@ -96,6 +106,10 @@
         },
         isLoading: false,
         resultList: [],
+        request: {
+          url: '',
+          total: 0
+        },
         for: {
           tags: 'keyword_id',
           data_attributes: 'controlled_vocabulary_term',
@@ -112,9 +126,10 @@
           created_before: this.filter.annotation_dates.before
         }
         params[this.for[this.filter.annotation_type.type]] = Object.values(this.filter.selected_for).map(item => item.id)
-        console.log(params)
         this.isLoading = true
+
         this.$http.get(`/${this.filter.annotation_type.type}.json`, { params: params } ).then(response => {
+
           if(this.filter.annotation_logic == 'replace') {
             this.resultList = response.body
           }
@@ -128,6 +143,9 @@
             )
             this.resultList = concat
           }
+
+          this.request.url = response.url
+          this.request.total = response.body.length
           this.isLoading = false
         })
       }
