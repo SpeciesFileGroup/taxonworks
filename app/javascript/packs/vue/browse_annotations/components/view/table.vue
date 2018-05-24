@@ -19,7 +19,7 @@
             v-for="attr in types[item.type].attributes"
             v-html="getValue(item, attr)"/>
           <td class="vue-table-options">
-            <radial-annotator :global-id="item.annotated_object_global_id"/>
+            <radial-annotator :global-id="item.annotated_object.global_id"/>
             <span
               class="circle-button btn-edit"
               @click="editObject(item)">Remove
