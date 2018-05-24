@@ -13,7 +13,7 @@ class DepictionsController < ApplicationController
       }
       format.json {
         @depictions = Depiction.where(project_id: sessions_current_project_id).where(
-          polymorphic_filter_params('depiction_object', Depiction.related_foreign_keys) 
+          Queries::Annotator::polymorphic_params(params, Depiction)
         )
       }
     end

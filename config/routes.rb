@@ -40,6 +40,7 @@ TaxonWorks::Application.routes.draw do
 
   scope :annotations, controller: :annotations do
     get ':global_id/metadata', action: :metadata, defaults: {format: :json}
+    get :types, defaults: {format: :json}
   end
 
   scope :graph, controller: :graph do
@@ -63,7 +64,7 @@ TaxonWorks::Application.routes.draw do
     get 'data_overview'
   end
 
-  resources :project_members, except: [:index, :show] do
+  resources :project_members, except: [:index] do
     collection do
       get :many_new
       get :index, defaults: {format: :json}
@@ -73,8 +74,6 @@ TaxonWorks::Application.routes.draw do
       put :update_clipboard, defaults: {format: :json}
     end
   end
-
-
 
   resources :pinboard_items, only: [:create, :destroy, :update] do
     collection do
@@ -609,7 +608,7 @@ TaxonWorks::Application.routes.draw do
 
 
   # Generate shallow routes for annotations based on model properties, like
-  # otu_citations GET    /otus/:otu_id/citations(.:format)    citations#index
+  # otu_citations GET /otus/:otu_id/citations(.:format) citations#index
   ApplicationEnumeration.data_models.each do |m|
     Shared::IsData::Annotation::ANNOTATION_TYPES.each do |t|
       if m.send("has_#{t}?")
@@ -629,9 +628,8 @@ TaxonWorks::Application.routes.draw do
       end
     end
 
-
-    scope :object_annotations, controller: 'tasks/object_annotations' do
-      get 'index', as: 'annotate_objects'
+    scope :browse_annotations, controller: 'tasks/browse_annotations' do
+      get 'index', as: 'browse_annotations_task'
     end
 
     scope :otus do

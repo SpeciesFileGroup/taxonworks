@@ -13,8 +13,7 @@ class IdentifiersController < ApplicationController
       }
       format.json {
         @identifiers = Identifier.where(project_id: sessions_current_project_id).where(
-          polymorphic_filter_params(
-            'identifier_object', Identifier.related_foreign_keys  )
+          Queries::Annotator::polymorphic_params(params, Identifier)
         )
       }
     end

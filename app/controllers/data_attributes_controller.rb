@@ -8,13 +8,12 @@ class DataAttributesController < ApplicationController
   def index
     respond_to do |format|
       format.html {
-        @recent_objects = DataAttribute.where(project_id: sessions_current_project_id).order(updated_at: :desc).limit(10)
+        @recent_objects = DataAttribute.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       }
       format.json {
-        @data_attributes = DataAttribute.where(project_id: sessions_current_project_id).where(
-          polymorphic_filter_params( 'attribute_subject', DataAttribute.related_foreign_keys )
-        )
+        @data_attributes = Queries::DataAttribute::Filter.new(params).all.limit(500)
+          .where(project_id: sessions_current_project_id)
       }
     end
   end

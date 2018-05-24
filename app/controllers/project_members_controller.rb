@@ -8,10 +8,10 @@ class ProjectMembersController < ApplicationController
   before_action :set_available_users, only: [:many_new, :new]
   before_action :set_form_variables, only: [:many_new]
 
-    # GET /project_members.json
-    def index
-      @project_members = ProjectMember.where(project_id: sessions_current_project_id)
-    end
+  # GET /project_members.json
+  def index
+    @project_members = ProjectMember.where(project_id: sessions_current_project_id)
+  end
 
   # GET /project_members/new
   def new
@@ -19,7 +19,7 @@ class ProjectMembersController < ApplicationController
     redirect_to project_path(@project_member.project), alert: 'There are no additional users available to add to this project.' if !@available_users.any?
   end
 
-    # GET /project_members/1/edit
+  # GET /project_members/1/edit
   def edit
   end
 
@@ -113,8 +113,8 @@ class ProjectMembersController < ApplicationController
     @project_member = ProjectMember.find(params[:id])
   end
 
- def set_member_project
-   @member_project = Project.find(project_id_param)
+  def set_member_project
+    @member_project = Project.find(project_id_param)
   end
 
   def project_member_params
