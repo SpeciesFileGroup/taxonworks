@@ -102,7 +102,7 @@
         },
         for: {
           tags: 'keyword_id',
-          data_attributes: 'controlled_vocabulary_term',
+          data_attributes: 'controlled_vocabulary_term_id',
           confidences: 'confidence_level_id',
         }
       }

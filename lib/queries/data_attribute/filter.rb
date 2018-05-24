@@ -15,7 +15,7 @@ module Queries
 
       def initialize(params)
         @value = params[:value]
-        @controlled_vocabulary_term_id = params[:controlled_vocabulary_term_id]
+        @controlled_vocabulary_term_id = [params[:controlled_vocabulary_term_id]].flatten.compact
         @import_predicate = params[:import_predicate]
         @options = params
       end
@@ -48,7 +48,7 @@ module Queries
 
       # @return [Arel::Node, nil]
       def matching_controlled_vocabulary_term_id
-        controlled_vocabulary_term_id.blank? ? nil : table[:controlled_vocabulary_term_id].eq(controlled_vocabulary_term_id) 
+        controlled_vocabulary_term_id.blank? ? nil : table[:controlled_vocabulary_term_id].eq_any(controlled_vocabulary_term_id) 
       end
 
       # @return [ActiveRecord::Relation]
