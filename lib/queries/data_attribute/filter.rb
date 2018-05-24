@@ -11,12 +11,13 @@ module Queries
       attr_accessor :options
 
       # Params specific to DataAttribute
-      attr_accessor :value, :controlled_vocabulary_term_id, :import_predicate
+      attr_accessor :value, :controlled_vocabulary_term_id, :import_predicate, :type
 
       def initialize(params)
         @value = params[:value]
         @controlled_vocabulary_term_id = [params[:controlled_vocabulary_term_id]].flatten.compact
         @import_predicate = params[:import_predicate]
+        @type = params[:type]
         @options = params
       end
 
@@ -24,6 +25,7 @@ module Queries
       def and_clauses
         clauses = [
           Queries::Annotator.annotator_params(options, ::DataAttribute),
+          matching_type,
           matching_value,
           matching_import_predicate,
           matching_controlled_vocabulary_term_id
@@ -44,6 +46,11 @@ module Queries
       # @return [Arel::Node, nil]
       def matching_import_predicate
         import_predicate.blank? ? nil : table[:import_predicate].eq(import_predicate) 
+      end
+
+      # @return [Arel::Node, nil]
+      def matching_type
+        type.blank? ? nil : table[:type].eq(type) 
       end
 
       # @return [Arel::Node, nil]
