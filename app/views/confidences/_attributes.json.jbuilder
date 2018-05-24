@@ -2,7 +2,7 @@ json.extract! confidence, :id, :confidence_object_id, :confidence_object_type, :
 
 json.partial! '/shared/data/all/metadata', object: confidence
 json.annotated_object_global_id confidence.confidence_object.to_global_id.to_s
-json.annotated_object_url url_for(confidence.confidence_object, format: :json)
+json.annotated_object_url url_for(confidence.confidence_object)
 
 json.confidence_level do
   json.partial! '/controlled_vocabulary_terms/attributes', controlled_vocabulary_term: confidence.confidence_level
