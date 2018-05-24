@@ -124,7 +124,7 @@
             this.resultList = response.body
           }
           else {
-            let concat = this.resultList.concat(response.body)
+            let concat = response.body.concat(this.resultList)
             
             concat = concat.filter((item, index, self) =>
               index === self.findIndex((i) => (
