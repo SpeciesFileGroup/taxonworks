@@ -63,7 +63,6 @@
         tabs: [],
         moreOptions: [],
         view: undefined,
-        result: undefined,
         selectedList: {}
       }
     },

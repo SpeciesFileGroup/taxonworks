@@ -5,13 +5,13 @@
       v-model="annotation_dates.after"
       name="dateStart"
       type="date"
-      @change="getResult()">
+      @change="sendDate()">
     <label class="separate-top">Before:</label>
     <input
       v-model="annotation_dates.before"
       name="dateEnd"
       type="date"
-      @change="getResult()">
+      @change="sendDate()">
   </div>
 </template>
 
@@ -36,8 +36,10 @@
       }
     },
     methods: {
-      getResult() {
-          this.$emit('input', this.annotation_dates);
+      sendDate() {
+        this.annotation_dates.after = this.annotation_dates.after == "" ? undefined : this.annotation_dates.after
+        this.annotation_dates.before = this.annotation_dates.before == "" ? undefined : this.annotation_dates.before
+        this.$emit('input', this.annotation_dates);
       }
     }
   }

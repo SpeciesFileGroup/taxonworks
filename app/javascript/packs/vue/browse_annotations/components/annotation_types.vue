@@ -16,9 +16,11 @@
             name="annotation-type"
             type="radio"
             :value="key">
-          <span
-            class="new-combination-rank-list-taxon-name"
-            v-html="item.label"/>
+          <span v-html="item.label"/>
+          <template>
+            <span class="subtle" v-if="item.total == 0"> (no records)</span>
+            <span class="subtle" v-else>{{ item.total }} records</span>
+          </template>
         </label>
       </li>
     </ul>

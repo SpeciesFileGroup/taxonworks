@@ -1,13 +1,13 @@
 <template>
   <div>
     <button
-        v-for="member in membersList"
-        :key="member.id"
-        type="button"
-        :class="{ 'button-default': !(selectedList.hasOwnProperty(member.id))}"
-        class="button normal-input biocuration-toggle-button"
-        @click="selectMember(member)"
-        v-html="member.user.name"/>
+      v-for="member in membersList"
+      :key="member.id"
+      type="button"
+      :class="{ 'button-default': !(selectedList.hasOwnProperty(member.id))}"
+      class="button normal-input biocuration-toggle-button"
+      @click="selectMember(member)"
+      v-html="member.user.name"/>
   </div>
 </template>
 
