@@ -1,5 +1,10 @@
 <template>
   <div>
+    <spinner
+      v-if="loading"
+      :full-screen="true"
+      legend="Loading..."
+      :logo-size="{ width: '100px', height: '100px'}"/>
     <ul class="no_bullets">
       <li
         v-for="(item, key) in typesList"
@@ -21,7 +26,13 @@
 </template>
 
 <script>
+
+  import Spinner from '../../components/spinner.vue'
+
   export default {
+    components: {
+      Spinner
+    },
     props: {
       value: {
         type: Object,
@@ -31,12 +42,14 @@
     data: function () {
       return {
         typesList: {},
-        selected: {}
+        selected: {},
+        loading: true
       }
     },
     mounted: function () {
       this.$http.get('/annotations/types').then(response => {
         this.typesList = response.body.types
+        this.loading = false
       })
     },
     methods: {

@@ -1,6 +1,13 @@
 <template>
   <div>
-    <h1>Browse Annotations</h1>
+    <div class="flex-separate middle">
+      <h1>Browse Annotations</h1>
+      <span 
+        @click="resetApp"
+        class="reload-app"
+        data-icon="reset">Reset
+      </span>
+    </div>
     <spinner
       v-if="isLoading"
       :full-screen="true"
@@ -86,24 +93,7 @@
     },
     data() {
       return {
-        filter: {
-          annotation_type: {
-            type: undefined,
-            used_on: undefined,
-            select_options_url: undefined,
-            all_select_option_url: undefined
-          },
-          annotation_dates: {
-            after: undefined,
-            before: undefined
-          },
-          annotation_logic: 'replace',
-          selected_type: undefined,
-          selected_for: {},
-          selected_by: {},
-          model: undefined,
-          result: 'initial result'
-        },
+        filter: this.resetFilter(),
         isLoading: false,
         resultList: [],
         request: {
@@ -148,7 +138,41 @@
           this.request.total = response.body.length
           this.isLoading = false
         })
+      },
+      resetApp() {
+        this.filter = this.resetFilter()
+        this.resultList = []
+        this.request.url = ''
+        this.request.total = 0
+      },
+      resetFilter() {
+        return {
+          annotation_type: {
+            type: undefined,
+            used_on: undefined,
+            select_options_url: undefined,
+            all_select_option_url: undefined
+          },
+          annotation_dates: {
+            after: undefined,
+            before: undefined
+          },
+          annotation_logic: 'replace',
+          selected_type: undefined,
+          selected_for: {},
+          selected_by: {},
+          model: undefined,
+          result: 'initial result'
+        }
       }
     }
   }
 </script>
+<style lang="scss">
+  .reload-app {
+    cursor: pointer;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+</style>

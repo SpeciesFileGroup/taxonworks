@@ -13,11 +13,21 @@
 
 <script>
   export default {
-    props: {},
+    props: {
+      value: {
+        type: Object,
+        required: true
+      }
+    },
     data: function () {
       return {
         membersList: [],
         selectedList: {}
+      }
+    },
+    watch: {
+      value(newVal) {
+        this.selectedList = newVal
       }
     },
     mounted: function () {
