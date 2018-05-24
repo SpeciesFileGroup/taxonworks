@@ -37,8 +37,8 @@
     },
     methods: {
       sendDate() {
-        this.annotation_dates.after = this.annotation_dates.after == "" ? undefined : this.annotation_dates.after
-        this.annotation_dates.before = this.annotation_dates.before == "" ? undefined : this.annotation_dates.before
+        if(this.annotation_dates.after == "") this.annotation_dates.after = undefined
+        if(this.annotation_dates.before == "") this.annotation_dates.before = undefined
         this.$emit('input', this.annotation_dates);
       }
     }
