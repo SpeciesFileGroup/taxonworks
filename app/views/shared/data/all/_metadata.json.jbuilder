@@ -1,9 +1,12 @@
 klass ||= object.class.name
 
 json.object_tag object_tag(object)
-json.url url_for(only_path: false, format: :json) # radial annotator metamorphosize_if(object)) # , 
+
 json.global_id object.to_global_id.to_s
 json.type klass 
+
+json.url url_for(only_path: false, format: :json) # radial annotator metamorphosize_if(object)) # , 
+json.object_url url_for(metamorphosize_if(object))
 
 if object.respond_to?(:has_citations?) && object.has_citations?
   if object.source 

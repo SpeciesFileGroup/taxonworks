@@ -75,9 +75,7 @@ export default {
       return list
     },
     removeItem(item) {
-      let url = item.annotated_object.url.split('.')[0]
-
-      this.$http.delete(`${url}/${item.id}.json`).then(response => {
+      this.$http.delete(`${item.annotated_object.object_url}.json`).then(response => {
         let index = this.listWithCreators.findIndex(obj => {
           return (obj.id == item.id && obj.type == item.type)
         })
@@ -88,7 +86,7 @@ export default {
       })
     },
     editItem(item) {
-      window.open(`${item.annotated_object_url}/edit`, '_blank');
+      window.open(`${item.annotated_object.object_url}/edit`, '_blank');
     }
   }
 }
