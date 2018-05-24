@@ -11,11 +11,11 @@ module Queries
       attr_accessor :options
 
       # Params specific to DataAttribute
-      attr_accessor :value, :predicate_id, :import_predicate
+      attr_accessor :value, :controlled_vocabulary_term_id, :import_predicate
 
       def initialize(params)
         @value = params[:value]
-        @predicate_id = params[:predicate_id]
+        @controlled_vocabulary_term_id = params[:controlled_vocabulary_term_id]
         @import_predicate = params[:import_predicate]
         @options = params
       end
@@ -26,7 +26,7 @@ module Queries
           Queries::Annotator.annotator_params(options, ::DataAttribute),
           matching_value,
           matching_import_predicate,
-          matching_predicate_id
+          matching_controlled_vocabulary_term_id
         ].compact
 
         a = clauses.shift
@@ -47,8 +47,8 @@ module Queries
       end
 
       # @return [Arel::Node, nil]
-      def matching_predicate_id
-        predicate_id.blank? ? nil : table[:predicate_id].eq(predicate_id) 
+      def matching_controlled_vocabulary_term_id
+        controlled_vocabulary_term_id.blank? ? nil : table[:controlled_vocabulary_term_id].eq(controlled_vocabulary_term_id) 
       end
 
       # @return [ActiveRecord::Relation]

@@ -124,7 +124,7 @@ class ConfidencesController < ApplicationController
   end
 
   def filter_params
-    params.permit(:confidence_level_id, :created_after, :created_before, on: [], by: [], id: []) 
+    params.permit(:created_after, :created_before, on: [], by: [], id: [], confidence_level_id: []) 
   end
 
 end

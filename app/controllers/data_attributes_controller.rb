@@ -124,6 +124,6 @@ class DataAttributesController < ApplicationController
   end
 
   def filter_params
-    params.permit(:value, :predicate_id, :import_predicate, :created_after, :created_before, on: [], by: [], id: []) 
+    params.permit(:value, :import_predicate, :created_after, :created_before, on: [], by: [], id: [], controlled_vocabulary_term_id: [] ) 
   end
 end
