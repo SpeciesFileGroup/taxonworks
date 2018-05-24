@@ -15,6 +15,7 @@ module Queries
       # Array, Integer
       attr_accessor :keyword_id
 
+      # @params params [ActionController::Parameters]
       def initialize(params)
         @keyword_id = [params[:keyword_id]].flatten.compact
         @options = params

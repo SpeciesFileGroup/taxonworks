@@ -13,6 +13,7 @@ module Queries
       # Params specific to AlternateValue
       attr_accessor :value, :language_id, :type, :alternate_value_object_attribute
 
+      # @params params [ActionController::Parameters]
       def initialize(params)
         @value = params[:value]
         @language_id = params[:language_id]

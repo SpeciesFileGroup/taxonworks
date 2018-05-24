@@ -4,8 +4,8 @@ module Queries
     include Arel::Nodes
 
     
-    # @params params [  ]
-    #    from controller
+    # @params params [ActionController::Parameters]
+    #    from controller, MUST BE the full, pre-permitted set
     # @params klass [ ApplicationRecord subclass]
     # @return [ Arel::Nodes ]
     #   translates params from requests like `otus/123/data_attributes` to a 
@@ -20,7 +20,7 @@ module Queries
       t[klass.annotator_id].eq(h.values.first).and(t[klass.annotator_type].eq(model))
     end
 
-    # @params params [  ]
+    # @params params [ActionController::Parameters]
     #    from controller
     # @params klass [ ApplicationRecord subclass]
     # @return [ Arel::Nodes ]

@@ -12,7 +12,7 @@ class DataAttributesController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @data_attributes = Queries::DataAttribute::Filter.new(filter_params).all.limit(500)
+        @data_attributes = Queries::DataAttribute::Filter.new(params).all.limit(500)
           .where(project_id: sessions_current_project_id)
       }
     end
@@ -121,9 +121,5 @@ class DataAttributesController < ApplicationController
       :value,
       :annotated_global_entity 
     )
-  end
-
-  def filter_params
-    params.permit(:value, :import_predicate, :created_after, :created_before, on: [], by: [], id: [], controlled_vocabulary_term_id: [] ) 
   end
 end

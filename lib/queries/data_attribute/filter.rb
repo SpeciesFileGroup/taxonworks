@@ -13,6 +13,7 @@ module Queries
       # Params specific to DataAttribute
       attr_accessor :value, :controlled_vocabulary_term_id, :import_predicate, :type
 
+      # @params params [ActionController::Parameters]
       def initialize(params)
         @value = params[:value]
         @controlled_vocabulary_term_id = [params[:controlled_vocabulary_term_id]].flatten.compact

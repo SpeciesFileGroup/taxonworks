@@ -13,7 +13,7 @@ class NotesController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @notes = Queries::Note::Filter.new(filter_params).all.limit(500)
+        @notes = Queries::Note::Filter.new(params).all.limit(500)
           .where(project_id: sessions_current_project_id)
       }
     end
@@ -121,7 +121,4 @@ class NotesController < ApplicationController
                                  :note_object_attribute, :annotated_global_entity)
   end
 
-  def filter_params
-    params.permit(:created_after, :created_before, on: [], by: [], id: []) 
-  end
 end

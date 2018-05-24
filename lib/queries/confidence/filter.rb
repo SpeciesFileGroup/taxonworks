@@ -15,7 +15,7 @@ module Queries
       # Array, Integer
       attr_accessor :confidence_level_id
 
-      # @param params [Hash]
+      # @params params [ActionController::Parameters]
       def initialize(params)
         @confidence_level_id = [params[:confidence_level_id]].flatten.compact
         @options = params
