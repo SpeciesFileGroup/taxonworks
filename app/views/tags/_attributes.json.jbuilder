@@ -2,7 +2,7 @@ json.extract! tag, :id, :tag_object_type, :tag_object_attribute, :tag_object_id,
 
 json.partial! '/shared/data/all/metadata', object: tag 
 json.annotated_object_global_id tag.tag_object.to_global_id.to_s
-json.annotated_object_url url_for(tag.tag_object)
+json.annotated_object_url url_for(tag.tag_object.metamorphosize)
 
 
 json.keyword do

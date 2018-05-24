@@ -2,7 +2,7 @@ json.extract! data_attribute, :id, :type, :attribute_subject_id, :attribute_subj
 
 json.partial! '/shared/data/all/metadata', object: data_attribute
 json.annotated_object_global_id data_attribute.attribute_subject.to_global_id.to_s
-json.annotated_object_url url_for(data_attribute.attribute_subject)
+json.annotated_object_url url_for(data_attribute.attribute_subject.metamorphosize)
 
 json.predicate_name data_attribute.predicate_name
 
