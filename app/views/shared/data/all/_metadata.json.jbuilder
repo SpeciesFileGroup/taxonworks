@@ -1,7 +1,7 @@
 klass ||= object.class.name
 
 json.object_tag object_tag(object)
-json.url url_for(object) # , only_path: false, format: :json
+json.url url_for(metamorphosize_if(object)) # , only_path: false, format: :json
 json.global_id object.to_global_id.to_s
 json.type klass 
 
