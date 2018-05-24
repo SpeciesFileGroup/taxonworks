@@ -130,7 +130,7 @@ class AlternateValuesController < ApplicationController
   # end
 
   def filter_params
-    params.permit(:value, :language_id, :type, :alternatevalue_object_attribute, 
+    params.permit(:value, :language_id, :type, :alternate_value_object_attribute, 
                   :created_after, :created_before, on: [], by: [], id: []) 
   end
 
