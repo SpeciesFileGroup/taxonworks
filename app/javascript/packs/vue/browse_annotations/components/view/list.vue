@@ -4,7 +4,9 @@
       :header="header"
       :annotator="true"
       :types="types"
-      :list="listWithCreators"/>
+      :list="listWithCreators"
+      @edit="editItem"
+      @delete="removeItem"/>
   </div>
 </template>
 
@@ -62,6 +64,7 @@ export default {
   methods: {
     setAuthorsToList(list) {
       let that = this;
+
       list.forEach((item, index) => {
         let member = that.membersList.find((o) => { return o.user.id == item.created_by_id })
 
@@ -70,6 +73,22 @@ export default {
         }
       })
       return list
+    },
+    removeItem(item) {
+      let url = item.url.split('.')[0]
+
+      this.$http.delete(`${url}/${item.id}.json`).then(response => {
+        let index = this.listWithCreators.findIndex(obj => {
+          return (obj.id == item.id && obj.type == item.type)
+        })
+        if(index > -1) {
+          this.listWithCreators.splice(index, 1)
+        }
+        TW.workbench.alert.create('Annotation was successfully deleted.', 'notice')
+      })
+    },
+    editItem(item) {
+      window.open(`${item.annotated_object_url}/edit`, '_blank');
     }
   }
 }

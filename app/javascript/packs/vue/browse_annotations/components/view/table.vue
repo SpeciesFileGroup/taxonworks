@@ -21,13 +21,12 @@
           <td class="vue-table-options">
             <radial-annotator :global-id="item.annotated_object_global_id"/>
             <span
-              v-if="edit"
               class="circle-button btn-edit"
-              @click="$emit('edit', Object.assign({}, item))"/>
+              @click="editObject(item)">Remove
+            </span>
             <span
-              v-if="destroy"
               class="circle-button btn-delete"
-              @click="$emit('delete', item)">Remove
+              @click="deleteObject(item)">Remove
             </span>
           </td>
         </tr>
@@ -56,18 +55,10 @@
           return []
         }
       },
-      destroy: {
-        type: Boolean,
-        default: true
-      },
       types: {
         type: Object,
         required: true
       }, 
-      edit: {
-        type: Boolean,
-        default: false
-      }
     },
     mounted() {
       this.$options.components['RadialAnnotator'] = RadialAnnotator
@@ -93,6 +84,14 @@
           }
         }
         return object[attributes]
+      },
+      editObject(item) {
+        this.$emit('edit',item)
+      },
+      deleteObject(item) {
+        if (window.confirm(`You're trying to delete a record. Are you sure want to proceed?`)) {
+          this.$emit('delete', item)
+        }
       }
     }
   }

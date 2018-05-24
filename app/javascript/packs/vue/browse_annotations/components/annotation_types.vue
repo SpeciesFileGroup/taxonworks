@@ -4,9 +4,10 @@
       <li
         v-for="(item, key) in typesList"
         :key="key">
-        <label @click="selectType(key)">
+        <label @click="(item.total == 0 ? false : selectType(key))">
           <input
             :checked="value.type === key"
+            :disabled="item.total == 0"
             name="annotation-type"
             type="radio"
             :value="key">
