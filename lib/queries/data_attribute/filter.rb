@@ -56,7 +56,7 @@ module Queries
         if a = and_clauses
           ::DataAttribute.where(and_clauses)
         else
-          DataAttribute.none
+          ::DataAttribute.none
         end
       end
 

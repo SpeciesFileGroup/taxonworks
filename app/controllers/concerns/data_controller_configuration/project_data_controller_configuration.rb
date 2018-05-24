@@ -8,9 +8,6 @@ module DataControllerConfiguration::ProjectDataControllerConfiguration
 
   # protected (?)
 
-  # @return [Hash]
-  # def polymorphic_filter_params(object_name, permitted_model_ids = [])
-   
   # @return [ Arel::Nodes, :unprocessable_entity ]
   #   wrap the the params gathering, if no valid params
   #   are provided return as unprocessable
