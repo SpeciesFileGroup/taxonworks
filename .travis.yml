@@ -36,6 +36,7 @@ before_script:
   - psql -U postgres -c 'create role taxonworks_development login createdb superuser;'
   - bundle exec rake db:create RAILS_ENV=test 
   - bundle exec rake db:migrate RAILS_ENV=test
+  - increase-memory-limit
   - travis_wait bundle exec rake assets:precompile RAILS_ENV=test
 notifications:
   email:
