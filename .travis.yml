@@ -1,8 +1,9 @@
 language: ruby 
 cache:
   bundler: true
+  yarn: true
   directories:
-    - $TRAVIS_BUILD_DIR/node_modules
+#    - $TRAVIS_BUILD_DIR/node_modules
     - $TRAVIS_BUILD_DIR/spec/fixtures/vcr_cassettes
     - /home/travis/.rvm/ 
 dist: trusty
@@ -37,7 +38,7 @@ before_script:
   - bundle exec rake db:create RAILS_ENV=test 
   - bundle exec rake db:migrate RAILS_ENV=test
   - npm run increase-memory-limit
-  - travis_wait bundle exec rake assets:precompile RAILS_ENV=test
+  - travis_wait 40 bundle exec rake assets:precompile RAILS_ENV=test
 notifications:
   email:
     recipients:
