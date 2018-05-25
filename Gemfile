@@ -48,6 +48,7 @@ gem 'acts_as_list', '~> 0.9.12'
 gem 'modularity', '~> 2.0.1' # Used!?
 gem 'paperclip', '~> 5.2'
 gem 'paperclip-meta', '~> 3.0'
+gem 'shortener', '~> 0.7.2'
 
 # javascript
 gem 'sprockets-rails', '~> 3.2.0'

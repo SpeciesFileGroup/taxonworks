@@ -117,7 +117,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     collection do
       get :select_options, defaults: {format: :json}
-  end
+    end
   end
 
   resources :character_states do
@@ -162,7 +162,7 @@ TaxonWorks::Application.routes.draw do
     collection do
       post :preview_castor_batch_load # should be get
       post :create_castor_batch_load # should be get
-      get :preview_simple_batch_load 
+      get :preview_simple_batch_load
       post :create_simple_batch_load
       get :select_options, defaults: {format: :json}
     end
@@ -254,7 +254,7 @@ TaxonWorks::Application.routes.draw do
       post :preview_modify_gene_descriptor_batch_load
       post :create_modify_gene_descriptor_batch_load
       get :units
-    end  
+    end
   end
 
   resources :documentation do
@@ -917,6 +917,14 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+  scope :s do
+    get ':id' => 'shortener/shortened_urls#show'
+  end
+
+  # constraints subdomain: 's' do
+  #   get '/:id' => "shortener/shortened_urls#show"
+  # end
+
   ### End of task scopes, user related below ###
 
   resources :users, except: :new do
@@ -1006,7 +1014,6 @@ TaxonWorks::Application.routes.draw do
         to: 'taxon_names#autocomplete'
     end
   end
-
 end
 
 require_relative 'routes/api'
