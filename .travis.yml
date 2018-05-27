@@ -30,8 +30,8 @@ addons:
 # env:
 #   global:
 #     - PGPORT=5433
-services:
-  - postgresql
+# services:
+#   - postgresql
 before_install:
   - sudo apt-get install -y postgresql-10 postgresql-contrib-10 libgeos-dev libproj-dev postgresql-10-postgis-2.4 postgresql-10-postgis-2.4-scripts
   - nvm install node
