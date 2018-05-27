@@ -53,7 +53,7 @@ before_script:
   - bundle exec rake db:migrate RAILS_ENV=test
   - ls -alh public/packs-test 
   - npm run increase-memory-limit
-  - bundle exec rake assets:precompile RAILS_ENV=test
+  - bundle exec rake assets:precompile
 script:
   - bundle exec rspec
 notifications:
