@@ -580,7 +580,7 @@ DEPENDENCIES
   ruby-prof (~> 0.17.0)
   ruby-units (~> 2.3.0)
   rubyzip (~> 1.2.1)
-  sass-rails (~> 5.0.6)
+  sass-rails (~> 5.0.7)
   sdoc (~> 1.0)
   seedbank!
   selenium-webdriver (~> 3.10)

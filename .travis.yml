@@ -31,7 +31,7 @@ addons:
 env:
   global:
     - PGPORT=5433
-    - NODE_ENV=development
+    - NODE_ENV=test
 services:
   - postgresql
 before_install:
