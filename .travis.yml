@@ -31,6 +31,7 @@ addons:
 env:
   global:
     - PGPORT=5433
+    - NODE_ENV=development
 services:
   - postgresql
 before_install:
@@ -51,7 +52,7 @@ before_script:
   - bundle exec rake db:create RAILS_ENV=test # database user by default is `travis` 
   - bundle exec rake db:migrate RAILS_ENV=test
   - npm run increase-memory-limit
-  - travis_wait 40 bundle exec rake assets:precompile RAILS_ENV=test
+#  - travis_wait 40 bundle exec rake assets:precompile RAILS_ENV=test
 script:
   - bundle exec rspec
 notifications:
