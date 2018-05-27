@@ -29,7 +29,7 @@ addons:
       - postgresql-10-postgis-2.4-scripts
 env:
   global:
-    - PGPORT=5433
+    - PGPORT=5432
 services:
   - postgresql
 before_install:
@@ -47,7 +47,7 @@ before_script:
   - cp config/secrets.yml.example config/secrets.yml
   - mkdir tmp/
   - mkdir tmp/downloads
-  - psql -U travis -p 5433 -c 'create role taxonworks_development login createdb superuser;'
+  - psql -U travis -c 'create role taxonworks_development login createdb superuser;'
   - bundle exec rake db:create RAILS_ENV=test 
   - bundle exec rake db:migrate RAILS_ENV=test
   - npm run increase-memory-limit
