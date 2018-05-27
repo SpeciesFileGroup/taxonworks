@@ -9,7 +9,5 @@ test:
   database: taxonworks_test<%= ENV['TEST_ENV_NUMBER'] %>
   username: taxonworks_development
   password:
-  port: 5432
-
 
 
