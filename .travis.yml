@@ -52,6 +52,7 @@ before_script:
   - bundle exec rake db:create RAILS_ENV=test # database user by default is `travis` 
   - bundle exec rake db:migrate RAILS_ENV=test
   - mkdir public/packs-test
+  - node -v
   - npm run increase-memory-limit
   - bundle exec rake assets:precompile RAILS_ENV=test
 script:
