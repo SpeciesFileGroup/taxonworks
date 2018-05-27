@@ -54,7 +54,7 @@ before_script:
   - npm run increase-memory-limit
 #  - travis_wait 40 bundle exec rake assets:precompile RAILS_ENV=test
 script:
-  - bundle exec rspec
+  - travis_wait 30 bundle exec rspec
 notifications:
   email:
     recipients:
