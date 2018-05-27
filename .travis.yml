@@ -4,6 +4,7 @@ cache:
   directories:
     - $TRAVIS_BUILD_DIR/node_modules
     - $TRAVIS_BUILD_DIR/spec/fixtures/vcr_cassettes
+    - $TRAVIS_BUILD_DIR/public/packs-test
     - /home/travis/.rvm/ 
 dist: trusty
 sudo: required

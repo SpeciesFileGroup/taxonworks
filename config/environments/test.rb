@@ -38,10 +38,18 @@ TaxonWorks::Application.configure do
 
   config.action_mailer.default_url_options = {host: 'www.example.com'}
 
+
+  # http://guides.rubyonrails.org/v5.1/configuring.html#configuring-assets
+
   # http://stackoverflow.com/questions/20183877/assets-are-not-loaded-during-capybara-rspec-spec
   # unless ENV['TAXONWORKS_TEST_WITH_PRECOMPILE']
   #   config.assets.prefix = '/assets_test'
   # end
+
+  # Assets
+  config.assets.raise_runtime_errors = true
+  config.assets.debug = true
+
 
   Settings.load_test_defaults(config)
   Settings.load_from_settings_file(config, :test)
