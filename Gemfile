@@ -128,8 +128,7 @@ group :development do
 end
 
 group :doc do
-  gem 'sdoc', '~> 1.0', require: false #  git: 'https://github.com/zzak/sdoc.git', tag: 'v1.0.0.rc3', require: false
-#  gem 'sdoc', tag: '1.0.0.rc3', source: 'https://github.com/zzak/sdoc.git' require: false
+  gem 'sdoc', '~> 1.0', require: false 
 end
 
 group :test do

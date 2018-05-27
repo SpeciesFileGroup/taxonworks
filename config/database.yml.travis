@@ -1,5 +1,5 @@
 #
-# This example is for travis configuration only.
+# This is for travis configuration only.
 #
 test: 
   adapter: postgis
@@ -10,7 +10,6 @@ test:
   username: taxonworks_development
   password:
   port: 5433
-#  host: db
 
 
 
