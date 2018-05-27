@@ -27,13 +27,14 @@ addons:
 #     - postgresql-10-postgis-2.4-scripts
 #     - postgresql-10
 #     - postgresql-contrib-10
-# env:
-#   global:
-#     - PGPORT=5433
+env:
+  global:
+    - PGPORT=5433
 # services:
 #   - postgresql
 before_install:
   - sudo apt-get install -y postgresql-10 postgresql-contrib-10 libgeos-dev libproj-dev postgresql-10-postgis-2.4 postgresql-10-postgis-2.4-scripts
+  - /usr/lib/postgresql/10/bin/pg_ctl -D /var/lib/postgresql/10/main -l logfile start
   - nvm install node
   - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.7.0
   - export PATH=$HOME/.yarn/bin:$PATH
@@ -48,7 +49,7 @@ before_script:
   - cp config/secrets.yml.example config/secrets.yml
   - mkdir tmp/
   - mkdir tmp/downloads
-  - psql -U postgres -c 'create role taxonworks_development login createdb superuser;'
+  - psql -U postgres -p 5433 -c 'create role taxonworks_development login createdb superuser;'
   - bundle exec rake db:create RAILS_ENV=test 
   - bundle exec rake db:migrate RAILS_ENV=test
   - npm run increase-memory-limit
