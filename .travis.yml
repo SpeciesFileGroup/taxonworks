@@ -40,6 +40,7 @@ before_install:
   - export PATH=$HOME/.yarn/bin:$PATH
 install:
   - yarn
+  - bundle install --without development production
 before_script:
   - "export DISPLAY=:99.0"
   - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1600x1200x16"
@@ -48,11 +49,11 @@ before_script:
   - cp config/secrets.yml.example config/secrets.yml
   - mkdir tmp/
   - mkdir tmp/downloads
-  - npm run increase-memory-limit
-# - travis_wait 40 bundle exec rake assets:precompile RAILS_ENV=test
-script:
   - bundle exec rake db:create RAILS_ENV=test # database user by default is `travis` 
   - bundle exec rake db:migrate RAILS_ENV=test
+  - npm run increase-memory-limit
+#  - travis_wait 40 bundle exec rake assets:precompile RAILS_ENV=test
+script:
   - bundle exec rspec
 notifications:
   email:
