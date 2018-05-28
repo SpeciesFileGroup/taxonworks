@@ -30,9 +30,9 @@ TaxonWorks::Application.configure do
   # Debug mode disables concatenation and preprocessing of assets.
   # This option may cause significant delays in view rendering with a large
   # number of complex assets.
-  config.assets.debug = true # false # true if you are stuck
-  config.assets.quiet = false # is true by default
-  config.assets.raise_runtime_errors = true
+  config.assets.debug = false # false # true if you are stuck
+  #config.assets.quiet = false # is true by default
+  #config.assets.raise_runtime_errors = true
 
 
   config.action_mailer.default_url_options = { host: 'localhost:3000' }
