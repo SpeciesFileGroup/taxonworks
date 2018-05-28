@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180507141440) do
+ActiveRecord::Schema.define(version: 20180528144709) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -143,6 +143,7 @@ ActiveRecord::Schema.define(version: 20180507141440) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
+    t.string "inverted_name"
     t.index ["created_by_id"], name: "bio_rel_created_by"
     t.index ["project_id"], name: "bio_rel_project"
     t.index ["updated_by_id"], name: "bio_rel_updated_by"
