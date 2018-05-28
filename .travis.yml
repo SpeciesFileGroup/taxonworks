@@ -7,7 +7,7 @@ cache:
     - $TRAVIS_BUILD_DIR/public/packs-test
     - /home/travis/.rvm/ 
 dist: trusty
-sudo: required
+# sudo: required
 rvm:
   - 2.4.4
 bundler_args: --without development production
