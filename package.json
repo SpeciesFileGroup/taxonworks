@@ -30,6 +30,7 @@
     "webpack-dev-server": "^3.1.4"
   },
   "scripts": {
+    "webpack-test": "RAILS_ENV=test ./bin/webpack --progress --config config/webpack/test.js",
     "increase-memory-limit": "node_modules/.bin/increase-memory-limit",
     "webpack-dev-server": "NODE_OPTIONS=$NODE_OPTIONS' --max_old_space_size=4096' ./bin/webpack-dev-server",
     "eslint-webpack": "node_modules/.bin/eslint app/javascript/packs/** --ext .vue, .js; exit 0",
