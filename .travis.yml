@@ -49,6 +49,7 @@ before_script:
   - cp config/secrets.yml.example config/secrets.yml
   - mkdir tmp/
   - mkdir tmp/downloads
+  - mkdir tmp/cache
   - mkdir tmp/cache/webpacker
   - bundle exec rake db:create RAILS_ENV=test # database user by default is `travis` 
   - bundle exec rake db:migrate RAILS_ENV=test
