@@ -55,7 +55,7 @@ before_script:
   - ls -alh public/packs-test 
 script:
   - npm run increase-memory-limit
-  - npm run webpack-test
+  - npm run webpack-help
   - bundle exec rake assets:precompile
   - bundle exec rspec
 notifications:
