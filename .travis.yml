@@ -53,6 +53,7 @@ before_script:
   - bundle exec rake db:migrate RAILS_ENV=test
   - ls -alh public/packs-test 
   - npm run increase-memory-limit
+  - ./bin/webpack --progress --config cong/webpack/test.js
   - bundle exec rake assets:precompile
 script:
   - bundle exec rspec
