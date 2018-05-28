@@ -54,7 +54,6 @@ before_script:
   - ls -alh bin 
   - ls -alh public/packs-test 
 script:
-  - npm run webpack-help
   - bundle exec rake assets:precompile
   - bundle exec rspec
 notifications:
