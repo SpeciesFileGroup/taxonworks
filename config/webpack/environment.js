@@ -7,6 +7,5 @@ environment.plugins.append('VueLoaderPlugin', new VueLoaderPlugin())
 environment.loaders.append('vue', vue)
 environment.loaders.append('styl', styl)
 
-
-
+console.log("Starting")
 module.exports = environment
