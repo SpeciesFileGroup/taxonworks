@@ -44,11 +44,11 @@
 #
 # @!attribute password_reset_token
 #   @return [String]
-#   @todo
+#     if user has requested a password reset the token is stored here 
 #
 # @!attribute password_reset_token_date
 #   @return [DateTime]
-#   @todo Is return data type correct?
+#     helps determine how long the password reset token is valid 
 #
 # @!attribute name
 #   @return [String]
