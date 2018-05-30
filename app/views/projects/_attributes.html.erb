@@ -3,4 +3,12 @@
   <%= @project.name %>
 </p>
 
+<p>
+  <strong>Is API accessible:</strong>
+  <%= @project.is_api_accessible %>
+</p>
+
+
+
+
 <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: @project} -%>
