@@ -102,6 +102,9 @@
       sendRelated(item) {
         this.selected = item.id
         item['type'] = (this.otuView ? 'Otu' : 'CollectionObject')
+        if(item.hasOwnProperty('gid')) {
+          item['global_id'] = item.gid
+        }
         this.$emit('select', item)
       },
       firstTabWithData(smartObject) {

@@ -3,9 +3,21 @@
     <div class="separate-bottom">
       <template>
         <h3 v-if="biologicalRelationship">
-          {{ (biologicalRelationship.hasOwnProperty('label') ? biologicalRelationship.label : biologicalRelationship.name) }}
+          <template>
+            <span
+              v-if="flip"
+              v-html="biologicalRelationship.inverted_name"/>
+            <span v-else>{{ (biologicalRelationship.hasOwnProperty('label') ? biologicalRelationship.label : biologicalRelationship.name) }}</span>
+          </template>
+          <button
+            v-if="biologicalRelationship.inverted_name"
+            class="separate-left"
+            type="button"
+            @click="flip = !flip">
+            Flip
+          </button>
           <span
-            @click="biologicalRelationship = undefined"
+            @click="biologicalRelationship = undefined; flip = false"
             class="separate-left"
             data-icon="reset"/>
         </h3>
@@ -93,27 +105,24 @@
         list: [],
         biologicalRelationship: undefined,
         biologicalRelation: undefined,
-        citation: undefined
+        citation: undefined,
+        flip: false,
       }
     },
     methods: {
       createAssociation() {
         let data = {
           biological_relationship_id: this.biologicalRelationship.id,
-          biological_association_object_id: this.biologicalRelation.id,
-          biological_association_object_type: this.biologicalRelation.type,
-          subject_global_id: this.globalId,
+          object_global_id: (this.flip ? this.globalId : this.biologicalRelation.global_id),
+          subject_global_id: (this.flip ? this.biologicalRelation.global_id : this.globalId),
           origin_citation_attributes: this.citation
         }
 
         this.create('/biological_associations.json', { biological_association: data }).then(response => {
           this.list.push(response.body)
         })
-      },
-      resetForm() {
-
       }
-    },
+    }
   }
 </script>
 <style lang="scss">
