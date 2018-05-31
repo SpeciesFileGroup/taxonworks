@@ -33,7 +33,7 @@
           </template>
           <button
             v-if="biologicalRelationship.inverted_name"
-            class="separate-left"
+            class="separate-left button button-default flip-button"
             type="button"
             @click="flip = !flip">
             Flip
@@ -153,8 +153,8 @@
   .radial-annotator {
     .biological_relationships_annotator {
       overflow-y: scroll;
-      button {
-        min-width: 100px;
+      .flip-button {
+        min-width: 30px;
       }
       .relationship-title {
         margin-left: 1em
