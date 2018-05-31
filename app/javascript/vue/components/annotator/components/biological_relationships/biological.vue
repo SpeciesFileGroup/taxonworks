@@ -45,6 +45,7 @@
       return {
         view: undefined,
         selected: undefined,
+        orderTabs: ['quick','recent', 'pinboard', 'all', 'search'],
         list: {}
       }
     },
@@ -67,7 +68,16 @@
         Promise.all(promises).then(() => {
           result['all'] = allList
           Object.keys(result).forEach(key => (!result[key].length) && delete result[key])
-          that.list = result;
+          
+          let reorderList = {}
+
+          that.orderTabs.forEach((key) => {
+            if(result.hasOwnProperty(key))
+              reorderList[key] = result[key]
+          })
+
+          that.list = reorderList;
+
           if(Object.keys(result).length) {
             that.view = Object.keys(result)[0]
           }

@@ -8,6 +8,10 @@ const vueAnnotator = {
       type: String,
       required: true
     },
+    metadata: {
+      type: Object,
+      required: true
+    },
     url: {
       type: String,
       required: true
