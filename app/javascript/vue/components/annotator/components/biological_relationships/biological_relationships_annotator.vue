@@ -4,10 +4,20 @@
       <template>
         <h3 v-if="biologicalRelationship">
           <template>
+            <span 
+              v-for="item in biologicalRelationship.object_biological_properties"
+              :key="item.id"
+              class="separate-right"
+              v-html="item.name"/>
             <span
               v-if="flip"
               v-html="biologicalRelationship.inverted_name"/>
             <span v-else>{{ (biologicalRelationship.hasOwnProperty('label') ? biologicalRelationship.label : biologicalRelationship.name) }}</span>
+            <span 
+              v-for="item in biologicalRelationship.subject_biological_properties"
+              :key="item.id"
+              class="separate-left"
+              v-html="item.name"/>
           </template>
           <button
             v-if="biologicalRelationship.inverted_name"
