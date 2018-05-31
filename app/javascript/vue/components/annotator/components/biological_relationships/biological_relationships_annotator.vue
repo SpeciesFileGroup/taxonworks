@@ -168,7 +168,11 @@
         }
       }
       .background-info {
-        background-color: #8E71D8
+        padding: 3px;
+        padding-left: 6px;
+        padding-right: 6px;
+        border-radius: 3px;
+        background-color: #BAAAE0;
       }
       textarea {
         padding-top: 14px;
