@@ -2,19 +2,31 @@
   <div class="biological_relationships_annotator">
     <div class="separate-bottom">
       <template>
-        <h3 v-if="biologicalRelationship">
-          <template>
+        <h3 v-html="metadata.object_tag"/>
+        <h3 v-if="biologicalRelationship" class="relationship-title">
+          <template v-if="flip">
             <span 
               v-for="item in biologicalRelationship.object_biological_properties"
               :key="item.id"
               class="separate-right"
               v-html="item.name"/>
             <span
-              v-if="flip"
               v-html="biologicalRelationship.inverted_name"/>
-            <span v-else>{{ (biologicalRelationship.hasOwnProperty('label') ? biologicalRelationship.label : biologicalRelationship.name) }}</span>
             <span 
               v-for="item in biologicalRelationship.subject_biological_properties"
+              :key="item.id"
+              class="separate-left"
+              v-html="item.name"/>
+          </template>
+          <template v-else>
+            <span 
+              v-for="item in biologicalRelationship.subject_biological_properties"
+              :key="item.id"
+              class="separate-right"
+              v-html="item.name"/>
+            <span>{{ (biologicalRelationship.hasOwnProperty('label') ? biologicalRelationship.label : biologicalRelationship.name) }}</span>
+            <span 
+              v-for="item in biologicalRelationship.object_biological_properties"
               :key="item.id"
               class="separate-left"
               v-html="item.name"/>
@@ -32,21 +44,23 @@
             data-icon="reset"/>
         </h3>
         <h3
-          class="subtle"
+          class="subtle relationship-title"
           v-else>Choose relationship</h3>
       </template>
 
       <template>
-        <h3 v-if="biologicalRelation">
+        <h3
+          v-if="biologicalRelation"
+          class="relation-title">
           <span v-html="displayRelated"/>
           <span
             @click="biologicalRelation = undefined"
             class="separate-left"
             data-icon="reset"/>
         </h3>
-        <h3 v-else>
-          <span class="subtle">Choose relation</span>
-        </h3>
+        <h3
+          v-else
+          class="subtle relation-title">Choose relation</h3>
       </template>
     </div>
 
@@ -141,6 +155,12 @@
       overflow-y: scroll;
       button {
         min-width: 100px;
+      }
+      .relationship-title {
+        margin-left: 1em
+      }
+      .relation-title {
+        margin-left: 2em
       }
       .switch-radio {
         label {

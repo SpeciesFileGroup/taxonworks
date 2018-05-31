@@ -30,6 +30,7 @@
               :is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"
               :type="currentAnnotator"
               :url="url"
+              :metadata="metadata"
               :global-id="globalId"
               :object-type="metadata.object_type"
               @updateCount="setTotal"/>
