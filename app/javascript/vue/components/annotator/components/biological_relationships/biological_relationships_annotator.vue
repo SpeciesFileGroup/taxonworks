@@ -8,27 +8,27 @@
             <span 
               v-for="item in biologicalRelationship.object_biological_properties"
               :key="item.id"
-              class="separate-right"
+              class="separate-right background-info"
               v-html="item.name"/>
             <span
               v-html="biologicalRelationship.inverted_name"/>
             <span 
               v-for="item in biologicalRelationship.subject_biological_properties"
               :key="item.id"
-              class="separate-left"
+              class="separate-left background-info"
               v-html="item.name"/>
           </template>
           <template v-else>
             <span 
               v-for="item in biologicalRelationship.subject_biological_properties"
               :key="item.id"
-              class="separate-right"
+              class="separate-right background-info"
               v-html="item.name"/>
             <span>{{ (biologicalRelationship.hasOwnProperty('label') ? biologicalRelationship.label : biologicalRelationship.name) }}</span>
             <span 
               v-for="item in biologicalRelationship.object_biological_properties"
               :key="item.id"
-              class="separate-left"
+              class="separate-left background-info"
               v-html="item.name"/>
           </template>
           <button
@@ -166,6 +166,9 @@
         label {
           min-width: 95px;
         }
+      }
+      .background-info {
+        background-color: #8E71D8
       }
       textarea {
         padding-top: 14px;
