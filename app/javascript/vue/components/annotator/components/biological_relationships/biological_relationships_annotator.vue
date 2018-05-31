@@ -172,7 +172,7 @@
         padding-left: 6px;
         padding-right: 6px;
         border-radius: 3px;
-        background-color: #BAAAE0;
+        background-color: #DED2F9;
       }
       textarea {
         padding-top: 14px;
