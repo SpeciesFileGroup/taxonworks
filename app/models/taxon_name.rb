@@ -1219,6 +1219,7 @@ class TaxonName < ApplicationRecord
     soft_validations.add(:year_of_publication, 'Year is missing',
                          fix: :sv_fix_missing_year,
                          success_message: 'Year was updated') if self.year_integer.nil? && self.type != 'Combination'
+    soft_validations.add(:etymology, 'Etymology is missing') if self.etymology.nil? && self.type != 'Combination' && self.rank_string =~ /(Genus|Species)/
   end
 
   def sv_fix_missing_author

@@ -54,7 +54,7 @@ class ObservationMatrixRowItem < ApplicationRecord
     rows.push *ObservationMatrixRow.where(observation_matrix: observation_matrix, collection_object_id: collection_objects.map(&:id)) if collection_objects
 
     rows.each do |mr|
-      decrement_matrix_row_reference_count mr
+      decrement_matrix_row_reference_count(mr)
     end
   end
 
@@ -66,9 +66,7 @@ class ObservationMatrixRowItem < ApplicationRecord
     elsif object.is_a? CollectionObject
       mr = ObservationMatrixRow.find_or_create_by(observation_matrix: observation_matrix, collection_object: object)
     end
-
-    mr.update_columns(reference_count: mr.reference_count + 1)
-    mr.update_columns(cached_observation_matrix_row_item_id: id) if type =~ /Single/ 
+    increment_matrix_row_reference_count(mr)
   end
 
   def cleanup_single_matrix_row(object)
@@ -80,7 +78,7 @@ class ObservationMatrixRowItem < ApplicationRecord
       mr = ObservationMatrixRow.where(observation_matrix: observation_matrix, collection_object_id: object.id).first
     end
 
-    decrement_matrix_row_reference_count mr
+    decrement_matrix_row_reference_count(mr)
   end
 
   def self.human_name
@@ -242,8 +240,15 @@ class ObservationMatrixRowItem < ApplicationRecord
       mr.delete
     else
       mr.update_columns(reference_count: current)
+      mr.update_columns(cached_observation_matrix_row_item_id: nil) if current == 1 && type =~ /Single/ # we've deleted the only single, so the last must be a Dynamic/Tagged
     end
   end
+
+  def increment_matrix_row_reference_count(mr)
+    mr.update_columns(reference_count: mr.reference_count + 1)
+    mr.update_columns(cached_observation_matrix_row_item_id: id) if type =~ /Single/
+  end
+
 end
 
 Dir[Rails.root.to_s + '/app/models/observation_matrix_row_item/**/*.rb'].each { |file| require_dependency file }

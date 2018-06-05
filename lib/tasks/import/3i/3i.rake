@@ -1,6 +1,7 @@
 require 'fileutils'
 
 ### rake tw:project_import:access3i:import_all data_directory=/Users/proceps/src/sf/import/3i/TXT/ no_transaction=true
+### rake tw:db:restore backup_directory=/Users/proceps/src/sf/import/3i/pg_dumps/ file=localhost_2018-05-15_200847UTC.dump
 
 ##### Tables
 # Authors
@@ -47,7 +48,7 @@ namespace :tw do
                       :parent_id_index, :statuses, :taxon_index, :citation_to_publication_index, :keywords,
                       :incertae_sedis, :emendation, :original_combination, :unique_host_plant_index,
                       :host_plant_index, :topics, :nouns, :countries, :geographic_areas, :museums, :namespaces, :biocuration_classes,
-                      :people, :source_ay, :source_checked_taxonomy, :keyn, :chars, :states, :morph
+                      :people, :source_ay, :source_checked_taxonomy, :keyn, :chars, :states, :morph, :contents
         def initialize()
           @keywords = {}                  # keyword -> ControlledVocabularyTerm
           @people_index = {}              # PeopleID -> Person object
@@ -79,6 +80,7 @@ namespace :tw do
           @chars = {}
           @states = {}
           @morph = {}
+          @contents = {}
         end
       end
 
@@ -266,15 +268,15 @@ namespace :tw do
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 
         $project_id = 1
-#=begin
         handle_controlled_vocabulary_3i
+        handle_transl_3i
+=begin
         handle_litauthors_3i
         handle_references_3i
-        handle_transl_3i
         handle_taxonomy_3i
         handle_taxon_name_relationships_3i
         handle_citation_topics_3i
-        index_collecting_events_from_accessions_new_3i
+#        index_collecting_events_from_accessions_new_3i
         handle_host_plant_name_dictionary_3i
         handle_host_plants_3i
         handle_distribution_3i
@@ -284,8 +286,11 @@ namespace :tw do
         handle_characters_3i
         handle_state_3i
         handle_chartable_3i
-#end
-        soft_validations_3i
+=end
+        handle_content_types_3i
+        handle_contents_3i
+
+#        soft_validations_3i
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
       end
@@ -342,20 +347,22 @@ namespace :tw do
         @data.keywords.merge!(
             #'AuthorDrMetcalf' => Predicate.find_or_create_by(name: 'AuthorDrMetcalf', definition: 'Author name from DrMetcalf bibliography database.', project_id: $project_id),
             '3i_imported' => Keyword.find_or_create_by(name: '3i_imported', definition: 'Imported from 3i database.', project_id: $project_id),
-            'introduced' => Keyword.find_or_create_by(name: 'Introduced', definition: 'Introduced species.........', project_id: $project_id),
+            'introduced' => Keyword.find_or_create_by(name: 'Introduced', definition: 'This species is introduced one.', project_id: $project_id),
             'ZeroTotal' => Keyword.find_or_create_by(name: 'ZeroTotal', definition: 'On import there were 0 total specimens recorded in INHS FileMaker database.', project_id: $project_id),
-            'Allotype' => Keyword.find_or_create_by(name: 'Allotype', definition: 'Allotype.......................', project_id: $project_id),
+            'Allotype' => Keyword.find_or_create_by(name: 'Allotype', definition: 'This specimen is designated as an Allotype', project_id: $project_id),
             'CallNumberDrMetcalf' => Predicate.find_or_create_by(name: 'call_number_dr_metcalf', definition: 'Call Number from DrMetcalf bibliography database.', project_id: $project_id),
             #'AuthorReference' => Predicate.find_or_create_by(name: 'author_reference', definition: 'Author string as it appears in the nomenclatural reference.', project_id: $project_id),
             #'YearReference' => Predicate.find_or_create_by(name: 'year_reference', definition: 'Year string as it appears in the nomenclatural reference.', project_id: $project_id),
             #'Ethymology' => Predicate.find_or_create_by(name: 'ethymology', definition: 'Ethymology.', project_id: $project_id),
-            'TypeDepository' => Predicate.find_or_create_by(name: 'type_depository', definition: 'Type depository...............', project_id: $project_id),
-            'HostPlant' => Predicate.find_or_create_by(name: 'host_plant', definition: 'Host plant...................', project_id: $project_id),
-            'YearRem' => Predicate.find_or_create_by(name: 'nomenclatural_string', definition: 'Nomenclatural remarks............', project_id: $project_id),
-            'Typification' => Predicate.find_or_create_by(name: 'type_designated_by', definition: 'Type designated by............', project_id: $project_id),
-            'FirstRevisor' => Predicate.find_or_create_by(name: 'first_revisor_action', definition: 'First revisor action................', project_id: $project_id),
-            'PageAuthor' => Predicate.find_or_create_by(name: 'page_author', definition: 'Page author..............', project_id: $project_id),
-            'SimilarSpecies' => Predicate.find_or_create_by(name: 'similar_species', definition: 'Similar species................', project_id: $project_id),
+            'TypeDepository' => Predicate.find_or_create_by(name: 'type_depository', definition: 'Type depository collection (text value)', project_id: $project_id),
+            'HostPlant' => Predicate.find_or_create_by(name: 'host_plant', definition: 'Host plant (text value).', project_id: $project_id),
+            'YearRem' => Predicate.find_or_create_by(name: 'nomenclatural_string', definition: 'Nomenclatural remarks (if any)', project_id: $project_id),
+            'Typification' => Predicate.find_or_create_by(name: 'type_designated_by', definition: 'Type designated by (string value).', project_id: $project_id),
+            'FirstRevisor' => Predicate.find_or_create_by(name: 'first_revisor_action', definition: 'First revisor action (string value)', project_id: $project_id),
+            'PageAuthor' => Predicate.find_or_create_by(name: 'page_author', definition: 'Page author (string value)', project_id: $project_id),
+            'SimilarSpecies' => Predicate.find_or_create_by(name: 'similar_species', definition: 'Similar species (string value)', project_id: $project_id),
+            'license' => Predicate.find_or_create_by(name: 'license', definition: 'License (value from mx database)', project_id: $project_id),
+            'copyright_holder' => Predicate.find_or_create_by(name: 'copyright_holder', definition: 'Copyright holder (value from mx database)', project_id: $project_id),
             'IDDrMetcalf' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: 'DrMetcalf_Source_ID', short_name: 'DrMetcalf_ID'),
             'KeyN' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: '3i_KeyN_ID', short_name: '3i_KeyN_ID'),
             'Key3' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: '3i_Source_ID', short_name: '3i_Source_ID'),
@@ -374,7 +381,7 @@ namespace :tw do
             'Parasitoid' => BiologicalProperty.find_or_create_by(name: 'Parasitoid', definition: 'An organism that lives in or on another organism.', project_id: $project_id),
             'Attendant' => BiologicalProperty.find_or_create_by(name: 'Attendant', definition: 'An insect attending another insect.', project_id: $project_id),
             'Symbiont' => BiologicalProperty.find_or_create_by(name: 'Symbiont', definition: 'An insect leaving togeather with another insect.', project_id: $project_id),
-            'Pin' => PreparationType.find_or_create_by(name: 'Pin', definition: 'Specimen(s) on pin.........')
+            'Pin' => PreparationType.find_or_create_by(name: 'Pin', definition: 'Specimen(s) on pin (value)')
         )
 
         @data.namespaces.merge!(
@@ -394,11 +401,11 @@ namespace :tw do
         )
 
         @data.biocuration_classes.merge!(
-            'Specimens' => BiocurationClass.find_or_create_by(name: 'Adult', definition: 'Adult specimen..........', project_id: $project_id),
-            'Males' => BiocurationClass.find_or_create_by(name: 'Male', definition: 'Male specimen..............', project_id: $project_id),
-            'Females' => BiocurationClass.find_or_create_by(name: 'Female', definition: 'Female specimen............', project_id: $project_id),
-            'Nymphs' => BiocurationClass.find_or_create_by(name: 'Immature', definition: 'Immature specimen...........', project_id: $project_id),
-            'Exuvia' => BiocurationClass.find_or_create_by(name: 'Exuvia', definition: 'Exuvia specimen..............', project_id: $project_id)
+            'Specimens' => BiocurationClass.find_or_create_by(name: 'Adult', definition: 'Number of adult specimens.', project_id: $project_id),
+            'Males' => BiocurationClass.find_or_create_by(name: 'Male', definition: 'Number of male specimens.', project_id: $project_id),
+            'Females' => BiocurationClass.find_or_create_by(name: 'Female', definition: 'Number of female specimens.', project_id: $project_id),
+            'Nymphs' => BiocurationClass.find_or_create_by(name: 'Immature', definition: 'Number of immature specimens.', project_id: $project_id),
+            'Exuvia' => BiocurationClass.find_or_create_by(name: 'Exuvia', definition: 'Number of exuvia specimens.', project_id: $project_id)
         )
 
         @data.topics.merge!(
@@ -925,7 +932,7 @@ namespace :tw do
             taxon.iczn_set_as_primary_homonym_of = find_taxon_3i(row['Homonym']) if !row['Homonym'].blank? && row['Status'] == '3'
             taxon.iczn_set_as_secondary_homonym_of = find_taxon_3i(row['Homonym']) if !row['Homonym'].blank? && row['Status'] == '4'
             taxon.iczn_set_as_homonym_of = find_taxon_3i(row['Homonym']) if !row['Homonym'].blank? && row['Status'] == '5'
-            taxon.iczn_set_as_replacement_name_of = find_taxon_3i(row['NomenNovumFor']) if !row['NomenNovumFor'].blank?
+            #taxon.iczn_set_as_replacement_name_of = find_taxon_3i(row['NomenNovumFor']) if !row['NomenNovumFor'].blank?
             taxon.iczn_set_as_misspelling_of = find_taxon_3i(row['MisspellingOf']) if row['OriginalCombinationOf'].blank? && !row['MisspellingOf'].blank?
             taxon.iczn_set_as_misspelling_of = find_taxon_3i(row['Parent']) if row['OriginalCombinationOf'].blank? && row['MisspellingOf'].blank? && row['Status'] == '9'
             taxon.iczn_set_as_incorrect_original_spelling_of = find_taxon_3i(row['OriginalCombinationOf']) if !row['OriginalCombinationOf'].blank? && row['Status'] == '9'
@@ -957,12 +964,10 @@ namespace :tw do
               elsif tnr.id.nil?
                 byebug
               end
-
-            end
-            if synonym_statuses.include?(row['Status']) # %w(1 6 10 11 14 17 22 23 24 26 27 28 29)
+            elsif synonym_statuses.include?(row['Status']) # %w(1 6 10 11 14 17 22 23 24 26 27 28 29)
               if TaxonNameRelationship.where_subject_is_taxon_name(taxon.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').first.nil?
                 tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: @relationship_classes[row['Status'].to_i])
-                byebug if tnr.id.nil?
+                #byebug if tnr.id.nil?
               end
             end
             if homonym_statuses.include?(row['Status']) && row['Rank'] == '0'
@@ -1817,6 +1822,7 @@ namespace :tw do
         # otu = Otu.joins(:identifiers).where(identifiers: {cached: '3i_Taxon_ID ' + key.to_s}, project_id: $project_id).first if otu.nil?
 
         r = Identifier.find_by(cached: '3i_Taxon_ID ' + key.to_s, project_id: $project_id)
+        return nil if r.nil?
         if r.identifier_object_type == 'TaxonName'
           r.identifier_object.otus.first
         elsif r.identifier_object_type == 'Otu'
@@ -1970,10 +1976,11 @@ namespace :tw do
 
           unless row['KeyN'].blank?
             row['KeyN'].gsub(' ', '').split(',').each do |kn|
-              ObservationMatrixColumnItem::TaggedDescriptor.find_or_create_by!(observation_matrix_id: @data.keyn[kn], controlled_vocabulary_term_id: @data.morph[row['Morph']], project_id: $project_id) unless row['Morph'].blank?
-              ObservationMatrixColumnItem::TaggedDescriptor.find_or_create_by!(observation_matrix_id: @data.keyn[kn], controlled_vocabulary_term_id: @data.morph['n'], project_id: $project_id) if row['Type'].include?('n')
-              ObservationMatrixColumnItem::TaggedDescriptor.find_or_create_by!(observation_matrix_id: @data.keyn[kn], controlled_vocabulary_term_id: @data.morph['m'], project_id: $project_id) if row['Type'].include?('m')
-              ObservationMatrixColumnItem::TaggedDescriptor.find_or_create_by!(observation_matrix_id: @data.keyn[kn], controlled_vocabulary_term_id: @data.morph['f'], project_id: $project_id) if row['Type'].include?('f')
+              #ObservationMatrixColumnItem::TaggedDescriptor.find_or_create_by!(observation_matrix_id: @data.keyn[kn], controlled_vocabulary_term_id: @data.morph[row['Morph']], project_id: $project_id) unless row['Morph'].blank?
+              #ObservationMatrixColumnItem::TaggedDescriptor.find_or_create_by!(observation_matrix_id: @data.keyn[kn], controlled_vocabulary_term_id: @data.morph['n'], project_id: $project_id) if row['Type'].include?('n')
+              #ObservationMatrixColumnItem::TaggedDescriptor.find_or_create_by!(observation_matrix_id: @data.keyn[kn], controlled_vocabulary_term_id: @data.morph['m'], project_id: $project_id) if row['Type'].include?('m')
+              #ObservationMatrixColumnItem::TaggedDescriptor.find_or_create_by!(observation_matrix_id: @data.keyn[kn], controlled_vocabulary_term_id: @data.morph['f'], project_id: $project_id) if row['Type'].include?('f')
+
               ObservationMatrixColumnItem::SingleDescriptor.create!(observation_matrix_id: @data.keyn[kn], descriptor_id: descriptor.id, position: row['Char'].to_i + 1)
             end
           end
@@ -2017,6 +2024,7 @@ namespace :tw do
         # StateSp
         # StateZh
         # Fig
+        # mxID
         path = @args[:data_directory] + 'state.txt'
         print "\nHandling state\n"
         raise "file #{path} not found" if not File.exists?(path)
@@ -2037,6 +2045,7 @@ namespace :tw do
             a = AlternateValue.create(type: 'AlternateValue::Translation', value: row['StateSp'], alternate_value_object: cs, alternate_value_object_attribute: 'name', language_id: lngsp) unless row['StateSp'].nil?
             a = AlternateValue.create(type: 'AlternateValue::Translation', value: row['StateZh'], alternate_value_object: cs, alternate_value_object_attribute: 'name', language_id: lngzh) unless row['StateZh'].nil?
             cs.data_attributes.create(type: 'ImportAttribute', import_predicate: 'figure', value: row['Fig']) unless row['Fig'].blank?
+            cs.data_attributes.create(type: 'ImportAttribute', import_predicate: 'mxID', value: row['mxID']) unless row['mxID'].blank?
             @data.states[row['Key2'].to_s] = [cs.id, @data.chars[row['Key1'].to_s][0], nil]
           end
         end
@@ -2065,6 +2074,68 @@ namespace :tw do
         end
       end
 
+      def handle_content_types_3i
+        # id
+        # sti_type
+        # name
+        # can_markup
+        # subject
+        path = @args[:data_directory] + 'deitz_content_type.txt'
+        print "\ndeitz_content_type\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true)
+        i = 0
+        file.each do |row|
+          i += 1
+          print "\r#{i}"
+          @data.contents.merge!(
+              row['id'].to_s => Topic.find_or_create_by!(name: row['name'].to_s, definition: 'OUT topic ' + row['name'].to_s + ' from mx Membracidae', project_id: $project_id).id )
+        end
+      end
+
+      def handle_contents_3i
+        # Key
+        # id
+        # otu_id
+        # content_type_id
+        # text
+        # is_public
+        # pub_content_id
+        # creator_id
+        # updator_id
+        # updated_on
+        # created_on
+        # license
+        # copyright_holder
+        # maker
+        # editor
+        # is_image_box
+        path = @args[:data_directory] + 'deitz_content.txt'
+        print "\ndeitz_content\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true)
+        i = 0
+        file.each do |row|
+          i += 1
+          print "\r#{i}"
+
+          if row['pub_content_id'].blank? && !row['Key'].blank? && !find_otu(row['Key']).blank? && !@data.contents[row['content_type_id']].blank? && !row['text'].blank?
+            c = Content.find_or_create_by(text: row['text'],
+                               otu_id: find_otu(row['Key']).id,
+                               topic_id: @data.contents[row['content_type_id']],
+                               project_id: $project_id)
+            unless c.id.nil?
+              c.data_attributes.find_or_create_by(type: 'ImportAttribute', import_predicate: 'mxID', value: row['id']) unless row['id'].blank?
+              c.data_attributes.find_or_create_by(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['license'].id, value: row['license'].to_s) unless row['license'].blank?
+              c.data_attributes.find_or_create_by(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['copyright_holder'].id, value: row['copyright_holder'].to_s) unless row['copyright_holder'].blank?
+            end
+          end
+
+        end
+
+      end
+
+
       def soft_validations_3i
         fixed = 0
         print "\nApply soft validation fixes to taxa 1st pass \n"
@@ -2075,7 +2146,7 @@ namespace :tw do
           t.soft_validate
           t.fix_soft_validations
           t.soft_validations.soft_validations.each do |f|
-            byebug if fixed == 0 && f.fixed?
+#            byebug if fixed == 0 && f.fixed?
             fixed += 1  if f.fixed?
           end
         end

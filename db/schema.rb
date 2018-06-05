@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180501183528) do
+ActiveRecord::Schema.define(version: 20180528144709) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -143,6 +143,7 @@ ActiveRecord::Schema.define(version: 20180501183528) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
+    t.string "inverted_name"
     t.index ["created_by_id"], name: "bio_rel_created_by"
     t.index ["project_id"], name: "bio_rel_project"
     t.index ["updated_by_id"], name: "bio_rel_updated_by"
@@ -1071,6 +1072,7 @@ ActiveRecord::Schema.define(version: 20180501183528) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "reference_count"
+    t.integer "cached_observation_matrix_column_item_id"
     t.index ["created_by_id"], name: "index_observation_matrix_columns_on_created_by_id"
     t.index ["descriptor_id"], name: "index_observation_matrix_columns_on_descriptor_id"
     t.index ["observation_matrix_id"], name: "imc_om_index"
@@ -1110,6 +1112,7 @@ ActiveRecord::Schema.define(version: 20180501183528) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "reference_count"
+    t.integer "cached_observation_matrix_row_item_id"
     t.index ["collection_object_id"], name: "index_observation_matrix_rows_on_collection_object_id"
     t.index ["created_by_id"], name: "index_observation_matrix_rows_on_created_by_id"
     t.index ["observation_matrix_id"], name: "omr_om_index"
@@ -1276,6 +1279,7 @@ ActiveRecord::Schema.define(version: 20180501183528) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.boolean "is_project_administrator"
+    t.jsonb "clipboard", default: {}
     t.index ["created_by_id"], name: "index_project_members_on_created_by_id"
     t.index ["project_id"], name: "index_project_members_on_project_id"
     t.index ["updated_by_id"], name: "index_project_members_on_updated_by_id"

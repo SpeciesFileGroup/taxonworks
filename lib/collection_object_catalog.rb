@@ -105,7 +105,7 @@ module CollectionObjectCatalog
 
     data.items << CollectionObjectCatalog::EntryItem.new(type: :containerized,
                                                          object: o.container,
-                                                         start_date: c.created_at.to_time)  if o.container
+                                                         start_date: o.created_at.to_time)  if o.container
 
     # in eyelet
     # extracts, sequences,

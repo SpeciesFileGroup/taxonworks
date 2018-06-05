@@ -108,6 +108,8 @@ class User < ApplicationRecord
 
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
 
+  store :preferences, accessors: [:disable_chime], coder: JSON
+
   attr_accessor :set_new_api_access_token
   attr_accessor :self_created
 
@@ -216,6 +218,7 @@ class User < ApplicationRecord
 
   # @param [Integer] project_id
   # @return [Scope] of ids for users in the project
+  # TODO: get rid of $project_id
   def self.in_project(project_id = $project_id)
     ProjectMember.where(project_id: project_id).distinct.pluck(:user_id)
   end
@@ -258,6 +261,27 @@ class User < ApplicationRecord
   # @return [Hash]
   def hub_favorites
     read_attribute(:hub_favorites) || {}
+  end
+
+  # @param [Boolean] state
+  # @return [Ignored]
+  def able_chime(state)
+    preferences[:disable_chime] = (not state)
+  end
+
+  # @return [Ignored]
+  def enable_chime
+    able_chime(false)
+  end
+
+  # @return [Ignored]
+  def disable_chime
+    able_chime(true)
+  end
+
+  # @return [Boolean]
+  def chime_enabled?
+    preferences[:disable_chime]
   end
 
   # rubocop:disable Style/StringHashKeys

@@ -86,15 +86,24 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
     context 'missing_fields' do
       specify 'source author, year are missing' do
+        @species.etymology = 'Test'
         @species.soft_validate(:missing_fields)
         expect(@species.soft_validations.messages_on(:base).empty?).to be_truthy
         expect(@species.soft_validations.messages_on(:verbatim_author).empty?).to be_truthy
         expect(@species.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
       end
+      specify 'etymology is missing' do
+        @species.soft_validate(:missing_fields)
+        expect(@species.soft_validations.messages_on(:etymology).empty?).to be_falsey
+        @species.etymology = 'Test'
+        @species.soft_validate(:missing_fields)
+        expect(@species.soft_validations.messages_on(:etymology).empty?).to be_truthy
+      end
       specify 'author and year are missing' do
         @kingdom.soft_validate(:missing_fields)
         expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_falsey
         expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_falsey
+        expect(@kingdom.soft_validations.messages_on(:etymology).empty?).to be_truthy
       end
     end
 

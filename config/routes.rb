@@ -40,6 +40,7 @@ TaxonWorks::Application.routes.draw do
 
   scope :annotations, controller: :annotations do
     get ':global_id/metadata', action: :metadata, defaults: {format: :json}
+    get :types, defaults: {format: :json}
   end
 
   scope :graph, controller: :graph do
@@ -63,10 +64,14 @@ TaxonWorks::Application.routes.draw do
     get 'data_overview'
   end
 
-  resources :project_members, except: [:index, :show] do
+  resources :project_members, except: [:index] do
     collection do
       get :many_new
+      get :index, defaults: {format: :json}
       post :create_many
+      
+      get :clipboard, defaults: {format: :json}
+      put :update_clipboard, defaults: {format: :json}
     end
   end
 
@@ -76,7 +81,6 @@ TaxonWorks::Application.routes.draw do
       post 'update_type_position'
     end
   end
-
 
   ### Data routes
 
@@ -113,7 +117,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     collection do
       get :select_options, defaults: {format: :json}
-  end
+    end
   end
 
   resources :character_states do
@@ -158,7 +162,7 @@ TaxonWorks::Application.routes.draw do
     collection do
       post :preview_castor_batch_load # should be get
       post :create_castor_batch_load # should be get
-      get :preview_simple_batch_load 
+      get :preview_simple_batch_load
       post :create_simple_batch_load
       get :select_options, defaults: {format: :json}
     end
@@ -250,7 +254,7 @@ TaxonWorks::Application.routes.draw do
       post :preview_modify_gene_descriptor_batch_load
       post :create_modify_gene_descriptor_batch_load
       get :units
-    end  
+    end
   end
 
   resources :documentation do
@@ -604,7 +608,7 @@ TaxonWorks::Application.routes.draw do
 
 
   # Generate shallow routes for annotations based on model properties, like
-  # otu_citations GET    /otus/:otu_id/citations(.:format)    citations#index
+  # otu_citations GET /otus/:otu_id/citations(.:format) citations#index
   ApplicationEnumeration.data_models.each do |m|
     Shared::IsData::Annotation::ANNOTATION_TYPES.each do |t|
       if m.send("has_#{t}?")
@@ -624,9 +628,8 @@ TaxonWorks::Application.routes.draw do
       end
     end
 
-
-    scope :object_annotations, controller: 'tasks/object_annotations' do
-      get 'index', as: 'annotate_objects'
+    scope :browse_annotations, controller: 'tasks/browse_annotations' do
+      get 'index', as: 'browse_annotations_task'
     end
 
     scope :otus do
@@ -918,6 +921,14 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+  scope :s do
+    get ':id' => 'shortener/shortened_urls#show'
+  end
+
+  # constraints subdomain: 's' do
+  #   get '/:id' => "shortener/shortened_urls#show"
+  # end
+
   ### End of task scopes, user related below ###
 
   resources :users, except: :new do
@@ -1007,7 +1018,6 @@ TaxonWorks::Application.routes.draw do
         to: 'taxon_names#autocomplete'
     end
   end
-
 end
 
 require_relative 'routes/api'
