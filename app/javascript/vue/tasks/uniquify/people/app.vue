@@ -15,7 +15,7 @@
         :logo-size="{ width: '100px', height: '100px'}"/>
     <div class="flexbox">
       <div class="last_name separate-right">
-        <h2>:ast Name</h2>
+        <h2>Last Name</h2>
         <last_name v-model="filter.last_name"/>
       </div>
       <div class="first_name separate-right separate-left">
@@ -44,7 +44,7 @@
     </div>
     <button
         class="button normal-input button-default"
-        @click="processResult"
+        @click="findPerson"
         :disabled="submitAvailable"
         type="submit">Submit
     </button>
@@ -62,4 +62,64 @@
   import RoleTypes from './components/role_types'
   import FoundNames from './components/found_names'
   import MatchNames from './components/match_names'
+
+  import Spinner from '../../../components/spinner.vue'
+
+  export default {
+    components: {
+      LastName,
+      FirstName,
+      RoleTypes,
+      FoundNames,
+      MatchNames,
+      Spinner
+    },
+    computed: {
+      submitAvailable() {
+        return true;  //!this.filter.annotation_type.type || !this.filter.model
+      }
+    },
+    data() {
+      return {
+        filter: this.resetFilter(),
+        isLoading: false,
+        resultList: [],
+        request: {
+          url: '',
+          total: 0
+        },
+      }
+    },
+    methods: {
+      findPerson() {
+
+      }
+      resetApp() {
+        this.filter = this.resetFilter()
+        this.resultList = []
+        this.request.url = ''
+        this.request.total = 0
+      },
+      resetFilter() {
+        return {
+          annotation_type: {
+            type: undefined,
+            used_on: undefined,
+            select_options_url: undefined,
+            all_select_option_url: undefined
+          },
+          annotation_dates: {
+            after: undefined,
+            before: undefined
+          },
+          annotation_logic: 'replace',
+          selected_type: undefined,
+          selected_for: {},
+          selected_by: {},
+          model: undefined,
+          result: 'initial result'
+        }
+      }
+    }
+  }
 </script>
