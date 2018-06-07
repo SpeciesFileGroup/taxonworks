@@ -1,15 +1,16 @@
 <template>
   <div>
-    <component
-      v-for="block in blocks" 
-      :is="block"/>
+    <block-verbatin/>
   </div>
 </template>
 
 <script>
+
+  import blockVerbatin from './components/blockOne.vue'
+
   export default {
     components: {
-
+      blockVerbatin
     },
     data() {
       return {

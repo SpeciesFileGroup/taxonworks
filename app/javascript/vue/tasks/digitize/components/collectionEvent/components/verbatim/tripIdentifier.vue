@@ -9,8 +9,8 @@
 
 <script>
 
-import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations'
+import { GetterNames } from '../../../../store/getters/getters'
+import { MutationNames } from '../../../../store/mutations/mutations'
 
 export default {
   computed: {

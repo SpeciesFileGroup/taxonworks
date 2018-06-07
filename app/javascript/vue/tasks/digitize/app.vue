@@ -1,13 +1,18 @@
 <template>
-  <div id="#vue-all-in-one"/>
+  <div id="#vue-all-in-one">
+    <collection-event-layout/>
+  </div>
 </template>
 
 <script>
 
-export default {
+  import CollectionEventLayout from './components/collectionEvent/main.vue'
 
-}
-
+  export default {
+    components: {
+      CollectionEventLayout
+    }
+  }
 </script>
 <style lang="scss">
   #vue_new_matrix_task {

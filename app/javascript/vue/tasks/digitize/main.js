@@ -6,7 +6,7 @@ TW.views.tasks.digitize = TW.views.tasks.digitize || {}
 import Vue from 'vue'
 import vueResource from 'vue-resource'
 
-Object.assign(TW.views.tasks.new_matrix, {
+Object.assign(TW.views.tasks.digitize, {
   init: function () {
     Vue.use(vueResource)
     var App = require('./app.vue').default
