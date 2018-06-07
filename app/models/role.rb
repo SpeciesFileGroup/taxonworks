@@ -55,31 +55,37 @@ class Role < ApplicationRecord
 
   def vet_person
     if Role.where(person_id: person_id).any?
-      c = Role.where(person_id: person_id).count 
+      c = Role.where(person_id: person_id).count
       p = Person.find(person_id)
       y = role_object.try(:year)
       y ||= role_object.try(:year_of_publication)
-      
+
       yas = [y, person.year_active_start].compact.map(&:to_i).min
       yae = [y, person.year_active_end].compact.map(&:to_i).max
 
       begin
         p.update(
-          type: (c > 1 ? 'Person::Vetted' : 'Person::Unvetted'),
-          year_active_end: yae, 
+          type:              (c > 1 ? 'Person::Vetted' : 'Person::Unvetted'),
+          year_active_end:   yae,
           year_active_start: yas
         )
       rescue ActiveRecord::RecordInvalid
-        # probably a year conflict, allow quietly        
+        # probably a year conflict, allow quietly
       end
     end
   end
 
 end
 
+require_dependency 'taxon_name_author'
 require_dependency 'source_source'
 require_dependency 'source_author'
 require_dependency 'source_editor'
-require_dependency 'determiner'
 require_dependency 'collector'
-require_dependency 'taxon_name_author'
+require_dependency 'georeferencer'
+require_dependency 'determiner'
+require_dependency 'type_designator'
+require_dependency 'loan_recipient'
+require_dependency 'loan_supervisor'
+require_dependency 'accession_provider'
+require_dependency 'deaccession_recipient'
