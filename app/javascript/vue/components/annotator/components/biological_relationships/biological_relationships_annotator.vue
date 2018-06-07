@@ -87,10 +87,8 @@
     </div>
     <table-list 
       class="separate-top"
-      :header="['Relationship', 'Type', 'Object', 'Citation', '']"
-      :attributes="[['biological_relationship', 'name'], 'biological_association_object_type', ['object', 'object_tag'], ['source','object_tag']]"
       :list="list"
-      :annotator="true"
+      :metadata="metadata"
       @delete="removeItem"/>
   </div>
 </template>
@@ -101,7 +99,7 @@
   import Biological from './biological.vue'
   import Related from './related.vue'
   import NewCitation from './newCitation.vue'
-  import TableList from '../../../table_list.vue'
+  import TableList from './table.vue'
 
   export default {
     mixins: [CRUD, AnnotatorExtend],
