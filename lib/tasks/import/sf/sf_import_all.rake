@@ -52,18 +52,18 @@ namespace :tw do
           # 'tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/8_after_status_flag_rels',
           #
           #
-          # ### cites section took 423m23.501s
-          # 'cites:import_nomenclator_strings',
-          # 'cites:create_cvts_for_citations',
-          # 'cites:create_sf_taxon_name_authors',
-          # 'cites:create_sf_taxon_file_id_hash',
-          # 'cites:check_original_genus_ids',
+          # ### pre_cites section
+          # 'pre_cites:import_nomenclator_strings',
+          # 'pre_cites:create_cvts_for_citations',
+          # 'pre_cites:create_sf_taxon_name_authors',
+          # 'pre_cites:create_sf_taxon_file_id_hash',
+          # 'pre_cites:check_original_genus_ids',
           # 'tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/9_after_orig_genus_ids',
           #
-          'cites:create_citations',
+          'citations:create_citations',
           # 'tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/10_after_citations',
           #
-          # 'cites:create_otu_cites',
+          # 'citations:create_otu_cites',
           # 'tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/11_after_otu_cites',
           #
           #
