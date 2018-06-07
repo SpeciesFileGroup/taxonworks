@@ -123,20 +123,46 @@ namespace :tw do
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
 
+          get_scrutinies = {} # key = ScrutinyID, value = FileID, Year, Comment
+          logger.info 'Creating scrutinies hash...'
+          path = @args[:data_directory] + 'tblScrutinies.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file.each_with_index do |row, i|
+            get_scrutinies[row['ScrutinyID']] = {sf_file_id: row['FileID'], year: row['Year'], comment: row['Comment']}
+          end
+
           get_scrutiny_authors = {} # from tblScrutinyAuthors, key = ScrutinyID, value = PersonID, SeqNum
           logger.info 'Creating scrutiny_authors hash...'
           path = @args[:data_directory] + 'tblScrutinyAuthors.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
           file.each_with_index do |row, i|
-            get_scrutiny_authors[row['ScrutinyID']] = {person_id: row['PersonID'], seqnum: row['SeqNum']}
+            id = row['ScrutinyID']
+            index = row['SeqNum'].to_i
+
+            if get_scrutiny_authors[id]
+              get_scrutiny_authors[id][index] = row['PersonID']
+            else
+              get_scrutiny_authors[id] = []
+              get_scrutiny_authors[id][index] = [row['PersonID'] ]
+            end
+
           end
+       # =====================================================================
+       #    get_scrutiny_authors = {
+       #
+       #        22 => [1,2,3],
+       #        44 => [4,5]
+       #
+       #    }
+       #
+       #    people_for_22 = get_scrutiny_authors[22]
+       # # people_for_22 == [1,2,3]
+       #
+       #    import.set('Scrutinies', get_scrutinies)
+       #    import.set('ScrutinyAuthors', get_scrutiny_authors)
+       # ======================================================================
 
-          get_taxon_scrutinies = {} # from tblTaxonScrutinies, key = ScrutinyID
-          
-
-          import.set('ScrutinyAuthors', get_scrutiny_authors)
-
-          # then process tblScrutinies
+          # then process tblTaxonScrutinies
 
           logger.info 'Importing SupplementaryTaxonInformation...'
 
@@ -155,7 +181,7 @@ namespace :tw do
           # otu_only_counter = 0
           # otu_not_found_array = []
 
-          path = @args[:data_directory] + 'tblSupplTaxonInfo.txt'
+          path = @args[:data_directory] + 'tblTaxonScrutinies.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           file.each_with_index do |row, i|
@@ -164,12 +190,32 @@ namespace :tw do
             next if [1143402, 1143425, 1143430, 1143432, 1143436].freeze.include?(row['TaxonNameID'].to_i) # used for excluded Beckma ids
             next if [1109922, 1195997, 1198855].freeze.include?(row['TaxonNameID'].to_i) # bad data in Orthoptera (first) and Psocodea (rest)
             sf_taxon_name_id = row['TaxonNameID']
-            sf_file_id = get_sf_file_id[sf_taxon_name_id]
             next if skipped_file_ids.include? sf_file_id.to_i
             taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id] # cannot to_i because if nil, nil.to_i = 0
-            project_id = get_tw_project_id[sf_file_id]
+            scrutiny_id = row['ScrutinyID']
+
+
+            project_id = get_tw_project_id[get_scrutinies[scrutiny_id]['FileID']]
+            year = get_scrutinies[scrutiny_id]['Year']
+            comment = get_scrutinies[scrutiny_id]['Comment']
+
+            person
 
             logger.info "Working on SF.TaxonNameID #{sf_taxon_name_id} = tw.taxon_name_id #{taxon_name_id}, project_id = #{project_id}, counter = #{counter += 1}"
+
+            content = ''  # ScrutinyID, SeqNum, Year, PersonIDs, Comment
+
+            scrutiny_predicate = Predicate.find_or_create_by(name: 'Species File scrutiny', definition: 'from tblScrutinies, limit of three scrutinies per taxon name', project_id: project_id)
+            scrutiny = internal_attributes.create!(predicate: scrutiny_predicate,
+                                                   attribute_subject_id: taxon_name_id,
+                                                   attribute_subject_type: 'TaxonName',
+                                                   value: content,
+                                                   project_id: project_id)
+
+
+
+
+
           end
         end
 
