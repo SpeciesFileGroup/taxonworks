@@ -13,51 +13,6 @@ namespace :tw do
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
-
-          get_scrutinies = {} # key = ScrutinyID, value = FileID, Year, Comment
-          logger.info 'Creating scrutinies hash...'
-          path = @args[:data_directory] + 'tblScrutinies.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
-          file.each_with_index do |row, i|
-            get_scrutinies[row['ScrutinyID']] = {sf_file_id: row['FileID'], year: row['Year'], comment: row['Comment']}
-          end
-
-          get_scrutiny_authors = {} # from tblScrutinyAuthors, key = ScrutinyID, value = PersonID, SeqNum
-          logger.info 'Creating scrutiny_authors hash...'
-          path = @args[:data_directory] + 'tblScrutinyAuthors.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
-          file.each_with_index do |row, i|
-            id = row['ScrutinyID']
-            index = row['SeqNum'].to_i
-
-            if get_scrutiny_authors[id]
-              get_scrutiny_authors[id][index] = row['PersonID']
-            else
-              get_scrutiny_authors[id] = []
-              get_scrutiny_authors[id][index] = [row['PersonID'] ]
-            end
-
-          end
-       # =====================================================================
-       #    get_scrutiny_authors = {
-       #
-       #        22 => [1,2,3],
-       #        44 => [4,5]
-       #
-       #    }
-       #
-       #    people_for_22 = get_scrutiny_authors[22]
-       # # people_for_22 == [1,2,3]
-       #
-       #    import.set('Scrutinies', get_scrutinies)
-       #    import.set('ScrutinyAuthors', get_scrutiny_authors)
-       # ======================================================================
-
-          # then process tblTaxonScrutinies
-
-          logger.info 'Importing SupplementaryTaxonInformation...'
-
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
           get_sf_file_id = import.get('SFTaxonNameIDToSFFileID')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
@@ -71,6 +26,47 @@ namespace :tw do
           counter = 0
           # otu_only_counter = 0
           # otu_not_found_array = []
+
+
+          # first create hash of scrutinies
+          get_scrutinies = {} # key = ScrutinyID, value = FileID, Year, Comment
+          logger.info 'Creating scrutinies hash...'
+          path = @args[:data_directory] + 'tblScrutinies.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file.each_with_index do |row, i|
+            get_scrutinies[row['ScrutinyID']] = {sf_file_id: row['FileID'], year: row['Year'], comment: row['Comment']}
+          end
+
+          # next create hash of arrays for scrutiny authors
+          get_scrutiny_authors = {} # from tblScrutinyAuthors, key = ScrutinyID, value = PersonID, SeqNum
+          logger.info 'Creating scrutiny_authors hash...'
+          path = @args[:data_directory] + 'tblScrutinyAuthors.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file.each_with_index do |row, i|
+            id = row['ScrutinyID']
+            index = row['SeqNum'].to_i
+            if get_scrutiny_authors[id]   # subsequent author for same ScrutinyID
+              get_scrutiny_authors[id][index] = row['PersonID']
+            else
+              get_scrutiny_authors[id] = []   # first author for different ScrutinyID
+              get_scrutiny_authors[id][index] = [row['PersonID'] ]
+            end
+          end
+       # =======================================================
+       #    get_scrutiny_authors = {
+       #        22 => [1,2,3],
+       #        44 => [4,5]
+       #    }
+       #
+       #  people_for_22 = get_scrutiny_authors[22]  # == [1,2,3]
+       # =======================================================
+
+          import.set('Scrutinies', get_scrutinies)
+          import.set('ScrutinyAuthors', get_scrutiny_authors)
+
+          # finally process tblTaxonScrutinies
+
+          logger.info 'Importing Scrutinies...'
 
           path = @args[:data_directory] + 'tblTaxonScrutinies.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -90,7 +86,6 @@ namespace :tw do
             year = get_scrutinies[scrutiny_id]['Year']
             comment = get_scrutinies[scrutiny_id]['Comment']
 
-            person
 
             logger.info "Working on SF.TaxonNameID #{sf_taxon_name_id} = tw.taxon_name_id #{taxon_name_id}, project_id = #{project_id}, counter = #{counter += 1}"
 
