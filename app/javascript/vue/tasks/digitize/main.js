@@ -1,7 +1,7 @@
 var TW = TW || {}
 TW.views = TW.views || {}
 TW.views.tasks = TW.views.tasks || {}
-TW.views.tasks.new_matrix = TW.views.tasks.new_matrix || {}
+TW.views.tasks.digitize = TW.views.tasks.digitize || {}
 
 import Vue from 'vue'
 import vueResource from 'vue-resource'
@@ -25,6 +25,6 @@ Object.assign(TW.views.tasks.new_matrix, {
 
 $(document).on('turbolinks:load', function () {
   if ($('#vue-all-in-one').length) {
-    TW.views.tasks.new_matrix.init()
+    TW.views.tasks.digitize.init()
   }
 })
