@@ -60,6 +60,17 @@ namespace :tw do
           # 'pre_cites:check_original_genus_ids',
           # 'tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/9_after_orig_genus_ids',
           #
+          # insert supplementary info
+          # scrutinies here
+          #
+          #
+          # then specimens if no prerequisites
+          #
+          #
+          #
+          #
+          #
+          #
           'citations:create_citations',
           # 'tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/10_after_citations',
           #
