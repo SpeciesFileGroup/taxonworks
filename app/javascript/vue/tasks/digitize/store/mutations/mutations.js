@@ -10,36 +10,44 @@ import setCollectionEventLocality from './setCollectionEventLocality'
 import setCollectionEventLongitude from './setCollectionEventLongitude'
 import setCollectionEventMethod from './setCollectionEventMethod'
 import setCollectionEventTripIdentifier from './setCollectionEventTripIdentifier'
-
+import setCollectionEventElevationPrecision from './setCollectionEventElevationPrecision'
+import setCollectionEventMaximumElevation from './setCollectionEventMaximumElevation'
+import setCollectionEventMinimumElevation from './setCollectionEventMinimumElevation'
 
 const MutationNames = {
   SetCollectionEventLabel: 'setCollectionEventLabel',
-  setCollectionEventCollectors: 'setCollectionEventCollectors',
-  setCollectionEventDate: 'setCollectionEventDate',
-  setCollectionEventDatum: 'setCollectionEventDatum',
-  setCollectionEventElevation: 'setCollectionEventElevation',
-  setCollectionEventGeolocation: 'setCollectionEventGeolocation',
-  setCollectionEventHabitat: 'setCollectionEventHabitat',
-  setCollectionEventLatitude: 'setCollectionEventLatitude',
-  setCollectionEventLocality: 'setCollectionEventLocality',
-  setCollectionEventLongitude: 'setCollectionEventLongitude',
-  setCollectionEventMethod: 'setCollectionEventMethod',
-  setCollectionEventTripIdentifier: 'setCollectionEventTripIdentifier',
+  SetCollectionEventCollectors: 'setCollectionEventCollectors',
+  SetCollectionEventDate: 'setCollectionEventDate',
+  SetCollectionEventDatum: 'setCollectionEventDatum',
+  SetCollectionEventElevation: 'setCollectionEventElevation',
+  SetCollectionEventGeolocation: 'setCollectionEventGeolocation',
+  SetCollectionEventHabitat: 'setCollectionEventHabitat',
+  SetCollectionEventLatitude: 'setCollectionEventLatitude',
+  SetCollectionEventLocality: 'setCollectionEventLocality',
+  SetCollectionEventLongitude: 'setCollectionEventLongitude',
+  SetCollectionEventMethod: 'setCollectionEventMethod',
+  SetCollectionEventTripIdentifier: 'setCollectionEventTripIdentifier',
+  SetCollectionEventElevationPrecision: 'setCollectionEventElevationPrecision',
+  SetCollectionEventMaximumElevation: 'setCollectionEventMaximumElevation',
+  SetCollectionEventMinimumElevation: 'setCollectionEventMinimumElevation'
 }
 
 const MutationFunctions = {
   [MutationNames.SetCollectionEventLabel]: setCollectionEventLabel,
-  [MutationNames.setCollectionEventCollectors]: setCollectionEventCollectors,
-  [MutationNames.setCollectionEventDate]: setCollectionEventDate,
-  [MutationNames.setCollectionEventDatum]: setCollectionEventDatum,
-  [MutationNames.setCollectionEventElevation]: setCollectionEventElevation,
-  [MutationNames.setCollectionEventGeolocation]: setCollectionEventGeolocation,
-  [MutationNames.setCollectionEventHabitat]: setCollectionEventHabitat,
-  [MutationNames.setCollectionEventLatitude]: setCollectionEventLatitude,
-  [MutationNames.setCollectionEventLocality]: setCollectionEventLocality,
-  [MutationNames.setCollectionEventLongitude]: setCollectionEventLongitude,
-  [MutationNames.setCollectionEventMethod]: setCollectionEventMethod,
-  [MutationNames.setCollectionEventTripIdentifier]: setCollectionEventTripIdentifier,
+  [MutationNames.SetCollectionEventCollectors]: setCollectionEventCollectors,
+  [MutationNames.SetCollectionEventDate]: setCollectionEventDate,
+  [MutationNames.SetCollectionEventDatum]: setCollectionEventDatum,
+  [MutationNames.SetCollectionEventElevation]: setCollectionEventElevation,
+  [MutationNames.SetCollectionEventGeolocation]: setCollectionEventGeolocation,
+  [MutationNames.SetCollectionEventHabitat]: setCollectionEventHabitat,
+  [MutationNames.SetCollectionEventLatitude]: setCollectionEventLatitude,
+  [MutationNames.SetCollectionEventLocality]: setCollectionEventLocality,
+  [MutationNames.SetCollectionEventLongitude]: setCollectionEventLongitude,
+  [MutationNames.SetCollectionEventMethod]: setCollectionEventMethod,
+  [MutationNames.SetCollectionEventTripIdentifier]: setCollectionEventTripIdentifier,
+  [MutationNames.SetCollectionEventElevationPrecision]: setCollectionEventElevationPrecision,
+  [MutationNames.SetCollectionEventMaximumElevation]: setCollectionEventMaximumElevation,
+  [MutationNames.SetCollectionEventMinimumElevation]: setCollectionEventMinimumElevation
 }
 
 export {

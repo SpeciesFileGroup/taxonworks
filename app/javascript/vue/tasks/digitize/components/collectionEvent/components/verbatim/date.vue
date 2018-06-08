@@ -16,7 +16,7 @@ export default {
   computed: {
     date: {
       get() {
-        return this.$store.getters[GetterNames.GetCollectionEventDate]
+        return this.$store.getters[GetterNames.GetCollectionEvent].verbatim_date
       },
       set(value) {
         this.$store.commit(MutationNames.SetCollectionEventDate, value)

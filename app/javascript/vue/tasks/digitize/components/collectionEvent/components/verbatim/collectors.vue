@@ -16,7 +16,7 @@ export default {
   computed: {
     collectors: {
       get() {
-        return this.$store.getters[GetterNames.GetCollectionEventCollectors]
+        return this.$store.getters[GetterNames.GetCollectionEvent].verbatim_collectors
       },
       set(value) {
         this.$store.commit(MutationNames.SetCollectionEventCollectors, value)

@@ -16,7 +16,7 @@ export default {
   computed: {
     identifier: {
       get() {
-        return this.$store.getters[GetterNames.GetCollectionEventTripIdentifier]
+        return this.$store.getters[GetterNames.GetCollectionEvent].verbatim_trip_identifier
       },
       set(value) {
         this.$store.commit(MutationNames.SetCollectionEventTripIdentifier, value)

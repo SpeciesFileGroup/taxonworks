@@ -16,7 +16,7 @@ export default {
   computed: {
     latitude: {
       get() {
-        return this.$store.getters[GetterNames.GetCollectionEventLatitude]
+        return this.$store.getters[GetterNames.GetCollectionEvent].verbatim_latitude
       },
       set(value) {
         this.$store.commit(MutationNames.SetCollectionEventLatitude, value)

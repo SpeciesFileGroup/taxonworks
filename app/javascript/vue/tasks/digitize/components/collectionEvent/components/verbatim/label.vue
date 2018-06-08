@@ -16,7 +16,7 @@ export default {
   computed: {
     label: {
       get() {
-        return this.$store.getters[GetterNames.GetCollectionEventLabel]
+        return this.$store.getters[GetterNames.GetCollectionEvent].verbatim_label
       },
       set(value) {
         this.$store.commit(MutationNames.SetCollectionEventLabel, value)

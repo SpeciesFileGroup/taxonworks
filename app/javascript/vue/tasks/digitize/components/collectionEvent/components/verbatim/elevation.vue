@@ -16,7 +16,7 @@ export default {
   computed: {
     elevation: {
       get() {
-        return this.$store.getters[GetterNames.GetCollectionEventElevation]
+        return this.$store.getters[GetterNames.GetCollectionEvent].verbatim_elevation
       },
       set(value) {
         this.$store.commit(MutationNames.SetCollectionEventElevation, value)

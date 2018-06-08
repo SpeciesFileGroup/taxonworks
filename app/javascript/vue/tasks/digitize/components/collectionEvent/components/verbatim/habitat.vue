@@ -16,7 +16,7 @@ export default {
   computed: {
     habitat: {
       get() {
-        return this.$store.getters[GetterNames.GetCollectionEventHabitat]
+        return this.$store.getters[GetterNames.GetCollectionEvent].verbatim_habitat
       },
       set(value) {
         this.$store.commit(MutationNames.SetCollectionEventHabitat, value)

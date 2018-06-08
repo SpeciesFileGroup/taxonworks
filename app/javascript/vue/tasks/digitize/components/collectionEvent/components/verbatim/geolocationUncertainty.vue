@@ -16,10 +16,10 @@ export default {
   computed: {
     geolocationUncertainty: {
       get() {
-        return this.$store.getters[GetterNames.GetCollectionEventGeolocationUncertainty]
+        return this.$store.getters[GetterNames.GetCollectionEvent].verbatim_geolocation_uncertainty
       },
       set(value) {
-        this.$store.commit(MutationNames.SetCollectionEventGeolocationUncertainty, value)
+        this.$store.commit(MutationNames.SetCollectionEventGeolocation, value)
       }
     }
   }

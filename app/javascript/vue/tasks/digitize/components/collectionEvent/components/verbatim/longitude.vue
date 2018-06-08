@@ -16,7 +16,7 @@ export default {
   computed: {
     longitude: {
       get() {
-        return this.$store.getters[GetterNames.GetCollectionEventLongitude]
+        return this.$store.getters[GetterNames.GetCollectionEvent].verbatim_longitude
       },
       set(value) {
         this.$store.commit(MutationNames.SetCollectionEventLongitude, value)

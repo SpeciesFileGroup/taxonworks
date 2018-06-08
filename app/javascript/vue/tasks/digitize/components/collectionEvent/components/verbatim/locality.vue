@@ -16,7 +16,7 @@ export default {
   computed: {
     locality: {
       get() {
-        return this.$store.getters[GetterNames.GetCollectionEventLocality]
+        return this.$store.getters[GetterNames.GetCollectionEvent].verbatim_locality
       },
       set(value) {
         this.$store.commit(MutationNames.SetCollectionEventLocality, value)
