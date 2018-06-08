@@ -21,12 +21,8 @@
     props: {
       value: {
         type: Object,
-        // required: true
-      },
-      // roleTypes: {
-      //   type: Object,
-      //   required: true
-      // }
+        required: true
+      }
     },
     mounted: function() {
       this.$http.get('/people/role_types.json').then(response => {
@@ -34,11 +30,6 @@
       this.loading = false;
     })
   },
-    // watch: {
-    //   annotationType() {
-    //     this.$emit('input', undefined); // clear the selected annotation_on model button
-    //   }
-    // },
     data() {
       return {
         roleTypes: {},
@@ -51,7 +42,6 @@
           this.$delete(this.selectedList, type)
         }
         else {
-          // this.$set(this.selectedList, type, this.roleTypes[type]);
           this.$set(this.selectedList, type, this.roleTypes[type]);
         }
         this.$emit('input', this.selectedList);

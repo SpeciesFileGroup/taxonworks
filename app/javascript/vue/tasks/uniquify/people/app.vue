@@ -14,21 +14,29 @@
         legend="Loading..."
         :logo-size="{ width: '100px', height: '100px'}"/>
     <div class="flexbox">
-      <div class="last_name separate-right">
-        <h2>Last Name</h2>
-        <last-name v-model="filter.last_name"/>
-      </div>
-      <div class="first_name separate-right separate-left">
-        <h2>First Name</h2>
-        <first-name
-            v-model="filter.first_name"
-            :first-name="filter.first_name"/>
-      </div>
-      <div class="role_types separate-right separate-left">
-        <h2>Roles</h2>
-        <role-types
-            v-model="foundPeople"
-            @selected_for="filter.selectedPerson = $event"/>
+      <div>
+        <div class="last_name separate-right">
+          <h2>Last Name</h2>
+          <last-name v-model="filter.last_name"/>
+        </div>
+        <div class="first_name separate-right separate-left">
+          <h2>First Name</h2>
+          <first-name
+              v-model="filter.first_name"
+              :first-name="filter.first_name"/>
+        </div>
+        <div class="role_types separate-right separate-left">
+          <h2>Roles</h2>
+          <role-types
+              v-model="foundPeople"
+              @selected_for="filter.selectedPerson = $event"/>
+        </div>
+        <button
+            class="button normal-input button-default"
+            @click="findPerson"
+            :disabled="submitAvailable"
+            type="submit">Find Person
+        </button>
       </div>
       <div class="found_people separate-right separate-left">
         <h2>Select person</h2>
@@ -41,15 +49,15 @@
     </div>
     <button
         class="button normal-input button-default"
-        @click="findPerson"
+        @click="mergePeople"
         :disabled="submitAvailable"
-        type="submit">Find Person
+        type="submit">Merge People
     </button>
     <!--<request-bar-->
-        <!--:url="request.url"-->
-        <!--:total="request.total"/>-->
+    <!--:url="request.url"-->
+    <!--:total="request.total"/>-->
     <!--<view-list-->
-        <!--:list="resultList"/>-->
+    <!--:list="resultList"/>-->
   </div>
 </template>
 
@@ -82,9 +90,9 @@
         roletypes: {},
         filter: this.resetFilter(),
         isLoading: false,
-        foundPeople: [],
-        matchPeople: [],
-        mergePeople: [],
+        foundPeople: {},
+        matchPeople: {},
+        mergedPeople: {},
         request: {
           url: '',
           total: 0
@@ -93,14 +101,17 @@
     },
     methods: {
       findPerson() {
-
+        // TODO: make the request of the endpoint
+      },
+      mergePeople() {
+        // TODO: merge the selected people to/with the selected person
       },
       resetApp() {
         this.filter = this.resetFilter()
-        this.foundPeople = []
-        this.matchPeople = []
-        this.mergePeople = []
-        this.request.url = ''
+        this.foundPeople = {};
+        this.matchPeople = {};
+        this.mergedPeople = {};
+        this.request.url = '';
         this.request.total = 0
       },
       resetFilter() {
