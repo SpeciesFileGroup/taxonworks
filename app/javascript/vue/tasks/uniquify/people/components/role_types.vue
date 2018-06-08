@@ -21,7 +21,7 @@
     props: {
       value: {
         type: Object,
-        required: true
+        // required: true
       },
       // roleTypes: {
       //   type: Object,
@@ -30,8 +30,8 @@
     },
     mounted: function() {
       this.$http.get('/people/role_types.json').then(response => {
-      this.roleTypes = response.body.types
-      this.loading = false
+      this.roleTypes = response.body;
+      this.loading = false;
     })
   },
     // watch: {
