@@ -86,7 +86,8 @@ class SqedDepiction < ApplicationRecord
   # @return [Array of symbols]
   #   the (named) sections in this depiction that may have collecting event label metadata
   def collecting_event_sections
-    [:collecting_event_labels, :annotated_specimen] & extraction_metadata[:metadata_map].values
+      # !! master merge
+    [:collecting_event_labels, :annotated_specimen] & extraction_metadata[:target_metadata_map].values
   end
 
   def nearby_sqed_depictions(before = 5, after = 5)

@@ -5,7 +5,6 @@ module Utilities::Hashes
   # a value assigned in a to something different (assigned in b)
   # @param [Hash] a
   # @param [Hash] b
-  # @return [Ignored]
   def self.puts_collisions(a, b)
     a.each do |i,j|
       if b[i] && !j.blank? && b[i] != j

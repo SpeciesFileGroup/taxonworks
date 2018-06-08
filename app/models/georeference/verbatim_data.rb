@@ -4,7 +4,6 @@ class Georeference::VerbatimData < Georeference
 
   # rubocop:disable Metrics/MethodLength
   # @param [ActionController::Parameters] params
-  # @return [Ignored]
   def initialize(params = {})
     super
 
@@ -43,8 +42,8 @@ class Georeference::VerbatimData < Georeference
         test_grs = []
       else
         test_grs = GeographicItem::Point
-                     .where(["point = ST_GeographyFromText('POINT(? ?)::geography')", point.x, point.y])
-                     .where(['ST_Z(point::geometry) = ?', point.z])
+                     .where("point = ST_GeographyFromText('POINT(? ? ?)::geography')", point.x, point.y, point.z)
+                     # .where(['ST_Z(point::geometry) = ?', point.z])
       end
 
       if test_grs.empty?

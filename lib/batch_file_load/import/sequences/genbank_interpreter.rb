@@ -3,7 +3,6 @@ module BatchFileLoad
     include BatchLoad::Helpers::Sequences
 
     # @param [Array] args
-    # @return [Ignored]
     def initialize(**args)
       super(args)
     end

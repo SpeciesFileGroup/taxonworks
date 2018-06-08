@@ -22,7 +22,7 @@
     display: inline-block;
     width: 60px;
     font-size: 12px;
-    background-color: $color-request-button;
+    background-color: #9cc6e6;
     color: #FFFFFF;
     border: 1px solid rgba(0, 0, 0, 0.2);
     font-weight: normal;
@@ -38,7 +38,7 @@
   input:checked + label {
     box-shadow: 0 1px 1px 0px rgba(0, 0, 0, 0.2) inset;
     background-color: $navigation_background;
-    color: rgba(0, 0, 0, 0.6);
+    color: rgba(0, 0, 0, 0.8);
     border: 1px solid $navigation_border;
   }
 

@@ -28,7 +28,6 @@ module SoftValidation
     attr_accessor :set
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(options)
       raise(SoftValidationError, 'missing method and klass') if options[:method].nil? || options[:klass].nil?
 

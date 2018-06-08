@@ -11,11 +11,11 @@ class ObservationsController < ApplicationController
     respond_to do |format|
       format.html do
         @recent_objects = Observation.recent_from_project_id(sessions_current_project_id)
-                            .order(updated_at: :desc).limit(10)
+          .order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       end
       format.json {
-        @observations = Observation.where(filter_params).with_project_id(sessions_current_project_id)
+        @observations = Queries::Observation::Filter.new(filter_params).all.with_project_id(sessions_current_project_id)
       }
     end
   end
@@ -46,7 +46,7 @@ class ObservationsController < ApplicationController
     respond_to do |format|
       if @observation.save
         format.html { redirect_to observation_path(@observation.metamorphosize),
-                                  notice: 'Observation was successfully created.' }
+                      notice: 'Observation was successfully created.' }
         format.json { render :show, status: :created, location: @observation.metamorphosize }
       else
         format.html { render :new }
@@ -61,7 +61,7 @@ class ObservationsController < ApplicationController
     respond_to do |format|
       if @observation.update(observation_params)
         format.html { redirect_to url_for(@observation.metamorphosize),
-                                  notice: 'Observation was successfully updated.' }
+                      notice: 'Observation was successfully updated.' }
         format.json { render :show, status: :ok, location: @observation.metamorphosize }
       else
         format.html { render :edit }
@@ -94,6 +94,7 @@ class ObservationsController < ApplicationController
 
   def observation_params
     params.require(:observation).permit(
+      :observation_object_global_id,
       :descriptor_id, :otu_id, :collection_object_id,
       :character_state_id, :frequency,
       :continuous_value, :continuous_unit,
@@ -104,6 +105,6 @@ class ObservationsController < ApplicationController
   end
 
   def filter_params
-    params.permit(:otu_id, :descriptor_id, :collection_object_id)
+    params.permit(:otu_id, :descriptor_id, :collection_object_id, :observation_object_global_id)
   end
 end

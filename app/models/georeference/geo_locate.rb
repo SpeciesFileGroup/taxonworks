@@ -18,11 +18,11 @@ class Georeference::GeoLocate < Georeference
   # @return [RGeo object]
   def iframe_response=(response_string)
     lat, long, error_radius, uncertainty_points = Georeference::GeoLocate.parse_iframe_result(response_string)
-    self.geographic_item = make_geographic_point(long, lat, '0.0') unless lat.blank? and long.blank?
+    self.geographic_item = make_geographic_point(long, lat, '0.0') unless (lat.blank? && long.blank?)
     if uncertainty_points.nil?
       # make a circle from the geographic_item
       unless error_radius.blank?
-        q1 = "SELECT ST_BUFFER('#{self.geographic_item.geo_object}', #{error_radius.to_f / 111319.444444444});"
+        # q1 = "SELECT ST_BUFFER('#{self.geographic_item.geo_object}', #{error_radius.to_f / 111319.444444444});"
         q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_BUFFER(?, ?);',
                                                            self.geographic_item.geo_object.to_s,
                                                            (error_radius.to_f / 111319.444444444)])
@@ -67,12 +67,12 @@ class Georeference::GeoLocate < Georeference
   # @param [String] z = elevation, defaults to 0.0
   # @return [Object] GeographicItem::Point, either found or created.
   def make_geographic_point(x, y, z = '0.0')
-    if x.blank? or y.blank?
+    if x.blank? || y.blank?
       test_grs = []
     else
       test_grs = GeographicItem::Point
-                   .where(["point = ST_GeographyFromText('POINT(? ?)::geography')", x.to_f, y.to_f])
-                   .where(['ST_Z(point::geometry) = ?', z.to_f])
+                   .where("point = ST_GeographyFromText('POINT(? ? ?)::geography')", x.to_f, y.to_f, z.to_f)
+                   # .where(['ST_Z(point::geometry) = ?', z.to_f])
     end
     if test_grs.empty? # put a new one in the array
       test_grs = [GeographicItem.new(point: Gis::FACTORY.point(x, y, z))]
@@ -108,7 +108,6 @@ class Georeference::GeoLocate < Georeference
   # @todo get geoJson results and handle all this automatically?
   # @param [RGeo::Polygon] uncertainty_polygon
   # @param [Integer] uncertainty_radius in meters
-  # @return [Ignored]
   def make_error_geographic_item(uncertainty_polygon, uncertainty_radius)
     self.error_radius = uncertainty_radius if !uncertainty_radius.nil?
     unless uncertainty_polygon.nil?
@@ -193,7 +192,6 @@ class Georeference::GeoLocate < Georeference
     attr_reader :request_params, :request_params_string, :request_params_hash
 
     # @param [ActionController::Parameters] request_params
-    # @return [Ignored]
     def initialize(request_params)
       @request_params_hash = REQUEST_PARAMS.merge(request_params)
       build_param_string
@@ -247,18 +245,17 @@ class Georeference::GeoLocate < Georeference
     attr_reader :request_params, :response, :request_param_string
 
     # @param [ActionController::Parameters] request_params
-    # @return [Ignored]
     def initialize(request_params)
       @request_params = REQUEST_PARAMS.merge(request_params)
       @succeeded      = nil
     end
 
-    # @return [Ignored] sets the response attribute.
+    # sets the response attribute.
     def locate
       @response = Georeference::GeoLocate::Response.new(self)
     end
 
-    # @return [Ignored] sets the @request_param_string attribute.
+    # sets the @request_param_string attribute.
     def build_param_string
       @request_param_string ||= @request_params.collect { |key, value| "#{key}=#{value}" }.join('&')
     end
@@ -284,7 +281,6 @@ class Georeference::GeoLocate < Georeference
     attr_accessor :result
 
     # @param [JSON object] request
-    # @return [Ignored]
     def initialize(request)
       @result           = JSON.parse(call_api(Georeference::GeoLocate::URI_HOST, request))
       request.succeeded = true if @result['numResults'].to_i == 1

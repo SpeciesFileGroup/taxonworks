@@ -1,10 +1,16 @@
 <%= form_for(@biological_relationship) do |f| %>
-    <%= render 'shared/errors', object: @biological_relationship %>
+  <%= render 'shared/errors', object: @biological_relationship %>
 
-    <div class="field">
+  <div class="field">
     <%= f.label :name %><br>
     <%= f.text_field :name %>
   </div>
+
+  <div class="field">
+    <%= f.label :inverted_name %><br>
+    <%= f.text_field :inverted_name %>
+  </div>
+
   <div class="field">
     <%= f.label :is_transitive %><br>
     <%= f.check_box :is_transitive %>

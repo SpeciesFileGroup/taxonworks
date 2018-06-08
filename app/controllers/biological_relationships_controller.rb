@@ -114,7 +114,7 @@ class BiologicalRelationshipsController < ApplicationController
 
   def biological_relationship_params
     params.require(:biological_relationship).permit(
-      :name, :is_transitive, :is_reflexive, 
+      :name, :inverted_name, :is_transitive, :is_reflexive, 
       :created_by_id, :updated_by_id, :project_id,
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages]
     )

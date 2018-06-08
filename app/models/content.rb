@@ -29,6 +29,7 @@ class Content < ApplicationRecord
   include Shared::Citations
   include Shared::IsData
   include Shared::HasPapertrail
+  include Shared::DataAttributes
 
   belongs_to :otu, inverse_of: :contents
   belongs_to :topic, inverse_of: :contents
@@ -87,19 +88,4 @@ class Content < ApplicationRecord
   def self.find_for_autocomplete(params)
     where('text ILIKE ? OR text ILIKE ?', "#{params[:term]}%", "%#{params[:term]}%")
   end
-
-  # @return [CSV]
-  # Generate a version of the raw contents table for the given scope
-  # Ripped from http://railscasts.com/episodes/362-exporting-csv-and-excel
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
-  end
-
 end

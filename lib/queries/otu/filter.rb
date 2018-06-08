@@ -8,28 +8,19 @@ module Queries
     attr_accessor :query_author_ids, :query_and_or_select
     attr_accessor :query_verbatim_author_string
 
-    # def a=(value)
-    #   @a = value
-    # end
-    #
-    # def a
-    #   @a
-    # end
-    #
     # @param [Hash] params
-    # @return [Ignored]
     def initialize(params)
       params.reject! { |_k, v| v.blank? }
 
-      @query_params                 = params
+      @query_params = params
       @query_geographic_area_ids    = params[:geographic_area_ids]
-      @query_shape                  = params[:drawn_area_shape]
-      @query_author_ids             = params[:author_ids]
+      @query_shape = params[:drawn_area_shape]
+      @query_author_ids = params[:author_ids]
       @query_verbatim_author_string = params[:verbatim_author_string]
-      @query_and_or_select          = params[:and_or_select]
-      @query_nomen_id               = params[:nomen_id]
-      @query_rank_class             = params[:rank_class]
-      @query_descendants            = params[:descendants]
+      @query_and_or_select  = params[:and_or_select]
+      @query_nomen_id = params[:nomen_id]
+      @query_rank_class = params[:rank_class]
+      @query_descendants = params[:descendants]
     end
 
     # @return [Boolean]

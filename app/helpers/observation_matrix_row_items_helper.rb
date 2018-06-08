@@ -1,15 +1,18 @@
 module ObservationMatrixRowItemsHelper
-  def matrix_row_item_tag(matrix_row_item)
-    return nil if matrix_row_item.nil?
-    [
-      matrix_tag(matrix_row_item.matrix),
-      object_tag(matrix_row_item.matrix_row_item_object)
-    ].compact.join(': ')
+
+  # !! when dynamic rows are extended this will have to reflect other types than tags 
+  def observation_matrix_row_item_tag(observation_matrix_row_item)
+    return nil if observation_matrix_row_item.nil?
+    if observation_matrix_row_item.is_dynamic?
+      (controlled_vocabulary_term_tag(observation_matrix_row_item.controlled_vocabulary_term) + ' (tag keyword)').html_safe
+    else
+      (object_tag(observation_matrix_row_item.matrix_row_item_object) + " (single #{observation_matrix_row_item.matrix_row_item_object.class})").html_safe
+    end 
   end
 
-  def matrix_row_item_link(matrix_row_item)
-    return nil if matrix_row_item.nil?
-    link_to(matrix_row_item_tag(matrix_row_item).html_safe, matrix_row_item)
+  def observation_matrix_row_item_link(observation_matrix_row_item)
+    return nil if observation_matrix_row_item.nil?
+    link_to(observation_matrix_row_item_tag(observation_matrix_row_item).html_safe, observation_matrix_row_item)
   end
 
 end

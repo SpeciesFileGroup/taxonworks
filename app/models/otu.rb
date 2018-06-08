@@ -62,7 +62,11 @@ class Otu < ApplicationRecord
   has_many :georeferences, through: :collecting_events
 
   has_many :observations, inverse_of: :otu
+  has_many :observation_matrix_rows, inverse_of: :otu
+  has_many :observation_matrix_row_items, inverse_of: :otu
+
   has_many :descriptors, through: :observations
+  has_many :observation_matrix_rows, inverse_of: :otu
 
   has_many :content_topics, through: :contents, source: :topic
 

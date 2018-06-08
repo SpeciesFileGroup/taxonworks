@@ -13,7 +13,6 @@ module Dwca::Import
     attr_accessor :tw_objects
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(opts = {})
       opts = {
         data: [],        # dwc.core.read[0]
@@ -76,7 +75,6 @@ module Dwca::Import
     end
 
     # @param [CSV] data
-    # @return [Ignored]
     def self.build(data)
       data.rows[0..10].each do |row|
         puts row

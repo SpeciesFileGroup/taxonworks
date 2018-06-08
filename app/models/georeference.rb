@@ -218,10 +218,10 @@ class Georeference < ApplicationRecord
     # => "name='foo''bar' and group_id=4"
     q1 = "ST_Distance(#{GeographicItem::GEOGRAPHY_SQL}, " \
             "(#{GeographicItem.select_geography_sql(geographic_item_id)})) < #{distance}"
-    q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance(?, (?)) < ?',
-                                                       GeographicItem::GEOGRAPHY_SQL,
-                                                       GeographicItem.select_geography_sql(geographic_item_id),
-                                                       distance])
+    # q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance(?, (?)) < ?',
+    #                                                    GeographicItem::GEOGRAPHY_SQL,
+    #                                                    GeographicItem.select_geography_sql(geographic_item_id),
+    #                                                    distance])
     Georeference.joins(:geographic_item).where(q1)
   end
 
@@ -254,19 +254,6 @@ class Georeference < ApplicationRecord
     partials = CollectingEvent.where(geographic_area: geographic_area)
     partial_gr = Georeference.where('collecting_event_id in (?)', partials.pluck(:id))
     partial_gr
-  end
-
-  # @param [Scope] scope of Georeferences to download
-  # @return [CSV]
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
   end
 
   # TODO: not yet sure what the params are going to look like. what is below just represents a guess
@@ -337,6 +324,17 @@ class Georeference < ApplicationRecord
     end
     retval
   end
+
+  # @return [Boolean]
+  #   true if geographic_item is completely contained in error_box
+  # def check_obj_inside_err_radius
+  #   # case 2
+  #   retval = true
+  #   if !error_radius.blank? && geographic_item && geographic_item.geo_object
+  #     retval = error_box.contains?(geographic_item.geo_object)
+  #   end
+  #   retval
+  # end
 
   # @return [Boolean]
   #   true if geographic_item is completely contained in error_box
@@ -521,7 +519,6 @@ class Georeference < ApplicationRecord
       error_radius > 20_000_000 # 20,000 km
   end
 
-  # @return [Ignored]
   def geographic_item_present_if_error_radius_provided
     if !error_radius.blank? &&
       geographic_item_id.blank? && # provide existing

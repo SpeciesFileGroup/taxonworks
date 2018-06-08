@@ -4,6 +4,10 @@
 #   @return [String]
 #     the name of the relationship
 #
+# @!attribute inverted_name
+#   @return [String]
+#     the name as if read in reverse (from perspective of object), for example name: `parasitoid_of` inverted_name: `host_of`. Optional.
+#
 # @!attribute is_transitive
 #   @return [Boolean]
 #     whether the relationship is transitive, i.e. if A is_a B is_a C then if is_a is transitive A is_a C
@@ -26,15 +30,22 @@ class BiologicalRelationship < ApplicationRecord
 
   validates_presence_of :name
   has_many :biological_relationship_types, inverse_of: :biological_relationship
-  has_many :biological_associations, inverse_of: :biological_relationship
+
+  has_many :subject_biological_relationship_types, -> () {where(type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')}, class_name: 'BiologicalRelationshipType'
+  has_many :object_biological_relationship_types, -> () {where(type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')}, class_name: 'BiologicalRelationshipType'
+
   has_many :biological_properties, through: :biological_relationship_types
- 
+  has_many :subject_biological_properties, through: :subject_biological_relationship_types, source: :biological_property
+  has_many :object_biological_properties, through: :object_biological_relationship_types, source: :biological_property
+
+  has_many :biological_associations, inverse_of: :biological_relationship
+
   # TODO: move to /lib/queries
   def self.find_for_autocomplete(params)
     t = params[:term]
     t2 = t + '%'
     t3 = '%' + t2
-    BiologicalRelationship.where('(name ILIKE ?) OR (name ILIKE ?) OR (name ILIKE ?)', t,t2,t3).where(project_id: params[:project_id])
+    BiologicalRelationship.where('(name ILIKE ?) OR (name ILIKE ?) OR (name ILIKE ?) OR (inverted_name ILIKE ?) OR (inverted_name ILIKE ?) OR (inverted_name ILIKE ?) ', t,t2,t3).where(project_id: params[:project_id])
   end
 
   # @return [Scope]

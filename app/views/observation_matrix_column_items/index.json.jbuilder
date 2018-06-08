@@ -1,4 +1,3 @@
-json.array!(@observation_matrix_column_items) do |matrix_column_item|
-  json.extract! matrix_column_item, :id, :matrix_id, :type, :descriptor_id, :keyword_id, :created_by_id, :updated_by_id, :project_id
-  json.url observation_matrix_column_item_url(matrix_column_item, format: :json)
+json.array!(@observation_matrix_column_items) do |observation_matrix_column_item|
+  json.partial! '/observation_matrix_column_items/attributes', observation_matrix_column_item: observation_matrix_column_item
 end

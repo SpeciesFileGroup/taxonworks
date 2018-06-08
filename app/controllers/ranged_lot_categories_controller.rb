@@ -70,19 +70,22 @@ class RangedLotCategoriesController < ApplicationController
 
   # GET /ranged_lot_categories/download
   def download
-    send_data RangedLotCategory.generate_download( RangedLotCategory.where(project_id: sessions_current_project_id) ), type: 'text', filename: "ranged_lot_categories_#{DateTime.now}.csv"
+    send_data(Download.generate_csv(RangedLotCategory.where(project_id: sessions_current_project_id)),
+              type: 'text',
+              filename: "ranged_lot_categories_#{DateTime.now}.csv")
   end
 
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_ranged_lot_category
-      @ranged_lot_category = RangedLotCategory.with_project_id(sessions_current_project_id).find(params[:id])
-      @recent_object = @ranged_lot_category
-    end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def ranged_lot_category_params
-      params.require(:ranged_lot_category).permit(:name, :minimum_value, :maximum_value)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_ranged_lot_category
+    @ranged_lot_category = RangedLotCategory.with_project_id(sessions_current_project_id).find(params[:id])
+    @recent_object = @ranged_lot_category
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def ranged_lot_category_params
+    params.require(:ranged_lot_category).permit(:name, :minimum_value, :maximum_value)
+  end
 end

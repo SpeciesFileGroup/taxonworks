@@ -37,6 +37,11 @@
   background-color: $color-remove-button;
 }
 
+.button-data {
+  color: #FFF;
+  background-color: #006ebf
+}
+
 .button-request {
   color: #FFF;
   background-color: $color-request-button;
@@ -125,6 +130,12 @@
 .btn-edit {
   background-color: $color-action-button;
   background-image: image-url("w_pencil.svg");
+}
+
+.btn-row-coder {
+  background-size: 16px;
+  background-color: $color-secondary-2-4;
+  background-image: image-url("w_row_code.svg");
 }
 
 .btn-radial {

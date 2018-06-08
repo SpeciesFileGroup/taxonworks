@@ -79,6 +79,15 @@ class TypeMaterialsController < ApplicationController
     @type_materials = TypeMaterial.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
+  def search
+    if params[:id].blank?
+      redirect_to(type_materials_path,
+                  notice: 'You must select an item from the list with a click or tab press before clicking show.')
+    else
+      redirect_to type_material_path(params[:id])
+    end
+  end
+
   def autocomplete
     @type_materials = Queries::TypeMaterialAutocompleteQuery.new(params[:term], project_id: sessions_current_project_id).all
 
