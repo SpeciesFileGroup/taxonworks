@@ -63,6 +63,7 @@ class Role < ApplicationRecord
       yas = [y, person.year_active_start].compact.map(&:to_i).min
       yae = [y, person.year_active_end].compact.map(&:to_i).max
 
+      # rubocop:disable Rails/SaveBang
       begin
         p.update(
           type:              (c > 1 ? 'Person::Vetted' : 'Person::Unvetted'),
@@ -72,6 +73,7 @@ class Role < ApplicationRecord
       rescue ActiveRecord::RecordInvalid
         # probably a year conflict, allow quietly
       end
+      # rubocop:enable Rails/SaveBang
     end
   end
 
