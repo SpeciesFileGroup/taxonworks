@@ -1,14 +1,14 @@
 <p>
   <strong>Biological relationship:</strong>
-  <%= object_tag(@biological_association.biological_relationship) %>
+  <%= object_link(@biological_association.biological_relationship) %>
 </p>
 
 <p>
   <strong>Biological association subject:</strong>
-  <%= object_tag(@biological_association.biological_association_subject) %>
+  <%= object_link(@biological_association.biological_association_subject.metamorphosize) %>
 </p>
 
 <p>
   <strong>Biological association object:</strong>
-  <%= object_tag(@biological_association.biological_association_object) %>
+  <%= object_link(@biological_association.biological_association_object.metamorphosize) %>
 </p>
