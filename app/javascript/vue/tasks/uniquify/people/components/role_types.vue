@@ -6,7 +6,7 @@
           :key=label >
         <button
             type="button"
-            :class="{ 'button-default': (key != value)}"
+            :class="{ 'button-default': (key != selectedList[key])}"
             class="button normal-input biocuration-toggle-button"
             @click="selectType(key)">
           {{ key }}
@@ -47,11 +47,12 @@
     },
     methods: {
       selectType(type) {   // clicked one of the types provided from role_types
-        if (this.selectedList.hasOwnProperty(item.id)) {
-          this.$delete(this.selectedList, item.id)
+        if (this.selectedList.hasOwnProperty(type)) {
+          this.$delete(this.selectedList, type)
         }
         else {
-          this.$set(this.selectedList, item.id, item);
+          // this.$set(this.selectedList, type, this.roleTypes[type]);
+          this.$set(this.selectedList, type, this.roleTypes[type]);
         }
         this.$emit('input', this.selectedList);
       }
