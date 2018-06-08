@@ -6,10 +6,10 @@
           :key=label >
         <button
             type="button"
-            :class="{ 'button-default': (key != selectedList[key])}"
+            :class="{ 'button-default': !(selectedList.hasOwnProperty(key))}"
             class="button normal-input biocuration-toggle-button"
             @click="selectType(key)">
-          {{ key }}
+          {{ roleTypes[key] }}
         </button>
       </li>
     </ul>
