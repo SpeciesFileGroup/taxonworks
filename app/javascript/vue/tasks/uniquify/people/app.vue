@@ -27,16 +27,16 @@
       <div class="role_types separate-right separate-left">
         <h2>Roles</h2>
         <role-types
-            v-model="filter.foundPeople"
+            v-model="foundPeople"
             @selected_for="filter.selectedPerson = $event"/>
       </div>
       <div class="found_people separate-right separate-left">
         <h2>Select person</h2>
-        <found-people v-model="filter.found_people"/>
+        <found-people v-model="foundPeople"/>
       </div>
       <div class="match_people separate-right separate-left">
         <h2>Match people</h2>
-        <match-people v-model="filter.match_people"/>
+        <match-people v-model="matchPeople"/>
       </div>
     </div>
     <button
