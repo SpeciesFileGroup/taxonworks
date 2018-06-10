@@ -5,8 +5,8 @@ namespace :tw do
       require 'logged_task'
       namespace :supplementary do
 
-        desc 'time rake tw:project_import:sf_import:supplementary:taxon_info user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define taxon_info: [:data_directory, :environment, :user_id] do |logger|
+        desc 'time rake tw:project_import:sf_import:supplementary:scrutiny_related user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define scrutiny_related: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating list of taxa with AccessCode = 4'
           taxa_access_code_4 = [1143399, 1143399, 1143402, 1143402, 1143403, 1143403, 1143403, 1143404, 1143405, 1143406, 1143408, 1143414, 1143415, 1143416, 1143417, 1143418, 1143419, 1143420, 1143421, 1143422, 1143423, 1143425, 1143430, 1143431, 1143434, 1143435, 1143436, 1143437, 1143438, 1207769, 1232866]
@@ -64,46 +64,55 @@ namespace :tw do
           import.set('Scrutinies', get_scrutinies)
           import.set('ScrutinyAuthors', get_scrutiny_authors)
 
-          # finally process tblTaxonScrutinies
+          puts 'Scrutinies'
+          ap get_scrutinies
+          puts 'ScrutinyAuthors'
+          ap get_scrutinies_authors
 
-          logger.info 'Importing Scrutinies...'
-
-          path = @args[:data_directory] + 'tblTaxonScrutinies.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
-
-          file.each_with_index do |row, i|
-            next if taxa_access_code_4.include? row['TaxonNameID'].to_i
-            next if row['TaxonNameID'] == '0'
-            next if [1143402, 1143425, 1143430, 1143432, 1143436].freeze.include?(row['TaxonNameID'].to_i) # used for excluded Beckma ids
-            next if [1109922, 1195997, 1198855].freeze.include?(row['TaxonNameID'].to_i) # bad data in Orthoptera (first) and Psocodea (rest)
-            sf_taxon_name_id = row['TaxonNameID']
-            next if skipped_file_ids.include? sf_file_id.to_i
-            taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id] # cannot to_i because if nil, nil.to_i = 0
-            scrutiny_id = row['ScrutinyID']
-
-
-            project_id = get_tw_project_id[get_scrutinies[scrutiny_id]['FileID']]
-            year = get_scrutinies[scrutiny_id]['Year']
-            comment = get_scrutinies[scrutiny_id]['Comment']
-
-
-            logger.info "Working on SF.TaxonNameID #{sf_taxon_name_id} = tw.taxon_name_id #{taxon_name_id}, project_id = #{project_id}, counter = #{counter += 1}"
-
-            content = ''  # ScrutinyID, SeqNum, Year, PersonIDs, Comment
-
-            scrutiny_predicate = Predicate.find_or_create_by(name: 'Species File scrutiny', definition: 'from tblScrutinies, limit of three scrutinies per taxon name', project_id: project_id)
-            scrutiny = internal_attributes.create!(predicate: scrutiny_predicate,
-                                                   attribute_subject_id: taxon_name_id,
-                                                   attribute_subject_type: 'TaxonName',
-                                                   value: content,
-                                                   project_id: project_id)
+        end       # delete me when commenting in rest
 
 
 
-
-
-          end
-        end
+        #   # finally process tblTaxonScrutinies
+        #
+        #   logger.info 'Importing Scrutinies...'
+        #
+        #   path = @args[:data_directory] + 'tblTaxonScrutinies.txt'
+        #   file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+        #
+        #   file.each_with_index do |row, i|
+        #     next if taxa_access_code_4.include? row['TaxonNameID'].to_i
+        #     next if row['TaxonNameID'] == '0'
+        #     next if [1143402, 1143425, 1143430, 1143432, 1143436].freeze.include?(row['TaxonNameID'].to_i) # used for excluded Beckma ids
+        #     next if [1109922, 1195997, 1198855].freeze.include?(row['TaxonNameID'].to_i) # bad data in Orthoptera (first) and Psocodea (rest)
+        #     sf_taxon_name_id = row['TaxonNameID']
+        #     next if skipped_file_ids.include? sf_file_id.to_i
+        #     taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id] # cannot to_i because if nil, nil.to_i = 0
+        #     scrutiny_id = row['ScrutinyID']
+        #
+        #
+        #     project_id = get_tw_project_id[get_scrutinies[scrutiny_id]['FileID']]
+        #     year = get_scrutinies[scrutiny_id]['Year']
+        #     comment = get_scrutinies[scrutiny_id]['Comment']
+        #
+        #
+        #     logger.info "Working on SF.TaxonNameID #{sf_taxon_name_id} = tw.taxon_name_id #{taxon_name_id}, project_id = #{project_id}, counter = #{counter += 1}"
+        #
+        #     content = ''  # ScrutinyID, SeqNum, Year, PersonIDs, Comment
+        #
+        #     scrutiny_predicate = Predicate.find_or_create_by(name: 'Species File scrutiny', definition: 'from tblScrutinies, limit of three scrutinies per taxon name', project_id: project_id)
+        #     scrutiny = internal_attributes.create!(predicate: scrutiny_predicate,
+        #                                            attribute_subject_id: taxon_name_id,
+        #                                            attribute_subject_type: 'TaxonName',
+        #                                            value: content,
+        #                                            project_id: project_id)
+        #
+        #
+        #
+        #
+        #
+        #   end
+        # end
 
         desc 'time rake tw:project_import:sf_import:supplementary:taxon_info user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define taxon_info: [:data_directory, :environment, :user_id] do |logger|
