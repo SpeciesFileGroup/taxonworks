@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h2>Geography</h2>
     <smart-selector
       name="geography"
       v-model="view"

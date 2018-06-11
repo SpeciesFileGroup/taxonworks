@@ -1,9 +1,9 @@
 <template>
   <div>
     <label>Locality</label>
-    <input
-      type="text"
-      v-model="locality">
+    <textarea
+      rows="5"
+      v-model="locality"/>
   </div>
 </template>
 

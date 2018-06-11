@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="verbatim-layout">
+    <h2>Verbatim</h2>
     <draggable v-model="componentsOrder">
       <component
         v-for="componentName in componentsOrder"
@@ -56,3 +57,11 @@
     }
   }
 </script>
+
+<style lang="scss">
+  .verbatim-layout {
+    label {
+      display: block;
+    }
+  }
+</style>

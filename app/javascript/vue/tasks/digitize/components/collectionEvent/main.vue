@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <block-verbatin/>
-    <block-geography/>
+  <div class="horizontal-left-content align-start">
+    <block-verbatin class="separate-right"/>
+    <block-geography class="separate-left"/>
   </div>
 </template>
 

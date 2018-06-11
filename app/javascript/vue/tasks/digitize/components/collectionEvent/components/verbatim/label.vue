@@ -1,9 +1,9 @@
 <template>
   <div>
     <label>Label</label>
-    <input
-      type="text"
-      v-model="label">
+    <textarea
+      rows="5"
+      v-model="label"/>
   </div>
 </template>
 

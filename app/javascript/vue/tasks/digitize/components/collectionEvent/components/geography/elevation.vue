@@ -1,38 +1,41 @@
 <template>
-  <div>
+  <div >
     <label>Elevation</label>
-    <div>
-      Minimun
-      <input
-        type="text"
-        v-model="minimum_elevation">
-    </div>
-    <div>
-      Maximun
-      <input
-        type="text"
-        v-model="maximum_elevation">
-    </div>
-    <div>
-      Precision
-      <input
-        type="text"
-        v-model="elevation_precision">
-    </div>
-    <div>
-      Unit
-      <label>
+    <div class="horizontal-left-content">
+      <div class="separate-right">
+        <label>Minimun</label>
         <input
-          type="radio"
-          name="elevation">
-        Meters
-      </label>
-      <label>
+          type="text"
+          v-model="minimum_elevation">
+      </div>
+      <div class="separate-right separate-left">
+        <label>Maximun</label>
         <input
-          type="radio"
-          name="elevation">
-        Feets
-      </label>
+          type="text"
+          v-model="maximum_elevation">
+      </div>
+      <div class="separate-right separate-left">
+        <label>Precision</label>
+        +/-
+        <input
+          type="text"
+          v-model="elevation_precision">
+      </div>
+      <div>
+        Unit
+        <label>
+          <input
+            type="radio"
+            name="elevation">
+          Meters
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="elevation">
+          Feets
+        </label>
+      </div>
     </div>
   </div>
 </template>
@@ -71,3 +74,9 @@
     }
   }
 </script>
+
+<style scoped>
+  input {
+    max-width: 60px;
+  }
+</style>
