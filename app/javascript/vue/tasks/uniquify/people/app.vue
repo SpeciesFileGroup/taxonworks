@@ -17,19 +17,17 @@
       <div>
         <div class="last_name separate-right">
           <h2>Last Name</h2>
-          <last-name v-model="filter.last_name"/>
+          <last-name v-model="lastName"/>
         </div>
         <div class="first_name separate-right separate-left">
           <h2>First Name</h2>
           <first-name
-              v-model="filter.first_name"
-              :first-name="filter.first_name"/>
+              v-model="firstName" />
         </div>
         <div class="role_types separate-right separate-left">
           <h2>Roles</h2>
           <role-types
-              v-model="foundPeople"
-              @selected_for="filter.selectedPerson = $event"/>
+              v-model="selectedRoles" />
         </div>
         <button
             class="button normal-input button-default"
@@ -81,13 +79,15 @@
     },
     computed: {
       submitAvailable() {
-        return true;  //!this.filter.annotation_type.type || !this.filter.model
+        return (this.lastName.length > 2) //|| !this.filter.model
       }
     },
     data() {
       return {
         selectedPerson: {},
-        roletypes: {},
+        lastName: '',
+        firstName: '',
+        selectedRoles: {},
         filter: this.resetFilter(),
         isLoading: false,
         foundPeople: {},
@@ -102,6 +102,16 @@
     methods: {
       findPerson() {
         // TODO: make the request of the endpoint
+        // send last name, first name, roles to endpoint
+        let params = {
+          lastname: this.lastName,
+          firstname: this.firstName,
+          role: Object.values(this.selectedRoles)
+        }
+        this.$http.get('/people.json', {params: params} ).then(response => {
+          this.foundPeople = response.body;
+          console.log(this.foundPeople);
+        })
       },
       mergePeople() {
         // TODO: merge the selected people to/with the selected person
