@@ -21,9 +21,9 @@
     watch: {
       value(newVal, oldVal) {
         if(newVal != oldVal)
-          this.firstName = newVal
+          this.lastName = newVal
       },
-      first_name(newVal) {
+      lastName(newVal) {
         this.$emit('input', newVal)
       }
     }
