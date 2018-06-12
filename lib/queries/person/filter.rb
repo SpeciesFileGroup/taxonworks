@@ -1,9 +1,12 @@
 module Queries
   module Person
     class Filter
+
+      attr_accessor :limit_to_roles
+
       # @params params [ActionController::Parameters]
       def initialize(params)
-        @keyword_id = [params[:keyword_id]].flatten.compact
+        @limit_to_roles = params[:roles]
         @options = params
       end
 
