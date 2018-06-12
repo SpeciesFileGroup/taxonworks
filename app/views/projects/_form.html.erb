@@ -1,10 +1,16 @@
 <%= form_for(@project) do |f| %>
-    <%= render 'shared/errors', object: @project %>
+  <%= render 'shared/errors', object: @project %>
 
   <div class="field">
     <%= f.label :name %><br>
     <%= f.text_field :name %>
   </div>
+
+  <div class="field">
+    <%= f.label :is_api_accessible %><br>
+    <%= f.check_box :is_api_accessible %>
+  </div>
+
   <div class="actions">
     <%= f.submit %>
   </div>
