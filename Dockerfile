@@ -50,7 +50,7 @@ WORKDIR /app
 
 RUN bundle install --without=development test
 RUN npm install 
-RUN npm run increase-memory-limit
+# RUN npm run increase-memory-limit
 
 COPY . /app
 
