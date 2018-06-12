@@ -1,6 +1,8 @@
 <template>
   <div>
-    <input vmodel="name_first" placeholder="first name">
+    <input
+      v-model="firstName"
+      placeholder="first name">
   </div>
 </template>
 <script>
@@ -8,12 +10,21 @@
     props: {
       value: {
         type: String,
-        value: ''
+        default: ''
       }
     },
-    data: function () {
+    data() {
       return {
-        name_first
+        firstName: ''
+      }
+    },
+    watch: {
+      value(newVal, oldVal) {
+        if(newVal != oldVal)
+          this.firstName = newVal
+      },
+      first_name(newVal) {
+        this.$emit('input', newVal)
       }
     }
   }
