@@ -1,6 +1,6 @@
 <template>
   <div>
-    <input vmodel="name_last" placeholder="last name">
+    <input vmodel="last_name" placeholder="last name">
   </div>
 </template>
 <script>
@@ -13,7 +13,7 @@
     },
     data: function () {
       return {
-        name_last
+        last_name
       }
     }
   }
