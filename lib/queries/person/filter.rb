@@ -1,5 +1,5 @@
 module Queries
-  module People
+  module Person
     class Filter
       # @params params [ActionController::Parameters]
       def initialize(params)
@@ -24,15 +24,15 @@ module Queries
       # @return [ActiveRecord::Relation]
       def all
         if a = and_clauses
-          ::People.where(and_clauses)
+          ::Person.where(and_clauses)
         else
-          ::People.none
+          ::Person.none
         end
       end
 
       # @return [Arel::Table]
       def table
-        ::People.arel_table
+        ::Person.arel_table
       end
     end
   end
