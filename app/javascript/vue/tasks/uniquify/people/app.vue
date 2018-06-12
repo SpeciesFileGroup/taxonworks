@@ -32,7 +32,7 @@
         <button
             class="button normal-input button-default"
             @click="findPerson"
-            :disabled="submitAvailable"
+            :disabled="!submitAvailable"
             type="submit">Find Person
         </button>
       </div>
@@ -48,7 +48,7 @@
     <button
         class="button normal-input button-default"
         @click="mergePeople"
-        :disabled="submitAvailable"
+        :disabled="!submitAvailable"
         type="submit">Merge People
     </button>
     <!--<request-bar-->

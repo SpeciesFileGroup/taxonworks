@@ -23,7 +23,7 @@
         if(newVal != oldVal)
           this.firstName = newVal
       },
-      first_name(newVal) {
+      firstName(newVal) {
         this.$emit('input', newVal)
       }
     }
