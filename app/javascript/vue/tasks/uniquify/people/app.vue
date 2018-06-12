@@ -17,12 +17,12 @@
       <div>
         <div class="last_name separate-right">
           <h2>Last Name</h2>
-          <last-name v-model="last_name"/>
+          <last-name v-model="lastName"/>
         </div>
         <div class="first_name separate-right separate-left">
           <h2>First Name</h2>
           <first-name
-              v-model="first_name" />
+              v-model="firstName" />
         </div>
         <div class="role_types separate-right separate-left">
           <h2>Roles</h2>

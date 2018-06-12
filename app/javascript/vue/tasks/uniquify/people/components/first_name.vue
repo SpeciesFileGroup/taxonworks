@@ -1,7 +1,7 @@
 <template>
   <div>
     <input
-      v-model="first_name"
+      v-model="firstName"
       placeholder="first name">
   </div>
 </template>
@@ -21,7 +21,7 @@
     watch: {
       value(newVal, oldVal) {
         if(newVal != oldVal)
-          this.first_name = newVal
+          this.firstName = newVal
       },
       first_name(newVal) {
         this.$emit('input', newVal)
