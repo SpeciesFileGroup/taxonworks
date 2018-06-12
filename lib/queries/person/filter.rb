@@ -10,9 +10,8 @@ module Queries
       # @return [ActiveRecord::Relation]
       def and_clauses
         clauses = [
-            Queries::Annotator.annotator_params(options, ::Tag),
-            matching_keyword_id,
-        ].compact
+            Queries::person.person_params(options, ::Role)
+            ].compact
 
         a = clauses.shift
         clauses.each do |b|
