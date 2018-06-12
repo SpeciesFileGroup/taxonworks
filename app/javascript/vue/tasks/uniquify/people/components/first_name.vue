@@ -15,7 +15,7 @@
     },
     data() {
       return {
-        first_name: ''
+        firstName: ''
       }
     },
     watch: {
