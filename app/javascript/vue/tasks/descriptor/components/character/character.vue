@@ -20,7 +20,18 @@
             v-model="name"/>
         </div>
         <div class="field separate-left">
+          <template v-if="id">
+            <button
+              :disabled="!validateFields"
+              class="normal-input button button-submit"
+              @click="updateCharacter"
+              type="button">Update</button>
+            <button
+              class="button normal-input button-default"
+              @click="resetInputs">New</button>
+          </template>
           <button
+            v-else
             @click="createCharacter"
             :disabled="!validateFields"
             class="normal-input button button-submit"
@@ -36,6 +47,9 @@
             v-for="(character, index) in list">
             <span> {{ character.object_tag }} </span>
             <div class="horizontal-left-content middle">
+              <span
+                class="circle-button btn-edit"
+                @click="editCharacter(index)"/>
               <radial-annotator :global-id="character.global_id"/>
               <span
                 class="circle-button btn-delete"
@@ -72,6 +86,7 @@ export default {
     return {
       label: undefined,
       name: undefined,
+      id: undefined,
       list: []
     }
   },
@@ -99,12 +114,31 @@ export default {
       this.resetInputs()
     },
     resetInputs() {
+      this.id = undefined,
       this.label = undefined,
       this.name = undefined
     },
     removeCharacter(index) {
       this.list[index]['_destroy'] = true
       this.onSortable()
+    },
+    editCharacter(index) {
+      this.id = this.list[index].id
+      this.label = this.list[index].label
+      this.name = this.list[index].name
+    },
+    updateCharacter() {
+      let index = this.list.findIndex((item) => {
+        return item.id == this.id
+      })
+      if(index > -1) {
+        let newDescriptor = this.descriptor
+        this.list[index].label = this.label
+        this.list[index].name = this.name
+        newDescriptor['character_states_attributes'] = this.list
+        this.$emit('save', newDescriptor)
+      }
+      this.resetInputs()
     },
     onSortable() {
       this.updateIndex()
