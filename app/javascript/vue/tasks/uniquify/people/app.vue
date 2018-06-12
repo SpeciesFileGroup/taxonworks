@@ -106,7 +106,7 @@
         let params = {
           lastname: this.lastName,
           firstname: this.firstName,
-          role: Object.values(this.selectedRoles)
+          roles: Object.values(this.selectedRoles)
         }
         this.$http.get('/people.json', {params: params} ).then(response => {
           this.foundPeople = response.body;

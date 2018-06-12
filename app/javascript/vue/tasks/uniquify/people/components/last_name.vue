@@ -2,7 +2,7 @@
   <div>
     <input
         v-model="lastName"
-        placeholder="last name">
+        placeholder="last name"/>
   </div>
 </template>
 <script>
