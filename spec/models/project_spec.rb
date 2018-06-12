@@ -57,7 +57,6 @@ describe Project, type: :model do
       end
       expect(missing_factories.empty?).to be_truthy, "missing #{missing_factories.count} valid_ factories for #{missing_factories.join(", ")}."
     end
-
   end
 
   context 'associations' do
@@ -114,19 +113,19 @@ describe Project, type: :model do
     end
   end
 
-  context 'workbench_settings' do
+  context 'preferences' do
     before(:each) {
-      project.name = 'Workbench settings'
+      project.name = 'Preferences'
       project.save!
     }
 
     specify 'are set to default' do
-      expect(project.workbench_settings).to eq(Project::DEFAULT_WORKBENCH_SETTINGS)
+      expect(project.preferences).to eq(Project::DEFAULT_WORKBENCH_SETTINGS)
     end
 
-    specify 'can be cleared with #clear_workbench_settings' do
-      project.clear_workbench_settings
-      expect(project.workbench_settings).to eq(Project::DEFAULT_WORKBENCH_SETTINGS)
+    specify 'can be cleared with #clear_preferences' do
+      project.clear_preferences
+      expect(project.preferences).to eq(Project::DEFAULT_WORKBENCH_SETTINGS)
     end
 
     specify 'default_path defaults to DEFAULT_WORKBENCH_STARTING_PATH 1' do
@@ -134,16 +133,15 @@ describe Project, type: :model do
     end
 
     specify 'default_path defaults to DEFAULT_WORKBENCH_STARTING_PATH 2' do
-      expect(project.workbench_settings['workbench_starting_path']).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
+      expect(project.preferences['workbench_starting_path']).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
     end
 
     specify 'updating an attribute is a little tricky, use _will_change!' do
       expect(project.workbench_starting_path).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
-      expect(project.workbench_settings).to eq({'workbench_starting_path' => '/hub'}) # was changed from nil
-      # expect(project.workbench_settings_will_change!).to eq({"workbench_starting_path" => "/hub"}) # was changed from nil
-      expect(project.workbench_settings['workbench_starting_path'] = '/dashboard').to be_truthy
+      expect(project.preferences).to eq({'workbench_starting_path' => '/hub'}) # was changed from nil
+      
+      expect(project.workbench_starting_path = '/dashboard').to be_truthy
       expect(project.save!).to be_truthy
-      project.reload
       expect(project.workbench_starting_path).to eq('/dashboard')
     end
   end

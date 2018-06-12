@@ -18,11 +18,15 @@ module Queries
     attr_accessor :terms
     attr_accessor :project_id
 
+    # parameters from keyword_args, used to group and pass along things like annotator params
+    attr_accessor :options
+
     # limit based on size and potentially properties of terms
     attr_accessor :dynamic_limit
 
     # @param [Hash] args
     def initialize(string, project_id: nil, **keyword_args)
+      @options = keyword_args
       @query_string = string
       @project_id = project_id
       build_terms

@@ -7,8 +7,5 @@ environment.plugins.append('VueLoaderPlugin', new VueLoaderPlugin())
 environment.loaders.append('vue', vue)
 environment.loaders.append('styl', styl)
 
-environment.loaders.get('sass').use.splice(-1, 0, {
-  loader: 'resolve-url-loader',
-});
-
+console.log("Starting")
 module.exports = environment

@@ -29,6 +29,7 @@ class Content < ApplicationRecord
   include Shared::Citations
   include Shared::IsData
   include Shared::HasPapertrail
+  include Shared::DataAttributes
 
   belongs_to :otu, inverse_of: :contents
   belongs_to :topic, inverse_of: :contents

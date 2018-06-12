@@ -692,8 +692,10 @@ class TaxonNameRelationship < ApplicationRecord
             end
           when :reverse
             if date1 > date2 && invalid_statuses.empty?
-              if self.type_name =~ /TaxonNameRelationship::(Typification|Combination|OriginalCombination)/ && self.type_name != 'TaxonNameRelationship::Typification::Genus::RulingByCommission'
-                soft_validations.add(:subject_taxon_name_id, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be younger than #{self.object_taxon_name.cached_html_name_and_author_year}")
+              if self.type_name =~ /TaxonNameRelationship::(Typification|Combination|OriginalCombination)/
+                if self.type_name != 'TaxonNameRelationship::Typification::Genus::RulingByCommission' || (self.type_name =~ /TaxonNameRelationship::Typification::Genus::(Monotypy::Subsequent|SubsequentDesignation)/ && date2 > '1930-12-31'.to_time)
+                  soft_validations.add(:subject_taxon_name_id, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be younger than #{self.object_taxon_name.cached_html_name_and_author_year}")
+                end
               else
                 soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be younger than #{self.object_taxon_name.cached_html_name_and_author_year}")
               end

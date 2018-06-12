@@ -63,7 +63,31 @@ RSpec.describe ObservationMatrixColumnItem::TaggedDescriptor, type: :model, grou
           expect(ObservationMatrixColumn.count).to eq(0)
         end
       end
+      
+      context 'overlapping single item' do
+        let!(:other_observation_matrix_column_item) { ObservationMatrixColumnItem::SingleDescriptor.create!(observation_matrix: observation_matrix, descriptor: descriptor1) }
+        let(:observation_matrix_column) { ObservationMatrixColumn.where(observation_matrix: observation_matrix, descriptor: descriptor1).first} 
 
+        specify 'count is incremented' do
+          expect(observation_matrix_column.reference_count).to eq(2)
+        end
+
+        specify 'cached_observation_matrix_column_item_id is returned' do
+          expect(observation_matrix_column.cached_observation_matrix_column_item_id).to eq(other_observation_matrix_column_item.id)
+        end
+
+        context 'overlap (tag) is removed' do
+          before { observation_matrix_column_item.destroy! }
+
+          specify 'count is decremented' do
+            expect(observation_matrix_column.reference_count).to eq(1)
+          end
+
+          specify 'cached_observation_matrix_column_item_id remains' do
+            expect(observation_matrix_column.cached_observation_matrix_column_item_id).to eq(other_observation_matrix_column_item.id)
+          end
+        end 
+      end
 
       context 'overlapping sets' do
         let(:other_keyword) { FactoryBot.create(:valid_keyword) }

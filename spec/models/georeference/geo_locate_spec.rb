@@ -54,11 +54,11 @@ describe Georeference::GeoLocate, type: :model, group: [:geo] do
 
     specify 'finds previously created point' do
       geo_locate.iframe_response = iframe_example_values[:drawn_point]
-      geo_locate.save
+      geo_locate.save!
       geo_locate2.collecting_event = CollectingEvent.new
       geo_locate2.iframe_response = iframe_example_values[:drawn_point]
-      # TODO: investigate why matching points are not found, using postgis 2.4.4 vs postgid 2.2.2
-      # expect(geo_locate.geographic_item.id).to eq(geo_locate2.geographic_item.id)
+      # geo_locate2.save
+      expect(geo_locate2.geographic_item.id).to eq(geo_locate.geographic_item.id)
     end
 
     specify 'is valid for a drawn point with uncertainty' do

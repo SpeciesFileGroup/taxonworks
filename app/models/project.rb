@@ -6,7 +6,7 @@
 #   @return [String]
 #     The name of the project
 #
-# @!attribute workbench_settings
+# @!attribute preferences
 #   @return [Hash]
 #     Settings for the project (for all users)
 #
@@ -15,28 +15,32 @@ class Project < ApplicationRecord
   include Housekeeping::Timestamps
   include Housekeeping::AssociationHelpers
 
-  store_accessor :workbench_settings, :worker_tasks, :workbench_starting_path
-
-  attr_accessor :without_root_taxon_name
+  PREFERENCES = [
+    :workbench_starting_path,  # like '/hub'
+    :is_api_accessible         # Boolean, whether the read-only api is open 
+  ]
 
   DEFAULT_WORKBENCH_STARTING_PATH = '/hub'.freeze
   DEFAULT_WORKBENCH_SETTINGS = {
-      'workbench_starting_path' => DEFAULT_WORKBENCH_STARTING_PATH
+    'workbench_starting_path' => DEFAULT_WORKBENCH_STARTING_PATH
   }.freeze
+
+  store :preferences, accessors: PREFERENCES, coder: JSON
+  attr_accessor :without_root_taxon_name
 
   has_many :project_members, dependent: :restrict_with_error
   has_many :users, through: :project_members
   has_many :project_sources, dependent: :restrict_with_error
   has_many :sources, through: :project_sources
 
-  after_initialize :set_default_workbench_settings
+  after_initialize :set_default_preferences
   after_create :create_root_taxon_name, unless: -> {self.without_root_taxon_name == true}
 
   validates_presence_of :name
   validates_uniqueness_of :name
 
-  def clear_workbench_settings
-    self.update('workbench_settings' => DEFAULT_WORKBENCH_SETTINGS)
+  def clear_preferences
+    update_column(:preferences, DEFAULT_WORKBENCH_SETTINGS)
   end
 
   # !! This is not production ready.
@@ -133,15 +137,16 @@ class Project < ApplicationRecord
     end
   end
 
+  # TODO: boot load checks
   def root_taxon_name
     # Calling TaxonName is a hack to load the required has_many into Project,
     # "has_many :taxon_names" is invoked through TaxonName within Housekeeping::Project
-    # Within TaxonName closure_tree (appears to?) require a database connection.  Note
-    # closure_tree is apparently not robustly tested for Ruby 2.3.
+    # Within TaxonName closure_tree (appears to?) require a database connection. 
+
     # Since we shouldn't (can't?) initiate a connection prior to a require_dependency
     # we simply load TaxonName for the first time here.
     TaxonName.tap {}
-    self.taxon_names.root
+    taxon_names.root
   end
 
   def self.find_for_autocomplete(params)
@@ -150,16 +155,14 @@ class Project < ApplicationRecord
 
   protected
 
-  def set_default_workbench_settings
-    self.workbench_settings = DEFAULT_WORKBENCH_SETTINGS.merge(self.workbench_settings ||= {})
+  def set_default_preferences
+    write_attribute(:preferences, DEFAULT_WORKBENCH_SETTINGS.merge(preferences ||= {}) )
   end
 
   def create_root_taxon_name
-    p = Protonym.stub_root(project_id: self.id, by: self.creator)
+    p = Protonym.stub_root(project_id: id, by: creator)
     p.save!
     p
   end
 
 end
-
-

@@ -27,6 +27,7 @@ default: &default
     - .gif
     - .jpeg
     - .jpg
+    - .woff2
 
 development:
   <<: *default

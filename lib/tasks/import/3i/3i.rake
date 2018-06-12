@@ -1,6 +1,7 @@
 require 'fileutils'
 
 ### rake tw:project_import:access3i:import_all data_directory=/Users/proceps/src/sf/import/3i/TXT/ no_transaction=true
+### rake tw:db:restore backup_directory=/Users/proceps/src/sf/import/3i/pg_dumps/ file=localhost_2018-05-15_200847UTC.dump
 
 ##### Tables
 # Authors
@@ -47,7 +48,7 @@ namespace :tw do
                       :parent_id_index, :statuses, :taxon_index, :citation_to_publication_index, :keywords,
                       :incertae_sedis, :emendation, :original_combination, :unique_host_plant_index,
                       :host_plant_index, :topics, :nouns, :countries, :geographic_areas, :museums, :namespaces, :biocuration_classes,
-                      :people, :source_ay, :source_checked_taxonomy, :keyn, :chars, :states, :morph, :contents
+                      :people, :source_ay, :source_checked_taxonomy, :keyn, :chars, :states, :morph, :contents, :t_publications, :t_unique, :t_phyto_taxonomy, :t_phyto_group
         def initialize()
           @keywords = {}                  # keyword -> ControlledVocabularyTerm
           @people_index = {}              # PeopleID -> Person object
@@ -79,7 +80,11 @@ namespace :tw do
           @chars = {}
           @states = {}
           @morph = {}
-          @contents
+          @contents = {}
+          @t_publications = {}
+          @t_unique = {}
+          @t_phyto_taxonomy = {}
+          @t_phyto_group = {}
         end
       end
 
@@ -263,34 +268,45 @@ namespace :tw do
         @data =  ImportedData3i.new
         puts @args
         Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/**/*.txt"])
-        handle_projects_and_users_3i
-        raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 
-        $project_id = 1
+        handle_projects_and_users_3i
+#        $project_id = 1
+#        $user_id = 1
+        raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
+#        @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id) if @root.blank?
+
         handle_controlled_vocabulary_3i
         handle_transl_3i
-=begin
+#=begin
         handle_litauthors_3i
         handle_references_3i
         handle_taxonomy_3i
         handle_taxon_name_relationships_3i
         handle_citation_topics_3i
-        index_collecting_events_from_accessions_new_3i
+#end
         handle_host_plant_name_dictionary_3i
+#=begin
         handle_host_plants_3i
         handle_distribution_3i
         handle_parasitoids_3i
         handle_localities_3i
-#end
 
         handle_characters_3i
         handle_state_3i
         handle_chartable_3i
-
         handle_content_types_3i
         handle_contents_3i
-=end
+#end
+        handle_trivellone_references_3i
+        handle_trivellone_unique_species_3i
+        handle_trivellone_phytoplasma_group_3i
+        handle_trivellone_phytoplasma_taxonomy_3i
+        handle_trivellone_phytoplasma_otu_3i
+        handle_trivellone_insect_phytoplasma_3i
+        handle_trivellone_plant_phytoplasma_3i
+
         soft_validations_3i
+        index_collecting_events_from_accessions_new_3i
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
       end
@@ -343,43 +359,73 @@ namespace :tw do
 
         @accession_namespace = Namespace.create(institution: '3i Auchenorrhyncha', name: 'Accession Code', short_name: 'Accession Code')
 
-
         @data.keywords.merge!(
             #'AuthorDrMetcalf' => Predicate.find_or_create_by(name: 'AuthorDrMetcalf', definition: 'Author name from DrMetcalf bibliography database.', project_id: $project_id),
             '3i_imported' => Keyword.find_or_create_by(name: '3i_imported', definition: 'Imported from 3i database.', project_id: $project_id),
-            'introduced' => Keyword.find_or_create_by(name: 'Introduced', definition: 'Introduced species.........', project_id: $project_id),
+            'introduced' => Keyword.find_or_create_by(name: 'Introduced', definition: 'This species is introduced one.', project_id: $project_id),
             'ZeroTotal' => Keyword.find_or_create_by(name: 'ZeroTotal', definition: 'On import there were 0 total specimens recorded in INHS FileMaker database.', project_id: $project_id),
-            'Allotype' => Keyword.find_or_create_by(name: 'Allotype', definition: 'Allotype.......................', project_id: $project_id),
+            'Allotype' => Keyword.find_or_create_by(name: 'Allotype', definition: 'This specimen is designated as an Allotype', project_id: $project_id),
             'CallNumberDrMetcalf' => Predicate.find_or_create_by(name: 'call_number_dr_metcalf', definition: 'Call Number from DrMetcalf bibliography database.', project_id: $project_id),
             #'AuthorReference' => Predicate.find_or_create_by(name: 'author_reference', definition: 'Author string as it appears in the nomenclatural reference.', project_id: $project_id),
             #'YearReference' => Predicate.find_or_create_by(name: 'year_reference', definition: 'Year string as it appears in the nomenclatural reference.', project_id: $project_id),
             #'Ethymology' => Predicate.find_or_create_by(name: 'ethymology', definition: 'Ethymology.', project_id: $project_id),
-            'TypeDepository' => Predicate.find_or_create_by(name: 'type_depository', definition: 'Type depository...............', project_id: $project_id),
-            'HostPlant' => Predicate.find_or_create_by(name: 'host_plant', definition: 'Host plant...................', project_id: $project_id),
-            'YearRem' => Predicate.find_or_create_by(name: 'nomenclatural_string', definition: 'Nomenclatural remarks............', project_id: $project_id),
-            'Typification' => Predicate.find_or_create_by(name: 'type_designated_by', definition: 'Type designated by............', project_id: $project_id),
-            'FirstRevisor' => Predicate.find_or_create_by(name: 'first_revisor_action', definition: 'First revisor action................', project_id: $project_id),
-            'PageAuthor' => Predicate.find_or_create_by(name: 'page_author', definition: 'Page author..............', project_id: $project_id),
-            'SimilarSpecies' => Predicate.find_or_create_by(name: 'similar_species', definition: 'Similar species................', project_id: $project_id),
+            'TypeDepository' => Predicate.find_or_create_by(name: 'type_depository', definition: 'Type depository collection (text value)', project_id: $project_id),
+            'HostPlant' => Predicate.find_or_create_by(name: 'host_plant', definition: 'Host plant (text value).', project_id: $project_id),
+            'YearRem' => Predicate.find_or_create_by(name: 'nomenclatural_string', definition: 'Nomenclatural remarks (if any)', project_id: $project_id),
+            'Typification' => Predicate.find_or_create_by(name: 'type_designated_by', definition: 'Type designated by (string value).', project_id: $project_id),
+            'FirstRevisor' => Predicate.find_or_create_by(name: 'first_revisor_action', definition: 'First revisor action (string value)', project_id: $project_id),
+            'PageAuthor' => Predicate.find_or_create_by(name: 'page_author', definition: 'Page author (string value)', project_id: $project_id),
+            'SimilarSpecies' => Predicate.find_or_create_by(name: 'similar_species', definition: 'Similar species (string value)', project_id: $project_id),
+            'license' => Predicate.find_or_create_by(name: 'license', definition: 'License (value from mx database)', project_id: $project_id),
+            'copyright_holder' => Predicate.find_or_create_by(name: 'copyright_holder', definition: 'Copyright holder (value from mx database)', project_id: $project_id),
+            'Reference_strain' => Predicate.find_or_create_by(name: 'reference_strain', definition: 'Reference_strain (value from Phytoplasma database)', project_id: $project_id),
+            'Reference_strain_acronym' => Predicate.find_or_create_by(name: 'reference_strain_acronym', definition: 'Reference_strain_acronym (value from Phytoplasma database)', project_id: $project_id),
+            'Genbank_number' => Predicate.find_or_create_by(name: 'genbank_number', definition: 'Genbank_number (value from Phytoplasma database)', project_id: $project_id),
+            'Genbank_link' => Predicate.find_or_create_by(name: 'genbank_link', definition: 'Genbank_link (value from Phytoplasma database)', project_id: $project_id),
+            '16Sr_group' => Predicate.find_or_create_by(name: '16Sr_group', definition: '16Sr_group (value from Phytoplasma database)', project_id: $project_id),
+            '16Sr_subgroup' => Predicate.find_or_create_by(name: '16Sr_subgroup', definition: '16Sr_subgroup (value from Phytoplasma database)', project_id: $project_id),
             'IDDrMetcalf' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: 'DrMetcalf_Source_ID', short_name: 'DrMetcalf_ID'),
             'KeyN' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: '3i_KeyN_ID', short_name: '3i_KeyN_ID'),
             'Key3' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: '3i_Source_ID', short_name: '3i_Source_ID'),
             'Key1' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: '3i_Key1_ID', short_name: '3i_Key1_ID'),
             'Key2' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: '3i_Key2_ID', short_name: '3i_Key2_ID'),
             'Key' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: '3i_Taxon_ID', short_name: '3i_Taxon_ID'),
+            'PK_reference' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: 'PK_reference', short_name: 'PK_reference'),
+            'PK_Taxo_phy' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: 'PK_Taxo_phy', short_name: 'PK_Taxo_phy'),
+            'PK_Phy' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: 'PK_Phy', short_name: 'PK_Phy'),
             'FLOW-ID' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: 'FLOW_Source_ID', short_name: 'FLOW_Source_ID'),
             'DelphacidaeID' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: 'Delphacidae_Source_ID', short_name: 'Delphacidae_Source_ID'),
+
+            'FK_idTW' => Predicate.find_or_create_by(name: 'FK_idTW', definition: 'FK_idTW (value from Phytoplasma database)'),
+            'FK_idTW_g' => Predicate.find_or_create_by(name: 'geographic_area', definition: 'geographic_area (value from Phytoplasma database)'),
+            'status' => Predicate.find_or_create_by(name: 'phy_status', definition: 'Status (value from Phytoplasma database)'),
+            'habitat 1' => Predicate.find_or_create_by(name: 'phy_habitat_1', definition: 'habitat_1 (value from Phytoplasma database)'),
+            'habitat 2' => Predicate.find_or_create_by(name: 'phy_habitat_2', definition: 'habitat_2 (value from Phytoplasma database)'),
+            'test_infection' => Predicate.find_or_create_by(name: 'phy_test_infection', definition: 'test_infection (value from Phytoplasma database)'),
+            'positive' => Predicate.find_or_create_by(name: 'phy_positive', definition: 'positive (value from Phytoplasma database)'),
+            'inoculation_trial' => Predicate.find_or_create_by(name: 'phy_inoculation_trial', definition: 'inoculation_trial (value from Phytoplasma database)'),
+            'Acquisition' => Predicate.find_or_create_by(name: 'phy_acquisition', definition: 'acquisition (value from Phytoplasma database)'),
+            'inoculated_plant' => Predicate.find_or_create_by(name: 'phy_inoculated_plant', definition: 'inoculated_plant (value from Phytoplasma database)'),
+            'total_plant_positive' => Predicate.find_or_create_by(name: 'phy_total_plant_positive', definition: 'total_plant_positive (value from Phytoplasma database)'),
+            'total_plant_tested' => Predicate.find_or_create_by(name: 'phy_total_plant_tested', definition: 'total_plant_tested (value from Phytoplasma database)'),
+            'year_testing' => Predicate.find_or_create_by(name: 'phy_year_testing', definition: 'year_testing (value from Phytoplasma database)'),
+            'habitat' => Predicate.find_or_create_by(name: 'phy_habitat_1', definition: 'habitat_1 (value from Phytoplasma database)'),
+            'tested' => Predicate.find_or_create_by(name: 'phy_tested', definition: 'tested (value from Phytoplasma database)'),
+            'rear_record' => Predicate.find_or_create_by(name: 'phy_rear_record', definition: 'rear_record (value from Phytoplasma database)'),
+
             'Taxonomy' => Keyword.find_or_create_by(name: 'Taxonomy updated', definition: 'Taxonomical information entered to the DB.', project_id: $project_id),
             'Typhlocybinae' => Keyword.find_or_create_by(name: 'Typhlocybinae updated', definition: 'Information related to Typhlocybinae entered to the DB.', project_id: $project_id),
             'Illustrations' => Keyword.find_or_create_by(name: 'Illustrations exported', definition: 'Illustrations of Typhlocybinae species entered to the DB.', project_id: $project_id),
             'Distribution' => Keyword.find_or_create_by(name: 'Distribution exported', definition: 'Illustrations on species distribution entered to the DB.', project_id: $project_id),
+            'REF_phyt_strain' => Keyword.find_or_create_by(name: 'REF_phyt_strain', definition: 'REF_phyt_strain (value from Phytoplasma database).', project_id: $project_id),
             'Notes' => Topic.find_or_create_by(name: 'Notes', definition: 'Notes topic on the OTU.', project_id: $project_id),
             'Host' => BiologicalProperty.find_or_create_by(name: 'Host', definition: 'An animal or plant on or in which a parasite or commensal organism lives.', project_id: $project_id),
+            'Pathogen' => BiologicalProperty.find_or_create_by(name: 'Pathogen', definition: 'A bacterium, virus, or other microorganism that can cause disease.', project_id: $project_id),
             'Herbivor' => BiologicalProperty.find_or_create_by(name: 'Herbivor', definition: 'An animal that feeds on plants.', project_id: $project_id),
             'Parasitoid' => BiologicalProperty.find_or_create_by(name: 'Parasitoid', definition: 'An organism that lives in or on another organism.', project_id: $project_id),
             'Attendant' => BiologicalProperty.find_or_create_by(name: 'Attendant', definition: 'An insect attending another insect.', project_id: $project_id),
             'Symbiont' => BiologicalProperty.find_or_create_by(name: 'Symbiont', definition: 'An insect leaving togeather with another insect.', project_id: $project_id),
-            'Pin' => PreparationType.find_or_create_by(name: 'Pin', definition: 'Specimen(s) on pin.........')
+            'Pin' => PreparationType.find_or_create_by(name: 'Pin', definition: 'Specimen(s) on pin (value)')
         )
 
         @data.namespaces.merge!(
@@ -399,11 +445,11 @@ namespace :tw do
         )
 
         @data.biocuration_classes.merge!(
-            'Specimens' => BiocurationClass.find_or_create_by(name: 'Adult', definition: 'Adult specimen..........', project_id: $project_id),
-            'Males' => BiocurationClass.find_or_create_by(name: 'Male', definition: 'Male specimen..............', project_id: $project_id),
-            'Females' => BiocurationClass.find_or_create_by(name: 'Female', definition: 'Female specimen............', project_id: $project_id),
-            'Nymphs' => BiocurationClass.find_or_create_by(name: 'Immature', definition: 'Immature specimen...........', project_id: $project_id),
-            'Exuvia' => BiocurationClass.find_or_create_by(name: 'Exuvia', definition: 'Exuvia specimen..............', project_id: $project_id)
+            'Specimens' => BiocurationClass.find_or_create_by(name: 'Adult', definition: 'Number of adult specimens.', project_id: $project_id),
+            'Males' => BiocurationClass.find_or_create_by(name: 'Male', definition: 'Number of male specimens.', project_id: $project_id),
+            'Females' => BiocurationClass.find_or_create_by(name: 'Female', definition: 'Number of female specimens.', project_id: $project_id),
+            'Nymphs' => BiocurationClass.find_or_create_by(name: 'Immature', definition: 'Number of immature specimens.', project_id: $project_id),
+            'Exuvia' => BiocurationClass.find_or_create_by(name: 'Exuvia', definition: 'Number of exuvia specimens.', project_id: $project_id)
         )
 
         @data.topics.merge!(
@@ -415,19 +461,19 @@ namespace :tw do
             'Synonymy' => Topic.find_or_create_by(name: 'synonymy', definition: 'Source has synonymy records.', project_id: $project_id),
             'Host' => Topic.find_or_create_by(name: 'host plants', definition: 'Source has host plant records.', project_id: $project_id),
             'Parasitoids' => Topic.find_or_create_by(name: 'parasitoids', definition: 'Source has parasitoid records.', project_id: $project_id),
-        )
+            )
 
         @host_plant_relationship = BiologicalRelationship.where(name: 'Host plant', project_id: $project_id).first
         if @host_plant_relationship.nil?
           @host_plant_relationship = BiologicalRelationship.create(name: 'Host plant')
-          a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['Host'], biological_relationship: @host_plant_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
-          a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['Herbivor'], biological_relationship: @host_plant_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+          a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['Herbivor'], biological_relationship: @host_plant_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+          a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['Host'], biological_relationship: @host_plant_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
         end
         @parasitoid_relationship = BiologicalRelationship.where(name: 'Parasitism', project_id: $project_id).first
         if @parasitoid_relationship.nil?
           @parasitoid_relationship = BiologicalRelationship.create(name: 'Parasitism')
-          a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['Parasitoid'], biological_relationship: @parasitoid_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
-          a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['Host'], biological_relationship: @parasitoid_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+          a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['Host'], biological_relationship: @parasitoid_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+          a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['Parasitoid'], biological_relationship: @parasitoid_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
         end
         @attendance_relationship = BiologicalRelationship.where(name: 'Attendance', project_id: $project_id).first
         if @attendance_relationship.nil?
@@ -440,6 +486,18 @@ namespace :tw do
           @mutualism_relationship = BiologicalRelationship.create(name: 'Mutualism')
           a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['Symbiont'], biological_relationship: @mutualism_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
           a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['Host'], biological_relationship: @mutualism_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+        end
+        @insect_phytoplasma_relationship = BiologicalRelationship.where(name: 'Insect pathogen', project_id: $project_id).first
+        if @insect_phytoplasma_relationship.nil?
+          @insect_phytoplasma_relationship = BiologicalRelationship.create(name: 'Insect pathogen')
+          a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['Host'], biological_relationship: @mutualism_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+          a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['Pathogen'], biological_relationship: @mutualism_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+        end
+        @plant_phytoplasma_relationship = BiologicalRelationship.where(name: 'Plant pathogen', project_id: $project_id).first
+        if @plant_phytoplasma_relationship.nil?
+          @plant_phytoplasma_relationship = BiologicalRelationship.create(name: 'Plant pathogen')
+          a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['Host'], biological_relationship: @mutualism_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+          a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['Pathogen'], biological_relationship: @mutualism_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
         end
       end
 
@@ -589,6 +647,75 @@ namespace :tw do
         end
 
         puts "\nResolved #{@data.publications_index.keys.count} publications\n"
+
+      end
+
+      def handle_trivellone_references_3i()
+        # PK_reference
+        # reference
+        # authors
+        # year
+        # title
+        # journal
+        # reference_link
+
+        path = @args[:data_directory] + 'trivellone_references.txt'
+        print "\nHandling Trivellone references\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true)
+
+        i = 0
+        file.each do |row|
+          i += 1
+          print "\r#{i}"
+          row['journal'] = row['journal'] + '.' if !row['journal'].blank? && row['journal'].last != '.'
+          row['title'] = row['title'] + '.' if !row['title'].blank? && row['title'].last != '.'
+          journal, serial_id, volume, pages = parse_bibliography_3i(row['journal'])
+          year = row['year']
+          author = row['authors'].gsub('., ', '.|').split('|').compact.join(' and ') unless row['authors'].blank?
+          if row['authors'].blank?
+            source = Source::Verbatim.find_or_create_by( verbatim: row['reference'].to_s + row['title'].to_s)
+          else
+            source = Source::Bibtex.find_or_create_by( author: author,
+                                                       year: year,
+                                                       title: row['title'],
+                                                       journal: journal,
+                                                       serial_id: serial_id,
+                                                       pages: pages,
+                                                       volume: volume,
+                                                       bibtex_type: 'article',
+                                                       url: row['reference_link']
+            )
+          end
+
+          source.data_attributes.create(type: 'ImportAttribute', import_predicate: 'Authors', value: row['authors']) unless row['authors'].blank?
+          source.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['PK_References'], identifier: row['PK_reference']) unless row['PK_reference'].blank?
+
+          begin
+            @data.t_publications[row['PK_reference']] = source.id
+            unless row['authors'].blank?
+              authors = row['authors'].gsub('., ', '.|').split('|')
+              authors.each_with_index do |author, i|
+                a = @data.people[author]
+                if a.nil?
+                  a = Person.parse_to_people(author).first
+                  unless a.nil?
+                    a.save!
+                    a = a.id
+                    @data.people[author] = a
+                  end
+                end
+                sa = SourceAuthor.create!(person_id: a, role_object: source, position: i + 1) unless a.nil?
+              end
+              source.save
+            end
+            source.project_sources.create
+          rescue ActiveRecord::RecordInvalid
+            puts "\nDuplicate record: #{row}\n"
+          end
+        end
+
+        puts "\nResolved #{@data.publications_index.keys.count} Trivellone publications\n"
 
       end
 
@@ -930,7 +1057,7 @@ namespace :tw do
             taxon.iczn_set_as_primary_homonym_of = find_taxon_3i(row['Homonym']) if !row['Homonym'].blank? && row['Status'] == '3'
             taxon.iczn_set_as_secondary_homonym_of = find_taxon_3i(row['Homonym']) if !row['Homonym'].blank? && row['Status'] == '4'
             taxon.iczn_set_as_homonym_of = find_taxon_3i(row['Homonym']) if !row['Homonym'].blank? && row['Status'] == '5'
-            taxon.iczn_set_as_replacement_name_of = find_taxon_3i(row['NomenNovumFor']) if !row['NomenNovumFor'].blank?
+            #taxon.iczn_set_as_replacement_name_of = find_taxon_3i(row['NomenNovumFor']) if !row['NomenNovumFor'].blank?
             taxon.iczn_set_as_misspelling_of = find_taxon_3i(row['MisspellingOf']) if row['OriginalCombinationOf'].blank? && !row['MisspellingOf'].blank?
             taxon.iczn_set_as_misspelling_of = find_taxon_3i(row['Parent']) if row['OriginalCombinationOf'].blank? && row['MisspellingOf'].blank? && row['Status'] == '9'
             taxon.iczn_set_as_incorrect_original_spelling_of = find_taxon_3i(row['OriginalCombinationOf']) if !row['OriginalCombinationOf'].blank? && row['Status'] == '9'
@@ -962,9 +1089,7 @@ namespace :tw do
               elsif tnr.id.nil?
                 byebug
               end
-
-            end
-            if synonym_statuses.include?(row['Status']) # %w(1 6 10 11 14 17 22 23 24 26 27 28 29)
+            elsif synonym_statuses.include?(row['Status']) # %w(1 6 10 11 14 17 22 23 24 26 27 28 29)
               if TaxonNameRelationship.where_subject_is_taxon_name(taxon.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').first.nil?
                 tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: @relationship_classes[row['Status'].to_i])
                 #byebug if tnr.id.nil?
@@ -1035,7 +1160,7 @@ namespace :tw do
                 #c.data_attributes.create(type: 'ImportAttribute', import_predicate: 'combination_in_3i', value: i3_combination)
                 #c.data_attributes.create(type: 'ImportAttribute', import_predicate: 'name_in_3i', value: row['Name'])
                 c.verbatim_name = i3_combination if c.verbatim_name.blank?
-#                c.valid? ? c.save! : byebug
+                #                c.valid? ? c.save! : byebug
               end
               c.save!
             rescue ActiveRecord::RecordInvalid
@@ -1143,7 +1268,7 @@ namespace :tw do
       end
 
       def handle_host_plant_name_dictionary_3i
-        #CommonName
+        # CommonName
         # HostPlant
         # Phylum
         # Class
@@ -1256,7 +1381,7 @@ namespace :tw do
           i += 1
           print "\r#{i}"
 
-          object = find_otu(row['Key'])
+          object = find_otu_3i(row['Key'])
           subject = nil
           subject = @data.host_plant_index[row['Name']] unless row['Name'].nil?
           subject = @data.host_plant_index[row['CommonName']] if subject.nil? && !row['CommonName'].blank?
@@ -1276,8 +1401,8 @@ namespace :tw do
 
           if subject && object
             ba = BiologicalAssociation.find_or_create_by!(biological_relationship: @host_plant_relationship,
-                                                          biological_association_subject: subject,
-                                                          biological_association_object: object,
+                                                          biological_association_subject: object,
+                                                          biological_association_object: subject,
                                                           project_id: $project_id
             )
             Citation.find_or_create_by!(citation_object: ba, source_id: s, project_id: $project_id) unless s.blank?
@@ -1371,7 +1496,7 @@ namespace :tw do
         file.each do |row|
           i += 1
           print "\r#{i}"
-          otu = find_otu(row['Key'])
+          otu = find_otu_3i(row['Key'])
           source = find_publication_id_3i(row['Key3'])
           country = @data.countries[row['Key6']]
           erroneously, introduced = nil, false
@@ -1600,7 +1725,7 @@ namespace :tw do
             verbatim_date: nil,
             no_cached: true,
 #     with_verbatim_data_georeference: true
-        )
+            )
         # byebug unless c.valid?
         begin
           c.save
@@ -1702,7 +1827,7 @@ namespace :tw do
       end
 
       def add_determinations_3i(objects, row)
-        otu = find_otu(row['Key'])
+        otu = find_otu_3i(row['Key'])
 
         objects.each do |o|
           unless otu.nil?
@@ -1816,12 +1941,13 @@ namespace :tw do
         #Protonym.with_identifier('3i_Taxon_ID ' + key.to_s).find_by(project_id: $project_id)
       end
 
-      def find_otu(key)
+      def find_otu_3i(key)
         otu = nil
         # otu = Otu.joins(taxon_name: :identifiers).where(identifiers: {cached: '3i_Taxon_ID ' + key.to_s}, project_id: $project_id).first
         # otu = Otu.joins(:identifiers).where(identifiers: {cached: '3i_Taxon_ID ' + key.to_s}, project_id: $project_id).first if otu.nil?
 
         r = Identifier.find_by(cached: '3i_Taxon_ID ' + key.to_s, project_id: $project_id)
+        return nil if r.nil?
         if r.identifier_object_type == 'TaxonName'
           r.identifier_object.otus.first
         elsif r.identifier_object_type == 'Otu'
@@ -1840,6 +1966,15 @@ namespace :tw do
       def find_publication_3i(key3)
         @data.publications_index[key3.to_s] || Identifier.where(cached: '3i_Source_ID ' + key3.to_s).limit(1).first
       end
+
+      def find_t_publication_id_3i(pk_reference)
+        @data.t_publications[pk_reference.to_s] || Identifier.where(cached: 'PK_reference ' + pk_reference.to_s).limit(1).pluck(:identifier_object_id).first
+      end
+
+      def find_t_publication_3i(pk_reference)
+        @data.t_publications[pk_reference.to_s] || Identifier.where(cached: 'PK_reference ' + pk_reference.to_s).limit(1).first
+      end
+
 
       def handle_parasitoids_3i
         # Key
@@ -1879,12 +2014,12 @@ namespace :tw do
             p.save!
           end
           parasitoid = Otu.find_or_create_by(taxon_name_id: p.id, project_id: $project_id)
-          taxon = find_otu(row['Key'])
+          taxon = find_otu_3i(row['Key'])
           source = find_publication_id_3i(row['Key3'])
           if parasitoid && taxon
             ba = BiologicalAssociation.find_or_create_by!(biological_relationship: @parasitoid_relationship,
-                                                          biological_association_subject: parasitoid,
-                                                          biological_association_object: taxon,
+                                                          biological_association_subject: taxon,
+                                                          biological_association_object: parasitoid,
                                                           project_id: $project_id
             )
             Citation.find_or_create_by!(citation_object: ba, source_id: source, project_id: $project_id, pages: row['Page']) unless source.blank?
@@ -1975,10 +2110,11 @@ namespace :tw do
 
           unless row['KeyN'].blank?
             row['KeyN'].gsub(' ', '').split(',').each do |kn|
-              ObservationMatrixColumnItem::TaggedDescriptor.find_or_create_by!(observation_matrix_id: @data.keyn[kn], controlled_vocabulary_term_id: @data.morph[row['Morph']], project_id: $project_id) unless row['Morph'].blank?
-              ObservationMatrixColumnItem::TaggedDescriptor.find_or_create_by!(observation_matrix_id: @data.keyn[kn], controlled_vocabulary_term_id: @data.morph['n'], project_id: $project_id) if row['Type'].include?('n')
-              ObservationMatrixColumnItem::TaggedDescriptor.find_or_create_by!(observation_matrix_id: @data.keyn[kn], controlled_vocabulary_term_id: @data.morph['m'], project_id: $project_id) if row['Type'].include?('m')
-              ObservationMatrixColumnItem::TaggedDescriptor.find_or_create_by!(observation_matrix_id: @data.keyn[kn], controlled_vocabulary_term_id: @data.morph['f'], project_id: $project_id) if row['Type'].include?('f')
+              #ObservationMatrixColumnItem::TaggedDescriptor.find_or_create_by!(observation_matrix_id: @data.keyn[kn], controlled_vocabulary_term_id: @data.morph[row['Morph']], project_id: $project_id) unless row['Morph'].blank?
+              #ObservationMatrixColumnItem::TaggedDescriptor.find_or_create_by!(observation_matrix_id: @data.keyn[kn], controlled_vocabulary_term_id: @data.morph['n'], project_id: $project_id) if row['Type'].include?('n')
+              #ObservationMatrixColumnItem::TaggedDescriptor.find_or_create_by!(observation_matrix_id: @data.keyn[kn], controlled_vocabulary_term_id: @data.morph['m'], project_id: $project_id) if row['Type'].include?('m')
+              #ObservationMatrixColumnItem::TaggedDescriptor.find_or_create_by!(observation_matrix_id: @data.keyn[kn], controlled_vocabulary_term_id: @data.morph['f'], project_id: $project_id) if row['Type'].include?('f')
+
               ObservationMatrixColumnItem::SingleDescriptor.create!(observation_matrix_id: @data.keyn[kn], descriptor_id: descriptor.id, position: row['Char'].to_i + 1)
             end
           end
@@ -2022,6 +2158,7 @@ namespace :tw do
         # StateSp
         # StateZh
         # Fig
+        # mxID
         path = @args[:data_directory] + 'state.txt'
         print "\nHandling state\n"
         raise "file #{path} not found" if not File.exists?(path)
@@ -2042,6 +2179,7 @@ namespace :tw do
             a = AlternateValue.create(type: 'AlternateValue::Translation', value: row['StateSp'], alternate_value_object: cs, alternate_value_object_attribute: 'name', language_id: lngsp) unless row['StateSp'].nil?
             a = AlternateValue.create(type: 'AlternateValue::Translation', value: row['StateZh'], alternate_value_object: cs, alternate_value_object_attribute: 'name', language_id: lngzh) unless row['StateZh'].nil?
             cs.data_attributes.create(type: 'ImportAttribute', import_predicate: 'figure', value: row['Fig']) unless row['Fig'].blank?
+            cs.data_attributes.create(type: 'ImportAttribute', import_predicate: 'mxID', value: row['mxID']) unless row['mxID'].blank?
             @data.states[row['Key2'].to_s] = [cs.id, @data.chars[row['Key1'].to_s][0], nil]
           end
         end
@@ -2061,10 +2199,10 @@ namespace :tw do
           i += 1
           print "\r#{i}"
           if @data.states[row['Key2'].to_s][2].nil? # Qualitative
-            o = Observation::Qualitative.create(descriptor_id: @data.states[row['Key2'].to_s][1], otu_id: find_otu(row['Key']).id, character_state_id: @data.states[row['Key2'].to_s][0] )
+            o = Observation::Qualitative.create(descriptor_id: @data.states[row['Key2'].to_s][1], otu_id: find_otu_3i(row['Key']).id, character_state_id: @data.states[row['Key2'].to_s][0] )
             byebug if o.id.nil?
           else # Sample
-            o = Observation::Sample.create(descriptor_id: @data.states[row['Key2'].to_s][1], otu_id: find_otu(row['Key']).id, sample_min: row['NumericFrom'].to_f, sample_max: row['NumericTo'].to_f, sample_units: @data.states[row['Key2'].to_s][2])
+            o = Observation::Sample.create(descriptor_id: @data.states[row['Key2'].to_s][1], otu_id: find_otu_3i(row['Key']).id, sample_min: row['NumericFrom'].to_f, sample_max: row['NumericTo'].to_f, sample_units: @data.states[row['Key2'].to_s][2])
             byebug if o.id.nil?
           end
         end
@@ -2115,6 +2253,18 @@ namespace :tw do
           i += 1
           print "\r#{i}"
 
+          if row['pub_content_id'].blank? && !row['Key'].blank? && !find_otu_3i(row['Key']).blank? && !@data.contents[row['content_type_id']].blank? && !row['text'].blank?
+            c = Content.find_or_create_by(text: row['text'],
+                                          otu_id: find_otu_3i(row['Key']).id,
+                                          topic_id: @data.contents[row['content_type_id']],
+                                          project_id: $project_id)
+            unless c.id.nil?
+              c.data_attributes.find_or_create_by(type: 'ImportAttribute', import_predicate: 'mxID', value: row['id']) unless row['id'].blank?
+              c.data_attributes.find_or_create_by(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['license'].id, value: row['license'].to_s) unless row['license'].blank?
+              c.data_attributes.find_or_create_by(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['copyright_holder'].id, value: row['copyright_holder'].to_s) unless row['copyright_holder'].blank?
+            end
+          end
+
         end
 
       end
@@ -2158,6 +2308,233 @@ namespace :tw do
         end
       end
 
+      def handle_trivellone_unique_species_3i
+        # species
+        # Key
+        path = @args[:data_directory] + 'trivellone_unique_species.txt'
+        print "\ntrivellone_unique_species\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true)
+        i = 0
+        file.each do |row|
+          i += 1
+          print "\r#{i}"
+          @data.t_unique[row['species']] = row['Key']
+        end
+      end
+
+      def handle_trivellone_phytoplasma_group_3i
+        # PK_Phy
+        # 16Sr_group
+        # 16Sr_subgroup
+        path = @args[:data_directory] + 'trivellone_phytoplasma_group.txt'
+        print "\ntrivellone_phytoplasma_group\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true)
+        i = 0
+        file.each do |row|
+          i += 1
+          print "\r#{i}"
+          @data.t_phyto_group[row['PK_Phy']] = [row['16Sr_group'], row['16Sr_subgroup']]
+        end
+      end
+
+      def handle_trivellone_phytoplasma_taxonomy_3i
+        # PK_Taxo_phy
+        # FK_reference
+        # FK_Phy
+        # domain
+        # Phylum
+        # Class
+        # Order
+        # Family
+        # Genus
+        # species
+        # Reference_strain
+        # Reference_strain_acronym
+        # Genbank_number
+        # Genbank_link
+        # REF_phyt_strain
+        path = @args[:data_directory] + 'trivellone_phytoplasma_taxonomy.txt'
+        print "\ntrivellone_phytoplasma_taxonomy\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true)
+        i = 0
+
+        bacteria = Protonym.find_or_create_by!(name: 'Bacteria', rank_class: Ranks.lookup(:icnb, 'kingdom'), parent: @root, project_id: $project_id)
+        tenericutes = Protonym.find_or_create_by!(name: 'Tenericutes', rank_class: Ranks.lookup(:icnb, 'phylum'), parent: bacteria, project_id: $project_id)
+        mollicutes = Protonym.find_or_create_by!(name: 'Mollicutes', rank_class: Ranks.lookup(:icnb, 'class'), parent: tenericutes, project_id: $project_id)
+        acholeplasmatales = Protonym.find_or_create_by!(name: 'Acholeplasmatales', rank_class: Ranks.lookup(:icnb, 'order'), parent: mollicutes, project_id: $project_id)
+        acholeplasmataceae = Protonym.find_or_create_by!(name: 'Acholeplasmataceae', rank_class: Ranks.lookup(:icnb, 'family'), parent: acholeplasmatales, project_id: $project_id)
+        @phytoplasma = Protonym.find_or_create_by!(name: 'Phytoplasma', rank_class: Ranks.lookup(:icnb, 'genus'), parent: acholeplasmataceae, project_id: $project_id)
+        @phytoplasma.taxon_name_classifications.find_or_create_by!(type: 'TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Legitimate::Candidatus')
+
+        file.each do |row|
+          i += 1
+          print "\r#{i}"
+          if row['species'].blank?
+            taxon = @phytoplasma
+          else
+            taxon = Protonym.find_or_create_by!(name: row['species'], rank_class: Ranks.lookup(:icnb, 'species'), parent: @phytoplasma, project_id: $project_id)
+            taxon.taxon_name_classifications.find_or_create_by!(type: 'TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Legitimate::Candidatus')
+          end
+
+          name = @data.t_phyto_group[row['FK_Phy']][0] + @data.t_phyto_group[row['FK_Phy']][1]
+          name = name + ' - ' + row['Reference_strain'] unless row['Reference_strain'].blank?
+          otu = Otu.find_or_create_by!(name: name, taxon_name: taxon)
+          source_id = find_t_publication_id_3i(row['FK_reference'])
+          otu.citations.find_or_create_by!(source_id: source_id, project_id: $project_id)
+          otu.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['PK_Taxo_phy'], identifier: row['PK_Taxo_phy']) unless row['PK_Taxo_phy'].blank?
+
+          otu.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords['16Sr_group'], value: @data.t_phyto_group[row['FK_Phy']][0]) unless @data.t_phyto_group[row['FK_Phy']].blank?
+          otu.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords['16Sr_subgroup'], value: @data.t_phyto_group[row['FK_Phy']][1]) unless @data.t_phyto_group[row['FK_Phy']].blank?
+          otu.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords['Reference_strain'], value: row['Reference_strain']) unless row['Reference_strain'].blank?
+          otu.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords['Reference_strain_acronym'], value: row['Reference_strain_acronym']) unless row['Reference_strain_acronym'].blank?
+          otu.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords['Genbank_link'], value: row['Genbank_link']) unless row['Genbank_link'].blank?
+          Identifier::Global::GenBankAccessionCode.create(identifier_object: otu, identifier: row['Genbank_number']) unless row['Genbank_number'].blank?
+          otu.tags.create(keyword: @data.keywords['REF_phyt_strain']) if row['REF_phyt_strain'] == '1'
+        end
+      end
+
+      def handle_trivellone_phytoplasma_otu_3i
+        # PK_Phy
+        # 16Sr_group
+        # 16Sr_subgroup
+        path = @args[:data_directory] + 'trivellone_phytoplasma_group.txt'
+        print "\ntrivellone_phytoplasma_group\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true)
+        i = 0
+        file.each do |row|
+          i += 1
+          print "\r#{i}"
+
+          name = row['16Sr_group'].to_s + row['16Sr_subgroup'].to_s
+          otu = Otu.find_or_create_by!(name: name, taxon_name: @phytoplasma)
+          otu.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['PK_Phy'], identifier: row['PK_Phy']) unless row['PK_Phy'].blank?
+
+          @data.t_phyto_taxonomy[row['PK_Phy']] = otu.id
+        end
+      end
+
+      def find_t_otu_id_3i(pk_phy)
+        #r = @data.t_phyto_taxonomy(pk_phy)
+        #return r unless r.nil?
+        r = Identifier.find_by(cached: 'PK_Phy ' + pk_phy.to_s, project_id: $project_id)
+        return nil if r.nil?
+        return r.identifier_object
+      end
+
+
+      def handle_trivellone_insect_phytoplasma_3i
+        # PK_InsecPhyt
+        # FK_Phy
+        # FK_reference
+        # superfamily
+        # family
+        # subfamily
+        # tribe
+        # species
+        # note
+
+        # FK_idTW
+        # status
+        # habitat 1
+        # habitat 2
+        # test_infection
+        # positive
+        # tested
+        # inoculation_trial
+        # Acquisition
+        # inoculated_plant
+        # total_plant_positive
+        # total_plant_tested
+        # year_testing
+
+        da = ['FK_idTW', 'status', 'habitat 1', 'habitat 2', 'test_infection', 'positive', 'tested', 'inoculation_trial', 'Acquisition', 'inoculated_plant', 'total_plant_positive', 'total_plant_tested', 'year_testing'].freeze
+
+        path = @args[:data_directory] + 'trivellone_insect_phytoplasma.txt'
+        print "\ntrivellone_insect_phytoplasma\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true)
+        i = 0
+        file.each do |row|
+          i += 1
+          print "\r#{i}"
+
+          s = find_t_publication_id_3i(row['FK_reference'])
+          phy = find_t_otu_id_3i(row['FK_Phy'])
+          insect = find_otu_3i(@data.t_unique[row['species']])
+
+          if phy && insect
+            ba = BiologicalAssociation.find_or_create_by!(biological_relationship: @insect_phytoplasma_relationship,
+                                                          biological_association_subject: insect,
+                                                          biological_association_object: phy,
+                                                          project_id: $project_id
+            )
+            c = Citation.find_or_create_by!(citation_object: ba, source_id: s, project_id: $project_id) unless s.blank?
+            c.notes.create(text: row['note']) unless row['note'].blank?
+            da.each do |ia|
+              c.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords[ia], value: row[ia]) unless row[ia].blank?
+            end
+            g = nil
+            g = GeographicArea.find(row['FK_idTW'])
+            c.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords['FK_idTW_g'], value: g.name) unless g.nil?
+          else
+            # byebug
+          end
+        end
+      end
+
+      def handle_trivellone_plant_phytoplasma_3i
+        # PK_PlantPhyt
+        # FK_Phy
+        # FK_idTW
+        # FK_reference
+        # Family
+        # species
+        # habitat
+        # test_infection
+        # positive
+        # tested
+        # year_testing
+        # rear_record
+        # note
+
+        da = ['habitat', 'test_infection', 'positive', 'tested', 'year_testing', 'rear_record'].freeze
+
+        path = @args[:data_directory] + 'trivellone_plant_phytoplasma.txt'
+        print "\ntrivellone_plant_phytoplasma\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true)
+        i = 0
+        file.each do |row|
+          i += 1
+          print "\r#{i}"
+
+          s = find_t_publication_id_3i(row['FK_reference'])
+          phy = find_t_otu_id_3i(row['FK_Phy'])
+          plant = @data.host_plant_index[row['species']]
+
+          if phy && plant
+            ba = BiologicalAssociation.find_or_create_by!(biological_relationship: @plant_phytoplasma_relationship,
+                                                          biological_association_subject: Otu.find(plant),
+                                                          biological_association_object: phy,
+                                                          project_id: $project_id
+            )
+            c = Citation.find_or_create_by!(citation_object: ba, source_id: s, project_id: $project_id) unless s.blank?
+            c.notes.create(text: row['note']) unless row['note'].blank?
+            da.each do |ia|
+              c.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords[ia], value: row[ia]) unless row[ia].blank?
+            end
+            g = nil
+            g = GeographicArea.find(row['FK_idTW'])
+            c.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords['FK_idTW_g'], value: g.name) unless g.nil?
+          else
+            # byebug
+          end
+        end
+      end
     end
   end
 end

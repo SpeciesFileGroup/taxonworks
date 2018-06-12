@@ -9,4 +9,8 @@ class AnnotationsController < ApplicationController
     render(json: { 'message' => 'Record not found' }, status: :unauthorized) if !@object.is_community? && @object.project_id != sessions_current_project_id
   end
 
+  # GET /annotations/types (JSON)
+  def types
+  end
+
 end

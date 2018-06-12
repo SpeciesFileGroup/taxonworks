@@ -9,22 +9,22 @@ module Queries
 
     # @return [Scope]
     def all
-      TypeMaterial.includes(:protonym, material: [:identifiers] ).where(where_sql).references(:taxon_names).limit(dynamic_limit).all
+      ::TypeMaterial.includes(:protonym, material: [:identifiers] ).where(where_sql).references(:taxon_names).limit(dynamic_limit).all
     end
 
     # @return [Arel::Table]
     def table
-      TypeMaterial.arel_table
+      ::TypeMaterial.arel_table
     end
 
     # @return [Arel::Table]
     def taxon_name_table
-      TaxonName.arel_table
+      ::TaxonName.arel_table
     end
 
     # @return [Arel::Table]
     def identifier_table
-      Identifier.arel_table
+      ::Identifier.arel_table
     end
 
     # source, material, prototonym

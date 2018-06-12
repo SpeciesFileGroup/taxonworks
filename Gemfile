@@ -48,6 +48,7 @@ gem 'acts_as_list', '~> 0.9.12'
 gem 'modularity', '~> 2.0.1' # Used!?
 gem 'paperclip', '~> 5.2'
 gem 'paperclip-meta', '~> 3.0'
+gem 'shortener', '~> 0.7.2'
 
 # javascript
 gem 'sprockets-rails', '~> 3.2.0'
@@ -78,7 +79,7 @@ gem 'groupdate', '~> 4.0.1'
 gem 'dropzonejs-rails', '~> 0.8.1'
 gem 'kaminari', '~> 1.1.1'
 gem 'best_in_place', '~> 3.1.1'
-gem 'sass-rails', '~> 5.0.6'
+gem 'sass-rails', '~> 5.0.7' # auto compresses CSS
 gem 'redcarpet', '~> 3.4'
 
 # "Bio" and SFG gems
@@ -127,8 +128,7 @@ group :development do
 end
 
 group :doc do
-  gem 'sdoc', '~> 1.0', require: false #  git: 'https://github.com/zzak/sdoc.git', tag: 'v1.0.0.rc3', require: false
-#  gem 'sdoc', tag: '1.0.0.rc3', source: 'https://github.com/zzak/sdoc.git' require: false
+  gem 'sdoc', '~> 1.0', require: false 
 end
 
 group :test do
