@@ -32,6 +32,11 @@
         selectedPerson: {}
       }
     },
+    watch: {
+      value(newVal) {
+        this.foundPeople = this.value
+      }
+    },
     methods: {
       SelectPerson() {
         this.selectedPerson = this.foundPeople[value]
