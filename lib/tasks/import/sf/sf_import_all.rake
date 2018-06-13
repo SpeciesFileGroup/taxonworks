@@ -11,13 +11,13 @@ namespace :tw do
           # 'tw:db:restore backup_directory=../db_backup file=../db_backup/0_pristine_tw_init_all/2016-04-26_192513UTC.dump',
 
           # ### start section took 419m54.488s
-          # 'start:list_skipped_file_ids',
-          #
-          # 'start:create_users',
-          # 'start:create_people',
-          # 'start:map_serials',
-          # 'start:map_ref_links',
-          # 'start:list_verbatim_refs',
+          'start:list_skipped_file_ids',
+
+          'start:create_users',
+          'start:create_people',
+          'start:map_serials',
+          'start:map_ref_links',
+          'start:list_verbatim_refs',
           # 'tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/1_after_verbatim_refs/',
           #
           # 'start:create_projects',
@@ -60,8 +60,8 @@ namespace :tw do
           # 'pre_cites:check_original_genus_ids',
           # 'tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/9_after_orig_genus_ids',
           #
-          # insert supplementary info
-          # scrutinies here
+          # 'supplementary:taxon_info',
+          # 'supplementary:scrutiny_related',
           #
           #
           # then specimens if no prerequisites
@@ -71,7 +71,7 @@ namespace :tw do
           #
           #
           #
-          'citations:create_citations',
+          # 'citations:create_citations',
           # 'tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/10_after_citations',
           #
           # 'citations:create_otu_cites',
