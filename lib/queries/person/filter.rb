@@ -7,14 +7,19 @@ module Queries
       # @params params [ActionController::Parameters]
       def initialize(params)
         @limit_to_roles = params[:roles]
-        @options = params
+        params.delete(:roles)
+        @options              = {}
+        @options[:last_name]  = params[:lastname]
+        @options[:first_name] = params[:firstname]
+        @options              = @options.select { |_kee, val| val.present? }
+        @options
       end
 
       # @return [ActiveRecord::Relation]
       def and_clauses
         clauses = [
-            Queries::Person.person_params(options, ::Role)
-            ].compact
+          Queries::Person.person_params(options, ::Role)
+        ].compact
 
         a = clauses.shift
         clauses.each do |b|
@@ -25,11 +30,12 @@ module Queries
 
       # @return [ActiveRecord::Relation]
       def all
-        if a = and_clauses
-          ::Person.where(and_clauses)
-        else
-          ::Person.none
-        end
+        # if a = and_clauses
+        #   ::Person.where(and_clauses)
+        # else
+        #   ::Person.none
+        # end
+        ::Person.where(@options).with_role(limit_to_roles)
       end
 
       # @return [Arel::Table]

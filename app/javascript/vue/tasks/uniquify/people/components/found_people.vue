@@ -5,8 +5,9 @@
           v-for="person in foundPeople"
            :key=person.id>
         <button
+            v-model="foundPeople"
             type="button"
-            :class="{ 'button-default': (key != value.id)}"
+            :class="{ 'button-default': (key != person.id)}"
             class="button normal-input biocuration-toggle-button"
             @click="selectName(key)">
           {{ person.cached }}
