@@ -80,7 +80,7 @@ module TaxonNamesHelper
   end
 
   def taxon_name_short_status(taxon_name)
-    if taxon_name.unavailable_or_invalid?
+    if taxon_name.unavailable_or_invalid? || taxon_name.type.eql?("Combination")
       content_tag(:span, "This name is not valid/accepted. The valid name is #{taxon_name_browse_link(taxon_name.valid_taxon_name)}.".html_safe, class: :brief_status, data: {icon: :attention}) 
     else
       content_tag(:span, 'This name is valid/accepted.', class: :brief_status, data: {icon: :ok }) 
