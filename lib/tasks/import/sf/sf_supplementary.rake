@@ -13,20 +13,13 @@ namespace :tw do
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
-          skipped_file_ids = import.get('SkippedFileIDs')
           get_sf_file_id = import.get('SFTaxonNameIDToSFFileID')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
+          get_tw_person_id = import.get('SFPersonIDToTWPersonID')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
-          get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID') # Note this is an OTU associated with a SF.TaxonNameID (probably a bad taxon name)
-          get_taxon_name_otu_id = import.get('TWTaxonNameIDToOtuID') # Note this is the OTU offically associated with a real TW.taxon_name_id
-          get_tw_source_id = import.get('SFRefIDToTWSourceID')
-          get_sf_verbatim_ref = import.get('RefIDToVerbatimRef') # key is SF.RefID, value is verbatim string
 
           counter = 0
-          # otu_only_counter = 0
-          # otu_not_found_array = []
-
 
           # first create hash of scrutinies
           get_scrutinies = {} # key = ScrutinyID, value = FileID, Year, Comment
@@ -38,81 +31,76 @@ namespace :tw do
           end
 
           # next create hash of arrays for scrutiny authors
-          get_scrutiny_authors = {} # from tblScrutinyAuthors, key = ScrutinyID, value = PersonID, SeqNum
+          # No error handling if no TW equiv person
+          get_tw_scrutiny_authors = {} # from tblScrutinyAuthors, key = ScrutinyID, value = PersonID, SeqNum
           logger.info 'Creating scrutiny_authors hash...'
           path = @args[:data_directory] + 'tblScrutinyAuthors.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
           file.each_with_index do |row, i|
             id = row['ScrutinyID']
             index = row['SeqNum'].to_i
-            if get_scrutiny_authors[id]   # subsequent author for same ScrutinyID
-              get_scrutiny_authors[id][index] = row['PersonID']
+            if get_tw_scrutiny_authors[id] # subsequent author for same ScrutinyID
+              get_tw_scrutiny_authors[id][index] = get_tw_person_id[row['PersonID']]
             else
-              get_scrutiny_authors[id] = []   # first author for different ScrutinyID
-              get_scrutiny_authors[id][index] = [row['PersonID'] ]
+              get_tw_scrutiny_authors[id] = [] # first author for different ScrutinyID
+              get_tw_scrutiny_authors[id][index] = get_tw_person_id[row['PersonID']]
             end
           end
-       # =======================================================
-       #    get_scrutiny_authors = {
-       #        22 => [1,2,3],
-       #        44 => [4,5]
-       #    }
-       #
-       #  people_for_22 = get_scrutiny_authors[22]  # == [1,2,3]
-       # =======================================================
 
           import.set('Scrutinies', get_scrutinies)
-          import.set('ScrutinyAuthors', get_scrutiny_authors)
+          import.set('ScrutinyAuthors', get_tw_scrutiny_authors)
 
           puts 'Scrutinies'
           ap get_scrutinies
           puts 'ScrutinyAuthors'
-          ap get_scrutinies_authors
+          ap get_tw_scrutiny_authors
 
-        end       # delete me when commenting in rest
+          # finally process tblTaxonScrutinies
+          # No error handling if there is no TW equiv taxon_name
+          path = @args[:data_directory] + 'tblTaxonScrutinies.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
+          file.each_with_index do |row, i|
+            next if taxa_access_code_4.include? row['TaxonNameID'].to_i
+            next if row['TaxonNameID'] == '0'
+            next if [1143402, 1143425, 1143430, 1143432, 1143436].freeze.include?(row['TaxonNameID'].to_i) # used for excluded Beckma ids
+            next if [1109922, 1195997, 1198855].freeze.include?(row['TaxonNameID'].to_i) # bad data in Orthoptera (first) and Psocodea (rest)
+            sf_taxon_name_id = row['TaxonNameID']
+            taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id] # cannot to_i because if nil, nil.to_i = 0 ]
+            scrutiny_id = row['ScrutinyID']
+            sf_file_id = get_scrutinies[scrutiny_id][:sf_file_id]
+            if taxon_name_id.nil?
+              logger.error "TW.taxon_name_id is nil: ScrutinyID = #{scrutiny_id}, SF.TaxonNameID #{sf_taxon_name_id}, SF.FileID = #{sf_file_id}"
+              next
+            end
+            next if skipped_file_ids.include? sf_file_id.to_i
 
+            seqnum = row['SeqNum']
+            project_id = get_tw_project_id[sf_file_id].to_i
+            year = get_scrutinies[scrutiny_id][:year]
+            comment = get_scrutinies[scrutiny_id][:comment]
 
-        #   # finally process tblTaxonScrutinies
-        #
-        #   logger.info 'Importing Scrutinies...'
-        #
-        #   path = @args[:data_directory] + 'tblTaxonScrutinies.txt'
-        #   file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
-        #
-        #   file.each_with_index do |row, i|
-        #     next if taxa_access_code_4.include? row['TaxonNameID'].to_i
-        #     next if row['TaxonNameID'] == '0'
-        #     next if [1143402, 1143425, 1143430, 1143432, 1143436].freeze.include?(row['TaxonNameID'].to_i) # used for excluded Beckma ids
-        #     next if [1109922, 1195997, 1198855].freeze.include?(row['TaxonNameID'].to_i) # bad data in Orthoptera (first) and Psocodea (rest)
-        #     sf_taxon_name_id = row['TaxonNameID']
-        #     next if skipped_file_ids.include? sf_file_id.to_i
-        #     taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id] # cannot to_i because if nil, nil.to_i = 0
-        #     scrutiny_id = row['ScrutinyID']
-        #
-        #
-        #     project_id = get_tw_project_id[get_scrutinies[scrutiny_id]['FileID']]
-        #     year = get_scrutinies[scrutiny_id]['Year']
-        #     comment = get_scrutinies[scrutiny_id]['Comment']
-        #
-        #
-        #     logger.info "Working on SF.TaxonNameID #{sf_taxon_name_id} = tw.taxon_name_id #{taxon_name_id}, project_id = #{project_id}, counter = #{counter += 1}"
-        #
-        #     content = ''  # ScrutinyID, SeqNum, Year, PersonIDs, Comment
-        #
-        #     scrutiny_predicate = Predicate.find_or_create_by(name: 'Species File scrutiny', definition: 'from tblScrutinies, limit of three scrutinies per taxon name', project_id: project_id)
-        #     scrutiny = internal_attributes.create!(predicate: scrutiny_predicate,
-        #                                            attribute_subject_id: taxon_name_id,
-        #                                            attribute_subject_type: 'TaxonName',
-        #                                            value: content,
-        #                                            project_id: project_id)
-        #
-        #
-        #
-        #
-        #
-        #   end
-        # end
+            logger.info "Working on ScrutinyID = #{scrutiny_id}, SF.TaxonNameID #{sf_taxon_name_id} = tw.taxon_name_id #{taxon_name_id}, project_id = #{project_id}, counter = #{counter += 1}"
+
+            content = "SeqNum = #{seqnum}, ScrutinyID = #{scrutiny_id}, Year = #{year}, PersonIDs = #{get_tw_scrutiny_authors[scrutiny_id]}, Comment = '#{comment}'"
+
+            scrutiny_predicate = Predicate.find_or_create_by(name: 'Species File scrutiny', definition: 'from tblScrutinies, limit of three scrutinies per taxon name', project_id: project_id)
+            scrutiny = DataAttribute.create(type: 'InternalAttribute',
+                                            controlled_vocabulary_term_id: scrutiny_predicate.id,
+                                            attribute_subject_id: taxon_name_id,
+                                            attribute_subject_type: 'TaxonName',
+                                            value: content,
+                                            project_id: project_id,
+                                            created_at: row['CreatedOn'],
+                                            updated_at: row['LastUpdate'],
+                                            created_by_id: get_tw_user_id[row['CreatedBy']],
+                                            updated_by_id: get_tw_user_id[row['ModifiedBy']])
+
+            if scrutiny.nil?
+              logger.error "Error creating TaxonScrutiny: ScrutinyID = #{scrutiny_id}, SF.TaxonNameID #{sf_taxon_name_id} = tw.taxon_name_id #{taxon_name_id}"
+            end
+          end
+        end
 
         desc 'time rake tw:project_import:sf_import:supplementary:taxon_info user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define taxon_info: [:data_directory, :environment, :user_id] do |logger|
