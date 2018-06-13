@@ -90,7 +90,7 @@
         selectedRoles: {},
         filter: this.resetFilter(),
         isLoading: false,
-        foundPeople: {},
+        foundPeople: [],
         matchPeople: {},
         mergedPeople: {},
         request: {
@@ -106,9 +106,9 @@
         let params = {
           lastname: this.lastName,
           firstname: this.firstName,
-          roles: Object.values(this.selectedRoles)
+          roles: Object.keys(this.selectedRoles)
         }
-        this.$http.get('/tasks/uniquify_people/find', {params: params} ).then(response => {
+        this.$http.get('/people.json', {params: params} ).then(response => {
           this.foundPeople = response.body;
           console.log(this.foundPeople);
         })
@@ -118,7 +118,7 @@
       },
       resetApp() {
         this.filter = this.resetFilter()
-        this.foundPeople = {};
+        this.foundPeople = [];
         this.matchPeople = {};
         this.mergedPeople = {};
         this.request.url = '';

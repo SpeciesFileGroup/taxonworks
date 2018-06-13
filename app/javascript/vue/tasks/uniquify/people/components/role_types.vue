@@ -42,7 +42,7 @@
           this.$delete(this.selectedList, type)
         }
         else {
-          this.$set(this.selectedList, type, type);
+          this.$set(this.selectedList, type, this.roleTypes[type]);
         }
         this.$emit('input', this.selectedList);
       }

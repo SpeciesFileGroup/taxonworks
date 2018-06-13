@@ -6,9 +6,19 @@ class PeopleController < ApplicationController
   # GET /people
   # GET /people.json
   def index
-    @people         = Person.order(updated_at: :desc).limit(10)
-    @recent_objects = @people
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html {
+        @people         = Person.order(updated_at: :desc).limit(10)
+        @recent_objects = @people
+        render '/shared/data/all/index'
+      }
+      format.json {
+        last_name = params[:lastname]
+        first_name = params[:firstname]
+        @people = Person.where(last_name: last_name, first_name: first_name).with_role(params[:roles])
+        render json: @people
+      }
+    end
   end
 
   # GET /people/1

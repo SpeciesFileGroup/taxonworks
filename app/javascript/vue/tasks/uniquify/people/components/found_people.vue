@@ -2,14 +2,14 @@
   <div>
     <ul class="no_bullets">
       <li
-          v-for="(label, key) in foundPeople"
-          :key=label >
+          v-for="person in foundPeople"
+           :key=person.id>
         <button
             type="button"
-            :class="{ 'button-default': (key != value)}"
+            :class="{ 'button-default': (key != value.id)}"
             class="button normal-input biocuration-toggle-button"
             @click="selectName(key)">
-          {{ label }}
+          {{ person.cached }}
         </button>
       </li>
     </ul>
@@ -22,13 +22,13 @@
   export default {
     props: {
       value: {
-        type: Object,
+        type: Array,
         required: true
       }
     },
     data() {
       return {
-        foundPeople: {},
+        foundPeople: [],
         selectedPerson: {}
       }
     },
