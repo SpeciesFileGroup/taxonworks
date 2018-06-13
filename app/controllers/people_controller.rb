@@ -15,7 +15,7 @@ class PeopleController < ApplicationController
       format.json {
         last_name = params[:lastname]
         first_name = params[:firstname]
-        @people = Person.where(last_name: last_name, first_name: first_name).with_role(params[:roles])
+        # @people = Person.where(last_name: last_name, first_name: first_name).with_role(params[:roles])
         @people = Queries::Person::Filter.new(params).all
         render json: @people
       }
