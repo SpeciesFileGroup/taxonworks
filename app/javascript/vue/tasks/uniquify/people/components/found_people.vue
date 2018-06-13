@@ -8,7 +8,7 @@
             type="button"
             :class="{ 'button-default': (key != person.id)}"
             class="button normal-input biocuration-toggle-button"
-            @click="selectName(key)">
+            @click="selectPerson(0)">
           {{ person.cached }}
         </button>
       </li>
@@ -21,25 +21,28 @@
   // only one person can be selected
   export default {
     props: {
-      value: {
+      // value: {
+      //   type: Array,
+      //   required: true
+      // },
+      foundPeople: {
         type: Array,
         required: true
       }
     },
     data() {
       return {
-        foundPeople: [],
         selectedPerson: {}
       }
     },
-    watch: {
-      value(newVal) {
-        this.foundPeople = this.value
-      }
-    },
+    // watch: {
+    //   value(newVal) {
+    //     this.foundPeople = this.value
+    //   }
+    // },
     methods: {
-      SelectPerson() {
-        this.selectedPerson = this.foundPeople[value]
+      selectPerson(who) {
+        this.selectedPerson = this.foundPeople[who]
       }
     }
   }

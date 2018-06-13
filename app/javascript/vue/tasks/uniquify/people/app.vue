@@ -38,7 +38,10 @@
       </div>
       <div class="found_people separate-right separate-left">
         <h2>Select person</h2>
-        <found-people v-model="foundPeople"/>
+        <found-people
+            v-model="selectedPerson"
+            :found-people="foundPeople"
+        />
       </div>
       <div class="match_people separate-right separate-left">
         <h2>Match people</h2>
