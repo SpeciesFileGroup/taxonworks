@@ -108,7 +108,7 @@
           firstname: this.firstName,
           roles: Object.values(this.selectedRoles)
         }
-        this.$http.get('/people.json', {params: params} ).then(response => {
+        this.$http.get('/tasks/uniquify_people/find', {params: params} ).then(response => {
           this.foundPeople = response.body;
           console.log(this.foundPeople);
         })

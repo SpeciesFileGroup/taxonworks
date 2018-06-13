@@ -69,7 +69,7 @@ TaxonWorks::Application.routes.draw do
       get :many_new
       get :index, defaults: {format: :json}
       post :create_many
-      
+
       get :clipboard, defaults: {format: :json}
       put :update_clipboard, defaults: {format: :json}
     end
@@ -634,6 +634,7 @@ TaxonWorks::Application.routes.draw do
 
     scope :uniquify_people, controller: 'tasks/uniquify/people' do
       get 'index', as: 'uniquify_people_task'
+      get 'find', as: 'uniquify_people_find', defaults: {format: :json}
     end
 
     scope :otus do
