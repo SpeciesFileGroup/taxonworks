@@ -1,15 +1,17 @@
 <template>
   <div id="#vue-all-in-one">
+    <taxon-determination-layout/>
     <collection-event-layout/>
   </div>
 </template>
 
 <script>
-
+  import TaxonDeterminationLayout from './components/taxonDetermination/main.vue'
   import CollectionEventLayout from './components/collectionEvent/main.vue'
 
   export default {
     components: {
+      TaxonDeterminationLayout,
       CollectionEventLayout
     }
   }
