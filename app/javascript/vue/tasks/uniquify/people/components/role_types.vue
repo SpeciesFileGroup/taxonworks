@@ -4,13 +4,10 @@
       <li
           v-for="(label, key) in roleTypes"
           :key=label >
-        <button
-            type="button"
-            :class="{ 'button-default': !(selectedList.hasOwnProperty(key))}"
-            class="button normal-input biocuration-toggle-button"
+        <input
+            type="checkbox"
             @click="selectType(key)">
           {{ roleTypes[key] }}
-        </button>
       </li>
     </ul>
   </div>

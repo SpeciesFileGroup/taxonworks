@@ -2,15 +2,13 @@
   <div>
     <ul class="no_bullets">
       <li
-          v-for="person in foundPeople"
-           :key=person.id>
-        <button
-            type="button"
-            :class="{ 'button-default': (key != person.id)}"
-            class="button normal-input biocuration-toggle-button"
-            @click="selectPerson(0)">
+          v-for="(person, index) in foundPeople"
+      >
+        <input
+            name="found-people"
+            type="radio"
+            @click="selectPerson(index)">
           {{ person.cached }}
-        </button>
       </li>
     </ul>
   </div>
@@ -27,7 +25,8 @@
       // },
       foundPeople: {
         type: Array,
-        required: true
+        default: [],
+        // required: true
       }
     },
     data() {

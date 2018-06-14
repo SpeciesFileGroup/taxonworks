@@ -22,12 +22,12 @@
         <div class="first_name separate-right separate-left">
           <h2>First Name</h2>
           <first-name
-              v-model="firstName" />
+            v-model="firstName" />
         </div>
         <div class="role_types separate-right separate-left">
           <h2>Roles</h2>
           <role-types
-              v-model="selectedRoles" />
+            v-model="selectedRoles" />
         </div>
         <button
             class="button normal-input button-default"
@@ -39,13 +39,20 @@
       <div class="found_people separate-right separate-left">
         <h2>Select person</h2>
         <found-people
-            v-model="selectedPerson"
-            :found-people="foundPeople"
+          v-model="selectedPerson"
+          :found-people="foundPeople"
+        />
+      </div>
+      <div class="selected_person">
+        <h2>Selected Person</h2>
+        <selected-person
+          v-model="selectedPerson"
         />
       </div>
       <div class="match_people separate-right separate-left">
         <h2>Match people</h2>
-        <match-people v-model="matchPeople"/>
+        <match-people
+          v-model="matchPeople"/>
       </div>
     </div>
     <button
@@ -67,6 +74,7 @@
   import FirstName from './components/first_name'
   import RoleTypes from './components/role_types'
   import FoundPeople from './components/found_people'
+  import SelectedPerson from'./components/selected_person'
   import MatchPeople from './components/match_people'
 
   import Spinner from '../../../components/spinner.vue'
@@ -77,6 +85,7 @@
       FirstName,
       RoleTypes,
       FoundPeople,
+      SelectedPerson,
       MatchPeople,
       Spinner
     },
@@ -94,6 +103,7 @@
         filter: this.resetFilter(),
         isLoading: false,
         foundPeople: [],
+        selectedPerson: {},
         matchPeople: {},
         mergedPeople: {},
         request: {
