@@ -49,8 +49,11 @@ if ApplicationRecord.connection.table_exists? 'taxon_name_relationships'
   # Array of all ICNB TaxonNameRelationship classes, as Strings
   ICNB_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Icnb.descendants.collect{|d| d.to_s}.freeze
 
+  # Array of all ICTV TaxonNameRelationship classes, as Strings
+  ICTV_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Ictv.descendants.collect{|d| d.to_s}.freeze
+
   # Array of all ICZN + ICN TaxonNameRelationship classes, as Strings
-  STATUS_TAXON_NAME_RELATIONSHIP_NAMES = (ICZN_TAXON_NAME_RELATIONSHIP_NAMES + ICN_TAXON_NAME_RELATIONSHIP_NAMES).freeze
+  STATUS_TAXON_NAME_RELATIONSHIP_NAMES = (ICZN_TAXON_NAME_RELATIONSHIP_NAMES + ICN_TAXON_NAME_RELATIONSHIP_NAMES + ICNB_TAXON_NAME_RELATIONSHIP_NAMES + ICTV_TAXON_NAME_RELATIONSHIP_NAMES).freeze
 
   # Array of all assignable TaxonNameRelationship classes, as Strings
   TAXON_NAME_RELATIONSHIP_NAMES = TAXON_NAME_RELATIONSHIPS.select{|i| i.assignable}.collect{|d| d.to_s}.freeze
@@ -59,7 +62,8 @@ if ApplicationRecord.connection.table_exists? 'taxon_name_relationships'
   TAXON_NAME_RELATIONSHIP_NAMES_INVALID = TaxonNameRelationship.
     collect_descendants_and_itself_to_s(TaxonNameRelationship::Iczn::Invalidating,
                                         TaxonNameRelationship::Icn::Unaccepting,
-                                        TaxonNameRelationship::Icnb::Unaccepting).freeze
+                                        TaxonNameRelationship::Icnb::Unaccepting,
+                                        TaxonNameRelationship::Ictv::Unaccepting).freeze
 
   TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM = TaxonNameRelationship.
     collect_descendants_and_itself_to_s(TaxonNameRelationship::Iczn::Invalidating::Synonym,
@@ -67,10 +71,12 @@ if ApplicationRecord.connection.table_exists? 'taxon_name_relationships'
                                         TaxonNameRelationship::Icn::Unaccepting::Synonym,
                                         TaxonNameRelationship::Icn::Unaccepting::Usage,
                                         TaxonNameRelationship::Icnb::Unaccepting::Synonym,
-                                        TaxonNameRelationship::Icnb::Unaccepting::Usage) +
+                                        TaxonNameRelationship::Icnb::Unaccepting::Usage,
+                                        TaxonNameRelationship::Ictv::Unaccepting) +
                                        ['TaxonNameRelationship::Iczn::Invalidating',
                                         'TaxonNameRelationship::Icn::Unaccepting',
-                                        'TaxonNameRelationship::Icnb::Unaccepting'].freeze
+                                        'TaxonNameRelationship::Icnb::Unaccepting',
+                                        'TaxonNameRelationship::Ictv::Unaccepting'].freeze
 
 
   # TODO: check .assignable property prior to building
@@ -129,6 +135,14 @@ if ApplicationRecord.connection.table_exists? 'taxon_name_relationships'
         TaxonNameRelationship::Icnb::Unaccepting::Usage::Misspelling,
         TaxonNameRelationship::Icnb::Unaccepting::Homonym
       ])
+    },
+
+    ictv: {
+        tree: ApplicationEnumeration.nested_subclasses(TaxonNameRelationship::Ictv),
+        all: TaxonNameRelationshipsConstantHelper::descendants_collection( TaxonNameRelationship::Ictv ),
+        common: TaxonNameRelationshipsConstantHelper.collection([
+                                                                    TaxonNameRelationship::Ictv::Unaccepting
+                                                                ])
     },
 
     typification: {

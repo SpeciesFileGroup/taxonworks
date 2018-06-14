@@ -11,7 +11,7 @@ class TaxonNameClassification::Iczn < TaxonNameClassification
   end
 
   def self.disjoint_taxon_name_classes
-    ICN_TAXON_NAME_CLASSIFICATION_NAMES
+    ICNB_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICTV_TAXON_NAME_CLASSIFICATION_NAMES
   end
 
 end
