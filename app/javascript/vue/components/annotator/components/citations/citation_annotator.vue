@@ -8,6 +8,7 @@
         :edit="true"
         :pdf="true"
         label="object_tag"
+        :annotator="true"
         :list="list"
         @edit="citation = $event"
         @delete="removeItem"
