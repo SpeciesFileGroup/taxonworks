@@ -1,14 +1,15 @@
 <template>
   <div>
     <ul class="no_bullets">
-      <li
-          v-for="(person, index) in foundPeople"
-      >
-        <input
+      <li v-for="(person, index) in foundPeople">
+        <label>
+          <input
             name="found-people"
             type="radio"
-            @click="selectPerson(index)">
+            :selected="person.id == value"
+            @click="selectPerson(person)">
           {{ person.cached }}
+        </label>
       </li>
     </ul>
   </div>
@@ -19,14 +20,13 @@
   // only one person can be selected
   export default {
     props: {
-      // value: {
-      //   type: Array,
-      //   required: true
-      // },
+      value: {
+        type: Object,
+        required: true
+      },
       foundPeople: {
         type: Array,
-        default: [],
-        // required: true
+        default: () => { return [] }
       }
     },
     data() {
@@ -34,14 +34,10 @@
         selectedPerson: {}
       }
     },
-    // watch: {
-    //   value(newVal) {
-    //     this.foundPeople = this.value
-    //   }
-    // },
     methods: {
-      selectPerson(who) {
-        this.selectedPerson = this.foundPeople[who]
+      selectPerson(person) {
+        this.selectedPerson = person
+        this.$emit('input', person)
       }
     }
   }
