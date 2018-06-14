@@ -46,7 +46,7 @@
       <div class="selected_person">
         <h2>Selected Person</h2>
         <selected-person
-          v-model="selectedPerson"
+          :selected-person="selectedPerson"
         />
       </div>
       <div class="match_people separate-right separate-left">
