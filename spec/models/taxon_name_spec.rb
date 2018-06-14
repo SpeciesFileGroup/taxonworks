@@ -166,6 +166,25 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             end
           end
 
+          context 'candidatus' do
+            let!(:g) { Protonym.create(name: 'Aus', rank_class: Ranks.lookup(:icnb, :genus), parent: @root) }
+            let!(:sp) { Protonym.create(name: 'bus', rank_class: Ranks.lookup(:icnb, :species), parent: g) }
+            let!(:c) { FactoryBot.create(:taxon_name_classification, taxon_name: sp, type: 'TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Legitimate::Candidatus')}
+
+            specify '#get_full_name' do
+              expect(sp.get_full_name_html).to eq('"<i>Candidatus</i> Aus bus"')
+            end
+
+            specify '#cached_html' do
+              expect(sp.cached_html).to eq('"<i>Candidatus</i> Aus bus"')
+            end
+
+            specify 'cached' do
+              expect(sp.cached).to eq('Aus bus')
+            end
+          end
+
+
           context 'hybrid' do
             let(:g) { FactoryBot.create(:icn_genus) }
             let(:sp) { FactoryBot.create(:icn_species, parent: g) }

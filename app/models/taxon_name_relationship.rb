@@ -264,7 +264,7 @@ class TaxonNameRelationship < ApplicationRecord
 
   def validate_subject_and_object_share_code
     if object_taxon_name.type  == 'Protonym' && subject_taxon_name.type == 'Protonym'
-      errors.add(:object_taxon_name_id, 'The related taxon is not in the same monenclatural group (ICZN, ICN, ICNB') if subject_taxon_name.rank_class.nomenclatural_code != object_taxon_name.rank_class.nomenclatural_code
+      errors.add(:object_taxon_name_id, 'The related taxon is not in the same monenclatural group (ICZN, ICN, ICNB, ICTV') if subject_taxon_name.rank_class.nomenclatural_code != object_taxon_name.rank_class.nomenclatural_code
     end
   end
 
@@ -283,7 +283,7 @@ class TaxonNameRelationship < ApplicationRecord
   def validate_subject_and_object_ranks
     tname = self.type_name
 
-    if tname =~ /TaxonNameRelationship::(Icnb|Icn|Iczn)/ && tname != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
+    if tname =~ /TaxonNameRelationship::(Icnb|Icn|Iczn|Ictv)/ && tname != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
       rank_group = self.subject_taxon_name.rank_class.parent
       unless rank_group == self.object_taxon_name.rank_class.parent
         errors.add(:object_taxon_name_id, "Rank of related taxon should be in the #{rank_group.rank_name} rank group, not #{self.object_taxon_name.rank_class.rank_name}")
@@ -708,13 +708,13 @@ class TaxonNameRelationship < ApplicationRecord
   def sv_coordinated_taxa
     s = subject_taxon_name
     o = object_taxon_name
-    if type_name =~ /TaxonNameRelationship::(Iczn|Icnb|Icn|OriginalCombination|Combination|Typification)/
+    if type_name =~ /TaxonNameRelationship::(Iczn|Icnb|Icn|Ictv|OriginalCombination|Combination|Typification)/
       s_new = s.lowest_rank_coordinated_taxon
       if s != s_new
         soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} #{s.cached_html} to #{s_new.rank_class.rank_name} #{s.cached_html}",
                              fix: :sv_fix_coordinated_subject_taxa, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
       end
-      if type_name =~ /TaxonNameRelationship::(Iczn|Icnb|Icn)/
+      if type_name =~ /TaxonNameRelationship::(Iczn|Icnb|Ictv|Icn)/
         o_new = o.lowest_rank_coordinated_taxon
 
 
