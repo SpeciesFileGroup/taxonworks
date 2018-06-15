@@ -594,7 +594,8 @@ class Protonym < TaxonName
       end
 
       subgenus = '(' + subgenus.squish + ') ' unless subgenus.empty?
-      genus = '[GENUS NOT SPECIFIED]' + genus.to_s if g1.nil? && not_binomial?
+      genus = '[GENUS NOT SPECIFIED]' + genus.to_s if g1.nil?
+      genus = '' if not_binomial?
       species = '[SPECIES NOT SPECIFIED]' + species.to_s if s1.nil? && !species.empty?
       str = (genus + subgenus + superspecies + species).gsub(' [sic]', '</i> [sic]<i>').gsub('</i> <i>', ' ').gsub('<i></i>', '').gsub('<i> ', ' <i>').squish
       str = species if rank_class =~ /Ictv/
