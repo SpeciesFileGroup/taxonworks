@@ -43,24 +43,27 @@
           :found-people="foundPeople"
         />
       </div>
-      <div class="selected_person">
-        <h2>Selected Person</h2>
-        <selected-person
-          :selected-person="selectedPerson"
-        />
-      </div>
-      <div class="match_people separate-right separate-left">
-        <h2>Match people</h2>
-        <match-people
-          v-model="matchPeople"/>
+      <div>
+        <div class="selected_person">
+          <h2>Selected Person</h2>
+          <selected-person
+              :selected-person="selectedPerson"
+          />
+        </div>
+        <div class="match_people separate-right separate-left">
+          <h2>Match people</h2>
+          <match-people
+              v-model="matchPeople"
+              :selected-person="selectedPerson"/>
+        </div>
+        <button
+            class="button normal-input button-default"
+            @click="mergePeople"
+            :disabled="submitAvailable"
+            type="submit">Merge People
+        </button>
       </div>
     </div>
-    <button
-        class="button normal-input button-default"
-        @click="mergePeople"
-        :disabled="submitAvailable"
-        type="submit">Merge People
-    </button>
     <!--<request-bar-->
     <!--:url="request.url"-->
     <!--:total="request.total"/>-->
@@ -91,7 +94,7 @@
     },
     computed: {
       submitAvailable() {
-        return (this.lastName.length > 2) //|| !this.filter.model
+        return ((this.lastName.length > 0) || (this.firstName.length > 0))
       }
     },
     data() {
@@ -104,8 +107,8 @@
         isLoading: false,
         foundPeople: [],
         selectedPerson: {},
-        matchPeople: {},
-        mergedPeople: {},
+        matchPeople: [],
+        mergedPeople: [],
         request: {
           url: '',
           total: 0

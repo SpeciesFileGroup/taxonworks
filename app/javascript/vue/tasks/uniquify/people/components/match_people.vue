@@ -6,8 +6,6 @@
           :key=label >
         <button
             type="button"
-            :class="{ 'button-default': (key != value)}"
-            class="button normal-input biocuration-toggle-button"
             @click="selectName(key)">
           {{ label }}
         </button>
@@ -22,19 +20,32 @@
   export default {
     props: {
       value: {
+        type: Array,
+        required: true
+      },
+      selectedPerson: {
         type: Object,
         required: true
       }
     },
+    watch: {
+
+    },
     data() {
       return {
-        matchPeople: {},
-        selectedPeople: {}
+        matchPeople: [],
+        selectedPeople: []
       }
     },
     methods: {
-      SelectPerson() {
-        this.selectedPeople = this.matchPeople[value]
+      selectPerson(person) {
+        if (this.selectedPeople.hasOwnProperty(person.id)) {
+          this.$delete(this.selectedPeople, person.id)
+        }
+        else {
+          this.$set(this.selectedPeople, person.id, person);
+        }
+        this.$emit('input', this.selectedPeople);
       }
     }
   }
