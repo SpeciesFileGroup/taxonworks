@@ -24,7 +24,7 @@
         </span>
         <span
           class="circle-button btn-delete"
-          @click="$emit('delete', item)">Remove
+          @click="deleteItem(item)">Remove
         </span>
       </div>
     </li>
@@ -75,6 +75,11 @@
             tmp = tmp[label]
           })
           return tmp
+        }
+      },
+      deleteItem(item) {
+        if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+          this.$emit('delete', item)
         }
       }
     }

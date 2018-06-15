@@ -27,7 +27,7 @@
             <span
               v-if="destroy"
               class="circle-button btn-delete"
-              @click="$emit('delete', item)">Remove
+              @click="deleteItem(item)">Remove
             </span>
           </td>
         </tr>
@@ -97,6 +97,11 @@
           }
         }
         return object[attributes]
+      },
+      deleteItem(item) {
+        if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+          this.$emit('delete', item)
+        }
       }
     }
   }
