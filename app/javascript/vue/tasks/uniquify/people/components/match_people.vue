@@ -2,13 +2,11 @@
   <div>
     <ul class="no_bullets">
       <li
-          v-for="(label, key) in matchPeople"
-          :key=label >
-        <button
-            type="button"
-            @click="selectName(key)">
-          {{ label }}
-        </button>
+          v-for="(person, index) in matchPeople">
+        <input
+            type="checkbox"
+            @click="selectName(person)">
+          {{ person.cached }}
       </li>
     </ul>
   </div>
@@ -29,7 +27,11 @@
       }
     },
     watch: {
-
+      selectedPerson(newVal) {
+        this.selectedPeople = [];
+        this.matchPeople = [];
+        this.getMatchPeople(newVal)
+      }
     },
     data() {
       return {
@@ -46,6 +48,17 @@
           this.$set(this.selectedPeople, person.id, person);
         }
         this.$emit('input', this.selectedPeople);
+      },
+      getMatchPeople(person) {
+        let params = {
+          lastname: person.lastName,
+          firstname: person.firstName,
+          roles: ['Author']};
+
+          this.$http.get('/people.json', {params: params} ).then(response => {
+          this.matchPeople = response.body;
+          console.log(this.matchPeople);
+        })
       }
     }
   }

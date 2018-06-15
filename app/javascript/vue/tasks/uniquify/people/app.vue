@@ -133,10 +133,10 @@
         // TODO: merge the selected people to/with the selected person
       },
       resetApp() {
-        this.filter = this.resetFilter()
+        this.filter = this.resetFilter();
         this.foundPeople = [];
-        this.matchPeople = {};
-        this.mergedPeople = {};
+        this.matchPeople = [];
+        this.mergedPeople = [];
         this.request.url = '';
         this.request.total = 0
       },
