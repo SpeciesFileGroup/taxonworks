@@ -130,3 +130,11 @@
       }
     }
   }
+
+  .radial-annotator {
+    .modal-close {
+      background-image: image-url('w_close.svg');
+      background-size: 10px 10px;
+      opacity: 0.7;
+    }
+  }
