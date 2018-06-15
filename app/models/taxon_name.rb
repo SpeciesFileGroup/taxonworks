@@ -459,7 +459,7 @@ class TaxonName < ApplicationRecord
   end
 
   def taxon_name_classifications_for_statuses
-    taxon_name_classifications.with_type_array(ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICNB_TAXON_NAME_CLASSIFICATION_NAMES)
+    taxon_name_classifications.with_type_array(ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICNB_TAXON_NAME_CLASSIFICATION_NAMES + ICTV_TAXON_NAME_CLASSIFICATION_NAMES)
   end
 
   # @return [Array of String]
@@ -537,13 +537,13 @@ class TaxonName < ApplicationRecord
   # @return [Boolean]
   #  true if this name has any classification asserting that it is valid
   def classification_valid?
-    taxon_name_classifications.with_type_array(TAXON_NAME_CLASS_NAMES_VALID).any? # !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
+    taxon_name_classifications.with_type_array(TAXON_NAME_CLASS_NAMES_VALID).any?
   end
 
   # @return [Boolean]
   #  whether this name has any classification asserting that this the name is NOT valid or that it is unavailable
   def classification_invalid_or_unavailable?
-    taxon_name_classifications.with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).any? # !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
+    taxon_name_classifications.with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).any?
   end
 
   #  @return [Boolean]
@@ -556,7 +556,6 @@ class TaxonName < ApplicationRecord
   # @return [True|False]
   #   true if this name has a TaxonNameClassification of Fossil
   def fossil?
-    # !TaxonNameClassification.where_taxon_name(self).with_type_contains('Fossil').empty? ? true : false
     taxon_name_classifications.with_type_contains('Fossil').any?
   end
 
@@ -564,7 +563,19 @@ class TaxonName < ApplicationRecord
   #   true if this name has a TaxonNameClassification of hybrid
   def hybrid?
     taxon_name_classifications.where_taxon_name(self).with_type_contains('Hybrid').any?
-    #   !TaxonNameClassification.where_taxon_name(self).with_type_contains('Hybrid').empty? ? true : false
+  end
+
+  # @return [True|False]
+  #   true if this name has a TaxonNameClassification of candidatus
+  def candidatus?
+    return false unless rank_string =~ /Icnb/
+    taxon_name_classifications.where_taxon_name(self).with_type_contains('Candidatus').any?
+  end
+
+  # @return [True|False]
+  #   true if this name has a TaxonNameClassification of not_binomial
+  def not_binomial?
+    taxon_name_classifications.where_taxon_name(self).with_type_contains('NonBinomial').any?
   end
 
   def is_genus_or_species_rank?
@@ -838,10 +849,11 @@ class TaxonName < ApplicationRecord
   def get_full_name
     return verbatim_name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string) && !verbatim_name.nil?
     return name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
+    return name if rank_class =~ /Ictv/
     return verbatim_name if !verbatim_name.nil? && type == 'Combination'
     d  = full_name_hash
     elements = []
-    elements.push(d['genus'])
+    elements.push(d['genus']) unless not_binomial?
     elements.push ['(', d['subgenus'], d['section'], d['subsection'], d['series'], d['subseries'], ')']
     elements.push ['(', d['superspecies'], ')']
     elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'])
@@ -854,9 +866,10 @@ class TaxonName < ApplicationRecord
   #  a monomial if names is above genus, or a full epithet if below, includes html
   def get_full_name_html
     return verbatim_name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string) && !verbatim_name.nil?
-    return fossil? ? '&#8224; ' + name : name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
+    return '&#8224; ' + name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string) && fossil?
     eo = '<i>'
     ec = '</i>'
+    return candidatus? ? '"' + eo + 'Candidatus' + ec + ' ' + name + '"' : name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
     return "#{eo}#{verbatim_name}#{ec}".gsub(' f. ', ec + ' f. ' + eo).gsub(' var. ', ec + ' var. ' + eo) if !verbatim_name.nil? && type == 'Combination'
     return fossil? ? "&#8224; #{eo}#{name}#{ec}" : "#{eo}#{name}#{ec}" if rank_string == 'NomenclaturalRank::Iczn::GenusGroup::Supergenus' || rank_string == 'NomenclaturalRank::Icnb::GenusGroup::Supergenus'
     d = full_name_hash
@@ -865,7 +878,7 @@ class TaxonName < ApplicationRecord
     d['genus'] = [nil, original_genus.name] if d['genus'].blank? && original_genus
     d['genus'] = [nil, '[GENUS UNKNOWN]'] if d['genus'].blank?
 
-    elements.push("#{eo}#{d['genus'][1]}#{ec}") if d['genus']
+    elements.push("#{eo}#{d['genus'][1]}#{ec}") if d['genus'] && rank_class !~ /Ictv/ && !not_binomial?
     elements.push ['(', %w{subgenus section subsection series subseries}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}"] : nil }, ')']
     elements.push ['(', %w{superspecies}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}"] : nil }, ')']
 
@@ -879,6 +892,7 @@ class TaxonName < ApplicationRecord
     # Proceps: Why would this be hit here?  It's not type Hybrid
     #
     html = hybrid? ? '&#215; ' + html : html
+    html = candidatus? ? '"' + eo + 'Candidatus' + ec + ' ' + html.gsub(eo, '').gsub(ec, '') + '"' : html
     html
   end
 
@@ -1190,7 +1204,8 @@ class TaxonName < ApplicationRecord
           (nomenclatural_code == :icnb && name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
           (nomenclatural_code == :icn && name =~  /^[a-zA-Z]*-[a-zA-Z]*$/) ||
           (nomenclatural_code == :icn && name =~  /^[a-zA-Z]*\s×\s[a-zA-Z]*$/) ||
-          (nomenclatural_code == :icn && name =~  /^×\s[a-zA-Z]*$/)
+          (nomenclatural_code == :icn && name =~  /^×\s[a-zA-Z]*$/) ||
+          (nomenclatural_code == :ictv)
         correct_name_format = true
       end
 
@@ -1202,8 +1217,9 @@ class TaxonName < ApplicationRecord
           TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling,
           TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling)
 
+        ictv_species = (nomenclatural_code == :ictv && self.rank_string =~ /Species/) ? true : nil
         misspellings     = misspellings & taxon_name_relationships.pluck(&:type_class) # self.taxon_name_relationships.collect { |c| c.type_class.to_s }
-        if invalid_statuses.empty? && misspellings.empty?
+        if invalid_statuses.empty? && misspellings.empty? && ictv_species.nil?
           soft_validations.add(:name, 'Name should not have spaces or special characters, unless it has a status of misspelling or original misspelling')
         end
       end

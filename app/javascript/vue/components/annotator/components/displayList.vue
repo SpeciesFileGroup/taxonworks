@@ -14,6 +14,9 @@
         <pdf-button
           v-if="pdf && item.hasOwnProperty('target_document')"
           :pdf="item.target_document"/>
+        <radial-annotator
+          v-if="annotator"
+          :global-id="item.global_id"/>
         <span
           v-if="edit"
           class="circle-button btn-edit"
@@ -30,9 +33,12 @@
 <script>
 
   import PdfButton from '../../pdfButton.vue'
+  import RadialAnnotator from '../annotator.vue'
+
   export default {
     components: {
-      PdfButton
+      PdfButton,
+      RadialAnnotator
     },
     props: {
       list: {
@@ -50,7 +56,14 @@
       pdf: {
         type: Boolean,
         default: false
+      },
+      annotator: {
+        type: Boolean,
+        default: false
       }
+    },
+    mounted() {
+      this.$options.components['RadialAnnotator'] = RadialAnnotator
     },
     methods: {
       displayName(item) {

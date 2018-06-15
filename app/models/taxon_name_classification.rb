@@ -47,6 +47,7 @@ class TaxonNameClassification < ApplicationRecord
   def nomenclature_code
     return :iczn if type.match(/::Iczn/)
     return :icnb if type.match(/::Icnb/)
+    return :ictv if type.match(/::Icnb/)
     return :icn if type.match(/::Icn/)
     return nil
   end
@@ -162,7 +163,7 @@ class TaxonNameClassification < ApplicationRecord
       TaxonName.transaction do
         t = taxon_name
 
-        if type_name =~ /Fossil|Hybrid/
+        if type_name =~ /(Fossil|Hybrid|Candidatus)/
           t.update_columns(
             cached: t.get_full_name,
             cached_html: t.get_full_name_html
