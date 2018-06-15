@@ -3,16 +3,102 @@ module Queries
     class Filter
 
       attr_accessor :limit_to_roles
+      attr_accessor :and_or
+      attr_accessor :options
 
       # @params params [ActionController::Parameters]
       def initialize(params)
         @limit_to_roles = params[:roles]
         params.delete(:roles)
+        @and_or               = 'or'
         @options              = {}
         @options[:last_name]  = params[:lastname]
         @options[:first_name] = params[:firstname]
         @options              = @options.select { |_kee, val| val.present? }
         @options
+      end
+
+      # @return [Arel::Table]
+      def roles_table
+        ::Role.arel_table
+      end
+
+      # @return [Arel::Table]
+      def people_table
+        ::Person.arel_table
+      end
+
+      def base_query
+        ::Person.select('people.*')
+      end
+
+      def role_match
+        case and_or
+          when 'or'
+            a = roles_table[:type].eq_any(limit_to_roles)
+          when 'and'
+            a = roles_table[:type].eq_all(limit_to_roles)
+        end
+        # a = a.and(roles_table[:project_id].eq(project_id)) if !project_id.blank?
+        a
+      end
+
+      # @return [Scope]
+      def last_exact_match
+        base_query.where(people_table[:last_name].eq(options[:last_name]).to_sql)
+      end
+
+      # @return [Scope]
+      def first_exact_match
+        base_query.where(people_table[:first_name].eq(options[:first_name]).to_sql)
+      end
+
+      # ported from Queries::Person::Autocomplete
+      # @return [Array]
+      def partial_complete
+        queries = [
+          last_exact_match,
+          first_exact_match,
+          # autocomplete_exact_inverted,
+          # autocomplete_ordered_wildcard_pieces_in_cached,
+          # autocomplete_cached_wildcard_anywhere, # in Queries::Query
+          first_last_cached
+        ]
+
+        queries.compact!
+
+        updated_queries = []
+        queries.each_with_index do |q, i|
+          a                  = q.joins(:roles).where(role_match.to_sql) if limit_to_roles.any?
+          a                  ||= q
+          updated_queries[i] = a
+        end
+
+        result = []
+        updated_queries.each do |q|
+          result += q.to_a
+          result.uniq!
+          break if result.count > 19
+        end
+        result # [0..19]
+      end
+
+      # @return [ActiveRecord::Relation, nil]
+      #   cached matches full query string wildcarded
+      def cached(terms)
+        if terms.empty?
+          nil
+        else
+          people_table[:cached].matches_any(terms)
+        end
+      end
+
+      # @return [ActiveRecord::Relation]
+      def first_last_cached
+        terms = [[options[:last_name], options[:first_name]].compact]
+        a = cached(terms)
+        return nil if a.nil?
+        base_query.where(a.to_sql)
       end
 
       # @return [ActiveRecord::Relation]
@@ -35,14 +121,14 @@ module Queries
         # else
         #   ::Person.none
         # end
-        ::Person.where(@options).with_role(limit_to_roles)
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::Person.arel_table
+        if limit_to_roles.any?
+          ::Person.where(options).with_role(limit_to_roles)
+        else
+          ::Person.where(options)
+        end
       end
     end
+
 # @param [ActionController::Parameters] params
 # @param [ApplicationRecord subclass] klass
 # @return [Arel::Nodes]
