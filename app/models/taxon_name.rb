@@ -575,7 +575,7 @@ class TaxonName < ApplicationRecord
   # @return [True|False]
   #   true if this name has a TaxonNameClassification of not_binomial
   def not_binomial?
-    taxon_name_classifications.where_taxon_name(self).with_type_contains('NotBinomial').any?
+    taxon_name_classifications.where_taxon_name(self).with_type_contains('NonBinomial').any?
   end
 
   def is_genus_or_species_rank?
@@ -853,7 +853,7 @@ class TaxonName < ApplicationRecord
     return verbatim_name if !verbatim_name.nil? && type == 'Combination'
     d  = full_name_hash
     elements = []
-    elements.push(d['genus'])
+    elements.push(d['genus']) unless not_binomial?
     elements.push ['(', d['subgenus'], d['section'], d['subsection'], d['series'], d['subseries'], ')']
     elements.push ['(', d['superspecies'], ')']
     elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'])
@@ -878,7 +878,7 @@ class TaxonName < ApplicationRecord
     d['genus'] = [nil, original_genus.name] if d['genus'].blank? && original_genus
     d['genus'] = [nil, '[GENUS UNKNOWN]'] if d['genus'].blank?
 
-    elements.push("#{eo}#{d['genus'][1]}#{ec}") if d['genus'] unless rank_class =~ /Ictv/
+    elements.push("#{eo}#{d['genus'][1]}#{ec}") if d['genus'] && rank_class !~ /Ictv/ && !not_binomial?
     elements.push ['(', %w{subgenus section subsection series subseries}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}"] : nil }, ')']
     elements.push ['(', %w{superspecies}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}"] : nil }, ')']
 
