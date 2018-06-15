@@ -9,6 +9,7 @@ module Queries
       # @params params [ActionController::Parameters]
       def initialize(params)
         @limit_to_roles = params[:roles]
+        @limit_to_roles = [] if @limit_to_roles.nil?
         params.delete(:roles)
         @and_or               = 'or'
         @options              = {}
@@ -45,12 +46,22 @@ module Queries
 
       # @return [Scope]
       def last_exact_match
-        base_query.where(people_table[:last_name].eq(options[:last_name]).to_sql)
+        term = options[:last_name]
+        if term.nil?
+          nil
+        else
+          base_query.where(people_table[:last_name].eq(term).to_sql)
+        end
       end
 
       # @return [Scope]
       def first_exact_match
-        base_query.where(people_table[:first_name].eq(options[:first_name]).to_sql)
+        term = options[:first_name]
+        if term.nil?
+          nil
+        else
+          base_query.where(people_table[:first_name].eq(term).to_sql)
+        end
       end
 
       # ported from Queries::Person::Autocomplete
@@ -89,14 +100,15 @@ module Queries
         if terms.empty?
           nil
         else
-          people_table[:cached].matches_any(terms)
+          terms = terms.map { |s| [s + '%', '%' + s + '%'] }
+          people_table[:cached].matches_any(terms.flatten)
         end
       end
 
       # @return [ActiveRecord::Relation]
       def first_last_cached
-        terms = [[options[:last_name], options[:first_name]].compact]
-        a = cached(terms)
+        terms = [options[:last_name], options[:first_name]].compact
+        a     = cached(terms)
         return nil if a.nil?
         base_query.where(a.to_sql)
       end
