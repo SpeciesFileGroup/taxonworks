@@ -5,7 +5,7 @@
           v-for="(person, index) in matchPeople">
         <input
             type="checkbox"
-            @click="selectName(person)">
+            @click="selectPerson(person)">
           {{ person.cached }}
       </li>
     </ul>
