@@ -51,9 +51,9 @@
       },
       getMatchPeople(person) {
         let params = {
-          lastname: person.lastName,
-          firstname: person.firstName,
-          roles: ['Author']};
+          lastname: person.last_name,
+          firstname: person.first_name,
+          roles: []};
 
           this.$http.get('/people.json', {params: params} ).then(response => {
           this.matchPeople = response.body;
