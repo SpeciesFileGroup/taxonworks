@@ -64,6 +64,32 @@ module Queries
         end
       end
 
+      def wildcard_complete
+        grp = star_like(options[:last_name])
+        grp << star_like(options[:first_name])
+
+        grp = grp.flatten.collect { |piece| '%' + piece + '%' }
+
+        queries = []
+
+        grp.each_with_index { |q, i|
+          if limit_to_roles.any?
+            a = base_query.where(people_table[:cached].matchs(q)).joins(:roles).where(role_match.to_sql)
+          end
+          a ||= base_query.where(people_table[:cached].matchs(q))
+          queries << a
+        }
+
+      end
+
+      def star_like(term)
+        return [term] unless term.index('*')
+
+        pieces = term.split('*')
+        pieces.delete_if { |str| str.empty? }
+
+      end
+
       # ported from Queries::Person::Autocomplete
       # @return [Array]
       def partial_complete
@@ -94,6 +120,7 @@ module Queries
         result # [0..19]
       end
 
+      # @param [Array] terms contains Strings
       # @return [ActiveRecord::Relation, nil]
       #   cached matches full query string wildcarded
       def cached(terms)
