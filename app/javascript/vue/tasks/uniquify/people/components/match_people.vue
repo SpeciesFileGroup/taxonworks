@@ -3,10 +3,14 @@
     <ul class="no_bullets">
       <li
           v-for="(person, index) in matchPeople">
+        <label>
         <input
-            type="checkbox"
-            @click="selectPerson(person)">
+            name="match-people"
+            type="radio"
+            :selected="person.id == value"
+            @click="selectMergePerson(person)">
           {{ person.cached }}
+        </label>
       </li>
     </ul>
   </div>
@@ -28,26 +32,31 @@
     },
     watch: {
       selectedPerson(newVal) {
-        this.selectedPeople = [];
-        this.matchPeople = [];
+        // this.selectedPeople = {};
+        // this.matchPeople = [];
         this.getMatchPeople(newVal)
       }
     },
     data() {
       return {
+        // selectedPeople: {},
         matchPeople: [],
-        selectedPeople: []
+        mergePerson: {}
       }
     },
     methods: {
-      selectPerson(person) {
-        if (this.selectedPeople.hasOwnProperty(person.id)) {
-          this.$delete(this.selectedPeople, person.id)
-        }
-        else {
-          this.$set(this.selectedPeople, person.id, person);
-        }
-        this.$emit('input', this.selectedPeople);
+      // selectPerson(person) {
+      //   if (this.selectedPeople.hasOwnProperty(person.id)) {
+      //     this.$delete(this.selectedPeople, person.id)
+      //   }
+      //   else {
+      //     this.$set(this.selectedPeople, person.id, person);
+      //   }
+      //   this.$emit('input', this.selectedPeople);
+      // },
+      selectMergePerson(person) {
+        this.mergePerson = [person];
+        this.$emit('input', this.mergePerson)
       },
       getMatchPeople(person) {
         let params = {

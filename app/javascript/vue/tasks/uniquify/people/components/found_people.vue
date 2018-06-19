@@ -36,7 +36,7 @@
     },
     methods: {
       selectPerson(person) {
-        this.selectedPerson = person
+        this.selectedPerson = person;
         this.$emit('input', person)
       }
     }

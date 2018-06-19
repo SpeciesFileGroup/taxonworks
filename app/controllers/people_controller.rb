@@ -17,7 +17,14 @@ class PeopleController < ApplicationController
         first_name = params[:firstname]
         # @people = Person.where(last_name: last_name, first_name: first_name).with_role(params[:roles])
         @people = Queries::Person::Filter.new(params).partial_complete
-        render json: @people
+        stuff =[]
+        @people.each {|person|
+          one = person.attributes
+          one[:roles] = person.roles
+          one[:annotations] = person.annotations
+          stuff << one
+        }
+        render json: stuff
       }
     end
   end

@@ -50,11 +50,19 @@
               :selected-person="selectedPerson"
           />
         </div>
+        <div class="merge_person">
+          <h2>Merge Person</h2>
+          <merge-person
+              :merge-person="mergePerson"
+          />
+        </div>
         <div class="match_people separate-right separate-left">
           <h2>Match people</h2>
           <match-people
               v-model="matchPeople"
-              :selected-person="selectedPerson"/>
+              :selected-person="selectedPerson"
+              @merge-person="mergePerson = $event"
+          />
         </div>
         <button
             class="button normal-input button-default"
@@ -79,6 +87,7 @@
   import FoundPeople from './components/found_people'
   import SelectedPerson from'./components/selected_person'
   import MatchPeople from './components/match_people'
+  import MergePerson from './components/merge_person'
 
   import Spinner from '../../../components/spinner.vue'
 
@@ -90,6 +99,7 @@
       FoundPeople,
       SelectedPerson,
       MatchPeople,
+      MergePerson,
       Spinner
     },
     computed: {
@@ -108,11 +118,11 @@
         foundPeople: [],
         selectedPerson: {},
         matchPeople: [],
-        mergedPeople: [],
-        request: {
-          url: '',
-          total: 0
-        },
+        mergePerson: {},
+        // request: {
+        //   url: '',
+        //   total: 0
+        // },
       }
     },
     methods: {
@@ -123,7 +133,7 @@
           lastname: this.lastName,
           firstname: this.firstName,
           roles: Object.keys(this.selectedRoles)
-        }
+        };
         this.$http.get('/people.json', {params: params} ).then(response => {
           this.foundPeople = response.body;
           console.log(this.foundPeople);
