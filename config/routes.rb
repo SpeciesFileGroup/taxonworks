@@ -449,6 +449,7 @@ TaxonWorks::Application.routes.draw do
     member do
       get :roles
       get :details
+      post :merge, defaults: {format: :json}
     end
   end
 
