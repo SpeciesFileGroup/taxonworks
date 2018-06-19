@@ -407,11 +407,11 @@ namespace :tw do
             'habitat' => Predicate.find_or_create_by(name: 'phy_habitat_1', definition: 'habitat_1 (value from Phytoplasma database)'),
             'tested' => Predicate.find_or_create_by(name: 'phy_tested', definition: 'tested (value from Phytoplasma database)'),
             'rear_record' => Predicate.find_or_create_by(name: 'phy_rear_record', definition: 'rear_record (value from Phytoplasma database)'),
-            'test_infection_positive' => Keyword.find_or_create_by(name: 'test_infection_positive', definition: 'test_infection: positive (from Phytoplasma database).', project_id: $project_id),
-            'test_infection_negative' => Keyword.find_or_create_by(name: 'test_infection_negative', definition: 'test_infection: negative (from Phytoplasma database).', project_id: $project_id),
-            'test_infection_suspected' => Keyword.find_or_create_by(name: 'test_infection_suspected', definition: 'test_infection: suspected (from Phytoplasma database).', project_id: $project_id),
-            'inoculation_trial_positive' => Keyword.find_or_create_by(name: 'inoculation_trial_positive', definition: 'inoculation_trial: positive (from Phytoplasma database).', project_id: $project_id),
-            'inoculation_trial_negative' => Keyword.find_or_create_by(name: 'inoculation_trial_negative', definition: 'inoculation_trial: negative (from Phytoplasma database).', project_id: $project_id),
+            'test_infection_positive' => Keyword.find_or_create_by(name: 'test_infection: positive', definition: 'test_infection: positive (from Phytoplasma database).', project_id: $project_id),
+            'test_infection_negative' => Keyword.find_or_create_by(name: 'test_infection: negative', definition: 'test_infection: negative (from Phytoplasma database).', project_id: $project_id),
+            'test_infection_suspected' => Keyword.find_or_create_by(name: 'test_infection: suspected', definition: 'test_infection: suspected (from Phytoplasma database).', project_id: $project_id),
+            'inoculation_trial_positive' => Keyword.find_or_create_by(name: 'inoculation_trial: positive', definition: 'inoculation_trial: positive (from Phytoplasma database).', project_id: $project_id),
+            'inoculation_trial_negative' => Keyword.find_or_create_by(name: 'inoculation_trial: negative', definition: 'inoculation_trial: negative (from Phytoplasma database).', project_id: $project_id),
 
 
 
@@ -1662,8 +1662,8 @@ namespace :tw do
 #                end
                 unless host.blank?
                   BiologicalAssociation.create(biological_relationship: @host_plant_relationship,
-                                               biological_association_subject: host,
-                                               biological_association_object: specimen
+                                               biological_association_subject: specimen,
+                                               biological_association_object: host
                   )
                 end
 
