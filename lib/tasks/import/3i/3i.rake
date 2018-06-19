@@ -270,40 +270,40 @@ namespace :tw do
         puts @args
         Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/**/*.txt"])
 
-#        handle_projects_and_users_3i
-        $project_id = 1
-        $user_id = 1
+        handle_projects_and_users_3i
+#        $project_id = 1
+#        $user_id = 1
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 #        @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id) if @root.blank?
 
         handle_controlled_vocabulary_3i
         handle_transl_3i
-#        handle_litauthors_3i
-#        handle_references_3i
-#        handle_taxonomy_3i
-#        handle_taxon_name_relationships_3i
-#        handle_citation_topics_3i
-#        handle_host_plant_name_dictionary_3i
-#        handle_host_plants_3i
-#        handle_distribution_3i
-#        handle_parasitoids_3i
-#        handle_localities_3i
+        handle_litauthors_3i
+        handle_references_3i
+        handle_taxonomy_3i
+        handle_taxon_name_relationships_3i
+        handle_citation_topics_3i
+        handle_host_plant_name_dictionary_3i
+        handle_host_plants_3i
+        handle_distribution_3i
+        handle_parasitoids_3i
+        handle_localities_3i
 
-#        handle_characters_3i
-#        handle_state_3i
-#        handle_chartable_3i
-#        handle_content_types_3i
-#        handle_contents_3i
+        handle_characters_3i
+        handle_state_3i
+        handle_chartable_3i
+        handle_content_types_3i
+        handle_contents_3i
         handle_trivellone_references_3i
         handle_trivellone_unique_species_3i
-#        handle_trivellone_phytoplasma_group_3i
-#        handle_trivellone_phytoplasma_taxonomy_3i
-#        handle_trivellone_phytoplasma_otu_3i
+        handle_trivellone_phytoplasma_group_3i
+        handle_trivellone_phytoplasma_taxonomy_3i
+        handle_trivellone_phytoplasma_otu_3i
         handle_trivellone_insect_phytoplasma_3i
-#        handle_trivellone_plant_phytoplasma_3i
+        handle_trivellone_plant_phytoplasma_3i
 
-#        soft_validations_3i
-#        index_collecting_events_from_accessions_new_3i
+        soft_validations_3i
+        index_collecting_events_from_accessions_new_3i
         print "\n\n !! Success. End time: #{Time.now} \n\n"
       end
 
