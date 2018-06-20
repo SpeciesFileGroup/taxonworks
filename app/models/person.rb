@@ -166,6 +166,27 @@ class Person < ApplicationRecord
   end
 
   # @return [Boolean]
+  #   true if all records updated, false if any one failed (all or none)
+  def merge_with(person_id)
+    if new_person = Person.find(person_id)
+      begin
+        ApplicationRecord.transaction do 
+          Role.where(person_id: id).update(person: new_person)
+          annotations_hash.each do |type, objects|
+            objects.each do |o|
+              o.annotation_object = new_person
+              o.save!
+            end
+          end  
+        end
+      rescue ActiveRecord::RecordInvalid
+        return false
+      end
+    end
+    true
+  end
+
+  # @return [Boolean]
   def is_determiner?
     determiner_roles.to_a.length > 0
   end

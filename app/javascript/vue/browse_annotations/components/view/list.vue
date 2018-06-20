@@ -75,7 +75,7 @@ export default {
       return list
     },
     removeItem(item) {
-      this.$http.delete(`${item.annotated_object.object_url}.json`).then(response => {
+      this.$http.delete(`${item.object_url}.json`).then(response => {
         let index = this.listWithCreators.findIndex(obj => {
           return (obj.id == item.id && obj.type == item.type)
         })
