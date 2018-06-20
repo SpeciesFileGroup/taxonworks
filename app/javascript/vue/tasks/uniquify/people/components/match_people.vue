@@ -22,7 +22,7 @@
   export default {
     props: {
       value: {
-        type: Array,
+        type: Object,
         required: true
       },
       selectedPerson: {

@@ -32,7 +32,7 @@
         <button
             class="button normal-input button-default"
             @click="findPerson"
-            :disabled="!submitAvailable"
+            :disabled="!enableFindPerson"
             type="submit">Find Person
         </button>
       </div>
@@ -57,7 +57,7 @@
           />
         </div>
         <div class="match_people separate-right separate-left">
-          <h2>Match people</h2>
+          <h2>Match People</h2>
           <match-people
               v-model="mergePerson"
               :selected-person="selectedPerson"
@@ -66,7 +66,7 @@
         <button
             class="button normal-input button-default"
             @click="mergePeople"
-            :disabled="submitAvailable"
+            :disabled="enableMerge"
             type="submit">Merge People
         </button>
       </div>
@@ -102,9 +102,13 @@
       Spinner
     },
     computed: {
-      submitAvailable() {
+      enableFindPerson() {
         return ((this.lastName.length > 0) || (this.firstName.length > 0))
+      },
+      enableMerge() {
+        return ((this.mergePerson) && (this.selectedPerson))
       }
+      
     },
     data() {
       return {
