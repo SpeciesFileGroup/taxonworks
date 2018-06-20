@@ -22,7 +22,7 @@
   export default {
     props: {
       value: {
-        type: Array,
+        type: Object,
         required: true
       },
       selectedPerson: {
@@ -34,6 +34,7 @@
       selectedPerson(newVal) {
         // this.selectedPeople = {};
         // this.matchPeople = [];
+        console.log("asdfasfas")
         this.getMatchPeople(newVal)
       }
     },
