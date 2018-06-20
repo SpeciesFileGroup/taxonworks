@@ -14,59 +14,63 @@
         legend="Loading..."
         :logo-size="{ width: '100px', height: '100px'}"/>
     <div class="flexbox">
-      <div>
-        <div class="last_name separate-right">
-          <h2>Last Name</h2>
-          <last-name v-model="lastName"/>
+      <div class="flexbox">
+        <div style="width: 200px">
+          <div class="last_name separate-right">
+            <h2>Last Name</h2>
+            <last-name v-model="lastName"/>
+          </div>
+          <div class="first_name separate-right separate-left">
+            <h2>First Name</h2>
+            <first-name
+                v-model="firstName"/>
+          </div>
+          <div class="role_types separate-right separate-left">
+            <h2>Roles</h2>
+            <role-types
+                v-model="selectedRoles"/>
+          </div>
+          <button
+              class="button normal-input button-default"
+              @click="findPerson"
+              :disabled="!enableFindPerson"
+              type="submit">Find Person
+          </button>
         </div>
-        <div class="first_name separate-right separate-left">
-          <h2>First Name</h2>
-          <first-name
-              v-model="firstName"/>
+        <div class="found_people separate-right separate-left" style="width: 200px">
+          <h2>Select person</h2>
+          <found-people
+              v-model="selectedPerson"
+              :found-people="foundPeople"
+          />
         </div>
-        <div class="role_types separate-right separate-left">
-          <h2>Roles</h2>
-          <role-types
-              v-model="selectedRoles"/>
+        <div class="match_people separate-right separate-left" style="width: 200px">
+          <h2>Match People</h2>
+          <match-people
+              v-model="mergePerson"
+              :selected-person="selectedPerson"
+          />
+        </div>
+      </div>
+      <div class="flex-separate middle">
+        <div class="selected_person separate-right separate-left" style="overflow: auto; width:300px; height:600px;">
+          <h2>Selected Person</h2>
+          <selected-person
+              :selected-person="selectedPerson"
+          />
+        </div>
+        <div class="merge_person separate-right separate-left" style="overflow: auto; width:300px; height:600px;">
+          <h2>Merge Person</h2>
+          <merge-person
+              :merge-person="mergePerson"
+          />
         </div>
         <button
             class="button normal-input button-default"
-            @click="findPerson"
-            :disabled="!enableFindPerson"
-            type="submit">Find Person
+            @click="mergePeople"
+            :disabled="!enableMerge"
+            type="submit">Merge People
         </button>
-      </div>
-      <div class="found_people separate-right separate-left">
-        <h2>Select person</h2>
-        <found-people
-            v-model="selectedPerson"
-            :found-people="foundPeople"
-        />
-      </div>
-      <div class="selected_person">
-        <h2>Selected Person</h2>
-        <selected-person
-            :selected-person="selectedPerson"
-        />
-      </div>
-      <div class="merge_person">
-        <h2>Merge Person</h2>
-        <merge-person
-            :merge-person="mergePerson"
-        />
-      </div>
-      <button
-          class="button normal-input button-default"
-          @click="mergePeople"
-          :disabled="!enableMerge"
-          type="submit">Merge People
-      </button>
-      <div class="match_people separate-right separate-left">
-        <h2>Match People</h2>
-        <match-people
-            v-model="mergePerson"
-            :selected-person="selectedPerson"
-        />
       </div>
     </div>
     <!--<request-bar-->
