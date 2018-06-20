@@ -278,15 +278,12 @@ namespace :tw do
 
         handle_controlled_vocabulary_3i
         handle_transl_3i
-#=begin
         handle_litauthors_3i
         handle_references_3i
         handle_taxonomy_3i
         handle_taxon_name_relationships_3i
         handle_citation_topics_3i
-#end
         handle_host_plant_name_dictionary_3i
-#=begin
         handle_host_plants_3i
         handle_distribution_3i
         handle_parasitoids_3i
@@ -297,7 +294,6 @@ namespace :tw do
         handle_chartable_3i
         handle_content_types_3i
         handle_contents_3i
-#end
         handle_trivellone_references_3i
         handle_trivellone_unique_species_3i
         handle_trivellone_phytoplasma_group_3i
@@ -308,7 +304,6 @@ namespace :tw do
 
         soft_validations_3i
         index_collecting_events_from_accessions_new_3i
-
         print "\n\n !! Success. End time: #{Time.now} \n\n"
       end
 
@@ -399,7 +394,6 @@ namespace :tw do
 
             'FK_idTW' => Predicate.find_or_create_by(name: 'FK_idTW', definition: 'FK_idTW (value from Phytoplasma database)'),
             'FK_idTW_g' => Predicate.find_or_create_by(name: 'geographic_area', definition: 'geographic_area (value from Phytoplasma database)'),
-            'status' => Predicate.find_or_create_by(name: 'phy_status', definition: 'Status (value from Phytoplasma database)'),
             'habitat 1' => Predicate.find_or_create_by(name: 'phy_habitat_1', definition: 'habitat_1 (value from Phytoplasma database)'),
             'habitat 2' => Predicate.find_or_create_by(name: 'phy_habitat_2', definition: 'habitat_2 (value from Phytoplasma database)'),
             'test_infection' => Predicate.find_or_create_by(name: 'phy_test_infection', definition: 'test_infection (value from Phytoplasma database)'),
@@ -413,6 +407,14 @@ namespace :tw do
             'habitat' => Predicate.find_or_create_by(name: 'phy_habitat_1', definition: 'habitat_1 (value from Phytoplasma database)'),
             'tested' => Predicate.find_or_create_by(name: 'phy_tested', definition: 'tested (value from Phytoplasma database)'),
             'rear_record' => Predicate.find_or_create_by(name: 'phy_rear_record', definition: 'rear_record (value from Phytoplasma database)'),
+            'test_infection_positive' => Keyword.find_or_create_by(name: 'test_infection: positive', definition: 'test_infection: positive (from Phytoplasma database).', project_id: $project_id),
+            'test_infection_negative' => Keyword.find_or_create_by(name: 'test_infection: negative', definition: 'test_infection: negative (from Phytoplasma database).', project_id: $project_id),
+            'test_infection_suspected' => Keyword.find_or_create_by(name: 'test_infection: suspected', definition: 'test_infection: suspected (from Phytoplasma database).', project_id: $project_id),
+            'inoculation_trial_positive' => Keyword.find_or_create_by(name: 'inoculation_trial: positive', definition: 'inoculation_trial: positive (from Phytoplasma database).', project_id: $project_id),
+            'inoculation_trial_negative' => Keyword.find_or_create_by(name: 'inoculation_trial: negative', definition: 'inoculation_trial: negative (from Phytoplasma database).', project_id: $project_id),
+
+
+
 
             'Taxonomy' => Keyword.find_or_create_by(name: 'Taxonomy updated', definition: 'Taxonomical information entered to the DB.', project_id: $project_id),
             'Typhlocybinae' => Keyword.find_or_create_by(name: 'Typhlocybinae updated', definition: 'Information related to Typhlocybinae entered to the DB.', project_id: $project_id),
@@ -464,41 +466,41 @@ namespace :tw do
             'Parasitoids' => Topic.find_or_create_by(name: 'parasitoids', definition: 'Source has parasitoid records.', project_id: $project_id),
             )
 
-        @host_plant_relationship = BiologicalRelationship.where(name: 'Host plant', project_id: $project_id).first
+        @host_plant_relationship = BiologicalRelationship.where(name: 'feeds on', project_id: $project_id).first
         if @host_plant_relationship.nil?
-          @host_plant_relationship = BiologicalRelationship.create(name: 'Host plant')
-          a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['Herbivor'], biological_relationship: @host_plant_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
-          a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['Host'], biological_relationship: @host_plant_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+          @host_plant_relationship = BiologicalRelationship.create(name: 'feeds on', inverted_name: 'is host for')
+          a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['sap-feeding insect'], biological_relationship: @host_plant_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+          a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['host'], biological_relationship: @host_plant_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
         end
-        @parasitoid_relationship = BiologicalRelationship.where(name: 'Parasitism', project_id: $project_id).first
+        @parasitoid_relationship = BiologicalRelationship.where(name: 'is parasitized by', project_id: $project_id).first
         if @parasitoid_relationship.nil?
-          @parasitoid_relationship = BiologicalRelationship.create(name: 'Parasitism')
-          a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['Host'], biological_relationship: @parasitoid_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
-          a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['Parasitoid'], biological_relationship: @parasitoid_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+          @parasitoid_relationship = BiologicalRelationship.create(name: 'is parasitized by', inverted_name: 'is parasitoid of')
+          a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['host'], biological_relationship: @parasitoid_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+          a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['parasitoid'], biological_relationship: @parasitoid_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
         end
-        @attendance_relationship = BiologicalRelationship.where(name: 'Attendance', project_id: $project_id).first
+        @attendance_relationship = BiologicalRelationship.where(name: 'is visitor of', project_id: $project_id).first
         if @attendance_relationship.nil?
-          @attendance_relationship = BiologicalRelationship.create(name: 'Attendance')
-          a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['Attendant'], biological_relationship: @attendance_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
-          a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['Host'], biological_relationship: @attendance_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+          @attendance_relationship = BiologicalRelationship.create(name: 'is visitor of', inverted_name: 'is visited by')
+          a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['visitor'], biological_relationship: @attendance_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+          a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['host'], biological_relationship: @attendance_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
         end
-        @mutualism_relationship = BiologicalRelationship.where(name: 'Mutualism', project_id: $project_id).first
+        @mutualism_relationship = BiologicalRelationship.where(name: 'is mutualistically associated with', project_id: $project_id).first
         if @mutualism_relationship.nil?
-          @mutualism_relationship = BiologicalRelationship.create(name: 'Mutualism')
-          a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['Symbiont'], biological_relationship: @mutualism_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
-          a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['Host'], biological_relationship: @mutualism_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+          @mutualism_relationship = BiologicalRelationship.create(name: 'is mutualistically associated with', inverted_name: 'is endosymbiont of')
+          a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['host'], biological_relationship: @mutualism_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+          a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['endosymbiont'], biological_relationship: @mutualism_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
         end
-        @insect_phytoplasma_relationship = BiologicalRelationship.where(name: 'Insect pathogen', project_id: $project_id).first
+        @insect_phytoplasma_relationship = BiologicalRelationship.where(name: 'is vector of', project_id: $project_id).first
         if @insect_phytoplasma_relationship.nil?
-          @insect_phytoplasma_relationship = BiologicalRelationship.create(name: 'Insect pathogen')
-          a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['Host'], biological_relationship: @mutualism_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
-          a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['Pathogen'], biological_relationship: @mutualism_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+          @insect_phytoplasma_relationship = BiologicalRelationship.create(name: 'is vector of', inverted_name: 'is vectored by')
+          a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['vector'], biological_relationship: @mutualism_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+          a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['pathogen'], biological_relationship: @mutualism_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
         end
-        @plant_phytoplasma_relationship = BiologicalRelationship.where(name: 'Plant pathogen', project_id: $project_id).first
+        @plant_phytoplasma_relationship = BiologicalRelationship.where(name: 'is infected with', project_id: $project_id).first
         if @plant_phytoplasma_relationship.nil?
-          @plant_phytoplasma_relationship = BiologicalRelationship.create(name: 'Plant pathogen')
-          a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['Host'], biological_relationship: @mutualism_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
-          a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['Pathogen'], biological_relationship: @mutualism_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+          @plant_phytoplasma_relationship = BiologicalRelationship.create(name: 'is infected with', inverted_name: 'is pathogen of')
+          a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['host'], biological_relationship: @mutualism_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+          a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['pathogen'], biological_relationship: @mutualism_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
         end
       end
 
@@ -1443,13 +1445,15 @@ namespace :tw do
           print "\r#{i}"
 
           p = find_taxon_3i(row['Key'])
+          o = find_otu_3i(row['Key'])
           if p.nil?
             print "\nProblematic Key: #{row['Key']}\n"
           else
             source = find_publication_id_3i(row['Key3'])
 
             byebug if p.nil?
-            c = p.citations.find_or_create_by!(source_id: source, project_id: $project_id)
+            c = o.citations.find_or_create_by!(source_id: source, project_id: $project_id)
+            #c = p.citations.find_or_create_by!(source_id: source, project_id: $project_id)
 
             if row['Descriptions'] == '1' && row['Types'] == '1'
               c.citation_topics.find_or_create_by(topic: @data.topics['Types'], project_id: $project_id)
@@ -1658,8 +1662,8 @@ namespace :tw do
 #                end
                 unless host.blank?
                   BiologicalAssociation.create(biological_relationship: @host_plant_relationship,
-                                               biological_association_subject: host,
-                                               biological_association_object: specimen
+                                               biological_association_subject: specimen,
+                                               biological_association_object: host
                   )
                 end
 
@@ -2174,7 +2178,7 @@ namespace :tw do
           if @data.chars[row['Key1'].to_s][1] == '1'
             @data.states[row['Key2'].to_s] = [nil, @data.chars[row['Key1'].to_s][0], row['StateEn']]
           else
-            cs = CharacterState.create(name: row['StateEn'], label: row['StateEn'], descriptor_id: @data.chars[row['Key1']][0], position: row['State'].to_i + 1)
+            cs = CharacterState.create(name: row['StateEn'], label: row['State'], descriptor_id: @data.chars[row['Key1']][0], position: row['State'].to_i + 1)
             cs.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['Key2'], identifier: row['Key2']) unless row['Key2'].blank?
             a = AlternateValue.create(type: 'AlternateValue::Translation', value: row['StateRu'], alternate_value_object: cs, alternate_value_object_attribute: 'name', language_id: lngru) unless row['StateRu'].nil?
             a = AlternateValue.create(type: 'AlternateValue::Translation', value: row['StateSp'], alternate_value_object: cs, alternate_value_object_attribute: 'name', language_id: lngsp) unless row['StateSp'].nil?
@@ -2381,7 +2385,7 @@ namespace :tw do
           end
 
           name = @data.t_phyto_group[row['FK_Phy']][0] + @data.t_phyto_group[row['FK_Phy']][1]
-          name = name + ' - ' + row['Reference_strain'] unless row['Reference_strain'].blank?
+          # name = name + ' - ' + row['Reference_strain'] unless row['Reference_strain'].blank?
           otu = Otu.find_or_create_by!(name: name, taxon_name: taxon)
           source_id = find_t_publication_id_3i(row['FK_reference'])
           otu.citations.find_or_create_by!(source_id: source_id, project_id: $project_id)
@@ -2439,20 +2443,26 @@ namespace :tw do
         # note
 
         # FK_idTW
-        # status
+        # status  -- Confidence
         # habitat 1
         # habitat 2
         # test_infection
-        # positive
+        # positive - Tag
         # tested
-        # inoculation_trial
+        # inoculation_trial - Tag
         # Acquisition
         # inoculated_plant
         # total_plant_positive
         # total_plant_tested
         # year_testing
 
-        da = ['FK_idTW', 'status', 'habitat 1', 'habitat 2', 'test_infection', 'positive', 'tested', 'inoculation_trial', 'Acquisition', 'inoculated_plant', 'total_plant_positive', 'total_plant_tested', 'year_testing'].freeze
+        da = ['FK_idTW', 'habitat 1', 'habitat 2', 'test_infection', 'positive', 'tested', 'inoculation_trial', 'Acquisition', 'inoculated_plant', 'total_plant_positive', 'total_plant_tested', 'year_testing'].freeze
+
+        confidence = {
+        'negative' => ConfidenceLevel.find_or_create_by(name: 'Negative', definition: 'Vector status is negative', project_id: $project_id).id,
+        'potential' => ConfidenceLevel.find_or_create_by(name: 'Potential', definition: 'Vector status is potential', project_id: $project_id).id,
+        'competent' => ConfidenceLevel.find_or_create_by(name: 'Competent', definition: 'Vector status is competent', project_id: $project_id).id}.freeze
+
 
         path = @args[:data_directory] + 'trivellone_insect_phytoplasma.txt'
         print "\ntrivellone_insect_phytoplasma\n"
@@ -2478,6 +2488,23 @@ namespace :tw do
             da.each do |ia|
               c.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords[ia], value: row[ia]) unless row[ia].blank?
             end
+
+            c.tags.create(keyword: @data.keywords['test_infection_positive']) if row['test_infection'] == 'positive'
+            c.tags.create(keyword: @data.keywords['test_infection_negative']) if row['test_infection'] == 'negative'
+            c.tags.create(keyword: @data.keywords['test_infection_suspected']) if row['test_infection'] == 'suspected'
+            c.tags.create(keyword: @data.keywords['inoculation_trial_positive']) if row['inoculation_trial'] == 'positive'
+            c.tags.create(keyword: @data.keywords['inoculation_trial_negative']) if row['inoculation_trial'] == 'negative'
+            unless row['status'].blank?
+              c.confidences.create(position: 1, confidence_level_id: confidence[row['status']])
+              ba_conf = ba.confidences.first
+              if ba_conf.nil?
+                ba.confidences.create(position: 1, confidence_level_id: confidence[row['status']])
+              elsif confidence[row['status']] > ba_conf.confidence_level_id
+                ba_conf.confidence_level_id = confidence[row['status']]
+                ba_conf.save
+              end
+            end
+
             g = nil
             g = GeographicArea.find(row['FK_idTW'])
             c.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords['FK_idTW_g'], value: g.name) unless g.nil?
@@ -2528,6 +2555,10 @@ namespace :tw do
             da.each do |ia|
               c.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords[ia], value: row[ia]) unless row[ia].blank?
             end
+            c.tags.create(keyword: @data.keywords['test_infection_positive']) if row['test_infection'] == 'positive'
+            c.tags.create(keyword: @data.keywords['test_infection_negative']) if row['test_infection'] == 'negative'
+            c.tags.create(keyword: @data.keywords['test_infection_suspected']) if row['test_infection'] == 'suspected'
+
             g = nil
             g = GeographicArea.find(row['FK_idTW'])
             c.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords['FK_idTW_g'], value: g.name) unless g.nil?
