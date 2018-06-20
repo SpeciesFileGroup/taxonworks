@@ -59,9 +59,8 @@
         <div class="match_people separate-right separate-left">
           <h2>Match people</h2>
           <match-people
-              v-model="matchPeople"
+              v-model="mergePerson"
               :selected-person="selectedPerson"
-              @merge-person="mergePerson = $event"
           />
         </div>
         <button

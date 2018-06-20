@@ -57,6 +57,7 @@
       selectMergePerson(person) {
         this.mergePerson = [person];
         this.$emit('input', this.mergePerson)
+        console.log(this.mergePerson);
       },
       getMatchPeople(person) {
         let params = {
