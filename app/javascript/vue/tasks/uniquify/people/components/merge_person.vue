@@ -1,6 +1,6 @@
 <template>
   <div>
-    <span>{{ mergePerson }}</span>
+    <pre>{{ mergePerson }}</pre>
   </div>
 </template>
 <script>
@@ -9,19 +9,12 @@
     props: {
       mergePerson: {
         type: Object,
-        default: function() {return {}}
+        default: function () {
+          return {}
+        }
         // required: true
       },
-      // value: {
-      //   type: Array,
-      //   default: []
-      // }
     },
-    // watch: {
-    //   mergePerson(newVal) {
-    //     mergePerson = newVal
-    //   }
-    // },
     data() {
       return {
         thisPerson: {}    // totally a dummy entry

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <span>{{ selectedPerson }}</span>
+    <pre>{{ selectedPerson }}</pre>
   </div>
 </template>
 <script>

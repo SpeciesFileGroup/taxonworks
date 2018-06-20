@@ -43,19 +43,11 @@
       }
     },
     methods: {
-      // selectPerson(person) {
-      //   if (this.selectedPeople.hasOwnProperty(person.id)) {
-      //     this.$delete(this.selectedPeople, person.id)
-      //   }
-      //   else {
-      //     this.$set(this.selectedPeople, person.id, person);
-      //   }
-      //   this.$emit('input', this.selectedPeople);
-      // },
       selectMergePerson(person) {
         this.mergePerson = person;
         this.$emit('input', this.mergePerson);
         console.log(this.mergePerson);
+        console.log(JSON.stringify(this.mergePerson));
       },
       getMatchPeople(person) {
         let params = {

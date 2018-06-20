@@ -37,7 +37,9 @@
     methods: {
       selectPerson(person) {
         this.selectedPerson = person;
-        this.$emit('input', person)
+        this.$emit('input', person);
+        console.log(person);
+        console.log(JSON.stringify(person, null, 2))
       }
     }
   }

@@ -22,12 +22,12 @@
         <div class="first_name separate-right separate-left">
           <h2>First Name</h2>
           <first-name
-            v-model="firstName" />
+              v-model="firstName"/>
         </div>
         <div class="role_types separate-right separate-left">
           <h2>Roles</h2>
           <role-types
-            v-model="selectedRoles" />
+              v-model="selectedRoles"/>
         </div>
         <button
             class="button normal-input button-default"
@@ -39,36 +39,34 @@
       <div class="found_people separate-right separate-left">
         <h2>Select person</h2>
         <found-people
-          v-model="selectedPerson"
-          :found-people="foundPeople"
+            v-model="selectedPerson"
+            :found-people="foundPeople"
         />
       </div>
-      <div>
-        <div class="selected_person">
-          <h2>Selected Person</h2>
-          <selected-person
-              :selected-person="selectedPerson"
-          />
-        </div>
-        <div class="merge_person">
-          <h2>Merge Person</h2>
-          <merge-person
-              :merge-person="mergePerson"
-          />
-        </div>
-        <div class="match_people separate-right separate-left">
-          <h2>Match People</h2>
-          <match-people
-              v-model="mergePerson"
-              :selected-person="selectedPerson"
-          />
-        </div>
-        <button
-            class="button normal-input button-default"
-            @click="mergePeople"
-            :disabled="enableMerge"
-            type="submit">Merge People
-        </button>
+      <div class="selected_person">
+        <h2>Selected Person</h2>
+        <selected-person
+            :selected-person="selectedPerson"
+        />
+      </div>
+      <div class="merge_person">
+        <h2>Merge Person</h2>
+        <merge-person
+            :merge-person="mergePerson"
+        />
+      </div>
+      <button
+          class="button normal-input button-default"
+          @click="mergePeople"
+          :disabled="!enableMerge"
+          type="submit">Merge People
+      </button>
+      <div class="match_people separate-right separate-left">
+        <h2>Match People</h2>
+        <match-people
+            v-model="mergePerson"
+            :selected-person="selectedPerson"
+        />
       </div>
     </div>
     <!--<request-bar-->
@@ -84,7 +82,7 @@
   import FirstName from './components/first_name'
   import RoleTypes from './components/role_types'
   import FoundPeople from './components/found_people'
-  import SelectedPerson from'./components/selected_person'
+  import SelectedPerson from './components/selected_person'
   import MatchPeople from './components/match_people'
   import MergePerson from './components/merge_person'
 
@@ -107,12 +105,18 @@
       },
       enableMerge() {
         return ((this.mergePerson) && (this.selectedPerson))
-      }
-      
+      },
+      // selectedPersonString() {
+      //   return this.prettyString(this.selectedPerson)
+      //   // JSON.stringify(JSON.parse(this.selectedPerson), null, 2)
+      // },
+      // mergePersonString() {
+      //   return this.prettyString(this.mergePerson)
+      //   // JSON.stringify(JSON.parse(this.mergePerson), null, 2)
+      // }
     },
     data() {
       return {
-        selectedPerson: {},
         lastName: '',
         firstName: '',
         selectedRoles: {},
@@ -130,12 +134,12 @@
     },
     methods: {
       findPerson() {
-         let params = {
+        let params = {
           lastname: this.lastName,
           firstname: this.firstName,
           roles: Object.keys(this.selectedRoles)
         };
-        this.$http.get('/people.json', {params: params} ).then(response => {
+        this.$http.get('/people.json', {params: params}).then(response => {
           this.foundPeople = response.body;
           console.log(this.foundPeople);
         })
@@ -148,9 +152,14 @@
         this.filter = this.resetFilter();
         this.foundPeople = [];
         this.matchPeople = [];
-        this.request.url = '';
-        this.request.total = 0
+        this.nergePerson = {};
+        this.selectedPerson = {};
+        // this.request.url = '';
+        // this.request.total = 0
       },
+      // prettyString(uglyJSON) {
+      //   return JSON.stringify(uglyJSON, null, 2)
+      // },
       resetFilter() {
         return true
       }
