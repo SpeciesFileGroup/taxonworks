@@ -32,10 +32,7 @@
     },
     watch: {
       selectedPerson(newVal) {
-        // this.selectedPeople = {};
-        // this.matchPeople = [];
-        console.log("asdfasfas")
-        this.getMatchPeople(newVal)
+         this.getMatchPeople(newVal)
       }
     },
     data() {
@@ -56,8 +53,8 @@
       //   this.$emit('input', this.selectedPeople);
       // },
       selectMergePerson(person) {
-        this.mergePerson = [person];
-        this.$emit('input', this.mergePerson)
+        this.mergePerson = person;
+        this.$emit('input', this.mergePerson);
         console.log(this.mergePerson);
       },
       getMatchPeople(person) {

@@ -130,9 +130,7 @@
     },
     methods: {
       findPerson() {
-        // TODO: make the request of the endpoint
-        // send last name, first name, roles to endpoint
-        let params = {
+         let params = {
           lastname: this.lastName,
           firstname: this.firstName,
           roles: Object.keys(this.selectedRoles)
@@ -144,12 +142,12 @@
       },
       mergePeople() {
         // TODO: merge the selected people to/with the selected person
+        return true
       },
       resetApp() {
         this.filter = this.resetFilter();
         this.foundPeople = [];
         this.matchPeople = [];
-        this.mergedPeople = [];
         this.request.url = '';
         this.request.total = 0
       },

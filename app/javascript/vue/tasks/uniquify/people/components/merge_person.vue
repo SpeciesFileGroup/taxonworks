@@ -17,11 +17,11 @@
       //   default: []
       // }
     },
-    watch: {
-      mergePerson(newVal) {
-        mergePerson = newVal
-      }
-    },
+    // watch: {
+    //   mergePerson(newVal) {
+    //     mergePerson = newVal
+    //   }
+    // },
     data() {
       return {
         thisPerson: {}    // totally a dummy entry
