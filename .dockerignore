@@ -10,25 +10,32 @@
 *.orig
 *.sql
 .ruby-version
+*.md
+*.orig
+.DS_Store
 
+/tags
 tags/
 .bundle_bin/
+
+spec
 
 config/database.yml
 config/secrets.yml
 config/application_settings.yml
 
-node_modules
-
 .ruby-gemset
 .bundle
+.yardoc
+.git
 
 log
 tmp
-
 doc
-.yardoc
 coverage
+volumes
+
+node_modules
 
 REVISION
 
@@ -37,11 +44,6 @@ public/system
 public/index.html
 public/packs-test
 
-.git
 spec
 travis
 k8s
-
-
-
-
