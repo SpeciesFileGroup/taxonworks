@@ -209,4 +209,11 @@ class PeopleController < ApplicationController
       :year_born, :year_died, :year_active_start, :year_active_end
     )
   end
+
+  def merge_params
+    params.require(:person).permit(
+        :old_person_id,
+        :new_person_id
+    )
+  end
 end

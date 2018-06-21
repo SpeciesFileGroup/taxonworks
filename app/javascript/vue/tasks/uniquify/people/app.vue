@@ -124,7 +124,7 @@
         lastName: '',
         firstName: '',
         selectedRoles: {},
-        filter: this.resetFilter(),
+        // filter: this.resetFilter(),
         isLoading: false,
         foundPeople: [],
         selectedPerson: {},
@@ -149,8 +149,14 @@
         })
       },
       mergePeople() {
-        // TODO: merge the selected people to/with the selected person
-        return true
+        let params = {
+          old_person_id: this.mergePerson.id,
+          new_person_id: this.selectedPerson.id
+        };
+        // this.$http.post('/people/' + this.mergePerson.id.toString() + '/merge', {params: params}).then(response => {
+        this.$http.post('/people/merge', {params: params}).then(response => {
+          console.log(response.body)
+        })
       },
       resetApp() {
         this.filter = this.resetFilter();
@@ -164,9 +170,9 @@
       // prettyString(uglyJSON) {
       //   return JSON.stringify(uglyJSON, null, 2)
       // },
-      resetFilter() {
-        return true
-      }
+      // resetFilter() {
+      //   return true
+      // }
     }
   }
 </script>
