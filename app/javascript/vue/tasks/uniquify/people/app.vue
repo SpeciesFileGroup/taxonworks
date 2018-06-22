@@ -150,11 +150,10 @@
       },
       mergePeople() {
         let params = {
-          old_person_id: this.mergePerson.id,
-          new_person_id: this.selectedPerson.id
+          old_person_id: this.selectedPerson.id,
+          new_person_id: this.mergePerson.id
         };
-        // this.$http.post('/people/' + this.mergePerson.id.toString() + '/merge', {params: params}).then(response => {
-        this.$http.post('/people/merge', {params: params}).then(response => {
+        this.$http.post('/people/' + this.selectedPerson.id.toString() + '/merge', {params: params}).then(response => {
           console.log(response.body)
         })
       },

@@ -106,64 +106,9 @@ class PeopleController < ApplicationController
   end
 
   def merge
-    old_person = Person.find(params[:old_person_id])
-    @person = Person.find(params[:new_person_id])
-    if old_person.merge(@person.id)
-      render action: 'show', status: :updated, location: @person 
-    else
-      render json: {}, status: :unprocessable_entity 
-    end
-  end
-
-  # PATCH/PUT /people/1
-  # PATCH/PUT /people/1.json
-  def update
-    respond_to do |format|
-      if @person.update(person_params)
-        format.html { redirect_to url_for(@person.metamorphosize), notice: 'Person was successfully updated.' }
-        format.json { head :no_content }
-      else
-        format.html { render action: 'edit' }
-        format.json { render json: @person.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  # DELETE /people/1
-  # DELETE /people/1.json
-  def destroy
-    @person.destroy!
-    respond_to do |format|
-      format.html { redirect_to people_url }
-      format.json { head :no_content }
-    end
-  end
-
-  def list
-    @people = Person.order(:cached).page(params[:page])
-  end
-
-  # TODO: deprecate!
-  def search
-    if params[:id].blank?
-      redirect_to people_path, notice: 'You must select an item from the list with a click ' \
-                                          'or tab press before clicking show.'
-    else
-      redirect_to person_path(params[:id])
-    end
-  end
-
-  def autocomplete
-    @people = Queries::Person::Autocomplete.new(
-      params.require(:term),
-      autocomplete_params
-    ).autocomplete
-  end
-
-  def merge
-    old_person = Person.find(params[:old_person_id])
-    @person = Person.find(params[:new_person_id])
-    if old_person.merge(@person.id)
+    old_person = Person.find(params[:params][:old_person_id])
+    @person = Person.find(params[:params][:new_person_id])
+    if old_person.merge_with(@person.id)
       render action: 'show', status: :updated, location: old_person
     else
       render 

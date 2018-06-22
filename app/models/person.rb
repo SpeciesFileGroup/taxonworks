@@ -167,14 +167,15 @@ class Person < ApplicationRecord
 
   # @return [Boolean]
   #   true if all records updated, false if any one failed (all or none)
+  # Old_person (self) is the survivor
   def merge_with(person_id)
-    if new_person = Person.find(person_id)
+    if new_person = Person.find(person_id)  # get the new (merged into self) person
       begin
         ApplicationRecord.transaction do 
-          Role.where(person_id: id).update(person: new_person)
-          annotations_hash.each do |type, objects|
+          Role.where(person_id: new_person.id).update(person: self)  # update merge person's roles to old
+          new_person.annotations_hash.each do |type, objects|
             objects.each do |o|
-              o.annotation_object = new_person
+              o.annotation_object = self
               o.save!
             end
           end  
