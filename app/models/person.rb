@@ -173,12 +173,12 @@ class Person < ApplicationRecord
       begin
         ApplicationRecord.transaction do 
           Role.where(person_id: new_person.id).update(person: self)  # update merge person's roles to old
-          new_person.annotations_hash.each do |type, objects|
-            objects.each do |o|
-              o.annotation_object = self
-              o.save!
-            end
-          end  
+          # new_person.annotations_hash.each do |type, objects|
+          #   objects.each do |o|
+          #     o.annotation_object = self
+          #     o.save!
+          #   end
+          # end
         end
       rescue ActiveRecord::RecordInvalid
         return false

@@ -153,7 +153,7 @@
           old_person_id: this.selectedPerson.id,
           new_person_id: this.mergePerson.id
         };
-        this.$http.post('/people/' + this.selectedPerson.id.toString() + '/merge', {params: params}).then(response => {
+        this.$http.post('/people/' + this.selectedPerson.id.toString() + '/merge', {new_person_id: this.mergePerson.id}).then(response => {
           console.log(response.body)
         })
       },
