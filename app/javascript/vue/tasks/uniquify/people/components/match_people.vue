@@ -3,6 +3,7 @@
     <ul class="no_bullets">
       <li
           v-for="(person, index) in matchPeople">
+        v-if="person.id != selectedPerson.id"
         <label>
         <input
             name="match-people"
