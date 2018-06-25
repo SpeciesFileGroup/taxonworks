@@ -154,7 +154,11 @@
           new_person_id: this.mergePerson.id
         };
         this.$http.post('/people/' + this.selectedPerson.id.toString() + '/merge', {new_person_id: this.mergePerson.id}).then(response => {
-          console.log(response.body)
+          console.log(response.bodyText);
+          this.$http.delete('/people/' + this.mergePerson.id).then( response => {
+            console.log('DELETED: ' + this.mergePerson.id);
+            this.$remove(this.matchPeople[this.mergePerson.id]);
+          })
         })
       },
       resetApp() {
