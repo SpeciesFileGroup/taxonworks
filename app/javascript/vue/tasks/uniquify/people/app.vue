@@ -153,9 +153,10 @@
           old_person_id: this.selectedPerson.id,
           new_person_id: this.mergePerson.id
         };
+        let that = this;
         this.$http.post('/people/' + this.selectedPerson.id.toString() + '/merge', {new_person_id: this.mergePerson.id}).then(response => {
           console.log(response.bodyText);
-          this.$http.delete('/people/' + this.mergePerson.id).then( response => {
+          that.$http.delete('/people/' + this.mergePerson.id).then( response => {
             console.log('DELETED: ' + this.mergePerson.id);
             this.$remove(this.matchPeople[this.mergePerson.id]);
           })
