@@ -47,6 +47,7 @@
         <div class="match_people separate-right separate-left" style="width: 200px">
           <h2>Match People</h2>
           <match-people
+              ref="matchPeople"
               v-model="mergePerson"
               :selected-person="selectedPerson"
           />
@@ -153,12 +154,11 @@
           old_person_id: this.selectedPerson.id,
           new_person_id: this.mergePerson.id
         };
-        let that = this;
         this.$http.post('/people/' + this.selectedPerson.id.toString() + '/merge', {new_person_id: this.mergePerson.id}).then(response => {
           console.log(response.bodyText);
-          that.$http.delete('/people/' + this.mergePerson.id).then( response => {
+          this.$http.delete('/people/' + this.mergePerson.id).then( response => {
             console.log('DELETED: ' + this.mergePerson.id);
-            this.$remove(this.matchPeople[this.mergePerson.id]);
+            this.$refs.matchPeople.removeFromList(this.mergePerson.id)
           })
         })
       },
