@@ -71,7 +71,6 @@
           class="big-icon"/>
         <span class="tiny_space">Citation</span>
       </div>
-      <citation-otu class="item menu-item"/>
       <div
         class="item flex-wrap-column middle menu-item menu-button"
         @click="ChangeStateFigures()"
@@ -88,7 +87,6 @@
 <script>
   const cloneContent = require('./clone.vue').default
   const compareContent = require('./compare.vue').default
-  const citationOtu = require('./compare.vue').default
   const selectTopicOtu = require('./selectTopicOtu.vue').default
   const markdownEditor = require('../../../components/markdown-editor.vue').default
   const GetterNames = require('../store/getters/getters').GetterNames
@@ -122,7 +120,6 @@
     components: {
       cloneContent,
       compareContent,
-      citationOtu,
       markdownEditor,
       selectTopicOtu
     },
