@@ -63,9 +63,8 @@
         <div class="merge_person separate-right separate-left" style="overflow: auto; width:300px; height:600px;">
           <h2>Merge Person</h2>
           <merge-person
-              ref="mergePerson"
+          :merge-person="mergePerson"
           />
-          <!--:merge-person="mergePerson"-->
         </div>
         <button
             class="button normal-input button-default"
