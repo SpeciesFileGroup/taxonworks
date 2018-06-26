@@ -63,8 +63,9 @@
         <div class="merge_person separate-right separate-left" style="overflow: auto; width:300px; height:600px;">
           <h2>Merge Person</h2>
           <merge-person
-              :merge-person="mergePerson"
+              ref="mergePerson"
           />
+          <!--:merge-person="mergePerson"-->
         </div>
         <button
             class="button normal-input button-default"
@@ -111,30 +112,17 @@
       enableMerge() {
         return ((this.mergePerson) && (this.selectedPerson))
       },
-      // selectedPersonString() {
-      //   return this.prettyString(this.selectedPerson)
-      //   // JSON.stringify(JSON.parse(this.selectedPerson), null, 2)
-      // },
-      // mergePersonString() {
-      //   return this.prettyString(this.mergePerson)
-      //   // JSON.stringify(JSON.parse(this.mergePerson), null, 2)
-      // }
-    },
+     },
     data() {
       return {
         lastName: '',
         firstName: '',
         selectedRoles: {},
-        // filter: this.resetFilter(),
         isLoading: false,
         foundPeople: [],
         selectedPerson: {},
         matchPeople: [],
         mergePerson: {},
-        // request: {
-        //   url: '',
-        //   total: 0
-        // },
       }
     },
     methods: {
@@ -147,6 +135,8 @@
         this.$http.get('/people.json', {params: params}).then(response => {
           this.foundPeople = response.body;
           console.log(this.foundPeople);
+          this.selectedPerson = {};
+          this.mergePerson = {};
         })
       },
       mergePeople() {
@@ -163,7 +153,7 @@
         })
       },
       resetApp() {
-        this.filter = this.resetFilter();
+        // this.filter = this.resetFilter();
         this.foundPeople = [];
         this.matchPeople = [];
         this.nergePerson = {};
@@ -171,12 +161,6 @@
         // this.request.url = '';
         // this.request.total = 0
       },
-      // prettyString(uglyJSON) {
-      //   return JSON.stringify(uglyJSON, null, 2)
-      // },
-      // resetFilter() {
-      //   return true
-      // }
-    }
+      }
   }
 </script>

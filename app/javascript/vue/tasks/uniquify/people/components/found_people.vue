@@ -6,7 +6,7 @@
           <input
             name="found-people"
             type="radio"
-            :selected="person.id == value"
+            :selected="person.id == selectedPerson.id"
             @click="selectPerson(person)">
           {{ person.cached }}
         </label>

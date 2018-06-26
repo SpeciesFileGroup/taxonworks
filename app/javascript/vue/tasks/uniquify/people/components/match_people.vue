@@ -5,11 +5,11 @@
           v-for="(person, index) in matchPeople">
 
         <label v-if="person.id != selectedPerson.id">
-        <input
-            name="match-people"
-            type="radio"
-            :selected="person.id == value"
-            @click="selectMergePerson(person)">
+          <input
+              name="match-people"
+              type="radio"
+              :selected="person.id == mergePerson['id']"
+              @click="selectMergePerson(person)">
           {{ person.cached }}
         </label>
       </li>
@@ -33,7 +33,7 @@
     },
     watch: {
       selectedPerson(newVal) {
-         this.getMatchPeople(newVal)
+        this.getMatchPeople(newVal)
       }
     },
     data() {
@@ -49,7 +49,7 @@
           return item.id == personId
         })
 
-        if(index > -1)
+        if (index > -1)
           this.matchPeople.splice(index, 1)
       },
       selectMergePerson(person) {
@@ -59,12 +59,17 @@
         console.log(JSON.stringify(this.mergePerson));
       },
       getMatchPeople(person) {
+        this.mergePerson = {};
+        if ((person.last_name == undefined) && (person.last_name == undefined)) {
+          this.matchPeople = [];    // new search
+          return false
+        }
         let params = {
           lastname: person.last_name,
           firstname: person.first_name,
-          roles: []};
-
-          this.$http.get('/people.json', {params: params} ).then(response => {
+          roles: []
+        };
+        this.$http.get('/people.json', {params: params}).then(response => {
           this.matchPeople = response.body;
           console.log(this.matchPeople);
         })
