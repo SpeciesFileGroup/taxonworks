@@ -15,11 +15,11 @@
         // required: true
       },
     },
-    methods: {
-      clearMergePerson() {
-        this.mergePerson = {}
-      }
-    },
+    // methods: {
+    //   clearMergePerson() {
+    //     this.mergePerson = {}
+    //   }
+    // },
     data() {
       return {
         thisPerson: {}    // totally a dummy entry

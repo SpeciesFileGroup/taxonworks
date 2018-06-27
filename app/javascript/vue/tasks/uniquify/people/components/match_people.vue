@@ -73,7 +73,10 @@
           this.matchPeople = response.body;
           console.log(this.matchPeople);
         })
-      }
+      },
+        clearMergePerson() {
+          this.mergePerson = {}
+        }
     }
   }
 </script>

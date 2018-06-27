@@ -40,6 +40,9 @@
         this.$emit('input', person);
         console.log(person);
         console.log(JSON.stringify(person, null, 2))
+      },
+      clearSelectedPerson() {
+        this.selectedPerson = {};
       }
     }
   }

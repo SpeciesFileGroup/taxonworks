@@ -40,6 +40,7 @@
         <div class="found_people separate-right separate-left" style="width: 200px">
           <h2>Select person</h2>
           <found-people
+              ref="foundPeople"
               v-model="selectedPerson"
               :found-people="foundPeople"
           />
@@ -138,6 +139,8 @@
           console.log(this.foundPeople);
           this.selectedPerson = {};
           this.mergePerson = {};
+          this.$refs.foundPeople.clearSelectedPerson();
+          this.$refs.matchPeople.clearMergePerson();
         })
       },
       mergePeople() {
