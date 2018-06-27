@@ -1600,7 +1600,6 @@ namespace :tw do
             subject = Otu.find_or_create_by(taxon_name_id: taxon, project_id: $project_id)
             object = Otu.find_or_create_by(taxon_name_id: host, project_id: $project_id)
 
-
             r = BiologicalAssociation.find_or_create_by!(biological_relationship: br, biological_association_subject: subject, biological_association_object: object, project_id: $project_id)
             r.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
             r.notes.create(text: row['Notes'].gsub('|','_')) unless row['Notes'].blank?

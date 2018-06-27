@@ -1,10 +1,26 @@
+<p>
+  <strong>Short URL to original:</strong>
+  <%= link_to(short_url(@image.image_file.url), short_url(@image.image_file.url))  -%>
+</p>
+
+<p>
+  <strong>Short URL to web medium:</strong>
+  <%= link_to(short_url(@image.image_file.url(:medium)), short_url(@image.image_file.url(:medium)))  -%>
+</p>
+
+<p>
+  <strong>Short URL to web thumb:</strong>
+  <%= link_to(short_url(@image.image_file.url(:thumb)), short_url(@image.image_file.url(:thumb)))  -%>
+</p>
+
+
+
 <div class="easyzoom easyzoom--overlay">
   <a href="<%= @image.image_file.url(:medium) %>">
     <%= image_tag(@image.image_file.url(:medium), 'class' => 'imageZoom') %>
   </a>
 </div>
-<!--<br>---> <%#= @image.image_file.url %>-->
-<!--<br>---> <%#= short_url(@image.image_file.url) %>-->
+
 <div class="attribute_set" data-title="Information" data-view="development">
   <p data-view="development">
     <strong>User file name:</strong>
@@ -46,5 +62,3 @@
     <%= @image.image_file_updated_at %>
   </p>
 </div>
-
-
