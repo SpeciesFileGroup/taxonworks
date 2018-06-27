@@ -8,7 +8,7 @@
           <input
               name="match-people"
               type="radio"
-              :selected="person.id == mergePerson['id']"
+              :selected="person.id === mergePerson.id"
               @click="selectMergePerson(person)">
           {{ person.cached }}
         </label>
