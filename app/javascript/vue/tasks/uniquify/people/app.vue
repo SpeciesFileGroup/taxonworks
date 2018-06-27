@@ -133,6 +133,7 @@
           firstname: this.firstName,
           roles: Object.keys(this.selectedRoles)
         };
+        let that = this;
         this.selectedPerson = {};
         this.$http.get('/people.json', {params: params}).then(response => {
           this.foundPeople = response.body;
@@ -141,7 +142,7 @@
           // this.mergePerson = {};
           // this.$refs.foundPeople.clearSelectedPerson();
           // this.$refs.matchPeople.clearMergePerson();
-          this.clearMatchData();
+          that.clearMatchData();
         })
       },
       mergePeople() {
