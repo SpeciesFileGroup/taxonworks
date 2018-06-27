@@ -4,7 +4,7 @@
       <li
           v-for="(person, index) in matchPeople">
 
-        <label v-if="person.id != selectedPerson.id">
+        <label>
           <input
               name="match-people"
               type="radio"
