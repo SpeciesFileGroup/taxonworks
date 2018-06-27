@@ -64,8 +64,8 @@
         <div class="merge_person separate-right separate-left" style="overflow: auto; width:300px; height:600px;">
           <h2>Merge Person</h2>
           <merge-person
-          :merge-person="mergePerson"
-          ref="mergePerson"
+              :merge-person="mergePerson"
+              ref="mergePerson"
           />
         </div>
         <button
@@ -113,7 +113,7 @@
       enableMerge() {
         return ((this.mergePerson) && (this.selectedPerson))
       },
-     },
+    },
     data() {
       return {
         lastName: '',
@@ -133,14 +133,15 @@
           firstname: this.firstName,
           roles: Object.keys(this.selectedRoles)
         };
-        this.selectedPerson={};
+        this.selectedPerson = {};
         this.$http.get('/people.json', {params: params}).then(response => {
           this.foundPeople = response.body;
           console.log(this.foundPeople);
-          this.selectedPerson = {};
-          this.mergePerson = {};
-          this.$refs.foundPeople.clearSelectedPerson();
-          this.$refs.matchPeople.clearMergePerson();
+          // this.selectedPerson = {};
+          // this.mergePerson = {};
+          // this.$refs.foundPeople.clearSelectedPerson();
+          // this.$refs.matchPeople.clearMergePerson();
+          this.clearMatchData();
         })
       },
       mergePeople() {
@@ -150,21 +151,24 @@
         };
         this.$http.post('/people/' + this.selectedPerson.id.toString() + '/merge', {new_person_id: this.mergePerson.id}).then(response => {
           console.log(response.bodyText);
-          this.$http.delete('/people/' + this.mergePerson.id).then( response => {
+          this.$http.delete('/people/' + this.mergePerson.id).then(response => {
             console.log('DELETED: ' + this.mergePerson.id);
             this.$refs.matchPeople.removeFromList(this.mergePerson.id)
           })
         })
       },
       resetApp() {
-        // this.filter = this.resetFilter();
         this.foundPeople = [];
-        this.matchPeople = [];
-        this.nergePerson = {};
-        this.selectedPerson = {};
-        // this.request.url = '';
-        // this.request.total = 0
+        this.clearMatchData();
       },
+      clearMatchData() {
+        this.selectedPerson = {};
+        this.mergePerson = {};
+        this.$refs.foundPeople.clearSelectedPerson();
+        this.$refs.matchPeople.clearMergePerson();
+        this.matchPeople = [];
+
       }
+    }
   }
 </script>

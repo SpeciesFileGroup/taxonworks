@@ -18,7 +18,7 @@
 
 </template>
 <script>
-  // this is a list for selecting one person from potential selectees
+  // this is a list for selecting one person from potential matchees
   // only one person can be selected
   export default {
     props: {

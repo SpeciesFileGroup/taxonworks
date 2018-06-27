@@ -4,7 +4,7 @@
   </div>
 </template>
 <script>
-  // this component receives and displays the selected person from foundPeople
+  // this component receives and displays the selected person from matchPeople
   export default {
     props: {
       mergePerson: {
@@ -15,11 +15,6 @@
         // required: true
       },
     },
-    // methods: {
-    //   clearMergePerson() {
-    //     this.mergePerson = {}
-    //   }
-    // },
     data() {
       return {
         thisPerson: {}    // totally a dummy entry

@@ -10,12 +10,8 @@
       selectedPerson: {
         type: Object,
         default: function() {return {}}
-        // required: true
       }
     },
-    // watch: {
-    //   selectedPerson
-    // },
     data() {
       return {
         thisPerson: {}    // totally a dummy entry
