@@ -133,16 +133,10 @@
           firstname: this.firstName,
           roles: Object.keys(this.selectedRoles)
         };
-        let that = this;
-        this.selectedPerson = {};
+        this.clearMatchData();
         this.$http.get('/people.json', {params: params}).then(response => {
           this.foundPeople = response.body;
           console.log(this.foundPeople);
-          // this.selectedPerson = {};
-          // this.mergePerson = {};
-          // this.$refs.foundPeople.clearSelectedPerson();
-          // this.$refs.matchPeople.clearMergePerson();
-          that.clearMatchData();
         })
       },
       mergePeople() {
@@ -155,14 +149,21 @@
           this.$http.delete('/people/' + this.mergePerson.id).then(response => {
             console.log('DELETED: ' + this.mergePerson.id);
             this.$refs.matchPeople.removeFromList(this.mergePerson.id)
+            this.$refs.matchPeople.clearMergePerson();
           })
         })
       },
       resetApp() {
-        this.foundPeople = [];
+        this.clearSearchData();
         this.clearMatchData();
       },
+      clearSearchData() {
+        this.lastName = '';
+        this.firstName = '';
+        this.selectedRoles = {};
+      },
       clearMatchData() {
+        this.foundPeople = [];
         this.selectedPerson = {};
         this.mergePerson = {};
         this.$refs.foundPeople.clearSelectedPerson();

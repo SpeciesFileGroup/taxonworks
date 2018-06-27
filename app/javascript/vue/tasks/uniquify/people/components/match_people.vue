@@ -71,6 +71,7 @@
         };
         this.$http.get('/people.json', {params: params}).then(response => {
           this.matchPeople = response.body;
+          this.removeFromList(person.id)
           console.log(this.matchPeople);
         })
       },
