@@ -15,7 +15,7 @@
     },
     // watch: {
     //   selectedPerson
-    // }
+    // },
     data() {
       return {
         thisPerson: {}    // totally a dummy entry

@@ -47,7 +47,7 @@
       removeFromList(personId) {
         let index = this.matchPeople.findIndex(item => {
           return item.id == personId
-        })
+        });
 
         if (index > -1)
           this.matchPeople.splice(index, 1)

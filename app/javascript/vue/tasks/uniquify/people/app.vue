@@ -64,6 +64,7 @@
           <h2>Merge Person</h2>
           <merge-person
           :merge-person="mergePerson"
+          ref="mergePerson"
           />
         </div>
         <button
@@ -131,6 +132,7 @@
           firstname: this.firstName,
           roles: Object.keys(this.selectedRoles)
         };
+        this.selectedPerson={};
         this.$http.get('/people.json', {params: params}).then(response => {
           this.foundPeople = response.body;
           console.log(this.foundPeople);
