@@ -1,21 +1,19 @@
 <template>
   <div>
     <ul class="no_bullets">
-      <li
-          v-for="(person, index) in matchPeople">
-
+      <li v-for="(person, index) in matchPeople">
         <label>
           <input
-              name="match-people"
-              type="radio"
-              :selected="person.id === mergePerson.id"
-              @click="selectMergePerson(person)">
+            name="match-people"
+            type="radio"
+            v-model="mergePerson"
+            :value="person.id"
+            @click="selectMergePerson(person)">
           {{ person.cached }}
         </label>
       </li>
     </ul>
   </div>
-
 </template>
 <script>
   // this is a list for selecting one person from potential matchees
@@ -51,12 +49,10 @@
 
         if (index > -1)
           this.matchPeople.splice(index, 1)
+        this.mergePerson = {}
       },
       selectMergePerson(person) {
-        this.mergePerson = person;
-        this.$emit('input', this.mergePerson);
-        console.log(this.mergePerson);
-        console.log(JSON.stringify(this.mergePerson));
+        this.$emit('input', person);
       },
       getMatchPeople(person) {
         this.mergePerson = {};
