@@ -85,6 +85,9 @@
 </template>
 
 <script>
+// TODO: Repaint selectePerson after merge
+//       Revise queries to bias toward last name
+// 
   import LastName from './components/last_name'
   import FirstName from './components/first_name'
   import RoleTypes from './components/role_types'
@@ -136,7 +139,7 @@
         this.clearMatchData();
         this.$http.get('/people.json', {params: params}).then(response => {
           this.foundPeople = response.body;
-          console.log(this.foundPeople);
+          // console.log(this.foundPeople);
         })
       },
       mergePeople() {
@@ -144,9 +147,10 @@
           new_person_id: this.mergePerson.id
         };
         this.$http.post('/people/' + this.selectedPerson.id.toString() + '/merge', params).then(response => {
-          console.log(response.bodyText);
+          this.$refs.foundPeople.selectPerson(this.selectedPerson);
+         // delete the merged in person and refresh the merged to person
           this.$http.delete('/people/' + this.mergePerson.id).then(response => {
-            console.log('DELETED: ' + this.mergePerson.id);
+            // console.log('DELETED: ' + this.mergePerson.id);
             this.$refs.matchPeople.removeFromList(this.mergePerson.id)
             this.$refs.matchPeople.clearMergePerson();
             this.mergePerson = {};

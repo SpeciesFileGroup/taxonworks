@@ -168,17 +168,19 @@ class Person < ApplicationRecord
   # @return [Boolean]
   #   true if all records updated, false if any one failed (all or none)
   # Old_person (self) is the survivor
+  # TODO: handle years attributes
+  # When names don't match add alternate values to the corresponding names except extant
   def merge_with(person_id)
     if new_person = Person.find(person_id)  # get the new (merged into self) person
       begin
         ApplicationRecord.transaction do 
           Role.where(person_id: new_person.id).update(person: self)  # update merge person's roles to old
-          # new_person.annotations_hash.each do |type, objects|
-          #   objects.each do |o|
-          #     o.annotation_object = self
-          #     o.save!
-          #   end
-          # end
+          new_person.annotations_hash.each do |type, objects|
+            objects.each do |o|
+              o.annotated_object = self
+              o.save!
+            end
+          end
         end
       rescue ActiveRecord::RecordInvalid
         return false

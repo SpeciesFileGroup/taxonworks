@@ -8,7 +8,7 @@ class PeopleController < ApplicationController
   def index
     respond_to do |format|
       format.html {
-        @people         = Person.order(updated_at: :desc).limit(10)
+        @people = Person.order(updated_at: :desc).limit(10)
         @recent_objects = @people
         render '/shared/data/all/index'
       }
@@ -16,15 +16,15 @@ class PeopleController < ApplicationController
         last_name = params[:lastname]
         first_name = params[:firstname]
         # @people = Person.where(last_name: last_name, first_name: first_name).with_role(params[:roles])
-        @people = Queries::Person::Filter.new(params).partial_complete
-        stuff =[]
-        @people.each {|person|
-          one = person.attributes
-          one[:roles] = person.roles
-          one[:annotations] = person.annotations
-          stuff << one
-        }
-        render json: stuff
+        @people = Queries::Person::Filter.new(params).partial_complete #  partial_complete => broadest selection of names
+        # stuff =[]
+        # @people.each {|person|
+        #   one = person.attributes
+        #   one[:roles] = person.roles
+        #   one[:annotations] = person.annotations
+        #   stuff << one
+        # }
+        # render json: stuff
       }
     end
   end
@@ -32,6 +32,16 @@ class PeopleController < ApplicationController
   # GET /people/1
   # GET /people/1.json
   def show
+    respond_to do |format|
+      format.html {}
+      format.json {
+        found_person = Person.find(params[:id])
+        person_with = found_person.attributes
+        person_with[:roles] = found_person.roles
+        person_with[:annotations] = found_person.annotations
+        render json: person_with
+      }
+    end
   end
 
   # GET /people/new
@@ -50,12 +60,12 @@ class PeopleController < ApplicationController
 
     respond_to do |format|
       if @person.save
-        format.html { redirect_to url_for(@person.metamorphosize),
-                                  notice: "Person '#{@person.name}' was successfully created." }
-        format.json { render action: 'show', status: :created, location: @person }
+        format.html {redirect_to url_for(@person.metamorphosize),
+                                 notice: "Person '#{@person.name}' was successfully created."}
+        format.json {render action: 'show', status: :created, location: @person}
       else
-        format.html { render action: 'new' }
-        format.json { render json: @person.errors, status: :unprocessable_entity }
+        format.html {render action: 'new'}
+        format.json {render json: @person.errors, status: :unprocessable_entity}
       end
     end
   end
@@ -65,11 +75,11 @@ class PeopleController < ApplicationController
   def update
     respond_to do |format|
       if @person.update(person_params)
-        format.html { redirect_to url_for(@person.metamorphosize), notice: 'Person was successfully updated.' }
-        format.json { head :no_content }
+        format.html {redirect_to url_for(@person.metamorphosize), notice: 'Person was successfully updated.'}
+        format.json {head :no_content}
       else
-        format.html { render action: 'edit' }
-        format.json { render json: @person.errors, status: :unprocessable_entity }
+        format.html {render action: 'edit'}
+        format.json {render json: @person.errors, status: :unprocessable_entity}
       end
     end
   end
@@ -79,8 +89,8 @@ class PeopleController < ApplicationController
   def destroy
     @person.destroy!
     respond_to do |format|
-      format.html { redirect_to people_url }
-      format.json { head :no_content }
+      format.html {redirect_to people_url}
+      format.json {head :no_content}
     end
   end
 
@@ -100,8 +110,8 @@ class PeopleController < ApplicationController
 
   def autocomplete
     @people = Queries::Person::Autocomplete.new(
-      params.require(:term),
-      autocomplete_params
+        params.require(:term),
+        autocomplete_params
     ).autocomplete
   end
 
@@ -111,8 +121,7 @@ class PeopleController < ApplicationController
     if old_person.merge_with(@person.id)
       render json: {status: 'OK'} #action: 'show', status: :updated, location: old_person
     else
-      render 
-      render 
+      render json: {status: 'Failed'}
     end
   end
 
@@ -142,16 +151,16 @@ class PeopleController < ApplicationController
   end
 
   def set_person
-    @person        = Person.find(params[:id])
+    @person = Person.find(params[:id])
     @recent_object = @person
   end
 
   def person_params
     params.require(:person).permit(
-      :type,
-      :last_name, :first_name,
-      :suffix, :prefix,
-      :year_born, :year_died, :year_active_start, :year_active_end
+        :type,
+        :last_name, :first_name,
+        :suffix, :prefix,
+        :year_born, :year_died, :year_active_start, :year_active_end
     )
   end
 

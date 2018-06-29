@@ -36,10 +36,12 @@
     },
     methods: {
       selectPerson(person) {
-        this.selectedPerson = person;
-        this.$emit('input', person);
-        console.log(person);
-        console.log(JSON.stringify(person, null, 2))
+        this.$http.get('/people/' + person.id.toString() + '.json').then(response => {
+          this.selectedPerson = response.body;
+        })
+        this.$emit('input', this.selectedPerson);
+        // console.log(person);
+        // console.log(JSON.stringify(person, null, 2))
       },
       clearSelectedPerson() {
         this.selectedPerson = {};

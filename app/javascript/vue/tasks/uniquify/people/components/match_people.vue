@@ -52,7 +52,11 @@
         this.mergePerson = {}
       },
       selectMergePerson(person) {
-        this.$emit('input', person);
+        this.$http.get('/people/' + person.id.toString() + '.json').then(response => {
+          this.mergePerson = response.body;
+        }
+        )
+        this.$emit('input', this.mergePerson);
       },
       getMatchPeople(person) {
         this.mergePerson = {};
