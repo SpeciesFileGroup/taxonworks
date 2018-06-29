@@ -23,6 +23,7 @@
           </div>
           <div
             class="radial-annotator-template panel"
+            :style="{ 'max-height': windowHeight(), 'min-height': windowHeight() }"
             v-if="currentAnnotator">
             <h3 class="capitalize view-title">{{ currentAnnotator.replace("_"," ") }}</h3>
             <component
@@ -193,6 +194,9 @@
           }
         })
         document.dispatchEvent(event)
+      },
+      windowHeight() {
+        return ((window.innerHeight - 100) > 650 ? 650 : window.innerHeight-100) + 'px !important'
       }
     }
   }
