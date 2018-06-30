@@ -3,5 +3,6 @@ json.extract! container, :id, :type, :name, :disposition, :size_x, :size_y, :siz
 
 json.is_full container.is_full?
 json.available_space container.available_space
+json.size container.size
 
 json.partial! '/shared/data/all/metadata', object: container # , klass: 'Container'

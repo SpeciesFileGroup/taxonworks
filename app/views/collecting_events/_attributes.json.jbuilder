@@ -25,3 +25,16 @@ json.extract! collecting_event, :id,
   :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
 
 json.partial! '/shared/data/all/metadata', object: collecting_event 
+
+if collecting_event.roles.any?
+  json.collector_roles do
+    json.array! collecting_event.collectors.each do |role|
+      json.extract! role, :id, :position
+      json.person do
+        json.partial! '/people/attributes', person: role.person 
+      end
+    end
+  end
+end 
+
+
