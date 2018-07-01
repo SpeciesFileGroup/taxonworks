@@ -71,7 +71,7 @@ module Queries
 
       b[:details].each do |detail|
         detail.each_value do |v|
-          if v[:authorship]
+          if v.kind_of?(Hash) && v[:authorship]
             return v[:authorship]
           end
         end
