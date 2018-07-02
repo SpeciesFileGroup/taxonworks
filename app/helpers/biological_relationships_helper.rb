@@ -2,7 +2,7 @@ module BiologicalRelationshipsHelper
 
   def biological_relationship_tag(biological_relationship)
     return nil if biological_relationship.nil?
-    biological_relationship.name
+    [biological_relationship.name, biological_relationship.inverted_name].compact.join(' / ')
   end
 
   def biological_relationship_link(biological_relationship)
