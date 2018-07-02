@@ -193,6 +193,7 @@ describe Person, type: :model do
                               year_active_start: 2012, year_active_end: 2015)
         tn2.taxon_name_authors << p
         tn1.taxon_name_authors << p
+        gr1.georeferencers << p
         p
       }
       let(:person2) { FactoryBot.create(:person, first_name: 'J.', last_name: 'McDonald') }
@@ -433,9 +434,16 @@ describe Person, type: :model do
       end
 
       context 'merging' do
-        specify 'two persons become one' do
-          person1.merge_with(person1b.id)
-          expect(person1.year_born).to eq(2000)
+        context 'two persons become one' do
+          specify 'years are combined' do
+            person1.merge_with(person1b.id)
+            expect(person1.year_born).to eq(2000)
+          end
+
+          specify 'roles are combined' do
+            person1.merge_with(person1b.id)
+            expect(person1.roles.map(&:type)).to include('TaxonNameAuthor', 'Georeferencer')
+          end
         end
       end
     end
