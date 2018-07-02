@@ -11,6 +11,7 @@ describe Person, type: :model do
     FactoryBot.create(:valid_source_human)
   }
   let(:gr1) { FactoryBot.create(:valid_georeference) }
+  let(:gr2) { FactoryBot.create(:valid_georeference) }
 
   context 'used?' do
     before do
@@ -178,6 +179,8 @@ describe Person, type: :model do
         p = FactoryBot.create(:person,
                               first_name: 'January', last_name: 'Smith',
                               prefix:     'Dr.', suffix: 'III')
+        gr2.georeferencers << p
+        p.data_attributes << da1
         p
       }
       let(:person1a) {
@@ -194,6 +197,7 @@ describe Person, type: :model do
         tn2.taxon_name_authors << p
         tn1.taxon_name_authors << p
         gr1.georeferencers << p
+        p.data_attributes << da2
         p
       }
       let(:person2) { FactoryBot.create(:person, first_name: 'J.', last_name: 'McDonald') }
@@ -202,6 +206,16 @@ describe Person, type: :model do
 
       let(:tn1) { FactoryBot.create(:valid_taxon_name, name: 'Aonedidae') }
       let(:tn2) { FactoryBot.create(:valid_taxon_name, name: 'Atwodidae') }
+
+      let(:cvt) { FactoryBot.create(:valid_controlled_vocabulary_term_predicate,
+                                    name:       ' Honorarium',
+                                    definition: 'People:Honorarium imported from INHS FileMaker database.') }
+      let(:da1) { FactoryBot.create(:valid_data_attribute_internal_attribute,
+                                    value:     'Dr.',
+                                    predicate: cvt) }
+      let(:da2) { FactoryBot.create(:valid_data_attribute_internal_attribute,
+                                    value:     'Mr.',
+                                    predicate: cvt) }
 
       context 'usage' do
         specify 'initials and last name only' do
@@ -443,6 +457,11 @@ describe Person, type: :model do
           specify 'roles are combined' do
             person1.merge_with(person1b.id)
             expect(person1.roles.map(&:type)).to include('TaxonNameAuthor', 'Georeferencer')
+          end
+
+          specify 'data_attributes are combined' do
+            person1.merge_with(person1b.id)
+            expect(person1.data_attributes.map(&:value)).to include('Mr.', 'Dr.')
           end
         end
       end
