@@ -147,7 +147,10 @@
           new_person_id: this.mergePerson.id
         };
         this.$http.post('/people/' + this.selectedPerson.id.toString() + '/merge', params).then(response => {
-          this.$refs.foundPeople.selectPerson(this.selectedPerson);
+          this.$refs.foundPeople.selectPerson(this.selectedPerson);   // why?
+          let httpStatus = response.body;
+          console.log(httpStatus);
+          if (httpStatus == 'OK') {
          // delete the merged in person and refresh the merged to person
           this.$http.delete('/people/' + this.mergePerson.id).then(response => {
             // console.log('DELETED: ' + this.mergePerson.id);
@@ -156,6 +159,11 @@
             this.$refs.matchPeople.clearMergePerson();
             this.mergePerson = {};
           })
+          }
+          else {
+            this.$refs.foundPeople.clearSelectedPerson();
+            this.$refs.matchPeople.clearMergePerson();
+          }
         })
       },
       resetApp() {

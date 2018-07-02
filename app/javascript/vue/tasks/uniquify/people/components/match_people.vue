@@ -36,10 +36,9 @@
     },
     data() {
       return {
-        // selectedPeople: {},
         matchPeople: [],
         mergePerson: {},
-        selected: {}
+        selected: {}      // gets populated by the v-model to the value attribute of the radio button input 
       }
     },
     methods: {
@@ -63,7 +62,7 @@
         this.selected = {}
         if ((person.last_name == undefined) && (person.last_name == undefined)) {
           this.matchPeople = [];    // new search
-          return false
+          return false;
         }
         let params = {
           lastname: person.last_name,
@@ -72,7 +71,7 @@
         };
         this.$http.get('/people.json', {params: params}).then(response => {
           this.matchPeople = response.body;
-          this.removeFromList(person.id)
+          this.removeFromList(person.id);
           // console.log(this.matchPeople);
         })
       },
