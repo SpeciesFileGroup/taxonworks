@@ -10,6 +10,7 @@ describe Person, type: :model do
   let(:human_source) {
     FactoryBot.create(:valid_source_human)
   }
+  let(:gr1) { FactoryBot.create(:valid_georeference) }
 
   context 'used?' do
     before do
@@ -430,6 +431,13 @@ describe Person, type: :model do
           end
         end
       end
+
+      context 'merging' do
+        specify 'two persons become one' do
+          person1.merge_with(person1b)
+          expect(person1.year_born).to eq(2000)
+        end
+      end
     end
 
     # TODO: Fix.
@@ -504,9 +512,8 @@ describe Person, type: :model do
       specify 'is_georeferencer?' do
         expect(vp).to respond_to(:is_georeferencer?)
         expect(vp.is_georeferencer?).to be_falsey
-        georeference = FactoryBot.create(:valid_georeference)
-        georeference.georeferencers << vp
-        georeference.save!
+        gr1.georeferencers << vp
+        gr1.save!
         vp.reload
         expect(vp.is_georeferencer?).to be_truthy
         expect(vp.georeferencer_roles.first.created_by_id).to be_truthy
