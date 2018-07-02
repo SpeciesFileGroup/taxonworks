@@ -35,7 +35,12 @@ const GetTaxon = function (id) {
   return ajaxCall('get', `/taxon_names/${id}.json`)
 }
 
+const GetCollectionObject = function (id) {
+  return ajaxCall('get', `/collection_objects/${id}.json`)
+}
+
 export {
   GetTypes,
-  GetTaxon
+  GetTaxon,
+  GetCollectionObject
 }
