@@ -6,7 +6,7 @@
           <input
             name="match-people"
             type="radio"
-            v-model="mergePerson"
+            v-model="selected"
             :value="person.id"
             @click="selectMergePerson(person)">
           {{ person.cached }}
@@ -38,7 +38,8 @@
       return {
         // selectedPeople: {},
         matchPeople: [],
-        mergePerson: {}
+        mergePerson: {},
+        selected: {}
       }
     },
     methods: {
@@ -55,11 +56,11 @@
         this.$http.get('/people/' + person.id.toString() + '.json').then(response => {
           this.mergePerson = response.body;
           this.$emit('input', this.mergePerson);
-        }
-        )
+        })
       },
       getMatchPeople(person) {
-        this.mergePerson = {};
+        this.mergePerson = {}
+        this.selected = {}
         if ((person.last_name == undefined) && (person.last_name == undefined)) {
           this.matchPeople = [];    // new search
           return false
