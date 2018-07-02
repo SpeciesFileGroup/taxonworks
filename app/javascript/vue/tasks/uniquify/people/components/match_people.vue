@@ -54,9 +54,9 @@
       selectMergePerson(person) {
         this.$http.get('/people/' + person.id.toString() + '.json').then(response => {
           this.mergePerson = response.body;
+          this.$emit('input', this.mergePerson);
         }
         )
-        this.$emit('input', this.mergePerson);
       },
       getMatchPeople(person) {
         this.mergePerson = {};
@@ -72,7 +72,7 @@
         this.$http.get('/people.json', {params: params}).then(response => {
           this.matchPeople = response.body;
           this.removeFromList(person.id)
-          console.log(this.matchPeople);
+          // console.log(this.matchPeople);
         })
       },
         clearMergePerson() {
