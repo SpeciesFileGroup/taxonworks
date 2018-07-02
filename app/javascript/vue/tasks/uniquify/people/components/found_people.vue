@@ -35,11 +35,20 @@
       }
     },
     methods: {
+      removeFromList(personID) {
+        let index = this.foundPeople.findIndex(item => {
+          return item.id == personID
+        });
+
+        if (index > -1)
+          this.foundPeople.splice(index, 1)
+
+      },   
       selectPerson(person) {
         this.$http.get('/people/' + person.id.toString() + '.json').then(response => {
           this.selectedPerson = response.body;
+          this.$emit('input', this.selectedPerson);
         })
-        this.$emit('input', this.selectedPerson);
         // console.log(person);
         // console.log(JSON.stringify(person, null, 2))
       },

@@ -151,7 +151,8 @@
          // delete the merged in person and refresh the merged to person
           this.$http.delete('/people/' + this.mergePerson.id).then(response => {
             // console.log('DELETED: ' + this.mergePerson.id);
-            this.$refs.matchPeople.removeFromList(this.mergePerson.id)
+            this.$refs.matchPeople.removeFromList(this.mergePerson.id)    // remove the merge person from the matchPerson list
+            this.$refs.foundPeople.removeFromList(this.mergePerson.id)   // remove the merge person from the foundPerson list
             this.$refs.matchPeople.clearMergePerson();
             this.mergePerson = {};
           })
