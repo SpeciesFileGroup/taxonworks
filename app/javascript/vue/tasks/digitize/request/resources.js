@@ -31,6 +31,11 @@ const GetTypes = function () {
   return ajaxCall('get', `/type_materials/type_types.json`)
 }
 
+const GetTaxon = function (id) {
+  return ajaxCall('get', `/taxon_names/${id}.json`)
+}
+
 export {
-  GetTypes
+  GetTypes,
+  GetTaxon
 }

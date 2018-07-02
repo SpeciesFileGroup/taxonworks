@@ -3,10 +3,12 @@
     <h2>Collectors</h2>
     <smart-selector
       v-model="view"
+      name="collectors"
       :options="options"/>
     <autocomplete
       url="/url"
       placeholder="Search"
+      min="2"
       param="term"/>
   </div>
 </template>

@@ -4,18 +4,22 @@
       <label>Group</label>
       <autocomplete
         url="/url"
+        min="2"
         param="term"/>
       <label>Formation</label>
       <autocomplete
         url="/url"
+        min="2"
         param="term"/>
       <label>Member</label>
       <autocomplete
         url="/url"
+        min="2"
         param="term"/>
       <label>Lithology</label>
       <autocomplete
         url="/url"
+        min="2"
         param="term"/>
     </div>
     <div class="horizontal-left-content ma-fields">

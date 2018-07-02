@@ -73,6 +73,7 @@ function makeInitialState () {
     type_material: {
       id: undefined,
       protonym_id: undefined,
+      taxon: undefined,
       biological_object_id: undefined,
       type_type: undefined,
       roles_attributes: [],

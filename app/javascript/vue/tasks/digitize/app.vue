@@ -1,16 +1,23 @@
 <template>
   <div id="#vue-all-in-one">
-    <taxon-determination-layout/>
-    <collection-event-layout/>
+    <div class="horizontal-left-content">
+      <div>
+        <taxon-determination-layout/>
+        <type-material/>
+      </div>
+      <collection-event-layout/>
+    </div>
   </div>
 </template>
 
 <script>
   import TaxonDeterminationLayout from './components/taxonDetermination/main.vue'
   import CollectionEventLayout from './components/collectionEvent/main.vue'
+  import TypeMaterial from './components/typeMaterial/typeMaterial.vue'
 
   export default {
     components: {
+      TypeMaterial,
       TaxonDeterminationLayout,
       CollectionEventLayout
     }

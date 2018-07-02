@@ -1,26 +1,31 @@
 <template>
   <div>
     <h2>Type material</h2>
-    <label>Taxon name</label>
-    <autocomplete
-      url="/taxon_names/autocomplete"
-      min="2"
-      param="term"
-      placeholder="Select a taxon name"
-      @getItem="taxon = $event"
-      label="label"/>
-    <label>Type type</label>
-    <select
-      v-model="type"
-      class="normal-input">
-      <template v-if="checkForTypeList">
-        <option
-          class="capitalize"
-          :value="key"
-          v-for="(item, key) in types[taxon.nomenclatural_code]">{{ key }}
-        </option>
-      </template>
-    </select>
+    <div>
+      <label>Taxon name</label>
+      <autocomplete
+        url="/taxon_names/autocomplete"
+        min="2"
+        param="term"
+        placeholder="Select a taxon name"
+        @getItem="selectTaxon"
+        label="label"/>
+    </div>
+    <div>
+      <label>Type type</label>
+      <br>
+      <select
+        v-model="type"
+        class="normal-input">
+        <template v-if="checkForTypeList">
+          <option
+            class="capitalize"
+            :value="key"
+            v-for="(item, key) in types[taxon.nomenclatural_code]">{{ key }}
+          </option>
+        </template>
+      </select>
+    </div>
     <label>Type designator</label>
     <role-picker
       v-model="roles"
@@ -32,8 +37,10 @@
 <script>
 
   import Autocomplete from '../../../../components/autocomplete.vue'
-  import GetTypes from '../request/resources.js'
+  import { GetTypes } from '../../request/resources.js'
   import RolePicker from '../../../../components/role_picker.vue'
+  import ActionNames from '../../store/actions/actionNames.js'
+  import { GetterNames } from '../../store/getters/getters.js'
 
   export default {
     components: {
@@ -43,12 +50,14 @@
     computed: {
       checkForTypeList () {
         return this.types && this.taxon
+      },
+      taxon() {
+        return this.$store.getters[GetterNames.GetTypeMaterial].taxon
       }
     },
     data() {
       return {
         type: undefined,
-        taxon: undefined,
         types: undefined,
         roles: []
       }
@@ -57,6 +66,11 @@
       GetTypes().then(response => {
         this.types = response
       })
+    },
+    methods: {
+      selectTaxon(taxon) {
+        this.$store.dispatch(ActionNames.GetTaxon, taxon.id)
+      }
     }
   }
 </script>

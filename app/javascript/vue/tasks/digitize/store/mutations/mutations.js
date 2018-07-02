@@ -28,7 +28,25 @@ import setCollectionEventElevationPrecision from './setCollectionEventElevationP
 import setCollectionEventMaximumElevation from './setCollectionEventMaximumElevation'
 import setCollectionEventMinimumElevation from './setCollectionEventMinimumElevation'
 
+import setTypeMaterialBiologicalObjectId from './TypeMaterial/setTypeMaterialBiologicalObjectId'
+import setTypeMaterialCollectionObject from './TypeMaterial/setTypeMaterialCollectionObject'
+import setTypeMaterialCollectionObjectId from './TypeMaterial/setTypeMaterialCollectionObjectId'
+import setTypeMaterialDesignatorRoles from './TypeMaterial/setTypeMaterialDesignatorRoles'
+import setTypeMaterialProtonymId from './TypeMaterial/setTypeMaterialProtonymId'
+import setTypeMaterialRoles from './TypeMaterial/setTypeMaterialRoles'
+import setTypeMaterialType from './TypeMaterial/setTypeMaterialType'
+import setTypeMaterialTaxon from './TypeMaterial/setTypeMaterialTaxon'
+
 const MutationNames = {
+  SetTypeMaterialBiologicalObjectId: 'setTypeMaterialBiologicalObjectId',
+  SetTypeMaterialCollectionObject: 'setTypeMaterialCollectionObject',
+  SetTypeMaterialCollectionObjectId: 'setTypeMaterialCollectionObjectId',
+  SetTypeMaterialDesignatorRoles: 'setTypeMaterialDesignatorRoles',
+  SetTypeMaterialProtonymId: 'setTypeMaterialProtonymId',
+  SetTypeMaterialRoles: 'setTypeMaterialRoles',
+  SetTypeMaterialType: 'setTypeMaterialType',
+  SetTypeMaterialTaxon: 'setTypeMaterialTaxon',
+
   SetCollectionEventLabel: 'setCollectionEventLabel',
   SetCollectionEventCollectors: 'setCollectionEventCollectors',
   SetCollectionEventDate: 'setCollectionEventDate',
@@ -61,6 +79,15 @@ const MutationNames = {
 }
 
 const MutationFunctions = {
+  [MutationNames.SetTypeMaterialBiologicalObjectId]: setTypeMaterialBiologicalObjectId,
+  [MutationNames.SetTypeMaterialCollectionObject]: setTypeMaterialCollectionObject,
+  [MutationNames.SetTypeMaterialCollectionObjectId]: setTypeMaterialCollectionObjectId,
+  [MutationNames.SetTypeMaterialDesignatorRoles]: setTypeMaterialDesignatorRoles,
+  [MutationNames.SetTypeMaterialProtonymId]: setTypeMaterialProtonymId,
+  [MutationNames.SetTypeMaterialRoles]: setTypeMaterialRoles,
+  [MutationNames.SetTypeMaterialType]: setTypeMaterialType,
+  [MutationNames.SetTypeMaterialTaxon]: setTypeMaterialTaxon,
+
   [MutationNames.SetCollectionObject]: setCollectionObject,
   [MutationNames.SetCollectionObjectBufferedCollectionEvent]: setCollectionObjectBufferedCollectionEvent,
   [MutationNames.SetCollectionEventLabel]: setCollectionEventLabel,

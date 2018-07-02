@@ -2,6 +2,7 @@
   <div>
     <smart-selector
       v-model="view"
+      name="determination"
       :options="options"/>
     <label>OTU</label>
     <otu-picker @getItem="otu = $event"/> 
@@ -46,6 +47,11 @@ export default {
       otu: undefined,
       view: undefined,
       options: ['Quick', 'Recent', 'Pinboard', 'New']
+    }
+  },
+  methods: {
+    SaveMethod() {
+      
     }
   }
 }
