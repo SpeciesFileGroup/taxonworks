@@ -434,7 +434,7 @@ describe Person, type: :model do
 
       context 'merging' do
         specify 'two persons become one' do
-          person1.merge_with(person1b)
+          person1.merge_with(person1b.id)
           expect(person1.year_born).to eq(2000)
         end
       end
