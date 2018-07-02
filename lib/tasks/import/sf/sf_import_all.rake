@@ -2,6 +2,8 @@ namespace :tw do
   namespace :project_import do
     namespace :sf_import do
 
+      # @todo: Matt: combinations for citations, cite data_attributes (supplementary_taxon_info), scrutiny authors as roles
+
       # rake tw:db:restore backup_directory=../db_backup file=../db_backup/0_pristine_tw_init_all/2016-04-26_192513UTC.dump
 
       desc 'time rake tw:project_import:sf_import:run_all_import_tasks user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
@@ -10,7 +12,6 @@ namespace :tw do
 
           # 'tw:db:restore backup_directory=../db_backup file=../db_backup/0_pristine_tw_init_all/2016-04-26_192513UTC.dump',
 
-          # ### start section took 419m54.488s
           # 'start:list_skipped_file_ids',
           # 'start:create_users',
           # 'start:create_people',
@@ -33,7 +34,7 @@ namespace :tw do
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/3_after_source_roles',
           #
           #
-          # ### taxa section took 3929m23.113s
+          # 'taxa:list_excluded_taxa',  # took 3m42.090s on 2 July 2018
           # 'taxa:create_rank_hash',
           # 'taxa:create_animalia_below_root',
           # 'taxa:create_sf_synonym_id_to_new_parent_id_hash',
@@ -67,7 +68,7 @@ namespace :tw do
           # 15m57.314s on 13 June 2018
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/9_after_orig_genus_ids',
           #
-          # ### specimens section took 195m28.611s
+          # ### specimens section
           # 'specimens:create_specimen_unique_id',
           # 'specimens:create_sf_geo_level4_hash',
           # 10m47.481s + some for unique_id on 14 June 2018
@@ -103,15 +104,11 @@ namespace :tw do
           # 178m12.798s on 27 June 2018, 165m44.310s also on 27 June, 165m27.875s also on 27 June,
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/13_after_collections_objects'
           #
-          #
-          # leaving rest to last
-          #
           # 'supplementary:taxon_info',
+          # 0m57.358s on 29 June 2018, 1m1.335s on 2 July 2018
+          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/15_after_suppl_info'
+          #
           # 'supplementary:scrutiny_related',
-          #
-          #
-          # then specimens if no prerequisites
-          #
           #
           #
           #
