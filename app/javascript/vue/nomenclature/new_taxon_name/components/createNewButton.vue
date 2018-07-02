@@ -16,7 +16,7 @@
     <button
       type="button"
       class="normal-input button button-default"
-      @click="createNew()">New
+      @click="createNew($event)">New
     </button>
   </div>
 </template>
@@ -43,11 +43,16 @@ export default {
     reloadPage: function () {
       window.location.href = '/tasks/nomenclature/new_taxon_name/'
     },
-    createNew () {
-      if (this.unsavedChanges) {
-        this.showModal = true
-      } else {
-        this.reloadPage()
+    createNew (e) {
+      if(e.metaKey) {
+        window.open('/tasks/nomenclature/new_taxon_name/')
+      }
+      else {
+        if (this.unsavedChanges) {
+          this.showModal = true
+        } else {
+          this.reloadPage()
+        }
       }
     }
   }

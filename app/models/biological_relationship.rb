@@ -40,14 +40,6 @@ class BiologicalRelationship < ApplicationRecord
 
   has_many :biological_associations, inverse_of: :biological_relationship
 
-  # TODO: move to /lib/queries
-  def self.find_for_autocomplete(params)
-    t = params[:term]
-    t2 = t + '%'
-    t3 = '%' + t2
-    BiologicalRelationship.where('(name ILIKE ?) OR (name ILIKE ?) OR (name ILIKE ?) OR (inverted_name ILIKE ?) OR (inverted_name ILIKE ?) OR (inverted_name ILIKE ?) ', t,t2,t3).where(project_id: params[:project_id])
-  end
-
   # @return [Scope]
   #    the max 10 most recently used biological relationships 
   def self.used_recently

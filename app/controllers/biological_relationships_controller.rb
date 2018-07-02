@@ -84,18 +84,7 @@ class BiologicalRelationshipsController < ApplicationController
   end
 
   def autocomplete
-    biological_relationships = BiologicalRelationship.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
-    data = biological_relationships.collect do |t|
-      {id: t.id,
-       label: ApplicationController.helpers.biological_relationship_tag(t),
-       response_values: {
-         params[:method] => t.id
-       },
-       label_html: ApplicationController.helpers.biological_relationship_tag(t)
-      }
-    end
-
-    render json: data
+    @biological_relationships = Queries::BiologicalRelationship::Autocomplete.new( params.require(:term), project_id: sessions_current_project_id).all
   end
 
   def select_options

@@ -2,150 +2,158 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: taxonworks
-  namespace: tw
+  name: tw-sandpaper 
+  namespace: sandbox
   labels:
-    app: taxonworks
+    app: tw-sandpaper 
     tier: frontend
 spec:
   type: NodePort
   ports:
     - port: 80
-      targetPort: 80
+      nodePort: 30833
   selector:
-    app: taxonworks
+    app: tw-sandpaper 
     tier: frontend
 
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: taxonworks
-  namespace: tw
+  name: tw-sandpaper 
+  namespace: sandbox 
 spec:
-  replicas: 3
+  replicas: 1 # must be 1 in sandbox
   template:
     metadata:
-      namespace: tw
-      name: taxonworks
+      namespace: sandbox
+      name: tw-sandpaper 
       labels:
-        app: taxonworks
+        app: tw-sandpaper
         tier: frontend
     spec:
       volumes:
-        - name: taxonworks-media-vol
+        - name: sandbox-staging-vol
           persistentVolumeClaim:
-            claimName: taxonworks-media-pv-claim
-        - name: taxonworks-backup-vol
+            claimName: sandbox-staging-pv-claim
+        - name: sandbox-backup-vol
           persistentVolumeClaim:
-            claimName: taxonworks-backup-pv-claim
-        - name: taxonworks-staging-vol
-          persistentVolumeClaim:
-            claimName: taxonworks-staging-pv-claim
+            claimName: sandbox-backup-pv-claim
       containers:
-        - name: taxonworks
-          image: sfgrp/taxonworks:development
+        - name: tw-sandpaper 
+          image: sfgrp/taxonworks:latest
           ports:
             - containerPort: 80
               name: http
+          resources:
+            limits:
+              memory: "8Gi"
+            requests:
+              memory: "8Gi"
           volumeMounts:
-            - mountPath: /app/public/system
-              name: taxonworks-media-vol
-            - mountPath: /backup
-              name: taxonworks-backup-vol
             - mountPath: /staging
-              name: taxonworks-staging-vol
+              name: sandbox-staging-vol
+            - mountPath: /backup
+              name: sandbox-backup-vol
           readinessProbe:
             httpGet:
               path: /ping
               port: 80
-            initialDelaySeconds: 1500 # 30 
+            initialDelaySeconds: 2000 
             timeoutSeconds: 3
           livenessProbe:
             httpGet:
               path: /ping
               port: 80
-            initialDelaySeconds: 1500 # 180
+            initialDelaySeconds: 2000 
             timeoutSeconds: 3
           env:
             - name: RAILS_ENV
               value: production
+            - name: NODE_ENV
+              value: production
             - name: SERVER_NAME
-              value: sfg.taxonworks.org 
+              valueFrom:
+                configMapKeyRef:
+                  name: tw-sandpaper
+                  key: server.name 
             - name: POSTGRES_HOST
-              value: taxonworks-db
+              valueFrom:
+                configMapKeyRef:
+                  name: tw-sandpaper
+                  key: db.host
             - name: POSTGRES_DB
               valueFrom:
                 configMapKeyRef:
-                  name: taxonworks
+                  name: tw-sandpaper 
                   key: db
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: taxonworks
+                  name: tw-sandpaper 
                   key: db.user
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: taxonworks
+                  name: tw-sandpaper
                   key: db.user.password
             - name: NGINX_SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: taxonworks 
+                  name: tw-sandpaper 
                   key: nginx.secret 
             - name: SECRET_KEY_BASE
               valueFrom:
                 secretKeyRef:
-                  name: taxonworks
+                  name: tw-sandpaper
                   key: secret_key_base
             - name: TW_EXCEPTION_NOTIFICATION_EMAIL_PREFIX
               valueFrom:
                 configMapKeyRef:
-                  name: taxonworks 
+                  name: tw-sandpaper 
                   key: tw.exception_notification.email_prefix
             - name: TW_EXCEPTION_NOTIFICATION_SENDER_ADDRESS
               valueFrom:
                 configMapKeyRef:
-                  name: taxonworks 
+                  name: tw-sandpaper 
                   key: tw.exception_notification.sender_address
             - name: TW_EXCEPTION_RECIPIENTS
               valueFrom:
                 configMapKeyRef:
-                  name: taxonworks 
+                  name: tw-sandpaper 
                   key: tw.exception_recipients
             - name: TW_ACTION_MAILER_SMTP_SETTINGS_ADDRESS
               valueFrom:
                 configMapKeyRef:
-                  name: taxonworks 
+                  name: tw-sandpaper 
                   key: tw.action_mailer_smtp_settings.address
             - name: TW_ACTION_MAILER_SMTP_SETTINGS_PORT
               valueFrom:
                 configMapKeyRef:
-                  name: taxonworks 
+                  name: tw-sandpaper 
                   key: tw.action_mailer_smtp_settings.port
             - name: TW_ACTION_MAILER_SMTP_SETTINGS_DOMAIN
               valueFrom:
                 configMapKeyRef:
-                  name: taxonworks 
+                  name: tw-sandpaper 
                   key: tw.action_mailer_smtp_settings.domain
             - name: TW_ACTION_MAILER_URL_HOST
               valueFrom:
                 configMapKeyRef:
-                  name: taxonworks 
+                  name: tw-sandpaper 
                   key: tw.action_mailer_url_host
             - name: TW_MAIL_DOMAIN
               valueFrom:
                 configMapKeyRef:
-                  name: taxonworks 
+                  name: tw-sandpaper 
                   key: tw.mail_domain
             - name: TW_PATHS_STAGING
               valueFrom:
                 configMapKeyRef:
-                  name: taxonworks 
+                  name: tw-sandpaper 
                   key: tw.paths.staging
             - name: TW_PATHS_BACKUP
               valueFrom:
                configMapKeyRef:
-                 name: taxonworks 
+                 name: tw-sandpaper 
                  key: tw.paths.backup
