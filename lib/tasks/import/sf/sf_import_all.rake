@@ -109,6 +109,8 @@ namespace :tw do
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/15_after_suppl_info'
           #
           # 'supplementary:scrutiny_related',
+          # 9m39.816s on 2 July 2018
+          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/16_after_scrutinies'
           #
           #
           #
@@ -863,6 +865,48 @@ Error logs:
 [ERROR]2018-06-28 18:28:24.204: CollectionObject ERROR SF.SpecimenID = 141393 (4): Protonym Type cannot be designated, name is not a species group name
 
 
+[INFO]2018-07-02 16:55:16.792: Logged task tw:project_import:sf_import:supplementary:scrutiny_related completed!
+[INFO]2018-07-02 16:55:16.792: All tasks completed. Dumping summary for each task...
+=== Summary of warnings and errors for task tw:project_import:sf_import:supplementary:scrutiny_related ===
+[ERROR]2018-07-02 16:53:51.051: TW.taxon_name_id is nil: ScrutinyID = 61, SF.TaxonNameID 1125484, SF.FileID = 1
+[ERROR]2018-07-02 16:53:52.545: TW.taxon_name_id is nil: ScrutinyID = 562, SF.TaxonNameID 1132662, SF.FileID = 1
+[ERROR]2018-07-02 16:53:52.622: TW.taxon_name_id is nil: ScrutinyID = 264, SF.TaxonNameID 1132951, SF.FileID = 1
+[ERROR]2018-07-02 16:53:52.676: TW.taxon_name_id is nil: ScrutinyID = 336, SF.TaxonNameID 1133074, SF.FileID = 1
+[ERROR]2018-07-02 16:53:52.676: TW.taxon_name_id is nil: ScrutinyID = 336, SF.TaxonNameID 1133075, SF.FileID = 1
+[ERROR]2018-07-02 16:53:52.676: TW.taxon_name_id is nil: ScrutinyID = 336, SF.TaxonNameID 1133076, SF.FileID = 1
+[ERROR]2018-07-02 16:53:52.677: TW.taxon_name_id is nil: ScrutinyID = 336, SF.TaxonNameID 1133077, SF.FileID = 1
+[ERROR]2018-07-02 16:53:52.677: TW.taxon_name_id is nil: ScrutinyID = 279, SF.TaxonNameID 1133081, SF.FileID = 1
+[ERROR]2018-07-02 16:53:56.910: TW.taxon_name_id is nil: ScrutinyID = 145, SF.TaxonNameID 1135612, SF.FileID = 1
+[ERROR]2018-07-02 16:53:57.007: TW.taxon_name_id is nil: ScrutinyID = 233, SF.TaxonNameID 1135940, SF.FileID = 1
+[ERROR]2018-07-02 16:53:57.306: TW.taxon_name_id is nil: ScrutinyID = 147, SF.TaxonNameID 1136651, SF.FileID = 1
+[ERROR]2018-07-02 16:53:58.195: TW.taxon_name_id is nil: ScrutinyID = 566, SF.TaxonNameID 1138340, SF.FileID = 1
+[ERROR]2018-07-02 16:53:58.235: TW.taxon_name_id is nil: ScrutinyID = 627, SF.TaxonNameID 1138385, SF.FileID = 1
+[ERROR]2018-07-02 16:53:58.235: TW.taxon_name_id is nil: ScrutinyID = 627, SF.TaxonNameID 1138387, SF.FileID = 1
+[ERROR]2018-07-02 16:53:58.989: TW.taxon_name_id is nil: ScrutinyID = 332, SF.TaxonNameID 1140105, SF.FileID = 1
+[ERROR]2018-07-02 16:53:59.031: TW.taxon_name_id is nil: ScrutinyID = 568, SF.TaxonNameID 1140191, SF.FileID = 1
+[ERROR]2018-07-02 16:53:59.086: TW.taxon_name_id is nil: ScrutinyID = 260, SF.TaxonNameID 1140264, SF.FileID = 1
+[ERROR]2018-07-02 16:53:59.836: TW.taxon_name_id is nil: ScrutinyID = 406, SF.TaxonNameID 1141029, SF.FileID = 1
+[ERROR]2018-07-02 16:53:59.837: TW.taxon_name_id is nil: ScrutinyID = 406, SF.TaxonNameID 1141030, SF.FileID = 1
+[ERROR]2018-07-02 16:53:59.907: TW.taxon_name_id is nil: ScrutinyID = 405, SF.TaxonNameID 1141059, SF.FileID = 1
+[ERROR]2018-07-02 16:53:59.943: TW.taxon_name_id is nil: ScrutinyID = 4725, SF.TaxonNameID 1141116, SF.FileID = 1
+[ERROR]2018-07-02 16:54:34.284: TW.taxon_name_id is nil: ScrutinyID = 1622, SF.TaxonNameID 1164852, SF.FileID = 14
+[ERROR]2018-07-02 16:54:34.489: TW.taxon_name_id is nil: ScrutinyID = 2884, SF.TaxonNameID 1164933, SF.FileID = 14
+[ERROR]2018-07-02 16:54:34.489: TW.taxon_name_id is nil: ScrutinyID = 2101, SF.TaxonNameID 1164934, SF.FileID = 14
+[ERROR]2018-07-02 16:54:36.592: TW.taxon_name_id is nil: ScrutinyID = 2104, SF.TaxonNameID 1165628, SF.FileID = 14
+[ERROR]2018-07-02 16:54:36.723: TW.taxon_name_id is nil: ScrutinyID = 2882, SF.TaxonNameID 1165670, SF.FileID = 14
+[ERROR]2018-07-02 16:54:36.723: TW.taxon_name_id is nil: ScrutinyID = 2883, SF.TaxonNameID 1165671, SF.FileID = 14
+[ERROR]2018-07-02 16:54:43.334: TW.taxon_name_id is nil: ScrutinyID = 2096, SF.TaxonNameID 1167757, SF.FileID = 14
+[ERROR]2018-07-02 16:55:01.890: TW.taxon_name_id is nil: ScrutinyID = 4056, SF.TaxonNameID 1187513, SF.FileID = 5
+[ERROR]2018-07-02 16:55:11.948: TW.taxon_name_id is nil: ScrutinyID = 3768, SF.TaxonNameID 1217639, SF.FileID = 14
+[ERROR]2018-07-02 16:55:11.948: TW.taxon_name_id is nil: ScrutinyID = 4687, SF.TaxonNameID 1217639, SF.FileID = 14
+[ERROR]2018-07-02 16:55:12.951: TW.taxon_name_id is nil: ScrutinyID = 1873, SF.TaxonNameID 1217692, SF.FileID = 14
+[ERROR]2018-07-02 16:55:12.951: TW.taxon_name_id is nil: ScrutinyID = 4711, SF.TaxonNameID 1217692, SF.FileID = 14
+[ERROR]2018-07-02 16:55:13.192: TW.taxon_name_id is nil: ScrutinyID = 4743, SF.TaxonNameID 1217897, SF.FileID = 1
+[ERROR]2018-07-02 16:55:13.192: TW.taxon_name_id is nil: ScrutinyID = 4779, SF.TaxonNameID 1217969, SF.FileID = 1
+[ERROR]2018-07-02 16:55:13.193: TW.taxon_name_id is nil: ScrutinyID = 4762, SF.TaxonNameID 1218004, SF.FileID = 1
+[ERROR]2018-07-02 16:55:14.528: TW.taxon_name_id is nil: ScrutinyID = 4962, SF.TaxonNameID 1221809, SF.FileID = 1
+[ERROR]2018-07-02 16:55:14.724: TW.taxon_name_id is nil: ScrutinyID = 3482, SF.TaxonNameID 1222168, SF.FileID = 14
+[ERROR]2018-07-02 16:55:15.456: TW.taxon_name_id is nil: ScrutinyID = 5318, SF.TaxonNameID 1225991, SF.FileID = 14
 
 
 
