@@ -54,6 +54,10 @@
       },
       clearSelectedPerson() {
         this.selectedPerson = {};
+      },
+      catchHttpStatus(status) {
+        console.log(status);
+        alert(status);
       }
     }
   }

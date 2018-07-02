@@ -149,8 +149,7 @@
         this.$http.post('/people/' + this.selectedPerson.id.toString() + '/merge', params).then(response => {
           this.$refs.foundPeople.selectPerson(this.selectedPerson);   // why?
           let httpStatus = response.body;
-          console.log(httpStatus);
-          if (httpStatus == 'OK') {
+          if (httpStatus.status == 'OK') {
          // delete the merged in person and refresh the merged to person
           this.$http.delete('/people/' + this.mergePerson.id).then(response => {
             // console.log('DELETED: ' + this.mergePerson.id);
@@ -160,8 +159,8 @@
             this.mergePerson = {};
           })
           }
-          else {
-            this.$refs.foundPeople.clearSelectedPerson();
+          else {    // TODO: Annunciate failure more gracefully
+            alert(httpStatus.status);
             this.$refs.matchPeople.clearMergePerson();
           }
         })
