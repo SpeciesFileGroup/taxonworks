@@ -162,6 +162,7 @@
           else {    // TODO: Annunciate failure more gracefully
             alert(httpStatus.status);
             this.$refs.matchPeople.clearMergePerson();
+            this.mergePerson = {};
           }
         })
       },
