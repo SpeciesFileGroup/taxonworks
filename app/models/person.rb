@@ -193,19 +193,21 @@ class Person < ApplicationRecord
                       l_o.value == r_o.value &&
                       l_o.project_id == r_o.project_id
                       skip = true
-                      # break
+                      break # stop looking in this bunch, if you found a match
                     end
                   when 'identifiers'
                     if l_o.type == r_o.type &&
                       l_o.identifier == r_o.identifier &&
                       l_o.project_id == r_o.project_id
                       skip = true
+                      break # stop looking in this bunch, if you found a match
                     end
                   when 'notes'
                     if l_o.text == r_o.text &&
                       l_o.note_object_attribute == r_o.note.object_attribute &&
                       l_o.project_id == r_o.project_id
                       skip = true
+                      break # stop looking in this bunch, if you found a match
                     end
                   when 'alternate values'
                     if l_o.value == r_o.value &&
@@ -213,12 +215,13 @@ class Person < ApplicationRecord
                       l_o.alternate_value_object_attribute == r_o.alternate_value_object_attribute &&
                       l_o.project_id == r_o.project_id
                       skip = true
+                      break # stop looking in this bunch, if you found a match
                     end
                 end
+                skip
               end
               unless skip
                 r_o.annotated_object = self
-                r_o.valid?
                 r_o.save!
               end
             end
