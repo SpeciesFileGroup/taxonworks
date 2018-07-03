@@ -208,10 +208,12 @@ class Person < ApplicationRecord
                       skip = true
                     end
                   when 'alternate values'
-                    l_o.value == r_o.value &&
+                    if l_o.value == r_o.value &&
                       l_o.type == r_o.type &&
                       l_o.alternate_value_object_attribute == r_o.alternate_value_object_attribute &&
                       l_o.project_id == r_o.project_id
+                      skip = true
+                    end
                 end
               end
               unless skip
