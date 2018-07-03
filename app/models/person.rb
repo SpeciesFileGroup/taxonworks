@@ -165,20 +165,58 @@ class Person < ApplicationRecord
     collector_roles.to_a.length > 0
   end
 
+  # @param [Integer] person_id
   # @return [Boolean]
   #   true if all records updated, false if any one failed (all or none)
-  # Old_person (self) is the survivor
+  # r_person is merged into l_person (self)
   # TODO: handle years attributes
-  # When names don't match add alternate values to the corresponding names except extant
+  # TODO: When names don't match add alternate values to the corresponding names except extant
   def merge_with(person_id)
-    if new_person = Person.find(person_id)  # get the new (merged into self) person
+    if r_person = Person.find(person_id) # get the new (merged into self) person
+      l_person_hash = self.annotations_hash
       begin
-        ApplicationRecord.transaction do 
-          Role.where(person_id: new_person.id).update(person: self)  # update merge person's roles to old
-          new_person.annotations_hash.each do |type, objects|
-            objects.each do |o|
-              o.annotated_object = self
-              o.save!
+        ApplicationRecord.transaction do
+          Role.where(person_id: r_person.id).update(person: self) # update merge person's roles to old
+          r_person.annotations_hash.each do |r_kee, r_objects|
+            r_objects.each do |r_o|
+              skip = false
+              l_person_hash.each do |l_kee, l_objects|
+                if l_kee == r_kee
+                  l_objects.each do |l_o|
+                    case l_kee
+                      when 'citations'
+                        skrump
+                      when 'data attributes'
+                        if l_o.type == r_o.type &&
+                          l_o.controlled_vocabulary_term_id == r_o.controlled_vocabulary_term_id &&
+                          l_o.value == r_o.value
+                          skip = true
+                          break
+                        end
+                      when 'identifiers'
+                        skrump
+                      when 'notes'
+                        skrump
+                      when 'tags'
+                        skrump
+                      when 'depictions'
+                        skrump
+                      when 'confidences'
+                        skrump
+                      when 'protocol_relationships'
+                        skrump
+                      when 'alternate values'
+                        skrump
+                      else
+                      raise "Unknown annotations type '#{l_kee}'!"
+                    end
+                  end
+                end
+              end
+              unless skip
+                r_o.annotated_object = self
+                r_o.save!
+              end
             end
           end
         end
