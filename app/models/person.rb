@@ -180,41 +180,43 @@ class Person < ApplicationRecord
           r_person.annotations_hash.each do |r_kee, r_objects|
             r_objects.each do |r_o|
               skip = false
-              l_person_hash.each do |l_kee, l_objects|
-                if l_kee == r_kee
-                  l_objects.each do |l_o|
-                    case l_kee
-                      when 'citations'
-                        skrump
-                      when 'data attributes'
-                        if l_o.type == r_o.type &&
-                          l_o.controlled_vocabulary_term_id == r_o.controlled_vocabulary_term_id &&
-                          l_o.value == r_o.value
-                          skip = true
-                          break
-                        end
-                      when 'identifiers'
-                        skrump
-                      when 'notes'
-                        skrump
-                      when 'tags'
-                        skrump
-                      when 'depictions'
-                        skrump
-                      when 'confidences'
-                        skrump
-                      when 'protocol_relationships'
-                        skrump
-                      when 'alternate values'
-                        skrump
-                      else
-                      raise "Unknown annotations type '#{l_kee}'!"
+              l_person_hash[r_kee].each do |l_o| # only look at same-type annotations
+                # four types of annotations:
+                # # data attributes,
+                # # identifiers,
+                # # notes,
+                # # alternate values
+                case r_kee
+                  when 'data attributes'
+                    if l_o.type == r_o.type &&
+                      l_o.controlled_vocabulary_term_id == r_o.controlled_vocabulary_term_id &&
+                      l_o.value == r_o.value &&
+                      l_o.project_id == r_o.project_id
+                      skip = true
+                      # break
                     end
-                  end
+                  when 'identifiers'
+                    if l_o.type == r_o.type &&
+                      l_o.identifier == r_o.identifier &&
+                      l_o.project_id == r_o.project_id
+                      skip = true
+                    end
+                  when 'notes'
+                    if l_o.text == r_o.text &&
+                      l_o.note_object_attribute == r_o.note.object_attribute &&
+                      l_o.project_id == r_o.project_id
+                      skip = true
+                    end
+                  when 'alternate values'
+                    l_o.value == r_o.value &&
+                      l_o.type == r_o.type &&
+                      l_o.alternate_value_object_attribute == r_o.alternate_value_object_attribute &&
+                      l_o.project_id == r_o.project_id
                 end
               end
               unless skip
                 r_o.annotated_object = self
+                r_o.valid?
                 r_o.save!
               end
             end
