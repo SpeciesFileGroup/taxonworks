@@ -165,20 +165,62 @@ class Person < ApplicationRecord
     collector_roles.to_a.length > 0
   end
 
+  # @param [Integer] person_id
   # @return [Boolean]
   #   true if all records updated, false if any one failed (all or none)
-  # Old_person (self) is the survivor
+  # r_person is merged into l_person (self)
   # TODO: handle years attributes
-  # When names don't match add alternate values to the corresponding names except extant
+  # TODO: When names don't match add alternate values to the corresponding names except extant
   def merge_with(person_id)
-    if new_person = Person.find(person_id)  # get the new (merged into self) person
+    if r_person = Person.find(person_id) # get the new (merged into self) person
+      l_person_hash = self.annotations_hash
       begin
-        ApplicationRecord.transaction do 
-          Role.where(person_id: new_person.id).update(person: self)  # update merge person's roles to old
-          new_person.annotations_hash.each do |type, objects|
-            objects.each do |o|
-              o.annotated_object = self
-              o.save!
+        ApplicationRecord.transaction do
+          Role.where(person_id: r_person.id).update(person: self) # update merge person's roles to old
+          r_person.annotations_hash.each do |r_kee, r_objects|
+            r_objects.each do |r_o|
+              skip = false
+              l_person_hash[r_kee].each do |l_o| # only look at same-type annotations
+                # four types of annotations:
+                # # data attributes,
+                # # identifiers,
+                # # notes,
+                # # alternate values
+                case r_kee
+                  when 'data attributes'
+                    if l_o.type == r_o.type &&
+                      l_o.controlled_vocabulary_term_id == r_o.controlled_vocabulary_term_id &&
+                      l_o.value == r_o.value &&
+                      l_o.project_id == r_o.project_id
+                      skip = true
+                      # break
+                    end
+                  when 'identifiers'
+                    if l_o.type == r_o.type &&
+                      l_o.identifier == r_o.identifier &&
+                      l_o.project_id == r_o.project_id
+                      skip = true
+                    end
+                  when 'notes'
+                    if l_o.text == r_o.text &&
+                      l_o.note_object_attribute == r_o.note.object_attribute &&
+                      l_o.project_id == r_o.project_id
+                      skip = true
+                    end
+                  when 'alternate values'
+                    if l_o.value == r_o.value &&
+                      l_o.type == r_o.type &&
+                      l_o.alternate_value_object_attribute == r_o.alternate_value_object_attribute &&
+                      l_o.project_id == r_o.project_id
+                      skip = true
+                    end
+                end
+              end
+              unless skip
+                r_o.annotated_object = self
+                r_o.valid?
+                r_o.save!
+              end
             end
           end
         end
