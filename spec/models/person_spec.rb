@@ -216,6 +216,7 @@ describe Person, type: :model do
       let(:da2) { FactoryBot.create(:valid_data_attribute_internal_attribute,
                                     value:     'Mr.',
                                     predicate: cvt) }
+      let(:id1) { FactoryBot.create(:valid_identifier)}
 
       context 'usage' do
         specify 'initials and last name only' do
@@ -462,6 +463,13 @@ describe Person, type: :model do
           specify 'data_attributes are combined' do
             person1.merge_with(person1b.id)
             expect(person1.data_attributes.map(&:value)).to include('Mr.', 'Dr.')
+          end
+
+          specify 'identifiers' do
+            person1b.identifiers << id1
+            person1b.save!
+            person1.merge_with(person1b.id)
+            expect(person1.identifiers).to include(id1)
           end
         end
       end
