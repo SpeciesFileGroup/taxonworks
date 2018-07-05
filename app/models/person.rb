@@ -173,61 +173,70 @@ class Person < ApplicationRecord
   # TODO: When names don't match add alternate values to the corresponding names except extant
   def merge_with(person_id)
     if r_person = Person.find(person_id) # get the new (merged into self) person
-      l_person_hash = self.annotations_hash
+      # r_err         = nil
       begin
         ApplicationRecord.transaction do
           Role.where(person_id: r_person.id).update(person: self) # update merge person's roles to old
+          l_person_hash = self.annotations_hash
           r_person.annotations_hash.each do |r_kee, r_objects|
             r_objects.each do |r_o|
-              skip = false
-              l_person_hash[r_kee].each do |l_o| # only look at same-type annotations
-                # four types of annotations:
-                # # data attributes,
-                # # identifiers,
-                # # notes,
-                # # alternate values
-                case r_kee
-                  when 'data attributes'
-                    if l_o.type == r_o.type &&
-                      l_o.controlled_vocabulary_term_id == r_o.controlled_vocabulary_term_id &&
-                      l_o.value == r_o.value &&
-                      l_o.project_id == r_o.project_id
-                      skip = true
-                      break # stop looking in this bunch, if you found a match
-                    end
-                  when 'identifiers'
-                    if l_o.type == r_o.type &&
-                      l_o.identifier == r_o.identifier &&
-                      l_o.project_id == r_o.project_id
-                      skip = true
-                      break # stop looking in this bunch, if you found a match
-                    end
-                  when 'notes'
-                    if l_o.text == r_o.text &&
-                      l_o.note_object_attribute == r_o.note.object_attribute &&
-                      l_o.project_id == r_o.project_id
-                      skip = true
-                      break # stop looking in this bunch, if you found a match
-                    end
-                  when 'alternate values'
-                    if l_o.value == r_o.value &&
-                      l_o.type == r_o.type &&
-                      l_o.alternate_value_object_attribute == r_o.alternate_value_object_attribute &&
-                      l_o.project_id == r_o.project_id
-                      skip = true
-                      break # stop looking in this bunch, if you found a match
-                    end
+              skip   = false
+              l_test = l_person_hash[r_kee]
+              if l_test.present?
+                l_test.each do |l_o| # only look at same-type annotations
+                  # four types of annotations:
+                  # # data attributes,
+                  # # identifiers,
+                  # # notes,
+                  # # alternate values
+                  case r_kee
+                    when 'data attributes'
+                      if l_o.type == r_o.type &&
+                        l_o.controlled_vocabulary_term_id == r_o.controlled_vocabulary_term_id &&
+                        l_o.value == r_o.value &&
+                        l_o.project_id == r_o.project_id
+                        skip = true
+                        break # stop looking in this bunch, if you found a match
+                      end
+                    when 'identifiers'
+                      if l_o.type == r_o.type &&
+                        l_o.identifier == r_o.identifier &&
+                        l_o.project_id == r_o.project_id
+                        skip = true
+                        break # stop looking in this bunch, if you found a match
+                      end
+                    when 'notes'
+                      if l_o.text == r_o.text &&
+                        l_o.note_object_attribute == r_o.note.object_attribute &&
+                        l_o.project_id == r_o.project_id
+                        skip = true
+                        break # stop looking in this bunch, if you found a match
+                      end
+                    when 'alternate values'
+                      if l_o.value == r_o.value
+                        if l_o.type == r_o.type &&
+                          l_o.alternate_value_object_attribute == r_o.alternate_value_object_attribute &&
+                          l_o.project_id == r_o.project_id
+                          skip = true
+                          break # stop looking in this bunch, if you found a match
+                        end
+                      end
+                  end
                 end
                 skip
               end
               unless skip
+                # r_err                = r_o
                 r_o.annotated_object = self
                 r_o.save!
+                # r_o
               end
             end
           end
         end
-      rescue ActiveRecord::RecordInvalid
+      rescue ActiveRecord::RecordInvalid => r_e
+        # puts Rainbow("Failed with #{r_e.error.full_messages.join(', ')}.").red
+        # puts Rainbow("Failed with #{r_err.errors.messages.join(', ')}.").red
         return false
       end
     end
