@@ -17,6 +17,7 @@ class PeopleController < ApplicationController
         first_name = params[:firstname]
         # @people = Person.where(last_name: last_name, first_name: first_name).with_role(params[:roles])
         @people = Queries::Person::Filter.new(params).partial_complete #  partial_complete => broadest selection of names
+        @people = Person.where(id: @people.map(&:id)).order(:last_name)
         # stuff =[]
         # @people.each {|person|
         #   one = person.attributes
