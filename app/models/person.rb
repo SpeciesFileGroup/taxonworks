@@ -169,8 +169,6 @@ class Person < ApplicationRecord
   # @return [Boolean]
   #   true if all records updated, false if any one failed (all or none)
   # r_person is merged into l_person (self)
-  # TODO: handle years attributes
-  # TODO: When names don't match add alternate values to the corresponding names except extant
   def merge_with(person_id)
     if r_person = Person.find(person_id) # get the new (merged into self) person
       # r_err         = nil
@@ -178,6 +176,47 @@ class Person < ApplicationRecord
         ApplicationRecord.transaction do
           Role.where(person_id: r_person.id).update(person: self) # update merge person's roles to old
           l_person_hash = self.annotations_hash
+          # TODO: When names don't match add alternate values to the corresponding names except extant
+          if self.first_name != r_person.first_name
+            # create a first_name alternate_value of the r_person first name
+            skip_av = false
+            av_list = l_person_hash['alternate values']
+            (av_list ||= {}).each do |av|
+              if av.text == r_person.first_name
+                if av.type == 'AlternateValue::AlternateSpelling' &&
+                  av.alternate_value_object_attribute == 'first_name' # &&
+                  # av.project_id == r_person.project_id
+                  skip_av = true
+                  break # stop looking in this bunch, if you found a match
+                end
+              end
+            end
+
+            AlternateValue::AlternateSpelling.create(alternate_value_object_type:      'Person',
+                                                     value:                            r_person.first_name,
+                                                     alternate_value_object_attribute: 'first_name',
+                                                     alternate_value_object_id:        id) unless skip_av
+          end
+          if self.last_name != r_person.last_name
+            # create a last_name alternate_value of the r_person first name
+            skip_av = false
+            av_list = l_person_hash['alternate values']
+            (av_list ||= {}).each do |av|
+              if av.text == r_person.last_name
+                if av.type == 'AlternateValue::AlternateSpelling' &&
+                  av.alternate_value_object_attribute == 'last_name' # &&
+                  # av.project_id == r_person.project_id
+                  skip_av = true
+                  break # stop looking in this bunch, if you found a match
+                end
+              end
+            end
+
+            AlternateValue::AlternateSpelling.create(alternate_value_object_type:      'Person',
+                                                     value:                            r_person.last_name,
+                                                     alternate_value_object_attribute: 'last_name',
+                                                     alternate_value_object_id:        id) unless skip_av
+          end
           r_person.annotations_hash.each do |r_kee, r_objects|
             r_objects.each do |r_o|
               skip   = false
@@ -233,6 +272,29 @@ class Person < ApplicationRecord
               end
             end
           end
+          # TODO: handle years attributes
+          if self.year_born.nil?
+            self.year_born = r_person.year_born
+          else
+            #
+          end
+          if self.year_died.nil?
+            self.year_died = r_person.year_died
+          else
+            #
+          end
+          if r_person.year_active_start # if not, r_person has nothing to contribute
+            if self.year_active_start.nil? || (self.year_active_start > r_person.year_active_start)
+              self.year_active_start = r_person.year_active_start
+            end
+          end
+          if r_person.year_active_end # if not, r_person has nothing to contribute
+            if self.year_active_end.nil? || (self.year_active_end < r_person.year_active_end)
+              self.year_active_end = r_person.year_active_end
+            end
+          end
+          # last thing to do in the transaction...
+          self.save! unless self.persisted?
         end
       rescue ActiveRecord::RecordInvalid => r_e
         # puts Rainbow("Failed with #{r_e.error.full_messages.join(', ')}.").red

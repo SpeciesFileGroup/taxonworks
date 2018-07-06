@@ -216,7 +216,16 @@ describe Person, type: :model do
       let(:da2) { FactoryBot.create(:valid_data_attribute_internal_attribute,
                                     value:     'Mr.',
                                     predicate: cvt) }
-      let(:id1) { FactoryBot.create(:valid_identifier)}
+      let(:id1) { FactoryBot.create(:valid_identifier) }
+      let(:no1) { FactoryBot.create(:valid_note) }
+      let(:av1) { FactoryBot.create(:valid_alternate_value,
+                                    value:                            'Jan',
+                                    alternate_value_object_attribute: 'first_name',
+                                    alternate_value_object:           person1b) }
+      let(:av2) { FactoryBot.create(:valid_alternate_value,
+                                    value:                            'Janco',
+                                    alternate_value_object_attribute: 'first_name',
+                                    alternate_value_object:           person1) }
 
       context 'usage' do
         specify 'initials and last name only' do
@@ -450,9 +459,43 @@ describe Person, type: :model do
 
       context 'merging' do
         context 'two persons become one' do
-          specify 'years are combined' do
-            person1.merge_with(person1b.id)
-            expect(person1.year_born).to eq(2000)
+          context 'years are combined' do
+            context 'fills target year' do
+              specify 'if empty' do
+                person1.merge_with(person1b.id)
+                expect(person1.year_born).to eq(person1b.year_born)
+              end
+
+              specify 'if source start earlier' do
+                person1.year_active_start = person1b.year_active_start + 1
+                person1.save!
+                person1.merge_with(person1b.id)
+                expect(person1.year_active_start).to eq(person1b.year_active_start)
+              end
+
+              specify 'if source start later' do
+                person1.year_active_start = person1b.year_active_start - 1
+                person1.save!
+                pre = person1.year_active_start
+                person1.merge_with(person1b.id)
+                expect(person1.year_active_start).to eq(pre)
+              end
+
+              specify 'if source end later' do
+                person1.year_active_end = person1b.year_active_end - 1
+                person1.save!
+                person1.merge_with(person1b.id)
+                expect(person1.year_active_end).to eq(person1b.year_active_end)
+              end
+
+              specify 'if source end earlier' do
+                person1.year_active_end = person1b.year_active_end + 1
+                person1.save!
+                pre = person1.year_active_end
+                person1.merge_with(person1b.id)
+                expect(person1.year_active_end).to eq(pre)
+              end
+            end
           end
 
           specify 'roles are combined' do
@@ -462,6 +505,7 @@ describe Person, type: :model do
 
           specify 'data_attributes are combined' do
             person1.merge_with(person1b.id)
+            person1.reload  # TODO: Wondering why this 'reload' is requied?
             expect(person1.data_attributes.map(&:value)).to include('Mr.', 'Dr.')
           end
 
@@ -470,6 +514,33 @@ describe Person, type: :model do
             person1b.save!
             person1.merge_with(person1b.id)
             expect(person1.identifiers).to include(id1)
+          end
+
+          specify 'notes' do
+            person1b.notes << no1
+            person1b.save!
+            person1.merge_with(person1b.id)
+            expect(person1.notes).to include(no1)
+          end
+
+          specify 'alternate values' do
+            av1
+            person1.merge_with(person1b.id)
+            expect(person1.alternate_values).to include(av1)
+          end
+
+          specify 'different first name' do
+            person1b.first_name = 'Janco'
+            person1b.save!
+            person1.merge_with(person1b.id)
+            expect(person1.alternate_values.last.value).to include(person1b.first_name)
+          end
+
+          specify 'different last name' do
+            person1b.last_name = 'Smyth'
+            person1b.save!
+            person1.merge_with(person1b.id)
+            expect(person1.alternate_values.last.value).to include(person1b.last_name)
           end
         end
       end
