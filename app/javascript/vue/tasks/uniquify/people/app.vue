@@ -88,11 +88,7 @@
       </div>
 
     </div>
-    <!--<request-bar-->
-    <!--:url="request.url"-->
-    <!--:total="request.total"/>-->
-    <!--<view-list-->
-    <!--:list="resultList"/>-->
+    <!--TODO: place [Merge People] more conveniently-->
   </div>
 </template>
 
@@ -125,9 +121,6 @@
         return ((this.lastName.length > 0) || (this.firstName.length > 0))
       },
       enableMerge() {
-        // return true
-        // alert(this.$refs.mergePerson.mergePersonSet());
-        // return (this.mergePerson.hasOwnProperty(this.mergePerson.id)) // && (this.selectedPerson != {}))
         return Object.keys(this.mergePerson).length
       },
     },
@@ -192,10 +185,10 @@
       clearMatchData() {
         this.foundPeople = [];
         this.selectedPerson = {};
-        this.mergePerson = {};
         this.$refs.foundPeople.clearSelectedPerson();
-        this.$refs.matchPeople.clearMergePerson();
         this.matchPeople = [];
+        this.mergePerson = {};
+        this.$refs.matchPeople.clearMergePerson();
       },
 
     }

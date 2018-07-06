@@ -1,7 +1,7 @@
 <template>
   <div>
     <ul class="no_bullets">
-      <li v-for="(person, index) in matchPeople">
+      <li v-for="person in matchPeople">
         <label>
           <input
             name="match-people"
@@ -77,10 +77,6 @@
       },
       clearMergePerson() {
         this.mergePerson = {}
-      },
-      mergePersonSet() {
-        alert('match_people: ' + (this.mergePerson.hasOwnProperty(this.mergePerson.id)).toString());
-        return (this.mergePerson.hasOwnProperty(this.mergePerson.id))
       }
     }
   }

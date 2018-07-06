@@ -1,8 +1,7 @@
 <template>
   <div>
     <ul class="no_bullets">
-      <li 
-      v-for="(person, index) in foundPeople">
+      <li v-for="person in foundPeople">
         <label>
           <input
             name="found-people"
