@@ -128,7 +128,7 @@
         // return true
         // alert(this.$refs.mergePerson.mergePersonSet());
         // return (this.mergePerson.hasOwnProperty(this.mergePerson.id)) // && (this.selectedPerson != {}))
-        return (/*this.$refs.mergePerson.mergePersonSet() || */this.$refs.matchPeople.mergePersonSet())
+        return Object.keys(this.mergePerson).length
       },
     },
     data() {
