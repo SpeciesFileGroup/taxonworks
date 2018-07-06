@@ -75,9 +75,13 @@
           // console.log(this.matchPeople);
         })
       },
-        clearMergePerson() {
-          this.mergePerson = {}
-        }
+      clearMergePerson() {
+        this.mergePerson = {}
+      },
+      mergePersonSet() {
+        alert('match_people: ' + (this.mergePerson.hasOwnProperty(this.mergePerson.id)).toString());
+        return (this.mergePerson.hasOwnProperty(this.mergePerson.id))
+      }
     }
   }
 </script>

@@ -7,7 +7,8 @@
           <input
             name="found-people"
             type="radio"
-            :selected="person.id == selectedPerson.id"
+            v-model="selected"
+            :value="person.id"
             @click="selectPerson(person)">
           {{ person.cached }}
         </label>
@@ -32,7 +33,9 @@
     },
     data() {
       return {
-        selectedPerson: {}
+        selectedPerson: {},
+        selected: {}      // gets populated by the v-model to the value attribute of the radio button input 
+
       }
     },
     methods: {

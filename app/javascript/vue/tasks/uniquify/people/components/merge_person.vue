@@ -19,6 +19,12 @@
       return {
         thisPerson: {}    // totally a dummy entry
       }
+    },
+    methods: {
+      mergePersonSet() {
+        alert('merge_person: ' + (this.mergePerson.hasOwnProperty(this.mergePerson.id)).toString());
+        return (this.mergePerson.hasOwnProperty(this.mergePerson.id))
+      }
     }
   }
 </script>

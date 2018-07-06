@@ -125,7 +125,10 @@
         return ((this.lastName.length > 0) || (this.firstName.length > 0))
       },
       enableMerge() {
-        return true //((this.mergePerson.length > 0)) // && (this.selectedPerson != {}))
+        return true
+        // alert(this.$refs.mergePerson.mergePersonSet());
+        // return (this.mergePerson.hasOwnProperty(this.mergePerson.id)) // && (this.selectedPerson != {}))
+        // return (this.$refs.mergePerson.mergePersonSet() || this.$refs.matchPeople.mergePersonSet())
       },
     },
     data() {
@@ -193,8 +196,8 @@
         this.$refs.foundPeople.clearSelectedPerson();
         this.$refs.matchPeople.clearMergePerson();
         this.matchPeople = [];
+      },
 
-      }
     }
   }
 </script>
