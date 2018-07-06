@@ -165,6 +165,8 @@ class Person < ApplicationRecord
     collector_roles.to_a.length > 0
   end
 
+  #  rubocop:disable Metrics/BlockNesting
+  #  rubocop:disable Metrics/MethodLength
   # @param [Integer] person_id
   # @return [Boolean]
   #   true if all records updated, false if any one failed (all or none)
@@ -192,7 +194,7 @@ class Person < ApplicationRecord
               end
             end
 
-            AlternateValue::AlternateSpelling.create(alternate_value_object_type:      'Person',
+            AlternateValue::AlternateSpelling.create!(alternate_value_object_type:      'Person',
                                                      value:                            r_person.first_name,
                                                      alternate_value_object_attribute: 'first_name',
                                                      alternate_value_object_id:        id) unless skip_av
@@ -212,10 +214,10 @@ class Person < ApplicationRecord
               end
             end
 
-            AlternateValue::AlternateSpelling.create(alternate_value_object_type:      'Person',
-                                                     value:                            r_person.last_name,
-                                                     alternate_value_object_attribute: 'last_name',
-                                                     alternate_value_object_id:        id) unless skip_av
+            AlternateValue::AlternateSpelling.create!(alternate_value_object_type:      'Person',
+                                                      value:                            r_person.last_name,
+                                                      alternate_value_object_attribute: 'last_name',
+                                                      alternate_value_object_id:        id) unless skip_av
           end
           r_person.annotations_hash.each do |r_kee, r_objects|
             r_objects.each do |r_o|
@@ -296,14 +298,14 @@ class Person < ApplicationRecord
           # last thing to do in the transaction...
           self.save! unless self.persisted?
         end
-      rescue ActiveRecord::RecordInvalid => r_e
-        # puts Rainbow("Failed with #{r_e.error.full_messages.join(', ')}.").red
-        # puts Rainbow("Failed with #{r_err.errors.messages.join(', ')}.").red
+      rescue ActiveRecord::RecordInvalid
         return false
       end
     end
     true
   end
+  #  rubocop:enable Metrics/BlockNesting
+  #  rubocop:enable Metrics/MethodLength
 
   # @return [Boolean]
   def is_determiner?
