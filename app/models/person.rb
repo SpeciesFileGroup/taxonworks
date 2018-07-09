@@ -275,12 +275,12 @@ class Person < ApplicationRecord
             end
           end
           # TODO: handle prefix and suffix
-          if self.prefix.nil?
+          if self.prefix.blank?
             self.prefix = r_person.prefix
           else
             #
           end
-          if self.suffix.nil?
+          if self.suffix.blank?
             self.suffix = r_person.suffix
           else
             #

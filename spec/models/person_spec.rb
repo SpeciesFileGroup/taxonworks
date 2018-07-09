@@ -498,6 +498,52 @@ describe Person, type: :model do
             end
           end
 
+          context 'prefix is combined' do
+            specify 'source is nil' do
+              person1.prefix = nil
+              person1.save!
+              person1.merge_with(person1b.id)
+              expect(person1.prefix).to eq(person1b.prefix)
+            end
+
+            specify 'source is blank' do
+              person1.prefix = ''
+              person1.save!
+              person1.merge_with(person1b.id)
+              expect(person1.prefix).to eq(person1b.prefix)
+            end
+
+            specify 'source is whitespace' do
+              person1.prefix = ' '
+              person1.save!
+              person1.merge_with(person1b.id)
+              expect(person1.prefix).to eq(person1b.prefix)
+            end
+          end
+
+          context 'suffix is combined' do
+            specify 'source is nil' do
+              person1.suffix = nil
+              person1.save!
+              person1.merge_with(person1b.id)
+              expect(person1.suffix).to eq(person1b.suffix)
+            end
+
+            specify 'source is blank' do
+              person1.suffix = ''
+              person1.save!
+              person1.merge_with(person1b.id)
+              expect(person1.suffix).to eq(person1b.suffix)
+            end
+
+            specify 'source is whitespace' do
+              person1.suffix = ' '
+              person1.save!
+              person1.merge_with(person1b.id)
+              expect(person1.suffix).to eq(person1b.suffix)
+            end
+          end
+
           specify 'roles are combined' do
             person1.merge_with(person1b.id)
             expect(person1.roles.map(&:type)).to include('TaxonNameAuthor', 'Georeferencer')
