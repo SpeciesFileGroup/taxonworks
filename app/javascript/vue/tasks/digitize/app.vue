@@ -1,5 +1,7 @@
 <template>
   <div id="#vue-all-in-one">
+    <task-header/>
+    <collection-object/>
     <div class="horizontal-left-content">
       <div>
         <taxon-determination-layout/>
@@ -11,12 +13,16 @@
 </template>
 
 <script>
+  import TaskHeader from './components/taskHeader/main.vue'
+  import CollectionObject from './components/collectionObject/main.vue'
   import TaxonDeterminationLayout from './components/taxonDetermination/main.vue'
   import CollectionEventLayout from './components/collectionEvent/main.vue'
   import TypeMaterial from './components/typeMaterial/typeMaterial.vue'
 
   export default {
     components: {
+      TaskHeader,
+      CollectionObject,
       TypeMaterial,
       TaxonDeterminationLayout,
       CollectionEventLayout

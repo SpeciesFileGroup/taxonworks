@@ -35,12 +35,102 @@ const GetTaxon = function (id) {
   return ajaxCall('get', `/taxon_names/${id}.json`)
 }
 
+const GetCollectionEvent = function (id) {
+  return ajaxCall('get', `/collection_events/${id}.json`)
+}
+
+const UpdateCollectionEvent = function (id, data) {
+  return ajaxCall('get', `/collection_events/${id}.json`, { collection_event: data })
+}
+
+const CreateCollectionEvent = function (data) {
+  return ajaxCall('get', `/collection_events.json`, { collection_event: data })
+}
+
 const GetCollectionObject = function (id) {
   return ajaxCall('get', `/collection_objects/${id}.json`)
+}
+
+const CreateCollectionObject = function (data) {
+  return ajaxCall('post', `/collection_objects.json`, { collection_object: data })
+}
+
+const UpdateCollectionObject = function (id, data) {
+  return ajaxCall('patch', `/collection_objects/${id}.json`, { collection_object: data })
+}
+
+const GetBiocurationsTypes = function (protonymId) {
+  return ajaxCall('get', `/controlled_vocabulary_terms.json?of_type[]=BiocurationClass`)
+}
+
+const GetBiocurationsCreated = function (biologicalId) {
+  return ajaxCall('get', `/biocuration_classifications.json?biological_collection_object_id=${biologicalId}`)
+}
+
+const GetBiocuration = function (biologicalId, biocurationClassId) {
+  return ajaxCall('get', `/biocuration_classifications.json?biocuration_class_id=${biocurationClassId}&biological_collection_object_id=${biologicalId}`)
+}
+
+const GetPreparationTypes = function () {
+  return ajaxCall('get', `/preparation_types.json`)
+}
+
+const GetDepictions = function (id) {
+  return ajaxCall('get', `/collection_objects/${id}/depictions.json`)
+}
+
+const GetRepository = function (id) {
+  return ajaxCall('get', `/repositories/${id}.json`)
+}
+
+const CreateTypeMaterial = function (data) {
+  return ajaxCall('post', `/type_materials.json`, data)
+}
+
+const CreateBiocurationClassification = function (data) {
+  return ajaxCall('post', `/biocuration_classifications.json`, data)
+}
+
+const UpdateTypeMaterial = function (id, data) {
+  return ajaxCall('patch', `/type_materials/${id}.json`, data)
+}
+
+const UpdateDepiction = function (id, data) {
+  return ajaxCall('patch', `/depictions/${id}.json`, data)
+}
+
+const DestroyTypeMaterial = function (id) {
+  return ajaxCall('delete', `/type_materials/${id}.json`)
+}
+
+const DestroyBiocuration = function (id) {
+  return ajaxCall('delete', `/biocuration_classifications/${id}.json`)
+}
+
+const DestroyDepiction = function (id) {
+  return ajaxCall('delete', `/depictions/${id}.json`)
 }
 
 export {
   GetTypes,
   GetTaxon,
-  GetCollectionObject
+  GetCollectionObject,
+  CreateCollectionObject,
+  UpdateCollectionObject,
+  GetCollectionEvent,
+  UpdateCollectionEvent,
+  CreateCollectionEvent,
+  GetBiocurationsTypes,
+  GetBiocurationsCreated,
+  GetBiocuration,
+  GetPreparationTypes,
+  GetDepictions,
+  GetRepository,
+  CreateTypeMaterial,
+  CreateBiocurationClassification,
+  UpdateTypeMaterial,
+  UpdateDepiction,
+  DestroyTypeMaterial,
+  DestroyBiocuration,
+  DestroyDepiction
 }
