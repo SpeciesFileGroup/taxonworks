@@ -274,6 +274,17 @@ class Person < ApplicationRecord
               end
             end
           end
+          # TODO: handle prefix and suffix
+          if self.prefix.nil?
+            self.prefix = r_person.prefix
+          else
+            #
+          end
+          if self.suffix.nil?
+            self.suffix = r_person.suffix
+          else
+            #
+          end
           # TODO: handle years attributes
           if self.year_born.nil?
             self.year_born = r_person.year_born
