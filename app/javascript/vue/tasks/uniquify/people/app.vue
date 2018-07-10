@@ -131,6 +131,11 @@
         mergePerson: {},
       }
     },
+    watch: {
+      selectedPerson() {
+        this.mergePerson = {}
+      }
+    },
     methods: {
       findPerson() {
         let params = {
