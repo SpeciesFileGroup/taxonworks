@@ -184,7 +184,7 @@ class Person < ApplicationRecord
             skip_av = false
             av_list = l_person_hash['alternate values']
             (av_list ||= {}).each do |av|
-              if av.text == r_person.first_name
+              if av.value == r_person.first_name
                 if av.type == 'AlternateValue::AlternateSpelling' &&
                   av.alternate_value_object_attribute == 'first_name' # &&
                   # av.project_id == r_person.project_id
@@ -204,7 +204,7 @@ class Person < ApplicationRecord
             skip_av = false
             av_list = l_person_hash['alternate values']
             (av_list ||= {}).each do |av|
-              if av.text == r_person.last_name
+              if av.value == r_person.last_name
                 if av.type == 'AlternateValue::AlternateSpelling' &&
                   av.alternate_value_object_attribute == 'last_name' # &&
                   # av.project_id == r_person.project_id

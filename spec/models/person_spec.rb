@@ -551,7 +551,7 @@ describe Person, type: :model do
 
           specify 'data_attributes are combined' do
             person1.merge_with(person1b.id)
-            person1.reload  # TODO: Wondering why this 'reload' is requied?
+            person1.reload # TODO: Wondering why this 'reload' is requied?
             expect(person1.data_attributes.map(&:value)).to include('Mr.', 'Dr.')
           end
 
@@ -569,24 +569,37 @@ describe Person, type: :model do
             expect(person1.notes).to include(no1)
           end
 
-          specify 'alternate values' do
-            av1
-            person1.merge_with(person1b.id)
-            expect(person1.alternate_values).to include(av1)
-          end
+          context 'alternate values' do
+            specify 'creating' do
+              av1
+              person1.merge_with(person1b.id)
+              expect(person1.alternate_values).to include(av1)
+            end
 
-          specify 'different first name' do
-            person1b.first_name = 'Janco'
-            person1b.save!
-            person1.merge_with(person1b.id)
-            expect(person1.alternate_values.last.value).to include(person1b.first_name)
-          end
+            context 'different names' do
+              specify 'first name' do
+                person1b.first_name = 'Janco'
+                person1b.save!
+                person1.merge_with(person1b.id)
+                expect(person1.alternate_values.last.value).to include(person1b.first_name)
+              end
 
-          specify 'different last name' do
-            person1b.last_name = 'Smyth'
-            person1b.save!
-            person1.merge_with(person1b.id)
-            expect(person1.alternate_values.last.value).to include(person1b.last_name)
+              specify 'first name with matching alternate value' do
+                av2 # person1.first_name = January, person1.altername_value.first.value = Janco
+                person1b.first_name = 'Janco'
+                person1b.save!
+                # this will try to add Janco as an alternate_value, but skip
+                person1.merge_with(person1b.id)
+                expect(person1.alternate_values.count).to eq(1)
+              end
+
+              specify 'last name' do
+                person1b.last_name = 'Smyth'
+                person1b.save!
+                person1.merge_with(person1b.id)
+                expect(person1.alternate_values.last.value).to include(person1b.last_name)
+              end
+            end
           end
         end
       end
