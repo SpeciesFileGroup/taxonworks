@@ -1,6 +1,6 @@
 <template>
   <div>
-    <pre>{{ mergePerson }}</pre><br><br>{{ mergePerson.length }}
+    <pre>{{ mergePerson }}</pre>
   </div>
 </template>
 <script>

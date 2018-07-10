@@ -31,7 +31,8 @@
     },
     watch: {
       selectedPerson(newVal) {
-        this.getMatchPeople(newVal)
+        this.getMatchPeople(newVal);
+        this.clearMergePerson();
       }
     },
     data() {
@@ -62,6 +63,7 @@
         this.selected = {}
         if ((person.last_name == undefined) && (person.last_name == undefined)) {
           this.matchPeople = [];    // new search
+          this.mergePerson = {};
           return false;
         }
         let params = {

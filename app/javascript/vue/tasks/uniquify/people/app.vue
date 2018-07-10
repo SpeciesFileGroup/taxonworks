@@ -79,10 +79,7 @@
           <div 
             style="overflow: auto; width:300px; height:600px;">
             <h2>Merge Person</h2>
-            <merge-person
-              :merge-person="mergePerson"
-              ref="mergePerson"
-            />
+            <pre>{{ mergePerson }}</pre>
           </div> 
         </div>
       </div>
@@ -101,7 +98,7 @@
   import FoundPeople from './components/found_people'
   import SelectedPerson from './components/selected_person'
   import MatchPeople from './components/match_people'
-  import MergePerson from './components/merge_person'
+  // import MergePerson from './components/merge_person'
 
   import Spinner from '../../../components/spinner.vue'
 
@@ -113,7 +110,7 @@
       FoundPeople,
       SelectedPerson,
       MatchPeople,
-      MergePerson,
+      // MergePerson,
       Spinner
     },
     computed: {
