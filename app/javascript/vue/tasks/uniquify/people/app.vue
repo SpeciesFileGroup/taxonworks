@@ -72,9 +72,7 @@
           <div 
             style="overflow: auto; width:300px; height:600px;">
             <h2>Selected Person</h2>
-            <selected-person
-              :selected-person="selectedPerson"
-            />
+            <pre>{{ selectedPerson }}</pre>
           </div>
           <div 
             style="overflow: auto; width:300px; height:600px;">
