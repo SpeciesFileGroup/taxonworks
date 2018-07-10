@@ -32,7 +32,6 @@
     watch: {
       selectedPerson(newVal) {
         this.getMatchPeople(newVal);
-        this.clearMergePerson();
       }
     },
     data() {
@@ -76,9 +75,6 @@
           this.removeFromList(person.id);
           // console.log(this.matchPeople);
         })
-      },
-      clearMergePerson() {
-        this.mergePerson = {}
       }
     }
   }

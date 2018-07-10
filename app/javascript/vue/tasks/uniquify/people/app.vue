@@ -79,6 +79,7 @@
             <h2>Merge Person</h2>
             <pre>{{ mergePerson }}</pre>
           </div> 
+          <button>Test Button</button>
         </div>
       </div>
 
@@ -94,7 +95,7 @@
   import FirstName from './components/first_name'
   import RoleTypes from './components/role_types'
   import FoundPeople from './components/found_people'
-  import SelectedPerson from './components/selected_person'
+  // import SelectedPerson from './components/selected_person'
   import MatchPeople from './components/match_people'
   // import MergePerson from './components/merge_person'
 
@@ -106,7 +107,7 @@
       FirstName,
       RoleTypes,
       FoundPeople,
-      SelectedPerson,
+      // SelectedPerson,
       MatchPeople,
       // MergePerson,
       Spinner
@@ -188,7 +189,7 @@
         this.$refs.foundPeople.clearSelectedPerson();
         this.matchPeople = [];
         this.mergePerson = {};
-        this.$refs.matchPeople.clearMergePerson();
+        // this.$refs.matchPeople.clearMergePerson();
       },
 
     }
