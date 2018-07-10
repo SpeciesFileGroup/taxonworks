@@ -278,23 +278,31 @@ class Person < ApplicationRecord
           if self.prefix.blank?
             self.prefix = r_person.prefix
           else
-            #
+            unless r_person.prefix.blank?
+              # What to do when both have some content?
+            end
           end
           if self.suffix.blank?
             self.suffix = r_person.suffix
           else
-            #
+            unless r_person.suffix.blank?
+              # What to do when both have some content?
+            end
           end
           # TODO: handle years attributes
           if self.year_born.nil?
             self.year_born = r_person.year_born
           else
-            #
+            unless r_person.year_born.nil?
+              # What to do when both have some (different) numbers?
+            end
           end
           if self.year_died.nil?
             self.year_died = r_person.year_died
           else
-            #
+            unless r_person.year_died.nil?
+              # What to do when both have some (different) numbers?
+            end
           end
           if r_person.year_active_start # if not, r_person has nothing to contribute
             if self.year_active_start.nil? || (self.year_active_start > r_person.year_active_start)
