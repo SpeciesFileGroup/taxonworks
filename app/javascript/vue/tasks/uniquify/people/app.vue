@@ -95,9 +95,7 @@
   import FirstName from './components/first_name'
   import RoleTypes from './components/role_types'
   import FoundPeople from './components/found_people'
-  // import SelectedPerson from './components/selected_person'
   import MatchPeople from './components/match_people'
-  // import MergePerson from './components/merge_person'
 
   import Spinner from '../../../components/spinner.vue'
 
@@ -107,9 +105,7 @@
       FirstName,
       RoleTypes,
       FoundPeople,
-      // SelectedPerson,
       MatchPeople,
-      // MergePerson,
       Spinner
     },
     computed: {

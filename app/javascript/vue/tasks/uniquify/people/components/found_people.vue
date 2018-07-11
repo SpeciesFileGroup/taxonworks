@@ -52,16 +52,10 @@
           this.selectedPerson = response.body;
           this.$emit('input', this.selectedPerson);
         })
-        // console.log(person);
-        // console.log(JSON.stringify(person, null, 2))
       },
       clearSelectedPerson() {
         this.selectedPerson = {};
       },
-      // catchHttpStatus(status) {
-      //   console.log(status);
-      //   alert(status);
-      // }
     }
   }
 </script>
