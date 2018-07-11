@@ -39,15 +39,6 @@
             :disabled="!enableFindPerson"
             type="submit">Find Person
           </button>
-          <br>
-          <br>
-          <br>
-          <button
-            class="button normal-input button-default"
-            @click="mergePeople"
-            :disabled="!enableMerge"
-            type="submit">Merge People
-          </button>
         </div>
         <div 
           class="found_people separate-right separate-left" 
@@ -69,6 +60,26 @@
         </div>
         <div 
           class="flex-separate top">
+          <div>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <button
+              class="button normal-input button-default"
+              @click="mergePeople"
+              :disabled="!enableMerge"
+              type="submit">Merge People
+            </button>
+          </div>
           <div 
             style="overflow: auto; width:300px; height:600px;">
             <h2>Selected Person</h2>
@@ -79,12 +90,10 @@
             <h2>Merge Person</h2>
             <pre>{{ mergePerson }}</pre>
           </div> 
-          <button>Test Button</button>
         </div>
       </div>
 
     </div>
-    <!--TODO: place [Merge People] more conveniently-->
   </div>
 </template>
 
@@ -151,21 +160,16 @@
           new_person_id: this.mergePerson.id
         };
         this.$http.post('/people/' + this.selectedPerson.id.toString() + '/merge', params).then(response => {
-          this.$refs.foundPeople.selectPerson(this.selectedPerson);   // why?
           let httpStatus = response.body;
-          if (httpStatus.status == 'OK') {
-         // delete the merged in person and refresh the merged to person
-          this.$http.delete('/people/' + this.mergePerson.id).then(response => {
-            // console.log('DELETED: ' + this.mergePerson.id);
+          if (httpStatus.status == 'OK') {   // delete the merged in person and refresh the merged to person            
+            this.$http.delete('/people/' + this.mergePerson.id).then(response => {
             this.$refs.matchPeople.removeFromList(this.mergePerson.id)    // remove the merge person from the matchPerson list
             this.$refs.foundPeople.removeFromList(this.mergePerson.id)   // remove the merge person from the foundPerson list
-            this.$refs.matchPeople.clearMergePerson();
             this.mergePerson = {};
           })
           }
-          else {    // TODO: Annunciate failure more gracefully
+          else {    // TODO: Annunciate delete failure more gracefully
             alert(httpStatus.status);
-            this.$refs.matchPeople.clearMergePerson();
             this.mergePerson = {};
           }
         })
@@ -185,7 +189,6 @@
         this.$refs.foundPeople.clearSelectedPerson();
         this.matchPeople = [];
         this.mergePerson = {};
-        // this.$refs.matchPeople.clearMergePerson();
       },
 
     }
