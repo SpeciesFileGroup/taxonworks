@@ -37,7 +37,17 @@ import setTypeMaterialRoles from './TypeMaterial/setTypeMaterialRoles'
 import setTypeMaterialType from './TypeMaterial/setTypeMaterialType'
 import setTypeMaterialTaxon from './TypeMaterial/setTypeMaterialTaxon'
 
+import setIdentifier from './Identifier/setIdentifier'
+import setIdentifierIdentifier from './Identifier/setIdentifierIdentifier'
+import setIdentifierNamespaceId from './Identifier/setIdentifierNamespaceId'
+import setIdentifierObjectId from './Identifier/setIdentifierObjectId'
+
 const MutationNames = {
+  SetIdentifier: 'setIdentifier',
+  SetIdentifierIdentifier: 'setIdentifierIdentifier',
+  SetIdentifierNamespaceId: 'setIdentifierNamespaceId',
+  SetIdentifierObjectId: 'setIdentifierObjectId',
+
   SetTypeMaterialBiologicalObjectId: 'setTypeMaterialBiologicalObjectId',
   SetTypeMaterialCollectionObject: 'setTypeMaterialCollectionObject',
   SetTypeMaterialCollectionObjectId: 'setTypeMaterialCollectionObjectId',
@@ -79,6 +89,11 @@ const MutationNames = {
 }
 
 const MutationFunctions = {
+  [MutationNames.SetIdentifier]: setIdentifier,
+  [MutationNames.SetIdentifierIdentifier]: setIdentifierIdentifier,
+  [MutationNames.SetIdentifierNamespaceId]: setIdentifierNamespaceId,
+  [MutationNames.SetIdentifierObjectId]: setIdentifierObjectId,
+
   [MutationNames.SetTypeMaterialBiologicalObjectId]: setTypeMaterialBiologicalObjectId,
   [MutationNames.SetTypeMaterialCollectionObject]: setTypeMaterialCollectionObject,
   [MutationNames.SetTypeMaterialCollectionObjectId]: setTypeMaterialCollectionObjectId,

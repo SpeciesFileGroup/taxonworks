@@ -7,7 +7,9 @@
     <label>OTU</label>
     <otu-picker @getItem="otu = $event"/> 
     <label>Determiner</label>
-    <role-picker v-model="roles"/>
+    <role-picker
+      :autofocus="false" 
+      v-model="roles"/>
     <div class="horizontal-left-content date-fields">
       <div class="separate-right">
         <label>Year</label>

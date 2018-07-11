@@ -1,5 +1,8 @@
 const ActionNames = {
-  GetTaxon: 'getTaxon'
+  GetTaxon: 'getTaxon',
+  SaveCollectionObject: 'saveCollectionObject',
+  SaveIdentifier: 'saveIdentifier',
+  SaveDigitalization: 'saveDigitalization'
 }
 
 export default ActionNames

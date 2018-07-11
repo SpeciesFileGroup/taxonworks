@@ -38,6 +38,13 @@ const GetTaxon = function (id) {
 const GetCollectionEvent = function (id) {
   return ajaxCall('get', `/collection_events/${id}.json`)
 }
+const CreateIdentifier = function (data) {
+  return ajaxCall('post', `/identifiers.json`, { identifier: data })
+}
+
+const UpdateIdentifier = function (data) {
+  return ajaxCall('patch', `/identifiers/${data.id}.json`, { identifier: data })
+} 
 
 const UpdateCollectionEvent = function (id, data) {
   return ajaxCall('get', `/collection_events/${id}.json`, { collection_event: data })
@@ -55,8 +62,8 @@ const CreateCollectionObject = function (data) {
   return ajaxCall('post', `/collection_objects.json`, { collection_object: data })
 }
 
-const UpdateCollectionObject = function (id, data) {
-  return ajaxCall('patch', `/collection_objects/${id}.json`, { collection_object: data })
+const UpdateCollectionObject = function (data) {
+  return ajaxCall('patch', `/collection_objects/${data.id}.json`, { collection_object: data })
 }
 
 const GetBiocurationsTypes = function (protonymId) {
@@ -114,6 +121,8 @@ const DestroyDepiction = function (id) {
 export {
   GetTypes,
   GetTaxon,
+  CreateIdentifier,
+  UpdateIdentifier,
   GetCollectionObject,
   CreateCollectionObject,
   UpdateCollectionObject,

@@ -29,6 +29,7 @@
     <label>Type designator</label>
     <role-picker
       v-model="roles"
+      :autofocus="false"
       role-type="TypeDesignator"
       class="types_field"/>
   </div>

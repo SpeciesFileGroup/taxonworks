@@ -12,9 +12,17 @@ function makeInitialState () {
     settings: {
       saving: false,
     },
+    identifier: {
+      id: undefined,
+      namespace_id: undefined,
+      type: 'Identifier::Local::CatalogNumber',
+      identifier_object_id: undefined, 
+      identifier_object_type: 'CollectionObject',
+      identifier: undefined
+    },
     collection_object: {
       id: undefined,
-      total: undefined, 
+      total: 1, 
       preparation_type_id: undefined, 
       repository_id: undefined,
       ranged_lot_category_id: undefined, 
@@ -25,7 +33,6 @@ function makeInitialState () {
       deaccessioned_at: undefined, 
       deaccession_reason: undefined,
       contained_in: undefined,
-      collecting_event_attributes: []
     },
     collection_event: {
       id: undefined,

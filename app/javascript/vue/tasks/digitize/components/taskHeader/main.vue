@@ -13,7 +13,8 @@
       type="button">Create, clone, and increment identifier
     </button>
     <button
-      class="button normal-input btn-submit"
+      class="button normal-input button-submit"
+      @click="saveDigitalization"
       type="button">Save
     </button>
   </div>
@@ -21,10 +22,16 @@
 
 <script>
   import Autocomplete from '../../../../components/autocomplete.vue'
+  import { ActionNames } from '../../store/actions/actions.js'
 
   export default {
     components: {
       Autocomplete
+    },
+    methods: {
+      saveDigitalization() {
+        this.$store.dispatch(ActionNames.SaveDigitalization)
+      }
     }
   }
 </script>
