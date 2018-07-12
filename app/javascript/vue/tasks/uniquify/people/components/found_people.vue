@@ -1,20 +1,25 @@
 <template>
   <div>
-    <ul class="no_bullets">
-      <li v-for="person in foundPeople">
-        <label>
-          <input
-            name="found-people"
-            type="radio"
-            v-model="selected"
-            :value="person.id"
-            @click="selectPerson(person)">
-          {{ person.cached }}
-        </label>
-      </li>
-    </ul>
+    <div>
+      <ul class="no_bullets">
+        <li v-for="person in foundPeople">
+          <label>
+            <input
+              name="found-people"
+              type="radio"
+              v-model="selected"
+              :value="person.id"
+              @click="selectPerson(person)">
+            {{ person.cached }}
+          </label>
+        </li>
+      </ul>
+      <br>
+      <br>
+      <br>
+      <span>{{ foundPeople.length }}  people found</span>
+    </div>
   </div>
-
 </template>
 <script>
   // this is a list for selecting one person from potential selectees
@@ -55,6 +60,7 @@
       },
       clearSelectedPerson() {
         this.selectedPerson = {};
+        this.selected = {};
       },
     }
   }
