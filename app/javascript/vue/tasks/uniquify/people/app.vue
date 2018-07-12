@@ -49,6 +49,10 @@
             v-model="selectedPerson"
             :found-people="foundPeople"
           />
+          <br>
+          <br>
+          <br>
+          <span>{{ resultMessage(foundPeople) }}  people found</span>
         </div>
         <div class="match_people separate-right separate-left" >
           <h2>Match People</h2>
@@ -57,6 +61,10 @@
             v-model="mergePerson"
             :selected-person="selectedPerson"
           />
+          <br>
+          <br>
+          <br>
+          <span>{{ resultMessage(matchPeople) }}  people found</span>
         </div>
         <div 
           class="flex-separate top">
@@ -190,7 +198,9 @@
         this.matchPeople = [];
         this.mergePerson = {};
       },
-
+      resultMessage(people) {
+        return people.length;
+      }
     }
   }
 </script>
