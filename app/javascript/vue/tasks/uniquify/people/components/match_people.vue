@@ -81,7 +81,7 @@ export default {
       this.$http.get("/people.json", { params: params }).then(response => {
         this.matchPeople = response.body;
         this.removeFromList(person.id);
-        this.$emit("matchPeople", this.matchPeople)   // hopefully notify app's watcher
+        this.$emit("matchPeople", this.matchPeople)   // notify app's watcher
       });
     }
   }

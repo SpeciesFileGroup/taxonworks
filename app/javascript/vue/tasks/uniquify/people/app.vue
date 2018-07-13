@@ -148,13 +148,10 @@
         this.isLoading = true;
         this.clearFoundData();
         this.displayCount = true;
-        // this.clearMatchData();
         let that = this;
         this.$http.get('/people.json', {params: params}).then(response => {
           this.foundPeople = response.body;
           that.isLoading = false
-          // that.clearMatchData();
-          // console.log(this.foundPeople);
         })
       },
       mergePeople() {
