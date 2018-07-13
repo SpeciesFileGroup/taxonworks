@@ -62,19 +62,14 @@
         </div>
         <div 
           class="flex-separate top">
-          <div style="width:100px;">
-            <br>
-            <br>
-            <br>
-            <br>
-            <br>
-            <br>
+          <div style="width:150px;">
+            <br><br><br><br>
             <button
               class="button normal-input button-default"
               @click="mergePeople"
               :disabled="!enableMerge"
               type="submit">Merge People
-            </button>
+            </button> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
           </div>
           <div 
             style="overflow: auto; width:300px; height:600px;">
@@ -151,7 +146,9 @@
           roles: Object.keys(this.selectedRoles)
         };
         this.isLoading = true;
+        this.clearFoundData();
         this.displayCount = true;
+        // this.clearMatchData();
         let that = this;
         this.$http.get('/people.json', {params: params}).then(response => {
           this.foundPeople = response.body;
@@ -187,13 +184,17 @@
         this.lastName = '';
         this.firstName = '';
         this.selectedRoles = {};
+        this.clearFoundData();
+      },
+      clearFoundData() {
         this.displayCount = false;
         this.selectedPerson = {};
+        this.foundPeople = [];
+        this.$refs.foundPeople.clearSelectedPerson()
       },
       clearMatchData() {
         this.foundPeople = [];
         this.selectedPerson = {};
-        this.$refs.foundPeople.clearSelectedPerson();
         this.matchPeople = [];
         this.mergePerson = {};
       },
