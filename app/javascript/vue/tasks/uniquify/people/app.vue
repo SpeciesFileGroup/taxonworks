@@ -150,13 +150,13 @@
           firstname: this.firstName,
           roles: Object.keys(this.selectedRoles)
         };
-        this.clearMatchData();
         this.isLoading = true;
         this.displayCount = true;
         let that = this;
         this.$http.get('/people.json', {params: params}).then(response => {
           this.foundPeople = response.body;
           that.isLoading = false
+          // that.clearMatchData();
           // console.log(this.foundPeople);
         })
       },
@@ -188,6 +188,7 @@
         this.firstName = '';
         this.selectedRoles = {};
         this.displayCount = false;
+        this.selectedPerson = {};
       },
       clearMatchData() {
         this.foundPeople = [];
