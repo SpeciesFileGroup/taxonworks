@@ -57,6 +57,7 @@
             ref="matchPeople"
             v-model="mergePerson"
             :selected-person="selectedPerson"
+            @matchPeople="matchPeople = $event"
           />
         </div>
         <div 
@@ -135,7 +136,11 @@
     },
     watch: {
       selectedPerson() {
-        this.mergePerson = {}
+        this.mergePerson = {};
+        this.isLoading = true;
+      },
+      matchPeople() {
+        this.isLoading = false;
       }
     },
     methods: {
