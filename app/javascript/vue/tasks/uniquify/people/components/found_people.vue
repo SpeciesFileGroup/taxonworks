@@ -17,7 +17,7 @@
       <br>
       <br>
       <br>
-      <span>{{ foundPeople.length }}  people found</span>
+      <span v-if="displayCount">{{ foundPeople.length }}  people found</span>
     </div>
   </div>
 </template>
@@ -33,6 +33,10 @@
       foundPeople: {
         type: Array,
         default: () => { return [] }
+      },
+      displayCount: {
+        type: Boolean,
+        default: false
       }
     },
     data() {
@@ -62,6 +66,7 @@
         this.selectedPerson = {};
         this.selected = {};
       },
+
     }
   }
 </script>

@@ -48,6 +48,7 @@
             ref="foundPeople"
             v-model="selectedPerson"
             :found-people="foundPeople"
+            :display-count="displayCount"
           />
         </div>
         <div class="match_people separate-right separate-left" >
@@ -60,13 +61,7 @@
         </div>
         <div 
           class="flex-separate top">
-          <div>
-            <br>
-            <br>
-            <br>
-            <br>
-            <br>
-            <br>
+          <div style="width:100px;">
             <br>
             <br>
             <br>
@@ -135,6 +130,7 @@
         selectedPerson: {},
         matchPeople: [],
         mergePerson: {},
+        displayCount: false
       }
     },
     watch: {
@@ -150,8 +146,12 @@
           roles: Object.keys(this.selectedRoles)
         };
         this.clearMatchData();
+        this.isLoading = true;
+        this.displayCount = true;
+        let that = this;
         this.$http.get('/people.json', {params: params}).then(response => {
           this.foundPeople = response.body;
+          that.isLoading = false
           // console.log(this.foundPeople);
         })
       },
@@ -182,6 +182,7 @@
         this.lastName = '';
         this.firstName = '';
         this.selectedRoles = {};
+        this.displayCount = false;
       },
       clearMatchData() {
         this.foundPeople = [];
@@ -190,9 +191,6 @@
         this.matchPeople = [];
         this.mergePerson = {};
       },
-      resultMessage(people) {
-        return people.length;
-      }
     }
   }
 </script>

@@ -18,7 +18,7 @@
     <br>
     <br>
     <br>
-    <span>{{ matchPeople.length }}  people found</span>
+    <span v-if="Object.keys(selectedPerson).length">{{ matchPeople.length }}  matches found</span>
   </div>
 </template>
 <script>
