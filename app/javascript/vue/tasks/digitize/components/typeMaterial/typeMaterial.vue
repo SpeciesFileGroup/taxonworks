@@ -42,6 +42,7 @@
   import RolePicker from '../../../../components/role_picker.vue'
   import ActionNames from '../../store/actions/actionNames.js'
   import { GetterNames } from '../../store/getters/getters.js'
+  import { MutationNames } from '../../store/mutations/mutations';
 
   export default {
     components: {
@@ -54,11 +55,18 @@
       },
       taxon() {
         return this.$store.getters[GetterNames.GetTypeMaterial].taxon
-      }
+      },
+      type: {
+        get() {
+          return this.$store.getters[GetterNames.GetTypeMaterial.type_type]
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetTypeMaterialType, value)
+        }
+      },
     },
     data() {
       return {
-        type: undefined,
         types: undefined,
         roles: []
       }

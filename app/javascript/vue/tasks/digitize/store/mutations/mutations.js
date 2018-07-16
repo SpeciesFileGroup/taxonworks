@@ -28,6 +28,7 @@ import setCollectionEventElevationPrecision from './setCollectionEventElevationP
 import setCollectionEventMaximumElevation from './setCollectionEventMaximumElevation'
 import setCollectionEventMinimumElevation from './setCollectionEventMinimumElevation'
 
+import setTypeMaterial from './TypeMaterial/setTypeMaterial'
 import setTypeMaterialBiologicalObjectId from './TypeMaterial/setTypeMaterialBiologicalObjectId'
 import setTypeMaterialCollectionObject from './TypeMaterial/setTypeMaterialCollectionObject'
 import setTypeMaterialCollectionObjectId from './TypeMaterial/setTypeMaterialCollectionObjectId'
@@ -42,12 +43,35 @@ import setIdentifierIdentifier from './Identifier/setIdentifierIdentifier'
 import setIdentifierNamespaceId from './Identifier/setIdentifierNamespaceId'
 import setIdentifierObjectId from './Identifier/setIdentifierObjectId'
 
+import setTaxonDetermination from './TaxonDetermination/setTaxonDetermination'
+import setTaxonDeterminationOtuId from './TaxonDetermination/setTaxonDeterminationOtuId'
+import setTaxonDeterminationBiologicalId from './TaxonDetermination/setTaxonDeterminationBiologicalId'
+import setTaxonDeterminationYear from './TaxonDetermination/setTaxonDeterminationYear'
+import setTaxonDeterminationMonth from './TaxonDetermination/setTaxonDeterminationMonth'
+import setTaxonDeterminationDay from './TaxonDetermination/setTaxonDeterminationDay'
+import setTaxonDeterminationRoles from './TaxonDetermination/setTaxonDeterminationRoles'
+
 const MutationNames = {
+  SetTaxonDetermination: 'setTaxonDetermination',
+  SetTaxonDeterminationBiologicalId: 'setTaxonDeterminationBiologicalId',
+  SetTaxonDeterminationDay: 'setTaxonDeterminationDay',
+  SetTaxonDeterminationMonth: 'setTaxonDeterminationMonth',
+  SetTaxonDeterminationYear: 'setTaxonDeterminationYear',
+  SetTaxonDeterminationRoles: 'setTaxonDeterminationRoles',
+
+  SetTaxonDetermination: 'setTaxonDetermination',
+  SetTaxonDeterminationOtuId: 'setTaxonDeterminationOtuId',
+  SetTaxonDeterminationBiologicalId: 'setTaxonDeterminationBiologicalId',
+  SetTaxonDeterminationDay: 'setTaxonDeterminationDay',
+  SetTaxonDeterminationMonth: 'setTaxonDeterminationMonth',
+  SetTaxonDeterminationYear: 'setTaxonDeterminationYear',
+
   SetIdentifier: 'setIdentifier',
   SetIdentifierIdentifier: 'setIdentifierIdentifier',
   SetIdentifierNamespaceId: 'setIdentifierNamespaceId',
   SetIdentifierObjectId: 'setIdentifierObjectId',
 
+  SetTypeMaterial: 'setTypeMaterial',
   SetTypeMaterialBiologicalObjectId: 'setTypeMaterialBiologicalObjectId',
   SetTypeMaterialCollectionObject: 'setTypeMaterialCollectionObject',
   SetTypeMaterialCollectionObjectId: 'setTypeMaterialCollectionObjectId',
@@ -89,11 +113,20 @@ const MutationNames = {
 }
 
 const MutationFunctions = {
+  [MutationNames.SetTaxonDetermination]: setTaxonDetermination,
+  [MutationNames.SetTaxonDeterminationBiologicalId]: setTaxonDeterminationBiologicalId,
+  [MutationNames.SetTaxonDeterminationOtuId]: setTaxonDeterminationOtuId,
+  [MutationNames.SetTaxonDeterminationRoles]: setTaxonDeterminationRoles,
+  [MutationNames.SetTaxonDeterminationDay]: setTaxonDeterminationDay,
+  [MutationNames.SetTaxonDeterminationMonth]: setTaxonDeterminationMonth,
+  [MutationNames.SetTaxonDeterminationYear]: setTaxonDeterminationYear,
+
   [MutationNames.SetIdentifier]: setIdentifier,
   [MutationNames.SetIdentifierIdentifier]: setIdentifierIdentifier,
   [MutationNames.SetIdentifierNamespaceId]: setIdentifierNamespaceId,
   [MutationNames.SetIdentifierObjectId]: setIdentifierObjectId,
 
+  [MutationNames.SetTypeMaterial]: setTypeMaterial,
   [MutationNames.SetTypeMaterialBiologicalObjectId]: setTypeMaterialBiologicalObjectId,
   [MutationNames.SetTypeMaterialCollectionObject]: setTypeMaterialCollectionObject,
   [MutationNames.SetTypeMaterialCollectionObjectId]: setTypeMaterialCollectionObjectId,
