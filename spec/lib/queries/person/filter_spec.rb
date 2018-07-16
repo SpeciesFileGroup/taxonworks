@@ -78,6 +78,30 @@ describe Queries::Person::Filter, type: :model do
     end
   end
 
+  context 'partial_complete' do
+    context 'wildcard' do
+      context 'last name' do
+        specify '*smith*' do
+          params = {lastname: '*smith*'}
+          expect(Queries::Person::Filter.new(params).partial_complete)
+            .to contain_exactly(p2.becomes(Person::Vetted),
+                                p1.becomes(Person::Unvetted))
+        end
+      end
+    end
+
+    context 'partial' do
+      context 'last name' do
+        specify 'mit' do
+          params = {lastname: 'mit'}
+          expect(Queries::Person::Filter.new(params).partial_complete)
+            .to contain_exactly(p2.becomes(Person::Vetted),
+                                p1.becomes(Person::Unvetted))
+        end
+      end
+    end
+  end
+
   context 'roles' do
     specify 'with role' do
       params = {lastname: '', firstname: '', roles: ['Collector']}

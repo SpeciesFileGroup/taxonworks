@@ -94,17 +94,60 @@ module Queries
 
         queries = []
 
-        grp.each_with_index { |q, i|
+        grp.each_with_index { |q, _i|
           if limit_to_roles.any?
-            a = base_query.where(people_table[:cached].matchs(q)).joins(:roles).where(role_match.to_sql)
+            a = base_query.where(people_table[:cached].matches(q))
+                  .joins(:roles)
+                  .where(role_match.to_sql)
           end
-          a ||= base_query.where(people_table[:cached].matchs(q))
+          a ||= base_query.where(people_table[:cached].matches(q))
           queries << a
         }
+        queries
+      end
 
+      def last_wild_match
+        grp = star_like(options[:last_name])
+        grp = grp.flatten.collect { |piece| '%' + piece + '%' }
+
+        queries = []
+
+        grp.each_with_index { |q, _i|
+          # if limit_to_roles.any?
+          #   a = base_query.where(people_table[:last_name].matches(q))
+          #         .joins(:roles)
+          #         .where(role_match.to_sql)
+          # end
+          a ||= base_query.where(people_table[:last_name].matches(q))
+          queries << a
+        }
+        queries
+      end
+
+      def first_wild_match
+        grp = star_like(options[:first_name])
+        grp = grp.flatten.collect { |piece| '%' + piece + '%' }
+
+        queries = []
+
+        grp.each_with_index { |q, _i|
+          # if limit_to_roles.any?
+          #   a = base_query.where(people_table[:first_name].matches(q))
+          #         .joins(:roles)
+          #         .where(role_match.to_sql)
+          # end
+          a ||= base_query.where(people_table[:first_name].matches(q))
+          queries << a
+        }
+        queries
+      end
+
+      def first_and_last_wild_match
+        base_query.where(last_wild_match).where(first_wild_match)
       end
 
       def star_like(term)
+        return [] if term.nil?
         return [term] unless term.index('*')
 
         pieces = term.split('*')
@@ -125,6 +168,10 @@ module Queries
           # autocomplete_cached_wildcard_anywhere, # in Queries::Query
           # first_last_cached
         ]
+
+        wild_set = last_wild_match
+        wild_set << first_wild_match
+        wild_set.each {|q| queries << q}
 
         queries.compact!
 
