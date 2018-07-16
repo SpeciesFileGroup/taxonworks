@@ -17,7 +17,8 @@ namespace :tw do
           get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID') # Note this is an OTU associated with a SF.TaxonNameID (probably a bad taxon name)
           # get_taxon_name_otu_id = import.get('TWTaxonNameIDToOtuID') # Note this is the OTU offically associated with a real TW.taxon_name_id
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
-          get_nomenclator_string = import.get('SFNomenclatorIDToSFNomenclatorString')
+          # get_nomenclator_string = import.get('SFNomenclatorIDToSFNomenclatorString')
+          get_nomenclator_metadata = import.get('SFNomenclatorIDToSFNomenclatorMetadata')
           get_cvt_id = import.get('CvtProjUriID')
           # get_containing_source_id = import.get('TWSourceIDToContainingSourceID') # use to determine if taxon_name_author must be created (orig desc only)
           # get_sf_taxon_name_authors = import.get('SFRefIDToTaxonNameAuthors') # contains ordered array of SF.PersonIDs
@@ -176,7 +177,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                                          # attribute_subject_id: citation.id,
                                          # attribute_subject_type: 'Citation',
                                          import_predicate: 'Nomenclator',
-                                         value: get_nomenclator_string[row['NomenclatorID']],
+                                         value: get_nomenclator_metadata[row['NomenclatorID']]['nomenclator_string'],
                                          project_id: project_id,
                                          created_at: row['CreatedOn'],
                                          updated_at: row['LastUpdate'],
@@ -253,13 +254,11 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
         desc 'time rake tw:project_import:sf_import:citations:create_citations user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define create_citations: [:data_directory, :environment, :user_id] do |logger|
 
-          logger.info 'Creating list of taxa with AccessCode = 4'
-          taxa_access_code_4 = [1143399, 1143399, 1143402, 1143402, 1143403, 1143403, 1143403, 1143404, 1143405, 1143406, 1143408, 1143414, 1143415, 1143416, 1143417, 1143418, 1143419, 1143420, 1143421, 1143422, 1143423, 1143425, 1143430, 1143431, 1143434, 1143435, 1143436, 1143437, 1143438, 1207769, 1232866]
-
           logger.info 'Creating citations...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
+          excluded_taxa = import.get('ExcludedTaxa')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID') # Note this is an OTU associated with a SF.TaxonNameID (probably a bad taxon name)
@@ -308,28 +307,25 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
           base_uri = 'http://speciesfile.org/legacy/'
 
-          # For each citation row, we must do something, this is the list of those somethings
-          decisions = [
-
-          ]
-
-          # Each decision has an outcome, which involves calling one or more methods.
-          # Everything that must be done for the citation row in question must be done
-          # through one of these methods
-          decision_methods = {
-
-
-          }
-
-
-
-
-
+          # @todo commented out 9 July
+          # # For each citation row, we must do something, this is the list of those somethings
+          # decisions = [
+          #
+          # ]
+          #
+          # # Each decision has an outcome, which involves calling one or more methods.
+          # # Everything that must be done for the citation row in question must be done
+          # # through one of these methods
+          # decision_methods = {
+          #
+          # }
 
           file.each_with_index do |row, i|
-            next if taxa_access_code_4.include? row['TaxonNameID'].to_i
             sf_taxon_name_id = row['TaxonNameID']
-            sf_file_id = row['FileID'] # get_sf_file_id[sf_taxon_name_id]
+            next if excluded_taxa.include? sf_taxon_name_id
+            sf_file_id = row['FileID'] # get_sf_file_id[sf_taxon_name_id]   @todo: There is no FileID
+            # Hence, skipped_file_ids does not work. However, since taxon_name_id will be nil
+            # because it won't be included in the hash, this still works. But ugly!
             next if skipped_file_ids.include? sf_file_id.to_i
             taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id] # cannot to_i because if nil, nil.to_i = 0
 
@@ -437,54 +433,55 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
               if !nomenclator_is_original_combination?(protonym, nomenclator_string) && !nomenclator_is_current_name?(protonym, nomenclator_string)
                 combination = nil
 
-                # [INFO]2018-03-21 04:23:59.785: total funny exceptions = '13410', total unique_bad_nomenclators = '4933'
-                # [INFO]2018-03-30 03:43:54.967: total funny exceptions = '56295', total unique_bad_nomenclators = '23051', new combo total = 14097
-                # [INFO]2018-03-31 18:44:23.471: total funny exceptions = '35106', total unique_bad_nomenclators = '15822', new combo total = 21,275
-                cr = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: nomenclator_string, project_id: project_id, code: :iczn)
-
-                kn = {
-                    project_id: project_id,
-                    nomenclator_string: nomenclator_string,
-                    cr: cr,
-                    protonym: protonym,
-
-                    housekeeping: {
-                        project_id: project_id,
-                        created_at: row['CreatedOn'],
-                        updated_at: row['LastUpdate'],
-                        created_by_id: get_tw_user_id[row['CreatedBy']],
-                        updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                    }
-                }
-
-                kn[:is_original_combination] = true if is_original
-
-                done = false
-
-                [:m_single_match, :m_unambiguous, :m_current_species_homonym].each do |m|
-                  passed, c = send(m, kn) # return passed & c (= combination); args to m (= method), kn (= knowns)
-                  if passed
-                    if c.new_record?
-                      c.by = 1
-                      c.project_id = project_id
-                      c.save!
-                      new_combination_counter += 1
-                    end
-                    done = true
-                    taxon_name_id = c.id
-                    # total_combination_counter += 1
-                  end
-                  break if done
-                end
-
-                if done
-                  logger.info Rainbow("Successful combination: new_combination_counter = #{new_combination_counter}, total_combination_counter = #{total_combination_counter}").rebeccapurple.bold
-                else # unsuccessful
-                  funny_exceptions_counter += 1
-                  unique_bad_nomenclators[nomenclator_string] = project_id
-
-                  logger.warn "Funny exceptions ELSE nomenclator_string = '#{nomenclator_string}', cr.detail = '#{cr.detail}', cr.ambiguous_ranks = '#{cr.ambiguous_ranks}' (unique_bad_nomenclators.count = #{unique_bad_nomenclators.count})"
-                end
+                # @todo commented out 9 July
+                # # [INFO]2018-03-21 04:23:59.785: total funny exceptions = '13410', total unique_bad_nomenclators = '4933'
+                # # [INFO]2018-03-30 03:43:54.967: total funny exceptions = '56295', total unique_bad_nomenclators = '23051', new combo total = 14097
+                # # [INFO]2018-03-31 18:44:23.471: total funny exceptions = '35106', total unique_bad_nomenclators = '15822', new combo total = 21,275
+                # cr = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: nomenclator_string, project_id: project_id, code: :iczn)
+                #
+                # kn = {
+                #     project_id: project_id,
+                #     nomenclator_string: nomenclator_string,
+                #     cr: cr,
+                #     protonym: protonym,
+                #
+                #     housekeeping: {
+                #         project_id: project_id,
+                #         created_at: row['CreatedOn'],
+                #         updated_at: row['LastUpdate'],
+                #         created_by_id: get_tw_user_id[row['CreatedBy']],
+                #         updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                #     }
+                # }
+                #
+                # kn[:is_original_combination] = true if is_original
+                #
+                # done = false
+                #
+                # [:m_single_match, :m_unambiguous, :m_current_species_homonym].each do |m|
+                #   passed, c = send(m, kn) # return passed & c (= combination); args to m (= method), kn (= knowns)
+                #   if passed
+                #     if c.new_record?
+                #       c.by = 1
+                #       c.project_id = project_id
+                #       c.save!
+                #       new_combination_counter += 1
+                #     end
+                #     done = true
+                #     taxon_name_id = c.id
+                #     # total_combination_counter += 1
+                #   end
+                #   break if done
+                # end
+                #
+                # if done
+                #   logger.info Rainbow("Successful combination: new_combination_counter = #{new_combination_counter}, total_combination_counter = #{total_combination_counter}").rebeccapurple.bold
+                # else # unsuccessful
+                #   funny_exceptions_counter += 1
+                #   unique_bad_nomenclators[nomenclator_string] = project_id
+                #
+                #   logger.warn "Funny exceptions ELSE nomenclator_string = '#{nomenclator_string}', cr.detail = '#{cr.detail}', cr.ambiguous_ranks = '#{cr.ambiguous_ranks}' (unique_bad_nomenclators.count = #{unique_bad_nomenclators.count})"
+                # end
               end
             end
 
@@ -616,7 +613,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           end
 
           # logger.info "total funny exceptions = '#{funny_exceptions_counter}', total unique_bad_nomenclators = '#{unique_bad_nomenclators.count}', \n unique_bad_nomenclators = '#{unique_bad_nomenclators}'"
-          ap "total funny exceptions = '#{funny_exceptions_counter}', total unique_bad_nomenclators = '#{unique_bad_nomenclators.count}', \n unique_bad_nomenclators = '#{unique_bad_nomenclators}'"
+          # ap "total funny exceptions = '#{funny_exceptions_counter}', total unique_bad_nomenclators = '#{unique_bad_nomenclators.count}', \n unique_bad_nomenclators = '#{unique_bad_nomenclators}'"
           puts 'new_name_status hash:'
           ap new_name_status
         end
