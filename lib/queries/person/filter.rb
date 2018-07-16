@@ -162,7 +162,9 @@ module Queries
           last_partial_match,
           first_partial_match,
           last_exact_match,
-          first_exact_match # ,
+          first_exact_match,
+          last_wild_match.first,
+          first_wild_match.first,
           # autocomplete_exact_inverted,
           # autocomplete_ordered_wildcard_pieces_in_cached,
           # autocomplete_cached_wildcard_anywhere, # in Queries::Query
@@ -172,8 +174,8 @@ module Queries
         # wild_set = last_wild_match
         # wild_set << first_wild_match
         # wild_set.each {|q| queries.push(q)}
-        queries.push(last_wild_match.first)
-        queries.push(first_wild_match.first)
+        ## queries.push(last_wild_match.first)
+        ## queries.push(first_wild_match.first)
         queries.compact!
 
         updated_queries = []
