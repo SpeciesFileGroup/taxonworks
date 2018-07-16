@@ -169,10 +169,11 @@ module Queries
           # first_last_cached
         ]
 
-        wild_set = last_wild_match
-        wild_set << first_wild_match
-        wild_set.each {|q| queries << q}
-
+        # wild_set = last_wild_match
+        # wild_set << first_wild_match
+        # wild_set.each {|q| queries.push(q)}
+        queries.push(last_wild_match.first)
+        queries.push(first_wild_match.first)
         queries.compact!
 
         updated_queries = []
