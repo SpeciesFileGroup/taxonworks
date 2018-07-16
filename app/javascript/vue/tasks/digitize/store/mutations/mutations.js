@@ -12,21 +12,27 @@ import setCollectionObjectRangeLotId from './CollectionObject/setCollectionObjec
 import setCollectionObjectRepositoryId from './CollectionObject/setCollectionObjectRepositoryId'
 import setCollectionObjectTotal from './CollectionObject/setCollectionObjectTotal'
 
-import setCollectionEventLabel from './setCollectionEventLabel'
-import setCollectionEventCollectors from './setCollectionEventCollectors'
-import setCollectionEventDate from './setCollectionEventDate'
-import setCollectionEventDatum from './setCollectionEventDatum'
-import setCollectionEventElevation from './setCollectionEventElevation'
-import setCollectionEventGeolocation from './setCollectionEventGeolocation'
-import setCollectionEventHabitat from './setCollectionEventHabitat'
-import setCollectionEventLatitude from './setCollectionEventLatitude'
-import setCollectionEventLocality from './setCollectionEventLocality'
-import setCollectionEventLongitude from './setCollectionEventLongitude'
-import setCollectionEventMethod from './setCollectionEventMethod'
-import setCollectionEventTripIdentifier from './setCollectionEventTripIdentifier'
-import setCollectionEventElevationPrecision from './setCollectionEventElevationPrecision'
-import setCollectionEventMaximumElevation from './setCollectionEventMaximumElevation'
-import setCollectionEventMinimumElevation from './setCollectionEventMinimumElevation'
+import setCollectionEventLabel from './CollectionEvent/setCollectionEventLabel'
+import setCollectionEventCollectors from './CollectionEvent/setCollectionEventCollectors'
+import setCollectionEventDate from './CollectionEvent/setCollectionEventDate'
+import setCollectionEventStartDateDay from './CollectionEvent/setCollectionEventStartDateDay'
+import setCollectionEventStartDateMonth from './CollectionEvent/setCollectionEventStartDateMonth'
+import setCollectionEventStartDateYear from './CollectionEvent/setCollectionEventStartDateYear'
+import setCollectionEventEndDateDay from './CollectionEvent/setCollectionEventEndDateDay'
+import setCollectionEventEndDateMonth from './CollectionEvent/setCollectionEventEndDateMonth'
+import setCollectionEventEndDateYear from './CollectionEvent/setCollectionEventEndDateYear'
+import setCollectionEventDatum from './CollectionEvent/setCollectionEventDatum'
+import setCollectionEventElevation from './CollectionEvent/setCollectionEventElevation'
+import setCollectionEventGeolocation from './CollectionEvent/setCollectionEventGeolocation'
+import setCollectionEventHabitat from './CollectionEvent/setCollectionEventHabitat'
+import setCollectionEventLatitude from './CollectionEvent/setCollectionEventLatitude'
+import setCollectionEventLocality from './CollectionEvent/setCollectionEventLocality'
+import setCollectionEventLongitude from './CollectionEvent/setCollectionEventLongitude'
+import setCollectionEventMethod from './CollectionEvent/setCollectionEventMethod'
+import setCollectionEventTripIdentifier from './CollectionEvent/setCollectionEventTripIdentifier'
+import setCollectionEventElevationPrecision from './CollectionEvent/setCollectionEventElevationPrecision'
+import setCollectionEventMaximumElevation from './CollectionEvent/setCollectionEventMaximumElevation'
+import setCollectionEventMinimumElevation from './CollectionEvent/setCollectionEventMinimumElevation'
 
 import setTypeMaterial from './TypeMaterial/setTypeMaterial'
 import setTypeMaterialBiologicalObjectId from './TypeMaterial/setTypeMaterialBiologicalObjectId'
@@ -58,13 +64,7 @@ const MutationNames = {
   SetTaxonDeterminationMonth: 'setTaxonDeterminationMonth',
   SetTaxonDeterminationYear: 'setTaxonDeterminationYear',
   SetTaxonDeterminationRoles: 'setTaxonDeterminationRoles',
-
-  SetTaxonDetermination: 'setTaxonDetermination',
   SetTaxonDeterminationOtuId: 'setTaxonDeterminationOtuId',
-  SetTaxonDeterminationBiologicalId: 'setTaxonDeterminationBiologicalId',
-  SetTaxonDeterminationDay: 'setTaxonDeterminationDay',
-  SetTaxonDeterminationMonth: 'setTaxonDeterminationMonth',
-  SetTaxonDeterminationYear: 'setTaxonDeterminationYear',
 
   SetIdentifier: 'setIdentifier',
   SetIdentifierIdentifier: 'setIdentifierIdentifier',
@@ -84,6 +84,12 @@ const MutationNames = {
   SetCollectionEventLabel: 'setCollectionEventLabel',
   SetCollectionEventCollectors: 'setCollectionEventCollectors',
   SetCollectionEventDate: 'setCollectionEventDate',
+  SetCollectionEventStartDateDay: 'setCollectionEventStartDateDay',
+  SetCollectionEventStartDateMonth: 'setCollectionEventStartDateMonth',
+  SetCollectionEventStartDateYear: 'setCollectionEventStartDateYear',
+  SetCollectionEventEndDateDay: 'setCollectionEventEndDateDay',
+  SetCollectionEventEndDateMonth: 'setCollectionEventEndDateMonth',
+  SetCollectionEventEndDateYear: 'setCollectionEventEndDateYear',
   SetCollectionEventDatum: 'setCollectionEventDatum',
   SetCollectionEventElevation: 'setCollectionEventElevation',
   SetCollectionEventGeolocation: 'setCollectionEventGeolocation',
@@ -141,6 +147,12 @@ const MutationFunctions = {
   [MutationNames.SetCollectionEventLabel]: setCollectionEventLabel,
   [MutationNames.SetCollectionEventCollectors]: setCollectionEventCollectors,
   [MutationNames.SetCollectionEventDate]: setCollectionEventDate,
+  [MutationNames.SetCollectionEventStartDateDay]: setCollectionEventStartDateDay,
+  [MutationNames.SetCollectionEventStartDateMonth]: setCollectionEventStartDateMonth,
+  [MutationNames.SetCollectionEventStartDateYear]: setCollectionEventStartDateYear,
+  [MutationNames.SetCollectionEventEndDateDay]: setCollectionEventEndDateDay,
+  [MutationNames.SetCollectionEventEndDateMonth]: setCollectionEventEndDateMonth,
+  [MutationNames.SetCollectionEventEndDateYear]: setCollectionEventEndDateYear,
   [MutationNames.SetCollectionEventDatum]: setCollectionEventDatum,
   [MutationNames.SetCollectionEventElevation]: setCollectionEventElevation,
   [MutationNames.SetCollectionEventGeolocation]: setCollectionEventGeolocation,

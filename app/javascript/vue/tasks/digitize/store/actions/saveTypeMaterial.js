@@ -7,14 +7,14 @@ export default function ({ commit, state }) {
     type_material.collection_object = state.collection_object
     if(type_material.id) {
       UpdateCollectionObject(type_material).then(response => {
-        TW.workbench.alert.create('Collection object was successfully updated.', 'notice')
+        TW.workbench.alert.create('Taxon determination was successfully updated.', 'notice')
         commit(MutationNames.SetTypeMaterial, response)
         return resolve(response)
       })
     }
     else {
       CreateCollectionObject(type_material).then(response => {
-        TW.workbench.alert.create('Collection object was successfully created.', 'notice')
+        TW.workbench.alert.create('Taxon determination was successfully created.', 'notice')
         commit(MutationNames.SetTypeMaterial, response)
         return resolve(response)
       })
