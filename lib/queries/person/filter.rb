@@ -64,6 +64,28 @@ module Queries
         end
       end
 
+      # @return [Scope]
+      def last_partial_match
+        term = options[:last_name]
+        if term.nil?
+          nil
+        else
+          terms = '%' + term + '%'
+          base_query.where(people_table[:last_name].matches(terms).to_sql)
+        end
+      end
+
+      # @return [Scope]
+      def first_partial_match
+        term = options[:first_name]
+        if term.nil?
+          nil
+        else
+          terms = '%' + term + '%'
+          base_query.where(people_table[:first_name].matches(terms).to_sql)
+        end
+      end
+
       def wildcard_complete
         grp = star_like(options[:last_name])
         grp << star_like(options[:first_name])
@@ -94,12 +116,14 @@ module Queries
       # @return [Array]
       def partial_complete
         queries = [
+          last_partial_match,
+          first_partial_match,
           last_exact_match,
-          first_exact_match,
+          first_exact_match # ,
           # autocomplete_exact_inverted,
           # autocomplete_ordered_wildcard_pieces_in_cached,
           # autocomplete_cached_wildcard_anywhere, # in Queries::Query
-          first_last_cached
+          # first_last_cached
         ]
 
         queries.compact!
