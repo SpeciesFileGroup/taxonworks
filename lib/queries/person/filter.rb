@@ -96,15 +96,16 @@ module Queries
 
         grp.each_with_index { |q, i|
           if limit_to_roles.any?
-            a = base_query.where(people_table[:cached].matchs(q)).joins(:roles).where(role_match.to_sql)
+            a = base_query.where(people_table[:cached].matches(q)).joins(:roles).where(role_match.to_sql)
           end
-          a ||= base_query.where(people_table[:cached].matchs(q))
+          a ||= base_query.where(people_table[:cached].matches(q))
           queries << a
         }
 
       end
 
       def star_like(term)
+        return [] if term.nil?
         return [term] unless term.index('*')
 
         pieces = term.split('*')
@@ -119,7 +120,8 @@ module Queries
           last_partial_match,
           first_partial_match,
           last_exact_match,
-          first_exact_match # ,
+          first_exact_match,
+          # wildcard_complete,
           # autocomplete_exact_inverted,
           # autocomplete_ordered_wildcard_pieces_in_cached,
           # autocomplete_cached_wildcard_anywhere, # in Queries::Query
