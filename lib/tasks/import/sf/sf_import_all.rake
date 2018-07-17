@@ -113,14 +113,13 @@ namespace :tw do
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/16_after_scrutinies'
           #
           #
-          #
-          #
-          #
           # 'citations:create_citations',
-          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_citations',
+          # 592m44.659s on 10 July 2015
+          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/17_after_taxon_citations',
           #
-          # 'citations:create_otu_cites',
-          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_otu_cites',
+          'citations:create_otu_cites',
+          # 1m2.000s on 16 July 2018
+          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/18_after_otu_cites',
 
       ] do
         puts 'Ran all tasks!'
@@ -907,6 +906,31 @@ Error logs:
 [ERROR]2018-07-02 16:55:14.528: TW.taxon_name_id is nil: ScrutinyID = 4962, SF.TaxonNameID 1221809, SF.FileID = 1
 [ERROR]2018-07-02 16:55:14.724: TW.taxon_name_id is nil: ScrutinyID = 3482, SF.TaxonNameID 1222168, SF.FileID = 14
 [ERROR]2018-07-02 16:55:15.456: TW.taxon_name_id is nil: ScrutinyID = 5318, SF.TaxonNameID 1225991, SF.FileID = 14
+
+[INFO]2018-07-10 21:03:58.268: Logged task tw:project_import:sf_import:citations:create_citations completed!
+[INFO]2018-07-10 21:03:58.268: All tasks completed. Dumping summary for each task...
+=== Summary of warnings and errors for task tw:project_import:sf_import:citations:create_citations ===
+[ERROR]2018-07-10 15:58:28.869: OTU citation ERROR SF.TaxonNameID 1162153 = TW.taxon_name_id 56325 = otu_id 56624 (error_counter = 1): Source has already been taken
+[ERROR]2018-07-10 16:33:51.443: OTU citation ERROR SF.TaxonNameID 1167558 = TW.taxon_name_id 61937 = otu_id 62249 (error_counter = 2): Source has already been taken
+[ERROR]2018-07-10 17:48:03.610: OTU citation ERROR SF.TaxonNameID 1186805 = TW.taxon_name_id 81419 = otu_id 81747 (error_counter = 3): Source has already been taken
+[ERROR]2018-07-10 17:49:13.832: OTU citation ERROR SF.TaxonNameID 1187002 = TW.taxon_name_id 81618 = otu_id 81946 (error_counter = 4): Source has already been taken
+[ERROR]2018-07-10 17:49:17.089: OTU citation ERROR SF.TaxonNameID 1187011 = TW.taxon_name_id 81627 = otu_id 81955 (error_counter = 5): Source has already been taken
+[ERROR]2018-07-10 17:52:58.970: OTU citation ERROR SF.TaxonNameID 1187590 = TW.taxon_name_id 82212 = otu_id 82543 (error_counter = 6): Source has already been taken
+[ERROR]2018-07-10 18:01:54.012: OTU citation ERROR SF.TaxonNameID 1189094 = TW.taxon_name_id 83730 = otu_id 84063 (error_counter = 7): Source has already been taken
+[ERROR]2018-07-10 18:02:18.106: OTU citation ERROR SF.TaxonNameID 1189139 = TW.taxon_name_id 83776 = otu_id 84109 (error_counter = 8): Source has already been taken
+[ERROR]2018-07-10 18:06:06.847: OTU citation ERROR SF.TaxonNameID 1189629 = TW.taxon_name_id 84272 = otu_id 84605 (error_counter = 9): Source has already been taken
+[ERROR]2018-07-10 18:07:41.069: OTU citation ERROR SF.TaxonNameID 1189889 = TW.taxon_name_id 84536 = otu_id 84869 (error_counter = 10): Source has already been taken
+[ERROR]2018-07-10 18:10:20.521: OTU citation ERROR SF.TaxonNameID 1190299 = TW.taxon_name_id 84951 = otu_id 85284 (error_counter = 11): Source has already been taken
+[ERROR]2018-07-10 18:10:21.217: OTU citation ERROR SF.TaxonNameID 1190300 = TW.taxon_name_id 84952 = otu_id 85285 (error_counter = 12): Source has already been taken
+[ERROR]2018-07-10 18:13:43.266: OTU citation ERROR SF.TaxonNameID 1190783 = TW.taxon_name_id 85449 = otu_id 85782 (error_counter = 13): Source has already been taken
+[ERROR]2018-07-10 18:14:56.408: OTU citation ERROR SF.TaxonNameID 1190920 = TW.taxon_name_id 85592 = otu_id 85925 (error_counter = 14): Source has already been taken
+[ERROR]2018-07-10 19:23:24.121: OTU citation ERROR SF.TaxonNameID 1203363 = TW.taxon_name_id 106196 = otu_id 106545 (error_counter = 15): Source has already been taken
+[ERROR]2018-07-10 20:35:22.116: OTU citation ERROR SF.TaxonNameID 1226996 = TW.taxon_name_id 94868 = otu_id 95205 (error_counter = 16): Source has already been taken
+[ERROR]2018-07-10 20:45:22.788: OTU citation ERROR SF.TaxonNameID 1230240 = TW.taxon_name_id 99592 = otu_id 99929 (error_counter = 17): Source has already been taken
+[ERROR]2018-07-10 20:50:39.965: OTU citation ERROR SF.TaxonNameID 1231980 = TW.taxon_name_id 100771 = otu_id 101108 (error_counter = 18): Source has already been taken
+[ERROR]2018-07-10 20:54:32.988: OTU citation ERROR SF.TaxonNameID 1233277 = TW.taxon_name_id 99342 = otu_id 99679 (error_counter = 19): Source has already been taken
+[ERROR]2018-07-10 20:54:57.605: OTU citation ERROR SF.TaxonNameID 1233414 = TW.taxon_name_id 98977 = otu_id 99314 (error_counter = 20): Source has already been taken
+
 
 
 
