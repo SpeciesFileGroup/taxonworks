@@ -121,7 +121,11 @@ module Queries
       end
 
       def first_and_last_wild_match
-        ::Person.where(last_wild_match.to_s).where(first_wild_match.to_s)
+        last_name = options[:last_name]
+        first_name = options[:first_name]
+        last_name = last_name.nil? ? '%' : last_name.gsub('*', '%')
+        first_name = first_name.nil? ? '%' : first_name.gsub('*', '%')
+        base_query.where(people_table[:first_name].matches(first_name).and(people_table[:last_name].matches(last_name)))
       end
 
       def star_like(term)
@@ -139,10 +143,11 @@ module Queries
         queries = [
           # last_partial_match,
           # first_partial_match,
-          last_exact_match,
-          first_exact_match,
-          last_wild_match,
-          first_wild_match
+          # last_exact_match,
+          # first_exact_match,
+          # last_wild_match,
+          # first_wild_match,
+          first_and_last_wild_match
         # autocomplete_exact_inverted,
         # autocomplete_ordered_wildcard_pieces_in_cached,
         # autocomplete_cached_wildcard_anywhere, # in Queries::Query
