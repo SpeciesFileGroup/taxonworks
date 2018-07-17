@@ -81,11 +81,19 @@ describe Queries::Person::Filter, type: :model do
   context 'partial_complete' do
     context 'wildcard' do
       context 'last name' do
-        specify '*smith*' do
-          params = {lastname: '*smith*'}
+        specify 'smi*' do
+          params = {lastname: 'smi*'}
           expect(Queries::Person::Filter.new(params).partial_complete)
             .to contain_exactly(p2.becomes(Person::Vetted),
                                 p1.becomes(Person::Unvetted))
+        end
+      end
+
+      context 'first name' do
+        specify 'sa*' do
+          params = {firstname: 'sa*'}
+          expect(Queries::Person::Filter.new(params).partial_complete)
+            .to contain_exactly(p2.becomes(Person::Vetted))
         end
       end
     end
