@@ -139,19 +139,10 @@ module Queries
 
       # ported from Queries::Person::Autocomplete
       # @return [Array]
+      # TODO: finesse whitespace issues
       def partial_complete
         queries = [
-          # last_partial_match,
-          # first_partial_match,
-          # last_exact_match,
-          # first_exact_match,
-          # last_wild_match,
-          # first_wild_match,
           first_and_last_wild_match
-        # autocomplete_exact_inverted,
-        # autocomplete_ordered_wildcard_pieces_in_cached,
-        # autocomplete_cached_wildcard_anywhere, # in Queries::Query
-        # first_last_cached
         ]
 
         queries.compact!
