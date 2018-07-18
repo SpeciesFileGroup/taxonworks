@@ -73,9 +73,9 @@ export default {
         this.selected = {};
         return false;
       }
-      let params = {
-        lastname: person.last_name,
-        firstname: person.first_name,
+      let params = {      // fudge up new search for match params to give some likely hits
+        lastname: person.last_name.substr(0,2) + '*',
+        firstname: '', //person.first_name[0] + '*',
         roles: []
       };
       this.$http.get("/people.json", { params: params }).then(response => {
