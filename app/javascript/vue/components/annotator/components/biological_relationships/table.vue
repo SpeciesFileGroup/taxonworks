@@ -23,7 +23,7 @@
             <radial-annotator :global-id="item.global_id"/>
             <span
               class="circle-button btn-delete"
-              @click="$emit('delete', item)">Remove
+              @click="deleteItem(item)">Remove
             </span>
           </td>
         </tr>
@@ -55,6 +55,11 @@
       this.$options.components['RadialAnnotator'] = RadialAnnotator
     },
     methods: {
+      deleteItem(item) {
+        if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+          this.$emit('delete', item)
+        }
+      },
       getSubjectOrObject(item) {
         if(item.biological_association_object_id == this.metadata.object_id) {
           return item.subject.object_tag
@@ -89,7 +94,6 @@
 </script>
 <style lang="scss" scoped>
   .vue-table-container {
-    overflow-y: scroll;
     padding: 0px;
     position: relative;
   }

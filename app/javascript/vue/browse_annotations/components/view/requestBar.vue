@@ -2,7 +2,12 @@
   <div v-if="url">
     <hr>
     <div class="flex-separate">
-      <span>JSON Request: {{ decodeURIComponent(url) }} </span>
+      <span>
+        JSON Request: 
+        <a
+          :href="url"
+          target="_blank">{{ decodeURIComponent(url) }}</a>
+      </span>
       <span>({{ total }} records.)</span>
     </div>
     <hr>

@@ -100,20 +100,6 @@ class OtusController < ApplicationController
 
   def autocomplete
     @otus = Queries::Otu::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).all
-
-    data = @otus.collect do |t|
-      {
-        id:              t.id,
-        label:           ApplicationController.helpers.otu_autocomplete_selected_tag(t),
-        gid:             t.to_global_id.to_s,
-        response_values: {
-          params[:method] => t.id
-        },
-        label_html:      ApplicationController.helpers.otu_tag(t)
-      }
-    end
-
-    render json: data
   end
 
   def batch_load

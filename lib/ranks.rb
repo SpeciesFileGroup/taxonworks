@@ -15,11 +15,15 @@ module Ranks
   #   Ranks::lookup(:iczn, 'superfamily')   # => 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily'
   def self.lookup(code, rank)
     rank = rank.to_s
-    raise if ![:iczn, :icn].include?(code)
+    raise if ![:iczn, :icn, :icnb, :ictv].include?(code)
     r = rank.downcase
     case code
       when :iczn
         ::ICZN_LOOKUP[r]
+      when :icnb
+        ::ICNB_LOOKUP[r]
+      when :ictv
+        ::ICTV_LOOKUP[r]
       when :icn
         ::ICN_LOOKUP[r]
       else
