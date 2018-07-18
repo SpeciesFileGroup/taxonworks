@@ -123,8 +123,8 @@ module Queries
       def first_and_last_wild_match
         last_name  = options[:last_name]
         first_name = options[:first_name]
-        last_name  = last_name.nil? ? '' : last_name.gsub('*', '%')
-        first_name = first_name.nil? ? '' : first_name.gsub('*', '%')
+        last_name  = last_name.blank? ? '' : last_name.gsub('*', '%')
+        first_name = first_name.blank? ? '' : first_name.gsub('*', '%')
         if first_name.blank?
           return base_query.where(people_table[:last_name].matches(last_name))
         end
