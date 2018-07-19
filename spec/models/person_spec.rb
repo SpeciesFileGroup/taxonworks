@@ -665,7 +665,7 @@ describe Person, type: :model do
                                       type:               'Person::Unvetted',
                                       year_born:         2000, year_died: 2015,
                                       year_active_start: 2012, year_active_end: 2015)
-
+# additional attributes not replicated yet
                 person1.merge_with(person1c.id)
                 expect(person1.type.include?('Unv')).to be_truthy
               end
