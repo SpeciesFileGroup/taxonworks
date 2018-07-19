@@ -1,12 +1,15 @@
 <template>
-  <div class="horizontal-left-content">
-    <div>
-      <catalog-number/>
-      <buffered-component/>
+  <div>
+    <div class="horizontal-left-content">
+      <div>
+        <catalog-number/>
+      </div>
+      <div>
+        <bioclassification/>
+      </div>
     </div>
-    <div>
-      <bioclassification/>
-    </div>
+    <buffered-component/>
+    <depictions-component/>
   </div>
 </template>
 
@@ -15,12 +18,14 @@
   import CatalogNumber from './catalogNumber.vue'
   import Bioclassification from './bioclassification.vue'
   import BufferedComponent from './bufferedData.vue'
+  import DepictionsComponent from './depictions.vue'
 
   export default {
     components: {
       CatalogNumber,
       Bioclassification,
-      BufferedComponent
+      BufferedComponent,
+      DepictionsComponent
     },
     computed: {
     },
