@@ -2,7 +2,7 @@
   <div id="#vue-all-in-one">
     <task-header/>
     <collection-object/>
-    <div class="horizontal-left-content">
+    <div class="horizontal-left-content align-start">
       <div>
         <taxon-determination-layout/>
         <type-material/>

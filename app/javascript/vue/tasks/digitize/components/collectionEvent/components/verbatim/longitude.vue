@@ -2,7 +2,7 @@
   <div>
     <label>Longitude</label>
     <input
-      type="text"
+      type="number"
       v-model="longitude">
   </div>
 </template>

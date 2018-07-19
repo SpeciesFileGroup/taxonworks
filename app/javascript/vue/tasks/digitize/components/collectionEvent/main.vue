@@ -1,22 +1,36 @@
 <template>
-  <div class="horizontal-left-content align-start">
-    <block-verbatin class="separate-right"/>
-    <block-geography class="separate-left"/>
+  <div>
+    <h2>Collection Event</h2>
+    <smart-selector
+      name="collection-event"
+      v-model="view"
+      :options="tabs"/>
+    <div class="horizontal-left-content align-start">
+      <block-verbatin class="separate-right"/>
+      <block-geography class="separate-left"/>
+    </div>
+    <leaf-map/>
   </div>
 </template>
 
 <script>
 
-  import blockVerbatin from './components/verbatimLayout.vue'
-  import blockGeography from './components/GeographyLayout.vue'
+  import BlockVerbatin from './components/verbatimLayout.vue'
+  import BlockGeography from './components/GeographyLayout.vue'
+  import SmartSelector from '../../../../components/switch.vue'
+  import LeafMap from  './components/map/map.vue'
 
   export default {
     components: {
-      blockVerbatin,
-      blockGeography
+      BlockVerbatin,
+      BlockGeography,
+      SmartSelector,
+      LeafMap
     },
     data() {
       return {
+        view: 'new',
+        tabs: ['Quick', 'Recent', 'Pinboard', 'Search', 'New'],
         blocks: {
           
         }

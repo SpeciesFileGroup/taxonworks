@@ -7,6 +7,9 @@
       <div>
         <bioclassification/>
       </div>
+      <div>
+        <repository-component/>
+      </div>
     </div>
     <buffered-component/>
     <depictions-component/>
@@ -19,15 +22,16 @@
   import Bioclassification from './bioclassification.vue'
   import BufferedComponent from './bufferedData.vue'
   import DepictionsComponent from './depictions.vue'
+  import RepositoryComponent from './repository.vue'
+  import { GetterNames } from '../../store/getters/getters';
 
   export default {
     components: {
       CatalogNumber,
       Bioclassification,
       BufferedComponent,
-      DepictionsComponent
-    },
-    computed: {
+      DepictionsComponent,
+      RepositoryComponent
     },
     data() {
       return {

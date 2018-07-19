@@ -1,5 +1,6 @@
 <template>
   <div>
+    <h2>Determinations</h2>
     <smart-selector
       v-model="view"
       name="determination"

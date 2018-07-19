@@ -50,8 +50,8 @@
           'VerbatimGeolocation', 
           'VerbatimHabitat',
           'VerbatimLatitude',
-          'VerbatimLocality',
           'VerbatimLongitude',
+          'VerbatimLocality',
           'VerbatimMethod']
       }
     }
