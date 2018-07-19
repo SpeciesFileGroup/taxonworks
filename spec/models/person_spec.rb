@@ -607,7 +607,8 @@ describe Person, type: :model do
               specify 'nil first name' do
                 person1b.first_name = nil
                 person1b.save!
-                expect(person1.merge_with(person1b.id)).to be_truthy
+                trial = person1.merge_with(person1b.id)
+                expect(trial).to be_truthy
               end
             end
 
