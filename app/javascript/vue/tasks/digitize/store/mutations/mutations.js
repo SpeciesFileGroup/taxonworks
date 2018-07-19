@@ -15,6 +15,12 @@ import setCollectionObjectTotal from './CollectionObject/setCollectionObjectTota
 import setCollectionEventLabel from './CollectionEvent/setCollectionEventLabel'
 import setCollectionEventCollectors from './CollectionEvent/setCollectionEventCollectors'
 import setCollectionEventDate from './CollectionEvent/setCollectionEventDate'
+import setCollectionEventTimeStartHour from './CollectionEvent/setCollectionEventTimeStartHour'
+import setCollectionEventTimeStartMinute from './CollectionEvent/setCollectionEventTimeStartMinute'
+import setCollectionEventTimeStartSecond from './CollectionEvent/setCollectionEventTimeStartSecond'
+import setCollectionEventTimeEndHour from './CollectionEvent/setCollectionEventTimeEndHour'
+import setCollectionEventTimeEndMinute from './CollectionEvent/setCollectionEventTimeEndMinute'
+import setCollectionEventTimeEndSecond from './CollectionEvent/setCollectionEventTimeEndSecond'
 import setCollectionEventStartDateDay from './CollectionEvent/setCollectionEventStartDateDay'
 import setCollectionEventStartDateMonth from './CollectionEvent/setCollectionEventStartDateMonth'
 import setCollectionEventStartDateYear from './CollectionEvent/setCollectionEventStartDateYear'
@@ -84,6 +90,12 @@ const MutationNames = {
   SetCollectionEventLabel: 'setCollectionEventLabel',
   SetCollectionEventCollectors: 'setCollectionEventCollectors',
   SetCollectionEventDate: 'setCollectionEventDate',
+  setCollectionEventTimeStartHour: 'setCollectionEventTimeStartHour',
+  setCollectionEventTimeStartMinute: 'setCollectionEventTimeStartMinute',
+  setCollectionEventTimeStartSecond: 'setCollectionEventTimeStartSecond',
+  setCollectionEventTimeEndHour: 'setCollectionEventTimeEndHour',
+  setCollectionEventTimeEndMinute: 'setCollectionEventTimeEndMinute',
+  setCollectionEventTimeEndSecond: 'setCollectionEventTimeEndSecond',
   SetCollectionEventStartDateDay: 'setCollectionEventStartDateDay',
   SetCollectionEventStartDateMonth: 'setCollectionEventStartDateMonth',
   SetCollectionEventStartDateYear: 'setCollectionEventStartDateYear',
@@ -147,6 +159,12 @@ const MutationFunctions = {
   [MutationNames.SetCollectionEventLabel]: setCollectionEventLabel,
   [MutationNames.SetCollectionEventCollectors]: setCollectionEventCollectors,
   [MutationNames.SetCollectionEventDate]: setCollectionEventDate,
+  [MutationNames.setCollectionEventTimeStartHour]: setCollectionEventTimeStartHour,
+  [MutationNames.setCollectionEventTimeStartMinute]: setCollectionEventTimeStartMinute,
+  [MutationNames.setCollectionEventTimeStartSecond]: setCollectionEventTimeStartSecond,
+  [MutationNames.setCollectionEventTimeEndHour]: setCollectionEventTimeEndHour,
+  [MutationNames.setCollectionEventTimeEndMinute]: setCollectionEventTimeEndMinute,
+  [MutationNames.setCollectionEventTimeEndSecond]: setCollectionEventTimeEndSecond,
   [MutationNames.SetCollectionEventStartDateDay]: setCollectionEventStartDateDay,
   [MutationNames.SetCollectionEventStartDateMonth]: setCollectionEventStartDateMonth,
   [MutationNames.SetCollectionEventStartDateYear]: setCollectionEventStartDateYear,
