@@ -175,7 +175,7 @@ describe Person, type: :model do
     end
 
     context 'usage and rendering' do
-      let!(:person1) {
+      let(:person1) {
         p = FactoryBot.create(:person,
                               first_name: 'January', last_name: 'Smith',
                               prefix:     'Dr.', suffix: 'III')
@@ -183,15 +183,16 @@ describe Person, type: :model do
         p.data_attributes << da1
         p
       }
-      let!(:person1a) {
+      let(:person1a) {
         p = person1.dup
         p.save!
         p
       }
-      let!(:person1b) {
+      let(:person1b) {
         p = FactoryBot.create(:person,
                               first_name:        'January', last_name: 'Smith',
                               prefix:            'Dr.', suffix: 'III',
+                              type:               'Person::Unvetted',
                               year_born:         2000, year_died: 2015,
                               year_active_start: 2012, year_active_end: 2015)
         tn2.taxon_name_authors << p
@@ -657,11 +658,15 @@ describe Person, type: :model do
               end
 
               specify 'unvetted r_person' do
-                # person1.type = 'Person::Unvetted'
-                # person1.save!
-                person1b.type = 'Person::Unvetted'
-                person1b.save!
-                person1.merge_with(person1b.id)
+
+                person1c = FactoryBot.create(:person,
+                                      first_name:        'January', last_name: 'Smith',
+                                      prefix:            'Dr.', suffix: 'III',
+                                      type:               'Person::Unvetted',
+                                      year_born:         2000, year_died: 2015,
+                                      year_active_start: 2012, year_active_end: 2015)
+
+                person1.merge_with(person1c.id)
                 expect(person1.type.include?('Unv')).to be_truthy
               end
             end
