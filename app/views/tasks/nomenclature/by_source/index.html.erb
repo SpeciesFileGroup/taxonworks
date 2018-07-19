@@ -29,7 +29,7 @@
           <div id="brownse-main-panel" class="panel separate-left separate-right attributes-panel">
             <div class="break_words content">
               <div class="title-section"> 
-                <h2> Names (<%= @source.citations.where(citation_object_type: 'TaxonName').count -%> citations) </h2>
+                <h2> Taxon Names (<%= @source.citations.where(citation_object_type: 'TaxonName').count -%> citations) </h2>
               </div>
               <div class="attributes"> 
                 <ul class="taxonomic_history">
@@ -40,7 +40,7 @@
               </div>
 
               <div class="title-section"> 
-                <h2> Relationships  (<%= @source.citations.where(citation_object_type: 'TaxonNameRelationship').count -%> citations) </h2>
+                <h2> Taxon Name Relationships  (<%= @source.citations.where(citation_object_type: 'TaxonNameRelationship').count -%> citations) </h2>
               </div>
               <div class="attributes"> 
                 <ul class="taxonomic_history">
