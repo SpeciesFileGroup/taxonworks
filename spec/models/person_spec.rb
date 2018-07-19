@@ -601,6 +601,49 @@ describe Person, type: :model do
               end
             end
           end
+
+          context 'names' do
+            context 'r_person' do
+              context 'truthyness' do
+                specify 'nil first name' do
+                  person1b.first_name = nil
+                  person1b.save!
+                  trial = person1.merge_with(person1b.id)
+                  expect(trial).to be_truthy
+                end
+              end
+
+              context 'success' do
+                specify 'nil first name' do
+                  person1b.first_name = nil
+                  person1b.save!
+                  bfr = person1.first_name
+                  person1.merge_with(person1b.id)
+                  expect(person1.first_name).to eq(bfr)
+                end
+              end
+            end
+
+            context 'l_person' do
+              context 'truthyness' do
+                specify 'nil first name' do
+                  person1.first_name = nil
+                  person1.save!
+                  trial = person1.merge_with(person1b.id)
+                  expect(trial).to be_truthy
+                end
+              end
+
+              context 'success' do
+                specify 'nil first name' do
+                  person1.first_name = nil
+                  person1.save!
+                  person1.merge_with(person1b.id)
+                  expect(person1.first_name).to eq(person1b.first_name)
+                end
+              end
+            end
+          end
         end
       end
     end
