@@ -182,7 +182,7 @@ class Person < ApplicationRecord
           l_person_hash = self.annotations_hash
           unless r_person.first_name.blank?
             if self.first_name.blank?
-              self.first_name = r_person.first_name
+              self.update(first_name: r_person.first_name)
             else
               if self.first_name != r_person.first_name
                 # create a first_name alternate_value of the r_person first name
@@ -209,7 +209,7 @@ class Person < ApplicationRecord
           end
           unless r_person.last_name.blank?
             if self.last_name.blank?
-              self.last_name = r_person.last_name
+              self.update(last_name: r_person.last_name)
             else
               if self.last_name != r_person.last_name
                 # create a last_name alternate_value of the r_person first name
