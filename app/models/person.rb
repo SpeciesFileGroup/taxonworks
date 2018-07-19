@@ -176,48 +176,55 @@ class Person < ApplicationRecord
       # r_err         = nil
       begin
         ApplicationRecord.transaction do
+          # rubocop:disable Rails/SaveBang
           Role.where(person_id: r_person.id).update(person: self) # update merge person's roles to old
+          # rubocop:enable Rails/SaveBang
           l_person_hash = self.annotations_hash
-          # TODO: When names don't match add alternate values to the corresponding names except extant
-          if self.first_name != r_person.first_name
-            # create a first_name alternate_value of the r_person first name
-            skip_av = false
-            av_list = l_person_hash['alternate values']
-            (av_list ||= {}).each do |av|
-              if av.value == r_person.first_name
-                if av.type == 'AlternateValue::AlternateSpelling' &&
-                  av.alternate_value_object_attribute == 'first_name' # &&
-                  # av.project_id == r_person.project_id
-                  skip_av = true
-                  break # stop looking in this bunch, if you found a match
+          unless r_person.first_name.blank?
+            if self.first_name != r_person.first_name
+              # create a first_name alternate_value of the r_person first name
+              skip_av = false
+              av_list = l_person_hash['alternate values']
+              av_list ||= {}
+              av_list.each do |av|
+                if av.value == r_person.first_name
+                  if av.type == 'AlternateValue::AlternateSpelling' &&
+                    av.alternate_value_object_attribute == 'first_name' # &&
+                    # av.project_id == r_person.project_id
+                    skip_av = true
+                    break # stop looking in this bunch, if you found a match
+                  end
                 end
               end
-            end
 
-            AlternateValue::AlternateSpelling.create!(alternate_value_object_type:      'Person',
-                                                     value:                            r_person.first_name,
-                                                     alternate_value_object_attribute: 'first_name',
-                                                     alternate_value_object_id:        id) unless skip_av
+              AlternateValue::AlternateSpelling.create!(alternate_value_object_type:      'Person',
+                                                        value:                            r_person.first_name,
+                                                        alternate_value_object_attribute: 'first_name',
+                                                        alternate_value_object_id:        id) unless skip_av
+            end
           end
-          if self.last_name != r_person.last_name
-            # create a last_name alternate_value of the r_person first name
-            skip_av = false
-            av_list = l_person_hash['alternate values']
-            (av_list ||= {}).each do |av|
-              if av.value == r_person.last_name
-                if av.type == 'AlternateValue::AlternateSpelling' &&
-                  av.alternate_value_object_attribute == 'last_name' # &&
-                  # av.project_id == r_person.project_id
-                  skip_av = true
-                  break # stop looking in this bunch, if you found a match
+          unless r_person.last_name.blank?
+            if self.last_name != r_person.last_name
+              # create a last_name alternate_value of the r_person first name
+              skip_av = false
+              av_list = l_person_hash['alternate values']
+              av_list ||= {}
+              av_list.each do |av|
+                if av.value == r_person.last_name
+                  if av.type == 'AlternateValue::AlternateSpelling' &&
+                    av.alternate_value_object_attribute == 'last_name' # &&
+                    # av.project_id == r_person.project_id
+                    skip_av = true
+                    break # stop looking in this bunch, if you found a match
+                  end
                 end
               end
-            end
 
-            AlternateValue::AlternateSpelling.create!(alternate_value_object_type:      'Person',
-                                                      value:                            r_person.last_name,
-                                                      alternate_value_object_attribute: 'last_name',
-                                                      alternate_value_object_id:        id) unless skip_av
+              AlternateValue::AlternateSpelling.create!(alternate_value_object_type:      'Person',
+                                                        value:                            r_person.last_name,
+                                                        alternate_value_object_attribute: 'last_name',
+                                                        alternate_value_object_id:        id) unless skip_av
+            end
           end
           r_person.annotations_hash.each do |r_kee, r_objects|
             r_objects.each do |r_o|
