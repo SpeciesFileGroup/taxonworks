@@ -70,6 +70,14 @@ const GetBiocurationsTypes = function (protonymId) {
   return ajaxCall('get', `/controlled_vocabulary_terms.json?of_type[]=BiocurationClass`)
 }
 
+const GetBiocurationsGroupTypes = function (protonymId) {
+  return ajaxCall('get', `/controlled_vocabulary_terms.json?of_type[]=BiocurationGroup`)
+}
+
+const GetBiocurationsTags = function (BiocurationGroupId) {
+  return ajaxCall('get', `/tags.json?keyword_id=${BiocurationGroupId}`)
+}
+
 const GetBiocurationsCreated = function (biologicalId) {
   return ajaxCall('get', `/biocuration_classifications.json?biological_collection_object_id=${biologicalId}`)
 }
@@ -132,6 +140,8 @@ export {
   GetBiocurationsTypes,
   GetBiocurationsCreated,
   GetBiocuration,
+  GetBiocurationsGroupTypes,
+  GetBiocurationsTags,
   GetPreparationTypes,
   GetDepictions,
   GetRepository,

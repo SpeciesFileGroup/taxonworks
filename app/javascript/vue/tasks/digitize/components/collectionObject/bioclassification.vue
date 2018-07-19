@@ -1,17 +1,171 @@
 <template>
-  <toggle-switch :biological-id="id"/>
+  <div>
+    <h2>Biocuration</h2>
+    <div class="horizontal-left-content">
+      <div v-for="group in biocurationsGroups">
+        <h3>{{ group.name }}</h3>
+        <template
+          v-for="item in group.list">
+          <button
+            type="button"
+            class="bottom button-submit normal-input biocuration-toggle-button"
+            @click="addToQueue(item.id)"
+            v-if="(biologicalId ? !checkExist(item.id) : !checkInQueue(item.id))">{{ item.name }}
+          </button>
+          <button
+            type="button"
+            class="bottom button-delete normal-input biocuration-toggle-button"
+            @click="(biologicalId ? removeEntry(item) : removeFromQueue(item.id))"
+            v-else>{{ item.name }}
+          </button>
+        </template>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-  import ToggleSwitch from '../../../../type_specimens/components/toggleSwitch'
-  export default {
-    components: {
-      ToggleSwitch
+import { GetterNames } from '../../store/getters/getters.js'
+import { 
+  GetBiocurationsTypes, 
+  GetBiocurationsCreated, 
+  CreateBiocurationClassification,
+  GetBiocurationsGroupTypes,
+  DestroyBiocuration,
+  GetBiocurationsTags } from '../../request/resources.js'
+
+export default {
+  computed: {
+    collectionObject() {
+      return this.$store.getters[GetterNames.GetCollectionObject]
     },
-    data() {
+    biologicalId() {
+      return this.$store.getters[GetterNames.GetCollectionObject].id
+    }    
+  },
+  data() {
+    return {
+      biocutarionsType: [],
+      biocurationsGroups: [],
+      addQueue: [],
+      createdBiocutarions: []
+    }
+  },
+  mounted: function () {
+    GetBiocurationsGroupTypes().then(response => {
+      this.biocurationsGroups = response
+      GetBiocurationsTypes().then(response => {
+        this.biocutarionsType = response
+        this.splitGroups()
+      })
+    })
+  },
+  watch: {
+    biologicalId: {
+      handler (newVal, oldVal) {
+        this.createdBiocutarions = []
+        if (newVal && oldVal == undefined) {
+          this.processQueue()
+        }
+        if (newVal != undefined && newVal != oldVal) {
+          this.addQueue = []
+          GetBiocurationsCreated(newVal).then(response => {
+            this.createdBiocutarions = response
+          })
+        }
+      },
+      immediate: true
+    },
+    addQueue: {
+      handler () {
+        if (this.biologicalId && this.addQueue.length) {
+          this.processQueue()
+        }
+      }
+    }
+  },
+  methods: {
+    splitGroups() {
+      let that = this
+      this.biocurationsGroups
+      this.biocurationsGroups.forEach((item, index) => {
+        GetBiocurationsTags(item.id).then(response =>{
+          let tmpArray = []
+          response.forEach(item => {
+            that.biocutarionsType.forEach(itemClass => {
+              if(itemClass.id == item.tag_object_id) {
+                tmpArray.push(itemClass)
+                return
+              }
+            })
+          })
+          that.$set(that.biocurationsGroups[index], 'list', tmpArray)
+        })         
+      })
+    },
+    addToQueue (biocuration) {
+      this.addQueue.push(biocuration)
+    },
+    processQueue () {
+      this.addQueue.forEach((id) => {
+        CreateBiocurationClassification(this.createBiocurationObject(id)).then(response => {
+          this.createdBiocutarions.push(response)
+        })
+        this.addQueue = []
+      })
+    },
+    checkExist (id) {
+      let found = this.createdBiocutarions.find((bio) => {
+        return id == bio.biocuration_class_id
+      })
+      return (found != undefined)
+    },
+    checkInQueue (id) {
+      let found = this.addQueue.find((biocurationId) => {
+        return id == biocurationId
+      })
+      return (found != undefined)
+    },
+    getCreatedBiocurations () {
+      this.biocutarionsType.forEach((biocuration) => {
+        GetBiocuration().then((response) => {
+          response.forEach((item) => {
+            this.createdBiocutarions.push(item)
+          })
+        })
+      })
+    },
+    removeFromQueue (id) {
+      this.addQueue.splice(this.addQueue.findIndex((itemId) => { return itemId == id }), 1)
+    },
+    removeEntry (biocurationClass) {
+      let index = this.createdBiocutarions.findIndex((item) => {
+        return (item.biocuration_class_id == biocurationClass.id)
+      })
+
+      DestroyBiocuration(this.createdBiocutarions[index].id).then(response => {
+        this.createdBiocutarions.splice(index, 1)
+      })
+    },
+    createBiocurationObject (id) {
       return {
-        id: undefined
+        biocuration_classification: {
+          biocuration_class_id: id,
+          biological_collection_object_id: this.biologicalId
+        }
       }
     }
   }
+}
 </script>
+
+<style>
+  .biocuration-toggle-button {
+    min-width: 60px;
+    border: 0px;
+    margin-right: 6px;
+    margin-bottom: 6px;
+    border-top-left-radius: 14px;
+    border-bottom-left-radius: 14px;
+  }
+</style>
