@@ -176,6 +176,7 @@ class Person < ApplicationRecord
       # r_err         = nil
       begin
         ApplicationRecord.transaction do
+          unvetted = self.type.include?('Unv') && r_person.type.include?('Unv')
           # rubocop:disable Rails/SaveBang
           Role.where(person_id: r_person.id).update(person: self) # update merge person's roles to old
           # rubocop:enable Rails/SaveBang
@@ -327,6 +328,12 @@ class Person < ApplicationRecord
           if r_person.year_active_end # if not, r_person has nothing to contribute
             if self.year_active_end.nil? || (self.year_active_end < r_person.year_active_end)
               self.year_active_end = r_person.year_active_end
+            end
+          end
+          # update type, if necesssary
+          if self.type.include?('Unv')
+            unless unvetted
+              self.update(type: 'Person::Vetted')
             end
           end
           # last thing to do in the transaction...

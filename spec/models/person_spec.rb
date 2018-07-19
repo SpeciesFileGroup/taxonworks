@@ -175,7 +175,7 @@ describe Person, type: :model do
     end
 
     context 'usage and rendering' do
-      let(:person1) {
+      let!(:person1) {
         p = FactoryBot.create(:person,
                               first_name: 'January', last_name: 'Smith',
                               prefix:     'Dr.', suffix: 'III')
@@ -183,12 +183,12 @@ describe Person, type: :model do
         p.data_attributes << da1
         p
       }
-      let(:person1a) {
+      let!(:person1a) {
         p = person1.dup
         p.save!
         p
       }
-      let(:person1b) {
+      let!(:person1b) {
         p = FactoryBot.create(:person,
                               first_name:        'January', last_name: 'Smith',
                               prefix:            'Dr.', suffix: 'III',
@@ -641,6 +641,28 @@ describe Person, type: :model do
                   person1.merge_with(person1b.id)
                   expect(person1.first_name).to eq(person1b.first_name)
                 end
+              end
+            end
+          end
+
+          context 'vetting' do
+            context 'unvetted l_person' do
+              specify 'vetted r_person' do
+                person1.type = 'Person::Unvetted'
+                person1.save!
+                person1b.type = 'Person::Vetted'
+                person1b.save!
+                person1.merge_with(person1b.id)
+                expect(person1.type.include?(':V')).to be_truthy
+              end
+
+              specify 'unvetted r_person' do
+                # person1.type = 'Person::Unvetted'
+                # person1.save!
+                person1b.type = 'Person::Unvetted'
+                person1b.save!
+                person1.merge_with(person1b.id)
+                expect(person1.type.include?('Unv')).to be_truthy
               end
             end
           end
