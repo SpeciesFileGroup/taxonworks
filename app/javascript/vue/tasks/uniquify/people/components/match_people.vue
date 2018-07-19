@@ -1,5 +1,7 @@
 <template>
   <div>
+    <span v-if="Object.keys(selectedPerson).length">{{ matchPeople.length }}  matches found</span>
+    <br>
     <div>
       <ul class="no_bullets">
         <li v-for="person in matchPeople">
@@ -15,10 +17,6 @@
         </li>
       </ul>
     </div>
-    <br>
-    <br>
-    <br>
-    <span v-if="Object.keys(selectedPerson).length">{{ matchPeople.length }}  matches found</span>
   </div>
 </template>
 <script>
@@ -74,7 +72,7 @@ export default {
         return false;
       }
       let params = {      // fudge up new search for match params to give some likely hits
-        lastname: person.last_name.substr(0,2) + '*',
+        lastname: person.last_name.substr(0,3) + '*',
         firstname: '', //person.first_name[0] + '*',
         roles: []
       };

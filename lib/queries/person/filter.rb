@@ -139,14 +139,14 @@ module Queries
         return [] if term.nil?
         return [term] unless term.index('*')
 
-        pieces = term.split('*')
         pieces.delete_if { |str| str.empty? }
+        pieces = term.split('*')
 
       end
 
       # ported from Queries::Person::Autocomplete
       # @return [Array]
-      # TODO: finesse whitespace issues
+      # NOTODO: finesse whitespace issues -- not empirically a big deal at this time
       def partial_complete
         queries = [
           first_and_last_wild_match

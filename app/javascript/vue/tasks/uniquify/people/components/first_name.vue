@@ -2,7 +2,7 @@
   <div>
     <input
       v-model="firstName"
-      placeholder="first name"/>
+      placeholder="name -- use * for wild card"/>
   </div>
 </template>
 <script>

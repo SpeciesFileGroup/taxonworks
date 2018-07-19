@@ -1,5 +1,7 @@
 <template>
   <div>
+    <span v-if="displayCount">{{ foundPeople.length }}  people found</span>
+    <br>
     <div>
       <ul class="no_bullets">
         <li v-for="person in foundPeople">
@@ -14,10 +16,6 @@
           </label>
         </li>
       </ul>
-      <br>
-      <br>
-      <br>
-      <span v-if="displayCount">{{ foundPeople.length }}  people found</span>
     </div>
   </div>
 </template>
