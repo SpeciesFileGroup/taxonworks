@@ -16,8 +16,9 @@
   <div class="item item2">
     <div class="panel separate-left">
       <div class="title action-line">
-        <div class="title-section flexbox column-big">
+        <div class="title-section middle column-big flex-separate">
           <%= content_tag(:span, source_tag(@source), class: 'name') -%> 
+          <%= radial_annotator(@source) -%> 
         </div>
       </div>
     </div>    
