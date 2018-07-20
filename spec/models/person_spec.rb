@@ -658,15 +658,6 @@ describe Person, type: :model do
 
           context 'vetting' do
             context 'unvetted l_person' do
-              specify 'vetted r_person' do
-                person1.type = 'Person::Unvetted'
-                person1.save!
-                person1b.type = 'Person::Vetted'
-                person1b.save!
-                person1.merge_with(person1b.id)
-                expect(person1.type.include?(':V')).to be_truthy
-              end
-
               specify 'unvetted r_person' do
                 # An interesting anomoly occures when person1b is used in place of person1c.
                 # In this context, use of person1b seems to result in person1 being converted to 'vetted'
@@ -676,6 +667,15 @@ describe Person, type: :model do
                 # as 'taxon_name_author', that person is (sometimes!) converted to 'vetted'.
                 person1.merge_with(person1c.id)
                 expect(person1.type.include?('Unv')).to be_truthy
+              end
+
+              specify 'vetted r_person' do
+                person1.type = 'Person::Unvetted'
+                person1.save!
+                person1b.type = 'Person::Vetted'
+                person1b.save!
+                person1.merge_with(person1b.id)
+                expect(person1.type.include?(':V')).to be_truthy
               end
             end
           end
