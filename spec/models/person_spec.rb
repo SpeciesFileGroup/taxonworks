@@ -654,6 +654,15 @@ describe Person, type: :model do
                 end
               end
             end
+
+            context 'cached' do
+              specify 'cached get updated' do
+                person1.prefix     = nil
+                person1.save!
+                person1.merge_with(person1b.id)
+                expect(person1.cached.include?('Dr.')).to be_truthy
+              end
+            end
           end
 
           context 'vetting' do
