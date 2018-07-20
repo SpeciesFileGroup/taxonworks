@@ -175,7 +175,7 @@ describe Person, type: :model do
     end
 
     context 'usage and rendering' do
-      let(:person1) {
+      let!(:person1) {
         p = FactoryBot.create(:person,
                               first_name: 'January', last_name: 'Smith',
                               prefix:     'Dr.', suffix: 'III')
@@ -183,22 +183,32 @@ describe Person, type: :model do
         p.data_attributes << da1
         p
       }
-      let(:person1a) {
+      let!(:person1a) {
         p = person1.dup
         p.save!
         p
       }
-      let(:person1b) {
+      let!(:person1b) {
         p = FactoryBot.create(:person,
-                              first_name:        'January', last_name: 'Smith',
-                              prefix:            'Dr.', suffix: 'III',
-                              type:               'Person::Unvetted',
+                              first_name: 'January', last_name: 'Smith',
+                              prefix:     'Dr.', suffix: 'III',
+                              # type:              'Person::Unvetted',
                               year_born:         2000, year_died: 2015,
                               year_active_start: 2012, year_active_end: 2015)
         tn2.taxon_name_authors << p
         tn1.taxon_name_authors << p
         gr1.georeferencers << p
         p.data_attributes << da2
+        p
+      }
+      let(:person1c) {
+        p = FactoryBot.create(:person,
+                              first_name: 'January', last_name: 'Smith',
+                              prefix:     'Dr.', suffix: 'III',
+                              # type:              'Person::Unvetted',
+                              year_born:         2000, year_died: 2015,
+                              year_active_start: 2012, year_active_end: 2015)
+        # additional attributes not replicated yet
         p
       }
       let(:person2) { FactoryBot.create(:person, first_name: 'J.', last_name: 'McDonald') }
@@ -658,14 +668,12 @@ describe Person, type: :model do
               end
 
               specify 'unvetted r_person' do
-
-                person1c = FactoryBot.create(:person,
-                                      first_name:        'January', last_name: 'Smith',
-                                      prefix:            'Dr.', suffix: 'III',
-                                      type:               'Person::Unvetted',
-                                      year_born:         2000, year_died: 2015,
-                                      year_active_start: 2012, year_active_end: 2015)
-# additional attributes not replicated yet
+                # An interesting anomoly occures when person1b is used in place of person1c.
+                # In this context, use of person1b seems to result in person1 being converted to 'vetted'
+                # (because person1b has been converted to 'vetted'),
+                # even though it is otherwise *not* specifically set one way or the other during creation.
+                # This seems to be an artifact of the fact that when a person is applied to a taxon name
+                # as 'taxon_name_author', that person is (sometimes!) converted to 'vetted'.
                 person1.merge_with(person1c.id)
                 expect(person1.type.include?('Unv')).to be_truthy
               end
