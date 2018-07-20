@@ -3,24 +3,34 @@
     <div>
       <label>Group</label>
       <autocomplete
-        url="/url"
-        min="2"
-        param="term"/>
+        url="https://paleobiodb.org/data1.2/strata/auto.json"
+        min="3"
+        label="name"
+        nested="records"
+        :headers="externalHeaders"
+        :add-params="{
+          limit: 30,
+          vocab: 'pbdb',
+          rank: 'group'
+        }"
+        param="name"/>
       <label>Formation</label>
       <autocomplete
-        url="/url"
-        min="2"
+        url="https://paleobiodb.org/data1.2/strata/auto.json"
+        min="3"
+        label="name"
+        nested="records"
+        :headers="externalHeaders"
+        :add-params="{
+          limit: 30,
+          vocab: 'pbdb',
+          rank: 'formation'
+        }"
         param="term"/>
       <label>Member</label>
-      <autocomplete
-        url="/url"
-        min="2"
-        param="term"/>
+      <input type="text"/>
       <label>Lithology</label>
-      <autocomplete
-        url="/url"
-        min="2"
-        param="term"/>
+      <input type="text"/>
     </div>
     <div class="horizontal-left-content ma-fields">
       <div class="separate-right">
@@ -64,6 +74,14 @@
         },
         set(value) {
           this.$store.commit(MutationNames.SetCollectionEventMinMa, value)
+        }
+      }
+    },
+    data() {
+      return {
+        externalHeaders: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
         }
       }
     }

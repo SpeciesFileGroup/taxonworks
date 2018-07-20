@@ -3,6 +3,7 @@
     <autocomplete
       url="/url"
       placeholder="Search"
+      label="label_html"
       min="1"/>
     <button
       class="button normal-input btn-submit"
