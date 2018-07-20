@@ -15,7 +15,7 @@ class PeopleController < ApplicationController
       format.json {
         last_name = params[:lastname]
         first_name = params[:firstname]
-        @people = Queries::Person::Filter.new(params).partial_complete #  partial_complete => broadest selection of names
+        @people = Queries::Person::Filter.new(params).wild_or_exact #  partial_complete => broadest selection of names
         @people = Person.where(id: @people.map(&:id)).order(:last_name).order(:first_name)
        }
     end

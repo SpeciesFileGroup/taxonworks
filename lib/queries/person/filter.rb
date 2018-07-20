@@ -44,82 +44,8 @@ module Queries
         a
       end
 
-      # @return [Scope]
-      def last_exact_match
-        term = options[:last_name]
-        if term.nil?
-          nil
-        else
-          base_query.where(people_table[:last_name].eq(term).to_sql)
-        end
-      end
 
       # @return [Scope]
-      def first_exact_match
-        term = options[:first_name]
-        if term.nil?
-          nil
-        else
-          base_query.where(people_table[:first_name].eq(term).to_sql)
-        end
-      end
-
-      # @return [Scope]
-      def last_partial_match
-        term = options[:last_name]
-        if term.nil?
-          nil
-        else
-          terms = '%' + term + '%'
-          base_query.where(people_table[:last_name].matches(terms).to_sql)
-        end
-      end
-
-      # @return [Scope]
-      def first_partial_match
-        term = options[:first_name]
-        if term.nil?
-          nil
-        else
-          terms = '%' + term + '%'
-          base_query.where(people_table[:first_name].matches(terms).to_sql)
-        end
-      end
-
-      def wildcard_complete
-        grp = star_like(options[:last_name])
-        grp << star_like(options[:first_name])
-
-        grp = grp.flatten.collect { |piece| '%' + piece + '%' }
-
-        queries = []
-
-        grp.each_with_index { |q, _i|
-          if limit_to_roles.any?
-            a = base_query.where(people_table[:cached].matches(q))
-                  .joins(:roles)
-                  .where(role_match.to_sql)
-          end
-          a ||= base_query.where(people_table[:cached].matches(q))
-          queries << a
-        }
-        queries
-      end
-
-      def last_wild_match
-        last_name = options[:last_name]
-        return nil if last_name.nil?
-        last_name = last_name.gsub('*', '%')
-        base_query.where(people_table[:last_name].matches(last_name))
-      end
-
-      def first_wild_match
-        first_name = options[:first_name]
-        return nil if first_name.nil?
-        first_name = first_name.gsub('*', '%')
-        base_query.where(people_table[:first_name].matches(first_name))
-      end
-
       def first_and_last_wild_match
         last_name  = options[:last_name]
         first_name = options[:first_name]
@@ -135,19 +61,10 @@ module Queries
                            .and(people_table[:last_name].matches(last_name)))
       end
 
-      def star_like(term)
-        return [] if term.nil?
-        return [term] unless term.index('*')
-
-        pieces.delete_if { |str| str.empty? }
-        pieces = term.split('*')
-
-      end
-
       # ported from Queries::Person::Autocomplete
       # @return [Array]
       # NOTODO: finesse whitespace issues -- not empirically a big deal at this time
-      def partial_complete
+      def wild_or_exact
         queries = [
           first_and_last_wild_match
         ]

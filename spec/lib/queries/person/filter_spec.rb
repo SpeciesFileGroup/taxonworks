@@ -31,13 +31,13 @@ describe Queries::Person::Filter, type: :model do
     context 'containing \'*a*\'' do
       specify 'with role' do
         params = {lastname: '', firstname: '*a*', roles: ['Collector']}
-        expect(Queries::Person::Filter.new(params).partial_complete)
+        expect(Queries::Person::Filter.new(params).wild_or_exact)
           .to contain_exactly(p2.becomes(Person::Vetted))
       end
 
       specify 'without role' do
         params = {lastname: '', firstname: '*a*', roles: []}
-        expect(Queries::Person::Filter.new(params).partial_complete)
+        expect(Queries::Person::Filter.new(params).wild_or_exact)
           .to contain_exactly(p3.becomes(Person::Unvetted),
                               p2.becomes(Person::Vetted))
       end
@@ -82,14 +82,14 @@ describe Queries::Person::Filter, type: :model do
       context 'last name only' do
         specify 'smi*' do
           params = {lastname: 'smi*'}
-          expect(Queries::Person::Filter.new(params).partial_complete)
+          expect(Queries::Person::Filter.new(params).wild_or_exact)
             .to contain_exactly(p1.becomes(Person::Unvetted),
                                 p2.becomes(Person::Vetted))
         end
 
         specify '*u*' do
           params = {lastname: '*u*'}
-          expect(Queries::Person::Filter.new(params).partial_complete)
+          expect(Queries::Person::Filter.new(params).wild_or_exact)
             .to contain_exactly(p5.becomes(Person::Unvetted),
                                 p4.becomes(Person::Unvetted))
         end
@@ -98,13 +98,13 @@ describe Queries::Person::Filter, type: :model do
       context 'first name only' do
         specify 'sa*' do
           params = {firstname: 'sa*'}
-          expect(Queries::Person::Filter.new(params).partial_complete)
+          expect(Queries::Person::Filter.new(params).wild_or_exact)
             .to contain_exactly(p2.becomes(Person::Vetted))
         end
 
         specify '*e*' do
           params = {firstname: '*e*'}
-          expect(Queries::Person::Filter.new(params).partial_complete)
+          expect(Queries::Person::Filter.new(params).wild_or_exact)
             .to contain_exactly(p3.becomes(Person::Unvetted),
                                 p5.becomes(Person::Unvetted),
                                 p4.becomes(Person::Unvetted))
@@ -114,7 +114,7 @@ describe Queries::Person::Filter, type: :model do
       context 'first and last' do
         specify 'sa* smi*' do
           params = {firstname: 'sa*', last_name: 'smi*'}
-          expect(Queries::Person::Filter.new(params).partial_complete)
+          expect(Queries::Person::Filter.new(params).wild_or_exact)
             .to contain_exactly(p2.becomes(Person::Vetted))
         end
       end
