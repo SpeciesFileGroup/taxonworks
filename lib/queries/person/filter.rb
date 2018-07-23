@@ -94,7 +94,7 @@ module Queries
         if limit_to_roles.any?
           q = q.joins(:roles).where(role_match.to_sql)
         end
-        q.order(:last_name).order(:first_name)
+        q.distinct(:cached).order(:last_name).order(:first_name)
       end
 
       # @param [Array] terms contains Strings
