@@ -64,7 +64,7 @@ module Queries
       # ported from Queries::Person::Autocomplete
       # @return [Array]
       # NOTODO: finesse whitespace issues -- not empirically a big deal at this time
-      def wild_or_exact
+      def partial_complete
         queries = [
           first_and_last_wild_match
         ]
@@ -85,6 +85,16 @@ module Queries
           break if result.count > 19
         end
         result # [0..19]
+      end
+
+      # @return [Array]
+      def wild_or_exact
+        q = first_and_last_wild_match
+
+        if limit_to_roles.any?
+          q = q.joins(:roles).where(role_match.to_sql)
+        end
+        q.order(:last_name).order(:first_name)
       end
 
       # @param [Array] terms contains Strings
