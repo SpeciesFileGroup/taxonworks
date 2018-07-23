@@ -105,7 +105,7 @@ module Queries
           nil
         else
           terms = terms.map { |s| [s + '%', '%' + s + '%'] }
-          people_table[:cached].matches_any(terms.flatten)
+          people_table[:id].matches_any(terms.flatten)
         end
       end
 
