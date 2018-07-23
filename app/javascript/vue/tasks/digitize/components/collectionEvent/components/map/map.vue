@@ -1,9 +1,9 @@
 <template>
   <div>
     <div style="height: 10%; overflow: auto;">
-      Lat: {{ marker.lat }}, Long: {{ marker.lng }}
+      Map verification
     </div>
-    <l-map style="height: 300px" :zoom="zoom" :center="center">
+    <l-map style="height: 300px; width:500px" :zoom="zoom" :center="center">
       <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
       <l-marker :lat-lng="marker"></l-marker>
     </l-map>

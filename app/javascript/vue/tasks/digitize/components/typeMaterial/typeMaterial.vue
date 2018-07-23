@@ -64,11 +64,18 @@
           this.$store.commit(MutationNames.SetTypeMaterialType, value)
         }
       },
+      roles: {
+        get() {
+          return this.$store.getters[GetterNames.GetTypeMaterial].type_designator_roles
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetTypeMaterialRoles, value)
+        }
+      }
     },
     data() {
       return {
         types: undefined,
-        roles: []
       }
     },
     mounted: function () {

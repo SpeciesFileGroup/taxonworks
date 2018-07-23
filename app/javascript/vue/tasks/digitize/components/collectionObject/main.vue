@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="horizontal-left-content">
+    <div class="horizontal-left-content align-start">
       <div>
         <catalog-number/>
       </div>
@@ -12,7 +12,10 @@
       </div>
     </div>
     <buffered-component/>
-    <depictions-component/>
+    <depictions-component
+      :object-value="collectionObject"
+      object-type="CollectionObject"
+      action-save="SaveCollectionObject"/>
   </div>
 </template>
 
@@ -21,7 +24,7 @@
   import CatalogNumber from './catalogNumber.vue'
   import Bioclassification from './bioclassification.vue'
   import BufferedComponent from './bufferedData.vue'
-  import DepictionsComponent from './depictions.vue'
+  import DepictionsComponent from '../shared/depictions.vue'
   import RepositoryComponent from './repository.vue'
   import { GetterNames } from '../../store/getters/getters';
 
@@ -32,6 +35,11 @@
       BufferedComponent,
       DepictionsComponent,
       RepositoryComponent
+    },
+    computed: {
+      collectionObject () {
+        return this.$store.getters[GetterNames.GetCollectionObject]
+      },
     },
     data() {
       return {

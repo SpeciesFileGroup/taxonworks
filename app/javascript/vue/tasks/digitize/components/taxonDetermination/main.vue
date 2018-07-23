@@ -84,11 +84,18 @@ export default {
       set(value) {
         this.$store.commit(MutationNames.SetTaxonDeterminationYear, value)
       }
+    },
+    roles: {
+      get() {
+        return this.$store.getters[GetterNames.GetTaxonDetermination.roles_attributes]
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetTaxonDeterminationRoles, value)
+      }
     }
   },
   data() {
     return {
-      roles: [],
       view: undefined,
       options: ['Quick', 'Recent', 'Pinboard', 'New']
     }

@@ -8,8 +8,8 @@
     <div class="horizontal-left-content align-start">
       <block-verbatin class="separate-right"/>
       <block-geography class="separate-left"/>
+      <block-map/>
     </div>
-    <leaf-map/>
   </div>
 </template>
 
@@ -18,14 +18,14 @@
   import BlockVerbatin from './components/verbatimLayout.vue'
   import BlockGeography from './components/GeographyLayout.vue'
   import SmartSelector from '../../../../components/switch.vue'
-  import LeafMap from  './components/map/map.vue'
+  import BlockMap from  './components/map/main.vue'
 
   export default {
     components: {
       BlockVerbatin,
       BlockGeography,
       SmartSelector,
-      LeafMap
+      BlockMap
     },
     data() {
       return {

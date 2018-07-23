@@ -10,7 +10,7 @@
       @vdropzone-file-added="addedfile"
       @vdropzone-success="success"
       ref="depiction"
-      id="depiction"
+      :id="`depiction-${dropzoneId}`"
       url="/depictions"
       :use-custom-dropzone-options="true"
       :dropzone-options="dropzone"/>
@@ -30,7 +30,6 @@
 <script>
 
 import ActionNames from '../../store/actions/actionNames'
-import { GetterNames } from '../../store/getters/getters'
 import { GetDepictions, DestroyDepiction } from '../../request/resources.js'
 
 import dropzone from '../../../../components/dropzone.vue'
@@ -45,12 +44,18 @@ export default {
     expand,
     spinner
   },
-  computed: {
-    collectionObject () {
-      return this.$store.getters[GetterNames.GetCollectionObject]
+  props: {
+    actionSave: {
+      type: String,
+      required: true
     },
-    getImages () {
-      return this.$store.getters[GetterNames.GetCollectionObject].images
+    objectValue: {
+      type: Object,
+      required: true
+    },
+    objectType: {
+      type: String,
+      required: true
     }
   },
   data: function () {
@@ -58,6 +63,7 @@ export default {
       creatingType: false,
       displayBody: true,
       figuresList: [],
+      dropzoneId: Math.random().toString(36).substr(2, 5),
       dropzone: {
         paramName: 'depiction[image_attributes][image_file]',
         url: '/depictions',
@@ -71,10 +77,10 @@ export default {
     }
   },
   watch: {
-    collectionObject (newVal, oldVal) {
+    objectValue (newVal, oldVal) {
       if (newVal.id && (newVal.id != oldVal.id)) {
         this.$refs.depiction.setOption('autoProcessQueue', true)
-        GetDepictions(newVal.collection_object.id).then(response => {
+        GetDepictions(newVal.id).then(response => {
           this.figuresList = response
         })
       } else {
@@ -89,13 +95,13 @@ export default {
       this.$refs.depiction.removeFile(file)
     },
     'sending': function (file, xhr, formData) {
-      formData.append('depiction[depiction_object_id]', this.collectionObject.id)
-      formData.append('depiction[depiction_object_type]', 'CollectionObject')
+      formData.append('depiction[depiction_object_id]', this.objectValue.id)
+      formData.append('depiction[depiction_object_type]', this.objectType)
     },
     'addedfile': function () {
-      if (!this.collectionObject.id && !this.creatingType) {
+      if (!this.objectValue.id && !this.creatingType) {
         this.creatingType = true
-        this.$store.dispatch(ActionNames.SaveCollectionObject).then((response) => {
+        this.$store.dispatch(ActionNames[this.actionSave]).then((response) => {
           var that = this
           setTimeout(function () {
             that.$refs.depiction.setOption('autoProcessQueue', true)

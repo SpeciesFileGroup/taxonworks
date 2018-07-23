@@ -12,6 +12,8 @@ import setCollectionObjectRangeLotId from './CollectionObject/setCollectionObjec
 import setCollectionObjectRepositoryId from './CollectionObject/setCollectionObjectRepositoryId'
 import setCollectionObjectTotal from './CollectionObject/setCollectionObjectTotal'
 
+import setCollectionEventPrintLabel from './CollectionEvent/setCollectionEventPrintLabel'
+import setCollectionEventDocumentLabel from './CollectionEvent/setCollectionEventDocumentLabel'
 import setCollectionEventLabel from './CollectionEvent/setCollectionEventLabel'
 import setCollectionEventCollectors from './CollectionEvent/setCollectionEventCollectors'
 import setCollectionEventDate from './CollectionEvent/setCollectionEventDate'
@@ -89,15 +91,17 @@ const MutationNames = {
   SetTypeMaterialType: 'setTypeMaterialType',
   SetTypeMaterialTaxon: 'setTypeMaterialTaxon',
 
+  SetCollectionEventPrintLabel: 'setCollectionEventPrintLabel',
   SetCollectionEventLabel: 'setCollectionEventLabel',
+  SetCollectionEventDocumentLabel: 'setCollectionEventDocumentLabel',
   SetCollectionEventCollectors: 'setCollectionEventCollectors',
   SetCollectionEventDate: 'setCollectionEventDate',
-  setCollectionEventTimeStartHour: 'setCollectionEventTimeStartHour',
-  setCollectionEventTimeStartMinute: 'setCollectionEventTimeStartMinute',
-  setCollectionEventTimeStartSecond: 'setCollectionEventTimeStartSecond',
-  setCollectionEventTimeEndHour: 'setCollectionEventTimeEndHour',
-  setCollectionEventTimeEndMinute: 'setCollectionEventTimeEndMinute',
-  setCollectionEventTimeEndSecond: 'setCollectionEventTimeEndSecond',
+  SetCollectionEventTimeStartHour: 'setCollectionEventTimeStartHour',
+  SetCollectionEventTimeStartMinute: 'setCollectionEventTimeStartMinute',
+  SetCollectionEventTimeStartSecond: 'setCollectionEventTimeStartSecond',
+  SetCollectionEventTimeEndHour: 'setCollectionEventTimeEndHour',
+  SetCollectionEventTimeEndMinute: 'setCollectionEventTimeEndMinute',
+  SetCollectionEventTimeEndSecond: 'setCollectionEventTimeEndSecond',
   SetCollectionEventStartDateDay: 'setCollectionEventStartDateDay',
   SetCollectionEventStartDateMonth: 'setCollectionEventStartDateMonth',
   SetCollectionEventStartDateYear: 'setCollectionEventStartDateYear',
@@ -159,15 +163,16 @@ const MutationFunctions = {
   [MutationNames.SetTypeMaterialTaxon]: setTypeMaterialTaxon,
 
 
+  [MutationNames.SetCollectionEventDocumentLabel]: setCollectionEventDocumentLabel,
   [MutationNames.SetCollectionEventLabel]: setCollectionEventLabel,
   [MutationNames.SetCollectionEventCollectors]: setCollectionEventCollectors,
   [MutationNames.SetCollectionEventDate]: setCollectionEventDate,
-  [MutationNames.setCollectionEventTimeStartHour]: setCollectionEventTimeStartHour,
-  [MutationNames.setCollectionEventTimeStartMinute]: setCollectionEventTimeStartMinute,
-  [MutationNames.setCollectionEventTimeStartSecond]: setCollectionEventTimeStartSecond,
-  [MutationNames.setCollectionEventTimeEndHour]: setCollectionEventTimeEndHour,
-  [MutationNames.setCollectionEventTimeEndMinute]: setCollectionEventTimeEndMinute,
-  [MutationNames.setCollectionEventTimeEndSecond]: setCollectionEventTimeEndSecond,
+  [MutationNames.SetCollectionEventTimeStartHour]: setCollectionEventTimeStartHour,
+  [MutationNames.SetCollectionEventTimeStartMinute]: setCollectionEventTimeStartMinute,
+  [MutationNames.SetCollectionEventTimeStartSecond]: setCollectionEventTimeStartSecond,
+  [MutationNames.SetCollectionEventTimeEndHour]: setCollectionEventTimeEndHour,
+  [MutationNames.SetCollectionEventTimeEndMinute]: setCollectionEventTimeEndMinute,
+  [MutationNames.SetCollectionEventTimeEndSecond]: setCollectionEventTimeEndSecond,
   [MutationNames.SetCollectionEventStartDateDay]: setCollectionEventStartDateDay,
   [MutationNames.SetCollectionEventStartDateMonth]: setCollectionEventStartDateMonth,
   [MutationNames.SetCollectionEventStartDateYear]: setCollectionEventStartDateYear,

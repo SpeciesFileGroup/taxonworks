@@ -1,10 +1,15 @@
 <template>
   <div>
-    <label>Repository</label>
+    <h2>Repository</h2>
+    <smart-selector 
+      name="repository"
+      v-model="view"
+      :options="options"/>
     <autocomplete
       url="/repositories/autocomplete"
       label="label_html"
       param="term"
+      placeholder="Search"
       @getItem="repository = $event.id"
       min="2"/>
   </div>
@@ -13,12 +18,14 @@
 <script>
 
 import Autocomplete from '../../../../components/autocomplete'
+import SmartSelector from '../../../../components/switch'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 
 export default {
   components: {
-    Autocomplete
+    Autocomplete,
+    SmartSelector
   },
   computed: {
     collectionObject() {
@@ -33,6 +40,12 @@ export default {
       }
     }
   },
+  data() {
+    return {
+      view: 'search',
+      options: ['quick', 'recent', 'search']
+    }
+  }
 }
 </script>
 
