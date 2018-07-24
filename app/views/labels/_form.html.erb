@@ -1,0 +1,52 @@
+<%= form_with(model: label, local: true) do |form| %>
+  <% if label.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(label.errors.count, "error") %> prohibited this label from being saved:</h2>
+
+      <ul>
+      <% label.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :text %>
+    <%= form.text_field :text, id: :label_text %>
+  </div>
+
+  <div class="field">
+    <%= form.label :total %>
+    <%= form.number_field :total, id: :label_total %>
+  </div>
+
+  <div class="field">
+    <%= form.label :style %>
+    <%= form.text_field :style, id: :label_style %>
+  </div>
+
+  <div class="field">
+    <%= form.label :object_global_id %>
+    <%= form.text_field :object_global_id, id: :label_object_global_id %>
+  </div>
+
+  <div class="field">
+    <%= form.label :is_copy_edited %>
+    <%= form.check_box :is_copy_edited, id: :label_is_copy_edited %>
+  </div>
+
+  <div class="field">
+    <%= form.label :is_printed %>
+    <%= form.check_box :is_printed, id: :label_is_printed %>
+  </div>
+
+  <div class="field">
+    <%= form.label :project_id %>
+    <%= form.text_field :project_id, id: :label_project_id %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

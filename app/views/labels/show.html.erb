@@ -1,0 +1,39 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Text:</strong>
+  <%= @label.text %>
+</p>
+
+<p>
+  <strong>Total:</strong>
+  <%= @label.total %>
+</p>
+
+<p>
+  <strong>Style:</strong>
+  <%= @label.style %>
+</p>
+
+<p>
+  <strong>Object global:</strong>
+  <%= @label.object_global_id %>
+</p>
+
+<p>
+  <strong>Is copy edited:</strong>
+  <%= @label.is_copy_edited %>
+</p>
+
+<p>
+  <strong>Is printed:</strong>
+  <%= @label.is_printed %>
+</p>
+
+<p>
+  <strong>Project:</strong>
+  <%= @label.project %>
+</p>
+
+<%= link_to 'Edit', edit_label_path(@label) %> |
+<%= link_to 'Back', labels_path %>
