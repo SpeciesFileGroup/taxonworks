@@ -37,6 +37,10 @@ class Taxonworks::TaskGenerator < Rails::Generators::Base
       action    = split_str[1]
       name      = split_str[2] || "#{method}_#{controller_base_name}"
 
+      if split_str[0].blank? or split_str[1].blank?
+        abort(message = "ERROR: malformed method action name\n USAGE: method_name:action_verb:route_name\n")
+      end
+
       @route_methods.push(method)
       @route_actions.push(action)
       @route_names.push(name + '_task')
