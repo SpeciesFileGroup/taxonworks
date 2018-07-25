@@ -331,3 +331,18 @@ new_matrix_task:
     - matrix
   status: prototype
   description: 'Assign the rows and columns of observation matrices.'
+
+index_individual_bibtex_source_task:
+  hub: true
+  name: 'TODO: Task name'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'
+parse_individual_bibtex_source_task:
+  hub: true
+  name: 'TODO: Task name'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'
