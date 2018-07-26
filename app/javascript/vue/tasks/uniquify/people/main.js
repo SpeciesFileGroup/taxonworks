@@ -1,10 +1,10 @@
+import Vue from 'vue'
+import vueResource from 'vue-resource'
+
 var TW = TW || {};
 TW.views = TW.views || {};
 TW.views.tasks = TW.views.tasks || {};
 TW.views.tasks.uniquify_people = TW.views.tasks.uniquify_people || {};
-
-import Vue from 'vue'
-import vueResource from 'vue-resource'
 
 Object.assign(TW.views.tasks.uniquify_people, {
 
