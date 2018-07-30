@@ -30,6 +30,7 @@ function makeInitialState () {
     },
     collection_object: {
       id: undefined,
+      global_id: undefined,
       total: 1, 
       preparation_type_id: undefined, 
       repository_id: undefined,
@@ -44,6 +45,7 @@ function makeInitialState () {
     },
     collection_event: {
       id: undefined,
+      global_id: undefined,
       print_label: undefined, 
       print_label_number_to_print: undefined, 
       document_label: undefined,
@@ -87,6 +89,7 @@ function makeInitialState () {
     },
     type_material: {
       id: undefined,
+      global_id: undefined,
       protonym_id: undefined,
       taxon: undefined,
       biological_object_id: undefined,

@@ -2,7 +2,7 @@ import { MutationNames } from '../mutations/mutations'
 import { CreateCollectionEvent, UpdateCollectionEvent } from '../../request/resources'
 
 export default function ({ commit, state }) {
-  return new Promise((resolve, rejected) => {
+  return new Promise((resolve, reject) => {
     let collection_event = state.collection_event
     if(collection_event.id) {
       UpdateCollectionEvent(collection_event).then(response => {
@@ -18,7 +18,5 @@ export default function ({ commit, state }) {
         return resolve(response)
       })
     }
-  }, (response) => {
-    return rejected(response)
   })
 }

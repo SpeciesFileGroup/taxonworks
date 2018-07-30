@@ -3,6 +3,9 @@
     <div slot="header">
       <h3>Type material</h3>
     </div>
+    <div slot="options">
+      <validation-component :show-message="true"/>
+    </div>
     <div slot="body">
       <div>
         <label>Taxon name</label>
@@ -53,12 +56,14 @@
   import { GetterNames } from '../../store/getters/getters.js'
   import { MutationNames } from '../../store/mutations/mutations'
   import BlockLayout from '../../../../components/blockLayout.vue'
+  import ValidationComponent from '../shared/validate.vue'
 
   export default {
     components: {
       Autocomplete,
       RolePicker,
-      BlockLayout
+      BlockLayout,
+      ValidationComponent
     },
     computed: {
       checkForTypeList () {

@@ -4,6 +4,11 @@
       <div slot="header">
         <h3>Collection Object</h3>
       </div>
+      <div slot="options">
+        <radial-annotator 
+          v-if="collectionObject.id"
+          :global-id="collectionObject.global_id"/>
+      </div>
       <div
         class="horizontal-left-content align-start"
         slot="body">
@@ -22,7 +27,7 @@
         :object-value="collectionObject"
         object-type="CollectionObject"
         action-save="SaveCollectionObject"/>
-    </block-layout>
+    </radial-annotator></block-layout>
   </div>
 </template>
 
@@ -35,6 +40,7 @@
   import RepositoryComponent from './repository.vue'
   import { GetterNames } from '../../store/getters/getters';
   import BlockLayout from '../../../../components/blockLayout.vue'
+  import RadialAnnotator from '../../../../components/annotator/annotator.vue'
 
   export default {
     components: {
@@ -43,7 +49,8 @@
       BufferedComponent,
       DepictionsComponent,
       RepositoryComponent,
-      BlockLayout
+      BlockLayout,
+      RadialAnnotator
     },
     computed: {
       collectionObject () {

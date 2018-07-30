@@ -13,7 +13,10 @@
         <slot name="header">
           <h3>Default title</h3>
         </slot>
-        <expand-component v-model="expanded"/>
+        <div class="horizontal-left-content">
+          <slot name="options"/>
+          <expand-component v-model="expanded"/>
+        </div>
       </div>
       <div
         class="body"

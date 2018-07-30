@@ -48,8 +48,8 @@ const UpdateIdentifier = function (data) {
   return ajaxCall('patch', `/identifiers/${data.id}.json`, { identifier: data })
 } 
 
-const UpdateCollectionEvent = function (id, data) {
-  return ajaxCall('patch', `/collecting_events/${id}.json`, { collecting_event: data })
+const UpdateCollectionEvent = function (data) {
+  return ajaxCall('patch', `/collecting_events/${data.id}.json`, { collecting_event: data })
 }
 
 const CreateCollectionEvent = function (data) {
