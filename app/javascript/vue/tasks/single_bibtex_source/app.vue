@@ -26,9 +26,9 @@
           <button
             class="button normal-input button-default"
             @click="parseBibtex"
-            :disabled="!enableParseBibtex"
             type="submit">Parse BibTeX
           </button>
+            <!-- :disabled="!enableParseBibtex" -->
           &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
           <button
             class="button normal-input button-default"

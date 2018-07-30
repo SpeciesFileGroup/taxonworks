@@ -74,6 +74,14 @@ class SourcesController < ApplicationController
     end
   end
 
+  def parse
+    bibtex_string = params['bibtex_input']
+    a               = BibTeX.parse(bibtex_string).convert(:latex)
+    entry           = a.first
+    src             = Source::Bibtex.new_from_bibtex(entry)
+    format.json {render json: src}
+  end
+
   # rubocop:enable Metrics/BlockNesting
 
   # PATCH/PUT /sources/1
