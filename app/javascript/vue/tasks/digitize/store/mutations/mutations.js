@@ -12,6 +12,7 @@ import setCollectionObjectRangeLotId from './CollectionObject/setCollectionObjec
 import setCollectionObjectRepositoryId from './CollectionObject/setCollectionObjectRepositoryId'
 import setCollectionObjectTotal from './CollectionObject/setCollectionObjectTotal'
 
+import setCollectionEvent from './CollectionEvent/setCollectionEvent'
 import setCollectionEventPrintLabel from './CollectionEvent/setCollectionEventPrintLabel'
 import setCollectionEventDocumentLabel from './CollectionEvent/setCollectionEventDocumentLabel'
 import setCollectionEventLabel from './CollectionEvent/setCollectionEventLabel'
@@ -91,6 +92,7 @@ const MutationNames = {
   SetTypeMaterialType: 'setTypeMaterialType',
   SetTypeMaterialTaxon: 'setTypeMaterialTaxon',
 
+  SetCollectionEvent: 'setCollectionEvent',
   SetCollectionEventPrintLabel: 'setCollectionEventPrintLabel',
   SetCollectionEventLabel: 'setCollectionEventLabel',
   SetCollectionEventDocumentLabel: 'setCollectionEventDocumentLabel',
@@ -162,8 +164,9 @@ const MutationFunctions = {
   [MutationNames.SetTypeMaterialType]: setTypeMaterialType,
   [MutationNames.SetTypeMaterialTaxon]: setTypeMaterialTaxon,
 
-
+  [MutationNames.SetCollectionEvent]: setCollectionEvent,
   [MutationNames.SetCollectionEventDocumentLabel]: setCollectionEventDocumentLabel,
+  [MutationNames.SetCollectionEventPrintLabel]: setCollectionEventPrintLabel,
   [MutationNames.SetCollectionEventLabel]: setCollectionEventLabel,
   [MutationNames.SetCollectionEventCollectors]: setCollectionEventCollectors,
   [MutationNames.SetCollectionEventDate]: setCollectionEventDate,

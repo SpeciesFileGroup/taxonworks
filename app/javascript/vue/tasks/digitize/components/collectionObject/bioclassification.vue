@@ -1,9 +1,10 @@
 <template>
   <div>
     <h2>Biocuration</h2>
-    <div class="horizontal-left-content">
+    <div>
       <div v-for="group in biocurationsGroups">
-        <h3>{{ group.name }}</h3>
+        <label>{{ group.name }}</label>
+        <br>
         <template
           v-for="item in group.list">
           <button

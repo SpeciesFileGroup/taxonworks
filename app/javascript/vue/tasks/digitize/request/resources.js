@@ -7,8 +7,10 @@ Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csr
 const ajaxCall = function (type, url, data = null) {
   return new Promise(function (resolve, reject) {
     Vue.http[type](url, data).then(response => {
+      console.log(response)
       return resolve(response.body)
     }, response => {
+      console.log(response)
       handleError(response.body)
       return reject(response)
     })
@@ -36,7 +38,7 @@ const GetTaxon = function (id) {
 }
 
 const GetCollectionEvent = function (id) {
-  return ajaxCall('get', `/collection_events/${id}.json`)
+  return ajaxCall('get', `/collecting_events/${id}.json`)
 }
 const CreateIdentifier = function (data) {
   return ajaxCall('post', `/identifiers.json`, { identifier: data })
@@ -47,11 +49,11 @@ const UpdateIdentifier = function (data) {
 } 
 
 const UpdateCollectionEvent = function (id, data) {
-  return ajaxCall('get', `/collection_events/${id}.json`, { collection_event: data })
+  return ajaxCall('patch', `/collecting_events/${id}.json`, { collecting_event: data })
 }
 
 const CreateCollectionEvent = function (data) {
-  return ajaxCall('get', `/collection_events.json`, { collection_event: data })
+  return ajaxCall('post', `/collecting_events.json`, { collecting_event: data })
 }
 
 const GetCollectionObject = function (id) {
@@ -99,7 +101,7 @@ const GetRepository = function (id) {
 }
 
 const CreateTypeMaterial = function (data) {
-  return ajaxCall('post', `/type_materials.json`, data)
+  return ajaxCall('post', `/type_materials.json`, { type_material: data })
 }
 
 const CreateBiocurationClassification = function (data) {
@@ -107,7 +109,7 @@ const CreateBiocurationClassification = function (data) {
 }
 
 const UpdateTypeMaterial = function (id, data) {
-  return ajaxCall('patch', `/type_materials/${id}.json`, data)
+  return ajaxCall('patch', `/type_materials/${id}.json`, { type_material: data })
 }
 
 const UpdateDepiction = function (id, data) {

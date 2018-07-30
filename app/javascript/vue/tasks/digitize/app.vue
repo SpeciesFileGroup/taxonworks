@@ -1,13 +1,13 @@
 <template>
   <div id="#vue-all-in-one">
     <task-header/>
-    <collection-object/>
-    <div class="horizontal-left-content align-start">
-      <div>
-        <taxon-determination-layout/>
-        <type-material/>
+    <collection-object class="separate-bottom"/>
+    <div class="horizontal-left-content align-start separate-top">
+      <div class="separate-right">
+        <taxon-determination-layout class="separate-bottom"/>
+        <type-material class="separate-top"/>
       </div>
-      <collection-event-layout/>
+      <collection-event-layout class="separate-left"/>
     </div>
   </div>
 </template>

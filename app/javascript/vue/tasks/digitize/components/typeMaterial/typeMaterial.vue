@@ -1,38 +1,47 @@
 <template>
-  <div>
-    <h2>Type material</h2>
-    <div>
-      <label>Taxon name</label>
-      <autocomplete
-        url="/taxon_names/autocomplete"
-        min="2"
-        param="term"
-        placeholder="Select a taxon name"
-        @getItem="selectTaxon"
-        label="label"/>
+  <block-layout>
+    <div slot="header">
+      <h3>Type material</h3>
     </div>
-    <div>
-      <label>Type type</label>
-      <br>
-      <select
-        v-model="type"
-        class="normal-input">
-        <template v-if="checkForTypeList">
+    <div slot="body">
+      <div>
+        <label>Taxon name</label>
+        <autocomplete
+          url="/taxon_names/autocomplete"
+          min="2"
+          param="term"
+          placeholder="Select a taxon name"
+          @getItem="selectTaxon"
+          label="label"/>
+      </div>
+      <div>
+        <label>Type type</label>
+        <br>
+        <select
+          v-model="type"
+          class="normal-input">
+          <template v-if="checkForTypeList">
+            <option
+              class="capitalize"
+              :value="key"
+              v-for="(item, key) in types[taxon.nomenclatural_code]">{{ key }}
+            </option>
+          </template>
           <option
-            class="capitalize"
-            :value="key"
-            v-for="(item, key) in types[taxon.nomenclatural_code]">{{ key }}
-          </option>
-        </template>
-      </select>
+            :value="undefined"
+            selected
+            disabled
+            v-else>Select a taxon name first</option>
+        </select>
+      </div>
+      <label>Type designator</label>
+      <role-picker
+        v-model="roles"
+        :autofocus="false"
+        role-type="TypeDesignator"
+        class="types_field"/>
     </div>
-    <label>Type designator</label>
-    <role-picker
-      v-model="roles"
-      :autofocus="false"
-      role-type="TypeDesignator"
-      class="types_field"/>
-  </div>
+  </block-layout>
 </template>
 
 <script>
@@ -42,12 +51,14 @@
   import RolePicker from '../../../../components/role_picker.vue'
   import ActionNames from '../../store/actions/actionNames.js'
   import { GetterNames } from '../../store/getters/getters.js'
-  import { MutationNames } from '../../store/mutations/mutations';
+  import { MutationNames } from '../../store/mutations/mutations'
+  import BlockLayout from '../../../../components/blockLayout.vue'
 
   export default {
     components: {
       Autocomplete,
-      RolePicker
+      RolePicker,
+      BlockLayout
     },
     computed: {
       checkForTypeList () {
