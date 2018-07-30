@@ -7,6 +7,7 @@ class Tasks::Sources::IndividualBibtexSourceController < ApplicationController
 
   # GET
   def parse
+    
   end
 
 end
