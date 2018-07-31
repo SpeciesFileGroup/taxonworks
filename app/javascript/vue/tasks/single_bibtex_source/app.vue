@@ -94,7 +94,7 @@ export default {
       };
       this.isLoading = true;
       let that = this;
-      this.$http.get("/source/parse.json", { params: params }).then(response => {
+      this.$http.get("/sources/parse.json", { params: params }).then(response => {
         this.parsedBibtex = response.body;
         that.isLoading = false;
       });
