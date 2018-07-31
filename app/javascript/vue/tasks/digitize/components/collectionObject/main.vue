@@ -27,7 +27,7 @@
         :object-value="collectionObject"
         object-type="CollectionObject"
         action-save="SaveCollectionObject"/>
-    </radial-annotator></block-layout>
+    </block-layout>
   </div>
 </template>
 
