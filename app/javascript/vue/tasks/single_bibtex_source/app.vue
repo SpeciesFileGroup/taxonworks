@@ -79,7 +79,7 @@ export default {
     };
   },
   watch: {
-    // selectedPerson() {
+    // bibtexInput() {
     //   this.parsedBibtex = {};
     //   this.isLoading = true;
     // },
@@ -90,8 +90,9 @@ export default {
   methods: {
     parseBibtex() {
       let params = {
-        bibtex_input: this.bibtexInput,
+        bibtex_input: this.bibtexInput
       };
+      alert(this.bibtexInput)
       this.isLoading = true;
       let that = this;
       this.$http.get("/sources/parse.json", { params: params }).then(response => {
@@ -101,7 +102,7 @@ export default {
     },
     createBibtex() {
       let params = {
-        parsed_bibtex: this.parsedBibtex
+        parsed_bibtex: this.parsedBibtex.value
       };
       this.$http
         .post("/source/create", params)
