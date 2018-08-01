@@ -82,8 +82,11 @@ class SourcesController < ApplicationController
     src             = Source::Bibtex.new_from_bibtex(entry)
     status          = (src.valid? ? "OK" : "FAILED")
     format.html {render action: 'new'}
-    format.json {render json: src, status: status}
+    # format.json {render json: src, status: status}
     # render json: src
+    retval = {valid: src.valid?, errors: src.errors.messages, source: src}
+    # format.json {render json: src}
+    format.json {render json: retval}
     end
   end
 

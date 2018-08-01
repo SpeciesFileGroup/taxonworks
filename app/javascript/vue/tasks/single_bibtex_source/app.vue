@@ -29,7 +29,7 @@
             :disabled="!enableParseBibtex"
             type="submit">Parse BibTeX
           </button>
-          &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+          &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
           <button
             class="button normal-input button-default"
             @click="createBibtex"
@@ -40,7 +40,7 @@
         <div
           class="flex-separate top">
           <div
-            style="overflow: auto; width:300px; height:600px;">
+            style="overflow: auto; width:300px; height:800px;">
             <h2>Parsed BibTeX</h2>
             <pre>{{ parsedBibtex }}</pre>
           </div>
