@@ -79,8 +79,9 @@ class SourcesController < ApplicationController
     a               = BibTeX.parse(bibtex_string).convert(:latex)
     entry           = a.first
     src             = Source::Bibtex.new_from_bibtex(entry)
+    retval = {valid: src.valid?, errors: src.errors.messages}
     # format.json {render json: src}
-    render json: src
+    render json: retval
   end
 
   # rubocop:enable Metrics/BlockNesting
