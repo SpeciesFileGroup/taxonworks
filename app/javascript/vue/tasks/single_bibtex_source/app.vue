@@ -68,7 +68,7 @@ export default {
       return this.bibtexInput.length > 0;
     },
     enableCreateBibtex() {
-      return Object.keys(this.parsedBibtex).length;
+      return this.parsedBibtex.valid; //Object.keys(this.parsedBibtex).length;
     }
   },
   data() {
@@ -89,41 +89,40 @@ export default {
     }
   },
   methods: {
+// TODO: bulletproof endpoint, since random garbage exec errors
     parseBibtex() {
       let params = {
         bibtex_input: this.bibtexInput
       };
       this.isLoading = true;
+      this.parsedValid = false;
       let that = this;
       this.$http.get("/sources/parse.json", { params: params }).then(response => {
         this.parsedBibtex = response.body;
-        this.parsedValid = response.status == "OK";
+        this.parsedValid = response.valid;
         that.isLoading = false;
       });
     },
     createBibtex() {
+      // let params = {
+      //   parsed_bibtex: this.parsedBibtex.value
+      // };
+      // this.$http
+      //   .post("/source/create", params)
+      //   .then(response => {
+      //     let httpStatus = response.body;
+// TODO: build server side code, create route, and debug this stub for create
       let params = {
-        parsed_bibtex: this.parsedBibtex.value
+        bibtex_input: this.bibtexInput
       };
-      this.$http
-        .post("/source/create", params)
-        .then(response => {
-          let httpStatus = response.body;
-          if (httpStatus.status == "OK") {
-            // delete the merged in person and refresh the merged to person
-            this.$http
-              .delete("/people/" + this.parsedBibtex.id)
-              .then(response => {
-                this.$refs.matchPeople.removeFromList(this.parsedBibtex.id); // remove the merge person from the matchPerson list
-                this.$refs.foundPeople.removeFromList(this.parsedBibtex.id); // remove the merge person from the foundPerson list
-                this.parsedBibtex = {};
-              });
-          } else {
-            // TODO: Annunciate delete failure more gracefully
-            alert(httpStatus.status);
-            this.parsedBibtex = {};
-          }
-        });
+      this.isLoading = true;
+      this.parsedValid = false;
+      let that = this;
+      this.$http.post("/sources/create.json", { params: params }).then(response => {
+        this.parsedBibtex = {};
+        this.parsedValid = !response.valid;
+        that.isLoading = false;
+      });
     },
     resetApp() {
       this.clearFormData();
