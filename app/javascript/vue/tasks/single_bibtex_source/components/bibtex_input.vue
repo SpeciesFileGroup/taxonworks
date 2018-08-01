@@ -3,6 +3,7 @@
     <textarea
       rows=20
       cols=50
+      v-model="bibtexInput"
       placeholder="Paste BibTeX text here" />
   </div>
 </template>
@@ -21,8 +22,10 @@
     },
     watch: {
       value(newVal) {
-        this.bibtexInput = newVal.value;
-        alert(this.bibtex_input.value)
+        this.bibtexInput = newVal;
+      },
+      bibtexInput(newVal) {
+        this.$emit('input', newVal)
       }
     }
   }
