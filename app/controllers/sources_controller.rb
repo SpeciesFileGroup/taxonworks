@@ -75,12 +75,16 @@ class SourcesController < ApplicationController
   end
 
   def parse
+    respond_to do |format|
     bibtex_string = params['bibtex_input']
     a               = BibTeX.parse(bibtex_string).convert(:latex)
     entry           = a.first
     src             = Source::Bibtex.new_from_bibtex(entry)
-    # format.json {render json: src}
-    render json: src
+    status          = (src.valid? ? "OK" : "FAILED")
+    format.html {render action: 'new'}
+    format.json {render json: src, status: status}
+    # render json: src
+    end
   end
 
   # rubocop:enable Metrics/BlockNesting

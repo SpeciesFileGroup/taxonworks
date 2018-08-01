@@ -75,7 +75,8 @@ export default {
     return {
       bibtexInput: "",
       isLoading: false,
-      parsedBibtex: {}
+      parsedBibtex: {},
+      parsedValid: false
     };
   },
   watch: {
@@ -92,11 +93,11 @@ export default {
       let params = {
         bibtex_input: this.bibtexInput
       };
-      alert(this.bibtexInput)
       this.isLoading = true;
       let that = this;
       this.$http.get("/sources/parse.json", { params: params }).then(response => {
         this.parsedBibtex = response.body;
+        this.parsedValid = response.status == "OK";
         that.isLoading = false;
       });
     },
