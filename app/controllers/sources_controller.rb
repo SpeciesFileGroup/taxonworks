@@ -79,7 +79,7 @@ class SourcesController < ApplicationController
     a               = BibTeX.parse(bibtex_string).convert(:latex)
     entry           = a.first
     src             = Source::Bibtex.new_from_bibtex(entry)
-    retval = {valid: src.valid?, errors: src.errors.messages}
+    retval = {valid: src.valid?, errors: src.errors.messages, source: src}
     # format.json {render json: src}
     render json: retval
   end
