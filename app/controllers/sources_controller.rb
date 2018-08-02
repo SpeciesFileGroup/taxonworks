@@ -92,7 +92,7 @@ class SourcesController < ApplicationController
       # format.json {render json: src}
       format.json {render json: retval}
       if((src.valid?)&&(params['create_bibtex']=='true'))
-        format.json {src.save!}
+        src.save!
       end
     end
   end
