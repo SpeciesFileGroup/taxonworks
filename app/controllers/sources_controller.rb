@@ -77,14 +77,18 @@ class SourcesController < ApplicationController
   def parse
     respond_to do |format|
     bibtex_string = params['bibtex_input']
-    a               = BibTeX.parse(bibtex_string).convert(:latex)
-    entry           = a.first
-    src             = Source::Bibtex.new_from_bibtex(entry)
+    begin
+      a               = BibTeX.parse(bibtex_string).convert(:latex)
+    rescue
+      a = nil
+    end
+    entry           = (a.nil? ? nil : a.first)
+    src             = (entry.nil? ? Source::Bibtex.new : Source::Bibtex.new_from_bibtex(entry))
     status          = (src.valid? ? "OK" : "FAILED")
     format.html {render action: 'new'}
     # format.json {render json: src, status: status}
     # render json: src
-    retval = {valid: src.valid?, errors: src.errors.messages, source: src}
+    retval = {status: status, valid: src.valid?, errors: src.errors.messages, source: src}
     # format.json {render json: src}
     format.json {render json: retval}
     end
