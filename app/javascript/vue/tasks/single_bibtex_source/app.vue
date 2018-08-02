@@ -104,22 +104,16 @@ export default {
       });
     },
     createBibtex() {
-      // let params = {
-      //   parsed_bibtex: this.parsedBibtex.value
-      // };
-      // this.$http
-      //   .post("/source/create", params)
-      //   .then(response => {
-      //     let httpStatus = response.body;
-// TODO: build server side code, create route, and debug this stub for create
       let params = {
-        bibtex_input: this.bibtexInput
+        bibtex_input: this.bibtexInput,
+        create_bibtex: true
       };
       this.isLoading = true;
       this.parsedValid = false;
       let that = this;
-      this.$http.post("/sources/create.json", { params: params }).then(response => {
+      this.$http.get("/sources/parse.json", { params: params }).then(response => {
         this.parsedBibtex = {};
+        this.bibtexInput = '';
         this.parsedValid = !response.valid;
         that.isLoading = false;
       });

@@ -76,21 +76,24 @@ class SourcesController < ApplicationController
 
   def parse
     respond_to do |format|
-    bibtex_string = params['bibtex_input']
-    begin
-      a               = BibTeX.parse(bibtex_string).convert(:latex)
-    rescue
-      a = nil
-    end
-    entry           = (a.nil? ? nil : a.first)
-    src             = (entry.nil? ? Source::Bibtex.new : Source::Bibtex.new_from_bibtex(entry))
-    status          = (src.valid? ? "OK" : "FAILED")
-    format.html {render action: 'new'}
-    # format.json {render json: src, status: status}
-    # render json: src
-    retval = {status: status, valid: src.valid?, errors: src.errors.messages, source: src}
-    # format.json {render json: src}
-    format.json {render json: retval}
+      bibtex_string = params['bibtex_input']
+      begin
+        a               = BibTeX.parse(bibtex_string).convert(:latex)
+      rescue
+        a = nil
+      end
+      entry           = (a.nil? ? nil : a.first)
+      src             = (entry.nil? ? Source::Bibtex.new : Source::Bibtex.new_from_bibtex(entry))
+      status          = (src.valid? ? "OK" : "FAILED")
+      format.html {render action: 'new'}
+      # format.json {render json: src, status: status}
+      # render json: src
+      retval = {status: status, valid: src.valid?, errors: src.errors.messages, source: src}
+      # format.json {render json: src}
+      format.json {render json: retval}
+      if((src.valid?)&&(params['create_bibtex']=='true'))
+        format.json {src.save!}
+      end
     end
   end
 
