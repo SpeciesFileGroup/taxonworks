@@ -76,7 +76,8 @@ export default {
       bibtexInput: "",
       isLoading: false,
       parsedBibtex: {},
-      parsedValid: false
+      parsedValid: false,
+      
     };
   },
   watch: {
@@ -89,10 +90,11 @@ export default {
     }
   },
   methods: {
-// TODO: bulletproof endpoint, since random garbage exec errors
-    parseBibtex() {
+// TODO: refactor submit methods to combine function
+    parseBibtex(create) {
       let params = {
-        bibtex_input: this.bibtexInput
+        bibtex_input: this.bibtexInput,
+        create_bibtex: create
       };
       this.isLoading = true;
       this.parsedValid = false;
@@ -103,20 +105,28 @@ export default {
         that.isLoading = false;
       });
     },
+    // createBibtex() {
+    //   let params = {
+    //     bibtex_input: this.bibtexInput,
+    //     create_bibtex: true
+    //   };
+    //   this.isLoading = true;
+    //   this.parsedValid = false;
+    //   let that = this;
+    //   this.$http.get("/sources/parse.json", { params: params }).then(response => {
+    //     this.parsedBibtex = {};
+    //     this.bibtexInput = '';
+    //     this.parsedValid = !response.valid;
+    //     that.isLoading = false;
+    //   });
+    // },
     createBibtex() {
-      let params = {
-        bibtex_input: this.bibtexInput,
-        create_bibtex: true
-      };
-      this.isLoading = true;
+      let create = true;      // just for clarity
+      this.parsedBibtex = {};
+      this.bibtexInput = '';
       this.parsedValid = false;
-      let that = this;
-      this.$http.get("/sources/parse.json", { params: params }).then(response => {
-        this.parsedBibtex = {};
-        this.bibtexInput = '';
-        this.parsedValid = !response.valid;
-        that.isLoading = false;
-      });
+      this.isLoading = false;
+      this.parseBibtex(create);
     },
     resetApp() {
       this.clearFormData();
