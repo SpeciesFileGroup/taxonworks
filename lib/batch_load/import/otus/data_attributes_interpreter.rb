@@ -2,8 +2,8 @@
 module BatchLoad
   class Import::Otu::DataAttributesInterpreter < BatchLoad::Import
 
-    def initialize(**args)
-      @otus = {}
+    # @param [Hash] args
+  def initialize(**args)
       super(args)
     end
 
@@ -22,7 +22,7 @@ module BatchLoad
         @processed_rows[i] = parse_result
 
         begin # processing
-          # use a BatchLoad::ColumnResolver or other method to match row data to TW 
+          # use a BatchLoad::ColumnResolver or other method to match row data to TW
           #  ...
 
           @total_data_lines += 1
