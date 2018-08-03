@@ -123,10 +123,10 @@ export default {
     createBibtex() {
       let create = true;      // just for clarity
       this.parsedBibtex = {};
-      this.bibtexInput = '';
       this.parsedValid = false;
       this.isLoading = false;
       this.parseBibtex(create);
+      this.bibtexInput = '';
     },
     resetApp() {
       this.clearFormData();
