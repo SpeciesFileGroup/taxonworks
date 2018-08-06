@@ -1174,6 +1174,8 @@ namespace :tw do
           elsif row['Status'] == '7' #  common name
             lng = Language.find_by_alpha_3_bibliographic(@languages[row['CommonNameLang'].to_s.downcase])
             CommonName.create!(otu: find_taxon_3i(row['Parent']).otus.first, name: row['Name'], language: lng)
+          elsif row['Status'] == '13' && row['Rank'] == '0' # Nomen nudum
+            tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: 'TaxonNameRelationship::Iczn::Invalidating')
           elsif row['Status'] == '2' || !row['OriginalCombinationOf'].blank? ### Original combination
             taxon = find_taxon_3i(row['OriginalCombinationOf']) || find_taxon_3i(row['Parent'])
             if taxon.blank?
@@ -1452,7 +1454,7 @@ namespace :tw do
             source = find_publication_id_3i(row['Key3'])
 
             byebug if p.nil?
-            c = o.citations.find_or_create_by!(source_id: source, project_id: $project_id)
+            c = o.citations.find_or_create_by!(source_id: source, project_id: $project_id) unless o.nil?
             #c = p.citations.find_or_create_by!(source_id: source, project_id: $project_id)
 
             if row['Descriptions'] == '1' && row['Types'] == '1'
@@ -2330,6 +2332,7 @@ namespace :tw do
 
       def handle_trivellone_phytoplasma_group_3i
         # PK_Phy
+        # FK_Taxo_phy
         # 16Sr_group
         # 16Sr_subgroup
         path = @args[:data_directory] + 'trivellone_phytoplasma_group.txt'
@@ -2340,7 +2343,7 @@ namespace :tw do
         file.each do |row|
           i += 1
           print "\r#{i}"
-          @data.t_phyto_group[row['PK_Phy']] = [row['16Sr_group'], row['16Sr_subgroup']]
+          @data.t_phyto_group[row['PK_Phy']] = [row['16Sr_group'], row['16Sr_subgroup'], row['FK_Taxo_phy']]
         end
       end
 
@@ -2415,8 +2418,13 @@ namespace :tw do
           print "\r#{i}"
 
           name = row['16Sr_group'].to_s + row['16Sr_subgroup'].to_s
-          otu = Otu.find_or_create_by!(name: name, taxon_name: @phytoplasma)
-          otu.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['PK_Phy'], identifier: row['PK_Phy']) unless row['PK_Phy'].blank?
+          name = 'not specified' if name == 'na'
+          if name == 'neg'
+            @phytoplasma_neg = row['PK_Phy']
+          else
+            otu = Otu.find_or_create_by!(name: name, taxon_name: @phytoplasma)
+            otu.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['PK_Phy'], identifier: row['PK_Phy']) unless row['PK_Phy'].blank?
+          end
 
           @data.t_phyto_taxonomy[row['PK_Phy']] = otu.id
         end
@@ -2474,15 +2482,19 @@ namespace :tw do
           print "\r#{i}"
 
           s = find_t_publication_id_3i(row['FK_reference'])
-          phy = find_t_otu_id_3i(row['FK_Phy'])
+          phy = nil
+          phy = find_t_otu_id_3i(row['FK_Phy']) unless @phytoplasma_neg == row['FK_Phy']
           insect = find_otu_3i(@data.t_unique[row['species']])
 
-          if phy && insect
-            ba = BiologicalAssociation.find_or_create_by!(biological_relationship: @insect_phytoplasma_relationship,
-                                                          biological_association_subject: insect,
-                                                          biological_association_object: phy,
-                                                          project_id: $project_id
-            )
+          if insect
+            if @phytoplasma_neg == row['FK_Phy']
+              ba = insect
+            else
+              ba = BiologicalAssociation.find_or_create_by!(biological_relationship: @insect_phytoplasma_relationship,
+                                                            biological_association_subject: insect,
+                                                            biological_association_object: phy,
+                                                            project_id: $project_id )
+            end
             c = Citation.find_or_create_by!(citation_object: ba, source_id: s, project_id: $project_id) unless s.blank?
             c.notes.create(text: row['note']) unless row['note'].blank?
             da.each do |ia|
@@ -2508,6 +2520,24 @@ namespace :tw do
             g = nil
             g = GeographicArea.find(row['FK_idTW'])
             c.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords['FK_idTW_g'], value: g.name) unless g.nil?
+
+            if !insect.nil? && !s.nil? && !g.nil?
+              ad = AssertedDistribution.find_or_create_by(
+                  otu: insect,
+                  geographic_area: g,
+                  project_id: $project_id )
+              c1 = ad.citations.new(source_id: s, project_id: $project_id)
+              ad.save
+            end
+            if !phy.nil? && !s.nil? && !g.nil?
+              ad = AssertedDistribution.find_or_create_by(
+                  otu: phy,
+                  geographic_area: g,
+                  project_id: $project_id )
+              c1 = ad.citations.new(source_id: s, project_id: $project_id)
+              ad.save
+            end
+
           else
             # byebug
           end
@@ -2545,8 +2575,9 @@ namespace :tw do
           plant = @data.host_plant_index[row['species']]
 
           if phy && plant
+            plant1 = Otu.find(plant)
             ba = BiologicalAssociation.find_or_create_by!(biological_relationship: @plant_phytoplasma_relationship,
-                                                          biological_association_subject: Otu.find(plant),
+                                                          biological_association_subject: plant1,
                                                           biological_association_object: phy,
                                                           project_id: $project_id
             )
@@ -2562,6 +2593,24 @@ namespace :tw do
             g = nil
             g = GeographicArea.find(row['FK_idTW'])
             c.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords['FK_idTW_g'], value: g.name) unless g.nil?
+
+            if !plant1.nil? && !s.nil? && !g.nil?
+              ad = AssertedDistribution.find_or_create_by(
+                  otu: plant1,
+                  geographic_area: g,
+                  project_id: $project_id )
+              c1 = ad.citations.new(source_id: s, project_id: $project_id)
+              ad.save
+            end
+            if !phy.nil? && !s.nil? && !g.nil?
+              ad = AssertedDistribution.find_or_create_by(
+                  otu: phy,
+                  geographic_area: g,
+                  project_id: $project_id )
+              c1 = ad.citations.new(source_id: s, project_id: $project_id)
+              ad.save
+            end
+
           else
             # byebug
           end
