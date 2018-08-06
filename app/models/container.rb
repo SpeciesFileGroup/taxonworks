@@ -25,6 +25,7 @@ class Container < ApplicationRecord
   include Shared::Tags
   include SoftValidation
   include Shared::Loanable
+  include Shared::Labels 
   include Shared::IsData
 
   has_many :collection_profiles

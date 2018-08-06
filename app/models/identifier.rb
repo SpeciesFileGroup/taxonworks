@@ -61,6 +61,7 @@ class Identifier < ApplicationRecord
   # TODO: DRY to IsData? Test. 
   scope :with_type_string, -> (base_string) {where('type LIKE ?', "#{base_string}")}
 
+  # TODO: move to lib/queries
   def self.find_for_autocomplete(params)
     where('identifier LIKE ?', "#{params[:term]}%")
   end

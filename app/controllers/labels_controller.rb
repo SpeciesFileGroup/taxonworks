@@ -1,10 +1,25 @@
 class LabelsController < ApplicationController
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
+  
   before_action :set_label, only: [:show, :edit, :update, :destroy]
 
   # GET /labels
   # GET /labels.json
   def index
-    @labels = Label.all
+    respond_to do |format|
+      format.html do
+        @recent_objects = Label.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @labels = Label.where(filter_params).with_project_id(sessions_current_project_id)
+      }
+    end
+  end
+
+  def list
+    @labels = Label.with_project_id(sessions_current_project_id).page(params[:page])
+    @recent_object = @label
   end
 
   # GET /labels/1
@@ -19,6 +34,10 @@ class LabelsController < ApplicationController
 
   # GET /labels/1/edit
   def edit
+  end
+
+  def list
+    @labels = Label.with_project_id(sessions_current_project_id).page(params[:page])
   end
 
   # POST /labels
@@ -62,13 +81,14 @@ class LabelsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
     def set_label
       @label = Label.find(params[:id])
     end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
     def label_params
-      params.require(:label).permit(:text, :total, :style, :object_global_id, :is_copy_edited, :is_printed, :project_id)
+      params.require(:label).permit(
+        :text, :total, :style, :object_global_id, :is_copy_edited, :is_printed, :label_object_id, :label_object_type,
+        :annotated_global_entity 
+      )
     end
 end

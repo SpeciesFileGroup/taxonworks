@@ -24,16 +24,23 @@ require 'rails_helper'
 # `rails-controller-testing` gem.
 
 RSpec.describe LabelsController, type: :controller do
+  before(:each) {
+    sign_in
+  }
 
   # This should return the minimal set of attributes required to create a valid
   # Label. As you add validations to Label, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
-  }
 
-  let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
+  let(:ce) { FactoryBot.create(:valid_collecting_event) } 
+  
+  let(:valid_attributes) { 
+    {
+      label_object_id: ce.id,
+      label_object_type: ce.class.to_s,
+      text: 'my label',
+      total: 0 
+    }
   }
 
   # This should return the minimal set of values that should be in the session
@@ -88,7 +95,7 @@ RSpec.describe LabelsController, type: :controller do
 
     context "with invalid params" do
       it "returns a success response (i.e. to display the 'new' template)" do
-        post :create, params: {label: invalid_attributes}, session: valid_session
+        post :create, params: {label: {label_object_id: 99, text: nil}}, session: valid_session
         expect(response).to be_success
       end
     end
@@ -96,15 +103,16 @@ RSpec.describe LabelsController, type: :controller do
 
   describe "PUT #update" do
     context "with valid params" do
-      let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
-      }
 
+      # See identifiers_controller for notes
       it "updates the requested label" do
         label = Label.create! valid_attributes
-        put :update, params: {id: label.to_param, label: new_attributes}, session: valid_session
-        label.reload
-        skip("Add assertions for updated state")
+        
+        update_params = ActionController::Parameters.new({label_object_id: '1'}).permit(:label_object_id)
+        expect_any_instance_of(Label).to receive(:update).with(update_params)
+       
+        put :update, params: {id: label.to_param, label: {label_object_id: '1'}}, session: valid_session
+        expect(assigns(:label)).to eq(label) 
       end
 
       it "redirects to the label" do
@@ -117,7 +125,7 @@ RSpec.describe LabelsController, type: :controller do
     context "with invalid params" do
       it "returns a success response (i.e. to display the 'edit' template)" do
         label = Label.create! valid_attributes
-        put :update, params: {id: label.to_param, label: invalid_attributes}, session: valid_session
+        put :update, params: {id: label.to_param, label: {text: nil}}, session: valid_session
         expect(response).to be_success
       end
     end

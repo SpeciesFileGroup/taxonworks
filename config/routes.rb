@@ -328,8 +328,11 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
-  resources :labels, only: [] do
-    # is data? 
+  resources :labels do
+    collection do
+      get :list
+    end
+    # is data?
   end
 
   resources :languages, only: [] do

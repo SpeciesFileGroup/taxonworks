@@ -13,7 +13,7 @@
 
   <div class="field">
     <%= form.label :text %>
-    <%= form.text_field :text, id: :label_text %>
+    <%= form.text_area :text, id: :label_text %>
   </div>
 
   <div class="field">
@@ -27,11 +27,6 @@
   </div>
 
   <div class="field">
-    <%= form.label :object_global_id %>
-    <%= form.text_field :object_global_id, id: :label_object_global_id %>
-  </div>
-
-  <div class="field">
     <%= form.label :is_copy_edited %>
     <%= form.check_box :is_copy_edited, id: :label_is_copy_edited %>
   </div>
@@ -39,11 +34,6 @@
   <div class="field">
     <%= form.label :is_printed %>
     <%= form.check_box :is_printed, id: :label_is_printed %>
-  </div>
-
-  <div class="field">
-    <%= form.label :project_id %>
-    <%= form.text_field :project_id, id: :label_project_id %>
   </div>
 
   <div class="actions">
