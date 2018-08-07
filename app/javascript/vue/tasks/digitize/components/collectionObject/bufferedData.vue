@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="horizontal-left-content">
     <div>
       <label>Buffered determination</label>
       <br>

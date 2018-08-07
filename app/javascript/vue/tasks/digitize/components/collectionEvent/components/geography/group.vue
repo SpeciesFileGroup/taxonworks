@@ -3,33 +3,47 @@
     <div>
       <label>Group</label>
       <autocomplete
-        url="/url"
-        min="2"
-        param="term"/>
+        url="https://paleobiodb.org/data1.2/strata/auto.json"
+        min="3"
+        label="name"
+        nested="records"
+        :headers="externalHeaders"
+        :add-params="{
+          limit: 30,
+          vocab: 'pbdb',
+          rank: 'group'
+        }"
+        param="name"/>
       <label>Formation</label>
       <autocomplete
-        url="/url"
-        min="2"
+        url="https://paleobiodb.org/data1.2/strata/auto.json"
+        min="3"
+        label="name"
+        nested="records"
+        :headers="externalHeaders"
+        :add-params="{
+          limit: 30,
+          vocab: 'pbdb',
+          rank: 'formation'
+        }"
         param="term"/>
       <label>Member</label>
-      <autocomplete
-        url="/url"
-        min="2"
-        param="term"/>
+      <input type="text"/>
       <label>Lithology</label>
-      <autocomplete
-        url="/url"
-        min="2"
-        param="term"/>
+      <input type="text"/>
     </div>
     <div class="horizontal-left-content ma-fields">
       <div class="separate-right">
-        <label>Maximum MA</label>
-        <input type="text">
+        <label>Minumum MA</label>
+        <input
+          type="text"
+          v-model="minMa">
       </div>
       <div class="separate-left">
-        <label>Minumum MA</label>
-        <input type="text">
+        <label>Maximum MA</label>
+        <input
+          type="text"
+          v-model="maxMa">
       </div>
     </div>
   </div>
@@ -38,10 +52,38 @@
 <script>
 
   import Autocomplete from '../../../../../../components/autocomplete.vue'
+  import { GetterNames } from '../../../../store/getters/getters.js'
+  import { MutationNames } from '../../../../store/mutations/mutations.js'
 
   export default {
     components: {
       Autocomplete
+    },
+    computed: {
+      maxMa: {
+        get() {
+          return this.$store.getters[GetterNames.GetCollectionEvent].max_ma
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetCollectionEventMaxMa, value)
+        }
+      },
+      minMa: {
+        get() {
+          return this.$store.getters[GetterNames.GetCollectionEvent].min_max
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetCollectionEventMinMa, value)
+        }
+      }
+    },
+    data() {
+      return {
+        externalHeaders: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      }
     }
   }
 </script>

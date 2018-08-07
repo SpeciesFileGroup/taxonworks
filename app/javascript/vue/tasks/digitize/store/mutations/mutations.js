@@ -12,6 +12,9 @@ import setCollectionObjectRangeLotId from './CollectionObject/setCollectionObjec
 import setCollectionObjectRepositoryId from './CollectionObject/setCollectionObjectRepositoryId'
 import setCollectionObjectTotal from './CollectionObject/setCollectionObjectTotal'
 
+import setCollectionEvent from './CollectionEvent/setCollectionEvent'
+import setCollectionEventPrintLabel from './CollectionEvent/setCollectionEventPrintLabel'
+import setCollectionEventDocumentLabel from './CollectionEvent/setCollectionEventDocumentLabel'
 import setCollectionEventLabel from './CollectionEvent/setCollectionEventLabel'
 import setCollectionEventCollectors from './CollectionEvent/setCollectionEventCollectors'
 import setCollectionEventDate from './CollectionEvent/setCollectionEventDate'
@@ -39,6 +42,8 @@ import setCollectionEventTripIdentifier from './CollectionEvent/setCollectionEve
 import setCollectionEventElevationPrecision from './CollectionEvent/setCollectionEventElevationPrecision'
 import setCollectionEventMaximumElevation from './CollectionEvent/setCollectionEventMaximumElevation'
 import setCollectionEventMinimumElevation from './CollectionEvent/setCollectionEventMinimumElevation'
+import setCollectionEventMaxMa from './CollectionEvent/setCollectionEventMaxMa'
+import setCollectionEventMinMa from './CollectionEvent/setCollectionEventMinMa'
 
 import setTypeMaterial from './TypeMaterial/setTypeMaterial'
 import setTypeMaterialBiologicalObjectId from './TypeMaterial/setTypeMaterialBiologicalObjectId'
@@ -87,15 +92,18 @@ const MutationNames = {
   SetTypeMaterialType: 'setTypeMaterialType',
   SetTypeMaterialTaxon: 'setTypeMaterialTaxon',
 
+  SetCollectionEvent: 'setCollectionEvent',
+  SetCollectionEventPrintLabel: 'setCollectionEventPrintLabel',
   SetCollectionEventLabel: 'setCollectionEventLabel',
+  SetCollectionEventDocumentLabel: 'setCollectionEventDocumentLabel',
   SetCollectionEventCollectors: 'setCollectionEventCollectors',
   SetCollectionEventDate: 'setCollectionEventDate',
-  setCollectionEventTimeStartHour: 'setCollectionEventTimeStartHour',
-  setCollectionEventTimeStartMinute: 'setCollectionEventTimeStartMinute',
-  setCollectionEventTimeStartSecond: 'setCollectionEventTimeStartSecond',
-  setCollectionEventTimeEndHour: 'setCollectionEventTimeEndHour',
-  setCollectionEventTimeEndMinute: 'setCollectionEventTimeEndMinute',
-  setCollectionEventTimeEndSecond: 'setCollectionEventTimeEndSecond',
+  SetCollectionEventTimeStartHour: 'setCollectionEventTimeStartHour',
+  SetCollectionEventTimeStartMinute: 'setCollectionEventTimeStartMinute',
+  SetCollectionEventTimeStartSecond: 'setCollectionEventTimeStartSecond',
+  SetCollectionEventTimeEndHour: 'setCollectionEventTimeEndHour',
+  SetCollectionEventTimeEndMinute: 'setCollectionEventTimeEndMinute',
+  SetCollectionEventTimeEndSecond: 'setCollectionEventTimeEndSecond',
   SetCollectionEventStartDateDay: 'setCollectionEventStartDateDay',
   SetCollectionEventStartDateMonth: 'setCollectionEventStartDateMonth',
   SetCollectionEventStartDateYear: 'setCollectionEventStartDateYear',
@@ -114,6 +122,8 @@ const MutationNames = {
   SetCollectionEventElevationPrecision: 'setCollectionEventElevationPrecision',
   SetCollectionEventMaximumElevation: 'setCollectionEventMaximumElevation',
   SetCollectionEventMinimumElevation: 'setCollectionEventMinimumElevation',
+  SetCollectionEventMaxMa: 'setCollectionEventMaxMa',
+  SetCollectionEventMinMa: 'setCollectionEventMinMa',
 
   SetCollectionObject: 'setCollectionObject',
   SetCollectionObjectBufferedCollectionEvent: 'setCollectionObjectBufferedCollectionEvent',
@@ -154,17 +164,18 @@ const MutationFunctions = {
   [MutationNames.SetTypeMaterialType]: setTypeMaterialType,
   [MutationNames.SetTypeMaterialTaxon]: setTypeMaterialTaxon,
 
-  [MutationNames.SetCollectionObject]: setCollectionObject,
-  [MutationNames.SetCollectionObjectBufferedCollectionEvent]: setCollectionObjectBufferedCollectionEvent,
+  [MutationNames.SetCollectionEvent]: setCollectionEvent,
+  [MutationNames.SetCollectionEventDocumentLabel]: setCollectionEventDocumentLabel,
+  [MutationNames.SetCollectionEventPrintLabel]: setCollectionEventPrintLabel,
   [MutationNames.SetCollectionEventLabel]: setCollectionEventLabel,
   [MutationNames.SetCollectionEventCollectors]: setCollectionEventCollectors,
   [MutationNames.SetCollectionEventDate]: setCollectionEventDate,
-  [MutationNames.setCollectionEventTimeStartHour]: setCollectionEventTimeStartHour,
-  [MutationNames.setCollectionEventTimeStartMinute]: setCollectionEventTimeStartMinute,
-  [MutationNames.setCollectionEventTimeStartSecond]: setCollectionEventTimeStartSecond,
-  [MutationNames.setCollectionEventTimeEndHour]: setCollectionEventTimeEndHour,
-  [MutationNames.setCollectionEventTimeEndMinute]: setCollectionEventTimeEndMinute,
-  [MutationNames.setCollectionEventTimeEndSecond]: setCollectionEventTimeEndSecond,
+  [MutationNames.SetCollectionEventTimeStartHour]: setCollectionEventTimeStartHour,
+  [MutationNames.SetCollectionEventTimeStartMinute]: setCollectionEventTimeStartMinute,
+  [MutationNames.SetCollectionEventTimeStartSecond]: setCollectionEventTimeStartSecond,
+  [MutationNames.SetCollectionEventTimeEndHour]: setCollectionEventTimeEndHour,
+  [MutationNames.SetCollectionEventTimeEndMinute]: setCollectionEventTimeEndMinute,
+  [MutationNames.SetCollectionEventTimeEndSecond]: setCollectionEventTimeEndSecond,
   [MutationNames.SetCollectionEventStartDateDay]: setCollectionEventStartDateDay,
   [MutationNames.SetCollectionEventStartDateMonth]: setCollectionEventStartDateMonth,
   [MutationNames.SetCollectionEventStartDateYear]: setCollectionEventStartDateYear,
@@ -183,6 +194,11 @@ const MutationFunctions = {
   [MutationNames.SetCollectionEventElevationPrecision]: setCollectionEventElevationPrecision,
   [MutationNames.SetCollectionEventMaximumElevation]: setCollectionEventMaximumElevation,
   [MutationNames.SetCollectionEventMinimumElevation]: setCollectionEventMinimumElevation,
+  [MutationNames.SetCollectionEventMaxMa]: setCollectionEventMaxMa,
+  [MutationNames.SetCollectionEventMinMa]: setCollectionEventMinMa,
+
+  [MutationNames.SetCollectionObject]: setCollectionObject,
+  [MutationNames.SetCollectionObjectBufferedCollectionEvent]: setCollectionObjectBufferedCollectionEvent,
   [MutationNames.SetCollectionObjectBufferedDeterminations]: setCollectionObjectBufferedDeterminations,
   [MutationNames.SetCollectionObjectBufferedOtherLabel]: setCollectionObjectBufferedOtherLabel,
   [MutationNames.SetCollectionObjectCollectionEventAttributes]: setCollectionObjectCollectionEventAttributes,

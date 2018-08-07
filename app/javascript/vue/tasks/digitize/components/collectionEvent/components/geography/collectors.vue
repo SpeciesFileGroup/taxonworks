@@ -9,6 +9,7 @@
       url="/url"
       placeholder="Search"
       min="2"
+      label="label_html"
       param="term"/>
   </div>
 </template>

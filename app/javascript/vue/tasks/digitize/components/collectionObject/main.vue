@@ -1,12 +1,33 @@
 <template>
-  <div class="horizontal-left-content">
-    <div>
-      <catalog-number/>
+  <div>
+    <block-layout>
+      <div slot="header">
+        <h3>Collection Object</h3>
+      </div>
+      <div slot="options">
+        <radial-annotator 
+          v-if="collectionObject.id"
+          :global-id="collectionObject.global_id"/>
+      </div>
+      <div
+        class="horizontal-left-content align-start"
+        slot="body">
+        <div class="separate-right">
+          <catalog-number/>
+        </div>
+        <div class="separate-left separate-right">
+          <bioclassification/>
+        </div>
+        <div class="separate-left">
+          <repository-component/>
+        </div>
+      </div>
       <buffered-component/>
-    </div>
-    <div>
-      <bioclassification/>
-    </div>
+      <depictions-component
+        :object-value="collectionObject"
+        object-type="CollectionObject"
+        action-save="SaveCollectionObject"/>
+    </block-layout>
   </div>
 </template>
 
@@ -15,14 +36,26 @@
   import CatalogNumber from './catalogNumber.vue'
   import Bioclassification from './bioclassification.vue'
   import BufferedComponent from './bufferedData.vue'
+  import DepictionsComponent from '../shared/depictions.vue'
+  import RepositoryComponent from './repository.vue'
+  import { GetterNames } from '../../store/getters/getters';
+  import BlockLayout from '../../../../components/blockLayout.vue'
+  import RadialAnnotator from '../../../../components/annotator/annotator.vue'
 
   export default {
     components: {
       CatalogNumber,
       Bioclassification,
-      BufferedComponent
+      BufferedComponent,
+      DepictionsComponent,
+      RepositoryComponent,
+      BlockLayout,
+      RadialAnnotator
     },
     computed: {
+      collectionObject () {
+        return this.$store.getters[GetterNames.GetCollectionObject]
+      },
     },
     data() {
       return {
