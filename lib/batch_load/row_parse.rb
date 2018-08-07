@@ -1,7 +1,7 @@
 # The result of parsing a row.
 class BatchLoad::RowParse
 
-  # Whether the row was parsed not
+  # Whether the row was parsed or not
   attr_accessor :parsed
 
   attr_accessor :parse_errors
