@@ -427,6 +427,9 @@ TaxonWorks::Application.routes.draw do
       post :preview_identifiers_batch_load
       post :create_identifiers_batch_load
 
+      post :preview_data_attributes_batch_load
+      post :create_data_attributes_batch_load
+
       get :select_options, defaults: {format: :json}
     end
   end
