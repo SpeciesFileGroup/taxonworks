@@ -29,11 +29,11 @@ module BatchLoad
                                           value:            otu_data_attribute_value}
 
           otu_data_attributes          = []
-          otu_data_attributes.push(otu_data_attribute) unless otu_data_attribute_predicate.blank?
+          otu_data_attributes.push(otu_data_attribute) if otu_data_attribute_predicate.present?
 
           otu_attributes = {
               name: row['otuname'],
-              data_attribute_attributes: otu_data_attributes
+              data_attributes_attributes: otu_data_attributes
           }
           otu = Otu.new(otu_attributes)
           parse_result.objects[:otu].push otu
@@ -45,6 +45,10 @@ module BatchLoad
       end
 
       @total_lines = i
+    end
+
+    def create
+
     end
 
     def build
