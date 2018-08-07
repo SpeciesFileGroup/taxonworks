@@ -25,7 +25,7 @@
           <br>
           <button
             class="button normal-input button-default"
-            @click="parseBibtex"
+            @click="parseBibtex(false)"
             :disabled="!enableParseBibtex"
             type="submit">Parse BibTeX
           </button>
@@ -68,7 +68,7 @@ export default {
       return this.bibtexInput.length > 0;
     },
     enableCreateBibtex() {
-      return this.parsedBibtex.valid; //Object.keys(this.parsedBibtex).length;
+      return (this.parsedBibtex.valid && this.parsedValid); //Object.keys(this.parsedBibtex).length;
     }
   },
   data() {
@@ -77,14 +77,9 @@ export default {
       isLoading: false,
       parsedBibtex: {},
       parsedValid: false,
-      
     };
   },
   watch: {
-    // bibtexInput() {
-    //   this.parsedBibtex = {};
-    //   this.isLoading = true;
-    // },
     parsedBibtex() {
       this.isLoading = false;
     }
@@ -100,33 +95,22 @@ export default {
       this.parsedValid = false;
       let that = this;
       this.$http.get("/sources/parse.json", { params: params }).then(response => {
+        // if(!create) { this.parsedBibtex = response.body; }
+        // if(create) {this.parsedValid = false}
         this.parsedBibtex = response.body;
-        this.parsedValid = response.valid;
+        this.parsedValid = this.parsedBibtex.valid && !create;
         that.isLoading = false;
       });
     },
-    // createBibtex() {
-    //   let params = {
-    //     bibtex_input: this.bibtexInput,
-    //     create_bibtex: true
-    //   };
-    //   this.isLoading = true;
-    //   this.parsedValid = false;
-    //   let that = this;
-    //   this.$http.get("/sources/parse.json", { params: params }).then(response => {
-    //     this.parsedBibtex = {};
-    //     this.bibtexInput = '';
-    //     this.parsedValid = !response.valid;
-    //     that.isLoading = false;
-    //   });
-    // },
     createBibtex() {
       let create = true;      // just for clarity
       this.parsedBibtex = {};
       this.parsedValid = false;
       this.isLoading = false;
       this.parseBibtex(create);
-      this.bibtexInput = '';
+      this.bibtexInput = '';    // doesn't actually clear it but makes it look empty to app.vue
+      this.parsedBibtex = {};
+      this.parsedValid = false;
     },
     resetApp() {
       this.clearFormData();

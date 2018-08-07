@@ -27,6 +27,11 @@
       bibtexInput(newVal) {
         this.$emit('input', newVal)
       }
+    },
+    methods: {
+      clearBibtexInput() {
+        this.bibtexInput = '';
+      }
     }
   }
 </script>
