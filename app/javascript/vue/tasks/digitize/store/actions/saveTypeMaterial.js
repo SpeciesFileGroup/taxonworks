@@ -4,8 +4,8 @@ import ValidateTypeMaterial from '../../validations/typeMaterial'
 
 export default function ({ commit, state }) {
   return new Promise((resolve, reject) => {
+    commit(MutationNames.SetTypeMaterialBiologicalObjectId, state.collection_object.id)
     let type_material = state.type_material
-    type_material.collection_object = state.collection_object
     if(ValidateTypeMaterial(type_material)) {
       if(type_material.id) {
         UpdateTypeMaterial(type_material).then(response => {

@@ -6,6 +6,7 @@ export default function ({ commit, dispatch, state }) {
       dispatch(ActionNames.SaveCollectionObject).then(() => {
         dispatch(ActionNames.SaveIdentifier)
         dispatch(ActionNames.SaveTypeMaterial)
+        dispatch(ActionNames.SaveDetermination)
       })
     })
   })

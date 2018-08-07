@@ -1,3 +1,5 @@
 export default function(typeMaterial) {
-  return (typeMaterial.protonym_id && typeMaterial.biological_object_id && typeMaterial.type_type)
+  return (typeMaterial.protonym_id != undefined 
+      && typeMaterial.biological_object_id != undefined 
+      && typeMaterial.type_type != undefined )
 }

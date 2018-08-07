@@ -4,7 +4,7 @@
       <h3>Type material</h3>
     </div>
     <div slot="options">
-      <validation-component :show-message="true"/>
+      <validation-component :show-message="!typeMaterialCheck"/>
     </div>
     <div slot="body">
       <div>
@@ -15,7 +15,12 @@
           param="term"
           placeholder="Select a taxon name"
           @getItem="selectTaxon"
-          label="label"/>
+          label="label"
+          :add-params="{
+            'type[]': 'Protonym',
+            'nomenclature_group[]': 'SpeciesGroup',
+            valid: true
+        }"/>
       </div>
       <div>
         <label>Type type</label>
@@ -57,6 +62,7 @@
   import { MutationNames } from '../../store/mutations/mutations'
   import BlockLayout from '../../../../components/blockLayout.vue'
   import ValidationComponent from '../shared/validate.vue'
+  import ValidateTypeMaterial from '../../validations/typeMaterial.js'
 
   export default {
     components: {
@@ -87,6 +93,9 @@
         set(value) {
           this.$store.commit(MutationNames.SetTypeMaterialRoles, value)
         }
+      },
+      typeMaterialCheck() {
+        return ValidateTypeMaterial(this.$store.getters[GetterNames.GetTypeMaterial])
       }
     },
     data() {
@@ -102,7 +111,7 @@
     methods: {
       selectTaxon(taxon) {
         this.$store.dispatch(ActionNames.GetTaxon, taxon.id)
-      }
+      },
     }
   }
 </script>

@@ -104,8 +104,16 @@ const CreateTypeMaterial = function (data) {
   return ajaxCall('post', `/type_materials.json`, { type_material: data })
 }
 
+const CreateTaxonDetermination = function (data) {
+  return ajaxCall('post', `/taxon_determinations.json`, { taxon_determination: data })
+}
+
 const CreateBiocurationClassification = function (data) {
   return ajaxCall('post', `/biocuration_classifications.json`, data)
+}
+
+const UpdateTaxonDetermination = function (data) {
+  return ajaxCall('patch', `/taxon_determinations.json`, { taxon_determination: data })
 }
 
 const UpdateTypeMaterial = function (id, data) {
@@ -131,11 +139,13 @@ const DestroyDepiction = function (id) {
 export {
   GetTypes,
   GetTaxon,
+  CreateTaxonDetermination,
   CreateIdentifier,
   UpdateIdentifier,
   GetCollectionObject,
   CreateCollectionObject,
   UpdateCollectionObject,
+  UpdateTaxonDetermination,
   GetCollectionEvent,
   UpdateCollectionEvent,
   CreateCollectionEvent,
