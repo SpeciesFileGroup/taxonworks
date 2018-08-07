@@ -36,6 +36,9 @@
             :disabled="!enableCreateBibtex"
             type="submit">Create source from BibTeX
           </button>
+          <br>
+          <br>
+          <span>{{ showCreatedSourceID }}</span>
         </div>
         <div
           class="flex-separate top">
@@ -46,14 +49,11 @@
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </template>
 
 <script>
-// TODO:  Revise queries to bias toward last name
-//        Add alternate values for names
 import BibtexInput from "./components/bibtex_input";
 
 import Spinner from "../../components/spinner.vue";
@@ -69,6 +69,15 @@ export default {
     },
     enableCreateBibtex() {
       return (this.parsedBibtex.valid && this.parsedValid); //Object.keys(this.parsedBibtex).length;
+    },
+    showCreatedSourceID() {
+      let retVal = '';
+      if(this.parsedBibtex.source) {
+        if(this.parsedBibtex.source.id != null) {
+          retVal = "Created Source: " + this.parsedBibtex.source.id;
+        }
+      }
+      return retVal;
     }
   },
   data() {
@@ -85,7 +94,6 @@ export default {
     }
   },
   methods: {
-// TODO: refactor submit methods to combine function
     parseBibtex(create) {
       let params = {
         bibtex_input: this.bibtexInput,
@@ -95,8 +103,6 @@ export default {
       this.parsedValid = false;
       let that = this;
       this.$http.get("/sources/parse.json", { params: params }).then(response => {
-        // if(!create) { this.parsedBibtex = response.body; }
-        // if(create) {this.parsedValid = false}
         this.parsedBibtex = response.body;
         this.parsedValid = this.parsedBibtex.valid && !create;
         that.isLoading = false;
@@ -104,9 +110,6 @@ export default {
     },
     createBibtex() {
       let create = true;      // just for clarity
-      this.parsedBibtex = {};
-      this.parsedValid = false;
-      this.isLoading = false;
       this.parseBibtex(create);
       this.bibtexInput = '';    // doesn't actually clear it but makes it look empty to app.vue
       this.parsedBibtex = {};
