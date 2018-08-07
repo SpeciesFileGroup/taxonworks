@@ -275,6 +275,17 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         expect(s1.cached_classified_as).to eq(' (as Erythroneuridae)')
       end
 
+      specify 'for cached_valid_taxon_name_id' do
+        r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+        g2.reload
+        expect(g2.cached_valid_taxon_name_id).to eq(g1.id)
+        r1.destroy!
+        g2.reload
+        expect(g2.cached_valid_taxon_name_id).to eq(g2.id)
+      end
+
+
+
       specify 'fixing synonym linked to another synonym' do
         r3 = FactoryBot.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
         r3.soft_validate(:synonym_linked_to_valid_name)
