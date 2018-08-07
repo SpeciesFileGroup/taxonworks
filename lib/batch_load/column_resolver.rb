@@ -1,4 +1,4 @@
-# Methods to resolve a group columns and their values to
+# Methods to resolve a group of columns and their values to
 # an instance in TW, columns should be a Hash of legal
 # values at this point
 #
