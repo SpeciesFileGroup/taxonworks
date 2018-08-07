@@ -66,7 +66,7 @@ gem 'jquery-turbolinks', '~> 2.1'
 
 # BibTeX handling
 gem 'csl', '~> 1.5.0'
-gem 'bibtex-ruby', '~> 4.4.6'
+gem 'bibtex-ruby', '~> 4.4.7'
 gem 'citeproc-ruby', '~> 1.1.10'
 gem 'csl-styles', '~> 1.0.1.8'
 gem 'ref2bibtex', '~> 0.2.2'
@@ -108,7 +108,7 @@ group :test, :development do
 #  gem 'inch', '~> 0.7.1', require: false, # security issue
   gem 'byebug', '~> 10.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 4.8.2'
-  gem 'selenium-webdriver', '~> 3.10'
+  gem 'selenium-webdriver', '~> 3.14'
   gem 'geckodriver-helper', '~> 0.0.5'
   gem 'prawn', '~> 2.2.2'
 end
