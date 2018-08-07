@@ -1,13 +1,5 @@
 TaxonWorks::Application.routes.draw do
 
-  # routes added to otus by batch_load generator
-resource :otus do
-  collection do
-    post :preview_data_attributes_batch_load
-    post :create_data_attributes_batch_load
-  end
-end
-
   get :ping, controller: 'ping',  defaults: { format: :json }
   get :pingz, controller: 'ping',  defaults: { format: :json }
 
@@ -78,7 +70,7 @@ end
       get :many_new
       get :index, defaults: {format: :json}
       post :create_many
-      
+
       get :clipboard, defaults: {format: :json}
       put :update_clipboard, defaults: {format: :json}
     end
@@ -430,6 +422,9 @@ end
 
       post :preview_identifiers_batch_load
       post :create_identifiers_batch_load
+
+      post :preview_data_attributes_batch_load
+      post :create_data_attributes_batch_load
 
       get :select_options, defaults: {format: :json}
     end
