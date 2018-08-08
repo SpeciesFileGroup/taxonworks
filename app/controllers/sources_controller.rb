@@ -107,10 +107,6 @@ class SourcesController < ApplicationController
     ).autocomplete
   end
 
-  def autocomplete_params
-    params.permit(:limit_to_project).merge(project_id: sessions_current_project_id).to_h.symbolize_keys
-  end
-
   def search
     if params[:id].blank?
       redirect_to sources_path, notice: 'You must select an item from the list with a click or tab ' \
@@ -166,6 +162,10 @@ class SourcesController < ApplicationController
   end
 
   private
+
+  def autocomplete_params
+    params.permit(:limit_to_project).merge(project_id: sessions_current_project_id).to_h.symbolize_keys
+  end
 
   def set_source
     @source        = Source.find(params[:id])

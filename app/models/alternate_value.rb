@@ -46,20 +46,6 @@ class AlternateValue < ApplicationRecord
   validates_presence_of :type, :value, :alternate_value_object_attribute
   validates_uniqueness_of :value, scope: [:alternate_value_object, :type, :alternate_value_object_attribute, :project_id] # !! think about project/community on same object
 
-  def type_name
-    r = self.type.to_s
-    ALTERNATE_VALUE_CLASS_NAMES.include?(r) ? r : nil
-  end
-
-  def type_class=(value)
-    write_attribute(:type, value.to_s)
-  end
-
-  def type_class
-    r = read_attribute(:type).to_s
-    r = ALTERNATE_VALUE_CLASS_NAMES.include?(r) ? r.safe_constantize : nil
-  end
-
   def self.class_name
     self.name.demodulize.underscore.humanize.downcase
   end
@@ -82,6 +68,21 @@ class AlternateValue < ApplicationRecord
   def self.annotation_value_column
     :value
   end
+
+  def type_name
+    r = self.type.to_s
+    ALTERNATE_VALUE_CLASS_NAMES.include?(r) ? r : nil
+  end
+
+  def type_class=(value)
+    write_attribute(:type, value.to_s)
+  end
+
+  def type_class
+    r = read_attribute(:type).to_s
+    r = ALTERNATE_VALUE_CLASS_NAMES.include?(r) ? r.safe_constantize : nil
+  end
+
 end
 
 require_dependency 'alternate_value/misspelling'
