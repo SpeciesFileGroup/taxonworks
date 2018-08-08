@@ -78,24 +78,7 @@ class SerialsController < ApplicationController
     end
   end
 
-  # @todo Some extra code here, str defined with extra param, used in label_html. Verify correct.
-# def autocomplete
-#   @serials = Serial.find_for_autocomplete(params)
-
-#   data = @serials.collect do |t|
-#     str = ApplicationController.helpers.serial_autocomplete_tag(t, params[:term])
-#     { id: t.id,
-#       label: ApplicationController.helpers.serial_tag(t),
-#       response_values: {
-#         params[:method] => t.id
-#       },
-#       label_html: str
-#     }
-#   end
-
-#   render json: data
-# end
-
+  # GET /serials/autocomplete
   def autocomplete
     render json: {} and return if params[:term].blank?
 
@@ -103,9 +86,6 @@ class SerialsController < ApplicationController
       params[:term],
       autocomplete_params
     ).autocomplete
-
-    byebug
-    foo = 1
   end
 
   # GET /serials/download
