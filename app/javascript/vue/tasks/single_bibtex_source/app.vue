@@ -18,10 +18,7 @@
         <div style="width: 200px">
           <div class="last_name separate-right">
             <h2>BibTeX Input</h2>
-            <bibtex-input 
-              v-model="bibtexInput"
-              ref="bibtex_input"
-            />
+            <bibtex-input v-model="bibtexInput" />
           </div>
           <br>
           <br>
@@ -87,7 +84,7 @@ export default {
     return {
       bibtexInput: "",
       isLoading: false,
-      parsedBibtex: {},
+      parsedBibtex: '',
       unlockCreate: false,
     };
   },
@@ -113,7 +110,6 @@ export default {
     createBibtex() {
       let create = true;      // just for clarity
       this.parseBibtex(create);
-      this.parsedBibtex = {};   // seems to be ineffective
       this.unlockCreate = false;
     },
     resetApp() {
@@ -124,7 +120,7 @@ export default {
       this.clearParsedData();
     },
     clearParsedData() {
-      this.parsedBibtex = {};
+      this.parsedBibtex = '';
     }
   }
 };
