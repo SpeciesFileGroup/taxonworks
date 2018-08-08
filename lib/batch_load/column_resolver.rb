@@ -24,6 +24,17 @@ module BatchLoad::ColumnResolver
       elsif columns['taxon_name']
         r.assign Otu.joins(:taxon_names).where(taxon_names: {cached: columns['taxon_name']}, project_id: columns['project_id']).limit(10).to_a
         r.error_messages << "Multiple OTUs matched the taxon name '#{columns['taxon_name']}'." if r.multiple_matches?
+      elsif columns['otuname']
+        name = columns['otuname']
+        list = Otu.where(name: name, project_id: columns['project_id']).limit(2)
+        if list.blank?  # treat it like a taxon name
+          list =  Otu.joins(:taxon_name)
+                      .where(taxon_names: {cached: name}, project_id: columns['project_id'])
+                      .limit(2)
+        end
+        r.assign(list.to_a)
+        r.error_messages << "Multiple OTUs matched the name '#{name}'." if r.multiple_matches?
+        r.error_messages << "No OTU with name '#{name}' exists." if r.no_matches?
       else
         r.error_messages << 'No column suitable for OTU resolution was provided.'
       end

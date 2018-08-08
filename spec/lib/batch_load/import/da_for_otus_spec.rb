@@ -36,14 +36,14 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
   end
 
   context 'building objects from valid tsv lines' do
-
-    context 'file provided' do
+    context 'two new otus' do
       context 'otu count' do
         it 'loads reviewed data' do
           names
           bingo = import_2
           bingo.create
-          expect(Otu.count).to eq(7)
+          # names creates 7 otus, and import_2 finds one (not added), and two new ones
+          expect(Otu.count).to eq(9)
         end
       end
 
