@@ -172,6 +172,10 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
             ## Nomenclator: DataAttribute of citation, NomenclatorID > 0
             if row['NomenclatorID'] != '0' # OR could value: be evaluated below based on NomenclatorID?
+
+              #   
+              # TODO: @mbeckman you can no longer create data attributes on Citations, but you can cite data attributes now. This metadata will have to be changed.
+              #
               da = DataAttribute.create!(type: 'ImportAttribute',
                                          attribute_subject: citation, # replaces next two lines
                                          # attribute_subject_id: citation.id,
