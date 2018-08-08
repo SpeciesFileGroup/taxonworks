@@ -14,11 +14,28 @@ describe InternalAttribute, type: :model do
         expect(internal_attribute.errors.include?(:controlled_vocabulary_term_id)).to be_truthy
       end
     end
+
+    context 'uniqueness' do
+      let!(:da1) { InternalAttribute.create!(predicate: predicate, value: '1234', attribute_subject: otu) }
+
+      specify 'same predicate, same value, is not allowed' do
+        expect( InternalAttribute.new(predicate: predicate, value: '1234', attribute_subject: otu).valid?).to be_falsey
+      end
+
+      specify 'same predicate, different values are allowed' do
+        expect( InternalAttribute.create!(predicate: predicate, value: '4567', attribute_subject: otu)).to be_truthy
+      end
+
+      specify 'different predicate, same value are allowed' do
+        expect( InternalAttribute.create!(predicate: FactoryBot.create(:valid_predicate), value: '1234', attribute_subject: otu)).to be_truthy
+      end
+    end
   end
 
   specify 'a valid record can be created' do
     expect(InternalAttribute.create(predicate: predicate, value: '1234', attribute_subject: otu)).to be_truthy
   end
+
 
   specify '#predicate returns' do
     i =  InternalAttribute.create(predicate: predicate, value: '1234', attribute_subject: otu)
