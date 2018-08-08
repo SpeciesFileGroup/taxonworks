@@ -1,7 +1,7 @@
 <template>
   <depiction-component
     :object-value="collectionEvent"
-    object-type="CollectionEvent"
+    object-type="CollectingEvent"
     action-save="SaveCollectionObject"/>
 </template>
 
