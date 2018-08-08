@@ -697,7 +697,6 @@ TaxonWorks::Application.routes.draw do
     scope :sources do
       scope :individual_bibtex_source, controller: 'tasks/sources/individual_bibtex_source' do
         get 'index', as: 'index_individual_bibtex_source_task'
-        get 'parse', as: 'parse_individual_bibtex_source_task'
       end
 
       scope :browse, controller: 'tasks/sources/browse' do

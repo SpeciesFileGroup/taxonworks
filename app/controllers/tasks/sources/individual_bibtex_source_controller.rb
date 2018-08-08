@@ -5,9 +5,4 @@ class Tasks::Sources::IndividualBibtexSourceController < ApplicationController
   def index
   end
 
-  # GET
-  def parse
-    
-  end
-
 end
