@@ -113,9 +113,7 @@ export default {
     createBibtex() {
       let create = true;      // just for clarity
       this.parseBibtex(create);
-      // this.bibtexInput = '';    // doesn't actually clear it but makes it look empty to app.vue
-      // this.$set(this.parsedBibtex, {});
-      this.parsedBibtex = {};
+      this.parsedBibtex = {};   // seems to be ineffective
       this.unlockCreate = false;
     },
     resetApp() {
