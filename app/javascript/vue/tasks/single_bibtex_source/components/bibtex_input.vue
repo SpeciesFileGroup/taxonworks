@@ -21,17 +21,17 @@
       }
     },
     watch: {
-      // value(newVal) {
-      //   this.bibtexInput = newVal;
-      // },
+      value(newVal) {
+        this.bibtexInput = newVal;
+      },
       bibtexInput(newVal) {
         this.$emit('input', newVal)
       }
     },
-    methods: {
-      clearBibtexInput() {
-        this.bibtexInput = '';
-      }
-    }
+    // methods: {
+    //   clearBibtexInput() {
+    //     this.bibtexInput = '';
+    //   }
+    // }
   }
 </script>

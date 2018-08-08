@@ -18,7 +18,10 @@
         <div style="width: 200px">
           <div class="last_name separate-right">
             <h2>BibTeX Input</h2>
-            <bibtex-input v-model="bibtexInput"/>
+            <bibtex-input 
+              v-model="bibtexInput"
+              ref="bibtex_input"
+            />
           </div>
           <br>
           <br>
@@ -68,12 +71,12 @@ export default {
       return this.bibtexInput.length > 0;
     },
     enableCreateBibtex() {
-      return (this.parsedBibtex.valid && this.parsedValid); //Object.keys(this.parsedBibtex).length;
+      return (this.parsedBibtex.valid && this.unlockCreate); //Object.keys(this.parsedBibtex).length;
     },
     showCreatedSourceID() {
       let retVal = '';
       if(this.parsedBibtex.source) {
-        if(this.parsedBibtex.source.id != null) {
+        if(this.parsedBibtex.source.id) {
           retVal = "Created Source: " + this.parsedBibtex.source.id;
         }
       }
@@ -85,7 +88,7 @@ export default {
       bibtexInput: "",
       isLoading: false,
       parsedBibtex: {},
-      parsedValid: false,
+      unlockCreate: false,
     };
   },
   watch: {
@@ -100,26 +103,26 @@ export default {
         create_bibtex: create
       };
       this.isLoading = true;
-      this.parsedValid = false;
       let that = this;
       this.$http.get("/sources/parse.json", { params: params }).then(response => {
         this.parsedBibtex = response.body;
-        this.parsedValid = this.parsedBibtex.valid && !create;
+        this.unlockCreate = this.parsedBibtex.valid && !create;
         that.isLoading = false;
       });
     },
     createBibtex() {
       let create = true;      // just for clarity
       this.parseBibtex(create);
-      this.bibtexInput = '';    // doesn't actually clear it but makes it look empty to app.vue
+      // this.bibtexInput = '';    // doesn't actually clear it but makes it look empty to app.vue
+      // this.$set(this.parsedBibtex, {});
       this.parsedBibtex = {};
-      this.parsedValid = false;
+      this.unlockCreate = false;
     },
     resetApp() {
-      this.clearFormData();
+      this.clearInputData();
     },
-    clearFormData() {
-      this.bibtexInput = "";
+    clearInputData() {
+      this.bibtexInput = '';
       this.clearParsedData();
     },
     clearParsedData() {
