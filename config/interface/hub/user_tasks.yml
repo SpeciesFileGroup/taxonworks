@@ -334,15 +334,9 @@ new_matrix_task:
 
 index_individual_bibtex_source_task:
   hub: true
-  name: 'TODO: Task name'
+  name: 'New source from BibTeX'
   related:
   categories:
+    - bibtex
   status: prototype
-  description: 'TODO: Task description'
-parse_individual_bibtex_source_task:
-  hub: true
-  name: 'TODO: Task name'
-  related:
-  categories:
-  status: prototype
-  description: 'TODO: Task description'
+  description: 'Parse a captured BibTeX string into a new source'
