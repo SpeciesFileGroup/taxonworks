@@ -56,5 +56,23 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
         end
       end
     end
+
+    context 'match to taxon name, not otu' do
+      context 'otu check' do
+        let(:d_a) { DataAttribute.new(type:             'ImportAttribute',
+                                      import_predicate: 'connection to otu',
+                                      value:            'new data attribute for the otu',
+                                      project_id:       project.id) }
+        taxon match
+        let(:otu) { Otu.find_by_name('americana').first }
+        it 'finds otu through taxon name' do
+          names
+          otu.data_attributes << d_a
+          bingo = import_2
+          bingo.create
+          expect(Otu.count).to eq(3)
+        end
+      end
+    end
   end
 end
