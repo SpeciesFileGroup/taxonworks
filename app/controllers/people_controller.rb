@@ -13,10 +13,7 @@ class PeopleController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        last_name = params[:lastname]
-        first_name = params[:firstname]
-        @people = Queries::Person::Filter.new(params).wild_or_exact #  partial_complete => broadest selection of names
-        # @people = Person.where(id: @people.map(&:id)).order(:last_name).order(:first_name)
+        @people = Queries::Person::Filter.new(filter_params).wild_or_exact #  partial_complete => broadest selection of names
        }
     end
   end
@@ -127,6 +124,10 @@ class PeopleController < ApplicationController
   end
 
   private
+
+  def filter_params
+    params.permit(:last_name, :first_name, roles: [])
+  end
 
   def autocomplete_params
     params.permit(roles: []).to_h.symbolize_keys
