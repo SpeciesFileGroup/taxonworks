@@ -24,16 +24,6 @@ class PeopleController < ApplicationController
   # GET /people/1
   # GET /people/1.json
   def show
-    respond_to do |format|
-      format.html {}
-      format.json {
-        found_person = Person.find(params[:id])
-        person_with = found_person.attributes
-        person_with[:roles] = found_person.roles
-        person_with[:annotations] = found_person.annotations
-        render json: person_with
-      }
-    end
   end
 
   # GET /people/new
