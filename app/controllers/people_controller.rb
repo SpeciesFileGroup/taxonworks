@@ -98,7 +98,7 @@ class PeopleController < ApplicationController
     old_person = Person.find(params[:id])
     @person = Person.find(params[:new_person_id])
     if old_person.merge_with(@person.id)
-      render json: {status: 'OK'} #action: 'show', status: :updated, location: old_person
+      render 'show'
     else
       render json: {status: 'Failed'}
     end
