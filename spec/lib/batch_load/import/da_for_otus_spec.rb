@@ -52,7 +52,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           names
           bingo = import_2
           bingo.create
-          expect(DataAttribute.count).to eq(3)
+          expect(DataAttribute.count).to eq(0)
         end
       end
     end

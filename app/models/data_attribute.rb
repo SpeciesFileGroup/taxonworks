@@ -1,6 +1,6 @@
-# A data attribute is used to attach an arbitrary predicate/literal pair to a data instance, essentially creating a user-defined triple.
+# A data attribute is used to attach an arbitrary predicate/literal pair to a data instance, essentially creating a user-defined triple. It is the primary mechanism of extending data-models in TaxonWorks.
 #
-# DataAttribute is only instantiated through its subclasses ImportAttribute or InternalAttribute
+# A DataAttribute is only instantiated through its subclasses ImportAttribute or InternalAttribute
 #
 # @!attribute type
 #   @return [String]
@@ -28,7 +28,7 @@
 #
 class DataAttribute < ApplicationRecord
   include Housekeeping
-  # include Shared::Citations
+  include Shared::Citations
   include Shared::IsData
   include Shared::DualAnnotator
   include Shared::PolymorphicAnnotator
