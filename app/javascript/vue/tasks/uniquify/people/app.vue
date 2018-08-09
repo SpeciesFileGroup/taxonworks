@@ -15,17 +15,17 @@
       :logo-size="{ width: '100px', height: '100px'}"/>
     <div class="flexbox">
       <div class="flexbox">
-        <div style="width: 200px">
+        <div class="first-column">
           <div class="last_name separate-right">
             <h2>Last Name</h2>
             <last-name v-model="lastName"/>
           </div>
-          <div class="first_name separate-right separate-left">
+          <div class="first_name">
             <h2>First Name</h2>
             <first-name
               v-model="firstName"/>
           </div>
-          <div class="role_types separate-right separate-left">
+          <div class="role_types">
             <h2>Roles</h2>
             <role-types
               v-model="selectedRoles"/>
@@ -40,9 +40,7 @@
             type="submit">Find Person
           </button>
         </div>
-        <div 
-          class="found_people separate-right separate-left" 
-          style="width: 200px">
+        <div class="found_people separate-right separate-left second-column">
           <h2>Select Person</h2>
           <found-people
             ref="foundPeople"
@@ -63,7 +61,7 @@
         <div 
           class="flex-separate top">
           <div style="width:150px;">
-            <br><br><br><br>
+            <h2>&nbsp;</h2>
             <button
               class="button normal-input button-default"
               @click="mergePeople"
@@ -71,16 +69,12 @@
               type="submit">Merge People
             </button> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
           </div>
-          <div 
-            style="overflow: auto; width:300px; height:600px;">
-            <h2>Selected Person</h2>
-            <pre>{{ selectedPerson }}</pre>
+          <div>
+            <compare-component
+              @flip="flipPerson"
+              :selected="selectedPerson"
+              :merge="mergePerson"/>
           </div>
-          <div 
-            style="overflow: auto; width:300px; height:600px;">
-            <h2>Merge Person</h2>
-            <pre>{{ mergePerson }}</pre>
-          </div> 
         </div>
       </div>
 
@@ -96,6 +90,7 @@
   import RoleTypes from './components/role_types'
   import FoundPeople from './components/found_people'
   import MatchPeople from './components/match_people'
+  import CompareComponent from './components/compare.vue'
 
   import Spinner from '../../../components/spinner.vue'
 
@@ -106,6 +101,7 @@
       RoleTypes,
       FoundPeople,
       MatchPeople,
+      CompareComponent,
       Spinner
     },
     computed: {
@@ -126,19 +122,36 @@
         selectedPerson: {},
         matchPeople: [],
         mergePerson: {},
-        displayCount: false
+        displayCount: false,
+        haltWatcher: false,
       }
     },
     watch: {
       selectedPerson() {
-        this.mergePerson = {};
-        this.isLoading = true;
+        if(this.haltWatcher) {
+          this.haltWatcher = false
+        }
+        else {
+          this.mergePerson = {};
+          this.isLoading = true;
+        }
       },
       matchPeople() {
+        if(this.haltWatcher) {
+          this.haltWatcher = false
+        }
+        else {
         this.isLoading = false;
+        }
       }
     },
     methods: {
+      flipPerson() {
+        this.haltWatcher = true
+        let tmp = this.selectedPerson
+        this.selectedPerson = this.mergePerson
+        this.mergePerson = tmp
+      },
       findPerson() {
         let params = {
           last_name: this.lastName,
@@ -159,18 +172,12 @@
           new_person_id: this.mergePerson.id
         };
         this.$http.post('/people/' + this.selectedPerson.id.toString() + '/merge', params).then(response => {
-          let httpStatus = response.body;
-          if (httpStatus.status == 'OK') {   // delete the merged in person and refresh the merged to person            
-            this.$http.delete('/people/' + this.mergePerson.id).then(response => {
+          this.$http.delete('/people/' + this.mergePerson.id).then(response => {
             this.$refs.matchPeople.removeFromList(this.mergePerson.id)    // remove the merge person from the matchPerson list
             this.$refs.foundPeople.removeFromList(this.mergePerson.id)   // remove the merge person from the foundPerson list
             this.mergePerson = {};
           })
-          }
-          else {    // TODO: Annunciate delete failure more gracefully
-            alert(httpStatus.status);
-            this.mergePerson = {};
-          }
+          this.selectedPerson = response.body
         })
       },
       resetApp() {
@@ -198,3 +205,9 @@
     }
   }
 </script>
+
+<style lang="scss" scoped>
+  .first-column, .second-column {
+    width: 200px;
+  }
+</style>

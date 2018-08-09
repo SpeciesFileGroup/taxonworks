@@ -1,7 +1,13 @@
 <template>
   <div>
-    <span v-if="Object.keys(selectedPerson).length">{{ matchPeople.length }}  matches found</span>
-    <br>
+    <autocomplete
+      url="/people/autocomplete"
+      min="2"
+      label="label"
+      placeholder="Search person"
+      @getItem="selectPerson($event)"
+      param="term"/>
+    <p v-if="Object.keys(selectedPerson).length">{{ matchPeople.length }}  matches found</p>
     <div>
       <ul class="no_bullets">
         <li v-for="person in matchPeople">
@@ -22,7 +28,12 @@
 <script>
 // this is a list for selecting one person from potential matchees
 // only one person can be selected
+import Autocomplete from '../../../../components/autocomplete.vue'
+
 export default {
+  components: {
+    Autocomplete
+  },
   props: {
     value: {
       type: Object,
