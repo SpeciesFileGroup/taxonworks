@@ -7,7 +7,6 @@
           v-for="(item, index) in annotationLists"
           class="contextMenuCells"
           :class="{ even: (index % 2 == 0) }">
-          <td class="column-property">{{ item.type }}</td>
           <td
             class="column-value"
             v-html="item.object_tag"/>
@@ -65,6 +64,6 @@ export default {
     min-width: 100px;
   }
   .column-value {
-    min-width: 500px;
+    min-width: 600px;
   }
 </style>

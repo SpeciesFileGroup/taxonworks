@@ -1,15 +1,35 @@
 <template>
   <div>
-    <div class="horizontal-left-content">
-      <div class="title">
+    <div class="horizontal-left-content align-start">
+      <div class="column-buttons">
+        <h2>&nbsp;</h2>
         <button
           type="button"
           class="button normal-input button-default"
           :disabled="!(Object.keys(selected).length && Object.keys(merge).length)"
           @click="$emit('flip')">Flip</button>
+        <button
+          class="button normal-input button-default"
+          @click="sendMerge"
+          :disabled="!mergeEmpty">Merge People
+        </button>
       </div>
-      <h2 class="title-person">Selected Person</h2>
-      <h2 class="title-merge">Merge Person</h2>
+      <div class="title-person">
+        <h2>Selected person</h2>
+        <template v-if="selectedEmpty">
+          <p>This person will remain.</p> 
+          <h3>{{ selected.cached }} 
+          <a target="_blank" :href="`/people/${selected.id}`">Show</a></h3>
+        </template>
+      </div>
+      <div class="title-merge">
+        <h2>Person to merge</h2>
+        <template v-if="mergeEmpty">
+          <p data-icon="warning">This person will be deleted.</p>
+          <h3>{{ merge.cached }}
+          <a target="_blank" :href="`/people/${merge.id}`">Show</a></h3>
+        </template>
+      </div>
     </div>
     <table>
       <tbody>
@@ -18,8 +38,8 @@
           v-if="!isNestedProperty(property)"
           class="contextMenuCells"
           :class="{ 
-              even: (index % 2 == 0),
-              repeated: (isDifferent(property, merge[key]) && merge[key])}">
+            even: (index % 2 == 0),
+            repeated: (isDifferent(property, merge[key]) && merge[key])}">
           <td class="column-property">{{ key | humanize | capitalize }}</td>
           <td class="column-person">{{ property | humanize | capitalize }}</td>
           <td class="column-merge">{{ merge[key] | humanize | capitalize }}</td>
@@ -39,8 +59,7 @@
       title="Selected annotations"/>
     <table-annotations
       :person="merge"
-      title="Merge annotations"
-    />
+      title="Merge annotations"/>
   </div>
 </template>
 
@@ -67,6 +86,14 @@ export default {
       default: () => { return {} }
     }
   },
+  computed: {
+    selectedEmpty() {
+      return Object.keys(this.selected).length > 0
+    },
+    mergeEmpty() {
+      return Object.keys(this.merge).length > 0
+    }
+  },
   filters: {
     capitalize: function (value) {
       if (!value) return ''
@@ -83,6 +110,11 @@ export default {
     },
     isNestedProperty(value) {
       return (Array.isArray(value) || typeof value == 'object' && value != null)
+    },
+    sendMerge() {
+      if(confirm("Are you sure you want to merge?")) {
+        this.$emit('merge')
+      }
     }
   }
 }
@@ -98,16 +130,15 @@ export default {
   .column-property {
     min-width: 100px;
   }
+  .column-buttons {
+    min-width: 126px;
+  }
   .column-person, .column-merge {
     min-width: 250px;
   }
   .title-merge, .title-person {
     min-width: 250px;
-    padding-left: 0.5em;
-    padding-right: 0.5em;
-  }
-  .title {
-    min-width: 100px;
-    padding: 1em;
+    padding-left: 1em;
+    padding-right: 1em;
   }
 </style>

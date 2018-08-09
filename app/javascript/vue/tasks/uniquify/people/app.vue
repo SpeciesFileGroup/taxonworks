@@ -60,18 +60,10 @@
         </div>
         <div 
           class="flex-separate top">
-          <div class="merge-column">
-            <h2>&nbsp;</h2>
-            <button
-              class="button normal-input button-default"
-              @click="mergePeople"
-              :disabled="!enableMerge"
-              type="submit">Merge People
-            </button>
-          </div>
           <div>
             <compare-component
               @flip="flipPerson"
+              @merge="mergePeople"
               :selected="selectedPerson"
               :merge="mergePerson"/>
           </div>
@@ -107,9 +99,6 @@
     computed: {
       enableFindPerson() {
         return ((this.lastName.length > 0) || (this.firstName.length > 0))
-      },
-      enableMerge() {
-        return Object.keys(this.mergePerson).length
       },
     },
     data() {
