@@ -141,8 +141,8 @@
     methods: {
       findPerson() {
         let params = {
-          lastname: this.lastName,
-          firstname: this.firstName,
+          last_name: this.lastName,
+          first_name: this.firstName,
           roles: Object.keys(this.selectedRoles)
         };
         this.isLoading = true;

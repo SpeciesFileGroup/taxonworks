@@ -9,14 +9,15 @@ module Queries
       # @params params [ActionController::Parameters]
       def initialize(params)
         @limit_to_roles = params[:roles]
-        @limit_to_roles = [] if @limit_to_roles.nil?
-        params.delete(:roles)
-        @and_or               = 'or'
-        @options              = {}
-        @options[:last_name]  = params[:lastname]
-        @options[:first_name] = params[:firstname]
-        @options              = @options.select { |_kee, val| val.present? }
-        @options
+        @limit_to_roles = [] if @limit_to_roles.blank?
+        # params.delete(:roles)
+
+        @and_or = 'or'
+        
+        @options = {}
+        @options[:last_name] = params[:last_name]
+        @options[:first_name] = params[:first_name]
+        @options = @options.select{|_kee, val| val.present? }
       end
 
       # @return [Arel::Table]
@@ -44,12 +45,11 @@ module Queries
         a
       end
 
-
       # @return [Scope]
       def first_and_last_wild_match
-        last_name  = options[:last_name]
+        last_name = options[:last_name]
         first_name = options[:first_name]
-        last_name  = last_name.blank? ? '' : last_name.gsub('*', '%')
+        last_name = last_name.blank? ? '' : last_name.gsub('*', '%')
         first_name = first_name.blank? ? '' : first_name.gsub('*', '%')
         if first_name.blank?
           return base_query.where(people_table[:last_name].matches(last_name))
@@ -73,8 +73,8 @@ module Queries
 
         updated_queries = []
         queries.each_with_index do |q, i|
-          a                  = q.joins(:roles).where(role_match.to_sql) if limit_to_roles.any?
-          a                  ||= q
+          a = q.joins(:roles).where(role_match.to_sql) if limit_to_roles.any?
+          a ||= q
           updated_queries[i] = a
         end
 
@@ -84,7 +84,7 @@ module Queries
           result.uniq!
           break if result.count > 19
         end
-        result # [0..19]
+        result # [0..19] - this will return more than 19 in some cases, is that the intent?
       end
 
       # @return [Array]
@@ -112,31 +112,26 @@ module Queries
       # @return [ActiveRecord::Relation]
       def first_last_cached
         terms = [options[:last_name], options[:first_name]].compact
-        a     = cached(terms)
+        a = cached(terms)
         return nil if a.nil?
         base_query.where(a.to_sql)
       end
 
       # @return [ActiveRecord::Relation]
-      def and_clauses
-        clauses = [
-          Queries::Person.person_params(options, ::Role)
-        ].compact
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
-      end
+      # def and_clauses
+      #   clauses = [
+      #     Queries::Person.person_params(options, ::Role)
+      #   ].compact
+      # 
+      #   a = clauses.shift
+      #   clauses.each do |b|
+      #     a = a.and(b)
+      #   end
+      #   a
+      # end
 
       # @return [ActiveRecord::Relation]
       def all
-        # if a = and_clauses
-        #   ::Person.where(and_clauses)
-        # else
-        #   ::Person.none
-        # end
         if limit_to_roles.any?
           ::Person.where(options).with_role(limit_to_roles)
         else
@@ -145,12 +140,12 @@ module Queries
       end
     end
 
-# @param [ActionController::Parameters] params
-# @param [ApplicationRecord subclass] klass
-# @return [Arel::Nodes]
-    def self.person_params(params, klass)
-      t = klass.arel_table
-      raise 'This isn\'t finished, or even known to be required.'
-    end
+    # @param [ActionController::Parameters] params
+    # @param [ApplicationRecord subclass] klass
+    # @return [Arel::Nodes]
+    # def self.person_params(params, klass)
+    #   t = klass.arel_table
+    #   raise 'This isn\'t finished, or even known to be required.'
+    # end
   end
 end
