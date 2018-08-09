@@ -27,11 +27,11 @@
       </tbody>
     </table>
     <table-roles
-      v-if="selected['roles']"
+      v-if="selected['roles'] && selected['roles'].length"
       title="Selected roles"
       :list="selected['roles']"/>
     <table-roles
-      v-if="merge['roles']"
+      v-if="merge['roles'] && merge['roles'].length"
       title="Merge roles"
       :list="merge['roles']"/>
     <table-annotations

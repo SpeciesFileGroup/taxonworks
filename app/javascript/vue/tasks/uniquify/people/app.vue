@@ -60,14 +60,14 @@
         </div>
         <div 
           class="flex-separate top">
-          <div style="width:150px;">
+          <div class="merge-column">
             <h2>&nbsp;</h2>
             <button
               class="button normal-input button-default"
               @click="mergePeople"
               :disabled="!enableMerge"
               type="submit">Merge People
-            </button> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            </button>
           </div>
           <div>
             <compare-component
@@ -209,5 +209,8 @@
 <style lang="scss" scoped>
   .first-column, .second-column {
     width: 200px;
+  }
+  .merge-column {
+    width: 150px;
   }
 </style>
