@@ -2,6 +2,13 @@ module Queries
   module Person
     class Filter
 
+
+      # TODO:
+      # - strip use of *
+      # - use similar/identical methods in IsData
+      # - use individual attributes rather than @options? 
+      # - change `wild_or_exact` to the default result
+
       attr_accessor :limit_to_roles
       attr_accessor :and_or
       attr_accessor :options

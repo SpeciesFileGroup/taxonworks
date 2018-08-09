@@ -336,7 +336,7 @@ uniquify_people_task:
   name: 'Uniquify people'
   related:
   categories:
-    - people
-    - unique
+    - source 
+    - nomenclature
   status: prototype
-  description: 'Find and merge redundant people, e.g., from import.'
+  description: 'Find and merge redundant or duplicated people, e.g., from import.'
