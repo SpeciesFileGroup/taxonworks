@@ -643,7 +643,6 @@ TaxonWorks::Application.routes.draw do
 
     scope :uniquify_people, controller: 'tasks/uniquify/people' do
       get 'index', as: 'uniquify_people_task'
-      # get 'find', as: 'uniquify_people_find', defaults: {format: :json}
     end
 
     scope :otus do
