@@ -4,10 +4,9 @@ module TaxonWorks
     # Wraps the biodiversity gem (https://github.com/GlobalNamesArchitecture/biodiversity)
     # Links parsed string results to Protonyms/Combinations in TaxonWorks
     module Biodiversity
-
-      # !! Values aren't used right now
+      
       RANK_MAP = {
-        genus: :genus,
+        genus: :uninomial, #  :genus,
         subgenus: :infragenus,
         species: :species,
         subspecies: :infraspecies,
@@ -169,10 +168,11 @@ module TaxonWorks
         end
 
         # @return [Hash, nil]
+        #   the Biodiversity authorship hash
         def authorship
-          if d = detail[finest_rank]
-            d[:basionymAuthorTeam]
-          end
+          d = detail[RANK_MAP[finest_rank]]
+          d = d.last if d.kind_of?(Array)
+          d[:basionymAuthorTeam]
         end
 
         # @return [String, nil]
