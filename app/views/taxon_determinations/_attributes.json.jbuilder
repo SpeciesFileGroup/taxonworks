@@ -6,7 +6,7 @@ json.partial! '/shared/data/all/metadata', object: taxon_determination, klass: '
 
 if taxon_determination.roles.any?
   json.determiner_roles do
-    json.array! taxon_determination.determiners.each do |role|
+    json.array! taxon_determination.determiner_roles.each do |role|
       json.extract! role, :id, :position
       json.person do
         json.partial! '/people/attributes', person: role.person 
