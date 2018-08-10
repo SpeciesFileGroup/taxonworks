@@ -3,9 +3,10 @@
     <autocomplete
       url="/people/autocomplete"
       min="2"
-      label="label"
+      label="label_html"
       placeholder="Search person"
-      @getItem="selectPerson($event)"
+      display="label"
+      @getItem="addToList($event)"
       param="term"/>
     <p v-if="displayCount">{{ foundPeople.length }}  people found</p>
     <div>
@@ -63,7 +64,13 @@
         if (index > -1)
           this.foundPeople.splice(index, 1)
 
-      },   
+      },  
+      addToList(person) {
+        this.selectPerson(person)
+        person['cached'] = person.label
+        this.$emit('addToList', person)
+        this.selected = person
+      },
       selectPerson(person) {
         this.$http.get('/people/' + person.id.toString() + '.json').then(response => {
           this.selectedPerson = response.body;

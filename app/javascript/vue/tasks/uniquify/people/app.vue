@@ -17,16 +17,17 @@
       <div class="flexbox">
         <div class="first-column">
           <div class="last_name separate-right">
-            <h2>Last Name</h2>
+            <h2>Search</h2>
+            <h3>Last Name</h3>
             <last-name v-model="lastName"/>
           </div>
           <div class="first_name">
-            <h2>First Name</h2>
+            <h3>First Name</h3>
             <first-name
               v-model="firstName"/>
           </div>
           <div class="role_types">
-            <h2>Roles</h2>
+            <h3>Roles</h3>
             <role-types
               v-model="selectedRoles"/>
           </div>
@@ -45,6 +46,7 @@
           <found-people
             ref="foundPeople"
             v-model="selectedPerson"
+            @addToList="foundPeople.push($event)"
             :found-people="foundPeople"
             :display-count="displayCount"
           />
@@ -69,7 +71,6 @@
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </template>
