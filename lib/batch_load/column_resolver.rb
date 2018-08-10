@@ -8,13 +8,28 @@ module BatchLoad::ColumnResolver
 
     # @param [Hash] columns
     # @return [BatchLoad::ColumnResolver::Result]
+    def import_attribute(columns)
+      r = BatchLoad::ColumnResolver::Result.new
+
+      predicate = columns['predicate']
+      value     = columns['value']
+      r.assign(ImportAttribute.new(import_predicate: predicate, value: value, project_id: columns['project_id']))
+
+      r.error_messages << 'No contents for \'Value\' was provided.' if value.blank?
+      r.error_messages << 'No contents for \'Predicate\' was provided.' if predicate.blank?
+
+      r
+    end
+
+    # @param [Hash] columns
+    # @return [BatchLoad::ColumnResolver::Result]
     def otu(columns)
       r = BatchLoad::ColumnResolver::Result.new
 
       if columns['otu_id']
         begin
           r.assign Otu.find(columns['otu_id'])
-        rescue => e  # ActiveRecord::RecordNotFound
+        rescue => e # ActiveRecord::RecordNotFound
           r.error_messages << "No OTU with id #{columns['otu_id']} exists."
         end
       elsif columns['otu_name']
@@ -27,10 +42,10 @@ module BatchLoad::ColumnResolver
       elsif columns['otuname']
         name = columns['otuname']
         list = Otu.where(name: name, project_id: columns['project_id']).limit(2)
-        if list.blank?  # treat it like a taxon name
-          list =  Otu.joins(:taxon_name)
-                      .where(taxon_names: {cached: name}, project_id: columns['project_id'])
-                      .limit(2)
+        if list.blank? # treat it like a taxon name
+          list = Otu.joins(:taxon_name)
+                     .where(taxon_names: {cached: name}, project_id: columns['project_id'])
+                     .limit(2)
         end
         r.assign(list.to_a)
         r.error_messages << "Multiple OTUs matched the name '#{name}'." if r.multiple_matches?
@@ -56,7 +71,7 @@ module BatchLoad::ColumnResolver
       ident_text = columns['collection_object_identifier'] if ident_text.blank?
 
       ident_text = "#{columns['collection_object_identifier_namespace_short_name']}" + ' ' +
-        " #{columns['collection_object_identifier_identifier']}".strip if ident_text.blank?
+          " #{columns['collection_object_identifier_identifier']}".strip if ident_text.blank?
 
       if ident_text.blank?
         r.error_messages << 'No column combination suitable for collection object resolution was provided.'
@@ -115,7 +130,7 @@ module BatchLoad::ColumnResolver
 
 
         # @tuckerjd - tweak as necessary
-        r.error_messages <<  "Multiple matches to '#{search_list}' (data_origin: #{data_origin}) were found." if r.multiple_matches?
+        r.error_messages << "Multiple matches to '#{search_list}' (data_origin: #{data_origin}) were found." if r.multiple_matches?
 
       elsif columns['country'] || columns['state'] || columns['county']
         search_list = [columns['country'], columns['state'], columns['county']].compact.join(', ')

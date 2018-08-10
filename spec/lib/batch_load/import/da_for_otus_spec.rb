@@ -25,12 +25,23 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
   }
 
   context 'scanning tsv lines to evaluate data' do
-
     context 'file provided' do
-      it 'loads reviewed data' do
+      it 'loads data for review' do
         names
         bingo = import_2
         expect(bingo).to be_truthy
+      end
+
+      context 'finds some errors' do
+        specify 'of \'predicate\' type' do
+          bingo = import_2
+          expect(bingo.processed_rows[5].parse_errors.flatten).to include("No contents for 'Predicate' was provided.")
+        end
+
+        specify 'of \'value\' type' do
+          bingo = import_2
+          expect(bingo.processed_rows[4].parse_errors.flatten).to include("No contents for 'Value' was provided.")
+        end
       end
     end
   end
@@ -42,8 +53,9 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           names
           bingo = import_2
           bingo.create
-          # names creates 7 otus, and import_2 finds one (not added), and two new ones
-          expect(Otu.count).to eq(9)
+          # names creates 7 otus, and import_2 finds one (not added), two new ones (two were not saved because of
+          # errors in predicate or value)
+          expect(Otu.count).to eq(10)
         end
       end
 
@@ -52,7 +64,13 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           names
           bingo = import_2
           bingo.create
-          expect(DataAttribute.count).to eq(0)
+          expect(DataAttribute.count).to eq(4)
+        end
+
+        specify 'no otu creation attempted for error lines' do
+          bingo = import_2
+          bingo.create
+          expect(Otu.count).to eq(4)
         end
       end
     end
@@ -63,14 +81,19 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
                                       import_predicate: 'connection to otu',
                                       value:            'new data attribute for the otu',
                                       project_id:       project.id) }
-        taxon match
-        let(:otu) { Otu.find_by_name('americana').first }
+        let(:otu) { Otu.find_by_name('americana') }
+        let(:t_n) { TaxonName.create(name: 'taxon matck') }
+
         it 'finds otu through taxon name' do
           names
           otu.data_attributes << d_a
-          bingo = import_2
+          otu.taxon_name = t_n
+          bingo          = import_2
           bingo.create
-          expect(Otu.count).to eq(3)
+          # one data attribute is created here,
+          # import_2 creates four data attributes directly by otu name,
+          # and one by reference to a taxon_name
+          expect(DataAttribute.count).to eq(5)
         end
       end
     end
