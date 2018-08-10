@@ -5,7 +5,8 @@
       min="2"
       label="label"
       placeholder="Search person"
-      @getItem="selectPerson($event)"
+      display="label"
+      @getItem="addToList($event)"
       param="term"/>
     <p v-if="Object.keys(selectedPerson).length">{{ matchPeople.length }}  matches found</p>
     <div>
@@ -64,6 +65,12 @@ export default {
 
       if (index > -1) this.matchPeople.splice(index, 1);
       this.mergePerson = {};
+    },
+    addToList(person) {
+      person['cached'] = person.label
+      this.matchPeople.push(person)
+      this.selectMergePerson(person)
+      this.selected = person
     },
     selectMergePerson(person) {
       this.$http
