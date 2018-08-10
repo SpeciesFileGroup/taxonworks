@@ -339,4 +339,4 @@ comprehensive_collection_object_task:
   categories:
     - collection_object
   status: prototype
-  description: 'An all-in-one task for digitizing collectiong objects.'
+  description: 'An all-in-one interface for digitizing collection objects.'

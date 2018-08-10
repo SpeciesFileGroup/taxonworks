@@ -496,6 +496,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :repositories do
     concerns [:data_routes]
+    collection do
+      get :select_options, defaults: {format: :json}
+    end
   end
 
   # TODO: add exceptions

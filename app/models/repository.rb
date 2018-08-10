@@ -36,4 +36,17 @@ class Repository < ApplicationRecord
   has_many :collection_objects, inverse_of: :repository, dependent: :restrict_with_error
   validates_presence_of :name, :url, :acronym, :status
 
+  scope :used_recently, -> { joins(:collection_objects).where(collection_objects: { created_at: 1.weeks.ago..Time.now } ) }
+  scope :used_in_project, -> (project_id) { joins(:collection_objects).where( collection_objects: { project_id: project_id } ) }
+
+  def self.select_optimized(user_id, project_id)
+    h = {
+      recent: Repository.used_in_project(project_id).used_recently.limit(10).distinct.to_a,
+      pinboard: Repository.pinned_by(user_id).pinned_in_project(project_id).to_a
+    }
+
+    h[:quick] = (Repository.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  + h[:recent][0..3]).uniq
+    h
+  end
+
 end
