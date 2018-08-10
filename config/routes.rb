@@ -641,6 +641,10 @@ TaxonWorks::Application.routes.draw do
       get 'index', as: 'browse_annotations_task'
     end
 
+    scope :uniquify_people, controller: 'tasks/uniquify/people' do
+      get 'index', as: 'uniquify_people_task'
+    end
+
     scope :otus do
       scope :browse, controller: 'tasks/otus/browse' do
         get '/(:otu_id)', action: :index, as: 'browse_otus_task'

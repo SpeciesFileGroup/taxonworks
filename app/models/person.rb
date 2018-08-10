@@ -165,19 +165,179 @@ class Person < ApplicationRecord
     collector_roles.to_a.length > 0
   end
 
+  #  rubocop:disable Metrics/BlockNesting
+  #  rubocop:disable Metrics/MethodLength
+  # @param [Integer] person_id
   # @return [Boolean]
   #   true if all records updated, false if any one failed (all or none)
+  # r_person is merged into l_person (self)
   def merge_with(person_id)
-    if new_person = Person.find(person_id)
+    if r_person = Person.find(person_id) # get the new (merged into self) person
+      # r_err         = nil
       begin
-        ApplicationRecord.transaction do 
-          Role.where(person_id: id).update(person: new_person)
-          annotations_hash.each do |type, objects|
-            objects.each do |o|
-              o.annotation_object = new_person
-              o.save!
+        ApplicationRecord.transaction do
+          unvetted = self.type.include?('Unv') && r_person.type.include?('Unv')
+          # rubocop:disable Rails/SaveBang
+          Role.where(person_id: r_person.id).update(person: self) # update merge person's roles to old
+          # rubocop:enable Rails/SaveBang
+          l_person_hash = self.annotations_hash
+          unless r_person.first_name.blank?
+            if self.first_name.blank?
+              self.update(first_name: r_person.first_name)
+            else
+              if self.first_name != r_person.first_name
+                # create a first_name alternate_value of the r_person first name
+                skip_av = false
+                av_list = l_person_hash['alternate values']
+                av_list ||= {}
+                av_list.each do |av|
+                  if av.value == r_person.first_name
+                    if av.type == 'AlternateValue::AlternateSpelling' &&
+                      av.alternate_value_object_attribute == 'first_name' # &&
+                      # av.project_id == r_person.project_id
+                      skip_av = true
+                      break # stop looking in this bunch, if you found a match
+                    end
+                  end
+                end
+
+                AlternateValue::AlternateSpelling.create!(alternate_value_object_type:      'Person',
+                                                          value:                            r_person.first_name,
+                                                          alternate_value_object_attribute: 'first_name',
+                                                          alternate_value_object_id:        id) unless skip_av
+              end
             end
-          end  
+          end
+          unless r_person.last_name.blank?
+            if self.last_name.blank?
+              self.update(last_name: r_person.last_name)
+            else
+              if self.last_name != r_person.last_name
+                # create a last_name alternate_value of the r_person first name
+                skip_av = false
+                av_list = l_person_hash['alternate values']
+                av_list ||= {}
+                av_list.each do |av|
+                  if av.value == r_person.last_name
+                    if av.type == 'AlternateValue::AlternateSpelling' &&
+                      av.alternate_value_object_attribute == 'last_name' # &&
+                      # av.project_id == r_person.project_id
+                      skip_av = true
+                      break # stop looking in this bunch, if you found a match
+                    end
+                  end
+                end
+
+                AlternateValue::AlternateSpelling.create!(alternate_value_object_type:      'Person',
+                                                          value:                            r_person.last_name,
+                                                          alternate_value_object_attribute: 'last_name',
+                                                          alternate_value_object_id:        id) unless skip_av
+              end
+            end
+          end
+          r_person.annotations_hash.each do |r_kee, r_objects|
+            r_objects.each do |r_o|
+              skip   = false
+              l_test = l_person_hash[r_kee]
+              if l_test.present?
+                l_test.each do |l_o| # only look at same-type annotations
+                  # four types of annotations:
+                  # # data attributes,
+                  # # identifiers,
+                  # # notes,
+                  # # alternate values
+                  case r_kee
+                    when 'data attributes'
+                      if l_o.type == r_o.type &&
+                        l_o.controlled_vocabulary_term_id == r_o.controlled_vocabulary_term_id &&
+                        l_o.value == r_o.value &&
+                        l_o.project_id == r_o.project_id
+                        skip = true
+                        break # stop looking in this bunch, if you found a match
+                      end
+                    when 'identifiers'
+                      if l_o.type == r_o.type &&
+                        l_o.identifier == r_o.identifier &&
+                        l_o.project_id == r_o.project_id
+                        skip = true
+                        break # stop looking in this bunch, if you found a match
+                      end
+                    when 'notes'
+                      if l_o.text == r_o.text &&
+                        l_o.note_object_attribute == r_o.note.object_attribute &&
+                        l_o.project_id == r_o.project_id
+                        skip = true
+                        break # stop looking in this bunch, if you found a match
+                      end
+                    when 'alternate values'
+                      if l_o.value == r_o.value
+                        if l_o.type == r_o.type &&
+                          l_o.alternate_value_object_attribute == r_o.alternate_value_object_attribute &&
+                          l_o.project_id == r_o.project_id
+                          skip = true
+                          break # stop looking in this bunch, if you found a match
+                        end
+                      end
+                  end
+                end
+                skip
+              end
+              unless skip
+                # r_err                = r_o
+                r_o.annotated_object = self
+                r_o.save!
+                # r_o
+              end
+            end
+          end
+          # TODO: handle prefix and suffix
+          if self.prefix.blank?
+            self.prefix = r_person.prefix
+          else
+            unless r_person.prefix.blank?
+              # What to do when both have some content?
+            end
+          end
+          if self.suffix.blank?
+            self.suffix = r_person.suffix
+          else
+            unless r_person.suffix.blank?
+              # What to do when both have some content?
+            end
+          end
+          # TODO: handle years attributes
+          if self.year_born.nil?
+            self.year_born = r_person.year_born
+          else
+            unless r_person.year_born.nil?
+              # What to do when both have some (different) numbers?
+            end
+          end
+          if self.year_died.nil?
+            self.year_died = r_person.year_died
+          else
+            unless r_person.year_died.nil?
+              # What to do when both have some (different) numbers?
+            end
+          end
+          if r_person.year_active_start # if not, r_person has nothing to contribute
+            if self.year_active_start.nil? || (self.year_active_start > r_person.year_active_start)
+              self.year_active_start = r_person.year_active_start
+            end
+          end
+          if r_person.year_active_end # if not, r_person has nothing to contribute
+            if self.year_active_end.nil? || (self.year_active_end < r_person.year_active_end)
+              self.year_active_end = r_person.year_active_end
+            end
+          end
+          # update type, if necesssary
+          if self.type.include?('Unv')
+            unless unvetted
+              self.update(type: 'Person::Vetted')
+            end
+          end
+          # last thing to do in the transaction...
+          self.save! unless self.persisted?
         end
       rescue ActiveRecord::RecordInvalid
         return false
@@ -185,6 +345,9 @@ class Person < ApplicationRecord
     end
     true
   end
+
+  #  rubocop:enable Metrics/BlockNesting
+  #  rubocop:enable Metrics/MethodLength
 
   # @return [Boolean]
   def is_determiner?

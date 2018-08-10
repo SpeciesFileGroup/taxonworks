@@ -331,3 +331,12 @@ new_matrix_task:
     - matrix
   status: prototype
   description: 'Assign the rows and columns of observation matrices.'
+uniquify_people_task:
+  hub: true
+  name: 'Uniquify people'
+  related:
+  categories:
+    - source 
+    - nomenclature
+  status: prototype
+  description: 'Find and merge redundant or duplicated people, e.g., from import.'
