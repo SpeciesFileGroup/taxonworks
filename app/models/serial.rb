@@ -1,8 +1,8 @@
-# Serial - represents a journal or other serial publication. It follows the ISSN model for serials.
+# Serial - represents a journal or other serial (repeated) publication. It follows the ISSN model for serials.
 #
 # @!attribute place_published
 #   @return [String]
-#   @todo
+#     The name of the place(s) where the serial is published.
 #
 # @!attribute primary_language_id
 #   @return [Integer]
@@ -11,31 +11,31 @@
 #
 # @!attribute first_year_of_issue
 #   @return [Integer]
-#   @todo
+#     the first year this serial was published
 #
 # @!attribute last_year_of_issue
 #   @return [Integer]
-#   @todo
+#     the last year this serial was published
 #
 # @!attribute translated_from_serial_id
 #   @return [Integer]
-#   @todo
+#     @todo
 #
 # @!attribute publisher
 #   @return [String]
-#   @todo
+#    the serial publisher
 #
 # @!attribute name
 #   @return [String]
-#   @todo
+#     the name of the serial
 #
 class Serial < ApplicationRecord
-  # Include statements, and acts_as_type
+  
   include Housekeeping::Users
-  include Housekeeping::Timestamps # needed for the views
-  include Shared::AlternateValues # abbreviations, alternate titles, language translations
-  include Shared::DataAttributes # equivalent of a note for a global class i.e. cross project note
-  include Shared::Notes # project note
+  include Housekeeping::Timestamps
+  include Shared::AlternateValues
+  include Shared::DataAttributes
+  include Shared::Notes
   include Shared::Identifiers
   include Shared::Tags
   include Shared::IsData
@@ -43,33 +43,24 @@ class Serial < ApplicationRecord
   include Shared::SharedAcrossProjects
   include Shared::HasPapertrail
 
-  # Class constants
   ALTERNATE_VALUES_FOR = [:name, :publisher, :place_published].freeze
-  # Class variables
-  # Callbacks
-  # Associations, in order: belongs_to, has_one,has_many
+  
   belongs_to :translated_from_serial, foreign_key: :translated_from_serial_id, class_name: 'Serial'
   belongs_to :language, foreign_key: :primary_language_id
 
   has_many :sources, class_name: 'Source::Bibtex', inverse_of: :serial, dependent: :restrict_with_error
-
   has_many :translations, foreign_key: :translated_from_serial_id, class_name: 'Serial'
 
   has_many :succeeding_serial_chronologies, foreign_key: :succeeding_serial_id, class_name: 'SerialChronology'
-  # all serialChronologies where SerialChronology.succeeding_serial_id = my.id
-
   has_many :preceding_serial_chronologies, foreign_key: :preceding_serial_id, class_name: 'SerialChronology'
-  # all serialChronologies where SerialChronology.preceding_serial_id = my.id
 
+  # single preceding chronology will be multiple serials if there is a merge
   has_many :immediately_preceding_serials, through: :succeeding_serial_chronologies, source: :preceding_serial
-  # .to_a will return an array of serials - single preceding chronology will be multiple serials if there is a merge
 
+  # single succeeding chronology will be multiple serials if there is a split
   has_many :immediately_succeeding_serials, through: :preceding_serial_chronologies, source: :succeeding_serial
-  # class is 'Serial'
-  # .to_a will return an array of serials - single succeeding chronology will be multiple serials if there is a split
 
-  accepts_nested_attributes_for :alternate_values, reject_if: lambda { |av| av[:value].blank? },
-                                allow_destroy:                true
+  accepts_nested_attributes_for :alternate_values, reject_if: lambda { |av| av[:value].blank? }, allow_destroy: true
 
   # TODO handle translations (which are simultaneous)
 
@@ -78,53 +69,11 @@ class Serial < ApplicationRecord
   # TODO to be implemented include shared::scopes
   # ^= scope :with_<attribute name>, ->(<search value>) {where <attribute name>:<search value>}
 
-=begin   discussion with Matt 4/16/2014 - types of likely searches
-  Serial.with_name('foo')   vs.   Serial.where(name: 'foo')
-  settled on above to do - create a shared scope so any attribute can be called as Class.with_<attr_name>
-
-  params = {name:"J. Stuff", placed_published:"New York", creator: @beth}
-  Serial.where(params)
-
-  # select all serials that match this name or alternate value should be an alternate value scope?
-  Serial.with_value_and_alternates(:name, 'Beth')
-  # extend alternate value so that you look up via class;column_name;value
-
-  # select all serials with this abbreviation - fine to implement scope here, but primary
-    test should be in alternate value
-  # select all serials with this translation name - fine to implement scope here, but primary
-    test should be in alternate value
-  # TODO follow question (7/16/14) - Matt - there are translations as different serials (different ISSNs) and
-  # translations of the name of the current serial which are alternate values
-=end
-
-  # "Hard" Validations
   validates_presence_of :name
   # TODO validate language
   #  language ID should be nil or in the language table - default language value of English will be set in view.
 
-  # "Soft" Validations
   soft_validate(:sv_duplicate?)
-
-  # Class methods
-  # @param [ActionController::Paramaters] params
-  # @return [Scope]
-  def self.find_for_autocomplete(params)
-    t     = params[:term]
-    limit = 10
-    case t.length
-    when 0..3
-    else
-      limit = 20
-    end
-
-    where(['name LIKE ?', t.to_s]).order(:name).limit(limit)
-  end
-
-  # Instance methods
-
-  # Serial notes: are stored as DataAttribute of type InternalAttribute with Predicate 'Serial Note'
-  # Serials may also have a language note with Predicate 'Serial Language Note'
-
 
   # @param [String] compared_string
   # @param [String] column
@@ -151,9 +100,10 @@ class Serial < ApplicationRecord
     if self.new_record?
       ret_val = Serial.exists?(name: self.name)
     else
-      name_str = ActiveRecord::Base.send(:sanitize_sql_array, ['name = ? AND NOT (id = ?)',
-                                                               Utilities::Strings.escape_single_quote(self.name),
-                                                               self.id])
+      name_str = ActiveRecord::Base.send(:sanitize_sql_array, 
+                                         ['name = ? AND NOT (id = ?)',
+                                          Utilities::Strings.escape_single_quote(self.name),
+                                          self.id])
       ret_val  = Serial.where(name_str).to_a.size > 0
     end
 
@@ -213,9 +163,4 @@ class Serial < ApplicationRecord
     # TODO soft validation of name matching an alternate value for name of a different serial
   end
 
-  # @return [Nil]
-  def match_alternate_value?
-    #Select value from AlternateValue WHERE alternate_value_object_type = 'Serial'
-    # AND alternate_value_object_attribute = 'name'
-  end
 end

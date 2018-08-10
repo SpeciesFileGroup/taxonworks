@@ -48,7 +48,7 @@ gem 'acts_as_list', '~> 0.9.12'
 gem 'modularity', '~> 2.0.1' # Used!?
 gem 'paperclip', '~> 5.2'
 gem 'paperclip-meta', '~> 3.0'
-gem 'shortener', '~> 0.7.2'
+gem 'shortener', '~> 0.8.0'
 
 # javascript
 gem 'sprockets-rails', '~> 3.2.0'
@@ -66,7 +66,7 @@ gem 'jquery-turbolinks', '~> 2.1'
 
 # BibTeX handling
 gem 'csl', '~> 1.5.0'
-gem 'bibtex-ruby', '~> 4.4.6'
+gem 'bibtex-ruby', '~> 4.4.7'
 gem 'citeproc-ruby', '~> 1.1.10'
 gem 'csl-styles', '~> 1.0.1.8'
 gem 'ref2bibtex', '~> 0.2.2'
@@ -107,9 +107,9 @@ group :test, :development do
   gem 'rspec-activemodel-mocks', '~> 1.0.3'
 #  gem 'inch', '~> 0.7.1', require: false, # security issue
   gem 'byebug', '~> 10.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
-  gem 'factory_bot_rails', '~> 4.8.2'
-  gem 'selenium-webdriver', '~> 3.10'
-  gem 'geckodriver-helper', '~> 0.0.5'
+  gem 'factory_bot_rails', '~> 4.10.0'
+  gem 'selenium-webdriver', '~> 3.14'
+  gem 'geckodriver-helper', '~> 0.21.0'
   gem 'prawn', '~> 2.2.2'
 end
 
@@ -120,10 +120,10 @@ group :development do
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.4'
   gem 'guard-rspec', '~> 4.7.3', require: false
-  gem 'parallel_tests', '~> 2.21.2', require: false
+  gem 'parallel_tests', '~> 2.22.0', require: false
   gem 'web-console', '~> 3.6.2'
-  gem 'rubocop', '~> 0.55.0'
-  gem 'brakeman', '~> 4.2.0', require: false
+  gem 'rubocop', '~> 0.58.2'
+  gem 'brakeman', '~> 4.3.0', require: false
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'
 end
 
@@ -134,7 +134,7 @@ end
 group :test do
   gem 'rspec', '~> 3.6'
   gem 'coveralls', '~> 0.8.21', require: false
-  gem 'capybara', '~> 3.0.3'
+  gem 'capybara', '~> 3.5.0'
   gem 'timecop', '~> 0.9.1'
   gem 'webmock', '~> 3.4.1'
   gem 'vcr', '~> 4.0.0'
@@ -147,7 +147,7 @@ end
 
 group :production do
   gem 'execjs', '~> 2.7.0'
-  gem 'passenger', '~> 5.2.1'
+  gem 'passenger', '~> 5.3.4'
 end
 
 

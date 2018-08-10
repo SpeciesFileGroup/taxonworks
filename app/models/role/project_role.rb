@@ -3,7 +3,7 @@
 #
 class Role::ProjectRole < Role
 
-  self.abstract_class = true
+  # self.abstract_class = true
 
   include Housekeeping
 

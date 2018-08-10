@@ -70,7 +70,7 @@ TaxonWorks::Application.routes.draw do
       get :many_new
       get :index, defaults: {format: :json}
       post :create_many
-      
+
       get :clipboard, defaults: {format: :json}
       put :update_clipboard, defaults: {format: :json}
     end
@@ -414,7 +414,11 @@ TaxonWorks::Application.routes.draw do
 
     resources :contents, only: [:index]
     collection do
-      post :preview_simple_batch_load # should be get
+  
+      post :preview_data_attributes_batch_load
+      post :create_data_attributes_batch_load
+  
+      post :preview_simple_batch_load # should be get (batch loader fix)
       post :create_simple_batch_load
 
       post :preview_simple_batch_file_load
@@ -422,6 +426,9 @@ TaxonWorks::Application.routes.draw do
 
       post :preview_identifiers_batch_load
       post :create_identifiers_batch_load
+
+      post :preview_data_attributes_batch_load
+      post :create_data_attributes_batch_load
 
       get :select_options, defaults: {format: :json}
     end
@@ -633,6 +640,10 @@ TaxonWorks::Application.routes.draw do
 
     scope :browse_annotations, controller: 'tasks/browse_annotations' do
       get 'index', as: 'browse_annotations_task'
+    end
+
+    scope :uniquify_people, controller: 'tasks/uniquify/people' do
+      get 'index', as: 'uniquify_people_task'
     end
 
     scope :otus do
