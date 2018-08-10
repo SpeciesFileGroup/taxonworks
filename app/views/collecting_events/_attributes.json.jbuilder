@@ -28,7 +28,7 @@ json.partial! '/shared/data/all/metadata', object: collecting_event
 
 if collecting_event.roles.any?
   json.collector_roles do
-    json.array! collecting_event.collectors.each do |role|
+    json.array! collecting_event.collector_roles.each do |role|
       json.extract! role, :id, :position
       json.person do
         json.partial! '/people/attributes', person: role.person 
