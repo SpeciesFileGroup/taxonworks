@@ -1,6 +1,6 @@
 json.array! @people do |p|
   json.id p.id
-  json.label person_autocomplete_tag(p) 
+  json.label person_tag(p) 
   json.label_html person_autocomplete_tag(p) 
   json.object_id p.id # backwards compatability for lookup_person
 

@@ -18,7 +18,6 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model do
     end
 
     context '#parseable' do
-     
       specify '#parseable 1' do
         result.name = 'Aus bus cf. bus Smith and Jones, 1920'
         result.parse
@@ -53,6 +52,65 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model do
 
       before do
         result.project_id = 1
+      end
+
+      context 'author and year' do
+
+        specify '#author for genus' do
+          result.name = 'Aus Smith and Jones, 1920'
+          result.parse
+          result.build_result
+          expect(result.author).to eq('Smith & Jones')
+        end
+
+        specify '#author for subgenus' do
+          result.name = 'Aus (Bus) Smith and Jones, 1920'
+          result.parse
+          result.build_result
+          expect(result.author).to eq('Smith & Jones')
+        end
+
+        specify '#author for species' do
+          result.name = 'Aus bus Smith and Jones, 1920'
+          result.parse
+          result.build_result
+          expect(result.author).to eq('Smith & Jones')
+        end
+
+        specify '#author for subspecies' do
+          result.name = 'Aus bus cus dus Smith, 1920'
+          result.parse
+          result.build_result
+          expect(result.author).to eq('Smith')
+        end
+
+        specify '#year for genus' do
+          result.name = 'Aus Smith and Jones, 1920'
+          result.parse
+          result.build_result
+          expect(result.year).to eq('1920')
+        end
+
+        specify '#year for subgenus' do
+          result.name = 'Aus (Bus) Smith and Jones'
+          result.parse
+          result.build_result
+          expect(result.year).to eq(nil)
+        end
+
+        specify '#year for species' do
+          result.name = 'Aus bus Smith and Jones, 1920'
+          result.parse
+          result.build_result
+          expect(result.year).to eq('1920')
+        end
+
+        specify '#year for subspecies' do
+          result.name = 'Aus bus cus dus Smith, 1920'
+          result.parse
+          result.build_result
+          expect(result.year).to eq('1920')
+        end
       end
 
       context 'existing matches' do
