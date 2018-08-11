@@ -155,7 +155,7 @@ namespace :tw do
         handle_common_names_odonata
         handle_distribution_odonata
 
-        soft_validations_odonata
+        #soft_validations_odonata
         print "\n\n !! Success. End time: #{Time.now} \n\n"
       end
 
