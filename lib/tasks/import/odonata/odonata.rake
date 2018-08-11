@@ -143,7 +143,7 @@ namespace :tw do
 
         handle_projects_and_users_odonata
 
-#        $project_id = 1
+#        $project_id = 16
 #        $user_id = 1
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 #        @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id) if @root.blank?
@@ -154,7 +154,6 @@ namespace :tw do
         handle_taxon_name_relationships_odonata
         handle_common_names_odonata
         handle_distribution_odonata
-
 
         soft_validations_odonata
         print "\n\n !! Success. End time: #{Time.now} \n\n"
@@ -207,30 +206,13 @@ namespace :tw do
         print "\nHandling CV \n"
 
         @data.keywords.merge!(
+            'questionable' => Keyword.find_or_create_by(name: 'Original genus is questionable', definition: 'Original genus is questionable', project_id: $project_id),
             'ref_id' => Namespace.find_or_create_by(institution: 'Odonata', name: 'Odonata_ref_ID', short_name: 'ref_ID'),
             'accession_number' => Namespace.find_or_create_by(institution: 'Odonata', name: 'Odonata_accession_number', short_name: 'accession_number'),
             'Key' => Namespace.find_or_create_by(institution: 'Odonota', name: 'Odonata_taxon_ID', short_name: 'taxon_ID'),
             'Synonym' => Namespace.find_or_create_by(institution: 'Odonota', name: 'Odonata_synonym_ID', short_name: 'synonym_ID'),
             'CN' => Namespace.find_or_create_by(institution: 'Odonota', name: 'Odonata_common_name_ID', short_name: 'common_name_ID'),
         )
-=begin
-
-#        @data.namespaces.merge!(
-            'INHS' => Namespace.find_or_create_by(institution: 'INHS Insect Collection', name: 'INHS Insect Collection', short_name: 'Insect Collection'),
-        )
-
-        @data.biocuration_classes.merge!(
-            'Specimens' => BiocurationClass.find_or_create_by(name: 'Adult', definition: 'Number of adult specimens.', project_id: $project_id),
-            'Males' => BiocurationClass.find_or_create_by(name: 'Male', definition: 'Number of male specimens.', project_id: $project_id),
-            'Females' => BiocurationClass.find_or_create_by(name: 'Female', definition: 'Number of female specimens.', project_id: $project_id),
-            'Nymphs' => BiocurationClass.find_or_create_by(name: 'Immature', definition: 'Number of immature specimens.', project_id: $project_id),
-            'Exuvia' => BiocurationClass.find_or_create_by(name: 'Exuvia', definition: 'Number of exuvia specimens.', project_id: $project_id)
-        )
-
-        @data.topics.merge!(
-            'Descriptions' => Topic.find_or_create_by(name: 'description', definition: 'Source has morphological description.', project_id: $project_id),
-            )
-=end
       end
 
       def handle_references_odonata
@@ -265,7 +247,7 @@ namespace :tw do
           note = row['Notes']
           author = row['Author'].gsub('., ', '.|').split('|').compact.join(' and ')
           if !row['vol'].blank? && !row['num'].blank?
-            volume = row['vol'] + '(' + !row['num'] + ')'
+            volume = row['vol'].to_s + '(' + row['num'].to_s + ')'
           elsif !row['vol'].blank?
             volume = row['vol']
           else
@@ -288,14 +270,14 @@ namespace :tw do
 
           # id
           # Accession_Number
-
-          source.notes.create(text: note) unless note.blank?
-          source.data_attributes.create(type: 'ImportAttribute', import_predicate: 'citation', value: row['Citation']) unless row['Citation'].blank?
-          source.data_attributes.create(type: 'ImportAttribute', import_predicate: 'file_attachments', value: row['File_Attachments']) unless row['File_Attachments'].blank?
-          source.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['ref_id'], identifier: row['id']) unless row['id'].blank?
-          source.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['accession_number'], identifier: row['Accession_Number']) unless row['Accession_Number'].blank?
+          source.notes.new(text: note) unless note.blank?
+          source.data_attributes.new(type: 'ImportAttribute', import_predicate: 'citation', value: row['Citation']) unless row['Citation'].blank?
+          source.data_attributes.new(type: 'ImportAttribute', import_predicate: 'file_attachments', value: row['File_Attachments']) unless row['File_Attachments'].blank?
+          source.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['ref_id'], identifier: row['id']) unless row['id'].blank?
+          source.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['accession_number'], identifier: row['Accession_Number']) unless row['Accession_Number'].blank?
 
           begin
+            source.save!
             @data.publications_index[row['id']] = source.id
             source.project_sources.create!
           rescue ActiveRecord::RecordInvalid
@@ -342,7 +324,8 @@ namespace :tw do
         file.each do |row|
           i += 1
           print "\r#{i}"
-
+          #next if i < 2825
+          #byebug
           parent = @root if row['parent_id'] == '0
 '
             name = row['TaxaName']
@@ -350,7 +333,7 @@ namespace :tw do
 
             byebug if parent.nil?
             rank = @ranks[row['rank'].to_i]
-            byebug if row['Rank'].blank?
+            byebug if rank.blank?
             year = row['year1'] unless row['year1'] == '0'
 
             taxon = Protonym.new( name: name,
@@ -366,8 +349,8 @@ namespace :tw do
 
           if !row['OriginalGenus'].blank?
             og = find_original_genus_odonata(row['OriginalGenus'])
-            taxon.ogirinal_genus = og
-            taxon.original_species = taxon
+            taxon.original_genus = og unless og.nil?
+            taxon.original_species = taxon unless og.nil?
           end
 
             begin
@@ -400,7 +383,7 @@ namespace :tw do
         # Notes
 
         path = @args[:data_directory] + 'common_names.txt'
-        print "\nHandling taxonomy\n"
+        print "\nHandling common names\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true)
         lng = Language.find_by_alpha_3_bibliographic('eng')
@@ -408,6 +391,7 @@ namespace :tw do
         i = 0
         file.each do |row|
           i += 1
+          print "\r#{i}"
           taxon = find_otu_odonata(row['taxonID'])
           unless taxon.nil?
             c = CommonName.create!(otu: taxon, name: row['CommonName'], language: lng)
@@ -446,6 +430,7 @@ namespace :tw do
         file.each do |row|
           i += 1
           print "\r#{i} (Synonyms)"
+          #next if i<1737
           next if row['Synonym'].blank?
           matchdata = row['Synonym'].to_s.gsub('race?', '').gsub('race', '').gsub(' forma ', ' ').match(/(Syn|syn|syn.|\s*)\.*\s*\?*([\w\s.,'’?&öüéäöñá-]*)(\s+[\(|\[][\w\s.?,\)\(;&ü\]\[]*[\)|\]][\w\s,]*$|$)/)
           print "\n#{row['Synonym']}\n" if matchdata.blank?
@@ -460,30 +445,36 @@ namespace :tw do
             print "\n#{row['Synonym']} match is blank\n" if matchdata.blank? || name.blank?
             print "\n#{row['Synonym']} genus is blank\n" if result.genus.blank?
             print "\n#{row['Synonym']} species is blank\n" if result.species.blank?
+            next if result.species.blank?
             print "\n#{row['Synonym']} author is blank\n" if result.author.blank?
             print "\n#{row['Synonym']} subspecies and variety both present\n" if !result.subspecies.blank? && !result.variety.blank?
             print "\n#{row['Synonym']} name is blank\n" if name.blank?
 
             valid_taxon = find_taxon_odonata(row['taxon_id'])
+            print "\n#{row['Synonym']} valid taxon not found\n" if valid_taxon.nil?
+            next if valid_taxon.nil?
            species, subspecies, variety = nil, nil, nil
             case result.finest_rank
               when :genus
-                name = result.genus
+                name1 = result.genus
               when :species
-                name = result.species
-              when :subpecies
-                name = result.subspecies
+                name1 = result.species
+              when :subspecies
+                name1 = result.subspecies
               when :variety
-                name = result.variety
+                name1 = result.variety
+              when :form
+                name1 = result.form
             end
             genus_name = result.genus
             species_name = result.species
             subspecies_name = result.subspecies
             variety_name = result.variety
-            taxon = Protonym.create( name: name, parent_id: valid_taxon.parent_id, year_of_publication: result.year, verbatim_author: result.author, rank_class: valid_taxon.rank_class)
+            form_name = result.form
+            taxon = Protonym.create( name: name1, parent_id: valid_taxon.parent_id, year_of_publication: result.year, verbatim_author: result.author, rank_class: valid_taxon.rank_class)
             genus = find_original_genus_odonata(result.genus)
             species = nil
-            if !variety_name.blank? || !subspecies_name.blank?
+            if !variety_name.blank? || !subspecies_name.blank? || !form_name.blank?
               list_of_species = result.protonym_result[:genus]
               list_of_species.each do |t|
                 species = t if t.cached.include?(result.genus)
@@ -491,36 +482,36 @@ namespace :tw do
             end
             species = taxon if species.nil? && !species_name.blank?
             variety = variety_name.blank? ? nil : taxon
+            form = form_name.blank? ? nil : taxon
             subspecies = subspecies_name.blank? ? nil : taxon
             taxon.original_genus = genus unless genus.nil?
             taxon.original_species = species unless species.nil?
             taxon.original_subspecies = subspecies unless subspecies.nil?
             taxon.original_variety = variety unless variety.nil?
+            taxon.original_form = form unless form.nil?
             taxon.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['Synonym'], identifier: row['syn_id']) unless row['syn_id'].blank?
             taxon.data_attributes.new(type: 'ImportAttribute', import_predicate: 'synonym_string', value: row['Synonym']) unless row['Synonym'].blank?
             if status.include?('nomen nudum')
               taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
             end
-            if status.include?('lapsus')
-              tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: valid_taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
-            elsif status.include?('nec ') || status.include('nomen nudum')
-              tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: valid_taxon, type: 'TaxonNameRelationship::Iczn::Invalidating')
-            else
-              tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: valid_taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-            end
-
-
-          else
-            print "\n#{row['Synonym']} not parseable\n" if matchdata.blank?
-          end
-
-
             begin
               taxon.save!
             rescue ActiveRecord::RecordInvalid
               byebug
             end
+            if status.include?('lapsus')
+              tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: valid_taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
+            elsif status.include?('nec ') || status.include?('nomen nudum')
+              tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: valid_taxon, type: 'TaxonNameRelationship::Iczn::Invalidating')
+            else
+              tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: valid_taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+            end
+
+          else
+            print "\n#{row['Synonym']} not parseable\n" if matchdata.blank?
           end
+
+        end
       end
 
 
@@ -545,15 +536,16 @@ namespace :tw do
           print "\r#{i}"
           otu = find_otu_odonata(row['taxon_id'])
           country = row['IdTD']
-          ga = GeographicArea.find(IdTD)
+          ga = GeographicArea.find(country)
 
           if !otu.nil? && !source.nil? && !ga.nil?
             ad = AssertedDistribution.find_or_create_by(
                 otu: otu,
                 geographic_area: ga,
                 project_id: $project_id )
-            c = ad.citations.new(source_id: source, project_id: $project_id)
+            c = ad.citations.new(source_id: source.id, project_id: $project_id)
             ad.save
+            byebug if ad.id.nil?
             ad.confidences.create(confidence_level_id: conf) if row['Questionable'] = '?'
           end
         end
@@ -609,27 +601,34 @@ namespace :tw do
       end
 
       def find_taxon_id_odonata(key)
-        @data.taxon_index[key.to_s] || Identifier.where(cached: 'Odonata_taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
+        @data.taxon_index[key.to_s] || Identifier.where(cached: 'taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
       end
 
       def find_taxon_odonata(key)
-        Identifier.find_by(cached: 'Odonata_taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).try(:identifier_object)
+        Identifier.find_by(cached: 'taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).try(:identifier_object)
       end
 
       def find_original_genus_odonata(genus)
+        if genus.to_i > 0
+          g = find_taxon_odonata(genus)
+          return g unless g.nil?
+        end
+
         g = Protonym.find_by(name: genus, rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus', project_id: $project_id)
         if g.nil?
           o = Protonym.find_by(name: 'Odonata', rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Order', project_id: $project_id)
-          g = Protonym.create(name: genus, parent: o, rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus')
+          g = Protonym.create!(name: genus.gsub('?', ''), parent: o, rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus')
+          g.tags.create(keyword: @data.keywords['questionable']) if genus.include?('?')
         end
-        return g
+        return g unless g.id.nil?
+        return nil
       end
 
 
       def find_otu_odonata(key)
         otu = nil
 
-        r = Identifier.find_by(cached: 'Odonata_taxon_ID ' + key.to_s, project_id: $project_id)
+        r = Identifier.find_by(cached: 'taxon_ID ' + key.to_s, project_id: $project_id)
         return nil if r.nil?
         if r.identifier_object_type == 'TaxonName'
           r.identifier_object.otus.first
