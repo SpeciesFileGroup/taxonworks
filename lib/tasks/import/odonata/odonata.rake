@@ -245,7 +245,7 @@ namespace :tw do
           journal, serial_id, volume, pages = parse_bibliography_odonata(row['Citation'], row['Secondary_Title'])
           taxonomy, distribution, illustration, typhlocybinae = nil, nil, nil, nil
           note = row['Notes']
-          author = row['Author'].gsub('., ', '.|').split('|').compact.join(' and ')
+          author = row['Author'].to_s.gsub('., ', '.|').split('|').compact.join(' and ')
           if !row['vol'].blank? && !row['num'].blank?
             volume = row['vol'].to_s + '(' + row['num'].to_s + ')'
           elsif !row['vol'].blank?
