@@ -33,6 +33,18 @@ const GetRepositorySmartSelector = function () {
   return ajaxCall('get', `/repositories/select_options`)
 }
 
+const GetTaxonDeterminationCO = function (id) {
+  return ajaxCall('get', `/taxon_determinations.json?biological_collection_object_ids[]=${id}`)
+}
+
+const GetTypeMaterialCO = function (id) {
+  return ajaxCall('get', `/type_materials.json?biological_collection_object_ids[]=${id}`)
+}
+
+const GetOtu = function (id) {
+  return ajaxCall('get', `/otus/${id}.json`)
+}
+
 const GetTypes = function () {
   return ajaxCall('get', `/type_materials/type_types.json`)
 }
@@ -141,7 +153,10 @@ const DestroyDepiction = function (id) {
 }
 
 export {
+  GetOtu,
   GetRepositorySmartSelector,
+  GetTaxonDeterminationCO,
+  GetTypeMaterialCO,
   GetTypes,
   GetTaxon,
   CreateTaxonDetermination,

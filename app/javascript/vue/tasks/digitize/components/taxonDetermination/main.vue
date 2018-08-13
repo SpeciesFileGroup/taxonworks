@@ -9,12 +9,13 @@
         name="determination"
         :options="options"/>
       <label>OTU</label>
-      <otu-picker @getItem="otu = $event.id"/> 
+      <otu-picker @getItem="otu = $event.id; otuSelected = $event.label_html"/> 
+      <p v-html="otuSelected"/>
       <label>Determiner</label>
       <role-picker
         :autofocus="false" 
         v-model="roles"/>
-      <div class="horizontal-left-content date-fields">
+      <div class="horizontal-left-content date-fields separate-bottom">
         <div class="separate-right">
           <label>Year</label>
           <input
@@ -36,7 +37,7 @@
       </div>
       <button
         type="button"
-        class="button normal-input button-submit"
+        class="button normal-input button-submit separate-top"
         @click="SaveMethod">Save</button>
     </div>
   </block-layout>
@@ -103,7 +104,8 @@ export default {
   data() {
     return {
       view: undefined,
-      options: ['Quick', 'Recent', 'Pinboard', 'New']
+      options: ['Quick', 'Recent', 'Pinboard', 'New'],
+      otuSelected: undefined
     }
   },
   methods: {
