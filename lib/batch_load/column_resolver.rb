@@ -13,10 +13,11 @@ module BatchLoad::ColumnResolver
 
       predicate = columns['predicate']
       value     = columns['value']
-      r.assign(ImportAttribute.new(import_predicate: predicate, value: value, project_id: columns['project_id']))
-
       r.error_messages << 'No contents for \'Value\' was provided.' if value.blank?
       r.error_messages << 'No contents for \'Predicate\' was provided.' if predicate.blank?
+
+      r.assign(ImportAttribute.where(import_predicate: predicate, value: value, project_id: columns['project_id']).to_a)
+      r.error_messages << "Multiple data_attributes match for '#{predicate}' and '#{value}'.'" if r.multiple_matches?
 
       r
     end

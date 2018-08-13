@@ -10,31 +10,57 @@ module BatchLoad
     # @return [Integer] total data lines
     def build_da_for_otus
       @total_data_lines = 0
-      i                 = 0
+      i = 0
 
       csv.each do |real_row|
-        i                 += 1
-        row               = real_row
-        row['project_id'] = @project_id.to_s if real_row['project_id'].blank?
-
-        parse_result                          = BatchLoad::RowParse.new
-        parse_result.objects[:otu]            = []
+        i += 1
+        row = real_row
+        real_project_id = @project_id.to_s if real_row['project_id'].blank?
+        row['project_id'] = real_project_id
+        parse_result = BatchLoad::RowParse.new
+        parse_result.objects[:otu] = []
         parse_result.objects[:data_attribute] = []
-        @processed_rows[i]                    = parse_result
+        @processed_rows[i] = parse_result
 
         begin # processing
-          find_name          = row['otuname']
-          line_info          = BatchLoad::ColumnResolver.import_attribute(row)
-          otu_data_attribute = line_info.item
+          otus = BatchLoad::ColumnResolver.otu(row)
+          das = BatchLoad::ColumnResolver.import_attribute(row)
 
-          otu = BatchLoad::ColumnResolver.otu(row).item
-          if otu.blank? # can't find any by that name
-            otu = Otu.new(name: find_name, project_id: @project_id)
+          if das.no_matches? # can't find any with that configuration
+            das.assign(ImportAttribute.new(import_predicate: columns['predicate'],
+                                           value: columns['value'],
+                                           project_id: real_project_id).to_a)
+          end
+          if otus.no_matches? # can't find any by that name
+            # find_name = row['otuname']
+            otus.assign(Otu.new(name: row['otuname'], project_id: real_project_id).to_a)
           end
 
-          parse_result.objects[:otu].push(otu)
-          parse_result.objects[:data_attribute].push(otu_data_attribute)
-          parse_result.parse_errors << line_info.error_messages if line_info.error_messages.any?
+          if otus.multiple_matches?
+            parse_result.parse_errors << 'Can\'t resolve multiple otus.'
+            otus.asign([])
+          else
+            if otus.item.persisted? # found an existing otu?
+              das.items.each do |da|
+                if da.attribute_subject_id == otus.item
+                  otus.assign([]) # de-assign all otus
+                  das.asssign([]) #de-assign all data_attributes
+                  parse_result.parse_errors = ['otu/predicate/value combination already exists.']
+                  break
+                end
+              end
+            else
+              das.assign(ImportAttribute.new(import_predicate: columns['predicate'],
+                                             value: columns['value'],
+                                             project_id: real_project_id).to_a)
+
+            end
+          end
+
+          parse_result.objects[:otu].push(otus.item)
+          parse_result.parse_errors << otus.error_messages if otus.error_messages.any?
+          parse_result.objects[:data_attribute].push(das.item)
+          parse_result.parse_errors << das.error_messages if das.error_messages.any?
 
           @total_data_lines += 1 if otu.present?
         rescue
@@ -53,11 +79,13 @@ module BatchLoad
         sorted_processed_rows.each_value do |processed_row|
           otu = processed_row.objects[:otu].first
           d_a = processed_row.objects[:data_attribute].first
-          if d_a.valid?
-            otu.save unless otu.persisted?
-            otu.data_attributes << d_a
-          else
-            otu
+          unless otu.nil?
+            if d_a.valid?
+              otu.save unless otu.persisted?
+              otu.data_attributes << d_a
+            else
+              otu
+            end
           end
         end
       else

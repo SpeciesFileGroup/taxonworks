@@ -14,14 +14,14 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
 
   let(:upload_file) { fixture_file_upload(file_name) }
   let(:import) { BatchLoad::Import::Otus.new(project_id: project.id,
-                                             user_id:    user.id,
-                                             file:       upload_file)
+                                             user_id: user.id,
+                                             file: upload_file)
   }
 
   let(:upload_file_2) { fixture_file_upload(file_ph_2) }
   let(:import_2) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
-                                                                          user_id:    user.id,
-                                                                          file:       upload_file_2)
+                                                                          user_id: user.id,
+                                                                          file: upload_file_2)
   }
 
   context 'scanning tsv lines to evaluate data' do
@@ -77,18 +77,18 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
 
     context 'match to taxon name, not otu' do
       context 'otu check' do
-        let(:d_a) { DataAttribute.new(type:             'ImportAttribute',
+        let(:d_a) { DataAttribute.new(type: 'ImportAttribute',
                                       import_predicate: 'connection to otu',
-                                      value:            'new data attribute for the otu',
-                                      project_id:       project.id) }
+                                      value: 'new data attribute for the otu',
+                                      project_id: project.id) }
         let(:otu) { Otu.find_by_name('americana') }
-        let(:t_n) { TaxonName.create(name: 'taxon matck') }
+        let(:t_n) { TaxonName.create(name: 'taxon match') }
 
         it 'finds otu through taxon name' do
           names
           otu.data_attributes << d_a
           otu.taxon_name = t_n
-          bingo          = import_2
+          bingo = import_2
           bingo.create
           # one data attribute is created here,
           # import_2 creates four data attributes directly by otu name,

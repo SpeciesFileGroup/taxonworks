@@ -28,15 +28,15 @@ describe Queries::Person::Filter, type: :model do
   }
 
   context 'partial name only' do
-    context 'containing \'*a*\'' do
+    context 'containing \'a\'' do
       specify 'with role' do
-        params = {lastname: '', firstname: '*a*', roles: ['Collector']}
+        params = {lastname: '', firstname: 'a', roles: ['Collector']}
         expect(Queries::Person::Filter.new(params).wild_or_exact)
           .to contain_exactly(p2.becomes(Person::Vetted))
       end
 
       specify 'without role' do
-        params = {lastname: '', firstname: '*a*', roles: []}
+        params = {lastname: '', firstname: 'a', roles: []}
         expect(Queries::Person::Filter.new(params).wild_or_exact)
           .to contain_exactly(p3.becomes(Person::Unvetted),
                               p2.becomes(Person::Vetted))
