@@ -29,6 +29,10 @@ const handleError = function (json) {
   TW.workbench.alert.create(errorMessage, 'error')
 }
 
+const GetRepositorySmartSelector = function () {
+  return ajaxCall('get', `/repositories/select_options`)
+}
+
 const GetTypes = function () {
   return ajaxCall('get', `/type_materials/type_types.json`)
 }
@@ -137,6 +141,7 @@ const DestroyDepiction = function (id) {
 }
 
 export {
+  GetRepositorySmartSelector,
   GetTypes,
   GetTaxon,
   CreateTaxonDetermination,
