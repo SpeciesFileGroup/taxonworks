@@ -186,12 +186,9 @@ TaxonWorks::Application.routes.draw do
       get :card
     end
 
-    # collection do
-      #   post :preview_simple_batch_load # should be get
-      #   post :create_simple_batch_load
-      # end
-
     collection do
+      get :select_options, defaults: {format: :json}
+
       post :preview_castor_batch_load
       post :create_castor_batch_load
     end
