@@ -413,9 +413,6 @@ namespace :tw do
             'inoculation_trial_positive' => Keyword.find_or_create_by(name: 'inoculation_trial: positive', definition: 'inoculation_trial: positive (from Phytoplasma database).', project_id: $project_id),
             'inoculation_trial_negative' => Keyword.find_or_create_by(name: 'inoculation_trial: negative', definition: 'inoculation_trial: negative (from Phytoplasma database).', project_id: $project_id),
 
-
-
-
             'Taxonomy' => Keyword.find_or_create_by(name: 'Taxonomy updated', definition: 'Taxonomical information entered to the DB.', project_id: $project_id),
             'Typhlocybinae' => Keyword.find_or_create_by(name: 'Typhlocybinae updated', definition: 'Information related to Typhlocybinae entered to the DB.', project_id: $project_id),
             'Illustrations' => Keyword.find_or_create_by(name: 'Illustrations exported', definition: 'Illustrations of Typhlocybinae species entered to the DB.', project_id: $project_id),
@@ -464,6 +461,7 @@ namespace :tw do
             'Synonymy' => Topic.find_or_create_by(name: 'synonymy', definition: 'Source has synonymy records.', project_id: $project_id),
             'Host' => Topic.find_or_create_by(name: 'host plants', definition: 'Source has host plant records.', project_id: $project_id),
             'Parasitoids' => Topic.find_or_create_by(name: 'parasitoids', definition: 'Source has parasitoid records.', project_id: $project_id),
+            'Infection_status_negative' => Keyword.find_or_create_by(name: 'Tested negative for Phytoplasma', definition: 'Tested negative for Phytoplasma', project_id: $project_id),
             )
 
         @host_plant_relationship = BiologicalRelationship.where(name: 'feeds on', project_id: $project_id).first
@@ -2506,6 +2504,9 @@ namespace :tw do
             c.tags.create(keyword: @data.keywords['test_infection_suspected']) if row['test_infection'] == 'suspected'
             c.tags.create(keyword: @data.keywords['inoculation_trial_positive']) if row['inoculation_trial'] == 'positive'
             c.tags.create(keyword: @data.keywords['inoculation_trial_negative']) if row['inoculation_trial'] == 'negative'
+
+            c.citation_topics.find_or_create_by(topic: @data.topics['Infection_status_negative'], project_id: $project_id) if @phytoplasma_neg == row['FK_Phy']
+
             unless row['status'].blank?
               c.confidences.create(position: 1, confidence_level_id: confidence[row['status']])
               ba_conf = ba.confidences.first
