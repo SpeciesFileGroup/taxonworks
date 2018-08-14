@@ -60,8 +60,8 @@ class Person < ApplicationRecord
   include Shared::IsData
 
   ALTERNATE_VALUES_FOR = [:last_name, :first_name].freeze
-  IGNORE_SIMILAR       = [:type, :cached].freeze
-  IGNORE_IDENTICAL     = [:type, :first_name, :last_name, :prefix, :suffix].freeze
+  IGNORE_SIMILAR = [:type, :cached].freeze
+  IGNORE_IDENTICAL = [:type, :first_name, :last_name, :prefix, :suffix].freeze
 
   # @return [Boolean]
   #   true when cached values have not been built
@@ -228,10 +228,11 @@ class Person < ApplicationRecord
                   end
                 end
 
-                AlternateValue::AlternateSpelling.create!(alternate_value_object_type:      'Person',
-                                                          value:                            r_person.last_name,
-                                                          alternate_value_object_attribute: 'last_name',
-                                                          alternate_value_object_id:        id) unless skip_av
+                AlternateValue::AlternateSpelling.create!(
+                  alternate_value_object_type:      'Person',
+                  value:                            r_person.last_name,
+                  alternate_value_object_attribute: 'last_name',
+                  alternate_value_object_id:        id) unless skip_av
               end
             end
           end
@@ -384,63 +385,6 @@ class Person < ApplicationRecord
                                                            first_name: n['given'],
                                                            prefix:     n['non-dropping-particle']) }
   end
-
-=begin
-  What is the logic to declare one person 'identical' to another
-
-  Easy tests:
-    0) person.id: if this is the same as self.id, must be same record.
-                  OR
-    1) person.last_name == last_name
-                AND
-    2) person.first_name == first_name
-                AND
-      a) person.cached == cached
-
-    3) person.prefix (subsumed by 'cached'?)
-    4) person.suffix (subsumed by 'cached'?)
-
-  A little harder:
-    5) person.year_born (if both available)
-    6) person.year_died (if both available)
-    7) person.year_active_start (if both available)
-    8) person.year_active_end (if both available)
-
-  More complex:
-    9) person.authored_taxon_names is same set as authored_taxon_names
-      a) count is the same
-                  AND
-      b) taxon names match
-=end
-
-  # # @param [Person] person to which this instance is to be compared
-  # # @return [Boolean]
-  # def identical(person)
-  #   # same record
-  #   retval = (id == person.id)
-  #   unless retval
-  #     # two different instances of Person
-  #     retval = (last_name == person.last_name and first_name == person.first_name and cached == person.cached)
-  #     retval = (retval and (year_born == person.year_born and year_died == person.year_died))
-  #     retval = (retval and (year_active_start == person.year_active_start and \
-  #                           year_active_end == person.year_active_end))
-  #
-  #     tn_ids  = taxon_name_author_roles.pluck(:role_object_id)
-  #     count  = tn_ids.count
-  #     retval = (retval and (count == person.taxon_name_author_roles.count))
-  #     if retval and (count > 0) # is still true and there are any roles to test
-  #       # Boolean of the intersection of two sets of role object ids equals the local list?
-  #       retval = (retval and ((tn_ids & person.taxon_name_author_roles.pluck(:role_object_id)) == tn_ids))
-  #     end
-  #   end
-  #   retval
-  # end
-  #
-  # # @param [Person] person to which this instance is to be compared
-  # # @return [Boolean]
-  # def similar(person)
-  #
-  # end
 
   protected
 
