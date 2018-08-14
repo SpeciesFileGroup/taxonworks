@@ -25,7 +25,7 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile.development
-    command: bash -c "yarn && /app/bin/webpack-dev-server --host 0.0.0.0"
+    command: bash -c "npm install && /app/bin/webpack-dev-server --host 0.0.0.0"
     volumes: 
       - .:/app
       - ./volumes/webpack_build:/mnt/rails/public/webpack
