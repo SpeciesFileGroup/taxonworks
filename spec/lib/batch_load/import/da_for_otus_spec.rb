@@ -35,12 +35,12 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
       context 'finds some errors' do
         specify 'of \'predicate\' type' do
           bingo = import_2
-          expect(bingo.processed_rows[5].parse_errors.flatten).to include("No contents for 'Predicate' was provided.")
+          expect(bingo.processed_rows[6].parse_errors.flatten).to include("No contents for 'Predicate' was provided.")
         end
 
         specify 'of \'value\' type' do
           bingo = import_2
-          expect(bingo.processed_rows[4].parse_errors.flatten).to include("No contents for 'Value' was provided.")
+          expect(bingo.processed_rows[5].parse_errors.flatten).to include("No contents for 'Value' was provided.")
         end
 
         specify 'of \'multiple otu\' type' do
