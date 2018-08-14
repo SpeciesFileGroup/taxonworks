@@ -22,6 +22,7 @@ module BatchLoad::ColumnResolver
       r
     end
 
+    # rubocop:disable Metrics/MethodLength
     # @param [Hash] columns
     # @return [BatchLoad::ColumnResolver::Result]
     def otu(columns)
@@ -30,7 +31,7 @@ module BatchLoad::ColumnResolver
       if columns['otu_id']
         begin
           r.assign Otu.find(columns['otu_id'])
-        rescue => e # ActiveRecord::RecordNotFound
+        rescue => _e # ActiveRecord::RecordNotFound
           r.error_messages << "No OTU with id #{columns['otu_id']} exists."
         end
       elsif columns['otu_name']
@@ -57,6 +58,7 @@ module BatchLoad::ColumnResolver
 
       r
     end
+    # rubocop:enable Metrics/MethodLength
 
     # @param [Hash] columns
     # @return [BatchLoad::ColumnResolver::Result]

@@ -7,6 +7,8 @@ module BatchLoad
       super(args)
     end
 
+    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/BlockNesting
     # @return [Integer] total data lines
     def build_da_for_otus
       @total_data_lines = 0
@@ -23,40 +25,42 @@ module BatchLoad
         @processed_rows[i] = parse_result
 
         begin # processing
-          otus = BatchLoad::ColumnResolver.otu(row)
           das = BatchLoad::ColumnResolver.import_attribute(row)
-
           if das.no_matches? # can't find any with that configuration
-            das.assign(ImportAttribute.new(import_predicate: columns['predicate'],
-                                           value: columns['value'],
-                                           project_id: real_project_id).to_a)
+            das.assign(ImportAttribute.new(import_predicate: row['predicate'],
+                                           value: row['value'],
+                                           project_id: real_project_id))
           end
+
+          otus = BatchLoad::ColumnResolver.otu(row)
           if otus.no_matches? # can't find any by that name
             # find_name = row['otuname']
-            otus.assign(Otu.new(name: row['otuname'], project_id: real_project_id).to_a)
+            otus.assign(Otu.new(name: row['otuname'], project_id: real_project_id))
+          end
+
+          [otus.item, otus.items].flatten.compact.each do |otu| # found one or more otus
+            if otu.persisted?
+              [das.item, das.items].flatten.compact.each do |da|
+                if da.attribute_subject == otu
+                  if otus.item == otu
+                    otus.assign([])
+                  else
+                    group = otus.items.collect { |g_otu| g_otu == otu ? nil : g_otu }.compact
+                    otus.assign(group)
+                  end
+                  parse_result.parse_errors << 'otu/predicate/value combination already exists.'
+                  break
+                end
+              end
+            end
           end
 
           if otus.multiple_matches?
             parse_result.parse_errors << 'Can\'t resolve multiple otus.'
-            otus.asign([])
-          else
-            if otus.item.persisted? # found an existing otu?
-              das.items.each do |da|
-                if da.attribute_subject_id == otus.item
-                  otus.assign([]) # de-assign all otus
-                  das.asssign([]) #de-assign all data_attributes
-                  parse_result.parse_errors = ['otu/predicate/value combination already exists.']
-                  break
-                end
-              end
-            else
-              das.assign(ImportAttribute.new(import_predicate: columns['predicate'],
-                                             value: columns['value'],
-                                             project_id: real_project_id).to_a)
-
-            end
+            otus.assign([])
           end
 
+          parse_result.parsed = true
           parse_result.objects[:otu].push(otus.item)
           parse_result.parse_errors << otus.error_messages if otus.error_messages.any?
           parse_result.objects[:data_attribute].push(das.item)
@@ -70,6 +74,7 @@ module BatchLoad
 
       @total_lines = i
     end
+    # rubocop:enable Metrics/MethodLength
 
     # Iterates in line order and attempts to save each record
     # @return [Boolean] true
@@ -77,14 +82,16 @@ module BatchLoad
       @create_attempted = true
       if ready_to_create?
         sorted_processed_rows.each_value do |processed_row|
-          otu = processed_row.objects[:otu].first
-          d_a = processed_row.objects[:data_attribute].first
+          otu = processed_row.objects[:otu].flatten.first
+          d_a = processed_row.objects[:data_attribute].flatten.first
           unless otu.nil?
-            if d_a.valid?
-              otu.save unless otu.persisted?
-              otu.data_attributes << d_a
-            else
-              otu
+            unless d_a.nil?
+              if d_a.valid?
+                otu.save unless otu.persisted?
+                otu.data_attributes << d_a
+              else
+                otu
+              end
             end
           end
         end
@@ -95,6 +102,7 @@ module BatchLoad
       end
       true
     end
+    # rubocop:enable Metrics/BlockNesting
 
     def build
       if valid?

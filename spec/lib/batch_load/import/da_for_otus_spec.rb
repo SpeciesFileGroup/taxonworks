@@ -42,6 +42,28 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           bingo = import_2
           expect(bingo.processed_rows[4].parse_errors.flatten).to include("No contents for 'Value' was provided.")
         end
+
+        specify 'of \'multiple otu\' type' do
+          names
+          Otu.create(name: 'Aus bus')
+          bingo = import_2
+          expect(bingo.processed_rows[1].parse_errors.flatten).to include("Can't resolve multiple otus.")
+        end
+
+        specify 'of \'combination exists\' type' do
+          names
+          an_otu = Otu.create(name: 'Aus bus')
+          a_da = ImportAttribute.new(import_predicate: 'TotalSpecies',
+                                     value: 22)
+          an_otu.data_attributes << a_da
+          an_otu = Otu.create(name: 'Nuther bus')
+          a_da = ImportAttribute.new(import_predicate: 'TotalSpecies',
+                                     value: 22)
+          an_otu.data_attributes << a_da
+          bingo = import_2
+          expect(bingo.processed_rows[1].parse_errors.flatten)
+              .to include('otu/predicate/value combination already exists.')
+        end
       end
     end
   end
