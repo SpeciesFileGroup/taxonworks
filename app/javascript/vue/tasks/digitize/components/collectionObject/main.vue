@@ -9,24 +9,25 @@
           v-if="collectionObject.id"
           :global-id="collectionObject.global_id"/>
       </div>
-      <div
-        class="horizontal-left-content align-start"
-        slot="body">
-        <div class="separate-right">
-          <catalog-number/>
+      <div slot="body">
+        <div
+          class="horizontal-left-content align-start">
+          <div class="separate-right">
+            <catalog-number/>
+          </div>
+          <div class="separate-left separate-right">
+            <bioclassification/>
+          </div>
+          <div class="separate-left">
+            <repository-component/>
+          </div>
         </div>
-        <div class="separate-left separate-right">
-          <bioclassification/>
-        </div>
-        <div class="separate-left">
-          <repository-component/>
-        </div>
+        <buffered-component/>
+        <depictions-component
+          :object-value="collectionObject"
+          object-type="CollectionObject"
+          action-save="SaveCollectionObject"/>
       </div>
-      <buffered-component/>
-      <depictions-component
-        :object-value="collectionObject"
-        object-type="CollectionObject"
-        action-save="SaveCollectionObject"/>
     </block-layout>
   </div>
 </template>

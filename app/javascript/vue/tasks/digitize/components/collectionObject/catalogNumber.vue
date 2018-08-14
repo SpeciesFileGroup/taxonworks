@@ -34,6 +34,12 @@
         </label>
       </li>
     </ul>
+    <br>
+    <label>Total</label>
+    <br>
+    <input
+      type="number"
+      v-model="total">
   </div>
 </template>
 
@@ -71,6 +77,14 @@
         },
         set(value) {
           return this.$store.commit(MutationNames.SetIdentifierIdentifier, value)
+        }
+      },
+      total: {
+        get() {
+          return this.$store.getters[GetterNames.GetCollectionObject].total
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetCollectionObjectTotal, value)
         }
       }
     },
