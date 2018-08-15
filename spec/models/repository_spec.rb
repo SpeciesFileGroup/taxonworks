@@ -1,6 +1,5 @@
 require 'rails_helper'
 
-
 describe Repository, type: :model do
   let(:repository) {FactoryBot.build(:repository)}
 
@@ -16,6 +15,21 @@ describe Repository, type: :model do
       specify 'collection_objects' do
         expect(repository).to respond_to(:collection_objects)
       end
+    end
+  end
+
+  context 'scopes' do
+    let(:r1) { FactoryBot.create(:valid_repository) }
+    let(:r2) { FactoryBot.create(:valid_repository) }
+    let!(:s1) { Specimen.create!(total: 1, repository: r1) }
+    let!(:s2) { Specimen.create!(total: 1, repository: r2) }
+
+    specify '#used_recently' do
+      expect(Repository.used_recently).to contain_exactly(r1, r2)
+    end
+
+    specify '#used_in_project' do
+      expect(Repository.used_in_project(s1.project_id)).to contain_exactly(r1, r2)
     end
   end
 

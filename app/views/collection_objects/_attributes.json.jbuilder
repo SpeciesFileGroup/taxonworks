@@ -5,4 +5,3 @@ json.extract! collection_object, :id, :total, :preparation_type_id, :collecting_
 
 json.partial! '/shared/data/all/metadata', object: collection_object 
 
-json.identifier_tag collection_object_identifier_tag(collection_object)

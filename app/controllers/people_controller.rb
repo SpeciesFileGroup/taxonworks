@@ -1,7 +1,7 @@
 class PeopleController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
-  before_action :set_person, only: [:show, :edit, :update, :destroy, :roles]
+  before_action :set_person, only: [:show, :edit, :update, :destroy, :roles, :similar]
 
   # GET /people
   # GET /people.json
@@ -13,8 +13,8 @@ class PeopleController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @people = Queries::Person::Filter.new(filter_params).wild_or_exact #  partial_complete => broadest selection of names
-       }
+        @people = Queries::Person::Filter.new(filter_params).all
+      }
     end
   end
 
@@ -36,7 +36,6 @@ class PeopleController < ApplicationController
   # POST /people.json
   def create
     @person = Person.new(person_params)
-
     respond_to do |format|
       if @person.save
         format.html {redirect_to url_for(@person.metamorphosize),
@@ -47,6 +46,11 @@ class PeopleController < ApplicationController
         format.json {render json: @person.errors, status: :unprocessable_entity}
       end
     end
+  end
+
+  def similar
+    @people = @person.levenshtein_similar(2).order(:last_name, :first_name)
+    render '/people/index'
   end
 
   # PATCH/PUT /people/1

@@ -1,33 +1,5 @@
 class NamespacesController < ApplicationController
 
-def batch_load
-end
-
-def preview_simple_batch_load 
-  if params[:file] 
-    @result = BatchLoad::Import::Namespaces::SimpleInterpreter.new(batch_params)
-    digest_cookie(params[:file].tempfile, :Simple_namespaces_md5)
-    render 'namespaces/batch_load/simple/preview'
-  else
-    flash[:notice] = 'No file provided!'
-    redirect_to action: :batch_load 
-  end
-end
-
-def create_simple_batch_load
-  if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Simple_namespaces_md5)
-    @result = BatchLoad::Import::Namespaces::SimpleInterpreter.new(batch_params)
-    if @result.create
-      flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} namespaces were created."
-      render 'namespaces/batch_load/simple/create' and return
-    else
-      flash[:alert] = 'Batch import failed.'
-    end
-  else
-    flash[:alert] = 'File to batch upload must be supplied.'
-  end
-  render :batch_load
-end
   include DataControllerConfiguration::SharedDataControllerConfiguration
   before_action :set_namespace, only: [:show, :edit, :update, :destroy]
 
@@ -125,9 +97,40 @@ end
     send_data Download.generate_csv(Namespace.all), type: 'text', filename: "namespaces_#{DateTime.now}.csv"
   end
 
+  # GET /namespaces/select_options
   def select_options
     @namespaces = Namespace.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:klass])
   end
+
+  def batch_load
+  end
+
+  def preview_simple_batch_load 
+    if params[:file] 
+      @result = BatchLoad::Import::Namespaces::SimpleInterpreter.new(batch_params)
+      digest_cookie(params[:file].tempfile, :Simple_namespaces_md5)
+      render 'namespaces/batch_load/simple/preview'
+    else
+      flash[:notice] = 'No file provided!'
+      redirect_to action: :batch_load 
+    end
+  end
+
+  def create_simple_batch_load
+    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Simple_namespaces_md5)
+      @result = BatchLoad::Import::Namespaces::SimpleInterpreter.new(batch_params)
+      if @result.create
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} namespaces were created."
+        render 'namespaces/batch_load/simple/create' and return
+      else
+        flash[:alert] = 'Batch import failed.'
+      end
+    else
+      flash[:alert] = 'File to batch upload must be supplied.'
+    end
+    render :batch_load
+  end
+
 
   private
 

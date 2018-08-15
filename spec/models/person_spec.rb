@@ -1,5 +1,4 @@
-require 'rails_helper'
-
+require 'rails_helper' 
 describe Person, type: :model do
 
   let(:person) { Person.new }
@@ -268,6 +267,36 @@ describe Person, type: :model do
 
       context 'matching' do
         context 'instance methods' do
+
+=begin
+  What is the logic to declare one person 'identical' to another
+
+  Easy tests:
+    0) person.id: if this is the same as self.id, must be same record.
+                  OR
+    1) person.last_name == last_name
+                AND
+    2) person.first_name == first_name
+                AND
+      a) person.cached == cached
+
+    3) person.prefix (subsumed by 'cached'?)
+    4) person.suffix (subsumed by 'cached'?)
+
+  A little harder:
+    5) person.year_born (if both available)
+    6) person.year_died (if both available)
+    7) person.year_active_start (if both available)
+    8) person.year_active_end (if both available)
+
+  More complex:
+    9) person.authored_taxon_names is same set as authored_taxon_names
+      a) count is the same
+                  AND
+      b) taxon names match
+=end
+
+
           context '#identical' do
             specify 'full matching' do
               # duplicate record
@@ -657,7 +686,7 @@ describe Person, type: :model do
 
             context 'cached' do
               specify 'cached get updated' do
-                person1.prefix     = nil
+                person1.prefix = nil
                 person1.save!
                 person1.merge_with(person1b.id)
                 expect(person1.cached.include?('Dr.')).to be_truthy

@@ -5,12 +5,15 @@ Parameters:
          time: Minimum time needed after a key pressed to make a search query
           url: Ajax url request
   placeholder: Input placeholder
-        label: name of the propierty displayed on the list
+        label: name of the propierty displayed on the list, could be an array to reach the label
    event-send: event name used to pass item selected
     autofocus: set autofocus
       display: Sets the label of the item selected to be display on the input field
-      getInput: Get the input text
+     getInput: Get the input text
    clearAfter: Clear the input field after an item is selected
+       nested: Used to make a list of properties to reach the list
+      headers: Set the headers to be used in the call. Using it will override the common headers
+
 
    :add-param: Send custom parameters
 
@@ -45,7 +48,7 @@ Parameters:
         :class="activeClass(index)"
         @mouseover="itemActive(index)"
         @click.prevent="itemClicked(index)">
-        <span v-html="item[label]"/>
+        <span v-html="getNested(item, label)"/>
       </li>
       <li v-if="json.length == 20">Results may be truncated</li>
     </ul>
@@ -102,6 +105,17 @@ export default {
       required: true
     },
 
+    headers: {
+      required: false,
+      type: Object,
+      default: () => { return {}}
+    },
+
+    nested: {
+      type: [Array, String],
+      default: () => { return [] }
+    },
+
     clearAfter: {
       type: Boolean,
       default: false
@@ -112,7 +126,10 @@ export default {
       default: ''
     },
 
-    label: String,
+    label: { 
+      type: [String, Array],
+      required: true
+    },
 
     display: {
       type: String,
@@ -198,9 +215,25 @@ export default {
       this.json = []
     },
 
+    getNested(item, nested) {
+      if(Array.isArray(nested)) {
+        let tmp = item
+        this.nested.forEach((itemLabel) => {
+          tmp = tmp[itemLabel]
+        })
+        return tmp
+      }
+      else if(typeof nested === 'string') {
+        return item[nested]
+      }
+      else {
+        return item
+      }
+    },
+
     itemClicked: function (index) {
       if (this.display.length) { this.type = (this.clearAfter ? '' : this.json[index][this.display]) } else {
-        this.type = (this.clearAfter ? '' : this.json[index][this.label])
+        this.type = (this.clearAfter ? '' : this.getNested(this.json[index], this.label))
       }
 
       if (this.autofocus) {
@@ -260,15 +293,19 @@ export default {
         this.searchEnd = true
         this.showList = (this.json.length > 0)
       } else {
+
         this.$http.get(this.ajaxUrl(), {
           before (request) {
+            if(Object.keys(this.headers).length) {
+              request.headers.map = this.headers
+            }
             if (this.previousRequest) {
               this.previousRequest.abort()
             }
             this.previousRequest = request
-          }
-        }).then(response => {
-          this.json = response.body
+          }}).then(response => {
+            this.json = this.getNested(response.body, this.nested)
+          
           this.showList = (this.json.length > 0)
           this.spinner = false
           this.searchEnd = true

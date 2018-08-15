@@ -4,8 +4,9 @@
       <autocomplete
         url="/otus/autocomplete"
         class="separate-right"
-        label="label"
+        label="label_html"
         min="2"
+        display="label"
         @getItem="emitOtu"
         @getInput="callbackInput"
         @found="found = $event"

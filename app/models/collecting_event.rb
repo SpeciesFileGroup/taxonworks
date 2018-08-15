@@ -207,9 +207,8 @@ class CollectingEvent < ApplicationRecord
 
   before_save :set_times_to_nil_if_form_provided_blank
 
-  # after_save :cache_geographic_names, if: -> {!self.no_cached && geographic_area_id_changed?}
-  after_save :cache_geographic_names, if: -> { !self.no_cached && saved_change_to_attribute?(:geographic_area_id) }
-  after_save :set_cached, if: -> { !self.no_cached }
+  after_save :cache_geographic_names, if: -> { !no_cached && saved_change_to_attribute?(:geographic_area_id) }
+  after_save :set_cached, if: -> { !no_cached }
 
   belongs_to :geographic_area, inverse_of: :collecting_events
 
@@ -268,10 +267,10 @@ class CollectingEvent < ApplicationRecord
                         if: -> { !end_date_day.nil? }
 
   validates :end_date_day, date_day: {year_sym: :end_date_year, month_sym: :end_date_month},
-            unless:                  -> { end_date_year.nil? || end_date_month.nil? }
+            unless: -> { end_date_year.nil? || end_date_month.nil? }
 
   validates :start_date_day, date_day: {year_sym: :start_date_year, month_sym: :start_date_month},
-            unless:                    -> { start_date_year.nil? || start_date_month.nil? }
+            unless: -> { start_date_year.nil? || start_date_month.nil? }
 
   soft_validate(:sv_minimally_check_for_a_label)
 
@@ -281,11 +280,24 @@ class CollectingEvent < ApplicationRecord
     write_attribute(:md5_of_verbatim_label, Utilities::Strings.generate_md5(value))
   end
 
+  scope :used_recently, -> { joins(:collection_objects).where(collection_objects: { created_at: 1.weeks.ago..Time.now } ) }
+  scope :used_in_project, -> (project_id) { joins(:collection_objects).where( collection_objects: { project_id: project_id } ) }
+
   class << self
 
     #
     # Scopes
     #
+
+    def select_optimized(user_id, project_id)
+      h = {
+        recent: CollectingEvent.used_in_project(project_id).used_recently.limit(10).distinct.to_a,
+        pinboard: CollectingEvent.pinned_by(user_id).pinned_in_project(project_id).to_a
+      }
+
+      h[:quick] = (CollectingEvent.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  + h[:recent][0..3]).uniq
+      h
+    end
 
     # @param [GeographicItem] geographic_item
     # @return [Scope]
@@ -299,12 +311,6 @@ class CollectingEvent < ApplicationRecord
     # TODO: DRY, use general form of this
     def excluding(collecting_events)
       where.not(id: collecting_events)
-    end
-
-    # @param [ActionController::Parameters] params for this search
-    # @return [Scope] of collecting_events found by (partial) verbatim_locality
-    def find_for_autocomplete(params)
-      Queries::CollectingEventAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
     end
 
     #
@@ -834,10 +840,10 @@ class CollectingEvent < ApplicationRecord
   end
 
   def cached_geographic_name_classification
-    h           = {}
+    h = {}
     h[:country] = cached_level0_geographic_name if cached_level0_geographic_name
-    h[:state]   = cached_level1_geographic_name if cached_level1_geographic_name
-    h[:county]  = cached_level2_geographic_name if cached_level2_geographic_name
+    h[:state] = cached_level1_geographic_name if cached_level1_geographic_name
+    h[:county] = cached_level2_geographic_name if cached_level2_geographic_name
     h
   end
 
@@ -845,9 +851,11 @@ class CollectingEvent < ApplicationRecord
     # prevent a second call to get if we've already tried through
     values = get_geographic_name_classification if values.empty? && !tried
     return {} if values.empty?
-    update_column(:cached_level0_geographic_name, values[:country])
-    update_column(:cached_level1_geographic_name, values[:state])
-    update_column(:cached_level2_geographic_name, values[:county])
+    update_columns(
+      cached_level0_geographic_name: values[:country],
+      cached_level1_geographic_name: values[:state],
+      cached_level2_geographic_name: values[:county]
+    )
     values
   end
 
@@ -1189,28 +1197,25 @@ class CollectingEvent < ApplicationRecord
   end
 
   def set_cached
-    if !verbatim_label.blank?
-      string = verbatim_label
-    elsif !print_label.blank?
-      string = print_label
-    elsif !document_label.blank?
-      string = document_label
+    v = [verbatim_label, print_label, document_label].compact.first
+    if v 
+      string = v
     else
-      name       = cached_geographic_name_classification.values.join(': ')
-      date       = [start_date_string, end_date_string].compact.join('-')
+      name = cached_geographic_name_classification.values.join(': ')
+      date = [start_date_string, end_date_string].compact.join('-')
       place_date = [verbatim_locality, date].compact.join(', ')
-      string     = [name, place_date, verbatim_collectors, verbatim_method].reject { |a| a.blank? }.join("\n")
+      string = [name, place_date, verbatim_collectors, verbatim_method].reject{|a| a.blank? }.join("\n")
     end
 
-    string = "[#{self.to_param}]" if string.blank?
+    string = "[#{id}]" if string.blank?
 
-    self.cached = string
+    update_columns(cached: string)
   end
 
   def set_times_to_nil_if_form_provided_blank
-    matches         = ['0001-01-01 00:00:00 UTC', '2000-01-01 00:00:00 UTC']
-    self.time_start = nil if matches.include?(self.time_start.to_s)
-    self.time_end   = nil if matches.include?(self.time_end.to_s)
+    matches = ['0001-01-01 00:00:00 UTC', '2000-01-01 00:00:00 UTC']
+    write_attribute(:time_start, nil) if matches.include?(self.time_start.to_s)
+    write_attribute(:time_end, nil) if matches.include?(self.time_end.to_s)
   end
 
   def check_verbatim_geolocation_uncertainty

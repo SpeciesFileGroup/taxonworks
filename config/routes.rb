@@ -186,12 +186,9 @@ TaxonWorks::Application.routes.draw do
       get :card
     end
 
-    # collection do
-      #   post :preview_simple_batch_load # should be get
-      #   post :create_simple_batch_load
-      # end
-
     collection do
+      get :select_options, defaults: {format: :json}
+
       post :preview_castor_batch_load
       post :create_castor_batch_load
     end
@@ -454,6 +451,7 @@ TaxonWorks::Application.routes.draw do
   resources :people do
     concerns [:data_routes]
     member do
+      get :similar, defaults: {format: :json}
       get :roles
       get :details
       post :merge, defaults: {format: :json}
@@ -496,6 +494,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :repositories do
     concerns [:data_routes]
+    collection do
+      get :select_options, defaults: {format: :json}
+    end
   end
 
   # TODO: add exceptions
@@ -775,6 +776,10 @@ TaxonWorks::Application.routes.draw do
     # Scopes arranged alphabetically first level below :tasks
 
     scope :accessions do
+      scope :comprehensive, controller: 'tasks/accessions/comprehensive' do
+        get 'index', as: 'comprehensive_collection_object_task'
+      end
+
       scope :report do
         scope :dwc, controller: 'tasks/accessions/report/dwc' do
           get '', action: :index, as: 'report_dwc_task'

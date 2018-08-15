@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="expand-button">
     <span
       @click="$emit('input', false)"
       data-icon="contract"
@@ -21,3 +21,10 @@
     }
   }
 </script>
+
+<style scoped>
+  .expand-button {
+    cursor: pointer;
+  }
+</style>
+

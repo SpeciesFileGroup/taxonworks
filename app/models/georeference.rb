@@ -2,10 +2,10 @@
 # some collecting event.
 #
 # A georeference contains three components:
-#    1) A reference to a CollectingEvent (who, where, when, how)
-#    2) A reference to a GeographicItem (a shape)
-#    3) A method by which the shape was associated with the collecting event (via `type` subclassing).
-# If a georeference was published it's Source can be provided.  This is not equivalent to a method.
+#  1) A reference to a CollectingEvent (who, where, when, how)
+#  2) A reference to a GeographicItem (a shape)
+#  3) A method by which the shape was associated with the collecting event (via `type` subclassing).
+# If a georeference was published its Source can be provided.  This is not equivalent to providing a method for deriving the georeference.
 #
 # Contains information about a location on the face of the Earth, consisting of:
 #
