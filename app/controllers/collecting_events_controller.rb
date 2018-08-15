@@ -85,20 +85,7 @@ class CollectingEventsController < ApplicationController
   end
 
   def autocomplete
-    @collecting_events = CollectingEvent.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
-
-    data = @collecting_events.collect do |t|
-      str = render_to_string(partial: 'tag', locals: {collecting_event: t})
-      {id:              t.id,
-       label:           str,
-       response_values: {
-         params[:method] => t.id
-       },
-       label_html:      str
-      }
-    end
-
-    render json: data
+    @collecting_events = Queries::CollectingEvent::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
   end
 
  # GET /collecting_events/autocomplete_collecting_event_verbatim_locality?term=asdf
@@ -170,6 +157,11 @@ class CollectingEventsController < ApplicationController
       flash[:alert] = 'File to batch upload must be supplied.'
     end
     render :batch_load
+  end
+
+  # GET /collecting_events/select_options
+  def select_options
+    @collecting_events = CollectingEvent.select_optimized(sessions_current_user_id, sessions_current_project_id)
   end
 
   private

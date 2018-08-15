@@ -8,16 +8,6 @@
   <%= object.field_notes %>
 </p>
 
-<p>
-  <strong>Md5 of verbatim label:</strong>
-  <%= object.md5_of_verbatim_label %>
-</p>
-
-<p>
-  <strong>Cached:</strong>
-  <!--<div style="display:inline-block" class="tag_picker"></div>-->
-</p>
-
 <div class="attribute_set" data-title="Labels">
   <p>
     <strong>Verbatim label:</strong>
@@ -92,7 +82,7 @@
   </p>
 </div>
 
-<div class="attribute_set" data-title="Elevation">
+<div class="attribute_set" data-title="Elevation (m)">
   <p>
     <strong>Minimum elevation:</strong>
     <%= object.minimum_elevation %>
@@ -109,17 +99,7 @@
   </p>
 </div>
 
-<div class="attribute_set" data-title="Time">
-  <p>
-    <strong>Time start:</strong>
-    <%= object.time_start -%>
-  </p>
-
-  <p>
-    <strong>Time end:</strong>
-    <%= object.time_end %>
-  </p>
-
+<div class="attribute_set" data-title="Date/Time">
   <p>
     <strong>Start date day:</strong>
     <%= object.start_date_day %>
@@ -149,6 +129,17 @@
     <strong>End date year:</strong>
     <%= object.end_date_year %>
   </p>
+
+  <p>
+    <strong>Time start:</strong>
+    <%= object.time_start -%>
+  </p>
+
+  <p>
+    <strong>Time end:</strong>
+    <%= object.time_end %>
+  </p>
+
 </div>
 
 <div class="attribute_set" data-title="Stratigraphy">
@@ -181,7 +172,17 @@
     <strong>Min ma:</strong>
     <%= object.min_ma %>
   </p>
+</div>
 
 
+<div data-view="development" class="attribute_set" data-title="Cached values (calculated)">
+  <p>
+  <strong>Md5 of verbatim label:</strong>
+  <%= object.md5_of_verbatim_label %>
+  </p>
 
+  <p>
+  <strong>Cached:</strong>
+  <%= object.cached %>
+  </p>
 </div>
