@@ -45,7 +45,7 @@ class CollectingEventsController < ApplicationController
     respond_to do |format|
       if @collecting_event.update(collecting_event_params)
         format.html { redirect_to @collecting_event, notice: 'Collecting event was successfully updated.' }
-        format.json { head :no_content }
+        format.json { render :show, status: :ok, location: @collecting_event }
       else
         format.html { render action: 'edit' }
         format.json { render json: @collecting_event.errors, status: :unprocessable_entity }
