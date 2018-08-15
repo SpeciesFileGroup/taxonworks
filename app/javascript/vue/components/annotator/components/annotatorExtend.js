@@ -23,12 +23,13 @@ const vueAnnotator = {
   },
   data: function () {
     return {
-      list: []
+      list: [],
+      urlList: undefined
     }
   },
   mounted: function () {
     let that = this
-    this.getList(`${this.url}/${this.type}.json`).then(response => {
+    this.getList((typeof this.urlList == 'undefined') ? `${this.url}/${this.type}.json` : this.urlList).then(response => {
       that.list = response.body
     })
   },
