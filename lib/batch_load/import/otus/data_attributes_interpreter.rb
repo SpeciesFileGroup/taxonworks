@@ -33,19 +33,20 @@ module BatchLoad
           end
 
           otus = BatchLoad::ColumnResolver.otu(row)
+          find_name = row['otuname']
           if otus.no_matches? # can't find any by that name
             # find_name = row['otuname']
-            otus.assign(Otu.new(name: row['otuname'], project_id: real_project_id))
+            otus.assign(Otu.new(name: find_name, project_id: real_project_id))
           end
 
           [otus.item, otus.items].flatten.compact.each do |otu| # found one or more otus
-            if otu.persisted?
+            if otu.persisted? # means it was found in the database, not 'new' hers
               [das.item, das.items].flatten.compact.each do |da|
                 if da.attribute_subject == otu
                   if otus.item == otu
                     otus.assign([])
                   else
-                    group = otus.items.collect { |g_otu| g_otu == otu ? nil : g_otu }.compact
+                    group = otus.items.delete_if { |t_otu| t_otu == otu }
                     otus.assign(group)
                   end
                   parse_result.parse_errors << 'otu/predicate/value combination already exists.'
@@ -66,16 +67,16 @@ module BatchLoad
           parse_result.objects[:data_attribute].push(das.item)
           parse_result.parse_errors << das.error_messages if das.error_messages.any?
 
-          @total_data_lines += 1 if otu.present?
-        rescue
-          # ....
+          @total_data_lines += 1 if find_name.present?
+        rescue => _e
+          raise(_e)
         end
       end
 
       @total_lines = i
     end
-    # rubocop:enable Metrics/MethodLength
 
+    # rubocop:enable Metrics/MethodLength
     # Iterates in line order and attempts to save each record
     # @return [Boolean] true
     def create
@@ -104,6 +105,7 @@ module BatchLoad
     end
     # rubocop:enable Metrics/BlockNesting
 
+    # @return [Boolean] true if build process has run
     def build
       if valid?
         build_da_for_otus

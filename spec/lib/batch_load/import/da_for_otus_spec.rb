@@ -50,19 +50,39 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           expect(bingo.processed_rows[1].parse_errors.flatten).to include("Can't resolve multiple otus.")
         end
 
-        specify 'of \'combination exists\' type' do
+        specify 'of combination exists type' do
           names
+          # this one matches one in the import_2 file
           an_otu = Otu.create(name: 'Aus bus')
-          a_da = ImportAttribute.new(import_predicate: 'TotalSpecies',
-                                     value: 22)
-          an_otu.data_attributes << a_da
-          an_otu = Otu.create(name: 'Nuther bus')
           a_da = ImportAttribute.new(import_predicate: 'TotalSpecies',
                                      value: 22)
           an_otu.data_attributes << a_da
           bingo = import_2
           expect(bingo.processed_rows[1].parse_errors.flatten)
               .to include('otu/predicate/value combination already exists.')
+        end
+      end
+
+      context 'process non-error combinations' do
+        context 'multiple otus and multiple data_attributes' do
+          specify 'iterate both' do
+            names # provides one otu Aus bus, without data_attribute
+            # this one matches one in the import_2 file
+            an_otu = Otu.create(name: 'Aus bus')
+            a_da = ImportAttribute.new(import_predicate: 'TotalSpecies',
+                                       value: 22)
+            an_otu.data_attributes << a_da
+            # this one is included to provide another matching data_attribute not associated with Aus bus
+            an_otu = Otu.create(name: 'Nuther bus')
+            a_da = ImportAttribute.new(import_predicate: 'TotalSpecies',
+                                       value: 22)
+            an_otu.data_attributes << a_da
+            bingo = import_2
+            # expect(bingo.processed_rows[1].parse_errors.flatten)
+            #     .to include('otu/predicate/value combination already exists.')
+            # TODO: find something to indicate real success.
+            expect(bingo).to be_truthy
+          end
         end
       end
     end
@@ -75,9 +95,9 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           names
           bingo = import_2
           bingo.create
-          # names creates 7 otus, and import_2 finds one (not added), two new ones (two were not saved because of
+          # names creates 7 otus, and import_2 finds one (not added), four new ones (two were not saved because of
           # errors in predicate or value)
-          expect(Otu.count).to eq(10)
+          expect(Otu.count).to eq(11)
         end
       end
 
@@ -86,13 +106,13 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           names
           bingo = import_2
           bingo.create
-          expect(DataAttribute.count).to eq(4)
+          expect(DataAttribute.count).to eq(5)
         end
 
         specify 'no otu creation attempted for error lines' do
           bingo = import_2
           bingo.create
-          expect(Otu.count).to eq(4)
+          expect(Otu.count).to eq(5)
         end
       end
     end
@@ -115,7 +135,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           # one data attribute is created here,
           # import_2 creates four data attributes directly by otu name,
           # and one by reference to a taxon_name
-          expect(DataAttribute.count).to eq(5)
+          expect(DataAttribute.count).to eq(6)
         end
       end
     end
