@@ -638,7 +638,7 @@ namespace :tw do
                   @data.people[author] = a
                 end
               end
-              sa = SourceAuthor.create!(person_id: a, role_object: source, position: i + 1) unless a.nil?
+              sa = SourceAuthor.find_or_create_by!(person_id: a, role_object: source, position: i + 1) unless a.nil?
             end
             source.save!
             source.project_sources.create!
@@ -706,7 +706,7 @@ namespace :tw do
                     @data.people[author] = a
                   end
                 end
-                sa = SourceAuthor.create!(person_id: a, role_object: source, position: i + 1) unless a.nil?
+                sa = SourceAuthor.find_or_create_by!(person_id: a, role_object: source, position: i + 1) unless a.nil?
               end
               source.save
             end
