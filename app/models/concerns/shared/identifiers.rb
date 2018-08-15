@@ -12,9 +12,9 @@ module Shared::Identifiers
     scope :with_identifier_type, ->(id_type) { includes(:identifiers).where('identifiers.type = ?', id_type).references(:identifiers) }
     scope :with_identifier_namespace, ->(id_namespace) { includes(:identifiers).where('identifiers.namespace_id = ?', id_namespace.id).references(:identifiers) }
     scope :with_identifiers_sorted, -> { includes(:identifiers)
-                                           .where("identifiers.identifier ~ '\^\\d\+\$'")
-                                           .order('CAST(identifiers.identifier AS integer)')
-                                           .references(:identifiers) }
+      .where("identifiers.identifier ~ '\^\\d\+\$'")
+      .order('CAST(identifiers.identifier AS integer)')
+      .references(:identifiers) }
     scope :with_identifier_type_and_namespace, ->(id_type, id_namespace = nil, sorted = true) { with_identifier_type_and_namespace_method(id_type, id_namespace, sorted) }
 
   end
@@ -26,7 +26,7 @@ module Shared::Identifiers
     end
 
     # Exact match on identifier + namespace, return an Array, not Arel
-    # @param [String, String]  namespace_name is either the long or short namespace name.
+    # @param [String, String] namespace_name is either the long or short namespace name.
     # @return [Scope]
     def with_namespaced_identifier(namespace_name, identifier)
       i = Identifier.arel_table
@@ -51,8 +51,8 @@ module Shared::Identifiers
     # example Serial.with_identifier('MX serial ID 8740')
     def with_identifier(value)
       value = [value] if value.class == String
-      t     = Identifier.arel_table
-      a     = t[:cached].eq_any(value)
+      t = Identifier.arel_table
+      a = t[:cached].eq_any(value)
       self.joins(:identifiers).where(a.to_sql).references(:identifiers)
     end
 

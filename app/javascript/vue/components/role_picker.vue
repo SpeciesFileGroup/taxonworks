@@ -2,7 +2,7 @@
   <div>
     <div class="horizontal-left-content align-start">
       <autocomplete
-        :autofocus="true"
+        :autofocus="autofocus"
         class="separate-right"
         url="/people/autocomplete"
         label="label"
@@ -102,6 +102,10 @@
       roleType: {
         type: String,
         default: undefined
+      },
+      autofocus: {
+        type: Boolean,
+        default: true
       },
       value: undefined
     },

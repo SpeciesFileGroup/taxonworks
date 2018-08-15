@@ -99,6 +99,11 @@ class RepositoriesController < ApplicationController
     send_data Download.generate_csv(Repository.all), type: 'text', filename: "repositories_#{DateTime.now}.csv"
   end
 
+  # GET /repositories/select_options
+  def select_options
+    @repositories = Repository.select_optimized(sessions_current_user_id, sessions_current_project_id)
+  end
+
   private
 
   # Use callbacks to share common setup or constraints between actions.
