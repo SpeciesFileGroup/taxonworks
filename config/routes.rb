@@ -451,6 +451,7 @@ TaxonWorks::Application.routes.draw do
   resources :people do
     concerns [:data_routes]
     member do
+      get :similar, defaults: {format: :json}
       get :roles
       get :details
       post :merge, defaults: {format: :json}
