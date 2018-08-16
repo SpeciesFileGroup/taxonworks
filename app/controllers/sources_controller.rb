@@ -31,73 +31,52 @@ class SourcesController < ApplicationController
   # POST /sources
   # POST /sources.json
   # TODO: move all the logic to model(s)
-  # rubocop:disable Metrics/BlockNesting TODO: check on this
   def create
-    @source = Source.new(source_params)
-
+    @source = new_source 
     respond_to do |format|
       if @source.save
-        case @source.type
-          when 'Source::Bibtex'
-            format.html { redirect_to url_for(@source.metamorphosize),
-                                      notice: "Source by '#{@source.author}' was successfully created." }
-          when 'Source::Verbatim'
-            format.html { redirect_to url_for(@source.metamorphosize),
-                                      notice: "Source '#{@source.cached}' was successfully created." }
-          else # type human
-            format.html { redirect_to url_for(@source.metamorphosize),
-                                      notice: "Source '#{@source.cached_author_string}' was successfully created." }
-        end
+        format.html { redirect_to url_for(@source.metamorphosize),
+                      notice: "#{@source.type} successfully created." }
         format.json { render action: 'show', status: :created, location: @source }
       else
-        if @source.type == 'Source::Bibtex' && source_params['roles_attributes'].try(:count).to_i > 0
-          # has an author or editor so force create...
-          if @source.errors.get(:base).include?('Missing core data. A TaxonWorks source must have one of ' \
-                                                  'the following: author, editor, booktitle, title, url, ' \
-                                                  'journal, year, or stated year')
-            @source.title = 'forced'
-            if @source.save!
-              @source.title = ''
-              @source.save! #TODO may need to add a test to confirm it saves the second time.
-              format.html { redirect_to url_for(@source.metamorphosize),
-                                        notice: "Source by '#{@source.author}' was successfully created." }
-            else
-              format.html { render action: 'new' }
-              format.json { render json: @source.errors, status: :unprocessable_entity }
-            end
-          end
-        else
-          format.html { render action: 'new' }
-          format.json { render json: @source.errors, status: :unprocessable_entity }
-        end
+        format.html { render action: 'new' }
+        format.json { render json: @source.errors, status: :unprocessable_entity }
       end
+    end
+  end
+
+  def new_source
+    if params[:bibtex_input].blank?
+      Source.new(source_params)
+    else
+      Source::Bibtex.new_from_bibtex_text(params[:bibtex_input])
     end
   end
 
   def parse
-    respond_to do |format|
-      bibtex_string = params['bibtex_input']
-      begin
-        a               = BibTeX.parse(bibtex_string).convert(:latex)
-      rescue
-        a = nil
-      end
-      entry           = (a.nil? ? nil : a.first)
-      src             = (entry.nil? ? Source::Bibtex.new : Source::Bibtex.new_from_bibtex(entry))
-      status          = (src.valid? ? "OK" : "FAILED")
-      format.html {render action: 'new'}
-      # format.json {render json: src, status: status}
-      # render json: src
-      retval = {status: status, valid: src.valid?, errors: src.errors.messages, source: src}
-      # format.json {render json: src}
-      format.json {render json: retval}
-      if((src.valid?)&&(params['create_bibtex']=='true'))
-        src.save!
-      end
+    if @source = new_source
+      render '/sources/show'
+    else
+      render json: {status: :failed}
     end
-  end
+    #   bibtex_string = params['bibtex_input']
+    #   
+    #   begin
+    #     a = BibTeX.parse(bibtex_string).convert(:latex)
+    #   rescue
+    #     a = nil
+    #   end
 
-  # rubocop:enable Metrics/BlockNesting
+#   entry = (a.nil? ? nil : a.first)
+#   src = (entry.nil? ? Source::Bibtex.new : Source::Bibtex.new_from_bibtex(entry))
+#   status = (src.valid? ? "OK" : "FAILED")
+#   format.html {render action: 'new'}
+#   retval = {status: status, valid: src.valid?, errors: src.errors.messages, source: src}
+#   format.json {render json: retval}
+#   if((src.valid?)&&(params['create_bibtex']=='true'))
+#     src.save!
+#   end
+  end
 
   # PATCH/PUT /sources/1
   # PATCH/PUT /sources/1.json

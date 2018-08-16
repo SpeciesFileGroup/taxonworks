@@ -535,7 +535,7 @@ TaxonWorks::Application.routes.draw do
     collection do
       post :preview_bibtex_batch_load # should be get
       post :create_bibtex_batch_load
-      get   :parse#, defaults: {format: :json}
+      get :parse, defaults: {format: :json}
     end
   end
 
