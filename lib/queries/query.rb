@@ -88,7 +88,7 @@ module Queries
     # @return [Array]
     #   those strings that represent years
     def years
-      query_string.scan(/\b\d{4}\b/).to_a.uniq
+      query_string.scan(/\d{4}/).to_a.uniq
     end
 
     # @return [String, nil]
