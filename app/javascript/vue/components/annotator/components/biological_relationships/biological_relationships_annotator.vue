@@ -129,6 +129,7 @@
         biologicalRelation: undefined,
         citation: undefined,
         flip: false,
+        urlList: `/biological_associations.json?subject_global_id=${encodeURIComponent(this.globalId)}`
       }
     },
     methods: {

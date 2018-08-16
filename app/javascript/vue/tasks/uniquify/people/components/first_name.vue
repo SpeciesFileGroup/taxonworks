@@ -2,7 +2,7 @@
   <div>
     <input
       v-model="firstName"
-      placeholder="name -- use * for wild card"/>
+      placeholder="search is wild card wrapped"/>
   </div>
 </template>
 <script>

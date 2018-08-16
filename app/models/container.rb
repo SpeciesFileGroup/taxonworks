@@ -1,5 +1,5 @@
 # A container localizes the proximity of one ore more physical things, at this point in TW this is restricted to a number of collection objects.
-# Objects are placed in containers by reference through a ContainerItem.
+# Objects are placed in containers by reference to a ContainerItem.
 #
 # @!attribute type
 #   @return [String]
@@ -16,6 +16,22 @@
 # @!attribute disposition
 #   @return [String]
 #     a free text description of the position of this container
+#
+# @!attribute size_x 
+#   @return [Int]
+#     the number of slots in the x dimension 
+#
+# @!attribute size_y 
+#   @return [Int]
+#     the number of slots in the y dimension 
+#
+# @!attribute size_z 
+#   @return [Int]
+#     the number of slots in the z dimension 
+#
+# @!attribute print_label 
+#   @return [String]
+#     text of a label to print for this container 
 #
 class Container < ApplicationRecord
 
@@ -61,11 +77,6 @@ class Container < ApplicationRecord
     container_item.descendants.map(&:contained_object)
   end
 
-  # # @return [Array] of CollectionObject#id of this container's CollectionObjects only (no recursion)
-  # def collection_objects
-  #   container_items.containing_collection_objects.map(&:contained_object)
-  # end
-
   # @return [Array] of CollectionObject#id of this container's CollectionObjects only (with recursion)
   def collection_objects
     all_container_items.containing_collection_objects.map(&:contained_object)
@@ -104,11 +115,16 @@ class Container < ApplicationRecord
   #   the free space in this container (non-recursive)
   def available_space
     in_container = container_items.count
-    size - in_container
+    if size 
+      size - in_container
+    else
+      nil
+    end
   end
 
   # @return [Integer, nil]
-  #   the total number of "slots" or "spaces" this container has, it's size
+  #   the total number of "slots" or "spaces" this container has, it's size 
+  # TODO: reserved word?
   def size
     return nil if size_x.blank? && size_y.blank? && size_z.blank?
     if size_x

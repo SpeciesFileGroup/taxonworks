@@ -2,6 +2,8 @@ require 'rails_helper'
 
 describe Queries::Person::Filter, type: :model do
 
+
+
   let!(:p1) { Person.create!(last_name: 'Smith') }
   let!(:p2) { Person.create!(last_name:  'Smith',
                              first_name: 'Sarah') }
@@ -13,136 +15,125 @@ describe Queries::Person::Filter, type: :model do
   let!(:p5) { Person.create!(last_name:  'Bundy',
                              first_name: 'Ted') }
 
-  let(:query) { Queries::Person::Filter.new('') }
-
   let!(:collecting_event) {
-    CollectingEvent.create(verbatim_locality:               'Neverland',
-                           with_verbatim_data_georeference: true,
-                           verbatim_latitude:               '10',
-                           verbatim_longitude:              '10',
-                           collectors:                      [p2])
+    CollectingEvent.create!(
+      verbatim_locality: 'Neverland',
+      with_verbatim_data_georeference: true,
+      verbatim_latitude: '10',
+      verbatim_longitude: '10',
+      collectors: [p2])
   }
+
   let!(:georeference) {
     collecting_event.georeferences.first.georeferencers << p3
     collecting_event.georeferences.first.georeferencers << p2
   }
 
+  let(:query) { Queries::Person::Filter.new({}) }
+
+  # TODO: discuss a default strategy
+  specify 'without params nothing is returned' do 
+    expect(query.all.pluck(:id)).to contain_exactly()
+  end
+
   context 'partial name only' do
-    context 'containing \'a\'' do
+    context "containing 'a'" do
       specify 'with role' do
-        params = {lastname: '', firstname: 'a', roles: ['Collector']}
-        expect(Queries::Person::Filter.new(params).wild_or_exact)
-          .to contain_exactly(p2.becomes(Person::Vetted))
+        query.first_name = 'a'
+        query.limit_to_roles = %w{Collector}
+        expect(query.all.pluck(:id)).to contain_exactly(p2.id)
       end
 
       specify 'without role' do
-        params = {lastname: '', firstname: 'a', roles: []}
-        expect(Queries::Person::Filter.new(params).wild_or_exact)
-          .to contain_exactly(p3.becomes(Person::Unvetted),
-                              p2.becomes(Person::Vetted))
+        query.first_name = 'a'
+        expect(query.all.pluck(:id)).to contain_exactly(p2.id, p3.id)
       end
     end
   end
 
-  context 'exact name' do
-    context 'containing \'Smitha\'' do
+  context 'full name' do
+    context "containing 'Smith'" do
       specify 'with role' do
-        params = {lastname: 'Smith', firstname: '', roles: ['Collector']}
-        expect(Queries::Person::Filter.new(params).all)
-          .to contain_exactly(p2.becomes(Person::Vetted))
+        query.last_name = 'Smith'
+        query.limit_to_roles = %w{Collector}
+        expect(query.all.pluck(:id)).to contain_exactly(p2.id)
       end
 
       specify 'without role' do
-        params = {lastname: 'Smith', firstname: '', roles: []}
-        expect(Queries::Person::Filter.new(params).all)
-          .to contain_exactly(p2.becomes(Person::Vetted),
-                              p1.becomes(Person::Unvetted))
+        query.last_name = 'Smith'
+        expect(query.all.pluck(:id)).to contain_exactly(p1.id, p2.id)
       end
     end
   end
 
   context 'exact first name, last_name' do
-    context 'containing \'Smith, Sarah\'' do
+    context "containing 'Smith, Sarah'" do
       specify 'with role' do
-        params = {lastname: 'Smith', firstname: 'Sarah', roles: ['Collector']}
-        expect(Queries::Person::Filter.new(params).all)
-          .to contain_exactly(p2.becomes(Person::Vetted))
+        query.last_name = 'Smith'
+        query.first_name = 'Sarah'
+        query.limit_to_roles = %w{Collector}
+        expect(query.all.map(&:id)).to contain_exactly(p2.id) 
       end
 
       specify 'without role' do
-        params = {lastname: 'Smith', firstname: 'Sarah', roles: []}
+        params = {last_name: 'Smith', first_name: 'Sarah', roles: []}
         expect(Queries::Person::Filter.new(params).all)
           .to contain_exactly(p2.becomes(Person::Vetted))
       end
     end
   end
 
+  # Largely redundant
   context 'partial_complete' do
-    context 'wildcard' do
-      context 'last name only' do
-        specify 'smi*' do
-          params = {lastname: 'smi*'}
-          expect(Queries::Person::Filter.new(params).wild_or_exact)
-            .to contain_exactly(p1.becomes(Person::Unvetted),
-                                p2.becomes(Person::Vetted))
-        end
-
-        specify '*u*' do
-          params = {lastname: '*u*'}
-          expect(Queries::Person::Filter.new(params).wild_or_exact)
-            .to contain_exactly(p5.becomes(Person::Unvetted),
-                                p4.becomes(Person::Unvetted))
-        end
+    context 'last name only' do
+      specify 'smi' do
+        params = {last_name: 'smi'}
+        expect(Queries::Person::Filter.new(params).all)
+          .to contain_exactly(p1.becomes(Person::Unvetted),
+                              p2.becomes(Person::Vetted))
       end
 
-      context 'first name only' do
-        specify 'sa*' do
-          params = {firstname: 'sa*'}
-          expect(Queries::Person::Filter.new(params).wild_or_exact)
-            .to contain_exactly(p2.becomes(Person::Vetted))
-        end
+      specify 'u' do
+        params = {last_name: 'u'}
+        expect(Queries::Person::Filter.new(params).all)
+          .to contain_exactly(p5.becomes(Person::Unvetted),
+                              p4.becomes(Person::Unvetted))
+      end
+    end
 
-        specify '*e*' do
-          params = {firstname: '*e*'}
-          expect(Queries::Person::Filter.new(params).wild_or_exact)
-            .to contain_exactly(p3.becomes(Person::Unvetted),
-                                p5.becomes(Person::Unvetted),
-                                p4.becomes(Person::Unvetted))
-        end
+    context 'first name only' do
+      specify 'sa' do
+        params = {first_name: 'sa'}
+        expect(Queries::Person::Filter.new(params).all)
+          .to contain_exactly(p2.becomes(Person::Vetted))
       end
 
-      context 'first and last' do
-        specify 'sa* smi*' do
-          params = {firstname: 'sa*', last_name: 'smi*'}
-          expect(Queries::Person::Filter.new(params).wild_or_exact)
-            .to contain_exactly(p2.becomes(Person::Vetted))
-        end
+      specify 'e' do
+        query.first_name = 'e'
+        expect(query.all.map(&:id))
+          .to contain_exactly(p3.id, p5.id, p4.id)
+      end
+    end
+
+    context 'first and last' do
+      specify 'sa smi' do
+        params = {first_name: 'sa', last_name: 'smi'}
+        expect(Queries::Person::Filter.new(params).all)
+          .to contain_exactly(p2.becomes(Person::Vetted))
       end
     end
   end
 
   context 'roles' do
     specify 'with role' do
-      params = {lastname: '', firstname: '', roles: ['Collector']}
-      expect(Queries::Person::Filter.new(params).all)
-        .to contain_exactly(p2.becomes(Person::Vetted))
+      params = {roles: ['Collector']}
+      expect(Queries::Person::Filter.new(params).all.map(&:id)).to contain_exactly(p2.id)
     end
 
     specify 'with multiple roles' do
-      params = {lastname: '', firstname: '', roles: ['Collector', 'Georeferencer']}
-      expect(Queries::Person::Filter.new(params).all)
-        .to contain_exactly(p3.becomes(Person::Unvetted),
-                            p2.becomes(Person::Vetted))
-    end
-
-    specify 'without role' do
-      params = {lastname: '', firstname: '', roles: []}
-      expect(Queries::Person::Filter.new(params).all)
-        .to contain_exactly(p2.becomes(Person::Vetted),
-                            p1.becomes(Person::Unvetted),
-                            p3.becomes(Person::Unvetted),
-                            p4.becomes(Person::Unvetted),
-                            p5.becomes(Person::Unvetted))
+      params = {roles: ['Collector', 'Georeferencer']}
+      expect(Queries::Person::Filter.new(params).all.pluck(:id)).to contain_exactly(p2.id, p3.id)
     end
   end
+
 end

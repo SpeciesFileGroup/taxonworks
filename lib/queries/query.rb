@@ -1,3 +1,5 @@
+require 'date'
+
 # See
 #  http://www.slideshare.net/camerondutro/advanced-arel-when-activerecord-just-isnt-enough
 #  https://github.com/rails/arel
@@ -86,7 +88,7 @@ module Queries
     # @return [Array]
     #   those strings that represent years
     def years
-      query_string.scan(/\d{4}/).to_a.uniq
+      query_string.scan(/\b\d{4}\b/).to_a.uniq
     end
 
     # @return [String, nil]
@@ -111,7 +113,7 @@ module Queries
 
     # @return [Array]
     #   if 1-5 alphabetic_strings, those alphabetic_strings wrapped in wildcards, else none.
-    #  Used in *unordered* AND searchs
+    #  Used in *unordered* AND searches
     def fragments
       a = alphabetic_strings
       if a.size > 0 && a.size < 6
@@ -192,6 +194,32 @@ module Queries
       end
     end
 
+    # @return [Date.new, nil]
+    def simple_date
+      begin
+        Date.parse(query_string)
+      rescue ArgumentError
+        return nil
+      end
+    end
+
+    def with_start_date
+      if d = simple_date
+        r = []
+        r.push(table[:start_date_day].eq(d.day)) if d.day
+        r.push(table[:start_date_month].eq(d.month)) if d.month
+        r.push(table[:start_date_year].eq(d.year)) if d.year
+
+        q = r.pop
+        r.each do |z|
+          q = q.and(z)
+        end
+        q
+      else
+        nil
+      end
+    end
+
     # @return [Arel::Nodes::Matches]
     def named
       table[:name].matches_any(terms)
@@ -215,23 +243,6 @@ module Queries
       else
         nil
       end
-    end
-
-    # @return [Arel::Table]
-    def identifier_table
-      Identifier.arel_table
-    end
-
-    # @return [Arel::Nodes::Grouping]
-    def with_identifier_like
-      a = [ start_and_end_wildcard ]
-      a = a + wildcard_wrapped_integers
-      identifier_table[:cached].matches_any(a)
-    end
-
-    # @return [Arel::Nodes::Equality]
-    def with_identifier
-      identifier_table[:cached].eq(query_string)
     end
 
     # @return [ActiveRecord::Relation, nil]
@@ -268,18 +279,41 @@ module Queries
       a
     end
 
+    # 
+    # Identifier
+    #
+
+    # @return [Arel::Table]
+    def identifier_table
+      ::Identifier.arel_table
+    end
+
+    # @return [Arel::Nodes::Grouping]
+    def with_identifier_like
+      a = [ start_and_end_wildcard ]
+      a = a + wildcard_wrapped_integers
+      identifier_table[:cached].matches_any(a)
+    end
+
+    # @return [Arel::Nodes::Equality]
+    def with_identifier
+      identifier_table[:cached].eq(query_string)
+    end
+
+    #
+    # Autocomplete
+    #
+
     # @return [Array]
     #   default the autocomplete result to all
     def autocomplete
       all.to_a
     end
 
-
     # @return [ActiveRecord::Relation]
     def autocomplete_ordered_wildcard_pieces_in_cached
       base_query.where(match_ordered_wildcard_pieces_in_cached.to_sql).limit(5)
     end
-
 
     # @return [ActiveRecord::Relation]
     #   removes years/integers!
@@ -295,6 +329,21 @@ module Queries
       return nil if a.nil?
       base_query.where(a.to_sql).limit(20)
     end
+
+    def autocomplete_identifier_cached_exact
+      base_query.joins(:identifiers).where(with_identifier.to_sql)
+    end
+
+    def autocomplete_identifier_cached_like
+      base_query.joins(:identifiers).where(with_identifier_like.to_sql)
+    end
+
+    def autocomplete_start_date
+      a = with_start_date 
+      return nil if a.nil?
+      base_query.where(a.to_sql).limit(20)
+    end
+
 
   end
 end
