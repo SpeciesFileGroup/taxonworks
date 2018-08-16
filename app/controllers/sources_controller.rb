@@ -37,7 +37,7 @@ class SourcesController < ApplicationController
       if @source.save
         format.html { redirect_to url_for(@source.metamorphosize),
                       notice: "#{@source.type} successfully created." }
-        format.json { render action: 'show', status: :created, location: @source }
+        format.json { render action: 'show', status: :created, location: @source.metamorphosize }
       else
         format.html { render action: 'new' }
         format.json { render json: @source.errors, status: :unprocessable_entity }
