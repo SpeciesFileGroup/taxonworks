@@ -48,6 +48,14 @@
             <table-bibtex :bibtex="parsedBibtex"/>
           </div>
         </div>
+        <div
+          class="flex-separate top">
+          <div
+            style="overflow: auto; width:300px; height:800px;">
+            <h2>Recent created</h2>
+            <table-recent :list="recentCreated"/>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -55,13 +63,15 @@
 
 <script>
 import BibtexInput from "./components/bibtex_input"
-import TableBibtex from './components/tableBibtex'
+import TableBibtex from "./components/tableBibtex"
 import Spinner from "../../components/spinner.vue"
+import TableRecent from "./components/recentTable"
 
 export default {
   components: {
     BibtexInput,
     TableBibtex,
+    TableRecent,
     Spinner
   },
   computed: {
@@ -86,6 +96,7 @@ export default {
       bibtexInput: "",
       isLoading: false,
       parsedBibtex: {},
+      recentCreated: []
     };
   },
   watch: {
@@ -113,6 +124,7 @@ export default {
       this.isLoading = true;
       this.$http.post("/sources.json", { bibtex_input: this.bibtexInput }).then(response => {
         this.parsedBibtex = response.body;
+        this.recentCreated.push(response.body)
         this.bibtexInput = ""
         this.isLoading = false;
       });     
