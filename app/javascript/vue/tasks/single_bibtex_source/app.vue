@@ -32,7 +32,7 @@
           &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
           <button
             class="button normal-input button-default"
-            @click="createBibtex"
+            @click="createSource"
             :disabled="!enableCreateBibtex"
             type="submit">Create source from BibTeX
           </button>
@@ -45,7 +45,7 @@
           <div
             style="overflow: auto; width:300px; height:800px;">
             <h2>Parsed BibTeX</h2>
-            <pre>{{ parsedBibtex }}</pre>
+            <table-bibtex :bibtex="parsedBibtex"/>
           </div>
         </div>
       </div>
@@ -54,13 +54,14 @@
 </template>
 
 <script>
-import BibtexInput from "./components/bibtex_input";
-
-import Spinner from "../../components/spinner.vue";
+import BibtexInput from "./components/bibtex_input"
+import TableBibtex from './components/tableBibtex'
+import Spinner from "../../components/spinner.vue"
 
 export default {
   components: {
     BibtexInput,
+    TableBibtex,
     Spinner
   },
   computed: {
@@ -68,7 +69,7 @@ export default {
       return this.bibtexInput.length > 0;
     },
     enableCreateBibtex() {
-      return (this.parsedBibtex.valid && this.unlockCreate); //Object.keys(this.parsedBibtex).length;
+      return (!this.parsedBibtex.hasOwnProperty('status') && Object.keys(this.parsedBibtex).length); //Object.keys(this.parsedBibtex).length;
     },
     showCreatedSourceID() {
       let retVal = '';
@@ -84,8 +85,7 @@ export default {
     return {
       bibtexInput: "",
       isLoading: false,
-      parsedBibtex: '',
-      unlockCreate: false,
+      parsedBibtex: {},
     };
   },
   watch: {
@@ -97,31 +97,26 @@ export default {
     parseBibtex(create) {
       let params = {
         bibtex_input: this.bibtexInput,
-        create_bibtex: create
-      };
+      }
       this.isLoading = true;
-      let that = this;
       this.$http.get("/sources/parse.json", { params: params }).then(response => {
-        this.parsedBibtex = response.body;
-        this.unlockCreate = this.parsedBibtex.valid && !create;
-        that.isLoading = false;
+        this.parsedBibtex = response.body; 
+        this.unlockCreate = !response.body.hasOwnProperty('status');
+        this.isLoading = false;
       });
     },
-    createBibtex() {
-      let create = true;      // just for clarity
-      this.parseBibtex(create);
-      this.unlockCreate = false;
-    },
     resetApp() {
-      this.clearInputData();
-    },
-    clearInputData() {
       this.bibtexInput = '';
       this.clearParsedData();
     },
-    clearParsedData() {
-      this.parsedBibtex = '';
+    createSource() {
+      this.isLoading = true;
+      this.$http.post("/sources.json", { bibtex_input: this.bibtexInput }).then(response => {
+        this.parsedBibtex = response.body;
+        this.bibtexInput = ""
+        this.isLoading = false;
+      });     
     }
   }
-};
+}
 </script>
