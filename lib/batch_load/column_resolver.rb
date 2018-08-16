@@ -13,6 +13,8 @@ module BatchLoad::ColumnResolver
 
       predicate = columns['predicate']
       value     = columns['value']
+      r.error_messages << 'No column for \'Value\' was provided.' unless columns.key?('value')
+      r.error_messages << 'No column for \'Predicate\' was provided.' unless columns.key?('predicate')
       r.error_messages << 'No contents for \'Value\' was provided.' if value.blank?
       r.error_messages << 'No contents for \'Predicate\' was provided.' if predicate.blank?
 
@@ -41,12 +43,13 @@ module BatchLoad::ColumnResolver
       elsif columns['taxon_name']
         r.assign Otu.joins(:taxon_names).where(taxon_names: {cached: columns['taxon_name']}, project_id: columns['project_id']).limit(10).to_a
         r.error_messages << "Multiple OTUs matched the taxon name '#{columns['taxon_name']}'." if r.multiple_matches?
-      elsif columns['otuname']
+      elsif columns.key?('otuname')
         name = columns['otuname']
-        list = Otu.where(name: name, project_id: columns['project_id']).limit(2)
+        proj_id = columns['project_id']
+        list = Otu.where(name: name, project_id: proj_id).limit(2)
         if list.blank? # treat it like a taxon name
           list = Otu.joins(:taxon_name)
-                     .where(taxon_names: {cached: name}, project_id: columns['project_id'])
+                     .where(taxon_names: {cached: name}, project_id: proj_id)
                      .limit(2)
         end
         r.assign(list.to_a)

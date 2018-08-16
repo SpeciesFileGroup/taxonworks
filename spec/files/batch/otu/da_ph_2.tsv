@@ -5,5 +5,5 @@ Hymenoptera	TotalSpecies	19	Should create new otu and data_attribute +1o, +1da.
 New Name	Total Males	42	Should create new otu and data_attribute +1o +1da.
 No value	EMPTY_VALUE		Throws 'no value' error +0o +0da.
 No predicate		<== no predicate <==	Throws 'no predicate' error +0o +0da.
-		TotalSpecies	22	Has no otu name +0o +0da.
+	TotalSpecies	22	Has no otu name +0o +0da.
 taxon match	find an otu through taxon name	new data attribute	Designed to be found by 'otu.taxon_name.cached' +1o +1da.

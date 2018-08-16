@@ -24,6 +24,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
                                                                           file: upload_file_2)
   }
 
+  # rubocop:disable Rails/SaveBang
   context 'scanning tsv lines to evaluate data' do
     context 'file provided' do
       it 'loads data for review' do
@@ -141,3 +142,4 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
     end
   end
 end
+# rubocop:enable Rails/SaveBang
