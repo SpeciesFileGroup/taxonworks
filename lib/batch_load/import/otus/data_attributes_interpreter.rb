@@ -25,12 +25,11 @@ module BatchLoad
         @processed_rows[i] = parse_result
 
         begin # processing
+          # assume we will be creating a new da
+          da = ImportAttribute.new(import_predicate: row['predicate'],
+                                   value: row['value'],
+                                   project_id: real_project_id)
           das = BatchLoad::ColumnResolver.import_attribute(row)
-          if das.no_matches? # can't find any with that configuration
-            das.assign(ImportAttribute.new(import_predicate: row['predicate'],
-                                           value: row['value'],
-                                           project_id: real_project_id))
-          end
 
           otus = BatchLoad::ColumnResolver.otu(row)
           find_name = row['otuname']
@@ -39,15 +38,18 @@ module BatchLoad
             otus.assign(Otu.new(name: find_name, project_id: real_project_id))
           end
 
-          [otus.item, otus.items].flatten.compact.each do |otu| # found one or more otus
-            if otu.persisted? # means it was found in the database, not 'new' hers
-              [das.item, das.items].flatten.compact.each do |da|
-                if da.attribute_subject == otu
-                  if otus.item == otu
+          # search for (and remove) pairs (otu and da) which are already represented in the database.
+          [otus.item, otus.items].flatten.compact.each do |l_otu| # found one or more otus
+            if l_otu.persisted? # means it was found in the database, not 'new' here
+              [das.item, das.items].flatten.compact.each do |l_da|
+                if l_da.attribute_subject == l_otu
+                  if otus.item == l_otu
                     otus.assign([])
-                  else
-                    group = otus.items.delete_if { |t_otu| t_otu == otu }
+                  else # reamove otu and da from thier respective collections.
+                    group = otus.items.delete_if { |_otu| _otu == l_otu }
                     otus.assign(group)
+                    group = das.items.delete_if { |_da| _da == l_da }
+                    das.assign(group)
                   end
                   parse_result.parse_errors << 'otu/predicate/value combination already exists.'
                   break
@@ -55,11 +57,13 @@ module BatchLoad
               end
             end
           end
-
           if otus.multiple_matches?
-            parse_result.parse_errors << 'Can\'t resolve multiple otus.'
+            parse_result.parse_errors << 'Can\'t resolve multiple found otus.'
             otus.assign([])
+          else
+            das.assign(da) # finished with the found das, prepare a new one to attach to a remaining otu
           end
+
 
           parse_result.parsed = true
           parse_result.objects[:otu].push(otus.item)
@@ -85,14 +89,12 @@ module BatchLoad
         sorted_processed_rows.each_value do |processed_row|
           otu = processed_row.objects[:otu].flatten.first
           d_a = processed_row.objects[:data_attribute].flatten.first
-          unless otu.nil?
-            unless d_a.nil?
-              if d_a.valid?
-                otu.save unless otu.persisted?
-                otu.data_attributes << d_a
-              else
-                otu
-              end
+          unless otu.nil? or d_a.nil?
+            if d_a.valid? && otu.valid?
+              otu.save if otu.new_record?
+              otu.data_attributes << d_a
+            else
+              otu
             end
           end
         end
@@ -103,6 +105,7 @@ module BatchLoad
       end
       true
     end
+
     # rubocop:enable Metrics/BlockNesting
 
     # @return [Boolean] true if build process has run

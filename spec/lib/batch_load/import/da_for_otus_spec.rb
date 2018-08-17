@@ -48,7 +48,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           names
           Otu.create(name: 'Aus bus')
           bingo = import_2
-          expect(bingo.processed_rows[1].parse_errors.flatten).to include("Can't resolve multiple otus.")
+          expect(bingo.processed_rows[1].parse_errors.flatten).to include("Can't resolve multiple found otus.")
         end
 
         specify 'of combination exists type' do
@@ -65,24 +65,37 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
       end
 
       context 'process non-error combinations' do
+        let(:attribute_matches) {
+          # this one matches one in the import_2 file
+          an_otu = Otu.create(name: 'Aus bus')
+          a_da = ImportAttribute.new(import_predicate: 'TotalSpecies',
+                                     value: 22)
+          an_otu.data_attributes << a_da
+          # this one is included to provide another matching data_attribute not associated with Aus bus
+          an_otu = Otu.create(name: 'Nuther bus')
+          a_da = ImportAttribute.new(import_predicate: 'TotalSpecies',
+                                     value: 22)
+          an_otu.data_attributes << a_da
+
+        }
+        let(:start) { {otus: Otu.count, das: ImportAttribute.count} }
         context 'multiple otus and multiple data_attributes' do
-          specify 'iterate both' do
+          specify 'check otus' do
             names # provides one otu Aus bus, without data_attribute
-            # this one matches one in the import_2 file
-            an_otu = Otu.create(name: 'Aus bus')
-            a_da = ImportAttribute.new(import_predicate: 'TotalSpecies',
-                                       value: 22)
-            an_otu.data_attributes << a_da
-            # this one is included to provide another matching data_attribute not associated with Aus bus
-            an_otu = Otu.create(name: 'Nuther bus')
-            a_da = ImportAttribute.new(import_predicate: 'TotalSpecies',
-                                       value: 22)
-            an_otu.data_attributes << a_da
+            attribute_matches # provides multiple matching attributes and ots
+            start # check object count
             bingo = import_2
-            # expect(bingo.processed_rows[1].parse_errors.flatten)
-            #     .to include('otu/predicate/value combination already exists.')
-            # TODO: find something to indicate real success.
-            expect(bingo).to be_truthy
+            bingo.create
+            expect(Otu.count).to eq(start[:otus] + 4)
+          end
+
+          specify 'check data_attributes' do
+            names # provides one otu Aus bus, without data_attribute
+            attribute_matches # provides multiple matching attributes and ots
+            start # check object count
+            bingo = import_2
+            bingo.create
+            expect(ImportAttribute.count).to eq(start[:das] + 5)
           end
         end
       end
