@@ -13,6 +13,8 @@
       :full-screen="true"
       legend="Loading..."
       :logo-size="{ width: '100px', height: '100px'}"/>
+
+     <p> <i> Creates a single record. For multiple records use a Source batch loader.</i> </p>
     <div class="flexbox">
       <div class="flexbox">
         <div class="separate-right">
@@ -52,7 +54,7 @@
       <div
         class="flex-separate top">
         <div>
-          <h2>Recent created</h2>
+          <h2>Recently created</h2>
           <table-recent :list="recentCreated"/>
         </div>
       </div>
