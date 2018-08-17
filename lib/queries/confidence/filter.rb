@@ -13,11 +13,12 @@ module Queries
       # Params specific to Confidence 
 
       # Array, Integer
-      attr_accessor :confidence_level_id
+      attr_accessor :confidence_level_id, :object_global_id
 
       # @params params [ActionController::Parameters]
       def initialize(params)
         @confidence_level_id = [params[:confidence_level_id]].flatten.compact
+        @object_global_id = params[:object_global_id]
         @options = params
       end
 
@@ -26,6 +27,7 @@ module Queries
         clauses = [
           Queries::Annotator.annotator_params(options, ::Confidence),
           matching_confidence_level_id,
+          matching_object,
         ].compact
 
         a = clauses.shift
@@ -33,6 +35,28 @@ module Queries
           a = a.and(b)
         end
         a
+      end
+
+      # @return [ActiveRecord object, nil]
+      # TODO: DRY
+      def object_for
+        if o = GlobalID::Locator.locate(object_global_id)
+          o
+        else
+          nil
+        end
+      end
+
+      # TODO: Dry
+      # @return [Arel::Node, nil]
+      def matching_object
+        if o = object_for
+          table["confidence_object_id"].eq(o.id).and(
+              table["confidence_object_type"].eq(o.metamorphosize.class.name)
+          )
+        else
+          nil
+        end
       end
 
       # @return [Arel::Node, nil]
