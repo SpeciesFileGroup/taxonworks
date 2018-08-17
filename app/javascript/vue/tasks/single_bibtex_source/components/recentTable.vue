@@ -7,7 +7,13 @@
         class="contextMenuCells">
         <td v-html="item.object_tag"/>
         <td>
-          <radial-annotator :global-id="item.global_id"/>
+          <div class="horizontal-left-content">
+            <radial-annotator :global-id="item.global_id"/>
+            <add-to-project :id="item.id"/>
+            <pin-component 
+              :object-id="item.id"
+              :type="item.type"/>
+          </div>
         </td>
       </tr>
     </tbody>
@@ -16,10 +22,14 @@
 
 <script>
 import RadialAnnotator from '../../../components/annotator/annotator'
+import AddToProject from '../../../components/addToProjectSource'
+import PinComponent from '../../../components/pin'
 
 export default {
   components: {
-    RadialAnnotator
+    RadialAnnotator,
+    AddToProject,
+    PinComponent
   },
   props: {
     list: {
@@ -29,7 +39,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>
