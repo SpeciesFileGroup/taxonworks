@@ -3,14 +3,14 @@
     v-if="!createdSource"
     @click="create"
     type="button"
-    class="button-submit">
+    class="button normal-input button-submit">
     Add to source
   </button>
   <button
     v-else
     @click="remove"
     type="button"
-    class="button-delete">
+    class="button normal-input button-delete">
     Remove from project
   </button>
 </template>

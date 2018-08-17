@@ -5,15 +5,21 @@
         v-for="item in list"
         :key="item.id"
         class="contextMenuCells">
-        <td v-html="item.object_tag"/>
         <td>
-          <div class="horizontal-left-content">
-            <radial-annotator :global-id="item.global_id"/>
-            <add-to-project :id="item.id"/>
-            <pin-component 
-              :object-id="item.id"
-              :type="item.type"/>
-          </div>
+          <a 
+            :href="`/sources/${item.id}`"
+            v-html="item.object_tag"/>
+        </td>
+        <td>
+          <add-to-project :id="item.id"/>
+        </td>
+        <td>
+          <radial-annotator :global-id="item.global_id"/>
+        </td>
+        <td>
+          <pin-component 
+            :object-id="item.id"
+            :type="item.type"/>
         </td>
       </tr>
     </tbody>

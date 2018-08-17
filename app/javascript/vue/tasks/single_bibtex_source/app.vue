@@ -15,7 +15,7 @@
       :logo-size="{ width: '100px', height: '100px'}"/>
     <div class="flexbox">
       <div class="flexbox">
-        <div style="width: 200px">
+        <div class="separate-right">
           <div class="last_name separate-right">
             <h2>BibTeX Input</h2>
             <bibtex-input v-model="bibtexInput" />
@@ -41,23 +41,21 @@
           <span>{{ showCreatedSourceID }}</span>
         </div>
         <div
-          class="flex-separate top">
-          <div
-            style="overflow: auto; width:300px; height:800px;">
+          class="flex-separate top separate-left">
+          <div>
             <h2>Parsed BibTeX</h2>
             <table-bibtex :bibtex="parsedBibtex"/>
           </div>
         </div>
-        <div
-          class="flex-separate top">
-          <div
-            style="overflow: auto; width:300px; height:800px;">
-            <h2>Recent created</h2>
-            <table-recent :list="recentCreated"/>
-          </div>
-        </div>
       </div>
     </div>
+      <div
+        class="flex-separate top">
+        <div>
+          <h2>Recent created</h2>
+          <table-recent :list="recentCreated"/>
+        </div>
+      </div>
   </div>
 </template>
 
@@ -123,7 +121,7 @@ export default {
     createSource() {
       this.isLoading = true;
       this.$http.post("/sources.json", { bibtex_input: this.bibtexInput }).then(response => {
-        this.parsedBibtex = response.body;
+        this.parsedBibtex = {}
         this.recentCreated.push(response.body)
         this.bibtexInput = ""
         this.isLoading = false;
