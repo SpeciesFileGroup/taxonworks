@@ -99,8 +99,8 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects/list
   def list
     @collection_objects = CollectionObject.with_project_id(sessions_current_project_id)
-                            .order(:id)
-                            .page(params[:page]) #.per(10) #.per(3)
+      .order(:id)
+      .page(params[:page]) #.per(10) #.per(3)
   end
 
   # GET /collection_object/search

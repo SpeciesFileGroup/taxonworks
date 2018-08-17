@@ -272,7 +272,7 @@ require 'csl/styles'
 #
 # @!attribute language_id
 #   @return [Integer]
-#   @todo
+#     language, from a controlled vocabulary 
 #
 # @!attribute translator
 #   @return [String]
@@ -307,9 +307,8 @@ class Source::Bibtex < Source
   # either year or stated_year is acceptable
   TW_REQUIRED_FIELDS = [:author, :editor, :booktitle, :title, :url, :journal, :year, :stated_year].freeze
 
-  IGNORE_SIMILAR     = [:verbatim, :cached, :cached_author_string, :cached_nomenclature_date].freeze
-  IGNORE_IDENTICAL   = IGNORE_SIMILAR.dup.freeze
-
+  IGNORE_SIMILAR = [:verbatim, :cached, :cached_author_string, :cached_nomenclature_date].freeze
+  IGNORE_IDENTICAL = IGNORE_SIMILAR.dup.freeze
 
   belongs_to :serial, inverse_of: :sources
   belongs_to :source_language, class_name: 'Language', foreign_key: :language_id, inverse_of: :sources
@@ -319,7 +318,6 @@ class Source::Bibtex < Source
            as: :role_object, validate: true
   has_many :authors, -> { order('roles.position ASC') },
            through: :author_roles, source: :person, validate: true
-  # self.author & self.authors should match or one of them should be empty
   has_many :editor_roles, -> { order('roles.position ASC') }, class_name: 'SourceEditor',
            as: :role_object, validate: true # ditto for self.editor & self.editors
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person, validate: true
@@ -329,11 +327,11 @@ class Source::Bibtex < Source
   before_validation :check_has_field
 
   validates_inclusion_of :bibtex_type,
-                         in:      ::VALID_BIBTEX_TYPES,
+                         in: ::VALID_BIBTEX_TYPES,
                          message: '"%{value}" is not a valid source type'
 
   validates_presence_of :year,
-                        if:      -> { !month.blank? || !stated_year.blank? },
+                        if: -> { !month.blank? || !stated_year.blank? },
                         message: 'is required when month or stated_year is provided'
 
   # @todo refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
@@ -345,12 +343,12 @@ class Source::Bibtex < Source
                         message: 'is required when day is provided'
 
   validates_inclusion_of :month,
-                         in:          ::VALID_BIBTEX_MONTHS,
+                         in: ::VALID_BIBTEX_MONTHS,
                          allow_blank: true,
-                         message:     ' month'
+                         message: ' month'
 
   validates :day, date_day: {year_sym: :year, month_sym: :month},
-            unless:         -> { year.nil? || month.nil? }
+            unless: -> { year.nil? || month.nil? }
 
   validates :url, format:                                   {
     with:    URI::regexp(%w(http https ftp)),
@@ -477,6 +475,12 @@ class Source::Bibtex < Source
   #   whether the BibTeX::Entry representation of this source is valid
   def valid_bibtex?
     self.to_bibtex.valid?
+  end
+
+  # @return [BibTeX::Entry]
+  def self.new_from_bibtex_text(text = nil)
+    a = BibTeX.parse(text).convert(:latex).first
+    new_from_bibtex(a)
   end
 
   # Instantiates a Source::Bibtex instance from a BibTeX::Entry
@@ -701,11 +705,7 @@ class Source::Bibtex < Source
     identifiers.where(type: type_value).first.try(:identifier)
   end
 
-  # @todo if language is set => set language_id
-  # def language=(value)
-  #
-  # end
-  #endregion getters & setters
+ #endregion getters & setters
 
   # @return [Boolean]
   def has_authors? # is there a bibtex author or author roles?
@@ -734,7 +734,6 @@ class Source::Bibtex < Source
     return true if !(self.year.blank?) || !(self.stated_year.blank?)
     false
   end
-
 
   # @return [Integer]
   #  The effective year of publication as per nomenclatural rules
@@ -778,17 +777,17 @@ class Source::Bibtex < Source
   # @return [BibTex::Bibliography]
   #   initialized with this source as an entry
   def bibtex_bibliography
-    bx_entry      = to_bibtex
+    bx_entry = to_bibtex
     bx_entry.year = '0000' if bx_entry.year.blank? # cludge to fix render problem with year
-    b             = BibTeX::Bibliography.new
+    b = BibTeX::Bibliography.new
     b.add(bx_entry)
     b
   end
 
-  #   this source, rendered in the provided CSL style, as text
   # @param [String] style
   # @param [String] format
   # @return [String]
+  #   this source, rendered in the provided CSL style, as text
   def render_with_style(style = 'vancouver', format = 'text')
     cp = CiteProc::Processor.new(style: style, format: format)
     cp.import(bibtex_bibliography.to_citeproc)
@@ -807,18 +806,6 @@ class Source::Bibtex < Source
     str = render_with_style('zootaxa', format) # the current TaxonWorks default ... make a constant
     str.sub('(0ADAD)', '') # citeproc renders year 0000 as (0ADAD)
   end
-
-  # @param [Source] source
-  # @return [Boolean]
-  # def similar(source)
-  #   false
-  # end
-
-  # @param [Source] source
-  # @return [Boolean]
-  # def identical(source)
-  #   false
-  # end
 
   protected
 
@@ -840,10 +827,10 @@ class Source::Bibtex < Source
   # @return [Ignored]
   def set_cached
     if errors.empty?
-      attributes_to_update          = {
-        cached:                   cached_string('text'),
+      attributes_to_update = {
+        cached: cached_string('text'),
         cached_nomenclature_date: nomenclature_date,
-        cached_author_string:     authority_name
+        cached_author_string: authority_name
       }
 
       attributes_to_update[:author] = compute_bibtex_names('author') if author.blank? && authors.size > 0
@@ -897,8 +884,8 @@ class Source::Bibtex < Source
 
   # @return [Ignored]
   def sv_has_title
-    if self.title.blank?
-      unless self.soft_validations.messages.include?('There is no title associated with this source.')
+    if title.blank?
+      unless soft_validations.messages.include?('There is no title associated with this source.')
         soft_validations.add(:title, 'There is no title associated with this source.')
       end
     end
@@ -928,8 +915,8 @@ class Source::Bibtex < Source
 
   # @return [Ignored]
   def sv_is_article_missing_journal
-    if self.bibtex_type == 'article'
-      if self.journal.blank? and self.serial.blank?
+    if bibtex_type == 'article'
+      if journal.blank? and serial.blank?
         soft_validations.add(:bibtex_type, 'This article is missing a journal name or serial.')
       end
     end
@@ -937,23 +924,22 @@ class Source::Bibtex < Source
 
   # @return [Ignored]
   def sv_has_a_publisher
-    if self.publisher.blank?
+    if publisher.blank?
       soft_validations.add(:publisher, 'Valid BibTeX requires a publisher to be associated with this source.')
     end
   end
 
   # @return [Ignored]
   def sv_has_booktitle
-    if self.booktitle.blank?
+    if booktitle.blank?
       soft_validations.add(:booktitle, 'Valid BibTeX requires a book title to be associated with this source.')
     end
   end
 
   # @return [Ignored]
   def sv_is_contained_has_chapter_or_pages
-    if self.chapter.blank? && self.pages.blank?
+    if chapter.blank? && pages.blank?
       soft_validations.add(:bibtex_type, 'Valid BibTeX requires either a chapter or pages with sources of type inbook.')
-
       # soft_validations.add(:chapter, 'Valid BibTeX requires either a chapter or pages with sources of type inbook.')
       # soft_validations.add(:pages, 'Valid BibTeX requires either a chapter or pages with sources of type inbook.')
     end
@@ -961,21 +947,21 @@ class Source::Bibtex < Source
 
   # @return [Ignored]
   def sv_has_school
-    if self.school.blank?
+    if school.blank?
       soft_validations.add(:school, 'Valid BibTeX requires a school associated with any thesis.')
     end
   end
 
   # @return [Ignored]
   def sv_has_institution
-    if self.institution.blank?
+    if institution.blank?
       soft_validations.add(:institution, 'Valid BibTeX requires an institution with a tech report.')
     end
   end
 
   # @return [Ignored]
   def sv_has_note
-    if (self.note.blank?) && (!self.notes.any?)
+    if (note.blank?) && (!notes.any?)
       soft_validations.add(:note, 'Valid BibTeX requires a note with an unpublished source.')
     end
   end
@@ -983,7 +969,7 @@ class Source::Bibtex < Source
   # rubocop:disable Metrics/MethodLength
   # @return [Ignored]
   def sv_missing_required_bibtex_fields
-    case self.bibtex_type
+    case bibtex_type
       when 'article' #:article       => [:author,:title,:journal,:year]
         sv_has_authors
         sv_has_title
