@@ -14,12 +14,21 @@ class ProjectSourcesController < ApplicationController
 
   def create
     @project_source = ProjectSource.new(project_source_params) 
-    if @project_source.save
-      @source = @project_source.source
-      flash[:notice] = 'Added source to project.'
-    else 
-      flash[:notice] = "Failed to add source to project. #{@project_source.error_messages}."
-      render source_path(@project_source.source)
+
+    respond_to do |format|
+      if @project_source.save
+        format.html {
+          @source = @project_source.source
+          flash[:notice] = 'Added source to project.'
+        }
+        format.json { render action: 'show', status: :created, location: @project_source }
+      else
+        format.html {
+          flash[:notice] = "Failed to add source to project. #{@project_source.error_messages}."
+          render source_path(@project_source.source)
+        }
+        format.json { render json: @project_source.errors, status: :unprocessable_entity }
+      end
     end
   end
 
