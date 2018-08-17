@@ -27,7 +27,11 @@ class ProjectSourcesController < ApplicationController
     @project_source = ProjectSource.find(params[:id])
     @source = @project_source.source
     @project_source.destroy 
-    render :create # same code
+
+    respond_to do |format|
+      format.html { redirect_to sources_url }
+      format.json { head :no_content }
+    end
   end
 
   def autocomplete
