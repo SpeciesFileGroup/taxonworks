@@ -17,17 +17,17 @@ class ProjectSourcesController < ApplicationController
 
     respond_to do |format|
       if @project_source.save
-        format.html {
-          @source = @project_source.source
-          flash[:notice] = 'Added source to project.'
-        }
+        @source = @project_source.source 
+        format.html { flash[:notice] = 'Added source to project.' }
         format.json { render action: 'show', status: :created, location: @project_source }
+        format.js { }
       else
         format.html {
           flash[:notice] = "Failed to add source to project. #{@project_source.error_messages}."
           render source_path(@project_source.source)
         }
         format.json { render json: @project_source.errors, status: :unprocessable_entity }
+        format.js { }
       end
     end
   end
