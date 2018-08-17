@@ -45,12 +45,12 @@ module Queries
 
     # @return [Arel::Table]
     def table
-      CollectingEvent.arel_table
+      ::CollectingEvent.arel_table
     end
 
     # @return [Scope]
     def all
-      CollectingEvent.where(where_sql)
+      ::CollectingEvent.where(where_sql)
     end
 
     # @return [Arel::Nodes::NamedFunction]
