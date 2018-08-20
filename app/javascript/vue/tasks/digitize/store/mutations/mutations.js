@@ -1,3 +1,7 @@
+import setCollectionObjects from './CollectionObject/setCollectionObjects'
+import newCollectionObject from './CollectionObject/newCollectionObject'
+import addCollectionObject from './CollectionObject/addCollectionObject'
+import removeCollectionObject from './CollectionObject/removeCollectionObject'
 import setCollectionObject from './CollectionObject/setCollectionObject'
 import setCollectionObjectBufferedCollectionEvent from './CollectionObject/setCollectionObjectBufferedCollectionEvent'
 import setCollectionObjectBufferedDeterminations from './CollectionObject/setCollectionObjectBufferedDeterminations'
@@ -126,6 +130,10 @@ const MutationNames = {
   SetCollectionEventMinMa: 'setCollectionEventMinMa',
 
   SetCollectionObject: 'setCollectionObject',
+  NewCollectionObject: 'newCollectionObject',
+  AddCollectionObject: 'addCollectionObject',
+  RemoveCollectionObject: 'RemoveCollectionObject',
+  SetCollectionObjects: 'setCollectionObjects',
   SetCollectionObjectBufferedCollectionEvent: 'setCollectionObjectBufferedCollectionEvent',
   SetCollectionObjectBufferedDeterminations: 'setCollectionObjectBufferedDeterminations',
   SetCollectionObjectBufferedOtherLabel: 'setCollectionObjectBufferedOtherLabel',
@@ -198,6 +206,10 @@ const MutationFunctions = {
   [MutationNames.SetCollectionEventMinMa]: setCollectionEventMinMa,
 
   [MutationNames.SetCollectionObject]: setCollectionObject,
+  [MutationNames.AddCollectionObject]: addCollectionObject,
+  [MutationNames.NewCollectionObject]: newCollectionObject,
+  [MutationNames.RemoveCollectionObject]: removeCollectionObject,
+  [MutationNames.SetCollectionObjects]: setCollectionObjects,
   [MutationNames.SetCollectionObjectBufferedCollectionEvent]: setCollectionObjectBufferedCollectionEvent,
   [MutationNames.SetCollectionObjectBufferedDeterminations]: setCollectionObjectBufferedDeterminations,
   [MutationNames.SetCollectionObjectBufferedOtherLabel]: setCollectionObjectBufferedOtherLabel,

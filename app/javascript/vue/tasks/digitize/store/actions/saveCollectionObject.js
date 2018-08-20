@@ -9,6 +9,7 @@ export default function ({ commit, state }) {
       UpdateCollectionObject(collection_object).then(response => {
         TW.workbench.alert.create('Collection object was successfully updated.', 'notice')
         commit(MutationNames.SetCollectionObject, response)
+        commit(MutationNames.AddCollectionObject, response)
         return resolve(response)
       }, (response) => {
         return reject(response)
@@ -18,6 +19,7 @@ export default function ({ commit, state }) {
       CreateCollectionObject(collection_object).then(response => {
         TW.workbench.alert.create('Collection object was successfully created.', 'notice')
         commit(MutationNames.SetCollectionObject, response)
+        commit(MutationNames.AddCollectionObject, response)
         return resolve(response)
       }, (response) => {
         return reject(response)

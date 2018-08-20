@@ -17,6 +17,7 @@
           </div>
           <div class="separate-left separate-right">
             <bioclassification/>
+            <table-collection-objects/>
           </div>
           <div class="separate-left">
             <repository-component/>
@@ -35,6 +36,7 @@
 <script>
 
   import CatalogNumber from './catalogNumber.vue'
+  import TableCollectionObjects from './tableCollectionObjects.vue'
   import Bioclassification from './bioclassification.vue'
   import BufferedComponent from './bufferedData.vue'
   import DepictionsComponent from '../shared/depictions.vue'
@@ -46,6 +48,7 @@
   export default {
     components: {
       CatalogNumber,
+      TableCollectionObjects,
       Bioclassification,
       BufferedComponent,
       DepictionsComponent,
