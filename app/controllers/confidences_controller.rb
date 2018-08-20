@@ -15,7 +15,6 @@ class ConfidencesController < ApplicationController
       format.json {
         @confidences = Queries::Confidence::Filter.new(params).all.limit(500)
           .where(project_id: sessions_current_project_id)
- 
       }
     end
   end

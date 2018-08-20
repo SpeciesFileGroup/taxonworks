@@ -14,18 +14,16 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
 
 RUN apt-get update && \
     apt-get install -y locales \
+                       postgresql-client-10 \
                        git gcc build-essential \
                        libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev libcurl4-openssl-dev \
                        pkg-config imagemagick libmagickcore-dev libmagickwand-dev \
-                       postgresql-client \
                        libpq-dev libproj-dev libgeos-dev libgeos++-dev \
                        tesseract-ocr \
                        cmake \
                        nodejs yarn && \
-    apt clean && \
-    curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.1.0 &&\
-    rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
-
+                       apt clean && \
+                       rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
 #
 # Install ruby
 # Source: https://github.com/drecom/docker-ubuntu-ruby/blob/2.4.4/Dockerfile
