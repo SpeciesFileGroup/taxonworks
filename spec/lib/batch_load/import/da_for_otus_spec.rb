@@ -132,24 +132,47 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
     end
 
     context 'match to taxon name, not otu' do
+      context 'data_attribute check' do
+        let(:d_a) { DataAttribute.new(type: 'ImportAttribute',
+                                      import_predicate: 'connection to otu',
+                                      value: 'new data attribute for the otu',
+                                      project_id: project.id) }
+        let(:otu) { Otu.find_by_name('americana') }
+        let(:t_n) { FactoryBot.create(:valid_taxon_name, {name: 'Taxonmatchidae'}) }
+
+        it 'finds otu through taxon name' do
+          names
+          otu.data_attributes << d_a
+          otu.taxon_name = t_n
+          start = DataAttribute.count
+          bingo = import_2
+          bingo.create
+          # one data attribute is created here,
+          # import_2 creates four data attributes directly by otu name,
+          # and one by reference to a taxon_name
+          expect(DataAttribute.count).to eq(start + 5)
+        end
+      end
+
       context 'otu check' do
         let(:d_a) { DataAttribute.new(type: 'ImportAttribute',
                                       import_predicate: 'connection to otu',
                                       value: 'new data attribute for the otu',
                                       project_id: project.id) }
         let(:otu) { Otu.find_by_name('americana') }
-        let(:t_n) { TaxonName.create(name: 'taxon match') }
+        let(:t_n) { FactoryBot.create(:valid_taxon_name, {name: 'Taxonmatchidae'}) }
 
         it 'finds otu through taxon name' do
           names
           otu.data_attributes << d_a
           otu.taxon_name = t_n
+          start = Otu.count
           bingo = import_2
           bingo.create
           # one data attribute is created here,
           # import_2 creates four data attributes directly by otu name,
           # and one by reference to a taxon_name
-          expect(DataAttribute.count).to eq(6)
+          expect(Otu.count).to eq(start + 3)
         end
       end
     end
