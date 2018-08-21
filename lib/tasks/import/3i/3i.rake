@@ -274,30 +274,30 @@ namespace :tw do
         puts @args
         Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/**/*.txt"])
 
-#        handle_projects_and_users_3i
-        $project_id = 1
-        $user_id = 1
+        handle_projects_and_users_3i
+#        $project_id = 1
+#        $user_id = 1
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
-        @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id) if @root.blank?
+#        @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id) if @root.blank?
 
         handle_controlled_vocabulary_3i
-#        handle_transl_3i
-#        handle_litauthors_3i
-#        handle_references_3i
-#        handle_taxonomy_3i
-#        handle_taxon_name_relationships_3i
-#        handle_citation_topics_3i
-#        handle_host_plant_name_dictionary_3i
-#        handle_host_plants_3i
-#        handle_distribution_3i
-#        handle_parasitoids_3i
-#        handle_localities_3i
+        handle_transl_3i
+        handle_litauthors_3i
+        handle_references_3i
+        handle_taxonomy_3i
+        handle_taxon_name_relationships_3i
+        handle_citation_topics_3i
+        handle_host_plant_name_dictionary_3i
+        handle_host_plants_3i
+        handle_distribution_3i
+        handle_parasitoids_3i
+        handle_localities_3i
 
- #       handle_characters_3i
- #       handle_state_3i
- #       handle_chartable_3i
- #       handle_content_types_3i
- #       handle_contents_3i
+        handle_characters_3i
+        handle_state_3i
+        handle_chartable_3i
+        handle_content_types_3i
+        handle_contents_3i
         handle_trivellone_references_3i
         handle_trivellone_unique_species_3i
         handle_trivellone_phytoplasma_group_3i
@@ -306,8 +306,8 @@ namespace :tw do
         handle_trivellone_insect_phytoplasma_3i
         handle_trivellone_plant_phytoplasma_3i
 
-  #      soft_validations_3i
-  #      index_collecting_events_from_accessions_new_3i
+        soft_validations_3i
+        index_collecting_events_from_accessions_new_3i
         print "\n\n !! Success. End time: #{Time.now} \n\n"
       end
 
@@ -2543,11 +2543,11 @@ namespace :tw do
             d = ba.data_attributes.find_or_create_by!(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['hab'].id, value: habitat, project_id: $project_id) unless habitat.blank?
             Citation.find_or_create_by!(citation_object: d, source_id: s, project_id: $project_id) if !s.blank? && !d.nil?
 
-            test_infection = row['test_infection'].to_s + ' (' + row['positive'].to_s + '/ ' + row['tested'].to_s + ')'
+            test_infection = row['test_infection'].to_s + ' (' + row['positive'].to_s + '/' + row['tested'].to_s + ')'
             d = ba.data_attributes.find_or_create_by!(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['test_inf'].id, value: test_infection, project_id: $project_id) unless test_infection.blank?
             Citation.find_or_create_by!(citation_object: d, source_id: s, project_id: $project_id) if !s.blank? && !d.nil?
 
-            test_inoculation = row['inoculation_trial'].to_s + ' (' + row['Acquisition'].to_s + ' -> ' + row['inoculated_plant'].to_s + ')' + ' (' + row['total_plant_positive'].to_s + '/ ' + row['total_plant_tested'].to_s + ')'
+            test_inoculation = row['inoculation_trial'].to_s + ' (' + row['Acquisition'].to_s + ' -> ' + row['inoculated_plant'].to_s + ')' + ' (' + row['total_plant_positive'].to_s + '/' + row['total_plant_tested'].to_s + ')'
             d = ba.data_attributes.find_or_create_by!(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['test_ino'].id, value: test_inoculation, project_id: $project_id) unless test_inoculation.blank?
             Citation.find_or_create_by!(citation_object: d, source_id: s, project_id: $project_id) if !s.blank? && !d.nil?
 
@@ -2657,7 +2657,7 @@ namespace :tw do
             d = ba.data_attributes.find_or_create_by!(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['hab'].id, value: habitat, project_id: $project_id) unless habitat.blank?
             Citation.find_or_create_by!(citation_object: d, source_id: s, project_id: $project_id) if !s.blank? && !d.nil?
 
-            test_infection = row['test_infection'].to_s + ' (' + row['positive'].to_s + '/ ' + row['tested'].to_s + ')'
+            test_infection = row['test_infection'].to_s + ' (' + row['positive'].to_s + '/' + row['tested'].to_s + ')'
             d = ba.data_attributes.find_or_create_by!(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['test_inf'].id, value: test_infection, project_id: $project_id) unless test_infection.blank?
             Citation.find_or_create_by!(citation_object: d, source_id: s, project_id: $project_id) if !s.blank? && !d.nil?
 
