@@ -16,12 +16,14 @@ module Shared::IsData::Annotation
     :documentation,
     :identifiers,
     :data_attributes,
-    :notes
+    :notes,
+    :labels
   ].freeze
 
   module ClassMethods
     # @return [Boolean]
-    # true if model is an "annotator" (e.g. identifiers, tags, notes, data attributes, alternate values, citations), i.e. data that references another data element through STI
+    # true if model is an "annotator" (e.g. identifiers, tags, notes, data attributes, alternate values, citations),
+    #   i.e. data that references another data element through STI
     def annotates?
       respond_to?(:annotated_object)
     end
@@ -81,6 +83,7 @@ module Shared::IsData::Annotation
     result['confidences'] = confidences if has_confidences? && confidences.any?
     result['protocol_relationships'] = protocols if has_protocol_relationships? && protocolled?
     result['alternate values'] = alternate_values if has_alternate_values? && alternate_values.any?
+    result['labels'] = labels if has_labels? && labels.any?
     result
   end
 

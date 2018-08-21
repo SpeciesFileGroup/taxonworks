@@ -1,5 +1,6 @@
 TaxonWorks::Application.routes.draw do
 
+
   get :ping, controller: 'ping',  defaults: { format: :json }
   get :pingz, controller: 'ping',  defaults: { format: :json }
 
@@ -327,6 +328,13 @@ TaxonWorks::Application.routes.draw do
       get :lookup_keyword
       get :select_options, defaults: {format: :json}
     end
+  end
+
+  resources :labels do
+    collection do
+      get :list
+    end
+    # is data?
   end
 
   resources :languages, only: [] do

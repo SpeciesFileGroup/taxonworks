@@ -225,7 +225,7 @@ class OtusController < ApplicationController
   private
 
   def set_otu
-    @otu           = Otu.with_project_id(sessions_current_project_id).find(params[:id])
+    @otu = Otu.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @otu
   end
 
