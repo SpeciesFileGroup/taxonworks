@@ -36,7 +36,7 @@ module Queries
 
     # @return [Scope]
     def all
-      # For references, this is equivalent: Otu.eager_load(:taxon_name).where(where_sql)
+      # For reference, this is equivalent: Otu.eager_load(:taxon_name).where(where_sql)
       ::Otu.includes(:taxon_name).where(where_sql).references(:taxon_names).order(name: :asc).limit(50).order('taxon_names.cached ASC')
     end
 

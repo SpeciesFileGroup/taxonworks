@@ -1,43 +1,58 @@
 <h1> Related data </h1>
 
-<h2> for <%= object_tag(@object) -%> (a <%= @object.class.name -%>)</h2>
+<h4> for <%= object_tag(@object) -%> (a <%= @object.class.name -%>)  <%= link_to 'back', metamorphosize_if(@object) -%></h4>
 
-<%= link_to 'back', metamorphosize_if(@object) -%>
 
-<h3> Has many </h3>
+
+<h2> Has many </h2>
 
 <% @object.class.reflect_on_all_associations(:has_many).sort { |a, b| a.name <=> b.name }.each do |r| -%>
   <% next if r.name =~ /_hierarchies/ %>
-
   <% if @object.respond_to?(r.name) -%>
     <% t = @object.send(r.name.to_s).count %>
     <% if t > 0 %>
       <%= content_tag(:h4, r.name.to_s.humanize + ' (' + t.to_s + ')' ) -%> 
-      <ul> 
+
+      <table> 
+        <tr> <th> object </th> <th> id </th> <th> global id </th> </tr>
         <% @object.send(r.name.to_s).all.each do |o| -%>
-          <%= content_tag(:li, object_link(o)) -%>
-        <% end %>
-      </ul>
+          <tr> 
+            <td> <%= object_link(o) %> </td> 
+            <td> <%= o.id %> </td> 
+            <td> <%= o.to_global_id.to_s %> </td> 
+          <% end %>
+      </table>
+
     <% end %>
   <% else %>
     <mark class="notice"> Requires method rename! </mark>
   <% end %>
 <% end %>
 
-<h3> Has one </h3>
-<ul>
+<h2> Has one </h2>
+<table>
   <% @object.class.reflect_on_all_associations(:has_one).sort { |a, b| a.name <=> b.name }.each do |r| -%>
     <% if t = @object.send(r.name.to_s) -%>
-      <%= content_tag(:li, (r.name.to_s.humanize  + ': ' +  object_link(t)).html_safe ) -%>
+      <tr>
+        <td> <%= r.name.to_s.humanize -%> </td>
+        <td> <%= object_link(t) -%> </td>
+        <td> <%= t.id %> </td> 
+        <td> <%= t.to_global_id.to_s %> </td> 
+      </tr>
     <% end %>
   <% end %>
-</ul>
+</table>
 
-<h3> Belongs to </h3>
-<ul>
+<h2> Belongs to </h2>
+<table>
   <% @object.class.reflect_on_all_associations(:belongs_to).sort { |a, b| a.name <=> b.name }.each do |r| -%>
     <% if t = @object.send(r.name.to_s) -%>
-      <%= content_tag(:li, (r.name.to_s.humanize  + ': ' +  object_link(t)).html_safe ) -%>
+      <tr>
+        <td> <%= r.name.to_s.humanize -%> </td>
+        <td> <%= object_link(t) -%> </td>
+        <td> <%= t.id %> </td> 
+        <td> <%= t.to_global_id.to_s %> </td> 
+      </tr>
     <% end %>
   <% end %>
-</ul>
+</table> 

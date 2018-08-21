@@ -1,7 +1,7 @@
 class IdentifiersController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_identifier, only: [:update, :destroy]
+  before_action :set_identifier, only: [:update, :destroy, :show]
 
   # GET /identifiers
   # GET /identifiers.json
@@ -19,6 +19,11 @@ class IdentifiersController < ApplicationController
     end
   end
 
+  # GET /identifers/1
+  def show
+  end
+
+  # GET /identifers
   def new
     @identifier = Identifier.new(identifier_params)
   end
@@ -83,22 +88,7 @@ class IdentifiersController < ApplicationController
   end
 
   def autocomplete
-    @identifiers = Identifier.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)).limit(20)
-
-    data = @identifiers.collect do |t|
-      str = render_to_string(
-          partial: 'tag',
-          locals: {identifier: t})
-      {id: t.id,
-       label: str,
-       response_values: {
-           params[:method] => t.id
-       },
-       label_html: str
-      }
-    end
-
-    render json: data
+    @identifiers = Queries::Identifier::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).autocomplete
   end
 
   # GET /identifiers/download

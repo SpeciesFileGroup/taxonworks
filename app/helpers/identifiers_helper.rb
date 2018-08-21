@@ -17,6 +17,12 @@ module IdentifiersHelper
   end
 
   # @return [String, nil]
+  def identifier_autocomplete_tag(identifier)
+    return nil if identifier.nil?
+    identifier_tag(identifier) + ' - ' + object_tag(identifier.annotated_object.metamorphosize) + ' [' + content_tag(:span, identifier.annotated_object.class.name, style: :subtle).html_safe + ']'
+  end
+
+  # @return [String, nil]
   def identifier_type_tag(identifier)
     return nil if identifier.nil?
     identifier.class.name.demodulize.underscore.humanize.downcase
