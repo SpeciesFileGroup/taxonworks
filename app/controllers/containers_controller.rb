@@ -32,7 +32,6 @@ class ContainersController < ApplicationController
   # POST /containers.json
   def create
     @container = Container.new(container_params)
-
     respond_to do |format|
       if @container.save
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container was successfully created.')}
