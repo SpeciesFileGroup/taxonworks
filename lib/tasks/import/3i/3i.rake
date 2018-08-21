@@ -4,6 +4,10 @@ require 'fileutils'
 ### rake tw:db:restore backup_directory=/Users/proceps/src/sf/import/3i/pg_dumps/ file=localhost_2018-05-15_200847UTC.dump
 # ./bin/webpack-dev-server
 
+# clean dump "localhost_2018-08-06_190510UTC.dump"
+# 3i + odonata dump "localhost_2018-08-14_171558UTC.dump"
+# 3i withouth Phytoplasma "localhost_2018-05-15_200847UTC.dump"
+
 ##### Tables
 # Authors
 # BrochCharacters
@@ -270,30 +274,30 @@ namespace :tw do
         puts @args
         Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/**/*.txt"])
 
-        handle_projects_and_users_3i
-#        $project_id = 1
-#        $user_id = 1
+#        handle_projects_and_users_3i
+        $project_id = 1
+        $user_id = 1
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
-#        @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id) if @root.blank?
+        @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id) if @root.blank?
 
         handle_controlled_vocabulary_3i
-        handle_transl_3i
-        handle_litauthors_3i
-        handle_references_3i
-        handle_taxonomy_3i
-        handle_taxon_name_relationships_3i
-        handle_citation_topics_3i
-        handle_host_plant_name_dictionary_3i
-        handle_host_plants_3i
-        handle_distribution_3i
-        handle_parasitoids_3i
-        handle_localities_3i
+#        handle_transl_3i
+#        handle_litauthors_3i
+#        handle_references_3i
+#        handle_taxonomy_3i
+#        handle_taxon_name_relationships_3i
+#        handle_citation_topics_3i
+#        handle_host_plant_name_dictionary_3i
+#        handle_host_plants_3i
+#        handle_distribution_3i
+#        handle_parasitoids_3i
+#        handle_localities_3i
 
-        handle_characters_3i
-        handle_state_3i
-        handle_chartable_3i
-        handle_content_types_3i
-        handle_contents_3i
+ #       handle_characters_3i
+ #       handle_state_3i
+ #       handle_chartable_3i
+ #       handle_content_types_3i
+ #       handle_contents_3i
         handle_trivellone_references_3i
         handle_trivellone_unique_species_3i
         handle_trivellone_phytoplasma_group_3i
@@ -302,8 +306,8 @@ namespace :tw do
         handle_trivellone_insect_phytoplasma_3i
         handle_trivellone_plant_phytoplasma_3i
 
-        soft_validations_3i
-        index_collecting_events_from_accessions_new_3i
+  #      soft_validations_3i
+  #      index_collecting_events_from_accessions_new_3i
         print "\n\n !! Success. End time: #{Time.now} \n\n"
       end
 
@@ -405,6 +409,9 @@ namespace :tw do
             'total_plant_tested' => Predicate.find_or_create_by(name: 'phy_total_plant_tested', definition: 'total_plant_tested (value from Phytoplasma database)'),
             'year_testing' => Predicate.find_or_create_by(name: 'phy_year_testing', definition: 'year_testing (value from Phytoplasma database)'),
             'habitat' => Predicate.find_or_create_by(name: 'phy_habitat_1', definition: 'habitat_1 (value from Phytoplasma database)'),
+            'hab' => Predicate.find_or_create_by(name: 'habitat', definition: 'Cancatinated habitat_1 + habitat_2 (value from Phytoplasma database)'),
+            'test_inf' => Predicate.find_or_create_by(name: 'test_infection_result', definition: 'Cancatinated test_infection + positive + tested (value from Phytoplasma database)'),
+            'test_ino' => Predicate.find_or_create_by(name: 'test_inoculation_result', definition: 'Cancatinated inoculation_trial + Acquisition + inoculated_total + plant_positive (value from Phytoplasma database)'),
             'tested' => Predicate.find_or_create_by(name: 'phy_tested', definition: 'tested (value from Phytoplasma database)'),
             'rear_record' => Predicate.find_or_create_by(name: 'phy_rear_record', definition: 'rear_record (value from Phytoplasma database)'),
             'test_infection_positive' => Keyword.find_or_create_by(name: 'test_infection: positive', definition: 'test_infection: positive (from Phytoplasma database).', project_id: $project_id),
@@ -461,7 +468,7 @@ namespace :tw do
             'Synonymy' => Topic.find_or_create_by(name: 'synonymy', definition: 'Source has synonymy records.', project_id: $project_id),
             'Host' => Topic.find_or_create_by(name: 'host plants', definition: 'Source has host plant records.', project_id: $project_id),
             'Parasitoids' => Topic.find_or_create_by(name: 'parasitoids', definition: 'Source has parasitoid records.', project_id: $project_id),
-            'Infection_status_negative' => Keyword.find_or_create_by(name: 'Tested negative for Phytoplasma', definition: 'Tested negative for Phytoplasma', project_id: $project_id),
+            'Infection_status_negative' => Topic.find_or_create_by(name: 'Tested negative for Phytoplasma', definition: 'Tested negative for Phytoplasma', project_id: $project_id),
             )
 
         @host_plant_relationship = BiologicalRelationship.where(name: 'feeds on', project_id: $project_id).first
@@ -638,7 +645,7 @@ namespace :tw do
                   @data.people[author] = a
                 end
               end
-              sa = SourceAuthor.create!(person_id: a, role_object: source, position: i + 1) unless a.nil?
+              sa = SourceAuthor.find_or_create_by!(person_id: a, role_object: source, position: i + 1) unless a.nil?
             end
             source.save!
             source.project_sources.create!
@@ -688,9 +695,14 @@ namespace :tw do
                                                        url: row['reference_link']
             )
           end
+#          if source.type == 'Source::Bibtex'
+#           source.authors.each do |a|
+#              a.destroy
+#            end
+#          end
 
           source.data_attributes.create(type: 'ImportAttribute', import_predicate: 'Authors', value: row['authors']) unless row['authors'].blank?
-          source.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['PK_References'], identifier: row['PK_reference']) unless row['PK_reference'].blank?
+          source.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['PK_reference'], identifier: row['PK_reference']) unless row['PK_reference'].blank?
 
           begin
             @data.t_publications[row['PK_reference']] = source.id
@@ -706,7 +718,7 @@ namespace :tw do
                     @data.people[author] = a
                   end
                 end
-                sa = SourceAuthor.create!(person_id: a, role_object: source, position: i + 1) unless a.nil?
+                sa = SourceAuthor.find_or_create_by!(person_id: a, role_object: source, position: i + 1) unless a.nil?
               end
               source.save
             end
@@ -2341,7 +2353,7 @@ namespace :tw do
         file.each do |row|
           i += 1
           print "\r#{i}"
-          @data.t_phyto_group[row['PK_Phy']] = [row['16Sr_group'], row['16Sr_subgroup'], row['FK_Taxo_phy']]
+          @data.t_phyto_group[row['PK_Phy']] = [row['16Sr_group'].to_s, row['16Sr_subgroup'].to_s, row['FK_Taxo_phy']]
         end
       end
 
@@ -2387,7 +2399,7 @@ namespace :tw do
 
           name = @data.t_phyto_group[row['FK_Phy']][0] + @data.t_phyto_group[row['FK_Phy']][1]
           # name = name + ' - ' + row['Reference_strain'] unless row['Reference_strain'].blank?
-          otu = Otu.find_or_create_by!(name: name, taxon_name: taxon)
+          otu = Otu.find_or_create_by!(name: name, taxon_name: taxon, project_id: $project_id)
           source_id = find_t_publication_id_3i(row['FK_reference'])
           otu.citations.find_or_create_by!(source_id: source_id, project_id: $project_id)
           otu.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['PK_Taxo_phy'], identifier: row['PK_Taxo_phy']) unless row['PK_Taxo_phy'].blank?
@@ -2420,11 +2432,13 @@ namespace :tw do
           if name == 'neg'
             @phytoplasma_neg = row['PK_Phy']
           else
-            otu = Otu.find_or_create_by!(name: name, taxon_name: @phytoplasma)
+            otu = Otu.find_or_create_by!(name: name, project_id: $project_id)
+            otu.taxon_name = @phytoplasma if otu.taxon_name.nil?
+            otu.save!
             otu.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['PK_Phy'], identifier: row['PK_Phy']) unless row['PK_Phy'].blank?
           end
 
-          @data.t_phyto_taxonomy[row['PK_Phy']] = otu.id
+          @data.t_phyto_taxonomy[row['PK_Phy']] = otu.id unless otu.nil?
         end
       end
 
@@ -2466,6 +2480,7 @@ namespace :tw do
 
         confidence = {
         'negative' => ConfidenceLevel.find_or_create_by(name: 'Negative', definition: 'Vector status is negative', project_id: $project_id).id,
+        'suspected' => ConfidenceLevel.find_or_create_by(name: 'Suspected', definition: 'Vector status is suspected', project_id: $project_id).id,
         'potential' => ConfidenceLevel.find_or_create_by(name: 'Potential', definition: 'Vector status is potential', project_id: $project_id).id,
         'competent' => ConfidenceLevel.find_or_create_by(name: 'Competent', definition: 'Vector status is competent', project_id: $project_id).id}.freeze
 
@@ -2494,33 +2509,69 @@ namespace :tw do
                                                             project_id: $project_id )
             end
             c = Citation.find_or_create_by!(citation_object: ba, source_id: s, project_id: $project_id) unless s.blank?
-            c.notes.create(text: row['note']) unless row['note'].blank?
-            da.each do |ia|
-              c.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords[ia], value: row[ia]) unless row[ia].blank?
-            end
 
-            c.tags.create(keyword: @data.keywords['test_infection_positive']) if row['test_infection'] == 'positive'
-            c.tags.create(keyword: @data.keywords['test_infection_negative']) if row['test_infection'] == 'negative'
-            c.tags.create(keyword: @data.keywords['test_infection_suspected']) if row['test_infection'] == 'suspected'
-            c.tags.create(keyword: @data.keywords['inoculation_trial_positive']) if row['inoculation_trial'] == 'positive'
-            c.tags.create(keyword: @data.keywords['inoculation_trial_negative']) if row['inoculation_trial'] == 'negative'
+#            c.notes.create(text: row['note']) unless row['note'].blank?
+            d = nil
+            d = ba.notes.find_or_create_by!(text: row['note']) unless row['note'].blank?
+            Citation.find_or_create_by!(citation_object: d, source_id: s, project_id: $project_id) if !s.blank? && !d.nil?
+
 
             c.citation_topics.find_or_create_by(topic: @data.topics['Infection_status_negative'], project_id: $project_id) if @phytoplasma_neg == row['FK_Phy']
+            da.each do |ia|
+#              c.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords[ia], value: row[ia]) unless row[ia].blank?
+              d = nil
+              d = ba.data_attributes.find_or_create_by!(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords[ia].id, value: row[ia], project_id: $project_id) unless row[ia].blank?
+              Citation.find_or_create_by!(citation_object: d, source_id: s, project_id: $project_id) if !s.blank? && !d.nil?
+            end
+#            c.tags.create(keyword: @data.keywords['test_infection_positive']) if row['test_infection'] == 'positive'
+#            c.tags.create(keyword: @data.keywords['test_infection_negative']) if row['test_infection'] == 'negative'
+#            c.tags.create(keyword: @data.keywords['test_infection_suspected']) if row['test_infection'] == 'suspected'
+            d = nil
+            d = ba.tags.find_or_create_by!(keyword_id: @data.keywords['test_infection_positive'].id, project_id: $project_id) if row['test_infection'] == 'positive'
+            d = ba.tags.find_or_create_by!(keyword_id: @data.keywords['test_infection_negative'].id, project_id: $project_id) if row['test_infection'] == 'negative'
+            d = ba.tags.find_or_create_by!(keyword_id: @data.keywords['test_infection_suspected'].id, project_id: $project_id) if row['test_infection'] == 'suspected'
+            Citation.find_or_create_by!(citation_object: d, source_id: s, project_id: $project_id) if !s.blank? && !d.nil?
+
+            d = nil
+#            c.tags.create(keyword: @data.keywords['inoculation_trial_positive']) if row['inoculation_trial'] == 'positive'
+#            c.tags.create(keyword: @data.keywords['inoculation_trial_negative']) if row['inoculation_trial'] == 'negative'
+            d = ba.tags.find_or_create_by!(keyword_id: @data.keywords['inoculation_trial_positive'].id, project_id: $project_id) if row['inoculation_trial'] == 'positive'
+            d = ba.tags.find_or_create_by!(keyword_id: @data.keywords['inoculation_trial_negative'].id, project_id: $project_id) if row['inoculation_trial'] == 'negative'
+            Citation.find_or_create_by!(citation_object: d, source_id: s, project_id: $project_id) if !s.blank? && !d.nil?
+
+            habitat = [row['habitat 1'], row['habitat 2']].compact.join(': ')
+            d = ba.data_attributes.find_or_create_by!(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['hab'].id, value: habitat, project_id: $project_id) unless habitat.blank?
+            Citation.find_or_create_by!(citation_object: d, source_id: s, project_id: $project_id) if !s.blank? && !d.nil?
+
+            test_infection = row['test_infection'].to_s + ' (' + row['positive'].to_s + '/ ' + row['tested'].to_s + ')'
+            d = ba.data_attributes.find_or_create_by!(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['test_inf'].id, value: test_infection, project_id: $project_id) unless test_infection.blank?
+            Citation.find_or_create_by!(citation_object: d, source_id: s, project_id: $project_id) if !s.blank? && !d.nil?
+
+            test_inoculation = row['inoculation_trial'].to_s + ' (' + row['Acquisition'].to_s + ' -> ' + row['inoculated_plant'].to_s + ')' + ' (' + row['total_plant_positive'].to_s + '/ ' + row['total_plant_tested'].to_s + ')'
+            d = ba.data_attributes.find_or_create_by!(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['test_ino'].id, value: test_inoculation, project_id: $project_id) unless test_inoculation.blank?
+            Citation.find_or_create_by!(citation_object: d, source_id: s, project_id: $project_id) if !s.blank? && !d.nil?
 
             unless row['status'].blank?
-              c.confidences.create(position: 1, confidence_level_id: confidence[row['status']])
-              ba_conf = ba.confidences.first
-              if ba_conf.nil?
-                ba.confidences.create(position: 1, confidence_level_id: confidence[row['status']])
-              elsif confidence[row['status']] > ba_conf.confidence_level_id
-                ba_conf.confidence_level_id = confidence[row['status']]
-                ba_conf.save
-              end
+              d = nil
+              d = ba.confidences.find_or_create_by(confidence_level_id: confidence[row['status']])
+              byebug if d.id.nil?
+              Citation.find_or_create_by!(citation_object: d, source_id: s, project_id: $project_id) if !s.blank? && !d.nil?
+#              c.confidences.create(position: 1, confidence_level_id: confidence[row['status']])
+#              ba_conf = ba.confidences.first
+#              if ba_conf.nil?
+#                ba.confidences.create(position: 1, confidence_level_id: confidence[row['status']])
+#              elsif confidence[row['status']] > ba_conf.confidence_level_id
+#                ba_conf.confidence_level_id = confidence[row['status']]
+#                ba_conf.save
+#              end
             end
 
             g = nil
             g = GeographicArea.find(row['FK_idTW'])
-            c.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords['FK_idTW_g'], value: g.name) unless g.nil?
+            d = nil
+            d = ba.data_attributes.find_or_create_by!(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['FK_idTW_g'].id, value: g.name, project_id: $project_id) unless g.nil?
+            Citation.find_or_create_by!(citation_object: d, source_id: s, project_id: $project_id) if !s.blank? && !d.nil?
+#            c.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords['FK_idTW_g'], value: g.name) unless g.nil?
 
             if !insect.nil? && !s.nil? && !g.nil?
               ad = AssertedDistribution.find_or_create_by(
@@ -2560,7 +2611,7 @@ namespace :tw do
         # rear_record
         # note
 
-        da = ['habitat', 'test_infection', 'positive', 'tested', 'year_testing', 'rear_record'].freeze
+        da = ['test_infection', 'positive', 'tested', 'year_testing', 'rear_record'].freeze
 
         path = @args[:data_directory] + 'trivellone_plant_phytoplasma.txt'
         print "\ntrivellone_plant_phytoplasma\n"
@@ -2583,17 +2634,39 @@ namespace :tw do
                                                           project_id: $project_id
             )
             c = Citation.find_or_create_by!(citation_object: ba, source_id: s, project_id: $project_id) unless s.blank?
-            c.notes.create(text: row['note']) unless row['note'].blank?
+#            c.notes.create(text: row['note']) unless row['note'].blank?
+            d = nil
+            d = ba.notes.find_or_create_by!(text: row['note']) unless row['note'].blank?
+            Citation.find_or_create_by!(citation_object: d, source_id: s, project_id: $project_id) if !s.blank? && !d.nil?
             da.each do |ia|
-              c.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords[ia], value: row[ia]) unless row[ia].blank?
+#              c.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords[ia], value: row[ia]) unless row[ia].blank?
+              d = nil
+              d = ba.data_attributes.find_or_create_by!(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords[ia].id, value: row[ia], project_id: $project_id) unless row[ia].blank?
+              Citation.find_or_create_by!(citation_object: d, source_id: s, project_id: $project_id) if !s.blank? && !d.nil?
             end
-            c.tags.create(keyword: @data.keywords['test_infection_positive']) if row['test_infection'] == 'positive'
-            c.tags.create(keyword: @data.keywords['test_infection_negative']) if row['test_infection'] == 'negative'
-            c.tags.create(keyword: @data.keywords['test_infection_suspected']) if row['test_infection'] == 'suspected'
+#            c.tags.create(keyword: @data.keywords['test_infection_positive']) if row['test_infection'] == 'positive'
+#            c.tags.create(keyword: @data.keywords['test_infection_negative']) if row['test_infection'] == 'negative'
+#            c.tags.create(keyword: @data.keywords['test_infection_suspected']) if row['test_infection'] == 'suspected'
+            d = nil
+            d = ba.tags.find_or_create_by!(keyword_id: @data.keywords['test_infection_positive'].id, project_id: $project_id) if row['test_infection'] == 'positive'
+            d = ba.tags.find_or_create_by!(keyword_id: @data.keywords['test_infection_negative'].id, project_id: $project_id) if row['test_infection'] == 'negative'
+            d = ba.tags.find_or_create_by!(keyword_id: @data.keywords['test_infection_suspected'].id, project_id: $project_id) if row['test_infection'] == 'suspected'
+            Citation.find_or_create_by!(citation_object: d, source_id: s, project_id: $project_id) if !s.blank? && !d.nil?
+
+            habitat = row['habitat']
+            d = ba.data_attributes.find_or_create_by!(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['hab'].id, value: habitat, project_id: $project_id) unless habitat.blank?
+            Citation.find_or_create_by!(citation_object: d, source_id: s, project_id: $project_id) if !s.blank? && !d.nil?
+
+            test_infection = row['test_infection'].to_s + ' (' + row['positive'].to_s + '/ ' + row['tested'].to_s + ')'
+            d = ba.data_attributes.find_or_create_by!(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['test_inf'].id, value: test_infection, project_id: $project_id) unless test_infection.blank?
+            Citation.find_or_create_by!(citation_object: d, source_id: s, project_id: $project_id) if !s.blank? && !d.nil?
 
             g = nil
             g = GeographicArea.find(row['FK_idTW'])
-            c.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords['FK_idTW_g'], value: g.name) unless g.nil?
+#            c.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords['FK_idTW_g'], value: g.name) unless g.nil?
+            d = nil
+            d = ba.data_attributes.find_or_create_by!(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['FK_idTW_g'].id, value: g.name, project_id: $project_id) unless g.nil?
+            Citation.find_or_create_by!(citation_object: d, source_id: s, project_id: $project_id) if !s.blank? && !d.nil?
 
             if !plant1.nil? && !s.nil? && !g.nil?
               ad = AssertedDistribution.find_or_create_by(

@@ -11,7 +11,7 @@ module Queries
       attr_accessor :options
 
       # Params specific to DataAttribute
-      attr_accessor :value, :controlled_vocabulary_term_id, :import_predicate, :type
+      attr_accessor :value, :controlled_vocabulary_term_id, :import_predicate, :type, :object_global_id, :attribute_subject_type
 
       # @params params [ActionController::Parameters]
       def initialize(params)
@@ -19,6 +19,9 @@ module Queries
         @controlled_vocabulary_term_id = [params[:controlled_vocabulary_term_id]].flatten.compact
         @import_predicate = params[:import_predicate]
         @type = params[:type]
+
+        @attribute_subject_type = params[:attribute_subject_type]
+        @object_global_id = params[:object_global_id]
         @options = params
       end
 
@@ -29,7 +32,9 @@ module Queries
           matching_type,
           matching_value,
           matching_import_predicate,
-          matching_controlled_vocabulary_term_id
+          matching_attribute_subject_type,
+          matching_controlled_vocabulary_term_id,
+          matching_subject
         ].compact
 
         a = clauses.shift
@@ -37,6 +42,22 @@ module Queries
           a = a.and(b)
         end
         a
+      end
+
+      # @return [Arel::Node, nil]
+      def matching_subject
+        if o = object_for 
+          table["attribute_subject_id"].eq(o.id).and(
+              table["attribute_subject_type"].eq(o.metamorphosize.class.name) 
+          )
+        else
+          nil
+        end
+      end
+
+      # @return [Arel::Node, nil]
+      def matching_attribute_subject_type
+        !attribute_subject_type.empty? ? table[:attribute_subject_type].eq(attribute_subject_type)  : nil
       end
 
       # @return [Arel::Node, nil]
@@ -59,6 +80,16 @@ module Queries
         controlled_vocabulary_term_id.blank? ? nil : table[:controlled_vocabulary_term_id].eq_any(controlled_vocabulary_term_id) 
       end
 
+      # @return [ActiveRecord object, nil]
+      # TODO: DRY
+      def object_for
+        if o = GlobalID::Locator.locate(object_global_id)
+          o
+        else
+          nil
+        end
+      end
+
       # @return [ActiveRecord::Relation]
       def all
         if a = and_clauses
@@ -72,6 +103,7 @@ module Queries
       def table
         ::DataAttribute.arel_table
       end
+
     end
   end
 end

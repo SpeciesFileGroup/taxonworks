@@ -4,7 +4,7 @@ module OtusHelper
     return nil if otu.nil?
     a = content_tag(:span, otu.name, class: :otu_tag_otu_name) if otu.name
     b = content_tag(:span, full_taxon_name_tag(otu.taxon_name).html_safe, class: :otu_tag_taxon_name) if otu.taxon_name_id
-    content_tag(:span, [a,b].compact.join.html_safe, class: :otu_tag)
+    content_tag(:span, [b,a].compact.join.html_safe, class: :otu_tag)
   end
 
   # @return [String]

@@ -12,19 +12,15 @@ class BiologicalAssociationsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @biological_associations = BiologicalAssociation.where(project_id: sessions_current_project_id).where(index_params)
+        @biological_associations = Queries::BiologicalAssociation::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page] || 1).per(100)
       }
     end
   end
 
-  def index_params
-    if params[:otu_id]
-      { biological_association_subject_id: params.require(:otu_id), biological_association_subject_type: 'Otu' }
-    elsif params[:collection_object_id]
-      { biological_association_subject_id: params.require(:collection_object_id), biological_association_subject_type: 'CollectionObject' }
-    end
+  def filter_params
+    params.permit(:subject_global_id, :object_global_id, :any_global_id, :biological_relationship_id)
   end
-
+  
   # GET /biological_associations/1
   # GET /biological_associations/1.json
   def show

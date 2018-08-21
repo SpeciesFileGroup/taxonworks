@@ -89,12 +89,13 @@ export default {
         this.selected = {};
         return false;
       }
-      let params = {      // fudge up new search for match params to give some likely hits
-        last_name: person.last_name.substr(0,3) + '*',
-        first_name: '', //person.first_name[0] + '*',
-        roles: []
-      };
-      this.$http.get("/people.json", { params: params }).then(response => {
+    //   let params = {   // fudge up new search for match params to give some likely hits
+    //   id: person.id
+    //   last_name: person.last_name.substr(0,3),
+    //   first_name: '', //person.first_name[0] + '*',
+    //   roles: []
+    // };
+      this.$http.get("/people/" + person.id.toString() + "/similar").then(response => {
         this.matchPeople = response.body;
         this.removeFromList(person.id);
         this.$emit("matchPeople", this.matchPeople)   // notify app's watcher

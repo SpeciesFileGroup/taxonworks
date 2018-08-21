@@ -2,7 +2,7 @@ klass ||= object.class.name
 
 json.object_tag object_tag(object)
 
-json.global_id object.to_global_id.to_s
+json.global_id object.persisted? ? object.to_global_id.to_s : nil
 json.type klass 
 
 json.url url_for(only_path: false, format: :json) # radial annotator metamorphosize_if(object)) # , 

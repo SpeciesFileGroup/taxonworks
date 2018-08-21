@@ -165,6 +165,10 @@ class Person < ApplicationRecord
     collector_roles.to_a.length > 0
   end
 
+  def  levenshtein_similar(cutoff = 4)
+    Person.where('levenshtein(last_name, ?) < ? and levenshtein(first_name, ?) < ?', last_name, cutoff, first_name, cutoff) 
+  end
+
   #  rubocop:disable Metrics/BlockNesting
   #  rubocop:disable Metrics/MethodLength
   # @param [Integer] person_id
