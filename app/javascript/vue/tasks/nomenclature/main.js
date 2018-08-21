@@ -1,10 +1,10 @@
+import Vue from 'vue'
+import vueResource from 'vue-resource'
+
 var TW = TW || {};
 TW.views = TW.views || {};
 TW.views.tasks = TW.views.tasks || {};
 TW.views.tasks.nomenclature_by_source = TW.views.tasks.nomenclature_by_source || {};
-
-import Vue from 'vue'
-import vueResource from 'vue-resource'
 
 Object.assign(TW.views.tasks.nomenclature_by_source, {
 
