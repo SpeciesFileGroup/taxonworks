@@ -5,7 +5,8 @@ const ActionNames = {
   SaveDigitalization: 'saveDigitalization',
   SaveCollectionEvent: 'saveCollectionEvent',
   SaveTypeMaterial: 'saveTypeMaterial',
-  SaveDetermination: 'saveDetermination'
+  SaveDetermination: 'saveDetermination',
+  SaveContainerItem: 'saveContainerItem'
 }
 
 export default ActionNames

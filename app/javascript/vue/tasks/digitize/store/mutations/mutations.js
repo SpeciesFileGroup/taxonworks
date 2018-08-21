@@ -1,3 +1,5 @@
+import setContainer from './Container/SetContainer'
+
 import setCollectionObjects from './CollectionObject/setCollectionObjects'
 import newCollectionObject from './CollectionObject/newCollectionObject'
 import addCollectionObject from './CollectionObject/addCollectionObject'
@@ -73,6 +75,8 @@ import setTaxonDeterminationDay from './TaxonDetermination/setTaxonDetermination
 import setTaxonDeterminationRoles from './TaxonDetermination/setTaxonDeterminationRoles'
 
 const MutationNames = {
+  SetContainer: 'setContainer',
+
   SetTaxonDetermination: 'setTaxonDetermination',
   SetTaxonDeterminationBiologicalId: 'setTaxonDeterminationBiologicalId',
   SetTaxonDeterminationDay: 'setTaxonDeterminationDay',
@@ -149,6 +153,8 @@ const MutationNames = {
 }
 
 const MutationFunctions = {
+  [MutationNames.SetContainer]: setContainer,
+
   [MutationNames.SetTaxonDetermination]: setTaxonDetermination,
   [MutationNames.SetTaxonDeterminationBiologicalId]: setTaxonDeterminationBiologicalId,
   [MutationNames.SetTaxonDeterminationOtuId]: setTaxonDeterminationOtuId,

@@ -68,6 +68,14 @@ const UpdateCollectionEvent = function (data) {
   return ajaxCall('patch', `/collecting_events/${data.id}.json`, { collecting_event: data })
 }
 
+const CreateContainer = function (data) {
+  return ajaxCall('post', `/containers.json`, { container: data })
+}
+
+const CreateContainerItem = function (data) {
+  return ajaxCall('post', `/container_items.json`, { container_item: data })
+}
+
 const CreateCollectionEvent = function (data) {
   return ajaxCall('post', `/collecting_events.json`, { collecting_event: data })
 }
@@ -183,5 +191,7 @@ export {
   UpdateDepiction,
   DestroyTypeMaterial,
   DestroyBiocuration,
-  DestroyDepiction
+  DestroyDepiction,
+  CreateContainer,
+  CreateContainerItem
 }

@@ -5,6 +5,8 @@ import getCollectionEventLabel from './getCollectionEventLabel'
 import getTypeMaterial from './getTypeMaterial'
 import getDepictions from './getDepictions'
 import getIdentifier from './getIdentifier'
+import getContainer from './getContainer'
+import getContainerItems from './getContainerItems'
 import getTaxonDetermination from './getTaxonDetermination'
 
 const GetterNames = {
@@ -15,7 +17,9 @@ const GetterNames = {
   GetCollectionEventLabel: 'getCollectionEventLabel',
   GetTypeMaterial: 'getTypeMaterial',
   GetDepictions: 'getDepictions',
-  GetIdentifier: 'getIdentifier'
+  GetIdentifier: 'getIdentifier',
+  GetContainer: 'getContainer',
+  GetContainerItems: 'getContainerItems'
 }
 
 const GetterFunctions = {
@@ -26,7 +30,9 @@ const GetterFunctions = {
   [GetterNames.GetCollectionObjects]: getCollectionObjects,
   [GetterNames.GetTypeMaterial]: getTypeMaterial,
   [GetterNames.GetDepictions]: getDepictions,
-  [GetterNames.GetIdentifier]: getIdentifier
+  [GetterNames.GetIdentifier]: getIdentifier,
+  [GetterNames.GetContainer]: getContainer,
+  [GetterNames.GetContainerItems]: getContainerItems
 }
 
 export {
