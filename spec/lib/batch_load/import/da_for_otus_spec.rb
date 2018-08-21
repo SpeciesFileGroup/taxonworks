@@ -145,6 +145,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           otu.data_attributes << d_a
           otu.taxon_name = t_n
           start = DataAttribute.count
+          otu.save
           bingo = import_2
           bingo.create
           # one data attribute is created here,
@@ -166,6 +167,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           names
           otu.data_attributes << d_a
           otu.taxon_name = t_n
+          otu.save
           start = Otu.count
           bingo = import_2
           bingo.create

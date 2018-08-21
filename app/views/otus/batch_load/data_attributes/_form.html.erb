@@ -1,14 +1,19 @@
 <%= form_tag url, multipart: true do -%>
-    <div class="field">
-      <%= label_tag :file, 'Select a file' -%>
-      <br>
-      <%= file_field_tag :file -%>
-    </div>
+  <div class="field">
+    <%= label_tag :file, 'Select a file' -%>
+    <br>
+    <%= file_field_tag :file -%>
+  </div>
 
-    <% if @result -%>
-      <p> TODO: ADD OTHER METADATA INPUT OPTIONS HERE </p>
-    <% end %>
+  <% if @result -%>
+    <p>
+      <%= check_box_tag('create_new_otu') %>create new OTUs for unmatched OtuName<br>
+      <%= check_box_tag('create_new_predicate') %>create new Predicate for unmatched Predicate<br>
+      <%= text_field_tag('source_id', nil, placeholder: 'Enter source id to create a citation...',
+                         size: 26) %>
+    </p>
+  <% end %>
 
-    <%= content_for :warn_level -%>
-    <%= submit_tag submit -%>
+  <%= content_for :warn_level -%>
+  <%= submit_tag submit -%>
 <% end %>

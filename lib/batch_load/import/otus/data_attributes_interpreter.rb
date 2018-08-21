@@ -29,7 +29,7 @@ module BatchLoad
           new_da = ImportAttribute.new(import_predicate: row['predicate'],
                                        value: row['value'],
                                        project_id: real_project_id)
-          das = BatchLoad::ColumnResolver.import_attribute(row)
+          ias = BatchLoad::ColumnResolver.import_attribute(row)
 
           otus = BatchLoad::ColumnResolver.otu(row)
           find_name = row['otuname']
@@ -41,16 +41,14 @@ module BatchLoad
           # search for (and remove) pairs (otu and da) which are already represented in the database.
           [otus.item, otus.items].flatten.compact.each do |l_otu| # found one or more otus
             if l_otu.persisted? # means it was found in the database, not 'new' here
-              [das.item, das.items].flatten.compact.each do |l_da|
-                if l_da.attribute_subject == l_otu
-                  if otus.item == l_otu
-                    otus.assign([])
-                  else # reamove otu and da from thier respective collections.
-                    group = otus.items.delete_if { |_otu| _otu == l_otu }
-                    otus.assign(group)
-                    group = das.items.delete_if { |_da| _da == l_da }
-                    das.assign(group)
-                  end
+              [ias.item, ias.items].flatten.compact.each do |l_ia|
+                if l_ia.attribute_subject == l_otu
+                  # if otus.item == l_otu
+                    # otus.assign([])
+                  # else # reamove otu and da from thier respective collections.
+                    # group = otus.items.delete_if { |_otu| _otu == l_otu }
+                    # otus.assign(group)
+                  # end
                   parse_result.parse_errors << 'otu/predicate/value combination already exists.'
                   break
                 end
@@ -63,13 +61,13 @@ module BatchLoad
             # else
             #   das.assign(new_da) # finished with the found das, prepare a new one to attach to a remaining otu
           end
-          das.assign(new_da) # finished with the found das, prepare a new one to attach to a remaining otu
+          ias.assign(new_da) # finished with the found das, prepare a new one to attach to a remaining otu
 
           parse_result.parsed = true
           parse_result.objects[:otu].push(otus.item)
           parse_result.parse_errors << otus.error_messages if otus.error_messages.any?
-          parse_result.objects[:data_attribute].push(das.item)
-          parse_result.parse_errors << das.error_messages if das.error_messages.any?
+          parse_result.objects[:data_attribute].push(ias.item)
+          parse_result.parse_errors << ias.error_messages if ias.error_messages.any?
 
           @total_data_lines += 1 if find_name.present?
         rescue => _e
