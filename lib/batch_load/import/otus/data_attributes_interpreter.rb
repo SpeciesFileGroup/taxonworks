@@ -26,9 +26,9 @@ module BatchLoad
 
         begin # processing
           # assume we will be creating a new da
-          da = ImportAttribute.new(import_predicate: row['predicate'],
-                                   value: row['value'],
-                                   project_id: real_project_id)
+          new_da = ImportAttribute.new(import_predicate: row['predicate'],
+                                       value: row['value'],
+                                       project_id: real_project_id)
           das = BatchLoad::ColumnResolver.import_attribute(row)
 
           otus = BatchLoad::ColumnResolver.otu(row)
@@ -59,11 +59,11 @@ module BatchLoad
           end
           if otus.multiple_matches?
             parse_result.parse_errors << 'Can\'t resolve multiple found otus.'
-            otus.assign([])
-          else
-            das.assign(da) # finished with the found das, prepare a new one to attach to a remaining otu
+            otus.assign([otus.items.first])
+            # else
+            #   das.assign(new_da) # finished with the found das, prepare a new one to attach to a remaining otu
           end
-
+          das.assign(new_da) # finished with the found das, prepare a new one to attach to a remaining otu
 
           parse_result.parsed = true
           parse_result.objects[:otu].push(otus.item)
@@ -114,6 +114,14 @@ module BatchLoad
         build_da_for_otus
         @processed = true
       end
+    end
+
+    # @return [Array]
+    # this override will prevent nils from being processed in the superclass
+    # the data_attribute process we use here will turn things we don't want to propigate or save into nils
+    # so we drop them before the validity check (see ../import.rb#all_ovjects)
+    def all_objects_x
+      processed_rows.collect { |i, rp| rp.all_objects }.flatten.compact
     end
   end
 end
