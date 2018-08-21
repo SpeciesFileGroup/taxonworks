@@ -1,5 +1,6 @@
 import getCollectionEvent from './getCollectionEvent'
 import getCollectionObject from './getCollectionObject'
+import getCollectionObjects from './getCollectionObjects'
 import getCollectionEventLabel from './getCollectionEventLabel'
 import getTypeMaterial from './getTypeMaterial'
 import getDepictions from './getDepictions'
@@ -10,6 +11,7 @@ const GetterNames = {
   GetTaxonDetermination: 'getTaxonDetermination',
   GetCollectionEvent: 'getCollectionEvent',
   GetCollectionObject: 'getCollectionObject',
+  GetCollectionObjects: 'getCollectionObjects',
   GetCollectionEventLabel: 'getCollectionEventLabel',
   GetTypeMaterial: 'getTypeMaterial',
   GetDepictions: 'getDepictions',
@@ -21,6 +23,7 @@ const GetterFunctions = {
   [GetterNames.GetCollectionEventLabel]: getCollectionEventLabel,
   [GetterNames.GetCollectionEvent]: getCollectionEvent,
   [GetterNames.GetCollectionObject]: getCollectionObject,
+  [GetterNames.GetCollectionObjects]: getCollectionObjects,
   [GetterNames.GetTypeMaterial]: getTypeMaterial,
   [GetterNames.GetDepictions]: getDepictions,
   [GetterNames.GetIdentifier]: getIdentifier
