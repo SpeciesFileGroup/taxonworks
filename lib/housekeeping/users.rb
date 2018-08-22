@@ -9,6 +9,7 @@ module Housekeeping::Users
     belongs_to :creator, foreign_key: :created_by_id, class_name: 'User'
     belongs_to :updater, foreign_key: :updated_by_id, class_name: 'User'
 
+    # TODO: why do we need this plural scope?!
     scope :created_by_user, ->(user) { where(created_by_id: User.get_user_id(user)) }
     scope :updated_by_user, ->(user) { where(updated_by_id: User.get_user_id(user)) }
 

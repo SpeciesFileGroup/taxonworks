@@ -2,10 +2,10 @@ require 'rails_helper'
 
 describe User, type: :model do
 
-  let(:user) { User.new(password:              'password',
+  let(:user) { User.new(password: 'password',
                         password_confirmation: 'password',
-                        email:                 'user_model@example.com',
-                        name:                  'Bob'
+                        email: 'user_model@example.com',
+                        name: 'Bob'
   ) }
 
   subject { user }
@@ -255,7 +255,6 @@ describe User, type: :model do
       end
 
     end
-
   end
 
   context 'scopes' do
@@ -270,7 +269,6 @@ describe User, type: :model do
     specify '.in_project' do
       expect(User.in_project(1).to_a).to include(u1)
     end
-
   end
 
   context 'finding user ids' do
@@ -280,7 +278,6 @@ describe User, type: :model do
     let!(:u4) { FactoryBot.create(:valid_user, {name: 'Pat Four', email: 'Pat4@vacation.net'}) }
 
     context 'find one user id' do
-
       specify 'no user' do
         expect(User.get_user_id('Pat2')).to eq(nil)
       end
@@ -304,11 +301,9 @@ describe User, type: :model do
       specify 'by User' do
         expect(User.get_user_id(u4)).to eq(u4.id)
       end
-
     end
 
     context 'find multiple user ids' do
-
       specify 'no user' do
         expect(User.get_user_ids('Ted', 'Mary', 'Sid')).to eq([])
       end
@@ -331,34 +326,15 @@ describe User, type: :model do
       end
 
       specify 'by mixed input' do
-        expect(User.get_user_ids(u1.id, 'three', u2, 'vacation', 'at2@')).to contain_exactly(u1.id,
-                                                                                             u2.id,
-                                                                                             u3.id,
-                                                                                             u4.id)
+        expect(User.get_user_ids(u1.id, 'three', u2, 'vacation', 'at2@')).to contain_exactly(
+          u1.id,
+          u2.id,
+          u3.id,
+          u4.id)
       end
 
       specify 'by mixed input' do
         expect(User.get_user_ids(u1.id, 'pat one', u1, 'work.com', 'at1@')).to contain_exactly(u1.id)
-      end
-    end
-  end
-
-  context 'stored user preferences' do
-    context 'chime methods' do
-
-      specify 'disable_chime' do
-        user.disable_chime
-        expect(user.chime_enabled?).to eq(false)
-      end
-
-      specify 'enable_chime' do
-        user.enable_chime
-        expect(user.chime_enabled?).to eq(true)
-      end
-
-      specify 'chime_enabled?' do
-        user.disable_chime
-        expect(user.chime_enabled?).to eq(false)
       end
     end
   end

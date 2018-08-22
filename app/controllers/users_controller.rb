@@ -112,25 +112,26 @@ class UsersController < ApplicationController
 
   private
 
-    def user_params
-      # TODO: revisit authorization of specific field settings
-      basic = [:name,
+  def user_params
+    # TODO: revisit authorization of specific field settings
+    basic = [
+      :name,
       :email,
       :password,
       :password_confirmation,
-      :set_new_api_access_token]
+      :set_new_api_access_token] 
 
-      basic.push [:is_project_administrator, :is_flagged_for_password_reset] if is_superuser?
-      basic.push [:is_administrator] if is_administrator?
+    basic += [:is_project_administrator, :is_flagged_for_password_reset] if is_superuser?
+    basic += [:is_administrator] if is_administrator?
 
-      params.require(:user).permit(basic)
-    end
+    params.require(:user).permit(basic, User.key_value_preferences, User.array_preferences, User.hash_preferences)
+  end
 
-    def set_user
-      own_id = (params[:id].to_i == sessions_current_user_id)
+  def set_user
+    own_id = (params[:id].to_i == sessions_current_user_id)
 
-      @user = User.find((is_superuser? || own_id) ? params[:id] : nil)
-      @recent_object = @user 
-    end
+    @user = User.find((is_superuser? || own_id) ? params[:id] : nil)
+    @recent_object = @user 
+  end
 
 end

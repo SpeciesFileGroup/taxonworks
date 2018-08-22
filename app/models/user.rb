@@ -94,21 +94,26 @@
 #   @return [true, false]
 #   Only used for when .new_record? is true. If true assigns creator and updater as self.
 #
+# @!attribute preferences [JSON] 
+#   @return [true, false]
+#   Only used for when .new_record? is true. If true assigns creator and updater as self.
+# 
 #
 class User < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Housekeeping::AssociationHelpers
+  include User::Preferences
+
   include Shared::DataAttributes
   include Shared::Notes
   include Shared::Tags
   include Shared::Identifiers
   include Shared::RandomTokenFields[:password_reset]
+
   has_secure_password
 
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
-
-  store :preferences, accessors: [:disable_chime], coder: JSON
 
   attr_accessor :set_new_api_access_token
   attr_accessor :self_created
@@ -153,6 +158,7 @@ class User < ApplicationRecord
     administered_projects.any?
   end
 
+  # TODO: deprecate for a User filter query
   # @param [String, User, Integer] user
   # @return [Integer] selected user id
   def self.get_user_id(user)
@@ -160,8 +166,8 @@ class User < ApplicationRecord
     case user.class.name
       when 'String'
         # search by name or email
-        ut     = User.arel_table
-        c1     = ut[:name].eq(user).or(ut[:email].eq(user.downcase)).to_sql
+        ut = User.arel_table
+        c1 = ut[:name].eq(user).or(ut[:email].eq(user.downcase)).to_sql
         t_user = User.where(c1).first
         if t_user.present?
           user_id = t_user.id
@@ -182,6 +188,8 @@ class User < ApplicationRecord
     user_id
   end
 
+
+  # TODO: deprecate for a User filter query
   # @param [String, User, Integer, Array] users
   # @return [Array of Integers] selected user ids
   def self.get_user_ids(*users)
@@ -263,27 +271,6 @@ class User < ApplicationRecord
     read_attribute(:hub_favorites) || {}
   end
 
-  # @param [Boolean] state
-  # @return [Ignored]
-  def able_chime(state)
-    preferences[:disable_chime] = (not state)
-  end
-
-  # @return [Ignored]
-  def enable_chime
-    able_chime(false)
-  end
-
-  # @return [Ignored]
-  def disable_chime
-    able_chime(true)
-  end
-
-  # @return [Boolean]
-  def chime_enabled?
-    preferences[:disable_chime]
-  end
-
   # rubocop:disable Style/StringHashKeys
   # @param [Hash] options
   # @return [Boolean] always true
@@ -319,7 +306,6 @@ class User < ApplicationRecord
   end
 
   def update_last_seen_at
-
     a = 0
 
     if !last_seen_at.nil?
@@ -328,7 +314,6 @@ class User < ApplicationRecord
     end
 
     update_columns(last_seen_at: Time.now, time_active: a)
-
   end
 
   # @param [String] recent_route
