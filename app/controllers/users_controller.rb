@@ -110,6 +110,10 @@ class UsersController < ApplicationController
     render json: @user.data_breakdown_for_chartkick_recent
   end
 
+  def preferences
+    @user = sessions_current_user
+  end
+
   private
 
   def user_params
