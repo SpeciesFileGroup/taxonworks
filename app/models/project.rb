@@ -50,6 +50,7 @@ class Project < ApplicationRecord
     known = ApplicationRecord.subclasses.select {|a| a.column_names.include?('project_id')}.map(&:name)
 
     order = %w{
+     Label
      DwcOccurrence
      ProtocolRelationship
      CharacterState
