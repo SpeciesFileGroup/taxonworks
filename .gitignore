@@ -23,6 +23,8 @@ database.yml
 secrets.yml
 application_settings.yml
 
+config/initializers/vendor/better_errors.rb
+
 .yardoc/
 /doc
 /git_stats
