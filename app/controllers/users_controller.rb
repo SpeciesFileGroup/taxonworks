@@ -41,11 +41,17 @@ class UsersController < ApplicationController
 
   # PATCH or PUT /users/:id
   def update
-    if @user.update_attributes(user_params)
-      flash[:success] = 'Changes to your account information have been saved.'
-      redirect_to @user
-    else
-      render 'edit'
+    respond_to do |format|
+      if @user.update_attributes(user_params)
+        format.html do
+          flash[:success] = 'Changes to your account information have been saved.'
+          redirect_to @user
+        end
+        format.json { render 'show' }
+      else
+        format.html { render 'edit' }
+        format.json { render json: @user.errors, status: :unprocessable_entity }
+      end
     end
   end
 
