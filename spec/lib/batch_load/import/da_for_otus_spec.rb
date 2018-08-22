@@ -95,7 +95,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
             start # check object count
             bingo = import_2
             bingo.create
-            expect(ImportAttribute.count).to eq(start[:das] + 5)
+            expect(ImportAttribute.count).to eq(start[:das] + 4)
           end
         end
       end
