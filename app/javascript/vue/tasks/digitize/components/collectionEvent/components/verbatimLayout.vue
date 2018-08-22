@@ -1,7 +1,9 @@
 <template>
   <div class="verbatim-layout">
     <h2>Verbatim</h2>
-    <draggable v-model="componentsOrder">
+    <draggable 
+      v-model="componentsOrder"
+      @end="updatePreferences">
       <component
         v-for="componentName in componentsOrder"
         :key="componentName"
@@ -24,6 +26,10 @@
   import VerbatimLocality from './verbatim/locality.vue'
   import VerbatimLongitude from './verbatim/longitude.vue'
   import VerbatimMethod from './verbatim/method.vue'
+
+  import { 
+    UpdateUserPreferences, 
+    GetUserPreferences } from '../../../request/resources.js'
 
   export default {
     components: {
@@ -52,7 +58,36 @@
           'VerbatimLatitude',
           'VerbatimLongitude',
           'VerbatimLocality',
-          'VerbatimMethod']
+          'VerbatimMethod'],
+        preferences: {}
+      }
+    },
+    mounted() {
+      GetUserPreferences().then(response => {
+        this.preferences = response
+      })
+    },
+    watch: {
+      preferences: {
+        handler() {
+          this.componentsOrder = this.preferences.layout.tasks.digitize.verbatimOrder
+        },
+        deep: true
+      }
+    },
+    methods: {
+      updatePreferences() {
+        let pref = {
+          tasks: {
+            digitize: {
+              verbatimOrder: this.componentsOrder
+            }
+          }
+        }
+        UpdateUserPreferences(this.preferences.id, pref).then(response => {
+          this.preferences = response.preferences
+          this.componentsOrder = response.preferences.layout.tasks.digitize.verbatimOrder
+        })
       }
     }
   }

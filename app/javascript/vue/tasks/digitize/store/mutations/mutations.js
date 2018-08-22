@@ -4,6 +4,7 @@ import setCollectionObjects from './CollectionObject/setCollectionObjects'
 import newCollectionObject from './CollectionObject/newCollectionObject'
 import addCollectionObject from './CollectionObject/addCollectionObject'
 import removeCollectionObject from './CollectionObject/removeCollectionObject'
+import setCollectionObjectTypes from './CollectionObject/setCollectionObjectTypes'
 import setCollectionObject from './CollectionObject/setCollectionObject'
 import setCollectionObjectBufferedCollectionEvent from './CollectionObject/setCollectionObjectBufferedCollectionEvent'
 import setCollectionObjectBufferedDeterminations from './CollectionObject/setCollectionObjectBufferedDeterminations'
@@ -133,6 +134,7 @@ const MutationNames = {
   SetCollectionEventMaxMa: 'setCollectionEventMaxMa',
   SetCollectionEventMinMa: 'setCollectionEventMinMa',
 
+  SetCollectionObjectTypes: 'setCollectionObjectTypes',
   SetCollectionObject: 'setCollectionObject',
   NewCollectionObject: 'newCollectionObject',
   AddCollectionObject: 'addCollectionObject',
@@ -212,6 +214,7 @@ const MutationFunctions = {
   [MutationNames.SetCollectionEventMinMa]: setCollectionEventMinMa,
 
   [MutationNames.SetCollectionObject]: setCollectionObject,
+  [MutationNames.SetCollectionObjectTypes]: setCollectionObjectTypes,
   [MutationNames.AddCollectionObject]: addCollectionObject,
   [MutationNames.NewCollectionObject]: newCollectionObject,
   [MutationNames.RemoveCollectionObject]: removeCollectionObject,

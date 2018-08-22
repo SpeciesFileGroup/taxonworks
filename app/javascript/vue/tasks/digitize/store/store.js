@@ -102,7 +102,8 @@ function makeInitialState () {
     container: undefined,
     containerItems: [],
     collection_objects: [],
-    depictions: []
+    depictions: [],
+    COTypes: []
   }
 }
 

@@ -23,7 +23,7 @@
     <label>Preparation</label>
     <br>
     <ul>
-      <li v-for="type in types">
+      <li v-for="type in coTypes">
         <label>
           <input
             type="radio"
@@ -86,6 +86,14 @@
         set(value) {
           this.$store.commit(MutationNames.SetCollectionObjectTotal, value)
         }
+      },
+      coTypes: {
+        get() {
+          return this.$store.getters[GetterNames.GetCollectionObjectTypes]
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetCollectionObjectTypes, value)
+        }
       }
     },
     data() {
@@ -95,7 +103,7 @@
     },
     mounted() {
       GetPreparationTypes().then(response => {
-        this.types = response
+        this.coTypes = response
       })
     }
   }

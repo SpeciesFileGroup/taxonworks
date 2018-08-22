@@ -29,6 +29,14 @@ const handleError = function (json) {
   TW.workbench.alert.create(errorMessage, 'error')
 }
 
+const GetUserPreferences = function () {
+  return ajaxCall('get', `/preferences.json`)
+}
+
+const UpdateUserPreferences = function (id, data) {
+  return ajaxCall('patch', `/users/${id}.json`, { layout: data })
+}
+
 const GetRepositorySmartSelector = function () {
   return ajaxCall('get', `/repositories/select_options`)
 }
@@ -56,6 +64,7 @@ const GetTaxon = function (id) {
 const GetCollectionEvent = function (id) {
   return ajaxCall('get', `/collecting_events/${id}.json`)
 }
+
 const CreateIdentifier = function (data) {
   return ajaxCall('post', `/identifiers.json`, { identifier: data })
 }
@@ -161,6 +170,7 @@ const DestroyDepiction = function (id) {
 }
 
 export {
+  GetUserPreferences,
   GetOtu,
   GetRepositorySmartSelector,
   GetTaxonDeterminationCO,
@@ -189,6 +199,7 @@ export {
   CreateBiocurationClassification,
   UpdateTypeMaterial,
   UpdateDepiction,
+  UpdateUserPreferences,
   DestroyTypeMaterial,
   DestroyBiocuration,
   DestroyDepiction,

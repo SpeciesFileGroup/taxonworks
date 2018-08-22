@@ -8,6 +8,7 @@ import getIdentifier from './getIdentifier'
 import getContainer from './getContainer'
 import getContainerItems from './getContainerItems'
 import getTaxonDetermination from './getTaxonDetermination'
+import getCollectionObjectTypes from './getCollectionObjectTypes'
 
 const GetterNames = {
   GetTaxonDetermination: 'getTaxonDetermination',
@@ -19,7 +20,8 @@ const GetterNames = {
   GetDepictions: 'getDepictions',
   GetIdentifier: 'getIdentifier',
   GetContainer: 'getContainer',
-  GetContainerItems: 'getContainerItems'
+  GetContainerItems: 'getContainerItems',
+  GetCollectionObjectTypes: 'getCollectionObjectTypes'
 }
 
 const GetterFunctions = {
@@ -32,7 +34,8 @@ const GetterFunctions = {
   [GetterNames.GetDepictions]: getDepictions,
   [GetterNames.GetIdentifier]: getIdentifier,
   [GetterNames.GetContainer]: getContainer,
-  [GetterNames.GetContainerItems]: getContainerItems
+  [GetterNames.GetContainerItems]: getContainerItems,
+  [GetterNames.GetCollectionObjectTypes]: getCollectionObjectTypes
 }
 
 export {
