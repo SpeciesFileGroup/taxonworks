@@ -47,7 +47,7 @@ class UsersController < ApplicationController
           flash[:success] = 'Changes to your account information have been saved.'
           redirect_to @user
         end
-        format.json { render 'show' }
+        format.json { render :show, location: @user }
       else
         format.html { render 'edit' }
         format.json { render json: @user.errors, status: :unprocessable_entity }
