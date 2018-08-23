@@ -7,22 +7,22 @@
         :full-screen="true"
         legend="Loading..."
         :logo-size="{ width: '100px', height: '100px'}"/>
-
+      <nomen-source />
     </div>
       <div class="flexbox">
         <div class="flexbox">
           <h2>Cite a Taxon Name</h2>
-          <cite-taxon-name />
-          <taxon-names />
+          <cite-taxon-name /><br>
+          <taxon-names /><br>
           <taxon-name-relationships />
         </div>
       </div>
   </div>
 
-  </div>
 </template>
 <script>
   import SmartSelector from './components/smartSelector'
+  import NomenSource from './components/nomen_source'
   import CiteTaxonName from './components/cite_taxon_name'
   import TaxonNames from './components/taxon_names'
   import TaxonNameRelationships from './components/taxon_name_relationships'
@@ -38,6 +38,7 @@
   export default {
     components: {
       SmartSelector,
+      NomenSource,
       CiteTaxonName,
       TaxonNames,
       TaxonNameRelationships,

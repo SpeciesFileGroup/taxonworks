@@ -1,5 +1,5 @@
 <template>
   <div>
-    Taxon Names
+    <h3>Taxon Names</h3>
   </div>
 </template>
