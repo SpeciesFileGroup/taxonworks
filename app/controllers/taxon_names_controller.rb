@@ -82,10 +82,6 @@ class TaxonNamesController < ApplicationController
     ).autocomplete
   end
 
-  def autocomplete_params
-    params.permit(:valid, :exact, type: [], parent_id: [], nomenclature_group: []).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
-  end
-
   def list
     @taxon_names = TaxonName.with_project_id(sessions_current_project_id).order(:id).page(params[:page])
   end
@@ -172,6 +168,10 @@ class TaxonNamesController < ApplicationController
   def set_taxon_name
     @taxon_name = TaxonName.with_project_id(sessions_current_project_id).includes(:creator, :updater).find(params[:id])
     @recent_object = @taxon_name
+  end
+
+  def autocomplete_params
+    params.permit(:valid, :exact, type: [], parent_id: [], nomenclature_group: []).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
   def taxon_name_params

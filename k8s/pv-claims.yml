@@ -13,7 +13,7 @@ spec:
   selector:
     matchLabels:
       name: taxonworks-media-pv
-
+      
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

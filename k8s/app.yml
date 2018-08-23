@@ -11,7 +11,7 @@ spec:
   type: NodePort
   ports:
     - port: 80
-      nodePort: 30995  # was hard-coded to 80  
+      nodePort: 30995  # was hard-coded to 80, dev is targetPort: 80, no nodePort
   selector:
     app: taxonworks
     tier: frontend

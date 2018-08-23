@@ -298,9 +298,9 @@ namespace :tw do
         if !@data.done?(handle)
           puts 'as new'
 
-          tags = {'1' => Keyword.find_or_create_by(name: '1', definition: 'Taxonomic...............', project_id: $project_id),
-                  '2' => Keyword.find_or_create_by(name: '2', definition: 'Biological...............', project_id: $project_id),
-                  '3' => Keyword.find_or_create_by(name: '3', definition: 'Economic...............', project_id: $project_id),
+          tags = {'1' => Keyword.find_or_create_by(name: '1', definition: 'Taxonomic (Definition is needed for the term)', project_id: $project_id),
+                  '2' => Keyword.find_or_create_by(name: '2', definition: 'Biological (Definition is needed for the term)', project_id: $project_id),
+                  '3' => Keyword.find_or_create_by(name: '3', definition: 'Economic (Definition is needed for the term)', project_id: $project_id),
           }.freeze
           
           path = @args[:data_directory] + 'KEYWORDS.txt'
@@ -311,11 +311,12 @@ namespace :tw do
           file.each_with_index do |row, i|
             print "\r#{i}"
            
-            definition = row['Meaning'].to_s.length < 4 ? row['Meaning'] + '.' : row['Meaning']
-            definition = definition + '(' + row['KeyWords'] + ')'
-            definition = row['Meaning'].to_s.length < 21 ? row['Meaning'] + '.................' : row['Meaning']
+            #definition = row['Meaning'].to_s.length < 4 ? row['Meaning'] + '.' : row['Meaning']
+            #definition = definition + '(' + row['KeyWords'] + ')'
+            #definition = row['Meaning'].to_s.length < 21 ? row['Meaning'] + '.................' : row['Meaning']
+            n = row['Meaning'].to_s + '(' + row['KeyWords'] + ')'
 
-            topic = Topic.find_or_create_by!(name: definition, definition: definition, project_id: $project_id)
+            topic = Topic.find_or_create_by!(name: n, definition: 'Definition is needed for the term: ' + n, project_id: $project_id)
 
             topic.tags.create(keyword: tags[row['Category']]) unless row['Category'].blank?
             
@@ -1431,6 +1432,7 @@ namespace :tw do
         print "\nHandling H-FAM\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        plantae = Protonym.find_or_create_by!(name: 'Plantae', rank_class: Ranks.lookup(:icn, 'kingdom'), parent: @root, project_id: $project_id)
 
         file.each_with_index do |row, i|
           print "\r#{i}"
@@ -1466,7 +1468,7 @@ namespace :tw do
               taxon = Protonym.find_or_create_by(name: name, parent: parent, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family', project_id: $project_id)
             end
           elsif row['Family'] =~/^[A-Z]\w*aceae/
-            taxon = Protonym.find_or_create_by(name: name, parent: parent, rank_class: 'NomenclaturalRank::Icn::FamilyGroup::Family', project_id: $project_id)
+            taxon = Protonym.find_or_create_by(name: name, parent: plantae, rank_class: 'NomenclaturalRank::Icn::FamilyGroup::Family', project_id: $project_id)
           elsif row['Family'] == 'Slime mould'
             taxon = Protonym.find_or_create_by(name: 'Slime', parent: @root, rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom', project_id: $project_id)
           end
@@ -1597,7 +1599,6 @@ namespace :tw do
 
             subject = Otu.find_or_create_by(taxon_name_id: taxon, project_id: $project_id)
             object = Otu.find_or_create_by(taxon_name_id: host, project_id: $project_id)
-
 
             r = BiologicalAssociation.find_or_create_by!(biological_relationship: br, biological_association_subject: subject, biological_association_object: object, project_id: $project_id)
             r.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?

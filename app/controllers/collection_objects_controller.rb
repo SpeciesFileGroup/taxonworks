@@ -8,9 +8,9 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects.json
   def index
     @recent_objects = CollectionObject.recent_from_project_id(sessions_current_project_id)
-                        .order(updated_at: :desc)
-                        .includes(:identifiers, :taxon_determinations)
-                        .limit(10)
+      .order(updated_at: :desc)
+      .includes(:identifiers, :taxon_determinations)
+      .limit(10)
     render '/shared/data/all/index'
   end
 
@@ -33,13 +33,13 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects/1/geo_json
   # GET /collection_objects/1/geo_json.json
   def geo_json
-    ce        = @collection_object.collecting_event
+    ce = @collection_object.collecting_event
     @geo_json = ce.nil? ? nil : ce.to_geo_json_feature
   end
 
   # GET /collection_objects/by_identifier/ABCD
   def by_identifier
-    @identifier         = params.require(:identifier)
+    @identifier = params.require(:identifier)
     @request_project_id = sessions_current_project_id
     @collection_objects = CollectionObject.with_identifier(@identifier).where(project_id: @request_project_id).all
 
@@ -99,8 +99,8 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects/list
   def list
     @collection_objects = CollectionObject.with_project_id(sessions_current_project_id)
-                            .order(:id)
-                            .page(params[:page]) #.per(10) #.per(3)
+      .order(:id)
+      .page(params[:page]) #.per(10) #.per(3)
   end
 
   # GET /collection_object/search
@@ -225,13 +225,14 @@ class CollectionObjectsController < ApplicationController
   end
 
   def user_map
-    {user_header_map: {'otu'         => 'otu_name',
-                       'start_day'   => 'start_date_day',
-                       'start_month' => 'start_date_month',
-                       'start_year'  => 'start_date_year',
-                       'end_day'     => 'end_date_day',
-                       'end_month'   => 'end_date_month',
-                       'end_year'    => 'end_date_year'}}
+    {user_header_map: {
+      'otu'         => 'otu_name',
+      'start_day'   => 'start_date_day',
+      'start_month' => 'start_date_month',
+      'start_year'  => 'start_date_year',
+      'end_day'     => 'end_date_day',
+      'end_month'   => 'end_date_month',
+      'end_year'    => 'end_date_year'}}
   end
 
 end

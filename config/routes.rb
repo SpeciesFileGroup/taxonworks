@@ -1,6 +1,7 @@
 TaxonWorks::Application.routes.draw do
 
   get :ping, controller: 'ping',  defaults: { format: :json }
+  get :pingz, controller: 'ping',  defaults: { format: :json }
 
   # All models that use data controllers should include this concern.
   # See http://api.rubyonrails.org/classes/ActionDispatch/Routing/Mapper/Concerns.html to extend it to take options if need be.
@@ -40,6 +41,7 @@ TaxonWorks::Application.routes.draw do
 
   scope :annotations, controller: :annotations do
     get ':global_id/metadata', action: :metadata, defaults: {format: :json}
+    get :types, defaults: {format: :json}
   end
 
   scope :graph, controller: :graph do
@@ -63,10 +65,14 @@ TaxonWorks::Application.routes.draw do
     get 'data_overview'
   end
 
-  resources :project_members, except: [:index, :show] do
+  resources :project_members, except: [:index] do
     collection do
       get :many_new
+      get :index, defaults: {format: :json}
       post :create_many
+
+      get :clipboard, defaults: {format: :json}
+      put :update_clipboard, defaults: {format: :json}
     end
   end
 
@@ -76,7 +82,6 @@ TaxonWorks::Application.routes.draw do
       post 'update_type_position'
     end
   end
-
 
   ### Data routes
 
@@ -113,7 +118,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     collection do
       get :select_options, defaults: {format: :json}
-  end
+    end
   end
 
   resources :character_states do
@@ -158,7 +163,7 @@ TaxonWorks::Application.routes.draw do
     collection do
       post :preview_castor_batch_load # should be get
       post :create_castor_batch_load # should be get
-      get :preview_simple_batch_load 
+      get :preview_simple_batch_load
       post :create_simple_batch_load
       get :select_options, defaults: {format: :json}
     end
@@ -181,12 +186,9 @@ TaxonWorks::Application.routes.draw do
       get :card
     end
 
-    # collection do
-      #   post :preview_simple_batch_load # should be get
-      #   post :create_simple_batch_load
-      # end
-
     collection do
+      get :select_options, defaults: {format: :json}
+
       post :preview_castor_batch_load
       post :create_castor_batch_load
     end
@@ -250,7 +252,7 @@ TaxonWorks::Application.routes.draw do
       post :preview_modify_gene_descriptor_batch_load
       post :create_modify_gene_descriptor_batch_load
       get :units
-    end  
+    end
   end
 
   resources :documentation do
@@ -409,7 +411,11 @@ TaxonWorks::Application.routes.draw do
 
     resources :contents, only: [:index]
     collection do
-      post :preview_simple_batch_load # should be get
+  
+      post :preview_data_attributes_batch_load
+      post :create_data_attributes_batch_load
+  
+      post :preview_simple_batch_load # should be get (batch loader fix)
       post :create_simple_batch_load
 
       post :preview_simple_batch_file_load
@@ -417,6 +423,9 @@ TaxonWorks::Application.routes.draw do
 
       post :preview_identifiers_batch_load
       post :create_identifiers_batch_load
+
+      post :preview_data_attributes_batch_load
+      post :create_data_attributes_batch_load
 
       get :select_options, defaults: {format: :json}
     end
@@ -442,8 +451,10 @@ TaxonWorks::Application.routes.draw do
   resources :people do
     concerns [:data_routes]
     member do
+      get :similar, defaults: {format: :json}
       get :roles
       get :details
+      post :merge, defaults: {format: :json}
     end
   end
 
@@ -483,6 +494,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :repositories do
     concerns [:data_routes]
+    collection do
+      get :select_options, defaults: {format: :json}
+    end
   end
 
   # TODO: add exceptions
@@ -521,6 +535,7 @@ TaxonWorks::Application.routes.draw do
     collection do
       post :preview_bibtex_batch_load # should be get
       post :create_bibtex_batch_load
+      get :parse, defaults: {format: :json}
     end
   end
 
@@ -604,7 +619,7 @@ TaxonWorks::Application.routes.draw do
 
 
   # Generate shallow routes for annotations based on model properties, like
-  # otu_citations GET    /otus/:otu_id/citations(.:format)    citations#index
+  # otu_citations GET /otus/:otu_id/citations(.:format) citations#index
   ApplicationEnumeration.data_models.each do |m|
     Shared::IsData::Annotation::ANNOTATION_TYPES.each do |t|
       if m.send("has_#{t}?")
@@ -624,9 +639,12 @@ TaxonWorks::Application.routes.draw do
       end
     end
 
+    scope :browse_annotations, controller: 'tasks/browse_annotations' do
+      get 'index', as: 'browse_annotations_task'
+    end
 
-    scope :object_annotations, controller: 'tasks/object_annotations' do
-      get 'index', as: 'annotate_objects'
+    scope :uniquify_people, controller: 'tasks/uniquify/people' do
+      get 'index', as: 'uniquify_people_task'
     end
 
     scope :otus do
@@ -689,6 +707,10 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :sources do
+      scope :individual_bibtex_source, controller: 'tasks/sources/individual_bibtex_source' do
+        get 'index', as: 'index_individual_bibtex_source_task'
+      end
+
       scope :browse, controller: 'tasks/sources/browse' do
         get 'index', as: 'browse_sources_task'
         get 'find', as: 'find_sources_task'
@@ -754,6 +776,10 @@ TaxonWorks::Application.routes.draw do
     # Scopes arranged alphabetically first level below :tasks
 
     scope :accessions do
+      scope :comprehensive, controller: 'tasks/accessions/comprehensive' do
+        get 'index', as: 'comprehensive_collection_object_task'
+      end
+
       scope :report do
         scope :dwc, controller: 'tasks/accessions/report/dwc' do
           get '', action: :index, as: 'report_dwc_task'
@@ -914,6 +940,14 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+  scope :s do
+    get ':id' => 'shortener/shortened_urls#show'
+  end
+
+  # constraints subdomain: 's' do
+  #   get '/:id' => "shortener/shortened_urls#show"
+  # end
+
   ### End of task scopes, user related below ###
 
   resources :users, except: :new do
@@ -1003,7 +1037,6 @@ TaxonWorks::Application.routes.draw do
         to: 'taxon_names#autocomplete'
     end
   end
-
 end
 
 require_relative 'routes/api'

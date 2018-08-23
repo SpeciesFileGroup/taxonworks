@@ -1,6 +1,11 @@
-json.extract! data_attribute, :id, :type, :attribute_subject_id, :attribute_subject_type, :controlled_vocabulary_term_id, :import_predicate, :value, :created_by_id, :updated_by_id, :project_id
-json.url data_attribute_url(data_attribute, format: :json)
+json.extract! data_attribute, :id, :type, :attribute_subject_id, :attribute_subject_type, :controlled_vocabulary_term_id, :import_predicate, :value, :created_at, :updated_at, :created_by_id, :updated_by_id, :project_id
 json.predicate_name data_attribute.predicate_name
+
+json.partial! '/shared/data/all/metadata', object: data_attribute
+
+json.annotated_object do
+  json.partial! '/shared/data/all/metadata', object: metamorphosize_if(data_attribute.attribute_subject) 
+end
 
 if data_attribute.editable?
   json.controlled_vocabulary_term do

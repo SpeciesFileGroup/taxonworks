@@ -10,7 +10,7 @@ describe DataAttribute, type: :model, group: :annotators do
 
     context 'requires' do
       specify 'attribute_subject' do 
-        # this eliminate all model based validation requirements
+        # this eliminates all model based validation requirements
         attribute.type = 'ImportAttribute'
         attribute.value = 'asdf'
         attribute.import_predicate = 'jkl'
@@ -41,7 +41,6 @@ describe DataAttribute, type: :model, group: :annotators do
         end
       end
 
-      # TODO: ImportAttribute tests, move there
       context 'ImportAttribute' do
         let!(:a1) { ImportAttribute.create(attribute_subject: o, import_predicate: 'hair color', value: 'black') }
         let(:a2) { ImportAttribute.new(attribute_subject: o, import_predicate: 'hair color', value: 'black') }
@@ -52,7 +51,13 @@ describe DataAttribute, type: :model, group: :annotators do
         end
       end
     end
+  end
 
+  context 'citaiton' do
+    let(:data_attribute) { FactoryBot.create(:valid_data_attribute) }
+    specify 'can be cited' do
+      expect(Citation.create!(citation_object: data_attribute, source: FactoryBot.create(:valid_source))).to be_truthy
+    end
   end
 
   context 'houskeeping on data attributes' do
@@ -134,6 +139,7 @@ describe DataAttribute, type: :model, group: :annotators do
 
   context 'concerns' do
     it_behaves_like 'is_data'
+    it_behaves_like 'citations'
   end
 
 end

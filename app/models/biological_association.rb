@@ -26,9 +26,12 @@
 #
 class BiologicalAssociation < ApplicationRecord
   include Housekeeping
-  include Shared::Citations
   include SoftValidation
+  include Shared::Citations
+  include Shared::Tags
+  include Shared::Identifiers
   include Shared::DataAttributes
+  include Shared::Confidences
   include Shared::Notes
   include Shared::Confidences
   include Shared::IsData
@@ -54,7 +57,6 @@ class BiologicalAssociation < ApplicationRecord
   def object_class_name
     biological_association_object.try(:class).base_class.name
   end
-
 
   def subject_global_id=(value)
     o = GlobalID::Locator.locate(value)

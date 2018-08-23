@@ -1,3 +1,16 @@
+
+<% content_for :tasks do %>
+  <%= content_tag(:li, 
+                  link_to(
+                    content_tag(:span, 'Edit (task)', 'data-icon' => 'edit', class: 'small-icon'), 
+                    new_descriptor_task_path(@descriptor),
+                    class: 'navigation-item')
+                 ) -%>
+
+
+
+<% end %>
+
 <%= content_for :associated do -%>
   <h3> Observations </h3>
   <ul>

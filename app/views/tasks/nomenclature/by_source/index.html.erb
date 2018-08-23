@@ -6,8 +6,7 @@
       <div class="title nav-line">
         Navigate 
       </div>
-      <div class="navigation-controls">
-        <%= pin_item_to_pinboard_link(@source, sessions_current_user) -%>       
+      <div class="navigation-controls">     
         <%= edit_object_link(@source) -%>
         <%= link_to(content_tag(:span, 'Show', data: {icon: :edit}, class: 'small-icon'), @source.metamorphosize, class: 'navigation-item') -%>
       </div>
@@ -16,8 +15,12 @@
   <div class="item item2">
     <div class="panel separate-left">
       <div class="title action-line">
-        <div class="title-section flexbox column-big">
+        <div class="title-section middle column-big flex-separate">
           <%= content_tag(:span, source_tag(@source), class: 'name') -%> 
+          <ul class="context-menu">
+            <li><%= radial_annotator(@source) -%></li>
+            <li><%= pin_item_to_pinboard_link(@source, sessions_current_user) -%></li>
+          </ul>
         </div>
       </div>
     </div>    
@@ -28,7 +31,7 @@
           <div id="brownse-main-panel" class="panel separate-left separate-right attributes-panel">
             <div class="break_words content">
               <div class="title-section"> 
-                <h2> Names (<%= @source.citations.where(citation_object_type: 'TaxonName').count -%> citations) </h2>
+                <h2> Taxon Names (<%= @source.citations.where(citation_object_type: 'TaxonName').count -%> citations) </h2>
               </div>
               <div class="attributes"> 
                 <ul class="taxonomic_history">
@@ -39,7 +42,7 @@
               </div>
 
               <div class="title-section"> 
-                <h2> Relationships  (<%= @source.citations.where(citation_object_type: 'TaxonNameRelationship').count -%> citations) </h2>
+                <h2> Taxon Name Relationships  (<%= @source.citations.where(citation_object_type: 'TaxonNameRelationship').count -%> citations) </h2>
               </div>
               <div class="attributes"> 
                 <ul class="taxonomic_history">

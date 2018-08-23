@@ -16,6 +16,9 @@ Rails.application.config.before_initialize do
   # Array of all ICNB TaxonNameClassifications classes, as Strings
   ICNB_TAXON_NAME_CLASSIFICATION_NAMES = TaxonNameClassification::Icnb.descendants.collect{|d| d.to_s}.freeze
 
+  # Array of all ICTV TaxonNameClassifications classes, as Strings
+  ICTV_TAXON_NAME_CLASSIFICATION_NAMES = TaxonNameClassification::Ictv.descendants.collect{|d| d.to_s}.freeze
+
   TAXON_NAME_CLASSIFICATION_GENDER_CLASSES = TaxonNameClassification::Latinized::Gender.descendants.freeze
 
   ICZN_TAXON_NAME_CLASSIFICATION_HASH = (ICZN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
@@ -30,8 +33,12 @@ Rails.application.config.before_initialize do
     |hsh, klass| hsh.merge(klass.constantize.name => klass)
   }.freeze
 
+  ICTV_TAXON_NAME_CLASSIFICATION_HASH = (ICTV_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
+      |hsh, klass| hsh.merge(klass.constantize.name => klass)
+  }.freeze
+
   # Array of all TaxonNameClassifications classes, as Strings
-  TAXON_NAME_CLASSIFICATION_NAMES = (ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICNB_TAXON_NAME_CLASSIFICATION_NAMES + ICZN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).freeze
+  TAXON_NAME_CLASSIFICATION_NAMES = (ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICTV_TAXON_NAME_CLASSIFICATION_NAMES + ICNB_TAXON_NAME_CLASSIFICATION_NAMES + ICZN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).freeze
 
   # Array of all Unavailable and Invalid TaxonNameClassifications classes, as Strings
   TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID = [
@@ -51,6 +58,9 @@ Rails.application.config.before_initialize do
     TaxonNameClassification::Icnb::EffectivelyPublished::InvalidlyPublished.descendants,
     TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Illegitimate,
     TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Illegitimate.descendants,
+    TaxonNameClassification::Ictv::Invalid,
+    TaxonNameClassification::Ictv::Invalid.descendants,
+    TaxonNameClassification::Ictv::Valid::Unaccepted
   ].flatten.map(&:to_s).freeze
 
   TAXON_NAME_CLASS_NAMES_VALID = [
@@ -58,6 +68,8 @@ Rails.application.config.before_initialize do
     TaxonNameClassification::Iczn::Available::Valid.descendants,
     TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate::Correct,
     TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate::Correct.descendants,
+    TaxonNameClassification::Ictv::Valid::Accepted,
+    TaxonNameClassification::Ictv::Valid::Accepted.descendants,
     TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Legitimate::Correct,
     TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Legitimate::Correct.descendants
   ].flatten.map(&:to_s).freeze
@@ -117,6 +129,13 @@ Rails.application.config.before_initialize do
       common: TaxonNameClassificationsHelper.collection([
 
       ])
+    },
+    ictv: {
+        tree: ApplicationEnumeration.nested_subclasses(TaxonNameClassification::Ictv),
+        all: TaxonNameClassificationsHelper::descendants_collection( TaxonNameClassification::Ictv ),
+        common: TaxonNameClassificationsHelper.collection([
+
+                                                          ])
     },
     latinized: {
       tree: ApplicationEnumeration.nested_subclasses(TaxonNameClassification::Latinized),

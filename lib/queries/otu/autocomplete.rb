@@ -65,13 +65,13 @@ module Queries
     # @return [String]
     def authorship
       parser = ScientificNameParser.new
-      a      = parser.parse(query_string)
-      b      = a[:scientificName]
+      a = parser.parse(query_string)
+      b = a[:scientificName]
       return nil if b.nil? or b[:details].nil?
 
       b[:details].each do |detail|
         detail.each_value do |v|
-          if v[:authorship]
+          if v.kind_of?(Hash) && v[:authorship]
             return v[:authorship]
           end
         end

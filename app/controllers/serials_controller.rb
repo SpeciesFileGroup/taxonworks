@@ -78,22 +78,14 @@ class SerialsController < ApplicationController
     end
   end
 
-  # @todo Some extra code here, str defined with extra param, used in label_html. Verify correct.
+  # GET /serials/autocomplete
   def autocomplete
-    @serials = Serial.find_for_autocomplete(params)
+    render json: {} and return if params[:term].blank?
 
-    data = @serials.collect do |t|
-      str = ApplicationController.helpers.serial_autocomplete_tag(t, params[:term])
-      { id: t.id,
-        label: ApplicationController.helpers.serial_tag(t),
-        response_values: {
-          params[:method] => t.id
-        },
-        label_html: str
-      }
-    end
-
-    render json: data
+    @serials = Queries::Serial::Autocomplete.new(
+      params[:term],
+      autocomplete_params
+    ).autocomplete
   end
 
   # GET /serials/download
@@ -105,13 +97,15 @@ class SerialsController < ApplicationController
 
   private
 
-  # Use callbacks to share common setup or constraints between actions.
   def set_serial
     @serial = Serial.find(params[:id])
     @recent_object = @serial
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
+  def autocomplete_params
+    params.permit(:limit_to_project).merge(project_id: sessions_current_project_id).to_h.symbolize_keys
+  end
+
   def serial_params
     params.require(:serial).permit(:name,
                                    :publisher,

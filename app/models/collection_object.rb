@@ -113,7 +113,7 @@ class CollectionObject < ApplicationRecord
   has_one :deaccession_recipient, through: :deaccession_recipient_role, source: :person
 
   has_many :biological_associations, as: :biological_association_subject, inverse_of: :biological_association_subject 
-  has_many :related_biological_associations, as: :biological_association_object, inverse_of: :biological_association_object
+  has_many :related_biological_associations, as: :biological_association_object, inverse_of: :biological_association_object, class_name: 'BiologicalAssociation'
 
   has_many :derived_collection_objects, inverse_of: :collection_object
   has_many :collection_object_observations, through: :derived_collection_objects, inverse_of: :collection_objects

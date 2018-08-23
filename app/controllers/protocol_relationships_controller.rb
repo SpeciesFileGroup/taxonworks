@@ -14,8 +14,7 @@ class ProtocolRelationshipsController < ApplicationController
 
       format.json {
         @protocol_relationships = ProtocolRelationship.where(project_id: sessions_current_project_id).where(
-          polymorphic_filter_params(
-            'protocol_relationship_object', ProtocolRelationship.related_foreign_keys  )
+          Queries::Annotator::polymorphic_params(params, ProtocolRelationship)
         )
       }
     end

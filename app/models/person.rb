@@ -60,8 +60,8 @@ class Person < ApplicationRecord
   include Shared::IsData
 
   ALTERNATE_VALUES_FOR = [:last_name, :first_name].freeze
-  IGNORE_SIMILAR       = [:type, :cached].freeze
-  IGNORE_IDENTICAL     = [:type, :first_name, :last_name, :prefix, :suffix].freeze
+  IGNORE_SIMILAR = [:type, :cached].freeze
+  IGNORE_IDENTICAL = [:type, :first_name, :last_name, :prefix, :suffix].freeze
 
   # @return [Boolean]
   #   true when cached values have not been built
@@ -165,6 +165,195 @@ class Person < ApplicationRecord
     collector_roles.to_a.length > 0
   end
 
+  def  levenshtein_similar(cutoff = 4)
+    Person.where('levenshtein(last_name, ?) < ? and levenshtein(first_name, ?) < ?', last_name, cutoff, first_name, cutoff) 
+  end
+
+  #  rubocop:disable Metrics/BlockNesting
+  #  rubocop:disable Metrics/MethodLength
+  # @param [Integer] person_id
+  # @return [Boolean]
+  #   true if all records updated, false if any one failed (all or none)
+  # r_person is merged into l_person (self)
+  def merge_with(person_id)
+    if r_person = Person.find(person_id) # get the new (merged into self) person
+      # r_err         = nil
+      begin
+        ApplicationRecord.transaction do
+          unvetted = self.type.include?('Unv') && r_person.type.include?('Unv')
+          # rubocop:disable Rails/SaveBang
+          Role.where(person_id: r_person.id).update(person: self) # update merge person's roles to old
+          # rubocop:enable Rails/SaveBang
+          l_person_hash = self.annotations_hash
+          unless r_person.first_name.blank?
+            if self.first_name.blank?
+              self.update(first_name: r_person.first_name)
+            else
+              if self.first_name != r_person.first_name
+                # create a first_name alternate_value of the r_person first name
+                skip_av = false
+                av_list = l_person_hash['alternate values']
+                av_list ||= {}
+                av_list.each do |av|
+                  if av.value == r_person.first_name
+                    if av.type == 'AlternateValue::AlternateSpelling' &&
+                      av.alternate_value_object_attribute == 'first_name' # &&
+                      # av.project_id == r_person.project_id
+                      skip_av = true
+                      break # stop looking in this bunch, if you found a match
+                    end
+                  end
+                end
+
+                AlternateValue::AlternateSpelling.create!(alternate_value_object_type:      'Person',
+                                                          value:                            r_person.first_name,
+                                                          alternate_value_object_attribute: 'first_name',
+                                                          alternate_value_object_id:        id) unless skip_av
+              end
+            end
+          end
+          unless r_person.last_name.blank?
+            if self.last_name.blank?
+              self.update(last_name: r_person.last_name)
+            else
+              if self.last_name != r_person.last_name
+                # create a last_name alternate_value of the r_person first name
+                skip_av = false
+                av_list = l_person_hash['alternate values']
+                av_list ||= {}
+                av_list.each do |av|
+                  if av.value == r_person.last_name
+                    if av.type == 'AlternateValue::AlternateSpelling' &&
+                      av.alternate_value_object_attribute == 'last_name' # &&
+                      # av.project_id == r_person.project_id
+                      skip_av = true
+                      break # stop looking in this bunch, if you found a match
+                    end
+                  end
+                end
+
+                AlternateValue::AlternateSpelling.create!(
+                  alternate_value_object_type:      'Person',
+                  value:                            r_person.last_name,
+                  alternate_value_object_attribute: 'last_name',
+                  alternate_value_object_id:        id) unless skip_av
+              end
+            end
+          end
+          r_person.annotations_hash.each do |r_kee, r_objects|
+            r_objects.each do |r_o|
+              skip   = false
+              l_test = l_person_hash[r_kee]
+              if l_test.present?
+                l_test.each do |l_o| # only look at same-type annotations
+                  # four types of annotations:
+                  # # data attributes,
+                  # # identifiers,
+                  # # notes,
+                  # # alternate values
+                  case r_kee
+                    when 'data attributes'
+                      if l_o.type == r_o.type &&
+                        l_o.controlled_vocabulary_term_id == r_o.controlled_vocabulary_term_id &&
+                        l_o.value == r_o.value &&
+                        l_o.project_id == r_o.project_id
+                        skip = true
+                        break # stop looking in this bunch, if you found a match
+                      end
+                    when 'identifiers'
+                      if l_o.type == r_o.type &&
+                        l_o.identifier == r_o.identifier &&
+                        l_o.project_id == r_o.project_id
+                        skip = true
+                        break # stop looking in this bunch, if you found a match
+                      end
+                    when 'notes'
+                      if l_o.text == r_o.text &&
+                        l_o.note_object_attribute == r_o.note.object_attribute &&
+                        l_o.project_id == r_o.project_id
+                        skip = true
+                        break # stop looking in this bunch, if you found a match
+                      end
+                    when 'alternate values'
+                      if l_o.value == r_o.value
+                        if l_o.type == r_o.type &&
+                          l_o.alternate_value_object_attribute == r_o.alternate_value_object_attribute &&
+                          l_o.project_id == r_o.project_id
+                          skip = true
+                          break # stop looking in this bunch, if you found a match
+                        end
+                      end
+                  end
+                end
+                skip
+              end
+              unless skip
+                # r_err                = r_o
+                r_o.annotated_object = self
+                r_o.save!
+                # r_o
+              end
+            end
+          end
+          # TODO: handle prefix and suffix
+          if self.prefix.blank?
+            self.prefix = r_person.prefix
+          else
+            unless r_person.prefix.blank?
+              # What to do when both have some content?
+            end
+          end
+          if self.suffix.blank?
+            self.suffix = r_person.suffix
+          else
+            unless r_person.suffix.blank?
+              # What to do when both have some content?
+            end
+          end
+          # TODO: handle years attributes
+          if self.year_born.nil?
+            self.year_born = r_person.year_born
+          else
+            unless r_person.year_born.nil?
+              # What to do when both have some (different) numbers?
+            end
+          end
+          if self.year_died.nil?
+            self.year_died = r_person.year_died
+          else
+            unless r_person.year_died.nil?
+              # What to do when both have some (different) numbers?
+            end
+          end
+          if r_person.year_active_start # if not, r_person has nothing to contribute
+            if self.year_active_start.nil? || (self.year_active_start > r_person.year_active_start)
+              self.year_active_start = r_person.year_active_start
+            end
+          end
+          if r_person.year_active_end # if not, r_person has nothing to contribute
+            if self.year_active_end.nil? || (self.year_active_end < r_person.year_active_end)
+              self.year_active_end = r_person.year_active_end
+            end
+          end
+          # update type, if necesssary
+          if self.type.include?('Unv')
+            unless unvetted
+              self.update(type: 'Person::Vetted')
+            end
+          end
+          # last thing to do in the transaction...
+          self.save! unless self.persisted?
+        end
+      rescue ActiveRecord::RecordInvalid
+        return false
+      end
+    end
+    true
+  end
+
+  #  rubocop:enable Metrics/BlockNesting
+  #  rubocop:enable Metrics/MethodLength
+
   # @return [Boolean]
   def is_determiner?
     determiner_roles.to_a.length > 0
@@ -200,63 +389,6 @@ class Person < ApplicationRecord
                                                            first_name: n['given'],
                                                            prefix:     n['non-dropping-particle']) }
   end
-
-=begin
-  What is the logic to declare one person 'identical' to another
-
-  Easy tests:
-    0) person.id: if this is the same as self.id, must be same record.
-                  OR
-    1) person.last_name == last_name
-                AND
-    2) person.first_name == first_name
-                AND
-      a) person.cached == cached
-
-    3) person.prefix (subsumed by 'cached'?)
-    4) person.suffix (subsumed by 'cached'?)
-
-  A little harder:
-    5) person.year_born (if both available)
-    6) person.year_died (if both available)
-    7) person.year_active_start (if both available)
-    8) person.year_active_end (if both available)
-
-  More complex:
-    9) person.authored_taxon_names is same set as authored_taxon_names
-      a) count is the same
-                  AND
-      b) taxon names match
-=end
-
-  # # @param [Person] person to which this instance is to be compared
-  # # @return [Boolean]
-  # def identical(person)
-  #   # same record
-  #   retval = (id == person.id)
-  #   unless retval
-  #     # two different instances of Person
-  #     retval = (last_name == person.last_name and first_name == person.first_name and cached == person.cached)
-  #     retval = (retval and (year_born == person.year_born and year_died == person.year_died))
-  #     retval = (retval and (year_active_start == person.year_active_start and \
-  #                           year_active_end == person.year_active_end))
-  #
-  #     tn_ids  = taxon_name_author_roles.pluck(:role_object_id)
-  #     count  = tn_ids.count
-  #     retval = (retval and (count == person.taxon_name_author_roles.count))
-  #     if retval and (count > 0) # is still true and there are any roles to test
-  #       # Boolean of the intersection of two sets of role object ids equals the local list?
-  #       retval = (retval and ((tn_ids & person.taxon_name_author_roles.pluck(:role_object_id)) == tn_ids))
-  #     end
-  #   end
-  #   retval
-  # end
-  #
-  # # @param [Person] person to which this instance is to be compared
-  # # @return [Boolean]
-  # def similar(person)
-  #
-  # end
 
   protected
 
