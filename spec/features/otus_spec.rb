@@ -50,25 +50,25 @@ describe 'Otus', type: :feature do
 
         let(:taxon_name_root) {
           Protonym.find_or_create_by(
-            name: 'Root',
-            rank_class: 'NomenclaturalRank',
-            created_by_id: @user.id,
-            updated_by_id: @user.id,
-            parent_id: nil,
-            project_id: @project.id)
+              name: 'Root',
+              rank_class: 'NomenclaturalRank',
+              created_by_id: @user.id,
+              updated_by_id: @user.id,
+              parent_id: nil,
+              project_id: @project.id)
         }
 
         let(:taxon_name) {
           Protonym.create!(
-            name: 'Adidae',
-            type: 'Protonym',
-            rank_class: Ranks.lookup(:iczn, 'Family'),
-            verbatim_author: 'SueMe',
-            year_of_publication: 1884,
-            by: @user,
-            project: @project,
-            parent: taxon_name_root,
-            also_create_otu: true
+              name: 'Adidae',
+              type: 'Protonym',
+              rank_class: Ranks.lookup(:iczn, 'Family'),
+              verbatim_author: 'SueMe',
+              year_of_publication: 1884,
+              by: @user,
+              project: @project,
+              parent: taxon_name_root,
+              also_create_otu: true
           )
         }
 
@@ -90,7 +90,7 @@ describe 'Otus', type: :feature do
         it 'Returns a response including an arrry of ids for a related taxon_name plus author/year' do
           query = otu2.taxon_name.cached + ' ' + otu2.taxon_name.cached_author_year
           route = URI.escape(
-            "/api/v1/otus/by_name/#{query}?project_id=#{otu2.project.id}&token=#{@user.api_access_token}"
+              "/api/v1/otus/by_name/#{query}?project_id=#{otu2.project.id}&token=#{@user.api_access_token}"
           )
           visit route
           expect(JSON.parse(page.body)['result']['otu_ids']).to eq([otu2.id])
@@ -113,10 +113,39 @@ describe 'Otus', type: :feature do
         specify 'otus table can be downloaded as-is' do
           visit otus_path
           click_link('Download')
-          expect( Features::Downloads::download_content).to eq(csv)
+          expect(Features::Downloads::download_content).to eq(csv)
         end
       end
+    end
 
+    context 'batch load', js: true do
+      context 'data_attributes for otus' do
+        context 'import attributes' do
+          let(:file) { 'spec/files/batch/otu/da_ph_2.tsv' }
+          let(:upload_file) { fixture_file_upload(file) }
+
+          specify 'find right section' do
+            visit batch_load_otus_path
+            expect(page).to have_content('Data Attributes batch load')
+          end
+
+          specify 'preview' do
+            visit batch_load_otus_path
+            attach_file('da_file', Rails.root + file)
+            click_button('da_preview')
+            expect(page).to have_content("No OTU with name 'Taxonmatchidae' exists.")
+          end
+
+          specify 'create' do
+            visit batch_load_otus_path
+            attach_file('da_file', Rails.root + file)
+            click_button('da_preview')
+            attach_file('da_file', Rails.root + file)
+            click_button('da_create')
+            expect(page).to have_content("No OTU with name 'Taxonmatchidae' exists.")
+          end
+        end
+      end
     end
   end
 end
