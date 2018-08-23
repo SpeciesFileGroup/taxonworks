@@ -1,5 +1,7 @@
-
 # The DataAttribute that has an externally referenced (and likely undefined) predicate.
+#
+# An ImportAttribute should (can) only be created during a batch import process, they are write once, read many.  
+# The values and predicates of _can not be edited_ after creation.  
 #
 # ImportAttributes are used to attach data to other TW data in cases where the user is unclear
 # as to the meaning of the related data.  For example, if a spreadsheet is batch imported it
@@ -23,7 +25,6 @@
 #
 #  attribute_subject       import_predicate  value
 #  @some_collecting_event  "micro_habitat"   "north side of wet rock"
-#
 #
 #
 # @!attribute import_predicate
