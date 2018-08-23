@@ -4,7 +4,7 @@
       <ul>
         <li
           class="horizontal-left-content"
-          v-for="characterState in descriptor.characterStates">
+          v-for="(characterState, index) in descriptor.characterStates">
           <label>
             <input
               type="checkbox"
@@ -13,7 +13,10 @@
 
             {{ characterState.label }}: {{ characterState.name }}
           </label>
-          <radial-annotator :global-id="characterState.globalId"/>
+          <template v-if="getObservationFromCharacterId(characterState.id)">
+            <radial-annotator 
+            :global-id="getObservationFromCharacterId(characterState.id).global_id"/>
+          </template>
         </li>
       </ul>
     </summary-view>
@@ -75,6 +78,11 @@ export default {
         descriptorId: this.$props.descriptor.id,
         characterStateId,
         isChecked: event.target.checked
+      })
+    },
+    getObservationFromCharacterId(id) {
+      return this.observations.find(item => {
+        return item.characterStateId == id && item.global_id
       })
     }
   },
