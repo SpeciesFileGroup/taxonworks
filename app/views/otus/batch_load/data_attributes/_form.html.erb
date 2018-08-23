@@ -2,7 +2,7 @@
   <div class="field">
     <%= label_tag :file, 'Select a file' -%>
     <br>
-    <%= file_field_tag :file -%>
+    <%= file_field_tag(:file, id: 'da_file') -%>
   </div>
 
   <% if @result -%>
