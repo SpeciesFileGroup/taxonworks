@@ -9,7 +9,12 @@
       <ul>
         <li>A UTF-8 compatible text file is required.</li>
         <li>The Otu name will be the entire contents of each file</li>
-        <li>Example Otu file (see <%= link_to('sample template', asset_path('batch_file_load_templates/otus/simple/simple.txt'), target: '_blank') -%>).</li>
+        <li>Example Otu file
+          (see <%= link_to('sample template',
+                           asset_path('batch_file_load_templates/otus/simple/simple.txt',
+                                      skip_pipeline: true),
+                           target: '_blank') -%>).
+        </li>
         <li>You can only upload 127 files max at once</li>
       </ul>
     </div>
@@ -25,7 +30,9 @@
 
     <div class="item item3">
       <h3> Go! </h3>
-      <%= render partial: '/otus/batch_file_load/simple/form', locals: {url: preview_simple_batch_file_load_otus_path, submit: :preview} -%>
+      <%= render partial: '/otus/batch_file_load/simple/form',
+                 locals: {url: preview_simple_batch_file_load_otus_path,
+                          submit: :preview} -%>
     </div>
   </div>
 </div>
