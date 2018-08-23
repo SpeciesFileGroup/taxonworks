@@ -34,7 +34,7 @@ const GetUserPreferences = function () {
 }
 
 const UpdateUserPreferences = function (id, data) {
-  return ajaxCall('patch', `/users/${id}.json`, { layout: data })
+  return ajaxCall('patch', `/users/${id}.json`, { user: { layout: data } })
 }
 
 const GetRepositorySmartSelector = function () {

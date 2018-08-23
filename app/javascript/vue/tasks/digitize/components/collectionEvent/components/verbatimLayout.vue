@@ -59,34 +59,30 @@
           'VerbatimLongitude',
           'VerbatimLocality',
           'VerbatimMethod'],
-        preferences: {}
+        userId: undefined,
+        preferences: undefined
       }
     },
     mounted() {
       GetUserPreferences().then(response => {
+        this.userId = response.id
         this.preferences = response
       })
     },
     watch: {
       preferences: {
         handler() {
-          this.componentsOrder = this.preferences.layout.tasks.digitize.verbatimOrder
+          if(this.preferences.layout['tasks::digitize::verbatimOrder'])
+            this.componentsOrder = this.preferences.layout['tasks::digitize::verbatimOrder']
         },
         deep: true
       }
     },
     methods: {
       updatePreferences() {
-        let pref = {
-          tasks: {
-            digitize: {
-              verbatimOrder: this.componentsOrder
-            }
-          }
-        }
-        UpdateUserPreferences(this.preferences.id, pref).then(response => {
+        UpdateUserPreferences(this.userId, { 'tasks::digitize::verbatimOrder': this.componentsOrder }).then(response => {
           this.preferences = response.preferences
-          this.componentsOrder = response.preferences.layout.tasks.digitize.verbatimOrder
+          this.componentsOrder = response.preferences.layout['tasks::digitize::verbatimOrder']
         })
       }
     }
