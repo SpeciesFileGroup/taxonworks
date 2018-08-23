@@ -3,6 +3,7 @@ class Observation < ApplicationRecord
   include Shared::Citations
   include Shared::DataAttributes
   include Shared::Identifiers
+  include Shared::Depictions
   include Shared::Notes
   include Shared::Tags
   include Shared::IsData
