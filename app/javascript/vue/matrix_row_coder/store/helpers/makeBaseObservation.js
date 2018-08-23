@@ -1,6 +1,4 @@
 export default function (observationData) {
-  console.log("Entra en Make")
-  console.log(observationData)
   return {
     id: observationData.id || null,
     descriptorId: observationData.descriptorId || observationData.descriptor_id,
