@@ -8,7 +8,7 @@
         legend="Loading..."
         :logo-size="{ width: '100px', height: '100px'}"/>
       <nomen-source
-      @source_id="sourceID = $event"/>
+        @source_id="sourceID = $event" />
     </div>
       <div class="flexbox">
         <div class="flexbox">
