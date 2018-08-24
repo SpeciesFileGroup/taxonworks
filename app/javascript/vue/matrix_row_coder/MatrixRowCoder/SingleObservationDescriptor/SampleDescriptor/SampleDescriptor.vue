@@ -1,21 +1,26 @@
 <template>
   <div class="sample-descriptor">
     <summary-view :descriptor="descriptor">
-      <label>
-        Min:
-        <input type="number" :value="sampleMin" @input="updateSampleMin">
-      </label>
-      to
-      <label>
-        Max:
-        <input type="number" :value="sampleMax" @input="updateSampleMax">
-      </label>
-      <unit-selector v-model="sampleUnit"/>
+      <div class="horizontal-left-content">
+        <label>
+          Min:
+          <input type="number" :value="sampleMin" @input="updateSampleMin">
+        </label>
+        to
+        <label>
+          Max:
+          <input type="number" :value="sampleMax" @input="updateSampleMax">
+        </label>
+        <unit-selector v-model="sampleUnit"/>
 
-      <label>
-        n:
-        <input type="number" :value="sampleN" @input="updateSampleN">
-      </label>
+        <label>
+          n:
+          <input type="number" :value="sampleN" @input="updateSampleN">
+        </label>
+        <radial-annotator 
+          v-if="observationExist"
+          :global-id="observation.global_id"/>
+      </div>
     </summary-view>
 
     <single-observation-zoomed-view
@@ -47,7 +52,6 @@
           <input type="number" :value="sampleN" @input="updateSampleN">
         </label>
       </p>
-
     </single-observation-zoomed-view>
   </div>
 </template>

@@ -8,6 +8,10 @@
           <input type="number" :value="continuousValue" @input="updateContinuousValue">
         </label>
         <unit-selector v-model="continuousUnit"/>
+        <template v-if="observationExist">
+          <radial-annotator 
+            :global-id="observation.global_id"/>
+        </template>
         <span
           type="button"
           class="circle-button btn-delete"
@@ -73,7 +77,7 @@ export default {
     }
   },
   components: {
-    UnitSelector
+    UnitSelector,
   }
 }
 </script>
