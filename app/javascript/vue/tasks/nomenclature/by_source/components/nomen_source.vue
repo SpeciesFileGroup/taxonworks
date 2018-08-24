@@ -20,18 +20,18 @@
         sourceID: undefined
       }
     },
-    methods: {
-      getSource() {
-        let pieces = window.location.href.split('/')
-        this.sourceID = pieces[pieces.length - 1];
-        if (this.sourceID) {
-          this.$http.get('/sources/' + this.sourceID + '.json').then(response => {
-            this.sourceText = response.body.id + ': "' + response.body.cached + '"';
-            this.$emit('source_id', this.sourceID);
-          })
-        }
+  methods: {
+    getSource() {
+      let pieces = window.location.href.split('/')
+      this.sourceID = pieces[pieces.length - 1];
+      if (this.sourceID) {
+        this.$http.get('/sources/' + this.sourceID + '.json').then(response => {
+          this.sourceText = response.body.id + ': "' + response.body.cached + '"';
+          this.$emit('sourceID', this.sourceID);
+        })
       }
     }
+  }
   ,
   mounted: function () {
     this.getSource()

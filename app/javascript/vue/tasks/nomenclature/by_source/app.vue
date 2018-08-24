@@ -8,7 +8,7 @@
         legend="Loading..."
         :logo-size="{ width: '100px', height: '100px'}"/>
       <nomen-source
-        @source_id="sourceID = $event" />
+        @sourceID="sourceID = $event" />
     </div>
       <div class="flexbox">
         <div class="flexbox">
@@ -52,7 +52,7 @@
     },
     data() {
       return {
-        source_id: undefined,
+        sourceID: undefined,
         isLoading: false,
         state: false
       }
