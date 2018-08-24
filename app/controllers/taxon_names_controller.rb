@@ -25,6 +25,11 @@ class TaxonNamesController < ApplicationController
     @taxon_name.source = Source.new if !@taxon_name.source
   end
 
+  # GET /taxon_names/select_options
+  def select_options
+    @taxon_names = TaxonName.select_optimized(sessions_current_user_id, sessions_current_project_id)
+  end
+
   # POST /taxon_names
   # POST /taxon_names.json
   def create

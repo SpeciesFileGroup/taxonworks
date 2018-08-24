@@ -667,8 +667,39 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     context 'with a heirarchy created' do
       before {species} # create the full hierarchy
 
-      context 'scopes' do
+      context 'recent use' do
+        let!(:tc1) { TaxonNameClassification::Iczn::Available::Invalid.create!(taxon_name: species) }
+        let!(:tr1) { TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: genus, object_taxon_name: subgenus ) }
 
+        # This isn't recent!
+        let!(:tr2) { TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(
+          subject_taxon_name: tribe, 
+          object_taxon_name: subfamily, 
+          created_at: 1.month.ago, 
+          updated_at: 1.month.ago ) }
+
+        let(:user_id) { species.created_by_id }
+        let(:project_id) { species.project_id }
+
+        specify '.used_recently' do
+          expect(TaxonName.used_recently(project_id, user_id).count).to eq(9)
+        end
+
+        # everything is recent
+        specify '.used_recently_in_classifications' do
+          expect(TaxonName.used_recently_in_classifications(project_id, user_id).map(&:id)).to contain_exactly(species.id)
+        end
+
+        specify '.used_recently_in_relationships' do
+          expect(TaxonName.used_recently_in_relationships(project_id, user_id).map(&:id)).to contain_exactly(subgenus.id, genus.id)
+        end
+
+        specify '.select_optimized' do
+          expect(TaxonName.select_optimized(user_id, project_id)).to be_truthy
+        end
+      end
+
+      context 'scopes' do
         context '.ancestors_and_descendants_of' do
           specify 'includes leaves to root, and target node' do
             expect(TaxonName.ancestors_and_descendants_of(genus).all.map(&:name)).to contain_exactly(

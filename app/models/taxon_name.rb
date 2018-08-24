@@ -188,7 +188,6 @@ class TaxonName < ApplicationRecord
     :validate_source_type,
     :validate_one_root_per_project
 
-
   validates_presence_of :type, message: 'is not specified'
 
   # TODO: move some of these down to Protonym when they don't apply to Combination
@@ -1105,6 +1104,57 @@ class TaxonName < ApplicationRecord
 
   def create_otu
     Otu.create(by: creator, project: project, taxon_name_id: id)
+  end
+
+  # @return [Scope]
+  #   All taxon names attached to relationships recently created by user
+  def self.used_recently_in_classifications(project_id, user_id)
+    TaxonName.where(project_id: project_id)
+      .joins(:taxon_name_classifications)
+      .where(taxon_name_classifications: { created_at: 1.weeks.ago..Time.now } )
+      .order('taxon_names.updated_at')
+  end
+
+  # @return [Scope]
+  #   All taxon names attached to relationships recently created by user
+  def self.used_recently_in_relationships(project_id, user_id)
+    t = TaxonNameRelationship.arel_table
+    t1 = t.alias('tnr1')
+    t2 = t.alias('tnr2')
+
+    sql = t1[:updated_by_id].eq(user_id).or(t1[:created_by_id].eq(user_id))
+      .or(t2[:updated_by_id].eq(user_id).or(t2[:created_by_id].eq(user_id))
+    ).to_sql
+
+    sql2 = t1[:created_at].between( 1.weeks.ago..Time.now )
+      .or( t2[:created_at].between( 1.weeks.ago..Time.now ) ).to_sql
+
+    TaxonName.with_taxon_name_relationships
+      .where(taxon_names: {project_id: project_id})
+      .where(sql2)
+      .where(sql)
+      .order('taxon_names.updated_at')
+  end
+
+  # @return [Array]
+  #   !! not a scope
+  def self.used_recently(project_id, user_id)
+    a = [
+      TaxonName.touched_by(user_id).where(project_id: project_id).order(:updated_at).limit(6).to_a,
+      used_recently_in_classifications(project_id, user_id).limit(6).to_a,
+      used_recently_in_relationships(project_id, user_id).limit(6).to_a
+    ].flatten.compact.uniq.sort{|a,b| a.cached <=> b.cached}
+  end
+
+  # @return [Hash]
+  def self.select_optimized(user_id, project_id)
+    h = {
+      recent: TaxonName.used_recently(project_id, user_id),
+      pinboard: TaxonName.pinned_by(user_id).pinned_in_project(project_id).to_a
+    }
+
+    h[:quick] = (TaxonName.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a + h[:recent][0..3]).uniq
+    h
   end
 
   protected
