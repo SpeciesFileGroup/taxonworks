@@ -31,15 +31,15 @@ export default function ({ commit, state }, args) {
 
       commit(MutationNames.SetDescriptorSavedOnce, args.descriptorId)
 
-      if (isValidResponseData(responseData)) { commit(MutationNames.SetObservationId, makeObservationIdArgs(responseData.id)) }
+      if (isValidResponseData(responseData)) { commit(MutationNames.SetObservationId, makeObservationIdArgs(responseData.id, responseData.global_id)) }
     })
 
   function isValidResponseData (data) {
     return data && data.id
   }
 
-  function makeObservationIdArgs (observationId) {
-    return Object.assign({}, args, { observationId })
+  function makeObservationIdArgs (observationId, global_id) {
+    return Object.assign({}, args, { observationId, global_id })
   }
 
   function setupQualitativePayload (payload) {
@@ -74,6 +74,7 @@ export default function ({ commit, state }, args) {
     return {
       descriptor_id: args.descriptorId,
       observation_object_global_id: state.taxonId,
+      global_id: undefined,
       type: observation.type
     }
   }
