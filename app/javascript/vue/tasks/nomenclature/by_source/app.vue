@@ -7,7 +7,8 @@
         :full-screen="true"
         legend="Loading..."
         :logo-size="{ width: '100px', height: '100px'}"/>
-      <nomen-source />
+      <nomen-source
+      @source_id="sourceID = $event"/>
     </div>
       <div class="flexbox">
         <div class="flexbox">
@@ -51,9 +52,13 @@
     },
     data() {
       return {
+        source_id: undefined,
         isLoading: false,
         state: false
       }
-    }
+    },
+    // mounted: {
+    //
+    // }
   }
 </script>

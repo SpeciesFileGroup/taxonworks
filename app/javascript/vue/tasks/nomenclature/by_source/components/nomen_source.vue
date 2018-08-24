@@ -1,8 +1,8 @@
 <template>
   <div
-    style="width:400px; height:200px;">
+      style="width:400px; height:200px;">
     <h2>Nomenclatural source: </h2>
-    <pre>{{ value }}</pre>
+    <pre>{{ sourceText }}</pre>
   </div>
 </template>
 <script>
@@ -12,22 +12,28 @@
         type: String,
         default: window.location.href.split('by_source/')[1]
       },
-      sourceText: {
-        type: String,
-        default: 'This is the source from which we derive all the taxa and otus'
-      },
+    },
+    data: function() {
+      return {
+        sourceText: 'Invalid source or no source supplied'
+        ,
+        sourceID: undefined
+      }
     },
     methods: {
-      items() {
-        alert(window.location.search);
-        return window.location.href.split('by_source/')[-1];
+      getSource() {
+        this.sourceID = window.location.href.split('by_source/')[1];
+        if (this.sourceID) {
+          this.$http.get('/sources/' + this.sourceID + '.json').then(response => {
+            this.sourceText = response.body.id + ': "' + response.body.cached + '"';
+            this.$emit('source_id', this.sourceID);
+          })
+        }
       }
-    },
-    computed: {
-      itemS() {
-        alert(window.location.search);
-        return window.location.href.split('by_source/')[-1];
-      }
+    }
+  ,
+  mounted: function () {
+    this.getSource()
     }
   }
 </script>
