@@ -22,7 +22,8 @@
     },
     methods: {
       getSource() {
-        this.sourceID = window.location.href.split('by_source/')[1];
+        let pieces = window.location.href.split('/')
+        this.sourceID = pieces[pieces.length - 1];
         if (this.sourceID) {
           this.$http.get('/sources/' + this.sourceID + '.json').then(response => {
             this.sourceText = response.body.id + ': "' + response.body.cached + '"';
