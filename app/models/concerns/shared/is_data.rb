@@ -113,7 +113,7 @@ module Shared::IsData
     klass = self.class
     attr  = Stripper.strip_similar_attributes(klass, attributes)
     # matching only those attributes from the instance which are not empty
-    attr = attr.select { |_kee, val| val.present? }
+    attr = attr.select{ |_kee, val| val.present? }
     if id
       scope = klass.where(attr).not_self(self)
     else
@@ -151,7 +151,7 @@ module Shared::IsData
       rescue NameError
         ig = RESERVED_ATTRIBUTES.dup.map(&:to_s)
       end
-      attr.delete_if { |kee, _value| ig.include?(kee) }
+      attr.delete_if{|kee, _value| ig.include?(kee) }
       attr
     end
 
@@ -163,7 +163,7 @@ module Shared::IsData
       rescue NameError
         ig = RESERVED_ATTRIBUTES.dup.map(&:to_s)
       end
-      attr.delete_if { |kee, _value| ig.include?(kee) }
+      attr.delete_if{ |kee, _value| ig.include?(kee) }
       attr
     end
 
