@@ -120,7 +120,7 @@
     methods: {
       loadSourceCitations: function () {
         let that = this,
-          filterUrl = `/citations/filter?source_id=${that.$store.getters[GetterNames.GetSourceSelected].id}&citation_object_type=Otu`
+          filterUrl = `/citations.json?source_id=${that.$store.getters[GetterNames.GetSourceSelected].id}&citation_object_type=Otu`
 
         this.$http.get(filterUrl).then(response => {
           if (response.body.length) {
@@ -131,7 +131,7 @@
 
       loadOtuCitations: function () {
         let that = this,
-          filterUrl = `/citations/filter?citation_object_type=Otu&citation_object_id=${that.$store.getters[GetterNames.GetOtuSelected].id}`
+          filterUrl = `/citations.json?citation_object_type=Otu&citation_object_id=${that.$store.getters[GetterNames.GetOtuSelected].id}`
 
         this.$http.get(filterUrl).then(response => {
           if (response.body.length) {
@@ -142,7 +142,7 @@
 
       loadCitations: function () {
         let that = this,
-          filterUrl = `/citations/filter?source_id=${that.$store.getters[GetterNames.GetSourceSelected].id}&citation_object_type=Otu&citation_object_id=${that.$store.getters[GetterNames.GetOtuSelected].id}`
+          filterUrl = `/citations?source_id=${that.$store.getters[GetterNames.GetSourceSelected].id}&citation_object_type=Otu&citation_object_id=${that.$store.getters[GetterNames.GetOtuSelected].id}`
 
         this.$http.get('/otus/' + that.$store.getters[GetterNames.GetOtuSelected] + '/citations').then(response => {
           that.$store.commit(MutationNames.SetCitationsList, response.body)
