@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3>Taxon Name Relationships</h3>
+    <h3>Biological Associations</h3>
     <table>
       <tr v-for="item in taxon_names_cites_list">
         <td><input type="text" :value="item.pages"></td>
