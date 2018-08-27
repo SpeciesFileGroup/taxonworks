@@ -6,7 +6,6 @@
         <td><input type="text" :value="item.pages"></td>
         <td v-html="item.citation_object_tag" />
         <td><radial-annotator :global-id="item.global_id" /></td>
-        <td><otu-radial :taxon-id="item.citation_object_id" :redirect="false" /></td>
       </tr>
     </table>
   </div>

@@ -30,6 +30,18 @@
           this.$emit('sourceID', this.sourceID);
         })
       }
+    },
+    getSelectOptions(onModel) {
+      this.$http.get(this.selectOptionsUrl, {params: {klass: this.onModel}}).then(response => {
+        this.tabs = Object.keys(response.body);
+        this.list = response.body;
+        this.$http.get(this.allSelectOptionUrl).then(response => {
+          if(response.body.length) {
+            this.moreOptions = ['all']
+          }
+          this.$set(this.list, 'all', response.body);
+        })
+      })
     }
   }
   ,

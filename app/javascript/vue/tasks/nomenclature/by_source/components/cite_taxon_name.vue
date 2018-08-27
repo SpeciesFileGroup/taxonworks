@@ -4,8 +4,11 @@
     <smart-selector
         :options="tabs"
         name="citation"
+        :select-options-url="/taxon_names/select_options"
         :add-option="moreOptions"
         v-model="view"/>
+    <input type="text"
+           placeholder="search for a taxon" />
   </div>
 </template>
 <script>
@@ -15,12 +18,12 @@
       smartSelector
     },
     props: {
-      selectOptionsUrl: {
-        type: String
-      },
-      allSelectOptionUrl: {
-        type: String
-      },
+      // selectOptionsUrl: {
+      //   type: String
+      // },
+      // allSelectOptionUrl: {
+      //   type: String
+      // },
       value: {
         type: Object,
       },
@@ -34,6 +37,12 @@
         selectedList: {}
       }
     },
+    mounted: function() {
+      this.$http.get('/taxon_names/select_options').then(response =>
+    {
+      this.tabs = response.body;
+    })
+    }
   }
 
 </script>
