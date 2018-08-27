@@ -16,6 +16,7 @@ branches:
     - master
     - development
     - rails52
+    - digitize
 addons:
   postgresql: "10"
   firefox: "latest"

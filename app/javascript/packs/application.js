@@ -24,6 +24,7 @@ require('../vue/tasks/clipboard/main.js')
 require('../vue/tasks/digitize/main.js')
 require('../vue/tasks/uniquify/people/main.js')
 require('../vue/tasks/uniquify/sources/main.js')
+require('../vue/tasks/single_bibtex_source/main.js')
 require('../vue/tasks/nomenclature/by_source/main.js')
 
 // Styles

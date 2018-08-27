@@ -535,6 +535,7 @@ TaxonWorks::Application.routes.draw do
     collection do
       post :preview_bibtex_batch_load # should be get
       post :create_bibtex_batch_load
+      get :parse, defaults: {format: :json}
     end
   end
 
@@ -563,6 +564,7 @@ TaxonWorks::Application.routes.draw do
     resources :taxon_name_relationships, shallow: true, only: [:index], defaults: {format: :json}, param: :subject_taxon_name_id
 
     collection do
+      get :select_options, defaults: {format: :json}
       post :preview_simple_batch_load # should be get
       post :create_simple_batch_load
       get :ranks, {format: :json}
@@ -706,6 +708,10 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :sources do
+      scope :individual_bibtex_source, controller: 'tasks/sources/individual_bibtex_source' do
+        get 'index', as: 'index_individual_bibtex_source_task'
+      end
+
       scope :browse, controller: 'tasks/sources/browse' do
         get 'index', as: 'browse_sources_task'
         get 'find', as: 'find_sources_task'

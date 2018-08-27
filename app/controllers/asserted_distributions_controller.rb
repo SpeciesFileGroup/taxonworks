@@ -9,13 +9,13 @@ class AssertedDistributionsController < ApplicationController
     respond_to do |format|
       format.html {
         @recent_objects = AssertedDistribution.recent_from_project_id(sessions_current_project_id)
-                            .order(updated_at: :desc)
-                            .limit(10)
+          .order(updated_at: :desc)
+          .limit(10)
         render '/shared/data/all/index'
       }
       format.json {
         @asserted_distributions = AssertedDistribution.where(project_id: sessions_current_project_id)
-                                    .where(index_params)
+          .where(index_params)
       }
     end
   end

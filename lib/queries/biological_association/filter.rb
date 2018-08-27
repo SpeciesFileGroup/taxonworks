@@ -41,6 +41,7 @@ module Queries
       end
 
       # @return [ActiveRecord object, nil]
+      # TODO: DRY
       def object_for(global_id)
         if o = GlobalID::Locator.locate(global_id) 
           o
