@@ -4,7 +4,7 @@
     <table>
       <tr v-for="item in taxon_names_cites_list">
         <td><input type="text" :value="item.pages"></td>
-        <td v-html="item.citation_object_tag" />
+        <td v-html="item.object_tag" />
         <td><radial-annotator :global-id="item.global_id" /></td>
       </tr>
     </table>
@@ -36,7 +36,7 @@
       let pieces = window.location.href.split('/')
       this.sourceID = pieces[pieces.length - 1];
 
-      this.$http.get('/citations?citation_object_type=TaxonName&source_id=' + this.source_id).then(response => {
+      this.$http.get('/citations?citation_object_type=AssertedDistribution&source_id=' + this.source_id).then(response => {
         // build the tabular list, extracting the
         this.taxon_names_cites_list = response.body;
       })
