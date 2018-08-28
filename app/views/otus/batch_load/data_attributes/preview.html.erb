@@ -10,7 +10,7 @@
   <table class="top_align_text">
     <tr>
       <th class="four_character_width">line</th>
-      <th class="four_character_width">data count</th>
+<!--      <th class="four_character_width">data count</th>-->
       <th> name </th>
       <th> import predicate</th>
       <th class=""> data errors* </th>
@@ -20,16 +20,15 @@
     <% @result.sorted_processed_rows.each do |i, rp| -%>
       <tr>
         <%= batch_line_link_td(i) -%>
-        <%= batch_all_objects_count_td(rp) -%>\
+<!--        <%#= batch_all_objects_count_td(rp) -%>\-->
         <td>
-          <%= rp.objects[:otu].each.collect{|n| n.name if n.name.present? }.join('<br>').html_safe -%>
+          <%= batch_line_otu(rp.objects[:otu].first).html_safe -%>
         </td>
         <td>
-          <%= "Predicate: '#{rp.objects[:data_attribute].first.import_predicate}',
-          Value: '#{rp.objects[:data_attribute].first.value}'" %>
+          <%= batch_line_predicate(rp.objects[:data_attribute].first).html_safe %>
         </td>
-        <%= batch_data_errors_td(rp) -%>
-        <%= batch_parse_errors_td(rp) -%>
+        <%= batch_data_errors_td(rp, '<br>') -%>
+        <%= batch_parse_errors_td(rp, '<br>') -%>
       </tr>
     <% end -%>
   </table>

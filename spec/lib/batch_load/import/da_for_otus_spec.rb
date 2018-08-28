@@ -18,10 +18,32 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
                                              file: upload_file)
   }
 
+  let(:source) { FactoryBot.create(:valid_source_verbatim) }
   let(:upload_file_2) { fixture_file_upload(file_ph_2) }
   let(:import_2) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
                                                                           user_id: user.id,
+                                                                          file: upload_file_2,
+                                                                          source_id: source.id,
+                                                                          create_new_otu: '1')
+  }
+  let(:import_3) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
+                                                                          user_id: user.id,
+                                                                          file: upload_file_2,
+                                                                          create_new_otu: '1')
+  }
+  let(:import_4) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
+                                                                          user_id: user.id,
                                                                           file: upload_file_2)
+  }
+  let(:import_5) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
+                                                                          user_id: user.id,
+                                                                          file: upload_file_2,
+                                                                          source_id: source.id)
+  }
+  let(:import_6) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
+                                                                          user_id: user.id,
+                                                                          file: upload_file_2,
+                                                                          create_new_otu: '1')
   }
 
   # rubocop:disable Rails/SaveBang
@@ -175,6 +197,40 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           # import_2 creates four data attributes directly by otu name,
           # and one by reference to a taxon_name
           expect(Otu.count).to eq(start + 3)
+        end
+      end
+    end
+
+    context 'differnt params' do
+      context 'create unmatched otus' do
+        specify 'is true' do
+          names
+          start = Otu.count
+          bingo = import_6
+          bingo.create
+          expect(Otu.count).to eq(start + 4)
+        end
+
+        specify 'is false' do
+          names
+          start = Otu.count
+          bingo = import_5
+          bingo.create
+          expect(Otu.count).to eq(start)
+        end
+      end
+
+      context 'source id' do
+        specify 'is specified' do
+          bingo = import_2
+          bingo.create
+          expect(Citation.count).to eq(5)
+        end
+
+        specify 'is not specified' do
+          bingo = import_4
+          bingo.create
+          expect(Citation.count).to eq(0)
         end
       end
     end

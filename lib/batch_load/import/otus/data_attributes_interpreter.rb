@@ -2,8 +2,16 @@
 module BatchLoad
   class Import::Otus::DataAttributesInterpreter < BatchLoad::Import
 
+    attr_accessor :create_new_otu
+    attr_accessor :create_citation
+    attr_accessor :source
+
     # @param [Hash] args
     def initialize(**args)
+      @create_new_otu = args.delete(:create_new_otu).present?
+      source_id = args.delete(:source_id)
+      @source = Source.find(source_id) if source_id.present?
+      @create_citation = @source.present?
       super(args)
     end
 
@@ -22,13 +30,18 @@ module BatchLoad
         parse_result = BatchLoad::RowParse.new
         parse_result.objects[:otu] = []
         parse_result.objects[:data_attribute] = []
+        parse_result.objects[:citation] = []
         @processed_rows[i] = parse_result
 
         begin # processing
           # assume we will be creating a new da
-          new_da = ImportAttribute.new(import_predicate: row['predicate'],
-                                       value: row['value'],
-                                       project_id: real_project_id)
+          new_da_attributes = {import_predicate: row['predicate'],
+                               value: row['value'],
+                               project_id: real_project_id}
+          new_da_attributes[:citations_attributes] = [{source_id: @source.id,
+                                                       project_id: real_project_id}] if create_citation.present?
+          new_da = ImportAttribute.new(new_da_attributes)
+
           ias = BatchLoad::ColumnResolver.import_attribute(row)
 
           otus = BatchLoad::ColumnResolver.otu(row)
@@ -44,10 +57,10 @@ module BatchLoad
               [ias.item, ias.items].flatten.compact.each do |l_ia|
                 if l_ia.attribute_subject == l_otu
                   # if otus.item == l_otu
-                    # otus.assign([])
+                  # otus.assign([])
                   # else # reamove otu and da from thier respective collections.
-                    # group = otus.items.delete_if { |_otu| _otu == l_otu }
-                    # otus.assign(group)
+                  # group = otus.items.delete_if { |_otu| _otu == l_otu }
+                  # otus.assign(group)
                   # end
                   parse_result.parse_errors << 'otu/predicate/value combination already exists.'
                   break
@@ -62,13 +75,18 @@ module BatchLoad
             #   das.assign(new_da) # finished with the found das, prepare a new one to attach to a remaining otu
           end
           ias.assign(new_da) # finished with the found das, prepare a new one to attach to a remaining otu
+          cite = new_da.citations.first
+          cite.valid? if cite.present?
 
           parse_result.parsed = true
           parse_result.objects[:otu].push(otus.item)
           parse_result.parse_errors << otus.error_messages if otus.error_messages.any?
           parse_result.objects[:data_attribute].push(ias.item)
           parse_result.parse_errors << ias.error_messages if ias.error_messages.any?
-
+          if cite.present?
+            parse_result.objects[:citation].push(cite)
+            parse_result.parse_errors << cite.errors.messages if cite.errors.messages.any?
+          end
           @total_data_lines += 1 if find_name.present?
         rescue => _e
           raise(_e)
@@ -87,10 +105,15 @@ module BatchLoad
         sorted_processed_rows.each_value do |processed_row|
           otu = processed_row.objects[:otu].flatten.first
           d_a = processed_row.objects[:data_attribute].flatten.first
+          # cite = processed_row.objects[:citation].flatten.first
           unless otu.nil? or d_a.nil?
             if d_a.valid? && otu.valid?
-              otu.save if otu.new_record?
+              if otu.new_record?
+                otu.save if create_new_otu.present?
+              end
+              # d_a.citations << cite
               otu.data_attributes << d_a
+              otu
             else
               otu
             end
@@ -112,14 +135,6 @@ module BatchLoad
         build_da_for_otus
         @processed = true
       end
-    end
-
-    # @return [Array]
-    # this override will prevent nils from being processed in the superclass
-    # the data_attribute process we use here will turn things we don't want to propigate or save into nils
-    # so we drop them before the validity check (see ../import.rb#all_ovjects)
-    def all_objects_x
-      processed_rows.collect { |i, rp| rp.all_objects }.flatten.compact
     end
   end
 end

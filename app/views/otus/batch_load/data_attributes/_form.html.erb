@@ -5,14 +5,14 @@
     <%= file_field_tag(:file, id: 'da_file') -%>
   </div>
 
-  <% if @result -%>
+  <%# if @result -%>
     <p>
-      <%= check_box_tag('create_new_otu') %>create new OTUs for unmatched OtuName<br>
+      <%= check_box_tag('create_new_otu', nil, true) %>create new OTUs for unmatched OtuName<br>
       <!--      <%#= check_box_tag('create_new_predicate') %>create new Predicate for unmatched Predicate<br>-->
       <%= text_field_tag('source_id', nil, placeholder: 'Enter source id to create a citation...',
                          size: 26) %>
     </p>
-  <% end %>
+  <%# end %>
 
   <%= content_for :warn_level -%>
   <% if @result.blank? -%>

@@ -25,14 +25,14 @@ module BatchLoad::BatchLoadHelper
     end
   end
 
-  def batch_data_errors_td(rp)
+  def batch_data_errors_td(rp, sep = '; ')
     content_tag(:td) do
       content_tag(:table, border: true) do
         rp.objects.collect { |klass, objs|
-          content_tag(:tr, content_tag(:td, '-') +
+          content_tag(:tr, content_tag(:th, klass) +
                            objs.collect { |o|
                              content_tag(:tr,
-                                         content_tag(:td, (o.valid? ? content_tag(:span, 'None.', class: 'subtle') : "#{o.errors.full_messages.join('; ')}"))
+                                         content_tag(:td, (o.valid? ? content_tag(:span, 'None.', class: 'subtle') : "#{o.errors.full_messages.join(sep)}").html_safe)
                              )
                            }.join.html_safe
           )
@@ -41,8 +41,8 @@ module BatchLoad::BatchLoadHelper
     end
   end
 
-  def batch_parse_errors_td(rp)
-    content_tag(:td, rp.parse_errors.join('; ').html_safe)
+  def batch_parse_errors_td(rp, sep = '; ')
+    content_tag(:td, rp.parse_errors.join(sep).html_safe)
   end
 
   def batch_valid_objects_td(rp)
@@ -55,6 +55,14 @@ module BatchLoad::BatchLoadHelper
 
   def batch_line_link_td(line)
     content_tag(:td, link_to(line, "#line_#{line}", id: "parse_#{line}").html_safe)
+  end
+
+  def batch_line_predicate(d_a)
+    "Predicate: '#{d_a.import_predicate}', Value: '#{d_a.value}'" + (d_a.new_record? ? '<br>(New)' : '')
+  end
+
+  def batch_line_otu(otu)
+    "'#{otu.name}'" + (otu.new_record? ? '<br>(New)' : '')
   end
 
 end
