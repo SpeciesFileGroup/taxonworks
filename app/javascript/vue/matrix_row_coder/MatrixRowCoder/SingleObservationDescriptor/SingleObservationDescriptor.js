@@ -40,6 +40,11 @@ export default {
       observation: null
     }
   },
+  methods: {
+    removeObservation() {
+      this.$store.dispatch(ActionNames.RemoveObservation, { descriptorId: this.descriptor.id } )
+    }
+  },
   props: ['descriptor'],
   components: {
     summaryView,

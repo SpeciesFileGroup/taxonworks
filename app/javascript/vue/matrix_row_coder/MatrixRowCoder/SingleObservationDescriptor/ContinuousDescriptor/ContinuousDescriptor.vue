@@ -13,6 +13,7 @@
             :global-id="observation.global_id"/>
         </template>
         <span
+          v-if="observationExist"
           type="button"
           class="circle-button btn-delete"
           @click="removeObservation">
@@ -72,9 +73,6 @@ export default {
         continuousValue: event.target.value
       })
     },
-    removeObservation (event) {
-      console.log(`removeObservation`)
-    }
   },
   components: {
     UnitSelector,

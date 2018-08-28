@@ -20,6 +20,13 @@
         <radial-annotator 
           v-if="observationExist"
           :global-id="observation.global_id"/>
+        <span
+          v-if="observationExist"
+          type="button"
+          class="circle-button btn-delete"
+          @click="removeObservation">
+          Remove
+        </span>
       </div>
     </summary-view>
 
