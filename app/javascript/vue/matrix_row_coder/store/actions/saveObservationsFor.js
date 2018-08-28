@@ -27,8 +27,7 @@ export default function ({ dispatch, state, commit }, descriptorId) {
 };
 
 function isUpdatableObservation (observation) {
-  return observation.type !== ObservationTypes.Qualitative && 
-          observation.type !== ObservationTypes.Presence
+  return observation.type !== ObservationTypes.Qualitative
 }
 
 function makeObservationArgs (observation) {
