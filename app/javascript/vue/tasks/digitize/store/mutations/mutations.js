@@ -1,4 +1,5 @@
 import setContainer from './Container/SetContainer'
+import setPreferences from './setPreferences'
 
 import setCollectionObjects from './CollectionObject/setCollectionObjects'
 import newCollectionObject from './CollectionObject/newCollectionObject'
@@ -77,6 +78,7 @@ import setTaxonDeterminationRoles from './TaxonDetermination/setTaxonDeterminati
 
 const MutationNames = {
   SetContainer: 'setContainer',
+  SetPreferences: 'setPreferences',
 
   SetTaxonDetermination: 'setTaxonDetermination',
   SetTaxonDeterminationBiologicalId: 'setTaxonDeterminationBiologicalId',
@@ -156,6 +158,7 @@ const MutationNames = {
 
 const MutationFunctions = {
   [MutationNames.SetContainer]: setContainer,
+  [MutationNames.SetPreferences]: setPreferences,
 
   [MutationNames.SetTaxonDetermination]: setTaxonDetermination,
   [MutationNames.SetTaxonDeterminationBiologicalId]: setTaxonDeterminationBiologicalId,

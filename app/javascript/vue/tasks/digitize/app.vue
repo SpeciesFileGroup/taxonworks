@@ -18,6 +18,8 @@
   import TaxonDeterminationLayout from './components/taxonDetermination/main.vue'
   import CollectionEventLayout from './components/collectionEvent/main.vue'
   import TypeMaterial from './components/typeMaterial/typeMaterial.vue'
+  import { GetUserPreferences } from './request/resources.js'
+  import { MutationNames } from './store/mutations/mutations.js'
 
   export default {
     components: {
@@ -26,6 +28,11 @@
       TypeMaterial,
       TaxonDeterminationLayout,
       CollectionEventLayout
+    },
+    mounted() {
+      GetUserPreferences().then(response => {
+        this.$store.commit(MutationNames.SetPreferences, response)
+      })
     }
   }
 </script>

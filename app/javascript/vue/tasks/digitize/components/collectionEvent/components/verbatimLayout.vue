@@ -26,12 +26,10 @@
   import VerbatimLocality from './verbatim/locality.vue'
   import VerbatimLongitude from './verbatim/longitude.vue'
   import VerbatimMethod from './verbatim/method.vue'
-
-  import { 
-    UpdateUserPreferences, 
-    GetUserPreferences } from '../../../request/resources.js'
+  import sortComponent from '../../shared/sortComponenets.vue'
 
   export default {
+    mixins: [sortComponent],
     components: {
       Draggable,
       VerbatimColectors,
@@ -59,33 +57,9 @@
           'VerbatimLongitude',
           'VerbatimLocality',
           'VerbatimMethod'],
-        userId: undefined,
-        preferences: undefined
+        keyStorage: 'tasks::digitize::verbatimOrder'
       }
     },
-    mounted() {
-      GetUserPreferences().then(response => {
-        this.userId = response.id
-        this.preferences = response
-      })
-    },
-    watch: {
-      preferences: {
-        handler() {
-          if(this.preferences.layout['tasks::digitize::verbatimOrder'])
-            this.componentsOrder = this.preferences.layout['tasks::digitize::verbatimOrder']
-        },
-        deep: true
-      }
-    },
-    methods: {
-      updatePreferences() {
-        UpdateUserPreferences(this.userId, { 'tasks::digitize::verbatimOrder': this.componentsOrder }).then(response => {
-          this.preferences = response.preferences
-          this.componentsOrder = response.preferences.layout['tasks::digitize::verbatimOrder']
-        })
-      }
-    }
   }
 </script>
 

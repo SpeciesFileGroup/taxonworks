@@ -9,6 +9,7 @@ import getContainer from './getContainer'
 import getContainerItems from './getContainerItems'
 import getTaxonDetermination from './getTaxonDetermination'
 import getCollectionObjectTypes from './getCollectionObjectTypes'
+import getPreferences from './getPreferences'
 
 const GetterNames = {
   GetTaxonDetermination: 'getTaxonDetermination',
@@ -21,7 +22,8 @@ const GetterNames = {
   GetIdentifier: 'getIdentifier',
   GetContainer: 'getContainer',
   GetContainerItems: 'getContainerItems',
-  GetCollectionObjectTypes: 'getCollectionObjectTypes'
+  GetCollectionObjectTypes: 'getCollectionObjectTypes',
+  GetPreferences: 'getPreferences'
 }
 
 const GetterFunctions = {
@@ -35,7 +37,8 @@ const GetterFunctions = {
   [GetterNames.GetIdentifier]: getIdentifier,
   [GetterNames.GetContainer]: getContainer,
   [GetterNames.GetContainerItems]: getContainerItems,
-  [GetterNames.GetCollectionObjectTypes]: getCollectionObjectTypes
+  [GetterNames.GetCollectionObjectTypes]: getCollectionObjectTypes,
+  [GetterNames.GetPreferences]: getPreferences
 }
 
 export {

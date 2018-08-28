@@ -1,6 +1,8 @@
 <template>
   <div class="digitize-map-layout">
-    <draggable v-model="componentsOrder">
+    <draggable
+      v-model="componentsOrder"
+      @end="updatePreferences">
       <component
         v-for="component in componentsOrder"
         :key="component"
@@ -15,8 +17,10 @@ import LeafMap from './map.vue'
 import PrintLabel from './printLabel'
 import DepictionComponent from './depictions'
 import Draggable from 'vuedraggable'
+  import sortComponent from '../../../shared/sortComponenets.vue'
 
 export default {
+  mixins: [sortComponent],
   components: {
     LeafMap,
     DepictionComponent,
@@ -29,7 +33,8 @@ export default {
         'LeafMap',
         'PrintLabel',
         'DepictionComponent'
-      ]
+      ],
+      keyStorage: 'tasks::digitize::mapOrder'
     }
   }
 }

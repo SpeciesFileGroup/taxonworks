@@ -1,7 +1,9 @@
 <template>
   <div class="geography-layout">
     <h2>Geography</h2>
-    <draggable v-model="componentsOrder">
+    <draggable
+      v-model="componentsOrder"
+      @end="updatePreferences">
       <component
         v-for="componentName in componentsOrder"
         :key="componentName"
@@ -19,8 +21,10 @@
   import Times from './geography/times.vue'
   import Group from './geography/group.vue'
   import Collectors from './geography/collectors.vue'
+  import sortComponent from '../../shared/sortComponenets.vue'
 
   export default {
+    mixins: [sortComponent],
     components: {
       Draggable,
       Collectors,
@@ -32,7 +36,8 @@
     },
     data() {
       return {
-        componentsOrder: ['Geography', 'Elevation', 'Dates', 'Times', 'Collectors', 'Group']
+        componentsOrder: ['Geography', 'Elevation', 'Dates', 'Times', 'Collectors', 'Group'],
+        keyStorage: 'tasks::digitize::GeographyOrder'
       }
     }
   }
