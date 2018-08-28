@@ -63,12 +63,12 @@ module Queries
 
       # @return [Arel::Node, nil]
       def matching_confidence_level_id
-        !confidence_level_id.empty? ? table[:confidence_level_id].eq_any(confidence_level_id)  : nil
+        !confidence_level_id.blank? ? table[:confidence_level_id].eq_any(confidence_level_id)  : nil
       end
 
       # @return [Arel::Node, nil]
       def matching_confidence_object_type
-        !confidence_object_type.empty? ? table[:confidence_object_type].eq(confidence_object_type)  : nil
+        !confidence_object_type.blank? ? table[:confidence_object_type].eq(confidence_object_type)  : nil
       end
 
       # @return [ActiveRecord::Relation]
