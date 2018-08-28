@@ -40,14 +40,17 @@ export default {
     }
   },
   mounted() {
-    let that = this
-    document.addEventListener('pinboard:remove', function(event) {
-      if(that.pin.id == event.detail.id) {
-        that.pin = undefined
-      }
-    })
+    document.addEventListener('pinboard:remove', this.clearPin)
+  },
+  destroyed() {
+    document.removeEventListener('pinboard:remove', this.clearPin)
   },
   methods: {
+    clearPin: function (event) {
+      if(this.pin.id == event.detail.id) {
+        this.pin = undefined
+      }
+    },
     createPin: function () {
       let pinItem = {
         pinboard_item: {
