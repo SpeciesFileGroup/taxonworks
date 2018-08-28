@@ -39,6 +39,14 @@ export default {
       this.id = newVal
     }
   },
+  mounted() {
+    let that = this
+    document.addEventListener('pinboard:remove', function(event) {
+      if(that.pin.id == event.detail.id) {
+        that.pin = undefined
+      }
+    })
+  },
   methods: {
     createPin: function () {
       let pinItem = {

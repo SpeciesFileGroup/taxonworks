@@ -4,4 +4,5 @@ if (!$('[data-pinboard-section="<%= @pinboard_item.pinned_object_type.pluralize 
   $("#order_<%= @pinboard_item.pinned_object_type.pluralize -%>").remove();
 }
 $('body').mx_spinner('hide');
+TW.workbench.pinboard.eventPinboardRemove(<%= @pinboard_item.id -%>)
 TW.workbench.alert.create("Pinboard item was successfully destroyed.", "notice");

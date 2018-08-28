@@ -76,6 +76,7 @@ Object.assign(TW.workbench.pinboard, {
       if (!$('[data-pinboard-section="' + section + '"] li').length) {
         $('#order_' + section).remove();
       }
+      this.eventPinboardRemove(id)
     },
 
     addToPinboard: function(object) {
@@ -90,7 +91,7 @@ Object.assign(TW.workbench.pinboard, {
           <div class="pinboard-menu-bar"></div> \
           <div class="pinboard-menu-bar"></div> \
           <div class="itemOptions pinboard-dropdown-content"> \
-            <a href="'+ object.pinned_object.object_url +'" class="remove circle-button button-delete" method="delete" remote="true">Remove</a>'
+            <a href="'+ object.object_url +'" class="remove circle-button button-delete" data-remote="true" rel="nofollow" data-method="delete">Remove</a>'
             if(object.pinned_object_type == "Document") { 
               injectItem = injectItem + '<a class="pdfviewerItem" data-pdfviewer="@pinboard_item.pinned_object.document_file(:original, false)">PDF Viewer</a>'
             } 
@@ -104,6 +105,7 @@ Object.assign(TW.workbench.pinboard, {
       }
 
       $(injectItem).appendTo('[data-pinboard-section="'+ object.pinned_object_type +'s"]');
+      this.eventPinboardAdd(object);
     },
 
     createCategory: function(title) {
@@ -119,6 +121,26 @@ Object.assign(TW.workbench.pinboard, {
           </div>';
 
         $(injectCategory).appendTo('#pinboard');
+    },
+
+    eventPinboardRemove: function (id) {
+      var event = new CustomEvent("pinboard:remove", {
+        detail: {
+          id: id,
+        }
+      });
+      document.dispatchEvent(event);
+    },
+
+    eventPinboardAdd: function (object) {
+      var event = new CustomEvent("pinboard:add", {
+        detail: {
+          id: object.id,
+          type: object.pinned_object_type,
+          object_id: object.pinned_object_id,
+        }
+      });
+      document.dispatchEvent(event);
     }
 });
 
