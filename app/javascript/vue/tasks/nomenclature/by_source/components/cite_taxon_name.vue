@@ -4,18 +4,25 @@
     <smart-selector
         :options="tabs"
         name="citation"
-        :select-options-url="/taxon_names/select_options"
         :add-option="moreOptions"
         v-model="view"/>
-    <input type="text"
-           placeholder="search for a taxon" />
+    <autocomplete
+      url="/otus/autocomplete"
+      min="2"
+      param="term"
+      placeholder="Search for a taxon"
+      event-send="otupicker"
+      label="label"
+      :autofocus="true" />
   </div>
 </template>
 <script>
-  import smartSelector from './smartSelector.vue'
+  import SmartSelector from './smartSelector.vue'
+  import Autocomplete from '../../../../components/autocomplete.vue'
   export default {
     components: {
-      smartSelector
+      SmartSelector,
+      Autocomplete
     },
     props: {
       // selectOptionsUrl: {
@@ -31,17 +38,17 @@
     data() {
       return {
         list: {},
-        tabs: [],
+        tabs: [],//,[],
         moreOptions: [],
         view: undefined,
         selectedList: {}
       }
     },
     mounted: function() {
-      this.$http.get('/taxon_names/select_options').then(response =>
-    {
-      this.tabs = response.body;
-    })
+      this.$http.get('/taxon_names/select_options').then(response => {
+        this.tabs = Object.keys(response.body);
+        this.list = response.body;
+      })
     }
   }
 

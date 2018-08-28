@@ -1,10 +1,10 @@
 <template>
   <div>
-    <h3>Taxon Name Classifications</h3>
+    <h2>Taxon Name Classifications</h2>
     <table>
       <tr v-for="item in taxon_names_cites_list">
         <td><input type="text" :value="item.pages"></td>
-        <td v-html="item.citation_object_tag" />
+        <td v-html="item.citation_object.object_tag" />
         <td><radial-annotator :global-id="item.global_id" /></td>
       </tr>
     </table>
@@ -22,9 +22,9 @@
       value: {
 
       },
-      source_id: {
-        type: Number,
-        default: 0
+      sourceID: {
+        type: String,
+        default: "0"
       },
     },
     data() {
@@ -32,15 +32,20 @@
         taxon_names_cites_list: []
       }
     },
-    mounted: function() {
-      let pieces = window.location.href.split('/')
-      this.sourceID = pieces[pieces.length - 1];
+    watch: {
+      sourceID() {
+        this.getCites();
+      }
+    },
 
-      this.$http.get('/citations?citation_object_type=TaxonNameClassification&source_id=' + this.source_id).then(response => {
-        // build the tabular list, extracting the
-        this.taxon_names_cites_list = response.body;
-      })
-    }
+    methods: {
+      getCites() {
+        this.$http.get('/citations.json?citation_object_type=TaxonNameClassification&source_id=' + this.sourceID).then(response => {
+          // build the tabular list, extracting the
+          this.taxon_names_cites_list = response.body;
+        })
+      }
+    },
   }
 
 </script>

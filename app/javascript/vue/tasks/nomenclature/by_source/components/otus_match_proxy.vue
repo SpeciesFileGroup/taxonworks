@@ -1,7 +1,8 @@
 <template>
   <div>
-    <h2>Taxon Name Relationships</h2>
+    <h2>OTUs by match or proxy</h2>
     <table>
+      <tr><th>pages</th><th>otu</th><th>radial</th><th>otu</th></tr>
       <tr v-for="item in taxon_names_cites_list">
         <td><input type="text" :value="item.pages"></td>
         <td v-html="item.citation_object.object_tag" />
@@ -24,7 +25,7 @@
       },
       sourceID: {
         type: String,
-        default: '0'
+        default: "0"
       },
     },
     data() {
@@ -40,7 +41,7 @@
 
     methods: {
       getCites() {
-        this.$http.get('/citations.json?citation_object_type=TaxonNameRelationship&source_id=' + this.sourceID).then(response => {
+        this.$http.get('/citations.json?citation_object_type=TaxonName&source_id=' + this.sourceID).then(response => {
           // build the tabular list, extracting the
           this.taxon_names_cites_list = response.body;
         })

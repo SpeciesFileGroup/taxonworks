@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex-separate middle">
+    <div class="flexbox">
       <h1 class="task_header"> Nomenclature by source </h1>
       <spinner
           v-if="isLoading"
@@ -15,15 +15,17 @@
         <div class="first-column">
           <h2>Cite a Taxon Name</h2>
           <cite-taxon-name/>
-          <taxon-names/>
-          <taxon-name-relationships/>
-          <taxon-name-classifications/>
-          <biological-associations/>
-          <asserted-distributions/>
+          <taxon-names :sourceID="sourceID" />
+          <taxon-name-relationships :sourceID="sourceID" />
+          <taxon-name-classifications :sourceID="sourceID" />
+          <biological-associations :sourceID="sourceID" />
+          <asserted-distributions :sourceID="sourceID" />
+        </div>
+        <div class="second-column">
+          <otus-match-proxy :sourceID="sourceID" />
         </div>
       </div>
     </div>
-  </div>
   </div>
 
 </template>
@@ -36,11 +38,9 @@
   import TaxonNameClassifications from './components/taxon_name_classifications'
   import BiologicalAssociations from './components/biological_associations'
   import AssertedDistributions from './components/asserted_distributions'
-  import OtusMatching from './components/otus_matching'
-  import OtusByProxy from './components/otus_by_proxy'
+  import OtusMatchProxy from './components/otus_match_proxy'
   import Spinner from '../../../components/spinner.vue'
-  // import AssertedDistributions from './components/asserted_distributions'
-  // import AssertedDistributions from './components/asserted_distributions'
+  // import  from './components/asserted_distributions'
   // import AssertedDistributions from './components/asserted_distributions'
   export default {
     components: {
@@ -52,8 +52,7 @@
       TaxonNameClassifications,
       BiologicalAssociations,
       AssertedDistributions,
-      OtusMatching,
-      OtusByProxy,
+      OtusMatchProxy,
       Spinner
     },
     data() {

@@ -2,9 +2,10 @@
   <div>
     <h3>Taxon Names</h3>
     <table>
+      <tr><th>pages</th><th>otu</th><th>radial</th><th>otu</th></tr>
       <tr v-for="item in taxon_names_cites_list">
-        <td><input type="text" :value="item.pages"></td>
-        <td v-html="item.citation_object_tag" />
+      <td><input type="text" :value="item.pages"></td>
+        <td v-html="item.citation_object.object_tag" />
         <td><radial-annotator :global-id="item.global_id" /></td>
         <td><otu-radial :taxon-id="item.citation_object_id" :redirect="false" /></td>
       </tr>
@@ -21,11 +22,11 @@
     },
     props: {
       value: {
-
+        type: String
       },
-      source_id: {
-        type: Number,
-        default: 0
+      sourceID: {
+        type: String,
+        default: "0" //window.location.href.split('/')[1]
       },
     },
     data() {
@@ -33,15 +34,25 @@
         taxon_names_cites_list: []
       }
     },
-    mounted: function() {
-      let pieces = window.location.href.split('/')
-      this.sourceID = pieces[pieces.length - 1];
+    watch: {
+      sourceID() {
+        this.getCites();
+      }
+    },
 
-      this.$http.get('/citations?citation_object_type=TaxonName&source_id=' + this.source_id).then(response => {
+    methods: {
+      getCites() {
+        this.$http.get('/citations.json?citation_object_type=TaxonName&source_id=' + this.sourceID).then(response => {
           // build the tabular list, extracting the
           this.taxon_names_cites_list = response.body;
         })
-    }
+      }
+    },
+    // mounted: function() {
+    //   // let pieces = window.location.href.split('/')
+    //   // this.source_id = pieces[pieces.length - 1];
+    //
+    // }
   }
 
 </script>
