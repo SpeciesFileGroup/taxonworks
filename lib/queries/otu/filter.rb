@@ -3,25 +3,54 @@ module Queries
   class Otu::Filter < Queries::Query
 
     # Query variables
-    attr_accessor :query_geographic_area_ids, :query_shape
-    attr_accessor :query_nomen_id, :query_descendants, :query_rank_class
-    attr_accessor :query_author_ids, :query_and_or_select
-    attr_accessor :query_verbatim_author_string
+    attr_accessor :geographic_area_ids, :shape
+    attr_accessor :nomen_id, :descendants, :rank_class
+    attr_accessor :author_ids, :and_or_select
+    attr_accessor :verbatim_author_string
+
+    attr_accessor :taxon_name_id, :taxon_name_ids, :otu_id, :otu_ids
 
     # @param [Hash] params
     def initialize(params)
       params.reject! { |_k, v| v.blank? }
 
-      @query_params = params
-      @query_geographic_area_ids    = params[:geographic_area_ids]
-      @query_shape = params[:drawn_area_shape]
-      @query_author_ids = params[:author_ids]
-      @query_verbatim_author_string = params[:verbatim_author_string]
-      @query_and_or_select  = params[:and_or_select]
-      @query_nomen_id = params[:nomen_id]
-      @query_rank_class = params[:rank_class]
-      @query_descendants = params[:descendants]
+      @params = params
+      @geographic_area_ids    = params[:geographic_area_ids]
+      @shape = params[:drawn_area_shape]
+      @author_ids = params[:author_ids]
+      @verbatim_author_string = params[:verbatim_author_string]
+      @and_or_select  = params[:and_or_select]
+      @nomen_id = params[:nomen_id]
+      @rank_class = params[:rank_class]
+      @descendants = params[:descendants]
+    
+    
+      @taxon_name_id = params[:taxon_name_id]
+      @taxon_name_ids = params[:taxon_name_ids]
+      @otu_id = params[:otu_id]
+      @otu_ids = params[:otu_ids]
+    
     end
+
+      # @return [ActiveRecord::Relation, nil]
+      def and_clauses
+        clauses = [
+          matching_citation_object_type,
+          matching_citation_object_id,
+          matching_source_id
+
+          # Queries::Annotator.annotator_params(options, ::Citation),
+        ].compact
+
+        return nil if clauses.empty?
+
+        a = clauses.shift
+        clauses.each do |b|
+          a = a.and(b)
+        end
+        a
+      end
+
 
     # @return [Boolean]
     def area_set?

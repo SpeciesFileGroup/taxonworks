@@ -21,7 +21,7 @@ module Queries
         # @options = params
       end
 
-      # @return [ActiveRecord::Relation]
+      # @return [ActiveRecord::Relation, nil]
       def and_clauses
         clauses = [
           matching_citation_object_type,
