@@ -1,5 +1,10 @@
 <template>
   <div id="matrix_row_coder" class="matrix-row-coder">
+    <spinner
+      legend="Loading..."
+      :full-screen="true"
+      :logo-size="{ width: '50px', height: '50px'}"
+      v-if="isLoading"/>
     <h1 class="matrix-row-coder__title" v-html="title"/>
     <div>
       <div class="flex-wrap-row flex-separate">
@@ -36,17 +41,16 @@
 import { mapState } from 'vuex'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
-import RadialAnnotator from '../../components/annotator/annotator'
+import ContinuousDescriptor from './SingleObservationDescriptor/ContinuousDescriptor/ContinuousDescriptor.vue'
+import PresenceDescriptor from './SingleObservationDescriptor/PresenceDescriptor/PresenceDescriptor.vue'
+import QualitativeDescriptor from './QualitativeDescriptor/QualitativeDescriptor.vue'
+import SampleDescriptor from './SingleObservationDescriptor/SampleDescriptor/SampleDescriptor.vue'
+import Spinner from '../../components/spinner'
 
 const computed = mapState({
   title: state => state.taxonTitle,
   descriptors: state => state.descriptors
 })
-
-import continuousDescriptor from './SingleObservationDescriptor/ContinuousDescriptor/ContinuousDescriptor.vue'
-import presenceDescriptor from './SingleObservationDescriptor/PresenceDescriptor/PresenceDescriptor.vue'
-import qualitativeDescriptor from './QualitativeDescriptor/QualitativeDescriptor.vue'
-import sampleDescriptor from './SingleObservationDescriptor/SampleDescriptor/SampleDescriptor.vue'
 
 export default {
   created: function () {
@@ -54,12 +58,19 @@ export default {
       apiBase: this.$props.apiBase,
       apiParams: this.$props.apiParams
     })
-
+    this.isLoading = true
     this.$store.dispatch(ActionNames.RequestMatrixRow, {
       rowId: this.$props.rowId,
       otuId: this.$props.otuId
+    }).then(() => {
+      this.isLoading = false
     })
     this.$store.dispatch(ActionNames.RequestConfidenceLevels)
+  },
+  data() {
+    return {
+      isLoading: false
+    }
   },
   name: 'MatrixRowCoder',
   props: {
@@ -79,11 +90,11 @@ export default {
     }
   },
   components: {
-    continuousDescriptor,
-    presenceDescriptor,
-    qualitativeDescriptor,
-    sampleDescriptor,
-    RadialAnnotator
+    ContinuousDescriptor,
+    PresenceDescriptor,
+    QualitativeDescriptor,
+    SampleDescriptor,
+    Spinner
   }
 }
 </script>

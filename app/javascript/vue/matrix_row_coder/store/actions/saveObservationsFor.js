@@ -5,13 +5,24 @@ import ObservationTypes from '../helpers/ObservationTypes'
 export default function ({ dispatch, state, commit }, descriptorId) {
   const observations = state.observations
     .filter(o => o.descriptorId === descriptorId)
-
   return Promise.all(observations.map(o => {
-    if (!isUpdatableObservation(o)) { saveUnupdatableObservation(o) } else if (o.id) { return dispatch(ActionNames.UpdateObservation, descriptorId) } else { return dispatch(ActionNames.CreateObservation, { descriptorId }) }
+    if (!isUpdatableObservation(o)) { 
+      saveUnupdatableObservation(o) 
+    } else if (o.id) { 
+      return dispatch(ActionNames.UpdateObservation, descriptorId) 
+    } else { 
+      return dispatch(ActionNames.CreateObservation, { descriptorId }) 
+    }
   }))
 
   function saveUnupdatableObservation (observation) {
-    if (observation.id && !observation.isChecked) { return dispatch(ActionNames.RemoveObservation, makeObservationArgs(observation)) } else if (observation.isChecked) { return dispatch(ActionNames.CreateObservation, makeObservationArgs(observation)) } else { commit(MutationNames.ObservationSaved, makeObservationArgs(observation)) }
+    if (observation.id && !observation.isChecked) { 
+      return dispatch(ActionNames.RemoveObservation, makeObservationArgs(observation)) 
+    } else if (observation.isChecked) { 
+      return dispatch(ActionNames.CreateObservation, makeObservationArgs(observation)) 
+    } else { 
+      commit(MutationNames.ObservationSaved, makeObservationArgs(observation)) 
+    }
   }
 };
 

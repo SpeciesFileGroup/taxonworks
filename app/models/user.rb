@@ -153,6 +153,7 @@ class User < ApplicationRecord
     administered_projects.any?
   end
 
+  # TODO: Deprecate for a `lib/query/user/filter`  
   # @param [String, User, Integer] user
   # @return [Integer] selected user id
   def self.get_user_id(user)
