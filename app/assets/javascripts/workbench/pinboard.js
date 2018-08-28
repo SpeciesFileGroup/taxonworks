@@ -68,6 +68,58 @@ Object.assign(TW.workbench.pinboard, {
         }
       });
     },
+
+    removeItem: function(id) {
+      var element = $('[data-pinboard-item-id="' + id + '"]');
+      var section = element.parent().attr('data-pinboard-section');
+      $('[data-pinboard-item-id="' + id + '"]').remove();
+      if (!$('[data-pinboard-section="' + section + '"] li').length) {
+        $('#order_' + section).remove();
+      }
+    },
+
+    addToPinboard: function(object) {
+      var injectItem = '<li class="slide-panel-category-item" data-insert="false" data-pinboard-object-id="' + object.pinned_object_id +'" data-pinboard-item-id="' + object.id + '" data-pin-item="' + object.id + '" id="order_' + object.id + '"> \
+        <div class="handle flex-separate middle ui-sortable-handle"> \
+          <a href="'+ object.pinned_object.object_url +'">\
+            '+ object.pinned_object.object_tag +' \
+          </a> \
+        </div> \
+        <div class="pinboard-dropdown"> \
+          <div class="pinboard-menu-bar"></div> \
+          <div class="pinboard-menu-bar"></div> \
+          <div class="pinboard-menu-bar"></div> \
+          <div class="itemOptions pinboard-dropdown-content"> \
+            <a href="'+ object.pinned_object.object_url +'" class="remove circle-button button-delete" method="delete" remote="true">Remove</a>'
+            if(object.pinned_object_type == "Document") { 
+              injectItem = injectItem + '<a class="pdfviewerItem" data-pdfviewer="@pinboard_item.pinned_object.document_file(:original, false)">PDF Viewer</a>'
+            } 
+            injectItem = injectItem + '<a class="circle-button button-pinboard-default button-submit option-default" data-remote="true" rel="nofollow" data-method="put" href="/pinboard_items/'+ object.id +'?pinboard_item%5Bis_inserted%5D=true">Make default</a> \
+          </div> \
+        </div> \
+      </li>'
+
+      if (!$('[data-pinboard-section="'+ object.pinned_object_type +'s"]').length) {
+        this.createCategory(object.pinned_object_type)
+      }
+
+      $(injectItem).appendTo('[data-pinboard-section="'+ object.pinned_object_type +'s"]');
+    },
+
+    createCategory: function(title) {
+      var injectCategory = '<div id="order_'+ title +'s"> \
+              <div class="slide-panel-category-header">'+ title +'s</div> \
+                <ul class="slide-panel-category-content" \
+                          data-pinboard-section="'+ title +'s" \
+                          data-sortable \
+                          data-sortable-items="li" \
+                          data-sortable-on-change-url="/pinboard_items/update_position" \
+                        > \
+            </ul> \
+          </div>';
+
+        $(injectCategory).appendTo('#pinboard');
+    }
 });
 
 $(document).on('turbolinks:load', function() {

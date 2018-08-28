@@ -49,11 +49,13 @@ export default {
       }
       this.$http.post('/pinboard_items', pinItem).then(response => {
         this.pin = response.body
+        TW.workbench.pinboard.addToPinboard(response.body)
         TW.workbench.alert.create('Pinboard item was successfully created.', 'notice')
       })
     },
     deletePin: function () {
       this.$http.delete(`/pinboard_items/${this.pin.id}`, { _destroy: true }).then(response => {
+        TW.workbench.pinboard.removeItem(this.pin.id)
         this.pin = undefined
         TW.workbench.alert.create('Pinboard item was successfully destroyed.', 'notice')
       })
