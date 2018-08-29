@@ -23,26 +23,32 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
   let(:import_2) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
                                                                           user_id: user.id,
                                                                           file: upload_file_2,
+                                                                          type_select: 'import',
                                                                           source_id: source.id,
                                                                           create_new_otu: '1')
   }
   let(:import_3) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
                                                                           user_id: user.id,
                                                                           file: upload_file_2,
+                                                                          type_select: 'import',
                                                                           create_new_otu: '1')
   }
   let(:import_4) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
                                                                           user_id: user.id,
-                                                                          file: upload_file_2)
+                                                                          file: upload_file_2,
+                                                                          type_select: 'import'
+                                                                          )
   }
   let(:import_5) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
                                                                           user_id: user.id,
                                                                           file: upload_file_2,
+                                                                          type_select: 'import',
                                                                           source_id: source.id)
   }
   let(:import_6) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
                                                                           user_id: user.id,
                                                                           file: upload_file_2,
+                                                                          type_select: 'import',
                                                                           create_new_otu: '1')
   }
 
