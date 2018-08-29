@@ -1,10 +1,10 @@
 module Queries
-  module DataAttribute 
+  module DataAttribute
 
     # !! does not inherit from base query
-    class Filter 
+    class Filter
 
-      # General annotator options handling 
+      # General annotator options handling
       # happens directly on the params as passed
       # through to the controller, keep them
       # together here
@@ -46,9 +46,9 @@ module Queries
 
       # @return [Arel::Node, nil]
       def matching_subject
-        if o = object_for 
-          table["attribute_subject_id"].eq(o.id).and(
-              table["attribute_subject_type"].eq(o.metamorphosize.class.name) 
+        if o = object_for
+          table['attribute_subject_id'].eq(o.id).and(
+              table['attribute_subject_type'].eq(o.metamorphosize.class.name)
           )
         else
           nil
@@ -62,22 +62,22 @@ module Queries
 
       # @return [Arel::Node, nil]
       def matching_value
-        value.blank? ? nil : table[:value].eq(value) 
+        value.blank? ? nil : table[:value].eq(value)
       end
 
       # @return [Arel::Node, nil]
       def matching_import_predicate
-        import_predicate.blank? ? nil : table[:import_predicate].eq(import_predicate) 
+        import_predicate.blank? ? nil : table[:import_predicate].eq(import_predicate)
       end
 
       # @return [Arel::Node, nil]
       def matching_type
-        type.blank? ? nil : table[:type].eq(type) 
+        type.blank? ? nil : table[:type].eq(type)
       end
 
       # @return [Arel::Node, nil]
       def matching_controlled_vocabulary_term_id
-        controlled_vocabulary_term_id.blank? ? nil : table[:controlled_vocabulary_term_id].eq_any(controlled_vocabulary_term_id) 
+        controlled_vocabulary_term_id.blank? ? nil : table[:controlled_vocabulary_term_id].eq_any(controlled_vocabulary_term_id)
       end
 
       # @return [ActiveRecord object, nil]
@@ -92,7 +92,7 @@ module Queries
 
       # @return [ActiveRecord::Relation]
       def all
-        if a = and_clauses
+        if _a = and_clauses
           ::DataAttribute.where(and_clauses)
         else
           ::DataAttribute.none
