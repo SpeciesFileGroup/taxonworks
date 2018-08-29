@@ -2,7 +2,7 @@
   <div>
     <block-layout>
       <div slot="header">
-        <h3>Collection Object</h3>
+        <h3>Collection Objects</h3>
       </div>
       <div slot="options">
         <radial-annotator 
@@ -18,6 +18,10 @@
           <div class="separate-left separate-right">
             <bioclassification/>
             <table-collection-objects/>
+            <button 
+              type="button"
+              class="button normal-input button-default"
+              @click="newCO">Make New CO</button>
           </div>
           <div class="separate-left">
             <repository-component/>
@@ -41,7 +45,8 @@
   import BufferedComponent from './bufferedData.vue'
   import DepictionsComponent from '../shared/depictions.vue'
   import RepositoryComponent from './repository.vue'
-  import { GetterNames } from '../../store/getters/getters';
+  import { GetterNames } from '../../store/getters/getters'
+  import { MutationNames } from '../../store/mutations/mutations'
   import BlockLayout from '../../../../components/blockLayout.vue'
   import RadialAnnotator from '../../../../components/annotator/annotator.vue'
 
@@ -66,6 +71,11 @@
         types: [],
         labelRepository: undefined,
         labelEvent: undefined
+      }
+    },
+    methods: {
+      newCO() {
+        this.$store.commit(MutationNames.NewCollectionObject)
       }
     }
   }
