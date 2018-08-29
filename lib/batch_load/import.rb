@@ -1,10 +1,8 @@
 module BatchLoad
 
   CSV::Converters[:user_map] = lambda do |field|
-
     field && field.empty? ? nil : field
   end
-
 
   class ParamError < StandardError;
   end

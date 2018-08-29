@@ -20,8 +20,6 @@ class OtusController < ApplicationController
   # GET /otus/1
   # GET /otus/1.json
   def show
-    # see app/views/otus/show.html.erb
-    # see app/views/otus/show.json.jbuilder
   end
 
   # GET /otus/new
@@ -31,7 +29,6 @@ class OtusController < ApplicationController
 
   # GET /otus/1/edit
   def edit
-    # see app/views/otus/edit.html.erb
   end
 
   def list
@@ -46,7 +43,7 @@ class OtusController < ApplicationController
     respond_to do |format|
       if @otu.save
         format.html { redirect_to @otu,
-                                  notice: "Otu '#{@otu.name}' was successfully created." }
+                      notice: "Otu '#{@otu.name}' was successfully created." }
         format.json { render action: :show, status: :created, location: @otu }
       else
         format.html { render action: 'new' }

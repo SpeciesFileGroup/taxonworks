@@ -57,7 +57,7 @@ module Queries
 
       # @return [Arel::Node, nil]
       def matching_attribute_subject_type
-        !attribute_subject_type.empty? ? table[:attribute_subject_type].eq(attribute_subject_type)  : nil
+        !attribute_subject_type.blank? ? table[:attribute_subject_type].eq(attribute_subject_type)  : nil
       end
 
       # @return [Arel::Node, nil]
