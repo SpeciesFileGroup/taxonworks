@@ -6,7 +6,8 @@
       <tr v-for="item in taxon_names_cites_list">
         <td><input type="text" :value="item.pages"></td>
         <td v-html="item.citation_object.object_tag" />
-        <td><radial-annotator :global-id="item.global_id" /></td>
+        <td><radial-annotator :global-id="item.citation_object.global_id" /></td>
+        <td><otu-radial :taxon-id="item.citation_object_id" :redirect="false" /></td>
       </tr>
     </table>
   </div>
