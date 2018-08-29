@@ -3,59 +3,87 @@ module Queries
   class Otu::Filter < Queries::Query
 
     # Query variables
-    attr_accessor :query_geographic_area_ids, :query_shape
-    attr_accessor :query_nomen_id, :query_descendants, :query_rank_class
-    attr_accessor :query_author_ids, :query_and_or_select
-    attr_accessor :query_verbatim_author_string
+    attr_accessor :geographic_area_ids, :shape
+    attr_accessor :nomen_id, :descendants, :rank_class
+    attr_accessor :author_ids, :and_or_select
+    attr_accessor :verbatim_author_string
+
+    attr_accessor :taxon_name_id, :taxon_name_ids, :otu_id, :otu_ids
 
     # @param [Hash] params
     def initialize(params)
       params.reject! { |_k, v| v.blank? }
 
-      @query_params = params
-      @query_geographic_area_ids    = params[:geographic_area_ids]
-      @query_shape = params[:drawn_area_shape]
-      @query_author_ids = params[:author_ids]
-      @query_verbatim_author_string = params[:verbatim_author_string]
-      @query_and_or_select  = params[:and_or_select]
-      @query_nomen_id = params[:nomen_id]
-      @query_rank_class = params[:rank_class]
-      @query_descendants = params[:descendants]
+      @params = params
+      @geographic_area_ids    = params[:geographic_area_ids]
+      @shape = params[:drawn_area_shape]
+      @author_ids = params[:author_ids]
+      @verbatim_author_string = params[:verbatim_author_string]
+      @and_or_select  = params[:and_or_select]
+      @nomen_id = params[:nomen_id]
+      @rank_class = params[:rank_class]
+      @descendants = params[:descendants]
+    
+    
+      @taxon_name_id = params[:taxon_name_id]
+      @taxon_name_ids = params[:taxon_name_ids]
+      @otu_id = params[:otu_id]
+      @otu_ids = params[:otu_ids]
     end
+
+      # @return [ActiveRecord::Relation, nil]
+      def and_clauses
+        clauses = [
+          matching_citation_object_type,
+          matching_citation_object_id,
+          matching_source_id
+
+          # Queries::Annotator.annotator_params(options, ::Citation),
+        ].compact
+
+        return nil if clauses.empty?
+
+        a = clauses.shift
+        clauses.each do |b|
+          a = a.and(b)
+        end
+        a
+      end
+
 
     # @return [Boolean]
     def area_set?
-      !query_geographic_area_ids.nil?
+      !geographic_area_ids.nil?
     end
 
     # @return [Boolean]
     def author_set?
-      case query_author_ids
+      case author_ids
         when nil
           false
         else
-          query_author_ids.count > 0
+          author_ids.count > 0
       end
     end
 
     # @return [Boolean]
     def nomen_set?
-      !query_nomen_id.nil?
+      !nomen_id.nil?
     end
 
     # @return [Boolean]
     def verbatim_set?
-      !query_verbatim_author_string.blank?
+      !verbatim_author_string.blank?
     end
 
     # @return [Boolean]
     def shape_set?
-      !query_shape.nil?
+      !shape.nil?
     end
 
     # @return [Boolean]
     def with_descendants?
-      !query_descendants.nil?
+      !descendants.nil?
     end
 
 =begin
@@ -70,7 +98,7 @@ module Queries
     def geographic_area_scope
       target_geographic_item_ids = []
 
-      query_geographic_area_ids.each do |ga_id|
+      geographic_area_ids.each do |ga_id|
         target_geographic_item_ids.push(
           GeographicArea.joins(:geographic_items).find(ga_id).default_geographic_item.id
         )
@@ -83,23 +111,23 @@ module Queries
 
     # @return [Scope]
     def shape_scope
-      r42i = GeographicItem.gather_map_data(query_shape, 'CollectionObject').distinct
+      r42i = GeographicItem.gather_map_data(shape, 'CollectionObject').distinct
       ::Otu.joins(:collection_objects).where(collection_objects: {id: r42i})
     end
 
     # @return [Scope]
     def nomen_scope
-      scope1 = ::Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
+      scope1 = ::Otu.joins(:taxon_name).where(taxon_name_id: nomen_id)
       scope  = scope1
       if scope1.any?
-        scope = ::Otu.self_and_descendants_of(scope1.first.id, query_rank_class) if with_descendants?
+        scope = ::Otu.self_and_descendants_of(scope1.first.id, rank_class) if with_descendants?
       end
       scope
     end
 
     # @return [Scope]
     def verbatim_scope
-      ::Otu.joins(:taxon_name).where('taxon_names.cached_author_year ILIKE ?', "%#{query_verbatim_author_string}%")
+      ::Otu.joins(:taxon_name).where('taxon_names.cached_author_year ILIKE ?', "%#{verbatim_author_string}%")
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -110,13 +138,13 @@ module Queries
 =end
     # @return [Scope]
     def author_scope
-      case query_and_or_select
+      case and_or_select
         when '_or_', nil
 
           p = ::Person.arel_table
 
-          c = p[:id].eq(query_author_ids.shift)
-          query_author_ids.each do |i|
+          c = p[:id].eq(author_ids.shift)
+         author_ids.each do |i|
             c = c.or(p[:id].eq(i))
           end
 
@@ -138,7 +166,7 @@ module Queries
             )
           )
 
-          query_author_ids.each_with_index do |person_id, i|
+          author_ids.each_with_index do |person_id, i|
             x = r.alias("#{table_alias}_#{i}")
             b = b.join(x).on(
               x['role_object_id'].eq(t['id']),
@@ -147,7 +175,7 @@ module Queries
             )
           end
 
-          b = b.group(o['id']).having(r['person_id'].count.gteq(query_author_ids.count))
+          b = b.group(o['id']).having(r['person_id'].count.gteq(author_ids.count))
           b = b.as("z_#{table_alias}")
 
           # noinspection RubyResolve

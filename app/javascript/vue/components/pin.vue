@@ -39,7 +39,18 @@ export default {
       this.id = newVal
     }
   },
+  mounted() {
+    document.addEventListener('pinboard:remove', this.clearPin)
+  },
+  destroyed() {
+    document.removeEventListener('pinboard:remove', this.clearPin)
+  },
   methods: {
+    clearPin: function (event) {
+      if(this.pin.id == event.detail.id) {
+        this.pin = undefined
+      }
+    },
     createPin: function () {
       let pinItem = {
         pinboard_item: {
@@ -49,11 +60,13 @@ export default {
       }
       this.$http.post('/pinboard_items', pinItem).then(response => {
         this.pin = response.body
+        TW.workbench.pinboard.addToPinboard(response.body)
         TW.workbench.alert.create('Pinboard item was successfully created.', 'notice')
       })
     },
     deletePin: function () {
       this.$http.delete(`/pinboard_items/${this.pin.id}`, { _destroy: true }).then(response => {
+        TW.workbench.pinboard.removeItem(this.pin.id)
         this.pin = undefined
         TW.workbench.alert.create('Pinboard item was successfully destroyed.', 'notice')
       })

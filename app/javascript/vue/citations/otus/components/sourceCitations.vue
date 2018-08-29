@@ -8,7 +8,7 @@
         v-for="item in items"
         @click="setOtu(item)"
         class="flex-separate middle slide-panel-category-item">
-        <span v-html="item.citation_object_tag"/>
+        <span v-html="item.citation_object.object_tag"/>
       </li>
     </ul>
   </div>
