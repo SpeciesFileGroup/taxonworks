@@ -3,7 +3,7 @@
     <template
         v-for="(item, index) in options.concat(addOption)">
       <template v-if="filter(item)">
-        <input
+        <input v-else
             :key="index"
             @click="$emit('input', item)"
             :value="item"

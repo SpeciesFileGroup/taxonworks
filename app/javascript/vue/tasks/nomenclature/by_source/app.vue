@@ -13,7 +13,6 @@
     <div class="flexbox">
       <div class="flexbox">
         <div class="first-column">
-          <h2>Cite a Taxon Name</h2>
           <cite-taxon-name/>
           <taxon-names :sourceID="sourceID" />
           <taxon-name-relationships :sourceID="sourceID" />
