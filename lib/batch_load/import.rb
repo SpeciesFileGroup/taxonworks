@@ -229,7 +229,7 @@ module BatchLoad
 
     # return [Array] all objects (parsed records)
     def all_objects
-      processed_rows.collect { |i, rp| rp.all_objects }.flatten
+      processed_rows.collect { |_i, rp| rp.all_objects }.flatten
     end
 
   end
