@@ -7,18 +7,25 @@ module BatchLoad::ColumnResolver
   class << self
 
     # @param [Hash] columns
+    # @param [String] type of DataAttribute
     # @return [BatchLoad::ColumnResolver::Result]
-    def import_attribute(columns)
+    def data_attribute(columns, type = 'import')
       r = BatchLoad::ColumnResolver::Result.new
 
       predicate = columns['predicate']
-      value     = columns['value']
+      value = columns['value']
+      proj_id = columns['project_id']
       r.error_messages << 'No column for \'Value\' was provided.' unless columns.key?('value')
       r.error_messages << 'No column for \'Predicate\' was provided.' unless columns.key?('predicate')
       r.error_messages << 'No contents for \'Value\' was provided.' if value.blank?
       r.error_messages << 'No contents for \'Predicate\' was provided.' if predicate.blank?
 
-      r.assign(ImportAttribute.where(import_predicate: predicate, value: value, project_id: columns['project_id']).to_a)
+      if type.start_with?('im')
+        r.assign(DataAttribute.where(import_predicate: predicate, value: value, project_id: proj_id).to_a)
+      else
+        cvt = ControlledVocabularyTerm.find_by(name: predicate, project_id: proj_id)
+        r.assign(DataAttribute.where(controlled_vocabulary_term_id: cvt&.id, value: value, project_id: proj_id).to_a)
+      end
       r.error_messages << "Multiple data_attributes match for '#{predicate}' and '#{value}'.'" if r.multiple_matches?
 
       r
@@ -61,6 +68,7 @@ module BatchLoad::ColumnResolver
 
       r
     end
+
     # rubocop:enable Metrics/MethodLength
 
     # @param [Hash] columns

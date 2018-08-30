@@ -2,13 +2,14 @@
 module BatchLoad
   class Import::Otus::DataAttributesInterpreter < BatchLoad::Import
 
-    attr_accessor :create_new_otu
-    attr_accessor :create_citation
-    attr_accessor :source
+    attr_accessor :create_new_otu, :create_citation, :create_new_predicate,
+                  :type_select, :source
 
     # @param [Hash] args
     def initialize(**args)
       @create_new_otu = args.delete(:create_new_otu).present?
+      @create_new_predicate = args.delete(:create_new_predicate).present?
+      @type_select = args.delete(:type_select)
       source_id = args.delete(:source_id)
       @source = Source.find(source_id) if source_id.present?
       @create_citation = @source.present?
@@ -21,6 +22,8 @@ module BatchLoad
     def build_da_for_otus
       @total_data_lines = 0
       i = 0
+      import_klass = type_select.start_with?('im')
+      att_klass = (type_select.capitalize + 'Attribute').safe_constantize
 
       csv.each do |real_row|
         i += 1
@@ -30,19 +33,25 @@ module BatchLoad
         parse_result = BatchLoad::RowParse.new
         parse_result.objects[:otu] = []
         parse_result.objects[:data_attribute] = []
-        parse_result.objects[:citation] = []
+        parse_result.objects[:citation] = [] if create_citation
+        parse_result.objects[:predicate] = [] unless import_klass
         @processed_rows[i] = parse_result
 
         begin # processing
           # assume we will be creating a new da
-          new_da_attributes = {import_predicate: row['predicate'],
-                               value: row['value'],
-                               project_id: real_project_id}
+          predicate = row['predicate']
+          new_da_attributes = {value: row['value'], project_id: real_project_id}
           new_da_attributes[:citations_attributes] = [{source_id: @source.id,
                                                        project_id: real_project_id}] if create_citation.present?
-          new_da = ImportAttribute.new(new_da_attributes)
-
-          ias = BatchLoad::ColumnResolver.import_attribute(row)
+          ias = BatchLoad::ColumnResolver.data_attribute(row, type_select)
+          if import_klass
+            new_da_attributes[:import_predicate] = predicate
+          else
+            cvt = ControlledVocabularyTerm.find_or_initialize_by(name: predicate, project_id: real_project_id)
+            new_da_attributes[:controlled_vocabulary_term_id] =
+                ias.item.blank? ? cvt&.id : ias.item.controlled_vocabulary_term_id
+          end
+          new_da = att_klass.new(new_da_attributes)
 
           otus = BatchLoad::ColumnResolver.otu(row)
           find_name = row['otuname']
@@ -87,6 +96,10 @@ module BatchLoad
             parse_result.objects[:citation].push(cite)
             parse_result.parse_errors << cite.errors.messages if cite.errors.messages.any?
           end
+          unless import_klass
+            parse_result.objects[:predicate].push(cvt) unless cvt.blank?
+            parse_result.parse_errors << cvt.errors.messages if cvt.errors.messages.ant?
+          end
           @total_data_lines += 1 if find_name.present?
         rescue => _e
           raise(_e)
@@ -100,18 +113,26 @@ module BatchLoad
     # Iterates in line order and attempts to save each record
     # @return [Boolean] true
     def create
+      super
+      return
       @create_attempted = true
       if ready_to_create?
         sorted_processed_rows.each_value do |processed_row|
           otu = processed_row.objects[:otu].flatten.first
           d_a = processed_row.objects[:data_attribute].flatten.first
-          # cite = processed_row.objects[:citation].flatten.first
+          cite = processed_row.objects[:citation].flatten.first
+          cvt = processed_row.objects[:predicate].flatten.first
           unless otu.nil? or d_a.nil?
             if d_a.valid? && otu.valid?
               if otu.new_record?
                 otu.save if create_new_otu.present?
               end
-              # d_a.citations << cite
+              if create_citation
+                d_a.citations << cite
+              end
+              if cvt.present? && cvt.valid? && create_new_predicate
+                cvt.save
+              end
               otu.data_attributes << d_a
               otu
             else
