@@ -4,6 +4,8 @@ module BatchLoad
   # TODO: Originally transliterated from Import::CollectionObjects: Remove this to-do after successful operation.
   class Import::Otus < BatchLoad::Import
 
+    SAVE_ORDER = [:otu]
+
     attr_accessor :otus
 
     # @param [Hash] args
