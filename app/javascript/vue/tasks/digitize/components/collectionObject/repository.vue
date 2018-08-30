@@ -19,12 +19,13 @@
         </label>
       </li>
     </ul>
-    <div v-else>
+    <div v-show="view == 'search'">
       <autocomplete
         url="/repositories/autocomplete"
         label="label_html"
         param="term"
         placeholder="Search"
+        ref="autocomplete"
         @getItem="repository = $event.id"
         min="2"/>
     </div>
@@ -35,7 +36,7 @@
 
 import Autocomplete from '../../../../components/autocomplete'
 import SmartSelector from '../../../../components/switch'
-import { GetRepositorySmartSelector } from '../../request/resources.js'
+import { GetRepositorySmartSelector, GetRepository } from '../../request/resources.js'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 
@@ -54,6 +55,19 @@ export default {
       },
       set(value) {
         return this.$store.commit(MutationNames.SetCollectionObjectRepositoryId, value)
+      }
+    }
+  },
+  watch: {
+    repository(newVal, oldVal) {
+      if(!newVal) {
+        this.$refs.autocomplete.cleanInput()
+      }
+      else {
+        let that = this
+        GetRepository(newVal).then(response => {
+          this.$refs.autocomplete.setLabel(response.name)
+        })
       }
     }
   },

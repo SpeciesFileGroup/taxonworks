@@ -10,6 +10,7 @@ import getContainerItems from './getContainerItems'
 import getTaxonDetermination from './getTaxonDetermination'
 import getCollectionObjectTypes from './getCollectionObjectTypes'
 import getPreferences from './getPreferences'
+import getBiocurations from './getBiocurations'
 
 const GetterNames = {
   GetTaxonDetermination: 'getTaxonDetermination',
@@ -23,7 +24,8 @@ const GetterNames = {
   GetContainer: 'getContainer',
   GetContainerItems: 'getContainerItems',
   GetCollectionObjectTypes: 'getCollectionObjectTypes',
-  GetPreferences: 'getPreferences'
+  GetPreferences: 'getPreferences',
+  GetBiocurations: 'getBiocurations'
 }
 
 const GetterFunctions = {
@@ -38,7 +40,8 @@ const GetterFunctions = {
   [GetterNames.GetContainer]: getContainer,
   [GetterNames.GetContainerItems]: getContainerItems,
   [GetterNames.GetCollectionObjectTypes]: getCollectionObjectTypes,
-  [GetterNames.GetPreferences]: getPreferences
+  [GetterNames.GetPreferences]: getPreferences,
+  [GetterNames.GetBiocurations]: getBiocurations
 }
 
 export {

@@ -104,7 +104,8 @@ function makeInitialState () {
     containerItems: [],
     collection_objects: [],
     depictions: [],
-    COTypes: []
+    COTypes: [],
+    biocurations: []
   }
 }
 

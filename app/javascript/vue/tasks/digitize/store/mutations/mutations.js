@@ -1,6 +1,10 @@
 import setContainer from './Container/SetContainer'
 import setPreferences from './setPreferences'
 
+import setBiocurations from './setBiocurations'
+import addBiocuration from './addBiocuration'
+import removeBiocuration from './removeBiocuration'
+
 import setCollectionObjects from './CollectionObject/setCollectionObjects'
 import newCollectionObject from './CollectionObject/newCollectionObject'
 import addCollectionObject from './CollectionObject/addCollectionObject'
@@ -79,6 +83,10 @@ import setTaxonDeterminationRoles from './TaxonDetermination/setTaxonDeterminati
 const MutationNames = {
   SetContainer: 'setContainer',
   SetPreferences: 'setPreferences',
+
+  SetBiocurations: 'setBiocurations',
+  AddBiocuration: 'AddBiocuration',
+  RemoveBiocuration: 'RemoveBiocuration',
 
   SetTaxonDetermination: 'setTaxonDetermination',
   SetTaxonDeterminationBiologicalId: 'setTaxonDeterminationBiologicalId',
@@ -159,6 +167,10 @@ const MutationNames = {
 const MutationFunctions = {
   [MutationNames.SetContainer]: setContainer,
   [MutationNames.SetPreferences]: setPreferences,
+
+  [MutationNames.SetBiocurations]: setBiocurations,
+  [MutationNames.AddBiocuration]: addBiocuration,
+  [MutationNames.RemoveBiocuration]: removeBiocuration,
 
   [MutationNames.SetTaxonDetermination]: setTaxonDetermination,
   [MutationNames.SetTaxonDeterminationBiologicalId]: setTaxonDeterminationBiologicalId,

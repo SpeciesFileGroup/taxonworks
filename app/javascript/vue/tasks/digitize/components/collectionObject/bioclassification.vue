@@ -27,6 +27,7 @@
 
 <script>
 import { GetterNames } from '../../store/getters/getters.js'
+import { MutationNames } from '../../store/mutations/mutations.js'
 import { 
   GetBiocurationsTypes, 
   GetBiocurationsCreated, 
@@ -42,7 +43,7 @@ export default {
     },
     biologicalId() {
       return this.$store.getters[GetterNames.GetCollectionObject].id
-    }    
+    },
   },
   data() {
     return {
@@ -111,6 +112,7 @@ export default {
       this.addQueue.forEach((id) => {
         CreateBiocurationClassification(this.createBiocurationObject(id)).then(response => {
           this.createdBiocutarions.push(response)
+          this.$store.commit(MutationNames.AddBiocuration, response)
         })
         this.addQueue = []
       })
@@ -132,6 +134,7 @@ export default {
         GetBiocuration().then((response) => {
           response.forEach((item) => {
             this.createdBiocutarions.push(item)
+            this.$store.commit(MutationNames.AddBiocuration, response)
           })
         })
       })
@@ -145,6 +148,7 @@ export default {
       })
 
       DestroyBiocuration(this.createdBiocutarions[index].id).then(response => {
+        this.$store.commit(MutationNames.RemoveBiocuration, this.createdBiocutarions[index].id)
         this.createdBiocutarions.splice(index, 1)
       })
     },
