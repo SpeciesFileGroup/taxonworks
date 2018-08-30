@@ -169,6 +169,10 @@ const DestroyDepiction = function (id) {
   return ajaxCall('delete', `/depictions/${id}.json`)
 }
 
+const DestroyCollectionObject = function (id) {
+  return ajaxCall('delete', `/collection_objects/${id}.json`)
+}
+
 export {
   GetUserPreferences,
   GetOtu,
@@ -203,6 +207,7 @@ export {
   DestroyTypeMaterial,
   DestroyBiocuration,
   DestroyDepiction,
+  DestroyCollectionObject,
   CreateContainer,
   CreateContainerItem
 }

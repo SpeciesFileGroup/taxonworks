@@ -3,7 +3,6 @@ export default function(state) {
     id: undefined,
     global_id: undefined,
     total: 1, 
-    preparation_type_id: undefined, 
     repository_id: undefined,
     ranged_lot_category_id: undefined, 
     collecting_event_id: undefined,

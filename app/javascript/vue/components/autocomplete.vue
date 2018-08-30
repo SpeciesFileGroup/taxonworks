@@ -1,5 +1,4 @@
 /*
-import func from './vue-temp/vue-editor-bridge';
 Parameters:
 
           mim: Minimum input length needed before make a search query

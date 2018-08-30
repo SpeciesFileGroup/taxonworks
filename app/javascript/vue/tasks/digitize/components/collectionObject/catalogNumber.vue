@@ -27,6 +27,7 @@
         <label>
           <input
             type="radio"
+            :disabled="collectionObjects.length > 0"
             :value="type.id"
             v-model="preparationType"
             name="collection-object-type">
@@ -55,13 +56,16 @@
       Autocomplete
     },
     computed: {
+      collectionObjects() {
+        return this.$store.getters[GetterNames.GetCollectionObjects]
+      },
       namespace: {
         get() {
           return this.$store.getters[GetterNames.GetIdentifier].namespace_id
         },
         set(value) {
           this.$store.commit(MutationNames.SetIdentifierNamespaceId, value)
-        }
+        },
       },
       preparationType: {
         get() {

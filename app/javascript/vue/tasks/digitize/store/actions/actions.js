@@ -8,6 +8,7 @@ import saveTypeMaterial from './saveTypeMaterial'
 import saveDetermination from './saveDetermination'
 import saveContainerItem from './saveContainerItem'
 import saveContainer from './saveContainer'
+import removeCollectionObject from './removeCollectionObject'
 
 const ActionFunctions = {
   [ActionNames.GetTaxon]: getTaxon,
@@ -18,7 +19,8 @@ const ActionFunctions = {
   [ActionNames.SaveTypeMaterial]: saveTypeMaterial,
   [ActionNames.SaveDetermination]: saveDetermination,
   [ActionNames.SaveContainerItem]: saveContainerItem,
-  [ActionNames.SaveContainer]: saveContainer
+  [ActionNames.SaveContainer]: saveContainer,
+  [ActionNames.RemoveCollectionObject]: removeCollectionObject
 }
 
 export { ActionNames, ActionFunctions }
