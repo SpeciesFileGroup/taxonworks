@@ -20,12 +20,21 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
 
   let(:source) { FactoryBot.create(:valid_source_verbatim) }
   let(:upload_file_2) { fixture_file_upload(file_ph_2) }
-  let(:import_2) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
-                                                                          user_id: user.id,
-                                                                          file: upload_file_2,
-                                                                          type_select: 'import',
-                                                                          source_id: source.id,
-                                                                          create_new_otu: '1')
+  let(:import_2_im) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
+                                                                             user_id: user.id,
+                                                                             file: upload_file_2,
+                                                                             type_select: 'import',
+                                                                             source_id: source.id,
+                                                                             create_new_predicate: 'on',
+                                                                             create_new_otu: '1')
+  }
+  let(:import_2_in) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
+                                                                             user_id: user.id,
+                                                                             file: upload_file_2,
+                                                                             type_select: 'internal',
+                                                                             source_id: source.id,
+                                                                             create_new_predicate: 'on',
+                                                                             create_new_otu: '1')
   }
   let(:import_3) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
                                                                           user_id: user.id,
@@ -37,7 +46,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
                                                                           user_id: user.id,
                                                                           file: upload_file_2,
                                                                           type_select: 'import'
-                                                                          )
+  )
   }
   let(:import_5) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
                                                                           user_id: user.id,
@@ -237,6 +246,109 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           bingo = import_4
           bingo.create
           expect(Citation.count).to eq(0)
+        end
+      end
+    end
+  end
+
+  context 'testing import object' do
+
+    let(:im_a) { DataAttribute.new(type: 'ImportAttribute',
+                                   import_predicate: 'connection to otu',
+                                   value: 'new data attribute for the otu',
+                                   project_id: project.id) }
+    let(:in_a) { DataAttribute.new(type: 'InternalAttribute',
+                                   controlled_vocabulary_term_id: predicate.id,
+                                   value: 'new data attribute for the otu',
+                                   project_id: project.id) }
+    let(:otu) { Otu.find_by_name('americana') }
+    let(:t_n) { FactoryBot.create(:valid_taxon_name, {name: 'Taxonmatchidae'}) }
+    let(:predicate) { FactoryBot.create(:valid_predicate, {name: 'Total Males'}) }
+
+    before do
+      names
+      otu.data_attributes << im_a
+      otu.data_attributes << in_a
+      otu.taxon_name = t_n
+      otu.save
+    end
+
+    context 'baseline' do
+      specify 'otus' do
+        expect(Otu.count).to eq(7)
+      end
+
+      specify 'import_attributes' do
+        expect(ImportAttribute.count).to eq(1)
+      end
+
+      specify 'internal_attributes' do
+        expect(InternalAttribute.count).to eq(1)
+      end
+
+      specify 'predicate' do
+        expect(Predicate.count).to eq(1)
+      end
+
+      specify 'protonyms' do
+        expect(Protonym.count).to eq(2)
+      end
+    end
+
+    specify '.new succeeds' do
+      expect(import_2_im).to be_truthy
+    end
+
+    specify '#processed_rows' do
+      expect(import_2_im.processed_rows.count).to eq(8)
+    end
+
+    specify '#processed_rows' do
+      expect(import_2_im.create_attempted).to eq(false)
+    end
+
+    context 'different data_attribute types' do
+      context 'InternalAttribute' do
+        context 'after .create' do
+          before { import_2_in.create }
+
+          specify '#create_attempted' do
+            expect(import_2_in.create_attempted).to eq(true)
+          end
+
+          specify '#valid_objects' do
+            expect(import_2_in.valid_objects.count).to eq(7)
+          end
+
+          specify '#successful_rows' do
+            expect(import_2_in.successful_rows).to be_truthy
+          end
+
+          specify '#total_records_created' do
+            expect(import_2_in.total_records_created).to eq(7)
+          end
+        end
+      end
+
+      context 'ImportAttribute' do
+        context 'after .create' do
+          before { import_2_im.create }
+
+          specify '#create_attempted' do
+            expect(import_2_im.create_attempted).to eq(true)
+          end
+
+          specify '#valid_objects' do
+            expect(import_2_im.valid_objects.count).to eq(7)
+          end
+
+          specify '#successful_rows' do
+            expect(import_2_im.successful_rows).to be_truthy
+          end
+
+          specify '#total_records_created' do
+            expect(import_2_im.total_records_created).to eq(7)
+          end
         end
       end
     end

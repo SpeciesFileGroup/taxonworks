@@ -1,5 +1,5 @@
 <% content_for :warn_level do -%>
-    <%= warn_level_input(@result) -%>
+  <%= warn_level_input(@result) -%>
 <% end %>
 
 <%= content_for :batch_form do -%>
@@ -10,25 +10,19 @@
   <table class="top_align_text">
     <tr>
       <th class="four_character_width">line</th>
-<!--      <th class="four_character_width">data count</th>-->
-      <th> name </th>
-      <th> import predicate</th>
-      <th class=""> data errors* </th>
-      <th class=""> parse errors </th>
+      <th class="four_character_width">data count</th>
+      <th> name</th>
+      <th class=""> data errors*</th>
+      <th class=""> parse errors</th>
     </tr>
 
     <% @result.sorted_processed_rows.each do |i, rp| -%>
       <tr>
         <%= batch_line_link_td(i) -%>
-<!--        <%#= batch_all_objects_count_td(rp) -%>\-->
-        <td>
-          <%= batch_line_otu(rp.objects[:otu].first).html_safe -%>
-        </td>
-        <td>
-          <%= batch_valid_objects_td(rp) -%>
-        </td>
-        <%= batch_data_errors_td(rp, '<br>') -%>
-        <%= batch_parse_errors_td(rp, '<br>') -%>
+        <%= batch_all_objects_count_td(rp) -%>
+        <%= batch_otu_name_td(rp.objects[:otu].first) -%>
+        <%= batch_data_errors_td(rp) -%>
+        <%= batch_parse_errors_td(rp) -%>
       </tr>
     <% end -%>
   </table>

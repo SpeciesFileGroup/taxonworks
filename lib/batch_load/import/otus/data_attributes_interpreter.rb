@@ -18,9 +18,9 @@ module BatchLoad
       super(args)
     end
 
-    # rubocop:disable Metrics/MethodLength
-    # rubocop:disable Metrics/BlockNesting
-    # @return [Integer] total data lines
+# rubocop:disable Metrics/MethodLength
+# rubocop:disable Metrics/BlockNesting
+# @return [Integer] total data lines
     def build_da_for_otus
       @total_data_lines = 0
       i = 0
@@ -49,13 +49,14 @@ module BatchLoad
           if import_klass
             new_da_attributes[:import_predicate] = predicate
           else
-            cvt = Predicate.find_or_initialize_by(name: predicate,
-                                                  definition: "Imported from %{file.to_s}" ,
-                                                  project_id: real_project_id)
-            new_da_attributes[:controlled_vocabulary_term_id] =
-                ias.item.blank? ? cvt&.id : ias.item.controlled_vocabulary_term_id
+            new_cvt = Predicate.find_or_initialize_by(name: predicate,
+                                                      definition: "Imported from #{file.original_filename}",
+                                                      project_id: real_project_id)
+            # new_da_attributes[:controlled_vocabulary_term_id] =
+            #     ias.item.blank? ? new_predicate&.id : ias.item.controlled_vocabulary_term_id
           end
           new_da = att_klass.new(new_da_attributes)
+          new_da.predicate = new_cvt unless import_klass
 
           otus = BatchLoad::ColumnResolver.otu(row)
           find_name = row['otuname']
@@ -103,10 +104,10 @@ module BatchLoad
           end
           # connect cvt to data_attribute
           unless import_klass
-            ias.item.controlled_vocabulary_term_id = cvt&.id
+            ias.item.controlled_vocabulary_term_id = new_cvt&.id
             # add predicate
-            parse_result.objects[:predicate].push(cvt) unless cvt.blank?
-            parse_result.parse_errors << cvt.errors.messages if cvt.errors.messages.any?
+            parse_result.objects[:predicate].push(new_cvt) unless new_cvt.blank?
+            parse_result.parse_errors << new_cvt.errors.messages if new_cvt.errors.messages.any?
           end
           # add otu
           parse_result.objects[:otu].push(otus.item)
@@ -124,9 +125,9 @@ module BatchLoad
       @total_lines = i
     end
 
-    # rubocop:enable Metrics/MethodLength
-    # Iterates in line order and attempts to save each record
-    # @return [Boolean] true
+# rubocop:enable Metrics/MethodLength
+# Iterates in line order and attempts to save each record
+# @return [Boolean] true
     def create
       super
       return
@@ -163,9 +164,9 @@ module BatchLoad
       true
     end
 
-    # rubocop:enable Metrics/BlockNesting
+# rubocop:enable Metrics/BlockNesting
 
-    # @return [Boolean] true if build process has run
+# @return [Boolean] true if build process has run
     def build
       if valid?
         build_da_for_otus

@@ -57,8 +57,8 @@ module BatchLoad::BatchLoadHelper
     content_tag(:td, link_to(line, "#line_#{line}", id: "parse_#{line}").html_safe)
   end
 
-  def batch_line_otu(otu)
-    "'#{otu.name}'" + (otu.new_record? ? '<br>(New)' : '')
+  def batch_otu_name_td(otu)
+    content_tag(:td, "'#{otu.name}'" + (otu.new_record? ? '<br>(New)' : '').html_safe)
   end
 
 end
