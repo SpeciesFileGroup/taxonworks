@@ -29,6 +29,7 @@
       @click="createTaxonCite()"
       :disabled="!foundTaxon.hasOwnProperty('id')"
       type="submit">Create Citation</button>
+    <span>{{ errorMessage }}</span>
   </div>
 </template>
 <script>
@@ -63,7 +64,7 @@
         selectedList: {},
         newCitation: {},
         foundTaxon: {},
-        current: {}
+        errorMessage: ''
       }
     },
     methods: {
@@ -83,9 +84,11 @@
           }
         };
         this.$http.post(`/citations.json`, params).then(response => {
-          // this.$emit('newTaxonNameCitation', response.body);
           this.$emit('foundTaxon', response.body);
-        });
+        })
+        .catch(error => {
+          this.errorMessage = error.bodyText
+        })
       }
     },
     computed: {
