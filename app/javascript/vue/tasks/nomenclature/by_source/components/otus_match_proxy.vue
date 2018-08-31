@@ -46,10 +46,13 @@
 
     methods: {
       getCites() {
-        this.$http.get('/citations.json?citation_object_type=TaxonName&source_id=' + this.sourceID).then(response => {
+        this.$http.get('/citations.json?citation_object_type=Otu&source_id=' + this.sourceID).then(response => {
           // build the tabular list, extracting the
           this.taxon_names_cites_list = response.body;
         })
+      },
+      getOtus(citation_object_type) {
+
       }
     },
   }
