@@ -13,6 +13,10 @@
   </div>
 </template>
 <script>
+  // list items are to be annotatable OTUs
+  // update list when changes occur in any of the citation list items
+  //   mechanism for triggering reaction?
+
   import RadialAnnotator from '../../../../components/annotator/annotator.vue'
   import OtuRadial from '../../../../components/otu/otu.vue'
   export default {

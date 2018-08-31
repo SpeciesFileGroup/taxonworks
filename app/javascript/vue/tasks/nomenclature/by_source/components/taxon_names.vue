@@ -28,6 +28,10 @@
         type: String,
         default: "0" //window.location.href.split('/')[1]
       },
+      newTaxon: {
+        type: Object,
+        default: {}
+      }
     },
     data() {
       return {
@@ -37,15 +41,21 @@
     watch: {
       sourceID() {
         this.getCites();
+      },
+      newTaxon() {
+        this.addToList(this.newTaxon)
       }
     },
-
+// TODO: method for receiving new citation from cite_taxon_name (addToList( ?))
     methods: {
       getCites() {
         this.$http.get('/citations.json?citation_object_type=TaxonName&source_id=' + this.sourceID).then(response => {
           // build the tabular list, extracting the
           this.taxon_names_cites_list = response.body;
         })
+      },
+      addToList(citation) {
+        this.taxon_names_cites_list.push(citation);
       }
     },
     // mounted: function() {

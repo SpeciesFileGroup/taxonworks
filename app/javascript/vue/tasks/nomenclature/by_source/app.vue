@@ -7,14 +7,19 @@
           :full-screen="true"
           legend="Loading..."
           :logo-size="{ width: '100px', height: '100px'}"/>
-      <nomen-source
-          @sourceID="sourceID = $event"/>
+      <nomen-source @sourceID="sourceID = $event"/>
     </div>
     <div class="flexbox">
       <div class="flexbox">
         <div class="first-column">
-          <cite-taxon-name/>
-          <taxon-names :sourceID="sourceID" />
+          <cite-taxon-name
+            :sourceID="sourceID"
+            @foundTaxon="newTaxonNameCitation=$event"
+          />
+          <taxon-names
+            :sourceID="sourceID"
+            :newTaxon="newTaxonNameCitation"
+          />
           <taxon-name-relationships :sourceID="sourceID" />
           <taxon-name-classifications :sourceID="sourceID" />
           <biological-associations :sourceID="sourceID" />
@@ -54,11 +59,11 @@
       OtusMatchProxy,
       Spinner
     },
-    data() {
+data() {
       return {
         sourceID: undefined,
         isLoading: false,
-        state: false
+        newTaxonNameCitation: {}
       }
     },
     // mounted: {

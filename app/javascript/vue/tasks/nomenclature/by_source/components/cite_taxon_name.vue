@@ -2,28 +2,33 @@
   <div>
     <h2>Cite Taxon Name</h2>
     <smart-selector
-        :options="tabs"
-        name="citation"
-        :add-option="moreOptions"
-        v-model="view"/>
-    <autocomplete
-        v-if="view == 'Search'"
-        url="/otus/autocomplete"
-        min="2"
-        param="term"
-        placeholder="Search for a taxon"
-        event-send="otupicker"
-        label="label"
-        :autofocus="true" />
+      :options="tabs"
+      name="citation"
+      :add-option="moreOptions"
+      v-model="view"/>
+  <autocomplete
+    v-if="view === 'Search'"
+    url="/taxon_names/autocomplete"
+    min="2"
+    param="term"
+    placeholder="Search for a taxon"
+    event-send="setTaxonforCite(item)"
+    label="label"
+    @getItem="foundTaxon = $event"
+    :autofocus="true" />
+  <button v-else
+    v-for="item in showList[view]"
+    :key="item.id"
+    type="button"
+    :class="{ 'button-default': !(selectedList.hasOwnProperty(item.id))}"
+    class="button normal-input biocuration-toggle-button"
+    @click="addTaxonCite(item)"
+    v-html="item.name"/>
     <button
-        v-if="view"
-        v-for="item in showList[view]"
-        :key="item.id"
-        type="button"
-        :class="{ 'button-default': !(selectedList.hasOwnProperty(item.id))}"
-        class="button normal-input biocuration-toggle-button"
-        @click="selectFor(item)"
-        v-html="item.name"/>
+      class="button normal-input button-default"
+      @click="createTaxonCite()"
+      :disabled="!foundTaxon.hasOwnProperty('id')"
+      type="submit">Create Citation</button>
   </div>
 </template>
 <script>
@@ -44,14 +49,43 @@
       value: {
         type: Object,
       },
+      sourceID: {
+        type: String,
+        default: "0"
+      }
     },
     data() {
       return {
         list: {},
-        tabs: [],//,[],
+        tabs: [],
         moreOptions: ['Search'],
         view: undefined,
-        selectedList: {}
+        selectedList: {},
+        newCitation: {},
+        foundTaxon: {},
+        current: {}
+      }
+    },
+    methods: {
+      setTaxonforCite() {
+        this.foundTaxon = item;
+      },
+      addTaxonCite(taxon) {
+        // first GET the citation for this taxon
+
+      },
+      createTaxonCite() {
+        let params = {
+          citation: {
+            source_id: this.sourceID,
+            citation_object_type: 'TaxonName',
+            citation_object_id: this.foundTaxon.id
+          }
+        };
+        this.$http.post(`/citations.json`, params).then(response => {
+          // this.$emit('newTaxonNameCitation', response.body);
+          this.$emit('foundTaxon', response.body);
+        });
       }
     },
     computed: {
