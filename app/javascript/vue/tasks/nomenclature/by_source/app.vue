@@ -26,7 +26,14 @@
           <asserted-distributions :sourceID="sourceID" />
         </div>
         <div class="second-column">
-          <otus-match-proxy :sourceID="sourceID" />
+          <otus-match-proxy
+            :sourceID="sourceID"
+            :taxon_names_cites="taxon_names_cites"
+            :taxon_relation_cites="taxon_relation_cites"
+            :taxon_classification_cites="taxon_classification_cites"
+            :biological_relations_cites="biological_relations_cites"
+            :distribution_cites="distribution_cites"
+          />
         </div>
       </div>
     </div>
@@ -63,7 +70,13 @@ data() {
       return {
         sourceID: undefined,
         isLoading: false,
-        newTaxonNameCitation: {}
+        newTaxonNameCitation: {},
+        taxon_names_cites: [],
+        taxon_relation_cites: [],
+        taxon_classification_cites: [],
+        biological_relations_cites: [],
+        distribution_cites: [],
+
       }
     },
     // mounted: {

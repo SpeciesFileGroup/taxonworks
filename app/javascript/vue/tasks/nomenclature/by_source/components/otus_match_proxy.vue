@@ -3,7 +3,7 @@
     <h2>OTUs by match or proxy</h2>
     <table>
       <tr><th>pages</th><th>otu</th><th>radial</th><th>otu</th></tr>
-      <tr v-for="item in taxon_names_cites_list">
+      <tr v-for="item in otu_names_cites_list">
         <td><input type="text" :value="item.pages"></td>
         <td v-html="item.citation_object.object_tag" />
         <td><radial-annotator :global-id="item.citation_object.global_id" /></td>
@@ -30,31 +30,64 @@
       },
       sourceID: {
         type: String,
-        default: "0"
+        default: "0",
+      },
+      taxon_names_cites: {
+        type: Array,
+        default: [],
+      },
+      taxon_relation_cites: {
+        type: Array,
+        default: [],
+      },
+      taxon_classification_cites: {
+        type: Array,
+        default: [],
+      },
+      biological_relations_cites: {
+        type: Array,
+        default: [],
+      },
+      distribution_cites: {
+        type: Array,
+        default: [],
       },
     },
     data() {
       return {
-        taxon_names_cites_list: []
+        otu_names_cites_list: []
       }
     },
     watch: {
       sourceID() {
         this.getCites();
+      },
+      updateOtus() {
+        this.getOtus()
       }
     },
 
     methods: {
       getCites() {
         this.$http.get('/citations.json?citation_object_type=Otu&source_id=' + this.sourceID).then(response => {
-          // build the tabular list, extracting the
-          this.taxon_names_cites_list = response.body;
+          // citations currently until otu endpoint ready
+          this.otu_names_cites_list = response.body;
         })
       },
       getOtus(citation_object_type) {
-
+      // iterate through all citation object types to rebuild this list
+        this.otu_names_cites_list = {};
+        getCites();
+        this.taxon_names_cites.each(addCite);
+        this.taxon_relation_cites.each(addCite);
+        this.taxon_classification_cites.each(addCite);
+        this.biological_relations_cites.each(addCite);
+        this.distribution_cites.each(addCite);
       }
     },
+    addCite(cite) {
+      this.otu_names_cites_list.push(cite)
+    }
   }
 
 </script>
