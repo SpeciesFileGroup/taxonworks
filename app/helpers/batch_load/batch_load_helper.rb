@@ -1,7 +1,7 @@
 module BatchLoad::BatchLoadHelper
 
   def warn_level_input(result)
-    str     = 'Import level:<br>&nbsp;'
+    str = 'Import level:<br>&nbsp;'
     options = [radio_button_tag(:import_level, :warn, selected: true) + ' warn']
     options << radio_button_tag(:import_level, :line_strict) + ' line strict' if result.line_strict_level_ok?
     options << radio_button_tag(:import_level, :strict) + ' strict' if result.strict_level_ok?
@@ -14,12 +14,12 @@ module BatchLoad::BatchLoadHelper
       content_tag :table do
         rp.objects.collect { |klass, objs|
           content_tag(:tr, content_tag(:td, klass), class: 'underlined_elements') +
-            objs.collect { |o| content_tag(:tr,
-                                           content_tag(:td,
-                                                       o.persisted? ? object_link(o) : content_tag(:span, object_tag(o), class: 'warning')
-                                           )
-            )
-            }.join.html_safe
+              objs.collect { |o| content_tag(:tr,
+                                             content_tag(:td,
+                                                         o.persisted? ? object_link(o) : content_tag(:span, object_tag(o), class: 'warning')
+                                             )
+              )
+              }.join.html_safe
         }.join.html_safe
       end
     end
@@ -30,11 +30,11 @@ module BatchLoad::BatchLoadHelper
       content_tag(:table, border: true) do
         rp.objects.collect { |klass, objs|
           content_tag(:tr, content_tag(:th, klass) +
-                           objs.collect { |o|
-                             content_tag(:tr,
-                                         content_tag(:td, (o.valid? ? content_tag(:span, 'None.', class: 'subtle') : "#{o.errors.full_messages.join(sep)}").html_safe)
-                             )
-                           }.join.html_safe
+              objs.collect { |o|
+                content_tag(:tr,
+                            content_tag(:td, (o.valid? ? content_tag(:span, 'None.', class: 'subtle') : "#{o.errors.full_messages.join(sep)}").html_safe)
+                )
+              }.join.html_safe
           )
         }.join.html_safe
       end
@@ -55,10 +55,6 @@ module BatchLoad::BatchLoadHelper
 
   def batch_line_link_td(line)
     content_tag(:td, link_to(line, "#line_#{line}", id: "parse_#{line}").html_safe)
-  end
-
-  def batch_line_predicate(d_a)
-    "Predicate: '#{d_a.import_predicate}', Value: '#{d_a.value}'" + (d_a.new_record? ? '<br>(New)' : '')
   end
 
   def batch_line_otu(otu)

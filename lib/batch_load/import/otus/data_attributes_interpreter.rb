@@ -5,7 +5,9 @@ module BatchLoad
     attr_accessor :create_new_otu, :create_citation, :create_new_predicate,
                   :type_select, :source
 
-    # @param [Hash] args
+    SAVE_ORDER = [:predicate, :otu, :data_attribute, :citation]
+
+# @param [Hash] args
     def initialize(**args)
       @create_new_otu = args.delete(:create_new_otu).present?
       @create_new_predicate = args.delete(:create_new_predicate).present?
@@ -47,7 +49,9 @@ module BatchLoad
           if import_klass
             new_da_attributes[:import_predicate] = predicate
           else
-            cvt = ControlledVocabularyTerm.find_or_initialize_by(name: predicate, project_id: real_project_id)
+            cvt = Predicate.find_or_initialize_by(name: predicate,
+                                                  definition: "Imported from %{file.to_s}" ,
+                                                  project_id: real_project_id)
             new_da_attributes[:controlled_vocabulary_term_id] =
                 ias.item.blank? ? cvt&.id : ias.item.controlled_vocabulary_term_id
           end
@@ -88,18 +92,29 @@ module BatchLoad
           cite.valid? if cite.present?
 
           parse_result.parsed = true
-          parse_result.objects[:otu].push(otus.item)
-          parse_result.parse_errors << otus.error_messages if otus.error_messages.any?
-          parse_result.objects[:data_attribute].push(ias.item)
-          parse_result.parse_errors << ias.error_messages if ias.error_messages.any?
+          # connect data_attribute to otu
+          ias.item.attribute_subject = otus.item
+          # connect citation to otu
           if cite.present?
+            cite.citation_object = otus.item
+            # add citation
             parse_result.objects[:citation].push(cite)
             parse_result.parse_errors << cite.errors.messages if cite.errors.messages.any?
           end
+          # connect cvt to data_attribute
           unless import_klass
+            ias.item.controlled_vocabulary_term_id = cvt&.id
+            # add predicate
             parse_result.objects[:predicate].push(cvt) unless cvt.blank?
-            parse_result.parse_errors << cvt.errors.messages if cvt.errors.messages.ant?
+            parse_result.parse_errors << cvt.errors.messages if cvt.errors.messages.any?
           end
+          # add otu
+          parse_result.objects[:otu].push(otus.item)
+          parse_result.parse_errors << otus.error_messages if otus.error_messages.any?
+          # add data_attribute
+          parse_result.objects[:data_attribute].push(ias.item)
+          parse_result.parse_errors << ias.error_messages if ias.error_messages.any?
+
           @total_data_lines += 1 if find_name.present?
         rescue => _e
           raise(_e)

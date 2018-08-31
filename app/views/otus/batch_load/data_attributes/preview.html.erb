@@ -25,7 +25,7 @@
           <%= batch_line_otu(rp.objects[:otu].first).html_safe -%>
         </td>
         <td>
-          <%= batch_line_predicate(rp.objects[:data_attribute].first).html_safe %>
+          <%= batch_valid_objects_td(rp) -%>
         </td>
         <%= batch_data_errors_td(rp, '<br>') -%>
         <%= batch_parse_errors_td(rp, '<br>') -%>
