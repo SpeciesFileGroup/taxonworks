@@ -15,7 +15,7 @@ module Queries
       params.reject! { |_k, v| v.blank? }
 
       @params = params
-      @geographic_area_ids    = params[:geographic_area_ids]
+      @geographic_area_ids = params[:geographic_area_ids]
       @shape = params[:drawn_area_shape]
       @author_ids = params[:author_ids]
       @verbatim_author_string = params[:verbatim_author_string]
@@ -24,32 +24,52 @@ module Queries
       @rank_class = params[:rank_class]
       @descendants = params[:descendants]
     
-    
       @taxon_name_id = params[:taxon_name_id]
-      @taxon_name_ids = params[:taxon_name_ids]
+      @taxon_name_ids = params[:taxon_name_ids] || []
       @otu_id = params[:otu_id]
-      @otu_ids = params[:otu_ids]
+      @otu_ids = params[:otu_ids] || []
     end
 
-      # @return [ActiveRecord::Relation, nil]
-      def and_clauses
-        clauses = [
-          matching_citation_object_type,
-          matching_citation_object_id,
-          matching_source_id
+    # @return [ActiveRecord::Relation, nil]
+    def and_clauses
+      clauses = [
+        matching_taxon_name_ids,
+        matching_otu_ids,
+        matching_citation_object_type,
+        matching_citation_object_id,
+        matching_source_id
 
-          # Queries::Annotator.annotator_params(options, ::Citation),
-        ].compact
 
-        return nil if clauses.empty?
+        # Queries::Annotator.annotator_params(options, ::Citation),
+      ].compact
 
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
+      return nil if clauses.empty?
+
+      a = clauses.shift
+      clauses.each do |b|
+        a = a.and(b)
       end
+      a
+    end
 
+
+    def matching_otu_ids
+      a = ids_for_otu 
+      a.empty? ? nil : table[:otu_id].eq_any(a)      
+    end
+
+    def ids_for_otu
+      ([otu_id] + otu_ids).uniq
+    end
+
+    def matching_taxon_name_ids
+      a = ids_for_taxon_name 
+      a.empty? ? nil : table[:taxon_name_id].eq_any(a)      
+    end
+
+    def ids_for_taxon_name
+      ([taxon_name_id] + taxon_name_ids).uniq
+    end
 
     # @return [Boolean]
     def area_set?
