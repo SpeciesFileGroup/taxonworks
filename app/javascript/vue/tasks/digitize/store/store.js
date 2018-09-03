@@ -105,7 +105,8 @@ function makeInitialState () {
     collection_objects: [],
     depictions: [],
     COTypes: [],
-    biocurations: []
+    biocurations: [],
+    preparation_type_id: undefined
   }
 }
 

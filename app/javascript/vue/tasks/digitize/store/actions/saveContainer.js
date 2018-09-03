@@ -1,11 +1,12 @@
 import { MutationNames } from '../mutations/mutations'
 import { CreateContainer } from '../../request/resources'
+import Containers from '../../helpers/ContainersType'
 
 export default function ({ commit, state }) {
-  let type = state.COTypes.find((item) => { return item.id == state.collection_object.preparation_type_id })
+  let type = state.COTypes.find((item) => { return item.id == state.preparation_type_id })
   return new Promise((resolve, reject) => {
     let item = { 
-      type: 'Container::' + type.name.toPascalCase()
+      type: Containers[type.name.toPascalCase()]
     }
     CreateContainer(item).then(response => {
       TW.workbench.alert.create('Container was successfully created.', 'notice')

@@ -125,8 +125,12 @@ const GetPreparationTypes = function () {
   return ajaxCall('get', `/preparation_types.json`)
 }
 
-const GetDepictions = function (id) {
+const GetCollectionObjectDepictions = function (id) {
   return ajaxCall('get', `/collection_objects/${id}/depictions.json`)
+}
+
+const GetCollectionEventDepictions = function (id) {
+  return ajaxCall('get', `/collecting_events/${id}/depictions.json`)
 }
 
 const GetRepository = function (id) {
@@ -197,7 +201,8 @@ export {
   GetBiocurationsGroupTypes,
   GetBiocurationsTags,
   GetPreparationTypes,
-  GetDepictions,
+  GetCollectionObjectDepictions,
+  GetCollectionEventDepictions,
   GetRepository,
   CreateTypeMaterial,
   CreateBiocurationClassification,

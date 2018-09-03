@@ -30,7 +30,7 @@
 <script>
 
 import ActionNames from '../../store/actions/actionNames'
-import { GetDepictions, DestroyDepiction } from '../../request/resources.js'
+import { DestroyDepiction } from '../../request/resources.js'
 
 import dropzone from '../../../../components/dropzone.vue'
 import expand from '../../../../components/expand.vue'
@@ -56,6 +56,10 @@ export default {
     objectType: {
       type: String,
       required: true
+    },
+    getDepictions: {
+      type: Function,
+      required: true
     }
   },
   data: function () {
@@ -80,7 +84,7 @@ export default {
     objectValue (newVal, oldVal) {
       if (newVal.id && (newVal.id != oldVal.id)) {
         this.$refs.depiction.setOption('autoProcessQueue', true)
-        GetDepictions(newVal.id).then(response => {
+        this.getDepictions(newVal.id).then(response => {
           this.figuresList = response
         })
       } else {

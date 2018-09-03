@@ -30,6 +30,7 @@
         <buffered-component/>
         <depictions-component
           :object-value="collectionObject"
+          :get-depictions="GetCollectionObjectDepictions"
           object-type="CollectionObject"
           action-save="SaveCollectionObject"/>
       </div>
@@ -49,6 +50,7 @@
   import { MutationNames } from '../../store/mutations/mutations'
   import BlockLayout from '../../../../components/blockLayout.vue'
   import RadialAnnotator from '../../../../components/annotator/annotator.vue'
+  import { GetCollectionObjectDepictions } from '../../request/resources.js'
 
   export default {
     components: {
@@ -70,7 +72,8 @@
       return {
         types: [],
         labelRepository: undefined,
-        labelEvent: undefined
+        labelEvent: undefined,
+        GetCollectionObjectDepictions
       }
     },
     methods: {

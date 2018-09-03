@@ -69,10 +69,10 @@
       },
       preparationType: {
         get() {
-          return this.$store.getters[GetterNames.GetCollectionObject].preparation_type_id
+          return this.$store.getters[GetterNames.GetPreparationType]
         },
         set(value) {
-          this.$store.commit(MutationNames.SetCollectionObjectPreparationId, value)
+          this.$store.commit(MutationNames.SetPreparationType, value)
         }
       },
       identifier: {

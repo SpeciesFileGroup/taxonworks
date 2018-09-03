@@ -1,5 +1,6 @@
 import setContainer from './Container/SetContainer'
 import setPreferences from './setPreferences'
+import setPreparationType from './setPreparationType'
 
 import setBiocurations from './setBiocurations'
 import addBiocuration from './addBiocuration'
@@ -84,6 +85,8 @@ const MutationNames = {
   SetContainer: 'setContainer',
   SetPreferences: 'setPreferences',
 
+  SetPreparationType: 'setPreparationType',
+
   SetBiocurations: 'setBiocurations',
   AddBiocuration: 'AddBiocuration',
   RemoveBiocuration: 'RemoveBiocuration',
@@ -167,6 +170,8 @@ const MutationNames = {
 const MutationFunctions = {
   [MutationNames.SetContainer]: setContainer,
   [MutationNames.SetPreferences]: setPreferences,
+
+  [MutationNames.SetPreparationType]: setPreparationType,
 
   [MutationNames.SetBiocurations]: setBiocurations,
   [MutationNames.AddBiocuration]: addBiocuration,
