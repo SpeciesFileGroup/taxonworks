@@ -17,7 +17,7 @@ import LeafMap from './map.vue'
 import PrintLabel from './printLabel'
 import DepictionComponent from './depictions'
 import Draggable from 'vuedraggable'
-  import sortComponent from '../../../shared/sortComponenets.vue'
+import sortComponent from '../../../shared/sortComponenets.vue'
 
 export default {
   mixins: [sortComponent],

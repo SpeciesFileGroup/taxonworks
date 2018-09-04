@@ -12,4 +12,5 @@ export default {
   Slide: 'Container::Slide',
   SlideBox: 'Container::SlideBox',
   Vial: 'Container::Vial',
+  Virtual: 'Container::Virtual'
 }

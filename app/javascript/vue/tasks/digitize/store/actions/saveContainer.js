@@ -6,7 +6,7 @@ export default function ({ commit, state }) {
   let type = state.COTypes.find((item) => { return item.id == state.preparation_type_id })
   return new Promise((resolve, reject) => {
     let item = { 
-      type: Containers[type.name.toPascalCase()]
+      type: (type ? Containers[type.name.toPascalCase()] : Containers.Virtual)
     }
     CreateContainer(item).then(response => {
       TW.workbench.alert.create('Container was successfully created.', 'notice')

@@ -8,6 +8,10 @@
         <radial-annotator 
           v-if="collectingEvent.id"
           :global-id="collectingEvent.global_id"/>
+        <pin-component 
+          v-if="collectingEvent.id"
+          :object-id="collectingEvent.id" 
+          type="CollectingEvent"/>
       </div>
       <div slot="body">
         <smart-selector
@@ -33,6 +37,7 @@
   import BlockLayout from '../../../../components/blockLayout.vue'
   import RadialAnnotator from '../../../../components/annotator/annotator.vue'
   import { GetterNames } from '../../store/getters/getters.js'
+  import PinComponent from '../../../../components/pin.vue'
 
   export default {
     components: {
@@ -41,6 +46,7 @@
       BlockGeography,
       SmartSelector,
       RadialAnnotator,
+      PinComponent,
       BlockMap
     },
     computed: {

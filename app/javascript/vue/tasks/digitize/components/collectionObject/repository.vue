@@ -26,9 +26,12 @@
         param="term"
         placeholder="Search"
         ref="autocomplete"
-        @getItem="repository = $event.id"
+        @getItem="setRepository($event.id, $event.label)"
         min="2"/>
     </div>
+    <template v-if="repository">
+      <span data-icon="ok"/> {{ repositorySelected }}
+    </template>
   </div>
 </template>
 
@@ -67,6 +70,7 @@ export default {
         let that = this
         GetRepository(newVal).then(response => {
           this.$refs.autocomplete.setLabel(response.name)
+          this.setRepository(response.id, response.name)
         })
       }
     }
@@ -75,7 +79,8 @@ export default {
     return {
       view: 'search',
       options: [],
-      lists: []
+      lists: [],
+      repositorySelected: undefined
     }
   },
   mounted() {
@@ -92,6 +97,10 @@ export default {
         }
         this.lists = response
       })
+    },
+    setRepository(id, label) {
+      this.repository = id
+      this.repositorySelected = label
     }
   }
 }
