@@ -36,7 +36,7 @@
         type: Array,
         default: [],
       },
-      taxon_relation_cites: {
+      taxon_relationship_cites: {
         type: Array,
         default: [],
       },
@@ -44,7 +44,7 @@
         type: Array,
         default: [],
       },
-      biological_relations_cites: {
+      biological_associations_cites: {
         type: Array,
         default: [],
       },
@@ -52,6 +52,10 @@
         type: Array,
         default: [],
       },
+      updateOtus: {
+        type: Boolean,
+        default: false
+      }
     },
     data() {
       return {
@@ -77,17 +81,17 @@
       getOtus(citation_object_type) {
       // iterate through all citation object types to rebuild this list
         this.otu_names_cites_list = {};
-        getCites();
-        this.taxon_names_cites.each(addCite);
-        this.taxon_relation_cites.each(addCite);
-        this.taxon_classification_cites.each(addCite);
-        this.biological_relations_cites.each(addCite);
-        this.distribution_cites.each(addCite);
+        this.getCites();
+        this.taxon_names_cites.forEach(this.addCite);
+        this.taxon_relationship_cites.forEach(this.addCite);
+        this.taxon_classification_cites.forEach(this.addCite);
+        this.biological_association_cites.forEach(this.addCite);
+        this.distribution_cites.forEach(this.addCite);
+      },
+      addCite(cite) {
+        this.otu_names_cites_list.push(cite)
       }
     },
-    addCite(cite) {
-      this.otu_names_cites_list.push(cite)
-    }
   }
 
 </script>

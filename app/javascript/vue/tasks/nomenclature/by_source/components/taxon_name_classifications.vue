@@ -2,7 +2,7 @@
   <div>
     <h2>Taxon Name Classifications</h2>
     <table>
-      <tr v-for="item in taxon_names_cites_list">
+      <tr v-for="item in taxon_classification_cites_list">
         <td><input type="text" :value="item.pages"></td>
         <td v-html="item.citation_object.object_tag" />
         <td><radial-annotator :global-id="item.citation_object.global_id" /></td>
@@ -29,7 +29,7 @@
     },
     data() {
       return {
-        taxon_names_cites_list: []
+        taxon_classification_cites_list: []
       }
     },
     watch: {
@@ -42,7 +42,8 @@
       getCites() {
         this.$http.get('/citations.json?citation_object_type=TaxonNameClassification&source_id=' + this.sourceID).then(response => {
           // build the tabular list, extracting the
-          this.taxon_names_cites_list = response.body;
+          this.taxon_classification_cites_list = response.body;
+          this.$emit("taxon_classification_cites", this.taxon_classification_cites_list)
         })
       }
     },

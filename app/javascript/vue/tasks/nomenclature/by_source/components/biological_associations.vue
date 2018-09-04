@@ -2,7 +2,7 @@
   <div>
     <h2>Biological Associations</h2>
     <table>
-      <tr v-for="item in taxon_names_cites_list">
+      <tr v-for="item in biological_association_cites_list">
         <td><input type="text" :value="item.pages"></td>
         <td v-html="item.citation_object.object_tag" />
         <td><radial-annotator :global-id="item.citation_object.global_id" /></td>
@@ -29,7 +29,7 @@
     },
     data() {
       return {
-        taxon_names_cites_list: []
+        biological_association_cites_list: []
       }
     },
     watch: {
@@ -42,7 +42,8 @@
       getCites() {
         this.$http.get('/citations.json?citation_object_type=BiologicalAssociation&source_id=' + this.sourceID).then(response => {
           // build the tabular list, extracting the
-          this.taxon_names_cites_list = response.body;
+          this.biological_association_cites_list = response.body;
+          this.$emit("biological_association_cites", this.biological_association_cites_list)
         })
       }
     },

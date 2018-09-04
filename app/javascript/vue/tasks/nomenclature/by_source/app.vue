@@ -19,21 +19,39 @@
           <taxon-names
             :sourceID="sourceID"
             :newTaxon="newTaxonNameCitation"
+            @taxon_names_cites="taxon_names_cites=$event"
           />
-          <taxon-name-relationships :sourceID="sourceID" />
-          <taxon-name-classifications :sourceID="sourceID" />
-          <biological-associations :sourceID="sourceID" />
-          <asserted-distributions :sourceID="sourceID" />
+          <taxon-name-relationships
+            :sourceID="sourceID"
+            @taxon-relationship-cites="taxon_relationship_cites=$event"
+          />
+          <taxon-name-classifications
+            :sourceID="sourceID"
+            @taxon_classification_cites="taxon_classification_cites=$event"
+          />
+          <biological-associations
+            :sourceID="sourceID"
+            @biological_association_cites="biological_association_cites=$event"
+          />
+          <asserted-distributions
+            :sourceID="sourceID"
+            @distribution_cites="distribution_cites=$event"
+          />
         </div>
         <div class="second-column">
           <otus-match-proxy
             :sourceID="sourceID"
             :taxon_names_cites="taxon_names_cites"
-            :taxon_relation_cites="taxon_relation_cites"
+            :taxon_relationship_cites="taxon_relationship_cites"
             :taxon_classification_cites="taxon_classification_cites"
-            :biological_relations_cites="biological_relations_cites"
+            :biological_association_cites="biological_association_cites"
             :distribution_cites="distribution_cites"
+            :updateOtus="updateOtus"
           />
+          <button
+              class="button normal-input button-default"
+              type="submit"
+              @click="updateOtus=true">Update OTUs</button>
         </div>
       </div>
     </div>
@@ -72,11 +90,11 @@ data() {
         isLoading: false,
         newTaxonNameCitation: {},
         taxon_names_cites: [],
-        taxon_relation_cites: [],
+        taxon_relationship_cites: [],
         taxon_classification_cites: [],
-        biological_relations_cites: [],
+        biological_relation_cites: [],
         distribution_cites: [],
-
+        updateOtus: false
       }
     },
     // mounted: {
