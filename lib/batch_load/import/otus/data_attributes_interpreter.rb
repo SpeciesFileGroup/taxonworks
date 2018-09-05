@@ -35,8 +35,8 @@ module BatchLoad
         parse_result = BatchLoad::RowParse.new
         parse_result.objects[:otu] = []
         parse_result.objects[:data_attribute] = []
-        parse_result.objects[:citation] = [] if create_citation
-        parse_result.objects[:predicate] = [] unless import_klass
+        parse_result.objects[:citation] = [] # if create_citation
+        parse_result.objects[:predicate] = [] # unless import_klass
         @processed_rows[i] = parse_result
 
         begin # processing
@@ -44,7 +44,7 @@ module BatchLoad
           predicate = row['predicate']
           new_da_attributes = {value: row['value'], project_id: real_project_id}
           new_da_attributes[:citations_attributes] = [{source_id: @source.id,
-                                                       project_id: real_project_id}] if create_citation.present?
+                                                       project_id: real_project_id}] if create_citation
           ias = BatchLoad::ColumnResolver.data_attribute(row, type_select)
           if import_klass
             new_da_attributes[:import_predicate] = predicate
@@ -56,7 +56,6 @@ module BatchLoad
             #     ias.item.blank? ? new_predicate&.id : ias.item.controlled_vocabulary_term_id
           end
           new_da = att_klass.new(new_da_attributes)
-          new_da.predicate = new_cvt unless import_klass
 
           otus = BatchLoad::ColumnResolver.otu(row)
           find_name = row['otuname']
@@ -82,41 +81,42 @@ module BatchLoad
               end
             end
           end
-          if otus.multiple_matches?
-            parse_result.parse_errors << 'Can\'t resolve multiple found otus.'
-            otus.assign([otus.items.first])
-            # else
-            #   das.assign(new_da) # finished with the found das, prepare a new one to attach to a remaining otu
-          end
+          parse_result.parse_errors << 'Can\'t resolve multiple found otus.' if otus.multiple_matches?
           ias.assign(new_da) # finished with the found das, prepare a new one to attach to a remaining otu
-          cite = new_da.citations.first
-          cite.valid? if cite.present?
 
           parse_result.parsed = true
+          otu_valid = otus.item&.valid?
           # connect data_attribute to otu
           ias.item.attribute_subject = otus.item
           # connect citation to otu
-          if cite.present?
+          if create_citation
+            cite = new_da.citations.first
             cite.citation_object = otus.item
             # add citation
-            parse_result.objects[:citation].push(cite)
+            parse_result.objects[:citation].push(cite) if otu_valid
+            cite.valid?
             parse_result.parse_errors << cite.errors.messages if cite.errors.messages.any?
           end
-          # connect cvt to data_attribute
           unless import_klass
-            ias.item.controlled_vocabulary_term_id = new_cvt&.id
+            # connect cvt to data_attribute
+            ias.item.predicate = new_cvt
             # add predicate
-            parse_result.objects[:predicate].push(new_cvt) unless new_cvt.blank?
+            parse_result.objects[:predicate].push(new_cvt) if (new_cvt.present? && otu_valid)
             parse_result.parse_errors << new_cvt.errors.messages if new_cvt.errors.messages.any?
           end
-          # add otu
-          parse_result.objects[:otu].push(otus.item)
-          parse_result.parse_errors << otus.error_messages if otus.error_messages.any?
           # add data_attribute
-          parse_result.objects[:data_attribute].push(ias.item)
+          parse_result.objects[:data_attribute].push(ias.item) if otu_valid
           parse_result.parse_errors << ias.error_messages if ias.error_messages.any?
 
-          @total_data_lines += 1 if find_name.present?
+          if create_new_otu && otu_valid && new_da.valid?
+            # add otu
+            parse_result.objects[:otu].push(otus.item)
+          else # clear all objects
+            parse_result.objects.each_key { |kee| parse_result.objects[kee] = [] }
+          end
+          parse_result.parse_errors << otus.error_messages if otus.error_messages.any?
+
+          @total_data_lines += 1 # if find_name.present?
         rescue => _e
           raise(_e)
         end

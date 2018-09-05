@@ -66,36 +66,36 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
     context 'file provided' do
       it 'loads data for review' do
         names
-        bingo = import_2
+        bingo = import_2_im
         expect(bingo).to be_truthy
       end
 
       context 'finds some errors' do
         specify 'of \'predicate\' type' do
-          bingo = import_2
+          bingo = import_2_im
           expect(bingo.processed_rows[6].parse_errors.flatten).to include("No contents for 'Predicate' was provided.")
         end
 
         specify 'of \'value\' type' do
-          bingo = import_2
+          bingo = import_2_im
           expect(bingo.processed_rows[5].parse_errors.flatten).to include("No contents for 'Value' was provided.")
         end
 
         specify 'of \'multiple otu\' type' do
           names
           Otu.create(name: 'Aus bus')
-          bingo = import_2
+          bingo = import_2_im
           expect(bingo.processed_rows[1].parse_errors.flatten).to include("Can't resolve multiple found otus.")
         end
 
         specify 'of combination exists type' do
           names
-          # this one matches one in the import_2 file
+          # this one matches one in the import_2_im file
           an_otu = Otu.create(name: 'Aus bus')
           a_da = ImportAttribute.new(import_predicate: 'TotalSpecies',
                                      value: 22)
           an_otu.data_attributes << a_da
-          bingo = import_2
+          bingo = import_2_im
           expect(bingo.processed_rows[1].parse_errors.flatten)
               .to include('otu/predicate/value combination already exists.')
         end
@@ -103,7 +103,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
 
       context 'process non-error combinations' do
         let(:attribute_matches) {
-          # this one matches one in the import_2 file
+          # this one matches one in the import_2_im file
           an_otu = Otu.create(name: 'Aus bus')
           a_da = ImportAttribute.new(import_predicate: 'TotalSpecies',
                                      value: 22)
@@ -121,7 +121,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
             names # provides one otu Aus bus, without data_attribute
             attribute_matches # provides multiple matching attributes and ots
             start # check object count
-            bingo = import_2
+            bingo = import_2_im
             bingo.create
             expect(Otu.count).to eq(start[:otus] + 4)
           end
@@ -130,7 +130,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
             names # provides one otu Aus bus, without data_attribute
             attribute_matches # provides multiple matching attributes and ots
             start # check object count
-            bingo = import_2
+            bingo = import_2_im
             bingo.create
             expect(ImportAttribute.count).to eq(start[:das] + 4)
           end
@@ -144,9 +144,9 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
       context 'otu count' do
         it 'loads reviewed data' do
           names
-          bingo = import_2
+          bingo = import_2_im
           bingo.create
-          # names creates 7 otus, and import_2 finds one (not added), four new ones (two were not saved because of
+          # names creates 7 otus, and import_2_im finds one (not added), four new ones (two were not saved because of
           # errors in predicate or value)
           expect(Otu.count).to eq(11)
         end
@@ -155,13 +155,13 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
       context 'data_attribute count' do
         it 'loads reviewed data' do
           names
-          bingo = import_2
+          bingo = import_2_im
           bingo.create
           expect(DataAttribute.count).to eq(5)
         end
 
         specify 'no otu creation attempted for error lines' do
-          bingo = import_2
+          bingo = import_2_im
           bingo.create
           expect(Otu.count).to eq(5)
         end
@@ -183,10 +183,10 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           otu.taxon_name = t_n
           start = DataAttribute.count
           otu.save
-          bingo = import_2
+          bingo = import_2_im
           bingo.create
           # one data attribute is created here,
-          # import_2 creates four data attributes directly by otu name,
+          # import_2_im creates four data attributes directly by otu name,
           # and one by reference to a taxon_name
           expect(DataAttribute.count).to eq(start + 5)
         end
@@ -206,10 +206,10 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           otu.taxon_name = t_n
           otu.save
           start = Otu.count
-          bingo = import_2
+          bingo = import_2_im
           bingo.create
           # one data attribute is created here,
-          # import_2 creates four data attributes directly by otu name,
+          # import_2_im creates four data attributes directly by otu name,
           # and one by reference to a taxon_name
           expect(Otu.count).to eq(start + 3)
         end
@@ -237,7 +237,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
 
       context 'source id' do
         specify 'is specified' do
-          bingo = import_2
+          bingo = import_2_im
           bingo.create
           expect(Citation.count).to eq(5)
         end
@@ -317,7 +317,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           end
 
           specify '#valid_objects' do
-            expect(import_2_in.valid_objects.count).to eq(7)
+            expect(import_2_in.valid_objects.count).to eq(19)
           end
 
           specify '#successful_rows' do
@@ -325,7 +325,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           end
 
           specify '#total_records_created' do
-            expect(import_2_in.total_records_created).to eq(7)
+            expect(import_2_in.total_records_created).to eq(19)
           end
         end
       end
@@ -339,7 +339,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           end
 
           specify '#valid_objects' do
-            expect(import_2_im.valid_objects.count).to eq(7)
+            expect(import_2_im.valid_objects.count).to eq(15)
           end
 
           specify '#successful_rows' do
@@ -347,7 +347,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           end
 
           specify '#total_records_created' do
-            expect(import_2_im.total_records_created).to eq(7)
+            expect(import_2_im.total_records_created).to eq(15)
           end
         end
       end
