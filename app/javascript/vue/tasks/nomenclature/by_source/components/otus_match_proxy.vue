@@ -82,7 +82,7 @@
       getOtus(citation_object_type) {
       // iterate through all citation object types to rebuild this list
       //   this.otu_names_cites_list = [];
-      //   this.getCites();
+        this.getCites();
         this.taxon_names_cites.forEach(this.addCite);
         this.taxon_relationship_cites.forEach(this.addCite);
         this.taxon_classification_cites.forEach(this.addCite);
