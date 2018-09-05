@@ -44,7 +44,7 @@
         type: Array,
         default: [],
       },
-      biological_associations_cites: {
+      biological_association_cites: {
         type: Array,
         default: [],
       },
@@ -67,7 +67,7 @@
         this.getCites();
       },
       updateOtus() {
-        this.getOtus()
+        this.getOtus();
       }
     },
 
@@ -76,12 +76,13 @@
         this.$http.get('/citations.json?citation_object_type=Otu&source_id=' + this.sourceID).then(response => {
           // citations currently until otu endpoint ready
           this.otu_names_cites_list = response.body;
+          this.$emit("arm_button", false)
         })
       },
       getOtus(citation_object_type) {
       // iterate through all citation object types to rebuild this list
-        this.otu_names_cites_list = {};
-        this.getCites();
+      //   this.otu_names_cites_list = [];
+      //   this.getCites();
         this.taxon_names_cites.forEach(this.addCite);
         this.taxon_relationship_cites.forEach(this.addCite);
         this.taxon_classification_cites.forEach(this.addCite);

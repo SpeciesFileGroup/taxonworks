@@ -23,7 +23,7 @@
           />
           <taxon-name-relationships
             :sourceID="sourceID"
-            @taxon-relationship-cites="taxon_relationship_cites=$event"
+            @taxon_relationship_cites="taxon_relationship_cites=$event"
           />
           <taxon-name-classifications
             :sourceID="sourceID"
@@ -47,11 +47,12 @@
             :biological_association_cites="biological_association_cites"
             :distribution_cites="distribution_cites"
             :updateOtus="updateOtus"
+            @armButton="updateOtus=false"
           />
           <button
               class="button normal-input button-default"
               type="submit"
-              @click="updateOtus=true">Update OTUs</button>
+              @click="enableButton()">Update OTUs</button>
         </div>
       </div>
     </div>
@@ -92,11 +93,16 @@ data() {
         taxon_names_cites: [],
         taxon_relationship_cites: [],
         taxon_classification_cites: [],
-        biological_relation_cites: [],
+        biological_association_cites: [],
         distribution_cites: [],
         updateOtus: false
       }
     },
+    methods: {
+      enableButton() {
+        this.updateOtus = true;
+      }
+    }
     // mounted: {
     //
     // }
