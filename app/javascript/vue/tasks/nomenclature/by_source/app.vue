@@ -47,12 +47,8 @@
             :biological_association_cites="biological_association_cites"
             :distribution_cites="distribution_cites"
             :updateOtus="updateOtus"
-            @armButton="updateOtus=false"
+            @updateEnd="updateOtus=false"
           />
-          <button
-              class="button normal-input button-default"
-              type="submit"
-              @click="enableButton()">Update OTUs</button>
         </div>
       </div>
     </div>
@@ -96,6 +92,23 @@ data() {
         biological_association_cites: [],
         distribution_cites: [],
         updateOtus: false
+      }
+    },
+    watch: {
+      taxon_names_cites() {
+        this.updateOtus = true
+      },
+      taxon_relationship_cites() {
+        this.updateOtus = true
+      },
+      taxon_classification_cites() {
+        this.updateOtus = true
+      },
+      biological_association_cites() {
+        this.updateOtus = true
+      },
+      distribution_cites() {
+        this.updateOtus = true
       }
     },
     methods: {

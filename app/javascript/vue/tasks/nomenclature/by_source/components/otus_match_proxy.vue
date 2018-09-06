@@ -77,8 +77,7 @@
           this.$http.get('/citations.json?citation_object_type=Otu&source_id=' + this.sourceID).then(response => {
             // citations currently until otu endpoint ready
             this.otu_names_cites_list = response.body;
-            this.$emit("arm_button", false)
-            resolve(response.body)
+            resolve(response.body);
           })
         })
       },
@@ -91,6 +90,7 @@
           this.taxon_classification_cites.forEach(this.addCite);
           this.biological_association_cites.forEach(this.addCite);
           this.distribution_cites.forEach(this.addCite);
+          this.$emit("updateEnd", false);
         });
       },
       addCite(cite) {
