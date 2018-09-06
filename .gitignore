@@ -36,8 +36,6 @@ config/initializers/vendor/better_errors.rb
 /.bundle
 /bundle_bin
 
-index.html
-
 .ruby-version
 
 /bin/bundle
