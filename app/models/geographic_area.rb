@@ -419,21 +419,23 @@ class GeographicArea < ApplicationRecord
   def self.select_optimized(user_id, project_id, target = 'CollectingEvent')
 
     h = {
-      quick:    [],
+      quick: [],
       pinboard: GeographicArea.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a
     }
 
     case target
-      when 'CollectingEvent'
-        h[:recent] = GeographicArea.joins(:collecting_events).where(collecting_events: {project_id: project_id}).
-          used_recently('CollectingEvent').
-          limit(10).distinct.to_a
-      when 'AssertedDistribution'
-        h[:recent] = GeographicArea.joins(:asserted_distributions).
-          where(asserted_distributions: {project_id: project_id}).
-          used_recently('AssertedDistribution').
-          limit(10).distinct.to_a
+    when 'CollectingEvent'
+      h[:recent] = GeographicArea.joins(:collecting_events).where(collecting_events: {project_id: project_id}).
+        used_recently('CollectingEvent').
+        limit(10).distinct.to_a
+    when 'AssertedDistribution'
+      h[:recent] = GeographicArea.joins(:asserted_distributions).
+        where(asserted_distributions: {project_id: project_id}).
+        used_recently('AssertedDistribution').
+        limit(10).distinct.to_a
     end
+
+    h[:recent] ||= []
 
     h[:quick] = (GeographicArea.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a + h[:recent][0..3]).uniq
     h
