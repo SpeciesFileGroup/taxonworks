@@ -1,15 +1,7 @@
 <template>
   <div>
     <h2>OTUs by match or proxy</h2>
-    <table>
-      <tr><th>pages</th><th>otu</th><th>radial</th><th>otu</th></tr>
-      <tr v-for="item in otu_names_cites_list">
-        <td><input type="text" :value="item.pages"></td>
-        <td v-html="item.citation_object.object_tag" />
-        <td><radial-annotator :global-id="item.citation_object.global_id" /></td>
-        <td><otu-radial :taxon-id="item.citation_object_id" :redirect="false" /></td>
-      </tr>
-    </table>
+    <table-component :list="otu_names_cites_list"/>
   </div>
 </template>
 <script>
@@ -19,8 +11,11 @@
 
   import RadialAnnotator from '../../../../components/annotator/annotator.vue'
   import OtuRadial from '../../../../components/otu/otu.vue'
+  import TableComponent from './table/table.vue'
+
   export default {
     components: {
+      TableComponent,
       RadialAnnotator,
       OtuRadial
     },
