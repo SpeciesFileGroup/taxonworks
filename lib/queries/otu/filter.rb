@@ -4,71 +4,62 @@ module Queries
 
     # Query variables
     attr_accessor :geographic_area_ids, :shape
-    attr_accessor :nomen_id, :descendants, :rank_class
+    attr_accessor :descendants, :rank_class
     attr_accessor :author_ids, :and_or_select
-    attr_accessor :verbatim_author_string
 
-    attr_accessor :taxon_name_id, :taxon_name_ids, :otu_id, :otu_ids
+    attr_accessor :verbatim_author # was verbatim_author_string
+    attr_accessor :taxon_name_id, :taxon_name_ids, :otu_id, :otu_ids, :biological_association_ids
 
     # @param [Hash] params
     def initialize(params)
       params.reject! { |_k, v| v.blank? }
 
-      @params = params
+      @and_or_select  = params[:and_or_select]
+
       @geographic_area_ids = params[:geographic_area_ids]
       @shape = params[:drawn_area_shape]
       @author_ids = params[:author_ids]
-      @verbatim_author_string = params[:verbatim_author_string]
-      @and_or_select  = params[:and_or_select]
-      @nomen_id = params[:nomen_id]
+      @verbatim_author = params[:verbatim_author]
+
       @rank_class = params[:rank_class]
       @descendants = params[:descendants]
-    
+
       @taxon_name_id = params[:taxon_name_id]
       @taxon_name_ids = params[:taxon_name_ids] || []
       @otu_id = params[:otu_id]
       @otu_ids = params[:otu_ids] || []
+
+      @biological_association_ids = params[:biological_association_ids] || []
     end
 
-    # @return [ActiveRecord::Relation, nil]
-    def and_clauses
-      clauses = [
-        matching_taxon_name_ids,
-        matching_otu_ids,
-        matching_citation_object_type,
-        matching_citation_object_id,
-        matching_source_id
-
-
-        # Queries::Annotator.annotator_params(options, ::Citation),
-      ].compact
-
-      return nil if clauses.empty?
-
-      a = clauses.shift
-      clauses.each do |b|
-        a = a.and(b)
-      end
-      a
+    def table
+      ::Otu.arel_table
     end
 
+    def biological_associations_table
+      ::BiologicalAssociation.arel_table
+    end
 
     def matching_otu_ids
       a = ids_for_otu 
-      a.empty? ? nil : table[:otu_id].eq_any(a)      
+      a.empty? ? nil : table[:id].eq_any(a)      
     end
 
+    # @return [Array]
+    #   of otu_id
     def ids_for_otu
-      ([otu_id] + otu_ids).uniq
+      ([otu_id] + otu_ids).compact.uniq
     end
 
     def matching_taxon_name_ids
       a = ids_for_taxon_name 
-      a.empty? ? nil : table[:taxon_name_id].eq_any(a)      
+      a.empty? ? nil : table[:taxon_name_id].eq_any(a)
     end
 
+    # @return [Array]
+    #  of taxon_name.id
     def ids_for_taxon_name
-      ([taxon_name_id] + taxon_name_ids).uniq
+      ([taxon_name_id] + taxon_name_ids).compact.uniq
     end
 
     # @return [Boolean]
@@ -79,21 +70,21 @@ module Queries
     # @return [Boolean]
     def author_set?
       case author_ids
-        when nil
-          false
-        else
-          author_ids.count > 0
+      when nil
+        false
+      else
+        author_ids.count > 0
       end
     end
 
     # @return [Boolean]
     def nomen_set?
-      !nomen_id.nil?
+      !taxon_name_id.nil?
     end
 
     # @return [Boolean]
     def verbatim_set?
-      !verbatim_author_string.blank?
+      !verbatim_author.blank?
     end
 
     # @return [Boolean]
@@ -106,15 +97,25 @@ module Queries
       !descendants.nil?
     end
 
-=begin
-      1. find all geographic_items in area(s)/shape
-      2. find all georeferences which are associated with result #1
-      3. find all collecting_events which are associated with result #2
-      4. find all collection_objects which are associated with result #3
-      5. find all otus which are associated with result #4
-=end
+    # @return [Scope]
+    def result
+      return ::Otu.none if applied_scopes.empty?
+      a = ::Otu.all
+      applied_scopes.each do |scope|
+        a = a.merge(self.send(scope))
+      end
+      a
+    end
+
     # @return [Scope]
     # This could be simplified if the AJAX selector returned a geographic_item_id rather than a GeographicAreaId
+    #n
+    # 1. find all geographic_items in area(s)/shape
+    # 2. find all georeferences which are associated with result #1
+    # 3. find all collecting_events which are associated with result #2
+    # 4. find all collection_objects which are associated with result #3
+    # 5. find all otus which are associated with result #4
+    # 
     def geographic_area_scope
       target_geographic_item_ids = []
 
@@ -123,10 +124,12 @@ module Queries
           GeographicArea.joins(:geographic_items).find(ga_id).default_geographic_item.id
         )
       end
-      r42i = CollectionObject.joins(:geographic_items)
-               .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
-               .distinct
-      ::Otu.joins(:collection_objects).where(collection_objects: {id: r42i})
+
+      a = CollectionObject.joins(:geographic_items)
+        .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
+        .distinct
+
+      ::Otu.joins(:collection_objects).where(collection_objects: {id: a})
     end
 
     # @return [Scope]
@@ -137,7 +140,7 @@ module Queries
 
     # @return [Scope]
     def nomen_scope
-      scope1 = ::Otu.joins(:taxon_name).where(taxon_name_id: nomen_id)
+      scope1 = ::Otu.joins(:taxon_name).where(taxon_name_id: taxon_name_id)
       scope  = scope1
       if scope1.any?
         scope = ::Otu.self_and_descendants_of(scope1.first.id, rank_class) if with_descendants?
@@ -147,59 +150,52 @@ module Queries
 
     # @return [Scope]
     def verbatim_scope
-      ::Otu.joins(:taxon_name).where('taxon_names.cached_author_year ILIKE ?', "%#{verbatim_author_string}%")
+      ::Otu.joins(:taxon_name).where('taxon_names.cached_author_year ILIKE ?', "%#{verbatim_author}%")
     end
 
-    # rubocop:disable Metrics/MethodLength
-=begin
-      1. find all selected taxon name authors
-      2. find all taxon_names which are associated with result #1
-      3. find all otus which are associated with result #2
-=end
     # @return [Scope]
+    #   1. find all selected taxon name authors
+    #   2. find all taxon_names which are associated with result #1
+    #   3. find all otus which are associated with result #2
     def author_scope
+
+      r = ::Role.arel_table
+
       case and_or_select
-        when '_or_', nil
+      when '_or_', nil
 
-          p = ::Person.arel_table
+        c = r[:person_id].eq_any(author_ids).and(r[:type].eq('TaxonNameAuthor'))
+        ::Otu.joins(taxon_name: [:roles]).where(c.to_sql).distinct
 
-          c = p[:id].eq(author_ids.shift)
-         author_ids.each do |i|
-            c = c.or(p[:id].eq(i))
-          end
+      when '_and_'
+        table_alias = 'tna' # alias for 'TaxonNameAuthor'
 
-          ::Otu.joins(taxon_name: [roles: [:person]]).where(roles: {type: 'TaxonNameAuthor'}).where(c.to_sql).distinct
+        o = ::Otu.arel_table
+        t = ::TaxonName.arel_table
 
-        when '_and_'
-          table_alias = 'tna' # alias for 'TaxonNameAuthor'
-
-          o = ::Otu.arel_table
-          t = ::TaxonName.arel_table
-          r = ::Role.arel_table
-
-          b = o.project(o[Arel.star]).from(o)
-                .join(t)
-                .on(t['id'].eq(o['taxon_name_id']))
-                .join(r).on(
+        b = o.project(o[Arel.star]).from(o)
+          .join(t)
+          .on(t['id'].eq(o['taxon_name_id']))
+          .join(r).on(
             r['role_object_id'].eq(t['id']).and(
               r['type'].eq('TaxonNameAuthor')
             )
+        )
+
+        author_ids.each_with_index do |person_id, i|
+          x = r.alias("#{table_alias}_#{i}")
+          b = b.join(x).on(
+            x['role_object_id'].eq(t['id']),
+            x['type'].eq('TaxonNameAuthor'),
+            x['person_id'].eq(person_id)
           )
+        end
 
-          author_ids.each_with_index do |person_id, i|
-            x = r.alias("#{table_alias}_#{i}")
-            b = b.join(x).on(
-              x['role_object_id'].eq(t['id']),
-              x['type'].eq('TaxonNameAuthor'),
-              x['person_id'].eq(person_id)
-            )
-          end
+        b = b.group(o['id']).having(r['person_id'].count.gteq(author_ids.count))
+        b = b.as("z_#{table_alias}")
 
-          b = b.group(o['id']).having(r['person_id'].count.gteq(author_ids.count))
-          b = b.as("z_#{table_alias}")
-
-          # noinspection RubyResolve
-          ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
+        # noinspection RubyResolve
+        ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
       end
     end
     # rubocop:enable Metrics/MethodLength
@@ -225,5 +221,97 @@ module Queries
       end
       a
     end
+
+    def matching_biological_association_ids 
+      return nil if biological_association_ids.empty?
+      o = table
+      ba = biological_associations_table
+
+      a = o.alias("a_") 
+      b = o.project(a[Arel.star]).from(a)
+
+      c = ba.alias('b1')
+      d = ba.alias('b2')
+
+      b = b.join(c, Arel::Nodes::OuterJoin)
+        .on(
+          a[:id].eq(c[:biological_association_subject_id])
+        .and(c[:biological_association_subject_type].eq('Otu'))
+      )
+
+      b = b.join(d, Arel::Nodes::OuterJoin)
+        .on(
+          a[:id].eq(d[:biological_association_object_id])
+        .and(d[:biological_association_object_type].eq('Otu'))
+      )
+
+      e = c[:biological_association_subject_id].not_eq(nil)
+      f = d[:biological_association_object_id].not_eq(nil)
+
+      g = c[:id].eq_any(biological_association_ids)
+      h = d[:id].eq_any(biological_association_ids)
+
+      b = b.where(e.or(f).and(g.or(h)))
+      b = b.group(a['id'])
+      b = b.as('z_')
+
+      ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
+
+    end
+
+    # @return [ActiveRecord::Relation, nil]
+    def and_clauses
+      clauses = [
+        matching_taxon_name_ids,
+        matching_otu_ids,
+
+        # matching_verbatim_author
+        # Queries::Annotator.annotator_params(options, ::Citation),
+      ].compact
+
+    
+      return nil if clauses.empty?
+
+      a = clauses.shift
+      clauses.each do |b|
+        a = a.and(b)
+      end
+      a
+    end
+
+    def merge_clauses
+
+      clauses = [
+        matching_biological_association_ids,
+
+        # matching_verbatim_author
+        # Queries::Annotator.annotator_params(options, ::Citation),
+      ].compact
+
+
+      return nil if clauses.empty?
+
+      a = clauses.shift
+      clauses.each do |b|
+        a = a.merge(b)
+      end
+      a
+    end
+
+    # @return [ActiveRecord::Relation]
+    def all
+      a = and_clauses
+      b = merge_clauses
+      if a && b
+        b.where(a).distinct
+      elsif a
+        ::Otu.where(a).distinct
+      elsif b
+        b.distinct      
+      else
+        ::Otu.none
+      end
+    end
+
   end
 end
