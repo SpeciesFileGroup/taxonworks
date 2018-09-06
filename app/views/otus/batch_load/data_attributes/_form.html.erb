@@ -5,11 +5,26 @@
     <%= file_field_tag(:file, id: 'da_file') -%>
   </div>
   <p>
-    for <%= radio_button_tag(:type_select, 'internal', true) %> Internal
-    <%= radio_button_tag(:type_select, 'import', false) %> Import attributes<br>
-    <%= check_box_tag('create_new_otu', nil, true) %>create new OTUs for unmatched OtuName<br>
-    <%= check_box_tag('create_new_predicate', nil, true) %>create new Predicate for unmatched Predicate<br>
-    <%= text_field_tag('source_id', nil, placeholder: 'Enter source id to create a citation...',
+    for
+    <%= radio_button_tag(:type_select,
+                         'internal',
+                         @result.blank? ? true : @result.type_select.start_with?('in'),
+                         {disabled: @result.present?}) %> Internal
+    <%= radio_button_tag(:type_select,
+                         'import',
+                         @result.blank? ? false : @result.type_select.start_with?('im'),
+                         {disabled: @result.present?}) %> Import attributes<br>
+    <%= check_box_tag('create_new_otu',
+                      nil,
+                      @result.blank? ? true : @result.create_new_otu,
+                      {disabled: @result.present?}) %>create new OTUs for unmatched OtuName<br>
+    <%= check_box_tag('create_new_predicate',
+                      nil,
+                      @result.blank? ? true : @result.create_new_predicate,
+                      {disabled: @result.present?}) %>create new Predicate for unmatched Predicate<br>
+    <%= text_field_tag('source_id',
+                       @result.blank? ? nil : @result.source&.id,
+                       placeholder: 'Enter source id to create a citation...',
                        size: 26) %>
   </p>
 

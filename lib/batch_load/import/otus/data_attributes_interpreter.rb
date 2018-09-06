@@ -2,8 +2,20 @@
 module BatchLoad
   class Import::Otus::DataAttributesInterpreter < BatchLoad::Import
 
-    attr_accessor :create_new_otu, :create_citation, :create_new_predicate,
-                  :type_select, :source
+    # Whether or not to create unfound OTUs
+    attr_accessor :create_new_otu
+
+    # Whether or not to create unfound Predicates
+    attr_accessor :create_new_predicate
+
+    # Whether or not to create citationss
+    attr_accessor :create_citation
+
+    # Import or Internal Attribute
+    attr_accessor :type_select
+
+    # Sourde for citation
+    attr_accessor :source
 
     SAVE_ORDER = [:predicate, :otu, :data_attribute, :citation]
 
