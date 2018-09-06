@@ -2,6 +2,8 @@ import setContainer from './Container/SetContainer'
 import setPreferences from './setPreferences'
 import setPreparationType from './setPreparationType'
 
+import resetStore from './resetStore'
+
 import setBiocurations from './setBiocurations'
 import addBiocuration from './addBiocuration'
 import removeBiocuration from './removeBiocuration'
@@ -84,6 +86,8 @@ import setTaxonDeterminationRoles from './TaxonDetermination/setTaxonDeterminati
 const MutationNames = {
   SetContainer: 'setContainer',
   SetPreferences: 'setPreferences',
+
+  ResetStore: 'resetStore',
 
   SetPreparationType: 'setPreparationType',
 
@@ -172,6 +176,7 @@ const MutationFunctions = {
   [MutationNames.SetPreferences]: setPreferences,
 
   [MutationNames.SetPreparationType]: setPreparationType,
+  [MutationNames.ResetStore]: resetStore,
 
   [MutationNames.SetBiocurations]: setBiocurations,
   [MutationNames.AddBiocuration]: addBiocuration,

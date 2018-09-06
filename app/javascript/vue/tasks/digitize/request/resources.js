@@ -41,6 +41,14 @@ const GetRepositorySmartSelector = function () {
   return ajaxCall('get', `/repositories/select_options`)
 }
 
+const GetCollectorsSmartSelector = function () {
+  return ajaxCall('get', `/collectors/select_options`)
+}
+
+const GetGeographicSmartSelector = function () {
+  return ajaxCall('get', `/geographic_areas/select_options`)
+}
+
 const GetTaxonDeterminationCO = function (id) {
   return ajaxCall('get', `/taxon_determinations.json?biological_collection_object_ids[]=${id}`)
 }
@@ -180,7 +188,9 @@ const DestroyCollectionObject = function (id) {
 export {
   GetUserPreferences,
   GetOtu,
+  GetCollectorsSmartSelector,
   GetRepositorySmartSelector,
+  GetGeographicSmartSelector,
   GetTaxonDeterminationCO,
   GetTypeMaterialCO,
   GetTypes,

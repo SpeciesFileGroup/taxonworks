@@ -120,5 +120,6 @@ function newStore () {
 }
 
 module.exports = {
-  newStore
+  newStore,
+  makeInitialState
 }
