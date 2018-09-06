@@ -9,7 +9,7 @@
       param="term"
       label="label"
       placeholder="search for a Source"
-      @getItem="sourceID = $event.id; getSource()"
+      @getItem="getNewSource($event)"
     />
   </div>
 </template>
@@ -27,15 +27,11 @@
       return {
         sourceText: 'Invalid source or no source supplied'
         ,
-        sourceID: undefined
+        sourceID: undefined,
+        source: {}
       }
     },
   methods: {
-    getRequestSource() {
-      let pieces = window.location.href.split('/');
-      this.sourceID = pieces[pieces.length - 1];
-      getSource();
-    },
     getSource() {
       if (this.sourceID) {
         this.$http.get('/sources/' + this.sourceID + '.json').then(response => {
@@ -45,8 +41,11 @@
       }
     },
     getNewSource(event) {
-      this.sourceID = event.id;
-      getSource();
+      this.source = event;
+      this.sourceID = this.source.id.toString();  // propped everywhere as string
+      this.sourceText = this.source.label;
+      // this.getSource();  // why do an ajax when we already got the information?
+      this.$emit('sourceID', this.sourceID);  // since we avoided the AJAX
     },
     getSelectOptions(onModel) {
       this.$http.get(this.selectOptionsUrl, {params: {klass: this.onModel}}).then(response => {
