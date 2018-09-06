@@ -58,7 +58,11 @@ module BatchLoad::BatchLoadHelper
   end
 
   def batch_otu_name_td(otu)
-    content_tag(:td, "'#{otu.name}'" + (otu.new_record? ? '<br>(New)' : '').html_safe) if otu.present?
+    if otu.present?
+      content_tag(:td, "'#{otu.name}'" + (otu.new_record? ? '<br>(New)' : '').html_safe)
+    else
+      ('<td></td>').html_safe
+    end
   end
 
 end
