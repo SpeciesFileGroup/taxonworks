@@ -16,7 +16,7 @@ gem 'redis', '~> 4.0.0'
 
 # System
 gem 'thor', '~> 0.19.4' # See https://github.com/rails/rails/issues/27229
-gem 'rubyzip', '~> 1.2.1'
+gem 'rubyzip', '~> 1.2.2'
 gem 'daemons', '~> 1.2.6'
 gem 'tzinfo-data', '~> 1.2018.4' 
 gem 'psych', '~> 3.0.2' 
@@ -61,7 +61,7 @@ gem 'jquery-rails', '~> 4.3.3'
 gem 'jquery-ui-rails', '~> 6.0.1'
 gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
-gem 'turbolinks', '~> 5.1.0'
+gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
 
 # BibTeX handling
@@ -84,7 +84,7 @@ gem 'redcarpet', '~> 3.4'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '0.4.0'
-gem 'sqed', '0.4.1'
+gem 'sqed', '0.4.2'
 gem 'dwc-archive', '~> 0.9.11'
 gem 'biodiversity', '~> 3.5.0'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
@@ -120,7 +120,7 @@ group :development do
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.4'
   gem 'guard-rspec', '~> 4.7.3', require: false
-  gem 'parallel_tests', '~> 2.22.0', require: false
+  gem 'parallel_tests', '~> 2.22.1', require: false
   gem 'web-console', '~> 3.6.2'
   gem 'rubocop', '~> 0.58.2'
   gem 'brakeman', '~> 4.3.0', require: false
