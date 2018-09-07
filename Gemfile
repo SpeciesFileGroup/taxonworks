@@ -123,6 +123,7 @@ group :development do
   gem 'parallel_tests', '~> 2.22.1', require: false
   gem 'web-console', '~> 3.7.0'
   gem 'rubocop', '~> 0.58.2'
+  gem 'rubocop-rspec'
   gem 'brakeman', '~> 4.3.0', require: false
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'
 end

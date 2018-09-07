@@ -5,7 +5,7 @@ end
 
 FactoryBot.define do
   factory :hybrid, traits: [:housekeeping] do
-    name nil
+    name { nil }
     factory :valid_hybrid, traits: [:parent_is_root] do
 
       after(:create) do |hybrid|
@@ -16,9 +16,9 @@ FactoryBot.define do
         r2 = TaxonNameRelationship::Hybrid.create( subject_taxon_name: b, object_taxon_name: hybrid )
       end 
     
-      year_of_publication 1850
-      verbatim_author 'Say'
-      rank_class Ranks.lookup(:icn, 'species')
+      year_of_publication { 1850 }
+      verbatim_author { 'Say' }
+      rank_class { Ranks.lookup(:icn, 'species') }
     end
   end
 end

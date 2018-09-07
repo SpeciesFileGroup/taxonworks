@@ -1,14 +1,14 @@
 FactoryBot.define do
   factory :role, traits: [:creator_and_updater] do
     factory :valid_role do
-      type 'SourceAuthor'
+      type { 'SourceAuthor' }
       association :person, factory: :valid_person
       association :role_object, factory: :valid_source_bibtex
     end
 
     # This is a stub for Project warning/specs
     factory :valid_project_role do
-      type 'Collector' 
+      type { 'Collector' } 
       association :person, factory: :valid_person
       association :role_object, factory: :valid_collecting_event
     end
