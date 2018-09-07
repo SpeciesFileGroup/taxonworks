@@ -74,7 +74,7 @@ gem 'ref2bibtex', '~> 0.2.2'
 gem 'pdf-reader', '~> 2.1'
 
 # UI/UX
-gem 'chartkick', '~> 2.3.2'
+gem 'chartkick', '~> 3.0.1'
 gem 'groupdate', '~> 4.0.1'
 gem 'dropzonejs-rails', '~> 0.8.1'
 gem 'kaminari', '~> 1.1.1'
