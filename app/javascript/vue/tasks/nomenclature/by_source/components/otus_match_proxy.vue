@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>OTUs by match or proxy</h2>
-    <table-component :list="otu_names_cites_list"/>
+    <otu-table-component :list="otu_names_cites_list"/>
   </div>
 </template>
 <script>
@@ -11,11 +11,11 @@
 
   import RadialAnnotator from '../../../../components/annotator/annotator.vue'
   import OtuRadial from '../../../../components/otu/otu.vue'
-  import TableComponent from './table/table.vue'
+  import OtuTableComponent from './tables/table.vue'
 
   export default {
     components: {
-      TableComponent,
+      OtuTableComponent,
       RadialAnnotator,
       OtuRadial
     },
@@ -59,7 +59,8 @@
     },
     watch: {
       sourceID() {
-        this.getCites();
+        // this.getCites();
+        this.getSourceOtus();
       },
       updateOtus() {
         this.getOtus();
@@ -68,6 +69,15 @@
 
     methods: {
       getCites() {
+        return new Promise((resolve, reject) => {
+          this.$http.get('/citations.json?citation_object_type=Otu&source_id=' + this.sourceID).then(response => {
+            // citations currently until otu endpoint ready
+            this.otu_names_cites_list = response.body;
+            resolve(response.body);
+          })
+        })
+      },
+      getSourceOtus() {
         return new Promise((resolve, reject) => {
           this.$http.get('/citations.json?citation_object_type=Otu&source_id=' + this.sourceID).then(response => {
             // citations currently until otu endpoint ready
