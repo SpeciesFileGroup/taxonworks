@@ -24,7 +24,7 @@
       OtuRadial
     },
     props: {
-      citation: {
+      otu: {
         type: Object,
         required: true
       }

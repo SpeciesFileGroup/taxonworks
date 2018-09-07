@@ -11,7 +11,7 @@
 
   import RadialAnnotator from '../../../../components/annotator/annotator.vue'
   import OtuRadial from '../../../../components/otu/otu.vue'
-  import OtuTableComponent from './tables/table.vue'
+  import OtuTableComponent from './tables/otu_table.vue'
 
   export default {
     components: {
@@ -54,7 +54,8 @@
     },
     data() {
       return {
-        otu_names_cites_list: []
+        otu_names_cites_list: [],
+        otu_list: []
       }
     },
     watch: {
@@ -81,8 +82,13 @@
         return new Promise((resolve, reject) => {
           this.$http.get('/citations.json?citation_object_type=Otu&source_id=' + this.sourceID).then(response => {
             // citations currently until otu endpoint ready
-            this.otu_names_cites_list = response.body;
+            this.otu_list = response.body;
             resolve(response.body);
+          });
+          let nameIDs = this.processNames();
+          let params = {taxon_name_ids:[], nameIDs};
+          this.$http.get('/otus.json', params).then(response => {
+            this.otu_names_cites_list = response.body;
           })
         })
       },
@@ -100,6 +106,14 @@
       },
       addCite(cite) {
         this.otu_names_cites_list.push(cite)
+      },
+      processNames(list) {
+        // list.forEach(getName)
+        let taxonNames = [];
+        for (item in list) {
+          taxonNames.push(item.taxon_name_id);
+        }
+        return taxonNames;
       }
     },
   }

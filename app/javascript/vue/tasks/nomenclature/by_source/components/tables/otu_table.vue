@@ -5,7 +5,7 @@
       <th>Radial</th>
       <th>Otu</th>
     </tr>
-    <row-components
+    <otu-row-component
         v-for="item in list"
         :otu="item"/>
   </table>
