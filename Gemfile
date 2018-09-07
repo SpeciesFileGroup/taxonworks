@@ -102,12 +102,12 @@ gem 'logic_tools'
 gem 'capistrano-npm', '~> 1.0.2'
 
 group :test, :development do
-  gem 'faker', '~> 1.8.7'
+  gem 'faker', '~> 1.9.1'
   gem 'rspec-rails', '~> 3.6'
   gem 'rspec-activemodel-mocks', '~> 1.0.3'
 #  gem 'inch', '~> 0.7.1', require: false, # security issue
   gem 'byebug', '~> 10.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
-  gem 'factory_bot_rails', '~> 4.10.0'
+  gem 'factory_bot_rails', '~> 4.11.0'
   gem 'selenium-webdriver', '~> 3.14'
   gem 'geckodriver-helper', '~> 0.21.0'
   gem 'prawn', '~> 2.2.2'
@@ -121,7 +121,7 @@ group :development do
   gem 'spring-commands-rspec', '~> 1.0.4'
   gem 'guard-rspec', '~> 4.7.3', require: false
   gem 'parallel_tests', '~> 2.22.1', require: false
-  gem 'web-console', '~> 3.6.2'
+  gem 'web-console', '~> 3.7.0'
   gem 'rubocop', '~> 0.58.2'
   gem 'brakeman', '~> 4.3.0', require: false
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'
