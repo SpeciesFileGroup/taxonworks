@@ -171,14 +171,27 @@ module BatchLoad
     def create
       @create_attempted = true
       if ready_to_create?
-        # TODO: (additional!?) enumerate order per klass for save off
-        sorted_processed_rows.each_value do |rp|
-          rp.objects.each_value do |objs|
-            objs.each do |o|
-              o.save
+
+        # TODO: DRY
+        if a = save_order
+          sorted_processed_rows.each_value do |rp|
+            a.each do |k|
+              rp.objects[k].each do |o|
+                o.save unless o.persisted?
+              end
+            end
+          end
+
+        else
+          sorted_processed_rows.each_value do |rp|
+            rp.objects.each_value do |objs|
+              objs.each do |o|
+                o.save
+              end
             end
           end
         end
+
       else
         @errors << "Import level #{import_level} has prevented creation." unless import_level_ok?
         @errors << 'CSV has not been processed.' unless processed?
@@ -230,6 +243,10 @@ module BatchLoad
     # return [Array] all objects (parsed records)
     def all_objects
       processed_rows.collect { |i, rp| rp.all_objects }.flatten
+    end
+    
+    def save_order
+      self.class.const_defined?('SAVE_ORDER') ? self.class::SAVE_ORDER : nil
     end
 
   end
