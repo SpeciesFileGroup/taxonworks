@@ -36,29 +36,29 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
                                                                              create_new_predicate: 'on',
                                                                              create_new_otu: '1')
   }
-  let(:import_3) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
-                                                                          user_id: user.id,
-                                                                          file: upload_file_2,
-                                                                          type_select: 'import',
-                                                                          create_new_otu: '1')
+  let(:import_no_new_predicate) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
+                                                                                         user_id: user.id,
+                                                                                         file: upload_file_2,
+                                                                                         type_select: 'import',
+                                                                                         create_new_otu: '1')
   }
-  let(:import_4) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
-                                                                          user_id: user.id,
-                                                                          file: upload_file_2,
-                                                                          type_select: 'import'
+  let(:import_no_source_id) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
+                                                                                     user_id: user.id,
+                                                                                     file: upload_file_2,
+                                                                                     type_select: 'import'
   )
   }
-  let(:import_5) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
-                                                                          user_id: user.id,
-                                                                          file: upload_file_2,
-                                                                          type_select: 'import',
-                                                                          source_id: source.id)
+  let(:import_no_new_otus) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
+                                                                                    user_id: user.id,
+                                                                                    file: upload_file_2,
+                                                                                    type_select: 'import',
+                                                                                    source_id: source.id)
   }
-  let(:import_6) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
-                                                                          user_id: user.id,
-                                                                          file: upload_file_2,
-                                                                          type_select: 'import',
-                                                                          create_new_otu: '1')
+  let(:import_create_unmatched_otus) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
+                                                                                              user_id: user.id,
+                                                                                              file: upload_file_2,
+                                                                                              type_select: 'import',
+                                                                                              create_new_otu: '1')
   }
 
   # rubocop:disable Rails/SaveBang
@@ -221,7 +221,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
         specify 'is true' do
           names
           start = Otu.count
-          bingo = import_6
+          bingo = import_create_unmatched_otus
           bingo.create
           expect(Otu.count).to eq(start + 4)
         end
@@ -229,9 +229,40 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
         specify 'is false' do
           names
           start = Otu.count
-          bingo = import_5
+          bingo = import_no_new_otus
           bingo.create
           expect(Otu.count).to eq(start)
+        end
+      end
+
+      context 'create unmatched predicates' do
+        let(:in_a) { DataAttribute.new(type: 'InternalAttribute',
+                                       controlled_vocabulary_term_id: predicate.id,
+                                       value: 'new data attribute for the otu',
+                                       project_id: project.id) }
+        let(:otu) { Otu.find_by_name('americana') }
+        let(:t_n) { FactoryBot.create(:valid_taxon_name, {name: 'Taxonmatchidae'}) }
+        let(:predicate) { FactoryBot.create(:valid_predicate, {name: 'Total Males'}) }
+
+        before do
+          names
+          otu.data_attributes << in_a
+          otu.taxon_name = t_n
+          otu.save
+        end
+
+        specify 'is true' do
+          start = Predicate.count
+          bingo = import_2_in
+          bingo.create
+          expect(Predicate.count).to eq(start + 1)
+        end
+
+        specify 'is false' do
+          start = Predicate.count
+          bingo = import_no_new_predicate
+          bingo.create
+          expect(Predicate.count).to eq(start)
         end
       end
 
@@ -243,7 +274,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
         end
 
         specify 'is not specified' do
-          bingo = import_4
+          bingo = import_no_source_id
           bingo.create
           expect(Citation.count).to eq(0)
         end

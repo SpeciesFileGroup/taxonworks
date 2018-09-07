@@ -19,7 +19,7 @@ module BatchLoad
 
     SAVE_ORDER = [:predicate, :otu, :data_attribute, :citation]
 
-# @param [Hash] args
+    # @param [Hash] args
     def initialize(**args)
       @create_new_otu = args.delete(:create_new_otu).present?
       @create_new_predicate = args.delete(:create_new_predicate).present?
@@ -30,9 +30,9 @@ module BatchLoad
       super(args)
     end
 
-# rubocop:disable Metrics/MethodLength
-# rubocop:disable Metrics/BlockNesting
-# @return [Integer] total data lines
+    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/BlockNesting
+    # @return [Integer] total data lines
     def build_da_for_otus
       @total_data_lines = 0
       i = 0
@@ -120,12 +120,8 @@ module BatchLoad
           parse_result.objects[:data_attribute].push(ias.item) if otu_valid
           parse_result.parse_errors << ias.error_messages if ias.error_messages.any?
 
-          if create_new_otu && otu_valid && new_da.valid?
-            # add otu
-            parse_result.objects[:otu].push(otus.item)
-          else # clear all objects
-            parse_result.objects.each_key { |kee| parse_result.objects[kee] = [] }
-          end
+          # add otu
+          parse_result.objects[:otu].push(otus.item) if otu_valid
           parse_result.parse_errors << otus.error_messages if otus.error_messages.any?
 
           @total_data_lines += 1 # if find_name.present?
@@ -137,48 +133,41 @@ module BatchLoad
       @total_lines = i
     end
 
-# rubocop:enable Metrics/MethodLength
-# Iterates in line order and attempts to save each record
-# @return [Boolean] true
+    # rubocop:enable Metrics/MethodLength
+    # Remove new objects which are not wanted, per args
+    # @return [Boolean] true
     def create
-      super
-      return
-      @create_attempted = true
-      if ready_to_create?
-        sorted_processed_rows.each_value do |processed_row|
-          otu = processed_row.objects[:otu].flatten.first
-          d_a = processed_row.objects[:data_attribute].flatten.first
-          cite = processed_row.objects[:citation].flatten.first
-          cvt = processed_row.objects[:predicate].flatten.first
-          unless otu.nil? or d_a.nil?
-            if d_a.valid? && otu.valid?
-              if otu.new_record?
-                otu.save if create_new_otu.present?
-              end
-              if create_citation
-                d_a.citations << cite
-              end
-              if cvt.present? && cvt.valid? && create_new_predicate
-                cvt.save
-              end
-              otu.data_attributes << d_a
-              otu
-            else
-              otu
+      sorted_processed_rows.each_value do |processed_row|
+        otu = processed_row.objects[:otu].first
+        d_a = processed_row.objects[:data_attribute].first
+        cvt = processed_row.objects[:predicate].first
+
+        if otu&.valid? && d_a&.valid?
+          if (not create_new_predicate)
+            if cvt&.new_record?
+              processed_row.objects[:predicate] = []
+              processed_row.objects[:data_attribute] = []
+              processed_row.objects[:citation] = []
             end
           end
+          if (not create_new_otu)
+            if otu&.new_record?
+              processed_row.objects[:otu] = []
+              processed_row.objects[:predicate] = []
+              processed_row.objects[:data_attribute] = []
+              processed_row.objects[:citation] = []
+            end
+          end
+        else  # wipe out all objects
+          processed_row.objects.each_key { |kee| processed_row.objects[kee] = [] }
         end
-      else
-        @errors << "Import level #{import_level} has prevented creation." unless import_level_ok?
-        @errors << 'CSV has not been processed.' unless processed?
-        @errors << 'One of user_id, project_id or file has not been provided.' unless valid?
       end
-      true
+      super
     end
 
-# rubocop:enable Metrics/BlockNesting
+    # rubocop:enable Metrics/BlockNesting
 
-# @return [Boolean] true if build process has run
+    # @return [Boolean] true if build process has run
     def build
       if valid?
         build_da_for_otus
