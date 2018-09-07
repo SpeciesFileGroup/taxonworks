@@ -1,10 +1,22 @@
 <template>
   <div class="presence-descriptor">
     <summary-view :descriptor="descriptor">
-      <label>
-        Present
-        <input type="checkbox" :checked="isPresent" @change="updatePresence" >
-      </label>
+      <div class="horizontal-left-content">
+        <label>
+          Present
+          <input type="checkbox" :checked="isPresent" @change="updatePresence" >
+        </label>
+        <radial-annotator 
+          v-if="observationExist"
+          :global-id="observation.global_id"/>
+        <span
+          v-if="observationExist"
+          type="button"
+          class="circle-button btn-delete"
+          @click="removeObservation">
+          Remove
+        </span>
+      </div>
     </summary-view>
 
     <single-observation-zoomed-view

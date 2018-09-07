@@ -1,4 +1,6 @@
-# Concern that provides housekeeping and related methods for models that belong_to a creator and updator
+#
+# Concerns that provides housekeeping and related methods for models that belong_to a creator and updator
+#
 module Housekeeping::CombinedScopes
   extend ActiveSupport::Concern
 
@@ -6,6 +8,15 @@ module Housekeeping::CombinedScopes
   end
 
   module ClassMethods
+ 
+    # @param user_id [Integer]
+    # @return [Scope]
+    def touched_by(user_id)
+      return self.none if user_id.blank?
+      t = self.arel_table
+      c = t[:updated_by_id].eq(user_id).or(t[:created_by_id].eq(user_id))
+      where(c.to_sql)
+    end
 
     # @param [Integer] project_id
     # @return [Scope]

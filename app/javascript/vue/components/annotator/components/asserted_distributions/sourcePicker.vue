@@ -91,6 +91,7 @@
       },
       cleanInput() {
         this.$refs.autocomplete.cleanInput()
+        this.cleanCitation()
       },
       cleanCitation() {
         this.autocompleteLabel = undefined

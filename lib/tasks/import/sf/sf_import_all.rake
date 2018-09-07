@@ -80,45 +80,45 @@ namespace :tw do
           #
           # 'specimens:import_sf_depos',
           # 2m8.814s on 16 June 2018
-          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/12_after_sf_depos',
+          #x 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/12_after_sf_depos',
           #
           # 'specimens:create_biocuration_classes',
-          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_biocurations_classes',
+          #x 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_biocurations_classes',
           #
           # 'specimens:create_specimen_category_counts',
-          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_specimen_counts',
+          #x 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_specimen_counts',
           #
           # 'specimens:create_sf_source_metadata',
-          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_source_metadata',
+          #x 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_source_metadata',
           #
           # 'specimens:create_sf_identification_metadata',
           # 7m18.540s on 16 June for 4 tasks: biocuration_classes through identification_metadata
-          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/13_after_identification_metadata',
+          #x 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/13_after_identification_metadata',
           #
           # 'specimens:get_ident_qualifier_from_nomenclator',
           # 'specimens:create_sf_loc_col_events_metadata',
-          # 11m28.712s on June 16 2018; 21m2.541s import_sf_depos through col_events_metadata on 26 June 2018
+          # 11m28.712s on June 16 2018; 21m2.541s import_sf_depos through col_events_metadata on 26 June 2018, about 20 min 4 Sept 2018
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/12_after_col_events_metadata',
           #
-          # 'specimens:collection_objects',
-          # 178m12.798s on 27 June 2018, 165m44.310s also on 27 June, 165m27.875s also on 27 June,
+          'specimens:collection_objects',
+          # time: 2.75h (178m12.798s on 27 June 2018, 165m44.310s also on 27 June, 165m27.875s also on 27 June),
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/13_after_collections_objects'
           #
           # 'supplementary:taxon_info',
-          # 0m57.358s on 29 June 2018, 1m1.335s on 2 July 2018
+          # time: 1h (0m57.358s on 29 June 2018, 1m1.335s on 2 July 2018)
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/15_after_suppl_info'
           #
           # 'supplementary:scrutiny_related',
-          # 9m39.816s on 2 July 2018
+          # time: 10m (9m39.816s on 2 July 2018)
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/16_after_scrutinies'
           #
           #
           # 'citations:create_citations',
-          # 592m44.659s on 10 July 2015
+          # time: close to 10h (592m44.659s on 10 July 2015)
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/17_after_taxon_citations',
           #
-          'citations:create_otu_cites',
-          # 1m2.000s on 16 July 2018
+          # 'citations:create_otu_cites',
+          # time: 1m (1m2.000s on 16 July 2018z0
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/18_after_otu_cites',
 
       ] do
@@ -1677,5 +1677,31 @@ Error logs:
 [ERROR]2018-02-26 15:03:06.093: TaxonNameRelationship 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement' ERROR tw.project_id 21, object: SF.TaxonNameID 1221121 = TW.taxon_name_id 115971, subject: SF.TaxonNameID 1219980 = TW.taxon_name_id 115013 (Error # 234): Object taxon name Order rank of Grylloblattodea is not compatible with the as incertae sedis relationship;Type Relationship as incertae sedis is not compatible with the order rank of Grylloblattodea
 [ERROR]2018-02-26 15:03:06.199: TaxonNameRelationship 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement' ERROR tw.project_id 21, object: SF.TaxonNameID 1221122 = TW.taxon_name_id 115973, subject: SF.TaxonNameID 1219980 = TW.taxon_name_id 115013 (Error # 235): Object taxon name Order rank of Grylloblattodea is not compatible with the as incertae sedis relationship;Type Relationship as incertae sedis is not compatible with the order rank of Grylloblattodea
 [ERROR]2018-02-26 15:03:06.930: TaxonNameRelationship 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement' ERROR tw.project_id 21, object: SF.TaxonNameID 1221746 = TW.taxon_name_id 115991, subject: SF.TaxonNameID 1219980 = TW.taxon_name_id 115013 (Error # 236): Object taxon name Order rank of Grylloblattodea is not compatible with the as incertae sedis relationship;Type Relationship as incertae sedis is not compatible with the order rank of Grylloblattodea
+
+[INFO]2018-08-31 17:06:36.941: Logged task tw:project_import:sf_import:specimens:collecting_events completed!
+[INFO]2018-08-31 17:06:36.941: All tasks completed. Dumping summary for each task...
+=== Summary of warnings and errors for task tw:project_import:sf_import:specimens:collecting_events ===
+[ERROR]2018-08-31 16:28:32.136: CollectEvent error: FileID = 1, UniqueID = 8549, Year = 2009, Month = 4, Day = 26, DaysToEnd = 0, (error count 1)Verbatim longitude can't be blank
+[ERROR]2018-08-31 16:35:15.509: CollectEvent error: FileID = 1, UniqueID = 20917, Year = 1981, Month = 9, Day = 20, DaysToEnd = 0, (error count 2)Verbatim longitude can't be blank
+[ERROR]2018-08-31 16:46:51.023: CollectEvent error: FileID = 1, UniqueID = 41954, Year = 2002, Month = 7, Day = 28, DaysToEnd = 0, (error count 3)Verbatim longitude can't be blank
+[ERROR]2018-08-31 16:48:13.871: CollectEvent error: FileID = 1, UniqueID = 44208, Year = 1993, Month = 2, Day = 29, DaysToEnd = 0, (error count 4)Start date day not in range;Start date day 29 is not a valid day for the month provided
+[ERROR]2018-08-31 16:49:07.265: CollectEvent error: FileID = 1, UniqueID = 45428, Year = 1999, Month = 7, Day = 20, DaysToEnd = 0, (error count 5)Verbatim latitude can't be blank
+[ERROR]2018-08-31 16:51:27.721: CollectEvent error: FileID = 1, UniqueID = 48850, Year = 1920, Month = 1, Day = 8, DaysToEnd = 0, (error count 6)Verbatim latitude can't be blank
+[ERROR]2018-08-31 16:54:35.562: CollectEvent error: FileID = 2, UniqueID = 52803, Year = 1891, Month = 6, Day = 25, DaysToEnd = 0, (error count 7)Verbatim longitude can't be blank
+[ERROR]2018-08-31 16:55:35.344: CollectEvent error: FileID = 2, UniqueID = 55204, Year = 1900, Month = 2, Day = 29, DaysToEnd = 0, (error count 8)Start date day not in range;Start date day 29 is not a valid day for the month provided
+[ERROR]2018-08-31 16:56:18.946: CollectEvent error: FileID = 2, UniqueID = 56835, Year = 1981, Month = 2, Day = 15, DaysToEnd = 0, (error count 9)Verbatim longitude can't be blank
+[ERROR]2018-08-31 16:56:18.957: CollectEvent error: FileID = 2, UniqueID = 56836, Year = 1980, Month = 1, Day = 10, DaysToEnd = 1, (error count 10)Verbatim longitude can't be blank
+[ERROR]2018-08-31 16:56:18.969: CollectEvent error: FileID = 2, UniqueID = 56837, Year = 1985, Month = 1, Day = 12, DaysToEnd = 365, (error count 11)Verbatim longitude can't be blank
+[ERROR]2018-08-31 16:56:18.981: CollectEvent error: FileID = 2, UniqueID = 56838, Year = 1988, Month = 1, Day = 1, DaysToEnd = 30, (error count 12)Verbatim longitude can't be blank
+[ERROR]2018-08-31 16:56:18.993: CollectEvent error: FileID = 2, UniqueID = 56839, Year = 1943, Month = 4, Day = 29, DaysToEnd = 0, (error count 13)Verbatim longitude can't be blank
+[ERROR]2018-08-31 16:57:50.436: CollectEvent error: FileID = 5, UniqueID = 59989, Year = 1977, Month = 7, Day = 22, DaysToEnd = 0, (error count 14)Verbatim longitude can't be blank
+[ERROR]2018-08-31 17:01:51.658: CollectEvent error: FileID = 11, UniqueID = 66049, Year = 1958, Month = 1, Day = 20, DaysToEnd = 0, (error count 15)Verbatim longitude can't be blank
+[ERROR]2018-08-31 17:01:51.669: CollectEvent error: FileID = 11, UniqueID = 66050, Year = 1950, Month = 12, Day = 19, DaysToEnd = 0, (error count 16)Verbatim longitude can't be blank
+[ERROR]2018-08-31 17:01:53.120: CollectEvent error: FileID = 11, UniqueID = 66091, Year = 1957, Month = 12, Day = 24, DaysToEnd = 0, (error count 17)Verbatim longitude can't be blank
+[ERROR]2018-08-31 17:01:53.245: CollectEvent error: FileID = 11, UniqueID = 66094, Year = 1954, Month = 1, Day = 23, DaysToEnd = 8, (error count 18)Verbatim longitude can't be blank
+[ERROR]2018-08-31 17:01:53.312: CollectEvent error: FileID = 11, UniqueID = 66096, Year = 1955, Month = 4, Day = 1, DaysToEnd = 29, (error count 19)Verbatim longitude can't be blank
+[ERROR]2018-08-31 17:01:55.670: CollectEvent error: FileID = 11, UniqueID = 66161, Year = 1958, Month = 12, Day = 20, DaysToEnd = 0, (error count 20)Verbatim longitude can't be blank
+[ERROR]2018-08-31 17:05:08.270: CollectEvent error: FileID = 1, UniqueID = 4496, Year = 1894, Month = 4, Day = 5, DaysToEnd = 0, (error count 21)Verbatim longitude can't be blank
+
 
 =end

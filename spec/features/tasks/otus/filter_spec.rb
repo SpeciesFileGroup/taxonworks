@@ -67,7 +67,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
         it 'renders count of otus from a specific name without descendants' do
           visit(index_path)
           page.execute_script "$('#set_nomen')[0].scrollIntoView()"
-          fill_autocomplete('nomen_id_for_by_nomen', with: 'bee',
+          fill_autocomplete('taxon_name_id_for_by_nomen', with: 'bee',
                             select:                        co_b.taxon_names.where(name: 'beevitis').first.id)
           click_button('Set Nomenclature')
           expect(find('#nomen_count')).to have_text('1') # 'beevitis'
@@ -77,7 +77,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
           visit(index_path)
           page.execute_script "$('#set_nomen')[0].scrollIntoView()"
           find('#descendants').click
-          fill_autocomplete('nomen_id_for_by_nomen', with: 'topdog', select: top_dog.taxon_name.id)
+          fill_autocomplete('taxon_name_id_for_by_nomen', with: 'topdog', select: top_dog.taxon_name.id)
           wait_for_ajax
           find('#rank_class').select('family (ICZN)')
           wait_for_ajax
@@ -89,7 +89,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
           visit(index_path)
           page.execute_script "$('#set_nomen')[0].scrollIntoView()"
           find('#descendants').click
-          fill_autocomplete('nomen_id_for_by_nomen', with: 'Topdog', select: top_dog.taxon_name.id)
+          fill_autocomplete('taxon_name_id_for_by_nomen', with: 'Topdog', select: top_dog.taxon_name.id)
           click_button('Set Nomenclature')
           expect(find('#nomen_count')).to have_text('6')
           # Top Dog, Top dog by Bill, Abra, Abra cadabra, Abra cadabra alakazam, Sargon's spooler
@@ -99,7 +99,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
           visit(index_path)
           page.execute_script "$('#set_nomen')[0].scrollIntoView()"
           find('#descendants').click
-          fill_autocomplete('nomen_id_for_by_nomen', with: 'Topdog', select: top_dog.taxon_name.id)
+          fill_autocomplete('taxon_name_id_for_by_nomen', with: 'Topdog', select: top_dog.taxon_name.id)
           find('#rank_class').select('species (ICZN)')
           click_button('Set Nomenclature')
           expect(find('#nomen_count')).to have_text('2') # Abra cadabra, Sargon's spooler
@@ -151,7 +151,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
           wait_for_ajax
 
           page.execute_script "$('#set_nomen')[0].scrollIntoView()"
-          fill_autocomplete('nomen_id_for_by_nomen', with: 'bee', select: t_n_id)
+          fill_autocomplete('taxon_name_id_for_by_nomen', with: 'bee', select: t_n_id)
           click_button('Set Nomenclature')
 
           find('#find_area_and_nomen_commit').click
@@ -178,7 +178,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
           wait_for_ajax
 
           page.execute_script "$('#set_nomen')[0].scrollIntoView()"
-          fill_autocomplete('nomen_id_for_by_nomen', with: 'bee', select: t_n_id)
+          fill_autocomplete('taxon_name_id_for_by_nomen', with: 'bee', select: t_n_id)
           click_button('Set Nomenclature')
 
           find('#find_area_and_nomen_commit').click

@@ -132,9 +132,6 @@ TaxonWorks::Application.routes.draw do
 
   resources :citations do # except: [:show]
     concerns [:data_routes]
-    collection do
-      get 'filter', defaults: {format: :json}
-    end
   end
 
   resources :confidences do # , except: [:edit, :show]
@@ -564,6 +561,7 @@ TaxonWorks::Application.routes.draw do
     resources :taxon_name_relationships, shallow: true, only: [:index], defaults: {format: :json}, param: :subject_taxon_name_id
 
     collection do
+      get :select_options, defaults: {format: :json}
       post :preview_simple_batch_load # should be get
       post :create_simple_batch_load
       get :ranks, {format: :json}

@@ -4,7 +4,7 @@
     @click="create"
     type="button"
     class="button normal-input button-submit">
-    Add to source
+    Add to project
   </button>
   <button
     v-else

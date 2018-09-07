@@ -10,6 +10,7 @@ class Source::Human < Source
                       :verbatim_contents, :verbatim_keywords, :language_id, :translator,
                       :year_suffix, :url, :author, :cached, :cached_author_string,
                       :cached_nomenclature_date].freeze
+
   IGNORE_SIMILAR   = IGNORE_IDENTICAL.dup.freeze
 
   has_many :source_source_roles, class_name: 'SourceSource', as: :role_object
@@ -48,6 +49,36 @@ class Source::Human < Source
   def identical
     Source::Human.none
   end
+
+  def self.by_person(person_ids = [ ], table_alias = nil)
+    return Source::Human.none if person_ids.empty?
+
+    s  = Source::Human.arel_table
+    sr = Role.arel_table
+
+    a = s.alias("a_#{table_alias}")
+
+    b = s.project(a[Arel.star]).from(a)
+      .join(sr)
+      .on(sr['role_object_id'].eq(a['id']))
+
+    i = 0
+    person_ids.each_with_index do |person_id, i|
+      sr_a = sr.alias("#{table_alias}_#{i}")
+      b = b.join(sr_a).on(
+        sr_a['role_object_id'].eq(a['id']),
+        sr_a['person_id'].eq(person_id),
+        sr_a['type'].eq('SourceSource')
+      )
+      i += 1
+    end
+
+    b = b.group(a['id']).having(sr['role_object_id'].count.eq(person_ids.count))
+    b = b.as("z_#{table_alias}")
+
+    Source::Human.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(s['id']))))
+  end
+
 
   protected
 
