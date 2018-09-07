@@ -10,8 +10,8 @@ describe InternalAttribute, type: :model do
       internal_attribute.valid?
     }
     context 'requires' do
-      specify 'controlled_vocabulary_term_id' do
-        expect(internal_attribute.errors.include?(:controlled_vocabulary_term_id)).to be_truthy
+      specify 'predicate' do
+        expect(internal_attribute.errors.include?(:predicate)).to be_truthy
       end
     end
 

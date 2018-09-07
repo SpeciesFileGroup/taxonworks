@@ -4,16 +4,15 @@
 RSPEC_GEO_FACTORY = Gis::FACTORY
 shared_context 'stuff for complex geo tests' do
 
+  # TODO: remove reference to $
   begin # constructing user and project unless feature testing
     let(:geo_user) {
       u = @user.nil? ? User.find(1) : @user
-      # $user    = u
       $user_id = u.id
       u
     }
     let(:geo_project) {
       p = @project.nil? ? Project.find(1) : @project
-      # $project    = p
       $project_id = p.id
       p
     }
@@ -28,9 +27,9 @@ shared_context 'stuff for complex geo tests' do
       multi_point:         'MULTIPOINT((10.0 10.0 0.0), (20.0 20.0 0.0))',
       multi_line_string:   'MULTILINESTRING((0.0 0.0 0.0, 10.0 0.0 0.0), (20.0 0.0 0.0, 30.0 0.0 0.0))',
       multi_polygon:       'MULTIPOLYGON(((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, 0.0 10.0 0.0, ' \
-                    '0.0 0.0 0.0)),((10.0 10.0 0.0, 20.0 10.0 0.0, 20.0 20.0 0.0, 10.0 20.0 0.0, 10.0 10.0 0.0)))',
+      '0.0 0.0 0.0)),((10.0 10.0 0.0, 20.0 10.0 0.0, 20.0 20.0 0.0, 10.0 20.0 0.0, 10.0 10.0 0.0)))',
       geometry_collection: 'GEOMETRYCOLLECTION( POLYGON((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, ' \
-                    '0.0 10.0 0.0, 0.0 0.0 0.0)), POINT(10 10 0)) '
+      '0.0 10.0 0.0, 0.0 0.0 0.0)), POINT(10 10 0)) '
     }.freeze }
 
     let(:room2024) { RSPEC_GEO_FACTORY.point(-88.241413, 40.091655, 757) }
@@ -67,82 +66,82 @@ shared_context 'stuff for complex geo tests' do
         )
       ),
 
-       RSPEC_GEO_FACTORY.polygon(
-         RSPEC_GEO_FACTORY.line_string(
-           [RSPEC_GEO_FACTORY.point(-170.62006588399993, -14.254571221999868, 0.0),
-            RSPEC_GEO_FACTORY.point(-170.59101314999987, -14.264825127999885, 0.0),
-            RSPEC_GEO_FACTORY.point(-170.5762426419999, -14.252536716999927, 0.0),
-            RSPEC_GEO_FACTORY.point(-170.5672501289999, -14.258558851999851, 0.0),
-            RSPEC_GEO_FACTORY.point(-170.5684708319999, -14.27092864399988, 0.0),
-            RSPEC_GEO_FACTORY.point(-170.58417721299995, -14.2777645809999, 0.0),
-            RSPEC_GEO_FACTORY.point(-170.6423233709999, -14.280694268999909, 0.0),
-            RSPEC_GEO_FACTORY.point(-170.65929114499988, -14.28525155999995, 0.0),
-            RSPEC_GEO_FACTORY.point(-170.68358313699994, -14.302829684999892, 0.0),
-            RSPEC_GEO_FACTORY.point(-170.7217911449999, -14.353448174999883, 0.0),
-            RSPEC_GEO_FACTORY.point(-170.74864661399988, -14.374688408999873, 0.0),
-            RSPEC_GEO_FACTORY.point(-170.75548255099991, -14.367120049999912, 0.0),
-            RSPEC_GEO_FACTORY.point(-170.79645748599992, -14.339939059999907, 0.0),
-            RSPEC_GEO_FACTORY.point(-170.82282467399992, -14.326755466999956, 0.0),
-            RSPEC_GEO_FACTORY.point(-170.83124752499987, -14.319431247999944, 0.0),
-            RSPEC_GEO_FACTORY.point(-170.78864498599992, -14.294528903999918, 0.0),
-            RSPEC_GEO_FACTORY.point(-170.77257239499986, -14.291436455999929, 0.0),
-            RSPEC_GEO_FACTORY.point(-170.7378637359999, -14.292087497999887, 0.0),
-            RSPEC_GEO_FACTORY.point(-170.72150631399987, -14.289239190999936, 0.0),
-            RSPEC_GEO_FACTORY.point(-170.69847571499992, -14.260511976999894, 0.0),
-            RSPEC_GEO_FACTORY.point(-170.66144771999987, -14.252373955999872, 0.0),
-            RSPEC_GEO_FACTORY.point(-170.62006588399993, -14.254571221999868, 0.0)]
-         )
-       ),
+      RSPEC_GEO_FACTORY.polygon(
+        RSPEC_GEO_FACTORY.line_string(
+          [RSPEC_GEO_FACTORY.point(-170.62006588399993, -14.254571221999868, 0.0),
+           RSPEC_GEO_FACTORY.point(-170.59101314999987, -14.264825127999885, 0.0),
+           RSPEC_GEO_FACTORY.point(-170.5762426419999, -14.252536716999927, 0.0),
+           RSPEC_GEO_FACTORY.point(-170.5672501289999, -14.258558851999851, 0.0),
+           RSPEC_GEO_FACTORY.point(-170.5684708319999, -14.27092864399988, 0.0),
+           RSPEC_GEO_FACTORY.point(-170.58417721299995, -14.2777645809999, 0.0),
+           RSPEC_GEO_FACTORY.point(-170.6423233709999, -14.280694268999909, 0.0),
+           RSPEC_GEO_FACTORY.point(-170.65929114499988, -14.28525155999995, 0.0),
+           RSPEC_GEO_FACTORY.point(-170.68358313699994, -14.302829684999892, 0.0),
+           RSPEC_GEO_FACTORY.point(-170.7217911449999, -14.353448174999883, 0.0),
+           RSPEC_GEO_FACTORY.point(-170.74864661399988, -14.374688408999873, 0.0),
+           RSPEC_GEO_FACTORY.point(-170.75548255099991, -14.367120049999912, 0.0),
+           RSPEC_GEO_FACTORY.point(-170.79645748599992, -14.339939059999907, 0.0),
+           RSPEC_GEO_FACTORY.point(-170.82282467399992, -14.326755466999956, 0.0),
+           RSPEC_GEO_FACTORY.point(-170.83124752499987, -14.319431247999944, 0.0),
+           RSPEC_GEO_FACTORY.point(-170.78864498599992, -14.294528903999918, 0.0),
+           RSPEC_GEO_FACTORY.point(-170.77257239499986, -14.291436455999929, 0.0),
+           RSPEC_GEO_FACTORY.point(-170.7378637359999, -14.292087497999887, 0.0),
+           RSPEC_GEO_FACTORY.point(-170.72150631399987, -14.289239190999936, 0.0),
+           RSPEC_GEO_FACTORY.point(-170.69847571499992, -14.260511976999894, 0.0),
+           RSPEC_GEO_FACTORY.point(-170.66144771999987, -14.252373955999872, 0.0),
+           RSPEC_GEO_FACTORY.point(-170.62006588399993, -14.254571221999868, 0.0)]
+        )
+      ),
 
-       RSPEC_GEO_FACTORY.polygon(
-         RSPEC_GEO_FACTORY.line_string(
-           [RSPEC_GEO_FACTORY.point(-169.44013424399992, -14.245293877999913, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.44713294199988, -14.255629164999917, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.46015377499987, -14.250420830999914, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.46808834499996, -14.258721612999906, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.4761856759999, -14.262383721999853, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.48497473899994, -14.261976820999848, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.49486243399994, -14.257256768999937, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.49836178299995, -14.2660458309999, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.50426184799989, -14.270603122999944, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.51252193899995, -14.271742445999891, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.52281653599988, -14.27092864399988, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.52550208199995, -14.258965752999941, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.52928626199989, -14.248793226999894, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.53477942599991, -14.241143487999878, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.54267330599987, -14.236748955999886, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.5275365879999, -14.22600676899988, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.50645911399988, -14.222263278999932, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.4638565749999, -14.223239841999913, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.44404049399992, -14.230645440999893, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.44013424399992, -14.245293877999913, 0.0)]
-         )
-       ),
+      RSPEC_GEO_FACTORY.polygon(
+        RSPEC_GEO_FACTORY.line_string(
+          [RSPEC_GEO_FACTORY.point(-169.44013424399992, -14.245293877999913, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.44713294199988, -14.255629164999917, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.46015377499987, -14.250420830999914, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.46808834499996, -14.258721612999906, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.4761856759999, -14.262383721999853, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.48497473899994, -14.261976820999848, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.49486243399994, -14.257256768999937, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.49836178299995, -14.2660458309999, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.50426184799989, -14.270603122999944, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.51252193899995, -14.271742445999891, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.52281653599988, -14.27092864399988, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.52550208199995, -14.258965752999941, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.52928626199989, -14.248793226999894, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.53477942599991, -14.241143487999878, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.54267330599987, -14.236748955999886, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.5275365879999, -14.22600676899988, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.50645911399988, -14.222263278999932, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.4638565749999, -14.223239841999913, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.44404049399992, -14.230645440999893, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.44013424399992, -14.245293877999913, 0.0)]
+        )
+      ),
 
-       RSPEC_GEO_FACTORY.polygon(
-         RSPEC_GEO_FACTORY.line_string(
-           [RSPEC_GEO_FACTORY.point(-169.6356095039999, -14.17701588299991, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.6601456369999, -14.189141533999901, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.6697485019999, -14.187920830999886, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.67621822799987, -14.174899997999901, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.67617753799988, -14.174899997999901, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.66816158799995, -14.169122002999927, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.65819251199994, -14.168877862999892, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.6471654939999, -14.172133070999848, 0.0),
-            RSPEC_GEO_FACTORY.point(-169.6356095039999, -14.17701588299991, 0.0)]
-         )
-       ),
+      RSPEC_GEO_FACTORY.polygon(
+        RSPEC_GEO_FACTORY.line_string(
+          [RSPEC_GEO_FACTORY.point(-169.6356095039999, -14.17701588299991, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.6601456369999, -14.189141533999901, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.6697485019999, -14.187920830999886, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.67621822799987, -14.174899997999901, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.67617753799988, -14.174899997999901, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.66816158799995, -14.169122002999927, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.65819251199994, -14.168877862999892, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.6471654939999, -14.172133070999848, 0.0),
+           RSPEC_GEO_FACTORY.point(-169.6356095039999, -14.17701588299991, 0.0)]
+        )
+      ),
 
-       RSPEC_GEO_FACTORY.polygon(
-         RSPEC_GEO_FACTORY.line_string(
-           [RSPEC_GEO_FACTORY.point(-171.07347571499992, -11.062107028999876, 0.0),
-            RSPEC_GEO_FACTORY.point(-171.08153235599985, -11.066094658999859, 0.0),
-            RSPEC_GEO_FACTORY.point(-171.08653723899988, -11.060316664999888, 0.0),
-            RSPEC_GEO_FACTORY.point(-171.0856420559999, -11.05136484199987, 0.0),
-            RSPEC_GEO_FACTORY.point(-171.0728246739999, -11.052504164999903, 0.0),
-            RSPEC_GEO_FACTORY.point(-171.07347571499992, -11.062107028999876, 0.0)]
-         )
-       )
+      RSPEC_GEO_FACTORY.polygon(
+        RSPEC_GEO_FACTORY.line_string(
+          [RSPEC_GEO_FACTORY.point(-171.07347571499992, -11.062107028999876, 0.0),
+           RSPEC_GEO_FACTORY.point(-171.08153235599985, -11.066094658999859, 0.0),
+           RSPEC_GEO_FACTORY.point(-171.08653723899988, -11.060316664999888, 0.0),
+           RSPEC_GEO_FACTORY.point(-171.0856420559999, -11.05136484199987, 0.0),
+           RSPEC_GEO_FACTORY.point(-171.0728246739999, -11.052504164999903, 0.0),
+           RSPEC_GEO_FACTORY.point(-171.07347571499992, -11.062107028999876, 0.0)]
+        )
+      )
       ]
     ) }
 
@@ -443,18 +442,18 @@ shared_context 'stuff for complex geo tests' do
     ].freeze }
 
     let(:e1_and_e2) { RSPEC_GEO_FACTORY.parse_wkt('POLYGON ((-9.0 6.0 0.0, -9.0 2.0 0.0, ' \
-                                                          '-14.0 2.0 0.0, -14.0 6.0 0.0, ' \
-                                                          '-9.0 6.0 0.0))') }
+                                                  '-14.0 2.0 0.0, -14.0 6.0 0.0, ' \
+                                                  '-9.0 6.0 0.0))') }
     let(:e1_or_e2) { RSPEC_GEO_FACTORY.parse_wkt('POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, ' \
-                                                          '-9.0 6.0 0.0, 5.0 6.0 0.0, ' \
-                                                          '5.0 -1.0 0.0, -14.0 -1.0 0.0, ' \
-                                                          '-14.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0))') }
+                                                 '-9.0 6.0 0.0, 5.0 6.0 0.0, ' \
+                                                 '5.0 -1.0 0.0, -14.0 -1.0 0.0, ' \
+                                                 '-14.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0))') }
     let(:e1_and_e4) { RSPEC_GEO_FACTORY.parse_wkt('GEOMETRYCOLLECTION EMPTY') }
     let(:e1_or_e5) { RSPEC_GEO_FACTORY.parse_wkt('MULTIPOLYGON (((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, ' \
-                                                          '-19.0 2.0 0.0, -19.0 9.0 0.0)), ' \
-                                                          '((-7.0 -9.0 0.0, -7.0 -5.0 0.0, ' \
-                                                          '-11.0 -5.0 0.0, -11.0 -9.0 0.0, ' \
-                                                          '-7.0 -9.0 0.0)))') }
+                                                 '-19.0 2.0 0.0, -19.0 9.0 0.0)), ' \
+                                                 '((-7.0 -9.0 0.0, -7.0 -5.0 0.0, ' \
+                                                 '-11.0 -5.0 0.0, -11.0 -9.0 0.0, ' \
+                                                 '-7.0 -9.0 0.0)))') }
 
     let(:p16_on_a) { RSPEC_GEO_FACTORY.parse_wkt('POINT (-23.0 18.0 0.0)') }
 
@@ -462,7 +461,7 @@ shared_context 'stuff for complex geo tests' do
 
   let(:joe) { geo_user }
 
-# include_context 'stuff for area_a'
+  # include_context 'stuff for area_a'
 
   let(:list_box_a) {
     RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
@@ -574,7 +573,7 @@ shared_context 'stuff for complex geo tests' do
                                        creator:       geo_user,
                                        updater:       geo_user) }
 
-# need some areas
+  # need some areas
   begin
     let(:linestring) {
       RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
@@ -591,9 +590,9 @@ shared_context 'stuff for complex geo tests' do
                                iso_3166_a3:          nil,
                                iso_3166_a2:          nil,
                                parent:               earth)
-      area.geographic_items << line_string_a
-      area.save!
-      area
+    area.geographic_items << line_string_a
+    area.save!
+    area
     }
   end
 
@@ -622,9 +621,9 @@ shared_context 'stuff for complex geo tests' do
                                iso_3166_a3:          nil,
                                iso_3166_a2:          nil,
                                parent:               earth)
-      area.geographic_items << polygon_b
-      area.save!
-      area
+    area.geographic_items << polygon_b
+    area.save!
+    area
     }
   end
 
@@ -644,9 +643,9 @@ shared_context 'stuff for complex geo tests' do
                                iso_3166_a3:          nil,
                                iso_3166_a2:          nil,
                                parent:               earth)
-      area.geographic_items << multipoint_b
-      area.save!
-      area
+    area.geographic_items << multipoint_b
+    area.save!
+    area
     }
   end
 
@@ -662,9 +661,9 @@ shared_context 'stuff for complex geo tests' do
                                iso_3166_a3:          nil,
                                iso_3166_a2:          nil,
                                parent:               earth)
-      area.geographic_items << multilinestring_b
-      area.save!
-      area
+    area.geographic_items << multilinestring_b
+    area.save!
+    area
     }
   end
 
@@ -685,9 +684,9 @@ shared_context 'stuff for complex geo tests' do
                                parent:               earth,
                                creator:              geo_user,
                                updater:              geo_user)
-      area.geographic_items << multipolygon_b
-      area.save!
-      area
+    area.geographic_items << multipolygon_b
+    area.save!
+    area
     }
   end
 
@@ -700,9 +699,9 @@ shared_context 'stuff for complex geo tests' do
                              parent:               area_e,
                              creator:              geo_user,
                              updater:              geo_user)
-    area.geographic_items << new_box_a
-    area.save!
-    area
+  area.geographic_items << new_box_a
+  area.save!
+  area
   }
 
   let(:area_b) {
@@ -714,9 +713,9 @@ shared_context 'stuff for complex geo tests' do
                              parent:               area_e,
                              creator:              geo_user,
                              updater:              geo_user)
-    area.geographic_items << new_box_b
-    area.save!
-    area
+  area.geographic_items << new_box_b
+  area.save!
+  area
   }
 
   let(:area_c) {
@@ -728,9 +727,9 @@ shared_context 'stuff for complex geo tests' do
                              parent:               area_f,
                              creator:              geo_user,
                              updater:              geo_user)
-    area.geographic_items << new_box_c
-    area.save!
-    area
+  area.geographic_items << new_box_c
+  area.save!
+  area
   }
 
   let(:area_d) {
@@ -742,9 +741,9 @@ shared_context 'stuff for complex geo tests' do
                              parent:               area_f,
                              creator:              geo_user,
                              updater:              geo_user)
-    area.geographic_items << new_box_d
-    area.save!
-    area
+  area.geographic_items << new_box_d
+  area.save!
+  area
   }
 
   let(:area_e) {
@@ -756,9 +755,9 @@ shared_context 'stuff for complex geo tests' do
                              parent:               earth,
                              creator:              geo_user,
                              updater:              geo_user)
-    area.geographic_items << new_box_e
-    area.save!
-    area
+  area.geographic_items << new_box_e
+  area.save!
+  area
   }
 
   let(:area_r2) {
@@ -770,9 +769,9 @@ shared_context 'stuff for complex geo tests' do
                              parent:               earth,
                              creator:              geo_user,
                              updater:              geo_user)
-    area.geographic_items << new_box_r2
-    area.save!
-    area
+  area.geographic_items << new_box_r2
+  area.save!
+  area
   }
 
   let(:area_f) {
@@ -784,9 +783,9 @@ shared_context 'stuff for complex geo tests' do
                              parent:               earth,
                              creator:              geo_user,
                              updater:              geo_user)
-    area.geographic_items << new_box_f
-    area.save!
-    area
+  area.geographic_items << new_box_f
+  area.save!
+  area
   }
 
   let(:area_l2) {
@@ -798,13 +797,13 @@ shared_context 'stuff for complex geo tests' do
                              parent:               earth,
                              creator:              geo_user,
                              updater:              geo_user)
-    area.geographic_items << new_box_l2
-    area.save!
-    area
+  area.geographic_items << new_box_l2
+  area.save!
+  area
   }
 
   let(:json_string) { '{"type":"Feature", "properties":{}, "geometry":{"type":"MultiPolygon", ' \
-                            '"coordinates":[[[[0, 10, 0], [10, 10, 0], [10, -10, 0], [0, -10, 0], [0, 10, 0]]]]}}' }
+                      '"coordinates":[[[[0, 10, 0], [10, 10, 0], [10, -10, 0], [0, -10, 0], [0, 10, 0]]]]}}' }
 
   begin # need some collecting events
     let(:ce_p0) { FactoryBot.create(:collecting_event, verbatim_label: '@ce_p0') }
@@ -891,7 +890,7 @@ shared_context 'stuff for complex geo tests' do
                              project:           geo_project,
                              updater:           geo_user,
                              creator:           geo_user)
-      ce
+    ce
     }
 
     let(:ce_b) {
@@ -905,7 +904,7 @@ shared_context 'stuff for complex geo tests' do
                              project:           geo_project,
                              updater:           geo_user,
                              creator:           joe)
-      ce
+    ce
     }
 
     let(:ce_p4s) { FactoryBot.create(:collecting_event,
@@ -920,7 +919,7 @@ shared_context 'stuff for complex geo tests' do
                                      error_geographic_item: nil,
                                      geographic_item:       GeographicItem.new(point: new_box_c.st_centroid)) }
 
-# need some collection objects
+    # need some collection objects
     let(:co_a) {
       co = FactoryBot.create(:valid_collection_object,
                              created_at:       '2000/01/01',
@@ -929,53 +928,53 @@ shared_context 'stuff for complex geo tests' do
                              project:          geo_project,
                              creator:          geo_user,
                              updater:          geo_user)
-      # co.reload
-      o = FactoryBot.create(:valid_otu_with_taxon_name,
-                            name:    'Otu_A',
-                            project: geo_project,
-                            creator: geo_user,
-                            updater: geo_user)
-      o.taxon_name.update_column(:name, 'antivitis')
-      # o            = Otu.create!(name: 'Otu_A', creator: geo_user, updater: geo_user, project: geo_project)
-      # tn           = Protonym.create!(name: 'antivitis', creator: geo_user, updater: geo_user, project: geo_project)
-      # o.taxon_name = tn
-      co.otus << o
+    # co.reload
+    o = FactoryBot.create(:valid_otu_with_taxon_name,
+                          name:    'Otu_A',
+                          project: geo_project,
+                          creator: geo_user,
+                          updater: geo_user)
+    o.taxon_name.update_column(:name, 'antivitis')
+    # o            = Otu.create!(name: 'Otu_A', creator: geo_user, updater: geo_user, project: geo_project)
+    # tn           = Protonym.create!(name: 'antivitis', creator: geo_user, updater: geo_user, project: geo_project)
+    # o.taxon_name = tn
+    co.otus << o
 
-      o = top_dog # this is o1
-      o.taxon_name.taxon_name_authors << ted
-      co.otus << o
+    o = top_dog # this is o1
+    o.taxon_name.taxon_name_authors << ted
+    co.otus << o
 
-      o            = by_bill
-      o.taxon_name = top_dog.taxon_name
-      co.otus << o
+    o = by_bill
+    o.taxon_name = top_dog.taxon_name
+    co.otus << o
 
-      o            = FactoryBot.create(:valid_otu, name: 'Abra',
-                                       project:          geo_project,
-                                       creator:          geo_user,
-                                       updater:          geo_user)
-      o.taxon_name = tn_abra
-      o.taxon_name.taxon_name_authors << ted
-      co.otus << o
+    o  = FactoryBot.create(:valid_otu, name: 'Abra',
+                                     project: geo_project,
+                                     creator: geo_user,
+                                     updater: geo_user)
+    o.taxon_name = tn_abra
+    o.taxon_name.taxon_name_authors << ted
+    co.otus << o
 
-      o            = FactoryBot.create(:valid_otu, name: 'Abra cadabra',
-                                       project:          geo_project,
-                                       creator:          geo_user,
-                                       updater:          geo_user)
-      t_n          = tn_cadabra
-      o.taxon_name = t_n
-      o.save!
-      o.taxon_name.taxon_name_authors << bill
-      co.otus << o
-      o = FactoryBot.create(:valid_otu, name: 'Abra cadabra alakazam',
-                            project:          geo_project,
-                            creator:          geo_user,
-                            updater:          geo_user)
-      co.collecting_event.collectors << bill
-      o.taxon_name = tn_alakazam
+    o = FactoryBot.create(:valid_otu, name: 'Abra cadabra',
+                                     project: geo_project,
+                                     creator: geo_user,
+                                     updater: geo_user)
+    t_n  = tn_cadabra
+    o.taxon_name = t_n
+    o.save!
+    o.taxon_name.taxon_name_authors << bill
+    co.otus << o
+    o = FactoryBot.create(:valid_otu, name: 'Abra cadabra alakazam',
+                          project: geo_project,
+                          creator: geo_user,
+                          updater: geo_user)
+    co.collecting_event.collectors << bill
+    o.taxon_name = tn_alakazam
 
-      o.taxon_name.taxon_name_authors << ted
-      co.otus << o
-      co
+    o.taxon_name.taxon_name_authors << ted
+    co.otus << o
+    co
     }
 
     let(:co_b) {
@@ -986,28 +985,28 @@ shared_context 'stuff for complex geo tests' do
                              project:          geo_project,
                              creator:          geo_user,
                              updater:          geo_user)
-      o  = FactoryBot.create(:valid_otu_with_taxon_name, name: 'P4',
-                             project:                          geo_project,
-                             creator:                          geo_user,
-                             updater:                          geo_user)
-      co.collecting_event.collectors << sargon
-      co.collecting_event.collectors << daryl
-      o.taxon_name.update_column(:name, 'beevitis')
-      co.otus << o
-      o            = FactoryBot.create(:valid_otu, name: 'Sargon\'s spooler',
-                                       project:          geo_project,
-                                       creator:          geo_user,
-                                       updater:          geo_user)
-      o.taxon_name = tn_spooler
-      o.taxon_name.taxon_name_authors << sargon
-      o.taxon_name.taxon_name_authors << daryl
-      co.otus << o
-      o = nuther_dog
-      o.taxon_name.taxon_name_authors << bill
-      o.taxon_name.taxon_name_authors << ted
-      o.taxon_name.taxon_name_authors << sargon
-      co.otus << o
-      co
+    o  = FactoryBot.create(:valid_otu_with_taxon_name, name: 'P4',
+                           project:                          geo_project,
+                           creator:                          geo_user,
+                           updater:                          geo_user)
+    co.collecting_event.collectors << sargon
+    co.collecting_event.collectors << daryl
+    o.taxon_name.update_column(:name, 'beevitis')
+    co.otus << o
+    o            = FactoryBot.create(:valid_otu, name: 'Sargon\'s spooler',
+                                     project:          geo_project,
+                                     creator:          geo_user,
+                                     updater:          geo_user)
+    o.taxon_name = tn_spooler
+    o.taxon_name.taxon_name_authors << sargon
+    o.taxon_name.taxon_name_authors << daryl
+    co.otus << o
+    o = nuther_dog
+    o.taxon_name.taxon_name_authors << bill
+    o.taxon_name.taxon_name_authors << ted
+    o.taxon_name.taxon_name_authors << sargon
+    co.otus << o
+    co
     }
 
     let(:co_a_otus) { co_a.otus }
@@ -1045,7 +1044,7 @@ shared_context 'stuff for complex geo tests' do
                                    updater:               geo_user)
     }
 
-# need some people
+    # need some people
     let(:sargon) { Person.create!(first_name: 'of Akkad', last_name: 'Sargon',
                                   creator:    geo_user,
                                   updater:    geo_user) }
@@ -1062,31 +1061,31 @@ shared_context 'stuff for complex geo tests' do
                                 creator:    geo_user,
                                 updater:    geo_user) }
 
-# need some otus
+    # need some otus
     let(:top_dog) {
       FactoryBot.create(:valid_otu, name: 'Top Dog', taxon_name:
-                                          FactoryBot.create(:valid_taxon_name,
-                                                            rank_class: Ranks.lookup(:iczn, 'Family'),
-                                                            name:       'Topdogidae',
-                                                            project:    geo_project,
-                                                            creator:    geo_user,
-                                                            updater:    geo_user),
-                        creator:          geo_user,
-                        updater:          geo_user
-      )
+                        FactoryBot.create(:valid_taxon_name,
+                                          rank_class: Ranks.lookup(:iczn, 'Family'),
+                                          name:       'Topdogidae',
+                                          project:    geo_project,
+                                          creator:    geo_user,
+                                          updater:    geo_user),
+                                          creator:          geo_user,
+                                          updater:          geo_user
+                       )
     }
 
     let(:nuther_dog) {
       FactoryBot.create(:valid_otu, name: 'Another Dog', taxon_name:
-                                          FactoryBot.create(:valid_taxon_name,
-                                                            rank_class: Ranks.lookup(:iczn, 'Family'),
-                                                            name:       'Nutherdogidae',
-                                                            project:    geo_project,
-                                                            creator:    geo_user,
-                                                            updater:    geo_user),
-                        creator:          geo_user,
-                        updater:          geo_user
-      )
+                        FactoryBot.create(:valid_taxon_name,
+                                          rank_class: Ranks.lookup(:iczn, 'Family'),
+                                          name:       'Nutherdogidae',
+                                          project:    geo_project,
+                                          creator:    geo_user,
+                                          updater:    geo_user),
+                                          creator:          geo_user,
+                                          updater:          geo_user
+                       )
     }
 
     let(:tn_abra) { Protonym.create!(name:       'Abra',
@@ -1256,7 +1255,7 @@ shared_context 'stuff for complex geo tests' do
                                     data_origin:          ga_data_origin,
                                     created_by_id:        geo_user.id,
                                     updated_by_id:        geo_user.id)
-        ga
+      ga
       }
       let(:parent_country) {
         ga        = GeographicArea.create!(name:                 'United States of America',
@@ -1267,9 +1266,9 @@ shared_context 'stuff for complex geo tests' do
                                            data_origin:          ga_data_origin,
                                            created_by_id:        geo_user.id,
                                            updated_by_id:        geo_user.id)
-        ga.level0 = ga
-        ga.save!
-        ga
+      ga.level0 = ga
+      ga.save!
+      ga
       }
       let(:parent_state) {
         ga        = GeographicArea.create!(name:                 'Illinois',
@@ -1279,10 +1278,10 @@ shared_context 'stuff for complex geo tests' do
                                            data_origin:          ga_data_origin,
                                            created_by_id:        geo_user.id,
                                            updated_by_id:        geo_user.id)
-        ga.level1 = ga
-        ga.level0 = ga.parent
-        ga.save!
-        ga
+      ga.level1 = ga
+      ga.level0 = ga.parent
+      ga.save!
+      ga
       }
       let(:parent_county) {
         ga        = GeographicArea.create!(name:                 'Champaign',
@@ -1291,11 +1290,11 @@ shared_context 'stuff for complex geo tests' do
                                            data_origin:          ga_data_origin,
                                            created_by_id:        geo_user.id,
                                            updated_by_id:        geo_user.id)
-        ga.level2 = ga
-        ga.level1 = ga.parent
-        ga.level0 = ga.parent.parent
-        ga.save!
-        ga
+      ga.level2 = ga
+      ga.level1 = ga.parent
+      ga.level0 = ga.parent.parent
+      ga.save!
+      ga
       }
       let!(:country_gat) { GeographicAreaType.create!(name: 'Country', creator: geo_user, updater: geo_user) }
       let!(:state_gat) { GeographicAreaType.create!(name: 'State', creator: geo_user, updater: geo_user) }
@@ -1472,9 +1471,9 @@ Two different shapes with the same name, 'East Boxia', and
                                  iso_3166_a3:          nil,
                                  iso_3166_a2:          nil,
                                  parent:               area_land_mass)
-        area.geographic_items << item_bb
-        area.save!
-        area
+      area.geographic_items << item_bb
+      area.save!
+      area
       }
 
       begin # objects in Q
@@ -1484,9 +1483,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    tdwgID:               nil,
                                    geographic_area_type: state_gat,
                                    parent:               area_q)
-          area.geographic_items << item_u
-          area.save!
-          area
+        area.geographic_items << item_u
+        area.save!
+        area
         }
         let(:area_q) {
           area = FactoryBot.create(:level0_geographic_area,
@@ -1495,9 +1494,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    iso_3166_a3:          'QQQ',
                                    iso_3166_a2:          'QQ',
                                    parent:               area_land_mass)
-          area.geographic_items << item_q
-          area.save!
-          area
+        area.geographic_items << item_q
+        area.save!
+        area
         }
 
         let(:area_old_boxia) {
@@ -1507,36 +1506,36 @@ Two different shapes with the same name, 'East Boxia', and
                                    iso_3166_a3:          'OB1',
                                    iso_3166_a2:          nil,
                                    parent:               area_land_mass)
-          area.geographic_items << item_ob
-          area.save!
-          area
+        area.geographic_items << item_ob
+        area.save!
+        area
         }
         let(:area_qtm2) {
           area = FactoryBot.create(:level2_geographic_area,
                                    name:                 'QTM2',
                                    geographic_area_type: county_gat,
                                    parent:               area_t_1)
-          area.geographic_items << item_m1
-          area.save!
-          area
+        area.geographic_items << item_m1
+        area.save!
+        area
         }
         let(:area_quo1) {
           area = FactoryBot.create(:level2_geographic_area,
                                    name:                 'QUO1',
                                    geographic_area_type: parish_gat,
                                    parent:               area_u)
-          # @area_quo1.geographic_items << @item_o1
-          area.save!
-          area
+        # @area_quo1.geographic_items << @item_o1
+        area.save!
+        area
         }
         let(:area_quo2) {
           area = FactoryBot.create(:level2_geographic_area,
                                    name:                 'QUO2',
                                    geographic_area_type: parish_gat,
                                    parent:               area_u)
-          area.geographic_items << item_o2
-          area.save!
-          area
+        area.geographic_items << item_o2
+        area.save!
+        area
         }
         let(:area_qup1) {
           area = FactoryBot.create(:level2_geographic_area,
@@ -1544,26 +1543,26 @@ Two different shapes with the same name, 'East Boxia', and
                                    tdwgID:               nil,
                                    geographic_area_type: parish_gat,
                                    parent:               area_u)
-          area.geographic_items << item_p1
-          area.save!
-          area
+        area.geographic_items << item_p1
+        area.save!
+        area
         }
         let(:area_qtn2_1) {
           area = FactoryBot.create(:level2_geographic_area,
                                    name:                 'QTN2',
                                    geographic_area_type: county_gat,
                                    parent:               area_t_1)
-          area.geographic_items << item_n2
-          area.save!
-          area
+        area.geographic_items << item_n2
+        area.save!
+        area
         }
         let(:area_qtn2_2) {
           area = FactoryBot.create(:level2_geographic_area,
                                    name:                 'QTN2',
                                    geographic_area_type: county_gat,
                                    parent:               area_t_2)
-          area.geographic_items << item_n2
-          area.save!
+        area.geographic_items << item_n2
+        area.save!
         }
       end
 
@@ -1575,9 +1574,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    iso_3166_a3:          'SSS',
                                    iso_3166_a2:          'SS',
                                    parent:               area_land_mass)
-          area.geographic_items << item_s
-          area.save!
-          area
+        area.geographic_items << item_s
+        area.save!
+        area
         }
 
       end
@@ -1590,9 +1589,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    iso_3166_a3:          'RRR',
                                    iso_3166_a2:          'RR',
                                    parent:               area_land_mass)
-          area.geographic_items << item_r
-          area.save!
-          area
+        area.geographic_items << item_r
+        area.save!
+        area
         }
         let(:area_rm3) {
           area = FactoryBot.create(:level1_geographic_area,
@@ -1600,9 +1599,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    tdwgID:               nil,
                                    geographic_area_type: province_gat,
                                    parent:               area_r)
-          area.geographic_items << item_m3
-          area.save!
-          area
+        area.geographic_items << item_m3
+        area.save!
+        area
         }
         let(:area_rm4) {
           area = FactoryBot.create(:level1_geographic_area,
@@ -1610,9 +1609,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    tdwgID:               nil,
                                    geographic_area_type: province_gat,
                                    parent:               area_r)
-          area.geographic_items << item_m4
-          area.save!
-          area
+        area.geographic_items << item_m4
+        area.save!
+        area
         }
         let(:area_rn3) {
           area = FactoryBot.create(:level1_geographic_area,
@@ -1620,10 +1619,10 @@ Two different shapes with the same name, 'East Boxia', and
                                    tdwgID:               nil,
                                    geographic_area_type: province_gat,
                                    parent:               area_r)
-          area.geographic_items << item_n3
-          area.save!
+        area.geographic_items << item_n3
+        area.save!
 
-          area
+        area
         }
         let(:area_rn4) {
           area = FactoryBot.create(:level1_geographic_area,
@@ -1631,9 +1630,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    tdwgID:               nil,
                                    geographic_area_type: province_gat,
                                    parent:               area_r)
-          area.geographic_items << item_n4
-          area.save!
-          area
+        area.geographic_items << item_n4
+        area.save!
+        area
         }
 
         let(:area_rn3) {
@@ -1642,9 +1641,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    tdwgID:               nil,
                                    geographic_area_type: province_gat,
                                    parent:               area_r)
-          area.geographic_items << item_n3
-          area.save!
-          area
+        area.geographic_items << item_n3
+        area.save!
+        area
         }
         let(:area_rn4) {
           area = FactoryBot.create(:level1_geographic_area,
@@ -1652,9 +1651,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    tdwgID:               nil,
                                    geographic_area_type: province_gat,
                                    parent:               area_r)
-          area.geographic_items << item_n4
-          area.save!
-          area
+        area.geographic_items << item_n4
+        area.save!
+        area
         }
         let(:area_m3) {
           area = FactoryBot.create(:level1_geographic_area,
@@ -1662,9 +1661,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    tdwgID:               nil,
                                    geographic_area_type: province_gat,
                                    parent:               area_r)
-          area.geographic_items << item_m3
-          area.save!
-          area
+        area.geographic_items << item_m3
+        area.save!
+        area
         }
         let(:area_n3) {
           area = FactoryBot.create(:level1_geographic_area,
@@ -1672,9 +1671,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    tdwgID:               nil,
                                    geographic_area_type: province_gat,
                                    parent:               area_r)
-          area.geographic_items << item_n3
-          area.save!
-          area
+        area.geographic_items << item_n3
+        area.save!
+        area
         }
         let(:area_m4) {
           area = FactoryBot.create(:level1_geographic_area,
@@ -1682,9 +1681,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    tdwgID:               nil,
                                    geographic_area_type: province_gat,
                                    parent:               area_r)
-          area.geographic_items << item_m4
-          area.save!
-          area
+        area.geographic_items << item_m4
+        area.save!
+        area
         }
         let(:area_n4) {
           area = FactoryBot.create(:level1_geographic_area,
@@ -1692,9 +1691,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    tdwgID:               nil,
                                    geographic_area_type: province_gat,
                                    parent:               area_r)
-          area.geographic_items << item_n4
-          area.save!
-          area
+        area.geographic_items << item_n4
+        area.save!
+        area
         }
 
         let(:gr_n3_ob) { FactoryBot.create(:georeference_verbatim_data,
@@ -1711,7 +1710,7 @@ Two different shapes with the same name, 'East Boxia', and
         let(:item_m4) { FactoryBot.create(:geographic_item, multi_polygon: shape_m4) }
         let(:item_r) { FactoryBot.create(:geographic_item, multi_polygon: shape_r) }
         let(:shape_r) { make_box(shape_m3[0]
-                                   .exterior_ring.points[0], 0, 0, 2, 2) }
+          .exterior_ring.points[0], 0, 0, 2, 2) }
         let(:shape_m4) { make_box(point_m1_p0, 0, 3, 1, 1) }
       end # building stuff in R
       begin # western big boxia
@@ -1723,9 +1722,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    iso_3166_a3:          'WB1',
                                    iso_3166_a2:          nil,
                                    parent:               area_land_mass)
-          area.geographic_items << item_wb
-          area.save!
-          area
+        area.geographic_items << item_wb
+        area.save!
+        area
         }
         let(:area_west_boxia_3) {
           area = FactoryBot.create(:level1_geographic_area,
@@ -1734,9 +1733,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    iso_3166_a3:          'WB3',
                                    iso_3166_a2:          nil,
                                    parent:               area_old_boxia)
-          area.geographic_items << item_wb
-          area.save!
-          area
+        area.geographic_items << item_wb
+        area.save!
+        area
         }
       end
 
@@ -1764,9 +1763,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    tdwgID:               nil,
                                    geographic_area_type: province_gat,
                                    parent:               area_r)
-          area.geographic_items << item_n3
-          area.save!
-          area
+        area.geographic_items << item_n3
+        area.save!
+        area
         }
         let(:shape_m3) { make_box(point_m1_p0, 0, 2, 1, 1) }
         let(:item_n3) { FactoryBot.create(:geographic_item, multi_polygon: shape_n3) }
@@ -1792,19 +1791,19 @@ Two different shapes with the same name, 'East Boxia', and
                                    iso_3166_a3:          nil,
                                    iso_3166_a2:          nil,
                                    parent:               earth)
-          area.geographic_items << item_w
-          area.save!
-          area
+        area.geographic_items << item_w
+        area.save!
+        area
         }
         let(:area_p1b) {
           area        = FactoryBot.create(:level2_geographic_area,
                                           name:                 'P1B',
                                           geographic_area_type: parish_gat,
                                           parent:               area_u)
-          area.level0 = area_u
-          area.geographic_items << item_p1b
-          area.save!
-          area
+        area.level0 = area_u
+        area.geographic_items << item_p1b
+        area.save!
+        area
         }
 
         let(:shape_p1b) { make_box(point_m1_p0, 3, 0, 1, 1) }
@@ -1844,9 +1843,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    iso_3166_a3:          'EB1',
                                    iso_3166_a2:          nil,
                                    parent:               area_land_mass)
-          area.geographic_items << item_eb_1
-          area.save!
-          area
+        area.geographic_items << item_eb_1
+        area.save!
+        area
         }
         let(:area_east_boxia_2) {
           area = FactoryBot.create(:level0_geographic_area,
@@ -1855,9 +1854,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    iso_3166_a3:          'EB2',
                                    iso_3166_a2:          nil,
                                    parent:               area_land_mass)
-          area.geographic_items << item_eb_2
-          area.save!
-          area
+        area.geographic_items << item_eb_2
+        area.save!
+        area
         }
         let(:area_east_boxia_3) {
           area = FactoryBot.create(:level1_geographic_area,
@@ -1866,9 +1865,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    iso_3166_a3:          'EB3',
                                    iso_3166_a2:          nil,
                                    parent:               area_old_boxia)
-          area.geographic_items << item_eb_2
-          area.save!
-          area
+        area.geographic_items << item_eb_2
+        area.save!
+        area
         }
       end
 
@@ -1892,10 +1891,10 @@ Two different shapes with the same name, 'East Boxia', and
                                           name:                 'O1',
                                           geographic_area_type: parish_gat,
                                           parent:               area_u)
-          area.level0 = area_u
-          area.geographic_items << item_o1
-          area.save!
-          area
+        area.level0 = area_u
+        area.geographic_items << item_o1
+        area.save!
+        area
         }
         let(:item_o1) { FactoryBot.create(:geographic_item, multi_polygon: shape_o1) }
       end
@@ -1915,9 +1914,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    tdwgID:               nil,
                                    geographic_area_type: state_gat,
                                    parent:               area_s)
-          area.geographic_items << item_o3
-          area.save!
-          area
+        area.geographic_items << item_o3
+        area.save!
+        area
         }
         let(:area_s) {
           area = FactoryBot.create(:level0_geographic_area,
@@ -1926,13 +1925,13 @@ Two different shapes with the same name, 'East Boxia', and
                                    iso_3166_a3:          'SSS',
                                    iso_3166_a2:          'SS',
                                    parent:               area_land_mass)
-          area.geographic_items << item_s
-          area.save!
-          area
+        area.geographic_items << item_s
+        area.save!
+        area
         }
         let(:item_s) { FactoryBot.create(:geographic_item, multi_polygon: shape_s) }
         let(:shape_s) { make_box(shape_o3[0]
-                                   .exterior_ring.points[0], 0, 0, 2, 2) }
+          .exterior_ring.points[0], 0, 0, 2, 2) }
         let(:shape_o3) { make_box(point_m1_p0, 2, 2, 1, 1) }
         let(:item_o3) { FactoryBot.create(:geographic_item, multi_polygon: shape_o3) }
         let(:area_so3) {
@@ -1941,9 +1940,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    tdwgID:               nil,
                                    geographic_area_type: state_gat,
                                    parent:               area_s)
-          area.geographic_items << item_o3
-          area.save!
-          area
+        area.geographic_items << item_o3
+        area.save!
+        area
         }
       end
 
@@ -1972,10 +1971,10 @@ Two different shapes with the same name, 'East Boxia', and
                                           name:                 'N2',
                                           geographic_area_type: county_gat,
                                           parent:               area_t_1)
-          area.level0 = area_t_1
-          area.geographic_items << item_n2
-          area.save!
-          area
+        area.level0 = area_t_1
+        area.geographic_items << item_n2
+        area.save!
+        area
         }
         let(:area_t_1) {
           area = FactoryBot.create(:level1_geographic_area,
@@ -1983,13 +1982,13 @@ Two different shapes with the same name, 'East Boxia', and
                                    tdwgID:               '10TTT',
                                    geographic_area_type: state_gat,
                                    parent:               area_q)
-          area.geographic_items << item_t_1
-          area.save!
-          area
+        area.geographic_items << item_t_1
+        area.save!
+        area
         }
         let(:item_t_1) { FactoryBot.create(:geographic_item, multi_polygon: shape_t_1) }
         let(:shape_t_1) { make_box(shape_m1[0]
-                                     .exterior_ring.points[0], 0, 0, 2, 2) }
+          .exterior_ring.points[0], 0, 0, 2, 2) }
         let(:item_n2) { FactoryBot.create(:geographic_item, multi_polygon: shape_n2) }
         let(:shape_n2) { make_box(point_m1_p0, 1, 1, 1, 1) }
         let(:area_t_2) {
@@ -1998,13 +1997,13 @@ Two different shapes with the same name, 'East Boxia', and
                                    tdwgID:               '20TTT',
                                    geographic_area_type: state_gat,
                                    parent:               area_q)
-          area.geographic_items << item_t_2
-          area.save!
-          area
+        area.geographic_items << item_t_2
+        area.save!
+        area
         }
         let(:item_t_2) { FactoryBot.create(:geographic_item, multi_polygon: shape_t_2) }
         let(:shape_t_2) { make_box(shape_m1[0]
-                                     .exterior_ring.points[0], 0, 0, 2, 2) }
+          .exterior_ring.points[0], 0, 0, 2, 2) }
 
       end
 
@@ -2028,9 +2027,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    tdwgID:               nil,
                                    geographic_area_type: province_gat,
                                    parent:               area_r)
-          area.geographic_items << item_n4
-          area.save!
-          area
+        area.geographic_items << item_n4
+        area.save!
+        area
         }
 
         let(:area_rn4) {
@@ -2039,9 +2038,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    tdwgID:               nil,
                                    geographic_area_type: province_gat,
                                    parent:               area_r)
-          area.geographic_items << item_n4
-          area.save!
-          area
+        area.geographic_items << item_n4
+        area.save!
+        area
         }
         let(:item_n4) { FactoryBot.create(:geographic_item, multi_polygon: shape_n4) }
         let(:shape_n4) { make_box(point_m1_p0, 1, 3, 1, 1) }
@@ -2056,14 +2055,14 @@ Two different shapes with the same name, 'East Boxia', and
                                              verbatim_locality: 'Lesser Boxia Lake',
                                              verbatim_label:    '@ce_m1',
                                              geographic_area:   area_m1)
-          td_m1          = FactoryBot.create(:valid_taxon_determination)
-          co_m1          = td_m1.biological_collection_object
-          td_m1.otu.name = 'Find me, I\'m in M1!'
-          td_m1.otu.save!
-          co_m1.collecting_event = ce
-          co_m1.save!
-          ce.save!
-          ce
+        td_m1          = FactoryBot.create(:valid_taxon_determination)
+        co_m1          = td_m1.biological_collection_object
+        td_m1.otu.name = 'Find me, I\'m in M1!'
+        td_m1.otu.save!
+        co_m1.collecting_event = ce
+        co_m1.save!
+        ce.save!
+        ce
         }
         let(:co_m1) { ce_m1.collection_objects.first }
         let(:gr_m1) { FactoryBot.create(:georeference_verbatim_data,
@@ -2091,10 +2090,10 @@ Two different shapes with the same name, 'East Boxia', and
                                           name:                 'M1',
                                           geographic_area_type: county_gat,
                                           parent:               area_t_1)
-          area.level0 = area_t_1
-          area.geographic_items << item_m1
-          area.save!
-          area
+        area.level0 = area_t_1
+        area.geographic_items << item_m1
+        area.save!
+        area
         }
         let(:item_m1) { FactoryBot.create(:geographic_item, multi_polygon: shape_m1) }
         let(:area_qtm1) {
@@ -2102,9 +2101,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    name:                 'QTM1',
                                    geographic_area_type: county_gat,
                                    parent:               area_t_1)
-          area.geographic_items << item_m1
-          area.save!
-          area
+        area.geographic_items << item_m1
+        area.save!
+        area
         }
       end
 
@@ -2140,10 +2139,10 @@ Two different shapes with the same name, 'East Boxia', and
                                           name:                 'P2',
                                           geographic_area_type: parish_gat,
                                           parent:               area_u)
-          area.level0 = area_u
-          area.geographic_items << item_p2b
-          area.save!
-          area
+        area.level0 = area_u
+        area.geographic_items << item_p2b
+        area.save!
+        area
         }
         let(:item_p2b) { FactoryBot.create(:geographic_item, multi_polygon: shape_p2b) }
         let(:shape_p2b) { make_box(point_m1_p0, 3, 1, 1, 1) }
@@ -2154,9 +2153,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    tdwgID:               nil,
                                    geographic_area_type: parish_gat,
                                    parent:               area_u)
-          area.geographic_items << item_p2b
-          area.save!
-          area
+        area.geographic_items << item_p2b
+        area.save!
+        area
         }
       end
 
@@ -2191,10 +2190,10 @@ Two different shapes with the same name, 'East Boxia', and
                                           name:                 'M2',
                                           geographic_area_type: county_gat,
                                           parent:               area_t_1)
-          area.level0 = area_t_1
-          area.geographic_items << item_m2
-          area.save!
-          area
+        area.level0 = area_t_1
+        area.geographic_items << item_m2
+        area.save!
+        area
         }
         let(:item_m2) { FactoryBot.create(:geographic_item, multi_polygon: shape_m2) }
         let(:shape_m2) { make_box(point_m1_p0, 0, 1, 1, 1) }
@@ -2219,10 +2218,10 @@ Two different shapes with the same name, 'East Boxia', and
                                           name:                 'N1',
                                           geographic_area_type: county_gat,
                                           parent:               area_t_1)
-          area.level0 = area_t_1
-          area.geographic_items << item_n1
-          area.save!
-          area
+        area.level0 = area_t_1
+        area.geographic_items << item_n1
+        area.save!
+        area
         }
         let(:item_n1) { FactoryBot.create(:geographic_item, multi_polygon: shape_n1) }
         let(:shape_n1) { make_box(point_m1_p0, 1, 0, 1, 1) }
@@ -2232,9 +2231,9 @@ Two different shapes with the same name, 'East Boxia', and
                                    name:                 'QTN1',
                                    geographic_area_type: county_gat,
                                    parent:               area_t_1)
-          area.geographic_items << item_n1
-          area.save!
-          area
+        area.geographic_items << item_n1
+        area.save!
+        area
         }
       end
 
@@ -2257,10 +2256,10 @@ Two different shapes with the same name, 'East Boxia', and
                                           name:                 'O2',
                                           geographic_area_type: parish_gat,
                                           parent:               area_u)
-          area.level0 = area_u
-          area.geographic_items << item_o2
-          area.save!
-          area
+        area.level0 = area_u
+        area.geographic_items << item_o2
+        area.save!
+        area
         }
         let(:item_o2) { FactoryBot.create(:geographic_item, multi_polygon: shape_o2) }
         let(:shape_o2) { make_box(point_m1_p0, 2, 1, 1, 1) }
@@ -2286,71 +2285,71 @@ Two different shapes with the same name, 'East Boxia', and
                                    tdwgID:               nil,
                                    geographic_area_type: province_gat,
                                    parent:               area_r)
-          area.geographic_items << item_m3
-          area.save!
-          area
+        area.geographic_items << item_m3
+        area.save!
+        area
         }
         let(:item_m3) { FactoryBot.create(:geographic_item, multi_polygon: shape_m3) }
       end
     end
   end
-# before {
-#   # @user exists as a result of `sign_in_and _select_project` (i.e., a feature test), othewise nil
-#   if @user
-#     simple_world(@user.id, @project.id)
-#   else
-#     simple_world
-#   end
-# }
+  # before {
+  #   # @user exists as a result of `sign_in_and _select_project` (i.e., a feature test), othewise nil
+  #   if @user
+  #     simple_world(@user.id, @project.id)
+  #   else
+  #     simple_world
+  #   end
+  # }
 
-# need user and project
-#   let(:user) { User.find(1) }
-#   let(:project) { Project.find(1) }
+  # need user and project
+  #   let(:user) { User.find(1) }
+  #   let(:project) { Project.find(1) }
 
-# need some people
-#   let(:sargon) { Person.where(first_name: 'of Akkad', last_name: 'Sargon').first }
-#   let(:andy) { Person.where(first_name: 'Andy', last_name: 'Worehall', prefix: 'Non-author').first }
-#   let(:daryl) { Person.where(first_name: 'Daryl', last_name: 'Penfold', prefix: 'with Sargon').first }
-#   let(:ted) { Person.where(last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC').first }
-#   let(:bill) { Person.where(first_name: 'Bill', last_name: 'Ardson').first }
+  # need some people
+  #   let(:sargon) { Person.where(first_name: 'of Akkad', last_name: 'Sargon').first }
+  #   let(:andy) { Person.where(first_name: 'Andy', last_name: 'Worehall', prefix: 'Non-author').first }
+  #   let(:daryl) { Person.where(first_name: 'Daryl', last_name: 'Penfold', prefix: 'with Sargon').first }
+  #   let(:ted) { Person.where(last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC').first }
+  #   let(:bill) { Person.where(first_name: 'Bill', last_name: 'Ardson').first }
 
-# need some otus
-#   let(:top_dog) { Otu.where(name: 'Top Dog').first }
-#   let(:nuther_dog) { Otu.where(name: 'Another Dog').first }
-#   let(:spooler) { Otu.where('name like ?', '%spooler%').first }
-#   let(:otu_p4) { Otu.where(name: 'P4').first }
-#   let(:by_bill) { Otu.where('name like ?', '%by Bill%').first }
-#   let(:otu_a) { Otu.where(name: 'Otu_A').first }
-#   let(:abra) { Otu.where(name: 'Abra').first }
-#   let(:cadabra) { Otu.where('name like ?', '%cadabra%').first }
-#   let(:alakazam) { Otu.where('name like ?', '%alakazam%').first }
+  # need some otus
+  #   let(:top_dog) { Otu.where(name: 'Top Dog').first }
+  #   let(:nuther_dog) { Otu.where(name: 'Another Dog').first }
+  #   let(:spooler) { Otu.where('name like ?', '%spooler%').first }
+  #   let(:otu_p4) { Otu.where(name: 'P4').first }
+  #   let(:by_bill) { Otu.where('name like ?', '%by Bill%').first }
+  #   let(:otu_a) { Otu.where(name: 'Otu_A').first }
+  #   let(:abra) { Otu.where(name: 'Abra').first }
+  #   let(:cadabra) { Otu.where('name like ?', '%cadabra%').first }
+  #   let(:alakazam) { Otu.where('name like ?', '%alakazam%').first }
 
-# need some areas
-#   let(:area_linestring) { GeographicArea.where(name: 'linestring').first }
-#   let(:area_polygon) { GeographicArea.where(name: 'polygon').first }
-#   let(:area_multipoint) { GeographicArea.where(name: 'multipoint').first }
-#   let(:area_multilinestring) { GeographicArea.where(name: 'multilinestring').first }
-#   let(:area_multipolygon) { GeographicArea.where(name: 'multipolygon').first }
-# let(:area_a) { GeographicArea.where(name: 'A').first }
-# let(:area_b) { GeographicArea.where(name: 'B').first }
-# let(:area_e) { GeographicArea.where(name: 'E').first }
-# let(:json_string) { '{"type":"Feature", "properties":{}, "geometry":{"type":"MultiPolygon", ' \
-#                             '"coordinates":[[[[0, 10, 0], [10, 10, 0], [10, -10, 0], [0, -10, 0], [0, 10, 0]]]]}}' }
+  # need some areas
+  #   let(:area_linestring) { GeographicArea.where(name: 'linestring').first }
+  #   let(:area_polygon) { GeographicArea.where(name: 'polygon').first }
+  #   let(:area_multipoint) { GeographicArea.where(name: 'multipoint').first }
+  #   let(:area_multilinestring) { GeographicArea.where(name: 'multilinestring').first }
+  #   let(:area_multipolygon) { GeographicArea.where(name: 'multipolygon').first }
+  # let(:area_a) { GeographicArea.where(name: 'A').first }
+  # let(:area_b) { GeographicArea.where(name: 'B').first }
+  # let(:area_e) { GeographicArea.where(name: 'E').first }
+  # let(:json_string) { '{"type":"Feature", "properties":{}, "geometry":{"type":"MultiPolygon", ' \
+  #                             '"coordinates":[[[[0, 10, 0], [10, 10, 0], [10, -10, 0], [0, -10, 0], [0, 10, 0]]]]}}' }
 
-# need some collection objects
-#   let(:ce_a) { CollectingEvent.where(verbatim_label: 'Eh?').first }
-#   let(:co_a) {
-#     object = ce_a
-#     object.collection_objects.first
-#   }
-#
-#   let(:ce_b) { CollectingEvent.where(verbatim_label: 'Bah').first }
-#   let(:co_b) {
-#     object = ce_b
-#     object.collection_objects.first
-#   }
+  # need some collection objects
+  #   let(:ce_a) { CollectingEvent.where(verbatim_label: 'Eh?').first }
+  #   let(:co_a) {
+  #     object = ce_a
+  #     object.collection_objects.first
+  #   }
+  #
+  #   let(:ce_b) { CollectingEvent.where(verbatim_label: 'Bah').first }
+  #   let(:co_b) {
+  #     object = ce_b
+  #     object.collection_objects.first
+  #   }
 
-# rubocop:disable Metrics/MethodLength
+  # rubocop:disable Metrics/MethodLength
   def simple_world(user_id = 1, project_id = 1)
     # temp_user    = $user_id
     # temp_project = $project_id
