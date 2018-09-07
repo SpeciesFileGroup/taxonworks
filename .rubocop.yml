@@ -6,9 +6,6 @@ AllCops:
   TargetRubyVersion: 2.4
   DisabledByDefault: true
   MaxFilesInCache: 8000 # Limit growth of cache
-  Include:
-    - '**/Rakefile'
-    - '**/config.ru'
   Exclude:
     - 'db/**/*'
     - 'script/**/*'

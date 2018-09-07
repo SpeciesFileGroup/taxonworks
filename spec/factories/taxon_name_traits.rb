@@ -1,10 +1,10 @@
 FactoryBot.define do
 
   trait :mostly_empty_protonym do
-    cached_html nil
-    cached_author_year nil
-    year_of_publication nil
-    verbatim_author nil
+    cached_html { nil }
+    cached_author_year { nil }
+    year_of_publication { nil }
+    verbatim_author { nil }
   end
   #     source_id nil
   #
