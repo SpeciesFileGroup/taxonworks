@@ -1,20 +1,17 @@
 <template>
   <div>
     <h2>Taxon Name Relationships</h2>
-    <table>
-      <tr v-for="item in taxon_relationship_cites_list">
-        <td><input type="text" :value="item.pages"></td>
-        <td v-html="item.citation_object.object_tag" />
-        <td><radial-annotator :global-id="item.citation_object.global_id" /></td>
-      </tr>
-    </table>
+    <table-component
+        :list="taxon_relationship_cites_list"/>
   </div>
 </template>
 <script>
+  import TableComponent from './table/table.vue'
   import RadialAnnotator from '../../../../components/annotator/annotator.vue'
   import OtuRadial from '../../../../components/otu/otu.vue'
   export default {
     components: {
+      TableComponent,
       RadialAnnotator,
       OtuRadial
     },
