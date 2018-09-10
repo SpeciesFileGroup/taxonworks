@@ -81,12 +81,6 @@ module BatchLoad
             if l_otu.persisted? # means it was found in the database, not 'new' here
               [ias.item, ias.items].flatten.compact.each do |l_ia|
                 if l_ia.attribute_subject == l_otu
-                  # if otus.item == l_otu
-                  # otus.assign([])
-                  # else # reamove otu and da from thier respective collections.
-                  # group = otus.items.delete_if { |_otu| _otu == l_otu }
-                  # otus.assign(group)
-                  # end
                   parse_result.parse_errors << 'otu/predicate/value combination already exists.'
                   break
                 end
@@ -105,7 +99,7 @@ module BatchLoad
             cite = new_da.citations.first
             cite.citation_object = otus.item
             # add citation
-            parse_result.objects[:citation].push(cite) if otu_valid
+            parse_result.objects[:citation].push(cite) #if otu_valid
             cite.valid?
             parse_result.parse_errors << cite.errors.messages if cite.errors.messages.any?
           end
@@ -113,15 +107,15 @@ module BatchLoad
             # connect cvt to data_attribute
             ias.item.predicate = new_cvt
             # add predicate
-            parse_result.objects[:predicate].push(new_cvt) if (new_cvt.present? && otu_valid)
+            parse_result.objects[:predicate].push(new_cvt) if new_cvt.present? # (new_cvt.present? && otu_valid)
             parse_result.parse_errors << new_cvt.errors.messages if new_cvt.errors.messages.any?
           end
           # add data_attribute
-          parse_result.objects[:data_attribute].push(ias.item) if otu_valid
+          parse_result.objects[:data_attribute].push(ias.item) #if otu_valid
           parse_result.parse_errors << ias.error_messages if ias.error_messages.any?
 
           # add otu
-          parse_result.objects[:otu].push(otus.item) if otu_valid
+          parse_result.objects[:otu].push(otus.item) #if otu_valid
           parse_result.parse_errors << otus.error_messages if otus.error_messages.any?
 
           @total_data_lines += 1 # if find_name.present?

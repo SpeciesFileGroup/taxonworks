@@ -144,6 +144,27 @@ describe 'Otus', type: :feature do
             click_button('da_create')
             expect(page).to have_content("No OTU with name 'Taxonmatchidae' exists.")
           end
+
+          context 'interaction' do
+            before do
+              visit_load_otus_path
+              attach_file('da_file', Rails.root + file)
+            end
+
+            context 'import vs. internal' do
+              context 'select' do
+                specify 'internal' do
+                  click_button('da_preview')
+                  expect(page).to have_content('Creating internal attributes.')
+                end
+
+                specify 'import' do
+                  click_button('da_preview')
+                  expect(page).to have_content('Creating import attributes.')
+                end
+              end
+            end
+          end
         end
       end
     end
