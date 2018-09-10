@@ -38,31 +38,31 @@ FactoryBot.define do
     end
 
     factory :planet_geographic_area_type do
-      name 'Planet'
+      name { 'Planet' }
     end
 
     factory :country_geographic_area_type do
-      name 'Country'
+      name { 'Country' }
     end
 
     factory :state_geographic_area_type do
-      name 'State'
+      name { 'State' }
     end
 
     factory :county_geographic_area_type do
-      name 'County'
+      name { 'County' }
     end
 
     factory :testbox_geographic_area_type do
-      name 'Test Box'
+      name { 'Test Box' }
     end
 
     factory :feature_geographic_area_type do
-      name 'Feature'
+      name { 'Feature' }
     end
 
     factory :named_place_geographic_area_type do
-      name 'Named Place'
+      name { 'Named Place' }
     end
   end
 

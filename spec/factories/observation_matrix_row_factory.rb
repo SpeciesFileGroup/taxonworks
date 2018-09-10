@@ -4,7 +4,7 @@ FactoryBot.define do
     factory :valid_observation_matrix_row do
       association :observation_matrix, factory: :valid_observation_matrix
       association :otu, factory: :valid_otu
-      collection_object nil
+      collection_object { nil }
     end
   end
 end

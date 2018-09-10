@@ -11,9 +11,9 @@ FactoryBot.define do
 
   factory :controlled_vocabulary_term, traits: [:housekeeping] do
     factory :valid_controlled_vocabulary_term, traits: [:random_name, :random_definition] do
-      type 'Keyword'
-      uri ''
-      uri_relation ''
+      type { 'Keyword' }
+      uri { '' }
+      uri_relation { '' }
     end
 
     factory :random_controlled_vocabulary_term, traits: [:random_name, :random_definition]
