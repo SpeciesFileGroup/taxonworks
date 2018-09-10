@@ -1,6 +1,5 @@
 <template>
   <tr>
-    <td>
     <td v-html="otu.object_tag"/>
     <td>
       <radial-annotator :global-id="otu.global_id" />
