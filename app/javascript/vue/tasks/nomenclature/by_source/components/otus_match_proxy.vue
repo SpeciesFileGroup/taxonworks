@@ -85,8 +85,9 @@
             this.otu_list = response.body;
             resolve(response.body);
             let nameIDs = this.processNames(this.otu_list);
-            let params = {taxon_name_ids:[], nameIDs};
-            this.$http.get('/otus.json', params).then(response => {
+            let params = { taxon_name_ids: nameIDs };
+            console.log(params)
+            this.$http.get('/otus.json', { params: params }).then(response => {
               this.otu_names_cites_list = response.body;
             })
           });
