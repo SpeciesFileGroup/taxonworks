@@ -109,11 +109,12 @@
       },
       processNames(list) {
         // list.forEach(getName)
-        let taxonNames = [];
-        for (item in list) {
-          taxonNames.push(item.taxon_name_id);
-        }
-        return taxonNames;
+        return list.map((item) => { return item.citation_object_id })
+        // let taxonNames = [];
+        // for (item in list) {
+        //   taxonNames.push(item.taxon_name_id);
+        // }
+        // return taxonNames;
       }
     },
   }
