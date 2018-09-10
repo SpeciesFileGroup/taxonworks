@@ -97,12 +97,11 @@
       // iterate through all citation object types to rebuild this list
       //   this.otu_names_cites_list = [];
         this.getSourceOtus().then(response => {
-
-          this.processType(this.taxon_names_cites, 'taxon_name_ids')// this.taxon_names_cites.forEach(this.addCite);
-          // this.taxon_relationship_cites.forEach(this.addCite);
-          // this.taxon_classification_cites.forEach(this.addCite);
-          // this.biological_association_cites.forEach(this.addCite);
-          // this.distribution_cites.forEach(this.addCite);
+          this.processType(this.taxon_names_cites, 'taxon_name_ids'); // this.taxon_names_cites.forEach(this.addCite);
+          this.processType(this.taxon_relationship_cites, 'taxon_name_relationships'); // this.taxon_relationship_cites.forEach(this.addCite);
+          this.processType(this.taxon_classification_cites, 'taxon_name_classifications'); // this.taxon_classification_cites.forEach(this.addCite);
+          // this.processType(this.biological_association_cites, 'biological_association_cites'); // this.biological_association_cites.forEach(this.addCite);
+          this.processType(this.distribution_cites, 'asserted_distributions'); // this.distribution_cites.forEach(this.addCite);
           this.$emit("updateEnd", false);
         });
       },
@@ -112,10 +111,28 @@
       processType(list, type) {
         // list.forEach(getName)
         let idList = list.map((item) => { return item.citation_object_id });
-        let params = { taxon_name_ids: idList};
+        let params = {};
+        switch (type) {
+          case 'taxon_name_ids':
+          {params = { taxon_name_ids: idList};}
+            break;
+          case 'taxon_name_relationships':
+          {params = { taxon_name_ids: idList};}
+            break;
+          case 'taxon_name_classifications':
+          {params = { taxon_name_ids: idList};}
+            break;
+          case 'biological_associations':
+          { params = { biological_associations: idList};}
+            break;
+          case 'asserted_distributions':
+          { params = { otus: idList};}
+            break;
+        }
         this.$http.get('/otus.json', { params: params }).then(response => {
           this.otu_list = response.body;
           this.otu_list.forEach(this.addCite);
+          // resolve(response);
         }
         )
         // let taxonNames = [];
