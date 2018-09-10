@@ -92,7 +92,7 @@
           });
         })
       },
-      getOtus(citation_object_type) { return false;
+      getOtus(citation_object_type) {
       // iterate through all citation object types to rebuild this list
       //   this.otu_names_cites_list = [];
         this.getSourceOtus().then(response => {
