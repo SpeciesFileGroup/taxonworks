@@ -118,7 +118,7 @@ describe 'Otus', type: :feature do
       end
     end
 
-    context 'batch load', js: true do
+    context 'batch load', js: false do
       context 'data_attributes for otus' do
         context 'import attributes' do
           let(:file) { 'spec/files/batch/otu/da_ph_2.tsv' }
@@ -145,22 +145,49 @@ describe 'Otus', type: :feature do
             expect(page).to have_content("No OTU with name 'Taxonmatchidae' exists.")
           end
 
-          context 'interaction' do
+          context 'control interaction' do
             before do
-              visit_load_otus_path
+              visit batch_load_otus_path
               attach_file('da_file', Rails.root + file)
             end
 
             context 'import vs. internal' do
               context 'select' do
-                specify 'internal' do
-                  click_button('da_preview')
-                  expect(page).to have_content('Creating internal attributes.')
+                context 'defaults' do
+                  specify 'internal' do
+                    click_button('da_preview')
+                    expect(page).to have_content('Creating internal attributes.')
+                  end
+
+                  specify 'otus' do
+                    click_button('da_preview')
+                    expect(page).to have_content('Creating new otus')
+                  end
+
+                  specify 'predicates' do
+                    click_button('da_preview')
+                    expect(page).to have_content('Creating new predicates')
+                  end
                 end
 
-                specify 'import' do
-                  click_button('da_preview')
-                  expect(page).to have_content('Creating import attributes.')
+                context 'non-defaults' do
+                  specify 'import' do
+                    choose('type_select_import')
+                    click_button('da_preview')
+                    expect(page).to have_content('Creating import attributes.')
+                  end
+
+                  specify 'otus' do
+                    uncheck('create_new_otu')
+                    click_button('da_preview')
+                    expect(page).to have_content('Not creating new otus.')
+                  end
+
+                  specify 'predicates' do
+                    uncheck('create_new_predicate')
+                    click_button('da_preview')
+                    expect(page).to have_content('Not creating new predicates.')
+                  end
                 end
               end
             end
