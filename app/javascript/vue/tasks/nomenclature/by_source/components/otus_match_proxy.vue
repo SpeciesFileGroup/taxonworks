@@ -64,7 +64,7 @@
         this.getSourceOtus();
       },
       updateOtus() {
-        this.getSourceOtus();
+        this.getOtus();
       }
     },
 
@@ -84,18 +84,18 @@
             // citations currently until otu endpoint ready
             this.otu_list = response.body;
             resolve(response.body);
-            let nameIDs = this.processNames(this.otu_list);
-            let params = {taxon_name_ids:[], nameIDs};
-            this.$http.get('/otus.json', params).then(response => {
-              this.otu_names_cites_list = response.body;
-            })
           });
+          let nameIDs = this.processNames();
+          let params = {taxon_name_ids:[], nameIDs};
+          this.$http.get('/otus.json', params).then(response => {
+            this.otu_names_cites_list = response.body;
+          })
         })
       },
-      getOtus(citation_object_type) { return false;
+      getOtus(citation_object_type) {
       // iterate through all citation object types to rebuild this list
       //   this.otu_names_cites_list = [];
-        this.getSourceOtus().then(response => {
+        this.getCites().then(() => {
           this.taxon_names_cites.forEach(this.addCite);
           this.taxon_relationship_cites.forEach(this.addCite);
           this.taxon_classification_cites.forEach(this.addCite);
@@ -109,11 +109,7 @@
       },
       processNames(list) {
         // list.forEach(getName)
-        let taxonNames = [];
-        for (item in list) {
-          taxonNames.push(item.taxon_name_id);
-        }
-        return taxonNames;
+        return list.map((item) => { return item.taxon_name_id })
       }
     },
   }
