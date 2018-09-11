@@ -29,5 +29,10 @@ describe Queries::Citation::Filter, type: :model do
     expect(query.matching_polymorphic_ids.to_sql).to eq("\"citations\".\"citation_object_id\" = 1 AND \"citations\".\"citation_object_type\" = 'CollectingEvent'")
   end
 
+  specify 'no polymorphic_ids' do
+    query.source_id = 22
+    expect(query.matching_polymorphic_ids).to eq(nil)
+  end
+
 
 end
