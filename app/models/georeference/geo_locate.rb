@@ -6,7 +6,7 @@ class Georeference::GeoLocate < Georeference
   URI_HOST       = 'www.museum.tulane.edu'.freeze
   URI_PATH       = '/webservices/geolocatesvcv2/glcwrap.aspx?'.freeze
   URI_EMBED_PATH = '/geolocate/web/webgeoreflight.aspx?'.freeze
-  # URI_HOST       = 'www.geo-locate.org/web/webgeoreflight.aspx'.freeze
+  URI_HOST_2     = 'www.geo-locate.org/web/webgeoreflight.aspx'.freeze
 
   # @param [Response] response
   # @return [RGeo object]
@@ -206,8 +206,7 @@ class Georeference::GeoLocate < Georeference
     def build_param_string
       # @request_param_string ||= @request_params.collect { |key, value| "#{key}=#{value}" }.join('&')
       ga                     = request_params_hash
-      params_string          = 'http://' + URI_HOST +
-        URI_EMBED_PATH +
+      params_string          = 'http://' + URI_HOST_2 +
         "country=#{ga['country']}&state=#{ga['state']}&county=#{ga['county']}&locality=#{ga['locality']}&points=" \
         "#{ga['Latitude']}|#{ga['Longitude']}|#{ga['Placename']}|#{ga['Score']}|#{ga['Uncertainty']}" \
         "&georef=run|#{ga['H20']}|#{ga['HwyX']}|#{ga['Uncert']}|#{ga['Poly']}|#{ga['DisplacePoly']}|" \
