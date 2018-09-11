@@ -111,7 +111,10 @@ class CitationsController < ApplicationController
   private
 
   def filter_params
-    params.permit(:citation_object_type, :citation_object_id, :source_id).merge(project_id: sessions_current_project_id)
+    params.permit(
+      :citation_object_type, :citation_object_id, :source_id,
+      Citation.related_foreign_keys.map(&:to_sym)
+    ).merge(project_id: sessions_current_project_id)
   end
 
   def set_citation

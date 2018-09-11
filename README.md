@@ -3,7 +3,6 @@
 [![Build Status][1]][2]
 [![Coverage Status][3]][4]
 [![CodePolice][5]][6]
-[![Dependency Status](https://gemnasium.com/badges/github.com/SpeciesFileGroup/taxonworks.svg)](https://gemnasium.com/github.com/SpeciesFileGroup/taxonworks)
 [![Gitter][20]][19]
 [![Inline docs](http://inch-ci.org/github/SpeciesFileGroup/taxonworks.svg?branch=master&style=shields)](http://inch-ci.org/github/SpeciesFileGroup/taxonworks)
 

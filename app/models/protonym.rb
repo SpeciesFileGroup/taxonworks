@@ -322,6 +322,7 @@ class Protonym < TaxonName
   #   A relationships for each possible original combination relationship
   def original_combination_relationships_and_stubs
     # TODO: figure out where to really put this, likely in one big sort
+    # TODO: @proceps - is this missing :original_section?
     display_order = [
       :original_genus, :original_subgenus, :original_species, :original_subspecies, :original_variety, :original_form
     ]

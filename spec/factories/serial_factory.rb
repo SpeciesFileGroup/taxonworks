@@ -5,11 +5,11 @@ FactoryBot.define do
     end
 
     factory :preceding_serial do
-      name 'Serial 0'
+      name { 'Serial 0' }
     end
 
     factory :succeeding_serial do
-      name 'Serial 2'
+      name { 'Serial 2' }
     end
   end
 end
