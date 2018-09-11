@@ -1,5 +1,6 @@
 module Queries
 
+  # TODO: Unify all and filter
   class Otu::Filter < Queries::Query
 
     # Query variables
@@ -8,7 +9,8 @@ module Queries
     attr_accessor :author_ids, :and_or_select
 
     attr_accessor :verbatim_author # was verbatim_author_string
-    attr_accessor :taxon_name_id, :taxon_name_ids, :otu_id, :otu_ids, :biological_association_ids
+    attr_accessor :taxon_name_id, :taxon_name_ids, :otu_id, :otu_ids, 
+      :biological_association_ids, :taxon_name_classification_ids, :taxon_name_relationship_ids, :asserted_distribution_ids
 
     # @param [Hash] params
     def initialize(params)
@@ -30,6 +32,10 @@ module Queries
       @otu_ids = params[:otu_ids] || []
 
       @biological_association_ids = params[:biological_association_ids] || []
+    
+      @taxon_name_classification_ids = params[:taxon_name_classification_ids] || []
+      @taxon_name_relationship_ids = params[:taxon_name_relationship_ids] || []
+      @asserted_distribution_ids = params[:asserted_distribution_ids] || []
     end
 
     def table
@@ -222,6 +228,40 @@ module Queries
       a
     end
 
+    def matching_taxon_name_relationship_ids 
+      return nil if taxon_name_relationship_ids.empty?
+      o = table
+      ba = ::TaxonNameRelationship.arel_table 
+
+      a = o.alias("a_") 
+      b = o.project(a[Arel.star]).from(a)
+
+      c = ba.alias('b1')
+      d = ba.alias('b2')
+
+      b = b.join(c, Arel::Nodes::OuterJoin)
+        .on(
+          a[:taxon_name_id].eq(c[:subject_taxon_name_id])
+      )
+
+      b = b.join(d, Arel::Nodes::OuterJoin)
+        .on(
+          a[:id].eq(d[:object_taxon_name_id])
+      )
+
+      e = c[:subject_taxon_name_id].not_eq(nil)
+      f = d[:object_taxon_name_id].not_eq(nil)
+
+      g = c[:id].eq_any(taxon_name_relationship_ids)
+      h = d[:id].eq_any(taxon_name_relationship_ids)
+
+      b = b.where(e.or(f).and(g.or(h)))
+      b = b.group(a['id'])
+      b = b.as('z_')
+
+      ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
+    end
+
     def matching_biological_association_ids 
       return nil if biological_association_ids.empty?
       o = table
@@ -256,7 +296,56 @@ module Queries
       b = b.as('z_')
 
       ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
+    end
 
+    def matching_taxon_name_classification_ids
+      return nil if taxon_name_classification_ids.empty?
+      o = table
+      tnc = ::TaxonNameClassification.arel_table
+
+      a = o.alias("a_") 
+      b = o.project(a[Arel.star]).from(a)
+
+      c = tnc.alias('tnc1')
+
+      b = b.join(c, Arel::Nodes::OuterJoin)
+        .on(
+          a[:taxon_name_id].eq(c[:taxon_name_id])
+      )
+
+      e = c[:id].not_eq(nil)
+      f = c[:id].eq_any(taxon_name_classification_ids)
+
+      b = b.where(e.and(f))
+      b = b.group(a['id'])
+      b = b.as('z_')
+
+      a = ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
+    end
+
+    def matching_asserted_distribution_ids
+      return nil if asserted_distribution_ids.empty?
+      o = table
+      ad = ::AssertedDistribution.arel_table
+
+      a = o.alias("a_") 
+      b = o.project(a[Arel.star]).from(a)
+
+      c = ad.alias('ad1')
+
+      b = b.join(c, Arel::Nodes::OuterJoin)
+        .on(
+          a[:id].eq(c[:otu_id])
+      )
+
+      e = c[:otu_id].not_eq(nil)
+      f = c[:id].eq_any(asserted_distribution_ids)
+
+      b = b.where(e.and(f))
+      b = b.group(a['id'])
+      b = b.as('z_')
+
+      a =  ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
     end
 
     # @return [ActiveRecord::Relation, nil]
@@ -283,11 +372,13 @@ module Queries
 
       clauses = [
         matching_biological_association_ids,
+        matching_asserted_distribution_ids,
+        matching_taxon_name_classification_ids,
+        matching_taxon_name_relationship_ids
 
         # matching_verbatim_author
         # Queries::Annotator.annotator_params(options, ::Citation),
       ].compact
-
 
       return nil if clauses.empty?
 

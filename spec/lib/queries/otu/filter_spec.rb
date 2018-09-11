@@ -8,6 +8,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
   context 'no geo world:' do
     let!(:t1) { find_or_create_root_taxon_name }
     let!(:t2) { Protonym.create!(name: 'Vlorf', verbatim_author: 'Smith', rank_class: Ranks.lookup(:iczn, :genus), parent: t1) }
+    let!(:t3) { Protonym.create!(name: 'Glorf', verbatim_author: 'Jones', rank_class: Ranks.lookup(:iczn, :genus), parent: t1) }
 
     let!(:otu1) { Otu.create!(name: 'one') }
     let!(:otu2) { Otu.create!(name: 'two') }
@@ -18,9 +19,37 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     let!(:ba1) { BiologicalAssociation.create!(biological_association_subject: otu1, biological_relationship: biological_relationship, biological_association_object: otu2) }
     let!(:ba2) { BiologicalAssociation.create!(biological_association_subject: otu2, biological_relationship: biological_relationship, biological_association_object: otu3) }
 
+    let!(:tnc1) { TaxonNameClassification.create!(taxon_name: t2, type: 'TaxonNameClassification::Iczn::Available')  } 
+    let!(:tnr1) { TaxonNameRelationship.create!(subject_taxon_name: t2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', object_taxon_name: t3  ) }
+
+    let!(:ad1) { FactoryBot.create(:valid_asserted_distribution, otu: otu2) }
+
     let(:query) {  Queries::Otu::Filter.new({})  }
 
     context 'query params' do
+
+      specify '#taxon_name_relationship_ids 1' do
+        query.taxon_name_relationship_ids = [tnr1.id]
+        expect(query.all.map(&:id)).to contain_exactly(otu3.id)
+      end
+
+      specify '#taxon_name_classification_ids 1' do
+        query.taxon_name_classification_ids = [tnc1.id]
+        expect(query.all.map(&:id)).to contain_exactly(otu3.id)
+      end
+
+      specify '#asserted_distribution_ids 1' do
+        query.asserted_distribution_ids = [ad1.id]
+        expect(query.all.map(&:id)).to contain_exactly(otu2.id)
+      end
+
+      specify '#asserted_distribution_ids 2' do
+        # and queries find nothing, but execute
+        query.asserted_distribution_ids = [ad1.id]
+        query.taxon_name_ids = [t1.id]
+        expect(query.all.map(&:id)).to contain_exactly()
+      end
+
       specify '#taxon_name_ids 1' do
         expect(query.taxon_name_ids).to eq([])
       end
