@@ -1,6 +1,6 @@
 
 <%= content_for :head do -%>
- <%= javascript_include_tag "http://www.google.com/jsapi", "chartkick" %>
+  <%= javascript_include_tag "https://www.gstatic.com/charts/loader.js", "chartkick" %>
 <% end %>
 
 <%= content_tag(:h1, "Stats for #{@project.name}", id: :top) -%>
