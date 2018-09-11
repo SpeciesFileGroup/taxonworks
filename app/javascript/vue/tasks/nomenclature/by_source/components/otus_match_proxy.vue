@@ -55,99 +55,60 @@
     data() {
       return {
         otu_name_list: [],
-        otu_id_list: []
+        otu_id_list: [],
       }
     },
     watch: {
       sourceID() {
-        // this.getCites();
-        this.getSourceOtus();
+        this.getSourceOtus()
       },
-      updateOtus() {
-        this.getSourceOtus();
+      taxon_names_cites() {
+        this.getSourceOtus()
+      },
+      taxon_relationship_cites() {
+        this.getSourceOtus()
+      },
+      taxon_classification_cites() {
+        this.getSourceOtus()
+      },
+      biological_association_cites() {
+        this.getSourceOtus()
+      },
+      distribution_cites() {
+        this.getSourceOtus()
       }
     },
-
     methods: {
-      getCites() {
-        return new Promise((resolve, reject) => {
-          this.$http.get('/citations.json?citation_object_type=Otu&source_id=' + this.sourceID).then(response => {
+      getSourceOtus() {
+        this.$http.get('/citations.json?citation_object_type=Otu&source_id=' + this.sourceID).then(response => {
             // citations currently until otu endpoint ready
+          this.otu_id_list = response.body;
+          let params = { otu_ids: this.getIdsList(this.otu_id_list) }
+          this.$http.get('/otus.json', { params: params }).then(response => {
             this.otu_name_list = response.body;
-            resolve(response.body);
+            this.processTypes()
           })
         })
-      },
-      getSourceOtus() {
-        return new Promise((resolve, reject) => {
-          this.$http.get('/citations.json?citation_object_type=Otu&source_id=' + this.sourceID).then(response => {
-            // citations currently until otu endpoint ready
-            this.otu_id_list = response.body;
-            // let nameIDs = this.processNames(this.otu_id_list);
-            let params = { otu_ids: this.otu_id_list.map((item) => { return item.citation_object_id }) };
-            console.log(params);
-            this.$http.get('/otus.json', { params: params }).then(response => {
-              this.otu_name_list = response.body;
-              this.processType(this.taxon_names_cites, 'taxon_name_ids'); // this.taxon_names_cites.forEach(this.addOtu);
-              this.processType(this.taxon_relationship_cites, 'taxon_name_relationships'); // this.taxon_relationship_cites.forEach(this.addOtu);
-              this.processType(this.taxon_classification_cites, 'taxon_name_classifications'); // this.taxon_classification_cites.forEach(this.addOtu);
-              this.processType(this.biological_association_cites, 'biological_associations'); // this.biological_association_cites.forEach(this.addOtu);
-              this.processType(this.distribution_cites, 'asserted_distributions'); // this.distribution_cites.forEach(this.addOtu);
-              this.$emit("updateEnd", false);
-              resolve(response.body);
-            })
-          });
-        })
-      },
-      getOtus(citation_object_type) {
-      // iterate through all citation object types to rebuild this list
-      //   this.otu_name_list = [];
-        this.getSourceOtus().then(response => {
-          this.processType(this.taxon_names_cites, 'taxon_name_ids'); // this.taxon_names_cites.forEach(this.addOtu);
-          this.processType(this.taxon_relationship_cites, 'taxon_name_relationships'); // this.taxon_relationship_cites.forEach(this.addOtu);
-          this.processType(this.taxon_classification_cites, 'taxon_name_classifications'); // this.taxon_classification_cites.forEach(this.addOtu);
-          this.processType(this.biological_association_cites, 'biological_associations'); // this.biological_association_cites.forEach(this.addOtu);
-          this.processType(this.distribution_cites, 'asserted_distributions'); // this.distribution_cites.forEach(this.addOtu);
-          this.$emit("updateEnd", false);
-        });
       },
       addOtu(cite) {
         this.otu_name_list.push(cite)
       },
-      processType(list, type) {
-        // list.forEach(getName)
-        let idList = list.map((item) => { return item.citation_object_id });
-        let params = {};
-        switch (type) {
-          case 'taxon_name_ids':
-          {params = { taxon_name_ids: idList};}
-            break;
-          case 'taxon_name_relationships':
-          {params = { taxon_name_relationship_ids: idList};}
-            break;
-          case 'taxon_name_classifications':
-          {params = { taxon_name_classification_ids: idList};}
-            break;
-          case 'biological_associations':
-          { params = { biological_association_ids: idList};}
-            break;
-          case 'asserted_distributions':
-          { params = { asserted_distribution_ids: idList};}
-            break;
+      getIdsList(list) {
+        return list.map((item) => { return item.citation_object_id })
+      },
+      processTypes() {
+        let params = {
+          taxon_name_ids: this.getIdsList(this.taxon_names_cites),
+          taxon_name_relationships_ids: this.getIdsList(this.taxon_relationship_cites),
+          taxon_name_classifications_ids: this.getIdsList(this.taxon_classification_cites),
+          biological_associations_ids: this.getIdsList(this.biological_association_cites),
+          distribution_cites_ids: this.getIdsList(this.distribution_cites),
         }
+
         this.$http.get('/otus.json', { params: params }).then(response => {
           this.otu_id_list = response.body;
           this.otu_id_list.forEach(this.addOtu);
-          // resolve(response);
-        }
-        )
-        // let taxonNames = [];
-        // for (item in list) {
-        //   if (item.citation_object_id) {
-        //     taxonNames.push(item.citation_object_id);
-        //   }
-        // }
-        // return taxonNames;
+        })
       }
     },
   }

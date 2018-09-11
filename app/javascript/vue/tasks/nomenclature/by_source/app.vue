@@ -46,8 +46,6 @@
             :taxon_classification_cites="taxon_classification_cites"
             :biological_association_cites="biological_association_cites"
             :distribution_cites="distribution_cites"
-            :updateOtus="updateOtus"
-            @updateEnd="updateOtus=false"
           />
         </div>
       </div>
@@ -81,7 +79,7 @@
       OtusMatchProxy,
       Spinner
     },
-data() {
+    data() {
       return {
         sourceID: undefined,
         isLoading: false,
@@ -91,24 +89,6 @@ data() {
         taxon_classification_cites: [],
         biological_association_cites: [],
         distribution_cites: [],
-        updateOtus: false
-      }
-    },
-    watch: {
-      taxon_names_cites() {
-        this.updateOtus = true
-      },
-      taxon_relationship_cites() {
-        this.updateOtus = true
-      },
-      taxon_classification_cites() {
-        this.updateOtus = true
-      },
-      biological_association_cites() {
-        this.updateOtus = true
-      },
-      distribution_cites() {
-        this.updateOtus = true
       }
     },
     methods: {
@@ -116,8 +96,5 @@ data() {
         this.updateOtus = true;
       }
     }
-    // mounted: {
-    //
-    // }
   }
 </script>
