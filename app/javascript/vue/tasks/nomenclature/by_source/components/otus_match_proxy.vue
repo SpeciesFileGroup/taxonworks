@@ -56,6 +56,7 @@
       return {
         otu_name_list: [],
         otu_id_list: [],
+        processingList: false
       }
     },
     watch: {
@@ -85,8 +86,18 @@
           this.otu_id_list = response.body;
           let params = { otu_ids: this.getIdsList(this.otu_id_list) };
           this.$http.get('/otus.json', { params: params }).then(response => {
+            let promises = []
             this.otu_name_list = response.body;
-            this.processTypes()
+
+            promises.push(this.processType(this.getIdsList(this.taxon_names_cites), 'taxon_name_ids'))
+            promises.push(this.processType(this.getIdsList(this.taxon_relationship_cites), 'taxon_name_relationship_ids'))
+            promises.push(this.processType(this.getIdsList(this.taxon_classification_cites), 'taxon_name_classification_ids'))
+            promises.push(this.processType(this.getIdsList(this.biological_association_cites), 'biological_association_ids'))
+            promises.push(this.processType(this.getIdsList(this.distribution_cites), 'asserted_distribution_ids'))
+
+            Promise.all(promises).then(lists => {
+              this.otu_id_list = [].concat.apply([], lists)
+            })
           })
         })
       },
@@ -95,6 +106,17 @@
       },
       getIdsList(list) {
         return list.map((item) => { return item.citation_object_id })
+      },
+      processType(list, type) {
+        return new Promise((resolve, reject) => {
+          let params = {
+            [type]: list
+          }
+          this.$http.get('/otus.json', { params: params }).then(response => {
+            response.body.forEach(this.addOtu);
+            resolve(response.body)
+          })          
+        })
       },
       processTypes() {
         let params = {
