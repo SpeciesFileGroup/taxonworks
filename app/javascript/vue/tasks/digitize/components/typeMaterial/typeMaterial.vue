@@ -9,7 +9,16 @@
     <div slot="body">
       <div>
         <label>Taxon name</label>
+        <div
+          v-if="taxon"
+          class="horizontal-left-content">
+          <span v-html="taxon.object_tag"/>
+          <span
+            class="button circle-button btn-delete"
+            @click="taxon = undefined"/>
+        </div>
         <autocomplete
+          v-else
           url="/taxon_names/autocomplete"
           min="2"
           param="term"
@@ -75,8 +84,13 @@
       checkForTypeList () {
         return this.types && this.taxon
       },
-      taxon() {
-        return this.$store.getters[GetterNames.GetTypeMaterial].taxon
+      taxon: {
+        get() {
+          return this.$store.getters[GetterNames.GetTypeMaterial].taxon
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetTypeMaterialTaxon)
+        }
       },
       type: {
         get() {

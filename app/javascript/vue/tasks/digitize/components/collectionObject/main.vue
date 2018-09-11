@@ -47,7 +47,7 @@
   import DepictionsComponent from '../shared/depictions.vue'
   import RepositoryComponent from './repository.vue'
   import { GetterNames } from '../../store/getters/getters'
-  import { MutationNames } from '../../store/mutations/mutations'
+  import { ActionNames } from '../../store/actions/actions'
   import BlockLayout from '../../../../components/blockLayout.vue'
   import RadialAnnotator from '../../../../components/annotator/annotator.vue'
   import { GetCollectionObjectDepictions } from '../../request/resources.js'
@@ -78,7 +78,7 @@
     },
     methods: {
       newCO() {
-        this.$store.commit(MutationNames.NewCollectionObject)
+        this.$store.dispatch(ActionNames.NewCollectionObject)
       }
     }
   }

@@ -99,6 +99,8 @@ function makeInitialState () {
       origin_citation_attributes: undefined,
       type_designator_roles: []
     },
+    materialTypes: [],
+    determinations: [],
     preferences: {},
     container: undefined,
     containerItems: [],

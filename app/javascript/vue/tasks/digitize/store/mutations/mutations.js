@@ -69,6 +69,8 @@ import setTypeMaterialProtonymId from './TypeMaterial/setTypeMaterialProtonymId'
 import setTypeMaterialRoles from './TypeMaterial/setTypeMaterialRoles'
 import setTypeMaterialType from './TypeMaterial/setTypeMaterialType'
 import setTypeMaterialTaxon from './TypeMaterial/setTypeMaterialTaxon'
+import addTypeMaterial from './TypeMaterial/addMaterialTypes'
+import newTypeMaterial from './TypeMaterial/newTypeMaterial'
 
 import setIdentifier from './Identifier/setIdentifier'
 import setIdentifierIdentifier from './Identifier/setIdentifierIdentifier'
@@ -117,6 +119,8 @@ const MutationNames = {
   SetTypeMaterialRoles: 'setTypeMaterialRoles',
   SetTypeMaterialType: 'setTypeMaterialType',
   SetTypeMaterialTaxon: 'setTypeMaterialTaxon',
+  AddTypeMaterial: 'addTypeMaterial',
+  NewTypeMaterial: 'newTypeMaterial',
 
   SetCollectionEvent: 'setCollectionEvent',
   SetCollectionEventPrintLabel: 'setCollectionEventPrintLabel',
@@ -204,6 +208,8 @@ const MutationFunctions = {
   [MutationNames.SetTypeMaterialRoles]: setTypeMaterialRoles,
   [MutationNames.SetTypeMaterialType]: setTypeMaterialType,
   [MutationNames.SetTypeMaterialTaxon]: setTypeMaterialTaxon,
+  [MutationNames.AddTypeMaterial]: addTypeMaterial,
+  [MutationNames.NewTypeMaterial]: newTypeMaterial,
 
   [MutationNames.SetCollectionEvent]: setCollectionEvent,
   [MutationNames.SetCollectionEventDocumentLabel]: setCollectionEventDocumentLabel,

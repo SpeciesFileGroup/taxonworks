@@ -12,6 +12,7 @@ import getCollectionObjectTypes from './getCollectionObjectTypes'
 import getPreferences from './getPreferences'
 import getBiocurations from './getBiocurations'
 import getPreparationType from './getPreparationType'
+import getMaterialTypes from './getMaterialTypes'
 
 const GetterNames = {
   GetTaxonDetermination: 'getTaxonDetermination',
@@ -27,7 +28,8 @@ const GetterNames = {
   GetCollectionObjectTypes: 'getCollectionObjectTypes',
   GetPreferences: 'getPreferences',
   GetBiocurations: 'getBiocurations',
-  GetPreparationType: 'getPreparationType'
+  GetPreparationType: 'getPreparationType',
+  GetMaterialTypes: 'getMaterialTypes'
 }
 
 const GetterFunctions = {
@@ -44,7 +46,8 @@ const GetterFunctions = {
   [GetterNames.GetCollectionObjectTypes]: getCollectionObjectTypes,
   [GetterNames.GetPreferences]: getPreferences,
   [GetterNames.GetBiocurations]: getBiocurations,
-  [GetterNames.GetPreparationType]: getPreparationType
+  [GetterNames.GetPreparationType]: getPreparationType,
+  [GetterNames.GetMaterialTypes]: getMaterialTypes
 }
 
 export {

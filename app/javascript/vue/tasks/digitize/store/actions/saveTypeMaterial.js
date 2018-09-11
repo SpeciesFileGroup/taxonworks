@@ -11,6 +11,7 @@ export default function ({ commit, state }) {
         UpdateTypeMaterial(type_material).then(response => {
           TW.workbench.alert.create('Taxon determination was successfully updated.', 'notice')
           commit(MutationNames.SetTypeMaterial, response)
+          commit(MutationNames.AddTypeMaterial, response)
           return resolve(response)
         })
       }
