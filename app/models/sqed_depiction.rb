@@ -39,7 +39,6 @@ class SqedDepiction < ApplicationRecord
   include Shared::Notes
 
   belongs_to :depiction
-
   has_one :image, through: :depiction
 
   validates_presence_of  :depiction
@@ -87,7 +86,7 @@ class SqedDepiction < ApplicationRecord
   #   the (named) sections in this depiction that may have collecting event label metadata
   def collecting_event_sections
       # !! master merge
-    [:collecting_event_labels, :annotated_specimen] & extraction_metadata[:target_metadata_map].values
+    [:collecting_event_labels, :annotated_specimen] & extraction_metadata[:metadata_map].values
   end
 
   def nearby_sqed_depictions(before = 5, after = 5)
