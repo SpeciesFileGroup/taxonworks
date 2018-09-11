@@ -979,6 +979,15 @@ TaxonWorks::Application.routes.draw do
   scope :api, defaults: { format: :json }, constraints: { id: /\d+/ } do
     scope  '/v1' do
 
+      get '/otus',
+        to: 'otus#index'
+
+      get '/biological_relationships',
+        to: 'biological_relationships#index'
+
+      get '/biological_associations',
+        to: 'biological_associations#index'
+
       get '/observation_matrices/:id/row',
         to: 'observation_matrices#row'
 
