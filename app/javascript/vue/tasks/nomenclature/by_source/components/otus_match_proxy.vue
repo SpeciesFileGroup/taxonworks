@@ -100,7 +100,7 @@
           this.processType(this.taxon_names_cites, 'taxon_name_ids'); // this.taxon_names_cites.forEach(this.addCite);
           this.processType(this.taxon_relationship_cites, 'taxon_name_relationships'); // this.taxon_relationship_cites.forEach(this.addCite);
           this.processType(this.taxon_classification_cites, 'taxon_name_classifications'); // this.taxon_classification_cites.forEach(this.addCite);
-          // this.processType(this.biological_association_cites, 'biological_association_cites'); // this.biological_association_cites.forEach(this.addCite);
+          this.processType(this.biological_association_cites, 'biological_associations'); // this.biological_association_cites.forEach(this.addCite);
           this.processType(this.distribution_cites, 'asserted_distributions'); // this.distribution_cites.forEach(this.addCite);
           this.$emit("updateEnd", false);
         });
@@ -123,7 +123,7 @@
           {params = { taxon_name_ids: idList};}
             break;
           case 'biological_associations':
-          { params = { biological_associations: idList};}
+          { params = { biological_association_ids: idList};}
             break;
           case 'asserted_distributions':
           { params = { otus: idList};}
