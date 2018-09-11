@@ -7,56 +7,66 @@
       <validation-component :show-message="!typeMaterialCheck"/>
     </div>
     <div slot="body">
-      <div>
-        <label>Taxon name</label>
-        <div
-          v-if="taxon"
-          class="horizontal-left-content">
-          <span v-html="taxon.object_tag"/>
-          <span
-            class="button circle-button btn-delete"
-            @click="taxon = undefined"/>
+      <div
+        v-if="typeMaterial.id"
+        class="horizontal-left-content">
+        <span v-html="typeMaterial.object_tag"/>
+        <span
+          class="button circle-button btn-delete"
+          @click="destroyTypeMateria(typeMaterial.id)"/>
+      </div>
+      <template v-else>
+        <div>
+          <label>Taxon name</label>
+          <div
+            v-if="taxon"
+            class="horizontal-left-content">
+            <span v-html="taxon.object_tag"/>
+            <span
+              class="button circle-button btn-delete"
+              @click="taxon = undefined"/>
+          </div>
+          <autocomplete
+            v-else
+            url="/taxon_names/autocomplete"
+            min="2"
+            param="term"
+            placeholder="Select a taxon name"
+            @getItem="selectTaxon"
+            label="label"
+            :add-params="{
+              'type[]': 'Protonym',
+              'nomenclature_group[]': 'SpeciesGroup',
+              valid: true
+          }"/>
         </div>
-        <autocomplete
-          v-else
-          url="/taxon_names/autocomplete"
-          min="2"
-          param="term"
-          placeholder="Select a taxon name"
-          @getItem="selectTaxon"
-          label="label"
-          :add-params="{
-            'type[]': 'Protonym',
-            'nomenclature_group[]': 'SpeciesGroup',
-            valid: true
-        }"/>
-      </div>
-      <div>
-        <label>Type type</label>
-        <br>
-        <select
-          v-model="type"
-          class="normal-input">
-          <template v-if="checkForTypeList">
+        <div>
+          <label>Type type</label>
+          <br>
+          <select
+            v-model="type"
+            class="normal-input">
+            <template v-if="checkForTypeList">
+              <option
+                class="capitalize"
+                :value="key"
+                v-for="(item, key) in types[taxon.nomenclatural_code]">{{ key }}
+              </option>
+            </template>
             <option
-              class="capitalize"
-              :value="key"
-              v-for="(item, key) in types[taxon.nomenclatural_code]">{{ key }}
-            </option>
-          </template>
-          <option
-            :value="undefined"
-            selected
-            disabled
-            v-else>Select a taxon name first</option>
-        </select>
-      </div>
-      <label>Type designator</label>
-      <role-picker
-        v-model="roles"
-        :autofocus="false"
-        role-type="TypeDesignator"
-        class="types_field"/>
+              :value="undefined"
+              selected
+              disabled
+              v-else>Select a taxon name first</option>
+          </select>
+        </div>
+        <label>Type designator</label>
+        <role-picker
+          v-model="roles"
+          :autofocus="false"
+          role-type="TypeDesignator"
+          class="types_field"/>
+      </template>
     </div>
   </block-layout>
 </template>
@@ -64,7 +74,7 @@
 <script>
 
   import Autocomplete from '../../../../components/autocomplete.vue'
-  import { GetTypes } from '../../request/resources.js'
+  import { GetTypes, DestroyTypeMaterial } from '../../request/resources.js'
   import RolePicker from '../../../../components/role_picker.vue'
   import ActionNames from '../../store/actions/actionNames.js'
   import { GetterNames } from '../../store/getters/getters.js'
@@ -83,6 +93,9 @@
     computed: {
       checkForTypeList () {
         return this.types && this.taxon
+      },
+      typeMaterial() {
+        return this.$store.getters[GetterNames.GetTypeMaterial]
       },
       taxon: {
         get() {
@@ -126,6 +139,11 @@
       selectTaxon(taxon) {
         this.$store.dispatch(ActionNames.GetTaxon, taxon.id)
       },
+      destroyTypeMateria(id) {
+        DestroyTypeMaterial(id).then(() => {
+          this.$store.commit(MutationNames.NewTypeMaterial)
+        })
+      }
     }
   }
 </script>

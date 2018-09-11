@@ -5,16 +5,18 @@ export default function ({ commit, dispatch, state }) {
     dispatch(ActionNames.SaveCollectionEvent).then(() => {
       dispatch(ActionNames.SaveCollectionObject).then(() => {
         dispatch(ActionNames.SaveTypeMaterial).then(() => {
-          if(!state.container) {
-            dispatch(ActionNames.SaveContainer).then(() => {
-              dispatch(ActionNames.SaveContainerItem)
+          dispatch(ActionNames.SaveIdentifier).then(() => {
+            dispatch(ActionNames.SaveDetermination).then(() => {
+              if(!state.container) {
+                dispatch(ActionNames.SaveContainer).then(() => {
+                  dispatch(ActionNames.SaveContainerItem)
+                })
+              }
+              else {
+                dispatch(ActionNames.SaveContainerItem)
+              }
             })
-          }
-          else {
-            dispatch(ActionNames.SaveContainerItem)
-          }
-          dispatch(ActionNames.SaveIdentifier)
-          dispatch(ActionNames.SaveDetermination)
+          })
         })
       })
     })
