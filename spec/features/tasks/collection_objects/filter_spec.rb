@@ -92,8 +92,8 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
         describe '#set_date', js: true do
           before { visit(collection_objects_filter_task_path) }
           it 'renders count of collection objects based on the start and end dates' do
-            execute_script("document.getElementById('search_end_date').value = '1980-12-31'")
-            find('#search_start_date').set('1971-01-01')
+            fill_in('search_start_date', with: Date.parse('1971-01-01'))
+            fill_in('search_end_date', with: Date.parse('1980-12-31'))
             find('#set_date').click
             expect(find('#date_count')).to have_content('1')
           end
@@ -102,10 +102,8 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
         describe '#find', js: true do
           before {
             visit(collection_objects_filter_task_path)
-            execute_script("document.getElementById('search_start_date').value = '1971-01-01'")
-            execute_script("document.getElementById('search_end_date').value = '1980-12-31'")
-            #  find('#search_start_date').set '1971/01/01'
-            #  find('#search_end_date').set '1980/12/31'
+            fill_in('search_start_date', with: Date.parse('1971-01-01'))
+            fill_in('search_end_date', with: Date.parse('1980-12-31'))
             find('#label_toggle_slide_area').click
             wait_for_ajax
             execute_script("document.getElementById('drawn_area_shape').type = 'text'")
@@ -114,9 +112,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             click_button('Set area')
             wait_for_ajax
             find('#find_area_and_date_commit').click
-            # find('#result_span', visible: false, text: '10')
             find('#area_count', visible: true, text: '2')
-            # expect(true).to be_truthy
           }
 
           it 'renders count of objects and table found using a drawn area and date range' do
@@ -135,8 +131,6 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
 
             expect(page).to have_button('Set Identifier Range')
             select('PSUC', from: 'id_namespace')
-            # s = find(:select, 'id_namespace')
-            # s.send_keys("P\t")
             expect(page).to have_text('PSUC_FEM')
           end
         end
@@ -241,12 +235,13 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
           it 'should find specific objects' do
             2.times { FactoryBot.create(:valid_specimen, creator: pat_admin, updater: pat_admin, project: @project) }
             (1..10).each { |specimen|
-              sp = FactoryBot.create(:valid_specimen,
-                                     creator:    (specimen.even? ? joe : pat),
-                                     created_at: "200#{specimen - 1}/01/#{specimen}",
-                                     updated_at: "200#{specimen - 1}/07/#{specimen}",
-                                     updater:    (specimen.even? ? pat : joe),
-                                     project:    @project)
+              sp = FactoryBot.create(
+                :valid_specimen,
+                creator:    (specimen.even? ? joe : pat),
+                created_at: "200#{specimen - 1}/01/#{specimen}",
+                updated_at: "200#{specimen - 1}/07/#{specimen}",
+                updater:    (specimen.even? ? pat : joe),
+                project:    @project)
             }
 
             expect(Specimen.created_by_user(pat_admin).count).to eq(2)
@@ -267,7 +262,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             wait_for_ajax
             expect(find('#user_date_range_count')).to have_content('14')
 
-            fill_in('user_date_range_start', with: '2005-01-01')
+            fill_in('user_date_range_start', with: Date.parse('2005-01-01'))
             fill_in('user_date_range_end', with: Date.yesterday)
 
             click_button('Set User/Date Range', {id: 'set_user_date_range'})
