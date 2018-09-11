@@ -2,7 +2,7 @@
   <table>
     <tr>
       <th>Pages</th>
-      <th>Otu</th>
+      <th>Object</th>
       <th>Radial</th>
       <th>Otu</th>
     </tr>
