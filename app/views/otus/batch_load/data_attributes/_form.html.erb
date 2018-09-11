@@ -1,14 +1,47 @@
 <%= form_tag url, multipart: true do -%>
+  <div class="field">
+    <%= label_tag :file, 'Select a file' -%>
+    <br>
+    <%= file_field_tag(:file, id: 'da_file') -%>
+  </div>
+
+  <% if @result.blank? %>
     <div class="field">
-      <%= label_tag :file, 'Select a file' -%>
-      <br>
-      <%= file_field_tag :file -%>
+      Create
+      <%= radio_button_tag(:type_select, 'internal', true) %> Internal
+      <%= radio_button_tag(:type_select, 'import', false) %> Import attributes for the otu.<br>
     </div>
+    <div class="field">
+      <%= check_box_tag('create_new_otu', nil, true) %>create new OTUs for unmatched OtuName<br>
+    </div>
+    <div class="field">
+      <%= check_box_tag('create_new_predicate', nil, true) %>create new Predicate for unmatched Predicate<br>
+    </div>
+  <% else %>
+    <div class="field">
+      <%= label_tag("Creating #{@result.type_select} attributes.") %>
+      <%= hidden_field_tag(:type_select, @result.type_select) -%>
+    </div>
+    <div class="field">
+      <%= label_tag("#{@result.create_new_otu ? 'C' : 'Not c'}reating new Otus.") %>
+      <%= hidden_field_tag(:create_new_otu, @result.create_new_otu) -%>
+    </div>
+    <div class="field">
+      <%= label_tag("#{@result.create_new_predicate ? 'C' : 'Not c'}reating new Predicates.") %>
+      <%= hidden_field_tag(:create_new_predicate, @result.create_new_predicate) -%>
+    </div>
+  <% end %>
+  <div class="field">
+    <%= text_field_tag('source_id',
+                       @result.blank? ? nil : @result.source&.id,
+                       placeholder: 'Enter source id to create a citation...',
+                       size: 26) %>
+  </div>
 
-    <% if @result -%>
-      <p> TODO: ADD OTHER METADATA INPUT OPTIONS HERE </p>
-    <% end %>
-
-    <%= content_for :warn_level -%>
-    <%= submit_tag submit -%>
+  <%= content_for :warn_level -%>
+  <% if @result.blank? -%>
+    <%= submit_tag('preview', id: 'da_preview') -%>
+  <% else %>
+    <%= submit_tag('create', id: 'da_create') -%>
+  <% end %>
 <% end %>

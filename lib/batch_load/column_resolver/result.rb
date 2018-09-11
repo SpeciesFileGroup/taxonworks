@@ -42,8 +42,10 @@ module BatchLoad::ColumnResolver
       if objects.class == Array
         if objects.size == 1
           @item = objects.first
+          @items = []
         else
           @items = objects
+          @item = nil
         end
       else
         @item = objects

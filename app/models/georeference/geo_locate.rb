@@ -6,6 +6,7 @@ class Georeference::GeoLocate < Georeference
   URI_HOST       = 'www.museum.tulane.edu'.freeze
   URI_PATH       = '/webservices/geolocatesvcv2/glcwrap.aspx?'.freeze
   URI_EMBED_PATH = '/geolocate/web/webgeoreflight.aspx?'.freeze
+  # URI_HOST       = 'www.geo-locate.org/web/webgeoreflight.aspx'.freeze
 
   # @param [Response] response
   # @return [RGeo object]
