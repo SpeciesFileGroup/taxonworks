@@ -83,7 +83,7 @@
         this.$http.get('/citations.json?citation_object_type=Otu&source_id=' + this.sourceID).then(response => {
             // citations currently until otu endpoint ready
           this.otu_id_list = response.body;
-          let params = { otu_ids: this.getIdsList(this.otu_id_list) }
+          let params = { otu_ids: this.getIdsList(this.otu_id_list) };
           this.$http.get('/otus.json', { params: params }).then(response => {
             this.otu_name_list = response.body;
             this.processTypes()
@@ -99,11 +99,11 @@
       processTypes() {
         let params = {
           taxon_name_ids: this.getIdsList(this.taxon_names_cites),
-          taxon_name_relationships_ids: this.getIdsList(this.taxon_relationship_cites),
-          taxon_name_classifications_ids: this.getIdsList(this.taxon_classification_cites),
-          biological_associations_ids: this.getIdsList(this.biological_association_cites),
-          distribution_cites_ids: this.getIdsList(this.distribution_cites),
-        }
+          taxon_name_relationship_ids: this.getIdsList(this.taxon_relationship_cites),
+          taxon_name_classification_ids: this.getIdsList(this.taxon_classification_cites),
+          biological_association_ids: this.getIdsList(this.biological_association_cites),
+          asserted_distribution_ids: this.getIdsList(this.distribution_cites),
+        };
 
         this.$http.get('/otus.json', { params: params }).then(response => {
           this.otu_id_list = response.body;
