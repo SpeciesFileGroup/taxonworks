@@ -117,20 +117,6 @@
             resolve(response.body)
           })          
         })
-      },
-      processTypes() {
-        let params = {
-          taxon_name_ids: this.getIdsList(this.taxon_names_cites),
-          taxon_name_relationship_ids: this.getIdsList(this.taxon_relationship_cites),
-          taxon_name_classification_ids: this.getIdsList(this.taxon_classification_cites),
-          biological_association_ids: this.getIdsList(this.biological_association_cites),
-          asserted_distribution_ids: this.getIdsList(this.distribution_cites),
-        };
-
-        this.$http.get('/otus.json', { params: params }).then(response => {
-          this.otu_id_list = response.body;
-          this.otu_id_list.forEach(this.addOtu);
-        })
       }
     },
   }
