@@ -469,6 +469,9 @@ TaxonWorks::Application.routes.draw do
       get :details
       post :merge, defaults: {format: :json}
     end
+    collection do
+      get :select_options, defaults: {format: :json}
+    end
   end
 
   resources :predicates, only: [] do

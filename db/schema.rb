@@ -1020,38 +1020,6 @@ ActiveRecord::Schema.define(version: 20180724034803) do
     t.index ["updated_by_id"], name: "index_loans_on_updated_by_id"
   end
 
-  create_table "lug_hierarchies", id: false, force: :cascade do |t|
-    t.integer "ancestor_id", null: false
-    t.integer "descendant_id", null: false
-    t.integer "generations", null: false
-    t.index ["ancestor_id", "descendant_id", "generations"], name: "lug_anc_desc_idx", unique: true
-    t.index ["descendant_id"], name: "lug_desc_idx"
-  end
-
-  create_table "lugs", id: :serial, force: :cascade do |t|
-    t.text "text", null: false
-    t.integer "otu_id"
-    t.integer "parent_id"
-    t.integer "redirect_id"
-    t.integer "position"
-    t.text "description"
-    t.string "label"
-    t.string "external_url"
-    t.string "external_url_text"
-    t.boolean "is_public"
-    t.integer "project_id"
-    t.integer "created_by_id"
-    t.integer "update_by_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["created_by_id"], name: "created_by_id_index"
-    t.index ["otu_id"], name: "index_lugs_on_otu_id"
-    t.index ["parent_id"], name: "index_lugs_on_parent_id"
-    t.index ["project_id"], name: "index_lugs_on_project_id"
-    t.index ["redirect_id"], name: "index_lugs_on_redirect_id"
-    t.index ["update_by_id"], name: "updated_by_id_index"
-  end
-
   create_table "namespaces", id: :serial, force: :cascade do |t|
     t.string "institution"
     t.string "name", null: false
@@ -1975,9 +1943,6 @@ ActiveRecord::Schema.define(version: 20180724034803) do
   add_foreign_key "loans", "projects", name: "loans_project_id_fkey"
   add_foreign_key "loans", "users", column: "created_by_id", name: "loans_created_by_id_fkey"
   add_foreign_key "loans", "users", column: "updated_by_id", name: "loans_updated_by_id_fkey"
-  add_foreign_key "lugs", "projects"
-  add_foreign_key "lugs", "users", column: "created_by_id", name: "lugs_created_by_id_fk"
-  add_foreign_key "lugs", "users", column: "update_by_id", name: "lugs_updated_by_id_fk"
   add_foreign_key "namespaces", "users", column: "created_by_id", name: "namespaces_created_by_id_fkey"
   add_foreign_key "namespaces", "users", column: "updated_by_id", name: "namespaces_updated_by_id_fkey"
   add_foreign_key "notes", "projects", name: "notes_project_id_fkey"

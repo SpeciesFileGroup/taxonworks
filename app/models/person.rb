@@ -113,6 +113,11 @@ class Person < ApplicationRecord
   scope :with_role, -> (role) { includes(:roles).where(roles: {type: role}) }
   scope :ordered_by_last_name, -> { order(:last_name) }
 
+  scope :used_recently, -> { joins(:roles).where(roles: { created_at: 1.weeks.ago..Time.now } ) }
+  scope :used_in_project, -> (project_id) { joins(:roles).where( roles: { project_id: project_id } ) }
+
+
+
   # @return [Boolean]
   #   !! overwrites IsData#is_in_use?
   def is_in_use?
@@ -389,6 +394,18 @@ class Person < ApplicationRecord
                                                            first_name: n['given'],
                                                            prefix:     n['non-dropping-particle']) }
   end
+
+  def self.select_optimized(user_id, project_id, role)
+    h = {
+      recent: Person.with_role(role).used_in_project(project_id).used_recently.limit(10).distinct.to_a,
+      pinboard: Person.pinned_by(user_id).pinned_in_project(project_id).to_a
+    }
+
+    h[:quick] = (Person.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  + h[:recent][0..3]).uniq
+    h
+  end
+
+
 
   protected
 
