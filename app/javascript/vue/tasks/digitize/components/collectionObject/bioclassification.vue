@@ -71,9 +71,9 @@ export default {
         }
         if (newVal != undefined && newVal != oldVal) {
           this.addQueue = []
-          GetBiocurationsCreated(newVal).then(response => {
-            this.createdBiocutarions = response
-          })
+          //GetBiocurationsCreated(newVal).then(response => {
+          //  this.createdBiocutarions = response
+          //})
         }
       },
       immediate: true
