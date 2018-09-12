@@ -55,6 +55,7 @@ describe Person, type: :model do
 
   context 'years' do
     before { person.year_died = 1920 }
+
     specify 'died after birth' do
       person.year_born = 1930
       person.valid?
@@ -67,6 +68,29 @@ describe Person, type: :model do
       expect(person.errors.include?(:year_active_start)).to be_truthy
     end
 
+    context 'as author/editor' do
+      before do 
+        person.last_name = 'Smith'
+        person.save!
+      end
+
+      specify 'active after death as editor - active start' do
+        source_bibtex.editors << person
+        person.reload
+        person.year_active_start = 1930
+        person.valid?
+        expect(person.errors.include?(:year_active_start)).to be_falsey
+      end
+
+      specify 'active after death as author - active start' do
+        source_bibtex.authors << person
+        person.reload
+        person.year_active_start = 1930
+        person.valid?
+        expect(person.errors.include?(:year_active_start)).to be_falsey
+      end
+    end
+
     specify 'not active after death - active end' do
       person.year_active_end = 1930
       person.valid?
@@ -74,14 +98,14 @@ describe Person, type: :model do
     end
 
     specify 'not active before birth - active start' do
-      person.year_born         = 1920
+      person.year_born = 1920
       person.year_active_start = 1890
       person.valid?
       expect(person.errors.include?(:year_active_start)).to be_truthy
     end
 
     specify 'not active before birth - active end' do
-      person.year_born       = 1920
+      person.year_born = 1920
       person.year_active_end = 1890
       person.valid?
       expect(person.errors.include?(:year_active_end)).to be_truthy
@@ -178,9 +202,9 @@ describe Person, type: :model do
         p = FactoryBot.create(:person,
                               first_name: 'January', last_name: 'Smith',
                               prefix:     'Dr.', suffix: 'III')
-        gr2.georeferencers << p
-        p.data_attributes << da1
-        p
+      gr2.georeferencers << p
+      p.data_attributes << da1
+      p
       }
       let!(:person1a) {
         p = person1.dup
@@ -194,11 +218,11 @@ describe Person, type: :model do
                               # type:              'Person::Unvetted',
                               year_born:         2000, year_died: 2015,
                               year_active_start: 2012, year_active_end: 2015)
-        tn2.taxon_name_authors << p
-        tn1.taxon_name_authors << p
-        gr1.georeferencers << p
-        p.data_attributes << da2
-        p
+      tn2.taxon_name_authors << p
+      tn1.taxon_name_authors << p
+      gr1.georeferencers << p
+      p.data_attributes << da2
+      p
       }
       let(:person1c) {
         p = FactoryBot.create(:person,
@@ -207,8 +231,8 @@ describe Person, type: :model do
                               # type:              'Person::Unvetted',
                               year_born:         2000, year_died: 2015,
                               year_active_start: 2012, year_active_end: 2015)
-        # additional attributes not replicated yet
-        p
+      # additional attributes not replicated yet
+      p
       }
       let(:person2) { FactoryBot.create(:person, first_name: 'J.', last_name: 'McDonald') }
       let(:person3) { FactoryBot.create(:person, first_name: 'D. Keith McE.', last_name: 'Kevan') }

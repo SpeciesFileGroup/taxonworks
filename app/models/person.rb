@@ -295,6 +295,7 @@ class Person < ApplicationRecord
               end
             end
           end
+
           # TODO: handle prefix and suffix
           if self.prefix.blank?
             self.prefix = r_person.prefix
@@ -303,6 +304,7 @@ class Person < ApplicationRecord
               # What to do when both have some content?
             end
           end
+
           if self.suffix.blank?
             self.suffix = r_person.suffix
           else
@@ -310,6 +312,7 @@ class Person < ApplicationRecord
               # What to do when both have some content?
             end
           end
+
           # TODO: handle years attributes
           if self.year_born.nil?
             self.year_born = r_person.year_born
@@ -318,6 +321,7 @@ class Person < ApplicationRecord
               # What to do when both have some (different) numbers?
             end
           end
+
           if self.year_died.nil?
             self.year_died = r_person.year_died
           else
@@ -325,22 +329,26 @@ class Person < ApplicationRecord
               # What to do when both have some (different) numbers?
             end
           end
+
           if r_person.year_active_start # if not, r_person has nothing to contribute
             if self.year_active_start.nil? || (self.year_active_start > r_person.year_active_start)
               self.year_active_start = r_person.year_active_start
             end
           end
+
           if r_person.year_active_end # if not, r_person has nothing to contribute
             if self.year_active_end.nil? || (self.year_active_end < r_person.year_active_end)
               self.year_active_end = r_person.year_active_end
             end
           end
+
           # update type, if necesssary
           if self.type.include?('Unv')
             unless unvetted
               self.update(type: 'Person::Vetted')
             end
           end
+
           # last thing to do in the transaction...
           self.save! unless self.persisted?
         end
@@ -404,8 +412,11 @@ class Person < ApplicationRecord
 
   # @return [Ignored]
   def not_active_after_death
-    errors.add(:year_active_start, 'is older than year of death') if year_active_start && year_died && year_active_start > year_died
-    errors.add(:year_active_end, 'is older than year of death') if year_active_end && year_died && year_active_end > year_died
+    unless is_editor? || is_author?
+      errors.add(:year_active_start, 'is older than year of death') if year_active_start && year_died && year_active_start > year_died
+      errors.add(:year_active_end, 'is older than year of death') if year_active_end && year_died && year_active_end > year_died
+    end
+    true 
   end
 
   # @return [Ignored]
