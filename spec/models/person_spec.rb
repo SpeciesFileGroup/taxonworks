@@ -74,14 +74,14 @@ describe Person, type: :model do
     end
 
     specify 'not active before birth - active start' do
-      person.year_born         = 1920
+      person.year_born = 1920
       person.year_active_start = 1890
       person.valid?
       expect(person.errors.include?(:year_active_start)).to be_truthy
     end
 
     specify 'not active before birth - active end' do
-      person.year_born       = 1920
+      person.year_born = 1920
       person.year_active_end = 1890
       person.valid?
       expect(person.errors.include?(:year_active_end)).to be_truthy

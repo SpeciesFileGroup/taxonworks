@@ -80,12 +80,13 @@ class Person < ApplicationRecord
   validate :not_active_before_birth
   validate :not_gandalf
 
+  # TODO: remove this
   before_validation :set_type_if_blank
 
   after_save :set_cached, unless: Proc.new { |n| n.no_cached || errors.any? }
 
   validates :type, inclusion: {
-    in:      ['Person::Vetted', 'Person::Unvetted'],
+    in: ['Person::Vetted', 'Person::Unvetted'],
     message: '%{value} is not a validly_published type'}
 
   has_many :roles, dependent: :destroy, inverse_of: :person
@@ -115,8 +116,6 @@ class Person < ApplicationRecord
 
   scope :used_recently, -> { joins(:roles).where(roles: { created_at: 1.weeks.ago..Time.now } ) }
   scope :used_in_project, -> (project_id) { joins(:roles).where( roles: { project_id: project_id } ) }
-
-
 
   # @return [Boolean]
   #   !! overwrites IsData#is_in_use?
@@ -174,8 +173,6 @@ class Person < ApplicationRecord
     Person.where('levenshtein(last_name, ?) < ? and levenshtein(first_name, ?) < ?', last_name, cutoff, first_name, cutoff) 
   end
 
-  #  rubocop:disable Metrics/BlockNesting
-  #  rubocop:disable Metrics/MethodLength
   # @param [Integer] person_id
   # @return [Boolean]
   #   true if all records updated, false if any one failed (all or none)
@@ -356,9 +353,6 @@ class Person < ApplicationRecord
     true
   end
 
-  #  rubocop:enable Metrics/BlockNesting
-  #  rubocop:enable Metrics/MethodLength
-
   # @return [Boolean]
   def is_determiner?
     determiner_roles.to_a.length > 0
@@ -404,8 +398,6 @@ class Person < ApplicationRecord
     h[:quick] = (Person.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  + h[:recent][0..3]).uniq
     h
   end
-
-
 
   protected
 
