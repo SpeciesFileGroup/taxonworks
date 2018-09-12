@@ -232,7 +232,9 @@ class OtusController < ApplicationController
   end
 
   def batch_params
-    params.permit(:name, :file, :import_level, files: [])
+    params.permit(:name, :file, :import_level,
+                  :create_new_otu, :source_id, :type_select, :create_new_predicate,
+                  files: [])
       .merge(
         user_id: sessions_current_user_id,
         project_id: sessions_current_project_id)
@@ -243,7 +245,8 @@ class OtusController < ApplicationController
   def filter_params
     params.permit(
       :taxon_name_id, :otu_id,
-      biological_association_ids: [], taxon_name_ids: [], otu_ids: []
+      biological_association_ids: [], taxon_name_ids: [], otu_ids: [],
+      taxon_name_classification_ids: [], taxon_name_relationship_ids: [], asserted_distribution_ids: []
     )
   end
 

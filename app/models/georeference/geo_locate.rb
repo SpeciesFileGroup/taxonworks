@@ -206,7 +206,7 @@ class Georeference::GeoLocate < Georeference
     def build_param_string
       # @request_param_string ||= @request_params.collect { |key, value| "#{key}=#{value}" }.join('&')
       ga                     = request_params_hash
-      params_string          = 'http://' + URI_HOST_2 + URI_EMBED_PATH
+      params_string          = 'http://' + URI_HOST_2 + URI_EMBED_PATH +
         "country=#{ga['country']}&state=#{ga['state']}&county=#{ga['county']}&locality=#{ga['locality']}&points=" \
         "#{ga['Latitude']}|#{ga['Longitude']}|#{ga['Placename']}|#{ga['Score']}|#{ga['Uncertainty']}" \
         "&georef=run|#{ga['H20']}|#{ga['HwyX']}|#{ga['Uncert']}|#{ga['Poly']}|#{ga['DisplacePoly']}|" \

@@ -7,20 +7,31 @@ module BatchLoad::ColumnResolver
   class << self
 
     # @param [Hash] columns
+    # @param [String] type of DataAttribute
     # @return [BatchLoad::ColumnResolver::Result]
-    def import_attribute(columns)
+    def data_attribute(columns, type = 'import')
       r = BatchLoad::ColumnResolver::Result.new
 
       predicate = columns['predicate']
-      value     = columns['value']
-      r.assign(ImportAttribute.new(import_predicate: predicate, value: value, project_id: columns['project_id']))
-
+      value = columns['value']
+      proj_id = columns['project_id']
+      r.error_messages << 'No column for \'Value\' was provided.' unless columns.key?('value')
+      r.error_messages << 'No column for \'Predicate\' was provided.' unless columns.key?('predicate')
       r.error_messages << 'No contents for \'Value\' was provided.' if value.blank?
       r.error_messages << 'No contents for \'Predicate\' was provided.' if predicate.blank?
+
+      if type.start_with?('im')
+        r.assign(DataAttribute.where(import_predicate: predicate, value: value, project_id: proj_id).to_a)
+      else
+        cvt = ControlledVocabularyTerm.find_by(name: predicate, project_id: proj_id)
+        r.assign(DataAttribute.where(controlled_vocabulary_term_id: cvt&.id, value: value, project_id: proj_id).to_a)
+      end
+      r.error_messages << "Multiple data_attributes match for '#{predicate}' and '#{value}'.'" if r.multiple_matches?
 
       r
     end
 
+    # rubocop:disable Metrics/MethodLength
     # @param [Hash] columns
     # @return [BatchLoad::ColumnResolver::Result]
     def otu(columns)
@@ -29,7 +40,7 @@ module BatchLoad::ColumnResolver
       if columns['otu_id']
         begin
           r.assign Otu.find(columns['otu_id'])
-        rescue => e # ActiveRecord::RecordNotFound
+        rescue => _e # ActiveRecord::RecordNotFound
           r.error_messages << "No OTU with id #{columns['otu_id']} exists."
         end
       elsif columns['otu_name']
@@ -39,12 +50,13 @@ module BatchLoad::ColumnResolver
       elsif columns['taxon_name']
         r.assign Otu.joins(:taxon_names).where(taxon_names: {cached: columns['taxon_name']}, project_id: columns['project_id']).limit(10).to_a
         r.error_messages << "Multiple OTUs matched the taxon name '#{columns['taxon_name']}'." if r.multiple_matches?
-      elsif columns['otuname']
+      elsif columns.key?('otuname')
         name = columns['otuname']
-        list = Otu.where(name: name, project_id: columns['project_id']).limit(2)
+        proj_id = columns['project_id']
+        list = Otu.where(name: name, project_id: proj_id).limit(2)
         if list.blank? # treat it like a taxon name
           list = Otu.joins(:taxon_name)
-                     .where(taxon_names: {cached: name}, project_id: columns['project_id'])
+                     .where(taxon_names: {cached: name}, project_id: proj_id)
                      .limit(2)
         end
         r.assign(list.to_a)
@@ -56,6 +68,8 @@ module BatchLoad::ColumnResolver
 
       r
     end
+
+    # rubocop:enable Metrics/MethodLength
 
     # @param [Hash] columns
     # @return [BatchLoad::ColumnResolver::Result]

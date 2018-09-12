@@ -52,6 +52,7 @@ module Queries
       # @return [Arel::Node, nil]
       def matching_polymorphic_ids
         nodes = Queries::Annotator.polymorphic_nodes(polymorphic_ids, ::Citation)
+        return nil if nodes.nil?
         a = nodes.shift
         nodes.each do |b|
           a = a.and(b)
