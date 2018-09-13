@@ -21,21 +21,18 @@
         </li>
       </ul>
     </template>
-    <autocomplete
-      v-if="view == 'search'"
-      url="/people/autocomplete"
-      placeholder="Search"
-      min="2"
-      display="label"
-      label="label_html"
-      param="term"/>
+    <role-picker
+      v-if="view == 'new' || view == 'search'"
+      v-model="collector"
+      :autofocus="false"
+      role-type="Collector"/>
   </div>
 </template>
 
 <script>
 
 import SmartSelector from '../../../../../../components/switch.vue'
-import Autocomplete from '../../../../../../components/autocomplete.vue'
+import RolePicker from '../../../../../../components/role_picker.vue'
 import { GetCollectorsSmartSelector } from '../../../../request/resources.js'
 import { GetterNames } from '../../../../store/getters/getters.js'
 import { MutationNames } from '../../../../store/mutations/mutations.js'
@@ -43,15 +40,15 @@ import { MutationNames } from '../../../../store/mutations/mutations.js'
 export default {
   components: {
     SmartSelector,
-    Autocomplete
+    RolePicker
   },
   computed: {
     collector: {
       get() {
-        return this.$store.getters[GetterNames.GetCollectionEvent.collector]
+        return this.$store.getters[GetterNames.GetCollectionEvent.roles_attributes]
       },
       set(value) {
-        this.$store.commit(MutationNames.SetCollectionEventCollectors, value)
+        this.$store.commit(MutationNames.SetCollectionEventRoles, value)
       }
     }
   },

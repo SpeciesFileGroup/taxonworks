@@ -59,6 +59,7 @@ import setCollectionEventMaximumElevation from './CollectionEvent/setCollectionE
 import setCollectionEventMinimumElevation from './CollectionEvent/setCollectionEventMinimumElevation'
 import setCollectionEventMaxMa from './CollectionEvent/setCollectionEventMaxMa'
 import setCollectionEventMinMa from './CollectionEvent/setCollectionEventMinMa'
+import setCollectionEventRoles from './CollectionEvent/setCollectionEventRoles'
 
 import setTypeMaterial from './TypeMaterial/setTypeMaterial'
 import setTypeMaterialBiologicalObjectId from './TypeMaterial/setTypeMaterialBiologicalObjectId'
@@ -154,6 +155,7 @@ const MutationNames = {
   SetCollectionEventMinimumElevation: 'setCollectionEventMinimumElevation',
   SetCollectionEventMaxMa: 'setCollectionEventMaxMa',
   SetCollectionEventMinMa: 'setCollectionEventMinMa',
+  SetCollectionEventRoles: 'setCollectionEventRoles',
 
   SetCollectionObjectTypes: 'setCollectionObjectTypes',
   SetCollectionObject: 'setCollectionObject',
@@ -243,6 +245,7 @@ const MutationFunctions = {
   [MutationNames.SetCollectionEventMinimumElevation]: setCollectionEventMinimumElevation,
   [MutationNames.SetCollectionEventMaxMa]: setCollectionEventMaxMa,
   [MutationNames.SetCollectionEventMinMa]: setCollectionEventMinMa,
+  [MutationNames.SetCollectionEventRoles]: setCollectionEventRoles,
 
   [MutationNames.SetCollectionObject]: setCollectionObject,
   [MutationNames.SetCollectionObjectTypes]: setCollectionObjectTypes,
