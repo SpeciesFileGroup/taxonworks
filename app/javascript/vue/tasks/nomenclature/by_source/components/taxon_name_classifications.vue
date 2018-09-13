@@ -2,7 +2,8 @@
   <div>
     <h2>Taxon Name Classifications</h2>
     <table-component
-      :list="taxon_classification_cites_list"/>
+      :list="taxon_classification_cites_list"
+      @delete="removeFromList(citation.id)"/>
   </div>
 </template>
 <script>
@@ -42,6 +43,13 @@
           this.taxon_classification_cites_list = response.body;
           this.$emit("taxon_classification_cites", this.taxon_classification_cites_list)
         })
+      },
+      removeFromList(citationID) {
+        let index = this.taxon_classification_cites_list.findIndex(item => {
+          return item.id == citationID
+        });
+        if (index > -1)
+          this.taxon_classification_cites_list.splice(index, 1)
       },
     },
   }

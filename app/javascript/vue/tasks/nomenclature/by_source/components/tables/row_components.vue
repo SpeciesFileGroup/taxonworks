@@ -49,13 +49,15 @@ export default {
         clearTimeout(this.autoSave)
       }
       this.autoSave = setTimeout(() => {
-        that.$http.patch('/citations/' + this.citation.id  + '.json', { citation: this.citation })
+        that.$http.patch('/citations/' + this.citation.id  + '.json', { citation: this.citation }).then(response => {
+          TW.workbench.alert.create('Citation was successfully updated.', 'notice')
+        })
       }, this.time)
     },
     removeMe() {
       if(window.confirm(`You're about to delete this citation record. Are you sure want to proceed?`)) {
         this.$http.delete('/citations/' + this.citation.id  + '.json').then(() => {
-          this.$emit('delete', this.citation)
+          this.$emit('delete', this.citation);
           TW.workbench.alert.create('Citation was successfully destroyed.', 'notice')
         })
       }
