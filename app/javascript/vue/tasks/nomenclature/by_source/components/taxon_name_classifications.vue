@@ -42,7 +42,7 @@
           this.taxon_classification_cites_list = response.body;
           this.$emit("taxon_classification_cites", this.taxon_classification_cites_list)
         })
-      }
+      },
     },
   }
 

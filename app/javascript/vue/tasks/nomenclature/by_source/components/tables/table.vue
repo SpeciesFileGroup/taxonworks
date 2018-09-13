@@ -8,6 +8,7 @@
     </tr>
     <row-components 
       v-for="item in list"
+      @delete="removeCitation"
       :citation="item"/>
   </table>  
 </template>
@@ -24,6 +25,14 @@ export default {
     list: {
       type: Array,
       required: true
+    }
+  },
+  methods: {
+    removeCitation(citation) {
+      let index = this.list.findIndex((item) => { return citation.id == item.id })
+      if(index > -1) {
+        this.list.splice(index, 1)
+      }
     }
   }
 }
