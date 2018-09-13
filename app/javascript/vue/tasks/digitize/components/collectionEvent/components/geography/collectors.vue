@@ -23,9 +23,10 @@
     </template>
     <autocomplete
       v-if="view == 'search'"
-      url="/url"
+      url="/people/autocomplete"
       placeholder="Search"
       min="2"
+      display="label"
       label="label_html"
       param="term"/>
   </div>
@@ -57,7 +58,7 @@ export default {
   data() {
     return {
       options: [],
-      view: undefined,
+      view: 'search',
       lists: undefined
     }
   },
@@ -79,7 +80,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>

@@ -42,7 +42,7 @@ const GetRepositorySmartSelector = function () {
 }
 
 const GetCollectorsSmartSelector = function () {
-  return ajaxCall('get', `/collectors/select_options`)
+  return ajaxCall('get', `/people/select_options?role=Collector`)
 }
 
 const GetGeographicSmartSelector = function () {
