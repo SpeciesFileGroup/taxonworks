@@ -68,6 +68,7 @@ RUN chmod +x /etc/my_init.d/init.sh && \
 RUN chown 9999:9999 /app/public
 RUN chown 9999:9999 /app/public/images/tmp
 RUN chown 9999:9999 /app/public/packs
+RUN chown 9999:9999 /app/log/
 
 CMD ["/sbin/my_init"]
 

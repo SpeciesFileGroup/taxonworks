@@ -90,7 +90,7 @@ module Queries
         if a = and_clauses
           ::BiologicalAssociation.where(and_clauses)
         else
-          ::BiologicalAssociation.none
+          ::BiologicalAssociation.all
         end
       end
 
