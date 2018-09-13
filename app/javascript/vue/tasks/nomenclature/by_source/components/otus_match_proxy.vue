@@ -101,8 +101,8 @@
           })
         })
       },
-      addOtu(cite) {
-        this.otu_name_list.push(cite)
+      addOtu(otu) {
+        this.otu_name_list.push(otu)
       },
       getIdsList(list) {
         return list.map((item) => { return item.citation_object_id })
@@ -111,11 +111,11 @@
         return new Promise((resolve, reject) => {
           let params = {
             [type]: list
-          }
+          };
           this.$http.get('/otus.json', { params: params }).then(response => {
             response.body.forEach(this.addOtu);
             resolve(response.body)
-          })          
+          })
         })
       }
     },

@@ -15,6 +15,7 @@
         :taxon-id="citation.citation_object_id"
         :redirect="false"/>
     </td>
+    <td><span class="button circle-button btn-delete" @click="removeMe()"/></td>
   </tr>
 </template>
 
@@ -43,13 +44,21 @@ export default {
   },
   methods: {
     changePage() {
-      let that = this
+      let that = this;
       if(this.autoSave) {
         clearTimeout(this.autoSave)
       }
       this.autoSave = setTimeout(() => {
-        that.$http.post('/citations.json', { citation: this.citation })
+        that.$http.patch('/citations/' + this.citation.id  + '.json', { citation: this.citation })
       }, this.time)
+    },
+    removeMe() {
+      if(window.confirm(`You're about to delete this citation record. Are you sure want to proceed?`)) {
+        this.$http.delete('/citations/' + this.citation.id  + '.json').then(
+          TW.workbench.alert.create('Citation was successfully destroyed.', 'notice')
+        )
+      }
+
     }
   }
 }
