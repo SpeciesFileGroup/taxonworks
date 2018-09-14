@@ -72,7 +72,7 @@ namespace :tw do
     end
     @args.merge!(data_directory: (ENV['data_directory'] || default))
     # TODO: Use Dir.exists? and fix tasks that are treating data_directory as a file parameter
-    raise "path (#{default}) not found" if !File.exists?(@args[:data_directory])
+    raise Rainbow("Path to data directory (#{default}) not found").red if !File.exists?(@args[:data_directory])
     @args
   end
 
