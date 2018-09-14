@@ -14,6 +14,7 @@
         <div class="first-column">
           <otus-by-match
             :sourceID="sourceID"
+            @otu_names_cites="otu_names_cites=$event"
           />
           <cite-taxon-name
             :sourceID="sourceID"
@@ -75,8 +76,8 @@
     components: {
       SmartSelector,
       NomenSource,
-      CiteTaxonName,
       OtusByMatch,
+      CiteTaxonName,
       TaxonNames,
       TaxonNameRelationships,
       TaxonNameClassifications,

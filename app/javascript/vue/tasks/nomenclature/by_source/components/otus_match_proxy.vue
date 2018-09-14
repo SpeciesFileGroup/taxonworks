@@ -27,6 +27,10 @@
         type: String,
         default: "0",
       },
+      otu_names_cites: {
+        type: Array,
+        default: [],
+      },
       taxon_names_cites: {
         type: Array,
         default: [],
@@ -63,6 +67,9 @@
       sourceID() {
         this.getSourceOtus()
       },
+      otu_names_cites() {
+        this.getSourceOtus()
+      },
       taxon_names_cites() {
         this.getSourceOtus()
       },
@@ -86,9 +93,10 @@
           this.otu_id_list = response.body;
           let params = { otu_ids: this.getIdsList(this.otu_id_list) };
           this.$http.get('/otus.json', { params: params }).then(response => {
-            let promises = []
+            let promises = [];
             this.otu_name_list = response.body;
 
+            promises.push(this.processType(this.getIdsList(this.otu_names_cites), 'otu_ids'))
             promises.push(this.processType(this.getIdsList(this.taxon_names_cites), 'taxon_name_ids'))
             promises.push(this.processType(this.getIdsList(this.taxon_relationship_cites), 'taxon_name_relationship_ids'))
             promises.push(this.processType(this.getIdsList(this.taxon_classification_cites), 'taxon_name_classification_ids'))
