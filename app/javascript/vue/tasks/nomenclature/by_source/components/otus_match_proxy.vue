@@ -5,10 +5,8 @@
   </div>
 </template>
 <script>
-  // list items are to be annotatable OTUs
+  // list items are annotatable OTUs
   // update list when changes occur in any of the citation list items
-  //   mechanism for triggering reaction?
-
   import RadialAnnotator from '../../../../components/annotator/annotator.vue'
   import OtuRadial from '../../../../components/otu/otu.vue'
   import OtuTableComponent from './tables/otu_table.vue'
@@ -88,19 +86,19 @@
     },
     methods: {
       getSourceOtus() {
-          let promises = [];
-          this.otu_name_list = [];
+        let promises = [];
+        this.otu_name_list = [];
 
-          promises.push(this.processType(this.getIdsList(this.otu_names_cites), 'otu_ids'));
-          promises.push(this.processType(this.getIdsList(this.taxon_names_cites), 'taxon_name_ids'));
-          promises.push(this.processType(this.getIdsList(this.taxon_relationship_cites), 'taxon_name_relationship_ids'));
-          promises.push(this.processType(this.getIdsList(this.taxon_classification_cites), 'taxon_name_classification_ids'));
-          promises.push(this.processType(this.getIdsList(this.biological_association_cites), 'biological_association_ids'));
-          promises.push(this.processType(this.getIdsList(this.distribution_cites), 'asserted_distribution_ids'));
+        promises.push(this.processType(this.getIdsList(this.otu_names_cites), 'otu_ids'));
+        promises.push(this.processType(this.getIdsList(this.taxon_names_cites), 'taxon_name_ids'));
+        promises.push(this.processType(this.getIdsList(this.taxon_relationship_cites), 'taxon_name_relationship_ids'));
+        promises.push(this.processType(this.getIdsList(this.taxon_classification_cites), 'taxon_name_classification_ids'));
+        promises.push(this.processType(this.getIdsList(this.biological_association_cites), 'biological_association_ids'));
+        promises.push(this.processType(this.getIdsList(this.distribution_cites), 'asserted_distribution_ids'));
 
-          Promise.all(promises).then(lists => {
-            this.otu_id_list = [].concat.apply([], lists)
-          })
+        Promise.all(promises).then(lists => {
+          this.otu_id_list = [].concat.apply([], lists)
+        })
       },
       addOtu(otu) {
         if((this.otu_name_list.findIndex(item => {return item.id == otu.id})) < 0) {
@@ -123,5 +121,4 @@
       }
     },
   }
-
 </script>

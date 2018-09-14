@@ -34,7 +34,6 @@
         this.getCites();
       }
     },
-
     methods: {
       getCites() {
         this.$http.get('/citations.json?citation_object_type=AssertedDistribution&source_id=' + this.sourceID).then(response => {
@@ -45,5 +44,4 @@
       }
     },
   }
-
 </script>

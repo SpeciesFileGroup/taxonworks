@@ -6,11 +6,9 @@
   </div>
 </template>
 <script>
-
   import RadialAnnotator from '../../../../components/annotator/annotator.vue'
   import OtuRadial from '../../../../components/otu/otu.vue'
   import TableComponent from './tables/table.vue'
-
   export default {
     components: {
       RadialAnnotator,

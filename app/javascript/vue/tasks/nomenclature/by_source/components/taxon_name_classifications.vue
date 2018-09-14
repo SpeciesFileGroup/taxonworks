@@ -18,7 +18,7 @@
     },
     props: {
       value: {
-
+        type: String
       },
       sourceID: {
         type: String,
@@ -46,5 +46,4 @@
       },
     },
   }
-
 </script>
