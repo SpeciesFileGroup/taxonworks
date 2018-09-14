@@ -12,6 +12,9 @@
     <div class="flexbox">
       <div class="flexbox">
         <div class="first-column">
+          <otus-by-match
+            :sourceID="sourceID"
+          />
           <cite-taxon-name
             :sourceID="sourceID"
             @foundTaxon="newTaxonNameCitation=$event"
@@ -41,6 +44,7 @@
         <div class="second-column">
           <otus-match-proxy
             :sourceID="sourceID"
+            :otu_names_cites="otu_names_cites"
             :taxon_names_cites="taxon_names_cites"
             :taxon_relationship_cites="taxon_relationship_cites"
             :taxon_classification_cites="taxon_classification_cites"
@@ -57,6 +61,7 @@
   import SmartSelector from './components/smartSelector'
   import NomenSource from './components/nomen_source'
   import CiteTaxonName from './components/cite_taxon_name'
+  import OtusByMatch from './components/otus_by_match'
   import TaxonNames from './components/taxon_names'
   import TaxonNameRelationships from './components/taxon_name_relationships'
   import TaxonNameClassifications from './components/taxon_name_classifications'
@@ -71,6 +76,7 @@
       SmartSelector,
       NomenSource,
       CiteTaxonName,
+      OtusByMatch,
       TaxonNames,
       TaxonNameRelationships,
       TaxonNameClassifications,
@@ -84,6 +90,7 @@
         sourceID: undefined,
         isLoading: false,
         newTaxonNameCitation: {},
+        otu_names_cites: [],
         taxon_names_cites: [],
         taxon_relationship_cites: [],
         taxon_classification_cites: [],

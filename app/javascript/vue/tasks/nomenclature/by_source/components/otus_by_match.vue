@@ -1,8 +1,8 @@
 <template>
   <div>
-    <h2>Taxon Names</h2>
-    <table-component 
-      :list="taxon_names_cites_list"/>
+    <h2>OTU Names</h2>
+    <table-component
+        :list="otu_names_cites_list"/>
   </div>
 </template>
 <script>
@@ -23,7 +23,7 @@
       },
       sourceID: {
         type: String,
-        default: "0" //window.location.href.split('/')[1]
+        default: "0"
       },
       newTaxon: {
         type: Object,
@@ -32,7 +32,7 @@
     },
     data() {
       return {
-        taxon_names_cites_list: []
+        otu_names_cites_list: []
       }
     },
     watch: {
@@ -45,14 +45,14 @@
     },
     methods: {
       getCites() {
-        this.$http.get('/citations.json?citation_object_type=TaxonName&source_id=' + this.sourceID).then(response => {
+        this.$http.get('/citations.json?citation_object_type=Otu&source_id=' + this.sourceID).then(response => {
           // build the tabular list, extracting the
-          this.taxon_names_cites_list = response.body;
-          this.$emit("taxon_names_cites", this.taxon_names_cites_list)
+          this.otu_names_cites_list = response.body;
+          this.$emit("otu_names_cites", this.otu_names_cites_list)
         })
       },
       addToList(citation) {
-        this.taxon_names_cites_list.push(citation);
+        this.otu_names_cites_list.push(citation);
       }
     },
   }
