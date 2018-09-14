@@ -52,6 +52,9 @@ export default {
         that.$http.patch('/citations/' + this.citation.id  + '.json', { citation: this.citation }).then(response => {
           TW.workbench.alert.create('Citation was successfully updated.', 'notice')
         })
+        // that.$http.post('/citations/.json', { citation: this.citation }).then(response => {
+        //   TW.workbench.alert.create('Citation was successfully created.', 'notice')
+        // })     // above block for CREATE-ing new citations on page edit
       }, this.time)
     },
     removeMe() {

@@ -102,7 +102,9 @@
         })
       },
       addOtu(otu) {
-        this.otu_name_list.push(otu)
+        if((this.otu_name_list.findIndex(item => {return item.id == otu.id})) < 0) {
+          this.otu_name_list.push(otu)
+        }
       },
       getIdsList(list) {
         return list.map((item) => { return item.citation_object_id })
