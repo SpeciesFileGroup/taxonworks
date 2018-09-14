@@ -87,26 +87,26 @@
       }
     },
     methods: {
-      getSourceOtus() {
+      getSourceOtus() {       // cobbled to get OTUs from otu_names_cites, but with non sequitur initial GET
         this.$http.get('/citations.json?citation_object_type=Otu&source_id=' + this.sourceID).then(response => {
-            // citations currently until otu endpoint ready
           this.otu_id_list = response.body;
-          let params = { otu_ids: this.getIdsList(this.otu_id_list) };
-          this.$http.get('/otus.json', { params: params }).then(response => {
+          // let params = { otu_ids: this.getIdsList(this.otu_id_list) };         /////////////// =>  block commented
+          // this.$http.get('/otus.json', { params: params }).then(response => {  ///////////////
             let promises = [];
-            this.otu_name_list = response.body;
+          // this.otu_name_list = response.body;                                  ///////////////
+          this.otu_name_list = [];
 
-            promises.push(this.processType(this.getIdsList(this.otu_names_cites), 'otu_ids'))
-            promises.push(this.processType(this.getIdsList(this.taxon_names_cites), 'taxon_name_ids'))
-            promises.push(this.processType(this.getIdsList(this.taxon_relationship_cites), 'taxon_name_relationship_ids'))
-            promises.push(this.processType(this.getIdsList(this.taxon_classification_cites), 'taxon_name_classification_ids'))
-            promises.push(this.processType(this.getIdsList(this.biological_association_cites), 'biological_association_ids'))
-            promises.push(this.processType(this.getIdsList(this.distribution_cites), 'asserted_distribution_ids'))
+          promises.push(this.processType(this.getIdsList(this.otu_names_cites), 'otu_ids'));
+          promises.push(this.processType(this.getIdsList(this.taxon_names_cites), 'taxon_name_ids'));
+          promises.push(this.processType(this.getIdsList(this.taxon_relationship_cites), 'taxon_name_relationship_ids'));
+          promises.push(this.processType(this.getIdsList(this.taxon_classification_cites), 'taxon_name_classification_ids'));
+          promises.push(this.processType(this.getIdsList(this.biological_association_cites), 'biological_association_ids'));
+          promises.push(this.processType(this.getIdsList(this.distribution_cites), 'asserted_distribution_ids'));
 
             Promise.all(promises).then(lists => {
               this.otu_id_list = [].concat.apply([], lists)
             })
-          })
+          // })                                                                   ///////////////
         })
       },
       addOtu(otu) {
