@@ -69,14 +69,44 @@ RSpec.describe ObservationMatrixRowItem::TaggedRowItem, type: :model, group: :ob
           expect(ObservationMatrixRow.all.map(&:collection_object)).to contain_exactly(nil, nil, co1)
         end
 
-        specify 'added observation_matrix_rows have reference_count = 1' do
+        specify 'added observation_matrix_rows have reference_count == 1' do
           expect(ObservationMatrixRow.all.pluck(:reference_count)).to contain_exactly(1, 1, 1)
+        end
+
+        specify 'added observation_matrix_rows have cached_observation_matrix_row_item_id == nil' do
+          expect(ObservationMatrixRow.all.pluck(:cached_observation_matrix_row_item_id)).to contain_exactly(nil, nil, nil)
         end
 
         specify 'destroying a record removes otus and collection objects from observation_matrix_rows' do
           observation_matrix_row_item.destroy 
           expect(ObservationMatrixRow.count).to eq 0
         end
+      end
+
+      context 'overlapping single item' do
+        let!(:other_observation_matrix_row_item) { ObservationMatrixRowItem::SingleOtu.create!(observation_matrix: observation_matrix, otu: otu1) }
+        let(:observation_matrix_row) { ObservationMatrixRow.where(observation_matrix: observation_matrix, otu: otu1).first} 
+
+        specify 'count is incremented' do
+          expect(observation_matrix_row.reference_count).to eq(2)
+        end
+
+        specify 'cached_observation_matrix_row_item_id is returned' do
+          expect(observation_matrix_row.cached_observation_matrix_row_item_id).to eq(other_observation_matrix_row_item.id)
+        end
+     
+        context 'overlap (tag) is removed' do
+          before { observation_matrix_row_item.destroy! }
+
+          specify 'count is decremented' do
+            expect(observation_matrix_row.reference_count).to eq(1)
+          end
+
+          specify 'cached_observation_matrix_row_item_id remains' do
+            expect(observation_matrix_row.cached_observation_matrix_row_item_id).to eq(other_observation_matrix_row_item.id)
+          end
+        end 
+      
       end
 
       context 'overlapping sets' do

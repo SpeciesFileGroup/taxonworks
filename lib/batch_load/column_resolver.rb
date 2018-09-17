@@ -1,4 +1,4 @@
-# Methods to resolve a group columns and their values to
+# Methods to resolve a group of columns and their values to
 # an instance in TW, columns should be a Hash of legal
 # values at this point
 #
@@ -7,6 +7,32 @@ module BatchLoad::ColumnResolver
   class << self
 
     # @param [Hash] columns
+    # @param [String] type of DataAttribute
+    # @return [BatchLoad::ColumnResolver::Result]
+    def data_attribute(columns, type = 'import')
+      r = BatchLoad::ColumnResolver::Result.new
+
+      predicate = columns['predicate']
+      value = columns['value']
+      proj_id = columns['project_id']
+      r.error_messages << 'No column for \'Value\' was provided.' unless columns.key?('value')
+      r.error_messages << 'No column for \'Predicate\' was provided.' unless columns.key?('predicate')
+      r.error_messages << 'No contents for \'Value\' was provided.' if value.blank?
+      r.error_messages << 'No contents for \'Predicate\' was provided.' if predicate.blank?
+
+      if type.start_with?('im')
+        r.assign(DataAttribute.where(import_predicate: predicate, value: value, project_id: proj_id).to_a)
+      else
+        cvt = ControlledVocabularyTerm.find_by(name: predicate, project_id: proj_id)
+        r.assign(DataAttribute.where(controlled_vocabulary_term_id: cvt&.id, value: value, project_id: proj_id).to_a)
+      end
+      r.error_messages << "Multiple data_attributes match for '#{predicate}' and '#{value}'.'" if r.multiple_matches?
+
+      r
+    end
+
+    # rubocop:disable Metrics/MethodLength
+    # @param [Hash] columns
     # @return [BatchLoad::ColumnResolver::Result]
     def otu(columns)
       r = BatchLoad::ColumnResolver::Result.new
@@ -14,7 +40,7 @@ module BatchLoad::ColumnResolver
       if columns['otu_id']
         begin
           r.assign Otu.find(columns['otu_id'])
-        rescue => e  # ActiveRecord::RecordNotFound
+        rescue => _e # ActiveRecord::RecordNotFound
           r.error_messages << "No OTU with id #{columns['otu_id']} exists."
         end
       elsif columns['otu_name']
@@ -24,12 +50,26 @@ module BatchLoad::ColumnResolver
       elsif columns['taxon_name']
         r.assign Otu.joins(:taxon_names).where(taxon_names: {cached: columns['taxon_name']}, project_id: columns['project_id']).limit(10).to_a
         r.error_messages << "Multiple OTUs matched the taxon name '#{columns['taxon_name']}'." if r.multiple_matches?
+      elsif columns.key?('otuname')
+        name = columns['otuname']
+        proj_id = columns['project_id']
+        list = Otu.where(name: name, project_id: proj_id).limit(2)
+        if list.blank? # treat it like a taxon name
+          list = Otu.joins(:taxon_name)
+                     .where(taxon_names: {cached: name}, project_id: proj_id)
+                     .limit(2)
+        end
+        r.assign(list.to_a)
+        r.error_messages << "Multiple OTUs matched the name '#{name}'." if r.multiple_matches?
+        r.error_messages << "No OTU with name '#{name}' exists." if r.no_matches?
       else
         r.error_messages << 'No column suitable for OTU resolution was provided.'
       end
 
       r
     end
+
+    # rubocop:enable Metrics/MethodLength
 
     # @param [Hash] columns
     # @return [BatchLoad::ColumnResolver::Result]
@@ -45,7 +85,7 @@ module BatchLoad::ColumnResolver
       ident_text = columns['collection_object_identifier'] if ident_text.blank?
 
       ident_text = "#{columns['collection_object_identifier_namespace_short_name']}" + ' ' +
-        " #{columns['collection_object_identifier_identifier']}".strip if ident_text.blank?
+          " #{columns['collection_object_identifier_identifier']}".strip if ident_text.blank?
 
       if ident_text.blank?
         r.error_messages << 'No column combination suitable for collection object resolution was provided.'
@@ -104,7 +144,7 @@ module BatchLoad::ColumnResolver
 
 
         # @tuckerjd - tweak as necessary
-        r.error_messages <<  "Multiple matches to '#{search_list}' (data_origin: #{data_origin}) were found." if r.multiple_matches?
+        r.error_messages << "Multiple matches to '#{search_list}' (data_origin: #{data_origin}) were found." if r.multiple_matches?
 
       elsif columns['country'] || columns['state'] || columns['county']
         search_list = [columns['country'], columns['state'], columns['county']].compact.join(', ')

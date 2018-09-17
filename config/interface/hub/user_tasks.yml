@@ -297,6 +297,20 @@ browse_otus_task:
   categories:
   status: prototype
   description: 'Browse through brief summaries of data for an OTU, including ability to annotate and add related data.'
+browse_annotations_task:
+  hub: true
+  name: 'Browse annotations'
+  related:
+  categories:
+    - collection_object 
+    - collecting_event
+    - biology
+    - source
+    - nomenclature
+    - matrix
+    - dna
+  status: prototype
+  description: 'Filter data by annotations (e.g. Notes, Data attributes).  Delete or create additional annotations on filtered objects.  Generate JSON request based on annotations.'
 new_descriptor_task:
   hub: true
   name: 'New Descriptor'
@@ -317,3 +331,31 @@ new_matrix_task:
     - matrix
   status: prototype
   description: 'Assign the rows and columns of observation matrices.'
+uniquify_people_task:
+  hub: true
+  name: 'Uniquify people'
+  related:
+  categories:
+    - source 
+    - nomenclature
+  status: prototype
+  description: 'Find and merge redundant or duplicated people, e.g., from import.'
+comprehensive_collection_object_task:
+  hub: true
+  name: 'Comprehensive collection object form'
+  related:
+    - collection_objects
+  categories:
+    - collection_object
+  status: prototype
+  description: 'An all-in-one interface for digitizing collection objects.'
+index_individual_bibtex_source_task:
+  hub: true
+  name: 'New source from BibTeX'
+  related:
+  categories:
+    - source 
+  status: prototype
+  description: 'Parse a captured BibTeX string into a new source'
+
+

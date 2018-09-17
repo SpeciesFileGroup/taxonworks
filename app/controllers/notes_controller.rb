@@ -13,9 +13,8 @@ class NotesController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @notes = Note.where(project_id: sessions_current_project_id).where(
-          polymorphic_filter_params('note_object', Note.related_foreign_keys)
-        )
+        @notes = Queries::Note::Filter.new(params).all.limit(500)
+          .where(project_id: sessions_current_project_id)
       }
     end
   end
@@ -121,4 +120,5 @@ class NotesController < ApplicationController
     params.require(:note).permit(:text, :note_object_id, :note_object_type,
                                  :note_object_attribute, :annotated_global_entity)
   end
+
 end

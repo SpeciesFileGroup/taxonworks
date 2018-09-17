@@ -3,7 +3,7 @@ module CitationsHelper
   def citation_tag(citation)
     return nil if citation.nil?
     citation_string = citation_author_year(citation)
-    [citation.citation_object.class.name, ': ', object_tag(citation.citation_object.metamorphosize), ' in ', citation_source_body(citation)].compact.join.html_safe
+    [citation.citation_object.class.name, ': ', object_tag(citation.citation_object&.metamorphosize), ' in ', citation_source_body(citation)].compact.join.html_safe
   end
 
   def citation_source_body(citation)
@@ -15,7 +15,7 @@ module CitationsHelper
     return nil unless citation.topics.any?
     [
       '[',
-      citation.citation_topics.collect{|ct| 
+      citation.citation_topics.collect{|ct|
       content_tag(:span, (controlled_vocabulary_term_tag(ct.topic.metamorphosize) + (!ct.pages.blank? ? ": #{ct.pages}" : '')), class: [:annotation__citation_topic])
     }.compact.join(', '),
       ']'
@@ -24,9 +24,9 @@ module CitationsHelper
 
   def citation_author_year(citation)
     if citation.source && citation.source.type == 'Source::Bibtex' && citation.source.author_year.present?
-      citation.source.author_year 
+      citation.source.author_year
     else
-      content_tag(:span, 'Author, year not yet provided for source.', class: :subtle) 
+      content_tag(:span, 'Author, year not yet provided for source.', class: :subtle)
     end
   end
 
@@ -35,11 +35,11 @@ module CitationsHelper
   end
 
   def citation_list_tag(object)
-    return nil unless object.has_citations? && object.citations.any? 
+    return nil unless object.has_citations? && object.citations.any?
     content_tag(:h3, 'Citations') +
       content_tag(:ul, class: 'annotations__citation_list') do
-      object.citations.collect{|t| 
-        content_tag(:li, citation_annotation_tag(t)) 
+      object.citations.collect{|t|
+        content_tag(:li, citation_annotation_tag(t))
       }.join.html_safe
     end
   end
@@ -48,12 +48,12 @@ module CitationsHelper
   def citation_author_year_tag(citation)
     return nil if citation.nil?
     case citation.source.type
-      when 'Source::Verbatim'
-        citation.source.verbatim
-      when 'Source::Bibtex'
-        citation.source.author_year
-      else
-        'NOT PROVIDED/CACHE ERROR'
+    when 'Source::Verbatim'
+      citation.source.verbatim
+    when 'Source::Bibtex'
+      citation.source.author_year
+    else
+      'NOT PROVIDED/CACHE ERROR'
     end
   end
 
@@ -79,7 +79,7 @@ module CitationsHelper
   # @return [True]
   #   indicates a custom partial should be used, see list_helper.rb
   def citations_recent_objects_partial
-    true 
+    true
   end
 
 

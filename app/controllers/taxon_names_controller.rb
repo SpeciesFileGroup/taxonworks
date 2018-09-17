@@ -25,6 +25,11 @@ class TaxonNamesController < ApplicationController
     @taxon_name.source = Source.new if !@taxon_name.source
   end
 
+  # GET /taxon_names/select_options
+  def select_options
+    @taxon_names = TaxonName.select_optimized(sessions_current_user_id, sessions_current_project_id)
+  end
+
   # POST /taxon_names
   # POST /taxon_names.json
   def create
@@ -80,10 +85,6 @@ class TaxonNamesController < ApplicationController
       params[:term],
       autocomplete_params.to_h
     ).autocomplete
-  end
-
-  def autocomplete_params
-    params.permit(:valid, :exact, type: [], parent_id: [], nomenclature_group: []).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
   def list
@@ -172,6 +173,10 @@ class TaxonNamesController < ApplicationController
   def set_taxon_name
     @taxon_name = TaxonName.with_project_id(sessions_current_project_id).includes(:creator, :updater).find(params[:id])
     @recent_object = @taxon_name
+  end
+
+  def autocomplete_params
+    params.permit(:valid, :exact, type: [], parent_id: [], nomenclature_group: []).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
   def taxon_name_params

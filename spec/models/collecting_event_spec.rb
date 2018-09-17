@@ -285,6 +285,22 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
     end
   end
 
+  context 'scopes' do
+    let!(:ce1) { FactoryBot.create(:valid_collecting_event) }
+    let!(:ce2) { FactoryBot.create(:valid_collecting_event) }
+    let!(:ce3) { FactoryBot.create(:valid_collecting_event) }
+
+    let!(:s1) { FactoryBot.create(:valid_specimen, collecting_event: ce1) }
+    
+    specify '.used_recently' do
+      expect(CollectingEvent.used_recently).to contain_exactly(ce1)
+    end
+
+    specify '.used_in_project' do
+      expect(CollectingEvent.used_in_project(s1.project_id)).to contain_exactly(ce1)
+    end
+  end
+
   context 'actions' do
     specify 'if a verbatim_label is present then a md5_of_verbatim_label is generated' do
       collecting_event.verbatim_label = "Label\nAnother line\nYet another line."

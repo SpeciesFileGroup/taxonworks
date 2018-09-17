@@ -6,8 +6,19 @@ class TaxonDeterminationsController < ApplicationController
   # GET /taxon_determinations
   # GET /taxon_determinations.json
   def index
-    @recent_objects = TaxonDetermination.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html {
+        @recent_objects = TaxonDetermination.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      }
+      format.json {
+        @taxon_determinations = Queries::TaxonDetermination::Filter.new(filter_params).all.with_project_id(sessions_current_project_id)
+      }
+    end
+  end
+
+  def filter_params
+    params.permit(otu_ids: [], determiner_ids: [], biological_collection_object_ids: [])
   end
 
   def list

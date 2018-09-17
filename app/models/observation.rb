@@ -3,6 +3,7 @@ class Observation < ApplicationRecord
   include Shared::Citations
   include Shared::DataAttributes
   include Shared::Identifiers
+  include Shared::Depictions
   include Shared::Notes
   include Shared::Tags
   include Shared::IsData
@@ -17,7 +18,7 @@ class Observation < ApplicationRecord
 
   after_initialize :convert_observation_object_global_id
 
-  validates_presence_of :descriptor
+  validates_presence_of :descriptor, :type
 
   validate :otu_or_collection_object_set
 

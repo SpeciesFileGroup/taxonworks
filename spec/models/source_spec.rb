@@ -2,13 +2,23 @@ require 'rails_helper'
 
 describe Source, type: :model, group: :sources do
   let(:source) { Source.new }
+  let(:string1) { 'This is a base string.' }
+  let!(:s1) { FactoryBot.create(:valid_source_verbatim, verbatim: string1) }
+  let(:s1a) {
+    s = s1.dup
+    s.save!
+    s
+  }
+  let!(:s3) { FactoryBot.create(:valid_source_verbatim, verbatim: 'This is a roof string.') }
+  let!(:s2) { FactoryBot.create(:valid_source_verbatim, verbatim: string1) }
+  let!(:s4) { FactoryBot.create(:valid_source_verbatim, verbatim: 'This is a r00f string.') }
 
   after(:all) {
     Source.destroy_all
   }
 
   specify '#is_in_project? 1' do
-    expect(source.is_in_project?(1)).to be_falsey  
+    expect(source.is_in_project?(1)).to be_falsey
   end
 
   context 'associations' do
@@ -67,18 +77,13 @@ describe Source, type: :model, group: :sources do
     end
 
     specify 'returns a mixed array of objects' do
-      c = Citation.create!(source: a, citation_object: o)
+      Citation.create!(source: a, citation_object: o)
       a.reload
-      expect(a.cited_objects.include?(o)).to be(true)
+      expect(a.cited_objects.include?(o)).to be_truthy
     end
   end
 
   context 'fuzzy matching' do
-
-    let!(:s1) { FactoryBot.create(:valid_source_verbatim, verbatim: 'This is a base string.') }
-    let!(:s3) { FactoryBot.create(:valid_source_verbatim, verbatim: 'This is a roof string.') }
-    let!(:s2) { FactoryBot.create(:valid_source_verbatim, verbatim: 'This is a base string.') }
-    let!(:s4) { FactoryBot.create(:valid_source_verbatim, verbatim: 'This is a r00f string.') }
 
     specify '#nearest_by_levenshtein(compared_string, column, limit) 1' do
       expect(s1.nearest_by_levenshtein(s1.verbatim, :cached).first).to eq(s2)
@@ -97,11 +102,50 @@ describe Source, type: :model, group: :sources do
     end
   end
 
+  context 'concerns matching' do
+    context 'instance methods' do
+      context '#identical' do
+        specify 'full matching' do
+          # duplicate record
+          [s1a]
+          expect(s1.identical.ids).to contain_exactly(s1a.id, s2.id)
+        end
+      end
+
+      context '#similar' do
+        specify 'full matching' do
+          # duplicate record
+          [s1a]
+          expect(s1.similar.ids).to contain_exactly(s1a.id, s2.id)
+        end
+      end
+    end
+
+    context 'class methods' do
+      context '#identical' do
+        specify 'full matching' do
+          # duplicate record
+          [s1a]
+          expect(Source.identical(s1.attributes).ids).to contain_exactly(s1.id, s1a.id, s2.id)
+        end
+      end
+
+      context '#similar' do
+        specify 'full matching' do
+          # duplicate record
+          [s1a]
+          expect(Source.similar(s1.attributes).ids).to contain_exactly(s1a.id, s2.id, s1.id)
+        end
+      end
+    end
+  end
+
   context 'duplicate record tests' do
 =begin
     Species File conventions to remember:
       Two references are considered a match even if access code or th3 editor, OSF copy, or citation flags are different.
-      Two references are considered different if they have different verbatim reference fields (including different capitalization), even if everything else matches!
+      Two references are considered different if they have different verbatim reference fields
+        (including different capitalization), even if everything else matches!
       A reference is considered different if author, pub or containing ref aren't identical
       A reference is considered similar if years, title, volume or pages are either the same or missing.
       a similar reference may be added to the db by user request

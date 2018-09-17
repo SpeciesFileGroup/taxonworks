@@ -9,9 +9,9 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
-  rescue_from ActionController::ParameterMissing do |exception| 
-    raise unless request.format == :json 
-    render json: { error: exception }, status: 400 
+  rescue_from ActionController::ParameterMissing do |exception|
+    raise unless request.format == :json
+    render json: { error: exception }, status: 400
   end
 
   attr_writer :is_data_controller, :is_task_controller
@@ -77,8 +77,7 @@ class ApplicationController < ActionController::Base
   end
 
   def meta_title
-    @meta_title ||= [@meta_title.presence || @page_title.presence, site_name].
-      compact.join(' | ')
+    @meta_title ||= [@meta_title.presence || @page_title.presence, site_name].compact.join(' | ')
   end
 
   def meta_data
@@ -104,7 +103,7 @@ class ApplicationController < ActionController::Base
 
   private
 
-  def notice_user 
+  def notice_user
     if sessions_current_user
       sessions_current_user.update_last_seen_at
     end

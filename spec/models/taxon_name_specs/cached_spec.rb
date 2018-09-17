@@ -114,6 +114,15 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               expect(species.cached_html).to eq('<i>Cus aus</i>')
             end
 
+            specify '#not_binomial' do
+              expect(species.not_binomial?).to be_falsey
+              species.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Unavailable::NonBinomial')
+              expect(species.not_binomial?).to be_truthy
+              species.reload
+              species.save
+              expect(species.cached_html).to eq('<i>aus</i>')
+            end
+
             specify '#cached_original_combination is not changed' do
               expect(species.cached_original_combination).to eq('<i>Bus aus</i>')
             end

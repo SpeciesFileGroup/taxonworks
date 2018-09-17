@@ -166,6 +166,25 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             end
           end
 
+          context 'candidatus' do
+            let!(:g) { Protonym.create(name: 'Aus', rank_class: Ranks.lookup(:icnb, :genus), parent: @root) }
+            let!(:sp) { Protonym.create(name: 'bus', rank_class: Ranks.lookup(:icnb, :species), parent: g) }
+            let!(:c) { FactoryBot.create(:taxon_name_classification, taxon_name: sp, type: 'TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Legitimate::Candidatus')}
+
+            specify '#get_full_name' do
+              expect(sp.get_full_name_html).to eq('"<i>Candidatus</i> Aus bus"')
+            end
+
+            specify '#cached_html' do
+              expect(sp.cached_html).to eq('"<i>Candidatus</i> Aus bus"')
+            end
+
+            specify 'cached' do
+              expect(sp.cached).to eq('Aus bus')
+            end
+          end
+
+
           context 'hybrid' do
             let(:g) { FactoryBot.create(:icn_genus) }
             let(:sp) { FactoryBot.create(:icn_species, parent: g) }
@@ -648,8 +667,39 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     context 'with a heirarchy created' do
       before {species} # create the full hierarchy
 
-      context 'scopes' do
+      context 'recent use' do
+        let!(:tc1) { TaxonNameClassification::Iczn::Available::Invalid.create!(taxon_name: species) }
+        let!(:tr1) { TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: genus, object_taxon_name: subgenus ) }
 
+        # This isn't recent!
+        let!(:tr2) { TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(
+          subject_taxon_name: tribe, 
+          object_taxon_name: subfamily, 
+          created_at: 1.month.ago, 
+          updated_at: 1.month.ago ) }
+
+        let(:user_id) { species.created_by_id }
+        let(:project_id) { species.project_id }
+
+        specify '.used_recently' do
+          expect(TaxonName.used_recently(project_id, user_id).count).to eq(9)
+        end
+
+        # everything is recent
+        specify '.used_recently_in_classifications' do
+          expect(TaxonName.used_recently_in_classifications(project_id, user_id).map(&:id)).to contain_exactly(species.id)
+        end
+
+        specify '.used_recently_in_relationships' do
+          expect(TaxonName.used_recently_in_relationships(project_id, user_id).map(&:id)).to contain_exactly(subgenus.id, genus.id)
+        end
+
+        specify '.select_optimized' do
+          expect(TaxonName.select_optimized(user_id, project_id)).to be_truthy
+        end
+      end
+
+      context 'scopes' do
         context '.ancestors_and_descendants_of' do
           specify 'includes leaves to root, and target node' do
             expect(TaxonName.ancestors_and_descendants_of(genus).all.map(&:name)).to contain_exactly(

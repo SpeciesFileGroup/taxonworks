@@ -6,4 +6,8 @@ class AccessionProvider < Role::ProjectRole
   #
   # has_many :collection_objects
 
+  def self.human_name
+    'Accession provider'
+  end
+
 end

@@ -4,7 +4,8 @@ class TaxonNameClassification::Iczn::Available::Valid::NomenDubium < TaxonNameCl
 
   def self.disjoint_taxon_name_classes
     self.parent.disjoint_taxon_name_classes + self.collect_to_s(
-        TaxonNameClassification::Iczn::Available::Valid)
+        TaxonNameClassification::Iczn::Available::Valid) + self.collect_to_s(
+        TaxonNameClassification::Iczn::Available::Valid::NomenInquirendum)
   end
 
   def self.gbif_status

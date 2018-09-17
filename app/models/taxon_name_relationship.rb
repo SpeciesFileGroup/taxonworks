@@ -264,7 +264,7 @@ class TaxonNameRelationship < ApplicationRecord
 
   def validate_subject_and_object_share_code
     if object_taxon_name.type  == 'Protonym' && subject_taxon_name.type == 'Protonym'
-      errors.add(:object_taxon_name_id, 'The related taxon is not in the same monenclatural group (ICZN, ICN, ICNB') if subject_taxon_name.rank_class.nomenclatural_code != object_taxon_name.rank_class.nomenclatural_code
+      errors.add(:object_taxon_name_id, 'The related taxon is not in the same monenclatural group (ICZN, ICN, ICNB, ICTV') if subject_taxon_name.rank_class.nomenclatural_code != object_taxon_name.rank_class.nomenclatural_code
     end
   end
 
@@ -283,7 +283,7 @@ class TaxonNameRelationship < ApplicationRecord
   def validate_subject_and_object_ranks
     tname = self.type_name
 
-    if tname =~ /TaxonNameRelationship::(Icnb|Icn|Iczn)/ && tname != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
+    if tname =~ /TaxonNameRelationship::(Icnb|Icn|Iczn|Ictv)/ && tname != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
       rank_group = self.subject_taxon_name.rank_class.parent
       unless rank_group == self.object_taxon_name.rank_class.parent
         errors.add(:object_taxon_name_id, "Rank of related taxon should be in the #{rank_group.rank_name} rank group, not #{self.object_taxon_name.rank_class.rank_name}")
@@ -377,7 +377,8 @@ class TaxonNameRelationship < ApplicationRecord
             t.update_column(:cached_misspelling, t.get_cached_misspelling)
           end
           t.update_columns(cached: t.get_full_name,
-                           cached_html: t.get_full_name_html)
+                           cached_html: t.get_full_name_html,
+                           cached_valid_taxon_name_id: t.get_valid_taxon_name.id)
           vn = t.get_valid_taxon_name
           vn.list_of_invalid_taxon_names.each do |s|
             s.update_column(:cached_valid_taxon_name_id, vn.id)
@@ -692,8 +693,10 @@ class TaxonNameRelationship < ApplicationRecord
             end
           when :reverse
             if date1 > date2 && invalid_statuses.empty?
-              if self.type_name =~ /TaxonNameRelationship::(Typification|Combination|OriginalCombination)/ && self.type_name != 'TaxonNameRelationship::Typification::Genus::RulingByCommission'
-                soft_validations.add(:subject_taxon_name_id, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be younger than #{self.object_taxon_name.cached_html_name_and_author_year}")
+              if self.type_name =~ /TaxonNameRelationship::(Typification|Combination|OriginalCombination)/
+                if self.type_name != 'TaxonNameRelationship::Typification::Genus::RulingByCommission' || (self.type_name =~ /TaxonNameRelationship::Typification::Genus::(Monotypy::Subsequent|SubsequentDesignation)/ && date2 > '1930-12-31'.to_time)
+                  soft_validations.add(:subject_taxon_name_id, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be younger than #{self.object_taxon_name.cached_html_name_and_author_year}")
+                end
               else
                 soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be younger than #{self.object_taxon_name.cached_html_name_and_author_year}")
               end
@@ -706,13 +709,13 @@ class TaxonNameRelationship < ApplicationRecord
   def sv_coordinated_taxa
     s = subject_taxon_name
     o = object_taxon_name
-    if type_name =~ /TaxonNameRelationship::(Iczn|Icnb|Icn|OriginalCombination|Combination|Typification)/
+    if type_name =~ /TaxonNameRelationship::(Iczn|Icnb|Icn|Ictv|OriginalCombination|Combination|Typification)/
       s_new = s.lowest_rank_coordinated_taxon
       if s != s_new
         soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} #{s.cached_html} to #{s_new.rank_class.rank_name} #{s.cached_html}",
                              fix: :sv_fix_coordinated_subject_taxa, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
       end
-      if type_name =~ /TaxonNameRelationship::(Iczn|Icnb|Icn)/
+      if type_name =~ /TaxonNameRelationship::(Iczn|Icnb|Ictv|Icn)/
         o_new = o.lowest_rank_coordinated_taxon
 
 

@@ -2,10 +2,10 @@
 # some collecting event.
 #
 # A georeference contains three components:
-#    1) A reference to a CollectingEvent (who, where, when, how)
-#    2) A reference to a GeographicItem (a shape)
-#    3) A method by which the shape was associated with the collecting event (via `type` subclassing).
-# If a georeference was published it's Source can be provided.  This is not equivalent to a method.
+#  1) A reference to a CollectingEvent (who, where, when, how)
+#  2) A reference to a GeographicItem (a shape)
+#  3) A method by which the shape was associated with the collecting event (via `type` subclassing).
+# If a georeference was published its Source can be provided.  This is not equivalent to providing a method for deriving the georeference.
 #
 # Contains information about a location on the face of the Earth, consisting of:
 #
@@ -324,6 +324,17 @@ class Georeference < ApplicationRecord
     end
     retval
   end
+
+  # @return [Boolean]
+  #   true if geographic_item is completely contained in error_box
+  # def check_obj_inside_err_radius
+  #   # case 2
+  #   retval = true
+  #   if !error_radius.blank? && geographic_item && geographic_item.geo_object
+  #     retval = error_box.contains?(geographic_item.geo_object)
+  #   end
+  #   retval
+  # end
 
   # @return [Boolean]
   #   true if geographic_item is completely contained in error_box

@@ -62,7 +62,7 @@ class Protonym < TaxonName
 
   TaxonNameRelationship.descendants.each do |d|
     if d.respond_to?(:assignment_method)
-      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Icnb|SourceClassifiedAs)/
+      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Ictv|Icnb|SourceClassifiedAs)/
         relationship = "#{d.assignment_method}_relationship".to_sym
         has_one relationship, class_name: d.name.to_s, foreign_key: :subject_taxon_name_id
         has_one d.assignment_method.to_sym, through: relationship, source: :object_taxon_name
@@ -79,7 +79,7 @@ class Protonym < TaxonName
     end
 
     if d.respond_to?(:inverse_assignment_method)
-      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Icnb|SourceClassifiedAs)/
+      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Icnb|Ictv|SourceClassifiedAs)/
         relationships = "#{d.inverse_assignment_method}_relationships".to_sym
         # ActiveRecord::Base.send(:sanitize_sql_array, [d.name])
         has_many relationships, -> {
@@ -130,7 +130,7 @@ class Protonym < TaxonName
 
   scope :that_is_valid, -> {
     joins('LEFT OUTER JOIN taxon_name_relationships tnr ON taxon_names.id = tnr.subject_taxon_name_id').
-    where("taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type ILIKE 'TaxonNameRelationship::Iczn::Invalidating%' OR type ILIKE 'TaxonNameRelationship::Icn::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Icnb::Unaccepting%')")
+    where("taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type ILIKE 'TaxonNameRelationship::Iczn::Invalidating%' OR type ILIKE 'TaxonNameRelationship::Icn::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Icnb::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Ictv::Unaccepting%')")
   }
 
   scope :is_species_group, -> { where("rank_class ILIKE '%speciesgroup%'") }
@@ -142,7 +142,7 @@ class Protonym < TaxonName
     valid_name = get_valid_taxon_name
     return nil unless valid_name.rank_string !=~/Species/
     descendants_and_self = valid_name.descendants + [self] + self.combinations
-    relationships        = TaxonNameRelationship.where_object_in_taxon_names(descendants_and_self).with_two_type_bases('TaxonNameRelationship::OriginalCombination::OriginalGenus', 'TaxonNameRelationship::Combination::Genus')
+    relationships = TaxonNameRelationship.where_object_in_taxon_names(descendants_and_self).with_two_type_bases('TaxonNameRelationship::OriginalCombination::OriginalGenus', 'TaxonNameRelationship::Combination::Genus')
     (relationships.collect { |r| r.subject_taxon_name.name } + [self.ancestor_at_rank('genus').try(:name)]).uniq
   end
 
@@ -207,9 +207,11 @@ class Protonym < TaxonName
     case rank_class.try(:nomenclatural_code)
       when :iczn
         ay = iczn_author_and_year
-      when :icn
+      when :ictv
         ay = icn_author_and_year
       when :icnb
+        ay = icn_author_and_year
+      when :icn
         ay = icn_author_and_year
       else
         ay = ([author_string] + [year_integer]).compact.join(' ')
@@ -320,6 +322,7 @@ class Protonym < TaxonName
   #   A relationships for each possible original combination relationship
   def original_combination_relationships_and_stubs
     # TODO: figure out where to really put this, likely in one big sort
+    # TODO: @proceps - is this missing :original_section?
     display_order = [
       :original_genus, :original_subgenus, :original_species, :original_subspecies, :original_variety, :original_form
     ]
@@ -520,26 +523,27 @@ class Protonym < TaxonName
 
       relationships.each do |i|
         if i.object_taxon_name_id == i.subject_taxon_name_id && !i.object_taxon_name.verbatim_name.blank?
+          misspelling = i.subject_taxon_name.cached_misspelling ? ' [sic]' : ''
           case i.type # subject_status
             when /OriginalGenus/ #'original genus'
-              genus  = '<i>' + i.subject_taxon_name.verbatim_name + '</i> ' # why verbatim_name?
+              genus  = '<i>' + i.subject_taxon_name.verbatim_name + misspelling +'</i> ' # why verbatim_name?
               gender = i.subject_taxon_name.gender_name
               g1 = true
             when /OriginalSubgenus/ # 'original subgenus'
-              subgenus += '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
+              subgenus += '<i>' + i.subject_taxon_name.verbatim_name + misspelling + '</i> '
             when /OriginalSpecies/ #  'original species'
-              species += '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
+              species += '<i>' + i.subject_taxon_name.verbatim_name + misspelling + '</i> '
               s1 = true
             when /OriginalSubspecies/ # 'original subspecies'
-              species += '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
+              species += '<i>' + i.subject_taxon_name.verbatim_name + misspelling + '</i> '
             when /OriginalVariety/ #  'original variety'
-              species += 'var. <i>' + i.subject_taxon_name.verbatim_name + '</i> '
+              species += 'var. <i>' + i.subject_taxon_name.verbatim_name + misspelling + '</i> '
             when /OriginalSubvariety/ # 'original subvariety'
-              species += 'subvar. <i>' + i.subject_taxon_name.verbatim_name + '</i> '
+              species += 'subvar. <i>' + i.subject_taxon_name.verbatim_name + misspelling + '</i> '
             when /OriginalForm/ # 'original form'
-              species += 'f. <i>' + i.subject_taxon_name.verbatim_name + '</i> '
+              species += 'f. <i>' + i.subject_taxon_name.verbatim_name + misspelling + '</i> '
             when /OriginalSubform/ #  'original subform'
-              species += 'subf. <i>' + i.subject_taxon_name.verbatim_name + '</i> '
+              species += 'subf. <i>' + i.subject_taxon_name.verbatim_name + misspelling + '</i> '
           end
         else
           case i.type # subject_status
@@ -592,8 +596,10 @@ class Protonym < TaxonName
 
       subgenus = '(' + subgenus.squish + ') ' unless subgenus.empty?
       genus = '[GENUS NOT SPECIFIED]' + genus.to_s if g1.nil?
+      genus = '' if not_binomial?
       species = '[SPECIES NOT SPECIFIED]' + species.to_s if s1.nil? && !species.empty?
       str = (genus + subgenus + superspecies + species).gsub(' [sic]', '</i> [sic]<i>').gsub('</i> <i>', ' ').gsub('<i></i>', '').gsub('<i> ', ' <i>').squish
+      str = species if rank_class =~ /Ictv/
     end
     str.blank? ? nil : str
   end

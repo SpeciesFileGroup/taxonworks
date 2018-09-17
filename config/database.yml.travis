@@ -1,5 +1,5 @@
 #
-# This example is for travis configuration only.
+# This is for travis configuration only.
 #
 test: 
   adapter: postgis
@@ -7,9 +7,8 @@ test:
   postgis_extension: true
   pool: 5
   database: taxonworks_test<%= ENV['TEST_ENV_NUMBER'] %>
-  username: taxonworks_development
+  username: travis 
   password:
-#  host: db
-
+  port: 5433
 
 

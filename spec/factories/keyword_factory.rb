@@ -4,6 +4,9 @@ FactoryBot.define do
     factory :valid_keyword do
       name { Faker::Lorem.word + Faker::Number.number(5).to_s }
       definition { Faker::Lorem.sentence(10) }
+
+      factory :valid_predicate, class: 'Predicate'
+
     end
   end
 

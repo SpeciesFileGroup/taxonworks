@@ -1085,6 +1085,27 @@ namespace :tw do
           ap get_tw_rank_string
         end
 
+        desc 'time rake tw:project_import:sf_import:start:list_excluded_taxa user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define list_excluded_taxa: [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Running list_excluded_taxa...'
+
+          excluded_taxa = [] # list of taxa with AccessCode = 4, TaxonNameID = 0, those used for anatomy, known errors, bad ranks, assorted others
+
+          path = @args[:data_directory] + 'sfExcludedTaxa.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+
+          file.each_with_index do |row|
+            excluded_taxa.push(row['TaxonNameID'])
+          end
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('ExcludedTaxa', excluded_taxa)
+
+          puts 'ExcludedTaxa'
+          ap excluded_taxa
+        end
+
 
       end
     end

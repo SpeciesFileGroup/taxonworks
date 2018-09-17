@@ -1,0 +1,121 @@
+<template>
+  <div>
+    <div>
+      <label>Start date</label>
+      <div class="horizontal-left-content">
+        <div class="separate-right">
+          <label>Year</label>
+          <input
+            type="text"
+            maxlength="4"
+            v-model="startYear">
+        </div>
+        <div class="separate-left separate-right">
+          <label>Month</label>
+          <input
+            type="text"
+            maxlength="2"
+            v-model="startMonth">
+        </div>
+        <div class="separate-left">
+          <label>Day</label>
+          <input
+            type="text"
+            maxlength="2"
+            v-model="startDay">
+        </div>
+      </div>
+    </div>
+    <div>
+      <label>End date</label>
+      <div class="horizontal-left-content">
+        <div class="separate-right">
+          <label>Year</label>
+          <input
+            type="text"
+            maxlength="4"
+            v-model="endYear">
+        </div>
+        <div class="separate-left separate-right">
+          <label>Month</label>
+          <input
+            type="text"
+            maxlength="2"
+            v-model="endMonth">
+        </div>
+        <div class="separate-left">
+          <label>Day</label>
+          <input
+            type="text"
+            maxlength="2"
+            v-model="endDay">
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+
+import { GetterNames } from '../../../../store/getters/getters.js'
+import { MutationNames } from '../../../../store/mutations/mutations.js'
+
+export default {
+  computed: {
+    startDay: {
+      get() {
+        return this.$store.getters[GetterNames.GetCollectionEvent].start_date_day
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetCollectionEventStartDateDay, value)
+      }
+    },
+    startMonth: {
+      get() {
+        return this.$store.getters[GetterNames.GetCollectionEvent].start_date_month
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetCollectionEventStartDateMonth, value)
+      }
+    },
+    startYear: {
+      get() {
+        return this.$store.getters[GetterNames.GetCollectionEvent].start_date_year
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetCollectionEventStartDateYear, value)
+      }
+    },
+    endDay: {
+      get() {
+        return this.$store.getters[GetterNames.GetCollectionEvent].end_date_day
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetCollectionEventEndDateDay, value)
+      }
+    },
+    endMonth: {
+      get() {
+        return this.$store.getters[GetterNames.GetCollectionEvent].end_date_month
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetCollectionEventEndDateMonth, value)
+      }
+    },
+    endYear: {
+      get() {
+        return this.$store.getters[GetterNames.GetCollectionEvent].end_date_year
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetCollectionEventEndDateYear, value)
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+  input {
+    max-width: 60px;
+  }
+</style>

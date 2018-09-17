@@ -15,9 +15,8 @@ class AlternateValuesController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @alternate_values = AlternateValue.where(project_id: sessions_current_project_id).where(
-          polymorphic_filter_params('alternate_value_object', AlternateValue.related_foreign_keys )
-        )
+        @alternate_values = Queries::AlternateValue::Filter.new(params).all.limit(500)
+          .where(project_id: sessions_current_project_id).order(:id)
       }
     end
   end
@@ -121,14 +120,6 @@ class AlternateValuesController < ApplicationController
       :alternate_value_object_attribute, :is_community_annotation, :annotated_global_entity
     )
   end
-
-  # Never trust parameters from the scary internet, only allow the white list through.
-  # def alternate_value_params
-  #   a_v_params = ActionController::Parameters.new({
-  #
-  #                                                 })
-  #   a_v_params.require(:alternate_value).permit(:value, :type, :language_id, :alternate_value_object_type, :alternate_value_object_id, :alternate_value_object_attribute, :project_members_only)
-  # end
 
   def breakout_types(collection)
     collection

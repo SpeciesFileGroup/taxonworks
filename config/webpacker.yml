@@ -14,19 +14,20 @@ default: &default
   cache_manifest: false
 
   extensions:
-    - .erb
-    - .js
-    - .jsx
-    - .ts
     - .vue
+    - .js
     - .sass
     - .scss
     - .css
+    - .module.sass
+    - .module.scss
+    - .module.css
     - .png
     - .svg
     - .gif
     - .jpeg
     - .jpg
+    - .woff2
 
 development:
   <<: *default

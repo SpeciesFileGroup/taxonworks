@@ -23,24 +23,28 @@ class TaxonNameRelationship::Iczn::Validating::UncertainPlacement < TaxonNameRel
   end
 
   def object_status
-    'incertae sedis'
+    'incertae sedis for'
   end
 
   def subject_status
-    'as incertae sedis'
+    'incertae sedis'
   end
 
   def self.gbif_status_of_object
     'valid'
   end
 
+  def subject_status_connector_to_object
+    ' in'
+  end
+
+  #species.iczn_uncertain_placement = family
   def self.assignment_method
-    #species.iczn_uncertain_placement = family
     :iczn_uncertain_placement
   end
 
+  # family.iczn_set_as_uncertain_placement_of = species
   def self.inverse_assignment_method
-    # family.iczn_set_as_uncertain_placement_of = species
     :iczn_set_as_uncertain_placement_of
   end
 end

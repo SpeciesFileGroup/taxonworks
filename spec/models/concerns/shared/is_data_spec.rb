@@ -52,7 +52,6 @@ describe 'Shared::IsData', type: :model do
 
   context 'class methods' do
     context 'finding records' do
-
       context 'responding' do
         let(:attr) { is_data_instance.attributes }
         let(:attr2) { is_data2_instance.attributes }

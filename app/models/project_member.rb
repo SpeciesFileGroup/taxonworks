@@ -23,5 +23,12 @@ class ProjectMember < ApplicationRecord
   validates :project, presence: true
   validates :user, presence: true
   validates_uniqueness_of :user_id, scope: [:project_id], message: 'is already a member of project'
+  validate :clipboard_slots
+
+  protected
+
+  def clipboard_slots
+    errors.add(:clipboard, 'slot is not legal') if clipboard.keys - %w{1 2 3 4 5} != []
+  end
 
 end

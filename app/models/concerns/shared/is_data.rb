@@ -113,7 +113,7 @@ module Shared::IsData
     klass = self.class
     attr  = Stripper.strip_similar_attributes(klass, attributes)
     # matching only those attributes from the instance which are not empty
-    attr  = attr.select { |_kee, val| val.present? }
+    attr = attr.select{ |_kee, val| val.present? }
     if id
       scope = klass.where(attr).not_self(self)
     else
@@ -149,9 +149,9 @@ module Shared::IsData
       begin # test to see if this class has an IGNORE_SIMILAR constant
         ig = add_class_list(klass::IGNORE_SIMILAR)
       rescue NameError
-        ig = RESERVED_ATTRIBUTES.dup
+        ig = RESERVED_ATTRIBUTES.dup.map(&:to_s)
       end
-      attr.delete_if { |kee, _value| ig.include?(kee) }
+      attr.delete_if{|kee, _value| ig.include?(kee) }
       attr
     end
 
@@ -161,9 +161,9 @@ module Shared::IsData
       begin # test to see if this class has an IGNORE_IDENTICAL constant
         ig = add_class_list(klass::IGNORE_IDENTICAL)
       rescue NameError
-        ig = RESERVED_ATTRIBUTES.dup
+        ig = RESERVED_ATTRIBUTES.dup.map(&:to_s)
       end
-      attr.delete_if { |kee, _value| ig.include?(kee) }
+      attr.delete_if{ |kee, _value| ig.include?(kee) }
       attr
     end
 
@@ -175,6 +175,22 @@ module Shared::IsData
       ig_list  += add_list if add_list
       # convert ignore list from symbols to strings for subsequent include test
       return ig_list.map(&:to_s)
+    end
+
+    # @param [Class] klass
+    # @param [Symbol, String] compare - one of [:identical, :similar] (optional, defaults to :identical)
+    # @return [Array] of symbols which represent the attributes which will be tested for a given class
+    def self.tested_attributes(klass, compare = :identical)
+      case compare.to_s
+        when 'similar'
+          obj = klass.new
+          obj.attributes.each_key { |kee| obj[kee] = 1 }
+          strip_similar_attributes(klass, obj.attributes).collect { |kee, _val| kee.to_sym }
+        # when 'identical'
+        #   strip_identical_attributes(klass, klass.new.attributes).collect { |kee, _val| kee.to_sym }
+        else
+          strip_identical_attributes(klass, klass.new.attributes).collect { |kee, _val| kee.to_sym }
+      end
     end
   end
 end

@@ -1,8 +1,8 @@
 require 'rails_helper'
 
 describe InternalAttribute, type: :model do
-  let(:internal_attribute) { InternalAttribute.new } 
-  let(:otu) { FactoryBot.build(:valid_otu) } 
+  let(:internal_attribute) { InternalAttribute.new }
+  let(:otu) { FactoryBot.build(:valid_otu) }
   let(:predicate) { FactoryBot.create(:valid_controlled_vocabulary_term_predicate) }
 
   context 'validation' do
@@ -10,14 +10,40 @@ describe InternalAttribute, type: :model do
       internal_attribute.valid?
     }
     context 'requires' do
-      specify 'controlled_vocabulary_term_id' do
-        expect(internal_attribute.errors.include?(:controlled_vocabulary_term_id)).to be_truthy
+      specify 'predicate' do
+        expect(internal_attribute.errors.include?(:predicate)).to be_truthy
+      end
+    end
+
+    context 'uniqueness' do
+      let!(:da1) { InternalAttribute.create!(predicate: predicate, value: '1234', attribute_subject: otu) }
+
+      specify 'same predicate, same value, is not allowed' do
+        expect( InternalAttribute.new(predicate: predicate, value: '1234', attribute_subject: otu).valid?).to be_falsey
+      end
+
+      specify 'same predicate, different values are allowed' do
+        expect( InternalAttribute.create!(predicate: predicate, value: '4567', attribute_subject: otu)).to be_truthy
+      end
+
+      specify 'different predicate, same value are allowed' do
+        expect( InternalAttribute.create!(predicate: FactoryBot.create(:valid_predicate), value: '1234', attribute_subject: otu)).to be_truthy
       end
     end
   end
 
   specify 'a valid record can be created' do
     expect(InternalAttribute.create(predicate: predicate, value: '1234', attribute_subject: otu)).to be_truthy
+  end
+
+  specify 'non-persisted data attribute with non-persisted predicate' do
+    internal_attribute.value = '1234'
+    otu
+    internal_attribute.attribute_subject = otu
+    new_predicate = FactoryBot.build(:valid_predicate)
+    internal_attribute.predicate = new_predicate
+
+    [new_predicate, internal_attribute].each {|o| o.save!}
   end
 
   specify '#predicate returns' do

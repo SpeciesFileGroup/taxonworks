@@ -13,7 +13,7 @@ class DocumentationController < ApplicationController
       }
       format.json {
         @documenation = Documentation.where(project_id: sessions_current_project_id).where(
-          polymorphic_filter_params('documentation_object', Documentation.related_foreign_keys )
+          Queries::Annotator::polymorphic_params(params, Documentation)
         )
       }
     end

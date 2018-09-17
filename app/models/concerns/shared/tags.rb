@@ -15,7 +15,7 @@ module Shared::Tags
 
     accepts_nested_attributes_for :tags, reject_if: :reject_tags, allow_destroy: true
 
-    # TODO: This should be a Tag validation!?
+    # TODO: This should be a Tag validation!? (this is nested keywords)
     validate :identical_new_keywords_are_prevented
 
     protected
@@ -36,6 +36,8 @@ module Shared::Tags
     tags.any?
   end
 
+  # @return [Boolean]
+  #   true if the object has a tak with this keyword
   def tagged_with?(keyword_id)
     tags.where(keyword_id: keyword_id).any?
   end

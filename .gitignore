@@ -22,6 +22,7 @@
 database.yml
 secrets.yml
 application_settings.yml
+config/initializers/vendor/better_errors.rb
 
 .yardoc/
 /doc
@@ -34,8 +35,6 @@ application_settings.yml
 
 /.bundle
 /bundle_bin
-
-index.html
 
 .ruby-version
 
@@ -53,3 +52,7 @@ REVISION
 /public/packs
 /public/packs-test
 /node_modules
+yarn-debug.log*
+.yarn-integrity
+
+yarn.lock

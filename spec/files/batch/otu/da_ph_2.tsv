@@ -1,0 +1,9 @@
+OtuName	Predicate	Value	Purpose(3 new otus, 5 new data_attributes)
+Aus bus	TotalSpecies	22	Matches an existing otu from 'names' +0o, +1import.
+Magic bus	TotalSpecies	22	Data_attribute matches previous record +1o, +1import.
+Hymenoptera	TotalSpecies	19	Should create new otu and data_attribute +1o, +1import.
+New Name	Total Males	42	Should create new otu and data_attribute +1o +1import.
+No value	EMPTY_VALUE		Throws 'no value' error +0o +0import.
+No predicate		<== no predicate <==	Throws 'no predicate' error +0o +0import.
+	TotalSpecies	22	Has no otu name +0o +0import.
+Taxonmatchidae	find an otu through taxon name	new data attribute	Designed to be found by 'otu.taxon_name.cached' +0o +1import.

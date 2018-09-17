@@ -1,0 +1,23 @@
+
+These are the primary filtering, and autocomplete queries.  The directory is being re-organized to:
+
+* [ ] Refactor all model specific files into their own directory
+* [ ] Inherit, where possible from Queries::Query
+* [ ] Dry scopes
+* [ ] Factor out shared Arel/query elements to named includes for Queryies::Query
+
+# Design guidelines
+
+* Params should be passed as a `Hash`, do the permitting of attributes in the controller.
+
+## Filter queries
+
+* should have an `#all method that returns a _Scope_
+
+## Autocomplete queries
+
+* should have an `#autocomplete` method that returns an _Array_ 
+
+
+
+

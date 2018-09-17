@@ -13,9 +13,8 @@ class ConfidencesController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @confidences = Confidence.where(project_id: sessions_current_project_id).where(
-          polymorphic_filter_params('confidence_object', Confidence.related_foreign_keys)
-        )
+        @confidences = Queries::Confidence::Filter.new(params).all.limit(500)
+          .where(project_id: sessions_current_project_id)
       }
     end
   end
@@ -123,4 +122,4 @@ class ConfidencesController < ApplicationController
     )
   end
 
-end
+ end
