@@ -536,7 +536,7 @@ class TaxonName < ApplicationRecord
   # @return [Boolean]
   #  true if this name has any classification asserting that it is valid
   def classification_valid?
-    taxon_name_classifications.with_type_array(TAXON_NAME_CLASS_NAMES_VALID).any?
+    taxon_name_classifications.with_type_array(TAXON_NAME_CLASS_NAMES_VALID).any? # !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
   end
 
   # @return [Boolean]
@@ -1233,9 +1233,9 @@ class TaxonName < ApplicationRecord
   def validate_source_type
     a = source && source.type != 'Source::Bibtex'
     b = origin_citation && origin_citation.try(:source).try(:type) != 'Source::Bibtex'
-    if a || b 
+    if a || b
       errors.add(:base, 'Source must be a Bibtex')
-    end 
+    end
   end
 
   #TODO: validate that all the ranks in the table could be linked to ranks in classes (if those had changed)
