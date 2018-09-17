@@ -13,10 +13,11 @@ module Shared::IsData::Annotation
     :depictions,
     :confidences,
     :protocol_relationships,
+    :attribution,
     :documentation,
     :identifiers,
     :data_attributes,
-    :notes
+    :notes, 
   ].freeze
 
   module ClassMethods
@@ -30,7 +31,9 @@ module Shared::IsData::Annotation
     # in one of the following ways
     ANNOTATION_TYPES.each do |t|
       define_method("has_#{t}?") do
+        byebug if t == :attribution 
         k = "Shared::#{t.to_s.singularize.classify.pluralize}".safe_constantize
+
         self < k ? true : false
       end
     end
@@ -81,6 +84,7 @@ module Shared::IsData::Annotation
     result['confidences'] = confidences if has_confidences? && confidences.any?
     result['protocol_relationships'] = protocols if has_protocol_relationships? && protocolled?
     result['alternate values'] = alternate_values if has_alternate_values? && alternate_values.any?
+    result['attribution'] = attribution if has_attribution? && attribution.any?
     result
   end
 
