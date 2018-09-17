@@ -22,7 +22,7 @@ if ActiveRecord::Base.connected?
     # Array of all ICTV TaxonNameClassifications classes, as Strings
     ICTV_TAXON_NAME_CLASSIFICATION_NAMES = TaxonNameClassification::Ictv.descendants.collect { |d| d.to_s }.freeze
 
-    TAXON_NAME_CLASSIFICATION_GENDER_CLASSES = TaxonNameClassification::Latinized::Gender.descendants.freeze
+    # TAXON_NAME_CLASSIFICATION_GENDER_CLASSES = TaxonNameClassification::Latinized::Gender.descendants.freeze
 
     ICZN_TAXON_NAME_CLASSIFICATION_HASH = (ICZN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
         |hsh, klass| hsh.merge(klass.constantize.name => klass)
@@ -35,9 +35,9 @@ if ActiveRecord::Base.connected?
     ICNB_TAXON_NAME_CLASSIFICATION_HASH = (ICNB_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
         |hsh, klass| hsh.merge(klass.constantize.name => klass)
     }.freeze
-    ICNB_TAXON_NAME_CLASSIFICATION_HASH = (ICNB_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
-        |hsh, klass| hsh.merge(klass.constantize.name => klass)
-    }.freeze
+    # ICNB_TAXON_NAME_CLASSIFICATION_HASH = (ICNB_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
+    #     |hsh, klass| hsh.merge(klass.constantize.name => klass)
+    # }.freeze
 
     ICTV_TAXON_NAME_CLASSIFICATION_HASH = (ICTV_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
         |hsh, klass| hsh.merge(klass.constantize.name => klass)
