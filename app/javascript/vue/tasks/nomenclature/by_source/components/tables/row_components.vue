@@ -59,9 +59,11 @@ export default {
     },
     removeMe() {
       if(window.confirm(`You're about to delete this citation record. Are you sure want to proceed?`)) {
-        this.$http.delete('/citations/' + this.citation.id  + '.json').then(() => {
+        this.$http.delete('/citations/' + this.citation.id + '.json').then(response => {
           this.$emit('delete', this.citation);
           TW.workbench.alert.create('Citation was successfully destroyed.', 'notice')
+        }, reject => {
+          TW.workbench.alert.create('Citation was not destroyed, ' + reject.statusText, 'notice')
         })
       }
     }
