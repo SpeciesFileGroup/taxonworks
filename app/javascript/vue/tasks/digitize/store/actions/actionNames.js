@@ -9,7 +9,8 @@ const ActionNames = {
   SaveContainerItem: 'saveContainerItem',
   SaveContainer: 'saveContainer',
   RemoveCollectionObject: 'removeCollectionObject',
-  NewCollectionObject: 'newCollectionObject'
+  NewCollectionObject: 'newCollectionObject',
+  SaveLabel: 'saveLabel'
 }
 
 export default ActionNames

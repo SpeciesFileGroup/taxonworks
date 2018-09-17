@@ -99,6 +99,13 @@ function makeInitialState () {
       origin_citation_attributes: undefined,
       type_designator_roles: []
     },
+    label: {
+      id: undefined,
+      text: undefined,
+      total: undefined,
+      label_object_id: undefined, 
+      label_object_type: "CollectingEvent"
+    },
     materialTypes: [],
     determinations: [],
     preferences: {},

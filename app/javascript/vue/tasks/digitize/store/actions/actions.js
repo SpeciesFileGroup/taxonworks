@@ -10,6 +10,7 @@ import saveContainerItem from './saveContainerItem'
 import saveContainer from './saveContainer'
 import removeCollectionObject from './removeCollectionObject'
 import newCollectionObject from './newCollectionObject'
+import saveLabel from './saveLabel'
 
 const ActionFunctions = {
   [ActionNames.GetTaxon]: getTaxon,
@@ -22,7 +23,8 @@ const ActionFunctions = {
   [ActionNames.SaveContainerItem]: saveContainerItem,
   [ActionNames.SaveContainer]: saveContainer,
   [ActionNames.RemoveCollectionObject]: removeCollectionObject,
-  [ActionNames.NewCollectionObject]: newCollectionObject
+  [ActionNames.NewCollectionObject]: newCollectionObject,
+  [ActionNames.SaveLabel]: saveLabel
 }
 
 export { ActionNames, ActionFunctions }

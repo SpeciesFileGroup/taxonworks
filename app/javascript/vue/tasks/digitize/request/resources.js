@@ -73,6 +73,14 @@ const GetCollectionEvent = function (id) {
   return ajaxCall('get', `/collecting_events/${id}.json`)
 }
 
+const CreateLabel = function (data) {
+  return ajaxCall('post', '/labels', { label: data })
+}
+
+const UpdateLabel = function (data) {
+  return ajaxCall('patch', `/labels/${data.id}.json`, { label: data })
+} 
+
 const CreateIdentifier = function (data) {
   return ajaxCall('post', `/identifiers.json`, { identifier: data })
 }
@@ -197,6 +205,8 @@ export {
   GetTaxon,
   CreateTaxonDetermination,
   CreateIdentifier,
+  CreateLabel,
+  UpdateLabel,
   UpdateIdentifier,
   GetCollectionObject,
   CreateCollectionObject,

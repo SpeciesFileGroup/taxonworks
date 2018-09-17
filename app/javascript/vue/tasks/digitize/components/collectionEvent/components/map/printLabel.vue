@@ -6,7 +6,9 @@
         Generate
       </button>
       <span>Que
-        <input type="number"/>
+        <input
+          v-model="que"
+          type="number">
       </span>
     </div>
     <label>Print label</label>
@@ -24,10 +26,18 @@ export default {
   computed: {
     printLabel: {
       get() {
-        return this.$store.getters[GetterNames.GetCollectionEvent].print_label
+        return this.$store.getters[GetterNames.GetLabel].text
       },
       set(value) {
-        this.$store.commit(MutationNames.SetCollectionEventPrintLabel, value)
+        this.$store.commit(MutationNames.SetLabelText, value)
+      }
+    },
+    que: {
+      get() {
+        return this.$store.getters[GetterNames.GetLabel].total
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetLabelTotal, value)
       }
     },
     documentLabel: {

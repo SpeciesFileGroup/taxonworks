@@ -13,6 +13,7 @@ import getPreferences from './getPreferences'
 import getBiocurations from './getBiocurations'
 import getPreparationType from './getPreparationType'
 import getMaterialTypes from './getMaterialTypes'
+import getLabel from './getLabel'
 
 const GetterNames = {
   GetTaxonDetermination: 'getTaxonDetermination',
@@ -29,7 +30,8 @@ const GetterNames = {
   GetPreferences: 'getPreferences',
   GetBiocurations: 'getBiocurations',
   GetPreparationType: 'getPreparationType',
-  GetMaterialTypes: 'getMaterialTypes'
+  GetMaterialTypes: 'getMaterialTypes',
+  GetLabel: 'GetLabel'
 }
 
 const GetterFunctions = {
@@ -47,7 +49,8 @@ const GetterFunctions = {
   [GetterNames.GetPreferences]: getPreferences,
   [GetterNames.GetBiocurations]: getBiocurations,
   [GetterNames.GetPreparationType]: getPreparationType,
-  [GetterNames.GetMaterialTypes]: getMaterialTypes
+  [GetterNames.GetMaterialTypes]: getMaterialTypes,
+  [GetterNames.GetLabel]: getLabel
 }
 
 export {

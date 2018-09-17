@@ -8,6 +8,10 @@ import setBiocurations from './setBiocurations'
 import addBiocuration from './addBiocuration'
 import removeBiocuration from './removeBiocuration'
 
+import setLabel from './Label/setLabel'
+import setLabelText from './Label/setLabelText'
+import setLabelTotal from './Label/setLabelTotal'
+
 import setCollectionObjects from './CollectionObject/setCollectionObjects'
 import newCollectionObject from './CollectionObject/newCollectionObject'
 import addCollectionObject from './CollectionObject/addCollectionObject'
@@ -91,6 +95,10 @@ const MutationNames = {
   SetPreferences: 'setPreferences',
 
   ResetStore: 'resetStore',
+
+  SetLabel: 'setLabel',
+  SetLabelText: 'setLabelText',
+  SetLabelTotal: 'setLabelTotal',
 
   SetPreparationType: 'setPreparationType',
 
@@ -264,7 +272,11 @@ const MutationFunctions = {
   [MutationNames.SetCollectionObjectPreparationId]: setCollectionObjectPreparationId,
   [MutationNames.SetCollectionObjectRangeLotId]: setCollectionObjectRangeLotId,
   [MutationNames.SetCollectionObjectRepositoryId]: setCollectionObjectRepositoryId,
-  [MutationNames.SetCollectionObjectTotal]: setCollectionObjectTotal
+  [MutationNames.SetCollectionObjectTotal]: setCollectionObjectTotal,
+
+  [MutationNames.SetLabel]: setLabel,
+  [MutationNames.SetLabelText]: setLabelText,
+  [MutationNames.SetLabelTotal]: setLabelTotal
 }
 
 export {
