@@ -994,6 +994,9 @@ TaxonWorks::Application.routes.draw do
       get '/confidence_levels',
         to: 'confidence_levels#index'
 
+      get '/confidences',
+        to: 'confidences#index' 
+      
       get '/taxon_names/:id',
         to: 'taxon_names#show'
 
