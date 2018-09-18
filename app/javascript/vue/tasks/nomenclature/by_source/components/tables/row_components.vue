@@ -2,7 +2,9 @@
   <tr>
     <td>
       <input
+        class="pages"
         type="text"
+        placeholder="Pages"
         @input="changePage"
         v-model="citation.pages">
     </td>
@@ -67,3 +69,8 @@ export default {
   }
 }
 </script>
+<style lang="scss" module>
+  .pages {
+    width: 70px;
+  }
+</style>
