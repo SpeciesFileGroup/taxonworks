@@ -24,7 +24,7 @@
       type="button"
       :class="{ 'button-default': !(selectedList.hasOwnProperty(item.id))}"
       class="button normal-input biocuration-toggle-button"
-      @click="addTaxonCite(item)"
+      @click="foundTaxon = item, createTaxonCite(item)"
       v-html="item.name"/>
     <button
       class="button normal-input button-default"

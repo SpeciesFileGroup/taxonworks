@@ -1,26 +1,41 @@
 <template>
   <div class="nomen-source">
-    <pre>{{ sourceText }}</pre>
+    <span class="source-text horizontal-left-content">
+      <span
+        class="separate-right"
+        v-html="source.cached"/>
+      <a
+        class="separate-right separate-left"
+        :href="`/sources/${sourceID}`"
+        target="blank">Show
+      </a>
+      <radial-annotator :global-id="source.global_id"/>
+    </span>
     <autocomplete
       url="/sources/autocomplete"
       min="2"
       param="term"
       label="label"
+      :clear-after="true"
       placeholder="search for a Source"
       @getItem="getNewSource($event)"
     />
   </div>
 </template>
 <script>
+
   import Autocomplete from "../../../../components/autocomplete";
+  import RadialAnnotator from "../../../../components/annotator/annotator.vue";
+
   export default {
     components: {
-      Autocomplete
+      Autocomplete,
+      RadialAnnotator
     },
     data() {
       return {
-        sourceText: 'Invalid source or no source supplied'
-        ,
+        sourceText: 'Invalid source or no source supplied',
+        source: undefined,
         sourceID: undefined,
         source: {}
       }
@@ -29,6 +44,7 @@
     getSource() {
       if (this.sourceID) {
         this.$http.get('/sources/' + this.sourceID + '.json').then(response => {
+          this.source = response.body
           this.sourceText = response.body.id + ': "' + response.body.cached + '"';
           this.$emit('sourceID', this.sourceID);
         })
@@ -65,7 +81,9 @@
   #nomenclature-by-source-task {
     .nomen-source {
       height:100px;
-
+      .source-text {
+        font-size: 110%;
+      }
       .vue-autocomplete-input {
         width: 400px !important;
       }

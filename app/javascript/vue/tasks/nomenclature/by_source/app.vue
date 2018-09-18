@@ -6,7 +6,7 @@
       legend="Loading..."
       :logo-size="{ width: '100px', height: '100px'}"/>
     <div>
-      <h1 class="task_header">Source</h1>
+      <h1 class="task_header">Citations by source</h1>
       <nomen-source @sourceID="sourceID = $event"/>
     </div>
     <div class="flexbox">
