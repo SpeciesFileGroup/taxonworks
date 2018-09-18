@@ -1,6 +1,17 @@
 <template>
   <div class="nomen-source">
-    <span class="source-text horizontal-left-content">
+    <autocomplete
+      url="/sources/autocomplete"
+      min="2"
+      param="term"
+      label="label"
+      :clear-after="true"
+      placeholder="search for a Source"
+      @getItem="getNewSource($event)"
+    />
+    <span
+      v-if="source"
+      class="source-text horizontal-left-content">
       <span
         class="separate-right"
         v-html="source.cached"/>
@@ -11,15 +22,6 @@
       </a>
       <radial-annotator :global-id="source.global_id"/>
     </span>
-    <autocomplete
-      url="/sources/autocomplete"
-      min="2"
-      param="term"
-      label="label"
-      :clear-after="true"
-      placeholder="search for a Source"
-      @getItem="getNewSource($event)"
-    />
   </div>
 </template>
 <script>
@@ -37,7 +39,6 @@
         sourceText: 'Invalid source or no source supplied',
         source: undefined,
         sourceID: undefined,
-        source: {}
       }
     },
   methods: {
