@@ -996,7 +996,10 @@ TaxonWorks::Application.routes.draw do
 
       get '/confidences',
         to: 'confidences#index' 
-      
+
+      get '/data_attributes',
+        to: 'data_attributes#index' 
+
       get '/taxon_names/:id',
         to: 'taxon_names#show'
 
