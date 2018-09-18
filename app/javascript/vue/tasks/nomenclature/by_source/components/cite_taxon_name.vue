@@ -6,24 +6,25 @@
       name="citation"
       :add-option="moreOptions"
       v-model="view"/>
-  <autocomplete
-    v-if="view === 'Search'"
-    url="/taxon_names/autocomplete"
-    min="2"
-    param="term"
-    placeholder="Search for a taxon"
-    event-send="setTaxonforCite(item)"
-    label="label"
-    @getItem="foundTaxon = $event"
-    :autofocus="true" />
-  <button v-else
-    v-for="item in showList[view]"
-    :key="item.id"
-    type="button"
-    :class="{ 'button-default': !(selectedList.hasOwnProperty(item.id))}"
-    class="button normal-input biocuration-toggle-button"
-    @click="addTaxonCite(item)"
-    v-html="item.name"/>
+    <autocomplete
+      v-if="view === 'Search'"
+      url="/taxon_names/autocomplete"
+      min="2"
+      param="term"
+      placeholder="Search for a taxon"
+      event-send="setTaxonforCite(item)"
+      label="label"
+      @getItem="foundTaxon = $event"
+      :autofocus="true" />
+    <button
+      v-else
+      v-for="item in showList[view]"
+      :key="item.id"
+      type="button"
+      :class="{ 'button-default': !(selectedList.hasOwnProperty(item.id))}"
+      class="button normal-input biocuration-toggle-button"
+      @click="addTaxonCite(item)"
+      v-html="item.name"/>
     <button
       class="button normal-input button-default"
       @click="createTaxonCite()"
@@ -33,23 +34,16 @@
   </div>
 </template>
 <script>
-  import SmartSelector from './smartSelector.vue'
+
+  import SmartSelector from '../../../../components/switch.vue'
   import Autocomplete from '../../../../components/autocomplete.vue'
+
   export default {
     components: {
       SmartSelector,
       Autocomplete
     },
     props: {
-      // selectOptionsUrl: {
-      //   type: String
-      // },
-      // allSelectOptionUrl: {
-      //   type: String
-      // },
-      value: {
-        type: Object,
-      },
       sourceID: {
         type: String,
         default: "0"
@@ -70,10 +64,6 @@
     methods: {
       setTaxonforCite() {
         this.foundTaxon = item;
-      },
-      addTaxonCite(taxon) {
-        // first GET the citation for this taxon
-
       },
       createTaxonCite() {
         let params = {

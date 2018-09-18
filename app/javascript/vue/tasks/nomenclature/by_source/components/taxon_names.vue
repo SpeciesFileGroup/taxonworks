@@ -18,16 +18,13 @@
       OtuRadial
     },
     props: {
-      value: {
-        type: String
-      },
       sourceID: {
         type: String,
-        default: "0" //window.location.href.split('/')[1]
+        default: "0"
       },
       newTaxon: {
         type: Object,
-        default: {}
+        default: () => { return {} }
       }
     },
     data() {

@@ -16,16 +16,13 @@
       OtuRadial
     },
     props: {
-      value: {
-        type: String
-      },
       sourceID: {
         type: String,
         default: "0"
       },
       newTaxon: {
         type: Object,
-        default: {}
+        default: () => { return {} }
       }
     },
     data() {

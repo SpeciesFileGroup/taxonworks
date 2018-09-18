@@ -16,9 +16,6 @@
       OtuRadial
     },
     props: {
-      value: {
-        type: String
-      },
       sourceID: {
         type: String,
         default: "0"
@@ -34,7 +31,6 @@
         this.getCites();
       }
     },
-
     methods: {
       getCites() {
         this.$http.get('/citations.json?citation_object_type=BiologicalAssociation&source_id=' + this.sourceID).then(response => {

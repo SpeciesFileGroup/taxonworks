@@ -18,36 +18,33 @@
       OtuRadial
     },
     props: {
-      value: {
-        type: String
-      },
       sourceID: {
         type: String,
         default: "0",
       },
       otu_names_cites: {
         type: Array,
-        default: [],
+        default: () => { return [] }
       },
       taxon_names_cites: {
         type: Array,
-        default: [],
+        default: () => { return [] }
       },
       taxon_relationship_cites: {
         type: Array,
-        default: [],
+        default: () => { return [] }
       },
       taxon_classification_cites: {
         type: Array,
-        default: [],
+        default: () => { return [] }
       },
       biological_association_cites: {
         type: Array,
-        default: [],
+        default: () => { return [] }
       },
       distribution_cites: {
         type: Array,
-        default: [],
+        default: () => { return [] }
       },
       updateOtus: {
         type: Boolean,

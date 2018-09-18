@@ -6,8 +6,8 @@
     </td>
     <td>
       <otu-radial
-          :taxon-id="otu.taxon_name_id"
-          :redirect="false"/>
+        :taxon-id="otu.taxon_name_id"
+        :redirect="false"/>
     </td>
   </tr>
 </template>

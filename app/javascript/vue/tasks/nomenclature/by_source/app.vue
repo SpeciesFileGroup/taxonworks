@@ -3,10 +3,10 @@
     <div class="flexbox">
       <h1 class="task_header"> Nomenclature by source </h1>
       <spinner
-          v-if="isLoading"
-          :full-screen="true"
-          legend="Loading..."
-          :logo-size="{ width: '100px', height: '100px'}"/>
+        v-if="isLoading"
+        :full-screen="true"
+        legend="Loading..."
+        :logo-size="{ width: '100px', height: '100px'}"/>
       <nomen-source @sourceID="sourceID = $event"/>
     </div>
     <div class="flexbox">
@@ -58,7 +58,7 @@
   </div>
 </template>
 <script>
-  import SmartSelector from './components/smartSelector'
+
   import NomenSource from './components/nomen_source'
   import CiteTaxonName from './components/cite_taxon_name'
   import OtusByMatch from './components/otus_by_match'
@@ -69,11 +69,9 @@
   import AssertedDistributions from './components/asserted_distributions'
   import OtusMatchProxy from './components/otus_match_proxy'
   import Spinner from '../../../components/spinner.vue'
-  // import  from './components/asserted_distributions'
-  // import AssertedDistributions from './components/asserted_distributions'
+
   export default {
     components: {
-      SmartSelector,
       NomenSource,
       OtusByMatch,
       CiteTaxonName,

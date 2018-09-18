@@ -16,9 +16,6 @@
       OtuRadial
     },
     props: {
-      value: {
-
-      },
       sourceID: {
         type: String,
         default: "0"
@@ -37,7 +34,6 @@
     methods: {
       getCites() {
         this.$http.get('/citations.json?citation_object_type=AssertedDistribution&source_id=' + this.sourceID).then(response => {
-          // build the tabular list, extracting the
           this.asserted_distributions_cites_list = response.body;
           this.$emit("distribution_cites", this.asserted_distributions_cites_list)
         })

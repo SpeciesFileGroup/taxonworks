@@ -16,14 +16,10 @@
 <script>
   import Autocomplete from "../../../../components/autocomplete";
   export default {
-    components: {Autocomplete},
-    props: {
-      value: {
-        type: String,
-        default: window.location.href.split('by_source/')[1]
-      },
+    components: {
+      Autocomplete
     },
-    data: function() {
+    data() {
       return {
         sourceText: 'Invalid source or no source supplied'
         ,
@@ -59,12 +55,11 @@
         })
       })
     }
-  }
-  ,
-  mounted: function () {
+  },
+  mounted() {
     let pieces = window.location.href.split('/');
     this.sourceID = pieces[pieces.length - 1];
-    this.getSource();
-    }
+    if (this.sourceID.length && Number.isInteger(Number(this.sourceID))) this.getSource();
   }
+}
 </script>
