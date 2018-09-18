@@ -21,6 +21,10 @@
         target="blank">Show
       </a>
       <radial-annotator :global-id="source.global_id"/>
+      <pin-component
+        v-if="source.id"
+        :object-id="source.id"
+        :type="source.type"/>
     </span>
   </div>
 </template>
@@ -28,11 +32,13 @@
 
   import Autocomplete from "../../../../components/autocomplete";
   import RadialAnnotator from "../../../../components/annotator/annotator.vue";
+  import PinComponent from "../../../../components/pin.vue"
 
   export default {
     components: {
       Autocomplete,
-      RadialAnnotator
+      RadialAnnotator,
+      PinComponent
     },
     data() {
       return {
