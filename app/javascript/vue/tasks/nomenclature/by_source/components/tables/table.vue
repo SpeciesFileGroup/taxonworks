@@ -5,6 +5,7 @@
       <th>Object</th>
       <th>Radial</th>
       <th>Otu</th>
+      <th>Delete</th>
     </tr>
     <row-components 
       v-for="item in list"
