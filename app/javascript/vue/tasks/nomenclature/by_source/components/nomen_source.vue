@@ -42,7 +42,6 @@
     },
     data() {
       return {
-        sourceText: 'Invalid source or no source supplied',
         source: undefined,
         sourceID: undefined,
       }
@@ -52,16 +51,14 @@
       if (this.sourceID) {
         this.$http.get('/sources/' + this.sourceID + '.json').then(response => {
           this.source = response.body
-          this.sourceText = response.body.id + ': "' + response.body.cached + '"';
+          history.pushState(null, null, `/tasks/nomenclature/by_source/${this.source.id}`)
           this.$emit('sourceID', this.sourceID);
         })
       }
     },
     getNewSource(event) {
-      this.source = event;
-      this.sourceID = this.source.id.toString();  // propped everywhere as string
-      this.sourceText = this.source.label;
-      // this.getSource();  // why do an ajax when we already got the information?
+      this.sourceID = event.id.toString()
+      this.getSource()
       this.$emit('sourceID', this.sourceID);  // since we avoided the AJAX
     },
     getSelectOptions(onModel) {
