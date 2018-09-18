@@ -10,6 +10,7 @@
       v-if="view === 'Search'"
       url="/taxon_names/autocomplete"
       min="2"
+      ref="autocomplete"
       param="term"
       placeholder="Search for a taxon"
       event-send="setTaxonforCite(item)"
@@ -75,6 +76,7 @@
         };
         this.$http.post(`/citations.json`, params).then(response => {
           this.$emit('foundTaxon', response.body);
+          this.$refs.autocomplete.cleanInput()
         })
         .catch(error => {
           this.errorMessage = error.bodyText

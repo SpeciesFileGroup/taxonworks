@@ -12,14 +12,14 @@
     <div class="flexbox">
       <div class="flexbox">
         <div class="first-column">
-          <cite-taxon-name
-            :sourceID="sourceID"
-            @foundTaxon="newTaxonNameCitation=$event"
-          />
           <taxon-names
             :sourceID="sourceID"
             :newTaxon="newTaxonNameCitation"
             @taxon_names_cites="taxon_names_cites=$event"
+          />
+          <cite-taxon-name
+            :sourceID="sourceID"
+            @foundTaxon="newTaxonNameCitation=$event"
           />
           <taxon-name-relationships
             :sourceID="sourceID"
