@@ -1,7 +1,5 @@
 <template>
-  <div
-      style="width:400px; height:200px;">
-    <h2>Source: </h2>
+  <div class="nomen-source">
     <pre>{{ sourceText }}</pre>
     <autocomplete
       url="/sources/autocomplete"
@@ -63,3 +61,14 @@
   }
 }
 </script>
+<style lang="scss">
+  #nomenclature-by-source-task {
+    .nomen-source {
+      height:100px;
+
+      .vue-autocomplete-input {
+        width: 400px !important;
+      }
+    }
+  }
+</style>

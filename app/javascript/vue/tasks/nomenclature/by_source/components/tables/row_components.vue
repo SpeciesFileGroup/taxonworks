@@ -71,6 +71,6 @@ export default {
 </script>
 <style lang="scss" module>
   .pages {
-    width: 70px;
+    width: 140px;
   }
 </style>

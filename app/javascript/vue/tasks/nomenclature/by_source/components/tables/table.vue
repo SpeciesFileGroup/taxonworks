@@ -1,7 +1,7 @@
 <template>
   <table>
     <tr>
-      <th>Pages</th>
+      <th @click="sortByPages">Pages</th>
       <th>Object</th>
       <th>Radial</th>
       <th>Otu</th>
@@ -34,6 +34,17 @@ export default {
       if(index > -1) {
         this.list.splice(index, 1)
       }
+    },
+    sortByPages() {
+      function compare(a,b) {
+        if (a.pages < b.pages)
+          return -1;
+        if (a.pages > b.pages)
+          return 1;
+        return 0;
+      }
+
+      this.list.sort(compare);      
     }
   }
 }

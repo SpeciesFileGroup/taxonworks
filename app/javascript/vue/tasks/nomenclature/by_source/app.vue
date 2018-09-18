@@ -1,21 +1,17 @@
 <template>
-  <div>
-    <div class="flexbox">
-      <h1 class="task_header"> Nomenclature by source </h1>
-      <spinner
-        v-if="isLoading"
-        :full-screen="true"
-        legend="Loading..."
-        :logo-size="{ width: '100px', height: '100px'}"/>
+  <div id="nomenclature-by-source-task">
+    <spinner
+      v-if="isLoading"
+      :full-screen="true"
+      legend="Loading..."
+      :logo-size="{ width: '100px', height: '100px'}"/>
+    <div>
+      <h1 class="task_header">Source</h1>
       <nomen-source @sourceID="sourceID = $event"/>
     </div>
     <div class="flexbox">
       <div class="flexbox">
         <div class="first-column">
-          <otus-by-match
-            :sourceID="sourceID"
-            @otu_names_cites="otu_names_cites=$event"
-          />
           <cite-taxon-name
             :sourceID="sourceID"
             @foundTaxon="newTaxonNameCitation=$event"
@@ -40,6 +36,10 @@
           <asserted-distributions
             :sourceID="sourceID"
             @distribution_cites="distribution_cites=$event"
+          />
+          <otus-by-match
+            :sourceID="sourceID"
+            @otu_names_cites="otu_names_cites=$event"
           />
         </div>
         <div class="second-column">

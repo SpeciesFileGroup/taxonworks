@@ -1,5 +1,10 @@
 <template>
   <div>
+    <spinner
+      v-if="isLoading"
+      :full-screen="true"
+      legend="Loading..."
+      :logo-size="{ width: '100px', height: '100px'}"/>
     <h2>OTUs by match or proxy</h2>
     <otu-table-component :list="otu_name_list"/>
   </div>
@@ -10,12 +15,14 @@
   import RadialAnnotator from '../../../../components/annotator/annotator.vue'
   import OtuRadial from '../../../../components/otu/otu.vue'
   import OtuTableComponent from './tables/otu_table.vue'
+  import Spinner from '../../../../components/spinner.vue'
 
   export default {
     components: {
       OtuTableComponent,
       RadialAnnotator,
-      OtuRadial
+      OtuRadial,
+      Spinner
     },
     props: {
       sourceID: {
@@ -55,7 +62,8 @@
       return {
         otu_name_list: [],
         otu_id_list: [],
-        processingList: false
+        processingList: false,
+        isLoading: false
       }
     },
     watch: {
@@ -85,6 +93,7 @@
       getSourceOtus() {
         let promises = [];
         this.otu_name_list = [];
+        this.isLoading = true
 
         promises.push(this.processType(this.getIdsList(this.otu_names_cites), 'otu_ids'));
         promises.push(this.processType(this.getIdsList(this.taxon_names_cites), 'taxon_name_ids'));
@@ -95,6 +104,7 @@
 
         Promise.all(promises).then(lists => {
           this.otu_id_list = [].concat.apply([], lists)
+          this.isLoading = false
         })
       },
       addOtu(otu) {
