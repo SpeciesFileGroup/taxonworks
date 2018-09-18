@@ -1,7 +1,7 @@
 <template>
   <div
       style="width:400px; height:200px;">
-    <h2>Nomenclatural source: </h2>
+    <h2>Source: </h2>
     <pre>{{ sourceText }}</pre>
     <autocomplete
       url="/sources/autocomplete"
