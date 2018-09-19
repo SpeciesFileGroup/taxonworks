@@ -55,7 +55,7 @@ describe Source, type: :model, group: :sources do
   context '#new_from_doi' do
     let(:doi) { 'http://dx.doi.org/10.3897/zookeys.20.205' }
 
-    specify 'when doi is not provide false' do
+    specify 'when doi is not provided false is returned' do
       expect(Source.new_from_doi()).to eq(false)
     end
 
