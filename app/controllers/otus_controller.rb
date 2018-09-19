@@ -246,7 +246,8 @@ class OtusController < ApplicationController
     params.permit(
       :taxon_name_id, :otu_id,
       biological_association_ids: [], taxon_name_ids: [], otu_ids: [],
-      taxon_name_classification_ids: [], taxon_name_relationship_ids: [], asserted_distribution_ids: []
+      taxon_name_relationship_ids: [],taxon_name_classification_ids: [],
+      asserted_distribution_ids: []
     )
   end
 
