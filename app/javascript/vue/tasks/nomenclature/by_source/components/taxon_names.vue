@@ -50,6 +50,7 @@
       },
       addToList(citation) {
         this.taxon_names_cites_list.push(citation);
+        this.$emit("taxon_names_cites", this.taxon_names_cites_list)
       }
     },
   }

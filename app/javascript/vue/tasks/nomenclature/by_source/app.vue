@@ -19,6 +19,7 @@
           />
           <cite-taxon-name
             :sourceID="sourceID"
+            :cite-taxon-list="taxon_names_cites"
             @foundTaxon="newTaxonNameCitation=$event"
           />
           <taxon-name-relationships

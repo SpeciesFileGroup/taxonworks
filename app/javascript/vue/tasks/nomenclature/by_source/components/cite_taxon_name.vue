@@ -13,24 +13,19 @@
       ref="autocomplete"
       param="term"
       placeholder="Search for a taxon"
-      event-send="setTaxonforCite(item)"
       label="label"
-      @getItem="foundTaxon = $event"
+      @getItem="createTaxonCite($event)"
       :autofocus="true" />
-    <button
-      v-else
-      v-for="item in showList[view]"
-      :key="item.id"
-      type="button"
-      :class="{ 'button-default': !(selectedList.hasOwnProperty(item.id))}"
-      class="button normal-input biocuration-toggle-button"
-      @click="foundTaxon = item, createTaxonCite(item)"
-      v-html="item.name"/>
-    <button
-      class="button normal-input button-default"
-      @click="createTaxonCite()"
-      :disabled="!foundTaxon.hasOwnProperty('id')"
-      type="submit">Create Citation</button>
+    <template v-else>
+      <button
+        v-for="item in showList[view]"
+        v-if="!isCreated(item)"
+        :key="item.id"
+        type="button"
+        class="button normal-input button-submit biocuration-toggle-button"
+        @click="createTaxonCite(item)"
+        v-html="item.name"/>
+    </template>
     <span>{{ errorMessage }}</span>
   </div>
 </template>
@@ -48,6 +43,10 @@
       sourceID: {
         type: String,
         default: "0"
+      },
+      citeTaxonList: {
+        type: Array,
+        required: true
       }
     },
     data() {
@@ -58,20 +57,16 @@
         view: undefined,
         selectedList: {},
         newCitation: {},
-        foundTaxon: {},
         errorMessage: ''
       }
     },
     methods: {
-      setTaxonforCite() {
-        this.foundTaxon = item;
-      },
-      createTaxonCite() {
+      createTaxonCite(taxon) {
         let params = {
           citation: {
             source_id: this.sourceID,
             citation_object_type: 'TaxonName',
-            citation_object_id: this.foundTaxon.id
+            citation_object_id: taxon.id
           }
         };
         this.$http.post(`/citations.json`, params).then(response => {
@@ -80,6 +75,11 @@
         })
         .catch(error => {
           this.errorMessage = error.bodyText
+        })
+      },
+      isCreated(taxon) {
+        return this.citeTaxonList.find((item) => {
+          return item.citation_object.global_id == taxon.global_id
         })
       }
     },
