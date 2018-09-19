@@ -6,25 +6,27 @@
       name="citation"
       :add-option="moreOptions"
       v-model="view"/>
-    <autocomplete
-      v-if="view === 'Search'"
-      url="/taxon_names/autocomplete"
-      min="2"
-      ref="autocomplete"
-      param="term"
-      placeholder="Search for a taxon"
-      label="label"
-      @getItem="createTaxonCite($event)"
-      :autofocus="true" />
-    <template v-else>
-      <button
-        v-for="item in showList[view]"
-        v-if="!isCreated(item)"
-        :key="item.id"
-        type="button"
-        class="button normal-input button-submit biocuration-toggle-button"
-        @click="createTaxonCite(item)"
-        v-html="item.name"/>
+    <template v-if="sourceID">
+      <autocomplete
+        v-if="view === 'Search'"
+        url="/taxon_names/autocomplete"
+        min="2"
+        ref="autocomplete"
+        param="term"
+        placeholder="Search for a taxon"
+        label="label"
+        @getItem="createTaxonCite($event)"
+        :autofocus="true" />
+      <template v-else>
+        <button
+          v-for="item in showList[view]"
+          v-if="!isCreated(item)"
+          :key="item.id"
+          type="button"
+          class="button normal-input button-submit biocuration-toggle-button"
+          @click="createTaxonCite(item)"
+          v-html="item.name"/>
+      </template>
     </template>
     <span>{{ errorMessage }}</span>
   </div>
@@ -42,7 +44,7 @@
     props: {
       sourceID: {
         type: String,
-        default: "0"
+        default: undefined
       },
       citeTaxonList: {
         type: Array,
