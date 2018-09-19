@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Taxon Name Classifications</h2>
+    <h2>Taxon name classifications</h2>
     <table-component
       :list="taxon_classification_cites_list"
     />

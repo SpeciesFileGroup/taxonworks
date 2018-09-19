@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Asserted Distributions</h2>
+    <h2>Asserted distributions</h2>
     <table-component
       :list="asserted_distributions_cites_list"/>
   </div>

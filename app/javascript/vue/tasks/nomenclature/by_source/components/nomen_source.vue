@@ -2,6 +2,7 @@
   <div class="nomen-source">
     <autocomplete
       url="/sources/autocomplete"
+      class="separate-bottom"
       min="2"
       param="term"
       label="label"

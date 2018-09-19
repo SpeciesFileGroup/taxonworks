@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>OTU Names</h2>
+    <h2>OTUs</h2>
     <table-component
         :list="otu_names_cites_list"/>
   </div>

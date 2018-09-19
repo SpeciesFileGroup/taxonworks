@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Cite Taxon Name</h2>
+    <h2>Cite taxon name</h2>
     <smart-selector
       :options="tabs"
       name="citation"

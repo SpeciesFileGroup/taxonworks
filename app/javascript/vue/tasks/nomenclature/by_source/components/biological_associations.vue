@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Biological Associations</h2>
+    <h2>Biological associations</h2>
     <table-component
         :list="biological_association_cites_list"/>
   </div>

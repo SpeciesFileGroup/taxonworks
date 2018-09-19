@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Taxon Names</h2>
+    <h2>Taxon names</h2>
     <table-component 
       :list="taxon_names_cites_list"/>
   </div>
