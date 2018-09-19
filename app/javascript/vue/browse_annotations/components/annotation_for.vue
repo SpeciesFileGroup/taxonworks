@@ -43,13 +43,12 @@
         this.selectedList = {};   // clear the selected items list
         this.list = {};           // clear the displayable lists
         this.view = undefined;    // delelect which view of the displayable list
-        this.tabs = []            // clear the tabs in the smart selector
+        this.tabs = [];           // clear the tabs in the smart selector
         this.moreOptions = []
       },
       onModel(newVal) {
         this.selectedList = {};
-        if (this.selectOptionsUrl && newVal)
-          this.getSelectOptions(newVal)
+        if (this.selectOptionsUrl && newVal) { this.getSelectOptions(newVal) }
       }
     },
     computed: {

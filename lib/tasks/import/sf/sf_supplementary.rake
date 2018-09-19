@@ -123,7 +123,7 @@ namespace :tw do
 
           file.each_with_index do |row, i|
             sf_taxon_name_id = row['TaxonNameID']
-            next if excluded_taxa.include? sf_taxon_name_id
+            next if excluded_taxa.include? sf_taxon_name_id.to_s
             sf_file_id = get_sf_file_id[sf_taxon_name_id]
             next if skipped_file_ids.include? sf_file_id.to_i
             taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id] # cannot to_i because if nil, nil.to_i = 0
