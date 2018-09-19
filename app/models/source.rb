@@ -213,7 +213,8 @@ class Source < ApplicationRecord
 
   accepts_nested_attributes_for :project_sources, reject_if: :reject_project_sources
 
-  # Create a new Source instance from a full text citatation.  By default
+  # Create a new Source instance from a full text citatation.  By default,
+  # try to detect and clean up a DOI, then
   # try to resolve the citation against Crossref, use the returned
   # bibtex to populate the object if it successfully resolves.
   #
