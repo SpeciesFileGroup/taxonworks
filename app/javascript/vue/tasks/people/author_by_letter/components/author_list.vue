@@ -4,13 +4,13 @@
       <tr>
         <th>Author</th>
         <!--<th>Object</th>-->
-        <th>Radial</th>
+        <th>Role</th>
         <!--<th>Otu</th>-->
         <th>Delete</th>
       </tr>
       <row-components
           v-for="item in list"
-          @delete="removeCitation"
+          @delete="removeAuthor"
           :author="item"/>
       />
     </table>
@@ -26,14 +26,19 @@
     },
     props: {
       list: {
-        type: Array,
+        type: Object,
         required: true
       }
     },
+    data() {
+      return {
+        author: []
+      }
+    },
     methods: {
-      removeCitation(citation) {
+      removeAuthor(author) {
         let index = this.list.findIndex((item) => {
-          return citation.id == item.id
+          return author.id == item.id
         })
         if (index > -1) {
           this.list.splice(index, 1)

@@ -1,5 +1,5 @@
 <template>
-  <tr>
+  <tr v-if="author">
     <!--<td>-->
     <!--<input-->
     <!--class="pages"-->
@@ -8,10 +8,12 @@
     <!--@input="changePage"-->
     <!--v-model="citation.pages">-->
     <!--</td>-->
-    <td v-html="author.object_tag"/>
-    <td>
-      <radial-annotator :global-id="author.global_id"/>
-    </td>
+    <td v-html="author.cached"/>
+    <!--<td>-->
+    <!--<radial-annotator :global-id="author.global_id"/>-->
+    <!--</td>-->
+    <td v-if="author.roles[0]"
+        v-html="author.roles[0].role_object_tag"/>
     <!--<td>-->
     <!--<otu-radial-->
     <!--:taxon-id="citation.citation_object_id"-->
@@ -32,10 +34,14 @@
       OtuRadial
     },
     props: {
-      authorList: {
-        type: Object,
-        required: true
-      }
+      author: {
+        type: Array,
+        default: []
+      },
+      // list: {
+      //   type: Object,
+      //   required: true
+      // }
     },
     data() {
       return {
@@ -57,14 +63,15 @@
         }, this.time)
       },
       removeMe() {
-        if (window.confirm(`You're about to delete this citation record. Are you sure want to proceed?`)) {
-          this.$http.delete('/citations/' + this.citation.id + '.json').then(response => {
-            this.$emit('delete', this.citation);
-            TW.workbench.alert.create('Citation was successfully destroyed.', 'notice')
-          }, reject => {
-            TW.workbench.alert.create('Citation was not destroyed, ' + reject.statusText, 'notice')
-          })
-        }
+        // if (window.confirm(`You're about to delete this citation record. Are you sure want to proceed?`)) {
+        //   this.$http.delete('/citations/' + this.citation.id + '.json').then(response => {
+        //     this.$emit('delete', this.citation);
+        //     TW.workbench.alert.create('Citation was successfully destroyed.', 'notice')
+        //   }, reject => {
+        //     TW.workbench.alert.create('Citation was not destroyed, ' + reject.statusText, 'notice')
+        //   })
+        // }
+        this.$emit("delete", this.author)
       }
     }
   }
