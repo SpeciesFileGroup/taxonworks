@@ -20,6 +20,7 @@
             <table-collection-objects/>
             <button 
               type="button"
+              :disabled="!collectionObjects.length"
               class="button normal-input button-default"
               @click="newCO">Make New CO</button>
           </div>
@@ -32,6 +33,7 @@
           :object-value="collectionObject"
           :get-depictions="GetCollectionObjectDepictions"
           object-type="CollectionObject"
+          default-message="Drop images here to add collection object figures"
           action-save="SaveCollectionObject"/>
       </div>
     </block-layout>
@@ -67,6 +69,9 @@
       collectionObject () {
         return this.$store.getters[GetterNames.GetCollectionObject]
       },
+      collectionObjects() {
+        return this.$store.getters[GetterNames.GetCollectionObjects]
+      }
     },
     data() {
       return {

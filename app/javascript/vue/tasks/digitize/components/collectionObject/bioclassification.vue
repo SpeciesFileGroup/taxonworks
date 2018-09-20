@@ -2,6 +2,12 @@
   <div>
     <h2>Biocuration</h2>
     <div>
+      <label>Total</label>
+      <br>
+      <input
+        class="total-input"
+        type="number"
+        v-model="total">
       <div v-for="group in biocurationsGroups">
         <label>{{ group.name }}</label>
         <br>
@@ -43,6 +49,14 @@ export default {
     },
     biologicalId() {
       return this.$store.getters[GetterNames.GetCollectionObject].id
+    },
+    total: {
+      get() {
+        return this.$store.getters[GetterNames.GetCollectionObject].total
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetCollectionObjectTotal, value)
+      }
     },
   },
   data() {
@@ -168,7 +182,10 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+  .total-input {
+    width: 50px;
+  }
   .biocuration-toggle-button {
     min-width: 60px;
     border: 0px;

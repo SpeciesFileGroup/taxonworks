@@ -2,6 +2,7 @@
   <depiction-component
     :object-value="collectionEvent"
     object-type="CollectingEvent"
+    default-message="Drop images here to add collecting event figures"
     :get-depictions="GetCollectionEventDepictions"
     action-save="SaveCollectionEvent"/>
 </template>
@@ -29,6 +30,8 @@ export default {
 }
 </script>
 
-<style>
-
+<style module>
+  .vue-dropzone {
+    padding: 0px !important;
+  }
 </style>

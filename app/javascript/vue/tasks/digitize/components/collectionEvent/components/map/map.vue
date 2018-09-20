@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="latitude && longitude">
     <div style="height: 10%; overflow: auto;">
       Map verification
     </div>
@@ -8,6 +8,12 @@
       <l-marker :lat-lng="marker"></l-marker>
     </l-map>
   </div>
+  <div
+    v-else
+    class="panel aligner"
+    style="height: 300px; align-items: center; width:500px">
+    <h3>Fill lat/long to display the map</h3>
+  </div>
 </template>
 
 <script>
@@ -15,12 +21,14 @@
 import { GetterNames } from '../../../../store/getters/getters.js'
 import { LMap, LTileLayer, LMarker } from 'vue2-leaflet'
 import 'leaflet/dist/leaflet.css'
+import Spinner from '../../../../../../components/spinner'
 
 export default {
   components: {
     LMap,
     LTileLayer,
-    LMarker
+    LMarker,
+    Spinner
   },
   computed: {
     collectionEvent() {
@@ -58,3 +66,10 @@ export default {
   }
 }
 </script>
+<style scoped>
+.aligner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>

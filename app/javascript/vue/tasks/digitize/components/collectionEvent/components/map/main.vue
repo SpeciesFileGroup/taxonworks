@@ -4,6 +4,7 @@
       v-model="componentsOrder"
       @end="updatePreferences">
       <component
+        class="separate-bottom"
         v-for="component in componentsOrder"
         :key="component"
         :is="component"/>

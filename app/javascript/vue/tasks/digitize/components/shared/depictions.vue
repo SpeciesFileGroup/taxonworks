@@ -1,9 +1,5 @@
 <template>
   <div class="depiction-container">
-    <spinner
-      v-if="false"
-      :show-spinner="false"
-      legend="Create a type specimen to upload images"/>
     <dropzone
       class="dropzone-card separate-bottom"
       @vdropzone-sending="sending"
@@ -60,6 +56,10 @@ export default {
     getDepictions: {
       type: Function,
       required: true
+    },
+    defaultMessage: {
+      type: String,
+      default: 'Drop images here to add figures'
     }
   },
   data: function () {
@@ -76,7 +76,7 @@ export default {
         headers: {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
-        dictDefaultMessage: 'Drop images here to add figures',
+        dictDefaultMessage: this.defaultMessage,
         acceptedFiles: 'image/*'
       }
     }

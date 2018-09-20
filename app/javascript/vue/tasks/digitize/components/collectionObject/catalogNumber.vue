@@ -20,9 +20,8 @@
           v-model="identifier">
       </div>
     </div>
-    <label>Preparation</label>
-    <br>
-    <ul>
+    <p>Preparation</p>
+    <ul class="no_bullets">
       <li v-for="type in coTypes">
         <label>
           <input
@@ -36,11 +35,6 @@
       </li>
     </ul>
     <br>
-    <label>Total</label>
-    <br>
-    <input
-      type="number"
-      v-model="total">
   </div>
 </template>
 
@@ -81,14 +75,6 @@
         },
         set(value) {
           return this.$store.commit(MutationNames.SetIdentifierIdentifier, value)
-        }
-      },
-      total: {
-        get() {
-          return this.$store.getters[GetterNames.GetCollectionObject].total
-        },
-        set(value) {
-          this.$store.commit(MutationNames.SetCollectionObjectTotal, value)
         }
       },
       coTypes: {
