@@ -12,7 +12,6 @@
           v-for="item in list"
           @delete="removeAuthor"
           :author="item"/>
-      />
     </table>
   </div>
 </template>
