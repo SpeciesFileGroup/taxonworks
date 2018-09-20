@@ -1,6 +1,5 @@
 
 
-
 Helper Descriptions
 ===================
 
@@ -8,6 +7,8 @@ See individual headers at https://github.com/SpeciesFileGroup/taxonworks/tree/ma
 
 Code Organization
 =================
+
+TODO: Go over patterns, clean up where no longer pertinent.
 
 ```Ruby
 class <Model>Helper 
@@ -29,30 +30,40 @@ class <Model>Helper
   # Exemplar data model helper methods 
   #    
 
-  #  Return a single line, ideally wrapped in a content_tag(:span, ... ) naming the instance.
-  def <model_name>_tag(model)
-    return nil if model.nil
-    # return some model.attribute of interpolated string of model attributes
+  #  Return a single line, ideally wrapped in a content_tag(:span, ... ) naming the instance. 
+  #  Often contains html.
+  def <model_name>_tag(object)
+    return nil if object.nil
+    # return some object.attribute of interpolated string of object attributes
   end
 
   #  Return a single line, ideally wrapped in a content_tag(:span, ... ) briefly naming the instance. 
-  def <model_name>_short_tag(model)
+  #  May contain html.
+  def <model_name>_short_tag(object)
   end
 
   #  Return one or more line, ideally wrapped in a content_tag(:div, ... ) detailing the instance.
-  def <model_name>_detailed_tag(model)
+  #  Rarely used at present.  Often contains html.
+  def <model_name>_detailed_tag(object)
   end
 
   # Return a link_to(model_path) using model_tag
-  def <model_name>_link(model)
+  def <model_name>_link(object)
   end
 
   # Return a link_to(model_path) using model_short_tag
-  def model_short_link(model)
+  def model_short_link(mobject)
   end
 
-  # Return a content_tag(:li, model_tag(model))
-  def model_select_item(model)
+  # Return a content_tag(:li, <model>_tag(object))
+  def model_select_item(mobject)
+  end
+
+  # Return a String
+  #  An equivalent to object_tag, but never with HTML!
+  #  Same as
+  #     label_for(object)
+  def label_for_<model>(object)
   end
   
 end
