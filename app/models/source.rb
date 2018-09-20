@@ -209,7 +209,7 @@ class Source < ApplicationRecord
   after_save :set_cached
 
   validates_presence_of :type
-  validates :type, inclusion: { in: ['Source::Bibtex', 'Source::Human', 'Source::Verbatim'] }
+  validates :type, inclusion: {in: ['Source::Bibtex', 'Source::Human', 'Source::Verbatim']}
 
   accepts_nested_attributes_for :project_sources, reject_if: :reject_project_sources
 
@@ -225,9 +225,29 @@ class Source < ApplicationRecord
   # @return [Source::BibTex.new] a new instance
   # @return [Source::Verbatim.new] a new instance
   # @return [false]
+  # Four possible paths:
+  # 1)  citation.
+  # 2)  citation which includes a doi.
+  # 3)  naked doi, e.g., '10.3897/zookeys.20.205'.
+  # 4)  doi with preamble, e.g., 'http://dx.doi.org/10.3897/zookeys.20.205' or
+  #                              'https://doi.org/10.3897/zookeys.20.205'.
   def self.new_from_citation(citation: nil, resolve: true)
     return false if citation.length < 6
-    bibtex_string = Ref2bibtex.get(citation) if resolve
+    path = 1  # assumes straight citation text
+
+    doi = Identifier::Global::Doi.new(citation)
+    if doi.valid?
+      citation = doi.identifier
+      path = 3
+    end
+
+    case path
+      when 1, 2
+        bibtex_string = Ref2bibtex.get(citation) if resolve
+      when 3, 4
+        bibtex_string = Ref2bibtex.get_bibtex(doi.identifier)
+      else
+    end
     # check string encoding, if not UTF-8, check if compatible with UTF-8,
     # if so convert to UTF-8 and parse with latex, else use type verbatim
     if bibtex_string
@@ -279,7 +299,7 @@ class Source < ApplicationRecord
   # @return [Array, Boolean]
   def self.batch_create(file)
     sources = []
-    valid  = 0
+    valid = 0
     begin
       # error_msg = []
       Source.transaction do
