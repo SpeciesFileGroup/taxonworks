@@ -20,28 +20,12 @@
           v-model="identifier">
       </div>
     </div>
-    <p>Preparation</p>
-    <ul class="no_bullets">
-      <li v-for="type in coTypes">
-        <label>
-          <input
-            type="radio"
-            :disabled="collectionObjects.length > 0"
-            :value="type.id"
-            v-model="preparationType"
-            name="collection-object-type">
-          {{ type.name }}
-        </label>
-      </li>
-    </ul>
-    <br>
   </div>
 </template>
 
 <script>
 
   import Autocomplete from '../../../../components/autocomplete.vue'
-  import { GetPreparationTypes } from '../../request/resources.js'
   import { GetterNames } from '../../store/getters/getters.js'
   import { MutationNames } from '../../store/mutations/mutations.js'
 
@@ -61,14 +45,6 @@
           this.$store.commit(MutationNames.SetIdentifierNamespaceId, value)
         },
       },
-      preparationType: {
-        get() {
-          return this.$store.getters[GetterNames.GetPreparationType]
-        },
-        set(value) {
-          this.$store.commit(MutationNames.SetPreparationType, value)
-        }
-      },
       identifier: {
         get() {
           return this.$store.getters[GetterNames.GetIdentifier].identifier
@@ -85,16 +61,6 @@
           this.$store.commit(MutationNames.SetCollectionObjectTypes, value)
         }
       }
-    },
-    data() {
-      return {
-        types: []
-      }
-    },
-    mounted() {
-      GetPreparationTypes().then(response => {
-        this.coTypes = response
-      })
     }
   }
 </script>

@@ -11,24 +11,25 @@
       </div>
       <div slot="body">
         <div
-          class="horizontal-left-content align-start">
+          class="horizontal-left-content align-start flexbox">
           <div class="separate-right">
             <catalog-number/>
+            <repository-component/>
           </div>
           <div class="separate-left separate-right">
+            <preparation-type/>
+          </div>
+          <div class="separate-left">
             <bioclassification/>
             <table-collection-objects/>
             <button 
               type="button"
               :disabled="!collectionObjects.length"
               class="button normal-input button-default"
-              @click="newCO">Make New CO</button>
-          </div>
-          <div class="separate-left">
-            <repository-component/>
+              @click="newCO">Make New CO</button>            
           </div>
         </div>
-        <buffered-component/>
+        <buffered-component class="separate-top"/>
         <depictions-component
           :object-value="collectionObject"
           :get-depictions="GetCollectionObjectDepictions"
@@ -42,6 +43,7 @@
 
 <script>
 
+  import PreparationType from './preparationType.vue'
   import CatalogNumber from './catalogNumber.vue'
   import TableCollectionObjects from './tableCollectionObjects.vue'
   import Bioclassification from './bioclassification.vue'
@@ -56,6 +58,7 @@
 
   export default {
     components: {
+      PreparationType,
       CatalogNumber,
       TableCollectionObjects,
       Bioclassification,
