@@ -37,10 +37,19 @@ class Identifier::Global::Doi < Identifier::Global
 
   protected
 
+  DOI_MATCH = /^(doi:|http(s)*:\/\/(dx.)*doi.org\/)/i
+
   # permit and remove various preambles: 'doi:', 'http://dx.doi.org/', 'https://doi.org/'
   def handle_prefixes
     identifier.strip!
-    identifier.gsub!(/^(doi:|http(s)*:\/\/(dx.)*doi.org\/)/i, '') if identifier
+    identifier.gsub!(DOI_MATCH, '') if identifier
+  end
+
+  def self.preface_doi(raw)
+    raw.strip!
+    return raw if raw.start_with?('http')
+    # rae DOI?
+    'https://doi.org/' + raw
   end
 
 end

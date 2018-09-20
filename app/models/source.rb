@@ -235,9 +235,9 @@ class Source < ApplicationRecord
     return false if citation.length < 6
     path = 1  # assumes straight citation text
 
-    doi = Identifier::Global::Doi.new(citation)
+    doi = Identifier::Global::Doi.new(identifier: citation)
     if doi.valid?
-      citation = doi.identifier
+      citation = Identifier::Global::Doi.preface_doi(doi.identifier)
       path = 3
     end
 
@@ -245,7 +245,7 @@ class Source < ApplicationRecord
       when 1, 2
         bibtex_string = Ref2bibtex.get(citation) if resolve
       when 3, 4
-        bibtex_string = Ref2bibtex.get_bibtex(doi.identifier)
+        bibtex_string = Ref2bibtex.get_bibtex(citation)
       else
     end
     # check string encoding, if not UTF-8, check if compatible with UTF-8,
