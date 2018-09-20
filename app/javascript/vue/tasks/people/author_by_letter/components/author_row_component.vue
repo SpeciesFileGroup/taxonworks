@@ -1,24 +1,8 @@
 <template>
   <tr v-if="author">
-    <!--<td>-->
-    <!--<input-->
-    <!--class="pages"-->
-    <!--type="text"-->
-    <!--placeholder="Pages"-->
-    <!--@input="changePage"-->
-    <!--v-model="citation.pages">-->
-    <!--</td>-->
     <td v-html="author.cached"/>
-    <!--<td>-->
-    <!--<radial-annotator :global-id="author.global_id"/>-->
-    <!--</td>-->
     <td v-if="author.roles[0]"
         v-html="author.roles[0].role_object_tag"/>
-    <!--<td>-->
-    <!--<otu-radial-->
-    <!--:taxon-id="citation.citation_object_id"-->
-    <!--:redirect="false"/>-->
-    <!--</td>-->
     <td><span class="button circle-button btn-delete" @click="removeMe()"/></td>
   </tr>
 </template>
@@ -38,10 +22,6 @@
         type: Array,
         default: []
       },
-      // list: {
-      //   type: Object,
-      //   required: true
-      // }
     },
     data() {
       return {
@@ -63,14 +43,6 @@
         }, this.time)
       },
       removeMe() {
-        // if (window.confirm(`You're about to delete this citation record. Are you sure want to proceed?`)) {
-        //   this.$http.delete('/citations/' + this.citation.id + '.json').then(response => {
-        //     this.$emit('delete', this.citation);
-        //     TW.workbench.alert.create('Citation was successfully destroyed.', 'notice')
-        //   }, reject => {
-        //     TW.workbench.alert.create('Citation was not destroyed, ' + reject.statusText, 'notice')
-        //   })
-        // }
         this.$emit("delete", this.author)
       }
     }

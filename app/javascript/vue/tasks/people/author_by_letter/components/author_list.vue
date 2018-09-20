@@ -43,7 +43,7 @@
           this.list.splice(index, 1)
         }
       },
-      sortByPages() {
+      sortByName() {
         function compare(a, b) {
           if (a.pages < b.pages)
             return -1;
