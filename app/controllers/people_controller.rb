@@ -130,7 +130,7 @@ class PeopleController < ApplicationController
   private
 
   def filter_params
-    params.permit(:last_name, :first_name, roles: [])
+    params.permit(:last_name, :first_name, :last_name_starts_with, roles: [])
   end
 
   def autocomplete_params
