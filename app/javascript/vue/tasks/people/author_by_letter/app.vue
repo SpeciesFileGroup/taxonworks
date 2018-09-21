@@ -2,7 +2,7 @@
   <div>
     <h1>Author by First Letter</h1>
     <alphabet-buttons @keypress="getAuthors($event)"/>
-    <author-list :list="AuthorsList"/>
+    <author-list :list="authorsList"/>
   </div>
 </template>
 <script>
@@ -16,16 +16,13 @@
     },
     data() {
       return {
-        AuthorsList: {
-          type: Array,
-          default: []
-        }
+        authorsList: []
       }
     },
     methods: {
       getAuthors(key) {
         this.$http.get('/people.json?last_name_starts_with=' + key).then(response => {
-          this.AuthorsList = response.body;
+          this.authorsList = response.body;
         })
       }
     }
