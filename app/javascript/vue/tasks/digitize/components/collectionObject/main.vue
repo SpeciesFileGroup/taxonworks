@@ -1,8 +1,8 @@
 <template>
-  <div>
-    <block-layout>
+  <div class="horizontal-left-content align-start">
+    <block-layout class="separate-right">
       <div slot="header">
-        <h3>Collection Objects</h3>
+        <h3>Collection Object</h3>
       </div>
       <div slot="options">
         <radial-annotator 
@@ -30,7 +30,6 @@
           </div>
           <div class="separate-left">
             <bioclassification/>
-            <table-collection-objects/>
             <button 
               type="button"
               :disabled="!collectionObjects.length"
@@ -47,6 +46,14 @@
           action-save="SaveCollectionObject"/>
       </div>
     </block-layout>
+    <block-layout class="separate-left">
+      <div slot="header">
+        <h3>Container</h3>
+      </div>
+      <div slot="body">
+        <table-collection-objects/>
+      </div>
+    </block-layout>
   </div>
 </template>
 
@@ -60,6 +67,7 @@
   import DepictionsComponent from '../shared/depictions.vue'
   import RepositoryComponent from './repository.vue'
   import { GetterNames } from '../../store/getters/getters'
+  import { MutationNames } from '../../store/mutations/mutations.js'
   import { ActionNames } from '../../store/actions/actions'
   import BlockLayout from '../../../../components/blockLayout.vue'
   import RadialAnnotator from '../../../../components/annotator/annotator.vue'

@@ -14,6 +14,7 @@
       <label>Determiner</label>
       <role-picker
         :autofocus="false" 
+        role-type="Determiner"
         v-model="roles"/>
       <div class="horizontal-left-content date-fields separate-bottom">
         <div class="separate-right">
@@ -51,6 +52,7 @@ import OtuPicker from '../../../../components/otu/otu_picker/otu_picker.vue'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import BlockLayout from '../../../../components/blockLayout.vue'
+import { ActionNames } from '../../store/actions/actions';
 
 export default {
   components: {
@@ -110,7 +112,7 @@ export default {
   },
   methods: {
     SaveMethod() {
-      
+      this.$store.dispatch(ActionNames.SaveDetermination)
     }
   }
 }

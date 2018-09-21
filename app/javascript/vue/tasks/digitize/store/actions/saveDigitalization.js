@@ -5,6 +5,7 @@ export default function ({ commit, dispatch, state }) {
     dispatch(ActionNames.SaveCollectionEvent).then(() => {
       dispatch(ActionNames.SaveLabel)
       dispatch(ActionNames.SaveCollectionObject).then(() => {
+        dispatch(ActionNames.SaveDetermination)
         dispatch(ActionNames.SaveTypeMaterial).then(() => {
           dispatch(ActionNames.SaveIdentifier).then(() => {
             dispatch(ActionNames.SaveDetermination).then(() => {

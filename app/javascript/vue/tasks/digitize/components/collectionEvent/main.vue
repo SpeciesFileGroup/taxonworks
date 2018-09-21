@@ -4,7 +4,9 @@
       <div slot="header">
         <h3>Collection Event</h3>
       </div>
-      <div slot="options">
+      <div
+        slot="options" 
+        class="horizontal-left-content separate-right">
         <radial-annotator 
           v-if="collectingEvent.id"
           :global-id="collectingEvent.global_id"/>

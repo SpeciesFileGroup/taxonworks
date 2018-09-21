@@ -166,7 +166,7 @@ const CreateBiocurationClassification = function (data) {
 }
 
 const UpdateTaxonDetermination = function (data) {
-  return ajaxCall('patch', `/taxon_determinations.json`, { taxon_determination: data })
+  return ajaxCall('patch', `/taxon_determinations/${data.id}.json`, { taxon_determination: data })
 }
 
 const UpdateTypeMaterial = function (id, data) {
