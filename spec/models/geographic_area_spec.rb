@@ -357,7 +357,7 @@ describe GeographicArea, type: :model, group: [:geo, :shared_goe] do
                                                        'RestrictAdmin' => 'false',
                                                        'BG'            => 'false',
                                                        'LanguageIndex' => '0',
-                                                       'gc'            => 'Tester'
+                                                       'gc'            => 'TaxonWorks'
                                                       })
         end
         specify 'illinois' do
@@ -378,7 +378,7 @@ describe GeographicArea, type: :model, group: [:geo, :shared_goe] do
                                                               'RestrictAdmin' => 'false',
                                                               'BG'            => 'false',
                                                               'LanguageIndex' => '0',
-                                                              'gc'            => 'Tester'
+                                                              'gc'            => 'TaxonWorks'
                                                              })
         end
         specify 'usa' do
@@ -399,7 +399,7 @@ describe GeographicArea, type: :model, group: [:geo, :shared_goe] do
                                                                      'RestrictAdmin' => 'false',
                                                                      'BG'            => 'false',
                                                                      'LanguageIndex' => '0',
-                                                                     'gc'            => 'Tester'
+                                                                     'gc'            => 'TaxonWorks'
                                                                     })
         end
         specify 'root' do
@@ -420,7 +420,7 @@ describe GeographicArea, type: :model, group: [:geo, :shared_goe] do
                                                                             'RestrictAdmin' => 'false',
                                                                             'BG'            => 'false',
                                                                             'LanguageIndex' => '0',
-                                                                            'gc'            => 'Tester'})
+                                                                            'gc'            => 'TaxonWorks'})
         end
         specify 'ford' do
           ford
@@ -443,7 +443,7 @@ describe GeographicArea, type: :model, group: [:geo, :shared_goe] do
                                                   'RestrictAdmin' => 'false',
                                                   'BG'            => 'false',
                                                   'LanguageIndex' => '0',
-                                                  'gc'            => 'Tester'
+                                                  'gc'            => 'TaxonWorks'
                                                  })
         end
       end
@@ -455,14 +455,14 @@ describe GeographicArea, type: :model, group: [:geo, :shared_goe] do
           # pending 'completion of a method for geolocate_ui_params_string'
           ford.geographic_items << GeographicItem::MultiPolygon.create!(multi_polygon: fc_shape)
           expect(ford.geolocate_ui_params_string)
-            .to eq('http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx' \
+            .to eq('http://www.geo-locate.org/web/webgeoreflight.aspx' \
                 '?country=United States of America' \
                 '&state=Illinois' \
                 '&county=Ford' \
                 '&locality=' \
                 '&points=40.5968937591322|-88.2239418211552||0|3' \
                 '&georef=run|false|false|true|true|false|false|false|0' \
-                '&gc=Tester')
+                '&gc=TaxonWorks')
         end
       end
     end
