@@ -21,6 +21,13 @@ module OtusHelper
     link_to(otu_tag(otu).html_safe, otu)
   end
 
+  def label_for_otu(otu)
+    return nil if otu.nil?
+    [otu.name, 
+     label_for_taxon_name(otu.taxon_name)
+    ].compact.join(': ')
+  end
+
   def otus_search_form
     render('/otus/quick_search_form')
   end

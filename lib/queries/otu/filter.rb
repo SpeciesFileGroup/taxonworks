@@ -257,7 +257,7 @@ module Queries
 
       b = b.where(e.or(f).and(g.or(h)))
       b = b.group(a['id'])
-      b = b.as('z_')
+      b = b.as('z1_')
 
       ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
     end
@@ -293,7 +293,7 @@ module Queries
 
       b = b.where(e.or(f).and(g.or(h)))
       b = b.group(a['id'])
-      b = b.as('z_')
+      b = b.as('z2_')
 
       ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
     end
@@ -318,7 +318,7 @@ module Queries
 
       b = b.where(e.and(f))
       b = b.group(a['id'])
-      b = b.as('z_')
+      b = b.as('z3_')
 
       a = ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
     end
@@ -343,7 +343,7 @@ module Queries
 
       b = b.where(e.and(f))
       b = b.group(a['id'])
-      b = b.as('z_')
+      b = b.as('z4_')
 
       a =  ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
     end
