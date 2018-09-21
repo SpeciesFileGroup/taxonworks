@@ -19,6 +19,15 @@
           <div class="separate-left separate-right">
             <preparation-type/>
           </div>
+          <div class="separate-left separate-right" style="max-width: 100px">
+            <h2>Total</h2>
+            <br>
+            <input
+              style="max-width: 50px"
+              class="total-input"
+              type="number"
+              v-model="total">
+          </div>
           <div class="separate-left">
             <bioclassification/>
             <table-collection-objects/>
@@ -74,7 +83,15 @@
       },
       collectionObjects() {
         return this.$store.getters[GetterNames.GetCollectionObjects]
-      }
+      },
+      total: {
+        get() {
+          return this.$store.getters[GetterNames.GetCollectionObject].total
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetCollectionObjectTotal, value)
+        }
+      },
     },
     data() {
       return {
