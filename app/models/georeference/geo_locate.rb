@@ -306,7 +306,8 @@ class Georeference::GeoLocate < Georeference
 
     protected
 
-    # @param [String, String] host domain name, request string.
+    # @param [String] host domain name
+    # @param [String] request string.
     # @return [HTTP object]
     def call_api(host, request)
       Net::HTTP.get(host, request.request_string)

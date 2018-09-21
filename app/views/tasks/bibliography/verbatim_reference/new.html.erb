@@ -4,12 +4,12 @@
 to use the BibTeX record (if found) or store it as a verbatim record.</p>
 
 <%= form_tag preview_verbatim_reference_task_path do %>
-  
+
   <div class="field">
-    <%= label_tag :citation_to_find, nil, data: {help: 'Works best by pasting in a full citation, but fragments are also possible.'} %>
+    <%= label_tag :citation_to_find, nil, data: {help: 'Works best by pasting in a full citation or DOI, but fragments are also possible.'} %>
     <%= text_area_tag :citation, (params[:in_cite].nil? ? nil : params[:in_cite]), rows: 4, cols: 50 %>
   </div>
- 
+
   <div class="actions">
     <%= submit_tag 'Preview' %>
   </div>
