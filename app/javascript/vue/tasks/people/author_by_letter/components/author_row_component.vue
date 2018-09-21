@@ -3,6 +3,8 @@
     <td v-html="author.cached"/>
     <td v-if="author.roles[0]"
         v-html="author.roles[0].role_object_tag"/>
+    <td v-else
+        v-html=" "/>
     <td><span class="button circle-button btn-delete" @click="removeMe()"/></td>
   </tr>
 </template>
@@ -19,8 +21,8 @@
     },
     props: {
       author: {
-        type: Array,
-        default: []
+        type: Object,
+        default: {}
       },
     },
     data() {
