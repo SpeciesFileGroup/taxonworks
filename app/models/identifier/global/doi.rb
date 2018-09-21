@@ -41,14 +41,16 @@ class Identifier::Global::Doi < Identifier::Global
 
   # permit and remove various preambles: 'doi:', 'http://dx.doi.org/', 'https://doi.org/'
   def handle_prefixes
+    return identifier if identifier.blank?
     identifier.strip!
     identifier.gsub!(DOI_MATCH, '') if identifier
   end
 
   def self.preface_doi(raw)
+    return raw if raw.blank?
     raw.strip!
-    return raw if raw.start_with?('http')
-    # rae DOI?
+    return raw if raw.start_with?('http') # already a URL?
+    # probably a raw DOI
     'https://doi.org/' + raw
   end
 
