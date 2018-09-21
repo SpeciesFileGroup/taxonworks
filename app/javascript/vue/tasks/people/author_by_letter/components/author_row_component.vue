@@ -39,9 +39,9 @@
           clearTimeout(this.autoSave)
         }
         this.autoSave = setTimeout(() => {
-          that.$http.patch('/citations/' + this.citation.id + '.json', {citation: this.citation}).then(response => {
-            TW.workbench.alert.create('Citation was successfully updated.', 'notice')
-          })
+          //   that.$http.patch('/citations/' + this.citation.id + '.json', {citation: this.citation}).then(response => {
+          //     TW.workbench.alert.create('Citation was successfully updated.', 'notice')
+          //   })
         }, this.time)
       },
       removeMe() {

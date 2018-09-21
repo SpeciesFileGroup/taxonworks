@@ -2,7 +2,7 @@
   <div>
     <table>
       <tr>
-        <th>Author</th>
+        <th @click="sortByName">Author</th>
         <!--<th>Object</th>-->
         <th>Role</th>
         <!--<th>Otu</th>-->
