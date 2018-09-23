@@ -20,11 +20,6 @@
           @click="saveDigitalization"
           type="button">Save
         </button>
-        <button
-          class="button normal-input button-default separate-left separate-right"
-          @click="resetStore"
-          type="button">New
-        </button>
         |
         <span
           v-if="identifier.id"

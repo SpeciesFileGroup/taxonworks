@@ -1,11 +1,19 @@
 <template>
-  <div class="horizontal-left-content align-start">
+  <div class="flexbox align-start">
     <block-layout class="separate-right">
       <div slot="header">
         <h3>Collection Object</h3>
       </div>
-      <div slot="options">
-        <radial-annotator 
+      <div
+        slot="options"
+        class="horizontal-left-content">
+        <button 
+          type="button"
+          :disabled="!collectionObjects.length"
+          class="button normal-input button-default separate-right"
+          @click="newCO">New</button>  
+        <radial-annotator
+          classs="separate-right"
           v-if="collectionObject.id"
           :global-id="collectionObject.global_id"/>
       </div>
@@ -19,7 +27,9 @@
           <div class="separate-left separate-right">
             <preparation-type/>
           </div>
-          <div class="separate-left separate-right" style="max-width: 100px">
+          <div
+            class="separate-left separate-right" 
+            style="max-width: 100px">
             <h2>Total</h2>
             <br>
             <input
@@ -29,12 +39,7 @@
               v-model="total">
           </div>
           <div class="separate-left">
-            <bioclassification/>
-            <button 
-              type="button"
-              :disabled="!collectionObjects.length"
-              class="button normal-input button-default"
-              @click="newCO">Make New CO</button>            
+            <bioclassification/>          
           </div>
         </div>
         <buffered-component class="separate-top"/>
@@ -42,13 +47,16 @@
           :object-value="collectionObject"
           :get-depictions="GetCollectionObjectDepictions"
           object-type="CollectionObject"
+          @create="createDepictionForAll"
           default-message="Drop images here to add collection object figures"
           action-save="SaveCollectionObject"/>
       </div>
     </block-layout>
-    <block-layout class="separate-left">
+    <block-layout
+      v-if="collectionObjects.length"
+      class="separate-left column-tiny">
       <div slot="header">
-        <h3>Container</h3>
+        <h3>{{ (collectionObjects.length > 1 ? 'Container' : 'Collection Object created') }}</h3>
       </div>
       <div slot="body">
         <table-collection-objects/>
@@ -71,7 +79,7 @@
   import { ActionNames } from '../../store/actions/actions'
   import BlockLayout from '../../../../components/blockLayout.vue'
   import RadialAnnotator from '../../../../components/annotator/annotator.vue'
-  import { GetCollectionObjectDepictions } from '../../request/resources.js'
+  import { GetCollectionObjectDepictions, CreateDepiction } from '../../request/resources.js'
 
   export default {
     components: {
@@ -92,6 +100,14 @@
       collectionObjects() {
         return this.$store.getters[GetterNames.GetCollectionObjects]
       },
+      depictions: {
+        get() {
+          return this.$store.getters[GetterNames.GetDepictions]
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetDepictions)
+        }
+      },
       total: {
         get() {
           return this.$store.getters[GetterNames.GetCollectionObject].total
@@ -109,10 +125,53 @@
         GetCollectionObjectDepictions
       }
     },
+    watch: {
+      collectionObject(newVal) {
+        if(newVal.id) {
+          this.cloneDepictions(newVal)
+        }
+      }
+    },
     methods: {
       newCO() {
         this.$store.dispatch(ActionNames.NewCollectionObject)
-      }
+      },
+      cloneDepictions(co) {
+        let unique = new Set()
+        let depictionsRemovedDuplicate = this.depictions.filter(depiction => {
+          let key = depiction.image_id, 
+          isNew = !unique.has(key);
+          if (isNew) unique.add(key);
+          return isNew;
+        })
+
+        let coDepictions = this.depictions.filter(depiction => {
+          return depiction.depiction_object.id == this.collectionObject.id
+        })
+
+        depictionsRemovedDuplicate.forEach(depiction => {
+          if(!coDepictions.find(item => { return item.image_id == depiction.image_id })) {
+            this.saveDepiction(co.id, depiction)
+          }
+        })
+      },
+      saveDepiction(coId, depiction) {
+        let newDepiction = {
+          depiction_object_id: coId,
+          depiction_object_type: 'CollectionObject',
+          image_id: depiction.image_id
+        }
+        CreateDepiction(newDepiction).then(createdDepiction => {
+          this.depictions.push(createdDepiction)
+        })
+      },
+      createDepictionForAll(depiction) {
+        let coIds = this.collectionObjects.map((co) => { return co.id }).filter(id => { return this.collectionObject.id != id })
+        this.depictions.push(depiction)
+        coIds.forEach((id) => {
+          this.saveDepiction(id, depiction)
+        })
+      },
     }
   }
 </script>

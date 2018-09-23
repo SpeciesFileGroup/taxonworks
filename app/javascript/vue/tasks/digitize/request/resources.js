@@ -177,6 +177,10 @@ const UpdateDepiction = function (id, data) {
   return ajaxCall('patch', `/depictions/${id}.json`, data)
 }
 
+const CreateDepiction = function (data) {
+  return ajaxCall('post', `/depictions.json`, { depiction: data })
+}
+
 const DestroyTypeMaterial = function (id) {
   return ajaxCall('delete', `/type_materials/${id}.json`)
 }
@@ -228,6 +232,7 @@ export {
   CreateBiocurationClassification,
   UpdateTypeMaterial,
   UpdateDepiction,
+  CreateDepiction,
   UpdateUserPreferences,
   DestroyTypeMaterial,
   DestroyBiocuration,

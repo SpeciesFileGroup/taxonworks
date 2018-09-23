@@ -1,24 +1,21 @@
 <template>
-  <table>
-    <tbody>
-      <tr v-for="item in collectionObjects">
+  <table class="vue-table">
+    <tbody class="list-complete">
+      <tr
+        v-for="item in collectionObjects"
+        class="list-complete-item"
+        :class="{ 'highlight': isSelected(item) }">
         <td>{{ item.total }}</td>
         <td>{{ showBiocurations(item) }}</td>
-        <td>
+        <td class="horizontal-right-content">
           <radial-annotator :global-id="item.global_id"/>
-        </td>
-        <td>
           <button
             type="button"
             class="button circle-button btn-edit"
             @click="setCO(item)">Select</button>
-        </td>
-        <td>
           <pin-component
             type="CollectionObject"
             :object-id="item.id"/>
-        </td>
-        <td>
           <button
             type="button"
             class="button circle-button btn-delete"
@@ -46,6 +43,9 @@ export default {
     collectionObjects() {
       return this.$store.getters[GetterNames.GetCollectionObjects]
     },
+    collectionObject() {
+      return this.$store.getters[GetterNames.GetCollectionObject]
+    },
     biocurations() {
       return this.$store.getters[GetterNames.GetBiocurations]
     }
@@ -60,7 +60,19 @@ export default {
     },
     removeCO(id) {
       this.$store.dispatch(ActionNames.RemoveCollectionObject, id)
+    },
+    isSelected(item) {
+      return this.collectionObject.id == item.id
     }
   }
 }
 </script>
+<style scoped>
+  .highlight {
+    background-color: #E3E8E3;
+  }
+  .vue-table {
+    min-width: 400px;
+  }
+</style>
+

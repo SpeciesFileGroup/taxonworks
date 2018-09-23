@@ -32,6 +32,7 @@ import dropzone from '../../../../components/dropzone.vue'
 import expand from '../../../../components/expand.vue'
 import spinner from '../../../../components/spinner.vue'
 import depictionImage from './depictionImage.vue'
+import { GetterNames } from '../../store/getters/getters';
 
 export default {
   components: {
@@ -102,6 +103,7 @@ export default {
     'success': function (file, response) {
       this.figuresList.push(response)
       this.$refs.depiction.removeFile(file)
+      this.$emit('create', response)
     },
     'sending': function (file, xhr, formData) {
       formData.append('depiction[depiction_object_id]', this.objectValue.id)
