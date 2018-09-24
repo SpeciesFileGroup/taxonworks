@@ -6,6 +6,7 @@ module Queries
 
       attr_accessor :limit_to_roles
       attr_accessor :first_name, :last_name
+      attr_accessor :last_name_starts_with
 
       # @params params [ActionController::Parameters]
       def initialize(params)
@@ -13,6 +14,7 @@ module Queries
         @limit_to_roles ||= [] 
         @first_name = params[:first_name]
         @last_name = params[:last_name]
+        @last_name_starts_with = params[:last_name_starts_with]
       end
 
       # @return [Arel::Table]
@@ -29,6 +31,10 @@ module Queries
         last_name.nil? ? nil : table[:last_name].matches('%' + last_name + '%')
       end
 
+      def match_start_of_last_name
+        last_name_starts_with.nil? ? nil : table[:last_name].matches(last_name_starts_with + '%')
+      end
+
       def match_first_name
         first_name.nil? ? nil : table[:first_name].matches('%' + first_name + '%')
       end
@@ -42,7 +48,8 @@ module Queries
         clauses = [
           match_first_name,
           match_last_name,
-          match_roles
+          match_roles,
+          match_start_of_last_name
         ].compact
 
         return nil if clauses.empty?

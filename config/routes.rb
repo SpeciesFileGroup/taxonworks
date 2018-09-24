@@ -982,6 +982,9 @@ TaxonWorks::Application.routes.draw do
       get '/otus',
         to: 'otus#index'
 
+      get '/asserted_distributions',
+        to: 'asserted_distributions#index'
+
       get '/biological_relationships',
         to: 'biological_relationships#index'
 
@@ -996,7 +999,10 @@ TaxonWorks::Application.routes.draw do
 
       get '/confidences',
         to: 'confidences#index' 
-      
+
+      get '/data_attributes',
+        to: 'data_attributes#index' 
+
       get '/taxon_names/:id',
         to: 'taxon_names#show'
 

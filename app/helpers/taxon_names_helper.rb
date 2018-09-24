@@ -8,6 +8,11 @@ module TaxonNamesHelper
     taxon_name.cached_html.try(:html_safe) || taxon_name.name
   end
 
+  def label_for_taxon_name(taxon_name)
+    return nil if taxon_name.nil?
+    [taxon_name.cached, taxon_name.cached_author_year].compact.join(' ') 
+  end
+ 
   def taxon_name_autocomplete_tag(taxon_name, term)
     return nil if taxon_name.nil?
     klass = taxon_name.rank_class ? taxon_name.rank_class.nomenclatural_code : nil

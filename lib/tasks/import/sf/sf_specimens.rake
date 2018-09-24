@@ -363,35 +363,36 @@ namespace :tw do
                   logger.info "Collection object is saved, id = #{collection_object.id}, number #{saved_counter += 1}"
                   current_objects.push(collection_object)
 
-                end
+                  # end  # misplaced end?
 
-                # At this point the collection objects have been saved successfully
+                  # At this point the collection objects have been saved successfully
 
-                # 1) If there are two collection objects with the same SF specimen ID, then put them in a virtual container
-                # 2) If there is an "identifier", associate it with a single collection object or the container (if applicable)
-                identifier = nil
-                if row['DepoCatNo'].present?
-                  identifier = Identifier::Local::CatalogNumber.new(
-                      identifier: "collection_object.id #{collection_object.id} (SF.SpecimenID #{specimen_id}): SF.DepoID #{sf_depo_id},  #{row['DepoCatNo']}",
-                      namespace: depo_namespace,
-                      project_id: project_id)
+                  # 1) If there are two collection objects with the same SF specimen ID, then put them in a virtual container
+                  # 2) If there is an "identifier", associate it with a single collection object or the container (if applicable)
+                  identifier = nil
+                  if row['DepoCatNo'].present?
+                    identifier = Identifier::Local::CatalogNumber.new(
+                        identifier: "collection_object.id #{collection_object.id} (SF.SpecimenID #{specimen_id}): SF.DepoID #{sf_depo_id},  #{row['DepoCatNo']}",
+                        namespace: depo_namespace,
+                        project_id: project_id)
 
-                  if current_objects.count == 1
-                    # The "Identifier" is attached to the only collection object that is created
+                    if current_objects.count == 1
+                      # The "Identifier" is attached to the only collection object that is created
 
-                    current_objects.first.identifiers << identifier if identifier
+                      current_objects.first.identifiers << identifier if identifier
 
-                  elsif current_objects.count > 1
-                    # There is more than one object, put them in a virtual container
-                    c = Container::Virtual.create!(project_id: project_id)
-                    current_objects.each do |o|
-                      o.put_in_container(c)
+                    elsif current_objects.count > 1
+                      # There is more than one object, put them in a virtual container
+                      c = Container::Virtual.create!(project_id: project_id)
+                      current_objects.each do |o|
+                        o.put_in_container(c)
+                      end
+
+                      c.identifiers << identifier if identifier
+
+                    else
+                      puts 'OOPS' # would this happen?
                     end
-
-                    c.identifiers << identifier if identifier
-
-                  else
-                    puts 'OOPS' # would this happen?
                   end
                 end
 
@@ -1094,7 +1095,7 @@ namespace :tw do
             # }.merge(data_attributes_bucket)
 
 
-            lat, long = row['Latitude'], row['Longitude']   # if one has value, other cannot be nil
+            lat, long = row['Latitude'], row['Longitude'] # if one has value, other cannot be nil
             # if lat
             #   if long.nil?
             #     lat = nil
@@ -1110,10 +1111,10 @@ namespace :tw do
             #     max_elev = min_elev
             #   end
             # end
-            
+
             c = CollectingEvent.new(
                 {
-                    verbatim_latitude: lat ? lat.to_f : nil,  # if lat is not nil...
+                    verbatim_latitude: lat ? lat.to_f : nil, # if lat is not nil...
                     verbatim_longitude: long ? long.to_f : nil,
                     minimum_elevation: min_elev ? min_elev.to_i : nil,
                     maximum_elevation: max_elev ? max_elev.to_i : nil,

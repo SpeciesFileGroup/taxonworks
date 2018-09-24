@@ -16,6 +16,16 @@ class ProjectSource < ApplicationRecord
   belongs_to :source, inverse_of: :project_sources
 
   # source presence validation is handled in PG, as per accepts_nested_attributes constraints
-
+  #
   validates_uniqueness_of :source_id, scope: [:project_id]
+  before_destroy :check_for_use
+
+  protected
+
+  def check_for_use
+    if source.citations.where(citations: {project: project_id}).any?
+      errors.add(:base, 'source is still used in project')
+      throw(:abort)
+    end
+  end
 end

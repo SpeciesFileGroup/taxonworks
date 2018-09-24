@@ -1,7 +1,7 @@
 function displayMessage(event) {
   message = undefined;
 
-  if (event.origin !== "http://www.museum.tulane.edu") {
+  if (event.origin !== "http://www.geo-locate.org") {
     message = "iframe url does not have permision to interact with me";
   }
   else {
