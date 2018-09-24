@@ -72,7 +72,7 @@ module Queries
       # @return [ActiveRecord::Relation]
       def all
         if a = and_clauses
-          ::Confidence.where(and_clauses)
+          ::Confidence.where(and_clauses).distinct
         else
           ::Confidence.all
         end

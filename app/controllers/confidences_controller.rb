@@ -13,8 +13,8 @@ class ConfidencesController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @confidences = Queries::Confidence::Filter.new(filter_params).all.page(params[:page] || 1)
-          .where(project_id: sessions_current_project_id).limit(500)
+        @confidences = Queries::Confidence::Filter.new(filter_params).all
+          .where(project_id: sessions_current_project_id).page(params[:page]).per(500)
       }
     end
   end
