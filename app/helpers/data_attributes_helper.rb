@@ -12,13 +12,14 @@ module DataAttributesHelper
   end
 
   def data_attribute_predicate_tag(data_attribute)
-    if data_attribute.type == 'InternalAttribute'
-      controlled_vocabulary_term_tag(data_attribute.predicate)
-    elsif data_attribute.type == 'ImportAttribute'
-      data_attribute.import_predicate
-    else
-      nil
-    end
+    data_attribute.predicate_name 
+   #if data_attribute.type == 'InternalAttribute'
+   #  controlled_vocabulary_term_tag(data_attribute.metamorphosize.predicate)
+   #elsif data_attribute.type == 'ImportAttribute'
+   #  data_attribute.import_predicate
+   #else
+   #  nil
+   #end
   end
 
   def data_attribute_list_tag(object)
