@@ -21,6 +21,9 @@
 #   the project ID
 #
 class Note < ApplicationRecord
+
+  # Notes can not be cited.
+
   include Housekeeping
   include Shared::IsData
   include Shared::AttributeAnnotations
