@@ -8,7 +8,13 @@
       @getItem="createNew($event.id)"
       class="separate-bottom"
       param="term"/>
-    <display-list label="object_tag" :list="list" @delete="removeItem" class="list"/>
+    <list-items
+      target="protocols"
+      label="object_tag"
+      target-citations="protocols"
+      :list="list"
+      @delete="removeItem"
+      class="list"/>
   </div>
 </template>
 <script>
@@ -16,12 +22,12 @@
 import CRUD from '../request/crud.js'
 import annotatorExtend from '../components/annotatorExtend.js'
 import autocomplete from '../../autocomplete.vue'
-import displayList from './displayList.vue'
+import ListItems from './shared/listItems'
 
 export default {
   mixins: [CRUD, annotatorExtend],
   components: {
-    displayList,
+    ListItems,
     autocomplete
   },
   computed: {

@@ -71,7 +71,11 @@
         </button>
       </div>
     </template>
-    <display-list :label="['confidence_level', 'object_tag']" :list="list" @delete="removeItem" class="list"/>
+    <list-items
+      :label="['confidence_level', 'object_tag']"
+      :list="list" @delete="removeItem"
+      target-citations="confidences"
+      class="list"/>
   </div>
 </template>
 <script>
@@ -80,14 +84,14 @@
   import annotatorExtend from '../components/annotatorExtend.js'
   import autocomplete from '../../autocomplete.vue'
   import modal from '../../modal.vue'
-  import displayList from './displayList.vue'
+  import ListItems from './shared/listItems.vue'
 
   export default {
     mixins: [CRUD, annotatorExtend],
     components: {
       autocomplete,
       modal,
-      displayList
+      ListItems
     },
     computed: {
       validateFields() {
