@@ -1,5 +1,6 @@
 <template>
   <div
+    v-if="citations.length"
     class="citation-count"
     @mouseover="showCitations = true"
     @mouseout="showCitations = false">
