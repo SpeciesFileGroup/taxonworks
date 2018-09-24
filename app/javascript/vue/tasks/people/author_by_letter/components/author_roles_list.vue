@@ -1,26 +1,24 @@
 <template>
-  <div class="flex-separate">
+  <div>
     <div>
-    <table>
-      <tr>
-        <th @click="sortByName">Author</th>
-        <!--<th>Object</th>-->
-        <th>Sources</th>
-        <!--<th>Otu</th>-->
-        <th>Show</th>
-        <th>Uniquify</th>
-        <th>Remove</th>
-      </tr>
-      <row-components
-          v-for="item in list"
-          @delete="removeAuthor"
-          @sources="getSources"
-          :author="item"/>
-    </table>
-      <div style="width:500px; height:500px; flow:auto">
-        <h2>Sources for selected author</h2>
-        <pre>{{ sources }}</pre>
-      </div>
+      <table>
+        <tr>
+          <th @click="sortByName">Author</th>
+          <!--<th>Object</th>-->
+          <th>Sources</th>
+          <!--<th>Otu</th>-->
+          <th>Show</th>
+        </tr>
+        <row-components
+            v-for="item in list"
+            @sources="getSources"
+            @delete="removeAuthor"
+            :author="item"/>
+      </table>
+    </div>
+    <div style="width:300px; height:500px">
+      <h2>Sources for selected author</h2>
+      <pre>{{ sources }}</pre>
     </div>
   </div>
 </template>
@@ -41,16 +39,11 @@
     data() {
       return {
         author: [],
-        sources: ''
-      }
-    },
-    watch: {
-      list() {
-        this.sources = ''
+        sources: []
       }
     },
     methods: {
-      getSources(author_id) {
+      getSources(authorid) {
         this.$http.get("/sources/1166").then(response => {
           this.sources = response.body;
         })

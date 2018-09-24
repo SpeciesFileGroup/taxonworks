@@ -64,7 +64,7 @@ module Queries
       # @return [ActiveRecord::Relation]
       def all
         if c = and_clauses
-          ::Person.includes(:roles).where(and_clauses.to_sql).references(:roles).uniq
+          ::Person.includes(:roles).where(and_clauses.to_sql).references(:roles).distinct
         else
           ::Person.none
         end

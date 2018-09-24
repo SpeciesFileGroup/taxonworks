@@ -22,6 +22,7 @@
     methods: {
       getAuthors(key) {
         this.$http.get('/people.json?last_name_starts_with=' + key).then(response => {
+          // this.$http.get('/people.json?roles[]=SourceAuthor&last_name_starts_with=' + key).then(response => {
           this.authorsList = response.body;
         })
       }
