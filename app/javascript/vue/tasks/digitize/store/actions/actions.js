@@ -11,6 +11,7 @@ import saveContainer from './saveContainer'
 import removeCollectionObject from './removeCollectionObject'
 import newCollectionObject from './newCollectionObject'
 import saveLabel from './saveLabel'
+import removeDepictionsByImageId from './removeDepictionsByImageId'
 
 const ActionFunctions = {
   [ActionNames.GetTaxon]: getTaxon,
@@ -24,7 +25,8 @@ const ActionFunctions = {
   [ActionNames.SaveContainer]: saveContainer,
   [ActionNames.RemoveCollectionObject]: removeCollectionObject,
   [ActionNames.NewCollectionObject]: newCollectionObject,
-  [ActionNames.SaveLabel]: saveLabel
+  [ActionNames.SaveLabel]: saveLabel,
+  [ActionNames.RemoveDepictionsByImageId]: removeDepictionsByImageId
 }
 
 export { ActionNames, ActionFunctions }

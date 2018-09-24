@@ -48,6 +48,7 @@
           :get-depictions="GetCollectionObjectDepictions"
           object-type="CollectionObject"
           @create="createDepictionForAll"
+          @delete="removeAllDepictionsByImageId"
           default-message="Drop images here to add collection object figures"
           action-save="SaveCollectionObject"/>
       </div>
@@ -172,6 +173,9 @@
           this.saveDepiction(id, depiction)
         })
       },
+      removeAllDepictionsByImageId(depiction) {
+        this.$store.dispatch(ActionNames.RemoveDepictionsByImageId, depiction)
+      }
     }
   }
 </script>

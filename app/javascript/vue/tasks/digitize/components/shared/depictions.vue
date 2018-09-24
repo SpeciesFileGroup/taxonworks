@@ -129,9 +129,10 @@ export default {
         DestroyDepiction(depiction.id).then(response => {
           TW.workbench.alert.create('Depiction was successfully deleted.', 'notice')
           this.figuresList.splice(this.figuresList.findIndex((figure) => { return figure.id == depiction.id }), 1)
+          this.$emit('delete', depiction)
         })
       }
-    }
+    },
   }
 }
 </script>
