@@ -15,7 +15,6 @@
     components: {
       AlphabetButtons,
       AuthorList,
-      SourceList
     },
     data() {
       return {
