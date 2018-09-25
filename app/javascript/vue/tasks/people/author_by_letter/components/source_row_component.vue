@@ -3,7 +3,9 @@
     <td v-html="source.cached"/>
     <td v-html="'Show: ' + source.id" @click="showSource"/>
     <td>
-      <pin :object-id="source.id" :type="source.type"/>
+      <pin v-if="source.id"
+           :object-id="source.id"
+           :type="source.type"/>
     </td>
     <td><span class="button circle-button btn-delete" @click="removeMe()"/></td>
   </tr>

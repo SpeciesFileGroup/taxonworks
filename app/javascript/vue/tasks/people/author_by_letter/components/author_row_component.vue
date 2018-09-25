@@ -8,7 +8,7 @@
     <td v-html="'Show: ' + author.id" @click="showAuthor"/>
     <td v-html="'Uniquify: ' + author.id" @click="uniquify"/>
     <td>
-      <pin :object-id="author.id" :type="Person"/>
+      <pin v-if="author.id" :object-id="author.id" :type="author.type"/>
     </td>
     <td><span class="button circle-button btn-delete" @click="removeMe()"/></td>
   </tr>
