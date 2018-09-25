@@ -4,9 +4,7 @@
     <table>
       <tr>
         <th @click="sortByName">Author</th>
-        <!--<th>Object</th>-->
         <th>Sources</th>
-        <!--<th>Otu</th>-->
         <th>Show</th>
         <th>Uniquify</th>
         <th>Remove</th>
@@ -17,7 +15,7 @@
           @sources="getSources(item.id)"
           :author="item"/>
     </table>
-      <div style="width:500px; height:500px; flow:auto">
+      <div>
         <h2>Sources for selected author</h2>
       </div>
       <div>
@@ -61,7 +59,7 @@
     },
     watch: {
       list() {
-        this.sources = ''
+        this.sourceList = []
       }
     },
     methods: {
