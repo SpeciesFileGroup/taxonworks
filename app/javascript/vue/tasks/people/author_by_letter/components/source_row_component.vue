@@ -4,6 +4,7 @@
     <td v-html="'Show: ' + source.id" @click="showSource"/>
     <td>
       <pin v-if="source.id"
+           :pin-object="source"
            :object-id="source.id"
            :type="source.type"/>
     </td>
