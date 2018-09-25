@@ -51,7 +51,7 @@
     },
     methods: {
       getSources(author_id) {
-        this.$http.get("/sources/1166").then(response => {
+        this.$http.get("/sources.json?author_ids[]=" + author_id).then(response => {
           this.sources = response.body;
         })
       },
