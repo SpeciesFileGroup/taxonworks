@@ -358,7 +358,6 @@ module Queries
         # Queries::Annotator.annotator_params(options, ::Citation),
       ].compact
 
-    
       return nil if clauses.empty?
 
       a = clauses.shift
@@ -369,7 +368,6 @@ module Queries
     end
 
     def merge_clauses
-
       clauses = [
         matching_biological_association_ids,
         matching_asserted_distribution_ids,
@@ -377,7 +375,6 @@ module Queries
         matching_taxon_name_relationship_ids
 
         # matching_verbatim_author
-        # Queries::Annotator.annotator_params(options, ::Citation),
       ].compact
 
       return nil if clauses.empty?

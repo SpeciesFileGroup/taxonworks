@@ -12,6 +12,7 @@ module DataAttributesHelper
   end
 
   def data_attribute_predicate_tag(data_attribute)
+    return nil if data_attribute.nil?
     data_attribute.predicate_name 
    #if data_attribute.type == 'InternalAttribute'
    #  controlled_vocabulary_term_tag(data_attribute.metamorphosize.predicate)

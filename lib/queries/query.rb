@@ -28,8 +28,8 @@ module Queries
 
     # @param [Hash] args
     def initialize(string, project_id: nil, **keyword_args)
-      @options = keyword_args
       @query_string = string
+      @options = keyword_args
       @project_id = project_id
       build_terms
     end

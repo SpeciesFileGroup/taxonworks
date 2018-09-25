@@ -6,8 +6,19 @@ class SourcesController < ApplicationController
   # GET /sources
   # GET /sources.json
   def index
-    @recent_objects = Source.created_this_week.order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = Source.created_this_week.order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @sources = Queries::Source::Filter.new(filter_params).all.distinct.page(params[:page]).per(500)
+      }
+    end
+  end
+
+  def filter_params
+    params.permit(:query_term, :project_id, author_ids: [])
   end
 
   def list
