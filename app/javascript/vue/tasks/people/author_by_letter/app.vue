@@ -2,7 +2,9 @@
   <div>
     <h1>Author by First Letter</h1>
     <alphabet-buttons @keypress="getAuthors($event)"/>
-    <author-list :list="authorsList"/>
+    <div>
+      <author-list :list="authorsList" :sourceList="sourcesList"/>
+    </div>
   </div>
 </template>
 <script>
@@ -12,11 +14,13 @@
   export default {
     components: {
       AlphabetButtons,
-      AuthorList
+      AuthorList,
+      SourceList
     },
     data() {
       return {
-        authorsList: []
+        authorsList: [],
+        sourcesList: []
       }
     },
     methods: {

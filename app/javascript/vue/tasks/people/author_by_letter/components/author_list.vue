@@ -11,37 +11,52 @@
         <th>Uniquify</th>
         <th>Remove</th>
       </tr>
-      <row-components
+      <author-row-component
           v-for="item in list"
           @delete="removeAuthor"
-          @sources="getSources"
+          @sources="getSources(item.id)"
           :author="item"/>
     </table>
       <div style="width:500px; height:500px; flow:auto">
         <h2>Sources for selected author</h2>
-        <pre>{{ sources }}</pre>
+      </div>
+      <div>
+        <table>
+          <tr>
+            <th>Source</th>
+            <th>View</th>
+            <th></th>
+            <th></th>
+          </tr>
+          <source-row-component
+              v-for="src in sourceList"
+              :source="src"/>
+        </table>
       </div>
     </div>
   </div>
 </template>
 <script>
 
-  import RowComponents from './author_row_component'
+  import AuthorRowComponent from './author_row_component'
+  import SourceRowComponent from './source_row_component'
 
   export default {
     components: {
-      RowComponents
+      AuthorRowComponent,
+      SourceRowComponent
     },
     props: {
       list: {
         type: Array,
         required: true
-      }
+      },
     },
     data() {
       return {
         author: [],
-        sources: ''
+        sources: '',
+        sourceList: []
       }
     },
     watch: {
@@ -53,6 +68,8 @@
       getSources(author_id) {
         this.$http.get("/sources.json?author_ids[]=" + author_id).then(response => {
           this.sources = response.body;
+          this.$emit("sources", this.sources);
+          this.sourceList = this.sources;
         })
       },
       removeAuthor(author) {

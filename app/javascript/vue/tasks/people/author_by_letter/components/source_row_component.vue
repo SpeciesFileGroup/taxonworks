@@ -1,14 +1,9 @@
 <template>
-  <tr v-if="author">
-    <td v-html="author.cached"/>
-    <td v-if="author.roles[0]"
-        v-html="'list sources for: ' + author.id" @click="showSources"/>
-    <td v-else
-        v-html=" "/>
-    <td v-html="'Show: ' + author.id" @click="showAuthor"/>
-    <td v-html="'Uniquify: ' + author.id" @click="uniquify"/>
+  <tr v-if="source">
+    <td v-html="source.cached"/>
+    <td v-html="'Show: ' + source.id" @click="showSource"/>
     <td>
-      <pin :object-id="author.id" :type="Person"/>
+      <pin :object-id="source.id" :type="source.type"/>
     </td>
     <td><span class="button circle-button btn-delete" @click="removeMe()"/></td>
   </tr>
@@ -25,7 +20,7 @@
       Pin
     },
     props: {
-      author: {
+      source: {
         type: Object,
         default: {}
       },
@@ -41,8 +36,8 @@
       showSources(id) {
         this.$emit("sources", id);
       },
-      showAuthor() {
-        window.open('/people/' + this.author.id, '_blank');
+      showSource() {
+        window.open('/sources/' + this.source.id, '_blank');
       },
       uniquify() {
         window.open('/tasks/uniquify_people/index?last_name=' + this.author.last_name, '_blank');
@@ -59,7 +54,7 @@
         }, this.time)
       },
       removeMe() {
-        this.$emit("delete", this.author)
+        this.$emit("delete", this.source)
       }
     }
   }

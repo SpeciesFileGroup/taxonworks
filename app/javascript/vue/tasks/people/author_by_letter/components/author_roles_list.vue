@@ -43,7 +43,7 @@
       }
     },
     methods: {
-      getSources(authorid) {
+      getSourceshit(authorid) {
         this.$http.get("/sources/1166").then(response => {
           this.sources = response.body;
         })
