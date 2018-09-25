@@ -109,7 +109,7 @@ namespace :tw do
           # time: 1h (0m57.358s on 29 June 2018, 1m1.335s on 2 July 2018, 1m4.397s on 6 September, 2018)
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/14_after_suppl_info'
           #
-          # 'supplementary:scrutiny_related',
+          'supplementary:scrutiny_related',
           # time: 10m (9m39.816s on 2 July 2018, 9m39.742s on 6 Sept 2018)
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/15_after_scrutinies'    # dump not done 7 Sept 2018
           #
@@ -118,7 +118,7 @@ namespace :tw do
           # time: close to 10h (592m44.659s on 10 July 2015, 591m42.625s on 6 Sept 2018)
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/15_after_taxon_citations',
           #
-          'citations:create_otu_cites',
+          # 'citations:create_otu_cites',
           # time: 1m (1m2.000s on 16 July 2018z0, 0m55.486s on 7 Sept 2018)
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/16_after_otu_cites',
 
