@@ -21,11 +21,13 @@
 
     <%= hidden_field_tag(:in_cite, params[:citation]) %>
     <div class="field">
-      <%= label_tag 'also_create', 'Also create people from authors and editors of BibTeX source?' %>
       <%= check_box_tag :create_roles, false %>
+      <%= label_tag 'also_create', 'Also create people from authors and editors of BibTeX source?' %>
     </div>
 
-    <%= submit_tag "Create BibTeX source" %>
+    <div class="actions">
+      <%= submit_tag "Create BibTeX source" %>
+    </div>
   <% end %>
 <% end %>
 
@@ -38,7 +40,9 @@
 
   <%= f.hidden_field :verbatim -%>
   <%= f.hidden_field :type, value: 'Source::Verbatim' -%>
-  <%= submit_tag "Create verbatim source" %>
+  <div class="actions">
+    <%= submit_tag "Create verbatim source" %>
+  </div>
 
 <% end %>
 

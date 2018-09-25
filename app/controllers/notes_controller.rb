@@ -13,8 +13,8 @@ class NotesController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @notes = Queries::Note::Filter.new(params).all.limit(500)
-          .where(project_id: sessions_current_project_id)
+        @notes = Queries::Note::Filter.new(params).all
+        .where(project_id: sessions_current_project_id).page(param[:page]).per(500)
       }
     end
   end

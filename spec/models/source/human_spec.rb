@@ -40,6 +40,12 @@ describe Source::Human, type: :model, group: [:people, :sources] do
     end
   end
 
+  specify '#person_ids 1' do
+    sh = Source::Human.new(person_ids: [tom.id, franklin.id])
+    expect(sh.save!).to be_truthy
+    expect(sh.cached).to eq(tom.last_name + ' & ' + franklin.last_name)
+  end
+
   context '#cached'  do
     before {source_human.people.push tom }
     specify '#cached is set before_save' do

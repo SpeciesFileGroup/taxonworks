@@ -108,6 +108,15 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
         expect(query.all.map(&:id)).to contain_exactly(otu1.id, otu2.id)
       end
 
+      specify 'all ids' do
+        query.biological_association_ids = [ba2.id]
+        query.otu_ids = [otu3.id]
+        query.taxon_name_ids = [t2.id]
+        query.taxon_name_classification_ids = [tnc1.id]
+        
+        expect(query.all.map(&:id)).to contain_exactly(otu3.id)
+      end
+
     end
   end
  
