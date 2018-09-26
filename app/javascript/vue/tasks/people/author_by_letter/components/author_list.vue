@@ -11,6 +11,7 @@
       </tr>
       <author-row-component
           v-for="item in list"
+          :key="item.id"
           @delete="removeAuthor"
           @sources="getSources(item.id)"
           :author="item"/>
