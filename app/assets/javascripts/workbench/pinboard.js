@@ -74,7 +74,8 @@ Object.assign(TW.workbench.pinboard, {
       var section = element.parent().attr('data-pinboard-section');
       $('[data-pinboard-item-id="' + id + '"]').remove();
       if (!$('[data-pinboard-section="' + section + '"] li').length) {
-        $('#order_' + section).remove();
+        var elementSection = document.getElementById('order_' + section);
+        elementSection.parentNode.removeChild(elementSection);
       }
       this.eventPinboardRemove(id)
     },
