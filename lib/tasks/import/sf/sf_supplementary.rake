@@ -103,11 +103,15 @@ namespace :tw do
                                             created_by_id: get_tw_user_id[row['CreatedBy']],
                                             updated_by_id: get_tw_user_id[row['ModifiedBy']],
 
-                                            # citations_attributes: [{source_id: sh.id}]  # source: {id: sh.id}   # source_id: sh.id
+                                            citations_attributes: [{source_id: sh.id, project_id: project_id}]  # source: {id: sh.id}   # source_id: sh.id
             )
 
             if scrutiny.nil?
               logger.error "Error creating TaxonScrutiny: ScrutinyID = #{scrutiny_id}, SF.TaxonNameID #{sf_taxon_name_id} = tw.taxon_name_id #{taxon_name_id}"
+            # else
+            #   cite = Citation.new(source_id: sh.id, citation_object: scrutiny)
+            #   byebug
+            #
             end
           end
         end
