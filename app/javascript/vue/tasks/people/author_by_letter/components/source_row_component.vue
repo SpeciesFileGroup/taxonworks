@@ -7,6 +7,9 @@
            :object-id="source.id"
            :type="source.type"/>
     </td>
+    <td>
+      <add-to-project :id="source.id"/>
+    </td>
     <td><span class="button circle-button btn-delete" @click="removeMe()"/></td>
   </tr>
 </template>
@@ -15,11 +18,13 @@
 
   import RadialAnnotator from '../../../../components/annotator/annotator'
   import Pin from '../../../../components/pin'
+  import AddToProject from '../../../../components/addToProjectSource'
 
   export default {
     components: {
       RadialAnnotator,
-      Pin
+      Pin,
+      AddToProject
     },
     props: {
       source: {
