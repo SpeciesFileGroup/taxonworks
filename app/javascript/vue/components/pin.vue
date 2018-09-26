@@ -47,7 +47,7 @@ export default {
   },
   methods: {
     clearPin: function (event) {
-      if(this.pin.id == event.detail.id) {
+      if(this.pin && this.pin.id == event.detail.id) {
         this.pin = undefined
       }
     },
