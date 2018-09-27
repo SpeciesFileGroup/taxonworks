@@ -7,7 +7,7 @@
       :logo-size="{ width: '100px', height: '100px'}"/>
     <div>
       <h1 class="task_header">Citations by source</h1>
-      <nomen-source @sourceID="sourceID = $event"/>
+      <nomen-source @sourceID="lists = initStoreList(); sourceID = $event"/>
     </div>
     <div class="flexbox">
       <div class="flexbox">
@@ -15,43 +15,43 @@
           <taxon-names
             :sourceID="sourceID"
             :newTaxon="newTaxonNameCitation"
-            @taxon_names_cites="taxon_names_cites=$event"
+            @taxon_names_cites="lists.taxon_names_cites=$event"
           />
           <cite-taxon-name
             :sourceID="sourceID"
-            :cite-taxon-list="taxon_names_cites"
+            :cite-taxon-list="lists.taxon_names_cites"
             @foundTaxon="newTaxonNameCitation=$event"
           />
           <taxon-name-relationships
             :sourceID="sourceID"
-            @taxon_relationship_cites="taxon_relationship_cites=$event"
+            @taxon_relationship_cites="lists.taxon_relationship_cites=$event"
           />
           <taxon-name-classifications
             :sourceID="sourceID"
-            @taxon_classification_cites="taxon_classification_cites=$event"
+            @taxon_classification_cites="lists.taxon_classification_cites=$event"
           />
           <biological-associations
             :sourceID="sourceID"
-            @biological_association_cites="biological_association_cites=$event"
+            @biological_association_cites="lists.biological_association_cites=$event"
           />
           <asserted-distributions
             :sourceID="sourceID"
-            @distribution_cites="distribution_cites=$event"
+            @distribution_cites="lists.distribution_cites=$event"
           />
           <otus-by-match
             :sourceID="sourceID"
-            @otu_names_cites="otu_names_cites=$event"
+            @otu_names_cites="lists.otu_names_cites=$event"
           />
         </div>
         <div class="second-column">
           <otus-match-proxy
             :sourceID="sourceID"
-            :otu_names_cites="otu_names_cites"
-            :taxon_names_cites="taxon_names_cites"
-            :taxon_relationship_cites="taxon_relationship_cites"
-            :taxon_classification_cites="taxon_classification_cites"
-            :biological_association_cites="biological_association_cites"
-            :distribution_cites="distribution_cites"
+            :otu_names_cites="lists.otu_names_cites"
+            :taxon_names_cites="lists.taxon_names_cites"
+            :taxon_relationship_cites="lists.taxon_relationship_cites"
+            :taxon_classification_cites="lists.taxon_classification_cites"
+            :biological_association_cites="lists.biological_association_cites"
+            :distribution_cites="lists.distribution_cites"
           />
         </div>
       </div>
@@ -89,17 +89,22 @@
         sourceID: undefined,
         isLoading: false,
         newTaxonNameCitation: {},
-        otu_names_cites: [],
-        taxon_names_cites: [],
-        taxon_relationship_cites: [],
-        taxon_classification_cites: [],
-        biological_association_cites: [],
-        distribution_cites: [],
+        lists: this.initStoreList()
       }
     },
     methods: {
       enableButton() {
         this.updateOtus = true;
+      },
+      initStoreList() {
+        return {
+            otu_names_cites: [],
+            taxon_names_cites: [],
+            taxon_relationship_cites: [],
+            taxon_classification_cites: [],
+            biological_association_cites: [],
+            distribution_cites: [],
+        }
       }
     }
   }
