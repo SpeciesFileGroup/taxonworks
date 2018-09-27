@@ -8,15 +8,15 @@
       v-model="view"/>
     <template v-if="sourceID">
       <autocomplete
-        v-if="view === 'Search'"
-        url="/taxon_names/autocomplete"
-        min="2"
-        ref="autocomplete"
-        param="term"
-        placeholder="Search for a taxon"
-        label="label"
-        @getItem="createTaxonCite($event)"
-        :autofocus="true" />
+          v-if="view === 'Search'"
+          url="/taxon_names/autocomplete"
+          min="2"
+          ref="autocomplete"
+          param="term"
+          placeholder="Search for a taxon"
+          label="label_html"
+          @getItem="createTaxonCite($event)"
+          :autofocus="true" />
       <template v-else>
         <button
           v-for="item in showList[view]"

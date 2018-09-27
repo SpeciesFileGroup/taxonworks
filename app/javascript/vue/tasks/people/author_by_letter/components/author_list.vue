@@ -5,9 +5,8 @@
       <tr>
         <th @click="sortByName">Author</th>
         <th>Sources</th>
-        <th>Show</th>
         <th>Uniquify</th>
-        <th>Remove</th>
+        <th></th>
       </tr>
       <author-row-component
           v-for="item in list"
@@ -23,7 +22,6 @@
         <table>
           <tr>
             <th>Source</th>
-            <th>View</th>
             <th></th>
             <th></th>
           </tr>

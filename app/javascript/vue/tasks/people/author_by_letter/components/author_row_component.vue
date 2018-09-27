@@ -1,11 +1,10 @@
 <template>
   <tr v-if="author">
-    <td v-html="author.cached"/>
+    <td v-html="author.cached" @click="showAuthor"/>
     <td v-if="author.roles[0]"
         v-html="'list sources for: ' + author.id" @click="showSources"/>
     <td v-else
         v-html=" "/>
-    <td v-html="'Show: ' + author.id" @click="showAuthor"/>
     <td v-html="'Uniquify: ' + author.id" @click="uniquify"/>
     <td>
       <pin v-if="author.id" :object-id="author.id" :type="author.type"/>

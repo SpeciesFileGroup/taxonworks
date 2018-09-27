@@ -1,7 +1,6 @@
 <template>
   <tr v-if="source">
-    <td v-html="source.cached"/>
-    <td v-html="'Show: ' + source.id" @click="showSource"/>
+    <td v-html="source.cached" @click="showSource"/>
     <td>
       <pin v-if="source.id"
            :object-id="source.id"
