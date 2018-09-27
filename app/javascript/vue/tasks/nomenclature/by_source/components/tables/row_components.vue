@@ -8,7 +8,7 @@
         @input="changePage"
         v-model="citation.pages">
     </td>
-    <td v-html="citation.citation_object.object_tag"/>
+    <td><a v-html="citation.citation_object.object_tag" @click="showObject(citation)"/></td>
     <td>
       <radial-annotator :global-id="citation.citation_object.global_id" />
     </td>
@@ -45,6 +45,11 @@ export default {
     }
   },
   methods: {
+    showObject(thisCitation) {
+      let thisID = thisCitation.citation_object.id;
+      let thisType = thisCitation.citation_object.object_type;
+      window.location = '/' + thisType + '/' + thisID;
+    },
     changePage() {
       let that = this;
       if(this.autoSave) {
