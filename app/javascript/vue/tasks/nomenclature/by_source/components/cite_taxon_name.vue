@@ -11,14 +11,14 @@
         v-if="view === 'Search'"
         class="horizontal-left-content">
         <autocomplete
-          url="/taxon_names/autocomplete"
-          min="2"
-          ref="autocomplete"
-          param="term"
-          placeholder="Search for a taxon"
-          label="label"
-          @getItem="createTaxonCite($event)"
-          :autofocus="true" />
+            url="/taxon_names/autocomplete"
+            min="2"
+            ref="autocomplete"
+            param="term"
+            placeholder="Search for a taxon"
+            label="label-html"
+            @getItem="createTaxonCite($event)"
+            :autofocus="true" />
         <span
           class="warning separate-left"
           v-if="sourceAlreadyTaken">The source has already been taken</span>
