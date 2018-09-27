@@ -1,8 +1,9 @@
 <template>
   <div>
-    <span
-      class="button-data circle-button btn-citation"
-
+    <a
+      class="button-default circle-button btn-citation"
+      :href="`/tasks/nomenclature/by_source/${source.id}`"
+      target="blank"
       @mouseover="showSource = true"
       @mouseout="showSource = false"/>
     <div v-if="showSource" class="source-information panel content">
