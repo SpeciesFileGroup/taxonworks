@@ -8,16 +8,6 @@
 #   The the id of the ControlledVocabularyTerm::Predicate.  Term is referenced as #predicate.
 #
 class InternalAttribute < DataAttribute
-  belongs_to :predicate, foreign_key: 'controlled_vocabulary_term_id', inverse_of: :internal_attributes, class_name: 'Predicate'
-
   validates_presence_of :predicate
   validates_uniqueness_of :value, scope: [:attribute_subject_id, :attribute_subject_type, :type, :controlled_vocabulary_term_id]
-
-  
-  # @return [String]
-  #   helper unifying types of attributes
-  def predicate_name
-    predicate.name 
-  end
-
 end

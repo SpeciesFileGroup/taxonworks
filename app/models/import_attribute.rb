@@ -33,6 +33,8 @@
 #
 #
 class ImportAttribute < DataAttribute
+  validates_absence_of :predicate
+  
   validates_presence_of :import_predicate
   validates_uniqueness_of :value, scope: [
     :attribute_subject_id,
