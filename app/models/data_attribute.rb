@@ -53,7 +53,7 @@ class DataAttribute < ApplicationRecord
   # @return [String]
   #   then predicate name
   def predicate_name
-    type == 'InternalAttribute' ? predicate.name : import_predicate
+    # overwritten in subclasses
   end
 
 end
