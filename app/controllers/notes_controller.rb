@@ -14,7 +14,7 @@ class NotesController < ApplicationController
       }
       format.json {
         @notes = Queries::Note::Filter.new(params).all
-        .where(project_id: sessions_current_project_id).page(param[:page]).per(500)
+        .where(project_id: sessions_current_project_id).page(params[:page]).per(500)
       }
     end
   end
