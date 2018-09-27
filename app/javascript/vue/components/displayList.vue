@@ -12,6 +12,9 @@
         class="list-item"
         v-html="displayName(item)"/>
       <div class="list-controls">
+        <slot
+          name="options"
+          :item="item"/>
         <radial-annotator
           v-if="annotator"
           :global-id="item.global_id"/>

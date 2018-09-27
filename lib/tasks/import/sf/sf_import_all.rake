@@ -118,7 +118,7 @@ namespace :tw do
           # time: close to 10h (592m44.659s on 10 July 2015, 591m42.625s on 6 Sept 2018)
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/15_after_taxon_citations',
           #
-          'citations:create_otu_cites',
+          # 'citations:create_otu_cites',
           # time: 1m (1m2.000s on 16 July 2018z0, 0m55.486s on 7 Sept 2018)
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/16_after_otu_cites',
 
@@ -132,6 +132,49 @@ end
 
 =begin
 Error logs:
+
+=== Summary of warnings and errors for task tw:project_import:sf_import:supplementary:scrutiny_related ===
+[ERROR]2018-09-26 10:57:03.888: TW.taxon_name_id is nil: ScrutinyID = 61, SF.TaxonNameID 1125484, SF.FileID = 1
+[ERROR]2018-09-26 10:57:08.395: TW.taxon_name_id is nil: ScrutinyID = 562, SF.TaxonNameID 1132662, SF.FileID = 1
+[ERROR]2018-09-26 10:57:08.634: TW.taxon_name_id is nil: ScrutinyID = 264, SF.TaxonNameID 1132951, SF.FileID = 1
+[ERROR]2018-09-26 10:57:08.811: TW.taxon_name_id is nil: ScrutinyID = 336, SF.TaxonNameID 1133074, SF.FileID = 1
+[ERROR]2018-09-26 10:57:08.812: TW.taxon_name_id is nil: ScrutinyID = 336, SF.TaxonNameID 1133075, SF.FileID = 1
+[ERROR]2018-09-26 10:57:08.812: TW.taxon_name_id is nil: ScrutinyID = 336, SF.TaxonNameID 1133076, SF.FileID = 1
+[ERROR]2018-09-26 10:57:08.812: TW.taxon_name_id is nil: ScrutinyID = 336, SF.TaxonNameID 1133077, SF.FileID = 1
+[ERROR]2018-09-26 10:57:08.813: TW.taxon_name_id is nil: ScrutinyID = 279, SF.TaxonNameID 1133081, SF.FileID = 1
+[ERROR]2018-09-26 10:57:11.454: TW.taxon_name_id is nil: ScrutinyID = 145, SF.TaxonNameID 1135612, SF.FileID = 1
+[ERROR]2018-09-26 10:57:11.807: TW.taxon_name_id is nil: ScrutinyID = 233, SF.TaxonNameID 1135940, SF.FileID = 1
+[ERROR]2018-09-26 10:57:12.605: TW.taxon_name_id is nil: ScrutinyID = 147, SF.TaxonNameID 1136651, SF.FileID = 1
+[ERROR]2018-09-26 10:57:15.351: TW.taxon_name_id is nil: ScrutinyID = 566, SF.TaxonNameID 1138340, SF.FileID = 1
+[ERROR]2018-09-26 10:57:15.718: TW.taxon_name_id is nil: ScrutinyID = 627, SF.TaxonNameID 1138385, SF.FileID = 1
+[ERROR]2018-09-26 10:57:15.718: TW.taxon_name_id is nil: ScrutinyID = 627, SF.TaxonNameID 1138387, SF.FileID = 1
+[ERROR]2018-09-26 10:57:18.180: TW.taxon_name_id is nil: ScrutinyID = 332, SF.TaxonNameID 1140105, SF.FileID = 1
+[ERROR]2018-09-26 10:57:18.301: TW.taxon_name_id is nil: ScrutinyID = 568, SF.TaxonNameID 1140191, SF.FileID = 1
+[ERROR]2018-09-26 10:57:18.485: TW.taxon_name_id is nil: ScrutinyID = 260, SF.TaxonNameID 1140264, SF.FileID = 1
+[ERROR]2018-09-26 10:57:20.942: TW.taxon_name_id is nil: ScrutinyID = 406, SF.TaxonNameID 1141029, SF.FileID = 1
+[ERROR]2018-09-26 10:57:20.942: TW.taxon_name_id is nil: ScrutinyID = 406, SF.TaxonNameID 1141030, SF.FileID = 1
+[ERROR]2018-09-26 10:57:21.171: TW.taxon_name_id is nil: ScrutinyID = 405, SF.TaxonNameID 1141059, SF.FileID = 1
+[ERROR]2018-09-26 10:57:21.282: TW.taxon_name_id is nil: ScrutinyID = 4725, SF.TaxonNameID 1141116, SF.FileID = 1
+[ERROR]2018-09-26 10:59:22.866: TW.taxon_name_id is nil: ScrutinyID = 1622, SF.TaxonNameID 1164852, SF.FileID = 14
+[ERROR]2018-09-26 10:59:23.505: TW.taxon_name_id is nil: ScrutinyID = 2884, SF.TaxonNameID 1164933, SF.FileID = 14
+[ERROR]2018-09-26 10:59:23.506: TW.taxon_name_id is nil: ScrutinyID = 2101, SF.TaxonNameID 1164934, SF.FileID = 14
+[ERROR]2018-09-26 10:59:30.556: TW.taxon_name_id is nil: ScrutinyID = 2104, SF.TaxonNameID 1165628, SF.FileID = 14
+[ERROR]2018-09-26 10:59:30.984: TW.taxon_name_id is nil: ScrutinyID = 2882, SF.TaxonNameID 1165670, SF.FileID = 14
+[ERROR]2018-09-26 10:59:30.984: TW.taxon_name_id is nil: ScrutinyID = 2883, SF.TaxonNameID 1165671, SF.FileID = 14
+[ERROR]2018-09-26 10:59:54.362: TW.taxon_name_id is nil: ScrutinyID = 2096, SF.TaxonNameID 1167757, SF.FileID = 14
+[ERROR]2018-09-26 11:00:58.937: TW.taxon_name_id is nil: ScrutinyID = 4056, SF.TaxonNameID 1187513, SF.FileID = 5
+[ERROR]2018-09-26 11:01:34.979: TW.taxon_name_id is nil: ScrutinyID = 3768, SF.TaxonNameID 1217639, SF.FileID = 14
+[ERROR]2018-09-26 11:01:34.979: TW.taxon_name_id is nil: ScrutinyID = 4687, SF.TaxonNameID 1217639, SF.FileID = 14
+[ERROR]2018-09-26 11:01:38.378: TW.taxon_name_id is nil: ScrutinyID = 1873, SF.TaxonNameID 1217692, SF.FileID = 14
+[ERROR]2018-09-26 11:01:38.378: TW.taxon_name_id is nil: ScrutinyID = 4711, SF.TaxonNameID 1217692, SF.FileID = 14
+[ERROR]2018-09-26 11:01:39.149: TW.taxon_name_id is nil: ScrutinyID = 4743, SF.TaxonNameID 1217897, SF.FileID = 1
+[ERROR]2018-09-26 11:01:39.150: TW.taxon_name_id is nil: ScrutinyID = 4779, SF.TaxonNameID 1217969, SF.FileID = 1
+[ERROR]2018-09-26 11:01:39.150: TW.taxon_name_id is nil: ScrutinyID = 4762, SF.TaxonNameID 1218004, SF.FileID = 1
+[ERROR]2018-09-26 11:01:44.018: TW.taxon_name_id is nil: ScrutinyID = 4962, SF.TaxonNameID 1221809, SF.FileID = 1
+[ERROR]2018-09-26 11:01:44.641: TW.taxon_name_id is nil: ScrutinyID = 3482, SF.TaxonNameID 1222168, SF.FileID = 14
+[ERROR]2018-09-26 11:01:47.014: TW.taxon_name_id is nil: ScrutinyID = 5318, SF.TaxonNameID 1225991, SF.FileID = 14
+
+
 === Summary of warnings and errors for task tw:project_import:sf_import:taxa:create_status_flag_relationships ===
 [ERROR]2018-06-13 20:38:31.063: TaxonNameRelationship 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement' ERROR tw.project_id 13, object: SF.TaxonNameID 1159004 = TW.taxon_name_id 419, subject: SF.TaxonNameID 0 = TW.taxon_name_id 34 (Error # 1): Object taxon name Kingdom rank of Animalia is not compatible with the incertae sedis relationship;Type Relationship incertae sedis is not compatible with the kingdom rank of Animalia
 [ERROR]2018-06-13 20:39:14.664: TaxonNameRelationship 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement' ERROR tw.project_id 2, object: SF.TaxonNameID 1100703 = TW.taxon_name_id 1129, subject: SF.TaxonNameID 1100693 = TW.taxon_name_id 1120 (Error # 2): Object taxon name Genus rank of <i>Epitettix</i> is not compatible with the incertae sedis relationship;Type Relationship incertae sedis is not compatible with the genus rank of <i>Epitettix</i>

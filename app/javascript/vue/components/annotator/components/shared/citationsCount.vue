@@ -14,7 +14,13 @@
         :list="citations"
         :label="['citation_source_body']"
         @delete="removeCitation"
-        :edit="false"/>
+        :edit="false">
+        <div
+          slot="options"
+          slot-scope="slotProps">
+          <display-source :source="slotProps.item.source"/>
+        </div>
+      </display-list>
     </div>
   </div>
 </template>
@@ -23,11 +29,13 @@
 
 import CRUD from '../../request/crud.js'
 import DisplayList from '../../../displayList'
+import DisplaySource from './displaySource'
 
 export default {
   mixins: [CRUD],
   components: {
-    DisplayList
+    DisplayList,
+    DisplaySource
   },
   props: {
     object: {

@@ -34,6 +34,8 @@ class DataAttribute < ApplicationRecord
   include Shared::PolymorphicAnnotator
   polymorphic_annotates('attribute_subject')
 
+  belongs_to :predicate, foreign_key: 'controlled_vocabulary_term_id', inverse_of: :internal_attributes, class_name: 'Predicate'
+
   # Please DO NOT include the following:  (follows Identifier approach)
   #   validates_presence_of :attribute_subject_type, :attribute_subject_id
   #   validates :attribute_subject, presence: true
@@ -51,9 +53,9 @@ class DataAttribute < ApplicationRecord
   end
 
   # @return [String]
-  #   then predicate name
+  #   the predicate name
   def predicate_name
-    type == 'InternalAttribute' ? predicate.name : import_predicate
+    self.type == 'InternalAttribute' ?  predicate.name : import_predicate
   end
 
 end

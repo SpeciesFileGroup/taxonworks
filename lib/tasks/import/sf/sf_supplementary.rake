@@ -5,6 +5,16 @@ namespace :tw do
       require 'logged_task'
       namespace :supplementary do
 
+
+
+        # 52;"Person::Vetted";"Schröder";"C."
+        # 29;"Person::Vetted";"Tinkham";"Ernest R."
+        # 41;"Person::Vetted";"Voisin";"Jean-François"
+        # 13;"Person::Vetted";"Blatchley";"W.S."
+        #
+        # Source::Human.joins(:people).where(person_ids: [1,2,3], year: 1234)
+
+
         desc 'time rake tw:project_import:sf_import:supplementary:scrutiny_related user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define scrutiny_related: [:data_directory, :environment, :user_id] do |logger|
 
@@ -79,8 +89,10 @@ namespace :tw do
 
             content = "SeqNum = #{seqnum}, ScrutinyID = #{scrutiny_id}, Year = #{year}, PersonIDs = #{get_tw_scrutiny_authors[scrutiny_id]}, Comment = '#{comment}'"
 
+            sh = Source::Human.create!(stated_year: year, person_ids: get_tw_scrutiny_authors[scrutiny_id])
+
             scrutiny_predicate = Predicate.find_or_create_by(name: 'Species File scrutiny', definition: 'from tblScrutinies, limit of three scrutinies per taxon name', project_id: project_id)
-            scrutiny = DataAttribute.create(type: 'InternalAttribute',
+            scrutiny = DataAttribute.create!(type: 'InternalAttribute',
                                             controlled_vocabulary_term_id: scrutiny_predicate.id,
                                             attribute_subject_id: taxon_name_id,
                                             attribute_subject_type: 'TaxonName',
@@ -89,10 +101,17 @@ namespace :tw do
                                             created_at: row['CreatedOn'],
                                             updated_at: row['LastUpdate'],
                                             created_by_id: get_tw_user_id[row['CreatedBy']],
-                                            updated_by_id: get_tw_user_id[row['ModifiedBy']])
+                                            updated_by_id: get_tw_user_id[row['ModifiedBy']],
+
+                                            citations_attributes: [{source_id: sh.id, project_id: project_id}]  # source: {id: sh.id}   # source_id: sh.id
+            )
 
             if scrutiny.nil?
               logger.error "Error creating TaxonScrutiny: ScrutinyID = #{scrutiny_id}, SF.TaxonNameID #{sf_taxon_name_id} = tw.taxon_name_id #{taxon_name_id}"
+            # else
+            #   cite = Citation.new(source_id: sh.id, citation_object: scrutiny)
+            #   byebug
+            #
             end
           end
         end
