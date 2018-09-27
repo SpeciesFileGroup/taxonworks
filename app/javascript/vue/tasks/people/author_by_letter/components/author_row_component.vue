@@ -1,6 +1,6 @@
 <template>
   <tr v-if="author">
-    <td v-html="author.cached" @click="showAuthor"/>
+    <td><a v-html="author.cached" @click="showAuthor"/></td>
     <td v-if="author.roles[0]"
         v-html="'list sources for: ' + author.id" @click="showSources"/>
     <td v-else
