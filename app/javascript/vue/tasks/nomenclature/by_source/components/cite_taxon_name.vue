@@ -16,7 +16,7 @@
             ref="autocomplete"
             param="term"
             placeholder="Search for a taxon"
-            label="label-html"
+            label="label_html"
             @getItem="createTaxonCite($event)"
             :autofocus="true" />
         <span
