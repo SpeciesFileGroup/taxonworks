@@ -1,17 +1,17 @@
 <template>
   <button
-      v-if="!createdSource||!in_project"
+      v-if="createdSource||in_project"
+      @click="remove"
+      type="button"
+      class="button normal-input button-delete">
+    Remove from project
+  </button>
+  <button
+      v-else
       @click="create"
       type="button"
       class="button normal-input button-submit">
     Add to project
-  </button>
-  <button
-    v-else
-    @click="remove"
-    type="button"
-    class="button normal-input button-delete">
-    Remove from project
   </button>
 </template>
 
@@ -43,7 +43,7 @@ export default {
       })
     },
     remove() {
-      this.$http.delete(`/project_sources/${this.createdSource.id}.json`).then(response => {
+      this.$http.delete(`/project_sources/${this.project_source.id}.json`).then(response => {
         this.createdSource = undefined
       })
     }
