@@ -9,6 +9,11 @@ describe Queries::Source::Autocomplete, type: :model, group: [:source] do
 
     let(:query) { Queries::Source::Autocomplete.new('') }
 
+    specify '#autocomplete_start_of_author 1' do
+      query.terms = 'Smith' 
+      expect(query.autocomplete_start_of_author.map(&:id)).to contain_exactly(s2.id, s3.id)
+    end
+
     specify '#autocomplete_exact_author 1' do
       query.terms = 'Smith' 
       expect(query.autocomplete_exact_author.map(&:id)).to contain_exactly(s2.id, s3.id)
