@@ -81,6 +81,7 @@ gem 'kaminari', '~> 1.1.1'
 gem 'best_in_place', '~> 3.1.1'
 gem 'sass-rails', '~> 5.0.7' # auto compresses CSS
 gem 'redcarpet', '~> 3.4'
+gem 'sass', '3.5.7'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '0.4.0'
