@@ -7,7 +7,7 @@
            :type="source.type"/>
     </td>
     <td>
-      <add-to-project :id="source.id"/>
+      <add-to-project :id="source.id" :in-project="source.source_in_project"/>
     </td>
     <td><span class="button circle-button btn-delete" @click="removeMe()"/></td>
   </tr>

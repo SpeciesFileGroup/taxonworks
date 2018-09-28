@@ -8,6 +8,8 @@ json.extract! source, :id, :serial_id, :address, :annote, :author,
   :day, :year, :isbn, :issn, :verbatim_contents, :verbatim_keywords, 
   :language_id, :translator, :year_suffix, :url, :created_at, :updated_at
 
+json.source_in_project source_in_project?(source)
+
 json.partial! '/shared/data/all/metadata', object: source, klass: 'Source'
 
 json.documents do |d|

@@ -1,9 +1,9 @@
 <template>
-  <button 
-    v-if="!createdSource"
-    @click="create"
-    type="button"
-    class="button normal-input button-submit">
+  <button
+      v-if="!createdSource||!in_project"
+      @click="create"
+      type="button"
+      class="button normal-input button-submit">
     Add to project
   </button>
   <button
@@ -20,6 +20,10 @@ export default {
   props: {
     id: {
       type: [Number, String],
+      required: true
+    },
+    in_project: {
+      type: Boolean,
       required: true
     }
   },
