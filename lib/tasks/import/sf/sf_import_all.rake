@@ -100,26 +100,27 @@ namespace :tw do
           # 11m28.712s on June 16 2018; 21m2.541s import_sf_depos through col_events_metadata on 26 June 2018, about 20 min 4 Sept 2018
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/12_after_col_events_metadata',
           #
-          'specimens:collection_objects',
-          # time: 2.75h (178m12.798s on 27 June 2018, 165m44.310s also on 27 June, 165m27.875s also on 27 June),
+          # 'specimens:collection_objects',
+          # time: 2.75h (178m12.798s on 27 June 2018, 165m44.310s also on 27 June, 165m27.875s also on 27 June), 206m6.374s on 4 Seot 2018
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/13_after_collections_objects'
           #
+          # 'taxa:list_excluded_taxa',  # may have to rerun depending on how far back the db was restored
           # 'supplementary:taxon_info',
-          # time: 1h (0m57.358s on 29 June 2018, 1m1.335s on 2 July 2018)
-          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/15_after_suppl_info'
+          # time: 1h (0m57.358s on 29 June 2018, 1m1.335s on 2 July 2018, 1m4.397s on 6 September, 2018)
+          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/14_after_suppl_info'
           #
           # 'supplementary:scrutiny_related',
-          # time: 10m (9m39.816s on 2 July 2018)
-          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/16_after_scrutinies'
+          # time: 10m (9m39.816s on 2 July 2018, 9m39.742s on 6 Sept 2018)
+          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/15_after_scrutinies'    # dump not done 7 Sept 2018
           #
           #
           # 'citations:create_citations',
-          # time: close to 10h (592m44.659s on 10 July 2015)
-          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/17_after_taxon_citations',
+          # time: close to 10h (592m44.659s on 10 July 2015, 591m42.625s on 6 Sept 2018)
+          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/15_after_taxon_citations',
           #
           # 'citations:create_otu_cites',
-          # time: 1m (1m2.000s on 16 July 2018z0
-          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/18_after_otu_cites',
+          # time: 1m (1m2.000s on 16 July 2018z0, 0m55.486s on 7 Sept 2018)
+          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/16_after_otu_cites',
 
       ] do
         puts 'Ran all tasks!'
@@ -131,6 +132,49 @@ end
 
 =begin
 Error logs:
+
+=== Summary of warnings and errors for task tw:project_import:sf_import:supplementary:scrutiny_related ===
+[ERROR]2018-09-26 10:57:03.888: TW.taxon_name_id is nil: ScrutinyID = 61, SF.TaxonNameID 1125484, SF.FileID = 1
+[ERROR]2018-09-26 10:57:08.395: TW.taxon_name_id is nil: ScrutinyID = 562, SF.TaxonNameID 1132662, SF.FileID = 1
+[ERROR]2018-09-26 10:57:08.634: TW.taxon_name_id is nil: ScrutinyID = 264, SF.TaxonNameID 1132951, SF.FileID = 1
+[ERROR]2018-09-26 10:57:08.811: TW.taxon_name_id is nil: ScrutinyID = 336, SF.TaxonNameID 1133074, SF.FileID = 1
+[ERROR]2018-09-26 10:57:08.812: TW.taxon_name_id is nil: ScrutinyID = 336, SF.TaxonNameID 1133075, SF.FileID = 1
+[ERROR]2018-09-26 10:57:08.812: TW.taxon_name_id is nil: ScrutinyID = 336, SF.TaxonNameID 1133076, SF.FileID = 1
+[ERROR]2018-09-26 10:57:08.812: TW.taxon_name_id is nil: ScrutinyID = 336, SF.TaxonNameID 1133077, SF.FileID = 1
+[ERROR]2018-09-26 10:57:08.813: TW.taxon_name_id is nil: ScrutinyID = 279, SF.TaxonNameID 1133081, SF.FileID = 1
+[ERROR]2018-09-26 10:57:11.454: TW.taxon_name_id is nil: ScrutinyID = 145, SF.TaxonNameID 1135612, SF.FileID = 1
+[ERROR]2018-09-26 10:57:11.807: TW.taxon_name_id is nil: ScrutinyID = 233, SF.TaxonNameID 1135940, SF.FileID = 1
+[ERROR]2018-09-26 10:57:12.605: TW.taxon_name_id is nil: ScrutinyID = 147, SF.TaxonNameID 1136651, SF.FileID = 1
+[ERROR]2018-09-26 10:57:15.351: TW.taxon_name_id is nil: ScrutinyID = 566, SF.TaxonNameID 1138340, SF.FileID = 1
+[ERROR]2018-09-26 10:57:15.718: TW.taxon_name_id is nil: ScrutinyID = 627, SF.TaxonNameID 1138385, SF.FileID = 1
+[ERROR]2018-09-26 10:57:15.718: TW.taxon_name_id is nil: ScrutinyID = 627, SF.TaxonNameID 1138387, SF.FileID = 1
+[ERROR]2018-09-26 10:57:18.180: TW.taxon_name_id is nil: ScrutinyID = 332, SF.TaxonNameID 1140105, SF.FileID = 1
+[ERROR]2018-09-26 10:57:18.301: TW.taxon_name_id is nil: ScrutinyID = 568, SF.TaxonNameID 1140191, SF.FileID = 1
+[ERROR]2018-09-26 10:57:18.485: TW.taxon_name_id is nil: ScrutinyID = 260, SF.TaxonNameID 1140264, SF.FileID = 1
+[ERROR]2018-09-26 10:57:20.942: TW.taxon_name_id is nil: ScrutinyID = 406, SF.TaxonNameID 1141029, SF.FileID = 1
+[ERROR]2018-09-26 10:57:20.942: TW.taxon_name_id is nil: ScrutinyID = 406, SF.TaxonNameID 1141030, SF.FileID = 1
+[ERROR]2018-09-26 10:57:21.171: TW.taxon_name_id is nil: ScrutinyID = 405, SF.TaxonNameID 1141059, SF.FileID = 1
+[ERROR]2018-09-26 10:57:21.282: TW.taxon_name_id is nil: ScrutinyID = 4725, SF.TaxonNameID 1141116, SF.FileID = 1
+[ERROR]2018-09-26 10:59:22.866: TW.taxon_name_id is nil: ScrutinyID = 1622, SF.TaxonNameID 1164852, SF.FileID = 14
+[ERROR]2018-09-26 10:59:23.505: TW.taxon_name_id is nil: ScrutinyID = 2884, SF.TaxonNameID 1164933, SF.FileID = 14
+[ERROR]2018-09-26 10:59:23.506: TW.taxon_name_id is nil: ScrutinyID = 2101, SF.TaxonNameID 1164934, SF.FileID = 14
+[ERROR]2018-09-26 10:59:30.556: TW.taxon_name_id is nil: ScrutinyID = 2104, SF.TaxonNameID 1165628, SF.FileID = 14
+[ERROR]2018-09-26 10:59:30.984: TW.taxon_name_id is nil: ScrutinyID = 2882, SF.TaxonNameID 1165670, SF.FileID = 14
+[ERROR]2018-09-26 10:59:30.984: TW.taxon_name_id is nil: ScrutinyID = 2883, SF.TaxonNameID 1165671, SF.FileID = 14
+[ERROR]2018-09-26 10:59:54.362: TW.taxon_name_id is nil: ScrutinyID = 2096, SF.TaxonNameID 1167757, SF.FileID = 14
+[ERROR]2018-09-26 11:00:58.937: TW.taxon_name_id is nil: ScrutinyID = 4056, SF.TaxonNameID 1187513, SF.FileID = 5
+[ERROR]2018-09-26 11:01:34.979: TW.taxon_name_id is nil: ScrutinyID = 3768, SF.TaxonNameID 1217639, SF.FileID = 14
+[ERROR]2018-09-26 11:01:34.979: TW.taxon_name_id is nil: ScrutinyID = 4687, SF.TaxonNameID 1217639, SF.FileID = 14
+[ERROR]2018-09-26 11:01:38.378: TW.taxon_name_id is nil: ScrutinyID = 1873, SF.TaxonNameID 1217692, SF.FileID = 14
+[ERROR]2018-09-26 11:01:38.378: TW.taxon_name_id is nil: ScrutinyID = 4711, SF.TaxonNameID 1217692, SF.FileID = 14
+[ERROR]2018-09-26 11:01:39.149: TW.taxon_name_id is nil: ScrutinyID = 4743, SF.TaxonNameID 1217897, SF.FileID = 1
+[ERROR]2018-09-26 11:01:39.150: TW.taxon_name_id is nil: ScrutinyID = 4779, SF.TaxonNameID 1217969, SF.FileID = 1
+[ERROR]2018-09-26 11:01:39.150: TW.taxon_name_id is nil: ScrutinyID = 4762, SF.TaxonNameID 1218004, SF.FileID = 1
+[ERROR]2018-09-26 11:01:44.018: TW.taxon_name_id is nil: ScrutinyID = 4962, SF.TaxonNameID 1221809, SF.FileID = 1
+[ERROR]2018-09-26 11:01:44.641: TW.taxon_name_id is nil: ScrutinyID = 3482, SF.TaxonNameID 1222168, SF.FileID = 14
+[ERROR]2018-09-26 11:01:47.014: TW.taxon_name_id is nil: ScrutinyID = 5318, SF.TaxonNameID 1225991, SF.FileID = 14
+
+
 === Summary of warnings and errors for task tw:project_import:sf_import:taxa:create_status_flag_relationships ===
 [ERROR]2018-06-13 20:38:31.063: TaxonNameRelationship 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement' ERROR tw.project_id 13, object: SF.TaxonNameID 1159004 = TW.taxon_name_id 419, subject: SF.TaxonNameID 0 = TW.taxon_name_id 34 (Error # 1): Object taxon name Kingdom rank of Animalia is not compatible with the incertae sedis relationship;Type Relationship incertae sedis is not compatible with the kingdom rank of Animalia
 [ERROR]2018-06-13 20:39:14.664: TaxonNameRelationship 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement' ERROR tw.project_id 2, object: SF.TaxonNameID 1100703 = TW.taxon_name_id 1129, subject: SF.TaxonNameID 1100693 = TW.taxon_name_id 1120 (Error # 2): Object taxon name Genus rank of <i>Epitettix</i> is not compatible with the incertae sedis relationship;Type Relationship incertae sedis is not compatible with the genus rank of <i>Epitettix</i>
@@ -1703,5 +1747,87 @@ Error logs:
 [ERROR]2018-08-31 17:01:55.670: CollectEvent error: FileID = 11, UniqueID = 66161, Year = 1958, Month = 12, Day = 20, DaysToEnd = 0, (error count 20)Verbatim longitude can't be blank
 [ERROR]2018-08-31 17:05:08.270: CollectEvent error: FileID = 1, UniqueID = 4496, Year = 1894, Month = 4, Day = 5, DaysToEnd = 0, (error count 21)Verbatim longitude can't be blank
 
+
+[INFO]2018-09-04 17:29:00.757: Logged task tw:project_import:sf_import:specimens:collection_objects completed!
+[INFO]2018-09-04 17:29:00.758: All tasks completed. Dumping summary for each task...
+=== Summary of warnings and errors for task tw:project_import:sf_import:specimens:collection_objects ===
+[ERROR]2018-09-04 14:07:20.342: NO COLLECTING EVENT: Couldn't find CollectingEvent with 'id'=: unique_id = 45428: SpecimenID = '4861', sf_taxon_id 1143388 = tw_taxon_name_id 46315, FileID = '1', no_ce_counter = '1'
+[ERROR]2018-09-04 14:38:46.880: NO COLLECTING EVENT: Couldn't find CollectingEvent with 'id'=: unique_id = 4496: SpecimenID = '42993', sf_taxon_id 1137603 = tw_taxon_name_id 41482, FileID = '1', no_ce_counter = '2'
+[ERROR]2018-09-04 14:39:00.899:  OMITTED : No specimen or asserted distribution: SpecimenID = '43098', FileID = '1', DepoID = '3427', SourceID = '0', zero_counter = '84'
+[ERROR]2018-09-04 14:41:48.901:  OMITTED : No specimen or asserted distribution: SpecimenID = '44327', FileID = '1', DepoID = '9', SourceID = '0', zero_counter = '85'
+[ERROR]2018-09-04 14:44:13.474: NO COLLECTING EVENT: Couldn't find CollectingEvent with 'id'=: unique_id = 20917: SpecimenID = '45369', sf_taxon_id 1142757 = tw_taxon_name_id 45673, FileID = '1', no_ce_counter = '3'
+[ERROR]2018-09-04 15:25:41.095: CollectionObject ERROR SF.SpecimenID = 62636 (1): Protonym Type cannot be designated, name is not a species group name
+[ERROR]2018-09-04 15:26:59.679:  OMITTED : No specimen or asserted distribution: SpecimenID = '63200', FileID = '1', DepoID = '60', SourceID = '0', zero_counter = '105'
+[ERROR]2018-09-04 15:27:02.494:  OMITTED : No specimen or asserted distribution: SpecimenID = '63237', FileID = '1', DepoID = '60', SourceID = '0', zero_counter = '106'
+[ERROR]2018-09-04 15:33:20.028: CollectionObject ERROR SF.SpecimenID = 65899 (2): Protonym Type cannot be designated, name is not a species group name
+[ERROR]2018-09-04 15:36:09.075: NO COLLECTING EVENT: Couldn't find CollectingEvent with 'id'=: unique_id = 41954: SpecimenID = '66978', sf_taxon_id 1122945 = tw_taxon_name_id 23793, FileID = '1', no_ce_counter = '4'
+[ERROR]2018-09-04 15:37:49.521: NO COLLECTING EVENT: Couldn't find CollectingEvent with 'id'=: unique_id = 48850: SpecimenID = '67763', sf_taxon_id 1111467 = tw_taxon_name_id 12413, FileID = '1', no_ce_counter = '5'
+[ERROR]2018-09-04 16:03:32.860: NO COLLECTING EVENT: Couldn't find CollectingEvent with 'id'=: unique_id = 44208: SpecimenID = '79751', sf_taxon_id 1140695 = tw_taxon_name_id , FileID = '1', no_ce_counter = '6'
+[ERROR]2018-09-04 16:05:10.553:  OMITTED : No specimen or asserted distribution: SpecimenID = '80463', FileID = '1', DepoID = '347', SourceID = '0', zero_counter = '137'
+[ERROR]2018-09-04 16:09:57.003: NO COLLECTING EVENT: Couldn't find CollectingEvent with 'id'=: unique_id = 8549: SpecimenID = '82620', sf_taxon_id 1127482 = tw_taxon_name_id 29983, FileID = '1', no_ce_counter = '7'
+[ERROR]2018-09-04 16:17:46.139: NO COLLECTING EVENT: Couldn't find CollectingEvent with 'id'=: unique_id = 66091: SpecimenID = '90066', sf_taxon_id 1153301 = tw_taxon_name_id 47632, FileID = '11', no_ce_counter = '8'
+[ERROR]2018-09-04 16:17:46.140: NO COLLECTING EVENT: Couldn't find CollectingEvent with 'id'=: unique_id = 66096: SpecimenID = '90067', sf_taxon_id 1152810 = tw_taxon_name_id 47124, FileID = '11', no_ce_counter = '9'
+[ERROR]2018-09-04 16:17:46.551: NO COLLECTING EVENT: Couldn't find CollectingEvent with 'id'=: unique_id = 66094: SpecimenID = '90072', sf_taxon_id 1153233 = tw_taxon_name_id 47568, FileID = '11', no_ce_counter = '10'
+[ERROR]2018-09-04 16:17:46.551: NO COLLECTING EVENT: Couldn't find CollectingEvent with 'id'=: unique_id = 66161: SpecimenID = '90073', sf_taxon_id 1153228 = tw_taxon_name_id 47563, FileID = '11', no_ce_counter = '11'
+[ERROR]2018-09-04 16:17:47.744: NO COLLECTING EVENT: Couldn't find CollectingEvent with 'id'=: unique_id = 66050: SpecimenID = '90084', sf_taxon_id 1153335 = tw_taxon_name_id 47667, FileID = '11', no_ce_counter = '12'
+[ERROR]2018-09-04 16:17:47.852: NO COLLECTING EVENT: Couldn't find CollectingEvent with 'id'=: unique_id = 66049: SpecimenID = '90086', sf_taxon_id 1153329 = tw_taxon_name_id 47660, FileID = '11', no_ce_counter = '13'
+[ERROR]2018-09-04 16:25:15.390: CollectionObject ERROR SF.SpecimenID = 92870 (3): Value has already been taken
+[ERROR]2018-09-04 16:38:04.928: NO COLLECTING EVENT: Couldn't find CollectingEvent with 'id'=: unique_id = 59989: SpecimenID = '105615', sf_taxon_id 1187584 = tw_taxon_name_id 82206, FileID = '5', no_ce_counter = '14'
+[ERROR]2018-09-04 16:39:04.767: NO COLLECTING EVENT: Couldn't find CollectingEvent with 'id'=: unique_id = 56838: SpecimenID = '106507', sf_taxon_id 1203873 = tw_taxon_name_id 106834, FileID = '2', no_ce_counter = '15'
+[ERROR]2018-09-04 16:41:08.264: NO COLLECTING EVENT: Couldn't find CollectingEvent with 'id'=: unique_id = 52803: SpecimenID = '107443', sf_taxon_id 1203703 = tw_taxon_name_id 106649, FileID = '2', no_ce_counter = '16'
+[ERROR]2018-09-04 16:42:47.087:  OMITTED : No specimen or asserted distribution: SpecimenID = '108123', FileID = '2', DepoID = '0', SourceID = '0', zero_counter = '178'
+[ERROR]2018-09-04 16:43:06.180:  OMITTED : No specimen or asserted distribution: SpecimenID = '108256', FileID = '2', DepoID = '0', SourceID = '0', zero_counter = '179'
+[ERROR]2018-09-04 16:46:11.676:  OMITTED : No specimen or asserted distribution: SpecimenID = '109515', FileID = '2', DepoID = '0', SourceID = '0', zero_counter = '180'
+[ERROR]2018-09-04 16:46:11.677:  OMITTED : No specimen or asserted distribution: SpecimenID = '109516', FileID = '2', DepoID = '0', SourceID = '0', zero_counter = '181'
+[ERROR]2018-09-04 16:46:18.811: NO COLLECTING EVENT: Couldn't find CollectingEvent with 'id'=: unique_id = 55204: SpecimenID = '109570', sf_taxon_id 1201542 = tw_taxon_name_id 104227, FileID = '2', no_ce_counter = '17'
+[ERROR]2018-09-04 16:50:35.659: NO COLLECTING EVENT: Couldn't find CollectingEvent with 'id'=: unique_id = 56838: SpecimenID = '111393', sf_taxon_id 1203873 = tw_taxon_name_id 106834, FileID = '2', no_ce_counter = '18'
+[ERROR]2018-09-04 16:50:35.659: NO COLLECTING EVENT: Couldn't find CollectingEvent with 'id'=: unique_id = 56835: SpecimenID = '111394', sf_taxon_id 1203873 = tw_taxon_name_id 106834, FileID = '2', no_ce_counter = '19'
+[ERROR]2018-09-04 16:50:35.660: NO COLLECTING EVENT: Couldn't find CollectingEvent with 'id'=: unique_id = 56836: SpecimenID = '111395', sf_taxon_id 1203873 = tw_taxon_name_id 106834, FileID = '2', no_ce_counter = '20'
+[ERROR]2018-09-04 16:50:35.660: NO COLLECTING EVENT: Couldn't find CollectingEvent with 'id'=: unique_id = 56837: SpecimenID = '111396', sf_taxon_id 1203873 = tw_taxon_name_id 106834, FileID = '2', no_ce_counter = '21'
+[ERROR]2018-09-04 16:50:35.660: NO COLLECTING EVENT: Couldn't find CollectingEvent with 'id'=: unique_id = 56839: SpecimenID = '111397', sf_taxon_id 1203873 = tw_taxon_name_id 106834, FileID = '2', no_ce_counter = '22'
+[ERROR]2018-09-04 16:52:31.339: NO COLLECTING EVENT: Couldn't find CollectingEvent with 'id'=: unique_id = 52803: SpecimenID = '112188', sf_taxon_id 1203703 = tw_taxon_name_id 106649, FileID = '2', no_ce_counter = '23'
+[ERROR]2018-09-04 17:25:27.389: CollectionObject ERROR SF.SpecimenID = 141393 (4): Protonym Type cannot be designated, name is not a species group name
+
+
+=== Summary of warnings and errors for task tw:project_import:sf_import:supplementary:scrutiny_related ===
+[ERROR]2018-09-06 14:06:41.920: TW.taxon_name_id is nil: ScrutinyID = 61, SF.TaxonNameID 1125484, SF.FileID = 1
+[ERROR]2018-09-06 14:06:46.927: TW.taxon_name_id is nil: ScrutinyID = 562, SF.TaxonNameID 1132662, SF.FileID = 1
+[ERROR]2018-09-06 14:06:47.011: TW.taxon_name_id is nil: ScrutinyID = 264, SF.TaxonNameID 1132951, SF.FileID = 1
+[ERROR]2018-09-06 14:06:47.071: TW.taxon_name_id is nil: ScrutinyID = 336, SF.TaxonNameID 1133074, SF.FileID = 1
+[ERROR]2018-09-06 14:06:47.071: TW.taxon_name_id is nil: ScrutinyID = 336, SF.TaxonNameID 1133075, SF.FileID = 1
+[ERROR]2018-09-06 14:06:47.072: TW.taxon_name_id is nil: ScrutinyID = 336, SF.TaxonNameID 1133076, SF.FileID = 1
+[ERROR]2018-09-06 14:06:47.072: TW.taxon_name_id is nil: ScrutinyID = 336, SF.TaxonNameID 1133077, SF.FileID = 1
+[ERROR]2018-09-06 14:06:47.072: TW.taxon_name_id is nil: ScrutinyID = 279, SF.TaxonNameID 1133081, SF.FileID = 1
+[ERROR]2018-09-06 14:06:47.987: TW.taxon_name_id is nil: ScrutinyID = 145, SF.TaxonNameID 1135612, SF.FileID = 1
+[ERROR]2018-09-06 14:06:48.085: TW.taxon_name_id is nil: ScrutinyID = 233, SF.TaxonNameID 1135940, SF.FileID = 1
+[ERROR]2018-09-06 14:06:48.397: TW.taxon_name_id is nil: ScrutinyID = 147, SF.TaxonNameID 1136651, SF.FileID = 1
+[ERROR]2018-09-06 14:06:49.355: TW.taxon_name_id is nil: ScrutinyID = 566, SF.TaxonNameID 1138340, SF.FileID = 1
+[ERROR]2018-09-06 14:06:49.399: TW.taxon_name_id is nil: ScrutinyID = 627, SF.TaxonNameID 1138385, SF.FileID = 1
+[ERROR]2018-09-06 14:06:49.399: TW.taxon_name_id is nil: ScrutinyID = 627, SF.TaxonNameID 1138387, SF.FileID = 1
+[ERROR]2018-09-06 14:06:50.640: TW.taxon_name_id is nil: ScrutinyID = 332, SF.TaxonNameID 1140105, SF.FileID = 1
+[ERROR]2018-09-06 14:06:50.690: TW.taxon_name_id is nil: ScrutinyID = 568, SF.TaxonNameID 1140191, SF.FileID = 1
+[ERROR]2018-09-06 14:06:50.751: TW.taxon_name_id is nil: ScrutinyID = 260, SF.TaxonNameID 1140264, SF.FileID = 1
+[ERROR]2018-09-06 14:06:51.610: TW.taxon_name_id is nil: ScrutinyID = 406, SF.TaxonNameID 1141029, SF.FileID = 1
+[ERROR]2018-09-06 14:06:51.610: TW.taxon_name_id is nil: ScrutinyID = 406, SF.TaxonNameID 1141030, SF.FileID = 1
+[ERROR]2018-09-06 14:06:51.692: TW.taxon_name_id is nil: ScrutinyID = 405, SF.TaxonNameID 1141059, SF.FileID = 1
+[ERROR]2018-09-06 14:06:51.723: TW.taxon_name_id is nil: ScrutinyID = 4725, SF.TaxonNameID 1141116, SF.FileID = 1
+[ERROR]2018-09-06 14:07:28.741: TW.taxon_name_id is nil: ScrutinyID = 1622, SF.TaxonNameID 1164852, SF.FileID = 14
+[ERROR]2018-09-06 14:07:28.951: TW.taxon_name_id is nil: ScrutinyID = 2884, SF.TaxonNameID 1164933, SF.FileID = 14
+[ERROR]2018-09-06 14:07:28.951: TW.taxon_name_id is nil: ScrutinyID = 2101, SF.TaxonNameID 1164934, SF.FileID = 14
+[ERROR]2018-09-06 14:07:31.181: TW.taxon_name_id is nil: ScrutinyID = 2104, SF.TaxonNameID 1165628, SF.FileID = 14
+[ERROR]2018-09-06 14:07:31.311: TW.taxon_name_id is nil: ScrutinyID = 2882, SF.TaxonNameID 1165670, SF.FileID = 14
+[ERROR]2018-09-06 14:07:31.311: TW.taxon_name_id is nil: ScrutinyID = 2883, SF.TaxonNameID 1165671, SF.FileID = 14
+[ERROR]2018-09-06 14:07:38.636: TW.taxon_name_id is nil: ScrutinyID = 2096, SF.TaxonNameID 1167757, SF.FileID = 14
+[ERROR]2018-09-06 14:08:01.363: TW.taxon_name_id is nil: ScrutinyID = 4056, SF.TaxonNameID 1187513, SF.FileID = 5
+[ERROR]2018-09-06 14:08:12.038: TW.taxon_name_id is nil: ScrutinyID = 3768, SF.TaxonNameID 1217639, SF.FileID = 14
+[ERROR]2018-09-06 14:08:12.039: TW.taxon_name_id is nil: ScrutinyID = 4687, SF.TaxonNameID 1217639, SF.FileID = 14
+[ERROR]2018-09-06 14:08:13.119: TW.taxon_name_id is nil: ScrutinyID = 1873, SF.TaxonNameID 1217692, SF.FileID = 14
+[ERROR]2018-09-06 14:08:13.119: TW.taxon_name_id is nil: ScrutinyID = 4711, SF.TaxonNameID 1217692, SF.FileID = 14
+[ERROR]2018-09-06 14:08:13.374: TW.taxon_name_id is nil: ScrutinyID = 4743, SF.TaxonNameID 1217897, SF.FileID = 1
+[ERROR]2018-09-06 14:08:13.374: TW.taxon_name_id is nil: ScrutinyID = 4779, SF.TaxonNameID 1217969, SF.FileID = 1
+[ERROR]2018-09-06 14:08:13.375: TW.taxon_name_id is nil: ScrutinyID = 4762, SF.TaxonNameID 1218004, SF.FileID = 1
+[ERROR]2018-09-06 14:08:14.857: TW.taxon_name_id is nil: ScrutinyID = 4962, SF.TaxonNameID 1221809, SF.FileID = 1
+[ERROR]2018-09-06 14:08:15.058: TW.taxon_name_id is nil: ScrutinyID = 3482, SF.TaxonNameID 1222168, SF.FileID = 14
+[ERROR]2018-09-06 14:08:15.839: TW.taxon_name_id is nil: ScrutinyID = 5318, SF.TaxonNameID 1225991, SF.FileID = 14
 
 =end

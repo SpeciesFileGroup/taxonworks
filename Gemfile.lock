@@ -283,7 +283,7 @@ GEM
       ast (~> 2.4.0)
     parslet (1.8.2)
     parsley-store (0.3.4)
-    passenger (5.3.4)
+    passenger (5.3.5)
       rack
       rake (>= 0.8.1)
     pdf-core (0.7.0)
@@ -410,7 +410,7 @@ GEM
     ruby-prof (0.17.0)
     ruby-progressbar (1.10.0)
     ruby-rc4 (0.1.5)
-    ruby-units (2.3.0)
+    ruby-units (2.3.1)
     ruby_dep (1.5.0)
     rubyzip (1.2.2)
     safe_yaml (1.0.4)
@@ -592,6 +592,7 @@ DEPENDENCIES
   ruby-prof (~> 0.17.0)
   ruby-units (~> 2.3.0)
   rubyzip (~> 1.2.2)
+  sass (= 3.5.7)
   sass-rails (~> 5.0.7)
   sdoc (~> 1.0)
   seedbank!

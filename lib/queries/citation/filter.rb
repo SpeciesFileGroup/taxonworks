@@ -3,31 +3,19 @@ module Queries
 
     # !! does not inherit from base query
     class Filter 
-      # General annotator options handling 
-      # happens directly on the params as passed
-      # through to the controller, keep them
-      # together here
-      # attr_accessor :options
+      include Concerns::Polymorphic
+      polymorphic_klass(::Citation)
 
       # Array, Integer
-      attr_accessor :citation_object_type, :citation_object_id, :source_id, :polymorphic_ids
+      attr_accessor :citation_object_type, :citation_object_id, :source_id
 
-      # @params params [ActionController::Parameters]
-      #   already Permitted
+      # @params params [Hash]
+      #   already Permitted params, or new Hash
       def initialize(params)
         @citation_object_type = params[:citation_object_type]
         @citation_object_id = params[:citation_object_id]
         @source_id = params[:source_id]
         set_polymorphic_ids(params)
-      end
-
-      def polymorphic_ids=(hash)
-        set_polymorphic_ids(hash)
-      end 
-
-      def set_polymorphic_ids(hash)
-        @polymorphic_ids = hash.select{|k,v| ::Citation.related_foreign_keys.include?(k.to_s)} 
-        @polymorphic_ids ||= {}
       end
 
       # @return [ActiveRecord::Relation, nil]
@@ -43,18 +31,6 @@ module Queries
 
         a = clauses.shift
         clauses.each do |b|
-          a = a.and(b)
-        end
-        a
-      end
-
-      # TODO: Dry with polymorphic_params
-      # @return [Arel::Node, nil]
-      def matching_polymorphic_ids
-        nodes = Queries::Annotator.polymorphic_nodes(polymorphic_ids, ::Citation)
-        return nil if nodes.nil?
-        a = nodes.shift
-        nodes.each do |b|
           a = a.and(b)
         end
         a
@@ -80,7 +56,7 @@ module Queries
         if a = and_clauses
           ::Citation.where(and_clauses)
         else
-          ::Citation.none
+          ::Citation.all
         end
       end
 

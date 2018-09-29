@@ -21,10 +21,10 @@ require('../vue/browse_annotations/main.js')
 require('../vue/tasks/descriptor/main.js')
 require('../vue/tasks/new_matrix/main.js')
 require('../vue/tasks/clipboard/main.js')
-require('../vue/tasks/digitize/main.js')
 require('../vue/tasks/uniquify/people/main.js')
 require('../vue/tasks/uniquify/sources/main.js')
 require('../vue/tasks/single_bibtex_source/main.js')
+require('../vue/tasks/nomenclature/by_source/main.js')
 
 // Styles
 require('../style/application.scss')

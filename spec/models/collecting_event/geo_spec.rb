@@ -342,7 +342,7 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
                                                     'RestrictAdmin' => 'false',
                                                     'BG'            => 'false',
                                                     'LanguageIndex' => '0',
-                                                    'gc'            => 'Tester'
+                                                    'gc'            => 'TaxonWorks'
                                                    })
           end
 
@@ -365,7 +365,7 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
                                                     'RestrictAdmin' => 'false',
                                                     'BG'            => 'false',
                                                     'LanguageIndex' => '0',
-                                                    'gc'            => 'Tester'
+                                                    'gc'            => 'TaxonWorks'
                                                    })
           end
         end
@@ -374,22 +374,22 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
 
           specify 'geolocate_ui_params_string from locality' do
             #pending 'creation of a method for geolocate_ui_params_string'
-            expect(ce_a.geolocate_ui_params_string).to eq('http://www.museum.tulane.edu/geolocate/web/' \
+            expect(ce_a.geolocate_ui_params_string).to eq('http://www.geo-locate.org/web/' \
                                                           'webgeoreflight.aspx?country=E&state=A' \
                                                           '&county=&locality=environs of A' \
                                                           '&points=5.0|5.0|environs of A|0|3' \
                                                           '&georef=run|false|false|true|true|false|false|false|0' \
-                                                          '&gc=Tester')
+                                                          '&gc=TaxonWorks')
           end
 
           specify 'geolocate_ui_params_string from lat/long' do
             #pending 'creation of a method for geolocate_ui_params_string'
-            expect(ce_b.geolocate_ui_params_string).to eq('http://www.museum.tulane.edu/geolocate/web/' \
+            expect(ce_b.geolocate_ui_params_string).to eq('http://www.geo-locate.org/web/' \
                                                           'webgeoreflight.aspx?country=E&state=' \
                                                           '&county=B&locality=environs of B' \
                                                           '&points=-5.0|5.0|environs of B|0|3' \
                                                           '&georef=run|false|false|true|true|false|false|false|0' \
-                                                          '&gc=Tester')
+                                                          '&gc=TaxonWorks')
           end
         end
       end

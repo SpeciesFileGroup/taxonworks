@@ -26,10 +26,14 @@
 #   @return [Boolean]
 #     is this the first citation in which the data were observed? 
 #
+#
+#
 class Citation < ApplicationRecord
+
+  # Citations do not have Confidence or DataAttribute.
+
   include Housekeeping
   include Shared::Notes
-  include Shared::Confidences
   include Shared::Tags
   include Shared::IsData
   include Shared::PolymorphicAnnotator

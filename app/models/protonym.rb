@@ -322,7 +322,6 @@ class Protonym < TaxonName
   #   A relationships for each possible original combination relationship
   def original_combination_relationships_and_stubs
     # TODO: figure out where to really put this, likely in one big sort
-    # TODO: @proceps - is this missing :original_section?
     display_order = [
       :original_genus, :original_subgenus, :original_species, :original_subspecies, :original_variety, :original_form
     ]
@@ -553,14 +552,6 @@ class Protonym < TaxonName
               g1 = true
             when /OriginalSubgenus/ # 'original subgenus'
               subgenus += '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-  #          when /OriginalSection/ # 'original section'
-  #            subgenus += 'sect. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-  #          when /OriginalSubsection/ #'original subsection'
-  #            subgenus += 'subsect. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-  #          when /OriginalSeries/ # 'original series'
-  #            subgenus += 'ser. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-  #          when /OriginalSubseries/ #  'original subseries'
-  #            subgenus += 'subser. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
             when /OriginalSpecies/ #  'original species'
               species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
               s1 = true

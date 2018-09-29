@@ -96,6 +96,7 @@ module Utilities::Strings
   # @return [Array]
   #   array of whitespace split strings, with any string containing a digit eliminated
   def self.alphabetic_strings(string)
+    return [] if string.nil? || string.length == 0
     a = string.gsub(/[^a-zA-Z]/, ' ').split(/\s+/)
     a.empty? ? [] : a
   end

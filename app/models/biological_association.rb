@@ -1,24 +1,26 @@
-# An edge between two entities (one of CollectionObject, Otu on either side), defining a biological relationships between the two.
+# A BiologicalAssociation defines a (biological) relationship between two entities.  It is an edge in the graph of biological relationships.
+# The relationship can be between two Otus, an Otu and a Collection Object, or between two Collection Objects.
+# For example 'Species Aus bus is the host_of individual A.'
 #
 # @!attribute biological_relationship_id
 #   @return [Integer]
-#   the biological relationship ID
+#     the BiologicalRelationship id
 #
 # @!attribute biological_association_subject_id
 #   @return [Integer]
-#     id of the subject of the relationship
+#     Rails polymorphic, id of the subject of the relationship
 #
 # @!attribute biological_association_subject_type
 #   @return [String]
-#    type fo the subject (e.g. Otu)
+#    Rails polymorphic, type fo the subject (e.g. Otu)
 #
 # @!attribute biological_association_object_id
 #   @return [Integer]
-#    id of the object
+#     Rails polymorphic,  id of the object
 #
 # @!attribute biological_association_object_type
 #   @return [String]
-#    type of the object (e.g. CollectionObject)
+#    Rails polymorphic, type of the object (e.g. CollectionObject)
 #
 # @!attribute project_id
 #   @return [Integer]
