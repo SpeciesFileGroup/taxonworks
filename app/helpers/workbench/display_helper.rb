@@ -1,6 +1,10 @@
 # Generic wrappers around AR instances, these should not include link generation, but may call out to other helpers that do generate links. 
+# See /app/helpers/README.md for more.
 #
 module Workbench::DisplayHelper
+  
+  
+  
   # General wrapper around individual <model_name>_tag methods
   #   object_tag(@otu) 
   def object_tag(object)
@@ -30,6 +34,34 @@ module Workbench::DisplayHelper
       "#{klass_name.underscore}_tag"
     end
   end
+
+  # General wrapper around individual <model_name>_tag methods
+  #   label_for(@otu) 
+  def label_for(object)
+    return nil if object.nil?
+    method = label_for_method(object)
+
+    if self.respond_to?(method)
+      string = send(method, object)
+      return string if string
+    else
+      nil 
+    end
+  end
+
+  def label_for_method(object)
+    return nil if object.nil?
+    klass_name = object.class.name
+    method = "label_for_#{klass_name.underscore.gsub('/', '_')}"
+    if ApplicationController.helpers.respond_to?(method)
+      method
+    else
+      klass_name = metamorphosize_if(object).class.name
+      "label_for_#{klass_name.underscore}"
+    end
+  end
+
+
 
   def model_name_title
     controller_name.humanize

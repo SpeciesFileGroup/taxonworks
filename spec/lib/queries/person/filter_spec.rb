@@ -2,8 +2,6 @@ require 'rails_helper'
 
 describe Queries::Person::Filter, type: :model do
 
-
-
   let!(:p1) { Person.create!(last_name: 'Smith') }
   let!(:p2) { Person.create!(last_name:  'Smith',
                              first_name: 'Sarah') }
@@ -13,7 +11,7 @@ describe Queries::Person::Filter, type: :model do
   let!(:p4) { Person.create!(last_name:  'Snopapopalus',
                              first_name: 'George') }
   let!(:p5) { Person.create!(last_name:  'Bundy',
-                             first_name: 'Ted') }
+                             first_name: 'Al') }
 
   let!(:collecting_event) {
     CollectingEvent.create!(
@@ -31,6 +29,11 @@ describe Queries::Person::Filter, type: :model do
 
   let(:query) { Queries::Person::Filter.new({}) }
 
+  specify '#last_name_starting_with' do
+    query.last_name_starts_with = 'S'
+    expect(query.all.pluck(:id)).to contain_exactly(p1.id, p2.id, p4.id)
+  end
+
   # TODO: discuss a default strategy
   specify 'without params nothing is returned' do 
     expect(query.all.pluck(:id)).to contain_exactly()
@@ -46,7 +49,7 @@ describe Queries::Person::Filter, type: :model do
 
       specify 'without role' do
         query.first_name = 'a'
-        expect(query.all.pluck(:id)).to contain_exactly(p2.id, p3.id)
+        expect(query.all.pluck(:id)).to contain_exactly(p2.id, p3.id, p5.id)
       end
     end
   end
@@ -110,8 +113,7 @@ describe Queries::Person::Filter, type: :model do
 
       specify 'e' do
         query.first_name = 'e'
-        expect(query.all.map(&:id))
-          .to contain_exactly(p3.id, p5.id, p4.id)
+        expect(query.all.map(&:id)).to contain_exactly(p3.id, p4.id)
       end
     end
 

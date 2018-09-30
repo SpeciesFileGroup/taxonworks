@@ -15,8 +15,8 @@ class AlternateValuesController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @alternate_values = Queries::AlternateValue::Filter.new(params).all.limit(500)
-          .where(project_id: sessions_current_project_id).order(:id)
+        @alternate_values = Queries::AlternateValue::Filter.new(params).all
+          .where(project_id: sessions_current_project_id).page(params[:page]).per(500)
       }
     end
   end

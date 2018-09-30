@@ -17,7 +17,6 @@ describe ProjectSource do
       specify 'source' do
         expect{project_source.save!}.to raise_error ActiveRecord::StatementInvalid # ::PG::NotNullViolation  
       end
- 
     end
   end
 
@@ -30,6 +29,17 @@ describe ProjectSource do
       expect(b.valid?).to be(false)
       expect(b.errors.include?(:source_id)).to be(true)
     end
+  end
+
+  context 'destroying' do
+    let!(:ps1) { FactoryBot.create(:valid_project_source) }
+    let!(:c) { FactoryBot.create(:valid_citation, source: ps1.source, project: ps1.project) }
+
+    specify 'is prevented when used' do
+      ps1.destroy
+      expect(ps1.destroyed?).to be_falsey
+    end
+
   end
 
   context 'concerns' do

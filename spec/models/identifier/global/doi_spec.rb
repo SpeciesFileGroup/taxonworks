@@ -33,12 +33,24 @@ describe Identifier::Global::Doi, type: :model, group: :identifiers do
         expect(id.valid?).to be_truthy
         expect(id.identifier).to eq('10.2105/AJPH.2009.160184')
       end
-    
+
       specify 'with http:' do
         id.identifier = 'http://dx.doi.org/10.2105/AJPH.2009.160184'
         expect(id.valid?).to be_truthy
         expect(id.identifier).to eq('10.2105/AJPH.2009.160184')
       end
+
+      specify 'with https:' do
+        id.identifier = 'https://doi.org/10.2105/AJPH.2009.160184'
+        expect(id.valid?).to be_truthy
+        expect(id.identifier).to eq('10.2105/AJPH.2009.160184')
+      end
+    end
+
+    specify 'restoring URL from identifier' do
+      id.identifier = 'http://dx.doi.org/10.2105/AJPH.2009.160184'
+      expect(id.valid?).to be_truthy
+      expect(Identifier::Global::Doi.preface_doi(id.identifier)).to eq('https://doi.org/10.2105/AJPH.2009.160184')
     end
   end
 end

@@ -7,7 +7,22 @@ module ConfidencesHelper
 
   def confidence_link(confidence)
     return nil if confidence.nil?
-    link_to(confidence_tag(confidence), confidence)
+    link_to(confidence_tag(confidence), confidence.confidence_object.metamorphosize)
+  end
+
+  # @return [String (html), nil]
+  #    a ul/li of tags for the object
+  def confidence_list_tag(object)
+    return nil unless object.has_confidences? && object.confidences.any?
+    content_tag(:h3, 'Confidences') +
+      content_tag(:ul, class: 'annotations__confidences_list') do
+      object.confidences.collect { |a| content_tag(:li, confidence_tag(a)) }.join.html_safe
+    end
+  end
+
+  def confidence_annotation_confidence(confidence)
+    return nil if confidence.nil?
+    content_tag(:span, controlled_vocabulary_term_tag(confidence.confidence_level), class: [:annotation__confidence])
   end
 
   def confidences_search_form
