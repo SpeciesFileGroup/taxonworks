@@ -1,6 +1,6 @@
-if ActiveRecord::Base.connected?
+# if ActiveRecord::Base.connected?
 
-  Rails.application.config.before_initialize do
+#   Rails.application.config.before_initialize do
     # Be sure to restart your server (or console) when you modify this file.
 
     # Array of all ICZN and ICN TaxonNameClassification classes
@@ -153,6 +153,6 @@ if ActiveRecord::Base.connected?
                                                               ])
         }
     }.freeze
-  end
+#  end
 
-end
+# end

@@ -1,3 +1,6 @@
+
+require_dependency Rails.root.to_s + '/app/models/taxon_name_classification.rb'
+
 # A taxonomic name (nomenclature only). See also NOMEN.
 #
 # @!attribute name
@@ -536,13 +539,13 @@ class TaxonName < ApplicationRecord
   # @return [Boolean]
   #  true if this name has any classification asserting that it is valid
   def classification_valid?
-    taxon_name_classifications.with_type_array(TAXON_NAME_CLASS_NAMES_VALID).any? # !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
+    taxon_name_classifications.with_type_array(::TAXON_NAME_CLASS_NAMES_VALID).any? # !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
   end
 
   # @return [Boolean]
   #  whether this name has any classification asserting that this the name is NOT valid or that it is unavailable
   def classification_invalid_or_unavailable?
-    taxon_name_classifications.with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).any?
+    taxon_name_classifications.with_type_array(::TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).any?
   end
 
   #  @return [Boolean]
@@ -612,9 +615,9 @@ class TaxonName < ApplicationRecord
       first_pass = false
       list_of_taxa_to_check = list.empty? ? [self] : list.keys.select{|t| list[t] == false}
       list_of_taxa_to_check.each do |t|
-        potentialy_invalid_relationships = t.related_taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).order_by_oldest_source_first
+        potentialy_invalid_relationships = t.related_taxon_name_relationships.with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).order_by_oldest_source_first
         potentialy_invalid_relationships.find_each do |r|
-          if !TaxonNameClassification.where_taxon_name(r.subject_taxon_name).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
+          if !TaxonNameClassification.where_taxon_name(r.subject_taxon_name).with_type_array(::TAXON_NAME_CLASS_NAMES_VALID).empty?
             # do nothing, taxon has a status of valid name
           elsif r == r.subject_taxon_name.first_possible_valid_taxon_name_relationship
             list[r.subject_taxon_name] = false if list[r.subject_taxon_name].nil?
@@ -658,14 +661,6 @@ class TaxonName < ApplicationRecord
     n = n.blank? ? name : n
     return n
   end
-
-  #region Set cached fields
-
-  # Deprecated
-  # def set_type_if_empty
-  #   type = 'Protonym' if type.nil? || type == 'TaxonName'
-  # end
-
 
   def create_new_combination_if_absent
     return true unless type == 'Protonym'
@@ -1461,8 +1456,6 @@ class TaxonName < ApplicationRecord
   def sv_hybrid_name_relationships
     true # see validation in Hybrid.rb
   end
-
-  #endregion
 
 end
 

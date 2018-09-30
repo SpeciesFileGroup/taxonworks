@@ -132,3 +132,5 @@ class NomenclaturalRank
 
 end
 
+Dir[Rails.root.to_s + '/app/models/nomenclatural_rank/**/*.rb'].each { |file| require_dependency file }
+

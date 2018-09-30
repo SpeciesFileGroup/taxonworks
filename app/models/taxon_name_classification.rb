@@ -1,3 +1,7 @@
+
+require_dependency Rails.root.to_s + '/app/models/nomenclatural_rank.rb'  
+require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'  
+
 # A {https://github.com/SpeciesFileGroup/nomen NOMEN} derived classfication (roughly, a status) for a {TaxonName}.
 #
 # @!attribute taxon_name_id
@@ -326,3 +330,7 @@ class TaxonNameClassification < ApplicationRecord
   end
 
 end
+
+Dir[Rails.root.to_s + '/app/models/taxon_name_classification/**/*.rb'].each { |file| require_dependency file }
+
+require_dependency Rails.root.to_s + '/config/initializers/constants/model/taxon_name_classifications.rb'

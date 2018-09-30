@@ -1,3 +1,6 @@
+# Do *not* reference $project_id and $user_id globals in tests.
+# * They are "on" in model specs via their accessors `user_id` and `project_id`
+# * They must never be set in feature specs 
 module ProjectsAndUsers
 
   def self.clean_slate 
