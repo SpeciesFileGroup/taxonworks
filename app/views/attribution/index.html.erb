@@ -1,0 +1,29 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Attribution</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Copyright year</th>
+      <th>License</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @attribution.each do |attribution| %>
+      <tr>
+        <td><%= attribution.copyright_year %></td>
+        <td><%= attribution.license %></td>
+        <td><%= link_to 'Show', attribution %></td>
+        <td><%= link_to 'Edit', edit_attribution_path(attribution) %></td>
+        <td><%= link_to 'Destroy', attribution, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Attribution', new_attribution_path %>
