@@ -758,7 +758,7 @@ class CollectingEvent < ApplicationRecord
     return CollectingEvent.none if compared_string.nil?
     order_str = CollectingEvent.send(:sanitize_sql_for_conditions, ["levenshtein(collecting_events.#{column}, ?)", compared_string])
     CollectingEvent.where('id <> ?', id.to_s).
-      order(order_str).
+      order(Arel.sql(order_str)).
       limit(limit)
   end
 

@@ -1101,7 +1101,7 @@ class GeographicItem < ApplicationRecord
     q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance((?),(?)) as d',
                                                        GeographicItem.select_geography_sql(self.id),
                                                        GeographicItem.select_geography_sql(geographic_item_id)])
-    deg = GeographicItem.where(id: id).pluck(q1).first
+    deg = GeographicItem.where(id: id).pluck(Arel.sql(q1)).first
     deg * Utilities::Geo::ONE_WEST
   end
 
@@ -1116,21 +1116,21 @@ class GeographicItem < ApplicationRecord
                                                        GeographicItem.select_geometry_sql(id),
                                                        GeographicItem.select_geometry_sql(geographic_item_id),
                                                        Gis::SPHEROID])
-    GeographicItem.where(id: id).pluck(q1).first
+    GeographicItem.where(id: id).pluck(Arel.sql(q1)).first
   end
 
   # @return [String]
   #   a WKT POINT representing the centroid of the geographic item
   def st_centroid
     GeographicItem.where(id: to_param)
-      .pluck("ST_AsEWKT(ST_Centroid(#{GeographicItem::GEOMETRY_SQL.to_sql}))")
+      .pluck(Arel.sql("ST_AsEWKT(ST_Centroid(#{GeographicItem::GEOMETRY_SQL.to_sql}))"))
       .first.gsub(/SRID=\d*;/, '')
   end
 
   # @return [Integer]
   #   the number of points in the geometry
   def st_npoints
-    GeographicItem.where(id: id).pluck("ST_NPoints(#{GeographicItem::GEOMETRY_SQL.to_sql}) as npoints").first
+    GeographicItem.where(id: id).pluck(Arel.sql("ST_NPoints(#{GeographicItem::GEOMETRY_SQL.to_sql}) as npoints")).first
   end
 
   # @return [Symbol]
