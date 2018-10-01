@@ -19,7 +19,7 @@
 <script>
   export default {
     props: {
-      id: {
+      id: {                           // this is a Source ID
         type: [Number, String],
         required: true
       },
@@ -42,11 +42,9 @@
         })
       },
       remove() {
-        if (this.createdSourceID) {
-          this.$http.delete(`/project_sources/${this.createdSourceID}.json`).then(response => {
-            this.createdSourceID = undefined;
-          })
-        }
+        this.$http.delete(`/project_sources/${this.createdSourceID}.json`).then(response => {
+          this.createdSourceID = undefined;
+        })
       }
     },
     mounted: function () {
