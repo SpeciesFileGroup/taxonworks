@@ -10,9 +10,6 @@ describe Queries::TaxonName::Autocomplete, type: :model do
 
   let(:query) { Queries::TaxonName::Autocomplete.new('') }
 
- 
-  # some patterns - 
-
   specify '#autocomplete_top_name 1' do
     query.terms = 'vulnerata' 
     expect(query.autocomplete_top_name.first).to eq(species)
