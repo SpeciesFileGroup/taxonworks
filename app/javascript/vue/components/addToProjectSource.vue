@@ -1,6 +1,6 @@
 <template>
   <button
-      v-if="createdSource||in_project"
+      v-if="createdSourceID"
       @click="remove"
       type="button"
       class="button normal-input button-delete">
@@ -25,6 +25,9 @@ export default {
     in_project: {
       type: Boolean,
       required: true
+    },
+    project_source_id: {
+      type: [Number, String],
     }
   },
   data() {
@@ -32,21 +35,26 @@ export default {
       project_source: {
         source_id: this.id
       },
-      createdSource: undefined
+      createdSourceID: undefined,
     }
   },
   methods: {
     create() {
       
       this.$http.post('/project_sources.json', { project_source: this.project_source }).then(response => {
-        this.createdSource = response.body
+        this.createdSourceID = response.body.id
       })
     },
     remove() {
-      this.$http.delete(`/project_sources/${this.project_source.id}.json`).then(response => {
-        this.createdSource = undefined
-      })
+      if (this.createdSourceID) {
+        this.$http.delete(`/project_sources/${this.createdSourceID}.json`).then(response => {
+          this.createdSourceID = undefined;
+        })
+      }
     }
+  },
+  mounted: function () {
+    this.createdSourceID = this.project_source_id;
   }
 }
 </script>
