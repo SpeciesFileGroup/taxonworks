@@ -1,5 +1,6 @@
 # This requires relationships and ranks as well
 require_dependency Rails.root.to_s + '/app/models/taxon_name_classification.rb'
+require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 
 # A taxonomic name (nomenclature only). See also NOMEN.
 #
@@ -594,7 +595,7 @@ class TaxonName < ApplicationRecord
   # @return [TaxonNameRelationship]
   #  returns youngest taxon name relationship where self is the subject.
   def first_possible_valid_taxon_name_relationship
-    taxon_name_relationships.reload.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).youngest_by_citation
+    taxon_name_relationships.reload.with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).youngest_by_citation
   end
 
   # @return [TaxonName]
