@@ -9,7 +9,7 @@ export default function ({ commit, state }) {
     if(ValidateTypeMaterial(type_material)) {
       if(type_material.id) {
         UpdateTypeMaterial(type_material).then(response => {
-          TW.workbench.alert.create('Taxon determination was successfully updated.', 'notice')
+          TW.workbench.alert.create('Type material was successfully updated.', 'notice')
           commit(MutationNames.SetTypeMaterial, response)
           commit(MutationNames.AddTypeMaterial, response)
           return resolve(response)
@@ -17,7 +17,7 @@ export default function ({ commit, state }) {
       }
       else {
         CreateTypeMaterial(type_material).then(response => {
-          TW.workbench.alert.create('Taxon determination was successfully created.', 'notice')
+          TW.workbench.alert.create('Type material was successfully created.', 'notice')
           commit(MutationNames.SetTypeMaterial, response)
           return resolve(response)
         })

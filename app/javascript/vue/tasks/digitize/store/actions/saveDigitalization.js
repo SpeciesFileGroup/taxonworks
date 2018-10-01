@@ -4,22 +4,21 @@ export default function ({ commit, dispatch, state }) {
   return new Promise((resolve, reject) => {
     dispatch(ActionNames.SaveCollectionEvent).then(() => {
       dispatch(ActionNames.SaveLabel)
-      dispatch(ActionNames.SaveCollectionObject).then(() => {
+      dispatch(ActionNames.SaveCollectionObject).then((coCreated) => {
         dispatch(ActionNames.SaveDetermination)
-        dispatch(ActionNames.SaveTypeMaterial).then(() => {
-          dispatch(ActionNames.SaveIdentifier).then(() => {
-            dispatch(ActionNames.SaveDetermination).then(() => {
-              if(!state.container) {
-                dispatch(ActionNames.SaveContainer).then(() => {
-                  dispatch(ActionNames.SaveContainerItem)
-                })
-              }
-              else {
-                dispatch(ActionNames.SaveContainerItem)
-              }
+        dispatch(ActionNames.SaveTypeMaterial)
+        dispatch(ActionNames.SaveIdentifier)
+        dispatch(ActionNames.SaveDetermination)
+        if(!state.container) {
+          if(state.collection_objects.length == 2) {
+            dispatch(ActionNames.SaveContainer).then(() => {
+              dispatch(ActionNames.SaveContainerItem, coCreated)
             })
-          })
-        })
+          }
+        }
+        else {
+          dispatch(ActionNames.SaveContainerItem, coCreated)
+        }        
       })
     })
   })
