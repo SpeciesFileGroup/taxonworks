@@ -1,8 +1,9 @@
-# this is the main controller
 require_dependency 'lib/application_enumeration.rb'
+
 class ApplicationController < ActionController::Base
   include Workbench::SessionsHelper
   include ProjectsHelper
+  include SetHousekeeping
 
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
@@ -26,11 +27,9 @@ class ApplicationController < ActionController::Base
   helper_method :meta_title, :meta_data, :site_name, :page_title
 
   before_action :intercept_api
-  before_action :set_project_and_user_variables
   before_action :notice_user
 
   after_action :log_user_recent_route
-  after_action :clear_project_and_user_variables
 
   def intercept_api
     if /^\/api/ =~ request.path # rubocop:disable Style/RegexpLiteral
@@ -52,16 +51,6 @@ class ApplicationController < ActionController::Base
   # TODO: Make RecenRoutes modules that handles exceptions, only etc.
   def log_user_recent_route
     sessions_current_user.add_recently_visited_to_footprint(request.fullpath, @recent_object) if sessions_current_user
-  end
-
-  def set_project_and_user_variables
-    $project_id = sessions_current_project_id # This also sets @sessions_current_project_id
-    $user_id    = sessions_current_user_id
-  end
-
-  def clear_project_and_user_variables
-    $project_id = nil
-    $user_id    = nil
   end
 
   # Returns true if the controller is that of data class. See controllers/concerns/data_controller_configuration/ concern.
