@@ -1,5 +1,7 @@
 # Be sure to restart your server when you modify this file.
-#
+
+require_dependency Rails.root.to_s + '/app/models/nomenclatural_rank'
+
 # !! All constants are now composed of Strings only.  They must not reference a class. !!
 #
 # Contains NOMEN classes of rank/hierarchy in various format.
@@ -125,4 +127,3 @@ RANKS_JSON = {
 }.freeze
 
 # expected parent rank, check for validation purpose
-#

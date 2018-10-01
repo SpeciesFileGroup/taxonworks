@@ -1,4 +1,4 @@
-
+# This requires relationships and ranks as well
 require_dependency Rails.root.to_s + '/app/models/taxon_name_classification.rb'
 
 # A taxonomic name (nomenclature only). See also NOMEN.
@@ -1213,7 +1213,7 @@ class TaxonName < ApplicationRecord
 
     if (rank_class != rank_class_was) && !rank_class_was.nil?
 
-      if rank_class_was == 'NomenclaturalRank'
+      if rank_class_was == 'NomenclaturalRank' && rank_class_changed?
         errors.add(:rank_class, 'Root can not have a new rank')
         return
       end
@@ -1458,5 +1458,4 @@ class TaxonName < ApplicationRecord
   end
 
 end
-
 
