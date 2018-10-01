@@ -34,9 +34,9 @@ export default {
   data() {
     return {
       project_source: {
-        source_id: this.id
+        source_id: this.id          // this is a Source ID
       },
-      createdSourceID: undefined,
+      createdSourceID: undefined    // this is a ProjectSource ID
     }
   },
   methods: {
