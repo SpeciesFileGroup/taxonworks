@@ -23,10 +23,6 @@ export default {
       type: [Number, String],
       required: true
     },
-    in_project: {
-      type: Boolean,
-      required: true
-    },
     project_source_id: {
       type: [Number, String],
     }
