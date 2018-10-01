@@ -8,7 +8,7 @@
         @input="changePage"
         v-model="citation.pages">
     </td>
-    <td v-html="citation.citation_object.object_tag"/>
+    <td v-html="citation.object_tag"/>
     <td>
       <radial-annotator :global-id="citation.citation_object.global_id" />
     </td>
