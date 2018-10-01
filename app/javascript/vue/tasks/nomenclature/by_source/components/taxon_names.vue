@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>Taxon names</h2>
-    <table-component 
+    <taxon-names-table
       :list="taxon_names_cites_list"/>
   </div>
 </template>
@@ -9,12 +9,12 @@
 
   import RadialAnnotator from '../../../../components/annotator/annotator.vue'
   import OtuRadial from '../../../../components/otu/otu.vue'
-  import TableComponent from './tables/table.vue'
+  import TaxonNamesTable from './tables/taxon_names_table.vue'
 
   export default {
     components: {
       RadialAnnotator,
-      TableComponent,
+      TaxonNamesTable,
       OtuRadial
     },
     props: {
