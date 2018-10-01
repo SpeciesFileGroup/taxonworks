@@ -1,18 +1,19 @@
 <template>
   <button
-      v-if="createdSourceID"
-      @click="remove"
-      type="button"
-      class="button normal-input button-delete">
-    Remove from project
-  </button>
-  <button
-      v-else
+      v-if="!createdSourceID"
       @click="create"
       type="button"
       class="button normal-input button-submit">
     Add to project
   </button>
+  <button
+      v-else
+      @click="remove"
+      type="button"
+      class="button normal-input button-delete">
+    Remove from project
+  </button>
+
 </template>
 
 <script>
@@ -40,7 +41,6 @@ export default {
   },
   methods: {
     create() {
-      
       this.$http.post('/project_sources.json', { project_source: this.project_source }).then(response => {
         this.createdSourceID = response.body.id
       })
