@@ -22,9 +22,10 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
           let(:specimen) { Specimen.create!(by: @user, project: @project) }
 
           before do
-            # can't use `a = specimen.otus << otu_test` because $user_id and $project_id don't exist.
-            TaxonDetermination.create!(otu: otu_test, biological_collection_object: specimen,
-                                       by:  @user, project: @project)
+            # can't use `a = specimen.otus << otu_test` because globals are (correctly) not set in this context
+            TaxonDetermination.create!(
+              otu: otu_test, biological_collection_object: specimen,
+              by:  @user, project: @project)
             visit(collection_objects_filter_task_path)
           end
 
