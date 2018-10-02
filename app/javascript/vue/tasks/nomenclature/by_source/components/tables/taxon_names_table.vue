@@ -26,6 +26,10 @@
       list: {
         type: Array,
         required: true
+      },
+      names: {
+        type: Array,
+        required: true
       }
     },
     methods: {
