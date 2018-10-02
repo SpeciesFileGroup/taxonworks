@@ -55,7 +55,8 @@ class DataAttribute < ApplicationRecord
   # @return [String]
   #   the predicate name
   def predicate_name
-    self.type == 'InternalAttribute' ?  predicate.name : import_predicate
+    # type == 'InternalAttribute' ? predicate.name : import_predicate
+    type.start_with?('Im') ? import_predicate : predicate.name
   end
 
 end

@@ -6,8 +6,9 @@
       <th>Otu</th>
     </tr>
     <otu-row-component
-        v-for="item in list"
-        :otu="item"/>
+      v-for="item in list"
+      :key="item.id"
+      :otu="item"/>
   </table>
 </template>
 

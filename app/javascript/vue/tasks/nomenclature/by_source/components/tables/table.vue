@@ -9,6 +9,7 @@
     </tr>
     <row-components 
       v-for="item in list"
+      :key="item.id"
       @delete="removeCitation"
       :citation="item"/>
   </table>  

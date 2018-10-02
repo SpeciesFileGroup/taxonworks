@@ -33,6 +33,13 @@ module Queries
       end
 
       # @return [ActiveRecord::Relation]
+      #   author matches start
+      def autocomplete_start_of_author
+        a = table[:cached_author_string].matches(query_string + '%')
+        base_query.where(a.to_sql).limit(8)
+      end
+
+      # @return [ActiveRecord::Relation]
       #   author matches partial string
       def autocomplete_partial_author
         a = table[:cached_author_string].matches('%' + query_string + '%')
@@ -162,6 +169,8 @@ module Queries
           autocomplete_exact_author_year_letter,
           autocomplete_exact_author_year,
           autocomplete_wildcard_author_exact_year,
+          autocomplete_exact_author,
+          autocomplete_start_of_author,  
           autocomplete_wildcard_anywhere_exact_year,
           autocomplete_ordered_wildcard_pieces_in_cached,
           autocomplete_cached_wildcard_anywhere,
