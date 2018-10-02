@@ -817,10 +817,11 @@ class GeographicItem < ApplicationRecord
     def distance_between(geographic_item_id1, geographic_item_id2)
       q1 = "ST_Distance(#{GeographicItem::GEOGRAPHY_SQL}, " \
                     "(#{select_geography_sql(geographic_item_id2)})) as distance"
-      q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance(?, (?)) as distance',
-                                                         GeographicItem::GEOGRAPHY_SQL,
-                                                         select_geography_sql(geographic_item_id2)])
-      GeographicItem.where(id: geographic_item_id1).pluck(q1).first
+      q2 = ActiveRecord::Base.send(
+        :sanitize_sql_array, ['ST_Distance(?, (?)) as distance',
+                              GeographicItem::GEOGRAPHY_SQL,
+                              select_geography_sql(geographic_item_id2)])
+      GeographicItem.where(id: geographic_item_id1).pluck(Arel.sql(q1)).first
     end
 
     # @param [RGeo::Point] point
