@@ -5,7 +5,12 @@ RSPEC_GEO_FACTORY = Gis::FACTORY
 shared_context 'stuff for complex geo tests' do
 
   # TODO: remove reference to $
-  begin # constructing user and project unless feature testing
+
+   # constructing user and project unless feature testing
+  # This code doesn't actually do this, since you can't tell
+  # when in the feature testing it's being called, and whether
+  # the feature test has a project/user named 1
+  begin
     let(:geo_user) {
       u = @user.nil? ? User.find(1) : @user
       $user_id = u.id
@@ -16,9 +21,17 @@ shared_context 'stuff for complex geo tests' do
       $project_id = p.id
       p
     }
-
   end
-  begin # conversion  of constants to 'let's
+
+  # Make code clean up after itself
+  after do
+    $user_id = nil
+    $project_id = nil
+    Current.user_id = nil
+    Current.project_id = nil
+  end
+
+  begin # conversion of constants to 'let's
 
     let(:simple_shapes) { {
       point:               'POINT(10 10 0)',
