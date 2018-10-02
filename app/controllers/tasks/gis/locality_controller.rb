@@ -32,9 +32,9 @@ class Tasks::Gis::LocalityController < ApplicationController
         shape_in            = params['drawn_area_shape']
         finding             = params['selection_object']
 
-        @collecting_events = GeographicItem.gather_selected_data(geographic_area_ids,
-                                                                 shape_in,
-                                                                 finding)
+        @collecting_events = GeographicItem.gather_geographic_area_or_shape_data(geographic_area_ids,
+                                                                                 shape_in,
+                                                                                 finding)
                                .order(:verbatim_locality)
         @drawing_modes     = 'active: polygon, circle'
       else
