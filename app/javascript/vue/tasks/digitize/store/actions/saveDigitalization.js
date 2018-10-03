@@ -12,7 +12,9 @@ export default function ({ commit, dispatch, state }) {
         if(!state.container) {
           if(state.collection_objects.length == 2) {
             dispatch(ActionNames.SaveContainer).then(() => {
-              dispatch(ActionNames.SaveContainerItem, coCreated)
+              state.collection_objects.forEach(co => {
+                dispatch(ActionNames.SaveContainerItem, co)
+              })
             })
           }
         }

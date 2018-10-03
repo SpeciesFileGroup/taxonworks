@@ -1,4 +1,5 @@
 import setContainer from './Container/SetContainer'
+import addContainerItem from './Container/AddContainerItem'
 import setPreferences from './setPreferences'
 import setPreparationType from './setPreparationType'
 
@@ -94,6 +95,7 @@ import setTaxonDeterminationRoles from './TaxonDetermination/setTaxonDeterminati
 
 const MutationNames = {
   SetContainer: 'setContainer',
+  AddContainerItem: 'addContainerItem',
   SetPreferences: 'setPreferences',
 
   ResetStore: 'resetStore',
@@ -191,6 +193,7 @@ const MutationNames = {
 
 const MutationFunctions = {
   [MutationNames.SetContainer]: setContainer,
+  [MutationNames.AddContainerItem]: addContainerItem,
   [MutationNames.SetPreferences]: setPreferences,
 
   [MutationNames.SetPreparationType]: setPreparationType,
