@@ -59,8 +59,9 @@ class ContainerItem < ApplicationRecord
   scope :not_containers, -> { where.not(contained_object_type: 'Container') }
   scope :containing_collection_objects, -> {where(contained_object_type: 'CollectionObject')}
 
+  # @params object [Container]
   def container=(object)
-    if object.metamorphosize.class.to_s == 'Container'
+    if object.metamorphosize.kind_of?(Container) # class.to_s == 'Container'
       if parent
         parent.contained_object = object
       else
@@ -72,18 +73,34 @@ class ContainerItem < ApplicationRecord
     end
   end
 
+  # @param value [a Container#id]
+  def container_id=(value)
+    c = Container.find(value)
+    if parent
+      parent.contained_object = c 
+    else
+      self.parent = ContainerItem.new(contained_object: c) 
+    end
+
+    parent.save! if !parent.new_record?
+    self.save! unless self.new_record?
+  end
+
   # @return [container]
   #   the container for this ContainerItem
   def container
     reload_parent.try(:contained_object) || Container.none
   end
 
+  # @return [GlobalID]
+  #   ! not a string
   def global_entity
     contained_object.to_global_id if contained_object.present?
   end
 
+  # @params entity [String, a global id]
   def global_entity=(entity)
-    contained_object = GlobalID::Locator.locate entity
+    self.contained_object = GlobalID::Locator.locate(entity)
   end
 
   protected
