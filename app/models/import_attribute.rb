@@ -1,5 +1,7 @@
-
 # The DataAttribute that has an externally referenced (and likely undefined) predicate.
+#
+# An ImportAttribute should (can) only be created during a batch import process, they are write once, read many.  
+# The values and predicates of _can not be edited_ after creation.  
 #
 # ImportAttributes are used to attach data to other TW data in cases where the user is unclear
 # as to the meaning of the related data.  For example, if a spreadsheet is batch imported it
@@ -25,17 +27,23 @@
 #  @some_collecting_event  "micro_habitat"   "north side of wet rock"
 #
 #
-#
 # @!attribute import_predicate
 #   @return [string]
 #   The predicate literal.  For example a column header.
 #
 #
 class ImportAttribute < DataAttribute
+  validates_absence_of :predicate
+  
   validates_presence_of :import_predicate
-  validates_uniqueness_of :value, scope: [:attribute_subject_id,
-                                          :attribute_subject_type,
-                                          :type,
-                                          :import_predicate,
-                                          :project_id]
+  validates_uniqueness_of :value, scope: [
+    :attribute_subject_id,
+    :attribute_subject_type,
+    :type,
+    :import_predicate,
+    :project_id]
+
+  def predicate_name
+    import_predicate
+  end
 end

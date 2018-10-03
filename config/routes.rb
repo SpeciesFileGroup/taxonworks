@@ -133,9 +133,6 @@ TaxonWorks::Application.routes.draw do
 
   resources :citations do # except: [:show]
     concerns [:data_routes]
-    collection do
-      get 'filter', defaults: {format: :json}
-    end
   end
 
   resources :confidences do # , except: [:edit, :show]
@@ -580,6 +577,7 @@ TaxonWorks::Application.routes.draw do
     resources :taxon_name_relationships, shallow: true, only: [:index], defaults: {format: :json}, param: :subject_taxon_name_id
 
     collection do
+      get :select_options, defaults: {format: :json}
       post :preview_simple_batch_load # should be get
       post :create_simple_batch_load
       get :ranks, {format: :json}
@@ -999,11 +997,29 @@ TaxonWorks::Application.routes.draw do
   scope :api, defaults: { format: :json }, constraints: { id: /\d+/ } do
     scope  '/v1' do
 
+      get '/otus',
+        to: 'otus#index'
+
+      get '/asserted_distributions',
+        to: 'asserted_distributions#index'
+
+      get '/biological_relationships',
+        to: 'biological_relationships#index'
+
+      get '/biological_associations',
+        to: 'biological_associations#index'
+
       get '/observation_matrices/:id/row',
         to: 'observation_matrices#row'
 
       get '/confidence_levels',
         to: 'confidence_levels#index'
+
+      get '/confidences',
+        to: 'confidences#index' 
+
+      get '/data_attributes',
+        to: 'data_attributes#index' 
 
       get '/taxon_names/:id',
         to: 'taxon_names#show'
@@ -1045,6 +1061,18 @@ TaxonWorks::Application.routes.draw do
 
       get '/character_states/:id/annotations',
         to: 'character_states#annotations'
+
+      # TODO: DRY
+      # Generate shallow routes for annotations based on model properties, like
+      # otu_citations GET /otus/:otu_id/citations(.:format) citations#index
+      ApplicationEnumeration.data_models.each do |m|
+        Shared::IsData::Annotation::ANNOTATION_TYPES.each do |t|
+          if m.send("has_#{t}?")
+            n = m.model_name
+            match "/#{n.route_key}/:#{n.param_key}_id/#{t}", to: "#{t}#index",  via: :get, constraints: {format: :json}, defaults: {format: :json}
+          end
+        end
+      end
 
     end
   end

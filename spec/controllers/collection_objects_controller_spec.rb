@@ -81,15 +81,15 @@ describe CollectionObjectsController, type: :controller do
       end
 
       context 'valid collection_object' do
-        before {get :show, params: {id: collection_object.to_param,
-                                    include: ['images'],
-                                    format: :json},
-                                    session: valid_session}
-        let (:data) { JSON.parse(response.body) }
+      # before {get :show, params: {id: collection_object.to_param,
+      #                             include: ['images'],
+      #                             format: :json},
+      #                             session: valid_session}
+      # let (:data) { JSON.parse(response.body) }
 
-        it 'returns a successful JSON response' do
-          expect(data['success']).to be true
-        end
+      # it 'returns a successful JSON response' do
+      #   expect(data['success']).to be true
+      # end
 
       # TODO: @tuckerjd this block doesn't belong in controller specs,
       # these are model expectations

@@ -1,48 +1,55 @@
 <%= form_for(@user) do |f| %>
+  <div class="field">
+    <%= f.label :name %>
+    <br>
+    <%= f.text_field :name %>
+  </div>
+
+  <div class="field">
+    <%= f.label :email %>
+    <br>
+    <%= f.text_field :email %>
+  </div>
+
+  <div class="field">
+    <%= f.label :password %>
+    <br>
+    <%= f.password_field :password, { :autocomplete => 'off' } %>
+  </div>
+
+  <div class="field">
+    <%= f.label :password_confirmation %>
+    <br>
+    <%= f.password_field :password_confirmation %>
+  </div>
+
+  <% if is_administrator? -%>
     <div class="field">
-      <%= f.label :name %>
+      <%= f.label :is_administrator %>
       <br>
-      <%= f.text_field :name %>
+      <%= f.check_box :is_administrator %>
     </div>
 
+  
     <div class="field">
-      <%= f.label :email %>
+      <%= f.label :is_flagged_for_password_reset %>
       <br>
-      <%= f.text_field :email %>
+      <% if @user.new_record? -%>
+        <%= f.check_box :is_flagged_for_password_reset, disabled: true, checked: true %> <br>
+        <em> All users created by administrators must make a password change request.</em>
+      <% else %> 
+        <%= f.check_box :is_flagged_for_password_reset %>
+      <% end %>
     </div>
+  <% end %>
 
-    <div class="field">
-      <%= f.label :password %>
-      <br>
-      <%= f.password_field :password, { :autocomplete => 'off' } %>
-    </div>
+  <div class="field">
+    <%= f.label :generate_new_api_access_token %>
+    <br>
+    <%= f.check_box :set_new_api_access_token %>
+  </div>
 
-    <div class="field">
-      <%= f.label :password_confirmation %>
-      <br>
-      <%= f.password_field :password_confirmation %>
-    </div>
-
-    <% if is_administrator? -%>
-        <div class="field">
-          <%= f.label :is_administrator %>
-          <br>
-          <%= f.check_box :is_administrator %>
-        </div>
-        <div class="field">
-          <%= f.label :is_flagged_for_password_reset %>
-          <br>
-          <%= f.check_box :is_flagged_for_password_reset %>
-        </div>
-    <% end %>
-
-    <div class="field">
-      <%= f.label :generate_new_api_access_token %>
-      <br>
-      <%= f.check_box :set_new_api_access_token %>
-    </div>
-
-    <div class="actions">
-      <%= f.submit %>
-    </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
 <% end %>

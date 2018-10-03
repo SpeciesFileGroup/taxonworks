@@ -2,10 +2,34 @@
   <div id="vue_new_matrix_task">
     <div class="flex-separate middle">
       <h1>{{ (matrix.id ? 'Edit' : 'New') }} matrix</h1>
-      <radial-annotator 
-        v-if="matrix.id"
-        type="annotations"
-        :global-id="matrix.global_id"/>
+      <div class="horizontal-left-content">
+        <ul class="context-menu">
+          <li>
+            <a 
+              target="blank" 
+              href="/otus/new">New Otu
+            </a>
+          </li>
+          <li>
+            <a 
+              target="blank" 
+              href="/tasks/descriptors/new_descriptor">Descriptor
+            </a>
+          </li>
+          <li>
+            <a
+              target="blank"
+              href="/tasks/accessions/comprehensive/index">Collection Object
+            </a>
+          </li>
+          <li>
+            <radial-annotator 
+              v-if="matrix.id"
+              type="annotations"
+              :global-id="matrix.global_id"/>
+          </li>
+        </ul>
+      </div>
     </div>
     <div class="flexbox horizontal-center-content align-start">
       <div class="cleft">

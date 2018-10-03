@@ -3,12 +3,8 @@ module Queries
 
     # !! does not inherit from base query
     class Filter 
-
-      # General annotator options handling 
-      # happens directly on the params as passed
-      # through to the controller, keep them
-      # together here
-      attr_accessor :options
+      include Concerns::Polymorphic
+      polymorphic_klass(::Confidence)
 
       # Params specific to Confidence 
 
@@ -20,18 +16,20 @@ module Queries
         @confidence_level_id = [params[:confidence_level_id]].flatten.compact
         @object_global_id = params[:object_global_id]
         @confidence_object_type = params[:confidence_object_type]
-        @options = params
+        set_polymorphic_ids(params)
       end
 
       # @return [ActiveRecord::Relation]
       def and_clauses
         clauses = [
-          Queries::Annotator.annotator_params(options, ::Confidence),
           matching_confidence_level_id,
           matching_confidence_object_type,
           matching_object,
+          matching_polymorphic_ids
         ].compact
 
+        return nil if clauses.empty? 
+        
         a = clauses.shift
         clauses.each do |b|
           a = a.and(b)
@@ -63,20 +61,20 @@ module Queries
 
       # @return [Arel::Node, nil]
       def matching_confidence_level_id
-        !confidence_level_id.empty? ? table[:confidence_level_id].eq_any(confidence_level_id)  : nil
+        !confidence_level_id.blank? ? table[:confidence_level_id].eq_any(confidence_level_id)  : nil
       end
 
       # @return [Arel::Node, nil]
       def matching_confidence_object_type
-        !confidence_object_type.empty? ? table[:confidence_object_type].eq(confidence_object_type)  : nil
+        !confidence_object_type.blank? ? table[:confidence_object_type].eq(confidence_object_type)  : nil
       end
 
       # @return [ActiveRecord::Relation]
       def all
         if a = and_clauses
-          ::Confidence.where(and_clauses)
+          ::Confidence.where(and_clauses).distinct
         else
-          ::Confidence.none
+          ::Confidence.all
         end
       end
 

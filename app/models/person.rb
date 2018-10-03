@@ -186,12 +186,13 @@ class Person < ApplicationRecord
           # rubocop:disable Rails/SaveBang
           Role.where(person_id: r_person.id).update(person: self) # update merge person's roles to old
           # rubocop:enable Rails/SaveBang
-          l_person_hash = self.annotations_hash
+          l_person_hash = annotations_hash
+          
           unless r_person.first_name.blank?
-            if self.first_name.blank?
-              self.update(first_name: r_person.first_name)
+            if first_name.blank?
+              update(first_name: r_person.first_name)
             else
-              if self.first_name != r_person.first_name
+              if first_name != r_person.first_name
                 # create a first_name alternate_value of the r_person first name
                 skip_av = false
                 av_list = l_person_hash['alternate values']
@@ -207,13 +208,15 @@ class Person < ApplicationRecord
                   end
                 end
 
-                AlternateValue::AlternateSpelling.create!(alternate_value_object_type:      'Person',
-                                                          value:                            r_person.first_name,
-                                                          alternate_value_object_attribute: 'first_name',
-                                                          alternate_value_object_id:        id) unless skip_av
+                AlternateValue::AlternateSpelling.create!(
+                  alternate_value_object_type:      'Person',
+                  value:                            r_person.first_name,
+                  alternate_value_object_attribute: 'first_name',
+                  alternate_value_object_id:        id) unless skip_av
               end
             end
           end
+
           unless r_person.last_name.blank?
             if self.last_name.blank?
               self.update(last_name: r_person.last_name)
@@ -242,6 +245,7 @@ class Person < ApplicationRecord
               end
             end
           end
+
           r_person.annotations_hash.each do |r_kee, r_objects|
             r_objects.each do |r_o|
               skip   = false
@@ -290,59 +294,65 @@ class Person < ApplicationRecord
                 skip
               end
               unless skip
-                # r_err                = r_o
                 r_o.annotated_object = self
                 r_o.save!
-                # r_o
               end
             end
           end
+
           # TODO: handle prefix and suffix
-          if self.prefix.blank?
-            self.prefix = r_person.prefix
+          if prefix.blank?
+            write_attribute(:prefix, r_person.prefix)
           else
             unless r_person.prefix.blank?
               # What to do when both have some content?
             end
           end
-          if self.suffix.blank?
+
+          if suffix.blank?
             self.suffix = r_person.suffix
           else
             unless r_person.suffix.blank?
               # What to do when both have some content?
             end
           end
+
           # TODO: handle years attributes
-          if self.year_born.nil?
+          if year_born.nil?
             self.year_born = r_person.year_born
           else
             unless r_person.year_born.nil?
               # What to do when both have some (different) numbers?
             end
           end
-          if self.year_died.nil?
+
+          if year_died.nil?
             self.year_died = r_person.year_died
           else
             unless r_person.year_died.nil?
               # What to do when both have some (different) numbers?
             end
           end
+
           if r_person.year_active_start # if not, r_person has nothing to contribute
             if self.year_active_start.nil? || (self.year_active_start > r_person.year_active_start)
               self.year_active_start = r_person.year_active_start
             end
           end
+
           if r_person.year_active_end # if not, r_person has nothing to contribute
             if self.year_active_end.nil? || (self.year_active_end < r_person.year_active_end)
               self.year_active_end = r_person.year_active_end
             end
           end
+
           # update type, if necesssary
           if self.type.include?('Unv')
             unless unvetted
               self.update(type: 'Person::Vetted')
             end
           end
+
           # last thing to do in the transaction...
           self.save! unless self.persisted?
         end
@@ -413,8 +423,11 @@ class Person < ApplicationRecord
 
   # @return [Ignored]
   def not_active_after_death
-    errors.add(:year_active_start, 'is older than year of death') if year_active_start && year_died && year_active_start > year_died
-    errors.add(:year_active_end, 'is older than year of death') if year_active_end && year_died && year_active_end > year_died
+    unless is_editor? || is_author?
+      errors.add(:year_active_start, 'is older than year of death') if year_active_start && year_died && year_active_start > year_died
+      errors.add(:year_active_end, 'is older than year of death') if year_active_end && year_died && year_active_end > year_died
+    end
+    true 
   end
 
   # @return [Ignored]

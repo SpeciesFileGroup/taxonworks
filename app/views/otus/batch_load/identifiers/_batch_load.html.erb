@@ -8,7 +8,12 @@
       <p> Creates a new OTU. </p>
       <ul>
         <li>A tab-delimited, UTF-8 compatible text file is required.</li>
-        <li>Column headers are name and uri (see <%= link_to('sample template', asset_path('batch_load_templates/otus/otus_identifiers_batch_load.tab'), target: '_blank') -%>).</li>
+        <li>Column headers are name and uri
+          (see <%= link_to('sample template',
+                           asset_path('batch_load_templates/otus/otus_identifiers_batch_load.tab',
+                                      skip_pipeline: true),
+                           target: '_blank') -%>).
+        </li>
         <li>Multiple uploads of the same data will not be created.</li>
         <li>Identifier Global::Uri will be attached with the value of the "uri" column if not blank.</li>
         <li>There is currently some|no size limit to the file being loaded but this may change in the future.</li>
@@ -18,18 +23,34 @@
     <div class="item item2 one_third_width">
       <h3> Example file </h3>
 
-      <p> A tab delimited formatted file, with "name" column being the OTU name and "uri" column being the value of the identifier being attached.
-        In the example a ',' is a tab. View sample file template.</p>
+      <p> A tab delimited formatted file, with "name" column being the OTU name and "uri" column being the value of the
+        identifier being attached.</p>
 
-      <pre class="fixed_width_font">
-        name uri
-        Amerizus (Amerizus) oblonguloides,http:/bembidion.info:taxon-concepts:000010
-        Lionepha,http:/bembidion.info:taxon-concepts:000016</pre>
+       <pre class="fixed_width_font">
+            <table border="1">
+              <tr>
+                <th>name</th>
+                <th>uri</th>
+              </tr>
+              <tr>
+                <td>Amerizus (Amerizus) oblonguloides</td>
+                <td>http:/bembidion.info:taxon-concepts:000010 </td>
+              </tr>
+              <tr>
+                <td>Lionepha</td>
+                <td>http:/bembidion.info:taxon-concepts:000016 </td>
+              </tr>
+            </table>
+       </pre>
     </div>
+
+
 
     <div class="item item3">
       <h3> Go! </h3>
-      <%= render partial: '/otus/batch_load/identifiers/form', locals: {url: preview_identifiers_batch_load_otus_path, submit: :preview} -%>
+      <%= render partial: '/otus/batch_load/identifiers/form',
+                 locals: {url: preview_identifiers_batch_load_otus_path,
+                          submit: :preview} -%>
     </div>
   </div>
 </div>

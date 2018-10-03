@@ -4,7 +4,7 @@ module Features
 
     def sign_in_with(email, password)
       visit signin_path
-      fill_in 'session_email', with: email, wait: 8, id: 'session_email'
+      fill_in 'session_email', with: email, wait: 10, id: 'session_email'
       fill_in 'session_password', with: password, wait: 8, id: 'session_password'
       click_button 'sign_in'
       find_link('sign_out')  # TODO: check for Capybara bug fix down the road?

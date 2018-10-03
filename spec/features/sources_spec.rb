@@ -164,7 +164,7 @@ describe 'Sources', type: :feature, group: :sources do
       fill_in('Year', with: '1920')
       fill_autocomplete('serial_id_for_source', with: 'My Serial', select: s.id) # fill out Serial autocomplete with 'My Serial'
       click_button('Create Source') # when I click the 'Create Source' button
-      expect(page).to have_content("Source by 'Wombat, H.P.' was successfully created.")
+      expect(page).to have_content("Source::Bibtex successfully created.")
     end
 
     specify 'can create a new Verbatim source' do
@@ -185,7 +185,7 @@ describe 'Sources', type: :feature, group: :sources do
       fill_in('source_verbatim', with: 'Eades & Deem. 2008. Case 3429. CHARILAIDAE Dirsh, 1953 (Insecta, Orthoptera)')
       click_button('Create Source') # when I click the 'Create Source' button
       # I get the message "Source by  'Eades & Deem. 2008. Case 3429. CHARILAIDAE Dirsh, 1953 (Insecta, Orthoptera)' was successfully created."
-      expect(page).to have_content("Source 'Eades & Deem. 2008. Case 3429. CHARILAIDAE Dirsh, 1953 (Insecta, Orthoptera)' was successfully created.")
+      expect(page).to have_content("Source::Verbatim successfully created.")
     end
 
   end

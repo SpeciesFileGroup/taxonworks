@@ -142,7 +142,7 @@ class Protonym < TaxonName
     valid_name = get_valid_taxon_name
     return nil unless valid_name.rank_string !=~/Species/
     descendants_and_self = valid_name.descendants + [self] + self.combinations
-    relationships        = TaxonNameRelationship.where_object_in_taxon_names(descendants_and_self).with_two_type_bases('TaxonNameRelationship::OriginalCombination::OriginalGenus', 'TaxonNameRelationship::Combination::Genus')
+    relationships = TaxonNameRelationship.where_object_in_taxon_names(descendants_and_self).with_two_type_bases('TaxonNameRelationship::OriginalCombination::OriginalGenus', 'TaxonNameRelationship::Combination::Genus')
     (relationships.collect { |r| r.subject_taxon_name.name } + [self.ancestor_at_rank('genus').try(:name)]).uniq
   end
 
@@ -552,14 +552,6 @@ class Protonym < TaxonName
               g1 = true
             when /OriginalSubgenus/ # 'original subgenus'
               subgenus += '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-  #          when /OriginalSection/ # 'original section'
-  #            subgenus += 'sect. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-  #          when /OriginalSubsection/ #'original subsection'
-  #            subgenus += 'subsect. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-  #          when /OriginalSeries/ # 'original series'
-  #            subgenus += 'ser. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-  #          when /OriginalSubseries/ #  'original subseries'
-  #            subgenus += 'subser. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
             when /OriginalSpecies/ #  'original species'
               species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
               s1 = true

@@ -2,7 +2,7 @@ FactoryBot.define do
   factory :sequence_relationship, traits: [:housekeeping] do
     factory :valid_sequence_relationship do
       association :subject_sequence, factory: :valid_sequence
-      type SequenceRelationship::ReversePrimer
+      type { SequenceRelationship::ReversePrimer }
       association :object_sequence, factory: :valid_sequence
     end
   end

@@ -40,6 +40,12 @@ describe Source::Human, type: :model, group: [:people, :sources] do
     end
   end
 
+  specify '#person_ids 1' do
+    sh = Source::Human.new(person_ids: [tom.id, franklin.id])
+    expect(sh.save!).to be_truthy
+    expect(sh.cached).to eq(tom.last_name + ' & ' + franklin.last_name)
+  end
+
   context '#cached'  do
     before {source_human.people.push tom }
     specify '#cached is set before_save' do
@@ -86,5 +92,37 @@ describe Source::Human, type: :model, group: [:people, :sources] do
       expect(source_human.people.third.first_name).to eq('Franklin')
     end
   end
+
+  context 'querying' do
+    let!(:sh2) {
+      a = Source::Human.new
+      a.people << tom
+      a.save
+      a
+    }
+
+    before do 
+      source_human.people << tom
+      source_human.people << sue
+      source_human.people << franklin
+      source_human.save
+    end 
+ 
+    specify '.by_person 1' do
+      expect(Source::Human.by_person([tom.id, sue.id, franklin.id])).to contain_exactly(source_human)
+    end
+
+    specify '.by_person 2' do
+      expect(Source::Human.by_person([tom.id])).to contain_exactly(sh2)
+    end
+
+    specify '.by_person 3' do
+      source_human.people << FactoryBot.create(:valid_person) 
+      source_human.save!
+      expect(Source::Human.by_person([tom.id, sue.id, franklin.id])).to contain_exactly()
+    end
+
+  end
+
 
 end

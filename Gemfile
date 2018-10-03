@@ -16,7 +16,7 @@ gem 'redis', '~> 4.0.0'
 
 # System
 gem 'thor', '~> 0.19.4' # See https://github.com/rails/rails/issues/27229
-gem 'rubyzip', '~> 1.2.1'
+gem 'rubyzip', '~> 1.2.2'
 gem 'daemons', '~> 1.2.6'
 gem 'tzinfo-data', '~> 1.2018.4' 
 gem 'psych', '~> 3.0.2' 
@@ -61,7 +61,7 @@ gem 'jquery-rails', '~> 4.3.3'
 gem 'jquery-ui-rails', '~> 6.0.1'
 gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
-gem 'turbolinks', '~> 5.1.0'
+gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
 
 # BibTeX handling
@@ -74,17 +74,18 @@ gem 'ref2bibtex', '~> 0.2.2'
 gem 'pdf-reader', '~> 2.1'
 
 # UI/UX
-gem 'chartkick', '~> 2.3.2'
+gem 'chartkick', '~> 3.0.1'
 gem 'groupdate', '~> 4.0.1'
 gem 'dropzonejs-rails', '~> 0.8.1'
 gem 'kaminari', '~> 1.1.1'
 gem 'best_in_place', '~> 3.1.1'
 gem 'sass-rails', '~> 5.0.7' # auto compresses CSS
 gem 'redcarpet', '~> 3.4'
+gem 'sass', '3.5.7'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '0.4.0'
-gem 'sqed', '0.4.1'
+gem 'sqed', '0.4.4'
 gem 'dwc-archive', '~> 0.9.11'
 gem 'biodiversity', '~> 3.5.0'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
@@ -102,12 +103,12 @@ gem 'logic_tools'
 gem 'capistrano-npm', '~> 1.0.2'
 
 group :test, :development do
-  gem 'faker', '~> 1.8.7'
+  gem 'faker', '~> 1.9.1'
   gem 'rspec-rails', '~> 3.6'
   gem 'rspec-activemodel-mocks', '~> 1.0.3'
 #  gem 'inch', '~> 0.7.1', require: false, # security issue
   gem 'byebug', '~> 10.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
-  gem 'factory_bot_rails', '~> 4.10.0'
+  gem 'factory_bot_rails', '~> 4.11.0'
   gem 'selenium-webdriver', '~> 3.14'
   gem 'geckodriver-helper', '~> 0.21.0'
   gem 'prawn', '~> 2.2.2'
@@ -120,9 +121,10 @@ group :development do
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.4'
   gem 'guard-rspec', '~> 4.7.3', require: false
-  gem 'parallel_tests', '~> 2.22.0', require: false
-  gem 'web-console', '~> 3.6.2'
+  gem 'parallel_tests', '~> 2.22.1', require: false
+  gem 'web-console', '~> 3.7.0'
   gem 'rubocop', '~> 0.58.2'
+  gem 'rubocop-rspec'
   gem 'brakeman', '~> 4.3.0', require: false
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'
 end
@@ -134,7 +136,7 @@ end
 group :test do
   gem 'rspec', '~> 3.6'
   gem 'coveralls', '~> 0.8.21', require: false
-  gem 'capybara', '~> 3.5.0'
+  gem 'capybara', '~> 3.7.0'
   gem 'timecop', '~> 0.9.1'
   gem 'webmock', '~> 3.4.1'
   gem 'vcr', '~> 4.0.0'

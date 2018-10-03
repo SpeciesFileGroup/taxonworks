@@ -2,7 +2,7 @@ require 'fileutils'
 
 ### rake tw:project_import:access3i:import_all data_directory=/Users/proceps/src/sf/import/3i/TXT/ no_transaction=true
 ### rake tw:db:restore backup_directory=/Users/proceps/src/sf/import/3i/pg_dumps/ file=localhost_2018-05-15_200847UTC.dump
-# ./bin/webpack-dev-server
+# ./bin/webpack-dev-serverrake tw:project_import:access3i:import_all data_directory=/Users/proceps/src/sf/import/3i/TXT/ no_transaction=true
 
 # clean dump "localhost_2018-08-06_190510UTC.dump"
 # 3i + odonata dump "localhost_2018-08-14_171558UTC.dump"

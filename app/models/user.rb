@@ -97,7 +97,7 @@
 # @!attribute preferences [JSON] 
 #   @return [true, false]
 #   Only used for when .new_record? is true. If true assigns creator and updater as self.
-# 
+#
 #
 class User < ApplicationRecord
   include Housekeeping::Users
@@ -166,8 +166,8 @@ class User < ApplicationRecord
     case user.class.name
       when 'String'
         # search by name or email
-        ut = User.arel_table
-        c1 = ut[:name].eq(user).or(ut[:email].eq(user.downcase)).to_sql
+        ut     = User.arel_table
+        c1     = ut[:name].eq(user).or(ut[:email].eq(user.downcase)).to_sql
         t_user = User.where(c1).first
         if t_user.present?
           user_id = t_user.id

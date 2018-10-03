@@ -12,7 +12,8 @@ class OtusController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @otus = Otu.where(filter_params).with_project_id(sessions_current_project_id)
+        @otus = Queries::Otu::Filter.new(filter_params).all
+          .where(project_id: sessions_current_project_id).page(params[:page]).per(500)
       }
     end
   end
@@ -20,8 +21,6 @@ class OtusController < ApplicationController
   # GET /otus/1
   # GET /otus/1.json
   def show
-    # see app/views/otus/show.html.erb
-    # see app/views/otus/show.json.jbuilder
   end
 
   # GET /otus/new
@@ -31,7 +30,6 @@ class OtusController < ApplicationController
 
   # GET /otus/1/edit
   def edit
-    # see app/views/otus/edit.html.erb
   end
 
   def list
@@ -46,7 +44,7 @@ class OtusController < ApplicationController
     respond_to do |format|
       if @otu.save
         format.html { redirect_to @otu,
-                                  notice: "Otu '#{@otu.name}' was successfully created." }
+                      notice: "Otu '#{@otu.name}' was successfully created." }
         format.json { render action: :show, status: :created, location: @otu }
       else
         format.html { render action: 'new' }
@@ -234,15 +232,23 @@ class OtusController < ApplicationController
   end
 
   def batch_params
-    params.permit(:name, :file, :import_level, files: [])
-      .merge(user_id:    sessions_current_user_id,
-             project_id: sessions_current_project_id)
+    params.permit(:name, :file, :import_level,
+                  :create_new_otu, :source_id, :type_select, :create_new_predicate,
+                  files: [])
+      .merge(
+        user_id: sessions_current_user_id,
+        project_id: sessions_current_project_id)
       .to_h
       .symbolize_keys
   end
 
   def filter_params
-    params.permit(:taxon_name_id)
+    params.permit(
+      :taxon_name_id, :otu_id,
+      biological_association_ids: [], taxon_name_ids: [], otu_ids: [],
+      taxon_name_relationship_ids: [],taxon_name_classification_ids: [],
+      asserted_distribution_ids: []
+    )
   end
 
   # rubocop:disable Style/StringHashKeys

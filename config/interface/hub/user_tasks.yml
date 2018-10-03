@@ -340,6 +340,14 @@ uniquify_people_task:
     - nomenclature
   status: prototype
   description: 'Find and merge redundant or duplicated people, e.g., from import.'
+index_individual_bibtex_source_task:
+  hub: true
+  name: 'New source from BibTeX'
+  related:
+  categories:
+    - source 
+  status: prototype
+  description: 'Parse a captured BibTeX string into a new source'
 comprehensive_collection_object_task:
   hub: true
   name: 'Comprehensive collection object form'
@@ -349,13 +357,3 @@ comprehensive_collection_object_task:
     - collection_object
   status: prototype
   description: 'An all-in-one interface for digitizing collection objects.'
-index_individual_bibtex_source_task:
-  hub: true
-  name: 'New source from BibTeX'
-  related:
-  categories:
-    - source 
-  status: prototype
-  description: 'Parse a captured BibTeX string into a new source'
-
-

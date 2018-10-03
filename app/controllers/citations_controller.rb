@@ -11,17 +11,11 @@ class CitationsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @citations = Citation.where(project_id: sessions_current_project_id)
-          .where(Queries::Annotator::polymorphic_params(params, Citation))
+        @citations = Queries::Citation::Filter.new(filter_params).all.includes(:source)
+          .where(project_id: sessions_current_project_id).order(:source_id, :pages)
+          .page(params[:page]).per(500)
       }
     end
-  end
-
-  # GET filter(/citation_object_type/:citation_object_type)(/citation_object_id/:citation_object_id)(/source_id/:source_id)
-  # JSON only
-  def filter
-    @citations = Citation.where(filter_params)
-    render '/citations/index'
   end
 
   def new
@@ -48,11 +42,11 @@ class CitationsController < ApplicationController
     @citation = Citation.new(citation_params)
     respond_to do |format|
       if @citation.save
-        format.html { redirect_to url_for(@citation.citation_object.metamorphosize), notice: 'Citation was successfully created.' }
-        format.json { render :show, status: :created, location: @citation }
+        format.html {redirect_to url_for(@citation.citation_object.metamorphosize), notice: 'Citation was successfully created.'}
+        format.json {render :show, status: :created, location: @citation}
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation was NOT successfully created.')}
-        format.json { render json: @citation.errors, status: :unprocessable_entity }
+        format.json {render json: @citation.errors, status: :unprocessable_entity}
       end
     end
   end
@@ -62,11 +56,11 @@ class CitationsController < ApplicationController
   def update
     respond_to do |format|
       if @citation.update(citation_params)
-        format.html { redirect_to url_for(@citation.citation_object.metamorphosize), notice: 'Citation was successfully updated.' }
-        format.json { render :show, location: @citation }
+        format.html {redirect_to url_for(@citation.citation_object.metamorphosize), notice: 'Citation was successfully updated.'}
+        format.json {render :show, location: @citation}
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation was NOT successfully updated.')}
-        format.json { render json: @citation.errors, status: :unprocessable_entity }
+        format.json {render json: @citation.errors, status: :unprocessable_entity}
       end
     end
   end
@@ -76,8 +70,13 @@ class CitationsController < ApplicationController
   def destroy
     @citation.destroy
     respond_to do |format|
-      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation was successfully destroyed.')}
-      format.json { head :no_content }
+      if @citation.destroyed?
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation was successfully destroyed.')}
+        format.json {head :no_content}
+      else
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation was not destroyed, ' + errors.messages)}
+        format.json {render json: @citation.errors, status: :unprocessable_entity}
+      end
     end
   end
 
@@ -117,7 +116,10 @@ class CitationsController < ApplicationController
   private
 
   def filter_params
-    params.permit(:citation_object_type, :citation_object_id, :source_id).merge(project_id: sessions_current_project_id)
+    params.permit(
+        :citation_object_type, :citation_object_id, :source_id,
+        Citation.related_foreign_keys.map(&:to_sym)
+    ).merge(project_id: sessions_current_project_id)
   end
 
   def set_citation
@@ -126,13 +128,13 @@ class CitationsController < ApplicationController
 
   def citation_params
     params.require(:citation).permit(
-      :citation_object_type, :citation_object_id, :source_id, :pages, :is_original,
-      :annotated_global_entity,
-      citation_topics_attributes: [
-        :id, :_destroy, :pages, :topic_id,
-        topic_attributes: [:id, :_destroy, :name, :definition]
-      ],
-      topics_attributes: [:name, :definition]
+        :citation_object_type, :citation_object_id, :source_id, :pages, :is_original,
+        :annotated_global_entity,
+        citation_topics_attributes: [
+            :id, :_destroy, :pages, :topic_id,
+            topic_attributes: [:id, :_destroy, :name, :definition]
+        ],
+        topics_attributes: [:name, :definition]
     )
   end
 end

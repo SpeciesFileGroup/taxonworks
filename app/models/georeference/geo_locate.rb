@@ -3,9 +3,10 @@
 class Georeference::GeoLocate < Georeference
   attr_accessor :api_response, :iframe_response
 
-  URI_HOST       = 'www.museum.tulane.edu'.freeze
-  URI_PATH       = '/webservices/geolocatesvcv2/glcwrap.aspx?'.freeze
-  URI_EMBED_PATH = '/geolocate/web/webgeoreflight.aspx?'.freeze
+  API_HOST       = 'www.museum.tulane.edu'.freeze
+  API_PATH       = '/webservices/geolocatesvcv2/glcwrap.aspx?'.freeze
+  EMBED_PATH     = '/web/webgeoreflight.aspx?'.freeze
+  EMBED_HOST     = 'www.geo-locate.org'.freeze
 
   # @param [Response] response
   # @return [RGeo object]
@@ -185,7 +186,7 @@ class Georeference::GeoLocate < Georeference
       'RestrictAdmin' => 'false',
       'BG'            => 'false',
       'LanguageIndex' => '0',
-      'gc'            => 'Tester'
+      'gc'            => 'TaxonWorks'
     }.freeze
     #rubocop:enable Style/StringHashKeys
 
@@ -205,8 +206,7 @@ class Georeference::GeoLocate < Georeference
     def build_param_string
       # @request_param_string ||= @request_params.collect { |key, value| "#{key}=#{value}" }.join('&')
       ga                     = request_params_hash
-      params_string          = 'http://' + URI_HOST +
-        URI_EMBED_PATH +
+      params_string          = 'http://' + EMBED_HOST + EMBED_PATH +
         "country=#{ga['country']}&state=#{ga['state']}&county=#{ga['county']}&locality=#{ga['locality']}&points=" \
         "#{ga['Latitude']}|#{ga['Longitude']}|#{ga['Placename']}|#{ga['Score']}|#{ga['Uncertainty']}" \
         "&georef=run|#{ga['H20']}|#{ga['HwyX']}|#{ga['Uncert']}|#{ga['Poly']}|#{ga['DisplacePoly']}|" \
@@ -263,7 +263,7 @@ class Georeference::GeoLocate < Georeference
     # @return [String] api request string.
     def request_string
       build_param_string
-      URI_PATH + @request_param_string
+      API_PATH + @request_param_string
     end
 
     # @return [Boolean] true if request was successful
@@ -282,7 +282,7 @@ class Georeference::GeoLocate < Georeference
 
     # @param [JSON object] request
     def initialize(request)
-      @result           = JSON.parse(call_api(Georeference::GeoLocate::URI_HOST, request))
+      @result           = JSON.parse(call_api(Georeference::GeoLocate::API_HOST, request))
       request.succeeded = true if @result['numResults'].to_i == 1
     end
 
@@ -305,7 +305,8 @@ class Georeference::GeoLocate < Georeference
 
     protected
 
-    # @param [String, String] host domain name, request string.
+    # @param [String] host domain name
+    # @param [String] request string.
     # @return [HTTP object]
     def call_api(host, request)
       Net::HTTP.get(host, request.request_string)

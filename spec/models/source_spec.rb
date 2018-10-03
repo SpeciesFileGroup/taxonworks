@@ -29,25 +29,61 @@ describe Source, type: :model, group: :sources do
 
   # needs VCR
   context '#new_from_citation' do
-    let(:citation) { 'Yoder, M. J., A. A. Valerio, A. Polaszek, L. Masner, and N. F. Johnson. 2009. Revision of Scelio pulchripennis - group species (Hymenoptera, Platygastroidea, Platygastridae). ZooKeys 20:53-118.' }
+    context 'from citation text' do
+      let(:citation) { 'Yoder, M. J., A. A. Valerio, A. Polaszek, L. Masner, and N. F. Johnson. 2009. Revision of Scelio pulchripennis - group species (Hymenoptera, Platygastroidea, Platygastridae). ZooKeys 20:53-118.' }
 
-    specify 'when citation is < 5 characters false is returned' do
-      VCR.use_cassette('source_citation_abc') {
-        expect(Source.new_from_citation(citation: 'ABC')).to eq(false)
-      }
+      specify 'when citation is < 6 characters false is returned' do
+        VCR.use_cassette('source_citation_abc') {
+          expect(Source.new_from_citation(citation: 'ABC')).to eq(false)
+        }
+      end
+
+      specify 'when citation is > than 5 characters but unresolvable a Source::Verbatim instance is returned' do
+        VCR.use_cassette('source_citation_xyz') {
+          expect(Source.new_from_citation(citation: 'ABCDE XYZ').class).to eq(Source::Verbatim)
+        }
+      end
+
+      specify 'when citation is resolvable a Source::Bibtex instance is returned' do
+        VCR.use_cassette('source_citation_polaszek') {
+          s = Source.new_from_citation(citation: citation)
+          expect(s.class).to eq(Source::Bibtex)
+        }
+      end
     end
 
-    specify 'when citation is > than 5 characters but unresolvable a Source::Verbatim instance is returned' do
-      VCR.use_cassette('source_citation_xyz') {
-        expect(Source.new_from_citation(citation: 'ABCDE XYZ').class).to eq(Source::Verbatim)
-      }
-    end
+    context 'from DOI text' do
+      let(:naked_doi) {'10.3897/zookeys.20.205'}
+      let(:https_doi) {'https://doi.org/' + naked_doi}
+      let(:http_doi) {'http://dx.doi.org/' + naked_doi}
 
-    specify 'when citation is resolvable a Source::Bibtex instance is returned' do
-      VCR.use_cassette('source_citation_polaszek') {
-        s = Source.new_from_citation(citation: citation)
-        expect(s.class).to eq(Source::Bibtex)
-      }
+      specify 'some stupid string' do
+        VCR.use_cassette('source_from_some_stupid_doi') do
+          s = Source.new_from_citation(citation: 'Some.stupid/string')
+          expect(s.class).to eq(Source::Verbatim)
+        end
+      end
+
+      specify 'naked_doi' do
+        VCR.use_cassette('source_from_naked_doi') do
+          s = Source.new_from_citation(citation: naked_doi)
+          expect(s.class).to eq(Source::Bibtex)
+        end
+      end
+
+      specify 'https' do
+        VCR.use_cassette('source_from_https_doi') do
+          s = Source.new_from_citation(citation: https_doi)
+          expect(s.class).to eq(Source::Bibtex)
+        end
+      end
+
+      specify 'http' do
+        VCR.use_cassette('source_from_http_doi') do
+          s = Source.new_from_citation(citation: http_doi)
+          expect(s.class).to eq(Source::Bibtex)
+        end
+      end
     end
   end
 
@@ -55,7 +91,7 @@ describe Source, type: :model, group: :sources do
   context '#new_from_doi' do
     let(:doi) { 'http://dx.doi.org/10.3897/zookeys.20.205' }
 
-    specify 'when doi is not provide false' do
+    specify 'when doi is not provided false is returned' do
       expect(Source.new_from_doi()).to eq(false)
     end
 
