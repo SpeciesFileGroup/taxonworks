@@ -47,23 +47,19 @@
         this.$http.get('/citations.json?citation_object_type=TaxonName&source_id=' + this.sourceID).then(response => {
           // build the tabular list, extracting the
           this.taxon_names_cites_list = response.body;
+          this.$emit("taxon_names_cites", this.taxon_names_cites_list)
         });
-        let citation;
-        for (citation in this.taxon_names_cites_list) {
-          this.getNameData(this.taxon_names_cites_list[citation].id)
-        }
-        this.$emit("taxon_names_cites", this.taxon_names_cites_list)
       },
       addToList(citation) {
         this.taxon_names_cites_list.push(citation);
         this.$emit("taxon_names_cites", this.taxon_names_cites_list)
       },
-      getNameData(id) {
-        // let id = this.taxon_names_cites_list[citation].id
-        this.$http.get('/taxon_names/' + id + '.json').then(response => {
-          this.taxon_names_list.push(response.body)
-        });
-      }
+      // getNameData(id) {
+      //   // let id = this.taxon_names_cites_list[citation].id
+      //   this.$http.get('/taxon_names/' + id + '.json').then(response => {
+      //     this.taxon_names_list.push(response.body)
+      //   });
+      // }
     },
   }
 </script>

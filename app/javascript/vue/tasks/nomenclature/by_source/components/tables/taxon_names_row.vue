@@ -8,7 +8,7 @@
           @input="changePage"
           v-model="citation.pages">
     </td>
-    <td><a v-html="citation.citation_object.type + ' ' + citation.citation_object.object_tag" @click="showObject()"/>
+    <td><span><a v-html="citation.citation_object.object_tag" @click="showObject()"/> {{ legend }} </span>
     </td>
     <td>
       <radial-annotator :global-id="citation.citation_object.global_id"/>
@@ -40,15 +40,39 @@
     },
     data() {
       return {
+        // legend: 'invalid',
         pages: undefined,
         autoSave: undefined,
         time: 3000
+      }
+    },
+    computed: {
+      legend() {
+        return this.getNameData()
       }
     },
     methods: {
       showObject() {
         // window.open(this.citation.citation_object.object_url, '_blank');
         window.open('/tasks/nomenclature/browse/' + this.citation.citation_object_id, '_blank');
+      },
+      getNameData() {
+        return new Promise((resolve) => {
+          let legend = 'invalid';
+          let id = this.citation.citation_object_id;
+          this.$http.get('/taxon_names/' + id + '.json').then(response => {
+            let taxon = response.body;
+            legend = ' ' + taxon.rank;
+            let invalid = (taxon.id != taxon.cached_valid_taxon_name_id);
+            if (invalid && (taxon.type == 'Combination')) {
+              legend = ' combination';
+            }
+            let authorYear = (taxon.cached_author_year == null) ? ' ()' : ' ' + taxon.cached_author_year;
+            legend = authorYear + legend;
+            // this.legend = legend;
+            return resolve(response.body);
+          });
+        })
       },
       changePage() {
         let that = this;
