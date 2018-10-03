@@ -15,7 +15,7 @@ module Shared::Containable
     has_one :container, through: :parent_container_item, source: :contained_object, source_type: 'Container'
   end
 
-  # what has been put in contained_in might be a container, or the id of a container:
+  # What has been put in contained_in might be a container, or the id of a container:
   # convert an id to a container, and put self into that container
   def contain
     c = nil
