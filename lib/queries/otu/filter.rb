@@ -143,6 +143,7 @@ module Queries
 
       otu_scope = otu_co.merge(otu_ad)
       # alternate: Otus.joins(AD).where(AD.GA.GI IN GA.GI || <user polygon>)
+      otu_scope
     end
 
     # @return [Scope]
@@ -160,6 +161,7 @@ module Queries
 
       otu_scope = otu_co.merge(otu_ad)
       # alternate: Otus.joins(AD).where(AD.GA.GI IN GA.GI || <user polygon>)
+      otu_scope
     end
 
     # @return [Scope]

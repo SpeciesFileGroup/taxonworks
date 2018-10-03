@@ -41,7 +41,7 @@ class AssertedDistribution < ApplicationRecord
   belongs_to :otu, inverse_of: :asserted_distributions
   belongs_to :geographic_area, inverse_of: :asserted_distributions
 
-  has_one :geographic_item, through: :geographic_area, source: :default_geographic_item
+  has_many :geographic_items, through: :geographic_area
 
   accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank? }
 
@@ -102,6 +102,10 @@ class AssertedDistribution < ApplicationRecord
   #   see citable.rb
   def requires_citation?
     true
+  end
+
+  def geographic_item
+    geographic_area.default_geographic_item
   end
 
   protected
