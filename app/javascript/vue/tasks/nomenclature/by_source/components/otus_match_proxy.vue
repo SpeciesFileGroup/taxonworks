@@ -12,10 +12,10 @@
 <script>
   // list items are annotatable OTUs
   // update list when changes occur in any of the citation list items
-  import RadialAnnotator from '../../../../components/annotator/annotator.vue'
-  import OtuRadial from '../../../../components/otu/otu.vue'
+  import RadialAnnotator from 'components/annotator/annotator.vue'
+  import OtuRadial from 'components/otu/otu.vue'
   import OtuTableComponent from './tables/otu_table.vue'
-  import Spinner from '../../../../components/spinner.vue'
+  import Spinner from 'components/spinner.vue'
 
   export default {
     components: {

@@ -8,7 +8,7 @@
         @input="changePage"
         v-model="citation.pages">
     </td>
-    <td v-html="citation.citation_object.object_tag"/>
+    <td><a v-html="citation.citation_object.object_tag" @click="showObject()"/></td>
     <td>
       <radial-annotator :global-id="citation.citation_object.global_id" />
     </td>
@@ -23,8 +23,8 @@
 
 <script>
 
-import RadialAnnotator from '../../../../../components/annotator/annotator'
-import OtuRadial from '../../../../../components/otu/otu'
+import RadialAnnotator from 'components/annotator/annotator'
+import OtuRadial from 'components/otu/otu'
 
 export default {
   components: {
@@ -45,6 +45,9 @@ export default {
     }
   },
   methods: {
+    showObject() {
+      window.open(this.citation.citation_object.object_url, '_blank');
+    },
     changePage() {
       let that = this;
       if(this.autoSave) {

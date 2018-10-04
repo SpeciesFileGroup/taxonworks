@@ -12,7 +12,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
       before {
         sign_in_user_and_select_project
       }
-      # NOTE: The following *has* to be *after* the sign_in_and_select_project !
+      
       include_context 'stuff for complex geo tests'
 
       before { [co_a, co_b, gr_a, gr_b].each }
@@ -113,10 +113,10 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
           page.execute_script "$('#set_author')[0].scrollIntoView()"
           find('#and_or_select__and_').click
           fill_autocomplete_and_select('author_picker_autocomplete', with: 'Sa',
-                                       select_id:                          sargon.id, object_type: 'author')
+                                       select_id: sargon.id, object_type: 'author')
           wait_for_ajax
           fill_autocomplete_and_select('author_picker_autocomplete', with: 'Pe',
-                                       select_id:                          daryl.id, object_type: 'author')
+                                       select_id: daryl.id, object_type: 'author')
           wait_for_ajax
           click_button('Set Author')
           wait_for_ajax
@@ -128,13 +128,13 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
           page.execute_script "$('#set_author')[0].scrollIntoView()"
           find('#and_or_select__or_').click
           fill_autocomplete_and_select('author_picker_autocomplete', with: 'Sa',
-                                       select_id:                          sargon.id, object_type: 'author')
+                                       select_id: sargon.id, object_type: 'author')
           wait_for_ajax
           fill_autocomplete_and_select('author_picker_autocomplete', with: 'Bi',
-                                       select_id:                          bill.id, object_type: 'author')
+                                       select_id: bill.id, object_type: 'author')
           wait_for_ajax
           fill_autocomplete_and_select('author_picker_autocomplete', with: 'Te',
-                                       select_id:                          ted.id, object_type: 'author')
+                                       select_id: ted.id, object_type: 'author')
           wait_for_ajax
           click_button('Set Author')
           wait_for_ajax
