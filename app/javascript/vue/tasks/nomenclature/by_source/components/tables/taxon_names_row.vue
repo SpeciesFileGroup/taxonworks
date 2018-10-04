@@ -53,11 +53,10 @@
         pages: undefined,
         autoSave: undefined,
         time: 3000,
-        legend: '' // <---- Making a data property will make reactive to the template. So when this value changes the template will be rendered again
+        legend: ''
       }
     },
     mounted() {
-      //Rich, this will make the call to retrieve the information when the component is mounted
       this.getNameData()
     },
     methods: {
@@ -65,18 +64,19 @@
         window.open('/tasks/nomenclature/browse/' + this.citation.citation_object_id, '_blank');
       },
       getNameData() {
-        let legend = 'invalid';
-        // Removed the line to retrieve the id. The object already have object_url.
+        let legend = ' invalid';     // preset status part of legend
         this.$http.get(this.citation.citation_object.object_url).then(response => {
           let taxon = response.body
-          legend = ' ' + taxon.rank // This will override 'invalid' always
-          let invalid = (taxon.id != taxon.cached_valid_taxon_name_id)
+          let invalid = (taxon.id != taxon.cached_valid_taxon_name_id);
           if (invalid && (taxon.type == 'Combination')) {
-            legend = ' combination' // Looking this line and the space at the start, the rank is not missing here? not sure if that was the idea.
+            legend = ' combination'
           }
-          let authorYear = (taxon.cached_author_year == null) ? ' ' : ' ' + taxon.cached_author_year
-          legend = authorYear + legend
-          this.legend = legend
+          else {
+            legend = ' ' + taxon.rank
+          }
+          let authorYear = (taxon.cached_author_year == null) ? ' [none]' : ' ' + taxon.cached_author_year
+          legend = authorYear + legend;
+          this.legend = legend;
         })
       },
       changePage() {
