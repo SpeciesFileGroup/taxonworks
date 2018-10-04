@@ -86,7 +86,7 @@ gem 'sass', '3.5.7'
 # "Bio" and SFG gems
 gem 'taxonifi', '0.4.0'
 gem 'sqed', '0.4.4'
-gem 'dwc-archive', '~> 0.9.11'
+gem 'dwc-archive', '~> 1.0.1'
 gem 'biodiversity', '~> 3.5.0'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 
@@ -121,9 +121,9 @@ group :development do
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.4'
   gem 'guard-rspec', '~> 4.7.3', require: false
-  gem 'parallel_tests', '~> 2.22.1', require: false
+  gem 'parallel_tests', '~> 2.23.0', require: false
   gem 'web-console', '~> 3.7.0'
-  gem 'rubocop', '~> 0.58.2'
+  gem 'rubocop', '~> 0.59.2'
   gem 'rubocop-rspec'
   gem 'brakeman', '~> 4.3.0', require: false
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'
