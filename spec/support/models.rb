@@ -36,13 +36,13 @@ module ModelHelper
   # @return [Integer, nil]
   #    accessor to the global
   def user_id
-    $user_id
+    Current.user_id || $user_id
   end
 
   # @return [Integer, nil]
   #    accessor to the global
   def project_id
-    $project_id
+    Current.project_id || $project_id
   end
 end
 
