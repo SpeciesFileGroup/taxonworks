@@ -31,9 +31,9 @@
 </template>
 <script>
 
-  import Autocomplete from "../../../../components/autocomplete";
-  import RadialAnnotator from "../../../../components/annotator/annotator.vue";
-  import PinComponent from "../../../../components/pin.vue"
+  import Autocomplete from "components/autocomplete";
+  import RadialAnnotator from "components/annotator/annotator.vue";
+  import PinComponent from "components/pin.vue"
 
   export default {
     components: {
