@@ -1,5 +1,3 @@
-
-
 require 'rails_helper'
 require 'support/shared_contexts/shared_geo'
 
@@ -130,6 +128,18 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
       gr_b
     }
 
+    specify 'lint setup 1' do
+      expect(Role.where(type: 'TaxonNameAuthor').count).to eq(9)
+    end
+
+    specify 'lint setup 2' do
+      expect(Person.with_role('TaxonNameAuthor').count).to eq(4) # Bill, Ted, Daryl, and Sargon
+    end 
+
+    specify 'lint setup 3' do
+      expect(Protonym.named('Topdogidae').count).to eq(1)
+    end
+
     context 'area search' do
       context 'named area' do
         let(:params) { {geographic_area_ids: [area_b.id]} }
@@ -200,12 +210,6 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     end
 
     context 'author search' do
-
-      specify 'constructs' do
-        expect(Role.where(type: 'TaxonNameAuthor').count).to eq(9)
-        expect(Person.with_role('TaxonNameAuthor').count).to eq(4) # Bill, Ted, Daryl, and Sargon
-        expect(Protonym.named('Topdogidae').count).to eq(1)
-      end
 
       context 'and' do
         specify 'otus by bill, ted, and daryl' do

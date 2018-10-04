@@ -1,8 +1,4 @@
 require 'rails_helper'
-# require_relative '../support/shared_contexts/geo/build_rspec_geo'
-
-# include the subclasses, perhaps move this out
-Dir[Rails.root.to_s + '/app/models/geographic_item/**/*.rb'].each { |file| require_dependency file }
 
 describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
   include_context 'stuff for complex geo tests'
@@ -797,6 +793,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
               .to eq([r2024, r2020, p10])
           end
         end
+
         # specify '::excluding_self to drop self from any list of objects' do
         #   skip 'construction of scenario'
         # expect(GeographicItem.ordered_by_shortest_distance_from('point', @p7).limit(5)).to_a).to eq([@p2, @p1, @p4])

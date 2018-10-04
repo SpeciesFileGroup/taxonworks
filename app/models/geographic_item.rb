@@ -1384,3 +1384,5 @@ class GeographicItem < ApplicationRecord
     true
   end
 end
+
+Dir[Rails.root.to_s + '/app/models/geographic_item/**/*.rb'].each { |file| require_dependency file }

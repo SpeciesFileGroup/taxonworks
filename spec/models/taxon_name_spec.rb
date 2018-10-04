@@ -2,7 +2,6 @@ require 'rails_helper'
 
 describe TaxonName, type: :model, group: [:nomenclature] do
 
-  # rspec -t group:nomenclature
   let(:taxon_name) { TaxonName.new }
 
   context 'using before :all' do

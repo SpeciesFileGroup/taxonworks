@@ -9,7 +9,7 @@ module Queries
     attr_accessor :author_ids, :and_or_select
 
     attr_accessor :verbatim_author # was verbatim_author_string
-    attr_accessor :taxon_name_id, :taxon_name_ids, :otu_id, :otu_ids, 
+    attr_accessor :taxon_name_id, :taxon_name_ids, :otu_id, :otu_ids,
       :biological_association_ids, :taxon_name_classification_ids, :taxon_name_relationship_ids, :asserted_distribution_ids
 
     # @param [Hash] params
@@ -32,7 +32,7 @@ module Queries
       @otu_ids = params[:otu_ids] || []
 
       @biological_association_ids = params[:biological_association_ids] || []
-    
+
       @taxon_name_classification_ids = params[:taxon_name_classification_ids] || []
       @taxon_name_relationship_ids = params[:taxon_name_relationship_ids] || []
       @asserted_distribution_ids = params[:asserted_distribution_ids] || []
@@ -47,8 +47,8 @@ module Queries
     end
 
     def matching_otu_ids
-      a = ids_for_otu 
-      a.empty? ? nil : table[:id].eq_any(a)      
+      a = ids_for_otu
+      a.empty? ? nil : table[:id].eq_any(a)
     end
 
     # @return [Array]
@@ -58,7 +58,7 @@ module Queries
     end
 
     def matching_taxon_name_ids
-      a = ids_for_taxon_name 
+      a = ids_for_taxon_name
       a.empty? ? nil : table[:taxon_name_id].eq_any(a)
     end
 
@@ -114,14 +114,15 @@ module Queries
     end
 
     # @return [Scope]
-    # This could be simplified if the AJAX selector returned a geographic_item_id rather than a GeographicAreaId
-    #n
-    # 1. find all geographic_items in area(s)/shape
+    # This could be simplified if the AJAX selector returned a geographic_item_id rather than a geographic_area_id
+    #
+    # 1. find all geographic_items in area(s)/shape.
     # 2. find all georeferences which are associated with result #1
     # 3. find all collecting_events which are associated with result #2
     # 4. find all collection_objects which are associated with result #3
-    # 5. find all otus which are associated with result #4
-    # 
+    # 5. find all asserted_distrubutions which are associated with result #1
+    # 6. find all otus which are associated with result #4 plus result #5
+    #
     def geographic_area_scope
       target_geographic_item_ids = []
 
@@ -139,6 +140,11 @@ module Queries
     end
 
     # @return [Scope]
+    #
+    # 1. find all collection_objects which are associated with the shape provided.
+    # 2. find all asserted_distrubutions which are associated the shape provided.
+    # 3. find all otus which are associated with result #1 plus result #2
+    #
     def shape_scope
       r42i = GeographicItem.gather_map_data(shape, 'CollectionObject').distinct
       ::Otu.joins(:collection_objects).where(collection_objects: {id: r42i})
@@ -228,12 +234,12 @@ module Queries
       a
     end
 
-    def matching_taxon_name_relationship_ids 
+    def matching_taxon_name_relationship_ids
       return nil if taxon_name_relationship_ids.empty?
       o = table
-      ba = ::TaxonNameRelationship.arel_table 
+      ba = ::TaxonNameRelationship.arel_table
 
-      a = o.alias("a_") 
+      a = o.alias("a_")
       b = o.project(a[Arel.star]).from(a)
 
       c = ba.alias('b1')
@@ -262,12 +268,12 @@ module Queries
       ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
     end
 
-    def matching_biological_association_ids 
+    def matching_biological_association_ids
       return nil if biological_association_ids.empty?
       o = table
       ba = biological_associations_table
 
-      a = o.alias("a_") 
+      a = o.alias("a_")
       b = o.project(a[Arel.star]).from(a)
 
       c = ba.alias('b1')
@@ -303,7 +309,7 @@ module Queries
       o = table
       tnc = ::TaxonNameClassification.arel_table
 
-      a = o.alias("a_") 
+      a = o.alias("a_")
       b = o.project(a[Arel.star]).from(a)
 
       c = tnc.alias('tnc1')
@@ -320,7 +326,7 @@ module Queries
       b = b.group(a['id'])
       b = b.as('z3_')
 
-      a = ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
+      _a = ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
     end
 
     def matching_asserted_distribution_ids
@@ -328,7 +334,7 @@ module Queries
       o = table
       ad = ::AssertedDistribution.arel_table
 
-      a = o.alias("a_") 
+      a = o.alias("a_")
       b = o.project(a[Arel.star]).from(a)
 
       c = ad.alias('ad1')
@@ -345,7 +351,7 @@ module Queries
       b = b.group(a['id'])
       b = b.as('z4_')
 
-      a =  ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
+      _a =  ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
     end
 
     # @return [ActiveRecord::Relation, nil]
@@ -395,7 +401,7 @@ module Queries
       elsif a
         ::Otu.where(a).distinct
       elsif b
-        b.distinct      
+        b.distinct
       else
         ::Otu.none
       end
