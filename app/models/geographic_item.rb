@@ -144,7 +144,7 @@ class GeographicItem < ApplicationRecord
               # TODO: Figure out how to see through this group of geographic_items to the ones which contain
               # geographic_items which are associated with geographic_areas (as #default_geographic_items)
               # which are associated with asserted_distributions
-              found = finding.joins(:geographic_items)
+              found = finding.joins(:geographic_area).joins(:geographic_items)
                           .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
             else
           end
