@@ -13,8 +13,8 @@
   </tr>
 </template>
 <script>
-  import RadialAnnotator from '../../../../../components/annotator/annotator'
-  import OtuRadial from '../../../../../components/otu/otu'
+  import RadialAnnotator from 'components/annotator/annotator'
+  import OtuRadial from 'components/otu/otu'
   export default {
     components: {
       RadialAnnotator,

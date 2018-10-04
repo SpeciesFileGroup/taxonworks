@@ -8,8 +8,8 @@
 </template>
 <script>
 
-  import RadialAnnotator from '../../../../components/annotator/annotator.vue'
-  import OtuRadial from '../../../../components/otu/otu.vue'
+  import RadialAnnotator from 'components/annotator/annotator.vue'
+  import OtuRadial from 'components/otu/otu.vue'
   import TaxonNamesTable from './tables/taxon_names_table.vue'
 
   export default {
