@@ -61,6 +61,10 @@
         type: [String, Number],
         required: true
       },
+      otu: {
+        type: Object,
+        default: undefined
+      },
       taxonName: {
         type: String,
         default: ''
@@ -85,7 +89,13 @@
       }
     },
     mounted() {
-      this.getOtuList()
+      if(!this.otu) {
+        this.getOtuList()
+      }
+      else {
+        this.list.push(this.otu)
+        this.loaded = true
+      }
       document.addEventListener("vue-otu:created", (event) => {
         if(this.taxonId == event.detail.taxonId)
           this.list = event.detail.list

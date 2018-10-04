@@ -8,9 +8,10 @@
       <th>Delete</th>
     </tr>
     <taxon-names-row
-        v-for="item in list"
-        @delete="removeCitation"
-        :citation="item"/>
+      v-for="item in list"
+      :key="item.id"
+      @delete="removeCitation"
+      :citation="item"/>
   </table>
 </template>
 
