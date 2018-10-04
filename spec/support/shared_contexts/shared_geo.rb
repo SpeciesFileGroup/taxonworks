@@ -27,8 +27,6 @@ shared_context 'stuff for complex geo tests' do
   after do
     $user_id = nil
     $project_id = nil
-    Current.user_id = nil
-    Current.project_id = nil
   end
 
   begin # conversion of constants to 'let's
