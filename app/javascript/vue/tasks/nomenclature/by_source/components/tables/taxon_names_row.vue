@@ -63,18 +63,23 @@
       showObject() {
         window.open('/tasks/nomenclature/browse/' + this.citation.citation_object_id, '_blank');
       },
-      getNameData() {
+      getNameData: function () {
         let legend = ' invalid';     // preset status part of legend
         this.$http.get(this.citation.citation_object.object_url).then(response => {
-          let taxon = response.body
+          let taxon = response.body;
           let invalid = (taxon.id != taxon.cached_valid_taxon_name_id);
-          if (invalid && (taxon.type == 'Combination')) {
-            legend = ' combination'
+          if (invalid) {
+            if (taxon.type == 'Combination') {
+              legend = ' combination'
+            }
           }
           else {
             legend = ' ' + taxon.rank
           }
-          let authorYear = (taxon.cached_author_year == null) ? ' [none]' : ' ' + taxon.cached_author_year
+          let authorYear = ' ' + taxon.cached_author_year;
+          if (taxon.cached_author_year == null) {
+            authorYear = '';
+          }
           legend = authorYear + legend;
           this.legend = legend;
         })
