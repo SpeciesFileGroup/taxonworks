@@ -98,12 +98,12 @@
       },
       initStoreList() {
         return {
-            otu_names_cites: [],
-            taxon_names_cites: [],
-            taxon_relationship_cites: [],
-            taxon_classification_cites: [],
-            biological_association_cites: [],
-            distribution_cites: [],
+          otu_names_cites: [],
+          taxon_names_cites: [],
+          taxon_relationship_cites: [],
+          taxon_classification_cites: [],
+          biological_association_cites: [],
+          distribution_cites: [],
         }
       }
     }

@@ -1,20 +1,21 @@
 <template>
   <div>
     <h2>Taxon names</h2>
-    <table-component 
-      :list="taxon_names_cites_list"/>
+    <taxon-names-table
+        :list="taxon_names_cites_list"
+        :names="taxon_names_list"/>
   </div>
 </template>
 <script>
 
   import RadialAnnotator from '../../../../components/annotator/annotator.vue'
   import OtuRadial from '../../../../components/otu/otu.vue'
-  import TableComponent from './tables/table.vue'
+  import TaxonNamesTable from './tables/taxon_names_table.vue'
 
   export default {
     components: {
       RadialAnnotator,
-      TableComponent,
+      TaxonNamesTable,
       OtuRadial
     },
     props: {
@@ -29,7 +30,8 @@
     },
     data() {
       return {
-        taxon_names_cites_list: []
+        taxon_names_cites_list: [],
+        taxon_names_list: []
       }
     },
     watch: {
@@ -46,12 +48,12 @@
           // build the tabular list, extracting the
           this.taxon_names_cites_list = response.body;
           this.$emit("taxon_names_cites", this.taxon_names_cites_list)
-        })
+        });
       },
       addToList(citation) {
         this.taxon_names_cites_list.push(citation);
         this.$emit("taxon_names_cites", this.taxon_names_cites_list)
-      }
+      },
     },
   }
 </script>
