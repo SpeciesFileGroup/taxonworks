@@ -47,17 +47,17 @@
 </template>
 <script>
 
-const autocomplete = require('../../../components/autocomplete.vue').default
-const defaultElement = require('../../../components/getDefaultPin.vue').default
-const citationPages = require('./citationPages.vue').default
-const radialAnnotator = require('../../../components/annotator/annotator.vue').default
+import Autocomplete from 'components/autocomplete.vue'
+import DefaultElement from 'components/getDefaultPin.vue'
+import CitationPages from './citationPages.vue'
+import RadialAnnotator from 'components/annotator/annotator.vue'
 
 export default {
   components: {
-    autocomplete,
-    defaultElement,
-    citationPages,
-    radialAnnotator
+    Autocomplete,
+    DefaultElement,
+    CitationPages,
+    RadialAnnotator
   },
   props: ['list', 'display'],
   name: 'ListEntrys',

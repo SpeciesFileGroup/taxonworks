@@ -45,11 +45,11 @@
 </template>
 <script>
 
-const saveTaxonName = require('./saveTaxonName.vue').default
-const createNewButton = require('./createNewButton.vue').default
-const GetterNames = require('../store/getters/getters').GetterNames
+import SaveTaxonName from './saveTaxonName.vue'
+import CreateNewButton from './createNewButton.vue'
+import { GetterNames } from '../store/getters/getters'
 
-const pinObject = require('../../../components/pin.vue').default
+import PinObject from 'components/pin.vue'
 
 export default {
   props: {
@@ -59,9 +59,9 @@ export default {
     }
   },
   components: {
-    saveTaxonName,
-    createNewButton,
-    pinObject
+    SaveTaxonName,
+    CreateNewButton,
+    PinObject
   },
   computed: {
     unsavedChanges () {
