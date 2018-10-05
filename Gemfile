@@ -43,7 +43,7 @@ gem 'bcrypt', '~> 3.1.11'
 gem 'closure_tree', '~> 7.0'
 gem 'delayed_job_active_record', '~> 4.1.3'
 gem 'validates_timeliness', '~> 4.0.2'
-gem 'paper_trail', '~> 9.0.0'
+gem 'paper_trail', '~> 10.0.1'
 gem 'acts_as_list', '~> 0.9.12'
 gem 'modularity', '~> 2.0.1' # Used!?
 gem 'paperclip', '~> 5.2'
@@ -81,7 +81,6 @@ gem 'kaminari', '~> 1.1.1'
 gem 'best_in_place', '~> 3.1.1'
 gem 'redcarpet', '~> 3.4'
 gem 'sassc-rails', '~> 1.3.0'
-gem 'sass', '3.6.0'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '0.4.0'
