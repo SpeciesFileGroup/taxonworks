@@ -526,7 +526,7 @@ DEPENDENCIES
   chronic (~> 0.10.2)
   citeproc-ruby (~> 1.1.10)
   closure_tree (~> 7.0)
-  coveralls (~> 0.8.21)
+  coveralls (~> 0.8.22)
   csl (~> 1.5.0)
   csl-styles (~> 1.0.1.8)
   daemons (~> 1.2.6)
