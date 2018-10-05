@@ -1,3 +1,5 @@
+Rails.application.eager_load!
+
 TaxonWorks::Application.routes.draw do
 
   get :ping, controller: 'ping',  defaults: { format: :json }
