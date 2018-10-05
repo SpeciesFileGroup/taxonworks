@@ -2,11 +2,11 @@ source 'https://rubygems.org'
 
 gem 'rack-cors', '~> 1.0.1', require: 'rack/cors'
 
-ruby '2.4.4'
+ruby '2.5.1'
 
 gem 'rake', '~> 12.0'
-gem 'rails', '~> 5.1.6'
-gem 'pg', '~> 0.21.0' # 1.0 not compatible with 5.1.4
+gem 'rails', '5.2.1'
+gem 'pg', '~> 1.0' # 1.0 not compatible with 5.1.4
 gem 'activerecord-postgis-adapter', '~> 5.2.1'
 
 gem 'hiredis', '~> 0.6.1'
@@ -25,7 +25,7 @@ gem 'rmagick', '~> 2.16'
 # Geo
 gem 'ffi-geos', '~> 1.2.0'
 # gem 'rgeo-shapefile', '~> 0.4.2'  # deprecated? not compatible- perhaps only used in
-gem 'rgeo', '~> 1.0.0'
+gem 'rgeo', '~> 1.1.1'
 gem 'rgeo-geojson', '~> 2.0.0'
 gem 'rgeo-proj4'
 gem 'postgresql_cursor', '~> 0.6.1'
@@ -40,13 +40,13 @@ gem 'exception_notification', '~> 4.2.1'
 
 # Models
 gem 'bcrypt', '~> 3.1.11'
-gem 'closure_tree', '~> 6.6'
+gem 'closure_tree', '~> 7.0'
 gem 'delayed_job_active_record', '~> 4.1.3'
 gem 'validates_timeliness', '~> 4.0.2'
-gem 'paper_trail', '~> 8.1.2'
+gem 'paper_trail', '~> 10.0.1'
 gem 'acts_as_list', '~> 0.9.12'
 gem 'modularity', '~> 2.0.1' # Used!?
-gem 'paperclip', '~> 5.2'
+gem 'paperclip', '~> 6.1.0'
 gem 'paperclip-meta', '~> 3.0'
 gem 'shortener', '~> 0.8.0'
 
@@ -79,14 +79,13 @@ gem 'groupdate', '~> 4.0.1'
 gem 'dropzonejs-rails', '~> 0.8.1'
 gem 'kaminari', '~> 1.1.1'
 gem 'best_in_place', '~> 3.1.1'
-gem 'sass-rails', '~> 5.0.7' # auto compresses CSS
 gem 'redcarpet', '~> 3.4'
-gem 'sass', '3.5.7'
+gem 'sassc-rails', '~> 1.3.0'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '0.4.0'
 gem 'sqed', '0.4.4'
-gem 'dwc-archive', '~> 0.9.11'
+gem 'dwc-archive', '~> 1.0.1'
 gem 'biodiversity', '~> 3.5.0'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 
@@ -105,7 +104,7 @@ gem 'capistrano-npm', '~> 1.0.2'
 group :test, :development do
   gem 'faker', '~> 1.9.1'
   gem 'rspec-rails', '~> 3.6'
-  gem 'rspec-activemodel-mocks', '~> 1.0.3'
+  gem 'rspec-activemodel-mocks', '~> 1.1.0'
 #  gem 'inch', '~> 0.7.1', require: false, # security issue
   gem 'byebug', '~> 10.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 4.11.0'
@@ -121,9 +120,9 @@ group :development do
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.4'
   gem 'guard-rspec', '~> 4.7.3', require: false
-  gem 'parallel_tests', '~> 2.22.1', require: false
+  gem 'parallel_tests', '~> 2.23.0', require: false
   gem 'web-console', '~> 3.7.0'
-  gem 'rubocop', '~> 0.58.2'
+  gem 'rubocop', '~> 0.59.2'
   gem 'rubocop-rspec'
   gem 'brakeman', '~> 4.3.0', require: false
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'
@@ -135,8 +134,8 @@ end
 
 group :test do
   gem 'rspec', '~> 3.6'
-  gem 'coveralls', '~> 0.8.21', require: false
-  gem 'capybara', '~> 3.7.0'
+  gem 'coveralls', '~> 0.8.22', require: false
+  gem 'capybara', '~> 3.9.0'
   gem 'timecop', '~> 0.9.1'
   gem 'webmock', '~> 3.4.1'
   gem 'vcr', '~> 4.0.0'

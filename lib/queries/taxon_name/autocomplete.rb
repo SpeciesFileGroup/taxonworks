@@ -281,7 +281,7 @@ module Queries
       def base_query
         ::TaxonName.select('taxon_names.*, char_length(taxon_names.cached)').
           includes(:ancestor_hierarchies).
-          order('char_length(cached), cached ASC')
+          order(Arel.sql('char_length(cached), cached ASC'))
       end
 
       # @return [Arel::Table]

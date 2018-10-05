@@ -1,13 +1,10 @@
 require 'rails_helper'
 
 describe ApiController, type: :controller do
-  # before(:each) {
-  #   sign_in
-  # }
 
   shared_examples_for 'successful response' do
     it 'returns HTTP Status 200 OK' do
-      expect(response).to be_success
+      expect(response.successful?).to be_truthy 
     end
 
     it 'returns JSON object indicating success' do

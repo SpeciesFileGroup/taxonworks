@@ -1,3 +1,6 @@
+require_dependency Rails.root.to_s + '/app/models/nomenclatural_rank.rb'  
+require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'  
+
 # A {https://github.com/SpeciesFileGroup/nomen NOMEN} derived classfication (roughly, a status) for a {TaxonName}.
 #
 # @!attribute taxon_name_id
@@ -61,7 +64,7 @@ class TaxonNameClassification < ApplicationRecord
   #   the class name, "validated" against the known list of names
   def type_name
     r = self.type.to_s
-    TAXON_NAME_CLASSIFICATION_NAMES.include?(r) ? r : nil
+    ::TAXON_NAME_CLASSIFICATION_NAMES.include?(r) ? r : nil
   end
 
   def type_class=(value)
@@ -70,7 +73,7 @@ class TaxonNameClassification < ApplicationRecord
 
   def type_class
     r = read_attribute(:type).to_s
-    r = TAXON_NAME_CLASSIFICATION_NAMES.include?(r) ? r.safe_constantize : nil
+    r = ::TAXON_NAME_CLASSIFICATION_NAMES.include?(r) ? r.safe_constantize : nil
   end
 
   # @return [String]
@@ -326,3 +329,5 @@ class TaxonNameClassification < ApplicationRecord
   end
 
 end
+
+Dir[Rails.root.to_s + '/app/models/taxon_name_classification/**/*.rb'].each { |file| require_dependency file }

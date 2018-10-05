@@ -9,7 +9,7 @@ cache:
 dist: trusty
 # sudo: required
 rvm:
-  - 2.4.4
+  - 2.5.1
 bundler_args: --without development production
 branches:
   only:

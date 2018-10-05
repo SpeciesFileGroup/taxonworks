@@ -89,7 +89,7 @@ class Serial < ApplicationRecord
                              compared_string[0..250]])
 
     Serial.where('id <> ?', self.to_param)
-      .order(order_str)
+      .order(Arel.sql(order_str)) 
       .limit(limit)
   end
 

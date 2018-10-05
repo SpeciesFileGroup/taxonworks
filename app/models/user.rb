@@ -1,3 +1,4 @@
+
 # A User is a TaxonWorks user, at present someone who can logon to the private workebench.
 #
 # All Data Models contain created_by_id and updated_by_id that references a User.
@@ -98,22 +99,24 @@
 #   @return [true, false]
 #   Only used for when .new_record? is true. If true assigns creator and updater as self.
 #
-#
 class User < ApplicationRecord
-  include Housekeeping::Users
-  include Housekeeping::Timestamps
-  include Housekeeping::AssociationHelpers
-  include User::Preferences
+  include Shared::Identifiers # TODO: this is required before Housekeeping::Users, resolve
 
   include Shared::DataAttributes
   include Shared::Notes
   include Shared::Tags
-  include Shared::Identifiers
+
+  include Housekeeping::Users
+  include Housekeeping::Timestamps
+  include Housekeeping::AssociationHelpers
+
   include Shared::RandomTokenFields[:password_reset]
 
   has_secure_password
 
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
+
+  store :preferences, accessors: [:disable_chime], coder: JSON
 
   attr_accessor :set_new_api_access_token
   attr_accessor :self_created
@@ -132,12 +135,12 @@ class User < ApplicationRecord
   before_create { self.hub_tab_order = DEFAULT_HUB_TAB_ORDER }
 
   validates :email, presence: true,
-            format:           {with: VALID_EMAIL_REGEX},
-            uniqueness:       true
+    format:  {with: VALID_EMAIL_REGEX},
+    uniqueness: true
 
   validates :password,
-            length:       {minimum: 8, if: :validate_password?},
-            confirmation: {if: :validate_password?}
+    length: {minimum: 8, if: :validate_password?},
+    confirmation: {if: :validate_password?}
 
   validates :name, presence: true
   validates :name, length: {minimum: 2}, unless: -> { self.name.blank? }

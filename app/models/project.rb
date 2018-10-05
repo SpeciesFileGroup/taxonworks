@@ -146,7 +146,8 @@ class Project < ApplicationRecord
 
     # Since we shouldn't (can't?) initiate a connection prior to a require_dependency
     # we simply load TaxonName for the first time here.
-    TaxonName.tap {}
+    TaxonName.tap {} # TODO: move to require_dependency?
+    TaxonNameRelationship.tap {}
     taxon_names.root
   end
 

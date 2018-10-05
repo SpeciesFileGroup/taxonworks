@@ -11,12 +11,12 @@ In addition meta-tests (tests on models, factories, etc. that otherwise don't fi
 
 Everything else is support for tests.
 
-* **taxonworks** meta-tests 
+* **factories** FactoryBot factories. In TW every AR model has at minimum a model named `valid_<model>`.
 * **files** contain data files used for testing
 * **fixtures** at present only VCR files (wraps API calls out)
-* **factories** FactoryBot factories.  Every AR model has a model and `valid_` version of the model factory at minimum.
 * **support** methods used in multiple tests, including wrappers for each of Controllers, Views, Models, Features, Helpers. 
-* **validators** -- ?
+* **taxonworks** meta- and linting-based tests 
+* **validators** includes for general purpose data validation
 
 # Housekeeping and globals
 

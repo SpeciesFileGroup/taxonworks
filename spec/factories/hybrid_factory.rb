@@ -1,6 +1,10 @@
-def root
-  t = TaxonName.where(project_id: $project_id, parent_id: nil).limit(1).first
-  t ? t : nil
+if ActiveRecord::Base.connected?
+
+  def root
+    t = TaxonName.where(project_id: $project_id, parent_id: nil).limit(1).first
+    t ? t : nil
+  end
+
 end
 
 FactoryBot.define do
@@ -14,8 +18,8 @@ FactoryBot.define do
         b = Protonym.create(name: 'dus', rank_class: Ranks.lookup(:icn, :species), parent: g)
         r1 = TaxonNameRelationship::Hybrid.create( subject_taxon_name: a, object_taxon_name: hybrid )
         r2 = TaxonNameRelationship::Hybrid.create( subject_taxon_name: b, object_taxon_name: hybrid )
-      end 
-    
+      end
+
       year_of_publication { 1850 }
       verbatim_author { 'Say' }
       rank_class { Ranks.lookup(:icn, 'species') }
