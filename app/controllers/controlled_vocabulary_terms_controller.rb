@@ -104,7 +104,7 @@ class ControlledVocabularyTermsController < ApplicationController
   end
 
   def autocomplete
-    @controlled_vocabulary_terms = Queries::ControlledVocabularyTermAutocompleteQuery.new(
+    @controlled_vocabulary_terms = Queries::ControlledVocabularyTerm::Autocomplete.new(
       params.require(:term),
       of_type: filter_params[:type],
       project_id: sessions_current_project_id
