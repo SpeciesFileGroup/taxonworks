@@ -6,21 +6,23 @@ module Queries
     #   of :type 
     attr_accessor :of_type
 
-    def initialize(string, project_id: nil, of_type: [])
-      super(string, project_id: project_id) 
-      @of_type = of_type
+    def initialize(string, **keyword_args)
+      @query_string = string
+      @project_id = keyword_args[:project_id]
+      @of_type = keyword_args[:of_type] || []
     end
 
-    def where_sql
-      c = [or_clauses]
-      c.push with_project_id if !project_id.blank?
-      c.push with_type if !of_type.blank?
+    def and_clauses
+      clauses = [
+        with_project_id,
+        with_type
+      ].compact
 
-      c.compact
+      return nil if clauses.empty?
 
-      a = c.pop
-      c.each do |q|
-        a.and(q)
+      a = clauses.shift
+      clauses.each do |b|
+        a = a.and(b)
       end
       a
     end
@@ -33,16 +35,24 @@ module Queries
         with_id
       ].compact
 
+      return nil if clauses.empty?
+
       a = clauses.shift
       clauses.each do |b|
         a = a.or(b)
       end
       a
     end 
-   
+
     # @return [Scope]
     def all 
-      ::ControlledVocabularyTerm.where(where_sql).order(:type, :name).limit(40)
+      a = [or_clauses, and_clauses].compact 
+      b = a.shift
+      b = b.and(a.shift) if !a.empty?
+    
+      b.nil? ?
+        ::ControlledVocabularyTerm.all.order(:type, :name).limit(40) :
+        ::ControlledVocabularyTerm.where(b).order(:type, :name).limit(40) 
     end
 
     def table
@@ -50,24 +60,19 @@ module Queries
     end
 
     def keyword_named
-      table[:name].matches_any(terms)
+      table[:name].matches_any(terms) if terms.any?
     end
 
     def with_type 
-      table[:type].eq_any(of_type)
+      table[:type].eq_any(of_type) if of_type.any?    
     end
 
     def uri_equal_to
-      table[:uri].eq(query_string)
+      table[:uri].eq(query_string) if !query_string.blank?
     end
 
     def definition_matches
-      table[:definition].matches_any(terms)
-    end
-
-    # not used
-    def uri_eq
-      table[:uri].eq(query_string) 
+      table[:definition].matches_any(terms) if terms.any?
     end
 
   end

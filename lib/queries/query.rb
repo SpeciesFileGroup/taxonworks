@@ -222,12 +222,12 @@ module Queries
 
     # @return [Arel::Nodes::Matches]
     def named
-      table[:name].matches_any(terms)
+      table[:name].matches_any(terms) if terms.any?
     end
 
     # @return [Arel::Nodes::Matches]
     def exactly_named
-      table[:name].eq(query_string)
+      table[:name].eq(query_string) if !query_string.blank?
     end
 
     # @return [Arel::Nodes::TableAlias]
