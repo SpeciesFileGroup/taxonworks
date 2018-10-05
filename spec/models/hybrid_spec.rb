@@ -6,11 +6,10 @@ describe Hybrid, type: :model, group: [:nomenclature]  do
   let(:hybrid) { Hybrid.new }
   let(:valid_hybrid) { FactoryBot.create(:valid_hybrid) }
 
-# let(:hybrid_relationship) { TaxonNameRelationship::Hybrid.new }
-# let(:g) { Protonym.create(name: 'Aus', parent: root, rank_class: Ranks.lookup(:icn, :genus)) }
-# let(:s1) { Protonym.create(name: 'aus', parent: g, rank_class: Ranks.lookup(:icn, :species)) }
-# let(:s2) { Protonym.create(name: 'bus', parent: g, rank_class: Ranks.lookup(:icn, :species)) }
-
+  # let(:hybrid_relationship) { TaxonNameRelationship::Hybrid.new }
+  # let(:g) { Protonym.create(name: 'Aus', parent: root, rank_class: Ranks.lookup(:icn, :genus)) }
+  # let(:s1) { Protonym.create(name: 'aus', parent: g, rank_class: Ranks.lookup(:icn, :species)) }
+  # let(:s2) { Protonym.create(name: 'bus', parent: g, rank_class: Ranks.lookup(:icn, :species)) }
 
   specify 'type is Hybrid' do
     expect(hybrid.type).to eq('Hybrid')

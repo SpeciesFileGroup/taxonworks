@@ -2,7 +2,9 @@ require 'rails_helper'
 require 'support/shared_contexts/shared_geo'
 
 RSpec.describe GeographicItem::GeometryCollection, type: :model, group: [:geo, :shared_geo] do
+
   include_context 'stuff for complex geo tests'
+
   context 'that this item' do
     let(:all_items) {
       FactoryBot.build(:geographic_item_geometry_collection,

@@ -153,19 +153,22 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
     let(:ns1) {Namespace.first}
     let(:ns2) {Namespace.second}
 
-    let(:id_attributes) {{namespace:  nil,
-                          project_id: $project_id,
-                          type:       nil,
-                          identifier: nil}}
+    let(:id_attributes) {
+      {namespace:  nil,
+       project_id: project_id,
+       type:       nil,
+       identifier: nil}}
+    
     before do
       2.times {FactoryBot.create(:valid_namespace)}
       2.times {FactoryBot.create(:valid_specimen)}
       (1..10).each {|identifier|
         sp = FactoryBot.create(:valid_specimen)
-        id = FactoryBot.create(:identifier_local_catalog_number,
-                                identifier_object: sp,
-                                namespace:         (identifier.even? ? ns1 : ns2),
-                                identifier:        identifier)
+        FactoryBot.create(
+          :identifier_local_catalog_number,
+          identifier_object: sp,
+          namespace: (identifier.even? ? ns1 : ns2),
+          identifier: identifier)
       }
     end
 
@@ -174,12 +177,12 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
         this_id = id_attributes.merge({namespace:  ns1,
                                        type:       'Identifier::Local::CatalogNumber',
                                        identifier: '1'})
-        pile    = CollectionObject.with_project_id($project_id)
-                    .includes(:identifiers)
-                    .where('identifiers.type = ?', 'Identifier::Local::CatalogNumber')
-                    .where('identifiers.namespace_id = ?', ns1.id)
-                    .order("CAST(coalesce(identifiers.identifier, '0') AS integer) DESC")
-                    .references(:identifiers)
+        pile = CollectionObject.with_project_id(project_id)
+          .includes(:identifiers)
+          .where('identifiers.type = ?', 'Identifier::Local::CatalogNumber')
+          .where('identifiers.namespace_id = ?', ns1.id)
+          .order(Arel.sql("CAST(coalesce(identifiers.identifier, '0') AS integer) DESC"))
+          .references(:identifiers)
 
         expect(pile.collect {|item| item.identifiers.first.identifier}).to eq(['10', '8', '6', '4', '2'])
         expect(pile.count).to eq(5)
@@ -189,14 +192,15 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
 
     describe 'without namespace' do
       specify 'uses Local::CatalogNumber' do
-        this_id = id_attributes.merge({namespace:  ns1,
-                                       type:       'Identifier::Local::CatalogNumber',
-                                       identifier: '1'})
-        pile    = CollectionObject.with_project_id($project_id)
-                    .includes(:identifiers)
-                    .where('identifiers.type = ?', 'Identifier::Local::CatalogNumber')
-                    .order("CAST(coalesce(identifiers.identifier, '0') AS integer) DESC")
-                    .references(:identifiers)
+        this_id = id_attributes.merge(
+          {namespace: ns1,
+           type: 'Identifier::Local::CatalogNumber',
+           identifier: '1'})
+        pile = CollectionObject.with_project_id(project_id)
+          .includes(:identifiers)
+          .where('identifiers.type = ?', 'Identifier::Local::CatalogNumber')
+          .order(Arel.sql("CAST(coalesce(identifiers.identifier, '0') AS integer) DESC"))
+          .references(:identifiers)
 
         expect(pile.collect {|item| item.identifiers.first.identifier}).to eq(['10', '9', '8', '7', '6',
                                                                                '5', '4', '3', '2', '1'])

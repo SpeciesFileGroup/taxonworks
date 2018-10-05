@@ -1,4 +1,4 @@
-# !! Use protonym factories to for taxon names!
+# !! Use protonym factories for taxon names!
 FactoryBot.define do
   factory :taxon_name, traits: [:housekeeping] do
   

@@ -8,8 +8,8 @@
 <script>
 
   import TableComponent from './tables/table.vue'
-  import RadialAnnotator from '../../../../components/annotator/annotator.vue'
-  import OtuRadial from '../../../../components/otu/otu.vue'
+  import RadialAnnotator from 'components/annotator/annotator.vue'
+  import OtuRadial from 'components/otu/otu.vue'
 
   export default {
     components: {

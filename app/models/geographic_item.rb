@@ -45,15 +45,26 @@ class GeographicItem < ApplicationRecord
                 :multi_polygon,
                 :geometry_collection].freeze
 
-  GEOMETRY_SQL = "CASE geographic_items.type
-         WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
-         WHEN 'GeographicItem::Point' THEN point::geometry
-         WHEN 'GeographicItem::LineString' THEN line_string::geometry
-         WHEN 'GeographicItem::Polygon' THEN polygon::geometry
-         WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geometry
-         WHEN 'GeographicItem::MultiPoint' THEN multi_point::geometry
-         WHEN 'GeographicItem::GeometryCollection' THEN geometry_collection::geometry
-      END".freeze
+  GEOMETRY_SQL = Arel::Nodes::Case.new(arel_table[:type])
+    .when('GeographicItem::MultiPolygon').then( Arel::Nodes::NamedFunction.new("CAST", [ arel_table[:multi_polygon].as('geometry')]))
+    .when('GeographicItem::Point').then( Arel::Nodes::NamedFunction.new("CAST", [ arel_table[:point].as('geometry')]))
+    .when('GeographicItem::LineString').then( Arel::Nodes::NamedFunction.new("CAST", [ arel_table[:line_string].as('geometry')]))
+    .when('GeographicItem::Polygon').then( Arel::Nodes::NamedFunction.new("CAST", [ arel_table[:polygon].as('geometry')]))
+    .when('GeographicItem::MultiLineString').then( Arel::Nodes::NamedFunction.new("CAST", [ arel_table[:multi_line_string].as('geometry')]))
+    .when('GeographicItem::MultiPoint').then( Arel::Nodes::NamedFunction.new("CAST", [ arel_table[:multi_point].as('geometry')]))
+    .when('GeographicItem::GeometryCollection').then( Arel::Nodes::NamedFunction.new("CAST", [ arel_table[:geometry_collection].as('geometry')]))
+    .freeze
+
+
+# "CASE geographic_items.type
+#        WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
+#        WHEN 'GeographicItem::Point' THEN point::geometry
+#        WHEN 'GeographicItem::LineString' THEN line_string::geometry
+#        WHEN 'GeographicItem::Polygon' THEN polygon::geometry
+#        WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geometry
+#        WHEN 'GeographicItem::MultiPoint' THEN multi_point::geometry
+#        WHEN 'GeographicItem::GeometryCollection' THEN geometry_collection::geometry
+#     END".freeze
 
   GEOGRAPHY_SQL = "CASE geographic_items.type
      WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon
@@ -99,7 +110,7 @@ class GeographicItem < ApplicationRecord
     #   !! StrongParams security considerations
     def crosses_anti_meridian?(wkt)
       GeographicItem.find_by_sql(
-          ['SELECT ST_Intersects(ST_GeogFromText(?), ST_GeogFromText(?)) as r;', wkt, ANTI_MERIDIAN]
+        ['SELECT ST_Intersects(ST_GeogFromText(?), ST_GeogFromText(?)) as r;', wkt, ANTI_MERIDIAN]
       ).first.r
     end
 
@@ -113,16 +124,17 @@ class GeographicItem < ApplicationRecord
     def crosses_anti_meridian_by_id?(*ids)
       q1 = ["SELECT ST_Intersects((SELECT single_geometry FROM (#{GeographicItem.single_geometry_sql(*ids)}) as " \
             'left_intersect), ST_GeogFromText(?)) as r;', ANTI_MERIDIAN]
-      _q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_Intersects((SELECT single_geometry FROM (?) as ' \
+      q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_Intersects((SELECT single_geometry FROM (?) as ' \
             'left_intersect), ST_GeogFromText(?)) as r;', GeographicItem.single_geometry_sql(*ids), ANTI_MERIDIAN])
       GeographicItem.find_by_sql(q1).first.r
     end
 
+    # TODO: * rename to reflect either/or and what is being returned
     # @param [Integer] geographic_area_ids
-    # @param [String] shape_in in JSON (POINT, POLYGON, MULTIPOLYGON), usually from GoogleMaps
+    # @param [String] shape_in in JSON (TODO: what kind? / details on specification)
     # @param [String] search_object_class
     # @return [Scope] of the requested search_object_type
-    def gather_geographic_area_or_shape_data(geographic_area_ids, shape_in, search_object_class)
+    def gather_selected_data(geographic_area_ids, shape_in, search_object_class)
       if shape_in.blank?
         # get the shape from the geographic area, if possible
         finding = search_object_class.constantize
@@ -133,21 +145,11 @@ class GeographicItem < ApplicationRecord
           # now use method from collection_object_filter_query
           geographic_area_ids.each do |gaid|
             target_geographic_item_ids.push(GeographicArea.joins(:geographic_items)
-                                                .find(gaid)
-                                                .default_geographic_item.id)
+                                              .find(gaid)
+                                              .default_geographic_item.id)
           end
-          case search_object_class
-            when /Collection/
-              found = finding.joins(:geographic_items)
-                          .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
-            when /Asserted/
-              # TODO: Figure out how to see through this group of geographic_items to the ones which contain
-              # geographic_items which are associated with geographic_areas (as #default_geographic_items)
-              # which are associated with asserted_distributions
-              found = finding.joins(:geographic_area).joins(:geographic_items)
-                          .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
-            else
-          end
+          found = finding.joins(:geographic_items)
+                    .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
         end
       else
         found = gather_map_data(shape_in, search_object_class)
@@ -197,7 +199,7 @@ class GeographicItem < ApplicationRecord
     # @return [String]
     #   a SQL select statement that returns the *geometry* for the geographic_item with the specified id
     def select_geometry_sql(geographic_item_id)
-      "SELECT #{GeographicItem::GEOMETRY_SQL} from geographic_items where geographic_items.id = #{geographic_item_id}"
+      "SELECT #{GeographicItem::GEOMETRY_SQL.to_sql} from geographic_items where geographic_items.id = #{geographic_item_id}"
     end
 
     # @param [Integer, String]
@@ -205,8 +207,8 @@ class GeographicItem < ApplicationRecord
     #   a SQL select statement that returns the geography for the geographic_item with the specified id
     def select_geography_sql(geographic_item_id)
       ActiveRecord::Base.send(:sanitize_sql_for_conditions, [
-          "SELECT #{GeographicItem::GEOMETRY_SQL} from geographic_items where geographic_items.id = ?",
-          geographic_item_id])
+        "SELECT #{GeographicItem::GEOMETRY_SQL.to_sql} from geographic_items where geographic_items.id = ?",
+        geographic_item_id])
     end
 
     # @param [Symbol] choice
@@ -317,12 +319,12 @@ class GeographicItem < ApplicationRecord
     def st_collect_sql(*geographic_item_ids)
       geographic_item_ids.flatten!
       ActiveRecord::Base.send(:sanitize_sql_for_conditions, [
-          "SELECT ST_Collect(f.the_geom) AS single_geometry
+        "SELECT ST_Collect(f.the_geom) AS single_geometry
        FROM (
-          SELECT (ST_DUMP(#{GeographicItem::GEOMETRY_SQL})).geom as the_geom
+          SELECT (ST_DUMP(#{GeographicItem::GEOMETRY_SQL.to_sql})).geom as the_geom
           FROM geographic_items
           WHERE id in (?))
-        AS f", geographic_item_ids])
+        AS f", geographic_item_ids ])
     end
 
     # @param [Interger, Array of Integer] geographic_item_ids
@@ -402,9 +404,9 @@ class GeographicItem < ApplicationRecord
         q1 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_AsText((SELECT polygon FROM geographic_items ' \
             'WHERE id = ?))', id])
         r = GeographicItem.where(
-            # GeographicItem.contained_by_wkt_shifted_sql(GeographicItem.find(id).geo_object.to_s)
-            GeographicItem.contained_by_wkt_shifted_sql(
-                ApplicationRecord.connection.execute(q1).first['st_astext'])
+          # GeographicItem.contained_by_wkt_shifted_sql(GeographicItem.find(id).geo_object.to_s)
+          GeographicItem.contained_by_wkt_shifted_sql(
+            ApplicationRecord.connection.execute(q1).first['st_astext'])
         ).to_a
         results.push(r)
       end
@@ -476,7 +478,7 @@ class GeographicItem < ApplicationRecord
     def containing_where_for_point_sql(rgeo_point)
       "ST_CoveredBy(
         ST_GeomFromText('#{rgeo_point}', 4326),
-        #{GeographicItem::GEOMETRY_SQL}
+        #{GeographicItem::GEOMETRY_SQL.to_sql}
        )"
     end
 
@@ -484,7 +486,7 @@ class GeographicItem < ApplicationRecord
     # @return [String] SQL for geometries
     # example, not used
     def geometry_for_sql(geographic_item_id)
-      'SELECT ' + GeographicItem::GEOMETRY_SQL + ' AS geometry FROM geographic_items WHERE id = ' \
+      'SELECT ' + GeographicItem::GEOMETRY_SQL.to_sql + ' AS geometry FROM geographic_items WHERE id = ' \
             "#{geographic_item_id} LIMIT 1"
     end
 
@@ -492,7 +494,7 @@ class GeographicItem < ApplicationRecord
     # @return [String] SQL for geometries
     # example, not used
     def geometry_for_collection_sql(*geographic_item_ids)
-      'SELECT ' + GeographicItem::GEOMETRY_SQL + ' AS geometry FROM geographic_items WHERE id IN ' \
+      'SELECT ' + GeographicItem::GEOMETRY_SQL.to_sql + ' AS geometry FROM geographic_items WHERE id IN ' \
             "( #{geographic_item_ids.join(',')} )"
     end
 
@@ -526,7 +528,7 @@ class GeographicItem < ApplicationRecord
     # @param [String] 'ASC' or 'DESC'
     # @return [Scope]
     def ordered_by_area(direction = 'ASC')
-      order("ST_Area(#{GeographicItem::GEOMETRY_SQL}) #{direction}")
+      order("ST_Area(#{GeographicItem::GEOMETRY_SQL.to_sql}) #{direction}")
     end
 
     # @return [Scope]
@@ -560,12 +562,12 @@ class GeographicItem < ApplicationRecord
       g2 = georeferences.alias('b')
 
       c = geographic_items.join(g1, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g1[:geographic_item_id]))
-              .join(g2, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g2[:error_geographic_item_id]))
+            .join(g2, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g2[:error_geographic_item_id]))
 
       GeographicItem.joins(# turn the Arel back into scope
-          c.join_sources # translate the Arel join to a join hash(?)
+        c.join_sources # translate the Arel join to a join hash(?)
       ).where(
-          g1[:id].not_eq(nil).or(g2[:id].not_eq(nil)) # returns a Arel::Nodes::Grouping
+        g1[:id].not_eq(nil).or(g2[:id].not_eq(nil)) # returns a Arel::Nodes::Grouping
       ).distinct
     end
 
@@ -666,7 +668,7 @@ class GeographicItem < ApplicationRecord
           q = geographic_item_ids.flatten.collect { |geographic_item_id|
             # discover the item types, and convert type to database type for 'multi_'
             b = GeographicItem.where(id: geographic_item_id)
-                    .pluck(:type)[0].split(':')[2].downcase.gsub('lti', 'lti_')
+                  .pluck(:type)[0].split(':')[2].downcase.gsub('lti', 'lti_')
             # a = GeographicItem.find(geographic_item_id).geo_object_type
             GeographicItem.containing_sql(column_name, geographic_item_id, b)
           }.join(' or ')
@@ -760,7 +762,7 @@ class GeographicItem < ApplicationRecord
     def ordered_by_shortest_distance_from(column_name, geographic_item)
       if true # check_geo_params(column_name, geographic_item)
         select_distance_with_geo_object(column_name, geographic_item)
-            .where_distance_greater_than_zero(column_name, geographic_item).order('distance')
+          .where_distance_greater_than_zero(column_name, geographic_item).order('distance')
       else
         where('false')
       end
@@ -771,8 +773,8 @@ class GeographicItem < ApplicationRecord
     def ordered_by_longest_distance_from(column_name, geographic_item)
       if true # check_geo_params(column_name, geographic_item)
         q = select_distance_with_geo_object(column_name, geographic_item)
-                .where_distance_greater_than_zero(column_name, geographic_item)
-                .order('distance desc')
+              .where_distance_greater_than_zero(column_name, geographic_item)
+              .order('distance desc')
         q
       else
         where('false')
@@ -815,10 +817,11 @@ class GeographicItem < ApplicationRecord
     def distance_between(geographic_item_id1, geographic_item_id2)
       q1 = "ST_Distance(#{GeographicItem::GEOGRAPHY_SQL}, " \
                     "(#{select_geography_sql(geographic_item_id2)})) as distance"
-      _q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance(?, (?)) as distance',
-                                                          GeographicItem::GEOGRAPHY_SQL,
-                                                          select_geography_sql(geographic_item_id2)])
-      GeographicItem.where(id: geographic_item_id1).pluck(q1).first
+      q2 = ActiveRecord::Base.send(
+        :sanitize_sql_array, ['ST_Distance(?, (?)) as distance',
+                              GeographicItem::GEOGRAPHY_SQL,
+                              select_geography_sql(geographic_item_id2)])
+      GeographicItem.where(id: geographic_item_id1).pluck(Arel.sql(q1)).first
     end
 
     # @param [RGeo::Point] point
@@ -855,7 +858,7 @@ class GeographicItem < ApplicationRecord
     # @param [Integer] geographic_item_id
     # @return [RGeo::Geographic object]
     def geometry_for(geographic_item_id)
-      GeographicItem.select(GeographicItem::GEOMETRY_SQL + ' AS geometry').find(geographic_item_id)['geometry']
+      GeographicItem.select(GeographicItem::GEOMETRY_SQL.to_sql + ' AS geometry').find(geographic_item_id)['geometry']
     end
 
     # example, not used
@@ -863,9 +866,9 @@ class GeographicItem < ApplicationRecord
     # @return [Scope]
     def st_multi(*geographic_item_ids)
       GeographicItem.find_by_sql(
-          "SELECT ST_Multi(ST_Collect(g.the_geom)) AS singlegeom
+        "SELECT ST_Multi(ST_Collect(g.the_geom)) AS singlegeom
        FROM (
-          SELECT (ST_DUMP(#{GeographicItem::GEOMETRY_SQL})).geom AS the_geom
+          SELECT (ST_DUMP(#{GeographicItem::GEOMETRY_SQL.to_sql})).geom AS the_geom
           FROM geographic_items
           WHERE id IN (?))
         AS g;", geographic_item_ids.flatten
@@ -1039,14 +1042,14 @@ class GeographicItem < ApplicationRecord
     # !! This ordering basically means that if two areas with country (for example) level are found,
     # the first in the alphabet is selected, then sorting by id if equally named
     (containing_geographic_areas
-         .joins(:geographic_areas_geographic_items)
-         .merge(GeographicAreasGeographicItem.ordered_by_data_origin)
-         .order('geographic_areas.name') +
-        geographic_areas
-            .joins(:geographic_areas_geographic_items)
-            .merge(GeographicAreasGeographicItem
-                       .ordered_by_data_origin)
-            .order('geographic_areas.name').limit(1)).each do |a|
+       .joins(:geographic_areas_geographic_items)
+       .merge(GeographicAreasGeographicItem.ordered_by_data_origin)
+       .order('geographic_areas.name') +
+      geographic_areas
+        .joins(:geographic_areas_geographic_items)
+        .merge(GeographicAreasGeographicItem
+                 .ordered_by_data_origin)
+        .order('geographic_areas.name').limit(1)).each do |a|
       v.merge!(a.categorize)
     end
     v
@@ -1056,7 +1059,7 @@ class GeographicItem < ApplicationRecord
   #   the Geographic Areas that contain (gis) this geographic item
   def containing_geographic_areas
     GeographicArea.joins(:geographic_items).includes(:geographic_area_type)
-        .joins("JOIN (#{GeographicItem.containing(id).to_sql}) j on geographic_items.id = j.id")
+      .joins("JOIN (#{GeographicItem.containing(id).to_sql}) j on geographic_items.id = j.id")
   end
 
   # @return [Boolean]
@@ -1075,9 +1078,9 @@ class GeographicItem < ApplicationRecord
   # @return [Array]
   #   the lat, long, as STRINGs for the centroid of this geographic item
   def center_coords
-    r = GeographicItem.find_by_sql("Select split_part(ST_AsLatLonText(ST_Centroid(#{GeographicItem::GEOMETRY_SQL}), " \
+    r = GeographicItem.find_by_sql("Select split_part(ST_AsLatLonText(ST_Centroid(#{GeographicItem::GEOMETRY_SQL.to_sql}), " \
                     "'D.DDDDDD'), ' ', 1) latitude, split_part(ST_AsLatLonText(ST_Centroid" \
-                    "(#{GeographicItem::GEOMETRY_SQL}), 'D.DDDDDD'), ' ', 2) " \
+                    "(#{GeographicItem::GEOMETRY_SQL.to_sql}), 'D.DDDDDD'), ' ', 2) " \
                     "longitude from geographic_items where id = #{id};")[0]
 
     [r.latitude, r.longitude]
@@ -1096,10 +1099,10 @@ class GeographicItem < ApplicationRecord
   def st_distance(geographic_item_id) # geo_object
     q1 = "ST_Distance((#{GeographicItem.select_geography_sql(id)}), " \
                     "(#{GeographicItem.select_geography_sql(geographic_item_id)})) as d"
-    _q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance((?),(?)) as d',
-                                                        GeographicItem.select_geography_sql(self.id),
-                                                        GeographicItem.select_geography_sql(geographic_item_id)])
-    deg = GeographicItem.where(id: id).pluck(q1).first
+    q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance((?),(?)) as d',
+                                                       GeographicItem.select_geography_sql(self.id),
+                                                       GeographicItem.select_geography_sql(geographic_item_id)])
+    deg = GeographicItem.where(id: id).pluck(Arel.sql(q1)).first
     deg * Utilities::Geo::ONE_WEST
   end
 
@@ -1109,30 +1112,26 @@ class GeographicItem < ApplicationRecord
   # @return [Double] distance in meters (faster, less accurate)
   def st_distance_spheroid(geographic_item_id)
     q1 = "ST_DistanceSpheroid((#{GeographicItem.select_geometry_sql(id)})," \
-                    "(#{GeographicItem.select_geometry_sql(geographic_item_id)}),'#{Gis::SPHEROID}') as distance"
-    _q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_DistanceSpheroid((?),(?),?) as distance',
-                                                        GeographicItem.select_geometry_sql(self.id),
-                                                        GeographicItem.select_geometry_sql(geographic_item_id),
-                                                        Gis::SPHEROID])
-    # q3 = self.class.sanitize_sql_array(["ST_DistanceSpheroid((:sql1),(:sql2),:sphere) as distance",
-    #                                     sql1: GeographicItem.select_geometry_sql(self.id),
-    #                                     sql2: GeographicItem.select_geometry_sql(geographic_item_id),
-    #                                     sphere: Gis::SPHEROID])
-    GeographicItem.where(id: id).pluck(q1).first
+      "(#{GeographicItem.select_geometry_sql(geographic_item_id)}),'#{Gis::SPHEROID}') as distance"
+    q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_DistanceSpheroid((?),(?),?) as distance',
+                                                       GeographicItem.select_geometry_sql(id),
+                                                       GeographicItem.select_geometry_sql(geographic_item_id),
+                                                       Gis::SPHEROID])
+    GeographicItem.where(id: id).pluck(Arel.sql(q1)).first
   end
 
   # @return [String]
   #   a WKT POINT representing the centroid of the geographic item
   def st_centroid
     GeographicItem.where(id: to_param)
-        .pluck("ST_AsEWKT(ST_Centroid(#{GeographicItem::GEOMETRY_SQL}))")
-        .first.gsub(/SRID=\d*;/, '')
+      .pluck(Arel.sql("ST_AsEWKT(ST_Centroid(#{GeographicItem::GEOMETRY_SQL.to_sql}))"))
+      .first.gsub(/SRID=\d*;/, '')
   end
 
   # @return [Integer]
   #   the number of points in the geometry
   def st_npoints
-    GeographicItem.where(id: id).pluck("ST_NPoints(#{GeographicItem::GEOMETRY_SQL}) as npoints").first
+    GeographicItem.where(id: id).pluck(Arel.sql("ST_NPoints(#{GeographicItem::GEOMETRY_SQL.to_sql}) as npoints")).first
   end
 
   # @return [Symbol]
@@ -1214,12 +1213,12 @@ class GeographicItem < ApplicationRecord
   def to_geo_json_feature
     @geometry ||= to_geo_json
     {
-        'type' => 'Feature',
-        'geometry' => geometry,
-        'properties' => {
-            'geographic_item' => {
-                'id' => id}
-        }
+      'type' => 'Feature',
+      'geometry' => geometry,
+      'properties' => {
+        'geographic_item' => {
+          'id' => id}
+      }
     }
   end
 
@@ -1385,3 +1384,5 @@ class GeographicItem < ApplicationRecord
     true
   end
 end
+
+Dir[Rails.root.to_s + '/app/models/geographic_item/**/*.rb'].each { |file| require_dependency file }

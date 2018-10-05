@@ -51,8 +51,8 @@ module ControllerSpecHelper
   # We do this to handle the pre-request stubbing of objects in controllers. 
   # It mocks the behaviour of having accessed at least one page post login. 
   def set_user_project(user_id, project_id)
-    $user_id = user_id
-    $project_id = project_id
+    Current.user_id = user_id
+    Current.project_id = project_id
   end
 
   # Sign in user 1, but do not set project

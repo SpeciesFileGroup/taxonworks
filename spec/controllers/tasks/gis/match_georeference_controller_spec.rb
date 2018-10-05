@@ -2,14 +2,17 @@ require 'rails_helper'
 require 'support/shared_contexts/shared_geo'
 
 describe Tasks::Gis::MatchGeoreferenceController, type: :controller, group: [:geo, :shared_geo] do
-  include_context 'stuff for complex geo tests'
-  let(:ce1) { CollectingEvent.new(verbatim_label:    'One of these',
-                                  verbatim_locality: 'Hazelwood Rock') }
 
   context '/tasks/gis/match_georeference with prebuilt geo objects' do
     before(:each) {
       sign_in
     }
+
+    include_context 'stuff for complex geo tests'
+    
+    let(:ce1) { CollectingEvent.new(
+      verbatim_label: 'One of these',
+      verbatim_locality: 'Hazelwood Rock') }
 
     context 'GET index' do
       it 'returns http success' do

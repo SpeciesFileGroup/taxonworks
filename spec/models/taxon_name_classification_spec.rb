@@ -1,9 +1,5 @@
 require 'rails_helper'
 
-Dir[Rails.root.to_s + '/app/models/taxon_name_classification/**/*.rb'].each {
-  |file| require_dependency(file)
-}
-
 describe TaxonNameClassification, type: :model do
 
   let(:taxon_name_classification) { TaxonNameClassification.new }
@@ -194,5 +190,3 @@ describe TaxonNameClassification, type: :model do
   end
 
 end
-
-

@@ -42,8 +42,8 @@ module Shared::Citations
                                           'AND citations.citation_object_type = ? LEFT OUTER JOIN sources ' \
                                           'ON citations.source_id = sources.id',
                                           related_class])
-      joins(join_str).group("#{related_table_name}.id")
-        .order("MAX(COALESCE(sources.cached_nomenclature_date, Date('1-1-0001'))) DESC")
+    joins(join_str).group("#{related_table_name}.id")
+      .order(Arel.sql("MAX(COALESCE(sources.cached_nomenclature_date, Date('1-1-0001'))) DESC"))
     }
 
     # SEE https://github.com/rails/arel/issues/399 for issue with ordering by named function

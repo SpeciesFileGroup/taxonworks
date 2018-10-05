@@ -1,14 +1,15 @@
-# The information that can be use to differentiate concepts.
+# An Identifier is the information that can be use to differentiate concepts.
+# If an identifier differentiates individuals of all types it is "Global".
+# If an identifier differentiates individuals of one type, within a specific subset of that type, it is "Local".
+#
+# Local identifiers have a namespace, a string that preceeds the variable portion of the identifier.
 #
 # Note this definition is presently very narrow, and that an identifier
 # can in practice be used for a lot more than differentiation (i.e.
 # it can often be resolved etc.).
 #
-# In TW identifiers are either global, in which case they
-# are subclassed by type, and do not include a namespace,
-# or local, in which case they have a namespace.
+# !! Identifiers should always be created in the context of the the object they identify, see spec/lib/identifier_spec.rb for examples  !!
 #
-# !! Identifiers should always be created in the context of their parents see spec/lib/identifier_spec.rb for examples  !!
 #
 # @!attribute identifier
 #   @return [String]
@@ -40,14 +41,14 @@
 #   The type of the identified object, used in a polymorphic relationship.
 #
 class Identifier < ApplicationRecord
+  acts_as_list scope: [:project_id, :identifier_object_type, :identifier_object_id ]
 
-  acts_as_list scope: [:project_id, :identifier_object_id, :identifier_object_type]
-
-  include Housekeeping
-  include Shared::IsData
   include Shared::DualAnnotator
   include Shared::PolymorphicAnnotator
   polymorphic_annotates('identifier_object')
+
+  include Housekeeping # TODO: potential circular dependency constraint when this is before above.
+  include Shared::IsData
 
   after_save :set_cached
   
@@ -65,11 +66,13 @@ class Identifier < ApplicationRecord
     where('identifier LIKE ?', "#{params[:term]}%")
   end
 
+  # @return [String, Identifer]
   def self.prototype_identifier(project_id, created_by_id)
     identifiers = Identifier.where(project_id: project_id, created_by_id: created_by_id).limit(1)
     identifiers.empty? ? '12345678' : identifiers.last.identifier
   end
 
+  # @return [String]
   def type_name
     self.class.name.demodulize.downcase
   end
@@ -77,6 +80,8 @@ class Identifier < ApplicationRecord
   protected
 
   def set_cached
+    # See subclasses.
   end
-
 end
+
+Dir[Rails.root.to_s + '/app/models/identifier/**/*.rb'].sort.each{ |file| require_dependency file } 
