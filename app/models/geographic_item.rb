@@ -129,6 +129,7 @@ class GeographicItem < ApplicationRecord
       GeographicItem.find_by_sql(q1).first.r
     end
 
+    # TODO: * rename to reflect either/or and what is being returned
     # @param [Integer] geographic_area_ids
     # @param [String] shape_in in JSON (POINT, POLYGON, MULTIPOLYGON), usually from GoogleMaps
     # @param [String] search_object_class
