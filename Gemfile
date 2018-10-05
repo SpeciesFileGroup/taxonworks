@@ -79,9 +79,9 @@ gem 'groupdate', '~> 4.0.1'
 gem 'dropzonejs-rails', '~> 0.8.1'
 gem 'kaminari', '~> 1.1.1'
 gem 'best_in_place', '~> 3.1.1'
-gem 'sass-rails', '~> 5.0.7' # auto compresses CSS
 gem 'redcarpet', '~> 3.4'
-gem 'sass', '3.5.7'
+gem 'sassc-rails', '~> 1.3.0'
+gem 'sass', '3.6.0'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '0.4.0'
