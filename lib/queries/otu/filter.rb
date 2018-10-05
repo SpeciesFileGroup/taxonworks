@@ -124,26 +124,19 @@ module Queries
     # 6. find all otus which are associated with result #4 plus result #5
     #
     def geographic_area_scope
-      target_co_ids = []
+      target_geographic_item_ids = []
+
       geographic_area_ids.each do |ga_id|
-        target_co_ids.push(
+        target_geographic_item_ids.push(
             GeographicArea.joins(:geographic_items).find(ga_id).default_geographic_item.id
         )
       end
-      target_ad_ids = GeographicItem.gather_geographic_area_or_shape_data(geographic_area_ids,
-                                                                          nil,
-                                                                          'AssertedDistribution').ids
 
-      co = CollectionObject.joins(:geographic_items)
-              .where(GeographicItem.contained_by_where_sql(target_co_ids.flatten.uniq))
+      a = CollectionObject.joins(:geographic_items)
+        .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
               .distinct
 
-      otu_co = ::Otu.joins(:collection_objects).where(collection_objects: {id: co})
-      otu_ad = ::Otu.joins(:asserted_distributions).where(asserted_distributions: {id: target_ad_ids})
-
-      otu_scope = otu_co.merge(otu_ad)
-      # alternate: Otus.joins(AD).where(AD.GA.GI IN GA.GI || <user polygon>)
-      otu_scope
+      ::Otu.joins(:collection_objects).where(collection_objects: {id: a})
     end
 
     # @return [Scope]
@@ -153,15 +146,8 @@ module Queries
     # 3. find all otus which are associated with result #1 plus result #2
     #
     def shape_scope
-      co = GeographicItem.gather_map_data(shape, 'CollectionObject').distinct.ids
-      ad = GeographicItem.gather_map_data(shape, 'AssertedDistribution').ids
-
-      otu_co = ::Otu.joins(:collection_objects).where(collection_objects: {id: co})
-      otu_ad = ::Otu.joins(:asserted_distributions).where(asserted_distributions: {id: ad})
-
-      otu_scope = otu_co.merge(otu_ad)
-      # alternate: Otus.joins(AD).where(AD.GA.GI IN GA.GI || <user polygon>)
-      otu_scope
+      r42i = GeographicItem.gather_map_data(shape, 'CollectionObject').distinct
+      ::Otu.joins(:collection_objects).where(collection_objects: {id: r42i})
     end
 
     # @return [Scope]
