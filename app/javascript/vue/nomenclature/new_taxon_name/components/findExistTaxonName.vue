@@ -21,11 +21,11 @@
 
 <script>
 
-const spinner = require('../../../components/spinner.vue').default
+import Spinner from '../../../components/spinner.vue'
 
 export default {
   components: {
-    spinner
+    Spinner
   },
   props: {
     url: {

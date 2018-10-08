@@ -33,14 +33,14 @@
 </template>
 
 <script>
-const autocomplete = require('../../../components/autocomplete.vue').default
-const GetterNames = require('../store/getters/getters').GetterNames
-const MutationNames = require('../store/mutations/mutations').MutationNames
-const ActionNames = require('../store/actions/actions').ActionNames
+import Autocomplete from '../../../components/autocomplete.vue'
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
+import { ActionNames } from '../store/actions/actions'
 
 export default {
   components: {
-    autocomplete
+    Autocomplete
   },
   computed: {
     taxon () {

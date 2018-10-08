@@ -11,8 +11,8 @@
 
 <script>
 
-const GetterNames = require('../store/getters/getters').GetterNames
-const ActionNames = require('../store/actions/actions').ActionNames
+import { GetterNames } from '../store/getters/getters'
+import { ActionNames } from '../store/actions/actions'
 
 export default {
   computed: {

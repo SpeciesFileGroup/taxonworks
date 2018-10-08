@@ -22,12 +22,12 @@
 </template>
 <script>
 
-const GetterNames = require('../store/getters/getters').GetterNames
-const modal = require('../../../components/modal.vue').default
+import { GetterNames } from '../store/getters/getters'
+import Modal from 'components/modal.vue'
 
 export default {
   components: {
-    modal
+    Modal
   },
   computed: {
     unsavedChanges () {
