@@ -6,8 +6,8 @@
 </template>
 
 <script>
-const GetterNames = require('../store/getters/getters').GetterNames
-const MutationNames = require('../store/mutations/mutations').MutationNames
+import { GetterNames } from'../store/getters/getters'
+import { MutationNames } from'../store/mutations/mutations'
 
 export default {
   computed: {

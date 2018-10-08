@@ -34,10 +34,10 @@
 </template>
 
 <script>
-const GetterNames = require('../store/getters/getters').GetterNames
-const MutationNames = require('../store/mutations/mutations').MutationNames
-const autocomplete = require('../../../components/autocomplete.vue').default
-const modal = require('../../../components/modal.vue').default
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
+import Autocomplete from 'components/autocomplete.vue'
+import Modal from 'components/modal.vue'
 
 export default {
   data: function () {
@@ -46,8 +46,8 @@ export default {
     }
   },
   components: {
-    autocomplete,
-    modal
+    Autocomplete,
+    Modal
   },
   computed: {
     source () {
