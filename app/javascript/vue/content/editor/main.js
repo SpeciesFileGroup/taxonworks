@@ -6,22 +6,21 @@ TW.views.tasks.content.editor = TW.views.tasks.content.editor || {}
 
 import Vue from 'vue'
 import vueResource from 'vue-resource'
+import { newStore } from './store/store.js'
+import App from './app.vue'
 
 Object.assign(TW.views.tasks.content.editor, {
   init: function () {
     Vue.use(vueResource)
-
-    var store = require('./store/store.js').newStore()
-    var App = require('./app.vue').default
     var token = $('[name="csrf-token"]').attr('content')
     Vue.http.headers.common['X-CSRF-Token'] = token
 
     new Vue({
-      store,
-		  	el: '#content_editor',
-		  	render: function (createElement) {
-		  		return createElement(App)
-		  	}
+      store: newStore,
+      el: '#content_editor',
+			render: function (createElement) {
+        return createElement(App)
+      }
     })
   }
 })

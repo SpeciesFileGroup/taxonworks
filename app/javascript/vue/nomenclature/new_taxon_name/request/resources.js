@@ -3,8 +3,12 @@ import VueResource from 'vue-resource'
 
 Vue.use(VueResource)
 
-var token = $('[name="csrf-token"]').attr('content')
-Vue.http.headers.common['X-CSRF-Token'] = token
+const init = function () {
+  var token = $('[name="csrf-token"]').attr('content')
+  Vue.http.headers.common['X-CSRF-Token'] = token
+}
+
+
 
 const createTaxonName = function (taxon) {
   return new Promise(function (resolve, reject) {
@@ -217,6 +221,7 @@ const loadTaxonRelationships = function (id) {
 }
 
 export {
+  init,
   createTaxonName,
   updateTaxonName,
   updateClassification,
