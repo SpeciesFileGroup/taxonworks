@@ -5,6 +5,7 @@ module Queries
 
     # Query variables
     attr_accessor :geographic_area_ids, :shape
+    attr_accessor :selection_objects
     attr_accessor :descendants, :rank_class
     attr_accessor :author_ids, :and_or_select
 
@@ -20,6 +21,7 @@ module Queries
 
       @geographic_area_ids = params[:geographic_area_ids]
       @shape = params[:drawn_area_shape]
+      @selection_objects = params[:selection_objects] || ['CollectionObject', 'AssertedDistribution']
       @author_ids = params[:author_ids]
       @verbatim_author = params[:verbatim_author]
 
