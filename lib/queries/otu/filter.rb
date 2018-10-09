@@ -137,8 +137,9 @@ module Queries
       gi_sql = GeographicItem.contained_by_where_sql(target_geographic_item_ids)
       co_ids = CollectionObject.joins(:geographic_items).where(gi_sql).distinct.ids
 
-      ad_ids = AssertedDistribution.joins(:geographic_area).joins(:geographic_items).where(gi_sql).distinct.ids
-      ::Otu.joins(:asserted_distributions).where(asserted_distributions: {id: ad_ids})
+      ad_ids = AssertedDistribution.joins(:geographic_items)
+                   .where(geographic_items: target_geographic_item_ids).distinct.ids
+      ad_os = ::Otu.joins(:asserted_distributions).where(asserted_distributions: {id: ad_ids})
 
       ::Otu.joins(:collection_objects).where(collection_objects: {id: co_ids})
     end
