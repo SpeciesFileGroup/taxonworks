@@ -44,7 +44,7 @@
     },
     methods: {
       getCites() {
-        this.$http.get('/citations.json?citation_object_type=TaxonName&source_id=' + this.sourceID).then(response => {
+        this.$http.get('/citations.json?verbose_object=true&citation_object_type=TaxonName&source_id=' + this.sourceID).then(response => {
           // build the tabular list, extracting the
           this.taxon_names_cites_list = response.body;
           this.$emit("taxon_names_cites", this.taxon_names_cites_list)
