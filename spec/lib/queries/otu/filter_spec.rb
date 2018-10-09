@@ -163,22 +163,22 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     end
 
     context 'area search' do
-      context 'named area' do
-        let(:cite2) { FactoryBot.create(:valid_citation, citation_object: by_bill) }
-        let(:ad2) do
-          ad = AssertedDistribution.new(otu: by_bill,
-                                       geographic_area: sub_area_b,
-                                       by: geo_user,
-                                       project: geo_project)
-          ad.origin_citation = cite2
-          ad.save!
-          ad
-        end
-        let(:params) do
-          {geographic_area_ids: [area_b.id],
-           selection_objects: ['CollectionObject', 'AssertedDistribution']}
-        end
+      let(:cite2) { FactoryBot.create(:valid_citation, citation_object: by_bill) }
+      let(:ad2) do
+        ad = AssertedDistribution.new(otu: by_bill,
+                                      geographic_area: sub_area_b,
+                                      by: geo_user,
+                                      project: geo_project)
+        ad.origin_citation = cite2
+        ad.save!
+        ad
+      end
+      let(:params) do
+        {geographic_area_ids: [area_b.id],
+         selection_objects: ['CollectionObject', 'AssertedDistribution']}
+      end
 
+      context 'named area' do
         specify 'nomen count' do
           ad2 # create the asserted_distribution to find.
           result = Queries::Otu::Filter.new(params).result
@@ -193,14 +193,22 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
       end
 
       context 'area shapes' do
-        let(:params) { {drawn_area_shape: area_a.to_simple_json_feature} }
+        let(:params) { {drawn_area_shape: area_b.to_simple_json_feature,
+                        selection_objects: ['CollectionObject', 'AssertedDistribution']} }
+        let(:ad2a) do
+          ad2.geographic_area = sub_area_a
+          ad2.save!
+          ad2
+        end
 
         specify 'nomen count' do
+          ad2a # create the asserted_distribution to find.
           result = Queries::Otu::Filter.new(params).result
-          expect(result.count).to eq(6)
+          expect(result.count).to eq(7) # six by 'CollectionObject', one by 'AssertedDistribution'
         end
 
         specify 'specific nomen' do
+          ad2a # create the asserted_distribution to find.
           result = Queries::Otu::Filter.new(params).result
           expect(result).to include(top_dog, by_bill, otu_a, abra, cadabra, alakazam)
         end

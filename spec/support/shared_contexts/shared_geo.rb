@@ -596,6 +596,15 @@ shared_context 'stuff for complex geo tests' do
                                    RSPEC_GEO_FACTORY.point(0, 0, 0.0)])
   }
 
+  # sub_list_box_a is completely inside list_box_a, specifically so that it can be found in list_box_a
+  let(:sub_list_box_a) {
+    RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0.5, 0.5, 0.0),
+                                   RSPEC_GEO_FACTORY.point(0.5, 9.5, 0.0),
+                                   RSPEC_GEO_FACTORY.point(9.5, 9.5, 0.0),
+                                   RSPEC_GEO_FACTORY.point(9.5, 0.5, 0.0),
+                                   RSPEC_GEO_FACTORY.point(0.5, 0.5, 0.0)])
+  }
+
   let(:list_box_b) {
     RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
                                    RSPEC_GEO_FACTORY.point(10, 0, 0.0),
@@ -662,6 +671,7 @@ shared_context 'stuff for complex geo tests' do
   }
 
   let(:box_a) { RSPEC_GEO_FACTORY.polygon(list_box_a) }
+  let(:sub_box_a) { RSPEC_GEO_FACTORY.polygon(sub_list_box_a) }
   let(:box_b) { RSPEC_GEO_FACTORY.polygon(list_box_b) }
   let(:sub_box_b) { RSPEC_GEO_FACTORY.polygon(sub_list_box_b) }
   let(:box_c) { RSPEC_GEO_FACTORY.polygon(list_box_c) }
@@ -674,6 +684,10 @@ shared_context 'stuff for complex geo tests' do
   let(:new_box_a) { FactoryBot.create(:geographic_item_multi_polygon,
                                       multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([box_a]),
                                       by: geo_user) }
+
+  let(:new_sub_box_a) { FactoryBot.create(:geographic_item_multi_polygon,
+                                          multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([sub_box_a]),
+                                          by: geo_user) }
 
   let(:new_box_b) { FactoryBot.create(:geographic_item_multi_polygon,
                                       multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([box_b]),
@@ -728,10 +742,10 @@ shared_context 'stuff for complex geo tests' do
 -10, -10 |-------------------|  10, -10 |---------|---------|  |---------|---------|
 
                                         |---------|---------|
-                                        |                   |
-                                        |                   |
-                                        |                   |
-                                        |                   |
+                                        |         ||-------||
+                                        |         ||sub_box||
+                                        |         ||   a   ||
+                                        |         ||-------||
                                         |         |---------|
                                         |         ||-------||
                                         |         ||sub_box||
@@ -754,6 +768,18 @@ shared_context 'stuff for complex geo tests' do
       parent: area_e,
       by: geo_user,
       geographic_areas_geographic_items_attributes: [{geographic_item: new_box_a }])
+  }
+
+  let(:sub_area_a) {
+    FactoryBot.create(
+        :level2_geographic_area,
+        name: 'sub_box a',
+        geographic_area_type: parish_gat,
+        iso_3166_a3: nil,
+        iso_3166_a2: nil,
+        parent: area_a,
+        by: geo_user,
+        geographic_areas_geographic_items_attributes: [{geographic_item: new_sub_box_a}])
   }
 
   let(:area_b) {
