@@ -42,8 +42,8 @@
 </template>
 
 <script>
-  const MutationNames = require('../store/mutations/mutations').MutationNames
-  const modal = require('../../../components/modal.vue').default
+  import { MutationNames } from '../store/mutations/mutations'
+  import Modal from '../../../components/modal.vue'
 
   export default {
     data: function () {
@@ -59,7 +59,7 @@
       }
     },
     components: {
-      modal
+      Modal
     },
     methods: {
       openWindow: function () {

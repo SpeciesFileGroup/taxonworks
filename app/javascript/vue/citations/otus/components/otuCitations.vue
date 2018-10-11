@@ -16,7 +16,7 @@
 
 <script>
 
-const MutationNames = require('../store/mutations/mutations').MutationNames
+import { MutationNames } from '../store/mutations/mutations'
 
 export default {
   computed: {

@@ -19,8 +19,8 @@
 </template>
 <script>
 
-  const GetterNames = require('../store/getters/getters').GetterNames
-  const topicCheckbox = require('./topicCheckbox.vue').default
+  import { GetterNames } from '../store/getters/getters'
+  import TopicCheckbox from './topicCheckbox.vue'
 
   export default {
     computed: {
@@ -32,7 +32,7 @@
       }
     },
     components: {
-      topicCheckbox
+      TopicCheckbox
     }
   }
 </script>

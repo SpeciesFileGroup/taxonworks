@@ -34,9 +34,9 @@
 </template>
 
 <script>
-  const GetterNames = require('../store/getters/getters').GetterNames
-  const MutationNames = require('../store/mutations/mutations').MutationNames
-  const modal = require('../../../components/modal.vue').default
+  import { GetterNames } from '../store/getters/getters'
+  import { MutationNames } from '../store/mutations/mutations'
+  import Modal from 'components/modal.vue'
 
   export default {
     data: function () {
@@ -47,7 +47,7 @@
     },
     name: 'SelectTopicOtu',
     components: {
-      modal
+      Modal
     },
     computed: {
       topic() {
