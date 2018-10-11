@@ -47,8 +47,8 @@
       </div>
     </div>
 
-    <div class="item item2">
-      <div class="flexbox">
+    <div class="item item2 separate-bottom">
+      <div class="flexbox separate-bottom">
         <div class="panel separate-left separate-right">
           <div class="break_words">
             <div class="content subtitle filter middle"> 
@@ -92,8 +92,8 @@
       </div>
 
     <% if @taxon_name.depictions.any? %>
-      <div class="separate-top">
-        <div id="depiction-panel" class="panel content separate-left separate-bottom">
+      <div>
+        <div id="depiction-panel" class="panel content separate-left">
           <h2> Depictions </h2>
           <div class="horizontal-left-content flexbox"> 
           <%= thumb_list_tag(@taxon_name) -%>
