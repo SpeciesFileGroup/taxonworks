@@ -124,17 +124,17 @@ class GeographicItem < ApplicationRecord
     def crosses_anti_meridian_by_id?(*ids)
       q1 = ["SELECT ST_Intersects((SELECT single_geometry FROM (#{GeographicItem.single_geometry_sql(*ids)}) as " \
             'left_intersect), ST_GeogFromText(?)) as r;', ANTI_MERIDIAN]
-      q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_Intersects((SELECT single_geometry FROM (?) as ' \
+      _q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_Intersects((SELECT single_geometry FROM (?) as ' \
             'left_intersect), ST_GeogFromText(?)) as r;', GeographicItem.single_geometry_sql(*ids), ANTI_MERIDIAN])
       GeographicItem.find_by_sql(q1).first.r
     end
 
     # TODO: * rename to reflect either/or and what is being returned
     # @param [Integer] geographic_area_ids
-    # @param [String] shape_in in JSON (TODO: what kind? / details on specification)
+    # @param [String] shape_in in JSON (POINT, POLYGON, MULTIPOLYGON), usually from GoogleMaps
     # @param [String] search_object_class
     # @return [Scope] of the requested search_object_type
-    def gather_selected_data(geographic_area_ids, shape_in, search_object_class)
+    def gather_geographic_area_or_shape_data(geographic_area_ids, shape_in, search_object_class)
       if shape_in.blank?
         # get the shape from the geographic area, if possible
         finding = search_object_class.constantize
@@ -148,8 +148,18 @@ class GeographicItem < ApplicationRecord
                                               .find(gaid)
                                               .default_geographic_item.id)
           end
-          found = finding.joins(:geographic_items)
-                    .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
+          case search_object_class
+            when /Collection/
+              found = finding.joins(:geographic_items)
+                          .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
+            when /Asserted/
+              # TODO: Figure out how to see through this group of geographic_items to the ones which contain
+              # geographic_items which are associated with geographic_areas (as #default_geographic_items)
+              # which are associated with asserted_distributions
+              found = finding.joins(:geographic_area).joins(:geographic_items)
+                          .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
+            else
+          end
         end
       else
         found = gather_map_data(shape_in, search_object_class)
@@ -817,7 +827,7 @@ class GeographicItem < ApplicationRecord
     def distance_between(geographic_item_id1, geographic_item_id2)
       q1 = "ST_Distance(#{GeographicItem::GEOGRAPHY_SQL}, " \
                     "(#{select_geography_sql(geographic_item_id2)})) as distance"
-      q2 = ActiveRecord::Base.send(
+      _q2 = ActiveRecord::Base.send(
         :sanitize_sql_array, ['ST_Distance(?, (?)) as distance',
                               GeographicItem::GEOGRAPHY_SQL,
                               select_geography_sql(geographic_item_id2)])
@@ -1099,7 +1109,7 @@ class GeographicItem < ApplicationRecord
   def st_distance(geographic_item_id) # geo_object
     q1 = "ST_Distance((#{GeographicItem.select_geography_sql(id)}), " \
                     "(#{GeographicItem.select_geography_sql(geographic_item_id)})) as d"
-    q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance((?),(?)) as d',
+    _q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance((?),(?)) as d',
                                                        GeographicItem.select_geography_sql(self.id),
                                                        GeographicItem.select_geography_sql(geographic_item_id)])
     deg = GeographicItem.where(id: id).pluck(Arel.sql(q1)).first
@@ -1113,7 +1123,7 @@ class GeographicItem < ApplicationRecord
   def st_distance_spheroid(geographic_item_id)
     q1 = "ST_DistanceSpheroid((#{GeographicItem.select_geometry_sql(id)})," \
       "(#{GeographicItem.select_geometry_sql(geographic_item_id)}),'#{Gis::SPHEROID}') as distance"
-    q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_DistanceSpheroid((?),(?),?) as distance',
+    _q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_DistanceSpheroid((?),(?),?) as distance',
                                                        GeographicItem.select_geometry_sql(id),
                                                        GeographicItem.select_geometry_sql(geographic_item_id),
                                                        Gis::SPHEROID])

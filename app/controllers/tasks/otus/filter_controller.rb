@@ -60,7 +60,7 @@ class Tasks::Otus::FilterController < ApplicationController
     params.permit(
       :drawn_area_shape, :taxon_name_id, :descendants,
       :and_or_select, :rank_class, :page,
-      :verbatim_author_string, author_ids: [], geographic_area_ids: [])
+      :verbatim_author_string, author_ids: [], geographic_area_ids: [], selection_objetcs: [])
   end
 
 end

@@ -1004,6 +1004,15 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           end
         end
       end
+
+      context '::gather_geographic_area_or_shape_data' do
+        specify 'collection_objetcs' do
+
+        end
+        specify 'asserted_distribution' do
+
+        end
+      end
     end
   end # end using ce_test_objects
 

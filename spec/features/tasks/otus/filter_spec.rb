@@ -12,13 +12,13 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
       before {
         sign_in_user_and_select_project
       }
-      
+
       include_context 'stuff for complex geo tests'
 
-      before { [co_a, co_b, gr_a, gr_b].each }
+      before { [co_a, co_b, gr_a, gr_b, ad2].each }
 
       describe '#set_area', js: true do #
-        it 'renders count of otus in a specific names area' do
+        it 'renders count of otus in a specific names area A' do
           visit(index_path)
           page.execute_script "$('#set_area')[0].scrollIntoView()"
           fill_area_picker_autocomplete('area_picker_autocomplete', with: 'A', select: area_a.id)
@@ -26,15 +26,16 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
           expect(find('#area_count')).to have_text('6')
         end
 
-        it 'renders count of otus in a specific names area' do
+        it 'renders count of otus in a specific names area B' do
           visit(index_path)
           page.execute_script "$('#set_area')[0].scrollIntoView()"
           fill_area_picker_autocomplete('area_picker_autocomplete', with: 'B', select: area_b.id)
           click_button('Set area')
-          expect(find('#area_count')).to have_text('3')
+          expect(find('#area_count')).to have_text('4') # three by collection object,
+          # and one by asserted distribution
         end
 
-        it 'renders count of otus in a specific names area' do
+        it 'renders count of otus in a specific names area E' do
           visit(index_path)
           page.execute_script "$('#set_area')[0].scrollIntoView()"
           fill_area_picker_autocomplete('area_picker_autocomplete', with: 'E', select: area_e.id)
@@ -49,7 +50,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
           this_xpath = find(:xpath, "//input[@id='drawn_area_shape']")
           this_xpath.set area_b.to_simple_json_feature.to_s.gsub('=>', ':')
           click_button('Set area')
-          expect(find('#area_count')).to have_text('3')
+          expect(find('#area_count')).to have_text('4')
         end
 
         it 'renders count of otus in a drawn area' do

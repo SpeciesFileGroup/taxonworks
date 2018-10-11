@@ -19,16 +19,16 @@ shared_context 'stuff for complex geo tests' do
   # Our simple world is used to X.
   # It contains the following:
   # TODO: enumerate
-  # * A 
+  # * A
   # * B
   # * C
   #
-  # To use elements of the world invoke them in a begin block: 
+  # To use elements of the world invoke them in a begin block:
   #   begin do
   #     co_a
   #     co_b
   #   end
-  #  
+  #
 
   let(:geo_root_taxon_name) { Protonym.create!(name: 'Root', parent: nil, rank_class: NomenclaturalRank, by: geo_user, project: geo_project) }
   let(:geo_species) { Protonym.create!(name: 'antivitis', parent: geo_root_taxon_name , rank_class: Ranks.lookup(:iczn, :species), by: geo_user, project: geo_project) }
@@ -38,18 +38,18 @@ shared_context 'stuff for complex geo tests' do
     parent: geo_root_taxon_name,
     rank_class: Ranks.lookup(:iczn, :family),
     by: geo_user, project: geo_project,
-    taxon_name_author_roles_attributes: [{person: ted, by: geo_user, project: geo_project}]) 
+    taxon_name_author_roles_attributes: [{person: ted, by: geo_user, project: geo_project}])
   }
 
   let(:geo_family2) { Protonym.create!(
-    name: 'Nutherdogidae', 
-    parent: geo_root_taxon_name, 
+    name: 'Nutherdogidae',
+    parent: geo_root_taxon_name,
     rank_class: Ranks.lookup(:iczn, :family),
     by: geo_user,
     project: geo_project,
     taxon_name_author_roles_attributes: [
-      {person: bill, by: geo_user, project: geo_project}, 
-      {person: ted, by: geo_user, project: geo_project}, 
+      {person: bill, by: geo_user, project: geo_project},
+      {person: ted, by: geo_user, project: geo_project},
       {person: sargon, by: geo_user, project: geo_project}])
   }
 
@@ -67,7 +67,7 @@ shared_context 'stuff for complex geo tests' do
     rank_class: Ranks.lookup(:iczn, :species),
     parent: tn_abra,
     by: geo_user,
-    project: geo_project, 
+    project: geo_project,
     taxon_name_author_roles_attributes: [{person: sargon, by: geo_user, project: geo_project}, {person: daryl, by: geo_user, project: geo_project}])
   }
 
@@ -96,7 +96,7 @@ shared_context 'stuff for complex geo tests' do
   let(:tn_beevitis) { Protonym.create!(
     name: 'beevitis',
     rank_class: Ranks.lookup(:iczn, :species),
-    parent: geo_root_taxon_name, 
+    parent: geo_root_taxon_name,
     by: geo_user,
     project: geo_project)
   }
@@ -124,7 +124,7 @@ shared_context 'stuff for complex geo tests' do
     by: geo_user)
   }
 
-  let(:spooler) { 
+  let(:spooler) {
     Otu.create!(
       name: "Sargon's spooler",
       project: geo_project,
@@ -133,7 +133,7 @@ shared_context 'stuff for complex geo tests' do
       updater: geo_user)
   }
 
-  let(:otu_p4) { 
+  let(:otu_p4) {
     Otu.create!(
       name: 'P4',
       taxon_name: tn_beevitis,
@@ -596,12 +596,30 @@ shared_context 'stuff for complex geo tests' do
                                    RSPEC_GEO_FACTORY.point(0, 0, 0.0)])
   }
 
+  # sub_list_box_a is completely inside list_box_a, specifically so that it can be found in list_box_a
+  let(:sub_list_box_a) {
+    RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0.5, 0.5, 0.0),
+                                   RSPEC_GEO_FACTORY.point(0.5, 9.5, 0.0),
+                                   RSPEC_GEO_FACTORY.point(9.5, 9.5, 0.0),
+                                   RSPEC_GEO_FACTORY.point(9.5, 0.5, 0.0),
+                                   RSPEC_GEO_FACTORY.point(0.5, 0.5, 0.0)])
+  }
+
   let(:list_box_b) {
     RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
                                    RSPEC_GEO_FACTORY.point(10, 0, 0.0),
                                    RSPEC_GEO_FACTORY.point(10, -10, 0.0),
                                    RSPEC_GEO_FACTORY.point(0, -10, 0.0),
                                    RSPEC_GEO_FACTORY.point(0, 0, 0.0)])
+  }
+
+  # sub_list_box_b is completely inside list_box_b, specifically so that it can be found in list_box_b
+  let(:sub_list_box_b) {
+    RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0.5, -0.5, 0.0),
+                                   RSPEC_GEO_FACTORY.point(9.5, -0.5, 0.0),
+                                   RSPEC_GEO_FACTORY.point(9.5, -9.5, 0.0),
+                                   RSPEC_GEO_FACTORY.point(0.5, -9.5, 0.0),
+                                   RSPEC_GEO_FACTORY.point(0.5, -0.5, 0.0)])
   }
 
   let(:list_box_c) {
@@ -653,7 +671,9 @@ shared_context 'stuff for complex geo tests' do
   }
 
   let(:box_a) { RSPEC_GEO_FACTORY.polygon(list_box_a) }
+  let(:sub_box_a) { RSPEC_GEO_FACTORY.polygon(sub_list_box_a) }
   let(:box_b) { RSPEC_GEO_FACTORY.polygon(list_box_b) }
+  let(:sub_box_b) { RSPEC_GEO_FACTORY.polygon(sub_list_box_b) }
   let(:box_c) { RSPEC_GEO_FACTORY.polygon(list_box_c) }
   let(:box_d) { RSPEC_GEO_FACTORY.polygon(list_box_d) }
   let(:box_e) { RSPEC_GEO_FACTORY.polygon(list_box_e) }
@@ -665,8 +685,16 @@ shared_context 'stuff for complex geo tests' do
                                       multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([box_a]),
                                       by: geo_user) }
 
+  let(:new_sub_box_a) { FactoryBot.create(:geographic_item_multi_polygon,
+                                          multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([sub_box_a]),
+                                          by: geo_user) }
+
   let(:new_box_b) { FactoryBot.create(:geographic_item_multi_polygon,
                                       multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([box_b]),
+                                      by: geo_user) }
+
+  let(:new_sub_box_b) { FactoryBot.create(:geographic_item_multi_polygon,
+                                      multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([sub_box_b]),
                                       by: geo_user) }
 
   let(:new_box_c) { FactoryBot.create(:geographic_item_multi_polygon,
@@ -692,6 +720,43 @@ shared_context 'stuff for complex geo tests' do
   let(:new_box_l2) { FactoryBot.create(:geographic_item_multi_polygon,
                                        multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([box_l2]),
                                        updater: geo_user) }
+=begin
+
+  Small World is a 2 by 2 matrix of squares, centered aroung co-ordinates 0, 0, and
+  extending 10 degrees in each cardinal direction.
+
+* E and F are level 0, and children of planet_earth
+* A and B are level 1, and children of E
+* C and D are level 1, and children of F
+
+-10,  10 |-------------------|  10,  10 |---------|---------|  |---------|---------|
+         |                   |          |         |         |  |         |         |
+         |                   |          |    D    |    A    |  |         |         |
+         |                   |          |         |         |  |         |         |
+         |                   |          |         |         |  |         |         |
+         |       0, 0        |          |---------|---------|  |    F    |    E    |
+         |                   |          |         |         |  |         |         |
+         |                   |          |    C    |    B    |  |         |         |
+         |                   |          |         |         |  |         |         |
+         |                   |          |         |         |  |         |         |
+-10, -10 |-------------------|  10, -10 |---------|---------|  |---------|---------|
+
+                                        |---------|---------|
+                                        |         ||-------||
+                                        |         ||sub_box||
+                                        |         ||   a   ||
+                                        |         ||-------||
+                                        |         |---------|
+                                        |         ||-------||
+                                        |         ||sub_box||
+                                        |         ||   b   ||
+                                        |         ||-------||
+                                        |---------|---------|
+
+
+
+
+=end
 
   let(:area_a) {
     FactoryBot.create(
@@ -705,16 +770,40 @@ shared_context 'stuff for complex geo tests' do
       geographic_areas_geographic_items_attributes: [{geographic_item: new_box_a }])
   }
 
+  let(:sub_area_a) {
+    FactoryBot.create(
+        :level2_geographic_area,
+        name: 'sub_box a',
+        geographic_area_type: parish_gat,
+        iso_3166_a3: nil,
+        iso_3166_a2: nil,
+        parent: area_a,
+        by: geo_user,
+        geographic_areas_geographic_items_attributes: [{geographic_item: new_sub_box_a}])
+  }
+
   let(:area_b) {
     FactoryBot.create(
-      :level1_geographic_area,
-      name: 'B',
-      geographic_area_type: parish_gat,
-      iso_3166_a3: nil,
-      iso_3166_a2: nil,
-      parent: area_e,
-      by: geo_user,
-      geographic_areas_geographic_items_attributes: [{geographic_item: new_box_b}])
+        :level1_geographic_area,
+        name: 'B',
+        geographic_area_type: parish_gat,
+        iso_3166_a3: nil,
+        iso_3166_a2: nil,
+        parent: area_e,
+        by: geo_user,
+        geographic_areas_geographic_items_attributes: [{geographic_item: new_box_b}])
+  }
+
+  let(:sub_area_b) {
+    FactoryBot.create(
+        :level2_geographic_area,
+        name: 'sub_box b',
+        geographic_area_type: parish_gat,
+        iso_3166_a3: nil,
+        iso_3166_a2: nil,
+        parent: area_b,
+        by: geo_user,
+        geographic_areas_geographic_items_attributes: [{geographic_item: new_sub_box_b}])
   }
 
   let(:area_c) {
@@ -748,7 +837,7 @@ shared_context 'stuff for complex geo tests' do
       geographic_area_type: country_gat,
       iso_3166_a3: nil,
       iso_3166_a2: nil,
-      parent: earth,
+      parent: parent_earth,
       by: geo_user,
       geographic_areas_geographic_items_attributes: [{geographic_item: new_box_e}])
   }
@@ -760,7 +849,7 @@ shared_context 'stuff for complex geo tests' do
       geographic_area_type: land_mass_gat,
       iso_3166_a3: nil,
       iso_3166_a2: nil,
-      parent: earth,
+      parent: parent_earth,
       by: geo_user,
       geographic_areas_geographic_items_attributes: [{geographic_item: new_box_e}])
   }
@@ -776,6 +865,24 @@ shared_context 'stuff for complex geo tests' do
       by: geo_user,
       geographic_areas_geographic_items_attributes: [{geographic_item: new_box_e}])
   }
+
+  # AssertedDistributions
+  let(:source2) { FactoryBot.create(:valid_source, by: geo_user) }
+  let(:cite2) do
+    FactoryBot.create(:valid_citation, {citation_object: by_bill,
+                                        source: source2,
+                                        by: geo_user,
+                                        project: geo_project})
+  end
+  let(:ad2) do
+    ad = AssertedDistribution.new(otu: by_bill,
+                                  geographic_area: sub_area_b,
+                                  by: geo_user,
+                                  project: geo_project)
+    ad.origin_citation = cite2
+    ad.save!
+    ad
+  end
 
   # Collecting Events
   let(:ce_p0) { FactoryBot.create(:collecting_event, verbatim_label: '@ce_p0') }
@@ -801,7 +908,7 @@ shared_context 'stuff for complex geo tests' do
                                  api_request: 'gr05',
                                  collecting_event: ce_p5,
                                  geographic_item: p5) }
-  
+
   let(:gr15) { FactoryBot.create(:georeference_verbatim_data,
                                  api_request: 'gr15',
                                  collecting_event: ce_p5,
@@ -884,7 +991,8 @@ shared_context 'stuff for complex geo tests' do
       geographic_area: area_b,
       project: geo_project,
       by: geo_user,
-      collector_roles_attributes: [{person: sargon , project: geo_project, by: geo_user}, {person: daryl, project: geo_project, by: geo_user}] 
+      collector_roles_attributes: [{person: sargon , project: geo_project, by: geo_user},
+                                   {person: daryl, project: geo_project, by: geo_user}]
     )
   }
 
@@ -971,7 +1079,7 @@ shared_context 'stuff for complex geo tests' do
 
   let(:err_b) { GeographicItem::Polygon.create!(polygon: RSPEC_GEO_FACTORY.polygon(polygon_inner), by: geo_user) }
 
-  let(:gr_b) { 
+  let(:gr_b) {
     Georeference::VerbatimData.create!(
       api_request: 'area_b',
       collecting_event: ce_b,
@@ -990,14 +1098,14 @@ shared_context 'stuff for complex geo tests' do
 
   # need some otus
   let(:top_dog) { Otu.create!(
-    name: 'Top Dog', 
+    name: 'Top Dog',
     taxon_name: geo_family1,
     project: geo_project,
     by: geo_user
   )
   }
 
-  let(:by_bill) { 
+  let(:by_bill) {
     Otu.create!(
       name: 'Top Dog (by Bill)',
       taxon_name: geo_family1,
@@ -1008,7 +1116,7 @@ shared_context 'stuff for complex geo tests' do
 
   let(:nuther_dog) {
     Otu.create!(
-      name: 'Another Dog', 
+      name: 'Another Dog',
       taxon_name: geo_family2,
       by: geo_user,
       project: geo_project,
@@ -1016,8 +1124,8 @@ shared_context 'stuff for complex geo tests' do
   }
 
   #
-  # Possible logical break (above/below)  
-  # 
+  # Possible logical break (above/below)
+  #
 
   # GeographicItem interactions
   let(:all_items) { FactoryBot.create(:geographic_item_geometry_collection,
@@ -1104,7 +1212,7 @@ shared_context 'stuff for complex geo tests' do
     error_geographic_item: k,
     geographic_item: p1,
     by: geo_user,
-    project: geo_project) 
+    project: geo_project)
   } #  3
 
   let(:gr11s) { FactoryBot.create(
@@ -1113,7 +1221,7 @@ shared_context 'stuff for complex geo tests' do
     error_geographic_item: e1,
     collecting_event: ce_p1s,
     geographic_item: p11,
-    by: geo_user, 
+    by: geo_user,
     project: geo_project)
   } #  4
 
@@ -1121,7 +1229,7 @@ shared_context 'stuff for complex geo tests' do
     :collecting_event,
     verbatim_label: '@ce_p2s collect_event test',
     by: geo_user,
-    project: geo_project) 
+    project: geo_project)
   }
 
   let(:gr02s) { FactoryBot.create(:georeference_verbatim_data,
@@ -1139,7 +1247,7 @@ shared_context 'stuff for complex geo tests' do
     project: geo_project) }
 
   let(:ce_p3s) { FactoryBot.create(:collecting_event, verbatim_label: '@ce_p3s collect_event test') }
- 
+
   let(:gr03s) { FactoryBot.create(:georeference_verbatim_data,
                                   api_request: 'gr03s',
                                   collecting_event: ce_p3s,
@@ -1163,7 +1271,7 @@ shared_context 'stuff for complex geo tests' do
                                               data_origin: ga_data_origin,
                                               by: geo_user)
   }
-  
+
   let(:parent_country) {
     ga = GeographicArea.create!(name: 'United States of America',
                                 iso_3166_a3: 'USA',
@@ -1205,7 +1313,7 @@ shared_context 'stuff for complex geo tests' do
   ga.save!
   ga
   }
-  
+
   let!(:country_gat) { GeographicAreaType.create!(name: 'Country', by: geo_user) }
   let!(:state_gat) { GeographicAreaType.create!(name: 'State', by: geo_user) }
   let(:province_gat) { GeographicAreaType.create!(name: 'Province', by: geo_user) }
@@ -1229,11 +1337,11 @@ shared_context 'stuff for complex geo tests' do
     il.geographic_items << GeographicItem::MultiPolygon.create!(multi_polygon: il_shape, by: geo_user)
     il
   }
-  
+
   let(:ford) {
     FactoryBot.create(:level2_geographic_area, name: 'Ford', parent: illinois, by: geo_user)
   }
- 
+
   let(:usa) { illinois.parent }
   let(:earth) {
     usa.parent
@@ -1245,10 +1353,10 @@ shared_context 'stuff for complex geo tests' do
   let(:rooms) { FactoryBot.create(:geographic_item_multi_point, multi_point: rooms20nn.as_binary, by: geo_user) } # 53
 
 =begin
-  
+
  Objects in Big Boxia.
 
- Big Boxia is a ... . 
+ Big Boxia is a ... .
 
 
 4 by 4 matrix of squares:
@@ -1515,7 +1623,7 @@ Two different shapes with the same name, 'East Boxia', and
   area.save!
   area
   }
- 
+
   let(:area_rm4) {
     area = FactoryBot.create(:level1_geographic_area,
                              name: 'RM4',
@@ -1526,7 +1634,7 @@ Two different shapes with the same name, 'East Boxia', and
   area.save!
   area
   }
-  
+
   let(:area_rn3) {
     area = FactoryBot.create(:level1_geographic_area,
                              name: 'RN3',
@@ -1582,7 +1690,7 @@ Two different shapes with the same name, 'East Boxia', and
   area.save!
   area
   }
- 
+
   let(:area_m4) {
     area = FactoryBot.create(:level1_geographic_area,
                              name: 'M4',
@@ -2194,7 +2302,7 @@ end
 
 module RspecGeoHelpers
   # @return [Multipolygon]
-  def self.make_box(base, offset_x, offset_y, size_x, size_y) 
+  def self.make_box(base, offset_x, offset_y, size_x, size_y)
     box = RSPEC_GEO_FACTORY.polygon(
       RSPEC_GEO_FACTORY.line_string(
         [
