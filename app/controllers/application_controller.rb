@@ -31,7 +31,7 @@ class ApplicationController < ActionController::Base
   before_action :intercept_api
   before_action :notice_user
 
-  after_action :log_user_recent_route
+  # after_action :log_user_recent_route
 
   def intercept_api
     if /^\/api/ =~ request.path # rubocop:disable Style/RegexpLiteral
@@ -52,7 +52,7 @@ class ApplicationController < ActionController::Base
 
   # TODO: Make RecenRoutes modules that handles exceptions, only etc.
   def log_user_recent_route
-    sessions_current_user.add_recently_visited_to_footprint(request.fullpath, @recent_object) if sessions_current_user
+    # sessions_current_user.add_recently_visited_to_footprint(request.fullpath, @recent_object) if sessions_current_user
   end
 
   # Returns true if the controller is that of data class. See controllers/concerns/data_controller_configuration/ concern.
