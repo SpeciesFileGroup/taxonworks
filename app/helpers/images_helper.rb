@@ -26,8 +26,9 @@ module ImagesHelper
   def thumb_list_tag(object)
     if object.depictions.any?
       object.depictions.collect{|a|
-        content_tag(:span, class: [:easyzoom, 'easyzoom--overlay'])  do
-          image_tag(a.image.image_file.url(:medium), class: :imageZoom)
+        content_tag(:div, class: [:easyzoom, 'easyzoom--overlay'])  do
+          link_to(image_tag(a.image.image_file.url(:medium)), a.image.image_file.url())
+          
         end
       }.join.html_safe
     end
