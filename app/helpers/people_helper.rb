@@ -9,6 +9,11 @@ module PeopleHelper
     end
   end
 
+  def person_link(person)
+    return nil if person.nil?
+    link_to(person_tag(person), person.metamorphosize)
+  end
+
   def person_autocomplete_tag(person)
     return nil if person.nil?
     person_tag(person) + ' ' + person_timeframe_tag(person) + ' ' + person_used_tag(person)
@@ -42,11 +47,6 @@ module PeopleHelper
 
   def people_search_form
     render('/people/quick_search_form')
-  end
-
-  def person_link(person)
-    return nil if person.nil?
-    link_to(person_tag(person), person.metamorphosize)
   end
 
   # @return [String, nil]
