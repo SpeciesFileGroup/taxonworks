@@ -193,7 +193,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
       end
 
       context 'area shapes' do
-        let(:params) { {drawn_area_shape: area_b.to_simple_json_feature,
+        let(:params) { {drawn_area_shape: area_a.to_simple_json_feature,
                         selection_objects: ['CollectionObject', 'AssertedDistribution']} }
         let(:ad2a) do
           ad2.geographic_area = sub_area_a
@@ -204,7 +204,8 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
         specify 'nomen count' do
           ad2a # create the asserted_distribution to find.
           result = Queries::Otu::Filter.new(params).result
-          expect(result.count).to eq(7) # six by 'CollectionObject', one by 'AssertedDistribution'
+          expect(result.count).to eq(6) # six by 'CollectionObject', one by 'AssertedDistribution', but one (by_bill)
+          # is the same otu, and only listed once.
         end
 
         specify 'specific nomen' do
