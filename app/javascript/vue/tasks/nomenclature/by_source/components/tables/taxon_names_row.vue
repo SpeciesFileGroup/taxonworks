@@ -16,7 +16,7 @@
         {{ legend }}
       </span>
     </td>
-    <td class="status">
+    <td class="validity">
       {{nameStatus}}
     </td>
     <td>
@@ -64,63 +64,24 @@
       }
     },
     mounted() {
-      this.getNameData();
+      this.nameAuthorYear();
       this.nameValidity();
     },
     methods: {
       showObject() {
         window.open('/tasks/nomenclature/browse/' + this.citation.citation_object_id, '_blank');
       },
-      getNameData: function () {
-        let legend = ' invalid';     // preset status part of legend
+      nameAuthorYear() {
           let taxon = this.citation.citation_object;
-          let invalid = (taxon.id != taxon.cached_valid_taxon_name_id);
-          if (invalid) {
-            if (taxon.base_class == 'Combination') {
-              legend = ' combination'
-            }
-          }
-          else {
-            legend = ' ' + taxon.rank
-          }
           let authorYear = ' ' + taxon.cached_author_year;
           if (taxon.cached_author_year == null) {
             authorYear = '';
           }
-          legend = authorYear + legend;
-          this.legend = legend;
+        this.legend = authorYear;
         },
-      // nameData: function () {
-      //   let taxon = this.citation.citation_object;
-      //   // let legend = ' invalid';     // preset status part of legend
-      //   //   let invalid = (taxon.id != taxon.cached_valid_taxon_name_id);
-      //   //   if (invalid) {
-      //   //     if (taxon.type == 'Combination') {
-      //   //       legend = ' combination'
-      //   //     }
-      //   //   }
-      //   //   else {
-      //   //     let legend = (taxon.rank == null) ? '' : ' ' + taxon.rank;
-      //   // }
-      //     let authorYear = ' ' + taxon.cached_author_year;
-      //     if (taxon.cached_author_year == null) {
-      //       authorYear = '';
-      //     }
-      //   this.legend = authorYear;
-      // },
       nameValidity() {
         let taxon = this.citation.citation_object;
-        let status = ' invalid';     // preset status part of legend
-        let invalid = (taxon.id != taxon.cached_valid_taxon_name_id);
-        if (invalid) {
-          if (taxon.type == 'Combination') {
-            status = ' combination'
-          }
-        }
-        else {
-          status = (taxon.rank == null) ? '' : ' ' + taxon.rank;//(taxon.id == taxon.cached_valid_taxon_name_id) ? 'valid' : 'invalid';
-        }
-        this.nameStatus = status;
+        this.nameStatus = (taxon.id == taxon.cached_valid_taxon_name_id) ? 'valid' : 'invalid';
       },
       changePage() {
         let that = this;
@@ -151,7 +112,7 @@
     width: 80px;
   }
 
-  .status {
+  .validity {
     width: 40px;
   }
 </style>
