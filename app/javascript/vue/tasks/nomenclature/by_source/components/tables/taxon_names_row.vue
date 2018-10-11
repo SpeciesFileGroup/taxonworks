@@ -69,7 +69,7 @@
           let taxon = response.body;
           let invalid = (taxon.id != taxon.cached_valid_taxon_name_id);
           if (invalid) {
-            if (taxon.type == 'Combination') {
+            if (taxon.base_class == 'Combination') {
               legend = ' combination'
             }
           }

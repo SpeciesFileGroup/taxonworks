@@ -100,7 +100,8 @@ export default {
     }
   },
   mounted() {
-    this.list = this.sortPosition(this.descriptor.character_states)
+    if(this.descriptor.hasOwnProperty('character_states'))
+      this.list = this.sortPosition(this.descriptor.character_states)
   },
   methods: {
     createCharacter() {
