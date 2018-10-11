@@ -17,4 +17,20 @@ module ImagesHelper
     true 
   end
 
+# <div class="easyzoom easyzoom--overlay">
+#   <a href="<%= @image.image_file.url(:medium) %>">
+#     <%= image_tag(@image.image_file.url(:medium), 'class' => 'imageZoom') %>
+#   </a>
+# </div>
+
+  def thumb_list_tag(object)
+    if object.depictions.any?
+      object.depictions.collect{|a|
+        content_tag(:span, class: [:easyzoom, 'easyzoom--overlay'])  do
+          image_tag(a.image.image_file.url(:medium), class: :imageZoom)
+        end
+      }.join.html_safe
+    end
+  end
+
 end
