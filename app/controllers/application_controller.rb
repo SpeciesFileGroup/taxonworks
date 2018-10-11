@@ -1,4 +1,6 @@
-require_dependency 'lib/application_enumeration.rb'
+# TODO: likely required here because of routes, but it shouldn't be!!
+# fixing routes to be static via include shoudl solve this
+# require_dependency 'lib/application_enumeration.rb'
 
 class ApplicationController < ActionController::Base
   include Workbench::SessionsHelper
