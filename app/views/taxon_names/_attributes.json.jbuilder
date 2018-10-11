@@ -35,12 +35,12 @@ if taxon_name.pinned?(sessions_current_user)
   end
 end
 
-# TODO: move to shared
-if taxon_name.origin_citation
-  json.origin_citation do
-    json.partial! '/citations/attributes', citation: taxon_name.origin_citation
-  end
-end
+# # TODO: move to shared
+# if taxon_name.origin_citation
+#   json.origin_citation do
+#     json.partial! '/citations/attributes', citation: taxon_name.origin_citation
+#   end
+# end
 
 unless taxon_name.is_a?(Combination)
   json.type_taxon_name_relationship do
