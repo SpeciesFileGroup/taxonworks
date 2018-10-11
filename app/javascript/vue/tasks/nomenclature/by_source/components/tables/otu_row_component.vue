@@ -6,9 +6,9 @@
     </td>
     <td>
       <otu-radial
-        :taxon-id="otu.taxon_name_id"
-        :otu="otu"
-        :redirect="false"/>
+          :taxon-id="otu.global_id"
+          :otu="otu"
+          :redirect="false"/>
     </td>
   </tr>
 </template>
