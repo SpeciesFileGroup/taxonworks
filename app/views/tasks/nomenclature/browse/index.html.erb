@@ -90,18 +90,19 @@
           </div>
         </div>
       </div>
-    </div>
 
     <% if @taxon_name.depictions.any? %>
-      <div class="item item3">
-        <div id="depiction-panel" class="panel fullSize content separate-left separate-bottom">
+      <div class="separate-top">
+        <div id="depiction-panel" class="panel content separate-left separate-bottom">
           <h2> Depictions </h2>
-          <p> 
+          <div class="horizontal-left-content flexbox"> 
           <%= thumb_list_tag(@taxon_name) -%>
-          </p>
+          </div>
         </div>
       </div> 
     <% end %>
+
+    </div>
 
   </div>
 </div>
