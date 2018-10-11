@@ -866,6 +866,24 @@ shared_context 'stuff for complex geo tests' do
       geographic_areas_geographic_items_attributes: [{geographic_item: new_box_e}])
   }
 
+  # AssertedDistributions
+  let(:source2) { FactoryBot.create(:valid_source, by: geo_user) }
+  let(:cite2) do
+    FactoryBot.create(:valid_citation, {citation_object: by_bill,
+                                        source: source2,
+                                        by: geo_user,
+                                        project: geo_project})
+  end
+  let(:ad2) do
+    ad = AssertedDistribution.new(otu: by_bill,
+                                  geographic_area: sub_area_b,
+                                  by: geo_user,
+                                  project: geo_project)
+    ad.origin_citation = cite2
+    ad.save!
+    ad
+  end
+
   # Collecting Events
   let(:ce_p0) { FactoryBot.create(:collecting_event, verbatim_label: '@ce_p0') }
 
