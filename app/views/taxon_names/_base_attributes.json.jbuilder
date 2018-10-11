@@ -5,3 +5,4 @@ json.name_string taxon_name_name_string(taxon_name)
 
 json.partial! '/shared/data/all/metadata', object: taxon_name, klass: 'TaxonName'
 
+json.original_combination full_original_taxon_name_tag(taxon_name)
