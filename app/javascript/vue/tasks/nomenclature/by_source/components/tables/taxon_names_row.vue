@@ -16,6 +16,12 @@
         {{ legend }}
       </span>
     </td>
+    <td class="status">
+      {{nameStatus}}
+    </td>
+    <td>
+      <span v-html="citation.citation_object.type"/>
+    </td>
     <td>
       <radial-annotator :global-id="citation.citation_object.global_id"/>
     </td>
@@ -53,11 +59,13 @@
         pages: undefined,
         autoSave: undefined,
         time: 3000,
-        legend: ''
+        legend: '',
+        nameStatus: ''
       }
     },
     mounted() {
-      this.nameData()
+      this.nameData();
+      this.nameValidity();
     },
     methods: {
       showObject() {
@@ -65,22 +73,35 @@
       },
       nameData: function () {
         let taxon = this.citation.citation_object;
-        let legend = ' invalid';     // preset status part of legend
-          let invalid = (taxon.id != taxon.cached_valid_taxon_name_id);
-          if (invalid) {
-            if (taxon.type == 'Combination') {
-              legend = ' combination'
-            }
-          }
-          else {
-            legend = ' ' + taxon.rank
-          }
+        // let legend = ' invalid';     // preset status part of legend
+        //   let invalid = (taxon.id != taxon.cached_valid_taxon_name_id);
+        //   if (invalid) {
+        //     if (taxon.type == 'Combination') {
+        //       legend = ' combination'
+        //     }
+        //   }
+        //   else {
+        //     let legend = (taxon.rank == null) ? '' : ' ' + taxon.rank;
+        // }
           let authorYear = ' ' + taxon.cached_author_year;
           if (taxon.cached_author_year == null) {
             authorYear = '';
           }
-          legend = authorYear + legend;
-          this.legend = legend;
+        this.legend = authorYear;
+      },
+      nameValidity() {
+        let taxon = this.citation.citation_object;
+        let status = ' invalid';     // preset status part of legend
+        let invalid = (taxon.id != taxon.cached_valid_taxon_name_id);
+        if (invalid) {
+          if (taxon.type == 'Combination') {
+            status = ' combination'
+          }
+        }
+        else {
+          status = (taxon.rank == null) ? '' : ' ' + taxon.rank;//(taxon.id == taxon.cached_valid_taxon_name_id) ? 'valid' : 'invalid';
+        }
+        this.nameStatus = status;
       },
       changePage() {
         let that = this;
@@ -108,6 +129,10 @@
 </script>
 <style lang="scss" module>
   .pages {
-    width: 140px;
+    width: 80px;
+  }
+
+  .status {
+    width: 40px;
   }
 </style>

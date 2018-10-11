@@ -2,7 +2,9 @@
   <table>
     <tr>
       <th @click="sortByPages">Pages</th>
-      <th>Object</th>
+      <th>Name</th>
+      <th>Status</th>
+      <th>Type</th>
       <th>Radial</th>
       <th>Otu</th>
       <th>Delete</th>
