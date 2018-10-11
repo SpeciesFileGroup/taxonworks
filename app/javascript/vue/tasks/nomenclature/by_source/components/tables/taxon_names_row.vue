@@ -64,31 +64,50 @@
       }
     },
     mounted() {
-      this.nameData();
+      this.getNameData();
       this.nameValidity();
     },
     methods: {
       showObject() {
         window.open('/tasks/nomenclature/browse/' + this.citation.citation_object_id, '_blank');
       },
-      nameData: function () {
-        let taxon = this.citation.citation_object;
-        // let legend = ' invalid';     // preset status part of legend
-        //   let invalid = (taxon.id != taxon.cached_valid_taxon_name_id);
-        //   if (invalid) {
-        //     if (taxon.type == 'Combination') {
-        //       legend = ' combination'
-        //     }
-        //   }
-        //   else {
-        //     let legend = (taxon.rank == null) ? '' : ' ' + taxon.rank;
-        // }
+      getNameData: function () {
+        let legend = ' invalid';     // preset status part of legend
+          let taxon = this.citation.citation_object;
+          let invalid = (taxon.id != taxon.cached_valid_taxon_name_id);
+          if (invalid) {
+            if (taxon.base_class == 'Combination') {
+              legend = ' combination'
+            }
+          }
+          else {
+            legend = ' ' + taxon.rank
+          }
           let authorYear = ' ' + taxon.cached_author_year;
           if (taxon.cached_author_year == null) {
             authorYear = '';
           }
-        this.legend = authorYear;
-      },
+          legend = authorYear + legend;
+          this.legend = legend;
+        },
+      // nameData: function () {
+      //   let taxon = this.citation.citation_object;
+      //   // let legend = ' invalid';     // preset status part of legend
+      //   //   let invalid = (taxon.id != taxon.cached_valid_taxon_name_id);
+      //   //   if (invalid) {
+      //   //     if (taxon.type == 'Combination') {
+      //   //       legend = ' combination'
+      //   //     }
+      //   //   }
+      //   //   else {
+      //   //     let legend = (taxon.rank == null) ? '' : ' ' + taxon.rank;
+      //   // }
+      //     let authorYear = ' ' + taxon.cached_author_year;
+      //     if (taxon.cached_author_year == null) {
+      //       authorYear = '';
+      //     }
+      //   this.legend = authorYear;
+      // },
       nameValidity() {
         let taxon = this.citation.citation_object;
         let status = ' invalid';     // preset status part of legend

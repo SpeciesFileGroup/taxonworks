@@ -1,6 +1,6 @@
 # Be sure to restart your server (or console) when you modify this file.
 
-require Rails.root.to_s + '/app/models/identifier'
+require_dependency Rails.root.to_s + '/app/models/identifier.rb'
 
 IDENTIFIERS_JSON = {
   global: {

@@ -31,7 +31,7 @@
                 v-if="taxon.id"
                 :pin-object="taxon['pinboard_item']"
                 :object-id="taxon.id"
-                :type="taxon.type"/>
+                :type="taxon.base_class"/>
               <save-taxon-name
                 v-if="taxon.id"
                 class="normal-input button button-submit"/>

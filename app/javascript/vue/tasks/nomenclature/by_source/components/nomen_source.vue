@@ -25,7 +25,7 @@
       <pin-component
         v-if="source.id"
         :object-id="source.id"
-        :type="source.type"/>
+        :type="source.base_class"/>
     </span>
   </div>
 </template>
