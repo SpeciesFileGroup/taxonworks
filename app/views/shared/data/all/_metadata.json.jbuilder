@@ -18,10 +18,12 @@ if object.respond_to?(:has_citations?) && object.has_citations?
     end
   end
 end
+
 # TODO: merge with above
 if object.respond_to?(:origin_citation) && object.origin_citation
   json.origin_citation do
-    json.partial! '/citations/attributes', citation: object.origin_citation
+    json.partial! '/shared/data/all/metadata', object: object.origin_citation
+    # json.partial! '/citations/attributes', citation: object.origin_citation
   end
 end
 
