@@ -348,13 +348,12 @@ index_individual_bibtex_source_task:
     - source 
   status: prototype
   description: 'Parse a captured BibTeX string into a new source'
-
-
-
 index_observation_matrix_hub_task:
   hub: true
-  name: 'TODO: Task name'
+  name: 'Observation matrix hub'
   related:
   categories:
+    - matrix
+    - dna
   status: prototype
-  description: 'TODO: Task description'
+  description: 'An overview of observation matrices and descriptors.  Includes links to new records.'

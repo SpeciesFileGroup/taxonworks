@@ -3,6 +3,7 @@ class Tasks::ObservationMatrices::ObservationMatrixHubController < ApplicationCo
 
   # GET
   def index
+    @observation_matrices = ObservationMatrix.where(project_id: sessions_current_project_id).order(updated_at: :desc)
   end
 
 end
