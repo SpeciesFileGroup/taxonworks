@@ -7,7 +7,7 @@ module GeographicAreasHelper
 
   def geographic_area_autocomplete_tag(geographic_area, term)
     return nil if geographic_area.nil?
-    show_this =  geographic_area.name.gsub(/#{term}/, "<mark>#{term}</mark>") # weee bit simpler
+    show_this =  geographic_area.name.gsub(/#{Regexp.escape(term)}/, "<mark>#{term}</mark>") # weee bit simpler
     show_this += " (#{geographic_area.parent.name})" unless geographic_area.parent.nil?
 
     show_this += " [#{geographic_area.geographic_area_type.name}]" unless geographic_area.geographic_area_type.nil?

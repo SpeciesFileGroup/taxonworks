@@ -10,6 +10,16 @@ describe Queries::TaxonName::Autocomplete, type: :model do
 
   let(:query) { Queries::TaxonName::Autocomplete.new('') }
 
+  specify '#autocomplete_cached_wildcard_whitespace open paren' do
+    query.terms = 'Scaphoideus ('
+    expect(query.autocomplete_cached_wildcard_whitespace.all).to be_truthy
+  end
+
+  specify '#autocomplete_name_author_year open paren' do
+    query.terms = 'Scaphoideus ('
+    expect(query.autocomplete_name_author_year.all).to be_truthy
+  end
+
   specify '#open paren' do
     query.terms = 'Scaphoideus ('
     expect(query.autocomplete).to be_truthy
