@@ -10,6 +10,11 @@ describe Queries::TaxonName::Autocomplete, type: :model do
 
   let(:query) { Queries::TaxonName::Autocomplete.new('') }
 
+  specify '#open paren' do
+    query.terms = 'Scaphoideus ('
+    expect(query.autocomplete).to be_truthy
+  end
+
   specify '#genus_species cf' do
     query.terms = 'Scaphoideus cf carinatus'
     expect(query.autocomplete).to be_truthy
