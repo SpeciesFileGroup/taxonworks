@@ -350,3 +350,11 @@ index_individual_bibtex_source_task:
   description: 'Parse a captured BibTeX string into a new source'
 
 
+
+index_observation_matrix_hub_task:
+  hub: true
+  name: 'TODO: Task name'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'
