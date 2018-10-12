@@ -19,7 +19,7 @@ if object.respond_to?(:has_citations?) && object.has_citations?
   end
 end
 # TODO: merge with above
-if object.respond_to?(:object_citation) && object.origin_citation
+if object.respond_to?(:origin_citation) && object.origin_citation
   json.origin_citation do
     json.partial! '/citations/attributes', citation: object.origin_citation
   end
