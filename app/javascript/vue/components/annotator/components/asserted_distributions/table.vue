@@ -16,7 +16,7 @@
           class="list-complete-item">
           <td>
             <span 
-              :class="{ absent: item.is_absent }"
+              :class="{ absent: !item.is_absent }"
               v-html="item.geographic_area.name"/>
           </td>
           <td class="vue-table-options">
@@ -97,6 +97,8 @@
     border: none;
   }
   .absent {
+    padding: 5px;
+    border-radius: 3px;
     background-color: #000;
     color: #FFF;
   }
