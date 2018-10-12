@@ -8,16 +8,24 @@
         @input="changePage"
         v-model="citation.pages">
     </td>
-    <td><a v-html="citation.citation_object.object_tag" @click="showObject()"/></td>
+    <td>
+      <a
+        v-html="citation.citation_object.object_tag"
+        @click="showObject()"/>
+    </td>
     <td>
       <radial-annotator :global-id="citation.citation_object.global_id" />
     </td>
     <td>
       <otu-radial
-        :taxon-id="citation.citation_object_id"
+        :taxon-id="citation.citation_object.subject_taxon_name_id"
         :redirect="false"/>
     </td>
-    <td><span class="button circle-button btn-delete" @click="removeMe()"/></td>
+    <td>
+      <span
+        class="button circle-button btn-delete"
+        @click="removeMe()"/>
+    </td>
   </tr>
 </template>
 
@@ -26,7 +34,7 @@
 import extendedRow from './extendedRow.js'
 
 export default {
-  mixins: [extendedRow]
+  mixins: [extendedRow],
 }
 </script>
 <style lang="scss" module>

@@ -7,7 +7,7 @@
 </template>
 <script>
 
-  import TableComponent from './tables/table.vue'
+  import TableComponent from './tables/relationship_table.vue'
   import RadialAnnotator from 'components/annotator/annotator.vue'
   import OtuRadial from 'components/otu/otu.vue'
 
@@ -35,7 +35,7 @@
     },
     methods: {
       getCites() {
-        this.$http.get('/citations.json?citation_object_type=TaxonNameRelationship&source_id=' + this.sourceID).then(response => {
+        this.$http.get('/citations.json?verbose_object=true&citation_object_type=TaxonNameRelationship&source_id=' + this.sourceID).then(response => {
           this.taxon_relationship_cites_list = response.body;
           this.$emit("taxon_relationship_cites", this.taxon_relationship_cites_list)
         })
