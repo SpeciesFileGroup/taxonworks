@@ -204,11 +204,10 @@ class TaxonNamesController < ApplicationController
       :nomenclature_code,
       :also_create_otu,
       :import_level).merge(
-      user_id: sessions_current_user_id,
-      project_id: sessions_current_project_id
+        user_id: sessions_current_user_id,
+        project_id: sessions_current_project_id
       ).to_h.symbolize_keys
   end
-
 end
 
 require_dependency Rails.root.to_s + '/lib/batch_load/import/taxon_names/castor_interpreter.rb'
