@@ -160,6 +160,7 @@ const changeTaxonSource = function (taxonId, source, citation) {
         origin_citation_attributes: {
           id: (citation == undefined ? null : citation.id),
           source_id: source.id,
+          is_original: true,
           pages: (source == undefined ? null : source.pages)
         }
       }
