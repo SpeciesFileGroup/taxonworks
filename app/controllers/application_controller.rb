@@ -6,6 +6,9 @@ class ApplicationController < ActionController::Base
   include Workbench::SessionsHelper
   include ProjectsHelper
   include SetHousekeeping
+  include Tracking::UserTime
+
+  include InterceptApi
 
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
@@ -28,27 +31,7 @@ class ApplicationController < ActionController::Base
   # Potentially used.
   helper_method :meta_title, :meta_data, :site_name, :page_title
 
-  before_action :intercept_api
-  before_action :notice_user
-
   # after_action :log_user_recent_route
-
-  def intercept_api
-    if /^\/api/ =~ request.path # rubocop:disable Style/RegexpLiteral
-      if token_authenticate
-        render(json: {success: false}, status: :bad_request) && return unless set_project_from_params
-      else
-        render(json: {success: false}, status: :unauthorized) && return
-      end
-    end
-
-    headers['Access-Control-Allow-Origin'] = '*'
-    headers['Access-Control-Allow-Methods'] = 'POST, PUT, DELETE, GET, OPTIONS'
-    headers['Access-Control-Request-Method'] = '*'
-    headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept, Authorization'
-
-    true
-  end
 
   # TODO: Make RecenRoutes modules that handles exceptions, only etc.
   def log_user_recent_route
@@ -93,12 +76,6 @@ class ApplicationController < ActionController::Base
   end
 
   private
-
-  def notice_user
-    if sessions_current_user
-      sessions_current_user.update_last_seen_at
-    end
-  end
 
   def record_not_found
     respond_to do |format|
@@ -145,4 +122,5 @@ class ApplicationController < ActionController::Base
       raise TaxonWorks::Error, 'whitelist attempted in unknown environment'
     end
   end
+  
 end

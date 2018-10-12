@@ -289,15 +289,17 @@ class User < ApplicationRecord
     preferences[:disable_chime]
   end
 
+  
+  # TODO: move to User concern
   # rubocop:disable Style/StringHashKeys
   # @param [Hash] options
   # @return [Boolean] always true
   def add_page_to_favorites(options = {}) # name: nil, kind: nil, project_id: nil
     validate_favorite_options(options)
-    n       = options[:name]
-    p       = options[:project_id].to_s
-    k       = options[:kind]
-    u       = hub_favorites.clone
+    n = options[:name]
+    p = options[:project_id].to_s
+    k = options[:kind]
+    u = hub_favorites.clone
 
     u[p]    = {'data' => [], 'tasks' => []} if !u[p]
     u[p][k] = u[p][k].push(n).uniq[0..19].sort
@@ -307,6 +309,8 @@ class User < ApplicationRecord
   end
   # rubocop:enable Style/StringHashKeys
 
+  
+  # TODO: move to User concern
   # @param [Hash] options
   def remove_page_from_favorites(options = {}) # name: nil, kind: nil, project_id: nil
     validate_favorite_options(options)
@@ -315,6 +319,7 @@ class User < ApplicationRecord
     update_column(:hub_favorites, new_routes)
   end
 
+  # TODO: move to User concern
   # @param [Hash] options
   # @return [Boolean]
   def validate_favorite_options(options)
@@ -323,19 +328,23 @@ class User < ApplicationRecord
     true
   end
 
+  # TODO: move to User concern
+  # @return [Boolean]
+  #   If user has been active within the last 5 minutes, and at least 5
+  #   seconds past their last activity, update their time_active.
+  #   The latter prevents multiple writes on many async calls.
   def update_last_seen_at
-
-    a = 0
-
     if !last_seen_at.nil?
       t = Time.now - last_seen_at
-      a = t < 301 ? time_active + t : time_active
+      if t > 5
+        a = t < 301 ? time_active + t : (time_active || 0)
+        update_columns(last_seen_at: Time.now, time_active: a) if t > 5
+      end
     end
-
-    update_columns(last_seen_at: Time.now, time_active: a)
-
   end
 
+
+  # TODO: move to User concern
   # @param [String] recent_route
   # @param [Object] recent_object
   # @return [Boolean] always true
