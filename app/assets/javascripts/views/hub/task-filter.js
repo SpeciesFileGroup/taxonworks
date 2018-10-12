@@ -206,7 +206,7 @@ var CarrouselTask = function (sec, rows, columns) {
       var child = $(this.sectionTag + ' .task_card:nth-child('+ this.active[i] +')');
       if(count < this.maxCards) {
         child.show(250);
-        child.children().first("a").attr("tabindex", 0);
+        child.attr("tabindex", 0);
       }
       count++;
     }
