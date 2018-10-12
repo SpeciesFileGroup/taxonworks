@@ -52,7 +52,7 @@
 
   import CRUD from '../../request/crud.js'
   import AnnotatorExtend from '../annotatorExtend.js'
-  import TableList from '../../../table_list.vue'
+  import TableList from './table.vue'
   import DisplayList from '../../../displayList.vue'
   import GeographicArea from './geographicArea.vue'
   import SourcePicker from './sourcePicker.vue'
