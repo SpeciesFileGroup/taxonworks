@@ -4,7 +4,6 @@
       <thead>
         <tr>
           <th>Geographic area</th>
-          <th>Absent</th>
           <th></th>
         </tr>
       </thead>
@@ -20,18 +19,15 @@
               :class="{ absent: item.is_absent }"
               v-html="item.geographic_area.name"/>
           </td>
-          <td v-html="item.is_absent"/>
           <td class="vue-table-options">
             <citation-count
               :object="item"
               target="asserted_distributions"/>
             <radial-annotator :global-id="item.global_id"/>
             <span
-              v-if="edit"
               class="circle-button btn-edit"
               @click="$emit('edit', Object.assign({}, item))"/>
             <span
-              v-if="destroy"
               class="circle-button btn-delete"
               @click="deleteItem(item)">Remove
             </span>
@@ -58,54 +54,11 @@
           return []
         }
       },
-      attributes: {
-        type: Array,
-        required: true
-      },
-      header: {
-        type: Array,
-        default: () => {
-          return []
-        }
-      },
-      destroy: {
-        type: Boolean,
-        default: true
-      },
-      annotator: {
-        type: Boolean,
-        default: false
-      },
-      edit: {
-        type: Boolean,
-        default: false
-      }
     },
     mounted() {
       this.$options.components['RadialAnnotator'] = RadialAnnotator
     },
     methods: {
-      getValue(object, attributes) {
-        if (Array.isArray(attributes)) {
-          let obj = object
-
-          for (var i = 0; i < attributes.length; i++) {
-            if(obj.hasOwnProperty(attributes[i])) {
-              obj = obj[attributes[i]]
-            }
-            else {
-              return null
-            }
-          }
-          return obj
-        }
-        else {
-          if(attributes.substr(0,1) === "@") {
-            return attributes.substr(1, attributes.length)
-          }
-        }
-        return object[attributes]
-      },
       deleteItem(item) {
         if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
           this.$emit('delete', item)
