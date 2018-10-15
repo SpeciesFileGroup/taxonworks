@@ -11,6 +11,7 @@ json.object_url url_for(metamorphosize_if(object))
 
 if object.respond_to?(:origin_citation) && object.origin_citation
   json.origin_citation do
+    json.id object.origin_citation.id
     json.partial! '/shared/data/all/metadata', object: object.origin_citation
 
     json.source do 
