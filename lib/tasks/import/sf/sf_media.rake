@@ -8,6 +8,54 @@ namespace :tw do
         desc 'time rake tw:project_import:sf_import:media:images user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define scrutiny_related: [:data_directory, :environment, :user_id] do |logger|
 
+
+          # Images table (15 col)
+          # id
+          # user_file_name
+          # height
+          # width
+          # image_file_fingerprint
+          # image_file_file_name
+          # image_file_content_type
+          # image_file_file_size
+          # image_file_updated_at
+          # image_file_meta
+          # housekeeping (including project_id)
+          #
+          # Depictions table (12 columns)
+          # id
+          # depiction_object_type/id (collection_object, otu)
+          # image_id
+          # position
+          # caption
+          # figure_label
+          # housekeeping (including project_id)
+
+          # SF.tblImages
+          # ImageID
+          # TrueID
+          # FileID
+          # SeqNum
+          # TaxonNameID
+          # Status
+          # ImageTypeID
+          # MIME
+          # SexID
+          # Description
+          # SourceID
+          # Figure
+          # SpecimenID
+          # Thumb
+          # Xsize
+          # Ysize
+          # Image
+          # AccessCode
+          # (housekeeping)
+
+          # have 187,172 taxon determinations (biological_collection_object_id, otu_id)
+
+          # have 92,692 collection objects (collecting_event_id)
+
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
           excluded_taxa = import.get('ExcludedTaxa')
