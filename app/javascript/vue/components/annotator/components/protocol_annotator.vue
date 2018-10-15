@@ -11,6 +11,7 @@
     <list-items
       target="protocols"
       label="object_tag"
+      :annotator="false"
       target-citations="protocols"
       :list="list"
       @delete="removeItem"
