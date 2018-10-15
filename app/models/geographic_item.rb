@@ -428,7 +428,7 @@ class GeographicItem < ApplicationRecord
     # @return [String] the SQL fragment for the specific geometry type, shifted by longitude
     # Note: this routine is called when it is already known that the A argument crosses anti-meridian
     def contained_by_wkt_shifted_sql(wkt)
-      retval = "ST_ContainsProperly(ST_ShiftLongitude(ST_GeomFromText('#{wkt}', 4326)), (
+      retval = "ST_Contains(ST_ShiftLongitude(ST_GeomFromText('#{wkt}', 4326)), (
           CASE geographic_items.type
              WHEN 'GeographicItem::MultiPolygon' THEN ST_ShiftLongitude(multi_polygon::geometry)
              WHEN 'GeographicItem::Point' THEN ST_ShiftLongitude(point::geometry)
@@ -449,7 +449,7 @@ class GeographicItem < ApplicationRecord
       if crosses_anti_meridian?(wkt)
         retval = contained_by_wkt_shifted_sql(wkt)
       else
-        retval = "ST_ContainsProperly(ST_GeomFromText('#{wkt}', 4326), (
+        retval = "ST_Contains(ST_GeomFromText('#{wkt}', 4326), (
           CASE geographic_items.type
              WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
              WHEN 'GeographicItem::Point' THEN point::geometry
@@ -469,7 +469,7 @@ class GeographicItem < ApplicationRecord
     # Note: Can not use GEOMETRY_SQL because geometry_collection is not supported in ST_ContainsProperly
     # Note: !! If the target GeographicItem#id crosses the anti-meridian then you may/will get unexpected results.
     def contained_by_where_sql(*geographic_item_ids)
-      "ST_ContainsProperly(
+      "ST_Contains(
       #{GeographicItem.geometry_sql2(*geographic_item_ids)},
       CASE geographic_items.type
          WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
