@@ -469,7 +469,7 @@ class GeographicItem < ApplicationRecord
     # Note: Can not use GEOMETRY_SQL because geometry_collection is not supported in ST_ContainsProperly
     # Note: !! If the target GeographicItem#id crosses the anti-meridian then you may/will get unexpected results.
     def contained_by_where_sql(*geographic_item_ids)
-      "ST_ContainsProperly(
+      "ST_Contains(
       #{GeographicItem.geometry_sql2(*geographic_item_ids)},
       CASE geographic_items.type
          WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry

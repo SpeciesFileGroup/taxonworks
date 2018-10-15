@@ -652,10 +652,10 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
         end
 
         context '::contained_by' do
-          before { [p1, p2, p3, p11, p12].each }
+          before { [p1, p2, p3, p11, p12, k, l].each }
 
           specify 'find the points in a polygon' do
-            expect(GeographicItem.contained_by(k.id).to_a).to contain_exactly(p1, p2, p3)
+            expect(GeographicItem.contained_by(k.id).to_a).to contain_exactly(p1, p2, p3, k)
           end
 
           specify 'find the (overlapping) points in a polygon' do
