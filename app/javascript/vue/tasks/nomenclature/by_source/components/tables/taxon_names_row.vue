@@ -9,15 +9,16 @@
         v-model="citation.pages">
     </td>
     <td>
+      <span 
+        v-if="isInvalid"
+        data-icon="warning"
+        title="Invalid"/>
       <span>
         <a
           v-html="citation.citation_object.object_tag"
           @click="showObject()"/> 
         {{ legend }}
       </span>
-    </td>
-    <td class="validity">
-      {{nameStatus}}
     </td>
     <td>
       <span v-html="citation.citation_object.type"/>
@@ -61,6 +62,11 @@
         time: 3000,
         legend: '',
         nameStatus: ''
+      }
+    },
+    computed: {
+      isInvalid() {
+        return (this.nameStatus == 'invalid')
       }
     },
     mounted() {
