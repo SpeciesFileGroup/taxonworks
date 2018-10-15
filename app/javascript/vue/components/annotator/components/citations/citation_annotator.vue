@@ -4,15 +4,11 @@
       <citation-new
         :global-id="globalId"
         @create="createNew"/>
-      <display-list
-        :edit="true"
-        :pdf="true"
-        label="object_tag"
-        :annotator="true"
+      <table-list
         :list="list"
         @edit="citation = $event"
         @delete="removeItem"
-        class="list"/>
+        />
     </div>
     <div v-else>
       <citation-edit
@@ -37,9 +33,10 @@
 
   import CRUD from '../../request/crud.js'
   import annotatorExtend from '../annotatorExtend.js'
-  import autocomplete from '../../../autocomplete.vue'
-  import displayList from '../displayList.vue'
-  import defaultElement from '../../../getDefaultPin.vue'
+  import Autocomplete from 'components/autocomplete.vue'
+  import DisplayList from '../displayList.vue'
+  import TableList from './table.vue'
+  import DefaultElement from 'components/getDefaultPin.vue'
   import CitationNew from './new.vue'
   import CitationEdit from './edit.vue'
   import CitationTopic from './topic.vue'
@@ -50,9 +47,10 @@
       CitationNew,
       CitationEdit,
       CitationTopic,
-      defaultElement,
-      autocomplete,
-      displayList
+      DefaultElement,
+      Autocomplete,
+      DisplayList,
+      TableList
     },
     computed: {
       validateFields() {
