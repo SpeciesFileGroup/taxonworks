@@ -98,7 +98,7 @@ module Queries
 
     # @return [Scope]
     def shape_scope
-      GeographicItem.gather_map_data(query_shape, 'CollectionObject')
+      GeographicItem.gather_map_data(query_shape, 'CollectionObject', project_id)
     end
 
     # @return [Scope]

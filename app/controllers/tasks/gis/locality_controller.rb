@@ -24,7 +24,7 @@ class Tasks::Gis::LocalityController < ApplicationController
     @drawing_modes     = 'active: polygon, circle'
   end
 
-  # use the params[:geographic_area_id] to locate the area, use that to find a geographic
+  # use the params[:geographic_area_id] to locate the area, use that to find a geographic item
   def list
     case params[:commit]
       when 'Show'
@@ -34,7 +34,8 @@ class Tasks::Gis::LocalityController < ApplicationController
 
         @collecting_events = GeographicItem.gather_geographic_area_or_shape_data(geographic_area_ids,
                                                                                  shape_in,
-                                                                                 finding)
+                                                                                 finding,
+                                                                                 sessions_current_project_id)
                                .order(:verbatim_locality)
         @drawing_modes     = 'active: polygon, circle'
       else
@@ -44,12 +45,12 @@ class Tasks::Gis::LocalityController < ApplicationController
 
   protected
 
-  def gather_list_data(geographic_area)
-    if @geographic_area.has_shape?
-      @geographic_item = @geographic_area.default_geographic_item
-    else
-      @geographic_item = nil
-    end
-  end
+  # def gather_list_data(geographic_area)
+  #   if @geographic_area.has_shape?
+  #     @geographic_item = @geographic_area.default_geographic_item
+  #   else
+  #     @geographic_item = nil
+  #   end
+  # end
 
 end
