@@ -29,6 +29,12 @@ FilterHub.prototype.handleEvents = function (that) {
     }
   })
 
+  $(".data_card").on("keypress", function(e) {
+    if(e.which == 13) {
+      window.location.href = $(this).children("a").attr("href")
+    }
+  })
+
   $('#search-filter').keyup(function () {
     var
       chain = $(this).val();
