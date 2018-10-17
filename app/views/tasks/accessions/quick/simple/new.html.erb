@@ -49,8 +49,10 @@
               <%= d.fields_for :image_attributes, Image.new do |i| %>
                   <div class="field">
                     <%= i.label :image_file, 'Specimen images' %>
-                    <div class="field dz-message dz-file-preview dz-clickable" id="dropzone_previews" data-help="Images can be attached to the specimen by dropping them anywhere on this form.">
-                      <%= i.file_field :image_file, class: :required_for_submit, placeholder: 'ff' %>
+                    <div class="field dz-message vue-dropzone dz-file-preview dz-clickable" id="dropzone_previews" data-help="Images can be attached to the specimen by dropping them anywhere on this form.">
+                      <div class="dz-default dz-message">
+                        <span>Click to browse, or drop an image</span>
+                      </div>
                     </div>
                   </div>
               <% end %>
