@@ -37,7 +37,6 @@ var _init_dropzone_for_task_simple_specimen;
 _init_dropzone_for_task_simple_specimen = function init_dropzone_for_task_simple_specimen() {
 
   if ( $("#simple-specimen-task").length ) {
-
     Dropzone.options.simpleSpecimenTask = {
       autoProcessQueue: false,
       uploadMultiple: true,
@@ -62,6 +61,8 @@ _init_dropzone_for_task_simple_specimen = function init_dropzone_for_task_simple
             return $('#simple-specimen-task').submit();
           }
         });
+
+        this.on("addedfile", function(file) { $('.dz-default').remove(); });
 
         // Listen to the sendingmultiple event. In this case, it's the sendingmultiple event instead
         // of the sending event because uploadMultiple is set to true.

@@ -8,6 +8,7 @@ describe 'API::v1::CollectionObjects', type: :feature, group: [:geo, :shared_geo
       sign_in_user_and_select_project
       10.times { factory_bot_create_for_user_and_project(:valid_specimen, @user, @project) }
     }
+
     include_context 'stuff for complex geo tests'
 
     # TODO: Refactor this test.

@@ -34,7 +34,7 @@
 
   import { GetterNames } from '../store/getters/getters'
   import removeDuplicate from '../helpers/removeDuplicate'
-  import modal from '../../../components/modal.vue'
+  import Modal from 'components/modal.vue'
 
   export default {
     data: function () {
@@ -44,7 +44,7 @@
       }
     },
     components: {
-      modal
+      Modal
     },
     computed: {
       topic() {

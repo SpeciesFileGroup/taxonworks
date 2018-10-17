@@ -21,17 +21,19 @@ module TaxonNamesHelper
     if taxon_name.parent_id
       a = content_tag(:span, class: :subtle) do
         (' (' +
-          (taxon_name.rank || 'Combination') +
-          ', parent ' +
-          taxon_name_tag(taxon_name.parent).html_safe +
-          ')').html_safe
+         (taxon_name.rank || 'Combination') +
+         ', parent ' +
+         taxon_name_tag(taxon_name.parent).html_safe +
+         ')').html_safe
       end
     end
+
+    t = Regexp.escape(term)
 
     content_tag(:span, class: :klass) do
       taxon_name.
         cached_html_name_and_author_year.
-        gsub(/(#{term})/i, content_tag(:mark, '\1')).
+        gsub(/(#{t})/i, content_tag(:mark, '\1')).
         html_safe +
         a.html_safe
     end

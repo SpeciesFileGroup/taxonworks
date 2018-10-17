@@ -1,3 +1,5 @@
+require_dependency Rails.root.to_s + '/app/models/taxon_name_classification.rb'  
+
 # A NOMEN https://github.com/SpeciesFileGroup/nomen relationship between two Protonyms.
 #
 # Unless otherwise noted relationships read left to right, and can be interpreted by inserting "of" after the class name.
@@ -816,3 +818,9 @@ class TaxonNameRelationship < ApplicationRecord
     classes.collect{|k| k.to_s} + self.collect_descendants_to_s(*classes)
   end
 end
+
+Dir[Rails.root.to_s + '/app/models/taxon_name_relationship/**/*.rb'].each { |file| require_dependency file }
+
+
+
+

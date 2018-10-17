@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-const getters = require('./getters/getters')
-const mutations = require('./mutations/mutations')
+import { GetterFunctions } from './getters/getters'
+import { MutationFunctions } from './mutations/mutations'
 
 Vue.use(Vuex)
 
@@ -24,8 +24,8 @@ function makeInitialState () {
 function newStore () {
   return new Vuex.Store({
     state: makeInitialState(),
-    getters: getters.GetterFunctions,
-    mutations: mutations.MutationFunctions
+    getters: GetterFunctions,
+    mutations: MutationFunctions
   })
 }
 

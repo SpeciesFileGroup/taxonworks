@@ -7,7 +7,7 @@ module SerialsHelper
 
   def serial_autocomplete_tag(serial, term = '')
     return nil if serial.nil?
-    show_this =  serial.name.gsub(/#{term}/, "<mark>#{term}</mark>") # weee bit simpler
+    show_this =  serial.name.gsub(/#{Regexp.escape(term)}/, "<mark>#{term}</mark>") # weee bit simpler
     # show_this += " (#{geographic_area.geographic_area_type.name})" unless geographic_area.geographic_area_type.nil?
     # show_this += " [#{geographic_area.parent.name}]" unless geographic_area.parent.nil?
     show_this.html_safe

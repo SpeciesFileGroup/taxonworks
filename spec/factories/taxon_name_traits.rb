@@ -6,8 +6,7 @@ FactoryBot.define do
     year_of_publication { nil }
     verbatim_author { nil }
   end
-  #     source_id nil
-  #
+  
   trait :parent_is_root do
     callback(:after_build, :before_create, :after_stub) do |protonym|
       t = TaxonName.where(project_id: $project_id, parent_id: nil).limit(1)

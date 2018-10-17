@@ -2,7 +2,6 @@ require 'rails_helper'
 
 describe TaxonName, type: :model, group: [:nomenclature] do
 
-  # rspec -t group:nomenclature
   let(:taxon_name) { TaxonName.new }
 
   context 'using before :all' do
@@ -973,9 +972,12 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           expect(root2.valid?).to be_truthy
         end
 
-        specify 'roots can be saved without raising' do
+        specify 'roots can be saved without raising 1' do
           root2.project_id = p.id
           expect(root2.save).to be_truthy
+        end
+
+        specify 'roots can be saved without raising 2' do
           expect(root1.save).to be_truthy
         end
 

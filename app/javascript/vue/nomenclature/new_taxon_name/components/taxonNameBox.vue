@@ -48,16 +48,16 @@
 </template>
 <script>
 
-import OtuRadial from '../../../components/otu/otu.vue'
-const radialAnnotator = require('../../../components/annotator/annotator.vue').default
+import OtuRadial from 'components/otu/otu.vue'
+import RadialAnnotator from 'components/annotator/annotator.vue'
 
-const GetterNames = require('../store/getters/getters').GetterNames
-const modal = require('../../../components/modal.vue').default
+import { GetterNames } from '../store/getters/getters'
+import Modal from 'components/modal.vue'
 
 export default {
   components: {
-    modal,
-    radialAnnotator,
+    Modal,
+    RadialAnnotator,
     OtuRadial
   },
   data: function () {

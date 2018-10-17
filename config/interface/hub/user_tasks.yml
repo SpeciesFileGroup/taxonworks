@@ -142,7 +142,7 @@ browse_nomenclature_task:
     - nomenclature
 nomenclature_by_source_task:
   hub: true
-  name: 'Nomenclature by source'
+  name: 'Citations by source'
   description: 'Browse the nomenclatural data extracted from a particular source, focusing on a single source at a time.'
   status: prototype
   categories:

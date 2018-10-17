@@ -1,6 +1,5 @@
-
 <%= content_for :report do %>
-  <%= content_tag(:li, link_to('Nomenclature cited', nomenclature_by_source_task_path(@source))) -%>
+  <%= content_tag(:li, link_to('Citations by source', nomenclature_by_source_task_path(@source))) -%>
 <% end %> 
 
 <%= content_for :associated do %>
@@ -9,7 +8,7 @@
       <h3>Authors</h3>
       <ul>
         <% @source.authors.each do |author| %>
-          <%= content_tag(:li, author.name) %>
+          <%= content_tag(:li, person_link(author)) %>
         <% end %>
       </ul>
     <% end %>
@@ -17,7 +16,7 @@
       <h3>Editors</h3>
       <ul>
         <% @source.editors.each do |editor| %>
-          <%= content_tag(:li, editor.name) %>
+          <%= content_tag(:li, person_link(editor)) %>
         <% end %>
       </ul>
     <% end %>

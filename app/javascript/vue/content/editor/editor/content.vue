@@ -85,12 +85,12 @@
 </template>
 
 <script>
-  const cloneContent = require('./clone.vue').default
-  const compareContent = require('./compare.vue').default
-  const selectTopicOtu = require('./selectTopicOtu.vue').default
-  const markdownEditor = require('../../../components/markdown-editor.vue').default
-  const GetterNames = require('../store/getters/getters').GetterNames
-  const MutationNames = require('../store/mutations/mutations').MutationNames
+  import CloneContent from './clone.vue'
+  import CompareContent from './compare.vue'
+  import SelectTopicOtu from './selectTopicOtu.vue'
+  import MarkdownEditor from 'components/markdown-editor.vue'
+  import { GetterNames } from '../store/getters/getters'
+  import { MutationNames } from '../store/mutations/mutations'
 
   export default {
     data: function () {
@@ -118,10 +118,10 @@
       }
     },
     components: {
-      cloneContent,
-      compareContent,
-      markdownEditor,
-      selectTopicOtu
+      CloneContent,
+      CompareContent,
+      MarkdownEditor,
+      SelectTopicOtu
     },
     computed: {
       topic() {

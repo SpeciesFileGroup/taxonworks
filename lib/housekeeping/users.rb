@@ -67,7 +67,7 @@ module Housekeeping::Users
   protected
 
   def set_created_by_id
-    self.created_by_id ||= $user_id
+    self.created_by_id ||= Current.user_id || $user_id
   end
 
   # TODO: This method _is not_ called in an 'after_save' operation (in User), so this deprecation warning
@@ -77,7 +77,7 @@ module Housekeeping::Users
   def set_updated_by_id
     ActiveSupport::Deprecation.silence do
       if (self.changed? || self.new_record?) && !self.updated_by_id_changed? && self.by.blank?
-        self.updated_by_id = $user_id
+        self.updated_by_id = Current.user_id || $user_id
       end
     end
   end

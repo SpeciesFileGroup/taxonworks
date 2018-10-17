@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="nomen-source">
     <h2>Cite taxon name</h2>
     <smart-selector
       :options="tabs"
@@ -11,14 +11,15 @@
         v-if="view === 'Search'"
         class="horizontal-left-content">
         <autocomplete
-          url="/taxon_names/autocomplete"
-          min="2"
-          ref="autocomplete"
-          param="term"
-          placeholder="Search for a taxon"
-          label="label-html"
-          @getItem="createTaxonCite($event)"
-          :autofocus="true" />
+            class="separate-bottom"
+            url="/taxon_names/autocomplete"
+            min="2"
+            ref="autocomplete"
+            param="term"
+            placeholder="Search for a taxon"
+            label="label_html"
+            @getItem="createTaxonCite($event)"
+            :autofocus="true" />
         <span
           class="warning separate-left"
           v-if="sourceAlreadyTaken">The source has already been taken</span>
@@ -38,8 +39,8 @@
 </template>
 <script>
 
-  import SmartSelector from '../../../../components/switch.vue'
-  import Autocomplete from '../../../../components/autocomplete.vue'
+  import SmartSelector from 'components/switch.vue'
+  import Autocomplete from 'components/autocomplete.vue'
 
   export default {
     components: {
@@ -100,6 +101,9 @@
       this.$http.get('/taxon_names/select_options').then(response => {
         this.tabs = Object.keys(response.body);
         this.list = response.body;
+        if(this.tabs.length) {
+          this.view = this.tabs[0]
+        }
       })
     }
   }

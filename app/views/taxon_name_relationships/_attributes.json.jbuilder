@@ -10,9 +10,5 @@ json.object_tag taxon_name_relationship_tag(taxon_name_relationship.metamorphosi
 json.url taxon_name_relationship_url(taxon_name_relationship.metamorphosize, format: :json)
 json.global_id taxon_name_relationship.to_global_id.to_s
 
+json.partial! '/shared/data/all/metadata', object: taxon_name_relationship, klass: 'TaxonNameRelationship'
 
-if taxon_name_relationship.origin_citation
-  json.origin_citation do
-    json.partial! '/citations/attributes', citation: taxon_name_relationship.origin_citation
-  end
-end

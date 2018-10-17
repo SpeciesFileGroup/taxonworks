@@ -82,6 +82,8 @@ module CitationsHelper
     true
   end
 
-
+  def attributes_for_citation_object(citation)
+    render
+  end
 
 end

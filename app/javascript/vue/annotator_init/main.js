@@ -3,11 +3,10 @@ TW.vue = TW.vue || {}
 TW.vue.annotator = TW.vue.annotator || {}
 
 import Vue from 'vue'
+import App from './app.vue'
 
 Object.assign(TW.vue.annotator, {
   init: function (element) {
-    var App = require('./app.vue').default
-
     let id = `radial-annotator-${(Math.random().toString(36).substr(2, 5))}`
     let globalId = $(element).attr('data-global-id')
 

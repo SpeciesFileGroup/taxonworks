@@ -59,18 +59,18 @@
 </template>
 <script>
 
-const draggable = require('vuedraggable')
-const GetterNames = require('../store/getters/getters').GetterNames
-const MutationNames = require('../store/mutations/mutations').MutationNames
-const ActionNames = require('../store/actions/actions').ActionNames
-const autocomplete = require('../../../components/autocomplete.vue').default
-const radialAnnotator = require('../../../components/annotator/annotator.vue').default
+import Draggable from 'vuedraggable'
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
+import { ActionNames } from '../store/actions/actions'
+import Autocomplete from '../../../components/autocomplete.vue'
+import RadialAnnotator from '../../../components/annotator/annotator.vue'
 
 export default {
   components: {
-    radialAnnotator,
-    autocomplete,
-    draggable
+    RadialAnnotator,
+    Autocomplete,
+    Draggable
   },
   computed: {
     taxon () {

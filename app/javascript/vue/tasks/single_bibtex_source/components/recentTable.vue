@@ -19,7 +19,7 @@
         <td>
           <pin-component 
             :object-id="item.id"
-            :type="item.type"/>
+            :type="item.base_class"/>
         </td>
       </tr>
     </tbody>

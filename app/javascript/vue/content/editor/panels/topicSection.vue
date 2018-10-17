@@ -25,9 +25,9 @@
 </template>
 <script>
 
-  import {GetterNames} from '../store/getters/getters'
-  import {MutationNames} from '../store/mutations/mutations'
-  import newTopic from './newTopic.vue'
+  import { GetterNames } from '../store/getters/getters'
+  import { MutationNames } from '../store/mutations/mutations'
+  import NewTopic from './newTopic.vue'
 
   export default {
     data: function () {
@@ -37,7 +37,7 @@
       }
     },
     components: {
-      newTopic
+      NewTopic
     },
     computed: {
       active() {
