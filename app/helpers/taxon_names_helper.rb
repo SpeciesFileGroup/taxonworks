@@ -250,7 +250,7 @@ module TaxonNamesHelper
 
   def taxon_name_otus_links(taxon_name)
     if taxon_name.otus.any?
-      "The following Otus are linked to this name: #{taxon_name.otus.collect{|o| otu_link(o)}.to_sentence}.".html_safe 
+      "The following Otus are linked to this name: #{taxon_name.otus.collect{|o| otu_link(o)}.to_sentence}".html_safe
     else
       content_tag(:em, 'There are no Otus linked to this name.')
     end

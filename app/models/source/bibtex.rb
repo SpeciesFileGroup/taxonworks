@@ -426,8 +426,8 @@ class Source::Bibtex < Source
       b[:doi] = dois.first.identifier # TW only allows one DOI per object
     end
 
-    b.author = self.compute_bibtex_names('author') unless (!self.authors.any? && self.author.blank?)
-    b.editor = self.compute_bibtex_names('editor') unless (!self.editors.any? && self.editor.blank?)
+    b.author = self.compute_bibtex_names('author') if self.authors.any? # && self.author.blank?
+    b.editor = self.compute_bibtex_names('editor') if self.editors.any? # && self.editor.blank?
 
     b.key    = self.id unless self.new_record?
     b
@@ -833,8 +833,8 @@ class Source::Bibtex < Source
         cached_author_string: authority_name
       }
 
-      attributes_to_update[:author] = compute_bibtex_names('author') if author.blank? && authors.size > 0
-      attributes_to_update[:editor] = compute_bibtex_names('editor') if editor.blank? && editors.size > 0
+      attributes_to_update[:author] = compute_bibtex_names('author') if authors.size > 0 # && author.blank?
+      attributes_to_update[:editor] = compute_bibtex_names('editor') if editors.size > 0 # && editor.blank?
 
       update_columns(attributes_to_update)
     end
