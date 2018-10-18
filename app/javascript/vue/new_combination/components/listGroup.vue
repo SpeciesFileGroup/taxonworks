@@ -22,9 +22,12 @@
                 type="radio"
                 :checked="checkRankSelected(taxon)"
                 :value="taxon">
-              <span
-                class="new-combination-rank-list-taxon-name"
-                v-html="taxon.original_combination"/>
+              <span>
+                <span
+                  class="new-combination-rank-list-taxon-name"
+                  v-html="taxon.original_combination"/>
+                <span class="disabled"> ({{ taxon.rank }})</span>
+              </span>
             </label>
           </li>
         </ul>
@@ -33,14 +36,14 @@
         class="maxheight content middle item"
         v-else>
         <h3 v-if="selected">
-          <b><span v-html="selected.original_combination"/></b>
+          <b><span v-html="selected.original_combination"/> <span class="disabled"> ({{ selected.rank }})</span></b>
         </h3>
       </div>
     </template>
     <template v-else>
       <div class="maxheight content middle item">
         <h3 v-if="selected">
-          <b><span v-html="selected.original_combination"/></b>
+          <b><span v-html="selected.original_combination"/> <span class="disabled"> ({{ selected.rank }})</span></b>
         </h3>
         <h3 v-else>{{ parseString }} not found</h3>
       </div>
