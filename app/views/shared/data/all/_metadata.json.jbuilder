@@ -17,8 +17,6 @@ if object.respond_to?(:origin_citation) && object.origin_citation
     json.source do 
       json.partial! '/sources/attributes', source: object.origin_citation.source
     end
-
-    # json.partial! '/citations/attributes', citation: object.origin_citation
   end
 end
 
