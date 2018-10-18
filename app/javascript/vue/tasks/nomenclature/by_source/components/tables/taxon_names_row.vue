@@ -117,7 +117,6 @@
   .pages {
     width: 80px;
   }
-
   .validity {
     width: 40px;
   }

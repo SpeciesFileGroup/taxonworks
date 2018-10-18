@@ -553,7 +553,7 @@ ActiveRecord::Schema.define(version: 2018_05_29_170201) do
   create_table "documents", id: :serial, force: :cascade do |t|
     t.string "document_file_file_name", null: false
     t.string "document_file_content_type", null: false
-    t.integer "document_file_file_size", null: false
+    t.bigint "document_file_file_size", null: false
     t.datetime "document_file_updated_at", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -924,7 +924,7 @@ ActiveRecord::Schema.define(version: 2018_05_29_170201) do
     t.datetime "updated_at", null: false
     t.string "image_file_file_name"
     t.string "image_file_content_type"
-    t.integer "image_file_file_size"
+    t.bigint "image_file_file_size"
     t.datetime "image_file_updated_at"
     t.integer "updated_by_id", null: false
     t.text "image_file_meta"
