@@ -14,6 +14,9 @@
         </div>
       </li>
     </ul>
+    <p class="slide-panel-category-content">
+      Use <b>{{ keyCode[actionKey] }} + C + Number</b> to copy a text to the clipboard box
+    </p>
   </div>
 </template>
 <script>
@@ -42,6 +45,10 @@
           3: '',
           4: '',
           5: '',
+        },
+        keyCode: {
+          17: 'Alt',
+          18: 'Ctrl'
         },
         keys: []
       }
