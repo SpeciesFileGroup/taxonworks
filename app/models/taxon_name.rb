@@ -853,6 +853,7 @@ class TaxonName < ApplicationRecord
     elements.push ['(', d['superspecies'], ')']
     elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'])
     elements = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
+    elements = 'Candidatus ' + elements if candidatus?
     elements.blank? ? nil : elements
     elements
   end
