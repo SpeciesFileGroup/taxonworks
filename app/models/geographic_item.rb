@@ -150,27 +150,18 @@ class GeographicItem < ApplicationRecord
                                               .default_geographic_item.id)
           end
 
-          # TODO: There should be a better way to do this, but for now...
+          # TODO: There probably is a better way to do this, but for now...
+          f1 = project_id.present? ? finding.limit(65535).with_project_id(project_id) : finding.limit(65535)
           case search_object_class
             when /Collection/
-              if project_id.present?
-                found = finding.with_project_id(project_id).joins(:geographic_items)
-                            .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
-              else
-                found = finding.joins(:geographic_items)
-                            .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
-              end
+              found = f1.joins(:geographic_items)
+                          .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
             when /Asserted/
               # TODO: Figure out how to see through this group of geographic_items to the ones which contain
               # geographic_items which are associated with geographic_areas (as #default_geographic_items)
               # which are associated with asserted_distributions
-              if project_id.present?
-                found = finding.with_project_id(project_id).joins(:geographic_area).joins(:geographic_items)
-                            .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
-              else
-                found = finding.joins(:geographic_area).joins(:geographic_items)
-                            .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
-              end
+              found = f1.joins(:geographic_area).joins(:geographic_items)
+                          .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
             else
           end
         end
@@ -202,11 +193,9 @@ class GeographicItem < ApplicationRecord
         geometry = geometry.as_text
         radius = g_feature['radius']
 
-        if project_id.present?
-          query = finding.with_project_id(project_id).joins(:geographic_items)
-        else
-          query = finding.joins(:geographic_items)
-        end
+        query = project_id.present? ?
+                    finding.limit(65535).with_project_id(project_id).joins(:geographic_items) :
+                    finding.limit(65535).joins(:geographic_items)
 
         case shape_type
           when 'point'
