@@ -34,7 +34,7 @@ module HubHelper
                   data.categories.inject({}){|hsh,c| hsh.merge!("data-category-#{c}" => 'true') }.merge(class: [:filter_data, :middle, 'card-categories', "#{data.status}", data.shared_css, data.application_css].flatten.join(' '), "data-category-#{data.status}" => 'true')
                  ) + 
         data_link(data) +
-        favorite_page_link('data', data.klass)
+        favorite_page_link('data', data.klass.to_s)
     end
   end
 
