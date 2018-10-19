@@ -18,7 +18,13 @@
       <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
         <td><%= source.cached.html_safe %></td>
         <td><%= source.year %></td>
-      <td><%= link_to(source.citations.where(project_id: sessions_current_project_id).count, nomenclature_by_source_task_path(source.id), target: '_blank') %></td>
+        <td>
+          <a class="citation-count" href="<%= nomenclature_by_source_task_path(source.id) %>">
+            <span class="citation-count button-data circle-button btn-citation">
+              <span class="circle-count button-default middle"><%= source.citations.where(project_id: sessions_current_project_id).count %></span>
+            </span>
+          </a>
+        </td>
         <td><%= add_source_to_project_form(source) %></td>
         <td><%= pin_item_to_pinboard_link(source, sessions_current_user) %></td>
         <%= fancy_options_cells_tag(source) -%>
