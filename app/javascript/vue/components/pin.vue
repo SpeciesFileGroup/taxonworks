@@ -40,6 +40,7 @@ export default {
     }
   },
   mounted() {
+    this.alreadyPinned()
     document.addEventListener('pinboard:remove', this.clearPin)
   },
   destroyed() {
@@ -47,8 +48,17 @@ export default {
   },
   methods: {
     clearPin: function (event) {
-      if(this.pin.id == event.detail.id) {
+      if(this.pin && this.pin.id == event.detail.id) {
         this.pin = undefined
+      }
+    },
+    alreadyPinned: function() {
+      let section = document.querySelector(`[data-pinboard-section="${this.type}s"] [data-pinboard-object-id="${this.id}"]`)
+      if(section != null) {
+        this.pin = {
+          id: section.getAttribute('data-pinboard-item-id'),
+          type: this.type
+        }
       }
     },
     createPin: function () {

@@ -1,8 +1,4 @@
 $('[data-pin-button-item-id="<%= @pinboard_item.pinned_object_id -%>"]').replaceWith("<%= j pin_item_to_pinboard_link(@pinboard_item.pinned_object, sessions_current_user) -%>");
-$('[data-pinboard-item-id="<%= @pinboard_item.id -%>"]').remove();
-if (!$('[data-pinboard-section="<%= @pinboard_item.pinned_object_type.pluralize -%>"] li').length) {
-  $("#order_<%= @pinboard_item.pinned_object_type.pluralize -%>").remove();
-}
+TW.workbench.pinboard.removeItem(<%= @pinboard_item.id -%>)
 $('body').mx_spinner('hide');
-TW.workbench.pinboard.eventPinboardRemove(<%= @pinboard_item.id -%>)
 TW.workbench.alert.create("Pinboard item was successfully destroyed.", "notice");
