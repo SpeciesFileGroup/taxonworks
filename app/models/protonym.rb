@@ -346,6 +346,7 @@ class Protonym < TaxonName
     # !((type == 'Protonym') && (taxon_name_classifications.collect{|t| t.type} & EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS).empty?)
 
     # Is faster than above?
+    return true if rank_string =~ /Icnb/ && (name.start_with?('Candidatus ') || name.start_with?('Ca. '))
     taxon_name_classifications.each do |tc| # ! find_each
       return true if TaxonName::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(tc.type)
     end
