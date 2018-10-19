@@ -15,8 +15,8 @@
 
 <script>
 
-  import RadialAnnotator from '../../../../components/annotator/annotator'
-  import Pin from '../../../../components/pin'
+  import RadialAnnotator from 'components/annotator/annotator'
+  import Pin from 'components/pin'
 
   export default {
     components: {
@@ -45,8 +45,3 @@
     }
   }
 </script>
-<style lang="scss" module>
-  .pages {
-    width: 140px;
-  }
-</style>
