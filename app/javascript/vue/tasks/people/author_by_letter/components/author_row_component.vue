@@ -29,13 +29,6 @@
         default: {}
       },
     },
-    data() {
-      return {
-        pages: undefined,
-        autoSave: undefined,
-        time: 3000
-      }
-    },
     methods: {
       showSources(id) {
         this.$emit("sources", id);
@@ -45,17 +38,6 @@
       },
       uniquify() {
         window.open('/tasks/uniquify_people/index?last_name=' + this.author.last_name, '_blank');
-      },
-      changePage() {
-        let that = this;
-        if (this.autoSave) {
-          clearTimeout(this.autoSave)
-        }
-        this.autoSave = setTimeout(() => {
-          //   that.$http.patch('/citations/' + this.citation.id + '.json', {citation: this.citation}).then(response => {
-          //     TW.workbench.alert.create('Citation was successfully updated.', 'notice')
-          //   })
-        }, this.time)
       },
       removeMe() {
         this.$emit("delete", this.author)
