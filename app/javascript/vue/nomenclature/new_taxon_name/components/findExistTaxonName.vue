@@ -117,13 +117,14 @@ export default {
         }
       }).then(response => {
         this.json = response.body
-        this.json.sort(((a, b) => {
-          if (a.label < b.label)
-            return -1;
-          if (a.label > b.label)
-            return 1;
-          return 0;
-        }))
+        if(Array.isArray(response.body))
+          this.json.sort(((a, b) => {
+            if (a.label < b.label)
+              return -1;
+            if (a.label > b.label)
+              return 1;
+            return 0;
+          }))
         this.spinner = false
         this.$emit('existing', this.json)
       }, response => {
