@@ -31,7 +31,7 @@
           <label v-help.section.basic.parent>Parent</label>
           <parent-picker/>
         </div>
-        <rank-selector v-if="parent"/>
+        <rank-selector v-if="parent && taxon.name"/>
         <hard-validation field="rank_class"/>
 
       </div>
