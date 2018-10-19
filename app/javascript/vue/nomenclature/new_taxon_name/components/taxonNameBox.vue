@@ -27,10 +27,16 @@
             <span v-html="taxon.cached_author_year"/>
           </a>
           <div class="taxon-options">
+            <pin-object
+              v-if="taxon.id"
+              class="separate-options"
+              :pin-object="taxon['pinboard_item']"
+              :object-id="taxon.id"
+              :type="taxon.base_class"/>
             <radial-annotator
               :global-id="taxon.global_id"/>
             <otu-radial
-              class="otu-radial"
+              class="separate-options"
               :taxon-id="taxon.id"
               :taxon-name="taxon.object_tag"/>
             <span
@@ -50,6 +56,7 @@
 
 import OtuRadial from 'components/otu/otu.vue'
 import RadialAnnotator from 'components/annotator/annotator.vue'
+import PinObject from 'components/pin.vue'
 
 import { GetterNames } from '../store/getters/getters'
 import Modal from 'components/modal.vue'
@@ -58,7 +65,8 @@ export default {
   components: {
     Modal,
     RadialAnnotator,
-    OtuRadial
+    OtuRadial,
+    PinObject
   },
   data: function () {
     return {
@@ -133,13 +141,13 @@ export default {
   .taxon-options {
     display: flex;
     justify-content: space-between;
-    width: 90px;
+    width: 120px;
   }
   .annotator {
     width:30px;
     margin-left: 14px;
   }
-  .otu-radial {
+  .separate-options {
     margin-left: 6px;
     margin-right: 6px;
   }
