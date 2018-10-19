@@ -3,7 +3,7 @@
     v-if="getDefault != undefined"
     type="button"
     class="normal-input button"
-    @click="sendDefault()">Use default {{ this.label }}
+    @click="sendDefault()">Use pinned
   </button>
 </template>
 <script>
