@@ -1,12 +1,9 @@
-klass ||= object.class.name
-
 json.object_tag object_tag(object)
 json.object_label label_for(object)
 
 json.global_id object.persisted? ? object.to_global_id.to_s : nil
 
-# TODO: deprecate klass
-json.base_class klass || object.class.base_class.name
+json.base_class object.class.base_class.name
 
 json.url url_for(only_path: false, format: :json)
 json.object_url url_for(metamorphosize_if(object))
