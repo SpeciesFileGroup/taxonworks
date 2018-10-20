@@ -8,7 +8,6 @@
           <th>Id</th>
           <th>Uniquify</th>
           <th></th>
-          <th></th>
         </tr>
         <author-row-component
           v-for="item in list"

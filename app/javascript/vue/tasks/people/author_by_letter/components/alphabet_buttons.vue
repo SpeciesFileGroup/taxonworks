@@ -27,11 +27,15 @@
     },
     methods: {
       sendLetter(letter) {
+        if(letter == this.selected) return
         this.setSelectedLetter(letter)
         this.$emit("keypress", letter);
       },
       setSelectedLetter(letter) {
         this.selected = letter
+        let urlParams = new URLSearchParams(window.location.search)
+        urlParams.set('letter', letter)
+        history.pushState(null, null, `/tasks/people/author?${urlParams.toString()}`)
       }
     }
   }

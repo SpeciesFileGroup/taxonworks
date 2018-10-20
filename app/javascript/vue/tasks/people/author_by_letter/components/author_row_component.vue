@@ -6,6 +6,7 @@
         target="blank"
         :href="`/people/${this.author.id}`"/>
     </td>
+    <td> {{ author.id }} </td>
     <td>
       <button
         v-if="author.roles[0]"
@@ -14,7 +15,6 @@
         Sources
       </button>
     </td>
-    <td> {{ author.id }} </td>
     <td>
       <a
         target="blank"
@@ -26,12 +26,7 @@
       <pin
         v-if="author.id"
         :object-id="author.id"
-        :type="author.type"/>
-    </td>
-    <td>
-      <span
-        class="button circle-button btn-delete"
-        @click="removeMe()"/>
+        type="Person"/>
     </td>
   </tr>
 </template>
@@ -58,9 +53,6 @@
       },
       showAuthor() {
         window.open('/people/' + this.author.id, '_blank');
-      },
-      removeMe() {
-        this.$emit("delete", this.author)
       }
     }
   }

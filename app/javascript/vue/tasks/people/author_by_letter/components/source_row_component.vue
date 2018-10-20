@@ -1,16 +1,22 @@
 <template>
   <tr v-if="source">
-    <td><a v-html="source.cached" @click="showSource"/></td>
     <td>
-      <pin v-if="source.id"
-           :object-id="source.id"
-           :type="source.type"/>
+      <a
+        v-html="source.cached"
+        @click="showSource"/>
     </td>
     <td>
-      <add-to-project :id="source.id" :in_project="source.source_in_project"
-                      :project_source_id="source.project_source_id"/>
+      <pin
+        v-if="source.id"
+        :object-id="source.id"
+        :type="source.type"/>
     </td>
-    <td><span class="button circle-button btn-delete" @click="removeMe()"/></td>
+    <td>
+      <add-to-project
+        :id="source.id"
+        :in_project="source.source_in_project"
+        :project_source_id="source.project_source_id"/>
+    </td>
   </tr>
 </template>
 
@@ -29,7 +35,7 @@
     props: {
       source: {
         type: Object,
-        default: {}
+        default: () => { return {} }
       },
     },
     methods: {
@@ -37,13 +43,10 @@
         this.$emit("sources", id);
       },
       showSource() {
-        window.open('/sources/' + this.source.id, '_blank');
+        window.open(`sources/${this.source.id}`, '_blank');
       },
       uniquify() {
-        window.open('/tasks/uniquify_people/index?last_name=' + this.author.last_name, '_blank');
-      },
-      removeMe() {
-        this.$emit("delete", this.source)
+        window.open(`/tasks/uniquify_people/index?last_name=${this.author.last_name}`, '_blank');
       }
     }
   }
