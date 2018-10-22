@@ -3,12 +3,14 @@
 # require_dependency 'lib/application_enumeration.rb'
 
 class ApplicationController < ActionController::Base
+  include InterceptApi
   include Workbench::SessionsHelper
+
   include ProjectsHelper
   include SetHousekeeping
   include Tracking::UserTime
 
-  include InterceptApi
+
 
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
@@ -86,18 +88,6 @@ class ApplicationController < ActionController::Base
 
   def disable_turbolinks
     @no_turbolinks = true
-  end
-
-  def token_authenticate
-    t = params[:token]
-
-    unless t
-      authenticate_with_http_token do |token, _options|
-        t = token
-      end
-    end
-
-    @sessions_current_user = User.find_by_api_access_token(t) if t
   end
 
   def set_project_from_params
