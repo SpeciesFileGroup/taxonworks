@@ -1,40 +1,56 @@
 <template>
-  <div class="common_name_annotator data_attribute_annotator separate-bottom">
+  <div class="common_name_annotator separate-bottom">
     <div class="separate-bottom">
-      <div class="field separate-bottom">
+      <div class="separate-bottom">
         <input
           type="text"
           placeholder="Name"
           v-model="common_name.name">
       </div>
-      <autocomplete
-        class="separate-bottom"
-        url="/geographic_areas/autocomplete"
-        param="term"
-        label="label_html"
-        display="label"
-        placeholder="Select a geopgrahic area"
-        @getItem="common_name.geographic_area_id = $event.id"/>
+      <div class="horizontal-left-content separate-bottom">
+        <autocomplete
+          url="/geographic_areas/autocomplete"
+          param="term"
+          label="label_html"
+          display="label"
+          ref="geoAutocomplete"
+          placeholder="Select a geopgrahic area"
+          @getItem="common_name.geographic_area_id = $event.id"/>
+        <default-pinned
+          section="GeographicAreas"
+          type="GeographicArea"
+          @getLabel="$refs.geoAutocomplete.setLabel($event)"
+          @getId="common_name.geographic_area_id = $event"/>
+      </div>
       <autocomplete
         class="separate-bottom"
         url="/languages/autocomplete"
         param="term"
         label="label_html"
         display="label"
+        ref="langAutocomplete"
         placeholder="Select a language"
         @getItem="common_name.language_id = $event.id"/>
-      <label>Start year</label>
-      <input
-        type="number"
-        v-model="common_name.start_year"
-        min="1600"
-        max="3000">
-      <label>End year</label>
-      <input
-        type="number"
-        v-model="common_name.end_year"
-        min="1600"
-        max="3000">
+      <div class="separate-bottom">
+        <input
+          class="date-input"
+          type="number"
+          placeholder="Start year"
+          v-model="common_name.start_year"
+          min="1600"
+          max="3000">
+      </div>
+      <div>
+        <input
+          class="date-input"
+          type="number"
+          placeholder="End year"
+          v-model="common_name.end_year"
+          min="1600"
+          max="3000">
+      </div>
+    </div> 
+    <div> 
       <button
         type="button"
         :disabled="!validate"
@@ -42,11 +58,11 @@
         class="button normal-input button-submit">
         Create
       </button>
-    </div>  
+    </div>
     <table-list
       label="object_tag"
-      :header="['name', 'geographic area', 'language', '']"
-      :attributes="['name', ['geographic_area', 'object_tag'], 'language_tag']"
+      :header="['Name', 'Geographic area', 'Language', 'Start', 'End','']"
+      :attributes="['name', ['geographic_area', 'object_tag'], 'language_tag', 'start_year', 'end_year']"
       :list="list"
       @delete="removeItem"
       class="list"/>
@@ -58,13 +74,15 @@
 import Autocomplete from 'components/autocomplete.vue'
 import CRUD from '../../request/crud.js'
 import annotatorExtend from '../../components/annotatorExtend.js'
-import TableList from '../../../table_list'
+import TableList from 'components/table_list.vue'
+import DefaultPinned from 'components/getDefaultPin.vue'
 
 export default {
   mixins: [CRUD, annotatorExtend],
   components: {
     Autocomplete,
-    TableList
+    TableList,
+    DefaultPinned
   },
   computed: {
     validate() {
@@ -82,6 +100,7 @@ export default {
   methods: {
     newCommonName() {
       return {
+        id: undefined,
         name: '', 
         geographic_area_id: undefined, 
         otu_id: this.metadata.object_id, 
@@ -94,6 +113,8 @@ export default {
       this.create('/common_names', {common_name: this.common_name}).then(response => {
         this.list.push(response.body)
         this.common_name = this.newCommonName()
+        this.$refs.geoAutocomplete.setLabel('')
+        this.$refs.langAutocomplete.setLabel('')
       })
     }
   }
@@ -106,14 +127,11 @@ export default {
     button {
       min-width: 100px;
     }
-    textarea {
-      padding-top: 14px;
-      padding-bottom: 14px;
-      width: 100%;
-      height: 100px;
+    .date-input {
+      min-width: 150px;
     }
     .vue-autocomplete-input {
-      width: 100%;
+      width: 374px;
     }
   }
 }

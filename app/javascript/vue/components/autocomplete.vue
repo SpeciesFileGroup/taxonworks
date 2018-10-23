@@ -205,6 +205,10 @@ export default {
       this.type = ''
     },
 
+    setLabel(value) {
+      this.type = value
+    },
+
     limitList: function (list) {
       if (this.limit == 0) { return list }
 
