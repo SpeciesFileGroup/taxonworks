@@ -407,6 +407,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes ]
     resources :biological_associations, shallow: true, only: [:index], defaults: {format: :json}
     resources :asserted_distributions, shallow: true, only: [:index], defaults: {format: :json}
+    resources :common_names, shallow: true, only: [:index], defaults: {format: :json}
 
     resources :contents, only: [:index]
     collection do
@@ -614,7 +615,6 @@ TaxonWorks::Application.routes.draw do
     collection do
       get :type_types, {format: :json}
     end
-
   end
 
 
