@@ -201,7 +201,7 @@ export default {
       this.ctx.font = '11px Arial'
       if(this.linebreak) {
         let lineheight = 15;
-        let lines = text.split(' ');
+        let lines = text.toString().split(' ');
         for (var i = 0; i<lines.length; i++)
           this.ctx.fillText(lines[i], position.x, position.y + (i*lineheight) );
       }
