@@ -26,7 +26,8 @@
       <pin
         v-if="author.id"
         :object-id="author.id"
-        type="Person"/>
+        :pluralize="false"
+        type="People"/>
     </td>
   </tr>
 </template>

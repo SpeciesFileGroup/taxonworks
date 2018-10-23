@@ -23,6 +23,10 @@ export default {
     type: {
       type: String,
       required: true
+    },
+    pluralize: {
+      type: Boolean,
+      default: true
     }
   },
   data: function () {
@@ -53,7 +57,7 @@ export default {
       }
     },
     alreadyPinned: function() {
-      let section = document.querySelector(`[data-pinboard-section="${this.type}s"] [data-pinboard-object-id="${this.id}"]`)
+      let section = document.querySelector(`[data-pinboard-section="${this.type}${this.pluralize ? 's' : ''}"] [data-pinboard-object-id="${this.id}"]`)
       if(section != null) {
         this.pin = {
           id: section.getAttribute('data-pinboard-item-id'),
