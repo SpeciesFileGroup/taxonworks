@@ -5,13 +5,22 @@
       :options="Object.keys(options)"
       v-model="view"/>
     <div class="separate-bottom">
-      <topic-item
-        v-for="item in options[view]"
-        v-if="!topicAlreadyCreated(item)"
-        :class="{ 'button-data' : content.topic_id != item.id }"
-        :key="item.id"
-        :topic="item"
-        @select="content.topic_id = $event.id"/>
+      <template v-if="options['all'] && options['all'].length">
+        <topic-item
+          v-for="item in options[view]"
+          v-if="!topicAlreadyCreated(item)"
+          :class="{ 'button-data' : content.topic_id != item.id }"
+          :key="item.id"
+          :topic="item"
+          @select="content.topic_id = $event.id"/>
+      </template>
+      <template v-else>
+        <a
+          target="blank"
+          href="/controlled_vocabulary_terms/new">
+          Create a topic first. 
+        </a>
+      </template>
     </div>
     <div class="separate-bottom">
       <textarea
@@ -21,6 +30,7 @@
     <div>
       <button
         type="button"
+        :disabled="!validate"
         class="button normal-input button-submit"
         @click="createNew">
         Create
@@ -50,6 +60,11 @@ export default {
     SmartSelector,
     TopicItem,
     TableList
+  },
+  computed: {
+    validate() {
+      return (this.content.text.length > 1 && this.content.topic_id != undefined)
+    }
   },
   data() {
     return {
