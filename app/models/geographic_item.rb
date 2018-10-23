@@ -151,7 +151,7 @@ class GeographicItem < ApplicationRecord
           end
 
           # TODO: There probably is a better way to do this, but for now...
-          f1 = project_id.present? ? finding.limit(65535).with_project_id(project_id) : finding.limit(65535)
+          f1 = project_id.present? ? finding.with_project_id(project_id) : finding
           case search_object_class
             when /Collection/
               found = f1.joins(:geographic_items)
@@ -194,8 +194,8 @@ class GeographicItem < ApplicationRecord
         radius = g_feature['radius']
 
         query = project_id.present? ?
-                    finding.limit(65535).with_project_id(project_id).joins(:geographic_items) :
-                    finding.limit(65535).joins(:geographic_items)
+                    finding.with_project_id(project_id).joins(:geographic_items) :
+                    finding.joins(:geographic_items)
 
         case shape_type
           when 'point'
