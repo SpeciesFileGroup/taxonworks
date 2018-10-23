@@ -1,1 +1,1 @@
-json.partial! 'attributes', common_name: common_name
+json.partial! 'attributes', common_name: @common_name
