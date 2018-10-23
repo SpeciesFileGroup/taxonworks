@@ -7,6 +7,7 @@
     <div class="separate-bottom">
       <topic-item
         v-for="item in options[view]"
+        v-if="!topicAlreadyCreated(item)"
         :class="{ 'button-data' : content.topic_id != item.id }"
         :key="item.id"
         :topic="item"
