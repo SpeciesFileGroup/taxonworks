@@ -1,27 +1,25 @@
 <%= form_for(@otu) do |f| %>
-    <%= render 'shared/errors', object: @otu %>
+  <%= render 'shared/errors', object: @otu %>
 
-    <div class="required">
-      <div class="field">
-        <%= f.label :name %>
-        <br>
-        <%= f.text_field :name %>
-      </div>
+  <div class="field">
+    <%= f.label :name %>
+    <br>
+    <%= f.text_field :name %>
+  </div>
+  
+  <div class="field">
+    <%= f.label :taxon_name %>
+    <br>
+    <%= render partial: 'workbench/elements/forms/ajax_select',
+      locals:  {controller:  'taxon_names',
+                object: 'otu',
+                method:  'taxon_name_id',
+                tag_id:  'taxon_name_id_for_otu',
+                display:  taxon_name_autocomplete_selected_tag(@otu.taxon_name),
+                size: 20} %>
+  </div>
 
-      <div class="field">
-        <%= f.label :taxon_name %>
-        <br>
-        <%= render partial: 'workbench/elements/forms/ajax_select',
-                   locals:  {controller:  'taxon_names',
-                             object: 'otu',
-                             method:  'taxon_name_id',
-                             tag_id:  'taxon_name_id_for_otu',
-                             display:  taxon_name_autocomplete_selected_tag(@otu.taxon_name),
-                             size: 20} %>
-      </div>
-    </div>
-
-    <div class="actions">
-      <%= f.submit %>
-    </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
 <% end %>
