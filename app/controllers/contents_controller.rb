@@ -52,8 +52,8 @@ class ContentsController < ApplicationController
   def update
     respond_to do |format|
       if @content.update(content_params)
-        format.html { redirect_to url_for(@content.metamorphosize), notice: 'Content was successfully updated.' }
-        format.json { render :show, status: :ok, location: @content.metamorphosize }
+        format.html { redirect_to url_for(@content), notice: 'Content was successfully updated.' }
+        format.json { render :show, status: :ok, location: @content }
       else
         format.html { render :edit }
         format.json { render json: @content.errors, status: :unprocessable_entity }
