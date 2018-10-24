@@ -29,15 +29,21 @@ class Tasks::Gis::LocalityController < ApplicationController
     case params[:commit]
       when 'Show'
         geographic_area_ids = params[:geographic_area_ids]
-        shape_in            = params['drawn_area_shape']
-        finding             = params['selection_object']
+        shape_in = params['drawn_area_shape']
+        findings = params['selection_objects']
 
-        @collecting_events = GeographicItem.gather_geographic_area_or_shape_data(geographic_area_ids,
-                                                                                 shape_in,
-                                                                                 finding,
-                                                                                 sessions_current_project_id)
-                               .order(:verbatim_locality)
-        @drawing_modes     = 'active: polygon, circle'
+        findings.each { |finding|
+          case finding
+            when /Collecting/
+              @collecting_events = GeographicItem.gather_geographic_area_or_shape_data(geographic_area_ids,
+                                                                                       shape_in,
+                                                                                       finding,
+                                                                                       sessions_current_project_id)
+                                       .order(:verbatim_locality)
+            else
+          end
+        }
+        @drawing_modes = 'active: polygon, circle'
       else
         # some other case, TBDL
     end
