@@ -2,6 +2,7 @@
   <div>
     <div class="flex-separate">
       <button
+        @click="createLabel"
         class="button normal-input button-default">
         Generate
       </button>
@@ -21,6 +22,7 @@
 <script>
 import { GetterNames } from '../../../../store/getters/getters.js'
 import { MutationNames } from '../../../../store/mutations/mutations.js'
+import GenerateLabel from '../../../../helpers/createLabel.js'
 
 export default {
   computed: {
@@ -47,6 +49,11 @@ export default {
       set(value) {
         this.$store.commit(MutationNames.SetCollectionEventDocumentLabel, value)
       }
+    }
+  },
+  methods: {
+    createLabel() {
+      GenerateLabel('test')
     }
   }
 }
