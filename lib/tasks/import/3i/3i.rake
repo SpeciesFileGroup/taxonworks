@@ -1473,9 +1473,7 @@ namespace :tw do
           else
             print "\nRow #{row} is problematic\n"
           end
-
         end
-
       end
 
       def handle_citation_topics_3i

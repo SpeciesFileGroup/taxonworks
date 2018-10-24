@@ -390,11 +390,6 @@ class Source::Bibtex < Source
       b.year = self.year_with_suffix
     end
 
-    v = self.volume
-    v = v + '(' + self.number + ')' unless self.number.blank?
-    v = self.stated_year + ', ' + v unless self.stated_year.blank?
-    b.volume = v if !v.blank? && b.volume != v
-
     unless self.verbatim_keywords.blank?
       b[:keywords] = self.verbatim_keywords
     end
@@ -789,13 +784,31 @@ class Source::Bibtex < Source
     b
   end
 
+  def bibtex_bibliography_for_zootaxa
+    bx_entry = to_bibtex
+    bx_entry.year = '0000' if bx_entry.year.blank? # cludge to fix render problem with year
+    v = self.volume
+    v = v + '(' + self.number + ')' unless self.number.blank?
+    v = self.stated_year + ', ' + v unless self.stated_year.blank?
+
+    bx_entry.volume = v if !v.blank? && bx_entry.volume != v
+    b = BibTeX::Bibliography.new
+    b.add(bx_entry)
+    b
+  end
+
+
   # @param [String] style
   # @param [String] format
   # @return [String]
   #   this source, rendered in the provided CSL style, as text
   def render_with_style(style = 'vancouver', format = 'text')
     cp = CiteProc::Processor.new(style: style, format: format)
-    cp.import(bibtex_bibliography.to_citeproc)
+    if style == 'zootaxa'
+      cp.import(bibtex_bibliography_for_zootaxa.to_citeproc)
+    else
+      cp.import(bibtex_bibliography.to_citeproc)
+    end
     #name = cp.engine.style.macros['author'] > 'names' > 'name'
     #name[:initialize] = 'false'
 
