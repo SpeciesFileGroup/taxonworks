@@ -390,6 +390,11 @@ class Source::Bibtex < Source
       b.year = self.year_with_suffix
     end
 
+    v = self.volume
+    v = v + '(' + self.number + ')' unless self.number.blank?
+    v = self.stated_year + ', ' + v unless self.stated_year.blank?
+    b.volume = v if !v.blank? && b.volume != v
+
     unless self.verbatim_keywords.blank?
       b[:keywords] = self.verbatim_keywords
     end
@@ -791,6 +796,9 @@ class Source::Bibtex < Source
   def render_with_style(style = 'vancouver', format = 'text')
     cp = CiteProc::Processor.new(style: style, format: format)
     cp.import(bibtex_bibliography.to_citeproc)
+    #name = cp.engine.style.macros['author'] > 'names' > 'name'
+    #name[:initialize] = 'false'
+
     cp.render(:bibliography, id: cp.items.keys.first).first.strip
   end
 

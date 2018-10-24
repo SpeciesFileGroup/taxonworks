@@ -327,30 +327,43 @@ namespace :tw do
         if @import.metadata['project_and_users']
           print "from database.\n"
           project = Project.where(name: project_name).first
-          $proceps = User.where(email: email).first
+          @proceps = User.where(email: email).first
           $project_id = project.id
-          $user_id = $proceps.id
+          $user_id = @proceps.id
         else
           print "as newly parsed.\n"
 
-          @proceps = User.where(email: email)
+          @proceps = User.where(email: email).first
           @trivellone = User.where(email: 'valeria.trivellone@gmail.com').first
-          if @proceps.empty?
+
+          if @proceps.nil?
             pwd = rand(36**10).to_s(36)
             @proceps = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, self_created: true)
+          end
+          if @trivellone.nil?
             pwd = rand(36**10).to_s(36)
             @trivellone = User.create(email: 'valeria.trivellone@gmail.com', password: pwd, password_confirmation: pwd, name: 'Valeria Trivellone', self_created: true, is_flagged_for_password_reset: true)
-            @users = {
-                2 => User.create(email: 'yoder@mail.com', password: pwd, password_confirmation: pwd, name: 'Matt Yoder', self_created: true, is_flagged_for_password_reset: false).id,
-                34 => User.create(email: 'seltmann@mail.com', password: pwd, password_confirmation: pwd, name: 'Katja Seltmann', self_created: true, is_flagged_for_password_reset: false).id,
-                144 => User.create(email: 'wallace@mail.com', password: pwd, password_confirmation: pwd, name: 'Matt Wallace', self_created: true, is_flagged_for_password_reset: false).id,
-                145 => User.create(email: 'deitz@mail.com', password: pwd, password_confirmation: pwd, name: 'Lewis Deitz', self_created: true, is_flagged_for_password_reset: false).id,
-                176 => User.create(email: 'evangelista@mail.com', password: pwd, password_confirmation: pwd, name: 'Olivia Evangelista', self_created: true, is_flagged_for_password_reset: false).id,
-                194 => User.create(email: 'rothschild@mail.com', password: pwd, password_confirmation: pwd, name: 'Mark Rothschild', self_created: true, is_flagged_for_password_reset: false).id
-            }.freeze
-
-          else
-            @proceps = @proceps.first
+            user = {2 => ['yoder@mail.com', 'Matt Yoder'],
+                    34 => ['seltmann@mail.com', 'Katja Seltmann'],
+                    144 => ['wallace@mail.com', 'Matt Wallace'],
+                    145 => ['deitz@mail.com', 'Lewis Deitz'],
+                    176 => ['evangelista@mail.com', 'Olivia Evangelista'],
+                    194 => ['rothschild@mail.com', 'Mark Rothschild']
+            }
+            @users = {}
+            user.each do |key, value|
+              u = User.where(email: value[0]).first
+              u = User.create(email: value[0], password: pwd, password_confirmation: pwd, name: value[1], self_created: true, is_flagged_for_password_reset: false) if u.nil?
+              @users.merge!(key, u.id)
+            end
+#            @users = {
+#                2 => User.create(email: 'yoder@mail.com', password: pwd, password_confirmation: pwd, name: 'Matt Yoder', self_created: true, is_flagged_for_password_reset: false).id,
+#                34 => User.create(email: 'seltmann@mail.com', password: pwd, password_confirmation: pwd, name: 'Katja Seltmann', self_created: true, is_flagged_for_password_reset: false).id,
+#                144 => User.create(email: 'wallace@mail.com', password: pwd, password_confirmation: pwd, name: 'Matt Wallace', self_created: true, is_flagged_for_password_reset: false).id,
+#                145 => User.create(email: 'deitz@mail.com', password: pwd, password_confirmation: pwd, name: 'Lewis Deitz', self_created: true, is_flagged_for_password_reset: false).id,
+#                176 => User.create(email: 'evangelista@mail.com', password: pwd, password_confirmation: pwd, name: 'Olivia Evangelista', self_created: true, is_flagged_for_password_reset: false).id,
+#                194 => User.create(email: 'rothschild@mail.com', password: pwd, password_confirmation: pwd, name: 'Mark Rothschild', self_created: true, is_flagged_for_password_reset: false).id
+#            }.freeze
           end
           $user_id = @proceps.id
 
@@ -361,8 +374,8 @@ namespace :tw do
           end
 
           $project_id = project.id
-          pm = ProjectMember.create(user: $proceps, project: project, is_project_administrator: true)
-          pm = ProjectMember.create(user: $trivellone, project: project, is_project_administrator: true)
+          pm = ProjectMember.create(user: @proceps, project: project, is_project_administrator: true)
+          pm = ProjectMember.create(user: @trivellone, project: project, is_project_administrator: true)
 
           @import.metadata['project_and_users'] = true
         end
@@ -1106,9 +1119,14 @@ namespace :tw do
 
             source = nil
             if !@data.emendation[row['Parent']].blank? && row['OriginalCombinationOf'] == row['Parent']
-              source = find_taxon_3i(@data.emendation[row['Parent']]).try(['Key3']).nil? ? nil : @data.publications_index[@data.emendation[row['Parent']]['Key3']]
-              tnr = TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction.create(subject_taxon_name: find_taxon_3i(row['Parent']), object_taxon_name: taxon, origin_citation_attributes: {source_id: source})
-              byebug if tnr.id.nil?
+              source = @data.emendation[row['Parent']]['Key3'].blank? ? nil : @data.publications_index[@data.emendation[row['Parent']]['Key3']]
+              #source = find_taxon_3i(@data.emendation[row['Parent']]).try(['Key3']).nil? ? nil : @data.publications_index[@data.emendation[row['Parent']]['Key3']]
+              tnr = TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction.create(subject_taxon_name: find_taxon_3i(row['Parent']), object_taxon_name: taxon)
+              if !source.blank? && !tnr.id.nil?
+                tnr.citations.create(source_id: source, pages: row['Page'], is_original: true)
+              elsif tnr.id.nil?
+                byebug
+              end
             end
 
             begin
@@ -1166,8 +1184,14 @@ namespace :tw do
             c.variety = taxon if row['Name'].include?(' var. ')
             c.form = taxon if row['Name'].include?(' f. ')
             c.parent = origgen.blank? ? find_taxon_3i(row['Parent']).parent : origgen.parent
+            i3_combination = ''
             if taxon.rank_string =~ /Genus/
               c.genus.nil? ? c.genus = taxon : c.subgenus = taxon
+              if origgen.blank?
+                i3_combination = taxon.name_with_misspelling(nil).to_s
+              else
+                i3_combination = origgen.name_with_misspelling(nil).to_s + ' (' + taxon.name_with_misspelling(nil).to_s + ')'
+              end
             elsif taxon.rank_string =~ /Species/
               if c.species.nil?
                 c.species = taxon
@@ -1176,7 +1200,10 @@ namespace :tw do
               elsif c.variety.nil?
                 c.variety = taxon
               end
-              #
+              i3_combination = origgen.name_with_misspelling(nil).to_s + ' ' unless origgen.blank?
+              i3_combination += '(' + origsubgen.name_with_misspelling(nil).to_s + ') ' unless origsubgen.blank?
+              i3_combination += taxon.name_with_misspelling(nil).to_s
+              i3_combination.squish!
             elsif taxon.rank_string =~ /Family/
               c = Protonym.new(origin_citation_attributes: {source_id: source, pages: row['Page']}, verbatim_author: row['Author'], year_of_publication: row['Year'])
               tnr = c.taxon_name_relationships.new(object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm')
@@ -1189,13 +1216,6 @@ namespace :tw do
               byebug if c.id.nil?
             end
             c.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['YearRem'].id, value: row['YearRem']) unless row['YearRem'].blank?
-
-            i3_combination = ''
-            i3_combination = origgen.name_with_misspelling(gender).to_s + ' ' unless origgen.blank?
-            i3_combination += '(' + origsubgen.name_with_misspelling(gender).to_s + ') ' unless origsubgen.blank?
-            i3_combination += row['Name'].to_s
-            i3_combination.squish!
-
 
             begin
               if c.type == 'Combination' && !i3_combination.blank? && i3_combination != c.cached
@@ -2321,11 +2341,8 @@ namespace :tw do
               c.data_attributes.find_or_create_by(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['copyright_holder'].id, value: row['copyright_holder'].to_s) unless row['copyright_holder'].blank?
             end
           end
-
         end
-
       end
-
 
       def soft_validations_3i
         fixed = 0

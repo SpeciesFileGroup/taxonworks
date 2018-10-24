@@ -747,7 +747,7 @@ class TaxonName < ApplicationRecord
   end
 
   def get_cached_misspelling
-    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Usage::Misspelling')
+    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
     misspelling.empty? ? nil : true
   end
 
@@ -853,7 +853,7 @@ class TaxonName < ApplicationRecord
     elements.push ['(', d['superspecies'], ')']
     elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'])
     elements = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
-    elements = 'Candidatus ' + elements if candidatus?
+#    elements = 'Candidatus ' + elements if candidatus?
     elements.blank? ? nil : elements
     elements
   end
