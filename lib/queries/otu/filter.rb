@@ -154,10 +154,6 @@ module Queries
     # 3. find all otus which are associated with result #1 plus result #2
     #
     def shape_scope
-      # co_r42i = GeographicItem.gather_map_data(shape, 'CollectionObject', project_id).distinct.ids
-      # ad_r42i = GeographicItem.gather_map_data(shape, 'AssertedDistribution', project_id).distinct.ids
-      # ad_o_ids = ::Otu.joins(:asserted_distributions).where(asserted_distributions: {id: ad_r42i}).ids
-      # co_o_ids = ::Otu.joins(:collection_objects).where(collection_objects: {id: co_r42i}).ids
       ::Otu.where(id: (::Otu.joins(:asserted_distributions)
                            .where(asserted_distributions: {id: GeographicItem.gather_map_data(shape,
                                                                                               'AssertedDistribution',
