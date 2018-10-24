@@ -179,7 +179,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             end
 
             specify 'cached' do
-              expect(sp.cached).to eq('Aus bus')
+              expect(sp.cached).to eq('Candidatus Aus bus')
             end
           end
 

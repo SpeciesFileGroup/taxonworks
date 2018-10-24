@@ -27,11 +27,6 @@
                   class="medium-icon separate-right"
                   v-if="unsavedChanges"/>
               </transition>
-              <pin-object
-                v-if="taxon.id"
-                :pin-object="taxon['pinboard_item']"
-                :object-id="taxon.id"
-                :type="taxon.base_class"/>
               <save-taxon-name
                 v-if="taxon.id"
                 class="normal-input button button-submit"/>
@@ -49,8 +44,6 @@ import SaveTaxonName from './saveTaxonName.vue'
 import CreateNewButton from './createNewButton.vue'
 import { GetterNames } from '../store/getters/getters'
 
-import PinObject from 'components/pin.vue'
-
 export default {
   props: {
     menu: {
@@ -60,8 +53,7 @@ export default {
   },
   components: {
     SaveTaxonName,
-    CreateNewButton,
-    PinObject
+    CreateNewButton
   },
   computed: {
     unsavedChanges () {

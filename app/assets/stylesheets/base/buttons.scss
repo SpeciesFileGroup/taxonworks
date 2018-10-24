@@ -27,6 +27,10 @@
   background-color: $color-secondary-2-4;
 }
 
+.button-default-pin {
+  background-image: image-url("b_pin.svg");
+}
+
 .button-submit {
   color: #FFF;
   background-color: $color-action-button;

@@ -13,7 +13,7 @@ class PeopleController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @people = Queries::Person::Filter.new(filter_params).all
+        @people = Queries::Person::Filter.new(filter_params).all.order(:last_name).page(params[:page]).per(25) #
       }
     end
   end
@@ -130,7 +130,7 @@ class PeopleController < ApplicationController
   private
 
   def filter_params
-    params.permit(:last_name, :first_name, roles: [])
+    params.permit(:last_name, :first_name, :last_name_starts_with, roles: [])
   end
 
   def autocomplete_params

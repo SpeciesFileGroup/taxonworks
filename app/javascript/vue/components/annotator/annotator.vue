@@ -69,6 +69,8 @@
   import protocol_relationshipsAnnotator from './components/protocol_annotator.vue'
   import biological_associationsAnnotator from './components/biological_relationships/biological_relationships_annotator.vue'
   import asserted_distributionsAnnotator from './components/asserted_distributions/asserted_distributions_annotator.vue'
+  import common_namesAnnotator from './components/common_names/main.vue'
+  import contentsAnnotator from './components/contents/main.vue'
 
   import Icons from './images/icons.js'
 
@@ -90,7 +92,9 @@
       tagsAnnotator,
       protocol_relationshipsAnnotator,
       biological_associationsAnnotator,
-      asserted_distributionsAnnotator
+      asserted_distributionsAnnotator,
+      common_namesAnnotator,
+      contentsAnnotator
     },
     props: {
       reload: {

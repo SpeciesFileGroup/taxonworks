@@ -11,8 +11,8 @@ class CitationsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @citations = Queries::Citation::Filter.new(filter_params).all.includes(:source)
-          .where(project_id: sessions_current_project_id).order(:source_id, :pages)
+        @citations = Queries::Citation::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).includes(:source)
+          .order(:source_id, :pages)
           .page(params[:page]).per(params[:per] || 500)
         @verbose_object = params[:verbose_object]
       }

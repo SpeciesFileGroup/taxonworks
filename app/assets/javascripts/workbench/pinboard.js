@@ -74,7 +74,8 @@ Object.assign(TW.workbench.pinboard, {
       var section = element.parent().attr('data-pinboard-section');
       $('[data-pinboard-item-id="' + id + '"]').remove();
       if (!$('[data-pinboard-section="' + section + '"] li').length) {
-        $('#order_' + section).remove();
+        var elementSection = document.getElementById('order_' + section);
+        elementSection.parentNode.removeChild(elementSection);
       }
       this.eventPinboardRemove(id)
     },
@@ -100,11 +101,11 @@ Object.assign(TW.workbench.pinboard, {
         </div> \
       </li>'
 
-      if (!$('[data-pinboard-section="'+ object.pinned_object_type +'s"]').length) {
-        this.createCategory(object.pinned_object_type)
+      if (!$('[data-pinboard-section="'+ object.pinned_object_section +'"]').length) {
+        this.createCategory(object.pinned_object_section)
       }
 
-      $(injectItem).appendTo('[data-pinboard-section="'+ object.pinned_object_type +'s"]');
+      $(injectItem).appendTo('[data-pinboard-section="'+ object.pinned_object_section +'"]');
       this.eventPinboardAdd(object);
     },
 
@@ -112,7 +113,7 @@ Object.assign(TW.workbench.pinboard, {
       var injectCategory = '<div id="order_'+ title +'s"> \
               <div class="slide-panel-category-header">'+ title +'s</div> \
                 <ul class="slide-panel-category-content" \
-                          data-pinboard-section="'+ title +'s" \
+                          data-pinboard-section="'+ title +'" \
                           data-sortable \
                           data-sortable-items="li" \
                           data-sortable-on-change-url="/pinboard_items/update_position" \

@@ -16,6 +16,9 @@ json.authors do |a|
   a.array! source.authors, partial: '/shared/data/all/metadata', as: :object
 end
 
+json.source_in_project source_in_project?(source)
+json.project_source_id project_source_for_source(source)&.id # return nil if project_source_for_source(source) nil
+
 json.partial! '/shared/data/all/metadata', object: source, klass: 'Source'
 
 json.documents do |d|

@@ -28,7 +28,7 @@
         :type="source.base_class"/>
     </span>
     <ul
-      v-if="source.authors.length"
+      v-if="source && source.authors.length"
       class="no_bullets">
       <li 
         v-for="author in source.authors"
@@ -65,9 +65,6 @@
           this.source = response.body
           history.pushState(null, null, `/tasks/nomenclature/by_source/${this.source.id}`)
           this.$emit('sourceID', this.sourceID);
-          response.body.authors.forEach(item => {
-            console.log(this.makeAuthorName(item.object_tag))
-          })
         })
       }
     },
@@ -75,10 +72,6 @@
       this.sourceID = event.id.toString()
       this.getSource()
       this.$emit('sourceID', this.sourceID);  // since we avoided the AJAX
-    },
-    addAuthorLink(author) {
-      let name = this.makeAuthorName(author.object_tag)
-      return `<a href="/people/${author.id}">${name}</a>`
     },
     getSelectOptions(onModel) {
       this.$http.get(this.selectOptionsUrl, {params: {klass: this.onModel}}).then(response => {
@@ -91,24 +84,6 @@
           this.$set(this.list, 'all', response.body);
         })
       })
-    },
-    makeAuthorName(name) {
-      let splitName = name.split(' ')
-      if(splitName.length) {
-        let initials = []
-        splitName.forEach((string, index) => {
-          if(index > 0) {
-            if(index < 3)
-              initials.push(string.charAt(0) + '.')
-            else 
-              initials.push(string + '.')
-          }
-        })
-        return `${splitName[0]} ${initials.join('')}`
-      }
-      else {
-        return name
-      }
     }
   },
   mounted() {

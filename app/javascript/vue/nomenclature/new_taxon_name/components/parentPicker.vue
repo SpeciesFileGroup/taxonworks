@@ -1,17 +1,23 @@
 <template>
   <div>
-    <autocomplete
-      url="/taxon_names/autocomplete"
-      label="label_html"
-      min="2"
-      event-send="parentSelected"
-      display="label"
-      :add-params="{
-        'type[]': 'Protonym',
-        valid: true
-      }"
-      :send-label="parent.name"
-      param="term"/>
+    <div class="horizontal-left-content">
+      <autocomplete
+        url="/taxon_names/autocomplete"
+        label="label_html"
+        min="2"
+        event-send="parentSelected"
+        display="label"
+        :add-params="{
+          'type[]': 'Protonym',
+          valid: true
+        }"
+        :send-label="parent.name"
+        param="term"/>
+      <default-taxon
+        section="TaxonNames"
+        @getId="parentSelected"
+        type="TaxonName"/>
+    </div>
     <div
       class="field"
       v-if="!taxon.id && parent && parent.parent_id == null">
@@ -33,6 +39,8 @@
 </template>
 
 <script>
+
+import DefaultTaxon from 'components/getDefaultPin.vue'
 import Autocomplete from '../../../components/autocomplete.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
@@ -40,7 +48,8 @@ import { ActionNames } from '../store/actions/actions'
 
 export default {
   components: {
-    Autocomplete
+    Autocomplete,
+    DefaultTaxon
   },
   computed: {
     taxon () {
@@ -75,15 +84,7 @@ export default {
   },
   mounted: function () {
     this.$on('parentSelected', function (item) {
-      this.$store.commit(MutationNames.SetParentId, item.id)
-      this.$http.get(`/taxon_names/${item.id}`).then(response => {
-        if (response.body.parent_id != null) {
-          this.$store.commit(MutationNames.SetNomenclaturalCode, response.body.nomenclatural_code)
-          this.setParentRank(response.body)
-        } else {
-          this.$store.commit(MutationNames.SetParent, response.body)
-        }
-      })
+      this.parentSelected(item.id)
     })
   },
   methods: {
@@ -91,6 +92,17 @@ export default {
       this.$store.commit(MutationNames.SetRankClass, undefined)
       this.$store.dispatch(ActionNames.SetParentAndRanks, parent)
       this.$store.commit(MutationNames.UpdateLastChange)
+    },
+    parentSelected(id) {
+      this.$store.commit(MutationNames.SetParentId, id)
+      this.$http.get(`/taxon_names/${id}`).then(response => {
+        if (response.body.parent_id != null) {
+          this.$store.commit(MutationNames.SetNomenclaturalCode, response.body.nomenclatural_code)
+          this.setParentRank(response.body)
+        } else {
+          this.$store.commit(MutationNames.SetParent, response.body)
+        }
+      })
     }
   }
 }

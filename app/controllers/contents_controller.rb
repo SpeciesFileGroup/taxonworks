@@ -38,8 +38,8 @@ class ContentsController < ApplicationController
 
     respond_to do |format|
       if @content.save
-        format.html { redirect_to url_for(@content.metamorphosize), notice: 'Content was successfully created.' }
-        format.json { render :show, status: :created, location: @content.metamorphosize }
+        format.html { redirect_to url_for(@content), notice: 'Content was successfully created.' }
+        format.json { render :show, status: :created, location: @content }
       else
         format.html { render :new }
         format.json { render json: @content.errors, status: :unprocessable_entity }
@@ -52,8 +52,8 @@ class ContentsController < ApplicationController
   def update
     respond_to do |format|
       if @content.update(content_params)
-        format.html { redirect_to url_for(@content.metamorphosize), notice: 'Content was successfully updated.' }
-        format.json { render :show, status: :ok, location: @content.metamorphosize }
+        format.html { redirect_to url_for(@content), notice: 'Content was successfully updated.' }
+        format.json { render :show, status: :ok, location: @content }
       else
         format.html { render :edit }
         format.json { render json: @content.errors, status: :unprocessable_entity }
@@ -107,9 +107,10 @@ class ContentsController < ApplicationController
 
   # GET /contents/download
   def download
-    send_data(Download.generate_csv(Content.where(project_id: sessions_current_project_id)),
-              type:     'text',
-              filename: "contents_#{DateTime.now}.csv")
+    send_data(
+      Download.generate_csv(Content.where(project_id: sessions_current_project_id)),
+      type: 'text',
+      filename: "contents_#{DateTime.now}.csv")
   end
 
   private
@@ -128,6 +129,6 @@ class ContentsController < ApplicationController
   end
 
   def content_params
-    params.require(:content).permit(:text, :otu_id, :topic_id, :type)
+    params.require(:content).permit(:text, :otu_id, :topic_id)
   end
 end

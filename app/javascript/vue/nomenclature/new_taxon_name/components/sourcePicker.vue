@@ -43,9 +43,10 @@
               class="normal-input"
               v-model="show" 
               value="verbatim">
-            <label for="author-picker-verbatim"
-            v-help.section.author.verbatim
-            > Verbatim
+            <label
+              for="author-picker-verbatim"
+              v-help.section.author.verbatim> 
+              Verbatim
               <div v-if="verbatimFieldsWithData">
                 <span
                   class="small-icon icon-without-space"
@@ -58,11 +59,10 @@
               type="radio"
               class="normal-input"
               v-model="show"
-              v-help.section.author.person
               value="person">
-            <label for="author-picker-person"
-            v-help.section.author.person
-            >
+            <label
+              for="author-picker-person"
+              v-help.section.author.person>
               <span>Person</span>
               <div v-if="roles.length">
                 ({{ roles.length }})

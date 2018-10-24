@@ -31,7 +31,7 @@
           <label v-help.section.basic.parent>Parent</label>
           <parent-picker/>
         </div>
-        <rank-selector v-if="parent"/>
+        <rank-selector v-if="validateInfo"/>
         <hard-validation field="rank_class"/>
 
       </div>
@@ -84,6 +84,11 @@ export default {
     },
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
+    },
+    validateInfo () {
+      return (this.parent != undefined && 
+        (this.taxon.name != undefined && 
+        this.taxon.name.replace(/\s/g, '').length > 2))
     },
     taxonName: {
       get () {

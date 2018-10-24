@@ -17,6 +17,7 @@
         @update="updateCitation"
         @new="citation = newCitation()"/>
       <citation-topic
+        v-if="!disabledFor.includes(objectType)"
         :object-type="objectType"
         :global-id="globalId"
         :citation="citation"
@@ -62,7 +63,8 @@
         list: [],
         citation: this.newCitation(),
         topic: this.newTopic(),
-        autocompleteLabel: undefined
+        autocompleteLabel: undefined,
+        disabledFor: ['Otu']
       }
     },
     methods: {

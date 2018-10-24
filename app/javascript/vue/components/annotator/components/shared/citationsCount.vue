@@ -88,7 +88,7 @@ export default {
 }
 </script>
 
-<style lang="scss" module>
+<style lang="scss">
   .citation-count {
     position: relative;
   }
