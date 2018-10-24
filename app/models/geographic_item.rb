@@ -133,8 +133,9 @@ class GeographicItem < ApplicationRecord
     # @param [Integer] geographic_area_ids
     # @param [String] shape_in in JSON (POINT, POLYGON, MULTIPOLYGON), usually from GoogleMaps
     # @param [String] search_object_class
+    # @param [Integer] project_id for search_object_class
     # @return [Scope] of the requested search_object_type
-    def gather_geographic_area_or_shape_data(geographic_area_ids, shape_in, search_object_class)
+    def gather_geographic_area_or_shape_data(geographic_area_ids, shape_in, search_object_class, project_id)
       if shape_in.blank?
         # get the shape from the geographic area, if possible
         finding = search_object_class.constantize
@@ -148,21 +149,24 @@ class GeographicItem < ApplicationRecord
                                               .find(gaid)
                                               .default_geographic_item.id)
           end
+
+          # TODO: There probably is a better way to do this, but for now...
+          f1 = project_id.present? ? finding.with_project_id(project_id) : finding
           case search_object_class
             when /Collection/
-              found = finding.joins(:geographic_items)
+              found = f1.joins(:geographic_items)
                           .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
             when /Asserted/
               # TODO: Figure out how to see through this group of geographic_items to the ones which contain
               # geographic_items which are associated with geographic_areas (as #default_geographic_items)
               # which are associated with asserted_distributions
-              found = finding.joins(:geographic_area).joins(:geographic_items)
+              found = f1.joins(:geographic_area).joins(:geographic_items)
                           .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
             else
           end
         end
       else
-        found = gather_map_data(shape_in, search_object_class)
+        found = gather_map_data(shape_in, search_object_class, project_id)
       end
       found
     end
@@ -171,13 +175,14 @@ class GeographicItem < ApplicationRecord
     # "coordinates":[[[-40.078125,10.614539227964332],[-49.21875,-17.185577279306226],
     # [-23.203125,-15.837353550148276],[-40.078125,10.614539227964332]]]},"properties":{}}'
     # @param [String] search_object_class
+    # @param [Integer, Nil] project_id for search_object_class
     # @return [Scope] of the requested search_object_type
     #   This function takes a feature, i.e. a string that is the result
     #   of drawing on a Google map, and submited as a form variable,
     #   and translates that to a scope for a provided search_object_class.
     #   e.g. Return all CollectionObjects in this drawn area
     #        Return all CollectionObjects in the radius around this point
-    def gather_map_data(feature, search_object_class)
+    def gather_map_data(feature, search_object_class, project_id)
       finding = search_object_class.constantize
       g_feature = RGeo::GeoJSON.decode(feature, json_parser: :json)
       if g_feature.nil?
@@ -188,7 +193,9 @@ class GeographicItem < ApplicationRecord
         geometry = geometry.as_text
         radius = g_feature['radius']
 
-        query = finding.joins(:geographic_items)
+        query = project_id.present? ?
+                    finding.with_project_id(project_id).joins(:geographic_items) :
+                    finding.joins(:geographic_items)
 
         case shape_type
           when 'point'

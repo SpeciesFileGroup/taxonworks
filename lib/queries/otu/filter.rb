@@ -38,6 +38,7 @@ module Queries
       @taxon_name_classification_ids = params[:taxon_name_classification_ids] || []
       @taxon_name_relationship_ids = params[:taxon_name_relationship_ids] || []
       @asserted_distribution_ids = params[:asserted_distribution_ids] || []
+      @project_id = params[:project_id]
     end
 
     def table
@@ -135,12 +136,15 @@ module Queries
       end
 
       gi_sql = GeographicItem.contained_by_where_sql(target_geographic_item_ids)
-      co_ids = CollectionObject.joins(:geographic_items).where(gi_sql).distinct.ids
-      ad_ids = AssertedDistribution.joins(:geographic_items).where(gi_sql).distinct.ids
-      ad_o_ids = ::Otu.joins(:asserted_distributions).where(asserted_distributions: {id: ad_ids}).ids
-      co_o_ids = ::Otu.joins(:collection_objects).where(collection_objects: {id: co_ids}).ids
 
-      ::Otu.where(id: (ad_o_ids + co_o_ids).uniq)
+      ::Otu.where(id: (::Otu.joins(:asserted_distributions)
+                           .where(asserted_distributions: {id: AssertedDistribution.joins(:geographic_items)
+                                                                   .where(gi_sql).distinct})) +
+          (::Otu.joins(:collection_objects)
+               .where(collection_objects: {id: CollectionObject.joins(:geographic_items)
+                                                   .where(gi_sql).distinct})).distinct)
+
+
     end
 
     # @return [Scope]
@@ -150,11 +154,17 @@ module Queries
     # 3. find all otus which are associated with result #1 plus result #2
     #
     def shape_scope
-      co_r42i = GeographicItem.gather_map_data(shape, 'CollectionObject').distinct.ids
-      ad_r42i = GeographicItem.gather_map_data(shape, 'AssertedDistribution').distinct.ids
-      ad_o_ids = ::Otu.joins(:asserted_distributions).where(asserted_distributions: {id: ad_r42i}).ids
-      co_o_ids = ::Otu.joins(:collection_objects).where(collection_objects: {id: co_r42i}).ids
-      ::Otu.where(id: (ad_o_ids + co_o_ids).uniq)
+      ::Otu.where(id: (::Otu.joins(:asserted_distributions)
+                           .where(asserted_distributions: {id: GeographicItem.gather_map_data(shape,
+                                                                                              'AssertedDistribution',
+                                                                                              project_id)
+                                                                   .distinct}) +
+          ::Otu.joins(:collection_objects)
+              .where(collection_objects: {id: GeographicItem.gather_map_data(shape,
+                                                                             'CollectionObject',
+                                                                             project_id)
+                                                  .distinct}))
+                          .uniq)
     end
 
     # @return [Scope]
