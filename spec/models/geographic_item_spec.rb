@@ -850,47 +850,44 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             [r2024, r2022, r2020, c3, c1, c2, g1, g2, g3, b2, rooms, h, c, f, g, j, e].each
           }
 
-          specify 'orders objects by distance from passed object point' do
+          specify 'orders points by distance from passed point' do
             expect(GeographicItem.ordered_by_longest_distance_from('point', p3).limit(3).to_a)
               .to eq([r2024, r2022, r2020])
           end
 
-          specify 'orders objects by distance from passed object line_string' do
-
+          specify 'orders line_strings by distance from passed point' do
             expect(GeographicItem.ordered_by_longest_distance_from('line_string', p3)
                      .limit(3).to_a)
               .to eq([c3, c1, c2])
           end
 
-          specify 'orders objects by distance from passed object polygon' do
+          specify 'orders polygons by distance from passed point' do
             expect(GeographicItem.ordered_by_longest_distance_from('polygon', p3)
                      .limit(4).to_a)
               .to eq([g1, g2, g3, b2])
           end
 
-          specify 'orders objects by distance from passed object multi_point' do
+          specify 'orders multi_points by distance from passed point' do
             expect(GeographicItem.ordered_by_longest_distance_from('multi_point', p3)
                      .limit(3).to_a)
               .to eq([rooms, h])
           end
 
-          specify 'orders objects by distance from passed object multi_line_string' do
+          specify 'orders multi_line_strings by distance from passed point' do
             expect(GeographicItem.ordered_by_longest_distance_from('multi_line_string', p3)
                      .limit(3).to_a)
               .to eq([c, f])
           end
 
-          specify 'orders objects by distance from passed object multi_polygon' do
-            trial = GeographicItem.ordered_by_longest_distance_from('multi_polygon', p3)
-                        .excluding([champaign.default_geographic_item, illinois.default_geographic_item])
-                        .limit(1).to_a
-            if trial != [g]
-              puts "#{trial.map(&:id)} => #{[g.id]}"
-            end
+          specify 'orders multi_polygons by distance from passed point' do
+            # existing multi_polygons: [new_box_e, new_box_a, new_box_b, g]
+            # new_box_e is excluded, because p3 is *exactly* the same distance from new_box_e, *and* new_box_a
+            # This seems to be the reason these two objects *might* be in either order. Thus, one of the two
+            # is excluded to prevent it from confusing the order (farthest first) of the appearance of the objects.
             expect(GeographicItem.ordered_by_longest_distance_from('multi_polygon', p3)
-                       .excluding([champaign.default_geographic_item, illinois.default_geographic_item])
-                       .limit(1).to_a)
-              .to eq([g])
+                       .excluding(new_box_e)
+                       .limit(3).to_a)
+                .to eq([g, new_box_a, new_box_b])
           end
 
           specify 'orders objects by distance from passed object geometry_collection' do
