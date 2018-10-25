@@ -798,7 +798,8 @@ class GeographicItem < ApplicationRecord
       end
     end
 
-    # @param [String, GeographicItem]
+    # @param [String] column_name
+    # @param [GeographicItem] geographic_item
     # @return [String]
     def select_distance_with_geo_object(column_name, geographic_item)
       select("*, ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) as distance")
