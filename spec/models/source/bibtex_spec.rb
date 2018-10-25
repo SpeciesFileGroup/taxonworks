@@ -1061,6 +1061,17 @@ describe Source::Bibtex, type: :model, group: :sources do
             expect(src1.save).to be_truthy
             expect(src1.cached).to eq('Smith & Von Adams, J. eds. (1700) I am a soft valid article. Journal of Test Articles.')
           end
+
+          specify 'stated_year' do
+            src1 = FactoryBot.create(:soft_valid_bibtex_source_article)
+            src1.stated_year = '1699'
+            src1.save
+            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. Journal of Test Articles.')
+            src1.volume = '25'
+            src1.save
+            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. Journal of Test Articles 1699, 25.')
+          end
+
         end
 
         context 'on validation' do

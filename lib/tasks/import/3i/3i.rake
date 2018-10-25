@@ -771,9 +771,9 @@ namespace :tw do
         return bibl, nil, nil, nil, nil if matchdata.nil?
 
         serial_id = Serial.where(name: matchdata[1]).limit(1).pluck(:id).first
-        serial_id ||= Serial.where(name: matchdata[1][0..-2]).limit(1).pluck(:id).first if (matchdata[1] + '0').last == '.'
+        serial_id ||= Serial.where(name: matchdata[1][0..-2]).limit(1).pluck(:id).first if ('0' + matchdata[1]).last == '.'
         serial_id ||= Serial.with_any_value_for(:name, matchdata[1]).limit(1).pluck(:id).first
-        serial_id ||= Serial.with_any_value_for(:name, matchdata[1][0..-2]).limit(1).pluck(:id).first if (matchdata[1] + '0').last == '.'
+        serial_id ||= Serial.with_any_value_for(:name, matchdata[1][0..-2]).limit(1).pluck(:id).first if ('0' + matchdata[1]).last == '.'
         journal = matchdata[4].blank? ? matchdata[1] : bibl
         volume = matchdata[2]
         number = nil
