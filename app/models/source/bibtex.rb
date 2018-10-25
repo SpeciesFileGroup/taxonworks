@@ -789,9 +789,8 @@ class Source::Bibtex < Source
     bx_entry.year = '0000' if bx_entry.year.blank? # cludge to fix render problem with year
     v = self.volume
     v = v + '(' + self.number + ')' unless self.number.blank?
-    v = self.stated_year + ', ' + v unless self.stated_year.blank?
-
-    bx_entry.volume = v if !v.blank? && bx_entry.volume != v
+    v = [self.stated_year, v].compact.join(', ') if !self.stated_year.blank? and self.stated_year != self.year
+    bx_entry.volume = v if !v.blank? && bx_entry.try(:volume) && bx_entry.volume != v
     b = BibTeX::Bibliography.new
     b.add(bx_entry)
     b
