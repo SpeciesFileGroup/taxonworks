@@ -52,14 +52,14 @@
 </template>
 <script>
 
-const modal = require('../../../components/modal.vue').default
-const childOfParent = require('../helpers/childOfParent')
-const GetterNames = require('../store/getters/getters').GetterNames
-const MutationNames = require('../store/mutations/mutations').MutationNames
+import Modal from 'components/modal.vue'
+import childOfParent from '../helpers/childOfParent'
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
 
 export default {
   components: {
-    modal
+    Modal
   },
   computed: {
     taxon () {

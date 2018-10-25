@@ -12,8 +12,7 @@ class OtusController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @otus = Queries::Otu::Filter.new(filter_params).all
-          .where(project_id: sessions_current_project_id).page(params[:page]).per(500)
+        @otus = Queries::Otu::Filter.new(filter_params).all.page(params[:page]).per(500)
       }
     end
   end

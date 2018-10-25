@@ -1,5 +1,9 @@
+# A Topic is a user defined subject.  It is used in conjuction with a citation on an OTU.  
+# Topics assert that "this source says something about this taxon on this topic."
+#
 class Topic < ControlledVocabularyTerm
 
+  # TODO: Why?!
   include Shared::Tags
 
   has_many :citation_topics, inverse_of: :topic, dependent: :destroy
@@ -8,8 +12,8 @@ class Topic < ControlledVocabularyTerm
   has_many :contents, inverse_of: :topic, dependent: :destroy
   has_many :otus, through: :contents
   has_many :otu_page_layout_sections, -> { where(otu_page_layout_sections:
-                                                   {type: 'OtuPageLayoutSection::StandardSection'}) },
-           inverse_of: :topic
+                                                 {type: 'OtuPageLayoutSection::StandardSection'}) },
+  inverse_of: :topic
   has_many :otu_page_layouts, through: :otu_page_layout_sections
 
   scope :used_on_klass, -> (klass) { joins(:citations).where(citations: {citation_object_type: klass}) }
@@ -21,12 +25,10 @@ class Topic < ControlledVocabularyTerm
     ControlledVocabularyTerm.where(where_string).where(project_id: params[:project_id], type: 'Topic')
   end
 
-
   # @param used_on [String] one of `Citation` (default) or `Content`
   # @return [Scope]
   #    the max 10 most recently used topics, as used on Content or Citation
   def self.used_recently(used_on = 'Citation')
-
     t = case used_on
           when 'Citation'
             CitationTopic.arel_table

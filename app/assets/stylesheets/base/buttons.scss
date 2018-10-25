@@ -27,6 +27,10 @@
   background-color: $color-secondary-2-4;
 }
 
+.button-default-pin {
+  background-image: image-url("b_pin.svg");
+}
+
 .button-submit {
   color: #FFF;
   background-color: $color-action-button;
@@ -102,6 +106,13 @@
   background-size: 35px;
 }
 
+.button-small {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
+  background-size: 10px !important;
+}
 .circle-button {
   border-radius: 50%;
   display: block;
@@ -115,6 +126,12 @@
   box-shadow: 0px 1px 2px 0px $navigation_border;
   margin: 5px;
   cursor: pointer;
+}
+
+.button-circle {
+  @extend .circle-button;
+  display: inline-block;
+  margin: 0px;
 }
 
 .btn-add {

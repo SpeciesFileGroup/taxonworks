@@ -51,16 +51,15 @@ class Tasks::Otus::FilterController < ApplicationController
   protected
 
   def otus
-    Queries::Otu::Filter.new(filter_params)
-      .result
-      .with_project_id(sessions_current_project_id)
+    Queries::Otu::Filter.new(filter_params).result
+        .with_project_id(sessions_current_project_id)
   end
 
   def filter_params
     params.permit(
       :drawn_area_shape, :taxon_name_id, :descendants,
       :and_or_select, :rank_class, :page,
-      :verbatim_author_string, author_ids: [], geographic_area_ids: [])
+      :verbatim_author_string, author_ids: [], geographic_area_ids: [], selection_objetcs: [])
   end
 
 end

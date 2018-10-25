@@ -652,15 +652,15 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
         end
 
         context '::contained_by' do
-          before { [p1, p2, p3, p11, p12].each }
+          before { [p1, p2, p3, p11, p12, k, l].each }
 
           specify 'find the points in a polygon' do
-            expect(GeographicItem.contained_by(k.id).to_a).to contain_exactly(p1, p2, p3)
+            expect(GeographicItem.contained_by(k.id).to_a).to contain_exactly(p1, p2, p3, k)
           end
 
           specify 'find the (overlapping) points in a polygon' do
             overlapping_point = FactoryBot.create(:geographic_item_point, point: point12.as_binary)
-            expect(GeographicItem.contained_by(e1.id).to_a).to contain_exactly(p12, overlapping_point, p11)
+            expect(GeographicItem.contained_by(e1.id).to_a).to contain_exactly(p12, overlapping_point, p11, e1)
           end
         end
 
@@ -1002,6 +1002,15 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           specify 'fast' do
             expect(p1.st_distance_spheroid(p2.id)).to be_within(0.1).of(479988.253998808)
           end
+        end
+      end
+
+      context '::gather_geographic_area_or_shape_data' do
+        specify 'collection_objetcs' do
+
+        end
+        specify 'asserted_distribution' do
+
         end
       end
     end

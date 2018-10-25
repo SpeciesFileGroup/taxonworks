@@ -36,7 +36,7 @@ class Otu < ApplicationRecord
   include Shared::HasPapertrail
   include Shared::IsData
 
-  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations]
+  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents]
 
   belongs_to :taxon_name, inverse_of: :otus
 

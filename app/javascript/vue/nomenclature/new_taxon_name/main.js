@@ -8,6 +8,9 @@ import Vue from 'vue'
 import vueResource from 'vue-resource'
 import HelpSystem from '../../plugins/help/help'
 import en from './lang/help/en'
+import App from './app.vue'
+import { init as initRequest } from './request/resources'
+import { newStore } from './store/store.js'
 
 Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
   init: function () {
@@ -19,13 +22,10 @@ Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
     })
     Vue.use(require('vue-shortkey'))
 
-    var store = require('./store/store.js').newStore()
-    var App = require('./app.vue').default
     var token = $('[name="csrf-token"]').attr('content')
     Vue.http.headers.common['X-CSRF-Token'] = token
-
     new Vue({
-      store,
+      store: newStore,
       el: '#new_taxon_name_task',
       render: function (createElement) {
         return createElement(App)
@@ -36,6 +36,7 @@ Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
 
 $(document).on('turbolinks:load', function () {
   if ($('#new_taxon_name_task').length) {
+    initRequest()
     TW.views.tasks.nomenclature.new_taxon_name.init()
   }
 })

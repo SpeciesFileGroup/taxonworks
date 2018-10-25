@@ -5,8 +5,11 @@ TW.views.hub.favorites = TW.views.hub.favorites || {};
 
 Object.assign(TW.views.hub.favorites, {
   init: function () {
-    $('.unfavorite_link').on('click', function (element) {
+    $('.task-section .unfavorite_link').on('click', function (element) {
       $(this).closest(".task_card").remove()
+    })
+    $('.data_section .unfavorite_link').on('click', function (element) {
+      $(this).closest(".card-container").remove()
     })
   },
 });

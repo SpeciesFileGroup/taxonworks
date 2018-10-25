@@ -45,5 +45,5 @@
 
 <h3 data-help="Each block represents one update. Clicking Restore will let you select one or more changes to restore. Click to select the specific changes you wish to restore, then click Confirm Restore."> Revisions (<%= @object.versions.count -%> total)</h3>
 
-<%= render(partial: 'papertrail', collection: @object.versions.reverse, locals: {object_id: @object.id, object_type: @object.metamorphosize.class }) -%>
+<%= render(partial: 'papertrail', collection: @object.versions.reverse, locals: {object_id: @object.id, object_type: @object.class.base_class }) -%>
 

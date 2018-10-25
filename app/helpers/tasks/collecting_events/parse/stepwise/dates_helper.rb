@@ -134,7 +134,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
   def scan_c_e
     pile = Queries::CollectingEventDatesExtractorQuery.new(
         collecting_event_id: 0,
-        filters: DEFAULT_SQL_REGEXS).all.with_project_id(sessions_current_project_id).order(:id)
+        filters: []).all.with_project_id(sessions_current_project_id).order(:id)
     pile.each { |c_e|
       trials = Utilities::Dates.hunt_dates_full(c_e.verbatim_label)
       puts(c_e.id)

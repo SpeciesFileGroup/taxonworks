@@ -6,12 +6,12 @@
 <p>
 <strong>Geographic area:</strong>
   <%= simple_map([@common_name.geographic_area]) if @common_name.geographic_area %>
-  <%= object_tag(@common_name.geographic_area)  %>
+  <%= geographic_area_link(@common_name.geographic_area)  %>
 </p>
 
 <p>
   <strong>Otu:</strong>
-  <%= object_tag(@common_name.otu) %>
+  <%= otu_link(@common_name.otu) %>
 </p>
 
 <p>

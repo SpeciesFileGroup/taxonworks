@@ -1,11 +1,14 @@
 <div>
-  <ul class="slide-panel-category-content">
-    <% sessions_current_user.footprints['recently_visited'].each do |hsh| -%>
-      <%= content_tag(:li, recent_route_link(hsh), class: 'slide-panel-category-item')  -%>
-    <% end %>
-  </ul>
+  <!-- TODO handle initialization properly -->
+  <% if sessions_current_user.footprints['recently_visited'] %>
+    <ul class="slide-panel-category-content">
+      <% sessions_current_user.footprints['recently_visited'].each do |hsh| -%>
+        <%= content_tag(:li, recent_route_link(hsh), class: 'slide-panel-category-item')  -%>
+      <% end %>
+    </ul>
 
-  <% if sessions_current_user.footprints['recently_visited'].count == 0 %>
-    <div> Welcome <%= sessions_current_user.name -%>! Spend a little time navigating through the workbench. TaxonWorks will keep track of where you were recently, and populate a list here. To dive in you might start with the <%= link_to('all', hub_path(list: 'all')) -%> tab. </div>
+    <% if sessions_current_user.footprints['recently_visited'].count == 0 %>
+      <div> Welcome <%= sessions_current_user.name -%>! Spend a little time navigating through the workbench. TaxonWorks will keep track of where you were recently, and populate a list here. To dive in you might start with the <%= link_to('all', hub_path(list: 'all')) -%> tab. </div>
+    <% end %>
   <% end %>
 </div>

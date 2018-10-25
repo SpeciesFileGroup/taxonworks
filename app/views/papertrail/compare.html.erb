@@ -1,6 +1,6 @@
 <div class="compare_content">
-  <h1 id="papertrail_compare_header" data-object-id="<%= @object.id %>" data-object-type="<%= @object.class %>" >Compare</h1>
-  <div><%= link_to('Return', papertrail_path(object_type: @object.metamorphosize.class, object_id: @object.id))-%></div>
+  <h1 id="papertrail_compare_header" data-object-id="<%= @object.id %>" data-object-type="<%= @object.class.base_class %>" >Compare</h1>
+  <div><%= link_to('Return', papertrail_path(object_type: @object.metamorphosize.class.base_class, object_id: @object.id))-%></div>
   <table class="compare_table">
     <tr class="compare_table_row">
       <td>

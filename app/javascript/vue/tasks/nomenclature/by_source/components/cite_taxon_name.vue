@@ -101,6 +101,9 @@
       this.$http.get('/taxon_names/select_options').then(response => {
         this.tabs = Object.keys(response.body);
         this.list = response.body;
+        if(this.tabs.length) {
+          this.view = this.tabs[0]
+        }
       })
     }
   }

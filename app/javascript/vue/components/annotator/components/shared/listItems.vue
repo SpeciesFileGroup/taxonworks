@@ -16,7 +16,7 @@
           :target="targetCitations"
           :object="item"/>
         <radial-annotator
-          v-if="true"
+          v-if="annotator"
           :global-id="item.global_id"/>
         <span
           v-if="edit"
@@ -46,6 +46,10 @@ export default {
     list: {
       type: Array,
       default: () => []
+    },
+    annotator: {
+      type: Boolean,
+      default: true
     },
     targetCitations: {
       type: String,

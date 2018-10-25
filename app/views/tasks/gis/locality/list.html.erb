@@ -4,10 +4,10 @@
   <div class="item item1">
     <%= form_tag('list') do %>
       <%= render(partial: 'shared/data/gis/area_selector',
-                 locals:  {passed_in_tag_id: 'geographic_area_id_for_locality_list',
-                           selection_object: 'CollectingEvent',
-                           drawing_modes:    @drawing_modes,
-                           missing_count:    missing_verbatim_locality_count(@collecting_events),
+                 locals:  {passed_in_tag_id:    'geographic_area_id_for_locality_list',
+                           selection_objects:   ['CollectingEvent'],
+                           drawing_modes:       @drawing_modes,
+                           missing_count:       missing_verbatim_locality_count(@collecting_events),
                            shown_georeferences: locality_georeferences(
                              @collecting_events,
                              @geographic_area)}) %>

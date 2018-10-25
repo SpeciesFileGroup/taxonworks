@@ -90,7 +90,7 @@ class Tasks::Accessions::Quick::SimpleController < ApplicationController
   def recursive_images_params
     return [] if params[:specimen].try(:[], :image_array).blank?
     keys = []
-    params['specimen']['image_array'].map do |key, value|
+    params.require(:specimen).permit(image_array: {})[:image_array].each do |key, value|
       if Utilities::Strings.is_i?(key) && value.is_a?(ActionDispatch::Http::UploadedFile)
         keys.push key
       end

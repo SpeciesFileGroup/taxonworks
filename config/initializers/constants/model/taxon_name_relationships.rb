@@ -86,6 +86,11 @@ begin
                                           'TaxonNameRelationship::Icnb::Unaccepting',
                                           'TaxonNameRelationship::Ictv::Unaccepting'].freeze
 
+    TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING = ['TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling',
+                                                 'TaxonNameRelationship::Icnb::Unaccepting::Usage::Misspelling',
+                                                 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
+                                                 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'].freeze
+
 
     # TODO: check .assignable property prior to building
 

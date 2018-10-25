@@ -10,6 +10,26 @@ describe Queries::TaxonName::Autocomplete, type: :model do
 
   let(:query) { Queries::TaxonName::Autocomplete.new('') }
 
+  specify '#autocomplete_cached_wildcard_whitespace open paren' do
+    query.terms = 'Scaphoideus ('
+    expect(query.autocomplete_cached_wildcard_whitespace.all).to be_truthy
+  end
+
+  specify '#autocomplete_name_author_year open paren' do
+    query.terms = 'Scaphoideus ('
+    expect(query.autocomplete_name_author_year.all).to be_truthy
+  end
+
+  specify '#open paren' do
+    query.terms = 'Scaphoideus ('
+    expect(query.autocomplete).to be_truthy
+  end
+
+  specify '#genus_species cf' do
+    query.terms = 'Scaphoideus cf carinatus'
+    expect(query.autocomplete).to be_truthy
+  end
+
   specify '#autocomplete_top_name 1' do
     query.terms = 'vulnerata' 
     expect(query.autocomplete_top_name.first).to eq(species)
@@ -79,6 +99,7 @@ describe Queries::TaxonName::Autocomplete, type: :model do
     query.terms = 'Fitch 1800'
     expect(query.autocomplete_wildcard_author_year_joined_pieces.first).to eq(species)
   end
+
 
 
   # etc. ---

@@ -27,13 +27,13 @@
 </template>
 
 <script>
-const expand = require('./expand.vue').default
-const spinner = require('../../../components/spinner.vue').default
+import Expand from './expand.vue'
+import Spinner from 'components/spinner.vue'
 
 export default {
   components: {
-    expand,
-    spinner
+    Expand,
+    Spinner
   },
   props: {
     anchor: {

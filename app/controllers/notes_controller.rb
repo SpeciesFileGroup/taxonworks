@@ -14,7 +14,7 @@ class NotesController < ApplicationController
       }
       format.json {
         @notes = Queries::Note::Filter.new(params).all
-        .where(project_id: sessions_current_project_id).page(params[:page]).per(500)
+          .where(project_id: sessions_current_project_id).page(params[:page]).per(500)
       }
     end
   end
@@ -35,11 +35,11 @@ class NotesController < ApplicationController
     respond_to do |format|
       if @note.save
         format.html { redirect_to url_for(@note.note_object.metamorphosize),
-                                  notice: 'Note was successfully created.' }
+                      notice: 'Note was successfully created.' }
         format.json { render json: @note, status: :created, location: @note }
       else
         format.html { redirect_back(fallback_location: (request.referer || root_path),
-                                    notice:            'Note was NOT successfully created.') }
+                                    notice: 'Note was NOT successfully created.') }
         format.json { render json: @note.errors, status: :unprocessable_entity }
       end
     end
@@ -51,7 +51,7 @@ class NotesController < ApplicationController
     respond_to do |format|
       if @note.update(note_params)
         format.html { redirect_to url_for(@note.note_object.metamorphosize),
-                                  notice: 'Note was successfully created.' }
+                      notice: 'Note was successfully created.' }
         format.json { render action: 'show', status: :created, location: @note }
       else
         format.html { redirect_back(fallback_location: (request.referer || root_path),
@@ -81,7 +81,7 @@ class NotesController < ApplicationController
   def search
     if params[:id].blank?
       redirect_to note_path, notice: 'You must select an item from the list with a click or' \
-                                        ' tab press before clicking show.'
+        ' tab press before clicking show.'
     else
       redirect_to note_path(params[:id])
     end
@@ -106,8 +106,8 @@ class NotesController < ApplicationController
   # GET /notes/download
   def download
     send_data Download.generate_csv(Note.where(project_id: sessions_current_project_id)),
-              type:     'text',
-              filename: "notes_#{DateTime.now}.csv"
+      type: 'text',
+      filename: "notes_#{DateTime.now}.csv"
   end
 
   private

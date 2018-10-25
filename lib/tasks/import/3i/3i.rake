@@ -132,7 +132,7 @@ namespace :tw do
             10 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation',
             11 => 'TaxonNameRelationship::Iczn::Invalidating', #### misaplication
             12 => '', #### nomen dubium
-            13 => '', #### nomen nudum
+            13 => 'TaxonNameRelationship::Iczn::Invalidating', #### nomen nudum
             14 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName',
             15 => 'TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName', #### nomen novum; not used
             16 => '', #### unnamed => OTU
@@ -279,7 +279,6 @@ namespace :tw do
 #        $user_id = 1
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 #        @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id) if @root.blank?
-
         handle_controlled_vocabulary_3i
         handle_transl_3i
         handle_litauthors_3i
@@ -298,6 +297,9 @@ namespace :tw do
         handle_chartable_3i
         handle_content_types_3i
         handle_contents_3i
+
+=begin
+        $user_id = @trivellone.id
         handle_trivellone_references_3i
         handle_trivellone_unique_species_3i
         handle_trivellone_phytoplasma_group_3i
@@ -305,6 +307,8 @@ namespace :tw do
         handle_trivellone_phytoplasma_otu_3i
         handle_trivellone_insect_phytoplasma_3i
         handle_trivellone_plant_phytoplasma_3i
+        $user_id = @proceps.id
+=end
 
         soft_validations_3i
         index_collecting_events_from_accessions_new_3i
@@ -323,20 +327,45 @@ namespace :tw do
         if @import.metadata['project_and_users']
           print "from database.\n"
           project = Project.where(name: project_name).first
-          user = User.where(email: email).first
+          @proceps = User.where(email: email).first
           $project_id = project.id
-          $user_id = user.id
+          $user_id = @proceps.id
         else
           print "as newly parsed.\n"
 
-          user = User.where(email: email)
-          if user.empty?
+          @proceps = User.where(email: email).first
+          @trivellone = User.where(email: 'valeria.trivellone@gmail.com').first
+
+          if @proceps.nil?
             pwd = rand(36**10).to_s(36)
-            user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, self_created: true)
-          else
-            user = user.first
+            @proceps = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, self_created: true)
           end
-          $user_id = user.id
+          if @trivellone.nil?
+            pwd = rand(36**10).to_s(36)
+            @trivellone = User.create(email: 'valeria.trivellone@gmail.com', password: pwd, password_confirmation: pwd, name: 'Valeria Trivellone', self_created: true, is_flagged_for_password_reset: true)
+            user = {2 => ['yoder@mail.com', 'Matt Yoder'],
+                    34 => ['seltmann@mail.com', 'Katja Seltmann'],
+                    144 => ['wallace@mail.com', 'Matt Wallace'],
+                    145 => ['deitz@mail.com', 'Lewis Deitz'],
+                    176 => ['evangelista@mail.com', 'Olivia Evangelista'],
+                    194 => ['rothschild@mail.com', 'Mark Rothschild']
+            }
+            @users = {}
+            user.each do |key, value|
+              u = User.where(email: value[0]).first
+              u = User.create(email: value[0], password: pwd, password_confirmation: pwd, name: value[1], self_created: true, is_flagged_for_password_reset: false) if u.nil?
+              @users.merge!(key, u.id)
+            end
+#            @users = {
+#                2 => User.create(email: 'yoder@mail.com', password: pwd, password_confirmation: pwd, name: 'Matt Yoder', self_created: true, is_flagged_for_password_reset: false).id,
+#                34 => User.create(email: 'seltmann@mail.com', password: pwd, password_confirmation: pwd, name: 'Katja Seltmann', self_created: true, is_flagged_for_password_reset: false).id,
+#                144 => User.create(email: 'wallace@mail.com', password: pwd, password_confirmation: pwd, name: 'Matt Wallace', self_created: true, is_flagged_for_password_reset: false).id,
+#                145 => User.create(email: 'deitz@mail.com', password: pwd, password_confirmation: pwd, name: 'Lewis Deitz', self_created: true, is_flagged_for_password_reset: false).id,
+#                176 => User.create(email: 'evangelista@mail.com', password: pwd, password_confirmation: pwd, name: 'Olivia Evangelista', self_created: true, is_flagged_for_password_reset: false).id,
+#                194 => User.create(email: 'rothschild@mail.com', password: pwd, password_confirmation: pwd, name: 'Mark Rothschild', self_created: true, is_flagged_for_password_reset: false).id
+#            }.freeze
+          end
+          $user_id = @proceps.id
 
           project = nil
 
@@ -345,7 +374,8 @@ namespace :tw do
           end
 
           $project_id = project.id
-          pm = ProjectMember.create(user: user, project: project, is_project_administrator: true)
+          pm = ProjectMember.create(user: @proceps, project: project, is_project_administrator: true)
+          pm = ProjectMember.create(user: @trivellone, project: project, is_project_administrator: true)
 
           @import.metadata['project_and_users'] = true
         end
@@ -566,7 +596,7 @@ namespace :tw do
         file.each do |row|
           i += 1
           print "\r#{i}"
-          journal, serial_id, volume, pages = parse_bibliography_3i(row['Bibliography'])
+          journal, serial_id, volume, number, pages = parse_bibliography_3i(row['Bibliography'])
           year, year_suffix = parse_year_3i(row['Year'])
           taxonomy, distribution, illustration, typhlocybinae = nil, nil, nil, nil
           note = row['Notes']
@@ -579,6 +609,7 @@ namespace :tw do
                                                      serial_id: serial_id,
                                                      pages: pages,
                                                      volume: volume,
+                                                     number: number,
                                                      bibtex_type: 'article'
           )
 
@@ -678,7 +709,7 @@ namespace :tw do
           print "\r#{i}"
           row['journal'] = row['journal'] + '.' if !row['journal'].blank? && row['journal'].last != '.'
           row['title'] = row['title'] + '.' if !row['title'].blank? && row['title'].last != '.'
-          journal, serial_id, volume, pages = parse_bibliography_3i(row['journal'])
+          journal, serial_id, volume, number, pages = parse_bibliography_3i(row['journal'])
           year = row['year']
           author = row['authors'].gsub('., ', '.|').split('|').compact.join(' and ') unless row['authors'].blank?
           if row['authors'].blank?
@@ -691,6 +722,7 @@ namespace :tw do
                                                        serial_id: serial_id,
                                                        pages: pages,
                                                        volume: volume,
+                                                       number: number,
                                                        bibtex_type: 'article',
                                                        url: row['reference_link']
             )
@@ -736,14 +768,22 @@ namespace :tw do
         return nil, nil, nil, nil if bibl.blank?
 
         matchdata = bibl.match(/(^.+)\s+(\d+\(.+\)|\d+): *(\d+-\d+|\d+–\d+|\d+)\.*\s*(.*$)/)
-        return bibl, nil, nil, nil if matchdata.nil?
+        return bibl, nil, nil, nil, nil if matchdata.nil?
 
         serial_id = Serial.where(name: matchdata[1]).limit(1).pluck(:id).first
+        serial_id ||= Serial.where(name: matchdata[1][0..-2]).limit(1).pluck(:id).first if ('0' + matchdata[1]).last == '.'
         serial_id ||= Serial.with_any_value_for(:name, matchdata[1]).limit(1).pluck(:id).first
+        serial_id ||= Serial.with_any_value_for(:name, matchdata[1][0..-2]).limit(1).pluck(:id).first if ('0' + matchdata[1]).last == '.'
         journal = matchdata[4].blank? ? matchdata[1] : bibl
         volume = matchdata[2]
+        number = nil
         pages = matchdata[3]
-        return journal, serial_id, volume, pages
+        matchdata = volume.match(/(\d+)\((.+)\)/)
+        unless matchdata.nil?
+          number = matchdata[2]
+          volume = matchdata[1]
+        end
+        return journal, serial_id, volume, number, pages
       end
 
       def parse_year_3i(year)
@@ -818,7 +858,7 @@ namespace :tw do
 
         confidence = ConfidenceLevel.find_or_create_by(name: 'Verified', definition: 'Verified against the original source', project_id: $project_id).id
 
-        synonym_statuses = %w(1 6 10 11 14 17 22 23 24 26 27 28 29).freeze
+        synonym_statuses = %w(1 6 10 11 13 14 17 22 23 24 26 27 28 29).freeze
 
         path = @args[:data_directory] + 'taxon.txt'
         print "\nHandling taxonomy\n"
@@ -1014,7 +1054,7 @@ namespace :tw do
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true)
 
-        synonym_statuses = %w(1 6 10 11 14 17 22 23 24 26 27 28 29).freeze
+        synonym_statuses = %w(1 6 10 11 13 14 17 22 23 24 26 27 28 29).freeze
         homonym_statuses = %w(3 4 5).freeze
 
         Combination.tap{}
@@ -1079,9 +1119,14 @@ namespace :tw do
 
             source = nil
             if !@data.emendation[row['Parent']].blank? && row['OriginalCombinationOf'] == row['Parent']
-              source = find_taxon_3i(@data.emendation[row['Parent']]).try(['Key3']).nil? ? nil : @data.publications_index[@data.emendation[row['Parent']]['Key3']] unless @data.emendation[row['Parent']].nil?
-              tnr = TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction.create(object_taxon_name: find_taxon_3i(@data.emendation[row['Parent']]['Parent']), subject_taxon_name: taxon, origin_citation_attributes: {source_id: source}) if !@data.emendation[row['Parent']].blank? && row['OriginalCombinationOf'] == row['Parent']
-              byebug if tnr.id.nil?
+              source = @data.emendation[row['Parent']]['Key3'].blank? ? nil : @data.publications_index[@data.emendation[row['Parent']]['Key3']]
+              #source = find_taxon_3i(@data.emendation[row['Parent']]).try(['Key3']).nil? ? nil : @data.publications_index[@data.emendation[row['Parent']]['Key3']]
+              tnr = TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction.create(subject_taxon_name: find_taxon_3i(row['Parent']), object_taxon_name: taxon)
+              if !source.blank? && !tnr.id.nil?
+                tnr.citations.create(source_id: source, pages: row['Page'], is_original: true)
+              elsif tnr.id.nil?
+                byebug
+              end
             end
 
             begin
@@ -1102,6 +1147,8 @@ namespace :tw do
               elsif tnr.id.nil?
                 byebug
               end
+            elsif row['Status'] == '13' && row['Rank'] == '0'
+              tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: @relationship_classes[row['Status'].to_i])
             elsif synonym_statuses.include?(row['Status']) # %w(1 6 10 11 14 17 22 23 24 26 27 28 29)
               if TaxonNameRelationship.where_subject_is_taxon_name(taxon.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').first.nil?
                 tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: @relationship_classes[row['Status'].to_i])
@@ -1137,8 +1184,14 @@ namespace :tw do
             c.variety = taxon if row['Name'].include?(' var. ')
             c.form = taxon if row['Name'].include?(' f. ')
             c.parent = origgen.blank? ? find_taxon_3i(row['Parent']).parent : origgen.parent
+            i3_combination = ''
             if taxon.rank_string =~ /Genus/
               c.genus.nil? ? c.genus = taxon : c.subgenus = taxon
+              if origgen.blank?
+                i3_combination = taxon.name_with_misspelling(nil).to_s
+              else
+                i3_combination = origgen.name_with_misspelling(nil).to_s + ' (' + taxon.name_with_misspelling(nil).to_s + ')'
+              end
             elsif taxon.rank_string =~ /Species/
               if c.species.nil?
                 c.species = taxon
@@ -1147,7 +1200,10 @@ namespace :tw do
               elsif c.variety.nil?
                 c.variety = taxon
               end
-              #
+              i3_combination = origgen.name_with_misspelling(nil).to_s + ' ' unless origgen.blank?
+              i3_combination += '(' + origsubgen.name_with_misspelling(nil).to_s + ') ' unless origsubgen.blank?
+              i3_combination += taxon.name_with_misspelling(nil).to_s
+              i3_combination.squish!
             elsif taxon.rank_string =~ /Family/
               c = Protonym.new(origin_citation_attributes: {source_id: source, pages: row['Page']}, verbatim_author: row['Author'], year_of_publication: row['Year'])
               tnr = c.taxon_name_relationships.new(object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm')
@@ -1160,13 +1216,6 @@ namespace :tw do
               byebug if c.id.nil?
             end
             c.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['YearRem'].id, value: row['YearRem']) unless row['YearRem'].blank?
-
-            i3_combination = ''
-            i3_combination = origgen.name_with_misspelling(gender).to_s + ' ' unless origgen.blank?
-            i3_combination += '(' + origsubgen.name_with_misspelling(gender).to_s + ') ' unless origsubgen.blank?
-            i3_combination += row['Name'].to_s
-            i3_combination.squish!
-
 
             begin
               if c.type == 'Combination' && !i3_combination.blank? && i3_combination != c.cached
@@ -1184,8 +1233,8 @@ namespace :tw do
           elsif row['Status'] == '7' #  common name
             lng = Language.find_by_alpha_3_bibliographic(@languages[row['CommonNameLang'].to_s.downcase])
             CommonName.create!(otu: find_taxon_3i(row['Parent']).otus.first, name: row['Name'], language: lng)
-          elsif row['Status'] == '13' && row['Rank'] == '0' # Nomen nudum
-            tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: 'TaxonNameRelationship::Iczn::Invalidating')
+#          elsif row['Status'] == '13' && row['Rank'] == '0' # Nomen nudum
+#            tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: 'TaxonNameRelationship::Iczn::Invalidating')
           elsif row['Status'] == '2' || !row['OriginalCombinationOf'].blank? ### Original combination
             taxon = find_taxon_3i(row['OriginalCombinationOf']) || find_taxon_3i(row['Parent'])
             if taxon.blank?
@@ -1424,9 +1473,7 @@ namespace :tw do
           else
             print "\nRow #{row} is problematic\n"
           end
-
         end
-
       end
 
       def handle_citation_topics_3i
@@ -1458,6 +1505,7 @@ namespace :tw do
 
           p = find_taxon_3i(row['Key'])
           o = find_otu_3i(row['Key'])
+          next if o.nil?
           if p.nil?
             print "\nProblematic Key: #{row['Key']}\n"
           else
@@ -1466,6 +1514,7 @@ namespace :tw do
             byebug if p.nil?
             c = o.citations.find_or_create_by!(source_id: source, project_id: $project_id) unless o.nil?
             #c = p.citations.find_or_create_by!(source_id: source, project_id: $project_id)
+            #
 
             if row['Descriptions'] == '1' && row['Types'] == '1'
               c.citation_topics.find_or_create_by(topic: @data.topics['Types'], project_id: $project_id)
@@ -1966,7 +2015,11 @@ namespace :tw do
         r = Identifier.find_by(cached: '3i_Taxon_ID ' + key.to_s, project_id: $project_id)
         return nil if r.nil?
         if r.identifier_object_type == 'TaxonName'
-          r.identifier_object.otus.first
+          o = r.identifier_object.otus.first
+          if o.nil?
+            o = r.identifier_object.otus.create!
+          end
+          return o
         elsif r.identifier_object_type == 'Otu'
           r.identifier_object
         else
@@ -2274,18 +2327,20 @@ namespace :tw do
             c = Content.find_or_create_by(text: row['text'],
                                           otu_id: find_otu_3i(row['Key']).id,
                                           topic_id: @data.contents[row['content_type_id']],
-                                          project_id: $project_id)
+                                          project_id: $project_id,
+                                          created_by_id: @users[row['creator_id']],
+                                          updated_by_id: @users[row['updator_id']],
+                                          created_at: row['created_on'],
+                                          updated_at: row['updated_on']
+                                          )
             unless c.id.nil?
               c.data_attributes.find_or_create_by(type: 'ImportAttribute', import_predicate: 'mxID', value: row['id']) unless row['id'].blank?
               c.data_attributes.find_or_create_by(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['license'].id, value: row['license'].to_s) unless row['license'].blank?
               c.data_attributes.find_or_create_by(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['copyright_holder'].id, value: row['copyright_holder'].to_s) unless row['copyright_holder'].blank?
             end
           end
-
         end
-
       end
-
 
       def soft_validations_3i
         fixed = 0

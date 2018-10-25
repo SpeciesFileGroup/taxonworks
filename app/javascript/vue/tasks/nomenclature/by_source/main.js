@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import vueResource from 'vue-resource'
+import App from './app.vue'
 
 var TW = TW || {};
 TW.views = TW.views || {};
@@ -10,14 +11,10 @@ Object.assign(TW.views.tasks.nomenclature_by_source, {
 
   init: function () {
     Vue.use(vueResource);
-
-    //var store = require('./store/store.js').newStore()
-    var App = require('./app.vue').default;
     var token = $('[name="csrf-token"]').attr('content');
     Vue.http.headers.common['X-CSRF-Token'] = token;
 
     new Vue({
-      //store,
       el: '#nomenclature_by_source',
       render: function (createElement) {
         return createElement(App);

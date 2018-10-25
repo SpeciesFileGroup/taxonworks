@@ -24,15 +24,15 @@
 </template>
 <script>
 
-const GetterNames = require('../store/getters/getters').GetterNames
-const MutationNames = require('../store/mutations/mutations').MutationNames
-const markdownEditor = require('../../../components/markdown-editor.vue').default
-const expand = require('./expand.vue').default
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
+import MarkdownEditor from 'components/markdown-editor.vue'
+import Expand from './expand.vue'
 
 export default {
   components: {
-    markdownEditor,
-    expand
+    MarkdownEditor,
+    Expand
   },
   computed: {
     etymology: {

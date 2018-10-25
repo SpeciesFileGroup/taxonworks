@@ -42,6 +42,10 @@ export default {
       type: Number,
       default: 4
     },
+    linebreak: {
+      type: Boolean,
+      default: true
+    },
     color: {
       type: Object,
       default: function () {
@@ -191,12 +195,20 @@ export default {
     },
     drawText (position, text, colorText) {
       this.ctx.beginPath()
-			        this.ctx.textAlign = 'center'
-			        this.ctx.textBaseline = 'middle'
-			        this.ctx.fillStyle = colorText
-			        this.ctx.font = '11px Arial'
-			        this.ctx.fillText(text, position.x, position.y)
-			        this.ctx.closePath()
+      this.ctx.textAlign = 'center'
+      this.ctx.textBaseline = 'middle'
+      this.ctx.fillStyle = colorText
+      this.ctx.font = '11px Arial'
+      if(this.linebreak) {
+        let lineheight = 15;
+        let lines = text.toString().split(' ');
+        for (var i = 0; i<lines.length; i++)
+          this.ctx.fillText(lines[i], position.x, position.y + (i*lineheight) );
+      }
+      else {
+        this.ctx.fillText(text, position.x, position.y)
+      }
+      this.ctx.closePath()
     },
     isInside: function (E, position) {
       if (E === false) return

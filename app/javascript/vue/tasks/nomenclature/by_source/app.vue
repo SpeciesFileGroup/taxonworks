@@ -11,7 +11,7 @@
     </div>
     <div class="flexbox">
       <div class="flexbox">
-        <div class="first-column">
+        <div class="first-column separate-right">
           <taxon-names
             :sourceID="sourceID"
             :newTaxon="newTaxonNameCitation"
@@ -43,7 +43,7 @@
             @otu_names_cites="lists.otu_names_cites=$event"
           />
         </div>
-        <div class="second-column">
+        <div class="second-column separate-left">
           <otus-match-proxy
             :sourceID="sourceID"
             :otu_names_cites="lists.otu_names_cites"

@@ -124,17 +124,18 @@ class GeographicItem < ApplicationRecord
     def crosses_anti_meridian_by_id?(*ids)
       q1 = ["SELECT ST_Intersects((SELECT single_geometry FROM (#{GeographicItem.single_geometry_sql(*ids)}) as " \
             'left_intersect), ST_GeogFromText(?)) as r;', ANTI_MERIDIAN]
-      q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_Intersects((SELECT single_geometry FROM (?) as ' \
+      _q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_Intersects((SELECT single_geometry FROM (?) as ' \
             'left_intersect), ST_GeogFromText(?)) as r;', GeographicItem.single_geometry_sql(*ids), ANTI_MERIDIAN])
       GeographicItem.find_by_sql(q1).first.r
     end
 
     # TODO: * rename to reflect either/or and what is being returned
     # @param [Integer] geographic_area_ids
-    # @param [String] shape_in in JSON (TODO: what kind? / details on specification)
+    # @param [String] shape_in in JSON (POINT, POLYGON, MULTIPOLYGON), usually from GoogleMaps
     # @param [String] search_object_class
+    # @param [Integer] project_id for search_object_class
     # @return [Scope] of the requested search_object_type
-    def gather_selected_data(geographic_area_ids, shape_in, search_object_class)
+    def gather_geographic_area_or_shape_data(geographic_area_ids, shape_in, search_object_class, project_id)
       if shape_in.blank?
         # get the shape from the geographic area, if possible
         finding = search_object_class.constantize
@@ -148,11 +149,24 @@ class GeographicItem < ApplicationRecord
                                               .find(gaid)
                                               .default_geographic_item.id)
           end
-          found = finding.joins(:geographic_items)
-                    .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
+
+          # TODO: There probably is a better way to do this, but for now...
+          f1 = project_id.present? ? finding.with_project_id(project_id) : finding
+          case search_object_class
+            when /Collection/
+              found = f1.joins(:geographic_items)
+                          .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
+            when /Asserted/
+              # TODO: Figure out how to see through this group of geographic_items to the ones which contain
+              # geographic_items which are associated with geographic_areas (as #default_geographic_items)
+              # which are associated with asserted_distributions
+              found = f1.joins(:geographic_area).joins(:geographic_items)
+                          .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
+            else
+          end
         end
       else
-        found = gather_map_data(shape_in, search_object_class)
+        found = gather_map_data(shape_in, search_object_class, project_id)
       end
       found
     end
@@ -161,13 +175,14 @@ class GeographicItem < ApplicationRecord
     # "coordinates":[[[-40.078125,10.614539227964332],[-49.21875,-17.185577279306226],
     # [-23.203125,-15.837353550148276],[-40.078125,10.614539227964332]]]},"properties":{}}'
     # @param [String] search_object_class
+    # @param [Integer, Nil] project_id for search_object_class
     # @return [Scope] of the requested search_object_type
     #   This function takes a feature, i.e. a string that is the result
     #   of drawing on a Google map, and submited as a form variable,
     #   and translates that to a scope for a provided search_object_class.
     #   e.g. Return all CollectionObjects in this drawn area
     #        Return all CollectionObjects in the radius around this point
-    def gather_map_data(feature, search_object_class)
+    def gather_map_data(feature, search_object_class, project_id)
       finding = search_object_class.constantize
       g_feature = RGeo::GeoJSON.decode(feature, json_parser: :json)
       if g_feature.nil?
@@ -178,7 +193,9 @@ class GeographicItem < ApplicationRecord
         geometry = geometry.as_text
         radius = g_feature['radius']
 
-        query = finding.joins(:geographic_items)
+        query = project_id.present? ?
+                    finding.with_project_id(project_id).joins(:geographic_items) :
+                    finding.joins(:geographic_items)
 
         case shape_type
           when 'point'
@@ -418,7 +435,7 @@ class GeographicItem < ApplicationRecord
     # @return [String] the SQL fragment for the specific geometry type, shifted by longitude
     # Note: this routine is called when it is already known that the A argument crosses anti-meridian
     def contained_by_wkt_shifted_sql(wkt)
-      retval = "ST_ContainsProperly(ST_ShiftLongitude(ST_GeomFromText('#{wkt}', 4326)), (
+      retval = "ST_Contains(ST_ShiftLongitude(ST_GeomFromText('#{wkt}', 4326)), (
           CASE geographic_items.type
              WHEN 'GeographicItem::MultiPolygon' THEN ST_ShiftLongitude(multi_polygon::geometry)
              WHEN 'GeographicItem::Point' THEN ST_ShiftLongitude(point::geometry)
@@ -439,7 +456,7 @@ class GeographicItem < ApplicationRecord
       if crosses_anti_meridian?(wkt)
         retval = contained_by_wkt_shifted_sql(wkt)
       else
-        retval = "ST_ContainsProperly(ST_GeomFromText('#{wkt}', 4326), (
+        retval = "ST_Contains(ST_GeomFromText('#{wkt}', 4326), (
           CASE geographic_items.type
              WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
              WHEN 'GeographicItem::Point' THEN point::geometry
@@ -459,7 +476,7 @@ class GeographicItem < ApplicationRecord
     # Note: Can not use GEOMETRY_SQL because geometry_collection is not supported in ST_ContainsProperly
     # Note: !! If the target GeographicItem#id crosses the anti-meridian then you may/will get unexpected results.
     def contained_by_where_sql(*geographic_item_ids)
-      "ST_ContainsProperly(
+      "ST_Contains(
       #{GeographicItem.geometry_sql2(*geographic_item_ids)},
       CASE geographic_items.type
          WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
@@ -817,7 +834,7 @@ class GeographicItem < ApplicationRecord
     def distance_between(geographic_item_id1, geographic_item_id2)
       q1 = "ST_Distance(#{GeographicItem::GEOGRAPHY_SQL}, " \
                     "(#{select_geography_sql(geographic_item_id2)})) as distance"
-      q2 = ActiveRecord::Base.send(
+      _q2 = ActiveRecord::Base.send(
         :sanitize_sql_array, ['ST_Distance(?, (?)) as distance',
                               GeographicItem::GEOGRAPHY_SQL,
                               select_geography_sql(geographic_item_id2)])
@@ -1099,7 +1116,7 @@ class GeographicItem < ApplicationRecord
   def st_distance(geographic_item_id) # geo_object
     q1 = "ST_Distance((#{GeographicItem.select_geography_sql(id)}), " \
                     "(#{GeographicItem.select_geography_sql(geographic_item_id)})) as d"
-    q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance((?),(?)) as d',
+    _q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance((?),(?)) as d',
                                                        GeographicItem.select_geography_sql(self.id),
                                                        GeographicItem.select_geography_sql(geographic_item_id)])
     deg = GeographicItem.where(id: id).pluck(Arel.sql(q1)).first
@@ -1113,7 +1130,7 @@ class GeographicItem < ApplicationRecord
   def st_distance_spheroid(geographic_item_id)
     q1 = "ST_DistanceSpheroid((#{GeographicItem.select_geometry_sql(id)})," \
       "(#{GeographicItem.select_geometry_sql(geographic_item_id)}),'#{Gis::SPHEROID}') as distance"
-    q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_DistanceSpheroid((?),(?),?) as distance',
+    _q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_DistanceSpheroid((?),(?),?) as distance',
                                                        GeographicItem.select_geometry_sql(id),
                                                        GeographicItem.select_geometry_sql(geographic_item_id),
                                                        Gis::SPHEROID])

@@ -25,14 +25,19 @@ module Workbench::SessionsHelper
     remember_token = User.secure_random_token
     cookies.permanent[:remember_token] = remember_token
 
-    user.update_columns(
+    c = {
       remember_token: User.encrypt(remember_token),
       sign_in_count: (user.sign_in_count + 1),
       last_sign_in_at: user.current_sign_in_at,
       current_sign_in_at: Time.now,
       last_sign_in_ip: user.current_sign_in_ip,
-      current_sign_in_ip: request.ip
-    )
+      current_sign_in_ip: request.ip,
+    }
+
+    # TODO set to zero on User create to eliminate need for this
+    c[:time_active] = 0 if user.time_active.blank?
+
+    user.update_columns( c )
 
     self.sessions_current_user = user
   end

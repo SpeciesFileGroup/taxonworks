@@ -1,8 +1,15 @@
-json.extract! citation, :id, :citation_object_id, :citation_object_type, :source_id, :pages, :is_original, :created_by_id, :updated_by_id, :project_id
+json.extract! citation, :id, :citation_object_id, :citation_object_type, :source_id, :pages, :is_original,
+  :created_by_id, :updated_by_id, :project_id
 json.partial! '/shared/data/all/metadata', object: citation
 
 json.citation_object do
-  json.partial! '/shared/data/all/metadata', object: citation.citation_object
+  if @verbose_object
+    path = citation.citation_object_type.tableize
+    object = path.singularize.to_sym
+    json.partial! "/#{path}/attributes", { object => citation.citation_object }
+  else
+    json.partial! '/shared/data/all/metadata', object: citation.citation_object
+  end
 end
 
 json.citation_topics do |ct|

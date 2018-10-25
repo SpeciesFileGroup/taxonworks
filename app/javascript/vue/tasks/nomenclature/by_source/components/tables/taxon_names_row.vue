@@ -9,12 +9,19 @@
         v-model="citation.pages">
     </td>
     <td>
+      <span 
+        v-if="isInvalid"
+        data-icon="warning"
+        title="Invalid"/>
       <span>
         <a
           v-html="citation.citation_object.object_tag"
           @click="showObject()"/> 
         {{ legend }}
       </span>
+    </td>
+    <td>
+      <span v-html="citation.citation_object.type"/>
     </td>
     <td>
       <radial-annotator :global-id="citation.citation_object.global_id"/>
@@ -53,36 +60,34 @@
         pages: undefined,
         autoSave: undefined,
         time: 3000,
-        legend: ''
+        legend: '',
+        nameStatus: ''
+      }
+    },
+    computed: {
+      isInvalid() {
+        return (this.nameStatus == 'invalid')
       }
     },
     mounted() {
-      this.getNameData()
+      this.nameAuthorYear();
+      this.nameValidity();
     },
     methods: {
       showObject() {
         window.open('/tasks/nomenclature/browse/' + this.citation.citation_object_id, '_blank');
       },
-      getNameData: function () {
-        let legend = ' invalid';     // preset status part of legend
-        this.$http.get(this.citation.citation_object.object_url).then(response => {
-          let taxon = response.body;
-          let invalid = (taxon.id != taxon.cached_valid_taxon_name_id);
-          if (invalid) {
-            if (taxon.type == 'Combination') {
-              legend = ' combination'
-            }
-          }
-          else {
-            legend = ' ' + taxon.rank
-          }
+      nameAuthorYear() {
+          let taxon = this.citation.citation_object;
           let authorYear = ' ' + taxon.cached_author_year;
           if (taxon.cached_author_year == null) {
             authorYear = '';
           }
-          legend = authorYear + legend;
-          this.legend = legend;
-        })
+        this.legend = authorYear;
+        },
+      nameValidity() {
+        let taxon = this.citation.citation_object;
+        this.nameStatus = (taxon.id == taxon.cached_valid_taxon_name_id) ? 'valid' : 'invalid';
       },
       changePage() {
         let that = this;
@@ -110,6 +115,9 @@
 </script>
 <style lang="scss" module>
   .pages {
-    width: 140px;
+    width: 80px;
+  }
+  .validity {
+    width: 40px;
   }
 </style>

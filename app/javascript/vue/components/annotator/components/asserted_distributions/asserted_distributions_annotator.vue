@@ -1,6 +1,5 @@
 <template>
   <div class="biological_relationships_annotator">
-
     <div>
       <div
         class="flex-separate"
@@ -38,6 +37,12 @@
           @select="asserted_distribution.geographic_area_id = $event; createAsserted()"/>
       </div>
     </div>
+    <div>
+      <a 
+        class="asserted-map-link"
+        :href="`/tasks/gis/otu_distribution_data/${metadata.object_id}`"
+        target="blank">Map</a>
+    </div>
     <table-list 
       class="separate-top"
       :header="['Geographic area', 'Absent', '']"
@@ -52,7 +57,7 @@
 
   import CRUD from '../../request/crud.js'
   import AnnotatorExtend from '../annotatorExtend.js'
-  import TableList from '../../../table_list.vue'
+  import TableList from './table.vue'
   import DisplayList from '../../../displayList.vue'
   import GeographicArea from './geographicArea.vue'
   import SourcePicker from './sourcePicker.vue'
@@ -181,6 +186,7 @@
 <style lang="scss">
   .radial-annotator {
     .biological_relationships_annotator {
+      position: relative;
       overflow-y: scroll;
       button {
         min-width: 100px;
@@ -201,6 +207,10 @@
       }
       .vue-autocomplete-input, .vue-autocomplete {
         width: 376px;
+      }
+      .asserted-map-link {
+        position: absolute;
+        right:0px;
       }
     }
   }

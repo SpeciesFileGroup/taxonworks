@@ -26,11 +26,11 @@
 </template>
 <script>
 
-const draggable = require('vuedraggable')
-const dropzone = require('../../../components/dropzone.vue').default
-const figureItem = require('./figureItem.vue').default
-const GetterNames = require('../store/getters/getters').GetterNames
-const MutationNames = require('../store/mutations/mutations').MutationNames
+import Draggable from 'vuedraggable'
+import Dropzone from 'components/dropzone.vue'
+import FigureItem from './figureItem.vue'
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
 var token = $('[name="csrf-token"]').attr('content')
 
 export default {
@@ -51,9 +51,9 @@ export default {
     }
   },
   components: {
-    draggable: draggable,
-    dropzone,
-    figureItem
+    Draggable: Draggable,
+    Dropzone,
+    FigureItem
   },
   data: function () {
     return {

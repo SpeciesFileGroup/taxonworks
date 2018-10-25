@@ -93,17 +93,17 @@
 </template>
 <script>
 
-const GetterNames = require('../store/getters/getters').GetterNames
-const ActionNames = require('../store/actions/actions').ActionNames
-const draggable = require('vuedraggable')
-const listEntrys = require('./listEntrys.vue').default
-const originalCombination = require('./originalCombination.vue').default
+import { GetterNames } from '../store/getters/getters'
+import { ActionNames } from '../store/actions/actions'
+import Draggable from 'vuedraggable'
+import ListEntrys from './listEntrys.vue'
+import OriginalCombination from './originalCombination.vue'
 
 export default {
   components: {
-    listEntrys,
-    draggable,
-    originalCombination
+    ListEntrys,
+    Draggable,
+    OriginalCombination
   },
   data: function () {
     return {

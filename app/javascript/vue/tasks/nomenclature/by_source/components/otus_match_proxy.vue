@@ -63,7 +63,8 @@
         otu_name_list: [],
         otu_id_list: [],
         processingList: false,
-        isLoading: false
+        isLoading: false,
+        lastRun: undefined
       }
     },
     watch: {
@@ -92,6 +93,8 @@
     methods: {
       getSourceOtus() {
         let promises = [];
+        let runTime = Date.now()
+        this.lastRun = runTime
         this.otu_name_list = [];
         this.isLoading = true
 
@@ -103,8 +106,10 @@
         promises.push(this.processType(this.getIdsList(this.distribution_cites), 'asserted_distribution_ids'));
 
         Promise.all(promises).then(lists => {
-          this.otu_id_list = [].concat.apply([], lists)
-          this.isLoading = false
+          if(this.lastRun == runTime) {
+            this.otu_id_list = [].concat.apply([], lists)
+            this.isLoading = false
+          }
         })
       },
       addOtu(otu) {

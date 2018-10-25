@@ -31,8 +31,8 @@ module TaxonNames::CatalogHelper
     [ 
 #      history_origin(i), 
       history_taxon_name(t, r, c, target),        # the subject, or protonym
-      history_statuses(i),                        # TaxonNameClassification summary
       history_author_year(t, c),                  # author year of the subject, or protonym
+      history_statuses(i),                        # TaxonNameClassification summary
       history_subject_original_citation(i),
       history_other_name(i, r),                   # The TaxonNameRelaltionship
       history_in(t, c),                           #  citation for related name
