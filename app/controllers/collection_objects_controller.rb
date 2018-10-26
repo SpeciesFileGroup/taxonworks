@@ -198,6 +198,32 @@ class CollectionObjectsController < ApplicationController
     render :batch_load
   end
 
+  def preview_verbatim_batch_load
+    if params[:buf_file]
+      @result = BatchLoad::Import::CollectionObjects::BufferdInterpreter.new(batch_params)
+      digest_cookie(params[:buf_file].tempfile, :Castor_collection_objects_md5)
+      render 'collection_objects/batch_load/bufferd/preview'
+    else
+      flash[:notice] = 'No file provided!'
+      redirect_to action: :batch_load
+    end
+  end
+
+  def create_verbatim_batch_load
+    if params[:buf_file] && digested_cookie_exists?(params[:buf_file].tempfile, :Castor_collection_objects_md5)
+      @result = BatchLoad::Import::CollectionObjects::BufferdInterpreter.new(batch_params)
+      if @result.create
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} items were created."
+        render 'collection_objects/batch_load/bufferd/create' and return
+      else
+        flash[:alert] = 'Batch import failed.'
+      end
+    else
+      flash[:alert] = 'File to batch upload must be supplied.'
+    end
+    render :batch_load
+  end
+
   def select_options
     @collection_objects = CollectionObject.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
   end
@@ -221,7 +247,8 @@ class CollectionObjectsController < ApplicationController
   end
 
   def batch_params
-    params.permit(:namespace, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
+    params.permit(:namespace, :file, :buf_file, :import_level)
+        .merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
   def user_map

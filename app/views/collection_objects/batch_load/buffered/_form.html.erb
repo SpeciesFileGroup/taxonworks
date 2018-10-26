@@ -1,0 +1,30 @@
+<%= form_tag url, multipart: true do -%>
+
+    <div class="field">
+      <%= label_tag :file, 'Select a file' -%>
+      <br>
+      <%= file_field_tag( :file, id: 'buf_file') -%>
+    </div>
+
+    <% if @result.blank? -%>
+    <div class="field">
+      Source
+    </div>
+    <div class="field">
+      Time
+    </div>
+  <% else %>
+    <div class="field">
+      <%= label_tag("Using '#{@result.source_name}' as source.") %>
+      <%= hidden_field_tag(:source_id, @result.source_id) -%>
+    </div>
+    <div class="field">
+      <%= label_tag("Using #{@result.create_time ? 'C' : 'now'} as creation time for collection object.") %>
+      <%= hidden_field_tag(:source_id, @result.source_id) -%>
+    </div>
+    <% end %>
+
+    <%= content_for :warn_level -%>
+
+    <%= submit_tag submit -%>
+<% end %>
