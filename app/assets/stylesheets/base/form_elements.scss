@@ -84,8 +84,12 @@ input, textarea {
   border-radius: 2px;
   border: 1px solid $input-border-color;
   background-color: #FFF;
-  min-height: $normal-input-size;
   box-sizing: border-box;
+  min-height: $normal-input-size;
+}
+
+input[type="checkbox"], input[type="radio"] {
+  min-height: unset
 }
 
 input[type="submit"] {
