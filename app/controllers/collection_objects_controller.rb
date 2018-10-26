@@ -198,10 +198,10 @@ class CollectionObjectsController < ApplicationController
     render :batch_load
   end
 
-  def preview_verbatim_batch_load
+  def preview_buffered_batch_load
     if params[:buf_file]
-      @result = BatchLoad::Import::CollectionObjects::BufferdInterpreter.new(batch_params)
-      digest_cookie(params[:buf_file].tempfile, :Castor_collection_objects_md5)
+      @result = BatchLoad::Import::CollectionObjects::BufferedInterpreter.new(batch_params)
+      digest_cookie(params[:buf_file].tempfile, :Buffered_collection_objects_md5)
       render 'collection_objects/batch_load/bufferd/preview'
     else
       flash[:notice] = 'No file provided!'
@@ -209,9 +209,9 @@ class CollectionObjectsController < ApplicationController
     end
   end
 
-  def create_verbatim_batch_load
-    if params[:buf_file] && digested_cookie_exists?(params[:buf_file].tempfile, :Castor_collection_objects_md5)
-      @result = BatchLoad::Import::CollectionObjects::BufferdInterpreter.new(batch_params)
+  def create_buffered_batch_load
+    if params[:buf_file] && digested_cookie_exists?(params[:buf_file].tempfile, :Buffered_collection_objects_md5)
+      @result = BatchLoad::Import::CollectionObjects::BufferedInterpreter.new(batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} items were created."
         render 'collection_objects/batch_load/bufferd/create' and return
@@ -247,7 +247,7 @@ class CollectionObjectsController < ApplicationController
   end
 
   def batch_params
-    params.permit(:namespace, :file, :buf_file, :import_level)
+    params.permit(:namespace, :file, :import_level, :source_id, :created_time)
         .merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
