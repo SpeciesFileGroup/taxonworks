@@ -32,7 +32,7 @@
         <li
           v-for="(child) in (ranks[group])"
           v-if="checkDisplay(child)">
-          <label class="middle capitalize">
+          <label class="capitalize">
             <input
               type="radio"
               name="rankSelected"
