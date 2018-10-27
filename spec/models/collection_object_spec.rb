@@ -10,7 +10,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
 
   context 'validation' do
     specify '.valid_new_object_classes' do
-      expect(CollectionObject.valid_new_object_classes).to contain_exactly('CollectionObject', 'Extract')
+      expect(CollectionObject.valid_new_object_classes).to contain_exactly('CollectionObject', 'Extract', 'AssertedDistribution')
     end
 
     specify 'type is not set when total/ranged_lot are not provided' do
