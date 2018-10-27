@@ -81,7 +81,7 @@ class CharacterStatesController < ApplicationController
   end
 
   def character_state_params
-    params.require(:character_state).permit(:name, :label, :descriptor_id, :position)
+    params.require(:character_state).permit(:name, :key_name, :description_name, :label, :descriptor_id, :position)
   end
 
 end
