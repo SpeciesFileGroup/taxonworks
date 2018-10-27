@@ -11,6 +11,13 @@ module IdentifiersHelper
   end
 
   # @return [String, nil]
+  #   link to GET idnetifiers/:id
+  def identifier_link(identifier)
+    return nil if identifier.nil?
+    link_to(identifier_tag(identifier).html_safe, identifier.identifier_object.metamorphosize)
+  end
+
+  # @return [String, nil]
   def identifier_annotation_tag(identifier)
     return nil if identifier.nil?
     content_tag(:span, identifier.cached, class: [:annotation__identifier])
@@ -32,26 +39,27 @@ module IdentifiersHelper
     end
   end
 
+  # @return [String, nil]
+  #   a list of identifiers *without* HTML
   def simple_identifier_list_tag(object)
-    object.identifiers.collect{|a| content_tag(:spane, identifier_annotation_tag(a)) }.join.html_safe 
+    return nil if !object.identifiers.any?
+    object.identifiers.collect{|a| content_tag(:span, identifier_annotation_tag(a)) }.join.html_safe
   end
 
+  # @return [String, nil]
+  #    identifiers for object with HTML
   def identifiers_tag(object)
     if object.identifiers.any?
-      object.identifiers.collect{|a| content_tag(:span, identifier_tag(a))}.join('; ').html_safe
+      return object.identifiers.collect{|a| content_tag(:span, identifier_tag(a))}.join('; ').html_safe
     end
+    nil
   end
 
   def add_identifier_link(object: nil)
     link_to('Add identifier', new_identifier_path(
-                                identifier: {
-                                    identifier_object_type: object.class.base_class.name,
-                                    identifier_object_id: object.id})) if object.has_identifiers?
-  end
-
-  def identifier_link(identifier)
-    return nil if identifier.nil?
-    link_to(identifier_tag(identifier).html_safe, identifier.identifier_object.metamorphosize)
+      identifier: {
+        identifier_object_type: object.class.base_class.name,
+        identifier_object_id: object.id})) if object.has_identifiers?
   end
 
   def identifiers_search_form
