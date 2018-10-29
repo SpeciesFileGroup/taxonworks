@@ -96,7 +96,7 @@
             <div class="flex-separate middle">
               <p>
                 <a
-                  :href="`/sources/${taxon.origin_citation.source_id}/edit`"
+                  :href="`/sources/${taxon.origin_citation.source.id}/edit`"
                   target="_blank">{{ citation.source.object_tag }}</a>
               </p>
               <citation-pages
