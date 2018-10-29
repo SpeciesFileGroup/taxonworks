@@ -282,17 +282,23 @@ class Source < ApplicationRecord
 
   # Redirect type here
   # @param [String] file
-  # @return [Array]
+  # @return [[Array, message]]
+  #   TODO: return a more informative response?
   def self.batch_preview(file)
-    bibliography = BibTeX.parse(file.read.force_encoding('UTF-8'), filter: :latex)
-    sources = []
-    bibliography.each do |record|
-      a = Source::Bibtex.new_from_bibtex(record)
-      # v = a.valid?
-      a.soft_validate()
-      sources.push(a)
+    begin
+      bibliography = BibTeX.parse(file.read.force_encoding('UTF-8'), filter: :latex)
+      sources = []
+      bibliography.each do |record|
+        a = Source::Bibtex.new_from_bibtex(record)
+        a.soft_validate() # why?
+        sources.push(a)
+      end
+      return sources, nil
+    rescue BibTeX::ParseError => e
+      return [], e.message
+    rescue
+      raise
     end
-    sources
   end
 
   # @param [String] file
