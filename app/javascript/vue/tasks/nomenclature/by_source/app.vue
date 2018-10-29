@@ -109,3 +109,12 @@
     }
   }
 </script>
+
+<style lang="scss">
+  #nomenclature-by-source-task {
+    table {
+      width: 100%;
+      max-width: 800px;
+    }
+  }
+</style>
