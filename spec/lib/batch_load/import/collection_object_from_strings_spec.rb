@@ -30,16 +30,30 @@ describe BatchLoad::Import::CollectionObjects::BufferedInterpreter, type: :model
     end
 
     context 'process non-error csv lines' do
-      specify 'specimens' do
-        params.merge({source_id: source.id})
+      specify 'specimens with source' do
+        params.merge!({source_id: source.id})
         bingo = import
-        expect(bingo.objects[:specimen].count).to eq(7)
+        bingo.create
+        expect(Specimen.count).to eq(7)
       end
 
-      specify 'citations' do
-        params.merge({source_id: source.id})
+      specify 'citations with source' do
+        params.merge!({source_id: source.id})
         bingo = import
-        expect(bingo.objects[:citation].count).to eq(7)
+        bingo.create
+        expect(Citation.count).to eq(7)
+      end
+
+      specify 'specimens without source' do
+        bingo = import
+        bingo.create
+        expect(Specimen.count).to eq(7)
+      end
+
+      specify 'citations without source' do
+        bingo = import
+        bingo.create
+        expect(Citation.count).to eq(0)
       end
     end
   end
