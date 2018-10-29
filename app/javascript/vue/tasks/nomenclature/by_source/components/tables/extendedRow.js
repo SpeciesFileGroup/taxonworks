@@ -37,6 +37,20 @@ export default {
         })
       }, this.time)
     },
+    updateCitation() {
+      this.$http.patch('/citations/' + this.citation.id + '.json', {citation: this.citation}).then(response => {
+        TW.workbench.alert.create('Citation was successfully updated.', 'notice')
+      })
+    },
+    updatePage() {
+      let that = this;
+      if (this.autoSave) {
+        clearTimeout(this.autoSave)
+      }
+      this.autoSave = setTimeout(() => {
+        that.updateCitation()
+      }, this.time)
+    },
     removeMe() {
       if(window.confirm(`You're about to delete this citation record. Are you sure want to proceed?`)) {
         this.$http.delete('/citations/' + this.citation.id + '.json').then(response => {
