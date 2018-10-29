@@ -9,7 +9,7 @@ module BatchLoad
       @create_time = args.delete(:create_time)
       @source_id = args.delete(:source_id)
       if @source_id.present?
-        @source_name = Source.find(@source_id).name
+        @source_name = Source.find(@source_id).cached
       else
         @source_name = ''
       end
@@ -27,7 +27,6 @@ module BatchLoad
         i += 1
         parse_result = BatchLoad::RowParse.new
         parse_result.objects[:specimen] = []
-        parse_result.objects[:citation] = []
         @processed_rows[i] = parse_result
 
         c_e = row['collecting_event']
@@ -39,19 +38,18 @@ module BatchLoad
           next
         end
 
+        specimen_args = {buffered_collecting_event: c_e,
+                         buffered_determinations: det,
+                         buffered_other_labels: o_l,
+                         created_at: (create_time.blank? ? nil : create_time)}
+
+        if source_id.present?
+          specimen_args.merge!({citations_attributes: [{source_id: source_id}]})
+        end
+
         begin # processing
-          s = Specimen.new(
-              buffered_collecting_event: c_e,
-              buffered_determinations: det,
-              buffered_other_labels: o_l,
-              created_at: create_time.blank? ? nil : create_time
-          )
+          s = Specimen.new(specimen_args)
           parse_result.objects[:specimen].push(s)
-          if source_id.present?
-            c = Citation.new(source_id: source_id,
-                             citation_object: s)
-            parse_result.objects[:citation].push(c)
-          end
         rescue => _e
           raise(_e)
         end
