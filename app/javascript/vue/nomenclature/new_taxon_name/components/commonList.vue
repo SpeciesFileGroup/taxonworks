@@ -5,7 +5,7 @@
         class="status-item"
         v-for="item in objectLists"
         v-if="!filter || filterAlreadyPicked(listCreated, item.base_class) == undefined">
-        <label class="middle">
+        <label>
           <input
             type="radio"
             name="status-item"
