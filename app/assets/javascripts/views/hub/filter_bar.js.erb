@@ -6,13 +6,16 @@ TW.workbench.hub.filter_hub = TW.workbench.hub.filter_hub || {};
 Object.assign(TW.workbench.hub.filter_hub, {
 
   init: function () {
-    $('[data-filter-category="nomenclature"]').prepend('<img src="<%= asset_path("new.svg") %>"/>');
-    $('[data-filter-category="source"]').prepend('<img src="<%= asset_path("book.svg") %>"/>');
-    $('[data-filter-category="collection_object"]').prepend('<img src="<%= asset_path("picking.svg") %>"/>');
-    $('[data-filter-category="collecting_event"]').prepend('<img src="<%= asset_path("geo_location.svg") %>"/>');
-    $('[data-filter-category="biology"]').prepend('<img src="<%= asset_path("biology.svg") %>"/>');
-    $('[data-filter-category="matrix"]').prepend('<img src="<%= asset_path("matrix.svg") %>"/>');
-    $('[data-filter-category="dna"]').prepend('<img src="<%= asset_path("helix.svg") %>"/>');
+		if(!$("#filter").attr('icons-loaded')) { 
+			$("#filter").attr('icons-loaded', 'true');
+      $('[data-filter-category="nomenclature"]').prepend('<img src="<%= asset_path("new.svg") %>"/>');
+      $('[data-filter-category="source"]').prepend('<img src="<%= asset_path("book.svg") %>"/>');
+      $('[data-filter-category="collection_object"]').prepend('<img src="<%= asset_path("picking.svg") %>"/>');
+      $('[data-filter-category="collecting_event"]').prepend('<img src="<%= asset_path("geo_location.svg") %>"/>');
+      $('[data-filter-category="biology"]').prepend('<img src="<%= asset_path("biology.svg") %>"/>');
+      $('[data-filter-category="matrix"]').prepend('<img src="<%= asset_path("matrix.svg") %>"/>');
+      $('[data-filter-category="dna"]').prepend('<img src="<%= asset_path("helix.svg") %>"/>');
+    }
 
     function deactivateBackgroundColorLink(selector) {
       $(selector).removeClass("activated");
