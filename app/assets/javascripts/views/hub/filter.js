@@ -11,7 +11,10 @@ Object.assign(TW.views.hub.filter, {
 		else {
 			new FilterHub();
 		}
-		this.loadCategoriesIcons();
+		if(!$("#filter").attr('loaded')) { 
+			$("#filter").attr('loaded', 'true');
+			this.loadCategoriesIcons();
+		}
 	},
 
 	loadCategoriesIcons: function() {
