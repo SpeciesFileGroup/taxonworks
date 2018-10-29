@@ -63,24 +63,24 @@
 </template>
 <script>
 
-  const GetterNames = require('./store/getters/getters').GetterNames
-  const MutationNames = require('./store/mutations/mutations').MutationNames
+  import { GetterNames } from './store/getters/getters'
+  import { MutationNames } from './store/mutations/mutations'
 
-  const removeCitation = require('./components/removeCitation.vue').default
-  const otuPicker = require('./components/otuPicker.vue').default
-  const otuCitations = require('./components/otuCitations.vue').default
-  const topicsChecklist = require('./components/topicsChecklist.vue').default
-  const sourceCitations = require('./components/sourceCitations.vue').default
-  const sourcePicker = require('./components/sourcePicker.vue').default
+  import removeCitation from './components/removeCitation.vue'
+  import OtuPicker from './components/otuPicker.vue'
+  import OtuCitations from './components/otuCitations.vue'
+  import TopicsChecklist from './components/topicsChecklist.vue'
+  import SourceCitations from './components/sourceCitations.vue'
+  import SourcePicker from './components/sourcePicker.vue'
 
   export default {
     components: {
       removeCitation,
-      otuPicker,
-      sourcePicker,
-      otuCitations,
-      topicsChecklist,
-      sourceCitations
+      OtuPicker,
+      SourcePicker,
+      OtuCitations,
+      TopicsChecklist,
+      SourceCitations
     },
     computed: {
       otu() {

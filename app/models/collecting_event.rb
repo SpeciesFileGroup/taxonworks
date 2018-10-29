@@ -758,7 +758,7 @@ class CollectingEvent < ApplicationRecord
     return CollectingEvent.none if compared_string.nil?
     order_str = CollectingEvent.send(:sanitize_sql_for_conditions, ["levenshtein(collecting_events.#{column}, ?)", compared_string])
     CollectingEvent.where('id <> ?', id.to_s).
-      order(order_str).
+      order(Arel.sql(order_str)).
       limit(limit)
   end
 
@@ -1078,7 +1078,8 @@ class CollectingEvent < ApplicationRecord
 
     if geographic_items.any?
       geo_item_id      = geographic_items.select(:id).first.id
-      base['geometry'] = JSON.parse(GeographicItem.select("ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL}::geometry) geo_json").find(geo_item_id).geo_json)
+      query = "ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL.to_sql}::geometry) geo_json"
+      base['geometry'] = JSON.parse(GeographicItem.select(query).find(geo_item_id).geo_json)
     end
     base
   end

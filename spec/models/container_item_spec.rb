@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe ContainerItem, type: :model, group: :containers do
 
-  let(:container_item) { FactoryBot.build(:container_item) } # Specimen
+  let(:container_item) { ContainerItem.new } 
 
   let(:specimen) { FactoryBot.create(:valid_specimen) }
 
@@ -45,7 +45,6 @@ describe ContainerItem, type: :model, group: :containers do
       end
 
       context 'position' do
-
         let!(:containing_container_item) { ContainerItem.create(contained_object: container1) }
         before {
           container_item.contained_object = FactoryBot.create(:valid_specimen)
@@ -68,7 +67,7 @@ describe ContainerItem, type: :model, group: :containers do
         end
 
         specify 'is not replicated' do
-          container_item.parent        = containing_container_item
+          container_item.parent = containing_container_item
           container_item.disposition_x = 10
           container_item.disposition_y = 10
           container_item.save!
@@ -76,7 +75,6 @@ describe ContainerItem, type: :model, group: :containers do
           expect(c.valid?).to be_falsey
           expect(c.errors.include?(:base)).to be_truthy
         end
-
       end
     end
 
@@ -94,13 +92,33 @@ describe ContainerItem, type: :model, group: :containers do
       end
     end
 
+    context '#container_id' do
+      let(:c1) { ContainerItem.create!(contained_object: container1, container_id: container2.id) }
+
+      specify 'containerized by reference to id' do
+        expect(c1.container.id).to eq(container2.id)
+      end
+    end
+
     context 'closure tree' do
       let(:c1) { ContainerItem.create(contained_object: container1) }
       let(:c2) { ContainerItem.create(contained_object: container2, parent: c1) }
+
+      specify 'children' do
+        expect(c1.children.all).to eq([c2])
+      end
     end
 
-    context '#global_entity' do
+    context 'setting contained object by reference to global id' do
+      specify '#global_entity=' do
+        container_item.global_entity = specimen.to_global_id.to_s
+        expect(container_item.contained_object).to eq(specimen)
+      end
 
+      specify '#global_entity' do
+        container_item.contained_object = specimen 
+        expect(container_item.global_entity).to eq(specimen.to_global_id)
+      end
     end
 
     context 'scopes' do

@@ -41,7 +41,7 @@ module Housekeeping::Projects
 
   def set_project_id
     if self.new_record?
-      self.project_id ||= $project_id
+      self.project_id ||= Current.project_id || $project_id
     end
   end
 

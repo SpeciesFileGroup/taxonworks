@@ -24,19 +24,26 @@ class Tasks::Gis::LocalityController < ApplicationController
     @drawing_modes     = 'active: polygon, circle'
   end
 
-  # use the params[:geographic_area_id] to locate the area, use that to find a geographic
+  # use the params[:geographic_area_id] to locate the area, use that to find a geographic item
   def list
     case params[:commit]
       when 'Show'
         geographic_area_ids = params[:geographic_area_ids]
-        shape_in            = params['drawn_area_shape']
-        finding             = params['selection_object']
+        shape_in = params['drawn_area_shape']
+        findings = params['selection_objects']
 
-        @collecting_events = GeographicItem.gather_selected_data(geographic_area_ids,
-                                                                 shape_in,
-                                                                 finding)
-                               .order(:verbatim_locality)
-        @drawing_modes     = 'active: polygon, circle'
+        findings.each { |finding|
+          case finding
+            when /Collecting/
+              @collecting_events = GeographicItem.gather_geographic_area_or_shape_data(geographic_area_ids,
+                                                                                       shape_in,
+                                                                                       finding,
+                                                                                       sessions_current_project_id)
+                                       .order(:verbatim_locality)
+            else
+          end
+        }
+        @drawing_modes = 'active: polygon, circle'
       else
         # some other case, TBDL
     end
@@ -44,12 +51,12 @@ class Tasks::Gis::LocalityController < ApplicationController
 
   protected
 
-  def gather_list_data(geographic_area)
-    if @geographic_area.has_shape?
-      @geographic_item = @geographic_area.default_geographic_item
-    else
-      @geographic_item = nil
-    end
-  end
+  # def gather_list_data(geographic_area)
+  #   if @geographic_area.has_shape?
+  #     @geographic_item = @geographic_area.default_geographic_item
+  #   else
+  #     @geographic_item = nil
+  #   end
+  # end
 
 end

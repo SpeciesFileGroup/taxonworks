@@ -28,11 +28,13 @@ module HubHelper
   end
 
   def data_card(data)
-    content_tag(:div, class:  ['data_card', data.shared_css, data.application_css].flatten.join(' ')) do  
+    content_tag(:div, tabindex: 0, class: 'data_card') do  
+      content_tag(:div, '') +
       content_tag(:div, '', 
-                  data.categories.inject({}){|hsh,c| hsh.merge!("data-category-#{c}" => 'true') }.merge(class: [:filter_data, "#{data.status}"], "data-category-#{data.status}" => 'true')
+                  data.categories.inject({}){|hsh,c| hsh.merge!("data-category-#{c}" => 'true') }.merge(class: [:filter_data, :middle, 'card-categories', "#{data.status}", data.shared_css, data.application_css].flatten.join(' '), "data-category-#{data.status}" => 'true')
                  ) + 
-        data_link(data) 
+        data_link(data) +
+        favorite_page_link('data', data.klass.to_s)
     end
   end
 

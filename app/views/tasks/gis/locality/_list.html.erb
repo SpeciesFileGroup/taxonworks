@@ -6,7 +6,7 @@
       <%= form_tag('list') do %>
           <%= render(partial: 'shared/data/gis/area_selector',
                      locals:  {passed_in_tag_id:    'geographic_area_id_for_new_locality_list',
-                               selection_object:    'CollectingEvent',
+                               selection_objects:   ['CollectingEvent'],
                                drawing_modes:       'active: polygon, circle',
                                shown_georeferences: []}) %>
           <%= submit_tag('Show', id: 'send_report_params') %>

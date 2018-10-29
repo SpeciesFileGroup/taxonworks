@@ -102,25 +102,25 @@
 </template>
 <script>
 
-const ActionNames = require('../store/actions/actions').ActionNames
-const GetterNames = require('../store/getters/getters').GetterNames
-const MutationNames = require('../store/mutations/mutations').MutationNames
-const treeDisplay = require('./treeDisplay.vue').default
-const listEntrys = require('./listEntrys.vue').default
-const listCommon = require('./commonList.vue').default
-const expand = require('./expand.vue').default
-const autocomplete = require('../../../components/autocomplete.vue').default
-const hardValidation = require('./hardValidation.vue').default
-const getRankGroup = require('../helpers/getRankGroup')
+import { ActionNames } from '../store/actions/actions'
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
+import TreeDisplay from './treeDisplay.vue'
+import ListEntrys from './listEntrys.vue'
+import ListCommon from './commonList.vue'
+import Expand from './expand.vue'
+import Autocomplete from 'components/autocomplete.vue'
+import HardValidation from './hardValidation.vue'
+import getRankGroup from '../helpers/getRankGroup'
 
 export default {
   components: {
-    listEntrys,
-    autocomplete,
-    expand,
-    treeDisplay,
-    listCommon,
-    hardValidation
+    ListEntrys,
+    Autocomplete,
+    Expand,
+    TreeDisplay,
+    ListCommon,
+    HardValidation
   },
   computed: {
     treeList () {

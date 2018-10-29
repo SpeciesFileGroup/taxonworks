@@ -25,7 +25,7 @@
 <script>
 
   import { GetterNames } from '../store/getters/getters'
-  import modal from '../../../components/modal.vue'
+  import Modal from 'components/modal.vue'
 
   export default {
     computed: {
@@ -40,7 +40,7 @@
       }
     },
     components: {
-      modal
+      Modal
     },
     data: function () {
       return {

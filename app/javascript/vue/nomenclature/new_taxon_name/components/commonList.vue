@@ -4,13 +4,13 @@
       <li
         class="status-item"
         v-for="item in objectLists"
-        v-if="!filter || filterAlreadyPicked(listCreated, item.type) == undefined">
-        <label class="middle">
+        v-if="!filter || filterAlreadyPicked(listCreated, item.base_class) == undefined">
+        <label>
           <input
             type="radio"
             name="status-item"
             @click="$emit('addEntry', item)"
-            :value="item.type">
+            :value="item.base_class">
           <span>{{ item[display] }}</span>
         </label>
       </li>
@@ -39,7 +39,7 @@ export default {
   methods: {
     filterAlreadyPicked: function (list, type) {
       return list.find(function (item) {
-        return (item.type == type)
+        return (item.base_class == type)
       })
     }
   }

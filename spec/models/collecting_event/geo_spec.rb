@@ -2,6 +2,7 @@ require 'rails_helper'
 require 'support/shared_contexts/shared_geo'
 
 describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_event] do
+
   include_context 'stuff for complex geo tests'
 
   let(:collecting_event) { CollectingEvent.new }
@@ -181,7 +182,7 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
 
                 FactoryBot.create(:georeference_verbatim_data,
                                   collecting_event: collecting_event,
-                                  geographic_item:  GeographicItem.new(point: area_a.default_geographic_item
+                                  geographic_item: GeographicItem.new(point: area_a.default_geographic_item
                                                                                 .geo_object
                                                                                 .centroid))
                 collecting_event.reload

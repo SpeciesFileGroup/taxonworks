@@ -44,7 +44,7 @@ class PapertrailController < ApplicationController
         flash[:alert] = 'Unsuccessfully restored!'
       end
 
-      json_resp = { "url": papertrail_path(object_type: @object.class, object_id: @object.id) }
+      json_resp = { "url": papertrail_path(object_type: @object.class.base_class, object_id: @object.id) }
 
       # If the object is a child class of "ControlledVocabularyTerm" then we need to use the
       # type member variable since the class member variable doesn't reflect the new class

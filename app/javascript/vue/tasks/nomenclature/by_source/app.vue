@@ -11,7 +11,7 @@
     </div>
     <div class="flexbox">
       <div class="flexbox">
-        <div class="first-column">
+        <div class="first-column separate-right">
           <taxon-names
             :sourceID="sourceID"
             :newTaxon="newTaxonNameCitation"
@@ -43,7 +43,7 @@
             @otu_names_cites="lists.otu_names_cites=$event"
           />
         </div>
-        <div class="second-column">
+        <div class="second-column separate-left">
           <otus-match-proxy
             :sourceID="sourceID"
             :otu_names_cites="lists.otu_names_cites"
@@ -69,7 +69,7 @@
   import BiologicalAssociations from './components/biological_associations'
   import AssertedDistributions from './components/asserted_distributions'
   import OtusMatchProxy from './components/otus_match_proxy'
-  import Spinner from '../../../components/spinner.vue'
+  import Spinner from 'components/spinner.vue'
 
   export default {
     components: {
@@ -98,12 +98,12 @@
       },
       initStoreList() {
         return {
-            otu_names_cites: [],
-            taxon_names_cites: [],
-            taxon_relationship_cites: [],
-            taxon_classification_cites: [],
-            biological_association_cites: [],
-            distribution_cites: [],
+          otu_names_cites: [],
+          taxon_names_cites: [],
+          taxon_relationship_cites: [],
+          taxon_classification_cites: [],
+          biological_association_cites: [],
+          distribution_cites: [],
         }
       }
     }

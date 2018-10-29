@@ -1,5 +1,5 @@
 <span class="<%= taxon_name.rank_class ? taxon_name.rank_class.nomenclatural_code : nil -%> "> 
-  <%= taxon_name.cached_html_name_and_author_year.gsub(/(#{term})/i, content_tag(:mark, '\1')).html_safe -%> 
+  <%= taxon_name.cached_html_name_and_author_year.gsub(/(#{Regexp.escape(term)})/i, content_tag(:mark, '\1')).html_safe -%> 
   <% if taxon_name.parent_id -%>
     <span class="subtle">
       (<%= taxon_name.rank ? taxon_name.rank : 'Combination' -%><%= ( ', parent ' + taxon_name_tag(taxon_name.parent) ).html_safe -%>)

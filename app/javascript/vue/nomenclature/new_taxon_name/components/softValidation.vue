@@ -27,7 +27,7 @@
 
 <script>
 
-const GetterNames = require('../store/getters/getters').GetterNames
+import { GetterNames } from '../store/getters/getters'
 
 export default {
   computed: {

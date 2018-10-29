@@ -25,6 +25,7 @@ require('../vue/tasks/uniquify/people/main.js')
 require('../vue/tasks/uniquify/sources/main.js')
 require('../vue/tasks/single_bibtex_source/main.js')
 require('../vue/tasks/nomenclature/by_source/main.js')
+require('../vue/tasks/people/author_by_letter/main.js')
 
 // Styles
 require('../style/application.scss')

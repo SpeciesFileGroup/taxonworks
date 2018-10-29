@@ -2,10 +2,10 @@ import Vue from 'vue'
 import VueResource from 'vue-resource'
 
 Vue.use(VueResource)
-Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
 
 const ajaxCall = function (type, url, data = null, options = null) {
   return new Promise(function (resolve, reject) {
+    Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
     Vue.http[type](url, data, options).then(response => {
       return resolve(response.body)
     }, response => {

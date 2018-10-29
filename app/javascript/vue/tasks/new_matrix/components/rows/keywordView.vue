@@ -8,17 +8,19 @@
         v-for="(keywordCount, key) in object.totals">
         <div class="capitalize tag_label">{{ key }}</div>
         <div class="tag_total">{{ keywordCount }}</div>
-        <button
-          class="button normal-input button-submit"
-          type="button"
-          @click="batchLoad(key, matrixId, key, object.object.id)">Create
-        </button>
-        <button
-          v-if="key != 'total'"
-          class="separate-left button normal-input button-delete"
-          type="button"
-          @click="removeKeyword(matrixId, key)">Remove
-        </button>
+        <template v-if="keywordCount > 0">
+          <button
+            class="button normal-input button-submit"
+            type="button"
+            @click="batchLoad(key, matrixId, key, object.object.id)">Create
+          </button>
+          <button
+            v-if="key != 'total'"
+            class="separate-left button normal-input button-delete"
+            type="button"
+            @click="removeKeyword(matrixId, key)">Remove
+          </button>
+        </template>
       </div>
     </div>
   </div>

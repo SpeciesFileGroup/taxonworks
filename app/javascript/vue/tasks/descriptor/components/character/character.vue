@@ -100,7 +100,8 @@ export default {
     }
   },
   mounted() {
-    this.list = this.sortPosition(this.descriptor.character_states)
+    if(this.descriptor.hasOwnProperty('character_states'))
+      this.list = this.sortPosition(this.descriptor.character_states)
   },
   methods: {
     createCharacter() {
@@ -119,8 +120,10 @@ export default {
       this.name = undefined
     },
     removeCharacter(index) {
-      this.list[index]['_destroy'] = true
-      this.onSortable()
+      if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+        this.list[index]['_destroy'] = true
+        this.onSortable()
+      }
     },
     editCharacter(index) {
       this.id = this.list[index].id

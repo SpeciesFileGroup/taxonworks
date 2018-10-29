@@ -31,7 +31,7 @@
           <label v-help.section.basic.parent>Parent</label>
           <parent-picker/>
         </div>
-        <rank-selector v-if="parent"/>
+        <rank-selector v-if="validateInfo"/>
         <hard-validation field="rank_class"/>
 
       </div>
@@ -57,26 +57,26 @@
 
 <script>
 
-const GetterNames = require('../store/getters/getters').GetterNames
-const MutationNames = require('../store/mutations/mutations').MutationNames
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
 
-var saveTaxonName = require('./saveTaxonName.vue').default
-var parentPicker = require('./parentPicker.vue').default
-var taxonName = require('./taxonName.vue').default
-var expand = require('./expand.vue').default
-var checkExist = require('./findExistTaxonName.vue').default
-var rankSelector = require('./rankSelector.vue').default
-var hardValidation = require('./hardValidation.vue').default
+import SaveTaxonName from './saveTaxonName.vue'
+import ParentPicker from './parentPicker.vue'
+import TaxonName from './taxonName.vue'
+import Expand from './expand.vue'
+import CheckExist from './findExistTaxonName.vue'
+import RankSelector from './rankSelector.vue'
+import HardValidation from './hardValidation.vue'
 
 export default {
   components: {
-    parentPicker,
-    taxonName,
-    expand,
-    rankSelector,
-    checkExist,
-    saveTaxonName,
-    hardValidation
+    ParentPicker,
+    TaxonName,
+    Expand,
+    RankSelector,
+    CheckExist,
+    SaveTaxonName,
+    HardValidation
   },
   computed: {
     parent () {
@@ -84,6 +84,11 @@ export default {
     },
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
+    },
+    validateInfo () {
+      return (this.parent != undefined && 
+        (this.taxon.name != undefined && 
+        this.taxon.name.replace(/\s/g, '').length > 2))
     },
     taxonName: {
       get () {

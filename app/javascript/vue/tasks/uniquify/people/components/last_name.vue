@@ -15,7 +15,7 @@
     },
     data: function () {
       return {
-        lastName: ''
+        lastName: this.requestedPerson()
       }
     },
     watch: {
@@ -26,6 +26,17 @@
       lastName(newVal) {
         this.$emit('input', newVal)
       }
+    },
+    methods: {
+      requestedPerson() {
+        if (window.location.href.split('last_name=')[1]) {
+          return window.location.href.split('last_name=')[1];
+        }
+        else {
+          return ''
+        }
+      },
+
     }
   }
 </script>

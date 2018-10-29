@@ -3,11 +3,11 @@ import VueResource from 'vue-resource'
 
 Vue.use(VueResource)
 
-Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-
 const ajaxCall = function (type, url, data) {
   return new Promise(function (resolve, reject) {
+    Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
     Vue.http[type](url, data).then(response => {
+      eventEmitRadialAnnotator(type, data)
       return resolve(response)
     }, response => {
       handleError(response.body)
@@ -30,6 +30,15 @@ const handleError = function (json) {
   })
 
   TW.workbench.alert.create(errorMessage, 'error')
+}
+
+const eventEmitRadialAnnotator = function (typeEvent, object) {
+  var event = new CustomEvent(`radial:${typeEvent}`, {
+    detail: {
+      object: object,
+    }
+  });
+  document.dispatchEvent(event);
 }
 
 const create = function (url, data) {

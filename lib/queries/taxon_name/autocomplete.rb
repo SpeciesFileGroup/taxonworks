@@ -263,14 +263,14 @@ module Queries
       # @return [String, nil]
       #   parse and only return what is assumed to be genus/species, with a wildcard in front
       def genus_species
-        parser = ScientificNameParser.new
-        h = parser.parse(query_string)
-        n = h[:scientificName][:details]
+        p = TaxonWorks::Vendor::Biodiversity::Result.new
+        p.name = query_string
+        r = p.parse
 
-        if n && n.first && n.first[:genus] && n.first[:species]
-          a = n.first[:genus][:string]
-          b = n.first[:species][:string]
+        a = p.genus
+        b = p.species
 
+        if a && b
           a + '%' + b
         else
           nil
@@ -281,7 +281,7 @@ module Queries
       def base_query
         ::TaxonName.select('taxon_names.*, char_length(taxon_names.cached)').
           includes(:ancestor_hierarchies).
-          order('char_length(cached), cached ASC')
+          order(Arel.sql('char_length(cached), cached ASC'))
       end
 
       # @return [Arel::Table]

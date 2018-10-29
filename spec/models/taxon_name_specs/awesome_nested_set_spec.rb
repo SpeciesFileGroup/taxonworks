@@ -36,23 +36,5 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       expect(root.children.reload.all.to_a).to contain_exactly(family_b, family_c, family_d, family_a)
     end
 
-
   end
-
-  # !! No longer relevant
- #context 'no alphabetize' do
- #  let(:family_c) { Protonym.create(name: 'Cidae', parent: root, rank_class: Ranks.lookup(:iczn, 'family'), no_alphabetize: true) }
- #  let(:family_a) { Protonym.create(name: 'Aidae', parent: root, rank_class: Ranks.lookup(:iczn, 'family'), no_alphabetize: true) }
- #  let(:family_b) { Protonym.create(name: 'Bidae', parent: root, rank_class: Ranks.lookup(:iczn, 'family'), no_alphabetize: true) }
-
- #  before {
- #    [family_c, family_a, family_b].each do |n|
- #      n.save
- #    end
- #  }
-
- #  specify 'order is not alphabetized' do
- #    expect(root.children).to contain_exactly(family_c, family_a, family_b)
- #  end
- #end
 end

@@ -215,7 +215,7 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
       specify 'selected object' do
         c_objs = [co_a, co_b]
 
-# Specimen creation/update dates and Identifier/namespace
+        # Specimen creation/update dates and Identifier/namespace
         2.times { FactoryBot.create(:valid_namespace, creator: geo_user, updater: geo_user) }
         ns1 = Namespace.first
         ns2 = Namespace.second

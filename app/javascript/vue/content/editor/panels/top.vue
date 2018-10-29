@@ -15,7 +15,7 @@
 
 <script>
 
-  import autocomplete from '../../../components/autocomplete.vue'
+  import Autocomplete from 'components/autocomplete.vue'
   import { GetterNames } from '../store/getters/getters'
   import { MutationNames } from '../store/mutations/mutations'
 
@@ -35,7 +35,7 @@
       })
     },
     components: {
-      autocomplete
+      Autocomplete
     }
   }
 </script>

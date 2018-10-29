@@ -5,19 +5,16 @@ TW.views.tasks.browse_annotations = TW.views.tasks.browse_annotations || {};
 
 import Vue from 'vue'
 import vueResource from 'vue-resource'
+import App from './app.vue'
 
 Object.assign(TW.views.tasks.browse_annotations, {
 
   init: function () {
     Vue.use(vueResource);
-
-    //var store = require('./store/store.js').newStore()
-    var App = require('./app.vue').default;
     var token = $('[name="csrf-token"]').attr('content');
     Vue.http.headers.common['X-CSRF-Token'] = token;
 
     new Vue({
-      //store,
       el: '#browse_annotations',
       render: function (createElement) {
         return createElement(App)

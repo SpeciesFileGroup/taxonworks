@@ -147,7 +147,7 @@ export default {
     },
 
     min: {
-      type: String,
+      type: [String, Number],
       default: 1
     },
 
@@ -203,6 +203,10 @@ export default {
 
     cleanInput() {
       this.type = ''
+    },
+
+    setLabel(value) {
+      this.type = value
     },
 
     limitList: function (list) {

@@ -51,18 +51,18 @@
   </form>
 </template>
 <script>
-const GetterNames = require('../store/getters/getters').GetterNames
-const MutationNames = require('../store/mutations/mutations').MutationNames
-const ActionNames = require('../store/actions/actions').ActionNames
-const blockLayout = require('./blockLayout.vue').default
-const listEntrys = require('./listEntrys.vue').default
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
+import { ActionNames } from '../store/actions/actions'
+import BlockLayout from './blockLayout.vue'
+import ListEntrys from './listEntrys.vue'
 
-const getRankGroup = require('../helpers/getRankGroup')
+import getRankGroup from '../helpers/getRankGroup'
 
 export default {
   components: {
-    blockLayout,
-    listEntrys
+    BlockLayout,
+    ListEntrys
   },
   data: function () {
     return {

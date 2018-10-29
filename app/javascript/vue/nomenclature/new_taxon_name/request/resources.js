@@ -3,8 +3,12 @@ import VueResource from 'vue-resource'
 
 Vue.use(VueResource)
 
-var token = $('[name="csrf-token"]').attr('content')
-Vue.http.headers.common['X-CSRF-Token'] = token
+const init = function () {
+  var token = $('[name="csrf-token"]').attr('content')
+  Vue.http.headers.common['X-CSRF-Token'] = token
+}
+
+
 
 const createTaxonName = function (taxon) {
   return new Promise(function (resolve, reject) {
@@ -156,6 +160,7 @@ const changeTaxonSource = function (taxonId, source, citation) {
         origin_citation_attributes: {
           id: (citation == undefined ? null : citation.id),
           source_id: source.id,
+          is_original: true,
           pages: (source == undefined ? null : source.pages)
         }
       }
@@ -217,6 +222,7 @@ const loadTaxonRelationships = function (id) {
 }
 
 export {
+  init,
   createTaxonName,
   updateTaxonName,
   updateClassification,

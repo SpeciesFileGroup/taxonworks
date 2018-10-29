@@ -1,3 +1,7 @@
+# This requires relationships and ranks as well
+require_dependency Rails.root.to_s + '/app/models/taxon_name_classification.rb'
+require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
+
 # A taxonomic name (nomenclature only). See also NOMEN.
 #
 # @!attribute name
@@ -536,13 +540,13 @@ class TaxonName < ApplicationRecord
   # @return [Boolean]
   #  true if this name has any classification asserting that it is valid
   def classification_valid?
-    taxon_name_classifications.with_type_array(TAXON_NAME_CLASS_NAMES_VALID).any?
+    taxon_name_classifications.with_type_array(::TAXON_NAME_CLASS_NAMES_VALID).any? # !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
   end
 
   # @return [Boolean]
   #  whether this name has any classification asserting that this the name is NOT valid or that it is unavailable
   def classification_invalid_or_unavailable?
-    taxon_name_classifications.with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).any?
+    taxon_name_classifications.with_type_array(::TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).any?
   end
 
   #  @return [Boolean]
@@ -591,7 +595,7 @@ class TaxonName < ApplicationRecord
   # @return [TaxonNameRelationship]
   #  returns youngest taxon name relationship where self is the subject.
   def first_possible_valid_taxon_name_relationship
-    taxon_name_relationships.reload.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).youngest_by_citation
+    taxon_name_relationships.reload.with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).youngest_by_citation
   end
 
   # @return [TaxonName]
@@ -612,9 +616,9 @@ class TaxonName < ApplicationRecord
       first_pass = false
       list_of_taxa_to_check = list.empty? ? [self] : list.keys.select{|t| list[t] == false}
       list_of_taxa_to_check.each do |t|
-        potentialy_invalid_relationships = t.related_taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).order_by_oldest_source_first
+        potentialy_invalid_relationships = t.related_taxon_name_relationships.with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).order_by_oldest_source_first
         potentialy_invalid_relationships.find_each do |r|
-          if !TaxonNameClassification.where_taxon_name(r.subject_taxon_name).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
+          if !TaxonNameClassification.where_taxon_name(r.subject_taxon_name).with_type_array(::TAXON_NAME_CLASS_NAMES_VALID).empty?
             # do nothing, taxon has a status of valid name
           elsif r == r.subject_taxon_name.first_possible_valid_taxon_name_relationship
             list[r.subject_taxon_name] = false if list[r.subject_taxon_name].nil?
@@ -658,14 +662,6 @@ class TaxonName < ApplicationRecord
     n = n.blank? ? name : n
     return n
   end
-
-  #region Set cached fields
-
-  # Deprecated
-  # def set_type_if_empty
-  #   type = 'Protonym' if type.nil? || type == 'TaxonName'
-  # end
-
 
   def create_new_combination_if_absent
     return true unless type == 'Protonym'
@@ -751,7 +747,7 @@ class TaxonName < ApplicationRecord
   end
 
   def get_cached_misspelling
-    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Usage::Misspelling')
+    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
     misspelling.empty? ? nil : true
   end
 
@@ -857,6 +853,7 @@ class TaxonName < ApplicationRecord
     elements.push ['(', d['superspecies'], ')']
     elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'])
     elements = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
+#    elements = 'Candidatus ' + elements if candidatus?
     elements.blank? ? nil : elements
     elements
   end
@@ -1183,7 +1180,7 @@ class TaxonName < ApplicationRecord
         errors.add(:parent_id, "The parent rank (#{parent.rank_class.rank_name}) is not higher than the rank (#{rank_name}) of this taxon")
       end
 
-      if (rank_class != rank_class_was) && children && !children.empty? && RANKS.index(rank_string) >= children.collect { |r| RANKS.index(r.rank_string) }.max
+      if (rank_class != rank_class_was) && children && !children.empty? && RANKS.index(rank_string) >= children.collect { |r| RANKS.index(r.rank_string).to_i }.max
         errors.add(:rank_class, "The rank of this taxon (#{rank_name}) should be higher than the ranks of children")
       end
     end
@@ -1218,7 +1215,7 @@ class TaxonName < ApplicationRecord
 
     if (rank_class != rank_class_was) && !rank_class_was.nil?
 
-      if rank_class_was == 'NomenclaturalRank'
+      if rank_class_was == 'NomenclaturalRank' && rank_class_changed?
         errors.add(:rank_class, 'Root can not have a new rank')
         return
       end
@@ -1233,9 +1230,9 @@ class TaxonName < ApplicationRecord
   def validate_source_type
     a = source && source.type != 'Source::Bibtex'
     b = origin_citation && origin_citation.try(:source).try(:type) != 'Source::Bibtex'
-    if a || b 
+    if a || b
       errors.add(:base, 'Source must be a Bibtex')
-    end 
+    end
   end
 
   #TODO: validate that all the ranks in the table could be linked to ranks in classes (if those had changed)
@@ -1462,8 +1459,5 @@ class TaxonName < ApplicationRecord
     true # see validation in Hybrid.rb
   end
 
-  #endregion
-
 end
-
 

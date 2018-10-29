@@ -23,6 +23,18 @@ FilterHub.prototype.handleEvents = function (that) {
     that.arrayData.push(new CarrouselData($(element).attr("data-section"), 99, 0));
   });
 
+  $(".task_card").on("keypress", function(e) {
+    if(e.which == 13) {
+      window.location.href = $(this).children("a").attr("href")
+    }
+  })
+
+  $(".data_card").on("keypress", function(e) {
+    if(e.which == 13) {
+      window.location.href = $(this).children("a").attr("href")
+    }
+  })
+
   $('#search-filter').keyup(function () {
     var
       chain = $(this).val();

@@ -19,11 +19,19 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction < T
   end
 
   def object_status
-    'first revisor action'
+    'does not have priority as a result of the first revisor action'
+  end
+
+  def subject_status_connector_to_object
+    ' over'
   end
 
   def subject_status
-    'first revisor action'
+    'has priority as a result of the first revisor action'
+  end
+
+  def object_status_connector_to_subject
+    ' under'
   end
 
   def self.nomenclatural_priority

@@ -23,8 +23,8 @@ module BatchLoad
 
     # @param [Hash] args
     def initialize(nomenclature_code: nil, parent_taxon_name_id: nil, also_create_otu: false, **args)
-      @nomenclature_code    = nomenclature_code
-      @also_create_otu      = also_create_otu
+      @nomenclature_code = nomenclature_code
+      @also_create_otu = also_create_otu
       @parent_taxon_name_id = parent_taxon_name_id
 
       super(args)
@@ -94,13 +94,13 @@ module BatchLoad
         end
 
         p = Protonym.new(
-          name:                          n.name,
-          year_of_publication:           n.year.to_s,
-          rank_class:                    Ranks.lookup(nomenclature_code, n.rank),
-          by:                            @user,
-          also_create_otu:               also_create_otu,
-          project:                       @project,
-          verbatim_author:               (n.parens ? n.author_with_parens : nil),
+          name: n.name,
+          year_of_publication: n.year.to_s,
+          rank_class: Ranks.lookup(nomenclature_code, n.rank),
+          by: @user,
+          also_create_otu: also_create_otu,
+          project: @project,
+          verbatim_author: (n.parens ? n.author_with_parens : nil),
           taxon_name_authors_attributes: taxon_name_authors_hash(n)
         )
 

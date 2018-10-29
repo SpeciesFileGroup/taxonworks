@@ -54,21 +54,41 @@ export default {
     }
   },
   mounted() {
-    this.getList(`/${this.target}/${this.object.id}/citations.json`).then(response => {
-      this.citations = response.body
-    })
+    this.loadCitations()
+    document.addEventListener('radial:post', this.refreshCitations)
+    document.addEventListener('radial:patch', this.refreshCitations)
+    document.addEventListener('radial:delete', this.refreshCitations)
+  },
+  destroyed() {
+    document.removeEventListener('radial:post', this.refreshCitations)
+    document.removeEventListener('radial:patch', this.refreshCitations)
+    document.removeEventListener('radial:delete', this.refreshCitations)
   },
   methods: {
     removeCitation(cite) {
       this.destroy(`/citations/${cite.id}.json`).then(response => {
         this.citations.splice(this.citations.findIndex(item => { return item.id == cite.id }), 1)
       })
+    },
+    loadCitations() {
+      this.getList(`/${this.target}/${this.object.id}/citations.json`).then(response => {
+        this.citations = response.body
+      })
+    },
+    refreshCitations(event) {
+      if(event) {
+        if(event.detail.object.hasOwnProperty('citation') || 
+        (event.detail.object.hasOwnProperty('base_class') && 
+        event.detail.object.base_class == 'Citation')) {
+          this.loadCitations()
+        }
+      }
     }
   }
 }
 </script>
 
-<style lang="scss" module>
+<style lang="scss">
   .citation-count {
     position: relative;
   }

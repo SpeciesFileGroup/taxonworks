@@ -5,7 +5,7 @@ describe 'Annotation', type: :model do
   let(:test_is_data_annotation_instance) { TestIsDataAnnotation.new }
   let(:test_is_data_annotation_subclass_instance) { TestIsDataAnnotationSubclass.new }
 
-  Shared::IsData::Annotation::ANNOTATION_TYPES.each do |t|
+  ::ANNOTATION_TYPES.each do |t|
     specify "#has_#{t}?" do
       expect(test_is_data_annotation_instance.send("has_#{t}?")).to eq(false)
     end
