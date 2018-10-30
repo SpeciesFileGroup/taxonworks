@@ -1,3 +1,5 @@
+# rake tw:db:restore backup_directory=/Users/proceps/src/sf/import/onedb2tw/snapshots/15_after_scrutinies/ file=localhost_2018-09-26_212447UTC.dump
+
 namespace :tw do
   namespace :project_import do
     namespace :sf_import do
