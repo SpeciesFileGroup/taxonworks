@@ -247,7 +247,7 @@ class CollectionObjectsController < ApplicationController
   end
 
   def batch_params
-    params.permit(:file, :import_level, citations_attributes: {})
+    params.permit(:file, :import_level, specimen_batchload: {})
         .merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 

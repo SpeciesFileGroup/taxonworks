@@ -5,6 +5,7 @@ describe BatchLoad::Import::CollectionObjects::BufferedInterpreter, type: :model
   let(:user) { User.find(1) }
   let(:project) { Project.find(1) }
   let(:source) { FactoryBot.create(:valid_source_verbatim) }
+  let(:otu) { FactoryBot.create(:valid_otu) }
 
   let(:upload_file) { fixture_file_upload(file_name) }
   let(:import) { BatchLoad::Import::CollectionObjects::BufferedInterpreter.new(params)
@@ -30,30 +31,82 @@ describe BatchLoad::Import::CollectionObjects::BufferedInterpreter, type: :model
     end
 
     context 'process non-error csv lines' do
-      specify 'specimens with source' do
-        params.merge!({source_id: source.id})
-        bingo = import
-        bingo.create
-        expect(Specimen.count).to eq(7)
+      context 'without source or otu' do
+        specify 'specimens without source or otu' do
+          bingo = import
+          bingo.create
+          expect(Specimen.count).to eq(7)
+        end
+
+        specify 'taxon_determinination otu' do
+          bingo = import
+          bingo.create
+          expect(TaxonDetermination.count).to eq(0)
+        end
+
+        specify 'citation without source' do
+          bingo = import
+          bingo.create
+          expect(Citation.count).to eq(0)
+        end
       end
 
-      specify 'citations with source' do
-        params.merge!({source_id: source.id})
-        bingo = import
-        bingo.create
-        expect(Citation.count).to eq(7)
+      context 'processing source_id' do
+        specify 'specimens with source' do
+          params.merge!(specimen_batchload: {'source_id' => {'source_id' => source.id}})
+          bingo = import
+          bingo.create
+          expect(Specimen.count).to eq(7)
+        end
+
+        specify 'citations with source' do
+          params.merge!(specimen_batchload: {'source_id' => {'source_id' => source.id}})
+          bingo = import
+          bingo.create
+          expect(Citation.count).to eq(7)
+        end
       end
 
-      specify 'specimens without source' do
-        bingo = import
-        bingo.create
-        expect(Specimen.count).to eq(7)
+      context 'processing otu_id' do
+        specify 'specimens with otu' do
+          params.merge!(specimen_batchload: {'otu_id' => {'otu_id' => otu.id}})
+          bingo = import
+          bingo.create
+          expect(Specimen.count).to eq(7)
+        end
+
+        specify 'taxon_determinations with otu' do
+          params.merge!(specimen_batchload: {'otu_id' => {'otu_id' => otu.id}})
+          bingo = import
+          bingo.create
+          expect(TaxonDetermination.count).to eq(7)
+        end
       end
 
-      specify 'citations without source' do
-        bingo = import
-        bingo.create
-        expect(Citation.count).to eq(0)
+      context 'processing source_id and otu_id' do
+        specify 'specimens with otu and source' do
+          params.merge!(specimen_batchload: {'otu_id' => {'otu_id' => otu.id},
+                                             'source_id' => {'source_id' => source.id}})
+          bingo = import
+          bingo.create
+          expect(Specimen.count).to eq(7)
+        end
+
+        specify 'taxon_determinations with otu and source' do
+          params.merge!(specimen_batchload: {'otu_id' => {'otu_id' => otu.id},
+                                             'source_id' => {'source_id' => source.id}})
+          bingo = import
+          bingo.create
+          expect(TaxonDetermination.count).to eq(7)
+        end
+
+        specify 'citations with source and otu' do
+          params.merge!(specimen_batchload: {'otu_id' => {'otu_id' => otu.id},
+                                             'source_id' => {'source_id' => source.id}})
+          bingo = import
+          bingo.create
+          expect(Citation.count).to eq(7)
+        end
       end
     end
   end
