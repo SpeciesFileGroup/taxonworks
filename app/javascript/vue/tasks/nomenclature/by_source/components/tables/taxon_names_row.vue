@@ -5,19 +5,25 @@
         class="pages"
         type="text"
         placeholder="Pages"
-        @input="changePage"
+        @input="updatePage"
         v-model="citation.pages">
     </td>
     <td>
-      <span 
-        v-if="isInvalid"
-        data-icon="warning"
-        title="Invalid"/>
+      <input 
+        v-model="citation.is_original"
+        @change="updateCitation"
+        type="checkbox">
+    </td>
+    <td>
       <span>
         <a
           v-html="citation.citation_object.object_tag"
           @click="showObject()"/> 
         {{ legend }}
+        <span 
+          v-if="isInvalid"
+          data-icon="warning"
+          title="Invalid"/>
       </span>
     </td>
     <td>
@@ -43,8 +49,10 @@
 
   import RadialAnnotator from 'components/annotator/annotator'
   import OtuRadial from 'components/otu/otu'
+  import extendedRow from './extendedRow.js'
 
   export default {
+    mixins: [extendedRow],
     components: {
       RadialAnnotator,
       OtuRadial
@@ -88,27 +96,6 @@
       nameValidity() {
         let taxon = this.citation.citation_object;
         this.nameStatus = (taxon.id == taxon.cached_valid_taxon_name_id) ? 'valid' : 'invalid';
-      },
-      changePage() {
-        let that = this;
-        if (this.autoSave) {
-          clearTimeout(this.autoSave)
-        }
-        this.autoSave = setTimeout(() => {
-          that.$http.patch('/citations/' + this.citation.id + '.json', {citation: this.citation}).then(response => {
-            TW.workbench.alert.create('Citation was successfully updated.', 'notice')
-          })
-        }, this.time)
-      },
-      removeMe() {
-        if (window.confirm(`You're about to delete this citation record. Are you sure want to proceed?`)) {
-          this.$http.delete('/citations/' + this.citation.id + '.json').then(response => {
-            this.$emit('delete', this.citation);
-            TW.workbench.alert.create('Citation was successfully destroyed.', 'notice')
-          }, reject => {
-            TW.workbench.alert.create('Citation was not destroyed, ' + reject.statusText, 'notice')
-          })
-        }
       }
     }
   }

@@ -5,8 +5,14 @@
         class="pages"
         type="text"
         placeholder="Pages"
-        @input="changePage"
+        @input="updatePage"
         v-model="citation.pages">
+    </td>
+    <td>
+      <input 
+        v-model="citation.is_original"
+        @change="updateCitation"
+        type="checkbox">
     </td>
     <td><a v-html="citation.citation_object.object_tag" @click="showObject()"/></td>
     <td>

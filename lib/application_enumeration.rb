@@ -1,6 +1,3 @@
-
-
-
 # Methods for enumerating models, tables, columns etc.
 #
 # !! If you think that a method belongs here chances are it already exists in a Rails extension.

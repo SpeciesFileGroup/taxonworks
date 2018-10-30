@@ -27,7 +27,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     end
 
     context 'double checking FactoryBot' do
-
       specify 'is building all related names for respective models' do
         expect(@subspecies.ancestors.length).to be >= 10
         (@subspecies.ancestors + [@subspecies]).each do |i|
@@ -153,11 +152,11 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             let!(:c) { FactoryBot.create(:taxon_name_classification, taxon_name: sp, type: 'TaxonNameClassification::Iczn::Fossil')}
 
             specify '#get_full_name' do
-              expect(sp.get_full_name_html).to eq('&#8224; <i>Erythroneura vitis</i>')
+              expect(sp.get_full_name_html).to eq('† <i>Erythroneura vitis</i>')
             end
 
             specify '#cached_html' do
-              expect(sp.cached_html).to eq('&#8224; <i>Erythroneura vitis</i>')
+              expect(sp.cached_html).to eq('† <i>Erythroneura vitis</i>')
             end
 
             specify 'cached' do
@@ -179,7 +178,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             end
 
             specify 'cached' do
-              expect(sp.cached).to eq('Candidatus Aus bus')
+              expect(sp.cached).to eq('Aus bus')
             end
           end
 
@@ -190,7 +189,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             let!(:c) { FactoryBot.create(:taxon_name_classification, taxon_name: sp, type: 'TaxonNameClassification::Icn::Hybrid') }
 
             specify '#cached_html' do
-              expect(sp.cached_html).to eq('&#215; <i>Aus aaa</i>')
+              expect(sp.cached_html).to eq('× <i>Aus aaa</i>')
             end
 
             specify '#cached' do
@@ -1056,5 +1055,5 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     it_behaves_like 'notable'
     it_behaves_like 'is_data'
   end
-
+# rspec -t group:nomenclature
 end

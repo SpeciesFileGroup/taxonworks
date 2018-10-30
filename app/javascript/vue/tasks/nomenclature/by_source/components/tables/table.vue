@@ -2,6 +2,7 @@
   <table>
     <tr>
       <th @click="sortByPages">Pages</th>
+      <th>Is original</th>
       <th>Object</th>
       <th>Radial</th>
       <th>Otu</th>

@@ -17,10 +17,6 @@ class SourcesController < ApplicationController
     end
   end
 
-  def filter_params
-    params.permit(:query_term, :project_id, author_ids: [])
-  end
-
   def list
     @sources = Source.page(params[:page])
   end
@@ -41,7 +37,6 @@ class SourcesController < ApplicationController
 
   # POST /sources
   # POST /sources.json
-  # TODO: move all the logic to model(s)
   def create
     @source = new_source 
     respond_to do |format|
@@ -56,37 +51,12 @@ class SourcesController < ApplicationController
     end
   end
 
-  def new_source
-    if params[:bibtex_input].blank?
-      Source.new(source_params)
-    else
-      Source::Bibtex.new_from_bibtex_text(params[:bibtex_input])
-    end
-  end
-
   def parse
     if @source = new_source
       render '/sources/show'
     else
       render json: {status: :failed}
     end
-    #   bibtex_string = params['bibtex_input']
-    #   
-    #   begin
-    #     a = BibTeX.parse(bibtex_string).convert(:latex)
-    #   rescue
-    #     a = nil
-    #   end
-
-#   entry = (a.nil? ? nil : a.first)
-#   src = (entry.nil? ? Source::Bibtex.new : Source::Bibtex.new_from_bibtex(entry))
-#   status = (src.valid? ? "OK" : "FAILED")
-#   format.html {render action: 'new'}
-#   retval = {status: status, valid: src.valid?, errors: src.errors.messages, source: src}
-#   format.json {render json: retval}
-#   if((src.valid?)&&(params['create_bibtex']=='true'))
-#     src.save!
-#   end
   end
 
   # PATCH/PUT /sources/1
@@ -123,13 +93,13 @@ class SourcesController < ApplicationController
   def search
     if params[:id].blank?
       redirect_to sources_path, notice: 'You must select an item from the list with a click or tab ' \
-                                          'press before clicking show.'
+        'press before clicking show.'
     else
       redirect_to source_path(params[:id])
     end
   end
 
-  # GET /sources/batch_load    This is deprecated
+  # GET /sources/batch_load
   def batch_load
   end
 
@@ -141,10 +111,15 @@ class SourcesController < ApplicationController
       redirect_to batch_load_sources_path,
         notice: "File '#{file.original_filename}' is of type '#{mimetype}', and not processable as BibTex."
     else
-      @sources  = Source.batch_preview(file.tempfile)
-      sha256 = Digest::SHA256.file(file.tempfile)
-      cookies[:batch_sources_md5] = sha256.hexdigest
-      render 'sources/batch_load/bibtex_batch_preview'
+      @sources, message = Source.batch_preview(file.tempfile)
+      if @sources.size > 0
+        sha256 = Digest::SHA256.file(file.tempfile)
+        cookies[:batch_sources_md5] = sha256.hexdigest
+        render 'sources/batch_load/bibtex/bibtex_batch_preview'
+      else
+        redirect_to batch_load_sources_path,
+          notice: "Error parsing BibTeX :#{message}."
+      end
     end
   end
 
@@ -155,10 +130,10 @@ class SourcesController < ApplicationController
     if cookies[:batch_sources_md5] == sha256.hexdigest
       if result_hash = Source.batch_create(file.tempfile)
         # error in results?
-        @count         = result_hash[:count]
-        @sources       = result_hash[:records]
+        @count = result_hash[:count]
+        @sources = result_hash[:records]
         flash[:notice] = "Successfully batch created #{@count} sources."
-        render 'sources/batch_load/bibtex_batch_create'
+        render 'sources/batch_load/bibtex/bibtex_batch_create'
       else
         flash[:notice] = 'Failed to create sources.'
         redirect_to batch_load_sources_path
@@ -176,12 +151,25 @@ class SourcesController < ApplicationController
 
   private
 
+  def new_source
+    if params[:bibtex_input].blank?
+      Source.new(source_params)
+    else
+      Source::Bibtex.new_from_bibtex_text(params[:bibtex_input])
+    end
+  end
+
   def autocomplete_params
     params.permit(:limit_to_project).merge(project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
+  def filter_params
+    params.permit(:query_term, :project_id, author_ids: [])
+  end
+
+
   def set_source
-    @source        = Source.find(params[:id])
+    @source = Source.find(params[:id])
     @recent_object = @source
   end
 
