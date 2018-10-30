@@ -121,6 +121,15 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           t.valid?
           expect(t.errors.include?(:rank_class)).to be_truthy
         end
+
+        specify 'a parent from different project' do
+          t            = FactoryBot.create(:iczn_kingdom)
+          t.valid?
+          expect(t.errors.include?(:project_id)).to be_falsey
+          t.project_id = 1000
+          t.valid?
+          expect(t.errors.include?(:project_id)).to be_truthy
+        end
       end
 
       context 'source' do
