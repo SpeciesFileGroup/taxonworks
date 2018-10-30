@@ -20,18 +20,6 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #     2) the parent of a synonym (any sense) is the parent of the synonym's valid name
 #     3) the parent of a combination is the parent of the highest ranked monomial in the epithet (almost always the parent of the genus)
 #
-# @!attribute cached_html
-#   @return [String]
-#   Genus-species combination for the taxon. The string is in html format including <i></i> tags.
-#
-# @attribute cached_author_year
-#   @return [String, nil]
-#      author and year string with parentheses where necessary, i.e. with context of present placement for iczn
-#
-# @!attribute cached_higher_classification
-#   @return [String]
-#   a concatenated list of higher rank taxa. !! Currently deprecated.
-#
 # @!attribute year_of_publication
 #   @return [Integer]
 #    sensu ICZN - the 4 digit year when this name was published, i.e. made available. Not the publishers date stamped on the title page, but the actual date of publication. Precidence for taxon name publication year is TaxonName#year_of_publication, Source#year, Source#stated_year.
@@ -48,9 +36,51 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #   @return [String]
 #   The subclass of this taxon name, e.g. Protonym or Combination
 #
+# @!attribute masculine_name
+#   @return [String]
+#   Species name which are adjective or participle change depending on the gender of the genus.
+#   3 fields provide alternative species spelling. The part_of_speech is designated as a taxon_name_classification.
+#   The gender of a genus also designated as a taxon_name_classification.
+#
+# @!attribute feminine_name
+#   @return [String]
+#   Species name which are adjective or participle change depending on the gender of the genus.
+#   3 fields provide alternative species spelling. The part_of_speech is designated as a taxon_name_classification.
+#   The gender of a genus also designated as a taxon_name_classification.
+#
+# @!attribute neuter_name
+#   @return [String]
+#   Species name which are adjective or participle change depending on the gender of the genus.
+#   3 fields provide alternative species spelling. The part_of_speech is designated as a taxon_name_classification.
+#   The gender of a genus also designated as a taxon_name_classification.
+#
 # @!attribute project_id
 #   @return [Integer]
 #   the project ID
+#
+# @!attribute verbatim_name
+#   @return [String]
+#   a representation of what the combination (fully spelled out) or protonym (monomial)
+#   *looked like* in its originating publication.
+#   The sole purpose of this string is to represent visual differences from what is recorded in the
+#   latinized version of the name (Protonym#name, Combination#cached) from what was originally transcribed.
+#   This string should NOT include the author year (see verbatim_author and year_of_publication for those data).
+#
+# @!attribute etymology
+#   @return [String]
+#   the derivation and history of the name in written form
+#
+# @!attribute cached_html
+#   @return [String]
+#   Genus-species combination for the taxon. The string is in html format including <i></i> tags.
+#
+# @attribute cached_author_year
+#   @return [String, nil]
+#      author and year string with parentheses where necessary, i.e. with context of present placement for iczn
+#
+# @!attribute cached_higher_classification
+#   @return [String]
+#   a concatenated list of higher rank taxa. !! Currently deprecated.
 #
 # @!attribute cached_original_combination
 #   @return [String]
@@ -75,29 +105,7 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 # @!attribute cached_misspelling
 #   @return [Boolean]
 #   if the name is a misspelling, stores True.
-#
-# @!attribute masculine_name
-#   @return [String]
-#   Species name which are adjective or participle change depending on the gender of the genus.
-#   3 fields provide alternative species spelling. The part_of_speech is designated as a taxon_name_classification.
-#   The gender of a genus also designated as a taxon_name_classification.
-#
-# @!attribute feminine_name
-#   @return [String]
-#   Species name which are adjective or participle change depending on the gender of the genus.
-#   3 fields provide alternative species spelling. The part_of_speech is designated as a taxon_name_classification.
-#   The gender of a genus also designated as a taxon_name_classification.
-#
-# @!attribute neuter_name
-#   @return [String]
-#   Species name which are adjective or participle change depending on the gender of the genus.
-#   3 fields provide alternative species spelling. The part_of_speech is designated as a taxon_name_classification.
-#   The gender of a genus also designated as a taxon_name_classification.
-#
-# @!cached_valid_taxon_name_id
-#   @return [Integer]
-#   Stores a taxon_name_id of a valid taxon_name based on taxon_name_ralationships and taxon_name_classifications.
-#
+
 # @!attribute cached_classified_as
 #   @return [String]
 #   if the name was classified in different group (e.g. a genus placed in wrong family).
@@ -106,17 +114,9 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #   @return [String]
 #   Genus-species combination for genus and lower, monomial for higher. The string has NO html.
 #
-# @!attribute verbatim_name
-#   @return [String]
-#   a representation of what the combination (fully spelled out) or protonym (monomial)
-#   *looked like* in its originating publication.
-#   The sole purpose of this string is to represent visual differences from what is recorded in the
-#   latinized version of the name (Protonym#name, Combination#cached) from what was originally transcribed.
-#   This string should NOT include the author year (see verbatim_author and year_of_publication for those data).
-#
-# @!attribute etymology
-#   @return [String]
-#   the derivation and history of the name in written form
+# @!cached_valid_taxon_name_id
+#   @return [Integer]
+#   Stores a taxon_name_id of a valid taxon_name based on taxon_name_ralationships and taxon_name_classifications.
 #
 class TaxonName < ApplicationRecord
 
@@ -137,7 +137,7 @@ class TaxonName < ApplicationRecord
   include Shared::IsData
 
   # Allows users to provide arbitrary annotations that "over-ride" rank string
-  ALTERNATE_VALUES_FOR = [:rank_class].freeze # don't even think about putting this on #name
+  ALTERNATE_VALUES_FOR = [:rank_class].freeze # !! Don't even think about putting this on `name`
 
   # TODO: Move to taxon name classification.rb
   EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS = [
@@ -150,19 +150,18 @@ class TaxonName < ApplicationRecord
   ].freeze
 
   EXCEPTED_FORM_TAXON_NAME_RELATIONSHIPS = [
-      'TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling',
-      'TaxonNameRelationship::Icnb::Unaccepting::Usage::Misspelling',
-      'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm',
-      'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling',
-      'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling'
-      ].freeze
-
-
-  NO_CACHED_MESSAGE = 'REBUILD PROJECT TAXON NAME CACHE'.freeze
+    'TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling',
+    'TaxonNameRelationship::Icnb::Unaccepting::Usage::Misspelling',
+    'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm',
+    'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling',
+    'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling'
+  ].freeze
 
   SPECIES_EPITHET_RANKS = %w{species subspecies variety subvariety form subform}.freeze
 
   NOT_LATIN = Regexp.new(/[^a-zA-Z|\-]/).freeze # Dash is allowed?
+
+  NO_CACHED_MESSAGE = 'REBUILD PROJECT TAXON NAME CACHE'.freeze
 
   delegate :nomenclatural_code, to: :rank_class, allow_nil: true
   delegate :rank_name, to: :rank_class, allow_nil: true
@@ -391,7 +390,7 @@ class TaxonName < ApplicationRecord
   # Important, string format priority is 1) as provided verbatim, 2) as generated from people, and 3) as taken from the source.
   def author_string
     return verbatim_author if !verbatim_author.nil?
-    return Utilities::Strings.authorship_sentence( taxon_name_authors.pluck(:last_name) ) if taxon_name_authors.any?
+    return Utilities::Strings.authorship_sentence( taxon_name_authors.order('roles.position').pluck(:last_name) ) if taxon_name_authors.any?
     return source.authority_name if !source.nil?
     nil
   end
@@ -1005,6 +1004,8 @@ class TaxonName < ApplicationRecord
     ay.blank? ? nil : ay
   end
 
+  # @return [String, nil]
+  #   the authors, and year, with parentheses as inferred by the data
   def iczn_author_and_year
     ay = nil
     p = nil
@@ -1013,7 +1014,7 @@ class TaxonName < ApplicationRecord
     misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
 
     if self.type == 'Combination'
-      c = self.protonyms_by_rank
+      c = protonyms_by_rank
       return nil if c.empty?
       taxon = c[c.keys.last]
     else
@@ -1050,9 +1051,9 @@ class TaxonName < ApplicationRecord
       else
         og = taxon.original_genus
         if self.type == 'Combination'
-          cg = self.genus
+          cg = genus
         else
-          cg = self.ancestor_at_rank('genus')
+          cg = ancestor_at_rank('genus')
         end
         unless og.nil? || cg.nil?
           ay = '(' + ay + ')' unless ay.empty? if og.name != cg.name
