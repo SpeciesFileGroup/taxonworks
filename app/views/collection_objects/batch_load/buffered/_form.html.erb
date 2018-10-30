@@ -1,30 +1,32 @@
 <%= form_tag url, multipart: true do -%>
 
-    <div class="field">
-      <%= label_tag :file, 'Select a file' -%>
-      <br>
-      <%= file_field_tag( :file, id: 'buf_file') -%>
-    </div>
+  <div class="field">
+    <%= label_tag :file, 'Select a file' -%>
+    <br>
+    <%= file_field_tag(:file, id: 'buf_file') -%>
+  </div>
 
-    <% if @result.blank? -%>
+  <% if @result.blank? -%>
     <div class="field">
-      Source
-    </div>
-    <div class="field">
-      Time
+      Source (not required)
+      <br>
+      <%= render(partial: 'workbench/elements/forms/ajax_select', locals:
+          {controller: '/sources',
+           object: 'citations_attributes[source_id]',
+           method: 'source_id',
+           tag_id: 'source_id_for_for_specimen_batchload',
+           size: '50%',
+           display: source_tag(@source)})
+      %>
     </div>
   <% else %>
     <div class="field">
-      <%= label_tag("Using '#{@result.source_name}' as source.") %>
+      <%= "Using '#{source_tag(@result.source)}' as source." if @result.source.present? %>
       <%= hidden_field_tag(:source_id, @result.source_id) -%>
     </div>
-    <div class="field">
-      <%= label_tag("Using #{@result.create_time ? 'C' : 'now'} as creation time for collection object.") %>
-      <%= hidden_field_tag(:source_id, @result.source_id) -%>
-    </div>
-    <% end %>
+  <% end %>
 
-    <%= content_for :warn_level -%>
+  <%= content_for :warn_level -%>
 
-    <%= submit_tag submit -%>
+  <%= submit_tag submit -%>
 <% end %>

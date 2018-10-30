@@ -163,7 +163,7 @@ TaxonWorks::Application.routes.draw do
     collection do
       post :preview_castor_batch_load # should be get
       post :create_castor_batch_load # should be get
-      get :preview_buffered_batch_load
+      post :preview_buffered_batch_load
       post :create_buffered_batch_load
       get :preview_simple_batch_load
       post :create_simple_batch_load
