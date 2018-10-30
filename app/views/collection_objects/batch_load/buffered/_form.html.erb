@@ -10,19 +10,31 @@
     <div class="field">
       Source (not required)
       <br>
-      <%= render(partial: 'workbench/elements/forms/ajax_select', locals:
-          {controller: '/sources',
-           object: 'citations_attributes[source_id]',
-           method: 'source_id',
-           tag_id: 'source_id_for_for_specimen_batchload',
-           size: '50%',
-           display: source_tag(@source)})
+      <%= render(partial: 'workbench/elements/forms/ajax_select',
+                 locals: {controller: '/sources',
+                          object: 'specimen_batchload[source_id]',
+                          method: 'source_id',
+                          tag_id: 'source_id_for_for_specimen_batchload',
+                          size: '50%'})
+      %>
+    </div>
+    <div class="field">
+      Otu (not required)
+      <br>
+      <%= render(partial: 'workbench/elements/forms/ajax_select',
+                 locals: {controller: '/otus',
+                          object: 'specimen_batchload[otu_id]',
+                          method: 'otu_id',
+                          tag_id: 'otu_id_for_specimen_batchload',
+                          size: '50%'})
       %>
     </div>
   <% else %>
     <div class="field">
-      <%= "Using '#{source_tag(@result.source)}' as source." if @result.source.present? %>
+      <%= "Using '#{source_tag(@result.source)}' as source.".html_safe if @result.source.present? %>
+      <%= "Using '#{otu_tag(@result.otu)}' as OTU.".html_safe if @result.otu.present? %>
       <%= hidden_field_tag(:source_id, @result.source_id) -%>
+      <%= hidden_field_tag(:otu_id, @result.otu_id) -%>
     </div>
   <% end %>
 
