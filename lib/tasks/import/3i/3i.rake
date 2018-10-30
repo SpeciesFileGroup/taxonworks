@@ -290,15 +290,13 @@ namespace :tw do
         handle_host_plants_3i
         handle_distribution_3i
         handle_parasitoids_3i
-        handle_localities_3i
-
         handle_characters_3i
         handle_state_3i
         handle_chartable_3i
         handle_content_types_3i
         handle_contents_3i
 
-=begin
+#=begin
         $user_id = @trivellone.id
         handle_trivellone_references_3i
         handle_trivellone_unique_species_3i
@@ -308,9 +306,10 @@ namespace :tw do
         handle_trivellone_insect_phytoplasma_3i
         handle_trivellone_plant_phytoplasma_3i
         $user_id = @proceps.id
-=end
+#=end
 
         soft_validations_3i
+        handle_localities_3i
         index_collecting_events_from_accessions_new_3i
         print "\n\n !! Success. End time: #{Time.now} \n\n"
       end
@@ -354,7 +353,7 @@ namespace :tw do
             user.each do |key, value|
               u = User.where(email: value[0]).first
               u = User.create(email: value[0], password: pwd, password_confirmation: pwd, name: value[1], self_created: true, is_flagged_for_password_reset: false) if u.nil?
-              @users.merge!(key, u.id)
+              @users.merge!(key => u.id)
             end
 #            @users = {
 #                2 => User.create(email: 'yoder@mail.com', password: pwd, password_confirmation: pwd, name: 'Matt Yoder', self_created: true, is_flagged_for_password_reset: false).id,
@@ -550,15 +549,18 @@ namespace :tw do
         file.each do |row|
           i += 1
           print "\r#{i}"
+          a = nil
           if row['FullName'].blank?
             person = Person.parse_to_people(row['Author']).first
           else
+            a = Person.parse_to_people(row['Author']).first
             person = Person.parse_to_people(row['FullName']).first
           end
           unless person.nil?
             person.data_attributes.new(type: 'ImportAttribute', import_predicate: '3i_Author', value: row['Author']) unless row['Author'].blank?
             person.data_attributes.new(type: 'ImportAttribute', import_predicate: 'AuthorDrMetcalf', value: row['FullName']) unless row['FullName'].blank?
             person.save!
+            av = AlternateValue.create(type: 'AlternateValue::AlternateSpelling', value: a.first_name, alternate_value_object: person, alternate_value_object_attribute: 'first_name') unless a.nil?
             @data.people[row['Author']] = person.id
           end
 
@@ -811,7 +813,6 @@ namespace :tw do
 
         handle_nouns_3i
 
-
         # Key !
         # Key3 !
         # Key3a
@@ -847,7 +848,6 @@ namespace :tw do
         # NomenNovumFor
         # CommonNameLang
         # MisapplicationFor
-
 
         gender = {'M' => 'TaxonNameClassification::Latinized::Gender::Masculine',
                   'F' => 'TaxonNameClassification::Latinized::Gender::Feminine',
@@ -1161,8 +1161,6 @@ namespace :tw do
                 byebug if !tnr.nil? && tnr.id.nil?
               end
             end
-
-
           elsif row['Status'] == '8' || row['Status'] == '25' ### taxon name combinations
             taxon = find_taxon_3i(row['CombinationOf']) || find_taxon_3i(row['Parent'])
 
@@ -1202,7 +1200,7 @@ namespace :tw do
               end
               i3_combination = origgen.name_with_misspelling(nil).to_s + ' ' unless origgen.blank?
               i3_combination += '(' + origsubgen.name_with_misspelling(nil).to_s + ') ' unless origsubgen.blank?
-              i3_combination += taxon.name_with_misspelling(nil).to_s
+              i3_combination += row['Name'].to_s
               i3_combination.squish!
             elsif taxon.rank_string =~ /Family/
               c = Protonym.new(origin_citation_attributes: {source_id: source, pages: row['Page']}, verbatim_author: row['Author'], year_of_publication: row['Year'])
@@ -1265,6 +1263,8 @@ namespace :tw do
 
             begin
               taxon.save!
+              taxon.name = taxon.verbatim_name
+              taxon.save
             rescue ActiveRecord::RecordInvalid
               byebug
             end
@@ -1273,7 +1273,6 @@ namespace :tw do
       end
 
       def index_collecting_events_from_accessions_new_3i
-
 
         path = @args[:data_directory] + 'accessions_new.txt' # self contained
         raise 'file not found' if not File.exists?(path)
@@ -2163,10 +2162,16 @@ namespace :tw do
           i += 1
           print "\r#{i}"
           t = row['Numeric'] == '1' ? 'Descriptor::Continuous' : 'Descriptor::Qualitative'
-          descriptor = Descriptor.create!(name: row['CharEn'].empty? ? '?' : row['CharEn'], short_name: row['CharEn'].empty? ? '?' : row['CharEn'], type: t, position: row['Char'].to_i + 1 )
-          a = AlternateValue.create(type: 'AlternateValue::Translation', value: row['CharRu'], alternate_value_object: descriptor, alternate_value_object_attribute: 'name', language_id: lngru) unless row['CharRu'].nil?
-          a = AlternateValue.create(type: 'AlternateValue::Translation', value: row['CharSp'], alternate_value_object: descriptor, alternate_value_object_attribute: 'name', language_id: lngsp) unless row['CharSp'].nil?
-          a = AlternateValue.create(type: 'AlternateValue::Translation', value: row['CharZh'], alternate_value_object: descriptor, alternate_value_object_attribute: 'name', language_id: lngzh) unless row['CharZh'].nil?
+          descriptor = Descriptor.create!(name: row['CharEn'].empty? ? '?' : char_name_3i(row['CharEn']).capitalize, short_name: row['CharEn'].empty? ? '?' : char_name_3i(row['CharEn']).capitalize, description_name: row['CharEn'].empty? ? '?' : char_for_description_3i(row['CharEn']).capitalize, key_name: row['CharEn'].empty? ? '?' : char_for_key_3i(row['CharEn']).capitalize, type: t, position: row['Char'].to_i + 1 )
+          a = AlternateValue.create(type: 'AlternateValue::Translation', value: char_name_3i(row['CharRu']).capitalize, alternate_value_object: descriptor, alternate_value_object_attribute: 'name', language_id: lngru) unless row['CharRu'].nil?
+          a = AlternateValue.create(type: 'AlternateValue::Translation', value: char_name_3i(row['CharSp']).capitalize, alternate_value_object: descriptor, alternate_value_object_attribute: 'name', language_id: lngsp) unless row['CharSp'].nil?
+          a = AlternateValue.create(type: 'AlternateValue::Translation', value: char_name_3i(row['CharZh']).capitalize, alternate_value_object: descriptor, alternate_value_object_attribute: 'name', language_id: lngzh) unless row['CharZh'].nil?
+          a = AlternateValue.create(type: 'AlternateValue::Translation', value: char_for_description_3i(row['CharRu']).capitalize, alternate_value_object: descriptor, alternate_value_object_attribute: 'description_name', language_id: lngru) if !row['CharRu'].nil? && row['CharRu'] =~ /[\{\[]/
+          a = AlternateValue.create(type: 'AlternateValue::Translation', value: char_for_description_3i(row['CharSp']).capitalize, alternate_value_object: descriptor, alternate_value_object_attribute: 'description_name', language_id: lngsp) if !row['CharSp'].nil? && row['CharSp'] =~ /[\{\[]/
+          a = AlternateValue.create(type: 'AlternateValue::Translation', value: char_for_description_3i(row['CharZh']).capitalize, alternate_value_object: descriptor, alternate_value_object_attribute: 'description_name', language_id: lngzh) if !row['CharZh'].nil? && row['CharSp'] =~ /[\{\[]/
+          a = AlternateValue.create(type: 'AlternateValue::Translation', value: char_for_key_3i(row['CharRu']).capitalize, alternate_value_object: descriptor, alternate_value_object_attribute: 'key_name', language_id: lngru) if !row['CharRu'].nil? && row['CharRu'] =~ /[\{\[]/
+          a = AlternateValue.create(type: 'AlternateValue::Translation', value: char_for_key_3i(row['CharSp']).capitalize, alternate_value_object: descriptor, alternate_value_object_attribute: 'key_name', language_id: lngsp) if !row['CharSp'].nil? && row['CharSp'] =~ /[\{\[]/
+          a = AlternateValue.create(type: 'AlternateValue::Translation', value: char_for_key_3i(row['CharZh']).capitalize, alternate_value_object: descriptor, alternate_value_object_attribute: 'key_name', language_id: lngzh) if !row['CharZh'].nil? && row['CharZh'] =~ /[\{\[]/
           descriptor.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['Key1'], identifier: row['Key1'].to_s) unless row['Key1'].blank?
           descriptor.data_attributes.create(type: 'ImportAttribute', import_predicate: 'char_weight', value: row['Weight'].to_s) unless row['Weight'].blank?
           descriptor.data_attributes.create(type: 'ImportAttribute', import_predicate: 'descr_ru', value: row['DescrRu']) unless row['DescrRu'].blank?
@@ -2191,6 +2196,32 @@ namespace :tw do
 
           @data.chars[row['Key1'].to_s] = [descriptor.id, row['Numeric'].to_s]
         end
+      end
+
+      def char_name_3i(string)
+        string = string.to_s.gsub('{[+]}', '').gsub('{[!]}', '').gsub('{[-]}', '').gsub('[', '').gsub(']', '').gsub('{', '').gsub('}', '').gsub('&#176;', '°')
+        string
+      end
+
+      def char_for_description_3i(string)
+        string = string.to_s.gsub('{[+]}', '').gsub('{[!]}', '').gsub('{[-]}', '')
+        4.times do
+          matchdata = string.match(/^.*(\{.*\}).*$/)
+          string = string.gsub(matchdata[1], '') unless matchdata.nil?
+        end
+        string = string.gsub('[', '').gsub(']', '').gsub('&#176;', '°')
+        #string = string.gsub('<', '&lt;').gsub('>', '&gt;') unless string =~ /^.*\<.*\>.*\<\/.*\>.*$/
+        string
+      end
+
+      def char_for_key_3i(string)
+        string = string.to_s.gsub('{[+]}', '').gsub('{[!]}', '').gsub('{[-]}', '')
+        4.times do
+          matchdata = string.match(/^.*(\[.*\]).*$/)
+          string = string.gsub(matchdata[1], '') unless matchdata.nil?
+        end
+        string = string.gsub('{', '').gsub('}', '').gsub('&#176;', '°')
+        string
       end
 
       def handle_morph_3i
@@ -2242,12 +2273,22 @@ namespace :tw do
           print "\r#{i}"
           if @data.chars[row['Key1'].to_s][1] == '1'
             @data.states[row['Key2'].to_s] = [nil, @data.chars[row['Key1'].to_s][0], row['StateEn']]
+            d = Descriptor.find(@data.chars[row['Key1'].to_s][0])
+            d.default_unit = row['StateEn']
+            d.save!
           else
-            cs = CharacterState.create(name: row['StateEn'], label: row['State'], descriptor_id: @data.chars[row['Key1']][0], position: row['State'].to_i + 1)
+            cs = CharacterState.create(name: char_name_3i(row['StateEn']), description_name: char_for_description_3i(row['StateEn']), key_name: char_for_key_3i(row['StateEn']), label: row['State'], descriptor_id: @data.chars[row['Key1']][0], position: row['State'].to_i + 1)
             cs.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['Key2'], identifier: row['Key2']) unless row['Key2'].blank?
-            a = AlternateValue.create(type: 'AlternateValue::Translation', value: row['StateRu'], alternate_value_object: cs, alternate_value_object_attribute: 'name', language_id: lngru) unless row['StateRu'].nil?
-            a = AlternateValue.create(type: 'AlternateValue::Translation', value: row['StateSp'], alternate_value_object: cs, alternate_value_object_attribute: 'name', language_id: lngsp) unless row['StateSp'].nil?
-            a = AlternateValue.create(type: 'AlternateValue::Translation', value: row['StateZh'], alternate_value_object: cs, alternate_value_object_attribute: 'name', language_id: lngzh) unless row['StateZh'].nil?
+            a = AlternateValue.create(type: 'AlternateValue::Translation', value: char_name_3i(row['StateRu']), alternate_value_object: cs, alternate_value_object_attribute: 'name', language_id: lngru) unless row['StateRu'].nil?
+            a = AlternateValue.create(type: 'AlternateValue::Translation', value: char_name_3i(row['StateSp']), alternate_value_object: cs, alternate_value_object_attribute: 'name', language_id: lngsp) unless row['StateSp'].nil?
+            a = AlternateValue.create(type: 'AlternateValue::Translation', value: char_name_3i(row['StateZh']), alternate_value_object: cs, alternate_value_object_attribute: 'name', language_id: lngzh) unless row['StateZh'].nil?
+            a = AlternateValue.create(type: 'AlternateValue::Translation', value: char_for_description_3i(row['StateRu']), alternate_value_object: cs, alternate_value_object_attribute: 'description_name', language_id: lngru) if !row['StateRu'].nil? && row['StateRu'] =~ /[\{\[]/
+            a = AlternateValue.create(type: 'AlternateValue::Translation', value: char_for_description_3i(row['StateSp']), alternate_value_object: cs, alternate_value_object_attribute: 'description_name', language_id: lngsp) if !row['StateSp'].nil? && row['StateSp'] =~ /[\{\[]/
+            a = AlternateValue.create(type: 'AlternateValue::Translation', value: char_for_description_3i(row['StateZh']), alternate_value_object: cs, alternate_value_object_attribute: 'description_name', language_id: lngzh) if !row['StateZh'].nil? && row['StateZh'] =~ /[\{\[]/
+            a = AlternateValue.create(type: 'AlternateValue::Translation', value: char_for_key_3i(row['StateRu']), alternate_value_object: cs, alternate_value_object_attribute: 'key_name', language_id: lngru) if !row['StateRu'].nil? && row['StateRu'] =~ /[\{\[]/
+            a = AlternateValue.create(type: 'AlternateValue::Translation', value: char_for_key_3i(row['StateSp']), alternate_value_object: cs, alternate_value_object_attribute: 'key_name', language_id: lngsp) if !row['StateSp'].nil? && row['StateSp'] =~ /[\{\[]/
+            a = AlternateValue.create(type: 'AlternateValue::Translation', value: char_for_key_3i(row['StateZh']), alternate_value_object: cs, alternate_value_object_attribute: 'key_name', language_id: lngzh) if !row['StateZh'].nil? && row['StateZh'] =~ /[\{\[]/
+
             cs.data_attributes.create(type: 'ImportAttribute', import_predicate: 'figure', value: row['Fig']) unless row['Fig'].blank?
             cs.data_attributes.create(type: 'ImportAttribute', import_predicate: 'mxID', value: row['mxID']) unless row['mxID'].blank?
             @data.states[row['Key2'].to_s] = [cs.id, @data.chars[row['Key1'].to_s][0], nil]

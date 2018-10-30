@@ -814,7 +814,7 @@ class TaxonName < ApplicationRecord
       rank   = i.rank
       gender = i.gender_name if rank == 'genus'
       method = "#{rank.gsub(/\s/, '_')}_name_elements"
-      misspelling = i.cached_misspelling ? ' [sic]' : nil
+      #misspelling = i.cached_misspelling ? ' [sic]' : nil
 
       if self.respond_to?(method)
         data[rank] = send(method, i, gender)
@@ -861,12 +861,12 @@ class TaxonName < ApplicationRecord
   #  a monomial if names is above genus, or a full epithet if below, includes html
   def get_full_name_html
     return verbatim_name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string) && !verbatim_name.nil?
-    return '&#8224; ' + name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string) && fossil?
+    return '† ' + name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string) && fossil?
     eo = '<i>'
     ec = '</i>'
     return candidatus? ? '"' + eo + 'Candidatus' + ec + ' ' + name + '"' : name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
     return "#{eo}#{verbatim_name}#{ec}".gsub(' f. ', ec + ' f. ' + eo).gsub(' var. ', ec + ' var. ' + eo) if !verbatim_name.nil? && type == 'Combination'
-    return fossil? ? "&#8224; #{eo}#{name}#{ec}" : "#{eo}#{name}#{ec}" if rank_string == 'NomenclaturalRank::Iczn::GenusGroup::Supergenus' || rank_string == 'NomenclaturalRank::Icnb::GenusGroup::Supergenus'
+    return fossil? ? "† #{eo}#{name}#{ec}" : "#{eo}#{name}#{ec}" if rank_string == 'NomenclaturalRank::Iczn::GenusGroup::Supergenus' || rank_string == 'NomenclaturalRank::Icnb::GenusGroup::Supergenus'
     d = full_name_hash
 
     elements = []
@@ -882,11 +882,11 @@ class TaxonName < ApplicationRecord
     end
 
     html = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish.gsub(' [sic]', ec + ' [sic]' + eo).gsub(ec + ' ' + eo, ' ').gsub(eo + ec, '').gsub(eo + ' ', ' ' + eo)
-    html = fossil? ? '&#8224; ' + html : html
+    html = fossil? ? '† ' + html : html
 
     # Proceps: Why would this be hit here?  It's not type Hybrid
     #
-    html = hybrid? ? '&#215; ' + html : html
+    html = hybrid? ? '× ' + html : html
     html = candidatus? ? '"' + eo + 'Candidatus' + ec + ' ' + html.gsub(eo, '').gsub(ec, '') + '"' : html
     html
   end
