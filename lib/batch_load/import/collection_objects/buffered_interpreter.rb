@@ -1,17 +1,19 @@
 module BatchLoad
   class Import::CollectionObjects::BufferedInterpreter < BatchLoad::Import
 
-    attr_accessor :source_id, :source_name, :create_time
+    attr_accessor :citations_attributes, :source_id, :source, :create_time
 
     # @param [Hash] args
     def initialize(**args)
       @collection_objects = {}
-      @create_time = args.delete(:create_time)
-      @source_id = args.delete(:source_id)
-      if @source_id.present?
-        @source_name = Source.find(@source_id).cached
-      else
-        @source_name = ''
+      @citations_attributes = args.delete(:citations_attributes)
+      unless @citations_attributes.blank?
+        if @citations_attributes['source_id'].present?
+          @source_id = @citations_attributes['source_id']['source_id']
+          @source = Source.find(@source_id) if @source_id.present?
+        else
+          @source = nil
+        end
       end
       super(args)
     end
@@ -44,7 +46,7 @@ module BatchLoad
                          created_at: (create_time.blank? ? nil : create_time)}
 
         if source_id.present?
-          specimen_args.merge!({citations_attributes: [{source_id: source_id}]})
+          specimen_args.merge!(citations_attributes: [citations_attributes['source_id']])
         end
 
         begin # processing

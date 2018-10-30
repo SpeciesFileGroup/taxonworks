@@ -3,7 +3,8 @@
 <% end %>
 
 <%= content_for :batch_form do -%>
-  <%= render partial: '/collection_objects/batch_load/verbatim/form', locals: {url: create_buffered_batch_load_collection_objects_path, submit: :create} -%>
+  <%= render partial: '/collection_objects/batch_load/buffered/form',
+             locals: {url: create_buffered_batch_load_collection_objects_path, submit: :create} -%>
 <% end %>
 
 <%= content_for :line_breakdown do -%>
@@ -21,11 +22,7 @@
         <%= batch_line_link_td(i) -%>
         <%= batch_all_objects_count_td(rp) -%>
         <td>
-          <%= rp.objects[:collection_object].collect{ |co| collection_object_tag(co) }.join('<br>').html_safe -%>
-          <br>
-          <%= rp.objects[:extract].collect{ |extract| extract_tag(extract) }.join('<br>').html_safe -%>
-          <br>
-          <%= rp.objects[:taxon_determination].collect{ |taxon_determination| taxon_determination_tag(taxon_determination) }.join('<br>').html_safe -%>
+          <%= rp.objects[:specimen].collect{ |sp| collection_object_tag(sp) }.join('<br>').html_safe -%>
         </td>
         <%= batch_data_errors_td(rp) -%>
         <%= batch_parse_errors_td(rp) -%>
