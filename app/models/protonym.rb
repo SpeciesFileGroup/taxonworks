@@ -1,6 +1,9 @@
+# Nested ness of this should get all the relationships?
+require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'  
+#
 # Force the loading of TaxonNameRelationships in all worlds.  This allows us to edit without restarting in development.
-Dir[Rails.root.to_s + '/app/models/taxon_name_relationship/**/*.rb'].sort.each {|file| require_dependency file }
-
+# Dir[Rails.root.to_s + '/app/models/taxon_name_relationship/**/*.rb'].sort.each {|file| require_dependency file }
+#
 # A *monomial* TaxonName, a record implies a first usage. This follows Pyle's concept almost exactly.
 #
 # We inject a lot of relationship helper methods here, in this format.
@@ -201,6 +204,7 @@ class Protonym < TaxonName
   end
 
   # @return [String, nil]
+  # TODO: not true, *has* parens?!
   #   a string, without parenthesis, that includes author and year
   def get_author_and_year
     # times_called
