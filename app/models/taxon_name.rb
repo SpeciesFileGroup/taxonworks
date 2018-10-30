@@ -185,6 +185,7 @@ class TaxonName < ApplicationRecord
   validate :validate_rank_class_class,
     # :check_format_of_name,
     :validate_parent_rank_is_higher,
+    :validate_parent_from_the_same_project,
     :validate_parent_is_set,
     :check_new_rank_class,
     :check_new_parent_class,
@@ -1184,6 +1185,12 @@ class TaxonName < ApplicationRecord
       if (rank_class != rank_class_was) && children && !children.empty? && RANKS.index(rank_string) >= children.collect { |r| RANKS.index(r.rank_string).to_i }.max
         errors.add(:rank_class, "The rank of this taxon (#{rank_name}) should be higher than the ranks of children")
       end
+    end
+  end
+
+  def validate_parent_from_the_same_project
+    if parent && !project_id.blank?
+      errors.add(:project_id, "The parent taxon is not from the same project") if project_id != parent.project_id
     end
   end
 
