@@ -6,10 +6,16 @@
       <h3> Description and requirements </h3>
 
       <p>
-        Creates collection objects (specimens), and possible citations from strings for 'collecting event', 'determinations' and/or 'other_labels'.</p>
+        Creates collection objects (specimens), and possible citations from strings for 'collecting_event',
+        'determinations' and/or 'other_labels'.</p>
       <ul>
         <li>A tab-delimited, UTF-8 compatible text file is required.</li>
-        <li>Column headers are here <%= link_to('sample template', asset_path('batch_load_templates/collection_objects/collection_objects_buffered_batch_load.tab'), target: '_blank') -%>).</li>
+        <li>Column headers are here:
+          <%= link_to('sample template',
+                      asset_path('batch_load_templates/collection_objects/collection_objects_buffered_batch_load.tab',
+                                 skip_pipeline: true),
+                      target: '_blank') -%>).
+        </li>
         <li>Multiple uploads of the same data will create new specimens.</li>
         <li>There is currently no size limit to the file being loaded but this may change in the future.</li>
       </ul>
