@@ -30,9 +30,9 @@ class Tasks::Gis::LocalityController < ApplicationController
       when 'Show'
         geographic_area_ids = params[:geographic_area_ids]
         shape_in = params['drawn_area_shape']
-        findings = params['selection_objects']
+        findings = [params['selection_objects']]
 
-        findings.each { |finding|
+        findings.flatten.each { |finding|
           case finding
             when /Collecting/
               @collecting_events = GeographicItem.gather_geographic_area_or_shape_data(geographic_area_ids,
