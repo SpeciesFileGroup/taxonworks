@@ -33,7 +33,7 @@
           </button>
           &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
           <button
-            class="button normal-input button-default"
+            class="button normal-input button-submit"
             @click="createSource"
             :disabled="!enableCreateBibtex"
             type="submit">Create source from BibTeX

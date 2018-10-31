@@ -24,7 +24,7 @@
                   type="button"
                   target="_blank"
                   class="circle-button btn-edit"
-                  :href="getUrlType(item.row_object.type, item.row_object.id)"/>
+                  :href="getUrlType(item.row_object.base_class, item.row_object.id)"/>
                 <a
                   v-else
                   type="button"

@@ -13,9 +13,10 @@
     <span
       v-if="source"
       class="source-text horizontal-left-content">
-      <span
-        class="separate-right"
-        v-html="source.cached"/>
+      <span>
+        <span v-html="source.cached"/>
+        <span class="separate-right">(Published on {{ source.cached_nomenclature_date }})</span>
+      </span>
       <a
         class="separate-right separate-left"
         :href="`/sources/${sourceID}`"
