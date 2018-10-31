@@ -426,8 +426,8 @@ class Source::Bibtex < Source
       b[:doi] = dois.first.identifier # TW only allows one DOI per object
     end
 
-    b.author = self.compute_bibtex_names('author') if self.authors.any? # && self.author.blank?
-    b.editor = self.compute_bibtex_names('editor') if self.editors.any? # && self.editor.blank?
+    b.author = self.compute_bibtex_names('author') unless (!self.authors.any? && self.author.blank?)
+    b.editor = self.compute_bibtex_names('editor') unless (!self.editors.any? && self.editor.blank?)
 
     b.key    = self.id unless self.new_record?
     b
@@ -803,11 +803,12 @@ class Source::Bibtex < Source
   #   this source, rendered in the provided CSL style, as text
   def render_with_style(style = 'vancouver', format = 'text')
     cp = CiteProc::Processor.new(style: style, format: format)
-    if style == 'zootaxa'
-      cp.import(bibtex_bibliography_for_zootaxa.to_citeproc)
-    else
-      cp.import(bibtex_bibliography.to_citeproc)
-    end
+    cp.import(bibtex_bibliography.to_citeproc)
+    # if style == 'zootaxa'
+    #   cp.import(bibtex_bibliography_for_zootaxa.to_citeproc)
+    # else
+    #   cp.import(bibtex_bibliography.to_citeproc)
+    # end
     #name = cp.engine.style.macros['author'] > 'names' > 'name'
     #name[:initialize] = 'false'
 
@@ -853,8 +854,8 @@ class Source::Bibtex < Source
         cached_author_string: authority_name
       }
 
-      attributes_to_update[:author] = compute_bibtex_names('author') if authors.size > 0 # && author.blank?
-      attributes_to_update[:editor] = compute_bibtex_names('editor') if editors.size > 0 # && editor.blank?
+      attributes_to_update[:author] = compute_bibtex_names('author') if author.blank? && authors.size > 0
+      attributes_to_update[:editor] = compute_bibtex_names('editor') if editor.blank? && editors.size > 0
 
       update_columns(attributes_to_update)
     end
