@@ -15,7 +15,7 @@
             <div>
               <a
                 class="matrix-row-coder__descriptor-item"
-                :data-icon="observationsCount(descriptor.id)"
+                :data-icon="observationsCount(descriptor.id) ? 'ok' : false"
                 @click="zoomDescriptor(descriptor.id)"
                 v-html="descriptor.title"/>
             </div>
@@ -86,7 +86,9 @@ export default {
       window.scrollTo(0, top)
     },
     observationsCount(descriptorId) {
-      return (this.$store.getters[GetterNames.GetObservationsFor](descriptorId).length ? 'ok' : 'no-observation')
+      return this.$store.getters[GetterNames.GetObservationsFor](descriptorId).find((item) => {
+        return item.id != null
+      })
     }
   },
   components: {
