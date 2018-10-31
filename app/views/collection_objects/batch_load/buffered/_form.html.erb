@@ -14,7 +14,7 @@
                  locals: {controller: '/sources',
                           object: 'specimen_batchload[source_id]',
                           method: 'source_id',
-                          tag_id: 'source_id_for_for_specimen_batchload',
+                          tag_id: 'source_id_for_specimen_batchload',
                           size: '50%'})
       %>
     </div>
@@ -39,6 +39,9 @@
   <% end %>
 
   <%= content_for :warn_level -%>
-
-  <%= submit_tag submit -%>
+  <% if @result.blank? -%>
+    <%= submit_tag('preview', id: 'buf_preview') -%>
+  <% else %>
+    <%= submit_tag('create', id: 'buf_create') -%>
+  <% end %>
 <% end %>

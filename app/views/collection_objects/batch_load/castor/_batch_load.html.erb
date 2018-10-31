@@ -9,7 +9,7 @@
         Creates collection objects, extracts, and taxon determinations from a Castor to TaxonWorks exported collection objects file. Attaches at most 5 identifiers to each collection object and at most 1 identifier to each extract.</p>
       <ul>
         <li>A tab-delimited, UTF-8 compatible text file is required.</li>
-        <li>Column headers are here <%= link_to('sample template', asset_path('batch_load_templates/collection_objects/collection_objects_castor_batch_load.tab'), target: '_blank') -%>).</li>
+        <li>Column headers are here <%= link_to('sample template', asset_path('batch_load_templates/collection_objects/collection_objects_castor_batch_load.tab', skip_pipeline: true), target: '_blank') -%>).</li>
         <li>Multiple uploads of the same data will do something, not sure.</li>
         <li>Only creates collection objects if the column value of "locality_code_prefix" of the current row is "DRM"</li>
         <li>There is currently some|no size limit to the file being loaded but this may change in the future.</li>
@@ -30,7 +30,7 @@
     <div class="item item2 one_third_width">
       <h3> Example file </h3>
 
-      <p> Part of the example tab delimited formatted file. 
+      <p> Part of the example tab delimited formatted file.
         In the example whitespace is a tab. View sample file template.</p>
 
       <pre class="fixed_width_font">guid morphbank_specimen_id sample_code_prefix sample_code suffix det_confidence id_notes locality_code_prefix locality_code_string...</pre>
