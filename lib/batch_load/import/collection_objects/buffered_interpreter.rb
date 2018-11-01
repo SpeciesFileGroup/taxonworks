@@ -1,26 +1,14 @@
 module BatchLoad
   class Import::CollectionObjects::BufferedInterpreter < BatchLoad::Import
 
-    attr_accessor :specimen_batchload, :otu_id, :otu, :source_id, :source
+    attr_accessor :otu_id, :source_id, :source, :otu
 
     # @param [Hash] args
     def initialize(**args)
-      @collection_objects = {}
-      @specimen_batchload = args.delete(:specimen_batchload)
-      unless @specimen_batchload.blank?
-        if @specimen_batchload['source_id'].present?
-          @source_id = @specimen_batchload['source_id']['source_id']
-          @source = Source.find(@source_id) if @source_id.present?
-        else
-          @source = nil
-        end
-        if @specimen_batchload['otu_id'].present?
-          @otu_id = @specimen_batchload['otu_id']['otu_id']
-          @otu = Otu.find(@otu_id) if @otu_id.present?
-        else
-          @otu = nil
-        end
-      end
+      @source_id = args.delete(:source_id)
+      @otu_id = args.delete(:otu_id)
+      @source = @source_id.present? ? Source.find(@source_id) : nil
+      @otu = @otu_id.present? ? Otu.find(@otu_id) : nil
       super(args)
     end
 
@@ -51,10 +39,10 @@ module BatchLoad
                          buffered_other_labels: o_l}
 
         if otu_id.present?
-          specimen_args.merge!(taxon_determinations_attributes: [specimen_batchload['otu_id']])
+          specimen_args.merge!(taxon_determinations_attributes: [otu_id: otu_id])
         end
         if source_id.present?
-          specimen_args.merge!(citations_attributes: [specimen_batchload['source_id']])
+          specimen_args.merge!(citations_attributes: [source_id: source_id])
         end
 
         begin # processing

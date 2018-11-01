@@ -12,7 +12,7 @@
     <div class="field">
       <%= render(partial: 'workbench/elements/forms/ajax_select',
                  locals: {controller: '/sources',
-                          object: 'specimen_batchload[source_id]',
+                          object: '',
                           method: 'source_id',
                           tag_id: 'source_id_for_specimen_batchload',
                           size: '50%',
@@ -24,7 +24,7 @@
     <div class="field">
       <%= render(partial: 'workbench/elements/forms/ajax_select',
                  locals: {controller: '/otus',
-                          object: 'specimen_batchload[otu_id]',
+                          object: '',
                           method: 'otu_id',
                           tag_id: 'otu_id_for_specimen_batchload',
                           size: '50%',
@@ -34,7 +34,7 @@
   <% else %>
     <div class="field">
       <%= "Using '#{source_tag(@result.source)}' as source.".html_safe if @result.source.present? %>
-      <%= "Using '#{otu_tag(@result.otu)}' as OTU.".html_safe if @result.otu.present? %>
+      <%= "<br>Using '#{otu_tag(@result.otu)}' as OTU.".html_safe if @result.otu.present? %>
       <%= hidden_field_tag(:source_id, @result.source_id) -%>
       <%= hidden_field_tag(:otu_id, @result.otu_id) -%>
     </div>
