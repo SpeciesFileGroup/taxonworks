@@ -10,34 +10,27 @@
     Source (not required)
     <br>
     <div class="field">
-      <%
-        puts 'mark 1'
-      %>
       <%= render(partial: 'workbench/elements/forms/ajax_select',
                  locals: {controller: '/sources',
                           object: 'specimen_batchload[source_id]',
                           method: 'source_id',
                           tag_id: 'source_id_for_specimen_batchload',
-                          size: '50%'})
+                          size: '50%',
+                          display: ''})
       %>
     </div>
     Otu (not required)
     <br>
     <div class="field">
-      <%
-        puts 'mark 2'
-      %>
       <%= render(partial: 'workbench/elements/forms/ajax_select',
                  locals: {controller: '/otus',
                           object: 'specimen_batchload[otu_id]',
                           method: 'otu_id',
                           tag_id: 'otu_id_for_specimen_batchload',
-                          size: '50%'})
+                          size: '50%',
+                          display: ''})
       %>
     </div>
-    <%
-      puts 'mark 3'
-    %>
   <% else %>
     <div class="field">
       <%= "Using '#{source_tag(@result.source)}' as source.".html_safe if @result.source.present? %>
