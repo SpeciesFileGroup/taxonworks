@@ -39,7 +39,7 @@
           </div>
           <div
             class="new-taxon-name-block"
-            v-if="showForThisGroup(['SpeciesGroup','GenusGroup'], getTaxon)">
+            v-if="showForThisGroup(['SpeciesGroup','GenusGroup', 'SpeciesAndInfraspeciesGroup'], getTaxon)">
             <spinner
               :show-spinner="false"
               :show-legend="false"
