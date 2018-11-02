@@ -31,6 +31,19 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       expect(taxon_name_relationship).to respond_to (:type)
     end
 
+    specify 'respond to .assignmet_method' do
+      TaxonNameRelationship.descendants.each do |klass|
+        a  = ''
+        if klass.respond_to?(:assignment_method)
+          unless klass.respond_to?(:inverse_assignment_method)
+            a += klass.to_s + ', '
+          end
+        end
+        expect(a).to eq('')
+      end
+    end
+
+
     specify 'missing and duplicate NOMEN_URI' do
       nomen_uris = []
       TaxonNameRelationship.descendants.each do |klass|
