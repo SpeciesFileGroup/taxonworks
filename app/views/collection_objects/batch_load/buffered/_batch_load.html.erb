@@ -1,0 +1,40 @@
+<div>
+  <h2> Buffered strings batch load </h2>
+
+  <div class="flexbox full_viewport_whitespace">
+    <div class="item item1 one_third_width">
+      <h3> Description and requirements </h3>
+
+      <p>
+        Creates collection objects (specimens), and possible citations from strings for 'collecting_event',
+        'determinations' and/or 'other_labels'.</p>
+      <ul>
+        <li>A tab-delimited, UTF-8 compatible text file is required.</li>
+        <li>Column headers are here:
+          <%= link_to('sample template',
+                      asset_path('batch_load_templates/collection_objects/collection_objects_buffered_batch_load.tab',
+                                 skip_pipeline: true),
+                      target: '_blank') -%>).
+        </li>
+        <li>Multiple uploads of the same data will create new specimens.</li>
+        <li>There is currently no size limit to the file being loaded but this may change in the future.</li>
+      </ul>
+    </div>
+
+    <div class="item item2 one_third_width">
+      <h3> Example file </h3>
+
+      <p> Part of the example tab delimited formatted file.
+        In the example whitespace is a tab. View sample file template.</p>
+
+      <pre class="fixed_width_font">collecting_event determinations other_labels</pre>
+    </div>
+
+    <div class="item item3">
+      <h3> Go! </h3>
+      <%= render partial: '/collection_objects/batch_load/buffered/form',
+                 locals: {url: preview_buffered_batch_load_collection_objects_path,
+                          submit: :preview} -%>
+    </div>
+  </div>
+</div>

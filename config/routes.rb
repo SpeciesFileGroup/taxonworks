@@ -162,6 +162,8 @@ TaxonWorks::Application.routes.draw do
     collection do
       post :preview_castor_batch_load # should be get
       post :create_castor_batch_load # should be get
+      post :preview_buffered_batch_load
+      post :create_buffered_batch_load
       get :preview_simple_batch_load
       post :create_simple_batch_load
       get :select_options, defaults: {format: :json}
@@ -411,10 +413,10 @@ TaxonWorks::Application.routes.draw do
 
     resources :contents, only: [:index]
     collection do
-  
+
       post :preview_data_attributes_batch_load
       post :create_data_attributes_batch_load
-  
+
       post :preview_simple_batch_load # should be get (batch loader fix)
       post :create_simple_batch_load
 
@@ -999,10 +1001,10 @@ TaxonWorks::Application.routes.draw do
         to: 'confidence_levels#index'
 
       get '/confidences',
-        to: 'confidences#index' 
+        to: 'confidences#index'
 
       get '/data_attributes',
-        to: 'data_attributes#index' 
+        to: 'data_attributes#index'
 
       get '/taxon_names/:id',
         to: 'taxon_names#show'

@@ -1,0 +1,49 @@
+<%= form_tag url, multipart: true do -%>
+
+  <div class="field">
+    <%= label_tag :file, 'Select a file' -%>
+    <br>
+    <%= file_field_tag(:file, id: 'buf_file') -%>
+  </div>
+
+  <% if @result.blank? -%>
+    Source (not required)
+    <br>
+    <div class="field">
+      <%= render(partial: 'workbench/elements/forms/ajax_select',
+                 locals: {controller: '/sources',
+                          object: '',
+                          method: 'source_id',
+                          tag_id: 'source_id_for_specimen_batchload',
+                          size: '50%',
+                          display: ''})
+      %>
+    </div>
+    Otu (not required)
+    <br>
+    <div class="field">
+      <%= render(partial: 'workbench/elements/forms/ajax_select',
+                 locals: {controller: '/otus',
+                          object: '',
+                          method: 'otu_id',
+                          tag_id: 'otu_id_for_specimen_batchload',
+                          size: '50%',
+                          display: ''})
+      %>
+    </div>
+  <% else %>
+    <div class="field">
+      <%= "Using '#{source_tag(@result.source)}' as source.".html_safe if @result.source.present? %>
+      <%= "<br>Using '#{otu_tag(@result.otu)}' as OTU.".html_safe if @result.otu.present? %>
+      <%= hidden_field_tag(:source_id, @result.source_id) -%>
+      <%= hidden_field_tag(:otu_id, @result.otu_id) -%>
+    </div>
+  <% end %>
+
+  <%= content_for :warn_level -%>
+  <% if @result.blank? -%>
+    <%= submit_tag('preview', id: 'buf_preview') -%>
+  <% else %>
+    <%= submit_tag('create', id: 'buf_create') -%>
+  <% end %>
+<% end %>

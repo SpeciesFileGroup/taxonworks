@@ -1,0 +1,36 @@
+<% content_for :warn_level do -%>
+    <%= warn_level_input(@result) -%>
+<% end %>
+
+<%= content_for :batch_form do -%>
+  <%= render partial: '/collection_objects/batch_load/buffered/form',
+             locals: {url: create_buffered_batch_load_collection_objects_path, submit: :create} -%>
+<% end %>
+
+<%= content_for :line_breakdown do -%>
+  <table class="top_align_text">
+    <tr>
+      <th class="four_character_width">line</th>
+      <th class="four_character_width">data count</th>
+      <th> name(s) </th>
+      <th class=""> data errors* </th>
+      <th class=""> parse errors </th>
+    </tr>
+
+    <% @result.sorted_processed_rows.each do |i, rp| -%>
+      <tr>
+        <%= batch_line_link_td(i) -%>
+        <%= batch_all_objects_count_td(rp) -%>
+        <td>
+          <%= rp.objects[:specimen].collect{ |sp| collection_object_tag(sp) }.join('<br>').html_safe -%>
+        </td>
+        <%= batch_data_errors_td(rp) -%>
+        <%= batch_parse_errors_td(rp) -%>
+      </tr>
+    <% end -%>
+  </table>
+<% end %>
+
+
+<%= render partial: '/shared/data/all/batch_load/preview' -%>
+
