@@ -1619,7 +1619,7 @@ namespace :tw do
         # Http
         # TW_acronim
 
-        path = @args[:data_directory] + 'museums.txt'
+        path = @args[:data_directory] + 'museums.txt' #
         print "\nHandling list of museums\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true)
