@@ -185,7 +185,7 @@ module Queries
 
       # @return [Scope]
       def autocomplete_cached_wildcard_whitespace
-        a = table[:cached].matches("#{query_string.gsub(' ', '%')}")
+        a = table[:cached].matches("#{query_string.gsub('. ', ' ').gsub(' ', '%')}")
         base_query.where(a.to_sql).limit(20)
       end
 
