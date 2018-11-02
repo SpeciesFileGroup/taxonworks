@@ -51,7 +51,7 @@
 #   @return [Integer]
 #   the project ID
 #
-# @!attribute recipient_honorarium
+# @!attribute recipient_honorific
 #   @return [String]
 #     as in Prof. Mrs. Dr. M. Mr. etc.
 #
@@ -76,7 +76,7 @@ class Loan < ApplicationRecord
     :recipient_country,
     :supervisor_email,
     :supervisor_phone,
-    :recipient_honorarium, 
+    :recipient_honorific,
   ]
 
   # A Loan#id, when present values

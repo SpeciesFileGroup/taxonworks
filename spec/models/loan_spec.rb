@@ -18,7 +18,7 @@ describe Loan, type: :model, group: :loans do
         recipient_phone: '888-123-4567',
         recipient_country: 'USA',
         supervisor_email: 'bar@example.com',
-        recipient_honorarium: 'Dr.'
+        recipient_honorific: 'Dr.'
       }
     }
 

@@ -116,7 +116,7 @@ class LoansController < ApplicationController
       :date_requested, :request_method, :date_sent, :date_received,
       :date_return_expected, :recipient_person_id, :recipient_address,
       :recipient_email, :recipient_phone, :recipient_country, :supervisor_person_id,
-      :supervisor_email, :supervisor_phone, :date_closed, :recipient_honorarium,
+      :supervisor_email, :supervisor_phone, :date_closed, :recipient_honorific,
       :lender_address,
       :clone_from,
       loan_items_attributes: [
