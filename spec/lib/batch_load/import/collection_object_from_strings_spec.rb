@@ -53,14 +53,14 @@ describe BatchLoad::Import::CollectionObjects::BufferedInterpreter, type: :model
 
       context 'processing source_id' do
         specify 'specimens with source' do
-          params.merge!(specimen_batchload: {'source_id' => {'source_id' => source.id}})
+          params.merge!(source_id:  source.id)
           bingo = import
           bingo.create
           expect(Specimen.count).to eq(7)
         end
 
         specify 'citations with source' do
-          params.merge!(specimen_batchload: {'source_id' => {'source_id' => source.id}})
+          params.merge!(source_id:  source.id)
           bingo = import
           bingo.create
           expect(Citation.count).to eq(7)
@@ -69,14 +69,14 @@ describe BatchLoad::Import::CollectionObjects::BufferedInterpreter, type: :model
 
       context 'processing otu_id' do
         specify 'specimens with otu' do
-          params.merge!(specimen_batchload: {'otu_id' => {'otu_id' => otu.id}})
+          params.merge!(otu_id: otu.id)
           bingo = import
           bingo.create
           expect(Specimen.count).to eq(7)
         end
 
         specify 'taxon_determinations with otu' do
-          params.merge!(specimen_batchload: {'otu_id' => {'otu_id' => otu.id}})
+          params.merge!(otu_id: otu.id)
           bingo = import
           bingo.create
           expect(TaxonDetermination.count).to eq(7)
@@ -85,24 +85,21 @@ describe BatchLoad::Import::CollectionObjects::BufferedInterpreter, type: :model
 
       context 'processing source_id and otu_id' do
         specify 'specimens with otu and source' do
-          params.merge!(specimen_batchload: {'otu_id' => {'otu_id' => otu.id},
-                                             'source_id' => {'source_id' => source.id}})
+          params.merge!(otu_id: otu.id, source_id:  source.id)
           bingo = import
           bingo.create
           expect(Specimen.count).to eq(7)
         end
 
         specify 'taxon_determinations with otu and source' do
-          params.merge!(specimen_batchload: {'otu_id' => {'otu_id' => otu.id},
-                                             'source_id' => {'source_id' => source.id}})
+          params.merge!(otu_id: otu.id, source_id:  source.id)
           bingo = import
           bingo.create
           expect(TaxonDetermination.count).to eq(7)
         end
 
         specify 'citations with source and otu' do
-          params.merge!(specimen_batchload: {'otu_id' => {'otu_id' => otu.id},
-                                             'source_id' => {'source_id' => source.id}})
+          params.merge!(otu_id: otu.id, source_id:  source.id)
           bingo = import
           bingo.create
           expect(Citation.count).to eq(7)
