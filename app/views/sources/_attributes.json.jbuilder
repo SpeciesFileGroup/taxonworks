@@ -12,8 +12,10 @@ json.extract! source, :id, :serial_id, :address, :annote, :author,
 json.source_in_project source_in_project?(source)
 json.project_source_id project_source_for_source(source)&.id
 
-json.authors do |a|
-  a.array! source.authors, partial: '/shared/data/all/metadata', as: :object
+if source.type == 'Source::Bibtex'
+  json.authors do |a|
+    a.array! source.authors, partial: '/shared/data/all/metadata', as: :object
+  end
 end
 
 json.source_in_project source_in_project?(source)
