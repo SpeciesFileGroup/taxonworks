@@ -113,6 +113,8 @@ group :test, :development do
   gem 'prawn', '~> 2.2.2'
 end
 
+gem 'parallel_tests', group: [:development, :test]
+
 group :development do
 # gem 'tunemygc'
   gem 'ruby-prof', '~> 0.17.0'
@@ -120,7 +122,7 @@ group :development do
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.4'
   gem 'guard-rspec', '~> 4.7.3', require: false
-  gem 'parallel_tests', '~> 2.23.0', require: false
+
   gem 'web-console', '~> 3.7.0'
   gem 'rubocop', '~> 0.59.2'
   gem 'rubocop-rspec'
