@@ -796,7 +796,6 @@ class Source::Bibtex < Source
     b
   end
 
-
   # @param [String] style
   # @param [String] format
   # @return [String]
