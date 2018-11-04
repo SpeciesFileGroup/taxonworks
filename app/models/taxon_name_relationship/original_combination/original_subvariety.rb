@@ -31,4 +31,9 @@ class TaxonNameRelationship::OriginalCombination::OriginalSubvariety < TaxonName
     true
   end
 
+  def monomial_prefix
+    'subvar.'
+  end
+
+
 end

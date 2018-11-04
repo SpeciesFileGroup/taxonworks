@@ -41,9 +41,9 @@ class TaxonNameRelationship::SourceClassifiedAs < TaxonNameRelationship
     ' as'
   end
 
-
   # genus.source_classified_as = Family
   def self.assignment_method
+    # :as_source_classified
     :source_classified_as
   end
 

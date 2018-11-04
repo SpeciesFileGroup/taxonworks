@@ -43,10 +43,10 @@ module TaxonNamesHelper
   #   the taxon name in original combination, without author year, with HTML
   def original_taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?
-    if taxon_name.cached_original_combination.nil?
+    if taxon_name.cached_original_combination_html.nil?
       taxon_name_tag(taxon_name)
     else 
-      taxon_name.cached_original_combination.html_safe
+      taxon_name.cached_original_combination_html.html_safe
     end
   end
 
@@ -147,9 +147,6 @@ module TaxonNamesHelper
   def taxon_name_rank_select_tag(taxon_name: TaxonName.new, code:  nil)
     select(:taxon_name, :rank_class, options_for_select(RANKS_SELECT_OPTIONS, selected: taxon_name.rank_string) ) 
   end
-
-
-
 
   def taxon_names_search_form
     render '/taxon_names/quick_search_form'
