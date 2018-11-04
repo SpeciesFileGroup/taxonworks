@@ -27,7 +27,8 @@
 # or
 #   c.species = Protonym.find(some_species_id)
 #
-# Combinations are composed of TaxonNameRelationships.  In those relationship the Combination#id is always the `object_taxon_name_id`, the
+# Combinations are composed of TaxonNameRelationships.
+# In those relationship the Combination#id is always the `object_taxon_name_id`, the
 # individual Protonyms are stored in `subject_taxon_name_id`.
 #
 # @!attribute combination_verbatim_name
@@ -56,7 +57,7 @@
 #
 class Combination < TaxonName
 
-  # The ranks that can be used to build combinations.
+  # The ranks that can be used to build combinations. ! TODO:  family group names 
   APPLICABLE_RANKS = %w{family subfamily tribe subtribe genus subgenus section subsection
                         series subseries species subspecies variety subvariety form subform}.freeze
 
@@ -76,7 +77,7 @@ class Combination < TaxonName
 
   has_many :combination_taxon_names, through: :combination_relationships, source: :subject_taxon_name
 
-
+  # Create syntactic helper methods
   TaxonNameRelationship.descendants.each do |d|
     if d.respond_to?(:assignment_method)
       if d.name.to_s =~ /TaxonNameRelationship::SourceClassifiedAs/
@@ -216,9 +217,9 @@ class Combination < TaxonName
   # @return [Array of TaxonName]
   #   pre-ordered by rank
   def protonyms
-    return  protonyms_by_association if new_record?
-    p =  combination_taxon_names.sort{|a,b| RANKS.index(a.rank_string) <=> RANKS.index(b.rank_string) }  # .ordered_by_rank
-    return  protonyms_by_association if p.empty?
+    return protonyms_by_association if new_record?
+    p = combination_taxon_names.sort{|a,b| RANKS.index(a.rank_string) <=> RANKS.index(b.rank_string) } # .ordered_by_rank
+    return protonyms_by_association if p.empty?
     return p
   end
 
@@ -250,6 +251,7 @@ class Combination < TaxonName
     if data['form'].nil? && !data['subform'].nil?
       data['form'] = [nil, "[FORM NOT SPECIFIED]"]
     end
+    
     data
   end
 
@@ -317,26 +319,6 @@ class Combination < TaxonName
     ay.blank? ? nil : ay
   end
 
-  def get_full_name_html
-    eo = '<i>'
-    ec = '</i>'
-    return "#{eo}#{verbatim_name}#{ec}".gsub(' f. ', ec + ' f. ' + eo).gsub(' var. ', ec + ' var. ' + eo) if !self.verbatim_name.nil?
-    d = full_name_hash
-
-    elements = []
-
-    elements.push("#{eo}#{d['genus'][1]}#{ec}") if d['genus']
-    elements.push ['(', %w{subgenus section subsection series subseries}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}"] : nil }, ')']
-    elements.push ['(', eo, d['superspecies'][1], ec, ')'] if d['superspecies']
-
-    %w{species subspecies variety subvariety form subform}.each do |r|
-      elements.push(d[r][0], "#{eo}#{d[r][1]}#{ec}") if d[r]
-    end
-
-    html = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish.gsub(' [sic]', ec + ' [sic]' + eo).gsub(ec + ' ' + eo, ' ').gsub(eo + ec, '').gsub(eo + ' ', ' ' + eo)
-    html
-  end
-
   # @return [Protonym Scope]
   # @params protonym_ids [Hash] like `{genus: 4, species: 5}`
   #   the absence of _id in the keys in part reflects integration with Biodiversity gem
@@ -374,7 +356,7 @@ class Combination < TaxonName
 
   # @return [Protonym Scope] hmmm- a Protonym class method?!
   #    Protonyms matching original relations, if name provided then name added as an additional check on verbatim match
-  # @params name [String, nil] the *already HTMLized* version of the name (use Combiantion.get_full_name_html if you need to mock a result)
+  # @params name [String, nil] the non-htmlized version of the name, without author year
   def self.matching_protonyms(name = nil, **protonym_ids)
     q = nil
     if name.blank?
@@ -416,7 +398,7 @@ class Combination < TaxonName
   end
 
   def sv_combination_duplicates
-    duplicate = Combination.not_self(self).with_cached_html(cached_html)
+    duplicate = Combination.not_self(self).where(cached: cached) 
     soft_validations.add(:base, 'Combination is a duplicate') unless duplicate.empty?
   end
 
@@ -461,7 +443,7 @@ class Combination < TaxonName
   end
 
   def does_not_exist_as_original_combination
-    if a = Combination.matching_protonyms(get_full_name_html, protonym_ids_params)
+    if a = Combination.matching_protonyms(get_full_name, protonym_ids_params)
       errors.add(:base, "Combination exists as protonym(s) with matching original combination: #{a.all.pluck(:cached).join(', ')}.") if a.any?
     end
   end

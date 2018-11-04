@@ -30,4 +30,8 @@ class TaxonNameRelationship::OriginalCombination::OriginalVariety < TaxonNameRel
     true
   end
 
+  def monomial_prefix
+    'var.' 
+  end
+
 end

@@ -313,7 +313,8 @@ class TaxonNameRelationship < ApplicationRecord
     end
   end
 
-  #def validate_uniqueness_of_synonym_subject ##### Protonym historically could be listed as a synonym to different taxa
+  ##### Protonym historically could be listed as a synonym to different taxa
+  #def validate_uniqueness_of_synonym_subject 
   #  if !self.type.nil? && /Synonym/.match(self.type_name) && !TaxonNameRelationship.where(subject_taxon_name_id: self.subject_taxon_name_id).with_type_contains('Synonym').not_self(self).empty?
   #    errors.add(:subject_taxon_name_id, 'Only one synonym relationship is allowed')
   #  end
@@ -342,46 +343,48 @@ class TaxonNameRelationship < ApplicationRecord
     errors.add(:subject_taxon_name_id, 'Not a Protonym') if subject_taxon_name.type == 'Combination'
   end
 
+  # TODO: Isolate to individual classes per type
   def set_cached_names_for_taxon_names
-    dependants = []
     begin
       TaxonName.transaction do
-
-       #if self.type_name =~/OriginalCombination/
-       #  t = self.object_taxon_name
-       #  t.update_columns(:cached_original_combination => t.get_original_combination,
-       #                   :cached_primary_homonym => t.get_genus_species(:original, :self),
-       #                   :cached_primary_homonym_alternative_spelling => t.get_genus_species(:original, :alternative))
         if is_combination?
           t = object_taxon_name
-          t.update_columns(
-            cached_original_combination:  t.get_original_combination,
-            cached: t.get_full_name,
-            cached_html: t.get_full_name_html,
-            cached_author_year: t.get_author_and_year,
-            cached_valid_taxon_name_id: t.get_valid_taxon_name.id
-          )
-          #        elsif self.type_name =~/Misspelling/
-          #          t = self.subject_taxon_name
-#          t.update_column(:cached_misspelling, t.get_cached_misspelling)
+
+          t.send(:set_cached)
+
+          if type_name =~/OriginalCombination/ 
+            t.update_columns(
+              cached_original_combination: t.get_original_combination,
+              cached_original_combination_html: t.get_original_combination_html,
+            )
+          end
+
         elsif type_name =~/TaxonNameRelationship::Hybrid/ # TODO: move to Hybrid
           t = object_taxon_name
           t.update_columns(
             cached: t.get_full_name,
             cached_html: t.get_full_name_html
           )
+
         elsif type_name =~/SourceClassifiedAs/
           t = subject_taxon_name
-          t.update_column(:cached_classified_as, t.get_cached_classified_as)
-        elsif TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(type_name)
+          t.set_cached_classified_as
+          # t.update_column(:cached_classified_as, t.get_cached_classified_as)
+
+        elsif is_invalidating?
           t = subject_taxon_name
+          
           if type_name =~/Misspelling/
             t.update_column(:cached_misspelling, t.get_cached_misspelling)
           end
-          t.update_columns(cached: t.get_full_name,
-                           cached_html: t.get_full_name_html,
-                           cached_valid_taxon_name_id: t.get_valid_taxon_name.id)
+
           vn = t.get_valid_taxon_name
+
+          t.update_columns(
+            cached: t.get_full_name,
+            cached_html: t.get_full_name_html, # OK to force reload here, otherwise we need an exception in #set_cached 
+            cached_valid_taxon_name_id: vn.id)
+       
           vn.list_of_invalid_taxon_names.each do |s|
             s.update_column(:cached_valid_taxon_name_id, vn.id)
             s.combination_list_self.each do |c|
@@ -389,6 +392,7 @@ class TaxonNameRelationship < ApplicationRecord
             end
           end
         end
+
       end
 
     # no point in rescuing and not returning somthing
@@ -396,6 +400,10 @@ class TaxonNameRelationship < ApplicationRecord
       raise
     end
     false
+  end
+
+  def is_invalidating?
+    TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(type_name)
   end
 
   #endregion
@@ -820,7 +828,3 @@ class TaxonNameRelationship < ApplicationRecord
 end
 
 Dir[Rails.root.to_s + '/app/models/taxon_name_relationship/**/*.rb'].each { |file| require_dependency file }
-
-
-
-

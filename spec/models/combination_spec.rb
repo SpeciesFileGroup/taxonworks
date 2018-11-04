@@ -33,6 +33,7 @@ describe Combination, type: :model, group: :nomenclature do
   end
 
   specify '#protonym_ids_params' do
+    # Don't use update() here
     combination.genus = genus
     combination.subgenus = genus
     combination.species = species
@@ -68,24 +69,17 @@ describe Combination, type: :model, group: :nomenclature do
     end
 
     specify 'uniqueness including original combination' do
-      species.original_genus = genus
-      species.original_species = species
-      species.save
-
+      species.update(original_genus: genus, original_species: species)
       c = Combination.new(genus: genus, species: species)
       expect(c.valid?).to be_falsey
     end
 
+    # TODO @proceps you used `vite`, I assume because you wanted a harder test- this requires
+    # *WAY* more checking, not sure its worthwhile, I simplified the test to be verbatim == verbatim
+    # c = Combination.new(genus: genus, species: species, verbatim_name: "Erythroneura vite")
     specify 'uniqueness including original combination different name' do
-      species.original_genus = genus
-      species.original_species = species
-      species.save
-      # TODO @proceps you used `vite`, I assume because you wanted a harder test- this requires
-      # *WAY* more checking, not sure its worthwhile, I simplified the test to be verbatim == verbatim
-      # c = Combination.new(genus: genus, species: species, verbatim_name: "Erythroneura vite")
-      
+      species.update(original_genus: genus, original_species: species)
       c = Combination.new(genus: genus, species: species, verbatim_name: "Erythroneura viti")
-      
       expect(c.valid?).to be_truthy
     end
 
@@ -187,43 +181,29 @@ describe Combination, type: :model, group: :nomenclature do
     end
 
     specify '.matching_protonyms 1' do
-      species.original_genus = genus
-      species.original_subgenus = genus
-      species.original_species = species
-      species.save!
+      species.update(original_genus: genus, original_subgenus: genus, original_species: species)
       expect(Combination.matching_protonyms(nil, genus: genus.id, subgenus: genus.id, species: species.id).to_a).to contain_exactly(species)
     end
 
     specify '.matching_protonyms 2' do
-      species.original_genus = genus
-      species.original_subgenus = genus
-      species.original_species = species
-      species.save!
+      species.update(original_genus: genus, original_subgenus: genus, original_species: species)
       expect(Combination.matching_protonyms(species.cached_original_combination, genus: genus.id, subgenus: genus.id, species: species.id).to_a).to contain_exactly(species)
     end
 
     specify '.matching_protonyms 3' do
-      species.original_genus = genus
-      species.original_subgenus = genus
-      species.original_species = species
-      species.save!
+      species.update(original_genus: genus, original_subgenus: genus, original_species: species)
       expect(Combination.matching_protonyms("Aus bus", genus: genus.id, subgenus: genus.id, species: species.id, subspecies: nil).to_a).to contain_exactly()
     end
+
     specify '.matching_protonyms 4' do
-      species.original_genus = genus
-      species.original_subgenus = genus
-      species.original_species = species
-      species.save!
+      species.update(original_genus: genus, original_subgenus: genus, original_species: species)
       expect(Combination.matching_protonyms(nil, genus: genus.id, subgenus: genus.id, species: species.id, subspecies: nil).to_a).to contain_exactly(species)
     end
+    
     specify '.matching_protonyms 5' do
-      species.original_genus = genus
-      species.original_subgenus = genus
-      species.original_species = species
-      species.save!
+      species.update(original_genus: genus, original_subgenus: genus, original_species: species)
       expect(Combination.matching_protonyms(nil, genus: genus.id, subgenus: nil, species: species.id, subspecies: nil).to_a).to contain_exactly()
     end
-
   end
 
   context 'instance methods' do
@@ -272,10 +252,7 @@ describe Combination, type: :model, group: :nomenclature do
       end
 
       specify 'with quadrinomial' do
-        combination.genus = genus
-        combination.subgenus = genus
-        combination.species = species
-        combination.subspecies = species2 
+        combination.update(genus: genus, subgenus: genus, species: species, subspecies: species2)
         expect(combination.full_name_hash).to eq({'genus'=>[nil, 'Erythroneura'], 'subgenus'=>[nil, 'Erythroneura'],  'species'=>[nil, 'vitis'], 'subspecies'=>[nil, 'comes']})
       end
     end
@@ -304,11 +281,7 @@ describe Combination, type: :model, group: :nomenclature do
       end
 
       specify 'with a quadrinomial' do
-        combination.genus = genus
-        combination.subgenus = genus 
-        combination.species = species
-        combination.subspecies = species2 
-        combination.save
+        combination.update(genus: genus, subgenus: genus, species: species, subspecies: species2)
         expect(combination.cached_html).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>) <i>vitis comes</i>')
       end
     end
@@ -322,18 +295,13 @@ describe Combination, type: :model, group: :nomenclature do
     end
 
     specify 'with verbatim_name' do
-      combination.genus = genus
-      combination.species = species
-      combination.verbatim_name = 'Aus bus'
-      combination.save
+      combination.update(genus: genus, species: species, verbatim_name: 'Aus bus')
       expect(combination.cached).to eq('Aus bus')
       expect(combination.cached_html).to eq('<i>Aus bus</i>')
     end
 
     specify 'chached_valid_taxon_name_id for Combination' do
-      combination.genus = genus
-      combination.species = species
-      combination.save
+      combination.update(genus: genus, species: species)
       expect(species.cached_valid_taxon_name_id).to eq(species.id)
       expect(combination.cached_valid_taxon_name_id).to eq(species.id)
     end
@@ -373,31 +341,30 @@ describe Combination, type: :model, group: :nomenclature do
     end
 
     specify 'year_of_publication can not be older than protonym nomenclature_dates' do
-      basic_combination.year_of_publication = 1940
-      expect(basic_combination.save).to be_truthy
+      basic_combination.update(year_of_publication: 1940)
       basic_combination.soft_validate(:dates)
       expect(basic_combination.soft_validations.messages_on(:year_of_publication).count).to eq(1)
     end
 
     specify 'incomplete combination' do
-      combination.subgenus = genus
-      combination.subspecies = species
-      combination.save
+      combination.update(subgenus: genus, subspecies: species)
       combination.soft_validate(:incomplete_combination)
-      expect(combination.cached).to eq ("[GENUS NOT SPECIFIED] (Erythroneura) [SPECIES NOT SPECIFIED] vitis")
       expect(combination.soft_validations.messages_on(:base).count).to eq(2)
     end
   end
+
+    specify '#cached combination' do
+      combination.update(subgenus: genus, subspecies: species)
+      expect(combination.cached).to eq ("[GENUS NOT SPECIFIED] (Erythroneura) [SPECIES NOT SPECIFIED] vitis")
+    end
 
   context 'usage' do
     let(:genus) {FactoryBot.create(:iczn_genus, name: 'Aus', parent: family)}
     let(:subgenus) {FactoryBot.create(:iczn_subgenus, name: 'Bus', parent: genus) }
     let(:species) {FactoryBot.create(:iczn_species, name: 'bus', parent: subgenus) }
 
-    specify 'parent is assigned as parent of highest ranking taxon' do
-      combination.genus = genus
-      combination.species = species
-      expect(combination.save).to be_truthy
+    specify '#parent is assigned as parent of highest ranking taxon' do
+      combination.update(genus: genus, species: species)
       expect(combination.parent).to eq(family)
     end
 
@@ -423,27 +390,48 @@ describe Combination, type: :model, group: :nomenclature do
         expect(basic_combination.related_taxon_name_relationships.pluck('type')).to include('TaxonNameRelationship::Combination::Species', 'TaxonNameRelationship::Combination::Genus') 
       end
 
-      specify 'combination_class_relationships' do
-        combination.genus = genus
-        combination.subgenus = genus
-        combination.species = species
-        combination.subspecies = species2
+      context 'combination_class_relationships' do
+        before { 
+          combination.update(genus: genus, subgenus: genus, species: species, subspecies: species2)
+        }
 
-        expect(combination.valid?).to be_truthy
-        combination.save
+        let!(:stubs) { combination.combination_relationships_and_stubs(species.rank_string) }
 
-        expect(combination.combination_class_relationships(genus.rank_string).collect{|i| i.to_s}.sort).to eq(['TaxonNameRelationship::Combination::Genus', 'TaxonNameRelationship::Combination::Subgenus'])
-        expect(combination.combination_class_relationships(species.rank_string).collect{|i| i.to_s}.sort).to eq(['TaxonNameRelationship::Combination::Form', 'TaxonNameRelationship::Combination::Genus', 'TaxonNameRelationship::Combination::Species', 'TaxonNameRelationship::Combination::Subgenus', 'TaxonNameRelationship::Combination::Subspecies', 'TaxonNameRelationship::Combination::Variety'])
+        specify '1' do
+          expect(combination.combination_class_relationships(genus.rank_string).collect{|i| i.to_s}.sort).to eq(['TaxonNameRelationship::Combination::Genus', 'TaxonNameRelationship::Combination::Subgenus'])
+        end
 
-        stubs = combination.combination_relationships_and_stubs(species.rank_string)
+        specify '2' do
+          expect(combination.combination_class_relationships(species.rank_string).collect{|i| i.to_s}.sort).to eq(['TaxonNameRelationship::Combination::Form', 'TaxonNameRelationship::Combination::Genus', 'TaxonNameRelationship::Combination::Species', 'TaxonNameRelationship::Combination::Subgenus', 'TaxonNameRelationship::Combination::Subspecies', 'TaxonNameRelationship::Combination::Variety'])
+        end
 
-        expect(stubs.count).to eq(6)
-        expect(stubs[0].subject_taxon_name_id).to eq(genus.id)
-        expect(stubs[0].object_taxon_name_id).to eq(combination.id)
-        expect(stubs[0].type).to eq('TaxonNameRelationship::Combination::Genus')
-        expect(stubs[5].subject_taxon_name_id).to be_falsey
-        expect(stubs[5].object_taxon_name_id).to eq(combination.id)
-        expect(stubs[5].type).to eq('TaxonNameRelationship::Combination::Form')
+        specify '#combination_relationships_and_stubs 1' do
+          expect(stubs.count).to eq(6)
+        end
+
+        specify '#combination_relationships_and_stubs 2' do
+          expect(stubs[0].subject_taxon_name_id).to eq(genus.id)
+        end
+
+        specify '#combination_relationships_and_stubs 3' do
+          expect(stubs[0].object_taxon_name_id).to eq(combination.id)
+        end
+
+        specify '#combination_relationships_and_stubs 4' do
+          expect(stubs[0].type).to eq('TaxonNameRelationship::Combination::Genus')
+        end
+
+        specify '#combination_relationships_and_stubs 5' do
+          expect(stubs[5].subject_taxon_name_id).to be_falsey
+        end
+
+        specify '#combination_relationships_and_stubs 6' do
+          expect(stubs[5].object_taxon_name_id).to eq(combination.id)
+        end
+
+        specify '#combination_relationships_and_stubs 7' do
+          expect(stubs[5].type).to eq('TaxonNameRelationship::Combination::Form')
+        end
       end
 
     end
