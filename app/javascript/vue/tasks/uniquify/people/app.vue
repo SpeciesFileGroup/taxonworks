@@ -104,7 +104,7 @@
     },
     data() {
       return {
-        lastName: '', //this.requestedPerson(),
+        lastName: '',
         firstName: '',
         selectedRoles: {},
         isLoading: false,
@@ -192,6 +192,11 @@
         this.matchPeople = [];
         this.mergePerson = {};
       },
+    },
+    mounted: function() {   // accepts only last_name param in links from other pages
+      if (window.location.href.split('last_name=').length > 1) {
+        this.lastName =  window.location.href.split('last_name=')[1].split('&')[0];
+      }
     }
   }
 </script>
