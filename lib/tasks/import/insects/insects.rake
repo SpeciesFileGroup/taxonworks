@@ -623,7 +623,7 @@ namespace :tw do
           data.keywords.merge!(
               'PeopleID' => Predicate.create(name: 'PeopleID', definition: 'PeopleID imported from INHS FileMaker database.'),
               'SupervisorID' => Predicate.create(name: 'SupervisorID', definition: 'People:SupervisorID imported from INHS FileMaker database.'),
-              'Honorarium' => Predicate.create(name: 'Honorarium', definition: 'People:Honorarium imported from INHS FileMaker database.'),
+              'Honorific' => Predicate.create(name: 'Honorific', definition: 'People:Honorific imported from INHS FileMaker database.'),
               'Address' => Predicate.create(name: 'Address', definition: 'People:Address imported from INHS FileMaker database.'),
               'Email' => Predicate.create(name: 'Email', definition: 'People:Email imported from INHS FileMaker database.'),
               'Phone' => Predicate.create(name: 'Phone', definition: 'People:Phone imported from INHS FileMaker database.')
@@ -933,7 +933,7 @@ namespace :tw do
       #- 2 LastName
       #- 3 FirstName
       #
-      #  4 Honorarium        Loan#recipient_honorarium
+      #  4 Honorific        Loan#recipient_honorific
       #  5 Address           Loan#recipient_address
       #  6 Country           Loan#recipient_country
       #  7 Email             Loan#recipient_email
@@ -1729,7 +1729,7 @@ namespace :tw do
                              recipient_address: data.people_id[row['RecipientID']]['Address'] || 'U.S.A.',
                              recipient_email: recipient_email,
                              recipient_phone: data.people_id[row['RecipientID']]['Phone'],
-                             recipient_honorarium: data.people_id[row['RecipientID']]['Honorarium'],
+                             recipient_honorific: data.people_id[row['RecipientID']]['Honorific'],
                              recipient_country: country,
                              #supervisor_person: supervisor,
                              supervisor_email: supervisor_email,
