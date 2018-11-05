@@ -30,7 +30,7 @@
     methods: {
       requestedPerson() {
         if (window.location.href.split('last_name=')[1]) {
-          return window.location.href.split('last_name=')[1];
+          return window.location.href.split('last_name=')[1].split('&')[0];
         }
         else {
           return ''
