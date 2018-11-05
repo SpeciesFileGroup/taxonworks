@@ -41,6 +41,10 @@ const GetRepositorySmartSelector = function () {
   return ajaxCall('get', `/repositories/select_options`)
 }
 
+const GetCollectingEventsSmartSelector = function () {
+  return ajaxCall('get', `/collecting_events/select_options`)
+}
+
 const GetCollectorsSmartSelector = function () {
   return ajaxCall('get', `/people/select_options?role=Collector`)
 }
@@ -203,6 +207,7 @@ export {
   GetCollectorsSmartSelector,
   GetRepositorySmartSelector,
   GetGeographicSmartSelector,
+  GetCollectingEventsSmartSelector,
   GetTaxonDeterminationCO,
   GetTypeMaterialCO,
   GetTypes,
