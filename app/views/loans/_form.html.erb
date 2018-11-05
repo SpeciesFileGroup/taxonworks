@@ -51,9 +51,9 @@
       <%= render partial: '/people/role_picker', locals: {role: LoanRecipient.new(), object: @loan, f: f} %>
 
       <div class="field">
-        <%= f.label :recipient_honorarium %>
+        <%= f.label :recipient_honorific %>
         <br>
-        <%= f.text_field :recipient_honorarium %>
+        <%= f.text_field :recipient_honorific %>
       </div>
 
       <div class="field">

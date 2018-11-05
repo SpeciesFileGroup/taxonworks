@@ -113,9 +113,9 @@
         <div class="horizontal-left-content">
           <div class="separate-right">
             <div class="field">
-              <label>Honorarium</label>
+              <label>Honorific</label>
               <input
-                v-model="loan.recipient_honorarium"
+                v-model="loan.recipient_honorific"
                 type="text"
                 class="normal-input">
             </div>
@@ -238,7 +238,7 @@
           supervisor_email: undefined,
           supervisor_phone: undefined,
           date_closed: undefined,
-          recipient_honorarium: undefined,
+          recipient_honorific: undefined,
           lender_address: undefined,
           clone_from: undefined
         }
