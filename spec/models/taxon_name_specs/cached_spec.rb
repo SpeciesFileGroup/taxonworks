@@ -34,9 +34,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
   end
 
   context 'after save' do
-
     context 'clean slate' do
-      context 'clean slate' do
+      context 'everything empty' do
         specify 'nothing there' do
           expect(TaxonName.with_cached_html('<i>Erythroneura vitis</i>').count).to eq(0)
         end
@@ -46,17 +45,71 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       let(:genus1) { FactoryBot.create(:relationship_genus, name: 'Aus', parent: family) }
       let(:genus2) { FactoryBot.create(:relationship_genus, name: 'Bus', parent: family) }
       let(:species) { FactoryBot.create(:relationship_species, name: 'aus', parent: genus1, verbatim_author: 'Linnaeus', year_of_publication: 1758) }
+      let(:subspecies) { Protonym.create(name: 'aus', rank_class: Ranks.lookup(:iczn, :subspecies), parent: species) }
       let(:t) {species.created_at}
+
+      specify '#cached for subspecies' do
+        genus2.update(parent: genus1, rank_class: Ranks.lookup(:iczn, :subgenus))
+        species.update(parent: genus2)
+        expect(subspecies.cached_html).to eq('<i>Aus</i> (<i>Bus</i>) <i>aus aus</i>')
+      end
+
+      context 'Candidatus' do
+        let(:icnb_genus) { Protonym.create(name: 'Aus', rank_class: Ranks.lookup(:icnb, :genus), parent: root) }
+        let(:icnb_species) { Protonym.create(name: 'bus', rank_class: Ranks.lookup(:icnb, :species), parent: icnb_genus) }
+
+        before { TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Legitimate::Candidatus.create!(taxon_name: icnb_species) }
+
+        specify '#cached_html' do
+          expect(icnb_species.cached_html).to eq('"<i>Candidatus</i> Aus bus"')
+        end
+
+        specify 'cached' do
+          expect(icnb_species.cached).to eq('Aus bus')
+        end
+      end
+
+      context 'hybrid' do
+        let(:hybrid_genus) { Protonym.create(name: 'Aus', rank_class: Ranks.lookup(:icn, :genus), parent: root) }
+        let(:hybrid_species) { Protonym.create(name: 'aaa', rank_class: Ranks.lookup(:icn, :species), parent: hybrid_genus) }
+
+        before { TaxonNameClassification::Icn::Hybrid.create!(taxon_name: hybrid_species) } 
+
+        specify '#cached_html' do
+          expect(hybrid_species.cached_html).to eq('&#215; <i>Aus aaa</i>')
+        end
+
+        specify '#cached' do
+          expect(hybrid_species.cached).to eq('Aus aaa')
+        end
+      end
 
       context 'basic use' do
         let!(:sp) { FactoryBot.create(:relationship_species) }
 
-        specify 'sets cached_html' do
+        specify '#cached_html' do
           expect(sp.cached_html).to eq('<i>Erythroneura vitis</i>')
         end
 
         specify 'can be found' do
           expect(TaxonName.with_cached_html('<i>Erythroneura vitis</i>').count).to eq(1)
+        end
+      end
+
+      context 'fossil' do
+        specify '#cached_html' do
+          TaxonNameClassification::Iczn::Fossil.create!(taxon_name: species)
+          expect(species.cached_html).to eq('&#8224; <i>Aus aus</i>')
+        end
+      end
+
+      context 'above genus group' do
+        specify '#cached' do
+          expect(family.cached).to eq(family.name)
+        end
+      
+        specify '#cached_html' do
+          expect(family.cached_html).to eq(family.name)
         end
       end
 
@@ -66,17 +119,13 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         specify 'over-rides #cached when provided' do
           expect(c.cached).to eq('Aa aa')
         end 
-
       end
 
       context '#set_cached_names_for_dependants_and_self' do
         
         context 'species methods' do
           before do 
-            species.original_genus = genus2
-            species.source_classified_as = family
-            species.save
-            species.reload
+            species.update(original_genus: genus2, source_classified_as: family)
           end 
 
           specify '#cached' do
@@ -95,18 +144,25 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             expect(species.cached_html).to eq('<i>Aus aus</i>')
           end
 
+          specify '#cached_original_combination_html' do 
+            expect(species.cached_original_combination_html).to eq('<i>Bus aus</i>')
+          end
+
           specify '#cached_original_combination' do 
-            expect(species.cached_original_combination).to eq('<i>Bus aus</i>')
+            expect(species.cached_original_combination).to eq('Bus aus')
           end
 
           context 'changing the genus (parent) name' do
             before do 
-              genus1.name = 'Cus'
-              genus1.save!
+              genus1.update(name: 'Cus') 
               species.reload
             end 
 
-            specify '#cached' do
+            specify '#cached 1' do
+              expect(genus1.cached).to eq('Cus')
+            end
+
+            specify '#cached 1' do
               expect(species.cached).to eq('Cus aus')
             end
 
@@ -124,7 +180,11 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             end
 
             specify '#cached_original_combination is not changed' do
-              expect(species.cached_original_combination).to eq('<i>Bus aus</i>')
+              expect(species.cached_original_combination_html).to eq('<i>Bus aus</i>')
+            end
+
+            specify '#cached_original_combination is not changed' do
+              expect(species.cached_original_combination).to eq('Bus aus')
             end
           end
 
@@ -143,15 +203,18 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               expect(species.cached_html).to eq('<i>Aus aus</i>')
             end
 
+            specify '#cached_original_combination_html' do
+              expect(species.cached_original_combination_html).to eq('<i>Dus aus</i>')
+            end
+
             specify '#cached_original_combination' do
-              expect(species.cached_original_combination).to eq('<i>Dus aus</i>')
+              expect(species.cached_original_combination).to eq('Dus aus')
             end
           end
 
           context 'changing classified as' do
             before do 
-              family.name = 'Cicadellidae'
-              family.save
+              family.update(name: 'Cicadellidae' ) 
               species.reload
             end 
 

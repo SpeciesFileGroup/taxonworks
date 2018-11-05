@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe TaxonWorks::Vendor::Biodiversity, type: :model do
+describe TaxonWorks::Vendor::Biodiversity, type: :model, group: [:nomenclature] do
   context 'Result' do
 
     let(:result) { TaxonWorks::Vendor::Biodiversity::Result.new }

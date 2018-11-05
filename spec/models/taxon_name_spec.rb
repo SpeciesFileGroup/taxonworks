@@ -26,7 +26,9 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       TaxonNameHierarchy.delete_all
     end
 
+    # TODO: this all needs to go
     context 'double checking FactoryBot' do
+
       specify 'is building all related names for respective models' do
         expect(@subspecies.ancestors.length).to be >= 10
         (@subspecies.ancestors + [@subspecies]).each do |i|
@@ -50,7 +52,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         expect(variety.cached_html).to eq('<i>Aus</i> (<i>Aus</i> sect. <i>Aus</i> ser. <i>Aus</i>) <i>aaa bbb</i> var. <i>ccc</i>')
 
         basionym = FactoryBot.create(:icn_variety, name: 'basionym', parent_id: variety.ancestor_at_rank('species').id,  verbatim_author: 'Linnaeus') # source_id: nil,
-        r        = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: basionym, object_taxon_name: variety, type: 'TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym')
+        r = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: basionym, object_taxon_name: variety, type: 'TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym')
         variety.reload
         expect(variety.save).to be_truthy
         expect(variety.cached_author_year).to eq('(Linnaeus) McAtee (1900)')
@@ -129,7 +131,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           t.project_id = 1000
           t.valid?
           expect(t.errors.include?(:project_id)).to be_truthy
-        end
+      end
       end
 
       context 'source' do
@@ -156,63 +158,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             expect(@subspecies.cached_html).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>) <i>vitis vitata</i>')
           end
 
-          context 'fossil' do
-            let(:sp) { FactoryBot.create(:relationship_species, parent: @genus) }
-            let!(:c) { FactoryBot.create(:taxon_name_classification, taxon_name: sp, type: 'TaxonNameClassification::Iczn::Fossil')}
-
-            specify '#get_full_name' do
-              expect(sp.get_full_name_html).to eq('† <i>Erythroneura vitis</i>')
-            end
-
-            specify '#cached_html' do
-              expect(sp.cached_html).to eq('† <i>Erythroneura vitis</i>')
-            end
-
-            specify 'cached' do
-              expect(sp.cached).to eq('Erythroneura vitis')
-            end
-          end
-
-          context 'candidatus' do
-            let!(:g) { Protonym.create(name: 'Aus', rank_class: Ranks.lookup(:icnb, :genus), parent: @root) }
-            let!(:sp) { Protonym.create(name: 'bus', rank_class: Ranks.lookup(:icnb, :species), parent: g) }
-            let!(:c) { FactoryBot.create(:taxon_name_classification, taxon_name: sp, type: 'TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Legitimate::Candidatus')}
-
-            specify '#get_full_name' do
-              expect(sp.get_full_name_html).to eq('"<i>Candidatus</i> Aus bus"')
-            end
-
-            specify '#cached_html' do
-              expect(sp.cached_html).to eq('"<i>Candidatus</i> Aus bus"')
-            end
-
-            specify 'cached' do
-              expect(sp.cached).to eq('Aus bus')
-            end
-          end
-
-
-          context 'hybrid' do
-            let(:g) { FactoryBot.create(:icn_genus) }
-            let(:sp) { FactoryBot.create(:icn_species, parent: g) }
-            let!(:c) { FactoryBot.create(:taxon_name_classification, taxon_name: sp, type: 'TaxonNameClassification::Icn::Hybrid') }
-
-            specify '#cached_html' do
-              expect(sp.cached_html).to eq('× <i>Aus aaa</i>')
-            end
-
-            specify '#cached' do
-              expect(sp.cached).to eq('Aus aaa')
-            end
-          end
-
-
-          specify 'ICZN subspecies' do
-            # expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Erythroneurina')
-            expect(@subspecies.cached_author_year).to eq('McAtee, 1900')
-            expect(@subspecies.cached_html).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>) <i>vitis vitata</i>')
-          end
-
           specify 'ICZN species misspelling' do
             sp  = FactoryBot.create(:iczn_species, verbatim_author: 'Smith', year_of_publication: 2000, parent: @genus)
             sp.iczn_set_as_misapplication_of = @species
@@ -223,7 +168,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           specify 'ICZN combination' do
             g1 = FactoryBot.create(:relationship_genus, parent: @family, name: 'Aus')
             s = FactoryBot.create(:relationship_species, parent: g1, name: 'aus', year_of_publication: 1900, verbatim_author: 'McAtee')
-            s.save!
+            s.save! # WHY!?
             c1 = Combination.create!(genus: g1, species: s)
             expect(c1.cached_author_year).to eq('McAtee, 1900')
           end
@@ -250,16 +195,10 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               expect(sp.cached_author_year).to eq('(Dmitriev, 2000)')
             end
 
-            specify 'cached_html' do
-              expect(@family.cached_html).to eq(@family.name)
-            end
-
             specify 'original combination' do
               sp = FactoryBot.create(:relationship_species, name: 'albonigra', verbatim_name: 'albo-nigra', parent: @genus)
-              sp.original_genus = @genus
-              sp.save
+              sp.update(original_genus: @genus)
               expect(sp.cached_html).to eq('<i>Erythroneura albonigra</i>')
-              expect(sp.cached_original_combination).to eq('<i>Erythroneura albo-nigra</i>')
             end
           end
 
@@ -280,38 +219,16 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
           specify 'no original combination relationships' do
             ssp = FactoryBot.build(:iczn_subspecies, parent: @species)
-            expect(ssp.get_original_combination.nil?).to be_truthy
             expect(ssp.get_genus_species(:original, :self).nil?).to be_truthy
             expect(ssp.get_genus_species(:original, :alternative).nil?).to be_truthy
             #            expect(ssp.get_genus_species(:current, :self).nil?).to be_falsey
             #            expect(ssp.get_genus_species(:current, :alternative).nil?).to be_falsey
             ssp.save
-            expect(ssp.cached_original_combination.nil?).to be_truthy
+            # expect(ssp.cached_original_combination.nil?).to be_truthy
             expect(ssp.cached_primary_homonym.nil?).to be_truthy
             expect(ssp.cached_primary_homonym_alternative_spelling.nil?).to be_truthy
             expect(ssp.cached_secondary_homonym).to eq('Erythroneura vitata')
             expect(ssp.cached_secondary_homonym_alternative_spelling).to eq('Erythroneura uitata')
-          end
-
-          specify 'original genus subgenus' do
-            expect(@subspecies.get_original_combination.nil?).to be_truthy
-            @subspecies.original_genus = @genus
-            @subspecies.reload
-            expect(@subspecies.get_original_combination).to eq('<i>Erythroneura vitata</i>')
-            @subspecies.original_subgenus = @genus
-            @subspecies.reload
-            expect(@subspecies.get_original_combination).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>) <i>vitata</i>')
-            @subspecies.original_species = @species
-            @subspecies.reload
-            expect(@subspecies.get_original_combination).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>) <i>vitis vitata</i>')
-            @subspecies.original_variety = @subspecies
-            @subspecies.reload
-            expect(@subspecies.get_original_combination).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>) <i>vitis</i> var. <i>vitata</i>')
-
-            expect(@subgenus.get_original_combination.nil?).to be_truthy
-            @subgenus.original_genus = @genus
-            @subgenus.reload
-            expect(@subgenus.get_original_combination).to eq('<i>Erythroneura</i>')
           end
 
           specify 'misspelled original combination' do
@@ -320,19 +237,20 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             g.iczn_set_as_misspelling_of = @genus
             expect(g.save).to be_truthy
 
-            @subspecies.original_genus = g
+            @subspecies.original_genus = g # ! not saved originally !!
             @subspecies.reload
 
             expect(g.reload.get_full_name_html).to eq('<i>Errorneura</i> [sic]')
-
-            expect(@subspecies.get_original_combination).to eq('<i>Errorneura</i> [sic] <i>vitata</i>')
+            
+            expect(@subspecies.get_original_combination).to eq('Errorneura [sic] [SPECIES NOT SPECIFIED] vitata')
+            expect(@subspecies.get_original_combination_html).to eq('<i>Errorneura</i> [sic] <i></i>[SPECIES NOT SPECIFIED] <i>vitata</i>')
             expect(@subspecies.get_author_and_year).to eq ('(McAtee, 1900)')
           end
 
           # What code is this supposed to catch?
           specify 'moving nominotypical taxon' do
-            sp           = FactoryBot.create(:iczn_species, name: 'aaa', parent: @genus)
-            subsp        = FactoryBot.create(:iczn_subspecies, name: 'aaa', parent: sp)
+            sp = FactoryBot.create(:iczn_species, name: 'aaa', parent: @genus)
+            subsp = FactoryBot.create(:iczn_subspecies, name: 'aaa', parent: sp)
             subsp.parent = @species
             subsp.valid?
             expect(subsp.errors.include?(:parent_id)).to be_truthy
@@ -485,18 +403,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
                   specify 'valid name is self' do
                     expect(valid_genus.valid_taxon_name).to eq(valid_genus)
                   end
-
-                  # specify '#is_valid? after save' do
-                  #   a = FactoryBot.create(:valid_protonym, name: 'Qus', rank_class: Ranks.lookup(:iczn, :genus), parent: @family)
-                  #   b = FactoryBot.create(:valid_protonym, name: 'Rus', rank_class: Ranks.lookup(:iczn, :genus), parent: @family)
-                  #   TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: a, object_taxon_name: b)
-                  #   TaxonNameClassification::Iczn::Available::Valid.create!(taxon_name: a)
-                  #   a.reload
-                  #   b.reload
-
-                  #   expect(a.is_valid?).to be_truthy
-                  # end
-
                 end
               end
             end
@@ -941,9 +847,9 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     context 'status string arrays' do
       let(:family) { Protonym.create!(name: 'Statusidae', rank_class: Ranks.lookup(:iczn, :family), parent: root1) }
 
-      let!(:a)  { FactoryBot.create(:relationship_genus, name: 'Aus', parent: family) }
-      let!(:b)  { FactoryBot.create(:relationship_genus, name: 'Bus', parent: family) }
-      let!(:s)  { TaxonNameClassification::Iczn::Unavailable.create(taxon_name: a) }
+      let!(:a) { FactoryBot.create(:relationship_genus, name: 'Aus', parent: family) }
+      let!(:b) { FactoryBot.create(:relationship_genus, name: 'Bus', parent: family) }
+      let!(:s) { TaxonNameClassification::Iczn::Unavailable.create(taxon_name: a) }
       let!(:r1) { TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: a, object_taxon_name: b) }
 
       specify '#combined_statuses' do
@@ -1025,15 +931,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           expect(new_root.leaves.to_a).to contain_exactly(species1, species2) # doesn't test order
         end
 
-        # replicate
-        #       specify 'move_to_child_of' do
-        #         species2.move_to_child_of(genus1)
-        #         genus2.reload
-        #         expect(genus2.children).to eq([])
-        #         genus1.reload
-        #         expect(genus1.children.to_a).to eq([species1, species2])
-        #       end
-
         context 'housekeeping with ancestors and descendants' do
           # xspecify 'updated_on is not touched for ancestors when a child moves' do
           #   g1_updated = genus1.updated_at
@@ -1064,5 +961,5 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     it_behaves_like 'notable'
     it_behaves_like 'is_data'
   end
-# rspec -t group:nomenclature
+
 end

@@ -426,10 +426,8 @@ module TaxonWorks
           ).all.to_a
 
           h[:original_combination] = Protonym.where(project_id: project_id). 
-          where(
-            'cached_original_combination = ?', 
-            Utilities::Strings.nil_wrap('<i>', name_without_author_year, '</i>')
-          ).all.to_a if parseable
+            where( cached_original_combination: name_without_author_year
+                 ).all.to_a if parseable
 
           h
         end

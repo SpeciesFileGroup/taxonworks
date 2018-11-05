@@ -33,6 +33,10 @@ addons:
 env:
   global:
     - PGPORT=5433
+#   - TEST_GROUP=1
+#   - TEST_GROUP=2
+#   - TEST_GROUP=3
+#   - TEST_GROUP=4
 services:
   - postgresql
 before_install:
@@ -56,6 +60,7 @@ before_script:
   - ls -alh public/packs-test 
 script:
   - bundle exec rake assets:precompile
+# - bundle exec parallel_test spec/ -n 6 --only-group $TEST_GROUP --group-by filesize --type rspec
   - bundle exec rspec
 notifications:
   email:

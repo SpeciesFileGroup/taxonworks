@@ -41,19 +41,16 @@ class TaxonNameRelationship::SourceClassifiedAs < TaxonNameRelationship
     ' as'
   end
 
-
   # genus.source_classified_as = Family
   def self.assignment_method
     # :as_source_classified
     :source_classified_as
   end
 
-    # inverse doesn't seem useful
-    # #family.as_source_classified = Genus
-    # def self.inverse_assignment_method
-    #   :as_source_classified
-    #   # :source_classified_as
-    # end
+  #family.as_source_classified_for = Genus
+  def self.inverse_assignment_method
+    :as_source_classified_for
+  end
 
   def self.assignable
     true
