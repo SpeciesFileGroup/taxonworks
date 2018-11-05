@@ -192,6 +192,15 @@
         this.matchPeople = [];
         this.mergePerson = {};
       },
+    },
+    mounted: function() {
+      if (window.location.href.split('last_name=')[1]) {
+        this.lastName =  window.location.href.split('last_name=')[1].split('&')[0];
+      }
+      else {
+        this.lastName =  ''
+      }
+
     }
   }
 </script>
