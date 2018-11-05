@@ -296,7 +296,7 @@ namespace :tw do
         handle_content_types_3i
         handle_contents_3i
 
-#=begin
+=begin
         $user_id = @trivellone.id
         handle_trivellone_references_3i
         handle_trivellone_unique_species_3i
@@ -306,7 +306,7 @@ namespace :tw do
         handle_trivellone_insect_phytoplasma_3i
         handle_trivellone_plant_phytoplasma_3i
         $user_id = @proceps.id
-#=end
+=end
 
         soft_validations_3i
         handle_localities_3i
@@ -342,19 +342,6 @@ namespace :tw do
           if @trivellone.nil?
             pwd = rand(36**10).to_s(36)
             @trivellone = User.create(email: 'valeria.trivellone@gmail.com', password: pwd, password_confirmation: pwd, name: 'Valeria Trivellone', self_created: true, is_flagged_for_password_reset: true)
-            user = {2 => ['yoder@mail.com', 'Matt Yoder'],
-                    34 => ['seltmann@mail.com', 'Katja Seltmann'],
-                    144 => ['wallace@mail.com', 'Matt Wallace'],
-                    145 => ['deitz@mail.com', 'Lewis Deitz'],
-                    176 => ['evangelista@mail.com', 'Olivia Evangelista'],
-                    194 => ['rothschild@mail.com', 'Mark Rothschild']
-            }
-            @users = {}
-            user.each do |key, value|
-              u = User.where(email: value[0]).first
-              u = User.create(email: value[0], password: pwd, password_confirmation: pwd, name: value[1], self_created: true, is_flagged_for_password_reset: false) if u.nil?
-              @users.merge!(key => u.id)
-            end
 #            @users = {
 #                2 => User.create(email: 'yoder@mail.com', password: pwd, password_confirmation: pwd, name: 'Matt Yoder', self_created: true, is_flagged_for_password_reset: false).id,
 #                34 => User.create(email: 'seltmann@mail.com', password: pwd, password_confirmation: pwd, name: 'Katja Seltmann', self_created: true, is_flagged_for_password_reset: false).id,
@@ -2360,6 +2347,20 @@ namespace :tw do
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true)
         i = 0
+        user = {'2' => ['yoder@mail.com', 'Matt Yoder'],
+                '34' => ['seltmann@mail.com', 'Katja Seltmann'],
+                '144' => ['wallace@mail.com', 'Matt Wallace'],
+                '145' => ['deitz@mail.com', 'Lewis Deitz'],
+                '176' => ['evangelista@mail.com', 'Olivia Evangelista'],
+                '194' => ['rothschild@mail.com', 'Mark Rothschild'],
+                '1000' => ['chdietri@illinois.edu', 'Chris Dietrich']
+        }
+        @users = {}
+        user.each do |key, value|
+          u = User.where(email: value[0]).first
+          u = User.create(email: value[0], password: pwd, password_confirmation: pwd, name: value[1], self_created: true, is_flagged_for_password_reset: false) if u.nil?
+          @users.merge!(key => u.id)
+        end
         file.each do |row|
           i += 1
           print "\r#{i}"
