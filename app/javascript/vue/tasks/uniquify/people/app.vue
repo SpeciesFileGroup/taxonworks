@@ -104,7 +104,7 @@
     },
     data() {
       return {
-        lastName: '', //this.requestedPerson(),
+        lastName: '',
         firstName: '',
         selectedRoles: {},
         isLoading: false,
@@ -193,14 +193,10 @@
         this.mergePerson = {};
       },
     },
-    mounted: function() {
+    mounted: function() {   // accepts only last_name param in links from other pages
       if (window.location.href.split('last_name=')[1]) {
         this.lastName =  window.location.href.split('last_name=')[1].split('&')[0];
       }
-      else {
-        this.lastName =  ''
-      }
-
     }
   }
 </script>
