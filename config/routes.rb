@@ -2,6 +2,7 @@ Rails.application.eager_load!
 
 TaxonWorks::Application.routes.draw do
 
+  resources :attribution
   get :ping, controller: 'ping',  defaults: { format: :json }
   get :pingz, controller: 'ping',  defaults: { format: :json }
 
