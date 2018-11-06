@@ -29,6 +29,12 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model, group: [:nomenclature] 
         result.parse
         expect(result.parseable).to eq(false)
       end 
+
+      specify '#parseable 3' do
+        result.name = 'valerius (Eades, 1964)'
+        result.parse
+        expect(result.parseable).to eq(false)
+      end 
     end
 
     context '#genus' do

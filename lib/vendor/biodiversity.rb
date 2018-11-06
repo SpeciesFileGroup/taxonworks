@@ -45,6 +45,8 @@ module TaxonWorks
         # @return [String] the bit after ` in `
         attr_reader :citation
 
+        # @return [Boolean] 
+        #   whether or not the query string was succesfully parsed
         attr_reader :parseable
 
         # @return [Hash]
