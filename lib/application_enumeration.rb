@@ -1,3 +1,5 @@
+Dir[Rails.root.to_s + '/app/models/*.rb'].each { |file| require_dependency file }
+
 # Methods for enumerating models, tables, columns etc.
 #
 # !! If you think that a method belongs here chances are it already exists in a Rails extension.
@@ -7,7 +9,7 @@
 module ApplicationEnumeration
 
   # TODO: This should be a require check likely, for lib/taxon_works.rb or some such
-  Rails.application.eager_load! if ActiveRecord::Base.connected? 
+  # Rails.application.eager_load! if ActiveRecord::Base.connected?
 
   # @return [Array]
   #   a list symbols that represent populated, non "cached", non "_id", non reserved attributes
