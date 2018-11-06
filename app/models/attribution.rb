@@ -18,7 +18,7 @@ class Attribution < ApplicationRecord
   include Shared::IsData
   include Shared::PolymorphicAnnotator
   polymorphic_annotates('attribution_object')
-  
+
   # TODO: Consider DRYing with Source roles.
 
   ATTRIBUTION_ROLES = [
@@ -27,7 +27,7 @@ class Attribution < ApplicationRecord
     :owner,
     :copyright_holder
   ]
-  
+
   ATTRIBUTION_ROLES.each do |r|
     role_name = "#{r}_roles".to_sym 
     role_person = "attribution_#{r.to_s.pluralize}".to_sym
@@ -43,8 +43,8 @@ class Attribution < ApplicationRecord
 
   validates :license, inclusion: {in: CREATIVE_COMMONS_LICENSES.keys}, allow_nil: true
 
-  validates :copyright_year, date_year:  {min_year: 1000, max_year: Time.now.year + 5,
-                               message:  'must be an integer greater than 999 and no more than 5 years in the future'}
+  validates :copyright_year, date_year: {min_year: 1000, max_year: Time.now.year + 5,
+                                         message: 'must be an integer greater than 999 and no more than 5 years in the future'}
 
   validate :some_data_provided
 
