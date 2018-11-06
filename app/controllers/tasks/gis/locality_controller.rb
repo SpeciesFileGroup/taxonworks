@@ -7,7 +7,7 @@ class Tasks::Gis::LocalityController < ApplicationController
       @nearby_distance   = Utilities::Geo.nearby_from_params(params)
       @collecting_events = @collecting_event.collecting_events_within_radius_of(@nearby_distance).where(project_id: sessions_current_project_id).limit(100).order(:verbatim_locality)
     else
-      @collecting_event  = CollectingEvent.new()
+      @collecting_event  = CollectingEvent.new
       @collecting_events = []
       @nearby_distance   = 5000
     end
@@ -40,7 +40,8 @@ class Tasks::Gis::LocalityController < ApplicationController
                                                                                        finding,
                                                                                        sessions_current_project_id)
                                        .order(:verbatim_locality)
-            else
+          else
+            raise("Cannot find '#{finding}' this way.")
           end
         }
         @drawing_modes = 'active: polygon, circle'
@@ -48,15 +49,4 @@ class Tasks::Gis::LocalityController < ApplicationController
         # some other case, TBDL
     end
   end
-
-  protected
-
-  # def gather_list_data(geographic_area)
-  #   if @geographic_area.has_shape?
-  #     @geographic_item = @geographic_area.default_geographic_item
-  #   else
-  #     @geographic_item = nil
-  #   end
-  # end
-
 end
