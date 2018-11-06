@@ -67,7 +67,6 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
     soft_validations.add(:repository_id, 'Repository is not selected') if self.repository_id.nil?
   end
 
-
 end
 
 require_dependency 'lot'

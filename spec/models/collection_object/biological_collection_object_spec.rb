@@ -1,7 +1,7 @@
 require 'rails_helper'
 describe CollectionObject::BiologicalCollectionObject, type: :model, group: :collection_objects do
 
-  let(:biological_collection_object) {FactoryBot.build(:collection_object_biological_collection_object)}
+  let(:biological_collection_object) { CollectionObject::BiologicalCollectionObject.new }
   let(:otu) {Otu.create(name: 'zzz')}
 
   specify '.valid_new_object_classes' do
@@ -39,6 +39,24 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
       biological_collection_object.total = 5
       biological_collection_object.save!
       expect(biological_collection_object.type).to eq('Lot')
+    end
+  end
+
+  context 'dependencies' do
+    let(:descriptor) { Descriptor::Continuous.create!(name: 'Count') }
+
+    before { biological_collection_object.update(total: 1) }
+
+    specify '#taxon_determinations are destroyed' do
+      d = TaxonDetermination.create!(biological_collection_object: biological_collection_object, otu: otu)
+      biological_collection_object.destroy
+      expect(TaxonDetermination.where(id: d.id).any?).to be_falsey
+    end 
+
+    specify '#observations prevent destruction' do
+      o = Observation::Continuous.create!(observation_object_global_id: biological_collection_object.to_global_id.to_s, continuous_value: 22, descriptor: descriptor)
+      expect(biological_collection_object.destroy).to be_falsey
+      expect(biological_collection_object.errors.include?(:base)).to be_truthy
     end
   end
 

@@ -107,28 +107,28 @@ class CollectionObject < ApplicationRecord
   # Preparation delegations
   delegate :name, to: :preparation_type, prefix: :preparation_type, allow_nil: true
 
-  has_one :accession_provider_role, class_name: 'AccessionProvider', as: :role_object
+  has_one :accession_provider_role, class_name: 'AccessionProvider', as: :role_object, dependent: :destroy
   has_one :accession_provider, through: :accession_provider_role, source: :person
-  has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object
+  has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object, dependent: :destroy
   has_one :deaccession_recipient, through: :deaccession_recipient_role, source: :person
 
-  has_many :biological_associations, as: :biological_association_subject, inverse_of: :biological_association_subject
+  has_many :biological_associations, as: :biological_association_subject, inverse_of: :biological_association_subject, dependent: :restrict_with_error
   has_many :related_biological_associations, as: :biological_association_object, inverse_of: :biological_association_object, class_name: 'BiologicalAssociation'
 
-  has_many :derived_collection_objects, inverse_of: :collection_object
+  has_many :derived_collection_objects, inverse_of: :collection_object, dependent: :restrict_with_error
   has_many :collection_object_observations, through: :derived_collection_objects, inverse_of: :collection_objects
-  has_many :sqed_depictions, through: :depictions
+  has_many :sqed_depictions, through: :depictions, dependent: :restrict_with_error
 
-  has_many :observations, inverse_of: :collection_object
-  has_many :observation_matrix_rows, inverse_of: :collection_object
-  has_many :observation_matrix_row_items, inverse_of: :collection_object
+  has_many :observations, inverse_of: :collection_object, dependent: :restrict_with_error
+  has_many :observation_matrix_rows, inverse_of: :collection_object, dependent: :destroy 
+  has_many :observation_matrix_row_items, inverse_of: :collection_object, dependent: :destroy
 
   # This is a problem, but here for the foreseeable future for nested attributes purporses.
-  has_many :taxon_determinations, foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object
+  has_many :taxon_determinations, foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object, dependent: :destroy
   has_many :otus, through: :taxon_determinations, inverse_of: :collection_objects
   has_many :taxon_names, through: :otus
 
-  has_many :type_designations, class_name: 'TypeMaterial', foreign_key: :biological_object_id, inverse_of: :material
+  has_many :type_designations, class_name: 'TypeMaterial', foreign_key: :biological_object_id, inverse_of: :material, dependent: :restrict_with_error
 
   belongs_to :collecting_event, inverse_of: :collection_objects
   belongs_to :preparation_type, inverse_of: :collection_objects

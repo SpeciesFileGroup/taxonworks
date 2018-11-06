@@ -1,6 +1,7 @@
 require 'rails_helper'
 require 'support/shared_contexts/shared_geo'
 
+# See spec/models/biological_collection_object for nested attributes and taxon determinations
 describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_objects] do
 
   include_context 'stuff for complex geo tests'
@@ -203,9 +204,6 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
   end
 
   context 'attributes' do
-    # xspecify "destroyed? (gone, for real, never ever EVER coming back)"
-    # xspecify "condition (damaged/level)"
-
     specify '#accession_provider' do
       expect(collection_object.accession_provider = FactoryBot.build(:valid_person)).to be_truthy
     end
@@ -215,7 +213,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
     end
   end
 
-  # See spec/models/biological_collection_object for nested attributes and taxon determinations
+  
 
   context 'soft validation' do
     let(:o) { Specimen.new }
