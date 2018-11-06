@@ -138,9 +138,33 @@ module Queries
       end
 
       # @return [Scope]
+      def autocomplete_exact_cached
+        a = table[:cached].eq(query_string)
+        base_query.where(a.to_sql).order('cached_author_year ASC').limit(20)
+      end
+
+      # @return [Scope]
+      def autocomplete_exact_cached_original_combination
+        a = table[:cached_original_combination].eq(query_string)
+        base_query.where(a.to_sql).order('cached_author_year ASC').limit(20)
+      end
+
+      # @return [Scope]
+      def autocomplete_exact_name_and_year
+        a = alphabetic_strings
+        b = years
+        if a.size == 1 && !b.empty?
+          a = table[:name].eq(a.first).and(table[:cached_author_year].matches_any(wildcard_wrapped_years))
+          base_query.where(a.to_sql).limit(10)
+        else
+          nil
+        end
+      end
+
+      # @return [Scope]
       def autocomplete_top_name
         a = table[:name].eq(query_string)
-        base_query.where(a.to_sql).order('cached ASC').limit(20)
+        base_query.where(a.to_sql).order('cached_author_year ASC').limit(20)
       end
 
       # @return [Scope]
@@ -201,7 +225,7 @@ module Queries
       end
 
       # @return [Scope]
-      def autocomplete_name_author_year
+      def autocomplete_cached_author_year
         a = table[:cached_author_year].matches("#{query_string.gsub(/[,\s]/, '%')}")
         base_query.where(a.to_sql).order('cached ASC').limit(20)
       end
@@ -226,16 +250,19 @@ module Queries
         z = genus_species
 
         queries = [
+          autocomplete_exact_cached,
+          autocomplete_exact_cached_original_combination,
+          autocomplete_exact_name_and_year,
           autocomplete_top_name,
           autocomplete_top_cached,
           autocomplete_top_cached_subgenus, # not tested
-          autocomplete_genus_species1(z), # note tested
+          autocomplete_genus_species1(z), # not tested
           autocomplete_genus_species2(z), # not tested
           autocomplete_cached_end_wildcard,
           autocomplete_cached_name_end_wildcard,
           autocomplete_cached_wildcard_whitespace,
           autocomplete_name_author_year_fragment,
-          autocomplete_name_author_year,
+          autocomplete_cached_author_year,
           autocomplete_wildcard_joined_strings,
           autocomplete_wildcard_author_year_joined_pieces
         ]

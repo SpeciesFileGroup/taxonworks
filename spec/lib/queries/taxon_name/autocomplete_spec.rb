@@ -4,20 +4,48 @@ describe Queries::TaxonName::Autocomplete, type: :model do
 
   let(:root) { FactoryBot.create(:root_taxon_name)}
   let(:genus) { Protonym.create(name: 'Erasmoneura', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
-  let!(:species) { Protonym.create(name: 'vulnerata', rank_class: Ranks.lookup(:iczn, 'species'), parent: genus, verbatim_author: 'Fitch & Say', year_of_publication: 1800) }
+  let(:original_genus) { Protonym.create(name: 'Bus', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root)   }
+  let!(:species) { Protonym.create!(
+    name: 'vulnerata',
+    rank_class: Ranks.lookup(:iczn, 'species'),
+    parent: genus,
+    original_genus: original_genus,
+    verbatim_author: 'Fitch & Say',
+    year_of_publication: 1800) }
 
   let(:name) { 'Erasmoneura vulnerata' }
+  let(:original_combination) { 'Bus vulnerata' }
 
   let(:query) { Queries::TaxonName::Autocomplete.new('') }
+
+  specify '#autocomplete_exact_name_and_year 1' do
+    query.terms = 'vulnerata' 
+    expect(query.autocomplete_exact_name_and_year).to eq(nil)
+  end
+
+  specify '#autocomplete_exact_name_and_year 2' do
+    query.terms = 'vulnerata 1800' 
+    expect(query.autocomplete_exact_name_and_year.all).to include(species)
+  end
+
+  specify '#autocomplete_exact_cached' do
+    query.terms = name 
+    expect(query.autocomplete_exact_cached.all).to include(species)
+  end
+
+  specify '#autocomplete_exact_cached_original_combination' do
+    query.terms = original_combination
+    expect(query.autocomplete_exact_cached_original_combination.all).to include(species)
+  end
 
   specify '#autocomplete_cached_wildcard_whitespace open paren' do
     query.terms = 'Scaphoideus ('
     expect(query.autocomplete_cached_wildcard_whitespace.all).to be_truthy
   end
 
-  specify '#autocomplete_name_author_year open paren' do
+  specify '#autocomplete_cached_author_year open paren' do
     query.terms = 'Scaphoideus ('
-    expect(query.autocomplete_name_author_year.all).to be_truthy
+    expect(query.autocomplete_cached_author_year.all).to be_truthy
   end
 
   specify '#open paren' do

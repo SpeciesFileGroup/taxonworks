@@ -135,6 +135,11 @@ module Queries
       integers.collect{|i| "%#{i}%"}
     end
 
+    # @return [Array]
+    def wildcard_wrapped_years
+      years.collect{|i| "%#{i}%"}
+    end
+
     # @return [String]
     #   if `foo, and 123 and stuff` then %foo%and%123%and%stuff%
     def wildcard_pieces
@@ -157,7 +162,6 @@ module Queries
       end
       limit
     end
-
 
     # generic multi-use bits
     #   table is defined in each query, it is the class of instances being returned
