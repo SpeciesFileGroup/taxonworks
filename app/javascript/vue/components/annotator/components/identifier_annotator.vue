@@ -100,7 +100,13 @@
         </ul>
       </div>
     </div>
-    <table-list :list="list" :header="['Identifier', 'Type', '']" :attributes="['cached', 'type_name']" @edit="data_attribute = $event" @delete="removeItem"/>
+    <table-list
+      :list="list"
+      :header="['Identifier', 'Type', '']"
+      :attributes="['cached', 'type_name']"
+      :annotator="false"
+      @edit="data_attribute = $event"
+      @delete="removeItem"/>
   </div>
 </template>
 <script>
