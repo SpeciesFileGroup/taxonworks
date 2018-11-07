@@ -308,9 +308,9 @@ namespace :tw do
         $user_id = @proceps.id
 =end
 
-        soft_validations_3i
         handle_localities_3i
         index_collecting_events_from_accessions_new_3i
+        soft_validations_3i
         print "\n\n !! Success. End time: #{Time.now} \n\n"
       end
 
@@ -337,7 +337,7 @@ namespace :tw do
 
           if @proceps.nil?
             pwd = rand(36**10).to_s(36)
-            @proceps = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, self_created: true)
+            @proceps = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, self_created: true, is_flagged_for_password_reset: true)
           end
           if @trivellone.nil?
             pwd = rand(36**10).to_s(36)
