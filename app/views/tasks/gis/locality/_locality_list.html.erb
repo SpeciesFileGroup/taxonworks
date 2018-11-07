@@ -3,7 +3,7 @@
 <%= "Collecting events without a verbatim locality: #{missing_verbatim_locality_count(@collecting_events)}" %>
 </p>
 
-<% if @collecting_events.any -%>
+<% if @collecting_events.any? -%>
   <% az_range.each do |letter| %>
     <div>
       <%= content_tag(:b, letter) -%><br>
