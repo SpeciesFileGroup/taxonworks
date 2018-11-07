@@ -4,7 +4,15 @@ class AttributionController < ApplicationController
   # GET /attribution
   # GET /attribution.json
   def index
-    @attribution = Attribution.all
+    respond_to do |format|
+      format.html do
+        @recent_objects = Attribution.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+   #   format.json {
+   #     @otus = Attribution.all.page(params[:page]).per(500)
+   #   }
+    end
   end
 
   # GET /attribution/1

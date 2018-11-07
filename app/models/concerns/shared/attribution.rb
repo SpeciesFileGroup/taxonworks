@@ -8,7 +8,7 @@ module Shared::Attribution
   extend ActiveSupport::Concern
 
   included do
-    Attribution.related_foreign_keys.push self.name.foreign_key
+    ::Attribution.related_foreign_keys.push self.name.foreign_key
 
     has_many :attributions, as: :attribution_object, validate: false, dependent: :destroy, table_name: 'attribution'
 

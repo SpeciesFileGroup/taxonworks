@@ -24,13 +24,11 @@ require 'rails_helper'
 # `rails-controller-testing` gem.
 
 RSpec.describe AttributionController, type: :controller do
-
-  # This should return the minimal set of attributes required to create a valid
-  # Attribution. As you add validations to Attribution, be sure to
-  # adjust the attributes here as well.
-  let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
+  before(:each) {
+    sign_in
   }
+
+  let(:valid_attributes) { strip_housekeeping_attributes(FactoryBot.build(:valid_attribution).attributes) }
 
   let(:invalid_attributes) {
     skip("Add a hash of attributes invalid for your model")

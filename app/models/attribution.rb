@@ -17,7 +17,8 @@ class Attribution < ApplicationRecord
   include Shared::IsData
   include Shared::PolymorphicAnnotator
   polymorphic_annotates('attribution_object')
-
+  acts_as_list scope: [:attribution_object_id, :tag_object_type, :project_id]
+  
   # TODO: Consider drying with Source roles.
 
   has_many :creator_roles, -> { order('roles.position ASC') }, class_name: 'AttributionCreator',
