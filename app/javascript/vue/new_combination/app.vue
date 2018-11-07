@@ -1,7 +1,11 @@
 <template>
   <div id="vue_new_combination">
-    <h1
-    >New combination</h1>
+    <h1>New combination</h1>
+    <spinner
+      legend="Loading new combination..."
+      :full-screen="true"
+      :logo-size="{ width: '100px', height: '100px'}"
+      v-if="loading"/>
     <div class="panel content new-combination-box separate-bottom">
       <input-search
         ref="inputSearch"
@@ -16,9 +20,7 @@
       @onSearchStart="searching = true"
       @onSearchEnd="searching = false"
       :taxon-name="taxon"/>
-    <h3
-    v-help.section.recent.overview
-    >Recent</h3>
+    <h3 v-help.section.recent.overview>Recent</h3>
     <display-list
       :list="combinations"
       :edit="true"
@@ -31,23 +33,26 @@
 </template>
 <script>
 
-import newCombination from './components/newCombination.vue'
-import inputSearch from './components/inputSearch.vue'
-import displayList from './components/displayList.vue'
+import NewCombination from './components/newCombination.vue'
+import InputSearch from './components/inputSearch.vue'
+import DisplayList from './components/displayList.vue'
+import Spinner from 'components/spinner.vue'
 
 import { GetLastCombinations, DestroyCombination, GetCombination } from './request/resources'
 
 export default {
   components: {
-    displayList,
-    newCombination,
-    inputSearch
+    DisplayList,
+    NewCombination,
+    InputSearch,
+    Spinner
   },
   data: function () {
     return {
       searching: false,
       taxon: null,
-      combinations: []
+      combinations: [],
+      loading: false
     }
   },
   mounted: function () {
@@ -96,8 +101,10 @@ export default {
       let combinationId = urlParams.get('id')
 
       if (/^\d+$/.test(combinationId)) {
+        this.loading = true
         GetCombination(combinationId).then(response => {
           this.editCombination(response)
+          this.loading = false
         })
       }
     }
