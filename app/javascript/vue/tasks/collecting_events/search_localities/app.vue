@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Search and list localities</h1>
+    <h1>Search and List Localities</h1>
   </div>
 </template>
 <script>
