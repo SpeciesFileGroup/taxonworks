@@ -19,7 +19,9 @@
             v-for="attr in attributes"
             v-html="getValue(item, attr)"/>
           <td class="vue-table-options">
-            <radial-annotator :global-id="item.global_id"/>
+            <radial-annotator
+              v-if="annotator"
+              :global-id="item.global_id"/>
             <span
               v-if="edit"
               class="circle-button btn-edit"
@@ -66,7 +68,7 @@
       },
       annotator: {
         type: Boolean,
-        default: false
+        default: true
       },
       edit: {
         type: Boolean,
