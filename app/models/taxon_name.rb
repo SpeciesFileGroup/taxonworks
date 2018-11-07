@@ -917,8 +917,8 @@ class TaxonName < ApplicationRecord
   end
 
   # @return [String, nil]
-  def genderized_name(gender)
-    if gender.nil? || is_genus_group?
+  def genderized_name(gender = nil)
+    if gender.nil? || is_genus_rank?
       name
     else
       name_in_gender(gender)
