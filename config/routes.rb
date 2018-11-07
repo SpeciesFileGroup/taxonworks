@@ -858,7 +858,11 @@ TaxonWorks::Application.routes.draw do
       post 'list' # , action: 'list', as: 'locatity_list_task'
     end
 
-    scope :gis do
+    scope :collecting_events do
+      scope :search_locality, controller: 'tasks/collecting_events/search_locality' do
+        get 'index', as: 'index_search_locality_task'
+      end
+
       scope :geographic_area_lookup, controller: 'tasks/gis/geographic_area_lookup' do
         get 'index', as: 'geographic_area_lookup_task'
         get 'resolve', as: 'geographic_area_lookup_resolve_task', format: :js

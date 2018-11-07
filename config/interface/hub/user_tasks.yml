@@ -350,3 +350,12 @@ index_individual_bibtex_source_task:
   description: 'Parse a captured BibTeX string into a new source'
 
 
+
+index_search_locality_task:
+  hub: true
+  name: 'Search locality by name'
+  related:
+  categories:
+    - collecting_event
+  status: prototype
+  description: 'Alphabetically list localities from shape (drawn or by name)'
