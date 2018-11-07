@@ -91,7 +91,7 @@ class CollectionObjectsController < ApplicationController
   def destroy
     @collection_object.destroy
     respond_to do |format|
-      format.html { redirect_to collection_objects_url }
+      format.html { redirect_to collection_objects_url, notice: 'Collection object was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
