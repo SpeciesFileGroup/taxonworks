@@ -1,3 +1,4 @@
+/* eslint-disable vue/html-indent */
 <template>
   <div>
     <h2>Biocuration</h2>
@@ -21,6 +22,7 @@
           </button>
         </template>
       </div>
+      <lock-component v-model="locked.biocuration"/>
     </div>
   </div>
 </template>
@@ -28,6 +30,7 @@
 <script>
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
+import LockComponent from 'components/lock.vue'
 import { 
   GetBiocurationsTypes, 
   GetBiocurationsCreated, 
@@ -37,7 +40,18 @@ import {
   GetBiocurationsTags } from '../../request/resources.js'
 
 export default {
+  components:{
+    LockComponent
+  },
   computed: {
+    locked: {
+      get() {
+        return this.$store.getters[GetterNames.GetLocked]
+      },
+      set(value) {
+        this.$store.commit([MutationNames.SetLocked, value])
+      }
+    },
     collectionObject() {
       return this.$store.getters[GetterNames.GetCollectionObject]
     },

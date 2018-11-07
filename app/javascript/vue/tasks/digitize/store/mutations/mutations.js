@@ -1,3 +1,5 @@
+import setLocked from './setLocked'
+
 import setContainer from './Container/SetContainer'
 import addContainerItem from './Container/AddContainerItem'
 import setPreferences from './setPreferences'
@@ -94,6 +96,8 @@ import setTaxonDeterminationDay from './TaxonDetermination/setTaxonDetermination
 import setTaxonDeterminationRoles from './TaxonDetermination/setTaxonDeterminationRoles'
 
 const MutationNames = {
+  SetLocked: 'setLocked',
+
   SetContainer: 'setContainer',
   AddContainerItem: 'addContainerItem',
   SetPreferences: 'setPreferences',
@@ -192,6 +196,8 @@ const MutationNames = {
 }
 
 const MutationFunctions = {
+  [MutationNames.SetLocked]: setLocked,
+
   [MutationNames.SetContainer]: setContainer,
   [MutationNames.AddContainerItem]: addContainerItem,
   [MutationNames.SetPreferences]: setPreferences,

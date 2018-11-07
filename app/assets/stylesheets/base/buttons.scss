@@ -166,6 +166,16 @@
   background-image: image-url("w_radialmenu.svg");
 }
 
+.btn-locked {
+  background-size: 12px;
+  background-image: image-url("w_locked.svg");
+}
+
+.btn-unlocked {
+  background-size: 12px;
+  background-image: image-url("w_unlocked.svg");
+}
+
 .btn-hexagon-w {
   background-size: 16px;
   background-image: image-url("w_hexagon.svg");

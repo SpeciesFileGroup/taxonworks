@@ -1,3 +1,4 @@
+import getLocked from './getLocked'
 import getCollectionEvent from './getCollectionEvent'
 import getCollectionObject from './getCollectionObject'
 import getCollectionObjects from './getCollectionObjects'
@@ -16,6 +17,7 @@ import getMaterialTypes from './getMaterialTypes'
 import getLabel from './getLabel'
 
 const GetterNames = {
+  GetLocked: 'getLocked',
   GetTaxonDetermination: 'getTaxonDetermination',
   GetCollectionEvent: 'getCollectionEvent',
   GetCollectionObject: 'getCollectionObject',
@@ -35,6 +37,7 @@ const GetterNames = {
 }
 
 const GetterFunctions = {
+  [GetterNames.GetLocked]: getLocked,
   [GetterNames.GetTaxonDetermination]: getTaxonDetermination,
   [GetterNames.GetCollectionEventLabel]: getCollectionEventLabel,
   [GetterNames.GetCollectionEvent]: getCollectionEvent,
