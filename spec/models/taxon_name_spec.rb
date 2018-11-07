@@ -639,6 +639,15 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     end
 
     context 'instance methods' do
+
+      specify '#genderized_name 1' do
+        expect(genus.genderized_name).to eq('Erythroneura')
+      end
+
+      specify '#genderized_name 2' do
+        expect(genus.genderized_name(:masculine)).to eq('Erythroneura')
+      end
+
       context '#verbatim_author' do
         specify 'parens are allowed' do
           taxon_name.verbatim_author = '(Smith)'
@@ -664,7 +673,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         end
 
         specify 'verbatim_author present' do
-          taxon_name.verbatim_author     = 'Linnaeus'
+          taxon_name.verbatim_author = 'Linnaeus'
           taxon_name.year_of_publication = 1999
           expect(taxon_name.year_integer).to eq(1999)
           expect(taxon_name.author_string).to eq('Linnaeus')
