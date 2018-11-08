@@ -74,7 +74,7 @@
         }
         else {
           return 'search'
-        }        
+        }
       }
     }
   }
