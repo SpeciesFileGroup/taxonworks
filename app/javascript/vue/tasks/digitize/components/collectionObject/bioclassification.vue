@@ -65,7 +65,7 @@ export default {
       biocurationsGroups: [],
       addQueue: [],
       createdBiocutarions: [],
-      delay: undefined
+      delay: undefined,
     }
   },
   mounted: function () {
@@ -80,6 +80,9 @@ export default {
   watch: {
     biologicalId: {
       handler (newVal, oldVal) {
+        if((this.locked.biocuration) && newVal == undefined) {
+          this.addQueue = this.addQueue.concat(this.getCreatedBiocurationIds())
+        }
         this.createdBiocutarions = []
         if (newVal && oldVal == undefined) {
           this.processQueue()
@@ -92,7 +95,7 @@ export default {
               this.createdBiocutarions = response
             })
           }, 250)
-        }
+        } 
       },
       immediate: true
     },
@@ -105,6 +108,11 @@ export default {
     }
   },
   methods: {
+    getCreatedBiocurationIds() {
+      return this.createdBiocutarions.map(item => {
+        return item.biocuration_class_id 
+      })
+    },
     splitGroups() {
       let that = this
       this.biocurationsGroups
