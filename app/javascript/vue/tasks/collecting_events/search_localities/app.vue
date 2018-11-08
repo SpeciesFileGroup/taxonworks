@@ -24,6 +24,7 @@
       return {
         isLoasing: false,
         letter: '',
+        dontKnowYet: '',
         localityList: []
       }
     },
