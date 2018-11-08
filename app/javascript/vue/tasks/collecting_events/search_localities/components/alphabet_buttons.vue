@@ -35,7 +35,7 @@
         this.selected = letter
         let urlParams = new URLSearchParams(window.location.search)
         urlParams.set('letter', letter)
-        history.pushState(null, null, `/tasks/collecting_events/letter?${urlParams.toString()}`)
+        history.pushState(null, null, `/tasks/collecting_events/search_locality/letter?${urlParams.toString()}`)
       }
     }
   }

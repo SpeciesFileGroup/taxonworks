@@ -38,7 +38,7 @@
       }
     },
     methods: {
-      getLocalities(letter) {
+      getLocalities(letter, dontKnowYet) {
         this.isLoading = true
         this.$http.get(`/collecting_events.json?localities_start_with=${letter}&shape=${dontKnowYet}&area_id=${dontKnowYet}`).then(response => {
           this.localityList = response.body;
