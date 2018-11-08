@@ -30,7 +30,7 @@ namespace :tw do
           end
 
           path = @args[:data_directory] + 'sfTaxaByTaxonNameStr.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           count_found = 0
           error_counter = 0
@@ -503,14 +503,15 @@ namespace :tw do
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
+          excluded_taxa = import.get('ExcludedTaxa')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
 
-          # @todo: Temporary "fix" to convert all values to string; will be fixed next time taxon names are imported and following do can be deleted
-          get_tw_taxon_name_id.each do |key, value|
-            get_tw_taxon_name_id[key] = value.to_s
-          end
+          # # @todo: Temporary "fix" to convert all values to string; will be fixed next time taxon names are imported and following do can be deleted
+          # get_tw_taxon_name_id.each do |key, value|
+          #   get_tw_taxon_name_id[key] = value.to_s
+          # end
 
           path = @args[:data_directory] + 'tblTypeSpecies.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -534,9 +535,10 @@ namespace :tw do
 
           file.each_with_index do |row, i|
             next if skipped_file_ids.include? row['FileID'].to_i
-            next if row['SpeciesNameID'] == '0'
-            next if [1143402, 1143425, 1143430, 1143432, 1143436].freeze.include?(row['GenusNameID'].to_i) # used for excluded Beckma ids
-            next if [1109922, 1195997, 1198855].freeze.include?(row['GenusNameID'].to_i) # bad data in Orthoptera (first) and Psocodea (rest)
+            next if excluded_taxa.include? row['GenusNameID']
+            # next if row['SpeciesNameID'] == '0'
+            # next if [1143402, 1143425, 1143430, 1143432, 1143436].freeze.include?(row['GenusNameID'].to_i) # used for excluded Beckma ids
+            # next if [1109922, 1195997, 1198855].freeze.include?(row['GenusNameID'].to_i) # bad data in Orthoptera (first) and Psocodea (rest)
 
             # @todo: SF TaxonNameID pairs must be manually fixed: 1132639/1132641 (Orthoptera) and 1184619/1184569 (Mantodea)
             # @todo: 18 sources not found (see log)
@@ -712,6 +714,7 @@ namespace :tw do
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
+          excluded_taxa = import.get('ExcludedTaxa')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_rank_string = import.get('SFRankIDToTWRankString')
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
@@ -729,7 +732,7 @@ namespace :tw do
 
 
           path = @args[:data_directory] + 'sfTaxaByTaxonNameStr.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           error_counter = 0
           count_found = 0
@@ -745,11 +748,9 @@ namespace :tw do
           end
 
           file.each_with_index do |row, i|
-
-            taxon_name_id = row['TaxonNameID']
             next if skipped_file_ids.include? row['FileID'].to_i
-            next unless taxon_name_id.to_i > 0
-            next if row['TaxonNameStr'].start_with?('1100048-1143863') # name = MiscImages (body parts)
+            taxon_name_id = row['TaxonNameID']
+            next if excluded_taxa.include? sf_taxon_name_id
             next if row['RankID'] == '90' # TaxonNameID = 1221948, Name = Deletable, RankID = 90 == Life, FileID = 1
             next if row['AccessCode'].to_i == 4
 
@@ -949,7 +950,7 @@ namespace :tw do
 
           path = @args[:data_directory] + 'sfMakeOTUs.txt'
           # not a problem right now but eventually should change
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           file.each do |row|
             next if skipped_file_ids.include? row['FileID'].to_i
@@ -983,7 +984,7 @@ namespace :tw do
 
           path = @args[:data_directory] + 'sfSynonymParents.txt'
           # not a problem right now but eventually should change
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           file.each do |row|
             next if skipped_file_ids.include? row['FileID'].to_i
@@ -1093,7 +1094,7 @@ namespace :tw do
           excluded_taxa = [] # list of taxa with AccessCode = 4, TaxonNameID = 0, those used for anatomy, known errors, bad ranks, assorted others
 
           path = @args[:data_directory] + 'sfExcludedTaxa.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           file.each_with_index do |row|
             excluded_taxa.push(row['TaxonNameID'])
