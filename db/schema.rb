@@ -10,13 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180529170201) do
+ActiveRecord::Schema.define(version: 2018_11_02_183022) do
 
   # These are extensions that must be enabled in order to support this database
+  enable_extension "fuzzystrmatch"
+  enable_extension "hstore"
   enable_extension "plpgsql"
   enable_extension "postgis"
-  enable_extension "hstore"
-  enable_extension "fuzzystrmatch"
 
   create_table "alternate_values", id: :serial, force: :cascade do |t|
     t.text "value", null: false
@@ -159,6 +159,8 @@ ActiveRecord::Schema.define(version: 20180529170201) do
     t.integer "created_by_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "description_name"
+    t.string "key_name"
     t.index ["created_by_id"], name: "index_character_states_on_created_by_id"
     t.index ["descriptor_id"], name: "index_character_states_on_descriptor_id"
     t.index ["label"], name: "index_character_states_on_label"
@@ -526,6 +528,8 @@ ActiveRecord::Schema.define(version: 20180529170201) do
     t.string "gene_attribute_logic"
     t.string "cached_gene_attribute_sql"
     t.string "default_unit"
+    t.string "description_name"
+    t.string "key_name"
     t.index ["created_by_id"], name: "index_descriptors_on_created_by_id"
     t.index ["name"], name: "index_descriptors_on_name"
     t.index ["project_id"], name: "index_descriptors_on_project_id"
@@ -553,7 +557,7 @@ ActiveRecord::Schema.define(version: 20180529170201) do
   create_table "documents", id: :serial, force: :cascade do |t|
     t.string "document_file_file_name", null: false
     t.string "document_file_content_type", null: false
-    t.integer "document_file_file_size", null: false
+    t.bigint "document_file_file_size", null: false
     t.datetime "document_file_updated_at", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -924,7 +928,7 @@ ActiveRecord::Schema.define(version: 20180529170201) do
     t.datetime "updated_at", null: false
     t.string "image_file_file_name"
     t.string "image_file_content_type"
-    t.integer "image_file_file_size"
+    t.bigint "image_file_file_size"
     t.datetime "image_file_updated_at"
     t.integer "updated_by_id", null: false
     t.text "image_file_meta"
@@ -993,7 +997,7 @@ ActiveRecord::Schema.define(version: 20180529170201) do
     t.integer "project_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "recipient_honorarium"
+    t.string "recipient_honorific"
     t.string "recipient_country"
     t.text "lender_address", null: false
     t.index ["created_by_id"], name: "index_loans_on_created_by_id"
@@ -1667,7 +1671,7 @@ ActiveRecord::Schema.define(version: 20180529170201) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
-    t.string "cached_original_combination"
+    t.string "cached_original_combination_html"
     t.string "cached_secondary_homonym"
     t.string "cached_primary_homonym"
     t.string "cached_secondary_homonym_alternative_spelling"
@@ -1681,6 +1685,7 @@ ActiveRecord::Schema.define(version: 20180529170201) do
     t.string "verbatim_name"
     t.integer "cached_valid_taxon_name_id"
     t.text "etymology"
+    t.string "cached_original_combination"
     t.index ["created_by_id"], name: "index_taxon_names_on_created_by_id"
     t.index ["name"], name: "index_taxon_names_on_name"
     t.index ["parent_id"], name: "index_taxon_names_on_parent_id"

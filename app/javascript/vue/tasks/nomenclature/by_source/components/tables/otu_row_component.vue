@@ -6,14 +6,15 @@
     </td>
     <td>
       <otu-radial
-        :taxon-id="otu.taxon_name_id"
-        :redirect="false"/>
+          :taxon-id="otu.global_id"
+          :otu="otu"
+          :redirect="false"/>
     </td>
   </tr>
 </template>
 <script>
-  import RadialAnnotator from '../../../../../components/annotator/annotator'
-  import OtuRadial from '../../../../../components/otu/otu'
+  import RadialAnnotator from 'components/annotator/annotator'
+  import OtuRadial from 'components/otu/otu'
   export default {
     components: {
       RadialAnnotator,

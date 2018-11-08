@@ -12,13 +12,13 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
       before {
         sign_in_user_and_select_project
       }
-      # NOTE: The following *has* to be *after* the sign_in_and_select_project !
+
       include_context 'stuff for complex geo tests'
 
-      before { [co_a, co_b, gr_a, gr_b].each }
+      before { [co_a, co_b, gr_a, gr_b, ad2].each }
 
       describe '#set_area', js: true do #
-        it 'renders count of otus in a specific names area' do
+        it 'renders count of otus in a specific names area A' do
           visit(index_path)
           page.execute_script "$('#set_area')[0].scrollIntoView()"
           fill_area_picker_autocomplete('area_picker_autocomplete', with: 'A', select: area_a.id)
@@ -26,15 +26,16 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
           expect(find('#area_count')).to have_text('6')
         end
 
-        it 'renders count of otus in a specific names area' do
+        it 'renders count of otus in a specific names area B' do
           visit(index_path)
           page.execute_script "$('#set_area')[0].scrollIntoView()"
           fill_area_picker_autocomplete('area_picker_autocomplete', with: 'B', select: area_b.id)
           click_button('Set area')
-          expect(find('#area_count')).to have_text('3')
+          expect(find('#area_count')).to have_text('4') # three by collection object,
+          # and one by asserted distribution
         end
 
-        it 'renders count of otus in a specific names area' do
+        it 'renders count of otus in a specific names area E' do
           visit(index_path)
           page.execute_script "$('#set_area')[0].scrollIntoView()"
           fill_area_picker_autocomplete('area_picker_autocomplete', with: 'E', select: area_e.id)
@@ -49,7 +50,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
           this_xpath = find(:xpath, "//input[@id='drawn_area_shape']")
           this_xpath.set area_b.to_simple_json_feature.to_s.gsub('=>', ':')
           click_button('Set area')
-          expect(find('#area_count')).to have_text('3')
+          expect(find('#area_count')).to have_text('4')
         end
 
         it 'renders count of otus in a drawn area' do
@@ -113,10 +114,10 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
           page.execute_script "$('#set_author')[0].scrollIntoView()"
           find('#and_or_select__and_').click
           fill_autocomplete_and_select('author_picker_autocomplete', with: 'Sa',
-                                       select_id:                          sargon.id, object_type: 'author')
+                                       select_id: sargon.id, object_type: 'author')
           wait_for_ajax
           fill_autocomplete_and_select('author_picker_autocomplete', with: 'Pe',
-                                       select_id:                          daryl.id, object_type: 'author')
+                                       select_id: daryl.id, object_type: 'author')
           wait_for_ajax
           click_button('Set Author')
           wait_for_ajax
@@ -128,13 +129,13 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
           page.execute_script "$('#set_author')[0].scrollIntoView()"
           find('#and_or_select__or_').click
           fill_autocomplete_and_select('author_picker_autocomplete', with: 'Sa',
-                                       select_id:                          sargon.id, object_type: 'author')
+                                       select_id: sargon.id, object_type: 'author')
           wait_for_ajax
           fill_autocomplete_and_select('author_picker_autocomplete', with: 'Bi',
-                                       select_id:                          bill.id, object_type: 'author')
+                                       select_id: bill.id, object_type: 'author')
           wait_for_ajax
           fill_autocomplete_and_select('author_picker_autocomplete', with: 'Te',
-                                       select_id:                          ted.id, object_type: 'author')
+                                       select_id: ted.id, object_type: 'author')
           wait_for_ajax
           click_button('Set Author')
           wait_for_ajax

@@ -29,7 +29,7 @@ function makeInitialState () {
       supervisor_email: undefined,
       supervisor_phone: undefined,
       date_closed: undefined,
-      recipient_honorarium: undefined,
+      recipient_honorific: undefined,
       lender_address: undefined,
       clone_from: undefined
     },

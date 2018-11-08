@@ -836,7 +836,7 @@ namespace :tw do
 
           get_biocuration_class_id = {} # key = SF.tblSpecimenCategories.SpmnCategoryID, value = TW.biocuration_class.id
 
-          path = @args[:data_directory] + 'sfSpecimenCategories.txt'
+          path = @args[:data_directory] + 'tblSpecimenCategories.txt' # had been sfSpecimenCategories but not different from the db table??
           file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each_with_index do |row, i|

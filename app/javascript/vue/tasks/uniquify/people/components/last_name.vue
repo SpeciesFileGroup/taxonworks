@@ -26,6 +26,6 @@
       lastName(newVal) {
         this.$emit('input', newVal)
       }
-    }
+    },
   }
 </script>

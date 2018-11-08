@@ -20,6 +20,10 @@ const getString = function(modifiers) {
   return string
 }
 
+const setHelpPresent = function() {
+  document.querySelector('.help-button').classList.add('help-button-present')
+}
+
 HelpSystem.install = function (Vue, options) {
   languages = options.languages
   
@@ -34,8 +38,10 @@ HelpSystem.install = function (Vue, options) {
     bind (el, binding, vnode, oldVnode) {
       if(languages.hasOwnProperty(defaultLanguage)) {
         let description = getString(binding.modifiers)
-        if(description)
+        if(description) {
           el.setAttribute('data-help', description);
+          setHelpPresent();
+        }
       }
     }
   })

@@ -22,11 +22,12 @@ var CarrouselData = function (sec, rows, columns) {
 	};
 
 	CarrouselData.prototype.handleEvents = function() {
-	  $('.data_card').mousedown(function(event) {
-	  	if((event.which) == 1) {
-	     location.href = $(this).children("a").attr('href');
-	   }
-	 });   		
+		$('.data_card').mousedown(function(event) {
+			if( event.target !== this) return;
+			if((event.which) == 1) {
+				location.href = $(this).children("a").attr('href');
+			}
+		});
 	}
 
 	CarrouselData.prototype.addFilter = function(nameFilter) {

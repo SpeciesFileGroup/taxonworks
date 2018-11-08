@@ -77,7 +77,7 @@ export default {
     removeItem(item) {
       this.$http.delete(`${item.object_url}.json`).then(response => {
         let index = this.listWithCreators.findIndex(obj => {
-          return (obj.id == item.id && obj.type == item.type)
+          return (obj.id == item.id && obj.base_class == item.base_class)
         })
         if(index > -1) {
           this.listWithCreators.splice(index, 1)

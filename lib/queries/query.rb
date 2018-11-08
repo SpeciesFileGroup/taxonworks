@@ -28,8 +28,8 @@ module Queries
 
     # @param [Hash] args
     def initialize(string, project_id: nil, **keyword_args)
-      @options = keyword_args
       @query_string = string
+      @options = keyword_args
       @project_id = project_id
       build_terms
     end
@@ -134,6 +134,11 @@ module Queries
       integers.collect{|i| "%#{i}%"}
     end
 
+    # @return [Array]
+    def wildcard_wrapped_years
+      years.collect{|i| "%#{i}%"}
+    end
+
     # @return [String]
     #   if `foo, and 123 and stuff` then %foo%and%123%and%stuff%
     def wildcard_pieces
@@ -156,7 +161,6 @@ module Queries
       end
       limit
     end
-
 
     # generic multi-use bits
     #   table is defined in each query, it is the class of instances being returned
@@ -222,12 +226,12 @@ module Queries
 
     # @return [Arel::Nodes::Matches]
     def named
-      table[:name].matches_any(terms)
+      table[:name].matches_any(terms) if terms.any?
     end
 
     # @return [Arel::Nodes::Matches]
     def exactly_named
-      table[:name].eq(query_string)
+      table[:name].eq(query_string) if !query_string.blank?
     end
 
     # @return [Arel::Nodes::TableAlias]

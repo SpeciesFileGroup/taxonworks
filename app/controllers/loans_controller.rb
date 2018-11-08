@@ -71,7 +71,8 @@ class LoansController < ApplicationController
   end
 
   def list
-    @loans = Loan.includes(:identifiers).with_project_id(sessions_current_project_id).order("CAST(coalesce(identifiers.identifier, '0') AS integer) DESC").references(:identifiers).page(params[:page]) #.per(10) #.per(3)
+    @loans = Loan.includes(:identifiers).with_project_id(sessions_current_project_id)
+      .order(Arel.sql("CAST(coalesce(identifiers.identifier, '0') AS integer) DESC")).references(:identifiers).page(params[:page]) #.per(10) #.per(3)
   end
 
   def search
@@ -111,27 +112,28 @@ class LoansController < ApplicationController
   end
 
   def loan_params
-    params.require(:loan).permit(:date_requested, :request_method, :date_sent, :date_received,
-                                 :date_return_expected, :recipient_person_id, :recipient_address,
-                                 :recipient_email, :recipient_phone, :recipient_country, :supervisor_person_id,
-                                 :supervisor_email, :supervisor_phone, :date_closed, :recipient_honorarium,
-                                 :lender_address,
-                                 :clone_from,
-                                 loan_items_attributes: [
-                                   :_destroy,
-                                   :id,
-                                   :global_entity,
-                                   :loan_item_object_type,
-                                   :loan_item_object_id,
-                                   :position,
-                                   :total,
-                                   :disposition,
-                                   :date_,
-                                   :date_returned_jquery ],
-                                 roles_attributes: [
-                                   :id, :_destroy, :type, :person_id, :position,
-                                   person_attributes: [
-                                     :last_name, :first_name, :suffix, :prefix]],
-                                )
+    params.require(:loan).permit(
+      :date_requested, :request_method, :date_sent, :date_received,
+      :date_return_expected, :recipient_person_id, :recipient_address,
+      :recipient_email, :recipient_phone, :recipient_country, :supervisor_person_id,
+      :supervisor_email, :supervisor_phone, :date_closed, :recipient_honorific,
+      :lender_address,
+      :clone_from,
+      loan_items_attributes: [
+        :_destroy,
+        :id,
+        :global_entity,
+        :loan_item_object_type,
+        :loan_item_object_id,
+        :position,
+        :total,
+        :disposition,
+        :date_,
+        :date_returned_jquery ],
+        roles_attributes: [
+          :id, :_destroy, :type, :person_id, :position,
+          person_attributes: [
+            :last_name, :first_name, :suffix, :prefix]],
+    )
   end
 end

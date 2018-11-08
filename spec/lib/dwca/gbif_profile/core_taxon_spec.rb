@@ -12,7 +12,8 @@ describe "TaxonWorks to GBIF's DwC-A profile core file mapping" do
     #end
 
     ProjectsAndUsers.spin_up_projects_users_and_housekeeping
-    
+   
+    # TODO REMOVE!! 
     $user_id = 1
 
     source = Source::Bibtex.new(

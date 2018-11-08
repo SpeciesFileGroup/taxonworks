@@ -20,19 +20,19 @@
 </template>
 <script>
 
-const GetterNames = require('../store/getters/getters').GetterNames
-const MutationNames = require('../store/mutations/mutations').MutationNames
-const autocomplete = require('../../../components/autocomplete.vue').default
-const recursiveList = require('./recursiveList.vue').default
-const listEntrys = require('./listEntrys.vue').default
-const modal = require('../../../components/modal.vue').default
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
+import Autocomplete from 'components/autocomplete.vue'
+import RecursiveList from './recursiveList.vue'
+import ListEntrys from './listEntrys.vue'
+import Modal from 'components/modal.vue'
 
 export default {
   components: {
-    autocomplete,
-    recursiveList,
-    listEntrys,
-    modal
+    Autocomplete,
+    RecursiveList,
+    ListEntrys,
+    Modal
   },
   name: 'TreeDisplay',
   props: ['treeList', 'parent', 'showModal', 'mutationNameAdd', 'mutationNameModal', 'objectLists', 'displayName', 'nameModule', 'getterList'],

@@ -6,18 +6,8 @@ module Shared::IsData::Annotation
   # This is indirectly responsible for
   # visual position placement in radial annotator
   # middle is left, top/bottom right
-  ANNOTATION_TYPES = [
-    :tags,
-    :citations,  
-    :alternate_values,
-    :depictions,
-    :confidences,
-    :protocol_relationships,
-    :documentation,
-    :identifiers,
-    :data_attributes,
-    :notes
-  ].freeze
+
+  # see config/initializes/constanst/model/annotations for types
 
   module ClassMethods
     # @return [Boolean]
@@ -28,7 +18,7 @@ module Shared::IsData::Annotation
 
     # Determines whether the class can be annotated
     # in one of the following ways
-    ANNOTATION_TYPES.each do |t|
+    ::ANNOTATION_TYPES.each do |t|
       define_method("has_#{t}?") do
         k = "Shared::#{t.to_s.singularize.classify.pluralize}".safe_constantize
         self < k ? true : false
@@ -38,7 +28,7 @@ module Shared::IsData::Annotation
 
   # Determines whether the instance can be annotated
   # in one of the following ways
-  ANNOTATION_TYPES.each do |t|
+  ::ANNOTATION_TYPES.each do |t|
     define_method("has_#{t}?") do
       k = "Shared::#{t.to_s.singularize.classify.pluralize}".safe_constantize
       self.class < k ? true : false
@@ -56,7 +46,7 @@ module Shared::IsData::Annotation
   end
 
   def available_annotation_types
-    ANNOTATION_TYPES.select do |a|
+    ::ANNOTATION_TYPES.select do |a|
       self.send("has_#{a}?")
     end
   end

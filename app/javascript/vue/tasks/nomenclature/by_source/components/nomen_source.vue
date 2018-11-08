@@ -13,9 +13,10 @@
     <span
       v-if="source"
       class="source-text horizontal-left-content">
-      <span
-        class="separate-right"
-        v-html="source.cached"/>
+      <span>
+        <span v-html="source.cached"/>
+        <span class="separate-right">(Published on {{ source.cached_nomenclature_date }})</span>
+      </span>
       <a
         class="separate-right separate-left"
         :href="`/sources/${sourceID}`"
@@ -25,15 +26,26 @@
       <pin-component
         v-if="source.id"
         :object-id="source.id"
-        :type="source.type"/>
+        :type="source.base_class"/>
     </span>
+    <ul
+      v-if="source && source.authors.length"
+      class="no_bullets">
+      <li 
+        v-for="author in source.authors"
+        :key="author.id">
+        <a
+          :href="`${author.object_url}`"
+          target="blank">{{ author.object_tag }}</a>
+      </li>
+    </ul>
   </div>
 </template>
 <script>
 
-  import Autocomplete from "../../../../components/autocomplete";
-  import RadialAnnotator from "../../../../components/annotator/annotator.vue";
-  import PinComponent from "../../../../components/pin.vue"
+  import Autocomplete from "components/autocomplete";
+  import RadialAnnotator from "components/annotator/annotator.vue";
+  import PinComponent from "components/pin.vue"
 
   export default {
     components: {
@@ -85,7 +97,7 @@
 <style lang="scss">
   #nomenclature-by-source-task {
     .nomen-source {
-      height:100px;
+      min-height:100px;
       .source-text {
         font-size: 110%;
       }

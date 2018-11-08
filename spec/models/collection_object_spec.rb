@@ -1,7 +1,9 @@
 require 'rails_helper'
 require 'support/shared_contexts/shared_geo'
 
+# See spec/models/biological_collection_object for nested attributes and taxon determinations
 describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_objects] do
+
   include_context 'stuff for complex geo tests'
 
   let(:collection_object) { CollectionObject.new() }
@@ -9,7 +11,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
 
   context 'validation' do
     specify '.valid_new_object_classes' do
-      expect(CollectionObject.valid_new_object_classes).to contain_exactly('CollectionObject', 'Extract')
+      expect(CollectionObject.valid_new_object_classes).to contain_exactly('CollectionObject', 'Extract', 'AssertedDistribution')
     end
 
     specify 'type is not set when total/ranged_lot are not provided' do
@@ -202,9 +204,6 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
   end
 
   context 'attributes' do
-    # xspecify "destroyed? (gone, for real, never ever EVER coming back)"
-    # xspecify "condition (damaged/level)"
-
     specify '#accession_provider' do
       expect(collection_object.accession_provider = FactoryBot.build(:valid_person)).to be_truthy
     end
@@ -214,7 +213,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
     end
   end
 
-  # See spec/models/biological_collection_object for nested attributes and taxon determinations
+  
 
   context 'soft validation' do
     let(:o) { Specimen.new }
@@ -358,15 +357,15 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
        co_v, co_p2b, co_p3b, co_m3, co_n1,
        co_o2, gr_o2, co_m3, gr_m3, gr_p4s].each
     }
-    let(:project_id) { geo_project }
 
     describe 'all collecting events' do
       specify 'should find 15 collection objects' do
         collecting_event_ids = CollectingEvent.all.pluck(:id)
-        collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids,
-                                                                       [],
-                                                                       false,
-                                                                       project_id)
+        collection_objects   = CollectionObject.from_collecting_events(
+          collecting_event_ids,
+          [],
+          false,
+          project_id)
         expect(CollectionObject.count).to eq(16)
         expect(collection_objects.count).to eq(15)
       end
@@ -379,6 +378,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
         collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1970/01/01',
                                                               search_end_date:   '1979/12/31',
                                                               partial_overlap:   'on'}).pluck(:id)
+
         # equivalent to the whole world - not a very good isolation test
         area_object_ids    = CollectionObject.all.pluck(:id)
         collection_objects = CollectionObject.from_collecting_events(collecting_event_ids,
@@ -418,8 +418,6 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
                                                                      area_object_ids,
                                                                      false,
                                                                      project_id)
-        # expect(collecting_event_ids.count).to eq(11)
-        # expect(collection_objects.count).to eq(2)
         expect(collection_objects).to contain_exactly(co_m3, co_n3)
       end
 
@@ -429,7 +427,6 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
                                                                      [],
                                                                      true,
                                                                      project_id)
-        # expect(area_col_event_ids.count).to eq(6)
         expect(collection_objects.count).to eq(0)
       end
     end
@@ -444,7 +441,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
     let(:type_cat_no) { 'Identifier::Local::CatalogNumber' }
 
     let(:id_attributes) { {namespace:  nil,
-                           project_id: $project_id,
+                           project_id: project_id,
                            type:       nil,
                            identifier: nil} }
     before :all do

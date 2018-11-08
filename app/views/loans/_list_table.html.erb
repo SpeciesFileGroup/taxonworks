@@ -17,7 +17,7 @@
     <%= fancy_th_tag(name: 'Supervisor email') -%>
     <%= fancy_th_tag(name: 'Supervisor phone') -%>
     <%= fancy_th_tag(name: 'Date closed') -%>
-    <%= fancy_th_tag(name: 'Recipient honorarium') -%>
+    <%= fancy_th_tag(name: 'Recipient honorific') -%>
     <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
     <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
@@ -41,7 +41,7 @@
           <td><%= loan.supervisor_email %></td>
           <td><%= loan.supervisor_phone %></td>
           <td><%= loan.date_closed %></td>
-          <td><%= loan.recipient_honorarium %></td>
+          <td><%= loan.recipient_honorific %></td>
           <%= fancy_metadata_cells_tag(loan) -%>
       <% end %>
   <% end %>

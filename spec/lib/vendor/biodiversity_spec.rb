@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe TaxonWorks::Vendor::Biodiversity, type: :model do
+describe TaxonWorks::Vendor::Biodiversity, type: :model, group: [:nomenclature] do
   context 'Result' do
 
     let(:result) { TaxonWorks::Vendor::Biodiversity::Result.new }
@@ -26,6 +26,12 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model do
 
       specify '#parseable 2' do
         result.name = 'asdfasdfasf'
+        result.parse
+        expect(result.parseable).to eq(false)
+      end 
+
+      specify '#parseable 3' do
+        result.name = 'valerius (Eades, 1964)'
         result.parse
         expect(result.parseable).to eq(false)
       end 
@@ -253,6 +259,22 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model do
             expect(result.string('subspecies')).to eq('cus') 
           end
 
+          specify '#string 4' do
+            result.name = 'Aus cf bus'
+            result.parse
+            expect(result.genus).to eq('Aus')
+            expect(result.species).to eq('bus')
+          end
+
+          # Not yet handled in Biodiversity
+          # specify '#string 5' do
+          #  result.name = 'Aus bus cf dus'
+          #  result.parse
+          #  expect(result.genus).to eq('Aus')
+          #  expect(result.species).to eq('bus')
+          #  expect(result.subspecies).to eq('dus')
+          # end
+
           specify '#build_result succeeds' do
             result.name = 'Aus bus form cus Smith and Jones, 1920'
             result.parse
@@ -425,9 +447,4 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model do
       end
     end
   end
-end 
-
-
-
-
-
+end

@@ -8,12 +8,19 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
 
   validates_uniqueness_of :object_taxon_name_id, scope: :type
 
-  after_destroy :set_cached_original_combination
+  after_destroy :set_cached_original_combination # sets both cached/html
 
   def self.nomenclatural_priority
     :reverse
   end
 
+  # @return [Symbol]
+  #   the rank this relationship applies to as a symbol
+  def applicable_rank
+    self.class.name.demodulize.underscore.humanize.downcase.gsub('original ', '').to_sym
+  end
+
+  # TODO: Why only ICN?
   def self.order_index
     RANKS.index(::ICN_LOOKUP[self.name.demodulize.underscore.humanize.downcase.gsub('original ', '')])
   end
@@ -40,6 +47,34 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
 
   def object_status_connector_to_subject
     ''
+  end
+
+  # @return [String, nil]  
+  #   String should be included in Protonym::
+  def monomial_prefix
+    nil
+  end
+
+  # @return [Hash]
+  #   the elements of the original combination name for this instance
+  #   TODO: reconcile this with <>_name_elements for other combinations.
+  #   TODO: reconcile this format with that of full_name_hash
+  def combination_name
+    elements = [monomial_prefix]
+    if !subject_taxon_name.verbatim_name.blank? # subject_taxon_name ?! TODO ?! - provide verbatim test
+      elements.push subject_taxon_name.verbatim_name 
+    else
+      elements.push subject_taxon_name.genderized_name(element_gender)
+    end
+
+    elements.push('[sic]') if subject_taxon_name.cached_misspelling
+    elements[1] = "(#{elements[1]})" if applicable_rank == :subgenus
+
+    return {applicable_rank => elements}
+  end
+
+  def element_gender
+    subject_taxon_name.gender_name
   end
 
   protected

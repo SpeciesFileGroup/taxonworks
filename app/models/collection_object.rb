@@ -79,7 +79,7 @@ class CollectionObject < ApplicationRecord
   include Shared::IsDwcOccurrence
   include CollectionObject::DwcExtensions
 
-  is_origin_for 'CollectionObject', 'Extract'
+  is_origin_for 'CollectionObject', 'Extract', 'AssertedDistribution'
 
   CO_OTU_HEADERS      = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
   BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze
@@ -107,28 +107,28 @@ class CollectionObject < ApplicationRecord
   # Preparation delegations
   delegate :name, to: :preparation_type, prefix: :preparation_type, allow_nil: true
 
-  has_one :accession_provider_role, class_name: 'AccessionProvider', as: :role_object
+  has_one :accession_provider_role, class_name: 'AccessionProvider', as: :role_object, dependent: :destroy
   has_one :accession_provider, through: :accession_provider_role, source: :person
-  has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object
+  has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object, dependent: :destroy
   has_one :deaccession_recipient, through: :deaccession_recipient_role, source: :person
 
-  has_many :biological_associations, as: :biological_association_subject, inverse_of: :biological_association_subject 
+  has_many :biological_associations, as: :biological_association_subject, inverse_of: :biological_association_subject, dependent: :restrict_with_error
   has_many :related_biological_associations, as: :biological_association_object, inverse_of: :biological_association_object, class_name: 'BiologicalAssociation'
 
-  has_many :derived_collection_objects, inverse_of: :collection_object
+  has_many :derived_collection_objects, inverse_of: :collection_object, dependent: :restrict_with_error
   has_many :collection_object_observations, through: :derived_collection_objects, inverse_of: :collection_objects
-  has_many :sqed_depictions, through: :depictions
+  has_many :sqed_depictions, through: :depictions, dependent: :restrict_with_error
 
-  has_many :observations, inverse_of: :collection_object
-  has_many :observation_matrix_rows, inverse_of: :collection_object
-  has_many :observation_matrix_row_items, inverse_of: :collection_object
+  has_many :observations, inverse_of: :collection_object, dependent: :restrict_with_error
+  has_many :observation_matrix_rows, inverse_of: :collection_object, dependent: :destroy 
+  has_many :observation_matrix_row_items, inverse_of: :collection_object, dependent: :destroy
 
   # This is a problem, but here for the foreseeable future for nested attributes purporses.
-  has_many :taxon_determinations, foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object
+  has_many :taxon_determinations, foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object, dependent: :destroy
   has_many :otus, through: :taxon_determinations, inverse_of: :collection_objects
   has_many :taxon_names, through: :otus
 
-  has_many :type_designations, class_name: 'TypeMaterial', foreign_key: :biological_object_id, inverse_of: :material
+  has_many :type_designations, class_name: 'TypeMaterial', foreign_key: :biological_object_id, inverse_of: :material, dependent: :restrict_with_error
 
   belongs_to :collecting_event, inverse_of: :collection_objects
   belongs_to :preparation_type, inverse_of: :collection_objects
@@ -367,7 +367,10 @@ class CollectionObject < ApplicationRecord
       step_4 = step_3.map(&:collection_objects).flatten.map(&:id).uniq
       retval = CollectionObject.where(id: step_4.sort)
     else
-      retval = CollectionObject.joins(:geographic_items).where(GeographicItem.contained_by_where_sql(geographic_item.id)).limit(limit).includes(:data_attributes, :collecting_event)
+      retval = CollectionObject.joins(:geographic_items)
+                   .where(GeographicItem.contained_by_where_sql(geographic_item.id))
+                   .limit(limit)
+                   .includes(:data_attributes, :collecting_event)
     end
     retval
   end
@@ -598,17 +601,17 @@ class CollectionObject < ApplicationRecord
   # @return [Scope]
   #    the max 10 most recently used collection_objects, as `used_on`
   def self.used_recently(used_on = '')
-    t = case used_on 
+    t = case used_on
         when 'TaxonDetermination'
           TaxonDetermination.arel_table
         when 'BiologicalAssociation'
           BiologicalAssociation.arel_table
         end
 
-    p = CollectionObject.arel_table 
+    p = CollectionObject.arel_table
 
     # i is a select manager
-    i = case used_on 
+    i = case used_on
         when 'BiologicalAssociation'
           t.project(t['biological_association_subject_id'], t['created_at']).from(t)
             .where(
@@ -623,13 +626,13 @@ class CollectionObject < ApplicationRecord
             .order(t['created_at'])
         end
 
-    # z is a table alias 
+    # z is a table alias
     z = i.as('recent_t')
 
     j = case used_on
-        when 'BiologicalAssociation' 
+        when 'BiologicalAssociation'
           Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
-            z['biological_association_subject_id'].eq(p['id'])  
+            z['biological_association_subject_id'].eq(p['id'])
           ))
         else
           Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['biological_collection_object_id'].eq(p['id']))) # !! note it's not biological_collection_object_id
@@ -638,7 +641,7 @@ class CollectionObject < ApplicationRecord
     CollectionObject.joins(j).distinct.limit(10)
   end
 
-  # @params target [String] one of `TaxonDetermination`, `BiologicalAssociation` 
+  # @params target [String] one of `TaxonDetermination`, `BiologicalAssociation`
   # @return [Hash] otus optimized for user selection
   def self.select_optimized(user_id, project_id, target = '')
     h = {
@@ -647,7 +650,7 @@ class CollectionObject < ApplicationRecord
     }
 
     h[:recent] = CollectionObject.joins(target.tableize.to_sym).where(project_id: project_id).used_recently(target).limit(10).distinct.to_a
-    h[:quick] = (CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq 
+    h[:quick] = (CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq
     h
   end
 

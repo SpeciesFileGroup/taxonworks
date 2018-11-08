@@ -31,6 +31,19 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       expect(taxon_name_relationship).to respond_to (:type)
     end
 
+    specify 'respond to .assignmet_method' do
+      TaxonNameRelationship.descendants.each do |klass|
+        a  = ''
+        if klass.respond_to?(:assignment_method)
+          unless klass.respond_to?(:inverse_assignment_method)
+            a += klass.to_s + ', '
+          end
+        end
+        expect(a).to eq('')
+      end
+    end
+
+
     specify 'missing and duplicate NOMEN_URI' do
       nomen_uris = []
       TaxonNameRelationship.descendants.each do |klass|
@@ -240,9 +253,8 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       # TODO: this can be moved out to the new original_combination specs
       specify 'for cached_original_combination' do
         # Use non FactoryBot to get callbacks
-        s1.original_genus = g2
-        s1.save!
-        expect(s1.cached_original_combination).to eq('<i>Bus aus</i>')
+        s1.update(original_genus: g2)
+        expect(s1.cached_original_combination).to eq('Bus aus')
       end
 
       specify 'for cached_primary_homony' do
@@ -268,15 +280,13 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
 
       # TODO: notice that alone they pass, we need a seperate method for setting cached_classified_as, i.e. decouple it from original combination cache setting
       specify 'for cached_classified_as with original genus present' do
-        s1.original_genus = g2
-        s1.save!
-        r2 = FactoryBot.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: @family, type: 'TaxonNameRelationship::SourceClassifiedAs')
-        r2.save!
+        s1.update(original_genus: g2)
+        r2 = TaxonNameRelationship::SourceClassifiedAs.create!(subject_taxon_name: s1, object_taxon_name: @family, type: 'TaxonNameRelationship::SourceClassifiedAs')
         expect(s1.cached_classified_as).to eq(' (as Erythroneuridae)')
       end
 
       specify 'for cached_valid_taxon_name_id' do
-        r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+        r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: g2, object_taxon_name: g1)
         g2.reload
         expect(g2.cached_valid_taxon_name_id).to eq(g1.id)
         r1.destroy!
@@ -284,19 +294,18 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         expect(g2.cached_valid_taxon_name_id).to eq(g2.id)
       end
 
-
-
       specify 'fixing synonym linked to another synonym' do
-        r3 = FactoryBot.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
+        r3 = FactoryBot.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, 
+                              type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
         r3.soft_validate(:synonym_linked_to_valid_name)
         expect(r3.soft_validations.messages_on(:subject_taxon_name_id).size).to eq(1)
         r3.fix_soft_validations
         r3.save!
         expect(s1.cached_misspelling).to be_truthy
+   
         expect(s1.cached).to eq('Bus aus [sic]')
         expect(s1.cached_html).to eq('<i>Bus aus</i> [sic]')
       end
-
     end
 
     specify 'destroy relationship' do
@@ -310,9 +319,9 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       r2.save!
       r3.save!
       s1.save!
-      expect(s1.cached_original_combination).to eq('<i>Aus</i> (<i>Aus</i>) <i>aus</i>')
+      expect(s1.cached_original_combination).to eq('Aus (Aus) aus')
       r2.destroy
-      expect(s1.cached_original_combination).to eq('<i>Aus aus</i>')
+      expect(s1.cached_original_combination).to eq('Aus aus')
     end
   end
 

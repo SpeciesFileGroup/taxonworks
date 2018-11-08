@@ -1,6 +1,9 @@
+# Nested ness of this should get all the relationships?
+require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'  
+#
 # Force the loading of TaxonNameRelationships in all worlds.  This allows us to edit without restarting in development.
-Dir[Rails.root.to_s + '/app/models/taxon_name_relationship/**/*.rb'].sort.each {|file| require_dependency file }
-
+# Dir[Rails.root.to_s + '/app/models/taxon_name_relationship/**/*.rb'].sort.each {|file| require_dependency file }
+#
 # A *monomial* TaxonName, a record implies a first usage. This follows Pyle's concept almost exactly.
 #
 # We inject a lot of relationship helper methods here, in this format.
@@ -146,11 +149,6 @@ class Protonym < TaxonName
     (relationships.collect { |r| r.subject_taxon_name.name } + [self.ancestor_at_rank('genus').try(:name)]).uniq
   end
 
-  # @return [boolean]
-  def is_fossil?
-    taxon_name_classifications.with_type_contains('::Fossil').any?
-  end
-
   def list_of_coordinated_names
     list = []
     if self.rank_string
@@ -201,6 +199,7 @@ class Protonym < TaxonName
   end
 
   # @return [String, nil]
+  # TODO: not true, *has* parens?!
   #   a string, without parenthesis, that includes author and year
   def get_author_and_year
     # times_called
@@ -245,6 +244,7 @@ class Protonym < TaxonName
     (genus.to_s + ' ' + name1.to_s).squish
   end
 
+  # TODO, make back half of this raw SQL
   def lowest_rank_coordinated_taxon
     list = [self] + list_of_coordinated_names
     if list.count == 1
@@ -346,6 +346,7 @@ class Protonym < TaxonName
     # !((type == 'Protonym') && (taxon_name_classifications.collect{|t| t.type} & EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS).empty?)
 
     # Is faster than above?
+    return true if rank_string =~ /Icnb/ && (name.start_with?('Candidatus ') || name.start_with?('Ca. '))
     taxon_name_classifications.each do |tc| # ! find_each
       return true if TaxonName::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(tc.type)
     end
@@ -463,7 +464,6 @@ class Protonym < TaxonName
     nil
   end
 
-
   # @return [Boolean]
   #   Wraps set_original_combination with result from Biodiversity parse
   #   !!You must can optionally pre-calculate a disambiguated protonym if you wish to use one. 
@@ -497,108 +497,64 @@ class Protonym < TaxonName
     true
   end
 
-  # TODO: refactor to use us a hash!
-  # @return [String, nil]
-  #   the string representing the name as originally published
   def get_original_combination
-    # strategy is to get the original hash, and swap in values for pertinent relationships
-    str = nil
+    e = original_combination_elements
+    return nil if e.none? 
 
-    if is_genus_or_species_rank?
-      relationships = self.original_combination_relationships.reload
+    # Weird, why? TODO: needs spec
+    return e[:species] if rank_class =~ /Ictv/
 
-      return nil if relationships.count == 0
+    p = TaxonName::COMBINATION_ELEMENTS.inject([]){|ary, r| ary.push(e[r]) } 
+    
+    s = p.flatten.compact.join(' ')
+    s.blank? ? nil : s
+  end
 
-      # This can be greatly simplified by swapping in names to the hash method
+  def original_combination_elements
+    elements = { } 
+    return elements if rank.blank?
 
-      relationships = relationships.sort_by{|r| r.type_class.order_index }
-      genus         = ''
-      subgenus      = ''
-      superspecies  = ''
-      species       = ''
-      gender        = nil
-      g1 = nil
-      s1 = nil
+    this_rank = rank.to_sym
 
-      relationships.each do |i|
-        if i.object_taxon_name_id == i.subject_taxon_name_id && !i.object_taxon_name.verbatim_name.blank?
-          misspelling = i.subject_taxon_name.cached_misspelling ? ' [sic]' : ''
-          case i.type # subject_status
-            when /OriginalGenus/ #'original genus'
-              genus  = '<i>' + i.subject_taxon_name.verbatim_name + misspelling +'</i> ' # why verbatim_name?
-              gender = i.subject_taxon_name.gender_name
-              g1 = true
-            when /OriginalSubgenus/ # 'original subgenus'
-              subgenus += '<i>' + i.subject_taxon_name.verbatim_name + misspelling + '</i> '
-            when /OriginalSpecies/ #  'original species'
-              species += '<i>' + i.subject_taxon_name.verbatim_name + misspelling + '</i> '
-              s1 = true
-            when /OriginalSubspecies/ # 'original subspecies'
-              species += '<i>' + i.subject_taxon_name.verbatim_name + misspelling + '</i> '
-            when /OriginalVariety/ #  'original variety'
-              species += 'var. <i>' + i.subject_taxon_name.verbatim_name + misspelling + '</i> '
-            when /OriginalSubvariety/ # 'original subvariety'
-              species += 'subvar. <i>' + i.subject_taxon_name.verbatim_name + misspelling + '</i> '
-            when /OriginalForm/ # 'original form'
-              species += 'f. <i>' + i.subject_taxon_name.verbatim_name + misspelling + '</i> '
-            when /OriginalSubform/ #  'original subform'
-              species += 'subf. <i>' + i.subject_taxon_name.verbatim_name + misspelling + '</i> '
-          end
-        else
-          case i.type # subject_status
-            when /OriginalGenus/ #'original genus'
-              genus  = '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-              gender = i.subject_taxon_name.gender_name
-              g1 = true
-            when /OriginalSubgenus/ # 'original subgenus'
-              subgenus += '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-            when /OriginalSpecies/ #  'original species'
-              species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-              s1 = true
-            when /OriginalSubspecies/ # 'original subspecies'
-              species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-            when /OriginalVariety/ #  'original variety'
-              species += 'var. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-            when /OriginalSubvariety/ # 'original subvariety'
-              species += 'subvar. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-            when /OriginalForm/ # 'original form'
-              species += 'f. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-            when /OriginalSubform/ #  'original subform'
-              species += 'subf. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-          end
-        end
-      end
+    r = original_combination_relationships.reload 
 
-      original_name = self.verbatim_name.nil? ? self.name_with_misspelling(nil) : self.verbatim_name
-      if !relationships.empty? && relationships.collect{|i| i.subject_taxon_name}.last.lowest_rank_coordinated_taxon.id != self.lowest_rank_coordinated_taxon.id
-        if self.rank_string =~ /Genus/
-          if genus.blank?
-            genus += '<i>' + original_name + '</i> '
-            g1 = true
-          else
-            subgenus += '<i>' + original_name + '</i> '
-          end
-        elsif self.rank_string =~ /Species/
-          species += '<i>' + original_name + '</i> '
-          s1 = true
-          # genus = '<i>' + self.ancestor_at_rank('genus').name_with_misspelling(nil) + '</i> ' if genus.empty? && !self.ancestor_at_rank('genus').nil?
-        end
-      end
-
-      subgenus = '(' + subgenus.squish + ') ' unless subgenus.empty?
-      genus = '[GENUS NOT SPECIFIED]' + genus.to_s if g1.nil?
-      genus = '' if not_binomial?
-      species = '[SPECIES NOT SPECIFIED]' + species.to_s if s1.nil? && !species.empty?
-      str = (genus + subgenus + superspecies + species).gsub(' [sic]', '</i> [sic]<i>').gsub('</i> <i>', ' ').gsub('<i></i>', '').gsub('<i> ', ' <i>').squish
-      str = species if rank_class =~ /Ictv/
+    r.each do |i|
+      elements.merge! i.combination_name
     end
-    str.blank? ? nil : str
+
+    # TODO: what is point of this? Do we get around this check by requiring self relationships? (species aus has species relationship to self)
+    if !r.empty? && r.collect{|i| i.subject_taxon_name}.last.lowest_rank_coordinated_taxon.id != lowest_rank_coordinated_taxon.id
+      if elements[this_rank].nil?
+        elements[this_rank] = [original_name] 
+      end
+    end
+
+    if elements.any?
+      elements[:genus] = '[GENUS NOT SPECIFIED]' unless elements[:genus]
+      # If there is no :species, but some species group, add element
+      elements[:species] = '[SPECIES NOT SPECIFIED]' if !elements[:species] && ( [:subspecies, :variety, :form, :subform, :subvariety] & elements.keys ).size > 0
+    end
+
+    elements
+  end
+
+  # @return [String, nil]
+  #    a monomial, as originally rendered, with parens if subgenus
+  def original_name
+    n = verbatim_name.nil? ? name_with_misspelling(nil) : verbatim_name
+    n = "(#{n})" if n && rank == 'subgenus'
+    n
+  end 
+
+  def get_original_combination_html
+    Utilities::Italicize.taxon_name(get_original_combination)
   end
 
   # TODO: @proceps - confirm this is only applicable to Protonym, NOT Combination
   def update_cached_original_combinations
     update_columns(
       cached_original_combination: get_original_combination,
+      cached_original_combination_html: get_original_combination_html,
       cached_primary_homonym: get_genus_species(:original, :self),
       cached_primary_homonym_alternative_spelling: get_genus_species(:original, :alternative))
   end
@@ -728,11 +684,11 @@ class Protonym < TaxonName
     super
     set_cached_names_for_dependants # !!! do we run set cached names 2 x !?!
     set_cached_original_combination
+    set_cached_original_combination_html
     set_cached_homonymy
     set_cached_species_homonym if is_species_rank?
     set_cached_misspelling
   end
-
 
   def set_cached_homonymy
     update_columns(
@@ -750,7 +706,9 @@ class Protonym < TaxonName
     update_column(:cached_original_combination, get_original_combination)
   end
 
-  #endregion
+  def set_cached_original_combination_html
+    update_column(:cached_original_combination_html, get_original_combination_html)
+  end
 
   # Validate whether cached names need to be rebuilt.
   #

@@ -9,7 +9,7 @@ cache:
 dist: trusty
 # sudo: required
 rvm:
-  - 2.4.4
+  - 2.5.1
 bundler_args: --without development production
 branches:
   only:
@@ -33,6 +33,10 @@ addons:
 env:
   global:
     - PGPORT=5433
+#   - TEST_GROUP=1
+#   - TEST_GROUP=2
+#   - TEST_GROUP=3
+#   - TEST_GROUP=4
 services:
   - postgresql
 before_install:
@@ -40,7 +44,7 @@ before_install:
   - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.7.0
   - export PATH=$HOME/.yarn/bin:$PATH
 install:
-  - yarn
+  - npm install
   - bundle install --without development production
 before_script:
   - "export DISPLAY=:99.0"
@@ -56,6 +60,7 @@ before_script:
   - ls -alh public/packs-test 
 script:
   - bundle exec rake assets:precompile
+# - bundle exec parallel_test spec/ -n 6 --only-group $TEST_GROUP --group-by filesize --type rspec
   - bundle exec rspec
 notifications:
   email:

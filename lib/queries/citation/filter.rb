@@ -1,8 +1,12 @@
+# To identify the polymorphic params, include the pertinent model we rereference here
+require_dependency Rails.root.to_s + '/app/models/collecting_event'
+
 module Queries
   module Citation
 
     # !! does not inherit from base query
-    class Filter 
+    class Filter
+      
       include Concerns::Polymorphic
       polymorphic_klass(::Citation)
 

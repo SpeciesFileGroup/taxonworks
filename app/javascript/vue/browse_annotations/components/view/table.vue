@@ -16,7 +16,7 @@
           :key="item.id"
           class="list-complete-item">
           <td
-            v-for="attr in types[item.type].attributes"
+            v-for="attr in types[item.base_class].attributes"
             v-html="getValue(item, attr)"/>
           <td class="vue-table-options">
             <radial-annotator :global-id="item.annotated_object.global_id"/>

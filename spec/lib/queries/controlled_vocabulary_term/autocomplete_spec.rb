@@ -11,16 +11,22 @@ describe Queries::ControlledVocabularyTerm::Autocomplete, type: :model, group: [
   let!(:o2) { FactoryBot.create(:valid_specimen) }
   let!(:o3) { FactoryBot.create(:valid_collecting_event) }
 
-  let!(:t1) { FactoryBot.create(:valid_tag, keyword: cvt1, tag_object: o1) }
-  let!(:t2) { FactoryBot.create(:valid_tag, keyword: cvt1, tag_object: o3) }
+  let!(:t1) { Tag.create!(keyword: cvt1, tag_object: o1) }
+  let!(:t2) { Tag.create!(keyword: cvt1, tag_object: o3) }
 
   let!(:q) { Queries::ControlledVocabularyTerm::Autocomplete.new('') }
 
-  context 'of_type' do
-    before { q.of_type = ['Keyword'] }
-    specify 'of_type' do
-      expect( q.all.to_a ).to contain_exactly(cvt1, cvt2) 
-    end
+  specify '#of_type' do
+    q.of_type = ['Keyword']
+    expect( q.all.to_a ).to contain_exactly(cvt1, cvt2) 
   end
+
+  specify '#project_id' do
+    q.of_type = ['Keyword']
+    q.project_id = 99
+    expect( q.all.to_a ).to contain_exactly() 
+  end
+
+
 
 end

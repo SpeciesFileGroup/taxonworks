@@ -39,7 +39,7 @@
           </div>
           <div
             class="new-taxon-name-block"
-            v-if="showForThisGroup(['SpeciesGroup','GenusGroup'], getTaxon)">
+            v-if="showForThisGroup(['SpeciesGroup','GenusGroup', 'SpeciesAndInfraspeciesGroup'], getTaxon)">
             <spinner
               :show-spinner="false"
               :show-legend="false"
@@ -47,7 +47,7 @@
             <block-layout
               anchor="original-combination"
               v-help.section.originalCombination.container>
-              <h3 slot="header">Original Combination</h3>
+              <h3 slot="header">Original combination and classification</h3>
               <div slot="body">
                 <pick-original-combination/>
               </div>
@@ -89,43 +89,43 @@
 <script>
 import showForThisGroup from './helpers/showForThisGroup'
 import Otu from '../../components/otu/otu.vue'
-var sourcePicker = require('./components/sourcePicker.vue').default
-var relationshipPicker = require('./components/relationshipPicker.vue').default
-var statusPicker = require('./components/statusPicker.vue').default
-var navHeader = require('./components/navHeader.vue').default
-var taxonNameBox = require('./components/taxonNameBox.vue').default
-var etymology = require('./components/etymology.vue').default
-var genderBlock = require('./components/gender.vue').default
-var checkChanges = require('./components/checkChanges.vue').default
-var typeBlock = require('./components/type.vue').default
-var basicInformation = require('./components/basicInformation.vue').default
-var originalCombination = require('./components/originalCombination.vue').default
-var pickOriginalCombination = require('./components/pickOriginalCombination.vue').default
+import SourcePicker from './components/sourcePicker.vue'
+import RelationshipPicker from './components/relationshipPicker.vue'
+import StatusPicker from './components/statusPicker.vue'
+import NavHeader from './components/navHeader.vue'
+import TaxonNameBox from './components/taxonNameBox.vue'
+import Etymology from './components/etymology.vue'
+import GenderBlock from './components/gender.vue'
+import CheckChanges from './components/checkChanges.vue'
+import TypeBlock from './components/type.vue'
+import BasicInformation from './components/basicInformation.vue'
+import OriginalCombination from './components/originalCombination.vue'
+import PickOriginalCombination from './components/pickOriginalCombination.vue'
 
-var softValidation = require('./components/softValidation.vue').default
-var spinner = require('../../components/spinner.vue').default
-var blockLayout = require('./components/blockLayout').default
+import SoftValidation from './components/softValidation.vue'
+import Spinner from 'components/spinner.vue'
+import BlockLayout from './components/blockLayout'
 
-const GetterNames = require('./store/getters/getters').GetterNames
-const ActionNames = require('./store/actions/actions').ActionNames
+import { GetterNames } from './store/getters/getters'
+import { ActionNames } from './store/actions/actions'
 
 export default {
   components: {
-    etymology,
-    sourcePicker,
-    spinner,
-    navHeader,
-    statusPicker,
-    taxonNameBox,
-    relationshipPicker,
-    basicInformation,
-    softValidation,
-    blockLayout,
-    originalCombination,
-    pickOriginalCombination,
-    typeBlock,
-    genderBlock,
-    checkChanges,
+    Etymology,
+    SourcePicker,
+    Spinner,
+    NavHeader,
+    StatusPicker,
+    TaxonNameBox,
+    RelationshipPicker,
+    BasicInformation,
+    SoftValidation,
+    BlockLayout,
+    OriginalCombination,
+    PickOriginalCombination,
+    TypeBlock,
+    GenderBlock,
+    CheckChanges,
     Otu
   },
   computed: {

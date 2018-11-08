@@ -4,6 +4,10 @@ module OtusHelper
     return nil if otu.nil?
     a = content_tag(:span, otu.name, class: :otu_tag_otu_name) if otu.name
     b = content_tag(:span, full_taxon_name_tag(otu.taxon_name).html_safe, class: :otu_tag_taxon_name) if otu.taxon_name_id
+    if otu.taxon_name_id && otu.taxon_name.rank_class.to_s =~ /Genus/
+      b += " sp."
+      b = b.gsub('"</span> sp.', ' sp."</span>').gsub('</span> sp.', ' sp.</span>')
+    end
     content_tag(:span, [b,a].compact.join.html_safe, class: :otu_tag)
   end
 

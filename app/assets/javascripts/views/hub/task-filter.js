@@ -141,7 +141,7 @@ var CarrouselTask = function (sec, rows, columns) {
   }
   
   CarrouselTask.prototype.hasWords = function(child) {
-    if(($(child).find('.task_name a').text().toLowerCase().indexOf(this.filterWords.toLowerCase()) >= 0) || (this.filterWords == "")) {
+    if(($(child).find('.task_name').text().toLowerCase().indexOf(this.filterWords.toLowerCase()) >= 0) || (this.filterWords == "")) {
       return true;
     }
     else {
@@ -203,9 +203,10 @@ var CarrouselTask = function (sec, rows, columns) {
     }
     for (var i = this.start; i < this.active.length; i++) {
 
-      child = $(this.sectionTag + ' .task_card:nth-child('+ this.active[i] +')');
+      var child = $(this.sectionTag + ' .task_card:nth-child('+ this.active[i] +')');
       if(count < this.maxCards) {
         child.show(250);
+        child.attr("tabindex", 0);
       }
       count++;
     }

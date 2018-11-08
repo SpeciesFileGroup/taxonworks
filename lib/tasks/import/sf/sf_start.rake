@@ -17,66 +17,86 @@ namespace :tw do
           get_tw_person_id = import.get('SFPersonIDToTWPersonID')
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
-          source_editor_array = import.get('TWSourceEditorList') # if source.id is in array
+          # source_editor_array = import.get('TWSourceEditorList') # if source.id is in array
+          ref_id_editor_array = import.get('RefIDEditorArray') # author as editor if RefID is in array; note: different rules apply if ref in ref
           get_containing_source_id = import.get('TWSourceIDToContainingSourceID')
+          ref_id_containing_id_hash = import.get('RefContainingRefHash')
+          ref_file_id = import.get('RefIDsByFileID')
 
           path = @args[:data_directory] + 'sfRefAuthorsOrdered.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
-          # Must be done in two passes, 1) where ContainingRefID = 0, 2) where ContainingRefID > 0
+
+          # New thinking:  do authors for both stand-alone and inbook for first pass
+          # Second pass:  look only for ref in ref and book (vs serial) where author acted as editor (record editors)
+
+
+
+
+
+
+          # Must be done in two passes, 1) where ContainingRefID = 0 (stand-alone), 2) where ContainingRefID > 0 (ref in ref)
           ## First pass, includes ContainingRefIDs
 
           author_error_counter = 0
           editor_error_counter = 0
 
           file.each_with_index do |row, i|
-            source_id = get_tw_source_id[row['RefID']] # since now suppressing FileIDs, source_id for a reference may not exist
+            next if skipped_file_ids.include? ref_file_id.to_i
+            ref_id = row['RefID']
+            next if ref_id_containing_id_hash[ref_id] # what happens if nil?
+            source_id = get_tw_source_id[ref_id]
             next if source_id.nil?
             # Reloop if TW.source record is verbatim
             # next if Source.find(source_id).try(:class) == Source::Verbatim # << Hernán's, Source.find(source_id).type == 'Source::Verbatim'
-            next if Source.where(id: source_id).pluck(:type)[0] == 'Source::Verbatim' # faster per Matt
-            next if get_containing_source_id.has_key?(source_id) # is contained_source
+            # next if Source.where(id: source_id).pluck(:type)[0] == 'Source::Verbatim' # faster per Matt   #  there aren't any?
 
             print "working with SF.RefID = #{row['RefID']}, TW.source_id = #{source_id}, position = #{row['SeqNum']} \n"
+
+            # if author acted as editor AND is stand-alone reference, only list authors
 
             role = Role.new(
                 person_id: get_tw_person_id[row['PersonID']],
                 type: 'SourceAuthor',
                 role_object_id: source_id,
                 role_object_type: 'Source',
-                # position: row['SeqNum'],
-                # project_id: project_id,   # don't use for SourceAuthor or SourceEditor
-                created_at: row['CreatedOn'],
+                 created_at: row['CreatedOn'],
                 updated_at: row['LastUpdate'],
                 created_by_id: get_tw_user_id[row['CreatedBy']],
                 updated_by_id: get_tw_user_id[row['ModifiedBy']]
             )
 
-            if role.save
-              is_editor = source_editor_array.include?(source_id)
-
-              if is_editor
-                role = Role.new(
-                    person_id: get_tw_person_id[row['PersonID']],
-                    type: 'SourceEditor',
-                    role_object_id: source_id,
-                    role_object_type: 'Source',
-                    # position: row['SeqNum'],
-                    # project_id: project_id,
-                    created_at: row['CreatedOn'],
-                    updated_at: row['LastUpdate'],
-                    created_by_id: get_tw_user_id[row['CreatedBy']],
-                    updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                )
-
-                unless role.save
-                  logger.info "Editor role ERROR (#{editor_error_counter += 1}): " + role.errors.full_messages.join(';')
-                end
-              end
-
-            else
+            begin
+              role.save!
+            rescue ActiveRecord::RecordInvalid
               logger.info "Author role ERROR (#{author_error_counter += 1}): " + role.errors.full_messages.join(';')
             end
+
+            # if role.save
+            #   is_editor = source_editor_array.include?(source_id)
+            #
+            #   if is_editor
+            #     role = Role.new(
+            #         person_id: get_tw_person_id[row['PersonID']],
+            #         type: 'SourceEditor',
+            #         role_object_id: source_id,
+            #         role_object_type: 'Source',
+            #         # position: row['SeqNum'],
+            #         # project_id: project_id,
+            #         created_at: row['CreatedOn'],
+            #         updated_at: row['LastUpdate'],
+            #         created_by_id: get_tw_user_id[row['CreatedBy']],
+            #         updated_by_id: get_tw_user_id[row['ModifiedBy']]
+            #     )
+            #
+            #     unless role.save
+            #       logger.info "Editor role ERROR (#{editor_error_counter += 1}): " + role.errors.full_messages.join(';')
+            #     end
+            #   end
+            #
+            # else
+            #   logger.info "Author role ERROR (#{author_error_counter += 1}): " + role.errors.full_messages.join(';')
+            # end
           end
 
 
@@ -86,18 +106,29 @@ namespace :tw do
           editor_error_counter = 0
 
           file.each_with_index do |row, i|
-            source_id = get_tw_source_id[row['RefID']]
+            next if skipped_file_ids.include? ref_file_id.to_i
+            ref_id = row['RefID']
+            next unless ref_id_containing_id_hash[ref_id] # what happens if nil?
+            source_id = get_tw_source_id[ref_id]
             next if source_id.nil?
-            next if Source.where(id: source_id).pluck(:type)[0] == 'Source::Verbatim' # faster per Matt
-            next unless get_containing_source_id.has_key?(source_id) # only contained_sources wanted
 
             print "working with SF.RefID = #{row['RefID']}, TW.source_id = #{source_id}, position = #{row['SeqNum']} \n"
 
-            # if get_containing_source_id[get_tw_source_id.has_key?(row['RefID']) is true, use source_id of containing source for author and editor roles (taxon_author_roles will be assigned as taxa are created)
-            containing_source_id = get_containing_source_id[source_id]
+            # if only serial, use author for this portion, don't use old author, don't use editor
 
-            ordered_authors = SourceAuthor.where(role_object_id: containing_source_id).order(:position).pluck(:person_id)
-            ordered_editors = SourceEditor.where(role_object_id: containing_source_id).order(:position).pluck(:person_id)
+            # source_id = get_tw_source_id[row['RefID']]
+            # next if source_id.nil?
+            # next if Source.where(id: source_id).pluck(:type)[0] == 'Source::Verbatim' # faster per Matt
+            # next unless get_containing_source_id.has_key?(source_id) # only contained_sources wanted
+
+
+            # if get_containing_source_id[get_tw_source_id.has_key?(row['RefID']) is true, use source_id of containing source for author and editor roles (taxon_author_roles will be assigned as taxa are created)
+            # containing_source_id = get_containing_source_id[source_id]
+            #
+            # ordered_authors = SourceAuthor.where(role_object_id: containing_source_id).order(:position).pluck(:person_id)
+            # ordered_editors = SourceEditor.where(role_object_id: containing_source_id).order(:position).pluck(:person_id)
+
+            # this is chapter thing, not using chapter author, using book author
 
             ordered_authors.each do |person_id|
               role = SourceAuthor.new(
@@ -141,38 +172,56 @@ namespace :tw do
           end
         end
 
-        desc 'time rake tw:project_import:sf_import:start:create_source_editor_array user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:start:create_misc_ref_info user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         # via tblRefs
-        LoggedTask.define create_source_editor_array: [:data_directory, :environment, :user_id] do |logger|
-          # Can be run independently at any time
+        LoggedTask.define create_misc_ref_info: [:data_directory, :environment, :user_id] do |logger|
 
-          logger.info 'Running create_source_editor_array...'
-
-          # is_editor, tblRefs.flags & 2 = 2 if set
-          # loop through Refs and store only those w/editors
+          logger.info 'Running create_misc_ref_info...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
-          get_tw_source_id = import.get('SFRefIDToTWSourceID')
 
-          tw_source_id_editor_list = []
+          ref_id_editor_array = []
+          ref_id_containing_id_hash = {} # key = RefID, value = ContainingRefID
+          ref_file_id = {} # key = SF.RefID, value = SF.FileID
 
+          # Part I: Create array of refs with editor flag set
+          # Part II: Create hash of refs with containing refs
           path = @args[:data_directory] + 'tblRefs.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           file.each do |row|
             next if skipped_file_ids.include? row['FileID'].to_i
             ref_id = row['RefID']
+            containing_ref_id = row['ContainingRefID']
 
-            logger.info "working with SF.RefID = #{ref_id}, TW.source_id = #{get_tw_source_id[ref_id]} \n"
+            logger.info "working with SF.RefID = #{ref_id}, SF.ContainingRefID = #{row['ContainingRefID']}, flags = #{row['Flags']} \n"
 
-            tw_source_id_editor_list.push(get_tw_source_id[ref_id]) if row['Flags'].to_i & 2 == 2
+            ref_id_editor_array.push(ref_id) if row['Flags'].to_i & 2 == 2 # is_editor
+            ref_id_containing_id_hash[ref_id] = containing_ref_id if containing_ref_id != '0'
           end
 
-          import.set('TWSourceEditorList', tw_source_id_editor_list)
+          # Part III: Create has of RefID and FileID
+          path = @args[:data_directory] + 'sfRefIDsByFileID.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
-          puts 'TWSourceEditorList'
-          ap tw_source_id_editor_list
+          file.each do |row|
+            ref_file_id[row['RefID']] = row['FileID']
+          end
+
+          import.set('RefIDEditorArray', ref_id_editor_array)
+          import.set('RefContainingRefHash', ref_id_containing_id_hash)
+          import.set('RefIDsByFileID', ref_file_id)
+
+          puts 'RefIDEditorArray'
+          ap ref_id_editor_array
+
+          puts 'RefContainingRefHash'
+          ap ref_id_containing_id_hash
+
+          puts 'RefIDsByFileID'
+          ap ref_file_id
+
         end
 
         desc 'time rake tw:project_import:sf_import:start:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
@@ -181,11 +230,13 @@ namespace :tw do
 
           logger.info 'Running create_sources...'
 
+=begin  Old logic
           # tblRefs columns to import: Title, PubID, Series, Volume, Issue, RefPages, ActualYear, StatedYear, LinkID, LastUpdate, ModifiedBy, CreatedOn, CreatedBy
           # tblRefs other columns: RefID => Source.identifier, FileID => used when creating ProjectSources, ContainingRefID => sfVerbatimRefs contains full
           #   RefStrings attached as data_attributes in ProjectSources (no need for ContainingRefID), AccessCode => n/a, Flags => identifies editor
           #   (use when creating roles and generating author string from tblRefAuthors), Note => attach to ProjectSources, CiteDataStatus => can be derived,
           #   Verbatim => not used
+=end
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
@@ -231,9 +282,9 @@ namespace :tw do
             address = nil
 
             if get_sf_booktitle_publisher_address[pub_id]
-              booktitle = get_sf_booktitle_publisher_address[pub_id][booktitle]
-              publisher = get_sf_booktitle_publisher_address[pub_id][publisher]
-              address = get_sf_booktitle_publisher_address[pub_id][address]
+              booktitle = get_sf_booktitle_publisher_address[pub_id]['booktitle']
+              publisher = get_sf_booktitle_publisher_address[pub_id]['publisher']
+              address = get_sf_booktitle_publisher_address[pub_id]['address']
             end
 
             # if year range, select min year (record full verbatim ref as data attribute after save)
@@ -264,7 +315,7 @@ namespace :tw do
             begin
               source.save!
 
-              if row['ActualYear'].include?('-')  or row['StatedYear'].include?('-')
+              if row['ActualYear'].include?('-') or row['StatedYear'].include?('-')
                 source.data_attributes << ImportAttribute.new(import_predicate: 'SF verbatim reference for year range', value: get_sf_verbatim_ref[ref_id])
               end
 
@@ -297,9 +348,9 @@ namespace :tw do
 
             ref_id = row['RefID']
             containing_ref_id = row['ContainingRefID']
-            containing_source_id = get_tw_source_id[row['ContainingRefID']]
+            containing_source_id = get_tw_source_id[containing_ref_id]
 
-            logger.info "working with contained SF.RefID = #{ref_id}, containing SF.RefID = #{containing_ref_id}, tw.containing_source_id = #{containing_source_id}, SF.FileID = #{row['FileID']} (count = #{count_found += 1}) \n"
+            logger.info "working with contained SF.RefID = #{ref_id}, SF.ContainingRefID = #{containing_ref_id}, tw.containing_source_id = #{containing_source_id}, SF.FileID = #{row['FileID']} (count = #{count_found += 1}) \n"
 
             begin
               containing_source = Source.find(containing_source_id)
@@ -480,16 +531,15 @@ namespace :tw do
         end
 
         desc 'time rake tw:project_import:sf_import:start:list_verbatim_refs user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        # list SF.RefID to VerbatimRefString
         LoggedTask.define list_verbatim_refs: [:data_directory, :environment, :user_id] do |logger|
-          # Can be run independently at any time
+          # Can be run independently at any time before referenced
 
           logger.info 'Running list_verbatim_refs...'
 
           get_sf_verbatim_ref = {} # key = SF.RefID, value = SF verbatim ref (table generated from a script)
 
           path = @args[:data_directory] + 'sfVerbatimRefs.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           file.each do |row|
             # byebug
@@ -508,16 +558,15 @@ namespace :tw do
         end
 
         desc 'time rake tw:project_import:sf_import:start:map_ref_links user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        # map SF.RefID to Link URL
         LoggedTask.define map_ref_links: [:data_directory, :environment, :user_id] do |logger|
-          # Can be run independently at any time
+          # Can be run independently at any time before referenced
 
           logger.info 'Running map_ref_links...'
 
           get_sf_ref_link = {} # key = SF.RefID, value = SF ref link (table generated from a script)
 
           path = @args[:data_directory] + 'sfRefLinks.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           file.each do |row|
             # byebug
@@ -535,6 +584,7 @@ namespace :tw do
 
         end
 
+=begin  obsolete
         # :create_no_ref_list_array is now created on the fly in :create_sources (data conflicts)
         # desc 'make array from no_ref_list'
         # task :create_no_ref_list_array => [:data_directory, :environment, :user_id] do
@@ -555,11 +605,11 @@ namespace :tw do
         #   ap sf_no_ref_list
         #
         # end
+=end
 
         desc 'time rake tw:project_import:sf_import:start:map_serials user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        # map SF.PubID to TW.serial_id
         LoggedTask.define map_serials: [:environment, :user_id] do |logger|
-          # Can be run independently at any time: Why can't the value be cast as string??
+          # Can be run independently at any time before referenced: Why can't the value be cast as string??
 
           logger.info 'Running map_serials...'
 
@@ -577,6 +627,8 @@ namespace :tw do
         LoggedTask.define create_people: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Running create_people...'
+
+=begin  Thinking through logic:
 
           # Two loops:
           # Loop # 1
@@ -601,6 +653,7 @@ namespace :tw do
 
           # @project = Project.find_by_name('Orthoptera Species File')
           # $project_id = @project.id
+=end
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
@@ -706,6 +759,9 @@ namespace :tw do
 
           logger.info 'Running create_users...'
 
+=begin
+        Most logic for authorized users (one login per user) vs. file users (same authorized user for Orthoptera, Plecoptera, and Phasmida but each is different in each SF)
+
           # ProjectMembers: id, project_id, user_id, created_at, updated_at, created_by_id, updated_by_id, is_project_administrator
           #   * Cannot annotate a project_member
           # Users: id, email, password_digest, created_at, updated_at, remember_token, created_by_id, updated_by_id, is_administrator,
@@ -728,6 +784,9 @@ namespace :tw do
           # Now that User is identifiable, we can use an identifier for the unique AuthUserID (vs. FileUserID)
           # Create Namespace for Identifier: Species File, tblAuthUsers, SF AuthUserID
           # 'Key3' => Namespace.find_or_create_by(name: '3i_Source_ID', short_name: '3i_Source_ID')     # 'Key3' was key in hash @data.keywords.merge! in 3i.rake ??
+
+=end
+
           auth_user_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'tblAuthUsers', short_name: 'SF AuthUserID')
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')

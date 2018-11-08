@@ -27,6 +27,10 @@
   background-color: $color-secondary-2-4;
 }
 
+.button-default-pin {
+  background-image: image-url("b_pin.svg");
+}
+
 .button-submit {
   color: #FFF;
   background-color: $color-action-button;
@@ -67,8 +71,8 @@
   position: absolute;
   display: none;
   margin-left: 1em;
-  background-image: image-url('hub.svg');
-  background-size: 25px;
+  background-image: image-url('taxonworks-black-circle.svg');
+  background-size: 38px;
   background-repeat: no-repeat;
   background-position: center;
   padding: 9px;
@@ -102,6 +106,13 @@
   background-size: 35px;
 }
 
+.button-small {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
+  background-size: 10px !important;
+}
 .circle-button {
   border-radius: 50%;
   display: block;
@@ -117,6 +128,12 @@
   cursor: pointer;
 }
 
+.button-circle {
+  @extend .circle-button;
+  display: inline-block;
+  margin: 0px;
+}
+
 .btn-add {
   background-color: $color-action-button;
   background-image: image-url("bplus.svg");
@@ -130,6 +147,11 @@
 .btn-edit {
   background-color: $color-action-button;
   background-image: image-url("w_pencil.svg");
+}
+
+.btn-citation {
+  background-size: 12px;
+  background-image: image-url("w_citation.svg");
 }
 
 .btn-row-coder {

@@ -13,7 +13,7 @@
 
 import ActionNames from '../../store/actions/actionNames'
 import { GetterNames } from '../../store/getters/getters'
-import tableList from '../../../../components/table_list.vue'
+import tableList from 'components/table_list.vue'
 
 export default {
   components: {

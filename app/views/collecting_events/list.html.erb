@@ -26,10 +26,14 @@
     <!--<th>Verbatim habitat</th>-->
     <!--<th>Field notes</th> -->
     <!--<th>Md5 of verbatim label</th> -->
-    <%= fancy_th_tag(name: 'Cached display') -%>
+    <%= fancy_th_tag(name: 'Verbatim locality') -%>
     <%= fancy_th_tag(name: 'Geographic area') -%>
     <%= fancy_th_tag(name: 'Verbatim collectors') -%>
     <%= fancy_th_tag(name: 'Verbatim method') -%>
+    <%= fancy_th_tag(name: 'Start date day') -%>
+    <%= fancy_th_tag(name: 'Start date month') -%>
+    <%= fancy_th_tag(name: 'Start date year') -%>
+
     <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
     <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
@@ -38,10 +42,14 @@
   <tbody>
   <% @collecting_events.each do |collecting_event| %>
       <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
-          <td><%= collecting_event.cached %></td>
-          <td><%= object_tag(collecting_event.geographic_area) %></td>
+          <td><%= collecting_event.verbatim_locality %></td>
+          <td><%= geographic_area_link(collecting_event.geographic_area) %></td>
           <td><%= collecting_event.verbatim_collectors %></td>
           <td><%= collecting_event.verbatim_method %></td>
+          <td><%= collecting_event.start_date_day %></td>
+          <td><%= collecting_event.start_date_month %></td>
+          <td><%= collecting_event.start_date_year %></td>
+    
           <!--<td><%#= collecting_event.verbatim_label %></td>-->
           <!--<td><%#= collecting_event.print_label %></td>-->
           <!--<td><%#= collecting_event.document_label %></td>-->
@@ -50,15 +58,11 @@
           <!--<td><%#= collecting_event.verbatim_latitude %></td>-->
           <!--<td><%#= collecting_event.verbatim_geolocation_uncertainty %></td>-->
           <!--<td><%#= collecting_event.verbatim_trip_identifier %></td>-->
-          <!--<td><%#= collecting_event.verbatim_method %></td>-->
           <!--<td><%#= collecting_event.minimum_elevation %></td>-->
           <!--<td><%#= collecting_event.maximum_elevation %></td>-->
           <!--<td><%#= collecting_event.elevation_precision %></td>-->
           <!--<td><%#= collecting_event.time_start %></td>-->
           <!--<td><%#= collecting_event.time_end %></td>-->
-          <!--<td><%#= collecting_event.start_date_day %></td>-->
-          <!--<td><%#= collecting_event.start_date_month %></td>-->
-          <!--<td><%#= collecting_event.start_date_year %></td>-->
           <!--<td><%#= collecting_event.end_date_day %></td>-->
           <!--<td><%#= collecting_event.end_date_month %></td>-->
           <!--<td><%#= collecting_event.end_date_year %></td>-->

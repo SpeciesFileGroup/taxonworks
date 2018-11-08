@@ -1,3 +1,5 @@
+# rake tw:db:restore backup_directory=/Users/proceps/src/sf/import/onedb2tw/snapshots/15_after_scrutinies/ file=localhost_2018-09-26_212447UTC.dump
+
 namespace :tw do
   namespace :project_import do
     namespace :sf_import do
@@ -255,6 +257,8 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
         end
 
+        # Prior to running next task:
+        #   Which dump file to restore
         desc 'time rake tw:project_import:sf_import:citations:create_citations user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define create_citations: [:data_directory, :environment, :user_id] do |logger|
 

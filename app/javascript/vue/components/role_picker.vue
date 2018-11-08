@@ -124,6 +124,7 @@
           this.roles_attributes.push(this.addPerson(item))
           this.$emit('input', this.roles_attributes)
           this.$emit('create', this.addPerson(item))
+          this.person_attributes = this.makeNewPerson()
         }
       })
     },

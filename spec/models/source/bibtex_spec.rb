@@ -1004,8 +1004,15 @@ describe Source::Bibtex, type: :model, group: :sources do
           expect(src1.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. G. Fischer, Available from: https://doi.org/10.5962%2Fbhl.title.1086.')
         end
 
+        # Hacked Zootaxa format
+        # specify 'text2' do
+        #   expect(src2.cached_string('text')).to eq('Kevan, D.K.M.E. & Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada. Canadian Journal of Earth Sciences 18(12), 1824–1837.')
+        # end
+
         specify 'text2' do
-          expect(src2.cached_string('text')).to eq('Kevan, D.K.M.E. & Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada. Canadian Journal of Earth Sciences 18, 1824–1837.')
+          expect(src2.cached_string('text')).to eq(
+            'Kevan, D.K.M.E. & Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada. Canadian Journal of Earth Sciences 18, 1824–1837.'
+          )
         end
 
         specify 'html1' do
@@ -1013,8 +1020,15 @@ describe Source::Bibtex, type: :model, group: :sources do
             'Brauer, A. (1909) <i>Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer.</i> G. Fischer, Available from: https://doi.org/10.5962%2Fbhl.title.1086.')
         end
 
+        # Hacked Zootaxa format
+        # specify 'html2' do
+        #   expect(src2.cached_string('html')).to eq('Kevan, D.K.M.E. &amp; Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada. <i>Canadian Journal of Earth Sciences</i> 18(12), 1824–1837.')
+        # end
+
         specify 'html2' do
-          expect(src2.cached_string('html')).to eq('Kevan, D.K.M.E. &amp; Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada. <i>Canadian Journal of Earth Sciences</i> 18, 1824–1837.')
+          expect(src2.cached_string('html')).to eq(
+            'Kevan, D.K.M.E. &amp; Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada. <i>Canadian Journal of Earth Sciences</i> 18, 1824–1837.'
+          )
         end
       end
     end
@@ -1055,12 +1069,28 @@ describe Source::Bibtex, type: :model, group: :sources do
 
             src1.editors << vp1
             expect(src1.save).to be_truthy
+           
             expect(src1.cached).to eq('Smith ed. (1700) I am a soft valid article. Journal of Test Articles.')
 
             src1.editors << vp2
             expect(src1.save).to be_truthy
             expect(src1.cached).to eq('Smith & Von Adams, J. eds. (1700) I am a soft valid article. Journal of Test Articles.')
           end
+
+          specify 'stated_year' do
+            src1 = FactoryBot.create(:soft_valid_bibtex_source_article)
+            src1.stated_year = '1699'
+            src1.save
+            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. Journal of Test Articles.')
+            src1.volume = '25'
+            src1.save
+            
+            # Hacked Bibtex 
+            #  expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. Journal of Test Articles 1699, 25.')
+
+            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. Journal of Test Articles 25.')
+          end
+
         end
 
         context 'on validation' do

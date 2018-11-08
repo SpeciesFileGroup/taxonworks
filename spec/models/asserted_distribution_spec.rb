@@ -117,7 +117,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
     # Can't miss source, it's required by definition
     specify 'is_absent - False' do
       ga  = FactoryBot.create(:level2_geographic_area)
-      ad1 = FactoryBot.create(:valid_asserted_distribution, geographic_area: ga.parent, is_absent: 1)
+      _ad1 = FactoryBot.create(:valid_asserted_distribution, geographic_area: ga.parent, is_absent: 1)
       ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, geographic_area: ga)
       ad2.soft_validate(:conflicting_geographic_area)
       expect(ad2.soft_validations.messages_on(:geographic_area_id).count).to eq(1)
@@ -125,7 +125,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
 
     specify 'is_absent - True' do
       ga  = FactoryBot.create(:level2_geographic_area)
-      ad1 = FactoryBot.create(:valid_asserted_distribution, geographic_area: ga)
+      _ad1 = FactoryBot.create(:valid_asserted_distribution, geographic_area: ga)
       ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, geographic_area: ga, is_absent: 1)
       ad2.soft_validate(:conflicting_geographic_area)
       expect(ad2.soft_validations.messages_on(:geographic_area_id).count).to eq(1)

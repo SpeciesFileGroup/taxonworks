@@ -24,7 +24,7 @@
                   type="button"
                   target="_blank"
                   class="circle-button btn-edit"
-                  :href="getUrlType(item.row_object.type, item.row_object.id)"/>
+                  :href="getUrlType(item.row_object.base_class, item.row_object.id)"/>
                 <a
                   v-else
                   type="button"
@@ -45,7 +45,7 @@
               <span
                 v-if="filterRemove(item)"
                 class="circle-button btn-delete"
-                @click="$emit('delete', item)">Remove
+                @click="deleteItem(item)">Remove
               </span>
               <span
                 v-else
@@ -60,8 +60,8 @@
 
 <script>
 
-  import Autocomplete from '../../../../components/autocomplete.vue'
-  import RadialAnnotator from '../../../../components/annotator/annotator.vue'
+  import Autocomplete from 'components/autocomplete.vue'
+  import RadialAnnotator from 'components/annotator/annotator.vue'
   import Draggable from 'vuedraggable'
 
   export default {
@@ -127,6 +127,11 @@
       }
     },
     methods: {
+      deleteItem(item) {
+        if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+          this.$emit('delete', item)
+        }
+      },
       onSortable: function () {
         let ids = this.newList.map(object => object.id)
         this.$emit('order', ids)

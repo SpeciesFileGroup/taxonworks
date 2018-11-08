@@ -1,0 +1,9 @@
+collecting_event	determinations	other_labels	Purpose
+This is my collecting event.	These are my determinations.	These are my other labels.	One specimen
+This is my collecting event.	These are my determinations.		One specimen
+This is my collecting event.		These are my other labels.	One specimen
+This is my collecting event.			One specimen
+	These are my determinations.	These are my other labels.	One specimen
+	These are my determinations.		One specimen
+		These are my other labels.	One specimen
+			No specimens

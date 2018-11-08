@@ -242,8 +242,8 @@ describe Person, type: :model do
       let(:tn2) { FactoryBot.create(:valid_taxon_name, name: 'Atwodidae') }
 
       let(:cvt) { FactoryBot.create(:valid_controlled_vocabulary_term_predicate,
-                                    name:       ' Honorarium',
-                                    definition: 'People:Honorarium imported from INHS FileMaker database.') }
+                                    name:       ' Honorific',
+                                    definition: 'People:Honorific imported from INHS FileMaker database.') }
       let(:da1) { FactoryBot.create(:valid_data_attribute_internal_attribute,
                                     value:     'Dr.',
                                     predicate: cvt) }

@@ -11,7 +11,7 @@
         <button
           class="button normal-input button-submit"
           type="button"
-          @click="batchLoad(key, matrixId, object.object.type, object.object.id)">Create
+          @click="batchLoad(key, matrixId, object.object.base_class, object.object.id)">Create
         </button>
         <button
           v-if="key != 'total'"

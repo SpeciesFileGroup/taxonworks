@@ -17,7 +17,8 @@ class Hybrid < TaxonName
 
   accepts_nested_attributes_for :hybrid_relationships
 
-  def get_full_name_html
+  # TODO: get rid of bogus params signature call
+  def get_full_name_html(name = nil)
     hr = hybrid_relationships.reload
     hr.empty? ? '[HYBRID TAXA NOT SELECTED]' : hr.collect{|i| i.subject_taxon_name.cached_html}.sort.join(' &#215; ')
   end

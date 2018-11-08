@@ -1,0 +1,44 @@
+<div>
+  <h2> BibTeX batchload </h2>
+  <div class="flexbox full_viewport_whitespace">
+    <div class="item item1 one_third_width">
+      <h3> Description and requirements </h3>
+      <p> Creates one or more <%= link_to('sources', sources_path) -%> from a BibTex formatted bibliography.  Use this to load bibliographies exported from tools like EndNote, or Zotero.</p>
+      <ul>
+        <li> The file to import should be in UTF-8 encoding. </li>
+        <li> The file should have unix style line-endings. </li>
+      </ul>
+      <p> Prior to import, check your data: </p>
+      <ul>
+        <li> All entries should include a populated 'Label' field containing a unique internal identifier for the record. Endnote does <em>not</em> provide this by default, Zotero does. </li>
+        <li> Year fields should not include periods ('.').</li>
+        <li> Try using a BibTeX bibliography "linter" or validating tool on the web to find errors in your file</li>
+      </ul>
+
+    </div>
+
+    <div class="item item2 one_third_width">
+      <h3> Example file </h3>
+      <pre class="fixed_width_font" style="overflow: auto;">
+@ARTICLE{mclaughlin_etal_2007,
+  author = { mclaughlin, Mclaughlin and  lemaitre, Lemaitre and  sorhannus,
+      Sorhannus},
+  title = {Hermit crab phylogeny: A reappraisal and its fall-out},
+  journal = {Journal of Crustacean Biology},
+  year = {2007},
+  volume = {1},
+  pages = {9711},
+      </pre>
+    </div>
+
+    <div class="item item3">
+      <h3> Go! </h3>
+
+      <%= form_tag preview_bibtex_batch_load_sources_path, multipart: true do -%>
+          Select a file <%= file_field_tag :file -%>
+          <%= submit_tag 'preview' -%>
+      <% end %>
+  </div>
+  </div>
+</div>
+

@@ -22,6 +22,7 @@ class Depiction < ApplicationRecord
 
   include Housekeeping
   include Shared::Tags
+  include Shared::DataAttributes
   include Shared::IsData
   include Shared::PolymorphicAnnotator
   polymorphic_annotates(:depiction_object)

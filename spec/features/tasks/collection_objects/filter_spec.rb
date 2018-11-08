@@ -11,7 +11,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
 
     context 'signed in as a user' do
       before { sign_in_user_and_select_project }
-      # NOTE: The following *has* to be *after* the sign_in_and_select_project !
+
       include_context 'stuff for complex geo tests'
 
       before { [co_a, co_b, gr_a, gr_b].each }
@@ -22,9 +22,10 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
           let(:specimen) { Specimen.create!(by: @user, project: @project) }
 
           before do
-            # can't use `a = specimen.otus << otu_test` because $user_id and $project_id don't exist.
-            TaxonDetermination.create!(otu: otu_test, biological_collection_object: specimen,
-                                       by:  @user, project: @project)
+            TaxonDetermination.create!(
+                otu: otu_test,
+                biological_collection_object: specimen,
+                by: @user, project: @project)
             visit(collection_objects_filter_task_path)
           end
 
@@ -49,12 +50,12 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             (1..10).each { |identifier|
               sp = FactoryBot.create(:valid_specimen, creator: @user, updater: @user, project: @project)
               id = FactoryBot.create(:identifier_local_catalog_number,
-                                     updater:           @user,
-                                     project:           @project,
-                                     creator:           @user,
+                                     updater: @user,
+                                     project: @project,
+                                     creator: @user,
                                      identifier_object: sp,
-                                     namespace:         (identifier.even? ? ns1 : ns2),
-                                     identifier:        identifier)
+                                     namespace: (identifier.even? ? ns1 : ns2),
+                                     identifier: identifier)
             }
             visit(collection_objects_filter_task_path)
           end
@@ -144,18 +145,18 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             2.times { FactoryBot.create(:valid_specimen, creator: @user, updater: @user, project: @project) }
             FactoryBot.create(:identifier_local_import,
                               identifier_object: Specimen.first,
-                              namespace:         @ns3,
-                              identifier:        'First specimen', creator: @user, updater: @user, project: @project)
+                              namespace: @ns3,
+                              identifier: 'First specimen', creator: @user, updater: @user, project: @project)
             FactoryBot.create(:identifier_local_import,
                               identifier_object: Specimen.second,
-                              namespace:         @ns3,
-                              identifier:        'Second specimen', creator: @user, updater: @user, project: @project)
+                              namespace: @ns3,
+                              identifier: 'Second specimen', creator: @user, updater: @user, project: @project)
             (1..10).each { |identifier|
               sp = FactoryBot.create(:valid_specimen, creator: @user, updater: @user, project: @project)
               id = FactoryBot.create(:identifier_local_catalog_number,
                                      identifier_object: sp,
-                                     namespace:         (identifier.even? ? @ns1 : @ns2),
-                                     identifier:        identifier, creator: @user, updater: @user, project: @project)
+                                     namespace: (identifier.even? ? @ns1 : @ns2),
+                                     identifier: identifier, creator: @user, updater: @user, project: @project)
             }
 
             expect(Specimen.with_identifier('PSUC_FEM 1').count).to eq(1)
@@ -168,21 +169,21 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             fill_in('id_range_start', with: '1')
             fill_in('id_range_stop', with: '10')
 
-            click_button('Set Identifier Range', {id: 'set_id_range'})
+            click_button('Set Identifier Range', { id: 'set_id_range' })
             wait_for_ajax
             expect(find('#id_range_count')).to have_content('10')
 
             fill_in('id_range_start', with: '3')
             fill_in('id_range_stop', with: '8')
 
-            click_button('Set Identifier Range', {id: 'set_id_range'})
+            click_button('Set Identifier Range', { id: 'set_id_range' })
             wait_for_ajax
             expect(find('#id_range_count')).to have_content('6')
 
             fill_in('id_range_start', with: '8')
             fill_in('id_range_stop', with: '3')
 
-            click_button('Set Identifier Range', {id: 'set_id_range'})
+            click_button('Set Identifier Range', { id: 'set_id_range' })
             wait_for_ajax
             expect(find('#id_range_count')).to have_content('0')
 
@@ -190,7 +191,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             fill_in('id_range_start', with: '3')
             fill_in('id_range_stop', with: '9')
 
-            click_button('Set Identifier Range', {id: 'set_id_range'})
+            click_button('Set Identifier Range', { id: 'set_id_range' })
             wait_for_ajax
             expect(find('#id_range_count')).to have_content('4')
 
@@ -236,12 +237,12 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             2.times { FactoryBot.create(:valid_specimen, creator: pat_admin, updater: pat_admin, project: @project) }
             (1..10).each { |specimen|
               sp = FactoryBot.create(
-                :valid_specimen,
-                creator:    (specimen.even? ? joe : pat),
-                created_at: "200#{specimen - 1}/01/#{specimen}",
-                updated_at: "200#{specimen - 1}/07/#{specimen}",
-                updater:    (specimen.even? ? pat : joe),
-                project:    @project)
+                  :valid_specimen,
+                  creator: (specimen.even? ? joe : pat),
+                  created_at: "200#{specimen - 1}/01/#{specimen}",
+                  updated_at: "200#{specimen - 1}/07/#{specimen}",
+                  updater: (specimen.even? ? pat : joe),
+                  project: @project)
             }
 
             expect(Specimen.created_by_user(pat_admin).count).to eq(2)
@@ -253,19 +254,19 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             page.execute_script "$('#set_user_date_range')[0].scrollIntoView()"
 
             # default select is current user / all dates
-            click_button('Set User/Date Range', {id: 'set_user_date_range'})
+            click_button('Set User/Date Range', { id: 'set_user_date_range' })
             wait_for_ajax
             expect(find('#user_date_range_count')).to have_content('7')
 
             select('All users', from: 'user')
-            click_button('Set User/Date Range', {id: 'set_user_date_range'})
+            click_button('Set User/Date Range', { id: 'set_user_date_range' })
             wait_for_ajax
             expect(find('#user_date_range_count')).to have_content('14')
 
             fill_in('user_date_range_start', with: Date.parse('2005-01-01'))
             fill_in('user_date_range_end', with: Date.yesterday)
 
-            click_button('Set User/Date Range', {id: 'set_user_date_range'})
+            click_button('Set User/Date Range', { id: 'set_user_date_range' })
             wait_for_ajax
             expect(find('#user_date_range_count')).to have_content('5')
 
@@ -273,14 +274,14 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             fill_in('user_date_range_start', with: Time.zone.today)
             fill_in('user_date_range_end', with: Time.zone.today)
 
-            click_button('Set User/Date Range', {id: 'set_user_date_range'})
+            click_button('Set User/Date Range', { id: 'set_user_date_range' })
             wait_for_ajax
             expect(find('#user_date_range_count')).to have_content('2')
 
             fill_in('user_date_range_start', with: Date.yesterday)
             fill_in('user_date_range_end', with: Date.yesterday)
 
-            click_button('Set User/Date Range', {id: 'set_user_date_range'})
+            click_button('Set User/Date Range', { id: 'set_user_date_range' })
             wait_for_ajax
             expect(find('#user_date_range_count')).to have_content('0')
 

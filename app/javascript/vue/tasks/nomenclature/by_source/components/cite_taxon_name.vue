@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="nomen-source">
     <h2>Cite taxon name</h2>
     <smart-selector
       :options="tabs"
@@ -7,16 +7,23 @@
       :add-option="moreOptions"
       v-model="view"/>
     <template v-if="sourceID">
-      <autocomplete
+      <div
         v-if="view === 'Search'"
-        url="/taxon_names/autocomplete"
-        min="2"
-        ref="autocomplete"
-        param="term"
-        placeholder="Search for a taxon"
-        label="label"
-        @getItem="createTaxonCite($event)"
-        :autofocus="true" />
+        class="horizontal-left-content">
+        <autocomplete
+            class="separate-bottom"
+            url="/taxon_names/autocomplete"
+            min="2"
+            ref="autocomplete"
+            param="term"
+            placeholder="Search for a taxon"
+            label="label_html"
+            @getItem="createTaxonCite($event)"
+            :autofocus="true" />
+        <span
+          class="warning separate-left"
+          v-if="sourceAlreadyTaken">The source has already been taken</span>
+      </div>
       <template v-else>
         <button
           v-for="item in showList[view]"
@@ -28,13 +35,12 @@
           v-html="item.name"/>
       </template>
     </template>
-    <span>{{ errorMessage }}</span>
   </div>
 </template>
 <script>
 
-  import SmartSelector from '../../../../components/switch.vue'
-  import Autocomplete from '../../../../components/autocomplete.vue'
+  import SmartSelector from 'components/switch.vue'
+  import Autocomplete from 'components/autocomplete.vue'
 
   export default {
     components: {
@@ -59,7 +65,7 @@
         view: undefined,
         selectedList: {},
         newCitation: {},
-        errorMessage: ''
+        sourceAlreadyTaken: false
       }
     },
     methods: {
@@ -71,12 +77,13 @@
             citation_object_id: taxon.id
           }
         };
+        this.sourceAlreadyTaken = false
         this.$http.post(`/citations.json`, params).then(response => {
           this.$emit('foundTaxon', response.body);
           this.$refs.autocomplete.cleanInput()
         })
         .catch(error => {
-          this.errorMessage = error.bodyText
+          this.sourceAlreadyTaken = true
         })
       },
       isCreated(taxon) {
@@ -94,6 +101,9 @@
       this.$http.get('/taxon_names/select_options').then(response => {
         this.tabs = Object.keys(response.body);
         this.list = response.body;
+        if(this.tabs.length) {
+          this.view = this.tabs[0]
+        }
       })
     }
   }

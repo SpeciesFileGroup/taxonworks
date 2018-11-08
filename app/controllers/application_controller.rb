@@ -1,8 +1,14 @@
-# this is the main controller
-require_dependency 'lib/application_enumeration.rb'
+# TODO: likely required here because of routes, but it shouldn't be!!
+# fixing routes to be static via include shoudl solve this
+# require_dependency 'lib/application_enumeration.rb'
+
 class ApplicationController < ActionController::Base
+  include InterceptApi
   include Workbench::SessionsHelper
   include ProjectsHelper
+  include SetHousekeeping
+  include Tracking::UserTime
+  include Whitelist
 
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
@@ -25,43 +31,11 @@ class ApplicationController < ActionController::Base
   # Potentially used.
   helper_method :meta_title, :meta_data, :site_name, :page_title
 
-  before_action :intercept_api
-  before_action :set_project_and_user_variables
-  before_action :notice_user
-
-  after_action :log_user_recent_route
-  after_action :clear_project_and_user_variables
-
-  def intercept_api
-    if /^\/api/ =~ request.path # rubocop:disable Style/RegexpLiteral
-      if token_authenticate
-        render(json: {success: false}, status: :bad_request) && return unless set_project_from_params
-      else
-        render(json: {success: false}, status: :unauthorized) && return
-      end
-    end
-
-    headers['Access-Control-Allow-Origin'] = '*'
-    headers['Access-Control-Allow-Methods'] = 'POST, PUT, DELETE, GET, OPTIONS'
-    headers['Access-Control-Request-Method'] = '*'
-    headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept, Authorization'
-
-    true
-  end
+  # after_action :log_user_recent_route
 
   # TODO: Make RecenRoutes modules that handles exceptions, only etc.
   def log_user_recent_route
-    sessions_current_user.add_recently_visited_to_footprint(request.fullpath, @recent_object) if sessions_current_user
-  end
-
-  def set_project_and_user_variables
-    $project_id = sessions_current_project_id # This also sets @sessions_current_project_id
-    $user_id    = sessions_current_user_id
-  end
-
-  def clear_project_and_user_variables
-    $project_id = nil
-    $user_id    = nil
+    # sessions_current_user.add_recently_visited_to_footprint(request.fullpath, @recent_object) if sessions_current_user
   end
 
   # Returns true if the controller is that of data class. See controllers/concerns/data_controller_configuration/ concern.
@@ -103,12 +77,6 @@ class ApplicationController < ActionController::Base
 
   private
 
-  def notice_user
-    if sessions_current_user
-      sessions_current_user.update_last_seen_at
-    end
-  end
-
   def record_not_found
     respond_to do |format|
       format.html { render plain: '404 Not Found', status: 404 }
@@ -118,18 +86,6 @@ class ApplicationController < ActionController::Base
 
   def disable_turbolinks
     @no_turbolinks = true
-  end
-
-  def token_authenticate
-    t = params[:token]
-
-    unless t
-      authenticate_with_http_token do |token, _options|
-        t = token
-      end
-    end
-
-    @sessions_current_user = User.find_by_api_access_token(t) if t
   end
 
   def set_project_from_params
@@ -143,15 +99,5 @@ class ApplicationController < ActionController::Base
   def project_matches(object)
     object.try(:project_id) == sessions_current_project_id
   end
-
-  # @param klass_name [String] a model name inheriting from IsData
-  def whitelist_constantize(klass_name)
-    if Rails.env.development?
-      ApplicationEnumeration.data_models.inject({}){|hsh, k| hsh.merge!(k.name => k)}.fetch(klass_name)
-    elsif Rails.env.production?
-      ::DATA_MODELS.fetch(klass_name)
-    else
-      raise TaxonWorks::Error, 'whitelist attempted in unknown environment'
-    end
-  end
+  
 end

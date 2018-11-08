@@ -1,8 +1,4 @@
 require 'rails_helper'
-# require_relative '../support/shared_contexts/geo/build_rspec_geo'
-
-# include the subclasses, perhaps move this out
-Dir[Rails.root.to_s + '/app/models/geographic_item/**/*.rb'].each { |file| require_dependency file }
 
 describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
   include_context 'stuff for complex geo tests'
@@ -348,7 +344,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
 
       specify 'self.geo_object returns stored data' do
         geographic_item.save!
-        geo_id = geographic_item.id
+        _geo_id = geographic_item.id
         expect(geographic_item.geo_object).to eq(room2024)
       end
 
@@ -656,15 +652,15 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
         end
 
         context '::contained_by' do
-          before { [p1, p2, p3, p11, p12].each }
+          before { [p1, p2, p3, p11, p12, k, l].each }
 
           specify 'find the points in a polygon' do
-            expect(GeographicItem.contained_by(k.id).to_a).to contain_exactly(p1, p2, p3)
+            expect(GeographicItem.contained_by(k.id).to_a).to contain_exactly(p1, p2, p3, k)
           end
 
           specify 'find the (overlapping) points in a polygon' do
             overlapping_point = FactoryBot.create(:geographic_item_point, point: point12.as_binary)
-            expect(GeographicItem.contained_by(e1.id).to_a).to contain_exactly(p12, overlapping_point, p11)
+            expect(GeographicItem.contained_by(e1.id).to_a).to contain_exactly(p12, overlapping_point, p11, e1)
           end
         end
 
@@ -797,6 +793,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
               .to eq([r2024, r2020, p10])
           end
         end
+
         # specify '::excluding_self to drop self from any list of objects' do
         #   skip 'construction of scenario'
         # expect(GeographicItem.ordered_by_shortest_distance_from('point', @p7).limit(5)).to_a).to eq([@p2, @p1, @p4])
@@ -853,44 +850,47 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             [r2024, r2022, r2020, c3, c1, c2, g1, g2, g3, b2, rooms, h, c, f, g, j, e].each
           }
 
-          specify 'orders objects by distance from passed object' do
+          specify 'orders points by distance from passed point' do
             expect(GeographicItem.ordered_by_longest_distance_from('point', p3).limit(3).to_a)
               .to eq([r2024, r2022, r2020])
           end
 
-          specify 'orders objects by distance from passed object' do
-
+          specify 'orders line_strings by distance from passed point' do
             expect(GeographicItem.ordered_by_longest_distance_from('line_string', p3)
                      .limit(3).to_a)
               .to eq([c3, c1, c2])
           end
 
-          specify 'orders objects by distance from passed object' do
+          specify 'orders polygons by distance from passed point' do
             expect(GeographicItem.ordered_by_longest_distance_from('polygon', p3)
                      .limit(4).to_a)
               .to eq([g1, g2, g3, b2])
           end
 
-          specify 'orders objects by distance from passed object' do
+          specify 'orders multi_points by distance from passed point' do
             expect(GeographicItem.ordered_by_longest_distance_from('multi_point', p3)
                      .limit(3).to_a)
               .to eq([rooms, h])
           end
 
-          specify 'orders objects by distance from passed object' do
+          specify 'orders multi_line_strings by distance from passed point' do
             expect(GeographicItem.ordered_by_longest_distance_from('multi_line_string', p3)
                      .limit(3).to_a)
               .to eq([c, f])
           end
 
-          specify 'orders objects by distance from passed object' do
+          specify 'orders multi_polygons by distance from passed point' do
+            # existing multi_polygons: [new_box_e, new_box_a, new_box_b, g]
+            # new_box_e is excluded, because p3 is *exactly* the same distance from new_box_e, *and* new_box_a
+            # This seems to be the reason these two objects *might* be in either order. Thus, one of the two
+            # is excluded to prevent it from confusing the order (farthest first) of the appearance of the objects.
             expect(GeographicItem.ordered_by_longest_distance_from('multi_polygon', p3)
-                     .excluding([champaign.default_geographic_item, illinois.default_geographic_item])
-                     .limit(3).to_a)
-              .to eq([g, new_box_a, new_box_e])
+                       .excluding(new_box_e)
+                       .limit(3).to_a)
+                .to eq([g, new_box_a, new_box_b])
           end
 
-          specify 'orders objects by distance from passed object' do
+          specify 'orders objects by distance from passed object geometry_collection' do
             expect(GeographicItem.ordered_by_longest_distance_from('geometry_collection', p3)
                      .limit(3).to_a)
               .to eq([j, e])
@@ -1005,6 +1005,15 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           specify 'fast' do
             expect(p1.st_distance_spheroid(p2.id)).to be_within(0.1).of(479988.253998808)
           end
+        end
+      end
+
+      context '::gather_geographic_area_or_shape_data' do
+        specify 'collection_objetcs' do
+
+        end
+        specify 'asserted_distribution' do
+
         end
       end
     end

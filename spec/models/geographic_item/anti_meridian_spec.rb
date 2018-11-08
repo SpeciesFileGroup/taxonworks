@@ -339,35 +339,42 @@ describe GeographicItem, type: :model, group: :geo do
           # invokes geometry_sql2
           # using contained_by_with_antimeridian_check is not harmful for non-crossing objects
           expect(GeographicItem.contained_by_with_antimeridian_check(western_box.id).map(&:id))
-            .to contain_exactly(point_in_western_box.id)
+            .to contain_exactly(point_in_western_box.id, western_box.id)
         end
 
         specify 'results from multiple non-meridian crossing polygons are found' do
           # invokes geometry_sql2
           # using contained_by_with_antimeridian_check is not harmful for non-crossing objects
           expect(GeographicItem.contained_by_with_antimeridian_check(eastern_box.id, western_box.id).map(&:id))
-            .to contain_exactly(point_in_eastern_box.id, point_in_western_box.id)
+            .to contain_exactly(point_in_eastern_box.id,
+                                point_in_western_box.id,
+                                eastern_box.id,
+                                western_box.id)
         end
 
         specify 'results from single meridian crossing polygon are found' do
           # why is crossing_box not finding l_r_line or r_l_line
           # why does crossing_box find point_in_eastern_box
           expect(GeographicItem.contained_by_with_antimeridian_check(crossing_box.id).map(&:id))
-            .to contain_exactly(l_r_line.id, r_l_line.id)
+            .to contain_exactly(l_r_line.id, r_l_line.id, crossing_box.id)
         end
 
         specify 'results from merdian crossing and non-meridian crossing polygons are found' do
           # why is crossing_box not finding l_r_line or r_l_line
           expect(GeographicItem.contained_by_with_antimeridian_check(eastern_box.id, western_box.id, crossing_box.id)
-                   .map(&:id)).to contain_exactly(point_in_eastern_box.id, point_in_western_box.id,
-                                                  l_r_line.id, r_l_line.id)
+                   .map(&:id)).to contain_exactly(point_in_eastern_box.id,
+                                                  point_in_western_box.id,
+                                                  l_r_line.id, r_l_line.id,
+                                                  eastern_box.id,
+                                                  western_box.id,
+                                                  crossing_box.id)
         end
 
         specify 'shifting an already shifted polygon has no effect' do
           shifted_wkt = eastern_box.geo_object.to_s
           expect(shifted_wkt =~ /-/).to be_falsey
           expect(GeographicItem.where(GeographicItem.contained_by_wkt_sql(shifted_wkt)).map(&:id))
-            .to contain_exactly(point_in_eastern_box.id)
+            .to contain_exactly(point_in_eastern_box.id, eastern_box.id)
         end
       end
     end

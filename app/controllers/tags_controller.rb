@@ -13,7 +13,7 @@ class TagsController < ApplicationController
       }
       format.json {
         @tags = Queries::Tag::Filter.new(params).all.where(project_id: sessions_current_project_id).
-        page(param[:page]).per(500)
+        page(params[:page]).per(500)
       }
     end
   end
@@ -83,32 +83,6 @@ class TagsController < ApplicationController
 
   def list
     @tags = Tag.where(project_id: sessions_current_project_id).order(:id).page(params[:page])
-  end
-
-  # GET /tags/search
-  def search
-    if params[:id].blank?
-      redirect_to tags_path, notice: 'You must select an item from the list with a click or tab ' \
-                                          'press before clicking show.'
-    else
-      redirect_to tag_path(params[:id])
-    end
-  end
-
-  def autocomplete
-    @tags = Queries::TagAutocompleteQuery.new(params.require(:term), project_id: sessions_current_project_id).all
-
-    data = @tags.collect do |t|
-      {id: t.id,
-       label: ApplicationController.helpers.tag_tag(t),
-       response_values: {
-         params[:method] => t.id
-       },
-       label_html: ApplicationController.helpers.tag_tag(t)
-      }
-    end
-
-    render json: data
   end
 
   def exists

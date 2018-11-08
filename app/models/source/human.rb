@@ -16,7 +16,7 @@ class Source::Human < Source
   has_many :source_source_roles, class_name: 'SourceSource', as: :role_object
   has_many :people, through: :source_source_roles, source: :person, validate: true
 
-  accepts_nested_attributes_for :people
+  accepts_nested_attributes_for :people, :source_source_roles
 
   validate :at_least_one_person_is_provided
 

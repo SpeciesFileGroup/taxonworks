@@ -1,4 +1,3 @@
-DEFAULT_SQL_REGEXS = [].freeze
 class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationController
   include TaskControllerConfiguration
 

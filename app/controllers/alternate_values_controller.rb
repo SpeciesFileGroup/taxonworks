@@ -1,10 +1,7 @@
-#
-# This is a top-level class documentation comment for the Alternate Value Controller
-# RuboCop likes this
 class AlternateValuesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_alternate_value, only: [:update, :destroy] # :edit removed from this list
+  before_action :set_alternate_value, only: [:update, :destroy]
 
   # GET /alternate_values
   # GET /alternate_values.json
@@ -16,7 +13,7 @@ class AlternateValuesController < ApplicationController
       }
       format.json {
         @alternate_values = Queries::AlternateValue::Filter.new(params).all
-          .where(project_id: sessions_current_project_id).page(param[:page]).per(500)
+          .where(project_id: sessions_current_project_id).page(params[:page]).per(500)
       }
     end
   end

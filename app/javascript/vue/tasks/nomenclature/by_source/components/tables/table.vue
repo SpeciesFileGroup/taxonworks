@@ -2,6 +2,7 @@
   <table>
     <tr>
       <th @click="sortByPages">Pages</th>
+      <th>Is original</th>
       <th>Object</th>
       <th>Radial</th>
       <th>Otu</th>
@@ -9,6 +10,7 @@
     </tr>
     <row-components 
       v-for="item in list"
+      :key="item.id"
       @delete="removeCitation"
       :citation="item"/>
   </table>  

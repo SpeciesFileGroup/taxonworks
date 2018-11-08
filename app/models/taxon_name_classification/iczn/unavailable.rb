@@ -90,7 +90,9 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000201'.freeze
 
     extend InnerClass
-    # LABEL = 'not Latin (ICZN)'
+    def classification_label
+      'not Latin'
+    end
   end
 
   class NotLatinizedAfter1899 < TaxonNameClassification::Iczn::Unavailable

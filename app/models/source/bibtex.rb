@@ -339,7 +339,7 @@ class Source::Bibtex < Source
                                message:  'must be an integer greater than 999 and no more than 2 years in the future'}
 
   validates_presence_of :month,
-                        unless:  -> { day.nil? },
+                        unless:  -> { day.blank? },
                         message: 'is required when day is provided'
 
   validates_inclusion_of :month,
@@ -348,7 +348,7 @@ class Source::Bibtex < Source
                          message: ' month'
 
   validates :day, date_day: {year_sym: :year, month_sym: :month},
-            unless: -> { year.nil? || month.nil? }
+            unless: -> { year.blank? || month.blank? }
 
   validates :url, format:                                   {
     with:    URI::regexp(%w(http https ftp)),
@@ -784,6 +784,18 @@ class Source::Bibtex < Source
     b
   end
 
+  def bibtex_bibliography_for_zootaxa
+    bx_entry = to_bibtex
+    bx_entry.year = '0000' if bx_entry.year.blank? # cludge to fix render problem with year
+    v = self.volume
+    v = v + '(' + self.number + ')' unless self.number.blank?
+    v = [self.stated_year, v].compact.join(', ') if !self.stated_year.blank? and self.stated_year != self.year
+    bx_entry.volume = v if !v.blank? && bx_entry.try(:volume) && bx_entry.volume != v
+    b = BibTeX::Bibliography.new
+    b.add(bx_entry)
+    b
+  end
+
   # @param [String] style
   # @param [String] format
   # @return [String]
@@ -791,6 +803,14 @@ class Source::Bibtex < Source
   def render_with_style(style = 'vancouver', format = 'text')
     cp = CiteProc::Processor.new(style: style, format: format)
     cp.import(bibtex_bibliography.to_citeproc)
+    # if style == 'zootaxa'
+    #   cp.import(bibtex_bibliography_for_zootaxa.to_citeproc)
+    # else
+    #   cp.import(bibtex_bibliography.to_citeproc)
+    # end
+    #name = cp.engine.style.macros['author'] > 'names' > 'name'
+    #name[:initialize] = 'false'
+
     cp.render(:bibliography, id: cp.items.keys.first).first.strip
   end
 

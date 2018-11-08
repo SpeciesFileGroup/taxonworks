@@ -43,9 +43,10 @@
               class="normal-input"
               v-model="show" 
               value="verbatim">
-            <label for="author-picker-verbatim"
-            v-help.section.author.verbatim
-            > Verbatim
+            <label
+              for="author-picker-verbatim"
+              v-help.section.author.verbatim> 
+              Verbatim
               <div v-if="verbatimFieldsWithData">
                 <span
                   class="small-icon icon-without-space"
@@ -58,11 +59,10 @@
               type="radio"
               class="normal-input"
               v-model="show"
-              v-help.section.author.person
               value="person">
-            <label for="author-picker-person"
-            v-help.section.author.person
-            >
+            <label
+              for="author-picker-person"
+              v-help.section.author.person>
               <span>Person</span>
               <div v-if="roles.length">
                 ({{ roles.length }})
@@ -96,7 +96,7 @@
             <div class="flex-separate middle">
               <p>
                 <a
-                  :href="`/sources/${taxon.origin_citation.source_id}/edit`"
+                  :href="`/sources/${taxon.origin_citation.source.id}/edit`"
                   target="_blank">{{ citation.source.object_tag }}</a>
               </p>
               <citation-pages
@@ -137,29 +137,29 @@
 
 <script>
 
-import pdfButton from '../../../components/pdfButton'
+import PdfButton from 'components/pdfButton'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 
-import verbatimAuthor from './verbatimAuthor.vue'
-import verbatimYear from './verbatimYear.vue'
-import citationPages from './citationPages.vue'
-import autocomplete from '../../../components/autocomplete.vue'
-import rolePicker from '../../../components/role_picker.vue'
-import defaultElement from '../../../components/getDefaultPin.vue'
-import expand from './expand.vue'
+import VerbatimAuthor from './verbatimAuthor.vue'
+import VerbatimYear from './verbatimYear.vue'
+import CitationPages from './citationPages.vue'
+import Autocomplete from 'components/autocomplete.vue'
+import RolePicker from 'components/role_picker.vue'
+import DefaultElement from 'components/getDefaultPin.vue'
+import Expand from './expand.vue'
 
 export default {
   components: {
-    pdfButton,
-    autocomplete,
-    verbatimAuthor,
-    verbatimYear,
-    rolePicker,
-    defaultElement,
-    citationPages,
-    expand
+    PdfButton,
+    Autocomplete,
+    VerbatimAuthor,
+    VerbatimYear,
+    RolePicker,
+    DefaultElement,
+    CitationPages,
+    Expand
   },
   computed: {
     citation () {

@@ -1,3 +1,5 @@
+Rails.application.eager_load!
+
 TaxonWorks::Application.routes.draw do
 
   get :ping, controller: 'ping',  defaults: { format: :json }
@@ -160,6 +162,8 @@ TaxonWorks::Application.routes.draw do
     collection do
       post :preview_castor_batch_load # should be get
       post :create_castor_batch_load # should be get
+      post :preview_buffered_batch_load
+      post :create_buffered_batch_load
       get :preview_simple_batch_load
       post :create_simple_batch_load
       get :select_options, defaults: {format: :json}
@@ -405,13 +409,14 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes ]
     resources :biological_associations, shallow: true, only: [:index], defaults: {format: :json}
     resources :asserted_distributions, shallow: true, only: [:index], defaults: {format: :json}
+    resources :common_names, shallow: true, only: [:index], defaults: {format: :json}
 
     resources :contents, only: [:index]
     collection do
-  
+
       post :preview_data_attributes_batch_load
       post :create_data_attributes_batch_load
-  
+
       post :preview_simple_batch_load # should be get (batch loader fix)
       post :create_simple_batch_load
 
@@ -612,21 +617,19 @@ TaxonWorks::Application.routes.draw do
     collection do
       get :type_types, {format: :json}
     end
-
   end
 
 
   # Generate shallow routes for annotations based on model properties, like
   # otu_citations GET /otus/:otu_id/citations(.:format) citations#index
   ApplicationEnumeration.data_models.each do |m|
-    Shared::IsData::Annotation::ANNOTATION_TYPES.each do |t|
+    ::ANNOTATION_TYPES.each do |t|
       if m.send("has_#{t}?")
         n = m.model_name
         match "/#{n.route_key}/:#{n.param_key}_id/#{t}", to: "#{t}#index", as: "#{n.singular}_#{t}", via: :get, constraints: {format: :json}, defaults: {format: :json}
       end
     end
   end
-
 
   ### End of data resources ###
 
@@ -998,10 +1001,10 @@ TaxonWorks::Application.routes.draw do
         to: 'confidence_levels#index'
 
       get '/confidences',
-        to: 'confidences#index' 
+        to: 'confidences#index'
 
       get '/data_attributes',
-        to: 'data_attributes#index' 
+        to: 'data_attributes#index'
 
       get '/taxon_names/:id',
         to: 'taxon_names#show'
@@ -1048,7 +1051,7 @@ TaxonWorks::Application.routes.draw do
       # Generate shallow routes for annotations based on model properties, like
       # otu_citations GET /otus/:otu_id/citations(.:format) citations#index
       ApplicationEnumeration.data_models.each do |m|
-        Shared::IsData::Annotation::ANNOTATION_TYPES.each do |t|
+        ::ANNOTATION_TYPES.each do |t|
           if m.send("has_#{t}?")
             n = m.model_name
             match "/#{n.route_key}/:#{n.param_key}_id/#{t}", to: "#{t}#index",  via: :get, constraints: {format: :json}, defaults: {format: :json}
