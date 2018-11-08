@@ -76,7 +76,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         before { TaxonNameClassification::Icn::Hybrid.create!(taxon_name: hybrid_species) } 
 
         specify '#cached_html' do
-          expect(hybrid_species.cached_html).to eq('&#215; <i>Aus aaa</i>')
+          expect(hybrid_species.cached_html).to eq('× <i>Aus aaa</i>')
         end
 
         specify '#cached' do
@@ -99,7 +99,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       context 'fossil' do
         specify '#cached_html' do
           TaxonNameClassification::Iczn::Fossil.create!(taxon_name: species)
-          expect(species.cached_html).to eq('&#8224; <i>Aus aus</i>')
+          expect(species.cached_html).to eq('† <i>Aus aus</i>')
         end
       end
 
