@@ -14,8 +14,8 @@ module Utilities::Italicize
     ' ser.',  # not covered in original combination 
     '[GENUS NOT SPECIFIED]',
     '[SPECIES NOT SPECIFIED]',
-    '&#8224; ', # fossil dagger
-    '&#215; ',  # hybrid x
+    '† ', # fossil dagger
+    '× ',  # hybrid ×
     # 'Candidatus' ? 
   ].freeze
 
