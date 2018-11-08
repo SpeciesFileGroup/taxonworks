@@ -9,9 +9,9 @@ class AttributionController < ApplicationController
         @recent_objects = Attribution.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       end
-   #   format.json {
-   #     @otus = Attribution.all.page(params[:page]).per(500)
-   #   }
+      #   format.json {
+      #     @otus = Attribution.all.page(params[:page]).per(500)
+      #   }
     end
   end
 
@@ -70,13 +70,11 @@ class AttributionController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_attribution
-      @attribution = Attribution.find(params[:id])
-    end
+  def set_attribution
+    @attribution = Attribution.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def attribution_params
-      params.require(:attribution).permit(:copyright_year, :license)
-    end
+  def attribution_params
+    params.require(:attribution).permit(:copyright_year, :license, :attribution_object_type, :attribution_object_id)
+  end
 end

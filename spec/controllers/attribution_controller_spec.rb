@@ -30,10 +30,6 @@ RSpec.describe AttributionController, type: :controller do
 
   let(:valid_attributes) { strip_housekeeping_attributes(FactoryBot.build(:valid_attribution).attributes) }
 
-  let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
-  }
-
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
   # AttributionController. Be sure to keep this updated too.
@@ -86,7 +82,7 @@ RSpec.describe AttributionController, type: :controller do
 
     context "with invalid params" do
       it "returns a success response (i.e. to display the 'new' template)" do
-        post :create, params: {attribution: invalid_attributes}, session: valid_session
+        post :create, params: {attribution: { license: 'BAD' }}, session: valid_session
         expect(response).to be_successful
       end
     end
@@ -100,7 +96,7 @@ RSpec.describe AttributionController, type: :controller do
 
       it "updates the requested attribution" do
         attribution = Attribution.create! valid_attributes
-        put :update, params: {id: attribution.to_param, attribution: new_attributes}, session: valid_session
+        put :update, params: {id: attribution.to_param, attribution: {license: ''}, session: valid_session
         attribution.reload
         skip("Add assertions for updated state")
       end
@@ -115,7 +111,7 @@ RSpec.describe AttributionController, type: :controller do
     context "with invalid params" do
       it "returns a success response (i.e. to display the 'edit' template)" do
         attribution = Attribution.create! valid_attributes
-        put :update, params: {id: attribution.to_param, attribution: invalid_attributes}, session: valid_session
+        put :update, params: {id: attribution.to_param, attribution: { license: 'BAD'}}, session: valid_session
         expect(response).to be_successful
       end
     end

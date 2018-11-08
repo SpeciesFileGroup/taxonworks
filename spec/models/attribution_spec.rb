@@ -10,4 +10,10 @@ RSpec.describe Attribution, type: :model do
     expect(attribution.errors.include?(:license)).to be_truthy
   end
 
+  specify '#attribution_object_type' do
+    attribution.attribution_object_type = "" 
+    attribution.save
+    expect(attribution.attribution_object_type).to eq(nil) 
+  end
+
 end

@@ -17,7 +17,6 @@ class Attribution < ApplicationRecord
   include Shared::IsData
   include Shared::PolymorphicAnnotator
   polymorphic_annotates('attribution_object')
-  acts_as_list scope: [:attribution_object_id, :tag_object_type, :project_id]
   
   # TODO: Consider drying with Source roles.
 
@@ -41,6 +40,14 @@ class Attribution < ApplicationRecord
 
   validates :license, inclusion: {in: CREATIVE_COMMONS_LICENSES.keys}
 
+  validate :some_data_provided
+
   accepts_nested_attributes_for :editors, :creators, :creator_roles, :owner_roles, :editor_roles, allow_destroy: true
+
+  protected
+
+  def some_data_provided
+    errors.add(:base, 'no attribution metadata') if license.blank? && copyright_year.blank? && !editor_roles.any? && !author_roles.any? && !owner_roles.any?
+  end
 
 end
