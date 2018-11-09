@@ -1,45 +1,25 @@
 
 <template>
   <div>
-    <h3>Geographic area</h3>
-    <switch-component
-      :options="Object.keys(smartGeographics)"
-      v-model="view"
-      :add-option="['search']"
-      name="switch-geographic"/>
-    <template v-if="smartGeographics[view]">
-      <tag-item
-        v-for="item in smartGeographics[view]"
-        :item="item"
-        display="name"
-        @select="sendGeographic"
-        :key="item.id"/>
-    </template>
+    <h3>Collecting event</h3>
     <autocomplete
-      v-else
-      url="/geographic_areas/autocomplete"
+      url="/collecting_eventss/autocomplete"
       label="label_html"
       min="2"
       :clear-after="true"
       :autofocus="true"
-      @getItem="sendGeographic"
-      placeholder="Select a geographic area"
+      @getItem="sendCollectingEvent"
+      placeholder="Select a gcollecting event"
       param="term"/>
   </div>
 </template>
 
 <script>
 
-  import TagItem from '../shared/item_tag.vue'
-  import SwitchComponent from '../shared/switch.vue'
-  import Autocomplete from '../../../autocomplete.vue'
-  import CRUD from '../../request/crud'
+  import Autocomplete from '../../../../components/autocomplete.vue'
 
   export default {
-    mixins: [CRUD],
     components: {
-      TagItem,
-      SwitchComponent,
       Autocomplete
     },
     props: {
@@ -50,31 +30,15 @@
     },
     data() {
       return {
-        view: undefined,
-        smartGeographics: [],
         selected: undefined
       }
     },
     mounted() {
-      this.getList(`/geographic_areas/select_options?target=AssertedDistribution`).then(response => {
-        let result = response.body
-        Object.keys(result).forEach(key => (!result[key].length) && delete result[key])
-        this.smartGeographics = result
-        this.view = this.firstTabWithData(result);
-      })
     },
     methods: {
-      sendGeographic(item) {
+      sendCollectingEvent(item) {
         this.selected = ''
         this.$emit('select', item.id)
-      },
-      firstTabWithData(smartObject) {
-        if(Object.keys(smartObject).length) {
-          return Object.keys(smartObject)[0]
-        }
-        else {
-          return 'search'
-        }
       }
     }
   }
