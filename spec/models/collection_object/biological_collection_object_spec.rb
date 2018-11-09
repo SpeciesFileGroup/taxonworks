@@ -53,11 +53,20 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
       expect(TaxonDetermination.where(id: d.id).any?).to be_falsey
     end 
 
+    specify '#biocuration_classifications are destroyed' do
+      b = FactoryBot.create(:valid_biocuration_class)
+      d = BiocurationClassification.create!(biological_collection_object: biological_collection_object, biocuration_class: b) 
+      biological_collection_object.destroy
+      expect(BiocurationClassification.where(id: d.id).any?).to be_falsey
+    end 
+
     specify '#observations prevent destruction' do
       o = Observation::Continuous.create!(observation_object_global_id: biological_collection_object.to_global_id.to_s, continuous_value: 22, descriptor: descriptor)
       expect(biological_collection_object.destroy).to be_falsey
       expect(biological_collection_object.errors.include?(:base)).to be_truthy
     end
+
+
   end
 
   context 'nested attributes' do

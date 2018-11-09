@@ -3,7 +3,7 @@
 class CollectionObject::BiologicalCollectionObject < CollectionObject
   is_origin_for 'Extract', 'CollectionObject::BiologicalCollectionObject'
 
-  has_many :biocuration_classifications,  inverse_of: :biological_collection_object
+  has_many :biocuration_classifications,  inverse_of: :biological_collection_object, dependent: :destroy
   has_many :biocuration_classes, through: :biocuration_classifications, inverse_of: :biological_collection_objects
 
   # See parent class for comments, this belongs here, but interferes with accepts_nested_attributes
