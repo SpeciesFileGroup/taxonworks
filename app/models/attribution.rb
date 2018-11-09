@@ -18,36 +18,33 @@ class Attribution < ApplicationRecord
   include Shared::PolymorphicAnnotator
   polymorphic_annotates('attribution_object')
   
-  # TODO: Consider drying with Source roles.
+  # TODO: Consider DRYing with Source roles.
 
-  has_many :creator_roles, -> { order('roles.position ASC') }, class_name: 'AttributionCreator',
-    as: :role_object, validate: true
+  ATTRIBUTION_ROLES = [
+    :creator,
+    :editor,
+    :owner
+  ]
+  
+  ATTRIBUTION_ROLES.each do |r|
+    role_name = "#{r}_roles".to_sym 
+    role_person = "attribution_#{r.to_s.pluralize}".to_sym
 
-  has_many :creators, -> { order('roles.position ASC') },
-           through: :creator_roles, source: :person, validate: true
+    has_many role_name, -> { order('roles.position ASC') }, class_name: "Attribution#{r.to_s.capitalize}", as: :role_object, validate: true
+    has_many role_person, -> { order('roles.position ASC') }, through: role_name, source: :person, validate: true
 
-  has_many :editor_roles, -> { order('roles.position ASC') }, class_name: 'AttributionEditor',
-    as: :role_object, validate: true
-
-  has_many :editors, -> { order('roles.position ASC') },
-           through: :editor_roles, source: :person, validate: true
-
-  has_many :owner_roles, -> { order('roles.position ASC') }, class_name: 'AttributionOwner',
-    as: :role_object, validate: true
-
-  has_many :owners, -> { order('roles.position ASC') },
-           through: :owner_roles, source: :person, validate: true
+    accepts_nested_attributes_for role_name, allow_destroy: true
+    accepts_nested_attributes_for role_person 
+  end
 
   validates :license, inclusion: {in: CREATIVE_COMMONS_LICENSES.keys}
 
   validate :some_data_provided
 
-  accepts_nested_attributes_for :editors, :creators, :creator_roles, :owner_roles, :editor_roles, allow_destroy: true
-
   protected
 
   def some_data_provided
-    errors.add(:base, 'no attribution metadata') if license.blank? && copyright_year.blank? && !editor_roles.any? && !author_roles.any? && !owner_roles.any?
+    errors.add(:base, 'no attribution metadata') if license.blank? && copyright_year.blank? && !editor_roles.any? && !creator_roles.any? && !owner_roles.any?
   end
 
 end

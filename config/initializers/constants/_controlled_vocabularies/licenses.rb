@@ -9,5 +9,3 @@ CREATIVE_COMMONS_LICENSES =  {
   'Attribution-NonCommercial-ShareAlike' => 'https://creativecommons.org/licenses/by-nc-sa/4.0',
   'Attribution-NonCommercial-NoDerivs' => 'https://creativecommons.org/licenses/by-nc-nd/4.0'
 }
-  
-

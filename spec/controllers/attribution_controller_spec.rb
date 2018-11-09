@@ -96,9 +96,9 @@ RSpec.describe AttributionController, type: :controller do
 
       it "updates the requested attribution" do
         attribution = Attribution.create! valid_attributes
-        put :update, params: {id: attribution.to_param, attribution: {license: ''}, session: valid_session
+        put :update, params: {id: attribution.to_param, attribution: {license: 'Attribution-NoDerivs'}}, session: valid_session
         attribution.reload
-        skip("Add assertions for updated state")
+        expect(attribution.license).to eq('Attribution-NoDerivs')
       end
 
       it "redirects to the attribution" do
