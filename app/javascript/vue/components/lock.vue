@@ -2,8 +2,8 @@
   <div
     class="button-circle button-data"
     :class="{ 
-      'btn-locked': locked,
-      'btn-unlocked': !locked 
+      'btn-locked': value,
+      'btn-unlocked': !value 
     }"
     @click="switchValue"
   />
@@ -17,15 +17,9 @@ export default {
       default: false
     }
   },
-  data() {
-    return {
-      locked: false
-    }
-  },
   methods: {
     switchValue() {
-      this.locked = !this.locked
-      this.$emit('input', this.locked)
+      this.$emit('input', !this.value)
     }
   }
 }
