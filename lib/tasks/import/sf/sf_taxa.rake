@@ -447,7 +447,9 @@ namespace :tw do
           # About 100 family names not compatible with type genus relationship, mostly genus group names (see log)
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
+          get_sf_file_id = import.get('SFTaxonNameIDToSFFileID')
           skipped_file_ids = import.get('SkippedFileIDs')
+          excluded_taxa = import.get('ExcludedTaxa')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
@@ -459,7 +461,9 @@ namespace :tw do
           error_counter = 0
 
           file.each_with_index do |row, i|
-            next if skipped_file_ids.include? row['FileID'].to_i
+            next if skipped_file_ids.include? get_sf_file_id[row['GenusNameID']].to_i
+            next if excluded_taxa.include? row['GenusNameID']
+            next if excluded_taxa.include? row['FamilyNameID']
             next if get_tw_otu_id.has_key?(row['FamilyNameID']) # ignore if ill-formed family name created only as OTU
 
             genus_name_id = get_tw_taxon_name_id[row['GenusNameID']].to_i
@@ -502,6 +506,7 @@ namespace :tw do
           logger.info 'Creating type species...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
+          get_sf_file_id = import.get('SFTaxonNameIDToSFFileID')
           skipped_file_ids = import.get('SkippedFileIDs')
           excluded_taxa = import.get('ExcludedTaxa')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
@@ -534,7 +539,7 @@ namespace :tw do
           no_genus_counter = 0
 
           file.each_with_index do |row, i|
-            next if skipped_file_ids.include? row['FileID'].to_i
+            next if skipped_file_ids.include? get_sf_file_id[row['GenusNameID']].to_i
             next if excluded_taxa.include? row['GenusNameID']
             # next if row['SpeciesNameID'] == '0'
             # next if [1143402, 1143425, 1143430, 1143432, 1143436].freeze.include?(row['GenusNameID'].to_i) # used for excluded Beckma ids
@@ -1084,6 +1089,30 @@ namespace :tw do
 
           puts = 'SFRankIDToTWRankString'
           ap get_tw_rank_string
+        end
+
+        desc 'time rake tw:project_import:sf_import:taxa:create_sf_taxa_misc_info user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define create_sf_taxa_misc_info: [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Running create_sf_taxa_misc_info...'
+
+          get_sf_taxon_info = {} # key = SF.TaxonNameID, value = SF.FileID, SF.RankID
+
+          path = @args[:data_directory] + 'sfTaxaMiscInfo.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          file.each_with_index do |row, i|
+
+            logger.info "Working with SF.TaxonNameID = '#{row['TaxonNameID']}', SF.FileID = '#{row['FileID']}', SF.RankID = '#{row['RankID']}' \n"
+
+            get_sf_taxon_info[row['TaxonNameID']] = {file_id: row['FileID'], rank_id: row['RankID']}
+          end
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SFTaxonNameIDMiscInfo', get_sf_taxon_info)
+
+          puts 'SFTaxonNameIDMiscInfo'
+          ap get_sf_taxon_info
         end
 
         desc 'time rake tw:project_import:sf_import:start:list_excluded_taxa user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
