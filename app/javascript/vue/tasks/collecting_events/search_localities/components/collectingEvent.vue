@@ -3,13 +3,13 @@
   <div>
     <h3>Collecting event</h3>
     <autocomplete
-      url="/collecting_eventss/autocomplete"
-      label="label_html"
+      url="/collecting_events/autocomplete"
       min="2"
-      :clear-after="true"
+      label="label_html"
+      placeholder="Select a place name"
       :autofocus="true"
       @getItem="sendCollectingEvent"
-      placeholder="Select a gcollecting event"
+      display="label"
       param="term"/>
   </div>
 </template>
@@ -22,12 +22,6 @@
     components: {
       Autocomplete
     },
-    props: {
-      createdList: {
-        type: Array,
-        required: true
-      }
-    },
     data() {
       return {
         selected: undefined
@@ -37,8 +31,8 @@
     },
     methods: {
       sendCollectingEvent(item) {
-        this.selected = ''
-        this.$emit('select', item.id)
+        this.selected=item.id;
+        this.$emit('selected', item.id)
       }
     }
   }
