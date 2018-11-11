@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe AttributionController, type: :routing do
+RSpec.describe AttributionsController, type: :routing do
   describe "routing" do
     it "routes to #index" do
       expect(:get => "/attribution").to route_to("attribution#index")

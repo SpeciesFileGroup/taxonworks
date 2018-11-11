@@ -71,7 +71,7 @@ module Shared::IsData::Annotation
     result['confidences'] = confidences if has_confidences? && confidences.any?
     result['protocol_relationships'] = protocols if has_protocol_relationships? && protocolled?
     result['alternate values'] = alternate_values if has_alternate_values? && alternate_values.any?
-    result['attribution'] = attribution if has_attribution? && attribution.any?
+    result['attribution'] = attribution if has_attributions? && attribution.any?
     result
   end
 

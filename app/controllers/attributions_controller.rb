@@ -1,4 +1,6 @@
-class AttributionController < ApplicationController
+class AttributionsController < ApplicationController
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
+  
   before_action :set_attribution, only: [:show, :edit, :update, :destroy]
 
   # GET /attribution
@@ -15,17 +17,17 @@ class AttributionController < ApplicationController
     end
   end
 
-  # GET /attribution/1
-  # GET /attribution/1.json
+  # GET /attributions/1
+  # GET /attributions/1.json
   def show
   end
 
-  # GET /attribution/new
+  # GET /attributions/new
   def new
     @attribution = Attribution.new
   end
 
-  # GET /attribution/1/edit
+  # GET /attributions/1/edit
   def edit
   end
 
@@ -45,8 +47,8 @@ class AttributionController < ApplicationController
     end
   end
 
-  # PATCH/PUT /attribution/1
-  # PATCH/PUT /attribution/1.json
+  # PATCH/PUT /attributions/1
+  # PATCH/PUT /attributions/1.json
   def update
     respond_to do |format|
       if @attribution.update(attribution_params)
@@ -59,12 +61,12 @@ class AttributionController < ApplicationController
     end
   end
 
-  # DELETE /attribution/1
-  # DELETE /attribution/1.json
+  # DELETE /attributions/1
+  # DELETE /attributions/1.json
   def destroy
     @attribution.destroy
     respond_to do |format|
-      format.html { redirect_to attribution_index_url, notice: 'Attribution was successfully destroyed.' }
+      format.html { redirect_to attributions_url, notice: 'Attribution was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

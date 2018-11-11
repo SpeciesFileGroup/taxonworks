@@ -140,6 +140,7 @@ module Shared::IsData
     errors_excepting(*keys).full_messages
   end
 
+  # TODO: move out to own file
   module Stripper
     # protected
 

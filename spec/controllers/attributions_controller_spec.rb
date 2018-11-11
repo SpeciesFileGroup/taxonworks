@@ -23,7 +23,7 @@ require 'rails_helper'
 # removed from Rails core in Rails 5, but can be added back in via the
 # `rails-controller-testing` gem.
 
-RSpec.describe AttributionController, type: :controller do
+RSpec.describe AttributionsController, type: :controller do
   before(:each) {
     sign_in
   }
@@ -128,7 +128,7 @@ RSpec.describe AttributionController, type: :controller do
     it "redirects to the attribution list" do
       attribution = Attribution.create! valid_attributes
       delete :destroy, params: {id: attribution.to_param}, session: valid_session
-      expect(response).to redirect_to(attribution_index_url)
+      expect(response).to redirect_to(attributions_url)
     end
   end
 

@@ -54,7 +54,7 @@ ActiveRecord::Schema.define(version: 2018_11_02_183022) do
     t.index ["updated_by_id"], name: "index_asserted_distributions_on_updated_by_id"
   end
 
-  create_table "attribution", force: :cascade do |t|
+  create_table "attributions", force: :cascade do |t|
     t.string "attribution_object_type", null: false
     t.bigint "attribution_object_id", null: false
     t.integer "copyright_year"
@@ -67,9 +67,9 @@ ActiveRecord::Schema.define(version: 2018_11_02_183022) do
     t.index ["attribution_object_id"], name: "attr_obj_id_index"
     t.index ["attribution_object_type", "attribution_object_id"], name: "attribution_object_index"
     t.index ["attribution_object_type"], name: "attr_obj_type_index"
-    t.index ["created_by_id"], name: "index_attribution_on_created_by_id"
-    t.index ["project_id"], name: "index_attribution_on_project_id"
-    t.index ["updated_by_id"], name: "index_attribution_on_updated_by_id"
+    t.index ["created_by_id"], name: "index_attributions_on_created_by_id"
+    t.index ["project_id"], name: "index_attributions_on_project_id"
+    t.index ["updated_by_id"], name: "index_attributions_on_updated_by_id"
   end
 
   create_table "biocuration_classifications", id: :serial, force: :cascade do |t|
@@ -366,8 +366,8 @@ ActiveRecord::Schema.define(version: 2018_11_02_183022) do
   end
 
   create_table "confidences", id: :serial, force: :cascade do |t|
-    t.string "confidence_object_type", null: false
     t.integer "confidence_object_id", null: false
+    t.string "confidence_object_type", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -556,8 +556,8 @@ ActiveRecord::Schema.define(version: 2018_11_02_183022) do
   end
 
   create_table "documentation", id: :serial, force: :cascade do |t|
-    t.string "documentation_object_type", null: false
     t.integer "documentation_object_id", null: false
+    t.string "documentation_object_type", null: false
     t.integer "document_id", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -575,7 +575,7 @@ ActiveRecord::Schema.define(version: 2018_11_02_183022) do
   create_table "documents", id: :serial, force: :cascade do |t|
     t.string "document_file_file_name", null: false
     t.string "document_file_content_type", null: false
-    t.bigint "document_file_file_size", null: false
+    t.integer "document_file_file_size", null: false
     t.datetime "document_file_updated_at", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -761,8 +761,8 @@ ActiveRecord::Schema.define(version: 2018_11_02_183022) do
     t.string "vernacularName"
     t.string "waterBody"
     t.string "year"
-    t.string "dwc_occurrence_object_type"
     t.integer "dwc_occurrence_object_id"
+    t.string "dwc_occurrence_object_type"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id"
@@ -946,7 +946,7 @@ ActiveRecord::Schema.define(version: 2018_11_02_183022) do
     t.datetime "updated_at", null: false
     t.string "image_file_file_name"
     t.string "image_file_content_type"
-    t.bigint "image_file_file_size"
+    t.integer "image_file_file_size"
     t.datetime "image_file_updated_at"
     t.integer "updated_by_id", null: false
     t.text "image_file_meta"
@@ -962,6 +962,25 @@ ActiveRecord::Schema.define(version: 2018_11_02_183022) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.json "metadata_json"
+  end
+
+  create_table "labels", force: :cascade do |t|
+    t.string "text", null: false
+    t.integer "total", null: false
+    t.string "style"
+    t.string "label_object_type", null: false
+    t.bigint "label_object_id", null: false
+    t.boolean "is_copy_edited", default: false
+    t.boolean "is_printed", default: false
+    t.integer "project_id"
+    t.integer "created_by_id"
+    t.integer "updated_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "labels_created_by_id_index"
+    t.index ["label_object_type", "label_object_id"], name: "index_labels_on_label_object_type_and_label_object_id"
+    t.index ["project_id"], name: "index_labels_on_project_id"
+    t.index ["updated_by_id"], name: "labels_updated_by_id_index"
   end
 
   create_table "languages", id: :serial, force: :cascade do |t|
@@ -987,8 +1006,8 @@ ActiveRecord::Schema.define(version: 2018_11_02_183022) do
     t.integer "project_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "loan_item_object_type"
     t.integer "loan_item_object_id"
+    t.string "loan_item_object_type"
     t.integer "total"
     t.string "disposition"
     t.index ["created_by_id"], name: "index_loan_items_on_created_by_id"
@@ -1017,7 +1036,7 @@ ActiveRecord::Schema.define(version: 2018_11_02_183022) do
     t.datetime "updated_at", null: false
     t.string "recipient_honorific"
     t.string "recipient_country"
-    t.text "lender_address", null: false
+    t.text "lender_address", default: "Lender's address not provided.", null: false
     t.index ["created_by_id"], name: "index_loans_on_created_by_id"
     t.index ["project_id"], name: "index_loans_on_project_id"
     t.index ["updated_by_id"], name: "index_loans_on_updated_by_id"
@@ -1178,10 +1197,10 @@ ActiveRecord::Schema.define(version: 2018_11_02_183022) do
   end
 
   create_table "origin_relationships", id: :serial, force: :cascade do |t|
-    t.string "old_object_type", null: false
     t.integer "old_object_id", null: false
-    t.string "new_object_type", null: false
+    t.string "old_object_type", null: false
     t.integer "new_object_id", null: false
+    t.string "new_object_type", null: false
     t.integer "position"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1262,8 +1281,8 @@ ActiveRecord::Schema.define(version: 2018_11_02_183022) do
   end
 
   create_table "pinboard_items", id: :serial, force: :cascade do |t|
-    t.string "pinned_object_type", null: false
     t.integer "pinned_object_id", null: false
+    t.string "pinned_object_type", null: false
     t.integer "user_id", null: false
     t.integer "project_id", null: false
     t.integer "position", null: false
@@ -1334,8 +1353,8 @@ ActiveRecord::Schema.define(version: 2018_11_02_183022) do
 
   create_table "protocol_relationships", id: :serial, force: :cascade do |t|
     t.integer "protocol_id", null: false
-    t.string "protocol_relationship_object_type", null: false
     t.integer "protocol_relationship_object_id", null: false
+    t.string "protocol_relationship_object_type", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1807,9 +1826,9 @@ ActiveRecord::Schema.define(version: 2018_11_02_183022) do
   add_foreign_key "asserted_distributions", "projects", name: "asserted_distributions_project_id_fkey"
   add_foreign_key "asserted_distributions", "users", column: "created_by_id", name: "asserted_distributions_created_by_id_fkey"
   add_foreign_key "asserted_distributions", "users", column: "updated_by_id", name: "asserted_distributions_updated_by_id_fkey"
-  add_foreign_key "attribution", "projects"
-  add_foreign_key "attribution", "users", column: "created_by_id"
-  add_foreign_key "attribution", "users", column: "updated_by_id"
+  add_foreign_key "attributions", "projects"
+  add_foreign_key "attributions", "users", column: "created_by_id"
+  add_foreign_key "attributions", "users", column: "updated_by_id"
   add_foreign_key "biocuration_classifications", "collection_objects", column: "biological_collection_object_id", name: "biocuration_classifications_biological_collection_object_i_fkey"
   add_foreign_key "biocuration_classifications", "controlled_vocabulary_terms", column: "biocuration_class_id", name: "biocuration_classifications_biocuration_class_id_fkey"
   add_foreign_key "biocuration_classifications", "projects", name: "biocuration_classifications_project_id_fkey"
@@ -1938,6 +1957,9 @@ ActiveRecord::Schema.define(version: 2018_11_02_183022) do
   add_foreign_key "images", "projects", name: "images_project_id_fkey"
   add_foreign_key "images", "users", column: "created_by_id", name: "images_created_by_id_fkey"
   add_foreign_key "images", "users", column: "updated_by_id", name: "images_updated_by_id_fkey"
+  add_foreign_key "labels", "projects"
+  add_foreign_key "labels", "users", column: "created_by_id", name: "labels_created_by_id_fk"
+  add_foreign_key "labels", "users", column: "updated_by_id", name: "labels_updated_by_id_fk"
   add_foreign_key "languages", "users", column: "created_by_id", name: "languages_created_by_id_fkey"
   add_foreign_key "languages", "users", column: "updated_by_id", name: "languages_updated_by_id_fkey"
   add_foreign_key "loan_items", "loans", name: "loan_items_loan_id_fkey"

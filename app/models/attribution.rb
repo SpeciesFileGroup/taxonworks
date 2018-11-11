@@ -37,7 +37,7 @@ class Attribution < ApplicationRecord
     accepts_nested_attributes_for role_person 
   end
 
-  validates :license, inclusion: {in: CREATIVE_COMMONS_LICENSES.keys}
+  validates :license, inclusion: {in: CREATIVE_COMMONS_LICENSES.keys}, allow_nil: true
 
   validate :some_data_provided
 

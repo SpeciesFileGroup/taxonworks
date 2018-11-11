@@ -10,8 +10,6 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
 #   inflect.uncountable %w( fish sheep )
   inflect.irregular 'specimen', 'specimens'
   inflect.irregular 'documentation', 'documentation'
-  inflect.irregular 'attribution', 'attribution'
-
 end
 
 # These inflection rules are supported but not enabled by default:

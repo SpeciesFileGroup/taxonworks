@@ -4,32 +4,33 @@
 # in the list.
 #  When multiple attributions exist the earliest or latest is used in the sort order.
 #
-module Shared::Attribution
+module Shared::Attributions
   extend ActiveSupport::Concern
 
   included do
     ::Attribution.related_foreign_keys.push self.name.foreign_key
 
-    has_many :attributions, as: :attribution_object, validate: false, dependent: :destroy, table_name: 'attribution'
+    has_one :attribution, as: :attribution_object, validate: false, dependent: :destroy
 
-    scope :without_attributions, -> {includes(:attributions).where(attributions: {id: nil})}
+    scope :without_attribution, -> {includes(:attribution).where(attributions: {id: nil})}
+    scope :with_attribution, -> { joins(:attribution) }
 
-    accepts_nested_attributes_for :attributions, reject_if: :reject_attributions, allow_destroy: true
+    accepts_nested_attributes_for :attribution, reject_if: :reject_attribution, allow_destroy: true
 
     # Required to drigger validate callbacks, which in turn set user_id related housekeeping
-    validates_associated :attributions
+    validates_associated :attribution
   end
 
   class_methods do
   end
 
-  def attributed?
-    self.attributions.any?
+  def attributed? 
+    self.attribution.present?
   end
 
   protected
 
-  def reject_attributions(attributed)
+  def reject_attribution(attributed)
     false
   end
 
