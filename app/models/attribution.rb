@@ -41,6 +41,9 @@ class Attribution < ApplicationRecord
 
   validates :license, inclusion: {in: CREATIVE_COMMONS_LICENSES.keys}, allow_nil: true
 
+  validates :copyright_year, date_year:  {min_year: 1000, max_year: Time.now.year + 5,
+                               message:  'must be an integer greater than 999 and no more than 5 years in the future'}
+
   validate :some_data_provided
 
   protected
