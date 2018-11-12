@@ -1,1 +1,1 @@
-json.partial! "attribution/attribution", attribution: @attribution
+json.partial! "attribution/attributes", attribution: @attribution

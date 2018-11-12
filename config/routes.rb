@@ -2,7 +2,6 @@ Rails.application.eager_load!
 
 TaxonWorks::Application.routes.draw do
 
-  resources :attributions
   get :ping, controller: 'ping',  defaults: { format: :json }
   get :pingz, controller: 'ping',  defaults: { format: :json }
 
@@ -101,6 +100,10 @@ TaxonWorks::Application.routes.draw do
       post :preview_simple_batch_load # should be get
       post :create_simple_batch_load
     end
+  end
+
+  resources :attributions, except: [:new] do
+    concerns [:data_routes]
   end
 
   resources :biocuration_classifications, only: [:create, :update, :destroy] do

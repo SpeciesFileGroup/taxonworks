@@ -11,9 +11,9 @@ class AttributionsController < ApplicationController
         @recent_objects = Attribution.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       end
-      #   format.json {
-      #     @otus = Attribution.all.page(params[:page]).per(500)
-      #   }
+      format.json {
+        @attributions = Attribution.where(project_id: sessions_current_project_id).page(params[:page]).per(500)
+      }
     end
   end
 
@@ -23,9 +23,9 @@ class AttributionsController < ApplicationController
   end
 
   # GET /attributions/new
-  def new
-    @attribution = Attribution.new
-  end
+  # def new
+  #   @attribution = Attribution.new
+  # end
 
   # GET /attributions/1/edit
   def edit
