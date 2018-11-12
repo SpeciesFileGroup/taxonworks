@@ -8,9 +8,13 @@ json.attribution_creators do |a|
 end
 
 json.attribution_editors do |a|
-  a.array! attribution.attribution_creators, partial: '/shared/data/all/metadata', as: :object
+  a.array! attribution.attribution_editors, partial: '/shared/data/all/metadata', as: :object
 end
 
 json.attribution_owners do |a|
-  a.array! attribution.attribution_creators, partial: '/shared/data/all/metadata', as: :object
+  a.array! attribution.attribution_owners, partial: '/shared/data/all/metadata', as: :object
+end
+
+json.attribution_copyright_holders do |a|
+  a.array! attribution.attribution_copyright_holders, partial: '/shared/data/all/metadata', as: :object
 end
