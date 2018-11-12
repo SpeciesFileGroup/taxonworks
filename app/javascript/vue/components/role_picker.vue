@@ -74,7 +74,7 @@
         <li
           class="flex-separate middle"
           v-for="(role, index) in roles_attributes"
-          v-if="!role.hasOwnProperty('_destroy')">
+          v-if="!role.hasOwnProperty('_destroy') && filterRole(role)">
           <a
             :href="getUrl(role)"
             target="_blank"
@@ -90,13 +90,13 @@
 
 <script>
 
-  const autocomplete = require('./autocomplete.vue').default
-  const draggable = require('vuedraggable')
+  import Autocomplete from './autocomplete.vue'
+  import Draggable from 'vuedraggable'
 
   export default {
     components: {
-      autocomplete,
-      draggable
+      Autocomplete,
+      Draggable
     },
     props: {
       roleType: {
@@ -107,7 +107,14 @@
         type: Boolean,
         default: true
       },
-      value: undefined
+      value: { 
+        type: Array,
+        default: () => { return [] }
+      },
+      filterByRole: {
+        type: Boolean,
+        default: false
+      }
     },
     data: function () {
       return {
@@ -130,7 +137,7 @@
     },
     watch: {
       value: function (newVal) {
-        this.roles_attributes = this.sortPosition(this.processedList(this.value))
+        this.roles_attributes = this.sortPosition(this.processedList(newVal))
       },
       searchPerson: function (newVal) {
         if (newVal.length > 0) {
@@ -152,6 +159,12 @@
         } else {
           return '#'
         }
+      },
+      filterRole(role) {
+        if(this.filterByRole) {
+          return (role.type == this.roleType)
+        }
+        return true
       },
       makeNewPerson: function () {
         return {
@@ -210,8 +223,9 @@
             person: {
               id: element.person.id
             },
-            first_name: element.person.first_name,
-            last_name: element.person.last_name,
+            type: element.type,
+            first_name: (element.first_name ? element.first_name : element.person.first_name),
+            last_name: (element.last_name ? element.last_name : element.person.last_name),
             position: element.position
           }
           tmp.push(item)
@@ -298,6 +312,8 @@
     li {
       margin: 0px;
       padding: 6px;
+      display: flex;
+      justify-content: space-between;
       border-top: 1px solid #f5f5f5;
     }
   }

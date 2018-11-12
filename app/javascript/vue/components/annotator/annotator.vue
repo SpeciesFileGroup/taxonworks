@@ -71,6 +71,7 @@
   import asserted_distributionsAnnotator from './components/asserted_distributions/asserted_distributions_annotator.vue'
   import common_namesAnnotator from './components/common_names/main.vue'
   import contentsAnnotator from './components/contents/main.vue'
+  import attributionAnnotator from './components/attribution/main.vue'
 
   import Icons from './images/icons.js'
 
@@ -94,7 +95,8 @@
       biological_associationsAnnotator,
       asserted_distributionsAnnotator,
       common_namesAnnotator,
-      contentsAnnotator
+      contentsAnnotator,
+      attributionAnnotator
     },
     props: {
       reload: {
@@ -239,9 +241,6 @@
       display: flex;
       height: 600px;
       flex-direction: column;
-      button {
-        min-width: 100px;
-      }
     }
     .radial-annotator-menu {
       padding-top: 1em;
@@ -251,6 +250,9 @@
     }
     .annotator-buttons-list {
       overflow-y: scroll;
+    }
+    .save-annotator-button {
+      width: 100px;
     }
     .tag_button {
       padding-left: 12px;
