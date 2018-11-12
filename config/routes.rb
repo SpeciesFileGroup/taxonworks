@@ -102,9 +102,11 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+  match '/attributions/licenses', to: 'attributions#licenses', via: :get, defaults: {format: :json}
   resources :attributions, except: [:new] do
     concerns [:data_routes]
   end
+
 
   resources :biocuration_classifications, only: [:create, :update, :destroy] do
     collection do

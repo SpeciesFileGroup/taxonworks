@@ -71,6 +71,10 @@ class AttributionsController < ApplicationController
     end
   end
 
+  def licenses
+    render json: CREATIVE_COMMONS_LICENSES
+  end
+
   private
   def set_attribution
     @attribution = Attribution.find(params[:id])
