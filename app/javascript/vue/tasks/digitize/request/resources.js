@@ -53,6 +53,10 @@ const GetGeographicSmartSelector = function () {
   return ajaxCall('get', `/geographic_areas/select_options`)
 }
 
+const GetOtuSmartSelector = function () {
+  return ajaxCall('get', `/otus/select_options`)
+}
+
 const GetTaxonDeterminationCO = function (id) {
   return ajaxCall('get', `/taxon_determinations.json?biological_collection_object_ids[]=${id}`)
 }
@@ -207,6 +211,7 @@ export {
   GetCollectorsSmartSelector,
   GetRepositorySmartSelector,
   GetGeographicSmartSelector,
+  GetOtuSmartSelector,
   GetCollectingEventsSmartSelector,
   GetTaxonDeterminationCO,
   GetTypeMaterialCO,

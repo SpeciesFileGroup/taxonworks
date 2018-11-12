@@ -57,7 +57,7 @@
       v-if="collectionObjects.length"
       class="separate-left column-tiny">
       <div slot="header">
-        <h3>{{ (collectionObjects.length > 1 ? 'Container' : 'Collection Object created') }}</h3>
+        <h3>{{ (collectionObjects.length > 1 ? 'In this container' : 'Collection Object created') }}</h3>
       </div>
       <div slot="body">
         <table-collection-objects/>
