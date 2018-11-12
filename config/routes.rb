@@ -630,6 +630,7 @@ TaxonWorks::Application.routes.draw do
     ::ANNOTATION_TYPES.each do |t|
       if m.send("has_#{t}?")
         n = m.model_name
+        t = t.to_s.pluralize if t == :attribution
         match "/#{n.route_key}/:#{n.param_key}_id/#{t}", to: "#{t}#index", as: "#{n.singular}_#{t}", via: :get, constraints: {format: :json}, defaults: {format: :json}
       end
     end
@@ -1058,6 +1059,7 @@ TaxonWorks::Application.routes.draw do
         ::ANNOTATION_TYPES.each do |t|
           if m.send("has_#{t}?")
             n = m.model_name
+            t = t.to_s.pluralize if t == :attribution
             match "/#{n.route_key}/:#{n.param_key}_id/#{t}", to: "#{t}#index",  via: :get, constraints: {format: :json}, defaults: {format: :json}
           end
         end
