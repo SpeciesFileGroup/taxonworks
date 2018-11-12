@@ -81,6 +81,18 @@ class AttributionsController < ApplicationController
   end
 
   def attribution_params
-    params.require(:attribution).permit(:copyright_year, :license, :attribution_object_type, :attribution_object_id)
+    params.require(:attribution).permit(
+      :copyright_year, :license, :attribution_object_type, :attribution_object_id,
+      :annotated_global_entity, :_destroy,
+      roles_attributes: [
+        :id,
+        :_destroy,
+        :type,
+        :person_id,
+        :position,
+        person_attributes: [
+          :last_name, :first_name, :suffix, :prefix
+        ]
+    )
   end
 end
