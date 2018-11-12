@@ -9,5 +9,5 @@ ANNOTATION_TYPES = [
   :identifiers,
   :data_attributes,
   :notes,
-  :attributions
+  :attribution
 ].freeze

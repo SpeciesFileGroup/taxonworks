@@ -4,7 +4,6 @@ namespace :tw do
   namespace :development do
     namespace :linting do
 
-
       desc 'list annotated models'
       task  list_annotated_models: [:environment] do |t|
         Rails.application.eager_load!

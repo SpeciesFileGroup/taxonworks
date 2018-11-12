@@ -53,7 +53,9 @@ module Shared::IsData::Annotation
 
   # @return [Hash]
   def annotation_metadata
-    available_annotation_types.inject({}){|hsh, a| hsh.merge!(a => {total: send(a).count})}
+   h = (available_annotation_types - [:attribution]).inject({}){|hsh, a| hsh.merge!(a => {total: send(a).count})}
+   h[:attribution] = {total: (send(:attribution).present? ? 1 : 0)}
+   h 
   end
 
   protected
