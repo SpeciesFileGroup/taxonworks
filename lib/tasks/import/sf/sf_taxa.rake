@@ -119,92 +119,92 @@ namespace :tw do
 
                 case bit_position
 
-                  when 0 # informal (inconsistently used)
-                    # if encountered, classify as unavailable
-                    tnc = TaxonNameClassification.new(
-                        type: 'TaxonNameClassification::Iczn::Unavailable',
-                        taxon_name_id: taxon_name_id,
-                        project_id: project_id
-                    )
-                    begin
-                      tnc.save!
-                      puts 'TaxonNameClassification Unavailable created'
-                    rescue ActiveRecord::RecordInvalid
-                      logger.error "TaxonNameClassification Unavailable ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, (Error # #{error_counter += 1}): " + tnc.errors.full_messages.join(';')
-                    end
+                when 0 # informal (inconsistently used)
+                  # if encountered, classify as unavailable
+                  tnc = TaxonNameClassification.new(
+                      type: 'TaxonNameClassification::Iczn::Unavailable',
+                      taxon_name_id: taxon_name_id,
+                      project_id: project_id
+                  )
+                  begin
+                    tnc.save!
+                    puts 'TaxonNameClassification Unavailable created'
+                  rescue ActiveRecord::RecordInvalid
+                    logger.error "TaxonNameClassification Unavailable ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, (Error # #{error_counter += 1}): " + tnc.errors.full_messages.join(';')
+                  end
+                  no_relationship = true
+                  bit_flag_name = 'informal'
+                when 1 # subsequent misspelling
+                  type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling'
+                  bit_flag_name = 'subsequent misspelling'
+                when 2 # unjustified emendation
+                  type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation'
+                  bit_flag_name = 'unjustified emendation'
+                when 3 # nomen nudum
+                  # if taxon is also synonym, treat as senior/junior synonym
+                  if name_status == '7'
+                    type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
+                  else
                     no_relationship = true
-                    bit_flag_name = 'informal'
-                  when 1 # subsequent misspelling
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling'
-                    bit_flag_name = 'subsequent misspelling'
-                  when 2 # unjustified emendation
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation'
-                    bit_flag_name = 'unjustified emendation'
-                  when 3 # nomen nudum
-                    # if taxon is also synonym, treat as senior/junior synonym
-                    if name_status == '7'
-                      type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
-                    else
-                      no_relationship = true
-                    end
-                    bit_flag_name = 'nomen nudum'
-                  when 4 # nomen dubium
-                    # if taxon is also synonym, treat as senior/junior synonym
-                    if name_status == '7'
-                      type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
-                    else
-                      no_relationship = true
-                    end
-                    bit_flag_name = 'nomen dubium'
-                  when 5 # incertae sedis
-                    type = 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
-                    bit_flag_name = 'incertae sedis'
+                  end
+                  bit_flag_name = 'nomen nudum'
+                when 4 # nomen dubium
+                  # if taxon is also synonym, treat as senior/junior synonym
+                  if name_status == '7'
+                    type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
+                  else
+                    no_relationship = true
+                  end
+                  bit_flag_name = 'nomen dubium'
+                when 5 # incertae sedis
+                  type = 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
+                  bit_flag_name = 'incertae sedis'
 
                   # when 6 # justified emendation; reciprocal of 15
 
                   # when 7 # nomen protectum; reciprocal of 8
 
-                  when 8 # suppressed by ruling
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression'
-                    bit_flag_name = 'suppressed by ruling'
-                  when 9 # misapplied
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Misapplication'
-                    bit_flag_name = 'misapplied'
+                when 8 # suppressed by ruling
+                  type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression'
+                  bit_flag_name = 'suppressed by ruling'
+                when 9 # misapplied
+                  type = 'TaxonNameRelationship::Iczn::Invalidating::Misapplication'
+                  bit_flag_name = 'misapplied'
 
                   # - - -
                   # When 10 - 12, 22, may not have relationship in SF; new rule: If making relationship with AboveID fails, create classification only (invalid::homonym)
-                  when 10, 11, 12, 22 # create homonym classification and synonym relationship, then add note to taxon name about SF status, e.g., preoccupied
-                    tnc = TaxonNameClassification.new(
-                        type: 'TaxonNameClassification::Iczn::Available::Invalid::Homonym',
-                        taxon_name_id: taxon_name_id,
-                        project_id: project_id
-                    )
-                    begin
-                      tnc.save!
-                      puts 'TaxonNameClassification Invalid::Homonym created'
-                    rescue ActiveRecord::RecordInvalid
-                      logger.error "TaxonNameClassification Invalid::Homonym ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, (Error # #{error_counter += 1}): " + tnc.errors.full_messages.join(';')
-                    end
+                when 10, 11, 12, 22 # create homonym classification and synonym relationship, then add note to taxon name about SF status, e.g., preoccupied
+                  tnc = TaxonNameClassification.new(
+                      type: 'TaxonNameClassification::Iczn::Available::Invalid::Homonym',
+                      taxon_name_id: taxon_name_id,
+                      project_id: project_id
+                  )
+                  begin
+                    tnc.save!
+                    puts 'TaxonNameClassification Invalid::Homonym created'
+                  rescue ActiveRecord::RecordInvalid
+                    logger.error "TaxonNameClassification Invalid::Homonym ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, (Error # #{error_counter += 1}): " + tnc.errors.full_messages.join(';')
+                  end
 
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
+                  type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
 
-                    case bit_position
-                      when 10
-                        bit_flag_name = 'preoccupied'
-                      when 11
-                        bit_flag_name = 'primary homonym'
-                      when 12
-                        bit_flag_name = 'secondary homonym'
-                      when 22
-                        bit_flag_name = 'unspecified homonym'
-                    end
+                  case bit_position
+                  when 10
+                    bit_flag_name = 'preoccupied'
+                  when 11
+                    bit_flag_name = 'primary homonym'
+                  when 12
+                    bit_flag_name = 'secondary homonym'
+                  when 22
+                    bit_flag_name = 'unspecified homonym'
+                  end
 
-                    Note.create!(
-                        text: "Species File taxon (TaxonNameID = #{row['TaxonNameID']}), marked as '#{bit_flag_name}', created generic TaxonNameRelationship type '#{type}'",
-                        note_object_id: taxon_name_id,
-                        note_object_type: 'TaxonName',
-                        project_id: project_id
-                    )
+                  Note.create!(
+                      text: "Species File taxon (TaxonNameID = #{row['TaxonNameID']}), marked as '#{bit_flag_name}', created generic TaxonNameRelationship type '#{type}'",
+                      note_object_id: taxon_name_id,
+                      note_object_type: 'TaxonName',
+                      project_id: project_id
+                  )
 
                   # when 10 # preoccupied; if not in scope, no relationship
                   #   type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
@@ -217,57 +217,57 @@ namespace :tw do
                   #   bit_flag_name = 'secondary homonym'
                   # - - -
 
-                  when 13 # nomen oblitum
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName'
-                    bit_flag_name = 'nomen oblitum'
-                  when 14 # unnecessary replacement
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName'
-                    bit_flag_name = 'unnecessary replacement'
-                  when 15 # incorrect original spelling
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'
-                    bit_flag_name = 'incorrect original spelling'
+                when 13 # nomen oblitum
+                  type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName'
+                  bit_flag_name = 'nomen oblitum'
+                when 14 # unnecessary replacement
+                  type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName'
+                  bit_flag_name = 'unnecessary replacement'
+                when 15 # incorrect original spelling
+                  type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'
+                  bit_flag_name = 'incorrect original spelling'
 
                   # when 16 # other comment; comments were entered at time of taxon import
 
-                  when 17 # unavailable other; use invalidating?
-                    type = 'TaxonNameRelationship::Iczn::Invalidating'
-                    bit_flag_name = 'unavailable other'
-                  when 18 # junior synonym
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
-                    bit_flag_name = 'junior synonym'
+                when 17 # unavailable other; use invalidating?
+                  type = 'TaxonNameRelationship::Iczn::Invalidating'
+                  bit_flag_name = 'unavailable other'
+                when 18 # junior synonym
+                  type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
+                  bit_flag_name = 'junior synonym'
 
                   # when 19 # nomen novum; reciprocal of 10, 11, 12, others?
 
-                  when 20 # original name
-                    Note.create!(
-                        text: "Species File taxon (TaxonNameID = #{row['TaxonNameID']}) marked as 'original name'",
-                        note_object_id: taxon_name_id,
-                        note_object_type: 'TaxonName',
-                        project_id: project_id
-                    )
+                when 20 # original name
+                  Note.create!(
+                      text: "Species File taxon (TaxonNameID = #{row['TaxonNameID']}) marked as 'original name'",
+                      note_object_id: taxon_name_id,
+                      note_object_type: 'TaxonName',
+                      project_id: project_id
+                  )
 
-                    if name_status == '7' # create senior/junior synonym
-                      type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
-                    else
-                      no_relationship = true
-                    end
-                    bit_flag_name = 'original name'
+                  if name_status == '7' # create senior/junior synonym
+                    type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
+                  else
+                    no_relationship = true
+                  end
+                  bit_flag_name = 'original name'
 
                   # when 21 # subsequent name; reciprocal of homonym or required emendation?
 
                   # when 22 # unspecified homonym
                   #   type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
                   #   bit_flag_name = 'unspecified homonym'
-                  when 23 # lapsus calami; treat as incorrect original spelling for now
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'
-                    bit_flag_name = 'lapsus calami'
+                when 23 # lapsus calami; treat as incorrect original spelling for now
+                  type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'
+                  bit_flag_name = 'lapsus calami'
 
                   # when 24 # corrected lapsus; reciprocal of 23
 
                   # when 25 # nomen nudum made available; treat as reciprocal of 3 for now
 
-                  else
-                    no_relationship = true
+                else
+                  no_relationship = true
                 end
 
                 next if no_relationship
@@ -368,33 +368,33 @@ namespace :tw do
             # @todo: @mjy Matt and Dmitry need to come up with two new relationships (lapsus calami / corrected lapsus, nomen nudum / nomen nudum made available) that are semantically sound
 
             case relationship.to_i
-              when 1
-                subject_name_id = younger_name_id
-                object_name_id = older_name_id
-              when 2
-                subject_name_id = older_name_id
-                object_name_id = younger_name_id
-              when 3
-                subject_name_id = older_name_id
-                object_name_id = younger_name_id
-              when 4
-                subject_name_id = younger_name_id
-                object_name_id = older_name_id
-              when 5
-                subject_name_id = younger_name_id
-                object_name_id = older_name_id
-              when 6
-                subject_name_id = younger_name_id
-                object_name_id = older_name_id
-              when 7
-                subject_name_id = younger_name_id
-                object_name_id = older_name_id
-              when 8
-                subject_name_id = older_name_id
-                object_name_id = younger_name_id
-              when 9
-                subject_name_id = older_name_id
-                object_name_id = younger_name_id
+            when 1
+              subject_name_id = younger_name_id
+              object_name_id = older_name_id
+            when 2
+              subject_name_id = older_name_id
+              object_name_id = younger_name_id
+            when 3
+              subject_name_id = older_name_id
+              object_name_id = younger_name_id
+            when 4
+              subject_name_id = younger_name_id
+              object_name_id = older_name_id
+            when 5
+              subject_name_id = younger_name_id
+              object_name_id = older_name_id
+            when 6
+              subject_name_id = younger_name_id
+              object_name_id = older_name_id
+            when 7
+              subject_name_id = younger_name_id
+              object_name_id = older_name_id
+            when 8
+              subject_name_id = older_name_id
+              object_name_id = younger_name_id
+            when 9
+              subject_name_id = older_name_id
+              object_name_id = younger_name_id
 
               # when 1 , 4, 5, 6, 7 then
               #   subject_name_id = older_name_id
@@ -447,7 +447,8 @@ namespace :tw do
           # About 100 family names not compatible with type genus relationship, mostly genus group names (see log)
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
-          get_sf_file_id = import.get('SFTaxonNameIDToSFFileID')
+          get_sf_taxon_info = import.get('SFTaxonNameIDMiscInfo')
+          # get_sf_file_id = import.get('SFTaxonNameIDToSFFileID')
           skipped_file_ids = import.get('SkippedFileIDs')
           excluded_taxa = import.get('ExcludedTaxa')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
@@ -461,23 +462,43 @@ namespace :tw do
           error_counter = 0
 
           file.each_with_index do |row, i|
-            next if skipped_file_ids.include? get_sf_file_id[row['GenusNameID']].to_i
-            next if excluded_taxa.include? row['GenusNameID']
-            next if excluded_taxa.include? row['FamilyNameID']
+            next if skipped_file_ids.include? get_sf_taxon_info[row['FamilyNameID']]['file_id'].to_i
             next if get_tw_otu_id.has_key?(row['FamilyNameID']) # ignore if ill-formed family name created only as OTU
+            next if excluded_taxa.include? row['FamilyNameID']
+            next if excluded_taxa.include? row['GenusNameID']
 
-            genus_name_id = get_tw_taxon_name_id[row['GenusNameID']].to_i
-            family_name_id = get_tw_taxon_name_id[row['FamilyNameID']].to_i
+            sf_family_name_id = row['FamilyNameID']
+            sf_genus_name_id = row['GenusNameID']
+            tw_family_name_id = get_tw_taxon_name_id[sf_family_name_id].to_i
+            tw_genus_name_id = get_tw_taxon_name_id[sf_genus_name_id].to_i
+
+            # test if SF rank of family_name is 'Genus Group'; equivalent to TW.supergenus (not a family group name)
+            # create note for both genus and genus group names stating cannot create type genus relationship
+            if get_sf_taxon_info[sf_family_name_id]['rank_id'] == '22'
+              Note.create!(
+                  text: "SF.FamilyID = #{sf_family_name_id} is a genus group rank in TW; it cannot have SF.GenusID = #{sf_genus_name_id} as a type genus",
+                  note_object_id: tw_family_name_id,
+                  note_object_type: 'TaxonName',
+                  project_id: get_sf_taxon_info[tw_family_name_id]['file_id']
+              )
+              Note.create!(
+                  text: "SF.FamilyID = #{sf_family_name_id} is a genus group rank in TW; it cannot have SF.GenusID = #{sf_genus_name_id} as a type genus",
+                  note_object_id: tw_genus_name_id,
+                  note_object_type: 'TaxonName',
+                  project_id: get_sf_taxon_info[tw_family_name_id]['file_id']
+              )
+              next
+            end
 
             if family_name_id == 0
               logger.error "TaxonNameRelationship SUPPRESSED family name SF.TaxonNameID = #{row['FamilyNameID']}"
               next
             end
 
-            # project_id = TaxonName.where(id: genus_name_id ).pluck(:project_id).first vs. TaxonName.find(genus_name_id).project_id
-            project_id = TaxonName.find(family_name_id).project_id
 
             logger.info "Working with TW.project_id: #{project_id}, SF.FamilyNameID #{row['FamilyNameID']} = TW.FamilyNameID #{family_name_id}, SF.GenusNameID #{row['GenusNameID']} = TW.GenusNameID #{genus_name_id} (count #{count_found += 1}) \n"
+            # project_id = TaxonName.where(id: genus_name_id ).pluck(:project_id).first vs. TaxonName.find(genus_name_id).project_id
+            project_id = TaxonName.find(family_name_id).project_id
 
             tnr = TaxonNameRelationship.new(
                 subject_taxon_name_id: genus_name_id,
@@ -506,17 +527,13 @@ namespace :tw do
           logger.info 'Creating type species...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
-          get_sf_file_id = import.get('SFTaxonNameIDToSFFileID')
+          get_sf_taxon_info = import.get('SFTaxonNameIDMiscInfo')
+          # get_sf_file_id = import.get('SFTaxonNameIDToSFFileID')
           skipped_file_ids = import.get('SkippedFileIDs')
           excluded_taxa = import.get('ExcludedTaxa')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
-
-          # # @todo: Temporary "fix" to convert all values to string; will be fixed next time taxon names are imported and following do can be deleted
-          # get_tw_taxon_name_id.each do |key, value|
-          #   get_tw_taxon_name_id[key] = value.to_s
-          # end
 
           path = @args[:data_directory] + 'tblTypeSpecies.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -539,12 +556,9 @@ namespace :tw do
           no_genus_counter = 0
 
           file.each_with_index do |row, i|
-            next if skipped_file_ids.include? get_sf_file_id[row['GenusNameID']].to_i
+            next if skipped_file_ids.include? get_sf_taxon_info[row['GenusNameID']]['file_id'].to_i
             next if excluded_taxa.include? row['GenusNameID']
-            # next if row['SpeciesNameID'] == '0'
-            # next if [1143402, 1143425, 1143430, 1143432, 1143436].freeze.include?(row['GenusNameID'].to_i) # used for excluded Beckma ids
-            # next if [1109922, 1195997, 1198855].freeze.include?(row['GenusNameID'].to_i) # bad data in Orthoptera (first) and Psocodea (rest)
-
+ 
             # @todo: SF TaxonNameID pairs must be manually fixed: 1132639/1132641 (Orthoptera) and 1184619/1184569 (Mantodea)
             # @todo: 18 sources not found (see log)
 
@@ -1063,22 +1077,22 @@ namespace :tw do
             next if ['90', '100'].include?(rank_id) # RankID = 0, "not specified", will = nil
 
             case rank_id.to_i
-              when 11 then
-                rank_name = 'subsuperspecies'
-              when 12 then
-                rank_name = 'superspecies'
-              when 14 then
-                rank_name = 'supersuperspecies'
-              when 22 then
-                rank_name = 'supergenus'
-              when 39 then
-                rank_name = 'supersubfamily'
-              when 44 then
-                rank_name = 'nanorder'
-              when 45 then
-                rank_name = 'parvorder'
-              else
-                rank_name = row['RankName']
+            when 11 then
+              rank_name = 'subsuperspecies'
+            when 12 then
+              rank_name = 'superspecies'
+            when 14 then
+              rank_name = 'supersuperspecies'
+            when 22 then
+              rank_name = 'supergenus'
+            when 39 then
+              rank_name = 'supersubfamily'
+            when 44 then
+              rank_name = 'nanorder'
+            when 45 then
+              rank_name = 'parvorder'
+            else
+              rank_name = row['RankName']
             end
 
             get_tw_rank_string[rank_id] = Ranks.lookup(:iczn, rank_name)
@@ -1096,7 +1110,7 @@ namespace :tw do
 
           logger.info 'Running create_sf_taxa_misc_info...'
 
-          get_sf_taxon_info = {} # key = SF.TaxonNameID, value = SF.FileID, SF.RankID
+          get_sf_taxon_info = {} # key = SF.TaxonNameID, value = hash of SF.FileID, SF.RankID
 
           path = @args[:data_directory] + 'sfTaxaMiscInfo.txt'
           file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
