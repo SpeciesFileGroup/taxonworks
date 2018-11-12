@@ -35,9 +35,10 @@
     <div class="separate-top">
       <button
         type="button"
-        @click="createNew"
+        @click="attribution.id ? updateAttribution() : createNew()"
         :disabled="!validateFields"
-        class="button normal-input button-submit save-annotator-button">Save
+        class="button normal-input button-submit save-annotator-button">
+        {{ attribution.id ? 'Update' : 'Save' }}
       </button>
     </div>
   </div>
@@ -58,7 +59,7 @@ export default {
   },
   computed: {
     validateFields() {
-      return this.attribution.license && this.attribution.copyright_year
+      return this.attribution.license || this.attribution.copyright_year || this.attribution.roles_attributes.length
     },
     roleSelected() {
       return this.roleTypes[this.smartSelectorList.findIndex((role) => { return role == this.view })]
@@ -70,11 +71,13 @@ export default {
       licenses: [],
       smartSelectorList: [],
       roleTypes: [],
-      attribution: {
-        copyright_year: undefined,
-        license: undefined,
-        annotated_global_entity: this.globalId,
-        roles_attributes: []
+      attribution: this.newAttribution()
+    }
+  },
+  watch: {
+    list(newVal) {
+      if(newVal.length) {
+        this.attribution = newVal[0]
       }
     }
   },
@@ -90,8 +93,22 @@ export default {
     })
   },
   methods: {
+    newAttribution() {
+      return {
+        copyright_year: undefined,
+        license: undefined,
+        annotated_global_entity: this.globalId,
+        roles_attributes: []
+      }
+    },
     createNew() {
       this.create('/attributions', { attribution: this.attribution }).then(response => {
+        TW.workbench.alert.create('Attribution was successfully created.', 'notice')
+      })
+    },
+    updateAttribution() {
+      this.update(`/attributions/${this.attribution.id}.json`, { attribution: this.attribution }).then(response => {
+        this.attribution = response.body
         TW.workbench.alert.create('Attribution was successfully updated.', 'notice')
       })
     }
