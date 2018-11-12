@@ -32,7 +32,7 @@ class Attribution < ApplicationRecord
     role_name = "#{r}_roles".to_sym 
     role_person = "attribution_#{r.to_s.pluralize}".to_sym
 
-    has_many role_name, -> { order('roles.position ASC') }, class_name: "Attribution#{r.to_s.capitalize}", as: :role_object, validate: true
+    has_many role_name, -> { order('roles.position ASC') }, class_name: "Attribution#{r.to_s.camelize}", as: :role_object, validate: true
     has_many role_person, -> { order('roles.position ASC') }, through: role_name, source: :person, validate: true
 
     accepts_nested_attributes_for role_name, allow_destroy: true
