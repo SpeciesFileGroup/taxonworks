@@ -27,6 +27,7 @@ class Content < ApplicationRecord
   include Shared::Depictions
   include Shared::Confidences
   include Shared::Citations
+  include Shared::Attributions
   include Shared::IsData
   include Shared::HasPapertrail
   include Shared::DataAttributes
