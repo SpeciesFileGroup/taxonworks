@@ -17,7 +17,6 @@ class Project < ApplicationRecord
 
   PREFERENCES = [
     :workbench_starting_path,  # like '/hub'
-    :is_api_accessible         # Boolean, whether the read-only api is open 
   ]
 
   DEFAULT_WORKBENCH_STARTING_PATH = '/hub'.freeze
@@ -27,6 +26,9 @@ class Project < ApplicationRecord
 
   store :preferences, accessors: PREFERENCES, coder: JSON
   attr_accessor :without_root_taxon_name
+  attr_accessor :set_new_api_access_token
+
+  before_save :generate_api_access_token, if: :set_new_api_access_token
 
   has_many :project_members, dependent: :restrict_with_error
   has_many :users, through: :project_members
@@ -164,6 +166,11 @@ class Project < ApplicationRecord
     p = Protonym.stub_root(project_id: id, by: creator)
     p.save!
     p
+  end
+
+  # @return [String]
+  def generate_api_access_token
+    self.api_access_token = Utilities::RandomToken.generate
   end
 
 end
