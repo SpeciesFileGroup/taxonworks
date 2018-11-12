@@ -6,6 +6,7 @@ json.global_id object.persisted? ? object.to_global_id.to_s : nil
 json.base_class object.class.base_class.name
 
 json.url url_for(only_path: false, format: :json)
+
 json.object_url url_for(metamorphosize_if(object))
 
 if object.respond_to?(:origin_citation) && object.origin_citation

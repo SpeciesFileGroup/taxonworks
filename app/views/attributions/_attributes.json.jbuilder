@@ -3,18 +3,23 @@ json.url attribution_url(attribution, format: :json)
 
 json.partial! '/shared/data/all/metadata', object: attribution
 
-json.attribution_creators do |a|
-  a.array! attribution.attribution_creators, partial: '/shared/data/all/metadata', as: :object
+json.annotated_object do
+  json.partial! '/shared/data/all/metadata', object: metamorphosize_if(attribution.attribution_object)
 end
 
-json.attribution_editors do |a|
-  a.array! attribution.attribution_editors, partial: '/shared/data/all/metadata', as: :object
+if attribution.roles.any?
+  ::Attribution::ATTRIBUTION_ROLES.each do |r|
+    role = "#{r}_roles"
+    if attribution.send(role).any?
+      json.set! role do
+        json.array! attribution.send(role).each do |role|
+          json.extract! role, :id, :position
+          json.person do
+            json.partial! '/people/attributes', person: role.person 
+          end
+        end
+      end
+    end
+  end
 end
 
-json.attribution_owners do |a|
-  a.array! attribution.attribution_owners, partial: '/shared/data/all/metadata', as: :object
-end
-
-json.attribution_copyright_holders do |a|
-  a.array! attribution.attribution_copyright_holders, partial: '/shared/data/all/metadata', as: :object
-end
