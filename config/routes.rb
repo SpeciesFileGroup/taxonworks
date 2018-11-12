@@ -103,6 +103,7 @@ TaxonWorks::Application.routes.draw do
   end
 
   match '/attributions/licenses', to: 'attributions#licenses', via: :get, defaults: {format: :json}
+  match '/attributions/role_types', to: 'attributions#role_types', via: :get, defaults: {format: :json}
   resources :attributions, except: [:new] do
     concerns [:data_routes]
   end

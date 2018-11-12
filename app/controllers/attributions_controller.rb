@@ -75,6 +75,10 @@ class AttributionsController < ApplicationController
     render json: CREATIVE_COMMONS_LICENSES
   end
 
+  def role_types
+    render json: ['AttributionCreator', 'AttributionOwner', 'AttributionEditor', 'AttributionCopyrightHolder']
+  end
+
   private
   def set_attribution
     @attribution = Attribution.find(params[:id])
@@ -92,7 +96,6 @@ class AttributionsController < ApplicationController
         :position,
         person_attributes: [
           :last_name, :first_name, :suffix, :prefix
-        ]
-    )
+        ]])
   end
 end
