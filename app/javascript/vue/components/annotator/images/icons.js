@@ -8,7 +8,7 @@ import protocol_relationships from './protocol'
 import identifiers from './identifier'
 import notes from './book'
 import tags from './tag'
-import attribution from './attribution'
+import attributions from './attribution'
 
 const Icons = {
   alternate_values,
@@ -21,7 +21,7 @@ const Icons = {
   notes,
   tags,
   protocol_relationships,
-  attribution
+  attributions
 }
 
 export default Icons
