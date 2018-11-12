@@ -24,7 +24,8 @@ class Attribution < ApplicationRecord
   ATTRIBUTION_ROLES = [
     :creator,
     :editor,
-    :owner
+    :owner,
+    :copyright_holder
   ]
   
   ATTRIBUTION_ROLES.each do |r|
