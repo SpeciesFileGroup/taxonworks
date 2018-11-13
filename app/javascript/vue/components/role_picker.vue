@@ -67,24 +67,24 @@
         </div>
       </div>
     </div>
-    <ul class="table-entrys-list">
-      <draggable
-        v-model="roles_attributes"
-        @end="onSortable">
-        <li
-          class="flex-separate middle"
-          v-for="(role, index) in roles_attributes"
-          v-if="!role.hasOwnProperty('_destroy') && filterRole(role)">
-          <a
-            :href="getUrl(role)"
-            target="_blank"
-            v-html="getLabel(role)"/>
-          <span
-            class="circle-button btn-delete"
-            @click="removePerson(index)"/>
-        </li>
-      </draggable>
-    </ul>
+    <draggable
+      class="table-entrys-list"
+      element="ul"
+      v-model="roles_attributes"
+      @end="onSortable">
+      <li
+        class="list-complete-item flex-separate middle"
+        v-for="(role, index) in roles_attributes"
+        v-if="!role.hasOwnProperty('_destroy') && filterRole(role)">
+        <a
+          :href="getUrl(role)"
+          target="_blank"
+          v-html="getLabel(role)"/>
+        <span
+          class="circle-button btn-delete"
+          @click="removePerson(index)"/>
+      </li>
+    </draggable>
   </div>
 </template>
 
