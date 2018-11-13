@@ -110,10 +110,10 @@ export default {
       this.attribution.id = attribution.id,
       this.attribution.copyright_year = attribution.copyright_year
       this.attribution.license = attribution.license
-      this.$set(this.rolesList, 'creator_roles', (attribution.creator_roles ? attribution.creator_roles : []))
-      this.$set(this.rolesList, 'editor_roles', (attribution.editor_roles ? attribution.editor_roles : [])) 
-      this.$set(this.rolesList, 'owner_roles', (attribution.owner_roles ? attribution.owner_roles : []))
-      this.$set(this.rolesList, 'copyright_holder_roles', (attribution.copyright_holder_roles ? attribution.copyright_holder_roles : []))
+      this.$set(this.rolesList, 'creator_roles', (attribution.hasOwnProperty('creator_roles') ? attribution.creator_roles : []))
+      this.$set(this.rolesList, 'editor_roles', (attribution.hasOwnProperty('editor_roles') ? attribution.editor_roles : [])) 
+      this.$set(this.rolesList, 'owner_roles', (attribution.hasOwnProperty('owner_roles') ? attribution.owner_roles : []))
+      this.$set(this.rolesList, 'copyright_holder_roles', (attribution.hasOwnProperty('copyright_holder_roles') ? attribution.copyright_holder_roles : []))
     },
     newAttribution() {
       return {
