@@ -8,12 +8,13 @@ json.annotated_object do
 end
 
 if attribution.roles.any?
+
   ::Attribution::ATTRIBUTION_ROLES.each do |r|
     role = "#{r}_roles"
     if attribution.send(role).any?
       json.set! role do
-        json.array! attribution.send(role).each do |role|
-          json.extract! role, :id, :position
+        json.array! attribution.send(role).order('roles.position ASC').each do |role|
+          json.extract! role, :id, :position, :type
           json.person do
             json.partial! '/people/attributes', person: role.person 
           end
@@ -21,5 +22,6 @@ if attribution.roles.any?
       end
     end
   end
-end
 
+
+end
