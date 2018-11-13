@@ -8,7 +8,10 @@
           v-for="(url, key) in licenses"
           :key="key"
           :value="key">
-          {{ key }}: {{ url }}
+          {{ key }}
+          <span v-if="url != null">
+            : {{ url }}
+          </span>
         </option>
       </select>
     </div>
@@ -112,6 +115,7 @@ export default {
   mounted() {
     this.getList('/attributions/licenses').then(response => {
       this.licenses = response.body
+      this.licenses['-- None --'] = null
     }) 
     this.getList('/attributions/role_types.json').then(response => {
       this.roleTypes = response.body
@@ -134,7 +138,7 @@ export default {
       return {
         id: undefined,
         copyright_year: undefined,
-        license: undefined,
+        license: null,
         annotated_global_entity: this.globalId,
         roles_attributes: []
       }
