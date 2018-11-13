@@ -75,11 +75,11 @@ module Housekeeping::Users
   # It may help to unwind the logic.
   # WRT .changed? vs .saved_changes? Deprecation warning
   def set_updated_by_id
-    ActiveSupport::Deprecation.silence do
-      if (self.changed? || self.new_record?) && !self.updated_by_id_changed? && self.by.blank?
+#    ActiveSupport::Deprecation.silence do
+      if (saved_changes? || new_record?) && !updated_by_id_changed? && by.blank? # changed?
         self.updated_by_id = Current.user_id || $user_id
       end
-    end
+#    end
   end
 
 end

@@ -121,15 +121,13 @@ class ProjectsController < ApplicationController
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
   def set_project
     @project = Project.find(params[:id])
     @recent_object = @project
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def project_params
-    params.require(:project).permit(:name, :set_new_api_access_token)
+    params.require(:project).permit(:name, :set_new_api_access_token, :clear_api_access_token)
   end
 
   def go_to

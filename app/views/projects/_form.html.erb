@@ -7,9 +7,10 @@
   </div>
 
   <div class="field">
-    <%= f.label :generate_new_api_access_token %>
+    <%= f.label :api_access_token %><br>
+    <%= radio_button_tag 'project[set_new_api_access_token]', true %> <%= f.label :generate_new_token %>
     <br>
-    <%= f.check_box :set_new_api_access_token %>
+    <%= radio_button_tag 'project[clear_api_access_token]', true %> <%= f.label :clear_api_access_token %> <em> Disables public API access to all project data. </em>
   </div>
 
   <div class="actions">

@@ -5,10 +5,11 @@
 
 <p>
   <strong>Api access token:</strong>
-  <%= @project.api_access_token %>
+  <% if @project.api_access_token.blank? -%>
+    <em class="notice"> None.  Project data is not accessible via API. </em>
+  <% else %>
+    <%= @project.api_access_token %>
+  <% end%>
 </p>
-
-
-
 
 <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: @project} -%>

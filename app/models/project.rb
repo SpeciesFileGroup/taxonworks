@@ -10,48 +10,15 @@
 #   @return [Hash]
 #     Settings for the project (for all users)
 #
+# @!attribute api_access_token
+#   @return [String, nil]
+#      The token is not intended to be private.  Generating one is akin to indicating that your project's data are public, and they will be exposed in the general API to all.  The token is primarily for tracking "anonymous" use. 
 class Project < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Housekeeping::AssociationHelpers
 
-  PREFERENCES = [
-    :workbench_starting_path,  # like '/hub'
-  ]
-
-  DEFAULT_WORKBENCH_STARTING_PATH = '/hub'.freeze
-  DEFAULT_WORKBENCH_SETTINGS = {
-    'workbench_starting_path' => DEFAULT_WORKBENCH_STARTING_PATH
-  }.freeze
-
-  store :preferences, accessors: PREFERENCES, coder: JSON
-  attr_accessor :without_root_taxon_name
-  attr_accessor :set_new_api_access_token
-
-  before_save :generate_api_access_token, if: :set_new_api_access_token
-
-  has_many :project_members, dependent: :restrict_with_error
-  has_many :users, through: :project_members
-  has_many :project_sources, dependent: :restrict_with_error
-  has_many :sources, through: :project_sources
-
-  after_initialize :set_default_preferences
-  after_create :create_root_taxon_name, unless: -> {self.without_root_taxon_name == true}
-
-  validates_presence_of :name
-  validates_uniqueness_of :name
-
-  def clear_preferences
-    update_column(:preferences, DEFAULT_WORKBENCH_SETTINGS)
-  end
-
-  # !! This is not production ready.
-  # @return [Boolean]
-  #   based on whether the project has successfully been deleted.  Can also raise on detected problems with configuration.
-  def nuke
-    known = ApplicationRecord.subclasses.select {|a| a.column_names.include?('project_id')}.map(&:name)
-
-    order = %w{
+   NUKE_ORDER = %w{
      DwcOccurrence
      ProtocolRelationship
      CharacterState
@@ -116,17 +83,60 @@ class Project < ApplicationRecord
      ObservationMatrix
      Descriptor
      ProjectMember
-    }
+   }.freeze
+
+
+  PREFERENCES = [
+    'workbench_starting_path',  # like '/hub'
+  ]
+
+  DEFAULT_WORKBENCH_STARTING_PATH = '/hub'.freeze
+
+  DEFAULT_WORKBENCH_SETTINGS = {
+    'workbench_starting_path' =>  DEFAULT_WORKBENCH_STARTING_PATH
+  }
+
+  store :preferences, accessors: PREFERENCES, coder: JSON
+
+  # When true no Root taxon name is built 
+  attr_accessor :without_root_taxon_name
+
+  # When true a the api token is (re)set
+  attr_accessor :set_new_api_access_token
+  attr_accessor :clear_api_access_token
+
+  has_many :project_members, dependent: :restrict_with_error
+  has_many :users, through: :project_members
+  has_many :project_sources, dependent: :restrict_with_error
+  has_many :sources, through: :project_sources
+
+  before_save :generate_api_access_token, if: -> { self.set_new_api_access_token } # any value is true
+  before_save :destroy_api_access_token, if: -> { self.clear_api_access_token} # any value is true
+  before_save :set_default_preferences, unless: -> { self.preferences.any? }
+  after_create :create_root_taxon_name, unless: -> { self.without_root_taxon_name == true}
+
+  validates_presence_of :name
+  validates_uniqueness_of :name
+
+  def clear_preferences
+    update_column(:preferences, DEFAULT_WORKBENCH_SETTINGS)
+  end
+
+  # !! This is not production ready.
+  # @return [Boolean]
+  #   based on whether the project has successfully been deleted.  Can also raise on detected problems with configuration.
+  def nuke
+    known = ApplicationRecord.subclasses.select {|a| a.column_names.include?('project_id')}.map(&:name)
 
     known.each do |k|
       next if k.constantize.table_name == 'test_classes' # TODO: a kludge to ignore stubbed classes in testing
-      if !order.include?(k)
-        raise "#{k} has not been added to #nuke order."
+      if !NUKE_ORDER.include?(k)
+        raise "#{k} has not been added to Project#NUKE_ORDER."
       end
     end
 
     begin
-      order.each do |o|
+      NUKE_ORDER.each do |o|
         klass = o.constantize
         klass.where(project_id: id).delete_all
       end
@@ -159,7 +169,9 @@ class Project < ApplicationRecord
   protected
 
   def set_default_preferences
-    write_attribute(:preferences, DEFAULT_WORKBENCH_SETTINGS.merge(preferences ||= {}) )
+    PREFERENCES.each do |p|
+      send(p + '=',  DEFAULT_WORKBENCH_SETTINGS[p]) if send(p).nil?
+    end
   end
 
   def create_root_taxon_name
@@ -171,6 +183,10 @@ class Project < ApplicationRecord
   # @return [String]
   def generate_api_access_token
     self.api_access_token = Utilities::RandomToken.generate
+  end
+
+  def destroy_api_access_token
+    self.api_access_token = nil 
   end
 
 end

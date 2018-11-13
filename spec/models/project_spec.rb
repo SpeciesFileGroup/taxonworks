@@ -6,7 +6,7 @@ describe Project, type: :model do
     Rails.application.eager_load!
   }
 
-  let(:project) { FactoryBot.build(:project) }
+  let(:project) { Project.new }
 
   let(:user) { User.create!(
     password:  'password',
@@ -22,13 +22,13 @@ describe Project, type: :model do
 
   context 'nil globals' do
     before do 
-      $user_id = nil
-      $project_id = nil
+      Current.user_id = nil
+      Current.project_id = nil
     end
 
     after do
-      $user_id = 1 
-      $project_id = 1 
+      Current.user_id = 1 
+      Current.project_id = 1 
     end
 
     specify 'create 2' do
@@ -115,8 +115,7 @@ describe Project, type: :model do
 
   context 'preferences' do
     before(:each) {
-      project.name = 'Preferences'
-      project.save!
+      project.update!(name: 'Workbench settings')
     }
 
     specify 'are set to default' do
@@ -128,22 +127,34 @@ describe Project, type: :model do
       expect(project.preferences).to eq(Project::DEFAULT_WORKBENCH_SETTINGS)
     end
 
-    specify 'default_path defaults to DEFAULT_WORKBENCH_STARTING_PATH 1' do
+    specify 'workbench_starting_path defaults to DEFAULT_WORKBENCH_STARTING_PATH 1' do
       expect(project.workbench_starting_path).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
     end
 
-    specify 'default_path defaults to DEFAULT_WORKBENCH_STARTING_PATH 2' do
+    specify 'workbench_starting_path defaults to DEFAULT_WORKBENCH_STARTING_PATH 2' do
       expect(project.preferences['workbench_starting_path']).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
     end
 
-    specify 'updating an attribute is a little tricky, use _will_change!' do
-      expect(project.workbench_starting_path).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
-      expect(project.preferences).to eq({'workbench_starting_path' => '/hub'}) # was changed from nil
-      
-      expect(project.workbench_starting_path = '/dashboard').to be_truthy
-      expect(project.save!).to be_truthy
+    specify 'updating an attribute' do
+      expect(project.update!(workbench_starting_path: '/dashboard')).to be_truthy
       expect(project.workbench_starting_path).to eq('/dashboard')
     end
+  end
+
+  specify '#set_new_api_access_token 1' do
+    project.update!(name: 'Foo', set_new_api_access_token: true)
+    expect(project.reload.api_access_token).to be_truthy
+  end
+
+  specify '#set_new_api_access_token 2' do
+    project.update(name: 'Foo', set_new_api_access_token: '1')
+    expect(project.reload.api_access_token).to be_truthy
+  end
+
+  specify '#clear_api_access_token 2' do
+    project.update!(name: 'Foo', set_new_api_access_token: '1')
+    project.update!(clear_api_access_token: true)
+    expect(project.reload.api_access_token).to eq(nil)
   end
 
   context 'root taxon name' do
@@ -188,13 +199,12 @@ describe Project, type: :model do
 
   context '#destroy sanity test' do
     before(:each) {
-      project.name = 'Destroy sanity'
-      project.save!
+      project.update!(name: 'Destroy sanity')
 
       project.asserted_distributions << AssertedDistribution.new(
-        otu:             FactoryBot.create(:valid_otu),
+        otu: FactoryBot.create(:valid_otu),
         geographic_area: FactoryBot.create(:valid_geographic_area),
-        source:          FactoryBot.create(:valid_source)
+        source: FactoryBot.create(:valid_source)
       )
       project.save!
     }
@@ -213,19 +223,19 @@ describe Project, type: :model do
     let(:p) { Project.create!(name: 'a little bit of everything', created_by_id: u.to_param, updated_by_id: u.to_param) }
 
     after(:all) {
-      $user_id    = 1
-      $project_id = 1
+      Current.user_id = 1
+      Current.project_id = 1
     }
 
     before(:each) {
       # Generate 1 of ever valid_ factory
       #    loop through all factories
       #       if a valid_ factory build one setting the project_id to @p.id when present
-      $project_id            = p.id
-      $user_id               = u.id
+      Current.project_id = p.id
+      Current.user_id = u.id
 
       @factories_under_test  = {}
-      @failed_factories      = {}
+      @failed_factories = {}
       @project_build_err_msg = ''
 
       exceptions = [:valid_project, :valid_user, :valid_taxon_name]
@@ -243,20 +253,20 @@ describe Project, type: :model do
             end
           rescue => detail
             @failed_factories[f_name] = detail
-            @project_build_err_msg    += "\n\"#{f_name}\" build => #{detail}"
+            @project_build_err_msg += "\n\"#{f_name}\" build => #{detail}"
           else
             if test_factory.valid?
               begin
                 test_factory.save
               rescue => detail
                 @failed_factories[f_name] = detail
-                @project_build_err_msg    += "\n\"#{f_name}\" save => #{detail}"
+                @project_build_err_msg += "\n\"#{f_name}\" save => #{detail}"
               else
                 @factories_under_test[f_name] = test_factory
               end
             else
               @failed_factories[f_name] = test_factory.errors
-              @project_build_err_msg    += "\n\"#{f_name}\" is not valid: #{test_factory.errors.to_a}"
+              @project_build_err_msg += "\n\"#{f_name}\" is not valid: #{test_factory.errors.to_a}"
             end
           end
 
@@ -273,18 +283,10 @@ describe Project, type: :model do
       expect(@project_build_err_msg.length).to eq(0), @project_build_err_msg
     end
 
-    # You can never use #destroy
-    specify '#destroy is impossible with data' do
-      expect(p.destroy).to be(false)
-      expect(p.destroyed?).to be(false)
-    end
-
     context '#nuke' do
       before(:each) {
         p.nuke
       }
-
-      # need to wipe image folder here
 
       specify '#nuke nukes "everything"' do
         # loop through all the valid_ factories, for each find the class that they build
@@ -299,7 +301,7 @@ describe Project, type: :model do
               count = this_class.where(project_id: p.id).all.reload.count
               if count > 0
                 project_destroy_err_msg += "\nFactory '#{f_name}': #{this_class}: #{count} orphan #{'record'.pluralize(count)}, remaining project_ids: #{this_class.all.pluck(:project_id).uniq.join(',')}."
-                orphans[this_class]          = count
+                orphans[this_class] = count
               end
             end
           end
@@ -318,7 +320,7 @@ describe Project, type: :model do
           f_name = factory.to_s
           if f_name =~ /^valid_/
             this_class = factory.build_class
-            model      = this_class.to_s.constantize
+            model = this_class.to_s.constantize
             unless model.column_names.include?('project_id')
               expect(model.all.reload.count).to be >= 1
             end

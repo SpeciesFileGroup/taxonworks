@@ -3,19 +3,37 @@
 <% end %>
 
 <h1><%= @project.name -%></h1>
-<%= link_to 'Edit', edit_project_path(@project) %> 
 
 <div> 
-
   <div class="row1">
     <div class="flexbox">
       <div class="item item1">
         <h2> Project attributes </h2>
-        <%= render partial: 'attributes' -%>
+<%= link_to 'Edit', edit_project_path(@project) %> 
+        <%= render 'attributes' -%>
+        <h2> Preferences </h2>
+        <table>
+          <tr> 
+            <th> Preference </th>
+            <th> Value </th>
+          </tr>
+          <% @project.preferences.each do |k, v| -%>
+            <tr>
+              <td><%= k -%></td>
+              <td><%= v -%></td>
+            </tr>
+          <% end %>
+        </table>
       </div>
 
       <div class="item item2">
-        <h2> Members </h2>
+        <h2> Members (<%= @project.users.count -%>) </h2>
+        <ul class="no_bullets list list-arrow">
+          <%= content_tag(:li, add_project_member_link(@project))  -%>
+          <%= content_tag(:li, link_to('Add many project members', many_new_project_members_path(project_member: {project_id: @project}) )) -%>
+          <%= content_tag(:li, link_to('Add new user', signup_path)) -%>
+        </ul>
+
         <% if @project.users.any? -%>
           <table> 
             <tr> 
@@ -23,7 +41,6 @@
               <th> Project administrator? </th> 
               <th> Member since </th> 
               <th> Last seen </th> 
-
               <th> </th> 
             </tr>
 
@@ -43,12 +60,6 @@
         <% else  %>
           <em> No members added yet! </em>
         <% end %>
-
-        <ul class="no_bullets list list-arrow">
-          <%= content_tag(:li, add_project_member_link(@project))  -%>
-          <%= content_tag(:li, link_to('Add many project members', many_new_project_members_path(project_member: {project_id: @project}) )) -%>
-          <%= content_tag(:li, link_to('Add new user', signup_path)) -%>
-        </ul>
 
       </div>
 
