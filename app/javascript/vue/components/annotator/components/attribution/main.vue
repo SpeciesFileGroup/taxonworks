@@ -5,13 +5,13 @@
       <br>
       <select v-model="attribution.license">
         <option
-          v-for="(url, key) in licenses"
-          :key="key"
-          :value="key">
-          {{ key }}
-          <span v-if="url != null">
-            : {{ url }}
+          v-for="(license) in licenses"
+          :key="license.key"
+          :value="license.key">
+          <span v-if="license.key != null">
+            {{ license.key }}
           </span>
+          : {{ license.label }}
         </option>
       </select>
     </div>
@@ -114,8 +114,17 @@ export default {
   },
   mounted() {
     this.getList('/attributions/licenses').then(response => {
-      this.licenses = response.body
-      this.licenses['-- None --'] = null
+      this.licenses = Object.keys(response.body).map(key => {
+        let license = response.body[key]
+        return { 
+          key: key,
+          label: license
+        }
+      })
+      this.licenses.push({
+        label: '-- None --',
+        key: null
+      }) 
     }) 
     this.getList('/attributions/role_types.json').then(response => {
       this.roleTypes = response.body
