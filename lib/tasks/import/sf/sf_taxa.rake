@@ -448,9 +448,9 @@ namespace :tw do
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           get_sf_taxon_info = import.get('SFTaxonNameIDMiscInfo')
-          # get_sf_file_id = import.get('SFTaxonNameIDToSFFileID')
           skipped_file_ids = import.get('SkippedFileIDs')
           excluded_taxa = import.get('ExcludedTaxa')
+          get_tw_project_id = import.get('SFFileIDToTWProjectID')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
@@ -471,38 +471,38 @@ namespace :tw do
             sf_genus_name_id = row['GenusNameID']
             tw_family_name_id = get_tw_taxon_name_id[sf_family_name_id].to_i
             tw_genus_name_id = get_tw_taxon_name_id[sf_genus_name_id].to_i
+            project_id = get_tw_project_id[get_sf_taxon_info[sf_family_name_id]['file_id']]
+            sf_rank_id = get_sf_taxon_info[sf_family_name_id]['rank_id']
 
             # test if SF rank of family_name is 'Genus Group'; equivalent to TW.supergenus (not a family group name)
             # create note for both genus and genus group names stating cannot create type genus relationship
-            if get_sf_taxon_info[sf_family_name_id]['rank_id'] == '22'
+            if sf_rank_id == '22'
               Note.create!(
                   text: "SF.FamilyID = #{sf_family_name_id} is a genus group rank in TW; it cannot have SF.GenusID = #{sf_genus_name_id} as a type genus",
                   note_object_id: tw_family_name_id,
                   note_object_type: 'TaxonName',
-                  project_id: get_sf_taxon_info[tw_family_name_id]['file_id']
+                  project_id: project_id
               )
               Note.create!(
                   text: "SF.FamilyID = #{sf_family_name_id} is a genus group rank in TW; it cannot have SF.GenusID = #{sf_genus_name_id} as a type genus",
                   note_object_id: tw_genus_name_id,
                   note_object_type: 'TaxonName',
-                  project_id: get_sf_taxon_info[tw_family_name_id]['file_id']
+                  project_id: project_id
               )
               next
             end
 
-            if family_name_id == 0
+            if tw_family_name_id == 0
               logger.error "TaxonNameRelationship SUPPRESSED family name SF.TaxonNameID = #{row['FamilyNameID']}"
               next
             end
 
 
-            logger.info "Working with TW.project_id: #{project_id}, SF.FamilyNameID #{row['FamilyNameID']} = TW.FamilyNameID #{family_name_id}, SF.GenusNameID #{row['GenusNameID']} = TW.GenusNameID #{genus_name_id} (count #{count_found += 1}) \n"
-            # project_id = TaxonName.where(id: genus_name_id ).pluck(:project_id).first vs. TaxonName.find(genus_name_id).project_id
-            project_id = TaxonName.find(family_name_id).project_id
+            logger.info "Working with TW.project_id: #{project_id}, SF.FamilyNameID #{sf_family_name_id} = TW.FamilyNameID #{tw_family_name_id}, SF.GenusNameID #{sf_genus_name_id} = TW.GenusNameID #{tw_genus_name_id} (count #{count_found += 1}) \n"
 
             tnr = TaxonNameRelationship.new(
-                subject_taxon_name_id: genus_name_id,
-                object_taxon_name_id: family_name_id,
+                subject_taxon_name_id: tw_genus_name_id,
+                object_taxon_name_id: tw_family_name_id,
                 type: 'TaxonNameRelationship::Typification::Family',
                 created_at: row['CreatedOn'],
                 updated_at: row['LastUpdate'],
@@ -516,7 +516,7 @@ namespace :tw do
               puts 'TaxonNameRelationship created'
 
             rescue ActiveRecord::RecordInvalid # tnr not valid
-              logger.error "TaxonNameRelationship ERROR TW.taxon_name_id #{family_name_id} (#{error_counter += 1}): " + tnr.errors.full_messages.join(';')
+              logger.error "TaxonNameRelationship ERROR TW.taxon_name_id #{tw_family_name_id} (#{error_counter += 1}): " + tnr.errors.full_messages.join(';')
             end
           end
         end
@@ -558,9 +558,9 @@ namespace :tw do
           file.each_with_index do |row, i|
             next if skipped_file_ids.include? get_sf_taxon_info[row['GenusNameID']]['file_id'].to_i
             next if excluded_taxa.include? row['GenusNameID']
- 
+            next if row['SpeciesNameID'] =='0'  # if SpeciesNameID = 0 entry is for FirstFamilyGroupNameID
+
             # @todo: SF TaxonNameID pairs must be manually fixed: 1132639/1132641 (Orthoptera) and 1184619/1184569 (Mantodea)
-            # @todo: 18 sources not found (see log)
 
             genus_name_id = get_tw_taxon_name_id[row['GenusNameID']].to_i
 
