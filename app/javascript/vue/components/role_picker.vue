@@ -136,8 +136,11 @@
       })
     },
     watch: {
-      value: function (newVal) {
-        this.roles_attributes = this.sortPosition(this.processedList(newVal))
+      value: {
+        handler(newVal) {
+          this.roles_attributes = this.sortPosition(this.processedList(newVal))
+        },
+        deep: true
       },
       searchPerson: function (newVal) {
         if (newVal.length > 0) {
@@ -227,6 +230,9 @@
             first_name: (element.first_name ? element.first_name : element.person.first_name),
             last_name: (element.last_name ? element.last_name : element.person.last_name),
             position: element.position
+          }
+          if(element.hasOwnProperty('_destroy')) {
+            item['_destroy'] = element._destroy
           }
           tmp.push(item)
         })

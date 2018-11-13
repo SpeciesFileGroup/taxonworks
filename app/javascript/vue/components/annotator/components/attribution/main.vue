@@ -28,8 +28,7 @@
     <div>
       <role-picker
         v-if="view"
-        v-model="attribution.roles_attributes"
-        :filter-by-role="true"
+        v-model="roleList"
         :role-type="roleSelected"/>
     </div>
     <div class="separate-top">
@@ -38,7 +37,7 @@
         @click="attribution.id ? updateAttribution() : createNew()"
         :disabled="!validateFields"
         class="button normal-input button-submit save-annotator-button">
-        {{ attribution.id ? 'Update' : 'Save' }}
+        {{ attribution.id ? 'Update' : 'Create' }}
       </button>
     </div>
   </div>
@@ -64,6 +63,14 @@ export default {
     roleSelected() {
       return this.roleTypes[this.smartSelectorList.findIndex((role) => { return role == this.view })]
     },
+    roleList: {
+      get() {
+        return this.rolesList[`${this.view.toLowerCase()}_roles`]
+      },
+      set(value) {
+        this.$set(this.rolesList, `${this.view.toLowerCase()}_roles`, value)
+      }
+    }
   },
   data() {
     return {
@@ -71,13 +78,19 @@ export default {
       licenses: [],
       smartSelectorList: [],
       roleTypes: [],
+      rolesList: {
+        creator_roles: [],
+        owner_roles: [],
+        editor_roles: [],
+        copyright_holder_roles: []
+      },
       attribution: this.newAttribution()
     }
   },
   watch: {
     list(newVal) {
       if(newVal.length) {
-        this.attribution = newVal[0]
+        this.setAttribution(newVal[0])
       }
     }
   },
@@ -93,8 +106,18 @@ export default {
     })
   },
   methods: {
+    setAttribution(attribution) {
+      this.attribution.id = attribution.id,
+      this.attribution.copyright_year = attribution.copyright_year
+      this.attribution.license = attribution.license
+      this.$set(this.rolesList, 'creator_roles', (attribution.creator_roles ? attribution.creator_roles : []))
+      this.$set(this.rolesList, 'editor_roles', (attribution.editor_roles ? attribution.editor_roles : [])) 
+      this.$set(this.rolesList, 'owner_roles', (attribution.owner_roles ? attribution.owner_roles : []))
+      this.$set(this.rolesList, 'copyright_holder_roles', (attribution.copyright_holder_roles ? attribution.copyright_holder_roles : []))
+    },
     newAttribution() {
       return {
+        id: undefined,
         copyright_year: undefined,
         license: undefined,
         annotated_global_entity: this.globalId,
@@ -102,15 +125,32 @@ export default {
       }
     },
     createNew() {
+      this.setRolesAttributes()
       this.create('/attributions', { attribution: this.attribution }).then(response => {
+        this.setAttribution(response.body)
         TW.workbench.alert.create('Attribution was successfully created.', 'notice')
       })
     },
     updateAttribution() {
+      this.setRolesAttributes()
       this.update(`/attributions/${this.attribution.id}.json`, { attribution: this.attribution }).then(response => {
-        this.attribution = response.body
+        this.setAttribution(response.body)
         TW.workbench.alert.create('Attribution was successfully updated.', 'notice')
       })
+    },
+    setRolesAttributes() {
+      this.updateIndex()
+      this.attribution.roles_attributes = [].concat.apply([], Object.values(this.rolesList))
+    },
+    updateIndex() {
+      let lengthArrays = 0
+      for (let key in this.rolesList) {
+        this.rolesList[key] = this.rolesList[key].map((item, index) => {
+          item.position = (index + 1) + lengthArrays
+          return item
+        })
+        lengthArrays = lengthArrays + this.rolesList[key].length
+      }
     }
   }
 }
