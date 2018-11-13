@@ -227,7 +227,7 @@
     }
     .modal-container {
       min-width: 1024px;
-      width: 1024px;
+      width: 1200px;
     }
     .radial-annotator-template {
       border-radius: 3px;

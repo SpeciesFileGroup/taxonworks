@@ -20,11 +20,26 @@
         v-model="attribution.copyright_year"
         type="number">
     </div>
-    <switch-component 
-      class="separate-top"
-      v-model="view"
-      :options="smartSelectorList"
-      name="role"/>
+    <div class="switch-radio separate-bottom">
+      <template
+        v-for="(item, index) in smartSelectorList">
+        <input
+          @click="view = item"
+          :value="item"
+          :id="`switch-role-${index}`"
+          :name="`switch-role-options`"
+          type="radio"
+          :checked="item === view"
+          class="normal-input button-active">
+        <label
+          :for="`switch-role-${index}`"
+          class="capitalize">{{ item }}
+          <span
+            v-if="rolesList[`${item.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase()}_roles`].length"
+            data-icon="ok"/>
+        </label>
+      </template>
+    </div>
     <div>
       <role-picker
         v-if="view"
@@ -163,7 +178,7 @@ export default {
     }
     .switch-radio {
       label {
-        width: 90px;
+        width: 120px;
       }
     }
   }
