@@ -65,10 +65,10 @@ export default {
     },
     roleList: {
       get() {
-        return this.rolesList[`${this.view.toLowerCase()}_roles`]
+        return this.rolesList[`${this.view.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase()}_roles`]
       },
       set(value) {
-        this.$set(this.rolesList, `${this.view.toLowerCase()}_roles`, value)
+        this.$set(this.rolesList, `${this.view.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase()}_roles`, value)
       }
     }
   },
