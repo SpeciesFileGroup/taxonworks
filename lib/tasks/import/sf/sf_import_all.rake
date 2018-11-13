@@ -42,6 +42,7 @@ namespace :tw do
           #
           #
           # 'taxa:list_excluded_taxa',
+          'taxa:create_sf_taxa_misc_info',
           # 'taxa:create_rank_hash',
           # 'taxa:create_animalia_below_root',
           # 'taxa:create_sf_synonym_id_to_new_parent_id_hash',
@@ -49,12 +50,12 @@ namespace :tw do
           # 0m55.165s on 8 Nov 2018
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/6_after_otus_hash',
           #
-          'taxa:create_all_sf_taxa_pass1',
-          # 347m33.882s on 13 June 2018
+          # 'taxa:create_all_sf_taxa_pass1',
+          # 298m12.627s on 8 Nov 2018; 347m33.882s on 13 June 2018
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/7_after_run_all_taxa',
           #
-          # 'taxa:create_type_species',
-          # 'taxa:create_type_genera',
+          'taxa:create_type_species',
+          'taxa:create_type_genera',
           # 6m40.685s on 13 June 2018
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_create_types',
           # 
@@ -70,7 +71,6 @@ namespace :tw do
           # 'pre_cites:import_nomenclator_strings',
           # 'pre_cites:create_cvts_for_citations',
           # 'pre_cites:create_sf_taxon_name_authors',
-          # 'pre_cites:create_sf_taxon_file_id_hash',
           # 'pre_cites:check_original_genus_ids',
           # 15m57.314s on 13 June 2018
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_orig_genus_ids',
@@ -136,9 +136,22 @@ namespace :tw do
   end
 end
 
+=begin
+
+General comments:
+
+Create SFTaxonNameIDMiscInfo to take place of SFTaxonNameIDToSFFileID to also include RankID.  Perhaps other column values will be useful at some point in the future.
+
+=end
 
 =begin
 Error logs:
+
+=== Summary of warnings and errors for task tw:project_import:sf_import:taxa:create_all_sf_taxa_pass1 ===
+[WARN]2018-11-08 12:02:04.251: ALERT: Could not find parent_id of SF.TaxonNameID = 1221949 (error 1)! Set to animalia_id = 25
+[WARN]2018-11-08 15:53:44.764: ALERT: Could not find parent_id of SF.TaxonNameID = 1234281 (error 2)! Set to animalia_id = 36
+[ERROR]2018-11-08 16:16:29.141: TaxonName ERROR (count = 1) AFTER synonym test (SF.TaxonNameID = 1225991, parent_id = 102765): Parent The parent rank (subspecies) is not higher than the rank (subspecies) of this taxon
+[ERROR]2018-11-08 16:26:09.141: TaxonName ERROR (count = 2) AFTER synonym test (SF.TaxonNameID = 1170406, parent_id = 106464): Parent The parent rank (subspecies) is not higher than the rank (subspecies) of this taxon
 
 
 =end

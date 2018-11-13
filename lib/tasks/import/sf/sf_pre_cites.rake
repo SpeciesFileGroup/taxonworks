@@ -48,30 +48,6 @@ namespace :tw do
           end
         end
 
-        desc 'time rake tw:project_import:sf_import:pre_cites:create_sf_taxon_file_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define create_sf_taxon_file_id_hash: [:data_directory, :environment, :user_id] do |logger|
-
-          logger.info 'Running create_sf_taxon_file_id_hash...'
-
-          get_sf_file_id = {} # key = SF.TaxonNameID, value = SF.FileID
-
-          path = @args[:data_directory] + 'sfTaxonNameIDFileIDs.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
-
-          file.each_with_index do |row, i|
-
-            logger.info "Working with SF.TaxonNameID = '#{row['TaxonNameID']}', SF.FileID = '#{row['FileID']}' \n"
-
-            get_sf_file_id[row['TaxonNameID']] = row['FileID']
-          end
-
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
-          import.set('SFTaxonNameIDToSFFileID', get_sf_file_id)
-
-          puts 'SFTaxonNameIDToSFFileID'
-          ap get_sf_file_id
-        end
-
         desc 'time rake tw:project_import:sf_import:pre_cites:create_sf_taxon_name_authors user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define create_sf_taxon_name_authors: [:data_directory, :environment, :user_id] do |logger|
 
