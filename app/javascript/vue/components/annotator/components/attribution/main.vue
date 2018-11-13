@@ -9,9 +9,9 @@
           :key="license.key"
           :value="license.key">
           <span v-if="license.key != null">
-            {{ license.key }}
+            {{ license.key }} :
           </span>
-          : {{ license.label }}
+          {{ license.label }}
         </option>
       </select>
     </div>
@@ -76,7 +76,7 @@ export default {
   },
   computed: {
     validateFields() {
-      return this.attribution.license || this.attribution.copyright_year || this.attribution.roles_attributes.length
+      return this.attribution.copyright_year || [].concat.apply([], Object.values(this.rolesList)).length
     },
     roleSelected() {
       return this.roleTypes[this.smartSelectorList.findIndex((role) => { return role == this.view })]
