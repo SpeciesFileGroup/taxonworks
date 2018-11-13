@@ -39,6 +39,8 @@ class Attribution < ApplicationRecord
     accepts_nested_attributes_for role_person 
   end
 
+  validates_uniqueness_of :attribution_object_id, scope: [:attribution_object_type, :project_id]
+
   validates :license, inclusion: {in: CREATIVE_COMMONS_LICENSES.keys}, allow_nil: true
 
   validates :copyright_year, date_year:  {min_year: 1000, max_year: Time.now.year + 5,
