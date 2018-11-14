@@ -24,15 +24,15 @@
     },
     data() {
       return {
-        selected: undefined
+        selectedEvent: undefined
       }
     },
     mounted() {
     },
     methods: {
       sendCollectingEvent(item) {
-        this.selected=item.id;
-        this.$emit('selected', item.id)
+        this.selectedEvent=item.id;
+        this.$emit('selectedEvent', item.id)
       }
     }
   }

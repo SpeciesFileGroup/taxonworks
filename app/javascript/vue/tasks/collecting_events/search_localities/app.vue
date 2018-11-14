@@ -15,11 +15,11 @@
       @getItem="sendGeographic"
       placeholder="Select a geographic area"
       param="term"/>
-    <alphabet-buttons
-      @keypress="getLocalities($event)"
-      ref="alphabetButtons"/>
+    <!--<alphabet-buttons-->
+      <!--@keypress="getLocalities($event)"-->
+      <!--ref="alphabetButtons"/>-->
     <collecting-event
-      v-model="selected"
+      @selected-event="selected=$event"
     />
   </div>
 </template>
