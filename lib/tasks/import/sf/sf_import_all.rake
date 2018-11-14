@@ -67,16 +67,16 @@ namespace :tw do
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/10_after_some_related_taxa',
           #
           # 'taxa:create_status_flag_relationships',
-          # 136m0.339s on 13 June
-          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_status_flag_rels',
+          # # 171m8.794s on 14 Nov 2018
+          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/11_after_status_flag_rels',
           #
           # ### pre_cites section
-          # 'pre_cites:import_nomenclator_strings',
-          # 'pre_cites:create_cvts_for_citations',
-          # 'pre_cites:create_sf_taxon_name_authors',
-          # 'pre_cites:check_original_genus_ids',
-          # 15m57.314s on 13 June 2018
-          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_orig_genus_ids',
+          'pre_cites:import_nomenclator_strings',
+          'pre_cites:create_cvts_for_citations',
+          'pre_cites:create_sf_taxon_name_authors',
+          'pre_cites:check_original_genus_ids',
+          # 19m59.741s on 14 Nov 2018
+          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/12_after_orig_genus_ids',
           #
           # ### specimens section
           # 'specimens:create_specimen_unique_id',

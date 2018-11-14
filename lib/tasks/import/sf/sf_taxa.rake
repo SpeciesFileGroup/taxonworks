@@ -6,28 +6,18 @@ namespace :tw do
       namespace :taxa do
 
         desc 'time rake tw:project_import:sf_import:taxa:create_status_flag_relationships user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        #  real	~1 hour, 62.5 minutes, 256 errors (a little > 234 before today's changes)
-        # 15 March 2017
-        # real	75m28.781s
-        # user	57m35.616s
-        # sys	2m26.810s
-
         LoggedTask.define create_status_flag_relationships: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating relationships from StatusFlags...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
+          excluded_taxa = import.get('ExcludedTaxa')
           # get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
           get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
           get_animalia_id = import.get('ProjectIDToAnimaliaID') # key = TW.Project.id, value TW.TaxonName.id where Name = 'Animalia', used when AboveID = 0
-
-          # @todo: Temporary "fix" to convert all values to string; will be fixed next time taxon names are imported and following do can be deleted
-          get_tw_taxon_name_id.each do |key, value|
-            get_tw_taxon_name_id[key] = value.to_s
-          end
 
           path = @args[:data_directory] + 'sfTaxaByTaxonNameStr.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -37,11 +27,8 @@ namespace :tw do
 
           file.each_with_index do |row, i|
             next if skipped_file_ids.include? row['FileID'].to_i
-            next unless row['TaxonNameID'].to_i > 0
+            next if excluded_taxa.include? row['TaxonNameID']
             next if get_tw_otu_id.has_key?(row['TaxonNameID']) # check if OTU was made
-            next if row['TaxonNameStr'].start_with?('1100048-1143863') # name = MiscImages (body parts)
-            next if row['RankID'] == '90' # TaxonNameID = 1221948, Name = Deletable, RankID = 90 == Life, FileID = 1
-            next if row['AccessCode'].to_i == 4
 
             project_id = get_tw_project_id[row['FileID']].to_i
             taxon_name_id = get_tw_taxon_name_id[row['TaxonNameID']].to_i
@@ -272,18 +259,6 @@ namespace :tw do
 
                 next if no_relationship
 
-                # tnr = TaxonNameRelationship.where(subject_taxon_name_id: above_id,
-                #                                   object_taxon_name_id: taxon_name_id,
-                #                                   type: type,
-                #                                   project_id: project_id)
-                #
-                # tnr = TaxonNameRelationship.new(
-                #     subject_taxon_name_id: above_id,
-                #     object_taxon_name_id: taxon_name_id,
-                #     type: type,
-                #     project_id: project_id
-                # )  if tnr.nil?
-
                 tnr = TaxonNameRelationship.find_or_create_by(
                     subject_taxon_name_id: taxon_name_id,
                     object_taxon_name_id: above_id,
@@ -329,8 +304,6 @@ namespace :tw do
 
         desc 'time rake tw:project_import:sf_import:taxa:create_some_related_taxa user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define create_some_related_taxa: [:data_directory, :environment, :user_id] do |logger|
-          # 45 errors, 2.5 minutes
-
           logger.info 'Creating some related taxa...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
