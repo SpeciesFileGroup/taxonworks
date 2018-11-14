@@ -331,15 +331,18 @@ namespace :tw do
         LoggedTask.define create_some_related_taxa: [:data_directory, :environment, :user_id] do |logger|
           # 45 errors, 2.5 minutes
 
-          logger.info 'Creating some related taxa (from tblRelatedTaxa)...'
+          logger.info 'Creating some related taxa...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
+          get_sf_taxon_info = import.get('SFTaxonNameIDMiscInfo')
+          excluded_taxa = import.get('ExcludedTaxa')
+          get_tw_project_id = import.get('SFFileIDToTWProjectID')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           # get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
 
-          path = @args[:data_directory] + 'sfRelatedTaxa.txt'
+          path = @args[:data_directory] + 'tblRelatedTaxa.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           count_found = 0
@@ -347,11 +350,18 @@ namespace :tw do
           suppressed_counter = 0
 
           file.each_with_index do |row, i|
-            next if skipped_file_ids.include? row['FileID'].to_i
-            # next if get_tw_otu_id.has_key?(row['FamilyNameID']) # ignore if ill-formed family name created only as OTU
+            sf_older_name_id = row['OlderNameID']
+            sf_younger_name_id = row['YoungerNameID']
+            next if sf_older_name_id == sf_younger_name_id
+            sf_file_id = get_sf_taxon_info[sf_older_name_id]['file_id']
+            next if skipped_file_ids.include? sf_file_id.to_i
+            next if excluded_taxa.include? sf_older_name_id
+            next if excluded_taxa.include? sf_younger_name_id
 
-            older_name_id = get_tw_taxon_name_id[row['OlderNameID']].to_i
-            younger_name_id = get_tw_taxon_name_id[row['YoungerNameID']].to_i
+            tw_older_name_id = get_tw_taxon_name_id[sf_older_name_id]
+            tw_younger_name_id = get_tw_taxon_name_id[sf_younger_name_id]
+            project_id = get_tw_project_id[get_sf_taxon_info[sf_older_name_id]['file_id']]
+
             relationship = row['Relationship']
 
             relationship_hash = {'1' => 'TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName',
@@ -369,62 +379,41 @@ namespace :tw do
 
             case relationship.to_i
             when 1
-              subject_name_id = younger_name_id
-              object_name_id = older_name_id
+              subject_name_id = tw_younger_name_id
+              object_name_id = tw_older_name_id
             when 2
-              subject_name_id = older_name_id
-              object_name_id = younger_name_id
+              subject_name_id = tw_older_name_id
+              object_name_id = tw_younger_name_id
             when 3
-              subject_name_id = older_name_id
-              object_name_id = younger_name_id
+              subject_name_id = tw_older_name_id
+              object_name_id = tw_younger_name_id
             when 4
-              subject_name_id = younger_name_id
-              object_name_id = older_name_id
+              subject_name_id = tw_younger_name_id
+              object_name_id = tw_older_name_id
             when 5
-              subject_name_id = younger_name_id
-              object_name_id = older_name_id
+              subject_name_id = tw_younger_name_id
+              object_name_id = tw_older_name_id
             when 6
-              subject_name_id = younger_name_id
-              object_name_id = older_name_id
+              subject_name_id = tw_younger_name_id
+              object_name_id = tw_older_name_id
             when 7
-              subject_name_id = younger_name_id
-              object_name_id = older_name_id
+              subject_name_id = tw_younger_name_id
+              object_name_id = tw_older_name_id
             when 8
-              subject_name_id = older_name_id
-              object_name_id = younger_name_id
+              subject_name_id = tw_older_name_id
+              object_name_id = tw_younger_name_id
             when 9
-              subject_name_id = older_name_id
-              object_name_id = younger_name_id
-
-              # when 1 , 4, 5, 6, 7 then
-              #   subject_name_id = older_name_id
-              #   object_name_id = younger_name_id
-              # else # 2, 3, 8, 9
-              #   subject_name_id = younger_name_id
-              #   object_name_id = older_name_id
+              subject_name_id = tw_older_name_id
+              object_name_id = tw_younger_name_id
             end
 
-            if older_name_id == 0
-              logger.error "TaxonNameRelationship SUPPRESSED older name SF.TaxonNameID = #{row['OlderNameID']} (#{suppressed_counter += 1})"
-              next
-            elsif younger_name_id == 0
-              logger.error "TaxonNameRelationship SUPPRESSED younger name SF.TaxonNameID = #{row['YoungerNameID']} (#{suppressed_counter += 1})"
-              next
-            end
 
-            # project_id = TaxonName.where(id: genus_name_id ).pluck(:project_id).first vs. TaxonName.find(genus_name_id).project_id
-            project_id = TaxonName.find(older_name_id).project_id
-
-            logger.info "Working with TW.project_id: #{project_id}, SF.OlderNameID #{row['OlderNameID']} = TW.older_name_id #{older_name_id}, SF.YoungerNameID #{row['YoungerNameID']} = TW.younger_name_id #{younger_name_id} (count #{count_found += 1}) \n"
+            logger.info "Working with TW.project_id: #{project_id}, Relationship #{relationship}, SF.OlderNameID #{sf_older_name_id} = TW.older_name_id #{tw_older_name_id}, SF.YoungerNameID #{sf_younger_name_id} = TW.younger_name_id #{tw_younger_name_id} (count #{count_found += 1}) \n"
 
             tnr = TaxonNameRelationship.find_or_create_by(
                 subject_taxon_name_id: subject_name_id,
                 object_taxon_name_id: object_name_id,
                 type: relationship_hash[relationship],
-                # created_at: row['CreatedOn'],
-                # updated_at: row['LastUpdate'],
-                # created_by_id: get_tw_user_id[row['CreatedBy']],
-                # updated_by_id: get_tw_user_id[row['ModifiedBy']],
                 project_id: project_id
             )
 
@@ -558,7 +547,7 @@ namespace :tw do
           file.each_with_index do |row, i|
             next if skipped_file_ids.include? get_sf_taxon_info[row['GenusNameID']]['file_id'].to_i
             next if excluded_taxa.include? row['GenusNameID']
-            next if row['SpeciesNameID'] =='0'  # if SpeciesNameID = 0 entry is for FirstFamilyGroupNameID
+            next if row['SpeciesNameID'] == '0' # if SpeciesNameID = 0 entry is for FirstFamilyGroupNameID
 
             # @todo: SF TaxonNameID pairs must be manually fixed: 1132639/1132641 (Orthoptera) and 1184619/1184569 (Mantodea)
 

@@ -58,13 +58,13 @@ namespace :tw do
           # 6m33.833s on 13 Nov 2018; no log summary appears at end
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/8_after_type_species', # if restore before this level, need to run create_sf_taxa_misc
           #
-          'taxa:create_type_genera',
+          # 'taxa:create_type_genera',
           # 1m8.873ss on 13 Nov 2018
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/9_after_type_genera',
           # 
           # 'taxa:create_some_related_taxa',
-          # 3m7.015s on 13 June 2018
-          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_some_related_taxa',
+          # 3m2.116s on 13 Nov 2018
+          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/10_after_some_related_taxa',
           #
           # 'taxa:create_status_flag_relationships',
           # 136m0.339s on 13 June
