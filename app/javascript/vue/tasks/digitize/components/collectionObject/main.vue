@@ -7,6 +7,12 @@
       <div
         slot="options"
         class="horizontal-left-content">
+        <button
+          type="button"
+          @click="SaveCollectionObject"
+          class="button normal-input button-submit separate-right">
+          Add
+        </button>
         <button 
           type="button"
           :disabled="!collectionObjects.length"
@@ -44,6 +50,7 @@
         </div>
         <buffered-component class="separate-top"/>
         <depictions-component
+          class="separate-top"
           :object-value="collectionObject"
           :get-depictions="GetCollectionObjectDepictions"
           object-type="CollectionObject"
@@ -136,6 +143,10 @@
     methods: {
       newCO() {
         this.$store.dispatch(ActionNames.NewCollectionObject)
+      },
+      SaveCollectionObject() {
+        this.$store.dispatch(ActionNames.SaveDigitalization)
+        this.newCO()
       },
       cloneDepictions(co) {
         let unique = new Set()

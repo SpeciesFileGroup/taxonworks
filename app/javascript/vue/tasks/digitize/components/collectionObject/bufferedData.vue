@@ -1,29 +1,40 @@
 <template>
-  <div class="horizontal-left-content">
-    <div>
+  <div class="flexbox buffered-component">
+    <div class="separate-right">
       <label>Buffered determination</label>
       <br>
-      <textarea
-        v-model="bufferedDetermination"
-        rows="5"/>
-      <lock-component
-        v-model="locked.collection_object.buffered_determinations"/>
+      <div class="horizontal-left-content align-start">
+        <textarea
+          class="buffered-textarea separate-right"
+          v-model="bufferedDetermination"
+          rows="5"/>
+        <lock-component
+          v-model="locked.collection_object.buffered_determinations"/>
+      </div>
     </div>
-    <div>
+    <div class="separate-right separate-left">
       <label>Buffered collecting event</label>
       <br>
-      <textarea
-        v-model="bufferedCollectionEvent"
-        rows="5"/>
-      <lock-component v-model="locked.collection_object.buffered_collecting_event"/>
+      <div class="horizontal-left-content align-start">
+        <textarea
+          class="buffered-textarea separate-right"
+          v-model="bufferedCollectionEvent"
+          style="width: 100%"
+          rows="5"/>
+        <lock-component v-model="locked.collection_object.buffered_collecting_event"/>
+      </div>
     </div>
-    <div>
+    <div class="separate-left">
       <label>Buffered other labels</label>
       <br>
-      <textarea
-        v-model="bufferedOtherLabels"
-        rows="5"/>
-      <lock-component v-model="locked.collection_object.buffered_other_labels"/>
+      <div class="horizontal-left-content align-start">
+        <textarea
+          class="buffered-textarea separate-right"
+          v-model="bufferedOtherLabels"
+          rows="5"/>
+        <lock-component
+          v-model="locked.collection_object.buffered_other_labels"/>
+      </div>
     </div>
   </div>
 </template>
@@ -74,3 +85,13 @@ export default {
   }
 }
 </script>
+<style lang="scss" scoped>
+  .buffered-component {
+    width: 100%;
+
+    .buffered-textarea {
+      width: 100%
+    }
+  }
+
+</style>

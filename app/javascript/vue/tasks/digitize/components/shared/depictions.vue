@@ -32,7 +32,6 @@ import dropzone from '../../../../components/dropzone.vue'
 import expand from '../../../../components/expand.vue'
 import spinner from '../../../../components/spinner.vue'
 import depictionImage from './depictionImage.vue'
-import { GetterNames } from '../../store/getters/getters';
 
 export default {
   components: {
@@ -138,7 +137,7 @@ export default {
 </script>
 <style scoped>
   .depiction-container {
-    width: 500px;
-    max-width: 500px;
+    width: 100%;
+    max-width: 100%;
   }
 </style>
