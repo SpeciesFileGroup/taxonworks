@@ -7,8 +7,8 @@ Rails.application.eager_load!
 
 TaxonWorks::Application.routes.draw do
   draw :base
-  draw :tasks
-  draw :api_v1
   draw :data
   draw :annotations
+  draw :tasks
+  draw :api_v1
 end
