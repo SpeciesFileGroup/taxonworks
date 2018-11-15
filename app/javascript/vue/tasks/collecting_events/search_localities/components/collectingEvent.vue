@@ -22,17 +22,17 @@
     components: {
       Autocomplete
     },
-    data() {
-      return {
-        selectedEvent: undefined
-      }
-    },
-    mounted() {
-    },
+    // data() {
+    //   return {
+    //     selected: undefined
+    //   }
+    // },
+    // mounted() {
+    // },
     methods: {
       sendCollectingEvent(item) {
-        this.selectedEvent=item.id;
-        this.$emit('selectedEvent', item.id)
+        // this.selected=item.id;
+        this.$emit('itemid', item.id)
       }
     }
   }

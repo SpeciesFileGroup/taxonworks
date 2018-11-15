@@ -19,15 +19,15 @@
       <!--@keypress="getLocalities($event)"-->
       <!--ref="alphabetButtons"/>-->
     <collecting-event
-      @selected-event="selected=$event"
+      @itemid="selectedItem=$event"
     />
   </div>
 </template>
 <script>
   import AlphabetButtons from './components/alphabet_buttons'
-  import Spinner from '../../../components/spinner.vue'
+  import Spinner from 'components/spinner.vue'
   import CollectingEvent from './components/collectingEvent.vue'
-  import Autocomplete from '../../../components/autocomplete.vue'
+  import Autocomplete from 'components/autocomplete.vue'
 
   export default {
     components: {
@@ -43,7 +43,7 @@
         dontKnowYet: '',
         view: undefined,
         smartGeographics: [],
-        selected: undefined,
+        selectedItem: undefined,
         localityList: []
       }
     },
