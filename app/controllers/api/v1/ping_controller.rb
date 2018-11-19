@@ -1,4 +1,4 @@
-class PingController < ApplicationController
+class Api::V1::PingController < ApiController 
 
   def ping
     render json: '{"pong": true}', status: :ok

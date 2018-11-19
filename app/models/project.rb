@@ -13,6 +13,7 @@
 # @!attribute api_access_token
 #   @return [String, nil]
 #      The token is not intended to be private.  Generating one is akin to indicating that your project's data are public, and they will be exposed in the general API to all.  The token is primarily for tracking "anonymous" use. 
+#
 class Project < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps

@@ -30,5 +30,6 @@ describe ApiController, type: :routing do
     it 'routes /api/v1/collection_objects/by_identifier/{:identifier} to collection_objects#by_identifier' do
       expect(get('/api/v1/collection_objects/by_identifier/ABCD')).to route_to('collection_objects#by_identifier', identifier: 'ABCD', format: :json)
     end
+
   end
 end

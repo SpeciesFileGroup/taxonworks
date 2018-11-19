@@ -1,4 +1,4 @@
-# These are *controller* methods.
+# These are used in both controllers and views.
 module Workbench::SessionsHelper
 
   # User methods
@@ -14,6 +14,7 @@ module Workbench::SessionsHelper
     @sessions_current_user ||= User.find_by(remember_token: User.encrypt(cookies[:remember_token]))
   end
 
+  # TODO: Move to co its own concern in /vendor
   # Papertrail
   alias_method :current_user, :sessions_current_user
 
@@ -49,6 +50,18 @@ module Workbench::SessionsHelper
   end
 
   # Project methods
+
+  def set_project_from_params
+    if sessions_current_project_id
+      respond_to do |format| 
+        format.html { redirect_to root_url, notice: 'Project token and project are not the same.'  }
+        format.json { render(json: {success: false}, status: :unauthorized) && return } # TODO: bad request, not unauthorized
+      end
+    else
+      self.sessions_current_project_id = params[:project_id]
+    end
+  end
+
   def sessions_project_selected?
     !sessions_current_project_id.nil?
   end
@@ -115,7 +128,13 @@ module Workbench::SessionsHelper
   end
 
   def require_sign_in_and_project_selection
-    redirect_to root_url, notice: 'Whoa there, sign in and select a project first.' unless sessions_signed_in? && sessions_project_selected?
+    # TODO: account for permitted token based projects 
+    unless sessions_signed_in? && sessions_project_selected?
+      respond_to do |format| 
+        format.html { redirect_to root_url, notice: 'Whoa there, sign in and select a project first.'  }
+        format.json { render(json: {success: false}, status: :unauthorized) && return } # TODO: bad request, not unauthorized
+      end
+    end
   end
 
   def require_administrator_sign_in

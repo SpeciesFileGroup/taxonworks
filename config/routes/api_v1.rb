@@ -1,6 +1,41 @@
+namespace :api, defaults: {format: :json} do
+
+  namespace :v1 do
+
+    # authentication free
+    get '/', to: 'base#index'
+
+    get :ping, controller: 'ping'
+    get :pingz, controller: 'ping'
+
+    # authenticated by user_token
+    defaults authenticate_user: true do 
+      get '/user_authenticated', to: 'base#index'
+
+      get '/otus', to: '/otus#index'
+    end
+
+    # authenticated by project token
+    defaults authenticate_project: true do 
+      get '/project_authenticated', to: 'base#index'
 
 
+      # !@ may not be many things here, doesn't make a lot of sense?!
 
+    end
+
+    defaults authenticate_project: true, authenticate_user: true do
+      # authenticated by user and project
+      get '/both_authenticated', to: 'base#index'
+    end
+
+    # Authenticate membership at the data controller level
+
+  end
+end
+
+
+=begin
 scope :api, defaults: { format: :html } do
   scope  '/v1' do
     get '/taxon_names/autocomplete',
@@ -93,7 +128,6 @@ scope :api, defaults: { format: :json }, constraints: { id: /\d+/ } do
   end
 end
 
-
 # Future consideration - move this to an engine, or include multiple draw files and include (you apparenlty
 # lose the autoloading update from the include in this case however)
 scope :api, defaults: { format: :json }, constraints: { id: /\d+/ } do
@@ -104,15 +138,18 @@ scope :api, defaults: { format: :json }, constraints: { id: /\d+/ } do
     get '/images/:id',
       to: 'images#show',
       as: 'api_v1_image'
+
     get '/collection_objects/:id/images',
       to: 'collection_objects#images',
       as: 'api_v1_collection_object_images'
     get '/collection_objects/:id/geo_json',
       to: 'collection_objects#geo_json',
       as: 'api_v1_collection_object_geo_json'
+    
     get '/collection_objects/by_identifier/:identifier',
       to: 'collection_objects#by_identifier',
       as: 'api_v1_collection_object_by_identifier'
+
     # TODO: With the separation of images and geo_json, this path is no longer required.
     get '/collection_objects/:id',
       to: 'collection_objects#show',
@@ -134,4 +171,4 @@ scope :api, defaults: { format: :json }, constraints: { id: /\d+/ } do
 
   end
 end
-
+=end

@@ -1,20 +1,22 @@
-# api requests come through here
-class ApiController < ApplicationController
-  attr_accessor :permitted_projects
 
-  before_action :set_permitted_projects
+# !! No authentication included at this level, maybe
+# only logging/throttling etc.
+#
+# ! Endpoint authentication requrements are set in routes vi defaults: referenced in includes
+class ApiController < ActionController::API
 
-  def index
-    respond_to do |format|
-      format.json {
-        render(json: {success: true}, status: 200)
-      }
-    end
-  end
+    include ActionController::HttpAuthentication::Token::ControllerMethods
 
-  protected
+    include Api::AuthenticateUserToken
+    include Api::AuthenticateProjectToken
 
-  def set_permitted_projects
-    @permitted_projects = sessions_current_user.projects
-  end
+    # attr_accessor :permitted_projects
+    # before_action :set_permitted_projects
+
+    protected
+
+    #def set_permitted_projects
+    #  @permitted_projects = sessions_current_user.projects
+    #end
+
 end

@@ -1,6 +1,3 @@
-get :ping, controller: 'ping',  defaults: { format: :json }
-get :pingz, controller: 'ping',  defaults: { format: :json }
-
 root 'dashboard#index'
 match '/dashboard', to: 'dashboard#index', via: :get
 
@@ -26,8 +23,12 @@ scope :graph, controller: :graph do
   get ':global_id/metadata', action: :metadata, defaults: {format: :json}
 end
 
+
 resources :projects do
-#   concerns [:data_routes]
+  collection do
+    get 'list' 
+  end
+  
   member do
     get 'select'
     get 'settings_for'

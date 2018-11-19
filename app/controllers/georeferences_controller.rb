@@ -2,7 +2,6 @@ class GeoreferencesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_georeference, only: [:show, :edit, :update, :destroy]
-  # before_action :disable_turbolinks, only: [:show, :list, :index]
 
   # GET /georeferences
   # GET /georeferences.json

@@ -129,8 +129,7 @@ shared_context 'stuff for complex geo tests' do
       name: "Sargon's spooler",
       project: geo_project,
       taxon_name: tn_spooler,
-      creator: geo_user,
-      updater: geo_user)
+      by: geo_user)
   }
 
   let(:otu_p4) {
@@ -140,7 +139,6 @@ shared_context 'stuff for complex geo tests' do
       by: geo_user,
       project: geo_project)
   }
-
 
   #
   # Somehwere around here simple world ends
@@ -719,7 +717,7 @@ shared_context 'stuff for complex geo tests' do
 
   let(:new_box_l2) { FactoryBot.create(:geographic_item_multi_polygon,
                                        multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([box_l2]),
-                                       updater: geo_user) }
+                                       by: geo_user) }
 =begin
 
   Small World is a 2 by 2 matrix of squares, centered aroung co-ordinates 0, 0, and
@@ -1012,9 +1010,9 @@ shared_context 'stuff for complex geo tests' do
   let(:otu_a) {
     Otu.create!(
       name: 'Otu_A',
+      taxon_name: geo_species,
       by: geo_user,
-      project: geo_project,
-      taxon_name: geo_species
+      project: geo_project
     )
   }
 
@@ -1026,8 +1024,7 @@ shared_context 'stuff for complex geo tests' do
       updated_at: '2000/07/01',
       collecting_event: ce_a,
       project: geo_project,
-      creator: geo_user,
-      updater: geo_user)
+      by: geo_user)
 
     TaxonDetermination.create!(biological_collection_object: co, otu: otu_a, by: geo_user, project: geo_project)
 
@@ -1047,8 +1044,8 @@ shared_context 'stuff for complex geo tests' do
       updated_at: '2001/07/01',
       collecting_event: ce_b,
       project: geo_project,
-      creator: geo_user,
-      updater: geo_user)
+      by: geo_user
+    )
 
     TaxonDetermination.create!(biological_collection_object: co, otu: otu_p4, by: geo_user, project: geo_project)
     TaxonDetermination.create!(biological_collection_object: co, otu: nuther_dog, by: geo_user, project: geo_project)
