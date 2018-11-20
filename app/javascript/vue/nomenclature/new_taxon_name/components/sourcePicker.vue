@@ -97,7 +97,8 @@
               <p>
                 <a
                   :href="`/sources/${taxon.origin_citation.source.id}/edit`"
-                  target="_blank">{{ citation.source.object_tag }}</a>
+                  target="_blank"
+                  v-html="citation.source.object_tag"/>
               </p>
               <citation-pages
                 @setPages="addPages($event.origin_citation_attributes)"
@@ -203,6 +204,7 @@ export default {
       this.$store.dispatch(ActionNames.ChangeTaxonSource, newSource)
     },
     addPages (citation) {
+      console.log(citation)
       let newSource = {
         id: citation.source_id,
         pages: (citation.hasOwnProperty('pages') ? citation.pages : null)

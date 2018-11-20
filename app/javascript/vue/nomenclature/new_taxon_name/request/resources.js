@@ -165,6 +165,9 @@ const changeTaxonSource = function (taxonId, source, citation) {
         }
       }
     }
+    if(data.taxon_name.origin_citation_attributes.source_id == undefined) {
+      delete data.taxon_name.origin_citation_attributes.source_id 
+    }
     Vue.http.patch(`/taxon_names/${taxonId}`, data).then(response => {
       return resolve(response.body)
     })
