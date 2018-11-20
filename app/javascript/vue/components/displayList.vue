@@ -34,11 +34,11 @@
 </template>
 <script>
 
-import radialAnnotator from './annotator/annotator.vue'
+import RadialAnnotator from './annotator/annotator.vue'
 
 export default {
   components: {
-    radialAnnotator
+    RadialAnnotator
   },
   props: {
     list: {
@@ -65,6 +65,9 @@ export default {
       type: Object,
       default: undefined
     }
+  },
+  mounted() {
+    this.$options.components['RadialAnnotator'] = RadialAnnotator
   },
   methods: {
     displayName (item) {

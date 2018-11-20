@@ -13,17 +13,19 @@
       v-if="displayBody">
       <div class="field">
         <label>Type</label>
-        <select
-          v-model="type"
-          class="normal-input">
-          <template v-if="checkForTypeList">
-            <option
-              class="capitalize"
-              :value="key"
-              v-for="(item, key) in types[taxon.nomenclatural_code]">{{ key }}
-            </option>
-          </template>
-        </select>
+        <template v-if="checkForTypeList">
+          <br>
+          <label
+            class="capitalize"
+            v-for="(item, key) in types[taxon.nomenclatural_code]">
+            <input
+              v-model="type"
+              type="radio"
+              name="typetype"
+              :value="key">
+            {{ key }}
+          </label>
+        </template>
       </div>
       <div class="field">
         <label>Type designator</label>
