@@ -112,7 +112,7 @@
                 />
               <radial-annotator
                 type="annotations"
-                :global-id="citation.global_id"/>
+                :global-id="citation.source.global_id"/>
               <a
                 class="button circle-button btn-edit"
                 target="blank"
