@@ -102,8 +102,8 @@ namespace :tw do
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/16_after_col_events_metadata',
           #
           'specimens:collection_objects',
-          # time: 2.75h (178m12.798s on 27 June 2018, 165m44.310s also on 27 June, 165m27.875s also on 27 June), 206m6.374s on 4 Seot 2018
-          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_collection_objects'
+          # 202m27.938s on 20 Nov 2018; 227m33.097s on 15 Nov 2018; 2.75h (178m12.798s on 27 June 2018, 165m44.310s also on 27 June, 165m27.875s also on 27 June), 206m6.374s on 4 Seot 2018
+          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/17_after_collection_objects'
           #
           # 'supplementary:taxon_info',
           # time: 1h (0m57.358s on 29 June 2018, 1m1.335s on 2 July 2018, 1m4.397s on 6 September, 2018)

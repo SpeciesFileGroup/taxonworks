@@ -550,7 +550,8 @@ namespace :tw do
                                         'paralectotypes'
                                       end
                                     end
-                        TypeMaterial.create!(protonym_id: tw_taxon_name_id,
+
+                        TypeMaterial.create!(protonym_id: get_tw_taxon_name_id[identification['type_taxon_name_id']], # tw_taxon_name_id
                                              material: o, # = collection_object/biological_collection_object
                                              type_type: type_kind,
                                              project_id: project_id)
@@ -884,7 +885,7 @@ namespace :tw do
           end
 
           path = @args[:data_directory] + 'sfTWDepoMappings.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-8')    # could not use 'UTF-16:UTF-8'; this is file via Access
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-8') # could not use 'UTF-16:UTF-8'; this is file via Access
 
           file.each_with_index do |row, i|
             sf_depo_id_array = row['SFDepoIDarray']
@@ -1220,7 +1221,7 @@ namespace :tw do
           get_sf_geo_level4 = {} # key = unique_key (combined level3_id + level4_id), value = level3_id, level4_id, name, country_code (from tblGeoLevel4)
 
           path = @args[:data_directory] + 'sfGeoLevel4.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-8')  # encoding was 'BOM|UTF-8'; did not like new universal encoding 'UTF-16:UTF-8'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           file.each_with_index do |row, i|
 
