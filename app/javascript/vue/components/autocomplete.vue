@@ -85,7 +85,7 @@ export default {
       }
     },
     sendLabel: function (val) {
-      this.type = val
+      this.type = (val ? val : '')
     }
   },
 

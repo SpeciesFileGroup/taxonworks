@@ -35,6 +35,7 @@ namespace :tw do
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
+          excluded_taxa = import.get('ExcludedTaxa')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
           get_sf_unique_id = import.get('SFSpecimenToUniqueIDs') # get the unique_id for given SF specimen_id
@@ -46,7 +47,6 @@ namespace :tw do
           get_sf_source_metadata = import.get('SFSourceMetadata')
           get_sf_identification_metadata = import.get('SFIdentificationMetadata')
           get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
-          # get_nomenclator_string = import.get('SFNomenclatorIDToSFNomenclatorString')
           get_nomenclator_metadata = import.get('SFNomenclatorIDToSFNomenclatorMetadata')
           get_sf_ident_qualifier = import.get('SFIdentQualifier') # key = nomenclator_id, value = ?, aff., cf., nr. ph.
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
@@ -97,13 +97,14 @@ namespace :tw do
           asserted_dist_counter = 0
 
           file.each_with_index do |row, i|
+            next if skipped_file_ids.include? row['FileID'].to_i
+            next if excluded_taxa.include? row['TaxonNameID']
             specimen_id = row['SpecimenID']
             next if specimen_id == '0'
             next if get_sf_unique_id[specimen_id].nil?
             next if get_sf_identification_metadata[specimen_id].nil?
-            sf_file_id = row['FileID']
-            next if skipped_file_ids.include? sf_file_id.to_i
 
+            sf_file_id = row['FileID']
             project_id = get_tw_project_id[sf_file_id]
             sf_taxon_name_id = row['TaxonNameID']
             tw_taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id]
@@ -667,7 +668,6 @@ namespace :tw do
           logger.info '!!!!! NOTE: Re-analyze table data for new abbreviations !!!!!'
 
           logger.info 'Creating hash of NomenclatorID and IdentQualifier...'
-          # need to test for has_key?
 
           get_sf_ident_qualifier = {} # key = SF.SourceID, value = hash (SourceID, FileID, RefID, Description)
 
@@ -685,7 +685,7 @@ namespace :tw do
             ident_qualifier_text = case ident_qualifier
                                    when '?', '(?)'
                                      '?'
-                                   when 'aff.', 'sp. aff.', 'sp affinis'
+                                   when 'aff.', 'sp. aff.', 'sp affinis', 'spec. aff.'
                                      'aff.'
                                    when 'cf', 'cf.', 'f.'
                                      'cf.'
@@ -773,10 +773,10 @@ namespace :tw do
           file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           file.each do |row|
-            source_id = row['SourceID']
-            next if source_id == '0'
             sf_file_id = row['FileID']
             next if skipped_file_ids.include? sf_file_id.to_i
+            source_id = row['SourceID']
+            next if source_id == '0'
 
             logger.info "Working with SF.SourceID = '#{source_id}' \n"
 
@@ -837,13 +837,13 @@ namespace :tw do
           get_biocuration_class_id = {} # key = SF.tblSpecimenCategories.SpmnCategoryID, value = TW.biocuration_class.id
 
           path = @args[:data_directory] + 'tblSpecimenCategories.txt' # had been sfSpecimenCategories but not different from the db table??
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           file.each_with_index do |row, i|
-            spmn_category_id = row['SpmnCategoryID']
-            next if spmn_category_id == '0'
             sf_file_id = row['FileID']
             next if skipped_file_ids.include? sf_file_id.to_i
+            spmn_category_id = row['SpmnCategoryID']
+            next if spmn_category_id == '0'
             project_id = get_tw_project_id[sf_file_id]
 
             logger.info "Working with SF.SpmnCategoryID '#{spmn_category_id}', SF.FileID '#{row['FileID']}', project.id = '#{project_id}' \n"
@@ -871,7 +871,7 @@ namespace :tw do
           count_found = 0
 
           path = @args[:data_directory] + 'sfDepoStrings.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           file.each_with_index do |row, i|
             depo_id = row['DepoID']
@@ -884,7 +884,7 @@ namespace :tw do
           end
 
           path = @args[:data_directory] + 'sfTWDepoMappings.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-8')    # could not use 'UTF-16:UTF-8'; this is file via Access
 
           file.each_with_index do |row, i|
             sf_depo_id_array = row['SFDepoIDarray']
@@ -960,7 +960,7 @@ namespace :tw do
           }.freeze
 
           path = @args[:data_directory] + 'sfUniqueLocColEvents.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           # FileID
           # Level1ID	Level2ID	Level3ID	Level4ID
@@ -1105,7 +1105,7 @@ namespace :tw do
             #     long = nil
             #   end
             # end
-            # min_elev, max_elev = row['Elevation'], row['MaxElevation'] # in meters; SF doesn't have MinElevation
+            min_elev, max_elev = row['Elevation'], row['MaxElevation'] # in meters; SF doesn't have MinElevation
             # if min_elev   # true if not nil
             #   if max_elev.nil?
             #     max_elev = min_elev
@@ -1220,7 +1220,7 @@ namespace :tw do
           get_sf_geo_level4 = {} # key = unique_key (combined level3_id + level4_id), value = level3_id, level4_id, name, country_code (from tblGeoLevel4)
 
           path = @args[:data_directory] + 'sfGeoLevel4.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-8')  # encoding was 'BOM|UTF-8'; did not like new universal encoding 'UTF-16:UTF-8'
 
           file.each_with_index do |row, i|
 
@@ -1252,7 +1252,7 @@ namespace :tw do
           # logger.info '1. Getting new preferred specimen ids'
           #
           # path = @args[:data_directory] + 'sfAddPreservedSpecimens.txt'
-          # file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+          # file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
           #
           # file.each do |row|
           #   get_new_preserved_specimen_id.push(row[0])
@@ -1264,7 +1264,7 @@ namespace :tw do
           count = 0
 
           path = @args[:data_directory] + 'sfSpecimenToUniqueIDs.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           file.each do |row|
             puts "SpecimenID = #{row['SpecimenID']}, count #{count += 1} \n"

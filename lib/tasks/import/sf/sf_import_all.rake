@@ -58,63 +58,53 @@ namespace :tw do
           # 6m33.833s on 13 Nov 2018; no log summary appears at end
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/8_after_type_species', # if restore before this level, need to run create_sf_taxa_misc
           #
-          'taxa:create_type_genera',
+          # 'taxa:create_type_genera',
           # 1m8.873ss on 13 Nov 2018
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/9_after_type_genera',
           # 
           # 'taxa:create_some_related_taxa',
-          # 3m7.015s on 13 June 2018
-          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_some_related_taxa',
+          # 3m2.116s on 13 Nov 2018
+          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/10_after_some_related_taxa',
           #
           # 'taxa:create_status_flag_relationships',
-          # 136m0.339s on 13 June
-          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_status_flag_rels',
+          # # 171m8.794s on 14 Nov 2018
+          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/11_after_status_flag_rels',
           #
           # ### pre_cites section
           # 'pre_cites:import_nomenclator_strings',
           # 'pre_cites:create_cvts_for_citations',
           # 'pre_cites:create_sf_taxon_name_authors',
           # 'pre_cites:check_original_genus_ids',
-          # 15m57.314s on 13 June 2018
-          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_orig_genus_ids',
+          # 19m59.741s on 14 Nov 2018
+          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/12_after_orig_genus_ids',
           #
           # ### specimens section
           # 'specimens:create_specimen_unique_id',
           # 'specimens:create_sf_geo_level4_hash',
-          # 10m47.481s + some for unique_id on 14 June 2018
-          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_geo_level_4',
+          # 2m9.065s on 14 Nov 2018
+          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/13_after_geo_level_4',
           #
           # 'specimens:collecting_events',
-          # 42m43.927s on 16 June 2018; 47m53.101s on 26 June 2018
-          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_coll_events',
+          # 38m14.238s on 15 Nov 2018; 42m43.927s on 16 June 2018; 47m53.101s on 26 June 2018
+          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/14_after_coll_events',
           #
           # 'specimens:import_sf_depos',
-          # 2m8.814s on 16 June 2018
-          #x 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_sf_depos',
-          #
           # 'specimens:create_biocuration_classes',
-          #x 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_biocurations_classes',
-          #
           # 'specimens:create_specimen_category_counts',
-          #x 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_specimen_counts',
-          #
           # 'specimens:create_sf_source_metadata',
-          #x 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_source_metadata',
-          #
           # 'specimens:create_sf_identification_metadata',
-          # 7m18.540s on 16 June for 4 tasks: biocuration_classes through identification_metadata
-          #x 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_identification_metadata',
+          # 9m47.689s on 15 Nov 2018
+          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/15_after_identification_metadata',
           #
           # 'specimens:get_ident_qualifier_from_nomenclator',
           # 'specimens:create_sf_loc_col_events_metadata',
-          # 11m28.712s on June 16 2018; 21m2.541s import_sf_depos through col_events_metadata on 26 June 2018, about 20 min 4 Sept 2018
-          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_col_events_metadata',
+          # 10m17.584s on 15 Nov 2018
+          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/16_after_col_events_metadata',
           #
-          # 'specimens:collection_objects',
+          'specimens:collection_objects',
           # time: 2.75h (178m12.798s on 27 June 2018, 165m44.310s also on 27 June, 165m27.875s also on 27 June), 206m6.374s on 4 Seot 2018
-          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_collections_objects'
+          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_collection_objects'
           #
-          # 'taxa:list_excluded_taxa',  # may have to rerun depending on how far back the db was restored
           # 'supplementary:taxon_info',
           # time: 1h (0m57.358s on 29 June 2018, 1m1.335s on 2 July 2018, 1m4.397s on 6 September, 2018)
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_suppl_info'

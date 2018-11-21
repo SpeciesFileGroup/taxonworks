@@ -52,6 +52,13 @@ describe 'Citations', type: :model, group: [:nomenclature, :citations] do
         expect(t.citations.first.is_original?).to be_truthy
       end
 
+      specify '#pages can be updated with nested attributed, without source' do
+        t = TestCitable.create
+        t.update!( origin_citation_attributes: {source_id: source.to_param, pages: nil} )
+        t.update!( origin_citation_attributes: { id: t.origin_citation.id , pages: 22 } )
+        expect(t.origin_citation.pages).to eq('22')
+      end
+
       specify '#source can be set with nested attributed and previously saved object 2' do
         t = TestCitable.create
         expect(t.update( citations_attributes: [ {source_id: source.to_param} ] )).to be_truthy
