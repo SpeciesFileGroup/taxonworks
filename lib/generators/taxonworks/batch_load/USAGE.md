@@ -5,7 +5,7 @@ Stubs out the basic needed files for a new TaxonWorks batch loader
 # Example
 
 ```ruby
-    `rails generate taxonworks:batch_load Otu batch_loader_name`
+    rails generate taxonworks:batch_load Otu batch_loader_name
 
     model_name = Otu 
 
