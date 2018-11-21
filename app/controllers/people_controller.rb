@@ -2,6 +2,7 @@ class PeopleController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
   before_action :set_person, only: [:show, :edit, :update, :destroy, :roles, :similar]
+  after_action -> { set_pagination_headers(:people) }, on: [:index], if: :json_request? 
 
   # GET /people
   # GET /people.json
@@ -13,7 +14,7 @@ class PeopleController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @people = Queries::Person::Filter.new(filter_params).all.order(:last_name).page(params[:page]).per(25) #
+        @people = Queries::Person::Filter.new(filter_params).all.order(:last_name, :first_name).page(params[:page]).per(params[:per])
       }
     end
   end
