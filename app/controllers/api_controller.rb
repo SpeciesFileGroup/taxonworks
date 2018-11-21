@@ -9,6 +9,9 @@ class ApiController < ActionController::API
 
     include Api::AuthenticateUserToken
     include Api::AuthenticateProjectToken
+    include RequestType
+    include PaginationHeaders
+
 
     # attr_accessor :permitted_projects
     # before_action :set_permitted_projects

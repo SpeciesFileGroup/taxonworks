@@ -14,5 +14,6 @@ class ApplicationController < ActionController::Base
   include ControllerTypes
   include RescueFrom
   include ForgeryProtection
-  
+  include PaginationHeaders
+  include RequestType
 end
