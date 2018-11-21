@@ -57,7 +57,7 @@ class Taxonworks::TaskGenerator < Rails::Generators::Base
 
     innermost_scope_str = "scope :#{controller_base_name}, controller: 'tasks/#{path_to_controller}#{controller_base_name}'"
 
-    File.read('config/routes.rb').split("\n").each do |line|
+    File.read('config/routes/tasks.rb').split("\n").each do |line|
       if line.include?(innermost_scope_str)
         puts "ERROR: \"#{innermost_scope_str}\" already exists!"
         abort
@@ -96,7 +96,7 @@ class Taxonworks::TaskGenerator < Rails::Generators::Base
     end
 
     route_str += "\n"
-    insert_into_file('config/routes.rb', route_str, after: "#{scopes[scope_index - 1]} do\n")
+    insert_into_file('config/routes/tasks.rb', route_str, after: "#{scopes[scope_index - 1]} do\n")
   end
 
   def add_to_user_task
