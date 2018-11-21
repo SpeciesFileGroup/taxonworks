@@ -421,7 +421,7 @@ module Queries
       elsif b
         b.distinct
       else
-        ::Otu.none
+        ::Otu.all
       end
     end
 

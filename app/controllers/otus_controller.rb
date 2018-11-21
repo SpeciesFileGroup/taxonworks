@@ -2,6 +2,7 @@ class OtusController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_otu, only: [:show, :edit, :update, :destroy, :collection_objects]
+  after_action -> { set_pagination_headers(:otus) }, on: [:index], if: :json_request? 
 
   # GET /otus
   # GET /otus.json
@@ -12,7 +13,7 @@ class OtusController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @otus = Queries::Otu::Filter.new(filter_params).all.page(params[:page]).per(500)
+        @otus = Queries::Otu::Filter.new(filter_params).all.page(params[:page]).per(params[:per])
       }
     end
   end
@@ -32,7 +33,7 @@ class OtusController < ApplicationController
   end
 
   def list
-    @otus = Otu.with_project_id(sessions_current_project_id).page(params[:page])
+    @otus = Otu.with_project_id(sessions_current_project_id).page(params[:page]).per(params[:per])
   end
 
   # POST /otus
