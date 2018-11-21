@@ -2,12 +2,20 @@
 
   <%= render 'shared/errors', object: @source %>
 
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+
   <div class="field" id="source_edit_type">
     <%= f.label :type %><br>
-    BibTeX <%= f.radio_button :type, 'Source::Bibtex' %><br>
-    Verbatim <%= f.radio_button :type, 'Source::Verbatim' %><br>
-    <span class="disabled"> Person </span> <%= f.radio_button :type, 'Source::Person', disabled: true %>
-</div>
+    <ul>
+      <li> BibTeX <%= f.radio_button :type, 'Source::Bibtex' %> </li>
+      <li> Verbatim <%= f.radio_button :type, 'Source::Verbatim' %></li>
+      <li>  <span class="disabled"> Person </span> <%= f.radio_button :type, 'Source::Person', disabled: true %> </li>
+    </ul>
+    
+  </div>
 
 <div id='fields_for_bibtex'>
   <div class="flexbox">
@@ -20,7 +28,7 @@
 
       <div class="field">
         <%= f.label :title %><br>
-        <%= f.text_area :title, cols: 40, rows: 2 %>
+        <%= f.text_area :title, cols: 60, rows: 5 %>
       </div>
 
       <%= render partial: '/people/role_picker', locals: {role: SourceAuthor.new(), object: @source, f: f} %>
@@ -50,7 +58,7 @@
                     object:     'source',
                     method:     'serial_id',
                     tag_id:     'serial_id_for_source',
-                    size:       '50',
+                    size:       '60',
                     display:    @source.respond_to?(:serial) ? serial_for_select(@source.serial) : nil} %>
     </div>
 
@@ -79,7 +87,7 @@
                   object:     'source',
                   method:     'language_id',
                   tag_id:     'language_id_for_source',
-                  size:       '50',
+                  size:       '60',
                   display:    @source.respond_to?(:source_language) ? language_tag(@source.source_language) : nil} %>
   </div>
 
@@ -90,7 +98,7 @@
     <div class="item item2">
       <div class="field">
         <%= f.label :booktitle %><br>
-        <%= f.text_field :booktitle %>
+        <%= f.text_area :booktitle, rows: 4, cols: 60 %>
       </div>
       <div class="field">
         <%= f.label :chapter %><br>
@@ -111,12 +119,12 @@
 
       <div class="field">
         <%= f.label :organization %><br>
-        <%= f.text_field :organization %>
+        <%= f.text_field :organization, size: 60 %>
       </div>
 
       <div class="field">
         <%= f.label :institution %><br>
-        <%= f.text_field :institution %>
+        <%= f.text_field :institution, size: 60 %>
       </div>
 
       <div class="field">
@@ -126,12 +134,12 @@
 
       <div class="field">
         <%= f.label :publisher %><br>
-        <%= f.text_field :publisher %>
+        <%= f.text_field :publisher, size: 60 %>
       </div>
 
       <div class="field">
         <%= f.label :address %><br>
-        <%= f.text_field :address %>
+        <%= f.text_area :address, rows: 4, cols: 60 %>
       </div>
 
       <div class="field">
@@ -171,7 +179,7 @@
 
       <div class="field">
         <%= f.label :abstract %><br>
-        <%= f.text_area :abstract %>
+        <%= f.text_area :abstract, cols: 60, rows: 4  %>
       </div>
 
       <div class="side_by_side_fields">
@@ -189,7 +197,7 @@
 
       <div class="field">
         <%= f.label :url %><br>
-        <%= f.text_field :url %>
+        <%= f.text_field :url, size: 60 %>
       </div>
 
 
@@ -197,24 +205,24 @@
 
       <div class="field">
         <%= f.label :author, 'Author(s)' %><br>
-        <%= f.text_field :author %>
+        <%= f.text_field :author, size: 60 %>
       </div>
 
       <div class="field">
         <%= f.label :editor, 'Editor(s)' %><br>
-        <%= f.text_field :editor %>
+        <%= f.text_field :editor, size: 60 %>
       </div>
 
       <div class="field">
         <%= f.label :journal, 'Journal' %><br>
-        <%= f.text_field :journal %>
+        <%= f.text_field :journal, size: 60 %>
       </div>
 
       <h3 title="These data are from BibTeX but variously automatically translated to normalized values in TW." > BibTeX crosslinks  </h3> 
 
       <div class="field">
         <%= f.label :doi %><br>
-        <%= f.text_field :doi %>
+        <%= f.text_field :doi, size: 60 %>
       </div>
 
       <div class="field">
@@ -224,14 +232,12 @@
 
       <div class="field">
         <%= f.label :issn %><br>
-        <%= f.text_field :issn %>
+        <%= f.text_field :issn, size: 60 %>
       </div>
-
-
 
       <div class="field">
         <%= f.label :note %><br>
-        <%= f.text_field :note %>
+        <%= f.text_area :note, cols: 60, rows: 4 %>
       </div>
 
       <div class="field">
@@ -243,16 +249,14 @@
       <h3 title="" > TW attributes  </h3>
 
       <div class="field">
-        <%= f.label :verbatim_contents %><br>
-        <%= f.text_area :verbatim_contents %>
+        <%= f.label :verbatim_contents, html: {title: 'FOO'} %><br>
+        <%= f.text_area :verbatim_contents, cols: 60, rows: 4 %>
       </div>
 
       <div class="field">
         <%= f.label :verbatim_keywords %><br>
-        <%= f.text_area :verbatim_keywords %>
+        <%= f.text_area :verbatim_keywords, cols: 60, rows: 4 %>
       </div>
-
-
 
     </div>
 
@@ -262,7 +266,7 @@
 <div id="fields_for_verbatim">
   <div class="field">
     <%= f.label :verbatim %><br>
-    <%= f.text_area :verbatim, cols: 60, rows: 6 %>
+    <%= f.text_area :verbatim, cols: 60, rows: 8 %>
   </div>
 </div>
 
