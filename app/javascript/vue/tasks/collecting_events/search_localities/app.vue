@@ -27,6 +27,7 @@
   import AlphabetButtons from './components/alphabet_buttons'
   import Spinner from 'components/spinner.vue'
   import CollectingEvent from './components/collectingEvent.vue'
+  import SmartSelector from 'components/switch.vue'
   import Autocomplete from 'components/autocomplete.vue'
 
   export default {
@@ -34,6 +35,7 @@
       AlphabetButtons,
       Spinner,
       CollectingEvent,
+      SmartSelector,
       Autocomplete,
     },
     data() {
