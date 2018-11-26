@@ -6,6 +6,8 @@ TW.views.tasks.digitize = TW.views.tasks.digitize || {}
 import Vue from 'vue'
 import vueResource from 'vue-resource'
 import L from 'leaflet'
+import vueShortkey from 'vue-shortkey'
+
 delete L.Icon.Default.prototype._getIconUrl
 
 L.Icon.Default.mergeOptions({
@@ -17,6 +19,7 @@ L.Icon.Default.mergeOptions({
 Object.assign(TW.views.tasks.digitize, {
   init: function () {
     Vue.use(vueResource)
+    Vue.use(vueShortkey)
     var App = require('./app.vue').default
     var store = require('./store/store.js').newStore()
     Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')

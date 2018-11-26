@@ -18,6 +18,8 @@
         <button
           class="button normal-input button-submit separate-left separate-right"
           @click="saveDigitalization"
+          v-shortkey="[getMacKey(), 's']"
+          @shortkey="saveDigitalization"
           type="button">Save
         </button>
         |
@@ -25,7 +27,10 @@
           v-if="identifier.id"
           v-html="identifier.object_tag"/>
       </div>
-      <div @click="resetStore">
+      <div
+        v-shortkey="[getMacKey(), 'r']"
+        @shortkey="resetStore"
+        @click="resetStore">
         <span data-icon="reset"/>
         <span>Reset</span>
       </div>
@@ -49,6 +54,9 @@
       }
     },
     methods: {
+      getMacKey: function () {
+        return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
+      },
       saveDigitalization() {
         this.$store.dispatch(ActionNames.SaveDigitalization)
       },

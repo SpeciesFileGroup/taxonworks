@@ -10,11 +10,15 @@
         <button
           type="button"
           @click="SaveCollectionObject"
+          v-shortkey="[getMacKey(), 'a']"
+          @shortkey="SaveCollectionObject"
           class="button normal-input button-submit separate-right">
           Add
         </button>
         <button 
           type="button"
+          v-shortkey="[getMacKey(), 'n']"
+          @shortkey="newCO"
           :disabled="!collectionObjects.length"
           class="button normal-input button-default separate-right"
           @click="newCO">New</button>  
@@ -141,6 +145,9 @@
       }
     },
     methods: {
+      getMacKey: function () {
+        return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
+      },
       newCO() {
         this.$store.dispatch(ActionNames.NewCollectionObject)
       },
