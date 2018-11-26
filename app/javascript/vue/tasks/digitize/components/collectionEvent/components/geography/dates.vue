@@ -24,6 +24,15 @@
             maxlength="2"
             v-model="startDay">
         </div>
+        <div>
+          <label>&nbsp</label>
+          <button
+            type="button"
+            class="button normal-input button-default separate-left"
+            @click="setActualDateForStart">
+            Now
+          </button>
+        </div>
       </div>
     </div>
     <div>
@@ -49,6 +58,15 @@
             type="text"
             maxlength="2"
             v-model="endDay">
+        </div>
+        <div>
+          <label>&nbsp</label>
+          <button
+            type="button"
+            class="button normal-input button-default separate-left"
+            @click="setActualDateForEnd">
+            Now
+          </button>
         </div>
       </div>
     </div>
@@ -109,6 +127,20 @@ export default {
       set(value) {
         this.$store.commit(MutationNames.SetCollectionEventEndDateYear, value)
       }
+    }
+  },
+  methods: {
+    setActualDateForStart() {
+      let today = new Date()
+      this.startDay = today.getDate()
+      this.startMonth = today.getMonth() + 1
+      this.startYear = today.getFullYear()
+    },
+    setActualDateForEnd() {
+      let today = new Date()
+      this.endDay = today.getDate()
+      this.endMonth = today.getMonth() + 1
+      this.endYear = today.getFullYear()
     }
   }
 }
