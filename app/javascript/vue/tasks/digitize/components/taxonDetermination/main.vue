@@ -35,6 +35,15 @@
             type="text"
             v-model="day">
         </div>
+        <div>
+          <label>&nbsp</label>
+          <button
+            type="button"
+            class="button normal-input button-default separate-left"
+            @click="setActualDate">
+            Now
+          </button>
+        </div>
       </div>
       <button
         type="button"
@@ -78,7 +87,7 @@ export default {
     },
     day: {
       get() {
-        return this.$store.getters[GetterNames.GetTaxonDeterminationDay]
+        return this.$store.getters[GetterNames.GetTaxonDetermination].day_made
       },
       set(value) {
         this.$store.commit(MutationNames.SetTaxonDeterminationDay, value)
@@ -86,7 +95,7 @@ export default {
     },
     month: {
       get() {
-        return this.$store.getters[GetterNames.GetTaxonDeterminationMonth]
+        return this.$store.getters[GetterNames.GetTaxonDetermination].month_made
       },
       set(value) {
         this.$store.commit(MutationNames.SetTaxonDeterminationMonth, value)
@@ -94,7 +103,7 @@ export default {
     },
     year: {
       get() {
-        return this.$store.getters[GetterNames.GetTaxonDeterminationYear]
+        return this.$store.getters[GetterNames.GetTaxonDetermination].year_made
       },
       set(value) {
         this.$store.commit(MutationNames.SetTaxonDeterminationYear, value)
@@ -134,6 +143,12 @@ export default {
   methods: {
     SaveMethod() {
       this.$store.dispatch(ActionNames.SaveDetermination)
+    },
+    setActualDate() {
+      let today = new Date()
+      this.day = today.getDate()
+      this.month = today.getMonth() + 1
+      this.year = today.getFullYear()
     }
   }
 }
