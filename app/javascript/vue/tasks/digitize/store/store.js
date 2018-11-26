@@ -16,7 +16,8 @@ function makeInitialState () {
         collection_object: {
           buffered_determinations: false,
           buffered_collecting_event: false,
-          buffered_other_labels: false
+          buffered_other_labels: false,
+          repository_id: false
         }
       }
     },

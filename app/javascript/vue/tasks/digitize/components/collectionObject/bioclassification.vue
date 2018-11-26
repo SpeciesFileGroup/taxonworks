@@ -1,4 +1,3 @@
-/* eslint-disable vue/html-indent */
 <template>
   <div>
     <h2>Biocuration</h2>

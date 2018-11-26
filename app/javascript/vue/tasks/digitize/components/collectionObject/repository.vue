@@ -1,11 +1,19 @@
 <template>
   <div>
     <h2>Repository</h2>
-    <smart-selector 
-      name="repository"
-      v-model="view"
-      :add-option="['search']"
-      :options="options"/>
+    <div class="horizontal-left-content middle">
+      <smart-selector 
+        name="repository"
+        v-model="view"
+        :add-option="['search']"
+        :options="options"/>
+      <default-repository
+        class="separate-left"
+        section="Repositories"
+        @getId="repository = $event"
+        @getLabel="repositorySelected = $event"
+        type="Repository"/>
+    </div>
     <ul v-if="view != 'search'">
       <li
         v-for="(item, key) in lists[view]"
@@ -30,15 +38,21 @@
         min="2"/>
     </div>
     <template v-if="repository">
-      <span data-icon="ok"/> {{ repositorySelected }}
+      <div class="middle separate-top">
+        <span data-icon="ok"/>
+        <span class="separate-right"> {{ repositorySelected }}</span>
+        <lock-component v-model="locked.collection_object.repository_id"/>
+      </div>
     </template>
   </div>
 </template>
 
 <script>
 
-import Autocomplete from '../../../../components/autocomplete'
-import SmartSelector from '../../../../components/switch'
+import Autocomplete from 'components/autocomplete'
+import SmartSelector from 'components/switch'
+import LockComponent from 'components/lock'
+import DefaultRepository from 'components/getDefaultPin'
 import { GetRepositorySmartSelector, GetRepository } from '../../request/resources.js'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
@@ -46,9 +60,19 @@ import { MutationNames } from '../../store/mutations/mutations.js'
 export default {
   components: {
     Autocomplete,
-    SmartSelector
+    SmartSelector,
+    LockComponent,
+    DefaultRepository
   },
   computed: {
+    locked: {
+      get() {
+        return this.$store.getters[GetterNames.GetLocked]
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetLocked, value)
+      }
+    },
     collectionObject() {
       return this.$store.getters[GetterNames.GetCollectionObject]
     },
