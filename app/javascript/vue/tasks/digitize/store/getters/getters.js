@@ -15,6 +15,7 @@ import getBiocurations from './getBiocurations'
 import getPreparationType from './getPreparationType'
 import getMaterialTypes from './getMaterialTypes'
 import getLabel from './getLabel'
+import getTaxonDeterminations from './getTaxonDeterminations'
 
 const GetterNames = {
   GetLocked: 'getLocked',
@@ -33,7 +34,8 @@ const GetterNames = {
   GetBiocurations: 'getBiocurations',
   GetPreparationType: 'getPreparationType',
   GetMaterialTypes: 'getMaterialTypes',
-  GetLabel: 'GetLabel'
+  GetLabel: 'GetLabel',
+  GetTaxonDeterminations: 'GetTaxonDeterminations'
 }
 
 const GetterFunctions = {
@@ -53,7 +55,8 @@ const GetterFunctions = {
   [GetterNames.GetBiocurations]: getBiocurations,
   [GetterNames.GetPreparationType]: getPreparationType,
   [GetterNames.GetMaterialTypes]: getMaterialTypes,
-  [GetterNames.GetLabel]: getLabel
+  [GetterNames.GetLabel]: getLabel,
+  [GetterNames.GetTaxonDeterminations]: getTaxonDeterminations
 }
 
 export {

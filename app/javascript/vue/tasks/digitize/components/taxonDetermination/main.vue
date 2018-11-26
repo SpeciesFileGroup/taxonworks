@@ -40,26 +40,32 @@
         type="button"
         class="button normal-input button-submit separate-top"
         @click="SaveMethod">Save</button>
+      <display-list
+        :list="list"
+        label="object_tag"/>
     </div>
   </block-layout>
 </template>
 
 <script>
 
-import SmartSelector from '../../../../components/switch.vue'
-import RolePicker from '../../../../components/role_picker.vue'
-import OtuPicker from '../../../../components/otu/otu_picker/otu_picker.vue'
+import SmartSelector from 'components/switch.vue'
+import RolePicker from 'components/role_picker.vue'
+import OtuPicker from 'components/otu/otu_picker/otu_picker.vue'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
-import BlockLayout from '../../../../components/blockLayout.vue'
+import BlockLayout from 'components/blockLayout.vue'
 import { ActionNames } from '../../store/actions/actions';
+import DisplayList from 'components/displayList.vue'
+import { GetOtu } from '../../request/resources.js'
 
 export default {
   components: {
     SmartSelector,
     RolePicker,
     OtuPicker,
-    BlockLayout
+    BlockLayout,
+    DisplayList
   },
   computed: {
     otu: {
@@ -101,6 +107,9 @@ export default {
       set(value) {
         this.$store.commit(MutationNames.SetTaxonDeterminationRoles, value)
       }
+    },
+    list() {
+      return this.$store.getters[GetterNames.GetTaxonDeterminations]
     }
   },
   data() {
@@ -108,6 +117,18 @@ export default {
       view: undefined,
       options: ['Quick', 'Recent', 'Pinboard', 'New'],
       otuSelected: undefined
+    }
+  },
+  watch: {
+    otu(newVal) {
+      if(newVal) {
+        GetOtu(newVal).then(response => {
+          this.otuSelected = response.object_tag
+        })
+      }
+      else {
+        this.otuSelected = undefined
+      }
     }
   },
   methods: {

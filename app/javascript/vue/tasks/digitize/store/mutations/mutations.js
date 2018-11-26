@@ -87,6 +87,8 @@ import setIdentifierIdentifier from './Identifier/setIdentifierIdentifier'
 import setIdentifierNamespaceId from './Identifier/setIdentifierNamespaceId'
 import setIdentifierObjectId from './Identifier/setIdentifierObjectId'
 
+import addTaxonDetermination from './TaxonDetermination/addTaxonDetermination'
+import removeTaxonDetermination from './TaxonDetermination/removeTaxonDetermination'
 import setTaxonDetermination from './TaxonDetermination/setTaxonDetermination'
 import setTaxonDeterminationOtuId from './TaxonDetermination/setTaxonDeterminationOtuId'
 import setTaxonDeterminationBiologicalId from './TaxonDetermination/setTaxonDeterminationBiologicalId'
@@ -96,6 +98,9 @@ import setTaxonDeterminationDay from './TaxonDetermination/setTaxonDetermination
 import setTaxonDeterminationRoles from './TaxonDetermination/setTaxonDeterminationRoles'
 
 const MutationNames = {
+  AddTaxonDetermination: 'addTaxonDetermination',
+  RemoveTaxonDetermination: 'removeTaxonDetermination',
+
   SetLocked: 'setLocked',
 
   SetContainer: 'setContainer',
@@ -211,6 +216,8 @@ const MutationFunctions = {
   [MutationNames.AddBiocuration]: addBiocuration,
   [MutationNames.RemoveBiocuration]: removeBiocuration,
 
+  [MutationNames.AddTaxonDetermination]: addTaxonDetermination,
+  [MutationNames.RemoveTaxonDetermination]: removeTaxonDetermination,
   [MutationNames.SetTaxonDetermination]: setTaxonDetermination,
   [MutationNames.SetTaxonDeterminationBiologicalId]: setTaxonDeterminationBiologicalId,
   [MutationNames.SetTaxonDeterminationOtuId]: setTaxonDeterminationOtuId,
