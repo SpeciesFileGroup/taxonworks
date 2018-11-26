@@ -31,10 +31,17 @@
           @getItem="sendGeographic($event)"
           :autofocus="true" />
       </div>
+      <div
+        v-else-if="view === 'Tag'"
+        class="horizontal-left-content">
+      <h3>Tag autocomplete pending . . .</h3>
+      </div>
+      <template v-else-if="view === 'Filter'">
+        <ce-filter/>
+      </template>
       <template v-else>
         <button
           v-for="item in showList[view]"
-          v-if="!isCreated(item)"
           :key="item.id"
           type="button"
           class="button normal-input button-submit biocuration-toggle-button"
@@ -48,17 +55,19 @@
 <script>
   import SmartSelector from 'components/switch.vue'
   import Autocomplete from 'components/autocomplete.vue'
+  import ceFilter from './ce_filter.vue'
 
   export default {
     components: {
       SmartSelector,
-      Autocomplete
+      Autocomplete,
+      ceFilter
     },
     data() {
       return {
         list: {},
         tabs: [],
-        moreOptions: ['Search'],
+        moreOptions: ['Filter', 'Search', 'Tag'],
         view: undefined
       }
     },
