@@ -4,12 +4,34 @@
       <h3>Determinations</h3>
     </div>
     <div slot="body">
+      <label>OTU</label>
       <smart-selector
         v-model="view"
+        class="separate-bottom"
         name="determination"
         :options="options"/>
-      <label>OTU</label>
-      <otu-picker @getItem="otu = $event.id; otuSelected = $event.label_html"/> 
+      <template>
+        <otu-picker
+          v-if="view == 'new'"
+          @getItem="otu = $event.id; otuSelected = $event.label_html"/> 
+        <ul
+          v-else
+          class="no_bullets">
+          <li
+            v-for="item in lists[view]"
+            :key="item.id"
+            :value="item.id">
+            <label
+              @click="otuSelected = item.label_html">
+              <input
+                v-model="otu"
+                :value="item.id"
+                type="radio">
+              <span v-html="item.object_tag"/>
+            </label>
+          </li>
+        </ul>
+      </template>
       <p v-html="otuSelected"/>
       <label>Determiner</label>
       <role-picker
@@ -66,7 +88,7 @@ import { MutationNames } from '../../store/mutations/mutations.js'
 import BlockLayout from 'components/blockLayout.vue'
 import { ActionNames } from '../../store/actions/actions';
 import DisplayList from 'components/displayList.vue'
-import { GetOtu } from '../../request/resources.js'
+import { GetOtu, GetOtuSmartSelector } from '../../request/resources.js'
 
 export default {
   components: {
@@ -123,8 +145,9 @@ export default {
   },
   data() {
     return {
-      view: undefined,
-      options: ['Quick', 'Recent', 'Pinboard', 'New'],
+      view: 'new',
+      options: ['Quick', 'Recent', 'Pinboard', 'new'],
+      lists: [],
       otuSelected: undefined
     }
   },
@@ -139,6 +162,13 @@ export default {
         this.otuSelected = undefined
       }
     }
+  },
+  mounted() {
+    GetOtuSmartSelector().then(response => {
+      this.options = Object.keys(response)
+      this.options.push('new')
+      this.lists = response
+    })
   },
   methods: {
     SaveMethod() {

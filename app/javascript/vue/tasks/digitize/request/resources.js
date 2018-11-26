@@ -54,7 +54,7 @@ const GetGeographicSmartSelector = function () {
 }
 
 const GetOtuSmartSelector = function () {
-  return ajaxCall('get', `/otus/select_options`)
+  return ajaxCall('get', `/otus/select_options?target=TaxonDetermination`)
 }
 
 const GetTaxonDeterminationCO = function (id) {
