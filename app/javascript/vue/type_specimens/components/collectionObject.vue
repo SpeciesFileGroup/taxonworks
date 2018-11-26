@@ -161,6 +161,7 @@ export default {
   watch: {
     biologicalId: {
       handler (newVal) {
+        console.log(newVal)
         if (newVal) {
           this.updateLabels()
         }

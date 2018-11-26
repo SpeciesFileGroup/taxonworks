@@ -157,6 +157,7 @@ const changeTaxonSource = function (taxonId, source, citation) {
   return new Promise(function (resolve, reject) {
     let data = {
       taxon_name: {
+        id: taxonId,
         origin_citation_attributes: {
           id: (citation == undefined ? null : citation.id),
           source_id: source.id,
@@ -164,6 +165,9 @@ const changeTaxonSource = function (taxonId, source, citation) {
           pages: (source == undefined ? null : source.pages)
         }
       }
+    }
+    if(data.taxon_name.origin_citation_attributes.source_id == undefined) {
+      delete data.taxon_name.origin_citation_attributes.source_id 
     }
     Vue.http.patch(`/taxon_names/${taxonId}`, data).then(response => {
       return resolve(response.body)

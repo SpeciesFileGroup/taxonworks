@@ -33,7 +33,7 @@ class ConfidenceLevel < ControlledVocabularyTerm
 
   def self.select_optimized(user_id, project_id, klass)
     h = {
-      recent: ConfidenceLevel.where(project_id: project_id).used_on_klass(klass).used_recently.distinct.limit(10).to_a,
+      recent: ConfidenceLevel.used_on_klass(klass).used_recently.where(project_id: project_id).distinct.limit(10).to_a,
       pinboard:  ConfidenceLevel.pinned_by(user_id).where(project_id: project_id).to_a
     }
 

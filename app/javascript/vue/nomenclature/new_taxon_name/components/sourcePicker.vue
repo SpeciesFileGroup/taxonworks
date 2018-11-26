@@ -95,9 +95,9 @@
           <div v-if="citation != undefined">
             <div class="flex-separate middle">
               <p>
-                <a
-                  :href="`/sources/${taxon.origin_citation.source.id}/edit`"
-                  target="_blank">{{ citation.source.object_tag }}</a>
+                <span
+                  target="_blank"
+                  v-html="citation.source.object_tag"/>
               </p>
               <citation-pages
                 @setPages="addPages($event.origin_citation_attributes)"
@@ -105,6 +105,18 @@
               <pdf-button
                 v-if="citation.hasOwnProperty('target_document')"
                 :pdf="citation.target_document"/>
+              <a
+                class="button circle-button btn-citation button-default"
+                :href="`/tasks/nomenclature/by_source/${taxon.origin_citation.source.id}`"
+                target="blank"
+                />
+              <radial-annotator
+                type="annotations"
+                :global-id="citation.source.global_id"/>
+              <a
+                class="button circle-button btn-edit"
+                target="blank"
+                :href="`/sources/${taxon.origin_citation.source.id}/edit`"/>
               <span
                 class="circle-button btn-delete"
                 @click="removeSource(taxon.origin_citation.id)"/>
@@ -149,6 +161,7 @@ import Autocomplete from 'components/autocomplete.vue'
 import RolePicker from 'components/role_picker.vue'
 import DefaultElement from 'components/getDefaultPin.vue'
 import Expand from './expand.vue'
+import RadialAnnotator from 'components/annotator/annotator.vue'
 
 export default {
   components: {
@@ -159,6 +172,7 @@ export default {
     RolePicker,
     DefaultElement,
     CitationPages,
+    RadialAnnotator,
     Expand
   },
   computed: {
