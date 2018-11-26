@@ -162,6 +162,7 @@ class CollectingEventsController < ApplicationController
   # GET /collecting_events/select_options
   def select_options
     @collecting_events = CollectingEvent.select_optimized(sessions_current_user_id, sessions_current_project_id)
+    @collecting_events
   end
 
   private

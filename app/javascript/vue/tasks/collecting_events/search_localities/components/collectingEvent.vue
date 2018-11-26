@@ -16,6 +16,32 @@
       name="collecting_event"
       :add-option="moreOptions"
       v-model="view"/>
+    <template>
+      <div
+        v-if="view === 'Search'"
+        class="horizontal-left-content">
+        <autocomplete
+          class="separate-bottom"
+          url="/geographic_areas/autocomplete"
+          min="2"
+          ref="autocomplete"
+          param="term"
+          placeholder="Select a geographic area"
+          label="label_html"
+          @getItem="sendGeographic($event)"
+          :autofocus="true" />
+      </div>
+      <template v-else>
+        <button
+          v-for="item in showList[view]"
+          v-if="!isCreated(item)"
+          :key="item.id"
+          type="button"
+          class="button normal-input button-submit biocuration-toggle-button"
+          @click="createTaxonCite(item)"
+          v-html="item.name"/>
+      </template>
+    </template>
   </div>
 </template>
 
@@ -30,6 +56,7 @@
     },
     data() {
       return {
+        list: {},
         tabs: [],
         moreOptions: ['Search'],
         view: undefined
@@ -39,7 +66,11 @@
       sendCollectingEvent(item) {
         // this.selected=item.id;
         this.$emit('itemid', item.id)
-      }
+      },
+      sendGeographic(item) {
+        this.selected = '';
+        this.$emit('select', item.id)
+      },
     },
     mounted: function() {
       this.$http.get('/collecting_events/select_options').then(response => {
@@ -49,6 +80,11 @@
           this.view = this.tabs[0]
         }
       })
-    }
+    },
+    computed: {
+      showList() {
+        return this.list
+      }
+    },
   }
 </script>
