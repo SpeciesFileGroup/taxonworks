@@ -54,6 +54,24 @@ ActiveRecord::Schema.define(version: 2018_11_02_183022) do
     t.index ["updated_by_id"], name: "index_asserted_distributions_on_updated_by_id"
   end
 
+  create_table "attributions", force: :cascade do |t|
+    t.string "attribution_object_type", null: false
+    t.bigint "attribution_object_id", null: false
+    t.integer "copyright_year"
+    t.string "license"
+    t.bigint "project_id", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["attribution_object_id"], name: "attr_obj_id_index"
+    t.index ["attribution_object_type", "attribution_object_id"], name: "attribution_object_index"
+    t.index ["attribution_object_type"], name: "attr_obj_type_index"
+    t.index ["created_by_id"], name: "index_attributions_on_created_by_id"
+    t.index ["project_id"], name: "index_attributions_on_project_id"
+    t.index ["updated_by_id"], name: "index_attributions_on_updated_by_id"
+  end
+
   create_table "biocuration_classifications", id: :serial, force: :cascade do |t|
     t.integer "biocuration_class_id", null: false
     t.integer "biological_collection_object_id", null: false
@@ -348,8 +366,8 @@ ActiveRecord::Schema.define(version: 2018_11_02_183022) do
   end
 
   create_table "confidences", id: :serial, force: :cascade do |t|
-    t.string "confidence_object_type", null: false
     t.integer "confidence_object_id", null: false
+    t.string "confidence_object_type", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -743,8 +761,8 @@ ActiveRecord::Schema.define(version: 2018_11_02_183022) do
     t.string "vernacularName"
     t.string "waterBody"
     t.string "year"
-    t.string "dwc_occurrence_object_type"
     t.integer "dwc_occurrence_object_id"
+    t.string "dwc_occurrence_object_type"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id"
@@ -999,7 +1017,7 @@ ActiveRecord::Schema.define(version: 2018_11_02_183022) do
     t.datetime "updated_at", null: false
     t.string "recipient_honorific"
     t.string "recipient_country"
-    t.text "lender_address", null: false
+    t.text "lender_address", default: "Lender's address not provided.", null: false
     t.index ["created_by_id"], name: "index_loans_on_created_by_id"
     t.index ["project_id"], name: "index_loans_on_project_id"
     t.index ["updated_by_id"], name: "index_loans_on_updated_by_id"
@@ -1160,10 +1178,10 @@ ActiveRecord::Schema.define(version: 2018_11_02_183022) do
   end
 
   create_table "origin_relationships", id: :serial, force: :cascade do |t|
-    t.string "old_object_type", null: false
     t.integer "old_object_id", null: false
-    t.string "new_object_type", null: false
+    t.string "old_object_type", null: false
     t.integer "new_object_id", null: false
+    t.string "new_object_type", null: false
     t.integer "position"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1316,8 +1334,8 @@ ActiveRecord::Schema.define(version: 2018_11_02_183022) do
 
   create_table "protocol_relationships", id: :serial, force: :cascade do |t|
     t.integer "protocol_id", null: false
-    t.string "protocol_relationship_object_type", null: false
     t.integer "protocol_relationship_object_id", null: false
+    t.string "protocol_relationship_object_type", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1789,6 +1807,9 @@ ActiveRecord::Schema.define(version: 2018_11_02_183022) do
   add_foreign_key "asserted_distributions", "projects", name: "asserted_distributions_project_id_fkey"
   add_foreign_key "asserted_distributions", "users", column: "created_by_id", name: "asserted_distributions_created_by_id_fkey"
   add_foreign_key "asserted_distributions", "users", column: "updated_by_id", name: "asserted_distributions_updated_by_id_fkey"
+  add_foreign_key "attributions", "projects"
+  add_foreign_key "attributions", "users", column: "created_by_id"
+  add_foreign_key "attributions", "users", column: "updated_by_id"
   add_foreign_key "biocuration_classifications", "collection_objects", column: "biological_collection_object_id", name: "biocuration_classifications_biological_collection_object_i_fkey"
   add_foreign_key "biocuration_classifications", "controlled_vocabulary_terms", column: "biocuration_class_id", name: "biocuration_classifications_biocuration_class_id_fkey"
   add_foreign_key "biocuration_classifications", "projects", name: "biocuration_classifications_project_id_fkey"

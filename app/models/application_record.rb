@@ -5,6 +5,6 @@ class ApplicationRecord < ActiveRecord::Base
     # def []=(index, object)
     #   super(index, object)
     # end
+ 
   include ActiverecordUtilities
-  # 
 end

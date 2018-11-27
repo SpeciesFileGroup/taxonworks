@@ -1,5 +1,3 @@
-# Read about factories at https://github.com/thoughtbot/factory_bot
-
 FactoryBot.define do
   factory :image, class: Image, traits: [:creator_and_updater] do
 
@@ -10,14 +8,5 @@ FactoryBot.define do
     factory :weird_image do
       image_file { fixture_file_upload((Rails.root + 'spec/files/images/W3$rd fi(le%=name!.png'), 'image/png') }
     end
-
-=begin    # the default factory set up by paperclip install
-    factory :default_image do
-      image_file "MyString"
-      image_file_file_name "MyString"
-    end
-=end
-
   end
-
 end

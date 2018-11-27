@@ -11,7 +11,7 @@ spec:
   type: NodePort
   ports:
     - port: 80
-      targetPort: 80
+      nodePort: 30995  # was hard-coded to 80, dev is targetPort: 80, no nodePort
   selector:
     app: taxonworks
     tier: frontend
@@ -44,7 +44,7 @@ spec:
             claimName: taxonworks-staging-pv-claim
       containers:
         - name: taxonworks
-          image: sfgrp/taxonworks:development
+          image: sfgrp/taxonworks:0.3.12
           ports:
             - containerPort: 80
               name: http
@@ -59,13 +59,13 @@ spec:
             httpGet:
               path: /ping
               port: 80
-            initialDelaySeconds: 1500 # 30 
+            initialDelaySeconds: 900 # 30 
             timeoutSeconds: 3
           livenessProbe:
             httpGet:
               path: /ping
               port: 80
-            initialDelaySeconds: 1500 # 180
+            initialDelaySeconds: 900 # 1600 # 180
             timeoutSeconds: 3
           env:
             - name: RAILS_ENV
@@ -73,7 +73,10 @@ spec:
             - name: SERVER_NAME
               value: sfg.taxonworks.org 
             - name: POSTGRES_HOST
-              value: taxonworks-db
+              valueFrom: 
+                configMapKeyRef:
+                  name: taxonworks
+                  key: db.host
             - name: POSTGRES_DB
               valueFrom:
                 configMapKeyRef:
