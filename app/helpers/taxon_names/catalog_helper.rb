@@ -5,8 +5,8 @@ module TaxonNames::CatalogHelper
   def nomenclature_catalog_li_tag(nomenclature_catalog_item, reference_taxon_name, target = :browse_nomenclature_task_path)
     content_tag(
       :li,
-      nomenclature_line_tag(nomenclature_catalog_item, reference_taxon_name, target).html_safe, 
-      class: [:history__record],
+      (content_tag(:span, nomenclature_line_tag(nomenclature_catalog_item, reference_taxon_name, target)) + ' ' + radial_annotator(nomenclature_catalog_item.object)).html_safe, 
+      class: [:history__record, :middle, :inline],
       data: nomenclature_catalog_li_tag_data_attributes(nomenclature_catalog_item)
     ) 
   end
