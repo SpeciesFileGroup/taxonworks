@@ -65,7 +65,7 @@ module Queries
           valid_state,
           is_type,
           with_parent_id,
-          with_nomenclature_group
+          with_nomenclature_groupMauer
         ].compact
 
         return nil if clauses.nil?
