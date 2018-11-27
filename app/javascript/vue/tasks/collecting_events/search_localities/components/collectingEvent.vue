@@ -2,15 +2,15 @@
 <template>
   <div>
     <h3>Collecting event</h3>
-    <autocomplete
-      url="/collecting_events/autocomplete"
-      min="2"
-      label="label_html"
-      placeholder="Select a place name"
-      :autofocus="true"
-      @getItem="sendCollectingEvent"
-      display="label"
-      param="term"/>
+    <!--<autocomplete-->
+      <!--url="/collecting_events/autocomplete"-->
+      <!--min="2"-->
+      <!--label="label_html"-->
+      <!--placeholder="Select a place name"-->
+      <!--:autofocus="true"-->
+      <!--@getItem="sendCollectingEvent"-->
+      <!--display="label"-->
+      <!--param="term"/>-->
     <smart-selector
       :options="tabs"
       name="collecting_event"
@@ -34,7 +34,7 @@
       <div
         v-else-if="view === 'Tag'"
         class="horizontal-left-content">
-      <h3>Tag autocomplete pending . . .</h3>
+        <h3>Tag autocomplete pending . . .</h3>
       </div>
       <template v-else-if="view === 'Filter'">
         <ce-filter/>
@@ -54,13 +54,13 @@
 
 <script>
   import SmartSelector from 'components/switch.vue'
-  import Autocomplete from 'components/autocomplete.vue'
+  // import Autocomplete from 'components/autocomplete.vue'
   import ceFilter from './ce_filter.vue'
 
   export default {
     components: {
       SmartSelector,
-      Autocomplete,
+      // Autocomplete,
       ceFilter
     },
     data() {

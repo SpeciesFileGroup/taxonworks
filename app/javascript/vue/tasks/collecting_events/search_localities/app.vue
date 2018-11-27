@@ -6,15 +6,15 @@
       legend="Loading..."
       :logo-size="{ width: '100px', height: '100px'}"/>
     <h1>Search and List Localities</h1>
-    <h3>Geographic area</h3>
-    <autocomplete
-      url="/geographic_areas/autocomplete"
-      label="label_html"
-      min="2"
-      :autofocus="true"
-      @getItem="sendGeographic"
-      placeholder="Select a geographic area"
-      param="term"/>
+    <!--<h3>Geographic area</h3>-->
+    <!--<autocomplete-->
+      <!--url="/geographic_areas/autocomplete"-->
+      <!--label="label_html"-->
+      <!--min="2"-->
+      <!--:autofocus="true"-->
+      <!--@getItem="sendGeographic"-->
+      <!--placeholder="Select a geographic area"-->
+      <!--param="term"/>-->
     <!--<alphabet-buttons-->
       <!--@keypress="getLocalities($event)"-->
       <!--ref="alphabetButtons"/>-->
