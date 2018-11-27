@@ -185,7 +185,7 @@ class TaxonNamesController < ApplicationController
       :parent_id,
       :year_of_publication,
       :etymology,
-      :verbatim_author, :rank_class, :type, :masculine_name,
+      :verbatim_author, :verbatim_name, :rank_class, :type, :masculine_name,
       :feminine_name, :neuter_name, :also_create_otu,
       roles_attributes: [
         :id, :_destroy, :type, :person_id, :position,
