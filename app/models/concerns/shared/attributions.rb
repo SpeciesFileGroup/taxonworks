@@ -17,7 +17,7 @@ module Shared::Attributions
 
     accepts_nested_attributes_for :attribution, reject_if: :reject_attribution, allow_destroy: true
 
-    # Required to drigger validate callbacks, which in turn set user_id related housekeeping
+    # Required to trigger validate callbacks, which in turn set user_id related housekeeping
     validates_associated :attribution
   end
 
