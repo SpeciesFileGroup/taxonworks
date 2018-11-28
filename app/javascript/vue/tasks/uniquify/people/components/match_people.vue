@@ -29,7 +29,7 @@
 <script>
 // this is a list for selecting one person from potential matchees
 // only one person can be selected
-import Autocomplete from '../../../../components/autocomplete.vue'
+import Autocomplete from 'components/autocomplete.vue'
 
 export default {
   components: {
@@ -73,9 +73,7 @@ export default {
       this.selected = person
     },
     selectMergePerson(person) {
-      this.$http
-        .get("/people/" + person.id.toString() + ".json")
-        .then(response => {
+      this.$http.get(`/people/${person.id}.json`).then(response => {
           this.mergePerson = response.body;
           this.$emit("input", this.mergePerson);
         });
@@ -89,13 +87,7 @@ export default {
         this.selected = {};
         return false;
       }
-    //   let params = {   // fudge up new search for match params to give some likely hits
-    //   id: person.id
-    //   last_name: person.last_name.substr(0,3),
-    //   first_name: '', //person.first_name[0] + '*',
-    //   roles: []
-    // };
-      this.$http.get("/people/" + person.id.toString() + "/similar").then(response => {
+      this.$http.get(`/people/${person.id}/similar`).then(response => {
         this.matchPeople = response.body;
         this.removeFromList(person.id);
         this.$emit("matchPeople", this.matchPeople)   // notify app's watcher

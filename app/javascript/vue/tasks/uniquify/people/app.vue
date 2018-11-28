@@ -162,6 +162,8 @@
           new_person_id: this.mergePerson.id
         };
         this.$http.post('/people/' + this.selectedPerson.id.toString() + '/merge', params).then(response => {
+          console.log(params)
+          console.log(response)
           this.$http.delete('/people/' + this.mergePerson.id).then(response => {
             this.$refs.matchPeople.removeFromList(this.mergePerson.id)    // remove the merge person from the matchPerson list
             this.$refs.foundPeople.removeFromList(this.mergePerson.id)   // remove the merge person from the foundPerson list
