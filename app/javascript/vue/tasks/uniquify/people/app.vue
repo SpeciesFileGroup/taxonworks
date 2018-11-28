@@ -147,7 +147,12 @@
           last_name_starts_with: this.lastName,
           first_name: this.firstName,
           roles: Object.keys(this.selectedRoles)
-        };
+        }
+
+        if(!params.first_name.length) {
+          delete params.first_name
+        }
+        
         this.isLoading = true;
         this.clearFoundData();
         this.displayCount = true;
