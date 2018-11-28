@@ -144,7 +144,7 @@
       },
       findPerson() {
         let params = {
-          last_name: this.lastName,
+          last_name_starts_with: this.lastName,
           first_name: this.firstName,
           roles: Object.keys(this.selectedRoles)
         };
