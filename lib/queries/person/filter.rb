@@ -3,7 +3,6 @@ module Queries
     class Filter
 
       # - use similar/identical methods in IsData
-
       attr_accessor :limit_to_roles
       attr_accessor :first_name, :last_name
       attr_accessor :last_name_starts_with
