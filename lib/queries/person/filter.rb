@@ -28,15 +28,15 @@ module Queries
       end
 
       def match_last_name
-        last_name.nil? ? nil : table[:last_name].matches('%' + last_name + '%')
+        last_name.blank? ? nil : table[:last_name].matches('%' + last_name + '%')
       end
 
       def match_start_of_last_name
-        last_name_starts_with.nil? ? nil : table[:last_name].matches(last_name_starts_with + '%')
+        last_name_starts_with.blank? ? nil : table[:last_name].matches(last_name_starts_with + '%')
       end
 
       def match_first_name
-        first_name.nil? ? nil : table[:first_name].matches('%' + first_name + '%')
+        first_name.blank? ? nil : table[:first_name].matches('%' + first_name + '%')
       end
 
       def match_roles

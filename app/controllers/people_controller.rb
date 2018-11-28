@@ -13,7 +13,7 @@ class PeopleController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @people = Queries::Person::Filter.new(filter_params).all.order(:cached).page(params[:page]).per(params[:per] || 25) 
+        @people = Queries::Person::Filter.new(filter_params).all.order(:cached).page(params[:page]).per(params[:per]) 
       }
     end
   end
@@ -49,7 +49,7 @@ class PeopleController < ApplicationController
   end
 
   def similar
-    @people = @person.levenshtein_similar(2).order(:last_name, :first_name)
+    @people = @person.levenshtein_similar(3).order(:last_name, :first_name)
     render '/people/index'
   end
 
