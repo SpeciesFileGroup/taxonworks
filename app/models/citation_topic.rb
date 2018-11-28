@@ -38,9 +38,6 @@ class CitationTopic < ApplicationRecord
 
   accepts_nested_attributes_for :topic, allow_destroy: true, reject_if: :reject_topic
 
-  # deprecated, all values are nilified
-  # nil_trim_attributes(:pages)
-
   protected
 
   def reject_topic(attributed)

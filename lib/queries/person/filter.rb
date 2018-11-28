@@ -66,7 +66,7 @@ module Queries
         if c = and_clauses
           ::Person.includes(:roles).where(and_clauses.to_sql).references(:roles).distinct
         else
-          ::Person.none
+          ::Person.all
         end
       end
 
