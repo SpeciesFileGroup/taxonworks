@@ -122,6 +122,7 @@ class CollectionObject < ApplicationRecord
   has_many :observations, inverse_of: :collection_object, dependent: :restrict_with_error
   has_many :observation_matrix_rows, inverse_of: :collection_object, dependent: :destroy 
   has_many :observation_matrix_row_items, inverse_of: :collection_object, dependent: :destroy
+  has_many :observation_matrices, inverse_of: :collection_objects, through: :observation_matrix_rows
 
   # This is a problem, but here for the foreseeable future for nested attributes purporses.
   has_many :taxon_determinations, foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object, dependent: :destroy
