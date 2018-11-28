@@ -91,6 +91,8 @@ export default {
         this.matchPeople = response.body;
         this.removeFromList(person.id);
         this.$emit("matchPeople", this.matchPeople)   // notify app's watcher
+      }, (response) => {
+        this.$emit("matchPeople", {})
       });
     }
   }
