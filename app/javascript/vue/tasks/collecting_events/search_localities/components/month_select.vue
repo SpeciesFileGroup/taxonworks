@@ -1,6 +1,6 @@
 <template>
   <div>
-    <select name="name" v-model="selected">
+    <select v-model="month">
       <option value="" label=" "></option>
       <option value="1">January</option>
       <option value="2">February</option>
@@ -15,20 +15,24 @@
       <option value="11">November</option>
       <option value="12">December</option>
     </select>
-    {{selected}}
   </div>
 </template>
 <script>
   export default {
-    props: {
-      name: {
-        type: String,
-        default: ''
-      }
-    },
+    // props: {
+    //   name: {
+    //     type: String,
+    //     default: ''
+    //   }
+    // },
     data() {
       return {
-        selected: ''
+        month: ''
+      }
+    },
+    watch: {
+      month() {
+        this.$emit('month', this.month)
       }
     }
   }

@@ -8,15 +8,15 @@
       <tr>
         <td></td>
         <td>
-          <input type=text id="start_date_day" name="start_date_day" size="2" maxlength="2" />
+          <input v-model="start_day" type=text size="2" maxlength="2" />
         </td>
         <td>
-          <month-select name="start_date_month" @selected="start_month=selected"/>
+          <month-select @month="start_month=$event"/>
         </td>
         <td>
-          <input type=text id="start_date_year" name="start_date_year" size="4" maxlength="4" />
+          <input v-model="start_year" type=text size="4" maxlength="4" />
         </td>
-        <td><input type="date"></td>
+        <td><input v-model="start_mdy" type="date"></td>
       </tr>
       <tr>
         <td>And</td><td>Day</td><td>Month</td><td>Year</td><td>DatePicker</td>
@@ -24,17 +24,18 @@
       <tr>
         <td></td>
         <td>
-          <input type=text name="end_date_day" id="end_date_day" size="2" maxlength="2"/>
+          <input v-model="end_day" type=text size="2" maxlength="2"/>
         </td>
         <td>
-          <month-select name="end_date_month" @selected="end_month=selected"/>
+          <month-select @month="end_month=$event"/>
         </td>
         <td>
-          <input type=text name="end_date_year" id="end_date_year" size="4" maxlength="4"/>
+          <input v-model="end_year" type=text size="4" maxlength="4"/>
         </td>
-        <td><input type="date"></td>
+        <td><input v-model="end_mdy" type="date"></td>
       </tr>
     </table>
+
   </div>
 </template>
 <script>
@@ -51,13 +52,10 @@
         start_month: '',
         end_month: '',
         start_year: '',
-        end_year: ''
+        end_year: '',
+        start_mdy: '',
+        end_mdy: ''
       }
     },
-    computed: {
-      start_mdy() {
-
-      }
-    }
   }
 </script>
