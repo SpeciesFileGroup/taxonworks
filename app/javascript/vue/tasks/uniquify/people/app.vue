@@ -146,6 +146,7 @@
         let params = {
           last_name_starts_with: this.lastName,
           first_name: this.firstName,
+          per: 100,
           roles: Object.keys(this.selectedRoles)
         }
 
