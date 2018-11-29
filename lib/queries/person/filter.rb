@@ -7,6 +7,8 @@ module Queries
       attr_accessor :first_name, :last_name
       attr_accessor :last_name_starts_with
 
+      attr_accessor :levenshtein_cuttoff
+
       # @params params [ActionController::Parameters]
       def initialize(params)
         @limit_to_roles = params[:roles]
@@ -14,6 +16,8 @@ module Queries
         @first_name = params[:first_name]
         @last_name = params[:last_name]
         @last_name_starts_with = params[:last_name_starts_with]
+
+        @levenshtein_cuttoff = params[:levenshtein_cuttoff] || 4
       end
 
       # @return [Arel::Table]
@@ -67,6 +71,21 @@ module Queries
         else
           ::Person.all
         end
+      end
+
+      def levenshtein_similar
+        clauses = []
+        clauses.push levenshtein_distance(:last_name, last_name).lt(levenshtein_cuttoff) if !last_name.blank?
+        clauses.push levenshtein_distance(:first_name, first_name).lt(levenshtein_cuttoff) if !first_name.blank?
+
+        a = clauses.shift
+        a = a.and(clauses.first) if clauses.any?
+
+        ::Person.where(a.to_sql)
+      end
+
+      def levenshtein_distance(attribute, value)
+        Arel::Nodes::NamedFunction.new("levenshtein", [table[attribute], Arel::Nodes::SqlLiteral.new("'#{value}'")] )
       end
 
     end
