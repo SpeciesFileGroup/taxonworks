@@ -36,7 +36,7 @@ describe Queries::Person::Filter, type: :model do
 
   # TODO: discuss a default strategy
   specify 'without params nothing is returned' do 
-    expect(query.all.pluck(:id)).to contain_exactly()
+    expect(query.all.pluck(:id)).to contain_exactly(p1.id, p2.id, p3.id, p4.id, p5.id)
   end
 
   context 'partial name only' do

@@ -17,6 +17,7 @@ namespace :tw do
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID') # key = SF.TaxonNameID, value = TW.taxon_name.id
 
           count_found = 0
+          not_found = 0
 
           path = @args[:data_directory] + 'sfTaxaByTaxonNameStr.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -24,20 +25,26 @@ namespace :tw do
           file.each_with_index do |row, i|
             taxon_name_id = row['TaxonNameID']
             next if skipped_file_ids.include? row['FileID'].to_i
-            next if excluded_taxa.include? row['TaxonNameID']
+            next if excluded_taxa.include? taxon_name_id
             next unless row['RankID'].to_i < 11 # only look at species and subspecies
             next if row['OriginalGenusID'] == '0'
 
             species_id = get_tw_taxon_name_id[taxon_name_id]
             next unless species_id
 
-            original_genus_id = get_tw_taxon_name_id[row['OriginalGenusID']] # if error?
+            if get_tw_taxon_name_id[row['OriginalGenusID']]
+              original_genus_id = get_tw_taxon_name_id[row['OriginalGenusID']]
+            else
+              logger.error "TW Original Genus not found: SF.OriginalGenusID = #{row['OriginalGenusID']}, SF.FileID = #{row['FileID']} (not_found #{not_found += 1}) \n"
+              next
+            end
+
+            logger.info "Working with SF.TaxonNameID = #{taxon_name_id}, TW.taxon_name_id = #{species_id}, SF.OriginalGenusID = #{row['OriginalGenusID']}, TW.original_genus_id = #{original_genus_id} (count #{count_found += 1}) \n"
 
             species_protonym = Protonym.find(species_id)
             if species_protonym.original_genus.nil?
               # species_protonym.update(original_genus: )
-              logger.info "Working with SF.TaxonNameID #{taxon_name_id} = TW.taxon_name_id (count #{count_found += 1}) \n"
-              TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(
+              TaxonNameRelationship::OriginalCombination::OriginalGenus.find_or_create_by!(
                   subject_taxon_name_id: original_genus_id,
                   object_taxon_name_id: species_id,
                   created_by_id: get_tw_user_id[row['CreatedBy']],

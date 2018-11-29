@@ -71,7 +71,7 @@
   import asserted_distributionsAnnotator from './components/asserted_distributions/asserted_distributions_annotator.vue'
   import common_namesAnnotator from './components/common_names/main.vue'
   import contentsAnnotator from './components/contents/main.vue'
-  import attributionsAnnotator from './components/attribution/main.vue'
+  import attributionAnnotator from './components/attribution/main.vue'
 
   import Icons from './images/icons.js'
 
@@ -96,7 +96,7 @@
       asserted_distributionsAnnotator,
       common_namesAnnotator,
       contentsAnnotator,
-      attributionsAnnotator
+      attributionAnnotator
     },
     props: {
       reload: {
