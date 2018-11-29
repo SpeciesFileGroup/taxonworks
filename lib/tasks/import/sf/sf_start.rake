@@ -72,17 +72,17 @@ namespace :tw do
           editor_error_counter = 0
 
           file.each_with_index do |row, i|
-            next if row['ContainingRefID'] == '0'   # reloop if no containing ref (eliminate most common attribute first)
-            next if skipped_file_ids.include? row['FileID'].to_i  # ref_file_id[ref_id].to_i
+            next if row['ContainingRefID'] == '0' # reloop if no containing ref (eliminate most common attribute first)
+            next if skipped_file_ids.include? row['FileID'].to_i # ref_file_id[ref_id].to_i
             ref_id = row['RefID']
             source_id = get_tw_source_id[ref_id]
-            next if source_id.nil?  # @todo Should be recorderd
+            next if source_id.nil? # @todo Should be recorderd
             # containing_ref_id = ref_id_containing_id_hash[ref_id]
             containing_ref_id = row['ContainingRefID']
-            next unless ref_id_pub_type[ref_id_pub_id_hash[containing_ref_id]] == 'book'  # is the containing ref a book
-            next unless ref_id_editor_array.include? containing_ref_id  # did author act as editor
+            next unless ref_id_pub_type[ref_id_pub_id_hash[containing_ref_id]] == 'book' # is the containing ref a book
+            next unless ref_id_editor_array.include? containing_ref_id # did author act as editor
             containing_source_id = get_tw_source_id[containing_ref_id]
-            next if containing_source_id.nil?   # @todo Should be recorded
+            next if containing_source_id.nil? # @todo Should be recorded
 
             logger.info "working with SF.RefID = #{ref_id}, SF.ContainingRefID = #{containing_ref_id}, TW.source_id = #{source_id}, TW.containing_source_id = #{containing_source_id} \n"
 
@@ -566,6 +566,10 @@ namespace :tw do
 
           puts 'SFPubIDToTWSerialID'
           ap get_tw_serial_id
+
+
+          Rake::Task['tw:db:dump'].invoke(backup_directory: '/Users/mbeckman/src/db_backup/1_after_serials/')
+
         end
 
         desc 'time rake tw:project_import:sf_import:start:create_people user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
