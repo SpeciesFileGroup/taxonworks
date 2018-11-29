@@ -730,14 +730,14 @@ namespace :tw do
 
           file.each_with_index do |row, i|
             next if skipped_file_ids.include? row['FileID'].to_i
-            taxon_name_id = row['TaxonNameID']
+            sf_taxon_name_id = row['TaxonNameID']
             next if excluded_taxa.include? sf_taxon_name_id
             next if row['RankID'] == '90' # TaxonNameID = 1221948, Name = Deletable, RankID = 90 == Life, FileID = 1
             next if row['AccessCode'].to_i == 4
 
             project_id = get_tw_project_id[row['FileID']]
 
-            logger.info "Working with TW.project_id: #{project_id} = SF.FileID #{row['FileID']}, SF.TaxonNameID #{taxon_name_id} (count #{count_found += 1}) \n"
+            logger.info "Working with TW.project_id: #{project_id} = SF.FileID #{row['FileID']}, SF.TaxonNameID #{sf_taxon_name_id} (count #{count_found += 1}) \n"
 
             animalia_id = get_animalia_id[project_id.to_s]
 
@@ -746,13 +746,13 @@ namespace :tw do
             elsif row['NameStatus'] == '7' # = synonym; MUST handle synonym parent before BadValidName (because latter doesn't treat synonym parents)
               # new synonym parent id could be = 0 if RankID bubbles up to top
               # logger.info "get_sf_parent_id[taxon_name_id] = #{get_sf_parent_id[taxon_name_id]}, taxon_name_id.class = #{taxon_name_id.class}"
-              if get_sf_parent_id[taxon_name_id.to_s] == '0' # use animalia_id
+              if get_sf_parent_id[sf_taxon_name_id] == '0' # use animalia_id
                 parent_id = animalia_id
               else
-                parent_id = get_tw_taxon_name_id[get_sf_parent_id[taxon_name_id]] # assumes tw_taxon_name_id exists
+                parent_id = get_tw_taxon_name_id[get_sf_parent_id[sf_taxon_name_id]] # assumes tw_taxon_name_id exists
               end
-            elsif get_otu_sf_above_id[taxon_name_id] # ill-formed sf taxon name, will make OTU
-              parent_id = get_tw_taxon_name_id[get_otu_sf_above_id[taxon_name_id]]
+            elsif get_otu_sf_above_id[sf_taxon_name_id] # ill-formed sf taxon name, will make OTU
+              parent_id = get_tw_taxon_name_id[get_otu_sf_above_id[sf_taxon_name_id]]
               # problem with two instances of parent not properly selected when nominotypical species, seems to default to nominotypical subspecies:
               # TaxonNameID 1225991 (Plec, tadzhikistanicum, nomen dubium, parent should be 1166943)
               # TaxonNameID 1170406 (Plec, suppleta, nomen nudum, parent should be 1170405)
@@ -765,14 +765,14 @@ namespace :tw do
             end
 
             if parent_id == nil
-              logger.warn "ALERT: Could not find parent_id of SF.TaxonNameID = #{taxon_name_id} (error #{no_parent_counter += 1})! Set to animalia_id = #{animalia_id}"
+              logger.warn "ALERT: Could not find parent_id of SF.TaxonNameID = #{sf_taxon_name_id} (error #{no_parent_counter += 1})! Set to animalia_id = #{animalia_id}"
               parent_id = animalia_id # this is problematic; need real solution
             end
 
             name_status = row['NameStatus']
             status_flags = row['StatusFlags']
 
-            if get_otu_sf_above_id[taxon_name_id] # temporary, create OTU, not TaxonName; create citation, too
+            if get_otu_sf_above_id[sf_taxon_name_id] # temporary, create OTU, not TaxonName; create citation, too
               otu = Otu.new(
                   name: row['Name'],
                   taxon_name_id: parent_id,
@@ -784,7 +784,7 @@ namespace :tw do
               )
 
               if otu.save
-                logger.info "Note!! Created OTU for temporary or ill-formed taxon SF.TaxonNameID = #{taxon_name_id}, otu.id = #{otu.id}"
+                logger.info "Note!! Created OTU for temporary or ill-formed taxon SF.TaxonNameID = #{sf_taxon_name_id}, otu.id = #{otu.id}"
 
                 otu.citations << Citation.new(source_id: get_tw_source_id[row['RefID']], is_original: true, project_id: project_id) if row['RefID'].to_i > 0
 
@@ -793,7 +793,7 @@ namespace :tw do
                 get_sf_status_flags[row['TaxonNameID']] = status_flags
 
               else
-                logger.error "OTU ERROR (#{error_counter += 1}) for SF.TaxonNameID = #{taxon_name_id}: " + otu.errors.full_messages.join(';')
+                logger.error "OTU ERROR (#{error_counter += 1}) for SF.TaxonNameID = #{sf_taxon_name_id}: " + otu.errors.full_messages.join(';')
               end
 
             else
@@ -810,7 +810,7 @@ namespace :tw do
                   data_attributes_attributes: [
                       {type: 'ImportAttribute',
                        import_predicate: 'SF.TaxonNameID',
-                       value: taxon_name_id,
+                       value: sf_taxon_name_id,
                        project_id: project_id
                       }],
 
@@ -894,7 +894,7 @@ namespace :tw do
                 get_taxon_name_otu_id[taxon_name.id.to_s] = taxon_name.otus.last.id.to_s
 
               rescue ActiveRecord::RecordInvalid
-                logger.error "TaxonName ERROR (count = #{error_counter += 1}) AFTER synonym test (SF.TaxonNameID = #{taxon_name_id}, parent_id = #{parent_id}): " + taxon_name.errors.full_messages.join(';')
+                logger.error "TaxonName ERROR (count = #{error_counter += 1}) AFTER synonym test (SF.TaxonNameID = #{sf_taxon_name_id}, parent_id = #{parent_id}): " + taxon_name.errors.full_messages.join(';')
               end
             end
           end
@@ -1099,7 +1099,8 @@ namespace :tw do
           excluded_taxa = [] # list of taxa with AccessCode = 4, TaxonNameID = 0, those used for anatomy, known errors, bad ranks, assorted others
 
           path = @args[:data_directory] + 'sfExcludedTaxa.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.read(path, col_sep: "\r", headers: true, encoding: 'UTF-16:UTF-8')
+          # file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           file.each_with_index do |row|
             excluded_taxa.push(row['TaxonNameID'])

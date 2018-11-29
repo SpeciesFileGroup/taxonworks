@@ -3,10 +3,11 @@ module Queries
     class Filter
 
       # - use similar/identical methods in IsData
-
       attr_accessor :limit_to_roles
       attr_accessor :first_name, :last_name
       attr_accessor :last_name_starts_with
+
+      attr_accessor :levenshtein_cuttoff
 
       # @params params [ActionController::Parameters]
       def initialize(params)
@@ -15,6 +16,8 @@ module Queries
         @first_name = params[:first_name]
         @last_name = params[:last_name]
         @last_name_starts_with = params[:last_name_starts_with]
+
+        @levenshtein_cuttoff = params[:levenshtein_cuttoff] || 4
       end
 
       # @return [Arel::Table]
@@ -28,15 +31,15 @@ module Queries
       end
 
       def match_last_name
-        last_name.nil? ? nil : table[:last_name].matches('%' + last_name + '%')
+        last_name.blank? ? nil : table[:last_name].matches('%' + last_name + '%')
       end
 
       def match_start_of_last_name
-        last_name_starts_with.nil? ? nil : table[:last_name].matches(last_name_starts_with + '%')
+        last_name_starts_with.blank? ? nil : table[:last_name].matches(last_name_starts_with + '%')
       end
 
       def match_first_name
-        first_name.nil? ? nil : table[:first_name].matches('%' + first_name + '%')
+        first_name.blank? ? nil : table[:first_name].matches('%' + first_name + '%')
       end
 
       def match_roles
@@ -68,6 +71,21 @@ module Queries
         else
           ::Person.all
         end
+      end
+
+      def levenshtein_similar
+        clauses = []
+        clauses.push levenshtein_distance(:last_name, last_name).lt(levenshtein_cuttoff) if !last_name.blank?
+        clauses.push levenshtein_distance(:first_name, first_name).lt(levenshtein_cuttoff) if !first_name.blank?
+
+        a = clauses.shift
+        a = a.and(clauses.first) if clauses.any?
+
+        ::Person.where(a.to_sql)
+      end
+
+      def levenshtein_distance(attribute, value)
+        Arel::Nodes::NamedFunction.new("levenshtein", [table[attribute], Arel::Nodes::SqlLiteral.new("'#{value}'")] )
       end
 
     end

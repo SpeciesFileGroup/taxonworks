@@ -13,7 +13,7 @@ class PeopleController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @people = Queries::Person::Filter.new(filter_params).all.order(:cached).page(params[:page]).per(params[:per] || 25) 
+        @people = Queries::Person::Filter.new(filter_params).all.order(:cached).page(params[:page]).per(params[:per]) 
       }
     end
   end
@@ -49,7 +49,7 @@ class PeopleController < ApplicationController
   end
 
   def similar
-    @people = @person.levenshtein_similar(2).order(:last_name, :first_name)
+    @people =  Queries::Person::Filter.new(last_name: @person.last_name, first_name: @person.first_name, levenshtein_cuttoff: 3).levenshtein_similar.order(:last_name, :first_name) 
     render '/people/index'
   end
 
@@ -85,7 +85,7 @@ class PeopleController < ApplicationController
   def search
     if params[:id].blank?
       redirect_to people_path, notice: 'You must select an item from the list with a click ' \
-                                          'or tab press before clicking show.'
+        'or tab press before clicking show.'
     else
       redirect_to person_path(params[:id])
     end
@@ -93,8 +93,8 @@ class PeopleController < ApplicationController
 
   def autocomplete
     @people = Queries::Person::Autocomplete.new(
-        params.require(:term),
-        autocomplete_params
+      params.require(:term),
+      autocomplete_params
     ).autocomplete
   end
 

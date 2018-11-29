@@ -22,13 +22,13 @@ describe Project, type: :model do
 
   context 'nil globals' do
     before do 
-      $user_id = nil
-      $project_id = nil
+      Current.user_id = nil
+      Current.project_id = nil
     end
 
     after do
-      $user_id = 1 
-      $project_id = 1 
+      Current.user_id = 1
+      Current.project_id = 1
     end
 
     specify 'create 2' do
