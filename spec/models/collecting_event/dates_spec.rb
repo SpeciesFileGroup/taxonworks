@@ -55,7 +55,6 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
   #   end
   # end
 
-
   context 'chaining scopes' do
     let!(:ce1) { CollectingEvent.create!(parse_stubs(a, b).merge(verbatim_label: "#{a} -- #{b}")) }
     let!(:ce2) { CollectingEvent.create!(parse_stubs(c, d).merge(verbatim_label: "#{c} -- #{d}")) }
@@ -71,9 +70,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     specify 'using just the sql, ordered' do
       expect(CollectionObject.joins(:collecting_event).where(CollectingEvent.date_sql_from_dates('2015/1/1' , '2015/1/1', 'off' )).where(project_id: 99).order(:id).count).to eq(0)
     end
-
   end
-
 
   context 'combined' do
     #       a     b
@@ -155,9 +152,6 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
       end
     end
-
-
-
 
     #       a  b  c  d
     # ------s--*--*--e---

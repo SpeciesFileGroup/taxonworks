@@ -327,10 +327,11 @@ class CollectingEvent < ApplicationRecord
     # @return [String] sql for records between the two specific dates
     def date_sql_from_dates(search_start_date, search_end_date, allow_partial = true)
       start_year, start_month, start_day = search_start_date.split('/').map(&:to_i)
-      end_year, end_month, end_day       = search_end_date.split('/').map(&:to_i)
+      end_year, end_month, end_day = search_end_date.split('/').map(&:to_i)
 
       t = 'collecting_events'
 
+      # - start_year_required
       part_0 = "#{t}.start_date_year is not null"
 
       # start_date is inside supplied range
@@ -341,41 +342,51 @@ class CollectingEvent < ApplicationRecord
       #   3) first part of last year
 
       # special_part = (search_start_date >= {record start date}) AND (search_end_date <= {record end date})
+     
+
       # special_part = (start_date_year <= #{start_year} and (start_date_month <= #{start_month}) and (start_date_day <= #{start_day}))
-      special_part_1 = "(((#{t}.start_date_year = #{start_year})
-        and ((#{t}.start_date_month = #{start_month} and (#{t}.start_date_day <= #{start_day})) or (#{t}.start_date_month < #{start_month})))
-          or (#{t}.start_date_year < #{start_year}))"
+      # - on_or_before_start_date
+      special_part_1 = "( 
+                          (
+                            (#{t}.start_date_year = #{start_year}) and
+                              ( (#{t}.start_date_month = #{start_month} and (#{t}.start_date_day <= #{start_day}) ) or
+                              (#{t}.start_date_month < #{start_month})
+                            )
+                           ) or (#{t}.start_date_year < #{start_year})
+                         )"
+         
+      # OK!? 
       special_part_2 = "(((#{t}.end_date_year = #{end_year})
         and ((#{t}.end_date_month = #{end_month} and (#{t}.end_date_day >= #{end_day})) or (#{t}.end_date_month > #{end_month})))
         or (#{t}.end_date_year > #{end_year}))"
-      special_part   = ''
 
-      if allow_partial
-        special_part = ' or (' + special_part_1 + '
-         and
-         ' + special_part_2 + ')'
-      end
 
+      # OK!?
       if (start_year == end_year) or (end_year - start_year < 2) # test for whole years between date extent
         part_2s = '' # if no whole years, remove clause
         part_2e = ''
       else
-        part_2e = "(#{t}.end_date_year between #{start_year + 1} and #{end_year - 1})"
-        part_2s = "(#{t}.start_date_year between #{start_year + 1} and #{end_year - 1})"
+        part_2e = "(#{t}.end_date_year between #{start_year + 1} and #{end_year - 1})"   # end_year_between 
+        part_2s = "(#{t}.start_date_year between #{start_year + 1} and #{end_year - 1})" # start_year_between 
         # part_2e = part_2s
       end
 
+      # OK!?
       # from start date to end of start year
       part_1s = "(#{t}.start_date_year = #{start_year}"
       part_1s += " and ((#{t}.start_date_month between #{start_month + 1} and 12)"
       part_1s += " or (#{t}.start_date_month = #{start_month} and #{t}.start_date_day >= #{start_day})))"
 
+      # OK!?
       # from beginning of end year to end date
       part_3s = "(#{t}.start_date_year = #{end_year}"
       part_3s += " and ((#{t}.start_date_month < #{end_month})"
       part_3s += " or (#{t}.start_date_month = #{end_month} and #{t}.start_date_day <= #{end_day})))"
 
+
       select_1_3 = (start_year == end_year) ? ' and ' : ' or '
+
+      # OK!
       st_string  = "((#{part_0} and #{part_1s}#{select_1_3}#{part_3s})#{part_2s.blank? ? '' : " or #{part_2s}"})"
 
       # end_date is inside supplied range
@@ -389,14 +400,21 @@ class CollectingEvent < ApplicationRecord
       part_1e += " or (#{t}.end_date_month = #{end_month} and #{t}.end_date_day <= #{end_day})))"
       part_1e = "((#{t}.end_date_year is NULL) and (#{st_string})) OR " + part_1e
 
+
       part_3e = "(#{t}.end_date_year = #{start_year}"
       part_3e += " and ((#{t}.end_date_month > #{start_month})"
       part_3e += " or (#{t}.end_date_month = #{start_month} and #{t}.end_date_day >= #{start_day})))"
 
-
       en_string = '((' + part_1e + select_1_3 + part_3e + ')' + (part_2e.blank? ? '' : ' or ') + part_2e + ')'
 
+      special_part  = ''
+
+      if allow_partial
+        special_part = ' or (' + special_part_1 + ' and ' + special_part_2 + ')'
+      end
+
       sql_string = st_string + (allow_partial ? ' or ' : ' and ') + en_string + special_part
+
       sql_string
     end
 
@@ -406,10 +424,17 @@ class CollectingEvent < ApplicationRecord
     # @param [String] search_end_date string in form 'yyyy/mm/dd'
     # @param [String] partial_overlap 'on' or 'off'
     # @return [Scope] of selected collecting events with georeferences
+    def in_date_range2(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
+      allow_partial = (partial_overlap.downcase == 'off' ? false : true)
+      sql_string = date_sql_from_dates(search_start_date, search_end_date, allow_partial)
+      where(sql_string).distinct # TODO: uniq should likely not be here
+    end
+
     def in_date_range(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
       allow_partial = (partial_overlap.downcase == 'off' ? false : true)
-      sql_string    = date_sql_from_dates(search_start_date, search_end_date, allow_partial)
-      where(sql_string).distinct # TODO: uniq should likely not be here
+      q = Queries::CollectingEvent::Filter.new(start_date: search_start_date, end_date: search_end_date, partial_overlap_dates: allow_partial) 
+      where(q.between_date_range.to_sql).distinct # TODO: uniq should likely not be here
+
     end
 
     # rubocop:disable Metrics/MethodLength
