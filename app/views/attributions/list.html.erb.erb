@@ -1,0 +1,33 @@
+<%= render("/shared/data/all/list/list_header", objects: @attributions) -%>
+
+<table class="tablesorter">
+  <thead>
+  <tr>
+    <%= fancy_th_tag(name: 'Attribution object type') -%>
+    <%= fancy_th_tag(name: 'Object') -%>
+    <%= fancy_th_tag(name: 'Copyright year') -%>
+    <%= fancy_th_tag(name: 'License') -%>
+    <%= fancy_th_tag(name: 'Creators') -%>
+    <%= fancy_th_tag(name: 'Owners') -%>
+    <%= fancy_th_tag(name: 'Editors') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @tags.each do |tag| %>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= attribution.attribution_object_type %></td>
+          <td><%= object_tag(tag.tag_object) %></td>
+          <td><%= attribution.copyright_year %></td>
+          <td><%= attribution.license %></td>
+          <td><%= "TODO" %></td>
+          <td><%= "TODO" %></td>
+          <td><%= "TODO" %></td>
+          <%= fancy_metadata_cells_tag(tag) -%>
+      <% end %>
+  <% end %>
+  </tbody>
+</table>
+

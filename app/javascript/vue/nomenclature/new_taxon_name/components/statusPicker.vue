@@ -71,6 +71,13 @@
           @addEntry="addEntry"
           :list-created="getStatusCreated"/>
       </div>
+      <ul
+        v-if="!getStatusCreated.length"
+        class="table-entrys-list">
+        <li class="list-complete-item middle">
+          <p>Valid as default</p>
+        </li>
+      </ul>
       <list-entrys
         @update="loadTaxonStatus"
         @addCitation="setCitation"

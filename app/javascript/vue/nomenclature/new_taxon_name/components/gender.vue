@@ -138,6 +138,15 @@ export default {
           if (this.filterList.indexOf(this.getStatusList[key].name) < 0) { this.list.push(this.getStatusList[key]) }
         }
       }
+      this.list.sort((a, b) => {
+        if(a.name > b.name) {
+          return 1
+        }
+        if(a.name < b.name) {
+          return -1
+        }
+        return 0
+      })
     },
     checkExist: function (type) {
       return ((this.getStatusCreated.map(function (item) { return item.type })).indexOf(type) > -1)

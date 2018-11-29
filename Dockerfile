@@ -49,8 +49,7 @@ ADD Gemfile.lock /app/
 WORKDIR /app
 
 RUN bundle install --without=development test
-RUN npm install 
-# RUN npm run increase-memory-limit
+RUN npm install
 
 COPY . /app
 

@@ -45,7 +45,9 @@ class Citation < ApplicationRecord
   has_many :topics, through: :citation_topics, inverse_of: :citations
   has_many :documents, through: :source
 
+  # TODO: This is wrong, should be source
   validates_presence_of  :source_id
+
   validates_uniqueness_of :source_id, scope: [:citation_object_type, :citation_object_id, :pages]
 
   accepts_nested_attributes_for :citation_topics, allow_destroy: true, reject_if: :reject_citation_topics
@@ -113,6 +115,7 @@ class Citation < ApplicationRecord
     true
   end
 
+  # TODO: modify for asserted distributions and other origin style relationships
   def prevent_if_required
     if !marked_for_destruction? && !new_record? && citation_object.requires_citation? && citation_object.citations.reload.count == 1
       errors.add(:base, 'at least one citation is required')

@@ -53,7 +53,11 @@ module Shared::IsData::Annotation
 
   # @return [Hash]
   def annotation_metadata
-    available_annotation_types.inject({}){|hsh, a| hsh.merge!(a => {total: send(a).count})}
+   h = (available_annotation_types - [:attribution]).inject({}){|hsh, a| hsh.merge!(a => {total: send(a).count})}
+   if has_attribution?
+     h[:attribution] = {total: (send(:attribution).present? ? 1 : 0)} 
+   end
+   h 
   end
 
   protected
@@ -71,6 +75,7 @@ module Shared::IsData::Annotation
     result['confidences'] = confidences if has_confidences? && confidences.any?
     result['protocol_relationships'] = protocols if has_protocol_relationships? && protocolled?
     result['alternate values'] = alternate_values if has_alternate_values? && alternate_values.any?
+    result['attribution'] = attribution if has_attribution? && attribution.any?
     result
   end
 
