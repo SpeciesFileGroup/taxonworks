@@ -76,7 +76,7 @@ export default {
   },
   computed: {
     validateFields() {
-      return this.attribution.copyright_year || [].concat.apply([], Object.values(this.rolesList)).length
+      return this.attribution.license || this.attribution.copyright_year || [].concat.apply([], Object.values(this.rolesList)).length
     },
     roleSelected() {
       return this.roleTypes[this.smartSelectorList.findIndex((role) => { return role == this.view })]
@@ -96,6 +96,7 @@ export default {
       licenses: [],
       smartSelectorList: [],
       roleTypes: [],
+      urlList: `{this.url}/${this.type}s.json`,
       rolesList: {
         creator_roles: [],
         owner_roles: [],
