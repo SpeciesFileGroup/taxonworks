@@ -65,7 +65,7 @@ class Protonym < TaxonName
 
   TaxonNameRelationship.descendants.each do |d|
     if d.respond_to?(:assignment_method)
-      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Ictv|Icnb|SourceClassifiedAs)/
+      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Ictv|Icnp|SourceClassifiedAs)/
         relationship = "#{d.assignment_method}_relationship".to_sym
         has_one relationship, class_name: d.name.to_s, foreign_key: :subject_taxon_name_id
         has_one d.assignment_method.to_sym, through: relationship, source: :object_taxon_name
@@ -82,7 +82,7 @@ class Protonym < TaxonName
     end
 
     if d.respond_to?(:inverse_assignment_method)
-      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Icnb|Ictv|SourceClassifiedAs)/
+      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Icnp|Ictv|SourceClassifiedAs)/
         relationships = "#{d.inverse_assignment_method}_relationships".to_sym
         # ActiveRecord::Base.send(:sanitize_sql_array, [d.name])
         has_many relationships, -> {
@@ -133,7 +133,7 @@ class Protonym < TaxonName
 
   scope :that_is_valid, -> {
     joins('LEFT OUTER JOIN taxon_name_relationships tnr ON taxon_names.id = tnr.subject_taxon_name_id').
-    where("taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type ILIKE 'TaxonNameRelationship::Iczn::Invalidating%' OR type ILIKE 'TaxonNameRelationship::Icn::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Icnb::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Ictv::Unaccepting%')")
+    where("taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type ILIKE 'TaxonNameRelationship::Iczn::Invalidating%' OR type ILIKE 'TaxonNameRelationship::Icn::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Icnp::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Ictv::Unaccepting%')")
   }
 
   scope :is_species_group, -> { where("rank_class ILIKE '%speciesgroup%'") }
@@ -208,7 +208,7 @@ class Protonym < TaxonName
         ay = iczn_author_and_year
       when :ictv
         ay = icn_author_and_year
-      when :icnb
+      when :icnp
         ay = icn_author_and_year
       when :icn
         ay = icn_author_and_year
@@ -346,7 +346,7 @@ class Protonym < TaxonName
     # !((type == 'Protonym') && (taxon_name_classifications.collect{|t| t.type} & EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS).empty?)
 
     # Is faster than above?
-    return true if rank_string =~ /Icnb/ && (name.start_with?('Candidatus ') || name.start_with?('Ca. '))
+    return true if rank_string =~ /Icnp/ && (name.start_with?('Candidatus ') || name.start_with?('Ca. '))
     taxon_name_classifications.each do |tc| # ! find_each
       return true if TaxonName::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(tc.type)
     end

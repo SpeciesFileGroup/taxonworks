@@ -120,7 +120,7 @@ namespace :tw do
 
         @relationship_classes = {
             0 => '', ### valid
-            1 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective',   #### ::Objective or ::Subjective
+            1 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Heterotypic',   #### ::Homotypic or ::Heterotypic
             2 => '', ### Original combination
             3 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary',
             4 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary', #### or 'Secondary::Secondary1961'
@@ -129,7 +129,7 @@ namespace :tw do
             7 => '', ###common name
             8 => '', ##### 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm', #### combination => Combination
             9 => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
-            10 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation',
+            10 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Homotypic::UnjustifiedEmendation',
             11 => 'TaxonNameRelationship::Iczn::Invalidating', #### misaplication
             12 => '', #### nomen dubium
             13 => 'TaxonNameRelationship::Iczn::Invalidating', #### nomen nudum
@@ -145,7 +145,7 @@ namespace :tw do
             23 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression',
             24 => 'TaxonNameRelationship::Iczn::Invalidating', ### not available
             25 => 'TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction', #### justified emendation
-            26 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::SynonymicHomonym',
+            26 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Homotypic::SynonymicHomonym',
             27 => 'TaxonNameRelationship::Iczn::Invalidating::Misapplication',
             28 => 'TaxonNameRelationship::Iczn::Invalidating', ### invalid
             29 => 'TaxonNameRelationship::Iczn::Invalidating', ### infrasubspecific
@@ -160,17 +160,17 @@ namespace :tw do
             'subsequent monotypy' => 'TaxonNameRelationship::Typification::Genus::Monotypy::Subsequent',
             'Incorrect original spelling' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling',
             'Incorrect subsequent spelling' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
-            'Junior objective synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective',
-            'Junior subjective synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective',
-            'Junior subjective Synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective',
+            'Junior objective synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Homotypic',
+            'Junior subjective synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Heterotypic',
+            'Junior subjective Synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Heterotypic',
             'Misidentification' => 'TaxonNameRelationship::Iczn::Invalidating::Misapplication',
             'Nomen nudum: Published as synonym and not validated before 1961' => 'TaxonNameRelationship::Iczn::Invalidating',
-            'Objective replacement name: Junior subjective synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective',
-            'Unnecessary replacement name' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName',
+            'Homotypic replacement name: Junior subjective synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Heterotypic',
+            'Unnecessary replacement name' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Homotypic::UnnecessaryReplacementName',
             'Suppressed name' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression',
             'Unavailable name: pre-Linnean' => 'TaxonNameRelationship::Iczn::Invalidating',
-            'Unjustified emendation' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation',
-            'Objective replacement name: Valid Name' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym',
+            'Unjustified emendation' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Homotypic::UnjustifiedEmendation',
+            'Homotypic replacement name: Valid Name' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym',
             'Hybrid' => '',
             'Junior homonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym',
             'Manuscript name' => '',
@@ -1125,9 +1125,9 @@ namespace :tw do
             if !row['NomenNovumFor'].blank?
               source = row['Key3'].blank? ? nil : @data.publications_index[row['Key3']]
               if row['YearRem'].to_s.include?('unneded n.nov.')
-                tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['NomenNovumFor']), type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName')
+                tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['NomenNovumFor']), type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Homotypic::UnnecessaryReplacementName')
               else
-                tnr = TaxonNameRelationship.create(subject_taxon_name: find_taxon_3i(row['NomenNovumFor']), object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym')
+                tnr = TaxonNameRelationship.create(subject_taxon_name: find_taxon_3i(row['NomenNovumFor']), object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Homotypic::ReplacedHomonym')
               end
               if !source.blank? && !tnr.id.nil?
                 tnr.citations.create(source_id: source, pages: row['Page'], is_original: true)
@@ -1144,7 +1144,7 @@ namespace :tw do
             end
             if homonym_statuses.include?(row['Status']) && row['Rank'] == '0'
               if TaxonNameRelationship.where_subject_is_taxon_name(taxon.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').first.nil?
-                tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
+                tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Heterotypic')
                 byebug if !tnr.nil? && tnr.id.nil?
               end
             end
@@ -2476,13 +2476,13 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true)
         i = 0
 
-        bacteria = Protonym.find_or_create_by!(name: 'Bacteria', rank_class: Ranks.lookup(:icnb, 'kingdom'), parent: @root, project_id: $project_id)
-        tenericutes = Protonym.find_or_create_by!(name: 'Tenericutes', rank_class: Ranks.lookup(:icnb, 'phylum'), parent: bacteria, project_id: $project_id)
-        mollicutes = Protonym.find_or_create_by!(name: 'Mollicutes', rank_class: Ranks.lookup(:icnb, 'class'), parent: tenericutes, project_id: $project_id)
-        acholeplasmatales = Protonym.find_or_create_by!(name: 'Acholeplasmatales', rank_class: Ranks.lookup(:icnb, 'order'), parent: mollicutes, project_id: $project_id)
-        acholeplasmataceae = Protonym.find_or_create_by!(name: 'Acholeplasmataceae', rank_class: Ranks.lookup(:icnb, 'family'), parent: acholeplasmatales, project_id: $project_id)
-        @phytoplasma = Protonym.find_or_create_by!(name: 'Phytoplasma', rank_class: Ranks.lookup(:icnb, 'genus'), parent: acholeplasmataceae, project_id: $project_id)
-        @phytoplasma.taxon_name_classifications.find_or_create_by!(type: 'TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Legitimate::Candidatus')
+        bacteria = Protonym.find_or_create_by!(name: 'Bacteria', rank_class: Ranks.lookup(:icnp, 'kingdom'), parent: @root, project_id: $project_id)
+        tenericutes = Protonym.find_or_create_by!(name: 'Tenericutes', rank_class: Ranks.lookup(:icnp, 'phylum'), parent: bacteria, project_id: $project_id)
+        mollicutes = Protonym.find_or_create_by!(name: 'Mollicutes', rank_class: Ranks.lookup(:icnp, 'class'), parent: tenericutes, project_id: $project_id)
+        acholeplasmatales = Protonym.find_or_create_by!(name: 'Acholeplasmatales', rank_class: Ranks.lookup(:icnp, 'order'), parent: mollicutes, project_id: $project_id)
+        acholeplasmataceae = Protonym.find_or_create_by!(name: 'Acholeplasmataceae', rank_class: Ranks.lookup(:icnp, 'family'), parent: acholeplasmatales, project_id: $project_id)
+        @phytoplasma = Protonym.find_or_create_by!(name: 'Phytoplasma', rank_class: Ranks.lookup(:icnp, 'genus'), parent: acholeplasmataceae, project_id: $project_id)
+        @phytoplasma.taxon_name_classifications.find_or_create_by!(type: 'TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished::Legitimate::Candidatus')
 
         file.each do |row|
           i += 1
@@ -2490,8 +2490,8 @@ namespace :tw do
           if row['species'].blank?
             taxon = @phytoplasma
           else
-            taxon = Protonym.find_or_create_by!(name: row['species'], rank_class: Ranks.lookup(:icnb, 'species'), parent: @phytoplasma, project_id: $project_id)
-            taxon.taxon_name_classifications.find_or_create_by!(type: 'TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Legitimate::Candidatus')
+            taxon = Protonym.find_or_create_by!(name: row['species'], rank_class: Ranks.lookup(:icnp, 'species'), parent: @phytoplasma, project_id: $project_id)
+            taxon.taxon_name_classifications.find_or_create_by!(type: 'TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished::Legitimate::Candidatus')
           end
 
           name = @data.t_phyto_group[row['FK_Phy']][0] + @data.t_phyto_group[row['FK_Phy']][1]

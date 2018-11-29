@@ -55,10 +55,10 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       end
 
       context 'Candidatus' do
-        let(:icnb_genus) { Protonym.create(name: 'Aus', rank_class: Ranks.lookup(:icnb, :genus), parent: root) }
-        let(:icnb_species) { Protonym.create(name: 'bus', rank_class: Ranks.lookup(:icnb, :species), parent: icnb_genus) }
+        let(:icnb_genus) { Protonym.create(name: 'Aus', rank_class: Ranks.lookup(:icnp, :genus), parent: root) }
+        let(:icnb_species) { Protonym.create(name: 'bus', rank_class: Ranks.lookup(:icnp, :species), parent: icnb_genus) }
 
-        before { TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Legitimate::Candidatus.create!(taxon_name: icnb_species) }
+        before { TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished::Legitimate::Candidatus.create!(taxon_name: icnb_species) }
 
         specify '#cached_html' do
           expect(icnb_species.cached_html).to eq('"<i>Candidatus</i> Aus bus"')

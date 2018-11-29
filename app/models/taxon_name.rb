@@ -158,7 +158,7 @@ class TaxonName < ApplicationRecord
 
   EXCEPTED_FORM_TAXON_NAME_RELATIONSHIPS = [
     'TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling',
-    'TaxonNameRelationship::Icnb::Unaccepting::Usage::Misspelling',
+    'TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling',
     'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm',
     'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling',
     'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling'
@@ -557,7 +557,7 @@ class TaxonName < ApplicationRecord
   # @return [True|False]
   #   true if this name has a TaxonNameClassification of candidatus
   def is_candidatus?
-    return false unless rank_string =~ /Icnb/
+    return false unless rank_string =~ /Icnp/
     taxon_name_classifications.where_taxon_name(self).with_type_contains('Candidatus').any?
   end
 
@@ -1215,7 +1215,7 @@ class TaxonName < ApplicationRecord
       # TODO: name these Regexp somewhere
       if (name =~ /^[a-zA-Z]*$/) || # !! should reference NOT_LATIN
           (nomenclatural_code == :iczn && name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
-          (nomenclatural_code == :icnb && name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
+          (nomenclatural_code == :icnp && name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
           (nomenclatural_code == :icn && name =~  /^[a-zA-Z]*-[a-zA-Z]*$/) ||
           (nomenclatural_code == :icn && name =~  /^[a-zA-Z]*\s×\s[a-zA-Z]*$/) ||
           (nomenclatural_code == :icn && name =~  /^×\s[a-zA-Z]*$/) ||
