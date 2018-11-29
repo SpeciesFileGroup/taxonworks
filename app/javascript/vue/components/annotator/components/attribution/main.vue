@@ -96,7 +96,7 @@ export default {
       licenses: [],
       smartSelectorList: [],
       roleTypes: [],
-      urlList: `{this.url}/${this.type}s.json`,
+      urlList: `${this.url}/${this.type}s.json`,
       rolesList: {
         creator_roles: [],
         owner_roles: [],
