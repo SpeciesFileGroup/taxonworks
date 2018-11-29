@@ -3,8 +3,8 @@ class AttributionsController < ApplicationController
   
   before_action :set_attribution, only: [:show, :edit, :update, :destroy]
 
-  # GET /attribution
-  # GET /attribution.json
+  # GET /attributions
+  # GET /attributions.json
   def index
     respond_to do |format|
       format.html do
@@ -13,7 +13,7 @@ class AttributionsController < ApplicationController
       end
       format.json {
         @attributions = Queries::Attribution::Filter.new(params).all.where(project_id: sessions_current_project_id).
-        page(params[:page]).per(500)
+        page(params[:page]).per(params[:per] || 500)
       }
     end
   end
