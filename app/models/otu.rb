@@ -64,6 +64,7 @@ class Otu < ApplicationRecord
   has_many :observations, inverse_of: :otu
   has_many :observation_matrix_rows, inverse_of: :otu
   has_many :observation_matrix_row_items, inverse_of: :otu
+  has_many :observation_matrices, inverse_of: :otus, through: :observation_matrix_rows
 
   has_many :descriptors, through: :observations
   has_many :observation_matrix_rows, inverse_of: :otu

@@ -5,71 +5,53 @@ namespace :tw do
       require 'logged_task'
       namespace :pre_cites do
 
-         desc 'time rake tw:project_import:sf_import:pre_cites:check_original_genus_ids user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:pre_cites:check_original_genus_ids user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define check_original_genus_ids: [:data_directory, :environment, :user_id] do |logger|
           # Though TW species groups, etc. have an original genus, SF ones do not: Do not infer it at this time
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
+          excluded_taxa = import.get('ExcludedTaxa')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID') # key = SF.TaxonNameID, value = TW.taxon_name.id
 
           count_found = 0
+          not_found = 0
 
           path = @args[:data_directory] + 'sfTaxaByTaxonNameStr.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           file.each_with_index do |row, i|
             taxon_name_id = row['TaxonNameID']
             next if skipped_file_ids.include? row['FileID'].to_i
-            next unless taxon_name_id.to_i > 0
+            next if excluded_taxa.include? taxon_name_id
             next unless row['RankID'].to_i < 11 # only look at species and subspecies
             next if row['OriginalGenusID'] == '0'
-            next if row['TaxonNameStr'].start_with?('1100048-1143863') # name = MiscImages (body parts)
-            next if row['AccessCode'].to_i == 4
 
             species_id = get_tw_taxon_name_id[taxon_name_id]
             next unless species_id
 
-            original_genus_id = get_tw_taxon_name_id[row['OriginalGenusID']] # if error?
+            if get_tw_taxon_name_id[row['OriginalGenusID']]
+              original_genus_id = get_tw_taxon_name_id[row['OriginalGenusID']]
+            else
+              logger.error "TW Original Genus not found: SF.OriginalGenusID = #{row['OriginalGenusID']}, SF.FileID = #{row['FileID']} (not_found #{not_found += 1}) \n"
+              next
+            end
+
+            logger.info "Working with SF.TaxonNameID = #{taxon_name_id}, TW.taxon_name_id = #{species_id}, SF.OriginalGenusID = #{row['OriginalGenusID']}, TW.original_genus_id = #{original_genus_id} (count #{count_found += 1}) \n"
 
             species_protonym = Protonym.find(species_id)
             if species_protonym.original_genus.nil?
               # species_protonym.update(original_genus: )
-              logger.info "Working with SF.TaxonNameID #{taxon_name_id} = TW.taxon_name_id (count #{count_found += 1}) \n"
-              TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(
+              TaxonNameRelationship::OriginalCombination::OriginalGenus.find_or_create_by!(
                   subject_taxon_name_id: original_genus_id,
                   object_taxon_name_id: species_id,
                   created_by_id: get_tw_user_id[row['CreatedBy']],
-                  updated_by_id: get_tw_user_id[row['CreatedBy']],
+                  updated_by_id: get_tw_user_id[row['ModifiedBy']],
                   project_id: get_tw_project_id[row['FileID']])
             end
           end
-        end
-
-        desc 'time rake tw:project_import:sf_import:pre_cites:create_sf_taxon_file_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define create_sf_taxon_file_id_hash: [:data_directory, :environment, :user_id] do |logger|
-
-          logger.info 'Running create_sf_taxon_file_id_hash...'
-
-          get_sf_file_id = {} # key = SF.TaxonNameID, value = SF.FileID
-
-          path = @args[:data_directory] + 'sfTaxonNameIDFileIDs.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
-
-          file.each_with_index do |row, i|
-
-            logger.info "Working with SF.TaxonNameID = '#{row['TaxonNameID']}', SF.FileID = '#{row['FileID']}' \n"
-
-            get_sf_file_id[row['TaxonNameID']] = row['FileID']
-          end
-
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
-          import.set('SFTaxonNameIDToSFFileID', get_sf_file_id)
-
-          puts 'SFTaxonNameIDToSFFileID'
-          ap get_sf_file_id
         end
 
         desc 'time rake tw:project_import:sf_import:pre_cites:create_sf_taxon_name_authors user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
@@ -80,7 +62,7 @@ namespace :tw do
           get_sf_taxon_name_authors = {} # key = SF.RefID (contained ref), value = array of SF.Person.IDs (ordered)
 
           path = @args[:data_directory] + 'sfRefsPeople.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           counter = 0
           previous_ref_id = ''
@@ -107,7 +89,6 @@ namespace :tw do
         end
 
         desc 'time rake tw:project_import:sf_import:pre_cites:create_cvts_for_citations user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        # @todo Do I really need a data_directory if I'm using a Postgres table? Not that it hurts...
         LoggedTask.define create_cvts_for_citations: [:data_directory, :environment, :user_id] do |logger|
 
           # Create controlled vocabulary terms (CVTS) for NewNameStatus, TypeInfo, and CiteInfoFlags; CITES_CVTS below in all caps denotes constant
@@ -213,12 +194,12 @@ namespace :tw do
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
 
-          get_nomenclator_metadata = {} # key = SF.NomenclatorID, value = nomenclator_string, ident_qualifier, file_id
+          get_nomenclator_metadata = {} # key = SF.NomenclatorID, value = hash of nomenclator_string, ident_qualifier, file_id
 
           count_found = 0
 
           path = @args[:data_directory] + 'sfNomenclatorStrings.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           file.each_with_index do |row, i|
             next if skipped_file_ids.include? row['FileID'].to_i

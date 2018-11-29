@@ -71,11 +71,11 @@ namespace :tw do
           file.each_with_index do |row, i|
             sf_taxon_name_id = row['TaxonNameID']
             next if excluded_taxa.include? sf_taxon_name_id
-            taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id] # cannot to_i because if nil, nil.to_i = 0 ]
+            tw_taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id] # cannot to_i because if nil, nil.to_i = 0 ]
             scrutiny_id = row['ScrutinyID']
             sf_file_id = get_scrutinies[scrutiny_id][:sf_file_id]
             next if skipped_file_ids.include? sf_file_id.to_i
-            if taxon_name_id.nil?
+            if tw_taxon_name_id.nil?
               logger.error "TW.taxon_name_id is nil: ScrutinyID = #{scrutiny_id}, SF.TaxonNameID #{sf_taxon_name_id}, SF.FileID = #{sf_file_id}"
               next
             end
@@ -85,7 +85,7 @@ namespace :tw do
             year = get_scrutinies[scrutiny_id][:year]
             comment = get_scrutinies[scrutiny_id][:comment]
 
-            logger.info "Working on ScrutinyID = #{scrutiny_id}, SF.TaxonNameID #{sf_taxon_name_id} = tw.taxon_name_id #{taxon_name_id}, project_id = #{project_id}, counter = #{counter += 1}"
+            logger.info "Working on ScrutinyID = #{scrutiny_id}, SF.TaxonNameID #{sf_taxon_name_id} = tw.taxon_name_id #{tw_taxon_name_id}, project_id = #{project_id}, counter = #{counter += 1}"
 
             content = "SeqNum = #{seqnum}, ScrutinyID = #{scrutiny_id}, Year = #{year}, PersonIDs = #{get_tw_scrutiny_authors[scrutiny_id]}, Comment = '#{comment}'"
 
@@ -94,7 +94,7 @@ namespace :tw do
             scrutiny_predicate = Predicate.find_or_create_by(name: 'Species File scrutiny', definition: 'from tblScrutinies, limit of three scrutinies per taxon name', project_id: project_id)
             scrutiny = DataAttribute.create!(type: 'InternalAttribute',
                                             controlled_vocabulary_term_id: scrutiny_predicate.id,
-                                            attribute_subject_id: taxon_name_id,
+                                            attribute_subject_id: tw_taxon_name_id,
                                             attribute_subject_type: 'TaxonName',
                                             value: content,
                                             project_id: project_id,
@@ -107,7 +107,7 @@ namespace :tw do
             )
 
             if scrutiny.nil?
-              logger.error "Error creating TaxonScrutiny: ScrutinyID = #{scrutiny_id}, SF.TaxonNameID #{sf_taxon_name_id} = tw.taxon_name_id #{taxon_name_id}"
+              logger.error "Error creating TaxonScrutiny: ScrutinyID = #{scrutiny_id}, SF.TaxonNameID #{sf_taxon_name_id} = tw.taxon_name_id #{tw_taxon_name_id}"
             # else
             #   cite = Citation.new(source_id: sh.id, citation_object: scrutiny)
             #   byebug
@@ -122,9 +122,9 @@ namespace :tw do
           logger.info 'Importing SupplementaryTaxonInformation...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
+          get_sf_taxon_info = import.get('SFTaxonNameIDMiscInfo')
           skipped_file_ids = import.get('SkippedFileIDs')
           excluded_taxa = import.get('ExcludedTaxa')
-          get_sf_file_id = import.get('SFTaxonNameIDToSFFileID')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
@@ -142,29 +142,30 @@ namespace :tw do
 
           file.each_with_index do |row, i|
             sf_taxon_name_id = row['TaxonNameID']
-            next if excluded_taxa.include? sf_taxon_name_id.to_s
-            sf_file_id = get_sf_file_id[sf_taxon_name_id]
+            sf_file_id = get_sf_taxon_info[sf_taxon_name_id]['file_id']
             next if skipped_file_ids.include? sf_file_id.to_i
-            taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id] # cannot to_i because if nil, nil.to_i = 0
+            next if excluded_taxa.include? sf_taxon_name_id
+            tw_taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id] # cannot to_i because if nil, nil.to_i = 0
             project_id = get_tw_project_id[sf_file_id]
 
-            logger.info "Working on SF.TaxonNameID #{sf_taxon_name_id} = tw.taxon_name_id #{taxon_name_id}, project_id = #{project_id}, counter = #{counter += 1}"
+            logger.info "Working on SF.TaxonNameID #{sf_taxon_name_id} = tw.taxon_name_id #{tw_taxon_name_id}, project_id = #{project_id}, counter = #{counter += 1}"
 
             title = row['Title']
-            if taxon_name_id.nil?
+            if tw_taxon_name_id.nil?
               if get_tw_otu_id[sf_taxon_name_id]
                 attribute_subject_id = get_tw_otu_id[sf_taxon_name_id]
                 attribute_subject_type = 'Otu'
               else
+                
                 logger.warn "SF.TaxonNameID = #{sf_taxon_name_id} not found and OTU not found"
                 next
               end
             else
               if title.include? 'etymology'
-                attribute_subject_id = taxon_name_id
+                attribute_subject_id = tw_taxon_name_id
                 attribute_subject_type = 'TaxonName'
               else
-                attribute_subject_id = get_taxon_name_otu_id[taxon_name_id]
+                attribute_subject_id = get_taxon_name_otu_id[tw_taxon_name_id]
                 attribute_subject_type = 'Otu'
               end
             end

@@ -8,7 +8,7 @@ module Shared::Citations
   extend ActiveSupport::Concern
 
   included do
-    related_class      = self.name
+    related_class = self.name
     related_table_name = self.table_name
 
     Citation.related_foreign_keys.push self.name.foreign_key
@@ -136,7 +136,10 @@ module Shared::Citations
   protected
 
   def reject_citations(attributed)
-    return true if attributed['source_id'].blank? && attributed['source'].blank?
+    if (attributed['source_id'].blank? && attributed['source'].blank?)
+      return true if new_record?
+      return true if attributed['pages'].blank?
+    end
     false
   end
 

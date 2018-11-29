@@ -2,12 +2,12 @@
   <div>
     <ul class="no_bullets">
       <li
-          v-for="(label, key) in roleTypes"
-          :key=label >
+        v-for="(label, key) in roleTypes"
+        :key="key">
         <input
-            type="checkbox"
-            @click="selectType(key)">
-          {{ roleTypes[key] }}
+          type="checkbox"
+          @click="selectType(key)">
+        {{ roleTypes[key] }}
       </li>
     </ul>
   </div>

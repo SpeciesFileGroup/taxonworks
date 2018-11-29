@@ -1,0 +1,27 @@
+<%= form_with(model: attribution, local: true) do |form| %>
+  <% if attribution.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(attribution.errors.count, "error") %> prohibited this attribution from being saved:</h2>
+
+      <ul>
+      <% attribution.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :copyright_year %>
+    <%= form.number_field :copyright_year, id: :attribution_copyright_year %>
+  </div>
+
+  <div class="field">
+    <%= form.label :license %>
+    <%= form.text_field :license, id: :attribution_license %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

@@ -28,13 +28,6 @@ if taxon_name.parent
   end
 end
 
-# TODO: move to shared
-if taxon_name.pinned?(sessions_current_user)
-  json.pinboard_item do
-    json.id taxon_name.pinboard_item_for(sessions_current_user).id
-  end
-end
-
 unless taxon_name.is_a?(Combination)
   json.type_taxon_name_relationship do
     if taxon_name.type_taxon_name_relationship
@@ -42,4 +35,3 @@ unless taxon_name.is_a?(Combination)
     end
   end
 end
-

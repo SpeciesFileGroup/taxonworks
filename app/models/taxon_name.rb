@@ -841,8 +841,8 @@ class TaxonName < ApplicationRecord
     return  "\"<i>Candidatus</i> #{n}\"" if is_candidatus?
     
     v = Utilities::Italicize.taxon_name(n)
-    v = '&#8224; ' + v if is_fossil?
-    v = '&#215; ' + v if is_hybrid?
+    v = '† ' + v if is_fossil?
+    v = '× ' + v if is_hybrid?
     v
   end
 

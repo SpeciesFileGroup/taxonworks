@@ -47,10 +47,17 @@ json.set! :types do
     json.label 'Notes'
     json.klass 'Note'
     json.url notes_url
-    # json.select_options_url select_options_notes_url
-    # json.all_select_option_url '/controlled_vocabulary_terms.json?of_type[]=Keyword'
     json.total Note.where(project_id: sessions_current_project_id).count
     ar = Note.where(project_id: sessions_current_project_id).select(:note_object_type).distinct.order(:note_object_type).pluck(:note_object_type)
+    json.used_on klass_and_labels(ar)
+  end
+
+  json.set! :attributions do
+    json.label 'Attributions'
+    json.klass 'Attribution'
+    json.url attributions_url
+    json.total Attribution.where(project_id: sessions_current_project_id).count
+    ar = Attribution.where(project_id: sessions_current_project_id).select(:attribution_object_type).distinct.order(:attribution_object_type).pluck(:attribution_object_type)
     json.used_on klass_and_labels(ar)
   end
 
