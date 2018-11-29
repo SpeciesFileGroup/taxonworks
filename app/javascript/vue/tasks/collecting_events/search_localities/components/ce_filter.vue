@@ -9,24 +9,24 @@
         <td/>
         <td>
           <input
-            v-model="start_day"
+            v-model="start_date_day"
             type=text
             size="2"
             maxlength="2">
         </td>
         <td>
-          <month-select @month="start_month=$event"/>
+          <month-select @month="start_date_month=$event"/>
         </td>
         <td>
           <input
-            v-model="start_year"
+            v-model="start_date_year"
             type=text
             size="4"
             maxlength="4">
         </td>
         <td>
           <input
-            v-model="start_mdy"
+            v-model="st_datepicker"
             type="date">
         </td>
       </tr>
@@ -37,24 +37,24 @@
         <td/>
         <td>
           <input
-            v-model="end_day"
+            v-model="end_date_day"
             type=text
             size="2"
             maxlength="2">
         </td>
         <td>
-          <month-select @month="end_month=$event"/>
+          <month-select @month="end_date_month=$event"/>
         </td>
         <td>
           <input
-            v-model="end_year"
+            v-model="end_date_year"
             type=text
             size="4"
             maxlength="4">
         </td>
         <td>
           <input
-            v-model="end_mdy"
+            v-model="en_datepicker"
             type="date">
         </td>
       </tr>
@@ -94,7 +94,13 @@
         </td>
       </tr>
     </table>
-
+    <input type="button" @click="emitDateData()" title="Find">
+    <div>
+      <span
+        v-for="item in filterList"
+        v-html="item.verbatim_locality"></span>
+      <div>{{ filterList }}</div>
+    </div>
   </div>
 </template>
 <script>
@@ -106,18 +112,40 @@
     },
     data() {
       return {
-        start_day: '',
-        end_day: '',
-        start_month: '',
-        end_month: '',
-        start_year: '',
-        end_year: '',
-        start_mdy: '',
-        end_mdy: '',
+        start_date_day: '',
+        end_date_day: '',
+        start_date_month: '',
+        end_date_month: '',
+        start_date_year: '',
+        end_date_year: '',
+        st_datepicker: '',
+        en_datepicker: '',
         verbatim_locality_text: '',
         any_label_text: '',
-        identifier_text: ''
+        identifier_text: '',
+        filterList: []
       }
     },
+
+    methods: {
+      emitDateData(){
+        let params = {
+          start_date_day: this.start_date_day,
+          end_date_day: this.end_date_day,
+          start_date_month: this.start_date_month,
+          end_date_month: this.end_date_month,
+          start_date_year: this.start_date_year,
+          end_date_year: this.end_date_year,
+          st_datepicker: this.st_datepicker,
+          en_datepicker: this.en_datepicker,
+          verbatim_locality_text: this.verbatim_locality_text,
+          any_label_text: this.any_label_text,
+          identifier_text: this.identifier_text,
+        };
+        this.$http.get('/collecting_events', {params: params}).then(response => {
+          this.filterList = response.body.html;
+        });
+      }
+    }
   }
 </script>
