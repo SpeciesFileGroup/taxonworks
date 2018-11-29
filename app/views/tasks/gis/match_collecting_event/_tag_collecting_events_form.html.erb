@@ -8,8 +8,9 @@
           </td>
           <td>
             <%= render partial: 'workbench/elements/forms/ajax_select',
-                       locals:  {controller: '/keywords',
+                       locals:  {controller: '/controlled_vocabulary_terms',
                                  object:     nil,
+                                 of_type:    'keyword',
                                  method:     'keyword_id',
                                  tag_id:     'keyword_term_id_for_collecting_event_tagging_form',
                                  size:       '',
