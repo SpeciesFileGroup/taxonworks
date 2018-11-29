@@ -58,7 +58,7 @@
         min="2"
         placeholder="Keyword"
         :clear-after="true"
-        :add-param="{'of_type[]' : 'Keyword'}"
+        :add-params="{'of_type[]' : 'Keyword'}"
         @getInput="tag.keyword_attributes.name = $event"
         @getItem="createWithId($event.id)"
         class="separate-bottom"
