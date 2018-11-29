@@ -27,14 +27,24 @@
           ref="autocomplete"
           param="term"
           placeholder="Select a geographic area"
-          label="label_html"
+          label="label"
           @getItem="sendGeographic($event)"
           :autofocus="true" />
       </div>
       <div
         v-else-if="view === 'Tag'"
         class="horizontal-left-content">
-        <h3>Tag autocomplete pending . . .</h3>
+        <autocomplete
+          class="separate-bottom"
+          url="/controlled_vocabulary_terms/autocomplete"
+          min="2"
+          ref="autocomplete"
+          :add-param="{'of_type[]' : 'Keyword'}"
+          param="term"
+          placeholder="Select a tag"
+          label="label"
+          @getItem="sendTag($event)"
+          :autofocus="true" />
       </div>
       <template v-else-if="view === 'Filter'">
         <ce-filter/>
@@ -77,6 +87,10 @@
         this.$emit('itemid', item.id)
       },
       sendGeographic(item) {
+        this.selected = '';
+        this.$emit('select', item.id)
+      },
+      sendTag(item) {
         this.selected = '';
         this.$emit('select', item.id)
       },
