@@ -7,7 +7,8 @@
           <input type="number" :value="sampleMin" @input="updateSampleMin">
         </label>
         to
-        <label>
+        <label
+          class="separate-left">
           Max:
           <input type="number" :value="sampleMax" @input="updateSampleMax">
         </label>
