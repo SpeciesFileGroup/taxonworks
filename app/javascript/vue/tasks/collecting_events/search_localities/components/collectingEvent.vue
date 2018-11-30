@@ -99,7 +99,7 @@
     },
     mounted: function() {
       this.$http.get('/collecting_events/select_options').then(response => {
-        this.$delete(response.body, 'quick')
+        // this.$delete(response.body, 'quick');    // don't remove quick now that we know what it means
         this.tabs = Object.keys(response.body);
         this.list = response.body;
         if(this.tabs.length) {
