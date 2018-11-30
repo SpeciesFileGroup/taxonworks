@@ -41,7 +41,11 @@
         this.$http.get('/collecting_events', {params: params}).then(response => {
           this.tagList = response.body.html;
         });
-      }
+      },
+      sendTag(item) {
+        this.selected = '';
+        this.$emit('select', item.id)
+      },
     }
   }
 </script>

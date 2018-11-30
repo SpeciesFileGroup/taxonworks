@@ -94,10 +94,6 @@
         this.selected = '';
         this.$emit('select', item.id)
       },
-      sendTag(item) {
-        this.selected = '';
-        this.$emit('select', item.id)
-      },
     },
     mounted: function() {
       this.$http.get('/collecting_events/select_options').then(response => {
