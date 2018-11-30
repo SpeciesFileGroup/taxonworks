@@ -285,7 +285,7 @@ class TaxonNameRelationship < ApplicationRecord
   def validate_subject_and_object_ranks
     tname = self.type_name
 
-    if tname =~ /TaxonNameRelationship::(Icnb|Icn|Iczn|Ictv)/ && tname != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
+    if tname =~ /TaxonNameRelationship::(Icnp|Icn|Iczn|Ictv)/ && tname != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
       rank_group = self.subject_taxon_name.rank_class.parent
       unless rank_group == self.object_taxon_name.rank_class.parent
         errors.add(:object_taxon_name_id, "Rank of related taxon should be in the #{rank_group.rank_name} rank group, not #{self.object_taxon_name.rank_class.rank_name}")
@@ -511,7 +511,7 @@ class TaxonNameRelationship < ApplicationRecord
   end
 
   def sv_objective_synonym_relationship
-    if self.type_name =~ /TaxonNameRelationship::(Iczn::Invalidating::Synonym::Objective|Icn::Unaccepting::Synonym::Homotypic|Icnb::Unaccepting::Synonym::Objective)/
+    if self.type_name =~ /TaxonNameRelationship::(Iczn::Invalidating::Synonym::Objective|Icn::Unaccepting::Synonym::Homotypic|Icnp::Unaccepting::Synonym::Homotypic)/
       s = self.subject_taxon_name
       o = self.object_taxon_name
       if (s.type_taxon_name != o.type_taxon_name ) || !s.has_same_primary_type(o)
@@ -550,7 +550,7 @@ class TaxonNameRelationship < ApplicationRecord
       when 'TaxonNameRelationship::Icn::Unaccepting::Synonym'
         soft_validations.add(:type, 'Please specify if this is a homotypic or heterotypic synonym',
             fix: :sv_fix_specify_synonymy_type, success_message: 'Synonym updated to being homotypic or heterotypic')
-      when 'TaxonNameRelationship::Icnb::Unaccepting::Synonym'
+      when 'TaxonNameRelationship::Icnp::Unaccepting::Synonym'
         soft_validations.add(:type, 'Please specify if this is a objective or subjective synonym',
                              fix: :sv_fix_specify_synonymy_type, success_message: 'Synonym updated to being objective or subjective')
       when 'TaxonNameRelationship::Iczn::Invalidating'
@@ -719,13 +719,13 @@ class TaxonNameRelationship < ApplicationRecord
   def sv_coordinated_taxa
     s = subject_taxon_name
     o = object_taxon_name
-    if type_name =~ /TaxonNameRelationship::(Iczn|Icnb|Icn|Ictv|OriginalCombination|Combination|Typification)/
+    if type_name =~ /TaxonNameRelationship::(Iczn|Icnp|Icn|Ictv|OriginalCombination|Combination|Typification)/
       s_new = s.lowest_rank_coordinated_taxon
       if s != s_new
         soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} #{s.cached_html} to #{s_new.rank_class.rank_name} #{s.cached_html}",
                              fix: :sv_fix_coordinated_subject_taxa, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
       end
-      if type_name =~ /TaxonNameRelationship::(Iczn|Icnb|Ictv|Icn)/
+      if type_name =~ /TaxonNameRelationship::(Iczn|Icnp|Ictv|Icn)/
         o_new = o.lowest_rank_coordinated_taxon
 
 

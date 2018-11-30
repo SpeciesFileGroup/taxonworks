@@ -158,7 +158,7 @@ class TaxonName < ApplicationRecord
 
   EXCEPTED_FORM_TAXON_NAME_RELATIONSHIPS = [
     'TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling',
-    'TaxonNameRelationship::Icnb::Unaccepting::Usage::Misspelling',
+    'TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling',
     'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm',
     'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling',
     'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling'
@@ -557,7 +557,7 @@ class TaxonName < ApplicationRecord
   # @return [True|False]
   #   true if this name has a TaxonNameClassification of candidatus
   def is_candidatus?
-    return false unless rank_string =~ /Icnb/
+    return false unless rank_string =~ /Icnp/
     taxon_name_classifications.where_taxon_name(self).with_type_contains('Candidatus').any?
   end
 
@@ -933,8 +933,7 @@ class TaxonName < ApplicationRecord
 
   # return [Boolean] whether there is missaplication relationship
   def name_is_missapplied?
-    TaxonNameRelationship.where_subject_is_taxon_name(self).
-      with_type_string('TaxonNameRelationship::Iczn::Invalidating::Misapplication').empty?
+    !TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::Invalidating::Misapplication').empty?
   end
 
   # return [String]
@@ -1215,7 +1214,7 @@ class TaxonName < ApplicationRecord
       # TODO: name these Regexp somewhere
       if (name =~ /^[a-zA-Z]*$/) || # !! should reference NOT_LATIN
           (nomenclatural_code == :iczn && name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
-          (nomenclatural_code == :icnb && name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
+          (nomenclatural_code == :icnp && name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
           (nomenclatural_code == :icn && name =~  /^[a-zA-Z]*-[a-zA-Z]*$/) ||
           (nomenclatural_code == :icn && name =~  /^[a-zA-Z]*\s×\s[a-zA-Z]*$/) ||
           (nomenclatural_code == :icn && name =~  /^×\s[a-zA-Z]*$/) ||
@@ -1242,14 +1241,21 @@ class TaxonName < ApplicationRecord
   end
 
   def sv_missing_fields
-    soft_validations.add(:base, 'Original publication is not selected') if self.source.nil?
-    soft_validations.add(:verbatim_author, 'Author is missing',
-                         fix: :sv_fix_missing_author,
-                         success_message: 'Author was updated') if self.author_string.nil? && self.type != 'Combination'
-    soft_validations.add(:year_of_publication, 'Year is missing',
-                         fix: :sv_fix_missing_year,
-                         success_message: 'Year was updated') if self.year_integer.nil? && self.type != 'Combination'
-    soft_validations.add(:etymology, 'Etymology is missing') if self.etymology.nil? && self.type != 'Combination' && self.rank_string =~ /(Genus|Species)/
+    if !self.cached_misspelling && !self.name_is_missapplied?
+      if self.source.nil?
+        soft_validations.add(:base, 'Original publication is not selected')
+      elsif self.origin_citation.pages.nil?
+        soft_validations.add(:base, 'Original citation pages are not indicated')
+      end
+      soft_validations.add(:verbatim_author, 'Author is missing',
+                           fix: :sv_fix_missing_author,
+                           success_message: 'Author was updated') if self.author_string.nil? && self.type != 'Combination'
+      soft_validations.add(:year_of_publication, 'Year is missing',
+                           fix: :sv_fix_missing_year,
+                           success_message: 'Year was updated') if self.year_integer.nil? && self.type != 'Combination'
+
+      soft_validations.add(:etymology, 'Etymology is missing') if self.etymology.nil? && self.type != 'Combination' && self.rank_string =~ /(Genus|Species)/
+    end
   end
 
   def sv_fix_missing_author

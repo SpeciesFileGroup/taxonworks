@@ -88,6 +88,9 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       specify 'source author, year are missing' do
         @species.etymology = 'Test'
         @species.soft_validate(:missing_fields)
+        expect(@species.soft_validations.messages_on(:base).empty?).to be_falsey
+        @species.origin_citation.pages = 1 if !@species.source.nil?
+        @species.soft_validate(:missing_fields)
         expect(@species.soft_validations.messages_on(:base).empty?).to be_truthy
         expect(@species.soft_validations.messages_on(:verbatim_author).empty?).to be_truthy
         expect(@species.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
@@ -231,6 +234,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         @subfamily.fix_soft_validations
         @subfamily.reload
         expect(@subfamily.valid?).to be_truthy
+        @subfamily.origin_citation.pages = 1 if !@subfamily.source.nil?
         @subfamily.soft_validate
         expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_truthy
       end
