@@ -107,6 +107,11 @@ namespace :tw do
               end
             end
           end
+
+          #######################################################################################
+          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/5_after_source_roles/'
+          Rake::Task["tw:db:dump"].invoke
+          #######################################################################################
         end
 
         desc 'time rake tw:project_import:sf_import:start:create_misc_ref_info user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
@@ -354,6 +359,11 @@ namespace :tw do
 
           puts 'TWSourceIDToContainingSourceID'
           ap get_containing_source_id
+
+          #######################################################################################
+          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/4_after_create_sources/'
+          Rake::Task["tw:db:dump"].invoke
+          #######################################################################################
         end
 
         desc 'time rake tw:project_import:sf_import:start:map_pub_type user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
@@ -392,6 +402,11 @@ namespace :tw do
 
           puts 'SFPubIDToPubTypeString'
           ap get_sf_pub_type_string
+
+          #######################################################################################
+          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/3_after_pub_type/'
+          Rake::Task["tw:db:dump"].invoke
+          #######################################################################################
         end
 
         desc 'time rake tw:project_import:sf_import:start:create_sf_book_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
@@ -500,6 +515,10 @@ namespace :tw do
           puts 'RefIDToVerbatimRef'
           ap get_sf_verbatim_ref
 
+          #######################################################################################
+          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/2_after_verbatim_refs/'
+          Rake::Task["tw:db:dump"].invoke
+          #######################################################################################
         end
 
         desc 'time rake tw:project_import:sf_import:start:map_ref_links user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
@@ -567,9 +586,10 @@ namespace :tw do
           puts 'SFPubIDToTWSerialID'
           ap get_tw_serial_id
 
-
-          Rake::Task['tw:db:dump'].invoke(backup_directory: '/Users/mbeckman/src/db_backup/1_after_serials/')
-
+          #######################################################################################
+          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/1_after_serials/'
+          Rake::Task["tw:db:dump"].invoke
+          #######################################################################################
         end
 
         desc 'time rake tw:project_import:sf_import:start:create_people user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
@@ -873,7 +893,6 @@ namespace :tw do
 
           puts 'SkippedFileIDs'
           ap skipped_file_ids
-
         end
 
       end

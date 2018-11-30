@@ -204,6 +204,11 @@ namespace :tw do
               # next
             end
           end
+
+          #######################################################################################
+          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/18_after_scrutinies/'
+          Rake::Task["tw:db:dump"].invoke
+          #######################################################################################
         end
 
       end # namespaces below
