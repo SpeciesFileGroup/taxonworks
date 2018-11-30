@@ -20,18 +20,20 @@
               type="text"
               v-model="name"/>
           </div>
-          <div class="separate-bottom">
-            <label>Description name</label><br>
-            <input 
-              type="text"
-              v-model="description_name"/>
-          </div>
-          <div>
-            <label>Key name</label><br>
-            <input 
-              type="text"
-              v-model="key_name"/>
-          </div>
+          <template v-if="show">
+            <div class="separate-bottom">
+              <label>Description name</label><br>
+              <input 
+                type="text"
+                v-model="description_name"/>
+            </div>
+            <div>
+              <label>Key name</label><br>
+              <input 
+                type="text"
+                v-model="key_name"/>
+            </div>
+          </template>
         </div>
         <div class="field separate-left">
           <br>
@@ -51,6 +53,9 @@
             :disabled="!validateFields"
             class="normal-input button button-submit"
             type="button">Create</button>
+          <a
+            class="separate-left cursor-pointer"
+            @click="show = !show"> {{ show ? 'Hide' : 'Show more' }}</a>
         </div>
       </div>
       <ul class="table-entrys-list">
@@ -99,6 +104,7 @@ export default {
   },
   data() {
     return {
+      show: false,
       label: undefined,
       name: undefined,
       description_name: undefined,
@@ -130,7 +136,6 @@ export default {
         key_name: this.key_name,
         description_name: this.description_name
       }]
-      console.log(newDescriptor)
       this.$emit('save', newDescriptor)
       this.resetInputs()
     },
