@@ -29,7 +29,8 @@
           placeholder="Select a geographic area"
           label="label"
           @getItem="sendGeographic($event)"
-          :autofocus="true" />
+          :autofocus="true"
+          :clear-after="true"/>
       </div>
       <div
         v-else-if="view === 'Tag'"
@@ -44,7 +45,8 @@
           placeholder="Select a tag"
           label="label"
           @getItem="sendTag($event)"
-          :autofocus="true" />
+          :autofocus="true"
+          :clear-after="true"/>
       </div>
       <template v-else-if="view === 'Filter'">
         <ce-filter/>
@@ -56,7 +58,7 @@
           type="button"
           class="button normal-input button-submit biocuration-toggle-button"
           @click="createTaxonCite(item)"
-          v-html="item.name"/>
+          v-html="item.cached"/>
       </template>
     </template>
   </div>
@@ -97,6 +99,7 @@
     },
     mounted: function() {
       this.$http.get('/collecting_events/select_options').then(response => {
+        this.$delete(response.body, 'quick')
         this.tabs = Object.keys(response.body);
         this.list = response.body;
         if(this.tabs.length) {
