@@ -32,25 +32,25 @@
           :autofocus="true"
           :clear-after="true"/>
       </div>
-      <div
-        v-else-if="view === 'Tag'"
-        class="horizontal-left-content">
-        <autocomplete
-          class="separate-bottom"
-          url="/controlled_vocabulary_terms/autocomplete"
-          min="2"
-          ref="autocomplete"
-          :add-params="{'of_type[]' : 'Keyword'}"
-          param="term"
-          placeholder="Select a tag"
-          label="label"
-          @getItem="sendTag($event)"
-          :autofocus="true"
-          :clear-after="true"/>
+      <div v-else-if="view === 'Tag'">
+        <!--class="horizontal-left-content">-->
+        <!--<autocomplete-->
+          <!--class="separate-bottom"-->
+          <!--url="/controlled_vocabulary_terms/autocomplete"-->
+          <!--min="2"-->
+          <!--ref="autocomplete"-->
+          <!--:add-params="{'of_type[]' : 'Keyword'}"-->
+          <!--param="term"-->
+          <!--placeholder="Select a tag"-->
+          <!--label="label"-->
+          <!--@getItem="sendTag($event)"-->
+          <!--:autofocus="true"-->
+          <!--:clear-after="true"/>-->
+        <ce-tag/>
       </div>
-      <template v-else-if="view === 'Filter'">
+      <div v-else-if="view === 'Filter'">
         <ce-filter/>
-      </template>
+      </div>
       <template v-else>
         <button
           v-for="item in showList[view]"
@@ -68,12 +68,14 @@
   import SmartSelector from 'components/switch.vue'
   import Autocomplete from 'components/autocomplete.vue'
   import ceFilter from './ce_filter.vue'
+  import ceTag from './ce_tag.vue'
 
   export default {
     components: {
       SmartSelector,
       Autocomplete,
-      ceFilter
+      ceFilter,
+      ceTag
     },
     data() {
       return {
