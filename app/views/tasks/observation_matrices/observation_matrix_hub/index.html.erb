@@ -7,7 +7,7 @@
     <ul> 
       <% @observation_matrices.each do |om| %>
         <table> 
-          <tr> <td> <%=  observation_matrix_link(om) -%> </td> </tr>  
+          <tr> <td> <%= observation_matrix_link(om) -%> </td> </tr>  
           <tr> 
             <th> Rows  </th> 
             <th> Columns </th> 
@@ -32,5 +32,42 @@
       <% end %>
     </ul>
   </div>
+
+</div>
+
+<h2> Utilities </h2>
+
+<div>
+  <h3> Clone states between OTUs </h3>
+
+  <%= form_tag() do -%>
+
+    <em> All recorded observations are syncronized from the old to new.  Annotations on observations are not copied over! </em>
+
+    <div class="field"> 
+      <%= label_tag :merge_from_this_otu %><br>
+      <%= render partial: 'workbench/elements/forms/ajax_select',
+                 locals: {controller: '/otus',
+                          object: '',
+                          method: 'old_otu_id',
+                          tag_id: 'old_otu_id_for_clone',
+                          display: ''} %>
+    </div>
+
+    <div class="field"> 
+      <%= label_tag :into_this_otu %><br>
+      <%= render partial: 'workbench/elements/forms/ajax_select',
+        locals: {controller: '/otus',
+                 object: '',
+                 method: 'new_otu_id',
+                 tag_id: 'new_otu_id_for_clone',
+                 display: ''} %>
+    </div>
+
+    <div class="actions">
+      <%= submit_tag 'Clone' -%>
+    </div>
+
+  <% end %>
 
 </div>
