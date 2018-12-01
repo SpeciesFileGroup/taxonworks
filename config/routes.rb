@@ -662,6 +662,7 @@ TaxonWorks::Application.routes.draw do
     scope :observation_matrices do
       scope :observation_matrix_hub, controller: 'tasks/observation_matrices/observation_matrix_hub' do
         get 'index', as: 'index_observation_matrix_hub_task'
+        post 'copy_observations', as: 'observation_matrix_hub_copy_observations'
       end
 
       scope :new_matrix, controller: 'tasks/observation_matrices/new_matrix' do

@@ -194,5 +194,3 @@ module Shared::IsData
     end
   end
 end
-
-

@@ -6,10 +6,10 @@
     <div> <%= link_to 'New', new_matrix_task_path(), target: :blank -%> </div>
     <ul> 
       <% @observation_matrices.each do |om| %>
-        <table> 
-          <tr> <td> <%= observation_matrix_link(om) -%> </td> </tr>  
+        <table class="full_width"> 
+          <tr> <td colspan="2"> <%= link_to(om.name, new_matrix_task_path(om)) -%> </td>  </tr>  
           <tr> 
-            <th> Rows  </th> 
+            <th> Rows </th> 
             <th> Columns </th> 
           </tr>
 
@@ -23,7 +23,7 @@
   </div>
 
   <div class="item item2">
-    <h2> Recent descriptors </h2> 
+    <h2> Recently created descriptors </h2> 
     <div> <%= link_to 'New', new_descriptor_task_path(), target: :blank -%> </div>
     <ul>
       <% Descriptor.recent_from_project_id(sessions_current_project_id)
@@ -33,35 +33,57 @@
     </ul>
   </div>
 
+
+  <div class="item item2">
+    <h2> Recently coded </h2> 
+    <% [Otu, CollectionObject].each do |c| -%>
+
+      <h3> <%= c.name -%>s </h3>
+
+      <ul>
+        <% c.recently_observed.where(project_id: sessions_current_project_id).limit(10).distinct.each do |o| %>
+          <%= content_tag(:li, object_link(o)) -%>
+        <% end %>
+      </ul>
+    <% end %>
+  </div>
+
+
+
+
 </div>
+
+<br> <br>
 
 <h2> Utilities </h2>
 
 <div>
   <h3> Clone states between OTUs </h3>
 
-  <%= form_tag() do -%>
+  <%= form_tag(observation_matrix_hub_copy_observations_url) do -%>
 
-    <em> All recorded observations are syncronized from the old to new.  Annotations on observations are not copied over! </em>
+    <p><em> All recorded observations are syncronized from the old to new.  Annotations on observations are not copied over! </em></p>
 
     <div class="field"> 
-      <%= label_tag :merge_from_this_otu %><br>
-      <%= render partial: 'workbench/elements/forms/ajax_select',
-                 locals: {controller: '/otus',
-                          object: '',
-                          method: 'old_otu_id',
-                          tag_id: 'old_otu_id_for_clone',
-                          display: ''} %>
+      Merge from this OTU<br>
+      <%= render 'workbench/elements/forms/ajax_select',
+        controller: '/otus',
+        object: '',
+        method: 'old_otu_id',
+        tag_id: 'old_otu_id_for_clone',
+        size: 80,
+        display: '' %>
     </div>
 
     <div class="field"> 
-      <%= label_tag :into_this_otu %><br>
-      <%= render partial: 'workbench/elements/forms/ajax_select',
-        locals: {controller: '/otus',
-                 object: '',
-                 method: 'new_otu_id',
-                 tag_id: 'new_otu_id_for_clone',
-                 display: ''} %>
+      Into this OTU<br> 
+      <%= render 'workbench/elements/forms/ajax_select',
+        controller: '/otus',
+        object: '',
+        method: 'new_otu_id',
+        tag_id: 'new_otu_id_for_clone',
+        size: 80,
+        display: '' %>
     </div>
 
     <div class="actions">

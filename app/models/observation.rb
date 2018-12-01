@@ -54,6 +54,28 @@ class Observation < ApplicationRecord
     end
   end
 
+  # @params old_global_id [String]
+  #    global_id of collection object or Otu
+  #
+  # @params new_global_id [String]
+  #    global_id of collection object or Otu
+  # 
+  def self.copy(old_global_id, new_global_id)
+    begin
+      old = GlobalID::Locator.locate(old_global_id)
+
+      Observation.transaction do
+        old.observations.each do |o|
+          d = o.dup
+          d.update(observation_object_global_id: new_global_id) 
+        end
+      end
+      true
+    rescue
+      raise
+    end
+  end
+
   protected
 
   def convert_observation_object_global_id
