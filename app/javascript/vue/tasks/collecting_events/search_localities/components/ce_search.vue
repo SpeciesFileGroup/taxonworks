@@ -23,20 +23,21 @@
       :autofocus="true"
       :clear-after="true"
     />
-    <!--<span-->
-      <!--v-for="item in geographicAreaList"-->
-      <!--:key="item"-->
-      <!--v-html="item"/>-->
     <input
       type="button"
       @click="emitCollectingEventData()"
       title="Find">
     <div>
-      <span
-        v-for="item in collectingEventList"
-        :key="item"
-        v-html="item.verbatim_locality"/>
-      <!--<div>{{ collectingEventList }}</div>-->
+      <table>
+        <tr
+          v-for="item in collectingEventList"
+          :key="item">
+          <td>
+            <span
+              v-html="item.verbatim_locality"/>
+          </td>
+        </tr>
+      </table>
     </div>
   </div>
 </template>
@@ -56,8 +57,12 @@
 
     methods: {
       emitCollectingEventData(){
+        let geo_ids = [];
+        this.geographicAreaList.forEach(area => {
+          geo_ids.push(area.id)
+        });
         let params = {
-          geographic_area_ids: this.geographicAreaList
+          geographic_area_ids: geo_ids
         };
         this.$http.get('/collecting_events', {params: params}).then(response => {
           this.collectingEventList = response.body.html;
