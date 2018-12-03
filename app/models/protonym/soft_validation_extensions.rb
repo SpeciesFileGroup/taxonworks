@@ -133,7 +133,7 @@ module Protonym::SoftValidationExtensions
       r = self.iczn_set_as_incorrect_original_spelling_of_relationship
       list_of_coordinated_names.each do |t|
         soft_validations.add(:base, "The original publication does not match with the original publication of the coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Original publication was updated') unless (self.source && t.source) && (self.source.id == t.source.id)
+                             fix: :sv_fix_coordinated_names, success_message: 'Original publication was updated') if self.source && t.source && self.source.id != t.source.id
         soft_validations.add(:verbatim_author, "The author does not match with the author of the coordinated #{t.rank_class.rank_name}",
                              fix: :sv_fix_coordinated_names, success_message: 'Author was updated') unless self.verbatim_author == t.verbatim_author
         soft_validations.add(:year_of_publication, "The year of publication does not match with the year of the coordinated #{t.rank_class.rank_name}",
@@ -171,12 +171,12 @@ module Protonym::SoftValidationExtensions
       speech = self.part_of_speech_class
 
       list_of_coordinated_names.each do |t|
-        if t.source && (source != t.source)
+        if t.source.nil? && !t.source.nil?
           self.source = t.source
           fixed = true
         end
 
-        if self.verbatim_author.nil? && self.verbatim_author != t.verbatim_author
+        if self.verbatim_author.nil? && !t.verbatim_author.nil?
           self.verbatim_author = t.verbatim_author
           fixed = true
         end
@@ -188,7 +188,7 @@ module Protonym::SoftValidationExtensions
 
         t_gender = t.gender_class
 
-        if gender.nil? && gender != t_gender
+        if gender.nil? && !t_gender.nil?
           self.taxon_name_classifications.build(type: t_gender.to_s)
           fixed = true
         end

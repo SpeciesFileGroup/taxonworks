@@ -158,6 +158,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       specify 'mismatching author, year and type genus in family' do
         tribe = FactoryBot.create(:iczn_tribe, name: 'Typhlocybini', verbatim_author: nil, year_of_publication: nil, parent: @subfamily)
         genus = FactoryBot.create(:relationship_genus, verbatim_author: 'Dmitriev', name: 'Typhlocyba', year_of_publication: 2013, parent: tribe)
+        tribe.source = nil
         @subfamily.type_genus = genus
         expect(@subfamily.save).to be_truthy
         @subfamily.soft_validate(:validate_coordinated_names)
@@ -170,11 +171,9 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         expect(tribe.soft_validations.messages_on(:base).empty?).to be_falsey
 
         tribe.fix_soft_validations
-
         tribe.soft_validate(:validate_coordinated_names)
         expect(tribe.soft_validations.messages_on(:verbatim_author).empty?).to be_truthy
         expect(tribe.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
-        
         expect(tribe.soft_validations.messages_on(:base).empty?).to be_truthy
 
         @subfamily.type_genus = nil
@@ -210,6 +209,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         end
 
         specify 'is fixable' do
+          @ssp1.source = nil
           @species.fix_soft_validations
           @species.soft_validate(:validate_coordinated_names)
           @ssp1.soft_validate(:validate_coordinated_names)

@@ -157,7 +157,7 @@ class Protonym < TaxonName
         search_rank = NomenclaturalRank::Iczn.group_base(self.rank_string)
         if !!search_rank
           if search_rank =~ /Family/
-            z = Protonym.family_group_base(self.name)
+            z = Protonym.that_is_valid.family_group_base(self.name)
             search_name = z.nil? ? nil : Protonym::FAMILY_GROUP_ENDINGS.collect{|i| z+i}
           else
             search_name = self.name
