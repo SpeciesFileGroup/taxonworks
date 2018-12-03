@@ -3,11 +3,11 @@
     <h3>Find collecting events</h3>
     <div>
       <table>
-        <tr v-for="item in geographicAreaList"
+        <tr v-for="(item, index) in geographicAreaList"
         :key="item.id">
         <td><a v-html="item.label_html" @click="showObject()"/></td>
         <td>
-          <td><span @click="delistMe(item)">(Remove)</span></td>
+          <td><span @click="delistMe(index)">(Remove)</span></td>
         </tr>
       </table>
     </div>
@@ -69,8 +69,8 @@
       showObject() {
         return true
       },
-      delistMe(item) {
-        this.$delete(this.geographicAreaList, item)
+      delistMe(index) {
+        this.$delete(this.geographicAreaList, index)
       }
     }
   }
