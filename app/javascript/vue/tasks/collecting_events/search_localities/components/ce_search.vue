@@ -1,6 +1,7 @@
 <template>
   <div class="find-ce">
     <h3>Find collecting events</h3>
+    <div>{{ geographicAreaList }}</div>
     <autocomplete
       class="separate-bottom"
       url="/geographic_areas/autocomplete"
@@ -9,19 +10,24 @@
       param="term"
       placeholder="Select a named geographic area"
       label="label_html"
-      @getItem="sendGeographicArea($event)"
+      @getItem="addGeographicArea($event)"
       :autofocus="true"
-      :clear-after="true"/>
+      :clear-after="true"
+    />
+    <!--<span-->
+      <!--v-for="item in geographicAreaList"-->
+      <!--:key="item"-->
+      <!--v-html="item"/>-->
     <input
       type="button"
-      @click="emitGeographicAreaData()"
+      @click="emitCollectingEventData()"
       title="Find">
     <div>
       <span
-        v-for="item in geographicAreaList"
+        v-for="item in collectingEventList"
         :key="item"
-        v-html="item.name"/>
-      <div>{{ geographicAreaList }}</div>
+        v-html="item.verbatim_locality"/>
+      <!--<div>{{ collectingEventList }}</div>-->
     </div>
   </div>
 </template>
@@ -34,22 +40,22 @@
     },
     data() {
       return {
-        geographicAreaList: []
+        geographicAreaList: [],
+        collectingEventList: [],
       }
     },
 
     methods: {
-      emitGeographicAreaData(){
+      emitCollectingEventData(){
         let params = {
           geographic_area_ids: this.geographicAreaList
         };
         this.$http.get('/collecting_events', {params: params}).then(response => {
-          this.geographicAreaList = response.body.html;
+          this.collectingEventList = response.body.html;
         });
       },
-      sendGeographicAres(item) {
-        this.selected = '';
-        this.$emit('select', item.id)
+      addGeographicArea(item) {
+        this.geographicAreaList.push(item.id);
       },
     }
   }

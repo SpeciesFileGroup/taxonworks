@@ -58,10 +58,6 @@
         // this.selected=item.id;
         this.$emit('itemid', item.id)
       },
-      sendGeographic(item) {
-        this.selected = '';
-        this.$emit('select', item.id)
-      },
     },
     mounted: function() {
       this.$http.get('/collecting_events/select_options').then(response => {
