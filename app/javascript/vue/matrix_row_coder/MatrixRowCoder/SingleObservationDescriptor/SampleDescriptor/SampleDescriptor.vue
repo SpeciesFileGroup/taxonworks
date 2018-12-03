@@ -2,18 +2,19 @@
   <div class="sample-descriptor">
     <summary-view :descriptor="descriptor">
       <div class="horizontal-left-content">
-        <label>
+        <label class="separate-right">
           Min:
           <input type="number" :value="sampleMin" @input="updateSampleMin">
         </label>
         to
-        <label>
+        <label
+          class="separate-left">
           Max:
           <input type="number" :value="sampleMax" @input="updateSampleMax">
         </label>
         <unit-selector v-model="sampleUnit"/>
 
-        <label>
+        <label class="separate-left">
           n:
           <input type="number" :value="sampleN" @input="updateSampleN">
         </label>

@@ -4,9 +4,9 @@
       <h3>Character states</h3>
     </div>
     <div class="body">
-      <div class="horizontal-left-content">
+      <div class="horizontal-left-content align-start">
         <div class="field">
-          <label>Label</label>
+          <label>Label</label><br>
           <input
             class="character-input"
             maxlength="2"
@@ -14,12 +14,29 @@
             v-model="label"/>
         </div>
         <div class="field separate-left">
-          <label>Name</label>
-          <input 
-            type="text"
-            v-model="name"/>
+          <div class="separate-bottom">
+            <label>Name</label><br>
+            <input 
+              type="text"
+              v-model="name"/>
+          </div>
+          <template v-if="show">
+            <div class="separate-bottom">
+              <label>Description name</label><br>
+              <input 
+                type="text"
+                v-model="description_name"/>
+            </div>
+            <div>
+              <label>Key name</label><br>
+              <input 
+                type="text"
+                v-model="key_name"/>
+            </div>
+          </template>
         </div>
         <div class="field separate-left">
+          <br>
           <template v-if="id">
             <button
               :disabled="!validateFields"
@@ -36,6 +53,9 @@
             :disabled="!validateFields"
             class="normal-input button button-submit"
             type="button">Create</button>
+          <a
+            class="separate-left cursor-pointer"
+            @click="show = !show"> {{ show ? 'Hide' : 'Show more' }}</a>
         </div>
       </div>
       <ul class="table-entrys-list">
@@ -84,8 +104,11 @@ export default {
   },
   data() {
     return {
+      show: false,
       label: undefined,
       name: undefined,
+      description_name: undefined,
+      key_name: undefined,
       id: undefined,
       list: []
     }
@@ -110,6 +133,8 @@ export default {
         descriptor_id: this.descriptor.id,
         name: this.name,
         label: this.label,
+        key_name: this.key_name,
+        description_name: this.description_name
       }]
       this.$emit('save', newDescriptor)
       this.resetInputs()
@@ -117,7 +142,9 @@ export default {
     resetInputs() {
       this.id = undefined,
       this.label = undefined,
-      this.name = undefined
+      this.name = undefined,
+      this.key_name = undefined,
+      this.description_name = undefined
     },
     removeCharacter(index) {
       if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
@@ -129,6 +156,8 @@ export default {
       this.id = this.list[index].id
       this.label = this.list[index].label
       this.name = this.list[index].name
+      this.key_name = this.list[index].key_name,
+      this.description_name = this.list[index].description_name
     },
     updateCharacter() {
       let index = this.list.findIndex((item) => {
@@ -138,6 +167,8 @@ export default {
         let newDescriptor = this.descriptor
         this.list[index].label = this.label
         this.list[index].name = this.name
+        this.list[index].key_name = this.key_name,
+        this.list[index].description_name = this.description_name
         newDescriptor['character_states_attributes'] = this.list
         this.$emit('save', newDescriptor)
       }
