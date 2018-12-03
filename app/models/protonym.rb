@@ -379,6 +379,7 @@ class Protonym < TaxonName
   def reduce_list_of_synonyms(list)
     return [] if list.empty?
     list1 = list.select{|s| s.id == s.lowest_rank_coordinated_taxon.id}
+    list1.reject!{|s| self.cached_valid_taxon_name_id == s.cached_valid_taxon_name_id} unless list1.empty?
     unless list1.empty?
       date1 = self.nomenclature_date
       unless date1.nil?

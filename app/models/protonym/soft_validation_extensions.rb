@@ -379,14 +379,16 @@ module Protonym::SoftValidationExtensions
             primary_types = self.get_primary_type
             unless primary_types.empty?
               p                 = primary_types.collect {|t| t.biological_object_id}
-              possible_synonyms = Protonym.with_type_material_array(p).that_is_valid.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self).with_project(self.project_id)
+              possible_synonyms = Protonym.with_type_material_array(p).without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self).with_project(self.project_id)
+#              possible_synonyms = Protonym.with_type_material_array(p).that_is_valid.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self).with_project(self.project_id)
             end
           elsif rank_string =~ /Family/ && self.name == Protonym.family_group_base(self.name)
             # do nothing
           else
             type = self.type_taxon_name
             unless type.nil?
-              possible_synonyms = Protonym.with_type_of_taxon_names(type.id).that_is_valid.not_self(self).with_project(self.project_id)
+              possible_synonyms = Protonym.with_type_of_taxon_names(type.id).not_self(self).with_project(self.project_id)
+#              possible_synonyms = Protonym.with_type_of_taxon_names(type.id).that_is_valid.not_self(self).with_project(self.project_id)
             end
           end
 

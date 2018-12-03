@@ -176,7 +176,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               expect(species.not_binomial?).to be_truthy
               species.reload
               species.save
-              expect(species.cached_html).to eq('<i>aus</i>')
+              expect(species.cached_html).to eq('<i>Cus aus</i>')
             end
 
             specify '#cached_original_combination is not changed' do
