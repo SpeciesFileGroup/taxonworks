@@ -34,7 +34,7 @@
   import SmartSelector from 'components/switch.vue'
   import Autocomplete from 'components/autocomplete.vue'
   import ceFilter from './ce_filter.vue'
-  import ceSearch from './ce_switch.vue'
+  import ceSearch from './ce_search.vue'
   import ceTag from './ce_tag.vue'
 
   export default {

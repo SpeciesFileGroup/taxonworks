@@ -7,7 +7,7 @@
       min="2"
       ref="autocomplete"
       param="term"
-      placeholder="Select a names geographic aera"
+      placeholder="Select a named geographic area"
       label="label_html"
       @getItem="sendGeographicArea($event)"
       :autofocus="true"
@@ -21,7 +21,7 @@
         v-for="item in geographicAreaList"
         :key="item"
         v-html="item.name"/>
-      <div>{{ tagList }}</div>
+      <div>{{ geographicAreaList }}</div>
     </div>
   </div>
 </template>
