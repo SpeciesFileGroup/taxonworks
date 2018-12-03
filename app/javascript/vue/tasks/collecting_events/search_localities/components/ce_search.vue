@@ -3,7 +3,7 @@
     <h3>Find collecting events</h3>
     <autocomplete
       class="separate-bottom"
-      url="/geographic_area/autocomplete"
+      url="/geographic_areas/autocomplete"
       min="2"
       ref="autocomplete"
       param="term"
