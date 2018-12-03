@@ -552,6 +552,7 @@ class Protonym < TaxonName
   end
 
   # TODO: @proceps - confirm this is only applicable to Protonym, NOT Combination
+  # @mjy - yes this is applicable to Protonym only
   def update_cached_original_combinations
     update_columns(
       cached_original_combination: get_original_combination,
