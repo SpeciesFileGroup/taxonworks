@@ -1,7 +1,16 @@
 <template>
   <div class="find-ce">
     <h3>Find collecting events</h3>
-    <div>{{ geographicAreaList }}</div>
+    <div>
+      <table>
+        <tr v-for="item in geographicAreaList"
+        :key="item.id">
+        <td><a v-html="item.label_html" @click="showObject()"/></td>
+        <td>
+          <td><span @click="delistMe(item)">(Remove)</span></td>
+        </tr>
+      </table>
+    </div>
     <autocomplete
       class="separate-bottom"
       url="/geographic_areas/autocomplete"
@@ -55,8 +64,14 @@
         });
       },
       addGeographicArea(item) {
-        this.geographicAreaList.push(item.id);
+        this.geographicAreaList.push(item);
       },
+      showObject() {
+        return true
+      },
+      delistMe(item) {
+        this.$delete(this.geographicAreaList, item)
+      }
     }
   }
 </script>
