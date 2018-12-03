@@ -797,19 +797,19 @@ class TaxonName < ApplicationRecord
     end
 
     if data['genus'].nil?
-      data['genus'] = [nil, "[GENUS NOT SPECIFIED]"]
+      data['genus'] = [nil, '[GENUS NOT SPECIFIED]']
     end
     
     if data['species'].nil? && (!data['subspecies'].nil? || !data['variety'].nil? || !data['subvariety'].nil? || !data['form'].nil? || !data['subform'].nil?)
-      data['species'] = [nil, "[SPECIES NOT SPECIFIED]"]
+      data['species'] = [nil, '[SPECIES NOT SPECIFIED]']
     end
     
     if data['variety'].nil? && !data['subvariety'].nil?
-      data['variety'] = [nil, "[VARIETY NOT SPECIFIED]"]
+      data['variety'] = [nil, '[VARIETY NOT SPECIFIED]']
     end
     
     if data['form'].nil? && !data['subform'].nil?
-      data['form'] = [nil, "[FORM NOT SPECIFIED]"]
+      data['form'] = [nil, '[FORM NOT SPECIFIED]']
     end
     
     data
@@ -825,7 +825,7 @@ class TaxonName < ApplicationRecord
     
     d = full_name_hash
     elements = []
-    elements.push(d['genus']) unless not_binomial?
+    elements.push(d['genus']) unless (not_binomial? && d['genus'][1] == '[GENUS NOT SPECIFIED]')
     elements.push ['(', d['subgenus'], d['section'], d['subsection'], d['series'], d['subseries'], ')']
     elements.push ['(', d['superspecies'], ')']
     elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'])
@@ -1241,12 +1241,14 @@ class TaxonName < ApplicationRecord
   end
 
   def sv_missing_fields
+    confidence_level_array = [93]
     if !self.cached_misspelling && !self.name_is_missapplied?
       if self.source.nil?
         soft_validations.add(:base, 'Original publication is not selected')
       elsif self.origin_citation.pages.nil?
         soft_validations.add(:base, 'Original citation pages are not indicated')
       end
+      soft_validations.add(:base, 'Confidence level is missing') if (self.confidences.collect{|c| c.confidence_level_id} & confidence_level_array).empty?
       soft_validations.add(:verbatim_author, 'Author is missing',
                            fix: :sv_fix_missing_author,
                            success_message: 'Author was updated') if self.author_string.nil? && self.type != 'Combination'

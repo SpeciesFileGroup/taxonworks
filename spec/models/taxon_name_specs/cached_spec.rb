@@ -289,11 +289,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
             context 'feminine' do
               before do 
-                # TODO: @proceps- This pattern doesn't seem to make sense- c1 is updated, but species is required to be saved 
-                # The c1 save should trigger the species update?
                 c1.type = 'TaxonNameClassification::Latinized::Gender::Feminine'
                 c1.save
-
                 species.save
                 species.reload
               end
@@ -305,6 +302,19 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               specify '#cached' do
                 expect(species.cached).to eq('Aus aa')
               end
+            end
+          end
+
+          context 'not binomial cached' do
+            let!(:c1) { FactoryBot.create(:taxon_name_classification, taxon_name: genus1, type: 'TaxonNameClassification::Iczn::Unavailable::NonBinomial')}
+            let!(:species) { FactoryBot.create(:relationship_species, name: 'aus', parent: genus1, verbatim_author: 'Linnaeus', year_of_publication: 1758)}
+            let!(:c2) { FactoryBot.create(:taxon_name_classification, taxon_name: species, type: 'TaxonNameClassification::Iczn::Unavailable::NonBinomial')}
+
+            specify 'not binomial genus' do
+              genus1.save!
+              species.save!
+              expect(genus1.cached).to eq('Aus')
+              expect(species.cached).to eq('Aus aus')
             end
           end
         end
