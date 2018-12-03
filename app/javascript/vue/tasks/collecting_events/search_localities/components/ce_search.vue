@@ -3,25 +3,24 @@
     <h3>Find collecting events</h3>
     <autocomplete
       class="separate-bottom"
-      url="/controlled_vocabulary_terms/autocomplete"
+      url="/geographic_area/autocomplete"
       min="2"
       ref="autocomplete"
-      :add-params="{'of_type[]' : 'Keyword'}"
       param="term"
-      placeholder="Select a tag"
-      label="label"
-      @getItem="sendTag($event)"
+      placeholder="Select a names geographic aera"
+      label="label_html"
+      @getItem="sendGeographicArea($event)"
       :autofocus="true"
       :clear-after="true"/>
     <input
       type="button"
-      @click="emitTagData()"
+      @click="emitGeographicAreaData()"
       title="Find">
     <div>
       <span
-        v-for="item in tagList"
+        v-for="item in geographicAreaList"
         :key="item"
-        v-html="item.verbatim_locality"/>
+        v-html="item.name"/>
       <div>{{ tagList }}</div>
     </div>
   </div>
@@ -35,20 +34,20 @@
     },
     data() {
       return {
-        tagList: []
+        geographicAreaList: []
       }
     },
 
     methods: {
-      emitTagData(){
+      emitGeographicAreaData(){
         let params = {
-          tag_ids: this.tagList
+          geographic_area_ids: this.geographicAreaList
         };
         this.$http.get('/collecting_events', {params: params}).then(response => {
-          this.tagList = response.body.html;
+          this.geographicAreaList = response.body.html;
         });
       },
-      sendTag(item) {
+      sendGeographicAres(item) {
         this.selected = '';
         this.$emit('select', item.id)
       },

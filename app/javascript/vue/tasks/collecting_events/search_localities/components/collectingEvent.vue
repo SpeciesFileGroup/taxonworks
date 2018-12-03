@@ -2,54 +2,20 @@
 <template>
   <div>
     <h3>Collecting event</h3>
-    <!--<autocomplete-->
-      <!--url="/collecting_events/autocomplete"-->
-      <!--min="2"-->
-      <!--label="label_html"-->
-      <!--placeholder="Select a place name"-->
-      <!--:autofocus="true"-->
-      <!--@getItem="sendCollectingEvent"-->
-      <!--display="label"-->
-      <!--param="term"/>-->
     <smart-selector
       :options="tabs"
       name="collecting_event"
       :add-option="moreOptions"
       v-model="view"/>
     <template>
-      <div
-        v-if="view === 'Search'"
-        class="horizontal-left-content">
-        <autocomplete
-          class="separate-bottom"
-          url="/geographic_areas/autocomplete"
-          min="2"
-          ref="autocomplete"
-          param="term"
-          placeholder="Select a geographic area"
-          label="label"
-          @getItem="sendGeographic($event)"
-          :autofocus="true"
-          :clear-after="true"/>
+      <div v-if="view === 'Filter'">
+        <ce-filter/>
+      </div>
+      <div v-else-if="view === 'Search'">
+        <ce-search/>
       </div>
       <div v-else-if="view === 'Tag'">
-        <!--class="horizontal-left-content">-->
-        <!--<autocomplete-->
-          <!--class="separate-bottom"-->
-          <!--url="/controlled_vocabulary_terms/autocomplete"-->
-          <!--min="2"-->
-          <!--ref="autocomplete"-->
-          <!--:add-params="{'of_type[]' : 'Keyword'}"-->
-          <!--param="term"-->
-          <!--placeholder="Select a tag"-->
-          <!--label="label"-->
-          <!--@getItem="sendTag($event)"-->
-          <!--:autofocus="true"-->
-          <!--:clear-after="true"/>-->
         <ce-tag/>
-      </div>
-      <div v-else-if="view === 'Filter'">
-        <ce-filter/>
       </div>
       <template v-else>
         <button
@@ -68,6 +34,7 @@
   import SmartSelector from 'components/switch.vue'
   import Autocomplete from 'components/autocomplete.vue'
   import ceFilter from './ce_filter.vue'
+  import ceSearch from './ce_switch.vue'
   import ceTag from './ce_tag.vue'
 
   export default {
@@ -75,6 +42,7 @@
       SmartSelector,
       Autocomplete,
       ceFilter,
+      ceSearch,
       ceTag
     },
     data() {

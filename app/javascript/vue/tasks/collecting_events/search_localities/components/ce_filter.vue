@@ -94,11 +94,15 @@
         </td>
       </tr>
     </table>
-    <input type="button" @click="emitDateData()" title="Find">
+    <input
+      type="button"
+      @click="emitDateData()"
+      title="Find">
     <div>
       <span
         v-for="item in filterList"
-        v-html="item.verbatim_locality"></span>
+        :key="item"
+        v-html="item.verbatim_locality"/>
       <div>{{ filterList }}</div>
     </div>
   </div>
