@@ -317,6 +317,23 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               expect(species.cached).to eq('Aus aus')
             end
           end
+
+          context 'combination of a synonym' do
+            let!(:species) { FactoryBot.create(:relationship_species, name: 'aus', parent: genus1)}
+            let!(:species_syn) { FactoryBot.create(:relationship_species, name: 'bus', parent: genus1)}
+            let!(:combination) {Combination.create(genus: genus1, species: species_syn) }
+            let!( :r1) { FactoryBot.create(:taxon_name_relationship, subject_taxon_name: species_syn, object_taxon_name: species, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym' )}
+            specify 'combination cached_valid_taxon_name_id' do
+              combination.reload
+              expect(combination.cached_valid_taxon_name_id).to eq(species.id)
+              r2 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: species, object_taxon_name: species_syn, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym' )
+              r1.destroy
+              species.reload
+              combination.reload
+              expect(species.cached_valid_taxon_name_id).to eq(species_syn.id)
+              expect(combination.cached_valid_taxon_name_id).to eq(species_syn.id)
+            end
+          end
         end
       end
     end
