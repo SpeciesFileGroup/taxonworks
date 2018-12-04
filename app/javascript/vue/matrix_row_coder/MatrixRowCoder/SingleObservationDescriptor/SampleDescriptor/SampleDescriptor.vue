@@ -31,20 +31,20 @@
       </div>
       <div class="separate-top">
         <label class="separate-right">
-          Standard deviation:
-          <input type="text" v-model="sampleStandardDeviation">
+          deviation:
+          <input type="text" size="8" v-model="sampleStandardDeviation">
         </label>
         <label class="separate-right">
-          Standard mean:
-          <input type="text" v-model="sampleMean">
+          mean:
+          <input type="text" size="8" v-model="sampleMean">
         </label>
         <label class="separate-right">
           Median:
-          <input type="text" v-model="sampleMedian">
+          <input type="text" size="8" v-model="sampleMedian">
         </label>
         <label class="separate-right">
-          Standard error:
-          <input type="text" v-model="sampleStandardError">
+          error:
+          <input type="text" size="8" v-model="sampleStandardError">
         </label>
       </div>
     </summary-view>
