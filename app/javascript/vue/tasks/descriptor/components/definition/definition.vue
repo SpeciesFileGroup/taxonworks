@@ -23,6 +23,18 @@
           v-if="show"
           class="separate-left">
           <div class="field separate-bottom">
+            <label>Short name</label>
+            <div>
+              <input 
+                type="text"
+                v-model="processShortName">
+              <span
+                v-if="!validateShortName"
+                class="warning">Should not be longer than 6 characters
+              </span>
+            </div>
+          </div>
+          <div class="field separate-bottom">
             <label>Description name</label>
             <input 
               type="text"
@@ -39,6 +51,7 @@
       <div class="horizontal-left-content middle">
         <create-component 
           :descriptor="descriptor"
+          :disabled="!validateShortName"
           @save="$emit('save', descriptor)"/>
         <a
           class="separate-left cursor-pointer"
@@ -62,12 +75,23 @@ export default {
     },
   },
   computed: {
+    validateShortName() {
+      return this.descriptor.short_name ? this.descriptor.short_name.length <= 6 : true
+    },
     processName: {
       get() {
         return this.descriptor.name
       },
       set(value) {
         this.$emit('onNameChange', value)
+      }
+    },
+    processShortName: {
+      get() {
+        return this.descriptor.short_name
+      },
+      set(value) {
+        this.$emit('onShortNameChange', value)
       }
     },
     processDescription: {
