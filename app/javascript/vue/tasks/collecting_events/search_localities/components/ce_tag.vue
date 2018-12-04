@@ -15,14 +15,19 @@
       :clear-after="true"/>
     <input
       type="button"
-      @click="emitTagData()"
-      title="Find">
+      @click="getTagData()"
+      value="Find">
     <div>
-      <span
-        v-for="item in tagList"
-        :key="item"
-        v-html="item.verbatim_locality"/>
-      <div>{{ tagList }}</div>
+      <table>
+        <tr
+          v-for="item in tagList"
+          :key="item">
+          <td>
+            <span
+              v-html="item.verbatim_locality"/>
+          </td>
+        </tr>
+      </table>
     </div>
   </div>
 </template>
@@ -40,7 +45,7 @@
     },
 
     methods: {
-      emitTagData(){
+      getTagData(){
         let params = {
           tag_ids: this.tagList
         };

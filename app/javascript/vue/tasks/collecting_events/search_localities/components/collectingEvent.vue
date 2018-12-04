@@ -18,13 +18,13 @@
         <ce-tag/>
       </div>
       <template v-else>
-        <button
+        <table>
+          <tr
           v-for="item in showList[view]"
-          :key="item.id"
-          type="button"
-          class="button normal-input button-submit biocuration-toggle-button"
-          @click="createTaxonCite(item)"
-          v-html="item.cached"/>
+          :key="item.id">
+<td          v-html="item.cached"/>
+          </tr>
+        </table>
       </template>
     </template>
   </div>

@@ -25,8 +25,8 @@
     />
     <input
       type="button"
-      @click="emitCollectingEventData()"
-      title="Find">
+      @click="getAreaData()"
+      value="Find">
     <div>
       <table>
         <tr
@@ -56,7 +56,7 @@
     },
 
     methods: {
-      emitCollectingEventData(){
+      getAreaData(){
         let geo_ids = [];
         this.geographicAreaList.forEach(area => {
           geo_ids.push(area.id)

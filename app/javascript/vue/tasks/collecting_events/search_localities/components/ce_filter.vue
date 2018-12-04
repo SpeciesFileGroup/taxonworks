@@ -96,14 +96,19 @@
     </table>
     <input
       type="button"
-      @click="emitDateData()"
-      title="Find">
+      @click="gettFilterData()"
+      value="Find">
     <div>
-      <span
-        v-for="item in filterList"
-        :key="item"
-        v-html="item.verbatim_locality"/>
-      <div>{{ filterList }}</div>
+      <table>
+        <tr
+          v-for="item in filterList"
+          :key="item">
+          <td>
+            <span
+              v-html="item.verbatim_locality"/>
+          </td>
+        </tr>
+      </table>
     </div>
   </div>
 </template>
@@ -132,7 +137,7 @@
     },
 
     methods: {
-      emitDateData(){
+      gettFilterData(){
         let params = {
           start_date_day: this.start_date_day,
           end_date_day: this.end_date_day,
