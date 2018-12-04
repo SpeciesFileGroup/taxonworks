@@ -74,6 +74,7 @@ class CollectionObject < ApplicationRecord
   include Shared::ProtocolRelationships
   include Shared::HasPapertrail
   include Shared::IsData
+  include Shared::Observations
   include SoftValidation
 
   include Shared::IsDwcOccurrence
@@ -119,10 +120,10 @@ class CollectionObject < ApplicationRecord
   has_many :collection_object_observations, through: :derived_collection_objects, inverse_of: :collection_objects
   has_many :sqed_depictions, through: :depictions, dependent: :restrict_with_error
 
-  has_many :observations, inverse_of: :collection_object, dependent: :restrict_with_error
-  has_many :observation_matrix_rows, inverse_of: :collection_object, dependent: :destroy 
-  has_many :observation_matrix_row_items, inverse_of: :collection_object, dependent: :destroy
-  has_many :observation_matrices, inverse_of: :collection_objects, through: :observation_matrix_rows
+# has_many :observations, inverse_of: :collection_object
+# has_many :observation_matrix_rows, inverse_of: :collection_object
+# has_many :observation_matrix_row_items, inverse_of: :collection_object
+ has_many :observation_matrices, inverse_of: :collection_objects, through: :observation_matrix_rows
 
   # This is a problem, but here for the foreseeable future for nested attributes purporses.
   has_many :taxon_determinations, foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object, dependent: :destroy
@@ -602,17 +603,17 @@ class CollectionObject < ApplicationRecord
   # @return [Scope]
   #    the max 10 most recently used collection_objects, as `used_on`
   def self.used_recently(used_on = '')
-    t = case used_on
+    t = case used_on 
         when 'TaxonDetermination'
           TaxonDetermination.arel_table
         when 'BiologicalAssociation'
           BiologicalAssociation.arel_table
         end
 
-    p = CollectionObject.arel_table
+    p = CollectionObject.arel_table 
 
     # i is a select manager
-    i = case used_on
+    i = case used_on 
         when 'BiologicalAssociation'
           t.project(t['biological_association_subject_id'], t['created_at']).from(t)
             .where(
@@ -627,13 +628,13 @@ class CollectionObject < ApplicationRecord
             .order(t['created_at'])
         end
 
-    # z is a table alias
+    # z is a table alias 
     z = i.as('recent_t')
 
     j = case used_on
-        when 'BiologicalAssociation'
+        when 'BiologicalAssociation' 
           Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
-            z['biological_association_subject_id'].eq(p['id'])
+            z['biological_association_subject_id'].eq(p['id'])  
           ))
         else
           Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['biological_collection_object_id'].eq(p['id']))) # !! note it's not biological_collection_object_id
@@ -642,7 +643,7 @@ class CollectionObject < ApplicationRecord
     CollectionObject.joins(j).distinct.limit(10)
   end
 
-  # @params target [String] one of `TaxonDetermination`, `BiologicalAssociation`
+  # @params target [String] one of `TaxonDetermination`, `BiologicalAssociation` 
   # @return [Hash] otus optimized for user selection
   def self.select_optimized(user_id, project_id, target = '')
     h = {
@@ -651,7 +652,7 @@ class CollectionObject < ApplicationRecord
     }
 
     h[:recent] = CollectionObject.joins(target.tableize.to_sym).where(project_id: project_id).used_recently(target).limit(10).distinct.to_a
-    h[:quick] = (CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq
+    h[:quick] = (CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq 
     h
   end
 

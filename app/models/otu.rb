@@ -33,6 +33,7 @@ class Otu < ApplicationRecord
   include Shared::Depictions
   include Shared::Loanable
   include Shared::Confidences
+  include Shared::Observations 
   include Shared::HasPapertrail
   include Shared::IsData
 
@@ -61,10 +62,10 @@ class Otu < ApplicationRecord
   has_many :geographic_areas_from_collecting_events, through: :collecting_events, source: :geographic_area
   has_many :georeferences, through: :collecting_events
 
-  has_many :observations, inverse_of: :otu
-  has_many :observation_matrix_rows, inverse_of: :otu
-  has_many :observation_matrix_row_items, inverse_of: :otu
-  has_many :observation_matrices, inverse_of: :otus, through: :observation_matrix_rows
+# has_many :observations, inverse_of: :otu
+# has_many :observation_matrix_rows, inverse_of: :otu
+# has_many :observation_matrix_row_items, inverse_of: :otu
+ has_many :observation_matrices, inverse_of: :otus, through: :observation_matrix_rows
 
   has_many :descriptors, through: :observations
   has_many :observation_matrix_rows, inverse_of: :otu
