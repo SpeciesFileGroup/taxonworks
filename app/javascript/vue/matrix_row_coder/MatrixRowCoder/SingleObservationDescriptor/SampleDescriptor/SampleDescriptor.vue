@@ -29,6 +29,24 @@
           Remove
         </span>
       </div>
+      <div class="separate-top">
+        <label class="separate-right">
+          Standard deviation:
+          <input type="text" v-model="sampleStandardDeviation">
+        </label>
+        <label class="separate-right">
+          Standard mean:
+          <input type="text" v-model="sampleMean">
+        </label>
+        <label class="separate-right">
+          Median:
+          <input type="text" v-model="sampleMedian">
+        </label>
+        <label class="separate-right">
+          Standard error:
+          <input type="text" v-model="sampleStandardError">
+        </label>
+      </div>
     </summary-view>
 
     <single-observation-zoomed-view
@@ -93,6 +111,51 @@ export default {
         this.$store.commit(MutationNames.SetSampleUnitFor, {
           descriptorId: this.$props.descriptor.id,
           units: unit
+        })
+      }
+    },
+    sampleMean: {
+      get() {
+        return this.$store.getters[GetterNames.GetSampleStandardMean](this.$props.descriptor.id)
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSampleStandardMean, {
+          descriptorId: this.$props.descriptor.id,
+          mean: value
+        })
+      }
+
+    },
+    sampleMedian: {
+      get () {
+        return this.$store.getters[GetterNames.GetSampleMedian](this.$props.descriptor.id)
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSampleMedian, {
+          descriptorId: this.$props.descriptor.id,
+          median: value
+        })
+      }
+    },
+    sampleStandardDeviation: {
+      get () {
+        return this.$store.getters[GetterNames.GetSampleStandardDeviation](this.$props.descriptor.id)
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSampleStandardDeviation, {
+          descriptorId: this.$props.descriptor.id,
+          standardDeviation: value
+        })
+      }
+    },
+    sampleStandardError: {
+      get() {
+        return this.$store.getters[GetterNames.GetSampleStandardError](this.$props.descriptor.id)
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSampleStandardError, {
+          descriptorId: this.$props.descriptor.id,
+          standardError: value
         })
       }
     }
