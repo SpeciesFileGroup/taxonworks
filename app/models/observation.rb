@@ -1,3 +1,5 @@
+# Observations are of various types, e.g. Qualitative, Quantitative, Statistical.  Made on an Otu or CollectionObject.
+# They are where you store the data for concepts like traits, phenotypes, measurements, character matrices, descriptive matrices etc.
 class Observation < ApplicationRecord
   include Housekeeping
   include Shared::Citations
@@ -19,8 +21,14 @@ class Observation < ApplicationRecord
   after_initialize :convert_observation_object_global_id
 
   validates_presence_of :descriptor, :type
-
   validate :otu_or_collection_object_set
+
+  def self.object_scope(object)
+    return Observation.none if object.nil?
+    return Observation.where(otu_id: object.id) if object.class.name == 'Otu'
+    return Observation.where(collection_object_id: object.id) if object.metamorphosize.class.name == 'CollectionObject'
+    Observation.none 
+  end
 
   def self.human_name
     'YAY'
@@ -87,8 +95,6 @@ class Observation < ApplicationRecord
       errors.add(:base, 'observations must reference an Otu or collection object')
     end
   end
-
 end
-
 
 Dir[Rails.root.to_s + '/app/models/observation/**/*.rb'].each { |file| require_dependency file }
