@@ -48,6 +48,55 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       let(:subspecies) { Protonym.create(name: 'aus', rank_class: Ranks.lookup(:iczn, :subspecies), parent: species) }
       let(:t) {species.created_at}
 
+      context '#cached for subspecies with gender change' do
+        before do
+          genus1.taxon_name_classifications.create!(type: 'TaxonNameClassification::Latinized::Gender::Feminine')
+          species.taxon_name_classifications.create!(type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
+          subspecies.taxon_name_classifications.create!(type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
+
+          species.update(
+            masculine_name: 'aus',
+            feminine_name: 'aa',
+            neuter_name: 'aum'
+          )
+
+          subspecies.update(
+            name: 'bus',
+            masculine_name: 'bus',
+            feminine_name: 'ba',
+            neuter_name: 'bum',
+            original_genus: genus1,
+            original_species: species,
+            original_subspecies: subspecies
+          )
+        end
+        
+        specify '#cached_original_combination' do
+          expect(subspecies.cached_original_combination).to eq('Aus aa bus')
+        end
+
+        specify '#cached' do
+          expect(subspecies.cached).to eq('Aus aa ba')
+        end
+      end
+
+      context 'original combination referencing two subpecies' do
+        let(:subspecies2) { Protonym.create(name: 'gus', rank_class: Ranks.lookup(:iczn, :subspecies), parent: species) }
+        before do
+          subspecies.update(
+            name: 'zus',
+            original_genus: genus1, 
+            original_species: subspecies2,
+            original_form: subspecies,
+          )
+        end
+       
+        specify '#cached_original_combiantion' do
+          expect(subspecies.cached_original_combination).to eq('Aus gus f. zus')
+        end
+
+      end
+
       specify '#cached for subspecies' do
         genus2.update(parent: genus1, rank_class: Ranks.lookup(:iczn, :subgenus))
         species.update(parent: genus2)

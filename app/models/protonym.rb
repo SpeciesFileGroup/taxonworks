@@ -517,10 +517,24 @@ class Protonym < TaxonName
 
     this_rank = rank.to_sym
 
-    r = original_combination_relationships.reload 
+    # Why this? 
+    #   We need to apply gender to "internal" names for original combinations, everything
+    #   but the last name
+    # TODO: get SQL based ordering for original_combination_relationships, hard coded
 
-    r.each do |i|
-      elements.merge! i.combination_name
+    # order the relationships
+    r = original_combination_relationships.reload.sort{|a,b| ORIGINAL_COMBINATION_RANKS.index(a.type) <=> ORIGINAL_COMBINATION_RANKS.index(b.type) }
+
+    # get gender from first
+    gender = original_genus&.gender_name # r.first.subject_taxon_name.gender_name 
+
+    # apply gender to everything but the last
+    total = r.count - 1
+    r.each_with_index do |j, i|
+      unless (j.type =~ /genus/i) || i == total 
+        g = gender
+      end
+      elements.merge! j.combination_name(g)
     end
 
     # TODO: what is point of this? Do we get around this check by requiring self relationships? (species aus has species relationship to self)
