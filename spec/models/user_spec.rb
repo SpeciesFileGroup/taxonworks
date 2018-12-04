@@ -167,7 +167,6 @@ describe User, type: :model do
   end
 
   describe 'password reset token' do
-
     it 'is nil on a newly created user' do
       expect(user.password_reset_token).to be_nil
     end
@@ -203,15 +202,20 @@ describe User, type: :model do
       @last_otu = FactoryBot.create(:valid_otu, creator: user, updater: user)
     }
 
+    specify '#update_last_seen_at' do
+      user.update_last_seen_at
+      expect(user.last_seen_at).to be_truthy
+    end
+
     # specify '.last Otu created by me' do
     #   expect(user.last_otu_created).to eq @last_otu
     # end
 
-    specify '.total_objects(Otu)' do
+    specify '#total_objects(Otu)' do
       expect(user.total_objects(Otu)).to eq 5
     end
 
-    specify ".total_objects2('otus')" do # klass_string expects plural
+    specify "#total_objects2('otus')" do # klass_string expects plural
       expect(user.total_objects2('otus')).to eq 5
     end
   end

@@ -340,6 +340,8 @@ class User < ApplicationRecord
         a = t < 301 ? time_active + t : (time_active || 0)
         update_columns(last_seen_at: Time.now, time_active: a) if t > 5
       end
+    else
+      update_columns(last_seen_at: Time.now)
     end
   end
 
