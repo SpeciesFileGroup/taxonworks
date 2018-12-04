@@ -15,11 +15,13 @@ module ObservationsHelper
     when 'Observation::Qualitative'
       qualitative_observation_cell_tag(observation)
     when 'Observation::Continuous'
-     continuous_observation_cell_tag(observation)
+      continuous_observation_cell_tag(observation)
     when 'Observation::Sample'
-     sample_observation_cell_tag(observation)
+      sample_observation_cell_tag(observation)
+    when 'Observation::PresenceAbsence'
+      presence_absence_observation_cell_tag(observation)
     else 
-      'not done'
+      '!! display not done !!'
     end
   end
 
@@ -29,6 +31,11 @@ module ObservationsHelper
 
   def continuous_observation_cell_tag(observation)
     [observation.continuous_value, observation.continuous_unit].compact.join(' ')
+  end
+
+  def presence_absence_observation_cell_tag(observation)
+    # TODO: messing with visualization here, do something more clean
+    observation.presence ? '&#10003;' : '&#x274c;' 
   end
 
   def sample_observation_cell_tag(observation)
