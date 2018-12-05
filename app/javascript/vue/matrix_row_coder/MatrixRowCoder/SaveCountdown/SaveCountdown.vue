@@ -60,7 +60,7 @@ export default {
       this.isCountingDown = false
       this.$store.dispatch(ActionNames.SaveObservationsFor, this.$props.descriptor.id).then(response =>
       {
-        if(!response[0]) { 
+        if(response.includes(false)) {
           this.failed = true
         }
       })

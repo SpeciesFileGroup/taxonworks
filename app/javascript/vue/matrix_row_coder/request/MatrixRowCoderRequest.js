@@ -1,56 +1,47 @@
+import Vue from 'vue'
+import VueResource from 'vue-resource'
 import IMatrixRowCoderRequest from './IMatrixRowCoderRequest'
-import browserRequest from 'browser-request'
 
-function getJSON (url) {
-  return new Promise((resolve, reject) => {
-    const options = {
-      url,
-      json: true
-    }
+Vue.use(VueResource)
+Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
 
-    browserRequest.get(options, (error, response, body) => {
-      if (error) { reject(error) } else { resolve(body) }
+const ajaxCall = function (type, url, data = null) {
+  return new Promise(function (resolve, reject) {
+    Vue.http[type](url, data).then(response => {
+      return resolve(response.body)
+    }, response => {
+      handleError(response.body)
+      return reject(response)
     })
   })
+}
+
+const handleError = function (json) {
+  if (typeof json !== 'object') return
+  let errors = Object.keys(json)
+  let errorMessage = ''
+
+  errors.forEach(function (item) {
+    errorMessage += json[item].join('<br>')
+  })
+  TW.workbench.alert.create(errorMessage, 'error')
+}
+
+
+function getJSON (url) {
+  return ajaxCall('get', url)
 }
 
 function postJSON (url, payload) {
-  return new Promise((resolve, reject) => {
-    const options = {
-      url,
-      json: payload
-    }
-
-    browserRequest.post(options, (error, response, body) => {
-      if (error) { reject(error) } else { resolve(body) }
-    })
-  })
+  return ajaxCall('post', url, payload)
 }
 
 function putJSON (url, payload) {
-  return new Promise((resolve, reject) => {
-    const options = {
-      url,
-      json: payload
-    }
-
-    browserRequest.put(options, (error, response, body) => {
-      if (error) { reject(error) } else { resolve(body) }
-    })
-  })
+  return ajaxCall('patch', url, payload)
 }
 
 function deleteResource (url) {
-  return new Promise((resolve, reject) => {
-    const options = {
-      method: 'DELETE',
-      url
-    }
-
-    browserRequest(options, (error, response, body) => {
-      if (error) { reject(error) } else { resolve(body) }
-    })
-  })
+  return ajaxCall('delete', url)
 }
 
 export default class MatrixRowCoderRequest extends IMatrixRowCoderRequest {
@@ -114,12 +105,12 @@ export default class MatrixRowCoderRequest extends IMatrixRowCoderRequest {
 
   createClone (payload) {
     const url = `${this.apiBase}/tasks/observation_matrices/observation_matrix_hub/copy_observations.json`
-    console.log(payload)
     return postJSON(url, Object.assign(payload, this.apiParams))
   }
 
   createObservation (payload) {
     const url = `${this.apiBase}/observations.json`
+    console.log(Object.assign(payload, this.apiParams))
     return postJSON(url, Object.assign(payload, this.apiParams))
   }
 

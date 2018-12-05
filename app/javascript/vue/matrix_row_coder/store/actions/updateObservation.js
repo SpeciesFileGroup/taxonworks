@@ -22,12 +22,13 @@ export default function ({state, commit}, descriptorId) {
       })
 
       commit(MutationNames.SetDescriptorSavedOnce, descriptorId)
-      if(_.hasOwnProperty('id')) {
-        return true
-      }
-      else {
-        return false
-      }
+      return true
+    }, response => {
+      commit(MutationNames.SetDescriptorSaving, {
+        descriptorId,
+        isSaving: false
+      })
+      return false
     })
 }
 

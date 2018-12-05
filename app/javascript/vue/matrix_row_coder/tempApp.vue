@@ -98,7 +98,6 @@ export default {
       })
       request.getMatrixRow(this.initializeData.rowId).then(response => {
         this.matrixRow = response
-        console.log(response)
       })
     },
     loadMatrix () {

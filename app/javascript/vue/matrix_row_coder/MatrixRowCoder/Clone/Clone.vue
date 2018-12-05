@@ -32,10 +32,14 @@ export default {
   },
   methods: {
     cloneScorings(newGlobalId) {
-      this.$store.dispatch(ActionNames.CreateClone, {
+      this.$http.post('/tasks/observation_matrices/observation_matrix_hub/copy_observations.json', {
         old_global_id: this.rowGlobalId,
         new_global_id: newGlobalId
       })
+      //this.$store.dispatch(ActionNames.CreateClone, {
+//        old_global_id: this.rowGlobalId,
+ //       new_global_id: newGlobalId
+  //    })
     }
   }
 }
