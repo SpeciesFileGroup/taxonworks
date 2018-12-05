@@ -7,7 +7,7 @@ class Tasks::ObservationMatrices::ObservationMatrixHubController < ApplicationCo
   end
 
   def copy_observations
-    if Observation.copy(old.to_global_id.to_s, new.to_global_id.to_s)
+    if Observation.copy(params[:old_global_id], params[:new_global_id])
       render json: {success: true, status: :created}
     else
       render json: {success: false, status: :unprocessable_entity }
