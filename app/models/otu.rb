@@ -62,14 +62,6 @@ class Otu < ApplicationRecord
   has_many :geographic_areas_from_collecting_events, through: :collecting_events, source: :geographic_area
   has_many :georeferences, through: :collecting_events
 
-# has_many :observations, inverse_of: :otu
-# has_many :observation_matrix_rows, inverse_of: :otu
-# has_many :observation_matrix_row_items, inverse_of: :otu
- has_many :observation_matrices, inverse_of: :otus, through: :observation_matrix_rows
-
-  has_many :descriptors, through: :observations
-  has_many :observation_matrix_rows, inverse_of: :otu
-
   has_many :content_topics, through: :contents, source: :topic
 
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
