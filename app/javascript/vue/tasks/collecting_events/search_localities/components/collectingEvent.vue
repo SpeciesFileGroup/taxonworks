@@ -20,9 +20,10 @@
       <template v-else>
         <table>
           <tr
-          v-for="item in showList[view]"
-          :key="item.id">
-<td          v-html="item.cached"/>
+            v-for="item in showList[view]"
+            :key="item.id">
+            <td
+              v-html="item.cached"/>
           </tr>
         </table>
       </template>

@@ -3,10 +3,14 @@
     <h3>Find collecting events</h3>
     <div>
       <table>
-        <tr v-for="(item, index) in geographicAreaList"
-        :key="item.id">
-        <td><a v-html="item.label_html" @click="showObject()"/></td>
-        <td>
+        <tr
+          v-for="(item, index) in geographicAreaList"
+          :key="item.id">
+          <td>
+            <a
+              v-html="item.label_html"
+              @click="showObject()"/>
+          </td>
           <td><span @click="delistMe(index)">(Remove)</span></td>
         </tr>
       </table>

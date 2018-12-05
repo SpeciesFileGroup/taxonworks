@@ -1,6 +1,20 @@
 <template>
   <div class="find-ce">
     <h3>Find collecting events</h3>
+    <div>
+      <table>
+        <tr
+          v-for="(item, index) in tagList"
+          :key="item.id">
+          <td>
+            <a
+              v-html="item.label_html"
+              @click="showObject()"/>
+          </td>
+          <td><span @click="delistMe(index)">(Remove)</span></td>
+        </tr>
+      </table>
+    </div>
     <autocomplete
       class="separate-bottom"
       url="/controlled_vocabulary_terms/autocomplete"
@@ -10,7 +24,7 @@
       param="term"
       placeholder="Select a tag"
       label="label"
-      @getItem="sendTag($event)"
+      @getItem="addTag($event)"
       :autofocus="true"
       :clear-after="true"/>
     <input
@@ -24,7 +38,7 @@
           :key="item">
           <td>
             <span
-              v-html="item.verbatim_locality"/>
+              v-html="item.id"/>
           </td>
         </tr>
       </table>
@@ -40,22 +54,32 @@
     },
     data() {
       return {
-        tagList: []
+        tagList: [],
+        collectingEventList: [],
       }
     },
 
     methods: {
       getTagData(){
+        let tag_ids = [];
+        this.tagList.forEach(tag => {
+          tag_ids.push(tag.id)
+        });
         let params = {
           tag_ids: this.tagList
         };
         this.$http.get('/collecting_events', {params: params}).then(response => {
-          this.tagList = response.body.html;
+          this.collectingEventList = response.body.html;
         });
       },
-      sendTag(item) {
-        this.selected = '';
-        this.$emit('select', item.id)
+      addTag(item) {
+        this.tagList.push(item);
+      },
+      showObject() {
+        return true
+      },
+      delistMe(index) {
+        this.$delete(this.tagList, index)
       },
     }
   }
