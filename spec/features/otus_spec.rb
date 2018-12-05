@@ -10,6 +10,7 @@ describe 'Otus', type: :feature do
     before do
       # TODO: Fix occasional "Capybara::ElementNotFound: Unable to find field "session_email" with id session_email"
       sign_in_user_and_select_project
+
       @user.generate_api_access_token
       @user.save!
     end
