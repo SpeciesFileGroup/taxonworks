@@ -157,7 +157,7 @@ class Protonym < TaxonName
         search_rank = NomenclaturalRank::Iczn.group_base(self.rank_string)
         if !!search_rank
           if search_rank =~ /Family/
-            z = Protonym.family_group_base(self.name)
+            z = Protonym.that_is_valid.family_group_base(self.name)
             search_name = z.nil? ? nil : Protonym::FAMILY_GROUP_ENDINGS.collect{|i| z+i}
           else
             search_name = self.name
@@ -379,6 +379,7 @@ class Protonym < TaxonName
   def reduce_list_of_synonyms(list)
     return [] if list.empty?
     list1 = list.select{|s| s.id == s.lowest_rank_coordinated_taxon.id}
+    list1.reject!{|s| self.cached_valid_taxon_name_id == s.cached_valid_taxon_name_id} unless list1.empty?
     unless list1.empty?
       date1 = self.nomenclature_date
       unless date1.nil?
@@ -516,10 +517,24 @@ class Protonym < TaxonName
 
     this_rank = rank.to_sym
 
-    r = original_combination_relationships.reload 
+    # Why this? 
+    #   We need to apply gender to "internal" names for original combinations, everything
+    #   but the last name
+    # TODO: get SQL based ordering for original_combination_relationships, hard coded
 
-    r.each do |i|
-      elements.merge! i.combination_name
+    # order the relationships
+    r = original_combination_relationships.reload.sort{|a,b| ORIGINAL_COMBINATION_RANKS.index(a.type) <=> ORIGINAL_COMBINATION_RANKS.index(b.type) }
+
+    # get gender from first
+    gender = original_genus&.gender_name # r.first.subject_taxon_name.gender_name 
+
+    # apply gender to everything but the last
+    total = r.count - 1
+    r.each_with_index do |j, i|
+      unless (j.type =~ /genus/i) || i == total 
+        g = gender
+      end
+      elements.merge! j.combination_name(g)
     end
 
     # TODO: what is point of this? Do we get around this check by requiring self relationships? (species aus has species relationship to self)
@@ -551,6 +566,7 @@ class Protonym < TaxonName
   end
 
   # TODO: @proceps - confirm this is only applicable to Protonym, NOT Combination
+  # @mjy - yes this is applicable to Protonym only
   def update_cached_original_combinations
     update_columns(
       cached_original_combination: get_original_combination,

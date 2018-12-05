@@ -1,3 +1,22 @@
+import getObservationsFor from './getObservationsFor'
+import getContinuousValueFor from './getContinuousValueFor'
+import getContinuousUnitFor from './getContinuousUnitFor'
+import getPresenceFor from './getPresenceFor'
+import getSampleMinFor from './getSampleMinFor'
+import getSampleMaxFor from './getSampleMaxFor'
+import getSampleUnitFor from './getSampleUnitFor'
+import getSampleNFor from './getSampleNFor'
+import getSampleMedian from './getSampleMedian'
+import getSampleStandardError from './getSampleStandardError'
+import getSampleStandardDeviation from './getSampleStandardDeviation'
+import getSampleStandardMean from './getSampleStandardMean'
+import getCharacterStateChecked from './getCharacterStateChecked'
+import isDescriptorUnsaved from './isDescriptorUnsaved'
+import isDescriptorSaving from './isDescriptorSaving'
+import doesDescriptorNeedCountdown from './doesDescriptorNeedCountdown'
+import getMatrixRow from './getMatrixRow'
+
+
 export const GetterNames = {
   GetObservationsFor: 'getObservationsFor',
   GetContinuousValueFor: 'getContinuousValueFor',
@@ -7,26 +26,16 @@ export const GetterNames = {
   GetSampleMaxFor: 'getSampleMaxFor',
   GetSampleUnitFor: 'getSampleUnitFor',
   GetSampleNFor: 'getSampleNFor',
+  GetSampleMedian: 'getSampleMedian',
+  GetSampleStandardDeviation: 'getSampleStandardDeviation',
+  GetSampleStandardError: 'getSampleStandardError',
+  GetSampleStandardMean: 'getSampleStandardMean',
   GetMatrixRow: 'getMatrixRow',
   GetCharacterStateChecked: `getCharacterStateChecked`,
   IsDescriptorUnsaved: 'isDescriptorUnsaved',
   IsDescriptorSaving: 'isDescriptorSaving',
   DoesDescriptorNeedCountdown: 'doesDescriptorNeedCountdown'
 }
-
-import getObservationsFor from './getObservationsFor'
-import getContinuousValueFor from './getContinuousValueFor'
-import getContinuousUnitFor from './getContinuousUnitFor'
-import getPresenceFor from './getPresenceFor'
-import getSampleMinFor from './getSampleMinFor'
-import getSampleMaxFor from './getSampleMaxFor'
-import getSampleUnitFor from './getSampleUnitFor'
-import getSampleNFor from './getSampleNFor'
-import getCharacterStateChecked from './getCharacterStateChecked'
-import isDescriptorUnsaved from './isDescriptorUnsaved'
-import isDescriptorSaving from './isDescriptorSaving'
-import doesDescriptorNeedCountdown from './doesDescriptorNeedCountdown'
-import getMatrixRow from './getMatrixRow'
 
 export const GetterFunctions = {
   [GetterNames.GetObservationsFor]: getObservationsFor,
@@ -37,6 +46,10 @@ export const GetterFunctions = {
   [GetterNames.GetSampleMaxFor]: getSampleMaxFor,
   [GetterNames.GetSampleUnitFor]: getSampleUnitFor,
   [GetterNames.GetSampleNFor]: getSampleNFor,
+  [GetterNames.GetSampleMedian]: getSampleMedian,
+  [GetterNames.GetSampleStandardMean]: getSampleStandardMean,
+  [GetterNames.GetSampleStandardDeviation]: getSampleStandardDeviation,
+  [GetterNames.GetSampleStandardError]: getSampleStandardError,
   [GetterNames.GetMatrixRow]: getMatrixRow,
   [GetterNames.GetCharacterStateChecked]: getCharacterStateChecked,
   [GetterNames.IsDescriptorUnsaved]: isDescriptorUnsaved,

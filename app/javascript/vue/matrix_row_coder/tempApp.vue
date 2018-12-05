@@ -2,10 +2,23 @@
   <div>
     <template v-if="matrixRow">
       <h1>Matrix row coder</h1>
-      <span>Matrix: </span><b><span v-html="matrixRow.observation_matrix.object_tag"/></b>
-      <a :href="`/tasks/observation_matrices/new_matrix/${matrixRow.observation_matrix.id}`">
-        Edit observation matrix
-      </a>
+      <div class="flex-separate">
+        <div>
+          <span>Matrix: </span><b><span v-html="matrixRow.observation_matrix.object_tag"/></b>
+          <a :href="`/tasks/observation_matrices/new_matrix/${matrixRow.observation_matrix.id}`">
+            Edit
+          </a> | 
+          <a :href="`/tasks/observation_matrices/view/${matrixRow.observation_matrix.id}`">
+            View
+          </a>
+        </div>
+        <ul class="context-menu">
+          <li>
+            <a href="/tasks/observation_matrices/observation_matrix_hub/index">Observation matrix hub</a>
+          </li>
+        </ul>
+      </div>
+    
     </template>
     <div class="content-menu">
       <template v-if="!matrixRow">

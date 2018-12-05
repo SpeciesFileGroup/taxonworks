@@ -2,7 +2,7 @@
 class ConfidenceLevel < ControlledVocabularyTerm
   has_many :confidences, foreign_key: :confidence_level_id, dependent: :destroy, inverse_of: :confidence_level
 
-  scope :used_on_klass, -> (klass) { joins(:confidences).where(confidences: {confidence_object_type: klass} ) } 
+  scope :used_on_klass, -> (klass) { joins(:confidences).where(confidences: {confidence_object_type: klass} ) }
 
   # @return [Scope]
   #    the max 10 most recently used confidence levels

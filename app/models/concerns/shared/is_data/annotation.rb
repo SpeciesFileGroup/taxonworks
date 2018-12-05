@@ -35,6 +35,7 @@ module Shared::IsData::Annotation
     end
   end
 
+  # Doesn't belong here
   def has_loans?
     self.class < Shared::Loanable ? true : false
   end
@@ -67,13 +68,13 @@ module Shared::IsData::Annotation
   def annotations_hash
     result = {}
     result['citations'] = citations if has_citations? && citations.any?
-    result['data attributes'] = data_attributes if has_data_attributes? && data_attributes.any?
+    result['data attributes'] = data_attributes if has_data_attributes? && data_attributes.any? # why no underscore?
     result['identifiers'] = identifiers if has_identifiers? && identifiers.any?
     result['notes'] = notes if has_notes? && notes.any?
     result['tags'] = tags if has_tags? && tags.any?
     result['depictions'] = depictions.order('depictions.position') if has_depictions? && depictions.any?
     result['confidences'] = confidences if has_confidences? && confidences.any?
-    result['protocol_relationships'] = protocols if has_protocol_relationships? && protocolled?
+    result['protocol relationships'] = protocols if has_protocol_relationships? && protocolled?
     result['alternate values'] = alternate_values if has_alternate_values? && alternate_values.any?
     result['attribution'] = attribution if has_attribution? && attribution.any?
     result

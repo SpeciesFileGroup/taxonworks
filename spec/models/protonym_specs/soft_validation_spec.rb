@@ -88,10 +88,10 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       specify 'source author, year are missing' do
         @species.etymology = 'Test'
         @species.soft_validate(:missing_fields)
-        expect(@species.soft_validations.messages_on(:base).empty?).to be_falsey
+        expect(@species.soft_validations.messages_on(:base).include?('Original citation pages are not indicated')).to be_truthy
         @species.origin_citation.pages = 1 if !@species.source.nil?
         @species.soft_validate(:missing_fields)
-        expect(@species.soft_validations.messages_on(:base).empty?).to be_truthy
+        expect(@species.soft_validations.messages_on(:base).include?('Original citation pages are not indicated')).to be_falsey
         expect(@species.soft_validations.messages_on(:verbatim_author).empty?).to be_truthy
         expect(@species.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
       end
@@ -158,6 +158,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       specify 'mismatching author, year and type genus in family' do
         tribe = FactoryBot.create(:iczn_tribe, name: 'Typhlocybini', verbatim_author: nil, year_of_publication: nil, parent: @subfamily)
         genus = FactoryBot.create(:relationship_genus, verbatim_author: 'Dmitriev', name: 'Typhlocyba', year_of_publication: 2013, parent: tribe)
+        tribe.source = nil
         @subfamily.type_genus = genus
         expect(@subfamily.save).to be_truthy
         @subfamily.soft_validate(:validate_coordinated_names)
@@ -170,11 +171,9 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         expect(tribe.soft_validations.messages_on(:base).empty?).to be_falsey
 
         tribe.fix_soft_validations
-
         tribe.soft_validate(:validate_coordinated_names)
         expect(tribe.soft_validations.messages_on(:verbatim_author).empty?).to be_truthy
         expect(tribe.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
-        
         expect(tribe.soft_validations.messages_on(:base).empty?).to be_truthy
 
         @subfamily.type_genus = nil
@@ -210,6 +209,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         end
 
         specify 'is fixable' do
+          @ssp1.source = nil
           @species.fix_soft_validations
           @species.soft_validate(:validate_coordinated_names)
           @ssp1.soft_validate(:validate_coordinated_names)
@@ -230,13 +230,13 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         g = FactoryBot.create(:iczn_genus, name: 'Typhlocyba', parent: @subfamily)
         r = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: @subfamily, type: 'TaxonNameRelationship::Typification::Family' )
         @subfamily.soft_validate
-        expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_falsey
+        expect(@subfamily.soft_validations.messages_on(:base).count).to eq(3)
         @subfamily.fix_soft_validations
         @subfamily.reload
         expect(@subfamily.valid?).to be_truthy
         @subfamily.origin_citation.pages = 1 if !@subfamily.source.nil?
         @subfamily.soft_validate
-        expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_truthy
+        expect(@subfamily.soft_validations.messages_on(:base).count).to eq(0)
       end
 
       specify 'only one subtribe in a tribe' do

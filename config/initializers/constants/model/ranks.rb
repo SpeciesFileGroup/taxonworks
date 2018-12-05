@@ -127,3 +127,16 @@ RANKS_JSON = {
 }.freeze
 
 # expected parent rank, check for validation purpose
+
+# TODO: make this concept pretty
+# See Protonymy#original_combination_elements for use in sorting
+ORIGINAL_COMBINATION_RANKS = %w{
+  TaxonNameRelationship::OriginalCombination::OriginalGenus
+  TaxonNameRelationship::OriginalCombination::OriginalSubgenus
+  TaxonNameRelationship::OriginalCombination::OriginalSpecies
+  TaxonNameRelationship::OriginalCombination::OriginalSubspecies
+  TaxonNameRelationship::OriginalCombination::OriginalVariety
+  TaxonNameRelationship::OriginalCombination::OriginalSubvariety
+  TaxonNameRelationship::OriginalCombination::OriginalForm
+  TaxonNameRelationship::OriginalCombination::OriginalSubform
+}

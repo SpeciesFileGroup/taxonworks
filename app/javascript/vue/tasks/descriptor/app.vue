@@ -7,10 +7,17 @@
       v-if="loading || saving"/>
     <div class="flex-separate middle">
       <h1>{{ (descriptor['id'] ? 'Edit' : 'New') }} descriptor</h1>
-      <span
-        @click="resetDescriptor"
-        data-icon="reset"
-        class="middle reload-app">Reset</span>
+      <ul class="context-menu">
+        <li>
+          <a href="/tasks/observation_matrices/observation_matrix_hub/index">Observation matrix hub</a>
+        </li>
+        <li>
+          <span
+            @click="resetDescriptor"
+            data-icon="reset"
+            class="middle reload-app">Reset</span>
+        </li>
+      </ul>
     </div>
     <div>
       <div class="flexbox horizontal-center-content align-start">
@@ -25,6 +32,7 @@
               :descriptor="descriptor"
               @save="saveDescriptor(descriptor)"
               @onNameChange="descriptor.name = $event"
+              @onShortNameChange="descriptor.short_name = $event"
               @onKeyNameChange="descriptor.key_name = $event"
               @onDescriptionNameChange="descriptor.description_name = $event"
               @onDescriptionChange="descriptor.description = $event"/>
@@ -91,7 +99,8 @@
           name: undefined,
           description: undefined,
           description_name: undefined,
-          key_name: undefined
+          key_name: undefined,
+          short_name: undefined
         },
         loading: false,
         saving: false
