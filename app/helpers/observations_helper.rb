@@ -39,18 +39,23 @@ module ObservationsHelper
   end
 
   def sample_observation_cell_tag(observation)
+    o = observation 
     r = []
-    # TODO: rangify
-    r.push "min: #{observation.sample_min}" if observation.sample_min.present?
-    r.push "max: #{observation.sample_max}" if observation.sample_max.present?
-    r.push " #{observation.sample_units}" if observation.sample_units.present?
-    r.push "max: #{observation.sample_median}" if observation.sample_median.present?
-    r.push " &#956; #{observation.sample_mean}" if observation.sample_mean.present?
-    r.push " &#963; #{observation.sample_standard_deviation}" if observation.sample_standard_deviation.present?
-    r.push " STD ERR: #{observation.sample_standard_error}" if observation.sample_standard_error.present?
-    r.push " (n: #{observation.sample_n})" if observation.sample_n.present?
+    
+    r.push [o.sample_min, o.sample_max].compact.join('-')
+    r.push "#{o.sample_units}" if o.sample_units.present?
+    
+    m = []  
+      
+    m.push "median = #{o.sample_median}" if o.sample_median.present?
+    m.push "&#956; = #{o.sample_mean}" if o.sample_mean.present?
+    m.push ["s = #{o.sample_standard_error}", (o.sample_units.present? ? " #{o.sample_units}" : nil)].compact.join if o.sample_standard_error.present?
+    m.push "n = #{o.sample_n}" if o.sample_n.present?
+    m.push "&#963; = #{o.sample_standard_deviation}" if o.sample_standard_deviation.present?
 
-    r.compact.join(', ').html_safe
+    r.push '(' + m.join(', ') + ')' if m.any?
+
+    r.compact.join(' ').html_safe
   end
 
 
