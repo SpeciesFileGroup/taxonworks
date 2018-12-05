@@ -51,7 +51,6 @@
       <div class="horizontal-left-content middle">
         <create-component 
           :descriptor="descriptor"
-          :disabled="!validateShortName"
           @save="$emit('save', descriptor)"/>
         <a
           class="separate-left cursor-pointer"
