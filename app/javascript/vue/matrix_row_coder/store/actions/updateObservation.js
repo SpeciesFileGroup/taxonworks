@@ -22,8 +22,14 @@ export default function ({state, commit}, descriptorId) {
       })
 
       commit(MutationNames.SetDescriptorSavedOnce, descriptorId)
+      if(_.hasOwnProperty('id')) {
+        return true
+      }
+      else {
+        return false
+      }
     })
-};
+}
 
 function isNotUpdatable (componentName) {
   return componentName === ComponentNames.Qualitative
