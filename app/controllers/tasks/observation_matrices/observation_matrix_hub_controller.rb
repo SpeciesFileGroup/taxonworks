@@ -7,14 +7,10 @@ class Tasks::ObservationMatrices::ObservationMatrixHubController < ApplicationCo
   end
 
   def copy_observations
-    redirect_to :observation_matrices_hub_task, notice: 'Missing selection to clone.' and return if params[:old_otu_id].blank? || params[:new_otu_id.blank?]
-    old = Otu.find(params.require(:old_otu_id))
-    new = Otu.find(params.require(:new_otu_id))
-
     if Observation.copy(old.to_global_id.to_s, new.to_global_id.to_s)
-      redirect_to :observation_matrices_hub_task, notice: 'Observation copy successful.'
+      render json: {success: true, status: :created}
     else
-      redirect_to :observation_matrices_hub_task, notice: 'Observation copy unsuccessful.'
+      render json: {success: false, status: :unprocessable_entity }
     end
   end
 
