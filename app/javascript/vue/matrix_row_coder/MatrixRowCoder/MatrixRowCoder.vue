@@ -7,7 +7,7 @@
       v-if="isLoading"/>
     <div class="flex-separate">
       <h1 class="matrix-row-coder__title" v-html="title"/>
-      <clone-scoring/>
+      <clone-scoring @create="loadMatrixRow"/>
     </div>
     <div>
       <div class="flex-wrap-row flex-separate">
@@ -62,14 +62,7 @@ export default {
       apiBase: this.$props.apiBase,
       apiParams: this.$props.apiParams
     })
-    this.isLoading = true
-    this.$store.dispatch(ActionNames.RequestMatrixRow, {
-      rowId: this.$props.rowId,
-      otuId: this.$props.otuId
-    }).then(() => {
-      this.isLoading = false
-    })
-    this.$store.dispatch(ActionNames.RequestConfidenceLevels)
+    this.loadMatrixRow()
   },
   data() {
     return {
@@ -93,6 +86,16 @@ export default {
       return this.$store.getters[GetterNames.GetObservationsFor](descriptorId).find((item) => {
         return item.id != null
       })
+    },
+    loadMatrixRow() {
+      this.isLoading = true
+      this.$store.dispatch(ActionNames.RequestMatrixRow, {
+        rowId: this.$props.rowId,
+        otuId: this.$props.otuId
+      }).then(() => {
+        this.isLoading = false
+      })
+      this.$store.dispatch(ActionNames.RequestConfidenceLevels)      
     }
   },
   components: {

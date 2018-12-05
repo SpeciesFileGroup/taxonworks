@@ -8,9 +8,11 @@
       param="term"
       label="label_html"
       display="label"
-      @getItem="cloneScorings($event.gid)"/>
+      @getItem="otuSelectedGID = $event.gid"/>
     <button
       type="button"
+      :disabled="!otuSelectedGID"
+      @click="cloneScorings"
       class="button normal-input button-submit">Clone</button>
   </div>
 </template>
@@ -30,16 +32,20 @@ export default {
       return this.$store.getters[GetterNames.GetMatrixRow].row_object.global_id
     }
   },
+  data() {
+    return {
+      otuSelectedGID: undefined
+    }
+  },
   methods: {
-    cloneScorings(newGlobalId) {
-      this.$http.post('/tasks/observation_matrices/observation_matrix_hub/copy_observations.json', {
+    cloneScorings() {
+      this.$store.dispatch(ActionNames.CreateClone, {
         old_global_id: this.rowGlobalId,
-        new_global_id: newGlobalId
+        new_global_id: this.otuSelectedGID
+      }).then(() => {
+        this.otuSelectedGID = undefined
+        this.$emit('create', true)
       })
-      //this.$store.dispatch(ActionNames.CreateClone, {
-//        old_global_id: this.rowGlobalId,
- //       new_global_id: newGlobalId
-  //    })
     }
   }
 }
