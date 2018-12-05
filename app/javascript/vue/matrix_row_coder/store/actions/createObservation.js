@@ -32,6 +32,12 @@ export default function ({ commit, state }, args) {
       commit(MutationNames.SetDescriptorSavedOnce, args.descriptorId)
 
       if (isValidResponseData(responseData)) { commit(MutationNames.SetObservationId, makeObservationIdArgs(responseData.id, responseData.global_id)) }
+      if(isValidResponseData(responseData)) {
+        return true
+      }
+      else {
+        return false
+      }      
     })
 
   function isValidResponseData (data) {
