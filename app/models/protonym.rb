@@ -531,7 +531,10 @@ class Protonym < TaxonName
     # apply gender to everything but the last
     total = r.count - 1
     r.each_with_index do |j, i|
-      unless (j.type =~ /genus/i) || i == total 
+      if j.type =~ /enus/ || i == total
+        g = nil
+      else
+      #unless (j.type =~ /genus/) || i == total
         g = gender
       end
       elements.merge! j.combination_name(g)
