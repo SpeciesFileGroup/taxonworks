@@ -32,7 +32,7 @@
     <ul>
       <% Descriptor.recent_from_project_id(sessions_current_project_id)
         .order(updated_at: :desc).limit(20).each do |d| %>
-        <%= content_tag(:li, descriptor_link(d)) -%>
+        <%= content_tag(:li, link_to(d.name, new_descriptor_task_path(d))) -%>
       <% end %>
     </ul>
   </div>
