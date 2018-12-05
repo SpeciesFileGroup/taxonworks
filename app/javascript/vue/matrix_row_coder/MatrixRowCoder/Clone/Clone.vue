@@ -1,5 +1,7 @@
 <template>
-  <div class="horizontal-left-content">
+  <div 
+    v-if="isOtu"
+    class="horizontal-left-content">
     Copy from OTU:
     <autocomplete
       class="separate-left separate-right"
@@ -28,6 +30,9 @@ export default {
     Autocomplete
   },
   computed: {
+    isOtu() {
+      return this.$store.getters[GetterNames.GetMatrixRow] && this.$store.getters[GetterNames.GetMatrixRow].row_object.base_class == 'Otu'
+    },
     rowGlobalId() {
       return this.$store.getters[GetterNames.GetMatrixRow].row_object.global_id
     }
