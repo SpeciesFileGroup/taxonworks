@@ -5,7 +5,10 @@
       :full-screen="true"
       :logo-size="{ width: '50px', height: '50px'}"
       v-if="isLoading"/>
-    <h1 class="matrix-row-coder__title" v-html="title"/>
+    <div class="flex-separate">
+      <h1 class="matrix-row-coder__title" v-html="title"/>
+      <clone-scoring/>
+    </div>
     <div>
       <div class="flex-wrap-row flex-separate">
         <ul
@@ -46,6 +49,7 @@ import PresenceDescriptor from './SingleObservationDescriptor/PresenceDescriptor
 import QualitativeDescriptor from './QualitativeDescriptor/QualitativeDescriptor.vue'
 import SampleDescriptor from './SingleObservationDescriptor/SampleDescriptor/SampleDescriptor.vue'
 import Spinner from '../../components/spinner'
+import CloneScoring from './Clone/Clone'
 
 const computed = mapState({
   title: state => state.taxonTitle,
@@ -92,6 +96,7 @@ export default {
     }
   },
   components: {
+    CloneScoring,
     ContinuousDescriptor,
     PresenceDescriptor,
     QualitativeDescriptor,

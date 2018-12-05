@@ -112,6 +112,12 @@ export default class MatrixRowCoderRequest extends IMatrixRowCoderRequest {
     return putJSON(url, payload)
   }
 
+  createClone (payload) {
+    const url = `${this.apiBase}/tasks/observation_matrices/observation_matrix_hub/copy_observations.json`
+    console.log(payload)
+    return postJSON(url, Object.assign(payload, this.apiParams))
+  }
+
   createObservation (payload) {
     const url = `${this.apiBase}/observations.json`
     return postJSON(url, Object.assign(payload, this.apiParams))
