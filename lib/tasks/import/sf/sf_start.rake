@@ -109,8 +109,7 @@ namespace :tw do
           end
 
           #######################################################################################
-          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/5_after_source_roles/'
-          Rake::Task["tw:db:dump"].invoke
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/5_after_source_roles/`
           #######################################################################################
         end
 
@@ -361,8 +360,7 @@ namespace :tw do
           ap get_containing_source_id
 
           #######################################################################################
-          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/4_after_create_sources/'
-          Rake::Task["tw:db:dump"].invoke
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/4_after_create_sources/`
           #######################################################################################
         end
 
@@ -404,8 +402,7 @@ namespace :tw do
           ap get_sf_pub_type_string
 
           #######################################################################################
-          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/3_after_pub_type/'
-          Rake::Task["tw:db:dump"].invoke
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/3_after_pub_type`
           #######################################################################################
         end
 
@@ -516,8 +513,7 @@ namespace :tw do
           ap get_sf_verbatim_ref
 
           #######################################################################################
-          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/2_after_verbatim_refs/'
-          Rake::Task["tw:db:dump"].invoke
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/2_after_verbatim_refs/`
           #######################################################################################
         end
 
@@ -587,8 +583,7 @@ namespace :tw do
           ap get_tw_serial_id
 
           #######################################################################################
-          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/1_after_serials/'
-          Rake::Task["tw:db:dump"].invoke
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/1_after_serials/`
           #######################################################################################
         end
 

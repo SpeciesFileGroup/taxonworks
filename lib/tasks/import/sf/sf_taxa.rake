@@ -302,8 +302,7 @@ namespace :tw do
           end
 
           #######################################################################################
-          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/11_after_status_flag_rels/'
-          Rake::Task["tw:db:dump"].invoke
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/11_after_status_flag_rels/`
           #######################################################################################
         end
 
@@ -405,8 +404,7 @@ namespace :tw do
           end
 
           #######################################################################################
-          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/1_after_some_related_taxa/'
-          Rake::Task["tw:db:dump"].invoke
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/10_after_some_related_taxa/`
           #######################################################################################
         end
 
@@ -493,8 +491,7 @@ namespace :tw do
           end
 
           #######################################################################################
-          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/9_after_type_genera/'
-          Rake::Task["tw:db:dump"].invoke
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/9_after_type_genera/`
           #######################################################################################
         end
 
@@ -644,8 +641,7 @@ namespace :tw do
           end
 
           #######################################################################################
-          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/8_after_type_species/'
-          Rake::Task["tw:db:dump"].invoke
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/8_after_type_species/`
           #######################################################################################
         end
 
@@ -937,8 +933,7 @@ namespace :tw do
           ap get_taxon_name_otu_id
 
           #######################################################################################
-          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/7_after_run_all_taxa/'
-          Rake::Task["tw:db:dump"].invoke
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/7_after_run_all_taxa/`
           #######################################################################################
         end
 
@@ -974,8 +969,7 @@ namespace :tw do
           ap get_otu_sf_above_id
 
           #######################################################################################
-          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/6_after_otus_hash/'
-          Rake::Task["tw:db:dump"].invoke
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/6_after_otus_hash/`
           #######################################################################################
         end
 
