@@ -65,7 +65,7 @@ class ObservationsController < ApplicationController
         format.json { render :show, status: :ok, location: @observation.metamorphosize }
       else
         format.html { render :edit }
-        format.json { render json: @observation..metamorphosize.errors, status: :unprocessable_entity }
+        format.json { render json: @observation.metamorphosize.errors, status: :unprocessable_entity }
       end
     end
   end

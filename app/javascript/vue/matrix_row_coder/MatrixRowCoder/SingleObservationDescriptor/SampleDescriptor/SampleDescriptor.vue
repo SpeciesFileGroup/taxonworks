@@ -4,19 +4,18 @@
       <div class="horizontal-left-content">
         <label class="separate-right">
           Min:
-          <input type="number" :value="sampleMin" @input="updateSampleMin">
+          <input type="number" size="8" :value="sampleMin" @input="updateSampleMin">
         </label>
-        to
         <label
           class="separate-left">
           Max:
-          <input type="number" :value="sampleMax" @input="updateSampleMax">
+          <input type="number" size="8" :value="sampleMax" @input="updateSampleMax">
         </label>
         <unit-selector v-model="sampleUnit"/>
 
         <label class="separate-left">
           n:
-          <input type="number" :value="sampleN" @input="updateSampleN">
+          <input type="number" size="8" :value="sampleN" @input="updateSampleN">
         </label>
         <radial-annotator 
           v-if="observationExist"
@@ -31,11 +30,7 @@
       </div>
       <div class="separate-top">
         <label class="separate-right">
-          deviation:
-          <input type="text" size="8" v-model="sampleStandardDeviation">
-        </label>
-        <label class="separate-right">
-          mean:
+          Mean:
           <input type="text" size="8" v-model="sampleMean">
         </label>
         <label class="separate-right">
@@ -43,7 +38,11 @@
           <input type="text" size="8" v-model="sampleMedian">
         </label>
         <label class="separate-right">
-          error:
+          Standard deviation:
+          <input type="text" size="8" v-model="sampleStandardDeviation">
+        </label>
+        <label class="separate-right">
+          Standard error:
           <input type="text" size="8" v-model="sampleStandardError">
         </label>
       </div>
