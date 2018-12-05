@@ -211,6 +211,7 @@ class Combination < TaxonName
   # @return [Boolean]
   #   true if the finest level (typically species) is currently has the same parent
   def is_current_placement?
+    return false if protonyms.second_to_last.nil?
     protonyms.last.parent_id == protonyms.second_to_last.id
   end
 

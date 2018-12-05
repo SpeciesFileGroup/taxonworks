@@ -53,7 +53,7 @@
       <button
         type="button"
         @click="attribution.id ? updateAttribution() : createNew()"
-        :disabled="!validateFields"
+        :disabled="!attribution.id && !validateFields"
         class="button normal-input button-submit save-annotator-button">
         {{ attribution.id ? 'Update' : 'Create' }}
       </button>
@@ -162,10 +162,21 @@ export default {
     },
     updateAttribution() {
       this.setRolesAttributes()
-      this.update(`/attributions/${this.attribution.id}.json`, { attribution: this.attribution }).then(response => {
-        this.setAttribution(response.body)
-        TW.workbench.alert.create('Attribution was successfully updated.', 'notice')
-      })
+      if(!this.validateFields) {
+        this.attribution._destroy = true
+        
+        this.destroy(`/${this.type}s/${this.attribution.id}`, this.attribution).then(response => {
+          this.removeFromList(this.attribution.id)
+          TW.workbench.alert.create('Attribution was successfully destroyed.', 'notice')
+          this.attribution = this.newAttribution()
+        })
+      }
+      else {
+        this.update(`/attributions/${this.attribution.id}.json`, { attribution: this.attribution }).then(response => {
+          this.setAttribution(response.body)
+          TW.workbench.alert.create('Attribution was successfully updated.', 'notice')
+        })
+      }
     },
     setRolesAttributes() {
       this.updateIndex()

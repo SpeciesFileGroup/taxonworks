@@ -65,7 +65,7 @@ class ObservationsController < ApplicationController
         format.json { render :show, status: :ok, location: @observation.metamorphosize }
       else
         format.html { render :edit }
-        format.json { render json: @observation..metamorphosize.errors, status: :unprocessable_entity }
+        format.json { render json: @observation.metamorphosize.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -98,7 +98,7 @@ class ObservationsController < ApplicationController
       :descriptor_id, :otu_id, :collection_object_id,
       :character_state_id, :frequency,
       :continuous_value, :continuous_unit,
-      :sample_n, :sample_min, :sample_max, :sample_median, :sample_mean, :sample_units, :sample, :sample_standard_error,
+      :sample_n, :sample_min, :sample_max, :sample_median, :sample_mean, :sample_units, :sample_standard_deviation, :sample_standard_error,
       :presence,
       :description,
       :type)

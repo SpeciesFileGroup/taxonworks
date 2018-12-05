@@ -592,6 +592,10 @@ namespace :tw do
           puts 'SFSpecimenIDToCollObjID'
           ap get_tw_collection_object_id
 
+          #######################################################################################
+          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/17_after_collections_objects/'
+          Rake::Task["tw:db:dump"].invoke
+          #######################################################################################
         end
 
 
@@ -661,6 +665,10 @@ namespace :tw do
           puts 'SFCollectEventMetadata'
           ap get_sf_collect_event_metadata
 
+          #######################################################################################
+          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/16_after_col_events_metadata/'
+          Rake::Task["tw:db:dump"].invoke
+          #######################################################################################
         end
 
 
@@ -757,6 +765,11 @@ namespace :tw do
 
           puts 'SFIdentificationMetadata'
           ap get_sf_identification_metadata
+
+          #######################################################################################
+          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/15_after_identification_metadata/'
+          Rake::Task["tw:db:dump"].invoke
+          #######################################################################################
         end
 
 
@@ -1166,6 +1179,10 @@ namespace :tw do
           puts 'SFUniqueIDToTWCollectingEventID'
           ap get_tw_collecting_event_id
 
+          #######################################################################################
+          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/14_after_coll_events/'
+          Rake::Task["tw:db:dump"].invoke
+          #######################################################################################
         end
 
         # Find a TW geographic_area
@@ -1237,6 +1254,11 @@ namespace :tw do
 
           puts 'SFGeoLevel4'
           ap get_sf_geo_level4
+
+          #######################################################################################
+          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/13_after_geo_level_4/'
+          Rake::Task["tw:db:dump"].invoke
+          #######################################################################################
         end
 
 
