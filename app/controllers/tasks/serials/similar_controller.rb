@@ -3,7 +3,11 @@ class Tasks::Serials::SimilarController < ApplicationController
 
   # GET tasks/serials/like/:id
   def like
-    @serial = Serial.find(params[:id])
+    if params[:id]
+      @serial = Serial.find(params[:id])
+    else
+      @serial = Serial.first
+    end
   end
 
 end

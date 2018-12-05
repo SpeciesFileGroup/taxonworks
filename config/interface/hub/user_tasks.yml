@@ -44,7 +44,8 @@ within_locality_task:
   name:
 similar_serials_task:
   hub: true
-  name:
+  name: 'Similar serials'
+  description: 'Navigate between related serials, and their annotations.'
   related:
     - serials
   categories:
