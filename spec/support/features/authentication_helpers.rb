@@ -4,8 +4,10 @@ module Features
 
     def sign_in_with(email, password)
       visit signin_path
-      fill_in 'session[email]', with: email, id: 'session_email'
-      fill_in 'session[password]', with: password, id: 'session_password'
+      find('#session_email').set(email)
+      find('#session_password').set(password)
+      # fill_in 'session[email]', with: email, id: 'session_email'
+      # fill_in 'session[password]', with: password, id: 'session_password'
       click_button 'sign_in'
       find_link('sign_out')  # TODO: check for Capybara bug fix down the road?
     end
@@ -62,3 +64,4 @@ module Features
     end
   end
 end
+
