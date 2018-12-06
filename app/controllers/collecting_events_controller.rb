@@ -161,21 +161,21 @@ class CollectingEventsController < ApplicationController
 
   def preview_gpx_batch_load
     if params[:file]
-      @result = BatchLoad::Import::CollectingEvents.new(batch_params)
-      digest_cookie(params[:file].tempfile, :batch_collecting_events_md5)
-      render 'collecting_events/batch_load/simple/preview'
+      @result = BatchLoad::Import::CollectingEvents::GpxInterpreter.new(batch_params)
+      digest_cookie(params[:file].tempfile, :gpx_batch_load_collecting_events_md5)
+      render 'collecting_events/batch_load/gpx/preview'
     else
-      flash[:notice] = 'No file provided!'
+      flash[:notice] = "No file provided!"
       redirect_to action: :batch_load
     end
   end
 
   def create_gpx_batch_load
-    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :batch_collecting_events_md5)
-      @result = BatchLoad::Import::CollectingEvent.new(batch_params)
+    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :gpx_batch_load_collecting_events_md5)
+      @result = BatchLoad::Import::CollectingEvents::GpxInterpreter.new(batch_params)
       if @result.create
-        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collecting events were created."
-        render 'collecting_events/batch_load/simple/create' and return
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collecting events w/georeferences were created."
+        render 'collecting_events/batch_load/gpx/create' and return
       else
         flash[:alert] = 'Batch import failed.'
       end
