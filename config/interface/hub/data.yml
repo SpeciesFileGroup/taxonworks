@@ -328,22 +328,24 @@ Supporting:
       - nomenclature 
       - collection_object
 Annotations:
+  Attribution:
+    status: prototype
   AlternateValue:
     status: :prototype
   Citation:
-    status: :prototype
+    status: :stable
     categories:
       - source 
   Confidence:
     status: prototype
   DataAttribute:
-    status: :prototype
+    status: :stable
     related_models:
       - ControlledVocabularyTerm
   Identifier:
-    status: :prototype
+    status: :stable
   Note:
-    status: :prototype
+    status: :stable
   ProtocolRelationship:
     status: :prototype
     related_models:
@@ -352,5 +354,3 @@ Annotations:
     status: :prototype
     related_models:
       - ControlledVocabularyTerm
-
-

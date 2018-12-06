@@ -28,7 +28,7 @@ module TaxonWorks
         # project to query against
         attr_accessor :project_id
 
-        # one of :iczn, :icn, :icnb
+        # one of :iczn, :icn, :icnp
         attr_accessor :nomenclature_code
 
         # the result of a ScientificNameParser parse

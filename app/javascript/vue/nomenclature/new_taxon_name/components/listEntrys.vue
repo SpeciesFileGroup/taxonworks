@@ -38,7 +38,7 @@
           <span
             type="button"
             class="circle-button btn-delete"
-            @click="$emit('delete', item)">Remove
+            @click="remove(item)">Remove
           </span>
         </div>
       </li>
@@ -74,6 +74,11 @@ export default {
     },
     update () {
       this.$emit('update')
+    },
+    remove(item) {
+      if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+        this.$emit('delete', item)
+      }
     },
     getCitation: function (item) {
       return (item.hasOwnProperty('origin_citation') ? item.origin_citation.citation_source_body : undefined)

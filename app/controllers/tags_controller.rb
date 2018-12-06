@@ -41,7 +41,7 @@ class TagsController < ApplicationController
     respond_to do |format|
       if @tag.save
         format.html { redirect_to url_for(@tag.tag_object.metamorphosize),
-                                  notice: 'Tag was successfully created.' }
+                      notice: 'Tag was successfully created.' }
         format.json { render action: 'show', status: :created, location: @tag }
       else
         format.html {
@@ -59,7 +59,7 @@ class TagsController < ApplicationController
     respond_to do |format|
       if @tag.update(tag_params)
         format.html { redirect_to url_for(@tag.tag_object.metamorphosize),
-                                  notice: 'Tag was successfully updated.' }
+                      notice: 'Tag was successfully updated.' }
         format.json { render :show, status: :ok, location: @tag }
       else
         format.html { redirect_back(fallback_location: (request.referer || root_path),
@@ -128,7 +128,7 @@ class TagsController < ApplicationController
       tags_attributes: [:_destroy, :id, :keyword_id, :position,
                         keyword_attributes: [:name, :definition, :uri, :html_color]
 
-      ])
+    ])
   end
 
   def taggable_object

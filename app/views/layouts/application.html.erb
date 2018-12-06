@@ -12,10 +12,12 @@
     <%= yield :head %>
 
     <%= stylesheet_link_tag "application", media: "all", "data-turbolinks-track" => true %>
-    <%= javascript_include_tag "application", "data-turbolinks-track" => 'reload' %>
-    <%= javascript_include_tag "separated_application", "data-turbolinks-track" => 'reload' %>
-    <%= javascript_pack_tag "application" %>
-    <%= stylesheet_pack_tag "application" %>
+    <% if sessions_signed_in? %>
+      <%= javascript_include_tag "application", "data-turbolinks-track" => 'reload' %>
+      <%= javascript_include_tag "separated_application", "data-turbolinks-track" => 'reload' %>
+      <%= javascript_pack_tag "application" %>
+      <%= stylesheet_pack_tag "application" %>
+    <% end %>
     <%= csrf_meta_tags %>
 
   </head>

@@ -169,10 +169,6 @@ class Person < ApplicationRecord
     collector_roles.to_a.length > 0
   end
 
-  def  levenshtein_similar(cutoff = 4)
-    Person.where('levenshtein(last_name, ?) < ? and levenshtein(first_name, ?) < ?', last_name, cutoff, first_name, cutoff) 
-  end
-
   # @param [Integer] person_id
   # @return [Boolean]
   #   true if all records updated, false if any one failed (all or none)
@@ -183,9 +179,7 @@ class Person < ApplicationRecord
       begin
         ApplicationRecord.transaction do
           unvetted = self.type.include?('Unv') && r_person.type.include?('Unv')
-          # rubocop:disable Rails/SaveBang
           Role.where(person_id: r_person.id).update(person: self) # update merge person's roles to old
-          # rubocop:enable Rails/SaveBang
           l_person_hash = annotations_hash
           
           unless r_person.first_name.blank?
@@ -201,7 +195,6 @@ class Person < ApplicationRecord
                   if av.value == r_person.first_name
                     if av.type == 'AlternateValue::AlternateSpelling' &&
                       av.alternate_value_object_attribute == 'first_name' # &&
-                      # av.project_id == r_person.project_id
                       skip_av = true
                       break # stop looking in this bunch, if you found a match
                     end
@@ -209,10 +202,10 @@ class Person < ApplicationRecord
                 end
 
                 AlternateValue::AlternateSpelling.create!(
-                  alternate_value_object_type:      'Person',
-                  value:                            r_person.first_name,
+                  alternate_value_object_type: 'Person',
+                  value: r_person.first_name,
                   alternate_value_object_attribute: 'first_name',
-                  alternate_value_object_id:        id) unless skip_av
+                  alternate_value_object_id: id) unless skip_av
               end
             end
           end
@@ -238,10 +231,10 @@ class Person < ApplicationRecord
                 end
 
                 AlternateValue::AlternateSpelling.create!(
-                  alternate_value_object_type:      'Person',
-                  value:                            r_person.last_name,
+                  alternate_value_object_type: 'Person',
+                  value:  r_person.last_name,
                   alternate_value_object_attribute: 'last_name',
-                  alternate_value_object_id:        id) unless skip_av
+                  alternate_value_object_id: id) unless skip_av
               end
             end
           end

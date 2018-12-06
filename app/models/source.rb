@@ -210,6 +210,7 @@ class Source < ApplicationRecord
 
   validates_presence_of :type
   validates :type, inclusion: {in: ['Source::Bibtex', 'Source::Human', 'Source::Verbatim']}
+  validate :validate_year_suffix
 
   accepts_nested_attributes_for :project_sources, reject_if: :reject_project_sources
 
@@ -357,6 +358,19 @@ class Source < ApplicationRecord
   def reject_project_sources(attributed)
     return true if attributed['project_id'].blank?
     return true if ProjectSource.where(project_id: attributed['project_id'], source_id: id).any?
+  end
+
+#  protected
+
+  def validate_year_suffix
+    unless year_suffix.blank?
+      if self.id
+        s = Source.where(year: year, year_suffix: year_suffix).not_self(self).first
+      else
+        s = Source.where(year: year, year_suffix: year_suffix).first
+      end
+      errors.add(:year_suffix, 'is already used') unless s.nil?
+    end
   end
 
 end

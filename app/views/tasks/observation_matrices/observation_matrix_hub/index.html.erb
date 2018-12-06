@@ -1,0 +1,54 @@
+<h1> Observation matrix hub </h1>
+
+<div class="flexbox">
+  <div class="item item1"> 
+    <h2> Observation matrices </h2>
+    <div> <%= link_to 'New', new_matrix_task_path(), target: :blank -%> </div>
+    <ul> 
+      <table class="full_width"> 
+        <tr> 
+          <th> Name </th>
+          <th> Rows </th> 
+          <th> Columns </th> 
+          <th>  </th> 
+          <th>  </th> 
+        </tr>
+        <% @observation_matrices.each do |om| %>
+          <tr>
+            <td> <%= om.name -%> </td> 
+            <td> <%= om.observation_matrix_rows.count -%> </td> 
+            <td> <%= om.observation_matrix_columns.count -%> </td> 
+            <td> <%= link_to('View', observation_matrix_view_task_path(om)) if om.cell_count < 10000-%> </td> 
+            <td> <%= link_to('Edit', new_matrix_task_path(om)) -%> </td>
+          </tr>
+        <% end %>
+      </table>
+    </ul>
+  </div>
+
+  <div class="item item2">
+    <h2> Recently created descriptors </h2> 
+    <div> <%= link_to 'New', new_descriptor_task_path(), target: :blank -%> </div>
+    <ul>
+      <% Descriptor.recent_from_project_id(sessions_current_project_id)
+        .order(updated_at: :desc).limit(20).each do |d| %>
+        <%= content_tag(:li, link_to(d.name, new_descriptor_task_path(d))) -%>
+      <% end %>
+    </ul>
+  </div>
+
+  <div class="item item2">
+    <h2> Recently coded </h2> 
+    <% [Otu, CollectionObject].each do |c| -%>
+
+      <h3> <%= c.name -%>s </h3>
+
+      <ul>
+        <% c.recently_observed.where(project_id: sessions_current_project_id).limit(10).distinct.each do |o| %>
+          <%= content_tag(:li, object_link(o)) -%>
+        <% end %>
+      </ul>
+    <% end %>
+  </div>
+</div>
+

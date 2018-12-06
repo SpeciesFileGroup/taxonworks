@@ -55,7 +55,7 @@ begin
     ICN_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Icn.descendants.collect{|d| d.to_s}.freeze
 
     # Array of all ICNB TaxonNameRelationship classes, as Strings
-    ICNB_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Icnb.descendants.collect{|d| d.to_s}.freeze
+    ICNB_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Icnp.descendants.collect{|d| d.to_s}.freeze
 
     # Array of all ICTV TaxonNameRelationship classes, as Strings
     ICTV_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Ictv.descendants.collect{|d| d.to_s}.freeze
@@ -70,7 +70,7 @@ begin
     TAXON_NAME_RELATIONSHIP_NAMES_INVALID = TaxonNameRelationship.
       collect_descendants_and_itself_to_s(TaxonNameRelationship::Iczn::Invalidating,
                                           TaxonNameRelationship::Icn::Unaccepting,
-                                          TaxonNameRelationship::Icnb::Unaccepting,
+                                          TaxonNameRelationship::Icnp::Unaccepting,
                                           TaxonNameRelationship::Ictv::Unaccepting).freeze
 
     TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM = TaxonNameRelationship.
@@ -78,16 +78,16 @@ begin
                                           TaxonNameRelationship::Iczn::Invalidating::Usage,
                                           TaxonNameRelationship::Icn::Unaccepting::Synonym,
                                           TaxonNameRelationship::Icn::Unaccepting::Usage,
-                                          TaxonNameRelationship::Icnb::Unaccepting::Synonym,
-                                          TaxonNameRelationship::Icnb::Unaccepting::Usage,
+                                          TaxonNameRelationship::Icnp::Unaccepting::Synonym,
+                                          TaxonNameRelationship::Icnp::Unaccepting::Usage,
                                           TaxonNameRelationship::Ictv::Unaccepting) +
                                          ['TaxonNameRelationship::Iczn::Invalidating',
                                           'TaxonNameRelationship::Icn::Unaccepting',
-                                          'TaxonNameRelationship::Icnb::Unaccepting',
+                                          'TaxonNameRelationship::Icnp::Unaccepting',
                                           'TaxonNameRelationship::Ictv::Unaccepting'].freeze
 
     TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING = ['TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling',
-                                                 'TaxonNameRelationship::Icnb::Unaccepting::Usage::Misspelling',
+                                                 'TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling',
                                                  'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
                                                  'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'].freeze
 
@@ -116,7 +116,7 @@ begin
     TAXON_NAME_RELATIONSHIP_COMBINATION_TYPES = TaxonNameRelationship::Combination.descendants.inject({}){|hsh, a| hsh.merge!( a.rank_name.to_sym => a.name)}.freeze
 
     TAXON_NAME_RELATIONSHIPS_JSON = {
-      iczn: {
+        iczn: {
         tree: ApplicationEnumeration.nested_subclasses(TaxonNameRelationship::Iczn),
         all: TaxonNameRelationshipsConstantHelper::descendants_collection( TaxonNameRelationship::Iczn ),
         common: TaxonNameRelationshipsConstantHelper.collection([
@@ -127,7 +127,7 @@ begin
         ])
       },
 
-      icn: {
+        icn: {
         tree: ApplicationEnumeration.nested_subclasses(TaxonNameRelationship::Icn),
         all: TaxonNameRelationshipsConstantHelper::descendants_collection( TaxonNameRelationship::Icn ),
         common: TaxonNameRelationshipsConstantHelper.collection([
@@ -139,18 +139,18 @@ begin
         ])
       },
 
-      icnb: {
-        tree: ApplicationEnumeration.nested_subclasses(TaxonNameRelationship::Icnb),
-        all: TaxonNameRelationshipsConstantHelper::descendants_collection( TaxonNameRelationship::Icnb ),
+        icnp: {
+        tree: ApplicationEnumeration.nested_subclasses(TaxonNameRelationship::Icnp),
+        all: TaxonNameRelationshipsConstantHelper::descendants_collection( TaxonNameRelationship::Icnp ),
         common: TaxonNameRelationshipsConstantHelper.collection([
-          TaxonNameRelationship::Icnb::Unaccepting::Synonym::Objective,
-          TaxonNameRelationship::Icnb::Unaccepting::Synonym::Subjective,
-          TaxonNameRelationship::Icnb::Unaccepting::Usage::Misspelling,
-          TaxonNameRelationship::Icnb::Unaccepting::Homonym
+          TaxonNameRelationship::Icnp::Unaccepting::Synonym::Homotypic,
+          TaxonNameRelationship::Icnp::Unaccepting::Synonym::Heterotypic,
+          TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling,
+          TaxonNameRelationship::Icnp::Unaccepting::Homonym
         ])
       },
 
-      ictv: {
+        ictv: {
         tree: ApplicationEnumeration.nested_subclasses(TaxonNameRelationship::Ictv),
         all: TaxonNameRelationshipsConstantHelper::descendants_collection( TaxonNameRelationship::Ictv ),
         common: TaxonNameRelationshipsConstantHelper.collection([
@@ -158,7 +158,7 @@ begin
         ])
       },
 
-      typification: {
+        typification: {
         all:  TaxonNameRelationshipsConstantHelper::descendants_collection( TaxonNameRelationship::Typification ),
         common:  TaxonNameRelationshipsConstantHelper.collection([
           TaxonNameRelationship::Typification::Genus::OriginalDesignation,

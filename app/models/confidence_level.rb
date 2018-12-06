@@ -2,7 +2,7 @@
 class ConfidenceLevel < ControlledVocabularyTerm
   has_many :confidences, foreign_key: :confidence_level_id, dependent: :destroy, inverse_of: :confidence_level
 
-  scope :used_on_klass, -> (klass) { joins(:confidences).where(confidences: {confidence_object_type: klass} ) } 
+  scope :used_on_klass, -> (klass) { joins(:confidences).where(confidences: {confidence_object_type: klass} ) }
 
   # @return [Scope]
   #    the max 10 most recently used confidence levels
@@ -33,7 +33,7 @@ class ConfidenceLevel < ControlledVocabularyTerm
 
   def self.select_optimized(user_id, project_id, klass)
     h = {
-      recent: ConfidenceLevel.where(project_id: project_id).used_on_klass(klass).used_recently.distinct.limit(10).to_a,
+      recent: ConfidenceLevel.used_on_klass(klass).used_recently.where(project_id: project_id).distinct.limit(10).to_a,
       pinboard:  ConfidenceLevel.pinned_by(user_id).where(project_id: project_id).to_a
     }
 

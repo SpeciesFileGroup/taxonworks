@@ -49,8 +49,8 @@ class TaxonNameClassification < ApplicationRecord
 
   def nomenclature_code
     return :iczn if type.match(/::Iczn/)
-    return :icnb if type.match(/::Icnb/)
-    return :ictv if type.match(/::Icnb/)
+    return :icnp if type.match(/::Icnp/)
+    return :ictv if type.match(/::Ictv/)
     return :icn if type.match(/::Icn/)
     return nil
   end
@@ -258,13 +258,13 @@ class TaxonNameClassification < ApplicationRecord
         soft_validations.add(:type, 'Please specify the reasons for the name being Legitimate')
       when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate'
         soft_validations.add(:type, 'Please specify the reasons for the name being Illegitimate')
-      when 'TaxonNameClassification::Icnb::EffectivelyPublished'
+      when 'TaxonNameClassification::Icnp::EffectivelyPublished'
         soft_validations.add(:type, 'Please specify if the name is validly or Invalidly Published')
-      when 'TaxonNameClassification::Icnb::EffectivelyPublished::InvalidlyPublished'
+      when 'TaxonNameClassification::Icnp::EffectivelyPublished::InvalidlyPublished'
         soft_validations.add(:type, 'Please specify the reasons for the name being Invalidly Published')
-      when 'TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished'
+      when 'TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished'
         soft_validations.add(:type, 'Please specify if the name is Legitimate or Illegitimate')
-      when 'TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Legitimate'
+      when 'TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished::Legitimate'
         soft_validations.add(:type, 'Please specify the reasons for the name being Legitimate')
       # when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate'
       #   soft_validations.add(:type, 'Please specify the reasons for the name being Illegitimate')

@@ -49,8 +49,7 @@ ADD Gemfile.lock /app/
 WORKDIR /app
 
 RUN bundle install --without=development test
-RUN npm install 
-# RUN npm run increase-memory-limit
+RUN npm install
 
 COPY . /app
 
@@ -65,14 +64,13 @@ RUN chmod +x /etc/my_init.d/init.sh && \
     chmod +x /app/public/images/tmp && \
     rm -f /etc/service/nginx/down
 
-
-
 RUN chown 9999:9999 /app/public
 RUN chown 9999:9999 /app/public/images/tmp
 RUN chown 9999:9999 /app/public/packs
 RUN chown 9999:9999 /app/log/
 
 RUN touch /app/log/production.log
+RUN chown 9999:9999 /app/log/production.log
 RUN chmod 0664 /app/log/production.log
 
 CMD ["/sbin/my_init"]

@@ -29,7 +29,7 @@
 <script>
   // this is a list for selecting one person from potential selectees
   // only one person can be selected
-  import Autocomplete from '../../../../components/autocomplete.vue'
+  import Autocomplete from 'components/autocomplete.vue'
   export default {
     components: {
       Autocomplete

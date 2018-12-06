@@ -15,11 +15,34 @@ describe 'Otus', type: :feature do
     end
 
     context 'with some records created' do
-      before do
-        5.times { factory_bot_create_for_user_and_project(:valid_otu, @user, @project) }
-        FactoryBot.create(:valid_otu, name: 'Find me', creator: @user, updater: @user, project: @project)
-        Otu.last.update_column(:name, 'something_unmatchable 44')
-      end
+      let!(:o1) { Otu.create!(name: 'one', by: @user, project: @project) }
+      let!(:o2) { Otu.create!(name: 'two', by: @user, project: @project) }
+      let!(:o3) { Otu.create(name: 'sonething_unmatchable 44', taxon_name: taxon_name, by: @user, project: @project) }
+      let!(:otu) { Otu.create(name: 'Find me', by: @user, project: @project) }
+
+      let(:taxon_name_root) {
+        Protonym.find_or_create_by(
+          name: 'Root',
+          rank_class: 'NomenclaturalRank',
+          created_by_id: @user.id,
+          updated_by_id: @user.id,
+          parent_id: nil,
+          project_id: @project.id)
+      }
+
+      let(:taxon_name) {
+        Protonym.create!(
+          name: 'Adidae',
+          type: 'Protonym',
+          rank_class: Ranks.lookup(:iczn, 'Family'),
+          verbatim_author: 'SueMe',
+          year_of_publication: 1884,
+          by: @user,
+          project: @project,
+          parent: taxon_name_root,
+          also_create_otu: true
+        )
+      }
 
       context 'GET /otus' do
         before { visit index_path }
@@ -31,6 +54,7 @@ describe 'Otus', type: :feature do
           expect(page).to have_field(select_text) # TODO: inflect
           fill_in(select_text, with: 'a')
         end
+
       end
 
       describe 'GET /otus/list' do
@@ -46,56 +70,29 @@ describe 'Otus', type: :feature do
         it_behaves_like 'a_data_model_with_standard_show'
       end
 
-      describe 'GET /api/v1/otus/by_name/{variants of name}' do
+    # describe 'GET /api/v1/otus/by_name/{variants of name}' do
 
-        let(:taxon_name_root) {
-          Protonym.find_or_create_by(
-              name: 'Root',
-              rank_class: 'NomenclaturalRank',
-              created_by_id: @user.id,
-              updated_by_id: @user.id,
-              parent_id: nil,
-              project_id: @project.id)
-        }
+    #   it 'Returns a response including an array of ids for an otu name' do
+    #     route = URI.escape("/api/v1/otus/by_name/#{otu.name}?project_id=#{@project.id}&token=#{@user.api_access_token}")
+    #     visit route
+    #     expect(JSON.parse(page.body)['result']['otu_ids']).to eq([otu.id])
+    #   end
 
-        let(:taxon_name) {
-          Protonym.create!(
-              name: 'Adidae',
-              type: 'Protonym',
-              rank_class: Ranks.lookup(:iczn, 'Family'),
-              verbatim_author: 'SueMe',
-              year_of_publication: 1884,
-              by: @user,
-              project: @project,
-              parent: taxon_name_root,
-              also_create_otu: true
-          )
-        }
+    #   it 'Returns a response including an arrry of ids for a related taxon_name' do
+    #     route = URI.escape("/api/v1/otus/by_name/#{o3.taxon_name.cached}?project_id=#{o3.project.id}&token=#{@user.api_access_token}")
+    #     visit route
+    #     expect(JSON.parse(page.body)['result']['otu_ids']).to eq([o3.id])
+    #   end
 
-        let(:otu) { Otu.where(name: 'something_unmatchable 44').first } # has custom name
-        let(:otu2) { taxon_name.otus.first }
-
-        it 'Returns a response including an array of ids for an otu name' do
-          route = URI.escape("/api/v1/otus/by_name/#{otu.name}?project_id=#{@project.id}&token=#{@user.api_access_token}")
-          visit route
-          expect(JSON.parse(page.body)['result']['otu_ids']).to eq([otu.id])
-        end
-
-        it 'Returns a response including an arrry of ids for a related taxon_name' do
-          route = URI.escape("/api/v1/otus/by_name/#{otu2.taxon_name.cached}?project_id=#{otu2.project.id}&token=#{@user.api_access_token}")
-          visit route
-          expect(JSON.parse(page.body)['result']['otu_ids']).to eq([otu2.id])
-        end
-
-        it 'Returns a response including an arrry of ids for a related taxon_name plus author/year' do
-          query = otu2.taxon_name.cached + ' ' + otu2.taxon_name.cached_author_year
-          route = URI.escape(
-              "/api/v1/otus/by_name/#{query}?project_id=#{otu2.project.id}&token=#{@user.api_access_token}"
-          )
-          visit route
-          expect(JSON.parse(page.body)['result']['otu_ids']).to eq([otu2.id])
-        end
-      end
+    #   it 'Returns a response including an arrry of ids for a related taxon_name plus author/year' do
+    #     query = o3.taxon_name.cached + ' ' + o3.taxon_name.cached_author_year
+    #     route = URI.escape(
+    #         "/api/v1/otus/by_name/#{query}?project_id=#{o3.project.id}&token=#{@user.api_access_token}"
+    #     )
+    #     visit route
+    #     expect(JSON.parse(page.body)['result']['otu_ids']).to eq([o3.id])
+    #   end
+    # end
 
       context 'creating a new OTU' do
         specify 'I can exercise the new link feature' do

@@ -39,4 +39,24 @@ RSpec.describe Observation, type: :model, group: :matrix do
     expect(o.otu_id).to eq(otu.id)
   end
 
+  context '.copy' do
+    let(:old) { FactoryBot.create(:valid_otu) }
+    let(:new) { FactoryBot.create(:valid_otu) }
+
+    let!(:o1) { FactoryBot.create(:valid_observation, otu: old) } 
+
+    specify 'copies between objects' do
+      Observation.copy(old.to_global_id.to_s, new.to_global_id.to_s)
+      expect(new.observations.count).to eq(1)
+    end
+
+    specify 'does not fail on duplicates' do
+      o = FactoryBot.create(:valid_observation, otu: new, descriptor: o1.descriptor) 
+      expect(Observation.copy(old.to_global_id.to_s, new.to_global_id.to_s)).to be_truthy
+    end
+
+  end
+
+
+
 end

@@ -6,7 +6,7 @@ if taxon_name.roles.any?
     json.array! taxon_name.taxon_name_author_roles.each do |role|
       json.extract! role, :id, :position
       json.person do
-        json.partial! '/people/attributes', person: role.person 
+        json.partial! '/people/base_attributes', person: role.person 
       end
     end
   end
@@ -28,13 +28,6 @@ if taxon_name.parent
   end
 end
 
-# TODO: move to shared
-if taxon_name.pinned?(sessions_current_user)
-  json.pinboard_item do
-    json.id taxon_name.pinboard_item_for(sessions_current_user).id
-  end
-end
-
 unless taxon_name.is_a?(Combination)
   json.type_taxon_name_relationship do
     if taxon_name.type_taxon_name_relationship
@@ -42,4 +35,3 @@ unless taxon_name.is_a?(Combination)
     end
   end
 end
-

@@ -103,6 +103,12 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+  match '/attributions/licenses', to: 'attributions#licenses', via: :get, defaults: {format: :json}
+  match '/attributions/role_types', to: 'attributions#role_types', via: :get, defaults: {format: :json}
+  resources :attributions, except: [:new] do
+    concerns [:data_routes]
+  end
+
   resources :biocuration_classifications, only: [:create, :update, :destroy] do
     collection do
       get :index, defaults: {format: :json}
@@ -642,6 +648,7 @@ TaxonWorks::Application.routes.draw do
     ::ANNOTATION_TYPES.each do |t|
       if m.send("has_#{t}?")
         n = m.model_name
+        t = t.to_s.pluralize if t == :attribution
         match "/#{n.route_key}/:#{n.param_key}_id/#{t}", to: "#{t}#index", as: "#{n.singular}_#{t}", via: :get, constraints: {format: :json}, defaults: {format: :json}
       end
     end
@@ -677,6 +684,15 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :observation_matrices do
+      scope :view, controller: 'tasks/observation_matrices/view' do
+        get '(:id)', as: 'observation_matrix_view_task', action: :index
+      end
+
+      scope :observation_matrix_hub, controller: 'tasks/observation_matrices/observation_matrix_hub' do
+        get 'index', as: 'observation_matrices_hub_task' # 'index_observation_matrix_hub_task'
+        post 'copy_observations', as: 'observation_matrix_hub_copy_observations', defaults: {format: :json}
+      end
+
       scope :new_matrix, controller: 'tasks/observation_matrices/new_matrix' do
         get 'observation_matrix_row_item_metadata', as: 'observation_matrix_row_item_metdata', defaults: {format: :json}
         get 'observation_matrix_column_item_metadata', as: 'observation_matrix_column_item_metdata', defaults: {format: :json}
@@ -1072,6 +1088,7 @@ TaxonWorks::Application.routes.draw do
         ::ANNOTATION_TYPES.each do |t|
           if m.send("has_#{t}?")
             n = m.model_name
+            t = t.to_s.pluralize if t == :attribution
             match "/#{n.route_key}/:#{n.param_key}_id/#{t}", to: "#{t}#index",  via: :get, constraints: {format: :json}, defaults: {format: :json}
           end
         end

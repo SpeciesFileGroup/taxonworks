@@ -59,12 +59,12 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
   #   the elements of the original combination name for this instance
   #   TODO: reconcile this with <>_name_elements for other combinations.
   #   TODO: reconcile this format with that of full_name_hash
-  def combination_name
+  def combination_name(name_gender = nil)
     elements = [monomial_prefix]
-    if !subject_taxon_name.verbatim_name.blank? # subject_taxon_name ?! TODO ?! - provide verbatim test
-      elements.push subject_taxon_name.verbatim_name 
+    if !subject_taxon_name.verbatim_name.blank? && name_gender.nil?
+      elements.push subject_taxon_name.verbatim_name
     else
-      elements.push subject_taxon_name.genderized_name(element_gender)
+      elements.push subject_taxon_name.genderized_name(name_gender)
     end
 
     elements.push('[sic]') if subject_taxon_name.cached_misspelling
@@ -73,9 +73,10 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
     return {applicable_rank => elements}
   end
 
-  def element_gender
-    subject_taxon_name.gender_name
-  end
+# def element_gender
+#   object_taxon_name.original_genus.gender_name
+#    subject_taxon_name.gender_name
+# end
 
   protected
 

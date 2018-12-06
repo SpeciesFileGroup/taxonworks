@@ -51,6 +51,7 @@ class Project < ApplicationRecord
 
     order = %w{
      Label
+     Attribution
      DwcOccurrence
      ProtocolRelationship
      CharacterState

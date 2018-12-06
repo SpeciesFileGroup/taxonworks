@@ -12,6 +12,12 @@
 #
 #  Tag.related_foreign_keys.push self.name.foreign_key
 #
+#
+# TODO: sometime way down the line revisit this
+# Please DO NOT include the following:
+#   validates :<foo>_object, presence: true
+#   validates_presence_of :<foo>_object_type, :<foo>_object_id
+#
 module Shared::PolymorphicAnnotator
   extend ActiveSupport::Concern
 
