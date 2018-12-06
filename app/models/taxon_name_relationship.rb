@@ -518,7 +518,7 @@ class TaxonNameRelationship < ApplicationRecord
       s = self.subject_taxon_name
       o = self.object_taxon_name
       if (s.type_taxon_name != o.type_taxon_name ) || !s.has_same_primary_type(o)
-        soft_validations.add(:type, "Objective synonyms {s.cached_html} and #{o.cached_html} should have the same type")
+        soft_validations.add(:type, "Objective synonyms #{s.cached_html} and #{o.cached_html} should have the same type")
       end
     end
   end

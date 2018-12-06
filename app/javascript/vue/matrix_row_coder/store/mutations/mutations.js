@@ -29,6 +29,7 @@ import setDescriptorSaving from './setDescriptorSaving'
 import setDescriptorSavedOnce from './setDescriptorSavedOnce'
 import setObservationId from './setObservationId'
 import setMatrixRow from './setMatrixRow'
+import resetState from './resetState'
 
 export const MutationNames = {
   SetDescriptors: 'setDescriptors',
@@ -61,10 +62,12 @@ export const MutationNames = {
   CountdownStartedFor: `countdownStartedFor`,
   SetDescriptorSaving: `setDescriptorSaving`,
   SetDescriptorSavedOnce: `setDescriptorSavedOnce`,
-  SetObservationId: `setObservationId`
+  SetObservationId: `setObservationId`,
+  ResetState: `resetState`,
 }
 
 export const MutationFunctions = {
+  [MutationNames.ResetState]: resetState,
   [MutationNames.SetDescriptors]: setDescriptors,
   [MutationNames.SetTaxonTitle]: setTaxonTitle,
   [MutationNames.SetTaxonId]: setTaxonId,

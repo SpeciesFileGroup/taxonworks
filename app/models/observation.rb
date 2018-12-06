@@ -62,6 +62,7 @@ class Observation < ApplicationRecord
     end
   end
 
+  # @return [Boolean]
   # @params old_global_id [String]
   #    global_id of collection object or Otu
   #
@@ -80,8 +81,9 @@ class Observation < ApplicationRecord
       end
       true
     rescue
-      raise
+      return false
     end
+    true
   end
 
   protected

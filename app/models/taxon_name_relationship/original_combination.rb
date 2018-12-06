@@ -61,8 +61,8 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
   #   TODO: reconcile this format with that of full_name_hash
   def combination_name(name_gender = nil)
     elements = [monomial_prefix]
-    if !subject_taxon_name.verbatim_name.blank? # subject_taxon_name ?! TODO ?! - provide verbatim test
-      elements.push subject_taxon_name.verbatim_name 
+    if !subject_taxon_name.verbatim_name.blank? && name_gender.nil?
+      elements.push subject_taxon_name.verbatim_name
     else
       elements.push subject_taxon_name.genderized_name(name_gender)
     end

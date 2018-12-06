@@ -31,7 +31,7 @@ if collecting_event.roles.any?
     json.array! collecting_event.collector_roles.each do |role|
       json.extract! role, :id, :position
       json.person do
-        json.partial! '/people/attributes', person: role.person 
+        json.partial! '/people/base_attributes', person: role.person 
       end
     end
   end
