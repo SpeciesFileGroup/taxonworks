@@ -102,6 +102,8 @@
 class User < ApplicationRecord
   include Shared::Identifiers # TODO: this is required before Housekeeping::Users, resolve
 
+  include User::Preferences
+
   include Shared::DataAttributes
   include Shared::Notes
   include Shared::Tags

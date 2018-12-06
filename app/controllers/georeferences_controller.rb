@@ -7,9 +7,25 @@ class GeoreferencesController < ApplicationController
   # GET /georeferences
   # GET /georeferences.json
   def index
-    @recent_objects = Georeference.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    
+    respond_to do |format|
+      format.html do
+        @recent_objects = Georeference.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @otus = Queries::Georeference::Filter.new(filter_params).all.page(params[:page]).per(500)
+      }
+    end
   end
+
+  def filter_params
+    params.permit(
+      :collecting_event_id
+    )
+  end
+
+
 
   def list
     @georeferences = Georeference.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
