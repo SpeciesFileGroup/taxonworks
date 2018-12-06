@@ -301,12 +301,12 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-  # TODO: fix broken interfaces
-  # namespace :georeferences do
-  #   resources :geo_locates, only: [:new, :create]
-  #   resources :google_maps, only: [:new, :create]
-  #   # verbatim_data
-  # end
+  # TODO: fix broken interfaces, deprecate?
+  namespace :georeferences do
+    resources :geo_locates, only: [:new, :create]
+    resources :google_maps, only: [:new, :create]
+    # verbatim_data
+  end
 
   resources :identifiers, except: [:show] do
     concerns [:data_routes]
