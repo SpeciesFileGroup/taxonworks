@@ -219,8 +219,7 @@ namespace :tw do
           ap get_nomenclator_metadata
 
           #######################################################################################
-          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/12_after_orig_genus_ids/'
-          Rake::Task["tw:db:dump"].invoke
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/12_after_orig_genus_ids/`
           #######################################################################################
         end
 

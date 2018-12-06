@@ -57,7 +57,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           species.update(
             masculine_name: 'aus',
             feminine_name: 'aa',
-            neuter_name: 'aum'
+            neuter_name: 'aum',
+            verbatim_name: 'aum'
           )
 
           subspecies.update(
@@ -72,6 +73,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         end
         
         specify '#cached_original_combination' do
+          subspecies.save
           expect(subspecies.cached_original_combination).to eq('Aus aa bus')
         end
 

@@ -11,6 +11,7 @@ const ActionNames = {
   RemoveObservation: 'removeObservation',
   UpdateObservation: 'updateObservation',
   CreateObservation: 'createObservation',
+  CreateClone: 'createClone',
   SaveObservationsFor: `saveObservationsFor`
 }
 

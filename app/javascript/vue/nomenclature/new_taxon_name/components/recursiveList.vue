@@ -1,8 +1,9 @@
 <template>
   <ul class="tree-status">
     <li
-      v-for="(item, key) in objectList"
-      v-if="item.hasOwnProperty(display)">
+      v-for="(item, key) in orderList"
+      v-if="item.hasOwnProperty(display)"
+      :key="key">
       <button
         type="button"
         :value="item.type"
@@ -31,6 +32,8 @@ export default {
   components: {
     RecursiveList
   },
+  name: 'RecursiveList',
+  props: ['objectList', 'modalMutationName', 'actionMutationName', 'display', 'getterList'],
   computed: {
     savedList () {
       if (this.getterList != undefined) {
@@ -38,10 +41,32 @@ export default {
       } else {
         return []
       }
+    },
+    orderList() {
+      let sortable = []
+      let sortableObject = {}
+
+      for (var key in this.objectList) {
+          sortable.push([key, this.objectList[key]]);
+      }
+
+      sortable.sort((a, b) => {
+        if (a[1][this.display] > b[1][this.display]) {
+          return 1;
+        }
+        if (a[1][this.display] < b[1][this.display]) {
+          return -1;
+        }
+        return 0;
+      })
+      
+      sortable.forEach(item => {
+        sortableObject[item[0]] = item[1]
+      })
+      
+      return sortableObject
     }
   },
-  name: 'RecursiveList',
-  props: ['objectList', 'modalMutationName', 'actionMutationName', 'display', 'getterList'],
   methods: {
     addStatus: function (status) {
       this.$store.commit(MutationNames[this.modalMutationName], false)

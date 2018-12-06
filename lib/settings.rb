@@ -31,6 +31,7 @@ module Settings
   @@sandbox_commit_date = nil
 
   @@selenium_settings = {}
+
   # @param [Hash] config
   # @param [Hash] hash
   # @return [Boolean]
@@ -171,7 +172,7 @@ module Settings
     if settings
       invalid = settings.keys - [:sandbox_mode]
       raise Error, "#{invalid} are not valid settings for interface" unless invalid.empty?
-      if settings[:sandbox_mode]
+      if settings[:sandbox_mode] == true
         @@sandbox_mode = true
         @@sandbox_commit_sha = TaxonworksNet.commit_sha
         @@sandbox_commit_date = TaxonworksNet.commit_date

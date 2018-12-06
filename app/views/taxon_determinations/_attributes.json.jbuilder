@@ -9,7 +9,7 @@ if taxon_determination.roles.any?
     json.array! taxon_determination.determiner_roles.each do |role|
       json.extract! role, :id, :position
       json.person do
-        json.partial! '/people/attributes', person: role.person 
+        json.partial! '/people/base_attributes', person: role.person
       end
     end
   end

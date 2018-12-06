@@ -22,7 +22,7 @@
             slot="body"
             url="/taxon_names/autocomplete"
             label="label_html"
-            min="3"
+            min="2"
             v-model="taxonRelation"
             event-send="autocompleteTaxonRelationshipSelected"
             placeholder="Search taxon name for the new relationship..."
