@@ -15,7 +15,7 @@
         </tr>
       </table>
     </div>
-    <autocomplete
+     <autocomplete
       class="separate-bottom"
       url="/controlled_vocabulary_terms/autocomplete"
       min="2"
@@ -35,10 +35,10 @@
       <table>
         <tr
           v-for="item in tagList"
-          :key="item">
+          :key="item.id">
           <td>
             <span
-              v-html="item.id"/>
+              v-html="item.id + ' ' + item.label_html"/>
           </td>
         </tr>
       </table>
