@@ -35,6 +35,9 @@ export default {
     },
     rowGlobalId() {
       return this.$store.getters[GetterNames.GetMatrixRow].row_object.global_id
+    },
+    rowId() {
+      return this.$store.getters[GetterNames.GetMatrixRow].id
     }
   },
   data() {
@@ -49,7 +52,7 @@ export default {
         new_global_id: this.rowGlobalId
       }).then(() => {
         this.otuSelectedGID = undefined
-        this.$emit('create', true)
+        this.$emit('create', this.rowId)
       })
     }
   }

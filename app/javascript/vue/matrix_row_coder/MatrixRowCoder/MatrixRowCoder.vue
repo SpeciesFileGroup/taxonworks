@@ -7,7 +7,11 @@
       v-if="isLoading"/>
     <div class="flex-separate">
       <h1 class="matrix-row-coder__title" v-html="title"/>
-      <clone-scoring @create="loadMatrixRow"/>
+      <clone-scoring
+        @create="loadMatrixRow({
+          rowId: $event,
+          otuId: otuId
+      })"/>
     </div>
     <div>
       <div class="flex-wrap-row flex-separate">
@@ -43,6 +47,7 @@
 <script>
 import { mapState } from 'vuex'
 import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 import ContinuousDescriptor from './SingleObservationDescriptor/ContinuousDescriptor/ContinuousDescriptor.vue'
 import PresenceDescriptor from './SingleObservationDescriptor/PresenceDescriptor/PresenceDescriptor.vue'
@@ -58,11 +63,11 @@ const computed = mapState({
 
 export default {
   created: function () {
-    this.$store.state.request.setApi({
-      apiBase: this.$props.apiBase,
-      apiParams: this.$props.apiParams
+    this.setApiValues()
+    this.loadMatrixRow({
+      rowId: this.$props.rowId,
+      otuId: this.$props.otuId
     })
-    this.loadMatrixRow()
   },
   data() {
     return {
@@ -78,6 +83,12 @@ export default {
   },
   computed,
   methods: {
+    setApiValues() {
+      this.$store.state.request.setApi({
+        apiBase: this.$props.apiBase,
+        apiParams: this.$props.apiParams
+      })      
+    },
     zoomDescriptor (descriptorId) {
       const top = document.querySelector(`[data-descriptor-id="${descriptorId}"]`).getBoundingClientRect().top
       window.scrollTo(0, top)
@@ -87,12 +98,11 @@ export default {
         return item.id != null
       })
     },
-    loadMatrixRow() {
+    loadMatrixRow(matrixRow) {
+      this.$store.commit(MutationNames.ResetState)
+      this.setApiValues()
       this.isLoading = true
-      this.$store.dispatch(ActionNames.RequestMatrixRow, {
-        rowId: this.$props.rowId,
-        otuId: this.$props.otuId
-      }).then(() => {
+      this.$store.dispatch(ActionNames.RequestMatrixRow, matrixRow).then(() => {
         this.isLoading = false
       })
       this.$store.dispatch(ActionNames.RequestConfidenceLevels)      
