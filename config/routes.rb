@@ -297,15 +297,16 @@ TaxonWorks::Application.routes.draw do
 
   resources :geographic_items
 
-  resources :georeferences, only: [:index, :destroy, :new, :show, :edit] do
+  resources :georeferences, only: [:index, :destroy, :new, :show, :edit, :create] do
     concerns [:data_routes]
   end
 
-  namespace :georeferences do
-    resources :geo_locates, only: [:new, :create]
-    resources :google_maps, only: [:new, :create]
-    # verbatim_data
-  end
+  # TODO: fix broken interfaces
+  # namespace :georeferences do
+  #   resources :geo_locates, only: [:new, :create]
+  #   resources :google_maps, only: [:new, :create]
+  #   # verbatim_data
+  # end
 
   resources :identifiers, except: [:show] do
     concerns [:data_routes]
