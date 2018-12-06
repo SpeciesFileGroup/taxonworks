@@ -45,8 +45,8 @@ export default {
   methods: {
     cloneScorings() {
       this.$store.dispatch(ActionNames.CreateClone, {
-        old_global_id: this.rowGlobalId,
-        new_global_id: this.otuSelectedGID
+        old_global_id: this.otuSelectedGID,
+        new_global_id: this.rowGlobalId
       }).then(() => {
         this.otuSelectedGID = undefined
         this.$emit('create', true)
