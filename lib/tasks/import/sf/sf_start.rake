@@ -196,6 +196,7 @@ namespace :tw do
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
           get_sf_booktitle_publisher_address = import.get('SFPubIDTitlePublisherAddress') # key = SF.PubID, value = hash of booktitle, publisher, address
           get_sf_pub_type_string = import.get('SFPubIDToPubTypeString')
+          get_contained_cite_aux_data = import.get('SFContainedCiteAuxData')
 
           get_tw_source_id = {} # key = SF.RefID, value = TW.source_id
           get_containing_source_id = {} # key = TW.contained_source_id, value = TW.containing_source_id # use for containing auths/eds
@@ -291,9 +292,11 @@ namespace :tw do
           end
 
           ##### Second Ref loop: Create sources for SF.tblRefs.ContainingRefID > 0
+          # skip if get_contained_cite_aux_data[sf_ref_id] -- do not create this source stub
 
           file.each_with_index do |row, i|
             next if row['ContainingRefID'].to_i == 0 # Creating only contained references in this pass
+            next if get_contained_cite_aux_data[row['RefID']]
 
             ref_id = row['RefID']
             containing_ref_id = row['ContainingRefID']
@@ -304,14 +307,16 @@ namespace :tw do
             begin
               containing_source = Source.find(containing_source_id)
             rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound
-              logger.info "Source ERROR: containing source not found for RefID = #{containing_source_id} (source not found = #{source_not_found_error += 1})"
+              logger.error "Source ERROR: containing source not found for RefID = #{containing_source_id} (source not found = #{source_not_found_error += 1})"
               next
             end
 
             if containing_source.bibtex_type == 'book'
               pub_type_string = 'inbook'
             else
-              pub_type_string = 'misc' # per Matt, parent source is 'article'
+              logger.error "Source ERROR: containing source bibtex_type is not 'book', SF.ContainingRefID = #{containing_ref_id}, TW.containing_source_id = #{containing_source_id}"
+              next
+              # pub_type_string = 'misc' # per Matt, parent source is 'article'
             end
 
             source = Source::Bibtex.new(
@@ -361,6 +366,39 @@ namespace :tw do
 
           #######################################################################################
           `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/4_after_create_sources/`
+          puts 'dump created'
+          #######################################################################################
+        end
+
+        desc 'time rake tw:project_import:sf_import:start:contained_cite_aux_data user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define contained_cite_aux_data: [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Creating SF contained cite aux data...'
+
+          # Misc. data associated with contained ref acting as taxon name author. Ref in refs of articles, not books. Do not create source records
+          #   for these. The aux data will be used in a note for a citation. The containing ref ID will be the actual record for the citation.
+
+          get_contained_cite_aux_data = {} # key = SF.RefID, value = ContainingRefID, RefPages, Note, LinkID
+
+          path = @args[:data_directory] + 'sfContainedCiteAuxData.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          file.each do |row|
+            ref_id = row['RefID']
+
+            logger.info "Working with SF.SpecimenID = '#{ref_id}' \n"
+
+            get_contained_cite_aux_data[ref_id] = {containing_ref_id: row['ContainingRefID'], ref_pages: row['RefPages'], note: row['Note'], link_id: row['LinkID']}
+          end
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SFContainedCiteAuxData', get_contained_cite_aux_data)
+
+          puts 'SFContainedCiteAuxData'
+          ap get_contained_cite_aux_data
+
+          #######################################################################################
+          # `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/`
           #######################################################################################
         end
 
