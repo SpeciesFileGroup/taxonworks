@@ -7,25 +7,16 @@ class GeoreferencesController < ApplicationController
   # GET /georeferences
   # GET /georeferences.json
   def index
-    
     respond_to do |format|
       format.html do
         @recent_objects = Georeference.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       end
       format.json {
-        @otus = Queries::Georeference::Filter.new(filter_params).all.page(params[:page]).per(500)
+        @georeferences = Queries::Georeference::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(50)
       }
     end
   end
-
-  def filter_params
-    params.permit(
-      :collecting_event_id
-    )
-  end
-
-
 
   def list
     @georeferences = Georeference.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
@@ -144,29 +135,36 @@ class GeoreferencesController < ApplicationController
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
+
+  def filter_params
+    params.permit(
+      :collecting_event_id,
+      collecting_event_ids: [],
+    )
+  end
+  
   def set_georeference
     @georeference = Georeference.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @georeference
   end
-
-  # Never trust parameters from the scary internet, only allow the white list through.
+  
   def georeference_params
-    params.require(:georeference).permit(:iframe_response,
-                                         :submit,
-                                         :geographic_item_id,
-                                         :collecting_event_id,
-                                         :error_radius,
-                                         :error_depth,
-                                         :error_geographic_item_id,
-                                         :type,
-                                         :position,
-                                         :is_public,
-                                         :api_request,
-                                         :is_undefined_z,
-                                         :is_median_z,
-                                         geographic_item_attributes: [:shape],
-                                         origin_citation_attributes: [:id, :_destroy, :source_id, :pages]
-                                        )
+    params.require(:georeference).permit(
+      :iframe_response,
+      :submit,
+      :geographic_item_id,
+      :collecting_event_id,
+      :error_radius,
+      :error_depth,
+      :error_geographic_item_id,
+      :type,
+      :position,
+      :is_public,
+      :api_request,
+      :is_undefined_z,
+      :is_median_z,
+      geographic_item_attributes: [:shape],
+      origin_citation_attributes: [:id, :_destroy, :source_id, :pages]
+    )
   end
 end
