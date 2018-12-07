@@ -28,7 +28,8 @@ namespace :tw do
           # 'start:map_pub_type',
           # '3_after_pub_type': 0m27.396s on 30 Oct 2018
           #
-          # 'start:create_sources',
+          'start:contained_cite_aux_data',
+          'start:create_sources',
           # '4_after_create_sources': 41m36.692s on 31 Oct 2018
           #
           # 'start:create_misc_ref_info',

@@ -26,7 +26,7 @@
           <autocomplete
             url="/taxon_names/autocomplete"
             label="label"
-            min="3"
+            min="2"
             :disabled="disabled"
             v-model="item.autocomplete"
             event-send="autocomplete"

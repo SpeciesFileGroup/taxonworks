@@ -21,6 +21,10 @@ export default class IMatrixRowCoderRequest {
     throw IllegalBaseClassCallError
   }
 
+  createClone () {
+    throw IllegalBaseClassCallError
+  }
+
   removeObservation () {
     throw IllegalBaseClassCallError
   }

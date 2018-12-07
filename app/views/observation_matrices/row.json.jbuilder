@@ -1,3 +1,5 @@
+json.id @observation_matrix_row.id
+
 json.row_object do
   json.partial! "row_object", row_object: @observation_matrix_row.row_object
 end

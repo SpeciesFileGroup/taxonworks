@@ -531,7 +531,10 @@ class Protonym < TaxonName
     # apply gender to everything but the last
     total = r.count - 1
     r.each_with_index do |j, i|
-      unless (j.type =~ /genus/i) || i == total 
+      if j.type =~ /enus/ || i == total
+        g = nil
+      else
+      #unless (j.type =~ /genus/) || i == total
         g = gender
       end
       elements.merge! j.combination_name(g)
@@ -545,7 +548,7 @@ class Protonym < TaxonName
     end
 
     if elements.any?
-      elements[:genus] = '[GENUS NOT SPECIFIED]' unless elements[:genus]
+      elements[:genus] = '[GENUS NOT SPECIFIED]' if !elements[:genus] && !not_binomial?
       # If there is no :species, but some species group, add element
       elements[:species] = '[SPECIES NOT SPECIFIED]' if !elements[:species] && ( [:subspecies, :variety, :form, :subform, :subvariety] & elements.keys ).size > 0
     end

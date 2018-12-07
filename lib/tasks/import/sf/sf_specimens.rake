@@ -593,8 +593,7 @@ namespace :tw do
           ap get_tw_collection_object_id
 
           #######################################################################################
-          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/17_after_collections_objects/'
-          Rake::Task["tw:db:dump"].invoke
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/17_after_collections_objects/`
           #######################################################################################
         end
 
@@ -666,8 +665,7 @@ namespace :tw do
           ap get_sf_collect_event_metadata
 
           #######################################################################################
-          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/16_after_col_events_metadata/'
-          Rake::Task["tw:db:dump"].invoke
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/16_after_col_events_metadata/`
           #######################################################################################
         end
 
@@ -767,8 +765,7 @@ namespace :tw do
           ap get_sf_identification_metadata
 
           #######################################################################################
-          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/15_after_identification_metadata/'
-          Rake::Task["tw:db:dump"].invoke
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/15_after_identification_metadata/`
           #######################################################################################
         end
 
@@ -1180,8 +1177,7 @@ namespace :tw do
           ap get_tw_collecting_event_id
 
           #######################################################################################
-          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/14_after_coll_events/'
-          Rake::Task["tw:db:dump"].invoke
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/14_after_coll_events/`
           #######################################################################################
         end
 
@@ -1256,8 +1252,7 @@ namespace :tw do
           ap get_sf_geo_level4
 
           #######################################################################################
-          ENV['backup_directory'] = '/Users/mbeckman/src/db_backup/13_after_geo_level_4/'
-          Rake::Task["tw:db:dump"].invoke
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/13_after_geo_level_4/`
           #######################################################################################
         end
 

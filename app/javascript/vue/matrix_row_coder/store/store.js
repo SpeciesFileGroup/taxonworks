@@ -7,7 +7,7 @@ import IMatrixRowCoderRequest from '../request/IMatrixRowCoderRequest'
 
 Vue.use(Vuex)
 
-function makeInitialState (requestModule) {
+export function makeInitialState (requestModule) {
   return {
     request: requestModule,
     taxonTitle: '',

@@ -5,7 +5,14 @@
       :full-screen="true"
       :logo-size="{ width: '50px', height: '50px'}"
       v-if="isLoading"/>
-    <h1 class="matrix-row-coder__title" v-html="title"/>
+    <div class="flex-separate">
+      <h1 class="matrix-row-coder__title" v-html="title"/>
+      <clone-scoring
+        @create="loadMatrixRow({
+          rowId: $event,
+          otuId: otuId
+      })"/>
+    </div>
     <div>
       <div class="flex-wrap-row flex-separate">
         <ul
@@ -40,12 +47,14 @@
 <script>
 import { mapState } from 'vuex'
 import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 import ContinuousDescriptor from './SingleObservationDescriptor/ContinuousDescriptor/ContinuousDescriptor.vue'
 import PresenceDescriptor from './SingleObservationDescriptor/PresenceDescriptor/PresenceDescriptor.vue'
 import QualitativeDescriptor from './QualitativeDescriptor/QualitativeDescriptor.vue'
 import SampleDescriptor from './SingleObservationDescriptor/SampleDescriptor/SampleDescriptor.vue'
 import Spinner from '../../components/spinner'
+import CloneScoring from './Clone/Clone'
 
 const computed = mapState({
   title: state => state.taxonTitle,
@@ -54,18 +63,11 @@ const computed = mapState({
 
 export default {
   created: function () {
-    this.$store.state.request.setApi({
-      apiBase: this.$props.apiBase,
-      apiParams: this.$props.apiParams
-    })
-    this.isLoading = true
-    this.$store.dispatch(ActionNames.RequestMatrixRow, {
+    this.setApiValues()
+    this.loadMatrixRow({
       rowId: this.$props.rowId,
       otuId: this.$props.otuId
-    }).then(() => {
-      this.isLoading = false
     })
-    this.$store.dispatch(ActionNames.RequestConfidenceLevels)
   },
   data() {
     return {
@@ -81,6 +83,12 @@ export default {
   },
   computed,
   methods: {
+    setApiValues() {
+      this.$store.state.request.setApi({
+        apiBase: this.$props.apiBase,
+        apiParams: this.$props.apiParams
+      })      
+    },
     zoomDescriptor (descriptorId) {
       const top = document.querySelector(`[data-descriptor-id="${descriptorId}"]`).getBoundingClientRect().top
       window.scrollTo(0, top)
@@ -89,9 +97,19 @@ export default {
       return this.$store.getters[GetterNames.GetObservationsFor](descriptorId).find((item) => {
         return item.id != null
       })
+    },
+    loadMatrixRow(matrixRow) {
+      this.$store.commit(MutationNames.ResetState)
+      this.setApiValues()
+      this.isLoading = true
+      this.$store.dispatch(ActionNames.RequestMatrixRow, matrixRow).then(() => {
+        this.isLoading = false
+      })
+      this.$store.dispatch(ActionNames.RequestConfidenceLevels)      
     }
   },
   components: {
+    CloneScoring,
     ContinuousDescriptor,
     PresenceDescriptor,
     QualitativeDescriptor,
