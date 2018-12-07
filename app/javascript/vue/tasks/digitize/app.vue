@@ -1,5 +1,6 @@
 <template>
   <div id="#vue-all-in-one">
+    <georeference/>
     <task-header/>
     <collection-object class="separate-bottom"/>
     <div class="horizontal-left-content align-start separate-top">
@@ -20,9 +21,11 @@
   import TypeMaterial from './components/typeMaterial/typeMaterial.vue'
   import { GetUserPreferences } from './request/resources.js'
   import { MutationNames } from './store/mutations/mutations.js'
+  import Georeference from 'components/georeferences/map'
 
   export default {
     components: {
+      Georeference,
       TaskHeader,
       CollectionObject,
       TypeMaterial,

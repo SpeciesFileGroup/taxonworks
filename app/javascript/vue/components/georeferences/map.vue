@@ -69,7 +69,7 @@
     data() {
       return {
         drawingManager: undefined,
-        shapes: undefined,
+        shape: undefined,
         overlay: undefined,
         drawingModes: ['marker', 'circle', 'polygon', 'polyline'],
         drawingMode: 'circle'
@@ -106,11 +106,12 @@
       createGeo() {
         let data =  {
             georeference: {
-            geographic_item_attributes: this.shapes,
-            collecting_event_id: 5,
+            geographic_item_attributes: { shape: this.shape },
+            collecting_event_id: 202353,
             type: 'Georeference::GoogleMap'
           }
         }
+        console.log(data)
         this.$http.post('/georeferences.json', data).then(response => {
           console.log(response)
         })
@@ -121,7 +122,7 @@
           if(that.overlay)
             that.removeFromMap(that.overlay)
           that.overlay = event.overlay
-          that.shape = that.buildFeatureCollectionFromShape(event)
+          that.shape = JSON.stringify(that.buildFeatureCollectionFromShape(event))
           that.createGeo()
         })
       },
@@ -187,7 +188,7 @@
             if (radius != undefined) {
               feature[0]['properties'] = {"radius": radius};
             }
-            return feature
+            return feature[0]
           },
     }
   }
