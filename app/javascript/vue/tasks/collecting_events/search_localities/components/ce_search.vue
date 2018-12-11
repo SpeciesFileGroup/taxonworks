@@ -66,7 +66,7 @@
           geo_ids.push(area.id)
         });
         let params = {
-          geographic_area_ids: geo_ids
+          spatial_geographic_area_ids: geo_ids
         };
         this.$http.get('/collecting_events', {params: params}).then(response => {
           this.collectingEventList = response.body.html;

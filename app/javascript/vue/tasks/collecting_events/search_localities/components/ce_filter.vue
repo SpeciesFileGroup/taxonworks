@@ -145,10 +145,10 @@
           end_date_month: this.end_date_month,
           start_date_year: this.start_date_year,
           end_date_year: this.end_date_year,
-          st_datepicker: this.st_datepicker,
-          en_datepicker: this.en_datepicker,
+          start_date: this.st_datepicker,
+          end_date: this.en_datepicker,
           verbatim_locality_text: this.verbatim_locality_text,
-          any_label_text: this.any_label_text,
+          in_labels: this.any_label_text,
           identifier_text: this.identifier_text,
         };
         this.$http.get('/collecting_events', {params: params}).then(response => {
