@@ -66,7 +66,7 @@
           tag_ids.push(tag.id)
         });
         let params = {
-          tag_ids: tag_ids
+          keyword_ids: tag_ids
         };
         this.$http.get('/collecting_events', {params: params}).then(response => {
           this.collectingEventList = response.body.html;
