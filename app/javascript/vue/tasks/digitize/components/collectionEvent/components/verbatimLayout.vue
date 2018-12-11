@@ -5,6 +5,7 @@
       v-model="componentsOrder"
       @end="updatePreferences">
       <component
+        class="separate-bottom"
         v-for="componentName in componentsOrder"
         :key="componentName"
         :is="componentName"/>

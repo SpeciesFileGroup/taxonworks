@@ -24,8 +24,8 @@
     },
     watch: {
       preferences: {
-        handler() {
-          if(this.preferences.layout[this.keyStorage])
+        handler(newVal) {
+          if(this.preferences.layout[this.keyStorage] && this.componentsOrder.length == this.preferences.layout[this.keyStorage].length)
             this.componentsOrder = this.preferences.layout[this.keyStorage]
         },
         deep: true

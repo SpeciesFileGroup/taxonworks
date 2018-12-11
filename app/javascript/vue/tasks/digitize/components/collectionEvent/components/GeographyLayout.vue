@@ -5,6 +5,7 @@
       v-model="componentsOrder"
       @end="updatePreferences">
       <component
+        class="separate-bottom"
         v-for="componentName in componentsOrder"
         :key="componentName"
         :is="componentName"/>
@@ -16,6 +17,7 @@
   import Draggable from 'vuedraggable'
 
   import Geography from './geography/geography.vue'
+  import Georeferences from './geography/georeferences.vue'
   import Elevation from './geography/elevation.vue'
   import Dates from './geography/dates.vue'
   import Times from './geography/times.vue'
@@ -27,6 +29,7 @@
     mixins: [sortComponent],
     components: {
       Draggable,
+      Georeferences,
       Collectors,
       Geography,
       Elevation,
@@ -36,7 +39,7 @@
     },
     data() {
       return {
-        componentsOrder: ['Geography', 'Elevation', 'Dates', 'Times', 'Collectors', 'Group'],
+        componentsOrder: ['Geography', 'Georeferences', 'Elevation', 'Dates', 'Times', 'Collectors', 'Group'],
         keyStorage: 'tasks::digitize::GeographyOrder'
       }
     }
