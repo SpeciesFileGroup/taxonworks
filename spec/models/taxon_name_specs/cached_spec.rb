@@ -48,6 +48,17 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       let(:subspecies) { Protonym.create(name: 'aus', rank_class: Ranks.lookup(:iczn, :subspecies), parent: species) }
       let(:t) {species.created_at}
 
+      specify '#not binomial' do
+        genus1.taxon_name_classifications.create!(type: 'TaxonNameClassification::Iczn::Unavailable::NonBinomial')
+        species.taxon_name_classifications.create!(type: 'TaxonNameClassification::Iczn::Unavailable::NonBinomial')
+        species.update( original_species: species)
+        genus1.update( original_genus: genus1)
+        expect(species.cached_original_combination).to eq('aus')
+        expect(species.cached).to eq('Aus aus')
+        expect(genus1.cached_original_combination).to eq('Aus')
+        expect(genus1.cached).to eq('Aus')
+      end
+
       context '#cached for subspecies with gender change' do
         before do
           genus1.taxon_name_classifications.create!(type: 'TaxonNameClassification::Latinized::Gender::Feminine')
@@ -72,12 +83,9 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           )
         end
         
-        specify '#cached_original_combination' do
+        specify '#cached' do
           subspecies.save
           expect(subspecies.cached_original_combination).to eq('Aus aa bus')
-        end
-
-        specify '#cached' do
           expect(subspecies.cached).to eq('Aus aa ba')
         end
       end
@@ -96,7 +104,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         specify '#cached_original_combiantion' do
           expect(subspecies.cached_original_combination).to eq('Aus gus f. zus')
         end
-
       end
 
       specify '#cached for subspecies' do

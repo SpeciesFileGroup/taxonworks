@@ -314,7 +314,7 @@ namespace :tw do
             if containing_source.bibtex_type == 'book'
               pub_type_string = 'inbook'
             else
-              logger.error "Source ERROR: containing source bibtex_type is not 'book', SF.ContainingRefID = #{containing_ref_id}, TW.containing_source_id = #{containing_source_id}"
+              logger.error "Source ERROR: containing source bibtex_type is not 'book', SF.RefID = #{ref_id}, SF.ContainingRefID = #{containing_ref_id}, TW.containing_source_id = #{containing_source_id}"
               next
               # pub_type_string = 'misc' # per Matt, parent source is 'article'
             end
@@ -386,7 +386,7 @@ namespace :tw do
           file.each do |row|
             ref_id = row['RefID']
 
-            logger.info "Working with SF.SpecimenID = '#{ref_id}' \n"
+            logger.info "Working with SF.RefID = '#{ref_id}' \n"
 
             get_contained_cite_aux_data[ref_id] = {containing_ref_id: row['ContainingRefID'], ref_pages: row['RefPages'], note: row['Note'], link_id: row['LinkID']}
           end

@@ -4,10 +4,17 @@ class CollectingEventsController < ApplicationController
   before_action :set_collecting_event, only: [:show, :edit, :update, :destroy, :card]
 
   # GET /collecting_events
-  # GET /collecting_events.jso
+  # GET /collecting_events.json
   def index
-    @recent_objects = CollectingEvent.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = CollectingEvent.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @collecting_events = Queries::CollectingEvent::Filter.new(filter_params).all.page(params[:page]).per(500)
+      }
+    end
   end
 
   # GET /collecting_events/1
@@ -166,13 +173,11 @@ class CollectingEventsController < ApplicationController
 
   private
 
-  # Use callbacks to share common setup or constraints between actions.
   def set_collecting_event
     @collecting_event = CollectingEvent.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object    = @collecting_event
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def collecting_event_params
     params.require(:collecting_event).permit(
       :verbatim_label, :print_label, :print_label_number_to_print, :document_label,
@@ -193,5 +198,22 @@ class CollectingEventsController < ApplicationController
 
   def batch_params
     params.permit(:ce_namespace, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
+  end
+
+  def filter_params
+    params.permit(
+      Queries::CollectingEvent::Filter::ATTRIBUTES,
+      :in_labels,
+      :in_verbatim_locality,
+      :recent,
+      :shape,
+      :start_date,
+      :end_date,
+      :partial_overlap_dates,
+      :start_day, :start_month, :start_year,
+      :end_day, :end_month, :end_year,
+      keyword_ids: [],
+      spatial_geographic_area_ids: []
+    )
   end
 end

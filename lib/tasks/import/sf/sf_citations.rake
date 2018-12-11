@@ -282,8 +282,54 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
           otu_not_found_array = []
 
-          path = @args[:data_directory] + 'sfCites.txt'
+          path = @args[:data_directory] + 'tblSpeciesNames.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          # SpeciesNameID
+          # FileID
+          # Name
+          # Italicize
+          # LastUpdate
+          # ModifiedBy
+          # CreatedOn
+          # CreatedBy
+
+          path = @args[:data_directory] + 'tblGenusNames.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          # GenusNameID
+          # FileID
+          # Name
+          # Italicize
+          # LastUpdate
+          # ModifiedBy
+          # CreatedOn
+          # CreatedBy
+
+          path = @args[:data_directory] + 'sfNomenclatorTaxonNameIDs.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          # TaxonNameID
+          # SeqNum
+          # FileID
+          # RefID
+          # NomenclatorID
+          # NomenclatorString
+          # GenusTaxonNameID
+          # SubgenusTaxonNameID
+          # SpeciesSeriesTaxonNameID
+          # SpeciesGroupTaxonNameID
+          # SpeciesSubgroupTaxonNameID
+          # SpeciesTaxonNameID
+          # SubspeciesTaxonNameID
+
+          path = @args[:data_directory] + 'sfNomenclatorStrings.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          # NomenclatorID
+          # NomenclatorString
+          # IdentQualifier
+          # FileID
 
           count_found = 0
           error_counter = 0
@@ -327,6 +373,29 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           # decision_methods = {
           #
           # }
+
+          path = @args[:data_directory] + 'sfCites.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          ### sfCites
+          # TaxonNameID
+          # SeqNum
+          # RefID
+          # CitePages
+          # Note
+          # NomenclatorID
+          # NewNameStatusID
+          # TypeInfoID
+          # ConceptChangeID
+          # CurrentConcept
+          # InfoFlags
+          # InfoFlagStatus
+          # PolynomialStatus
+          # LastUpdate
+          # ModifiedBy
+          # CreatedOn
+          # CreatedBy
+          # FileID
 
           file.each_with_index do |row, i|
             sf_taxon_name_id = row['TaxonNameID']

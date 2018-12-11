@@ -22,8 +22,8 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     message = ''
     how_many = params['how_many']
     @collecting_events = CollectingEvent.with_project_id(sessions_current_project_id)
-                             .order(updated_at: :desc)
-                             .limit(how_many.to_i)
+      .order(updated_at: :desc)
+      .limit(how_many.to_i)
 
     if @collecting_events.blank?
       message = 'no recent objects selected'
@@ -40,8 +40,8 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     else
       keyword = Keyword.find(params[:keyword_id])
       @collecting_events = CollectingEvent.with_project_id(sessions_current_project_id)
-                               .order(updated_at: :desc)
-                               .tagged_with_keyword(keyword)
+        .order(updated_at: :desc)
+        .tagged_with_keyword(keyword)
     end
 
     if @collecting_events.blank?
@@ -51,7 +51,6 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   end
 
   def drawn_collecting_events
-
     message = ''
     value = params['ce_geographic_item_attributes_shape']
     if value.blank?
@@ -64,15 +63,15 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
       geometry = geometry.as_text
       radius = feature['radius']
       case this_type
-        when 'point'
-          @collecting_events = CollectingEvent.with_project_id(sessions_current_project_id)
-                                   .joins(:geographic_items)
-                                   .where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
-        when 'polygon'
-          @collecting_events = CollectingEvent.with_project_id(sessions_current_project_id)
-                                   .joins(:geographic_items)
-                                   .where(GeographicItem.contained_by_wkt_sql(geometry))
-        else
+      when 'point'
+        @collecting_events = CollectingEvent.with_project_id(sessions_current_project_id)
+          .joins(:geographic_items)
+          .where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
+      when 'polygon'
+        @collecting_events = CollectingEvent.with_project_id(sessions_current_project_id)
+          .joins(:geographic_items)
+          .where(GeographicItem.contained_by_wkt_sql(geometry))
+      else
       end
     end
 
@@ -95,8 +94,8 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     message = ''
     how_many = params['how_many']
     @georeferences = Georeference.with_project_id(sessions_current_project_id)
-                         .order(updated_at: :desc)
-                         .limit(how_many.to_i)
+      .order(updated_at: :desc)
+      .limit(how_many.to_i)
     if @georeferences.blank?
       message = 'no recent georeferences selected'
     end
@@ -113,8 +112,8 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     else
       keyword = Keyword.find(params[:keyword_id])
       @georeferences = Georeference.with_project_id(sessions_current_project_id)
-                           .order(updated_at: :desc)
-                           .tagged_with_keyword(keyword)
+        .order(updated_at: :desc)
+        .tagged_with_keyword(keyword)
     end
     if @georeferences.blank?
       message = 'no tagged objects selected'
@@ -133,48 +132,26 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
       geometry = feature.geometry
       this_type = geometry.geometry_type.to_s.downcase
       geometry = geometry.as_text
+
       radius = feature['radius']
       case this_type
-        when 'point'
-          @georeferences = Georeference.with_project_id(sessions_current_project_id)
-                               .joins(:geographic_item)
-                               .where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
-        when 'polygon'
-          @georeferences = Georeference.with_project_id(sessions_current_project_id)
-                               .joins(:geographic_item)
-                               .where(GeographicItem.contained_by_wkt_sql(geometry))
-        else
+      when 'point'
+        @georeferences = Georeference.with_project_id(sessions_current_project_id)
+          .joins(:geographic_item)
+          .where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
+      when 'polygon'
+        @georeferences = Georeference.with_project_id(sessions_current_project_id)
+          .joins(:geographic_item)
+          .where(GeographicItem.contained_by_wkt_sql(geometry))
+      else
       end
-    if @georeferences.blank?
-      message = 'no objects contained in drawn shape'
-    end
-    render_gr_select_json(message)
+      if @georeferences.blank?
+        message = 'no objects contained in drawn shape'
+      end
+      render_gr_select_json(message)
     end
   end
 
-  #
-  # def anti_meridian_check(last_x, this_x) # returns true if anti-meridian crossed
-  #   if last_x
-  #     if last_x <= 0
-  #       if (((this_x >= 0 || this_x < -180))) # sign change from west to east
-  #         xm = (0.5 * (this_x - last_x)).abs # find intersection
-  #         if (xm > 90)
-  #           return true
-  #         end
-  #       end
-  #     end
-  #     if last_x >= 0
-  #       if (((this_x <= 0) || this_x > 180))
-  #         xm = (0.5 * (last_x - this_x)).abs
-  #         if (xm > 90)
-  #           return true
-  #         end
-  #       end
-  #     end
-  #   end
-  #   false
-  # end
-  #
   def batch_create_match_georeferences
     message = ''
     respond_to do |format|
@@ -194,7 +171,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
         arguments[:checked_ids] = checked_ids
 
         results = Georeference.with_project_id(sessions_current_project_id)
-                      .batch_create_from_georeference_matcher(arguments)
+          .batch_create_from_georeference_matcher(arguments)
 
         if results.blank?
           message = 'No collecting events were selected.'
@@ -202,7 +179,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
         html = render_to_string(partial: 'georeference_success', formats: 'html',
                                 locals: {georeferences_results: results}
-        )
+                               )
 
         render json: {message: message,
                       html: html

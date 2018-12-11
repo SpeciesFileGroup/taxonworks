@@ -193,10 +193,10 @@ class GeographicArea < ApplicationRecord
   # @param longitude [Double] Decimal degrees
   # @return [Scope] all areas which contain the point specified.
   def self.find_by_lat_long(latitude = 0.0, longitude = 0.0)
-    point        = ActiveRecord::Base.send(:sanitize_sql_array, ['POINT(:long :lat)', long: longitude, lat: latitude])
+    point = ActiveRecord::Base.send(:sanitize_sql_array, ['POINT(:long :lat)', long: longitude, lat: latitude])
     where_clause = "ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))" \
       " OR ST_Contains(multi_polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))"
-    retval       = GeographicArea.joins(:geographic_items).where(where_clause)
+    retval = GeographicArea.joins(:geographic_items).where(where_clause)
     retval
   end
 
@@ -288,7 +288,7 @@ class GeographicArea < ApplicationRecord
   #   3) GADM
   #   4) everything else (at present, TDWG)
   def default_geographic_item
-    geographic_items.joins(:geographic_areas_geographic_items).merge(GeographicAreasGeographicItem.ordered_by_data_origin).first # .merge on same line as joins()
+    GeographicItem.default_by_geographic_area_ids([id]).first
   end
 
   # rubocop:disable Style/StringHashKeys
