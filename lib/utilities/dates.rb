@@ -11,16 +11,16 @@ module Utilities::Dates
   # SHORT_MONTH_FILTER correctly.
   #    SHORT_MONTHS.include?(SHORT_MONTH_FILTER[value].to_s)
   LEGAL_MONTHS = (1..12).to_a +
-      (1..12).to_a.collect {|d| d.to_s} +
-      ROMAN_MONTHS.map(&:to_s) +
-      ROMAN_MONTHS.map(&:to_s).map(&:upcase) +
-      SHORT_MONTHS +
-      SHORT_MONTHS.map(&:capitalize) +
-      SHORT_MONTHS.map(&:upcase) +
-      SHORT_MONTHS.map(&:to_sym) +
-      LONG_MONTHS +
-      LONG_MONTHS.map(&:capitalize) +
-      LONG_MONTHS.map(&:upcase)
+    (1..12).to_a.collect {|d| d.to_s} +
+    ROMAN_MONTHS.map(&:to_s) +
+    ROMAN_MONTHS.map(&:to_s).map(&:upcase) +
+    SHORT_MONTHS +
+    SHORT_MONTHS.map(&:capitalize) +
+    SHORT_MONTHS.map(&:upcase) +
+    SHORT_MONTHS.map(&:to_sym) +
+    LONG_MONTHS +
+    LONG_MONTHS.map(&:capitalize) +
+    LONG_MONTHS.map(&:upcase)
   LONG_MONTHS.map(&:to_sym)
 
   # TODO: Write unit tests
@@ -102,13 +102,13 @@ module Utilities::Dates
     date_string
   end
 
-  # rubocop:disable Metrics/MethodLength
+  # !#!@# Deprecate this! It's handled in CollectingEVent date filter code
   # @return [String] of sql to test dates
   # @param [Hash] params
   # TODO: still needs more work for some date combinations
   def self.date_sql_from_params(params)
     st_date, end_date = params['st_datepicker'], params['en_datepicker']
-# processing start date data
+    # processing start date data
     st_year, st_month, st_day = params['start_date_year'], params['start_date_month'], params['start_date_day']
     unless st_date.blank?
       parts = st_date.split('/')
@@ -122,7 +122,7 @@ module Utilities::Dates
     st_partial = (!st_blank and (st_year.blank? or st_month.blank? or st_day.blank?))
     start_time = fix_time(st_year, st_month, st_day) if st_full
 
-# processing end date data
+    # processing end date data
     end_year, end_month, end_day = params['end_date_year'], params['end_date_month'], params['end_date_day']
     unless end_date.blank?
       parts = end_date.split('/')
@@ -137,7 +137,7 @@ module Utilities::Dates
     end_time = fix_time(end_year, end_month, end_day) if end_full
 
     sql_string = ''
-# if all the date information is blank, skip the date testing
+    # if all the date information is blank, skip the date testing
     unless st_blank and end_blank
       # only start and end year
       if st_y and end_y
