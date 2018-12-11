@@ -68,7 +68,8 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     end
 
     specify 'using just the sql, ordered' do
-      expect(CollectionObject.joins(:collecting_event).where(CollectingEvent.date_sql_from_dates('2015/1/1' , '2015/1/1', 'off' )).where(project_id: 99).order(:id).count).to eq(0)
+      q = Queries::CollectingEvent::Filter.new(start_date: '2015/1/1', end_date: '2015/1/1', partial_overlap_dates: false) 
+      expect(CollectionObject.joins(:collecting_event).where(q.between_date_range.to_sql).where(project_id: 99).order(:id).count).to eq(0)
     end
   end
 

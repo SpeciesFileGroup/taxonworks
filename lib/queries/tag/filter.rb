@@ -45,7 +45,7 @@ module Queries
         if a = and_clauses
           ::Tag.where(and_clauses)
         else
-          ::Tag.none
+          ::Tag.all
         end
       end
 
