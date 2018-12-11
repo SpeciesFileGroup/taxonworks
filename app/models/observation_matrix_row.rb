@@ -35,6 +35,7 @@ class ObservationMatrixRow < ApplicationRecord
     self.reference_count ||= 0
   end
 
+  # TODO: this is ugly, should hack in if sql?
   def row_object
     [otu, collection_object].compact.first
   end

@@ -12,6 +12,7 @@ import requestObservationCitations from './requestObservationCitations'
 import removeObservation from './removeObservation'
 import updateObservation from './updateObservation'
 import createObservation from './createObservation'
+import createClone from './createClone'
 import saveObservationsFor from './saveObservationsFor'
 
 const ActionFunctions = {
@@ -27,6 +28,7 @@ const ActionFunctions = {
   [ActionNames.RemoveObservation]: removeObservation,
   [ActionNames.UpdateObservation]: updateObservation,
   [ActionNames.CreateObservation]: createObservation,
+  [ActionNames.CreateClone]: createClone,
   [ActionNames.SaveObservationsFor]: saveObservationsFor
 }
 

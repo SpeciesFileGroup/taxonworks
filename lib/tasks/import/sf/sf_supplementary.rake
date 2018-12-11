@@ -204,6 +204,10 @@ namespace :tw do
               # next
             end
           end
+
+          #######################################################################################
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/18_after_scrutinies/`
+          #######################################################################################
         end
 
       end # namespaces below

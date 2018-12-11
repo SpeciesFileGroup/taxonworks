@@ -1,5 +1,5 @@
 json.extract! descriptor, :id, :name, :short_name, :description, :default_unit,
-  :type, :position, 
+  :type, :position, :description_name, :key_name, 
   :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
 
 json.partial! '/shared/data/all/metadata', object: descriptor, klass: descriptor.type 

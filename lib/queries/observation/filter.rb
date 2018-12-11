@@ -62,7 +62,6 @@ module Queries
       def matching_type
         type.blank? ? nil : table[:type].eq(type) 
       end
-
       
       # @return [Arel::Node, nil]
       def matching_descriptor_id

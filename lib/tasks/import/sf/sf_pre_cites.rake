@@ -217,6 +217,10 @@ namespace :tw do
 
           puts = 'SFNomenclatorIDToSFNomenclatorMetadata'
           ap get_nomenclator_metadata
+
+          #######################################################################################
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/12_after_orig_genus_ids/`
+          #######################################################################################
         end
 
       end

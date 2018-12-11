@@ -300,6 +300,10 @@ namespace :tw do
               end
             end
           end
+
+          #######################################################################################
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/11_after_status_flag_rels/`
+          #######################################################################################
         end
 
         desc 'time rake tw:project_import:sf_import:taxa:create_some_related_taxa user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
@@ -398,6 +402,10 @@ namespace :tw do
               logger.error "TaxonNameRelationship tblRelatedTaxa ERROR tw.project_id #{project_id}, SF.OlderNameID #{row['OlderNameID']} = tw.object_name_id #{object_name_id} (#{error_counter += 1}): " + tnr.errors.full_messages.join(';')
             end
           end
+
+          #######################################################################################
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/10_after_some_related_taxa/`
+          #######################################################################################
         end
 
         desc 'time rake tw:project_import:sf_import:taxa:create_type_genera user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
@@ -481,6 +489,10 @@ namespace :tw do
               logger.error "TaxonNameRelationship ERROR TW.taxon_name_id #{tw_family_name_id} (#{error_counter += 1}): " + tnr.errors.full_messages.join(';')
             end
           end
+
+          #######################################################################################
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/9_after_type_genera/`
+          #######################################################################################
         end
 
         desc 'time rake tw:project_import:sf_import:taxa:create_type_species user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
@@ -627,6 +639,10 @@ namespace :tw do
               logger.error "TaxonNameRelationship ERROR TW.taxon_name_id #{genus_name_id} (#{error_counter += 1}): " + tnr.errors.full_messages.join(';')
             end
           end
+
+          #######################################################################################
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/8_after_type_species/`
+          #######################################################################################
         end
 
         ### ---------------------------------------------------------------------------------------------------------------------------------------------
@@ -916,6 +932,9 @@ namespace :tw do
           puts 'TWTaxonNameIDToOtuID'
           ap get_taxon_name_otu_id
 
+          #######################################################################################
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/7_after_run_all_taxa/`
+          #######################################################################################
         end
 
         desc 'time rake tw:project_import:sf_import:taxa:create_otus_for_ill_formed_names_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
@@ -949,6 +968,9 @@ namespace :tw do
           puts 'SFIllFormedNameIDToSFAboveID'
           ap get_otu_sf_above_id
 
+          #######################################################################################
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/6_after_otus_hash/`
+          #######################################################################################
         end
 
         desc 'time rake tw:project_import:sf_import:taxa:create_sf_synonym_id_to_new_parent_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'

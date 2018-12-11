@@ -7,6 +7,9 @@
 // To reference this file, add <%= javascript_pack_tag 'application' %> to the appropriate
 // layout file, like app/views/layouts/application.html.erb
 
+// Styles
+require('../style/application.scss')
+
 require('../vue/citations/otus/main.js')
 require('../vue/content/editor/main.js')
 require('../vue/nomenclature/new_taxon_name/main.js')
@@ -26,6 +29,3 @@ require('../vue/tasks/uniquify/sources/main.js')
 require('../vue/tasks/single_bibtex_source/main.js')
 require('../vue/tasks/nomenclature/by_source/main.js')
 require('../vue/tasks/people/author_by_letter/main.js')
-
-// Styles
-require('../style/application.scss')

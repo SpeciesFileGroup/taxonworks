@@ -65,7 +65,7 @@ class Protonym < TaxonName
 
   TaxonNameRelationship.descendants.each do |d|
     if d.respond_to?(:assignment_method)
-      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Ictv|Icnb|SourceClassifiedAs)/
+      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Ictv|Icnp|SourceClassifiedAs)/
         relationship = "#{d.assignment_method}_relationship".to_sym
         has_one relationship, class_name: d.name.to_s, foreign_key: :subject_taxon_name_id
         has_one d.assignment_method.to_sym, through: relationship, source: :object_taxon_name
@@ -82,7 +82,7 @@ class Protonym < TaxonName
     end
 
     if d.respond_to?(:inverse_assignment_method)
-      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Icnb|Ictv|SourceClassifiedAs)/
+      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Icnp|Ictv|SourceClassifiedAs)/
         relationships = "#{d.inverse_assignment_method}_relationships".to_sym
         # ActiveRecord::Base.send(:sanitize_sql_array, [d.name])
         has_many relationships, -> {
@@ -133,7 +133,7 @@ class Protonym < TaxonName
 
   scope :that_is_valid, -> {
     joins('LEFT OUTER JOIN taxon_name_relationships tnr ON taxon_names.id = tnr.subject_taxon_name_id').
-    where("taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type ILIKE 'TaxonNameRelationship::Iczn::Invalidating%' OR type ILIKE 'TaxonNameRelationship::Icn::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Icnb::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Ictv::Unaccepting%')")
+    where("taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type ILIKE 'TaxonNameRelationship::Iczn::Invalidating%' OR type ILIKE 'TaxonNameRelationship::Icn::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Icnp::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Ictv::Unaccepting%')")
   }
 
   scope :is_species_group, -> { where("rank_class ILIKE '%speciesgroup%'") }
@@ -157,7 +157,7 @@ class Protonym < TaxonName
         search_rank = NomenclaturalRank::Iczn.group_base(self.rank_string)
         if !!search_rank
           if search_rank =~ /Family/
-            z = Protonym.family_group_base(self.name)
+            z = Protonym.that_is_valid.family_group_base(self.name)
             search_name = z.nil? ? nil : Protonym::FAMILY_GROUP_ENDINGS.collect{|i| z+i}
           else
             search_name = self.name
@@ -208,7 +208,7 @@ class Protonym < TaxonName
         ay = iczn_author_and_year
       when :ictv
         ay = icn_author_and_year
-      when :icnb
+      when :icnp
         ay = icn_author_and_year
       when :icn
         ay = icn_author_and_year
@@ -346,7 +346,7 @@ class Protonym < TaxonName
     # !((type == 'Protonym') && (taxon_name_classifications.collect{|t| t.type} & EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS).empty?)
 
     # Is faster than above?
-    return true if rank_string =~ /Icnb/ && (name.start_with?('Candidatus ') || name.start_with?('Ca. '))
+    return true if rank_string =~ /Icnp/ && (name.start_with?('Candidatus ') || name.start_with?('Ca. '))
     taxon_name_classifications.each do |tc| # ! find_each
       return true if TaxonName::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(tc.type)
     end
@@ -379,6 +379,7 @@ class Protonym < TaxonName
   def reduce_list_of_synonyms(list)
     return [] if list.empty?
     list1 = list.select{|s| s.id == s.lowest_rank_coordinated_taxon.id}
+    list1.reject!{|s| self.cached_valid_taxon_name_id == s.cached_valid_taxon_name_id} unless list1.empty?
     unless list1.empty?
       date1 = self.nomenclature_date
       unless date1.nil?
@@ -516,10 +517,27 @@ class Protonym < TaxonName
 
     this_rank = rank.to_sym
 
-    r = original_combination_relationships.reload 
+    # Why this? 
+    #   We need to apply gender to "internal" names for original combinations, everything
+    #   but the last name
+    # TODO: get SQL based ordering for original_combination_relationships, hard coded
 
-    r.each do |i|
-      elements.merge! i.combination_name
+    # order the relationships
+    r = original_combination_relationships.reload.sort{|a,b| ORIGINAL_COMBINATION_RANKS.index(a.type) <=> ORIGINAL_COMBINATION_RANKS.index(b.type) }
+
+    # get gender from first
+    gender = original_genus&.gender_name # r.first.subject_taxon_name.gender_name 
+
+    # apply gender to everything but the last
+    total = r.count - 1
+    r.each_with_index do |j, i|
+      if j.type =~ /enus/ || i == total
+        g = nil
+      else
+      #unless (j.type =~ /genus/) || i == total
+        g = gender
+      end
+      elements.merge! j.combination_name(g)
     end
 
     # TODO: what is point of this? Do we get around this check by requiring self relationships? (species aus has species relationship to self)
@@ -551,6 +569,7 @@ class Protonym < TaxonName
   end
 
   # TODO: @proceps - confirm this is only applicable to Protonym, NOT Combination
+  # @mjy - yes this is applicable to Protonym only
   def update_cached_original_combinations
     update_columns(
       cached_original_combination: get_original_combination,

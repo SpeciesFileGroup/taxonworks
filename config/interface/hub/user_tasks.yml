@@ -44,7 +44,8 @@ within_locality_task:
   name:
 similar_serials_task:
   hub: true
-  name:
+  name: 'Similar serials'
+  description: 'Navigate between related serials, and their annotations.'
   related:
     - serials
   categories:
@@ -348,5 +349,21 @@ index_individual_bibtex_source_task:
     - source 
   status: prototype
   description: 'Parse a captured BibTeX string into a new source'
-
-
+observation_matrices_hub_task:
+  hub: true
+  name: 'Observation matrix hub'
+  related:
+  categories:
+    - matrix
+    - dna
+  status: prototype
+  description: 'An overview of observation matrices and descriptors.  Includes links to new records.'
+observation_matrix_view_task:
+  hub: true
+  name: 'View an observation matrix'
+  related:
+  categories:
+    - matrix
+    - dna
+  status: prototype
+  description: 'A very basic visualization of an observation matrix.'

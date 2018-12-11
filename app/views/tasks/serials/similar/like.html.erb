@@ -1,33 +1,34 @@
 <h2>Task: List similar serials by name </h2>
 
-<div class="flexbox" id="like_serial"  >
-  <div class="item item1 one_fifth_width">
+<div class="flexbox" id="like_serial" >
+  <div class="item item1">
     <%= render(partial: 'serials/attributes') -%>
-    <%= link_to('back', serial_path(@serial)) -%>
+  <%= link_to('back', serial_path(@serial)) -%>
   </div>
 
-  <div class="item item1 one_half_width">
+  <div class="item item2 three_quarter_width">
     <table>
-      <td><th>name</th>
-        <th></th>
-        <th></th>
-        <th></th>
-      </td>
-        <% @similar_serials.each do |serial| -%>
-          <tr>
-            <td><%= link_to(serial.name, serial_path(serial)) -%></td>
-            <td><%= link_to('similar',similar_serials_task_path(serial)) -%></td>
-            <td><%= link_to('edit', edit_serial_path(serial)) -%></td>
+      <tr><th colspan="3">name</th>
+        <%= @serial.available_annotation_types.collect{|t| content_tag(:th, t) }.join.html_safe -%>
+      </tr>
+      <% @serial.nearest_by_levenshtein(@serial.name[0..254]).each do |serial| -%>
+        <tr>
+          <td><%= link_to(serial.name, serial_path(serial)) -%></td>
+          <td><%= link_to('similar',similar_serials_task_path(serial)) -%></td>
+          <td><%= link_to('edit', edit_serial_path(serial)) -%></td>
 
-            <% serial.annotations.keys.sort.each do |k| -%>
-              <td><%= h(serial.annotations[k].collect{|o| object_tag(o)}.join('; ')).html_safe -%></td>
-            <% end %>
+          <% a = serial.annotations %> 
+          <% @serial.available_annotation_types.each do |t| %>
+            <%= content_tag(:td,
+                            content_tag(:ul) { 
+              a[t.to_s.gsub(/_/, ' ')]&.collect{|o| content_tag(:li, object_tag(o))}&.join&.html_safe
+            } )-%>
+          <% end %>
+        </tr>
+      <% end %>
+    </table>
 
-          </tr>
-        <% end %>
-      </table>
-
-    </div>
+  </div>
 
 </div>
 
