@@ -766,6 +766,7 @@ namespace :tw do
 
           #######################################################################################
           `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/15_after_identification_metadata/`
+          puts '** dumped 15_after_identification_metadata **'
           #######################################################################################
         end
 
@@ -1178,6 +1179,7 @@ namespace :tw do
 
           #######################################################################################
           `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/14_after_coll_events/`
+          puts '** dumped 14_after_coll_events **'
           #######################################################################################
         end
 
@@ -1253,6 +1255,7 @@ namespace :tw do
 
           #######################################################################################
           `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/13_after_geo_level_4/`
+          puts '** dumped 13_after_geo_level_4 **'
           #######################################################################################
         end
 

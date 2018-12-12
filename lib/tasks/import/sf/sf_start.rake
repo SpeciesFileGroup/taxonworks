@@ -110,6 +110,7 @@ namespace :tw do
 
           #######################################################################################
           `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/5_after_source_roles/`
+          puts '** dumped 5_after_source_roles **'
           #######################################################################################
         end
 
@@ -366,7 +367,7 @@ namespace :tw do
 
           #######################################################################################
           `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/4_after_create_sources/`
-          puts 'dump created'
+          puts '** dumped 4_after_create_sources **'
           #######################################################################################
         end
 
@@ -441,6 +442,7 @@ namespace :tw do
 
           #######################################################################################
           `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/3_after_pub_type`
+          puts '** dumped 3_after_pub_type **'
           #######################################################################################
         end
 
@@ -552,6 +554,7 @@ namespace :tw do
 
           #######################################################################################
           `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/2_after_verbatim_refs/`
+          puts '** dumped 2_after_verbatim_refs **'
           #######################################################################################
         end
 
@@ -622,6 +625,7 @@ namespace :tw do
 
           #######################################################################################
           `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/1_after_serials/`
+          puts '** dumped 1_after_serials **'
           #######################################################################################
         end
 
