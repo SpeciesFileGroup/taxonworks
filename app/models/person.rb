@@ -356,14 +356,18 @@ class Person < ApplicationRecord
   end
 
   def hard_merge(person_id_to_destroy)
-    person_to_destroy = Person.find(person_id_to_destroy)
+    return false if id == person_id_to_destroy
     begin
+      person_to_destroy = Person.find(person_id_to_destroy)
+
       Person.transaction do
         merge_with(person_to_destroy.id)
         person_to_destroy.destroy!
       end
     rescue ActiveRecord::RecordInvalid
       return false
+    rescue ActiveRecord::RecordNotFound
+     return false 
     end
     true
   end
