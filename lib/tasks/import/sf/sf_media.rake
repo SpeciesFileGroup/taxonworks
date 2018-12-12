@@ -70,7 +70,94 @@ namespace :tw do
           get_tw_collection_object_id = import.get('SFSpecimenIDToCollObjID')
 
           # otu_id: get_otu_from_tw_taxon_id[tw_taxon_name_id]  # used for taxon_determination
-          # get_tw_collection_object_id = {} # key = SF.SpecimenID, value = TW.collection_object.id OR TW.container.id
+          # get_tw_collection_object_id = {} # key = SF.SpecimenID, value = TW.collection_object.id OR TW.container.id (assign to all objects within a container)
+
+          # path_to_images = '/something'
+          #
+          #
+          # rows.each do |row|
+          #
+          # project_id = .... something ...
+          #
+          # image_filename = row['SOMEThing']
+          #
+          # path = path_to_images + image_file_name
+          # break if !File.exists?(path)
+          #
+          # image = File.read(path)
+          #
+          # a = get_tw_collection_object_id[row['SpecimenID']] # specimen  (tw CollectionObject)
+          # b = get_tw_taxon_name_id[row['TaxonNameID']] taxon name (tw TaxonName)
+          # c = get_taxon_name_otu_id[b] #  OTU from b
+          #
+          #
+          #begin
+          # Image.transaction do
+          # i = Image.create!(image_file: image, ... creator etc ...)
+          #
+          # object_ids = []  #  the id of the depcition object
+          # object_type = nil #
+          #
+          # determination_otu = nil
+          #
+          # if a && b && c
+          #
+          #   # Add the depiction to a
+          #    object_ids = a
+          #    object_type = 'CollectionObject'
+          #
+          #   # Maybe add a determination to the specimen with the
+          #   # OTU that matches the taxon name if it doesn't exist
+          #    if !TaxonDermination.where(collection_object_id: a, otu_id: c, project_id: project_id).any?
+          #       determination_otu = c
+          #    end
+          #
+          # elsif a && b
+          #   object_ids = a
+          #   object_type = 'CollectionObject'
+          #
+          #
+          #   # could be simplified if every taxon name has an otu
+          # o = Otu.where(taxon_name_id: b, project_id: project_id)
+          # if o.any?
+          #    if  !TaxonDermination.where(collection_object_id: a, otu_id: o.first.id, project_id: project_id).any?
+          #       determination_otu = o.first.id
+          #    end
+          # else
+          #   determination_otu = Otu.create!(taxon_name_id: b, project_id: project_id, ...).id
+          # end
+          #
+          # elsif a
+          #     ... there should be a c ... so it's OTU
+          # elsif b  # (impossible, there is "always an a")
+          #
+          #   ... never should be hit, no code here
+          #
+          #
+          #
+          # else
+          #    puts "error!"
+          #    break
+          # end
+          #
+          # object_ids.each do |id|
+          #   Depiction.create!(depiction_object_id: id, depiction_object_type: object_type, 'image: i, .... creator etc. ...)
+          # end
+          #
+          #  TaxonDetermination.create!(collection_object_id: a, otu_id: determination_otu, project_id: project_id) if determination_otu
+          #
+          #
+          # end
+          #
+          # rescue ActiveRecord::RecordInvalid
+          #   ...something
+          # end
+          #
+          # end
+
+
+
+
 
           counter = 0
 
@@ -87,7 +174,7 @@ namespace :tw do
             # check if specimen_id > 0, use that
             # else check if otu exists for sf_taxon_name_id ( Is it important to check if tw_taxon_name_id exists?  If otu only, just skip, too? )
             # if image assigned to specimen, forget about taxon_name_id
-            # If specimen not real specimen (perhaps only a determination), should I assign to otu_id?
+            # If specimen not real specimen (perhaps only a determination), should I assign to otu_id?  yes
 
             if specimen_id.to_i > 0
               collection_object_id = get_tw_collection_object_id[specimen_id] # is there an equiv collection_object (could be a determination)

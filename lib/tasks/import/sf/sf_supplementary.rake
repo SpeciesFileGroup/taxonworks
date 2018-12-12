@@ -207,6 +207,7 @@ namespace :tw do
 
           #######################################################################################
           `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/18_after_scrutinies/`
+          puts '** dumped 18_after_scrutinies **'
           #######################################################################################
         end
 
