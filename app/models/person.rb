@@ -88,7 +88,7 @@ class Person < ApplicationRecord
     in:      ['Person::Vetted', 'Person::Unvetted'],
     message: '%{value} is not a validly_published type'}
 
-  has_many :roles, dependent: :destroy, inverse_of: :person
+  has_many :roles, dependent: :restrict_with_error, inverse_of: :person
   has_many :author_roles, class_name: 'SourceAuthor'
   has_many :editor_roles, class_name: 'SourceEditor'
   has_many :source_roles, class_name: 'SourceSource'
@@ -172,6 +172,7 @@ class Person < ApplicationRecord
   #
   #  
   def merge_with(person_id)
+    return false if person_id == id
     if r_person = Person.find(person_id) # get the new (merged into self) person
       begin
         ApplicationRecord.transaction do

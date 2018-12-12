@@ -100,7 +100,7 @@ class PeopleController < ApplicationController
 
   def merge
     @person = Person.find(params[:id]) # the person to *keep*
-    person_to_remove = Person.find(params[:person_to_remove])
+    person_to_remove = Person.find(params[:person_to_destroy])
     if @person.hard_merge(person_to_remove)
       render 'show'
     else
