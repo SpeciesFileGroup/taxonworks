@@ -24,16 +24,15 @@ module Queries
 
       attr_accessor :keyword_ids
 
+      # TODO:
+      # identifiers
+
       # An RGeo::GeoJSON feature
       attr_accessor :shape
 
       # Reference geographic areas to do a spatial query 
       attr_accessor :spatial_geographic_area_ids
 
-      # &st_datepicker=
-      # &verbatim_locality_text=
-      # &any_label_text=
-      # &identifier_text= 
       def initialize(params)
         @in_label = params[:in_labels]
         @in_verbatim_locality = params[:in_verbatim_locality]
@@ -128,7 +127,7 @@ module Queries
       # TODO: throttle by size?
       def matching_spatial_via_geographic_area_ids
         return nil if spatial_geographic_area_ids.empty? 
-        a = ::GeographicItem.default_by_geographic_area_ids(spatial_geographic_area_ids) 
+        a = ::GeographicItem.default_by_geographic_area_ids(spatial_geographic_area_ids).ids 
         ::CollectingEvent.joins(:geographic_items).where( ::GeographicItem.contained_by_where_sql( a ) )
       end
 
