@@ -303,6 +303,7 @@ namespace :tw do
 
           #######################################################################################
           `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/11_after_status_flag_rels/`
+          puts '** dumped 11_after_status_flag_rels **'
           #######################################################################################
         end
 
@@ -405,6 +406,7 @@ namespace :tw do
 
           #######################################################################################
           `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/10_after_some_related_taxa/`
+          puts '** dumped 10_after_some_related_taxa **'
           #######################################################################################
         end
 
@@ -492,6 +494,7 @@ namespace :tw do
 
           #######################################################################################
           `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/9_after_type_genera/`
+          puts '** dumped 9_after_type_genera **'
           #######################################################################################
         end
 
@@ -642,6 +645,7 @@ namespace :tw do
 
           #######################################################################################
           `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/8_after_type_species/`
+          puts '** dumped 8_after_type_species **'
           #######################################################################################
         end
 
@@ -934,6 +938,7 @@ namespace :tw do
 
           #######################################################################################
           `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/7_after_run_all_taxa/`
+          puts '** dumped 7_after_run_all_taxa **'
           #######################################################################################
         end
 
@@ -970,6 +975,7 @@ namespace :tw do
 
           #######################################################################################
           `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/6_after_otus_hash/`
+          puts '** dumped 6_after_otus_hash **'
           #######################################################################################
         end
 

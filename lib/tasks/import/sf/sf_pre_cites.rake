@@ -220,6 +220,7 @@ namespace :tw do
 
           #######################################################################################
           `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/12_after_orig_genus_ids/`
+          puts '** dumped 12_after_orig_genus_ids **'
           #######################################################################################
         end
 
