@@ -134,7 +134,7 @@ describe Person, type: :model do
       expect(p1.hard_merge(p1.id)).to be_falsey
     end
 
-    specify '#hard_merge 2' do
+    specify '#hard_merge 3' do
       expect(p1.hard_merge(999)).to be_falsey
     end
   end
