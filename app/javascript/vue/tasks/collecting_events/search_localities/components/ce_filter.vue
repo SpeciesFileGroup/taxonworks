@@ -152,7 +152,7 @@
           identifier_text: this.identifier_text,
         };
         this.$http.get('/collecting_events', {params: params}).then(response => {
-          this.filterList = response.body.html;
+          this.filterList = response.body;
         });
       }
     }

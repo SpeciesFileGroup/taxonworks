@@ -38,7 +38,7 @@
           :key="item.id">
           <td>
             <span
-              v-html="item.verbatim_locality"/>
+              v-html="item.cached"/>
           </td>
         </tr>
       </table>
@@ -69,7 +69,7 @@
           spatial_geographic_area_ids: geo_ids
         };
         this.$http.get('/collecting_events', {params: params}).then(response => {
-          this.collectingEventList = response.body.html;
+          this.collectingEventList = response.body;
         });
       },
       addGeographicArea(item) {
