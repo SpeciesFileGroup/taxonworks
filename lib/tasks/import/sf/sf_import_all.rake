@@ -45,16 +45,16 @@ namespace :tw do
           # 'taxa:create_otus_for_ill_formed_names_hash',
           # '6_after_otus_hash': 0m55.165s on 8 Nov 2018
           #
-          'taxa:create_all_sf_taxa_pass1',
+          # 'taxa:create_all_sf_taxa_pass1',
           # '7_after_run_all_taxa': 298m12.627s on 8 Nov 2018; 347m33.882s on 13 June 2018
           #
-          'taxa:create_type_species',
+          # 'taxa:create_type_species',
           # '8_after_type_species': 6m33.833s on 13 Nov 2018; no log summary appears at end
           #
-          'taxa:create_type_genera',
+          # 'taxa:create_type_genera',
           # '9_after_type_genera': 1m8.873ss on 13 Nov 2018
           #
-          'taxa:create_some_related_taxa',
+          # 'taxa:create_some_related_taxa',
           # '10_after_some_related_taxa': 3m2.116s on 13 Nov 2018
           #
           'taxa:create_status_flag_relationships',
