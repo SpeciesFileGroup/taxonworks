@@ -99,9 +99,9 @@ class PeopleController < ApplicationController
   end
 
   def merge
-    old_person = Person.find(params[:id])
-    @person = Person.find(params[:new_person_id])
-    if old_person.merge_with(@person.id)
+    @person = Person.find(params[:id]) # the person to *keep*
+    person_to_remove = Person.find(params[:person_to_remove])
+    if @person.hard_merge(person_to_remove)
       render 'show'
     else
       render json: {status: 'Failed'}

@@ -169,6 +169,8 @@ class Person < ApplicationRecord
   # @return [Boolean]
   #   true if all records updated, false if any one failed (all or none)
   # r_person is merged into l_person (self)
+  #
+  #  
   def merge_with(person_id)
     if r_person = Person.find(person_id) # get the new (merged into self) person
       begin
@@ -352,6 +354,19 @@ class Person < ApplicationRecord
     true
   end
 
+  def hard_merge(person_id_to_destroy)
+    person_to_destroy = Person.find(person_id_to_destroy)
+    begin
+      Person.transaction do
+        merge_with(person_to_destroy.id)
+        person_to_destroy.destroy!
+      end
+    rescue ActiveRecord::RecordInvalid
+      return false
+    end
+    true
+  end
+     
   # @return [Boolean]
   def is_determiner?
     determiner_roles.to_a.length > 0
