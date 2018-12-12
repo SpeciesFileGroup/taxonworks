@@ -84,8 +84,49 @@ describe Person, type: :model do
       person1.merge_with(person1b.id)
       expect(Role.count).to eq(4)
     end
-
   end
+
+  context 'roles 2' do
+    let!(:p1) { Person.create!(last_name: 'Smith') }
+    let!(:p2) { Person.create!(last_name: 'Jones') }
+
+    let!(:s1) { FactoryBot.create(:valid_source) }
+    let!(:s2) { FactoryBot.create(:valid_source) }
+
+    let!(:r1) { SourceAuthor.create!(person: p1, role_object: s1) }
+    let!(:r2) { SourceAuthor.create!(person: p2, role_object: s2) }
+
+    specify 'merge 1' do
+      p1.merge_with(p2.id)
+      expect(Role.count).to eq(2)
+    end
+
+    specify 'merge 2' do
+      p1.merge_with(p2.id)
+      expect(p1.roles.count).to eq(2)
+    end
+
+    specify 'merge 3' do
+      p1.merge_with(p2.id)
+      expect(p2.roles.count).to eq(0)
+    end
+
+    specify 'merge 4' do
+      p1.merge_with(p2.id)
+      expect(Role.all.reload.map(&:person_id)).to contain_exactly(p1.id, p1.id)
+    end
+
+    specify 'merge 5' do
+      p1.merge_with(p2.id)
+      expect(p2.destroyed?).to be_falsey
+    end
+
+    specify '#hard_merge' do
+      p1.hard_merge(p2.id)
+      expect(p2.destroyed?).to be_truthy
+    end
+  end
+
 
   context 'years are combined' do
     context 'fills target year' do
