@@ -198,6 +198,8 @@ class Source < ApplicationRecord
   include Shared::HasPapertrail
   include SoftValidation
 
+  ignore_whitespace_on(:verbatim_contents)
+
   ALTERNATE_VALUES_FOR = [:address, :annote, :booktitle, :edition, :editor, :institution, :journal, :note, :organization,
                           :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url].freeze
 

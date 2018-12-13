@@ -1,4 +1,6 @@
-# In theory this should work if we used the nulify_blanks gem. It does't.
+#  See also /app/models/application_record.rb
+#
+#In theory this should work if we used the nulify_blanks gem. It does't.
 #   ApplicationRecord.nilify_blanks
 #
 # via
@@ -57,4 +59,5 @@ module NilifyBlanks
 
 end
 
-ApplicationRecord.send(:include, NilifyBlanks)
+# When we remove eager load from config/routes then this can come back in
+# ApplicationRecord.send(:include, NilifyBlanks)

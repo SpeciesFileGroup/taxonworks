@@ -585,6 +585,27 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
     end
   end
 
+  context 'trimming fields' do
+    let(:s) { " asdf sd  \n  asdfd \r\n" }
+    specify '#buffered_collecting_event' do
+      collection_object.buffered_collecting_event = s
+      collection_object.valid?
+      expect(collection_object.buffered_collecting_event).to eq(s)
+    end
+
+    specify '#buffered_determinations' do
+      collection_object.buffered_determinations = s
+      collection_object.valid?
+      expect(collection_object.buffered_determinations).to eq(s)
+    end
+
+    specify '#buffered_other_labels' do
+      collection_object.buffered_other_labels = s
+      collection_object.valid?
+      expect(collection_object.buffered_other_labels).to eq(s)
+    end
+  end
+
   context 'concerns' do
     it_behaves_like 'citations'
     it_behaves_like 'containable'

@@ -360,7 +360,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
     expect(collecting_event.time_end).to eq('04:02:01')
   end
 
-  xspecify 'labels are not trimmed' do
+  specify 'labels are not trimmed' do
     s = ' asdf sd   asdfd '
     collecting_event.document_label = s
     collecting_event.valid?

@@ -30,7 +30,8 @@ class Note < ApplicationRecord
   include Shared::Tags
   include Shared::PolymorphicAnnotator
   polymorphic_annotates(:note_object)
-  
+  ignore_whitespace_on(:text)
+
   # Please DO NOT include the following, they get in the way
   # of the present housekeeping approach. A not null constraint exists
   # to catch these at present.

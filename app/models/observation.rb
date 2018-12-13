@@ -12,6 +12,8 @@ class Observation < ApplicationRecord
   include Shared::Depictions
   include Shared::Confidences
 
+  ignore_whitespace_on(:description)
+
   attr_accessor :observation_object_global_id
 
   belongs_to :descriptor, inverse_of: :observations
