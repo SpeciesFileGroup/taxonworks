@@ -64,7 +64,6 @@ export default {
   },
   data: function () {
     return {
-      delayCall: undefined,
       creatingType: false,
       displayBody: true,
       figuresList: [],
@@ -85,12 +84,10 @@ export default {
     objectValue (newVal, oldVal) {
       if (newVal.id && (newVal.id != oldVal.id)) {
         this.$refs.depiction.setOption('autoProcessQueue', true)
-        if(this.delayCall) { clearTimeout(this.delayCall) }
-        this.delayCall = setTimeout(() => {
+
           this.getDepictions(newVal.id).then(response => {
             this.figuresList = response
           })
-        }, 1000)
 
       } else {
         this.figuresList = []

@@ -7,6 +7,7 @@
         min="3"
         label="name"
         nested="records"
+        @getItem="group = $event"
         :headers="externalHeaders"
         :add-params="{
           limit: 30,
@@ -20,13 +21,14 @@
         min="3"
         label="name"
         nested="records"
+        @getItem="formation = $event"
         :headers="externalHeaders"
         :add-params="{
           limit: 30,
           vocab: 'pbdb',
           rank: 'formation'
         }"
-        param="term"/>
+        param="name"/>
       <label>Member</label>
       <input type="text"/>
       <label>Lithology</label>
@@ -74,6 +76,22 @@
         },
         set(value) {
           this.$store.commit(MutationNames.SetCollectionEventMinMa, value)
+        }
+      },
+      formation: {
+        get() {
+          return this.$store.getters[GetterNames.GetCollectionEvent].formation
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetCollectionEventFormation, value)
+        }
+      },
+      group: {
+        get() {
+          return this.$store.getters[GetterNames.GetCollectionEvent].group
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetCollectionEventGroup, value)
         }
       }
     },

@@ -64,7 +64,6 @@ export default {
       biocurationsGroups: [],
       addQueue: [],
       createdBiocutarions: [],
-      delay: undefined,
     }
   },
   mounted: function () {
@@ -88,12 +87,9 @@ export default {
         }
         if (newVal != undefined && newVal != oldVal) {
           this.addQueue = []
-          if(this.delay) clearTimeout(this.delay)
-          this.delay = setTimeout(() => {
             GetBiocurationsCreated(newVal).then(response => {
               this.createdBiocutarions = response
             })
-          }, 250)
         } 
       },
       immediate: true
