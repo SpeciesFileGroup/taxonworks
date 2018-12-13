@@ -45,6 +45,10 @@ const GetCollectingEventsSmartSelector = function () {
   return ajaxCall('get', `/collecting_events/select_options`)
 }
 
+const FilterCollectingEvent = function (params) {
+  return ajaxCall('get', `/collecting_events.json`, { params: params })
+}
+
 const GetCollectorsSmartSelector = function () {
   return ajaxCall('get', `/people/select_options?role=Collector`)
 }
@@ -213,6 +217,7 @@ export {
   GetGeographicSmartSelector,
   GetOtuSmartSelector,
   GetCollectingEventsSmartSelector,
+  FilterCollectingEvent,
   GetTaxonDeterminationCO,
   GetTypeMaterialCO,
   GetTypes,
