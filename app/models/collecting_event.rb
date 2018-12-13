@@ -191,7 +191,7 @@ class CollectingEvent < ApplicationRecord
   include Shared::HasPapertrail
   include SoftValidation
 
-  ignore_whitespace_on(:document_label, :verbatim_label, :print_label)
+  # ignore_whitespace_on(:document_label, :verbatim_label, :print_label)
 
   NEARBY_DISTANCE = 5000
 
