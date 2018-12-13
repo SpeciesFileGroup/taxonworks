@@ -38,7 +38,9 @@
           :key="item.id">
           <td>
             <span
-              v-html="item.cached"/>
+              v-html="item.cached"
+              @click="showObject(item.id)"
+            />
           </td>
         </tr>
       </table>
@@ -75,9 +77,9 @@
       addGeographicArea(item) {
         this.geographicAreaList.push(item);
       },
-      showObject() {
-        return true
-      },
+        showObject(id) {
+            window.open(`/collecting_events/` + id, '_blank');
+        },
       delistMe(index) {
         this.$delete(this.geographicAreaList, index)
       }

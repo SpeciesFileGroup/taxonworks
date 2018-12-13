@@ -105,7 +105,9 @@
           :key="item.id">
           <td>
             <span
-              v-html="item.verbatim_locality"/>
+              v-html="item.verbatim_locality"
+              @click="showObject(item.id)"
+            />
           </td>
         </tr>
       </table>
@@ -154,7 +156,10 @@
         this.$http.get('/collecting_events', {params: params}).then(response => {
           this.filterList = response.body;
         });
-      }
+      },
+        showObject(id) {
+            window.open(`/collecting_events/` + id, '_blank');
+        },
     }
   }
 </script>
