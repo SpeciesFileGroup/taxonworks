@@ -15,7 +15,7 @@
     </button>
     <modal-component
       v-if="showModal"
-      @close="showModal = false">
+      @close="closeModal">
       <h3 slot="header">Existing collecting events</h3>
       <div slot="body">
         <ul class="no_bullets">
@@ -98,8 +98,11 @@ export default {
     },
     setCE(ce) {
       this.$store.commit(MutationNames.SetCollectionEvent, ce)
+      this.closeModal()
+    },
+    closeModal() {
       this.showModal = false
-      this.selectedCE = false
+      this.selectedCE = false      
     }
   }
 }
