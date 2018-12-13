@@ -18,12 +18,16 @@ module DocumentationHelper
 
   def documentation_download_link(documentation)
     return nil if documentation.nil?
-    type = document_file_content_type 
-    link_to("download #{type}", documentation.document.document_file.url()) 
+    link_to(
+      document_type_label(documentation.document),
+      documentation.document.document_file.url(),
+      title: documentation.document.document_file_file_name,
+      data: {icon: :download} ) 
   end
 
   def documentation_links(object)
-    object.documentations.collect{ |o| documentation_download_link(o)}.join(", ").html_safe
+    object.documentation.collect{ |o| documentation_download_link(o)}.join("&nbsp;|&nbsp;").html_safe
   end
+
 
 end
