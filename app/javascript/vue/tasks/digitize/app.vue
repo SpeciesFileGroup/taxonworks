@@ -1,5 +1,8 @@
 <template>
-  <div id="#vue-all-in-one">
+  <div
+    id="#vue-all-in-one"
+    v-shortkey="[getMacKey(), 'l']"
+    @shortkey="setLockAll">
     <task-header/>
     <collection-object class="separate-bottom"/>
     <div class="horizontal-left-content align-start separate-top">
@@ -33,6 +36,14 @@
       GetUserPreferences().then(response => {
         this.$store.commit(MutationNames.SetPreferences, response)
       })
+    },
+    methods: {
+      getMacKey() {
+        return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
+      },
+      setLockAll() {
+        this.$store.commit(MutationNames.LockAll)
+      }
     }
   }
 </script>

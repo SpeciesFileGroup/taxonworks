@@ -1,4 +1,5 @@
 import setLocked from './setLocked'
+import lockAll from './lockAll'
 
 import setContainer from './Container/SetContainer'
 import addContainerItem from './Container/AddContainerItem'
@@ -104,6 +105,7 @@ const MutationNames = {
   RemoveTaxonDetermination: 'removeTaxonDetermination',
 
   SetLocked: 'setLocked',
+  LockAll: 'lockAll',
 
   SetContainer: 'setContainer',
   AddContainerItem: 'addContainerItem',
@@ -206,6 +208,7 @@ const MutationNames = {
 
 const MutationFunctions = {
   [MutationNames.SetLocked]: setLocked,
+  [MutationNames.LockAll]: lockAll,
 
   [MutationNames.SetContainer]: setContainer,
   [MutationNames.AddContainerItem]: addContainerItem,
