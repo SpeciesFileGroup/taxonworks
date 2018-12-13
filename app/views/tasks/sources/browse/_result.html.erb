@@ -9,6 +9,7 @@
       <%= fancy_th_tag(name: 'Year') -%>
       <%= fancy_th_tag(name: 'Citations') -%>
       <%= fancy_th_tag(name: 'In project') -%>
+      <%= fancy_th_tag(name: 'Documents') -%>
       <%= fancy_th_tag(name: 'Pin') -%>
     </tr>
   </thead>
@@ -27,6 +28,8 @@
         </td>
         <td><%= add_source_to_project_form(source) %></td>
         <td><%= pin_item_to_pinboard_link(source, sessions_current_user) %></td>
+
+        <td><%= documentation_links(source) -%></td>
         <%= fancy_options_cells_tag(source) -%>
       <% end %>
     <% end %>

@@ -79,6 +79,7 @@ module Queries
 
       # @return [Array]
       def autocomplete
+        return [] if query_string.blank?
         queries = [
           autocomplete_exact_match,
           autocomplete_exact_inverted,

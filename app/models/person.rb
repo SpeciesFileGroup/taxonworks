@@ -367,7 +367,7 @@ class Person < ApplicationRecord
     rescue ActiveRecord::RecordInvalid
       return false
     rescue ActiveRecord::RecordNotFound
-     return false 
+     return false
     end
     true
   end
