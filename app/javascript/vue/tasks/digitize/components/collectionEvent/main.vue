@@ -16,11 +16,18 @@
           type="CollectingEvent"/>
       </div>
       <div slot="body">
-        <smart-selector
-          name="collection-event"
-          v-model="view"
-          :add-option="staticOptions"
-          :options="tabs"/>
+        <div class="horizontal-left-content">
+          <smart-selector
+            name="collection-event"
+            v-model="view"
+            :add-option="staticOptions"
+            :options="tabs"/>
+          <pin-default
+            class="separate-left"
+            section="CollectingEvents"
+            @getId="getCollectingEvent"
+            type="CollectingEvent"/>
+        </div>
         <component
           :is="actualComponent"
           :list="lists[view]"/>
@@ -43,8 +50,10 @@
   import BlockLayout from 'components/blockLayout.vue'
   import RadialAnnotator from 'components/annotator/annotator.vue'
   import { GetterNames } from '../../store/getters/getters.js'
+  import { MutationNames } from '../../store/mutations/mutations.js'
   import PinComponent from 'components/pin.vue'
-  import { GetCollectingEventsSmartSelector } from '../../request/resources.js'
+  import PinDefault from 'components/getDefaultPin'
+  import { GetCollectingEventsSmartSelector, GetCollectionEvent } from '../../request/resources.js'
 
   import SearchComponent from './components/smart/search.vue'
 
@@ -66,7 +75,8 @@
       SearchComponent,
       RecentComponent,
       PinboardComponent,
-      QuickComponent
+      QuickComponent,
+      PinDefault
     },
     computed: {
       collectingEvent() {
@@ -89,6 +99,13 @@
         this.tabs = Object.keys(response)
         this.lists = response
       })
+    },
+    methods: {
+      getCollectingEvent(id) {
+        GetCollectionEvent(id).then(response => {
+          this.$store.commit(MutationNames.SetCollectionEvent, response)
+        })
+      }
     }
   }
 </script>
