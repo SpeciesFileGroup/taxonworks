@@ -99,6 +99,7 @@ export default {
     setCE(ce) {
       this.$store.commit(MutationNames.SetCollectionEvent, ce)
       this.showModal = false
+      this.selectedCE = false
     }
   }
 }
