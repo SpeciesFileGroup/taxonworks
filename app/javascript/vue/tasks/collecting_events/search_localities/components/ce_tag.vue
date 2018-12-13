@@ -15,7 +15,7 @@
         </tr>
       </table>
     </div>
-     <autocomplete
+    <autocomplete
       class="separate-bottom"
       url="/controlled_vocabulary_terms/autocomplete"
       min="2"
@@ -38,7 +38,9 @@
           :key="item.id">
           <td>
             <span
-              v-html="item.id + ' ' + item.label_html"/>
+              v-html="item.id + ' ' + item.cached"
+              @click="showObject(item.id)"
+            />
           </td>
         </tr>
       </table>
@@ -75,8 +77,8 @@
       addTag(item) {
         this.tagList.push(item);
       },
-      showObject() {
-        return true
+      showObject(id) {
+        window.open(`/collecting_events/` + id, '_blank');
       },
       delistMe(index) {
         this.$delete(this.tagList, index)

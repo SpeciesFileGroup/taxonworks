@@ -102,7 +102,7 @@
       <table>
         <tr
           v-for="item in filterList"
-          :key="item">
+          :key="item.id">
           <td>
             <span
               v-html="item.verbatim_locality"/>
