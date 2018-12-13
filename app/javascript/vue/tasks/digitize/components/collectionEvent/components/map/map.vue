@@ -3,7 +3,7 @@
     <div style="height: 10%; overflow: auto;">
       Map verification
     </div>
-    <l-map style="height: 300px; width:500px" :zoom="zoom" :center="center">
+    <l-map style="height: 300px; width:420px" :zoom="zoom" :center="center">
       <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
       <l-marker :lat-lng="marker"></l-marker>
     </l-map>
@@ -11,7 +11,7 @@
   <div
     v-else
     class="panel aligner"
-    style="height: 300px; align-items: center; width:500px">
+    style="height: 300px; align-items: center; width:420px">
     <h3>Fill lat/long to display the map</h3>
   </div>
 </template>

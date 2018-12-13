@@ -53,6 +53,10 @@ const GetCollectorsSmartSelector = function () {
   return ajaxCall('get', `/people/select_options?role=Collector`)
 }
 
+const GetTaxonDeterminatorSmartSelector = function () {
+  return ajaxCall('get', `/people/select_options?role=TaxonDeterminator`)
+}
+
 const GetGeographicSmartSelector = function () {
   return ajaxCall('get', `/geographic_areas/select_options`)
 }
@@ -215,6 +219,7 @@ export {
   GetCollectorsSmartSelector,
   GetRepositorySmartSelector,
   GetGeographicSmartSelector,
+  GetTaxonDeterminatorSmartSelector,
   GetOtuSmartSelector,
   GetCollectingEventsSmartSelector,
   FilterCollectingEvent,

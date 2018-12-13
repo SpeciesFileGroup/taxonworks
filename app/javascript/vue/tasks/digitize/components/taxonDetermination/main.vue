@@ -4,69 +4,78 @@
       <h3>Determinations</h3>
     </div>
     <div slot="body">
-      <label>OTU</label>
-      <smart-selector
-        v-model="view"
-        class="separate-bottom"
-        name="determination"
-        :options="options"/>
-      <template>
-        <otu-picker
-          v-if="view == 'new'"
-          @getItem="otu = $event.id; otuSelected = $event.label_html"/> 
-        <ul
-          v-else
-          class="no_bullets">
-          <li
-            v-for="item in lists[view]"
-            :key="item.id"
-            :value="item.id">
-            <label
-              @click="otuSelected = item.label_html">
-              <input
-                v-model="otu"
-                :value="item.id"
-                type="radio">
-              <span v-html="item.object_tag"/>
-            </label>
-          </li>
-        </ul>
-      </template>
-      <p v-html="otuSelected"/>
-      <label>Determiner</label>
-      <role-picker
-        :autofocus="false" 
-        role-type="Determiner"
-        v-model="roles"/>
-      <div class="horizontal-left-content date-fields separate-bottom">
-        <div class="separate-right">
-          <label>Year</label>
-          <input
-            type="text"
-            v-model="year">
+      <fieldset>
+        <legend>OTU</legend>
+        <smart-selector
+          v-model="view"
+          class="separate-bottom"
+          name="otu-determination"
+          :options="options"/>
+        <template>
+          <otu-picker
+            v-if="view == 'new/Search'"
+            @getItem="otu = $event.id; otuSelected = $event.label_html"/> 
+          <ul
+            v-else
+            class="no_bullets">
+            <li
+              v-for="item in lists[view]"
+              :key="item.id"
+              :value="item.id">
+              <label
+                @click="otuSelected = item.label_html">
+                <input
+                  v-model="otu"
+                  :value="item.id"
+                  type="radio">
+                <span v-html="item.object_tag"/>
+              </label>
+            </li>
+          </ul>
+        </template>
+        <p v-html="otuSelected"/>
+      </fieldset>
+      <fieldset>
+        <legend>Determiner</legend>
+        <smart-selector
+          v-model="viewDeterminer"
+          class="separate-bottom"
+          name="determiner"
+          :options="optionsDeterminer"/>
+        <role-picker
+          :autofocus="false" 
+          role-type="Determiner"
+          v-model="roles"/>
+        <div class="horizontal-left-content date-fields separate-bottom">
+          <div class="separate-right">
+            <label>Year</label>
+            <input
+              type="text"
+              v-model="year">
+          </div>
+          <div class="separate-right separate-left">
+            <label>Month</label>
+            <input
+              type="text"
+              v-model="month">
+          </div>
+          <div class="separate-left">
+            <label>Day</label>
+            <input
+              type="text"
+              v-model="day">
+          </div>
+          <div>
+            <label>&nbsp</label>
+            <button
+              type="button"
+              class="button normal-input button-default separate-left"
+              @click="setActualDate">
+              Now
+            </button>
+          </div>
         </div>
-        <div class="separate-right separate-left">
-          <label>Month</label>
-          <input
-            type="text"
-            v-model="month">
-        </div>
-        <div class="separate-left">
-          <label>Day</label>
-          <input
-            type="text"
-            v-model="day">
-        </div>
-        <div>
-          <label>&nbsp</label>
-          <button
-            type="button"
-            class="button normal-input button-default separate-left"
-            @click="setActualDate">
-            Now
-          </button>
-        </div>
-      </div>
+      </fieldset>
       <button
         type="button"
         class="button normal-input button-submit separate-top"
@@ -88,7 +97,7 @@ import { MutationNames } from '../../store/mutations/mutations.js'
 import BlockLayout from 'components/blockLayout.vue'
 import { ActionNames } from '../../store/actions/actions';
 import DisplayList from 'components/displayList.vue'
-import { GetOtu, GetOtuSmartSelector } from '../../request/resources.js'
+import { GetOtu, GetOtuSmartSelector, GetTaxonDeterminatorSmartSelector } from '../../request/resources.js'
 
 export default {
   components: {
@@ -145,9 +154,12 @@ export default {
   },
   data() {
     return {
-      view: 'new',
-      options: ['Quick', 'Recent', 'Pinboard', 'new'],
+      view: 'new/Search',
+      viewDeterminer: 'new/Search',
+      options: [],
+      optionsDeterminer: ['Quick', 'Recent', 'Pinboard', 'new/Search'],
       lists: [],
+      listsDeterminator: [],
       otuSelected: undefined
     }
   },
@@ -166,8 +178,13 @@ export default {
   mounted() {
     GetOtuSmartSelector().then(response => {
       this.options = Object.keys(response)
-      this.options.push('new')
+      this.options.push('new/Search')
       this.lists = response
+    })
+    GetTaxonDeterminatorSmartSelector().then(response => {
+      this.optionsDeterminer = Object.keys(response)
+      this.optionsDeterminer.push('new/Search')
+      this.listsDeterminator = response      
     })
   },
   methods: {
