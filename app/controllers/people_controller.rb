@@ -98,6 +98,10 @@ class PeopleController < ApplicationController
     ).autocomplete
   end
 
+  def select_options
+    @people = Person.select_optimized(sessions_current_user_id, sessions_current_project_id, params.permit(:role_type)[:role_type])
+  end
+
   def merge
     @person = Person.find(params[:id]) # the person to *keep*
     person_to_remove = Person.find(params[:person_to_destroy])

@@ -403,10 +403,51 @@ class Person < ApplicationRecord
   # @return [Array] of People
   #    return people for name strings
   def self.parse_to_people(name_string)
-    parser(name_string).collect { |n| Person::Unvetted.new(last_name:  n['family'],
-                                                           first_name: n['given'],
-                                                           prefix:     n['non-dropping-particle']) }
+    parser(name_string).collect { |n| 
+      Person::Unvetted.new(last_name:  n['family'],
+                           first_name: n['given'],
+                           prefix:     n['non-dropping-particle'])}
   end
+
+  # @param role_type [String] one of the Role types
+  # @return [Scope]
+  #    the max 10 most recently used (1 week, could parameterize) people 
+  def self.used_recently(role_type = 'SourceAuthor')
+    t = Role.arel_table
+    p = Person.arel_table
+
+    # i is a select manager
+    i = t.project(t['person_id'], t['created_at']).from(t)
+      .where(t['created_at'].gt(1.weeks.ago))
+      .where(t['type'].eq(role_type))
+      .order(t['created_at'])
+      .take(10)
+      .distinct
+
+    # z is a table alias
+    z = i.as('recent_t')
+
+    Person.joins(
+      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['person_id'].eq(p['id'])))
+    )
+  end
+
+  # @params Role [String] one the available roles
+  # @return [Hash] geographic_areas optimized for user selection
+  def self.select_optimized(user_id, project_id, role_type = 'SourceAuthor')
+    h = {
+      quick:    [],
+      pinboard: Person.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a
+    }
+
+    h[:recent] = Person.joins(:roles).where(roles: {project_id: project_id, type: role_type}).
+      used_recently(role_type).
+      limit(10).distinct.to_a
+
+    h[:quick] = (Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a + h[:recent][0..3]).uniq
+    h
+  end
+
 
   protected
 
