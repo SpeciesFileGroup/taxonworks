@@ -22,7 +22,7 @@ module NilifyBlanks
     # @param [Symbol, Array] attributes
     # @return [Symbol]
     def ignore_whitespace_on(*attributes) # this assigns the attributes to be trimmed
-      raise('no attributes to trim') if (attributes.map(&:to_s) - self.column_names) != []
+      raise('no attributes to trim') if attributes == #  (attributes.map(&:to_s) - self.column_names) != [] <- don't require AR connection
       self.attributes_to_not_trim = attributes.map(&:to_s)
     end
 
