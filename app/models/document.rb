@@ -43,10 +43,12 @@ class Document < ApplicationRecord
 
   attr_accessor :initialize_start_page
 
-  has_many :documentation
+  before_destroy :check_for_documentation, prepend: true
+
+  has_many :documentation, dependent: :destroy, inverse_of: :document
 
   has_attached_file :document_file,
-                    filename_cleaner:  Utilities::CleanseFilename
+    filename_cleaner:  Utilities::CleanseFilename
 
   validates_attachment_content_type :document_file, content_type: ['application/octet-stream', 'application/pdf', 'text/plain', 'text/xml']
   validates_attachment_presence :document_file
@@ -57,7 +59,7 @@ class Document < ApplicationRecord
   before_save :set_pdf_metadata, if: -> {
     ActiveSupport::Deprecation.silence do
       changed_attributes.include?('document_file_file_size') &&
-          document_file_content_type =~ /pdf/
+        document_file_content_type =~ /pdf/
     end
   }
 
@@ -107,6 +109,13 @@ class Document < ApplicationRecord
   end
 
   protected
+
+  def check_for_documentation
+    if documentation.count > 1 
+      errors.add(:base, 'document is used in more than one place, remove documentation first')
+      throw :abort 
+    end
+  end
 
   def set_pdf_metadata
     begin

@@ -27,26 +27,28 @@ class Tasks::Gis::LocalityController < ApplicationController
   # use the params[:geographic_area_id] to locate the area, use that to find a geographic item
   def list
     case params[:commit]
-      when 'Show'
-        geographic_area_ids = params[:geographic_area_ids]
-        shape_in = params['drawn_area_shape']
-        findings = [params['selection_objects']]
+    when 'Show'
+      geographic_area_ids = params[:geographic_area_ids]
+      shape_in = params['drawn_area_shape']
+      findings = [params['selection_objects']]
 
-        findings.flatten.each { |finding|
-          case finding
-            when /Collecting/
-              @collecting_events = GeographicItem.gather_geographic_area_or_shape_data(geographic_area_ids,
-                                                                                       shape_in,
-                                                                                       finding,
-                                                                                       sessions_current_project_id)
-                                       .order(:verbatim_locality)
-          else
-            raise("Cannot find '#{finding}' this way.")
-          end
-        }
-        @drawing_modes = 'active: polygon, circle'
-      else
-        # some other case, TBDL
+      findings.flatten.each { |finding|
+        case finding
+        when /Collecting/
+          @collecting_events = GeographicItem.gather_geographic_area_or_shape_data(
+            geographic_area_ids,
+            shape_in,
+            finding,
+            sessions_current_project_id)
+            .order(:verbatim_locality)
+        else
+          raise("Cannot find '#{finding}' this way.")
+        end
+      }
+      @drawing_modes = 'active: polygon, circle'
+    else
+      # some other case, TBDL
     end
   end
+
 end

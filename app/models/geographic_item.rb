@@ -104,6 +104,15 @@ class GeographicItem < ApplicationRecord
 
   class << self
 
+    # @return [GeographicItem::ActiveRecord_Relation]
+    # @params [Array] array of geographic area ids
+    def default_by_geographic_area_ids(geographic_area_ids = [])
+      GeographicItem.
+        joins(:geographic_areas_geographic_items).
+        merge(::GeographicAreasGeographicItem.default_geographic_item_data).
+        where(geographic_areas_geographic_items: {geographic_area_id: geographic_area_ids})
+    end
+
     # @param [String] wkt
     # @return [Boolean]
     #   whether or not the wtk intersects with the anti-meridian
@@ -435,7 +444,7 @@ class GeographicItem < ApplicationRecord
     # @return [String] the SQL fragment for the specific geometry type, shifted by longitude
     # Note: this routine is called when it is already known that the A argument crosses anti-meridian
     def contained_by_wkt_shifted_sql(wkt)
-      retval = "ST_Contains(ST_ShiftLongitude(ST_GeomFromText('#{wkt}', 4326)), (
+      "ST_Contains(ST_ShiftLongitude(ST_GeomFromText('#{wkt}', 4326)), (
           CASE geographic_items.type
              WHEN 'GeographicItem::MultiPolygon' THEN ST_ShiftLongitude(multi_polygon::geometry)
              WHEN 'GeographicItem::Point' THEN ST_ShiftLongitude(point::geometry)
@@ -446,7 +455,6 @@ class GeographicItem < ApplicationRecord
           END
           )
         )"
-      retval
     end
 
     # TODO: Remove the hard coded 4326 reference
@@ -1231,15 +1239,14 @@ class GeographicItem < ApplicationRecord
   def to_geo_json_feature
     @geometry ||= to_geo_json
     {
-        'type' => 'Feature',
-        'geometry' => geometry,
-        'properties' => {
-            'geographic_item' => {
-                'id' => id}
-        }
+      'type' => 'Feature',
+      'geometry' => geometry,
+      'properties' => {
+        'geographic_item' => {
+          'id' => id}
+      }
     }
   end
-
   # rubocop:enable Style/StringHashKeys
 
   # '{"type":"Feature","geometry":{"type":"Point","coordinates":[2.5,4.0]},"properties":{"color":"red"}}'

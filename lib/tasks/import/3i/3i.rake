@@ -337,7 +337,7 @@ namespace :tw do
 
           if @proceps.nil?
             pwd = rand(36**10).to_s(36)
-            @proceps = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, self_created: true, is_flagged_for_password_reset: true)
+            @proceps = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, is_administrator: true, self_created: true, is_flagged_for_password_reset: true)
           end
           if @trivellone.nil?
             pwd = rand(36**10).to_s(36)

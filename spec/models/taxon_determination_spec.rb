@@ -92,6 +92,15 @@ describe TaxonDetermination, type: :model do
     end
   end
 
+  specify '#print_label is not trimmed' do
+    s = " asdf sd  \n  asdfd \r\n" 
+    taxon_determination.print_label = s
+    taxon_determination.valid?
+    expect(taxon_determination.print_label).to eq(s)
+  end
+
+
+
   context 'concerns' do
     it_behaves_like 'citations'
     it_behaves_like 'has_roles'

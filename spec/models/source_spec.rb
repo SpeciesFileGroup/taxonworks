@@ -194,13 +194,36 @@ describe Source, type: :model, group: :sources do
   context 'validate' do
     specify 'year_suffix' do
       source1 = FactoryBot.create(:soft_valid_bibtex_source_article, year: 1999, year_suffix: 'a')
+      person1 = Person.create(last_name: 'Smith', first_name: 'Jones')
+      source1.author_roles.create(person: person1)
       source2 = FactoryBot.build(:soft_valid_bibtex_source_article, year: 1999, year_suffix: nil)
+      source2.author_roles.build(person: person1)
       expect(source2.valid?).to be_truthy
       source2.year_suffix = 'b'
       expect(source2.valid?).to be_truthy
       source2.year_suffix = 'a'
       expect(source2.valid?).to be_falsey
     end
+    specify 'year suffix different authors' do
+      source1 = FactoryBot.create(:soft_valid_bibtex_source_article, year: 1999, year_suffix: 'a', author: nil)
+      person1 = Person.create(last_name: 'Smith', first_name: 'Jones')
+      source1.author_roles.create(person: person1)
+      source2 = FactoryBot.build(:soft_valid_bibtex_source_article, year: 1999, year_suffix: nil, author: nil)
+      person2 = Person.create(last_name: 'Smith', first_name: 'Chris')
+      source2.author_roles.build(person: person2)
+      expect(source2.valid?).to be_truthy
+      source2.year_suffix = 'b'
+      expect(source2.valid?).to be_truthy
+      source2.year_suffix = 'a'
+      expect(source2.valid?).to be_truthy
+    end
+  end
+
+  specify '#verbatim_contents is not trimmed' do
+    s = " asdf sd  \n  asdfd \r\n" 
+    source.verbatim_contents = s
+    source.valid?
+    expect(source.verbatim_contents).to eq(s)
   end
 
   context 'concerns' do

@@ -88,7 +88,7 @@ class Person < ApplicationRecord
     in:      ['Person::Vetted', 'Person::Unvetted'],
     message: '%{value} is not a validly_published type'}
 
-  has_many :roles, dependent: :destroy, inverse_of: :person
+  has_many :roles, dependent: :restrict_with_error, inverse_of: :person
   has_many :author_roles, class_name: 'SourceAuthor'
   has_many :editor_roles, class_name: 'SourceEditor'
   has_many :source_roles, class_name: 'SourceSource'
@@ -169,13 +169,15 @@ class Person < ApplicationRecord
   # @return [Boolean]
   #   true if all records updated, false if any one failed (all or none)
   # r_person is merged into l_person (self)
+  #
+  #  
   def merge_with(person_id)
+    return false if person_id == id
     if r_person = Person.find(person_id) # get the new (merged into self) person
-      # r_err         = nil
       begin
         ApplicationRecord.transaction do
           unvetted = self.type.include?('Unv') && r_person.type.include?('Unv')
-          Role.where(person_id: r_person.id).update(person: self) # update merge person's roles to old
+          Role.where(person_id: r_person.id).update(person_id: id) # update merge person's roles to old
           l_person_hash = annotations_hash
           
           unless r_person.first_name.blank?
@@ -343,7 +345,8 @@ class Person < ApplicationRecord
           end
 
           # last thing to do in the transaction...
-          self.save! unless self.persisted?
+          # NO!!! -  unless self.persisted? (all people are at this point persisted!)
+          self.save! if self.changed? 
         end
       rescue ActiveRecord::RecordInvalid
         return false
@@ -352,6 +355,23 @@ class Person < ApplicationRecord
     true
   end
 
+  def hard_merge(person_id_to_destroy)
+    return false if id == person_id_to_destroy
+    begin
+      person_to_destroy = Person.find(person_id_to_destroy)
+
+      Person.transaction do
+        merge_with(person_to_destroy.id)
+        person_to_destroy.destroy!
+      end
+    rescue ActiveRecord::RecordInvalid
+      return false
+    rescue ActiveRecord::RecordNotFound
+     return false
+    end
+    true
+  end
+     
   # @return [Boolean]
   def is_determiner?
     determiner_roles.to_a.length > 0

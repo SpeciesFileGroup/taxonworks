@@ -80,6 +80,7 @@ class CollectionObject < ApplicationRecord
   include Shared::IsDwcOccurrence
   include CollectionObject::DwcExtensions
 
+  ignore_whitespace_on(:buffered_collecting_event, :buffered_determinations, :buffered_other_labels)
   is_origin_for 'CollectionObject', 'Extract', 'AssertedDistribution'
 
   CO_OTU_HEADERS      = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
@@ -567,8 +568,8 @@ class CollectionObject < ApplicationRecord
   # @return [Scope] of selected collection objects through collecting events with georeferences, remember to scope to project!
   def self.in_date_range(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
     allow_partial = (partial_overlap.downcase == 'off' ? false : true) # TODO: Just get the correct values from the form!
-    where_sql     = CollectingEvent.date_sql_from_dates(search_start_date, search_end_date, allow_partial)
-    joins(:collecting_event).where(where_sql)
+    q = Queries::CollectingEvent::Filter.new(start_date: search_start_date, end_date: search_end_date, partial_overlap_dates: allow_partial)
+    joins(:collecting_event).where(q.between_date_range.to_sql)
   end
 
   def sv_missing_accession_fields

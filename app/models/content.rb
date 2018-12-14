@@ -31,6 +31,7 @@ class Content < ApplicationRecord
   include Shared::IsData
   include Shared::HasPapertrail
   include Shared::DataAttributes
+  ignore_whitespace_on(:text)
 
   belongs_to :otu, inverse_of: :contents
   belongs_to :topic, inverse_of: :contents

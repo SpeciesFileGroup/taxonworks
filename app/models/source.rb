@@ -198,6 +198,8 @@ class Source < ApplicationRecord
   include Shared::HasPapertrail
   include SoftValidation
 
+  ignore_whitespace_on(:verbatim_contents)
+
   ALTERNATE_VALUES_FOR = [:address, :annote, :booktitle, :edition, :editor, :institution, :journal, :note, :organization,
                           :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url].freeze
 
@@ -365,9 +367,9 @@ class Source < ApplicationRecord
   def validate_year_suffix
     unless year_suffix.blank?
       if self.id
-        s = Source.where(year: year, year_suffix: year_suffix).not_self(self).first
+        s = Source.where(author: author, year: year, year_suffix: year_suffix).not_self(self).first
       else
-        s = Source.where(year: year, year_suffix: year_suffix).first
+        s = Source.where(author: author, year: year, year_suffix: year_suffix).first
       end
       errors.add(:year_suffix, 'is already used') unless s.nil?
     end
