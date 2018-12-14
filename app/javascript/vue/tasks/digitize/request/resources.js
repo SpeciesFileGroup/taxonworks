@@ -54,7 +54,7 @@ const GetCollectorsSmartSelector = function () {
 }
 
 const GetTaxonDeterminatorSmartSelector = function () {
-  return ajaxCall('get', `/people/select_options?role=TaxonDeterminator`)
+  return ajaxCall('get', `/people/select_options?role=TaxonDeterminer`)
 }
 
 const GetGeographicSmartSelector = function () {
