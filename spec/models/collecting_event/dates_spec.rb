@@ -43,6 +43,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     }
   end
 
+  # TEMPLATE
   # context 'some test' do
   #   let(:search_start) { a }
   #   let(:search_end) { c }
