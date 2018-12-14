@@ -9,24 +9,24 @@
         <td/>
         <td>
           <input
-            v-model="start_date_day"
+            v-model="parameters['start_date_day']"
             type=text
             size="2"
             maxlength="2">
         </td>
         <td>
-          <month-select @month="start_date_month=$event"/>
+          <month-select @month="parameters['start_date_month']=$event"/>
         </td>
         <td>
           <input
-            v-model="start_date_year"
+            v-model="parameters['start_date_year']"
             type=text
             size="4"
             maxlength="4">
         </td>
         <td>
           <input
-            v-model="st_datepicker"
+            v-model="parameters['start_date']"
             type="date">
         </td>
       </tr>
@@ -37,24 +37,24 @@
         <td/>
         <td>
           <input
-            v-model="end_date_day"
+            v-model="parameters['end_date_day']"
             type=text
             size="2"
             maxlength="2">
         </td>
         <td>
-          <month-select @month="end_date_month=$event"/>
+          <month-select @month="parameters['end_date_month']=$event"/>
         </td>
         <td>
           <input
-            v-model="end_date_year"
+            v-model="parameters['end_date_year']"
             type=text
             size="4"
             maxlength="4">
         </td>
         <td>
           <input
-            v-model="en_datepicker"
+            v-model="parameters['end_date']"
             type="date">
         </td>
       </tr>
@@ -66,7 +66,7 @@
         </td>
         <td>
           <input
-            v-model="verbatim_locality_text"
+            v-model="parameters['in_verbatim_locality']"
             type=text
             size="35">
         </td>
@@ -77,7 +77,7 @@
         </td>
         <td>
           <input
-            v-model="any_label_text"
+            v-model="parameters['in_labels']"
             type=text
             size="35">
         </td>
@@ -88,7 +88,7 @@
         </td>
         <td>
           <input
-            v-model="identifier_text"
+            v-model="parameters['identifier_text']"
             type=text
             size="35">
         </td>
@@ -123,37 +123,45 @@
     },
     data() {
       return {
-        start_date_day: '',
-        end_date_day: '',
-        start_date_month: '',
-        end_date_month: '',
-        start_date_year: '',
-        end_date_year: '',
-        st_datepicker: '',
-        en_datepicker: '',
-        verbatim_locality_text: '',
-        any_label_text: '',
-        identifier_text: '',
+        parameters: {
+          start_date_day: '',
+          end_date_day: '',
+          start_date_month: '',
+          end_date_month: '',
+          start_date_year: '',
+          end_date_year: '',
+          start_date: '',
+          end_date: '',
+          in_verbatim_locality: '',
+          iin_labels: '',
+          identifier_text: ''},
         filterList: []
       }
     },
 
     methods: {
       gettFilterData(){
-        let params = {
-          start_date_day: this.start_date_day,
-          end_date_day: this.end_date_day,
-          start_date_month: this.start_date_month,
-          end_date_month: this.end_date_month,
-          start_date_year: this.start_date_year,
-          end_date_year: this.end_date_year,
-          start_date: this.st_datepicker,
-          end_date: this.en_datepicker,
-          verbatim_locality_text: this.verbatim_locality_text,
-          in_labels: this.any_label_text,
-          identifier_text: this.identifier_text,
-        };
-        this.$http.get('/collecting_events', {params: params}).then(response => {
+        let params = {};
+        let keys = Object.keys(this.parameters);
+        for (let i=0; i<keys.length; i++) {
+            if (this.parameters[keys[i]].length) {
+              params[keys[i]] = this.parameters[keys[i]];
+            }
+        }
+        // params = this.parameters;
+        //   start_date_day: this.start_date_day,
+        //   end_date_day: this.end_date_day,
+        //   start_date_month: this.start_date_month,
+        //   end_date_month: this.end_date_month,
+        //   start_date_year: this.start_date_year,
+        //   end_date_year: this.end_date_year,
+        //   start_date: this.st_datepicker,
+        //   end_date: this.en_datepicker,
+        //   verbatim_locality_text: this.verbatim_locality_text,
+        //   in_labels: this.any_label_text,
+        //   identifier_text: this.identifier_text,
+        // };
+        this.$http.get('/collecting_events.json', {params: params}).then(response => {
           this.filterList = response.body;
         });
       },
