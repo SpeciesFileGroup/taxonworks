@@ -2,7 +2,8 @@
 require 'capybara/rails'
 require 'capybara/rspec'
 
-# Capybara.default_max_wait_time = 8
+# Leave this in
+Capybara.default_max_wait_time = 30
 
 # Set in config/application_settings:
 #

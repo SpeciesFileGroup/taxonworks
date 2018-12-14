@@ -86,10 +86,10 @@ class Person < ApplicationRecord
   after_save :set_cached, unless: Proc.new { |n| n.no_cached || errors.any? }
 
   validates :type, inclusion: {
-    in: ['Person::Vetted', 'Person::Unvetted'],
+    in:      ['Person::Vetted', 'Person::Unvetted'],
     message: '%{value} is not a validly_published type'}
 
-  has_many :roles, dependent: :destroy, inverse_of: :person
+  has_many :roles, dependent: :restrict_with_error, inverse_of: :person
   has_many :author_roles, class_name: 'SourceAuthor'
   has_many :editor_roles, class_name: 'SourceEditor'
   has_many :source_roles, class_name: 'SourceSource'
@@ -114,7 +114,6 @@ class Person < ApplicationRecord
   scope :with_role, -> (role) { includes(:roles).where(roles: {type: role}) }
   scope :ordered_by_last_name, -> { order(:last_name) }
 
-  scope :used_recently, -> { joins(:roles).where(roles: { created_at: 1.weeks.ago..Time.now } ) }
   scope :used_in_project, -> (project_id) { joins(:roles).where( roles: { project_id: project_id } ) }
 
   # @return [Boolean]
@@ -173,13 +172,15 @@ class Person < ApplicationRecord
   # @return [Boolean]
   #   true if all records updated, false if any one failed (all or none)
   # r_person is merged into l_person (self)
+  #
+  #  
   def merge_with(person_id)
+    return false if person_id == id
     if r_person = Person.find(person_id) # get the new (merged into self) person
-      # r_err         = nil
       begin
         ApplicationRecord.transaction do
           unvetted = self.type.include?('Unv') && r_person.type.include?('Unv')
-          Role.where(person_id: r_person.id).update(person: self) # update merge person's roles to old
+          Role.where(person_id: r_person.id).update(person_id: id) # update merge person's roles to old
           l_person_hash = annotations_hash
           
           unless r_person.first_name.blank?
@@ -347,7 +348,8 @@ class Person < ApplicationRecord
           end
 
           # last thing to do in the transaction...
-          self.save! unless self.persisted?
+          # NO!!! -  unless self.persisted? (all people are at this point persisted!)
+          self.save! if self.changed? 
         end
       rescue ActiveRecord::RecordInvalid
         return false
@@ -356,6 +358,23 @@ class Person < ApplicationRecord
     true
   end
 
+  def hard_merge(person_id_to_destroy)
+    return false if id == person_id_to_destroy
+    begin
+      person_to_destroy = Person.find(person_id_to_destroy)
+
+      Person.transaction do
+        merge_with(person_to_destroy.id)
+        person_to_destroy.destroy!
+      end
+    rescue ActiveRecord::RecordInvalid
+      return false
+    rescue ActiveRecord::RecordNotFound
+     return false
+    end
+    true
+  end
+     
   # @return [Boolean]
   def is_determiner?
     determiner_roles.to_a.length > 0
@@ -387,20 +406,51 @@ class Person < ApplicationRecord
   # @return [Array] of People
   #    return people for name strings
   def self.parse_to_people(name_string)
-    parser(name_string).collect { |n| Person::Unvetted.new(last_name:  n['family'],
-                                                           first_name: n['given'],
-                                                           prefix:     n['non-dropping-particle']) }
+    parser(name_string).collect { |n| 
+      Person::Unvetted.new(last_name:  n['family'],
+                           first_name: n['given'],
+                           prefix:     n['non-dropping-particle'])}
   end
 
-  def self.select_optimized(user_id, project_id, role)
+  # @param role_type [String] one of the Role types
+  # @return [Scope]
+  #    the max 10 most recently used (1 week, could parameterize) people 
+  def self.used_recently(role_type = 'SourceAuthor')
+    t = Role.arel_table
+    p = Person.arel_table
+
+    # i is a select manager
+    i = t.project(t['person_id'], t['created_at']).from(t)
+      .where(t['created_at'].gt(1.weeks.ago))
+      .where(t['type'].eq(role_type))
+      .order(t['created_at'])
+      .take(10)
+      .distinct
+
+    # z is a table alias
+    z = i.as('recent_t')
+
+    Person.joins(
+      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['person_id'].eq(p['id'])))
+    )
+  end
+
+  # @params Role [String] one the available roles
+  # @return [Hash] geographic_areas optimized for user selection
+  def self.select_optimized(user_id, project_id, role_type = 'SourceAuthor')
     h = {
-      recent: Person.with_role(role).used_in_project(project_id).used_recently.limit(10).distinct.to_a,
-      pinboard: Person.pinned_by(user_id).pinned_in_project(project_id).to_a
+      quick:    [],
+      pinboard: Person.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a
     }
 
-    h[:quick] = (Person.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  + h[:recent][0..3]).uniq
+    h[:recent] = Person.joins(:roles).where(roles: {project_id: project_id, type: role_type}).
+      used_recently(role_type).
+      limit(10).distinct.to_a
+
+    h[:quick] = (Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a + h[:recent][0..3]).uniq
     h
   end
+
 
   protected
 

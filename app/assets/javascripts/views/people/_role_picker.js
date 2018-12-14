@@ -96,7 +96,7 @@ Object.assign(TW.views.people.role_picker, {
       }
     }).autocomplete("instance")._renderItem = function (ul, item) {
       return $("<li class='autocomplete'>")
-        .append("<a>" + item.label + ' <span class="hoverme" data-person-id="' + item.object_id + '">...</span></a>')
+        .append("<a>" + item.label_html + ' <span class="hoverme" data-person-id="' + item.object_id + '">...</span></a>')
         .appendTo(ul);
     };
 

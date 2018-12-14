@@ -4,8 +4,7 @@ Directory Organization
 # Tests
 
 Directories follow standard [Rspec conventions](https://www.relishapp.com/rspec/rspec-rails/docs/directory-structure). 
-There is one exception to the example directory layout, our /lib tests are all in /spec/lib, rather than /spec.  
-In addition meta-tests (tests on models, factories, etc. that otherwise don't fit into one of the categories above) are in **taxonworks**.
+There is two exceptions to the example directory layout, our /lib tests are all in /spec/lib, rather than /spec and tests for /config/initializers are in /spec/config. In addition meta-tests (tests on models, factories, etc. that otherwise don't fit into one of the categories above) are in **taxonworks**.
 
 # Support
 

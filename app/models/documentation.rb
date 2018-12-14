@@ -40,7 +40,7 @@ class Documentation < ApplicationRecord
   around_save :catch_statement_invalid
 
   belongs_to :documentation_object, polymorphic: true
-  belongs_to :document
+  belongs_to :document, inverse_of: :documentation
 
   validates_presence_of :document
 

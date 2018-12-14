@@ -44,6 +44,7 @@ class TaxonDetermination < ApplicationRecord
   include Shared::Labels
   include Shared::HasRoles
   include Shared::IsData
+  ignore_whitespace_on(:print_label)
 
   belongs_to :otu, inverse_of: :taxon_determinations
   belongs_to :biological_collection_object, class_name: 'CollectionObject', inverse_of: :taxon_determinations, foreign_key: :biological_collection_object_id

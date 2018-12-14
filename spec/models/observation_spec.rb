@@ -57,6 +57,13 @@ RSpec.describe Observation, type: :model, group: :matrix do
 
   end
 
+  # TODO: move to Observation::Working when ready
+  specify '#description is not trimmed' do
+    s = " asdf sd  \n  asdfd \r\n" 
+    observation.description = s
+    observation.valid?
+    expect(observation.description).to eq(s)
+  end
 
 
 end
