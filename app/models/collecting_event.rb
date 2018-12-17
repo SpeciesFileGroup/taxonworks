@@ -221,7 +221,7 @@ class CollectingEvent < ApplicationRecord
 
   has_many :collection_objects, inverse_of: :collecting_event, dependent: :restrict_with_error
   has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy
-  has_many :collectors, through: :collector_roles, source: :person
+  has_many :collectors, through: :collector_roles, source: :person, inverse_of: :collecting_events
   has_many :georeferences, dependent: :destroy
   has_many :error_geographic_items, through: :georeferences, source: :error_geographic_item
   has_many :geographic_items, through: :georeferences # See also all_geographic_items, the union
