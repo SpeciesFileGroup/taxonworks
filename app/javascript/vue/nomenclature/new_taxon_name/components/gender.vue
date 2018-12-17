@@ -7,20 +7,21 @@
       <div
         slot="body"
         v-if="taxon.id">
-        <div class="separate-bottom">
-          <label
-            class="middle"
+        <ul class="flex-wrap-column no_bullets">
+          <li
             v-for="item in list">
-            <input
-              class="separate-right"
-              type="radio"
-              name="gender"
-              @click="addEntry(item)"
-              :checked="checkExist(item.type)"
-              :value="item.type">
-            <span>{{ item.name }}</span>
-          </label>
-        </div>
+            <label class="status-item">
+              <input
+                class="separate-right"
+                type="radio"
+                name="gender"
+                @click="addEntry(item)"
+                :checked="checkExist(item.type)"
+                :value="item.type">
+              <span>{{ item.name }}</span>
+            </label>
+          </li>
+        </ul>
         <div v-if="inGroup('Species') && adjectiveOrParticiple">
           <div class="field">
             <label>Feminine </label><br>

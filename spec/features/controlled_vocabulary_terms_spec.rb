@@ -46,11 +46,8 @@ describe 'ControlledVocabularyTerms', type: :feature do
 
   context 'creating a new controlled vocabulary term' do
     before {
-      echo                           = Capybara.default_max_wait_time
-      Capybara.default_max_wait_time = 15 # slows down Capybara enough to see what's happening on the form
       sign_in_user_and_select_project
       visit controlled_vocabulary_terms_path
-      Capybara.default_max_wait_time = echo
     }
     after {
       click_link('sign_out')

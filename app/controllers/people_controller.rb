@@ -93,15 +93,15 @@ class PeopleController < ApplicationController
 
   def autocomplete
     @people = Queries::Person::Autocomplete.new(
-      params.require(:term),
+      params.permit(:term)[:term],
       autocomplete_params
     ).autocomplete
   end
 
   def merge
     @person = Person.find(params[:id]) # the person to *keep*
-    person_to_remove = Person.find(params[:person_to_remove])
-    if @person.hard_merge(person_to_remove)
+    person_to_remove = Person.find(params[:person_to_destroy])
+    if @person.hard_merge(person_to_remove.id)
       render 'show'
     else
       render json: {status: 'Failed'}

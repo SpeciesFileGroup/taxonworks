@@ -80,6 +80,7 @@ class CollectionObject < ApplicationRecord
   include Shared::IsDwcOccurrence
   include CollectionObject::DwcExtensions
 
+  ignore_whitespace_on(:buffered_collecting_event, :buffered_determinations, :buffered_other_labels)
   is_origin_for 'CollectionObject', 'Extract', 'AssertedDistribution'
 
   CO_OTU_HEADERS      = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze

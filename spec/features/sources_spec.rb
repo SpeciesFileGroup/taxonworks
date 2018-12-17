@@ -134,11 +134,8 @@ describe 'Sources', type: :feature, group: :sources do
 
   context 'testing new source' do
     before {
-      echo                           = Capybara.default_max_wait_time
-      Capybara.default_max_wait_time = 15 # slows down Capybara enough to see what's happening on the form
       sign_in_user_and_select_project
       visit sources_path
-      Capybara.default_max_wait_time = echo
     }
     after {
       click_link('Sign out')

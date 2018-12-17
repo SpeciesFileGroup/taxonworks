@@ -12,27 +12,27 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
   # ------|----------|-----------|----------|----------|
   #   1800/1/1  1900/12/31   2004/2/29   2010/12/1   Now() ?!
   #
-  let(:a) { '1800/1/1' }
-  let(:b) { '1900/12/31' }
-  let(:c) { '2004/2/29' }
-  let(:d) { '2010/12/1' }
-  let(:e) { Time.zone.today.strftime('%Y/%m/%d') }
+  let(:a) { '1800-1-1' }
+  let(:b) { '1900-12-31' }
+  let(:c) { '2004-2-29' }
+  let(:d) { '2010-12-1' }
+  let(:e) { Time.zone.today.strftime('%Y-%m-%d') }
 
-  let(:s1) { '2000//' }
-  let(:s2) { '2000/2/' }
-  let(:s3) { '2000/2/' }
-  let(:s4) { '2000/2/1' }
-  let(:s5) { '/2/1' }
+  let(:s1) { '2000--' }
+  let(:s2) { '2000-2-' }
+  let(:s3) { '2000-2-' }
+  let(:s4) { '2000-2-1' }
+  let(:s5) { '-2-1' }
 
-  let(:i1) { '//1' }
-  let(:i2) { '2000//1' }
+  let(:i1) { '--1' }
+  let(:i2) { '2000--1' }
 
   def parse_stubs(start_data, end_data)
-    start_data ||= '//'
-    end_data ||= '//'
+    start_data ||= '--'
+    end_data ||= '--'
 
-    sy, sm, sd = start_data.split('/')
-    ey, em, ed = end_data.split('/')
+    sy, sm, sd = start_data.split('-')
+    ey, em, ed = end_data.split('-')
     {
       start_date_year: sy,
       start_date_month: sm,
@@ -43,6 +43,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     }
   end
 
+  # TEMPLATE
   # context 'some test' do
   #   let(:search_start) { a }
   #   let(:search_end) { c }
@@ -68,7 +69,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     end
 
     specify 'using just the sql, ordered' do
-      q = Queries::CollectingEvent::Filter.new(start_date: '2015/1/1', end_date: '2015/1/1', partial_overlap_dates: false) 
+      q = Queries::CollectingEvent::Filter.new(start_date: '2015-1-1', end_date: '2015-1-1', partial_overlap_dates: false) 
       expect(CollectionObject.joins(:collecting_event).where(q.between_date_range.to_sql).where(project_id: 99).order(:id).count).to eq(0)
     end
   end

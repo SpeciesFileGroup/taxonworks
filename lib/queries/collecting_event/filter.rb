@@ -34,7 +34,7 @@ module Queries
       attr_accessor :spatial_geographic_area_ids
 
       def initialize(params)
-        @in_label = params[:in_labels]
+        @in_labels = params[:in_labels]
         @in_verbatim_locality = params[:in_verbatim_locality]
         @recent = params[:recent].blank? ? nil : params[:recent].to_i
         self.shape = params[:shape]

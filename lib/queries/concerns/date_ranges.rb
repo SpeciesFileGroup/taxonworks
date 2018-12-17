@@ -6,10 +6,10 @@ module Queries::Concerns::DateRanges
   extend ActiveSupport::Concern
 
   included do
-    # @param [String] search_start_date string in form 'yyyy/mm/dd'
+    # @param [String] search_start_date string in form 'yyyy-mm-dd'
     attr_accessor :start_date
 
-    # @param [String] search_end_date string in form 'yyyy/mm/dd'
+    # @param [String] search_end_date string in form 'yyyy-mm-dd'
     attr_accessor :end_date
 
     # @param [Boolean] allow_partial partial_overlap_dates
@@ -22,13 +22,13 @@ module Queries::Concerns::DateRanges
 
     def start_date=(value)
       @start_date = value
-      @start_year, @start_month, @start_day = start_date.split('/').map(&:to_i)
+      @start_year, @start_month, @start_day = start_date.split('-').map(&:to_i)
       @start_date
     end
 
     def end_date=(value)
       @end_date = value
-      @end_year, @end_month, @end_day = end_date.split('/').map(&:to_i)
+      @end_year, @end_month, @end_day = end_date.split('-').map(&:to_i)
       @end_date
     end
   end
