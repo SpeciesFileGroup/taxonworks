@@ -118,12 +118,24 @@ describe Person, type: :model do
 
     specify 'merge 5' do
       p1.merge_with(p2.id)
-      expect(p2.destroyed?).to be_falsey
+      expect(p2.reload).to be_truthy
     end
 
-    specify '#hard_merge' do
+    specify 'merge 6' do
+      expect(p1.merge_with(p1.id)).to be_falsey
+    end
+
+    specify '#hard_merge 1' do
       p1.hard_merge(p2.id)
-      expect(p2.destroyed?).to be_truthy
+      expect{p2.reload}.to raise_error ActiveRecord::RecordNotFound
+    end
+
+    specify '#hard_merge 2' do
+      expect(p1.hard_merge(p1.id)).to be_falsey
+    end
+
+    specify '#hard_merge 3' do
+      expect(p1.hard_merge(999)).to be_falsey
     end
   end
 

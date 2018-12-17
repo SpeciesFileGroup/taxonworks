@@ -219,6 +219,13 @@ describe Source, type: :model, group: :sources do
     end
   end
 
+  specify '#verbatim_contents is not trimmed' do
+    s = " asdf sd  \n  asdfd \r\n" 
+    source.verbatim_contents = s
+    source.valid?
+    expect(source.verbatim_contents).to eq(s)
+  end
+
   context 'concerns' do
     it_behaves_like 'alternate_values'
     it_behaves_like 'data_attributes'

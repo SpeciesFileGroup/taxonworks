@@ -165,14 +165,12 @@
       },
       mergePeople() {
         let params = {
-          person_to_remove: this.mergePerson.id.toString()   // this.selectedPerson.id
+          person_to_destroy: this.mergePerson.id // this.selectedPerson.id
         };
         this.$http.post('/people/' + this.selectedPerson.id.toString() + '/merge', params).then(response => {
-         // this.$http.delete('/people/' +  this.mergePerson.id).then(response => {
-            this.$refs.matchPeople.removeFromList(this.mergePerson.id)    // remove the merge person from the matchPerson list
-            this.$refs.foundPeople.removeFromList(this.mergePerson.id)   // remove the merge person from the foundPerson list
-            this.mergePerson = {};
-          // })
+          this.$refs.matchPeople.removeFromList(this.mergePerson.id)    // remove the merge person from the matchPerson list
+          this.$refs.foundPeople.removeFromList(this.mergePerson.id)   // remove the merge person from the foundPerson list
+          this.mergePerson = {};
           this.selectedPerson = response.body
         })
       },
