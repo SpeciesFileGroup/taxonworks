@@ -3,6 +3,11 @@
     id="#vue-all-in-one"
     v-shortkey="[getMacKey(), 'l']"
     @shortkey="setLockAll">
+    <spinner-component
+      v-if="saving"
+      :full-screen="true"
+      :logo-size="{ width: '100px', height: '100px'}"
+      legend="Saving changes..."/>
     <task-header/>
     <collection-object class="separate-bottom"/>
     <div class="horizontal-left-content align-start separate-top">
@@ -23,6 +28,8 @@
   import TypeMaterial from './components/typeMaterial/typeMaterial.vue'
   import { GetUserPreferences } from './request/resources.js'
   import { MutationNames } from './store/mutations/mutations.js'
+  import { GetterNames } from './store/getters/getters.js'
+  import SpinnerComponent from 'components/spinner.vue'
 
   export default {
     components: {
@@ -30,7 +37,13 @@
       CollectionObject,
       TypeMaterial,
       TaxonDeterminationLayout,
-      CollectionEventLayout
+      CollectionEventLayout,
+      SpinnerComponent
+    },
+    computed: {
+      saving() {
+        return this.$store.getters[GetterNames.IsSaving]
+      }
     },
     mounted() {
       GetUserPreferences().then(response => {

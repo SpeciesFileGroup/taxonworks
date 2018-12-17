@@ -1,3 +1,4 @@
+import isSaving from './isSaving'
 import getLocked from './getLocked'
 import getCollectionEvent from './getCollectionEvent'
 import getCollectionObject from './getCollectionObject'
@@ -18,6 +19,7 @@ import getLabel from './getLabel'
 import getTaxonDeterminations from './getTaxonDeterminations'
 
 const GetterNames = {
+  IsSaving: 'isSaving',
   GetLocked: 'getLocked',
   GetTaxonDetermination: 'getTaxonDetermination',
   GetCollectionEvent: 'getCollectionEvent',
@@ -39,6 +41,7 @@ const GetterNames = {
 }
 
 const GetterFunctions = {
+  [GetterNames.IsSaving]: isSaving,
   [GetterNames.GetLocked]: getLocked,
   [GetterNames.GetTaxonDetermination]: getTaxonDetermination,
   [GetterNames.GetCollectionEventLabel]: getCollectionEventLabel,

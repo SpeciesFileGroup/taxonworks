@@ -54,7 +54,7 @@ const GetCollectorsSmartSelector = function () {
 }
 
 const GetTaxonDeterminatorSmartSelector = function () {
-  return ajaxCall('get', `/people/select_options?role=TaxonDeterminer`)
+  return ajaxCall('get', `/people/select_options?role=Determiner`)
 }
 
 const GetGeographicSmartSelector = function () {
@@ -197,6 +197,10 @@ const CreateDepiction = function (data) {
   return ajaxCall('post', `/depictions.json`, { depiction: data })
 }
 
+const DestroyTaxonDetermination = function (id) {
+  return ajaxCall('delete', `/taxon_determinations/${id}.json`)
+}
+
 const DestroyTypeMaterial = function (id) {
   return ajaxCall('delete', `/type_materials/${id}.json`)
 }
@@ -258,6 +262,7 @@ export {
   DestroyBiocuration,
   DestroyDepiction,
   DestroyCollectionObject,
+  DestroyTaxonDetermination,
   CreateContainer,
   CreateContainerItem
 }

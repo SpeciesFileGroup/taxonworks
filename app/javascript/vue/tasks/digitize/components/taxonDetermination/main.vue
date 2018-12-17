@@ -42,10 +42,30 @@
           class="separate-bottom"
           name="determiner"
           :options="optionsDeterminer"/>
-        <role-picker
-          :autofocus="false" 
-          role-type="Determiner"
-          v-model="roles"/>
+        <template>
+          <div
+            v-if="viewDeterminer != 'new/Search'"
+            class="separate-bottom">
+            <ul class="no_bullets">
+              <li
+                v-for="item in listsDeterminator[viewDeterminer]"
+                v-if="!roleExist(item.id)"
+                :key="item.id"
+                :value="item.id">
+                <label @click="addRole(item)">
+                  <input
+                    :value="item.id"
+                    type="radio">
+                  <span v-html="item.object_tag"/>
+                </label>
+              </li>
+            </ul>
+          </div>
+          <role-picker
+            :autofocus="false" 
+            role-type="Determiner"
+            v-model="roles"/>
+        </template>
         <div class="horizontal-left-content date-fields separate-bottom">
           <div class="separate-right">
             <label>Year</label>
@@ -78,10 +98,13 @@
       </fieldset>
       <button
         type="button"
+        :disabled="!otu"
         class="button normal-input button-submit separate-top"
-        @click="SaveMethod">Save</button>
+        @click="addDetermination">Add</button>
       <display-list
         :list="list"
+        @delete="removeTaxonDetermination"
+        set-key="otu_id"
         label="object_tag"/>
     </div>
   </block-layout>
@@ -142,7 +165,7 @@ export default {
     },
     roles: {
       get() {
-        return this.$store.getters[GetterNames.GetTaxonDetermination.roles_attributes]
+        return this.$store.getters[GetterNames.GetTaxonDetermination].roles_attributes
       },
       set(value) {
         this.$store.commit(MutationNames.SetTaxonDeterminationRoles, value)
@@ -188,8 +211,40 @@ export default {
     })
   },
   methods: {
-    SaveMethod() {
+    roleExist(id) {
+      return (this.roles.find((role) => {
+        return !role.hasOwnProperty('_destroy') && role.hasOwnProperty('person') && role.person.id == id
+      }) ? true : false)
+    },
+    addRole(role) {
+      if(!this.roleExist(role.id)) {
+        this.roles.push(this.createPerson(role))
+      }
+    },
+    createPerson(role) {
+      return {
+        first_name: role.first_name,
+        last_name: role.last_name,
+        person: {
+          id: role.id
+        },
+        person_id: role.id,
+        type: 'Determiner'
+      }
+    },
+    saveDetermination() {
       this.$store.dispatch(ActionNames.SaveDetermination)
+    },
+    addDetermination() {
+      let taxonDetermination = this.$store.getters[GetterNames.GetTaxonDetermination]
+
+      if(this.list.find((determination) => { return determination.otu_id == taxonDetermination.otu_id })) { return }
+      taxonDetermination.object_tag = `${this.otuSelected}`
+      this.$store.commit(MutationNames.AddTaxonDetermination, taxonDetermination)
+      this.$store.commit(MutationNames.NewTaxonDetermination)
+    },
+    removeTaxonDetermination(determination) {
+      this.$store.dispatch(ActionNames.RemoveTaxonDetermination, determination)
     },
     setActualDate() {
       let today = new Date()

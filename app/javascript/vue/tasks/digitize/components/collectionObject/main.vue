@@ -18,10 +18,10 @@
         <button 
           type="button"
           v-shortkey="[getMacKey(), 'n']"
-          @shortkey="newCO"
+          @shortkey="newDigitalization"
           :disabled="!collectionObjects.length"
           class="button normal-input button-default separate-right"
-          @click="newCO">New</button>  
+          @click="newDigitalization">New</button>  
         <radial-annotator
           classs="separate-right"
           v-if="collectionObject.id"
@@ -148,12 +148,16 @@
       getMacKey: function () {
         return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
       },
-      newCO() {
+      newDigitalization() {
         this.$store.dispatch(ActionNames.NewCollectionObject)
+        this.$store.commit(MutationNames.NewTaxonDetermination)
+        this.$store.commit(MutationNames.SetTaxonDeterminations)
       },
       SaveCollectionObject() {
-        this.$store.dispatch(ActionNames.SaveDigitalization)
-        this.newCO()
+        this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
+          this.newDigitalization()
+          this.$store.commit(MutationNames.SetTaxonDeterminations, [])
+        })
       },
       cloneDepictions(co) {
         let unique = new Set()

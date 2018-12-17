@@ -1,5 +1,3 @@
-import removeDepictionsByImageId from "./removeDepictionsByImageId";
-
 const ActionNames = {
   GetTaxon: 'getTaxon',
   SaveCollectionObject: 'saveCollectionObject',
@@ -8,12 +6,14 @@ const ActionNames = {
   SaveCollectionEvent: 'saveCollectionEvent',
   SaveTypeMaterial: 'saveTypeMaterial',
   SaveDetermination: 'saveDetermination',
+  SaveDeterminations: 'saveDeterminations',
   SaveContainerItem: 'saveContainerItem',
   SaveContainer: 'saveContainer',
   RemoveCollectionObject: 'removeCollectionObject',
   NewCollectionObject: 'newCollectionObject',
   SaveLabel: 'saveLabel',
-  RemoveDepictionsByImageId: 'removeDepictionsByImageId'
+  RemoveDepictionsByImageId: 'removeDepictionsByImageId',
+  RemoveTaxonDetermination: 'removeTaxonDetermination'
 }
 
 export default ActionNames

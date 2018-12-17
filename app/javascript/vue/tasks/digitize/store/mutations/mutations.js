@@ -92,7 +92,9 @@ import setIdentifierObjectId from './Identifier/setIdentifierObjectId'
 
 import addTaxonDetermination from './TaxonDetermination/addTaxonDetermination'
 import removeTaxonDetermination from './TaxonDetermination/removeTaxonDetermination'
+import newTaxonDetermination from './TaxonDetermination/newTaxonDetermination'
 import setTaxonDetermination from './TaxonDetermination/setTaxonDetermination'
+import setTaxonDeterminations from './TaxonDetermination/setTaxonDeterminations'
 import setTaxonDeterminationOtuId from './TaxonDetermination/setTaxonDeterminationOtuId'
 import setTaxonDeterminationBiologicalId from './TaxonDetermination/setTaxonDeterminationBiologicalId'
 import setTaxonDeterminationYear from './TaxonDetermination/setTaxonDeterminationYear'
@@ -101,8 +103,6 @@ import setTaxonDeterminationDay from './TaxonDetermination/setTaxonDetermination
 import setTaxonDeterminationRoles from './TaxonDetermination/setTaxonDeterminationRoles'
 
 const MutationNames = {
-  AddTaxonDetermination: 'addTaxonDetermination',
-  RemoveTaxonDetermination: 'removeTaxonDetermination',
 
   SetLocked: 'setLocked',
   LockAll: 'lockAll',
@@ -125,6 +125,10 @@ const MutationNames = {
   AddBiocuration: 'AddBiocuration',
   RemoveBiocuration: 'RemoveBiocuration',
 
+  NewTaxonDetermination: 'newTaxonDetermination',
+  RemoveTaxonDetermination: 'removeTaxonDetermination',
+  AddTaxonDetermination: 'addTaxonDetermination',
+  SetTaxonDeterminations: 'setTaxonDeterminations',
   SetTaxonDetermination: 'setTaxonDetermination',
   SetTaxonDeterminationBiologicalId: 'setTaxonDeterminationBiologicalId',
   SetTaxonDeterminationDay: 'setTaxonDeterminationDay',
@@ -225,6 +229,8 @@ const MutationFunctions = {
 
   [MutationNames.AddTaxonDetermination]: addTaxonDetermination,
   [MutationNames.RemoveTaxonDetermination]: removeTaxonDetermination,
+  [MutationNames.NewTaxonDetermination]: newTaxonDetermination,
+  [MutationNames.SetTaxonDeterminations]: setTaxonDeterminations,
   [MutationNames.SetTaxonDetermination]: setTaxonDetermination,
   [MutationNames.SetTaxonDeterminationBiologicalId]: setTaxonDeterminationBiologicalId,
   [MutationNames.SetTaxonDeterminationOtuId]: setTaxonDeterminationOtuId,
