@@ -32,6 +32,7 @@
       @click="getTagData()"
       value="Find">
     <div>
+      <span v-if="collectingEventList.length" v-html="'<br>' + collectingEventList.length + '  results found.'"/>
       <table>
         <th>Cached</th><th>verbatim locality</th>
         <tr
