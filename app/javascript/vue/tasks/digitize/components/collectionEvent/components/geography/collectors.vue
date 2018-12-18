@@ -3,27 +3,31 @@
     <h2>Collectors</h2>
     <smart-selector
       v-model="view"
+      class="separate-bottom"
       name="collectors"
-      :add-option="['search','new']"
+      :add-option="['new/Search']"
       :options="options"/>
-    <template v-if="view != 'search'">
-      <ul>
+    <div
+      v-if="view != 'new/Search'"
+      class="separate-bottom">
+      <ul class="no_bullets">
         <li
-          v-for="(item, key) in lists[view]"
-          :key="key">
+          v-for="item in lists[view]"
+          :key="item.id"
+          v-if="!roleExist(item.id)">
           <label>
             <input
               type="radio"
-              v-model="collector"
+              :checked="roleExist(item.id)"
+              @click="addRole(item)"
               :value="item.id">
             <span v-html="item.object_tag"/>
           </label>
         </li>
       </ul>
-    </template>
+    </div>
     <role-picker
-      v-if="view == 'new' || view == 'search'"
-      v-model="collector"
+      v-model="collectors"
       :autofocus="false"
       role-type="Collector"/>
   </div>
@@ -36,16 +40,18 @@ import RolePicker from '../../../../../../components/role_picker.vue'
 import { GetCollectorsSmartSelector } from '../../../../request/resources.js'
 import { GetterNames } from '../../../../store/getters/getters.js'
 import { MutationNames } from '../../../../store/mutations/mutations.js'
+import CreatePerson from '../../../../helpers/createPerson.js'
 
 export default {
   components: {
     SmartSelector,
-    RolePicker
+    RolePicker,
+    CreatePerson
   },
   computed: {
-    collector: {
+    collectors: {
       get() {
-        return this.$store.getters[GetterNames.GetCollectionEvent.roles_attributes]
+        return this.$store.getters[GetterNames.GetCollectionEvent].roles_attributes
       },
       set(value) {
         this.$store.commit(MutationNames.SetCollectionEventRoles, value)
@@ -55,7 +61,7 @@ export default {
   data() {
     return {
       options: [],
-      view: 'search',
+      view: 'new/Search',
       lists: undefined
     }
   },
@@ -74,6 +80,16 @@ export default {
         this.lists = response
       })
     },
+    roleExist(id) {
+      return (this.collectors.find((role) => {
+        return !role.hasOwnProperty('_destroy') && role.hasOwnProperty('person') && role.person.id == id
+      }) ? true : false)
+    },
+    addRole(role) {
+      if(!this.roleExist(role.id)) {
+        this.collectors.push(CreatePerson(role, 'Collector'))
+      }
+    }
   }
 }
 </script>

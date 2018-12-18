@@ -120,6 +120,7 @@ import { MutationNames } from '../../store/mutations/mutations.js'
 import BlockLayout from 'components/blockLayout.vue'
 import { ActionNames } from '../../store/actions/actions';
 import DisplayList from 'components/displayList.vue'
+import CreatePerson from '../../helpers/createPerson.js'
 import { GetOtu, GetOtuSmartSelector, GetTaxonDeterminatorSmartSelector } from '../../request/resources.js'
 
 export default {
@@ -218,18 +219,7 @@ export default {
     },
     addRole(role) {
       if(!this.roleExist(role.id)) {
-        this.roles.push(this.createPerson(role))
-      }
-    },
-    createPerson(role) {
-      return {
-        first_name: role.first_name,
-        last_name: role.last_name,
-        person: {
-          id: role.id
-        },
-        person_id: role.id,
-        type: 'Determiner'
+        this.roles.push(CreatePerson(role, 'Determiner'))
       }
     },
     saveDetermination() {
