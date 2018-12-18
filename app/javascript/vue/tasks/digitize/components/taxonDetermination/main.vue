@@ -12,9 +12,17 @@
           name="otu-determination"
           :options="options"/>
         <template>
-          <otu-picker
+          <div 
             v-if="view == 'new/Search'"
-            @getItem="otu = $event.id; otuSelected = $event.label_html"/> 
+            class="horizontal-left-content">
+            <otu-picker
+              @getItem="otu = $event.id; otuSelected = $event.label_html"/> 
+            <pin-default
+              class="separate-left"
+              section="Otus"
+              @getId="otu = $event"
+              type="Otu"/>
+          </div>
           <ul
             v-else
             class="no_bullets">
@@ -113,6 +121,7 @@
 <script>
 
 import SmartSelector from 'components/switch.vue'
+import PinDefault from 'components/getDefaultPin.vue'
 import RolePicker from 'components/role_picker.vue'
 import OtuPicker from 'components/otu/otu_picker/otu_picker.vue'
 import { GetterNames } from '../../store/getters/getters.js'
@@ -129,7 +138,8 @@ export default {
     RolePicker,
     OtuPicker,
     BlockLayout,
-    DisplayList
+    DisplayList,
+    PinDefault
   },
   computed: {
     otu: {
