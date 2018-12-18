@@ -100,15 +100,17 @@
       value="Find">
     <div>
       <table>
+        <th>Cached</th><th>verbatim locality</th>
         <tr
-          v-for="item in filterList"
+          v-for="item in collectingEventList"
           :key="item.id">
           <td>
             <span
-              v-html="item.verbatim_locality"
+              v-html="item.id + ' ' + item.cached"
               @click="showObject(item.id)"
             />
           </td>
+          <td><span v-html="item.verbatim_locality" /></td>
         </tr>
       </table>
     </div>
@@ -135,7 +137,7 @@
           in_verbatim_locality: '',
           iin_labels: '',
           identifier_text: ''},
-        filterList: []
+        collectingEventList: []
       }
     },
 
@@ -162,7 +164,7 @@
         //   identifier_text: this.identifier_text,
         // };
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
-          this.filterList = response.body;
+          this.collectingEventList = response.body;
         });
       },
         showObject(id) {

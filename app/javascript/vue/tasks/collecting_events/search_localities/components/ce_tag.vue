@@ -1,6 +1,6 @@
 <template>
   <div class="find-ce">
-    <h3>Find collecting events</h3>
+    <h3>Find collecting events by tag/keyword</h3>
     <div>
       <table>
         <tr
@@ -33,6 +33,7 @@
       value="Find">
     <div>
       <table>
+        <th>Cached</th><th>verbatim locality</th>
         <tr
           v-for="item in collectingEventList"
           :key="item.id">
@@ -42,6 +43,7 @@
               @click="showObject(item.id)"
             />
           </td>
+          <td><span v-html="item.verbatim_locality" /></td>
         </tr>
       </table>
     </div>

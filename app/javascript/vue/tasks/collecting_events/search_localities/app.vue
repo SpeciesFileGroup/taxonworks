@@ -14,7 +14,7 @@
 <script>
   import Spinner from 'components/spinner.vue'
   import CollectingEvent from './components/collectingEvent.vue'
-
+// TODO: add spinners, display count, refine display columns (more), (de)/persist lists
   export default {
     components: {
       Spinner,

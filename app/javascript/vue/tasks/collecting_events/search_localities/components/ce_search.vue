@@ -1,6 +1,6 @@
 <template>
   <div class="find-ce">
-    <h3>Find collecting events</h3>
+    <h3>Find collecting events by geographic area</h3>
     <div>
       <table>
         <tr
@@ -32,16 +32,19 @@
       @click="getAreaData()"
       value="Find">
     <div>
+      <span v-if="collectingEventList.length" v-html="'<br>' + collectingEventList.length + '  results found.'"/>
       <table>
+        <th>Cached</th><th>verbatim locality</th>
         <tr
           v-for="item in collectingEventList"
           :key="item.id">
           <td>
             <span
-              v-html="item.cached"
+              v-html="item.id + ' ' + item.cached"
               @click="showObject(item.id)"
             />
           </td>
+          <td><span v-html="item.verbatim_locality" /></td>
         </tr>
       </table>
     </div>
