@@ -16,7 +16,7 @@
           type="CollectingEvent"/>
       </div>
       <div slot="body">
-        <div class="horizontal-left-content">
+        <div class="horizontal-left-content separate-bottom">
           <smart-selector
             name="collection-event"
             v-model="view"
