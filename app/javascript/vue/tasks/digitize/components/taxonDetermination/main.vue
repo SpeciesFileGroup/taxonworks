@@ -74,36 +74,36 @@
             role-type="Determiner"
             v-model="roles"/>
         </template>
-        <div class="horizontal-left-content date-fields separate-bottom">
-          <div class="separate-right">
-            <label>Year</label>
-            <input
-              type="text"
-              v-model="year">
-          </div>
-          <div class="separate-right separate-left">
-            <label>Month</label>
-            <input
-              type="text"
-              v-model="month">
-          </div>
-          <div class="separate-left">
-            <label>Day</label>
-            <input
-              type="text"
-              v-model="day">
-          </div>
-          <div>
-            <label>&nbsp</label>
-            <button
-              type="button"
-              class="button normal-input button-default separate-left"
-              @click="setActualDate">
-              Now
-            </button>
-          </div>
-        </div>
       </fieldset>
+      <div class="horizontal-left-content date-fields separate-bottom separate-top">
+        <div class="separate-right">
+          <label>Year</label>
+          <input
+            type="text"
+            v-model="year">
+        </div>
+        <div class="separate-right separate-left">
+          <label>Month</label>
+          <input
+            type="text"
+            v-model="month">
+        </div>
+        <div class="separate-left">
+          <label>Day</label>
+          <input
+            type="text"
+            v-model="day">
+        </div>
+        <div>
+          <label>&nbsp</label>
+          <button
+            type="button"
+            class="button normal-input button-default separate-left"
+            @click="setActualDate">
+            Now
+          </button>
+        </div>
+      </div>
       <button
         type="button"
         :disabled="!otu"
