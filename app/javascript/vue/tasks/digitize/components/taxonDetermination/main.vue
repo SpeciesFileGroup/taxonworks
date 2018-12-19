@@ -4,7 +4,7 @@
       <h3>Determinations</h3>
     </div>
     <div slot="body">
-      <fieldset>
+      <fieldset class="separate-bottom">
         <legend>OTU</legend>
         <smart-selector
           v-model="view"
