@@ -54,6 +54,7 @@
   import PinComponent from 'components/pin.vue'
   import PinDefault from 'components/getDefaultPin'
   import { GetCollectingEventsSmartSelector, GetCollectionEvent } from '../../request/resources.js'
+  import makeCollectingEvent from '../../const/collectingEvent.js'
 
   import SearchComponent from './components/smart/search.vue'
 
@@ -103,7 +104,7 @@
     methods: {
       getCollectingEvent(id) {
         GetCollectionEvent(id).then(response => {
-          this.$store.commit(MutationNames.SetCollectionEvent, response)
+          this.$store.commit(MutationNames.SetCollectionEvent, Object.assign(makeCollectingEvent(), response))
         })
       }
     }

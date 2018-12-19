@@ -28,7 +28,6 @@
 import ModalComponent from 'components/modal'
 import Georeferences from 'components/georeferences/georeferences'
 import { GetterNames } from '../../../../store/getters/getters.js'
-import collectingEvent from '../../../../const/collectingEvent.js';
 
 export default {
   components: {
@@ -43,7 +42,7 @@ export default {
       return parseFloat(this.collectingEvent.verbatim_latitude)
     },
     lng() {
-      return parseFloat(this.collectingEvent.verbatim_latitude)
+      return parseFloat(this.collectingEvent.verbatim_longitude)
     }
   },
   data() {

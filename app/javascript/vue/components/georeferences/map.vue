@@ -123,7 +123,7 @@
     methods: {
       initMap() {
         this.map = new google.maps.Map(this.$el, {
-          center: {lat: this.lat, lng: this.lng},
+          center: {lat: (isNaN(this.lat) ? 0 : this.lat), lng: (isNaN(this.lng) ? 0 : this.lng)},
           zoom: this.zoom
         });
         this.map.data.setStyle({
