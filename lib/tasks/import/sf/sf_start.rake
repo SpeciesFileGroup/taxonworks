@@ -22,12 +22,13 @@ namespace :tw do
           # get_containing_source_id = import.get('TWSourceIDToContainingSourceID')
           ref_file_id = import.get('RefIDsByFileID')
           ref_id_containing_id_hash = import.get('RefContainingRefHash')
+          get_contained_cite_aux_data = import.get('SFContainedCiteAuxData')
           ref_id_editor_array = import.get('RefIDEditorArray') # author as editor if RefID is in array
           ref_id_pub_id_hash = import.get('RefIDPubIDHash')
           ref_id_pub_type = import.get('SFPubIDToPubTypeString')
 
-          # First pass: Create authors for sources (standalone and containing)
-          # Second pass: Create editors in contained sources (applies only to books where author acted as editor)
+          # First pass: Create authors for sources (standalone only and contained in books): NOTE: Authors in contained refs, not books, will be assigned as taxon name authors later; they can be skipped here
+          # Second pass: Create editors in containing sources (applies only to books where author acted as editor)
 
           path = @args[:data_directory] + 'sfRefAuthorsOrdered.txt'
           file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -37,6 +38,7 @@ namespace :tw do
           file.each_with_index do |row, i|
             ref_id = row['RefID']
             next if skipped_file_ids.include? ref_file_id[ref_id].to_i
+            next if get_contained_cite_aux_data[ref_id] # skip if authors contained in articles
             source_id = get_tw_source_id[ref_id]
             next if source_id.nil? # @todo Should be recorded
             # Reloop if TW.source record is verbatim
@@ -124,7 +126,7 @@ namespace :tw do
           skipped_file_ids = import.get('SkippedFileIDs')
 
           ref_id_editor_array = []
-          ref_id_containing_id_hash = {} # key = RefID, value = ContainingRefID
+          ref_id_containing_id_hash = {} # key = RefID, value = ContainingRefID   # NOTE: No distinction between containing ref is/isn't book, use SFContainedCiteAuxData for this AND NEVER USED
           ref_id_pub_id_hash = {} # key = RefID, value = PubID
           ref_file_id = {} # key = SF.RefID, value = SF.FileID
 
@@ -297,7 +299,7 @@ namespace :tw do
 
           file.each_with_index do |row, i|
             next if row['ContainingRefID'].to_i == 0 # Creating only contained references in this pass
-            next if get_contained_cite_aux_data[row['RefID']]
+            next if get_contained_cite_aux_data[row['RefID']]   # if get_contained_cite_aux_data[sf_ref_id] is true, this is a taxon author, not chapter author
 
             ref_id = row['RefID']
             containing_ref_id = row['ContainingRefID']

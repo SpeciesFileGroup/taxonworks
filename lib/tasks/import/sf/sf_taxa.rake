@@ -584,7 +584,7 @@ namespace :tw do
               puts 'TaxonNameRelationship created'
 
               if row['AuthorityRefID'].to_i > 0 # 20 out of 1924 sources not found
-                tnr_cit = tnr.citations.new(source_id: authority_ref_id,
+                tnr_cit = tnr.citations.new(source_id: get_tw_source_id[authority_ref_id],
                                             project_id: project_id)
                 begin
                   tnr_cit.save!
@@ -724,6 +724,7 @@ namespace :tw do
           get_sf_parent_id = import.get('SFSynonymIDToSFParentID')
           get_otu_sf_above_id = import.get('SFIllFormedNameIDToSFAboveID')
           # get_sf_new_parent_id = import.get('SFSubordinateIDToSFNewParentID')
+          get_contained_cite_aux_data = import.get('SFContainedCiteAuxData')
 
           get_tw_taxon_name_id = {} # key = SF.TaxonNameID, value = TW.taxon_name.id
           get_sf_name_status = {} # key = SF.TaxonNameID, value = SF.NameStatus
@@ -756,6 +757,14 @@ namespace :tw do
             next if row['AccessCode'].to_i == 4
 
             project_id = get_tw_project_id[row['FileID']]
+            ref_id = row['RefID']
+            # Use ContainingRefID if SFContainedCiteAuxData[ref_id]
+            if get_contained_cite_aux_data[ref_id]
+              use_this_ref_id = get_contained_cite_aux_data[ref_id]['containing_ref_id']
+            else
+              use_this_ref_id = ref_id
+            end
+
 
             logger.info "Working with TW.project_id: #{project_id} = SF.FileID #{row['FileID']}, SF.TaxonNameID #{sf_taxon_name_id} (count #{count_found += 1}) \n"
 
@@ -806,7 +815,7 @@ namespace :tw do
               if otu.save
                 logger.info "Note!! Created OTU for temporary or ill-formed taxon SF.TaxonNameID = #{sf_taxon_name_id}, otu.id = #{otu.id}"
 
-                otu.citations << Citation.new(source_id: get_tw_source_id[row['RefID']], is_original: true, project_id: project_id) if row['RefID'].to_i > 0
+                otu.citations << Citation.new(source_id: get_tw_source_id[use_this_ref_id], is_original: true, project_id: project_id) if use_this_ref_id.to_i > 0
 
                 get_tw_otu_id[row['TaxonNameID']] = otu.id.to_s
                 get_sf_name_status[row['TaxonNameID']] = name_status
@@ -835,7 +844,7 @@ namespace :tw do
                       }],
 
                   # housekeeping attributed to SF last_editor, etc.
-                  origin_citation_attributes: {source_id: get_tw_source_id[row['RefID']],
+                  origin_citation_attributes: {source_id: get_tw_source_id[use_this_ref_id],
                                                project_id: project_id,
                                                created_at: row['CreatedOn'],
                                                updated_at: row['LastUpdate'],
