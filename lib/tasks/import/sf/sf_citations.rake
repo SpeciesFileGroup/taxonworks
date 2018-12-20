@@ -49,16 +49,13 @@ namespace :tw do
 
             sf_ref_id = row['RefID']
             source_id = get_tw_source_id[sf_ref_id].to_i
-
             next if source_id == 0
 
             otu = Otu.find(get_tw_otu_id[sf_taxon_name_id]) # need otu object for project_id and
-
-            # otu_id = get_tw_otu_id[sf_taxon_name_id]
             project_id = otu.project_id.to_s
 
-            logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{sf_taxon_name_id} = TW.otu_id #{otu.id},
-SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
+#            logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{sf_taxon_name_id} = TW.otu_id #{otu.id},
+#        SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
 
             cite_pages = row['CitePages']
 
@@ -259,10 +256,15 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
         # Prior to running next task:
         #   Which dump file to restore
-        desc 'time rake tw:project_import:sf_import:citations:create_citations user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:citations:create_citations user_id=1 data_directory=/Users/proceps/src/sf/import/onedb2tw/working/'
+        #desc 'time rake tw:project_import:sf_import:citations:create_citations user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define create_citations: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating citations...'
+
+          pwd = rand(36**10).to_s(36)
+          @proceps = User.create(email: 'arboridia@gmail.com', password: pwd, password_confirmation: pwd, name: 'proceps', self_created: true, is_flagged_for_password_reset: true)
+
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
@@ -282,32 +284,110 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
           otu_not_found_array = []
 
+          tw_taxa_ids = {} #12_Aus_bus -> TaxonName.id
+
+          print "\nMaking list of taxa from the DB, 1st pass\n"
+          i = 0
+          Protonym.find_each do |t|
+            i += 1
+            print "\r#{i}"
+            if t.rank_class.to_s == 'NomenclaturalRank::Iczn::GenusGroup::Genus' || t.rank_class.to_s == 'NomenclaturalRank::Iczn::GenusGroup::Subgenus'
+              tw_taxa_ids[t.project_id.to_s + '_' + t.name] = t.id
+            elsif t.rank_class.to_s == 'NomenclaturalRank::Iczn::SpeciesGroup::Species' || t.rank_class.to_s == 'NomenclaturalRank::Iczn::SpeciesGroup::Subspecies'
+              tw_taxa_ids[t.project_id.to_s + '_' + t.ancestor_at_rank('genus').name + '_' + t.name] = t.id unless t.ancestor_at_rank('genus').nil?
+              tw_taxa_ids[t.project_id.to_s + '_' + t.ancestor_at_rank('subgenus').name + '_' + t.name] = t.id unless t.ancestor_at_rank('subgenus').nil?
+            end
+          end
+          print "\nMaking list of taxa from the DB, 2nd pass\n"
+          i = 0
+          Protonym.find_each do |t|
+            i += 1
+            print "\r#{i}"
+            if t.rank_class.to_s == 'NomenclaturalRank::Iczn::GenusGroup::Genus' || t.rank_class.to_s == 'NomenclaturalRank::Iczn::GenusGroup::Subgenus'
+
+            elsif t.rank_class.to_s == 'NomenclaturalRank::Iczn::SpeciesGroup::Species' || t.rank_class.to_s == 'NomenclaturalRank::Iczn::SpeciesGroup::Subspecies'
+              tw_taxa_ids[t.project_id.to_s + '_' + t.original_genus.name + '_' + t.name] = t.id unless t.original_genus.nil?
+              tw_taxa_ids[t.project_id.to_s + '_' + t.original_genus.name] = t.original_genus.id unless t.original_genus.nil?
+            end
+          end
+
           path = @args[:data_directory] + 'tblSpeciesNames.txt'
+          print "\ntblSpeciesNames.txt\n"
+          raise "file #{path} not found" if not File.exists?(path)
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           # SpeciesNameID
           # FileID
           # Name
           # Italicize
-          # LastUpdate
-          # ModifiedBy
-          # CreatedOn
-          # CreatedBy
+          i = 0
+          species_name_id = {}
+          file.each do |row|
+            i += 1
+            print "\r#{i}"
+            species_name_id[row['SpeciesNameID'].to_i] = [row['Name'].to_s, row['Italicize'].to_i]
+          end
 
           path = @args[:data_directory] + 'tblGenusNames.txt'
+          print "\ntblGenusNames.txt\n"
+          raise "file #{path} not found" if not File.exists?(path)
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           # GenusNameID
           # FileID
           # Name
           # Italicize
+          i = 0
+          genus_name_id = {}
+          file.each do |row|
+            i += 1
+            print "\r#{i}"
+            genus_name_id[row['GenusNameID'].to_i] = [row['Name'].to_s, row['Italicize'].to_i]
+          end
+
+          path = @args[:data_directory] + 'tblNomenclator.txt'
+          print "\ntblNomenclator.txt\n"
+          raise "file #{path} not found" if not File.exists?(path)
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          # NomenclatorID
+          # FileID
+          # GenusNameID
+          # SubgenusNameID
+          # InfragenusNameID
+          # SpeciesSeriesNameID
+          # SpeciesGroupNameID
+          # SpeciesSubgroupNameID
+          # SpeciesNameID
+          # SubspeciesNameID
+          # InfrasubKind
+          # InfrasubspeciesNameID
+          # SuitableForRanks
+          # IdentQualifier - ? or nr.
+          # RankQualified
           # LastUpdate
           # ModifiedBy
           # CreatedOn
           # CreatedBy
+          #
+          nomenclator_id = {}
+          file.each do |row|
+            i += 1
+            print "\r#{i}"
+            a = {}
+            a.merge!('genus' => genus_name_id[row['GenusNameID'].to_i]) unless row['GenusNameID'] == '0'
+            a.merge!('subgenus' => genus_name_id[row['SubgenusNameID'].to_i]) unless row['SubgenusNameID'] == '0'
+            a.merge!('species' => species_name_id[row['SpeciesNameID'].to_i]) unless row['SpeciesNameID'] == '0'
+            a.merge!('subspecies' => species_name_id[row['SubspeciesNameID'].to_i]) unless row['SubspeciesNameID'] == '0'
+            a.merge!('infrasubspecies' => species_name_id[row['InfrasubspeciesNameID'].to_i]) unless row['InfrasubspeciesNameID'] == '0'
+            a.merge!('kind' => row['InfrasubKind']) unless row['InfrasubKind'] == '0'
+            a.merge!('qualifier' => row['IdentQualifier']) unless row['IdentQualifier'] == '0'
+            nomenclator_id.merge!(row['NomenclatorID'].to_i => a)
+          end
 
-          path = @args[:data_directory] + 'sfNomenclatorTaxonNameIDs.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          byebug
+
+#          path = @args[:data_directory] + 'sfNomenclatorTaxonNameIDs.txt'
 
           # TaxonNameID
           # SeqNum
@@ -323,8 +403,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           # SpeciesTaxonNameID
           # SubspeciesTaxonNameID
 
-          path = @args[:data_directory] + 'sfNomenclatorStrings.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+#          path = @args[:data_directory] + 'sfNomenclatorStrings.txt'
 
           # NomenclatorID
           # NomenclatorString
@@ -359,25 +438,23 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                              20 => 0, # incorrect name before correct
                              22 => 0} # misapplied name
 
+          type_info = {1 => 0, # designate syntypes
+                       2 => 0, # designate holotype
+                       3 => 0, # designate lectotype
+                       4 => 0, # designate neotype
+                       5 => 0, # remove synteps
+                       6 => 0, # rulling by comission
+                       7 => 0} # unspecified
+
+
           base_uri = 'http://speciesfile.org/legacy/'
 
-          # @todo commented out 9 July
-          # # For each citation row, we must do something, this is the list of those somethings
-          # decisions = [
-          #
-          # ]
-          #
-          # # Each decision has an outcome, which involves calling one or more methods.
-          # # Everything that must be done for the citation row in question must be done
-          # # through one of these methods
-          # decision_methods = {
-          #
-          # }
 
-          path = @args[:data_directory] + 'sfCites.txt'
+          path = @args[:data_directory] + 'tblCites.txt'
+          print "\ntblCites.txt\n"
+          raise "file #{path} not found" if not File.exists?(path)
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
-          ### sfCites
           # TaxonNameID
           # SeqNum
           # RefID
@@ -397,12 +474,11 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           # CreatedBy
           # FileID
 
+
           file.each_with_index do |row, i|
             sf_taxon_name_id = row['TaxonNameID']
             next if excluded_taxa.include? sf_taxon_name_id
-            sf_file_id = row['FileID'] # get_sf_file_id[sf_taxon_name_id]   @todo: There is no FileID
-            # Hence, skipped_file_ids does not work. However, since taxon_name_id will be nil
-            # because it won't be included in the hash, this still works. But ugly!
+            sf_file_id = row['FileID']
             next if skipped_file_ids.include? sf_file_id.to_i
             taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id] # cannot to_i because if nil, nil.to_i = 0
 

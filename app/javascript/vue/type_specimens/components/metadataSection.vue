@@ -11,20 +11,21 @@
     <div
       class="body"
       v-if="displayBody">
-      <div class="field">
-        <label>Type</label>
+      <label>Type</label>
+      <div class="flex-wrap-row separate-top separate-bottom">
         <template v-if="checkForTypeList">
-          <br>
-          <label
-            class="capitalize"
-            v-for="(item, key) in types[taxon.nomenclatural_code]">
-            <input
-              v-model="type"
-              type="radio"
-              name="typetype"
-              :value="key">
-            {{ key }}
-          </label>
+          <ul class="flex-wrap-column no_bullets">
+            <li v-for="(item, key) in types[taxon.nomenclatural_code]">
+              <label class="capitalize">
+                <input
+                  v-model="type"
+                  type="radio"
+                  name="typetype"
+                  :value="key">
+                {{ key }}
+              </label>
+            </li>
+          </ul>
         </template>
       </div>
       <div class="field">

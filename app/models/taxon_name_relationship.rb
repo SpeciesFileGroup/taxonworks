@@ -272,7 +272,7 @@ class TaxonNameRelationship < ApplicationRecord
 
   def validate_subject_and_object_are_not_identical
     if !self.object_taxon_name_id.nil? && self.object_taxon_name == self.subject_taxon_name
-      errors.add(:object_taxon_name_id, "#{self.object_taxon_name.cached_html} should not refer to itself") unless self.type =~ /OriginalCombination/
+      errors.add(:object_taxon_name_id, "#{self.object_taxon_name.try(:cached_html).to_s} should not refer to itself") unless self.type =~ /OriginalCombination/
     end
   end
 

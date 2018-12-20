@@ -28,21 +28,21 @@ namespace :tw do
           # 'start:map_pub_type',
           # '3_after_pub_type': 0m27.396s on 30 Oct 2018
           #
-          'start:contained_cite_aux_data',
-          'start:create_sources',
+          # 'start:contained_cite_aux_data',
+          # 'start:create_sources',
           # '4_after_create_sources': 41m36.692s on 31 Oct 2018
           #
-          # 'start:create_misc_ref_info',
-          # 'start:create_source_roles',
+          'start:create_misc_ref_info',
+          'start:create_source_roles',
           # '5_after_source_roles': 76m51.040s on 7 Nov 2018
           # 132m58.252s b1_ on 25 Nov 2018
           #
-          # 'taxa:list_excluded_taxa',
-          # 'taxa:create_sf_taxa_misc_info',
-          # 'taxa:create_rank_hash',
-          # 'taxa:create_animalia_below_root',
-          # 'taxa:create_sf_synonym_id_to_new_parent_id_hash',
-          # 'taxa:create_otus_for_ill_formed_names_hash',
+          'taxa:list_excluded_taxa',
+          'taxa:create_sf_taxa_misc_info',
+          'taxa:create_rank_hash',
+          'taxa:create_animalia_below_root',
+          'taxa:create_sf_synonym_id_to_new_parent_id_hash',
+          'taxa:create_otus_for_ill_formed_names_hash',
           # '6_after_otus_hash': 0m55.165s on 8 Nov 2018
           #
           # 'taxa:create_all_sf_taxa_pass1',

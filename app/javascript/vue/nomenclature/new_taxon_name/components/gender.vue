@@ -7,20 +7,21 @@
       <div
         slot="body"
         v-if="taxon.id">
-        <div class="separate-bottom">
-          <label
-            class="middle"
+        <ul class="flex-wrap-column no_bullets">
+          <li
             v-for="item in list">
-            <input
-              class="separate-right"
-              type="radio"
-              name="gender"
-              @click="addEntry(item)"
-              :checked="checkExist(item.type)"
-              :value="item.type">
-            <span>{{ item.name }}</span>
-          </label>
-        </div>
+            <label class="status-item">
+              <input
+                class="separate-right"
+                type="radio"
+                name="gender"
+                @click="addEntry(item)"
+                :checked="checkExist(item.type)"
+                :value="item.type">
+              <span>{{ item.name }}</span>
+            </label>
+          </li>
+        </ul>
         <div v-if="inGroup('Species') && adjectiveOrParticiple">
           <div class="field">
             <label>Feminine </label><br>
@@ -69,7 +70,11 @@ export default {
       radioGender: 'masculine',
       list: [],
       filterList: ['gender', 'part of speech'],
-      saving: false
+      saving: false,
+      types: {
+        adjective: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective',
+        participle: 'TaxonNameClassification::Latinized::PartOfSpeech::Participle'
+      }
     }
   },
   mounted: function () {
@@ -160,30 +165,40 @@ export default {
         }
       })
     },
+    cleanNames() {
+      this.masculine = null
+      this.feminine = null
+      this.neuter = null
+    },
     addEntry: function (item) {
       let that = this
       let alreadyStored = this.searchExisting()
 
       this.saving = true
-      this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon).then(function () {
-        if (alreadyStored) {
-          that.$store.dispatch(ActionNames.RemoveTaxonStatus, alreadyStored).then(response => {
-            that.$store.dispatch(ActionNames.AddTaxonStatus, item).then(response => {
+      if(!(item.type == this.types.participle || item.type == this.types.adjective)) {
+        this.cleanNames()
+      }
+      if (alreadyStored) {
+        that.$store.dispatch(ActionNames.RemoveTaxonStatus, alreadyStored).then(response => {
+          that.$store.dispatch(ActionNames.AddTaxonStatus, item).then(response => {
+            that.$store.dispatch(ActionNames.UpdateTaxonName, that.taxon).then(function () {
               that.$store.dispatch(ActionNames.LoadTaxonName, that.taxon.id).then(function () {
                 that.saving = false
               })
             })
           })
-        } else {
-          that.$store.dispatch(ActionNames.AddTaxonStatus, item).then(response => {
+        })
+      } else {
+        that.$store.dispatch(ActionNames.AddTaxonStatus, item).then(response => {
+          that.$store.dispatch(ActionNames.UpdateTaxonName, that.taxon).then(function () {
             setTimeout(function () {
               that.$store.dispatch(ActionNames.LoadTaxonName, that.taxon.id).then(function () {
                 that.saving = false
               })
             }, 1000)
           })
-        }
-      })
+        })
+      }
     },
     applicableRank: function (list, type) {
       let found = list.find(function (item) {

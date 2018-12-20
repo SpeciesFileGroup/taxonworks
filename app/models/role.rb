@@ -31,49 +31,75 @@ class Role < ApplicationRecord
 
   acts_as_list scope: [:type, :role_object_type, :role_object_id]
 
+  after_save :vet_person
+  after_save :update_cached
+  after_save :update_person_year_metadata
+  after_destroy :check_for_last
+
   belongs_to :role_object, polymorphic: :true #, validate: true
   belongs_to :person, inverse_of: :roles, validate: true
   accepts_nested_attributes_for :person, reject_if: :all_blank, allow_destroy: true
 
-  # Note:
-  # - acts_as_list adds :position in a manner that can not be validated with validate_presence_of
-  # - role_object is required but at the database constraint level at present
+  # role_object is required but at the database constraint level at present
   # validates :role_object, presence: true
   validates_presence_of :type
   validates :person, presence: true
-
   validates_uniqueness_of :person_id, scope: [:role_object_id, :role_object_type, :type]
-
-  after_save :vet_person
-  after_save :update_cached
 
   protected
 
   def update_cached
+    # TODO: optimize, perhaps on set_author_year
     role_object.send(:set_cached) if role_object.respond_to?(:set_cached, true)
   end
 
+  def check_for_last
+    if is_last_role? && role_object_type == 'Source'
+      add_touch = false
+      if type == 'SourceAuthor'
+        role_object.update_columns(author: nil, cached_author_string: nil)
+        add_touch = true
+      end
+      if type == 'SourceEditor'
+        add_touch = true
+        role_object.update_columns(editor: nil)
+      end
+      role_object.touch
+    else
+      role_object.send(:set_cached) if role_object.respond_to?(:set_cached, true)
+    end
+  end
+
+  def is_last_role?
+    role_object.roles.count == 0
+  end
+
+  # See /app/models/person.rb for a definition of vetted
   def vet_person
-    if Role.where(person_id: person_id).any?
-      c = Role.where(person_id: person_id).count
-      p = Person.find(person_id)
-      y = role_object.try(:year)
-      y ||= role_object.try(:year_of_publication)
+    # Check whether there are one or more *other* roles besides this one, 
+    # i.e. there are at least *2* for person_id
+    if Role.where(person_id: person_id).where.not(id: id).any?
+      person.update_column(:type, 'Person::Vetted') 
+    end
+  end
 
-      yas = [y, person.year_active_start].compact.map(&:to_i).min
-      yae = [y, person.year_active_end].compact.map(&:to_i).max
-
-      # rubocop:disable Rails/SaveBang
+  def update_person_year_metadata
+    if role_object.respond_to?(:year)
       begin
-        p.update(
-          type:              (c > 1 ? 'Person::Vetted' : 'Person::Unvetted'),
-          year_active_end:   yae,
+        y = role_object.try(:year)
+        y ||= role_object.try(:year_of_publication)
+
+        yas = [y, person.year_active_start].compact.map(&:to_i).min
+        yae = [y, person.year_active_end].compact.map(&:to_i).max
+
+        person.update(
+          year_active_end: yae,
           year_active_start: yas
         )
+
       rescue ActiveRecord::RecordInvalid
         # probably a year conflict, allow quietly
       end
-      # rubocop:enable Rails/SaveBang
     end
   end
 
@@ -91,3 +117,7 @@ require_dependency 'loan_recipient'
 require_dependency 'loan_supervisor'
 require_dependency 'accession_provider'
 require_dependency 'deaccession_recipient'
+require_dependency 'attribution_copyright_holder'
+require_dependency 'attribution_creator'
+require_dependency 'attribution_editor'
+require_dependency 'attribution_owner'

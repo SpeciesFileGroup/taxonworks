@@ -85,29 +85,30 @@ class Person < ApplicationRecord
   after_save :set_cached, unless: Proc.new { |n| n.no_cached || errors.any? }
 
   validates :type, inclusion: {
-    in:      ['Person::Vetted', 'Person::Unvetted'],
+    in: ['Person::Vetted', 'Person::Unvetted'],
     message: '%{value} is not a validly_published type'}
 
-  has_many :roles, dependent: :destroy, inverse_of: :person
-  has_many :author_roles, class_name: 'SourceAuthor'
-  has_many :editor_roles, class_name: 'SourceEditor'
-  has_many :source_roles, class_name: 'SourceSource'
-  has_many :collector_roles, class_name: 'Collector'
-  has_many :determiner_roles, class_name: 'Determiner'
-  has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor'
-  has_many :type_designator_roles, class_name: 'TypeDesignator'
-  has_many :georeferencer_roles, class_name: 'Georeferencer'
+  has_many :roles, dependent: :restrict_with_error, inverse_of: :person #, before_remove: :set_cached_for_related
 
-  # has_many :sources, through: :roles   # TODO: test and confirm dependent
+  has_many :author_roles, class_name: 'SourceAuthor', dependent: :restrict_with_error, inverse_of: :person #, before_remove: :set_cached_for_related
+  has_many :editor_roles, class_name: 'SourceEditor', dependent: :restrict_with_error, inverse_of: :person
+  has_many :source_roles, class_name: 'SourceSource', dependent: :restrict_with_error, inverse_of: :person
+  has_many :collector_roles, class_name: 'Collector', dependent: :restrict_with_error, inverse_of: :person
+  has_many :determiner_roles, class_name: 'Determiner', dependent: :restrict_with_error, inverse_of: :person
+  has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', dependent: :restrict_with_error, inverse_of: :person
+  has_many :type_designator_roles, class_name: 'TypeDesignator', dependent: :restrict_with_error, inverse_of: :person
+  has_many :georeferencer_roles, class_name: 'Georeferencer', dependent: :restrict_with_error, inverse_of: :person
 
-  has_many :authored_sources, through: :author_roles, source: :role_object, source_type: 'Source::Bibtex'
-  has_many :edited_sources, through: :editor_roles, source: :role_object, source_type: 'Source::Bibtex'
-  has_many :human_sources, through: :source_roles, source: :role_object, source_type: 'Source::Human'
-  has_many :collecting_events, through: :collector_roles, source: :role_object, source_type: 'CollectingEvent'
-  has_many :taxon_determinations, through: :determiner_roles, source: :role_object, source_type: 'TaxonDetermination'
-  has_many :authored_taxon_names, through: :taxon_name_author_roles, source: :role_object, source_type: 'TaxonName'
-  has_many :type_material, through: :type_designator_roles, source: :role_object, source_type: 'TypeMaterial'
-  has_many :georeferences, through: :georeferencer_roles, source: :role_object, source_type: 'Georeference'
+  # has_many :sources, through: :roles # TODO: test and confirm dependent
+
+  has_many :authored_sources, through: :author_roles, source: :role_object, source_type: 'Source::Bibtex', inverse_of: :authors
+  has_many :edited_sources, through: :editor_roles, source: :role_object, source_type: 'Source::Bibtex', inverse_of: :editors
+  has_many :human_sources, through: :source_roles, source: :role_object, source_type: 'Source::Human', inverse_of: :people 
+  has_many :collecting_events, through: :collector_roles, source: :role_object, source_type: 'CollectingEvent', inverse_of: :collectors
+  has_many :taxon_determinations, through: :determiner_roles, source: :role_object, source_type: 'TaxonDetermination', inverse_of: :determiners
+  has_many :authored_taxon_names, through: :taxon_name_author_roles, source: :role_object, source_type: 'TaxonName', inverse_of: :taxon_name_authors
+  has_many :type_material, through: :type_designator_roles, source: :role_object, source_type: 'TypeMaterial', inverse_of: :type_designators
+  has_many :georeferences, through: :georeferencer_roles, source: :role_object, source_type: 'Georeference', inverse_of: :georeferencers
 
   scope :created_before, -> (time) { where('created_at < ?', time) }
   scope :with_role, -> (role) { includes(:roles).where(roles: {type: role}) }
@@ -116,7 +117,7 @@ class Person < ApplicationRecord
   # @return [Boolean]
   #   !! overwrites IsData#is_in_use?
   def is_in_use?
-    roles.any?
+    roles.reload.any?
   end
 
   # @return [String]
@@ -145,39 +146,28 @@ class Person < ApplicationRecord
     [prefix, last_name, suffix].compact.join(' ')
   end
 
-  # @return [Boolean]
-  def is_author?
-    author_roles.to_a.length > 0
-  end
-
-  # @return [Boolean]
-  def is_editor?
-    editor_roles.to_a.length > 0
-  end
-
-  # @return [Boolean]
-  def is_source?
-    source_roles.to_a.length > 0
-  end
-
-  # @return [Boolean]
-  def is_collector?
-    collector_roles.to_a.length > 0
-  end
-
   # @param [Integer] person_id
   # @return [Boolean]
   #   true if all records updated, false if any one failed (all or none)
   # r_person is merged into l_person (self)
+  #
   def merge_with(person_id)
+    return false if person_id == id
     if r_person = Person.find(person_id) # get the new (merged into self) person
-      # r_err         = nil
       begin
         ApplicationRecord.transaction do
-          unvetted = self.type.include?('Unv') && r_person.type.include?('Unv')
-          Role.where(person_id: r_person.id).update(person: self) # update merge person's roles to old
+          # !! Role.where(person_id: r_person.id).update(person_id: id) is BAAAD
+          # !! It appends person_id: <old> to Role.where() in callbacks, breaking
+          # !! Role#vet_person, etc.
+          # update merge person's roles to old
+          Role.where(person_id: r_person.id).each do |r|
+            r.update(person_id: id) 
+          end
+
+          roles.reload
+
           l_person_hash = annotations_hash
-          
+
           unless r_person.first_name.blank?
             if first_name.blank?
               update(first_name: r_person.first_name)
@@ -218,7 +208,7 @@ class Person < ApplicationRecord
                 av_list.each do |av|
                   if av.value == r_person.last_name
                     if av.type == 'AlternateValue::AlternateSpelling' &&
-                      av.alternate_value_object_attribute == 'last_name' # &&
+                        av.alternate_value_object_attribute == 'last_name' # &&
                       # av.project_id == r_person.project_id
                       skip_av = true
                       break # stop looking in this bunch, if you found a match
@@ -247,37 +237,37 @@ class Person < ApplicationRecord
                   # # notes,
                   # # alternate values
                   case r_kee
-                    when 'data attributes'
-                      if l_o.type == r_o.type &&
+                  when 'data attributes'
+                    if l_o.type == r_o.type &&
                         l_o.controlled_vocabulary_term_id == r_o.controlled_vocabulary_term_id &&
                         l_o.value == r_o.value &&
                         l_o.project_id == r_o.project_id
-                        skip = true
-                        break # stop looking in this bunch, if you found a match
-                      end
-                    when 'identifiers'
-                      if l_o.type == r_o.type &&
+                      skip = true
+                      break # stop looking in this bunch, if you found a match
+                    end
+                  when 'identifiers'
+                    if l_o.type == r_o.type &&
                         l_o.identifier == r_o.identifier &&
                         l_o.project_id == r_o.project_id
-                        skip = true
-                        break # stop looking in this bunch, if you found a match
-                      end
-                    when 'notes'
-                      if l_o.text == r_o.text &&
+                      skip = true
+                      break # stop looking in this bunch, if you found a match
+                    end
+                  when 'notes'
+                    if l_o.text == r_o.text &&
                         l_o.note_object_attribute == r_o.note.object_attribute &&
                         l_o.project_id == r_o.project_id
+                      skip = true
+                      break # stop looking in this bunch, if you found a match
+                    end
+                  when 'alternate values'
+                    if l_o.value == r_o.value
+                      if l_o.type == r_o.type &&
+                          l_o.alternate_value_object_attribute == r_o.alternate_value_object_attribute &&
+                          l_o.project_id == r_o.project_id
                         skip = true
                         break # stop looking in this bunch, if you found a match
                       end
-                    when 'alternate values'
-                      if l_o.value == r_o.value
-                        if l_o.type == r_o.type &&
-                          l_o.alternate_value_object_attribute == r_o.alternate_value_object_attribute &&
-                          l_o.project_id == r_o.project_id
-                          skip = true
-                          break # stop looking in this bunch, if you found a match
-                        end
-                      end
+                    end
                   end
                 end
                 skip
@@ -334,16 +324,10 @@ class Person < ApplicationRecord
               self.year_active_end = r_person.year_active_end
             end
           end
-
-          # update type, if necesssary
-          if self.type.include?('Unv')
-            unless unvetted
-              self.update(type: 'Person::Vetted')
-            end
-          end
-
+          
           # last thing to do in the transaction...
-          self.save! unless self.persisted?
+          # NO!!! -  unless self.persisted? (all people are at this point persisted!)
+          self.save! if self.changed?
         end
       rescue ActiveRecord::RecordInvalid
         return false
@@ -352,24 +336,61 @@ class Person < ApplicationRecord
     true
   end
 
+  def hard_merge(person_id_to_destroy)
+    return false if id == person_id_to_destroy
+    begin
+      person_to_destroy = Person.find(person_id_to_destroy)
+
+      Person.transaction do
+        merge_with(person_to_destroy.id)
+        person_to_destroy.destroy!
+      end
+    rescue ActiveRecord::RecordInvalid
+      return false
+    rescue ActiveRecord::RecordNotFound
+     return false
+    end
+    true
+  end
+     
   # @return [Boolean]
   def is_determiner?
-    determiner_roles.to_a.length > 0
+    determiner_roles.any?
   end
 
   # @return [Boolean]
   def is_taxon_name_author?
-    taxon_name_author_roles.to_a.length > 0
+    taxon_name_author_roles.any?
   end
 
   # @return [Boolean]
   def is_type_designator?
-    type_designator_roles.to_a.length > 0
+    type_designator_roles.any?
   end
 
   # @return [Boolean]
   def is_georeferencer?
-    georeferencer_roles.to_a.length > 0
+    georeferencer_roles.any?
+  end
+
+  # @return [Boolean]
+  def is_author?
+    author_roles.any?
+  end
+
+  # @return [Boolean]
+  def is_editor?
+    editor_roles.any?
+  end
+
+  # @return [Boolean]
+  def is_source?
+    source_roles.any?
+  end
+
+  # @return [Boolean]
+  def is_collector?
+    collector_roles.any?
   end
 
   # @param [String] name_string
@@ -383,10 +404,51 @@ class Person < ApplicationRecord
   # @return [Array] of People
   #    return people for name strings
   def self.parse_to_people(name_string)
-    parser(name_string).collect { |n| Person::Unvetted.new(last_name:  n['family'],
-                                                           first_name: n['given'],
-                                                           prefix:     n['non-dropping-particle']) }
+    parser(name_string).collect { |n| 
+      Person::Unvetted.new(last_name:  n['family'],
+                           first_name: n['given'],
+                           prefix:     n['non-dropping-particle'])}
   end
+
+  # @param role_type [String] one of the Role types
+  # @return [Scope]
+  #    the max 10 most recently used (1 week, could parameterize) people 
+  def self.used_recently(role_type = 'SourceAuthor')
+    t = Role.arel_table
+    p = Person.arel_table
+
+    # i is a select manager
+    i = t.project(t['person_id'], t['created_at']).from(t)
+      .where(t['created_at'].gt(1.weeks.ago))
+      .where(t['type'].eq(role_type))
+      .order(t['created_at'])
+      .take(10)
+      .distinct
+
+    # z is a table alias
+    z = i.as('recent_t')
+
+    Person.joins(
+      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['person_id'].eq(p['id'])))
+    )
+  end
+
+  # @params Role [String] one the available roles
+  # @return [Hash] geographic_areas optimized for user selection
+  def self.select_optimized(user_id, project_id, role_type = 'SourceAuthor')
+    h = {
+      quick:    [],
+      pinboard: Person.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a
+    }
+
+    h[:recent] = Person.joins(:roles).where(roles: {project_id: project_id, type: role_type}).
+      used_recently(role_type).
+      limit(10).distinct.to_a
+
+    h[:quick] = (Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a + h[:recent][0..3]).uniq
+    h
+  end
+
 
   protected
 
@@ -429,16 +491,29 @@ class Person < ApplicationRecord
   # @return [Ignored]
   def set_cached
     update_column(:cached, bibtex_name)
-    set_taxon_name_cached_author_year
+    set_role_object_cached
   end
 
+  # def set_cached_for_related(role)
+  #   byebug
+  #   role.check_for_last
+  #   set_role_object_cached
+  # end
+
   # @return [Ignored]
-  def set_taxon_name_cached_author_year
-    if saved_change_to_last_name? || saved_change_to_prefix? || saved_change_to_suffix?
-      authored_taxon_names.reload.each do |t|
-        t.send(:set_cached) # TODO: optimize, perhaps on set_author_year
+  def set_role_object_cached
+    if change_to_cached_attribute?
+      roles.reload.each do |r|
+        r.role_object.send(:set_cached) if r.role_object.respond_to?(:set_cached, true) # true -> check private methods
       end
     end
+  end
+
+  # @return [Boolean]
+  # Difficult to anticipate what 
+  # attributes will be cached in different models
+  def change_to_cached_attribute?
+    saved_change_to_last_name? || saved_change_to_prefix? || saved_change_to_suffix?
   end
 
 end
