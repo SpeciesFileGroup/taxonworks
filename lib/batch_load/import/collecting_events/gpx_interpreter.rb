@@ -1,10 +1,19 @@
-# TODO: THIS IS A GENERATED STUB, it does not function
 module BatchLoad
-  class Import::CollectingEvent::GpxInterpreter < BatchLoad::Import
+  class Import::CollectingEvents::GpxInterpreter < BatchLoad::Import
 
     def initialize(**args)
       @collecting_events = {}
+      @ce_namespace = args.delete(:ce_namespace)
       super(args)
+    end
+
+
+    # methode override for GPX processing which is quite different from CSV
+    # @return [Hash, nil]
+    def csv
+      @csv = GPX::GPXFile.new(gpx_file: @file.tempfile.path)
+      # @csv = Hash.from_xml(gpx.to_s)
+      # gpx = (Hash.from_xml(GPX::GPXFile.new(gpx_file: '/Users/tuckerjd/src/taxonworks/spec/files/batch/collecting_event/test.gpx').to_s))['gpx']end
     end
 
     # TODO: update this
@@ -12,23 +21,51 @@ module BatchLoad
       @total_data_lines = 0
       i = 0
 
-      # loop throw rows
-      csv.each do |row|
-        i += 1
 
-        parse_result = BatchLoad::RowParse.new
-        parse_result.objects[:collecting_event] = []
+      # # loop throw rows
+      # csv.each do |row|
+      #   i += 1
+      #
+      #   parse_result = BatchLoad::RowParse.new
+      #   parse_result.objects[:collecting_event] = []
+      #
+      #   @processed_rows[i] = parse_result
+      #
+      #   begin # processing
+      #     # use a BatchLoad::ColumnResolver or other method to match row data to TW
+      #     #  ...
+      #
+      #     @total_data_lines += 1
+      #   rescue
+      #      # ....
+      #   end
+      # end
 
-        @processed_rows[i] = parse_result
+      parse_result = BatchLoad::RowParse.new
+      parse_result.objects[:collecting_event] = []
+      gpx = csv
 
-        begin # processing
-          # use a BatchLoad::ColumnResolver or other method to match row data to TW
-          #  ...
+      gpx.tracks.each do |tr|
+        ce = CollectingEvent.new(verbatim_label: gpx.name,
+                                 created_at: gpx.time)
+        points = []
+        time = nil
 
-          @total_data_lines += 1
-        rescue
-           # ....
+        tr.points.each do |pt|
+          time = pt.time if time.blank?
+          points << Gis::FACTORY.point(pt.lon, pt.lat, pt.elevation)
         end
+        ce.crearted_at = time if gpx.time.blank?
+        gi = GeographicItem.new(line_string: Gis::FACTORY.line_string(points))
+        # TODO: What kind of Georeference do we make:
+        # 1)  GeoLocate: make a fake Tulane request?
+        # 2)  VerbatimData: has no provision for line_string (gpx.tracks)
+        # 3)  GoogleMap: mimic the use of GoogleMaps to produse a track?
+        # 4)  GPX: create a new Georeference sub-class to embody a more complete version of GPX?
+        ref = Georeference.new(geographic_item: gi)
+        ce.georeferences << ref
+        parse_result.objects[:collecting_event] << ce
+        @total_data_lines += 1
       end
 
       @total_lines = i
