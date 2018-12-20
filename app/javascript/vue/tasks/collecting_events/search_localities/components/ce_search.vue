@@ -27,10 +27,13 @@
       :autofocus="true"
       :clear-after="true"
     />
-    <div style="height:300px; width:600px">
+    <div>
       <g-map
-        height: 300
-        Width:  600
+       :shapes="shapes"
+       :lat="0"
+       :lng="0"
+       :zoom="1"
+       @shapes="getShapesData()"
       />
     </div>
     <input
@@ -69,11 +72,30 @@
       return {
         geographicAreaList: [],
         collectingEventList: [],
+        shapes: {},
       }
     },
-
+  // :height="300"
+  // :width="600"
+  // :shapes="shapes"
+  // :lat="0"
+  // :lng="0"
+  // :zoom="2"
+  // @shape="saveGeoreference($event)"
     methods: {
       getAreaData(){
+        let geo_ids = [];
+        this.geographicAreaList.forEach(area => {
+          geo_ids.push(area.id)
+        });
+        let params = {
+          spatial_geographic_area_ids: geo_ids
+        };
+        this.$http.get('/collecting_events', {params: params}).then(response => {
+          this.collectingEventList = response.body;
+        });
+      },
+      getShapesData(){
         let geo_ids = [];
         this.geographicAreaList.forEach(area => {
           geo_ids.push(area.id)
