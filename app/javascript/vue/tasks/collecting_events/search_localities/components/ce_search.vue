@@ -27,6 +27,12 @@
       :autofocus="true"
       :clear-after="true"
     />
+    <div style="height:300px; width:600px">
+      <g-map
+        height: 300
+        Width:  600
+      />
+    </div>
     <input
       type="button"
       @click="getAreaData()"
@@ -52,10 +58,12 @@
 </template>
 <script>
   import Autocomplete from 'components/autocomplete'
+  import gMap from './googleMap.vue'
 
   export default {
     components: {
       Autocomplete,
+      gMap
     },
     data() {
       return {
