@@ -8,10 +8,11 @@
         slot="options"
         class="horizontal-left-content">
         <button
+          :disabled="(collectionObjects.length == 0 || collectionObject.id != undefined)"
           type="button"
-          @click="SaveCollectionObject"
+          @click="saveCollectionObject"
           v-shortkey="[getMacKey(), 'a']"
-          @shortkey="SaveCollectionObject"
+          @shortkey="saveCollectionObject"
           class="button normal-input button-submit separate-right">
           Add
         </button>
@@ -151,9 +152,9 @@
       newDigitalization() {
         this.$store.dispatch(ActionNames.NewCollectionObject)
         this.$store.commit(MutationNames.NewTaxonDetermination)
-        this.$store.commit(MutationNames.SetTaxonDeterminations)
+        this.$store.commit(MutationNames.SetTaxonDeterminations, [])
       },
-      SaveCollectionObject() {
+      saveCollectionObject() {
         this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
           this.newDigitalization()
           this.$store.commit(MutationNames.SetTaxonDeterminations, [])

@@ -1,8 +1,8 @@
 <template>
   <div>
     <div>
-      <label>Start time</label>
-      <div class="horizontal-left-content">
+      <label class="separate-bottom"><b>Start time</b></label>
+      <div class="horizontal-left-content separate-bottom">
         <div class="separate-right">
           <label>Hour</label>
           <input
@@ -30,8 +30,8 @@
       </div>
     </div>
     <div>
-      <label>End time</label>
-      <div class="horizontal-left-content">
+      <label class="separate-bottom"><b>End time</b></label>
+      <div class="horizontal-left-content separate-bottom">
         <div class="separate-right">
           <label>Hour</label>
           <input

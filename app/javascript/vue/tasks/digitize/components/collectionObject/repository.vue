@@ -3,6 +3,7 @@
     <h2>Repository</h2>
     <div class="horizontal-left-content middle">
       <smart-selector 
+        class="separate-bottom"
         name="repository"
         v-model="view"
         :add-option="['search']"
@@ -14,7 +15,9 @@
         @getLabel="repositorySelected = $event"
         type="Repository"/>
     </div>
-    <ul v-if="view != 'search'">
+    <ul
+      class="no_bullets"
+      v-if="view != 'search'">
       <li
         v-for="(item, key) in lists[view]"
         :key="key">
@@ -41,6 +44,9 @@
       <div class="middle separate-top">
         <span data-icon="ok"/>
         <span class="separate-right"> {{ repositorySelected }}</span>
+        <span
+          data-icon="reset"
+          @click="repository = undefined"/>
         <lock-component v-model="locked.collection_object.repository_id"/>
       </div>
     </template>

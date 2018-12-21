@@ -1,6 +1,6 @@
 <template>
-  <div >
-    <label>Elevation</label>
+  <div>
+    <label><b>Elevation</b></label>
     <div class="horizontal-left-content">
       <div class="separate-right">
         <label>Minimun</label>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>Catalog number</h2>
-    <div class="horizontal-left-content">
+    <div class="horizontal-left-content middle">
       <div class="separate-right">
         <label>Namespace</label>
         <br>
@@ -19,6 +19,14 @@
           type="text"
           v-model="identifier">
       </div>
+      <div class="separate-left">
+        <label>&nbsp;</label>
+        <br>
+        <validate-component
+          :show-message="checkValidation"
+          legend="Namespace and identifier needs to be set to be save."/>
+      </div>
+      
     </div>
   </div>
 </template>
@@ -28,10 +36,13 @@
   import Autocomplete from '../../../../components/autocomplete.vue'
   import { GetterNames } from '../../store/getters/getters.js'
   import { MutationNames } from '../../store/mutations/mutations.js'
+  import validateComponent from '../shared/validate.vue'
+  import validateIdentifier from '../../validations/namespace.js'
 
   export default {
     components: {
-      Autocomplete
+      Autocomplete,
+      validateComponent
     },
     computed: {
       collectionObjects() {
@@ -60,6 +71,9 @@
         set(value) {
           this.$store.commit(MutationNames.SetCollectionObjectTypes, value)
         }
+      },
+      checkValidation() {
+        return !validateIdentifier({ namespace_id: this.namespace, identifier: this.identifier })
       }
     }
   }

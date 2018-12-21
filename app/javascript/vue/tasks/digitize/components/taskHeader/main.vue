@@ -20,7 +20,7 @@
           @click="saveDigitalization"
           v-shortkey="[getMacKey(), 's']"
           @shortkey="saveDigitalization"
-          type="button">Save
+          type="button">Save all
         </button>
         |
         <span

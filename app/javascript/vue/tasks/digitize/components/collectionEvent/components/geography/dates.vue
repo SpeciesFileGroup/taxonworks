@@ -1,8 +1,8 @@
 <template>
   <div>
     <div>
-      <label>Start date</label>
-      <div class="horizontal-left-content">
+      <label class="separate-bottom"><b>Start date</b></label>
+      <div class="horizontal-left-content separate-bottom">
         <div class="separate-right">
           <label>Year</label>
           <input
@@ -36,8 +36,8 @@
       </div>
     </div>
     <div>
-      <label>End date</label>
-      <div class="horizontal-left-content">
+      <label class="separate-bottom"><b>End date</b></label>
+      <div class="horizontal-left-content separate-bottom">
         <div class="separate-right">
           <label>Year</label>
           <input

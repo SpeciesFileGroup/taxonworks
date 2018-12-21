@@ -15,16 +15,19 @@ export default function ({ commit, dispatch, state }) {
               state.collection_objects.forEach(co => {
                 dispatch(ActionNames.SaveContainerItem, co)
                 state.settings.saving = false
+                resolve(true)
               })
             })
           }
           else {
             state.settings.saving = false
+            resolve(true)
           }
         }
         else {
           dispatch(ActionNames.SaveContainerItem, coCreated)
           state.settings.saving = false
+          resolve(true)
         }        
       })
     })
