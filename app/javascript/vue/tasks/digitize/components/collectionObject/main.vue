@@ -30,9 +30,9 @@
       </div>
       <div slot="body">
         <div
-          class="horizontal-left-content align-start flexbox">
+          class="horizontal-left-content align-start flexbox separate-bottom">
           <div class="separate-right">
-            <catalog-number/>
+            <catalog-number class="separate-bottom"/>
             <repository-component/>
           </div>
           <div class="separate-left separate-right">

@@ -17,28 +17,54 @@
       </div>
       <template v-else>
         <div class="separate-bottom">
-          <label>Taxon name</label>
-          <div
-            v-if="taxon"
-            class="horizontal-left-content">
-            <span v-html="taxon.object_tag"/>
-            <span
-              class="button circle-button btn-delete"
-              @click="taxon = undefined"/>
-          </div>
-          <autocomplete
-            v-else
-            url="/taxon_names/autocomplete"
-            min="2"
-            param="term"
-            placeholder="Select a taxon name"
-            @getItem="selectTaxon"
-            label="label"
-            :add-params="{
-              'type[]': 'Protonym',
-              'nomenclature_group[]': 'SpeciesGroup',
-              valid: true
-          }"/>
+          <fieldset>
+            <legend>Taxon name</legend>
+            <smart-selector
+              v-model="viewTaxon"
+              class="separate-bottom"
+              name="taxon-type"
+              :options="optionsTaxon"/>
+            <div
+              v-if="taxon"
+              class="horizontal-left-content">
+              <span v-html="taxon.object_tag"/>
+              <span
+                class="button circle-button btn-undo button-default"
+                @click="taxon = undefined"/>
+            </div>
+            <template>
+              <autocomplete
+                v-if="viewTaxon == 'search'"
+                url="/taxon_names/autocomplete"
+                min="2"
+                param="term"
+                placeholder="Select a taxon name"
+                @getItem="selectTaxon"
+                label="label"
+                :add-params="{
+                  'type[]': 'Protonym',
+                  'nomenclature_group[]': 'SpeciesGroup',
+                  valid: true
+              }"/>
+              <ul
+                v-else
+                class="no_bullets">
+                <li
+                  v-for="item in listsTaxon[viewTaxon]"
+                  :key="item.id"
+                  :value="item.id">
+                  <label
+                    @click="selectTaxon(item)">
+                    <input
+                      name="taxon-type-material"
+                      :value="item.id"
+                      type="radio">
+                    <span v-html="item.object_tag"/>
+                  </label>
+                </li>
+              </ul>
+            </template>
+          </fieldset>
         </div>
         <div class="separate-bottom">
           <label>Type type</label>
@@ -60,35 +86,37 @@
               v-else>Select a taxon name first</option>
           </select>
         </div>
-        <label>Type designator</label>
-        <smart-selector
-          v-model="view"
-          class="separate-bottom"
-          name="type-designator"
-          :options="options"/>
-        <div
-          v-if="view != 'new/Search'"
-          class="separate-bottom">
-          <ul class="no_bullets">
-            <li
-              v-for="item in lists[view]"
-              v-if="!roleExist(item.id)"
-              :key="item.id">
-              <label>
-                <input
-                  type="radio"
-                  @click="addRole(item)"
-                  :checked="roleExist(item.id)">
-                {{ item.object_tag }}
-              </label>
-            </li>
-          </ul>
-        </div>
-        <role-picker
-          v-model="roles"
-          :autofocus="false"
-          role-type="TypeDesignator"
-          class="types_field"/>
+        <fieldset>
+          <legend>Type designator</legend>
+          <smart-selector
+            v-model="view"
+            class="separate-bottom"
+            name="type-designator"
+            :options="options"/>
+          <div
+            v-if="view != 'new/Search'"
+            class="separate-bottom">
+            <ul class="no_bullets">
+              <li
+                v-for="item in lists[view]"
+                v-if="!roleExist(item.id)"
+                :key="item.id">
+                <label>
+                  <input
+                    type="radio"
+                    @click="addRole(item)"
+                    :checked="roleExist(item.id)">
+                  {{ item.object_tag }}
+                </label>
+              </li>
+            </ul>
+          </div>
+          <role-picker
+            v-model="roles"
+            :autofocus="false"
+            role-type="TypeDesignator"
+            class="types_field"/>
+        </fieldset>
       </template>
     </div>
   </block-layout>
@@ -97,7 +125,11 @@
 <script>
 
   import Autocomplete from '../../../../components/autocomplete.vue'
-  import { GetTypes, DestroyTypeMaterial, GetTypeDesignatorSmartSelector } from '../../request/resources.js'
+  import { 
+    GetTypes, 
+    DestroyTypeMaterial, 
+    GetTypeDesignatorSmartSelector,
+    GetTaxonNameSmartSelector } from '../../request/resources.js'
   import RolePicker from '../../../../components/role_picker.vue'
   import ActionNames from '../../store/actions/actionNames.js'
   import { GetterNames } from '../../store/getters/getters.js'
@@ -133,7 +165,7 @@
       },
       type: {
         get() {
-          return this.$store.getters[GetterNames.GetTypeMaterial.type_type]
+          return this.$store.getters[GetterNames.GetTypeMaterial].type_type
         },
         set(value) {
           this.$store.commit(MutationNames.SetTypeMaterialType, value)
@@ -155,8 +187,11 @@
       return {
         types: undefined,
         options: [],
+        optionsTaxon: [],
         lists: {},
-        view: 'new/Search'
+        listsTaxon: {},
+        view: 'new/Search',
+        viewTaxon: 'search'
       }
     },
     mounted: function () {
@@ -168,6 +203,11 @@
         this.lists = response
         this.options.push("new/Search")
       })
+      GetTaxonNameSmartSelector().then(response => {
+        this.optionsTaxon = Object.keys(response)
+        this.listsTaxon = response   
+        this.optionsTaxon.push("search") 
+      })
     },
     methods: {
       selectTaxon(taxon) {
@@ -176,6 +216,7 @@
       destroyTypeMateria(id) {
         DestroyTypeMaterial(id).then(() => {
           this.$store.commit(MutationNames.NewTypeMaterial)
+          TW.workbench.alert.create('Type material was successfully destroyed.', 'notice')
         })
       },
       roleExist(id) {

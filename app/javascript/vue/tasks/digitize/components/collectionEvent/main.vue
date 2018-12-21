@@ -16,21 +16,24 @@
           type="CollectingEvent"/>
       </div>
       <div slot="body">
-        <div class="horizontal-left-content separate-bottom">
-          <smart-selector
-            name="collection-event"
-            v-model="view"
-            :add-option="staticOptions"
-            :options="tabs"/>
-          <pin-default
-            class="separate-left"
-            section="CollectingEvents"
-            @getId="getCollectingEvent"
-            type="CollectingEvent"/>
-        </div>
-        <component
-          :is="actualComponent"
-          :list="lists[view]"/>
+        <fieldset class="separate-bottom">
+          <legend>Selector</legend>
+          <div class="horizontal-left-content separate-bottom">
+            <smart-selector
+              name="collection-event"
+              v-model="view"
+              :add-option="staticOptions"
+              :options="tabs"/>
+            <pin-default
+              class="separate-left"
+              section="CollectingEvents"
+              @getId="getCollectingEvent"
+              type="CollectingEvent"/>
+          </div>
+          <component
+            :is="actualComponent"
+            :list="lists[view]"/>
+        </fieldset>
         <div class="horizontal-left-content align-start">
           <block-verbatin class="separate-right"/>
           <block-geography class="separate-left separate-right"/>

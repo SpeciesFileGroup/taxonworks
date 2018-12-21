@@ -41,6 +41,10 @@ const GetRepositorySmartSelector = function () {
   return ajaxCall('get', `/repositories/select_options`)
 }
 
+const GetTaxonNameSmartSelector = function () {
+  return ajaxCall('get', `/taxon_names/select_options`, { params: { 'nomenclature_group[]': 'SpeciesGroup' } })
+}
+
 const GetCollectingEventsSmartSelector = function () {
   return ajaxCall('get', `/collecting_events/select_options`)
 }
@@ -224,6 +228,7 @@ const DestroyCollectionObject = function (id) {
 export {
   GetUserPreferences,
   GetOtu,
+  GetTaxonNameSmartSelector,
   GetCollectorsSmartSelector,
   GetRepositorySmartSelector,
   GetGeographicSmartSelector,

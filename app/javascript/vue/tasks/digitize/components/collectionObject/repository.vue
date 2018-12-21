@@ -1,55 +1,56 @@
 <template>
   <div>
-    <h2>Repository</h2>
-    <div class="horizontal-left-content middle">
-      <smart-selector 
-        class="separate-bottom"
-        name="repository"
-        v-model="view"
-        :add-option="['search']"
-        :options="options"/>
-      <default-repository
-        class="separate-left"
-        section="Repositories"
-        @getId="repository = $event"
-        @getLabel="repositorySelected = $event"
-        type="Repository"/>
-    </div>
-    <ul
-      class="no_bullets"
-      v-if="view != 'search'">
-      <li
-        v-for="(item, key) in lists[view]"
-        :key="key">
-        <label>
-          <input
-            type="radio"
-            v-model="repository"
-            :value="item.id">
-          <span v-html="item.object_tag"/>
-        </label>
-      </li>
-    </ul>
-    <div v-show="view == 'search'">
-      <autocomplete
-        url="/repositories/autocomplete"
-        label="label_html"
-        param="term"
-        placeholder="Search"
-        ref="autocomplete"
-        @getItem="setRepository($event.id, $event.label)"
-        min="2"/>
-    </div>
-    <template v-if="repository">
-      <div class="middle separate-top">
-        <span data-icon="ok"/>
-        <span class="separate-right"> {{ repositorySelected }}</span>
-        <span
-          data-icon="reset"
-          @click="repository = undefined"/>
-        <lock-component v-model="locked.collection_object.repository_id"/>
+    <fieldset class="fieldset">
+      <legend>Repository</legend>
+      <div class="horizontal-left-content middle separate-bottom">
+        <smart-selector 
+          name="repository"
+          v-model="view"
+          :add-option="['search']"
+          :options="options"/>
+        <default-repository
+          class="separate-left"
+          section="Repositories"
+          @getId="repository = $event"
+          @getLabel="repositorySelected = $event"
+          type="Repository"/>
       </div>
-    </template>
+      <ul
+        class="no_bullets"
+        v-if="view != 'search'">
+        <li
+          v-for="(item, key) in lists[view]"
+          :key="key">
+          <label>
+            <input
+              type="radio"
+              v-model="repository"
+              :value="item.id">
+            <span v-html="item.object_tag"/>
+          </label>
+        </li>
+      </ul>
+      <div v-show="view == 'search'">
+        <autocomplete
+          url="/repositories/autocomplete"
+          label="label_html"
+          param="term"
+          placeholder="Search"
+          ref="autocomplete"
+          @getItem="setRepository($event.id, $event.label)"
+          min="2"/>
+      </div>
+      <template v-if="repository">
+        <div class="middle separate-top">
+          <span data-icon="ok"/>
+          <span class="separate-right"> {{ repositorySelected }}</span>
+          <span
+            class="circle-button button-default btn-undo"
+            @click="repository = undefined"/>
+          <lock-component v-model="locked.collection_object.repository_id"/>
+        </div>
+      </template>
+    </fieldset>
   </div>
 </template>
 
@@ -135,7 +136,8 @@ export default {
   }
 }
 </script>
-
-<style>
-
+<style scoped>
+  .fieldset {
+    margin: 0px;
+  }
 </style>
