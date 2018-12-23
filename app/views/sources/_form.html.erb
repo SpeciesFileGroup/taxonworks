@@ -46,6 +46,16 @@
           <%= f.label :stated_year, data: {help: 'Use only if Year is provided, and it differs from the actual year of publication.  See Year.'} %><br>
           <%= f.text_field :stated_year, size: 6 %>
         </div>
+
+        <div class="field">
+          <%= f.label :month %><br>
+          <%= f.text_field :month, size: 10 %>
+        </div>
+
+        <div class="field">
+          <%= f.label :day %><br>
+          <%= f.text_field :day, size: 4 %>
+        </div>
       </div>
 
       <div class="field">
@@ -137,18 +147,6 @@
       <div class="field">
         <%= f.label :school %><br>
         <%= f.text_field :school %>
-      </div>
-
-      <div class="side_by_side_fields">
-        <div class="field">
-          <%= f.label :month %><br>
-          <%= f.text_field :month, size: 10 %>
-        </div>
-
-        <div class="field">
-          <%= f.label :day %><br>
-          <%= f.text_field :day, size: 4 %>
-        </div>
       </div>
 
       <div class="field">
