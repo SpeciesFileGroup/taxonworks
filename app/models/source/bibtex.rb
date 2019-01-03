@@ -386,50 +386,50 @@ class Source::Bibtex < Source
       end
     end
 
-    if !self.year_suffix.blank?
-      b.year = self.year_with_suffix
+    if !year_suffix.blank?
+      b.year = year_with_suffix
     end
 
-    unless self.verbatim_keywords.blank?
-      b[:keywords] = self.verbatim_keywords
+    unless verbatim_keywords.blank?
+      b[:keywords] = verbatim_keywords
     end
 
     b[:note] = concatenated_notes_string if !concatenated_notes_string.blank? # see Notable
-    unless self.serial.nil?
-      b[:journal] = self.serial.name
-      issns       = self.serial.identifiers.where(type: 'Identifier::Global::Issn') # of_type(:issn)
+    unless serial.nil?
+      b[:journal] = serial.name
+      issns  = serial.identifiers.where(type: 'Identifier::Global::Issn') # of_type(:issn)
       unless issns.empty?
         b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
       end
     end
 
-    unless self.serial.nil?
-      b[:journal] = self.serial.name
-      issns       = self.serial.identifiers.where(type: 'Identifier::Global::Issn') # .of_type(:issn)
+    unless serial.nil?
+      b[:journal] = serial.name
+      issns = serial.identifiers.where(type: 'Identifier::Global::Issn') # .of_type(:issn)
       unless issns.empty?
         b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
       end
     end
 
-    uris = self.identifiers.where(type: 'Identifier::Global::Uri') # of_type(:uri)
+    uris = identifiers.where(type: 'Identifier::Global::Uri') # of_type(:uri)
     unless uris.empty?
       b[:url] = uris.first.identifier # TW only allows one URI per object
     end
 
-    isbns = self.identifiers.where(type: 'Identifier::Global::Isbn') #.of_type(:isbn)
+    isbns = identifiers.where(type: 'Identifier::Global::Isbn') #.of_type(:isbn)
     unless isbns.empty?
       b[:isbn] = isbns.first.identifier # TW only allows one ISBN per object
     end
 
-    dois = self.identifiers.where(type: 'Identifier::Global::Doi') #.of_type(:isbn)
+    dois = identifiers.where(type: 'Identifier::Global::Doi') #.of_type(:isbn)
     unless dois.empty?
       b[:doi] = dois.first.identifier # TW only allows one DOI per object
     end
 
-    b.author = self.compute_bibtex_names('author') unless (!self.authors.any? && self.author.blank?)
-    b.editor = self.compute_bibtex_names('editor') unless (!self.editors.any? && self.editor.blank?)
+    b.author = self.compute_bibtex_names('author') unless (!self.authors.any? && author.blank?)
+    b.editor = self.compute_bibtex_names('editor') unless (!self.editors.any? && editor.blank?)
 
-    b.key    = self.id unless self.new_record?
+    b.key = id unless new_record?
     b
   end
 
@@ -438,7 +438,7 @@ class Source::Bibtex < Source
   # @param [String] type either `author` or `editor`
   # @return [String]
   #   the bibtex version of the name strings created from the TW people
-  #   BibTeX format is 'lastname, firstname and lastname,firstname and lastname, firstname'
+  #   BibTeX format is 'lastname, firstname and lastname, firstname and lastname, firstname'
   #   For a name list not joined by multiple 'and's, use compute_human_names
   def compute_bibtex_names(type)
     method  = type
@@ -767,10 +767,10 @@ class Source::Bibtex < Source
       else
         b = to_bibtex
         b.parse_names
-        return Utilities::Strings.authorship_sentence(b.author.tokens.collect { |t| t.last })
+        return Utilities::Strings.authorship_sentence(b.author.tokens.collect{ |t| t.last })
       end
     else # use normalized records
-      return Utilities::Strings.authorship_sentence(authors.reload.collect { |a| a.full_last_name })
+      return Utilities::Strings.authorship_sentence(authors.collect{ |a| a.full_last_name })
     end
   end
 
@@ -853,8 +853,8 @@ class Source::Bibtex < Source
         cached_author_string: authority_name
       }
 
-      attributes_to_update[:author] = compute_bibtex_names('author') if author.blank? && authors.size > 0
-      attributes_to_update[:editor] = compute_bibtex_names('editor') if editor.blank? && editors.size > 0
+      attributes_to_update[:author] = compute_bibtex_names('author') if authors.size > 0
+      attributes_to_update[:editor] = compute_bibtex_names('editor') if editors.size > 0
 
       update_columns(attributes_to_update)
     end

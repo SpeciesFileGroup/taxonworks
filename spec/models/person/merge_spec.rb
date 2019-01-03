@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Person, type: :model do
+describe Person, type: :model, group: :people do
 
   let(:root_taxon_name) { Protonym.create!(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil) }
   let(:tn1) { Protonym.create!(name: 'Aonedidae', parent: root_taxon_name, rank_class: Ranks.lookup(:iczn, :family)) }
@@ -47,6 +47,7 @@ describe Person, type: :model do
                                 value:                            'Jan',
                                 alternate_value_object_attribute: 'first_name',
                                 alternate_value_object:           person1b) }
+  
   let(:av2) { FactoryBot.create(:valid_alternate_value,
                                 value:                            'Janco',
                                 alternate_value_object_attribute: 'first_name',
@@ -55,6 +56,7 @@ describe Person, type: :model do
   let(:id1) { FactoryBot.create(:valid_identifier) }
 
   let(:no1) { FactoryBot.create(:valid_note) }
+  
   let(:da2) { FactoryBot.create(:valid_data_attribute_internal_attribute,
                                 value:     'Mr.',
                                 predicate: cvt) }
@@ -65,7 +67,6 @@ describe Person, type: :model do
   context 'roles' do
     before do 
       gr2.georeferencers << person1
-
       tn1.taxon_name_authors << person1b 
       tn2.taxon_name_authors << person1b 
       gr1.georeferencers << person1b 
@@ -113,7 +114,7 @@ describe Person, type: :model do
 
     specify 'merge 4' do
       p1.merge_with(p2.id)
-      expect(Role.all.reload.map(&:person_id)).to contain_exactly(p1.id, p1.id)
+      expect(Role.all.map(&:person_id)).to contain_exactly(p1.id, p1.id)
     end
 
     specify 'merge 5' do
@@ -197,7 +198,6 @@ describe Person, type: :model do
   end
 
   context 'data_attributes' do
-
     before do
       person1.data_attributes << da1
       person1b.data_attributes << da2
@@ -309,26 +309,20 @@ describe Person, type: :model do
   end
 
   context 'vetting' do
-    context 'unvetted l_person' do
-      specify 'unvetted r_person' do
-        # An interesting anomoly occures when person1b is used in place of person1c.
-        # In this context, use of person1b seems to result in person1 being converted to 'vetted'
-        # (because person1b has been converted to 'vetted'),
-        # even though it is otherwise *not* specifically set one way or the other during creation.
-        # This seems to be an artifact of the fact that when a person is applied to a taxon name
-        # as 'taxon_name_author', that person is (sometimes!) converted to 'vetted'.
-        person1.merge_with(person1c.id)
-        expect(person1.type.include?('Unv')).to be_truthy
-      end
+    specify 'merging two unvetted people is an unvetted person' do
+      # there are no roles in either!
+      # there are no attributes in either!
 
-      specify 'vetted r_person' do
-        person1.type = 'Person::Unvetted'
-        person1.save!
-        person1b.type = 'Person::Vetted'
-        person1b.save!
-        person1.merge_with(person1b.id)
-        expect(person1.type.include?(':V')).to be_truthy
-      end
+      person1.merge_with(person1c.id)
+      expect(person1.type).to eq('Person::Unvetted')
+    end
+
+    specify 'merging a vetted person, into an unvetted person vets person' do
+      tn1.taxon_name_authors << person1c
+      tn2.taxon_name_authors << person1c
+      # expect(person1c.reload.type).to eq('Person::Vetted')
+      person1.merge_with(person1c.id)
+      expect(person1.reload.type).to eq('Person::Vetted') # The role is merged, the person is vetted
     end
   end
 end
