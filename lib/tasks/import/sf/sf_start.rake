@@ -935,6 +935,31 @@ namespace :tw do
         end
 
       end
+
+      namespace :last do
+        desc 'time rake tw:project_import:sf_import:last:filter_users user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define filter_users: [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Running filter_users...'
+
+          # delete any User that didn't create or update data
+          # 
+          # Person.find_each do |person|
+          #   person.do_awesome_stuff
+          # end
+          #
+          # Person.where("age > 21").find_each do |person|
+          #   person.party_all_night!
+          # end
+
+          # User.all.each do |user|
+          #   #the code here is called once for each user
+          #   # user is accessible by 'user' variable
+          # end
+
+          end
+        end
+
     end
   end
 end
