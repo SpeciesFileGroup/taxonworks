@@ -6,7 +6,7 @@ namespace :tw do
       namespace :media do
 
         desc 'time rake tw:project_import:sf_import:media:images user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define scrutiny_related: [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define images: [:data_directory, :environment, :user_id] do |logger|
 
 
           # Images table (15 col)
@@ -73,7 +73,7 @@ namespace :tw do
           #
           #
 
-          path_to_images = '/Users/mbeckman/src/onedb2tw/import_tool/dumps/p2900orth.speciesfile.org/SFdbMB/20181213-095541/images/'
+          path_to_images = @args[:data_directory] + 'images/'
           counter = 0
 
           path = @args[:data_directory] + 'tblImages.txt'
@@ -91,26 +91,25 @@ namespace :tw do
             # if image assigned to specimen, forget about taxon_name_id
             # If specimen not real specimen (perhaps only a determination), should I assign to otu_id?  yes
 
-            if specimen_id.to_i > 0
-              collection_object_id = get_tw_collection_object_id[specimen_id] # is there an equiv collection_object (could be a determination)
-              if collection_object_id.nil? # try taxon?
+            project_id = get_tw_project_id[sf_file_id]
 
-              elsif row['TaxonNameID'] == '0'
-                # log not found
-
-              end
+            collection_object_id = get_tw_collection_object_id[specimen_id] if specimen_id.to_i > 0
+            tw_taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id]   # may not exist
+            otu_id = get_taxon_name_otu_id[tw_taxon_name_id]
 
 
-              otu_id = get_taxon_name_otu_id[get_tw_taxon_name_id[sf_taxon_name_id]] # cannot to_i because if nil, nil.to_i = 0 ]
-              if taxon_name_id.nil?
-                logger.error "TW.taxon_name_id is nil: SF.TaxonNameID #{sf_taxon_name_id}, SF.FileID = #{sf_file_id}"
-                next
-              end
+            puts "Working on SF.TaxonNameID = #{sf_taxon_name_id}, tw.taxon_name_id = #{tw_taxon_name_id}, SF.SpecimenID = #{specimen_id}, collection_object_id = #{collection_object_id}, otu_id = #{otu_id}, project_id = #{project_id}, counter = #{counter += 1} \n"
+            puts "ImageID = #{row['ImageID']}, TrueID = #{row['TrueID']} \n"
 
-              seqnum = row['SeqNum']
-              project_id = get_tw_project_id[sf_file_id].to_i
 
-              logger.info "Working on ScrutinyID = #{scrutiny_id}, SF.TaxonNameID #{sf_taxon_name_id} = tw.taxon_name_id #{taxon_name_id}, project_id = #{project_id}, counter = #{counter += 1}"
+
+            # object_ids = []
+            # object_type = nil
+            # determination_otu = nil
+
+
+          end
+
 
 
 
@@ -198,16 +197,7 @@ namespace :tw do
           # end
 
 
-
-
-
-
-
-            end
-          end
         end
-
-
       end
     end
   end
