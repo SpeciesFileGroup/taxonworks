@@ -1,6 +1,7 @@
 import setLocked from './setLocked'
 import lockAll from './lockAll'
 
+import setSettings from './setSettings'
 import setContainer from './Container/SetContainer'
 import addContainerItem from './Container/AddContainerItem'
 import setPreferences from './setPreferences'
@@ -106,7 +107,8 @@ const MutationNames = {
 
   SetLocked: 'setLocked',
   LockAll: 'lockAll',
-
+  SetSettings: 'setSettings',
+  
   SetContainer: 'setContainer',
   AddContainerItem: 'addContainerItem',
   SetPreferences: 'setPreferences',
@@ -213,6 +215,7 @@ const MutationNames = {
 const MutationFunctions = {
   [MutationNames.SetLocked]: setLocked,
   [MutationNames.LockAll]: lockAll,
+  [MutationNames.SetSettings]: setSettings,
 
   [MutationNames.SetContainer]: setContainer,
   [MutationNames.AddContainerItem]: addContainerItem,

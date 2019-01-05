@@ -11,6 +11,7 @@ import saveContainerItem from './saveContainerItem'
 import saveContainer from './saveContainer'
 import removeCollectionObject from './removeCollectionObject'
 import newCollectionObject from './newCollectionObject'
+import newIdentifier from './newIdentifier'
 import saveLabel from './saveLabel'
 import removeDepictionsByImageId from './removeDepictionsByImageId'
 import removeTaxonDetermination from './removeTaxonDetermination'
@@ -28,6 +29,7 @@ const ActionFunctions = {
   [ActionNames.SaveContainer]: saveContainer,
   [ActionNames.RemoveCollectionObject]: removeCollectionObject,
   [ActionNames.NewCollectionObject]: newCollectionObject,
+  [ActionNames.NewIdentifier]: newIdentifier,
   [ActionNames.SaveLabel]: saveLabel,
   [ActionNames.RemoveDepictionsByImageId]: removeDepictionsByImageId,
   [ActionNames.RemoveTaxonDetermination]: removeTaxonDetermination

@@ -16,6 +16,9 @@ export default function ({ commit, state }) {
       else {
         CreateIdentifier(identifier).then(response => {
           TW.workbench.alert.create('Identifierwas successfully created.', 'notice')
+          if(state.settings.increment) {
+            response.identifier = state.identifier.identifier
+          }
           commit(MutationNames.SetIdentifier, response)
           return resolve(response)
         })

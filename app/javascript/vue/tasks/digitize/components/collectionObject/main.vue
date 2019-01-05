@@ -8,7 +8,7 @@
         slot="options"
         class="horizontal-left-content">
         <button
-          :disabled="(collectionObjects.length == 0 || collectionObject.id != undefined)"
+          :disabled="!(collectionObjects.length > 0 && collectionObject.id == undefined)"
           type="button"
           @click="saveCollectionObject"
           v-shortkey="[getMacKey(), 'a']"
@@ -151,12 +151,12 @@
       },
       newDigitalization() {
         this.$store.dispatch(ActionNames.NewCollectionObject)
+        this.$store.dispatch(ActionNames.NewIdentifier)
         this.$store.commit(MutationNames.NewTaxonDetermination)
         this.$store.commit(MutationNames.SetTaxonDeterminations, [])
       },
       saveCollectionObject() {
         this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
-          this.newDigitalization()
           this.$store.commit(MutationNames.SetTaxonDeterminations, [])
         })
       },

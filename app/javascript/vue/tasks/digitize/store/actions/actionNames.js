@@ -11,6 +11,7 @@ const ActionNames = {
   SaveContainer: 'saveContainer',
   RemoveCollectionObject: 'removeCollectionObject',
   NewCollectionObject: 'newCollectionObject',
+  NewIdentifier: 'newIdentifier',
   SaveLabel: 'saveLabel',
   RemoveDepictionsByImageId: 'removeDepictionsByImageId',
   RemoveTaxonDetermination: 'removeTaxonDetermination'

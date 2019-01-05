@@ -11,8 +11,10 @@ function makeInitialState () {
   return {
     settings: {
       saving: false,
+      increment: false,
       locked: {
         biocuration: false,
+        identifier: false,
         collection_object: {
           buffered_determinations: false,
           buffered_collecting_event: false,
