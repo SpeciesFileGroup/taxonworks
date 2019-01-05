@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>Catalog number</h2>
-    <div class="horizontal-left-content middle">
+    <div class="horizontal-left-content middle align-start">
       <div class="separate-right">
         <label>Namespace</label>
         <br>
@@ -18,6 +18,12 @@
         <input
           type="text"
           v-model="identifier">
+        <br>
+        <label>
+          <input
+            type="checkbox">
+          Increment
+        </label>
       </div>
       <div class="separate-left">
         <label>&nbsp;</label>
@@ -26,7 +32,7 @@
           :show-message="checkValidation"
           legend="Namespace and identifier needs to be set to be save."/>
       </div>
-      
+      <button type="button" @click="increment">Increment</button>
     </div>
   </div>
 </template>
@@ -38,6 +44,7 @@
   import { MutationNames } from '../../store/mutations/mutations.js'
   import validateComponent from '../shared/validate.vue'
   import validateIdentifier from '../../validations/namespace.js'
+  import incrementIdentifier from '../../helpers/incrementIdentifier.js'
 
   export default {
     components: {
@@ -74,6 +81,11 @@
       },
       checkValidation() {
         return !validateIdentifier({ namespace_id: this.namespace, identifier: this.identifier })
+      }
+    },
+    methods: {
+      increment() {
+        this.identifier = incrementIdentifier(this.identifier)
       }
     }
   }
