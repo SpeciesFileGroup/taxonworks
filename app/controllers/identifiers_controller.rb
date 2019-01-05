@@ -56,7 +56,7 @@ class IdentifiersController < ApplicationController
       if @identifier.update(identifier_params)
         format.html { redirect_to url_for(@identifier.identifier_object.metamorphosize),
                                   notice: 'Identifier was successfully updated.' }
-        format.json { head :no_content }
+        format.json { render :show, status: :ok, location: @identifier.becomes(Identifier) }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Identifier was NOT successfully created.')}
         format.json { render json: @identifier.errors, status: :unprocessable_entity }
