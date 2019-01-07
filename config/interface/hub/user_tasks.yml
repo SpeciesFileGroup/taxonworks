@@ -376,3 +376,11 @@ comprehensive_collection_object_task:
     - collection_object
   status: prototype
   description: 'An all-in-one interface for digitizing collection objects.'
+index_print_labels_task:
+  hub: true
+  name: 'Print labels'
+  related:
+  categories:
+    - collecting_event
+  status: prototype
+  description: 'Print and manage labels.'

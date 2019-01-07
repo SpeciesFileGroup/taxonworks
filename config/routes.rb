@@ -658,6 +658,12 @@ TaxonWorks::Application.routes.draw do
   ### End of data resources ###
 
   scope :tasks do
+    scope :labels do
+      scope :print_labels, controller: 'tasks/labels/print_labels' do
+        get :index, as: 'index_print_labels_task'
+      end
+    end
+
     scope :descriptors do
       scope :new_descriptor, controller: 'tasks/descriptors/new_descriptor' do
         get '(:id)', action: :index, as: 'new_descriptor_task'

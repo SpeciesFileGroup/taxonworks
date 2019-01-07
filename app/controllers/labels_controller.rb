@@ -81,14 +81,19 @@ class LabelsController < ApplicationController
   end
 
   private
+  
     def set_label
       @label = Label.find(params[:id])
+    end
+
+    def filter_params
+      {}
     end
 
     def label_params
       params.require(:label).permit(
         :text, :total, :style, :is_copy_edited, :is_printed, :label_object_id, :label_object_type,
-        :annotated_global_entity 
+        :annotated_global_entity
       )
     end
 end
