@@ -53,7 +53,7 @@ describe 'Sources', type: :feature, group: :sources do
 
         fill_in('Author', with: 'Wombat, H.P.')
         fill_in('Year', with: '1920')
-        click_button('Update Bibtex')
+        click_button('top_submit') # 'Update Bibtex')
         expect(page).to have_content('Source was successfully updated.')
         expect(page).to have_content('Wombat, H.P. (1920) I am a soft valid article. Journal of Test Articles.')
       end
@@ -80,7 +80,7 @@ describe 'Sources', type: :feature, group: :sources do
         expect(page).to have_selector('#source_verbatim', visible: true)
 
         fill_in('Verbatim', with: 'New Verbatim source')
-        click_button('Update Verbatim')
+        click_button('top_submit') # Update Verbatim')
         expect(page).to have_content('Source was successfully updated.')
         expect(page).to have_content('New Verbatim source')
       end
@@ -160,7 +160,7 @@ describe 'Sources', type: :feature, group: :sources do
       fill_in('Author', with: 'Wombat, H.P.')
       fill_in('Year', with: '1920')
       fill_autocomplete('serial_id_for_source', with: 'My Serial', select: s.id) # fill out Serial autocomplete with 'My Serial'
-      click_button('Create Source') # when I click the 'Create Source' button
+      click_button('top_submit') # 'Create Source') # when I click the 'Create Source' button
       expect(page).to have_content("Source::Bibtex successfully created.")
     end
 
@@ -180,7 +180,7 @@ describe 'Sources', type: :feature, group: :sources do
       # expect(page.has_field?('source_verbatim', :type => 'textarea')).to be_truthy
       # # enter 'Eades & Deem. 2008. Case 3429. CHARILAIDAE Dirsh, 1953 (Insecta, Orthoptera)' in the textbox.
       fill_in('source_verbatim', with: 'Eades & Deem. 2008. Case 3429. CHARILAIDAE Dirsh, 1953 (Insecta, Orthoptera)')
-      click_button('Create Source') # when I click the 'Create Source' button
+      click_button('top_submit') # Create Source') # when I click the 'Create Source' button
       # I get the message "Source by  'Eades & Deem. 2008. Case 3429. CHARILAIDAE Dirsh, 1953 (Insecta, Orthoptera)' was successfully created."
       expect(page).to have_content("Source::Verbatim successfully created.")
     end
