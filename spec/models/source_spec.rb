@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Source, type: :model, group: :sources do
+describe Source, type: :model, group: :source do
   let(:source) { Source.new }
   let(:string1) { 'This is a base string.' }
   let!(:s1) { FactoryBot.create(:valid_source_verbatim, verbatim: string1) }

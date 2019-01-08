@@ -1,4 +1,5 @@
 module Queries
+
   class CollectionObjectFilterQuery < Queries::Query
 
     # Query variables
@@ -103,7 +104,7 @@ module Queries
 
     # @return [Scope]
     def date_scope
-      sql = Queries::CollectingEvent::Filter.new(start_date: start_date, end_date: end_date, partial_overlap_dates: query_date_partial_overlap).between_date_range.to_sql
+      sql = Queries::CollectingEvent::Filter.new(start_date: query_start_date, end_date: query_end_date, partial_overlap_dates: query_date_partial_overlap).between_date_range.to_sql
       CollectionObject.joins(:collecting_event)
         .where(sql)
     end

@@ -4,7 +4,7 @@
   <%= render 'shared/errors', object: @source %>
 
   <div class="actions">
-    <%= f.submit %>
+    <%= f.submit  id: :top_submit %>
   </div>
 
   <div class="field" id="source_edit_type">
@@ -34,17 +34,30 @@
       <div class="side_by_side_fields">
         <div class="field">
           <%= f.label :year, data: {help: 'If you have a single year, the value goes here. If you have two years, the actual year of publication goes here.' } %><br>
-          <%= f.text_field :year, size: 6 %>
+          <%= f.number_field :year, in: 1500..5.years.from_now.year %>
         </div>
 
         <div class="field">
           <%= f.label :year_suffix, data: {help: "The \"a\" of 1920a. Usage is recommend only for historical reference, new systems should depend advanced search, hyperlinks etc. to determine a source's identity."} %><br>
-          <%= f.text_field :year_suffix, size: 2 %>
+          <%= f.text_field :year_suffix, size: 4 %>
         </div>
 
         <div class="field">
           <%= f.label :stated_year, data: {help: 'Use only if Year is provided, and it differs from the actual year of publication.  See Year.'} %><br>
-          <%= f.text_field :stated_year, size: 6 %>
+          <%= f.number_field :stated_year, in: 1500..5.years.from_now.year %>
+        </div>
+
+      </div>
+
+      <div class="side_by_side_fields">
+        <div class="field">
+          <%= f.label :month %><br>
+          <%= f.number_field :month, max: 12, min: 1, in: 1..12 %>
+        </div>
+
+        <div class="field">
+          <%= f.label :day %><br>
+          <%= f.number_field :day, max: 31, in: 1..31 %>
         </div>
       </div>
 
@@ -137,18 +150,6 @@
       <div class="field">
         <%= f.label :school %><br>
         <%= f.text_field :school %>
-      </div>
-
-      <div class="side_by_side_fields">
-        <div class="field">
-          <%= f.label :month %><br>
-          <%= f.text_field :month, size: 10 %>
-        </div>
-
-        <div class="field">
-          <%= f.label :day %><br>
-          <%= f.text_field :day, size: 4 %>
-        </div>
       </div>
 
       <div class="field">
@@ -256,6 +257,10 @@
       <%= f.label :verbatim %><br>
       <%= f.text_area :verbatim, cols: 60, rows: 8 %>
     </div>
+  </div>
+
+  <div class="actions">
+    <%= f.submit id: :bottom_submit %>
   </div>
 
 <% end %>
