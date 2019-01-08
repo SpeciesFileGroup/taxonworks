@@ -28,7 +28,9 @@
               v-model="selected"
               :val="item"/>
           </td>
-          <td v-html="item.text"/>
+          <td>
+            <pre>{{ item.text }}</pre>
+          </td>
           <td>
             <button
               type="button"
