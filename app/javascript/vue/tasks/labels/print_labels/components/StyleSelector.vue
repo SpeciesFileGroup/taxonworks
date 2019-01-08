@@ -2,8 +2,11 @@
   <div>
     <h2>Style</h2>
     <ul class="no_bullets">
-      <li v-for="item in list">
-        <label>
+      <li
+        v-for="item in list"
+        :key="item.value">
+        <label
+          @click="onSelectedStyle(item.value)">
           <input
             type="radio"
             name="style-selector">
@@ -19,17 +22,22 @@ export default {
   data() {
     return {
       list: [{
-        label: '4 Dram ETOH (INHS style)',
-        value: 'inhs'
+        label: '4pt Insect (TAMU style)',
+        value: 'ce_lbl_insect_compressed'
       },
       {
-        label: '4pt Times New Roman (TAMU style)',
-        value: 'tamu'
+        label: '4pt Insect (NCSU style, uncompressed)',
+        value: 'ce_lbl_insect'
       },
       {
-        label: 'Plant',
-        value: 'plant'
+        label: '4 dram Alchohol vial',
+        value: 'ce_lbl_4_dram_ETOH'
       }]
+    }
+  },
+  methods: {
+    onSelectedStyle(value) {
+      this.$emit('selected', value)
     }
   }
 }

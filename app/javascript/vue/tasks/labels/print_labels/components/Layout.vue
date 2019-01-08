@@ -3,15 +3,21 @@
     <h2>Layout</h2>
     <div class="field">
       <label class="label-layout-size">Rows</label>
-      <input type="number">
+      <input
+        v-model="rows"
+        type="number">
     </div>
     <div class="field">
       <label class="label-layout-size">Column</label>
-      <input type="number">
+      <input
+        v-model="columns"
+        type="number">
     </div>
     <div class="field">
       <label class="label-layout-size">Separator</label>
-      <input type="text">
+      <input
+        v-model="separator"
+        type="text">
       <button
         type="button"
         class="button normal-input button-default">
@@ -27,7 +33,24 @@
 </template>
 <script>
 export default {
-  
+  data() {
+    return {
+      rows: undefined,
+      columns: undefined,
+      separator: undefined
+    }
+  },
+  watch: {
+    rows(newVal) {
+      this.$emit('onRowsChange', newVal)
+    },
+    columns(newVal) {
+      this.$emit('onColumnsChange', newVal)
+    },
+    divisor(newVal) {
+      this.$emit('onDivisorChange', newVal)
+    },
+  }
 }
 </script>
 

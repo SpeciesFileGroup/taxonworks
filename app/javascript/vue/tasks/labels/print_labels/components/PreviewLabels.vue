@@ -39,7 +39,7 @@ export default {
     renderLabels() {
       var w = window.open()
 
-      w.document.body.innerHTML = createLabels(this.labels, this.cols, this.rows, this.divisor)
+      w.document.write(createLabels(this.labels, this.cols, this.rows, this.divisor, this.classSelected))
         //w.print();      
     }
   }

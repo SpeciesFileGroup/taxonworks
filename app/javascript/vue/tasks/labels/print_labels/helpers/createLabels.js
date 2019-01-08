@@ -1,6 +1,6 @@
 
-function createLabel(label) {
-  return `<div :class="classSelected">${label.text}</div>`
+function createLabel(label, cssStyle) {
+  return `<div class="${cssStyle}">${label.text}</div>`
 }
 
 function getLinesCount(str) {
@@ -55,7 +55,7 @@ function createHeader() {
   </head>`
 }
 
-function createPages(labels, maxColumns, maxRows, divisor) {
+function createPages(labels, maxColumns, maxRows, divisor, cssStye) {
   let columns = 1
   let pages = createHeader() + `<body><div class="ce_label_pg"><div class="ce_label_col">`
   
@@ -65,18 +65,18 @@ function createPages(labels, maxColumns, maxRows, divisor) {
     let rowLines = 0
     for(var i = 0; i < label.total; i++) {
       rowLines = rowLines + labelLines
-      pages = pages + createLabel(label)
+      pages = pages + createLabel(label, cssStye)
       if(rowLines >= maxRows) {
-        pages = pages + `</div><div class='ce_label_col'>`
+        pages = pages + `</div><div class="ce_label_col">`
         columns = columns + 1
         rowLines = 0
         if(columns > maxColumns) {
           columns = 1
-          pages = pages + `</div></div><div class="ce_label_pg"><div  class='ce_label_col'>`
+          pages = pages + `</div></div><div class="ce_label_pg"><div  class="ce_label_col">`
         }
       }
     }
-    pages = pages + `<div class="ce"><br/><br/></div></body></html>`
+    pages = pages + `<div class="${cssStye}"><br/><br/></div></body></html>`
   })
   return pages
 }
