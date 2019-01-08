@@ -12,6 +12,7 @@ function createHeader() {
   <head>
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
     <title>TW - Labels</title>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
     <style>
     div.ce_lbl_insect_compressed { /* this is good now, make another type if you want a new one */
       font-size: 4pt;

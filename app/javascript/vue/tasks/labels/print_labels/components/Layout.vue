@@ -35,8 +35,8 @@
 export default {
   data() {
     return {
-      rows: undefined,
-      columns: undefined,
+      rows: 0,
+      columns: 0,
       separator: undefined
     }
   },

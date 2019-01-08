@@ -1,6 +1,7 @@
 <template>
   <div>
-    <option-buttons/>
+    <option-buttons
+      @selectAll="selectAll"/>
     <table>
       <thead>
         <tr>
@@ -74,9 +75,21 @@ export default {
     }
   },
   mounted() {
+    console.log(document.cookie)
     GetLabels().then(response => {
       this.list = response
     })
+  },
+  methods: {
+    selectAll() {
+      this.selected = this.list.slice(0)
+    },
+    selectMyLabels() {
+      //Needs endpoint for this
+    },
+    deleteLabels() {
+      //TODO
+    }
   }
 }
 </script>

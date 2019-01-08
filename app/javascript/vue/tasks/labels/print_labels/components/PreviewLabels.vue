@@ -19,11 +19,11 @@ export default {
     },
     rows: {
       type: [String, Number],
-      default: 3
+      required: true
     },
-    cols: {
+    columns: {
       type: [String, Number],
-      default: 2
+      required: true
     },
     labels: {
       type: Array,
@@ -39,8 +39,7 @@ export default {
     renderLabels() {
       var w = window.open()
 
-      w.document.write(createLabels(this.labels, this.cols, this.rows, this.divisor, this.classSelected))
-        //w.print();      
+      w.document.write(createLabels(this.labels, this.columns, this.rows, this.divisor, this.classSelected))
     }
   }
 }
