@@ -3,12 +3,15 @@
     <h1>Task - Print labels</h1>
     <div class="horizontal-left-content align-start">
       <style-selector
+        class="separate-right"
         @selected="styleSelected = $event"/>
       <layout-component
+        class="separate-left separate-right"
         @onRowsChange="layout.rows = $event"
         @onColumnsChange="layout.columns = $event"
         @onDivisorChange="layout.divisor = $event"/>
       <preview-labels
+        class="separate-left"
         :class-selected="styleSelected"
         :rows="layout.rows"
         :columns="layout.columns"

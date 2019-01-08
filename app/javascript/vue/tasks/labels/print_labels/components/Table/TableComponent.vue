@@ -39,14 +39,14 @@
               type="checkbox"
               :checked="item.is_printed"
               v-model="item.is_printed"
-              @click="updateLabel(item)">
+              @change="updateLabel(item)">
           </td>
           <td>
             <input
               type="checkbox"
               :checked="item.is_copy_edited"
               v-model="item.is_copy_edited"
-              @click="updateLabel(item)">
+              @change="updateLabel(item)">
           </td>
           <td v-html="(item.hasOwnProperty('updated_by') ? item.updated_by : '')"/>
           <td v-html="(item.hasOwnProperty('updated_on') ? item.updated_on : item.created_at)"/>
