@@ -28,9 +28,9 @@ class LabelsController < ApplicationController
   end
 
   # GET /labels/new
-  def new
-    @label = Label.new
-  end
+   def new
+     @label = Label.new
+   end
 
   # GET /labels/1/edit
   def edit

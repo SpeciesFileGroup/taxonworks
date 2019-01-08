@@ -1,8 +1,10 @@
 <p id="notice"><%= notice %></p>
 
 <p>
-  <strong>Text:</strong>
+<strong>Text:</strong>
+<pre>
   <%= @label.text %>
+</pre>
 </p>
 
 <p>
@@ -16,8 +18,8 @@
 </p>
 
 <p>
-  <strong>Object global:</strong>
-  <%= @label.object_global_id %>
+  <strong>Label object:</strong>
+  <%= object_tag(@label.label_object) %>
 </p>
 
 <p>
@@ -30,10 +32,6 @@
   <%= @label.is_printed %>
 </p>
 
-<p>
-  <strong>Project:</strong>
-  <%= @label.project %>
-</p>
 
 <%= link_to 'Edit', edit_label_path(@label) %> |
 <%= link_to 'Back', labels_path %>
