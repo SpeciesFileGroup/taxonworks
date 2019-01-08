@@ -1,24 +1,35 @@
-var TW = TW || {}
-TW.views = TW.views || {}
-TW.views.task = TW.views.task || {}
+<template>
+  <div>
+    <h1>Task - Print labels</h1>
+    <div class="horizontal-left-content align-start">
+      <style-selector/>
+      <layout-component/>
+      <preview-labels
+        :labels="labels"/>
+    </div>
+    <table-component @selected="labels = $event"/>
+  </div>
+</template>
 
+<script>
 
-import Vue from 'vue'
-import App from './app.vue'
+import StyleSelector from './components/StyleSelector'
+import LayoutComponent from './components/Layout'
+import TableComponent from './components/Table/TableComponent'
+import PreviewLabels from './components/PreviewLabels'
 
-Object.assign(TW.views.task, {
-  init: function () {
-    new Vue({
-      el: '#vue-task',
-      render: function (createElement) {
-        return createElement(App)
-      }
-    })
+export default {
+  components: {
+    StyleSelector,
+    LayoutComponent,
+    TableComponent,
+    PreviewLabels
+  },
+  data() {
+    return {
+      labels: []
+    }
   }
-})
+}
+</script>
 
-$(document).on('turbolinks:load', function () {
-  if ($('#vue-task').length) {
-    TW.views.task.init()
-  }
-})
