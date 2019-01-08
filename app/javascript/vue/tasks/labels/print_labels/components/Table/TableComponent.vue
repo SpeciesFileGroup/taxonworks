@@ -1,13 +1,16 @@
 <template>
   <div>
     <option-buttons
-      @selectAll="selectAll"/>
+      @selectAll="selectAll"
+      @destroyAll="deleteLabels"/>
     <table>
       <thead>
         <tr>
           <th>Select</th>
           <th>Label</th>
           <th>Edit</th>
+          <th>Is printed</th>
+          <th>Is copy edited</th>
           <th>Updated by</th>
           <th>Updated on</th>
           <th>On</th>
@@ -30,6 +33,20 @@
             <button
               type="button"
               class="button circle-button btn-edit"/>
+          </td>
+          <td>
+            <input
+              type="checkbox"
+              :checked="item.is_printed"
+              v-model="item.is_printed"
+              @click="updateLabel(item)">
+          </td>
+          <td>
+            <input
+              type="checkbox"
+              :checked="item.is_copy_edited"
+              v-model="item.is_copy_edited"
+              @click="updateLabel(item)">
           </td>
           <td v-html="(item.hasOwnProperty('updated_by') ? item.updated_by : '')"/>
           <td v-html="(item.hasOwnProperty('updated_on') ? item.updated_on : item.created_at)"/>
@@ -56,7 +73,7 @@
 
 import OptionButtons from './OptionButtons'
 import CheckboxComponent from './CheckboxComponent'
-import { GetLabels } from '../../request/resources.js'
+import { GetLabels, RemoveLabel, UpdateLabel } from '../../request/resources.js'
 
 export default {
   components: {
@@ -88,7 +105,26 @@ export default {
       //Needs endpoint for this
     },
     deleteLabels() {
-      //TODO
+      if(window.confirm(`You're trying to delete this record(s). Are you sure want to proceed?`)) {
+        let that = this
+        this.selected.forEach((label, index) => {
+          RemoveLabel(label.id).then(() => {
+            this.list.splice(that.list.findIndex(item => {
+              return item.id == label.id
+            }),1)
+          })
+        })
+        this.selected = []
+      }
+    },
+    updateLabel(label) {
+      console.log(label)
+      UpdateLabel(label).then(response => {
+        let index = this.list.findIndex(item => {
+          item.id == label.id
+        })
+        this.list[index] = response
+      })
     }
   }
 }
