@@ -1,10 +1,10 @@
 <template>
   <div>
     <h1>Task - Print labels</h1>
-    <div class="horizontal-left-content align-start">
+    <div class="horizontal-left-content align-start separate-bottom">
       <style-selector
         class="separate-right"
-        @selected="styleSelected = $event"/>
+        v-model="styleSelected"/>
       <layout-component
         class="separate-left separate-right"
         @onRowsChange="layout.rows = $event"
@@ -42,10 +42,10 @@ export default {
   data() {
     return {
       labels: [],
-      styleSelected: undefined,
+      styleSelected: 'ce_lbl_insect_compressed',
       layout: {
-        rows: 0,
-        columns: 0,
+        rows: 151,
+        columns: 9,
         separator: '',
         divisor: false
       }

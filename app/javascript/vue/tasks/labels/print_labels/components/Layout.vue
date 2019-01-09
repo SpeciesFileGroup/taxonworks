@@ -20,7 +20,8 @@
         type="text">
       <button
         type="button"
-        class="button normal-input button-default">
+        class="button normal-input button-default"
+        @click="onClear">
         Clear
       </button>
     </div>
@@ -36,8 +37,8 @@
 export default {
   data() {
     return {
-      rows: 0,
-      columns: 0,
+      rows: 151,
+      columns: 9,
       divisor: false,
       separator: ''
     }
@@ -55,6 +56,11 @@ export default {
     separator(newVal) {
       this.$emit('onSeparatorChange', newVal)
     },
+  },
+  methods: {
+    onClear() {
+      this.separator = ''
+    }
   }
 }
 </script>

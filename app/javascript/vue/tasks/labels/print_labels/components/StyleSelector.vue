@@ -8,6 +8,7 @@
         <label
           @click="onSelectedStyle(item.value)">
           <input
+            :checked="value == item.value"
             type="radio"
             name="style-selector">
           {{ item.label }}
@@ -19,6 +20,12 @@
 
 <script>
 export default {
+  props: {
+    value: {
+      type: String,
+      required: true
+    }
+  },
   data() {
     return {
       list: [{
@@ -37,7 +44,7 @@ export default {
   },
   methods: {
     onSelectedStyle(value) {
-      this.$emit('selected', value)
+      this.$emit('input', value)
     }
   }
 }
