@@ -15,7 +15,8 @@ module AnnotationsHelper
              note_list_tag(object), 
              tag_list_tag(object),
              alternate_values_list_tag(object),
-             confidence_list_tag(object)
+             confidence_list_tag(object),
+             attribution_list_tag(object)
           ].compact.join.html_safe, class: :annotations_summary_list, 'data-annotator-list-object-id' => object.id)
 
         end
