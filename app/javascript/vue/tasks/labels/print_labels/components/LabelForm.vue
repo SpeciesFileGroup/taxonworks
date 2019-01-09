@@ -51,7 +51,7 @@
         type="button"
         class="button normal-input button-submit"
         :disabled="!label.text.length"
-        @click="$emit('save', label)">Save</button>
+        @click="save">Save</button>
     </div>
   </modal-component>
 </template>
@@ -74,13 +74,7 @@ export default {
   },
   data() {
     return {
-      label: {
-        text: '',
-        total: 0,
-        style: '',
-        is_printed: false,
-        is_copy_edited: false
-      },
+      label: this.newLabel()
     }
   },
   watch: {
@@ -90,6 +84,21 @@ export default {
           this.label = Object.assign({}, newVal)
       },
       immediate: true
+    }
+  },
+  methods: {
+    save() {
+      this.$emit('save', this.label)
+      this.label = this.newLabel()
+    },
+    newLabel() {
+      return {
+        text: '',
+        total: 0,
+        style: '',
+        is_printed: false,
+        is_copy_edited: false
+      }
     }
   }
 }

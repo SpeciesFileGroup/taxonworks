@@ -68,7 +68,8 @@
           <td>
             <button
               type="button"
-              class="button circle-button btn-delete"/>
+              class="button circle-button btn-delete"
+              @click="removeRow(item)"/>
           </td>
         </tr>
       </tbody>
@@ -137,15 +138,22 @@ export default {
     selectMyLabels() {
       //Needs endpoint for this
     },
+    removeRow(label) {
+      if(window.confirm(`You're trying to delete this record(s). Are you sure want to proceed?`)) {
+        this.removeLabel(label)
+      }
+    },
+    removeLabel(label) {
+      RemoveLabel(label.id).then(() => {
+        this.list.splice(this.list.findIndex(item => {
+          return item.id == label.id
+        }),1)
+      })
+    },
     deleteLabels() {
       if(window.confirm(`You're trying to delete this record(s). Are you sure want to proceed?`)) {
-        let that = this
         this.selected.forEach((label, index) => {
-          RemoveLabel(label.id).then(() => {
-            this.list.splice(that.list.findIndex(item => {
-              return item.id == label.id
-            }),1)
-          })
+          this.removeLabel(label)
         })
         this.selected = []
       }
