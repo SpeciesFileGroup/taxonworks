@@ -8,13 +8,13 @@
         <tr>
           <th>Select</th>
           <th @click="sort('text')">Label</th>
+          <th @click="sort('total')">Total</th>
           <th>Edit</th>
           <th @click="sort('is_printed')">Is printed</th>
           <th @click="sort('is_copy_edited')">Is copy edited</th>
           <th @click="sort('updated_by')">Updated by</th>
           <th @click="sort('updated_at')">Updated at</th>
           <th @click="sort('on')">On</th>
-          <th @click="sort('total')">Total</th>
           <th>Destroy</th>
         </tr>
       </thead>
@@ -30,6 +30,7 @@
           <td>
             <pre>{{ item.text }}</pre>
           </td>
+          <td v-html="item.total"/>
           <td>
             <button
               type="button"
@@ -52,7 +53,6 @@
           <td v-html="(item.hasOwnProperty('updated_by') ? item.updated_by : '')"/>
           <td v-html="(item.hasOwnProperty('updated_on') ? item.updated_on : item.created_at)"/>
           <td v-html="item.on"/>
-          <td v-html="item.total"/>
           <td>
             <button
               type="button"

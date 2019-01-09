@@ -2,15 +2,15 @@
   <div>
     <h2>Layout</h2>
     <div class="field">
-      <label class="label-layout-size">Lines per column</label>
+      <label class="label-layout-size">Columns</label>
       <input
-        v-model="rows"
+        v-model="columns"
         type="number">
     </div>
     <div class="field">
-      <label class="label-layout-size">Column</label>
+      <label class="label-layout-size">Lines per column</label>
       <input
-        v-model="columns"
+        v-model="rows"
         type="number">
     </div>
     <div class="field">
