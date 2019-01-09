@@ -1,28 +1,62 @@
 <template>
-  <div>
+  <fieldset>
+    <legend>Geographic area</legend>
     <smart-selector
+      class="separate-bottom"
       name="geography"
       v-model="view"
       :add-option="moreOptions"
       :options="options"/>
-  </div>
+    <autocomplete
+      url="/geographic_areas/autocomplete"
+      min="2"
+      param="term"
+      placeholder="Select a geographic area"
+      @getItem="selectGeographicArea"
+      display="label"
+      label="label_html"/>
+    <template v-if="selected">
+      <div class="middle separate-top">
+        <span data-icon="ok"/>
+        <span class="separate-right"> {{ selected.label }}</span>
+        <span
+          class="circle-button button-default btn-undo"
+          @click="selected = undefined; geographicArea = undefined"/>
+      </div>
+    </template>
+  </fieldset>
 </template>
 
 <script>
 
-  import SmartSelector from '../../../../../../components/switch.vue'
+  import Autocomplete from 'components/autocomplete'
+  import SmartSelector from 'components/switch.vue'
+  import { GetterNames } from '../../../../store/getters/getters.js'
+  import { MutationNames } from '../../../../store/mutations/mutations.js'
   import { GetGeographicSmartSelector } from '../../../../request/resources.js'
 
   export default {
     components: {
-      SmartSelector
+      SmartSelector,
+      Autocomplete
+    },
+    computed: {
+      geographicArea: {
+        get() {
+          return this.$store.getters[GetterNames.GetCollectionEvent].geographic_area_id
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetCollectionEventGeographicArea, value)
+        }
+      }
     },
     data() {
       return {
         moreOptions: ['Look back', 'Search'],
         options: [],
         view: undefined,
-        lists: []
+        lists: [],
+        selected: undefined
       }
     },
     mounted() {
@@ -39,6 +73,10 @@
           }
           this.lists = response        
         })
+      },
+      selectGeographicArea(item) {
+        this.selected = item
+        this.geographicArea = item.id
       }
     }
   }

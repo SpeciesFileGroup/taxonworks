@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <h2>Collectors</h2>
+  <fieldset>
+    <legend>Collectors</legend>
     <smart-selector
       v-model="view"
       class="separate-bottom"
@@ -30,7 +30,7 @@
       v-model="collectors"
       :autofocus="false"
       role-type="Collector"/>
-  </div>
+  </fieldset>
 </template>
 
 <script>
