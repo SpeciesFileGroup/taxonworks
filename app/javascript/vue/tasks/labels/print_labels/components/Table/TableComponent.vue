@@ -20,8 +20,8 @@
           <th>Select</th>
           <th @click="sort('text')">Label</th>
           <th @click="sort('total')">Total</th>
-          <th @click="sort('is_printed')">Is printed</th>
           <th @click="sort('is_copy_edited')">Is copy edited</th>
+          <th @click="sort('is_printed')">Is printed</th>
           <th @click="sort('updated_by')">Updated by</th>
           <th @click="sort('updated_at')">Updated at</th>
           <th @click="sort('on')">On</th>
@@ -45,15 +45,15 @@
           <td>
             <input
               type="checkbox"
-              :checked="item.is_printed"
-              v-model="item.is_printed"
+              :checked="item.is_copy_edited"
+              v-model="item.is_copy_edited"
               @change="updateLabel(item)">
           </td>
           <td>
             <input
               type="checkbox"
-              :checked="item.is_copy_edited"
-              v-model="item.is_copy_edited"
+              :checked="item.is_printed"
+              v-model="item.is_printed"
               @change="updateLabel(item)">
           </td>
           <td v-html="(item.hasOwnProperty('updated_by') ? item.updated_by : '')"/>
