@@ -14,7 +14,6 @@
           <th @click="sort('updated_by')">Updated by</th>
           <th @click="sort('updated_at')">Updated at</th>
           <th @click="sort('on')">On</th>
-          <th>Show</th>
           <th @click="sort('total')">Total</th>
           <th>Destroy</th>
         </tr>
@@ -53,13 +52,6 @@
           <td v-html="(item.hasOwnProperty('updated_by') ? item.updated_by : '')"/>
           <td v-html="(item.hasOwnProperty('updated_on') ? item.updated_on : item.created_at)"/>
           <td v-html="item.on"/>
-          <td>
-            <a
-              :href="`/labels/${item.id}`"
-              target="blank">
-              Show
-            </a>
-          </td>
           <td v-html="item.total"/>
           <td>
             <button
