@@ -1,6 +1,6 @@
 <template>
   <div class="flexbox align-start">
-    <block-layout>
+    <block-layout class="separate-right">
       <div slot="header">
         <h3>Collection Object</h3>
       </div>
@@ -23,6 +23,11 @@
           :disabled="!collectionObjects.length"
           class="button normal-input button-default separate-right"
           @click="newDigitalization">New</button>  
+        <button 
+          type="button"
+          @shortkey="saveAndNew"
+          class="button normal-input button-submit separate-right"
+          @click="saveAndNew">Save and new</button> 
         <radial-annotator
           classs="separate-right"
           v-if="collectionObject.id"
@@ -32,7 +37,6 @@
         <div
           class="horizontal-left-content align-start flexbox separate-bottom">
           <div class="separate-right">
-            <catalog-number class="separate-bottom"/>
             <repository-component/>
           </div>
           <div class="separate-left separate-right">
@@ -65,23 +69,25 @@
           action-save="SaveCollectionObject"/>
       </div>
     </block-layout>
-    <block-layout
-      v-if="collectionObjects.length"
-      class="separate-left column-tiny">
-      <div slot="header">
-        <h3>{{ (collectionObjects.length > 1 ? 'In this container' : 'Collection Object created') }}</h3>
-      </div>
-      <div slot="body">
-        <table-collection-objects/>
-      </div>
-    </block-layout>
+    <div class="column-tiny separate-left">
+      <catalogue-number class="separate-bottom"/>
+      <block-layout
+        v-if="collectionObjects.length">
+        <div slot="header">
+          <h3>{{ (collectionObjects.length > 1 ? 'In this container' : 'Collection Object created') }}</h3>
+        </div>
+        <div slot="body">
+          <table-collection-objects/>
+        </div>
+      </block-layout>
+    </div>
   </div>
 </template>
 
 <script>
 
   import PreparationType from './preparationType.vue'
-  import CatalogNumber from './catalogNumber.vue'
+  import CatalogueNumber from '../catalogueNumber/catalogNumber.vue'
   import TableCollectionObjects from './tableCollectionObjects.vue'
   import Bioclassification from './bioclassification.vue'
   import BufferedComponent from './bufferedData.vue'
@@ -97,7 +103,7 @@
   export default {
     components: {
       PreparationType,
-      CatalogNumber,
+      CatalogueNumber,
       TableCollectionObjects,
       Bioclassification,
       BufferedComponent,
@@ -158,6 +164,11 @@
       saveCollectionObject() {
         this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
           this.$store.commit(MutationNames.SetTaxonDeterminations, [])
+        })
+      },
+      saveAndNew() {
+        this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
+          this.newDigitalization()
         })
       },
       cloneDepictions(co) {

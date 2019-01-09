@@ -59,7 +59,9 @@ export default {
       return (list.length ? list.join(', ') : 'Specimen')
     },
     removeCO(id) {
-      this.$store.dispatch(ActionNames.RemoveCollectionObject, id)
+      if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+        this.$store.dispatch(ActionNames.RemoveCollectionObject, id)
+      }
     },
     isSelected(item) {
       return this.collectionObject.id == item.id
@@ -72,7 +74,7 @@ export default {
     background-color: #E3E8E3;
   }
   .vue-table {
-    min-width: 400px;
+    min-width: 100%;
   }
 </style>
 

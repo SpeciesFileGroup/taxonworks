@@ -1,7 +1,18 @@
 <template>
-  <div>
-    <h2>Catalog number</h2>
-    <div class="horizontal-left-content middle align-start">
+  <block-layout>
+    <div slot="header">
+      <h3>Catalog number</h3>
+    </div>
+    <div
+      slot="options"
+      class="horizontal-left-content">
+      <validate-component
+        :show-message="checkValidation"
+        legend="Namespace and identifier needs to be set to be save."/> 
+    </div>
+    <div
+      slot="body"
+      class="flex-wrap-column middle align-start">
       <div class="separate-right">
         <label>Namespace</label>
         <br>
@@ -17,13 +28,12 @@
           <lock-component v-model="locked.identifier"/>
         </div>
       </div>
-      <div class="separate-left">
+      <div>
         <label>Identifier</label>
         <br>
         <input
           type="text"
           v-model="identifier">
-        <br>
         <label>
           <input
             v-model="settings.increment"
@@ -31,34 +41,36 @@
           Increment
         </label>
       </div>
-      <div class="separate-left">
-        <label>&nbsp;</label>
-        <br>
-        <validate-component
-          :show-message="checkValidation"
-          legend="Namespace and identifier needs to be set to be save."/>
-      </div>
     </div>
-  </div>
+  </block-layout>
 </template>
 
 <script>
 
   import Autocomplete from '../../../../components/autocomplete.vue'
-  import { GetterNames } from '../../store/getters/getters.js'
+  import { GetterNames } from '../../store/getters/getters'
   import { MutationNames } from '../../store/mutations/mutations.js'
+  import { ActionNames } from '../../store/actions/actions'
   import validateComponent from '../shared/validate.vue'
   import validateIdentifier from '../../validations/namespace.js'
   import incrementIdentifier from '../../helpers/incrementIdentifier.js'
   import LockComponent from 'components/lock.vue'
+  import BlockLayout from 'components/blockLayout.vue'
 
   export default {
     components: {
       Autocomplete,
       validateComponent,
-      LockComponent
+      LockComponent,
+      BlockLayout
     },
     computed: {
+      collectionObject () {
+        return this.$store.getters[GetterNames.GetCollectionObject]
+      },
+      collectionObjects() {
+        return this.$store.getters[GetterNames.GetCollectionObjects]
+      },
       locked: {
         get() {
           return this.$store.getters[GetterNames.GetLocked]
@@ -116,7 +128,21 @@
     methods: {
       increment() {
         this.identifier = incrementIdentifier(this.identifier)
-      }
+      },
+      getMacKey: function () {
+        return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
+      },
+      newDigitalization() {
+        this.$store.dispatch(ActionNames.NewCollectionObject)
+        this.$store.dispatch(ActionNames.NewIdentifier)
+        this.$store.commit(MutationNames.NewTaxonDetermination)
+        this.$store.commit(MutationNames.SetTaxonDeterminations, [])
+      },
+      saveCollectionObject() {
+        this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
+          this.$store.commit(MutationNames.SetTaxonDeterminations, [])
+        })
+      },
     }
   }
 </script>

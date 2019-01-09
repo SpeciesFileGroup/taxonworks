@@ -22,6 +22,7 @@
 
 <script>
   import TaskHeader from './components/taskHeader/main.vue'
+  import CatalogueNumber from './components/catalogueNumber/catalogNumber.vue'
   import CollectionObject from './components/collectionObject/main.vue'
   import TaxonDeterminationLayout from './components/taxonDetermination/main.vue'
   import CollectionEventLayout from './components/collectionEvent/main.vue'
@@ -38,6 +39,7 @@
       TypeMaterial,
       TaxonDeterminationLayout,
       CollectionEventLayout,
+      CatalogueNumber,
       SpinnerComponent
     },
     computed: {

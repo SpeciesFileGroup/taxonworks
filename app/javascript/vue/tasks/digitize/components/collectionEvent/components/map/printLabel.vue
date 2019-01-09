@@ -13,9 +13,15 @@
       </span>
     </div>
     <label>Print label</label>
-    <textarea v-model="printLabel"/>
+    <textarea
+      v-model="printLabel"
+      cols="45"
+      rows="12"/>
     <label>Document label</label>
-    <textarea v-model="documentLabel"/>
+    <textarea
+      v-model="documentLabel"
+      cols="45"
+      rows="6"/>
   </div>
 </template>
 

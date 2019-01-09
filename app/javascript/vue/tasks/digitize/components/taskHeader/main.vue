@@ -7,32 +7,26 @@
           placeholder="Search"
           label="label_html"
           min="1"/>
-        <button
-          class="button normal-input btn-submit separate-left separate-right"
-          type="button">Create, clone, and next
-        </button>
-        <button
-          class="button normal-input btn-submit separate-left separate-right"
-          type="button">Create, clone, and increment identifier
-        </button>
+        <span
+          class="separate-left"
+          v-if="identifier.id"
+          v-html="identifier.object_tag"/>
+      </div>
+      <div class="horizontal-left-content">
         <button
           class="button normal-input button-submit separate-left separate-right"
           @click="saveDigitalization"
           v-shortkey="[getMacKey(), 's']"
           @shortkey="saveDigitalization"
-          type="button">Save all
+          type="button">Save
         </button>
-        |
-        <span
-          v-if="identifier.id"
-          v-html="identifier.object_tag"/>
-      </div>
-      <div
-        v-shortkey="[getMacKey(), 'r']"
-        @shortkey="resetStore"
-        @click="resetStore">
-        <span data-icon="reset"/>
-        <span>Reset</span>
+        <div
+          v-shortkey="[getMacKey(), 'r']"
+          @shortkey="resetStore"
+          @click="resetStore">
+          <span data-icon="reset"/>
+          <span>Reset</span>
+        </div>
       </div>
     </div>
   </div>
