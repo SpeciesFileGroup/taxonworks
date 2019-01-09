@@ -44,6 +44,7 @@ export default {
       var w = window.open()
 
       w.document.write(createLabels(this.labels, this.columns, this.rows, this.divisor, this.classSelected, this.separator, this.divisor))
+      w.document.close()
     }
   }
 }

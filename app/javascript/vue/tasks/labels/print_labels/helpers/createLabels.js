@@ -90,7 +90,6 @@ function createPages(labels, maxColumns, maxRows, divisor, cssStye, separator = 
       }
     }
     pages = pages + addSeparator(separator, spaceAround)
-    pages = pages + `<div class="${cssStye}"><br/><br/></div>`
   })
   pages = pages + `</body></html>`
   return pages
