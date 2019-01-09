@@ -7,21 +7,21 @@
       <thead>
         <tr>
           <th>Select</th>
-          <th>Label</th>
+          <th @click="sort('text')">Label</th>
           <th>Edit</th>
-          <th>Is printed</th>
-          <th>Is copy edited</th>
-          <th>Updated by</th>
-          <th>Updated on</th>
-          <th>On</th>
+          <th @click="sort('is_printed')">Is printed</th>
+          <th @click="sort('is_copy_edited')">Is copy edited</th>
+          <th @click="sort('updated_by')">Updated by</th>
+          <th @click="sort('updated_at')">Updated at</th>
+          <th @click="sort('on')">On</th>
           <th>Show</th>
-          <th>Total</th>
+          <th @click="sort('total')">Total</th>
           <th>Destroy</th>
         </tr>
       </thead>
       <tbody>
         <tr
-          v-for="item in list"
+          v-for="item in sortedList"
           :key="item.id">
           <td>
             <checkbox-component
@@ -52,7 +52,7 @@
           </td>
           <td v-html="(item.hasOwnProperty('updated_by') ? item.updated_by : '')"/>
           <td v-html="(item.hasOwnProperty('updated_on') ? item.updated_on : item.created_at)"/>
-          <td>On</td>
+          <td v-html="item.on"/>
           <td>
             <a
               :href="`/labels/${item.id}`"
@@ -82,9 +82,22 @@ export default {
     OptionButtons,
     CheckboxComponent
   },
+  computed: {
+    sortedList() {
+      return this.list.sort((a,b) => {
+        let modifier = 1
+        if(this.currentSortDir === 'desc') modifier = -1
+        if(a[this.currentSort] < b[this.currentSort]) return -1 * modifier
+        if(a[this.currentSort] > b[this.currentSort]) return 1 * modifier
+        return 0
+      });
+    }
+  },
   data() {
     return {
       list: [],
+      currentSort: 'label',
+      currentSortDir: 'asc',
       selected: []
     }
   },
@@ -94,12 +107,17 @@ export default {
     }
   },
   mounted() {
-    console.log(document.cookie)
     GetLabels().then(response => {
       this.list = response
     })
   },
   methods: {
+    sort(s) {
+      if(s === this.currentSort) {
+        this.currentSortDir = (this.currentSortDir === 'asc' ? 'desc':'asc')
+      }
+      this.currentSort = s
+    },
     selectAll() {
       this.selected = this.list.slice(0)
     },
@@ -120,7 +138,6 @@ export default {
       }
     },
     updateLabel(label) {
-      console.log(label)
       UpdateLabel(label).then(response => {
         let index = this.list.findIndex(item => {
           item.id == label.id
