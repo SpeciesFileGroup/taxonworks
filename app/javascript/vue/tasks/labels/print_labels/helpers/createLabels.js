@@ -56,7 +56,19 @@ function createHeader() {
   </head>`
 }
 
-function createPages(labels, maxColumns, maxRows, divisor, cssStye) {
+function addSeparator(separator, spaceAround) {
+  if(separator.length) {
+    if(spaceAround) {
+      return `<br>${separator}<br>`
+    }
+    else {
+      return separator
+    }
+  }
+  return ''
+}
+
+function createPages(labels, maxColumns, maxRows, divisor, cssStye, separator = '', spaceAround) {
   let columns = 1
   let pages = createHeader() + `<body><div class="ce_label_pg"><div class="ce_label_col">`
   
@@ -77,8 +89,10 @@ function createPages(labels, maxColumns, maxRows, divisor, cssStye) {
         }
       }
     }
-    pages = pages + `<div class="${cssStye}"><br/><br/></div></body></html>`
+    pages = pages + addSeparator(separator, spaceAround)
+    pages = pages + `<div class="${cssStye}"><br/><br/></div>`
   })
+  pages = pages + `</body></html>`
   return pages
 }
 

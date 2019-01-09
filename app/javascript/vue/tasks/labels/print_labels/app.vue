@@ -9,13 +9,16 @@
         class="separate-left separate-right"
         @onRowsChange="layout.rows = $event"
         @onColumnsChange="layout.columns = $event"
+        @onSeparatorChange="layout.separator = $event"
         @onDivisorChange="layout.divisor = $event"/>
       <preview-labels
+        :disabled="!styleSelected"
         class="separate-left"
         :class-selected="styleSelected"
         :rows="layout.rows"
         :columns="layout.columns"
         :divisor="layout.divisor"
+        :separator="layout.separator"
         :labels="labels"/>
     </div>
     <table-component @selected="labels = $event"/>
@@ -43,6 +46,7 @@ export default {
       layout: {
         rows: 0,
         columns: 0,
+        separator: '',
         divisor: false
       }
     }

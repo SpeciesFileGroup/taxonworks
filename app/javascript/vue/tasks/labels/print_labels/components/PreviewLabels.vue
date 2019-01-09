@@ -32,6 +32,10 @@ export default {
     divisor: {
       type: Boolean,
       default: false
+    },
+    separator: {
+      type: String,
+      default: ''
     }
 
   },
@@ -39,7 +43,7 @@ export default {
     renderLabels() {
       var w = window.open()
 
-      w.document.write(createLabels(this.labels, this.columns, this.rows, this.divisor, this.classSelected))
+      w.document.write(createLabels(this.labels, this.columns, this.rows, this.divisor, this.classSelected, this.separator, this.divisor))
     }
   }
 }

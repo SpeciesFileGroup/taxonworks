@@ -16,7 +16,7 @@
       type="button"
       class="button normal-input button-delete"
       @click="$emit('destroyAll', true)">
-      Destroy all
+      Destroy all selected
     </button>
   </div>
 </template>

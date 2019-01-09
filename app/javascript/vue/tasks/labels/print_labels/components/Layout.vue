@@ -2,7 +2,7 @@
   <div>
     <h2>Layout</h2>
     <div class="field">
-      <label class="label-layout-size">Rows</label>
+      <label class="label-layout-size">Lines per column</label>
       <input
         v-model="rows"
         type="number">
@@ -26,8 +26,9 @@
     </div>
     <label>
       <input 
-        type="checkbox">
-      Blank lines with line divider
+        type="checkbox"
+        v-model="divisor">
+      Blank lines around the separator
     </label>
   </div>
 </template>
@@ -37,7 +38,8 @@ export default {
     return {
       rows: 0,
       columns: 0,
-      separator: undefined
+      divisor: false,
+      separator: ''
     }
   },
   watch: {
@@ -50,6 +52,9 @@ export default {
     divisor(newVal) {
       this.$emit('onDivisorChange', newVal)
     },
+    separator(newVal) {
+      this.$emit('onSeparatorChange', newVal)
+    },
   }
 }
 </script>
@@ -57,7 +62,7 @@ export default {
 <style lang="scss" scoped>
   .label-layout-size {
     display: inline-block;
-    min-width: 70px;
+    min-width: 110px;
   }
 </style>
 
