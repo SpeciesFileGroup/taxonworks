@@ -8,12 +8,6 @@
     </button>
     <button
       type="button"
-      class="button normal-input button-default"
-      @click="$emit('selectMyLabels', true)">
-      Select my labels
-    </button>
-    <button
-      type="button"
       class="button normal-input button-delete"
       @click="$emit('destroyAll', true)">
       Destroy all selected

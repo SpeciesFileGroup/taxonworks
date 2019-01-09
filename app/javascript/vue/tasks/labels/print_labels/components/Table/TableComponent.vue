@@ -1,5 +1,11 @@
 <template>
   <div>
+    <label-form
+      v-if="selectedLabel"
+      :show-modal="showModal"
+      :value="selectedLabel"
+      @close="showModal = false"
+      @update="updateLabel($event); showModal = false"/>
     <option-buttons
       @selectAll="selectAll"
       @destroyAll="deleteLabels"/>
@@ -9,12 +15,12 @@
           <th>Select</th>
           <th @click="sort('text')">Label</th>
           <th @click="sort('total')">Total</th>
-          <th>Edit</th>
           <th @click="sort('is_printed')">Is printed</th>
           <th @click="sort('is_copy_edited')">Is copy edited</th>
           <th @click="sort('updated_by')">Updated by</th>
           <th @click="sort('updated_at')">Updated at</th>
           <th @click="sort('on')">On</th>
+          <th>Edit</th>
           <th>Destroy</th>
         </tr>
       </thead>
@@ -31,11 +37,6 @@
             <pre>{{ item.text }}</pre>
           </td>
           <td v-html="item.total"/>
-          <td>
-            <button
-              type="button"
-              class="button circle-button btn-edit"/>
-          </td>
           <td>
             <input
               type="checkbox"
@@ -56,6 +57,12 @@
           <td>
             <button
               type="button"
+              class="button circle-button btn-edit"
+              @click="setEdit(item)"/>
+          </td>
+          <td>
+            <button
+              type="button"
               class="button circle-button btn-delete"/>
           </td>
         </tr>
@@ -65,12 +72,14 @@
 </template>
 <script>
 
+import LabelForm from '../LabelForm'
 import OptionButtons from './OptionButtons'
 import CheckboxComponent from './CheckboxComponent'
 import { GetLabels, RemoveLabel, UpdateLabel } from '../../request/resources.js'
 
 export default {
   components: {
+    LabelForm,
     OptionButtons,
     CheckboxComponent
   },
@@ -90,6 +99,8 @@ export default {
       list: [],
       currentSort: 'label',
       currentSortDir: 'asc',
+      showModal: false,
+      selectedLabel: undefined,
       selected: []
     }
   },
@@ -104,6 +115,10 @@ export default {
     })
   },
   methods: {
+    setEdit(label) {
+      this.selectedLabel = label
+      this.showModal = true
+    },
     sort(s) {
       if(s === this.currentSort) {
         this.currentSortDir = (this.currentSortDir === 'asc' ? 'desc':'asc')
@@ -132,9 +147,9 @@ export default {
     updateLabel(label) {
       UpdateLabel(label).then(response => {
         let index = this.list.findIndex(item => {
-          item.id == label.id
+          return item.id == label.id
         })
-        this.list[index] = response
+        this.$set(this.list, index, response)
       })
     }
   }
