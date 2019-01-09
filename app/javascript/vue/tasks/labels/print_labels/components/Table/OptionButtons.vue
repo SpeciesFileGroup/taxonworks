@@ -3,6 +3,12 @@
     <button
       type="button"
       class="button normal-input button-default"
+      @click="$emit('new', true)">
+      Add new label
+    </button>
+    <button
+      type="button"
+      class="button normal-input button-default"
       @click="$emit('selectAll', true)">
       Select all
     </button>

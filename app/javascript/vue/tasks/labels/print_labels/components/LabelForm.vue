@@ -2,7 +2,7 @@
   <modal-component 
     v-if="showModal"
     @close="$emit('close', false)">
-    <h3 slot="header">Edit label</h3>
+    <h3 slot="header">Label form</h3>
     <div slot="body">
       <div class="field">
         <label>Text</label>
@@ -50,7 +50,8 @@
       <button
         type="button"
         class="button normal-input button-submit"
-        @click="$emit('update', label)">Save</button>
+        :disabled="!label.text.length"
+        @click="$emit('save', label)">Save</button>
     </div>
   </modal-component>
 </template>
@@ -73,13 +74,20 @@ export default {
   },
   data() {
     return {
-      label: undefined,
+      label: {
+        text: '',
+        total: 0,
+        style: '',
+        is_printed: false,
+        is_copy_edited: false
+      },
     }
   },
   watch: {
     value:{ 
       handler(newVal) {
-        this.label = Object.assign({}, newVal)
+        if(Object.keys(newVal).length)
+          this.label = Object.assign({}, newVal)
       },
       immediate: true
     }

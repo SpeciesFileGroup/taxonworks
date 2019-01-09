@@ -1,13 +1,18 @@
 <template>
   <div>
     <label-form
+      :show-modal="showModalCreate"
+      @close="showModalCreate = false"
+      @save="createLabel($event); showModalCreate = false"/>
+    <label-form
       v-if="selectedLabel"
       :show-modal="showModal"
       :value="selectedLabel"
       @close="showModal = false"
-      @update="updateLabel($event); showModal = false"/>
+      @save="updateLabel($event); showModal = false"/>
     <option-buttons
       @selectAll="selectAll"
+      @new="showModalCreate = true"
       @destroyAll="deleteLabels"/>
     <table>
       <thead>
@@ -75,7 +80,7 @@
 import LabelForm from '../LabelForm'
 import OptionButtons from './OptionButtons'
 import CheckboxComponent from './CheckboxComponent'
-import { GetLabels, RemoveLabel, UpdateLabel } from '../../request/resources.js'
+import { GetLabels, RemoveLabel, UpdateLabel, CreateLabel } from '../../request/resources.js'
 
 export default {
   components: {
@@ -100,6 +105,7 @@ export default {
       currentSort: 'label',
       currentSortDir: 'asc',
       showModal: false,
+      showModalCreate: false,
       selectedLabel: undefined,
       selected: []
     }
@@ -143,6 +149,11 @@ export default {
         })
         this.selected = []
       }
+    },
+    createLabel(label) {
+      CreateLabel(label).then(response => {
+        this.list.push(response)
+      })
     },
     updateLabel(label) {
       UpdateLabel(label).then(response => {
