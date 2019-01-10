@@ -96,7 +96,7 @@
     </table>
     <input
       type="button"
-      @click="gettFilterData()"
+      @click="getFilterData()"
       value="Find">
     <div>
       <span v-if="collectingEventList.length" v-html="'<br>' + collectingEventList.length + '  results found.'"/>
@@ -137,13 +137,14 @@
           end_date: '',
           in_verbatim_locality: '',
           iin_labels: '',
-          identifier_text: ''},
+          identifier_text: '',
+          shape: ''},
         collectingEventList: []
       }
     },
 
     methods: {
-      gettFilterData(){
+      getFilterData(){
         let params = {};
         let keys = Object.keys(this.parameters);
         for (let i=0; i<keys.length; i++) {

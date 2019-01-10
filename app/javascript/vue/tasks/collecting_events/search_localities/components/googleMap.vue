@@ -6,12 +6,12 @@
   export default {
     props: {
       height: {
-        type: String,
-        default: '500px'
+        type: [String, Number],
+        default: '512px'
       },
       width: {
-        type: String,
-        default: '500px'
+        type: [String, Number],
+        default: '512px'
       },
       lat: {
         type: Number,

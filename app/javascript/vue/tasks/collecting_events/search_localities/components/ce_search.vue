@@ -29,11 +29,10 @@
     />
     <div>
       <g-map
-       :shapes="shapes"
        :lat="0"
        :lng="0"
        :zoom="1"
-       @shapes="getShapesData()"
+       @shape="shapes.push($event)"
       />
     </div>
     <input
@@ -56,6 +55,10 @@
           <td><span v-html="item.verbatim_locality" /></td>
         </tr>
       </table>
+      <input
+        type="button"
+        @click="getShapesData()"
+        value="Find">
     </div>
   </div>
 </template>
@@ -72,7 +75,7 @@
       return {
         geographicAreaList: [],
         collectingEventList: [],
-        shapes: {},
+        shapes: [],
       }
     },
   // :height="300"
@@ -91,21 +94,29 @@
         let params = {
           spatial_geographic_area_ids: geo_ids
         };
-        this.$http.get('/collecting_events', {params: params}).then(response => {
+        this.$http.get('/collecting_events.json', {params: params}).then(response => {
           this.collectingEventList = response.body;
         });
       },
+      getShape() {
+        this.shapes = this.$event;
+      },
       getShapesData(){
-        let geo_ids = [];
-        this.geographicAreaList.forEach(area => {
-          geo_ids.push(area.id)
-        });
-        let params = {
-          spatial_geographic_area_ids: geo_ids
-        };
-        this.$http.get('/collecting_events', {params: params}).then(response => {
+        // let geo_ids = [];
+        // this.shapes.forEach(area => {
+        //   geo_ids.push(area.id)
+        // });
+        // let params = {
+        //   spatial_geographic_area_ids: geo_ids
+        // };
+        // this.$http.get('/collecting_events', {params: params}).then(response => {
+        //   this.collectingEventList = response.body;
+        // });
+        let params = {shape: this.shapes};
+        this.$http.get('/collecting_events.json', {params: params}).then(response => {
           this.collectingEventList = response.body;
-        });
+        }
+        )
       },
       addGeographicArea(item) {
         this.geographicAreaList.push(item);
