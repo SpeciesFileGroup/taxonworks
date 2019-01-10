@@ -8,7 +8,6 @@
 #   @return [String]
 #     A creative-commons copyright 
 #
-#
 class Attribution < ApplicationRecord
   include Housekeeping
   include Shared::Notes
