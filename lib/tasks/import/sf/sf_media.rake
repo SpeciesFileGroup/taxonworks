@@ -8,7 +8,6 @@ namespace :tw do
         desc 'time rake tw:project_import:sf_import:media:images user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define images: [:data_directory, :environment, :user_id] do |logger|
 
-
           # Images table (15 col)
           # id
           # user_file_name
@@ -56,17 +55,19 @@ namespace :tw do
 
           # have 92,692 collection objects (collecting_event_id)
 
-          
+
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
           excluded_taxa = import.get('ExcludedTaxa')
           get_sf_file_id = import.get('SFTaxonNameIDToSFFileID')
+          get_sf_taxon_name_id = import.get('SFSpecimenIDToSFTaxonNameID')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
           get_tw_person_id = import.get('SFPersonIDToTWPersonID')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_taxon_name_otu_id = import.get('TWTaxonNameIDToOtuID')
           get_tw_collection_object_id = import.get('SFSpecimenIDToCollObjID')
+          get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')  # an ill-formed SF taxon name
 
           # otu_id: get_otu_from_tw_taxon_id[tw_taxon_name_id]  # used for taxon_determination
           # get_tw_collection_object_id = {} # key = SF.SpecimenID, value = TW.collection_object.id OR TW.container.id (assign to all objects within a container)
@@ -75,6 +76,8 @@ namespace :tw do
 
           path_to_images = @args[:data_directory] + 'images/'
           counter = 0
+          no_coll_count = 0
+          no_otu_count = 0
 
           path = @args[:data_directory] + 'tblImages.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -94,13 +97,40 @@ namespace :tw do
             project_id = get_tw_project_id[sf_file_id]
 
             collection_object_id = get_tw_collection_object_id[specimen_id] if specimen_id.to_i > 0
-            tw_taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id]   # may not exist
+            tw_taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id] # may not exist
             otu_id = get_taxon_name_otu_id[tw_taxon_name_id]
+
+            if otu_id.nil?
+              if specimen_id.to_i > 0
+                 otu_id = get_tw_otu_id[get_sf_taxon_name_id[specimen_id]]
+              else  # assume there is a sf_taxon_name_id
+                  otu_id = get_tw_otu_id[sf_taxon_name_id]
+              end
+            end
 
 
             puts "Working on SF.TaxonNameID = #{sf_taxon_name_id}, tw.taxon_name_id = #{tw_taxon_name_id}, SF.SpecimenID = #{specimen_id}, collection_object_id = #{collection_object_id}, otu_id = #{otu_id}, project_id = #{project_id}, counter = #{counter += 1} \n"
-            puts "ImageID = #{row['ImageID']}, TrueID = #{row['TrueID']} \n"
+            puts "ImageID = #{row['ImageID']}, TrueID = #{row['TrueID']}, no_coll_count = #{no_coll_count}, no_otu_count = #{no_otu_count} \n"
 
+            if specimen_id.to_i > 0 && collection_object_id.nil? # 3895/124,719
+              puts "No collection object, counter = #{no_coll_count += 1}"
+            end
+            if otu_id.nil? # 347/124,719
+              puts "No otu, counter = #{no_otu_count += 1}"
+            end
+
+
+            # can have temporary name w/o OTU via taxon_name_id:  Find OTU via SF.TaxonNameID to TW.otu: if no SF.TaxonNameID, must be SF.SpecimenID, therefore get TW.TaxonNameID via SpecimenID and get the OTU that way.
+            # Some no_otus have collection objects but still need otu whether co or not.
+            # Have SFTaxonNameIDToTWOtuID  for ill-formed SF taxon names but need a look up from SF.SpecimenID to SF.TaxonNameID
+
+
+            # if sf_taxon_name_id.to_i == 0
+            #   puts "No SF.TaxonNameID"
+            # end
+            # if specimen_id.to_i == 0
+            #   puts "No SF.SpecimenID"
+            # end
 
 
             # object_ids = []
@@ -109,8 +139,6 @@ namespace :tw do
 
 
           end
-
-
 
 
           # path_to_images = '/something'
@@ -198,6 +226,44 @@ namespace :tw do
 
 
         end
+
+        # Following section now executed in sf_specimens.rake
+        # desc 'time rake tw:project_import:sf_import:media:specimen_to_taxon_name_ids user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        # LoggedTask.define specimen_to_taxon_name_ids: [:data_directory, :environment, :user_id] do |logger|
+        #
+        #   # First step is to make a SF.SpecimenID to SF.TaxonNameID hash
+        #   # (so if tblImages has no TaxonNameID but has SpecimenID, regardless of presence of collection object, can find OTU via bad/ill-formed taxon name id)
+        #   # Should probably move this to first instance of going through tblSpecimens
+        #
+        #   logger.info 'Running create SF.SpecimenID to SF.TaxonNameID hash...'
+        #
+        #   import = Import.find_or_create_by(name: 'SpeciesFileData')
+        #   skipped_file_ids = import.get('SkippedFileIDs')
+        #   excluded_taxa = import.get('ExcludedTaxa')
+        #
+        #   get_sf_taxon_name_id = {} # key = SF.SpecimenID, value = SF.TaxonNameID
+        #
+        #   path = @args[:data_directory] + 'tblSpecimens.txt'
+        #   file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+        #
+        #   file.each do |row|
+        #     next if skipped_file_ids.include? row['FileID'].to_i
+        #     sf_taxon_name_id = row['TaxonNameID']
+        #     next if excluded_taxa.include? sf_taxon_name_id
+        #
+        #     specimen_id = row['SpecimenID']
+        #
+        #     logger.info "working with SF.SpecimenID = #{specimen_id}, SF.TaxonNameID = #{sf_taxon_name_id} \n"
+        #
+        #     get_sf_taxon_name_id[specimen_id] = sf_taxon_name_id
+        #   end
+        #
+        #   import.set('SFSpecimenIDToSFTaxonNameID', get_sf_taxon_name_id)
+        #
+        #   puts 'SFSpecimenIDToSFTaxonNameID'
+        #   ap get_sf_taxon_name_id
+        # end
+
       end
     end
   end

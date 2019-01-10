@@ -61,6 +61,7 @@ namespace :tw do
           # get_sf_collect_event_metadata = import.get('SFCollectEventMetadata')
 
           get_tw_collection_object_id = {} # key = SF.SpecimenID, value = TW.collection_object.id OR TW.container.id
+          get_sf_taxon_name_id = {} # key = SF.SpecimenID, value = SF.TaxonNameID
 
           depo_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'SpecimenDepository', short_name: 'Depo')
 
@@ -101,6 +102,7 @@ namespace :tw do
             next if excluded_taxa.include? row['TaxonNameID']
             specimen_id = row['SpecimenID']
             next if specimen_id == '0'
+            get_sf_taxon_name_id[specimen_id] = row['TaxonNameID']  # create SpecimenID/TaxonNameID hash for future use, e.g., images, etc.
             next if get_sf_unique_id[specimen_id].nil?
             next if get_sf_identification_metadata[specimen_id].nil?
 
@@ -155,7 +157,7 @@ namespace :tw do
                 otu_id = get_otu_from_tw_taxon_id[tw_taxon_name_id]
                 otu_id = get_tw_otu_id[sf_taxon_name_id] if otu_id == nil
 
-                AssertedDistribution.new(otu_id: otu_id,
+                AssertedDistribution.create!(otu_id: otu_id,
                                          geographic_area_id: CollectingEvent.find(collecting_event_id).geographic_area_id,
                                          project_id: project_id)
                 logger.info " AssertedDistribution created for SpecimenID = '#{specimen_id}', FileID = '#{sf_file_id}', otu_id = '#{otu_id}' [ asserted_dist_counter = #{asserted_dist_counter}"
@@ -591,6 +593,10 @@ namespace :tw do
           import.set('SFSpecimenIDToCollObjID', get_tw_collection_object_id)
           puts 'SFSpecimenIDToCollObjID'
           ap get_tw_collection_object_id
+
+          import.set('SFSpecimenIDToSFTaxonNameID', get_sf_taxon_name_id)
+          puts 'SFSpecimenIDToSFTaxonNameID'
+          ap get_sf_taxon_name_id
 
           #######################################################################################
           `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/17_after_collections_objects/`
