@@ -115,8 +115,7 @@
         let params = {shape: this.shapes[this.shapes.length - 1]};
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
           this.collectingEventList = response.body;
-        }
-        )
+        } )
       },
       addGeographicArea(item) {
         this.geographicAreaList.push(item);
