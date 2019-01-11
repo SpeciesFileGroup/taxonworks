@@ -65,7 +65,8 @@
         this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
           let that = this
           setTimeout(() => {
-            that.newDigitalization()
+            //that.newDigitalization()
+            that.$store.dispatch(ActionNames.ResetWithDefault)
           }, 500)
         })
       },

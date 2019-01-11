@@ -17,6 +17,8 @@
           class="horizontal-left-content align-start flexbox separate-bottom">
           <div class="separate-right">
             <catalogue-number/>
+          </div>
+          <div class="separate-left separate-right">
             <repository-component/>
           </div>
           <div class="separate-left separate-right">

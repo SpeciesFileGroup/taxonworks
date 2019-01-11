@@ -1,5 +1,6 @@
 <template>
   <div>
+    <h2>Repository</h2>
     <fieldset class="fieldset">
       <legend>Repository</legend>
       <div class="horizontal-left-content middle separate-bottom">

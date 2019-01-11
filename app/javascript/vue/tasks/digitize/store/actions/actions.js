@@ -16,10 +16,14 @@ import saveContainerItem from './saveContainerItem'
 import saveContainer from './saveContainer'
 import removeCollectionObject from './removeCollectionObject'
 import newCollectionObject from './newCollectionObject'
+import newTaxonDetermination from './newTaxonDetermination'
+import newCollectionEvent from './newCollectionEvent'
+import newTypeMaterial from './newTypeMaterial'
 import newIdentifier from './newIdentifier'
 import saveLabel from './saveLabel'
 import removeDepictionsByImageId from './removeDepictionsByImageId'
 import removeTaxonDetermination from './removeTaxonDetermination'
+import resetWithDefault from './resetWithDefault'
 
 const ActionFunctions = {
   [ActionNames.LoadDigitalization]: loadDigitalization,
@@ -39,9 +43,13 @@ const ActionFunctions = {
   [ActionNames.RemoveCollectionObject]: removeCollectionObject,
   [ActionNames.NewCollectionObject]: newCollectionObject,
   [ActionNames.NewIdentifier]: newIdentifier,
+  [ActionNames.NewTaxonDetermination]: newTaxonDetermination,
+  [ActionNames.NewCollectionEvent]: newCollectionEvent,
+  [ActionNames.NewTypeMaterial]: newTypeMaterial,
   [ActionNames.SaveLabel]: saveLabel,
   [ActionNames.RemoveDepictionsByImageId]: removeDepictionsByImageId,
-  [ActionNames.RemoveTaxonDetermination]: removeTaxonDetermination
+  [ActionNames.RemoveTaxonDetermination]: removeTaxonDetermination,
+  [ActionNames.ResetWithDefault]: resetWithDefault
 }
 
 export { ActionNames, ActionFunctions }

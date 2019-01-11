@@ -15,10 +15,14 @@ const ActionNames = {
   SaveContainer: 'saveContainer',
   RemoveCollectionObject: 'removeCollectionObject',
   NewCollectionObject: 'newCollectionObject',
+  NewCollectionEvent: 'newCollectionEvent',
   NewIdentifier: 'newIdentifier',
+  NewTypeMaterial: 'newTypeMaterial',
+  NewTaxonDetermination: 'newTaxonDetermination',
   SaveLabel: 'saveLabel',
   RemoveDepictionsByImageId: 'removeDepictionsByImageId',
-  RemoveTaxonDetermination: 'removeTaxonDetermination'
+  RemoveTaxonDetermination: 'removeTaxonDetermination',
+  ResetWithDefault: 'resetWithDefault'
 }
 
 export default ActionNames

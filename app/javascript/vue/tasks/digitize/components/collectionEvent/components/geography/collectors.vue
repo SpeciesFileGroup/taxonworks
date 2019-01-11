@@ -10,7 +10,7 @@
     <div
       v-if="view != 'new/Search'"
       class="separate-bottom">
-      <ul class="no_bullets">
+      <ul v-if="lists[view].length" class="no_bullets">
         <li
           v-for="item in lists[view]"
           :key="item.id"
