@@ -20,7 +20,7 @@
       </div>
       <div
         class="body"
-        v-if="expanded">
+        v-show="expanded">
         <slot name="body"/>
       </div>
     </div>
