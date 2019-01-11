@@ -198,12 +198,16 @@ describe Source, type: :model, group: :source do
       source1.author_roles.create(person: person1)
       source2 = FactoryBot.build(:soft_valid_bibtex_source_article, year: 1999, year_suffix: nil)
       source2.author_roles.build(person: person1)
+      
       expect(source2.valid?).to be_truthy
-      source2.year_suffix = 'b'
+      source2.update(year_suffix: 'b')
+
       expect(source2.valid?).to be_truthy
-      source2.year_suffix = 'a'
+      source2.update(year_suffix: 'a')
+
       expect(source2.valid?).to be_falsey
     end
+
     specify 'year suffix different authors' do
       source1 = FactoryBot.create(:soft_valid_bibtex_source_article, year: 1999, year_suffix: 'a', author: nil)
       person1 = Person.create(last_name: 'Smith', first_name: 'Jones')
