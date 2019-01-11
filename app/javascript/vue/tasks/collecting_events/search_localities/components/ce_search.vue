@@ -112,7 +112,7 @@
         // this.$http.get('/collecting_events', {params: params}).then(response => {
         //   this.collectingEventList = response.body;
         // });
-        let params = {shape: this.shapes};
+        let params = {shape: this.shapes[0]};
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
           this.collectingEventList = response.body;
         }
