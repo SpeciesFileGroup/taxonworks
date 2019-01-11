@@ -7,27 +7,6 @@
       <div
         slot="options"
         class="horizontal-left-content">
-        <button
-          :disabled="!(collectionObjects.length > 0 && collectionObject.id == undefined)"
-          type="button"
-          @click="saveCollectionObject"
-          v-shortkey="[getMacKey(), 'a']"
-          @shortkey="saveCollectionObject"
-          class="button normal-input button-submit separate-right">
-          Add
-        </button>
-        <button 
-          type="button"
-          v-shortkey="[getMacKey(), 'n']"
-          @shortkey="newDigitalization"
-          :disabled="!collectionObjects.length"
-          class="button normal-input button-default separate-right"
-          @click="newDigitalization">New</button>  
-        <button 
-          type="button"
-          @shortkey="saveAndNew"
-          class="button normal-input button-submit separate-right"
-          @click="saveAndNew">Save and new</button> 
         <radial-annotator
           classs="separate-right"
           v-if="collectionObject.id"
@@ -37,24 +16,11 @@
         <div
           class="horizontal-left-content align-start flexbox separate-bottom">
           <div class="separate-right">
+            <catalogue-number/>
             <repository-component/>
           </div>
           <div class="separate-left separate-right">
             <preparation-type/>
-          </div>
-          <div
-            class="separate-left separate-right" 
-            style="max-width: 100px">
-            <h2>Total</h2>
-            <br>
-            <input
-              style="max-width: 50px"
-              class="total-input"
-              type="number"
-              v-model="total">
-          </div>
-          <div class="separate-left">
-            <bioclassification/>          
           </div>
         </div>
         <buffered-component class="separate-top"/>
@@ -67,25 +33,15 @@
           @delete="removeAllDepictionsByImageId"
           default-message="Drop images here to add collection object figures"
           action-save="SaveCollectionObject"/>
+        <container-items/>
       </div>
     </block-layout>
-    <div class="column-tiny separate-left">
-      <catalogue-number class="separate-bottom"/>
-      <block-layout
-        v-if="collectionObjects.length">
-        <div slot="header">
-          <h3>{{ (collectionObjects.length > 1 ? 'In this container' : 'Collection Object created') }}</h3>
-        </div>
-        <div slot="body">
-          <table-collection-objects/>
-        </div>
-      </block-layout>
-    </div>
   </div>
 </template>
 
 <script>
 
+  import ContainerItems from './containerItems.vue'
   import PreparationType from './preparationType.vue'
   import CatalogueNumber from '../catalogueNumber/catalogNumber.vue'
   import TableCollectionObjects from './tableCollectionObjects.vue'
@@ -98,10 +54,13 @@
   import { ActionNames } from '../../store/actions/actions'
   import BlockLayout from '../../../../components/blockLayout.vue'
   import RadialAnnotator from '../../../../components/annotator/annotator.vue'
+  import LockComponent from 'components/lock.vue'
   import { GetCollectionObjectDepictions, CreateDepiction } from '../../request/resources.js'
 
   export default {
     components: {
+      LockComponent,
+      ContainerItems,
       PreparationType,
       CatalogueNumber,
       TableCollectionObjects,
@@ -168,7 +127,10 @@
       },
       saveAndNew() {
         this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
-          this.newDigitalization()
+          let that = this
+          setTimeout(() => {
+            that.newDigitalization()
+          }, 500)
         })
       },
       cloneDepictions(co) {

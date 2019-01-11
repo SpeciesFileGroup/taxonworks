@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h2>Biocuration</h2>
     <div>
       <div v-for="group in biocurationsGroups">
         <label>{{ group.name }}</label>
@@ -21,7 +20,6 @@
           </button>
         </template>
       </div>
-      <lock-component v-model="locked.biocuration"/>
     </div>
   </div>
 </template>
@@ -29,7 +27,7 @@
 <script>
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
-import LockComponent from 'components/lock.vue'
+
 import { 
   GetBiocurationsTypes, 
   GetBiocurationsCreated, 
@@ -39,8 +37,10 @@ import {
   GetBiocurationsTags } from '../../request/resources.js'
 
 export default {
-  components:{
-    LockComponent
+  props: {
+    biologicalId: {
+      type: [String, Number]
+    }
   },
   computed: {
     locked: {
@@ -51,12 +51,6 @@ export default {
         this.$store.commit([MutationNames.SetLocked, value])
       }
     },
-    collectionObject() {
-      return this.$store.getters[GetterNames.GetCollectionObject]
-    },
-    biologicalId() {
-      return this.$store.getters[GetterNames.GetCollectionObject].id
-    },
   },
   data() {
     return {
@@ -64,6 +58,7 @@ export default {
       biocurationsGroups: [],
       addQueue: [],
       createdBiocutarions: [],
+      delay: 500
     }
   },
   mounted: function () {
@@ -87,9 +82,14 @@ export default {
         }
         if (newVal != undefined && newVal != oldVal) {
           this.addQueue = []
+          let that = this
+
+          setTimeout(() => {
             GetBiocurationsCreated(newVal).then(response => {
-              this.createdBiocutarions = response
+              that.createdBiocutarions = response
+              that.$forceUpdate()
             })
+          }, this.delay)
         } 
       },
       immediate: true
@@ -133,7 +133,6 @@ export default {
       this.addQueue.forEach((id) => {
         CreateBiocurationClassification(this.createBiocurationObject(id)).then(response => {
           this.createdBiocutarions.push(response)
-          this.$store.commit(MutationNames.AddBiocuration, response)
         })
         this.addQueue = []
       })
@@ -149,16 +148,6 @@ export default {
         return id == biocurationId
       })
       return (found != undefined)
-    },
-    getCreatedBiocurations () {
-      this.biocutarionsType.forEach((biocuration) => {
-        GetBiocuration().then((response) => {
-          response.forEach((item) => {
-            this.createdBiocutarions.push(item)
-            this.$store.commit(MutationNames.AddBiocuration, response)
-          })
-        })
-      })
     },
     removeFromQueue (id) {
       this.addQueue.splice(this.addQueue.findIndex((itemId) => { return itemId == id }), 1)

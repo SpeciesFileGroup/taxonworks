@@ -1,22 +1,12 @@
 <template>
-  <block-layout>
-    <div slot="header">
-      <h3>Catalog number</h3>
-    </div>
+  <div>
+    <h2>Catalog number</h2>
     <div
-      slot="options"
-      class="horizontal-left-content">
-      <validate-component
-        :show-message="checkValidation"
-        legend="Namespace and identifier needs to be set to be save."/> 
-    </div>
-    <div
-      slot="body"
       class="flex-wrap-column middle align-start">
       <div class="separate-right">
         <label>Namespace</label>
         <br>
-        <div class="horizontal-left-content middle">
+        <div class="horizontal-left-content middle field">
           <autocomplete
             class="separate-right"
             url="/namespaces/autocomplete"
@@ -30,19 +20,24 @@
       </div>
       <div>
         <label>Identifier</label>
-        <br>
-        <input
-          type="text"
-          v-model="identifier">
-        <label>
+        <div class="horizontal-left-content field">
           <input
-            v-model="settings.increment"
-            type="checkbox">
-          Increment
-        </label>
+            type="text"
+            v-model="identifier">
+          <label>
+            <input
+              v-model="settings.increment"
+              type="checkbox">
+            Increment
+          </label>
+          <validate-component
+            class="separate-left"
+            :show-message="checkValidation"
+            legend="Namespace and identifier needs to be set to be save."/> 
+        </div>
       </div>
     </div>
-  </block-layout>
+  </div>
 </template>
 
 <script>

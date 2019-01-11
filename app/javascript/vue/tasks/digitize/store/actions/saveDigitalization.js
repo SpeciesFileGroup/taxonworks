@@ -1,11 +1,15 @@
 import ActionNames from './actionNames'
+import { MutationNames } from '../mutations/mutations'
 
 export default function ({ commit, dispatch, state }) {
   return new Promise((resolve, reject) => {
     state.settings.saving = true
     dispatch(ActionNames.SaveCollectionEvent).then(() => {
       dispatch(ActionNames.SaveLabel)
-      dispatch(ActionNames.SaveCollectionObject).then((coCreated) => {
+      dispatch(ActionNames.SaveCollectionObject, state.collection_object).then((coCreated) => {
+        console.log(coCreated)
+        commit(MutationNames.SetCollectionObject, coCreated)
+        commit(MutationNames.AddCollectionObject, coCreated)
         dispatch(ActionNames.SaveDeterminations)
         dispatch(ActionNames.SaveTypeMaterial)
         dispatch(ActionNames.SaveIdentifier)

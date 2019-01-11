@@ -31,6 +31,7 @@
   import { MutationNames } from './store/mutations/mutations.js'
   import { GetterNames } from './store/getters/getters.js'
   import SpinnerComponent from 'components/spinner.vue'
+  import ContainerItems from './components/collectionObject/containerItems.vue'
 
   export default {
     components: {
@@ -40,7 +41,8 @@
       TaxonDeterminationLayout,
       CollectionEventLayout,
       CatalogueNumber,
-      SpinnerComponent
+      SpinnerComponent,
+      ContainerItems
     },
     computed: {
       saving() {

@@ -1,12 +1,47 @@
 <template>
   <table class="vue-table">
+    <thead>
+      <tr>
+        <th>Total</th>
+        <th class="lock-biocuration"></th>
+        <th>Biocurations</th>
+        <th></th>
+      </tr>
+    </thead>
     <tbody class="list-complete">
       <tr
+        class="list-complete-item highlight"
+        v-show="!collectionObject.id">
+        <td>
+          <input
+            type="number"
+            class="total-size"
+            v-model="collectionObject.total">
+        </td>
+        <td class="lock-biocuration">
+          <lock-component v-model="locked.biocuration"/>
+        </td>
+        <td>
+          <bioclassification :biological-id="collectionObject.id"/>          
+        </td>
+        <td></td>
+      </tr>
+      <tr
         v-for="item in collectionObjects"
+        :key="item.id"
         class="list-complete-item"
         :class="{ 'highlight': isSelected(item) }">
-        <td>{{ item.total }}</td>
-        <td>{{ showBiocurations(item) }}</td>
+        <td>
+          <input
+            class="total-size"
+            type="number"
+            @change="updateCO(item)"
+            v-model="item.total">
+        </td>
+        <td></td>
+        <td>
+          <bioclassification :biological-id="item.id"/>
+        </td>
         <td class="horizontal-right-content">
           <radial-annotator :global-id="item.global_id"/>
           <button
@@ -32,31 +67,41 @@ import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions.js'
 import RadialAnnotator from '../../../../components/annotator/annotator.vue'
-import PinComponent from '../../../../components/pin'
+import PinComponent from '../../../../components/pin.vue'
+import Bioclassification from './bioclassification.vue'
+import LockComponent from 'components/lock'
 
 export default {
   components: {
+    LockComponent,
     RadialAnnotator,
-    PinComponent
+    PinComponent,
+    Bioclassification
   },
   computed: {
+    locked: {
+      get() {
+        return this.$store.getters[GetterNames.GetLocked]
+      },
+      set(value) {
+        this.$store.commit([MutationNames.SetLocked, value])
+      }
+    },
     collectionObjects() {
       return this.$store.getters[GetterNames.GetCollectionObjects]
     },
-    collectionObject() {
-      return this.$store.getters[GetterNames.GetCollectionObject]
-    },
-    biocurations() {
-      return this.$store.getters[GetterNames.GetBiocurations]
+    collectionObject: {
+      get() {
+        return this.$store.getters[GetterNames.GetCollectionObject]
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetCollectionObject)
+      }
     }
   },
   methods: {
     setCO(value) {
       this.$store.commit(MutationNames.SetCollectionObject, value)
-    },
-    showBiocurations(co) {
-      let list = this.biocurations.filter(item => item.biological_collection_object_id == co.id).map(item => { return item.object_tag })
-      return (list.length ? list.join(', ') : 'Specimen')
     },
     removeCO(id) {
       if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
@@ -65,6 +110,9 @@ export default {
     },
     isSelected(item) {
       return this.collectionObject.id == item.id
+    },
+    updateCO(co) {
+      this.$store.dispatch(ActionNames.SaveCollectionObject, co)
     }
   }
 }
@@ -75,6 +123,12 @@ export default {
   }
   .vue-table {
     min-width: 100%;
+  }
+  .lock-biocuration {
+    width: 30px;
+  }
+  .total-size {
+    width: 50px;
   }
 </style>
 
