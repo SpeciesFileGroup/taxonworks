@@ -3,8 +3,11 @@
     <div slot="header">
       <h3>Determinations</h3>
     </div>
-    <div slot="body">
-      <fieldset class="separate-bottom">
+    <div
+      slot="body"
+      id="taxon-determination-digitize">
+      <fieldset
+        class="separate-bottom">
         <legend>OTU</legend>
         <smart-selector
           v-model="view"
@@ -13,7 +16,7 @@
           :options="options"/>
         <template>
           <div 
-            v-if="view == 'new/Search'"
+            v-if="view == 'new/Search' && !otu"
             class="horizontal-left-content">
             <otu-picker
               @getItem="otu = $event.id; otuSelected = $event.label_html"/> 
@@ -41,7 +44,14 @@
             </li>
           </ul>
         </template>
-        <p v-html="otuSelected"/>
+        <div
+          v-if="otuSelected"
+          class="horizontal-left-content">
+          <p v-html="otuSelected"/>
+          <span
+            class="circle-button button-default btn-undo"
+            @click="otu = undefined; otuSelected = undefined"/>
+        </div>
       </fieldset>
       <fieldset>
         <legend>Determiner</legend>
@@ -256,13 +266,19 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-  label {
-    display: block;
-  }
-  .date-fields {
-    input {
-      max-width: 60px;
+<style lang="scss">
+  #taxon-determination-digitize {
+    label {
+      display: block;
     }
+    .date-fields {
+      input {
+        max-width: 60px;
+      }
+    }
+      .vue-autocomplete-input {
+        max-width: 150px;
+      }
+    
   }
 </style>

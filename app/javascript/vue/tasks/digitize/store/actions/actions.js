@@ -1,5 +1,10 @@
 import ActionNames from './actionNames'
+
+import loadDigitalization from './loadDigitalization'
 import getTaxon from './getTaxon'
+import getTypeMaterial from './getTypeMaterial'
+import getTaxonDeterminations from './getTaxonDeterminations'
+import getCollectionObject from './getCollectionObject'
 import saveDigitalization from './saveDigitalization'
 import saveIdentifier from './saveIdentifier'
 import saveCollectionObject from './saveCollectionObject'
@@ -17,7 +22,11 @@ import removeDepictionsByImageId from './removeDepictionsByImageId'
 import removeTaxonDetermination from './removeTaxonDetermination'
 
 const ActionFunctions = {
+  [ActionNames.LoadDigitalization]: loadDigitalization,
   [ActionNames.GetTaxon]: getTaxon,
+  [ActionNames.GetTypeMaterial]: getTypeMaterial,
+  [ActionNames.GetCollectionObject]: getCollectionObject,
+  [ActionNames.GetTaxonDeterminations]: getTaxonDeterminations,
   [ActionNames.SaveDigitalization]: saveDigitalization,
   [ActionNames.SaveIdentifier]: saveIdentifier,
   [ActionNames.SaveCollectionObject]: saveCollectionObject,

@@ -8,6 +8,7 @@
       </button>
       <span>Que
         <input
+          :disabled="!(printLabel && printLabel.length)"
           v-model="que"
           type="number">
       </span>

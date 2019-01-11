@@ -2,18 +2,8 @@
   <div>
     <h2 class="flex-separate">{{ (collectionObjects.length > 1 ? 'Container details' : 'Object details') }}
       <div>
-        <button 
-          type="button"
-          v-shortkey="[getMacKey(), 'n']"
-          @shortkey="newDigitalization"
-          class="button normal-input button-submit separate-right"
-          @click="saveCollectionObject">Save</button>  
-        <button 
-          type="button"
-          @shortkey="saveAndNew"
-          class="button normal-input button-submit separate-right"
-          @click="saveAndNew">Save and new</button> 
         <button
+          :disabled="!collectionObjects.length"
           type="button"
           @click="saveAndNew"
           class="button normal-input button-default">Add to container
@@ -51,11 +41,6 @@ export default {
         this.$store.dispatch(ActionNames.NewIdentifier)
         this.$store.commit(MutationNames.NewTaxonDetermination)
         this.$store.commit(MutationNames.SetTaxonDeterminations, [])
-      },
-      saveCollectionObject() {
-        this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
-          this.$store.commit(MutationNames.SetTaxonDeterminations, [])
-        })
       },
       saveAndNew() {
         this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {

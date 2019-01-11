@@ -100,8 +100,8 @@ export default {
     }
   },
   methods: {
-    setCO(value) {
-      this.$store.commit(MutationNames.SetCollectionObject, value)
+    setCO(co) {
+      this.$store.dispatch(ActionNames.LoadDigitalization, co.id)
     },
     removeCO(id) {
       if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {

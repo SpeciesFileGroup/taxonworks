@@ -6,7 +6,6 @@
         <label>
           <input
             type="radio"
-            :disabled="collectionObjects.length > 0"
             :value="type.id"
             v-model="preparationType"
             name="collection-object-type">

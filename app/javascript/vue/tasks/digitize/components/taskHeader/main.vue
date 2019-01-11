@@ -13,14 +13,18 @@
           v-html="identifier.object_tag"/>
       </div>
       <div class="horizontal-left-content">
-        <button
-          class="button normal-input button-submit separate-left separate-right"
-          @click="saveDigitalization"
+        <button 
+          type="button"
           v-shortkey="[getMacKey(), 's']"
-          @shortkey="saveDigitalization"
-          type="button">Save
-        </button>
+          @shortkey="newDigitalization"
+          class="button normal-input button-submit separate-right"
+          @click="saveDigitalization">Save</button>  
+        <button 
+          type="button"
+          class="button normal-input button-submit separate-right"
+          @click="saveAndNew">Save and new</button> 
         <div
+          class="cursor-pointer"
           v-shortkey="[getMacKey(), 'r']"
           @shortkey="resetStore"
           @click="resetStore">
@@ -56,7 +60,26 @@
       },
       resetStore() {
         this.$store.commit(MutationNames.ResetStore)
-      }
+      },
+      saveAndNew() {
+        this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
+          let that = this
+          setTimeout(() => {
+            that.newDigitalization()
+          }, 500)
+        })
+      },
+      newDigitalization() {
+        this.$store.dispatch(ActionNames.NewCollectionObject)
+        this.$store.dispatch(ActionNames.NewIdentifier)
+        this.$store.commit(MutationNames.NewTaxonDetermination)
+        this.$store.commit(MutationNames.SetTaxonDeterminations, [])
+      },
+      saveCollectionObject() {
+        this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
+          this.$store.commit(MutationNames.SetTaxonDeterminations, [])
+        })
+      },
     }
   }
 </script>
