@@ -5,9 +5,14 @@ export default function ({ commit, dispatch, state }) {
     let determinations = state.taxon_determinations
     state.taxon_determinations = []
 
+    let promises = []
     determinations.forEach((determination => {
-      dispatch(ActionNames.SaveDetermination, determination)
+      promises.push(dispatch(ActionNames.SaveDetermination, determination))
     }))
+
+    Promise.all(promises).then(() => {
+      resolve()
+    }) 
 
   })
 }

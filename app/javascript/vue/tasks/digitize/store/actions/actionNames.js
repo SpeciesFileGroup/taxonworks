@@ -22,7 +22,8 @@ const ActionNames = {
   SaveLabel: 'saveLabel',
   RemoveDepictionsByImageId: 'removeDepictionsByImageId',
   RemoveTaxonDetermination: 'removeTaxonDetermination',
-  ResetWithDefault: 'resetWithDefault'
+  ResetWithDefault: 'resetWithDefault',
+  AddToContainer: 'addToContainer'
 }
 
 export default ActionNames
