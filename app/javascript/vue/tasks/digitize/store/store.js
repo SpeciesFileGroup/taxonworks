@@ -19,7 +19,8 @@ function makeInitialState () {
           buffered_determinations: false,
           buffered_collecting_event: false,
           buffered_other_labels: false,
-          repository_id: false
+          repository_id: false,
+          preparation_type_id: false
         }
       }
     },

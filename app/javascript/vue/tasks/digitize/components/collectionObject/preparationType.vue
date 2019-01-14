@@ -1,18 +1,22 @@
 <template>
   <div>
     <h2>Preparation</h2>
-    <ul class="no_bullets">
-      <li v-for="type in coTypes">
-        <label>
-          <input
-            type="radio"
-            :value="type.id"
-            v-model="preparationType"
-            name="collection-object-type">
-          {{ type.name }}
-        </label>
-      </li>
-    </ul>
+    <div class="horizontal-left-content align-start">
+      <ul class="no_bullets preparation-list">
+        <li v-for="type in coTypes">
+          <label>
+            <input
+              type="radio"
+              :checked="type.id == preparationType"
+              :value="type.id"
+              v-model="preparationType"
+              name="collection-object-type">
+            {{ type.name }}
+          </label>
+        </li>
+      </ul>
+      <lock-component v-model="locked.collection_object.preparation_type_id"/>
+    </div>
   </div>
 </template>
 
@@ -21,18 +25,30 @@
   import { MutationNames } from '../../store/mutations/mutations.js'
   import { GetterNames } from '../../store/getters/getters.js'
   import { GetPreparationTypes } from '../../request/resources.js'
+  import LockComponent from 'components/lock'
 
   export default {
+    components: {
+      LockComponent
+    },
     computed: {
+      locked: {
+        get() {
+          return this.$store.getters[GetterNames.GetLocked]
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetLocked, value)
+        }
+      },
       collectionObjects() {
         return this.$store.getters[GetterNames.GetCollectionObjects]
       },
       preparationType: {
         get() {
-          return this.$store.getters[GetterNames.GetPreparationType]
+          return this.$store.getters[GetterNames.GetCollectionObject].preparation_type_id
         },
         set(value) {
-          this.$store.commit(MutationNames.SetPreparationType, value)
+          this.$store.commit(MutationNames.SetCollectionObjectPreparationId, value)
         }
       },
       coTypes: {
@@ -52,6 +68,8 @@
   }
 </script>
 
-<style>
-
+<style scoped>
+  .preparation-list {
+    width: 150px;
+  }
 </style>
