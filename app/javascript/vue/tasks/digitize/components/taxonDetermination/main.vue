@@ -9,11 +9,14 @@
       <fieldset
         class="separate-bottom">
         <legend>OTU</legend>
-        <smart-selector
-          v-model="view"
-          class="separate-bottom"
-          name="otu-determination"
-          :options="options"/>
+        <div class="horizontal-left-content separate-bottom middle">
+          <smart-selector
+            v-model="view"
+            class="separate-right"
+            name="otu-determination"
+            :options="options"/>
+          <lock-component v-model="locked.taxon_determination.otu_id"/>
+        </div>
         <template>
           <div 
             v-if="view == 'new/Search' && !otu"
@@ -55,11 +58,14 @@
       </fieldset>
       <fieldset>
         <legend>Determiner</legend>
-        <smart-selector
-          v-model="viewDeterminer"
-          class="separate-bottom"
-          name="determiner"
-          :options="optionsDeterminer"/>
+        <div class="horizontal-left-content separate-bottom middle">
+          <smart-selector
+            v-model="viewDeterminer"
+            class="separate-right"
+            name="determiner"
+            :options="optionsDeterminer"/>
+          <lock-component v-model="locked.taxon_determination.roles_attributes"/>
+        </div>
         <template>
           <div
             v-if="viewDeterminer != 'new/Search'"
@@ -106,12 +112,15 @@
         </div>
         <div>
           <label>&nbsp</label>
-          <button
-            type="button"
-            class="button normal-input button-default separate-left"
-            @click="setActualDate">
-            Now
-          </button>
+          <div class="align-start">
+            <button
+              type="button"
+              class="button normal-input button-default separate-left separate-right"
+              @click="setActualDate">
+              Now
+            </button>
+            <lock-component v-model="locked.taxon_determination.dates"/>
+          </div>
         </div>
       </div>
       <button
@@ -141,6 +150,7 @@ import { ActionNames } from '../../store/actions/actions';
 import DisplayList from 'components/displayList.vue'
 import CreatePerson from '../../helpers/createPerson.js'
 import { GetOtu, GetOtuSmartSelector, GetTaxonDeterminatorSmartSelector } from '../../request/resources.js'
+import LockComponent from 'components/lock'
 
 export default {
   components: {
@@ -149,9 +159,18 @@ export default {
     OtuPicker,
     BlockLayout,
     DisplayList,
-    PinDefault
+    PinDefault,
+    LockComponent
   },
   computed: {
+    locked: {
+      get() {
+        return this.$store.getters[GetterNames.GetLocked]
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetLocked, value)
+      }
+    },
     otu: {
       get() {
         return this.$store.getters[GetterNames.GetTaxonDetermination].otu_id

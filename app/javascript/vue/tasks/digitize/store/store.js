@@ -21,6 +21,13 @@ function makeInitialState () {
           buffered_other_labels: false,
           repository_id: false,
           preparation_type_id: false
+        },
+        taxon_determination: {
+          otu_id: false,
+          year_made: false,
+          month_made: false,
+          day_made: false,
+          roles_attributes: false,          
         }
       }
     },
