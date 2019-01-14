@@ -83,8 +83,9 @@ export default {
   watch: {
     objectValue (newVal, oldVal) {
       if (newVal.id && (newVal.id != oldVal.id)) {
+        console.log("Works")
         this.$refs.depiction.setOption('autoProcessQueue', true)
-
+        this.$refs.depiction.processQueue()
           this.getDepictions(newVal.id).then(response => {
             this.figuresList = response
           })
