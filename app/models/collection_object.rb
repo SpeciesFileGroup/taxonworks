@@ -318,7 +318,7 @@ class CollectionObject < ApplicationRecord
     else
       d = a || b
     end
-    d.to_s + '/01/01'
+    d.to_s + '-01-01'
   end
 
   # TODO: this should be refactored to be collection object centric AFTER
@@ -327,7 +327,7 @@ class CollectionObject < ApplicationRecord
     a = CollectingEvent.joins(:collection_objects).where(project_id: project_id).maximum(:start_date_year)
     b = CollectingEvent.joins(:collection_objects).where(project_id: project_id).maximum(:end_date_year)
 
-    c = Time.now.strftime('%Y/%m/%d')
+    c = Time.now.strftime('%Y-%m-%d')
 
     return c if a.nil? && b.nil?
 
@@ -562,8 +562,8 @@ class CollectionObject < ApplicationRecord
     retval
   end
 
-  # @param [Hash] search_start_date string in form 'yyyy/mm/dd'
-  # @param [Hash] search_end_date string in form 'yyyy/mm/dd'
+  # @param [Hash] search_start_date string in form 'yyyy-mm-dd'
+  # @param [Hash] search_end_date string in form 'yyyy-mm-dd'
   # @param [Hash] partial_overlap 'on' or 'off'
   # @return [Scope] of selected collection objects through collecting events with georeferences, remember to scope to project!
   def self.in_date_range(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
