@@ -2,7 +2,7 @@ import { MutationNames } from '../mutations/mutations'
 import { CreateIdentifier, UpdateIdentifier } from '../../request/resources'
 
 export default function ({ commit, state }) {
-  return new Promise((resolve, rejected) => {
+  return new Promise((resolve, reject) => {
     let identifier = state.identifier
     if(state.collection_object.id && identifier.namespace_id && identifier.identifier) {
       commit(MutationNames.SetIdentifierObjectId, state.collection_object.id)
@@ -24,7 +24,8 @@ export default function ({ commit, state }) {
         })
       }
     }
-  }, (response) => {
-    return rejected(response)
+    else {
+      resolve()
+    }
   })
 }

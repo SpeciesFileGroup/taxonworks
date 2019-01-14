@@ -24,8 +24,10 @@ import saveLabel from './saveLabel'
 import removeDepictionsByImageId from './removeDepictionsByImageId'
 import removeTaxonDetermination from './removeTaxonDetermination'
 import resetWithDefault from './resetWithDefault'
+import addToContainer from './AddToContainer'
 
 const ActionFunctions = {
+  [ActionNames.AddToContainer]: addToContainer,
   [ActionNames.LoadDigitalization]: loadDigitalization,
   [ActionNames.GetTaxon]: getTaxon,
   [ActionNames.GetTypeMaterial]: getTypeMaterial,

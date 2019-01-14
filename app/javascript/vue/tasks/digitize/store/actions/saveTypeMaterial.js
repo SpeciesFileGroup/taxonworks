@@ -23,5 +23,8 @@ export default function ({ commit, state }) {
         })
       }
     }
+    else {
+      resolve()
+    }
   })
 }

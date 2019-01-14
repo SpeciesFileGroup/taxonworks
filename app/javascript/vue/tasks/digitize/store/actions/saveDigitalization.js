@@ -7,32 +7,16 @@ export default function ({ commit, dispatch, state }) {
     dispatch(ActionNames.SaveCollectionEvent).then(() => {
       dispatch(ActionNames.SaveLabel)
       dispatch(ActionNames.SaveCollectionObject, state.collection_object).then((coCreated) => {
-        console.log(coCreated)
         commit(MutationNames.SetCollectionObject, coCreated)
         commit(MutationNames.AddCollectionObject, coCreated)
-        dispatch(ActionNames.SaveDeterminations)
-        dispatch(ActionNames.SaveTypeMaterial)
-        dispatch(ActionNames.SaveIdentifier)
-        if(!state.container) {
-          if(state.collection_objects.length == 2) {
-            dispatch(ActionNames.SaveContainer).then(() => {
-              state.collection_objects.forEach(co => {
-                dispatch(ActionNames.SaveContainerItem, co)
-                state.settings.saving = false
-                resolve(true)
-              })
-            })
-          }
-          else {
-            state.settings.saving = false
-            resolve(true)
-          }
-        }
-        else {
-          dispatch(ActionNames.SaveContainerItem, coCreated)
+        let promises = []
+        promises.push(dispatch(ActionNames.SaveDeterminations))
+        promises.push(dispatch(ActionNames.SaveTypeMaterial))
+        promises.push(dispatch(ActionNames.SaveIdentifier))
+        Promise.all(promises).then(() => {
           state.settings.saving = false
           resolve(true)
-        }        
+        })
       })
     })
   })

@@ -45,6 +45,7 @@ export default {
       saveAndNew() {
         this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
           let that = this
+          this.$store.dispatch(ActionNames.AddToContainer, this.collectionObject)
           setTimeout(() => {
             that.newDigitalization()
           }, 500)

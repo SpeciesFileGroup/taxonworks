@@ -19,7 +19,7 @@ export default function ({ commit, state }, determination) {
           TW.workbench.alert.create('Taxon determination was successfully updated.', 'notice')
           commit(MutationNames.SetTaxonDetermination, response)
           addToList(response)
-          return resolve(response)
+          resolve(response)
         })
       }
       else {
@@ -28,9 +28,12 @@ export default function ({ commit, state }, determination) {
           commit(MutationNames.SetTaxonDetermination, response)
           commit(MutationNames.SetTaxonDetermination, TaxonDetermination())
           addToList(response)
-          return resolve(response)
+          resolve(response)
         })
       }
+    }
+    else {
+      resolve()
     }
   })
 }
