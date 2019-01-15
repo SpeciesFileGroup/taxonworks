@@ -1,3 +1,5 @@
+require_dependency 'hub/data'
+
 module DataControllerConfiguration
   extend ActiveSupport::Concern
 

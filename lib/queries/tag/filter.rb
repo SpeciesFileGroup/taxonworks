@@ -24,7 +24,7 @@ module Queries
       # @return [ActiveRecord::Relation]
       def and_clauses
         clauses = [
-          Queries::Annotator.annotator_params(options, ::Tag),
+          ::Queries::Annotator.annotator_params(options, ::Tag),
           matching_keyword_id,
         ].compact
 
