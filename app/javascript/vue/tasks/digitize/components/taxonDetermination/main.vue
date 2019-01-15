@@ -150,6 +150,7 @@ import { ActionNames } from '../../store/actions/actions';
 import DisplayList from 'components/displayList.vue'
 import CreatePerson from '../../helpers/createPerson.js'
 import orderSmartSelector from '../../helpers/orderSmartSelector.js'
+import selectFirstSmartOption from '../../helpers/selectFirstSmartOption'
 import { GetOtu, GetOtuSmartSelector, GetTaxonDeterminatorSmartSelector } from '../../request/resources.js'
 import LockComponent from 'components/lock'
 
@@ -245,11 +246,13 @@ export default {
       this.options = orderSmartSelector(Object.keys(response))
       this.options.push('new/Search')
       this.lists = response
+      this.view = selectFirstSmartOption(response, this.options)
     })
     GetTaxonDeterminatorSmartSelector().then(response => {
       this.optionsDeterminer = orderSmartSelector(Object.keys(response))
       this.optionsDeterminer.push('new/Search')
-      this.listsDeterminator = response      
+      this.listsDeterminator = response
+      this.viewDeterminer = selectFirstSmartOption(response, this.optionsDeterminer)
     })
   },
   methods: {

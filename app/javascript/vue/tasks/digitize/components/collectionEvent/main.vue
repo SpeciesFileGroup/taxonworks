@@ -61,6 +61,7 @@
   import orderSmartSelector from '../../helpers/orderSmartSelector.js'
 
   import SearchComponent from './components/smart/search.vue'
+  import selectFirstSmartOption from '../../helpers/selectFirstSmartOption'
 
   import { 
     default as QuickComponent, 
@@ -103,6 +104,7 @@
       GetCollectingEventsSmartSelector().then(response => {
         this.tabs = orderSmartSelector(Object.keys(response))
         this.lists = response
+        this.view = selectFirstSmartOption(response, this.tabs)
       })
     },
     methods: {

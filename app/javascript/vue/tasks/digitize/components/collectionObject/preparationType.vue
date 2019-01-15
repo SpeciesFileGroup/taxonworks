@@ -67,9 +67,3 @@
     }
   }
 </script>
-
-<style scoped>
-  .preparation-list {
-    width: 100%;
-  }
-</style>

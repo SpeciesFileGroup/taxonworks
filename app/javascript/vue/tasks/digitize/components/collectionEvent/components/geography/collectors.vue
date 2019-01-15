@@ -42,6 +42,7 @@ import { GetterNames } from '../../../../store/getters/getters.js'
 import { MutationNames } from '../../../../store/mutations/mutations.js'
 import CreatePerson from '../../../../helpers/createPerson.js'
 import orderSmartSelector from '../../../../helpers/orderSmartSelector.js'
+import selectFirstSmartOption from '../../../../helpers/selectFirstSmartOption'
 
 export default {
   components: {
@@ -73,12 +74,9 @@ export default {
     GetSmartSelector() {
       GetCollectorsSmartSelector().then(response => {
         let result = response
-        Object.keys(result).forEach(key => (!result[key].length) && delete result[key])
         this.options = orderSmartSelector(Object.keys(result))
-        if(Object.keys(result).length) {
-          this.view = Object.keys(result)[0]
-        }
         this.lists = response
+        this.view = selectFirstSmartOption(response, this.options)
       })
     },
     roleExist(id) {
