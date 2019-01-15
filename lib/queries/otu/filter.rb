@@ -11,7 +11,7 @@ module Queries
 
     attr_accessor :verbatim_author # was verbatim_author_string
     attr_accessor :taxon_name_id, :taxon_name_ids, :otu_id, :otu_ids,
-                  :biological_association_ids, :taxon_name_classification_ids, :taxon_name_relationship_ids, :asserted_distribution_ids
+      :biological_association_ids, :taxon_name_classification_ids, :taxon_name_relationship_ids, :asserted_distribution_ids
 
     # @param [Hash] params
     def initialize(params)
@@ -79,10 +79,10 @@ module Queries
     # @return [Boolean]
     def author_set?
       case author_ids
-        when nil
-          false
-        else
-          author_ids.count > 0
+      when nil
+        false
+      else
+        author_ids.count > 0
       end
     end
 
@@ -131,18 +131,18 @@ module Queries
 
       geographic_area_ids.each do |ga_id|
         target_geographic_item_ids.push(
-            GeographicArea.joins(:geographic_items).find(ga_id).default_geographic_item.id
+          GeographicArea.joins(:geographic_items).find(ga_id).default_geographic_item.id
         )
       end
 
       gi_sql = GeographicItem.contained_by_where_sql(target_geographic_item_ids)
 
       ::Otu.where(id: (::Otu.joins(:asserted_distributions)
-                           .where(asserted_distributions: {id: AssertedDistribution.joins(:geographic_items)
-                                                                   .where(gi_sql).distinct})) +
-          (::Otu.joins(:collection_objects)
-               .where(collection_objects: {id: CollectionObject.joins(:geographic_items)
-                                                   .where(gi_sql).distinct})).distinct)
+        .where(asserted_distributions: {id: AssertedDistribution.joins(:geographic_items)
+        .where(gi_sql).distinct})) +
+      (::Otu.joins(:collection_objects)
+        .where(collection_objects: {id: CollectionObject.joins(:geographic_items)
+        .where(gi_sql).distinct})).distinct)
 
 
     end
@@ -155,16 +155,16 @@ module Queries
     #
     def shape_scope
       ::Otu.where(id: (::Otu.joins(:asserted_distributions)
-                           .where(asserted_distributions: {id: GeographicItem.gather_map_data(shape,
-                                                                                              'AssertedDistribution',
-                                                                                              project_id)
-                                                                   .distinct}) +
-          ::Otu.joins(:collection_objects)
-              .where(collection_objects: {id: GeographicItem.gather_map_data(shape,
-                                                                             'CollectionObject',
-                                                                             project_id)
-                                                  .distinct}))
-                          .uniq)
+        .where(asserted_distributions: {id: GeographicItem.gather_map_data(shape,
+                                                                           'AssertedDistribution',
+                                                                           project_id)
+        .distinct}) +
+      ::Otu.joins(:collection_objects)
+        .where(collection_objects: {id: GeographicItem.gather_map_data(shape,
+                                                                       'CollectionObject',
+                                                                       project_id)
+        .distinct}))
+        .uniq)
     end
 
     # @return [Scope]
@@ -191,40 +191,40 @@ module Queries
       r = ::Role.arel_table
 
       case and_or_select
-        when '_or_', nil
+      when '_or_', nil
 
-          c = r[:person_id].eq_any(author_ids).and(r[:type].eq('TaxonNameAuthor'))
-          ::Otu.joins(taxon_name: [:roles]).where(c.to_sql).distinct
+        c = r[:person_id].eq_any(author_ids).and(r[:type].eq('TaxonNameAuthor'))
+        ::Otu.joins(taxon_name: [:roles]).where(c.to_sql).distinct
 
-        when '_and_'
-          table_alias = 'tna' # alias for 'TaxonNameAuthor'
+      when '_and_'
+        table_alias = 'tna' # alias for 'TaxonNameAuthor'
 
-          o = ::Otu.arel_table
-          t = ::TaxonName.arel_table
+        o = ::Otu.arel_table
+        t = ::TaxonName.arel_table
 
-          b = o.project(o[Arel.star]).from(o)
-                  .join(t)
-                  .on(t['id'].eq(o['taxon_name_id']))
-                  .join(r).on(
-              r['role_object_id'].eq(t['id']).and(
-                  r['type'].eq('TaxonNameAuthor')
-              )
-          )
-
-          author_ids.each_with_index do |person_id, i|
-            x = r.alias("#{table_alias}_#{i}")
-            b = b.join(x).on(
-                x['role_object_id'].eq(t['id']),
-                x['type'].eq('TaxonNameAuthor'),
-                x['person_id'].eq(person_id)
+        b = o.project(o[Arel.star]).from(o)
+          .join(t)
+          .on(t['id'].eq(o['taxon_name_id']))
+          .join(r).on(
+            r['role_object_id'].eq(t['id']).and(
+              r['type'].eq('TaxonNameAuthor')
             )
-          end
+        )
 
-          b = b.group(o['id']).having(r['person_id'].count.gteq(author_ids.count))
-          b = b.as("z_#{table_alias}")
+        author_ids.each_with_index do |person_id, i|
+          x = r.alias("#{table_alias}_#{i}")
+          b = b.join(x).on(
+            x['role_object_id'].eq(t['id']),
+            x['type'].eq('TaxonNameAuthor'),
+            x['person_id'].eq(person_id)
+          )
+        end
 
-          # noinspection RubyResolve
-          ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
+        b = b.group(o['id']).having(r['person_id'].count.gteq(author_ids.count))
+        b = b.as("z_#{table_alias}")
+
+        # noinspection RubyResolve
+        ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
       end
     end
 
@@ -264,14 +264,14 @@ module Queries
       d = ba.alias('b2')
 
       b = b.join(c, Arel::Nodes::OuterJoin)
-              .on(
-                  a[:taxon_name_id].eq(c[:subject_taxon_name_id])
-              )
+        .on(
+          a[:taxon_name_id].eq(c[:subject_taxon_name_id])
+      )
 
       b = b.join(d, Arel::Nodes::OuterJoin)
-              .on(
-                  a[:id].eq(d[:object_taxon_name_id])
-              )
+        .on(
+          a[:id].eq(d[:object_taxon_name_id])
+      )
 
       e = c[:subject_taxon_name_id].not_eq(nil)
       f = d[:object_taxon_name_id].not_eq(nil)
@@ -298,16 +298,16 @@ module Queries
       d = ba.alias('b2')
 
       b = b.join(c, Arel::Nodes::OuterJoin)
-              .on(
-                  a[:id].eq(c[:biological_association_subject_id])
-                      .and(c[:biological_association_subject_type].eq('Otu'))
-              )
+        .on(
+          a[:id].eq(c[:biological_association_subject_id])
+        .and(c[:biological_association_subject_type].eq('Otu'))
+      )
 
       b = b.join(d, Arel::Nodes::OuterJoin)
-              .on(
-                  a[:id].eq(d[:biological_association_object_id])
-                      .and(d[:biological_association_object_type].eq('Otu'))
-              )
+        .on(
+          a[:id].eq(d[:biological_association_object_id])
+        .and(d[:biological_association_object_type].eq('Otu'))
+      )
 
       e = c[:biological_association_subject_id].not_eq(nil)
       f = d[:biological_association_object_id].not_eq(nil)
@@ -333,9 +333,9 @@ module Queries
       c = tnc.alias('tnc1')
 
       b = b.join(c, Arel::Nodes::OuterJoin)
-              .on(
-                  a[:taxon_name_id].eq(c[:taxon_name_id])
-              )
+        .on(
+          a[:taxon_name_id].eq(c[:taxon_name_id])
+      )
 
       e = c[:id].not_eq(nil)
       f = c[:id].eq_any(taxon_name_classification_ids)
@@ -344,7 +344,7 @@ module Queries
       b = b.group(a['id'])
       b = b.as('z3_')
 
-      _a = ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
+      ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
     end
 
     def matching_asserted_distribution_ids
@@ -358,9 +358,9 @@ module Queries
       c = ad.alias('ad1')
 
       b = b.join(c, Arel::Nodes::OuterJoin)
-              .on(
-                  a[:id].eq(c[:otu_id])
-              )
+        .on(
+          a[:id].eq(c[:otu_id])
+      )
 
       e = c[:otu_id].not_eq(nil)
       f = c[:id].eq_any(asserted_distribution_ids)
@@ -369,17 +369,17 @@ module Queries
       b = b.group(a['id'])
       b = b.as('z4_')
 
-      _a = ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
+      ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
     end
 
     # @return [ActiveRecord::Relation, nil]
     def and_clauses
       clauses = [
-          matching_taxon_name_ids,
-          matching_otu_ids,
+        matching_taxon_name_ids,
+        matching_otu_ids,
 
-      # matching_verbatim_author
-      # Queries::Annotator.annotator_params(options, ::Citation),
+        # matching_verbatim_author
+        # Queries::Annotator.annotator_params(options, ::Citation),
       ].compact
 
       return nil if clauses.empty?
@@ -393,12 +393,12 @@ module Queries
 
     def merge_clauses
       clauses = [
-          matching_biological_association_ids,
-          matching_asserted_distribution_ids,
-          matching_taxon_name_classification_ids,
-          matching_taxon_name_relationship_ids
+        matching_biological_association_ids,
+        matching_asserted_distribution_ids,
+        matching_taxon_name_classification_ids,
+        matching_taxon_name_relationship_ids
 
-      # matching_verbatim_author
+        # matching_verbatim_author
       ].compact
 
       return nil if clauses.empty?
@@ -421,7 +421,7 @@ module Queries
       elsif b
         b.distinct
       else
-        ::Otu.none
+        ::Otu.all
       end
     end
 

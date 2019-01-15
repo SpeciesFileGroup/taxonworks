@@ -12,9 +12,8 @@ class IdentifiersController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @identifiers = Identifier.where(project_id: sessions_current_project_id).where(
-          Queries::Annotator::polymorphic_params(params, Identifier)
-        )
+        @identifiers = Queries::Identifier::Filter.new(params).all
+          .where(project_id: sessions_current_project_id).page(params[:page] || 1).per(500)
       }
     end
   end
