@@ -171,6 +171,16 @@
   background-image: image-url("w_locked.svg");
 }
 
+.btn-show {
+  background-size: 12px;
+  background-image: image-url("w_show.svg");
+}
+
+.btn-hide {
+  background-size: 12px;
+  background-image: image-url("w_hide.svg");
+}
+
 .btn-unlocked {
   background-size: 12px;
   background-image: image-url("w_unlocked.svg");

@@ -25,16 +25,43 @@
             <preparation-type/>
           </div>
         </div>
-        <buffered-component class="separate-top"/>
-        <depictions-component
-          class="separate-top"
-          :object-value="collectionObject"
-          :get-depictions="GetCollectionObjectDepictions"
-          object-type="CollectionObject"
-          @create="createDepictionForAll"
-          @delete="removeAllDepictionsByImageId"
-          default-message="Drop images here to add collection object figures"
-          action-save="SaveCollectionObject"/>
+        <div class="horizontal-left-content middle">
+          <buffered-component
+            v-if="showBuffered"
+            class="separate-top separate-right"/>
+          <div class="middle">
+            <btn-show
+              class="separate-right"
+              :value="showBuffered"
+              @input="showBuffered = $event; updatePreferences('tasks::digitize::collectionObjects::showBuffered', showBuffered)"/>
+            <span
+              v-if="!showBuffered"
+              class="separate-left">Show buffered fields
+            </span>
+          </div>
+        </div>
+        <div class="horizontal-left-content separate-top">
+          <depictions-component
+            v-if="showDepictions"
+            class="separate-top"
+            :object-value="collectionObject"
+            :get-depictions="GetCollectionObjectDepictions"
+            object-type="CollectionObject"
+            @create="createDepictionForAll"
+            @delete="removeAllDepictionsByImageId"
+            default-message="Drop images here to add collection object figures"
+            action-save="SaveCollectionObject"/>
+          <div class="middle">
+            <btn-show
+              class="separate-right"
+              :value="showDepictions"
+              @input="showDepictions = $event; updatePreferences('tasks::digitize::collectionObjects::showDepictions', showDepictions)"/>
+            <span
+              v-if="!showDepictions"
+              class="separate-left">Show depictions
+            </span>
+          </div>
+        </div>
         <container-items/>
       </div>
     </block-layout>
@@ -57,7 +84,8 @@
   import BlockLayout from '../../../../components/blockLayout.vue'
   import RadialAnnotator from '../../../../components/annotator/annotator.vue'
   import LockComponent from 'components/lock.vue'
-  import { GetCollectionObjectDepictions, CreateDepiction } from '../../request/resources.js'
+  import btnShow from 'components/btnShow.vue'
+  import { GetCollectionObjectDepictions, CreateDepiction, UpdateUserPreferences } from '../../request/resources.js'
 
   export default {
     components: {
@@ -71,9 +99,18 @@
       DepictionsComponent,
       RepositoryComponent,
       BlockLayout,
-      RadialAnnotator
+      RadialAnnotator,
+      btnShow
     },
     computed: {
+      preferences: {
+        get() {
+          return this.$store.getters[GetterNames.GetPreferences]
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetPreferences, value)
+        }
+      },
       collectionObject () {
         return this.$store.getters[GetterNames.GetCollectionObject]
       },
@@ -102,6 +139,8 @@
         types: [],
         labelRepository: undefined,
         labelEvent: undefined,
+        showDepictions: true,
+        showBuffered: true,
         GetCollectionObjectDepictions
       }
     },
@@ -110,9 +149,28 @@
         if(newVal.id) {
           this.cloneDepictions(newVal)
         }
+      },
+      preferences: {
+        handler(newVal) {
+          if(newVal) {
+            let layout = newVal['layout']
+            if(layout) {
+              let sDepictions = layout['tasks::digitize::collectionObjects::showDepictions']
+              let sBuffered = layout['tasks::digitize::collectionObjects::showBuffered']
+              this.showDepictions = (sDepictions != undefined ? sDepictions : true)
+              this.showBuffered = (sBuffered != undefined ? sBuffered : true)
+            }
+          }
+        },
+        deep: true
       }
     },
     methods: {
+      updatePreferences(key, value) {
+        UpdateUserPreferences(this.preferences.id, { [key]: value }).then(response => {
+          this.preferences.layout = response.preferences.layout
+        })
+      },
       getMacKey: function () {
         return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
       },
