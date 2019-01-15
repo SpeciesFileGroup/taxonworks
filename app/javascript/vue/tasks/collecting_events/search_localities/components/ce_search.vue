@@ -1,7 +1,7 @@
 <template>
   <div class="find-ce">
     <h3>Find collecting events by geographic area</h3>
-    <div>
+    <div v-if="mode='list'">
       <table>
         <tr
           v-for="(item, index) in geographicAreaList"
@@ -14,7 +14,6 @@
           <td><span @click="delistMe(index)">(Remove)</span></td>
         </tr>
       </table>
-    </div>
     <autocomplete
       class="separate-bottom"
       url="/geographic_areas/autocomplete"
@@ -27,7 +26,12 @@
       :autofocus="true"
       :clear-after="true"
     />
-    <div>
+      <input
+        type="button"
+        @click="getAreaData()"
+        value="Find">
+    </div>
+    <div v-if="mode='map'">
       <g-map
        :lat="0"
        :lng="0"
@@ -35,10 +39,6 @@
        @shape="shapes.push($event)"
       />
     </div>
-    <input
-      type="button"
-      @click="getAreaData()"
-      value="Find">
     <div>
       <span v-if="collectingEventList.length" v-html="'<br>' + collectingEventList.length + '  results found.'"/>
       <table>
@@ -75,16 +75,10 @@
       return {
         geographicAreaList: [],
         collectingEventList: [],
-        shapes: [],
+        shapes: [],   // intended for eventual multiple shapes paradigm
+        mode: 'map',
       }
     },
-  // :height="300"
-  // :width="600"
-  // :shapes="shapes"
-  // :lat="0"
-  // :lng="0"
-  // :zoom="2"
-  // @shape="saveGeoreference($event)"
     methods: {
       getAreaData(){
         let geo_ids = [];
@@ -98,23 +92,13 @@
           this.collectingEventList = response.body;
         });
       },
-      getShape() {
-        this.shapes = this.$event;
-      },
       getShapesData(){
-        // let geo_ids = [];
-        // this.shapes.forEach(area => {
-        //   geo_ids.push(area.id)
-        // });
-        // let params = {
-        //   spatial_geographic_area_ids: geo_ids
-        // };
-        // this.$http.get('/collecting_events', {params: params}).then(response => {
-        //   this.collectingEventList = response.body;
-        // });
-        let params = {shape: this.shapes[this.shapes.length - 1]};
+        let params = {shape: this.shapes[this.shapes.length - 1]};  // take only last shape pro tem
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
-          this.collectingEventList = response.body;
+          if(this.collectingEventList.length)
+            {this.collectingEventList = this.collectingEventList.concat(response.body);}
+          else
+            {this.collectingEventList = response.body;}
         } )
       },
       addGeographicArea(item) {
