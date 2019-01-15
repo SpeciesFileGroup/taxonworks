@@ -21,6 +21,8 @@ module Queries
 
       attr_accessor :type
 
+      # TODO -> attribute does nothing yet
+      # Probably turn it into component parts
       attr_accessor :object_global_id
 
       # @params params [ActionController::Parameters]
