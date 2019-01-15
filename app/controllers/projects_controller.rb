@@ -59,9 +59,11 @@ class ProjectsController < ApplicationController
   # DELETE /projects/1
   # DELETE /projects/1.json
   def destroy
-
     redirect_to projects_url, notice: 'Nice try, not this time.'
+  end
 
+  def preferences
+    @project = sessions_current_project
   end
 
   def select

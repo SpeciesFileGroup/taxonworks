@@ -998,6 +998,7 @@ TaxonWorks::Application.routes.draw do
   end
 
   match '/preferences', to: 'users#preferences', via: 'get', defaults: {format: :json}
+  match '/project_preferences', to: 'projects#preferences', via: 'get', defaults: {format: :json}
 
   match '/signup', to: 'users#new', via: 'get'
   get '/forgot_password', to: 'users#forgot_password', as: 'forgot_password'
