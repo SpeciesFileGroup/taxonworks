@@ -1,7 +1,8 @@
 <template>
   <div class="find-ce">
-    <h3>Find collecting events by geographic area</h3>
-    <div v-if="mode='list'">
+    <h2>Find collecting events by geographic area</h2>
+    <mode-switch v-model="mode"/>
+    <div v-if="mode==='list'">
       <table>
         <tr
           v-for="(item, index) in geographicAreaList"
@@ -31,15 +32,23 @@
         @click="getAreaData()"
         value="Find">
     </div>
-    <div v-if="mode='map'">
+    <div v-if="mode==='map'">
       <g-map
        :lat="0"
        :lng="0"
        :zoom="1"
        @shape="shapes.push($event)"
       />
+      <input
+        type="button"
+        @click="getShapesData()"
+        value="Find">
     </div>
     <div>
+      <div>
+        <h2>Result list</h2>
+        <annotation-logic v-model="annotation_logic"/>
+      </div>
       <span v-if="collectingEventList.length" v-html="'<br>' + collectingEventList.length + '  results found.'"/>
       <table>
         <th>Cached</th><th>verbatim locality</th>
@@ -55,28 +64,31 @@
           <td><span v-html="item.verbatim_locality" /></td>
         </tr>
       </table>
-      <input
-        type="button"
-        @click="getShapesData()"
-        value="Find">
+
     </div>
   </div>
 </template>
 <script>
   import Autocomplete from 'components/autocomplete'
   import gMap from './googleMap.vue'
+  import AnnotationLogic from 'browse_annotations/components/annotation_logic'
+  import ModeSwitch from './mode_switch'
 
   export default {
     components: {
       Autocomplete,
-      gMap
+      gMap,
+      AnnotationLogic,
+      ModeSwitch,
     },
     data() {
       return {
         geographicAreaList: [],
         collectingEventList: [],
         shapes: [],   // intended for eventual multiple shapes paradigm
-        mode: 'map',
+        mode: '',
+        annotation_logic: 'replace',
+        // list_or_map: ['list', 'map'],
       }
     },
     methods: {
@@ -95,10 +107,17 @@
       getShapesData(){
         let params = {shape: this.shapes[this.shapes.length - 1]};  // take only last shape pro tem
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
-          if(this.collectingEventList.length)
+          if(this.annotation_logic == 'append') {
+            if(this.collectingEventList.length)
             {this.collectingEventList = this.collectingEventList.concat(response.body);}
-          else
+            else
             {this.collectingEventList = response.body;}
+          }
+          else {
+            {
+              this.collectingEventList = response.body;
+            }
+          }
         } )
       },
       addGeographicArea(item) {
