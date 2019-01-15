@@ -131,7 +131,7 @@ class ProjectsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def project_params
-    params.require(:project).permit(:name)
+    params.require(:project).permit(:name, Project.key_value_preferences, Project.array_preferences, Project.hash_preferences)
   end
 
   def go_to

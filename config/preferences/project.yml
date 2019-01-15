@@ -1,0 +1,20 @@
+# !! YOU MUST RESTART THE SERVER FOR CHANGES HERE TO TAKE AFFECT !!
+#
+# This is the default project preference set.
+#
+# * Values of `nil` should be avoided!
+#
+---
+
+workbench_starting_path: '/hub'
+is_api_accessible: false
+layout: { }  # element_set_id: { element_id: position } 
+model_predicate_sets: 
+  - Otu: []
+  - AssertedDistribution: []
+  - CollectionObject: []
+  - CollectingEvent: []
+default_hub_tab_order: # not ported
+  - tasks
+  - data
+  - favorite
