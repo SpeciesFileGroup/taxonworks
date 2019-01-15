@@ -58,6 +58,7 @@
   import PinDefault from 'components/getDefaultPin'
   import { GetCollectingEventsSmartSelector, GetCollectionEvent } from '../../request/resources.js'
   import makeCollectingEvent from '../../const/collectingEvent.js'
+  import orderSmartSelector from '../../helpers/orderSmartSelector.js'
 
   import SearchComponent from './components/smart/search.vue'
 
@@ -100,7 +101,7 @@
     },
     mounted() {
       GetCollectingEventsSmartSelector().then(response => {
-        this.tabs = Object.keys(response)
+        this.tabs = orderSmartSelector(Object.keys(response))
         this.lists = response
       })
     },

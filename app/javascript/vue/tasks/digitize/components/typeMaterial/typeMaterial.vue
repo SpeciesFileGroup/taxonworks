@@ -139,6 +139,7 @@
   import ValidateTypeMaterial from '../../validations/typeMaterial.js'
   import SmartSelector from 'components/switch.vue'
   import CreatePerson from '../../helpers/createPerson.js'
+  import orderSmartSelector from '../../helpers/orderSmartSelector.js'
 
   export default {
     components: {
@@ -199,12 +200,12 @@
         this.types = response
       })
       GetTypeDesignatorSmartSelector().then(response => {
-        this.options = Object.keys(response)
+        this.options = orderSmartSelector(Object.keys(response))
         this.lists = response
         this.options.push("new/Search")
       })
       GetTaxonNameSmartSelector().then(response => {
-        this.optionsTaxon = Object.keys(response)
+        this.optionsTaxon = orderSmartSelector(Object.keys(response))
         this.listsTaxon = response   
         this.optionsTaxon.push("search") 
       })

@@ -149,8 +149,10 @@ import BlockLayout from 'components/blockLayout.vue'
 import { ActionNames } from '../../store/actions/actions';
 import DisplayList from 'components/displayList.vue'
 import CreatePerson from '../../helpers/createPerson.js'
+import orderSmartSelector from '../../helpers/orderSmartSelector.js'
 import { GetOtu, GetOtuSmartSelector, GetTaxonDeterminatorSmartSelector } from '../../request/resources.js'
 import LockComponent from 'components/lock'
+
 
 export default {
   components: {
@@ -240,12 +242,12 @@ export default {
   },
   mounted() {
     GetOtuSmartSelector().then(response => {
-      this.options = Object.keys(response)
+      this.options = orderSmartSelector(Object.keys(response))
       this.options.push('new/Search')
       this.lists = response
     })
     GetTaxonDeterminatorSmartSelector().then(response => {
-      this.optionsDeterminer = Object.keys(response)
+      this.optionsDeterminer = orderSmartSelector(Object.keys(response))
       this.optionsDeterminer.push('new/Search')
       this.listsDeterminator = response      
     })

@@ -41,6 +41,7 @@ import { GetCollectorsSmartSelector } from '../../../../request/resources.js'
 import { GetterNames } from '../../../../store/getters/getters.js'
 import { MutationNames } from '../../../../store/mutations/mutations.js'
 import CreatePerson from '../../../../helpers/createPerson.js'
+import orderSmartSelector from '../../../../helpers/orderSmartSelector.js'
 
 export default {
   components: {
@@ -73,7 +74,7 @@ export default {
       GetCollectorsSmartSelector().then(response => {
         let result = response
         Object.keys(result).forEach(key => (!result[key].length) && delete result[key])
-        this.options = Object.keys(result)
+        this.options = orderSmartSelector(Object.keys(result))
         if(Object.keys(result).length) {
           this.view = Object.keys(result)[0]
         }

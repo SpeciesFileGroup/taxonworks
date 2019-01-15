@@ -70,6 +70,6 @@
 
 <style scoped>
   .preparation-list {
-    width: 150px;
+    width: 100%;
   }
 </style>
