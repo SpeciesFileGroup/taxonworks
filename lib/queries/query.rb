@@ -15,7 +15,7 @@ require 'date'
 module Queries
   class Query
     include Arel::Nodes
-    include Queries::Query::Identifiers 
+    include Queries::Concerns::Identifiers 
 
     attr_accessor :query_string
     attr_accessor :terms
