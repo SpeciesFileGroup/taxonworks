@@ -66,6 +66,7 @@ TaxonWorks::Application.routes.draw do
     match '/', action: :index, as: 'administration', via: :get
     get 'user_activity'
     get 'data_overview'
+    get 'data_health'
   end
 
   resources :project_members, except: [:index] do
