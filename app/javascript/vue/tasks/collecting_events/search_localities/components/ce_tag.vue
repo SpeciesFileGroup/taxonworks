@@ -30,6 +30,7 @@
     <input
       type="button"
       @click="getTagData()"
+      :disabled="!tagList.length"
       value="Find">
     <div>
       <span v-if="collectingEventList.length" v-html="'<br>' + collectingEventList.length + '  results found.'"/>
@@ -75,7 +76,7 @@
         };
         this.$http.get('/collecting_events', {params: params}).then(response => {
           this.collectingEventList = response.body;
-          this.$emit(this.collectingEventList)
+          this.$emit('collectingEventList', this.collectingEventList)
         });
       },
       addTag(item) {

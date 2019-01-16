@@ -84,6 +84,19 @@
         // this.selected=item.id;
         this.$emit('itemid', item.id)
       },
+      compileList(colEvList) {
+        if(this.annotation_logic == 'append') {
+          if(this.collectingEventList.length)
+          {this.collectingEventList = this.collectingEventList.concat(colEvList);}
+          else
+          {this.collectingEventList = colEvList;}
+        }
+        else {
+          {
+            this.collectingEventList = colEvList;
+          }
+        }
+      }
     },
     mounted: function() {
       this.$http.get('/collecting_events/select_options').then(response => {
@@ -99,20 +112,6 @@
       showList() {
         return this.list
       }
-    },
-    compileList(colEvList) {
-      if(this.annotation_logic == 'append') {
-        if(this.collectingEventList.length)
-        {this.collectingEventList = this.collectingEventList.concat(colEvList);}
-        else
-        {this.collectingEventList = colEvList;}
-      }
-      else {
-        {
-          this.collectingEventList = colEvList;
-        }
-      }
-
     }
   }
 </script>
