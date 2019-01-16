@@ -7,6 +7,7 @@
           placeholder="Search"
           label="object_tag"
           param="query_string"
+          @getItem="loadAssessionCode"
           :add-params="{
             'identifier_object_types[]': ['CollectionObject', 'CollectingEvent'],
           }"
@@ -45,6 +46,7 @@
   import { MutationNames } from '../../store/mutations/mutations.js'
   import { ActionNames } from '../../store/actions/actions.js'
   import { GetterNames } from '../../store/getters/getters.js'
+  import { GetCollectionObject } from '../../request/resources.js'
 
   export default {
     components: {
@@ -84,6 +86,9 @@
           this.$store.commit(MutationNames.SetTaxonDeterminations, [])
         })
       },
+      loadAssessionCode(object) {
+        this.$store.dispatch(ActionNames.LoadDigitalization, object.identifier_object_id)
+      }
     }
   }
 </script>
