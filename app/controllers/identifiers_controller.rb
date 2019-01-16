@@ -13,7 +13,7 @@ class IdentifiersController < ApplicationController
       }
       format.json {
         @identifiers = Queries::Identifier::Filter.new(params).all
-          .where(project_id: sessions_current_project_id).page(params[:page] || 1).per(500)
+          .where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
       }
     end
   end
