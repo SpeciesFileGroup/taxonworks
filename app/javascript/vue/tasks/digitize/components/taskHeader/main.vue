@@ -5,11 +5,10 @@
         <autocomplete
           url="/identifiers.json"
           placeholder="Search"
-          label="label_html"
+          label="object_tag"
           param="query_string"
           :add-params="{
-            'identifier_object_types[]': 'CollectionObject',
-            'identifier_object_types[]': 'CollectingEvent'
+            'identifier_object_types[]': ['CollectionObject', 'CollectingEvent'],
           }"
           min="1"/>
         <span
