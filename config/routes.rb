@@ -367,13 +367,14 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :namespaces do
-    concerns [:data_routes]
-
     collection do
+      get :autocomplete, defaults: {format: :json} # TODO: add JSON to all autocomplete as default, until then this line has to be above concerns
       post :preview_simple_batch_load
       post :create_simple_batch_load
       get :select_options, defaults: {format: :json}
     end
+
+    concerns [:data_routes]
   end
 
 
