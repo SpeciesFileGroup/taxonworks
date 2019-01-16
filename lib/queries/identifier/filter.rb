@@ -18,6 +18,7 @@ module Queries
 
       attr_accessor :identifier_object_type, :identifier_object_id 
       attr_accessor :identifier_object_ids
+      attr_accessor :identifier_object_types
 
       attr_accessor :type
 
@@ -36,7 +37,8 @@ module Queries
         @identifier_object_type = params[:identifier_object_type] 
         @identifier_object_id = params[:identifier_object_id] 
 
-        @identifier_object_ids = params[:identifier_object_id] || []
+        @identifier_object_ids = params[:identifier_object_ids] || []
+        @identifier_object_types = params[:identifier_object_types] || []
 
         @type = params[:type]
 
@@ -56,6 +58,7 @@ module Queries
           matching_identifier_attribute(:identifier_object_type),
           matching_identifier_attribute(:identifier_object_id),
           matching_identifier_attribute(:type),
+          matching_identifier_object_types,
           matching_polymorphic_ids
         ].compact
 
@@ -88,7 +91,12 @@ module Queries
 
       # @return [Arel::Node, nil]
       def matching_identifier_object_ids
-        matching_identifier_object_ids.empty? ? nil : table[:identifier_object_id].eq_any(matching_identifier_object_ids)
+        identifier_object_ids.empty? ? nil : table[:identifier_object_id].eq_any(matching_identifier_object_ids)
+      end
+
+      # @return [Arel::Node, nil]
+      def matching_identifier_object_types
+        identifier_object_types.empty? ? nil : table[:identifier_object_type].eq_any(identifier_object_types)
       end
 
       # @return [Arel::Node, nil]

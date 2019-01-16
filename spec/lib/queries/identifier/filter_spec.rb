@@ -78,6 +78,10 @@ describe Queries::Identifier::Filter, type: :model, group: :identifiers do
     query.polymorphic_ids = {'collecting_event_id' => o3.id} 
     expect(query.all.map(&:id)).to contain_exactly(i3.id) 
   end
-  
+
+  specify 'matching_identifier_object_types[] #1' do
+    query.identifier_object_types = %w{Otu CollectionObject}
+    expect(query.all.map(&:id)).to contain_exactly(i1.id, i2.id) 
+  end
 
 end
