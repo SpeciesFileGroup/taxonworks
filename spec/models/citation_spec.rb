@@ -70,6 +70,13 @@ describe Citation, type: :model, group: [:annotators, :citations] do
     let(:c2) { Citation.new( citation_object: otu, source: source)  }
     let(:c3) { Citation.new() }
 
+    specify 'one is_original per citation_object' do
+      c1.update(is_original: true)
+      c2.is_original = true
+      expect(c2.valid?).to be_falsey
+      expect(c2.errors[:is_original]).to be_truthy
+    end
+
     specify 'exact duplicates are invalid' do
       expect(c2.valid?).to be_falsey
     end
