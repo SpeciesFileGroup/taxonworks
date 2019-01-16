@@ -78,18 +78,6 @@ class NamespacesController < ApplicationController
 
   def autocomplete
     @namespaces = Queries::NamespaceAutocompleteQuery.new(params.require(:term)).all
-    
-    data = @namespaces.collect do |t|
-      {id: t.id,
-       label: ApplicationController.helpers.namespace_tag(t),
-       response_values: {
-           params[:method] => t.id
-       },
-       label_html: ApplicationController.helpers.namespace_tag(t)
-      }
-    end
-
-    render json: data
   end
 
   # GET /namespaces/download
