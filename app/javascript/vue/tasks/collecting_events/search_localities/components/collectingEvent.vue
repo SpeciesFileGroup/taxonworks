@@ -8,10 +8,10 @@
       v-model="view"/>
     <template>
       <div v-if="view === 'Filter'">
-        <ce-filter/>
+        <ce-filter @collectingEventList="compileList($event)"/>
       </div>
       <div v-else-if="view === 'Search'">
-        <ce-search/>
+        <ce-search @collectingEventList="compileList($event)"/>
       </div>
       <div v-else-if="view === 'Tag'">
         <ce-tag @collectingEventList="compileList($event)"/>
@@ -87,7 +87,7 @@
       compileList(colEvList) {
         if(this.annotation_logic == 'append') {
           if(this.collectingEventList.length)
-          {this.collectingEventList = this.collectingEventList.concat(colEvList);}
+          {this.collectingEventList = colEvList.concat(this.collectingEventList);}
           else
           {this.collectingEventList = colEvList;}
         }
@@ -96,7 +96,10 @@
             this.collectingEventList = colEvList;
           }
         }
-      }
+      },
+      showObject(id) {
+        window.open(`/collecting_events/` + id, '_blank');
+      },
     },
     mounted: function() {
       this.$http.get('/collecting_events/select_options').then(response => {

@@ -98,23 +98,6 @@
       type="button"
       @click="getFilterData()"
       value="Find">
-    <div>
-      <span v-if="collectingEventList.length" v-html="'<br>' + collectingEventList.length + '  results found.'"/>
-      <table>
-        <th>Cached</th><th>verbatim locality</th>
-        <tr
-          v-for="item in collectingEventList"
-          :key="item.id">
-          <td>
-            <span
-              v-html="item.id + ' ' + item.cached"
-              @click="showObject(item.id)"
-            />
-          </td>
-          <td><span v-html="item.verbatim_locality" /></td>
-        </tr>
-      </table>
-    </div>
   </div>
 </template>
 <script>
@@ -167,6 +150,9 @@
         // };
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
           this.collectingEventList = response.body;
+          if(this.collectingEventList) {
+            this.$emit('collectingEventList', this.collectingEventList)
+          }
         });
       },
         showObject(id) {

@@ -30,6 +30,7 @@
       <input
         type="button"
         @click="getAreaData()"
+        :disabled="!geographicAreaList.length"
         value="Find">
     </div>
     <div v-if="mode==='map'">
@@ -42,29 +43,8 @@
       <input
         type="button"
         @click="getShapesData()"
+        :disabled="!shapes.length"
         value="Find">
-    </div>
-    <div>
-      <div>
-        <h2>Result list</h2>
-        <annotation-logic v-model="annotation_logic"/>
-      </div>
-      <span v-if="collectingEventList.length" v-html="'<br>' + collectingEventList.length + '  results found.'"/>
-      <table>
-        <th>Cached</th><th>verbatim locality</th>
-        <tr
-          v-for="item in collectingEventList"
-          :key="item.id">
-          <td>
-            <span
-              v-html="item.id + ' ' + item.cached"
-              @click="showObject(item.id)"
-            />
-          </td>
-          <td><span v-html="item.verbatim_locality" /></td>
-        </tr>
-      </table>
-
     </div>
   </div>
 </template>
@@ -102,6 +82,9 @@
         };
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
           this.collectingEventList = response.body;
+          if(this.collectingEventList) {
+            this.$emit('collectingEventList', this.collectingEventList)
+          }
         });
       },
       getShapesData(){
@@ -118,14 +101,14 @@
               this.collectingEventList = response.body;
             }
           }
+          if(this.collectingEventList) {
+            this.$emit('collectingEventList', this.collectingEventList)
+          }
         } )
       },
       addGeographicArea(item) {
         this.geographicAreaList.push(item);
       },
-        showObject(id) {
-            window.open(`/collecting_events/` + id, '_blank');
-        },
       delistMe(index) {
         this.$delete(this.geographicAreaList, index)
       }

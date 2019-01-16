@@ -32,23 +32,6 @@
       @click="getTagData()"
       :disabled="!tagList.length"
       value="Find">
-    <div>
-      <span v-if="collectingEventList.length" v-html="'<br>' + collectingEventList.length + '  results found.'"/>
-      <table>
-        <th>Cached</th><th>verbatim locality</th>
-        <tr
-          v-for="item in collectingEventList"
-          :key="item.id">
-          <td>
-            <span
-              v-html="item.id + ' ' + item.cached"
-              @click="showObject(item.id)"
-            />
-          </td>
-          <td><span v-html="item.verbatim_locality" /></td>
-        </tr>
-      </table>
-    </div>
   </div>
 </template>
 <script>
@@ -81,9 +64,6 @@
       },
       addTag(item) {
         this.tagList.push(item);
-      },
-      showObject(id) {
-        window.open(`/collecting_events/` + id, '_blank');
       },
       delistMe(index) {
         this.$delete(this.tagList, index)
