@@ -75,6 +75,7 @@
         };
         this.$http.get('/collecting_events', {params: params}).then(response => {
           this.collectingEventList = response.body;
+          this.$emit(this.collectingEventList)
         });
       },
       addTag(item) {

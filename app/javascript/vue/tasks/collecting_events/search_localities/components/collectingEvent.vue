@@ -1,4 +1,3 @@
-
 <template>
   <div>
     <h3>Collecting event</h3>
@@ -15,7 +14,7 @@
         <ce-search/>
       </div>
       <div v-else-if="view === 'Tag'">
-        <ce-tag/>
+        <ce-tag @collectingEventList="compileList($event)"/>
       </div>
       <template v-else>
         <table>
@@ -28,6 +27,27 @@
         </table>
       </template>
     </template>
+    <div>
+      <div class="annotation_logic separate-left">
+      <h2>Collecting Events</h2>
+      <annotation-logic v-model="annotation_logic"/>
+      </div>
+      <span v-if="collectingEventList.length" v-html="'<br>' + collectingEventList.length + '  results found.'"/>
+      <table>
+      <th>Cached</th><th>verbatim locality</th>
+      <tr
+      v-for="item in collectingEventList"
+      :key="item.id">
+      <td>
+      <span
+      v-html="item.id + ' ' + item.cached"
+      @click="showObject(item.id)"
+      />
+      </td>
+      <td><span v-html="item.verbatim_locality" /></td>
+      </tr>
+      </table>
+    </div>
   </div>
 </template>
 
@@ -37,6 +57,8 @@
   import ceFilter from './ce_filter.vue'
   import ceSearch from './ce_search.vue'
   import ceTag from './ce_tag.vue'
+  import AnnotationLogic from 'browse_annotations/components/annotation_logic'
+
 
   export default {
     components: {
@@ -44,14 +66,17 @@
       Autocomplete,
       ceFilter,
       ceSearch,
-      ceTag
+      ceTag,
+      AnnotationLogic
     },
     data() {
       return {
         list: {},
         tabs: [],
         moreOptions: ['Filter', 'Search', 'Tag'],
-        view: undefined
+        view: undefined,
+        collectingEventList: [],
+        annotation_logic: 'append',
       }
     },
     methods: {
@@ -75,5 +100,19 @@
         return this.list
       }
     },
+    compileList(colEvList) {
+      if(this.annotation_logic == 'append') {
+        if(this.collectingEventList.length)
+        {this.collectingEventList = this.collectingEventList.concat(colEvList);}
+        else
+        {this.collectingEventList = colEvList;}
+      }
+      else {
+        {
+          this.collectingEventList = colEvList;
+        }
+      }
+
+    }
   }
 </script>

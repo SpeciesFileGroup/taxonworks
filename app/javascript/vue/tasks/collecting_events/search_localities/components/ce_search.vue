@@ -86,7 +86,7 @@
         geographicAreaList: [],
         collectingEventList: [],
         shapes: [],   // intended for eventual multiple shapes paradigm
-        mode: '',
+        mode: 'list',
         annotation_logic: 'replace',
         // list_or_map: ['list', 'map'],
       }
