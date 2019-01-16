@@ -22,7 +22,9 @@
         <label>Identifier</label>
         <div class="horizontal-left-content field">
           <input
+            :class="{ 'validate-identifier': existingIdentifier }"
             type="text"
+            @input="checkIdentifier"
             v-model="identifier">
           <label>
             <input
@@ -35,6 +37,9 @@
             :show-message="checkValidation"
             legend="Namespace and identifier needs to be set to be save."/> 
         </div>
+        <span 
+          v-if="existingIdentifier"
+          style="color: red">Identifier already exists</span>
       </div>
     </div>
   </div>
@@ -46,6 +51,7 @@
   import { GetterNames } from '../../store/getters/getters'
   import { MutationNames } from '../../store/mutations/mutations.js'
   import { ActionNames } from '../../store/actions/actions'
+  import { CheckForExistingIdentifier } from '../../request/resources.js'
   import validateComponent from '../shared/validate.vue'
   import validateIdentifier from '../../validations/namespace.js'
   import incrementIdentifier from '../../helpers/incrementIdentifier.js'
@@ -113,6 +119,13 @@
         return !validateIdentifier({ namespace_id: this.namespace, identifier: this.identifier })
       }
     },
+    data() {
+      return {
+        existingIdentifier: false,
+        delay: 1000,
+        saveRequest: undefined
+      }
+    },
     watch: {
       namespace(newVal) {
         if(!newVal) {
@@ -138,6 +151,24 @@
           this.$store.commit(MutationNames.SetTaxonDeterminations, [])
         })
       },
+      checkIdentifier() {
+        let that = this
+
+        if(this.saveRequest) {
+          clearTimeout(this.saveRequest)
+        }
+        this.saveRequest = setTimeout(() => { 
+          CheckForExistingIdentifier(that.namespace, that.identifier).then(response => {
+            that.existingIdentifier = (response.length > 0)
+          })
+        }, this.delay)
+      }
     }
   }
 </script>
+
+<style scoped>
+  .validate-identifier {
+    border: 1px solid red
+  }
+</style>

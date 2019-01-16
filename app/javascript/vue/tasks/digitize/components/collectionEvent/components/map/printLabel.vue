@@ -2,11 +2,11 @@
   <div>
     <div class="flex-separate">
       <button
-        @click="createLabel"
+        disabled="true"
         class="button normal-input button-default">
         Generate
       </button>
-      <span>Que
+      <span>Que to print
         <input
           :disabled="!(printLabel && printLabel.length)"
           v-model="que"
@@ -29,7 +29,6 @@
 <script>
 import { GetterNames } from '../../../../store/getters/getters.js'
 import { MutationNames } from '../../../../store/mutations/mutations.js'
-import GenerateLabel from '../../../../helpers/createLabel.js'
 
 export default {
   computed: {
@@ -58,11 +57,6 @@ export default {
       }
     }
   },
-  methods: {
-    createLabel() {
-      GenerateLabel('test')
-    }
-  }
 }
 </script>
 <style scoped>

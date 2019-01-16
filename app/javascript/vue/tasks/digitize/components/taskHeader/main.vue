@@ -3,9 +3,14 @@
     <div class="middle flex-separate">
       <div class="horizontal-left-content">
         <autocomplete
-          url="/url"
+          url="/identifiers.json"
           placeholder="Search"
           label="label_html"
+          param="query_string"
+          :add-params="{
+            'identifier_object_types[]': 'CollectionObject',
+            'identifier_object_types[]': 'CollectingEvent'
+          }"
           min="1"/>
         <span
           class="separate-left"
@@ -65,7 +70,6 @@
         this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
           let that = this
           setTimeout(() => {
-            //that.newDigitalization()
             that.$store.dispatch(ActionNames.ResetWithDefault)
           }, 500)
         })

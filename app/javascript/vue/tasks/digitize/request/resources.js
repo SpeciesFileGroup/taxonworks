@@ -33,6 +33,10 @@ const GetUserPreferences = function () {
   return ajaxCall('get', `/preferences.json`)
 }
 
+const CheckForExistingIdentifier = function (namespaceId, identifier) {
+  return ajaxCall('get', `/identifiers.json?type=Identifier::Local::CatalogNumber&identifier_namespace_id=${namespaceId}&identifier=${identifier}`)
+}
+
 const UpdateUserPreferences = function (id, data) {
   return ajaxCall('patch', `/users/${id}.json`, { user: { layout: data } })
 }
@@ -226,6 +230,7 @@ const DestroyCollectionObject = function (id) {
 }
 
 export {
+  CheckForExistingIdentifier,
   GetUserPreferences,
   GetOtu,
   GetTaxonNameSmartSelector,

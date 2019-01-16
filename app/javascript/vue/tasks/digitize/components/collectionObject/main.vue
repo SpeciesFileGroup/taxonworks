@@ -25,7 +25,7 @@
             <preparation-type/>
           </div>
         </div>
-        <div class="horizontal-left-content middle">
+        <div class="horizontal-left-content">
           <buffered-component
             v-if="showBuffered"
             class="separate-top separate-right"/>
@@ -43,7 +43,7 @@
         <div class="horizontal-left-content separate-top">
           <depictions-component
             v-if="showDepictions"
-            class="separate-top"
+            class="separate-top separate-right"
             :object-value="collectionObject"
             :get-depictions="GetCollectionObjectDepictions"
             object-type="CollectionObject"
