@@ -1242,8 +1242,6 @@ class TaxonName < ApplicationRecord
   end
 
   def sv_missing_fields
-    confidence_level_array = [93]
-    confidence_level_array = confidence_level_array & ConfidenceLevel.all.collect{|c| c.id}
     if !self.cached_misspelling && !self.name_is_missapplied?
       if self.source.nil?
         soft_validations.add(:base, 'Original publication is not selected')
@@ -1257,7 +1255,6 @@ class TaxonName < ApplicationRecord
           soft_validations.add(:base, 'Original citation is out of the source page range')
         end
       end
-      soft_validations.add(:base, 'Confidence level is missing') if !confidence_level_array.empty? && (self.confidences.collect{|c| c.confidence_level_id} & confidence_level_array).empty?
       soft_validations.add(:verbatim_author, 'Author is missing',
                            fix: :sv_fix_missing_author,
                            success_message: 'Author was updated') if self.author_string.nil? && self.type != 'Combination'

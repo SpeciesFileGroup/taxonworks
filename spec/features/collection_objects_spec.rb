@@ -6,26 +6,19 @@ describe 'CollectionObjects', type: :feature do
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 
-  context 'signed in as a user, with some records created' do
-    before {
+  context 'signed in as a user, with some records created', js: true do
+    before do 
       sign_in_user_and_select_project
-      10.times { factory_bot_create_for_user_and_project(:valid_specimen, @user, @project) }
-      5.times { factory_bot_create_for_user_and_project(:valid_otu, @user, @project) }
-      FactoryBot.create(:valid_otu, name: 'Find me', creator: @user, updater: @user, project: @project)
-      Otu.last.update_column(:name, 'something_unmatchable 44')
-      5.times { FactoryBot.create(:valid_source, by: @user) }
-    }
+      3.times { factory_bot_create_for_user_and_project(:valid_specimen, @user, @project) }
+    end 
 
     describe 'GET /collection_objects' do
-      before {
-        visit collection_objects_path }
-
+      before { visit collection_objects_path }
       it_behaves_like 'a_data_model_with_standard_index'
     end
 
     describe 'GET /collection_objects/list' do
       before { visit list_collection_objects_path }
-
       it_behaves_like 'a_data_model_with_standard_list_and_records_created'
     end
 
@@ -43,11 +36,10 @@ describe 'CollectionObjects', type: :feature do
       }
 
       specify 'follow the new link & create a new collection object' do
-        click_link('New') # when I click the new link
-        fill_in 'Total', with: '1' # fill out the total field with 1
-        fill_in 'Buffered collecting event', with: 'This is a label.\nAnd another line.' # fill in Buffered collecting event
-        click_button 'Create Collection object' # when I click the 'Create Collection object' button
-        # then I get the message "Collecting objection was successfully created"
+        click_link('New') 
+        fill_in 'Total', with: '1' 
+        fill_in 'Buffered collecting event', with: 'This is a label.\nAnd another line.'
+        click_button 'Create Collection object' 
         expect(page).to have_content('Collection object was successfully created.')
       end
     end
@@ -93,20 +85,18 @@ describe 'CollectionObjects', type: :feature do
 
               context 'non-defaults' do
                 specify 'otu' do
-                  o = Otu.last
+                  o = factory_bot_create_for_user_and_project(:valid_otu, @user, @project) 
                   fill_autocomplete('otu_id_for_specimen_batchload', with: o.name, select: o.id)
                   click_button('buf_preview')
-                  expect(page).to have_content("Using 'something_unmatchable 44' as OTU.")
+                  expect(page).to have_content("Using '#{o.name}' as OTU.")
                 end
 
                 specify 'source' do
-                  s = Source.last
-                  s.title = 'Please FIND me!'
-                  s.by = @user
-                  s.save!
+                  s = FactoryBot.create(:valid_source, by: @user) 
+
                   fill_autocomplete('source_id_for_specimen_batchload', with: s.cached, select: s.id)
                   click_button('buf_preview')
-                  expect(page).to have_content("Using 'Anon (0AD) Please FIND me!' as source.")
+                  expect(page).to have_content("Using '#{s.cached}' as source.")
                 end
               end
             end

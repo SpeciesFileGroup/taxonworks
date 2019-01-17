@@ -39,7 +39,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
 
     context 'both total and ranged_lot_category_id may not be present' do
       before {
-        collection_object.total                  = 10
+        collection_object.total = 10
         collection_object.ranged_lot_category_id = 10
       }
       specify 'when a CollectionObject' do
@@ -264,8 +264,8 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       describe 'spanning a single day' do
         specify 'should find 1 record' do
           [co_m3, co_p1b].each
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1981/01/01',
-                                                               search_end_date:   '1981/1/1'})
+          collection_objects = CollectionObject.in_date_range({search_start_date: '1981-01-01',
+                                                               search_end_date:   '1981-1-1'})
           expect(collection_objects.map(&:collecting_event)).to contain_exactly(ce_m3)
         end
       end
@@ -273,8 +273,8 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       describe 'spanning a single month' do
         specify 'should find 1 record' do
           [co_m3, co_p1b].each
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1974/04/01',
-                                                               search_end_date:   '1974/4/30'})
+          collection_objects = CollectionObject.in_date_range({search_start_date: '1974-04-01',
+                                                               search_end_date:   '1974-4-30'})
           expect(collection_objects.map(&:collecting_event)).to contain_exactly(ce_p1b)
         end
       end
@@ -282,8 +282,8 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       describe 'spanning a single year' do
         specify 'should find 2 records' do
           [co_m1, co_m1a]
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1971/01/01',
-                                                               search_end_date:   '1971/12/31'})
+          collection_objects = CollectionObject.in_date_range({search_start_date: '1971-01-01',
+                                                               search_end_date:   '1971-12-31'})
           expect(collection_objects.map(&:collecting_event)).to contain_exactly(ce_m1, ce_m1a)
         end
       end
@@ -291,8 +291,8 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       describe 'spanning four months of a year' do
         specify 'should find 1 record' do
           [co_m1, co_m1a].each
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1971/05/01',
-                                                               search_end_date:   '1971/8/31'})
+          collection_objects = CollectionObject.in_date_range({search_start_date: '1971-05-01',
+                                                               search_end_date:   '1971-8-31'})
           expect(collection_objects.map(&:collecting_event)).to contain_exactly(ce_m1a)
         end
       end
@@ -300,8 +300,8 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       describe 'spanning a partial year' do
         specify 'should find 2 records' do
           [co_m1, co_m1a, co_p1b].each
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1971/01/01',
-                                                               search_end_date:   '1971/08/31'})
+          collection_objects = CollectionObject.in_date_range({search_start_date: '1971-01-01',
+                                                               search_end_date:   '1971-08-31'})
           expect(collection_objects.map(&:collecting_event)).to contain_exactly(ce_m1, ce_m1a)
         end
       end
@@ -309,8 +309,8 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       describe 'spanning parts of two years' do
         specify 'should find 2 records' do
           [co_m2, co_p1b, co_m1a]
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1974/03/01',
-                                                               search_end_date:   '1975/06/30'})
+          collection_objects = CollectionObject.in_date_range({search_start_date: '1974-03-01',
+                                                               search_end_date:   '1975-06-30'})
           expect(collection_objects.map(&:collecting_event)).to contain_exactly(ce_m2, ce_p1b)
         end
       end
@@ -318,28 +318,28 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       describe 'spanning parts of several years' do
         specify 'should find 4 records' do
           [co_n2_a, co_n2_b, co_m2, co_p1b, co_p3b].each
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1974/03/01',
-                                                               search_end_date:   '1976/08/31'})
+          collection_objects = CollectionObject.in_date_range({search_start_date: '1974-03-01',
+                                                               search_end_date:   '1976-08-31'})
           # expect(collection_objects.count).to eq(4)
           expect(collection_objects.map(&:collecting_event)).to contain_exactly(ce_m2, ce_p1b, ce_n2, ce_n2)
         end
       end
 
-      describe 'excludes parts of two years in a non-greedy search for 1982/02/02-1984/09/15' do
+      describe 'excludes parts of two years in a non-greedy search for 1982-02-02-1984-09-15' do
         specify 'should find no records' do
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1982/02/01',
-                                                               search_end_date: '1983/01/31',
+          collection_objects = CollectionObject.in_date_range({search_start_date: '1982-02-01',
+                                                               search_end_date: '1983-01-31',
                                                                partial_overlap: 'Off'})
           expect(collection_objects.count).to eq(0)
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly()
         end
       end
 
-      describe 'spanning parts of two years in a non-greedy search for 1982/02/02-1984/09/15' do
+      describe 'spanning parts of two years in a non-greedy search for 1982-02-02-1984-09-15' do
         specify 'should find 1 record' do
           [co_o3, co_p3b, co_m1].each
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1982/02/01',
-                                                               search_end_date:   '1984/06/30',
+          collection_objects = CollectionObject.in_date_range({search_start_date: '1982-02-01',
+                                                               search_end_date:   '1984-06-30',
                                                                partial_overlap:   'Off'})
           expect(collection_objects.map(&:collecting_event)).to contain_exactly(ce_o3, ce_p3b)
         end
@@ -375,8 +375,8 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       specify 'should find 9 collection objects' do
         # this is not a particular date range, but it covers collecting events which have more than one
         # collection object
-        collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1970/01/01',
-                                                              search_end_date:   '1979/12/31',
+        collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1970-01-01',
+                                                              search_end_date:   '1979-12-31',
                                                               partial_overlap:   'on'}).pluck(:id)
 
         # equivalent to the whole world - not a very good isolation test
@@ -395,8 +395,8 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
         area_col_event_ids = CollectingEvent.contained_within(item_r).pluck(:id) +
           (CollectingEvent.contained_within(item_s).pluck(:id))
         area_object_ids    = CollectionObject.where(collecting_event_id: area_col_event_ids).map(&:id)
-        date_col_event_ids = CollectingEvent.in_date_range({search_start_date: '1970/01/01',
-                                                            search_end_date:   '1982/12/31',
+        date_col_event_ids = CollectingEvent.in_date_range({search_start_date: '1970-01-01',
+                                                            search_end_date:   '1982-12-31',
                                                             partial_overlap:   'off'}).pluck(:id)
         collection_objects = CollectionObject.from_collecting_events(date_col_event_ids,
                                                                      area_object_ids,
@@ -411,8 +411,8 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
         area_col_event_ids = CollectingEvent.contained_within(item_r).pluck(:id) +
           (CollectingEvent.contained_within(item_s).pluck(:id))
         area_object_ids    = CollectionObject.where(collecting_event_id: area_col_event_ids).map(&:id)
-        date_col_event_ids = CollectingEvent.in_date_range({search_start_date: '1970/01/01',
-                                                            search_end_date:   '1982/12/31',
+        date_col_event_ids = CollectingEvent.in_date_range({search_start_date: '1970-01-01',
+                                                            search_end_date:   '1982-12-31',
                                                             partial_overlap:   'On'}).pluck(:id)
         collection_objects = CollectionObject.from_collecting_events(date_col_event_ids,
                                                                      area_object_ids,
