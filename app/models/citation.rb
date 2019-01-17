@@ -26,8 +26,6 @@
 #   @return [Boolean]
 #     is this the first citation in which the data were observed? 
 #
-#
-#
 class Citation < ApplicationRecord
 
   # Citations do not have Confidence or DataAttribute.
@@ -48,7 +46,9 @@ class Citation < ApplicationRecord
   # TODO: This is wrong, should be source
   validates_presence_of  :source_id
 
-  validates_uniqueness_of :source_id, scope: [:citation_object_type, :citation_object_id, :pages]
+  validates_uniqueness_of :source_id, scope: [:citation_object_id, :citation_object_type, :pages]
+
+  validates_uniqueness_of :is_original, scope: [:citation_object_type, :citation_object_id], message: 'origin can only be assigned once', allow_nil: true
 
   accepts_nested_attributes_for :citation_topics, allow_destroy: true, reject_if: :reject_citation_topics
   accepts_nested_attributes_for :topics, allow_destroy: true, reject_if: :reject_topic
