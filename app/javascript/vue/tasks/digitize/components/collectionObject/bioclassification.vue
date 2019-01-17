@@ -40,6 +40,14 @@ export default {
   props: {
     biologicalId: {
       type: [String, Number]
+    },
+    biocutarionsType: {
+      type: Array,
+      default: () => { return [] }
+    },
+    biocurationsGroups: {
+      type: Array,
+      default: () => { return [] }
     }
   },
   computed: {
@@ -54,23 +62,15 @@ export default {
   },
   data() {
     return {
-      biocutarionsType: [],
-      biocurationsGroups: [],
       addQueue: [],
       createdBiocutarions: [],
       delay: 500
     }
   },
-  mounted: function () {
-    GetBiocurationsGroupTypes().then(response => {
-      this.biocurationsGroups = response
-      GetBiocurationsTypes().then(response => {
-        this.biocutarionsType = response
-        this.splitGroups()
-      })
-    })
-  },
   watch: {
+    biocutarionsType() {
+      this.splitGroups()
+    },
     biologicalId: {
       handler (newVal, oldVal) {
         if((this.locked.biocuration) && newVal == undefined) {
@@ -110,7 +110,6 @@ export default {
     },
     splitGroups() {
       let that = this
-      this.biocurationsGroups
       this.biocurationsGroups.forEach((item, index) => {
         GetBiocurationsTags(item.id).then(response =>{
           let tmpArray = []

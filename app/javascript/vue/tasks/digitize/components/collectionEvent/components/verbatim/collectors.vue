@@ -1,9 +1,10 @@
 <template>
   <div>
     <label>Collectors</label>
-    <input
+    <textarea
+      rows="2"
       type="text"
-      v-model="collectors">
+      v-model="collectors"/>
   </div>
 </template>
 

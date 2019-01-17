@@ -1,4 +1,5 @@
 import ActionNames from './actionNames'
+import { MutationNames } from '../mutations/mutations';
 
 export default function ({ commit, dispatch, state }, coId) {
   return new Promise((resolve, reject) => {
@@ -8,6 +9,7 @@ export default function ({ commit, dispatch, state }, coId) {
       //dispatch(ActionNames.GetIdentifiers)
       dispatch(ActionNames.GetTypeMaterial, coId)
       dispatch(ActionNames.GetTaxonDeterminations, coId)
+      commit(MutationNames.AddCollectionObject, coObject)
     })
   })
 }

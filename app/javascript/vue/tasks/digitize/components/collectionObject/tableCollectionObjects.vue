@@ -22,7 +22,10 @@
           <lock-component v-model="locked.biocuration"/>
         </td>
         <td>
-          <bioclassification :biological-id="collectionObject.id"/>          
+          <bioclassification 
+            :biocurations-groups="biocurationsGroups"
+            :biocutarions-type="biocutarionsType"
+            :biological-id="collectionObject.id"/>          
         </td>
         <td></td>
       </tr>
@@ -40,7 +43,10 @@
         </td>
         <td></td>
         <td>
-          <bioclassification :biological-id="item.id"/>
+          <bioclassification 
+            :biological-id="item.id"
+            :biocurations-groups="biocurationsGroups"
+            :biocutarions-type="biocutarionsType"/>
         </td>
         <td class="horizontal-right-content">
           <radial-annotator :global-id="item.global_id"/>
@@ -71,6 +77,8 @@ import PinComponent from '../../../../components/pin.vue'
 import Bioclassification from './bioclassification.vue'
 import LockComponent from 'components/lock'
 
+import { GetBiocurationsTypes, GetBiocurationsGroupTypes } from '../../request/resources.js'
+
 export default {
   components: {
     LockComponent,
@@ -98,6 +106,20 @@ export default {
         this.$store.commit(MutationNames.SetCollectionObject)
       }
     }
+  },
+  data() {
+    return {
+      biocurationsGroups: [],
+      biocutarionsType: []
+    }
+  },
+  mounted: function () {
+    GetBiocurationsGroupTypes().then(response => {
+      this.biocurationsGroups = response
+      GetBiocurationsTypes().then(response => {
+        this.biocutarionsType = response
+      })
+    })
   },
   methods: {
     setCO(co) {
