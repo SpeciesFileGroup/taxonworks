@@ -1,5 +1,10 @@
 <template>
   <div class="find-ce">
+    <spinner
+      v-if="isLoading"
+      :full-screen="true"
+      legend="Loading..."
+      :logo-size="{ width: '100px', height: '100px'}"/>
     <h3>Find collecting events</h3>
     <table>
       <tr>
@@ -102,10 +107,12 @@
 </template>
 <script>
   import MonthSelect from './month_select'
+  import Spinner from 'components/spinner'
 
   export default {
     components: {
-      MonthSelect
+      MonthSelect,
+      Spinner
     },
     data() {
       return {
@@ -122,7 +129,8 @@
           iin_labels: '',
           identifier_text: '',
           shape: ''},
-        collectingEventList: []
+        collectingEventList: [],
+        isLoading:  false,
       }
     },
 
@@ -148,11 +156,13 @@
         //   in_labels: this.any_label_text,
         //   identifier_text: this.identifier_text,
         // };
+        this.isLoading = true;
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
           this.collectingEventList = response.body;
           if(this.collectingEventList) {
             this.$emit('collectingEventList', this.collectingEventList)
           }
+          this.isLoading = false;
         });
       },
         showObject(id) {

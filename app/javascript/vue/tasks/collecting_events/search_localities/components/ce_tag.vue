@@ -1,5 +1,10 @@
 <template>
   <div class="find-ce">
+    <spinner
+      v-if="isLoading"
+      :full-screen="true"
+      legend="Loading..."
+      :logo-size="{ width: '100px', height: '100px'}"/>
     <h3>Find collecting events by tag/keyword</h3>
     <div>
       <table>
@@ -11,7 +16,7 @@
               v-html="item.label_html"
               @click="showObject()"/>
           </td>
-          <td><span @click="delistMe(index)">(Remove)</span></td>
+          <td><span class="remove_area" data-icon="trash" @click="delistMe(index)"/></td>
         </tr>
       </table>
     </div>
@@ -36,15 +41,18 @@
 </template>
 <script>
   import Autocomplete from 'components/autocomplete'
+  import Spinner from 'components/spinner'
 
   export default {
     components: {
       Autocomplete,
+      Spinner,
     },
     data() {
       return {
         tagList: [],
         collectingEventList: [],
+        isLoading:  false,
       }
     },
 
@@ -57,9 +65,11 @@
         let params = {
           keyword_ids: tag_ids
         };
+        this.isLoading = true;
         this.$http.get('/collecting_events', {params: params}).then(response => {
           this.collectingEventList = response.body;
-          this.$emit('collectingEventList', this.collectingEventList)
+          this.$emit('collectingEventList', this.collectingEventList);
+          this.isLoading = false;
         });
       },
       addTag(item) {

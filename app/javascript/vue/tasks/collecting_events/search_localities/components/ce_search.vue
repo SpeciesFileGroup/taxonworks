@@ -1,5 +1,10 @@
 <template>
   <div class="find-ce">
+    <spinner
+    v-if="isLoading"
+    :full-screen="true"
+    legend="Loading..."
+    :logo-size="{ width: '100px', height: '100px'}"/>
     <h2>Find collecting events by geographic area</h2>
     <mode-switch v-model="mode"/>
     <div v-if="mode==='list'">
@@ -53,6 +58,7 @@
   import gMap from './googleMap.vue'
   import AnnotationLogic from 'browse_annotations/components/annotation_logic'
   import ModeSwitch from './mode_switch'
+  import Spinner from 'components/spinner'
 
   export default {
     components: {
@@ -60,6 +66,7 @@
       gMap,
       AnnotationLogic,
       ModeSwitch,
+      Spinner,
     },
     data() {
       return {
@@ -68,11 +75,12 @@
         shapes: [],   // intended for eventual multiple shapes paradigm
         mode: 'list',
         annotation_logic: 'replace',
-        // list_or_map: ['list', 'map'],
+        isLoading: false,
       }
     },
     methods: {
       getAreaData(){
+        this.isLoading = true;
         let geo_ids = [];
         this.geographicAreaList.forEach(area => {
           geo_ids.push(area.id)
@@ -85,9 +93,11 @@
           if(this.collectingEventList) {
             this.$emit('collectingEventList', this.collectingEventList)
           }
+          this.isLoading = false;
         });
       },
       getShapesData(){
+        this.isLoading = true;
         let params = {shape: this.shapes[this.shapes.length - 1]};  // take only last shape pro tem
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
           if(this.annotation_logic == 'append') {
@@ -104,6 +114,7 @@
           if(this.collectingEventList) {
             this.$emit('collectingEventList', this.collectingEventList)
           }
+          this.isLoading = false;
         } )
       },
       addGeographicArea(item) {
