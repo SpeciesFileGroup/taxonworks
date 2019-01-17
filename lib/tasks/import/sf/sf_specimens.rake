@@ -102,7 +102,7 @@ namespace :tw do
             next if excluded_taxa.include? row['TaxonNameID']
             specimen_id = row['SpecimenID']
             next if specimen_id == '0'
-            get_sf_taxon_name_id[specimen_id] = row['TaxonNameID']  # create SpecimenID/TaxonNameID hash for future use, e.g., images, etc.
+            get_sf_taxon_name_id[specimen_id] = row['TaxonNameID'] # create SpecimenID/TaxonNameID hash for future use, e.g., images, etc.
             next if get_sf_unique_id[specimen_id].nil?
             next if get_sf_identification_metadata[specimen_id].nil?
 
@@ -157,10 +157,12 @@ namespace :tw do
                 otu_id = get_otu_from_tw_taxon_id[tw_taxon_name_id]
                 otu_id = get_tw_otu_id[sf_taxon_name_id] if otu_id == nil
 
+                # byebug
+
                 AssertedDistribution.create!(otu_id: otu_id,
-                                         geographic_area_id: CollectingEvent.find(collecting_event_id).geographic_area_id,
-                                         project_id: project_id)
-                logger.info " AssertedDistribution created for SpecimenID = '#{specimen_id}', FileID = '#{sf_file_id}', otu_id = '#{otu_id}' [ asserted_dist_counter = #{asserted_dist_counter}"
+                                             geographic_area_id: CollectingEvent.find(collecting_event_id).geographic_area_id,
+                                             project_id: project_id)
+                logger.info " AssertedDistribution created for SpecimenID = '#{specimen_id}', FileID = '#{sf_file_id}', otu_id = '#{otu_id}' [ asserted_dist_counter = #{asserted_dist_counter += 1} ]"
                 next
 
               else # no specimen or assert dist, record error and next
@@ -600,6 +602,7 @@ namespace :tw do
 
           #######################################################################################
           `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/17_after_collections_objects/`
+          puts '** dumped 17_after_collections_objects **'
           #######################################################################################
         end
 
@@ -672,6 +675,7 @@ namespace :tw do
 
           #######################################################################################
           `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/16_after_col_events_metadata/`
+          puts '** dumped 16_after_col_events_metadata **'
           #######################################################################################
         end
 
@@ -938,9 +942,8 @@ namespace :tw do
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
-          get_sf_geo_level4 = import.get('SFGeoLevel4')
-
-          # var = get_sf_geo_level4['lskdfj']['Name']
+          sf_geo_level4_hash = import.get('SFGeoLevel4')
+          geographic_area_id_hash = import.get('GeographicAreaIDHash')
 
           get_tw_collecting_event_id = {} # key = sfUniqueLocColEvents.UniqueID, value = TW.collecting_event_id
 
@@ -1101,34 +1104,31 @@ namespace :tw do
               data_attributes_bucket[:data_attributes_attributes].push(precision_code)
             end
 
+            level1_id, level2_id, level3_id, level4_id = row['Level1ID'], row['Level2ID'], row['Level3ID'], row['Level4ID']
+            tdwg_id = (level1_id + level2_id + level3_id).gsub('-', '')
+            geographic_area_id = geographic_area_id_hash[tdwg_id]
+            if geographic_area_id # not nil, is there a level 4?
+              if level4_id != '---' # there is a level 4, add level4_id and level4_name as data_attributes
+                level4_name = sf_geo_level4_hash[level3_id + level4_id]['Name']
+                level4_info = {type: 'ImportAttribute', import_predicate: 'Level4Info', value: "Level4ID = #{level4_id}, Level4Name = #{level4_name}", project_id: project_id}
+                data_attributes_bucket[:data_attributes_attributes].push(level4_info)
+              end
+            elsif row['Level1ID'] != '0' # is nil, if Level1ID = '0', ignore; otherwise bad data, record as attribute, including level 4 info?
+              data_attributes_bucket[:notes_attributes] = [{text: "Bad data locality; TDWG id (#{tdwg_id} does not resolve"}]
+            end
+
+
             # do we still need next line?
             # start_date_year, end_date_year = nil, nil if row['Year'] == "1000"
 
             ap [start_date_year, start_date_month, start_date_day, end_date_year, end_date_month, end_date_day]
 
-            # metadata = {
-            #     # data_attributes_attributes: data_attributes_bucket
-            #
-            #
-            # }.merge(data_attributes_bucket)
-
-
             lat, long = row['Latitude'], row['Longitude'] # if one has value, other cannot be nil
-            # if lat
-            #   if long.nil?
-            #     lat = nil
-            #   end
-            # elsif long
-            #   if lat.nil?
-            #     long = nil
-            #   end
-            # end
             min_elev, max_elev = row['Elevation'], row['MaxElevation'] # in meters; SF doesn't have MinElevation
-            # if min_elev   # true if not nil
-            #   if max_elev.nil?
-            #     max_elev = min_elev
-            #   end
-            # end
+
+
+            # geographic_area_id = get_tw_geographic_area(row, logger, get_sf_geo_level4, get_geographic_area_id)
+            # puts "geographic_area_id: #{geographic_area_id}"
 
             c = CollectingEvent.new(
                 {
@@ -1144,7 +1144,8 @@ namespace :tw do
                     end_date_day: end_date_day,
                     end_date_month: end_date_month,
                     end_date_year: end_date_year,
-                    geographic_area: get_tw_geographic_area(row, logger, get_sf_geo_level4),
+                    geographic_area_id: geographic_area_id,
+                    no_cached: true,
 
                     project_id: project_id
                     # paleobio_db_interval_id: TIME_PERIOD_MAP[row['TimePeriodID']], # TODO: Matt add attribute to CE !! rember ENVO implications
@@ -1189,48 +1190,56 @@ namespace :tw do
           #######################################################################################
         end
 
-        # Find a TW geographic_area
-        # @todo JDT HELP!
-        def get_tw_geographic_area(row, logger, sf_geo_level4_hash)
 
-          tw_area = nil
-          l1, l2, l3, l4 = row['Level1ID'], row['Level2ID'], row['Level3ID'], row['Level4ID']
-          l1 = '' if l1 == '0'
-          l2 = '' if l2 == '-'
-          l3 = '' if l3 == '---'
-          l4 = '' if l4 == '---'
-          t1 = l1
-          t2 = t1 + l2
-          t3 = t2 + l3
-          tdwg_id = l1
-          tdwg_id = t3 if l4 == ''
-          tdwg_id = t2 if l3 == ''
-          tdwg_id = t1 if l2 == ''
-          tdwg_id.strip!
+        desc 'time rake tw:project_import:sf_import:specimens:geographic_area_ids user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define geographic_area_ids: [:data_directory, :environment, :user_id] do |logger|
 
-          if tdwg_id.blank?
-            case l4
-            when /\d+/ # any digits, needs translation
-              # TODO @MB if level 4 is a number, look up county name in SFGeoLevel4
-              # packet = 0
-              name = sf_geo_level4_hash[(t3 + t4)][:name].chomp('County').strip
-              tw_area = GeographicArea.where("\"tdwgID\" like '#{t3}%' and name like '%#{name}%'").first
-            when /[a-z]/i # if it exists, it might be directly findable
-              tdwg_id = (t3 + '-' + l4).strip
-              tw_area = GeographicArea.where(tdwgID: tdwg_id).first
-              if tw_area.nil? # fall back to next larger container
-                tw_area = GeographicArea.where(tdwgID: t3).first
-              end
-            else # must be ''
-              tw_area = GeographicArea.where(tdwgID: t3).first
+          logger.info 'Creating geographic_area_ids from TDWG levels 1-3...'
+
+          geographic_area_id_hash = {} # key = tdwg_id (composed), value = geographic_area_id
+
+          all_rows = 0 # number of rows processed
+          unique_rows = 0
+
+          path = @args[:data_directory] + 'tblLocalities.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          file.each do |row|
+            all_rows += 1
+            tw_area = nil
+
+            next if row['Level1ID'] == '0' # check for Level1ID = 0 when processing and ignore; nil values will indicate bad data
+
+            # if there is a Level4ID, add as data attribute
+
+            tdwg_id = (row['Level1ID'] + row['Level2ID'] + row['Level3ID']).gsub('-', '')
+            if geographic_area_id_hash[tdwg_id]
+              next
             end
+
+            puts "Working with LocalityID = #{row['LocalityID']}, Level1ID = #{row['Level1ID']}, Level2ID = #{row['Level2ID']}, Level3ID = #{row['Level3ID']}, Level4ID = #{row['Level4ID']}, unique_rows = #{unique_rows += 1}, all_rows = #{all_rows} \n"
+
+            tw_area = GeographicArea.where(tdwgID: tdwg_id).first
+
+            if tw_area
+              geographic_area_id = tw_area.id
+            else
+              geographic_area_id = nil
+            end
+
+            geographic_area_id_hash[tdwg_id] = geographic_area_id
+
+            puts "************** tdwg_id: #{tdwg_id}, geographic_area_id = #{geographic_area_id} \n"
           end
 
-          logger.info "target tdwg id: #{tdwg_id}"
+          puts "records in hash: #{geographic_area_id_hash.count}"
 
-          tw_area
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('GeographicAreaIDHash', geographic_area_id_hash)
+
+          puts 'GeographicAreaIDHash'
+          ap geographic_area_id_hash
         end
-
 
         desc 'time rake tw:project_import:sf_import:specimens:create_sf_geo_level4_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         # consists of unique_key: (level3_id, level4_id, name, country_code)

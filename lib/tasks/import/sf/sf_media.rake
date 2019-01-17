@@ -88,12 +88,6 @@ namespace :tw do
             sf_taxon_name_id = row['TaxonNameID']
             next if excluded_taxa.include? sf_taxon_name_id
             specimen_id = row['SpecimenID']
-
-            # check if specimen_id > 0, use that
-            # else check if otu exists for sf_taxon_name_id ( Is it important to check if tw_taxon_name_id exists?  If otu only, just skip, too? )
-            # if image assigned to specimen, forget about taxon_name_id
-            # If specimen not real specimen (perhaps only a determination), should I assign to otu_id?  yes
-
             project_id = get_tw_project_id[sf_file_id]
 
             collection_object_id = get_tw_collection_object_id[specimen_id] if specimen_id.to_i > 0
@@ -118,6 +112,9 @@ namespace :tw do
             if otu_id.nil? # 347/124,719
               puts "No otu, counter = #{no_otu_count += 1}"
             end
+
+
+            # depiction object: if collection_object_id not nil, use it, otherwise use otu_id
 
 
             # can have temporary name w/o OTU via taxon_name_id:  Find OTU via SF.TaxonNameID to TW.otu: if no SF.TaxonNameID, must be SF.SpecimenID, therefore get TW.TaxonNameID via SpecimenID and get the OTU that way.

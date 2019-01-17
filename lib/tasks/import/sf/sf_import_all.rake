@@ -70,7 +70,8 @@ namespace :tw do
           # 'specimens:create_sf_geo_level4_hash',
           # # '13_after_geo_level_4': 2m9.065s on 14 Nov 2018
           # #
-          # 'specimens:collecting_events',
+          # 'specimens:geographic_area_ids',
+          'specimens:collecting_events',
           # # 14_after_coll_events': 38m14.238s on 15 Nov 2018; 42m43.927s on 16 June 2018; 47m53.101s on 26 June 2018
           # #
           # 'specimens:import_sf_depos',
@@ -84,6 +85,7 @@ namespace :tw do
           # 'specimens:create_sf_loc_col_events_metadata',
           # # '16_after_col_events_metadata': 10m17.584s on 15 Nov 2018
           # #
+          # # 654m43.830s before crash on 13 Jan 2019
           # 'specimens:collection_objects',
           # # '17_after_collection_objects': 202m27.938s on 20 Nov 2018; 227m33.097s on 15 Nov 2018
           # #
@@ -92,7 +94,7 @@ namespace :tw do
           # 'supplementary:scrutiny_related',
           # # '18_after_scrutinies': 12m12.489s on 21 Nov 2018 [from 11:23:10.299 to 11:29:51.063, scrutiny authors being processed, no screen activity]
           # # 806m49.888s b2_ on 28 Nov 2018
-          # #
+          # # #
           # # 'citations:create_citations',
           # time: close to 10h (592m44.659s on 10 July 2015, 591m42.625s on 6 Sept 2018)
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_taxon_citations',
