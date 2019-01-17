@@ -1,7 +1,7 @@
 module PinboardItemsHelper
 
   def pin_item_to_pinboard_link(object, user)
-    if !object.pinned?(user)
+    if !object.pinned?(user, sessions_current_project_id)
       link_to('',  pinboard_items_path(pinboard_item: {pinned_object_id: object.id, pinned_object_type: object.metamorphosize.class.name}), data: { "pin-button-item-id": object.id }, class: 'navigation-item pin-button', remote: true, method: :post)
     else
       link_to('', pinboard_item_path(get_pinboard_item_form_object(object,user)), class: 'unpin-button', data: { "pin-button-item-id": object.id }, method: :delete, remote: true)
@@ -16,8 +16,9 @@ module PinboardItemsHelper
     end
   end
 
+  # TODO: remove user?  use sessions user?
   def get_pinboard_item_form_object(object, user)
-    if object.pinned?(user)
+    if object.pinned?(user, sessions_current_project_id)
       PinboardItem.where(pinned_object_id: object.id, user_id: user).first
     end
   end 

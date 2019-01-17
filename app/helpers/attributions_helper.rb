@@ -43,7 +43,7 @@ module AttributionsHelper
   # @return [String (html), nil]
   #   a ul/li of tags for the object
   def attribution_list_tag(object)
-    return nil unless object.attribution
+    return nil unless object.has_attribution? && object.attribution
     content_tag(:h3, 'Attribution') +
       attribution_tag(object.attribution)
   end
