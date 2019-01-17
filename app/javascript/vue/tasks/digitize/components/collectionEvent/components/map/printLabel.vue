@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex-separate">
+    <div class="flex-separate separate-bottom">
       <button
         disabled="true"
         class="button normal-input button-default">

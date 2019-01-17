@@ -6,7 +6,7 @@
           :disabled="!collectionObjects.length"
           type="button"
           @click="saveAndNew"
-          class="button normal-input button-default">Add to container
+          class="button normal-input button-default separate-bottom">Add to container
         </button>      
       </div>
     </h2>
