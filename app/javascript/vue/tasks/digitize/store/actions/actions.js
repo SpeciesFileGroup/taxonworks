@@ -6,6 +6,7 @@ import getTypeMaterial from './getTypeMaterial'
 import getTaxonDeterminations from './getTaxonDeterminations'
 import getCollectionObject from './getCollectionObject'
 import getCollectionEvent from './getCollectionEvent'
+import getIdentifier from './getIdentifier'
 import saveDigitalization from './saveDigitalization'
 import saveIdentifier from './saveIdentifier'
 import saveCollectionObject from './saveCollectionObject'
@@ -31,6 +32,7 @@ const ActionFunctions = {
   [ActionNames.AddToContainer]: addToContainer,
   [ActionNames.LoadDigitalization]: loadDigitalization,
   [ActionNames.GetTaxon]: getTaxon,
+  [ActionNames.GetIdentifier]: getIdentifier,
   [ActionNames.GetTypeMaterial]: getTypeMaterial,
   [ActionNames.GetCollectionObject]: getCollectionObject,
   [ActionNames.GetCollectionEvent]: getCollectionEvent,

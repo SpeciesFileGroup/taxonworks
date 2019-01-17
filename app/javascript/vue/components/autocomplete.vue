@@ -264,7 +264,6 @@ export default {
           else {
             params += `&${key}=${this.addParams[key]}`
           }
-          console.log(params)
         })
       }
       return tempUrl + params

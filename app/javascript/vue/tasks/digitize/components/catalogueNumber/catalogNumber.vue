@@ -11,7 +11,8 @@
             class="separate-right"
             url="/namespaces/autocomplete"
             min="2"
-            @getItem="namespace = $event.id"
+            @getItem="namespace = $event.id; namespaceSelected = $event.label"
+            :display="namespaceSelected"
             label="label_html"
             ref="autocomplete"
             param="term"/>
@@ -88,9 +89,6 @@
           this.$store.commit(MutationNames.SetSettings, value)
         }        
       },
-      collectionObjects() {
-        return this.$store.getters[GetterNames.GetCollectionObjects]
-      },
       namespace: {
         get() {
           return this.$store.getters[GetterNames.GetIdentifier].namespace_id
@@ -117,6 +115,14 @@
       },
       checkValidation() {
         return !validateIdentifier({ namespace_id: this.namespace, identifier: this.identifier })
+      },
+      namespaceSelected: {
+        get() {
+          return this.$store.getters[GetterNames.GetNamespaceSelected]
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetNamespaceSelected, value)
+        }
       }
     },
     data() {
@@ -131,6 +137,9 @@
         if(!newVal) {
           this.$refs.autocomplete.cleanInput()
         }
+      },
+      namespaceSelected(newVal) {
+        this.$refs.autocomplete.setLabel(newVal)
       }
     },
     methods: {

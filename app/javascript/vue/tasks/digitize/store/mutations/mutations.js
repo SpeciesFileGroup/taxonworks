@@ -11,6 +11,8 @@ import resetStore from './resetStore'
 
 import setDepictions from './setDepictions'
 
+import setNamespaceSelected from './setNamespaceSelected'
+
 import setBiocurations from './setBiocurations'
 import addBiocuration from './addBiocuration'
 import removeBiocuration from './removeBiocuration'
@@ -117,6 +119,7 @@ const MutationNames = {
   ResetStore: 'resetStore',
 
   SetDepictions: 'setDepictions',
+  SetNamespaceSelected: 'setNamespaceSelected',
 
   SetLabel: 'setLabel',
   SetLabelText: 'setLabelText',
@@ -227,6 +230,7 @@ const MutationFunctions = {
   [MutationNames.ResetStore]: resetStore,
 
   [MutationNames.SetDepictions]: setDepictions,
+  [MutationNames.SetNamespaceSelected]: setNamespaceSelected,
 
   [MutationNames.SetBiocurations]: setBiocurations,
   [MutationNames.AddBiocuration]: addBiocuration,

@@ -18,6 +18,7 @@ import getPreparationType from './getPreparationType'
 import getMaterialTypes from './getMaterialTypes'
 import getLabel from './getLabel'
 import getTaxonDeterminations from './getTaxonDeterminations'
+import getNamespaceSelected from './getNamespaceSelected'
 
 const GetterNames = {
   IsSaving: 'isSaving',
@@ -39,7 +40,8 @@ const GetterNames = {
   GetPreparationType: 'getPreparationType',
   GetMaterialTypes: 'getMaterialTypes',
   GetLabel: 'GetLabel',
-  GetTaxonDeterminations: 'GetTaxonDeterminations'
+  GetTaxonDeterminations: 'GetTaxonDeterminations',
+  GetNamespaceSelected: 'getNamespaceSelected'
 }
 
 const GetterFunctions = {
@@ -62,7 +64,8 @@ const GetterFunctions = {
   [GetterNames.GetPreparationType]: getPreparationType,
   [GetterNames.GetMaterialTypes]: getMaterialTypes,
   [GetterNames.GetLabel]: getLabel,
-  [GetterNames.GetTaxonDeterminations]: getTaxonDeterminations
+  [GetterNames.GetTaxonDeterminations]: getTaxonDeterminations,
+  [GetterNames.GetNamespaceSelected]: getNamespaceSelected
 }
 
 export {

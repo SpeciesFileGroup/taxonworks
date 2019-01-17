@@ -27,8 +27,9 @@
   import TaxonDeterminationLayout from './components/taxonDetermination/main.vue'
   import CollectionEventLayout from './components/collectionEvent/main.vue'
   import TypeMaterial from './components/typeMaterial/typeMaterial.vue'
-  import { GetUserPreferences } from './request/resources.js'
+  import { GetUserPreferences, GetIdentifier } from './request/resources.js'
   import { MutationNames } from './store/mutations/mutations.js'
+  import { ActionNames } from './store/actions/actions.js'
   import { GetterNames } from './store/getters/getters.js'
   import SpinnerComponent from 'components/spinner.vue'
   import ContainerItems from './components/collectionObject/containerItems.vue'
@@ -50,9 +51,17 @@
       }
     },
     mounted() {
+      let identifierId = location.pathname.split('/')[4]
+
       GetUserPreferences().then(response => {
         this.$store.commit(MutationNames.SetPreferences, response)
       })
+
+      if (/^\d+$/.test(identifierId)) {
+        this.$store.dispatch(ActionNames.GetIdentifier, identifierId).then(response => {
+          this.$store.dispatch(ActionNames.LoadDigitalization, response.identifier_object_id)
+        })
+      }
     },
     methods: {
       getMacKey() {

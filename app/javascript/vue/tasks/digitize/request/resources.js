@@ -181,6 +181,14 @@ const GetRepository = function (id) {
   return ajaxCall('get', `/repositories/${id}.json`)
 }
 
+const GetIdentifier = function (id) {
+  return ajaxCall('get', `/identifiers/${id}.json`)
+}
+
+const GetNamespace = function (id) {
+  return ajaxCall('get', `/namespaces/${id}.json`)
+}
+
 const CreateTypeMaterial = function (data) {
   return ajaxCall('post', `/type_materials.json`, { type_material: data })
 }
@@ -243,6 +251,8 @@ export {
   GetTypeDesignatorSmartSelector,
   FilterCollectingEvent,
   GetTaxonDeterminationCO,
+  GetNamespace,
+  GetIdentifier,
   GetTypeMaterialCO,
   GetTypes,
   GetTaxon,

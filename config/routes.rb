@@ -819,7 +819,7 @@ TaxonWorks::Application.routes.draw do
 
     scope :accessions do
       scope :comprehensive, controller: 'tasks/accessions/comprehensive' do
-        get 'index', as: 'comprehensive_collection_object_task'
+        get '(:id)', action: :index, as: 'comprehensive_collection_object_task'
       end
 
       scope :report do

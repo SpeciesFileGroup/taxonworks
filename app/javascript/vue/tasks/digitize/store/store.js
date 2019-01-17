@@ -135,7 +135,8 @@ function makeInitialState () {
     COTypes: [],
     biocurations: [],
     preparation_type_id: undefined,
-    taxon_determinations: []
+    taxon_determinations: [],
+    namespaceSelected: ''
   }
 }
 
