@@ -34,17 +34,29 @@
       </div>
       <span v-if="collectingEventList.length" v-html="'<br>' + collectingEventList.length + '  results found.'"/>
       <table>
-      <th>Cached</th><th>verbatim locality</th>
+      <th>Cached</th><th>Verbatim Locality</th><th>Pin</th><th>[X]</th><th>Select</th>
       <tr
-      v-for="item in collectingEventList"
-      :key="item.id">
-      <td>
-      <span
-      v-html="item.id + ' ' + item.cached"
-      @click="showObject(item.id)"
-      />
-      </td>
-      <td><span v-html="item.verbatim_locality" /></td>
+        v-for="(item, index) in collectingEventList"
+        :key="item.id">
+        <td>
+          <span
+          v-html="item.id + ' ' + item.cached"
+          @click="showObject(item.id)"
+          />
+        </td>
+        <td>
+          <span v-html="item.verbatim_locality" />
+        </td>
+        <td>
+          <pin-component
+          v-if="item.id"
+          :object-id="item.id"
+          :type="item.base_class"/>
+        </td>
+        <td>
+          <span class="remove_area" data-icon="trash" @click="delistMe(index)"/>
+        </td>
+        <td><input type="checkbox"/></td>
       </tr>
       </table>
     </div>
@@ -58,7 +70,7 @@
   import ceSearch from './ce_search.vue'
   import ceTag from './ce_tag.vue'
   import AnnotationLogic from 'browse_annotations/components/annotation_logic'
-
+  import PinComponent from "components/pin.vue"
 
   export default {
     components: {
@@ -67,7 +79,8 @@
       ceFilter,
       ceSearch,
       ceTag,
-      AnnotationLogic
+      AnnotationLogic,
+      PinComponent,
     },
     data() {
       return {
@@ -99,6 +112,9 @@
       },
       showObject(id) {
         window.open(`/collecting_events/` + id, '_blank');
+      },
+      delistMe(index) {
+        this.$delete(this.collectingEventList, index)
       },
     },
     mounted: function() {

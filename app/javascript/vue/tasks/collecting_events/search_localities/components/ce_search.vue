@@ -12,7 +12,7 @@
               v-html="item.label_html"
               @click="showObject()"/>
           </td>
-          <td><span @click="delistMe(index)">(Remove)</span></td>
+          <td><span class="remove_area" data-icon="trash" @click="delistMe(index)"/></td>
         </tr>
       </table>
     <autocomplete
