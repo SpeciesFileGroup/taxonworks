@@ -4,14 +4,21 @@ class CollectionObjectsController < ApplicationController
   before_action :set_collection_object, only: [:show, :edit, :update, :destroy, :containerize,
                                                :depictions, :images, :geo_json]
 
-  # GET /collection_objects
-  # GET /collection_objects.json
+  # GET /collecting_events
+  # GET /collecting_events.json
   def index
-    @recent_objects = CollectionObject.recent_from_project_id(sessions_current_project_id)
-      .order(updated_at: :desc)
-      .includes(:identifiers, :taxon_determinations)
-      .limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = CollectionObject.recent_from_project_id(sessions_current_project_id)
+          .order(updated_at: :desc)
+          .includes(:identifiers, :taxon_determinations)
+          .limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @collection_objects = Queries::CollectionObject::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
+      }
+    end
   end
 
   # GET /collection_objects/1
@@ -252,15 +259,20 @@ class CollectionObjectsController < ApplicationController
   end
 
   def user_map
-    {user_header_map: {
-      'otu'         => 'otu_name',
-      'start_day'   => 'start_date_day',
-      'start_month' => 'start_date_month',
-      'start_year'  => 'start_date_year',
-      'end_day'     => 'end_date_day',
-      'end_month'   => 'end_date_month',
-      'end_year'    => 'end_date_year'}}
+    {
+      user_header_map: {
+        'otu'         => 'otu_name',
+        'start_day'   => 'start_date_day',
+        'start_month' => 'start_date_month',
+        'start_year'  => 'start_date_year',
+        'end_day'     => 'end_date_day',
+        'end_month'   => 'end_date_month',
+        'end_year'    => 'end_date_year'}}
   end
+
+  def filter_params
+    params.permit(:recent)
+  end 
 
 end
 
