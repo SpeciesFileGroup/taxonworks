@@ -1,6 +1,8 @@
 const ActionNames = {
   GetTaxon: 'getTaxon',
   GetIdentifier: 'getIdentifier',
+  GetIdentifiers: 'getIdentifiers',
+  GetNamespace: 'getNamespace',
   GetCollectionObject: 'getCollectionObject',
   GetCollectionEvent: 'getCollectionEvent',
   GetTypeMaterial: 'getTypeMaterial',

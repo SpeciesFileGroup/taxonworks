@@ -125,6 +125,7 @@ function makeInitialState () {
       label_object_id: undefined, 
       label_object_type: "CollectingEvent"
     },
+    identifiers: [],
     materialTypes: [],
     determinations: [],
     preferences: {},

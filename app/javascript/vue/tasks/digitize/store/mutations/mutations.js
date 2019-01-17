@@ -89,6 +89,7 @@ import setTypeMaterialTaxon from './TypeMaterial/setTypeMaterialTaxon'
 import addTypeMaterial from './TypeMaterial/addMaterialTypes'
 import newTypeMaterial from './TypeMaterial/newTypeMaterial'
 
+import setIdentifiers from './setIdentifiers'
 import setIdentifier from './Identifier/setIdentifier'
 import setIdentifierIdentifier from './Identifier/setIdentifierIdentifier'
 import setIdentifierNamespaceId from './Identifier/setIdentifierNamespaceId'
@@ -143,6 +144,7 @@ const MutationNames = {
   SetTaxonDeterminationRoles: 'setTaxonDeterminationRoles',
   SetTaxonDeterminationOtuId: 'setTaxonDeterminationOtuId',
 
+  SetIdentifiers: 'setIdentifiers',
   SetIdentifier: 'setIdentifier',
   SetIdentifierIdentifier: 'setIdentifierIdentifier',
   SetIdentifierNamespaceId: 'setIdentifierNamespaceId',
@@ -248,6 +250,7 @@ const MutationFunctions = {
   [MutationNames.SetTaxonDeterminationMonth]: setTaxonDeterminationMonth,
   [MutationNames.SetTaxonDeterminationYear]: setTaxonDeterminationYear,
 
+  [MutationNames.SetIdentifiers]: setIdentifiers,
   [MutationNames.SetIdentifier]: setIdentifier,
   [MutationNames.SetIdentifierIdentifier]: setIdentifierIdentifier,
   [MutationNames.SetIdentifierNamespaceId]: setIdentifierNamespaceId,

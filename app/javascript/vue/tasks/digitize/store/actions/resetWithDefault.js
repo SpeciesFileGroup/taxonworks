@@ -12,6 +12,7 @@ export default function({ dispatch, state }) {
   state.containerItems = [],
   state.collection_objects = [],
   state.depictions = [],
+  state.identifiers = [],
   state.preparation_type_id = undefined,
   state.taxon_determinations = []
 }

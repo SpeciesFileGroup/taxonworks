@@ -4,6 +4,11 @@
     <div
       class="flex-wrap-column middle align-start">
       <div class="separate-right">
+        <div
+          v-if="identifiers > 1"
+          class="separate-bottom">
+          <span data-icon="warning">More than one identifier exists! Use annotator to edit others.</span>
+        </div>
         <label>Namespace</label>
         <br>
         <div class="horizontal-left-content middle field">
@@ -72,6 +77,9 @@
       },
       collectionObjects() {
         return this.$store.getters[GetterNames.GetCollectionObjects]
+      },
+      identifiers() {
+        return this.$store.getters[GetterNames.GetIdentifiers]
       },
       locked: {
         get() {

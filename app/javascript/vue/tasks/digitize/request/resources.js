@@ -37,6 +37,14 @@ const CheckForExistingIdentifier = function (namespaceId, identifier) {
   return ajaxCall('get', `/identifiers.json?type=Identifier::Local::CatalogNumber&identifier_namespace_id=${namespaceId}&identifier=${identifier}`)
 }
 
+const GetIdentifiersFromCO = function (id) {
+  return ajaxCall('get', `/identifiers.json?identifier_object_type=CollectionObject&identifier_object_id=${id}&type=Identifier::Local::CatalogNumber`)
+}
+
+const GetRecentCollectionObjects = function () {
+  return ajaxCall('get', `/collection_objects.json`, { params: { recent: true, per: 5 } })
+}
+
 const UpdateUserPreferences = function (id, data) {
   return ajaxCall('patch', `/users/${id}.json`, { user: { layout: data } })
 }
@@ -241,6 +249,8 @@ export {
   CheckForExistingIdentifier,
   GetUserPreferences,
   GetOtu,
+  GetIdentifiersFromCO,
+  GetRecentCollectionObjects,
   GetTaxonNameSmartSelector,
   GetCollectorsSmartSelector,
   GetRepositorySmartSelector,

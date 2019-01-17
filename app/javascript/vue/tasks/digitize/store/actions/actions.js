@@ -2,11 +2,13 @@ import ActionNames from './actionNames'
 
 import loadDigitalization from './loadDigitalization'
 import getTaxon from './getTaxon'
+import getNamespace from './getNamespace'
 import getTypeMaterial from './getTypeMaterial'
 import getTaxonDeterminations from './getTaxonDeterminations'
 import getCollectionObject from './getCollectionObject'
 import getCollectionEvent from './getCollectionEvent'
 import getIdentifier from './getIdentifier'
+import getIdentifiers from './getIdentifiers'
 import saveDigitalization from './saveDigitalization'
 import saveIdentifier from './saveIdentifier'
 import saveCollectionObject from './saveCollectionObject'
@@ -32,7 +34,9 @@ const ActionFunctions = {
   [ActionNames.AddToContainer]: addToContainer,
   [ActionNames.LoadDigitalization]: loadDigitalization,
   [ActionNames.GetTaxon]: getTaxon,
+  [ActionNames.GetNamespace]: getNamespace,
   [ActionNames.GetIdentifier]: getIdentifier,
+  [ActionNames.GetIdentifiers]: getIdentifiers,
   [ActionNames.GetTypeMaterial]: getTypeMaterial,
   [ActionNames.GetCollectionObject]: getCollectionObject,
   [ActionNames.GetCollectionEvent]: getCollectionEvent,

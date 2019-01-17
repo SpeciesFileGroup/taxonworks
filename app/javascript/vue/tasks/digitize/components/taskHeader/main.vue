@@ -18,6 +18,9 @@
           v-html="identifier.object_tag"/>
       </div>
       <div class="horizontal-left-content">
+        <recent-component
+          class="separate-right"
+          @selected="loadCollectionObject($event.id)"/>
         <button 
           type="button"
           v-shortkey="[getMacKey(), 's']"
@@ -46,11 +49,12 @@
   import { MutationNames } from '../../store/mutations/mutations.js'
   import { ActionNames } from '../../store/actions/actions.js'
   import { GetterNames } from '../../store/getters/getters.js'
-  import { GetCollectionObject } from '../../request/resources.js'
+  import RecentComponent from './recent.vue'
 
   export default {
     components: {
-      Autocomplete
+      Autocomplete,
+      RecentComponent
     },
     computed: {
       identifier() {
@@ -88,7 +92,10 @@
       },
       loadAssessionCode(object) {
         this.$store.dispatch(ActionNames.LoadDigitalization, object.identifier_object_id)
-        this.$store.dispatch(ActionNames.GetIdentifier, object.id)
+      },
+      loadCollectionObject(id) {
+        this.$store.dispatch(ActionNames.ResetWithDefault)
+        this.$store.dispatch(ActionNames.LoadDigitalization, id)
       }
     }
   }
