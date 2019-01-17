@@ -362,8 +362,6 @@ class Source < ApplicationRecord
     return true if ProjectSource.where(project_id: attributed['project_id'], source_id: id).any?
   end
 
-#  protected
-
   def validate_year_suffix
     unless year_suffix.blank?
       if self.id
