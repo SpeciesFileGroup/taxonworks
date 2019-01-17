@@ -9,7 +9,9 @@
         v-if="anchor"
         :name="anchor"
         class="anchor"/>
-      <div class="header flex-separate middle">
+      <div 
+        class="header flex-separate middle"
+        :class="{ 'validation-warning': warning }">
         <slot name="header">
           <h3>Default title</h3>
         </slot>
@@ -40,6 +42,10 @@ export default {
     anchor: {
       type: String,
       default: undefined
+    },
+    warning: {
+      type: Boolean,
+      default: false
     },
     spinner: {
       type: Boolean,

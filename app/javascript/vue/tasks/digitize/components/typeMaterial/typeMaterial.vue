@@ -1,10 +1,7 @@
 <template>
-  <block-layout>
+  <block-layout :warning="!typeMaterial.id">
     <div slot="header">
       <h3>Type material</h3>
-    </div>
-    <div slot="options">
-      <validation-component :show-message="!typeMaterialCheck"/>
     </div>
     <div slot="body">
       <div

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <block-layout>
+    <block-layout :warning="!collectingEvent.id">
       <div slot="header">
         <h3>Collection Event</h3>
       </div>

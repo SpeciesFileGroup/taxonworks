@@ -1,6 +1,6 @@
 <template>
   <div class="flexbox align-start">
-    <block-layout>
+    <block-layout :warning="!collectionObject.id">
       <div slot="header">
         <h3>Collection Object</h3>
       </div>

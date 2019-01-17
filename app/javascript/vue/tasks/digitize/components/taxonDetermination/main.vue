@@ -1,5 +1,5 @@
 <template>
-  <block-layout>
+  <block-layout :warning="!taxonDetermination.id">
     <div slot="header">
       <h3>Determinations</h3>
     </div>
@@ -166,6 +166,9 @@ export default {
     LockComponent
   },
   computed: {
+    taxonDetermination() {
+      return this.$store.getters[GetterNames.GetTaxonDetermination]
+    },
     locked: {
       get() {
         return this.$store.getters[GetterNames.GetLocked]
