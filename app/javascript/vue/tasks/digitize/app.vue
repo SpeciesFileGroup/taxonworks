@@ -51,16 +51,14 @@
       }
     },
     mounted() {
-      let identifierId = location.pathname.split('/')[4]
+      let coId = location.pathname.split('/')[4]
 
       GetUserPreferences().then(response => {
         this.$store.commit(MutationNames.SetPreferences, response)
       })
 
-      if (/^\d+$/.test(identifierId)) {
-        this.$store.dispatch(ActionNames.GetIdentifier, identifierId).then(response => {
-          this.$store.dispatch(ActionNames.LoadDigitalization, response.identifier_object_id)
-        })
+      if (/^\d+$/.test(coId)) {
+        this.$store.dispatch(ActionNames.LoadDigitalization, coId)
       }
     },
     methods: {
