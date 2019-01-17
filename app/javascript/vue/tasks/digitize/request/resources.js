@@ -82,7 +82,7 @@ const GetTaxonDeterminationCO = function (id) {
 }
 
 const GetTypeMaterialCO = function (id) {
-  return ajaxCall('get', `/type_materials.json?biological_collection_object_ids[]=${id}`)
+  return ajaxCall('get', `/type_materials.json?biological_object_id=${id}`)
 }
 
 const GetOtu = function (id) {
