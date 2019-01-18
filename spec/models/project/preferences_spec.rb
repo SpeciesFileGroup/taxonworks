@@ -39,9 +39,23 @@ describe Project, type: :model, group: [:project] do
     expect(project.is_api_accessible).to eq(false)
   end
 
-  specify '#reset_preferences' do
-    project.reset_preferences
-    expect(project.preferences).to eq(Project::BASE_PREFERENCES)
+  context '#reset_preferences' do 
+    before do
+      project.is_api_accessible = true
+      project.save!
+    end
+
+    specify '#reset_preferences #1' do
+      project.reset_preferences
+      expect(project.preferences).to eq(Project::BASE_PREFERENCES)
+    end
+
+    specify '#reset_preferences #2' do
+      project.reset_preferences
+      project.save
+      project.reload
+      expect(project.preferences).to eq(Project::BASE_PREFERENCES)
+    end
   end
 
   context 'with one layout set' do

@@ -33,15 +33,15 @@ class Project
       if preferences.empty?
         reset_preferences
       else
-        BASE_PREFERENCES.keys.each do |k|
-          preferences[k] = BASE_PREFERENCES[k] if send(k).nil?
+        Project::BASE_PREFERENCES.keys.each do |k|
+          preferences[k] = Project::BASE_PREFERENCES[k] if send(k).nil?
         end
       end
       true
     end
 
     def reset_preferences
-      write_attribute(:preferences, BASE_PREFERENCES)
+      write_attribute(:preferences, Project::BASE_PREFERENCES)
     end
 
     def layout=(values)
