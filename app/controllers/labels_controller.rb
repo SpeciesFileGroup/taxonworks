@@ -87,7 +87,7 @@ class LabelsController < ApplicationController
     end
 
     def filter_params
-      {}
+      params.permit(:label_object_id, :label_object_type) 
     end
 
     def label_params
