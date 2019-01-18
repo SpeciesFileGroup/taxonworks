@@ -94,7 +94,7 @@
         this.$store.dispatch(ActionNames.LoadDigitalization, object.identifier_object_id)
       },
       loadCollectionObject(id) {
-        this.$store.dispatch(ActionNames.ResetWithDefault)
+        this.resetStore()
         this.$store.dispatch(ActionNames.LoadDigitalization, id)
       }
     }
