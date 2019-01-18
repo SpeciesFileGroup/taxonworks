@@ -69,5 +69,8 @@
     label {
       display: block;
     }
+    input, textarea {
+      width: 100%;
+    }
   }
 </style>
