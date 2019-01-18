@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex-separate separate-bottom">
+    <div class="flex-separate separate-bottom middle">
       <button
         disabled="true"
         class="button normal-input button-default">
@@ -8,12 +8,12 @@
       </button>
       <span>Que to print
         <input
+          class="que-input"
           :disabled="!(printLabel && printLabel.length)"
+          size="5"
           v-model="que"
           type="number">
       </span>
-    </div>
-    <div class="separate-bottom">
       <a 
         v-if="label.id && que > 0"
         target="blank"
@@ -72,5 +72,8 @@ export default {
 <style scoped>
   textarea {
     width: 100%;
+  }
+  .que-input {
+    width: 50px;
   }
 </style>

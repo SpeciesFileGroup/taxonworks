@@ -5,6 +5,7 @@ export default function({ dispatch, state }) {
   dispatch(ActionNames.NewTypeMaterial)
   dispatch(ActionNames.NewIdentifier)
   dispatch(ActionNames.NewTaxonDetermination)
+  dispatch(ActionNames.NewLabel)
   
   state.materialTypes = [],
   state.determinations = [],

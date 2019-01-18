@@ -25,6 +25,7 @@ import newTaxonDetermination from './newTaxonDetermination'
 import newCollectionEvent from './newCollectionEvent'
 import newTypeMaterial from './newTypeMaterial'
 import newIdentifier from './newIdentifier'
+import newLabel from './newLabel'
 import saveLabel from './saveLabel'
 import removeDepictionsByImageId from './removeDepictionsByImageId'
 import removeTaxonDetermination from './removeTaxonDetermination'
@@ -59,6 +60,7 @@ const ActionFunctions = {
   [ActionNames.NewTaxonDetermination]: newTaxonDetermination,
   [ActionNames.NewCollectionEvent]: newCollectionEvent,
   [ActionNames.NewTypeMaterial]: newTypeMaterial,
+  [ActionNames.NewLabel]: newLabel,
   [ActionNames.SaveLabel]: saveLabel,
   [ActionNames.RemoveDepictionsByImageId]: removeDepictionsByImageId,
   [ActionNames.RemoveTaxonDetermination]: removeTaxonDetermination,

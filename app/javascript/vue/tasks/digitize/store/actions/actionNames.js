@@ -24,6 +24,7 @@ const ActionNames = {
   NewIdentifier: 'newIdentifier',
   NewTypeMaterial: 'newTypeMaterial',
   NewTaxonDetermination: 'newTaxonDetermination',
+  NewLabel: 'newLabel',
   SaveLabel: 'saveLabel',
   RemoveDepictionsByImageId: 'removeDepictionsByImageId',
   RemoveTaxonDetermination: 'removeTaxonDetermination',
