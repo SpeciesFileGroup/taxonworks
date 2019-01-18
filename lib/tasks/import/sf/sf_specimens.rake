@@ -1116,7 +1116,7 @@ namespace :tw do
                 end
               end
             elsif row['Level1ID'] != '0' # is nil, if Level1ID = '0', ignore; otherwise bad data, record as attribute, including level 4 info?
-              data_attributes_bucket[:notes_attributes] = [{text: "Bad data locality; TDWG id (#{tdwg_id} does not resolve"}]
+              data_attributes_bucket[:notes_attributes] = [{text: "Bad data locality; TDWG id (#{tdwg_id} does not resolve", project_id: project_id}]
             end
 
 
