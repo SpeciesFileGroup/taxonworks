@@ -105,7 +105,6 @@ group :test, :development do
   gem 'faker', '~> 1.9.1'
   gem 'rspec-rails', '~> 3.6'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
-#  gem 'inch', '~> 0.7.1', require: false, # security issue
   gem 'byebug', '~> 10.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 4.11.0'
   gem 'selenium-webdriver', '~> 3.14'
