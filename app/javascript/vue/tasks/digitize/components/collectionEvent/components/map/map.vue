@@ -3,7 +3,7 @@
     <div style="height: 10%; overflow: auto;">
       Map verification
     </div>
-    <l-map style="height: 300px; width:310px" :zoom="zoom" :center="center">
+    <l-map style="height: 300px; width:100%" :zoom="zoom" :center="center">
       <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
       <l-marker :lat-lng="marker"></l-marker>
     </l-map>
