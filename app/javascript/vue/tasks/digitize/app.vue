@@ -4,10 +4,10 @@
     v-shortkey="[getMacKey(), 'l']"
     @shortkey="setLockAll">
     <spinner-component
-      v-if="saving"
+      v-if="saving || loading"
       :full-screen="true"
       :logo-size="{ width: '100px', height: '100px'}"
-      legend="Saving changes..."/>
+      :legend="(saving ? 'Saving changes...' : 'Loading...')"/>
     <task-header/>
     <collection-object class="separate-bottom"/>
     <div class="horizontal-left-content align-start separate-top">
@@ -48,6 +48,9 @@
     computed: {
       saving() {
         return this.$store.getters[GetterNames.IsSaving]
+      },
+      loading() {
+        return this.$store.getters[GetterNames.IsLoading]
       }
     },
     mounted() {

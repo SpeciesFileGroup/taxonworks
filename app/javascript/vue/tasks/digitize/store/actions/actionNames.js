@@ -27,7 +27,8 @@ const ActionNames = {
   RemoveDepictionsByImageId: 'removeDepictionsByImageId',
   RemoveTaxonDetermination: 'removeTaxonDetermination',
   ResetWithDefault: 'resetWithDefault',
-  AddToContainer: 'addToContainer'
+  AddToContainer: 'addToContainer',
+  RemoveTypeMaterial: 'removeTypeMaterial'
 }
 
 export default ActionNames

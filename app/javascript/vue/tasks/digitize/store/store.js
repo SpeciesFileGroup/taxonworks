@@ -11,6 +11,7 @@ function makeInitialState () {
   return {
     settings: {
       saving: false,
+      loading: false,
       increment: false,
       locked: {
         biocuration: false,

@@ -29,6 +29,7 @@ import removeDepictionsByImageId from './removeDepictionsByImageId'
 import removeTaxonDetermination from './removeTaxonDetermination'
 import resetWithDefault from './resetWithDefault'
 import addToContainer from './AddToContainer'
+import removeTypeMaterial from './removeTypeMaterial'
 
 const ActionFunctions = {
   [ActionNames.AddToContainer]: addToContainer,
@@ -59,7 +60,8 @@ const ActionFunctions = {
   [ActionNames.SaveLabel]: saveLabel,
   [ActionNames.RemoveDepictionsByImageId]: removeDepictionsByImageId,
   [ActionNames.RemoveTaxonDetermination]: removeTaxonDetermination,
-  [ActionNames.ResetWithDefault]: resetWithDefault
+  [ActionNames.ResetWithDefault]: resetWithDefault,
+  [ActionNames.RemoveTypeMaterial]: removeTypeMaterial
 }
 
 export { ActionNames, ActionFunctions }

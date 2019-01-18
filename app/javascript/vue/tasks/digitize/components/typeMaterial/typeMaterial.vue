@@ -1,17 +1,22 @@
 <template>
-  <block-layout :warning="!typeMaterial.id">
+  <block-layout :warning="!(typeMaterial.id || typeMaterials.length)">
     <div slot="header">
       <h3>Type material</h3>
     </div>
     <div slot="body">
-      <div
-        v-if="typeMaterial.id"
-        class="horizontal-left-content">
-        <span v-html="typeMaterial.object_tag"/>
-        <span
-          class="button circle-button btn-delete"
-          @click="destroyTypeMateria(typeMaterial.id)"/>
-      </div>
+      <ul
+        class="no_bullets"
+        v-if="typeMaterials.length">
+        <li 
+          v-for="item in typeMaterials"
+          :key="item.id"
+          class="horizontal-left-content">
+          <span v-html="item.object_tag"/>
+          <span
+            class="button circle-button btn-delete"
+            @click="destroyTypeMateria(item)"/>
+        </li>
+      </ul>
       <template v-else>
         <div class="separate-bottom">
           <fieldset>
@@ -133,7 +138,6 @@
   import { MutationNames } from '../../store/mutations/mutations'
   import BlockLayout from '../../../../components/blockLayout.vue'
   import ValidationComponent from '../shared/validate.vue'
-  import ValidateTypeMaterial from '../../validations/typeMaterial.js'
   import SmartSelector from 'components/switch.vue'
   import CreatePerson from '../../helpers/createPerson.js'
   import orderSmartSelector from '../../helpers/orderSmartSelector.js'
@@ -153,6 +157,9 @@
       },
       typeMaterial() {
         return this.$store.getters[GetterNames.GetTypeMaterial]
+      },
+      typeMaterials() {
+        return this.$store.getters[GetterNames.GetTypeMaterials]
       },
       taxon: {
         get() {
@@ -177,9 +184,6 @@
         set(value) {
           this.$store.commit(MutationNames.SetTypeMaterialRoles, value)
         }
-      },
-      typeMaterialCheck() {
-        return ValidateTypeMaterial(this.$store.getters[GetterNames.GetTypeMaterial])
       }
     },
     data() {
@@ -214,9 +218,8 @@
       selectTaxon(taxon) {
         this.$store.dispatch(ActionNames.GetTaxon, taxon.id)
       },
-      destroyTypeMateria(id) {
-        DestroyTypeMaterial(id).then(() => {
-          this.$store.commit(MutationNames.NewTypeMaterial)
+      destroyTypeMateria(item) {
+        this.$store.dispatch(ActionNames.RemoveTypeMaterial, item).then(response => {
           TW.workbench.alert.create('Type material was successfully destroyed.', 'notice')
         })
       },

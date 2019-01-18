@@ -1,4 +1,5 @@
 import isSaving from './isSaving'
+import isLoading from './isLoading'
 import getLocked from './getLocked'
 import getSettings from './getSettings'
 import getCollectionEvent from './getCollectionEvent'
@@ -6,6 +7,7 @@ import getCollectionObject from './getCollectionObject'
 import getCollectionObjects from './getCollectionObjects'
 import getCollectionEventLabel from './getCollectionEventLabel'
 import getTypeMaterial from './getTypeMaterial'
+import getTypeMaterials from './getTypeMaterials'
 import getDepictions from './getDepictions'
 import getIdentifier from './getIdentifier'
 import getIdentifiers from './getIdentifiers'
@@ -23,6 +25,7 @@ import getNamespaceSelected from './getNamespaceSelected'
 
 const GetterNames = {
   IsSaving: 'isSaving',
+  IsLoading: 'isLoading',
   GetLocked: 'getLocked',
   GetSettings: 'getSettings',
   GetTaxonDetermination: 'getTaxonDetermination',
@@ -31,6 +34,7 @@ const GetterNames = {
   GetCollectionObjects: 'getCollectionObjects',
   GetCollectionEventLabel: 'getCollectionEventLabel',
   GetTypeMaterial: 'getTypeMaterial',
+  GetTypeMaterials: 'getTypeMaterials',
   GetDepictions: 'getDepictions',
   GetIdentifier: 'getIdentifier',
   GetIdentifiers: 'getIdentifiers',
@@ -48,6 +52,7 @@ const GetterNames = {
 
 const GetterFunctions = {
   [GetterNames.IsSaving]: isSaving,
+  [GetterNames.IsLoading]: isLoading,
   [GetterNames.GetLocked]: getLocked,
   [GetterNames.GetSettings]: getSettings,
   [GetterNames.GetTaxonDetermination]: getTaxonDetermination,
@@ -56,6 +61,7 @@ const GetterFunctions = {
   [GetterNames.GetCollectionObject]: getCollectionObject,
   [GetterNames.GetCollectionObjects]: getCollectionObjects,
   [GetterNames.GetTypeMaterial]: getTypeMaterial,
+  [GetterNames.GetTypeMaterials]: getTypeMaterials,
   [GetterNames.GetDepictions]: getDepictions,
   [GetterNames.GetIdentifier]: getIdentifier,
   [GetterNames.GetIdentifiers]: getIdentifiers,

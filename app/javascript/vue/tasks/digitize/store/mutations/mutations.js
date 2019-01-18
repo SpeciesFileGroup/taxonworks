@@ -78,6 +78,7 @@ import setCollectionEventMinMa from './CollectionEvent/setCollectionEventMinMa'
 import setCollectionEventRoles from './CollectionEvent/setCollectionEventRoles'
 
 import setTypeMaterial from './TypeMaterial/setTypeMaterial'
+import setTypeMaterials from './TypeMaterial/setTypeMaterials'
 import setTypeMaterialBiologicalObjectId from './TypeMaterial/setTypeMaterialBiologicalObjectId'
 import setTypeMaterialCollectionObject from './TypeMaterial/setTypeMaterialCollectionObject'
 import setTypeMaterialCollectionObjectId from './TypeMaterial/setTypeMaterialCollectionObjectId'
@@ -88,6 +89,7 @@ import setTypeMaterialType from './TypeMaterial/setTypeMaterialType'
 import setTypeMaterialTaxon from './TypeMaterial/setTypeMaterialTaxon'
 import addTypeMaterial from './TypeMaterial/addMaterialTypes'
 import newTypeMaterial from './TypeMaterial/newTypeMaterial'
+import removeTypeMaterial from './TypeMaterial/removeTypeMaterial'
 
 import setIdentifiers from './setIdentifiers'
 import setIdentifier from './Identifier/setIdentifier'
@@ -151,6 +153,7 @@ const MutationNames = {
   SetIdentifierObjectId: 'setIdentifierObjectId',
 
   SetTypeMaterial: 'setTypeMaterial',
+  SetTypeMaterials: 'setTypeMaterials',
   SetTypeMaterialBiologicalObjectId: 'setTypeMaterialBiologicalObjectId',
   SetTypeMaterialCollectionObject: 'setTypeMaterialCollectionObject',
   SetTypeMaterialCollectionObjectId: 'setTypeMaterialCollectionObjectId',
@@ -161,6 +164,7 @@ const MutationNames = {
   SetTypeMaterialTaxon: 'setTypeMaterialTaxon',
   AddTypeMaterial: 'addTypeMaterial',
   NewTypeMaterial: 'newTypeMaterial',
+  RemoveTypeMaterial: 'removeTypeMaterial',
 
   SetCollectionEvent: 'setCollectionEvent',
   SetCollectionEventGeographicArea: 'setCollectionEventGeographicArea',
@@ -257,6 +261,7 @@ const MutationFunctions = {
   [MutationNames.SetIdentifierObjectId]: setIdentifierObjectId,
 
   [MutationNames.SetTypeMaterial]: setTypeMaterial,
+  [MutationNames.SetTypeMaterials]: setTypeMaterials,
   [MutationNames.SetTypeMaterialBiologicalObjectId]: setTypeMaterialBiologicalObjectId,
   [MutationNames.SetTypeMaterialCollectionObject]: setTypeMaterialCollectionObject,
   [MutationNames.SetTypeMaterialCollectionObjectId]: setTypeMaterialCollectionObjectId,
@@ -267,6 +272,7 @@ const MutationFunctions = {
   [MutationNames.SetTypeMaterialTaxon]: setTypeMaterialTaxon,
   [MutationNames.AddTypeMaterial]: addTypeMaterial,
   [MutationNames.NewTypeMaterial]: newTypeMaterial,
+  [MutationNames.RemoveTypeMaterial]: removeTypeMaterial,
 
   [MutationNames.SetCollectionEvent]: setCollectionEvent,
   [MutationNames.SetCollectionEventGeographicArea]: setCollectionEventGeographicArea,

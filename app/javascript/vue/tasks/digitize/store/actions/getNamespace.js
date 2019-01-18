@@ -6,6 +6,8 @@ export default function ({ commit }, id) {
     GetNamespace(id).then(namespace => {
       commit(MutationNames.SetNamespaceSelected, namespace.name)
       return resolve(namespace)
+    }, error => {
+      reject(error)
     })
   })
 }
