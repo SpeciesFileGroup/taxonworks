@@ -6,7 +6,7 @@ ruby '2.5.1'
 
 gem 'rake', '~> 12.0'
 gem 'rails', '5.2.2'
-gem 'pg', '~> 1.0' # 1.0 not compatible with 5.1.4
+gem 'pg', '~> 1.1'
 gem 'activerecord-postgis-adapter', '~> 5.2.1'
 
 gem 'hiredis', '~> 0.6.1'
@@ -74,7 +74,7 @@ gem 'ref2bibtex', '~> 0.2.3'
 gem 'pdf-reader', '~> 2.1'
 
 # UI/UX
-gem 'chartkick', '~> 3.0.1'
+gem 'chartkick', '~> 3.0.2'
 gem 'groupdate', '~> 4.0.1'
 gem 'dropzonejs-rails', '~> 0.8.1'
 gem 'kaminari', '~> 1.1.1'
