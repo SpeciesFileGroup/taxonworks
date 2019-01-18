@@ -27,7 +27,7 @@
   import TaxonDeterminationLayout from './components/taxonDetermination/main.vue'
   import CollectionEventLayout from './components/collectionEvent/main.vue'
   import TypeMaterial from './components/typeMaterial/typeMaterial.vue'
-  import { GetUserPreferences, GetIdentifier } from './request/resources.js'
+  import { GetUserPreferences } from './request/resources.js'
   import { MutationNames } from './store/mutations/mutations.js'
   import { ActionNames } from './store/actions/actions.js'
   import { GetterNames } from './store/getters/getters.js'

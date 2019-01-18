@@ -24,11 +24,13 @@
         <button 
           type="button"
           v-shortkey="[getMacKey(), 's']"
-          @shortkey="newDigitalization"
+          @shortkey="saveDigitalization"
           class="button normal-input button-submit separate-right"
           @click="saveDigitalization">Save</button>  
         <button 
           type="button"
+          v-shortkey="[getMacKey(), 'n']"
+          @shortkey="saveAndNew"
           class="button normal-input button-submit separate-right"
           @click="saveAndNew">Save and new</button> 
         <div

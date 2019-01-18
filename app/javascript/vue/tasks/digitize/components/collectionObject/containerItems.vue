@@ -5,7 +5,9 @@
         <button
           :disabled="!collectionObjects.length"
           type="button"
-          @click="saveAndNew"
+          @click="addToContainer"
+          v-shortkey="[getMacKey(), 'p']"
+          @shortkey="addToContainer"
           class="button normal-input button-default separate-bottom">Add to container
         </button>      
       </div>
@@ -36,21 +38,22 @@ export default {
     },
   },
   methods: {
-      newDigitalization() {
-        this.$store.dispatch(ActionNames.NewCollectionObject)
-        this.$store.dispatch(ActionNames.NewIdentifier)
-        this.$store.commit(MutationNames.NewTaxonDetermination)
-        this.$store.commit(MutationNames.SetTaxonDeterminations, [])
-      },
-      saveAndNew() {
-        this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
-          let that = this
-          this.$store.dispatch(ActionNames.AddToContainer, this.collectionObject)
-          setTimeout(() => {
-            that.newDigitalization()
-          }, 500)
-        })
-      },
+    newDigitalization() {
+      this.$store.dispatch(ActionNames.NewCollectionObject)
+      this.$store.dispatch(ActionNames.NewIdentifier)
+      this.$store.commit(MutationNames.NewTaxonDetermination)
+      this.$store.commit(MutationNames.SetTaxonDeterminations, [])
+    },
+    addToContainer() {
+      if(!this.collectionObjects.length) return
+      this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
+        let that = this
+        this.$store.dispatch(ActionNames.AddToContainer, this.collectionObject)
+        setTimeout(() => {
+          that.newDigitalization()
+        }, 500)
+      })
+    },
     getMacKey() {
       return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
     },
