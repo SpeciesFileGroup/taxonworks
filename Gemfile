@@ -10,7 +10,7 @@ gem 'pg', '~> 1.1'
 gem 'activerecord-postgis-adapter', '~> 5.2.1'
 
 gem 'hiredis', '~> 0.6.1'
-gem 'redis', '~> 4.0.0'
+gem 'redis', '~> 4.1.0'
 
 # gem 'json', '>= 2.1.0'
 
@@ -109,7 +109,7 @@ group :test, :development do
   gem 'byebug', '~> 10.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 4.11.0'
   gem 'selenium-webdriver', '~> 3.14'
-  gem 'geckodriver-helper', '~> 0.21.0'
+  gem 'geckodriver-helper', '~> 0.23.0'
   gem 'prawn', '~> 2.2.2'
 end
 
@@ -137,7 +137,7 @@ end
 group :test do
   gem 'rspec', '~> 3.6'
   gem 'coveralls', '~> 0.8.22', require: false
-  gem 'capybara', '~> 3.9.0'
+  gem 'capybara', '~> 3.12.0'
   gem 'timecop', '~> 0.9.1'
   gem 'webmock', '~> 3.4.1'
   gem 'vcr', '~> 4.0.0'
