@@ -22,24 +22,26 @@
           <div class="horizontal-left-content separate-bottom">
             <smart-selector
               name="collection-event"
+              class="separate-right"
               v-model="view"
               :add-option="staticOptions"
               :options="tabs"/>
+            <lock-component 
+              v-model="locked.collecting_event"/>
             <pin-default
               class="separate-left"
               section="CollectingEvents"
               @getId="getCollectingEvent"
               type="CollectingEvent"/>
-            <lock-component v-model="locked.collecting_event"/>
           </div>
           <component
             :is="actualComponent"
             :list="lists[view]"/>
         </fieldset>
         <div class="horizontal-left-content align-start">
-          <block-verbatin class="separate-right"/>
-          <block-geography class="separate-left separate-right"/>
-          <block-map class="separate-left"/>
+          <block-verbatin class="separate-right item"/>
+          <block-geography class="separate-left item separate-right"/>
+          <block-map class="separate-left item"/>
         </div>
       </div>
     </block-layout>

@@ -1,6 +1,6 @@
 <template>
   <div
-    id="#vue-all-in-one"
+    id="vue-all-in-one"
     v-shortkey="[getMacKey(), 'l']"
     @shortkey="setLockAll">
     <spinner-component
@@ -10,12 +10,12 @@
       :legend="(saving ? 'Saving changes...' : 'Loading...')"/>
     <task-header/>
     <collection-object class="separate-bottom"/>
-    <div class="horizontal-left-content align-start separate-top">
-      <div class="separate-right">
+    <div class="horizontal-left-content align-start separate-top main-panel">
+      <div class="separate-right left-section">
         <taxon-determination-layout class="separate-bottom"/>
         <type-material class="separate-top"/>
       </div>
-      <collection-event-layout class="separate-left"/>
+      <collection-event-layout class="separate-left item ce-section"/>
     </div>
   </div>
 </template>
@@ -75,33 +75,15 @@
   }
 </script>
 <style lang="scss">
-  #vue_new_matrix_task {
-    flex-direction: column-reverse;
-    margin: 0 auto;
-    margin-top: 1em;
-    max-width: 1240px;
+  #vue-all-in-one {
 
-    .cleft, .cright {
-      min-width: 450px;
-      max-width: 450px;
-      width: 400px;
+    .switch-radio {
+      flex: 1 auto;
+      label {
+        width: 100% !important; 
+      }
     }
-    #cright-panel {
-      width: 350px;
-      max-width: 350px;
-    }
-    .cright-fixed-top {
-      top:68px;
-      width: 1240px;
-      z-index:200;
-      position: fixed;
-    }
-    .anchor {
-       display:block;
-       height:65px;
-       margin-top:-65px;
-       visibility:hidden;
-    }
+
     hr {
         height: 1px;
         color: #f5f5f5;

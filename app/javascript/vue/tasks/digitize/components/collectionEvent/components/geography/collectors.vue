@@ -3,9 +3,8 @@
     <legend>Collectors</legend>
     <smart-selector
       v-model="view"
-      class="separate-bottom"
+      class="separate-bottom item"
       name="collectors"
-      :add-option="['new/Search']"
       :options="options"/>
     <div
       v-if="view != 'new/Search'"
@@ -76,6 +75,7 @@ export default {
         let result = response
         this.options = orderSmartSelector(Object.keys(result))
         this.lists = response
+        this.options.push('new/Search')
         this.view = selectFirstSmartOption(response, this.options)
       })
     },
