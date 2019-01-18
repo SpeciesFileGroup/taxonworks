@@ -21,6 +21,7 @@
 
   import { GetCollectionEvent } from '../../../../request/resources.js'
   import { MutationNames } from '../../../../store/mutations/mutations.js'
+  import { ActionNames } from '../../../../store/actions/actions.js'
   import { GetterNames } from '../../../../store/getters/getters.js'
 
   import makeCollectingEvent from '../../../../const/collectingEvent.js'
@@ -41,6 +42,7 @@
       getCollectingEvent(id) {
         GetCollectionEvent(id).then(response => {
           this.$store.commit(MutationNames.SetCollectionEvent, Object.assign(makeCollectingEvent(), response))
+          this.$store.dispatch(ActionNames.GetLabels, id)
         })
       }
     }

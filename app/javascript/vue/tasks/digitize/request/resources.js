@@ -41,6 +41,10 @@ const GetIdentifiersFromCO = function (id) {
   return ajaxCall('get', `/identifiers.json?identifier_object_type=CollectionObject&identifier_object_id=${id}&type=Identifier::Local::CatalogNumber`)
 }
 
+const GetLabelsFromCE = function (id) {
+  return ajaxCall('get', `/labels?label_object_id=${id}&label_object_type=CollectingEvent`)
+}
+
 const GetRecentCollectionObjects = function () {
   return ajaxCall('get', `/collection_objects.json`, { params: { recent: true, per: 5 } })
 }
@@ -247,6 +251,7 @@ const DestroyCollectionObject = function (id) {
 
 export {
   CheckForExistingIdentifier,
+  GetLabelsFromCE,
   GetUserPreferences,
   GetOtu,
   GetIdentifiersFromCO,

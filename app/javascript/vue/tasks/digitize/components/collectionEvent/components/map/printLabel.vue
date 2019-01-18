@@ -13,6 +13,13 @@
           type="number">
       </span>
     </div>
+    <div class="separate-bottom">
+      <a 
+        v-if="label.id && que > 0"
+        target="blank"
+        href="/tasks/labels/print_labels/index">Preview
+      </a>
+    </div>
     <label>Print label</label>
     <textarea
       v-model="printLabel"
@@ -32,6 +39,9 @@ import { MutationNames } from '../../../../store/mutations/mutations.js'
 
 export default {
   computed: {
+    label() {
+      return this.$store.getters[GetterNames.GetLabel]
+    },
     printLabel: {
       get() {
         return this.$store.getters[GetterNames.GetLabel].text

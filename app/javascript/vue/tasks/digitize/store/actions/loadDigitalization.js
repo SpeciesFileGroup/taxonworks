@@ -17,6 +17,7 @@ export default function ({ commit, dispatch, state }, coId) {
       }))
 
       promises.push(dispatch(ActionNames.GetTypeMaterial, coId))
+      promises.push(dispatch(ActionNames.GetLabels, coObject.collecting_event_id))
       promises.push(dispatch(ActionNames.GetTaxonDeterminations, coId))
       commit(MutationNames.AddCollectionObject, coObject)
 
