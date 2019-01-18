@@ -1109,9 +1109,11 @@ namespace :tw do
             geographic_area_id = geographic_area_id_hash[tdwg_id]
             if geographic_area_id # not nil, is there a level 4?
               if level4_id != '---' # there is a level 4, add level4_id and level4_name as data_attributes
-                level4_name = sf_geo_level4_hash[level3_id + level4_id]['Name']
-                level4_info = {type: 'ImportAttribute', import_predicate: 'Level4Info', value: "Level4ID = #{level4_id}, Level4Name = #{level4_name}", project_id: project_id}
-                data_attributes_bucket[:data_attributes_attributes].push(level4_info)
+                if sf_geo_level4_hash[level3_id + level4_id]['Name']  # data errors can cause exec err, data will be fixed in future: case level 4 but no level 3
+                  level4_name = sf_geo_level4_hash[level3_id + level4_id]['Name']
+                  level4_info = {type: 'ImportAttribute', import_predicate: 'Level4Info', value: "Level4ID = #{level4_id}, Level4Name = #{level4_name}", project_id: project_id}
+                  data_attributes_bucket[:data_attributes_attributes].push(level4_info)
+                end
               end
             elsif row['Level1ID'] != '0' # is nil, if Level1ID = '0', ignore; otherwise bad data, record as attribute, including level 4 info?
               data_attributes_bucket[:notes_attributes] = [{text: "Bad data locality; TDWG id (#{tdwg_id} does not resolve"}]
