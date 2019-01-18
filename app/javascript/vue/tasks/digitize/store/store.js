@@ -16,6 +16,7 @@ function makeInitialState () {
       locked: {
         biocuration: false,
         identifier: false,
+        collecting_event: false,
         collection_object: {
           buffered_determinations: false,
           buffered_collecting_event: false,
@@ -126,6 +127,7 @@ function makeInitialState () {
       label_object_id: undefined, 
       label_object_type: "CollectingEvent"
     },
+    subsequentialUses: 0,
     identifiers: [],
     materialTypes: [],
     determinations: [],

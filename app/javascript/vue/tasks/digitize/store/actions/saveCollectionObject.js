@@ -1,4 +1,5 @@
 import { CreateCollectionObject, UpdateCollectionObject } from '../../request/resources'
+import { MutationNames } from '../../store/mutations/mutations'
 
 export default function ({ commit, state }, co) {
   return new Promise((resolve, reject) => {
@@ -14,6 +15,7 @@ export default function ({ commit, state }, co) {
     }
     else {
       CreateCollectionObject(collection_object).then(response => {
+        commit(MutationNames.SetSubsequentialUses, (state.subsequentialUses + 1))
         TW.workbench.alert.create('Collection object was successfully created.', 'notice')
         return resolve(response)
       }, (response) => {

@@ -1,3 +1,5 @@
+import setSubsequentialUses from './setSubsequentialUses'
+
 import setLocked from './setLocked'
 import lockAll from './lockAll'
 
@@ -110,6 +112,8 @@ import setTaxonDeterminationDay from './TaxonDetermination/setTaxonDetermination
 import setTaxonDeterminationRoles from './TaxonDetermination/setTaxonDeterminationRoles'
 
 const MutationNames = {
+
+  SetSubsequentialUses: 'setSubsequentialUses',
 
   SetLocked: 'setLocked',
   LockAll: 'lockAll',
@@ -224,6 +228,8 @@ const MutationNames = {
 }
 
 const MutationFunctions = {
+  [MutationNames.SetSubsequentialUses]: setSubsequentialUses,
+
   [MutationNames.SetLocked]: setLocked,
   [MutationNames.LockAll]: lockAll,
   [MutationNames.SetSettings]: setSettings,

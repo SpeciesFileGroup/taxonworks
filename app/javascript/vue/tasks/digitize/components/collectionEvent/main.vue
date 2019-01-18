@@ -7,6 +7,7 @@
       <div
         slot="options" 
         class="horizontal-left-content separate-right">
+        <span v-if="collectingEvent.id">Sequential uses: {{ (this.subsequentialUses == 0 ? '-' : this.subsequentialUses) }}</span>
         <radial-annotator 
           v-if="collectingEvent.id"
           :global-id="collectingEvent.global_id"/>
@@ -29,6 +30,7 @@
               section="CollectingEvents"
               @getId="getCollectingEvent"
               type="CollectingEvent"/>
+            <lock-component v-model="locked.collecting_event"/>
           </div>
           <component
             :is="actualComponent"
@@ -49,6 +51,7 @@
   import BlockVerbatin from './components/verbatimLayout.vue'
   import BlockGeography from './components/GeographyLayout.vue'
   import SmartSelector from 'components/switch.vue'
+  import LockComponent from 'components/lock.vue'
   import BlockMap from  './components/map/main.vue'
   import BlockLayout from 'components/blockLayout.vue'
   import RadialAnnotator from 'components/annotator/annotator.vue'
@@ -82,7 +85,8 @@
       RecentComponent,
       PinboardComponent,
       QuickComponent,
-      PinDefault
+      PinDefault,
+      LockComponent
     },
     computed: {
       collectingEvent() {
@@ -90,7 +94,23 @@
       },
       actualComponent() {
         return (this.view + 'Component')
-      }
+      },
+      subsequentialUses: {
+        get() {
+          return this.$store.getters[GetterNames.GetSubsequentialUses]
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetSubsequentialUses, value)
+        }
+      },
+      locked: {
+        get() {
+          return this.$store.getters[GetterNames.GetLocked]
+        },
+        set(value) {
+          this.$store.commit([MutationNames.SetLocked, value])
+        }
+      },
     },
     data() {
       return {
@@ -98,6 +118,15 @@
         tabs: [],
         staticOptions: ['search'],
         lists: []
+      }
+    },
+    watch: {
+      collectingEvent(newVal, oldVal) {
+        if(!(newVal.hasOwnProperty('id') && 
+        oldVal.hasOwnProperty('id') &&
+        newVal.id == oldVal.id)) {
+          this.subsequentialUses = 0
+        }
       }
     },
     mounted() {

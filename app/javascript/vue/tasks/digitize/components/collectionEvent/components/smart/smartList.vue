@@ -6,6 +6,7 @@
         :key="item.id">
         <label @click="getCollectingEvent(item.id)">
           <input
+            :checked="collectingEvent.id == item.id"
             type="radio"
             name="ce-smart">
           {{ item.object_tag }}
@@ -20,6 +21,7 @@
 
   import { GetCollectionEvent } from '../../../../request/resources.js'
   import { MutationNames } from '../../../../store/mutations/mutations.js'
+  import { GetterNames } from '../../../../store/getters/getters.js'
 
   import makeCollectingEvent from '../../../../const/collectingEvent.js'
 
@@ -28,6 +30,11 @@
       list: {
         type: Array,
         required: true
+      }
+    },
+    computed: {
+      collectingEvent() {
+        return this.$store.getters[GetterNames.GetCollectionEvent]
       }
     },
     methods: {
