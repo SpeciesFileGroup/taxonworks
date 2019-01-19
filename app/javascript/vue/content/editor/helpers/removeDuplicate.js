@@ -1,4 +1,4 @@
-module.exports = function (list, id) {
+export default function (list, id) {
   var
     position = list.findIndex(item => {
       if (id === item.id) {

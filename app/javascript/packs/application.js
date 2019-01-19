@@ -9,6 +9,7 @@
 
 // Styles
 require('../style/application.scss')
+require('leaflet/dist/leaflet.css')
 
 require('../vue/citations/otus/main.js')
 require('../vue/content/editor/main.js')

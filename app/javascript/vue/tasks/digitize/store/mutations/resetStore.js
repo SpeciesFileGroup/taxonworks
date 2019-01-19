@@ -1,4 +1,4 @@
-import { makeInitialState }  from '../store'
+import { makeInitialState }  from '../store.js'
 
 export default function(state) {
   let preferences = state.preferences

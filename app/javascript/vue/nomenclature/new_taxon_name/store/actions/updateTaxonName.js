@@ -1,7 +1,7 @@
-const updateTaxonName = require('../../request/resources').updateTaxonName
-const MutationNames = require('../mutations/mutations').MutationNames
+import { updateTaxonName } from '../../request/resources'
+import { MutationNames } from '../mutations/mutations'
 
-module.exports = function ({ commit, state, dispatch }, taxon) {
+export default function ({ commit, state, dispatch }, taxon) {
   commit(MutationNames.SetSaving, true)
   return new Promise(function (resolve, reject) {
     updateTaxonName(taxon).then(response => {
