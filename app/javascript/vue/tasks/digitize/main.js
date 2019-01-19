@@ -8,14 +8,6 @@ import vueResource from 'vue-resource'
 import L from 'leaflet'
 import vueShortkey from 'vue-shortkey'
 
-delete L.Icon.Default.prototype._getIconUrl
-
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-  iconUrl: require('leaflet/dist/images/marker-icon.png'),
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png')
-});
-
 Object.assign(TW.views.tasks.digitize, {
   init: function () {
     Vue.use(vueResource)

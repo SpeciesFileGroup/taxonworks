@@ -1,4 +1,4 @@
-module.exports = function (state, id) {
+export default function (state, id) {
   var position = state.otu_citations.findIndex(item => {
     if (id === item.id) {
       return true

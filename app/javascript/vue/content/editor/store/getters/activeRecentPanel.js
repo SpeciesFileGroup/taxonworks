@@ -1,3 +1,3 @@
-module.exports = function (state) {
+export default function (state) {
   return state.panels.recent
 }

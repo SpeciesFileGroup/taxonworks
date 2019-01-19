@@ -1,3 +1,3 @@
-module.exports = function (state, value) {
+export default function (state, value) {
   state.settings.modalRelationship = value
 }
