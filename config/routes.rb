@@ -660,6 +660,12 @@ TaxonWorks::Application.routes.draw do
   ### End of data resources ###
 
   scope :tasks do
+    scope :projects do
+      scope :preferences, controller: 'tasks/projects/preferences' do
+        get :index, as: 'index_preferences_task'
+      end
+    end
+
     scope :labels do
       scope :print_labels, controller: 'tasks/labels/print_labels' do
         get :index, as: 'index_print_labels_task'
