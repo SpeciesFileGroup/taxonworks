@@ -1,24 +1,29 @@
-var TW = TW || {}
-TW.views = TW.views || {}
-TW.views.task = TW.views.task || {}
+<template>
+  <div>
+    <h1>Project - Customize attributes.</h1>
+    <div>
+      <model-component @onSelect="setModel" />
+    </div>
+  </div>
+</template>
 
+<script>
 
-import Vue from 'vue'
-import App from './app.vue'
+import ModelComponent from './components/model'
 
-Object.assign(TW.views.task, {
-  init: function () {
-    new Vue({
-      el: '#vue-task',
-      render: function (createElement) {
-        return createElement(App)
-      }
-    })
+export default {
+  components: {
+    ModelComponent
+  },
+  data() {
+    return {
+      model: undefined
+    }
+  },
+  methods: {
+    setModel(model) {
+      this.model = model.value
+    }
   }
-})
-
-$(document).on('turbolinks:load', function () {
-  if ($('#vue-task').length) {
-    TW.views.task.init()
-  }
-})
+}
+</script>
