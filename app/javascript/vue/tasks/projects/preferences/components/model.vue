@@ -26,6 +26,14 @@ export default {
     return {
       list: [
         {
+          label: 'Otu',
+          value: 'Otu'
+        },
+        {
+          label: 'Asserted distribution',
+          value: 'AssertedDistribution'
+        },
+        {
           label: 'Collection object',
           value: 'CollectionObject'
         },
