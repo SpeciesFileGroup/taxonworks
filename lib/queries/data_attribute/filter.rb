@@ -13,6 +13,8 @@ module Queries
       # Params specific to DataAttribute
       attr_accessor :value, :controlled_vocabulary_term_id, :import_predicate, :type, :object_global_id, :attribute_subject_type
 
+      attr_accessor :predicate_ids # alias for controlled_vocabulary_term_ids
+
       # @params params [ActionController::Parameters]
       def initialize(params)
         @value = params[:value]
@@ -22,6 +24,7 @@ module Queries
 
         @attribute_subject_type = params[:attribute_subject_type]
         @object_global_id = params[:object_global_id]
+        @predicate_ids = params[:predicate_ids] || []
         @options = params
       end
 
@@ -34,6 +37,7 @@ module Queries
           matching_import_predicate,
           matching_attribute_subject_type,
           matching_controlled_vocabulary_term_id,
+          matching_predicate_ids,
           matching_subject
         ].compact
 
@@ -71,6 +75,11 @@ module Queries
       end
 
       # @return [Arel::Node, nil]
+      def matching_predicate_ids
+        predicate_ids.empty? ? nil : table[:controlled_vocabulary_term_id].eq_any(predicate_ids) # meh, missmatched variable
+      end
+
+      # @return [Arel::Node, nil]
       def matching_type
         type.blank? ? nil : table[:type].eq(type)
       end
@@ -95,7 +104,7 @@ module Queries
         if _a = and_clauses
           ::DataAttribute.where(and_clauses)
         else
-          ::DataAttribute.none
+          ::DataAttribute.all
         end
       end
 
