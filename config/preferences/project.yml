@@ -9,11 +9,7 @@
 workbench_starting_path: '/hub'
 is_api_accessible: false
 layout: { }  # element_set_id: { element_id: position } 
-model_predicate_sets: 
-  Otu: []
-  AssertedDistribution: []
-  CollectionObject: []
-  CollectingEvent: []
+otu_predicate_sets: []
 default_hub_tab_order: # not ported
   - tasks
   - data

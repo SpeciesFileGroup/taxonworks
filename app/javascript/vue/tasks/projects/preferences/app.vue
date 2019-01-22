@@ -49,12 +49,12 @@ export default {
       this.model = model.value
     },
     updatePredicatePreferences(newPreferences) {
-      if(!this.model) return 
+      //if(!this.model) return 
       
-      let data = this.preferences.model_predicate_sets
-      data[this.model] = newPreferences
+      //let data = this.preferences.model_predicate_sets
+      //data[this.model] = newPreferences
 
-      UpdateProjectPreferences(this.preferences.id, { model_predicate_sets: data }).then(response => {
+      UpdateProjectPreferences(this.preferences.id, { otu_predicate_sets: newPreferences }).then(response => {
         this.preferences = response
       })
     }
