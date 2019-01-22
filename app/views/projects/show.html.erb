@@ -3,7 +3,8 @@
 <% end %>
 
 <h1><%= @project.name -%></h1>
-<%= link_to 'Edit', edit_project_path(@project) %> 
+<%= link_to 'Edit', edit_project_path(@project) %> <br>
+<%= link_to 'Customize attributes', index_preferences_task_path() %> 
 
 <div> 
 
