@@ -39,7 +39,7 @@ const GetProjectPreferences = function () {
 }
 
 const UpdateProjectPreferences = function (id, preferences) {
-  return ajaxCall('patch', `/projects/${id}.json`, { preferences: preferences })
+  return ajaxCall('patch', `/projects/${id}.json`, { project: preferences })
 }
 
 const CreateControlledVocabularyTerm = function (label) {
