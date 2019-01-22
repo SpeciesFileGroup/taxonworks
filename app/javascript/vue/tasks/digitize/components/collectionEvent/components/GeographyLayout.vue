@@ -23,6 +23,7 @@
   import Times from './geography/times.vue'
   import Group from './geography/group.vue'
   import Collectors from './geography/collectors.vue'
+  import Predicates from './geography/predicates.vue'
   import sortComponent from '../../shared/sortComponenets.vue'
 
   export default {
@@ -35,11 +36,12 @@
       Elevation,
       Dates,
       Times,
-      Group
+      Group,
+      Predicates
     },
     data() {
       return {
-        componentsOrder: ['Geography', 'Georeferences', 'Elevation', 'Dates', 'Times', 'Collectors', 'Group'],
+        componentsOrder: ['Geography', 'Georeferences', 'Elevation', 'Dates', 'Times', 'Collectors', 'Group', 'Predicates'],
         keyStorage: 'tasks::digitize::GeographyOrder'
       }
     }

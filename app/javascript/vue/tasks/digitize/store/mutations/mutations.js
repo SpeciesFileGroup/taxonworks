@@ -43,6 +43,7 @@ import setCollectionObjectRepositoryId from './CollectionObject/setCollectionObj
 import setCollectionObjectTotal from './CollectionObject/setCollectionObjectTotal'
 
 import setCollectionEvent from './CollectionEvent/setCollectionEvent'
+import setCollectionEventDataAttributes from './CollectionEvent/setCollectionEventDataAttributes'
 import setCollectionEventGeographicArea from './CollectionEvent/setCollectionEventGeographicArea'
 import setCollectionEventFormation from './CollectionEvent/setCollectionEventFormation'
 import setCollectionEventGroup from './CollectionEvent/setCollectionEventGroup'
@@ -171,6 +172,7 @@ const MutationNames = {
   RemoveTypeMaterial: 'removeTypeMaterial',
 
   SetCollectionEvent: 'setCollectionEvent',
+  SetCollectionEventDataAttributes: 'setCollectionEventDataAttributes',
   SetCollectionEventGeographicArea: 'setCollectionEventGeographicArea',
   SetCollectionEventGroup: 'setCollectionEventGroup',
   SetCollectionEventFormation: 'setCollectionFormation',
@@ -281,6 +283,7 @@ const MutationFunctions = {
   [MutationNames.RemoveTypeMaterial]: removeTypeMaterial,
 
   [MutationNames.SetCollectionEvent]: setCollectionEvent,
+  [MutationNames.SetCollectionEventDataAttributes]: setCollectionEventDataAttributes,
   [MutationNames.SetCollectionEventGeographicArea]: setCollectionEventGeographicArea,
   [MutationNames.SetCollectionEventFormation]: setCollectionEventFormation,
   [MutationNames.SetCollectionEventGroup]: setCollectionEventGroup,
