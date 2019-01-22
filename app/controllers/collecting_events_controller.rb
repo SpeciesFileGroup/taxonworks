@@ -192,7 +192,8 @@ class CollectingEventsController < ApplicationController
       :verbatim_elevation,
       roles_attributes: [:id, :_destroy, :type, :person_id, :position,
                          person_attributes: [:last_name, :first_name, :suffix, :prefix]],
-      identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy]
+      identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy],
+      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
     )
   end
 
@@ -213,8 +214,7 @@ class CollectingEventsController < ApplicationController
       :start_day, :start_month, :start_year,
       :end_day, :end_month, :end_year,
       keyword_ids: [],
-      spatial_geographic_area_ids: [],
-      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
+      spatial_geographic_area_ids: []
     )
   end
 end
