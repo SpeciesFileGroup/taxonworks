@@ -249,7 +249,8 @@ class CollectionObjectsController < ApplicationController
       :buffered_collecting_event, :buffered_determinations,
       :buffered_other_labels, :deaccessioned_at, :deaccession_reason,
       :contained_in,
-      collecting_event_attributes: []
+      collecting_event_attributes: [],  # needs to be filled out!
+      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
     )
   end
 

@@ -213,7 +213,8 @@ class CollectingEventsController < ApplicationController
       :start_day, :start_month, :start_year,
       :end_day, :end_month, :end_year,
       keyword_ids: [],
-      spatial_geographic_area_ids: []
+      spatial_geographic_area_ids: [],
+      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
     )
   end
 end
