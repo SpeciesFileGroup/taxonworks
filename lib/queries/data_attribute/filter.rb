@@ -20,7 +20,7 @@ module Queries
         @import_predicate = params[:import_predicate]
         @type = params[:type]
 
-        @attribute_subject_type = params[:attribute_subject_id]
+        @attribute_subject_id = params[:attribute_subject_id]
         @attribute_subject_type = params[:attribute_subject_type]
         @object_global_id = params[:object_global_id]
         @options = params
