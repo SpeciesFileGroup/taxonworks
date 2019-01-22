@@ -662,7 +662,7 @@ TaxonWorks::Application.routes.draw do
   scope :tasks do
     scope :projects do
       scope :preferences, controller: 'tasks/projects/preferences' do
-        get :index, as: 'index_preferences_task'
+        get :index, as: 'project_preferences_task'
       end
     end
 

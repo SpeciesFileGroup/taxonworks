@@ -384,11 +384,10 @@ index_print_labels_task:
     - collecting_event
   status: prototype
   description: 'Print and manage labels.'
-
 index_preferences_task:
-  hub: true
-  name: 'TODO: Task name'
+  hub: false
+  name: 'Project preferences'
   related:
   categories:
-  status: prototype
-  description: 'TODO: Task description'
+  status: stable
+  description: 'Project wide settings, accessible to project administrator.'
