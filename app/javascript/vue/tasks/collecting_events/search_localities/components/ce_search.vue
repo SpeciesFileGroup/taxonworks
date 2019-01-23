@@ -56,7 +56,6 @@
 <script>
   import Autocomplete from 'components/autocomplete'
   import gMap from './googleMap.vue'
-  // import AnnotationLogic from 'browse_annotations/components/annotation_logic'
   import ModeSwitch from './mode_switch'
   import Spinner from 'components/spinner'
 
@@ -64,7 +63,6 @@
     components: {
       Autocomplete,
       gMap,
-      // AnnotationLogic,
       ModeSwitch,
       Spinner,
     },
@@ -74,7 +72,6 @@
         collectingEventList: [],
         shapes: [],   // intended for eventual multiple shapes paradigm
         mode: 'list',
-        // annotation_logic: 'replace',
         isLoading: false,
       }
     },
@@ -100,17 +97,7 @@
         this.isLoading = true;
         let params = {shape: this.shapes[this.shapes.length - 1]};  // take only last shape pro tem
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
-          // if(this.annotation_logic == 'append') {
-          //   if(this.collectingEventList.length)
-          //   {this.collectingEventList = this.collectingEventList.concat(response.body);}
-          //   else
-          //   {this.collectingEventList = response.body;}
-          // }
-          // else {
-          //   {
-              this.collectingEventList = response.body;
-          //   }
-          // }
+          this.collectingEventList = response.body;
           if(this.collectingEventList) {
             this.$emit('collectingEventList', this.collectingEventList)
           }

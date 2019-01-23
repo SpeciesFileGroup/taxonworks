@@ -68,7 +68,9 @@
         this.isLoading = true;
         this.$http.get('/collecting_events', {params: params}).then(response => {
           this.collectingEventList = response.body;
-          this.$emit('collectingEventList', this.collectingEventList);
+          if(this.collectingEventList) {
+            this.$emit('collectingEventList', this.collectingEventList);
+          }
           this.isLoading = false;
         });
       },

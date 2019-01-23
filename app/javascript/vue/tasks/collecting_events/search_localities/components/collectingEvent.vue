@@ -94,10 +94,6 @@
       }
     },
     methods: {
-      sendCollectingEvent(item) {
-        // this.selected=item.id;
-        this.$emit('itemid', item.id)
-      },
       compileList(colEvList) {
         if(this.annotation_logic == 'append') {
           if(this.collectingEventList.length)
