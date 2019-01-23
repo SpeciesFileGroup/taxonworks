@@ -63,6 +63,9 @@ export default {
           this.loading = false
         }) 
       }
+      else {
+        this.createdList = []
+      }
     }
   },
   mounted() {
@@ -113,6 +116,7 @@ export default {
       else {
         this.data_attributes.push(dataAttribute)
       }
+      
       this.$emit('onUpdate', this.data_attributes)
     }
   }

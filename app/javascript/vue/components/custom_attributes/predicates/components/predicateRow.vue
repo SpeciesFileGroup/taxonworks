@@ -35,13 +35,7 @@ export default {
   },
   data() {
     return {
-      data_attribute: {
-        type: 'InternalAttribute',
-        controlled_vocabulary_term_id: this.predicateObject.id,
-        attribute_subject_id: this.objectId,
-        attribute_subject_type: this.objectType,
-        value: this.value
-      }
+      data_attribute: this.newDataAttribute() 
     }
   },
   watch: {
@@ -49,11 +43,35 @@ export default {
       if(newVal) {
         this.data_attribute = newVal
       }
+      else {
+        this.data_attribute = this.newDataAttribute()
+      }
     }
   },
   methods: {
+    newDataAttribute() {
+      return {
+        type: 'InternalAttribute',
+        controlled_vocabulary_term_id: this.predicateObject.id,
+        attribute_subject_id: this.objectId,
+        attribute_subject_type: this.objectType,
+        value: this.value
+      }
+    },
     updatePredicate() {
-      this.$emit('onUpdate', this.data_attribute)
+      let data
+
+      if(this.data_attribute.value.length == 0 && this.data_attribute.hasOwnProperty('id')) {
+        data = {
+          id: this.data_attribute.id,
+          _destroy: true
+        }
+      }
+      else {
+        data = this.data_attribute
+      }
+      
+      this.$emit('onUpdate', data)
     }
   }
 
