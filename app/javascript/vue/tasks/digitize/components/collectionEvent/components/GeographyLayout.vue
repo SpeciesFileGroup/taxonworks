@@ -1,6 +1,6 @@
 <template>
   <div class="geography-layout">
-    <h2>Geography</h2>
+    <h2>Parsed</h2>
     <draggable
       v-model="componentsOrder"
       @end="updatePreferences">
