@@ -72,17 +72,17 @@ namespace :tw do
           # #
           # 'specimens:geographic_area_ids',
           'specimens:collecting_events',
-          # # 14_after_coll_events': 38m14.238s on 15 Nov 2018; 42m43.927s on 16 June 2018; 47m53.101s on 26 June 2018
-          # #
-          # 'specimens:import_sf_depos',
-          # 'specimens:create_biocuration_classes',
-          # 'specimens:create_specimen_category_counts',
-          # 'specimens:create_sf_source_metadata',
-          # 'specimens:create_sf_identification_metadata',
-          # # '15_after_identification_metadata': 9m47.689s on 15 Nov 2018
-          # #
-          # 'specimens:get_ident_qualifier_from_nomenclator',
-          # 'specimens:create_sf_loc_col_events_metadata',
+          # 14_after_coll_events': 38m14.238s on 15 Nov 2018; 42m43.927s on 16 June 2018; 47m53.101s on 26 June 2018
+          #
+          'specimens:import_sf_depos',
+          'specimens:create_biocuration_classes',
+          'specimens:create_specimen_category_counts',
+          'specimens:create_sf_source_metadata',
+          'specimens:create_sf_identification_metadata',
+          # '15_after_identification_metadata': 9m47.689s on 15 Nov 2018
+          #
+          'specimens:get_ident_qualifier_from_nomenclator',
+          'specimens:create_sf_loc_col_events_metadata',
           # # '16_after_col_events_metadata': 10m17.584s on 15 Nov 2018
           # #
           # # 654m43.830s before crash on 13 Jan 2019

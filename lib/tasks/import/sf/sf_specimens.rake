@@ -157,16 +157,25 @@ namespace :tw do
                 otu_id = get_otu_from_tw_taxon_id[tw_taxon_name_id]
                 otu_id = get_tw_otu_id[sf_taxon_name_id] if otu_id == nil
 
-                # byebug
+                geographic_area_id = CollectingEvent.find(collecting_event_id).geographic_area_id
+                source_id = get_tw_source_id[get_sf_identification_metadata[specimen_id][0][ref_id]] # assume first ident record
+
+                byebug
 
                 AssertedDistribution.create!(otu_id: otu_id,
-                                             geographic_area_id: CollectingEvent.find(collecting_event_id).geographic_area_id,
+                                             geographic_area_id: geographic_area_id,
+                                             source_id: source_id,
                                              project_id: project_id)
                 logger.info " AssertedDistribution created for SpecimenID = '#{specimen_id}', FileID = '#{sf_file_id}', otu_id = '#{otu_id}' [ asserted_dist_counter = #{asserted_dist_counter += 1} ]"
+
+                # rescue ActiveRecord::RecordInvalid # bad date?
+                # logger.error "CollectEvent error: FileID = #{row['FileID']}, UniqueID = #{row['UniqueID']}, Year = #{this_year}, Month = #{this_month}, Day = #{this_day}, DaysToEnd = #{row['DaysToEnd']}, (error count #{error_counter += 1})" + c.errors.full_messages.join(';')
+
+
                 next
 
               else # no specimen or assert dist, record error and next
-                logger.error " OMITTED : No specimen or asserted distribution: SpecimenID = '#{specimen_id}', FileID = '#{sf_file_id}', DepoID = '#{sf_depo_id}', SourceID = '#{row['SourceID']}', zero_counter = '#{zero_counter += 1}' "
+                logger.error " OMITTED : No specimen or asserted distribution: SpecimenID = '#{specimen_id}', FileID = '#{sf_file_id}', DepoID = '#{sf_depo_id}', zero_counter = '#{zero_counter += 1}' "
                 next
               end
             end
@@ -1109,14 +1118,16 @@ namespace :tw do
             geographic_area_id = geographic_area_id_hash[tdwg_id]
             if geographic_area_id # not nil, is there a level 4?
               if level4_id != '---' # there is a level 4, add level4_id and level4_name as data_attributes
-                if sf_geo_level4_hash[level3_id + level4_id]['Name']  # data errors can cause exec err, data will be fixed in future: case level 4 but no level 3
-                  level4_name = sf_geo_level4_hash[level3_id + level4_id]['Name']
+                if sf_geo_level4_hash[level3_id + level4_id] # data errors can cause exec err, data will be fixed in future: case level 4 but no level 3
+                  level4_name = sf_geo_level4_hash[level3_id + level4_id]['name']
                   level4_info = {type: 'ImportAttribute', import_predicate: 'Level4Info', value: "Level4ID = #{level4_id}, Level4Name = #{level4_name}", project_id: project_id}
                   data_attributes_bucket[:data_attributes_attributes].push(level4_info)
+                else
+                  data_attributes_bucket[:notes_attributes] = [{text: "Bad locality data; TDWG id (#{tdwg_id} or missing level3 data does not resolve", project_id: project_id}]
                 end
               end
             elsif row['Level1ID'] != '0' # is nil, if Level1ID = '0', ignore; otherwise bad data, record as attribute, including level 4 info?
-              data_attributes_bucket[:notes_attributes] = [{text: "Bad data locality; TDWG id (#{tdwg_id} does not resolve", project_id: project_id}]
+              data_attributes_bucket[:notes_attributes] = [{text: "Bad locality data; TDWG id (#{tdwg_id} does not resolve", project_id: project_id}]
             end
 
 
