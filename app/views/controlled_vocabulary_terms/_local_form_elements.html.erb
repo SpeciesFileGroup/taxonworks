@@ -26,11 +26,13 @@
 <div class="field">
   <%= f.label :uri %>
   <br>
+  <p> <%= link_to('Be precise, cross reference a concept in Bioportal via a URI that describes your concept', 'https://bioportal.bioontology.org/', target: :_blank) -%> </p>
   <%= f.text_field :uri, size: 60 %>
 </div>
 
 <div class="field">
   <%= f.label :uri_relation %>
   <br>
+  <p> <em>Be even more precise, how does the URI you provided relate to your concept?</em> </p>
   <%= f.select :uri_relation, options_for_select(SKOS_RELATIONS.keys, controlled_vocabulary_term.uri_relation), include_blank: true -%> 
 </div>

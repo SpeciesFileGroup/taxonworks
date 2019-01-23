@@ -1,7 +1,7 @@
 <h1> Manage biocuration classes and groups </h1>
 <div class="flexbox">
   <div class="item item1">
-    <h2> Available Biocuration Groups </h2>
+    <h2> Available biocuration groups </h2>
     <%= content_tag(:em, 'None.') if @biocuration_groups.size == 0 -%>
     <% @biocuration_groups.each do |bg| -%>
       <%= content_tag(:h3, bg.name) -%>
@@ -15,7 +15,8 @@
 
   <hr> 
     <div>
-      <h2> New Biocuration Group </h2>
+      <h2> New biocuration group </h2>
+      <p><em> A biocuration group is a category like "sex", or "life stage".</em></p>
       <%= render 'shared/errors', object: @new_biocuration_group %>
       <%= form_for(@new_biocuration_group.metamorphosize, url: create_biocuration_group_url) do |f| %>
         <%= render(partial: 'controlled_vocabulary_terms/local_form_elements', locals: {
@@ -33,14 +34,15 @@
 
   <div class="item item2">
     <div>
-      <h2> Available Classifications </h2>
+      <h2> Available classifications </h2>
       <p> All classifications: <strong> <%= @biocuration_classes.collect{|a| a.name}.join(', ') -%> <%= content_tag(:em, 'None.') if @biocuration_classes.size == 0 -%> </strong> </p>
       <p> Not yet added to any group: <strong> <%= @biocuration_classes_without_groups.collect{|a| a.name}.join(', ') -%> </strong> </p>
     </div>
 
   <hr> 
     <div>
-      <h2> New Biocuration Class </h2>
+      <h2> New Biocuration class </h2>
+      <p><em> A biocuration class is a member of a biocuration group, like "female", or "adult".</em></p>
       <%= render 'shared/errors', object: @new_biocuration_class %>
       <%= form_for(@new_biocuration_class.metamorphosize, url: create_biocuration_class_url) do |f| %>
         <%= render(partial: 'controlled_vocabulary_terms/local_form_elements', locals: {
