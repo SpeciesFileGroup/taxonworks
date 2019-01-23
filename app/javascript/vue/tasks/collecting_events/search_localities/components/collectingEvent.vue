@@ -103,12 +103,14 @@
           if(this.collectingEventList.length)
           {this.collectingEventList = colEvList.concat(this.collectingEventList);}
           else
-          {this.collectingEventList = colEvList;}
-        }
-        else {
           {
             this.collectingEventList = colEvList;
+            this.selected = [];
           }
+        }
+        else {
+          this.collectingEventList = colEvList;
+          this.selected = [];
         }
       },
       showObject(id) {
@@ -117,9 +119,8 @@
       delistMe(index) {
         this.$delete(this.collectingEventList, index)
       },
-      keepMe() {
-        let i = 0;
-        for (i = 0; i< this.collectingEventList.length; i++) {
+      keepMe() {  //loop down from top to avoid re-indexing issues
+        for (let i = this.collectingEventList.length - 1; i > -1 ; i--) {
           if (!this.selected.includes(this.collectingEventList[i].id)) {
             this.delistMe(i)
           }

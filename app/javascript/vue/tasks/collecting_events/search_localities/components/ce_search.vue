@@ -5,7 +5,7 @@
     :full-screen="true"
     legend="Loading..."
     :logo-size="{ width: '100px', height: '100px'}"/>
-    <h2>Find collecting events by geographic area</h2>
+    <h2>Find collecting events by geographic area or shape</h2>
     <mode-switch v-model="mode"/>
     <div v-if="mode==='list'">
       <table>
@@ -56,7 +56,7 @@
 <script>
   import Autocomplete from 'components/autocomplete'
   import gMap from './googleMap.vue'
-  import AnnotationLogic from 'browse_annotations/components/annotation_logic'
+  // import AnnotationLogic from 'browse_annotations/components/annotation_logic'
   import ModeSwitch from './mode_switch'
   import Spinner from 'components/spinner'
 
@@ -64,7 +64,7 @@
     components: {
       Autocomplete,
       gMap,
-      AnnotationLogic,
+      // AnnotationLogic,
       ModeSwitch,
       Spinner,
     },
@@ -74,7 +74,7 @@
         collectingEventList: [],
         shapes: [],   // intended for eventual multiple shapes paradigm
         mode: 'list',
-        annotation_logic: 'replace',
+        // annotation_logic: 'replace',
         isLoading: false,
       }
     },
@@ -100,17 +100,17 @@
         this.isLoading = true;
         let params = {shape: this.shapes[this.shapes.length - 1]};  // take only last shape pro tem
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
-          if(this.annotation_logic == 'append') {
-            if(this.collectingEventList.length)
-            {this.collectingEventList = this.collectingEventList.concat(response.body);}
-            else
-            {this.collectingEventList = response.body;}
-          }
-          else {
-            {
+          // if(this.annotation_logic == 'append') {
+          //   if(this.collectingEventList.length)
+          //   {this.collectingEventList = this.collectingEventList.concat(response.body);}
+          //   else
+          //   {this.collectingEventList = response.body;}
+          // }
+          // else {
+          //   {
               this.collectingEventList = response.body;
-            }
-          }
+          //   }
+          // }
           if(this.collectingEventList) {
             this.$emit('collectingEventList', this.collectingEventList)
           }
