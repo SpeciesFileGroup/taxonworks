@@ -31,7 +31,7 @@ const handleError = function (json) {
 }
 
 const GetPredicates = function () {
-  return ajaxCall('get', '/controlled_vocabulary_terms?of_type[]=Predicate')
+  return ajaxCall('get', '/controlled_vocabulary_terms?type[]=Predicate')
 }
 
 const GetProjectPreferences = function () {

@@ -5,7 +5,7 @@ const GetProjectPreferences = function () {
 }
 
 const GetPredicates = function (ids) {
-  return ajaxCall('get', '/controlled_vocabulary_terms', { params: { 'of_type[]': 'Predicate', 'id': ids } })
+  return ajaxCall('get', '/controlled_vocabulary_terms', { params: { 'type[]': 'Predicate', 'id': ids } })
 }
 
 const GetPredicatesCreated = function (objectType, objectId) {

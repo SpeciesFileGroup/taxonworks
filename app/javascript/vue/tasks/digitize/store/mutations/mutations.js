@@ -24,6 +24,7 @@ import setLabelText from './Label/setLabelText'
 import setLabelTotal from './Label/setLabelTotal'
 
 import setCollectionObjects from './CollectionObject/setCollectionObjects'
+import setCollectionObjectDataAttributes from './CollectionObject/setCollectionObjectDataAttributes'
 import newCollectionObject from './CollectionObject/newCollectionObject'
 import addCollectionObject from './CollectionObject/addCollectionObject'
 import removeCollectionObject from './CollectionObject/removeCollectionObject'
@@ -209,6 +210,7 @@ const MutationNames = {
   SetCollectionEventMinMa: 'setCollectionEventMinMa',
   SetCollectionEventRoles: 'setCollectionEventRoles',
 
+  SetCollectionObjectDataAttributes: 'setCollectionObjectDataAttributes',
   SetCollectionObjectTypes: 'setCollectionObjectTypes',
   SetCollectionObject: 'setCollectionObject',
   NewCollectionObject: 'newCollectionObject',
@@ -321,6 +323,7 @@ const MutationFunctions = {
   [MutationNames.SetCollectionEventRoles]: setCollectionEventRoles,
 
   [MutationNames.SetCollectionObject]: setCollectionObject,
+  [MutationNames.SetCollectionObjectDataAttributes]: setCollectionObjectDataAttributes,
   [MutationNames.SetCollectionObjectTypes]: setCollectionObjectTypes,
   [MutationNames.AddCollectionObject]: addCollectionObject,
   [MutationNames.NewCollectionObject]: newCollectionObject,

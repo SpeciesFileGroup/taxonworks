@@ -40,7 +40,7 @@
             </span>
           </div>
         </div>
-        <div class="horizontal-left-content separate-top">
+        <div class="horizontal-left-content separate-top separate-bottom">
           <depictions-component
             v-if="showDepictions"
             class="separate-top separate-right"
@@ -62,6 +62,12 @@
             </span>
           </div>
         </div>
+          <predicates-component
+            :object-id="collectionObject.id"
+            object-type="CollectionObject"
+            model="CollectionObject"
+            @onUpdate="setAttributes"
+          />
         <container-items/>
       </div>
     </block-layout>
@@ -85,6 +91,8 @@
   import RadialAnnotator from '../../../../components/annotator/annotator.vue'
   import LockComponent from 'components/lock.vue'
   import btnShow from 'components/btnShow.vue'
+  import PredicatesComponent from 'components/custom_attributes/predicates/predicates'
+
   import { GetCollectionObjectDepictions, CreateDepiction, UpdateUserPreferences } from '../../request/resources.js'
 
   export default {
@@ -100,7 +108,8 @@
       RepositoryComponent,
       BlockLayout,
       RadialAnnotator,
-      btnShow
+      btnShow,
+      PredicatesComponent
     },
     computed: {
       preferences: {
@@ -166,6 +175,9 @@
       }
     },
     methods: {
+      setAttributes(value) {
+        this.$store.commit(MutationNames.SetCollectionObjectDataAttributes, value)
+      },
       updatePreferences(key, value) {
         UpdateUserPreferences(this.preferences.id, { [key]: value }).then(response => {
           this.preferences.layout = response.preferences.layout

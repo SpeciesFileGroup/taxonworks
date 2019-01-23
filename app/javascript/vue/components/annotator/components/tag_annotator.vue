@@ -58,7 +58,7 @@
         min="2"
         placeholder="Keyword"
         :clear-after="true"
-        :add-params="{'of_type[]' : 'Keyword'}"
+        :add-params="{'type[]' : 'Keyword'}"
         @getInput="tag.keyword_attributes.name = $event"
         @getItem="createWithId($event.id)"
         class="separate-bottom"
@@ -151,7 +151,7 @@ export default {
       promises.push(this.getList(`/keywords/select_options?klass=${this.objectType}`).then(response => {
         tabList = response.body
       }))
-      promises.push(this.getList(`/controlled_vocabulary_terms.json?of_type[]=${type}`).then(response => {
+      promises.push(this.getList(`/controlled_vocabulary_terms.json?type[]=${type}`).then(response => {
         allList = response.body
       }))
 

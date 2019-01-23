@@ -158,11 +158,11 @@ const UpdateCollectionObject = function (data) {
 }
 
 const GetBiocurationsTypes = function (protonymId) {
-  return ajaxCall('get', `/controlled_vocabulary_terms.json?of_type[]=BiocurationClass`)
+  return ajaxCall('get', `/controlled_vocabulary_terms.json?type[]=BiocurationClass`)
 }
 
 const GetBiocurationsGroupTypes = function (protonymId) {
-  return ajaxCall('get', `/controlled_vocabulary_terms.json?of_type[]=BiocurationGroup`)
+  return ajaxCall('get', `/controlled_vocabulary_terms.json?type[]=BiocurationGroup`)
 }
 
 const GetBiocurationsTags = function (BiocurationGroupId) {
