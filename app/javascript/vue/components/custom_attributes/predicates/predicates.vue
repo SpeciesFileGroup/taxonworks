@@ -1,19 +1,21 @@
 <template>
-  <fieldset>
-    <spinner-component
-      v-if="loading"
-    />
-    <legend>Custom attributes</legend>
-    <predicate-row
-      v-for="item in predicatesList"
-      :key="item.id"
-      :object-id="objectId"
-      :object-type="objectType"
-      :predicate-object="item"
-      :existing="findExisting(item.id)"
-      @onUpdate="addDataAttribute"
-    />
-  </fieldset>
+  <div>
+    <fieldset>
+      <spinner-component
+        v-if="loading"
+      />
+      <legend>Custom attributes</legend>
+      <predicate-row
+        v-for="item in predicatesList"
+        :key="item.id"
+        :object-id="objectId"
+        :object-type="objectType"
+        :predicate-object="item"
+        :existing="findExisting(item.id)"
+        @onUpdate="addDataAttribute"
+      />
+    </fieldset>
+  </div>
 </template>
 
 <script>
@@ -122,9 +124,4 @@ export default {
   }
 }
 </script>
-<style scoped>
-  input {
-    width: 100%;
-  }
-</style>
 
