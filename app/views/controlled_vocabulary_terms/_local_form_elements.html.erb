@@ -1,5 +1,4 @@
 <div class="required">
-
   <div class="field <%= collapsed_css_property_if(hide_type) -%> ">
     <%= f.label :type %>
     <%= f.select :type, options_for_select(controlled_vocabulary_term_type_select_options, controlled_vocabulary_term.type) %>
@@ -7,25 +6,27 @@
 
   <div class="field">
     <%= f.label :name %>
+    <br>
     <%= f.text_field :name %>
   </div>
 
   <div class="field">
     <%= f.label :definition %>
-    <%= f.text_area :definition %>
+    <br>
+    <%= f.text_area :definition, rows: 5, cols: 60 %>
   </div>
 
   <div class="field">
     <%= f.label :css_color %>
+    <br>
     <%= f.text_field :css_color, type: 'color' %>
   </div>
-
 </div>
 
 <div class="field">
   <%= f.label :uri %>
   <br>
-  <%= f.text_area :uri %>
+  <%= f.text_field :uri, size: 60 %>
 </div>
 
 <div class="field">
@@ -33,4 +34,3 @@
   <br>
   <%= f.select :uri_relation, options_for_select(SKOS_RELATIONS.keys, controlled_vocabulary_term.uri_relation), include_blank: true -%> 
 </div>
-
