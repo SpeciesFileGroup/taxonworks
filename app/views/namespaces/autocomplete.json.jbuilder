@@ -7,7 +7,7 @@ json.array! @namespaces do |n|
 
   json.response_values do 
     if params[:method]
-      json.set! params[:method], i.id
+      json.set! params[:method], n.id
     end
   end 
 end
