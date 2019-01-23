@@ -1,5 +1,3 @@
-require_dependency Rails.root.to_s + '/config/initializers/constants/model/identifiers'
-
 class IdentifiersController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 

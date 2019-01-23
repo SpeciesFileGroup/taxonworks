@@ -76,8 +76,8 @@ new_verbatim_reference_task:
   status: prototype
 build_biocuration_groups_task:
   hub: true
-  name: 'Manage biocuration types and groups'
-  description: 'Create bio-curation categories that are used to organize physical collections (e.g. specimens and lots).'
+  name: 'Manage biocuration classes and groups'
+  description: 'Create bio-curation categories like sex, and lifestage, that are used to organize physical collections (e.g. specimens and lots).'
   related:
     - build_biocuration_group_task
   categories:
