@@ -135,8 +135,7 @@ class ControlledVocabularyTermsController < ApplicationController
   end
 
   def filter_params
-    h = params.permit(of_type: [], id: []).to_h.symbolize_keys # meh, mismatched variables
-    return {type: h[:of_type], id: h[:id], project_id: sessions_current_project_id}
+    params.permit(type: [], id: []).to_h.symbolize_keys.merge!(project_id: sessions_current_project_id)
   end
 
 end
