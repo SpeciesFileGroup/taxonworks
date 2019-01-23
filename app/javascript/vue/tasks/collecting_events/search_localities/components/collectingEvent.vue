@@ -34,7 +34,7 @@
       </div>
       <span v-if="collectingEventList.length" v-html="'<br>' + collectingEventList.length + '  results found.'"/>
       <table>
-      <th>Cached</th><th>Verbatim Locality</th><th>Pin</th><th>[X]</th><th>Select</th>
+        <th>Cached</th><th>Verbatim Locality</th><th>Pin</th><th class="remove_area" data-icon="trash"/><th>Select</th><th><span class="remove_area" data-icon="trash" @click="keepMe()"> unchecked</span></th>
       <tr
         v-for="(item, index) in collectingEventList"
         :key="item.id">
@@ -56,7 +56,7 @@
         <td>
           <span class="remove_area" data-icon="trash" @click="delistMe(index)"/>
         </td>
-        <td><input type="checkbox"/></td>
+        <td><input type="checkbox" :value="item.id" v-model="selected"/></td>
       </tr>
       </table>
     </div>
@@ -89,6 +89,7 @@
         moreOptions: ['Filter', 'Search', 'Tag'],
         view: undefined,
         collectingEventList: [],
+        selected: [],
         annotation_logic: 'append',
       }
     },
@@ -116,6 +117,14 @@
       delistMe(index) {
         this.$delete(this.collectingEventList, index)
       },
+      keepMe() {
+        let i = 0;
+        for (i = 0; i< this.collectingEventList.length; i++) {
+          if (!this.selected.includes(this.collectingEventList[i].id)) {
+            this.delistMe(i)
+          }
+        }
+      }
     },
     mounted: function() {
       this.$http.get('/collecting_events/select_options').then(response => {
