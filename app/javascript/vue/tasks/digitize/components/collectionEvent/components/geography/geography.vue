@@ -14,6 +14,7 @@
       placeholder="Select a geographic area"
       @getItem="selectGeographicArea"
       display="label"
+      ref="autocomplete"
       label="label_html"/>
     <template v-if="selected">
       <div class="middle separate-top">
@@ -21,7 +22,7 @@
         <span class="separate-right"> {{ selected.label }}</span>
         <span
           class="circle-button button-default btn-undo"
-          @click="selected = undefined; geographicArea = undefined"/>
+          @click="clearSelection"/>
       </div>
     </template>
   </fieldset>
@@ -63,6 +64,11 @@
       this.GetSmartSelector()
     },
     methods: {
+      clearSelection() {
+        this.selected = undefined
+        this.geographicArea = undefined
+        this.$refs.autocomplete.cleanInput()
+      },
       GetSmartSelector() {
         GetGeographicSmartSelector().then(response => {
           let result = response
