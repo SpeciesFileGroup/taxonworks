@@ -40,7 +40,7 @@
             </span>
           </div>
         </div>
-        <div class="horizontal-left-content separate-top">
+        <div class="horizontal-left-content separate-top separate-bottom">
           <depictions-component
             v-if="showDepictions"
             class="separate-top separate-right"
