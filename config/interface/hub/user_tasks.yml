@@ -391,3 +391,11 @@ index_preferences_task:
   categories:
   status: stable
   description: 'Project wide settings, accessible to project administrator.'
+
+index_new_asserted_distribution_task:
+  hub: true
+  name: 'TODO: Task name'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'

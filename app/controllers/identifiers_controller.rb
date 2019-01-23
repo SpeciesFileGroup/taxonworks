@@ -95,8 +95,9 @@ class IdentifiersController < ApplicationController
     send_data Download.generate_csv(Identifier.where(project_id: sessions_current_project_id)), type: 'text', filename: "identifiers_#{DateTime.now}.csv"
   end
 
-  # GET /taxon_name_relationships/taxon_name_relationship_types
+  # GET /identifiers/identifier_types
   def identifier_types
+    byebug
     render json: IDENTIFIERS_JSON
   end
 
