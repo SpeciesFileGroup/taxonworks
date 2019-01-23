@@ -99,7 +99,6 @@ export default {
           var that = this
           setTimeout(function () {
             that.$refs.depiction.setOption('autoProcessQueue', true)
-            console.log(response)
             that.$refs.depiction.processQueue()
             that.creatingType = false
           }, 500)
