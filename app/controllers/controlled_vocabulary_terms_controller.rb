@@ -12,7 +12,7 @@ class ControlledVocabularyTermsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @controlled_vocabulary_terms = ControlledVocabularyTerm.where(filter_params).with_project_id(sessions_current_project_id).order(:name)
+        @controlled_vocabulary_terms = ControlledVocabularyTerm.where(filter_params).order(:name)
       }
     end
   end
