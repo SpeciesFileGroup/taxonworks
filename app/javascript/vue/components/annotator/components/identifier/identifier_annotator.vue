@@ -7,69 +7,70 @@
           <span class="capitalize">{{ namespace }}</span>
           <button type="button" @click="reset()">Change</button>
         </div>
-
-        <div
-          v-if="namespace != 'unknown'"
-          class="switch-radio">
-          <template v-for="item, index in barList">
-            <input
-              v-model="display"
-              :value="item"
-              :id="`alternate_values-picker-${index}`"
-              name="alternate_values-picker-options"
-              type="radio"
-              class="normal-input button-active"
-            >
-            <label
-              :for="`alternate_values-picker-${index}`"
-              class="capitalize">{{ item }}
-            </label>
-          </template>
-        </div>
-
-        <div class="separate-bottom separate-top">
-
-          <ul
-            v-show="namespace != 'unknown'"
-            class="no_bullets">
-            <li v-for="item in typeList[namespace].common">
-              <label class="capitalize">
-                <input
-                  type="radio"
-                  v-model="identifier.type"
-                  :value="item">
-                {{ typeList[namespace].all[item].label }}
+        <fieldset>
+          <legend>Type</legend>
+          <div
+            v-if="namespace != 'unknown'"
+            class="switch-radio">
+            <template v-for="item, index in barList">
+              <input
+                v-model="display"
+                :value="item"
+                :id="`alternate_values-picker-${index}`"
+                name="alternate_values-picker-options"
+                type="radio"
+                class="normal-input button-active"
+              >
+              <label
+                :for="`alternate_values-picker-${index}`"
+                class="capitalize">{{ item }}
               </label>
-            </li>
-          </ul>
+            </template>
+          </div>
 
-          <modal
-            class="transparent-modal"
-            v-if="display == 'show all'"
-            @close="display = 'common'">
-            <h3 slot="header">Types</h3>
-            <div slot="body">
-              <ul>
-                <li
-                  class="modal-list-item"
-                  v-for="item, key in typeList[namespace].all">
-                  <button
-                    type="button"
-                    :value="key"
-                    @click="identifier.type = key, display = 'common'"
-                    class="button button-default normal-input modal-button capitalize">
-                    {{ item.label }}
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </modal>
-        </div>
+          <div class="separate-top">
+            <ul
+              v-show="namespace != 'unknown'"
+              class="no_bullets">
+              <li v-for="item in typeList[namespace].common">
+                <label class="capitalize">
+                  <input
+                    type="radio"
+                    v-model="identifier.type"
+                    :value="item">
+                  {{ typeList[namespace].all[item].label }}
+                </label>
+              </li>
+            </ul>
 
-        <p
-          v-if="identifier.type"
-          class="capitalize">Type: {{ typeList[namespace].all[identifier.type].label }}
-        </p>
+            <modal
+              class="transparent-modal"
+              v-if="display == 'show all'"
+              @close="display = 'common'">
+              <h3 slot="header">Types</h3>
+              <div slot="body">
+                <ul>
+                  <li
+                    class="modal-list-item"
+                    v-for="item, key in typeList[namespace].all">
+                    <button
+                      type="button"
+                      :value="key"
+                      @click="identifier.type = key, display = 'common'"
+                      class="button button-default normal-input modal-button capitalize">
+                      {{ item.label }}
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            </modal>
+          </div>
+
+          <p
+            v-if="identifier.type"
+            class="capitalize">Type: {{ typeList[namespace].all[identifier.type].label }}
+          </p>
+        </fieldset>
         <div>
           <spinner-component
             v-if="!isTypeSelected" 
@@ -77,14 +78,13 @@
             :show-legend="false"
           />
           <namespace-component
-            v-show="namespace == 'local'"
-            class="separate-bottom"
+            v-show="isLocal"
             :object-type="objectType"
             @onLabelChange="namespaceSelectedLabel = $event"
             v-model="identifier.namespace_id"
           />
 
-          <div class="field">
+          <div class="field separate-top">
             <input
               class="normal-input identifier"
               placeholder="Identifier"
@@ -93,7 +93,7 @@
           </div>
 
           <p>
-            <template>
+            <template v-if="isLocal">
               <span v-if="identifier.namespace_id"> {{ namespaceSelectedLabel }} </span>
               <span v-else> [ Select namespace ] </span>
             </template>
@@ -131,7 +131,7 @@
     <table-list
       :list="list"
       :header="['Identifier', 'Type', '']"
-      :attributes="['cached', 'type_name']"
+      :attributes="['cached', 'type']"
       :annotator="false"
       @edit="data_attribute = $event"
       @delete="removeItem"/>
@@ -162,6 +162,9 @@ export default {
     },
     isTypeSelected() {
       return this.identifier.type
+    },
+    isLocal() {
+      return this.namespace == 'local'
     }
   },
   data: function () {
@@ -251,6 +254,11 @@ export default {
 		.modal-list-item {
 			margin-top: 6px;
 		}
+    .switch-radio {
+      label {
+        width: 100%;
+      }
+    }
 	}
 }
 </style>

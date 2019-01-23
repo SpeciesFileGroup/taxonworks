@@ -8,7 +8,7 @@
       v-model="view"
     />
     <div
-      v-if="view == 'new'"
+      v-if="view == 'search/new'"
       class="field">
       <autocomplete
         url="/namespaces/autocomplete"
@@ -72,7 +72,7 @@
       this.getList(`/namespaces/select_options?klass=${this.objectType}`).then(response => {
         this.lists = response.body
         this.options = OrderSmartSelector(Object.keys(this.lists))
-        this.options.push('new')
+        this.options.push('search/new')
       })
     },
     methods: {
