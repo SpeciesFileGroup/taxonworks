@@ -77,7 +77,7 @@ class NamespacesController < ApplicationController
   end
 
   def autocomplete
-    @namespaces = Queries::NamespaceAutocompleteQuery.new(params.require(:term)).all
+    @namespaces = Queries::Namespace::Autocomplete.new(params.require(:term)).all
   end
 
   # GET /namespaces/download

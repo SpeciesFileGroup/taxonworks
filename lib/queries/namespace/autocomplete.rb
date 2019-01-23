@@ -1,5 +1,6 @@
 module Queries
-  class NamespaceAutocompleteQuery < Queries::Query
+  class Namespace::Autocomplete < Queries::Query
+
     # @return [String]
     def where_sql
       named.or(or_clauses).to_sql
@@ -28,11 +29,11 @@ module Queries
     end
 
     def all
-      Namespace.where(where_sql)
+      ::Namespace.where(where_sql)
     end
 
     def table
-      Namespace.arel_table
+      ::Namespace.arel_table
     end
   end
 end
