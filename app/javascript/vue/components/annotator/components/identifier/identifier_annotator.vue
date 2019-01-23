@@ -8,7 +8,9 @@
           <button type="button" @click="reset()">Change</button>
         </div>
 
-        <div v-if="namespace != 'unknown'" class="switch-radio">
+        <div
+          v-if="namespace != 'unknown'"
+          class="switch-radio">
           <template v-for="item, index in barList">
             <input
               v-model="display"
@@ -18,27 +20,44 @@
               type="radio"
               class="normal-input button-active"
             >
-            <label :for="`alternate_values-picker-${index}`" class="capitalize">{{ item }}</label>
+            <label
+              :for="`alternate_values-picker-${index}`"
+              class="capitalize">{{ item }}
+            </label>
           </template>
         </div>
 
         <div class="separate-bottom separate-top">
 
-          <ul v-show="namespace != 'unknown'" class="no_bullets">
+          <ul
+            v-show="namespace != 'unknown'"
+            class="no_bullets">
             <li v-for="item in typeList[namespace].common">
               <label class="capitalize">
-                <input type="radio" v-model="identifier.type" :value="item">
+                <input
+                  type="radio"
+                  v-model="identifier.type"
+                  :value="item">
                 {{ typeList[namespace].all[item].label }}
               </label>
             </li>
           </ul>
 
-          <modal class="transparent-modal" v-if="display == 'show all'" @close="display = 'common'">
+          <modal
+            class="transparent-modal"
+            v-if="display == 'show all'"
+            @close="display = 'common'">
             <h3 slot="header">Types</h3>
             <div slot="body">
               <ul>
-                <li class="modal-list-item" v-for="item, key in typeList[namespace].all">
-                  <button type="button" :value="key" @click="identifier.type = key, display = 'common'" class="button button-default normal-input modal-button capitalize">
+                <li
+                  class="modal-list-item"
+                  v-for="item, key in typeList[namespace].all">
+                  <button
+                    type="button"
+                    :value="key"
+                    @click="identifier.type = key, display = 'common'"
+                    class="button button-default normal-input modal-button capitalize">
                     {{ item.label }}
                   </button>
                 </li>
@@ -47,53 +66,62 @@
           </modal>
         </div>
 
-        <p v-if="identifier.type" class="capitalize">Type: {{ typeList[namespace].all[identifier.type].label }}</p>
+        <p
+          v-if="identifier.type"
+          class="capitalize">Type: {{ typeList[namespace].all[identifier.type].label }}
+        </p>
+        <div>
+          <spinner-component
+            v-if="!isTypeSelected" 
+            :show-spinner="false"
+            :show-legend="false"
+          />
+          <namespace-component
+            v-show="namespace == 'local'"
+            class="separate-bottom"
+            :object-type="objectType"
+            @onLabelChange="namespaceSelectedLabel = $event"
+            v-model="identifier.namespace_id"
+          />
 
-        <div class="switch-radio separate-bottom" v-if="namespace == 'local' && preferences">
-          <template v-for="item, index in tabOptions">
-            <template v-if="item == 'new' || preferences[item].length && preferences[item].find(namespace => { return !namespaceAlreadyCreated(namespace) })">
-              <input
-                v-model="view"
-                :value="item"
-                :id="`switch-picker-${index}`"
-                name="switch-picker-options"
-                type="radio"
-                class="normal-input button-active"
-              >
-              <label :for="`switch-picker-${index}`" class="capitalize">{{ item }}</label>
-            </template>
-          </template>
-        </div>
-
-        <template v-if="preferences && view != 'new'">
-          <div class="field separate-bottom">
-            <template v-for="namespace in preferences[view]">
-              <button v-if="!namespaceAlreadyCreated(namespace)" @click="identifier.namespace_id = namespace.id" type="button" class="normal-input button-default"> {{ namespace.name }} </button>
-            </template>
+          <div class="field">
+            <input
+              class="normal-input identifier"
+              placeholder="Identifier"
+              type="text"
+              v-model="identifier.identifier">
           </div>
-        </template>
 
-        <div class="field" v-if="namespace == 'local' && view == 'new'">
-          <autocomplete
-            url="/namespaces/autocomplete"
-            label="label"
-            min="2"
-            placeholder="Namespaces"
-            @getItem="identifier.namespace_id = $event.id"
-            param="term"/>
-        </div>
+          <p>
+            <template>
+              <span v-if="identifier.namespace_id"> {{ namespaceSelectedLabel }} </span>
+              <span v-else> [ Select namespace ] </span>
+            </template>
+            <template>
+              <span v-if="identifier.identifier && identifier.identifier.length"> {{ identifier.identifier }} </span>
+              <span v-else> [ Provide identifier ] </span>
+            </template>
+          </p>
 
-        <div class="field">
-          <input class="normal-input identifier" placeholder="Identifier" type="text" v-model="identifier.identifier">
+          <button
+            @click="createNew()"
+            :disabled="!validateFields"
+            class="button normal-input button-submit separate-bottom"
+            type="button">Create
+          </button>
         </div>
-        <button @click="createNew()" :disabled="!validateFields" class="button normal-input button-submit separate-bottom" type="button">Create</button>
       </div>
 
-      <div v-else class="field">
+      <div 
+        v-else
+        class="field">
         <ul class="no_bullets">
           <li v-for="type, key in typeList">
             <label class="capitalize">
-              <input type="radio" v-model="namespace" :value="key">
+              <input
+                type="radio"
+                v-model="namespace"
+                :value="key">
               {{ key }}
             </label>
           </li>
@@ -111,34 +139,37 @@
 </template>
 <script>
 
-import CRUD from '../request/crud.js'
-import annotatorExtend from '../components/annotatorExtend.js'
-import autocomplete from '../../autocomplete.vue'
-import modal from '../../modal.vue'
-import tableList from '../../table_list.vue'
+import CRUD from '../../request/crud.js'
+import AnnotatorExtend from '../../components/annotatorExtend.js'
+import Modal from 'components/modal.vue'
+import TableList from 'components/table_list.vue'
+import NamespaceComponent from './namespace'
+import SpinnerComponent from 'components/spinner.vue'
 
 export default {
-  mixins: [CRUD, annotatorExtend],
+  mixins: [CRUD, AnnotatorExtend],
   components: {
-    autocomplete,
-    tableList,
-    modal
+    TableList,
+    Modal,
+    NamespaceComponent,
+    SpinnerComponent
   },
   computed: {
     validateFields () {
       return this.identifier.identifier &&
 						(this.identifier.type) &&
 						((this.namespace == 'local' && this.identifier.namespace_id) || (this.namespace != 'local'))
+    },
+    isTypeSelected() {
+      return this.identifier.type
     }
   },
   data: function () {
     return {
+      namespaceSelectedLabel: '',
       showAll: false,
       display: 'common',
       barList: ['common', 'show all'],
-      view: 'quick',
-      tabOptions: ['quick', 'recent', 'pinboard', 'new'],
-      preferences: undefined,
       identifier: this.newIdentifier(),
       namespace: undefined,
       typeList: []
@@ -154,7 +185,6 @@ export default {
   mounted: function () {
     this.getList('/identifiers/identifier_types').then(response => {
       this.typeList = response.body
-      this.loadTabList()
     })
   },
   methods: {
@@ -186,13 +216,6 @@ export default {
       this.identifier = this.newIdentifier()
       this.namespace = undefined
       this.display = 'common'
-    },
-    loadTabList () {
-      let that = this
-
-      this.getList(`/namespaces/select_options?klass=${this.objectType}`).then(response => {
-        that.preferences = response.body
-      })
     },
     namespaceAlreadyCreated (namespace) {
       return this.list.find(item => { return namespace.id == item.namespace_id })
