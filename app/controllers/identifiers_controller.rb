@@ -97,7 +97,6 @@ class IdentifiersController < ApplicationController
 
   # GET /identifiers/identifier_types
   def identifier_types
-    byebug
     render json: IDENTIFIERS_JSON
   end
 
