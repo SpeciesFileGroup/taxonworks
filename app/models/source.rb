@@ -205,6 +205,7 @@ class Source < ApplicationRecord
 
   has_many :citations, inverse_of: :source, dependent: :restrict_with_error
   has_many :citation_topics, through: :citations, inverse_of: :sources
+  has_many :topics, through: :citation_topics, inverse_of: :sources 
   has_many :asserted_distributions, through: :citations, source: :citation_object, source_type: 'AssertedDistribution'
   has_many :project_sources, dependent: :destroy
   has_many :projects, through: :project_sources

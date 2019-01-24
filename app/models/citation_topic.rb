@@ -1,4 +1,4 @@
-# A citation topic links a Topic to a Citation.  It is the assertion that a Citation contains
+# A citation topic links a Topic to a Citation. It is the assertion that a Citation contains
 # information on a specific topic for the Citations subject. For example:
 #
 # Otu     Citation (Source)           CitationTopic  Topic (= ControlledVocabularyTerm of type "Topic")
