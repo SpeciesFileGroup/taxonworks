@@ -1,30 +1,32 @@
 
 <template>
   <div>
-    <h3>Geographic area</h3>
-    <switch-component
-      :options="Object.keys(smartGeographics)"
-      v-model="view"
-      :add-option="['search']"
-      name="switch-geographic"/>
-    <template v-if="smartGeographics[view]">
-      <tag-item
-        v-for="item in smartGeographics[view]"
-        :item="item"
-        display="name"
-        @select="sendGeographic"
-        :key="item.id"/>
-    </template>
-    <autocomplete
-      v-else
-      url="/geographic_areas/autocomplete"
-      label="label_html"
-      min="2"
-      :clear-after="true"
-      :autofocus="true"
-      @getItem="sendGeographic"
-      placeholder="Select a geographic area"
-      param="term"/>
+    <fieldset>
+      <legend>Geographic area</legend>
+      <switch-component
+        :options="Object.keys(smartGeographics)"
+        v-model="view"
+        :add-option="['search']"
+        name="switch-geographic"/>
+      <template v-if="smartGeographics[view]">
+        <tag-item
+          v-for="item in smartGeographics[view]"
+          :item="item"
+          display="name"
+          @select="sendGeographic"
+          :key="item.id"/>
+      </template>
+      <autocomplete
+        v-else
+        url="/geographic_areas/autocomplete"
+        label="label_html"
+        min="2"
+        :clear-after="true"
+        :autofocus="true"
+        @getItem="sendGeographic"
+        placeholder="Select a geographic area"
+        param="term"/>
+    </fieldset>
   </div>
 </template>
 
@@ -32,7 +34,7 @@
 
   import TagItem from '../shared/item_tag.vue'
   import SwitchComponent from '../shared/switch.vue'
-  import Autocomplete from '../../../autocomplete.vue'
+  import Autocomplete from '.components/autocomplete.vue'
   import CRUD from '../../request/crud'
 
   export default {
