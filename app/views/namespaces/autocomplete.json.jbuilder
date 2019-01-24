@@ -1,13 +1,12 @@
 json.array! @namespaces do |n|
-  v = namespace_tag(n)
   json.id n.id
-  json.label v
-  json.label_html v
-  json.short_name n.short_name 
+  json.label n.name
+  json.label_html namespace_autocomplete_tag(n)
+  json.short_name n.short_name
 
   json.response_values do 
     if params[:method]
-      json.set! params[:method], i.id
+      json.set! params[:method], n.id
     end
   end 
 end

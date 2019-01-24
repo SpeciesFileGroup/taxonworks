@@ -107,6 +107,7 @@ import Spinner from 'components/spinner.vue'
 import BlockLayout from './components/blockLayout'
 
 import { GetterNames } from './store/getters/getters'
+import { MutationNames } from './store/mutations/mutations'
 import { ActionNames } from './store/actions/actions'
 
 export default {
@@ -181,8 +182,20 @@ export default {
         that.loading = false
       }
     })
+
+    this.addShortcutsDescription()
   },
   methods: {
+    addShortcutsDescription() {
+      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+s`, 'Save taxon name changes', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+n`, 'Create a new taxon name', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+t`, 'Create a new taxon name with the same parent', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+d`, 'Create a child of this taxon name', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+t`, 'Load taxon name in browse nomenclature', 'New taxon name')
+    },
+    getMacKey: function () {
+      return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
+    },
     isMinor: function () {
       let element = document.querySelector('#cright-panel')
       let navBar = document.querySelector('#taxonNavBar')
@@ -195,6 +208,7 @@ export default {
     },
     showForThisGroup: showForThisGroup,
     initLoad: function () {
+      let that = this
       let actions = [
         this.$store.dispatch(ActionNames.LoadRanks),
         this.$store.dispatch(ActionNames.LoadStatus),
@@ -202,6 +216,7 @@ export default {
       ]
       return new Promise(function (resolve, reject) {
         Promise.all(actions).then(function () {
+          that.$store.commit(MutationNames.SetInitLoad, true)
           return resolve(true)
         })
       })

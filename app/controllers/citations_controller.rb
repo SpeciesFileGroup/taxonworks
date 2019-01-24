@@ -1,3 +1,5 @@
+require_dependency Rails.root.to_s + '/lib/queries/citation/filter'
+
 class CitationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
   before_action :set_citation, only: [:update, :destroy, :show]

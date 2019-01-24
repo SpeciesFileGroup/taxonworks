@@ -7,21 +7,40 @@
       v-model="view"
       :add-option="moreOptions"
       :options="options"/>
-    <autocomplete
-      url="/geographic_areas/autocomplete"
-      min="2"
-      param="term"
-      placeholder="Select a geographic area"
-      @getItem="selectGeographicArea"
-      display="label"
-      label="label_html"/>
+    <template>
+      <autocomplete
+        v-if="view == 'search'"
+        url="/geographic_areas/autocomplete"
+        min="2"
+        param="term"
+        placeholder="Select a geographic area"
+        @getItem="selectGeographicArea"
+        display="label"
+        ref="autocomplete"
+        label="label_html"/>
+      <ul
+        class="no_bullets"
+        v-else>
+        <li
+          v-for="item in lists[view]"
+          :key="item.id">
+          <label>
+            <input
+              type="radio"
+              :checked="item.id == geographicArea"
+              @click="selectGeographicArea(item)">
+          {{ item.name }}
+          </label>
+        </li>
+      </ul>
+    </template>
     <template v-if="selected">
       <div class="middle separate-top">
         <span data-icon="ok"/>
-        <span class="separate-right"> {{ selected.label }}</span>
+        <span class="separate-right"> {{ (selected['label'] ? selected.label : selected.name) }}</span>
         <span
           class="circle-button button-default btn-undo"
-          @click="selected = undefined; geographicArea = undefined"/>
+          @click="clearSelection"/>
       </div>
     </template>
   </fieldset>
@@ -34,6 +53,7 @@
   import { GetterNames } from '../../../../store/getters/getters.js'
   import { MutationNames } from '../../../../store/mutations/mutations.js'
   import { GetGeographicSmartSelector } from '../../../../request/resources.js'
+  import OrderSmartSelector from 'helpers/smartSelector/orderSmartSelector'
 
   export default {
     components: {
@@ -52,9 +72,9 @@
     },
     data() {
       return {
-        moreOptions: ['Look back', 'Search'],
+        moreOptions: ['search'],
         options: [],
-        view: undefined,
+        view: 'search',
         lists: [],
         selected: undefined
       }
@@ -63,14 +83,15 @@
       this.GetSmartSelector()
     },
     methods: {
+      clearSelection() {
+        this.selected = undefined
+        this.geographicArea = undefined
+        this.$refs.autocomplete.cleanInput()
+      },
       GetSmartSelector() {
         GetGeographicSmartSelector().then(response => {
           let result = response
-          Object.keys(result).forEach(key => (!result[key].length) && delete result[key])
-          this.options = Object.keys(result)
-          if(Object.keys(result).length) {
-            this.view = Object.keys(result)[0]
-          }
+          this.options = OrderSmartSelector(Object.keys(result))
           this.lists = response        
         })
       },

@@ -417,7 +417,6 @@ class GeographicArea < ApplicationRecord
   # @params target [String] one of `CollectingEvent` or `AssertedDistribution`
   # @return [Hash] geographic_areas optimized for user selection
   def self.select_optimized(user_id, project_id, target = 'CollectingEvent')
-
     h = {
       quick: [],
       pinboard: GeographicArea.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a

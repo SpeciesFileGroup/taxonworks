@@ -31,24 +31,9 @@ const createTaxonName = function (taxon) {
 }
 
 const updateTaxonName = function (taxon) {
-  var taxon_name = {
-    taxon_name: {
-      name: taxon.name,
-      parent_id: taxon.parent_id,
-      rank_class: taxon.rank_string,
-      year_of_publication: taxon.year_of_publication,
-      verbatim_author: taxon.verbatim_author,
-      etymology: taxon.etymology,
-      feminine_name: taxon.feminine_name,
-      masculine_name: taxon.masculine_name,
-      neuter_name: taxon.neuter_name,
-      roles_attributes: taxon.roles_attributes,
-      type: 'Protonym'
-    }
-  }
 
   return new Promise(function (resolve, reject) {
-    Vue.http.patch(`/taxon_names/${taxon.id}.json`, taxon_name).then(response => {
+    Vue.http.patch(`/taxon_names/${taxon.id}.json`, { taxon_name: taxon }).then(response => {
       if (!response.body.hasOwnProperty('taxon_name_author_roles')) {
         response.body['taxon_name_author_roles'] = []
       }

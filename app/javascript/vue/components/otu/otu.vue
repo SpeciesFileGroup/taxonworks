@@ -59,7 +59,7 @@
     props: {
       taxonId: {
         type: [String, Number],
-        required: true
+        required: false
       },
       otu: {
         type: Object,
@@ -89,7 +89,7 @@
       }
     },
     mounted() {
-      if(!this.otu) {
+      if(!this.otu && this.taxonId) {
         this.getOtuList()
       }
       else {

@@ -2,7 +2,17 @@ module NamespacesHelper
 
   def namespace_tag(namespace)
     return nil if namespace.nil?
-    namespace.name
+    namespace.short_name + ': ' + namespace.name
+  end
+
+  def namespace_autocomplete_tag(namespace)
+    return nil if namespace.nil?
+    a = [
+      (namespace.institution.blank? ? nil : ( [content_tag(:span, namespace.institution, class: :subtle), '<br>'].join.html_safe  )),
+      namespace.short_name,
+      (namespace.verbatim_short_name.blank? ? nil : content_tag(:span, '[' + namespace.verbatim_short_name + ']', class: :warning ).html_safe ),
+      content_tag(:span, namespace.name,  class: :subtle )
+    ].compact.join(' ').html_safe
   end
 
   def namespace_link(namespace)

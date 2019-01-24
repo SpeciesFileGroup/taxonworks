@@ -311,13 +311,14 @@ TaxonWorks::Application.routes.draw do
 
   resources :identifiers, except: [:show] do
     concerns [:data_routes]
-    
-    member do 
-      get :show, defaults: {format: :json}
-    end
 
+    # Must be before member
     collection do
       get :identifier_types, {format: :json}
+    end
+
+    member do 
+      get :show, defaults: {format: :json}
     end
   end
 

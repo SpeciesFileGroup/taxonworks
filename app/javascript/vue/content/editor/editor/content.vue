@@ -11,7 +11,18 @@
               v-if="otu"
               v-html="otu.object_tag"/>
           </span>
-          <select-topic-otu/>
+          <div class="horizontal-left-content middle">
+            <radial-annotator
+              v-if="content"
+              type="annotations"
+              :global-id="content.global_id"/>
+            <otu-button
+              v-if="otu"
+              :otu="otu"
+              class="separate-options"
+              :redirect="true"/>
+            <select-topic-otu class="separate-left"/>
+          </div>
         </div>
         <div
           v-if="disabled"
@@ -89,39 +100,19 @@
   import CompareContent from './compare.vue'
   import SelectTopicOtu from './selectTopicOtu.vue'
   import MarkdownEditor from 'components/markdown-editor.vue'
+  import RadialAnnotator from 'components/annotator/annotator'
+  import OtuButton from 'components/otu/otu'
   import { GetterNames } from '../store/getters/getters'
   import { MutationNames } from '../store/mutations/mutations'
 
   export default {
-    data: function () {
-      return {
-        autosave: 0,
-        firstInput: true,
-        loadMarkwdown: true,
-        currentSourceID: '',
-        newRecord: true,
-        preview: false,
-        compareContent: undefined,
-        record: {
-          content: {
-            otu_id: '',
-            topic_id: '',
-            text: ''
-          }
-        },
-        config: {
-          status: false,
-          toolbar: ['bold', 'italic', 'code', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'link', 'table', 'preview'],
-          spellChecker: false
-        }
-
-      }
-    },
     components: {
       CloneContent,
       CompareContent,
       MarkdownEditor,
-      SelectTopicOtu
+      SelectTopicOtu,
+      RadialAnnotator,
+      OtuButton
     },
     computed: {
       topic() {
@@ -146,7 +137,30 @@
         return this.$store.getters[GetterNames.PanelFigures]
       }
     },
+    data() {
+      return {
+        autosave: 0,
+        firstInput: true,
+        loadMarkwdown: true,
+        currentSourceID: '',
+        newRecord: true,
+        preview: false,
+        compareContent: undefined,
+        record: {
+          content: {
+            otu_id: '',
+            topic_id: '',
+            text: ''
+          }
+        },
+        config: {
+          status: false,
+          toolbar: ['bold', 'italic', 'code', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'link', 'table', 'preview'],
+          spellChecker: false
+        }
 
+      }
+    },
     created: function () {
       this.$on('addCloneCitation', function (itemText) {
         this.record.content.text += itemText

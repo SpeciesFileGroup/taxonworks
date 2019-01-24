@@ -29,6 +29,7 @@ import getEtymology from './getEtymology'
 import getLastChange from './getLastChange'
 import getSaving from './getSaving'
 import getLastSave from './getLastSave'
+import getInitLoad from './getInitLoad'
 
 const GetterNames = {
   GetAllRanks: 'getAllRanks',
@@ -61,7 +62,8 @@ const GetterNames = {
   GetEtymology: 'getEtymology',
   GetLastChange: 'getLastChange',
   GetSaving: 'getSaving',
-  GetLastSave: 'getLastSave'
+  GetLastSave: 'getLastSave',
+  GetInitLoad: 'getInitLoad'
 }
 
 const GetterFunctions = {
@@ -95,7 +97,8 @@ const GetterFunctions = {
   [GetterNames.GetCitation]: getCitation,
   [GetterNames.GetEtymology]: getEtymology,
   [GetterNames.GetLastChange]: getLastChange,
-  [GetterNames.GetLastSave]: getLastSave
+  [GetterNames.GetLastSave]: getLastSave,
+  [GetterNames.GetInitLoad]: getInitLoad
 }
 
 export {

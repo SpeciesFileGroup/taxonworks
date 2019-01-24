@@ -82,7 +82,7 @@ const GetTaxonDeterminatorSmartSelector = function () {
 }
 
 const GetGeographicSmartSelector = function () {
-  return ajaxCall('get', `/geographic_areas/select_options`)
+  return ajaxCall('get', `/geographic_areas/select_options?target=CollectingEvent`)
 }
 
 const GetOtuSmartSelector = function () {
