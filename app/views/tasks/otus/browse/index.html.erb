@@ -8,6 +8,7 @@
 <a href="/otus/<%= @otu.id -%>">Back</a>
 
 <div data-otu-radial="true" data-global-id="<%= @otu.to_global_id.to_s %>"></div>
+<%= radial_annotator(@otu) -%>
 
 <% @otu.contents.each do |c| -%>
   <h3><%= object_tag(c.topic) -%></h3>
