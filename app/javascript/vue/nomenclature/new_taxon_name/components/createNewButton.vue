@@ -1,5 +1,10 @@
 <template>
-  <div>
+  <div
+    v-shortkey="[getMacKey(), 'p']"
+    @shortkey="createNewWithParent(true)">
+    <div
+      v-shortkey="[getMacKey(), 'd']"
+      @shortkey="createNewWithChild(true)"/>
     <modal
       v-if="showModal"
       @close="showModal = false">
@@ -18,7 +23,7 @@
       class="normal-input button button-default"
       v-shortkey="[getMacKey(), 'n']"
       @shortkey="createNew()"
-      @click="createNew($event)">New
+      @click="createNew()">New
     </button>
   </div>
 </template>
@@ -26,6 +31,7 @@
 
 import { GetterNames } from '../store/getters/getters'
 import Modal from 'components/modal.vue'
+import { RouteNames } from 'routes/routes'
 
 export default {
   components: {
@@ -34,23 +40,41 @@ export default {
   computed: {
     unsavedChanges () {
       return (this.$store.getters[GetterNames.GetLastChange] > this.$store.getters[GetterNames.GetLastSave])
+    },
+    getParent () {
+      return this.$store.getters[GetterNames.GetParent]
+    },
+    getTaxon() {
+      return this.$store.getters[GetterNames.GetTaxon]
     }
   },
   data: function () {
     return {
-      showModal: false
+      showModal: false,
+      url: RouteNames.NewTaxonName
     }
   },
   methods: {
-    reloadPage: function () {
-      window.location.href = '/tasks/nomenclature/new_taxon_name/'
+    reloadPage() {
+      window.location.href = this.url
+      this.url = RouteNames.NewTaxonName
     },
-    createNew () {
+    loadWithParent() {
+      return ((this.getParent && this.getParent.hasOwnProperty('id')) ? `${RouteNames.NewTaxonName}?parentId=${this.getParent.id}` : RouteNames.NewTaxonName)
+    },
+    createNew (newUrl = this.url) {
+      this.url = newUrl
       if (this.unsavedChanges) {
         this.showModal = true
       } else {
         this.reloadPage()
       }
+    },
+    createNewWithChild() {
+      this.createNew((this.getTaxon.id ? `${RouteNames.NewTaxonName}?parentId=${this.getTaxon.id}` : RouteNames.NewTaxonName))
+    },
+    createNewWithParent() {
+      this.createNew((this.getParent && this.getParent.hasOwnProperty('id') ? `${RouteNames.NewTaxonName}?parentId=${this.getParent.id}` : RouteNames.NewTaxonName))
     },
     getMacKey: function () {
       return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')

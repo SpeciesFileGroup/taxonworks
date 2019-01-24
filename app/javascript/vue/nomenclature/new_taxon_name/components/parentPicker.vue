@@ -101,7 +101,7 @@ export default {
     loadWithParentID() {
       var url = new URL(window.location.href);
       var parentId = url.searchParams.get("parentId");
-      if(Number.isInteger(Number(parentId)))
+      if(parentId != null && Number.isInteger(Number(parentId)))
         this.parentSelected(parentId)
     },
     setParentRank: function (parent) {
