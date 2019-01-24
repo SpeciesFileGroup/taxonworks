@@ -15,7 +15,7 @@
           <li
             v-for="(item, index) in topics"
             class="slide-panel-category-item"
-            :class="{ selected : (item.id == topic['id']) }"
+            :class="{ selected : (topic && (item.id == topic['id'])) }"
             @click="loadTopic(item)"> {{ item.name }}
           </li>
         </ul>
