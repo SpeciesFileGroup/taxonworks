@@ -40,7 +40,7 @@
       },
       getParams() {
         var url = new URL(window.location.href);
-        var otuId = url.searchParams.get("otuId");
+        var otuId = url.searchParams.get("otu_id");
         if(otuId != null && Number.isInteger(Number(otuId))) {
           this.loadOtu(otuId)
         }        

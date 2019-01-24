@@ -67,7 +67,7 @@
       },
       getParams() {
         var url = new URL(window.location.href);
-        var topicId = url.searchParams.get("topicId");
+        var topicId = url.searchParams.get("topic_id");
         if(topicId != null && Number.isInteger(Number(topicId))) {
           let selectedTopic = this.topics.find(topic => {
             return topic.id == topicId
