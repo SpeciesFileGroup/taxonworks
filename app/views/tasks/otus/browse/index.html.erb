@@ -7,10 +7,12 @@
   <h2><%= otu_tag(@otu) -%></h2>
 </div>
 
+<div class="horizontal-left-content middle">
 <%= link_to('To show', otu_path(@otu)) -%>
 
 <div data-otu-radial="true" data-global-id="<%= @otu.to_global_id.to_s %>"></div>
 <%= radial_annotator(@otu) -%>
+</div>
 
 <h2> Contents </h2>
 <p><%= link_to('Content editor', index_editor_task_path(otu_id: @otu.id)) -%></p>
