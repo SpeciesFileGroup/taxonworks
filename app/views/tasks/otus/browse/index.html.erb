@@ -10,18 +10,34 @@
 <div data-otu-radial="true" data-global-id="<%= @otu.to_global_id.to_s %>"></div>
 <%= radial_annotator(@otu) -%>
 
+<h2> Topics </h2>
 <% if @otu.topics.load.any? -%>
-  <h3> Topics </h3>
   <% @otu.topics.each do |t| -%>
-    <h4> <%= object_tag(t) -%> </h4>
+    <h3> <%= object_tag(t) -%> </h3>
     <%= t.sources.collect{|s| source_author_year_tag(s) }.join('; ').html_safe -%>
   <%- end %> 
+<% else %>
+  <em>None.</em>
 <% end %>
 
+<h2> Contents </h2>
+<%= link_to('Edit content', index_editor_task_path(otu_id: @otu.id)) -%><br>
 <% if @otu.contents.load.any? -%>
-  <h3> Contents </h3>
   <% @otu.contents.each do |c| -%>
     <h3><%= object_tag(c.topic) -%></h3>
+    <%= link_to('Edit', index_editor_task_path(otu_id: @otu.id, topic_id: c.topic.id)) -%> <br>
     <div><%= c.text -%></div>
-  <% end %> 
+  <% end %>
+<% else %>
+  <em>None.</em>
+<% end %>
+
+<h2> Asserted distribution </h2>
+<% if @otu.geographic_areas_from_asserted_distributions.load.any? %>
+  <% @otu.geographic_areas_from_asserted_distributions.each do |g| -%>
+    <h3><%= object_tag(g) -%></h3>
+  <% end %>
+
+<% else %>
+  <em> None. </em>
 <% end %>

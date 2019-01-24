@@ -35,7 +35,6 @@ class CitationTopic < ApplicationRecord
   # validates_presence_of :topic_id  :citation_id
 
   validates_uniqueness_of :topic_id, scope: :citation_id
-
   accepts_nested_attributes_for :topic, allow_destroy: true, reject_if: :reject_topic
 
   protected
