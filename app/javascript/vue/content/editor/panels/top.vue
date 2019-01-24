@@ -8,7 +8,7 @@
       min="3"
       param="term"
       placeholder="Find OTU"
-      event-send="otu_picker"
+      @getItem="loadOtu($event.id)"
       label="label_html"/>
   </div>
 </template>
@@ -21,21 +21,30 @@
 
   export default {
     name: 'PanelTop',
+    components: {
+      Autocomplete
+    },
     computed: {
       display() {
         return this.$store.getters[GetterNames.ActiveOtuPanel]
       }
     },
     mounted: function () {
-      let that = this
-      this.$on('otu_picker', function (item) {
-        that.$http.get('/otus/' + item.id).then(response => {
-          that.$store.commit(MutationNames.SetOtuSelected, response.body)
-        })
-      })
+      this.getParams()
     },
-    components: {
-      Autocomplete
+    methods: {
+      loadOtu(id) {
+        this.$http.get('/otus/' + id).then(response => {
+          this.$store.commit(MutationNames.SetOtuSelected, response.body)
+        })        
+      },
+      getParams() {
+        var url = new URL(window.location.href);
+        var otuId = url.searchParams.get("otuId");
+        if(otuId != null && Number.isInteger(Number(otuId))) {
+          this.loadOtu(otuId)
+        }        
+      }
     }
   }
 </script>
