@@ -1,6 +1,6 @@
 <div class="required">
   <div class="field <%= collapsed_css_property_if(hide_type) -%> ">
-    <%= f.label :type %>
+    <%= f.label :type %><br>
     <%= f.select :type, options_for_select(controlled_vocabulary_term_type_select_options, controlled_vocabulary_term.type) %>
   </div>
 

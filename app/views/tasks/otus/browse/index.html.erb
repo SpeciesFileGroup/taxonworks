@@ -5,12 +5,24 @@
   <h2><%= otu_tag(@otu) -%></h2>
 </div>
 
-<a href="/otus/<%= @otu.id -%>">Back</a>
+<%= link_to('Back', otu_path(@otu)) -%>
+
 
 <div data-otu-radial="true" data-global-id="<%= @otu.to_global_id.to_s %>"></div>
 <%= radial_annotator(@otu) -%>
 
-<% @otu.contents.each do |c| -%>
-  <h3><%= object_tag(c.topic) -%></h3>
-  <div><%= c.text -%></div>
-<% end %> 
+<% if @otu.topics.load.any? -%>
+  <h3> Topics </h3>
+  <%= @otu.topics.each do |t| -%>
+    <h4> <%= object_tag(t) -%> </h4>
+    <% t.sources.collect{|s| source_author_year_tag(source) }.join('; ') -%>
+  <%- end %> 
+<% end %>
+
+<% if @otu.contents.load.any? -%>
+  <h3> Contents </h3>
+  <% @otu.contents.each do |c| -%>
+    <h3><%= object_tag(c.topic) -%></h3>
+    <div><%= c.text -%></div>
+  <% end %> 
+<% end %>
