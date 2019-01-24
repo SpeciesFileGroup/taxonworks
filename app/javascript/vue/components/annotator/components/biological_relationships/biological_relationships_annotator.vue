@@ -142,6 +142,10 @@
         }
 
         this.create('/biological_associations.json', { biological_association: data }).then(response => {
+          this.biologicalRelationship = undefined
+          this.biologicalRelation = undefined
+          this.citation = undefined
+          TW.workbench.alert.create('Biological association was successfully created.', 'notice')
           this.list.push(response.body)
         })
       }
