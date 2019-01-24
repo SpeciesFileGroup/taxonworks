@@ -16,6 +16,8 @@
     <button
       type="button"
       class="normal-input button button-default"
+      v-shortkey="[getMacKey(), 'n']"
+      @shortkey="createNew()"
       @click="createNew($event)">New
     </button>
   </div>
@@ -43,17 +45,15 @@ export default {
     reloadPage: function () {
       window.location.href = '/tasks/nomenclature/new_taxon_name/'
     },
-    createNew (e) {
-      if(e.metaKey) {
-        window.open('/tasks/nomenclature/new_taxon_name/')
+    createNew () {
+      if (this.unsavedChanges) {
+        this.showModal = true
+      } else {
+        this.reloadPage()
       }
-      else {
-        if (this.unsavedChanges) {
-          this.showModal = true
-        } else {
-          this.reloadPage()
-        }
-      }
+    },
+    getMacKey: function () {
+      return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
     }
   }
 }

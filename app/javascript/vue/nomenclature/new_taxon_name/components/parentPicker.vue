@@ -75,6 +75,9 @@ export default {
         this.$store.commit(MutationNames.SetNomenclaturalCode, value)
         this.setParentRank(this.parent)
       }
+    },
+    getInitLoad() {
+      return this.$store.getters[GetterNames.GetInitLoad]
     }
   },
   data: function () {
@@ -86,8 +89,21 @@ export default {
     this.$on('parentSelected', function (item) {
       this.parentSelected(item.id)
     })
+    //this.loadWithParentID()
+  },
+  watch: {
+    getInitLoad(newVal) {
+      if(newVal)
+        this.loadWithParentID()
+    }
   },
   methods: {
+    loadWithParentID() {
+      var url = new URL(window.location.href);
+      var parentId = url.searchParams.get("parentId");
+      if(Number.isInteger(Number(parentId)))
+        this.parentSelected(parentId)
+    },
     setParentRank: function (parent) {
       this.$store.commit(MutationNames.SetRankClass, undefined)
       this.$store.dispatch(ActionNames.SetParentAndRanks, parent)

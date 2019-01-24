@@ -4,6 +4,7 @@ import addOriginalCombination from './addOriginalCombination'
 import removeTaxonStatus from './removeTaxonStatus'
 import removeTaxonRelationship from './removeTaxonRelationship'
 import removeOriginalCombination from './removeOriginalCombination'
+import setInitLoad from './setInitLoad'
 import setModalStatus from './setModalStatus'
 import setModalType from './setModalType'
 import setModalRelationship from './setModalRelationship'
@@ -45,6 +46,7 @@ const MutationNames = {
   RemoveTaxonStatus: 'removeTaxonStatus',
   RemoveTaxonRelationship: 'removeTaxonRelationship',
   RemoveOriginalCombination: 'removeOriginalCombination',
+  SetInitLoad: 'setInitLoad',
   SetModalStatus: 'setModalStatus',
   SetModalType: 'setModalType',
   SetModalRelationship: 'setModalRelationship',
@@ -87,6 +89,7 @@ const MutationFunctions = {
   [MutationNames.RemoveTaxonStatus]: removeTaxonStatus,
   [MutationNames.RemoveTaxonRelationship]: removeTaxonRelationship,
   [MutationNames.RemoveOriginalCombination]: removeOriginalCombination,
+  [MutationNames.SetInitLoad]: setInitLoad,
   [MutationNames.SetModalStatus]: setModalStatus,
   [MutationNames.SetModalType]: setModalType,
   [MutationNames.SetTaxonType]: setTaxonType,
