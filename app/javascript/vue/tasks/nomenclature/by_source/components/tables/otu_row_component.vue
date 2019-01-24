@@ -10,6 +10,12 @@
           :otu="otu"
           :redirect="false"/>
     </td>
+    <td>
+      <otu-radial
+          :taxon-id="otu.global_id"
+          :otu="otu"
+          :redirect="true"/>
+    </td>
   </tr>
 </template>
 <script>
