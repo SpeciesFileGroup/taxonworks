@@ -34,7 +34,7 @@
 
   import TagItem from '../shared/item_tag.vue'
   import SwitchComponent from '../shared/switch.vue'
-  import Autocomplete from '.components/autocomplete.vue'
+  import Autocomplete from 'components/autocomplete.vue'
   import CRUD from '../../request/crud'
 
   export default {
