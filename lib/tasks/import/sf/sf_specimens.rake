@@ -158,19 +158,26 @@ namespace :tw do
                 otu_id = get_tw_otu_id[sf_taxon_name_id] if otu_id == nil
 
                 geographic_area_id = CollectingEvent.find(collecting_event_id).geographic_area_id
-                source_id = get_tw_source_id[get_sf_identification_metadata[specimen_id][0][ref_id]] # assume first ident record
 
-                byebug
+                source_id = get_tw_source_id[get_sf_identification_metadata[specimen_id][0]['ref_id']] # assume first ident record
 
-                AssertedDistribution.create!(otu_id: otu_id,
-                                             geographic_area_id: geographic_area_id,
-                                             source_id: source_id,
-                                             project_id: project_id)
-                logger.info " AssertedDistribution created for SpecimenID = '#{specimen_id}', FileID = '#{sf_file_id}', otu_id = '#{otu_id}' [ asserted_dist_counter = #{asserted_dist_counter += 1} ]"
+                ad = AssertedDistribution.create!(otu_id: otu_id,
+                                              geographic_area_id: geographic_area_id,
+                                              # source_id: source_id,
+                                              project_id: project_id,
+                                              citations_attributes: [{source_id: source_id}])
 
-                # rescue ActiveRecord::RecordInvalid # bad date?
-                # logger.error "CollectEvent error: FileID = #{row['FileID']}, UniqueID = #{row['UniqueID']}, Year = #{this_year}, Month = #{this_month}, Day = #{this_day}, DaysToEnd = #{row['DaysToEnd']}, (error count #{error_counter += 1})" + c.errors.full_messages.join(';')
+                # begin
+                # 
+                  byebug
+                #
+                #
+                #   ad.save!
+                  logger.info " AssertedDistribution created for SpecimenID = '#{specimen_id}', FileID = '#{sf_file_id}', otu_id = '#{otu_id}' [ asserted_dist_counter = #{asserted_dist_counter += 1} ]"
 
+                # rescue ActiveRecord::RecordInvalid
+                #   logger.error "AssertedDistribution error: (error count #{error_counter += 1})" + ad.errors.full_messages.join(';')
+                # end
 
                 next
 
