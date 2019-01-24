@@ -16,6 +16,11 @@
               v-if="content"
               type="annotations"
               :global-id="content.global_id"/>
+            <otu-button
+              v-if="otu"
+              :otu="otu"
+              class="separate-options"
+              :redirect="true"/>
             <select-topic-otu class="separate-left"/>
           </div>
         </div>
@@ -96,6 +101,7 @@
   import SelectTopicOtu from './selectTopicOtu.vue'
   import MarkdownEditor from 'components/markdown-editor.vue'
   import RadialAnnotator from 'components/annotator/annotator'
+  import OtuButton from 'components/otu/otu'
   import { GetterNames } from '../store/getters/getters'
   import { MutationNames } from '../store/mutations/mutations'
 
@@ -105,7 +111,8 @@
       CompareContent,
       MarkdownEditor,
       SelectTopicOtu,
-      RadialAnnotator
+      RadialAnnotator,
+      OtuButton
     },
     computed: {
       topic() {
