@@ -18,7 +18,7 @@
           class="list-complete-item">
           <td v-html="item.biological_relationship.name"/>
           <td v-html="getSubjectOrObject(item)"/>
-          <td v-html="getValue(item, ['source', 'object_tag'])"/>
+          <td v-html="getValue(item, ['origin_citation', 'object_tag'])"/>
           <td class="vue-table-options">
             <radial-annotator :global-id="item.global_id"/>
             <span
