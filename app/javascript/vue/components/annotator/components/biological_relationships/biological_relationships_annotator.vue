@@ -77,7 +77,7 @@
       @create="citation = $event"
       :global-id="globalId"/>
 
-    <div>
+    <div class="separate-top">
       <button
         type="button"
         :disabled="!validateFields"
