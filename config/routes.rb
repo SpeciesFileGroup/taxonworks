@@ -661,6 +661,13 @@ TaxonWorks::Application.routes.draw do
   ### End of data resources ###
 
   scope :tasks do
+
+    scope :asserted_distribution do
+      scope :new_asserted_distribution, controller: 'tasks/asserted_distribution/new_asserted_distribution' do
+        get :index, as: 'index_new_asserted_distribution_task'
+      end
+    end
+
     scope :projects do
       scope :preferences, controller: 'tasks/projects/preferences' do
         get :index, as: 'project_preferences_task'
