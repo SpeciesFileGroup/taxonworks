@@ -22,6 +22,7 @@
           <hard-validation field="name">
             <input
               slot="body"
+              ref="inputTaxonname"
               class="taxonName-input"
               type="text"
               v-model="taxonName">
@@ -62,7 +63,6 @@ import { MutationNames } from '../store/mutations/mutations'
 
 import SaveTaxonName from './saveTaxonName.vue'
 import ParentPicker from './parentPicker.vue'
-import TaxonName from './taxonName.vue'
 import Expand from './expand.vue'
 import CheckExist from './findExistTaxonName.vue'
 import RankSelector from './rankSelector.vue'
@@ -71,7 +71,6 @@ import HardValidation from './hardValidation.vue'
 export default {
   components: {
     ParentPicker,
-    TaxonName,
     Expand,
     RankSelector,
     CheckExist,
@@ -107,6 +106,9 @@ export default {
     return {
       expanded: true
     }
+  },
+  mounted() {
+    this.$refs.inputTaxonname.focus()
   },
   methods: {
     existError: function (type) {

@@ -22,12 +22,9 @@ module CitationsHelper
     ].join.html_safe
   end
 
+  # TODO: deprecate
   def citation_author_year(citation)
-    if citation.source && citation.source.type == 'Source::Bibtex' && citation.source.author_year.present?
-      citation.source.author_year
-    else
-      content_tag(:span, 'Author, year not yet provided for source.', class: :subtle)
-    end
+    source_author_year_tag(citation.source)
   end
 
   def citation_annotation_tag(citation)

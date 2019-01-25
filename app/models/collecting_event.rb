@@ -185,6 +185,7 @@ class CollectingEvent < ApplicationRecord
   include Shared::Notes
   include Shared::Tags
   include Shared::Depictions
+  include Shared::Labels
   include Shared::IsData
   include Shared::Confidences
   include Shared::Documentation

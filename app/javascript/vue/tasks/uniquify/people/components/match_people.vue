@@ -16,7 +16,7 @@
             <input
               name="match-people"
               type="radio"
-              v-model="selected"
+              :checked="person.id == selected['id']"
               :value="person.id"
               @click="selectMergePerson(person)">
             {{ person.cached }}

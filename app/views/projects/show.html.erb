@@ -1,17 +1,21 @@
-<%= content_for :head do -%>
-  <%= javascript_include_tag "https://www.gstatic.com/charts/loader.js", "chartkick" %>
-<% end %>
-
 <h1><%= @project.name -%></h1>
-<%= link_to 'Edit', edit_project_path(@project) %> 
-
 <div> 
-
+  
   <div class="row1">
     <div class="flexbox">
       <div class="item item1">
+
+        <h2> Edit </h2>
+        <ul class="no_bullets list list-arrow">
+          <%= content_tag(:li, link_to('Edit', edit_project_path(@project)) ) %> 
+          <%= content_tag(:li, link_to('Preferences', project_preferences_task_path, data: { turbolinks: false } ) ) %>
+        </ul>
+
         <h2> Project attributes </h2>
-        <%= render partial: 'attributes' -%>
+        <div class="attributes">
+          <%= render partial: 'attributes' -%>
+        </div>
+
       </div>
 
       <div class="item item2">
@@ -61,5 +65,4 @@
       </div>
     </div>
   </div>
-
 </div>

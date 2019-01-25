@@ -256,7 +256,14 @@ export default {
       var params = ''
       if (Object.keys(this.addParams).length) {
         Object.keys(this.addParams).forEach((key) => {
-          params += `&${key}=${this.addParams[key]}`
+          if(Array.isArray(this.addParams[key])) {
+            this.addParams[key].forEach((param) => {
+              params += `&${key}=${param}`
+            })
+          }
+          else {
+            params += `&${key}=${this.addParams[key]}`
+          }
         })
       }
       return tempUrl + params

@@ -160,7 +160,7 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
         # 2 from previous (simple_world), and (2 + 10) generated above
         expect(result.count).to eq(14)
 
-        params = {user:                  'All users', date_type_select: 'created_at',
+        params = {user: 'All users', date_type_select: 'created_at',
                   user_date_range_start: '2005-01-01', user_date_range_end: Date.yesterday.to_s}
 
         result = Queries::CollectionObjectFilterQuery.new(params).result

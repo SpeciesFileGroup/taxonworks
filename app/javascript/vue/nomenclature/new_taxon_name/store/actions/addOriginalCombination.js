@@ -1,7 +1,7 @@
-const createTaxonRelationship = require('../../request/resources').createTaxonRelationship
-const MutationNames = require('../mutations/mutations').MutationNames
+import { createTaxonRelationship } from '../../request/resources'
+import { MutationNames } from '../mutations/mutations'
 
-module.exports = function ({ commit, state }, data) {
+export default function ({ commit, state }, data) {
   let relationship = {
     taxon_name_relationship: {
       object_taxon_name_id: state.taxon_name.id,

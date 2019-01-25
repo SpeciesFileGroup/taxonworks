@@ -119,7 +119,7 @@ export default {
       promises.push(this.getList(`/predicates/select_options?klass=${this.objectType}`).then(response => {
         tabList = response.body
       }))
-      promises.push(this.getList(`/controlled_vocabulary_terms.json?of_type[]=${type}`).then(response => {
+      promises.push(this.getList(`/controlled_vocabulary_terms.json?type[]=${type}`).then(response => {
         allList = response.body
       }))
 

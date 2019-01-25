@@ -20,6 +20,10 @@ module UsersHelper
     end
   end
 
+  def username_by_id(id)
+    User.find(id).name
+  end
+
 # @param [Symbol, String] user_element
 # @param [Array] user_id_list
 # @param [String] default_name, if supplied, must be a user.name, user.email, or user.if

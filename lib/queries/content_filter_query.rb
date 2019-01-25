@@ -40,7 +40,7 @@ module Queries
 
     # @return [Scope]
     def all
-      q = Content.includes(:otu, :topic)
+      q = ::Content.includes(:otu, :topic)
       s = where_sql
       q = q.where(s).references(:topics, :otus) if s
       q = q.order(updated_at: :desc).limit(most_recent_updates) unless most_recent_updates.zero?
@@ -49,7 +49,7 @@ module Queries
 
     # @return [Arel::Table]
     def table
-      Content.arel_table
+      ::Content.arel_table
     end
 
     # @return [Arel::Nodes::Equatity]
@@ -66,15 +66,6 @@ module Queries
     def recent
       table[:updated_at].gt(hours_ago.hours.ago) if hours_ago
     end
-
-   #def recently_updated
-   #  if most_recent_updates.nonzero?
-   #    table['id'].eq_any(
-   #                       Content.order(table['updated_at']).take(most_recent_updates)
-   #                      )
-   #  end
-   #end
-
   end
 
 end
