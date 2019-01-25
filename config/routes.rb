@@ -561,6 +561,7 @@ TaxonWorks::Application.routes.draw do
   resources :sources do
     concerns [:data_routes]
     collection do
+      get :select_options, defaults: {format: :json}
       post :preview_bibtex_batch_load # should be get
       post :create_bibtex_batch_load
       get :parse, defaults: {format: :json}

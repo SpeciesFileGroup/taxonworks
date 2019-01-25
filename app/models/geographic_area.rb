@@ -436,6 +436,7 @@ class GeographicArea < ApplicationRecord
 
     h[:recent] ||= []
 
+    # TODO: stupid, loop the array from above
     h[:quick] = (GeographicArea.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a + h[:recent][0..3]).uniq
     h
   end
