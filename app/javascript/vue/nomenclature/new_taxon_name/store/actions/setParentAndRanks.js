@@ -1,8 +1,8 @@
-const foundRankGroup = require('../../helpers/foundRankGroup')
-const truncateAtRank = require('../../helpers/truncateAtRank')
-const MutationNames = require('../mutations/mutations').MutationNames
+import foundRankGroup from '../../helpers/foundRankGroup'
+import truncateAtRank from '../../helpers/truncateAtRank'
+import { MutationNames } from '../mutations/mutations'
 
-module.exports = function ({ commit, state }, parent) {
+export default function ({ commit, state }, parent) {
   let nomenclatureRanks = JSON.parse(JSON.stringify(state.ranks[state.nomenclatural_code]))
   let group = foundRankGroup(nomenclatureRanks, parent.rank)
   if (group) {

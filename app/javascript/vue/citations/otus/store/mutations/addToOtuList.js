@@ -1,3 +1,3 @@
-module.exports = function (state, citation) {
+export default function (state, citation) {
   state.otu_citations.push(citation)
 }

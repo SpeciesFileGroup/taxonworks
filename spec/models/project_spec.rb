@@ -113,39 +113,6 @@ describe Project, type: :model do
     end
   end
 
-  context 'preferences' do
-    before(:each) {
-      project.name = 'Preferences'
-      project.save!
-    }
-
-    specify 'are set to default' do
-      expect(project.preferences).to eq(Project::DEFAULT_WORKBENCH_SETTINGS)
-    end
-
-    specify 'can be cleared with #clear_preferences' do
-      project.clear_preferences
-      expect(project.preferences).to eq(Project::DEFAULT_WORKBENCH_SETTINGS)
-    end
-
-    specify 'default_path defaults to DEFAULT_WORKBENCH_STARTING_PATH 1' do
-      expect(project.workbench_starting_path).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
-    end
-
-    specify 'default_path defaults to DEFAULT_WORKBENCH_STARTING_PATH 2' do
-      expect(project.preferences['workbench_starting_path']).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
-    end
-
-    specify 'updating an attribute is a little tricky, use _will_change!' do
-      expect(project.workbench_starting_path).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
-      expect(project.preferences).to eq({'workbench_starting_path' => '/hub'}) # was changed from nil
-      
-      expect(project.workbench_starting_path = '/dashboard').to be_truthy
-      expect(project.save!).to be_truthy
-      expect(project.workbench_starting_path).to eq('/dashboard')
-    end
-  end
-
   context 'root taxon name' do
     before(:each) {
       project.name = 'Root taxon name'

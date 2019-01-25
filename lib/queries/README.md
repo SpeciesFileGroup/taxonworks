@@ -8,11 +8,12 @@ These are the primary filtering, and autocomplete queries.  The directory is bei
 
 # Design guidelines
 
+* All references to ActiveRecord models must begin with `::`, e.g. `::Otu.all`
 * Params should be passed as a `Hash`, do the permitting of attributes in the controller.
 
 ## Filter queries
 
-* should have an `#all method that returns a _Scope_
+* should have an `#all` method that returns a _Scope_
 
 ## Autocomplete queries
 

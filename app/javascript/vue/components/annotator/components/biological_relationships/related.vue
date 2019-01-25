@@ -1,54 +1,56 @@
 <template>
   <div>
-    <h3>Related</h3>
-    <switch-component
-      :options="tabOptions"
-      v-model="view"
-      name="related"/>
-    <template v-if="otuView">
+    <fieldset>
+      <legend>Related</legend>
       <switch-component
-        :options="Object.keys(smartOtu)"
-        v-model="viewOtu"
-        :add-option="['search']"
-        name="switch-otu"/>
-      <template v-if="smartOtu[viewOtu]">
-        <tag-item
-          v-for="item in smartOtu[viewOtu]"
-          :item="item"
-          :class="{ 'button-default': selected == item.id }"
-          display="object_tag"
-          @select="sendRelated(item)"
-          :key="item.id"/>
+        :options="tabOptions"
+        v-model="view"
+        name="related"/>
+      <template v-if="otuView">
+        <switch-component
+          :options="Object.keys(smartOtu)"
+          v-model="viewOtu"
+          :add-option="['search']"
+          name="switch-otu"/>
+        <template v-if="smartOtu[viewOtu]">
+          <tag-item
+            v-for="item in smartOtu[viewOtu]"
+            :item="item"
+            :class="{ 'button-default': selected == item.id }"
+            display="object_tag"
+            @select="sendRelated(item)"
+            :key="item.id"/>
+        </template>
+        <otu-autocomplete
+          v-else
+          @getItem="sendRelated($event)"/>
       </template>
-      <otu-autocomplete
-        v-else
-        @getItem="sendRelated($event)"/>
-    </template>
 
-    <template v-else>
-      <switch-component
-        :options="Object.keys(smartCollectionObject)"
-        v-model="viewCollectionObject"
-        :add-option="['search']"
-        name="switch-collection"/>
-      <template v-if="smartCollectionObject[viewCollectionObject]">
-        <tag-item
-          v-for="item in smartCollectionObject[viewCollectionObject]"
-          :item="item"
-          :class="{ 'button-default': selected == item.id }"
-          display="object_tag"
-          @select="sendRelated(item)"
-          :key="item.id"/>
+      <template v-else>
+        <switch-component
+          :options="Object.keys(smartCollectionObject)"
+          v-model="viewCollectionObject"
+          :add-option="['search']"
+          name="switch-collection"/>
+        <template v-if="smartCollectionObject[viewCollectionObject]">
+          <tag-item
+            v-for="item in smartCollectionObject[viewCollectionObject]"
+            :item="item"
+            :class="{ 'button-default': selected == item.id }"
+            display="object_tag"
+            @select="sendRelated(item)"
+            :key="item.id"/>
+        </template>
+        <autocomplete
+          v-else
+          url="/collection_objects/autocomplete"
+          label="label"
+          min="2"
+          @getItem="sendRelated($event)"
+          placeholder="Select a collection object"
+          param="term"/>
       </template>
-      <autocomplete
-        v-else
-        url="/collection_objects/autocomplete"
-        label="label"
-        min="2"
-        @getItem="sendRelated($event)"
-        placeholder="Select a collection object"
-        param="term"/>
-    </template>
+    </fieldset>
   </div>
 </template>
 

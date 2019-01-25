@@ -1,7 +1,7 @@
-const removeTaxonRelationship = require('../../request/resources').removeTaxonRelationship
-const MutationNames = require('../mutations/mutations').MutationNames
+import { removeTaxonRelationship } from '../../request/resources'
+import { MutationNames } from '../mutations/mutations'
 
-module.exports = function ({ commit, state, dispatch }, combination) {
+export default function ({ commit, state, dispatch }, combination) {
 	 return new Promise((resolve, reject) => {
     removeTaxonRelationship(combination).then(response => {
       commit(MutationNames.RemoveOriginalCombination, combination)

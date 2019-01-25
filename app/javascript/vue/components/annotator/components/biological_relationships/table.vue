@@ -18,7 +18,7 @@
           class="list-complete-item">
           <td v-html="item.biological_relationship.name"/>
           <td v-html="getSubjectOrObject(item)"/>
-          <td v-html="getValue(item, ['source', 'object_tag'])"/>
+          <td v-html="getCitationString(item)"/>
           <td class="vue-table-options">
             <radial-annotator :global-id="item.global_id"/>
             <span
@@ -68,26 +68,14 @@
           return item.object.object_tag
         }
       },
-      getValue(object, attributes) {
-        if (Array.isArray(attributes)) {
-          let obj = object
-
-          for (var i = 0; i < attributes.length; i++) {
-            if(obj.hasOwnProperty(attributes[i])) {
-              obj = obj[attributes[i]]
-            }
-            else {
-              return null
-            }
-          }
-          return obj
+      getCitationString(object) {
+        if(object.hasOwnProperty('origin_citation')) {
+          let citation = object.origin_citation.source.cached_author_string
+          if(object.origin_citation.source.hasOwnProperty('year'))
+            citation = citation + ', ' + object.origin_citation.source.year
+          return citation
         }
-        else {
-          if(attributes.substr(0,1) === "@") {
-            return attributes.substr(1, attributes.length)
-          }
-        }
-        return object[attributes]
+        return ''
       }
     }
   }

@@ -1,36 +1,38 @@
 <div class="required">
-
   <div class="field <%= collapsed_css_property_if(hide_type) -%> ">
-    <%= f.label :type %>
+    <%= f.label :type %><br>
     <%= f.select :type, options_for_select(controlled_vocabulary_term_type_select_options, controlled_vocabulary_term.type) %>
   </div>
 
   <div class="field">
     <%= f.label :name %>
+    <br>
     <%= f.text_field :name %>
   </div>
 
   <div class="field">
     <%= f.label :definition %>
-    <%= f.text_area :definition %>
+    <br>
+    <%= f.text_area :definition, rows: 5, cols: 60 %>
   </div>
 
   <div class="field">
     <%= f.label :css_color %>
+    <br>
     <%= f.text_field :css_color, type: 'color' %>
   </div>
-
 </div>
 
 <div class="field">
   <%= f.label :uri %>
   <br>
-  <%= f.text_area :uri %>
+  <p> <%= link_to('Be precise, cross reference a concept in Bioportal via a URI that describes your concept', 'https://bioportal.bioontology.org/', target: :_blank) -%> </p>
+  <%= f.text_field :uri, size: 60 %>
 </div>
 
 <div class="field">
   <%= f.label :uri_relation %>
   <br>
+  <p> <em>Be even more precise, how does the URI you provided relate to your concept?</em> </p>
   <%= f.select :uri_relation, options_for_select(SKOS_RELATIONS.keys, controlled_vocabulary_term.uri_relation), include_blank: true -%> 
 </div>
-

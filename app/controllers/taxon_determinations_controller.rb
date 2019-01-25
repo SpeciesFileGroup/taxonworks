@@ -61,7 +61,7 @@ class TaxonDeterminationsController < ApplicationController
     respond_to do |format|
       if @taxon_determination.update(taxon_determination_params)
         format.html { redirect_to @taxon_determination, notice: 'Taxon determination was successfully updated.' }
-        format.json { head :no_content }
+        format.json { render action: 'show', status: :created, location: @taxon_determination }
       else
         format.html { render action: 'edit' }
         format.json { render json: @taxon_determination.errors, status: :unprocessable_entity }

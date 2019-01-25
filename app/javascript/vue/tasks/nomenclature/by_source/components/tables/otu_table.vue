@@ -4,6 +4,7 @@
       <th>Otu</th>
       <th>Radial</th>
       <th>Otu</th>
+      <th>Otu navigator</th>
     </tr>
     <otu-row-component
       v-for="item in list"
