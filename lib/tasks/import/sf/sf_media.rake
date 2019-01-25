@@ -59,11 +59,11 @@ namespace :tw do
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
           excluded_taxa = import.get('ExcludedTaxa')
-          get_sf_file_id = import.get('SFTaxonNameIDToSFFileID')
+          # get_sf_file_id = import.get('SFTaxonNameIDToSFFileID')
           get_sf_taxon_name_id = import.get('SFSpecimenIDToSFTaxonNameID')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
-          get_tw_person_id = import.get('SFPersonIDToTWPersonID')
-          get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
+          # get_tw_person_id = import.get('SFPersonIDToTWPersonID')
+          # get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_taxon_name_otu_id = import.get('TWTaxonNameIDToOtuID')
           get_tw_collection_object_id = import.get('SFSpecimenIDToCollObjID')
@@ -90,7 +90,10 @@ namespace :tw do
             specimen_id = row['SpecimenID']
             project_id = get_tw_project_id[sf_file_id]
 
-            collection_object_id = get_tw_collection_object_id[specimen_id] if specimen_id.to_i > 0
+            puts "ImageID = #{row['ImageID']}, SpecimenID = #{specimen_id}, SF.TaxonNameID = #{sf_taxon_name_id}, FileID = #{sf_file_id} \n"
+
+            # not yet in db:collection_object_id = get_tw_collection_object_id[specimen_id] if specimen_id.to_i > 0
+
             tw_taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id] # may not exist
             otu_id = get_taxon_name_otu_id[tw_taxon_name_id]
 
