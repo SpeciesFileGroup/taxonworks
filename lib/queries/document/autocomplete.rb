@@ -1,6 +1,6 @@
 module Queries
 
-  class DocumentAutocompleteQuery < Queries::Query
+  class Document::Autocomplete < Queries::Query
 
     # @return [String]
     def where_sql
@@ -28,12 +28,12 @@ module Queries
 
     # @return [Scope]
     def all
-      Document.where(where_sql).limit(200).order(:id)
+      ::Document.where(where_sql).limit(200).order(:id)
     end
 
     # @return [Arel::Table]
     def table
-      Document.arel_table
+      ::Document.arel_table
     end
 
   end

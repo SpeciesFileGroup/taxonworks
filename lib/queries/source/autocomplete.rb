@@ -202,7 +202,7 @@ module Queries
 
       # @return [Arel::Table]
       def project_sources_table
-        ProjectSource.arel_table
+        ::ProjectSource.arel_table
       end
     end
   end

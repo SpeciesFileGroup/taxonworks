@@ -1,6 +1,6 @@
 module Queries
 
-  class RepositoryAutocompleteQuery < Queries::Query
+  class Repository::Autocomplete < Queries::Query
 
     # @return [String]
     def where_sql
@@ -9,12 +9,12 @@ module Queries
 
     # @return [Scope]
     def all
-      Repository.where(where_sql).order('name, char_length(name)').limit(40)
+      ::Repository.where(where_sql).order('name, char_length(name)').limit(40)
     end
 
     # @return [Arel::Table]
     def table
-      Repository.arel_table
+      ::Repository.arel_table
     end
 
     # @return [Arel::Nodes::Matches]
