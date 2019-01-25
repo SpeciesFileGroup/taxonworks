@@ -1,7 +1,7 @@
 module NamespacesHelper
 
   def namespace_tag(namespace)
-    return nil if namespace.nil?
+    return nil if namespace.nil? || !namespace.persisted?
     namespace.short_name + ': ' + namespace.name
   end
 
