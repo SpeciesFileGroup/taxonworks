@@ -1,29 +1,31 @@
 <template>
   <div>
-    <h3>Biological relationship</h3>
-    <switch-component 
-      v-model="view"
-      name="biological"
-      :add-option="['search']"
-      :options="Object.keys(list)"/>
+    <fieldset>
+      <legend>Biological relationship</legend>
+      <switch-component 
+        v-model="view"
+        name="biological"
+        :add-option="['search']"
+        :options="Object.keys(list)"/>
 
-    <template v-if="view && list && list[view]">
-      <tag-item 
-        v-for="item in list[view]"
-        :key="item.id"
-        display="name"
-        :class="{ 'button-default': selected == item}"
-        :item="item"
-        @select="$emit('select',item)"/>
-    </template>
-    <autocomplete
-      v-else
-      url="/biological_relationships/autocomplete"
-      label="label"
-      min="2"
-      @getItem="$emit('select', $event)"
-      placeholder="Select a biological relationship"
-      param="term"/>
+      <template v-if="view && list && list[view]">
+        <tag-item 
+          v-for="item in list[view]"
+          :key="item.id"
+          display="name"
+          :class="{ 'button-default': selected == item}"
+          :item="item"
+          @select="$emit('select',item)"/>
+      </template>
+      <autocomplete
+        v-else
+        url="/biological_relationships/autocomplete"
+        label="label"
+        min="2"
+        @getItem="$emit('select', $event)"
+        placeholder="Select a biological relationship"
+        param="term"/>
+    </fieldset>
   </div>
 </template>
 

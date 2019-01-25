@@ -34,7 +34,7 @@ module AnnotationsHelper
   end
 
   def radial_annotator(object)
-    content_tag(:div, '', 'data-global-id' => object.to_global_id.to_s, 'data-radial-annotator' => 'true')
+    content_tag(:div, '', data: { 'global-id' => object.to_global_id.to_s, 'radial-annotator' => 'true'})
   end
 
   # @return [Array]

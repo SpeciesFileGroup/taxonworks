@@ -131,17 +131,17 @@ module Queries
 
       geographic_area_ids.each do |ga_id|
         target_geographic_item_ids.push(
-          GeographicArea.joins(:geographic_items).find(ga_id).default_geographic_item.id
+          ::GeographicArea.joins(:geographic_items).find(ga_id).default_geographic_item.id
         )
       end
 
-      gi_sql = GeographicItem.contained_by_where_sql(target_geographic_item_ids)
+      gi_sql = ::GeographicItem.contained_by_where_sql(target_geographic_item_ids)
 
       ::Otu.where(id: (::Otu.joins(:asserted_distributions)
-        .where(asserted_distributions: {id: AssertedDistribution.joins(:geographic_items)
+        .where(asserted_distributions: {id: ::AssertedDistribution.joins(:geographic_items)
         .where(gi_sql).distinct})) +
       (::Otu.joins(:collection_objects)
-        .where(collection_objects: {id: CollectionObject.joins(:geographic_items)
+        .where(collection_objects: {id: ::CollectionObject.joins(:geographic_items)
         .where(gi_sql).distinct})).distinct)
 
 
@@ -155,14 +155,16 @@ module Queries
     #
     def shape_scope
       ::Otu.where(id: (::Otu.joins(:asserted_distributions)
-        .where(asserted_distributions: {id: GeographicItem.gather_map_data(shape,
-                                                                           'AssertedDistribution',
-                                                                           project_id)
+        .where(asserted_distributions: {id: ::GeographicItem.gather_map_data(
+          shape,
+          'AssertedDistribution',
+          project_id)
         .distinct}) +
       ::Otu.joins(:collection_objects)
-        .where(collection_objects: {id: GeographicItem.gather_map_data(shape,
-                                                                       'CollectionObject',
-                                                                       project_id)
+        .where(collection_objects: {id: ::GeographicItem.gather_map_data(
+          shape,
+          'CollectionObject',
+          project_id)
         .distinct}))
         .uniq)
     end

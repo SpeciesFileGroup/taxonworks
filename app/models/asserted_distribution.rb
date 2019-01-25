@@ -12,10 +12,6 @@
 #   @return [Integer]
 #   the geographic area ID
 #
-# @!attribute source_id
-#   @return [Integer]
-#   the source ID
-#
 # @!attribute project_id
 #   @return [Integer]
 #   the project ID
@@ -23,7 +19,6 @@
 # @!attribute is_absent
 #   @return [Boolean]
 #     a positive negative, when true then there exists an assertion that the taxon is not present in the spatial area
-#
 #
 class AssertedDistribution < ApplicationRecord
   include Housekeeping

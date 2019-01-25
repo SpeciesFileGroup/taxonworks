@@ -10,7 +10,7 @@
         @getItem="emitOtu"
         @getInput="callbackInput"
         @found="found = $event"
-        placeholder="Select a OTU"
+        placeholder="Select an OTU"
         param="term"/>
       <button
         v-if="!found"
