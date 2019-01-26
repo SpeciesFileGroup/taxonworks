@@ -10,6 +10,7 @@
         @getItem="emitOtu"
         @getInput="callbackInput"
         @found="found = $event"
+        :clear-after="clearAfter"
         placeholder="Select an OTU"
         param="term"/>
       <button
@@ -62,6 +63,12 @@ import Autocomplete from '../../autocomplete.vue'
 export default {
   components: {
     Autocomplete
+  },
+  props: {
+    clearAfter: {
+      type: Boolean,
+      default: false
+    }
   },
   computed: {
     validateFields() {
