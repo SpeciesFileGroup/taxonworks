@@ -37,7 +37,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
     context 'a citation is required' do
       before {
         asserted_distribution.geographic_area = geographic_area
-        asserted_distribution.otu             = otu
+        asserted_distribution.otu = otu
       }
 
       specify 'absence of #source, #origin_citation, #citations invalidates' do
@@ -83,6 +83,16 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
         expect(a.save).to be_truthy
         expect(a.citations.count).to eq(1)
       end
+
+      specify 'all attributes with #create validates' do
+        a = AssertedDistribution.create!(
+            otu_id: otu.id,
+            geographic_area_id: geographic_area_id,
+            citations_attributes: [{source_id: source.id}])
+        expect(a.citations.count).to eq(1)
+      end
+
+
 
       context 'attempting to delete last citation' do
         specify 'when citation is origin_ciation' do

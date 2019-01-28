@@ -159,25 +159,32 @@ namespace :tw do
 
                 geographic_area_id = CollectingEvent.find(collecting_event_id).geographic_area_id
 
-                source_id = get_tw_source_id[get_sf_identification_metadata[specimen_id][0]['ref_id']] # assume first ident record
+                sf_ref_id = get_sf_identification_metadata[specimen_id][0]['ref_id']
+                source_id = get_tw_source_id[sf_ref_id] # assume first ident record
 
-                ad = AssertedDistribution.create!(otu_id: otu_id,
-                                              geographic_area_id: geographic_area_id,
-                                              # source_id: source_id,
-                                              project_id: project_id,
-                                              citations_attributes: [{source_id: source_id}])
+                logger.info "In AssertedDistribution section: SpecimenID = #{specimen_id}, FileID = #{sf_file_id}, SF.TaxonNameID = #{sf_taxon_name_id}, tw_taxon_name_id = #{tw_taxon_name_id}, otu_id = #{otu_id}, geographic_area_id = #{geographic_area_id}, SF.RefID = #{sf_ref_id}, source_id = #{source_id} \n"
 
-                # begin
-                # 
-                  byebug
-                #
-                #
-                #   ad.save!
-                  logger.info " AssertedDistribution created for SpecimenID = '#{specimen_id}', FileID = '#{sf_file_id}', otu_id = '#{otu_id}' [ asserted_dist_counter = #{asserted_dist_counter += 1} ]"
+                ad = AssertedDistribution.new(
+                    otu_id: otu_id,
+                    geographic_area_id: geographic_area_id,
+                    project_id: project_id,
+                    citations_attributes: [{source_id: source_id, project_id: project_id}])
+                # ap ad.citations
 
-                # rescue ActiveRecord::RecordInvalid
-                #   logger.error "AssertedDistribution error: (error count #{error_counter += 1})" + ad.errors.full_messages.join(';')
-                # end
+                begin
+                  ad.save!
+                  logger.info " AssertedDistribution created for SpecimenID = '#{specimen_id}', FileID = '#{sf_file_id}', otu_id = '#{otu_id}', source_id = '#{source_id}' [ asserted_dist_counter = #{asserted_dist_counter += 1} ]"
+
+                  # After asserted_distribution (AD) created, add to hash {[:otu_id,
+                  #                                                         :geographic_area_id]
+                  #                                                      => :asserted_distribution_id}
+                  # If AD exists, make citation with current source on AD
+                  #
+                  # Geographic area record for this source/otu combination already exists
+
+                rescue ActiveRecord::RecordInvalid
+                  logger.error "AssertedDistribution error: (error count #{error_counter += 1})" + ad.errors.full_messages.join(';')
+                end
 
                 next
 
