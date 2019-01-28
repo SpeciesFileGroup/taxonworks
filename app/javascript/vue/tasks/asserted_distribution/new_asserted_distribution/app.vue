@@ -13,7 +13,7 @@
             class="separate-right"/>
           <lock-component v-model="locks.citations_attributes"/>
         </div>
-        <div class="horizontal-left-content middle">
+        <div class="horizontal-left-content middle separate-bottom">
           <otu-component
             class="separate-right"
             :class="{

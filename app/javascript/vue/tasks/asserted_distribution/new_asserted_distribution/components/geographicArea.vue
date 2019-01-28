@@ -13,6 +13,7 @@
           label="label_html"
           param="term"
           ref="autocomplete"
+          placeholder="Select a geographic area"
           :clear-after="true"
           display="label"
           @getItem="sendItem"/>
