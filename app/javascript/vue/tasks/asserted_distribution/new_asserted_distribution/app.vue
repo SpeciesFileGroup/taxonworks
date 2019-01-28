@@ -1,23 +1,35 @@
 <template>
-  <div>
+  <div id="vue-task-asserted-distribution-new">
     <h1>Task - New asserted distribution</h1>
     <div class="horizontal-left-content align-start">
       <div class="separate-right">
         <div class="horizontal-left-content middle">
           <source-component
             v-model="asserted_distribution.citations_attributes[0]"
+            ref="sourceComponent"
+            :class="{
+              highlight: highlight.source
+            }"
             class="separate-right"/>
           <lock-component v-model="locks.citations_attributes"/>
         </div>
         <div class="horizontal-left-content middle">
           <otu-component
             class="separate-right"
+            :class="{
+              highlight: highlight.otu
+            }"
+            ref="otuComponent"
             v-model="asserted_distribution.otu_id"/>
           <lock-component v-model="locks.otu_id"/>
         </div>
         <div class="horizontal-left-content middle">
           <geographic-area
             class="separate-right"
+            ref="geoComponent"
+            :class="{
+              highlight: highlight.geo
+            }"
             v-model="asserted_distribution.geographic_area_id"/>
           <lock-component v-model="locks.geographic_area_id"/>
         </div>
@@ -50,6 +62,10 @@
     </div>
     <table-component
       :list="list"
+      @onSourceOtu="setSourceOtu"
+      @onSourceGeo="setSourceGeo"
+      @onOtuGeo="setGeoOtu"
+      @highlight="highlight = $event"
       @remove="removeAssertedDistribution"/>
   </div>
 </template>
@@ -85,6 +101,11 @@ export default {
     return {
       asserted_distribution: this.newAssertedDistribution(),
       list: [],
+      highlight: {
+        otu: false,
+        source: false,
+        geo: false
+      },
       locks: {
         otu_id: false,
         geographic_area_id: false,
@@ -163,7 +184,44 @@ export default {
           return item.id == asserted.id
         }), 1)
       })
+    },
+    setSourceOtu(item) {
+      this.asserted_distribution.id = undefined
+      this.setCitation(item)
+      this.asserted_distribution.otu_id = item.otu.id
+      this.$refs.sourceComponent.setSelected(item.citation)
+      this.$refs.otuComponent.setSelected(item.otu)
+    },
+    setSourceGeo(item) {
+      this.setCitation(item)
+      this.asserted_distribution.geographic_area_id = item.geo.id
+      this.$refs.sourceComponent.setSelected(item.citation.source)
+      this.$refs.geoComponent.setSelected(item.geo)
+    },
+    setGeoOtu(item) {
+      this.asserted_distribution.id = item.id
+      this.asserted_distribution.geographic_area_id = item.geo.id
+      this.asserted_distribution.otu_id = item.otu.id
+      this.$refs.geoComponent.setSelected(item.geo)  
+      this.$refs.otuComponent.setSelected(item.otu)    
+    },
+    setCitation(item) {
+      this.asserted_distribution.citations_attributes = []
+      this.asserted_distribution.citations_attributes.push({
+        source_id: item.citation.source_id,
+        is_original: item.citation.is_original,
+        pages: item.citation.pages
+      })      
     }
   }
 }
 </script>
+<style lang="scss">
+  #vue-task-asserted-distribution-new {
+    .highlight {
+      fieldset {
+        background-color: #E3E8E3 !important;
+      }
+    }
+  }
+</style>

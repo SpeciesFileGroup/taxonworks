@@ -77,7 +77,7 @@ export default {
   },
   methods: {
     sendItem(item) {
-      this.selected = item.hasOwnProperty('label') ? item.label : item.object_tag
+      this.setSelected(item)
       this.$emit('input', item.id)
     },
     loadSmartSelector() {
@@ -88,6 +88,9 @@ export default {
         let newView = SelectFirstSmartOption(this.lists, this.options)
         this.view = (newView ? newView : 'search')
       })
+    },
+    setSelected(item) {
+      this.selected = item.hasOwnProperty('label') ? item.label : item.object_tag
     }
   }
 }
