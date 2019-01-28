@@ -48,7 +48,7 @@ class AssertedDistribution < ApplicationRecord
   validates :geographic_area, presence: true
   validates :otu, presence: true
 
-  validates_uniqueness_of :geographic_area_id, scope: [:project_id, :otu_id], message: 'record for this source/otu combination already exists'
+  validates_uniqueness_of :geographic_area_id, scope: [:project_id, :otu_id], message: 'record for this geographic_area/otu combination already exists'
 
   validate :new_records_include_citation
 

@@ -48,6 +48,8 @@ module LoggedTask
       FileUtils.mkdir_p(path)
       time = Time.now.strftime('%Y-%m-%d_%H%M%S.%N')
       @log_file = File.new(path.join("#{time}-#{names.join(".")}.#{task_name}.log"), 'w')
+      @log_file.sync = true
+
       @warns_and_errors = []
       @task_full_name = task_full_name
     end
@@ -97,7 +99,6 @@ module LoggedTask
     # @param [Term::ANSIColor] color
     def write(msg, object, color=nil)
       write_file(@log_file, msg, object, true)
-      @log_file.fsync
 
       msg = color + msg + Term::ANSIColor.clear unless color.nil?
 
