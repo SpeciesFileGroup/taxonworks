@@ -9,14 +9,14 @@
         <th>Radial annotator</th>
         <th>Source/Otu clone</th>
         <th>Source/Geo clone</th>
-        <th>OTU/Geo clone</th>
+        <th>OTU/Geo load</th>
       </tr>
     </thead>
     <tbody>
       <tr
         v-for="item in list"
         :key="item.id">
-        <td v-html="item.citations[0].citation_source_body"/>
+        <td><citation-count :citations="item.citations"/></td>
         <td v-html="item.otu.object_tag"/>
         <td v-html="item.geographic_area.name"/>
         <td>
@@ -57,7 +57,7 @@
             @mouseover="emitHighlight(false, true, true)"
             @mouseout="emitHighlight(false, false, false)"
             @click="emitRecord(item)">
-            Load this record
+            Load
           </button>
         </td>
       </tr>
@@ -68,9 +68,11 @@
 <script>
 
 import RadialAnnotator from 'components/annotator/annotator'
+import CitationCount from './citationsCount'
 
 export default {
   components: {
+    CitationCount,
     RadialAnnotator
   },
   props: {
@@ -118,3 +120,8 @@ export default {
 
 }
 </script>
+<style>
+ table,td,tr {
+   position: relative !important;
+ }
+</style>
