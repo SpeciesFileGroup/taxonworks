@@ -1,51 +1,60 @@
 <template>
-    <fieldset>
-      <legend>Source</legend>
-      <smart-selector 
-        name="source"
-        class="separate-bottom"
-        v-model="view"
-        :options="options"/>
-      <div class="separate-bottom">
-        <label>
-          <input
-            type="checkbox"
-            v-model="value.is_original">
-          Is original
-        </label>
-      </div>
-      <div v-if="isViewSearch">
-        <autocomplete
-          url="/sources/autocomplete"
-          label="label_html"
-          placeholder="Select a source"
-          ref="autocomplete"
-          param="term"
-          display="label"
-          @getItem="sendItem"/>
-      </div>
-      <div v-else>
-        <ul
-          class="no_bullets">
-          <li v-for="item in lists[view]">
-            <label @click="sendItem(item)">
-              <input
-                name="source"
-                type="radio"
-                :value="item.id"
-                :checked="item.id == value.source_id">
-              <span v-html="item.object_tag"/>
-            </label>
-          </li>
-        </ul>
-      </div>
-      <template v-if="selected">
-        <p>
-          <span data-icon="ok"/>
-          <span v-html="selected"/>
-        </p>
-      </template>
-    </fieldset>
+  <fieldset>
+    <legend>Source</legend>
+    <smart-selector 
+      name="source"
+      class="separate-bottom"
+      v-model="view"
+      :options="options"/>
+    <div class="separate-bottom flex-separate middle">
+      <label>
+        <input
+          type="checkbox"
+          v-model="value.is_original">
+        Is original
+      </label>
+      <label>
+        Pages: 
+        <input
+          class="pages"
+          v-model="value.pages"
+          placeholder="Pages"
+          type="text">
+      </label>
+    </div>
+    <div v-if="isViewSearch">
+      <autocomplete
+        url="/sources/autocomplete"
+        label="label_html"
+        placeholder="Select a source"
+        ref="autocomplete"
+        :clear-after="true"
+        param="term"
+        display="label"
+        @getItem="sendItem"/>
+    </div>
+    <div v-else>
+      <ul
+        class="no_bullets">
+        <li v-for="item in lists[view]">
+          <label @click="sendItem(item)">
+            <input
+              name="source"
+              type="radio"
+              :value="item.id"
+              :checked="item.id == value.source_id">
+            <span v-html="item.object_tag"/>
+          </label>
+        </li>
+      </ul>
+    </div>
+    <template v-if="selected">
+      <p>
+        <span data-icon="ok"/>
+        <span v-html="selected"/>
+      </p>
+    </template>
+  </fieldset>
 </template>
 
 <script>
@@ -114,3 +123,10 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+  .pages {
+    widows: 80px;
+  }
+</style>
+

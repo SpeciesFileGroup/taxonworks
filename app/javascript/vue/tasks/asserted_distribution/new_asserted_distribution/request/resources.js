@@ -25,7 +25,7 @@ const UpdateAssertedDistribution = function(data) {
 }
 
 const LoadRecentRecords = function() {
-  return ajaxCall('get', '/asserted_distributions.json?recent=true&per=10')
+  return ajaxCall('get', '/asserted_distributions.json?recent=true&per=15')
 }
 
 export {

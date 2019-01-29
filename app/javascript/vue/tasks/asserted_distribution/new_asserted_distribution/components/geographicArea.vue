@@ -1,45 +1,45 @@
 <template>
-    <fieldset>
-      <legend>Geographic area</legend>
-      <smart-selector 
-        name="geographic"
-        class="separate-bottom"
-        v-model="view"
-        :options="options"/>
-      <div v-if="isViewSearch">
-        <autocomplete
-          url="/geographic_areas/autocomplete"
-          label="label_html"
-          param="term"
-          ref="autocomplete"
-          placeholder="Select a geographic area"
-          :clear-after="true"
-          display="label"
-          @getItem="sendItem"/>
-      </div>
-      <ul
-        v-else
-        class="no_bullets">
-        <li
-          v-for="item in lists[view]"
-          :key="item.id">
-          <label
-            @click="sendItem(item)">
-            <input
-              type="radio"
-              name="geo"
-              :checked="item.id == value">
-            {{ item.name }}
-          </label>
-        </li>
-      </ul>
-      <template v-if="selected">
-        <p>
-          <span data-icon="ok"/>
-          <span v-html="selected"/>
-        </p>
-      </template>
-    </fieldset>
+  <fieldset>
+    <legend>Geographic area</legend>
+    <smart-selector 
+      name="geographic"
+      class="separate-bottom"
+      v-model="view"
+      :options="options"/>
+    <div v-if="isViewSearch">
+      <autocomplete
+        url="/geographic_areas/autocomplete"
+        label="label_html"
+        param="term"
+        ref="autocomplete"
+        placeholder="Select a geographic area"
+        :clear-after="true"
+        display="label"
+        @getItem="sendItem"/>
+    </div>
+    <ul
+      v-else
+      class="no_bullets">
+      <li
+        v-for="item in lists[view]"
+        :key="item.id">
+        <label
+          @click="sendItem(item)">
+          <input
+            type="radio"
+            name="geo"
+            :checked="item.id == value">
+          {{ item.name }}
+        </label>
+      </li>
+    </ul>
+    <template v-if="selected">
+      <p>
+        <span data-icon="ok"/>
+        <span v-html="selected"/>
+      </p>
+    </template>
+  </fieldset>
 </template>
 
 <script>
