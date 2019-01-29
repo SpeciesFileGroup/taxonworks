@@ -129,6 +129,9 @@
     mounted: function () {
       this.$on('role_picker', function (item) {
         if (!this.alreadyExist(item.object_id)) {
+          console.log(item)
+          console.log(`-----`)
+          console.log(this.addPerson(item))
           this.roles_attributes.push(this.addPerson(item))
           this.$emit('input', this.roles_attributes)
           this.$emit('create', this.addPerson(item))
@@ -181,6 +184,8 @@
       getLabel: function (person) {
         if (person.hasOwnProperty('person_attributes')) {
           return this.getFullName(person.person_attributes.first_name, person.person_attributes.last_name)
+        } else if (person.hasOwnProperty('person')) {
+          return this.getFullName(person.person.first_name, person.person.last_name)
         } else {
           return this.getFullName(person.first_name, person.last_name)
         }
@@ -214,7 +219,7 @@
       },
       alreadyExist: function (personId) {
         return (this.roles_attributes.find(function (item) {
-          return (personId == item.person.id)
+          return (personId == item['person_id'])
         }) != undefined)
       },
       processedList: function (list) {
@@ -222,15 +227,22 @@
         let tmp = []
 
         list.forEach(function (element, index) {
+          console.log(element)
           let item = {
-            id: element.id,
-            person: {
-              id: element.person.id
-            },
+            id: (element.hasOwnProperty('id') ? element.id : undefined),
             type: element.type,
-            first_name: (element.first_name ? element.first_name : element.person.first_name),
-            last_name: (element.last_name ? element.last_name : element.person.last_name),
+            first_name: (element['first_name'] ? element.first_name : undefined),
+            last_name: (element['last_name'] ? element.last_name : undefined),
             position: element.position
+          }
+          if(element.hasOwnProperty('person_attributes')) {
+            item.person_attributes = element.person_attributes            
+          }
+          if(element.hasOwnProperty('person_id')) {
+            item.person_id = element.person_id
+          }
+          if(element.hasOwnProperty('person')) {
+            item.person = element.person
           }
           if(element.hasOwnProperty('_destroy')) {
             item['_destroy'] = element._destroy
@@ -300,9 +312,6 @@
         return {
           type: this.roleType,
           person_id: item.object_id,
-          person: {
-            id: item.object_id
-          },
           first_name: this.getFirstName(item.label),
           last_name: this.getLastName(item.label),
           position: (this.roles_attributes.length + 1)
