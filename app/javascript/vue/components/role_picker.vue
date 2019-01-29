@@ -129,9 +129,6 @@
     mounted: function () {
       this.$on('role_picker', function (item) {
         if (!this.alreadyExist(item.object_id)) {
-          console.log(item)
-          console.log(`-----`)
-          console.log(this.addPerson(item))
           this.roles_attributes.push(this.addPerson(item))
           this.$emit('input', this.roles_attributes)
           this.$emit('create', this.addPerson(item))
@@ -227,7 +224,6 @@
         let tmp = []
 
         list.forEach(function (element, index) {
-          console.log(element)
           let item = {
             id: (element.hasOwnProperty('id') ? element.id : undefined),
             type: element.type,
