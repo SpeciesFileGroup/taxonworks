@@ -19,7 +19,7 @@
               :value="person.id"
               :checked="person.id == selected['id']"
               @click="selectPerson(person)">
-            {{ person.cached }}
+            <span v-html="person.label_html"/>
           </label>
         </li>
       </ul>
