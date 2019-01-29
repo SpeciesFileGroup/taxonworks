@@ -46,6 +46,14 @@
         </tr>
       </tbody>
     </table>
+    <table-person-roles
+      v-show="Object.keys(selected).length"
+      title="Selected role types"
+      :person="selected"/>
+    <table-person-roles
+      v-show="Object.keys(merge).length"
+      title="Merge role types"
+      :person="merge"/>
     <table-roles
       v-if="selected['roles'] && selected['roles'].length"
       title="Selected roles"
@@ -65,13 +73,13 @@
 
 <script>
 
-import CompareComponent from './compare'
 import TableRoles from './tableRoles'
 import TableAnnotations from './tableAnnotations'
+import TablePersonRoles from './roles_table'
 
 export default {
   components: {
-    CompareComponent,
+    TablePersonRoles,
     TableAnnotations,
     TableRoles
   },
