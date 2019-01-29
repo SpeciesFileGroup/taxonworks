@@ -10,6 +10,7 @@
         @getItem="emitOtu"
         @getInput="callbackInput"
         @found="found = $event"
+        :clear-after="clearAfter"
         placeholder="Select an OTU"
         param="term"/>
       <button
@@ -63,6 +64,12 @@ export default {
   components: {
     Autocomplete
   },
+  props: {
+    clearAfter: {
+      type: Boolean,
+      default: false
+    }
+  },
   computed: {
     validateFields() {
       return this.otu.name
@@ -98,6 +105,8 @@ export default {
     createOtu() {
       this.$http.post('/otus', { otu : this.otu }).then(response => {
         this.emitOtu(response.body)
+        this.create = false
+        this.found = true
       })
     },
     emitOtu(otu) {
