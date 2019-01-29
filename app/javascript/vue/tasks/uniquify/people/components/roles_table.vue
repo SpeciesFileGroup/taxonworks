@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="personRoles.length">
     <h3>{{ title }}</h3>
     <table>
       <tbody>

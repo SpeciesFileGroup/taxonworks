@@ -3,7 +3,7 @@
     <autocomplete
       url="/people/autocomplete"
       min="2"
-      label="label"
+      label="label_html"
       placeholder="Search person"
       display="label"
       @getItem="addToList($event)"

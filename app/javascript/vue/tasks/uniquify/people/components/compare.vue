@@ -46,14 +46,18 @@
         </tr>
       </tbody>
     </table>
-    <table-person-roles
-      v-show="Object.keys(selected).length"
-      title="Selected role types"
-      :person="selected"/>
-    <table-person-roles
-      v-show="Object.keys(merge).length"
-      title="Merge role types"
-      :person="merge"/>
+    <div class="horizontal-left-content align-start">
+      <table-person-roles
+        :class="{ 'separate-right': Object.keys(merge).length }"
+        v-show="Object.keys(selected).length"
+        title="Selected role types"
+        :person="selected"/>
+      <table-person-roles
+        :class="{ 'separate-left': Object.keys(selected).length }"
+        v-show="Object.keys(merge).length"
+        title="Merge role types"
+        :person="merge"/>
+    </div>
     <table-roles
       v-if="selected['roles'] && selected['roles'].length"
       title="Selected roles"
