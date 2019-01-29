@@ -6,7 +6,12 @@
       v-if="!(protonymId && type)"/>
     <div class="header flex-separate middle">
       <h3>Collection object</h3>
-      <div class="flexbox middle">
+      <div class="horizontal-left-content middle">
+        <a
+          v-if="biologicalId"
+          target="blank"
+          :href="getDigitizeRoute()">Expanded edit
+        </a>
         <radial-annotator
           v-if="typeMaterial.id"
           :global-id="getCollectionObject.global_id"/>
@@ -85,6 +90,8 @@ import collectionObject from './collectionObject.vue'
 import toggleSwitch from './toggleSwitch.vue'
 import depictionsSection from './depictions.vue'
 
+import { RouteNames } from 'routes/routes'
+
 export default {
   components: {
     depictionsSection,
@@ -153,6 +160,9 @@ export default {
     }
   },
   methods: {
+    getDigitizeRoute() {
+      return `${RouteNames.DigitizeTask}/${this.biologicalId}`
+    },
     createTypeMaterial () {
       this.$store.dispatch(ActionNames.CreateTypeMaterial)
     },

@@ -64,7 +64,7 @@
         citation: this.newCitation(),
         topic: this.newTopic(),
         autocompleteLabel: undefined,
-        disabledFor: ['Otu']
+        disabledFor: ['Content']
       }
     },
     methods: {

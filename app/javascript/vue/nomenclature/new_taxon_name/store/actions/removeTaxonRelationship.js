@@ -1,7 +1,7 @@
-const removeTaxonRelationship = require('../../request/resources').removeTaxonRelationship
-const MutationNames = require('../mutations/mutations').MutationNames
+import { removeTaxonRelationship } from '../../request/resources'
+import { MutationNames } from '../mutations/mutations'
 
-module.exports = function ({ commit, state, dispatch }, relationship) {
+export default function ({ commit, state, dispatch }, relationship) {
   removeTaxonRelationship(relationship).then(response => {
     commit(MutationNames.RemoveTaxonRelationship, relationship)
     dispatch('loadSoftValidation', 'taxonRelationshipList')

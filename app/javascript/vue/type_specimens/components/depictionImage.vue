@@ -3,7 +3,7 @@
     <modal
       v-if="viewMode"
       @close="viewMode = false"
-      :container-style="{ width: ((fullSizeImage ? depiction.image.result.width : depiction.image.result.alternatives.medium.width) + 'px')}">
+      :container-style="{ width: ((fullSizeImage ? depiction.image.width : depiction.image.alternatives.medium.width) + 'px')}">
       <h3 slot="header">View</h3>
       <div slot="body">
         <template>
@@ -11,16 +11,16 @@
             class="img-maxsize img-fullsize"
             v-if="fullSizeImage"
             @click="fullSizeImage = false"
-            :src="depiction.image.result.url"
-            :height="depiction.image.result.height"
-            :width="depiction.image.result.width">
+            :src="depiction.image.image_file_url"
+            :height="depiction.image.height"
+            :width="depiction.image.width">
           <img
             v-else
             class="img-maxsize img-normalsize"
             @click="fullSizeImage = true"
-            :src="depiction.image.result.alternatives.medium.url"
-            :height="depiction.image.result.alternatives.medium.height"
-            :width="depiction.image.result.alternatives.medium.width">
+            :src="depiction.image.alternatives.medium.image_file_url"
+            :height="depiction.image.alternatives.medium.height"
+            :width="depiction.image.alternatives.medium.width">
         </template>
         <div class="field separate-top">
           <input
@@ -49,19 +49,19 @@
     <img
       class="img-thumb"
       @click="viewMode = true"
-      :src="depiction.image.result.alternatives.thumb.url"
-      :height="depiction.image.result.alternatives.thumb.height"
-      :width="depiction.image.result.alternatives.thumb.width">
+      :src="depiction.image.alternatives.thumb.image_file_url"
+      :height="depiction.image.alternatives.thumb.height"
+      :width="depiction.image.alternatives.thumb.width">
   </div>
 </template>
 <script>
 
-import modal from '../../components/modal.vue'
+import Modal from 'components/modal.vue'
 import { UpdateDepiction } from '../request/resources'
 
 export default {
   components: {
-    modal
+    Modal
   },
   props: {
     depiction: {

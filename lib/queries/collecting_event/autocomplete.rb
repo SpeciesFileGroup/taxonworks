@@ -1,17 +1,8 @@
 module Queries
-
-  # Presently, search by:
-  #   !! UPDATE THIS
-  #    id
-  #    cached (term, term[n], term[n]%)
-  #    identifier#cached
-  #    geographic_area#name (term, term%)
-  #
-  #
   module CollectingEvent
     class Autocomplete < Queries::Query
       
-      # @params [String]
+      # @params string [String]
       # @params [Hash] args
       def initialize(string, project_id: nil)
         super
@@ -47,6 +38,8 @@ module Queries
           .limit(20)
       end
 
+      # @return [Array]
+      #   TODO: optimize limits
       def autocomplete
         queries = [
           autocomplete_verbatim_trip_identifier_match,
@@ -63,9 +56,10 @@ module Queries
           autocomplete_identifier_cached_like,
 
 
-          # verbatim locality exact match (?) start date
-          # ce_cached wildcard wrapped autocomplete start date
-                   # date (exact date)
+          # others?
+          # - verbatim locality exact match (?) start date
+          # - ce_cached wildcard wrapped autocomplete start date
+          # - date (exact date)
       
         ].compact!
 
@@ -88,28 +82,8 @@ module Queries
       end
 
       # @return [Arel::Table]
-      def geographic_area_table
-        ::GeographicArea.arel_table
-      end
-
-      # @return [Arel::Table]
       def table
         ::CollectingEvent.arel_table
-      end
-
-      # @return [Arel::Nodes::Equality]
-      def with_verbatim_trip_code
-        table[:verbatim_trip_code].eq_any(@terms)
-      end
-
-      # @return [Arel::Nodes::Equality]
-      def with_verbatim_locality
-        table[:verbatim_locality].eq_any(@terms)
-      end
-
-      # @return [Arel::Nodes::Matches]
-      def geographic_area_named
-        geographic_area_table[:name].matches_any(@terms)
       end
 
     end

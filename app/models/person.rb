@@ -80,6 +80,7 @@ class Person < ApplicationRecord
   validate :not_active_before_birth
   validate :not_gandalf
 
+  # TODO: remove this
   before_validation :set_type_if_blank
 
   after_save :set_cached, unless: Proc.new { |n| n.no_cached || errors.any? }
@@ -113,6 +114,8 @@ class Person < ApplicationRecord
   scope :created_before, -> (time) { where('created_at < ?', time) }
   scope :with_role, -> (role) { includes(:roles).where(roles: {type: role}) }
   scope :ordered_by_last_name, -> { order(:last_name) }
+
+  scope :used_in_project, -> (project_id) { joins(:roles).where( roles: { project_id: project_id } ) }
 
   # @return [Boolean]
   #   !! overwrites IsData#is_in_use?

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_11_02_183022) do
+ActiveRecord::Schema.define(version: 2019_01_08_192437) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -968,8 +968,8 @@ ActiveRecord::Schema.define(version: 2018_11_02_183022) do
     t.string "text", null: false
     t.integer "total", null: false
     t.string "style"
-    t.string "label_object_type", null: false
-    t.bigint "label_object_id", null: false
+    t.string "label_object_type"
+    t.bigint "label_object_id"
     t.boolean "is_copy_edited", default: false
     t.boolean "is_printed", default: false
     t.integer "project_id"

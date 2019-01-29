@@ -1,3 +1,3 @@
-module.exports = function (state, name) {
+export default function (state, name) {
   state.taxon_name.name = name
 }

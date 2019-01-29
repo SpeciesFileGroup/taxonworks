@@ -79,7 +79,7 @@ module Queries
 
     # @return [Arel::Table]
     def table
-      TaxonNameRelationship.arel_table
+      ::TaxonNameRelationship.arel_table
     end
 
     # @return [ActiveRecord::Relation, nil]

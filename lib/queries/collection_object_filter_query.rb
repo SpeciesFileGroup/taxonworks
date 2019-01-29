@@ -1,5 +1,6 @@
 module Queries
 
+  # TODO: deprecate/move into lib/queries/collection_object/filter
   class CollectionObjectFilterQuery < Queries::Query
 
     # Query variables
@@ -83,7 +84,7 @@ module Queries
     def otu_scope
       # Challenge: Refactor to use a join pattern instead of SELECT IN
       inner_scope = with_descendants? ? ::Otu.self_and_descendants_of(query_otu_id) : ::Otu.where(id: query_otu_id)
-      CollectionObject.joins(:otus).where(otus: {id: inner_scope})
+      ::CollectionObject.joins(:otus).where(otus: {id: inner_scope})
     end
 
     # @return [Scope]
@@ -93,27 +94,27 @@ module Queries
       query_geographic_area_ids.each do |ga_id|
         target_geographic_item_ids.push(GeographicArea.joins(:geographic_items).find(ga_id).default_geographic_item.id)
       end
-      CollectionObject.joins(:geographic_items)
+      ::CollectionObject.joins(:geographic_items)
           .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
     end
 
     # @return [Scope]
     def shape_scope
-      GeographicItem.gather_map_data(query_shape, 'CollectionObject', project_id)
+      ::GeographicItem.gather_map_data(query_shape, 'CollectionObject', project_id)
     end
 
     # @return [Scope]
     def date_scope
       sql = Queries::CollectingEvent::Filter.new(start_date: query_start_date, end_date: query_end_date, partial_overlap_dates: query_date_partial_overlap).between_date_range.to_sql
-      CollectionObject.joins(:collecting_event)
+      ::CollectionObject.joins(:collecting_event)
         .where(sql)
     end
 
     # @return [Scope]
     def identifier_scope
       ns = nil
-      ns = Namespace.where(short_name: query_id_namespace).first if query_id_namespace.present?
-      CollectionObject.with_identifier_type_and_namespace('Identifier::Local::CatalogNumber', ns, true)
+      ns = ::Namespace.where(short_name: query_id_namespace).first if query_id_namespace.present?
+      ::CollectionObject.with_identifier_type_and_namespace('Identifier::Local::CatalogNumber', ns, true)
         .where('CAST(identifiers.identifier AS integer) between ? and ?',
                query_range_start.to_i, query_range_stop.to_i)
     end
@@ -128,11 +129,11 @@ module Queries
 
       scope = case query_date_type_select
               when 'created_at', nil
-                CollectionObject.created_in_date_range(@user_date_start, @user_date_end)
+                ::CollectionObject.created_in_date_range(@user_date_start, @user_date_end)
               when 'updated_at'
-                CollectionObject.updated_in_date_range(@user_date_start, @user_date_end)
+                ::CollectionObject.updated_in_date_range(@user_date_start, @user_date_end)
               else
-                CollectionObject.all
+                ::CollectionObject.all
               end
 
       unless query_user == 'All users' || query_user == 0
@@ -163,8 +164,8 @@ module Queries
 
     # @return [Scope]
     def result
-      return CollectionObject.none if applied_scopes.empty?
-      a = CollectionObject.all
+      return ::CollectionObject.none if applied_scopes.empty?
+      a = ::CollectionObject.all
       applied_scopes.each do |scope|
         a = a.merge(self.send(scope))
       end

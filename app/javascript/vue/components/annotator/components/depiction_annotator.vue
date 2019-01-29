@@ -3,10 +3,10 @@
     <div class="field" v-if="depiction">
       <div class="separate-bottom">
         <img
-          :src="depiction.image.result.alternatives.medium.url"
+          :src="depiction.image.alternatives.medium.image_file_url"
           :style="{
-            width: `${depiction.image.result.alternatives.medium.width}px`,
-            height: `${depiction.image.result.alternatives.medium.height}px`
+            width: `${depiction.image.alternatives.medium.width}px`,
+            height: `${depiction.image.alternatives.medium.height}px`
           }"
         >
       </div>

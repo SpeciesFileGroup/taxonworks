@@ -1,7 +1,7 @@
-const loadRelationships = require('../../request/resources').loadRelationships
-const MutationNames = require('../mutations/mutations').MutationNames
+import { loadRelationships } from '../../request/resources'
+import { MutationNames } from '../mutations/mutations'
 
-module.exports = function ({ commit, state }) {
+export default function ({ commit, state }) {
   return new Promise(function (resolve, reject) {
     loadRelationships().then(response => {
       commit(MutationNames.SetRelationshipList, response)
