@@ -384,4 +384,10 @@ index_print_labels_task:
     - collecting_event
   status: prototype
   description: 'Print and manage labels.'
-
+index_new_asserted_distribution_task:
+  hub: true
+  name: 'TODO: Task name'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'
