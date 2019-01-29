@@ -1,13 +1,19 @@
 <template>
-  <div :style="{ height: height, width: width }"/>
+  <div :style="{ height: height, width: width }">
+    <l-map style="height: height, width: width" :zoom="zoom" :center="center">
+    <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
+    <l-marker :lat-lng="marker"></l-marker>
+    </l-map>
+  </div>
 </template>
 
-<script
-  src="http://cdn.leafletjs.com/leaflet-0.7/leaflet.js">
-</script>
 <script>
+  import { LMap, LTileLayer, LMarker } from 'vue2-leaflet'
   export default {
     components: {
+      LMap,
+      LTileLayer,
+      LMarker
     },
     props: {
       height: {
@@ -38,7 +44,12 @@
       },
     },
     data() {
-      return {}
+      return {
+        center: L.latLng(0, 0),
+        url:'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+        attribution:'&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+        marker: L.latLng(0, 0),
+      }
     },
     mounted() {
       var map = L.map('map').setView([-41.2858, 174.78682], 14);
@@ -55,16 +66,16 @@
     }
   }
 </script>
-<style lang="sass">
-  @import "../../node_modules/leaflet/dist/leaflet.css"
-  @import "../../node_modules/leaflet.markercluster/dist/MarkerCluster.css"
-  #map
-    width: 100%
-    height: 400px
-    font-weight: bold
-    font-size: 13px
-    text-shadow: 0 0 2px #fff
-    .leaflet-shadow-pane > .leaflet-marker-shadow
-      display: none
-</style>
+<!--<style lang="sass">-->
+  <!--@import "../../node_modules/leaflet/dist/leaflet.css"-->
+  <!--@import "../../node_modules/leaflet.markercluster/dist/MarkerCluster.css"-->
+  <!--#map-->
+    <!--width: 100%-->
+    <!--height: 400px-->
+    <!--font-weight: bold-->
+    <!--font-size: 13px-->
+    <!--text-shadow: 0 0 2px #fff-->
+    <!--.leaflet-shadow-pane > .leaflet-marker-shadow-->
+      <!--display: none-->
+<!--</style>-->
 
