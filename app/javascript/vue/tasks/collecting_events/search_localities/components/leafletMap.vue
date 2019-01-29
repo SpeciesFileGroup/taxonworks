@@ -36,7 +36,7 @@
       },
       zoom: {
         type: Number,
-        default: 1
+        default: 12
       },
       shapes: {
         type: Object,
@@ -45,8 +45,8 @@
     },
     data() {
       return {
-        center: L.latLng(0, 0),
-        url:'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+        center: L.latLng(-41.2858, 174.78682),
+        url:'http://{www.esri.com/',  // url:'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
         attribution:'&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
         marker: L.latLng(0, 0),
       }
