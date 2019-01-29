@@ -199,6 +199,7 @@ export default {
       })
     },
     setSourceOtu(item) {
+      this.newWithLock()
       this.asserted_distribution.id = undefined
       this.setCitation(item)
       this.asserted_distribution.otu_id = item.otu.id
@@ -206,12 +207,14 @@ export default {
       this.$refs.otuComponent.setSelected(item.otu)
     },
     setSourceGeo(item) {
+      this.newWithLock()
       this.setCitation(item)
       this.asserted_distribution.geographic_area_id = item.geo.id
       this.$refs.sourceComponent.setSelected(item.citation.source)
       this.$refs.geoComponent.setSelected(item.geo)
     },
     setGeoOtu(item) {
+      this.newWithLock()
       this.asserted_distribution.id = item.id
       this.asserted_distribution.geographic_area_id = item.geo.id
       this.asserted_distribution.otu_id = item.otu.id
