@@ -15,7 +15,8 @@
       <ul
         v-else
         class="no_bullets">
-        <li v-for="item in lists[view]">
+        <li
+          v-for="item in lists[view]">
           <label
             @click="sendItem(item)">
             <input
@@ -28,8 +29,8 @@
       </ul>
       <template v-if="selected">
         <p>
-          <span v-html="selected"/>
           <span data-icon="ok"/>
+          <span v-html="selected"/>
         </p>
       </template>
     </fieldset>
@@ -95,3 +96,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+  li {
+    margin-bottom: 8px;
+  }
+</style>

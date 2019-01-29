@@ -1,8 +1,13 @@
 <template>
   <div id="vue-task-asserted-distribution-new">
+    <spinner-component
+      v-if="loading"
+      :full-screen="true"
+      :logo-size="{ width: '100px', height: '100px'}"
+      legend="Loading..."/>
     <h1>Task - New asserted distribution</h1>
     <div class="horizontal-left-content align-start">
-      <div class="separate-right">
+      <div class="separate-right panel-section">
         <div class="horizontal-left-content middle">
           <source-component
             v-model="asserted_distribution.citations_attributes[0]"
@@ -34,27 +39,22 @@
           <lock-component v-model="locks.geographic_area_id"/>
         </div>
       </div>
-      <div class="separate-left">
-        <div class="horizontal-left-content middle">
-          <custom-attributes
-            class="separate-right"
-            :object-id="asserted_distribution.id"
-            object-type="AssertedDistribution"
-            model="AssertedDistribution"
-            @onUpdate="asserted_distribution.data_attributes_attributes = $event"/>
-          <lock-component v-model="locks.data_attributes_attributes"/>
-        </div>
+      <div class="separate-left panel-section">
         <div class="horizontal-left-content middle">
           <button
             type="button"
+            v-shortkey="[getMacKey(), 's']"
+            @shortkey="saveAssertedDistribution()"
             :disabled="!validate"
-            class="button normal-input button-submit"
+            class="button normal-input button-submit separate-right"
             @click="saveAssertedDistribution">Save
           </button>
           <button
             type="button"
+            v-shortkey="[getMacKey(), 'n']"
+            @shortkey="createAndNewAssertedDistribution()"
             :disabled="!validate"
-            class="button normal-input button-submit"
+            class="button normal-input button-submit separate-left"
             @click="createAndNewAssertedDistribution">Save and new
           </button>
         </div>
@@ -75,20 +75,21 @@
 import SourceComponent from './components/source'
 import OtuComponent from './components/otu'
 import GeographicArea from './components/geographicArea'
-import CustomAttributes from 'components/custom_attributes/predicates/predicates'
 import TableComponent from './components/table'
 import LockComponent from 'components/lock'
+import SpinnerComponent from 'components/spinner'
+import GetMacKey from 'helpers/getMacKey'
 
-import { CreateAssertedDistribution, RemoveAssertedDistribution, UpdateAssertedDistribution } from './request/resources.js'
+import { CreateAssertedDistribution, RemoveAssertedDistribution, UpdateAssertedDistribution, LoadRecentRecords } from './request/resources.js'
 
 export default {
   components: {
     SourceComponent,
     OtuComponent,
     GeographicArea,
-    CustomAttributes,
     TableComponent,
-    LockComponent
+    LockComponent,
+    SpinnerComponent
   },
   computed: {
     validate() {
@@ -101,6 +102,7 @@ export default {
     return {
       asserted_distribution: this.newAssertedDistribution(),
       list: [],
+      loading: true,
       highlight: {
         otu: false,
         source: false,
@@ -113,6 +115,12 @@ export default {
         data_attributes_attributes: false
       }
     }
+  },
+  mounted() {
+    LoadRecentRecords().then(response => {
+      this.list = response.body
+      this.loading = false
+    })
   },
   methods: {
     newAssertedDistribution() {
@@ -147,12 +155,17 @@ export default {
       }
       this.asserted_distribution = newObject
     },
+    getMacKey() {
+      return GetMacKey()
+    },
     createAndNewAssertedDistribution() {
+      if(!this.validate) return
       this.saveAssertedDistribution().then(response => {
         this.newWithLock()
       })
     },
     saveAssertedDistribution() {
+      if(!this.validate) return
       return new Promise((resolve, reject) => { 
         if(this.asserted_distribution.id) {
           UpdateAssertedDistribution(this.asserted_distribution).then(response => {
@@ -222,6 +235,10 @@ export default {
       fieldset {
         background-color: #E3E8E3 !important;
       }
+    }
+    .panel-section {
+      width: 50%;
+      max-width: 50%;
     }
   }
 </style>

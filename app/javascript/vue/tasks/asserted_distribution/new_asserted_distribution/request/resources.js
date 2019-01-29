@@ -24,11 +24,16 @@ const UpdateAssertedDistribution = function(data) {
   return ajaxCall('patch', `/asserted_distributions/${data.id}.json`, { asserted_distribution: data })
 }
 
+const LoadRecentRecords = function() {
+  return ajaxCall('get', '/asserted_distributions.json?recent=true&per=10')
+}
+
 export {
   CreateAssertedDistribution,
   GetSourceSmartSelector,
   GetOtuSmartSelector,
   GetGeographicAreaSmartSelector,
   RemoveAssertedDistribution,
-  UpdateAssertedDistribution
+  UpdateAssertedDistribution,
+  LoadRecentRecords
 }

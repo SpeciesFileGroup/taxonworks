@@ -36,8 +36,8 @@
       </ul>
       <template v-if="selected">
         <p>
-          <span v-html="selected"/>
           <span data-icon="ok"/>
+          <span v-html="selected"/>
         </p>
       </template>
     </fieldset>

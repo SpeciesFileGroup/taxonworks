@@ -7,9 +7,13 @@ TW.views.task.asserted_distribution.new = TW.views.task.asserted_distribution.ne
 
 import Vue from 'vue'
 import App from './app.vue'
+import VueShortkey from 'vue-shortkey'
 
 Object.assign(TW.views.task.asserted_distribution.new, {
-  init: function () {
+  init() {
+    
+    Vue.use(VueShortkey)
+
     new Vue({
       el: '#vue-task-asserted-distribution-new',
       render: function (createElement) {
