@@ -55,7 +55,8 @@
 </template>
 <script>
   import Autocomplete from 'components/autocomplete'
-  import gMap from './googleMap.vue'
+  // import gMap from './googleMap.vue'
+  import gMap from './leafletMap.vue'
   import ModeSwitch from './mode_switch'
   import Spinner from 'components/spinner'
 

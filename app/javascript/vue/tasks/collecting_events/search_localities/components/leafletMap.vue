@@ -1,0 +1,70 @@
+<template>
+  <div :style="{ height: height, width: width }"/>
+</template>
+
+<script
+  src="http://cdn.leafletjs.com/leaflet-0.7/leaflet.js">
+</script>
+<script>
+  export default {
+    components: {
+    },
+    props: {
+      height: {
+        type: [String, Number],
+        default: '512px'
+      },
+      width: {
+        type: [String, Number],
+        default: '512px'
+      },
+      lat: {
+        type: Number,
+        required: false,
+        default: 0
+      },
+      lng: {
+        type: Number,
+        required: false,
+        default: 0
+      },
+      zoom: {
+        type: Number,
+        default: 1
+      },
+      shapes: {
+        type: Object,
+        default: () => { return {} }
+      },
+    },
+    data() {
+      return {}
+    },
+    mounted() {
+      var map = L.map('map').setView([-41.2858, 174.78682], 14);
+      mapLink =
+        '<a href="http://www.esri.com/">Esri</a>';
+      wholink =
+        'i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community';
+      L.tileLayer(
+        'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+          attribution: '&copy; '+mapLink+', '+wholink,
+          maxZoom: 18,
+        }).addTo(map);
+
+    }
+  }
+</script>
+<style lang="sass">
+  @import "../../node_modules/leaflet/dist/leaflet.css"
+  @import "../../node_modules/leaflet.markercluster/dist/MarkerCluster.css"
+  #map
+    width: 100%
+    height: 400px
+    font-weight: bold
+    font-size: 13px
+    text-shadow: 0 0 2px #fff
+    .leaflet-shadow-pane > .leaflet-marker-shadow
+      display: none
+</style>
+
