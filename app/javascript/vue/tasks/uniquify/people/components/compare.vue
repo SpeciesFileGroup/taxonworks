@@ -9,9 +9,9 @@
           :disabled="!(Object.keys(selected).length && Object.keys(merge).length)"
           @click="$emit('flip')">Flip</button>
         <button
-          class="button normal-input button-default"
+          class="button normal-input button-submit"
           @click="sendMerge"
-          :disabled="!mergeEmpty">Merge People
+          :disabled="!mergeEmpty">Merge people
         </button>
       </div>
       <div class="title-person">

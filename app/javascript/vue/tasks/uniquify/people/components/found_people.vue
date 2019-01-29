@@ -4,7 +4,7 @@
       url="/people/autocomplete"
       min="2"
       label="label_html"
-      placeholder="Search person"
+      placeholder="Find another person"
       display="label"
       @getItem="addToList($event)"
       param="term"/>
