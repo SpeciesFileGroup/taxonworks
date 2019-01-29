@@ -7,15 +7,31 @@
       legend="Loading..."/>
     <h1>Task - New asserted distribution</h1>
     <div class="horizontal-left-content align-start">
-      <div class="horizontal-left-content middle panel-section separate-right">
-        <source-component
-          v-model="asserted_distribution.citations_attributes[0]"
-          ref="sourceComponent"
-          :class="{
-            highlight: highlight.source
-          }"
-          class="separate-right"/>
-        <lock-component v-model="locks.citations_attributes"/>
+      <div class="panel-section">
+        <div class="horizontal-left-content middle panel-section separate-right">
+          <source-component
+            v-model="asserted_distribution.citations_attributes[0]"
+            ref="sourceComponent"
+            :class="{
+              highlight: highlight.source
+            }"
+            class="separate-right"/>
+          <lock-component v-model="locks.citations_attributes"/>
+        </div>
+        <p class="horizontal-left-content">
+          <span class="separate-right">Add source: </span>
+          <ul class="no_bullets context-menu">
+            <li class="navigation-item context-menu-option">
+              <a href="/sources/new">New</a>
+            </li>
+            <li class="navigation-item context-menu-option">
+              <a href="/tasks/bibliography/verbatim_reference/new">New from citation</a>
+            </li>
+            <li class="navigation-item context-menu-option">
+              <a href="New from bibtex">New from bibtex</a>
+            </li>
+          </ul>
+        </p>
       </div>
       <div class="horizontal-left-content middle separate-bottom panel-section separate-left separate-right">
         <otu-component
@@ -244,6 +260,9 @@ export default {
     .panel-section {
       flex-grow: 1;
       flex-basis: 0;
+    }
+    fieldset {
+      width: 100%;
     }
   }
 </style>

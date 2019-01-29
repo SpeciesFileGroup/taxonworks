@@ -105,6 +105,8 @@ export default {
     createOtu() {
       this.$http.post('/otus', { otu : this.otu }).then(response => {
         this.emitOtu(response.body)
+        this.create = false
+        this.found = true
       })
     },
     emitOtu(otu) {

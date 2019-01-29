@@ -1,5 +1,4 @@
 <template>
-  <div>
     <fieldset>
       <legend>Otu</legend>
       <smart-selector 
@@ -34,7 +33,6 @@
         </p>
       </template>
     </fieldset>
-  </div>
 </template>
 
 <script>
@@ -55,7 +53,7 @@ export default {
   },
   computed: {
     isViewSearch() {
-      return this.view == 'search'
+      return this.view == 'search/new'
     }
   },
   data() {
@@ -85,9 +83,9 @@ export default {
       GetOtuSmartSelector().then(response => {
         this.lists = response.body
         this.options = OrderSmartSelector(Object.keys(response.body))
-        this.options.push('search')
+        this.options.push('search/new')
         let newView = SelectFirstSmartOption(this.lists, this.options)
-        this.view = (newView ? newView : 'search')
+        this.view = (newView ? newView : 'search/new')
       })
     },
     setSelected(item) {

@@ -1,5 +1,4 @@
 <template>
-  <div>
     <fieldset>
       <legend>Source</legend>
       <smart-selector 
@@ -47,12 +46,6 @@
         </p>
       </template>
     </fieldset>
-    <p>
-      <a href="/sources/new">New</a>
-      <a href="/tasks/bibliography/verbatim_reference/new">New from citation</a>
-      <a href="New from bibtex">New from bibtex</a>
-    </p>
-  </div>
 </template>
 
 <script>

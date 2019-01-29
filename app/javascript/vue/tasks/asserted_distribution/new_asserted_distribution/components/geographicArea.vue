@@ -1,5 +1,4 @@
 <template>
-  <div>
     <fieldset>
       <legend>Geographic area</legend>
       <smart-selector 
@@ -41,7 +40,6 @@
         </p>
       </template>
     </fieldset>
-  </div>
 </template>
 
 <script>
