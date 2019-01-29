@@ -121,10 +121,12 @@
         return list.map((item) => { return item.citation_object_id })
       },
       processType(list, type) {
+        if(!list.length) return
         return new Promise((resolve, reject) => {
           let params = {
             [type]: list
           };
+          console.log(params)
           this.$http.get('/otus.json', { params: params }).then(response => {
             response.body.forEach(this.addOtu);
             resolve(response.body)

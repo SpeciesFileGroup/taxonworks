@@ -32,11 +32,10 @@ class ContainersController < ApplicationController
   # POST /containers.json
   def create
     @container = Container.new(container_params)
-
     respond_to do |format|
       if @container.save
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container was successfully created.')}
-        format.json { render json: @container, status: :created, location: @container }
+        format.json { render :show, status: :created, location: @container.metamorphosize }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container was NOT successfully created.')}
         format.json { render json: @container.errors, status: :unprocessable_entity }

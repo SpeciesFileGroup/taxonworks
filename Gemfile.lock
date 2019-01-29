@@ -517,7 +517,7 @@ DEPENDENCIES
   awesome_print (~> 1.8)
   bcrypt (~> 3.1.11)
   best_in_place (~> 3.1.1)
-  better_errors (~> 2.3)
+  better_errors (~> 2.4)
   bibtex-ruby (~> 4.4.7)
   binding_of_caller
   biodiversity (~> 3.5.0)

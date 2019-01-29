@@ -176,6 +176,9 @@ export default {
     Expand
   },
   computed: {
+    lastSave() {
+      return this.$store.getters[GetterNames.GetLastSave]
+    }, 
     citation () {
       return this.$store.getters[GetterNames.GetCitation]
     },
@@ -200,7 +203,16 @@ export default {
   data: function () {
     return {
       show: 'source',
-      expanded: true
+      expanded: true,
+      autosave: undefined
+    }
+  },
+  watch: {
+    lastSave() {
+      if (this.autosave) {
+        clearTimeout(this.autosave)
+        this.autosave = null
+      }      
     }
   },
   mounted: function () {
@@ -215,13 +227,24 @@ export default {
         pages: (source.hasOwnProperty('pages') ? source.pages : null)
       }
       this.$store.dispatch(ActionNames.ChangeTaxonSource, newSource)
+      this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
     },
     addPages (citation) {
+      let that = this
       let newSource = {
         id: citation.source_id,
         pages: (citation.hasOwnProperty('pages') ? citation.pages : null)
       }
       this.$store.dispatch(ActionNames.ChangeTaxonSource, newSource)
+      
+      if (this.autosave) {
+        clearTimeout(this.autosave)
+        this.autosave = null
+      }
+
+      this.autosave = setTimeout(function () {
+        that.$store.dispatch(ActionNames.UpdateTaxonName, that.taxon)
+      }, 3000)
     },
     updatePersons: function (list) {
       this.$store.commit(MutationNames.SetRoles, list)

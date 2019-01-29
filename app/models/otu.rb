@@ -184,6 +184,8 @@ class Otu < ApplicationRecord
           Content.arel_table
         when 'BiologicalAssociation'
           BiologicalAssociation.arel_table
+        when 'TaxonDetermination'
+          TaxonDetermination.arel_table
         end
 
     p = Otu.arel_table 
@@ -219,7 +221,7 @@ class Otu < ApplicationRecord
     Otu.joins(j).distinct.limit(10)
   end
 
-  # @params target [String] one of `AssertedDistribution`, `Content`, `BiologicalAssociation`
+  # @params target [String] one of `AssertedDistribution`, `Content`, `BiologicalAssociation`, 'TaxonDetermination'
   # @return [Hash] otus optimized for user selection
   def self.select_optimized(user_id, project_id, target = '')
     h = {

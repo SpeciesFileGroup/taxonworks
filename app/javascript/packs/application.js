@@ -9,6 +9,7 @@
 
 // Styles
 require('../style/application.scss')
+require('leaflet/dist/leaflet.css')
 
 require('../vue/citations/otus/main.js')
 require('../vue/content/editor/main.js')
@@ -30,3 +31,7 @@ require('../vue/tasks/single_bibtex_source/main.js')
 require('../vue/tasks/nomenclature/by_source/main.js')
 require('../vue/tasks/people/author_by_letter/main.js')
 require('../vue/tasks/collecting_events/search_localities/main.js')
+
+require('../vue/tasks/digitize/main.js')
+require('../vue/tasks/labels/print_labels/main.js')
+require('../vue/tasks/projects/preferences/main.js')

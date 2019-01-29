@@ -16,8 +16,8 @@
             <input
               name="found-people"
               type="radio"
-              v-model="selected"
               :value="person.id"
+              :checked="person.id == selected['id']"
               @click="selectPerson(person)">
             {{ person.cached }}
           </label>

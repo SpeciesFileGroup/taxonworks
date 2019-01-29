@@ -1,4 +1,4 @@
-module.exports = function (list, rankName) {
+export default function (list, rankName) {
   var found = undefined
   for (var groupName in list) {
     list[groupName].find(function (item) {

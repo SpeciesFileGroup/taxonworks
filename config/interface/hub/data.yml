@@ -192,6 +192,16 @@ Supporting:
     status: :stable
     categories:
       - collection_object
+  Label:
+    status: :prototype
+    categories:
+      - collection_object
+      - collecting_event
+    related_models:
+      - Container
+      - CollectionObject
+      - CollectingEvent
+      - TaxonDetermination
   Loan:
     status: :prototype
     categories:

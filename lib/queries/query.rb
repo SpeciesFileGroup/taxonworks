@@ -15,6 +15,7 @@ require 'date'
 module Queries
   class Query
     include Arel::Nodes
+    include Queries::Concerns::Identifiers 
 
     attr_accessor :query_string
     attr_accessor :terms
@@ -249,6 +250,7 @@ module Queries
       end
     end
 
+    # TODO: rename :cached_matches or similar
     # @return [ActiveRecord::Relation, nil]
     #   cached matches full query string wildcarded
     def cached
@@ -283,27 +285,6 @@ module Queries
       a
     end
 
-    # 
-    # Identifier
-    #
-
-    # @return [Arel::Table]
-    def identifier_table
-      ::Identifier.arel_table
-    end
-
-    # @return [Arel::Nodes::Grouping]
-    def with_identifier_like
-      a = [ start_and_end_wildcard ]
-      a = a + wildcard_wrapped_integers
-      identifier_table[:cached].matches_any(a)
-    end
-
-    # @return [Arel::Nodes::Equality]
-    def with_identifier
-      identifier_table[:cached].eq(query_string)
-    end
-
     #
     # Autocomplete
     #
@@ -332,14 +313,6 @@ module Queries
       a = cached
       return nil if a.nil?
       base_query.where(a.to_sql).limit(20)
-    end
-
-    def autocomplete_identifier_cached_exact
-      base_query.joins(:identifiers).where(with_identifier.to_sql)
-    end
-
-    def autocomplete_identifier_cached_like
-      base_query.joins(:identifiers).where(with_identifier_like.to_sql)
     end
 
     def autocomplete_start_date

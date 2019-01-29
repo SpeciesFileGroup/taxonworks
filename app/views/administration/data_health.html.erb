@@ -1,0 +1,30 @@
+<h1> Administration - Data health </h1>
+<%= link_to 'Back', administration_path() %> 
+<p><em> Bad things if data listed here. </em></p>
+
+<div class="flexbox">
+  <div class="item item1">
+
+    <% [Source, TaxonName].each do |k| -%>
+      <h2> <%= k -%> without cached values </h2>
+      <table>
+        <tr>
+          <th>Id</th>
+          <th>Link</th>
+          <th>Last updated</th>
+          <th>Project</th>
+        </tr>
+
+        <% k.where(cached: nil).each_with_index do |o, i| -%>
+          <tr>
+            <%= content_tag(:td, o.id) %>
+            <%= content_tag(:td, object_link(o)) %>
+            <%= content_tag(:td, time_ago_in_words(o.updated_at) + " ago", class: :subtle) %> 
+            <%= content_tag(:td, (o.responds_to?(:project) ? o.project.name : nil ) ) %> 
+          </tr>
+        <% end %> 
+      </table>
+    <% end %>
+  </div>
+</div>
+

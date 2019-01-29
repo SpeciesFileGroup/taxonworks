@@ -11,7 +11,7 @@ module Queries
       attr_accessor :options
 
       # Params specific to DataAttribute
-      attr_accessor :value, :controlled_vocabulary_term_id, :import_predicate, :type, :object_global_id, :attribute_subject_type
+      attr_accessor :value, :controlled_vocabulary_term_id, :import_predicate, :type, :object_global_id, :attribute_subject_type, :attribute_subject_id
 
       # @params params [ActionController::Parameters]
       def initialize(params)
@@ -20,6 +20,7 @@ module Queries
         @import_predicate = params[:import_predicate]
         @type = params[:type]
 
+        @attribute_subject_id = params[:attribute_subject_id]
         @attribute_subject_type = params[:attribute_subject_type]
         @object_global_id = params[:object_global_id]
         @options = params
@@ -32,6 +33,7 @@ module Queries
           matching_type,
           matching_value,
           matching_import_predicate,
+          matching_attribute_subject_id,
           matching_attribute_subject_type,
           matching_controlled_vocabulary_term_id,
           matching_subject
@@ -58,6 +60,11 @@ module Queries
       # @return [Arel::Node, nil]
       def matching_attribute_subject_type
         !attribute_subject_type.blank? ? table[:attribute_subject_type].eq(attribute_subject_type)  : nil
+      end
+
+      # @return [Arel::Node, nil]
+      def matching_attribute_subject_id
+        !attribute_subject_id.blank? ? table[:attribute_subject_id].eq(attribute_subject_id)  : nil
       end
 
       # @return [Arel::Node, nil]
@@ -95,7 +102,7 @@ module Queries
         if _a = and_clauses
           ::DataAttribute.where(and_clauses)
         else
-          ::DataAttribute.none
+          ::DataAttribute.all
         end
       end
 

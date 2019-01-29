@@ -76,8 +76,8 @@ new_verbatim_reference_task:
   status: prototype
 build_biocuration_groups_task:
   hub: true
-  name: 'Manage biocuration types and groups'
-  description: 'Create bio-curation categories that are used to organize physical collections (e.g. specimens and lots).'
+  name: 'Manage biocuration classes and groups'
+  description: 'Create bio-curation categories like sex, and lifestage, that are used to organize physical collections (e.g. specimens and lots).'
   related:
     - build_biocuration_group_task
   categories:
@@ -375,3 +375,21 @@ observation_matrix_view_task:
     - dna
   status: prototype
   description: 'A very basic visualization of an observation matrix.'
+comprehensive_collection_object_task:
+  hub: true
+  name: 'Comprehensive collection object form'
+  related:
+    - collection_objects
+  categories:
+    - collection_object
+  status: prototype
+  description: 'An all-in-one interface for digitizing collection objects.'
+index_print_labels_task:
+  hub: true
+  name: 'Print labels'
+  related:
+  categories:
+    - collecting_event
+  status: prototype
+  description: 'Print and manage labels.'
+

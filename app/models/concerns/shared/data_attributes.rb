@@ -7,7 +7,7 @@ module Shared::DataAttributes
     DataAttribute.related_foreign_keys.push self.name.foreign_key
 
     has_many :data_attributes, as: :attribute_subject, validate: true, dependent: :destroy
-    accepts_nested_attributes_for :data_attributes
+    accepts_nested_attributes_for :data_attributes, allow_destroy: true, reject_if: :reject_data_attributes
   end
 
   # TODO: move these scopes to has_many relationships
@@ -33,6 +33,10 @@ module Shared::DataAttributes
       end
       hsh
     end
+  end
+
+  def reject_data_attributes(attributed)
+    attributed['value'].blank? || attributed['type'].blank?
   end
 
 end

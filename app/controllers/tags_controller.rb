@@ -1,3 +1,5 @@
+require_dependency 'queries/tag/filter'
+
 class TagsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
@@ -8,11 +10,11 @@ class TagsController < ApplicationController
   def index
     respond_to do |format|
       format.html {
-        @recent_objects = Tag.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        @recent_objects = ::Tag.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       }
       format.json {
-        @tags = Queries::Tag::Filter.new(params).all.where(project_id: sessions_current_project_id).
+        @tags = ::Queries::Tag::Filter.new(params).all.where(project_id: sessions_current_project_id).
         page(params[:page]).per(500)
       }
     end

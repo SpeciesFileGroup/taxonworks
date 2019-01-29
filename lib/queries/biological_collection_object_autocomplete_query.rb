@@ -33,11 +33,11 @@ module Queries
     #    results for autocomplete
     def autocomplete
       queries = []
-      queries.push CollectionObject.includes(:identifiers, taxon_determinations: [otu: :taxon_name]).joins(:identifiers).where(with_identifier.to_sql).references(:identifiers).limit(2) if with_identifier
-      queries.push CollectionObject.includes(:identifiers, taxon_determinations: [otu: :taxon_name]).joins(:identifiers).where(with_identifier_like.to_sql).references(:identifiers).order('identifiers.cached ASC').limit(10) if with_identifier_like
-      queries.push CollectionObject.includes(:identifiers, taxon_determinations: [otu: :taxon_name]).where(with_id.to_sql).limit(1) if with_id
-      queries.push CollectionObject.includes(:identifiers, taxon_determinations: [otu: :taxon_name]).joins(taxon_determinations: [:otu]).where(otu_determined_as.to_sql).references(:taxon_determinations, :otus).order('otus.name ASC').limit(10) if otu_determined_as
-      queries.push CollectionObject.includes(:identifiers, taxon_determinations: [otu: :taxon_name]).joins(taxon_determinations: [otu: :taxon_name]).where(taxon_name_determined_as.to_sql).references(:taxon_determinations, :otus, :taxon_names).order('taxon_names.cached ASC').limit(10) if taxon_name_determined_as
+      queries.push ::CollectionObject.includes(:identifiers, taxon_determinations: [otu: :taxon_name]).joins(:identifiers).where(with_identifier.to_sql).references(:identifiers).limit(2) if with_identifier
+      queries.push ::CollectionObject.includes(:identifiers, taxon_determinations: [otu: :taxon_name]).joins(:identifiers).where(with_identifier_like.to_sql).references(:identifiers).order('identifiers.cached ASC').limit(10) if with_identifier_like
+      queries.push ::CollectionObject.includes(:identifiers, taxon_determinations: [otu: :taxon_name]).where(with_id.to_sql).limit(1) if with_id
+      queries.push ::CollectionObject.includes(:identifiers, taxon_determinations: [otu: :taxon_name]).joins(taxon_determinations: [:otu]).where(otu_determined_as.to_sql).references(:taxon_determinations, :otus).order('otus.name ASC').limit(10) if otu_determined_as
+      queries.push ::CollectionObject.includes(:identifiers, taxon_determinations: [otu: :taxon_name]).joins(taxon_determinations: [otu: :taxon_name]).where(taxon_name_determined_as.to_sql).references(:taxon_determinations, :otus, :taxon_names).order('taxon_names.cached ASC').limit(10) if taxon_name_determined_as
 
       if project_id
         queries.each_with_index do |q,i|
