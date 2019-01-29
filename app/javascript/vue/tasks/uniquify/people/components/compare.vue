@@ -5,7 +5,7 @@
         <h2>&nbsp;</h2>
         <button
           type="button"
-          class="button normal-input button-default"
+          class="button normal-input button-default separate-right"
           :disabled="!(Object.keys(selected).length && Object.keys(merge).length)"
           @click="$emit('flip')">Flip</button>
         <button
@@ -41,8 +41,8 @@
             even: (index % 2 == 0),
             repeated: (isDifferent(property, merge[key]) && merge[key])}">
           <td class="column-property">{{ key | humanize | capitalize }}</td>
-          <td class="column-person">{{ property | humanize | capitalize }}</td>
-          <td class="column-merge">{{ merge[key] | humanize | capitalize }}</td>
+          <td class="column-person" v-html="showValue(property)"/>
+          <td class="column-merge" v-html="showValue(merge[key])"/>
         </tr>
       </tbody>
     </table>
@@ -127,6 +127,9 @@ export default {
       if(confirm("Are you sure you want to merge?")) {
         this.$emit('merge')
       }
+    },
+    showValue(value) {
+      return this.$options.filters.capitalize(this.$options.filters.humanize(value))
     }
   }
 }
@@ -140,10 +143,10 @@ export default {
     display: none
   }
   .column-property {
-    min-width: 100px;
+    min-width: 105px;
   }
   .column-buttons {
-    min-width: 126px;
+    min-width: 136px;
   }
   .column-person, .column-merge {
     min-width: 250px;
