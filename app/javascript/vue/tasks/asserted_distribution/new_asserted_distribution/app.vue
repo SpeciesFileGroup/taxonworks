@@ -135,12 +135,17 @@ export default {
     }
   },
   mounted() {
+    this.addShortcutsDescription()
     LoadRecentRecords().then(response => {
       this.list = response.body
       this.loading = false
     })
   },
   methods: {
+    addShortcutsDescription() {
+      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+s`, 'Save asserted distribution changes', 'New asserted distribution')
+      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+n`, 'Save and create new asserted distribution', 'New asserted distribution')
+    },
     newAssertedDistribution() {
       return {
         id: undefined,
