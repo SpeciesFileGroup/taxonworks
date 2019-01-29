@@ -2,9 +2,9 @@
   <table>
     <thead>
       <tr>
-        <th>Source</th>
         <th>Otu</th>
         <th>Geographic area</th>
+        <th>Source</th>
         <th>Trash</th>
         <th>Radial annotator</th>
         <th>Source/Otu clone</th>
@@ -16,9 +16,19 @@
       <tr
         v-for="item in list"
         :key="item.id">
-        <td><citation-count :citations="item.citations"/></td>
         <td v-html="item.otu.object_tag"/>
         <td v-html="item.geographic_area.name"/>
+        <template>
+          <td v-if="item.citations.length > 1">
+            <citation-count :citations="item.citations"/>
+          </td>
+          <td v-else>
+            <a
+              target="blank"
+              :href="nomenclatureBySourceRoute(item.citations[0].source.id)"
+              v-html="item.citations[0].citation_source_body"/>
+          </td>
+        </template>
         <td>
           <span 
             class="button circle-button btn-delete"
@@ -69,6 +79,7 @@
 
 import RadialAnnotator from 'components/annotator/annotator'
 import CitationCount from './citationsCount'
+import { RouteNames } from 'routes/routes'
 
 export default {
   components: {
@@ -82,6 +93,9 @@ export default {
     }
   },
   methods: {
+    nomenclatureBySourceRoute(id) {
+      return `${RouteNames.NomenclatureBySource}/${id}`
+    },
     removeItem(item) {
       if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
         this.$emit('remove', item)

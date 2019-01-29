@@ -2,7 +2,7 @@
   <div>
     <a
       class="button-default circle-button btn-citation"
-      :href="`/tasks/nomenclature/by_source/${source.id}`"
+      :href="nomenclatureRoute()"
       target="blank"
       @mouseover="showSource = true"
       @mouseout="showSource = false"/>
@@ -13,6 +13,9 @@
 </template>
 
 <script>
+
+import { RouteNames } from 'routes/routes'
+
 export default {
   props: {
     source: {
@@ -23,6 +26,11 @@ export default {
   data() {
     return {
       showSource: false
+    }
+  },
+  methods: {
+    nomenclatureRoute() {
+      return `${RouteNames.NomenclatureBySource}/${this.source.id}`
     }
   }
 }

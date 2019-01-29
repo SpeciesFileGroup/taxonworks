@@ -7,7 +7,7 @@
       legend="Loading..."/>
     <h1>Task - New asserted distribution</h1>
     <div class="horizontal-left-content align-start">
-      <div class="horizontal-left-content middle">
+      <div class="horizontal-left-content middle panel-section separate-right">
         <source-component
           v-model="asserted_distribution.citations_attributes[0]"
           ref="sourceComponent"
@@ -17,7 +17,7 @@
           class="separate-right"/>
         <lock-component v-model="locks.citations_attributes"/>
       </div>
-      <div class="horizontal-left-content middle separate-bottom">
+      <div class="horizontal-left-content middle separate-bottom panel-section separate-left separate-right">
         <otu-component
           class="separate-right"
           :class="{
@@ -27,7 +27,7 @@
           v-model="asserted_distribution.otu_id"/>
         <lock-component v-model="locks.otu_id"/>
       </div>
-      <div class="horizontal-left-content middle">
+      <div class="horizontal-left-content middle panel-section separate-left">
         <geographic-area
           class="separate-right"
           ref="geoComponent"
@@ -242,8 +242,8 @@ export default {
       }
     }
     .panel-section {
-      width: 50%;
-      max-width: 50%;
+      flex-grow: 1;
+      flex-basis: 0;
     }
   }
 </style>
