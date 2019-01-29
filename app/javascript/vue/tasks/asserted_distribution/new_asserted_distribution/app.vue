@@ -22,13 +22,19 @@
           <span class="separate-right">Add source: </span>
           <ul class="no_bullets context-menu">
             <li class="navigation-item context-menu-option">
-              <a href="/sources/new">New</a>
+              <a
+                target="blank" 
+                href="/sources/new">New</a>
             </li>
             <li class="navigation-item context-menu-option">
-              <a href="/tasks/bibliography/verbatim_reference/new">New from citation</a>
+              <a
+                target="blank"
+                href="/tasks/bibliography/verbatim_reference/new">New from citation</a>
             </li>
             <li class="navigation-item context-menu-option">
-              <a href="New from bibtex">New from bibtex</a>
+              <a
+                target="blank" 
+                href="/tasks/sources/individual_bibtex_source/index">New from bibtex</a>
             </li>
           </ul>
         </p>
@@ -130,7 +136,6 @@ export default {
         otu_id: false,
         geographic_area_id: false,
         citation_attributes: false,
-        data_attributes_attributes: false
       }
     }
   },
@@ -158,8 +163,7 @@ export default {
           source_id: undefined,
           is_original: undefined,
           pages: undefined,
-        }],
-        data_attributes_attributes: []
+        }]
       }
     },
     newWithLock() {
@@ -197,7 +201,6 @@ export default {
             }), response.body)
             this.asserted_distribution.id = response.body.id
             this.asserted_distribution.citations_attributes = response.body.citations
-            this.asserted_distribution.data_attributes_attributes = response.body.data_attributes
             TW.workbench.alert.create('Asserted distribution was successfully updated.', 'notice')
             resolve(response.body)
           })
@@ -206,7 +209,6 @@ export default {
           CreateAssertedDistribution(this.asserted_distribution).then(response => {
             this.asserted_distribution.id = response.body.id
             this.asserted_distribution.citations_attributes = response.body.citations
-            this.asserted_distribution.data_attributes_attributes = response.body.data_attributes
             this.list.push(response.body)
             TW.workbench.alert.create('Asserted distribution was successfully created.', 'notice')
             resolve(response.body)
