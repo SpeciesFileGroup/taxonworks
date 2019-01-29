@@ -63,7 +63,7 @@ namespace :tw do
           get_sf_taxon_name_id = import.get('SFSpecimenIDToSFTaxonNameID')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
           # get_tw_person_id = import.get('SFPersonIDToTWPersonID')
-          # get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
+          get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_taxon_name_otu_id = import.get('TWTaxonNameIDToOtuID')
           get_tw_collection_object_id = import.get('SFSpecimenIDToCollObjID')
@@ -82,6 +82,8 @@ namespace :tw do
           path = @args[:data_directory] + 'tblImages.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
+          skipped_file_ids << 0
+
           file.each_with_index do |row, i|
             sf_file_id = row['FileID']
             next if skipped_file_ids.include? sf_file_id.to_i
@@ -89,8 +91,10 @@ namespace :tw do
             next if excluded_taxa.include? sf_taxon_name_id
             specimen_id = row['SpecimenID']
             project_id = get_tw_project_id[sf_file_id]
+            ap get_tw_project_id
+            puts project_id
 
-            puts "ImageID = #{row['ImageID']}, SpecimenID = #{specimen_id}, SF.TaxonNameID = #{sf_taxon_name_id}, FileID = #{sf_file_id} \n"
+            logger.info "ImageID = #{row['ImageID']}, SpecimenID = #{specimen_id}, SF.TaxonNameID = #{sf_taxon_name_id}, FileID = #{sf_file_id} \n"
 
             # not yet in db:collection_object_id = get_tw_collection_object_id[specimen_id] if specimen_id.to_i > 0
 
@@ -106,19 +110,32 @@ namespace :tw do
             end
 
 
-            puts "Working on SF.TaxonNameID = #{sf_taxon_name_id}, tw.taxon_name_id = #{tw_taxon_name_id}, SF.SpecimenID = #{specimen_id}, collection_object_id = #{collection_object_id}, otu_id = #{otu_id}, project_id = #{project_id}, counter = #{counter += 1} \n"
-            puts "ImageID = #{row['ImageID']}, TrueID = #{row['TrueID']}, no_coll_count = #{no_coll_count}, no_otu_count = #{no_otu_count} \n"
+#            logger.info "Working on SF.TaxonNameID = #{sf_taxon_name_id}, tw.taxon_name_id = #{tw_taxon_name_id}, SF.SpecimenID = #{specimen_id}, collection_object_id = #{collection_object_id}, otu_id = #{otu_id}, project_id = #{project_id}, counter = #{counter += 1} \n"
+            logger.info "ImageID = #{row['ImageID']}, TrueID = #{row['TrueID']}, no_coll_count = #{no_coll_count}, no_otu_count = #{no_otu_count} \n"
 
-            if specimen_id.to_i > 0 && collection_object_id.nil? # 3895/124,719
-              puts "No collection object, counter = #{no_coll_count += 1}"
-            end
-            if otu_id.nil? # 347/124,719
-              puts "No otu, counter = #{no_otu_count += 1}"
-            end
+            #if specimen_id.to_i > 0 && collection_object_id.nil? # 3895/124,719
+            #  logger.warn "No collection object, counter = #{no_coll_count += 1}"
+            #end
+            #if otu_id.nil? # 347/124,719
+            #  logger.warn "No otu, counter = #{no_otu_count += 1}"
+            #end
 
 
             # depiction object: if collection_object_id not nil, use it, otherwise use otu_id
-
+            File.open("#{@args[:data_directory]}/images/#{row['ImageID']}") do | file |
+              # ImageID = 221946, SpecimenID = 78321, SF.TaxonNameID = 1100128, FileID = 1 
+              # TODO: Investigate why image 221946 freezes the task (possible validation infinite loop)
+              Depiction.create!(
+                image_attributes: { image_file: file, project_id: get_tw_project_id[row['FileID']] }, 
+                depiction_object_id: otu_id, 
+                depiction_object_type: 'TaxonName',
+                created_at: row['CreatedOn'],
+                updated_at: row['LastUpdate'],
+                created_by_id: get_tw_user_id[row['CreatedBy']],
+                updated_by_id: get_tw_user_id[row['ModifiedBy']],
+                project_id: get_tw_project_id[row['FileID']]                
+              )
+            end
 
             # can have temporary name w/o OTU via taxon_name_id:  Find OTU via SF.TaxonNameID to TW.otu: if no SF.TaxonNameID, must be SF.SpecimenID, therefore get TW.TaxonNameID via SpecimenID and get the OTU that way.
             # Some no_otus have collection objects but still need otu whether co or not.
