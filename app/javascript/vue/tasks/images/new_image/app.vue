@@ -1,24 +1,44 @@
-var TW = TW || {}
-TW.views = TW.views || {}
-TW.views.task = TW.views.task || {}
+<template>
+  <div id="vue-task-images-new">
+    <h1>Task: New images</h1>
+    <div class="panel content separate-bottom">
+      <depiction-component/>
+    </div>
+    <div class="separate-top separate-bottom">
+      <apply-attributes/>
+    </div>
+    <div class="separate-top separate-bottom">
+      <persons-section/>
+    </div>
+    <div class="separate-top separate-bottom">
+      <depic-some/>
+    </div>
+  </div>
+</template>
 
+<script>
 
-import Vue from 'vue'
-import App from './app.vue'
+import DepictionComponent from 'components/depictions/depictions'
+import ApplyAttributes from './components/applyAttributes'
+import PersonsSection from './components/personsSection'
+import DepicSome from './components/depicSome'
 
-Object.assign(TW.views.task, {
-  init: function () {
-    new Vue({
-      el: '#vue-task',
-      render: function (createElement) {
-        return createElement(App)
-      }
-    })
+export default {
+  components: {
+    DepictionComponent,
+    ApplyAttributes,
+    PersonsSection,
+    DepicSome
   }
-})
+}
+</script>
 
-$(document).on('turbolinks:load', function () {
-  if ($('#vue-task').length) {
-    TW.views.task.init()
+<style lang="scss">
+  #vue-task-images-new {
+    .panel-section {
+flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 0;
+    }
   }
-})
+</style>

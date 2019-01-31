@@ -28,12 +28,12 @@
           </button>
           <button
             type="button"
-            class=" normal-input button"
+            class=" normal-input button button-default"
             @click="switchName(newNamePerson)">Switch
           </button>
           <button
             type="button"
-            class="normal-input button"
+            class="normal-input button button-default"
             @click="expandPerson = !expandPerson">Expand
           </button>
         </div>
