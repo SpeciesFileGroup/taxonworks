@@ -662,6 +662,12 @@ TaxonWorks::Application.routes.draw do
   ### End of data resources ###
 
   scope :tasks do
+    scope :images do
+      scope :new_image, controller: 'tasks/images/new_image' do
+        get :index, as: 'index_new_image_task'
+      end
+    end
+
 
     scope :asserted_distribution do
       scope :new_asserted_distribution, controller: 'tasks/asserted_distribution/new_asserted_distribution' do

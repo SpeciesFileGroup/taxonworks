@@ -391,3 +391,11 @@ index_new_asserted_distribution_task:
   categories:
   status: prototype
   description: 'TODO: Task description'
+
+index_new_image_task:
+  hub: true
+  name: 'TODO: Task name'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'
