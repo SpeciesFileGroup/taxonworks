@@ -386,8 +386,8 @@ index_print_labels_task:
   description: 'Print and manage labels.'
 index_new_asserted_distribution_task:
   hub: true
-  name: 'TODO: Task name'
+  name: 'New asserted distribution'
   related:
   categories:
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Create new asserted distributions (Otu, source, and geographic area combinations). Has locking and cloning mechanisms.'
