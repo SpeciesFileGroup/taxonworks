@@ -39,10 +39,10 @@
         value="Find">
     </div>
     <div v-if="mode==='map'">
-      <g-map
+      <l-map
        :lat="0"
        :lng="0"
-       :zoom="1"
+       :zoom="12"
        @shape="shapes.push($event)"
       />
       <input
@@ -56,14 +56,14 @@
 <script>
   import Autocomplete from 'components/autocomplete'
   // import gMap from './googleMap.vue'
-  import gMap from './leafletMap.vue'
+  import lMap from './leafletMap.vue'
   import ModeSwitch from './mode_switch'
   import Spinner from 'components/spinner'
 
   export default {
     components: {
       Autocomplete,
-      gMap,
+      lMap,
       ModeSwitch,
       Spinner,
     },

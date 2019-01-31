@@ -43,10 +43,10 @@
         required: false,
         default: 0
       },
-      // zoom: {
-      //   type: Number,
-      //   default: 12
-      // },
+      zoom: {
+        type: Number,
+        default: 12
+      },
       // shapes: {
       //   type: Object,
       //   default: () => { return {} }
@@ -55,13 +55,13 @@
     data() {
       return {
         center: L.latLng(-41.2858, 174.78682),
-        // url:'http://www.esri.com/',  // url:'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
-        url:'http://{s}.tile.osm.org/{z}/{x}/{y}.png',  //'http://{www.esri.com/' url:,
+        // url: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        url:'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
         attribution:'&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
         marker: L.latLng(-41.2858, 174.78682),  //L.latLng(0, 0),
         map:  undefined,
         shapes: {},
-        zoom: 12,
+        // zoom: 12,
       }
     },
     // mounted() {
