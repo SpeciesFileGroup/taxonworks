@@ -56,6 +56,8 @@
     mounted() {
       let coId = location.pathname.split('/')[4]
 
+      this.addShortcutsDescription()
+      
       GetUserPreferences().then(response => {
         this.$store.commit(MutationNames.SetPreferences, response)
       })
@@ -65,6 +67,13 @@
       }
     },
     methods: {
+      addShortcutsDescription() {
+        TW.workbench.keyboard.createLegend(`${this.getMacKey()}+s`, 'Save', 'Comprehensive digitization task')
+        TW.workbench.keyboard.createLegend(`${this.getMacKey()}+n`, 'Save and new', 'Comprehensive digitization task')
+        TW.workbench.keyboard.createLegend(`${this.getMacKey()}+p`, 'Add to container', 'Comprehensive digitization task')
+        TW.workbench.keyboard.createLegend(`${this.getMacKey()}+l`, 'Lock all', 'Comprehensive digitization task')
+        TW.workbench.keyboard.createLegend(`${this.getMacKey()}+r`, 'Reset all', 'Comprehensive digitization task')
+      },
       getMacKey() {
         return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
       },
