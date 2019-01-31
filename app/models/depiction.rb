@@ -27,7 +27,7 @@ class Depiction < ApplicationRecord
   include Shared::PolymorphicAnnotator
   polymorphic_annotates(:depiction_object)
 
-  acts_as_list scope: [:depiction_object_type, :depiction_object_id]
+  acts_as_list scope: [:project_id, :depiction_object_type, :depiction_object_id]
 
   belongs_to :image, inverse_of: :depictions
 

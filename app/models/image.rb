@@ -57,9 +57,9 @@ class Image < ApplicationRecord
 
   # also using https://github.com/teeparham/paperclip-meta
   has_attached_file :image_file,
-                    styles: {medium: ['300x300>', :jpg], thumb: ['100x100>', :png]},
-                    default_url: MISSING_IMAGE_PATH,
-                    filename_cleaner:  Utilities::CleanseFilename
+    styles: {medium: ['300x300>', :jpg], thumb: ['100x100>', :png]},
+    default_url: MISSING_IMAGE_PATH,
+    filename_cleaner:  Utilities::CleanseFilename
 
   #:restricted_characters => /[^A-Za-z0-9\.]/,
   validates_attachment_content_type :image_file, content_type: /\Aimage\/.*\Z/
