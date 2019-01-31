@@ -22,7 +22,6 @@
 
 <script>
   import TaskHeader from './components/taskHeader/main.vue'
-  import CatalogueNumber from './components/catalogueNumber/catalogNumber.vue'
   import CollectionObject from './components/collectionObject/main.vue'
   import TaxonDeterminationLayout from './components/taxonDetermination/main.vue'
   import CollectionEventLayout from './components/collectionEvent/main.vue'
@@ -32,7 +31,7 @@
   import { ActionNames } from './store/actions/actions.js'
   import { GetterNames } from './store/getters/getters.js'
   import SpinnerComponent from 'components/spinner.vue'
-  import ContainerItems from './components/collectionObject/containerItems.vue'
+  import GetMacKey from 'helpers/getMacKey.js'
 
   export default {
     components: {
@@ -41,9 +40,7 @@
       TypeMaterial,
       TaxonDeterminationLayout,
       CollectionEventLayout,
-      CatalogueNumber,
       SpinnerComponent,
-      ContainerItems
     },
     computed: {
       saving() {
@@ -57,7 +54,7 @@
       let coId = location.pathname.split('/')[4]
 
       this.addShortcutsDescription()
-      
+
       GetUserPreferences().then(response => {
         this.$store.commit(MutationNames.SetPreferences, response)
       })
@@ -74,9 +71,7 @@
         TW.workbench.keyboard.createLegend(`${this.getMacKey()}+l`, 'Lock all', 'Comprehensive digitization task')
         TW.workbench.keyboard.createLegend(`${this.getMacKey()}+r`, 'Reset all', 'Comprehensive digitization task')
       },
-      getMacKey() {
-        return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
-      },
+      getMacKey: GetMacKey,
       setLockAll() {
         this.$store.commit(MutationNames.LockAll)
       }
