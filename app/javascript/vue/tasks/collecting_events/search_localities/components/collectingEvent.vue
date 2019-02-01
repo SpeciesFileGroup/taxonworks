@@ -26,6 +26,10 @@
           </tr>
         </table>
       </template>
+      <input
+        type="button"
+        @click="resetList()"
+        value="Reset">
     </template>
     <div>
       <div class="annotation_logic separate-left">
@@ -33,8 +37,8 @@
       <annotation-logic v-model="annotation_logic"/>
       </div>
       <span v-if="collectingEventList.length" v-html="'<br>' + collectingEventList.length + '  results found.'"/>
-      <table>
-        <th>Cached</th><th>Verbatim Locality</th><th>Pin</th><th class="remove_area" data-icon="trash"/><th>Select</th><th><span class="remove_area" data-icon="trash" @click="keepMe()"> unchecked</span></th>
+      <table style="width: 100%">
+        <th>Cached</th><th>Verbatim Locality</th><th>Pin</th><th class="remove_area" data-icon="trash" @click="resetList()">All</th><th>Select<input type="checkbox" v-model="selectAll"/>All &nbsp; &nbsp; &nbsp; <span class="remove_area" data-icon="trash" @click="keepMe()"> unchecked</span></th>
       <tr
         v-for="(item, index) in collectingEventList"
         :key="item.id">
@@ -56,7 +60,8 @@
         <td>
           <span class="remove_area" data-icon="trash" @click="delistMe(index)"/>
         </td>
-        <td><input type="checkbox" :value="item.id" v-model="selected"/></td>
+        <td v-if="selectAll"><input type="checkbox" :value="item.id" :selected="selected"/></td>
+        <td v-else><input type="checkbox" :value="item.id" v-model="selected"/></td>
       </tr>
       </table>
     </div>
@@ -90,6 +95,7 @@
         view: undefined,
         collectingEventList: [],
         selected: [],
+        selectAll: false,
         annotation_logic: 'append',
       }
     },
@@ -109,6 +115,9 @@
           this.selected = [];
         }
       },
+      resetList() {
+        this.collectingEventList = [];
+      },
       showObject(id) {
         window.open(`/collecting_events/` + id, '_blank');
       },
@@ -121,6 +130,9 @@
             this.delistMe(i)
           }
         }
+      },
+      selectAllList() {
+
       }
     },
     mounted: function() {

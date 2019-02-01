@@ -45,7 +45,7 @@
        :zoom="2"
        @shape="shapes.push($event)"
       />
-      <input
+      <input style="background-color: #5D9ECE"
         type="button"
         @click="getShapesData()"
         :disabled="!shapes.length"
