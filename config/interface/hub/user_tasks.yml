@@ -399,4 +399,4 @@ index_new_image_task:
     - collecting_event
     - collection_object
   status: prototype
-  description: 'Add images their metadata.
+  description: 'Add images their metadata.'

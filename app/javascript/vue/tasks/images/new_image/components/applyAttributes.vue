@@ -27,7 +27,7 @@
         </div>
       </div>
       <button 
-        class="button normal-input button-submit item"
+        class="button normal-input button-submit item button-apply-both "
         type="button">
         Apply both
       </button>
@@ -44,5 +44,9 @@ export default {
 <style scoped>
   .input-apply {
     width: 100%;
+  }
+
+  .button-apply-both {
+    height: 69px;
   }
 </style>

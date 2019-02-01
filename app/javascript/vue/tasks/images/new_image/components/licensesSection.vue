@@ -3,14 +3,15 @@
     <h2>Licenses</h2>
     <ul class="no_bullets">
       <li
-        v-for="license in licenses"
-        :key="license.key">
+        v-for="lic in licenses"
+        :key="lic.key">
         <label>
           <input
             name="license"
-            :value="license.key"
+            :value="lic.key"
+            v-model="license"
             type="radio">
-          <span v-if="license.key != null">{{ license.key }}: </span>{{ license.label }}
+          <span v-if="lic.key != null">{{ lic.key }}: </span>{{ lic.label }}
         </label>
       </li>
     </ul>
@@ -20,8 +21,20 @@
 <script>
 
 import { GetLicenses } from '../request/resources.js'
+import { GetterNames } from '../store/getters/getters.js'
+import { MutationNames } from '../store/mutations/mutations.js'
 
 export default {
+  computed: {
+    license: {
+      get() {
+        return this.$store.getters[GetterNames.GetLicense]
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetLicense, value)
+      }
+    }
+  },
   data() {
     return {
       licenses: []

@@ -1,6 +1,12 @@
-const MutationNames = {}
+import setLicense from './setLicense'
 
-const MutationFunctions = {}
+const MutationNames = {
+  SetLicense: 'setLicense'
+}
+
+const MutationFunctions = {
+  [MutationNames.SetLicense]: setLicense
+}
 
 export {
   MutationNames,

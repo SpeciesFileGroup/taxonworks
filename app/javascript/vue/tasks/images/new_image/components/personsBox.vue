@@ -4,10 +4,13 @@
     <smart-selector
       class="separate-bottom"
       :options="options"
-      v-model="view"/>
+      v-model="view"
+    />
     <role-picker
+      v-if="view == 'someone else'"
       v-model="roles_attributes"
-      :role-type="roleType"/>
+      :role-type="roleType"
+    />
   </div>
 </template>
 
@@ -33,8 +36,8 @@ export default {
   },
   data() {
     return {
-      options: ['Someone else', 'An organization'],
-      view: undefined,
+      options: ['someone else', 'an organization'],
+      view: 'someone else',
       roles_attributes: []
     }
   },

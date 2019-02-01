@@ -1,6 +1,12 @@
-const GetterNames = {}
+import getLicense from './getLicense'
 
-const GetterFunctions = {}
+const GetterNames = {
+  GetLicense: 'getLicense'
+}
+
+const GetterFunctions = {
+  [GetterNames.GetLicense]: getLicense
+}
 
 export {
   GetterNames,
