@@ -14,14 +14,9 @@ class AssertedDistributionsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @asserted_distributions = AssertedDistribution.where(project_id: sessions_current_project_id)
-          .where(index_params)
+        @asserted_distributions = Queries::AssertedDistribution::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
       }
     end
-  end
-
-  def index_params
-    params.permit(:otu_id, :geographic_area_id)
   end
 
   # GET /asserted_distributions/1
@@ -129,7 +124,6 @@ class AssertedDistributionsController < ApplicationController
     end
   end
 
-  # rubocop:disable Rails/SaveBang
   def create_simple_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :batch_asserted_distributions_md5)
       @result =  BatchLoad::Import::AssertedDistributions.new(batch_params)
@@ -144,7 +138,6 @@ class AssertedDistributionsController < ApplicationController
     end
     render :batch_load
   end
-  # rubocop:enable Rails/SaveBang
 
   private
 
@@ -167,4 +160,9 @@ class AssertedDistributionsController < ApplicationController
   def batch_params
     params.permit(:data_origin, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
   end
+
+  def filter_params
+    params.permit(:otu_id, :geographic_area_id, :recent)
+  end
+
 end

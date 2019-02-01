@@ -12,7 +12,7 @@
 #   name* - a friendly human readable name describing the task
 #   description - a sentence or two further defining what the task will do for the user
 #   hub - true if this tasks should appear at the hub, these tasks MAY NOT require parameters
-#   categories - an array of one ore more of [collecting_events, geographic_areas, source, nomenclature, matrix, dna]
+#   categories - an array of one ore more of [nomenclature, source, collection_object, collecting_event, biology, matrix, dna]
 #   status - one of [complete, stable, prototype,  unknown (default) ]
 #               complete: users can expect the interfaces to remain in their present form
 #               stable: primary elements are complete, but minor changes (CSS, feedback etc.) may change
@@ -392,4 +392,10 @@ index_print_labels_task:
     - collecting_event
   status: prototype
   description: 'Print and manage labels.'
-
+index_new_asserted_distribution_task:
+  hub: true
+  name: 'New asserted distribution'
+  related:
+  categories:
+  status: prototype
+  description: 'Create new asserted distributions (Otu, source, and geographic area combinations). Has locking and cloning mechanisms.'

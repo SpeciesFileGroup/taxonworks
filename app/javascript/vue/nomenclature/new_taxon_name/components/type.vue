@@ -150,6 +150,7 @@ export default {
         return this.$store.getters[GetterNames.GetTaxonType]
       },
       set (value) {
+        this.$store.commit(MutationNames.UpdateLastChange)
         this.$store.commit(MutationNames.SetTaxonType, value)
       }
     },

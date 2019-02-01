@@ -3,8 +3,8 @@
     <autocomplete
       url="/people/autocomplete"
       min="2"
-      label="label"
-      placeholder="Search person"
+      label="label_html"
+      placeholder="Find another person"
       display="label"
       @getItem="addToList($event)"
       param="term"/>
@@ -19,7 +19,7 @@
               :checked="person.id == selected['id']"
               :value="person.id"
               @click="selectMergePerson(person)">
-            {{ person.cached }}
+            <span v-html="person.label_html"/>
           </label>
         </li>
       </ul>
