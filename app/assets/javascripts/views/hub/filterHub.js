@@ -8,9 +8,9 @@ var FilterHub = function () {
   this.handleEvents(this.that);
 };
 
-FilterHub.prototype.changeTaskSize = function (row, column) {
+FilterHub.prototype.changeTaskSize = function (column, row) {
   this.arrayTasks.forEach(function (element) {
-    element.changeSize(row, column);
+    element.changeSize(column, row);
   });
 };
 

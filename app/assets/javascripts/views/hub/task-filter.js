@@ -16,6 +16,9 @@ var CarrouselTask = function (sec, rows, columns) {
     this.sectionTag = sec;
     this.that = this;
     this.filterWords = "";
+    this.cardWidth = 427.5;
+    this.cardHeight = 180;
+    this.resetChildsCount();
     this.changeSize(columns,rows);
     this.handleEvents(this.that);
   };
@@ -47,20 +50,20 @@ var CarrouselTask = function (sec, rows, columns) {
 
   }
 
-  CarrouselTask.prototype.changeSize = function(maxColumns, maxRow) {
+  CarrouselTask.prototype.changeSize = function(maxColumns, maxRow = undefined) {
+    var tmp = (maxRow ? maxRow : Math.ceil(this.childsCount / maxColumns));
     this.changeTasks = maxRow;    
-    this.maxRow = maxRow;
-    this.maxCards = maxRow * maxColumns;
+    this.maxRow = tmp;
+    this.maxCards = tmp * maxColumns;
     this.maxColumns = maxColumns;    
-    $(this.sectionTag).children(".task-section").css("width",((maxColumns*427.5) + "px"));
-    if(maxRow < 99){
-      $(this.sectionTag).children(".task-section").css("height",((maxRow*180) + "px"));
-    }
-
+   
+    $(this.sectionTag).children(".task-section").css("width",((this.maxColumns * this.cardWidth) + "px"));
+    $(this.sectionTag).children(".task-section").css("height",((this.maxRow  * this.cardHeight) + "px"));
+    
     this.resetChildsCount();
     this.filterChilds();
     this.injectNavList();
-    this.resetFilters();    
+    this.resetFilters(); 
   };
 
   CarrouselTask.prototype.addFilter = function(nameFilter) {

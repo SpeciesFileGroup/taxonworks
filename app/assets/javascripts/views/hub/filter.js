@@ -4,17 +4,56 @@ TW.views.hub = TW.views.hub || {};
 TW.views.hub.filter = TW.views.hub.filter || {};
 
 Object.assign(TW.views.hub.filter, {
+	filterHubTask: undefined,
 	init: function() {
 		if($("#favorite-page").length) {
-			new FilterHub().changeTaskSize(1,99);
+			this.filterHubTask = new FilterHub();
+			this.resizeTaskCarrousel();
+			
 		}
 		else {
-			new FilterHub();
+			this.filterHubTask = new FilterHub();
+			this.resizeTaskCarrousel();
 		}
 		if(!$("#filter").attr('loaded')) { 
 			$("#filter").attr('loaded', 'true');
 			this.loadCategoriesIcons();
 		}
+		this.handleEvents()
+	},
+
+	resizeTaskCarrousel() {
+		var userWindowWidth = $(window).width();
+		var userWindowHeight = $(window).height();
+		var minWindowWidth = ($("#favorite-page").length ? 1000 : 700);
+		var cardWidth = 427.5;
+		var cardHeight = 180;
+
+		var tmpHeight = userWindowHeight - 100
+		tmpHeight = tmpHeight / cardHeight
+
+		if(userWindowWidth < minWindowWidth) {
+			if($("#favorite-page").length)
+				this.filterHubTask.changeTaskSize(1)
+			else
+				this.filterHubTask.changeTaskSize(1, Math.round(tmpHeight))
+		}
+		else {
+			var tmp = userWindowWidth - minWindowWidth
+
+			tmp = tmp / cardWidth
+			if(tmp > 0) {
+				if($("#favorite-page").length)
+					this.filterHubTask.changeTaskSize(Math.ceil(tmp))
+				else 
+					this.filterHubTask.changeTaskSize(Math.ceil(tmp), Math.round(tmpHeight))
+			}
+		}
+	},
+
+	handleEvents: function() {
+		var that = this
+		window.addEventListener("resize", function(){ that.resizeTaskCarrousel() })
 	},
 
 	loadCategoriesIcons: function() {
