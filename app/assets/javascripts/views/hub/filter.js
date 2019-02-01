@@ -36,7 +36,7 @@ Object.assign(TW.views.hub.filter, {
 			if($("#favorite-page").length)
 				this.filterHubTask.changeTaskSize(1)
 			else
-				this.filterHubTask.changeTaskSize(1, Math.round(tmpHeight))
+				this.filterHubTask.changeTaskSize(1, Math.floor(tmpHeight))
 		}
 		else {
 			var tmp = userWindowWidth - minWindowWidth
@@ -46,7 +46,7 @@ Object.assign(TW.views.hub.filter, {
 				if($("#favorite-page").length)
 					this.filterHubTask.changeTaskSize(Math.ceil(tmp))
 				else 
-					this.filterHubTask.changeTaskSize(Math.ceil(tmp), Math.round(tmpHeight))
+					this.filterHubTask.changeTaskSize(Math.ceil(tmp), Math.floor(tmpHeight))
 			}
 		}
 	},
