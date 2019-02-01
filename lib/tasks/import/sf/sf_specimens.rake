@@ -52,6 +52,7 @@ namespace :tw do
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
           get_sf_verbatim_ref = import.get('RefIDToVerbatimRef')
           get_sf_locality_metadata = import.get('SFLocalityMetadata')
+          ref_id_containing_id_hash = import.get('RefContainingRefHash')
 
           # to get associated OTU, get TW taxon id, then get OTU from TW taxon id
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
@@ -62,6 +63,7 @@ namespace :tw do
 
           get_tw_collection_object_id = {} # key = SF.SpecimenID, value = TW.collection_object.id OR TW.container.id
           get_sf_taxon_name_id = {} # key = SF.SpecimenID, value = SF.TaxonNameID
+          ids_asserted_distribution = {} # key = array[otu_id, geographic_area)id], value = asserted_distribution.id(.to_s)
 
           depo_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'SpecimenDepository', short_name: 'Depo')
 
@@ -96,6 +98,9 @@ namespace :tw do
           processing_counter = 0
           ident_error_counter = 0
           asserted_dist_counter = 0
+          no_otu = 0
+          no_geo_area = 0
+          no_source = 0
 
           file.each_with_index do |row, i|
             next if skipped_file_ids.include? row['FileID'].to_i
@@ -160,9 +165,55 @@ namespace :tw do
                 geographic_area_id = CollectingEvent.find(collecting_event_id).geographic_area_id
 
                 sf_ref_id = get_sf_identification_metadata[specimen_id][0]['ref_id']
+                if ref_id_containing_id_hash[sf_ref_id]
+                  sf_ref_id = ref_id_containing_id_hash[sf_ref_id]
+                end
                 source_id = get_tw_source_id[sf_ref_id] # assume first ident record
 
                 logger.info "In AssertedDistribution section: SpecimenID = #{specimen_id}, FileID = #{sf_file_id}, SF.TaxonNameID = #{sf_taxon_name_id}, tw_taxon_name_id = #{tw_taxon_name_id}, otu_id = #{otu_id}, geographic_area_id = #{geographic_area_id}, SF.RefID = #{sf_ref_id}, source_id = #{source_id} \n"
+
+                if otu_id.nil?
+                  logger.error 'Missing otu_id: An asserted_distribution must have an otu_id, a source_id, and a geographic_area_id [ no_otu = #{no_otu += 1} ] \n'
+                  next
+                elsif sf_ref_id == '0'
+                  logger.error 'Missing source_id: An asserted_distribution must have an otu_id, a source_id, and a geographic_area_id [ no_source = #{no_source += 1} ] \n'
+                  next
+                elsif geographic_area_id.nil?
+                  logger.error 'Missing geographic_area_id: An asserted_distribution must have an otu_id, a source_id, and a geographic_area_id [ no_geo_area = #{no_geo_area += 1} ] \n'
+                  next
+                end
+
+                if source_id.nil? # use verbatim, 250 character limit, create verb_ref_id to verb_source_id hash
+                  source = Source::Verbatim.create!(verbatim: get_sf_verbatim_ref[sf_ref_id])
+                  ProjectSource.create!(
+                      project_id: project_id,
+                      source_id: source.id)
+                  source_id = source.id.to_s
+                end
+
+                # check if otu_id/geo_area_id used for assert_dist; if yes, what are the source_id(s) assoc with it
+                # if otu_id/geo_id in hash and current source_id used, document ERROR CASE #1!
+                # ok if current source_id is first time
+                used_asserted_distribution_id = ids_asserted_distribution[[otu_id, geographic_area_id]]
+                if used_asserted_distribution_id
+                  if Citation.where(
+                      source_id: source_id,
+                      project_id: project_id,
+                      citation_object_type: 'AssertedDistribution',
+                      citation_object_id: used_asserted_distribution_id
+                  ).any?
+                    logger.error "used_asserted_distribution_id = #{used_asserted_distribution_id} consisting of [ otu_id = {otu_id}, geographic_area_id = #{geographic_area_id}, source_id = #{source_id} ] already exists"
+                  else
+                    # create citation to ad with this source_id
+                    citation = Citation.create!(
+                        source_id: source_id,
+                        citation_object_type: 'AssertedDistribution',
+                        citation_object_id: used_asserted_distribution_id,
+                        project_id: project_id
+                    )
+                  end
+                  next
+                end
 
                 ad = AssertedDistribution.new(
                     otu_id: otu_id,
@@ -171,16 +222,11 @@ namespace :tw do
                     citations_attributes: [{source_id: source_id, project_id: project_id}])
                 # ap ad.citations
 
+
                 begin
                   ad.save!
-                  logger.info " AssertedDistribution created for SpecimenID = '#{specimen_id}', FileID = '#{sf_file_id}', otu_id = '#{otu_id}', source_id = '#{source_id}' [ asserted_dist_counter = #{asserted_dist_counter += 1} ]"
-
-                  # After asserted_distribution (AD) created, add to hash {[:otu_id,
-                  #                                                         :geographic_area_id]
-                  #                                                      => :asserted_distribution_id}
-                  # If AD exists, make citation with current source on AD
-                  #
-                  # Geographic area record for this source/otu combination already exists
+                  logger.info " AssertedDistribution ! CREATED ! for SpecimenID = '#{specimen_id}', FileID = '#{sf_file_id}', otu_id = '#{otu_id}', source_id = '#{source_id}' [ asserted_dist_counter = #{asserted_dist_counter += 1} ]"
+                  ids_asserted_distribution[[otu_id, geographic_area_id]] = ad.id.to_s
 
                 rescue ActiveRecord::RecordInvalid
                   logger.error "AssertedDistribution error: (error count #{error_counter += 1})" + ad.errors.full_messages.join(';')
@@ -606,7 +652,7 @@ namespace :tw do
 
 
                 puts 'CollectionObject created'
-                get_tw_collection_object_id[specimen_id] = current_objects.collect {|a| a.id} # an array of collection object ids for this specimen_id
+                get_tw_collection_object_id[specimen_id] = current_objects.collect {|a| a.id.to_s} # an array of collection object ids for this specimen_id
 
               end
 
