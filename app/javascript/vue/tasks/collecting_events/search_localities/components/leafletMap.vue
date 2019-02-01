@@ -8,7 +8,7 @@
 </template>
 
 <script>
-  import { LMap, LTileLayer, LMarker } from 'vue2-leaflet'
+  import { LMap, LTileLayer, LDraw, LMarker } from 'vue2-leaflet'
 
   delete L.Icon.Default.prototype._getIconUrl;
 
@@ -22,7 +22,8 @@
     components: {
       LMap,
       LTileLayer,
-      LMarker
+      LMarker,
+      LDraw
     },
     props: {
       height: {
@@ -65,21 +66,45 @@
       }
     },
     mounted() {
-      // map = L.map("map").setView([37.75, -122.23], 10);
-      //
-      // L.esri.basemapLayer("Topographic").addTo(map);
+      this.map =  L.map('map', {drawControl: true}).setView(this.center, this.zoom);
+      // Initialise the FeatureGroup to store editable layers
+      var editableLayers = new L.FeatureGroup();
+      this.map.addLayer(editableLayers);
 
-      // var map = L.map('map').setView([-41.2858, 174.78682], 14);
-      // mapLink =
-      //   '<a href="http://www.esri.com/">Esri</a>';
-      // wholink =
-      //   'i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community';
-      // L.tileLayer(
-      //   'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      //     attribution: '&copy; '+mapLink+', '+wholink,
-      //     maxZoom: 18,
-      //   }).addTo(map);
+      // var drawPluginOptions = {
+      //   position: 'topright',
+      //   draw: {
+      //     polygon: {
+      //       allowIntersection: false, // Restricts shapes to simple polygons
+      //       drawError: {
+      //         color: '#e1e100', // Color the shape will turn when intersects
+      //         message: '<strong>Oh snap!<strong> you can\'t draw that!' // Message that will show when intersect
+      //       },
+      //       shapeOptions: {
+      //         color: '#97009c'
+      //       }
+      //     },
+      //     // disable toolbar item by setting it to false
+      //     polyline: true,
+      //     circle: false, // Turns off this drawing tool
+      //     rectangle: false,
+      //     marker: false,
+      //   },
+      //   edit: {
+      //     featureGroup: editableLayers, //REQUIRED!!
+      //     remove: false
+      //   }
+      // };
 
+      // FeatureGroup is to store editable layers
+      // var drawnItems = new L.FeatureGroup();
+      // this.map.addLayer(drawnItems);
+      var drawControl = new L.Control.Draw({
+        edit: {
+          featureGroup: editableLayers
+        }
+      });
+      map.addControl(drawControl);
     },
   }
 </script>
