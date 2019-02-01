@@ -31,7 +31,7 @@
       },
       width: {
         type: [String, Number],
-        default: '512px'
+        default: '1024px'
       },
       lat: {
         type: Number,
@@ -54,33 +54,33 @@
     },
     data() {
       return {
-        center: L.latLng(-41.2858, 174.78682),
+        center: L.latLng(this.lat, this.lng),
         // url: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
         url:'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
         attribution:'&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-        marker: L.latLng(-41.2858, 174.78682),  //L.latLng(0, 0),
+        marker: L.latLng(this.lat, this.lng),  //L.latLng(0, 0),
         map:  undefined,
         shapes: {},
         // zoom: 12,
       }
     },
-    // mounted() {
-    //   map = L.map("map").setView([37.75, -122.23], 10);
-    //
-    //   L.esri.basemapLayer("Topographic").addTo(map);
-    // }
-    //   var map = L.map('map').setView([-41.2858, 174.78682], 14);
-    //   mapLink =
-    //     '<a href="http://www.esri.com/">Esri</a>';
-    //   wholink =
-    //     'i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community';
-    //   L.tileLayer(
-    //     'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    //       attribution: '&copy; '+mapLink+', '+wholink,
-    //       maxZoom: 18,
-    //     }).addTo(map);
-    //
-    // }
+    mounted() {
+      // map = L.map("map").setView([37.75, -122.23], 10);
+      //
+      // L.esri.basemapLayer("Topographic").addTo(map);
+
+      // var map = L.map('map').setView([-41.2858, 174.78682], 14);
+      // mapLink =
+      //   '<a href="http://www.esri.com/">Esri</a>';
+      // wholink =
+      //   'i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community';
+      // L.tileLayer(
+      //   'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      //     attribution: '&copy; '+mapLink+', '+wholink,
+      //     maxZoom: 18,
+      //   }).addTo(map);
+
+    },
   }
 </script>
 <!--<style lang="sass">-->
