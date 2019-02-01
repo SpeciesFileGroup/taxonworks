@@ -7,6 +7,10 @@ TW.views.tasks = TW.views.tasks || {};
 TW.views.tasks.collecting_events = TW.views.tasks.collecting_events || {};
 TW.views.tasks.collecting_events.search_locality = TW.views.tasks.collecting_events.search_locality || {};
 
+// import Vue from 'vue'
+// import vueResource from 'vue-resource'
+import L from 'leaflet'
+
 Object.assign(TW.views.tasks.collecting_events.search_locality, {
 
   init: function () {
