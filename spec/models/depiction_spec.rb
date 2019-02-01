@@ -17,21 +17,16 @@ RSpec.describe Depiction, type: :model do
     o = Otu.create!(name:'a1')
     a = fixture_file_upload(Spec::Support::Utilities::Files.generate_png(file_name: "test.png"), 'image/png')
     last_utime = 2
-    ratio = 1
-    limit = 5
 
     10.times do |i|
       o = Otu.find(o.id) # VERY IMPORTANT TO RE-FETCH THE OBJECT TO TRIGGER THE PROBLEM!
 
-      bm = Benchmark.measure do
-        expect(Depiction.create!(image_attributes: { image_file: a }, depiction_object: o) ).to be_truthy
-      end
+      bm = Benchmark.measure { Depiction.create! image_attributes: { image_file: a }, depiction_object: o }
 
-      break if (ratio = bm.utime/last_utime) > limit
+      expect(bm.utime/last_utime).to be <= 5
+
       last_utime = bm.utime
     end
-
-    expect(ratio).to be <= limit
   end
 
 
