@@ -13,19 +13,25 @@ RSpec.describe Depiction, type: :model do
     expect(depiction.image.reload).to be_truthy
   end
 
-  specify 'creating a number of depictions with create! is relatively "fast"' do
-    o = Otu.create!(name: 'a1')
-    (0..50).each_with_index do |z, i|
+  specify 'CPU usage must not increase exponentially every time a depiction is added for the same OTU' do
+    o = Otu.create!(name:'a1')
+    a = fixture_file_upload(Spec::Support::Utilities::Files.generate_png(file_name: "test.png"), 'image/png')
+    last_utime = 2
+    ratio = 1
+    limit = 5
 
-      puts "[#{Time.now}] CREATING DEPICTION #{(i+1).to_s}"
-      Benchmark.bm do |x|
-        a = fixture_file_upload(
-          Spec::Support::Utilities::Files.generate_png(file_name: "p#{i}"), 'image/png')
-        # x.report {
-          expect(Depiction.create!(image_attributes: { image_file: a }, depiction_object: o) ).to be_truthy
-        # }
+    10.times do |i|
+      o = Otu.find(o.id) # VERY IMPORTANT TO RE-FETCH THE OBJECT TO TRIGGER THE PROBLEM!
+
+      bm = Benchmark.measure do
+        expect(Depiction.create!(image_attributes: { image_file: a }, depiction_object: o) ).to be_truthy
       end
+
+      break if (ratio = bm.utime/last_utime) > limit
+      last_utime = bm.utime
     end
+
+    expect(ratio).to be <= limit
   end
 
 
