@@ -1,3 +1,3 @@
-module.exports = function (state, validation) {
+export default function (state, validation) {
   state.softValidation[validation.type].list = validation.response
 }

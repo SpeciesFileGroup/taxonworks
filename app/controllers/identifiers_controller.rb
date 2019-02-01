@@ -1,7 +1,7 @@
 class IdentifiersController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_identifier, only: [:update, :destroy]
+  before_action :set_identifier, only: [:update, :destroy, :show]
 
   # GET /identifiers
   # GET /identifiers.json
@@ -12,13 +12,17 @@ class IdentifiersController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @identifiers = Identifier.where(project_id: sessions_current_project_id).where(
-          Queries::Annotator::polymorphic_params(params, Identifier)
-        )
+        @identifiers = Queries::Identifier::Filter.new(params).all
+          .where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
       }
     end
   end
 
+  # GET /identifers/1
+  def show
+  end
+
+  # GET /identifers
   def new
     @identifier = Identifier.new(identifier_params)
   end
@@ -51,7 +55,7 @@ class IdentifiersController < ApplicationController
       if @identifier.update(identifier_params)
         format.html { redirect_to url_for(@identifier.identifier_object.metamorphosize),
                                   notice: 'Identifier was successfully updated.' }
-        format.json { head :no_content }
+        format.json { render :show, status: :ok, location: @identifier.becomes(Identifier) }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Identifier was NOT successfully created.')}
         format.json { render json: @identifier.errors, status: :unprocessable_entity }
@@ -83,22 +87,7 @@ class IdentifiersController < ApplicationController
   end
 
   def autocomplete
-    @identifiers = Identifier.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)).limit(20)
-
-    data = @identifiers.collect do |t|
-      str = render_to_string(
-          partial: 'tag',
-          locals: {identifier: t})
-      {id: t.id,
-       label: str,
-       response_values: {
-           params[:method] => t.id
-       },
-       label_html: str
-      }
-    end
-
-    render json: data
+    @identifiers = Queries::Identifier::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).autocomplete
   end
 
   # GET /identifiers/download
@@ -106,7 +95,7 @@ class IdentifiersController < ApplicationController
     send_data Download.generate_csv(Identifier.where(project_id: sessions_current_project_id)), type: 'text', filename: "identifiers_#{DateTime.now}.csv"
   end
 
-  # GET /taxon_name_relationships/taxon_name_relationship_types
+  # GET /identifiers/identifier_types
   def identifier_types
     render json: IDENTIFIERS_JSON
   end

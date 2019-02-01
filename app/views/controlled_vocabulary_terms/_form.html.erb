@@ -1,15 +1,13 @@
 <%= form_for(@controlled_vocabulary_term.metamorphosize) do |f| %>
-    <%= render 'shared/errors', object: @controlled_vocabulary_term %>
+  <%= render 'shared/errors', object: @controlled_vocabulary_term %>
 
-    <%= render(partial: 'local_form_elements', locals: {
-      f: f,
-      controlled_vocabulary_term: @controlled_vocabulary_term,
-      hide_type: false
-    } ) -%>
+  <%= render(partial: 'local_form_elements', locals: {
+    f: f,
+    controlled_vocabulary_term: @controlled_vocabulary_term,
+    hide_type: false
+  } ) -%>
 
-    
-  
-    <div class="actions">
-      <%= f.submit %>
-    </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
 <% end %>

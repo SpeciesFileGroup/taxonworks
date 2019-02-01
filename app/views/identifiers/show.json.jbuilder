@@ -1,1 +1,1 @@
-json.partial! 'attributes', identifier: @identifier
+json.partial! '/identifiers/attributes', identifier: @identifier

@@ -8,7 +8,12 @@
   <%= @project.is_api_accessible %>
 </p>
 
-
-
-
 <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: @project} -%>
+
+
+<div class="attribute_set" data-title="Preferences">
+  <p> 
+    <strong>Preferences:</strong>
+    <%= ap(@project.preferences).html_safe %>
+  </p>
+</div>

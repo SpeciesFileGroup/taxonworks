@@ -2,6 +2,7 @@ Rails.application.eager_load!
 
 TaxonWorks::Application.routes.draw do
 
+
   get :ping, controller: 'ping',  defaults: { format: :json }
   get :pingz, controller: 'ping',  defaults: { format: :json }
 
@@ -65,6 +66,7 @@ TaxonWorks::Application.routes.draw do
     match '/', action: :index, as: 'administration', via: :get
     get 'user_activity'
     get 'data_overview'
+    get 'data_health'
   end
 
   resources :project_members, except: [:index] do
@@ -299,10 +301,11 @@ TaxonWorks::Application.routes.draw do
 
   resources :geographic_items
 
-  resources :georeferences, only: [:index, :destroy, :new, :show, :edit] do
+  resources :georeferences, only: [:index, :destroy, :new, :show, :edit, :create] do
     concerns [:data_routes]
   end
 
+  # TODO: fix broken interfaces, deprecate?
   namespace :georeferences do
     resources :geo_locates, only: [:new, :create]
     resources :google_maps, only: [:new, :create]
@@ -311,8 +314,14 @@ TaxonWorks::Application.routes.draw do
 
   resources :identifiers, except: [:show] do
     concerns [:data_routes]
+
+    # Must be before member
     collection do
       get :identifier_types, {format: :json}
+    end
+
+    member do 
+      get :show, defaults: {format: :json}
     end
   end
 
@@ -332,6 +341,13 @@ TaxonWorks::Application.routes.draw do
       get :lookup_keyword
       get :select_options, defaults: {format: :json}
     end
+  end
+
+  resources :labels do
+    collection do
+      get :list
+    end
+    # is data?
   end
 
   resources :languages, only: [] do
@@ -355,13 +371,14 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :namespaces do
-    concerns [:data_routes]
-
     collection do
+      get :autocomplete, defaults: {format: :json} # TODO: add JSON to all autocomplete as default, until then this line has to be above concerns
       post :preview_simple_batch_load
       post :create_simple_batch_load
       get :select_options, defaults: {format: :json}
     end
+
+    concerns [:data_routes]
   end
 
 
@@ -547,6 +564,7 @@ TaxonWorks::Application.routes.draw do
   resources :sources do
     concerns [:data_routes]
     collection do
+      get :select_options, defaults: {format: :json}
       post :preview_bibtex_batch_load # should be get
       post :create_bibtex_batch_load
       get :parse, defaults: {format: :json}
@@ -647,6 +665,25 @@ TaxonWorks::Application.routes.draw do
   ### End of data resources ###
 
   scope :tasks do
+
+    scope :asserted_distribution do
+      scope :new_asserted_distribution, controller: 'tasks/asserted_distribution/new_asserted_distribution' do
+        get :index, as: 'index_new_asserted_distribution_task'
+      end
+    end
+
+    scope :projects do
+      scope :preferences, controller: 'tasks/projects/preferences' do
+        get :index, as: 'project_preferences_task'
+      end
+    end
+
+    scope :labels do
+      scope :print_labels, controller: 'tasks/labels/print_labels' do
+        get :index, as: 'index_print_labels_task'
+      end
+    end
+
     scope :descriptors do
       scope :new_descriptor, controller: 'tasks/descriptors/new_descriptor' do
         get '(:id)', action: :index, as: 'new_descriptor_task'
@@ -800,7 +837,7 @@ TaxonWorks::Application.routes.draw do
 
     scope :accessions do
       scope :comprehensive, controller: 'tasks/accessions/comprehensive' do
-        get 'index', as: 'comprehensive_collection_object_task'
+        get '(:id)', action: :index, as: 'comprehensive_collection_object_task'
       end
 
       scope :report do
@@ -979,6 +1016,9 @@ TaxonWorks::Application.routes.draw do
       get 'recently_created_stats'
     end
   end
+
+  match '/preferences', to: 'users#preferences', via: 'get', defaults: {format: :json}
+  match '/project_preferences', to: 'projects#preferences', via: 'get', defaults: {format: :json}
 
   match '/signup', to: 'users#new', via: 'get'
   get '/forgot_password', to: 'users#forgot_password', as: 'forgot_password'

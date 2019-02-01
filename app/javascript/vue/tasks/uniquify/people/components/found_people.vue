@@ -4,7 +4,7 @@
       url="/people/autocomplete"
       min="2"
       label="label_html"
-      placeholder="Search person"
+      placeholder="Find another person"
       display="label"
       @getItem="addToList($event)"
       param="term"/>
@@ -16,10 +16,10 @@
             <input
               name="found-people"
               type="radio"
-              v-model="selected"
               :value="person.id"
+              :checked="person.id == selected['id']"
               @click="selectPerson(person)">
-            {{ person.cached }}
+            <span v-html="person.label_html"/>
           </label>
         </li>
       </ul>

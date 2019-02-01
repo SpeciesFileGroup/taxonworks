@@ -7,8 +7,15 @@ class GeoreferencesController < ApplicationController
   # GET /georeferences
   # GET /georeferences.json
   def index
-    @recent_objects = Georeference.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = Georeference.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @georeferences = Queries::Georeference::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(50)
+      }
+    end
   end
 
   def list
@@ -42,57 +49,60 @@ class GeoreferencesController < ApplicationController
     end
   end
 
-  # rubocop:disable Metrics/MethodLength, Metrics/BlockNesting
+  # POST /georeferences
+  # POST /georeferences.json
+  #  def create
+  #    @georeference = Georeference.new(georeference_params)
+  #    respond_to do |format|
+  #      if @georeference.save
+  #        format.html {
+  #          redirect_to collecting_event_path(@georeference.collecting_event), notice: 'Georeference was successfully created.'
+  #        }
+  #        format.json { render action: 'show', status: :created }
+  #      else
+  #  
+  #        format.html {
+  #          if @georeference.method_name
+  #            render "/georeferences/#{@georeference.method_name}/new"
+  #          else
+  #            if @georeference.collecting_event
+  #              redirect_to collecting_event_path(@georeference.collecting_event), notice: 'Georeference not created, check verbatim values of collecting event'
+  #            else
+  #              redirect_to georeferences_path, notice: 'Georeference not created.  Contact administrator with details if you recieved this message.'
+  #            end
+  #          end
+  #        }
+  #  
+  #        format.json { render json: @georeference.errors, status: :unprocessable_entity }
+  #      end
+  #    end
+  #  else
+  #    skip
+  #  end
+
+  # TODO: Fix other georefernce Tasks/interfaces to use JSON, not this ^
+
   # POST /georeferences
   # POST /georeferences.json
   def create
     @georeference = Georeference.new(georeference_params)
-    if params['skip_next'].nil?
-      respond_to do |format|
-        if @georeference.save
-
-        # target = @georeference.collecting_event
-
-        # unless params['commit_next'].nil?
-        #   new_target = @georeference.collecting_event.next_without_georeference
-        #   target     = new_target unless new_target.nil?
-        # end
-
-          format.html {
-            if false
-
-            else
-              redirect_to collecting_event_path(@georeference.collecting_event), notice: 'Georeference was successfully created.'
-            end
-          }
-
-          format.json { render action: 'show', status: :created }
-
-        else
-
-          format.html {
-            if @georeference.method_name
-              render "/georeferences/#{@georeference.method_name}/new"
-            else
-              if @georeference.collecting_event
-                redirect_to collecting_event_path(@georeference.collecting_event), notice: 'Georeference not created, check verbatim values of collecting event'
-              else
-                redirect_to georeferences_path, notice: 'Georeference not created.  Contact administrator with details if you recieved this message.'
-              end
-            end
-          }
-
-          format.json { render json: @georeference.errors, status: :unprocessable_entity }
-        end
+    respond_to do |format|
+      if @georeference.save
+        format.html {
+          redirect_to collecting_event_path(@georeference.collecting_event), notice: 'Georeference was successfully created.'
+        }
+        #         redirect_to url_for(@georeference.metamorphosize),
+        #                     notice: "Georeference name '#{@georeference.name}' was successfully created." }
+        format.json { render :show, status: :created, location: @georeference.metamorphosize }
+      else
+        format.html { render action: :new }
+        format.json { render json: @georeference.errors, status: :unprocessable_entity }
       end
-    else
-      skip
     end
   end
-  # rubocop:enable Metrics/MethodLength, Metrics/BlockNesting
+
 
   def batch_create
-
   end
 
   # PATCH/PUT /georeferences/1
@@ -128,29 +138,36 @@ class GeoreferencesController < ApplicationController
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
+
+  def filter_params
+    params.permit(
+      :collecting_event_id,
+      collecting_event_ids: [],
+    )
+  end
+
   def set_georeference
     @georeference = Georeference.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @georeference
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def georeference_params
-    params.require(:georeference).permit(:iframe_response,
-                                         :submit,
-                                         :geographic_item_id,
-                                         :collecting_event_id,
-                                         :error_radius,
-                                         :error_depth,
-                                         :error_geographic_item_id,
-                                         :type,
-                                         :position,
-                                         :is_public,
-                                         :api_request,
-                                         :is_undefined_z,
-                                         :is_median_z,
-                                         geographic_item_attributes: [:shape],
-                                         origin_citation_attributes: [:id, :_destroy, :source_id, :pages]
-                                        )
+    params.require(:georeference).permit(
+      :iframe_response,
+      :submit,
+      :geographic_item_id,
+      :collecting_event_id,
+      :error_radius,
+      :error_depth,
+      :error_geographic_item_id,
+      :type,
+      :position,
+      :is_public,
+      :api_request,
+      :is_undefined_z,
+      :is_median_z,
+      geographic_item_attributes: [:shape],
+      origin_citation_attributes: [:id, :_destroy, :source_id, :pages]
+    )
   end
 end

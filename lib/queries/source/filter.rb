@@ -4,11 +4,14 @@ module Queries
 
       attr_accessor :author_ids
 
+      attr_accessor :recent
+
       # @param [Hash] params
       def initialize(params)
         @query_string = params[:query_term]
         @project_id = params[:project_id]
         @author_ids = params[:author_ids] || []
+        @recent = params[:recent].blank? ? nil : true 
         build_terms
       end
 
@@ -30,7 +33,6 @@ module Queries
       def merge_clauses
         clauses = [
           matching_author_id,
-
           # matching_verbatim_author
         ].compact
 
@@ -60,22 +62,7 @@ module Queries
           nil
         end
       end
-
-      # @return [ActiveRecord::Relation]
-      def all
-        a = or_clauses
-        b = merge_clauses
-        if a && b
-          b.where(a).distinct
-        elsif a
-          ::Source.where(a).distinct
-        elsif b
-          b.distinct
-        else
-          ::Source.all
-        end
-      end
-
+  
       def matching_author_id
         return nil if author_ids.empty?
         o = table
@@ -126,6 +113,22 @@ module Queries
         project_sources_table[:project_id].eq(project_id)
       end
 
+      # @return [ActiveRecord::Relation]
+      def all
+        a = or_clauses
+        b = merge_clauses
+        q = nil
+        if a && b
+          q = b.where(a).distinct
+        elsif a
+          q = ::Source.where(a).distinct
+        elsif b
+          q = b.distinct
+        else
+          q = ::Source.all
+        end
+        q = q.order(updated_at: :desc) if recent
+      end
     end
   end
 end

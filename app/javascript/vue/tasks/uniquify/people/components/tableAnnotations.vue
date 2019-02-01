@@ -34,13 +34,16 @@ export default {
     }
   },
   watch: {
-    person(newVal) {
-      if(newVal != undefined && Object.keys(newVal).length) {
-        this.getAnnotations(newVal.global_id)
-      }
-      else {
-        this.annotationLists = []
-      }
+    person: {
+      handler(newVal) {
+        if(newVal != undefined && Object.keys(newVal).length) {
+          this.getAnnotations(newVal.global_id)
+        }
+        else {
+          this.annotationLists = []
+        }
+      },
+      deep: true
     }
   },
   methods: {

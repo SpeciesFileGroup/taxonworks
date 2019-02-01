@@ -2,7 +2,6 @@ require 'rails_helper'
 
 describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
-
   let!(:never_found) { CollectingEvent.create!(verbatim_label: 'Nope') }
   let(:county) { FactoryBot.create(:valid_geographic_area_stack) }
   let(:state) { county.parent }
@@ -10,7 +9,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
   #       a          b           c          d          e
   # ------|----------|-----------|----------|----------|
-  #   1800/1/1  1900/12/31   2004/2/29   2010/12/1   Now() ?!
+  #   1800-1-1  1900-12-31   2004-2-29   2010-12-1   Now() ?!
   #
   let(:a) { '1800-1-1' }
   let(:b) { '1900-12-31' }

@@ -1,9 +1,9 @@
-const loadTaxonName = require('../../request/resources').loadTaxonName
-const MutationNames = require('../mutations/mutations').MutationNames
+import { loadTaxonName } from '../../request/resources'
+import { MutationNames } from '../mutations/mutations'
 
-const filterObject = require('../../helpers/filterObject')
+import filterObject from '../../helpers/filterObject'
 
-module.exports = function ({ commit, state, dispatch }, id) {
+export default function ({ commit, state, dispatch }, id) {
   return new Promise(function (resolve, reject) {
     loadTaxonName(id).then(response => {
       if(response.hasOwnProperty('parent')) {

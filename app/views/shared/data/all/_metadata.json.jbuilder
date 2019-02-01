@@ -9,6 +9,8 @@ json.url url_for(only_path: false, format: :json)
 
 json.object_url url_for(metamorphosize_if(object))
 
+# TODO - this block has to go, and be loaded with the base of the object if needed, not with metadata, particularly
+# bad with citations
 if object.respond_to?(:origin_citation) && object.origin_citation
   json.origin_citation do
     json.id object.origin_citation.id
@@ -22,7 +24,7 @@ if object.respond_to?(:origin_citation) && object.origin_citation
   end
 end
 
-if object.respond_to?(:pinned?) && object.pinned?(sessions_current_user)
+if object.respond_to?(:pinned?) && object.pinned?(sessions_current_user, sessions_current_project_id)
   json.pinboard_item do
     json.id object.pinboard_item_for(sessions_current_user).id
   end

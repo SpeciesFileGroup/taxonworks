@@ -12,10 +12,6 @@
 #   @return [Integer]
 #   the geographic area ID
 #
-# @!attribute source_id
-#   @return [Integer]
-#   the source ID
-#
 # @!attribute project_id
 #   @return [Integer]
 #   the project ID
@@ -23,7 +19,6 @@
 # @!attribute is_absent
 #   @return [Boolean]
 #     a positive negative, when true then there exists an assertion that the taxon is not present in the spatial area
-#
 #
 class AssertedDistribution < ApplicationRecord
   include Housekeeping
@@ -53,7 +48,7 @@ class AssertedDistribution < ApplicationRecord
   validates :geographic_area, presence: true
   validates :otu, presence: true
 
-  validates_uniqueness_of :geographic_area_id, scope: [:project_id, :otu_id], message: 'record for this source/otu combination already exists'
+  validates_uniqueness_of :geographic_area_id, scope: [:project_id, :otu_id], message: 'record for this geographic_area/otu combination already exists'
 
   validate :new_records_include_citation
 
@@ -120,7 +115,6 @@ class AssertedDistribution < ApplicationRecord
 
   # @return [Nil]
   def new_records_include_otu
-
   end
 
   # @return [Boolean]

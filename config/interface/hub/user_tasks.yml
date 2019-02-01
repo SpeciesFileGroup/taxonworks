@@ -12,7 +12,7 @@
 #   name* - a friendly human readable name describing the task
 #   description - a sentence or two further defining what the task will do for the user
 #   hub - true if this tasks should appear at the hub, these tasks MAY NOT require parameters
-#   categories - an array of one ore more of [collecting_events, geographic_areas, source, nomenclature, matrix, dna]
+#   categories - an array of one ore more of [nomenclature, source, collection_object, collecting_event, biology, matrix, dna]
 #   status - one of [complete, stable, prototype,  unknown (default) ]
 #               complete: users can expect the interfaces to remain in their present form
 #               stable: primary elements are complete, but minor changes (CSS, feedback etc.) may change
@@ -76,8 +76,8 @@ new_verbatim_reference_task:
   status: prototype
 build_biocuration_groups_task:
   hub: true
-  name: 'Manage biocuration types and groups'
-  description: 'Create bio-curation categories that are used to organize physical collections (e.g. specimens and lots).'
+  name: 'Manage biocuration classes and groups'
+  description: 'Create bio-curation categories like sex, and lifestage, that are used to organize physical collections (e.g. specimens and lots).'
   related:
     - build_biocuration_group_task
   categories:
@@ -367,3 +367,27 @@ observation_matrix_view_task:
     - dna
   status: prototype
   description: 'A very basic visualization of an observation matrix.'
+comprehensive_collection_object_task:
+  hub: true
+  name: 'Comprehensive collection object form'
+  related:
+    - collection_objects
+  categories:
+    - collection_object
+  status: prototype
+  description: 'An all-in-one interface for digitizing collection objects.'
+index_print_labels_task:
+  hub: true
+  name: 'Print labels'
+  related:
+  categories:
+    - collecting_event
+  status: prototype
+  description: 'Print and manage labels.'
+index_new_asserted_distribution_task:
+  hub: true
+  name: 'New asserted distribution'
+  related:
+  categories:
+  status: prototype
+  description: 'Create new asserted distributions (Otu, source, and geographic area combinations). Has locking and cloning mechanisms.'

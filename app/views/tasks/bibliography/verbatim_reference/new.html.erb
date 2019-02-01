@@ -1,17 +1,23 @@
-<h2>Create a source (reference) from a verbatim citation</h2>
+<h2>Create a source from a verbatim citation or DOI</h2>
 
-<p class='notice'> The citation text (or DOI) will be resolved against CrossRef, and you will be given an option
-to use the BibTeX record (if found) or store it as a verbatim record.</p>
+<p class='notice'>
+<ul>
+  <li> Submit either a full DOI or full citation. </li>
+  <li> The query will be resolved against <a href="https://www.crossref.org/">CrossRef</a>. </li>
+  <li> If there is a hit, then you will be given the option to import the parsed citation.  This is the BibTeX format. </li>
+  <li> If there is no hit, you have the option to import the record as a single field. This is the Verbatim format. </li>
+  <li> Not all hits are correct!  Check that the result matches the query. </li>
+</ul>
 
 <%= form_tag preview_verbatim_reference_task_path do %>
 
   <div class="field">
-    <%= label_tag :citation_to_find, nil, data: {help: 'Works best by pasting in a full citation or DOI, but fragments are also possible.'} %>
-    <%= text_area_tag :citation, (params[:in_cite].nil? ? nil : params[:in_cite]), rows: 4, cols: 50 %>
+    <%= label_tag :citation_to_find, nil, data: {help: 'Works best by pasting in a full citation or DOI, but fragments are also possible.'} %><br/>
+    <%= text_area_tag :citation, (params[:in_cite].nil? ? nil : params[:in_cite]), rows: 6, cols: 60 %>
   </div>
 
   <div class="actions">
-    <%= submit_tag 'Preview' %>
+    <%= submit_tag 'Preview', class: 'button-default' -%>
   </div>
 
 <% end %>

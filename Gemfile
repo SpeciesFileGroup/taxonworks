@@ -5,12 +5,12 @@ gem 'rack-cors', '~> 1.0.1', require: 'rack/cors'
 ruby '2.5.1'
 
 gem 'rake', '~> 12.0'
-gem 'rails', '5.2.1'
-gem 'pg', '~> 1.0' # 1.0 not compatible with 5.1.4
+gem 'rails', '5.2.2'
+gem 'pg', '~> 1.1'
 gem 'activerecord-postgis-adapter', '~> 5.2.1'
 
 gem 'hiredis', '~> 0.6.1'
-gem 'redis', '~> 4.0.0'
+gem 'redis', '~> 4.1.0'
 
 # gem 'json', '>= 2.1.0'
 
@@ -72,12 +72,12 @@ gem 'csl', '~> 1.5.0'
 gem 'bibtex-ruby', '~> 4.4.7'
 gem 'citeproc-ruby', '~> 1.1.10'
 gem 'csl-styles', '~> 1.0.1.8'
-gem 'ref2bibtex', '~> 0.2.2'
+gem 'ref2bibtex', '~> 0.2.3'
 # gem 'latex-decode', '~> 0.2.2'
 gem 'pdf-reader', '~> 2.1'
 
 # UI/UX
-gem 'chartkick', '~> 3.0.1'
+gem 'chartkick', '~> 3.0.2'
 gem 'groupdate', '~> 4.0.1'
 gem 'dropzonejs-rails', '~> 0.8.1'
 gem 'kaminari', '~> 1.1.1'
@@ -108,11 +108,10 @@ group :test, :development do
   gem 'faker', '~> 1.9.1'
   gem 'rspec-rails', '~> 3.6'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
-#  gem 'inch', '~> 0.7.1', require: false, # security issue
   gem 'byebug', '~> 10.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 4.11.0'
   gem 'selenium-webdriver', '~> 3.14'
-  gem 'geckodriver-helper', '~> 0.21.0'
+  gem 'geckodriver-helper', '~> 0.23.0'
   gem 'prawn', '~> 2.2.2'
 end
 
@@ -121,7 +120,7 @@ gem 'parallel_tests', group: [:development, :test]
 group :development do
 # gem 'tunemygc'
   gem 'ruby-prof', '~> 0.17.0'
-  gem 'better_errors', '~> 2.3'
+  gem 'better_errors', '~> 2.4'
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.4'
   gem 'guard-rspec', '~> 4.7.3', require: false
@@ -140,7 +139,7 @@ end
 group :test do
   gem 'rspec', '~> 3.6'
   gem 'coveralls', '~> 0.8.22', require: false
-  gem 'capybara', '~> 3.9.0'
+  gem 'capybara', '~> 3.12.0'
   gem 'timecop', '~> 0.9.1'
   gem 'webmock', '~> 3.4.1'
   gem 'vcr', '~> 4.0.0'

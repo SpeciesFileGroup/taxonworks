@@ -5,6 +5,14 @@ module SourcesHelper
     source.cached ? source.cached.html_safe : (source.new_record? ? nil : 'ERROR - Source cache not set, please notify admin.')
   end
 
+  def source_author_year_tag(source)
+    if source && source.type == 'Source::Bibtex' && source.author_year.present?
+      source.author_year
+    else
+      content_tag(:span, 'Author, year not yet provided for source.', class: :subtle)
+    end
+  end
+
   def sources_search_form
     render('/sources/quick_search_form')
   end

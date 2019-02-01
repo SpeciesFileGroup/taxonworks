@@ -1,5 +1,6 @@
 json.extract! citation, :id, :citation_object_id, :citation_object_type, :source_id, :pages, :is_original,
   :created_by_id, :updated_by_id, :project_id
+
 json.partial! '/shared/data/all/metadata', object: citation
 
 json.citation_object do
@@ -17,6 +18,7 @@ json.citation_topics do |ct|
 end
 
 json.citation_source_body citation_source_body(citation)
+
 json.source do
   json.partial! '/sources/attributes', source: citation.source 
   if citation.source.is_bibtex?
@@ -32,4 +34,3 @@ if citation.target_document
     json.target_page citation.target_document_page
   end
 end
-

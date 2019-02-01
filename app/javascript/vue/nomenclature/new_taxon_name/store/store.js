@@ -1,9 +1,9 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-const getters = require('./getters/getters')
-const mutations = require('./mutations/mutations')
-const actions = require('./actions/actions')
+import { GetterFunctions } from './getters/getters'
+import { MutationFunctions } from './mutations/mutations'
+import { ActionFunctions } from './actions/actions'
 
 Vue.use(Vuex)
 
@@ -33,7 +33,8 @@ function makeInitialState () {
       modalRelationship: false,
       saving: false,
       lastSave: 0,
-      lastChange: 0
+      lastChange: 0,
+      initLoad: false
     },
     taxonStatusList: [],
     taxonRelationshipList: [],
@@ -68,12 +69,12 @@ function makeInitialState () {
 function newStore () {
   return new Vuex.Store({
     state: makeInitialState(),
-    getters: getters.GetterFunctions,
-    mutations: mutations.MutationFunctions,
-    actions: actions.ActionFunctions
+    getters: GetterFunctions,
+    mutations: MutationFunctions,
+    actions: ActionFunctions
   })
 }
 
-module.exports = {
+export {
   newStore
 }

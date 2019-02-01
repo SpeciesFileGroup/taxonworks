@@ -98,8 +98,9 @@ class PeopleController < ApplicationController
     ).autocomplete
   end
 
+  # GET /people/select_options
   def select_options
-    @people = Person.select_optimized(sessions_current_user_id, sessions_current_project_id, params.permit(:role_type)[:role_type])
+    @people = Person.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:role_type])
   end
 
   def merge
@@ -117,6 +118,7 @@ class PeopleController < ApplicationController
     send_data Download.generate_csv(Person.all), type: 'text', filename: "people_#{DateTime.now}.csv"
   end
 
+  # GET /people/123/roles
   def roles
   end
 

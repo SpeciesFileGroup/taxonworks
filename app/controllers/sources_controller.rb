@@ -51,6 +51,11 @@ class SourcesController < ApplicationController
     end
   end
 
+  # GET /sources/select_options
+  def select_options
+    @sources = Source.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:klass])
+  end
+
   def parse
     if @source = new_source
       render '/sources/show'

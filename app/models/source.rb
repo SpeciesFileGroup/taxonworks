@@ -204,6 +204,8 @@ class Source < ApplicationRecord
                           :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url].freeze
 
   has_many :citations, inverse_of: :source, dependent: :restrict_with_error
+  has_many :citation_topics, through: :citations, inverse_of: :sources
+  has_many :topics, through: :citation_topics, inverse_of: :sources 
   has_many :asserted_distributions, through: :citations, source: :citation_object, source_type: 'AssertedDistribution'
   has_many :project_sources, dependent: :destroy
   has_many :projects, through: :project_sources
@@ -348,6 +350,47 @@ class Source < ApplicationRecord
     projects.where(id: project_id).any?
   end
 
+
+  # @param used_on [String] a model name 
+  # @return [Scope]
+  #    the max 10 most recently used (1 week, could parameterize) TaxonName, as used 
+  def self.used_recently(used_on = 'TaxonName')
+    t = Citation.arel_table
+    p = Source.arel_table
+
+    # i is a select manager
+    i = t.project(t['source_id'], t['created_at']).from(t)
+      .where(t['created_at'].gt(1.weeks.ago))
+      .order(t['created_at'])
+      .take(10)
+      .distinct
+
+    # z is a table alias
+    z = i.as('recent_t')
+
+    Source.joins(
+      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['source_id'].eq(p['id'])))
+    )
+  end
+
+  # @params target [String] a citable model name
+  # @return [Hash] sources optimized for user selection
+  def self.select_optimized(user_id, project_id, target = 'TaxonName')
+    h = {
+      quick: [],
+      pinboard: Source.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a
+    }
+
+    h[:recent] = Source.joins(:citations).where(citations: {project_id: project_id}).
+      used_recently(target).
+      limit(10).distinct.to_a
+
+    h[:recent] ||= []
+
+    h[:quick] = ( Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a + h[:recent][0..3]).uniq
+    h
+  end
+
   protected
 
   # Defined in subclasses
@@ -361,8 +404,6 @@ class Source < ApplicationRecord
     return true if attributed['project_id'].blank?
     return true if ProjectSource.where(project_id: attributed['project_id'], source_id: id).any?
   end
-
-#  protected
 
   def validate_year_suffix
     unless year_suffix.blank?
