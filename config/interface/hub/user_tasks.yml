@@ -391,11 +391,12 @@ index_new_asserted_distribution_task:
   categories:
   status: prototype
   description: 'TODO: Task description'
-
 index_new_image_task:
   hub: true
-  name: 'TODO: Task name'
+  name: 'New image'
   related:
   categories:
+    - collecting_event
+    - collection_object
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Add images their metadata.

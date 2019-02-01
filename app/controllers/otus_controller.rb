@@ -215,7 +215,7 @@ class OtusController < ApplicationController
   end
 
   def select_options
-    @otus = Otu.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
+    @otus = Otu.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target])
   end
 
   private
