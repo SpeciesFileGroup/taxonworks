@@ -11,7 +11,7 @@
       },
       width: {
         type: [String, Number],
-        default: '512px'
+        default: '1024px'
       },
       lat: {
         type: Number,
@@ -25,7 +25,7 @@
       },
       zoom: {
         type: Number,
-        default: 1
+        default: 2
       },
       shapes: {
         type: Object,
