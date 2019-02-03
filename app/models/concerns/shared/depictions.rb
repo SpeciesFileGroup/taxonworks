@@ -13,7 +13,8 @@ module Shared::Depictions
     accepts_nested_attributes_for :depictions, allow_destroy: true, reject_if: :reject_depictions
     accepts_nested_attributes_for :images, allow_destroy: true, reject_if: :reject_images 
 
-    validates_associated :depictions
+    # TODO: Commenting the validation below fixes #770, but have to find another way to validate or confirm it is not needed.
+    #validates_associated :depictions
   end
 
   def has_depictions?
