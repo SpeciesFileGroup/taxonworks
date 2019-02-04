@@ -35,8 +35,9 @@ describe 'Depictions', type: :model do
     context 'on destroy' do
       specify 'attached depictions are destroyed' do
         expect(Depiction.count).to eq(0)
+        instance_with_depiction.save!
         instance_with_depiction.depictions << FactoryBot.build(:valid_depiction)
-        instance_with_depiction.save
+        instance_with_depiction.save!
         expect(Depiction.count).to eq(1)
         expect(instance_with_depiction.destroy).to be_truthy
         expect(Depiction.count).to eq(0)
@@ -45,6 +46,7 @@ describe 'Depictions', type: :model do
   end
 
   context 'create with nested depiction' do
+    
     specify 'works by nesting image_attributes' do
       expect(TestDepictionable.create!(
         depictions_attributes: [{image_attributes: image_attributes}]
@@ -75,9 +77,7 @@ describe 'Depictions', type: :model do
       expect(instance_with_depiction.images.count).to eq(2)
       expect(instance_with_depiction.images.first.id).to be_truthy
     end
-
   end
-
 
 end
 

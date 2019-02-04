@@ -18,16 +18,12 @@ RSpec.describe Depiction, type: :model do
     a = fixture_file_upload(Spec::Support::Utilities::Files.generate_png(file_name: "test.png"), 'image/png')
     last_utime = 2
 
-    10.times do |i|
+    8.times do |i|
       o = Otu.find(o.id) # VERY IMPORTANT TO RE-FETCH THE OBJECT TO TRIGGER THE PROBLEM!
-
-      bm = Benchmark.measure { Depiction.create! image_attributes: { image_file: a }, depiction_object: o }
-
+      bm = Benchmark.measure { Depiction.create!(image_attributes: { image_file: a }, depiction_object: o) }
       expect(bm.utime/last_utime).to be <= 5
-
       last_utime = bm.utime
     end
   end
-
 
 end

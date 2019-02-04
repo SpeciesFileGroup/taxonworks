@@ -40,6 +40,7 @@
 #
 class Image < ApplicationRecord
   include Housekeeping
+
   include Shared::Identifiers
   include Shared::Notes
   include Shared::Tags
@@ -48,7 +49,6 @@ class Image < ApplicationRecord
   include Shared::IsData
   include SoftValidation
 
-  #constants
   MISSING_IMAGE_PATH = '/public/images/missing.jpg'.freeze
 
   has_many :depictions, inverse_of: :image, dependent: :restrict_with_error
@@ -96,7 +96,6 @@ class Image < ApplicationRecord
       #   hsh.merge(c[0] => c[1])
       # }
     end
-
 
     ret_val # return
   end
@@ -280,14 +279,14 @@ class Image < ApplicationRecord
     # NOTE: assumes content type is an image.
     tempfile = image_file.queued_for_write[:original]
     if tempfile.nil?
-      self.width          = 0
-      self.height         = 0
+      self.width = 0
+      self.height = 0
       self.user_file_name = nil
     else
       self.user_file_name = tempfile.original_filename
-      geometry            = Paperclip::Geometry.from_file(tempfile)
-      self.width          = geometry.width.to_i
-      self.height         = geometry.height.to_i
+      geometry = Paperclip::Geometry.from_file(tempfile)
+      self.width = geometry.width.to_i
+      self.height = geometry.height.to_i
     end
   end
 

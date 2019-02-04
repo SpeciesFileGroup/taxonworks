@@ -30,11 +30,8 @@ class Depiction < ApplicationRecord
   acts_as_list scope: [:project_id, :depiction_object_type, :depiction_object_id]
 
   belongs_to :image, inverse_of: :depictions
-
   has_one :sqed_depiction, dependent: :destroy
 
-  validates_presence_of :depiction_object
-
   accepts_nested_attributes_for :image
-  accepts_nested_attributes_for :depiction_object
+
 end
