@@ -2,7 +2,6 @@ Rails.application.eager_load!
 
 TaxonWorks::Application.routes.draw do
 
-
   get :ping, controller: 'ping',  defaults: { format: :json }
   get :pingz, controller: 'ping',  defaults: { format: :json }
 
@@ -464,6 +463,13 @@ TaxonWorks::Application.routes.draw do
     member do
       get 'related'
     end
+  end
+
+  resources :organizations do
+    collection do 
+      get :autocomplete, defaults: {format: :json}
+    end
+    concerns [:data_routes]
   end
 
   resources :origin_relationships do

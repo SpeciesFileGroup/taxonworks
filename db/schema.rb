@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_01_08_192437) do
+ActiveRecord::Schema.define(version: 2019_02_01_163757) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -1196,6 +1196,30 @@ ActiveRecord::Schema.define(version: 2019_01_08_192437) do
     t.index ["project_id"], name: "index_observations_on_project_id"
   end
 
+  create_table "organizations", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "alternate_name"
+    t.text "description"
+    t.text "disambiguating_description"
+    t.string "address"
+    t.string "email"
+    t.string "telephone"
+    t.string "duns"
+    t.string "global_location_number"
+    t.string "legal_name"
+    t.integer "same_as_id"
+    t.integer "area_served_id"
+    t.integer "department_id"
+    t.integer "parent_organization_id"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_organizations_on_created_by_id"
+    t.index ["name"], name: "index_organizations_on_name"
+    t.index ["updated_by_id"], name: "index_organizations_on_updated_by_id"
+  end
+
   create_table "origin_relationships", id: :serial, force: :cascade do |t|
     t.integer "old_object_id", null: false
     t.string "old_object_type", null: false
@@ -2007,6 +2031,12 @@ ActiveRecord::Schema.define(version: 2019_01_08_192437) do
   add_foreign_key "observations", "projects"
   add_foreign_key "observations", "users", column: "created_by_id"
   add_foreign_key "observations", "users", column: "updated_by_id"
+  add_foreign_key "organizations", "geographic_areas", column: "area_served_id"
+  add_foreign_key "organizations", "organizations", column: "department_id"
+  add_foreign_key "organizations", "organizations", column: "parent_organization_id"
+  add_foreign_key "organizations", "organizations", column: "same_as_id"
+  add_foreign_key "organizations", "users", column: "created_by_id"
+  add_foreign_key "organizations", "users", column: "updated_by_id"
   add_foreign_key "origin_relationships", "projects"
   add_foreign_key "origin_relationships", "users", column: "created_by_id"
   add_foreign_key "origin_relationships", "users", column: "updated_by_id"

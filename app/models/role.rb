@@ -1,4 +1,6 @@
-# A Role relates a Person (a Person is data in TaxonWorks) to other data.
+# A Role relates a Person or an Organization to other data. Both People and Organizations are "data" in TaxonWorks.
+#
+# Roles are the *only* place where person_id and organization_id must be referenced.
 #
 # @!attribute person_id
 #   @return [Integer]
@@ -43,8 +45,19 @@ class Role < ApplicationRecord
   # role_object is required but at the database constraint level at present
   # validates :role_object, presence: true
   validates_presence_of :type
+
+  # validate actor_is_present
+
   validates :person, presence: true
   validates_uniqueness_of :person_id, scope: [:role_object_id, :role_object_type, :type]
+
+  def allow_organization?
+    false
+  end
+
+  def only_organization?
+    false
+  end
 
   protected
 
@@ -117,7 +130,8 @@ require_dependency 'loan_recipient'
 require_dependency 'loan_supervisor'
 require_dependency 'accession_provider'
 require_dependency 'deaccession_recipient'
-require_dependency 'attribution_copyright_holder'
 require_dependency 'attribution_creator'
 require_dependency 'attribution_editor'
+
+require_dependency 'attribution_copyright_holder'
 require_dependency 'attribution_owner'
