@@ -104,7 +104,16 @@ export default {
       this.isLoading = false;
     }
   },
+  mounted() {
+    this.loadRecent()
+  },
   methods: {
+    loadRecent() {
+      this.$http.get('/sources.json?recent=true&per=15').then(response => {
+        console.log(response)
+        this.recentCreated = response.body
+      })
+    },
     parseBibtex(create) {
       let params = {
         bibtex_input: this.bibtexInput,
