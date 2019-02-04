@@ -110,7 +110,6 @@ export default {
   methods: {
     loadRecent() {
       this.$http.get('/sources.json?recent=true&per=15').then(response => {
-        console.log(response)
         this.recentCreated = response.body
       })
     },
