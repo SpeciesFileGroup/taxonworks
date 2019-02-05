@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-RSpec.describe DepictionsController, type: :controller do
+RSpec.describe DepictionsController, type: :controller, group: :images do
 
   before(:each) {
     sign_in
