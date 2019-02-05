@@ -101,6 +101,13 @@
         annotation_logic: 'append',
       }
     },
+    watch: {
+      isSelectAll(newVal) {
+        if(!newVal) {
+          this.selected = []
+        }
+      }
+    },
     methods: {
       compileList(colEvList) {
         if(this.annotation_logic == 'append') {
