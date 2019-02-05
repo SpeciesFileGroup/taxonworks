@@ -1,6 +1,12 @@
 <template>
   <div id="vue-task-images-new">
-    <h1>Task: New images</h1>
+    <div class="flex-separate middle">
+      <h1>Task: New images</h1>
+      <span
+        data-icon="reset"
+        class="cursor-pointer">Reset
+      </span>
+    </div>
     <div class="panel content separate-bottom">
       <image-dropzone v-model="images"/>
     </div>

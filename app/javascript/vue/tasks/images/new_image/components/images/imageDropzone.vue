@@ -15,6 +15,9 @@
         v-for="item in figuresList"
         :key="item.id"
         :image="item"/>
+      <div>
+        Clear images 
+      </div>
     </div>
   </div>
 </template>

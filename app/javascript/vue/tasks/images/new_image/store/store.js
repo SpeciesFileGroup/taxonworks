@@ -9,6 +9,9 @@ Vue.use(Vuex)
 
 function makeInitialState () {
   return {
+    settings: {
+      saving: false
+    },
     objectsForDepictions: [],
     depictionsCreated: [],
     imagesCreated: [],

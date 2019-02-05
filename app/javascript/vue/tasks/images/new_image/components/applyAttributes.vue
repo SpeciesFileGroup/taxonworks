@@ -11,7 +11,9 @@
             type="text">
           <button
             type="button"
-            class="button normal-input button-submit separate-left">
+            :disabled="!validateAttr"
+            class="button normal-input button-submit separate-left"
+            @click="applyAttr">
             Apply
           </button>
         </div>
@@ -19,17 +21,22 @@
           <input
             class="input-apply"
             disabled="true"
+            :value="objectsForDepictions"
             type="text">
           <button
             type="button"
-            class="button normal-input button-submit separate-left">
+            :disabled="!validateDepic"
+            class="button normal-input button-submit separate-left"
+            @click="applyDepic">
             Apply
           </button>
         </div>
       </div>
       <button 
         class="button normal-input button-submit item button-apply-both "
-        type="button">
+        type="button"
+        :disabled="!validateDepic || !validateAttr"
+        @click="applyAttr(); applyDepic()">
         Apply both
       </button>
     </div>
@@ -39,9 +46,16 @@
 <script>
 
 import { GetterNames } from '../store/getters/getters.js'
+import { ActionNames } from '../store/actions/actions.js'
 
 export default {
   computed: {
+    validateDepic() {
+      return this.$store.getters[GetterNames.GetObjectsForDepictions].length > 0
+    },
+    validateAttr() {
+      return this.imagesBy.length > 0 || this.license.length
+    },
     authors() {
       return this.$store.getters[GetterNames.GetPeople].authors
     },
@@ -67,20 +81,29 @@ export default {
     },
     showPeopleAndLicense() {
       return `${this.imagesBy}${this.imagesBy.length > 0 ? ` ${this.license}` : this.license}`
+    },
+    objectsForDepictions() {
+      let tmp = this.$store.getters[GetterNames.GetObjectsForDepictions].map(item => {
+        return item.label
+      })
+      return tmp.length ? `Depicts some: ${tmp.join(', ')}` : ''
     }
   },
   methods: {
     getNames(list) {
-      
       let ppl = list.map(item => {
         if(item.hasOwnProperty('person_attributes'))
           return `${item.person_attributes.last_name}, ${item.person_attributes.first_name}`
         else 
           return `${item.last_name}, ${item.first_name}`
       })
-
-
       return ppl
+    },
+    applyAttr() {
+      this.$store.dispatch(ActionNames.ApplyAttributions)
+    },
+    applyDepic() {
+      this.$store.dispatch(ActionNames.ApplyDepictions)
     }
   }
 }

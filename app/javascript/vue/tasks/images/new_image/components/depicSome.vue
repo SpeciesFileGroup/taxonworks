@@ -19,18 +19,46 @@
       <div>
         <smart-selector
           v-model="view"
+          class="separate-bottom"
           :options="options"/>
-        <autocomplete
-          v-if="view == 'search'"
-          :disabled="!selectedType"
-          :url="selectedType.url"
-          param="term"/>
+        <template v-if="view == 'search'">
+          <autocomplete
+            v-if="selectedType.key != 'Otu'"
+            :disabled="!selectedType"
+            :url="selectedType.url"
+            label="label_html"
+            :placeholder="`Select a ${selectedType.label.toLowerCase()}`"
+            :clear-after="true"
+            @getItem="addToList"
+            param="term"/>
+          <otu-picker
+            v-else
+            :clear-after="true"
+            @getItem="addToList"/>
+        </template>
+        <ul
+          v-else
+          class="no_bullets">
+          <li
+            v-for="item in lists[view]"
+            :key="item.id">
+            <label @click="addToList(item)">
+              <input
+                name="items-depic-some"
+                :checked="checkIfExist(item)"
+                type="radio">
+              <span v-html="item.object_tag"/>
+            </label>
+          </li>
+        </ul>
       </div>
     </div>
     <table-list
-      :list="selectedObjects"
+      :list="listCreated"
       :header="['Objects', 'Remove']"
-      :attributes="['object_tag']"/>
+      :annotator="false"
+      @delete="removeItem"
+      :attributes="['label']"/>
   </div>
 </template>
 
@@ -39,6 +67,11 @@
 import SmartSelector from 'components/switch'
 import TableList from 'components/table_list'
 import Autocomplete from 'components/autocomplete'
+import OtuPicker from 'components/otu/otu_picker/otu_picker'
+
+import OrderSmartSelector from 'helpers/smartSelector/orderSmartSelector.js'
+import { GetterNames } from '../store/getters/getters.js'
+import { MutationNames } from '../store/mutations/mutations.js'
 
 import { GetOtuSmartSelector, GetCollectingEventSmartSelector, GetCollectionObjectSmartSelector } from '../request/resources.js'
 
@@ -46,7 +79,13 @@ export default {
   components: {
     SmartSelector,
     TableList,
-    Autocomplete
+    Autocomplete,
+    OtuPicker
+  },
+  computed: {
+    listCreated() {
+      return this.$store.getters[GetterNames.GetObjectsForDepictions]
+    }
   },
   data() {
     return {
@@ -86,6 +125,23 @@ export default {
 
   },
   methods: {
+    removeItem(item) {
+      this.$store.commit(MutationNames.RemoveObjectForDepictions, item)
+    },
+    checkIfExist(value) {
+      if(this.listCreated.find(item => {
+        return item.id == value.id && item.base_class == this.selectedType.key
+      })) return true
+      return false
+    },
+    addToList(item) {
+      this.$store.commit(MutationNames.AddObjectForDepictions, 
+      { 
+        id: item.id, 
+        label: item.hasOwnProperty('label') ? item.label : (this.selectedType.key == 'Otu'? item.object_label : item.object_tag),
+        base_class: this.selectedType.key
+      })
+    },
     setSelected(value) {
       this.selectedType = value
     },
@@ -93,24 +149,26 @@ export default {
       switch (type) {
         case 'Otu':
           GetOtuSmartSelector().then(response => {
-            this.options = Object.keys(response.body)
+            this.options = OrderSmartSelector(Object.keys(response.body))
+            this.options.push('search')
             this.lists = response.body
           })
           break;
         case 'CollectionObject':
           GetCollectionObjectSmartSelector().then(response => {
-            this.options = Object.keys(response.body)
+            this.options = OrderSmartSelector(Object.keys(response.body))
+            this.options.push('search')
             this.lists = response.body
           })
           break;
         case 'CollectingEvent':
           GetCollectingEventSmartSelector().then(response => {
-            this.options = Object.keys(response.body)
+            this.options = OrderSmartSelector(Object.keys(response.body))
+            this.options.push('search')
             this.lists = response.body
           })
           break;
       }
-
     }
   }
 }

@@ -17,7 +17,9 @@
       <div class="separate-left">
         <label>
           Year of copyright
-          <input type="number">
+          <input
+            type="number"
+            v-model="year">
         </label>
       </div>
     </div>
@@ -28,6 +30,8 @@
 
 import SmartSelector from 'components/switch'
 import RolePicker from 'components/role_picker'
+import { GetterNames } from '../store/getters/getters.js'
+import { MutationNames } from '../store/mutations/mutations.js'
 
 export default {
   components: {
@@ -44,11 +48,28 @@ export default {
       required: true
     }
   },
+  computed: {
+    roles_attributes: {
+      get() {
+        return this.$store.getters[GetterNames.GetPeople].copyrightHolder
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetCopyrightHolder, value)
+      }
+    },
+    year: {
+      get() {
+        return this.$store.getters[GetterNames.GetYearCopyright]
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetYearCopyright, value)
+      }
+    }
+  },
   data() {
     return {
       options: ['someone else', 'an organization'],
-      view: 'someone else',
-      roles_attributes: []
+      view: 'someone else'
     }
   },
   methods: {
