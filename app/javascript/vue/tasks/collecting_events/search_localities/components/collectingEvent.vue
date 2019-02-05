@@ -38,18 +38,21 @@
       </div>
       <span v-if="collectingEventList.length" v-html="'<br>' + collectingEventList.length + '  results found.'"/>
       <table style="width: 100%">
-        <th>Cached</th><th>Verbatim Locality</th><th>Pin</th><th class="remove_area" data-icon="trash" @click="resetList()">All</th><th>Select<input type="checkbox" v-model="selectAll"/>All &nbsp; &nbsp; &nbsp; <span class="remove_area" data-icon="trash" @click="keepMe()"> unchecked</span></th>
+        <th>Cached</th><th>Verbatim Locality</th><th>Pin</th>
+        <th class="remove_area" data-icon="trash" @click="resetList()">All</th>
+        <th>Select<input type="checkbox" @click="selectAllList()" v-model="isSelectAll"/>
+          All &nbsp; &nbsp; &nbsp; <span class="remove_area" data-icon="trash" @click="keepSelected()"> unchecked</span></th>
       <tr
         v-for="(item, index) in collectingEventList"
         :key="item.id">
         <td>
-          <span
+          <span style="width: 40%"
           v-html="item.id + ' ' + item.cached"
           @click="showObject(item.id)"
           />
         </td>
         <td>
-          <span v-html="item.verbatim_locality" />
+          <span style="width: 40%" v-html="item.verbatim_locality" />
         </td>
         <td>
           <pin-component
@@ -60,8 +63,7 @@
         <td>
           <span class="remove_area" data-icon="trash" @click="delistMe(index)"/>
         </td>
-        <td v-if="selectAll"><input type="checkbox" :value="item.id" :selected="selected"/></td>
-        <td v-else><input type="checkbox" :value="item.id" v-model="selected"/></td>
+        <td><input type="checkbox" :value="item.id" v-model="selected"/></td>
       </tr>
       </table>
     </div>
@@ -95,7 +97,7 @@
         view: undefined,
         collectingEventList: [],
         selected: [],
-        selectAll: false,
+        isSelectAll: false,
         annotation_logic: 'append',
       }
     },
@@ -124,7 +126,7 @@
       delistMe(index) {
         this.$delete(this.collectingEventList, index)
       },
-      keepMe() {  //loop down from top to avoid re-indexing issues
+      keepSelected() {  //loop down from top to avoid re-indexing issues
         for (let i = this.collectingEventList.length - 1; i > -1 ; i--) {
           if (!this.selected.includes(this.collectingEventList[i].id)) {
             this.delistMe(i)
@@ -132,12 +134,19 @@
         }
       },
       selectAllList() {
-
-      }
+        this.selected = [];               // toggle on state of header checkbox (??  !!)
+        if(this.isSelectAll); {
+          for (let i = this.collectingEventList.length - 1; i > -1; i--) {
+            if (!this.selected.includes(this.collectingEventList[i].id)) {
+              this.selected.push(this.collectingEventList[i].id);
+            }
+          }
+        }
+        // this.isSelectAll = ! this.isSelectAll;
+      },
     },
     mounted: function() {
       this.$http.get('/collecting_events/select_options').then(response => {
-        // this.$delete(response.body, 'quick');    // don't remove quick now that we know what it means
         this.tabs = Object.keys(response.body);
         this.list = response.body;
         if(this.tabs.length) {
