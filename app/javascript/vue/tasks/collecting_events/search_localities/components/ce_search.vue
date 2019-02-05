@@ -33,7 +33,7 @@
       :clear-after="true"
     />
       <input
-        type="button"
+        type="button" class="button normal-input button-default separate-left"
         @click="getAreaData()"
         :disabled="!geographicAreaList.length"
         value="Find">
@@ -45,7 +45,7 @@
        :zoom="2"
        @shape="shapes.push($event)"
       />
-      <input style="background-color: #5D9ECE"
+      <input class="button normal-input button-default separate-left"
         type="button"
         @click="getShapesData()"
         :disabled="!shapes.length"

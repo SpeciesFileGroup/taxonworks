@@ -33,7 +33,7 @@
       :autofocus="true"
       :clear-after="true"/>
     <input
-      type="button"
+      type="button" class="button normal-input button-default separate-left"
       @click="getTagData()"
       :disabled="!tagList.length"
       value="Find">

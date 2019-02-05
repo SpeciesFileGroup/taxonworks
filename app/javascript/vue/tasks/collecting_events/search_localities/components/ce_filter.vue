@@ -8,7 +8,7 @@
     <h3>Find collecting events</h3>
     <table>
       <tr>
-        <td>Originating<br>between</td><td>Day</td><td>Month</td><td>Year</td><td>DatePicker</td>
+        <td>Originating<br>between</td><td>Day</td><td>Month</td><td>Year</td><td>DatePicker</td><td/>
       </tr>
       <tr>
         <td/>
@@ -19,8 +19,15 @@
             size="2"
             maxlength="2">
         </td>
+        <!--<td>-->
+          <!--<month-select @month="parameters['start_date_month']=$event"/>-->
+        <!--</td>-->
         <td>
-          <month-select @month="parameters['start_date_month']=$event"/>
+          <input
+            v-model="parameters['start_date_month']"
+            type=text
+            size="2"
+            maxlength="2">
         </td>
         <td>
           <input
@@ -34,9 +41,17 @@
             v-model="parameters['start_date']"
             type="date">
         </td>
+        <td>
+          <button
+            type="button"
+            class="button normal-input button-default separate-left"
+            @click="setActualDateForStart">
+            Now
+          </button>
+        </td>
       </tr>
       <tr>
-        <td>And</td><td>Day</td><td>Month</td><td>Year</td><td>DatePicker</td>
+        <td>And</td><td>Day</td><td>Month</td><td>Year</td><td>DatePicker</td><td/>
       </tr>
       <tr>
         <td/>
@@ -48,7 +63,12 @@
             maxlength="2">
         </td>
         <td>
-          <month-select @month="parameters['end_date_month']=$event"/>
+          <!--<month-select @month="parameters['end_date_month']=$event"/>-->
+          <input
+            v-model="parameters['end_date_month']"
+            type=text
+            size="2"
+            maxlength="2">
         </td>
         <td>
           <input
@@ -61,6 +81,14 @@
           <input
             v-model="parameters['end_date']"
             type="date">
+        </td>
+        <td>
+          <button
+            type="button"
+            class="button normal-input button-default separate-left"
+            @click="setActualDateForEnd">
+            Now
+          </button>
         </td>
       </tr>
     </table>
@@ -100,7 +128,7 @@
       </tr>
     </table>
     <input
-      type="button"
+      type="button" class="button normal-input button-default separate-left"
       @click="getFilterData()"
       value="Find">
   </div>
@@ -135,6 +163,18 @@
     },
 
     methods: {
+      setActualDateForStart() {
+        let today = new Date()
+        this.parameters.start_date_day = today.getDate()
+        this.parameters.start_date_month = today.getMonth() + 1
+        this.parameters.start_date_year = today.getFullYear()
+      },
+      setActualDateForEnd() {
+        let today = new Date()
+        this.parameters.end_date_day = today.getDate()
+        this.parameters.end_date_month = today.getMonth() + 1
+        this.parameters.end_date_year = today.getFullYear()
+      },
       getFilterData(){
         let params = {};
         let keys = Object.keys(this.parameters);
