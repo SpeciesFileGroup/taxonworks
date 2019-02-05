@@ -45,14 +45,14 @@
       <tr
         v-for="(item, index) in collectingEventList"
         :key="item.id">
-        <td>
-          <span class="my-column"
+        <td class="my-column">
+          <span 
           v-html="item.id + ' ' + item.cached"
           @click="showObject(item.id)"
           />
         </td>
-        <td>
-          <span class="my-column" v-html="item.verbatim_locality" />
+        <td class="my-column">
+          <span  v-html="item.verbatim_locality" />
         </td>
         <td>
           <pin-component
