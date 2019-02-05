@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Depiction, type: :model do
+RSpec.describe Depiction, type: :model, groups: [:images] do
   let(:depiction) { Depiction.new() }
   let(:image_file) { fixture_file_upload( Spec::Support::Utilities::Files.generate_png, 'image/png') }
   let(:specimen) { FactoryBot.create(:valid_specimen) }

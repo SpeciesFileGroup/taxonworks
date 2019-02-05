@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Depictions', type: :model do
+describe 'Depictions', type: :model, group: [:images] do
   let(:instance_with_depiction) { TestDepictionable.new }
 
   let(:image1) { fixture_file_upload(Rails.root + 'spec/files/images/tiny.png', 'image/png') }
