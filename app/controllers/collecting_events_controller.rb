@@ -11,9 +11,9 @@ class CollectingEventsController < ApplicationController
         @recent_objects = CollectingEvent.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       end
-      format.json do
-        @collecting_events = Queries::CollectingEvent::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
-      end
+      format.json {
+        @collecting_events = Queries::CollectingEvent::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
+      }
     end
   end
 
@@ -169,7 +169,6 @@ class CollectingEventsController < ApplicationController
   # GET /collecting_events/select_options
   def select_options
     @collecting_events = CollectingEvent.select_optimized(sessions_current_user_id, sessions_current_project_id)
-    @collecting_events
   end
 
   private
@@ -212,6 +211,8 @@ class CollectingEventsController < ApplicationController
       :start_date,
       :end_date,
       :partial_overlap_dates,
+      :start_day, :start_month, :start_year,
+      :end_day, :end_month, :end_year,
       keyword_ids: [],
       spatial_geographic_area_ids: []
     )
