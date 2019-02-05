@@ -115,7 +115,6 @@ class AssertedDistribution < ApplicationRecord
 
   # @return [Nil]
   def new_records_include_otu
-
   end
 
   # @return [Boolean]

@@ -34,6 +34,7 @@ TaxonWorks::Application.routes.draw do
   resources :sessions, only: :create
 
   get 'soft_validations/validate' => 'soft_validations#validate', defaults: {format: :json}
+  post 'soft_validations/fix' => 'soft_validations#fix', defaults: {format: :json}
 
   # Note singular 'resource'
   resource :hub, controller: 'hub', only: [:index] do
@@ -561,6 +562,7 @@ TaxonWorks::Application.routes.draw do
   resources :sources do
     concerns [:data_routes]
     collection do
+      get :select_options, defaults: {format: :json}
       post :preview_bibtex_batch_load # should be get
       post :create_bibtex_batch_load
       get :parse, defaults: {format: :json}
@@ -661,6 +663,13 @@ TaxonWorks::Application.routes.draw do
   ### End of data resources ###
 
   scope :tasks do
+
+    scope :asserted_distribution do
+      scope :new_asserted_distribution, controller: 'tasks/asserted_distribution/new_asserted_distribution' do
+        get :index, as: 'index_new_asserted_distribution_task'
+      end
+    end
+
     scope :projects do
       scope :preferences, controller: 'tasks/projects/preferences' do
         get :index, as: 'project_preferences_task'

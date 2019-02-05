@@ -189,9 +189,8 @@ export default {
     addShortcutsDescription() {
       TW.workbench.keyboard.createLegend(`${this.getMacKey()}+s`, 'Save taxon name changes', 'New taxon name')
       TW.workbench.keyboard.createLegend(`${this.getMacKey()}+n`, 'Create a new taxon name', 'New taxon name')
-      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+t`, 'Create a new taxon name with the same parent', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+p`, 'Create a new taxon name with the same parent', 'New taxon name')
       TW.workbench.keyboard.createLegend(`${this.getMacKey()}+d`, 'Create a child of this taxon name', 'New taxon name')
-      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+t`, 'Load taxon name in browse nomenclature', 'New taxon name')
     },
     getMacKey: function () {
       return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')

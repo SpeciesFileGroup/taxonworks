@@ -22,13 +22,14 @@ export default function ({ commit, state, dispatch }, taxon) {
 
     if(taxon.hasOwnProperty('origin_citation_attributes')) {
       taxon_name.origin_citation_attributes = taxon.origin_citation_attributes
+      delete state.taxon_name.origin_citation_attributes
     }
 
     updateTaxonName(taxon_name).then(response => {
       if (!response.hasOwnProperty('taxon_name_author_roles')) {
         response['taxon_name_author_roles'] = []
       }
-		    response.roles_attributes = []
+      response.roles_attributes = []
       commit(MutationNames.SetTaxon, response)
       commit(MutationNames.SetHardValidation, undefined)
       dispatch('loadSoftValidation', 'taxon_name')
