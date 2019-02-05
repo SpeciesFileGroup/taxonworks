@@ -46,13 +46,13 @@
         v-for="(item, index) in collectingEventList"
         :key="item.id">
         <td>
-          <span style="width: 40%"
+          <span class="my-column"
           v-html="item.id + ' ' + item.cached"
           @click="showObject(item.id)"
           />
         </td>
         <td>
-          <span style="width: 40%" v-html="item.verbatim_locality" />
+          <span class="my-column" v-html="item.verbatim_locality" />
         </td>
         <td>
           <pin-component
@@ -168,3 +168,10 @@
     }
   }
 </script>
+<style scoped>
+  .my-column {
+    width: 40%;
+    min-width: 40%;
+    max-width: 40%;
+  }
+</style>
