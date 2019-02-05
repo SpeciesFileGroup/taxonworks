@@ -2,7 +2,7 @@
   <div id="vue-task-images-new">
     <h1>Task: New images</h1>
     <div class="panel content separate-bottom">
-      <depiction-component/>
+      <image-dropzone v-model="images"/>
     </div>
     <div class="separate-top separate-bottom">
       <apply-attributes/>
@@ -18,17 +18,29 @@
 
 <script>
 
-import DepictionComponent from 'components/depictions/depictions'
+import ImageDropzone from './components/images/imageDropzone'
 import ApplyAttributes from './components/applyAttributes'
 import PersonsSection from './components/personsSection'
 import DepicSome from './components/depicSome'
+import { GetterNames } from './store/getters/getters.js'
+import { MutationNames } from './store/mutations/mutations.js'
 
 export default {
   components: {
-    DepictionComponent,
+    ImageDropzone,
     ApplyAttributes,
     PersonsSection,
     DepicSome
+  },
+  computed: {
+    images: {
+      get() {
+        return this.$store.getters[GetterNames.GetImagesCreated]
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetImagesCreated, value)
+      }
+    }
   }
 }
 </script>
@@ -36,9 +48,9 @@ export default {
 <style lang="scss">
   #vue-task-images-new {
     .panel-section {
-flex-grow: 1;
-  flex-shrink: 1;
-  flex-basis: 0;
+      flex-grow: 1;
+      flex-shrink: 1;
+      flex-basis: 0;
     }
   }
 </style>

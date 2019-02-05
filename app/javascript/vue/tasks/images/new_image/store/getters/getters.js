@@ -1,11 +1,14 @@
 import getLicense from './getLicense'
+import getImagesCreated from './getImagesCreated'
 
 const GetterNames = {
-  GetLicense: 'getLicense'
+  GetLicense: 'getLicense',
+  GetImagesCreated: 'getImagesCreated'
 }
 
 const GetterFunctions = {
-  [GetterNames.GetLicense]: getLicense
+  [GetterNames.GetLicense]: getLicense,
+  [GetterNames.GetImagesCreated]: getImagesCreated
 }
 
 export {

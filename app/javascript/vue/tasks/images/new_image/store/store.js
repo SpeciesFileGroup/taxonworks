@@ -11,6 +11,15 @@ function makeInitialState () {
   return {
     objectsForDepictions: [],
     depictionsCreated: [],
+    imagesCreated: [],
+    attributionsCreated: [],
+    people: {
+      editors: [],
+      owners: [],
+      authors: [],
+      copyrightHolder: []
+    },
+    yearCopyright: undefined,
     license: undefined,
   }
 }
