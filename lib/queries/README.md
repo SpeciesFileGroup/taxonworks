@@ -19,6 +19,11 @@ These are the primary filtering, and autocomplete queries.  The directory is bei
 
 * should have an `#autocomplete` method that returns an _Array_ 
 
+## Routes
+
+* filter queries should be hit on JSON requests to :index (e.g. `/otus.json?<params>`)
+* autocomplete queries should be hit on `/<model>/autocomplete`
+
 
 
 

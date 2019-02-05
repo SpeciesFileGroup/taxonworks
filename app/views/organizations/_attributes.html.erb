@@ -1,0 +1,84 @@
+<p>
+  <strong>Name:</strong>
+  <%= @organization.name %>
+</p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @organization.name %>
+</p>
+
+<p>
+  <strong>Alternate name:</strong>
+  <%= @organization.alternate_name %>
+</p>
+
+<p>
+  <strong>Description:</strong>
+  <%= @organization.description %>
+</p>
+
+<p>
+  <strong>Disambiguating description:</strong>
+  <%= @organization.disambiguating_description %>
+</p>
+
+<p>
+  <strong>Same as:</strong>
+  <%= organization_tag(@organization.same_as) %>
+</p>
+
+<p>
+  <strong>Parent organization:</strong>
+  <%= organization_tag(@organization.parent_organization) %>
+</p>
+
+<p>
+  <strong>Department:</strong>
+  <%= organization_tag(@organization.department) %>
+</p>
+
+<p>
+  <strong>Address:</strong>
+  <%= @organization.address %>
+</p>
+
+<p>
+  <strong>Email:</strong>
+  <%= @organization.email %>
+</p>
+
+<p>
+  <strong>Telephone:</strong>
+  <%= @organization.telephone %>
+</p>
+
+<p>
+  <strong>Duns:</strong>
+  <%= @organization.duns %>
+</p>
+
+<p>
+  <strong>Global location number:</strong>
+  <%= @organization.global_location_number %>
+</p>
+
+<p>
+  <strong>Legal name:</strong>
+  <%= @organization.legal_name %>
+</p>
+
+<p>
+  <strong>Area served:</strong>
+  <%= geographic_area_tag(@organization.area_served) %>
+</p>
+
+
+
+
+
+
+
+
+
+

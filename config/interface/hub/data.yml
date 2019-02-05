@@ -258,6 +258,12 @@ Supporting:
     status: :prototype
     related_models:
       - ControlledVocabularyTerm
+  Organization:
+    status: :stable
+    shared: true
+    categories:
+    related_models:
+      - People
   Person:
     status: :stable
     shared: true

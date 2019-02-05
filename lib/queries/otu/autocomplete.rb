@@ -34,6 +34,7 @@ module Queries
       a
     end
 
+    # TODO: should be autocomplete
     # @return [Scope]
     def all
       # For reference, this is equivalent: Otu.eager_load(:taxon_name).where(where_sql)
