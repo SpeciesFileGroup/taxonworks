@@ -34,6 +34,7 @@ class Depiction < ApplicationRecord
 
   accepts_nested_attributes_for :image
 
-  # validates_presence_of :depiction_object
+  # This seems OK given specs, though similar validations in other concerns have created headaches.
+  validates_presence_of :depiction_object
 
 end
