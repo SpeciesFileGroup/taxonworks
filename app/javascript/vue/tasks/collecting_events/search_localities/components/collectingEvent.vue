@@ -39,9 +39,9 @@
       <span v-if="collectingEventList.length" v-html="'<br>' + collectingEventList.length + '  results found.'"/>
       <table style="width: 100%">
         <th>Cached</th><th>Verbatim Locality</th><th>Pin</th>
-        <th class="remove_area" data-icon="trash" @click="resetList()">All</th>
-        <th>Select<input type="checkbox" @click="selectAllList()" v-model="isSelectAll"/>
-          All &nbsp; &nbsp; &nbsp; <span class="remove_area" data-icon="trash" @click="keepSelected()"> unchecked</span></th>
+        <th data-icon="trash" @click="resetList()">All</th>
+        <th><input type="checkbox" @click="selectAllList()" v-model="isSelectAll"/> All</th>
+        <th><span class="remove_area" data-icon="trash" @click="keepSelected()"> unchecked</span></th>
       <tr
         v-for="(item, index) in collectingEventList"
         :key="item.id">
@@ -61,9 +61,10 @@
           :type="item.base_class"/>
         </td>
         <td>
-          <span class="remove_area" data-icon="trash" @click="delistMe(index)"/>
+          <span data-icon="trash" @click="delistMe(index)"/>
         </td>
         <td><input type="checkbox" :value="item.id" v-model="selected"/></td>
+        <td/>
       </tr>
       </table>
     </div>
