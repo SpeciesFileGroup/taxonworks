@@ -58,14 +58,21 @@ class Organization < ApplicationRecord
   validates :email, format:  {with: User::VALID_EMAIL_REGEX}, allow_nil: true # TODO: unify
 
   validate :related_not_self
+  validate :names_not_same
 
+
+  protected
+
+  def names_not_same
+    errors.add(:name, 'is same as alternate name') if name == alternate_name
+  end
+
+ 
   def related_not_self
     [:same_as_id, :department_id, :parent_organization_id].each do |a|
       b = send(a)
       errors.add(a, 'can not be self') if b && id == b
     end
-  end 
-
-  protected
+  end  
 
 end
