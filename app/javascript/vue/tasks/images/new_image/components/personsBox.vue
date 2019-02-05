@@ -32,13 +32,30 @@ export default {
     roleType: {
       type:String,
       required: true
+    },
+    options: {
+      type: Array,
+      default: () => { return ['someone else', 'an organization'] }
     }
   },
   data() {
     return {
-      options: ['someone else', 'an organization'],
       view: 'someone else',
       roles_attributes: []
+    }
+  },
+  watch: {
+    roles_attributes: {
+      handler(newVal) {
+        this.$emit('input', newVal)
+      }, 
+      deep: true
+    },
+    value: {
+      handler(newVal) {
+        this.roles_attributes = newVal
+      },
+      deep: true
     }
   },
   methods: {

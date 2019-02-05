@@ -3,14 +3,19 @@
     <div class="flexbox separate-bottom">
       <person-box
         class="separate-right panel-section"
+        v-model="authors"
+        :options="['someone else']"
         role-type="AttributionCreator"
         title="Author/Creator"/>
       <person-box
         class="separate-left separate-right panel-section"
+        v-model="editors"
+        :options="['someone else']"
         role-type="AttributionEditor"
         title="Editor"/>
       <person-box
         class="separate-left panel-section"
+        v-model="owners"
         role-type="AttributionOwner"
         title="Owner"/>
     </div>
@@ -29,6 +34,8 @@
 import PersonBox from './personsBox'
 import CopyrightHolder from './copyrightHolder'
 import LicensesSection from './licensesSection'
+import { GetterNames } from '../store/getters/getters.js'
+import { MutationNames } from '../store/mutations/mutations.js'
 
 
 export default {
@@ -36,6 +43,40 @@ export default {
     PersonBox,
     LicensesSection,
     CopyrightHolder
+  },
+  computed: {
+    owners: {
+      get() {
+        return this.$store.getters[GetterNames.GetPeople].owners
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetOwners, value)
+      }
+    },
+    authors: {
+      get() {
+        return this.$store.getters[GetterNames.GetPeople].authors
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetAuthors, value)
+      }
+    },
+    editors: {
+      get() {
+        return this.$store.getters[GetterNames.GetPeople].editors
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetEditors, value)
+      }
+    },
+    copyrightHolder: {
+      get() {
+        return this.$store.getters[GetterNames.GetPeople].CopyrightHolder
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetCopyrightHolder, value)
+      }
+    },
   }
 }
 </script>
