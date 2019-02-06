@@ -426,8 +426,8 @@ class Source::Bibtex < Source
       b[:doi] = dois.first.identifier # TW only allows one DOI per object
     end
 
-    b.author = self.compute_bibtex_names('author') unless (!self.authors.any? && author.blank?)
-    b.editor = self.compute_bibtex_names('editor') unless (!self.editors.any? && editor.blank?)
+    b.author = self.compute_bibtex_names('author') unless (!authors.any? && author.blank?)
+    b.editor = self.compute_bibtex_names('editor') unless (!editors.any? && editor.blank?)
 
     b.key = id unless new_record?
     b
