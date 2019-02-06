@@ -2,6 +2,11 @@
 #
 class Georeference::GPX < Georeference
 
+  def initialize(request_params)
+    super
+
+  end
+
   # coordinates is an Array of Stings of [longitude, latitude]
   # @param [Symbol] geo_type
   # @param [Ignored] shape
