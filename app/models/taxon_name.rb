@@ -1048,7 +1048,7 @@ class TaxonName < ApplicationRecord
   end
 
   def next_sibling
-    if siblings.where(project_id: project_id).any?
+    if siblings.where(project_id: project_id).load.any?
       sibs = self_and_siblings.order(:cached).pluck(:id)
       s = sibs.index(id)
       TaxonName.find(sibs[ s + 1] ) if s < sibs.length - 1
@@ -1058,7 +1058,7 @@ class TaxonName < ApplicationRecord
   end
 
   def previous_sibling
-    if siblings.where(project_id: project_id).any?
+    if siblings.where(project_id: project_id).load.any?
       sibs = self_and_siblings.order(:cached).pluck(:id)
       s = sibs.index(id)
       TaxonName.find(sibs[s - 1]) if s != 0

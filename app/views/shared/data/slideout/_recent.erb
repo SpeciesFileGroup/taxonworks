@@ -1,12 +1,11 @@
-<% content_for :header_class, "slide-recent", :flush => true  %>
+<% content_for :header_class, "slide-recent", :flush => true %>
 <% content_for :panel_name_data, "recent", :flush => true  %>
 <% content_for :panel_title, "Recent activity", :flush => true  %>
-<% content_for :panel_contents, :flush => true  do %> 
-  <div class="slide-panel-content">  
+<% content_for :panel_contents, :flush => true  do %>
+  <div class="slide-panel-content">
     <div class="slide-panel-category">
-      <%= render :partial => '/hub/navigation_lists/recent'  %>
+      <%= render partial: '/hub/navigation_lists/recent' %>
     </div>
-  </div> 
+  </div>
 <% end %>
-
 <%= render partial: '/shared/data/slideout/panel' %>

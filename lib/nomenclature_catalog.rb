@@ -62,7 +62,7 @@ module NomenclatureCatalog
         data.items << NomenclatureCatalog::EntryItem.new(object: t , taxon_name: t, citation: c, nomenclature_date: c.source.cached_nomenclature_date)
       end
 
-      data.items << NomenclatureCatalog::EntryItem.new(object: t, taxon_name: t, citation: nil, nomenclature_date: t.nomenclature_date) if !t.citations.any?
+      data.items << NomenclatureCatalog::EntryItem.new(object: t, taxon_name: t, citation: nil, nomenclature_date: t.nomenclature_date) if !t.citations.load.any?
 
 
       TaxonNameRelationship.where_subject_is_taxon_name(t).with_type_array(STATUS_TAXON_NAME_RELATIONSHIP_NAMES).each do |r|
@@ -81,7 +81,7 @@ module NomenclatureCatalog
           taxon_name: r.subject_taxon_name,
           citation: nil,
           nomenclature_date: r.subject_taxon_name.nomenclature_date
-        ) if !r.citations.any?
+        ) if !r.citations.load.any?
 
       # data.items <<  NomenclatureCatalog::EntryItem.new(object: r,
       #                                                   citation: r.origin_citation,
