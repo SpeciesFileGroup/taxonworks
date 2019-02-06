@@ -7,6 +7,7 @@ namespace :tw do
 
         desc 'time rake tw:project_import:sf_import:media:images user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define images: [:data_directory, :environment, :user_id] do |logger|
+          # TODO: SourceID not imported!
 
           # Images table (15 col)
           # id
@@ -85,33 +86,52 @@ namespace :tw do
           skipped_file_ids << 0
 
           file.each_with_index do |row, i|
+            if row['AccessCode'].to_i != 0
+              # HLP: Lets start by not exposing data that could potentially be part of a manuscript for now.
+              # Emit a warning to remind us in the future of the missing images.
+              logger.warn "Skipping ImageID = #{row['ImageID']}, AccessCode = #{row['AccessCode']}"
+              next
+            end
+
             sf_file_id = row['FileID']
             next if skipped_file_ids.include? sf_file_id.to_i
+
             sf_taxon_name_id = row['TaxonNameID']
             next if excluded_taxa.include? sf_taxon_name_id
+
             specimen_id = row['SpecimenID']
             project_id = get_tw_project_id[sf_file_id]
-            ap get_tw_project_id
-            puts project_id
 
-            logger.info "ImageID = #{row['ImageID']}, SpecimenID = #{specimen_id}, SF.TaxonNameID = #{sf_taxon_name_id}, FileID = #{sf_file_id} \n"
+            #logger.info "ImageID = #{row['ImageID']}, SpecimenID = #{specimen_id}, SF.TaxonNameID = #{sf_taxon_name_id}, FileID = #{sf_file_id}"
 
             # not yet in db:collection_object_id = get_tw_collection_object_id[specimen_id] if specimen_id.to_i > 0
 
             tw_taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id] # may not exist
-            otu_id = get_taxon_name_otu_id[tw_taxon_name_id]
+            otu_id = get_taxon_name_otu_id[tw_taxon_name_id].to_i
+            collection_object_id = get_tw_collection_object_id[specimen_id] || []
 
-            if otu_id.nil?
-              if specimen_id.to_i > 0
-                 otu_id = get_tw_otu_id[get_sf_taxon_name_id[specimen_id]]
-              else  # assume there is a sf_taxon_name_id
-                  otu_id = get_tw_otu_id[sf_taxon_name_id]
-              end
+            if collection_object_id.length > 1
+              # Not dealing with SpecimenIDs split into multiple CollectionObjects at this time
+              logger.warn "Skipping ImageID = #{row['ImageID']}, collection_object_id = #{collection_object_id}, SpecimenID = #{specimen_id}"
+              next
             end
 
+            collection_object_id = collection_object_id.first
 
-#            logger.info "Working on SF.TaxonNameID = #{sf_taxon_name_id}, tw.taxon_name_id = #{tw_taxon_name_id}, SF.SpecimenID = #{specimen_id}, collection_object_id = #{collection_object_id}, otu_id = #{otu_id}, project_id = #{project_id}, counter = #{counter += 1} \n"
-            logger.info "ImageID = #{row['ImageID']}, TrueID = #{row['TrueID']}, no_coll_count = #{no_coll_count}, no_otu_count = #{no_otu_count} \n"
+            logger.info "ImageID = #{row['ImageID']}, SpecimenID = #{specimen_id}, SF.TaxonNameID = #{sf_taxon_name_id}, FileID = #{sf_file_id}" if otu_id.nil?
+
+            # HLP: By the AccessCode contraint above, otu_id is never nil
+            # if otu_id.nil?
+            #  if specimen_id.to_i > 0
+            #     otu_id = get_tw_otu_id[get_sf_taxon_name_id[specimen_id]]
+            #  else  # assume there is a sf_taxon_name_id
+            #      otu_id = get_tw_otu_id[sf_taxon_name_id]
+            #  end
+            # end
+
+
+            logger.info "Working on SF.TaxonNameID = #{sf_taxon_name_id}, tw.taxon_name_id = #{tw_taxon_name_id}, SF.SpecimenID = #{specimen_id}, collection_object_id = #{collection_object_id}, otu_id = #{otu_id}, project_id = #{project_id}, counter = #{counter += 1}"
+            logger.info "ImageID = #{row['ImageID']}, TrueID = #{row['TrueID']}, no_coll_count = #{no_coll_count}, no_otu_count = #{no_otu_count}"
 
             #if specimen_id.to_i > 0 && collection_object_id.nil? # 3895/124,719
             #  logger.warn "No collection object, counter = #{no_coll_count += 1}"
@@ -120,6 +140,7 @@ namespace :tw do
             #  logger.warn "No otu, counter = #{no_otu_count += 1}"
             #end
 
+            depiction_object = collection_object_id.nil? ? Otu.find(otu_id) : CollectionObject.find(collection_object_id)
 
             # depiction object: if collection_object_id not nil, use it, otherwise use otu_id
             File.open("#{@args[:data_directory]}/images/#{row['ImageID']}") do | file |
@@ -127,13 +148,12 @@ namespace :tw do
               # TODO: Investigate why image 221946 freezes the task (possible validation infinite loop)
               Depiction.create!(
                 image_attributes: { image_file: file, project_id: get_tw_project_id[row['FileID']] }, 
-                depiction_object_id: otu_id, 
-                depiction_object_type: 'TaxonName',
                 created_at: row['CreatedOn'],
                 updated_at: row['LastUpdate'],
                 created_by_id: get_tw_user_id[row['CreatedBy']],
                 updated_by_id: get_tw_user_id[row['ModifiedBy']],
-                project_id: get_tw_project_id[row['FileID']]                
+                project_id: get_tw_project_id[row['FileID']],
+                depiction_object: depiction_object
               )
             end
 
