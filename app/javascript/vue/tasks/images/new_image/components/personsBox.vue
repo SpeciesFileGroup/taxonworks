@@ -36,6 +36,10 @@ export default {
     options: {
       type: Array,
       default: () => { return ['someone else', 'an organization'] }
+    },
+    value: {
+      type: Array,
+      required: true
     }
   },
   data() {

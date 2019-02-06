@@ -50,11 +50,14 @@ import { ActionNames } from '../store/actions/actions.js'
 
 export default {
   computed: {
+    imagesCreated() {
+      return this.$store.getters[GetterNames.GetImagesCreated]
+    },
     validateDepic() {
-      return this.$store.getters[GetterNames.GetObjectsForDepictions].length > 0
+      return (this.$store.getters[GetterNames.GetObjectsForDepictions].length > 0) && this.imagesCreated.length > 0
     },
     validateAttr() {
-      return this.imagesBy.length > 0 || this.license.length
+      return (this.imagesBy.length > 0 || this.license.length) && this.imagesCreated.length > 0
     },
     authors() {
       return this.$store.getters[GetterNames.GetPeople].authors

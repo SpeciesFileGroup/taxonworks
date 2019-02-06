@@ -68,15 +68,7 @@ export default {
       set(value) {
         this.$store.commit(MutationNames.SetEditors, value)
       }
-    },
-    copyrightHolder: {
-      get() {
-        return this.$store.getters[GetterNames.GetPeople].CopyrightHolder
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetCopyrightHolder, value)
-      }
-    },
+    }
   }
 }
 </script>

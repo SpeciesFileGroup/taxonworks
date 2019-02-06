@@ -1,4 +1,4 @@
-import { CreateDepiction, UpdateDepiction } from '../../request/resources'
+import { CreateDepiction } from '../../request/resources'
 import { MutationNames } from '../mutations/mutations'
 
 export default function({ state, commit }) {

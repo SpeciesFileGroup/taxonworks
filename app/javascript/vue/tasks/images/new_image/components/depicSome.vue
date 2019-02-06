@@ -1,6 +1,6 @@
 <template>
   <div class="panel content">
-    <h2>Depic some</h2>
+    <h2>Depict some</h2>
     <div class="flex-separate align-start">
       <ul class="no_bullets">
         <li
@@ -70,6 +70,7 @@ import Autocomplete from 'components/autocomplete'
 import OtuPicker from 'components/otu/otu_picker/otu_picker'
 
 import OrderSmartSelector from 'helpers/smartSelector/orderSmartSelector.js'
+import SelectFirstSmartOption from 'helpers/smartSelector/selectFirstSmartOption.js'
 import { GetterNames } from '../store/getters/getters.js'
 import { MutationNames } from '../store/mutations/mutations.js'
 
@@ -152,6 +153,9 @@ export default {
             this.options = OrderSmartSelector(Object.keys(response.body))
             this.options.push('search')
             this.lists = response.body
+            
+            let selectedOption = SelectFirstSmartOption(this.lists, this.options)
+            this.view = selectedOption ? selectedOption : 'search'
           })
           break;
         case 'CollectionObject':
@@ -159,6 +163,9 @@ export default {
             this.options = OrderSmartSelector(Object.keys(response.body))
             this.options.push('search')
             this.lists = response.body
+
+            let selectedOption = SelectFirstSmartOption(this.lists, this.options)
+            this.view = selectedOption ? selectedOption : 'search'
           })
           break;
         case 'CollectingEvent':
@@ -166,6 +173,9 @@ export default {
             this.options = OrderSmartSelector(Object.keys(response.body))
             this.options.push('search')
             this.lists = response.body
+
+            let selectedOption = SelectFirstSmartOption(this.lists, this.options)
+            this.view = selectedOption ? selectedOption : 'search'
           })
           break;
       }

@@ -9,11 +9,15 @@
       <h1>Task: New images</h1>
       <span
         data-icon="reset"
-        class="cursor-pointer">Reset
+        class="cursor-pointer"
+        @click="resetStore">Reset
       </span>
     </div>
     <div class="panel content separate-bottom">
-      <image-dropzone v-model="images"/>
+      <image-dropzone
+        v-model="images"
+        @delete="removeImage"
+        @onClear="clearDataCreated"/>
     </div>
     <div class="separate-top separate-bottom">
       <apply-attributes/>
@@ -36,6 +40,7 @@ import PersonsSection from './components/personsSection'
 import DepicSome from './components/depicSome'
 import { GetterNames } from './store/getters/getters.js'
 import { MutationNames } from './store/mutations/mutations.js'
+import { ActionNames } from './store/actions/actions.js'
 
 export default {
   components: {
@@ -56,6 +61,18 @@ export default {
     },
     isSaving() {
       return this.$store.getters[GetterNames.GetSettings].saving
+    }
+  },
+  methods: {
+    resetStore() {
+      this.$store.dispatch(ActionNames.ResetStore)
+    },
+    clearDataCreated() {
+      this.$store.commit(MutationNames.SetDepictions, [])
+      this.$store.commit(MutationNames.SetAttributionsCreated, [])
+    },
+    removeImage(image) {
+      this.$store.dispatch(ActionNames.RemoveImage, image)
     }
   }
 }

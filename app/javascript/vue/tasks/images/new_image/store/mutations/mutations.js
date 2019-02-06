@@ -10,6 +10,8 @@ import setOwners from './setOwners'
 import setCopyrightHolders from './setCopyrightHolder'
 import setYearCopyright from './setYearCopyright'
 import setDepictions from './setDepictions'
+import setAttributionsCreated from './setAttributionsCreated'
+import resetStore from './resetStore'
 
 const MutationNames = {
   AddAttribution: 'addAttribution',
@@ -23,7 +25,9 @@ const MutationNames = {
   SetOwners: 'setOwners',
   SetCopyrightHolder: 'setCopyrightHolder',
   SetYearCopyright: 'setYearCopyright',
-  SetDepictions: 'setDepictions'
+  SetDepictions: 'setDepictions',
+  SetAttributionsCreated: 'setAttributionsCreated',
+  ResetStore: 'resetStore'
 }
 
 const MutationFunctions = {
@@ -38,7 +42,9 @@ const MutationFunctions = {
   [MutationNames.SetOwners]: setOwners,
   [MutationNames.SetCopyrightHolder]: setCopyrightHolders,
   [MutationNames.SetYearCopyright]: setYearCopyright,
-  [MutationNames.SetDepictions]: setDepictions
+  [MutationNames.SetDepictions]: setDepictions,
+  [MutationNames.SetAttributionsCreated]: setAttributionsCreated,
+  [MutationNames.ResetStore]: resetStore
 }
 
 export {
