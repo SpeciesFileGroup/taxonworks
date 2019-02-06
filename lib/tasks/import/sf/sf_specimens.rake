@@ -173,13 +173,13 @@ namespace :tw do
                 logger.info "In AssertedDistribution section: SpecimenID = #{specimen_id}, FileID = #{sf_file_id}, SF.TaxonNameID = #{sf_taxon_name_id}, tw_taxon_name_id = #{tw_taxon_name_id}, otu_id = #{otu_id}, geographic_area_id = #{geographic_area_id}, SF.RefID = #{sf_ref_id}, source_id = #{source_id} \n"
 
                 if otu_id.nil?
-                  logger.error 'Missing otu_id: An asserted_distribution must have an otu_id, a source_id, and a geographic_area_id [ no_otu = #{no_otu += 1} ] \n'
+                  logger.error "Missing otu_id: An asserted_distribution must have an otu_id, a source_id, and a geographic_area_id [ no_otu = #{no_otu += 1} ] \n"
                   next
                 elsif sf_ref_id == '0'
-                  logger.error 'Missing source_id: An asserted_distribution must have an otu_id, a source_id, and a geographic_area_id [ no_source = #{no_source += 1} ] \n'
+                  logger.error "Missing source_id: An asserted_distribution must have an otu_id, a source_id, and a geographic_area_id [ no_source = #{no_source += 1} ] \n"
                   next
                 elsif geographic_area_id.nil?
-                  logger.error 'Missing geographic_area_id: An asserted_distribution must have an otu_id, a source_id, and a geographic_area_id [ no_geo_area = #{no_geo_area += 1} ] \n'
+                  logger.error "Missing geographic_area_id: An asserted_distribution must have an otu_id, a source_id, and a geographic_area_id [ no_geo_area = #{no_geo_area += 1} ] \n"
                   next
                 end
 
@@ -202,7 +202,7 @@ namespace :tw do
                       citation_object_type: 'AssertedDistribution',
                       citation_object_id: used_asserted_distribution_id
                   ).any?
-                    logger.error "used_asserted_distribution_id = #{used_asserted_distribution_id} consisting of [ otu_id = {otu_id}, geographic_area_id = #{geographic_area_id}, source_id = #{source_id} ] already exists"
+                    logger.error "used_asserted_distribution_id = #{used_asserted_distribution_id} consisting of [ otu_id = #{otu_id}, geographic_area_id = #{geographic_area_id}, source_id = #{source_id} ] already exists"
                   else
                     # create citation to ad with this source_id
                     citation = Citation.create!(
