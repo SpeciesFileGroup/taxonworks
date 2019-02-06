@@ -4,7 +4,7 @@
 
 <%= content_for :associated do %>
   <% if @source.type == 'Source::Bibtex' %>
-    <% if @source.authors.any? %>
+    <% if @source.authors.load.any? %>
       <h3>Authors</h3>
       <ul>
         <% @source.authors.each do |author| %>
@@ -12,7 +12,7 @@
         <% end %>
       </ul>
     <% end %>
-    <% if @source.editors.any? %>
+    <% if @source.editors.load.any? %>
       <h3>Editors</h3>
       <ul>
         <% @source.editors.each do |editor| %>

@@ -12,7 +12,7 @@ class CollectingEventsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @collecting_events = Queries::CollectingEvent::Filter.new(filter_params).all.page(params[:page]).per(500)
+        @collecting_events = Queries::CollectingEvent::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
       }
     end
   end
