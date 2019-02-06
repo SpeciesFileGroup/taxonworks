@@ -1,5 +1,10 @@
 <template>
   <div id="vue-task-images-new">
+    <spinner-component
+      :full-screen="true"
+      :legend="'Saving...'"
+      :logo-size="{ width: '100px', height: '100px'}"
+      v-if="isSaving"/>
     <div class="flex-separate middle">
       <h1>Task: New images</h1>
       <span
@@ -24,6 +29,7 @@
 
 <script>
 
+import SpinnerComponent from 'components/spinner'
 import ImageDropzone from './components/images/imageDropzone'
 import ApplyAttributes from './components/applyAttributes'
 import PersonsSection from './components/personsSection'
@@ -36,7 +42,8 @@ export default {
     ImageDropzone,
     ApplyAttributes,
     PersonsSection,
-    DepicSome
+    DepicSome,
+    SpinnerComponent
   },
   computed: {
     images: {
@@ -46,6 +53,9 @@ export default {
       set(value) {
         this.$store.commit(MutationNames.SetImagesCreated, value)
       }
+    },
+    isSaving() {
+      return this.$store.getters[GetterNames.GetSettings].saving
     }
   }
 }
