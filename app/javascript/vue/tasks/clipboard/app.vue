@@ -21,13 +21,9 @@
 </template>
 <script>
 
-  import Spinner from '../../components/spinner.vue'
   import { GetClipboard, UpdateClipboard } from './request/resources'
 
   export default {
-    components: {
-      Spinner
-    },
     computed: {
       isInput() {
         return (document.activeElement.tagName == 'INPUT' || 

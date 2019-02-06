@@ -128,7 +128,9 @@ module Queries
           q = ::Source.all
         end
         q = q.order(updated_at: :desc) if recent
+        q 
       end
+     
     end
   end
 end

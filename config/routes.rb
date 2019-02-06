@@ -33,6 +33,7 @@ TaxonWorks::Application.routes.draw do
   resources :sessions, only: :create
 
   get 'soft_validations/validate' => 'soft_validations#validate', defaults: {format: :json}
+  post 'soft_validations/fix' => 'soft_validations#fix', defaults: {format: :json}
 
   # Note singular 'resource'
   resource :hub, controller: 'hub', only: [:index] do

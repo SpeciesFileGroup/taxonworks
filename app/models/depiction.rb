@@ -27,14 +27,14 @@ class Depiction < ApplicationRecord
   include Shared::PolymorphicAnnotator
   polymorphic_annotates(:depiction_object)
 
-  acts_as_list scope: [:depiction_object_type, :depiction_object_id]
+  acts_as_list scope: [:project_id, :depiction_object_type, :depiction_object_id]
 
   belongs_to :image, inverse_of: :depictions
-
   has_one :sqed_depiction, dependent: :destroy
 
+  accepts_nested_attributes_for :image
+
+  # This seems OK given specs, though similar validations in other concerns have created headaches.
   validates_presence_of :depiction_object
 
-  accepts_nested_attributes_for :image
-  accepts_nested_attributes_for :depiction_object
 end
