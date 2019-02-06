@@ -14,24 +14,24 @@
         <td/>
         <td>
           <input
-            v-model="start_date_day"
+            v-model="parameters['start_day']"
             type=text
             size="2"
             maxlength="2">
         </td>
         <!--<td>-->
-          <!--<month-select @month="parameters['start_date_month']=$event"/>-->
+          <!--<month-select @month="parameters['start_month']=$event"/>-->
         <!--</td>-->
         <td>
           <input
-            v-model="start_date_month"
+            v-model="parameters['start_month']"
             type=text
             size="2"
             maxlength="2">
         </td>
         <td>
           <input
-            v-model="start_date_year"
+            v-model="parameters['start_year']"
             type=text
             size="4"
             maxlength="4">
@@ -57,22 +57,22 @@
         <td/>
         <td>
           <input
-            v-model="end_date_day"
+            v-model="parameters['end_day']"
             type=text
             size="2"
             maxlength="2">
         </td>
         <td>
-          <!--<month-select @month="parameters['end_date_month']=$event"/>-->
+          <!--<month-select @month="parameters['end_month']=$event"/>-->
           <input
-            v-model="end_date_month"
+            v-model="parameters['end_month']"
             type=text
             size="2"
             maxlength="2">
         </td>
         <td>
           <input
-            v-model="end_date_year"
+            v-model="parameters['end_year']"
             type=text
             size="4"
             maxlength="4">
@@ -145,6 +145,12 @@
     data() {
       return {
         parameters: {
+          start_day: '',
+          end_day: '',
+          start_month: '',
+          end_month: '',
+          start_year: '',
+          end_year: '',
           start_date: '',
           end_date: '',
           in_verbatim_locality: '',
@@ -153,37 +159,31 @@
           shape: ''},
         collectingEventList: [],
         isLoading:  false,
-        start_date_day: '',
-        end_date_day: '',
-        start_date_month: '',
-        end_date_month: '',
-        start_date_year: '',
-        end_date_year: '',
       }
     },
 
     methods: {
       setActualDateForStart() {
         let today = new Date();
-        this.start_date_day = today.getDate().toString();
-        this.start_date_month = (today.getMonth() + 1).toString();
-        this.start_date_year = today.getFullYear().toString();
-        this.parameters.start_date = this.makeDate(this.start_date_year, this.start_date_month, this.start_date_day);
+        this.parameters.start_day = today.getDate().toString();
+        this.parameters.start_month = (today.getMonth() + 1).toString();
+        this.parameters.start_year = today.getFullYear().toString();
+        // this.parameters.start_date = this.makeDate(this.start_year, this.start_month, this.start_day);
       },
       setActualDateForEnd() {
         let today = new Date();
-        this.end_date_day = today.getDate().toString();
-        this.end_date_month = (today.getMonth() + 1).toString();
-        this.end_date_year = today.getFullYear().toString();
-        this.parameters.end_date = this.makeDate(this.end_date_year, this.end_date_month, this.end_date_day);
+        this.parameters.end_day = today.getDate().toString();
+        this.parameters.end_month = (today.getMonth() + 1).toString();
+        this.parameters.end_year = today.getFullYear().toString();
+        // this.parameters.end_date = this.makeDate(this.end_year, this.end_month, this.end_day);
       },
       getFilterData(){
-        if((this.start_date_year + this.start_date_month + this.start_date_day).length) {
-          this.parameters.start_date = this.makeDate(this.start_date_year, this.start_date_month, this.start_date_day);
-        }
-        if((this.end_date_year + this.end_date_month + this.end_date_day).length) {
-          this.parameters.end_date = this.makeDate(this.end_date_year, this.end_date_month, this.end_date_day);
-        }
+        // if((this.start_year + this.start_month + this.start_day).length) {
+        //   this.parameters.start_date = this.makeDate(this.start_year, this.start_month, this.start_day);
+        // }
+        // if((this.end_year + this.end_month + this.end_day).length) {
+        //   this.parameters.end_date = this.makeDate(this.end_year, this.end_month, this.end_day);
+        // }
         let params = {};
         let keys = Object.keys(this.parameters);
         for (let i=0; i<keys.length; i++) {
