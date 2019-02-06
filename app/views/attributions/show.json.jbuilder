@@ -1,1 +1,1 @@
-json.partial! "attributions/attributes", attribution: @attribution
+json.partial! "/attributions/attributes", attribution: @attribution

@@ -1,4 +1,4 @@
-json.extract! attribution, :id, :copyright_year, :license, :attribute_object_id, :attribute_object_type, :created_at, :updated_at
+json.extract! attribution, :id, :copyright_year, :license, :attribution_object_id, :attribution_object_type, :created_at, :updated_at
 json.url attribution_url(attribution, format: :json)
 
 json.partial! '/shared/data/all/metadata', object: attribution
