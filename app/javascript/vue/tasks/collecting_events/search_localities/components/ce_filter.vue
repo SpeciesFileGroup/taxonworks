@@ -178,10 +178,10 @@
         this.parameters.end_date = this.makeDate(this.end_date_year, this.end_date_month, this.end_date_day);
       },
       getFilterData(){
-        if(this.start_date_year + this.start_date_month + this.start_date_day.length) {
+        if((this.start_date_year + this.start_date_month + this.start_date_day).length) {
           this.parameters.start_date = this.makeDate(this.start_date_year, this.start_date_month, this.start_date_day);
         }
-        if(this.end_date_year + this.end_date_month + this.end_date_day.length) {
+        if((this.end_date_year + this.end_date_month + this.end_date_day).length) {
           this.parameters.end_date = this.makeDate(this.end_date_year, this.end_date_month, this.end_date_day);
         }
         let params = {};
