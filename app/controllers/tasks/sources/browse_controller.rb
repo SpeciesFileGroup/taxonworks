@@ -14,6 +14,6 @@ class Tasks::Sources::BrowseController < ApplicationController
   end
 
   def filter_params
-    params.permit(:query_term).merge(project_id: sessions_current_project_id)
+    params.permit(:query_term).merge(project_id: sessions_current_project_id, recent: true)
   end
 end

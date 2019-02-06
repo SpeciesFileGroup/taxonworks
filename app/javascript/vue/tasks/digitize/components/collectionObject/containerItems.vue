@@ -19,15 +19,14 @@
 <script>
 
 import TableCollectionObjects from '../collectionObject/tableCollectionObjects'
-import BlockLayout from 'components/blockLayout.vue'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions'
+import GetMacKey from 'helpers/getMacKey.js'
 
 export default {
   components: {
     TableCollectionObjects,
-    BlockLayout
   },
   computed: {
     collectionObject () {
@@ -54,9 +53,7 @@ export default {
         }, 500)
       })
     },
-    getMacKey() {
-      return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
-    },
+    getMacKey: GetMacKey,
   }
 }
 </script>

@@ -12,7 +12,7 @@ class SourcesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @sources = Queries::Source::Filter.new(filter_params).all.distinct.page(params[:page]).per(500)
+        @sources = Queries::Source::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
       }
     end
   end
@@ -49,6 +49,11 @@ class SourcesController < ApplicationController
         format.json { render json: @source.errors, status: :unprocessable_entity }
       end
     end
+  end
+
+  # GET /sources/select_options
+  def select_options
+    @sources = Source.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:klass])
   end
 
   def parse
@@ -164,7 +169,7 @@ class SourcesController < ApplicationController
   end
 
   def filter_params
-    params.permit(:query_term, :project_id, author_ids: [])
+    params.permit(:query_term, :project_id, :recent, author_ids: [])
   end
 
 

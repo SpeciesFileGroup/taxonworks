@@ -327,31 +327,30 @@ class Source::Bibtex < Source
   before_validation :check_has_field
 
   validates_inclusion_of :bibtex_type,
-                         in: ::VALID_BIBTEX_TYPES,
-                         message: '"%{value}" is not a valid source type'
+    in: ::VALID_BIBTEX_TYPES,
+    message: '"%{value}" is not a valid source type'
 
   validates_presence_of :year,
-                        if: -> { !month.blank? || !stated_year.blank? },
-                        message: 'is required when month or stated_year is provided'
+    if: -> { !month.blank? || !stated_year.blank? },
+    message: 'is required when month or stated_year is provided'
 
-  # @todo refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
   validates :year, date_year: {min_year: 1000, max_year: Time.now.year + 2,
                                message:  'must be an integer greater than 999 and no more than 2 years in the future'}
 
   validates_presence_of :month,
-                        unless:  -> { day.blank? },
-                        message: 'is required when day is provided'
+    unless:  -> { day.blank? },
+    message: 'is required when day is provided'
 
   validates_inclusion_of :month,
-                         in: ::VALID_BIBTEX_MONTHS,
-                         allow_blank: true,
-                         message: ' month'
+    in: ::VALID_BIBTEX_MONTHS,
+    allow_blank: true,
+    message: ' month'
 
   validates :day, date_day: {year_sym: :year, month_sym: :month},
             unless: -> { year.blank? || month.blank? }
 
-  validates :url, format:                                   {
-    with:    URI::regexp(%w(http https ftp)),
+  validates :url, format: {
+    with: URI::regexp(%w(http https ftp)),
     message: '[%{value}] is not a valid URL'}, allow_blank: true
 
   # includes nil last, exclude it explicitly with another condition if need be
@@ -359,9 +358,10 @@ class Source::Bibtex < Source
 
   soft_validate(:sv_has_some_type_of_year, set: :recommended_fields)
   soft_validate(:sv_contains_a_writer, set: :recommended_fields)
-  soft_validate(:sv_has_title, set: :recommended_fields)
-  soft_validate(:sv_is_article_missing_journal, set: :recommended_fields)
+  
   soft_validate(:sv_missing_required_bibtex_fields, set: :bibtex_fields)
+
+  soft_validate(:sv_duplicate_title)
 
   #region ruby-bibtex related
 
@@ -426,8 +426,8 @@ class Source::Bibtex < Source
       b[:doi] = dois.first.identifier # TW only allows one DOI per object
     end
 
-    b.author = self.compute_bibtex_names('author') unless (!self.authors.any? && author.blank?)
-    b.editor = self.compute_bibtex_names('editor') unless (!self.editors.any? && editor.blank?)
+    b.author = self.compute_bibtex_names('author') unless (!authors.any? && author.blank?)
+    b.editor = self.compute_bibtex_names('editor') unless (!editors.any? && editor.blank?)
 
     b.key = id unless new_record?
     b
@@ -708,31 +708,32 @@ class Source::Bibtex < Source
  #endregion getters & setters
 
   # @return [Boolean]
-  def has_authors? # is there a bibtex author or author roles?
-    return true if !(author.blank?) # author attribute is empty
-    return false if new_record? # nothing saved yet, so no author roles are saved yet
+  # is there a bibtex author or author roles?
+  def has_authors? 
+    return true if !author.blank?
+    return false if new_record?
     # self exists in the db
-    (self.authors.count > 0) ? (return true) : (return false)
+    authors.count > 0 ? true : false
   end
 
   # @return [Boolean]
   def has_editors?
-    return true if !(self.editor.blank?)
+    return true if editor
     # editor attribute is empty
-    return false if self.new_record?
+    return false if new_record? # WHY!?
     # self exists in the db
-    (self.editors.count > 0) ? (return true) : (return false)
+    editors.count > 0 ? true : false
   end
 
   # @return [Boolean]
   def has_writer? # contains either an author or editor
-    (has_authors?) || (has_editors?) ? true : false
+    (has_authors? || has_editors?) ? true : false
   end
 
   # @return [Boolean]
   def has_some_year? # is there a year or stated year?
-    return true if !(self.year.blank?) || !(self.stated_year.blank?)
-    false
+    return false if year.blank? && stated_year.blank?
+    true 
   end
 
   # @return [Integer]
@@ -886,7 +887,14 @@ class Source::Bibtex < Source
 
   #endregion  hard validations
 
-  #region Soft_validation_methods
+  # @return [Ignored]
+  def sv_duplicate_title
+    # only used in validating BibTeX output
+    if Source.where(title: title).where.not(id: id).any?
+      soft_validations.add(:title, 'Another source with this title exists, it may be duplicate')
+    end
+  end
+
   # @return [Ignored]
   def sv_has_authors
     # only used in validating BibTeX output
@@ -928,15 +936,10 @@ class Source::Bibtex < Source
     end
   end
 
-  # def sv_missing_journal
-  # never used
-  #   soft_validations.add(:bibtex_type, 'The source is missing a journal name.') if self.journal.blank?
-  # end
-
   # @return [Ignored]
   def sv_is_article_missing_journal
     if bibtex_type == 'article'
-      if journal.blank? and serial.blank?
+      if !journal && !serial
         soft_validations.add(:bibtex_type, 'This article is missing a journal name or serial.')
       end
     end
@@ -990,68 +993,67 @@ class Source::Bibtex < Source
   # @return [Ignored]
   def sv_missing_required_bibtex_fields
     case bibtex_type
-      when 'article' #:article       => [:author,:title,:journal,:year]
+      when 'article' # :article => [:author,:title,:journal,:year]
         sv_has_authors
         sv_has_title
         sv_is_article_missing_journal
         sv_year_exists
-      when 'book' #:book          => [[:author,:editor],:title,:publisher,:year]
+      when 'book' #: book => [[:author,:editor],:title,:publisher,:year]
         sv_contains_a_writer
         sv_has_title
         sv_has_a_publisher
         sv_year_exists
-      when 'booklet' #    :booklet       => [:title],
+      when 'booklet' # :booklet => [:title],
         sv_has_title
-      when 'conference' #    :conference    => [:author,:title,:booktitle,:year],
+      when 'conference' # :conference => [:author,:title,:booktitle,:year],
         sv_has_authors
         sv_has_title
         sv_has_booktitle
         sv_year_exists
-      when 'inbook' #    :inbook        => [[:author,:editor],:title,[:chapter,:pages],:publisher,:year],
+      when 'inbook' # :inbook => [[:author,:editor],:title,[:chapter,:pages],:publisher,:year],
         sv_contains_a_writer
         sv_has_title
         sv_is_contained_has_chapter_or_pages
         sv_has_a_publisher
         sv_year_exists
-      when 'incollection' #    :incollection  => [:author,:title,:booktitle,:publisher,:year],
+      when 'incollection' # :incollection => [:author,:title,:booktitle,:publisher,:year],
         sv_has_authors
         sv_has_title
         sv_has_booktitle
         sv_has_a_publisher
         sv_year_exists
-      when 'inproceedings' #    :inproceedings => [:author,:title,:booktitle,:year],
+      when 'inproceedings' # :inproceedings => [:author,:title,:booktitle,:year],
         sv_has_authors
         sv_has_title
         sv_has_booktitle
         sv_year_exists
-      when 'manual' #    :manual        => [:title],
+      when 'manual' # :manual => [:title],
         sv_has_title
-      when 'mastersthesis' #    :mastersthesis => [:author,:title,:school,:year],
+      when 'mastersthesis' # :mastersthesis => [:author,:title,:school,:year],
         sv_has_authors
         sv_has_title
         sv_has_school
         sv_year_exists
-      #    :misc          => [],  (no required fields)
-      when 'phdthesis' #    :phdthesis     => [:author,:title,:school,:year],
+      #    :misc => [], (no required fields)
+      when 'phdthesis' # :phdthesis => [:author,:title,:school,:year],
         sv_has_authors
         sv_has_title
         sv_has_school
         sv_year_exists
-      when 'proceedings' #    :proceedings   => [:title,:year],
+      when 'proceedings' # :proceedings => [:title,:year],
         sv_has_title
         sv_year_exists
-      when 'techreport' #    :techreport    => [:author,:title,:institution,:year],
+      when 'techreport' # :techreport => [:author,:title,:institution,:year],
         sv_has_authors
         sv_has_title
         sv_has_institution
         sv_year_exists
-      when 'unpublished' #    :unpublished   => [:author,:title,:note]
+      when 'unpublished' # :unpublished => [:author,:title,:note]
         sv_has_authors
         sv_has_title
         sv_has_note
     end
   end
   # rubocop:enable Metrics/MethodLength
-  #endregion   Soft_validation_methods
 end
 

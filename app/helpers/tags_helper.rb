@@ -14,9 +14,13 @@ module TagsHelper
   # @return [String (html), nil]
   #    a ul/li of tags for the object
   def tag_list_tag(object)
-    return nil unless object.has_tags? && object.tags.any?
-    content_tag(:h3, 'Tags') +
-      content_tag(:ul, class: 'annotations__tag_list') do
+    return nil unless object.has_tags? && object.tags.load.any?
+    content_tag(:h3, 'Tags') + tag_pills_tag(object)
+  end
+
+  def tag_pills_tag(object)
+    return nil unless object.has_tags? && object.tags.load.any?
+    content_tag(:ul, class: 'annotations__tag_list') do
       object.tags.collect { |a| content_tag(:li, tag_annotation_tag(a)) }.join.html_safe
     end
   end

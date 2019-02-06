@@ -42,7 +42,7 @@
           </button>
         </div>
         <div class="found_people separate-right separate-left second-column">
-          <h2>Select Person</h2>
+          <h2>Select person</h2>
           <found-people
             ref="foundPeople"
             v-model="selectedPerson"
@@ -52,7 +52,7 @@
           />
         </div>
         <div class="match_people separate-right separate-left" >
-          <h2>Match People</h2>
+          <h2>Match people</h2>
           <match-people
             ref="matchPeople"
             v-model="mergePerson"

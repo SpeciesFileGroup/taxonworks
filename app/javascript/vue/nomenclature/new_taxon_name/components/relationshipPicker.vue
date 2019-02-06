@@ -6,9 +6,9 @@
     <div
       class="header flex-separate middle"
       :class="{ 'validation-warning' : softValidation.taxonRelationshipList.list.length }">
-      <h3
-      v-help.section.relationship.container
-      >Relationship</h3>
+      <h3 v-help.section.relationship.container>
+        Relationship
+      </h3>
       <expand
         @changed="expanded = !expanded"
         :expanded="expanded"/>
@@ -148,6 +148,7 @@ export default {
         return this.$store.getters[GetterNames.GetTaxonRelationship]
       },
       set (value) {
+        this.$store.commit(MutationNames.UpdateLastChange)
         this.$store.commit(MutationNames.SetTaxonRelationship, value)
       }
     },

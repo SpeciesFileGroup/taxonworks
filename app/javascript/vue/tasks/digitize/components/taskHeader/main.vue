@@ -52,6 +52,7 @@
   import { ActionNames } from '../../store/actions/actions.js'
   import { GetterNames } from '../../store/getters/getters.js'
   import RecentComponent from './recent.vue'
+  import GetMacKey from 'helpers/getMacKey.js'
 
   export default {
     components: {
@@ -64,9 +65,7 @@
       }
     },
     methods: {
-      getMacKey: function () {
-        return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
-      },
+      getMacKey: GetMacKey,
       saveDigitalization() {
         this.$store.dispatch(ActionNames.SaveDigitalization)
       },

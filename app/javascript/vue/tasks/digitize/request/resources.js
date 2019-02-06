@@ -66,7 +66,7 @@ const GetCollectingEventsSmartSelector = function () {
 }
 
 const GetTypeDesignatorSmartSelector = function () {
-  return ajaxCall('get', `/people/select_options?role=TypeDesignator`)
+  return ajaxCall('get', `/people/select_options?role_type=TypeDesignator`)
 }
 
 const FilterCollectingEvent = function (params) {
@@ -74,11 +74,11 @@ const FilterCollectingEvent = function (params) {
 }
 
 const GetCollectorsSmartSelector = function () {
-  return ajaxCall('get', `/people/select_options?role=Collector`)
+  return ajaxCall('get', `/people/select_options?role_type=Collector`)
 }
 
 const GetTaxonDeterminatorSmartSelector = function () {
-  return ajaxCall('get', `/people/select_options?role=Determiner`)
+  return ajaxCall('get', `/people/select_options?role_type=Determiner`)
 }
 
 const GetGeographicSmartSelector = function () {

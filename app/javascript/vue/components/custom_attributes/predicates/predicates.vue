@@ -87,10 +87,10 @@ export default {
     },
     loadPredicates(ids) {
       let promises = []
-
-      promises.push(GetPredicates(ids).then(response => {
-        this.predicatesList = response.body
-      }))
+      if(ids.length)
+        promises.push(GetPredicates(ids).then(response => {
+          this.predicatesList = response.body
+        }))
 
       if(this.objectId) {
         promises.push(GetPredicatesCreated(this.objectType, this.objectId).then(response => {

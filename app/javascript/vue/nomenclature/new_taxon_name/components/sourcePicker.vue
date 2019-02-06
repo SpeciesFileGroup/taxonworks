@@ -227,6 +227,7 @@ export default {
         pages: (source.hasOwnProperty('pages') ? source.pages : null)
       }
       this.$store.dispatch(ActionNames.ChangeTaxonSource, newSource)
+      this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
     },
     addPages (citation) {
       let that = this

@@ -5,13 +5,13 @@
         <h2>&nbsp;</h2>
         <button
           type="button"
-          class="button normal-input button-default"
+          class="button normal-input button-default separate-right"
           :disabled="!(Object.keys(selected).length && Object.keys(merge).length)"
           @click="$emit('flip')">Flip</button>
         <button
-          class="button normal-input button-default"
+          class="button normal-input button-submit"
           @click="sendMerge"
-          :disabled="!mergeEmpty">Merge People
+          :disabled="!mergeEmpty">Merge people
         </button>
       </div>
       <div class="title-person">
@@ -41,11 +41,23 @@
             even: (index % 2 == 0),
             repeated: (isDifferent(property, merge[key]) && merge[key])}">
           <td class="column-property">{{ key | humanize | capitalize }}</td>
-          <td class="column-person">{{ property | humanize | capitalize }}</td>
-          <td class="column-merge">{{ merge[key] | humanize | capitalize }}</td>
+          <td class="column-person" v-html="showValue(property)"/>
+          <td class="column-merge" v-html="showValue(merge[key])"/>
         </tr>
       </tbody>
     </table>
+    <div class="horizontal-left-content align-start">
+      <table-person-roles
+        :class="{ 'separate-right': Object.keys(merge).length }"
+        v-show="Object.keys(selected).length"
+        title="Selected role types"
+        :person="selected"/>
+      <table-person-roles
+        :class="{ 'separate-left': Object.keys(selected).length }"
+        v-show="Object.keys(merge).length"
+        title="Merge role types"
+        :person="merge"/>
+    </div>
     <table-roles
       v-if="selected['roles'] && selected['roles'].length"
       title="Selected roles"
@@ -65,13 +77,13 @@
 
 <script>
 
-import CompareComponent from './compare'
 import TableRoles from './tableRoles'
 import TableAnnotations from './tableAnnotations'
+import TablePersonRoles from './roles_table'
 
 export default {
   components: {
-    CompareComponent,
+    TablePersonRoles,
     TableAnnotations,
     TableRoles
   },
@@ -115,6 +127,9 @@ export default {
       if(confirm("Are you sure you want to merge?")) {
         this.$emit('merge')
       }
+    },
+    showValue(value) {
+      return this.$options.filters.capitalize(this.$options.filters.humanize(value))
     }
   }
 }
@@ -128,10 +143,10 @@ export default {
     display: none
   }
   .column-property {
-    min-width: 100px;
+    min-width: 105px;
   }
   .column-buttons {
-    min-width: 126px;
+    min-width: 136px;
   }
   .column-person, .column-merge {
     min-width: 250px;
