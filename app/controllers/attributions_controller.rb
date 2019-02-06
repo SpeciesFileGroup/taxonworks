@@ -94,6 +94,7 @@ class AttributionsController < ApplicationController
         :_destroy,
         :type,
         :person_id,
+        :organization_id,
         :position,
         person_attributes: [
           :last_name, :first_name, :suffix, :prefix
