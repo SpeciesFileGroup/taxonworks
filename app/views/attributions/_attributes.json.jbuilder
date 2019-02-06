@@ -1,4 +1,4 @@
-json.extract! attribution, :id, :copyright_year, :license, :created_at, :updated_at
+json.extract! attribution, :id, :copyright_year, :license, :attribute_object_id, :attribute_object_type, :created_at, :updated_at
 json.url attribution_url(attribution, format: :json)
 
 json.partial! '/shared/data/all/metadata', object: attribution
@@ -7,8 +7,7 @@ json.annotated_object do
   json.partial! '/shared/data/all/metadata', object: metamorphosize_if(attribution.attribution_object)
 end
 
-if attribution.roles.any?
-
+if attribution.roles.load.any?
   ::Attribution::ATTRIBUTION_ROLES.each do |r|
     role = "#{r}_roles"
     if attribution.send(role).any?
@@ -22,6 +21,4 @@ if attribution.roles.any?
       end
     end
   end
-
-
 end
