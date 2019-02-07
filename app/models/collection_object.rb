@@ -186,7 +186,7 @@ class CollectionObject < ApplicationRecord
 
     collection_objects.each do |co|
       breakdown[:collecting_events].merge!(co => co.collecting_event) if co.collecting_event
-      breakdown[:determinations].merge!(co => co.taxon_determinations) if co.taxon_determinations.any?
+      breakdown[:determinations].merge!(co => co.taxon_determinations) if co.taxon_determinations.load.any?
       breakdown[:bio_overview].push([co.total, co.biocuration_classes.collect { |a| a.name }])
     end
 
@@ -235,7 +235,7 @@ class CollectionObject < ApplicationRecord
 
   def annotations
     h = annotations_hash
-    (h['biocuration classifications'] = self.biocuration_classes) if self.biological? && self.biocuration_classifications.any?
+    (h['biocuration classifications'] = self.biocuration_classes) if self.biological? && self.biocuration_classifications.load.any?
     h
   end
 
