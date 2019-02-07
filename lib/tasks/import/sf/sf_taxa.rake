@@ -1083,7 +1083,7 @@ namespace :tw do
             when 14 then
               rank_name = 'supersuperspecies'
             when 22 then
-              rank_name = 'infraorder'
+              rank_name = 'infratribe'
             when 39 then
               rank_name = 'supersubfamily'
             when 44 then

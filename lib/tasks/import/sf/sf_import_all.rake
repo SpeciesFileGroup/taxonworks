@@ -13,30 +13,30 @@ namespace :tw do
           # 'tw:db:restore backup_directory=../db_backup file=../db_backup/0_pristine_tw_init_all/2016-04-26_192513UTC.dump',
           # rake tw:db:restore_last backup_directory=../db_backup/0_pristine_tw_init_all/
 
-          'start:list_skipped_file_ids',
-          'start:create_users',
-          'start:create_people',
-          'start:map_serials',
-          # '1_after_serials': 14m32.537s on 30 Oct 2018
+          # 'start:list_skipped_file_ids',
+          # 'start:create_users',
+          # 'start:create_people',
+          # 'start:map_serials',
+          # # '1_after_serials': 14m32.537s on 30 Oct 2018
+          # #
+          # 'start:map_ref_links',
+          # 'start:list_verbatim_refs',
+          # # '2_after_verbatim_refs': 0m24.701s on 30 Oct 2018
+          # #
+          # 'start:create_projects',
+          # 'start:create_sf_book_hash',
+          # 'start:map_pub_type',
+          # # '3_after_pub_type': 0m27.396s on 30 Oct 2018
           #
-          'start:map_ref_links',
-          'start:list_verbatim_refs',
-          # '2_after_verbatim_refs': 0m24.701s on 30 Oct 2018
-          #
-          'start:create_projects',
-          'start:create_sf_book_hash',
-          'start:map_pub_type',
-          # '3_after_pub_type': 0m27.396s on 30 Oct 2018
-
-          'start:contained_cite_aux_data',
-          'start:create_sources',
-          # '4_after_create_sources': 41m36.692s on 31 Oct 2018
-          #
-          'start:create_misc_ref_info',
-          'start:create_source_roles',
-          # '5_after_source_roles': 76m51.040s on 7 Nov 2018
-          # 132m58.252s b1_ on 25 Nov 2018
-          #
+          # 'start:contained_cite_aux_data',
+          # 'start:create_sources',
+          # # '4_after_create_sources': 41m36.692s on 31 Oct 2018
+          # #
+          # 'start:create_misc_ref_info',
+          # 'start:create_source_roles',
+          # # '5_after_source_roles': 76m51.040s on 7 Nov 2018
+          # # 132m58.252s b1_ on 25 Nov 2018
+          # #
           'taxa:list_excluded_taxa',
           'taxa:create_sf_taxa_misc_info',
           'taxa:create_rank_hash',
