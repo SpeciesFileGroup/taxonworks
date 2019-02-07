@@ -144,9 +144,7 @@ namespace :tw do
 
             # depiction object: if collection_object_id not nil, use it, otherwise use otu_id
             File.open("#{@args[:data_directory]}/images/#{row['ImageID']}") do | file |
-              # ImageID = 221946, SpecimenID = 78321, SF.TaxonNameID = 1100128, FileID = 1 
-              # TODO: Investigate why image 221946 freezes the task (possible validation infinite loop)
-              Depiction.create!(
+              depiction = Depiction.create(
                 image_attributes: { image_file: file, project_id: get_tw_project_id[row['FileID']] }, 
                 created_at: row['CreatedOn'],
                 updated_at: row['LastUpdate'],
@@ -155,6 +153,7 @@ namespace :tw do
                 project_id: get_tw_project_id[row['FileID']],
                 depiction_object: depiction_object
               )
+              logger.error "Error saving ImageID = #{row['ImageID']}: #{depiction.errors.full_messages}" unless depiction.errors.empty?
             end
 
             # can have temporary name w/o OTU via taxon_name_id:  Find OTU via SF.TaxonNameID to TW.otu: if no SF.TaxonNameID, must be SF.SpecimenID, therefore get TW.TaxonNameID via SpecimenID and get the OTU that way.
