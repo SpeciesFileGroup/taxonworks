@@ -8,40 +8,40 @@
     <h3>Find collecting events</h3>
     <table>
       <tr>
-        <td>Originating<br>between</td><td>Day</td><td>Month</td><td>Year</td><td>DatePicker</td><td/>
+        <td>Originating<br>on exactly</td><td>Day</td><td>Month</td><td>Year</td>&nbsp; &nbsp; &nbsp; <td>between start date</td>
       </tr>
       <tr>
         <td/>
         <td>
           <input
-            v-model="parameters['start_day']"
+            v-model="parameters['start_date_day']"
             type=text
             size="2"
             maxlength="2">
         </td>
+        <td>
+          <month-select @month="parameters['start_date_month']=$event"/>
+        </td>
         <!--<td>-->
-          <!--<month-select @month="parameters['start_month']=$event"/>-->
+          <!--<input-->
+            <!--v-model="parameters['start_date_month']"-->
+            <!--type=text-->
+            <!--size="2"-->
+            <!--maxlength="2">-->
         <!--</td>-->
         <td>
           <input
-            v-model="parameters['start_month']"
-            type=text
-            size="2"
-            maxlength="2">
-        </td>
-        <td>
-          <input
-            v-model="parameters['start_year']"
+            v-model="parameters['start_date_year']"
             type=text
             size="4"
             maxlength="4">
         </td>
+        <td>&nbsp; &nbsp; OR&nbsp; &nbsp; </td>
         <td>
           <input
+            id="vueStartDate"
             v-model="parameters['start_date']"
             type="date">
-        </td>
-        <td>
           <button
             type="button"
             class="button normal-input button-default separate-left"
@@ -51,38 +51,39 @@
         </td>
       </tr>
       <tr>
-        <td>And</td><td>Day</td><td>Month</td><td>Year</td><td>DatePicker</td><td/>
+        <td>And ending<br>on exactly</td><td>Day</td><td>Month</td><td>Year</td>&nbsp; &nbsp; &nbsp;  <td>and end date</td>
       </tr>
       <tr>
         <td/>
         <td>
           <input
-            v-model="parameters['end_day']"
+            v-model="parameters['end_date_day']"
             type=text
             size="2"
             maxlength="2">
         </td>
         <td>
-          <!--<month-select @month="parameters['end_month']=$event"/>-->
-          <input
-            v-model="parameters['end_month']"
-            type=text
-            size="2"
-            maxlength="2">
+          <month-select @month="parameters['end_date_month']=$event"/>
+          <!--<input-->
+            <!--v-model="parameters['end_date_month']"-->
+            <!--type=text-->
+            <!--size="2"-->
+            <!--maxlength="2">-->
         </td>
         <td>
           <input
-            v-model="parameters['end_year']"
+            v-model="parameters['end_date_year']"
             type=text
             size="4"
             maxlength="4">
         </td>
+        <td/>
         <td>
           <input
+            id="vueEndDate"
             v-model="parameters['end_date']"
+            value="09/17/2015"
             type="date">
-        </td>
-        <td>
           <button
             type="button"
             class="button normal-input button-default separate-left"
@@ -127,9 +128,10 @@
         </td>
       </tr>
     </table>
-    <input
-      type="button" class="button normal-input button-default separate-left"
+    <input class="button normal-input button-default separate-left"
+      type="button"
       @click="getFilterData()"
+      :disabled="haveParams"
       value="Find">
   </div>
 </template>
@@ -145,44 +147,54 @@
     data() {
       return {
         parameters: {
-          start_day: '',
-          end_day: '',
-          start_month: '',
-          end_month: '',
-          start_year: '',
-          end_year: '',
+          start_date_day: '',
+          end_date_day: '',
+          start_date_month: '',
+          end_date_month: '',
+          start_date_year: '',
+          end_date_year: '',
           start_date: '',
           end_date: '',
           in_verbatim_locality: '',
-          iin_labels: '',
+          in_labels: '',
           identifier_text: '',
           shape: ''},
         collectingEventList: [],
         isLoading:  false,
+        haveParams: false,
       }
     },
-
+    watch: {
+      parameters: {
+        handler(newVal) {
+          this.disableFind();
+        },
+        deep: true
+      }
+    },
     methods: {
       setActualDateForStart() {
         let today = new Date();
-        this.parameters.start_day = today.getDate().toString();
-        this.parameters.start_month = (today.getMonth() + 1).toString();
-        this.parameters.start_year = today.getFullYear().toString();
-        // this.parameters.start_date = this.makeDate(this.start_year, this.start_month, this.start_day);
+        let start_date_day = today.getDate().toString();
+        let start_date_month = (today.getMonth() + 1).toString();
+        let start_date_year = today.getFullYear().toString();
+        this.parameters.start_date = this.makeDate(start_date_year, start_date_month, start_date_day);
+        document.getElementById('vueStartDate').value = this.parameters.start_date
       },
       setActualDateForEnd() {
         let today = new Date();
-        this.parameters.end_day = today.getDate().toString();
-        this.parameters.end_month = (today.getMonth() + 1).toString();
-        this.parameters.end_year = today.getFullYear().toString();
-        // this.parameters.end_date = this.makeDate(this.end_year, this.end_month, this.end_day);
+        let end_date_day = today.getDate().toString();
+        let end_date_month = (today.getMonth() + 1).toString();
+        let end_date_year = today.getFullYear().toString();
+        this.parameters.end_date = this.makeDate(end_date_year, end_date_month, end_date_day);
+        document.getElementById('vueEndDate').value = this.parameters.end_date
       },
       getFilterData(){
-        // if((this.start_year + this.start_month + this.start_day).length) {
-        //   this.parameters.start_date = this.makeDate(this.start_year, this.start_month, this.start_day);
+        // if((this.start_date_year + this.start_date_month + this.start_date_day).length) {
+        //   this.parameters.start_date = this.makeDate(this.start_date_year, this.start_date_month, this.start_date_day);
         // }
-        // if((this.end_year + this.end_month + this.end_day).length) {
-        //   this.parameters.end_date = this.makeDate(this.end_year, this.end_month, this.end_day);
+        // if((this.end_date_year + this.end_date_month + this.end_date_day).length) {
+        //   this.parameters.end_date = this.makeDate(this.end_date_year, this.end_date_month, this.end_date_day);
         // }
         let params = {};
         let keys = Object.keys(this.parameters);
@@ -217,8 +229,20 @@
           window.open(`/collecting_events/` + id, '_blank');
       },
       makeDate(year, month, day) {
+        if(month.length == 1) {month = '0' + month}
+        if(day.length == 1) {day = '0' + day}
        return year + '-' + month + '-' + day;
+      },
+      disableFind() {
+        let haveParams = 0;
+        let i = 0;
+        let paramKeys = Object.keys(this.parameters);
+        for (i=0; i < paramKeys.length; i++) {
+          // alert(i.toString() +  paramKeys[i] + this.parameters[paramKeys[i]]);
+          haveParams += this.parameters[paramKeys[i]].length;
+        }
+        this.haveParams = (haveParams == 0);
       }
-    }
+    },
   }
 </script>

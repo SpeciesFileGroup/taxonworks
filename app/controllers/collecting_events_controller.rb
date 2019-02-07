@@ -211,8 +211,6 @@ class CollectingEventsController < ApplicationController
       :start_date,
       :end_date,
       :partial_overlap_dates,
-      :start_day, :start_month, :start_year,
-      :end_day, :end_month, :end_year,
       keyword_ids: [],
       spatial_geographic_area_ids: []
     )
