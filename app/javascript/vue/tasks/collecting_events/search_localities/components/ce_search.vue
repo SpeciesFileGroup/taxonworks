@@ -39,7 +39,7 @@
         value="Find">
     </div>
     <div v-if="mode==='map'">
-      <g-map
+      <l-map
        :lat="0"
        :lng="0"
        :zoom="2"
@@ -55,15 +55,16 @@
 </template>
 <script>
   import Autocomplete from 'components/autocomplete'
-  import gMap from './googleMap.vue'
-  // import leafMap from './leafletMap.vue'
+  // import gMap from './googleMap.vue'
+  import lMap from './leafletMap.vue'
   import ModeSwitch from './mode_switch'
   import Spinner from 'components/spinner'
 
   export default {
     components: {
       Autocomplete,
-      gMap,
+      // gMap,
+      lMap,
       ModeSwitch,
       Spinner,
     },
