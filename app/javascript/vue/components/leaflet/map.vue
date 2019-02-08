@@ -1,0 +1,120 @@
+<template>
+  <div
+    :style="{ width: this.width, height: this.height }"
+    ref="leafletMap"
+    :id="mapId"/>
+</template>
+
+<script>
+
+import L from 'leaflet'
+import LeafletDraw from 'leaflet-draw'
+
+delete L.Icon.Default.prototype._getIconUrl
+
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+  iconUrl: require('leaflet/dist/images/marker-icon.png'),
+  shadowUrl: require('leaflet/dist/images/marker-shadow.png')
+})
+
+export default {
+  props: {
+    width: {
+      type: String,
+      default: () => { return '500px' }
+    },
+    height: {
+      type: String,
+      default: () => { return '500px' }
+    },
+    zoom: {
+      type: Number,
+      default: () => { return 18 }
+    },
+    drawControls: {
+      type: Boolean,
+      default: () => { return false }
+    },
+    tilesSelection: {
+      type: Boolean,
+      default: true
+    }
+  },
+  data () {
+    return {
+      mapId: Math.random().toString(36).substring(7),
+      mapObject: undefined,
+      drawnItems: undefined,
+      drawControl: undefined,
+      tiles: {
+        osm: L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 18
+        }),
+        google: L.tileLayer('http://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}', {
+          attribution: 'Google',
+          maxZoom: 18
+        })
+      },
+      layers: []
+    }
+  },
+  mounted () {
+    this.mapObject = L.map(this.mapId).setView([47.439278, 9.529174], 13)
+    this.drawnItems = new L.FeatureGroup()
+    this.mapObject.addLayer(this.drawnItems)
+
+    this.addDrawControllers()
+    this.handleEvents()
+  },
+  methods: {
+    addDrawControllers () {
+      if (this.tilesSelection) {
+        L.control.layers({
+          'OSM': this.tiles.osm.addTo(this.mapObject),
+          'Google': this.tiles.google
+        }, { 'Draw layers': this.drawnItems }, { position: 'topleft', collapsed: false }).addTo(this.mapObject)
+      }
+
+      if (this.drawControls) {
+        this.mapObject.addControl(new L.Control.Draw({
+          edit: {
+            featureGroup: this.drawnItems,
+            poly: {
+              allowIntersection: false
+            }
+          },
+          draw: {
+            polygon: {
+              allowIntersection: false,
+              showArea: true
+            }
+          }
+        }))
+        this.mapObject.addControl(this.drawnItems)
+      }
+    },
+    handleEvents () {
+      let that = this
+      this.mapObject.on(L.Draw.Event.CREATED, function (e) {
+        that.$emit('shapeCreated', e)
+        var layer = e.layer
+        that.drawnItems.addLayer(layer)
+      })
+    },
+    removeLayers () {
+      this.drawnItems.clearLayers()
+    },
+    toGeoJSON () {
+      return this.drawnItems.toGeoJSON()
+    },
+    geoJSON (geojsonFeature) {
+      this.removeLayers()
+      let geoLayer = L.geoJSON().addTo(this.drawnItems)
+      geoLayer.addData(geojsonFeature)
+      this.mapObject.fitBounds(geoLayer.getBounds())
+    }
+  }
+}
+</script>

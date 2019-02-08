@@ -10,6 +10,7 @@
 // Styles
 require('../style/application.scss')
 require('leaflet/dist/leaflet.css')
+require('leaflet-draw/dist/leaflet.draw.css')
 
 require('../vue/citations/otus/main.js')
 require('../vue/content/editor/main.js')
