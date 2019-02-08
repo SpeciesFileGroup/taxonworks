@@ -44,7 +44,7 @@
         width="1024px"
         :zoom="2"
         ref="leaflet"
-        @geoJsonLayerCreated="getShapesData()"
+        @geoJsonLayerCreated="getShapesData($event)"
         :draw-controls="true"
       />
       <input class="button normal-input button-default separate-left"
@@ -111,14 +111,16 @@
       // },
       getShapesData(geojsonShape){
         this.isLoading = true;
-        this.$http.get('/collecting_events.json', { params: geojsonShape }).then(response => {
+        let geoString = JSON.stringify(geojsonShape);
+        this.$http.get('/collecting_events.json', { params: {shape: geoString} }).then(response => {
           this.collectingEventList = response.body;
           if(this.collectingEventList) {
             this.$emit('collectingEventList', this.collectingEventList)
           }
           this.isLoading = false;
         } )
-      },      addGeographicArea(item) {
+      },
+      addGeographicArea(item) {
         this.geographicAreaList.push(item);
       },
       delistMe(index) {
