@@ -388,7 +388,7 @@ GEM
       rspec-mocks (~> 3.8.0)
       rspec-support (~> 3.8.0)
     rspec-support (3.8.0)
-    rtesseract (2.2.0)
+    rtesseract (3.0.2)
       nokogiri
     rubocop (0.59.2)
       jaro_winkler (~> 1.5.1)
@@ -450,10 +450,10 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
-    sqed (0.4.4)
+    sqed (0.5.0)
       rake (~> 12.3)
       rmagick (~> 2.16)
-      rtesseract (~> 2.2.0)
+      rtesseract (~> 3.0.2)
     sshkit (1.18.0)
       net-scp (>= 1.1.2)
       net-ssh (>= 2.8.0)
@@ -599,7 +599,7 @@ DEPENDENCIES
   sprockets (~> 3.7.1)
   sprockets-es6 (~> 0.9.2)
   sprockets-rails (~> 3.2.0)
-  sqed (= 0.4.4)
+  sqed (= 0.5.0)
   taxonifi (= 0.4.0)
   term-ansicolor (~> 1.6)
   thor (~> 0.19.4)
@@ -617,4 +617,4 @@ RUBY VERSION
    ruby 2.5.1p57
 
 BUNDLED WITH
-   1.16.2
+   1.17.3

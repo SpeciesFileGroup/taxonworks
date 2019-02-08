@@ -565,6 +565,8 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+
+
   resources :sources do
     concerns [:data_routes]
     collection do
@@ -572,6 +574,12 @@ TaxonWorks::Application.routes.draw do
       post :preview_bibtex_batch_load # should be get
       post :create_bibtex_batch_load
       get :parse, defaults: {format: :json}
+    end
+  end
+
+  resources :sqed_depictions, only: [] do
+    collection do
+      get :metadata_options, defaults: {format: :json}
     end
   end
 

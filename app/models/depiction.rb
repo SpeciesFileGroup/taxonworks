@@ -34,6 +34,8 @@ class Depiction < ApplicationRecord
 
   accepts_nested_attributes_for :image
 
+  accepts_nested_attributes_for :sqed_depiction, allow_destroy: true
+
   # This seems OK given specs, though similar validations in other concerns have created headaches.
   validates_presence_of :depiction_object
 
