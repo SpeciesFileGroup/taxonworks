@@ -39,6 +39,10 @@ export default {
     tilesSelection: {
       type: Boolean,
       default: true
+    },
+    center: {
+      type: Array,
+      default: () => { return [0,0] }
     }
   },
   data () {
@@ -61,7 +65,10 @@ export default {
     }
   },
   mounted () {
-    this.mapObject = L.map(this.mapId).setView([47.439278, 9.529174], this.zoom)
+    this.mapObject = L.map(this.mapId, {
+      center: this.center,
+      zoom: this.zoom
+    })
     this.drawnItems = new L.FeatureGroup()
     this.mapObject.addLayer(this.drawnItems)
 
@@ -98,8 +105,9 @@ export default {
     handleEvents () {
       let that = this
       this.mapObject.on(L.Draw.Event.CREATED, function (e) {
-        that.$emit('shapeCreated', e)
         var layer = e.layer
+        that.$emit('shapeCreated', layer)
+        that.$emit('geoJsonLayerCreated', layer.toGeoJSON())
         that.drawnItems.addLayer(layer)
       })
     },
