@@ -61,7 +61,7 @@ export default {
     }
   },
   mounted () {
-    this.mapObject = L.map(this.mapId).setView([47.439278, 9.529174], 13)
+    this.mapObject = L.map(this.mapId).setView([47.439278, 9.529174], this.zoom)
     this.drawnItems = new L.FeatureGroup()
     this.mapObject.addLayer(this.drawnItems)
 
