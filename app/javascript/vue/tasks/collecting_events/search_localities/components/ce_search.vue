@@ -40,8 +40,8 @@
     </div>
     <div v-if="mode==='map'">
       <l-map
-        :height="512px"
-        :width="1024px"
+        height="512px"
+        width="1024px"
        :zoom="2"
        @shapeCreated="shapes.push($event)"
        :draw-controls="true"
