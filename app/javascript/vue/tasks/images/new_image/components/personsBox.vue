@@ -11,6 +11,13 @@
       v-model="roles_attributes"
       :role-type="roleType"
     />
+    <autocomplete
+      v-else
+      placeholder="Select an organization"
+      url="/organizations/autocomplete"
+      param="term"
+      @getItem="setOrganization"
+      label="label_html"/>
   </div>
 </template>
 
@@ -18,11 +25,13 @@
 
 import SmartSelector from 'components/switch'
 import RolePicker from 'components/role_picker'
+import Autocomplete from 'components/autocomplete'
 
 export default {
   components: {
     SmartSelector,
-    RolePicker
+    RolePicker,
+    Autocomplete
   },
   props: {
     title: {
@@ -63,7 +72,13 @@ export default {
     }
   },
   methods: {
-
+    setOrganization(organization) {
+      this.roles_attributes = [{
+        type: this.roleType,
+        label: organization.label,
+        organization_id: organization.id
+      }]
+    }
   }
 }
 </script>

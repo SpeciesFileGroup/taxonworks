@@ -95,7 +95,10 @@ export default {
   methods: {
     getNames(list) {
       let ppl = list.map(item => {
-        if(item.hasOwnProperty('person_attributes'))
+        if(item.hasOwnProperty('label')) {
+          return item.label
+        }
+        else if(item.hasOwnProperty('person_attributes'))
           return `${item.person_attributes.last_name}, ${item.person_attributes.first_name}`
         else 
           return `${item.last_name}, ${item.first_name}`
