@@ -14,8 +14,18 @@ if attribution.roles.load.any?
       json.set! role do
         json.array! attribution.send(role).order('roles.position ASC').each do |role|
           json.extract! role, :id, :position, :type
-          json.person do
-            json.partial! '/people/base_attributes', person: role.person
+          json.role_agent_type role.agent_type
+          case role.agent_type
+          when :person
+            json.person do
+              json.partial! '/people/base_attributes', person: role.person
+            end
+          when :organization
+            json.organization do
+              json.partial! '/organization.attributes', organization: role.organization
+            end
+          else
+            json.error true
           end
         end
       end

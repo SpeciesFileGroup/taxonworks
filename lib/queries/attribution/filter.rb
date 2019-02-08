@@ -35,7 +35,7 @@ module Queries
         if a = and_clauses
           ::Attribution.where(and_clauses)
         else
-          ::Attribution.none
+          ::Attribution.all
         end
       end
 

@@ -64,6 +64,16 @@ class Role < ApplicationRecord
     false
   end
 
+  def agent_type
+    if person
+      :person
+    elsif organization
+      :organization
+    else
+      nil
+    end
+  end
+
   protected
 
   def agent_present
