@@ -40,10 +40,11 @@
     </div>
     <div v-if="mode==='map'">
       <l-map
-       :lat="0"
-       :lng="0"
+        :height="512px"
+        :width="1024px"
        :zoom="2"
-       @shape="shapes.push($event)"
+       @shapeCreated="shapes.push($event)"
+       :draw-controls="true"
       />
       <input class="button normal-input button-default separate-left"
         type="button"
@@ -56,7 +57,8 @@
 <script>
   import Autocomplete from 'components/autocomplete'
   // import gMap from './googleMap.vue'
-  import lMap from './leafletMap.vue'
+  // import lMap from './leafletMap.vue'
+  import lMap from 'components/leaflet/map.vue'
   import ModeSwitch from './mode_switch'
   import Spinner from 'components/spinner'
 
