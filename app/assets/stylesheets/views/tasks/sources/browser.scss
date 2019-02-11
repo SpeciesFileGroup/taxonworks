@@ -1,0 +1,23 @@
+.annotations__tag_list {
+  list-style: none;
+  padding-left: 0px;
+  li {
+    margin-bottom: 12px;
+  }
+}
+
+.annotation__tag {
+  padding: 6px;
+  padding-left: 12px;
+  padding-right: 8px;
+  width: auto !important;
+  min-width: auto !important;
+  white-space: nowrap;
+  cursor: pointer;
+  margin: 2px;
+  border: none;
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+  color: #FFFFFF;
+  background-color: $color-data;
+}
