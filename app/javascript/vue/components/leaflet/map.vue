@@ -43,6 +43,10 @@ export default {
     center: {
       type: Array,
       default: () => { return [0, 0] }
+    },
+    geojson: {
+      type: Array,
+      default: () => { return [] }
     }
   },
   data () {
@@ -64,6 +68,13 @@ export default {
       layers: []
     }
   },
+  watch: {
+    geojson(newVal) {
+      if(newVal.length) {
+        this.geoJSON(newVal)
+      }
+    }
+  },
   mounted () {
     this.mapObject = L.map(this.mapId, {
       center: this.center,
@@ -72,19 +83,11 @@ export default {
     this.drawnItems = new L.FeatureGroup()
     this.mapObject.addLayer(this.drawnItems)
 
-    var geojsonFeature = {
-      "type": "Feature",
-      "properties": {
-        "radius": "1000",
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-104.99404, 39.75621]
-      }
-    };
-    L.geoJSON(geojsonFeature).addTo(this.mapObject);
     this.addDrawControllers()
     this.handleEvents()
+    if(this.geojson.length) {
+      this.geoJSON(this.geojson)
+    }
   },
   methods: {
     addDrawControllers () {
@@ -146,6 +149,7 @@ export default {
       this.drawnItems.addLayer(newCircle)
     },
     geoJSON (geojsonFeature) {
+      if(!Array.isArray(geojsonFeature) || geojsonFeature.length == 0) return
       this.removeLayers()
 
       let newGeojson = []

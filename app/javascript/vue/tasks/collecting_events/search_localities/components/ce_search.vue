@@ -44,6 +44,7 @@
         width="1024px"
         :zoom="2"
         ref="leaflet"
+        :geojson="geojsonFeature"
         @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
         :draw-controls="true"
       />
@@ -79,6 +80,34 @@
         shapes: [],   // intended for eventual multiple shapes paradigm
         mode: 'list',
         isLoading: false,
+        geojsonFeature: [{
+          'type': 'Feature',
+          'properties': {
+            'radius': 108575.53450828836
+          },
+          'geometry': {
+            'type': 'Point',
+            'coordinates': [-34.231603, -59.341021]
+          }
+        },
+        {
+          'type': 'Feature',
+          'properties': {
+            'radius': 108575.53450828836
+          },
+          'geometry': {
+            'type': 'Point',
+            'coordinates': [-28.446959, -59.816437]
+          }
+        },
+        {
+          'type': 'Feature',
+          'properties': {},
+          'geometry': {
+            'type': 'Point',
+            'coordinates': [-59.816437, -27.446959]
+          }
+        }]
       }
     },
     methods: {
