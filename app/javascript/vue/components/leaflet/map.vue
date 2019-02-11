@@ -42,7 +42,7 @@ export default {
     },
     center: {
       type: Array,
-      default: () => { return [0,0] }
+      default: () => { return [0, 0] }
     }
   },
   data () {
@@ -107,9 +107,8 @@ export default {
       this.mapObject.on(L.Draw.Event.CREATED, function (e) {
         var layer = e.layer
         var geoJsonLayer = layer.toGeoJSON()
-        if (e.layerType === "circle") {
-          let radius = layer.getRadius();
-          geoJsonLayer.properties.radius = radius;          
+        if (e.layerType === 'circle') {
+          geoJsonLayer.properties.radius = layer.getRadius()
         }
         that.$emit('shapeCreated', layer)
         that.$emit('geoJsonLayerCreated', geoJsonLayer)
@@ -120,13 +119,38 @@ export default {
       this.drawnItems.clearLayers()
     },
     toGeoJSON () {
-      return this.drawnItems.toGeoJSON()
+      let arrayLayers = []
+
+      this.drawnItems.eachLayer(layer => {
+        let layerJson = layer.toGeoJSON()
+        if (typeof layer.getRadius === 'function') {
+          layerJson.properties.radius = layer.getRadius()
+        }
+        arrayLayers.push(layerJson)
+      })
+      return arrayLayers
+    },
+    addJsonCircle (layer) {
+      let newCircle = L.circle(layer.geometry.coordinates, layer.properties.radius)
+      this.drawnItems.addLayer(newCircle)
     },
     geoJSON (geojsonFeature) {
       this.removeLayers()
-      let geoLayer = L.geoJSON().addTo(this.drawnItems)
-      geoLayer.addData(geojsonFeature)
-      this.mapObject.fitBounds(geoLayer.getBounds())
+
+      let newGeojson = []
+      geojsonFeature.forEach(layer => {
+        if (layer.geometry.type === 'Point' && layer.properties.hasOwnProperty('radius')) {
+          this.addJsonCircle(layer)
+        } else {
+          newGeojson.push(layer)
+        }
+      })
+
+      let geoLayer = L.geoJSON().addTo(this.mapObject)
+      geoLayer.addTo(this.drawnItems)
+      geoLayer.addData(newGeojson)
+
+      this.mapObject.fitBounds(this.drawnItems.getBounds())
     }
   }
 }
