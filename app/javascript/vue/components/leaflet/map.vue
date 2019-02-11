@@ -72,6 +72,17 @@ export default {
     this.drawnItems = new L.FeatureGroup()
     this.mapObject.addLayer(this.drawnItems)
 
+    var geojsonFeature = {
+      "type": "Feature",
+      "properties": {
+        "radius": "1000",
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-104.99404, 39.75621]
+      }
+    };
+    L.geoJSON(geojsonFeature).addTo(this.mapObject);
     this.addDrawControllers()
     this.handleEvents()
   },
