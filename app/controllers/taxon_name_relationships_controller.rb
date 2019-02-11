@@ -93,23 +93,6 @@ class TaxonNameRelationshipsController < ApplicationController
     end
   end
 
-  def autocomplete
-    @taxon_name_relationships = TaxonNameRelationship
-                                  .find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
-    data                      = @taxon_name_relationships.collect do |t|
-      n = ApplicationController.helpers.taxon_name_relationship_tag(t)
-      {id:              t.id,
-       label:           n,
-       response_values: {
-         params[:method] => t.id
-       },
-       label_html:      n
-      }
-    end
-
-    render json: data
-  end
-
   # GET /taxon_name_relationships/download
   def download
     send_data Download.generate_csv(TaxonNameRelationship.where(project_id: sessions_current_project_id)),
