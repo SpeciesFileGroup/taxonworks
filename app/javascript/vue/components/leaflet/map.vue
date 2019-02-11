@@ -106,8 +106,13 @@ export default {
       let that = this
       this.mapObject.on(L.Draw.Event.CREATED, function (e) {
         var layer = e.layer
+        var geoJsonLayer = layer.toGeoJSON()
+        if (e.layerType === "circle") {
+          let radius = layer.getRadius();
+          geoJsonLayer.properties.radius = radius;          
+        }
         that.$emit('shapeCreated', layer)
-        that.$emit('geoJsonLayerCreated', layer.toGeoJSON())
+        that.$emit('geoJsonLayerCreated', geoJsonLayer)
         that.drawnItems.addLayer(layer)
       })
     },
