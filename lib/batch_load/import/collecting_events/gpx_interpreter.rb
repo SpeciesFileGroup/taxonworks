@@ -21,7 +21,6 @@ module BatchLoad
       @total_data_lines = 0
       i = 0
 
-
       # # loop throw rows
       # csv.each do |row|
       #   i += 1
@@ -55,15 +54,16 @@ module BatchLoad
           time = pt.time if time.blank?
           points << Gis::FACTORY.point(pt.lon, pt.lat, pt.elevation)
         end
-        ce.crearted_at = time if gpx.time.blank?
+        ce.created_at = time if gpx.time.blank?
         gi = GeographicItem.new(line_string: Gis::FACTORY.line_string(points))
         # TODO: What kind of Georeference do we make:
         # 1)  GeoLocate: make a fake Tulane request?
         # 2)  VerbatimData: has no provision for line_string (gpx.tracks)
         # 3)  GoogleMap: mimic the use of GoogleMaps to produse a track?
         # 4)  GPX: create a new Georeference sub-class to embody a more complete version of GPX?
-        ref = Georeference.new(geographic_item: gi)
+        ref = Georeference::GPX.new(geographic_item: gi)
         ce.georeferences << ref
+        parse_result.objects[:georeference] = ref
         parse_result.objects[:collecting_event] << ce
         @total_data_lines += 1
       end

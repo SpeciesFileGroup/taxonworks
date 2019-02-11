@@ -19,4 +19,6 @@ class Georeference::GPX < Georeference
     self.geographic_item = GeographicItem.new(point: Gis::FACTORY.point(coordinates[0], coordinates[1]))
   end
 
+  #
+
 end
