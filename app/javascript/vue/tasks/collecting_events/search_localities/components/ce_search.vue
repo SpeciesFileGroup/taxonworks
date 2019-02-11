@@ -44,9 +44,10 @@
         width="1024px"
         :zoom="2"
         ref="leaflet"
-        @geoJsonLayerCreated="getShapesData($event)"
+        @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
         :draw-controls="true"
       />
+      <!--@geoJsonLayerCreated="getShapesData($event)"-->
       <input class="button normal-input button-default separate-left"
         type="button"
         @click="getShapesData()"
@@ -111,8 +112,10 @@
       // },
       getShapesData(geojsonShape){
         this.isLoading = true;
-        let geoString = JSON.stringify(geojsonShape);
-        this.$http.get('/collecting_events.json', { params: {shape: geoString} }).then(response => {
+        // let geoString = JSON.stringify(geojsonShape);
+        // this.$http.get('/collecting_events.json', { params: {shape: geoString} }).then(response => {
+        let params = {shape: this.shapes[this.shapes.length - 1]};  // take only last shape pro tem
+        this.$http.get('/collecting_events.json', {params: params}).then(response => {
           this.collectingEventList = response.body;
           if(this.collectingEventList) {
             this.$emit('collectingEventList', this.collectingEventList)
