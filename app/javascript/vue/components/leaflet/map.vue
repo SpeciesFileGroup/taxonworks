@@ -145,7 +145,7 @@ export default {
       return arrayLayers
     },
     addJsonCircle (layer) {
-      let newCircle = L.circle(layer.geometry.coordinates, layer.properties.radius)
+      let newCircle = L.circle(layer.geometry.coordinates.reverse(), layer.properties.radius)
       this.drawnItems.addLayer(newCircle)
     },
     geoJSON (geojsonFeature) {
