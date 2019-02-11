@@ -34,14 +34,12 @@ class AssertedDistribution < ApplicationRecord
   include AssertedDistribution::DwcExtensions
 
   belongs_to :otu, inverse_of: :asserted_distributions
+  has_one :taxon_name, through: :otu
   belongs_to :geographic_area, inverse_of: :asserted_distributions
 
   has_one :geographic_item, through: :geographic_area, source: :default_geographic_item
   has_many :geographic_items, through: :geographic_area
 
-  accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank? }
-
-  # validates_presence_of :otu_id, message: 'Taxon is not specified', if:  proc { |attributes| attributes['otu_id'].nil?  ( attributes['otu_attributes'] && (!attributes['otu_attributes']['name'] || !attributes['otu_attributes']['taxon_name_id']))}
   validates_presence_of :geographic_area_id, message: 'geographic area is not selected'
 
   # Might not be able to do these for nested attributes
@@ -57,6 +55,8 @@ class AssertedDistribution < ApplicationRecord
   scope :with_geographic_area_array, -> (geographic_area_array) { where('geographic_area_id IN (?)', geographic_area_array) }
   scope :with_is_absent, -> { where('is_absent = true') }
   scope :without_is_absent, -> { where('is_absent = false OR is_absent is Null') }
+
+  accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank? }
 
   soft_validate(:sv_conflicting_geographic_area, set: :conflicting_geographic_area)
 
