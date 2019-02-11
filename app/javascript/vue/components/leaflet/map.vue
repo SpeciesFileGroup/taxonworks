@@ -104,7 +104,8 @@ export default {
             featureGroup: this.drawnItems,
             poly: {
               allowIntersection: false
-            }
+            },
+            edit: true
           },
           draw: {
             polygon: {
@@ -145,8 +146,7 @@ export default {
       return arrayLayers
     },
     addJsonCircle (layer) {
-      let newCircle = L.circle(layer.geometry.coordinates.reverse(), layer.properties.radius)
-      this.drawnItems.addLayer(newCircle)
+      L.circle(layer.geometry.coordinates.reverse(), layer.properties.radius).addTo(this.drawnItems)
     },
     geoJSON (geojsonFeature) {
       if(!Array.isArray(geojsonFeature) || geojsonFeature.length == 0) return
@@ -161,9 +161,9 @@ export default {
         }
       })
 
-      let geoLayer = L.geoJSON().addTo(this.mapObject)
-      geoLayer.addTo(this.drawnItems)
-      geoLayer.addData(newGeojson)
+      L.geoJSON(newGeojson).getLayers().forEach(layer => {
+        this.drawnItems.addLayer(layer)
+      })
 
       this.mapObject.fitBounds(this.drawnItems.getBounds())
     }
