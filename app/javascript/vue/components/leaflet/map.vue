@@ -69,8 +69,8 @@ export default {
     }
   },
   watch: {
-    geojson(newVal) {
-      if(newVal.length) {
+    geojson (newVal) {
+      if (newVal.length) {
         this.geoJSON(newVal)
       }
     }
@@ -85,11 +85,30 @@ export default {
 
     this.addDrawControllers()
     this.handleEvents()
-    if(this.geojson.length) {
+    if (this.geojson.length) {
       this.geoJSON(this.geojson)
     }
   },
   methods: {
+    antimeridian (elem, anti) {
+      if (Array.isArray(elem)) {
+        for (var i = 0; i < elem.length; i++) {
+          if (Array.isArray(elem[i][0])) {
+            this.antimeridian(elem[i], anti)
+          } else {
+            if (elem[i][0] < 0) {
+              if (anti) {
+                elem[i][0] = 180 + (180 + elem[i][0])
+              }
+            } else {
+              if (!anti && (elem[i][0] > 180)) {
+                elem[i][0] = elem[i][0] - 360
+              }
+            }
+          }
+        }
+      }
+    },
     addDrawControllers () {
       if (this.tilesSelection) {
         L.control.layers({
@@ -112,7 +131,7 @@ export default {
               allowIntersection: false,
               showArea: true
             }
-          },
+          }
         }))
         this.mapObject.addControl(this.drawnItems)
       }
@@ -132,7 +151,7 @@ export default {
 
       this.mapObject.on('draw:edited', (e) => {
         var layers = e.layers
-     
+
         that.$emit('shapesEdited', layers)
         that.$emit('geoJsonLayersEdited', that.convertGeoJSONWithPointRadius(layers))
       })
@@ -140,7 +159,7 @@ export default {
     removeLayers () {
       this.drawnItems.clearLayers()
     },
-    convertGeoJSONWithPointRadius(layerArray) {
+    convertGeoJSONWithPointRadius (layerArray) {
       let arrayLayers = []
 
       layerArray.eachLayer(layer => {
@@ -148,6 +167,7 @@ export default {
         if (typeof layer.getRadius === 'function') {
           layerJson.properties.radius = layer.getRadius()
         }
+        this.antimeridian(layerJson.geometry.coordinates, false)
         arrayLayers.push(layerJson)
       })
       return arrayLayers
@@ -159,11 +179,12 @@ export default {
       L.circle(layer.geometry.coordinates.reverse(), layer.properties.radius).addTo(this.drawnItems)
     },
     geoJSON (geojsonFeature) {
-      if(!Array.isArray(geojsonFeature) || geojsonFeature.length == 0) return
+      if (!Array.isArray(geojsonFeature) || geojsonFeature.length === 0) return
       this.removeLayers()
 
       let newGeojson = []
       geojsonFeature.forEach(layer => {
+        this.antimeridian(layer.geometry.coordinates, true)
         if (layer.geometry.type === 'Point' && layer.properties.hasOwnProperty('radius')) {
           this.addJsonCircle(layer)
         } else {
