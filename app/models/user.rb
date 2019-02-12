@@ -163,6 +163,27 @@ class User < ApplicationRecord
     administered_projects.any?
   end
 
+  # @return [Boolean]
+  def curates_data?
+    Project::MANIFEST.each do |m|
+      return true if creates_data_of_type?(m.safe_constantize)
+    end
+    false
+  end
+
+  # @return [Array]
+  def data_types_added
+    types = []
+    Project::MANIFEST.each do |m|
+      types.push(m) if creates_data_of_type?(m.safe_constantize)
+    end
+    types
+  end
+
+  def creates_data_of_type?(klass)
+    klass.column_names.include?('created_by_id') && (klass.where(created_by_id: id).or(klass.where(updated_by_id: id))).any?
+  end
+
   # TODO: Deprecate for a `lib/query/user/filter`  
   # @param [String, User, Integer] user
   # @return [Integer] selected user id

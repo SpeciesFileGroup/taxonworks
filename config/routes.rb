@@ -899,6 +899,10 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :controlled_vocabularies do
+      scope :topics_hub, controller: 'tasks/controlled_vocabularies/topics_hub' do
+        get 'index', as: 'index_topics_hub_task'
+      end
+
       scope :biocuration, controller: 'tasks/controlled_vocabularies/biocuration' do
         get 'build_collection', as: 'build_biocuration_groups_task'
         post 'build_biocuration_group', as: 'build_biocuration_group_task'

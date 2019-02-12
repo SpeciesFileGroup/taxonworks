@@ -270,7 +270,7 @@ GEM
     paperclip-meta (3.1.0)
       paperclip (>= 5.0)
     parallel (1.13.0)
-    parallel_tests (2.27.1)
+    parallel_tests (2.28.0)
       parallel
     parser (2.6.0.0)
       ast (~> 2.4.0)
@@ -617,4 +617,4 @@ RUBY VERSION
    ruby 2.5.1p57
 
 BUNDLED WITH
-   1.16.6
+   1.17.3
