@@ -151,6 +151,25 @@
           if(this.collectingEventList) {
             this.$emit('collectingEventList', this.collectingEventList)
           }
+//
+          let ce_ids = [];
+          this.collectingEventList.forEach(ce => {
+            ce_ids.push(ce.id)
+          })
+          params = {
+            collecting_event_ids: ce_ids
+          }
+          this.$http.get('/georeferences.json', {params:params}).then(response => {
+            let featureCollection = {
+              "type": "FeatureCollection",
+              "features": []
+            };
+            response.body.forEach(geoRef => {
+              featureCollection.features.push(geoRef.geo_json)
+            });
+            this.geojsonFeature = [featureCollection];
+          });
+//
           this.isLoading = false;
         } )
       },
