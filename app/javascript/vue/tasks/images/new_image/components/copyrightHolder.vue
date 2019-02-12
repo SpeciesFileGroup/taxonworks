@@ -13,6 +13,13 @@
           v-if="view == 'someone else'"
           v-model="roles_attributes"
           :role-type="roleType"/>
+        <autocomplete
+          v-else
+          placeholder="Select an organization"
+          url="/organizations/autocomplete"
+          param="term"
+          @getItem="setOrganization"
+          label="label_html"/>
       </div>
       <div class="separate-left">
         <label>
@@ -32,11 +39,13 @@ import SmartSelector from 'components/switch'
 import RolePicker from 'components/role_picker'
 import { GetterNames } from '../store/getters/getters.js'
 import { MutationNames } from '../store/mutations/mutations.js'
+import Autocomplete from 'components/autocomplete'
 
 export default {
   components: {
     SmartSelector,
-    RolePicker
+    RolePicker,
+    Autocomplete
   },
   props: {
     title: {
@@ -73,7 +82,13 @@ export default {
     }
   },
   methods: {
-
+    setOrganization(organization) {
+      this.roles_attributes = [{
+        type: this.roleType,
+        label: organization.label,
+        organization_id: organization.id
+      }]
+    }
   }
 }
 </script>
