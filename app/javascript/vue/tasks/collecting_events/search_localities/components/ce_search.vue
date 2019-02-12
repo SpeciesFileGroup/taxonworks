@@ -80,14 +80,23 @@
         shapes: [],   // intended for eventual multiple shapes paradigm
         mode: 'list',
         isLoading: false,
-        geojsonFeature: [{
+        geojsonFeature: [
+          {
+            'type': 'Feature',
+            'properties': {},
+            'geometry': {
+              'type': 'Point',
+              'coordinates': [-59.816437, -27.446959]
+            },
+          },
+          {
           'type': 'Feature',
           'properties': {
             'radius': 108575.53450828836
           },
           'geometry': {
             'type': 'Point',
-            'coordinates': [-34.231603, -59.341021]
+            'coordinates': [-59.341021, -34.231603, ]
           }
         },
         {
@@ -97,25 +106,10 @@
           },
           'geometry': {
             'type': 'Point',
-            'coordinates': [-28.446959, -59.816437]
+            'coordinates': [-59.816437, -28.446959, ]
           }
-        },
-        {
-          'type': 'Feature',
-          'properties': {},
-          'geometry': {
-            'type': 'Point',
-            'coordinates': [-59.816437, -27.446959]
-          }
-        },
-        {
-          'type': 'Feature',
-          'properties': {},
-          'geometry': {
-            'type': 'Polygon',
-            'coordinates': [[[-67.722473,-39.710356],[-67.722473,-35.016501],[-51.635742,-35.016501],[-51.635742,-39.710356],[-67.722473,-39.710356]]]
-          }
-        }]
+        }
+      ]
       }
     },
     methods: {

@@ -112,7 +112,7 @@ export default {
               allowIntersection: false,
               showArea: true
             }
-          }
+          },
         }))
         this.mapObject.addControl(this.drawnItems)
       }
