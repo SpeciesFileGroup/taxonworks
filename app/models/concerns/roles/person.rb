@@ -3,8 +3,11 @@ module Roles::Person
 
   included do
 
-    after_save :vet_person
-    after_save :update_person_year_metadata
+    with_options if: :person_role? do |p|
+      p.after_save :vet_person
+      p.after_save :update_person_year_metadata
+    end
+
     after_destroy :check_for_last
 
     with_options if: :person_role? do |p|
