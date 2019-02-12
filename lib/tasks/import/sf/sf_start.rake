@@ -945,7 +945,7 @@ namespace :tw do
           logger.info 'Running filter_users...'
 
           User.all.each do |user|
-            unless user.curates_data
+            unless user.curates_data?
               user.destroy
             end
           end
