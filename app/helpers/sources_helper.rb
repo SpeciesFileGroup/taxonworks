@@ -22,6 +22,11 @@ module SourcesHelper
     link_to(source_tag(source).html_safe, source.metamorphosize )
   end
 
+  def short_sources_tag(sources)
+    return nil if !sources.load.any?
+    sources.collect{|s| source_author_year_tag(s) }.join('; ')
+  end
+
   def source_document_viewer_option_tag(source)
     return nil if !source.documents.load.any?
     content_tag(:span, class: 'pdfviewerItem') do

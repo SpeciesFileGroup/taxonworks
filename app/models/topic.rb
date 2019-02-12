@@ -10,6 +10,8 @@ class Topic < ControlledVocabularyTerm
   has_many :citations, through: :citation_topics, inverse_of: :topics
   has_many :sources, through: :citations, inverse_of: :topics
 
+  has_many :citation_objects, through: :citations, source_type: 'Citation'
+
   has_many :contents, inverse_of: :topic, dependent: :destroy
   has_many :otus, through: :contents
   has_many :otu_page_layout_sections, -> {
