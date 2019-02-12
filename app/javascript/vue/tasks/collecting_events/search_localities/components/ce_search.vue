@@ -44,7 +44,7 @@
         width="1024px"
         :zoom="2"
         ref="leaflet"
-        :geojson="geojsonFeature"
+        :geojson="geojsonFeatures"
         @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
         :draw-controls="true"
       />
@@ -81,7 +81,7 @@
         shapes: [],   // intended for eventual multiple shapes paradigm
         mode: 'list',
         isLoading: false,
-        geojsonFeature: [
+        geojsonFeatures: [
           {
             'type': 'Feature',
             'properties': {},
@@ -131,17 +131,6 @@
           this.isLoading = false;
         });
       },
-      // getShapesData(){
-      //   this.isLoading = true;
-      //   let params = {shape: this.shapes[this.shapes.length - 1]};  // take only last shape pro tem
-      //   this.$http.get('/collecting_events.json', {params: params}).then(response => {
-      //     this.collectingEventList = response.body;
-      //     if(this.collectingEventList) {
-      //       this.$emit('collectingEventList', this.collectingEventList)
-      //     }
-      //     this.isLoading = false;
-      //   } )
-      // },
       getShapesData(geojsonShape){
         this.isLoading = true;
         // let geoString = JSON.stringify(geojsonShape);
@@ -152,21 +141,26 @@
           if(this.collectingEventList) {
             this.$emit('collectingEventList', this.collectingEventList)
           }
-//
-          let ce_ids = [];
+          let ce_ids = [];      // find the georeferences for these collecting_events
           this.collectingEventList.forEach(ce => {
             ce_ids.push(ce.id)
-          })
+          });
           params = {
             collecting_event_ids: ce_ids
+          };
+          if(ce_ids.length) {
+            this.$http.get('/georeferences.json', {params:params}).then(response => {
+              let FeatureCollection = {
+                "type": "FeatureCollection",
+                "features": []
+              };
+              // put thiese geometries on the map as features
+              FeatureCollection.features = response.body.map(georeference => {
+                return georeference.geo_json
+              });
+              this.geojsonFeatures = FeatureCollection.features;    //since we currently require an array of features
+            });
           }
-          
-          this.$http.get('/georeferences.json', {params:params}).then(response => {
-            this.geojsonFeature = response.body.map(georeference => {
-              return georeference.geo_json
-            })
-          })
-//
           this.isLoading = false;
         } )
       },
@@ -177,12 +171,5 @@
         this.$delete(this.geographicAreaList, index)
       }
     },
-    // addGeographicArea(item) {
-    //     this.geographicAreaList.push(item);
-    //   },
-    //   delistMe(index) {
-    //     this.$delete(this.geographicAreaList, index)
-    //   }
-    // }
   }
 </script>
