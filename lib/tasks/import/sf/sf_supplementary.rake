@@ -114,6 +114,11 @@ namespace :tw do
             #
             end
           end
+
+          #######################################################################################
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/18_after_scrutinies/`
+          puts '** dumped 18_after_scrutinies **'
+          #######################################################################################
         end
 
         desc 'time rake tw:project_import:sf_import:supplementary:taxon_info user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
@@ -204,11 +209,6 @@ namespace :tw do
               # next
             end
           end
-
-          #######################################################################################
-          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/18_after_scrutinies/`
-          puts '** dumped 18_after_scrutinies **'
-          #######################################################################################
         end
 
       end # namespaces below

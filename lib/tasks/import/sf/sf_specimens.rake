@@ -969,7 +969,7 @@ namespace :tw do
 
             depo_string = row['DepoString']
 
-            logger.info "Working with SF.DepoID '#{depo_id}', SF.NomenclatorString '#{depo_string}' (count #{count_found += 1}) \n"
+            logger.info "Working with SF.DepoID '#{depo_id}', SF.DepoString '#{depo_string}' (count #{count_found += 1}) \n"
 
             get_sf_depo_string[depo_id] = depo_string
           end

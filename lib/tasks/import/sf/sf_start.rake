@@ -299,7 +299,7 @@ namespace :tw do
 
           file.each_with_index do |row, i|
             next if row['ContainingRefID'].to_i == 0 # Creating only contained references in this pass
-            next if get_contained_cite_aux_data[row['RefID']]   # if get_contained_cite_aux_data[sf_ref_id] is true, this is a taxon author, not chapter author
+            next if get_contained_cite_aux_data[row['RefID']] # if get_contained_cite_aux_data[sf_ref_id] is true, this is a taxon author, not chapter author
 
             ref_id = row['RefID']
             containing_ref_id = row['ContainingRefID']
@@ -934,33 +934,27 @@ namespace :tw do
           ap skipped_file_ids
         end
 
-      end
+      end # :start
+
 
       namespace :last do
+
         desc 'time rake tw:project_import:sf_import:last:filter_users user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define filter_users: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Running filter_users...'
 
-          # delete any User that didn't create or update data
-          # 
-          # Person.find_each do |person|
-          #   person.do_awesome_stuff
-          # end
-          #
-          # Person.where("age > 21").find_each do |person|
-          #   person.party_all_night!
-          # end
-
-          # User.all.each do |user|
-          #   #the code here is called once for each user
-          #   # user is accessible by 'user' variable
-          # end
-
+          User.all.each do |user|
+            unless user.curates_data
+              user.destroy
+            end
           end
         end
 
-    end
-  end
-end
+      end # :last
+
+
+    end # :sf_import
+  end # :project-import
+end # :tw
 

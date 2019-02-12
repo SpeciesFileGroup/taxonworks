@@ -52,6 +52,47 @@ namespace :tw do
                   project_id: get_tw_project_id[row['FileID']])
             end
           end
+
+          #######################################################################################
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/12_after_orig_genus_ids/`
+          puts '** dumped 12_after_orig_genus_ids **'
+          #######################################################################################
+        end
+
+        desc 'time rake tw:project_import:sf_import:pre_cites:create_sf_family_taxon_name_authors user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define create_sf_family_taxon_name_authors: [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Running create_sf_family_taxon_name_authors...'
+
+          # Analogous to list of contained ref authors for family group name authors
+
+          family_taxon_name_authors = {} # key = SF.RefID, value = array of SF.PersonIDs (ordered)
+
+          path = @args[:data_directory] + 'sfFamilyAuthorList.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          counter = 0
+          previous_ref_id = ''
+
+          file.each_with_index do |row, i|
+            ref_id = row['RefID']
+
+            logger.info "working with RefID #{ref_id} (counter #{counter += 1})"
+
+            if ref_id == previous_ref_id # this is the same RefID as last row, add another author
+              family_taxon_name_authors[ref_id].push(row['PersonID'])
+
+            else # this is a new RefID, start a new author array
+              family_taxon_name_authors[ref_id] = [row['PersonID']]
+              previous_ref_id = ref_id
+            end
+          end
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SFRefIDToFamilyTaxonNameAuthors', family_taxon_name_authors)
+
+          puts 'SFRefIDToFamilyTaxonNameAuthors'
+          ap family_taxon_name_authors
         end
 
         desc 'time rake tw:project_import:sf_import:pre_cites:create_sf_taxon_name_authors user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
@@ -217,11 +258,6 @@ namespace :tw do
 
           puts = 'SFNomenclatorIDToSFNomenclatorMetadata'
           ap get_nomenclator_metadata
-
-          #######################################################################################
-          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/12_after_orig_genus_ids/`
-          puts '** dumped 12_after_orig_genus_ids **'
-          #######################################################################################
         end
 
       end
