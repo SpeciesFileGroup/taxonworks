@@ -96,13 +96,25 @@ export default {
           if (Array.isArray(elem[i][0])) {
             this.antimeridian(elem[i], anti)
           } else {
-            if (elem[i][0] < 0) {
-              if (anti) {
-                elem[i][0] = 180 + (180 + elem[i][0])
+            if (Array.isArray(elem[i])) {
+              if (elem[i][0] < 0) {
+                if (anti) {
+                  elem[i][0] = 180 + (180 + elem[i][0])
+                }
+              } else {
+                if (!anti && (elem[i][0] > 180)) {
+                  elem[i][0] = elem[i][0] - 360
+                }
               }
             } else {
-              if (!anti && (elem[i][0] > 180)) {
-                elem[i][0] = elem[i][0] - 360
+              if (elem[0] < 0) {
+                if (anti) {
+                  elem[0] = 180 + (180 + elem[0])
+                }
+              } else {
+                if (!anti && (elem[0] > 180)) {
+                  elem[0] = elem[0] - 360
+                }
               }
             }
           }
@@ -141,6 +153,9 @@ export default {
       this.mapObject.on(L.Draw.Event.CREATED, function (e) {
         var layer = e.layer
         var geoJsonLayer = layer.toGeoJSON()
+        if (geoJsonLayer.hasOwnProperty('geometry') && geoJsonLayer.geometry.hasOwnProperty('coordinates')) {
+          that.antimeridian(geoJsonLayer.geometry.coordinates, false)
+        }
         if (e.layerType === 'circle') {
           geoJsonLayer.properties.radius = layer.getRadius()
         }
