@@ -22,7 +22,7 @@ if attribution.roles.load.any?
             end
           when :organization
             json.organization do
-              json.partial! '/organization.attributes', organization: role.organization
+              json.partial! '/organizations/attributes', organization: role.organization
             end
           else
             json.error true
