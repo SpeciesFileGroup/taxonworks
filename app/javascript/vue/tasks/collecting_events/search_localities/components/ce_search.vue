@@ -60,8 +60,6 @@
 </template>
 <script>
   import Autocomplete from 'components/autocomplete'
-  // import gMap from './googleMap.vue'
-  // import lMap from './leafletMap.vue'
   import lMap from 'components/leaflet/map.vue'
   import ModeSwitch from './mode_switch'
   import Spinner from 'components/spinner'
@@ -69,7 +67,6 @@
   export default {
     components: {
       Autocomplete,
-      // gMap,
       lMap,
       ModeSwitch,
       Spinner,
@@ -82,35 +79,14 @@
         mode: 'list',
         isLoading: false,
         geojsonFeatures: [
-          {
-            'type': 'Feature',
-            'properties': {},
-            'geometry': {
-              'type': 'Point',
-              'coordinates': [-59.816437, -27.446959]
-            },
-          },
-          {
-          'type': 'Feature',
-          'properties': {
-            'radius': 108575.53450828836
-          },
-          'geometry': {
-            'type': 'Point',
-            'coordinates': [-59.341021, -34.231603, ]
-          }
-        },
-        {
-          'type': 'Feature',
-          'properties': {
-            'radius': 108575.53450828836
-          },
-          'geometry': {
-            'type': 'Point',
-            'coordinates': [-59.816437, -28.446959, ]
-          }
-        }
-      ]
+          {"type":"Feature",
+            "geometry":{"type":"Point","coordinates":[-116.848889,33.478056,1066.8]},
+            "properties":{"georeference":{"id":5,"tag":"Georeference ID = 5"}}},
+          {"type":"Feature","geometry":{"type":"Point","coordinates":[-154,69,0]},"properties":{"georeference":{"id":42477,"tag":"Georeference ID = 42477"}}},
+          {"type":"Feature","geometry":{"type":"Point","coordinates":[-158.32,68.246,0]},"properties":{"georeference":{"id":95395,"tag":"Georeference ID = 95395"}}},
+          {"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-128.67480397224426,70.99598264111805,0],[162.59472727775574,68.69703692453726,0],[-125.68652272224426,62.48255407659341,0],[-128.67480397224426,70.99598264111805,0]]]},"properties":{"georeference":{"id":127782,"tag":"Georeference ID = 127782"}}},
+          {"type":"Feature","geometry":{"type":"Point","coordinates":[-103.43093455511473,38.50019222109752,0]},"properties":{"georeference":{"id":127831,"tag":"Georeference ID = 127831"}}}
+        ]
       }
     },
     methods: {
@@ -133,8 +109,6 @@
       },
       getShapesData(geojsonShape){
         this.isLoading = true;
-        // let geoString = JSON.stringify(geojsonShape);
-        // this.$http.get('/collecting_events.json', { params: {shape: geoString} }).then(response => {
         let params = {shape: this.shapes[this.shapes.length - 1]};  // take only last shape pro tem
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
           this.collectingEventList = response.body;
