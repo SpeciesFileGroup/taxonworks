@@ -1,10 +1,10 @@
 <template>
   <div class="find-ce">
     <spinner
-    v-if="isLoading"
-    :full-screen="true"
-    legend="Loading..."
-    :logo-size="{ width: '100px', height: '100px'}"/>
+      v-if="isLoading"
+      :full-screen="true"
+      legend="Loading..."
+      :logo-size="{ width: '100px', height: '100px'}"/>
     <h2>Find collecting events by geographic area or shape</h2>
     <mode-switch v-model="mode"/>
     <div v-if="mode==='list'">
@@ -20,18 +20,18 @@
           <td><span class="remove_area" data-icon="trash" @click="delistMe(index)"/></td>
         </tr>
       </table>
-    <autocomplete
-      class="separate-bottom"
-      url="/geographic_areas/autocomplete"
-      min="2"
-      ref="autocomplete"
-      param="term"
-      placeholder="Select a named geographic area"
-      label="label_html"
-      @getItem="addGeographicArea($event)"
-      :autofocus="true"
-      :clear-after="true"
-    />
+      <autocomplete
+        class="separate-bottom"
+        url="/geographic_areas/autocomplete"
+        min="2"
+        ref="autocomplete"
+        param="term"
+        placeholder="Select a named geographic area"
+        label="label_html"
+        @getItem="addGeographicArea($event)"
+        :autofocus="true"
+        :clear-after="true"
+      />
       <input
         type="button" class="button normal-input button-default separate-left"
         @click="getAreaData()"
@@ -49,7 +49,8 @@
         :draw-controls="true"
       />
       <!--@geoJsonLayerCreated="getShapesData($event)"-->
-      <input class="button normal-input button-default separate-left"
+      <input
+        class="button normal-input button-default separate-left"
         type="button"
         @click="getShapesData()"
         :disabled="!shapes.length"
@@ -159,16 +160,12 @@
           params = {
             collecting_event_ids: ce_ids
           }
+          
           this.$http.get('/georeferences.json', {params:params}).then(response => {
-            let featureCollection = {
-              "type": "FeatureCollection",
-              "features": []
-            };
-            response.body.forEach(geoRef => {
-              featureCollection.features.push(geoRef.geo_json)
-            });
-            this.geojsonFeature = [featureCollection];
-          });
+            this.geojsonFeature = response.body.map(georeference => {
+              return georeference.geo_json
+            })
+          })
 //
           this.isLoading = false;
         } )
