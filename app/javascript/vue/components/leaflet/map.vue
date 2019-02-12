@@ -129,14 +129,21 @@ export default {
         that.$emit('geoJsonLayerCreated', geoJsonLayer)
         that.drawnItems.addLayer(layer)
       })
+
+      this.mapObject.on('draw:edited', (e) => {
+        var layers = e.layers
+     
+        that.$emit('shapesEdited', layers)
+        that.$emit('geoJsonLayersEdited', that.convertGeoJSONWithPointRadius(layers))
+      })
     },
     removeLayers () {
       this.drawnItems.clearLayers()
     },
-    toGeoJSON () {
+    convertGeoJSONWithPointRadius(layerArray) {
       let arrayLayers = []
 
-      this.drawnItems.eachLayer(layer => {
+      layerArray.eachLayer(layer => {
         let layerJson = layer.toGeoJSON()
         if (typeof layer.getRadius === 'function') {
           layerJson.properties.radius = layer.getRadius()
@@ -144,6 +151,9 @@ export default {
         arrayLayers.push(layerJson)
       })
       return arrayLayers
+    },
+    toGeoJSON () {
+      return this.convertGeoJSONWithPointRadius(this.drawnItems)
     },
     addJsonCircle (layer) {
       L.circle(layer.geometry.coordinates.reverse(), layer.properties.radius).addTo(this.drawnItems)
