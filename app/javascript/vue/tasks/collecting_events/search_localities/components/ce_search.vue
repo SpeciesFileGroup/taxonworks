@@ -46,7 +46,7 @@
         ref="leaflet"
         :geojson="geojsonFeatures"
         @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
-        @geoJsonLayersEdited="findShape($event)"
+        @geoJsonLayersEdited="editedShape($event)"
         :draw-controls="true"
       />
       <!--@geoJsonLayerCreated="getShapesData($event)"-->
@@ -157,8 +157,8 @@
       delistMe(index) {
         this.$delete(this.geographicAreaList, index)
       },
-      findShape(shape) {
-        alert(shape.JSON.stringify())
+      editedShape(shape) {
+        this.shapes.push(JSON.stringify(shape))
       }
     },
   }
