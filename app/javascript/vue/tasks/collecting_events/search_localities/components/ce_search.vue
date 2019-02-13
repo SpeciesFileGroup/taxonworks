@@ -46,6 +46,7 @@
         ref="leaflet"
         :geojson="geojsonFeatures"
         @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
+        @geoJsonLayersEdited="findShape($event)"
         :draw-controls="true"
       />
       <!--@geoJsonLayerCreated="getShapesData($event)"-->
@@ -93,8 +94,12 @@
               "coordinates":[[[-128.67480397224426,70.99598264111805,0],[162.59472727775574,68.69703692453726,0],[-125.68652272224426,62.48255407659341,0],[-128.67480397224426,70.99598264111805,0]]]},"properties":{"georeference":{"id":127782,"tag":"Georeference ID = 127782"}}},
           {"type":"Feature",
             "geometry":{"type":"Point",
-              "coordinates":[-103.43093455511473,38.50019222109752,0]},"properties":{"georeference":{"id":127831,"tag":"Georeference ID = 127831"}}}
-        ]
+              "coordinates":[-103.43093455511473,38.50019222109752,0]},"properties":{"georeference":{"id":127831,"tag":"Georeference ID = 127831"}}},
+          {"type":"Feature",
+            "geometry":{"type":"Polygon",
+              "coordinates":[[[-64.75905955511473,54.33201931226469,0.0],[-65.46218455511473,42.7665216514439,0.0],[8.365940444885268,42.7665216514439,0.0],[6.256565444885268,55.93947018491859,0.0],[-64.75905955511473,54.33201931226469,0.0]]]},"properties":{"georeference":{"id":127832,"tag":"Georeference ID = 127832"}}},
+          {"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-17.18523647139955,21.406372377910248,0.0],[-17.88836147139955,14.386094188926648,0.0],[55.87162720280878,13.385314749878527,0.0],[56.57475220280878,21.42849772341781,0.0],[-17.18523647139955,21.406372377910248,0.0]]]},"properties":{"georeference":{"id":127834,"tag":"Georeference ID = 127834"}}}
+      ]
       }
     },
     methods: {
@@ -151,6 +156,9 @@
       },
       delistMe(index) {
         this.$delete(this.geographicAreaList, index)
+      },
+      findShape(shape) {
+        alert(shape.JSON.stringify())
       }
     },
   }
