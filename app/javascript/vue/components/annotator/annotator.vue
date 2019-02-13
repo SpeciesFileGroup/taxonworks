@@ -254,17 +254,17 @@
     .save-annotator-button {
       width: 100px;
     }
-    .tag_button {
-      padding-left: 12px;
-      padding-right: 8px;
-      width: auto !important;
-      min-width: auto !important;
-      cursor: pointer;
-      margin: 2px;
-      border: none;
-      border-top-left-radius: 15px;
-      border-bottom-left-radius: 15px;
-    }
   }
 
+  .tag_button {
+    padding-left: 12px;
+    padding-right: 8px;
+    width: auto !important;
+    min-width: auto !important;
+    cursor: pointer;
+    margin: 2px;
+    border: none;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+  }
 </style>
