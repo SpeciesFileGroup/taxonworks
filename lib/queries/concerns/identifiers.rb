@@ -15,8 +15,14 @@ module Queries::Concerns::Identifiers
     identifier_table[:cached].matches_any(a)
   end
 
+
   # @return [Arel::Nodes::Equality]
   def with_identifier
+    identifier_table[:identifier].eq(query_string)
+  end
+
+  # @return [Arel::Nodes::Equality]
+  def with_cached
     identifier_table[:cached].eq(query_string)
   end
 
