@@ -80,7 +80,7 @@
         mode: 'list',
         isLoading: false,
         geojsonFeatures: [    // trans-antimeridian polygon test features
-          {
+    /*      {
             "type": "Feature",
             "geometry": {
               "type": "Point",
@@ -130,7 +130,7 @@
             },
             "properties": {"georeference": {"id": 127834, "tag": "Georeference ID = 127834"}}
           }
-        ]
+  */      ]
       }
     },
     methods: {
