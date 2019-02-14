@@ -80,30 +80,61 @@
         mode: 'list',
         isLoading: false,
         geojsonFeatures: [    // trans-antimeridian polygon test features
-          {"type":"Feature",
-            "geometry":{"type":"Point",
-              "coordinates":[-116.848889,33.478056,1066.8]},"properties":{"georeference":{"id":5,"tag":"Georeference ID = 5"}}},
-          {"type":"Feature",
-            "geometry":{"type":"Point",
-              "coordinates":[-154,69,0]},"properties":{"georeference":{"id":42477,"tag":"Georeference ID = 42477"}}},
-          {"type":"Feature",
-            "geometry":{"type":"Point",
-              "coordinates":[-158.32,68.246,0]},"properties":{"georeference":{"id":95395,"tag":"Georeference ID = 95395"}}},
-          {"type":"Feature",
-            "geometry":{"type":"Polygon",
-              "coordinates":[[[-128.67480397224426,70.99598264111805,0],[162.59472727775574,68.69703692453726,0],[-125.68652272224426,62.48255407659341,0],[-128.67480397224426,70.99598264111805,0]]]},"properties":{"georeference":{"id":127782,"tag":"Georeference ID = 127782"}}},
-          {"type":"Feature",
-            "geometry":{"type":"Point",
-              "coordinates":[-103.43093455511473,38.50019222109752,0]},"properties":{"georeference":{"id":127831,"tag":"Georeference ID = 127831"}}},
-          {"type":"Feature",
-            "geometry":{"type":"Polygon",
-              "coordinates":[[[-64.75905955511473,54.33201931226469,0.0],[-65.46218455511473,42.7665216514439,0.0],[8.365940444885268,42.7665216514439,0.0],[6.256565444885268,55.93947018491859,0.0],[-64.75905955511473,54.33201931226469,0.0]]]},"properties":{"georeference":{"id":127832,"tag":"Georeference ID = 127832"}}},
-          {"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-17.18523647139955,21.406372377910248,0.0],[-17.88836147139955,14.386094188926648,0.0],[55.87162720280878,13.385314749878527,0.0],[56.57475220280878,21.42849772341781,0.0],[-17.18523647139955,21.406372377910248,0.0]]]},"properties":{"georeference":{"id":127834,"tag":"Georeference ID = 127834"}}}
-      ]
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [-116.848889, 33.478056, 1066.8]
+            }, "properties": {"georeference": {"id": 5, "tag": "Georeference ID = 5"}}
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [-154, 69, 0]
+            }, "properties": {"georeference": {"id": 42477, "tag": "Georeference ID = 42477"}}
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [-158.32, 68.246, 0]
+            }, "properties": {"georeference": {"id": 95395, "tag": "Georeference ID = 95395"}}
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [[[-128.67480397224426, 70.99598264111805, 0], [162.59472727775574, 68.69703692453726, 0], [-125.68652272224426, 62.48255407659341, 0], [-128.67480397224426, 70.99598264111805, 0]]]
+            }, "properties": {"georeference": {"id": 127782, "tag": "Georeference ID = 127782"}}
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [-103.43093455511473, 38.50019222109752, 0]
+            }, "properties": {"georeference": {"id": 127831, "tag": "Georeference ID = 127831"}}
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [[[-64.75905955511473, 54.33201931226469, 0.0], [-65.46218455511473, 42.7665216514439, 0.0], [8.365940444885268, 42.7665216514439, 0.0], [6.256565444885268, 55.93947018491859, 0.0], [-64.75905955511473, 54.33201931226469, 0.0]]]
+            }, "properties": {"georeference": {"id": 127832, "tag": "Georeference ID = 127832"}}
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [[[-17.18523647139955, 21.406372377910248, 0.0], [-17.88836147139955, 14.386094188926648, 0.0], [55.87162720280878, 13.385314749878527, 0.0], [56.57475220280878, 21.42849772341781, 0.0], [-17.18523647139955, 21.406372377910248, 0.0]]]
+            },
+            "properties": {"georeference": {"id": 127834, "tag": "Georeference ID = 127834"}}
+          }
+        ]
       }
     },
     methods: {
-      getAreaData(){
+      getAreaData() {
         this.isLoading = true;
         let geo_ids = [];
         this.geographicAreaList.forEach(area => {
@@ -114,42 +145,55 @@
         };
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
           this.collectingEventList = response.body;
-          if(this.collectingEventList) {
+          if (this.collectingEventList) {
             this.$emit('collectingEventList', this.collectingEventList)
           }
           this.isLoading = false;
         });
       },
-      getShapesData(geojsonShape){
+      getShapesData(geojsonShape) {
         this.isLoading = true;
         let params = {shape: this.shapes[this.shapes.length - 1]};  // take only last shape pro tem
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
           this.collectingEventList = response.body;
-          if(this.collectingEventList) {
+          if (this.collectingEventList) {
             this.$emit('collectingEventList', this.collectingEventList)
           }
           let ce_ids = [];      // find the georeferences for these collecting_events
           this.collectingEventList.forEach(ce => {
             ce_ids.push(ce.id)
           });
-          params = {
-            collecting_event_ids: ce_ids
-          };
-          if(ce_ids.length) {
-            this.$http.get('/georeferences.json', {params:params}).then(response => {
-              let FeatureCollection = {
-                "type": "FeatureCollection",
-                "features": []
+          if (ce_ids.length) {                // if the list has contents
+            let cycles = (ce_ids.length / 30) ;  // each item is about 30 characters, make each cycle less than 2000 chars
+            let FeatureCollection = {
+              "type": "FeatureCollection",
+              "features": []
+            };
+            let that = this;
+            let thisSlice = 0;
+            let endSlice;
+            let finalSlice = ce_ids.length;
+            let newFeatures = [];
+            for (let i = 0; i < cycles; i++) {
+              endSlice = thisSlice + 30;
+              if ((thisSlice + 30) > finalSlice) {endSlice = finalSlice + 1}
+              params = {
+                collecting_event_ids: ce_ids.slice(thisSlice, endSlice)
               };
-              // put thiese geometries on the map as features
-              FeatureCollection.features = response.body.map(georeference => {
-                return georeference.geo_json
+              this.$http.get('/georeferences.json', {params: params}).then(response => {
+                // put thiese geometries on the map as features
+                newFeatures = response.body.map(georeference => {
+                  return georeference.geo_json
+                });
+                FeatureCollection.features = FeatureCollection.features.concat(newFeatures);    //since we currently require an array of features
               });
-              this.geojsonFeatures = FeatureCollection.features;    //since we currently require an array of features
-            });
+              thisSlice += 30;
+            }
+            that.geojsonFeatures = that.geojsonFeatures.concat(FeatureCollection.features);
+
           }
           this.isLoading = false;
-        } )
+        })
       },
       addGeographicArea(item) {
         this.geographicAreaList.push(item);
@@ -158,7 +202,7 @@
         this.$delete(this.geographicAreaList, index)
       },
       editedShape(shape) {
-        this.shapes.push(JSON.stringify(shape))
+        this.shapes.push(JSON.stringify(shape[0]))
       }
     },
   }
