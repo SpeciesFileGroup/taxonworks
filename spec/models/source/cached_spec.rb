@@ -40,6 +40,14 @@ describe Source, type: :model, group: :sources do
       person1.update(last_name: 'Frank')
       expect(source.reload.cached_author_string).to eq('Frank, Jones & Hammerstein')
     end
+  end
 
+  context 'capitalized #author' do
+    let(:author) { 'JOAQUI, TATIANA I. and MOCTEZUMA, VICTOR and SÁNCHEZ-HUERTA, JOSÉ LUIS and ESCOBAR, FEDERICO' }
+
+    specify '#cached' do
+      source.update(author: author)
+      expect(source.reload.cached).to match('Joaqui, T.I., Moctezuma, V., Sánchez-Huerta, J.L. & Escobar, F.')
+    end
   end
 end

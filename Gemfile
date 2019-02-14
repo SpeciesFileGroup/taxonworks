@@ -98,6 +98,7 @@ gem 'chronic', '~> 0.10.2'
 gem 'logical_query_parser'
 gem 'logic_tools'
 gem 'chunky_png', '~> 1.3.11'
+gem 'namecase', '~> 2.0'
 
 # Deploy, deprecated soon
 gem 'capistrano-npm', '~> 1.0.2'
