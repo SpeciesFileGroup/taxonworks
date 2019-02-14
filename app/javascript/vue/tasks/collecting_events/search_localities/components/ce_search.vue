@@ -153,7 +153,9 @@
       },
       getShapesData(geojsonShape) {
         this.isLoading = true;
-        let params = {shape: this.shapes[this.shapes.length - 1]};  // take only last shape pro tem
+        let shapeText = this.shapes[this.shapes.length - 1];
+        let searchShape = JSON.parse(shapeText);
+        let params = {shape: shapeText};  // take only last shape pro tem
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
           this.collectingEventList = response.body;
           if (this.collectingEventList) {
@@ -189,6 +191,7 @@
               });
               thisSlice += 30;
             }
+            FeatureCollection.features.push(searchShape);
             that.geojsonFeatures = that.geojsonFeatures.concat(FeatureCollection.features);
 
           }
