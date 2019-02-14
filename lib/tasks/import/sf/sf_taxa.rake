@@ -5,6 +5,62 @@ namespace :tw do
       require 'logged_task'
       namespace :taxa do
 
+
+        desc 'time rake tw:project_import:sf_import:taxa:create_otu_website_links user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define create_otu_website_links: [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Running create_otu_website_links...'
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
+          excluded_taxa = import.get('ExcludedTaxa')
+          get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
+          get_tw_project_id = import.get('SFFileIDToTWProjectID')
+          get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
+          get_taxon_name_otu_id = import.get('TWTaxonNameIDToOtuID')
+
+          data_types = {}
+          get_tw_project_id.each_value do |project_id|
+            data_type = Topic.find_or_create_by(
+                name: 'External links to websites',
+                definition: 'External links to websites',
+                project_id: project_id)
+            data_types[project_id] = data_type
+          end
+
+          topic_map = {0 => 'general information', 1 => 'key', 2 => 'distribution map', 3 => 'specimen level information'}
+          previous_otu_id = ''
+
+          otu_websites = {} # key = otu_id, value = array of website URLs/info
+
+          path = @args[:data_directory] + 'sfTaxonNameWebsiteLinks.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          file.each_with_index do |row, i|
+            next if skipped_file_ids.include? row['FileID'].to_i
+            sf_taxon_name_id = row['TaxonNameID']
+            next if excluded_taxa.include? sf_taxon_name_id
+            tw_taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id]
+            otu_id = get_taxon_name_otu_id[tw_taxon_name_id]
+            links_data_types = row['DataTypes'].to_i
+
+            logger.info "Working with SF.TaxonNameID = '#{row['TaxonNameID']}', TW.TaxonNameID = '#{tw_taxon_name_id}, otu_id = '#{otu_id}, SF.FileID = '#{row['FileID']}', DataTypes = '#{row['DataTypes']}' \n"
+
+            if otu_id == previous_otu_id # this is the same TaxonNameID/OTU as last row, add another website
+              link_data_type_text = "[#{Utilities::Numbers.get_bits(links_data_types).collect{|i| topic_map[i]}.compact.join(', ')}]" if links_data_types > 0
+              otu_websites[otu_id].push( "* [#{row['Name']}](#{row['RootLink']}#{row['LinkSpecs']})#{link_data_type_text} \n")
+
+            else # this is a new TaxonNameID/OTU, start a new website array
+              link_data_type_text = "[#{Utilities::Numbers.get_bits(links_data_types).collect{|i| topic_map[i]}.compact.join(', ')}]" if links_data_types > 0
+              otu_websites[otu_id] = ["* [#{row['Name']}](#{row['RootLink']}#{row['LinkSpecs']})#{link_data_type_text} \n"]
+              previous_otu_id = otu_id
+            end
+          end
+
+          ap otu_websites
+
+        end
+
         desc 'time rake tw:project_import:sf_import:taxa:create_status_flag_relationships user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define create_status_flag_relationships: [:data_directory, :environment, :user_id] do |logger|
 
