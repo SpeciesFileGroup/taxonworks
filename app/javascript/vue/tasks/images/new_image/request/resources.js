@@ -16,6 +16,10 @@ const GetOtuSmartSelector = function () {
   return ajaxCall('get', '/otus/select_options')
 }
 
+const GetSqedMetadata = function () {
+  return ajaxCall('get', '/sqed_depictions/metadata_options')
+}
+
 const GetSourceSmartSelector = function () {
   return ajaxCall('get', '/sources/select_options')
 }
@@ -43,6 +47,7 @@ export {
   GetCollectingEventSmartSelector,
   GetCollectionObjectSmartSelector,
   GetSourceSmartSelector,
+  GetSqedMetadata,
   GetOtuSmartSelector,
   UpdateAttribution,
   DestroyImage
