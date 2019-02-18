@@ -36,6 +36,10 @@ const UpdateAttribution = function (data) {
   return ajaxCall('patch', `/attributions/${data.id}.json`, { attribution: data })
 }
 
+const UpdateDepiction = function (data) {
+  return ajaxCall('patch', `/depictions/${data.id}.json`, { depiction: data })
+}
+
 const DestroyImage = function (id) {
   return ajaxCall('delete', `/images/${id}.json`)
 }
@@ -50,5 +54,6 @@ export {
   GetSqedMetadata,
   GetOtuSmartSelector,
   UpdateAttribution,
+  UpdateDepiction,
   DestroyImage
 }
