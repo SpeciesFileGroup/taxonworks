@@ -24,6 +24,14 @@ function makeInitialState () {
     },
     yearCopyright: undefined,
     license: undefined,
+    sqed: {
+      id: undefined,
+      boundary_color: undefined,
+      boundary_finder: 'Sqed::BoundaryFinder::ColorLineFinder',
+      has_border: false, 
+      layout: undefined,
+      metadata_map: []
+    }
   }
 }
 

@@ -5,6 +5,7 @@ import getYearCopyright from './getYearCopyright'
 import getObjectsForDepictions from './getObjectsForDepictions'
 import getAttributions from './getAttributions'
 import getSettings from './getSettings'
+import getSqed from './getSqed'
 
 const GetterNames = {
   GetLicense: 'getLicense',
@@ -13,7 +14,8 @@ const GetterNames = {
   GetYearCopyright: 'getYearCopyright',
   GetObjectsForDepictions: 'getObjectsForDepictions',
   GetAttributions: 'getAttributions',
-  GetSettings: 'getSettings'
+  GetSettings: 'getSettings',
+  GetSqed: 'getSqed'
 }
 
 const GetterFunctions = {
@@ -23,7 +25,8 @@ const GetterFunctions = {
   [GetterNames.GetYearCopyright]: getYearCopyright,
   [GetterNames.GetObjectsForDepictions]: getObjectsForDepictions,
   [GetterNames.GetAttributions]: getAttributions,
-  [GetterNames.GetSettings]: getSettings
+  [GetterNames.GetSettings]: getSettings,
+  [GetterNames.GetSqed]: getSqed
 }
 
 export {

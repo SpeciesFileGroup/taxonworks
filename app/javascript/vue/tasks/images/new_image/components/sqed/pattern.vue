@@ -10,8 +10,8 @@
             <input
               :key="key"
               name="sqed-pattern"
-              :value="pattern"
-              v-model="selected"
+              @click="setPattern(pattern)"
+              :checked="pattern.layout === value.layout"
               type="radio">
             {{ key | humanize }}
           </label>
@@ -47,6 +47,11 @@ export default {
       if (!value) return ''
       value = value.toString().replace(/_/g, ' ')
       return value.charAt(0).toUpperCase() + value.slice(1)
+    }
+  },
+  methods: {
+    setPattern(pattern) {
+      this.selected = pattern
     }
   }
 }

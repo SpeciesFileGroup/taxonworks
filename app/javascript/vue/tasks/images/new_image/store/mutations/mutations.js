@@ -12,6 +12,7 @@ import setYearCopyright from './setYearCopyright'
 import setDepictions from './setDepictions'
 import setAttributionsCreated from './setAttributionsCreated'
 import resetStore from './resetStore'
+import setSqed from './setSqed'
 
 const MutationNames = {
   AddAttribution: 'addAttribution',
@@ -27,7 +28,8 @@ const MutationNames = {
   SetYearCopyright: 'setYearCopyright',
   SetDepictions: 'setDepictions',
   SetAttributionsCreated: 'setAttributionsCreated',
-  ResetStore: 'resetStore'
+  ResetStore: 'resetStore',
+  SetSqed: 'setSqed'
 }
 
 const MutationFunctions = {
@@ -44,7 +46,8 @@ const MutationFunctions = {
   [MutationNames.SetYearCopyright]: setYearCopyright,
   [MutationNames.SetDepictions]: setDepictions,
   [MutationNames.SetAttributionsCreated]: setAttributionsCreated,
-  [MutationNames.ResetStore]: resetStore
+  [MutationNames.ResetStore]: resetStore,
+  [MutationNames.SetSqed]: setSqed
 }
 
 export {
