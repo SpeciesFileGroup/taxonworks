@@ -154,7 +154,7 @@ export default {
         var layer = e.layer
         var geoJsonLayer = layer.toGeoJSON()
         if (geoJsonLayer.hasOwnProperty('geometry') && geoJsonLayer.geometry.hasOwnProperty('coordinates')) {
-          that.antimeridian(geoJsonLayer.geometry.coordinates, false)
+          //that.antimeridian(geoJsonLayer.geometry.coordinates, false)
         }
         if (e.layerType === 'circle') {
           geoJsonLayer.properties.radius = layer.getRadius()
@@ -182,7 +182,7 @@ export default {
         if (typeof layer.getRadius === 'function') {
           layerJson.properties.radius = layer.getRadius()
         }
-        this.antimeridian(layerJson.geometry.coordinates, false)
+        //this.antimeridian(layerJson.geometry.coordinates, false)
         arrayLayers.push(layerJson)
       })
       return arrayLayers
