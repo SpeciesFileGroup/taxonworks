@@ -130,7 +130,14 @@
             },
             "properties": {"georeference": {"id": 127834, "tag": "Georeference ID = 127834"}}
           }
-  */      ]
+  */
+            // {"type":"Feature","geometry":{"type":"Point","coordinates":[-116.848889,33.478056,1066.8]},"properties":{"georeference":{"id":5,"tag":"Georeference ID = 5"}}},
+            // {"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-128.67480397224426,70.99598264111805,0.0],[162.59472727775574,68.69703692453726,0.0],[-125.68652272224426,62.48255407659341,0.0],[-128.67480397224426,70.99598264111805,0.0]]]},"properties":{"georeference":{"id":127782,"tag":"Georeference ID = 127782"}}},
+            // {"type":"Feature","geometry":{"type":"Point","coordinates":[-103.43093455511473,38.50019222109752,0.0]},"properties":{"georeference":{"id":127831,"tag":"Georeference ID = 127831"}}},
+            // {"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-64.75905955511473,54.33201931226469,0.0],[-65.46218455511473,42.7665216514439,0.0],[8.365940444885268,42.7665216514439,0.0],[6.256565444885268,55.93947018491859,0.0],[-64.75905955511473,54.33201931226469,0.0]]]},"properties":{"georeference":{"id":127832,"tag":"Georeference ID = 127832"}}},
+            // {"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-3.8193901777350447,54.27578535939862,0.0],[-7.159233927735045,50.5249257423752,0.0],[-0.30376517773504474,43.84757131263736,0.0],[11.825141072264955,48.76086887572222,0.0],[10.155219197264955,54.32707137347205,0.0],[4.090766072264955,55.43927440167163,0.0],[-3.8193901777350447,54.27578535939862,0.0]]]},"properties":{"georeference":{"id":127833,"tag":"Georeference ID = 127833"}}},
+            // {"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-17.18523647139955,21.406372377910248,0.0],[-17.88836147139955,14.386094188926648,0.0],[55.87162720280878,13.385314749878527,0.0],[56.57475220280878,21.42849772341781,0.0],[-17.18523647139955,21.406372377910248,0.0]]]},"properties":{"georeference":{"id":127834,"tag":"Georeference ID = 127834"}}}
+          ]
       }
     },
     methods: {
@@ -155,6 +162,8 @@
         this.isLoading = true;
         let shapeText = this.shapes[this.shapes.length - 1];
         let searchShape = JSON.parse(shapeText);
+        alert(shapeText);
+        alert(JSON.stringify((searchShape)));
         let params = {shape: shapeText};  // take only last shape pro tem
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
           this.collectingEventList = response.body;
@@ -191,7 +200,7 @@
               });
               thisSlice += 30;
             }
-            FeatureCollection.features.push(searchShape);
+            // if(searchShape) {FeatureCollection.features.push(searchShape)};
             that.geojsonFeatures = that.geojsonFeatures.concat(FeatureCollection.features);
 
           }
