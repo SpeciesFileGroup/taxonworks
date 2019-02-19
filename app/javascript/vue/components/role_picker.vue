@@ -158,8 +158,8 @@
     },
     methods: {
       getUrl(role) {
-        if (role.hasOwnProperty('person')) {
-          return `/people/${role.person.id}/edit`
+        if (role.hasOwnProperty('person_id')) {
+          return `/people/${role.person_id}/edit`
         } else {
           return '#'
         }
