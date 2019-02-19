@@ -1,4 +1,4 @@
-import { CreateDepiction } from '../../request/resources'
+import { CreateDepiction, UpdateDepiction } from '../../request/resources'
 import { MutationNames } from '../mutations/mutations'
 
 function validateSqed(sqed) {
@@ -23,8 +23,6 @@ export default function({ state, commit }) {
         sqed_depiction_attributes: (validateSqed(state.sqed) && object.base_class == 'CollectionObject') ? state.sqed : undefined
       }
 
-      console.log(data)
-
       alreadyCreated = state.depictionsCreated.find(depiction => {
         return depiction.depiction_object_id == object.id && depiction.depiction_object_type == object.base_class && depiction.image_id == item.id
       })
@@ -32,6 +30,12 @@ export default function({ state, commit }) {
       if(!alreadyCreated) {
         promises.push(CreateDepiction(data).then(response => {
           createdCount++
+          commit(MutationNames.AddDepiction, response.body)
+        }))
+      }
+      else {
+        data.id = alreadyCreated.id
+        promises.push(UpdateDepiction(data).then(response => {
           commit(MutationNames.AddDepiction, response.body)
         }))
       }
