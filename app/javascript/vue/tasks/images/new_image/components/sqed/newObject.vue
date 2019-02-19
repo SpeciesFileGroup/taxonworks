@@ -3,7 +3,9 @@
     <h3>New object attributes</h3>
     <div>
       <label>Total</label>
-      <input type="number">
+      <input 
+        type="number"
+        v-model="collectionObject.total">
       <taxon-determination />
     </div>
   </div>
@@ -12,10 +14,22 @@
 <script>
 
 import TaxonDetermination from './determination'
+import { GetterNames } from '../../store/getters/getters.js'
+import { MutationNames } from '../../store/mutations/mutations.js'
 
 export default {
   components: {
     TaxonDetermination
+  },
+  computed: {
+    collectionObject: {
+      get() {
+        return this.$store.getters[GetterNames.GetCollectionObject]
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetCollectionObject, value)
+      }
+    }
   }
 }
 </script>
