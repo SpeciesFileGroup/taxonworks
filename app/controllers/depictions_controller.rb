@@ -106,7 +106,7 @@ class DepictionsController < ApplicationController
       :image_id,
       :figure_label,
       image_attributes: [:image_file],
-      sqed_depiction_attributes: [:boundary_color, :boundary_finder, :has_border, :layout, metadata_map: {}]
+      sqed_depiction_attributes: [:id, :_destroy, :boundary_color, :boundary_finder, :has_border, :layout, metadata_map: {}]
     )
   end
 
