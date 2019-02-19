@@ -79,6 +79,7 @@
         shapes: [],   // intended for eventual multiple shapes paradigm
         mode: 'list',
         isLoading: false,
+        newFeatures:  [],
         geojsonFeatures: [    // trans-antimeridian polygon test features
     /*      {
             "type": "Feature",
@@ -165,8 +166,8 @@
         this.isLoading = true;
         let shapeText = this.shapes[this.shapes.length - 1];
         let searchShape = JSON.parse(shapeText);
-        alert(shapeText);
-        alert(JSON.stringify((searchShape)));
+        // alert(shapeText);
+        // alert(JSON.stringify((searchShape)));
         let params = {shape: shapeText};  // take only last shape pro tem
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
           this.collectingEventList = response.body;
@@ -199,6 +200,7 @@
                 newFeatures = response.body.map(georeference => {
                   return georeference.geo_json
                 });
+                this.newFeatures = this.newFeatures.concat(newFeatures);
                 FeatureCollection.features = FeatureCollection.features.concat(newFeatures);    //since we currently require an array of features
               });
               thisSlice += 30;
