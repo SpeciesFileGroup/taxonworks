@@ -6,20 +6,13 @@ TW.views.hub.filter = TW.views.hub.filter || {};
 Object.assign(TW.views.hub.filter, {
 	filterHubTask: undefined,
 	init: function() {
-		if($("#favorite-page").length) {
-			this.filterHubTask = new FilterHub();
-			this.resizeTaskCarrousel();
-			
-		}
-		else {
-			this.filterHubTask = new FilterHub();
-			this.resizeTaskCarrousel();
-		}
-		if(!$("#filter").attr('loaded')) { 
+		if(!$("#filter").attr('loaded') == true) { 
 			$("#filter").attr('loaded', 'true');
+			this.filterHubTask = new FilterHub();
+			this.resizeTaskCarrousel();
 			this.loadCategoriesIcons();
+			this.handleEvents();
 		}
-		this.handleEvents()
 	},
 
 	resizeTaskCarrousel() {
