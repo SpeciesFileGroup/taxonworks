@@ -13,6 +13,7 @@ import setDepictions from './setDepictions'
 import setAttributionsCreated from './setAttributionsCreated'
 import resetStore from './resetStore'
 import setSqed from './setSqed'
+import setNewCOForSqed from './setNewCOForSqed'
 
 const MutationNames = {
   AddAttribution: 'addAttribution',
@@ -29,7 +30,8 @@ const MutationNames = {
   SetDepictions: 'setDepictions',
   SetAttributionsCreated: 'setAttributionsCreated',
   ResetStore: 'resetStore',
-  SetSqed: 'setSqed'
+  SetSqed: 'setSqed',
+  SetNewCOForSqed: 'setNewCOForSqed'
 }
 
 const MutationFunctions = {
@@ -47,7 +49,8 @@ const MutationFunctions = {
   [MutationNames.SetDepictions]: setDepictions,
   [MutationNames.SetAttributionsCreated]: setAttributionsCreated,
   [MutationNames.ResetStore]: resetStore,
-  [MutationNames.SetSqed]: setSqed
+  [MutationNames.SetSqed]: setSqed,
+  [MutationNames.SetNewCOForSqed]: setNewCOForSqed
 }
 
 export {

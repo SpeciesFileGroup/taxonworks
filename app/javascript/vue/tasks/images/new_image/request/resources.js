@@ -32,6 +32,10 @@ const CreateDepiction = function (data) {
   return ajaxCall('post', '/depictions.json', { depiction: data })
 }
 
+const CreateCollectionObject = function (data) {
+  return ajaxCall('post', '/collection_objects.json', { collection_object: data })
+}
+
 const UpdateAttribution = function (data) {
   return ajaxCall('patch', `/attributions/${data.id}.json`, { attribution: data })
 }
@@ -46,6 +50,7 @@ const DestroyImage = function (id) {
 
 export {
   CreateAttribution,
+  CreateCollectionObject,
   CreateDepiction,
   GetLicenses,
   GetCollectingEventSmartSelector,

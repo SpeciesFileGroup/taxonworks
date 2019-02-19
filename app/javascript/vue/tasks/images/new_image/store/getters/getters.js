@@ -6,6 +6,7 @@ import getObjectsForDepictions from './getObjectsForDepictions'
 import getAttributions from './getAttributions'
 import getSettings from './getSettings'
 import getSqed from './getSqed'
+import getNewCOForSqed from './getNewCOForSqed'
 
 const GetterNames = {
   GetLicense: 'getLicense',
@@ -15,7 +16,8 @@ const GetterNames = {
   GetObjectsForDepictions: 'getObjectsForDepictions',
   GetAttributions: 'getAttributions',
   GetSettings: 'getSettings',
-  GetSqed: 'getSqed'
+  GetSqed: 'getSqed',
+  GetNewCOForSqed: 'getNewCOForSqed'
 }
 
 const GetterFunctions = {
@@ -26,7 +28,8 @@ const GetterFunctions = {
   [GetterNames.GetObjectsForDepictions]: getObjectsForDepictions,
   [GetterNames.GetAttributions]: getAttributions,
   [GetterNames.GetSettings]: getSettings,
-  [GetterNames.GetSqed]: getSqed
+  [GetterNames.GetSqed]: getSqed,
+  [GetterNames.GetNewCOForSqed]: getNewCOForSqed
 }
 
 export {

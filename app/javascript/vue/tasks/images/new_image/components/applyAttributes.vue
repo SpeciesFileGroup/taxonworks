@@ -11,7 +11,7 @@
             type="text">
           <button
             type="button"
-            :disabled="!validateAttr"
+            :disabled="!validateAttr || !imagesCreated"
             class="button normal-input button-submit separate-left"
             @click="applyAttr">
             Apply
@@ -25,7 +25,7 @@
             type="text">
           <button
             type="button"
-            :disabled="!validateDepic"
+            :disabled="!(validateDepic || (createNewCO && validateSqedObject) && imagesCreated)"
             class="button normal-input button-submit separate-left"
             @click="applyDepic">
             Apply
@@ -35,7 +35,7 @@
       <button 
         class="button normal-input button-submit item button-apply-both "
         type="button"
-        :disabled="!validateDepic || !validateAttr"
+        :disabled="!((validateDepic || (createNewCO && validateSqedObject) && validateAttr) && imagesCreated)"
         @click="applyAttr(); applyDepic()">
         Apply both
       </button>
@@ -47,17 +47,27 @@
 
 import { GetterNames } from '../store/getters/getters.js'
 import { ActionNames } from '../store/actions/actions.js'
+import validateSqed from '../helpers/validateSqed'
 
 export default {
   computed: {
+    validateSqedObject() {
+      return validateSqed(this.getSqed)
+    },
+    createNewCO() {
+      return this.$store.getters[GetterNames.GetNewCOForSqed]
+    },
+    getSqed() {
+      return this.$store.getters[GetterNames.GetSqed]
+    },
     imagesCreated() {
-      return this.$store.getters[GetterNames.GetImagesCreated]
+      return this.$store.getters[GetterNames.GetImagesCreated].length > 0
     },
     validateDepic() {
-      return (this.$store.getters[GetterNames.GetObjectsForDepictions].length > 0) && this.imagesCreated.length > 0
+      return (this.$store.getters[GetterNames.GetObjectsForDepictions].length > 0)
     },
     validateAttr() {
-      return (this.imagesBy.length > 0 || this.license.length) && this.imagesCreated.length > 0
+      return (this.imagesBy.length > 0 || this.license.length)
     },
     authors() {
       return this.$store.getters[GetterNames.GetPeople].authors

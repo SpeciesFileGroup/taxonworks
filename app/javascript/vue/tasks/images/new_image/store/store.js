@@ -31,7 +31,8 @@ function makeInitialState () {
       has_border: false, 
       layout: undefined,
       metadata_map: []
-    }
+    },
+    newCOForSqed: true
   }
 }
 

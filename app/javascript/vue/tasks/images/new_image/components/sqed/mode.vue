@@ -8,7 +8,7 @@
             type="radio"
             :value="true"
             name="sqed-mode"
-            v-model="newObject"
+            v-model="newCO"
           >
           New object
         </label>
@@ -19,7 +19,7 @@
             type="radio"
             name="sqed-mode"
             :value="false"
-            v-model="newObject"
+            v-model="newCO"
           >
           Existing object
         </label>
@@ -29,10 +29,19 @@
 </template>
 
 <script>
+
+import { GetterNames } from '../../store/getters/getters.js'
+import { MutationNames } from '../../store/mutations/mutations.js'
+
 export default {
-  data() {
-    return {
-      newObject: true
+  computed: {
+    newCO: {
+      get() {
+        return this.$store.getters[GetterNames.GetNewCOForSqed]
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetNewCOForSqed, value)
+      }
     }
   }
 }
