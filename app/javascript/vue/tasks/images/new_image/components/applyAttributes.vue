@@ -96,6 +96,8 @@ export default {
       return `${this.imagesBy}${this.imagesBy.length > 0 ? ` ${this.license}` : this.license}`
     },
     objectsForDepictions() {
+      if(this.createNewCO) { return 'A new collection object will be created for each image.' }
+      
       let tmp = this.$store.getters[GetterNames.GetObjectsForDepictions].map(item => {
         return item.label
       })
