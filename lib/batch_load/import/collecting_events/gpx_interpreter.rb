@@ -13,9 +13,10 @@ module BatchLoad
     # methode override for GPX processing which is quite different from CSV
     # @return [Hash, nil]
     def csv
-      @csv = GPX::GPXFile.new(gpx_file: @file.tempfile.path)
+      gpx = GPX::GPXFile.new(gpx_file: @file.tempfile.path)
       # @csv = Hash.from_xml(gpx.to_s)
       # gpx = (Hash.from_xml(GPX::GPXFile.new(gpx_file: '/Users/tuckerjd/src/taxonworks/spec/files/batch/collecting_event/test.gpx').to_s))['gpx']end
+      @csv
     end
 
     # TODO: update this
