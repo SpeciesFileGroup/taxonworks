@@ -199,7 +199,7 @@ export default {
 
       let newGeojson = []
       geojsonFeature.forEach(layer => {
-        this.antimeridian(layer.geometry.coordinates, true)
+        //this.antimeridian(layer.geometry.coordinates, true)
         if (layer.geometry.type === 'Point' && layer.properties.hasOwnProperty('radius')) {
           this.addJsonCircle(layer)
         } else {
