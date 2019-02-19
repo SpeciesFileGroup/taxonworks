@@ -93,10 +93,12 @@ var CarrouselData = function (sec, rows, columns) {
 			child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
 			if(this.checkChildFilter(child.children().children(".filter_data"))) {
 				if($(child).text().toLowerCase().indexOf(handleKey.toLowerCase()) > 0 || handleKey == "") {
-					child.show();
+					//child.show();
+					child.removeClass('hide');
 				}
 				else {
-					child.hide();
+					child.addClass('hide');
+					//child.hide();
 				}
 			}
 		}
@@ -127,11 +129,11 @@ var CarrouselData = function (sec, rows, columns) {
 		for (var i = 1; i <= this.maxRow; i++) {
 			child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
 			if(this.checkChildFilter(child.children().children(".filter_data"))) {
-				child.show(250);
+				child.removeClass('hide');
 				find++;
 			}
 			else {
-				child.hide(250);
+				child.addClass('hide');
 			}
 		}
 		this.isEmpty = (find <= 0);
@@ -149,35 +151,32 @@ var CarrouselData = function (sec, rows, columns) {
 
 
 	CarrouselData.prototype.loadingUp = function() {
-    	var
-    	  rows = this.maxRow,
-    	  posNro = this.nro,
-    	  tag = this.sectionTag;
+    var
+    rows = this.maxRow,
+    posNro = this.nro,
+		tag = this.sectionTag;
 
-	    if(this.nro > this.start) {
-	        $('.data_section[data-section="' + tag + '"] > .cards-section > .card-container:nth-child('+ (posNro+rows-1) +')').hide(100, function() {
-	  	        $('.data_section[data-section="' + tag + '"] > .cards-section > .card-container:nth-child('+ (posNro-1) +')').show(150)
-	        });      
-	        if(this.nro > this.start) {
-	        	this.nro--;
-	      	}        
-	    }  
+		if(this.nro > this.start) {
+			$('.data_section[data-section="' + tag + '"] > .cards-section > .card-container:nth-child('+ (posNro+rows-1) +')').addClass('hide')
+			$('.data_section[data-section="' + tag + '"] > .cards-section > .card-container:nth-child('+ (posNro-1) +')').removeClass('hide');
+			if(this.nro > this.start) {
+				this.nro--;
+			}        
+		}  
 	};
 
     CarrouselData.prototype.loadingDown = function() {
-    	var
-    	  rows = this.maxRow,
-    	  posNro = this.nro,
-    	  tag = this.sectionTag;
+			var
+				rows = this.maxRow,
+				posNro = this.nro,
+				tag = this.sectionTag;
 
-	    if((this.nro+this.maxRow) <= this.childs) {
-	        $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ posNro +')' ).hide(100, function() {
-	        	
-	        	$('.data_section[data-section="' + tag + '"] > .cards-section > .card-container:nth-child('+ (posNro+rows) +')' ).show(150)
+			if((this.nro+this.maxRow) <= this.childs) {
+				$('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ posNro +')' ).addClass('hide');
+				$('.data_section[data-section="' + tag + '"] > .cards-section > .card-container:nth-child('+ (posNro+rows) +')' ).removeClass('hide');
+			}
 
-	        });   
-	        if(this.nro < this.childs) {
-	        	this.nro++;
-	      	}          
-    	} 
-  	};
+			if(this.nro < this.childs) {
+				this.nro++;
+			}           
+		};
