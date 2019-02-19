@@ -16,6 +16,14 @@ const GetOtuSmartSelector = function () {
   return ajaxCall('get', '/otus/select_options')
 }
 
+const GetOtu = function (id) {
+  return ajaxCall('get', `/otus/${id}.json`)
+}
+
+const GetTaxonDeterminatorSmartSelector = function () {
+  return ajaxCall('get', `/people/select_options?role_type=Determiner`)
+}
+
 const GetSqedMetadata = function () {
   return ajaxCall('get', '/sqed_depictions/metadata_options')
 }
@@ -34,6 +42,10 @@ const CreateDepiction = function (data) {
 
 const CreateCollectionObject = function (data) {
   return ajaxCall('post', '/collection_objects.json', { collection_object: data })
+}
+
+const CreateTaxonDetermination = function (data) {
+  return ajaxCall('post', `/taxon_determinations.json`, { taxon_determination: data })
 }
 
 const UpdateAttribution = function (data) {
@@ -55,6 +67,9 @@ export {
   GetLicenses,
   GetCollectingEventSmartSelector,
   GetCollectionObjectSmartSelector,
+  GetTaxonDeterminatorSmartSelector,
+  CreateTaxonDetermination,
+  GetOtu,
   GetSourceSmartSelector,
   GetSqedMetadata,
   GetOtuSmartSelector,

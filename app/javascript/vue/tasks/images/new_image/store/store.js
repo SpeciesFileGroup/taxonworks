@@ -32,7 +32,11 @@ function makeInitialState () {
       layout: undefined,
       metadata_map: []
     },
-    newCOForSqed: true
+    taxon_determinations: [],
+    newCOForSqed: true,
+    collection_object: {
+      total: 1
+    }
   }
 }
 

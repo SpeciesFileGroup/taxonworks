@@ -2,8 +2,12 @@
   <div class="panel content panel-section">
     <h2>Staged image</h2>
     <div class="flexbox">
-      <mode-component />
+      <div class="separate-right">
+        <mode-component class="separate-bottom"/>
+        <new-object class="separate-top"/>
+      </div>
       <pattern-component
+        class="separate-left"
         v-model="pattern"
         :patterns="extractionPatterns"
       />
@@ -22,14 +26,16 @@
           </label>
         </div>
       </div>
-      <component
-        v-if="componentExist"
-        :is="layoutName"
-        :layout-types="metadata.layout_section_types"
-        v-model="sqed_depiction_attributes.metadata_map"
-        :style="{ 'background-color': sqed_depiction_attributes.boundary_color }"
-        :class="{ hasBorder: sqed_depiction_attributes.has_border }"
-      />
+      <div>
+        <component
+          v-if="componentExist"
+          :is="layoutName"
+          :layout-types="metadata.layout_section_types"
+          v-model="sqed_depiction_attributes.metadata_map"
+          :style="{ 'background-color': sqed_depiction_attributes.boundary_color }"
+          :class="{ hasBorder: sqed_depiction_attributes.has_border }"
+        />
+      </div>
     </div>
     <div class="separate-top">
       <button
@@ -46,8 +52,8 @@
 
 import ModeComponent from './mode'
 import PatternComponent from './pattern'
-import { GetSqedMetadata } from '../../request/resources.js'
 import ColorComponent from './color'
+import NewObject from './newObject'
 
 import EqualCrossLayout from './layouts/equal_cross'
 import CrossLayout from './layouts/cross'
@@ -56,11 +62,13 @@ import VerticalOffsetCrossLayout from './layouts/vertical_offset_cross'
 import SevenSlotLayout from './layouts/seven_slot'
 import LepStageLayout from './layouts/lep_stage'
 
+import { GetSqedMetadata } from '../../request/resources.js'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 
 export default {
   components: {
+    NewObject,
     ModeComponent,
     PatternComponent,
     ColorComponent,

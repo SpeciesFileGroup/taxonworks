@@ -1,4 +1,4 @@
-import { CreateDepiction, UpdateDepiction, CreateCollectionObject } from '../../request/resources'
+import { CreateDepiction, UpdateDepiction, CreateCollectionObject, CreateTaxonDetermination } from '../../request/resources'
 import { MutationNames } from '../mutations/mutations'
 import validateSqed from '../../helpers/validateSqed'
 
@@ -10,13 +10,19 @@ export default function({ state, commit }) {
   state.settings.saving = true
   if(state.newCOForSqed) {
     state.imagesCreated.forEach(item => {
-      promises.push(CreateCollectionObject({ total: 1 }).then(response => {
+      promises.push(CreateCollectionObject(state.collection_object).then(response => {
         let data = {
           depiction_object_id: response.body.id,
           depiction_object_type: response.body.base_class,
           image_id: item.id,
           sqed_depiction_attributes: (validateSqed(state.sqed) ? state.sqed : undefined)
         }
+
+        state.taxon_determinations.forEach(determination => {
+          determination.biological_collection_object_id = response.body.id
+          CreateTaxonDetermination(determination)
+        })
+        
         createdCount++
         CreateDepiction(data).then(response => {
           commit(MutationNames.AddDepiction, response.body)
