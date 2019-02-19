@@ -12,7 +12,7 @@
         @onSeparatorChange="layout.separator = $event"
         @onDivisorChange="layout.divisor = $event"/>
       <preview-labels
-        :disabled="!styleSelected"
+        :disabled="!(styleSelected && labels.length)"
         class="separate-left"
         :class-selected="styleSelected"
         :rows="layout.rows"
