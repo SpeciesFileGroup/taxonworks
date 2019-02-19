@@ -189,6 +189,7 @@
             let endSlice;
             let finalSlice = ce_ids.length;
             let newFeatures = [];
+            this.newFeatures = [];
             for (let i = 0; i < cycles; i++) {
               endSlice = thisSlice + 30;
               if ((thisSlice + 30) > finalSlice) {endSlice = finalSlice + 1}
@@ -206,7 +207,9 @@
               thisSlice += 30;
             }
             if(searchShape) {FeatureCollection.features.push(searchShape)}
-            that.geojsonFeatures = that.geojsonFeatures.concat(FeatureCollection.features);
+            setTimeout(function() {
+            that.geojsonFeatures = that.geojsonFeatures.concat(FeatureCollection.features);}, 300
+          )
 
           }
           this.isLoading = false;
