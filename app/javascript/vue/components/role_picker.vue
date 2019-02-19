@@ -9,6 +9,7 @@
         display="label"
         min="2"
         @getInput="setInput"
+        ref="autocomplete"
         event-send="role_picker"
         :clear-after="true"
         placeholder="Family name, given name"
@@ -157,6 +158,12 @@
       }
     },
     methods: {
+      reset() {
+        this.expandPerson = false,
+        this.searchPerson = '',
+        this.person_attributes = this.makeNewPerson(),
+        this.$refs.autocomplete.cleanInput()
+      },
       getUrl(role) {
         if (role.hasOwnProperty('person_id')) {
           return `/people/${role.person_id}/edit`

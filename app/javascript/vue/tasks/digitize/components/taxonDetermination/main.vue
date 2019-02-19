@@ -76,9 +76,10 @@
                 v-if="!roleExist(item.id)"
                 :key="item.id"
                 :value="item.id">
-                <label @click="addRole(item)">
+                <label>
                   <input
                     :value="item.id"
+                    @click="addRole(item)"
                     type="radio">
                   <span v-html="item.object_tag"/>
                 </label>
@@ -87,6 +88,7 @@
           </div>
           <role-picker
             :autofocus="false" 
+            ref="rolepicker"
             role-type="Determiner"
             v-model="roles"/>
         </template>
@@ -166,6 +168,9 @@ export default {
     LockComponent
   },
   computed: {
+    collectionObject() {
+      return this.$store.getters[GetterNames.GetCollectionObject]
+    },
     taxonDetermination() {
       return this.$store.getters[GetterNames.GetTaxonDetermination]
     },
@@ -233,6 +238,9 @@ export default {
     }
   },
   watch: {
+    collectionObject(newVal) {
+      this.$refs.rolepicker.reset()
+    },
     otu(newVal) {
       if(newVal) {
         GetOtu(newVal).then(response => {
