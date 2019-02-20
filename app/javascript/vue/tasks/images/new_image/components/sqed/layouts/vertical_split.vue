@@ -1,12 +1,12 @@
 <template>
-  <div class="horizontal_split">
-    <div class="section-box separate-bottom">
+  <div class="vertical_split horizontal-left-content">
+    <div class="section-box separate-right">
       <select-component
         :layout-types="layoutTypes"
         v-model="newType[0]"
       />
     </div>
-    <div class="section-box separate-top">
+    <div class="section-box separate-left">
       <select-component
         :layout-types="layoutTypes"
         v-model="newType[1]" 
@@ -25,8 +25,7 @@ export default {
 </script>
 
 <style lang="scss">
-  .horizontal_split {
-    display: block;
+  .vertical_split {
     .section-box {
       display: flex;
       align-items: center;

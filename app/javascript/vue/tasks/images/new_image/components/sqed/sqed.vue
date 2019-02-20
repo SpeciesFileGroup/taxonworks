@@ -5,7 +5,7 @@
       legend="Clear the list of depict some or select only one collection object."
       v-if="disabledSection"/>
     <h2>Staged image</h2>
-    <div class="flexbox">
+    <div class="flex-separate">
       <div class="separate-right">
         <new-object class="separate-top"/>
       </div>
@@ -60,9 +60,12 @@ import NewObject from './newObject'
 import EqualCrossLayout from './layouts/equal_cross'
 import CrossLayout from './layouts/cross'
 import RightTLayout from './layouts/right_t'
+import HorizontalSplitLayout from './layouts/horizontal_split'
+import HorizontalOffsetCrossLayout from './layouts/horizontal_offset_cross'
 import VerticalOffsetCrossLayout from './layouts/vertical_offset_cross'
 import SevenSlotLayout from './layouts/seven_slot'
 import LepStageLayout from './layouts/lep_stage'
+import VerticalSplitLayout from './layouts/vertical_split'
 import SpinnerComponent from 'components/spinner'
 
 import { GetSqedMetadata } from '../../request/resources.js'
@@ -80,6 +83,9 @@ export default {
     RightTLayout,
     SevenSlotLayout,
     LepStageLayout,
+    HorizontalSplitLayout,
+    HorizontalOffsetCrossLayout,
+    VerticalSplitLayout,
     SpinnerComponent
   },
   computed: {

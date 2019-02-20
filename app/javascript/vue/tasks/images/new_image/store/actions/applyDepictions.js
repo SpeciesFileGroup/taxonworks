@@ -43,7 +43,6 @@ export default function({ state, commit }) {
     })
   }
   else {
-    console.log(COCount())
     state.objectsForDepictions.forEach(object => {
       state.imagesCreated.forEach(item => {
         let data = {
