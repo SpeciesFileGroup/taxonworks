@@ -93,7 +93,9 @@ export default {
       return people.length ? `Image(s) by ${people.join('; ')}.` : ''
     },
     showPeopleAndLicense() {
-      return `${this.imagesBy}${this.imagesBy.length > 0 ? ` ${this.license}` : this.license}`
+      if(this.imagesBy.length || this.license.length)
+        return `${this.imagesBy}${this.imagesBy.length > 0 ? ` ${this.license}` : this.license}`
+      return 'The attribution summary will be displayed here when defined.'
     },
     objectsForDepictions() {
       if(this.createNewCO) { return 'A new collection object will be created for each image.' }
@@ -101,7 +103,7 @@ export default {
       let tmp = this.$store.getters[GetterNames.GetObjectsForDepictions].map(item => {
         return item.label
       })
-      return tmp.length ? `Depicts some: ${tmp.join(', ')}` : ''
+      return tmp.length ? `Depicts some: ${tmp.join(', ')}` : 'A depiction summary will be displayed here when defined.'
     }
   },
   methods: {

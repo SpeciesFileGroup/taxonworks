@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <fieldset>
+    <legend>Taxon determination</legend>
     <fieldset
       class="separate-bottom"
     >
@@ -148,7 +149,7 @@
       set-key="otu_id"
       label="object_tag" 
     />
-  </div>
+  </fieldset>
 </template>
 
 <script>

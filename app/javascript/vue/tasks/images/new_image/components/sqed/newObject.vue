@@ -1,13 +1,13 @@
 <template>
   <div>
     <h3>New object attributes</h3>
-    <div>
+    <div class="separate-bottom">
       <label>Total</label>
       <input 
         type="number"
         v-model="collectionObject.total">
-      <taxon-determination />
     </div>
+    <taxon-determination class="separate-top"/>
   </div>
 </template>
 
