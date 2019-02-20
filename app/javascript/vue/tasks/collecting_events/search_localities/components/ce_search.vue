@@ -203,13 +203,14 @@
                 });
                 this.newFeatures = this.newFeatures.concat(newFeatures);
                 FeatureCollection.features = FeatureCollection.features.concat(newFeatures);    //since we currently require an array of features
-                that.geojsonFeatures = that.geojsonFeatures.concat(FeatureCollection.features)
+                // that.geojsonFeatures = that.geojsonFeatures.concat(FeatureCollection.features)
               });
               thisSlice += 30;
             }
             if(searchShape) {FeatureCollection.features.push(searchShape)}
-
-
+            setTimeout(function() {  //remove this tomorrow
+              that.geojsonFeatures = that.geojsonFeatures.concat(FeatureCollection.features);
+            }, 300);   //remove this tomorrow
           }
           this.isLoading = false;
         })
