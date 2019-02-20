@@ -16,12 +16,12 @@
       <div class="section-box box-2">
         <select-component
           :layout-types="layoutTypes"
-          v-model="newType[2]"/>
+          v-model="newType[3]"/>
       </div>
       <div class="section-box box-3">
         <select-component
           :layout-types="layoutTypes"
-          v-model="newType[3]"/>
+          v-model="newType[2]"/>
       </div>
     </div>
   </div>
