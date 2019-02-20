@@ -166,8 +166,6 @@
         this.isLoading = true;
         let shapeText = this.shapes[this.shapes.length - 1];
         let searchShape = JSON.parse(shapeText);
-        // alert(shapeText);
-        // alert(JSON.stringify((searchShape)));
         let params = {shape: shapeText};  // take only last shape pro tem
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
           this.collectingEventList = response.body;
@@ -179,7 +177,7 @@
             ce_ids.push(ce.id)
           });
           if (ce_ids.length) {                // if the list has contents
-            let cycles = (ce_ids.length / 30) ;  // each item is about 30 characters, make each cycle less than 2000 chars
+            let cycles = (ce_ids.length / 30);  // each item is about 30 characters, make each cycle less than 2000 chars
             let FeatureCollection = {
               "type": "FeatureCollection",
               "features": []
@@ -190,29 +188,38 @@
             let finalSlice = ce_ids.length;
             let newFeatures = [];
             this.newFeatures = [];
+            let promises = [];
             for (let i = 0; i < cycles; i++) {
               endSlice = thisSlice + 30;
-              if ((thisSlice + 30) > finalSlice) {endSlice = finalSlice + 1}
+              if ((thisSlice + 30) > finalSlice) {
+                endSlice = finalSlice + 1
+              }
               params = {
                 collecting_event_ids: ce_ids.slice(thisSlice, endSlice)
               };
-              this.$http.get('/georeferences.json', {params: params}).then(response => {
-                // put thiese geometries on the map as features
-                newFeatures = response.body.map(georeference => {
-                  return georeference.geo_json
-                });
-                this.newFeatures = this.newFeatures.concat(newFeatures);
-                FeatureCollection.features = FeatureCollection.features.concat(newFeatures);    //since we currently require an array of features
-                // that.geojsonFeatures = that.geojsonFeatures.concat(FeatureCollection.features)
-              });
+              promises.push(this.makePromise(params));
               thisSlice += 30;
             }
-            if(searchShape) {FeatureCollection.features.push(searchShape)}
-            setTimeout(function() {  //remove this tomorrow
+            Promise.all(promises).then(featuresArrays => {
+              if (searchShape) {FeatureCollection.features.push(searchShape)}
+              for(let f=0; f<featuresArrays.length; f++) {
+                FeatureCollection.features = FeatureCollection.features.concat(featuresArrays[f])
+              }
               that.geojsonFeatures = that.geojsonFeatures.concat(FeatureCollection.features);
-            }, 300);   //remove this tomorrow
+            });
+            this.isLoading = false;
           }
-          this.isLoading = false;
+        })
+      },
+      makePromise(params) {
+        return new Promise((resolve, reject) => {
+          this.$http.get('/georeferences.json', {params: params}).then(response => {
+            // put these geometries on the map as features
+            let newFeatures = response.body.map(georeference => {
+              return georeference.geo_json
+            });
+           resolve(newFeatures);    // resolves to array of features
+          })
         })
       },
       addGeographicArea(item) {
