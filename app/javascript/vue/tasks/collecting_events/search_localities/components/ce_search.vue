@@ -202,9 +202,7 @@
             }
             Promise.all(promises).then(featuresArrays => {
               if (searchShape) {FeatureCollection.features.push(searchShape)}
-              for(let f=0; f<featuresArrays.length; f++) {
-                FeatureCollection.features = FeatureCollection.features.concat(featuresArrays[f])
-              }
+              featuresArrays.forEach(f => {FeatureCollection.features = FeatureCollection.features.concat(f)})
               that.geojsonFeatures = that.geojsonFeatures.concat(FeatureCollection.features);
             });
             this.isLoading = false;
