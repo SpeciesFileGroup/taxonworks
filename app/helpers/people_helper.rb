@@ -39,9 +39,9 @@ module PeopleHelper
   end
 
   def person_used_tag(person)
-    t = person.roles.count
+    t = person.roles.load.count
     content_tag(:span, class: [:subtle, :tiny_space,  (t > 0 ? :success : :warning ) ]) do
-      t > 0 ? "#{person.roles.count} #{"use".pluralize(t)}" : 'unused'
+      t > 0 ? "#{person.roles.size} #{"use".pluralize(t)}" : 'unused'
     end
   end
 

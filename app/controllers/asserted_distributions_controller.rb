@@ -81,19 +81,10 @@ class AssertedDistributionsController < ApplicationController
   end
 
   def autocomplete
-    @asserted_distributions = AssertedDistribution.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model
-    data  = @asserted_distributions.collect do |t|
-      {id: t.id,
-       label: AssertedDistributionsHelper.asserted_distribution_tag(t), # in helper
-       response_values: {
-         params[:method] => t.id
-       },
-       label_html: AssertedDistributionsHelper.asserted_distribution_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
-      }
-    end
-    render json: data
+    @asserted_distributions = Queries::AssertedDistribution::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).autocomplete
   end
 
+  # TODO: deprecate
   def search
     if params[:id].blank?
       redirect_to asserted_distributions_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
@@ -105,7 +96,7 @@ class AssertedDistributionsController < ApplicationController
   # GET /asserted_distributions/download
   def download
     send_data(Download.generate_csv(AssertedDistribution.where(project_id: sessions_current_project_id)),
-              type:     'text',
+              type: 'text',
               filename: "asserted_distributions_#{DateTime.now}.csv")
   end
 

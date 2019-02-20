@@ -399,3 +399,11 @@ index_new_asserted_distribution_task:
   categories:
   status: prototype
   description: 'Create new asserted distributions (Otu, source, and geographic area combinations). Has locking and cloning mechanisms.'
+
+index_topics_hub_task:
+  hub: true
+  name: 'Topics hub'
+  related:
+  categories:
+  status: prototype
+  description: 'Report on the usage of Topics.'
