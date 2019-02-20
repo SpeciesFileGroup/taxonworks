@@ -98,7 +98,7 @@ export default {
       return 'The attribution summary will be displayed here when defined.'
     },
     objectsForDepictions() {
-      if(this.createNewCO) { return 'A new collection object will be created for each image.' }
+      if(this.createNewCO) { return 'A depiction summary will be displayed here when defined. Otherwise a new collection object will be created for each image.' }
       
       let tmp = this.$store.getters[GetterNames.GetObjectsForDepictions].map(item => {
         return item.label

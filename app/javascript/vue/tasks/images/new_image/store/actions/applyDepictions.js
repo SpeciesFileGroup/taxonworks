@@ -2,13 +2,25 @@ import { CreateDepiction, UpdateDepiction, CreateCollectionObject, CreateTaxonDe
 import { MutationNames } from '../mutations/mutations'
 import validateSqed from '../../helpers/validateSqed'
 
+
+
 export default function({ state, commit }) {
   let alreadyCreated = undefined
   let promises = []
   let createdCount = 0
 
+  function createNewCOForStage() {
+    return ((state.objectsForDepictions.length == 0) && (state.sqed.layout && state.sqed.boundary_color))
+  }
+
+  function COCount() {
+    return state.objectsForDepictions.filter(item => {
+      return item.base_class == 'CollectionObject'
+    }).length
+  }
+
   state.settings.saving = true
-  if(state.newCOForSqed) {
+  if(createNewCOForStage()) {
     state.imagesCreated.forEach(item => {
       promises.push(CreateCollectionObject(state.collection_object).then(response => {
         let data = {
@@ -31,13 +43,14 @@ export default function({ state, commit }) {
     })
   }
   else {
+    console.log(COCount())
     state.objectsForDepictions.forEach(object => {
       state.imagesCreated.forEach(item => {
         let data = {
           depiction_object_id: object.id,
           depiction_object_type: object.base_class,
           image_id: item.id,
-          sqed_depiction_attributes: (validateSqed(state.sqed) && object.base_class == 'CollectionObject') ? state.sqed : undefined
+          sqed_depiction_attributes: (validateSqed(state.sqed) && state.objectsForDepictions.length == 1 && object.base_class == 'CollectionObject') ? state.sqed : undefined
         }
 
         alreadyCreated = state.depictionsCreated.find(depiction => {

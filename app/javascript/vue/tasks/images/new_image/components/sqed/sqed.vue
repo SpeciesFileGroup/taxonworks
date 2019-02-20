@@ -1,9 +1,12 @@
 <template>
   <div class="panel content panel-section">
+    <spinner-component 
+      :show-spinner="false"
+      legend="Clear the list of depict some or select only one collection object."
+      v-if="disabledSection"/>
     <h2>Staged image</h2>
     <div class="flexbox">
       <div class="separate-right">
-        <mode-component class="separate-bottom"/>
         <new-object class="separate-top"/>
       </div>
       <pattern-component
@@ -50,7 +53,6 @@
 
 <script>
 
-import ModeComponent from './mode'
 import PatternComponent from './pattern'
 import ColorComponent from './color'
 import NewObject from './newObject'
@@ -61,6 +63,7 @@ import RightTLayout from './layouts/right_t'
 import VerticalOffsetCrossLayout from './layouts/vertical_offset_cross'
 import SevenSlotLayout from './layouts/seven_slot'
 import LepStageLayout from './layouts/lep_stage'
+import SpinnerComponent from 'components/spinner'
 
 import { GetSqedMetadata } from '../../request/resources.js'
 import { GetterNames } from '../../store/getters/getters.js'
@@ -69,7 +72,6 @@ import { MutationNames } from '../../store/mutations/mutations.js'
 export default {
   components: {
     NewObject,
-    ModeComponent,
     PatternComponent,
     ColorComponent,
     EqualCrossLayout,
@@ -77,11 +79,16 @@ export default {
     VerticalOffsetCrossLayout,
     RightTLayout,
     SevenSlotLayout,
-    LepStageLayout
+    LepStageLayout,
+    SpinnerComponent
   },
   computed: {
     componentExist() {
       return this.$options.components[this.layoutName] ? true : false
+    },
+    disabledSection() {
+      let objects = this.$store.getters[GetterNames.GetObjectsForDepictions]
+      return objects.length > 1 || objects.find(item => { return item.base_class != 'CollectionObject' })
     },
     layoutName() {
       if(this.sqed_depiction_attributes.layout) {
