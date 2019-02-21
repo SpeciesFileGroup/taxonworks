@@ -11,18 +11,47 @@ module Utilities::GPXToCSV
       csv << gpx_headers
 
       gpx_file.waypoints.each do |waypoint|
+        json = %({"type":"Point","coordinates":[#{waypoint.lon}, #{waypoint.lat}, #{waypoint.ele}]})
         csv << [waypoint.name,
-                "POINT(#{waypoint.lon} #{waypoint.lat} #{waypoint.ele})",
-                '',
-                '']
+                json]
         csv
       end
 
       gpx_file.routes.each do |route|
+        start_time = route.points.first.time
+        end_time = route.points.last.time
+        coordinates = []
+        route.points.each do |point|
+          coordinates << [point.lon, point.lat, point.elevation]
+        end
+        json = {
+          "type" => "LineString",
+          "coordinates" => coordinates
+        }
+
+        csv << [route.name,
+                json,
+                start_time,
+                end_time]
 
       end
 
       gpx_file.tracks.each do |track|
+        start_time = track.points.first.time
+        end_time = track.points.last.time
+        coordinates = []
+        track.points.each do |point|
+          coordinates << [point.lon, point.lat, point.elevation]
+        end
+        json = {
+          "type" => "LineString",
+          "coordinates" => coordinates
+        }
+
+        csv << [track.name,
+                json,
+                start_time,
+                end_time]
 
       end
     end
