@@ -115,6 +115,14 @@ namespace :tw do
             project_id = get_tw_project_id[sf_file_id]
             sf_taxon_name_id = row['TaxonNameID']
             tw_taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id]
+            if tw_taxon_name_id.nil?
+              # is ill-formed taxon name; use otu instead
+              otu_id = get_tw_otu_id[sf_taxon_name_id]
+              if otu_id.nil?
+                logger.error "Importing specimen records: No taxon_name nor otu: sf_taxon_name_id = #{sf_taxon_name_id}"
+                next
+              end
+            end
             collecting_event_id = get_tw_collecting_event_id[get_sf_unique_id[specimen_id]]
             if collecting_event_id.nil?
               logger.error "NO COLLECTING EVENT: Couldn't find CollectingEvent with 'id'=: unique_id = #{get_sf_unique_id[specimen_id]}: SpecimenID = '#{specimen_id}', sf_taxon_id #{sf_taxon_name_id} = tw_taxon_name_id #{tw_taxon_name_id}, FileID = '#{sf_file_id}', no_ce_counter = '#{no_ce_counter += 1}'"
@@ -509,11 +517,20 @@ namespace :tw do
                         end
                       end
 
-                      if taxon_name = TaxonName.where(cached: target_nomenclator, project_id: project_id).first
-                        otu = taxon_name.otus.first
-                      else
-                        otu = Otu.create!(name: target_nomenclator, taxon_name_id: tw_taxon_name_id, project_id: project_id) # target_nomenclator nil?
+                      if tw_taxon_name_id
+                        # Check if cached or cached_original_combination of current tw_taxon_name_id matches target_nomenclator
+                        #   otherwise, find or create otu with name = target_nomenclator
+                        taxon_name_obj = TaxonName.find(tw_taxon_name_id)
+                        if taxon_name_obj.cached == target_nomenclator
+                          otu_id = get_otu_from_tw_taxon_id[tw_taxon_name_id]
+                        elsif taxon_name_obj.cached_original_combination == target_nomenclator
+                          otu_id = get_otu_from_tw_taxon_id[tw_taxon_name_id]
+                        else
+                          otu = Otu.find_or_create_by!(name: target_nomenclator, taxon_name_id: tw_taxon_name_id, project_id: project_id)
+                          otu_id = otu.id
+                        end
                       end
+                      puts "otu_id = #{otu_id}, target_nomenclator = #{target_nomenclator}"
 
                       # create conditional attributes here
                       data_attributes_attributes = []
@@ -574,7 +591,7 @@ namespace :tw do
                       end
 
                       t = TaxonDetermination.create!(
-                          otu_id: otu.id,
+                          otu_id: otu_id,
                           biological_collection_object: o,
 
                           citations_attributes: citations_attributes,

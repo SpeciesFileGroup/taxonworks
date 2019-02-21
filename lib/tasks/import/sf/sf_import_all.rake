@@ -88,7 +88,7 @@ namespace :tw do
           # # '16_after_col_events_metadata': 10m17.584s on 15 Nov 2018
           # #
           # # 654m43.830s before crash on 13 Jan 2019
-          # 'specimens:collection_objects',
+          'specimens:collection_objects',
           # # '17_after_collection_objects': 211m4.168s on 1 Feb 2019; 202m27.938s on 20 Nov 2018; 227m33.097s on 15 Nov 2018
           # #
           # 'supplementary:taxon_info',
