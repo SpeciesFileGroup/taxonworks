@@ -49,6 +49,16 @@ module BatchLoad
       parse_result.objects[:collecting_event] = []
       gpx = csv
 
+      gpx.waypoints.each do |waypoint|
+        ce_attributes = {verbatim_label: waypoint.name,
+                         georeferences_attributes: {
+                           type: 'Georeference::GPX',
+                           geographic_item_attributes: {
+
+                           }
+                         }}
+      end
+
       gpx.tracks.each do |tr|
         ce = CollectingEvent.new(verbatim_label: gpx.name,
                                  created_at: gpx.time)
