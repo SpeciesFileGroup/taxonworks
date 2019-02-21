@@ -9,9 +9,9 @@
       </span>
     </div>
     <spinner
-      v-if="isLoading"
+      v-if="isLoading || isSaving"
       :full-screen="true"
-      legend="Loading..."
+      :legend="isLoading ? 'Loading...' : 'Merging...'"
       :logo-size="{ width: '100px', height: '100px'}"/>
     <div class="flexbox">
       <div class="flexbox">
@@ -108,6 +108,7 @@
         firstName: '',
         selectedRoles: {},
         isLoading: false,
+        isSaving: false,
         foundPeople: [],
         selectedPerson: {},
         matchPeople: [],
@@ -167,11 +168,13 @@
         let params = {
           person_to_destroy: this.mergePerson.id // this.selectedPerson.id
         };
+        this.isSaving = true
         this.$http.post('/people/' + this.selectedPerson.id.toString() + '/merge', params).then(response => {
           this.$refs.matchPeople.removeFromList(this.mergePerson.id)    // remove the merge person from the matchPerson list
           this.$refs.foundPeople.removeFromList(this.mergePerson.id)   // remove the merge person from the foundPerson list
           this.mergePerson = {};
           this.selectedPerson = response.body
+          this.isSaving = false
         })
       },
       resetApp() {
