@@ -1,7 +1,7 @@
 export default {
   apiURL: '',
   apiParams: {
-    project_id: 1,
+    project_id: undefined,
     token: ''
   }
 };
