@@ -13,7 +13,7 @@ module BatchLoad
 
       namespaces = {};
 
-      # loop throw rows
+      # loop through rows
       csv.each do |row|
         i += 1
 

@@ -18,7 +18,7 @@ module BatchLoad
       @total_data_lines = 0
       i = 0
 
-      # loop throw rows
+      # loop through rows
       csv.each do |row|
         i += 1
         parse_result = BatchLoad::RowParse.new

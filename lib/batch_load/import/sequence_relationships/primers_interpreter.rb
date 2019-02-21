@@ -14,7 +14,7 @@ module BatchLoad
       gene_descriptors = {}
       gene_attributes = {}
 
-      # loop throw rows
+      # loop through rows
       csv.each do |row|
         i += 1
 

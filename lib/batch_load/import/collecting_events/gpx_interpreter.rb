@@ -13,10 +13,10 @@ module BatchLoad
     # methode override for GPX processing which is quite different from CSV
     # @return [Hash, nil]
     def csv
-      gpx = GPX::GPXFile.new(gpx_file: @file.tempfile.path)
+      gpx_string = GPX::GPXFile.new(gpx_file: @file.tempfile.path)
       # @csv = Hash.from_xml(gpx.to_s)
       # gpx = (Hash.from_xml(GPX::GPXFile.new(gpx_file: '/Users/tuckerjd/src/taxonworks/spec/files/batch/collecting_event/test.gpx').to_s))['gpx']end
-      @csv
+      @csv = CSV.parse(gpx_string, {col_sep: "\t", headers: true, encoding: 'UTF-8'})
     end
 
     # TODO: update this
@@ -24,7 +24,7 @@ module BatchLoad
       @total_data_lines = 0
       i = 0
 
-      # # loop throw rows
+      # # loop through rows
       # csv.each do |row|
       #   i += 1
       #
@@ -43,44 +43,36 @@ module BatchLoad
       #   end
       # end
 
-      parse_result = BatchLoad::RowParse.new
-      parse_result.objects[:geographic_item] = []
-      parse_result.objects[:gpx_georeference] = []
-      parse_result.objects[:collecting_event] = []
-      gpx = csv
+      # loop through rows
+      csv.each do |row|
+        i += 1
 
-      gpx.waypoints.each do |waypoint|
-        ce_attributes = {verbatim_label: waypoint.name,
-                         georeferences_attributes: {
-                           type: 'Georeference::GPX',
-                           geographic_item_attributes: {
+        parse_result = BatchLoad::RowParse.new
+        parse_result.objects[:collecting_event] = []
 
-                           }
-                         }}
-      end
+        @processed_rows[i] = parse_result
 
-      gpx.tracks.each do |tr|
-        ce = CollectingEvent.new(verbatim_label: gpx.name,
-                                 created_at: gpx.time)
-        points = []
-        time = nil
+        begin
+          ce_attributes = {verbatim_label: row[:name]}
+          geo_json = row[:geojson]
+          unless geo_json.blank?
+            shape = RGeo::GeoJSON.decode(geo_json, json_parser: :json)
+            geographic_item_attributes = {type: 'Georeference::GPX'}
+            case shape.type
+              when 'point'
+              when 'line_string'
+            end
+            ce_attributes[:geofererences_attributes] = {geographic_item_attributes: geographic_item_attributes}
+          end
 
-        tr.points.each do |pt|
-          time = pt.time if time.blank?
-          points << Gis::FACTORY.point(pt.lon, pt.lat, pt.elevation)
+          ce = CollecctingEvent.new(ce_attributes)
+          parse_result.objects[:collecting_event] << ce
+          @total_lines = i
+        rescue
+          # ....
         end
-        ce.created_at = time if gpx.time.blank?
-        gi = GeographicItem.new(line_string: Gis::FACTORY.line_string(points))
-        parse_result.objects[:geographic_item] << gi
-        ref = Georeference::GPX.new(geographic_item: gi)
-        # intent is to add this georeference to the collecting_event, but we are saving this for 'create' time.
-        # ce.georeferences << ref
-        parse_result.objects[:gpx_georeference] << ref
-        parse_result.objects[:collecting_event] << ce
-        @total_data_lines += 1
-      end
 
-      @total_lines = i
+      end
     end
 
     def build
