@@ -176,7 +176,7 @@ export default {
         that.$emit('shapesEdited', layers)
         that.$emit('geoJsonLayersEdited', that.convertGeoJSONWithPointRadius(layers))
       })
-      this.mapObject.on('click', this.showCoords);
+      this.mapObject.on('mouseover', this.showCoords);
     },
     removeLayers () {
       this.drawnItems.clearLayers()
@@ -190,6 +190,7 @@ export default {
           layerJson.properties.radius = layer.getRadius()
         }
         //this.antimeridian(layerJson.geometry.coordinates, false)
+        alert(JSON.stringify(layerJson));
         arrayLayers.push(layerJson)
       })
       return arrayLayers

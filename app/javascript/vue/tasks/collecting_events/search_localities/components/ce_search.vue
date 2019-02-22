@@ -47,6 +47,7 @@
         :geojson="geojsonFeatures"
         @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
         @geoJsonLayersEdited="editedShape($event)"
+        @shapeCreated="inspectLayer"
         :draw-controls="true"
       />
       <!--@geoJsonLayerCreated="getShapesData($event)"-->
@@ -228,6 +229,10 @@
       },
       editedShape(shape) {
         this.shapes.push(JSON.stringify(shape[0]))
+      },
+      inspectLayer(layer) {
+        let geoJ = layer.toGeoJSON();
+        alert (JSON.stringify(geoJ));
       }
     },
   }
