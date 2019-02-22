@@ -9,6 +9,13 @@
     <h1>Otu browser</h1>
     <header-bar
       :otu="otu" />
+    <div>
+      <image-gallery :otu="otu"/>
+      <content-component :otu="otu"/>
+      <asserted-distribution :otu="otu"/>
+      <biological-associations :otu="otu"/>
+      <annotations-component :otu="otu"/>
+    </div>
   </div>
 </template>
 
@@ -16,13 +23,23 @@
 
 import HeaderBar from './components/HeaderBar'
 import SpinnerComponent from 'components/spinner'
+import ImageGallery from './components/gallery/Main'
+import ContentComponent from './components/Content'
+import AssertedDistribution from './components/AssertedDistribution'
+import BiologicalAssociations from './components/BiologicalAssociations'
+import AnnotationsComponent from './components/Annotations'
 
 import { GetOtu } from './request/resources.js'
 
 export default {
   components: {
     HeaderBar,
-    SpinnerComponent
+    ImageGallery,
+    SpinnerComponent,
+    ContentComponent,
+    AssertedDistribution,
+    BiologicalAssociations,
+    AnnotationsComponent
   },
   data() {
     return {
