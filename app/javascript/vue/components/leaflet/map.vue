@@ -148,10 +148,16 @@ export default {
         this.mapObject.addControl(this.drawnItems)
       }
     },
+    showCoords(click) {
+      L.popup().setLatLng(click.latlng)
+        .setContent(click.latlng.toString())
+        .openOn(this.mapObject);
+    },
     handleEvents () {
       let that = this
       this.mapObject.on(L.Draw.Event.CREATED, function (e) {
-        var layer = e.layer
+        var layer = e.layer;
+        var popUp = L.popup();
         var geoJsonLayer = layer.toGeoJSON()
         if (geoJsonLayer.hasOwnProperty('geometry') && geoJsonLayer.geometry.hasOwnProperty('coordinates')) {
           //that.antimeridian(geoJsonLayer.geometry.coordinates, false)
@@ -170,6 +176,7 @@ export default {
         that.$emit('shapesEdited', layers)
         that.$emit('geoJsonLayersEdited', that.convertGeoJSONWithPointRadius(layers))
       })
+      this.mapObject.on('click', this.showCoords);
     },
     removeLayers () {
       this.drawnItems.clearLayers()
@@ -192,6 +199,7 @@ export default {
     },
     addJsonCircle (layer) {
       L.circle(layer.geometry.coordinates.reverse(), layer.properties.radius).addTo(this.drawnItems)
+      // L.circle(layer.geometry.coordinates, layer.properties.radius).addTo(this.drawnItems)
     },
     geoJSON (geojsonFeature) {
       if (!Array.isArray(geojsonFeature) || geojsonFeature.length === 0) return
