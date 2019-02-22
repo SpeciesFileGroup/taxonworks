@@ -4,14 +4,14 @@ module Utilities::GPXToCSV
 
   # @param [GPX::GPXFile] gpx_file
   # @param [Hash] csv_options
-  # @return [String]
+  # @return [CSV]
   def self.gpx_to_csv(gpx_file, csv_options = {col_sep: "\t", headers: true, encoding: 'UTF-8', write_headers: true})
     gpx_headers = %w(name geojson start_date end_date)
-    csv_string = CSV.generate do |csv|
+    csv_string = CSV.generate(csv_options) do |csv|
       csv << gpx_headers
 
       gpx_file.waypoints.each do |waypoint|
-        json = %({"type":"Point","coordinates":[#{waypoint.lon}, #{waypoint.lat}, #{waypoint.ele}]})
+        json = %({type : Point, coordinates : [#{waypoint.lon}, #{waypoint.lat}, #{waypoint.ele}]})
         csv << [waypoint.name,
                 json]
         csv
@@ -24,16 +24,12 @@ module Utilities::GPXToCSV
         route.points.each do |point|
           coordinates << [point.lon, point.lat, point.elevation]
         end
-        json = {
-          "type" => "LineString",
-          "coordinates" => coordinates
-        }
+        json = %({type : LineString, coordinates : #{coordinates}})
 
         csv << [route.name,
                 json,
                 start_time,
                 end_time]
-
       end
 
       gpx_file.tracks.each do |track|
@@ -43,19 +39,16 @@ module Utilities::GPXToCSV
         track.points.each do |point|
           coordinates << [point.lon, point.lat, point.elevation]
         end
-        json = {
-          "type" => "LineString",
-          "coordinates" => coordinates
-        }
+        json = %({type : LineString, coordinates : #{coordinates}})
 
         csv << [track.name,
                 json,
                 start_time,
                 end_time]
-
       end
     end
-    csv_string
+    csv = CSV.parse(csv_string, csv_options)
+    csv
   end
 end
 

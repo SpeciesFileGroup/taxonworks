@@ -13,10 +13,14 @@ module BatchLoad
     # methode override for GPX processing which is quite different from CSV
     # @return [Hash, nil]
     def csv
-      gpx_string = GPX::GPXFile.new(gpx_file: @file.tempfile.path)
+      gpx_file = GPX::GPXFile.new(gpx_file: @file.tempfile.path)
       # @csv = Hash.from_xml(gpx.to_s)
       # gpx = (Hash.from_xml(GPX::GPXFile.new(gpx_file: '/Users/tuckerjd/src/taxonworks/spec/files/batch/collecting_event/test.gpx').to_s))['gpx']end
-      @csv = CSV.parse(gpx_string, {col_sep: "\t", headers: true, encoding: 'UTF-8'})
+      # @csv = CSV.parse(gpx_string, {col_sep: "\t", headers: true, encoding: 'UTF-8'})
+      @csv = CSV.parse(Utilities::GPXToCSV.gpx_to_csv(gpx_file),
+                       {headers: true,
+                        col_sep: "\t",
+                        encoding: 'UTF-8'})
     end
 
     # TODO: update this
@@ -53,8 +57,14 @@ module BatchLoad
         @processed_rows[i] = parse_result
 
         begin
-          ce_attributes = {verbatim_label: row[:name]}
-          geo_json = row[:geojson]
+          start_date = row['start_date']
+          end_date = row['end_date']
+          verbatim_date = nil
+          verbatim_date = "#{start_date}" if start_date.present?
+          verbatim_date += " to #{end_date}" if end_date.present
+          ce_attributes = {verbatim_label: row['name'],
+                           verbatim_date: verbatim_date}
+          geo_json = row['geojson']
           unless geo_json.blank?
             shape = RGeo::GeoJSON.decode(geo_json, json_parser: :json)
             geographic_item_attributes = {type: 'Georeference::GPX'}
