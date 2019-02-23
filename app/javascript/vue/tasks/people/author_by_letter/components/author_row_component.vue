@@ -27,7 +27,7 @@
         v-if="author.id"
         :object-id="author.id"
         :pluralize="false"
-        type="People"/>
+        type="Person"/>
     </td>
   </tr>
 </template>
