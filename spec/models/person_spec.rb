@@ -6,9 +6,7 @@ describe Person, type: :model, group: [:sources, :people] do
   let(:human_source) { FactoryBot.create(:valid_source_human) }
 
   context 'validation' do
-    before do
-      person.valid?
-    end
+    before { person.valid? }
 
     specify 'last_name is required' do
       expect(person.errors.keys).to include(:last_name)
@@ -60,6 +58,45 @@ describe Person, type: :model, group: [:sources, :people] do
       specify 'destroy is prevented' do
         expect(person.destroy).to be_falsey
       end
+    end
+  end
+
+  context 'NameCase()' do
+    specify '#1' do
+      person.update(
+        first_name: 'J.',
+        last_name: 'SMITH',
+      )
+      expect(person.name).to eq('J. Smith')
+    end
+
+    specify '#2' do
+      person.update(
+        first_name: 'JONES',
+        last_name: 'SMITH',
+      )
+      expect(person.name).to eq('Jones Smith')
+    end
+
+    specify '#3' do
+      person.update(
+        first_name: 'JONES',
+        last_name: 'SMITH',
+        prefix: 'VON',
+        suffix: 'III'
+      )
+      expect(person.name).to eq('Jones von Smith III')
+    end
+
+    specify '#4' do
+      person.update(
+        first_name: 'JONES',
+        last_name: 'SMITH',
+        prefix: 'VON',
+        suffix: 'III',
+        no_namecase: true
+      )
+      expect(person.name).to eq('JONES VON SMITH III')
     end
   end
 
@@ -515,7 +552,7 @@ describe Person, type: :model, group: [:sources, :people] do
         end
       end
     end
-    
+
     context 'concerns' do
       it_behaves_like 'alternate_values'
       it_behaves_like 'data_attributes'

@@ -104,7 +104,9 @@ class DepictionsController < ApplicationController
       :depiction_object_id, :depiction_object_type,
       :annotated_global_entity, :caption,
       :image_id,
-      :figure_label, image_attributes: [:image_file]
+      :figure_label,
+      image_attributes: [:image_file],
+      sqed_depiction_attributes: [:id, :_destroy, :boundary_color, :boundary_finder, :has_border, :layout, metadata_map: {}]
     )
   end
 

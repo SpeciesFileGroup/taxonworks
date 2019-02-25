@@ -193,17 +193,17 @@ class Otu < ApplicationRecord
     # i is a select manager
     i = case used_on 
         when 'BiologicalAssociation'
-          t.project(t['biological_association_subject_id'], t['created_at']).from(t)
+          t.project(t['biological_association_subject_id'], t['updated_at']).from(t)
             .where(
-              t['created_at'].gt(1.weeks.ago).and(
+              t['updated_at'].gt(1.weeks.ago).and(
                 t['biological_association_subject_type'].eq('Otu')
               )
           )
-            .order(t['created_at'])
+            .order(t['updated_at'])
         else
-          t.project(t['otu_id'], t['created_at']).from(t)
-            .where(t['created_at'].gt( 1.weeks.ago ))
-            .order(t['created_at'])
+          t.project(t['otu_id'], t['updated_at']).from(t)
+            .where(t['updated_at'].gt( 1.weeks.ago ))
+            .order(t['updated_at'])
         end
 
     # z is a table alias 
@@ -221,15 +221,20 @@ class Otu < ApplicationRecord
     Otu.joins(j).distinct.limit(10)
   end
 
-  # @params target [String] one of `AssertedDistribution`, `Content`, `BiologicalAssociation`, 'TaxonDetermination'
+  # @params target [String] one of nil, `AssertedDistribution`, `Content`, `BiologicalAssociation`, 'TaxonDetermination'
   # @return [Hash] otus optimized for user selection
-  def self.select_optimized(user_id, project_id, target = '')
+  def self.select_optimized(user_id, project_id, target = nil)
     h = {
       quick: [],
       pinboard: Otu.pinned_by(user_id).where(project_id: project_id).to_a
     }
 
-    h[:recent] = Otu.joins(target.tableize.to_sym).where(project_id: project_id).used_recently(target).limit(10).distinct.to_a
+    if target
+      h[:recent] = Otu.joins(target.tableize.to_sym).where(project_id: project_id).used_recently(target).limit(10).distinct.to_a
+    else
+      h[:recent] = Otu.where(project_id: project_id).order('updated_at DESC').limit(10).to_a
+    end
+
     h[:quick] = (Otu.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq 
     h
   end

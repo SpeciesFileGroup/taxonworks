@@ -193,7 +193,25 @@ module SqedToTaxonworks
 
     def large_dimensions_for(layout_section_type)
       c = coords_for(layout_section_type) 
+      return nil if c[2] == 0 and  c[3] == 0
       "0, 0, 400, #{ (c[3].to_f / (c[2].to_f / 400)).to_i }"
+    end
+
+    def image_unavailable?
+      return true if !File.exists?(depiction.image.image_file.path(:original))
+      false
+    end
+
+    # @return [Boolean]
+    #   if false then they are clearly not, if true then they might be
+    def coordinates_valid?
+      return false if sqed_depiction.result_boundary_coordinates.nil?
+      zeroed = 0
+      sqed_depiction.result_boundary_coordinates.each do |k, v|
+        zeroed += 1 if v == [0,0,0,0]
+        return false if zeroed > 1
+      end
+      true
     end
 
   end
