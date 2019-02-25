@@ -23,6 +23,7 @@ addons:
   apt:
     update: true 
     packages:
+      - imagemagick
       - libgeos-dev
       - libproj-dev
       - postgresql-10-postgis-2.4
