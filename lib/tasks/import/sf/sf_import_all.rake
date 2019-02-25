@@ -58,7 +58,6 @@ namespace :tw do
           # # '10_after_some_related_taxa': 3m2.116s on 13 Nov 2018
           # #
           # 'taxa:create_status_flag_relationships',
-          'taxa:create_otu_website_links',    # not part of a dump as of 15 Feb 2019
           # # '11_after_status_flag_rels': dumps 7-11 took 466m18.113s on 7 Feb 2019; 171m8.794s on 14 Nov 2018
           # #
           # 'pre_cites:import_nomenclator_strings',
@@ -88,7 +87,7 @@ namespace :tw do
           # # '16_after_col_events_metadata': 10m17.584s on 15 Nov 2018
           # #
           # # 654m43.830s before crash on 13 Jan 2019
-          'specimens:collection_objects',
+          # 'specimens:collection_objects',
           # # '17_after_collection_objects': 211m4.168s on 1 Feb 2019; 202m27.938s on 20 Nov 2018; 227m33.097s on 15 Nov 2018
           # #
           # 'supplementary:taxon_info',
@@ -97,6 +96,10 @@ namespace :tw do
           # # '18_after_scrutinies': 12m12.489s on 21 Nov 2018 [from 11:23:10.299 to 11:29:51.063, scrutiny authors being processed, no screen activity]
           # # 806m49.888s b2_ on 28 Nov 2018
           # # #
+          #
+          #
+          # 'media:create_otu_website_links',
+          #
           # # 'citations:create_citations',
           # time: close to 10h (592m44.659s on 10 July 2015, 591m42.625s on 6 Sept 2018)
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_taxon_citations',
@@ -104,6 +107,10 @@ namespace :tw do
           # 'citations:create_otu_cites',
           # time: 1m (1m2.000s on 16 July 2018z0, 0m55.486s on 7 Sept 2018)
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_otu_cites',
+          #
+          #
+          # 'last:filter_users'
+          # # 5m26.662s on 25 Feb 2019
 
       ] do
         puts 'Ran all tasks!'

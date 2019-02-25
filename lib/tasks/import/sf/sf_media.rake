@@ -303,6 +303,81 @@ namespace :tw do
         #   ap get_sf_taxon_name_id
         # end
 
+
+
+        desc 'time rake tw:project_import:sf_import:media:create_otu_website_links user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define create_otu_website_links: [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Running create_otu_website_links...'
+
+          # [ERROR]2019-02-15 14:57:25.128: No OTU found for SF.TaxonNameID = 1127018, SF.FileID = 1
+          # [ERROR]2019-02-15 14:57:58.072: No OTU found for SF.TaxonNameID = 1158091, SF.FileID = 4
+          #     [ERROR]2019-02-15 14:57:58.072: No OTU found for SF.TaxonNameID = 1158092, SF.FileID = 4
+          #
+          #         Ran all tasks!
+          #
+          #         real	1m45.005s
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
+          excluded_taxa = import.get('ExcludedTaxa')
+          get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
+          get_tw_project_id = import.get('SFFileIDToTWProjectID')
+          get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
+          get_taxon_name_otu_id = import.get('TWTaxonNameIDToOtuID')
+
+          data_types = {}
+          get_tw_project_id.each_value do |project_id|
+            puts project_id
+            data_type = Topic.create!(
+                name: 'External links to websites',
+                definition: 'External links to websites',
+                project_id: project_id)
+            data_types[project_id] = data_type.id
+          end
+
+          # ap data_types
+
+          topic_map = {0 => 'general information', 1 => 'key', 2 => 'distribution map', 3 => 'specimen level information'}
+
+          path = @args[:data_directory] + 'sfTaxonNameWebsiteLinks.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          file.each_with_index do |row, i|
+            next if skipped_file_ids.include? row['FileID'].to_i
+            sf_taxon_name_id = row['TaxonNameID']
+            next if excluded_taxa.include? sf_taxon_name_id
+            tw_taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id]
+            otu_id = get_taxon_name_otu_id[tw_taxon_name_id]
+            if otu_id.nil?
+              otu_id = get_tw_otu_id[sf_taxon_name_id]
+              if otu_id.nil?
+                logger.error "No OTU found for SF.TaxonNameID = #{sf_taxon_name_id}, SF.FileID = #{row['FileID']}"
+                next
+              end
+            end
+
+            links_data_types = row['DataTypes'].to_i
+            link_data_type_text = "[#{Utilities::Numbers.get_bits(links_data_types).collect{|i| topic_map[i]}.compact.join(', ')}]" if links_data_types > 0
+            link =  "* [#{row['Name']}](http://#{row['RootLink']}#{row['LinkSpecs']}) #{link_data_type_text}\n"
+            project_id = get_tw_project_id[row['FileID']]
+
+            logger.info "Working with SF.TaxonNameID = '#{row['TaxonNameID']}', TW.TaxonNameID = '#{tw_taxon_name_id}, otu_id = '#{otu_id}, SF.FileID = '#{row['FileID']}', DataTypes = '#{row['DataTypes']}' \n"
+
+            content = nil
+            if content = Content.where(topic_id: data_types[project_id], otu_id: otu_id, project_id: project_id).first
+              content.update(text: content.text + link)
+            else
+              content = Content.create!(
+                  topic_id: data_types[project_id],
+                  otu_id: otu_id,
+                  project_id: project_id,
+                  text: link)
+            end
+          end
+        end
+
+
       end
     end
   end

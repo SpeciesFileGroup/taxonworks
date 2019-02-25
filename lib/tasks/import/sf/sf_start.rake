@@ -944,11 +944,20 @@ namespace :tw do
 
           logger.info 'Running filter_users...'
 
+          destroyed_counter = 0
+
           User.all.each do |user|
+            puts "user.id = #{user.id} \n"
             unless user.curates_data?
               user.destroy
+              puts "destroyed, count = #{destroyed_counter += 1} \n"
             end
           end
+
+          #######################################################################################
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/99_after_filter_users/`
+          puts '** dumped 99_after_filter_users **'
+          #######################################################################################
         end
 
       end # :last
