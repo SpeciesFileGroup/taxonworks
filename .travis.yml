@@ -33,6 +33,7 @@ addons:
       - postgresql-contrib-10
 env:
   global:
+    - IMAGEMAGICK_VERSION=6.9.10
     - PGPORT=5433
 #   - TEST_GROUP=1
 #   - TEST_GROUP=2
