@@ -176,7 +176,7 @@ export default {
         that.$emit('shapesEdited', layers)
         that.$emit('geoJsonLayersEdited', that.convertGeoJSONWithPointRadius(layers))
       })
-      this.mapObject.on('mouseover', this.showCoords);
+      // this.mapObject.on('mouseover', this.showCoords);
     },
     removeLayers () {
       this.drawnItems.clearLayers()
@@ -217,8 +217,9 @@ export default {
       })
 
       L.geoJSON(newGeojson).getLayers().forEach(layer => {
+        this.drawnItems.on('mouseover', this.showCoords);
         this.drawnItems.addLayer(layer)
-      })
+      });
 
       this.mapObject.fitBounds(this.drawnItems.getBounds())
     }
