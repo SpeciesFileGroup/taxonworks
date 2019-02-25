@@ -277,7 +277,7 @@ GEM
       ast (~> 2.4.0)
     parslet (1.8.2)
     parsley-store (0.3.4)
-    passenger (5.3.7)
+    passenger (6.0.2)
       rack
       rake (>= 0.8.1)
     pdf-core (0.7.0)
@@ -563,7 +563,7 @@ DEPENDENCIES
   paperclip (~> 6.1.0)
   paperclip-meta (~> 3.0)
   parallel_tests
-  passenger (~> 5.3.4)
+  passenger (~> 6.0.2)
   pdf-reader (~> 2.1)
   pg (~> 1.1)
   postgresql_cursor (~> 0.6.1)

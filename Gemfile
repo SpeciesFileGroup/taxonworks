@@ -151,7 +151,7 @@ end
 
 group :production do
   gem 'execjs', '~> 2.7.0'
-  gem 'passenger', '~> 5.3.4'
+  gem 'passenger', '~> 6.0.2'
 end
 
 
