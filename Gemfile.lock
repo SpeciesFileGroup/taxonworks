@@ -270,7 +270,7 @@ GEM
       terrapin (~> 0.6.0)
     paperclip-meta (3.1.0)
       paperclip (>= 5.0)
-    parallel (1.13.0)
+    parallel (1.14.0)
     parallel_tests (2.28.0)
       parallel
     parser (2.6.0.0)
@@ -519,6 +519,7 @@ DEPENDENCIES
   binding_of_caller
   biodiversity (~> 3.5.0)
   brakeman (~> 4.4.0)
+  bundler (~> 2.0)
   byebug (~> 11.0)
   capistrano-npm (~> 1.0.2)
   capybara (~> 3.14.0)
@@ -614,4 +615,4 @@ RUBY VERSION
    ruby 2.5.1p57
 
 BUNDLED WITH
-   1.17.3
+   2.0.1

@@ -4,6 +4,8 @@ gem 'rack-cors', '~> 1.0.1', require: 'rack/cors'
 
 ruby '2.5.1'
 
+gem 'bundler', '~> 2.0'
+
 gem 'rake', '~> 12.0'
 gem 'rails', '5.2.2'
 gem 'pg', '~> 1.1'
