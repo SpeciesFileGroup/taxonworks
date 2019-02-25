@@ -17,7 +17,7 @@ gem 'redis', '~> 4.1.0'
 # System
 gem 'thor', '~> 0.19.4' # See https://github.com/rails/rails/issues/27229
 gem 'rubyzip', '~> 1.2.2'
-gem 'daemons', '~> 1.2.6'
+gem 'daemons', '~> 1.3.1'
 gem 'tzinfo-data', '~> 1.2018.4' 
 gem 'psych', '~> 3.1.0' 
 gem 'rmagick', '~> 3.0'
@@ -36,7 +36,7 @@ gem 'jbuilder', '~> 2.7'
 gem 'responders', '~> 2.4' # Used?!
 
 # Email
-gem 'exception_notification', '~> 4.2.1'
+gem 'exception_notification', '~> 4.3.0'
 
 # Models
 gem 'bcrypt', '~> 3.1.11'
@@ -71,11 +71,11 @@ gem 'citeproc-ruby', '~> 1.1.10'
 gem 'csl-styles', '~> 1.0.1.8'
 gem 'ref2bibtex', '~> 0.2.3'
 # gem 'latex-decode', '~> 0.2.2'
-gem 'pdf-reader', '~> 2.1'
+gem 'pdf-reader', '~> 2.2'
 
 # UI/UX
 gem 'chartkick', '~> 3.0.2'
-gem 'groupdate', '~> 4.0.1'
+gem 'groupdate', '~> 4.1.1'
 gem 'dropzonejs-rails', '~> 0.8.1'
 gem 'kaminari', '~> 1.1.1'
 gem 'best_in_place', '~> 3.1.1'
