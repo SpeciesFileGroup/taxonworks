@@ -20,7 +20,7 @@ gem 'rubyzip', '~> 1.2.2'
 gem 'daemons', '~> 1.2.6'
 gem 'tzinfo-data', '~> 1.2018.4' 
 gem 'psych', '~> 3.1.0' 
-gem 'rmagick', '~> 2.16'
+gem 'rmagick', '~> 3.0'
 
 # Geo
 gem 'ffi-geos', '~> 2.0.0'
@@ -84,7 +84,7 @@ gem 'sassc-rails', '~> 2.1.0'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '0.4.0'
-gem 'sqed', '0.5.1'
+gem 'sqed', '0.5.2'
 gem 'dwc-archive', '~> 1.0.1'
 gem 'biodiversity', '~> 3.5.0'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
