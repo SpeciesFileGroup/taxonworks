@@ -107,7 +107,7 @@ group :test, :development do
   gem 'faker', '~> 1.9.1'
   gem 'rspec-rails', '~> 3.6'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
-  gem 'byebug', '~> 10.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
+  gem 'byebug', '~> 11.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 5.0.1'
   gem 'selenium-webdriver', '~> 3.141'
   gem 'geckodriver-helper', '~> 0.23.0'
@@ -127,7 +127,7 @@ group :development do
   gem 'web-console', '~> 3.7.0'
   gem 'rubocop', '~> 0.65.0'
   gem 'rubocop-rspec'
-  gem 'brakeman', '~> 4.3.0', require: false
+  gem 'brakeman', '~> 4.4.0', require: false
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'
 end
 
