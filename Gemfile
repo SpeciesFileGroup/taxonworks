@@ -19,7 +19,7 @@ gem 'thor', '~> 0.19.4' # See https://github.com/rails/rails/issues/27229
 gem 'rubyzip', '~> 1.2.2'
 gem 'daemons', '~> 1.2.6'
 gem 'tzinfo-data', '~> 1.2018.4' 
-gem 'psych', '~> 3.0.2' 
+gem 'psych', '~> 3.1.0' 
 gem 'rmagick', '~> 2.16'
 
 # Geo
