@@ -43,7 +43,7 @@ gem 'bcrypt', '~> 3.1.11'
 gem 'closure_tree', '~> 7.0'
 gem 'delayed_job_active_record', '~> 4.1.3'
 gem 'validates_timeliness', '~> 4.0.2'
-gem 'paper_trail', '~> 10.0.1'
+gem 'paper_trail', '~> 10.2.0'
 gem 'acts_as_list', '~> 0.9.12'
 gem 'modularity', '~> 2.0.1' # Used!?
 gem 'paperclip', '~> 6.1.0'
@@ -138,7 +138,7 @@ end
 group :test do
   gem 'rspec', '~> 3.6'
   gem 'coveralls', '~> 0.8.22', require: false
-  gem 'capybara', '~> 3.13.0'
+  gem 'capybara', '~> 3.14.0'
   gem 'timecop', '~> 0.9.1'
   gem 'webmock', '~> 3.5.1'
   gem 'vcr', '~> 4.0.0'
