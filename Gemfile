@@ -110,7 +110,7 @@ group :test, :development do
   gem 'rspec-rails', '~> 3.6'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'byebug', '~> 11.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
-  gem 'factory_bot_rails', '~> 5.0.1'
+  gem 'factory_bot_rails', '~> 4.11.1'
   gem 'selenium-webdriver', '~> 3.141'
   gem 'geckodriver-helper', '~> 0.23.0'
   gem 'prawn', '~> 2.2.2'
