@@ -108,8 +108,8 @@ group :test, :development do
   gem 'rspec-rails', '~> 3.6'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'byebug', '~> 10.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
-  gem 'factory_bot_rails', '~> 4.11.0'
-  gem 'selenium-webdriver', '~> 3.14'
+  gem 'factory_bot_rails', '~> 5.0.1'
+  gem 'selenium-webdriver', '~> 3.141'
   gem 'geckodriver-helper', '~> 0.23.0'
   gem 'prawn', '~> 2.2.2'
 end
@@ -125,7 +125,7 @@ group :development do
   gem 'guard-rspec', '~> 4.7.3', require: false
 
   gem 'web-console', '~> 3.7.0'
-  gem 'rubocop', '~> 0.59.2'
+  gem 'rubocop', '~> 0.65.0'
   gem 'rubocop-rspec'
   gem 'brakeman', '~> 4.3.0', require: false
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'
@@ -138,9 +138,9 @@ end
 group :test do
   gem 'rspec', '~> 3.6'
   gem 'coveralls', '~> 0.8.22', require: false
-  gem 'capybara', '~> 3.12.0'
+  gem 'capybara', '~> 3.13.0'
   gem 'timecop', '~> 0.9.1'
-  gem 'webmock', '~> 3.4.1'
+  gem 'webmock', '~> 3.5.1'
   gem 'vcr', '~> 4.0.0'
   gem 'database_cleaner', '~> 1.7.0'
   gem 'rails-controller-testing', '~> 1.0.2'
