@@ -63,12 +63,11 @@ module BatchLoad
                            verbatim_date: verbatim_date}
           geo_json = row['geojson']
           unless geo_json.blank?
-            geographic_item_attributes = {type: 'Georeference::GPX',
-                                          shape: geo_json}
-            ce_attributes[:geofererences_attributes] = {geographic_item_attributes: geographic_item_attributes}
+            ce_attributes[:gpx_georeferences_attributes] = {type: 'Georeference::GPX',
+                                                            geographic_item_attributes: {shape: geo_json}}
           end
 
-          ce = CollecctingEvent.new(ce_attributes)
+          ce = CollectingEvent.new(ce_attributes)
           parse_result.objects[:collecting_event] << ce
           @total_lines = i
         rescue
