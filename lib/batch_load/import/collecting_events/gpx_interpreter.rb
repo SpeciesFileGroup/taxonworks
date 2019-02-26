@@ -56,15 +56,24 @@ module BatchLoad
         begin
           start_date = row['start_date']
           end_date = row['end_date']
+        
+          # blocked by helper methods 
           verbatim_date = nil
           verbatim_date = "#{start_date}" if start_date.present?
           verbatim_date += " to #{end_date}" if end_date.present?
+         
           ce_attributes = {verbatim_label: row['name'],
                            verbatim_date: verbatim_date}
+
           geo_json = row['geojson']
+          
           unless geo_json.blank?
-            ce_attributes[:gpx_georeferences_attributes] = {type: 'Georeference::GPX',
-                                                            geographic_item_attributes: {shape: geo_json}}
+            ce_attributes[:gpx_georeferences_attributes] = [ 
+              {
+                #  type: 'Georeference::GPX',
+                geographic_item_attributes: {shape: geo_json}
+              }
+            ]
           end
 
           ce = CollectingEvent.new(ce_attributes)
