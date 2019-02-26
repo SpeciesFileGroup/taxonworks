@@ -63,12 +63,8 @@ module BatchLoad
                            verbatim_date: verbatim_date}
           geo_json = row['geojson']
           unless geo_json.blank?
-            shape = RGeo::GeoJSON.decode(geo_json, json_parser: :json)
-            geographic_item_attributes = {type: 'Georeference::GPX'}
-            case shape.type
-              when 'point'
-              when 'line_string'
-            end
+            geographic_item_attributes = {type: 'Georeference::GPX',
+                                          shape: geo_json}
             ce_attributes[:geofererences_attributes] = {geographic_item_attributes: geographic_item_attributes}
           end
 
