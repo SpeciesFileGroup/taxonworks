@@ -23,7 +23,7 @@ module Utilities::GPXToCSV
         start_time = route.points.first.time
         end_time = route.points.last.time
         coordinates = []
-        
+
         route.points.each do |point|
           coordinates << [point.lon, point.lat]
         end
@@ -51,17 +51,16 @@ module Utilities::GPXToCSV
 
         track.points.each do |point|
           if point.elevation
-            min_elev ||= 0
-            min_elev = point.elevation if min_elev > point.elevation
-           
-            if min_elev && min_elev != point.elevation 
+            min_elev = point.elevation if min_elev.nil? || point.elevation < min_elev
+
+            if min_elev && min_elev != point.elevation
               max_elev ||= 0
               max_elev = point.elevation if max_elev < point.elevation
             end
           end
 
           coordinates << [point.lon, point.lat]
-        
+
         end
         json = {'type': 'LineString', 'coordinates': coordinates}
         geo_feature[:geometry] = json
@@ -69,8 +68,8 @@ module Utilities::GPXToCSV
         csv << [track.name,
                 geo_feature.to_json,
                 start_time,
-                end_time, 
-                min_elev, 
+                end_time,
+                min_elev,
                 max_elev]
       end
     end
