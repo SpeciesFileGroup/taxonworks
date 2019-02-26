@@ -9,11 +9,12 @@ module Utilities::GPXToCSV
     gpx_headers = %w(name geojson start_date end_date)
     csv_string = CSV.generate(csv_options) do |csv|
       csv << gpx_headers
+      geo_feature = {'type': 'Feature', 'geometry': '{}'}
 
       gpx_file.waypoints.each do |waypoint|
-        json = %({type : Point, coordinates : [#{waypoint.lon}, #{waypoint.lat}, #{waypoint.ele}]})
-        csv << [waypoint.name,
-                json]
+        json = {'type': 'Point', 'coordinates': [waypoint.lon, waypoint.lat, waypoint.elevation]}
+        geo_feature[:geometry] = json
+        csv << [waypoint.name, geo_feature.to_json]
         csv
       end
 
@@ -24,10 +25,11 @@ module Utilities::GPXToCSV
         route.points.each do |point|
           coordinates << [point.lon, point.lat, point.elevation]
         end
-        json = %({type : LineString, coordinates : #{coordinates}})
+        json = {'type': 'LineString', 'coordinates': coordinates}
+        geo_feature[:geometry] = json
 
         csv << [route.name,
-                json,
+                geo_feature.to_json,
                 start_time,
                 end_time]
       end
@@ -39,10 +41,11 @@ module Utilities::GPXToCSV
         track.points.each do |point|
           coordinates << [point.lon, point.lat, point.elevation]
         end
-        json = %({type : LineString, coordinates : #{coordinates}})
+        json = {'type': 'LineString', 'coordinates': coordinates}
+        geo_feature[:geometry] = json
 
         csv << [track.name,
-                json,
+                geo_feature.to_json,
                 start_time,
                 end_time]
       end

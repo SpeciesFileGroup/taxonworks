@@ -17,10 +17,7 @@ module BatchLoad
       # @csv = Hash.from_xml(gpx.to_s)
       # gpx = (Hash.from_xml(GPX::GPXFile.new(gpx_file: '/Users/tuckerjd/src/taxonworks/spec/files/batch/collecting_event/test.gpx').to_s))['gpx']end
       # @csv = CSV.parse(gpx_string, {col_sep: "\t", headers: true, encoding: 'UTF-8'})
-      @csv = CSV.parse(Utilities::GPXToCSV.gpx_to_csv(gpx_file),
-                       {headers: true,
-                        col_sep: "\t",
-                        encoding: 'UTF-8'})
+      @csv = Utilities::GPXToCSV.gpx_to_csv(gpx_file)
     end
 
     # TODO: update this
@@ -61,7 +58,7 @@ module BatchLoad
           end_date = row['end_date']
           verbatim_date = nil
           verbatim_date = "#{start_date}" if start_date.present?
-          verbatim_date += " to #{end_date}" if end_date.present
+          verbatim_date += " to #{end_date}" if end_date.present?
           ce_attributes = {verbatim_label: row['name'],
                            verbatim_date: verbatim_date}
           geo_json = row['geojson']
