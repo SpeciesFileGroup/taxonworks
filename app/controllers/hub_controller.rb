@@ -13,6 +13,10 @@ class HubController < ApplicationController
     end 
   end
 
+  def tasks
+    render json: UserTasks.hub_tasks(params[:category])
+  end
+
   def order_tabs
     handle_bad_tab_order
   end

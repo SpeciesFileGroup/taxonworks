@@ -40,6 +40,7 @@ TaxonWorks::Application.routes.draw do
     get '/', action: :index
     get 'order_tabs' # should be POST
     post 'update_tab_order'
+    get 'tasks', defaults: {format: :json}
   end
 
   scope :annotations, controller: :annotations do

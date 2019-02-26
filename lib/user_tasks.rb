@@ -127,8 +127,11 @@ module UserTasks
 
   # @return [Array] of UserTasks::UserTask
   #    the UserTasks instances that have @hub == true
-  def self.hub_tasks
-    tasks.select{|t| t.hub}
+  def self.hub_tasks(category = nil)
+    a = tasks.select{|t| t.hub}
+    return a if category.nil?
+    return [] if !CATEGORIES.include?(category)
+    a.select{|b| b.categories.include?(category) }
   end
 
   # @param [String] prefix
