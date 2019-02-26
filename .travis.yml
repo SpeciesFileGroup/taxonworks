@@ -33,6 +33,7 @@ addons:
       - postgresql-contrib-10
 env:
   global:
+  - PGPORT=5432
 #  - IMAGEMAGICK_VERSION=6.8.9-10
 #  - PGPORT=5433
 #  - IMAGEMAGICK_VERSION=6.8.9-10 CONFIGURE_OPTIONS=--enable-hdri
@@ -53,6 +54,7 @@ install:
   - bundle install --without development production
 before_script:
   - sudo systemctl status postgresql@10-main
+  - psql -c "SELECT * FROM pg_settings WHERE name = 'port';"
   - "export DISPLAY=:99.0"
   - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1600x1200x16"
   - sleep 3
