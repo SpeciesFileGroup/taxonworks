@@ -43,6 +43,10 @@ TaxonWorks::Application.routes.draw do
     get 'tasks', defaults: {format: :json}
   end
 
+  scope :metadata, controller: 'metadata', only: [:index] do
+    get '(/:klass)', action: :index, defaults: {format: :json}
+  end
+
   scope :annotations, controller: :annotations do
     get ':global_id/metadata', action: :metadata, defaults: {format: :json}
     get :types, defaults: {format: :json}
