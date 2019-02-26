@@ -16,13 +16,19 @@ describe Identifier::Global::Doi, type: :model, group: :identifiers do
         expect(id.valid?).to be_falsey
       end
 
-      specify '10.12345/TaxonWorks-' do
+      specify '10.12345/TaxonWorks-\d{45}' do
         id.identifier = '10.12345/TaxonWorks-' + Faker::Number.number(45)
         expect(id.valid?).to be_truthy
       end
 
-      specify '10.1234.5678/TaxonWorks-' do
+      specify '10.1234.5678/TaxonWorks-\d{45}' do
         id.identifier = '10.' + Faker::Number.decimal(4, 4) + '/TaxonWorks-' + Faker::Number.number(45)
+        expect(id.valid?).to be_truthy
+      end
+
+      # Technically any Unicode is good unicode, even periods at the end
+      specify '10.1234.5678/TaxonWorks-123.' do
+        id.identifier = '10.1234.5678/TaxonWorks-123.'
         expect(id.valid?).to be_truthy
       end
     end

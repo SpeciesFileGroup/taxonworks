@@ -1,5 +1,7 @@
 
-<h2>Preview a source (reference) from a verbatim citation</h2>
+<h2>Preview a source (reference) from a verbatim citation or DOI</h2>
+
+<%= link_to('Back to form', new_verbatim_reference_task_path) -%>
 
 <div>
   <p>Submitted citation: </p>
@@ -20,6 +22,8 @@
     as: <%= @source.cached_string('html').html_safe %> <br>
 
     <%= hidden_field_tag(:in_cite, params[:citation]) %>
+
+    <br> 
     <div class="field">
       <%= check_box_tag :create_roles, false %>
       <%= label_tag 'also_create', 'Also create people from authors and editors of BibTeX source?' %>

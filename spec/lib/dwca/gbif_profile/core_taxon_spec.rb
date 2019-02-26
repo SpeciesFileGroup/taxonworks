@@ -5,16 +5,10 @@ describe "TaxonWorks to GBIF's DwC-A profile core file mapping" do
   let (:citation) { 'Defaut (2006) Révision préliminaire des Oedipoda ouest-paléarctiques (Caelifera, Acrididae, Oedipodinae). Matériaux Orthoptériques et Entomocénotiques 11, 23–48.' }
 
   let(:core) {
-    #source = nil
-    #VCR.use_cassette('example dwc source') do
-    # Doesn't resolve and returns non-bibtex, which doesn't work, but you see the coolness potential 
-    #  source = Source.new_from_citation(citation: citation )
-    #end
-
     ProjectsAndUsers.spin_up_projects_users_and_housekeeping
    
     # TODO REMOVE!! 
-    $user_id = 1
+    Current.user_id = 1
 
     source = Source::Bibtex.new(
       bibtex_type: 'article',

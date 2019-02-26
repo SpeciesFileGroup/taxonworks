@@ -2,23 +2,24 @@
 
 <p class='notice'>
 <ul>
-  <li> Submit either a full DOI or full citation. </li>
+  <li> Submit either a DOI or full citation. </li>
+  <li> DOIs should be in the form of <pre>https://doi.org/10.1145/3274442</pre> or <pre>10.1145/3274442</pre> or <pre>doi:10.1145/3274442</pre> </li>
   <li> The query will be resolved against <a href="https://www.crossref.org/">CrossRef</a>. </li>
   <li> If there is a hit, then you will be given the option to import the parsed citation.  This is the BibTeX format. </li>
   <li> If there is no hit, you have the option to import the record as a single field. This is the Verbatim format. </li>
-  <li> Not all hits are correct!  Check that the result matches the query. </li>
+
+  <li> The created source is automatically added to the current project. </li>
+
+  <li> <em>Not all hits are correct!  Check that the result matches the query.</em> </li>
 </ul>
 
 <%= form_tag preview_verbatim_reference_task_path do %>
 
   <div class="field">
-    <%= label_tag :citation_to_find, nil, data: {help: 'Works best by pasting in a full citation or DOI, but fragments are also possible.'} %><br/>
+    <%= label_tag :citation_or_DOI_to_find, nil, data: {help: 'Works best by pasting in a full citation or DOI, but fragments are also possible.'} %><br/>
     <%= text_area_tag :citation, (params[:in_cite].nil? ? nil : params[:in_cite]), rows: 6, cols: 60 %>
   </div>
 
-  <div class="actions">
-    <%= submit_tag 'Preview', class: 'button-default' -%>
-  </div>
+  <%= submit_tag 'Preview', class: 'button-default' -%>
 
 <% end %>
-
