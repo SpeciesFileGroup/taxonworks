@@ -32,8 +32,9 @@ addons:
       - postgresql-client-10
       - postgresql-contrib-10
 env:
+  - IMAGEMAGICK_VERSION=6.8.9-10
+  - IMAGEMAGICK_VERSION=6.8.9-10 CONFIGURE_OPTIONS=--enable-hdri
   global:
-    - IMAGEMAGICK_VERSION=6.8.9
     - PGPORT=5433
 #   - TEST_GROUP=1
 #   - TEST_GROUP=2
