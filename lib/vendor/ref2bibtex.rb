@@ -48,7 +48,6 @@ module TaxonWorks
         begin
           if citation_is_valid_doi?(citation)
             a = urize_doi(citation)
-            byebug
             ::Ref2bibtex.get_bibtex(a) 
           else
             ::Ref2bibtex.get(citation) 
