@@ -42,7 +42,17 @@ describe Person, type: :model, group: :people do
       year_born: 2000, year_died: 2015,
       year_active_start: 2012, year_active_end: 2015)
   end 
-  
+
+  let(:av1) { FactoryBot.create(:valid_alternate_value,
+                                value:                            'Jan',
+                                alternate_value_object_attribute: 'first_name',
+                                alternate_value_object:           person1b) }
+
+  let(:av2) { FactoryBot.create(:valid_alternate_value,
+                                value:                            'Janco',
+                                alternate_value_object_attribute: 'first_name',
+                                alternate_value_object:           person1) }
+
   let(:id1) { FactoryBot.create(:valid_identifier) }
 
   let(:no1) { FactoryBot.create(:valid_note) }
@@ -204,43 +214,33 @@ describe Person, type: :model, group: :people do
   specify 'identifiers' do
     person1b.identifiers << id1
     person1.merge_with(person1b.id)
-    expect(person1.identifiers.all).to include(id1)
+    expect(person1.identifiers.reload).to include(id1)
   end
 
   specify 'notes' do
     person1b.notes << no1
     person1.merge_with(person1b.id)
-    expect(person1.notes.all).to include(no1)
+    expect(person1.notes.reload).to include(no1)
   end
 
   context 'alternate values' do
-    specify 'creating' do
-      av1 =  AlternateValue::AlternateSpelling.create!(
-        value: 'Jan',
-        alternate_value_object_attribute: 'first_name',
-        alternate_value_object: person1b
-      )
-
+    specify 'moving alternate value from one to another' do
+      av1
       person1.merge_with(person1b.id)
-      person1.reload
-      expect(person1.alternate_values).to include(av1)
+      expect(person1.alternate_values.reload.pluck(:id)).to include(av1.id)
     end
 
     context 'different names' do
       specify 'first name' do
         person1b.update(first_name: 'Janco')
         person1.merge_with(person1b.id)
-        person1.reload
-        expect(person1.alternate_values.last.value).to include(person1b.first_name)
+        expect(person1.alternate_values.reload.last.value).to include(person1b.first_name)
       end
 
-      specify 'skips adding alternate value when values the same (first_name)' do
-        av2 = AlternateValue::AlternateSpelling.create!(
-          value: 'Janco',
-          alternate_value_object_attribute: 'first_name',
-          alternate_value_object: person1)
-
+      specify 'first name with matching alternate value' do
+        av2 # person1.first_name = January, person1.altername_value.first.value = Janco
         person1b.update(first_name: 'Janco')
+        # this will try to add Janco as an alternate_value, but skip
         person1.merge_with(person1b.id)
         expect(person1.alternate_values.count).to eq(1)
       end
@@ -248,8 +248,7 @@ describe Person, type: :model, group: :people do
       specify 'last name' do
         person1b.update(last_name: 'Smyth')
         person1.merge_with(person1b.id)
-        person1.reload
-        expect(person1.alternate_values.last.value).to include(person1b.last_name)
+        expect(person1.alternate_values.reload.last.value).to include(person1b.last_name)
       end
     end
   end
@@ -258,8 +257,7 @@ describe Person, type: :model, group: :people do
     context 'r_person' do
       context 'truthyness' do
         specify 'nil first name' do
-          person1b.first_name = nil
-          person1b.save!
+          person1b.update(first_name: nil)
           trial = person1.merge_with(person1b.id)
           expect(trial).to be_truthy
         end
@@ -267,8 +265,7 @@ describe Person, type: :model, group: :people do
 
       context 'success' do
         specify 'nil first name' do
-          person1b.first_name = nil
-          person1b.save!
+          person1b.update(first_name: nil)
           bfr = person1.first_name
           person1.merge_with(person1b.id)
           expect(person1.first_name).to eq(bfr)

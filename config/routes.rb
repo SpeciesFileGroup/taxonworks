@@ -2,7 +2,6 @@ Rails.application.eager_load!
 
 TaxonWorks::Application.routes.draw do
 
-
   get :ping, controller: 'ping',  defaults: { format: :json }
   get :pingz, controller: 'ping',  defaults: { format: :json }
 
@@ -470,6 +469,13 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+  resources :organizations do
+    collection do 
+      get :autocomplete, defaults: {format: :json}
+    end
+    concerns [:data_routes]
+  end
+
   resources :origin_relationships do
     concerns [:data_routes]
   end
@@ -562,6 +568,8 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+
+
   resources :sources do
     concerns [:data_routes]
     collection do
@@ -569,6 +577,12 @@ TaxonWorks::Application.routes.draw do
       post :preview_bibtex_batch_load # should be get
       post :create_bibtex_batch_load
       get :parse, defaults: {format: :json}
+    end
+  end
+
+  resources :sqed_depictions, only: [] do
+    collection do
+      get :metadata_options, defaults: {format: :json}
     end
   end
 
@@ -666,6 +680,12 @@ TaxonWorks::Application.routes.draw do
   ### End of data resources ###
 
   scope :tasks do
+    scope :images do
+      scope :new_image, controller: 'tasks/images/new_image' do
+        get :index, as: 'index_new_image_task'
+      end
+    end
+
 
     scope :asserted_distribution do
       scope :new_asserted_distribution, controller: 'tasks/asserted_distribution/new_asserted_distribution' do

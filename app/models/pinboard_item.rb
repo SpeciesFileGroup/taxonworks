@@ -44,6 +44,14 @@ class PinboardItem < ApplicationRecord
   validates_presence_of :user_id, :pinned_object_id, :pinned_object_type
   validates_uniqueness_of :user_id, scope: [ :pinned_object_id, :pinned_object_type, :project_id ]
 
+  validate :pinned_object_type_is_ok
+
+  def pinned_object_type_is_ok
+    unless pinned_object_type&.safe_constantize
+      errors.add(:pinned_object_type, 'is not a legal type')
+    end
+  end
+
   after_save :update_insertable
 
   scope :for_object, -> (object) { where(pinned_object_id: object.id, pinned_object_type: object.class.to_s) }

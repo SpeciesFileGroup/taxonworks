@@ -63,9 +63,13 @@ class Person < ApplicationRecord
   IGNORE_SIMILAR = [:type, :cached].freeze
   IGNORE_IDENTICAL = [:type, :first_name, :last_name, :prefix, :suffix].freeze
 
-  # @return [Boolean]
-  #   true when cached values have not been built
+  # @return [true, nil]
+  #   set as true to prevent caching 
   attr_accessor :no_cached
+
+  # @return [true, nil]
+  #   set as true to prevent application of NameCase()
+  attr_accessor :no_namecase
 
   validates_presence_of :last_name, :type
 
@@ -79,6 +83,8 @@ class Person < ApplicationRecord
   validate :not_active_after_death
   validate :not_active_before_birth
   validate :not_gandalf
+
+  before_validation :namecase_names, unless: Proc.new {|n| n.no_namecase }
 
   # TODO: remove this
   before_validation :set_type_if_blank
@@ -116,6 +122,14 @@ class Person < ApplicationRecord
   scope :ordered_by_last_name, -> { order(:last_name) }
 
   scope :used_in_project, -> (project_id) { joins(:roles).where( roles: { project_id: project_id } ) }
+
+  # Apply a "proper" case to all strings
+  def namecase_names
+    write_attribute(:last_name, NameCase(last_name)) if last_name && will_save_change_to_last_name?
+    write_attribute(:first_name, NameCase(first_name)) if first_name && will_save_change_to_first_name?
+    write_attribute(:prefix, NameCase(prefix)) if prefix && will_save_change_to_prefix? 
+    write_attribute(:suffix, NameCase(suffix)) if suffix && will_save_change_to_suffix?
+  end
 
   # @return [Boolean]
   #   !! overwrites IsData#is_in_use?
@@ -200,8 +214,8 @@ class Person < ApplicationRecord
           end
 
           unless r_person.last_name.blank?
-            if self.last_name.blank?
-              self.update(last_name: r_person.last_name)
+            if last_name.blank?
+              self.update(last_name: r_person.last_name) # NameCase() ?
             else
               if self.last_name != r_person.last_name
                 # create a last_name alternate_value of the r_person first name
@@ -212,7 +226,6 @@ class Person < ApplicationRecord
                   if av.value == r_person.last_name
                     if av.type == 'AlternateValue::AlternateSpelling' &&
                         av.alternate_value_object_attribute == 'last_name' # &&
-                      # av.project_id == r_person.project_id
                       skip_av = true
                       break # stop looking in this bunch, if you found a match
                     end
@@ -408,9 +421,10 @@ class Person < ApplicationRecord
   #    return people for name strings
   def self.parse_to_people(name_string)
     parser(name_string).collect { |n| 
-      Person::Unvetted.new(last_name:  n['family'],
-                           first_name: n['given'],
-                           prefix:     n['non-dropping-particle'])}
+      Person::Unvetted.new(
+        last_name: n['family'] ? NameCase(n['family']) : nil,
+        first_name: n['given'] ? NameCase(n['given']) : nil,
+        prefix: n['non-dropping-particle'] ? NameCase( n['non-dropping-particle']) : nil )}
   end
 
   # @param role_type [String] one of the Role types

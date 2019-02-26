@@ -1,0 +1,3 @@
+
+json.merge!  ::SqedConfig.metadata
+

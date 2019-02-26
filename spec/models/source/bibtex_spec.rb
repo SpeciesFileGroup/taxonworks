@@ -129,15 +129,17 @@ describe Source::Bibtex, type: :model, group: :sources do
                                     journal = "{Bib}TeX journal of \{funny\} ch\'{a}r{\aa}cter{\$}",
                                     year = {2003}})
 
-        a     = BibTeX.parse(citation_string).convert(:latex)
+        a = BibTeX.parse(citation_string).convert(:latex)
         entry = a.first
-        src   = Source::Bibtex.new_from_bibtex(entry)
-        expect(src.valid?).to be_truthy
-        expect(src.save).to be_truthy
+        src = Source::Bibtex.new_from_bibtex(entry)
+        expect(src.save!).to be_truthy
 
-        expect(src.cached_string('text')).to eq('Décoret, X. & Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "the saint" Templar (Ed). BibTeX journal of {funny} cháråcter$.')
+        expect(src.cached_string('text')).to eq('Décoret, X. & Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "The Saint" Templar (Ed). BibTeX journal of {funny} cháråcter$.')
+        expect(src.cached_string('html')).to eq('Décoret, X. &amp; Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "The Saint" Templar (Ed). <i>BibTeX journal of {funny} cháråcter$</i>.')
 
-        expect(src.cached_string('html')).to eq('Décoret, X. &amp; Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "the saint" Templar (Ed). <i>BibTeX journal of {funny} cháråcter$</i>.')
+        # Note this was the original check (lower case editor in double quotes... seems like a massive edge case, so presently not allowing so that we can cleanup capitalization in general) 
+        # expect(src.cached_string('text')).to eq('Décoret, X. & Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "the saint" Templar (Ed). BibTeX journal of {funny} cháråcter$.')
+        # expect(src.cached_string('html')).to eq('Décoret, X. &amp; Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "the saint" Templar (Ed). <i>BibTeX journal of {funny} cháråcter$</i>.')
       end
 
       # input = 'Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.'
@@ -181,106 +183,14 @@ describe Source::Bibtex, type: :model, group: :sources do
   end
 
   context 'Ruby BibTeX related instance methods' do
-    before(:each) do
-      @s = Source::Bibtex.new_from_bibtex(gem_bibtex_entry1)
-    end
+    let(:s) { Source::Bibtex.new_from_bibtex(gem_bibtex_entry1) } 
 
     context 'to_bibtex' do
       specify 'basic features' do
-        expect(@s.bibtex_type.to_s).to eq(gem_bibtex_entry1.type.to_s)
-        expect(@s.to_bibtex.fields).to eq(gem_bibtex_entry1.fields)
+        expect(s.bibtex_type.to_s).to eq(gem_bibtex_entry1.type.to_s)
+        expect(s.to_bibtex.fields).to eq(gem_bibtex_entry1.fields)
       end
 
-      #   specify 'a single object note gets converted properly to a bibtex note' do
-      #     n = 'I am a test note'
-      #     expect(@s.notes.size).to eq(0) # @s has no notes
-      #     expect(@s.save).to be_truthy # object has to be saved before adding a note
-      #     expect(@s.notes << Note.new(text: n)).to be_truthy # add note to object (.build() doesn't add user housekeeping.)
-      #     expect(@s.save).to be_truthy
-      #     expect(@s.notes.size).to eq(1)
-      #     b = @s.to_bibtex
-
-      #     out_note = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n}"
-      #     expect(b[:note].to_s =~ /#{n}/).to be_truthy
-      #     expect(b[:note].to_s =~ /#{@s.notes.first.creator.name}/).to be_truthy
-      #     expect(b[:note].to_s).to eq(out_note) # should be (<date/time>: <user name>: <note>[on: <title>])
-      #     #"2014-09-08 19:35:05 UTC: Joe Blow: I am a test note"
-      #   end
-
-      #   specify 'multiple object notes get converted properly' do
-      #     n1 = 'test note1'
-      #     n2 = 'test note2'
-      #     expect(@s.notes.count).to eq(0) # @s has no notes
-      #     expect(@s.save).to be_truthy # object has to be saved before adding a note
-      #     expect(@s.notes << Note.new(text: n1)).to be_truthy # add 1st note to object
-      #     expect(@s.notes << Note.new(text: n2)).to be_truthy # add 2nd note to object
-      #     expect(@s.save).to be_truthy
-      #     expect(@s.notes.count).to eq(2)
-      #     b         = @s.to_bibtex
-
-      #     # not sure how ordering should be tested? For now note2 always comes out first.
-      #     out_note1 = "#{@s.notes[1].updated_at}: #{User.find($user_id).name}: #{n1}"
-      #     out_note2 = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n2}"
-      #     expect(b[:note].to_s =~ /#{n1}/).to be_truthy
-      #     expect(b[:note].to_s =~ /#{n2}/).to be_truthy
-      #     expect(b[:note].to_s).to eq(out_note2 + '|' + out_note1) # should be 2 notes or'ed together.
-      #   end
-
-      #   specify 'a single attribute note gets converted properly' do
-      #     n = 'I am a test attribute note'
-      #     expect(@s.notes.count).to eq(0) # @s has no notes
-      #     expect(@s.save).to be_truthy # object has to be saved before adding a note
-      #     expect(@s.notes.build(text: n, note_object_attribute: 'title', created_by_id: $user_id, updated_by_id: $user_id)).to be_truthy # add note to object
-      #     expect(@s.save).to be_truthy
-      #     expect(@s.notes.count).to eq(1)
-      #     date     = @s.notes.to_a[0].updated_at
-      #     b        = @s.to_bibtex
-      #     out_note = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n}[on: #{@s.notes[0].note_object_attribute}]"
-      #     expect(b[:note].to_s).to eq(out_note) # should be (<date/time>: <user name>: <note>[on: <title>])
-      #     #"2014-09-08 19:35:05 UTC: Joe Blow: I am a test attribute note[on: title]"
-
-      #   end
-
-      #   specify 'multiple attribute notes get converted properly' do
-      #     n1 = 'test note1'
-      #     n2 = 'test note2'
-      #     expect(@s.notes.count).to eq(0) # @s has no notes
-      #     expect(@s.save).to be_truthy # object has to be saved before adding a note
-      #     expect(@s.notes << Note.new(text: n1, note_object_attribute: 'title')).to be_truthy # add 1st note to object
-      #     expect(@s.notes << Note.new(text: n2, note_object_attribute: 'author')).to be_truthy # add 2nd note to object
-      #     expect(@s.save).to be_truthy
-      #     expect(@s.notes.count).to eq(2)
-      #     b         = @s.to_bibtex
-
-      #     # not sure how ordering should be tested? For now note2 always comes out first.
-      #     out_note1 = "#{@s.notes[1].updated_at}: #{User.find($user_id).name}: #{n1}[on: #{@s.notes[1].note_object_attribute}]"
-      #     out_note2 = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n2}[on: #{@s.notes[0].note_object_attribute}]"
-      #     expect(b[:note].to_s =~ /#{n1}/).to be_truthy
-      #     expect(b[:note].to_s =~ /#{n2}/).to be_truthy
-      #     expect(b[:note].to_s).to eq(out_note2 + '|' + out_note1) # should be 2 notes or'ed together.
-      #   end
-
-      #   specify 'mixed attribute & object notes' do
-      #     n1 = 'object note1'
-      #     n2 = 'author note2'
-      #     n3 = 'title note3'
-      #     expect(@s.notes.count).to eq(0) # @s has no notes
-      #     expect(@s.save).to be_truthy # object has to be saved before adding a note
-      #     expect(@s.notes << Note.new(text: n1)).to be_truthy
-      #     expect(@s.notes << Note.new(text: n2, note_object_attribute: 'author')).to be_truthy # add 2nd note to object
-      #     expect(@s.notes << Note.new(text: n3, note_object_attribute: 'title')).to be_truthy # add 1st note to object
-      #     expect(@s.save).to be_truthy
-      #     expect(@s.notes.count).to eq(3)
-      #     b         = @s.to_bibtex
-
-      #     # not sure how ordering should be tested? For now note3 always comes out first.
-      #     out_note1 = "#{@s.notes[2].updated_at}: #{User.find($user_id).name}: #{n1}"
-      #     out_note2 = "#{@s.notes[1].updated_at}: #{User.find($user_id).name}: #{n2}[on: #{@s.notes[1].note_object_attribute}]"
-      #     out_note3 = "#{@s.notes[0].updated_at}: #{User.find($user_id).name}: #{n3}[on: #{@s.notes[0].note_object_attribute}]"
-      #     expect(b[:note].to_s =~ /#{n1}/).to be_truthy
-      #     expect(b[:note].to_s =~ /#{n2}/).to be_truthy
-      #     expect(b[:note].to_s).to eq(out_note3 + '|' + out_note2 + '|' + out_note1) # should be 3 notes or'ed together.
-      #   end
       context 'TW serial conversion' do
         let(:src) { FactoryBot.build(:soft_valid_bibtex_source_article, title: 'serial conversion') }
         let(:serial1) { FactoryBot.create(:valid_serial) } # create so serial1 has an ID
@@ -351,16 +261,18 @@ describe Source::Bibtex, type: :model, group: :sources do
 
     context 'validate bibtex' do
       specify 'check that valid_bibtex? works (relies on BibTeX::Entry.valid? which is not currently working)' do
-        expect(@s.valid_bibtex?).to be_falsey # missing a publisher
+        expect(s.valid_bibtex?).to be_falsey # missing a publisher
       end
+
       specify 'soft_validate bibtex fields - get error messages' do
-        @s.soft_validate(:bibtex_fields)
-        expect(@s.soft_validations.messages_on(:publisher).empty?).to be_falsey
-        expect(@s.soft_validations.messages).to include 'Valid BibTeX requires a publisher to be associated with this source.'
+        s.soft_validate(:bibtex_fields)
+        expect(s.soft_validations.messages_on(:publisher).empty?).to be_falsey
+        expect(s.soft_validations.messages).to include 'Valid BibTeX requires a publisher to be associated with this source.'
       end
+
       specify 'make it valid' do
-        @s.publisher = 'Silly Books Inc'
-        expect(@s.valid_bibtex?).to be_truthy
+        s.publisher = 'Silly Books Inc'
+        expect(s.valid_bibtex?).to be_truthy
       end
     end
 
@@ -643,7 +555,7 @@ describe Source::Bibtex, type: :model, group: :sources do
               source_bibtex.save
               expect(source_bibtex.authority_name).to eq(nil)
               expect(source_bibtex.cached_author_string).to eq(nil)
-        end
+            end
           end
 
         end
@@ -726,10 +638,10 @@ describe Source::Bibtex, type: :model, group: :sources do
   end
 
   context 'instance methods - ' do
-  # before(:each) {
-  #   # this is a TW Source::Bibtex - type article, with just a title
-  #   source_bibtex = 
-  # }
+    # before(:each) {
+    #   # this is a TW Source::Bibtex - type article, with just a title
+    #   source_bibtex = 
+    # }
 
 
     let(:source_bibtex) { FactoryBot.build(:valid_source_bibtex) } 
@@ -1041,67 +953,39 @@ describe Source::Bibtex, type: :model, group: :sources do
         let(:vp1) { Person.create!(last_name: 'Smith') }
         let(:vp2) { Person.create!(last_name: 'Adams', first_name: 'John', prefix: 'Von') }
 
-        specify 'after create/saved populate author/editor roles' do
-          # bs1 was saved in the "before", since the authors already exist in the db,
-          # the roles should be automatically set? (Yes)
-          # skip
-        end
-
         context 'check cached strings after update' do
           specify 'authors' do
             src1 = FactoryBot.create(:soft_valid_bibtex_source_article)
-            src1.save
             expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. Journal of Test Articles.')
             expect(src1.cached_author_string).to eq('Person')
 
             src1.authors << vp1
-            expect(src1.save).to be_truthy
-            expect(src1.cached).to eq('Smith (1700) I am a soft valid article. Journal of Test Articles.')
+            expect(src1.reload.cached).to eq('Smith (1700) I am a soft valid article. Journal of Test Articles.')
             expect(src1.cached_author_string).to eq('Smith')
 
             src1.authors << vp2
-            expect(src1.save).to be_truthy
-            expect(src1.cached).to eq('Smith & Von Adams, J. (1700) I am a soft valid article. Journal of Test Articles.')
+            expect(src1.reload.cached).to eq('Smith & Von Adams, J. (1700) I am a soft valid article. Journal of Test Articles.')
             expect(src1.cached_author_string).to eq('Smith & Von Adams')
           end
 
           specify 'editors' do
             src1 = FactoryBot.create(:src_editor)
-            src1.save
             expect(src1.cached).to eq('Person, T. ed. (1700) I am a soft valid article. Journal of Test Articles.')
-
             src1.editors << vp1
-            expect(src1.save).to be_truthy
-           
-            expect(src1.cached).to eq('Smith ed. (1700) I am a soft valid article. Journal of Test Articles.')
+            expect(src1.reload.cached).to eq('Smith ed. (1700) I am a soft valid article. Journal of Test Articles.')
 
             src1.editors << vp2
-            expect(src1.save).to be_truthy
-            expect(src1.cached).to eq('Smith & Von Adams, J. eds. (1700) I am a soft valid article. Journal of Test Articles.')
+            expect(src1.reload.cached).to eq('Smith & Von Adams, J. eds. (1700) I am a soft valid article. Journal of Test Articles.')
           end
 
           specify 'stated_year' do
             src1 = FactoryBot.create(:soft_valid_bibtex_source_article)
-            src1.stated_year = '1699'
-            src1.save
+            src1.update(stated_year: '1699')
             expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. Journal of Test Articles.')
-            src1.volume = '25'
-            src1.save
-            
-            # Hacked Bibtex 
-            #  expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. Journal of Test Articles 1699, 25.')
-
+            src1.update(volume: '25')
             expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. Journal of Test Articles 25.')
           end
 
-        end
-
-        context 'on validation' do
-          # Force the user to interact through authors first, then back save to author
-          # skip 'invalidate if authors exist and author has changed, and no longer matches'
-
-          # ditto for editors
-          # skip 'invalidate if editors exist and editor has changed, and no longer matches'
         end
 
         %w{author editor}.each do |i|
@@ -1109,11 +993,10 @@ describe Source::Bibtex, type: :model, group: :sources do
             method = "#{i}s"
             expect(bibtex).to respond_to(method)
             expect(bibtex.send(method)).to eq([])
-            bibtex.title       = 'valid record'
+            bibtex.title = 'valid record'
             bibtex.bibtex_type = 'book'
-            expect(bibtex.save).to be_truthy # save record to get an ID
-            expect(bibtex.send(method) << vp1).to be_truthy # assigns author but doesn't save role
-            expect(bibtex.save).to be_truthy # saving bibtex also saves role
+            expect(bibtex.save).to be_truthy 
+            expect(bibtex.send(method) << vp1).to be_truthy 
             expect(bibtex.send(method).first.id).to eq(vp1.id)
           end
 
@@ -1121,16 +1004,13 @@ describe Source::Bibtex, type: :model, group: :sources do
             method = "#{i}_roles"
             expect(bibtex).to respond_to(method)
             expect(bibtex.send(method)).to eq([])
-            bibtex.title       = 'valid record'
+            bibtex.title = 'valid record'
             bibtex.bibtex_type = 'book'
             expect(bibtex.save).to be_truthy
             expect(bibtex.send("#{i}s") << vp1).to be_truthy
-            expect(bibtex.save).to be_truthy
             expect(bibtex.send(method).size).to eq(1)
           end
         end
-
-        # pending 'test TW identifiers'
       end
     end
 
@@ -1146,9 +1026,9 @@ describe Source::Bibtex, type: :model, group: :sources do
       let(:bib4) { FactoryBot.create(:valid_misc, author: 'Anon, Test') }
       let(:trial) {
         Source::Bibtex.new(bibtex_type: bib3.bibtex_type,
-                           title:       bib3.title,
-                           year:        bib3.year,
-                           month:       'jul')
+                           title: bib3.title,
+                           year: bib3.year,
+                           month: 'jul')
       }
 
       context '#identical' do
@@ -1395,13 +1275,13 @@ describe Source::Bibtex, type: :model, group: :sources do
         end
         specify 'update updates position' do
           expect(b.authors.reload.count).to eq(3)
-          expect(b.authority_name).to eq('un, deux & trois')
-          expect(b.update(params)).to be_truthy
+          expect(b.authority_name).to eq('Un, Deux & Trois')
+          b.update(params)
           expect(b.authors.reload.count).to eq(2)
-          expect(b.authority_name).to eq('un & trois')
+          expect(b.authority_name).to eq('Un & Trois')
           expect(b.roles.reload.first.position).to eq(1)
           expect(b.roles.last.position).to eq(2)
-          expect(b.authors.last.last_name).to eq('trois')
+          expect(b.authors.last.last_name).to eq('Trois')
         end
       end
 
@@ -1412,102 +1292,13 @@ describe Source::Bibtex, type: :model, group: :sources do
         } }
         specify 'update updates position' do
           expect(b.authors.reload.count).to eq(3)
-          expect(b.authority_name).to eq('un, deux & trois')
-          expect(b.update(params)).to be_truthy
-          expect(b.authors.reload.collect { |a| a.last_name }).to eq(%w{deux trois un})
-          expect(b.authors.reload.count).to eq(3)
-          expect(b.authority_name).to eq('deux, trois & un')
+          expect(b.authority_name).to eq('Un, Deux & Trois')
+          b.update(params)
+          expect(b.authors.reload.collect { |a| a.last_name }).to eq(%w{Deux Trois Un})
+          expect(b.authors.count).to eq(3)
+          expect(b.authority_name).to eq('Deux, Trois & Un')
         end
       end
     end
   end
-
-  context('Beth') do
-=begin
-    notes/things to do:
-      Document bibtex source using YardTags - se example in root\lib\soft_validation.rb
-      Formatting -
-        Rendering code will go in a helper
-        Check out what formatting is provided by BibTex gem - do we additional formats?
-      DONE - Set the cached fields in the bibtex records on save
-      Has author role but no author field => bibtex should work
-=end
-
-    # from context 'roles'
-    #before do
-    #  # create & save 3 people
-    #  p1 = Person.new(last_name: 'Aus')
-    #  p1.save
-    #  p2 = Person.new(last_name: 'Bus')
-    #  p2.save
-    #  p3 = Person.new(last_name: 'Cus')
-    #  p3.save
-    #  # create 3 bibtex sources
-    #  bs1 = Source::Bibtex.new(bibtex_type: 'article', title: 'a1b2c3', author: 'Aus, Bus, Cus')
-    #  bs1.save
-    #  bs2 = Source::Bibtex.new(bibtex_type: 'article', title: 'a3b1c2', author: 'Bus, Cus, Aus')
-    #  bs2.save
-    #  bs3 = Source::Bibtex.new(bibtex_type: 'article', title: 'a2b3c1', author: 'Cus, Aus, Bus')
-    #  bs3.save
-    #end
-    #     specify 'Beth testing' do
-    #       input = 'Robillard. 2011. Centuriarus n. gen., a new genus of Eneopterinae crickets from Papua (Insecta, Orthoptera, Grylloidea). Zoosystema.'
-    #       src = Source.new_from_citation({citation: input, resolve: true})
-    # #         bibtex_str = %q(@article{Robillard_2011,\n\turl = {http://dx.doi.org/10.5252/z2011n1a2},\n\tyear = 2011,\n\tmonth = {mar},\n\tpublisher = {Museum National d{\textquotesingle}Histoire Naturelle, Paris, France},\n\tvolume = {33},\n\tnumber = {1},\n\tpages = {49--60},\n\tauthor = {Tony Robillard},\n\ttitle = { Centuriarus n. gen., a new genus of Eneopterinae crickets from Papua (Insecta, Orthoptera, Grylloidea) },\n\tjournal = {Zoosystema}\n})
-    # #         bibtex_str2 = %q(@article{Robillard_2011,
-    # # 	url = {http://dx.doi.org/10.5252/z2011n1a2},
-    # # 	year = 2011,
-    # # 	month = {mar},
-    # # 	publisher = {Museum National d{\textquotesingle}Histoire Naturelle, Paris, France},
-    # # 	volume = {33},
-    # # 	number = {1},
-    # # 	pages = {49--60},
-    # # 	author = {Tony Robillard},
-    # # 	title = { Centuriarus n. gen., a new genus of Eneopterinae crickets from Papua (Insecta, Orthoptera, Grylloidea) },
-    # # 	journal = {Zoosystema}
-    # # })
-    # #         bib1 = BibTeX.parse(bibtex_str + '\n' + bibtex_str2).convert(:latex)
-    # #         bib2 = BibTeX.parse(bibtex_str + '\n' + bibtex_str2)
-    # #         array1=[]
-    # #         array1 << bib1.map{|b| Source::Bibtex.new_from_bibtex(b)}
-    # #         array2=[]
-    # #         array2 << bib1.map{|b| Source::Bibtex.new_from_bibtex(b)}
-    # #         cp = CiteProc::Processor.new(style: 'zootaxa', format: 'html')
-    #       expect(src.publisher).to eq("Museum National d’Histoire Naturelle, Paris, France")
-    #
-    #       # c = LaTeX.decode entry.title
-    #       # b  = CiteProc.process a[:py03].to_citeproc, :style => :apa
-    #       # cp = CiteProc::Processor.new(style: 'zootaxa', format: 'text')
-    #       #cp.engine.format = 'html'
-    #       # cp.import(a.first)
-    #       # b = cp.render(:bibliography, id: key).first.strip
-    #
-    #       # array = []
-
-    #       # array.push(LaTeX.decode "The $20^{th}$ annual meeting of {BibTeX}--users")
-
-    #       # array.push(LaTeX.decode %q{" \`{o} \"{o} \.{o} \H{o} \d{o} {\OE} \aa \O \ss "})
-
-    #       # array.push(LaTeX.decode %q{ '{o} \~{o} \u{o} \H{o} \t{oo} \b{o} \ae \AA \l  ?'})
-    #       #
-    #       # array.push(LaTeX.decode %q{" \^{o} \={o} \V{o} \c{o} \oe \ae \o \L !' "})
-
-    #       # array.push(LaTeX.decode %q{" \`{e} \"{a} \.{a} \c{c} {\oe}  \\{oe}a"})
-
-    #       # array
-    #
-    #       #  have ref-in-ref problems not correctly creating the either book or article
-    #       # input =  "Klapálek & Grunberg. 1909. Hft. 8. Ephemerida, Plecoptera, Lepidoptera. In Brauer, A. Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna. 1-163"
-    #
-    #       # expect(BibTeX.valid?(filename)).to be_truthy
-    #       # expect(a = Source::Bibtex.new_from_bibtex(bibtex_entry)).to be_truthy
-    #       # expect(a.save).to be_truthy
-    #       # a.reload
-    #
-    #       # cp.import a.to_citeproc
-    #
-    #     end
-
-  end
 end
-# rubocop:enable Rails/SaveBang
