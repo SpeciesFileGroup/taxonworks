@@ -406,3 +406,11 @@ index_new_image_task:
     - collecting_event
     - collection_object
   status: prototype
+
+index_hub_task:
+  hub: true
+  name: 'TODO: Task name'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'

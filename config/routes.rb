@@ -785,6 +785,10 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :sources do
+      scope :hub, controller: 'tasks/sources/hub' do
+        get :index, as: 'index_hub_task'
+      end
+
       scope :individual_bibtex_source, controller: 'tasks/sources/individual_bibtex_source' do
         get 'index', as: 'index_individual_bibtex_source_task'
       end
