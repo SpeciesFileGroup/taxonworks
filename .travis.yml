@@ -6,7 +6,7 @@ cache:
     - $TRAVIS_BUILD_DIR/spec/fixtures/vcr_cassettes
     - $TRAVIS_BUILD_DIR/public/packs-test
     - /home/travis/.rvm/ 
-dist: trusty
+dist: xenial
 # sudo: required
 rvm:
   - 2.5.1
