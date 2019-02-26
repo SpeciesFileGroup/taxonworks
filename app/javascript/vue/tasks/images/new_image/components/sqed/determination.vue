@@ -36,6 +36,7 @@
             v-for="item in lists[view]"
             :key="item.id"
             :value="item.id"
+            class="smart-list"
           >
             <label>
               <input
@@ -159,13 +160,11 @@ import PinDefault from 'components/getDefaultPin.vue'
 import RolePicker from 'components/role_picker.vue'
 import OtuPicker from 'components/otu/otu_picker/otu_picker.vue'
 import { GetterNames } from '../../store/getters/getters.js'
-import { MutationNames } from '../../store/mutations/mutations.js'
-import { ActionNames } from '../../store/actions/actions';
 import DisplayList from 'components/displayList.vue'
 import CreatePerson from '../../helpers/createPerson.js'
 import orderSmartSelector from 'helpers/smartSelector/orderSmartSelector.js'
 import selectFirstSmartOption from 'helpers/smartSelector/selectFirstSmartOption'
-import { GetOtu, GetOtuSmartSelector, GetTaxonDeterminatorSmartSelector } from '../../request/resources.js'
+import { GetOtuSmartSelector, GetTaxonDeterminatorSmartSelector } from '../../request/resources.js'
 
 
 export default {
@@ -237,9 +236,6 @@ export default {
         year_made: undefined
       }
     },
-    saveDetermination() {
-      // this.$store.dispatch(ActionNames.SaveDetermination)
-    },
     addDetermination() {
       if(this.list.find((determination) => { return determination.otu_id == this.taxonDetermination.otu_id })) { return }
       this.taxonDetermination.object_tag = `${this.otuSelected}`
@@ -269,5 +265,8 @@ export default {
       input {
         max-width: 60px;
       }
+    }
+    .smart-list {
+      margin-bottom: 4px;
     }
 </style>

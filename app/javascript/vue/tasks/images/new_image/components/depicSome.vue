@@ -56,6 +56,7 @@
     <table-list
       :list="listCreated"
       :header="['Objects', 'Remove']"
+      :delete-warning="false"
       :annotator="false"
       @delete="removeItem"
       :attributes="['label']"/>
@@ -183,3 +184,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+  li {
+    margin-bottom: 4px;
+  }
+</style>
