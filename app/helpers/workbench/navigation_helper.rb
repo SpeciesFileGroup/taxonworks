@@ -277,7 +277,7 @@ DEPRECATED FOR RADIAL
 
   def title_tag
     splash = request.path =~ /task/ ? request.path.demodulize.humanize : request.path.split('/')&.second&.humanize
-    content_tag(:title, 'TaxonWorks - ' + splash )
+    content_tag(:title, ['TaxonWorks', splash].compact.join(' - ') )
   end
 
 end
