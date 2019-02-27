@@ -14,6 +14,15 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
                                       print_label: 'THERE: under the stars:18-2-2000') }
 
 
+  let(:o) { Otu.create!(name: 'Something') } 
+  let(:co) { Specimen.create!(collecting_event: ce1) }
+  let(:td) { TaxonDetermination.create!(otu: o, biological_collection_object: co) }
+
+  specify 'otu_ids[]=' do
+    td
+    query.otu_ids = [o.id] 
+    expect(query.all.map(&:id)).to contain_exactly(ce1.id)
+  end
 
   # let!(:namespace) { FactoryBot.create(:valid_namespace, short_name: 'Foo') }
   # let!(:i1) { Identifier::Local::TripCode.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }

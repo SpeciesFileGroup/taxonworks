@@ -33,11 +33,15 @@ module Queries
       # Reference geographic areas to do a spatial query 
       attr_accessor :spatial_geographic_area_ids
 
+      attr_accessor :otu_ids
+
       def initialize(params)
         @in_labels = params[:in_labels]
         @in_verbatim_locality = params[:in_verbatim_locality]
         @recent = params[:recent].blank? ? nil : params[:recent].to_i
         self.shape = params[:shape]
+
+        @otu_ids = params[:otu_ids] || []
 
         @keyword_ids = params[:keyword_ids].blank? ? [] : params[:keyword_ids]
         @spatial_geographic_area_ids = params[:spatial_geographic_area_ids].blank? ? [] : params[:spatial_geographic_area_ids]
@@ -66,6 +70,14 @@ module Queries
         ::Tag.arel_table
       end
 
+      def otu_table 
+        ::TaxonDetermination.arel_table
+      end
+
+      def taxon_determination_table 
+        ::TaxonDetermination.arel_table
+      end
+
       def attribute_clauses
         c = []
         ATTRIBUTES.each do |a|
@@ -74,6 +86,39 @@ module Queries
           end
         end
         c
+      end
+
+      def matching_otu_ids
+        return nil if otu_ids.empty?
+        o = table
+        
+        a = o.alias("a_")
+
+        b = ::CollectionObject.arel_table
+        c = ::TaxonDetermination.arel_table
+
+        d = b.alias("b_")
+        e = c.alias("c_")
+
+        f = o.project(a[Arel.star]).from(a)
+        
+        f = f.join(d, Arel::Nodes::OuterJoin)
+          .on(
+            a[:id].eq(d[:collecting_event_id])
+        ).join(e, Arel::Nodes::OuterJoin)
+          .on(
+            d[:id].eq(e[:biological_collection_object_id])
+        )
+
+        g1 = e[:otu_id].not_eq(nil)
+       
+        g2 = e[:otu_id].eq_any(otu_ids)
+
+        f = f.where(g1.and(g2))
+        f = f.group(a['id'])
+        f = f.as('tq9_')
+
+        ::CollectingEvent.joins(Arel::Nodes::InnerJoin.new(f, Arel::Nodes::On.new(f['id'].eq(o['id']))))
       end
 
       def matching_keyword_ids
@@ -165,6 +210,7 @@ module Queries
 
       def merge_clauses
         clauses = [
+          matching_otu_ids,
           matching_keyword_ids,
           matching_shape,
           matching_spatial_via_geographic_area_ids
