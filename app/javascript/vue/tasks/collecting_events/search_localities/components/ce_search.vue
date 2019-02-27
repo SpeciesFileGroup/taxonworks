@@ -62,7 +62,7 @@
 </template>
 <script>
   import Autocomplete from 'components/autocomplete'
-  import lMap from 'components/leaflet/map.vue'
+  import lMap from './leafletMap.vue'
   import ModeSwitch from './mode_switch'
   import Spinner from 'components/spinner'
 

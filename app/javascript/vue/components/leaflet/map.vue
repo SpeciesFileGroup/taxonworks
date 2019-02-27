@@ -207,12 +207,12 @@ export default {
       this.removeLayers()
 
       let newGeojson = []
-      geojsonFeature.forEach(layer => {
+      geojsonFeature.forEach(layer => {   // scan feature array and either (i) or (ii)
         //this.antimeridian(layer.geometry.coordinates, true)
         if (layer.geometry.type === 'Point' && layer.properties.hasOwnProperty('radius')) {
-          this.addJsonCircle(layer)
+          this.addJsonCircle(layer)       // (i) add a leaflet circle to the drawnItems data element
         } else {
-          newGeojson.push(layer)
+          newGeojson.push(layer)          // (ii) add this feature to the other array
         }
       })
 
