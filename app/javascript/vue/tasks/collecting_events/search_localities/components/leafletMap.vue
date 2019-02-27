@@ -20,6 +20,10 @@
 
   export default {
     props: {
+      clear: {
+        type: Boolean,
+        default: () => { return false}
+      },
       width: {
         type: String,
         default: () => { return '500px' }
@@ -74,6 +78,10 @@
         if (newVal.length) {
           this.geoJSON(newVal)
         }
+      },
+      clear () {
+        this.drawnItems.clearLayers();
+        this.foundItems.clearLayers();
       }
     },
     mounted () {
@@ -171,7 +179,7 @@
           }
           that.$emit('shapeCreated', layer)
           that.$emit('geoJsonLayerCreated', geoJsonLayer)
-          that.drawnItems.addLayer(layer)
+          that.drawnItems.addLayer(layer.setStyle({color: "#444400", fillColor: "#888800"}))
         })
 
         this.mapObject.on('draw:edited', (e) => {

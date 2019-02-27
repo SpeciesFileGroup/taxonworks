@@ -44,6 +44,7 @@
         width="1024px"
         :zoom="2"
         ref="leaflet"
+        :clear="clearMap"
         :geojson="geojsonFeatures"
         @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
         @geoJsonLayersEdited="editedShape($event)"
@@ -57,6 +58,11 @@
         @click="getShapesData()"
         :disabled="!shapes.length"
         value="Find">
+      <input
+        class="button normal-input button-default separate-left"
+        type="button"
+        @click="clearMap = true"
+        value="Clear Map">
     </div>
   </div>
 </template>
@@ -79,6 +85,7 @@
         collectingEventList: [],
         shapes: [],   // intended for eventual multiple shapes paradigm
         mode: 'list',
+        clearMap: false,
         isLoading: false,
         newFeatures:  [],
         geojsonFeatures: [    // trans-antimeridian polygon test features
