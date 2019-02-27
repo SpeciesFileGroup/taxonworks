@@ -25,7 +25,7 @@
             type="text">
           <button
             type="button"
-            :disabled="!(validateDepic || (createNewCO && validateSqedObject) && imagesCreated)"
+            :disabled="!(validateDepic || validateSqedObject && imagesCreated)"
             class="button normal-input button-submit separate-left"
             @click="applyDepic">
             Apply
@@ -35,7 +35,7 @@
       <button 
         class="button normal-input button-submit item button-apply-both "
         type="button"
-        :disabled="!((validateDepic || (createNewCO && validateSqedObject) && validateAttr) && imagesCreated)"
+        :disabled="!((validateDepic || validateSqedObject && validateAttr) && imagesCreated)"
         @click="applyAttr(); applyDepic()">
         Apply both
       </button>
@@ -56,6 +56,9 @@ export default {
     },
     createNewCO() {
       return this.$store.getters[GetterNames.GetNewCOForSqed]
+    },
+    getYear() {
+      return this.$store.getters[GetterNames.GetYearCopyright]
     },
     getSqed() {
       return this.$store.getters[GetterNames.GetSqed]
@@ -94,11 +97,11 @@ export default {
     },
     showPeopleAndLicense() {
       if(this.imagesBy.length || this.license.length)
-        return `${this.imagesBy}${this.imagesBy.length > 0 ? ` ${this.license}` : this.license}`
+        return `${this.imagesBy}${this.imagesBy.length > 0 ? ` ` : ``}${this.license}. ${this.getYear ? ` Copyright year ${this.getYear}` : ''}`
       return 'The attribution summary will be displayed here when defined.'
     },
     objectsForDepictions() {
-      if(this.createNewCO) { return 'A depiction summary will be displayed here when defined. Otherwise a new collection object will be created for each image.' }
+      if(!this.validateDepic) { return 'A depiction summary will be displayed here when defined. Otherwise a new collection object will be created for each image.' }
       
       let tmp = this.$store.getters[GetterNames.GetObjectsForDepictions].map(item => {
         return item.label

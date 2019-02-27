@@ -66,6 +66,10 @@
         type: Boolean,
         default: true
       },
+      deleteWarning: {
+        type: Boolean,
+        default: true
+      },
       annotator: {
         type: Boolean,
         default: true
@@ -101,7 +105,12 @@
         return object[attributes]
       },
       deleteItem(item) {
-        if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+        if(this.deleteWarning) {
+          if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+            this.$emit('delete', item)
+          }
+        }
+        else {
           this.$emit('delete', item)
         }
       }
