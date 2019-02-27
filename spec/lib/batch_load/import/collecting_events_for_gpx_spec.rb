@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe BatchLoad::Import::CollectingEvents::GpxInterpreter, type: :model do
+describe BatchLoad::Import::CollectingEvents::GpxInterpreter, type: :model, group: [:geo, :collecting_events] do
 
   let(:file_name) { 'spec/files/batch/collecting_event/test.gpx' }
   let(:upload_file) { fixture_file_upload(file_name) }
@@ -8,9 +8,9 @@ describe BatchLoad::Import::CollectingEvents::GpxInterpreter, type: :model do
   let(:user) { User.find(1) }
   let(:project) { Project.find(1) }
 
-  let(:setup) {
-    gpx = GPX::GPXFile.new(file_name)
-  }
+  # let(:setup) {
+  #   gpx = GPX::GPXFile.new(file_name)
+  # }
 
   let(:import) { BatchLoad::Import::CollectingEvents::GpxInterpreter.new(
     project_id: project.id,
@@ -18,45 +18,42 @@ describe BatchLoad::Import::CollectingEvents::GpxInterpreter, type: :model do
     file: upload_file)
   }
 
-  before { setup }
+  # before { setup }
 
   specify 'baseline is 1' do
-    xexpect(CollectingEvent.count).to eq(1)
-    xexpect(GPX.count).to eq(1)
+    expect(CollectingEvent.count).to eq(0)
+    expect(Georeference::GPX.count).to eq(0)
   end
 
   specify '.new succeeds' do
-    xexpect(import).to be_truthy
+    expect(import).to be_truthy
   end
 
   specify '#processed_rows' do
-    xexpect(import.processed_rows.count).to eq(8)
+    expect(import.processed_rows.count).to eq(2)
   end
 
   specify '#processed_rows' do
-    xexpect(import.create_attempted).to eq(false)
+    expect(import.create_attempted).to eq(false)
   end
 
   context 'after .create' do
     before { import.create }
 
     specify '#create_attempted' do
-      xexpect(import.create_attempted).to eq(true)
+      expect(import.create_attempted).to eq(true)
     end
 
     specify '#valid_objects' do
-      xexpect(import.valid_objects.count).to eq(7)
+      expect(import.valid_objects.count).to eq(2)
     end
 
     specify '#successful_rows' do
-      xexpect(import.successful_rows).to be_truthy
+      expect(import.successful_rows).to be_truthy
     end
 
     specify '#total_records_created' do
-      xexpect(import.total_records_created).to eq(7)
+      expect(import.total_records_created).to eq(2)
     end
   end
-
-
-
 end

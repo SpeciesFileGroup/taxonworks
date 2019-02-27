@@ -91,20 +91,6 @@ module BatchLoad
         @processed = true
       end
     end
-
-    def create
-      @create_attempted = true
-      if ready_to_create?
-        sorted_processed_rows.each_value do |objs|
-          gr_attributes = objs[:georeference].attributes
-          gr_attributes[:geographic_item_attributes] = objs[:geographic_item].attributes
-          ce_attributes = objs[:collecting_event].attributes
-          ce_attributes[:gpx_georeference] = gr_attributes
-          CollectingEvent.new(ce_attributes)
-        end
-        save_order
-      end
-    end
   end
   # gpx = GPX::GPXFile.new(:gpx_file => '/Users/tuckerjd/src/taxonworks/spec/files/batch/collecting_event/test.gpx')
 end
