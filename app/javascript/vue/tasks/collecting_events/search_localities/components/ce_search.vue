@@ -202,7 +202,7 @@
               thisSlice += 30;
             }
             Promise.all(promises).then(featuresArrays => {
-              if (searchShape) {FeatureCollection.features.push(searchShape)}
+              // if (searchShape) {FeatureCollection.features.push(searchShape)}
               featuresArrays.forEach(f => {FeatureCollection.features = FeatureCollection.features.concat(f)})
               that.geojsonFeatures = that.geojsonFeatures.concat(FeatureCollection.features);
             });

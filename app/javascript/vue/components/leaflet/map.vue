@@ -190,7 +190,6 @@ export default {
           layerJson.properties.radius = layer.getRadius()
         }
         //this.antimeridian(layerJson.geometry.coordinates, false)
-        alert(JSON.stringify(layerJson));
         arrayLayers.push(layerJson)
       })
       return arrayLayers

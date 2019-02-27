@@ -54,6 +54,7 @@
         mapId: Math.random().toString(36).substring(7),
         mapObject: undefined,
         drawnItems: undefined,
+        foundItems: undefined,
         drawControl: undefined,
         tiles: {
           osm: L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
@@ -81,7 +82,9 @@
         zoom: this.zoom
       })
       this.drawnItems = new L.FeatureGroup()
+      this.foundItems = new L.FeatureGroup()
       this.mapObject.addLayer(this.drawnItems)
+      this.mapObject.addLayer(this.foundItems)
 
       this.addDrawControllers()
       this.handleEvents()
@@ -145,7 +148,8 @@
               }
             }
           }))
-          this.mapObject.addControl(this.drawnItems)
+          this.mapObject.addControl(this.drawnItems);
+          // this.foundItems.addTo(this.mapObject);
         }
       },
       showCoords(click) {
@@ -159,9 +163,9 @@
           var layer = e.layer;
           var popUp = L.popup();
           var geoJsonLayer = layer.toGeoJSON()
-          if (geoJsonLayer.hasOwnProperty('geometry') && geoJsonLayer.geometry.hasOwnProperty('coordinates')) {
-            //that.antimeridian(geoJsonLayer.geometry.coordinates, false)
-          }
+          // if (geoJsonLayer.hasOwnProperty('geometry') && geoJsonLayer.geometry.hasOwnProperty('coordinates')) {
+          //   //that.antimeridian(geoJsonLayer.geometry.coordinates, false)
+          // }
           if (e.layerType === 'circle') {
             geoJsonLayer.properties.radius = layer.getRadius()
           }
@@ -198,12 +202,12 @@
         return this.convertGeoJSONWithPointRadius(this.drawnItems)
       },
       addJsonCircle (layer) {
-        L.circle(layer.geometry.coordinates.reverse(), layer.properties.radius).addTo(this.drawnItems)
+        L.circle(layer.geometry.coordinates.reverse(), layer.properties.radius).addTo(this.foundItems)
         // L.circle(layer.geometry.coordinates, layer.properties.radius).addTo(this.drawnItems)
       },
       geoJSON (geojsonFeature) {
         if (!Array.isArray(geojsonFeature) || geojsonFeature.length === 0) return
-        this.removeLayers()
+        // this.removeLayers()
 
         let newGeojson = []
         geojsonFeature.forEach(layer => {   // scan feature array and either (i) or (ii)
@@ -216,11 +220,11 @@
         })
 
         L.geoJSON(newGeojson).getLayers().forEach(layer => {
-          // this.drawnItems.on('mouseover', this.showCoords);
-          this.drawnItems.addLayer(layer)
+          this.foundItems.on('mouseover', this.showCoords);
+          this.foundItems.addLayer(layer)
         });
 
-        this.mapObject.fitBounds(this.drawnItems.getBounds())
+        this.mapObject.fitBounds(this.foundItems.getBounds())
       }
     }
   }
