@@ -12,12 +12,17 @@
 
   delete L.Icon.Default.prototype._getIconUrl
 
+  // L.Icon.Default.mergeOptions({
+  //   iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+  //   iconUrl: require('leaflet/dist/images/marker-icon.png'),
+  //   shadowUrl: require('leaflet/dist/images/marker-shadow.png')
+  // })
+
   L.Icon.Default.mergeOptions({
     iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-    iconUrl: require('leaflet/dist/images/marker-icon.png'),
-    shadowUrl: require('leaflet/dist/images/marker-shadow.png')
+    iconUrl: require('./map_icons/mm_20_red.png'),
+    shadowUrl: require('./map_icons/mm_20_shadow.png')
   })
-
   export default {
     props: {
       clear: {
