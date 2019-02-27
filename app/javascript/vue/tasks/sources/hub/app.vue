@@ -1,24 +1,24 @@
-var TW = TW || {}
-TW.views = TW.views || {}
-TW.views.task = TW.views.task || {}
+<template>
+  <div id="hub">
+    <h1>Task - New source</h1>
+    <div>
+      <new-component/>
+    </div>
+    <recent-component/>
+  </div>
+</template>
 
+<script>
 
-import Vue from 'vue'
-import App from './app.vue'
+import NewComponent from './components/new'
+import TasksComponent from './components/tasks'
+import RecentComponent from './components/recent'
 
-Object.assign(TW.views.task, {
-  init: function () {
-    new Vue({
-      el: '#vue-task',
-      render: function (createElement) {
-        return createElement(App)
-      }
-    })
+export default {
+  components: {
+    NewComponent,
+    TasksComponent,
+    RecentComponent
   }
-})
-
-$(document).on('turbolinks:load', function () {
-  if ($('#vue-task').length) {
-    TW.views.task.init()
-  }
-})
+}
+</script>
