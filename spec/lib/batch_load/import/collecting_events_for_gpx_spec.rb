@@ -20,9 +20,11 @@ describe BatchLoad::Import::CollectingEvents::GpxInterpreter, type: :model, grou
 
   # before { setup }
 
-  specify 'baseline is 1' do
+  specify 'baseline is 0' do
     expect(CollectingEvent.count).to eq(0)
     expect(Georeference::GPX.count).to eq(0)
+    expect(GeographicItem::Point.count).to eq(0)
+    expect(GeographicItem::LineString.count).to eq(0)
   end
 
   specify '.new succeeds' do
@@ -54,6 +56,26 @@ describe BatchLoad::Import::CollectingEvents::GpxInterpreter, type: :model, grou
 
     specify '#total_records_created' do
       expect(import.total_records_created).to eq(2)
+    end
+
+    context 'creating actual objects' do
+      specify 'collecting_events' do
+        expect(CollectingEvent.count).to eq(2)
+      end
+
+      specify 'georeferences' do
+        expect(Georeference::GPX.count).to eq(2)
+      end
+
+      context 'geographic_items' do
+        specify 'point' do
+          expect(GeographicItem::Point.count).to eq(1)
+        end
+
+        specify 'line_string' do
+          expect(GeographicItem::LineString.count).to eq(1)
+        end
+      end
     end
   end
 end
