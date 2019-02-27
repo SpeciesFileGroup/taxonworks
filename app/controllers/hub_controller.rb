@@ -14,7 +14,7 @@ class HubController < ApplicationController
   end
 
   def tasks
-    render json: UserTasks.hub_tasks(params[:category])
+    @tasks = UserTasks.hub_tasks(params[:category])
   end
 
   def order_tabs

@@ -100,6 +100,22 @@ module UserTasks
     def requires_params?
       Rails.application.routes.named_routes.get(@prefix).required_keys.sort != [:action, :controller]
     end
+
+    # @return [Hash]
+    def to_h
+      return {
+        url_name: url,
+        path_name: path,
+        name: name,
+        status: status,
+        categories: categories,
+        description: description,
+        related: related,
+        prefix: prefix,
+        hub: hub
+      }
+
+    end
   end
 
   # The raw YAML (Hash)
