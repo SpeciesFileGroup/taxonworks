@@ -11,6 +11,7 @@
       :otu="otu" />
     <div>
       <image-gallery :otu="otu"/>
+      <nomenclature-history :otu="otu"/>
       <content-component :otu="otu"/>
       <asserted-distribution :otu="otu"/>
       <biological-associations :otu="otu"/>
@@ -28,6 +29,7 @@ import ContentComponent from './components/Content'
 import AssertedDistribution from './components/AssertedDistribution'
 import BiologicalAssociations from './components/BiologicalAssociations'
 import AnnotationsComponent from './components/Annotations'
+import NomenclatureHistory from './components/NomenclatureHistory'
 
 import { GetOtu } from './request/resources.js'
 
@@ -39,7 +41,8 @@ export default {
     ContentComponent,
     AssertedDistribution,
     BiologicalAssociations,
-    AnnotationsComponent
+    AnnotationsComponent,
+    NomenclatureHistory
   },
   data() {
     return {

@@ -74,6 +74,10 @@ const GetBiologicalAssociations = function (globalId) {
   return ajaxCall('get', `/biological_associations?any_global_id=${globalId}`)
 }
 
+const GetNomenclatureHistory = function (id) {
+  return ajaxCall('get', `/taxon_names/${id}/catalog`)
+}
+
 export {
   GetOtu,
   GetDepictions,
@@ -85,5 +89,6 @@ export {
   GetCitations,
   GetDataAttributes,
   GetConfidences,
-  GetIdentifiers
+  GetIdentifiers,
+  GetNomenclatureHistory
 }
