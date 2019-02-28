@@ -139,6 +139,8 @@ class Protonym < TaxonName
   scope :is_species_group, -> { where("rank_class ILIKE '%speciesgroup%'") }
   scope :is_genus_group, -> { where("rank_class ILIKE '%genusgroup%'") }
 
+  scope :is_species_or_genus_group, -> {  where("rank_class ILIKE '%speciesgroup%' OR rank_class ILIKE '%genusgroup%'")   }
+
   # @return [Array of Strings]
   #   genera where the species was placed
   def all_generic_placements
