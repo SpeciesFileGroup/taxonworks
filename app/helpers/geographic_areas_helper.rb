@@ -13,7 +13,7 @@ module GeographicAreasHelper
     s += ' ' + (geographic_area.has_shape? ? content_tag(:span, 'has shape', class: [:feedback, 'feedback-success', 'feedback-thin']) : content_tag(:span, 'without shape', class: [:feedback, 'feedback-danger', 'feedback-thin']) )
  
     c =  geographic_area.collecting_events.count
-    s += ' ' + ( c > 0 ? content_tag(:span, "#{c.to_s}&nbsp;uses".html_safe, class: [:feedback, 'feedback-secondary', 'feedback-thin']) : '' )
+    s += ' ' + ( c > 0 ? content_tag(:span, "#{c.to_s}&nbsp;#{'use'.pluralize(c)}".html_safe, class: [:feedback, 'feedback-secondary', 'feedback-thin']) : '' )
     
     s.html_safe
   end
