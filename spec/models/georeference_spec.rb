@@ -101,8 +101,8 @@ describe Georeference, type: :model, group: [:geo, :shared_geo] do
 
         specify 'is < some Earth-based limit' do
           # 12,400 miles, 20,000 km
-          #skip 'setting error radius to some reasonable distance'
-          georeference.error_radius = 30000000
+          # skip 'setting error radius to some reasonable distance'
+          georeference.error_radius = 30_000_000
           georeference.valid?
           expect(georeference.errors.keys.include?(:error_radius)).to be_truthy
         end
