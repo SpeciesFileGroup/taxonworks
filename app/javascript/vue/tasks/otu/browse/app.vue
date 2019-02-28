@@ -16,6 +16,7 @@
       <asserted-distribution :otu="otu"/>
       <biological-associations :otu="otu"/>
       <annotations-component :otu="otu"/>
+      <collecting-events :otu="otu"/>
     </div>
   </div>
 </template>
@@ -30,6 +31,7 @@ import AssertedDistribution from './components/AssertedDistribution'
 import BiologicalAssociations from './components/BiologicalAssociations'
 import AnnotationsComponent from './components/Annotations'
 import NomenclatureHistory from './components/NomenclatureHistory'
+import CollectingEvents from './components/CollectingEvents'
 
 import { GetOtu } from './request/resources.js'
 
@@ -42,7 +44,8 @@ export default {
     AssertedDistribution,
     BiologicalAssociations,
     AnnotationsComponent,
-    NomenclatureHistory
+    NomenclatureHistory,
+    CollectingEvents
   },
   data() {
     return {

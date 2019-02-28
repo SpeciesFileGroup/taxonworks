@@ -78,6 +78,10 @@ const GetNomenclatureHistory = function (id) {
   return ajaxCall('get', `/taxon_names/${id}/catalog`)
 }
 
+const GetCollectingEvents = function(ids) {
+  return ajaxCall('get', '/collecting_events.json', { params: { otu_ids: ids } })
+}
+
 export {
   GetOtu,
   GetDepictions,
@@ -90,5 +94,6 @@ export {
   GetDataAttributes,
   GetConfidences,
   GetIdentifiers,
-  GetNomenclatureHistory
+  GetNomenclatureHistory,
+  GetCollectingEvents
 }
