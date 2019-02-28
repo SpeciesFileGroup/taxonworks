@@ -8,7 +8,17 @@ const GetRecentSources = function () {
   return ajaxCall('get', '/sources.json?recent=true&per=20')
 }
 
+const GetCitationsFromSourceID = function (id) {
+  return ajaxCall('get', `/citations.json?source_id=${id}`)
+}
+
+const GetDocumentsFromSourceID = function (id) {
+  return ajaxCall('get', `/sources/${id}/documentation.json`)
+}
+
 export {
   GetMetadata,
-  GetRecentSources
+  GetRecentSources,
+  GetCitationsFromSourceID,
+  GetDocumentsFromSourceID
 }

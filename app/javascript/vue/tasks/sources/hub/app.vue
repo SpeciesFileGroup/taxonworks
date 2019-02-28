@@ -1,6 +1,6 @@
 <template>
-  <div id="hub">
-    <h1>Task - New source</h1>
+  <div>
+    <h1>Task: Source hub</h1>
     <div>
       <new-component/>
     </div>
