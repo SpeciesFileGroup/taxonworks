@@ -7,14 +7,15 @@ module GeographicAreasHelper
 
   def geographic_area_autocomplete_tag(geographic_area, term)
     return nil if geographic_area.nil?
-    show_this =  geographic_area.name.gsub(/#{Regexp.escape(term)}/, "<mark>#{term}</mark>") # weee bit simpler
-    show_this += " (#{geographic_area.parent.name})" unless geographic_area.parent.nil?
-
-    show_this += " [#{geographic_area.geographic_area_type.name}]" unless geographic_area.geographic_area_type.nil?
-
-    show_this += ' ' + (geographic_area.has_shape? ? content_tag(:span, 'has shape', class: 'subtle passed') : content_tag(:span, 'without shape', class: 'subtle warning') )
+    s =  geographic_area.name.gsub(/#{Regexp.escape(term)}/, "<mark>#{term}</mark>") # weee bit simpler
+    s += " (#{geographic_area.parent.name}) " unless geographic_area.parent.nil?
+    s += content_tag(:span, geographic_area.geographic_area_type.name, class: [:feedback, 'feedback-info', 'feedback-thin'])  unless geographic_area.geographic_area_type.nil?
+    s += ' ' + (geographic_area.has_shape? ? content_tag(:span, 'has shape', class: [:feedback, 'feedback-success', 'feedback-thin']) : content_tag(:span, 'without shape', class: [:feedback, 'feedback-danger', 'feedback-thin']) )
+ 
+    c =  geographic_area.collecting_events.count
+    s += ' ' + ( c > 0 ? content_tag(:span, "#{c.to_s}&nbsp;uses".html_safe, class: [:feedback, 'feedback-secondary', 'feedback-thin']) : '' )
     
-    show_this.html_safe
+    s.html_safe
   end
 
 
