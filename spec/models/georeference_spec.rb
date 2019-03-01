@@ -99,10 +99,10 @@ describe Georeference, type: :model, group: [:geo, :shared_geo] do
           georeference.geographic_item = FactoryBot.create(:valid_geographic_item)
         }
 
-        specify 'is < some Earth-based limit' do
-          # 12,400 miles, 20,000 km
+        specify 'is > some Earth-based limit' do
+          # 12,400 miles, 20,000 km (an approximation of less than half of the circumference of the earth)
           # skip 'setting error radius to some reasonable distance'
-          georeference.error_radius = 30_000_000
+          georeference.error_radius = 10_000_000
           georeference.valid?
           expect(georeference.errors.keys.include?(:error_radius)).to be_truthy
         end
@@ -273,7 +273,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo] do
       specify 'with error_radius returns a key-stone' do
         # case 2a - radius
         georeference = Georeference::VerbatimData.new(collecting_event: collecting_event_with_geographic_area,
-                                                      error_radius:     160000)
+                                                      error_radius:     5000)
         # TODO: Figure out why the save of the georeference does not propagate down to the geographic_item
         # which is part of the geographic_area.
         #
@@ -282,11 +282,11 @@ describe Georeference, type: :model, group: [:geo, :shared_geo] do
         georeference.save!
         # TODO: the following expectation will not be met, under some circumstances (different math packages on
         # different operating systems), and may have to be temporarily disabled
-        expect(georeference.error_box.to_s).to eq('POLYGON ((-1.337306643915519 1.5469896879975282 0.0, ' \
-                                                            '1.537306643915519 1.5469896879975282 0.0, ' \
-                                                            '1.537306643915519 -1.3469896879975283 0.0, ' \
-                                                            '-1.337306643915519 -1.3469896879975283 0.0, ' \
-                                                            '-1.337306643915519 1.5469896879975282 0.0))')
+        expect(georeference.error_box.to_s).to eq('POLYGON ((0.055084167377640034 0.14521842774992275 0.0, ' \
+                                                            '0.14491583262235996 0.14521842774992275 0.0, ' \
+                                                            '0.14491583262235996 0.054781572250077244 0.0, ' \
+                                                            '0.055084167377640034 0.054781572250077244 0.0, ' \
+                                                            '0.055084167377640034 0.14521842774992275 0.0))')
       end
 
       specify 'with error_geographic_item returns a shape' do
@@ -301,7 +301,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo] do
     context 'batch_create_from_georeference_matcher' do
       specify 'adding this georeference to two collecting events' do
         georeference = Georeference::VerbatimData.new(collecting_event: collecting_event_with_geographic_area,
-                                                      error_radius:     160000)
+                                                      error_radius:     6000)
         georeference.save!
         ce1 = collecting_event_with_geographic_area
         ce2 = collecting_event_without_geographic_area
