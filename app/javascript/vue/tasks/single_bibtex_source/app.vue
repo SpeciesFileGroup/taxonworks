@@ -8,6 +8,7 @@
         data-icon="reset">Reset
       </span>
     </div>
+    <a href="/tasks/sources/hub/index">Back to source hub</a>
     <spinner
       v-if="isLoading"
       :full-screen="true"
