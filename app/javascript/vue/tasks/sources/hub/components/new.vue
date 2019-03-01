@@ -42,7 +42,7 @@ export default {
 <style lang="scss" scoped>
 
   .card-new {
-    width: 400px;
+    width: 250px;
     margin-bottom: 8px;
     margin-right: 8px;
     text-decoration: none;
