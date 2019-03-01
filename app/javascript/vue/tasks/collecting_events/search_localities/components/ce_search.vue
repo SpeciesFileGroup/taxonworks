@@ -179,7 +179,7 @@
       },
       inspectLayer(layer) {
         let geoJ = layer.toGeoJSON();
-        alert (JSON.stringify(geoJ));
+        // alert (JSON.stringify(geoJ));
       }
     },
   }

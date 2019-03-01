@@ -165,9 +165,10 @@
           // this.foundItems.addTo(this.mapObject);
         }
       },
-      showCoords(click) {
-        L.popup().setLatLng(click.latlng)
-          .setContent(click.latlng.toString())
+      showCoords(latlng, geoID) {
+        let content = latlng.toString() + ' GeoID:' + geoID.toString();
+        L.popup().setLatLng(latlng)
+          .setContent(content)
           .openOn(this.mapObject);
       },
       handleEvents () {
@@ -233,7 +234,8 @@
         })
 
         L.geoJSON(newGeojson).getLayers().forEach(layer => {
-          this.foundItems.on('click', this.showCoords);
+          let geoID = layer.feature.properties.georeference.id;
+          this.foundItems.on('click', this.showCoords(layer._latlng, geoID));
           // this.foundItems.on('mouseout', this.mapObject.closePopup());
           this.foundItems.addLayer(layer)
         });
