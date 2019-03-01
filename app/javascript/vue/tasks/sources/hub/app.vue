@@ -2,6 +2,7 @@
   <div>
     <h1>Task: Source hub</h1>
     <div>
+      <search-component />
       <new-component />
       <metadata-component />
     </div>
@@ -14,12 +15,14 @@
 import NewComponent from './components/new'
 import RecentComponent from './components/recent'
 import MetadataComponent from './components/metadata'
+import SearchComponent from './components/search'
 
 export default {
   components: {
     NewComponent,
     RecentComponent,
-    MetadataComponent
+    MetadataComponent,
+    SearchComponent
   }
 }
 </script>

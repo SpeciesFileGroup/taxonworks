@@ -21,7 +21,11 @@
           v-for="item in sources"
           :key="item.id"
           class="list-complete-item">
-          <td v-html="item.object_tag"/>
+          <td>
+            <a
+              :href="`/sources/${item.id}`"
+              v-html="item.object_tag"/>
+          </td>
           <td> {{ item.year }} </td>
           <td>
             <citations-count :source-id="item.id"/>
