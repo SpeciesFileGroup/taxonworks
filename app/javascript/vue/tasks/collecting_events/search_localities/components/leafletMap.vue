@@ -206,7 +206,7 @@
             layerJson.properties.radius = layer.getRadius()
           }
           //this.antimeridian(layerJson.geometry.coordinates, false)
-          alert(JSON.stringify(layerJson));
+          // alert(JSON.stringify(layerJson));
           arrayLayers.push(layerJson)
         })
         return arrayLayers
@@ -233,7 +233,8 @@
         })
 
         L.geoJSON(newGeojson).getLayers().forEach(layer => {
-          this.foundItems.on('mouseover', this.showCoords);
+          this.foundItems.on('click', this.showCoords);
+          // this.foundItems.on('mouseout', this.mapObject.closePopup());
           this.foundItems.addLayer(layer)
         });
 
