@@ -16,9 +16,19 @@ const GetDocumentsFromSourceID = function (id) {
   return ajaxCall('get', `/sources/${id}/documentation.json`)
 }
 
+const GetMetadataSource = function () {
+  return ajaxCall('get', '/metadata/Source')
+}
+
+const GetMetadataProjectSource = function () {
+  return ajaxCall('get', '/metadata/ProjectSource')
+}
+
 export {
   GetMetadata,
   GetRecentSources,
   GetCitationsFromSourceID,
-  GetDocumentsFromSourceID
+  GetDocumentsFromSourceID,
+  GetMetadataSource,
+  GetMetadataProjectSource
 }

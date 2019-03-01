@@ -1,10 +1,10 @@
 <template>
   <div>
-    <h2>New</h2>
+    <h3 class="title-section">New</h3>
     <div class="flex-wrap-row">
       <a
         v-for="task in tasks"
-        class="panel content card"
+        class="panel content separate-right separate-bottom card-new"
         tabindex="0"
         data-turbolinks="false" 
         target="blank"
@@ -41,14 +41,15 @@ export default {
 
 <style lang="scss" scoped>
 
-  .card {
+  .card-new {
     width: 400px;
     margin-bottom: 8px;
-    margin-left: 8px;
+    margin-right: 8px;
+    text-decoration: none;
   }
 
   .task-name {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .task-description {
