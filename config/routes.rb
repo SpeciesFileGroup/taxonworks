@@ -1033,6 +1033,9 @@ TaxonWorks::Application.routes.draw do
   ### End of task scopes, user related below ###
 
   resources :users, except: :new do
+    collection do
+      get :autocomplete, defaults: {format: :json}
+    end
     member do
       get 'recently_created_data'
       get 'recently_created_stats'
