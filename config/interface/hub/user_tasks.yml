@@ -406,11 +406,11 @@ index_new_image_task:
     - collecting_event
     - collection_object
   status: prototype
-
 index_hub_task:
   hub: true
-  name: 'TODO: Task name'
+  name: 'Source hub'
   related:
   categories:
+    - source
   status: prototype
-  description: 'TODO: Task description'
+  description: 'A centralized hub unifying access to the different means of creating and managing sources.'
