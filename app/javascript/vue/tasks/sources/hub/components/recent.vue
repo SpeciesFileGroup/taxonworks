@@ -1,5 +1,6 @@
 <template>
   <div class="vue-table-container">
+    <h3 class="title-section">Recent</h3>
     <table class="vue-table">
       <thead>
         <tr>
@@ -20,13 +21,16 @@
           v-for="item in sources"
           :key="item.id"
           class="list-complete-item">
-          <td> {{ item.object_tag }} </td>
+          <td v-html="item.object_tag"/>
           <td> {{ item.year }} </td>
           <td>
             <citations-count :source-id="item.id"/>
           </td>
           <td>
             <documents-component :source-id="item.id"/>
+          </td>
+          <td>
+            <tags-component :source-id="item.id"/>
           </td>
           <td>
             <radial-annotator
@@ -37,11 +41,6 @@
               :object-id="item.id"
               type="Source"
             />
-          </td>
-          <td>
-            <span
-              class="circle-button btn-edit"
-              @click="$emit('edit', Object.assign({}, item))"/>
           </td>
           <td>
             <add-to-project-source
@@ -62,14 +61,21 @@ import RadialAnnotator from 'components/annotator/annotator'
 import AddToProjectSource from 'components/addToProjectSource.vue'
 import CitationsCount from './citationsCount'
 import DocumentsComponent from './documents'
+import TagsComponent from './tags'
 
 export default {
   components: {
+    TagsComponent,
     RadialAnnotator,
     PinComponent,
     AddToProjectSource,
     CitationsCount,
     DocumentsComponent
+  },
+  props: {
+    otu: {
+      type: Object
+    }
   },
   data() {
     return {

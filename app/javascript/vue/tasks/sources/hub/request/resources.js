@@ -24,11 +24,16 @@ const GetMetadataProjectSource = function () {
   return ajaxCall('get', '/metadata/ProjectSource')
 }
 
+const GetSourceTags = function (id) {
+  return ajaxCall('get', `/sources/${id}/tags.json`)
+}
+
 export {
   GetMetadata,
   GetRecentSources,
   GetCitationsFromSourceID,
   GetDocumentsFromSourceID,
   GetMetadataSource,
-  GetMetadataProjectSource
+  GetMetadataProjectSource,
+  GetSourceTags
 }
