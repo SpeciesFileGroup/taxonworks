@@ -2,13 +2,13 @@ module CitationsHelper
 
   def citation_tag(citation)
     return nil if citation.nil?
-    citation_string = citation_author_year(citation)
+    citation_string = source_author_year_tag(citation.source)
     [citation.citation_object.class.name, ': ', object_tag(citation.citation_object&.metamorphosize), ' in ', citation_source_body(citation)].compact.join.html_safe
   end
 
   def citation_source_body(citation)
     pages = citation.pages unless citation.pages.blank?
-    [[citation_author_year(citation), pages].compact.join(':'), citation_topics_tag(citation)].compact.join(' ').html_safe
+    [[source_author_year_tag(citation.source), pages].compact.join(':'), citation_topics_tag(citation)].compact.join(' ').html_safe
   end
 
   def citation_topics_tag(citation)
@@ -22,9 +22,8 @@ module CitationsHelper
     ].join.html_safe
   end
 
-  # TODO: deprecate
-  def citation_author_year(citation)
-    source_author_year_tag(citation.source)
+  def citations_tag(object)
+    object.citations.collect{|c| source_author_year_tag(c.source)}.to_sentence
   end
 
   def citation_annotation_tag(citation)
@@ -38,19 +37,6 @@ module CitationsHelper
       object.citations.collect{|t|
         content_tag(:li, citation_annotation_tag(t))
       }.join.html_safe
-    end
-  end
-
-  # Used in browse/catalog, try to deprecate
-  def citation_author_year_tag(citation)
-    return nil if citation.nil?
-    case citation.source.type
-    when 'Source::Verbatim'
-      citation.source.verbatim
-    when 'Source::Bibtex'
-      citation.source.author_year
-    else
-      'NOT PROVIDED/CACHE ERROR'
     end
   end
 

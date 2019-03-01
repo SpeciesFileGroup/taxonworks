@@ -131,13 +131,15 @@ class Protonym < TaxonName
   # TODO: isn't this the way to do it now? (It does not work, may need extra investigation. DD)
   #   scope :that_is_valid, -> {where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') }
 
-  scope :that_is_valid, -> {
-    joins('LEFT OUTER JOIN taxon_name_relationships tnr ON taxon_names.id = tnr.subject_taxon_name_id').
-    where("taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type ILIKE 'TaxonNameRelationship::Iczn::Invalidating%' OR type ILIKE 'TaxonNameRelationship::Icn::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Icnp::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Ictv::Unaccepting%')")
-  }
-
+  # This was crazy!
+  # scope :that_is_valid, -> {
+  #   joins('LEFT OUTER JOIN taxon_name_relationships tnr ON taxon_names.id = tnr.subject_taxon_name_id').
+  #   where("taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type ILIKE 'TaxonNameRelationship::Iczn::Invalidating%' OR type ILIKE 'TaxonNameRelationship::Icn::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Icnp::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Ictv::Unaccepting%')")
+  # }
   scope :is_species_group, -> { where("rank_class ILIKE '%speciesgroup%'") }
   scope :is_genus_group, -> { where("rank_class ILIKE '%genusgroup%'") }
+
+  scope :is_species_or_genus_group, -> {  where("rank_class ILIKE '%speciesgroup%' OR rank_class ILIKE '%genusgroup%'")   }
 
   # @return [Array of Strings]
   #   genera where the species was placed

@@ -3,6 +3,11 @@
 <% end %> 
 
 <%= content_for :associated do %>
+
+  <% if source_in_other_project?(@source) -%>
+    <%= content_tag(:div, 'This source is used in another project.', class: [:feedback, 'feedback-warning']) -%>
+  <% end %>
+
   <% if @source.type == 'Source::Bibtex' %>
     <% if @source.authors.load.any? %>
       <h3>Authors</h3>
@@ -21,11 +26,6 @@
       </ul>
     <% end %>
   <% end %>
-
-  <% if source_in_other_project?(@source) -%>
-    <%= content_tag(:div, 'This source is used in another project.', class: :warning) -%>
-  <% end %>
-
 <% end %>
 
 <%= content_for(:additional_navigation) do -%>

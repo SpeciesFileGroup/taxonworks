@@ -92,7 +92,7 @@ module Queries
       # This could be simplified if the AJAX selector returned a geographic_item_id rather than a GeographicAreaId
       target_geographic_item_ids = []
       query_geographic_area_ids.each do |ga_id|
-        target_geographic_item_ids.push(GeographicArea.joins(:geographic_items).find(ga_id).default_geographic_item.id)
+        target_geographic_item_ids.push(::GeographicArea.joins(:geographic_items).find(ga_id).default_geographic_item.id)
       end
       ::CollectionObject.joins(:geographic_items)
           .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
