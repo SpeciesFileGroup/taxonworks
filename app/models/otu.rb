@@ -249,13 +249,14 @@ class Otu < ApplicationRecord
   end
 
   def sv_taxon_name
-    soft_validations.add(:taxon_name_id, 'Taxon is not selected') if self.taxon_name_id.nil?
+    soft_validations.add(:taxon_name_id, 'Nomenclature (taxon name) is not assigned') if self.taxon_name_id.nil?
   end
 
   def sv_duplicate_otu
     unless Otu.with_taxon_name_id(self.taxon_name_id).with_name(self.name).not_self(self).with_project_id(self.project_id).empty?
-      soft_validations.add(:taxon_name_id, 'Duplicate Taxon and Name combination')
-      soft_validations.add(:name, 'Duplicate Taxon and Name combination')
+      m = "Another OTU with an identical nomenclature (taxon name) and name exists in this project"
+      soft_validations.add(:taxon_name_id, m)
+      soft_validations.add(:name, m )
     end
   end
 
