@@ -40,6 +40,11 @@ TaxonWorks::Application.routes.draw do
     get '/', action: :index
     get 'order_tabs' # should be POST
     post 'update_tab_order'
+    get 'tasks', defaults: {format: :json}
+  end
+
+  scope :metadata, controller: 'metadata', only: [:index] do
+    get '(/:klass)', action: :index, defaults: {format: :json}
   end
 
   scope :annotations, controller: :annotations do
@@ -785,6 +790,10 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :sources do
+      scope :hub, controller: 'tasks/sources/hub' do
+        get :index, as: 'index_hub_task'
+      end
+
       scope :individual_bibtex_source, controller: 'tasks/sources/individual_bibtex_source' do
         get 'index', as: 'index_individual_bibtex_source_task'
       end

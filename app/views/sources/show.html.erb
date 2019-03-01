@@ -2,6 +2,10 @@
   <%= content_tag(:li, link_to('Citations by source', nomenclature_by_source_task_path(@source))) -%>
 <% end %> 
 
+<%= content_for :tasks do %>
+  <%= content_tag(:li, link_to('Source hub', index_hub_task_path(@source))) -%>
+<% end %> 
+
 <%= content_for :associated do %>
 
   <% if source_in_other_project?(@source) -%>
@@ -17,6 +21,7 @@
         <% end %>
       </ul>
     <% end %>
+
     <% if @source.editors.load.any? %>
       <h3>Editors</h3>
       <ul>
