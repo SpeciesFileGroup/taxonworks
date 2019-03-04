@@ -17,7 +17,7 @@ module BatchLoad
       # @csv = Hash.from_xml(gpx.to_s)
       # gpx = (Hash.from_xml(GPX::GPXFile.new(gpx_file: '/Users/tuckerjd/src/taxonworks/spec/files/batch/collecting_event/test.gpx').to_s))['gpx']end
       # @csv = CSV.parse(gpx_string, {col_sep: "\t", headers: true, encoding: 'UTF-8'})
-      @csv = Utilities::GPXToCSV.gpx_to_csv(gpx_file)
+      @csv = GPXToCSV.gpx_to_csv(gpx_file)
     end
 
     # TODO: update this

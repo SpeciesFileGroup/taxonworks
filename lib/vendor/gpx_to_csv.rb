@@ -1,4 +1,4 @@
-module Utilities::GPXToCSV
+module GPXToCSV
 
   # convert a GPX file to a bespoke tab-seperated CSV file
 
@@ -79,4 +79,4 @@ module Utilities::GPXToCSV
 end
 
 # gpx = GPX::GPXFile.new(:gpx_file => '/Users/tuckerjd/src/taxonworks/spec/files/batch/collecting_event/test.gpx')
-# Utilities::GPXToCSV.gpx_to_csv(gpx)
+# GPXToCSV.gpx_to_csv(gpx)
