@@ -50,7 +50,7 @@ class Attribution < ApplicationRecord
   protected
 
   def some_data_provided
-    errors.add(:base, 'no attribution metadata') if license.blank? && copyright_year.blank? && !editor_roles.any? && !creator_roles.any? && !owner_roles.any?
+    errors.add(:base, 'no attribution metadata') if license.blank? && copyright_year.blank? && !editor_roles.any? && !creator_roles.any? && !owner_roles.any? && !roles.any?
   end
 
 end

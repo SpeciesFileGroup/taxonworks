@@ -16,12 +16,16 @@ describe Georeference::GeoLocate, type: :model, group: [:geo] do
   iframe_example_values = {drawn_polygon:                            '|||33.219077,-97.166004,41.974734,' \
                                         '-107.185535,46.625796,-89.958972,46.625796,-89.958972,33.219077,-97.166004',
                            drawn_point:                              '36.816903|-112.986316||',
-                           drawn_point_with_uncertainty:             '41.449859|-98.220691|190700|',
-                           drawn_point_with_polygon_and_uncertainty: '41.449859|-98.220691|1100000|37.377719,' \
-                                        '-107.361316,46.018832,-99.802723,37.09783,-86.619129,37.377719,-107.361316',
+                           drawn_point_with_uncertainty:             '41.449859|-98.220691|1907|',
+                           drawn_point_with_polygon_and_uncertainty: '41.449859|-98.220691|9100|' \
+                                                                        '41.53125216994986,-98.32855566566684,' \
+                                                                        '41.53125216994986,-98.11282633433316,' \
+                                                                        '41.368465830050134,-98.11282633433316,' \
+                                                                        '41.53125216994986,-98.32855566566684',
                            georeferenced_point_no_polygon:           '52.65|-106.333333|3036|Unavailable'
   }
 
+  # "POLYGON ((-98.32855566566684 41.53125216994986 0.0, -98.11282633433316 41.53125216994986 0.0, -98.11282633433316 41.368465830050134 0.0, -98.32855566566684 41.368465830050134 0.0, -98.32855566566684 41.53125216994986 0.0))"
   context '.parse_iframe_result' do
     specify 'for point alone' do
       expect(Georeference::GeoLocate.parse_iframe_result(iframe_example_values[:drawn_point]))
@@ -30,15 +34,15 @@ describe Georeference::GeoLocate, type: :model, group: [:geo] do
 
     specify 'for point and uncertainty' do
       expect(Georeference::GeoLocate.parse_iframe_result(iframe_example_values[:drawn_point_with_uncertainty]))
-        .to eq(['41.449859', '-98.220691', '190700', nil])
+        .to eq(['41.449859', '-98.220691', '1907', nil])
     end
 
     specify 'for point, uncertainty, and polygon' do
       expect(Georeference::GeoLocate
                .parse_iframe_result(iframe_example_values[:drawn_point_with_polygon_and_uncertainty]))
-        .to eq(['41.449859', '-98.220691', '1100000',
-                [['-107.361316', '37.377719'], ['-86.619129', '37.09783'],
-                 ['-99.802723', '46.018832'], ['-107.361316', '37.377719']]])
+        .to eq(['41.449859', '-98.220691', '9100',
+                [["-98.32855566566684", "41.53125216994986"], ["-98.11282633433316", "41.368465830050134"],
+                 ["-98.11282633433316", "41.53125216994986"], ["-98.32855566566684", "41.53125216994986"]]])
     end
   end
 

@@ -1,0 +1,35 @@
+<%= render("/shared/data/all/list/list_header", objects: @organizations) -%>
+
+<table class="tablesorter">
+  <thead>
+  <tr>
+    <%= fancy_th_tag(name: 'Name') -%>
+    <%= fancy_th_tag(name: 'Alternate name') -%>
+    <%= fancy_th_tag(name: 'Description') -%>
+    <%= fancy_th_tag(name: 'Disambiguating description') -%>
+    <%= fancy_th_tag(name: 'Same as') -%>
+    <%= fancy_th_tag(name: 'Address') -%>
+    <%= fancy_th_tag(name: 'Email') -%>
+    <%= fancy_th_tag(name: 'Telephone') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @organizations.each do |organization| %>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= organization.name %></td>
+          <td><%= organization.alternate_name %></td>
+          <td><%= organization.description %></td>
+          <td><%= organization.disambiguating_description %></td>
+          <td><%= organization_tag(organization.same_as) %></td>
+          <td><%= organization.address %></td>
+          <td><%= organization.email -%></td>
+          <td><%= organization.telephone -%></td>
+          <%= fancy_metadata_cells_tag(organization) -%>
+      <% end %>
+  <% end %>
+  </tbody>
+</table>
+

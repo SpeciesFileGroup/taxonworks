@@ -42,11 +42,11 @@ module Queries
     end
 
     def autocomplete_matching_cached 
-      base_query.where(with_identifier_wildcard_end).order('LENGTH(cached)').limit(20)
+      base_query.where(with_identifier_wildcard_end).order(Arel.sql('LENGTH(cached)')).limit(20)
     end
 
     def autocomplete_matching_cached_anywhere 
-      base_query.where(with_identifier_wildcard_anywhere).order('LENGTH(cached)').limit(20)
+      base_query.where(with_identifier_wildcard_anywhere).order(Arel.sql('LENGTH(cached)')).limit(20)
     end
 
 

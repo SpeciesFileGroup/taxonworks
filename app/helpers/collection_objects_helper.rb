@@ -4,17 +4,24 @@ module CollectionObjectsHelper
   #   a descriptor including the identifier and determination
   def collection_object_tag(collection_object)
     return nil if collection_object.nil?
-    str = [
+    str = [ collection_object.type ,
       identifier_tag(collection_object.identifiers.first),
       taxon_determination_tag(collection_object.taxon_determinations.order(:position).first)
     ].compact.join(' ').html_safe
-    str = collection_object.type if str == ''
     str
   end
 
   def collection_object_link(collection_object)
     return nil if collection_object.nil?
     link_to(collection_object_tag(collection_object).html_safe, collection_object.metamorphosize)
+  end
+
+  def collection_object_autocomplete_tag(collection_object)
+    return nil if collection_object.nil?
+    [collection_object.type,
+     collection_object_identifier_tag(collection_object),
+     collection_object_taxon_determination_tag(collection_object)
+    ].join(' ').html_safe 
   end
 
   def collection_objects_search_form
@@ -24,6 +31,40 @@ module CollectionObjectsHelper
   def verify_accessions_task_link(collection_object)
     priority = [collection_object.container, collection_object.identifiers.first, collection_object ].compact.first
     link_to('Verify', verify_accessions_task_path(by: priority.metamorphosize.class.name.tableize.singularize.to_sym, id: priority.to_param))
+  end
+
+  def collection_object_identifier_tag(collection_object)
+    return nil if collection_object.nil?
+    i = identifier_tag(collection_object.identifiers.first)
+    return content_tag(:span, i, class: [:feedback, 'feedback-thin', 'feedback-primary']) if i
+    content_tag(:span, 'no identifier assigned', class: [:feedback, 'feedback-thin', 'feedback-warning'])
+  end
+
+  def collection_object_taxon_determination_tag(collection_object)
+    return nil if collection_object.nil?
+    i = taxon_determination_tag(collection_object.taxon_determinations.order(:position).first)
+    return content_tag(:span, i, class: [:feedback, 'feedback-thin', 'feedback-secondary']) if i
+    nil
+  end
+
+
+  # TODO: Isolate into own helper
+
+  def dwc_occurrence_table_header_tag
+    content_tag(:tr, CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{|k| content_tag(:th, k)}.join.html_safe, class: [:error]) 
+  end
+
+  def dwc_occurrence_table_body_tag(collection_objects)
+    collection_objects.collect do |c| 
+      dwc_occurrence_table_row_stub(c).html_safe
+    end.join.html_safe 
+  end
+
+  def dwc_table(collection_objects) 
+    content_tag(:table) do
+      dwc_occurrence_table_header_tag + 
+        dwc_occurrence_table_body_tag(collection_objects)
+    end
   end
 
   def dwc_occurrence_table_row_stub(collection_object)
@@ -43,30 +84,6 @@ module CollectionObjectsHelper
        fancy_show_tag(o), 
        fancy_edit_tag(o)
       ].join.html_safe
-    end
-  end
-
-  def collection_object_identifier_tag(collection_object)
-    [ 
-      identifier_tag(collection_object.identifiers.first), 
-      content_tag(:span, 'no identifier assigned', class: [:notice]) 
-    ].compact.first
-  end
-
-  def dwc_occurrence_table_header_tag
-    content_tag(:tr, CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{|k| content_tag(:th, k)}.join.html_safe, class: [:error]) 
-  end
-
-  def dwc_occurrence_table_body_tag(collection_objects)
-    collection_objects.collect do |c| 
-      dwc_occurrence_table_row_stub(c).html_safe
-    end.join.html_safe 
-  end
-
-  def dwc_table(collection_objects) 
-    content_tag(:table) do
-      dwc_occurrence_table_header_tag + 
-        dwc_occurrence_table_body_tag(collection_objects)
     end
   end
 

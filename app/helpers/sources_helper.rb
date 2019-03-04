@@ -9,7 +9,7 @@ module SourcesHelper
     if source && source.type == 'Source::Bibtex' && source.author_year.present?
       source.author_year
     else
-      content_tag(:span, 'Author, year not yet provided for source.', class: :subtle)
+      content_tag(:span, 'Author, year not yet provided for source.', class: [:feedback, 'feedback-thin', 'feedback-warning'])
     end
   end
 

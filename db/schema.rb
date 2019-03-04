@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_01_08_192437) do
+ActiveRecord::Schema.define(version: 2019_02_05_203815) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -366,8 +366,8 @@ ActiveRecord::Schema.define(version: 2019_01_08_192437) do
   end
 
   create_table "confidences", id: :serial, force: :cascade do |t|
-    t.integer "confidence_object_id", null: false
     t.string "confidence_object_type", null: false
+    t.integer "confidence_object_id", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -556,8 +556,8 @@ ActiveRecord::Schema.define(version: 2019_01_08_192437) do
   end
 
   create_table "documentation", id: :serial, force: :cascade do |t|
-    t.integer "documentation_object_id", null: false
     t.string "documentation_object_type", null: false
+    t.integer "documentation_object_id", null: false
     t.integer "document_id", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -575,7 +575,7 @@ ActiveRecord::Schema.define(version: 2019_01_08_192437) do
   create_table "documents", id: :serial, force: :cascade do |t|
     t.string "document_file_file_name", null: false
     t.string "document_file_content_type", null: false
-    t.integer "document_file_file_size", null: false
+    t.bigint "document_file_file_size", null: false
     t.datetime "document_file_updated_at", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -761,8 +761,8 @@ ActiveRecord::Schema.define(version: 2019_01_08_192437) do
     t.string "vernacularName"
     t.string "waterBody"
     t.string "year"
-    t.integer "dwc_occurrence_object_id"
     t.string "dwc_occurrence_object_type"
+    t.integer "dwc_occurrence_object_id"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id"
@@ -946,7 +946,7 @@ ActiveRecord::Schema.define(version: 2019_01_08_192437) do
     t.datetime "updated_at", null: false
     t.string "image_file_file_name"
     t.string "image_file_content_type"
-    t.integer "image_file_file_size"
+    t.bigint "image_file_file_size"
     t.datetime "image_file_updated_at"
     t.integer "updated_by_id", null: false
     t.text "image_file_meta"
@@ -1006,8 +1006,8 @@ ActiveRecord::Schema.define(version: 2019_01_08_192437) do
     t.integer "project_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "loan_item_object_id"
     t.string "loan_item_object_type"
+    t.integer "loan_item_object_id"
     t.integer "total"
     t.string "disposition"
     t.index ["created_by_id"], name: "index_loan_items_on_created_by_id"
@@ -1036,7 +1036,7 @@ ActiveRecord::Schema.define(version: 2019_01_08_192437) do
     t.datetime "updated_at", null: false
     t.string "recipient_honorific"
     t.string "recipient_country"
-    t.text "lender_address", default: "Lender's address not provided.", null: false
+    t.text "lender_address", null: false
     t.index ["created_by_id"], name: "index_loans_on_created_by_id"
     t.index ["project_id"], name: "index_loans_on_project_id"
     t.index ["updated_by_id"], name: "index_loans_on_updated_by_id"
@@ -1196,11 +1196,35 @@ ActiveRecord::Schema.define(version: 2019_01_08_192437) do
     t.index ["project_id"], name: "index_observations_on_project_id"
   end
 
+  create_table "organizations", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "alternate_name"
+    t.text "description"
+    t.text "disambiguating_description"
+    t.string "address"
+    t.string "email"
+    t.string "telephone"
+    t.string "duns"
+    t.string "global_location_number"
+    t.string "legal_name"
+    t.integer "same_as_id"
+    t.integer "area_served_id"
+    t.integer "department_id"
+    t.integer "parent_organization_id"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_organizations_on_created_by_id"
+    t.index ["name"], name: "index_organizations_on_name"
+    t.index ["updated_by_id"], name: "index_organizations_on_updated_by_id"
+  end
+
   create_table "origin_relationships", id: :serial, force: :cascade do |t|
-    t.integer "old_object_id", null: false
     t.string "old_object_type", null: false
-    t.integer "new_object_id", null: false
+    t.integer "old_object_id", null: false
     t.string "new_object_type", null: false
+    t.integer "new_object_id", null: false
     t.integer "position"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1281,8 +1305,8 @@ ActiveRecord::Schema.define(version: 2019_01_08_192437) do
   end
 
   create_table "pinboard_items", id: :serial, force: :cascade do |t|
-    t.integer "pinned_object_id", null: false
     t.string "pinned_object_type", null: false
+    t.integer "pinned_object_id", null: false
     t.integer "user_id", null: false
     t.integer "project_id", null: false
     t.integer "position", null: false
@@ -1353,8 +1377,8 @@ ActiveRecord::Schema.define(version: 2019_01_08_192437) do
 
   create_table "protocol_relationships", id: :serial, force: :cascade do |t|
     t.integer "protocol_id", null: false
-    t.integer "protocol_relationship_object_id", null: false
     t.string "protocol_relationship_object_type", null: false
+    t.integer "protocol_relationship_object_id", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1425,7 +1449,7 @@ ActiveRecord::Schema.define(version: 2019_01_08_192437) do
   end
 
   create_table "roles", id: :serial, force: :cascade do |t|
-    t.integer "person_id", null: false
+    t.integer "person_id"
     t.string "type", null: false
     t.integer "role_object_id", null: false
     t.string "role_object_type", null: false
@@ -1435,7 +1459,9 @@ ActiveRecord::Schema.define(version: 2019_01_08_192437) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id"
+    t.bigint "organization_id"
     t.index ["created_by_id"], name: "index_roles_on_created_by_id"
+    t.index ["organization_id"], name: "index_roles_on_organization_id"
     t.index ["person_id"], name: "index_roles_on_person_id"
     t.index ["position"], name: "index_roles_on_position"
     t.index ["project_id"], name: "index_roles_on_project_id"
@@ -2007,6 +2033,12 @@ ActiveRecord::Schema.define(version: 2019_01_08_192437) do
   add_foreign_key "observations", "projects"
   add_foreign_key "observations", "users", column: "created_by_id"
   add_foreign_key "observations", "users", column: "updated_by_id"
+  add_foreign_key "organizations", "geographic_areas", column: "area_served_id"
+  add_foreign_key "organizations", "organizations", column: "department_id"
+  add_foreign_key "organizations", "organizations", column: "parent_organization_id"
+  add_foreign_key "organizations", "organizations", column: "same_as_id"
+  add_foreign_key "organizations", "users", column: "created_by_id"
+  add_foreign_key "organizations", "users", column: "updated_by_id"
   add_foreign_key "origin_relationships", "projects"
   add_foreign_key "origin_relationships", "users", column: "created_by_id"
   add_foreign_key "origin_relationships", "users", column: "updated_by_id"
@@ -2058,6 +2090,7 @@ ActiveRecord::Schema.define(version: 2019_01_08_192437) do
   add_foreign_key "ranged_lot_categories", "users", column: "updated_by_id", name: "ranged_lot_categories_updated_by_id_fkey"
   add_foreign_key "repositories", "users", column: "created_by_id", name: "repositories_created_by_id_fkey"
   add_foreign_key "repositories", "users", column: "updated_by_id", name: "repositories_updated_by_id_fkey"
+  add_foreign_key "roles", "organizations"
   add_foreign_key "roles", "people", name: "roles_person_id_fkey"
   add_foreign_key "roles", "projects", name: "roles_project_id_fkey"
   add_foreign_key "roles", "users", column: "created_by_id", name: "roles_created_by_id_fkey"

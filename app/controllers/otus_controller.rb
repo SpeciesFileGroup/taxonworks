@@ -12,7 +12,7 @@ class OtusController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @otus = Queries::Otu::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(500)
+        @otus = Queries::Otu::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
       }
     end
   end
@@ -215,7 +215,7 @@ class OtusController < ApplicationController
   end
 
   def select_options
-    @otus = Otu.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
+    @otus = Otu.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target])
   end
 
   private

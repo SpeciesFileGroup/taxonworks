@@ -25,6 +25,7 @@ module Queries
         ::Tag.arel_table
       end
 
+      # TODO: make generic
       def matching_keyword_ids
         return nil if keyword_ids.empty?
         o = table

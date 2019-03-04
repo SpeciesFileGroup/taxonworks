@@ -3,8 +3,6 @@
 #
 module Workbench::DisplayHelper
   
-  
-  
   # General wrapper around individual <model_name>_tag methods
   #   object_tag(@otu) 
   def object_tag(object)
@@ -60,8 +58,6 @@ module Workbench::DisplayHelper
       "label_for_#{klass_name.underscore}"
     end
   end
-
-
 
   def model_name_title
     controller_name.humanize

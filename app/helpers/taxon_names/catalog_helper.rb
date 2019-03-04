@@ -135,8 +135,8 @@ module TaxonNames::CatalogHelper
     content_tag(:span, class: [:history__statuses]) do
       (' (' +
        s.collect{|tnc|
-        content_tag(:span, (tnc.classification_label + soft_validation_alert_tag(tnc).to_s).html_safe, class: ['history__status'])
-      }.join(', ')
+        content_tag(:span, (tnc.classification_label + soft_validation_alert_tag(tnc).to_s + (tnc.citations.load.any? ? (content_tag(:em, ' in ') + citations_tag(tnc)).html_safe : '') ).html_safe, class: ['history__status'])
+      }.join('; ')
       ).html_safe +
       ')'
     end.to_s
@@ -152,10 +152,10 @@ module TaxonNames::CatalogHelper
     c = t.origin_citation
 
     a = history_author_year_tag(t)
-    b = citation_author_year_tag(c)
+    b = source_author_year_tag(c.source)
 
     body =  [
-      (a != b ?  ': ' + citation_author_year_tag(c) : nil) #,
+      (a != b ?  ': ' + source_author_year_tag(c.source) : nil) #,
       #history_pages(c)
     ].compact.join.html_safe
 
@@ -167,7 +167,7 @@ module TaxonNames::CatalogHelper
   def history_in(t, c)
     if c
       a = history_author_year_tag(t) 
-      b = citation_author_year_tag(c)
+      b = source_author_year_tag(c.source)
 
       if a != b
         return content_tag(:span,  content_tag(:em, ' in ') + b, class: [:history__in])

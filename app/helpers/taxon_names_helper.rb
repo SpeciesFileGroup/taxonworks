@@ -16,27 +16,21 @@ module TaxonNamesHelper
   def taxon_name_autocomplete_tag(taxon_name, term)
     return nil if taxon_name.nil?
     klass = taxon_name.rank_class ? taxon_name.rank_class.nomenclatural_code : nil
+    a = [
+      content_tag(:span, mark_tag(taxon_name.cached_html_name_and_author_year, term),  class: :klass), 
+      taxon_name_rank_tag(taxon_name),
+      taxon_name_parent_tag(taxon_name)
+    ].compact.join('&nbsp;').html_safe
+  end
 
-    a = ''
-    if taxon_name.parent_id
-      a = content_tag(:span, class: :subtle) do
-        (' (' +
-         (taxon_name.rank || 'Combination') +
-         ', parent ' +
-         taxon_name_tag(taxon_name.parent).html_safe +
-         ')').html_safe
-      end
-    end
+  def taxon_name_rank_tag(taxon_name, css_class = [:feedback, 'feedback-primary', 'feedback-thin'] )
+    return nil if taxon_name.nil?
+    content_tag(:span, taxon_name.rank || 'Combination', class: css_class)
+  end
 
-    t = Regexp.escape(term)
-
-    content_tag(:span, class: :klass) do
-      taxon_name.
-        cached_html_name_and_author_year.
-        gsub(/(#{t})/i, content_tag(:mark, '\1')).
-        html_safe +
-        a.html_safe
-    end
+  def taxon_name_parent_tag(taxon_name, css_class = [:feedback, 'feedback-secondary', 'feedback-thin'] )
+    return nil if taxon_name.nil? || taxon_name.parent_id.nil?
+    content_tag(:span, taxon_name_tag(taxon_name.parent).html_safe, class: css_class)
   end
 
   # @return [String]

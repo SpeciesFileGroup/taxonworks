@@ -40,6 +40,10 @@ module Queries::Concerns::Identifiers
   # Autocomplete
   #
   def autocomplete_identifier_cached_exact
+    base_query.joins(:identifiers).where(with_cached.to_sql)
+  end
+
+  def autocomplete_identifier_exact
     base_query.joins(:identifiers).where(with_identifier.to_sql)
   end
 

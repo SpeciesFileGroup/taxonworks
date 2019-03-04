@@ -39,7 +39,8 @@
       },
       name: {
         type: String,
-        required: true
+        required: false,
+        default: () => { return Math.random().toString(36).substr(2, 5) }
       },
       filter: {
         type: Function,
