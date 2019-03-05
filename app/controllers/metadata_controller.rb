@@ -9,10 +9,7 @@ class MetadataController < ApplicationController
   # :klass is a base class name, like "Otu"
   def object_radial 
     get_klass
-
     @data = OBJECT_RADIALS[@klass]
-    render json: {status: 400} and return if @data.nil?
-
     render '/workbench/navigation/object_radial'
   end
 
