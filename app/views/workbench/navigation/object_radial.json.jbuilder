@@ -1,12 +1,18 @@
 resource = @klass.tableize
 member = resource.singularize
 
+json.type @klass
+
+if @object
+  json.object_label object_tag(@object) 
+end
+
 json.tasks do
   @data['tasks'].each do |t|
     json.set! t do
       json.name UserTasks::INDEXED_TASKS[t].name
-      if @id
-        json.path send("#{t}_path", "#{member}_id" => @id)
+      if @object&.id
+        json.path send("#{t}_path", "#{member}_id" => @object.id)
       else
         json.path send("#{t}_path")
       end
@@ -15,8 +21,8 @@ json.tasks do
 end
 
 json.rest do
-  if @id
-    json.member_path member + "/#{@id}"
+  if @object&.id
+    json.member_path member + "/#{@object.id}"
   else
     json.member_path member 
   end

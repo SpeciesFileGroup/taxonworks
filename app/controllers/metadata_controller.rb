@@ -23,14 +23,11 @@ class MetadataController < ApplicationController
 
     if params[:type]
       @klass = params[:type] 
-      @id = nil
+      @object = nil
     else
-      o = GlobalID::Locator.locate(params.require(:global_id))
-      @klass = o.class.base_class.name
-      @id = o.id
+      @object = GlobalID::Locator.locate(params.require(:global_id))
+      @klass = @object.class.base_class.name
     end
-
-
   end
 
 
