@@ -10,7 +10,7 @@
         <div
           slot="body"
           class="flex-separate">
-          <spinner v-if="!menuCreated"/>
+          <spinner v-if="loading"/>
           <div class="radial-annotator-menu">
             <div>
               <radial-menu
@@ -32,6 +32,7 @@
               :type="currentView"
               :metadata="metadata"
               :global-id="globalId"
+              @onSelectedGlobalId="loadMetadata"
               @updateCount="setTotal"/>
           </div>
         </div>
@@ -116,9 +117,9 @@
     },
     data: function () {
       return {
+        loading: false,
         currentView: undefined,
         display: false,
-        url: undefined,
         globalIdSaved: undefined,
         metadata: undefined,
         title: 'Radial object',
@@ -160,25 +161,28 @@
       selectedRadialOption(selected) {
 
         if(Object.keys(defaultOptions).includes(selected) || selected == 'alltasks') {
+          this.currentView = undefined
           switch(selected) {
             case defaultOptions.Recent: 
               this.currentView = 'Recent'
               break
             case defaultOptions.Edit:
-              window.open(`${this.metadata.resource_path}/edit`)
+              window.open(`${this.metadata.resource_path}/edit`, '_self')
               break
             case defaultOptions.New:
-              window.open(`${this.metadata.resource_path}/new`)
+              window.open(`${this.metadata.resource_path}/new`, '_self')
               break
             case defaultOptions.Show:
-              window.open(this.metadata.resource_path)
+              window.open(this.metadata.resource_path, '_self')
               break
             case defaultOptions.Destroy:
               if(window.confirm('Are you sure you want to destroy this record?')) {
                 this.destroy(`${this.metadata.resource_path}.json`).then(() => {
                   TW.workbench.alert.create(`${this.metadata.type} was successfully destroyed.`, 'notice')
-                  this.eventDestroy()
-                  this.deleted = true
+                  if(this.globalId == this.metadata.globalId) {
+                    this.eventDestroy()
+                    this.deleted = true
+                  }
                 })
               }
               break
@@ -188,33 +192,33 @@
           }
         }
         else {
-          window.open(this.metadata.tasks[selected].path)
+          window.open(this.metadata.tasks[selected].path, '_self')
         }
       },
-      closeModal: function () {
+      closeModal () {
         this.display = false
         this.eventClose()
         this.$emit('close')
       },
-      displayRadialObject: function () {
+      displayRadialObject () {
         this.display = true
         this.currentView = undefined
-        this.loadMetadata()
+        this.loadMetadata(this.globalId)
       },
-      loadMetadata: function () {
-        if (this.globalId == this.globalIdSaved && this.menuCreated && !this.reload) return
-        this.globalIdSaved = this.globalId
+      loadMetadata (globalId) {
+        if (globalId == this.globalIdSaved && this.menuCreated && !this.reload) return
+        this.globalIdSaved = globalId
+        this.loading = true
 
-        let that = this
-        this.getList(`/metadata/object_radial?global_id=${encodeURIComponent(this.globalId)}`).then(response => {
-          that.metadata = response.body
-          that.title = `${response.body.type}: ${response.body.object_label}`
-          that.menuOptions = that.createMenuOptions(response.body.tasks)
-          that.url = response.body.url
+        this.getList(`/metadata/object_radial?global_id=${encodeURIComponent(globalId)}`).then(response => {
+          this.metadata = response.body
+          this.title = `${this.metadata.type}: ${this.metadata.object_label}`
+          this.menuOptions = (this.metadata.hasOwnProperty('tasks') ? this.createMenuOptions(this.metadata.tasks) : [])
           this.addDefaultOptions()
+          this.loading = false
         })
       },
-      createMenuOptions: function (tasks) {
+      createMenuOptions (tasks) {
         let menu = []
         let keys = Object.keys(tasks)
 
@@ -231,7 +235,7 @@
           })
         }
         if(keys.length > this.maxTaskInPie) { 
-          menu.unshift({
+          menu.push({
             label: 'All tasks',
             event: 'alltasks',
             icon: Icons['alltasks'] ? {
@@ -244,8 +248,6 @@
         return menu
       },
       addDefaultOptions() {
-        let regex = new RegExp(this.filterOptions.join( "|" ), "i");
-
         this.defaultSlices.forEach(slice => {
 
           let founded = this.filterOptions.find(option => {
@@ -253,7 +255,7 @@
           })
 
           if(!founded) {
-            this.menuOptions.push(slice)
+            this.menuOptions.unshift(slice)
           }
         })
       },

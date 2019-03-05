@@ -117,7 +117,7 @@
     }
   }
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
   .vue-table-container {
     overflow-y: scroll;
     padding: 0px;
