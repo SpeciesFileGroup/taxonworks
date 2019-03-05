@@ -8,11 +8,29 @@ class MetadataController < ApplicationController
 
   # :klass is a base class name, like "Otu"
   def object_radial 
+    get_klass
 
-    @data = OBJECT_RADIALS[params[:klass]]
-    render json: {} and return if @data.nil?
+    @data = OBJECT_RADIALS[@klass]
+    render json: {status: 400} and return if @data.nil?
 
     render '/workbench/navigation/object_radial'
+  end
+
+  protected
+
+  def get_klass
+    render json: {status: 400} if (params[:type] && params[:global_id]) || (params[:type].blank? && params[:global_id].blank?)
+
+    if params[:type]
+      @klass = params[:type] 
+      @id = nil
+    else
+      o = GlobalID::Locator.locate(params.require(:global_id))
+      @klass = o.class.base_class.name
+      @id = o.id
+    end
+
+
   end
 
 

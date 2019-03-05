@@ -1,12 +1,12 @@
-resource = params[:klass].tableize
-id = params[:id]
+resource = @klass.tableize
+member = resource.singularize
 
 json.tasks do
   @data['tasks'].each do |t|
     json.set! t do
       json.name UserTasks::INDEXED_TASKS[t].name
-      if id
-        json.path send("#{t}_path", "#{resource.singularize}_id" => id)
+      if @id
+        json.path send("#{t}_path", "#{member}_id" => @id)
       else
         json.path send("#{t}_path")
       end
@@ -15,14 +15,13 @@ json.tasks do
 end
 
 json.rest do
-  if id
-    json.member_path resource.singularize + "/#{id}"
+  if @id
+    json.member_path member + "/#{@id}"
   else
-    json.member_path resource.singularize
+    json.member_path member 
   end
   
   json.collection_path resource
-
 end
 
 if @data['config']['recent']

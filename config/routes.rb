@@ -44,8 +44,8 @@ TaxonWorks::Application.routes.draw do
   end
 
   scope :metadata, controller: 'metadata', only: [:index] do
+    get 'object_radial/', action: :object_radial, defaults: {format: :json}
     get '(/:klass)', action: :index, defaults: {format: :json}
-    get 'object_radial(/:klass)', action: :object_radial, defaults: {format: :json}
   end
 
   scope :annotations, controller: :annotations do
