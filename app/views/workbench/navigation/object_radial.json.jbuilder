@@ -18,7 +18,7 @@ json.tasks do
       json.set! t do
         json.name UserTasks::INDEXED_TASKS[t].name
         if @object
-          json.path send("#{t}_path", "#{member}_id" => @object.id)
+          json.path send("#{t}_path", "#{resource.singularize}_id" => @object.id)
         else
           json.path send("#{t}_path")
         end
