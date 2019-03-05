@@ -9,6 +9,28 @@
   flex-direction: column;
   flex-grow: 1;
 
+  @keyframes show {
+    0% {
+      opacity: 0;
+      transform: scale(0);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes hide {
+    0% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(0);
+    }
+  }
+
   .data_section {
     display: flex;
     justify-content:flex-start;
@@ -69,11 +91,22 @@
     padding: $standard_padding * 0.5;
   }
 
+  .hide {
+    animation-name: hide !important;
+    animation-duration: 0.2s;
+    animation-timing-function: linear;
+    position: absolute !important;
+  }
+
   .card-container {
     display: flex;
     flex-direction:row;
     align-items:center;
     position: relative;
+    animation-name: show;
+    animation-duration: 0.2s;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
     margin: $standard_margin * 0.5;
     [data-method="post"] {
       position: absolute;
@@ -85,7 +118,6 @@
     transition: background-color 0.5s ease,
     box-shadow 0.5s ease;
     box-shadow: 0px 3px 5px 0px rgba(0,0,0,.2);
-    //border-left: 3px solid $default_text;
     transition: background-color 0.5s ease,
                 border 0.5s ease,
                 box-shadow 0.5s ease,

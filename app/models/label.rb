@@ -41,7 +41,7 @@ class Label < ApplicationRecord
 
   ignore_whitespace_on(:text)
 
-  validates_presence_of :text
+  validates_presence_of :text, :total
 
   scope :unprinted, -> { where(is_printed: false) }
 

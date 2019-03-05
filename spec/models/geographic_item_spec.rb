@@ -183,12 +183,14 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
 
     context 'geo_object interactions (Geographical attribute of GeographicItem)' do
 
-      specify 'Certain line_string shapes cannot be polygons, others can.' do
-        expect(RSPEC_GEO_FACTORY.polygon(k.geo_object)).to be_nil
-      end
+      context 'Any line_string can be made into polygons.' do
+        specify 'non-closed line string' do
+          expect(RSPEC_GEO_FACTORY.polygon(list_k).to_s).to eq('POLYGON ((-33.0 -11.0 0.0, -33.0 -23.0 0.0, -21.0 -23.0 0.0, -21.0 -11.0 0.0, -27.0 -13.0 0.0, -33.0 -11.0 0.0))')
+        end
 
-      specify 'Certain line_string shapes cannot be polygons, others can.' do
-        expect(RSPEC_GEO_FACTORY.polygon(d.geo_object).to_s).not_to be_nil
+        specify 'closed line string' do
+          expect(RSPEC_GEO_FACTORY.polygon(d.geo_object).to_s).to eq('POLYGON ((-33.0 11.0 0.0, -24.0 4.0 0.0, -26.0 13.0 0.0, -31.0 4.0 0.0, -33.0 11.0 0.0))')
+        end
       end
 
       specify 'That one object contains another, or not.' do

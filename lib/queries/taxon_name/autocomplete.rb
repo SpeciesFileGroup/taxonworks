@@ -256,8 +256,8 @@ module Queries
           autocomplete_top_name,
           autocomplete_top_cached,
           autocomplete_top_cached_subgenus, # not tested
-          autocomplete_genus_species1(z), # not tested
-          autocomplete_genus_species2(z), # not tested
+          autocomplete_genus_species1(z),   # not tested
+          autocomplete_genus_species2(z),   # not tested
           autocomplete_cached_end_wildcard,
           autocomplete_cached_name_end_wildcard,
           autocomplete_cached_wildcard_whitespace,

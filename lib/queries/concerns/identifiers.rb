@@ -15,8 +15,14 @@ module Queries::Concerns::Identifiers
     identifier_table[:cached].matches_any(a)
   end
 
+
   # @return [Arel::Nodes::Equality]
   def with_identifier
+    identifier_table[:identifier].eq(query_string)
+  end
+
+  # @return [Arel::Nodes::Equality]
+  def with_cached
     identifier_table[:cached].eq(query_string)
   end
 
@@ -34,6 +40,10 @@ module Queries::Concerns::Identifiers
   # Autocomplete
   #
   def autocomplete_identifier_cached_exact
+    base_query.joins(:identifiers).where(with_cached.to_sql)
+  end
+
+  def autocomplete_identifier_exact
     base_query.joins(:identifiers).where(with_identifier.to_sql)
   end
 

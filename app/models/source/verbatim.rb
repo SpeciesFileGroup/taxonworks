@@ -17,7 +17,7 @@ class Source::Verbatim < Source
                       :verbatim_contents, :verbatim_keywords, :language_id, :translator,
                       :year_suffix, :url, :author, :cached, :cached_author_string,
                       :cached_nomenclature_date].freeze
-  IGNORE_SIMILAR   = IGNORE_IDENTICAL.dup.freeze
+  IGNORE_SIMILAR = IGNORE_IDENTICAL.dup.freeze
 
   validates_presence_of :verbatim
   validate :only_verbatim_is_populated
@@ -35,7 +35,7 @@ class Source::Verbatim < Source
   # @return [Source, Boolean]
   def generate_bibtex
     return false if self.verbatim.blank?
-    result = Source.new_from_citation(citation: verbatim)
+    result = TaxonWorks::Vendor::Ref2bibtex.new_from_citation(citation: verbatim)
     if result.type == 'Source::Bibtex'
       result
     else

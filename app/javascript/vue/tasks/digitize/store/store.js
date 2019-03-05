@@ -29,6 +29,7 @@ function makeInitialState () {
           year_made: false,
           month_made: false,
           day_made: false,
+          dates: false,
           roles_attributes: false,          
         }
       }

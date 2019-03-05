@@ -10,6 +10,7 @@ export default function ({ commit, state }) {
     }
     else {
       if(collection_event.id) {
+        
         UpdateCollectionEvent(collection_event).then(response => {
           TW.workbench.alert.create('Collection object was successfully updated.', 'notice')
           commit(MutationNames.SetCollectionEvent, response)

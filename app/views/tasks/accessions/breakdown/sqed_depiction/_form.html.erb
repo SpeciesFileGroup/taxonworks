@@ -13,23 +13,23 @@
             <%= render(
               partial: '/workbench/elements/forms/ajax_select',
               locals:  {
-                controller:        '/namespaces',
-                object:            "collection_object[identifiers_attributes][#{i.index}]",
-                method:            'namespace_id',
-                tag_id:            "namespace_id_for_identifier_#{i.index}",
-                display:           (i.object.namespace ? i.object.namespace.short_name : nil),
-                size:              20,
+                controller: '/namespaces',
+                object: "collection_object[identifiers_attributes][#{i.index}]",
+                method: 'namespace_id',
+                tag_id: "namespace_id_for_identifier_#{i.index}",
+                display: (i.object.namespace ? i.object.namespace.short_name : nil),
+                size: 20,
                 fields_for_object: i})
               %>
 
             <% if @result.depiction.depiction_object.identifiers.size == 1 %>
-              <%= check_box_tag(:lock_namespace, "1", @result.namespace_locked?) -%>lock
+              <%= check_box_tag(:lock_namespace, '1', @result.namespace_locked?) -%>lock
             <% end %>
           </div>
 
           <div class="field">
             <%= i.label :identifier %><br>
-            <%= i.text_field :identifier, class: "mousetrap" %>
+            <%= i.text_field :identifier, class: 'mousetrap' %>
             <%= destroy_related_link(i) -%>
           </div>
         </div>

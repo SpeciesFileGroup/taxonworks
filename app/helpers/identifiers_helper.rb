@@ -2,12 +2,8 @@ module IdentifiersHelper
 
   # @return [String, nil]
   def identifier_tag(identifier)
-    return nil if identifier.nil?
-    if identifier.new_record?
-      nil  
-    else
-      "#{identifier.cached} (#{identifier.type.demodulize.titleize.humanize})"
-    end
+    return nil if identifier.nil? || identifier.new_record?
+    "#{identifier.cached} (#{identifier.type.demodulize.titleize.humanize})".html_safe
   end
 
   # @return [String, nil]
@@ -26,8 +22,9 @@ module IdentifiersHelper
   # @return [String, nil]
   def identifier_autocomplete_tag(identifier)
     return nil if identifier.nil?
-    identifier_tag(identifier) + ' - ' + object_tag(identifier.annotated_object.metamorphosize) + ' [' + content_tag(:span, identifier.annotated_object.class.name, style: :subtle).html_safe + ']'
-  end
+    content_tag(:span, identifier_tag(identifier), class: :annotation__identifier) + 
+      content_tag(:span, ("&nbsp; on " + identifier.annotated_object.class.name).html_safe, class: [:subtle] ) + '<br>'.html_safe + object_tag(identifier.annotated_object.metamorphosize) 
+   end
 
   # @return [String, nil]
   def identifier_type_tag(identifier)
