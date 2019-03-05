@@ -62,9 +62,9 @@
 
 
   const defaultOptions = {
-    Destroy: 'Destroy',
-    Edit: 'Edit',
     New: 'New',
+    Edit: 'Edit',
+    Destroy: 'Destroy',
     Recent: 'Recent',
     Show: 'Show'
   }
