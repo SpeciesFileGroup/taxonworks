@@ -1,20 +1,15 @@
 resource = @klass.tableize
-member = resource.singularize
 
 json.type @klass
 
 if @object
+  json.id @object.id
   json.object_label object_tag(@object) 
-end
 
-json.rest do
-  if @object
-    json.member_path member + "/#{@object.id}"
-  else
-    json.member_path member 
-  end
-  
-  json.collection_path resource
+  json.resource_path "/#{resource}/#{@object.id}" 
+  json.global_id @object.to_global_id.to_s
+else
+  json.resource_path resource
 end
 
 json.tasks do
@@ -39,5 +34,3 @@ if @data
 
   json.config @data['config']  
 end
-
-
