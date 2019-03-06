@@ -4,8 +4,11 @@
       <modal
         v-if="display"
         @close="closeModal()">
-        <h3 slot="header">
+        <h3
+          slot="header"
+          class="flex-separate">
           <span v-html="title"/>
+          <span v-if="metadata" class="separate-right"> {{ metadata.type }}</span>
         </h3>
         <div
           slot="body"
@@ -212,7 +215,7 @@
 
         this.getList(`/metadata/object_radial?global_id=${encodeURIComponent(globalId)}`).then(response => {
           this.metadata = response.body
-          this.title = `${this.metadata.type}: ${this.metadata.object_label}`
+          this.title = this.metadata.object_label
           this.menuOptions = (this.metadata.hasOwnProperty('tasks') ? this.createMenuOptions(this.metadata.tasks) : [])
           this.addDefaultOptions()
           this.loading = false
