@@ -258,7 +258,7 @@
           })
 
           if(!founded) {
-            this.menuOptions.unshift(slice)
+            this.menuOptions.push(slice)
           }
         })
       },
