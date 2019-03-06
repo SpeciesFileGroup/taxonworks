@@ -18,6 +18,7 @@
       </div>
       <collection-event-layout class="separate-left item ce-section"/>
     </div>
+    <task-header/>
   </div>
 </template>
 
