@@ -3,10 +3,10 @@
     <div class="middle flex-separate">
       <div class="horizontal-left-content">
         <autocomplete
-          url="/identifiers.json"
+          url="/identifiers/autocomplete"
           placeholder="Search"
-          label="object_tag"
-          param="query_string"
+          label="label"
+          param="term"
           @getItem="loadAssessionCode"
           :add-params="{
             'identifier_object_types[]': ['CollectionObject', 'CollectingEvent'],
