@@ -128,11 +128,7 @@
         title: 'Radial object',
         deleted: false,
         menuOptions: [],
-        defaultSlices: [{
-          label: defaultOptions.Recent,
-          event: defaultOptions.Recent,
-          size: 30
-        },
+        defaultSlices: [
         {
           label: defaultOptions.New,
           event: defaultOptions.New,
@@ -217,6 +213,13 @@
           this.metadata = response.body
           this.title = this.metadata.object_label
           this.menuOptions = (this.metadata.hasOwnProperty('tasks') ? this.createMenuOptions(this.metadata.tasks) : [])
+          if(this.metadata.hasOwnProperty('recent_url')) {
+            this.menuOptions.push({
+              label: defaultOptions.Recent,
+              event: defaultOptions.Recent,
+              size: 30
+            })
+          }
           this.addDefaultOptions()
           this.loading = false
         })

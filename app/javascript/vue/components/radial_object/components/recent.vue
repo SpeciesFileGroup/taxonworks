@@ -8,7 +8,9 @@
       </thead>
       <tbody>
         <tr
-          v-for="item in list"
+          v-for="(item, index) in list"
+          class="contextMenuCells btn btn-neutral odd"
+          :class="{ even: (index % 2 == 0)}"
           :key="item.id">
           <td class="cursor-pointer">
             <a
