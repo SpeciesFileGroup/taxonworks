@@ -269,11 +269,11 @@
           menu.push({
             label: 'All tasks',
             event: 'alltasks',
-            icon: Icons['alltasks'] ? {
-              url: Icons['alltasks'],
+            icon: {
+              url: Icons.AllTasks,
               width: '20',
               height: '20'
-            } : undefined
+            }
           })
         }
         return menu
