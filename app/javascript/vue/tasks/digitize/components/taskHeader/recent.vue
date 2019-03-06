@@ -18,7 +18,7 @@
               <input
                 type="radio"
                 name="recent-co">
-              {{ item.object_tag }}
+              <span v-html="item.object_tag"/>
             </label>
           </li>
         </ul>
