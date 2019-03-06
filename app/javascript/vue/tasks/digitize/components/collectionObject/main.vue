@@ -25,7 +25,7 @@
             <preparation-type/>
           </div>
         </div>
-        <div class="horizontal-left-content">
+        <div class="horizontal-right-content">
           <buffered-component
             v-if="showBuffered"
             class="separate-top separate-right"/>
@@ -40,7 +40,7 @@
             </span>
           </div>
         </div>
-        <div class="horizontal-left-content separate-top separate-bottom">
+        <div class="horizontal-right-content separate-top separate-bottom">
           <depictions-component
             v-if="showDepictions"
             class="separate-top separate-right"
