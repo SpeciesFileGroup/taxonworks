@@ -5,11 +5,11 @@
         <autocomplete
           url="/identifiers/autocomplete"
           placeholder="Search"
-          label="label"
+          label="label_html"
           param="term"
           @getItem="loadAssessionCode"
           :add-params="{
-            'identifier_object_types[]': ['CollectionObject', 'CollectingEvent'],
+            'identifier_object_types[]': ['CollectionObject'],
           }"
           min="1"/>
         <span
