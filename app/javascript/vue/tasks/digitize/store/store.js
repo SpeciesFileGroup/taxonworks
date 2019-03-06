@@ -128,6 +128,9 @@ function makeInitialState () {
       label_object_id: undefined, 
       label_object_type: "CollectingEvent"
     },
+    tmpData: {
+      otu: undefined
+    },
     subsequentialUses: 0,
     identifiers: [],
     materialTypes: [],

@@ -3,6 +3,7 @@
     id="vue-all-in-one"
     v-shortkey="[getMacKey(), 'l']"
     @shortkey="setLockAll">
+    <h1>Comprehensive specimen digitization</h1>
     <spinner-component
       v-if="saving || loading"
       :full-screen="true"
@@ -17,6 +18,7 @@
       </div>
       <collection-event-layout class="separate-left item ce-section"/>
     </div>
+    <task-header/>
   </div>
 </template>
 

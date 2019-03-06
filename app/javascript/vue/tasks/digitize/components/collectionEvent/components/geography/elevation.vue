@@ -3,13 +3,13 @@
     <label><b>Elevation</b></label>
     <div class="horizontal-left-content">
       <div class="separate-right">
-        <label>Minimun</label>
+        <label>Minimum</label>
         <input
           type="text"
           v-model="minimum_elevation">
       </div>
       <div class="separate-right separate-left">
-        <label>Maximun</label>
+        <label>Maximum</label>
         <input
           type="text"
           v-model="maximum_elevation">
@@ -33,7 +33,7 @@
           <input
             type="radio"
             name="elevation">
-          Feets
+          Feet
         </label>
       </div>
     </div>

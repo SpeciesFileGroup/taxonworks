@@ -19,14 +19,14 @@
         </div>
         <template>
           <div 
-            v-if="view == 'new/Search' && !otu"
+            v-if="view == 'new/Search' && !otuId"
             class="horizontal-left-content">
             <otu-picker
-              @getItem="otu = $event.id; otuSelected = $event.label_html"/> 
+              @getItem="otuId = $event.id; otuSelected = $event.label_html"/> 
             <pin-default
               class="separate-left"
               section="Otus"
-              @getId="otu = $event"
+              @getId="otuId = $event"
               type="Otu"/>
           </div>
           <ul
@@ -39,7 +39,7 @@
               <label
                 @click="otuSelected = item.label_html">
                 <input
-                  v-model="otu"
+                  v-model="otuId"
                   :value="item.id"
                   type="radio">
                 <span v-html="item.object_tag"/>
@@ -53,7 +53,7 @@
           <p v-html="otuSelected"/>
           <span
             class="circle-button button-default btn-undo"
-            @click="otu = undefined; otuSelected = undefined"/>
+            @click="otuId = undefined; otuSelected = undefined"/>
         </div>
       </fieldset>
       <fieldset>
@@ -127,7 +127,7 @@
       </div>
       <button
         type="button"
-        :disabled="!otu"
+        :disabled="!otuId"
         class="button normal-input button-submit separate-top"
         @click="addDetermination">Add</button>
       <display-list
@@ -174,6 +174,14 @@ export default {
     taxonDetermination() {
       return this.$store.getters[GetterNames.GetTaxonDetermination]
     },
+    otu: {
+      get() {
+        return this.$store.getters[GetterNames.GetTmpData].otu
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetTmpDataOtu, value)
+      }
+    },
     locked: {
       get() {
         return this.$store.getters[GetterNames.GetLocked]
@@ -182,7 +190,7 @@ export default {
         this.$store.commit(MutationNames.SetLocked, value)
       }
     },
-    otu: {
+    otuId: {
       get() {
         return this.$store.getters[GetterNames.GetTaxonDetermination].otu_id
       },
@@ -241,13 +249,15 @@ export default {
     collectionObject(newVal) {
       this.$refs.rolepicker.reset()
     },
-    otu(newVal) {
+    otuId(newVal) {
       if(newVal) {
         GetOtu(newVal).then(response => {
           this.otuSelected = response.object_tag
+          this.otu = response
         })
       }
       else {
+        this.otu = undefined
         this.otuSelected = undefined
       }
     }
