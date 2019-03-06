@@ -3,6 +3,7 @@
     <label>Longitude</label>
     <input
       type="number"
+      step="any"
       v-model="longitude">
   </div>
 </template>
