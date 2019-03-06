@@ -9,20 +9,43 @@
           class="separate-bottom">
           <span data-icon="warning">More than one identifier exists! Use annotator to edit others.</span>
         </div>
-        <label>Namespace</label>
-        <br>
-        <div class="horizontal-left-content middle field">
+        <fieldset>
+          <legend>Namespace</legend>
+          <div class="horizontal-left-content middle field separate-bottom">
+            <smart-selector
+              v-model="view"
+              class="separate-right"
+              :options="options"/>
+            <lock-component v-model="locked.identifier"/>
+          </div>
           <autocomplete
+            v-show="view == 'search'"
             class="separate-right"
             url="/namespaces/autocomplete"
             min="2"
             @getItem="namespace = $event.id; namespaceSelected = $event.label"
             :display="namespaceSelected"
             label="label_html"
+            placeholder="Select a namespace"
             ref="autocomplete"
             param="term"/>
-          <lock-component v-model="locked.identifier"/>
-        </div>
+          <ul 
+            class="no_bullets"
+            v-if="view != 'search'">
+            <li
+              v-for="item in lists[view]"
+              :key="item.id">
+              <label>
+                <input
+                  type="radio"
+                  :checked="item.id == namespace"
+                  @click="namespace = item.id; namespaceSelected = item.name"
+                  :value="item.id">
+                {{ item.name }}
+              </label>
+            </li>
+          </ul>
+        </fieldset>
       </div>
       <div>
         <label>Identifier</label>
@@ -53,23 +76,27 @@
 
 <script>
 
+  import SmartSelector from 'components/switch.vue'
   import Autocomplete from '../../../../components/autocomplete.vue'
   import { GetterNames } from '../../store/getters/getters'
   import { MutationNames } from '../../store/mutations/mutations.js'
   import { ActionNames } from '../../store/actions/actions'
-  import { CheckForExistingIdentifier } from '../../request/resources.js'
+  import { CheckForExistingIdentifier, GetNamespacesSmartSelector } from '../../request/resources.js'
   import validateComponent from '../shared/validate.vue'
   import validateIdentifier from '../../validations/namespace.js'
   import incrementIdentifier from '../../helpers/incrementIdentifier.js'
   import LockComponent from 'components/lock.vue'
   import BlockLayout from 'components/blockLayout.vue'
 
+  import orderSmartSelector from '../../helpers/orderSmartSelector.js'
+  import selectFirstSmartOption from '../../helpers/selectFirstSmartOption'
+
   export default {
     components: {
       Autocomplete,
       validateComponent,
       LockComponent,
-      BlockLayout
+      SmartSelector
     },
     computed: {
       collectionObject () {
@@ -137,7 +164,10 @@
       return {
         existingIdentifier: false,
         delay: 1000,
-        saveRequest: undefined
+        saveRequest: undefined,
+        options: [],
+        lists: [],
+        view: 'search'
       }
     },
     watch: {
@@ -149,6 +179,14 @@
       namespaceSelected(newVal) {
         this.$refs.autocomplete.setLabel(newVal)
       }
+    },
+    mounted() {
+      GetNamespacesSmartSelector().then(response => {
+        this.options = orderSmartSelector(Object.keys(response))
+        this.options.push('search')
+        this.lists = response
+        this.view = selectFirstSmartOption(response, this.options)
+      })
     },
     methods: {
       increment() {
