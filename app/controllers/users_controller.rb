@@ -106,7 +106,7 @@ class UsersController < ApplicationController
     @user.is_flagged_for_password_reset = false
 
     if @user.update_attributes(params.require(:user).permit([:password, :password_confirmation]))
-      flash[:success] = 'Password successfuly changed.'
+      flash[:notice] = 'Password successfuly changed.'
       redirect_to root_path
     else
       render 'password_reset.html.erb'

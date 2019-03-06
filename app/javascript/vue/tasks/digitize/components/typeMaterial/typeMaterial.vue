@@ -35,20 +35,25 @@
                 @click="taxon = undefined"/>
             </div>
             <template>
-              <autocomplete
-                v-if="viewTaxon == 'search'"
-                url="/taxon_names/autocomplete"
-                min="2"
-                :clear-after="true"
-                param="term"
-                placeholder="Select a taxon name"
-                @getItem="selectTaxon"
-                label="label"
-                :add-params="{
-                  'type[]': 'Protonym',
-                  'nomenclature_group[]': 'SpeciesGroup',
-                  valid: true
-              }"/>
+              <template v-if="viewTaxon == 'search'">
+                <autocomplete
+                  url="/taxon_names/autocomplete"
+                  min="2"
+                  :clear-after="true"
+                  param="term"
+                  placeholder="Select a taxon name"
+                  @getItem="selectTaxon"
+                  label="label"
+                  :add-params="{
+                    'type[]': 'Protonym',
+                    'nomenclature_group[]': 'SpeciesGroup',
+                    valid: true
+                  }"/>
+                <button
+                  type="button"
+                  v-if="otuId"
+                  class="button normal-input button-default">Same as determination</button>
+              </template>
               <ul
                 v-else
                 class="no_bullets">
@@ -149,6 +154,9 @@
       SmartSelector
     },
     computed: {
+      otuId() {
+        return this.$store.getters[GetterNames.GetTaxonDetermination].otu_id
+      },
       checkForTypeList () {
         return this.types && this.taxon
       },
