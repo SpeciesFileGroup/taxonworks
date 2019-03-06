@@ -69,24 +69,22 @@
           </fieldset>
         </div>
         <div class="separate-bottom">
-          <label>Type type</label>
-          <br>
-          <select
-            v-model="type"
-            class="normal-input">
-            <template v-if="checkForTypeList">
-              <option
-                class="capitalize"
-                :value="key"
-                v-for="(item, key) in types[taxon.nomenclatural_code]">{{ key }}
-              </option>
-            </template>
-            <option
-              :value="undefined"
-              selected
-              disabled
-              v-else>Select a taxon name first</option>
-          </select>
+          <p>Type type</p>
+          <ul
+            class="no_bullets"
+            v-if="checkForTypeList">
+            <li v-for="(item, key) in types[taxon.nomenclatural_code]">
+              <label>
+                <input
+                  class="capitalize"
+                  type="radio"
+                  v-model="type"
+                  :value="key">
+                {{ key }}
+              </label>
+            </li>
+          </ul>
+          <span v-else>Select a taxon name first</span>
         </div>
         <fieldset>
           <legend>Type designator</legend>
@@ -137,7 +135,6 @@
   import { GetterNames } from '../../store/getters/getters.js'
   import { MutationNames } from '../../store/mutations/mutations'
   import BlockLayout from '../../../../components/blockLayout.vue'
-  import ValidationComponent from '../shared/validate.vue'
   import SmartSelector from 'components/switch.vue'
   import CreatePerson from '../../helpers/createPerson.js'
   import orderSmartSelector from '../../helpers/orderSmartSelector.js'
@@ -148,7 +145,6 @@
       Autocomplete,
       RolePicker,
       BlockLayout,
-      ValidationComponent,
       SmartSelector
     },
     computed: {
