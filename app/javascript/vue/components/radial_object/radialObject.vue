@@ -131,14 +131,14 @@
           size: 30
         },
         {
-          label: defaultOptions.Destroy,
-          event: defaultOptions.Destroy,
-          size: 30
-        },
-        {
           label: defaultOptions.New,
           event: defaultOptions.New,
           size:30
+        },
+        {
+          label: defaultOptions.Destroy,
+          event: defaultOptions.Destroy,
+          size: 30
         },
         {
           label: defaultOptions.Edit,
@@ -170,7 +170,7 @@
               window.open(`${this.metadata.resource_path}/edit`, '_self')
               break
             case defaultOptions.New:
-              window.open(`${this.metadata.resource_path}/new`, '_self')
+              window.open(`/${this.metadata.type.toLowerCase()}s/new`, '_self')
               break
             case defaultOptions.Show:
               window.open(this.metadata.resource_path, '_self')
