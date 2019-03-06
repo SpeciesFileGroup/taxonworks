@@ -233,14 +233,45 @@
           }
         })
 
-        L.geoJSON(newGeojson).getLayers().forEach(layer => {
-          let geoID = layer.feature.properties.georeference.id;
-          this.foundItems.on('click', this.showCoords);
-          // this.foundItems.on('mouseout', this.mapObject.closePopup());
-          this.foundItems.addLayer(layer)
-        });
+        // L.geoJSON(newGeojson).getLayers().forEach(layer => {
+        //   this.drawnItems.on('mouseover', this.showCoords);
+        //   this.drawnItems.addLayer(layer)
+        // });
+        let GeoJson = L.geoJson(newGeojson, {
+          style: {
+            weight: 1,
+            color: '#F00',
+            dashArray: '',
+            fillOpacity: 1.0
+          },
+          onEachFeature: this.onEachFeature
+        }).addTo(this.mapObject);
 
-        this.mapObject.fitBounds(this.foundItems.getBounds())
+
+        this.mapObject.fitBounds(this.drawnItems.getBounds())
+      },
+      onEachFeature(feature, layer) {
+        layer.on({
+          mouseover: this.highlightFeature,
+          mouseout: this.resetHighlight,
+          click: this.zoomToFeature
+        });
+      },
+      highlightFeature(e) {
+        var layer = e.target;
+
+        layer.setStyle({
+          weight: 5,
+          color: '#666',
+          dashArray: '',
+          fillOpacity: 0.7
+        });
+      },
+      resetHighlight(e) {
+        geojson.resetStyle(e.target);
+      },
+      zoomToFeature(e) {
+        this.mapObject.fitBounds(e.target.getBounds());
       }
     }
   }
