@@ -62,6 +62,7 @@
             Increment
           </label>
           <validate-component
+            v-if="namespace"
             class="separate-left"
             :show-message="checkValidation"
             legend="Namespace and identifier needs to be set to be save."/> 
