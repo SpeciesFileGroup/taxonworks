@@ -7,6 +7,7 @@
           placeholder="Search"
           label="label_html"
           param="term"
+          :clear-after="true"
           @getItem="loadAssessionCode"
           :add-params="{
             'identifier_object_types[]': ['CollectionObject'],
