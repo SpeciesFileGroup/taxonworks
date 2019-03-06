@@ -42,7 +42,7 @@
         </div>
         <div class="horizontal-right-content separate-top separate-bottom">
           <depictions-component
-            v-if="showDepictions"
+            v-show="showDepictions"
             class="separate-top separate-right"
             :object-value="collectionObject"
             :get-depictions="GetCollectionObjectDepictions"
