@@ -23,12 +23,21 @@
             class="separate-right"
             url="/namespaces/autocomplete"
             min="2"
-            @getItem="namespace = $event.id; namespaceSelected = $event.label"
-            :display="namespaceSelected"
+            @getItem="namespace = $event.id; namespaceSelected = $event.label_html"
+            :clear-after="true"
             label="label_html"
             placeholder="Select a namespace"
             ref="autocomplete"
             param="term"/>
+          <template v-if="namespace">
+            <div class="middle separate-top">
+              <span data-icon="ok"/>
+              <p class="separate-right" v-html="namespaceSelected"/>
+              <span
+                class="circle-button button-default btn-undo"
+                @click="namespace = undefined"/>
+            </div>
+          </template>
           <ul 
             class="no_bullets"
             v-if="view != 'search'">
@@ -39,15 +48,15 @@
                 <input
                   type="radio"
                   :checked="item.id == namespace"
-                  @click="namespace = item.id; namespaceSelected = item.name"
+                  @click="namespace = item.id; namespaceSelected = item.object_tag"
                   :value="item.id">
-                {{ item.name }}
+                <span v-html="item.object_tag"/>
               </label>
             </li>
           </ul>
         </fieldset>
       </div>
-      <div>
+      <div class="separate-top">
         <label>Identifier</label>
         <div class="horizontal-left-content field">
           <input
@@ -176,9 +185,6 @@
         if(!newVal) {
           this.$refs.autocomplete.cleanInput()
         }
-      },
-      namespaceSelected(newVal) {
-        this.$refs.autocomplete.setLabel(newVal)
       }
     },
     mounted() {
