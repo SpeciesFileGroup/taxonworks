@@ -39,6 +39,7 @@
                 v-if="viewTaxon == 'search'"
                 url="/taxon_names/autocomplete"
                 min="2"
+                :clear-after="true"
                 param="term"
                 placeholder="Select a taxon name"
                 @getItem="selectTaxon"
