@@ -42,17 +42,13 @@
                   :clear-after="true"
                   param="term"
                   placeholder="Select a taxon name"
-                  @getItem="selectTaxon"
+                  @getItem="selectTaxon($event.id)"
                   label="label"
                   :add-params="{
                     'type[]': 'Protonym',
                     'nomenclature_group[]': 'SpeciesGroup',
                     valid: true
                   }"/>
-                <button
-                  type="button"
-                  v-if="otuId"
-                  class="button normal-input button-default">Same as determination</button>
               </template>
               <ul
                 v-else
@@ -62,7 +58,7 @@
                   :key="item.id"
                   :value="item.id">
                   <label
-                    @click="selectTaxon(item)">
+                    @click="selectTaxon(item.id)">
                     <input
                       name="taxon-type-material"
                       :value="item.id"
@@ -132,6 +128,7 @@
 
   import Autocomplete from '../../../../components/autocomplete.vue'
   import { 
+    GetTaxon,
     GetTypes, 
     DestroyTypeMaterial, 
     GetTypeDesignatorSmartSelector,
@@ -154,8 +151,9 @@
       SmartSelector
     },
     computed: {
-      otuId() {
-        return this.$store.getters[GetterNames.GetTaxonDetermination].otu_id
+      taxonIdFormOtu() {
+        let tmpOtu = this.$store.getters[GetterNames.GetTmpData].otu
+        return (tmpOtu && tmpOtu.hasOwnProperty('taxon_name_id')) ? tmpOtu.taxon_name_id : undefined
       },
       checkForTypeList () {
         return this.types && this.taxon
@@ -202,6 +200,16 @@
         viewTaxon: 'search'
       }
     },
+    watch: {
+      taxonIdFormOtu(newVal) {
+        if(newVal) {
+          GetTaxon(newVal).then(response => {
+            this.listsTaxon.quick.unshift(response)
+            this.viewTaxon = 'quick'
+          })
+        }
+      }
+    },
     mounted: function () {
       GetTypes().then(response => {
         this.types = response
@@ -220,8 +228,8 @@
       })
     },
     methods: {
-      selectTaxon(taxon) {
-        this.$store.dispatch(ActionNames.GetTaxon, taxon.id)
+      selectTaxon(taxonId) {
+        this.$store.dispatch(ActionNames.GetTaxon, taxonId)
       },
       destroyTypeMateria(item) {
         this.$store.dispatch(ActionNames.RemoveTypeMaterial, item).then(response => {
