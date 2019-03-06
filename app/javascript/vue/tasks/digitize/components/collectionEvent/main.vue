@@ -2,7 +2,7 @@
   <div>
     <block-layout :warning="!collectingEvent.id">
       <div slot="header">
-        <h3>Collection Event</h3>
+        <h3>Collecting Event</h3>
       </div>
       <div
         slot="options" 
