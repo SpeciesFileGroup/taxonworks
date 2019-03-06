@@ -8,7 +8,6 @@ export default function ({ commit, state }) {
       type: Containers.Virtual
     }
     CreateContainer(item).then(response => {
-      TW.workbench.alert.create('Container was successfully created.', 'notice')
       commit(MutationNames.SetContainer, response)
       return resolve(response)
     })
