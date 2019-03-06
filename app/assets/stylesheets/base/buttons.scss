@@ -166,6 +166,12 @@
   background-image: image-url("w_radialmenu.svg");
 }
 
+.btn-radial-object {
+  background-size: 16px;
+  background-color: $color-secondary-2-4;
+  background-image: image-url("radial-object.svg");
+}
+
 .btn-locked {
   background-size: 12px;
   background-image: image-url("w_locked.svg");

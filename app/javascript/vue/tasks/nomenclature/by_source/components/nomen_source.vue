@@ -17,11 +17,7 @@
         <span v-html="source.cached"/>
         <span class="separate-right">(Published on {{ source.cached_nomenclature_date }})</span>
       </span>
-      <a
-        class="separate-right separate-left"
-        :href="`/sources/${sourceID}`"
-        target="blank">Show
-      </a>
+      <radial-object :global-id="source.global_id"/>
       <radial-annotator :global-id="source.global_id"/>
       <pin-component
         v-if="source.id"
@@ -46,11 +42,13 @@
   import Autocomplete from "components/autocomplete";
   import RadialAnnotator from "components/annotator/annotator.vue";
   import PinComponent from "components/pin.vue"
+  import RadialObject from "components/radial_object/radialObject.vue"
 
   export default {
     components: {
       Autocomplete,
       RadialAnnotator,
+      RadialObject,
       PinComponent
     },
     data() {
