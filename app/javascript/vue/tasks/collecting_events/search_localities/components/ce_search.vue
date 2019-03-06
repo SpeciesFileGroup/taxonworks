@@ -162,6 +162,7 @@
           this.$http.get('/georeferences.json', {params: params}).then(response => {
             // put these geometries on the map as features
             let newFeatures = response.body.map(georeference => {
+              georeference.geo_json.properties["collecting_event_id"] = georeference.collecting_event_id;
               return georeference.geo_json
             });
            resolve(newFeatures);    // resolves to array of features

@@ -165,9 +165,9 @@
           // this.foundItems.addTo(this.mapObject);
         }
       },
-      showCoords(latlng, geoID) {
-        let content = latlng.toString() + ' GeoID:' + geoID.toString();
-        L.popup().setLatLng(latlng)
+      showCoords(layer) {
+        let content = layer._latlng.toString() + ' CE_ID:' + layer.feature.properties.collecting_event_id.toString();
+        L.popup().setLatLng(event.latlng)
           .setContent(content)
           .openOn(this.mapObject);
       },
@@ -186,7 +186,7 @@
           that.$emit('shapeCreated', layer)
           that.$emit('geoJsonLayerCreated', geoJsonLayer)
           that.drawnItems.addLayer(layer.setStyle({color: "#444400", fillColor: "#888800"}))
-        })
+        });
 
         this.mapObject.on('draw:edited', (e) => {
           var layers = e.layers
@@ -235,7 +235,7 @@
 
         L.geoJSON(newGeojson).getLayers().forEach(layer => {
           let geoID = layer.feature.properties.georeference.id;
-          this.foundItems.on('click', this.showCoords(layer._latlng, geoID));
+          this.foundItems.on('click', this.showCoords);
           // this.foundItems.on('mouseout', this.mapObject.closePopup());
           this.foundItems.addLayer(layer)
         });
