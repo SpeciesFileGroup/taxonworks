@@ -62,12 +62,18 @@
             </span>
           </div>
         </div>
+        <div>
+          <spinner-component
+            v-if="!collectionObject.id"
+            :show-spinner="false"
+            legend="Locked until first save"/>
           <predicates-component
             :object-id="collectionObject.id"
             object-type="CollectionObject"
             model="CollectionObject"
             @onUpdate="setAttributes"
           />
+        </div>
         <container-items/>
       </div>
     </block-layout>
@@ -76,11 +82,10 @@
 
 <script>
 
+  import SpinnerComponent from 'components/spinner'
   import ContainerItems from './containerItems.vue'
   import PreparationType from './preparationType.vue'
   import CatalogueNumber from '../catalogueNumber/catalogNumber.vue'
-  import TableCollectionObjects from './tableCollectionObjects.vue'
-  import Bioclassification from './bioclassification.vue'
   import BufferedComponent from './bufferedData.vue'
   import DepictionsComponent from '../shared/depictions.vue'
   import RepositoryComponent from './repository.vue'
@@ -89,7 +94,6 @@
   import { ActionNames } from '../../store/actions/actions'
   import BlockLayout from '../../../../components/blockLayout.vue'
   import RadialAnnotator from '../../../../components/annotator/annotator.vue'
-  import LockComponent from 'components/lock.vue'
   import btnShow from 'components/btnShow.vue'
   import PredicatesComponent from 'components/custom_attributes/predicates/predicates'
 
@@ -97,12 +101,10 @@
 
   export default {
     components: {
-      LockComponent,
+      SpinnerComponent,
       ContainerItems,
       PreparationType,
       CatalogueNumber,
-      TableCollectionObjects,
-      Bioclassification,
       BufferedComponent,
       DepictionsComponent,
       RepositoryComponent,
