@@ -2,8 +2,7 @@
   <div>
     <label>Latitude</label>
     <input
-      type="number"
-      step="any"
+      type="text"
       v-model="latitude">
   </div>
 </template>
