@@ -119,7 +119,7 @@ export default {
             that.update(false)
           }, false)
           icon['image'].src = item.icon.url
-          that.icons.push(icon)
+          that.icons[index] = icon
         } 
       })
     },

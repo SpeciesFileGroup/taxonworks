@@ -132,22 +132,42 @@
         {
           label: defaultOptions.New,
           event: defaultOptions.New,
-          size:30
+          size:30,
+          icon: {
+            url: Icons.New,
+            width: '20',
+            height: '20'
+          }
         },
         {
           label: defaultOptions.Destroy,
           event: defaultOptions.Destroy,
-          size: 30
+          size: 30,
+          icon: {
+            url: Icons.Destroy,
+            width: '20',
+            height: '20'
+          }
         },
         {
           label: defaultOptions.Edit,
           event: defaultOptions.Edit,
-          size:30
+          size:30,
+          icon: {
+            url: Icons.Edit,
+            width: '20',
+            height: '20'
+          }
         },
         {
           label: defaultOptions.Show,
           event: defaultOptions.Show,
-          size:30
+          size:30,
+          icon: {
+            url: Icons.Show,
+            width: '20',
+            height: '20'
+          }
         }]
       }
     },
@@ -217,7 +237,12 @@
             this.menuOptions.push({
               label: defaultOptions.Recent,
               event: defaultOptions.Recent,
-              size: 30
+              size: 30,
+              icon: {
+                url: Icons.Recent,
+                width: '20',
+                height: '20'
+              }
             })
           }
           this.addDefaultOptions()
