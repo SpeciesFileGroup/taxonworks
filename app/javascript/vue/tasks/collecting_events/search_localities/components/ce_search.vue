@@ -49,6 +49,8 @@
         @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
         @geoJsonLayersEdited="editedShape($event)"
         @shapeCreated="inspectLayer"
+        @highlightRow="setHighlight"
+        @restoreRow="clearHighlight"
         :draw-controls="true"
       />
       <!--@geoJsonLayerCreated="getShapesData($event)"-->
@@ -181,7 +183,13 @@
       inspectLayer(layer) {
         let geoJ = layer.toGeoJSON();
         // alert (JSON.stringify(geoJ));
-      }
+      },
+      setHighlight(id) {
+        this.$emit("highlightRow", id)
+      },
+      clearHighlight(id) {
+        this.$emit("highlightRow", undefined)
+      },
     },
   }
 </script>

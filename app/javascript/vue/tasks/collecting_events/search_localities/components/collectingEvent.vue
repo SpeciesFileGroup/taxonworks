@@ -11,7 +11,11 @@
         <ce-filter @collectingEventList="compileList($event)"/>
       </div>
       <div v-else-if="view === 'Search'">
-        <ce-search @collectingEventList="compileList($event)"/>
+        <ce-search
+          @collectingEventList="compileList($event)"
+          @highlightRow="highlightRow=$event"
+          @restoreRow="restoreRow=$event"
+        />
       </div>
       <div v-else-if="view === 'Tag'">
         <ce-tag @collectingEventList="compileList($event)"/>
@@ -44,7 +48,9 @@
         <th><span class="remove_area" data-icon="trash" @click="keepSelected()"> unchecked</span></th>
       <tr
         v-for="(item, index) in collectingEventList"
-        :key="item.id">
+        :key="item.id"
+        v-if="highlightRow"
+          style="background-color: #6E9C6E">
         <td class="my-column">
           <span 
           v-html="item.id + ' ' + item.cached"
@@ -100,6 +106,8 @@
         selected: [],
         isSelectAll: false,
         annotation_logic: 'append',
+        highlightRow: undefined,
+        restoreRow: undefined,
       }
     },
     watch: {

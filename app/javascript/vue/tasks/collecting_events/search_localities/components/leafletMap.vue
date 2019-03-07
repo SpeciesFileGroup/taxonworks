@@ -17,6 +17,7 @@
   //   iconUrl: require('leaflet/dist/images/marker-icon.png'),
   //   shadowUrl: require('leaflet/dist/images/marker-shadow.png')
   // })
+  var GeoJson;
 
   L.Icon.Default.mergeOptions({
     iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
@@ -27,23 +28,33 @@
     props: {
       clear: {
         type: Boolean,
-        default: () => { return false}
+        default: () => {
+          return false
+        }
       },
       width: {
         type: String,
-        default: () => { return '500px' }
+        default: () => {
+          return '500px'
+        }
       },
       height: {
         type: String,
-        default: () => { return '500px' }
+        default: () => {
+          return '500px'
+        }
       },
       zoom: {
         type: Number,
-        default: () => { return 18 }
+        default: () => {
+          return 18
+        }
       },
       drawControls: {
         type: Boolean,
-        default: () => { return false }
+        default: () => {
+          return false
+        }
       },
       tilesSelection: {
         type: Boolean,
@@ -51,14 +62,18 @@
       },
       center: {
         type: Array,
-        default: () => { return [0, 0] }
+        default: () => {
+          return [0, 0]
+        }
       },
       geojson: {
         type: Array,
-        default: () => { return [] }
+        default: () => {
+          return []
+        }
       }
     },
-    data () {
+    data() {
       return {
         mapId: Math.random().toString(36).substring(7),
         mapObject: undefined,
@@ -75,21 +90,23 @@
             maxZoom: 18
           })
         },
-        layers: []
+        layers: [],
+        highlightRow: undefined,
+        restoreRow: undefined,
       }
     },
     watch: {
-      geojson (newVal) {
+      geojson(newVal) {
         if (newVal.length) {
           this.geoJSON(newVal)
         }
       },
-      clear () {
+      clear() {
         this.drawnItems.clearLayers();
         this.foundItems.clearLayers();
       }
     },
-    mounted () {
+    mounted() {
       this.mapObject = L.map(this.mapId, {
         center: this.center,
         zoom: this.zoom
@@ -106,7 +123,7 @@
       }
     },
     methods: {
-      antimeridian (elem, anti) {
+      antimeridian(elem, anti) {
         if (Array.isArray(elem)) {
           for (var i = 0; i < elem.length; i++) {
             if (Array.isArray(elem[i][0])) {
@@ -137,12 +154,12 @@
           }
         }
       },
-      addDrawControllers () {
+      addDrawControllers() {
         if (this.tilesSelection) {
           L.control.layers({
             'OSM': this.tiles.osm.addTo(this.mapObject),
             'Google': this.tiles.google
-          }, { 'Draw layers': this.drawnItems }, { position: 'topleft', collapsed: false }).addTo(this.mapObject)
+          }, {'Draw layers': this.drawnItems}, {position: 'topleft', collapsed: false}).addTo(this.mapObject)
         }
 
         if (this.drawControls) {
@@ -171,7 +188,7 @@
           .setContent(content)
           .openOn(this.mapObject);
       },
-      handleEvents () {
+      handleEvents() {
         let that = this
         this.mapObject.on(L.Draw.Event.CREATED, function (e) {
           var layer = e.layer;
@@ -195,10 +212,10 @@
           that.$emit('geoJsonLayersEdited', that.convertGeoJSONWithPointRadius(layers))
         })
       },
-      removeLayers () {
+      removeLayers() {
         this.drawnItems.clearLayers()
       },
-      convertGeoJSONWithPointRadius (layerArray) {
+      convertGeoJSONWithPointRadius(layerArray) {
         let arrayLayers = []
 
         layerArray.eachLayer(layer => {
@@ -212,14 +229,14 @@
         })
         return arrayLayers
       },
-      toGeoJSON () {
+      toGeoJSON() {
         return this.convertGeoJSONWithPointRadius(this.drawnItems)
       },
-      addJsonCircle (layer) {
+      addJsonCircle(layer) {
         L.circle(layer.geometry.coordinates.reverse(), layer.properties.radius).addTo(this.foundItems)
         // L.circle(layer.geometry.coordinates, layer.properties.radius).addTo(this.drawnItems)
       },
-      geoJSON (geojsonFeature) {
+      geoJSON(geojsonFeature) {
         if (!Array.isArray(geojsonFeature) || geojsonFeature.length === 0) return
         // this.removeLayers()
 
@@ -237,12 +254,12 @@
         //   this.drawnItems.on('mouseover', this.showCoords);
         //   this.drawnItems.addLayer(layer)
         // });
-        let GeoJson = L.geoJson(newGeojson, {
+        GeoJson = L.geoJson(newGeojson, {
           style: {
             weight: 1,
-            color: '#F00',
+            color: '#804400',
             dashArray: '',
-            fillOpacity: 1.0
+            fillOpacity: 0.4
           },
           onEachFeature: this.onEachFeature
         }).addTo(this.mapObject);
@@ -258,17 +275,52 @@
         });
       },
       highlightFeature(e) {
-        var layer = e.target;
+        let layer = e.target;
+        let geom = layer.feature.geometry;
+        if (geom.type != "Point") {
+          this.lightNonPoint(layer)
+        } else {
+          if (geom.type == "Point") {
+            if (layer.feature.properties["radius"]) {
+              this.lightNonPoint(layer)
+            } else {
+              var myIcon = L.icon({
+                iconUrl: require('./map_icons/mm_20_blue.png'),
+                shadowUrl: require('./map_icons/mm_20_shadow.png')
+              });
+              layer.setIcon(myIcon);
+            }
 
-        layer.setStyle({
+          }
+        }
+        this.$emit("highlightRow", layer.feature.properties.collecting_event_id)
+      },
+      lightNonPoint(layer) {
+        GeoJson._layers[layer._leaflet_id].setStyle({
           weight: 5,
-          color: '#666',
+          color: '#606060',
           dashArray: '',
           fillOpacity: 0.7
         });
       },
       resetHighlight(e) {
-        geojson.resetStyle(e.target);
+        let layer = e.target;
+        let geom = layer.feature.geometry;
+        if (geom.type == "Point") {
+          if (layer.feature.properties["radius"]) {
+            GeoJson.resetStyle(layer);
+          }
+          else {
+            layer.setIcon(L.icon({
+              iconUrl: require('./map_icons/mm_20_red.png'),
+              shadowUrl: require('./map_icons/mm_20_shadow.png')
+            }));
+          }
+        }
+        else {
+          GeoJson.resetStyle(layer);
+        }
+        this.$emit("restoreRow", layer.feature.properties.collecting_event_id)
       },
       zoomToFeature(e) {
         this.mapObject.fitBounds(e.target.getBounds());
