@@ -49,8 +49,7 @@
       <tr
         v-for="(item, index) in collectingEventList"
         :key="item.id"
-        v-if="highlightRow"
-          style="background-color: #6E9C6E">
+      >
         <td class="my-column">
           <span 
           v-html="item.id + ' ' + item.cached"
@@ -58,7 +57,8 @@
           />
         </td>
         <td class="my-column">
-          <span  v-html="item.verbatim_locality" />
+          <span v-if="highlightRow==item.id" v-html="item.verbatim_locality" />
+          <span v-else v-html="item.verbatim_locality" />
         </td>
         <td>
           <pin-component
