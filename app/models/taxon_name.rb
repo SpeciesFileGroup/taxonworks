@@ -1110,6 +1110,8 @@ class TaxonName < ApplicationRecord
   # @return [Array]
   #   !! not a scope
   def self.used_recently(project_id, user_id)
+
+    # !! If cached of one name is nill the raises an ArgumentError
     a = [
       TaxonName.touched_by(user_id).where(project_id: project_id).order(:updated_at).limit(6).to_a,
       used_recently_in_classifications(project_id, user_id).limit(6).to_a,

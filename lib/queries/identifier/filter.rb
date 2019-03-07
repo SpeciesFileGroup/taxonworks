@@ -8,6 +8,7 @@ module Queries
       polymorphic_klass(::Identifier)
 
       # A fully qualified identifier, matches cached
+      # !! This is the only wildcarded value !!
       attr_accessor :query_string
 
       attr_accessor :identifier
@@ -86,7 +87,7 @@ module Queries
 
       # @return [Arel::Node, nil]
       def matching_cached
-        query_string.blank? ? nil : table[:cached].eq(query_string)
+        query_string.blank? ? nil : table[:cached].matches('%' + query_string + '%')
       end
 
       # @return [Arel::Node, nil]

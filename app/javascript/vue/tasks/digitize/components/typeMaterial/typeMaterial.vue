@@ -43,7 +43,7 @@
                   param="term"
                   placeholder="Select a taxon name"
                   @getItem="selectTaxon($event.id)"
-                  label="label"
+                  label="label_html"
                   :add-params="{
                     'type[]': 'Protonym',
                     'nomenclature_group[]': 'SpeciesGroup',

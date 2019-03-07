@@ -29,7 +29,7 @@ module Queries
       attr_accessor :exact
 
       # @param [Hash] args
-      def initialize(string, project_id: nil, valid: nil, nomenclature_group: [], type: [], parent_id: [], exact: false)
+      def initialize(string, project_id: nil, valid: nil, exact: false, nomenclature_group: [], type: [], parent_id: [])
         @nomenclature_group = nomenclature_group
         @valid = valid == 'true' ? true : (valid == 'false' ? false : nil)
         @type = type
@@ -129,6 +129,7 @@ module Queries
       end
 
       # @return [Scope]
+      # !! TODO: should be autocomplete
       def all
         ::TaxonName.select('taxon_names.*, char_length(taxon_names.cached)').
           includes(:ancestor_hierarchies).

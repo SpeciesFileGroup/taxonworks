@@ -16,7 +16,6 @@ export default function ({ commit, state }, determination) {
     if(ValidateDetermination(taxon_determination)) {
       if(taxon_determination.id) {
         UpdateTaxonDetermination(taxon_determination).then(response => {
-          TW.workbench.alert.create('Taxon determination was successfully updated.', 'notice')
           commit(MutationNames.SetTaxonDetermination, response)
           addToList(response)
           resolve(response)
@@ -24,7 +23,6 @@ export default function ({ commit, state }, determination) {
       }
       else {
         CreateTaxonDetermination(taxon_determination).then(response => {
-          TW.workbench.alert.create('Taxon determination was successfully created.', 'notice')
           commit(MutationNames.SetTaxonDetermination, response)
           commit(MutationNames.SetTaxonDetermination, TaxonDetermination())
           addToList(response)
