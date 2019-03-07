@@ -228,6 +228,12 @@ class TaxonName < ApplicationRecord
   accepts_nested_attributes_for :taxon_name_authors, :taxon_name_author_roles, allow_destroy: true
   accepts_nested_attributes_for :taxon_name_classifications, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank?  }
 
+
+  scope :that_is_valid, -> { where('taxon_names.id = taxon_names.cached_valid_taxon_name_id') }
+  scope :that_is_invalid, -> { where.not('taxon_names.id = taxon_names.cached_valid_taxon_name_id') }
+
+
+
   scope :with_type, -> (type) {where(type: type)}
 
   scope :descendants_of, -> (taxon_name) { with_ancestor(taxon_name )}
@@ -1104,6 +1110,8 @@ class TaxonName < ApplicationRecord
   # @return [Array]
   #   !! not a scope
   def self.used_recently(project_id, user_id)
+
+    # !! If cached of one name is nill the raises an ArgumentError
     a = [
       TaxonName.touched_by(user_id).where(project_id: project_id).order(:updated_at).limit(6).to_a,
       used_recently_in_classifications(project_id, user_id).limit(6).to_a,

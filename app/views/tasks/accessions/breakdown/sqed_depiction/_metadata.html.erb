@@ -1,0 +1,34 @@
+<!-- transcribe for javascript reference -->
+<span id="image_sections"
+      <%= @result.image_sections.each do |section| %>
+    data-section-<%= section -%>="<%= @result.class::TEXT_MAP[section.to_sym] -%>"
+  <% end %>
+      hidden=true
+  ></span>
+
+<div class="item item1">
+  <div id="littlebox">
+    <% @result.image_sections.each_with_index do |section, i| -%>
+      <span>  
+        <%= content_tag(:span, "[#{i + 1}]", class: :ctrl_link, style: 'float: left', title: section.to_s.humanize) -%>
+        <%= image_tag(@result.image_path_for_large_image(section), id: "little#{i}", class: "little_image clickable", style: "vertical-align:middle;") -%> 
+    </span>
+    <% end %>
+  </div>
+</div>
+
+<div class="item item2">
+  <div id="bigbox">
+    <div id="paper"></div>
+  </div>
+
+  <div id="ocr_result">
+    <div id="selected_text"></div>
+    <div id="selected_text_options" class="subtle">Append [q], Replace [w]</div>
+  </div>
+
+  <div id="selected_picture">
+    <canvas id="selected_picture_canvas" height="400" width="400"></canvas>
+  </div>
+</div>
+

@@ -384,6 +384,8 @@ To add a new (discovered) symbol:
     # @param [Integer] error_radius
     # @return [RGeo::Polygon]
     def self.error_box_for_point(geo_object, error_radius)
+      # this limits the actual error_box to 10k FOR THIS TEST ONLY!
+      error_radius = 10_000 if error_radius > 10_000
       p0      = geo_object
       delta_x = (error_radius / ONE_WEST) / Math.cos(p0.y * Math::PI / 180)
       delta_y = error_radius / ONE_NORTH

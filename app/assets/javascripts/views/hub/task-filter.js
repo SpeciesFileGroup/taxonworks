@@ -208,7 +208,7 @@ var CarrouselTask = function (sec, rows, columns) {
 
       var child = $(this.sectionTag + ' .task_card:nth-child('+ this.active[i] +')');
       if(count < this.maxCards) {
-        child.show(250);
+        child.addClass('show');
         child.attr("tabindex", 0);
       }
       count++;
@@ -225,10 +225,10 @@ var CarrouselTask = function (sec, rows, columns) {
 
   CarrouselTask.prototype.noTaskFound = function(count) {
     if(this.isEmpty) {
-      $(this.sectionTag + ' .no-tasks').fadeIn(250);
+      $(this.sectionTag + ' .no-tasks').addClass('show');
     }
     else {
-      $(this.sectionTag + ' .no-tasks').fadeOut(250);
+      $(this.sectionTag + ' .no-tasks').removeClass('show');
     }
   };
 
@@ -254,15 +254,15 @@ var CarrouselTask = function (sec, rows, columns) {
   };
 
   CarrouselTask.prototype.resetView = function() {
-    $(this.sectionTag + ' .task_card').css("display","none");
+    $(this.sectionTag + ' .task_card').removeClass('show');
   };
 
   CarrouselTask.prototype.navigation = function(value) {
     if(value) {
-      $(this.sectionTag + " .navigation a").show(250);
+      $(this.sectionTag + " .navigation a").addClass('show');
     }
     else {
-      $(this.sectionTag + " .navigation a").hide(250);
+      $(this.sectionTag + " .navigation a").removeClass('show');
     }
   };
 
@@ -270,13 +270,12 @@ var CarrouselTask = function (sec, rows, columns) {
     var
     sectionTag = this.sectionTag,
     active = this.active,
-    maxCards = this.maxCards,
     changeTasks = this.changeTasks;
 
     for(var i = 0; i < changeTasks; i++) {
       if(this.active.length > (this.arrayPos + this.maxCards )) {
-        $(sectionTag + " .task_card:nth-child("+ active[(this.arrayPos)] +")" ).hide(0);
-        $(sectionTag + " .task_card:nth-child("+ active[(this.arrayPos+this.maxCards)] +")" ).fadeIn(250);
+        $(sectionTag + " .task_card:nth-child("+ active[(this.arrayPos)] +")" ).removeClass('show');
+        $(sectionTag + " .task_card:nth-child("+ active[(this.arrayPos+this.maxCards)] +")" ).addClass('show');
         this.arrayPos++;
       }
     }
@@ -286,10 +285,10 @@ var CarrouselTask = function (sec, rows, columns) {
 
   CarrouselTask.prototype.showMoreNav = function(value) {
     if(value) {
-      $('.more_tasks_nav').fadeIn(250);
+      $('.more_tasks_nav').addClass('show');
     }
     else {
-      $('.more_tasks_nav').fadeOut(250);
+      $('.more_tasks_nav').removeClass('show');
     }
   };
 
@@ -303,8 +302,8 @@ var CarrouselTask = function (sec, rows, columns) {
     for(var i = 0; i < changeTasks; i++) {
       if(this.arrayPos > 0) {
         this.arrayPos--;
-        $(sectionTag + " .task_card:nth-child("+ active[(this.arrayPos+maxCards)] +")" ).hide(0);
-        $(sectionTag + " .task_card:nth-child("+ active[(this.arrayPos)] +")" ).fadeIn(250);
+        $(sectionTag + " .task_card:nth-child("+ active[(this.arrayPos+maxCards)] +")" ).removeClass('show');
+        $(sectionTag + " .task_card:nth-child("+ active[(this.arrayPos)] +")" ).addClass('show');
       }
     }
     this.changeSelectedNavList(this.arrayPos);

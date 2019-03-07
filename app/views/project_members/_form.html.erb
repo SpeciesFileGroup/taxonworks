@@ -7,8 +7,15 @@
   </div>
 
   <div class="field">
-    <%= f.label :user_id %><br>
-    <%= f.select :user_id, options_from_collection_for_select(User.all.not_in_project(@project_member.project_id), :id, :email, selected: @project_member.user) %>
+    <%= f.label :user %>
+    <br>
+    <%= render partial: 'workbench/elements/forms/ajax_select',
+      locals:  {controller:  'users',
+                object: 'project_member',
+                method:  'user_id',
+                tag_id:  'user_id_for_otu',
+                display:  user_tag(@project_member.user),
+                size: 40} %>
   </div>
 
   <div class="field">

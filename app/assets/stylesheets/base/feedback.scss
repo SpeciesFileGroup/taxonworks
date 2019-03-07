@@ -1,7 +1,92 @@
 // see application for notices related styling
 
-.warning {
+.feedback {
+  color: $default_text;
+  position: relative;
+  padding: .75rem 1.25rem;
+  margin-bottom: 1rem;
+  border-radius: .25rem;
+  border: 1px solid;
+}
+
+.feedback-thin {
+  padding: .1875rem 0.3125rem;
+  margin-bottom: .25rem;
+  border-radius: .0625rem;
+}
+// See concept from bootstrap alerts
+
+// blue
+.feedback-primary {
+  color:  $color-blue-4;
+  background-color: $color-blue-0;
+  border-color: $color-blue-3;
+}
+
+// gray
+.feedback-secondary {
+  color: $color-secondary-2-4;
+  background-color: $color-secondary-2-1;
+  border-color: $color-secondary-2-3;
+}
+
+// green
+.feedback-success {
+  color: $color-complement-4;
+  background-color: $color-complement-0;
+  border-color: $color-complement-3;
+}
+
+// red
+.feedback-danger {
+  color: $color-primary-4;
+  background-color: $color-primary-0;
+  border-color: $color-primary-3;
+
+}
+
+// yellow
+.feedback-warning {
+  color: $color-secondary-1-4;
+  background-color: $color-secondary-1-0;
+  border-color: $color-secondary-1-3;
+}
+
+// brighter blue
+.feedback-info {
+  color: $color-blue-4;
+  background-color: $color-blue-0;
+  border-color: $color-blue-3;
+}
+
+// gray on white
+.feedback-light {
+  color: $default_text;
+  background-color: $color-secondary-2-1;
+  border-color: $color-secondary-2-2;
+}
+
+// black on gray
+.feedback-dark {
+  color: $default_text;
+  background-color: $color-secondary-2-3;
+  border-color: $color-secondary-2-2;
+}
+
+// -------- END bootstrap clone experiment -------
+
+.success {
+  background-color: $color-complement-4;
+}
+
+.warning { // danger
   background-color: $color-primary-4;
+}
+
+// ---
+
+.instruction {
+  color: $color-secondary-2-2;
 }
 
 // same as warning?!
@@ -9,16 +94,10 @@
   background-color: $color-primary-4;
 }
 
-.success {
-  background-color: $color-complement-4;
-}
-
 // deprecate for .success
 .passed {
   background-color: $color-complement-4;
 }
-
-
 
 .subtle {
   color: $color-secondary-2-2;
@@ -35,10 +114,6 @@
   background-repeat: no-repeat;
   background-color: #aeaeae;
   opacity: 0.9;
-}
-
-.instruction {
-  color: $color-secondary-2-2;
 }
 
 // intent is a sticky note like message that stays in place

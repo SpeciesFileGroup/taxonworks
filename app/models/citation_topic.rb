@@ -30,6 +30,7 @@ class CitationTopic < ApplicationRecord
 
   belongs_to :topic, inverse_of: :citation_topics
   belongs_to :citation, inverse_of: :citation_topics
+  has_one :source, through: :citation, inverse_of: :topics
 
   # DO NOT INCLUDE (borks accepts_nested_attributes), handled with not null in DB
   # validates_presence_of :topic_id  :citation_id

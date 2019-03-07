@@ -2,12 +2,20 @@
   <div>
     <block-layout :warning="!collectingEvent.id">
       <div slot="header">
-        <h3>Collection Event</h3>
+        <h3>Collecting Event</h3>
       </div>
       <div
         slot="options" 
         class="horizontal-left-content separate-right">
         <span v-if="collectingEvent.id">Sequential uses: {{ (this.subsequentialUses == 0 ? '-' : this.subsequentialUses) }}</span>
+        <div
+          v-if="collectingEvent.id"
+          class="separate-left separate-right">
+          <a
+            :href="`/collecting_events/${collectingEvent.id}`"
+            target="blank">Show
+          </a>
+        </div>
         <radial-annotator 
           v-if="collectingEvent.id"
           :global-id="collectingEvent.global_id"/>

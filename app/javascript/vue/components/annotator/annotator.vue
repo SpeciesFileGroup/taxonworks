@@ -233,8 +233,8 @@
       border-radius: 3px;
       background: #FFFFFF;
       padding: 1em;
-      width: 50%;
-      max-width: 50%;
+      width: 100%;
+      max-width: 100%;
       min-height: 600px;
     }
     .radial-annotator-container {
@@ -245,7 +245,7 @@
     .radial-annotator-menu {
       padding-top: 1em;
       padding-bottom: 1em;
-      width: 50%;
+      width: 700px;
       min-height: 650px;
     }
     .annotator-buttons-list {

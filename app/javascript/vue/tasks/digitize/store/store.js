@@ -29,6 +29,7 @@ function makeInitialState () {
           year_made: false,
           month_made: false,
           day_made: false,
+          dates: false,
           roles_attributes: false,          
         }
       }
@@ -126,6 +127,9 @@ function makeInitialState () {
       total: undefined,
       label_object_id: undefined, 
       label_object_type: "CollectingEvent"
+    },
+    tmpData: {
+      otu: undefined
     },
     subsequentialUses: 0,
     identifiers: [],

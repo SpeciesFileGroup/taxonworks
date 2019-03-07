@@ -57,6 +57,10 @@ const GetRepositorySmartSelector = function () {
   return ajaxCall('get', `/repositories/select_options`)
 }
 
+const GetNamespacesSmartSelector = function () {
+  return ajaxCall('get', `/namespaces/select_options`)
+}
+
 const GetTaxonNameSmartSelector = function () {
   return ajaxCall('get', `/taxon_names/select_options`, { params: { 'nomenclature_group[]': 'SpeciesGroup' } })
 }
@@ -304,5 +308,6 @@ export {
   DestroyCollectionObject,
   DestroyTaxonDetermination,
   CreateContainer,
-  CreateContainerItem
+  CreateContainerItem,
+  GetNamespacesSmartSelector
 }

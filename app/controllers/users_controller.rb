@@ -3,7 +3,7 @@ class UsersController < ApplicationController
   before_action :require_sign_in, only: [:recently_created_stats, :recently_created]
 
   before_action :require_administrator_sign_in, only: [:index, :destroy]
-  before_action :require_superuser_sign_in, only: [:new, :create]
+  before_action :require_superuser_sign_in, only: [:new, :create, :autocomplete]
   
   before_action :set_user, only: [:show, :edit, :update, :destroy, :recently_created_stats, :recently_created_data]
 
@@ -97,12 +97,16 @@ class UsersController < ApplicationController
   # PATCH /set_password
   def set_password
     @user = User.find_by_password_reset_token!(Utilities::RandomToken.digest(params[:token]))
-    $user_id = @user.id
+
+    Current.user_id = @user.id # $user_id = @user.id WHY?
+
     @user.require_password_presence
+    
     @user.password_reset_token = nil
     @user.is_flagged_for_password_reset = false
+
     if @user.update_attributes(params.require(:user).permit([:password, :password_confirmation]))
-      flash[:success] = 'Password successfuly changed.'
+      flash[:notice] = 'Password successfuly changed.'
       redirect_to root_path
     else
       render 'password_reset.html.erb'
@@ -118,6 +122,10 @@ class UsersController < ApplicationController
 
   def preferences
     @user = sessions_current_user
+  end
+
+  def autocomplete
+    @users = Queries::User::Autocomplete.new(params.require(:term)).autocomplete
   end
 
   private

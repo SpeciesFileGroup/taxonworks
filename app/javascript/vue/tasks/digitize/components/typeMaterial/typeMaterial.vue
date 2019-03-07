@@ -35,19 +35,21 @@
                 @click="taxon = undefined"/>
             </div>
             <template>
-              <autocomplete
-                v-if="viewTaxon == 'search'"
-                url="/taxon_names/autocomplete"
-                min="2"
-                param="term"
-                placeholder="Select a taxon name"
-                @getItem="selectTaxon"
-                label="label"
-                :add-params="{
-                  'type[]': 'Protonym',
-                  'nomenclature_group[]': 'SpeciesGroup',
-                  valid: true
-              }"/>
+              <template v-if="viewTaxon == 'search'">
+                <autocomplete
+                  url="/taxon_names/autocomplete"
+                  min="2"
+                  :clear-after="true"
+                  param="term"
+                  placeholder="Select a taxon name"
+                  @getItem="selectTaxon($event.id)"
+                  label="label_html"
+                  :add-params="{
+                    'type[]': 'Protonym',
+                    'nomenclature_group[]': 'SpeciesGroup',
+                    valid: true
+                  }"/>
+              </template>
               <ul
                 v-else
                 class="no_bullets">
@@ -56,7 +58,7 @@
                   :key="item.id"
                   :value="item.id">
                   <label
-                    @click="selectTaxon(item)">
+                    @click="selectTaxon(item.id)">
                     <input
                       name="taxon-type-material"
                       :value="item.id"
@@ -69,24 +71,22 @@
           </fieldset>
         </div>
         <div class="separate-bottom">
-          <label>Type type</label>
-          <br>
-          <select
-            v-model="type"
-            class="normal-input">
-            <template v-if="checkForTypeList">
-              <option
-                class="capitalize"
-                :value="key"
-                v-for="(item, key) in types[taxon.nomenclatural_code]">{{ key }}
-              </option>
-            </template>
-            <option
-              :value="undefined"
-              selected
-              disabled
-              v-else>Select a taxon name first</option>
-          </select>
+          <p>Type type</p>
+          <ul
+            class="no_bullets"
+            v-if="checkForTypeList">
+            <li v-for="(item, key) in types[taxon.nomenclatural_code]">
+              <label>
+                <input
+                  class="capitalize"
+                  type="radio"
+                  v-model="type"
+                  :value="key">
+                {{ key }}
+              </label>
+            </li>
+          </ul>
+          <span v-else>Select a taxon name first</span>
         </div>
         <fieldset>
           <legend>Type designator</legend>
@@ -128,6 +128,7 @@
 
   import Autocomplete from '../../../../components/autocomplete.vue'
   import { 
+    GetTaxon,
     GetTypes, 
     DestroyTypeMaterial, 
     GetTypeDesignatorSmartSelector,
@@ -137,7 +138,6 @@
   import { GetterNames } from '../../store/getters/getters.js'
   import { MutationNames } from '../../store/mutations/mutations'
   import BlockLayout from '../../../../components/blockLayout.vue'
-  import ValidationComponent from '../shared/validate.vue'
   import SmartSelector from 'components/switch.vue'
   import CreatePerson from '../../helpers/createPerson.js'
   import orderSmartSelector from '../../helpers/orderSmartSelector.js'
@@ -148,10 +148,13 @@
       Autocomplete,
       RolePicker,
       BlockLayout,
-      ValidationComponent,
       SmartSelector
     },
     computed: {
+      taxonIdFormOtu() {
+        let tmpOtu = this.$store.getters[GetterNames.GetTmpData].otu
+        return (tmpOtu && tmpOtu.hasOwnProperty('taxon_name_id')) ? tmpOtu.taxon_name_id : undefined
+      },
       checkForTypeList () {
         return this.types && this.taxon
       },
@@ -197,6 +200,16 @@
         viewTaxon: 'search'
       }
     },
+    watch: {
+      taxonIdFormOtu(newVal) {
+        if(newVal) {
+          GetTaxon(newVal).then(response => {
+            this.listsTaxon.quick.unshift(response)
+            this.viewTaxon = 'quick'
+          })
+        }
+      }
+    },
     mounted: function () {
       GetTypes().then(response => {
         this.types = response
@@ -215,8 +228,8 @@
       })
     },
     methods: {
-      selectTaxon(taxon) {
-        this.$store.dispatch(ActionNames.GetTaxon, taxon.id)
+      selectTaxon(taxonId) {
+        this.$store.dispatch(ActionNames.GetTaxon, taxonId)
       },
       destroyTypeMateria(item) {
         this.$store.dispatch(ActionNames.RemoveTypeMaterial, item).then(response => {

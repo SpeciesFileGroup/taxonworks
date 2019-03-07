@@ -28,6 +28,7 @@ describe OtusController, type: :controller do
   # adjust the attributes here as well.
   let(:valid_attributes) { strip_housekeeping_attributes(FactoryBot.build(:valid_otu).attributes) }
 
+
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
   # OtusController. Be sure to keep this updated too.
@@ -47,7 +48,7 @@ describe OtusController, type: :controller do
   end
 
   describe 'GET index' do
-    it 'assigns all otus as @otus' do
+    it 'assigns otus to @recent_objects' do
       otu = Otu.create!(valid_attributes)
       get :index, params: {}, session: valid_session
       # The following means that @otus = Otu.all in the controller.
