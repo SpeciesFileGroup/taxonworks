@@ -1,5 +1,9 @@
+<div class="title nav-line" data-help="Within the hierarchy the first number is the number of valid children, the second the number of invalid children.">
+  Hierarchy
+</div>
+
 <div id="show_taxon_name_hierarchy" class="content">
-  <h3 data-help='Within the hierarchy the first number is the number of valid children, the second the number of invalid children.'>Hierarchy</h3>
+
   <div class="separate-top separate-bottom">
     <div class="switch-radio">
       <input type="radio" id="display_herarchy_valid" name="display_herarchy" value="valid"/>
@@ -16,9 +20,9 @@
       <li data-valid-toggle="<%= p.is_valid? ? 'valid' : 'invalid' -%>">
         <p> 
         <%= link_to(taxon_name_tag(p), send(target, p)) -%>
-          <span>
-            <%= p.cached_author_year -%>
-          </span>
+        <span>
+          <%= p.cached_author_year -%>
+        </span>
         </p>
       </li>
     <% end %>
@@ -26,10 +30,10 @@
     <li class="selected">
       <%= image_tag('arrow-right.svg') %>
       <p> 
-        <%= taxon_name_tag(taxon_name) -%> 
-        <span>
-          <%= taxon_name.cached_author_year -%>
-        </span>
+      <%= taxon_name_tag(taxon_name) -%>
+      <span>
+        <%= taxon_name.cached_author_year -%>
+      </span>
       </p>
     </li>
   </ul>
@@ -37,12 +41,12 @@
     <% taxon_name.children.order(:name).where(type: 'Protonym').each do |p| -%>
       <li data-valid-toggle="<%= p.is_valid? ? 'valid' : 'invalid' -%>">
         <p>
-          <%= link_to(taxon_name_tag(p), send(target, p)) -%>
-          <span><%= p.cached_author_year -%></span>
-          <% v = p.descendants.that_is_valid.count -%>
-          <% iv = p.descendants.that_is_invalid.count -%>
-          <%= content_tag(:span, v, class: [:feedback, 'feedback-thin', 'feedback-primary']) if v > 0  %> 
-          <%= content_tag(:span, iv, class: [:feedback, 'feedback-thin', 'feedback-secondary']) if iv > 0  %> 
+        <%= link_to(taxon_name_tag(p), send(target, p)) -%>
+        <span><%= p.cached_author_year -%></span>
+        <% v = p.descendants.that_is_valid.count -%>
+        <% iv = p.descendants.that_is_invalid.count -%>
+        <%= content_tag(:span, v, class: [:feedback, 'feedback-thin', 'feedback-primary']) if v > 0  %>
+        <%= content_tag(:span, iv, class: [:feedback, 'feedback-thin', 'feedback-secondary']) if iv > 0  %>
         </p> 
       </li>
     <% end %>
