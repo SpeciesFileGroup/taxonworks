@@ -34,7 +34,7 @@ class Source::Verbatim < Source
 
   # @return [Source, Boolean]
   def generate_bibtex
-    return false if self.verbatim.blank?
+    return false if verbatim.blank?
     result = TaxonWorks::Vendor::Ref2bibtex.new_from_citation(citation: verbatim)
     if result.type == 'Source::Bibtex'
       result

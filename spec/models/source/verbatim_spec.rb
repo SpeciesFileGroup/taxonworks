@@ -29,8 +29,7 @@ describe Source::Verbatim, type: :model, group: :sources do
 
   context '#generate_bibtex' do
     specify 'for a non-resolvable reference returns false' do
-      verbatim_source.verbatim = citation
-      verbatim_source.save!
+      verbatim_source.update(verbatim: citation)
 
       VCR.use_cassette('verbatim_source_is_not_resolvable') do
         expect(verbatim_source.generate_bibtex).to be_falsey
