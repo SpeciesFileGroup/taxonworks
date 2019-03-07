@@ -96,7 +96,6 @@
   import validateIdentifier from '../../validations/namespace.js'
   import incrementIdentifier from '../../helpers/incrementIdentifier.js'
   import LockComponent from 'components/lock.vue'
-  import BlockLayout from 'components/blockLayout.vue'
 
   import orderSmartSelector from '../../helpers/orderSmartSelector.js'
   import selectFirstSmartOption from '../../helpers/selectFirstSmartOption'
@@ -185,17 +184,24 @@
         if(!newVal) {
           this.$refs.autocomplete.cleanInput()
         }
+      },
+      collectionObject(newVal, oldVal) {
+        if (!newVal.id || newVal.id == oldVal.id) return
+        this.loadSmartSelector()
       }
     },
     mounted() {
-      GetNamespacesSmartSelector().then(response => {
-        this.options = orderSmartSelector(Object.keys(response))
-        this.options.push('search')
-        this.lists = response
-        this.view = selectFirstSmartOption(response, this.options)
-      })
+      this.loadSmartSelector()
     },
     methods: {
+      loadSmartSelector() {
+        GetNamespacesSmartSelector().then(response => {
+          this.options = orderSmartSelector(Object.keys(response))
+          this.options.push('search')
+          this.lists = response
+          this.view = selectFirstSmartOption(response, this.options)
+        })
+      },
       increment() {
         this.identifier = incrementIdentifier(this.identifier)
       },
