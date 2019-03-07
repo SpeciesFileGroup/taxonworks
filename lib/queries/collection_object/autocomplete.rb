@@ -52,10 +52,11 @@ module Queries
       def autocomplete
         queries = [
           autocomplete_identifier_cached_exact,
-          autocomplete_identifier_cached_like,
-          autocomplete_identifier_exact,
+          autocomplete_identifier_identifier_exact,
+          autocomplete_exact_id, 
           autocomplete_taxon_name_determined_as,
-          autocomplete_otu_determined_as
+          autocomplete_otu_determined_as,
+          autocomplete_identifier_cached_like,
         ]
 
         queries.compact! 

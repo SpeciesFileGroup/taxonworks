@@ -58,5 +58,4 @@ module Queries::Concerns::Identifiers
     base_query.joins(:identifiers).where(with_identifier_like.to_sql)
   end
 
-
 end

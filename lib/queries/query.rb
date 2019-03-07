@@ -296,6 +296,11 @@ module Queries
     end
 
     # @return [ActiveRecord::Relation]
+    def autocomplete_exact_id
+      base_query.where(id: query_string).limit(1)
+    end
+
+    # @return [ActiveRecord::Relation]
     def autocomplete_ordered_wildcard_pieces_in_cached
       base_query.where(match_ordered_wildcard_pieces_in_cached.to_sql).limit(5)
     end
