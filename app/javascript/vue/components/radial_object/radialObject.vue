@@ -189,7 +189,7 @@
               window.open(`${this.metadata.resource_path}/edit`, '_self')
               break
             case defaultOptions.New:
-              window.open(`/${this.metadata.type.toLowerCase()}s/new`, '_self')
+              window.open(`${this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf("/"))}/new`, '_self')
               break
             case defaultOptions.Show:
               window.open(this.metadata.resource_path, '_self')

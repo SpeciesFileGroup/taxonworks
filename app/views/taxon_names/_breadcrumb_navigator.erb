@@ -1,4 +1,4 @@
-<ul class=" breadcrumb_list "> 
+<ul class="breadcrumb_list">
   <% taxon_name.ancestor_protonyms.each do |p| %>
     <%= content_tag(:li, link_to(taxon_name_tag(p.metamorphosize), send(target, p)), class: :breadcrumb_item) %>
   <% end %>

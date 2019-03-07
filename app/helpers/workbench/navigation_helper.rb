@@ -280,7 +280,7 @@ DEPRECATED FOR RADIAL
     content_tag(:title, ['TaxonWorks', splash].compact.join(' - ') )
   end
 
-  def radial_object(object)
+  def radial_object_tag(object)
     content_tag(:div, '', data: { 'global-id' => object.to_global_id.to_s, 'radial-object' => 'true'})
   end
 

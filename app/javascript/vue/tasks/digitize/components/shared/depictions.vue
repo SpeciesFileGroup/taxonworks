@@ -5,6 +5,7 @@
       @vdropzone-sending="sending"
       @vdropzone-file-added="addedfile"
       @vdropzone-success="success"
+      @vdropzone-error="error"
       ref="depiction"
       :id="`depiction-${dropzoneId}`"
       url="/depictions"
@@ -129,6 +130,9 @@ export default {
         })
       }
     },
+    error(event) {
+      TW.workbench.alert.create(`There was an error uploading the image: ${event.xhr.responseText}`, 'error')
+    }
   }
 }
 </script>

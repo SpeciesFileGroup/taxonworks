@@ -107,6 +107,10 @@ export default {
           this.setRepository(response.id, response.name)
         })
       }
+    },
+    collectionObject(newVal, oldVal) {
+      if (!newVal.id || newVal.id == oldVal.id) return
+      this.loadTabList()
     }
   },
   data() {
@@ -124,7 +128,6 @@ export default {
     loadTabList() {
       GetRepositorySmartSelector().then(response => {
         let result = response
-        //Object.keys(result).forEach(key => (!result[key].length) && delete result[key])
         this.options = orderSmartSelector(Object.keys(result))
         this.view = selectFirstSmartOption(response, this.options)
         this.lists = response
