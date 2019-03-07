@@ -7,7 +7,7 @@
     <modal-component
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Recent collection objets</h3>
+      <h3 slot="header">Recent collection objects</h3>
       <div slot="body">
         <ul class="no_bullets">
           <li 
@@ -18,7 +18,7 @@
               <input
                 type="radio"
                 name="recent-co">
-              {{ item.object_tag }}
+              <span v-html="item.object_tag"/>
             </label>
           </li>
         </ul>

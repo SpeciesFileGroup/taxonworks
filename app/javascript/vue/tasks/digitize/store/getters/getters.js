@@ -23,6 +23,7 @@ import getLabel from './getLabel'
 import getTaxonDeterminations from './getTaxonDeterminations'
 import getNamespaceSelected from './getNamespaceSelected'
 import getSubsequentialUses from './getSubsequentialUses'
+import getTmpData from './getTmpData'
 
 const GetterNames = {
   IsSaving: 'isSaving',
@@ -49,7 +50,8 @@ const GetterNames = {
   GetLabel: 'GetLabel',
   GetTaxonDeterminations: 'GetTaxonDeterminations',
   GetNamespaceSelected: 'getNamespaceSelected',
-  GetSubsequentialUses: 'getSubsequentialUses'
+  GetSubsequentialUses: 'getSubsequentialUses',
+  getTmpData: 'getTmpData'
 }
 
 const GetterFunctions = {
@@ -77,7 +79,8 @@ const GetterFunctions = {
   [GetterNames.GetLabel]: getLabel,
   [GetterNames.GetTaxonDeterminations]: getTaxonDeterminations,
   [GetterNames.GetNamespaceSelected]: getNamespaceSelected,
-  [GetterNames.GetSubsequentialUses]: getSubsequentialUses
+  [GetterNames.GetSubsequentialUses]: getSubsequentialUses,
+  [GetterNames.GetTmpData]: getTmpData
 }
 
 export {

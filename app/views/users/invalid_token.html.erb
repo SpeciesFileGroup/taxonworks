@@ -1,1 +1,11 @@
-The token is not valid or has been expired.
+<div id="login-container">
+  <div class="logo"></div>
+  <div class="logo-text"></div>
+  <div class="box-login">
+    <h3>The token is not valid or has been expired.</h3>
+    <div class="item">
+      <%= link_to('Back to login', signin_path) -%>
+      <%= link_to('Request a password reset', forgot_password_path) -%>
+    </div> 
+  </div>
+</div>
