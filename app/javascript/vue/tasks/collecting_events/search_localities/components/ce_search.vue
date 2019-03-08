@@ -119,9 +119,7 @@
         let params = {shape: shapeText};  // take only last shape pro tem
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
           this.collectingEventList = response.body;
-          if (this.collectingEventList) {
-            this.$emit('collectingEventList', this.collectingEventList)
-          }
+          this.$emit('collectingEventList', this.collectingEventList);
           let ce_ids = [];      // find the georeferences for these collecting_events
           this.collectingEventList.forEach(ce => {
             ce_ids.push(ce.id)
@@ -157,6 +155,7 @@
             });
             this.isLoading = false;
           }
+          this.$emit('featuresList', this.geojsonFeatures);
         })
       },
       makePromise(params) {

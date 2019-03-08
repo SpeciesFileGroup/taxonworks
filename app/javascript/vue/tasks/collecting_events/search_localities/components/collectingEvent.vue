@@ -13,6 +13,7 @@
       <div v-else-if="view === 'Search'">
         <ce-search
           @collectingEventList="compileList($event)"
+          @featuresList="featuresList=$event"
           @highlightRow="highlightRow=$event"
           @restoreRow="restoreRow=$event"
         />
@@ -105,6 +106,7 @@
         moreOptions: ['Filter', 'Search', 'Tag'],
         view: undefined,
         collectingEventList: [],
+        featuresList: [],
         selected: [],
         isSelectAll: false,
         annotation_logic: 'append',
