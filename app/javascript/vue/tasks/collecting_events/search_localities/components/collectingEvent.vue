@@ -37,41 +37,65 @@
     </template>
     <div>
       <div class="annotation_logic separate-left">
-      <h2>Collecting Events</h2>
-      <annotation-logic v-model="annotation_logic"/>
+        <h2>Collecting Events</h2>
+        <annotation-logic v-model="annotation_logic"/>
       </div>
       <span v-if="collectingEventList.length" v-html="'<br>' + collectingEventList.length + '  results found.'"/>
       <table style="width: 100%">
-        <th>Cached</th><th>Verbatim Locality</th><th>Pin</th>
+        <th>Cached</th>
+        <th>Verbatim Locality</th>
+        <th>Pin</th>
         <th data-icon="trash" @click="resetList()">All</th>
         <th><input type="checkbox" @click="selectAllList()" v-model="isSelectAll"/> All</th>
         <th><span class="remove_area" data-icon="trash" @click="keepSelected()"> unchecked</span></th>
-      <tr
-        v-for="(item, index) in collectingEventList"
-        :key="item.id"
-      >
-        <td class="my-column">
-          <span 
-          v-html="item.id + ' ' + item.cached"
-          @click="showObject(item.id)"
+        <tr
+          v-for="(item, index) in collectingEventList"
+          :key="item.id"
+          v-if="highlightRow==item.id" style="background-color: #6E9C6E"
+        >
+          <td class="my-column">
+          <span
+            v-html="item.id + ' ' + item.cached"
+            @click="showObject(item.id)"
           />
-        </td>
-        <td class="my-column">
-          <span v-if="highlightRow==item.id" v-html="item.verbatim_locality" />
-          <span v-else v-html="item.verbatim_locality" />
-        </td>
-        <td>
-          <pin-component
-          v-if="item.id"
-          :object-id="item.id"
-          :type="item.base_class"/>
-        </td>
-        <td>
-          <span data-icon="trash" @click="delistMe(index)"/>
-        </td>
-        <td><input type="checkbox" :value="item.id" v-model="selected"/></td>
-        <td/>
-      </tr>
+          </td>
+          <td class="my-column">
+            <span v-html="item.verbatim_locality"/>
+          </td>
+          <td>
+            <pin-component
+              v-if="item.id"
+              :object-id="item.id"
+              :type="item.base_class"/>
+          </td>
+          <td>
+            <span data-icon="trash" @click="delistMe(index)"/>
+          </td>
+          <td><input type="checkbox" :value="item.id" v-model="selected"/></td>
+          <td/>
+        </tr>
+        <tr v-else>
+          <td class="my-column">
+          <span
+            v-html="item.id + ' ' + item.cached"
+            @click="showObject(item.id)"
+          />
+          </td>
+          <td class="my-column">
+            <span v-html="item.verbatim_locality"/>
+          </td>
+          <td>
+            <pin-component
+              v-if="item.id"
+              :object-id="item.id"
+              :type="item.base_class"/>
+          </td>
+          <td>
+            <span data-icon="trash" @click="delistMe(index)"/>
+          </td>
+          <td><input type="checkbox" :value="item.id" v-model="selected"/></td>
+          <td/>
+        </tr>
       </table>
     </div>
   </div>
@@ -112,23 +136,21 @@
     },
     watch: {
       isSelectAll(newVal) {
-        if(!newVal) {
+        if (!newVal) {
           this.selected = []
         }
       }
     },
     methods: {
       compileList(colEvList) {
-        if(this.annotation_logic == 'append') {
-          if(this.collectingEventList.length)
-          {this.collectingEventList = colEvList.concat(this.collectingEventList);}
-          else
-          {
+        if (this.annotation_logic == 'append') {
+          if (this.collectingEventList.length) {
+            this.collectingEventList = colEvList.concat(this.collectingEventList);
+          } else {
             this.collectingEventList = colEvList;
             this.selected = [];
           }
-        }
-        else {
+        } else {
           this.collectingEventList = colEvList;
           this.selected = [];
         }
@@ -143,7 +165,7 @@
         this.$delete(this.collectingEventList, index)
       },
       keepSelected() {  //loop down from top to avoid re-indexing issues
-        for (let i = this.collectingEventList.length - 1; i > -1 ; i--) {
+        for (let i = this.collectingEventList.length - 1; i > -1; i--) {
           if (!this.selected.includes(this.collectingEventList[i].id)) {
             this.delistMe(i)
           }
@@ -151,7 +173,8 @@
       },
       selectAllList() {
         this.selected = [];               // toggle on state of header checkbox (??  !!)
-        if(this.isSelectAll); {
+        if (this.isSelectAll) ;
+        {
           for (let i = this.collectingEventList.length - 1; i > -1; i--) {
             if (!this.selected.includes(this.collectingEventList[i].id)) {
               this.selected.push(this.collectingEventList[i].id);
@@ -161,11 +184,11 @@
         // this.isSelectAll = ! this.isSelectAll;
       },
     },
-    mounted: function() {
+    mounted: function () {
       this.$http.get('/collecting_events/select_options').then(response => {
         this.tabs = Object.keys(response.body);
         this.list = response.body;
-        if(this.tabs.length) {
+        if (this.tabs.length) {
           this.view = this.tabs[0]
         }
       })
