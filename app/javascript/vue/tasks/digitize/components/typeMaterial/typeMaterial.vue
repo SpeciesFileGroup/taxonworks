@@ -12,6 +12,9 @@
           :key="item.id"
           class="horizontal-left-content">
           <span v-html="item.object_tag"/>
+          <radial-annotator 
+            :global-id="item.global_id"
+            type="annotations"/>
           <span
             class="button circle-button btn-delete"
             @click="destroyTypeMateria(item)"/>
@@ -130,7 +133,6 @@
   import { 
     GetTaxon,
     GetTypes, 
-    DestroyTypeMaterial, 
     GetTypeDesignatorSmartSelector,
     GetTaxonNameSmartSelector } from '../../request/resources.js'
   import RolePicker from '../../../../components/role_picker.vue'
@@ -142,13 +144,15 @@
   import CreatePerson from '../../helpers/createPerson.js'
   import orderSmartSelector from '../../helpers/orderSmartSelector.js'
   import selectFirstSmartOption from '../../helpers/selectFirstSmartOption'
+  import RadialAnnotator from 'components/annotator/annotator'
 
   export default {
     components: {
       Autocomplete,
       RolePicker,
       BlockLayout,
-      SmartSelector
+      SmartSelector,
+      RadialAnnotator
     },
     computed: {
       taxonIdFormOtu() {
