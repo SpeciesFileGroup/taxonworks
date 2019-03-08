@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="custom_attributes">
     <fieldset>
       <spinner-component
         v-if="loading"
@@ -125,3 +125,13 @@ export default {
 }
 </script>
 
+<style lang="scss">
+  .custom_attributes {
+    input {
+      width: 100%;
+    }
+    .vue-autocomplete-input {
+        width: 100% !important;
+    }
+  }
+</style>
