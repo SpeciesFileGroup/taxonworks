@@ -4,6 +4,7 @@
     <input
       type="text"
       v-model="longitude">
+    <span v-if="!isCoordinate">Can not parse verbaitm values</span>
   </div>
 </template>
 
@@ -11,9 +12,18 @@
 
 import { GetterNames } from '../../../../store/getters/getters'
 import { MutationNames } from '../../../../store/mutations/mutations'
+import convertDMS from '../../../../helpers/parseDMS.js'
 
 export default {
   computed: {
+    isCoordinate() {
+      if(this.latitude && this.latitude.length) {
+        return convertDMS(this.latitude)
+      }
+      else {
+        return true
+      }
+    },
     longitude: {
       get() {
         return this.$store.getters[GetterNames.GetCollectionEvent].verbatim_longitude

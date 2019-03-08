@@ -20,7 +20,7 @@
 
 import { GetterNames } from '../../../../store/getters/getters.js'
 import { LMap, LTileLayer, LMarker } from 'vue2-leaflet'
-import convertDMS from './parseDMS.js'
+import convertDMS from '../../../../helpers/parseDMS.js'
 
 delete L.Icon.Default.prototype._getIconUrl;
 
