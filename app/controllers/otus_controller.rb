@@ -91,7 +91,7 @@ class OtusController < ApplicationController
   end
 
   def autocomplete
-    @otus = Queries::Otu::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).all
+    @otus = Queries::Otu::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).autocomplete
   end
 
   def batch_load

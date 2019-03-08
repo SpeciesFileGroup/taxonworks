@@ -55,13 +55,13 @@ module Queries
           autocomplete_cached_wildcard_anywhere,
           autocomplete_identifier_cached_like,
 
-
           # others?
           # - verbatim locality exact match (?) start date
           # - ce_cached wildcard wrapped autocomplete start date
           # - date (exact date)
-      
-        ].compact!
+        ]
+
+        queries.compact!
 
         return [] if queries.nil?
         updated_queries = []

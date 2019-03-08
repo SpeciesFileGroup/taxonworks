@@ -110,7 +110,7 @@ module Queries
       # @return [ActiveRecord::Relation, nil]
       def autocomplete_wildcard_anywhere_exact_year
         a = match_year
-        b = match_wildcard_cached
+        b = match_wildcard_in_cached
         return nil if a.nil? || b.nil?
         c = a.and(b)
         base_query.where(c.to_sql).limit(10)

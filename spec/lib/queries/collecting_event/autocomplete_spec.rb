@@ -19,7 +19,6 @@ describe Queries::CollectingEvent::Autocomplete, type: :model do
 
   let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
 
-
   specify '#autocomplete_cached_wildcard_anywhere' do
     query.terms = '2000 there'
     expect(query.autocomplete_cached_wildcard_anywhere.map(&:id)).to contain_exactly(ce2.id, ce1.id)
