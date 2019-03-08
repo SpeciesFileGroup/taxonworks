@@ -44,8 +44,7 @@ module Queries
         queries = [
           autocomplete_verbatim_trip_identifier_match,
           autocomplete_identifier_cached_exact,
-          autocomplete_identifier_exact,
-
+          autocomplete_identifier_identifier_exact,
           autocomplete_start_date_wild_card(:verbatim_locality), 
           autocomplete_start_date_wild_card(:cached),
 
