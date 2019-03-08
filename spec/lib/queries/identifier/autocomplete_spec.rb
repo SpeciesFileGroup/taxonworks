@@ -14,7 +14,6 @@ describe Queries::Identifier::Autocomplete, type: :model do
 
   let(:query) { Queries::Identifier::Autocomplete.new('') }
 
-
   specify '#autocomplete' do
     query.query_string = 'Foo 345'
     expect(query.autocomplete.map(&:id)).to contain_exactly(i2.id)
@@ -23,6 +22,11 @@ describe Queries::Identifier::Autocomplete, type: :model do
   specify '#autocomplete_exact_cached' do
     query.query_string = 'Foo 345'
     expect(query.autocomplete_exact_cached.map(&:id)).to contain_exactly(i2.id)
+  end
+
+  specify '#autocomplete_exact_identifier' do
+    query.query_string = '987'
+    expect(query.autocomplete_exact_identifier.map(&:id)).to contain_exactly(i3.id)
   end
 
   specify '#autocomplete_matching_cached' do
@@ -34,6 +38,5 @@ describe Queries::Identifier::Autocomplete, type: :model do
     query.query_string = '3'
     expect(query.autocomplete_matching_cached_anywhere.map(&:id)).to contain_exactly(i1.id, i2.id)
   end
-
 
 end

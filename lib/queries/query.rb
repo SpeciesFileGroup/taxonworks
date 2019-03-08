@@ -15,6 +15,7 @@ require 'date'
 module Queries
   class Query
     include Arel::Nodes
+
     include Queries::Concerns::Identifiers 
 
     attr_accessor :query_string
@@ -261,17 +262,33 @@ module Queries
       end
     end
 
-    # match ALL wildcards, but unordered, if 2 - 6 pieces provided
     # @return [Arel::Nodes::Matches]
-    def match_wildcard_cached
-      b = fragments
-      return nil if b.empty?
-      a = table[:cached].matches_all(b)
+    def with_cached
+      table[:cached].eq(query_string)
+    end
+
+    # @return [Arel::Nodes::Matches]
+    def with_cached_like
+      table[:cached].matches(start_and_end_wildcard)
     end
 
     # @return [Arel::Nodes::Matches]
     def match_ordered_wildcard_pieces_in_cached
-      a = table[:cached].matches(wildcard_pieces)
+      table[:cached].matches(wildcard_pieces)
+    end
+
+    # match ALL wildcards, but unordered, if 2 - 6 pieces provided
+    # @return [Arel::Nodes::Matches]
+    def match_wildcard_end_in_cached
+      table[:cached].matches(end_wildcard)
+    end
+
+    # match ALL wildcards, but unordered, if 2 - 6 pieces provided
+    # @return [Arel::Nodes::Matches]
+    def match_wildcard_in_cached
+      b = fragments
+      return nil if b.empty?
+      table[:cached].matches_all(b)
     end
 
     # @return [Arel::Nodes::Grouping]
@@ -296,6 +313,11 @@ module Queries
     end
 
     # @return [ActiveRecord::Relation]
+    def autocomplete_exact_id
+      base_query.where(id: query_string).limit(1)
+    end
+
+    # @return [ActiveRecord::Relation]
     def autocomplete_ordered_wildcard_pieces_in_cached
       base_query.where(match_ordered_wildcard_pieces_in_cached.to_sql).limit(5)
     end
@@ -303,7 +325,7 @@ module Queries
     # @return [ActiveRecord::Relation]
     #   removes years/integers!
     def autocomplete_cached_wildcard_anywhere
-      a = match_wildcard_cached
+      a = match_wildcard_in_cached
       return nil if a.nil?
       base_query.where(a.to_sql).limit(20)
     end
@@ -320,7 +342,6 @@ module Queries
       return nil if a.nil?
       base_query.where(a.to_sql).limit(20)
     end
-
 
   end
 end

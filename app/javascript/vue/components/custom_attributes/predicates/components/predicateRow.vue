@@ -3,16 +3,25 @@
     class="field"
   >
     <label v-html="predicateObject.object_tag" />
-    <input
-      type="text"
+    <autocomplete
+      :url="`/data_attributes/value_autocomplete`"
       v-model="data_attribute.value"
-      @change="updatePredicate"
-    >
+      @getItem="data_attribute.value = $event"
+      :add-params="{
+        predicate_id: this.predicateObject.id
+      }"
+      param="term"/>
   </div>
 </template>
 
 <script>
+
+import Autocomplete from 'components/autocomplete'
+
 export default {
+  components: {
+    Autocomplete
+  },
   props: {
     predicateObject: {
       type: Object,
@@ -46,6 +55,12 @@ export default {
       else {
         this.data_attribute = this.newDataAttribute()
       }
+    },
+    data_attribute: {
+      handler(newVal) {
+        this.updatePredicate()
+      },
+      deep: true
     }
   },
   methods: {
@@ -77,9 +92,3 @@ export default {
 
 }
 </script>
-
-<style scoped>
-  input {
-    width: 100%;
-  }
-</style>

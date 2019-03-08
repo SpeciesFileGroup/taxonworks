@@ -249,6 +249,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :data_attributes, except: [:show] do
     concerns [:data_routes]
+    collection do
+      get 'value_autocomplete', defaults: {format: :json}
+    end
   end
 
   resources :depictions do
