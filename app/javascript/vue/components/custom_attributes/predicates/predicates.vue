@@ -5,15 +5,22 @@
         v-if="loading"
       />
       <legend>Custom attributes</legend>
-      <predicate-row
-        v-for="item in predicatesList"
-        :key="item.id"
-        :object-id="objectId"
-        :object-type="objectType"
-        :predicate-object="item"
-        :existing="findExisting(item.id)"
-        @onUpdate="addDataAttribute"
-      />
+      <template
+        v-if="predicatesList.length">
+        <predicate-row
+          v-for="item in predicatesList"
+          :key="item.id"
+          :object-id="objectId"
+          :object-type="objectType"
+          :predicate-object="item"
+          :existing="findExisting(item.id)"
+          @onUpdate="addDataAttribute"
+        />
+      </template>
+      <a
+        v-else
+        href="/controlled_vocabulary_terms/new">Create a term (Predicate) 
+      </a>
     </fieldset>
   </div>
 </template>
