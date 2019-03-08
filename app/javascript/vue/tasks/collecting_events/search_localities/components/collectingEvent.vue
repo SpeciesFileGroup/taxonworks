@@ -51,30 +51,8 @@
         <tr
           v-for="(item, index) in collectingEventList"
           :key="item.id"
-          v-if="highlightRow==item.id" style="background-color: #6E9C6E"
+          :class="{'my-row': highlightRow==item.id}"
         >
-          <td class="my-column">
-          <span
-            v-html="item.id + ' ' + item.cached"
-            @click="showObject(item.id)"
-          />
-          </td>
-          <td class="my-column">
-            <span v-html="item.verbatim_locality"/>
-          </td>
-          <td>
-            <pin-component
-              v-if="item.id"
-              :object-id="item.id"
-              :type="item.base_class"/>
-          </td>
-          <td>
-            <span data-icon="trash" @click="delistMe(index)"/>
-          </td>
-          <td><input type="checkbox" :value="item.id" v-model="selected"/></td>
-          <td/>
-        </tr>
-        <tr v-else>
           <td class="my-column">
           <span
             v-html="item.id + ' ' + item.cached"
@@ -205,5 +183,8 @@
     width: 40%;
     min-width: 40%;
     max-width: 40%;
+  }
+  .my-row {
+    background-color: #BBDDBB
   }
 </style>
