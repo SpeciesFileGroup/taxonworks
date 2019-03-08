@@ -131,7 +131,7 @@ export default {
       width: 100%;
     }
     .vue-autocomplete-input {
-        width: 100% !important;
+      width: 100% !important;
     }
   }
 </style>

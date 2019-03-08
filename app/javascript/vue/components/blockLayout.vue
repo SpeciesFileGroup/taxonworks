@@ -17,7 +17,9 @@
         </slot>
         <div class="horizontal-left-content">
           <slot name="options"/>
-          <expand-component v-model="expanded"/>
+          <expand-component 
+            v-if="expand"
+            v-model="expanded"/>
         </div>
       </div>
       <div
@@ -39,6 +41,10 @@ export default {
     SpinnerComponent
   },
   props: {
+    expand: {
+      type: Boolean,
+      default: false
+    },
     anchor: {
       type: String,
       default: undefined
