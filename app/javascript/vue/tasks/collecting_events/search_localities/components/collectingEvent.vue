@@ -151,7 +151,7 @@
       },
       selectAllList() {
         this.selected = [];               // toggle on state of header checkbox (??  !!)
-        if (this.isSelectAll) ;
+        if (this.isSelectAll)
         {
           for (let i = this.collectingEventList.length - 1; i > -1; i--) {
             if (!this.selected.includes(this.collectingEventList[i].id)) {
