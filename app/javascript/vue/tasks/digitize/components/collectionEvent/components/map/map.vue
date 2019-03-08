@@ -12,7 +12,7 @@
     v-else
     class="panel aligner"
     style="height: 300px; align-items: center; width:310px">
-    <h3>Fill lat/long to display the map</h3>
+    <h3>Unparsable, can not preview point</h3>
   </div>
 </template>
 
