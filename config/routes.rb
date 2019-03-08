@@ -44,6 +44,7 @@ TaxonWorks::Application.routes.draw do
   end
 
   scope :metadata, controller: 'metadata', only: [:index] do
+    get 'object_radial/', action: :object_radial, defaults: {format: :json}
     get '(/:klass)', action: :index, defaults: {format: :json}
   end
 
@@ -251,6 +252,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :data_attributes, except: [:show] do
     concerns [:data_routes]
+    collection do
+      get 'value_autocomplete', defaults: {format: :json}
+    end
   end
 
   resources :depictions do

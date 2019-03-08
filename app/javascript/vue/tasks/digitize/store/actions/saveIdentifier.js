@@ -8,14 +8,12 @@ export default function ({ commit, state }) {
       commit(MutationNames.SetIdentifierObjectId, state.collection_object.id)
       if(identifier.id) {
         UpdateIdentifier(identifier).then(response => {
-          TW.workbench.alert.create('Identifier was successfully updated.', 'notice')
           commit(MutationNames.SetIdentifier, response)
           return resolve(response)
         })
       }
       else {
         CreateIdentifier(identifier).then(response => {
-          TW.workbench.alert.create('Identifierwas successfully created.', 'notice')
           if(state.settings.increment) {
             response.identifier = state.identifier.identifier
           }

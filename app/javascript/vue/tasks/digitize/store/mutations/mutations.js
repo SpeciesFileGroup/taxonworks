@@ -113,8 +113,11 @@ import setTaxonDeterminationMonth from './TaxonDetermination/setTaxonDeterminati
 import setTaxonDeterminationDay from './TaxonDetermination/setTaxonDeterminationDay'
 import setTaxonDeterminationRoles from './TaxonDetermination/setTaxonDeterminationRoles'
 
+import setTmpDataOtu from './tmpData/setTmpDataOtu'
+
 const MutationNames = {
 
+  SetTmpDataOtu: 'setTmpDataOtu',
   SetSubsequentialUses: 'setSubsequentialUses',
 
   SetLocked: 'setLocked',
@@ -232,6 +235,7 @@ const MutationNames = {
 }
 
 const MutationFunctions = {
+  [MutationNames.SetTmpDataOtu]: setTmpDataOtu,
   [MutationNames.SetSubsequentialUses]: setSubsequentialUses,
 
   [MutationNames.SetLocked]: setLocked,

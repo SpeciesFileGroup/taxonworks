@@ -1,4 +1,8 @@
-<h2><%= user_tag(@user) %> <%= sessions_current_user == @user ? content_tag(:span, 'You!', class: :subtle) : content_tag(:span, 'NOT YOU!', class: :warning) -%>  </h2>
+<%= content_tag :h2, user_tag(@user) %>
+<p>
+  <%= sessions_current_user_id == @user.id ? content_tag(:span, 'You!', class: [:feedback, 'feedback-success']) :
+    content_tag(:span, 'NOT YOU!', class: [:feedback, 'feedback-danger']) -%>
+</p>
 
 <div class="flexbox">
     <div class="item item1">

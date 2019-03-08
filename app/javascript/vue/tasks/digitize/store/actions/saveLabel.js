@@ -9,14 +9,12 @@ export default function ({ commit, state }) {
     if(ValidateLabel(label)) {
       if(label.id) {
         UpdateLabel(label).then(response => {
-          TW.workbench.alert.create('Label was successfully updated.', 'notice')
           commit(MutationNames.SetLabel, response)
           return resolve(response)
         })
       }
       else {
         CreateLabel(label).then(response => {
-          TW.workbench.alert.create('Label was successfully created.', 'notice')
           commit(MutationNames.SetLabel, response)
           return resolve(response)
         })

@@ -82,7 +82,9 @@ class DataAttributesController < ApplicationController
   end
 
   def autocomplete
-    @data_attributes = DataAttribute.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)).limit(20)
+    @data_attributes = DataAttribute.find_for_autocomplete(
+      params.merge(project_id: sessions_current_project_id)
+    ).limit(20)
 
     data = @data_attributes.collect do |t|
       str = render_to_string(partial: 'tag', locals: {data_attribute: t})
@@ -97,13 +99,23 @@ class DataAttributesController < ApplicationController
     render json: data
   end
 
+  def value_autocomplete
+    render json: [] if params[:term].blank? || params[:predicate_id].blank?
+    @values = ::Queries::DataAttribute::ValueAutocomplete.new(params[:term], value_autocomplete_params).autocomplete
+    render json: @values
+  end
+
   # GET /data_attributes/download
   def download
     send_data Download.generate_csv(DataAttribute.where(project_id: sessions_current_project_id)), type: 'text', filename: "data_attributes_#{DateTime.now}.csv"
   end
 
   private
-  
+
+  def value_autocomplete_params
+    params.permit(:predicate_id).merge(project_id: sessions_current_project_id).to_h.symbolize_keys 
+  end
+
   def set_data_attribute
     @data_attribute = DataAttribute.find(params[:id])
     if !@data_attribute.project_id.blank? && (sessions_current_project_id != @data_attribute.project_id)

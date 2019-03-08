@@ -74,7 +74,7 @@ gem 'csl', '~> 1.5.0'
 gem 'bibtex-ruby', '~> 4.4.7'
 gem 'citeproc-ruby', '~> 1.1.10'
 gem 'csl-styles', '~> 1.0.1.8'
-gem 'ref2bibtex', '~> 0.2.3'
+gem 'ref2bibtex', '~> 0.3.0'
 # gem 'latex-decode', '~> 0.2.2'
 gem 'pdf-reader', '~> 2.2'
 
@@ -113,7 +113,7 @@ group :test, :development do
   gem 'rspec-rails', '~> 3.6'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'byebug', '~> 11.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
-  gem 'factory_bot_rails', '~> 4.11.1'
+  gem 'factory_bot_rails', '~> 5.0.1'
   gem 'selenium-webdriver', '~> 3.141'
   gem 'geckodriver-helper', '~> 0.23.0'
   gem 'prawn', '~> 2.2.2'
