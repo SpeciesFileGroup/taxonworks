@@ -4,7 +4,9 @@
     <input
       type="text"
       v-model="longitude">
-    <span v-if="!isCoordinate">Can not parse verbaitm values</span>
+    <span 
+      :class="{ red: !this.isCoordinate}"
+      v-if="!isCoordinate">Can not parse verbaitm values</span>
   </div>
 </template>
 
@@ -17,8 +19,8 @@ import convertDMS from '../../../../helpers/parseDMS.js'
 export default {
   computed: {
     isCoordinate() {
-      if(this.latitude && this.latitude.length) {
-        return convertDMS(this.latitude)
+      if(this.longitude && this.longitude.length) {
+        return convertDMS(this.longitude)
       }
       else {
         return true

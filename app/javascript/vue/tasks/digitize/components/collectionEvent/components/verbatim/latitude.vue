@@ -4,7 +4,10 @@
     <input
       type="text"
       v-model="latitude">
-    <span v-if="!isCoordinate">Can not parse verbaitm values</span>
+    <span
+      v-if="!isCoordinate"
+      :class="{ red: !this.isCoordinate}">Can not parse verbaitm values
+    </span>
   </div>
 </template>
 
