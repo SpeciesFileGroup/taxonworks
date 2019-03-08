@@ -142,7 +142,8 @@
         window.open(`/collecting_events/` + id, '_blank');
       },
       delistMe(index) {
-        this.$delete(this.collectingEventList, index)
+        this.$delete(this.collectingEventList, index);
+        this.$delete(this.featuresList, index);
       },
       keepSelected() {  //loop down from top to avoid re-indexing issues
         for (let i = this.collectingEventList.length - 1; i > -1; i--) {

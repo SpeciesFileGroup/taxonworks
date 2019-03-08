@@ -94,6 +94,9 @@
         ]
       }
     },
+    watch: {
+      geojsonFeatures() {}
+    },
     methods: {
       getAreaData() {
         this.isLoading = true;
@@ -152,10 +155,10 @@
               // if (searchShape) {FeatureCollection.features.push(searchShape)}
               featuresArrays.forEach(f => {FeatureCollection.features = FeatureCollection.features.concat(f)})
               that.geojsonFeatures = that.geojsonFeatures.concat(FeatureCollection.features);
+              this.$emit('featuresList', this.geojsonFeatures);
             });
             this.isLoading = false;
           }
-          this.$emit('featuresList', this.geojsonFeatures);
         })
       },
       makePromise(params) {
