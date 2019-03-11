@@ -528,9 +528,10 @@ namespace :tw do
                         else
                           otu = Otu.find_or_create_by!(name: target_nomenclator, taxon_name_id: tw_taxon_name_id, project_id: project_id)
                           otu_id = otu.id
+                          logger.warning "Created new Otu(id = #{otu_id}, name = #{target_nomenclator}, taxon_name_id = #{tw_taxon_name_id}, project_id = #{project_id})"
                         end
                       end
-                      puts "otu_id = #{otu_id}, target_nomenclator = #{target_nomenclator}"
+                      puts "otu_id = #{otu_id}, target_nomenclator = #{target_nomenclator}, taxon_name_obj.cached = #{taxon_name_obj.cached}, taxon_name_obj.cached_original_combination = #{taxon_name_obj.cached_original_combination}"
 
                       # create conditional attributes here
                       data_attributes_attributes = []
@@ -589,6 +590,8 @@ namespace :tw do
                             definition: "tblIdentifications: #{'get_sf_ident_qualifier[nomenclator_id]'}",
                             project_id: project_id)})
                       end
+
+                      # where/when is value for otu_id coming from?
 
                       t = TaxonDetermination.create!(
                           otu_id: otu_id,
