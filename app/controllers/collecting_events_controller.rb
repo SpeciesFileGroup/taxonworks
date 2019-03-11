@@ -171,6 +171,7 @@ class CollectingEventsController < ApplicationController
       @result = BatchLoad::Import::CollectingEvents::GpxInterpreter.new(batch_params)
       digest_cookie(params[:file].tempfile, :gpx_batch_load_collecting_events_md5)
       render 'collecting_events/batch_load/gpx/preview'
+      # render '/shared/data/all/batch_load/preview'
     else
       flash[:notice] = "No file provided!"
       redirect_to action: :batch_load
@@ -224,7 +225,11 @@ class CollectingEventsController < ApplicationController
   end
 
   def batch_params
-    params.permit(:ce_namespace, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
+    params.permit(:ce_namespace,
+                  :ce_geographic_area_id,
+                  :file,
+                  :import_level).merge(user_id: sessions_current_user_id,
+                                       project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
   def filter_params
