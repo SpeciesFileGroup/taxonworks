@@ -98,6 +98,7 @@
     watch: {
       geojson(newVal) {
         if (newVal.length) {
+          this.removeLayers()
           this.geoJSON(newVal)
         }
       },
@@ -262,8 +263,7 @@
             fillOpacity: 0.4
           },
           onEachFeature: this.onEachFeature
-        }).addTo(this.mapObject);
-
+        }).addTo(this.drawnItems);
 
         this.mapObject.fitBounds(this.drawnItems.getBounds())
       },
