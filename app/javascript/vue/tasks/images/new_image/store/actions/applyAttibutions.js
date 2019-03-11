@@ -20,6 +20,10 @@ export default function({ state, commit }) {
   state.imagesCreated.forEach(item => {
     state.settings.saving = true
 
+    if(state.source) {
+      
+    }
+
     let data = {
       copyright_year: state.yearCopyright,
       license: state.license,
