@@ -98,7 +98,8 @@
     watch: {
       geojson(newVal) {
         if (newVal.length) {
-          this.removeLayers()
+          // this.removeLayers()
+          this.foundItems.clearLayers();
           this.geoJSON(newVal)
         }
       },
@@ -263,7 +264,7 @@
             fillOpacity: 0.4
           },
           onEachFeature: this.onEachFeature
-        }).addTo(this.drawnItems);
+        }).addTo(this.foundItems);
 
         this.mapObject.fitBounds(this.drawnItems.getBounds())
       },
