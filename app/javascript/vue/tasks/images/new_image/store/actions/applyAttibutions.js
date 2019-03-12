@@ -25,6 +25,7 @@ export default function({ state, commit }) {
       license: state.license,
       attribution_object_type: item.base_class,
       attribution_object_id: item.id,
+      citations_attributes: state.source ? { source_id: state.source.id } : undefined,
       roles_attributes: [].concat(state.people.authors, state.people.editors, state.people.owners, state.people.copyrightHolder)
     }
     

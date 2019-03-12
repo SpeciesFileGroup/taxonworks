@@ -16,6 +16,8 @@ import setSqed from './setSqed'
 import setNewCOForSqed from './setNewCOForSqed'
 import setCollectionObject from './setCollectionObject'
 import setTaxonDeterminations from './setTaxonDeterminations'
+import setSource from './setSource'
+import setDepictionCaption from './setDepictionCaption'
 
 const MutationNames = {
   AddAttribution: 'addAttribution',
@@ -35,7 +37,9 @@ const MutationNames = {
   SetSqed: 'setSqed',
   SetNewCOForSqed: 'setNewCOForSqed',
   SetCollectionObject: 'setCollectionObject',
-  SetTaxonDeterminations: 'setTaxonDeterminations'
+  SetTaxonDeterminations: 'setTaxonDeterminations',
+  SetSource: 'setSource',
+  SetDepictionCaption: 'setDepictionCaption'
 }
 
 const MutationFunctions = {
@@ -56,7 +60,9 @@ const MutationFunctions = {
   [MutationNames.SetSqed]: setSqed,
   [MutationNames.SetNewCOForSqed]: setNewCOForSqed,
   [MutationNames.SetCollectionObject]: setCollectionObject,
-  [MutationNames.SetTaxonDeterminations]: setTaxonDeterminations
+  [MutationNames.SetTaxonDeterminations]: setTaxonDeterminations,
+  [MutationNames.SetSource]: setSource,
+  [MutationNames.SetDepictionCaption]: setDepictionCaption
 }
 
 export {
