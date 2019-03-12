@@ -63,7 +63,7 @@
       <input
         class="button normal-input button-default separate-left"
         type="button"
-        @click="clearMap = true"
+        @click="clearTheMap"
         value="Clear Map">
     </div>
   </div>
@@ -95,9 +95,17 @@
       }
     },
     watch: {
-      geojsonFeatures() {}
+      geojsonFeatures() {
+        if(this.geojsonFeatures.length === 0) {
+          this.clearTheMap
+        }
+      }
     },
     methods: {
+      clearTheMap() {
+        this.clearMap = true;
+        this.geojsonFeatures = [];
+      },
       getAreaData() {
         this.isLoading = true;
         let geo_ids = [];
@@ -123,7 +131,12 @@
         let params = {shape: shapeText};  // take only last shape pro tem
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
           // filter out any existing colecting events...
-          foundEvents = response.body;
+          let foundEvents = response.body;
+          for (let i = foundEvents.length - 1; i > -1; i--) {
+            if (this.collectingEventList.id.includes(foundEvents[i].id)) {
+              this.$delete(foundEvents, i)
+            }
+          }
           this.collectingEventList = foundEvents;
           this.$emit('collectingEventList', this.collectingEventList);
           let ce_ids = [];      // find the georeferences for these collecting_events

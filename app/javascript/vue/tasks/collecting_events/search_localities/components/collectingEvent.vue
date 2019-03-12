@@ -142,8 +142,13 @@
         window.open(`/collecting_events/` + id, '_blank');
       },
       delistMe(index) {
+        let ce_id = this.collectingEventList[index].id;
+        for (let i = this.featuresList.length - 1; i > -1; i--) {
+          if (this.featuresList[i].properties.collecting_event_id == ce_id) {
+            this.$delete(this.featuresList, i);
+          }
+        }
         this.$delete(this.collectingEventList, index);
-        this.$delete(this.featuresList, index);
       },
       keepSelected() {  //loop down from top to avoid re-indexing issues
         for (let i = this.collectingEventList.length - 1; i > -1; i--) {
