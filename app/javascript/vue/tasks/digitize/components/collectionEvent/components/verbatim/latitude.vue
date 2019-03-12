@@ -6,7 +6,7 @@
       v-model="latitude">
     <span
       v-if="!isCoordinate"
-      :class="{ red: !this.isCoordinate}">Can not parse verbaitm values
+      :class="{ red: !this.isCoordinate}">Can not parse verbatim values
     </span>
   </div>
 </template>

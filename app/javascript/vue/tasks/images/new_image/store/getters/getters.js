@@ -9,6 +9,8 @@ import getSqed from './getSqed'
 import getNewCOForSqed from './getNewCOForSqed'
 import getCollectionObject from './getCollectionObject'
 import getTaxonDeterminations from './getTaxonDeterminations'
+import getSource from './getSource'
+import getDepiction from './getDepiction'
 
 const GetterNames = {
   GetLicense: 'getLicense',
@@ -21,7 +23,9 @@ const GetterNames = {
   GetSqed: 'getSqed',
   GetNewCOForSqed: 'getNewCOForSqed',
   GetCollectionObject: 'getCollectionObject',
-  GetTaxonDeterminations: 'getTaxonDeterminations'
+  GetTaxonDeterminations: 'getTaxonDeterminations',
+  GetSource: 'getSource',
+  GetDepiction: 'getDepiction'
 }
 
 const GetterFunctions = {
@@ -35,7 +39,9 @@ const GetterFunctions = {
   [GetterNames.GetSqed]: getSqed,
   [GetterNames.GetNewCOForSqed]: getNewCOForSqed,
   [GetterNames.GetCollectionObject]: getCollectionObject,
-  [GetterNames.GetTaxonDeterminations]: getTaxonDeterminations
+  [GetterNames.GetTaxonDeterminations]: getTaxonDeterminations,
+  [GetterNames.GetSource]: getSource,
+  [GetterNames.GetDepiction]: getDepiction
 }
 
 export {

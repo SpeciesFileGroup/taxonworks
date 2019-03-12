@@ -132,6 +132,9 @@ class ImagesController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def image_params
-    params.require(:image).permit(:image_file)
+    params.require(:image).permit(
+      :image_file,
+      citations_attributes: [:id, :is_original, :_destroy, :source_id, :pages, :citation_object_id, :citation_object_type]
+    )
   end
 end

@@ -27,6 +27,7 @@ export default function({ state, commit }) {
           depiction_object_id: response.body.id,
           depiction_object_type: response.body.base_class,
           image_id: item.id,
+          caption: state.depiction.caption.length ? state.depiction.caption : undefined,
           sqed_depiction_attributes: (validateSqed(state.sqed) ? state.sqed : undefined)
         }
 
@@ -49,6 +50,7 @@ export default function({ state, commit }) {
           depiction_object_id: object.id,
           depiction_object_type: object.base_class,
           image_id: item.id,
+          caption: state.depiction.caption.length ? state.depiction.caption : undefined,
           sqed_depiction_attributes: (validateSqed(state.sqed) && state.objectsForDepictions.length == 1 && object.base_class == 'CollectionObject') ? state.sqed : undefined
         }
 
