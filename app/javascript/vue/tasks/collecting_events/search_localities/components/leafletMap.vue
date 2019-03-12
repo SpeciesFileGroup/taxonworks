@@ -263,12 +263,12 @@
             dashArray: '',
             fillOpacity: 0.4
           },
-          onEachFeature: this.onEachFeature
+          onEachFeature: this.onMyFeatures
         }).addTo(this.foundItems);
 
-        this.mapObject.fitBounds(this.drawnItems.getBounds())
+        this.mapObject.fitBounds(this.foundItems.getBounds())
       },
-      onEachFeature(feature, layer) {
+      onMyFeatures(feature, layer) {
         layer.on({
           mouseover: this.highlightFeature,
           mouseout: this.resetHighlight,

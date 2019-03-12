@@ -119,9 +119,12 @@
         this.isLoading = true;
         let shapeText = this.shapes[this.shapes.length - 1];
         let searchShape = JSON.parse(shapeText);
+        let foundEvents = [];
         let params = {shape: shapeText};  // take only last shape pro tem
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
-          this.collectingEventList = response.body;
+          // filter out any existing colecting events...
+          foundEvents = response.body;
+          this.collectingEventList = foundEvents;
           this.$emit('collectingEventList', this.collectingEventList);
           let ce_ids = [];      // find the georeferences for these collecting_events
           this.collectingEventList.forEach(ce => {
