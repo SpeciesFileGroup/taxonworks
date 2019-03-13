@@ -11,6 +11,7 @@ import getCollectionObject from './getCollectionObject'
 import getTaxonDeterminations from './getTaxonDeterminations'
 import getSource from './getSource'
 import getDepiction from './getDepiction'
+import getCitations from './getCitations'
 
 const GetterNames = {
   GetLicense: 'getLicense',
@@ -25,7 +26,8 @@ const GetterNames = {
   GetCollectionObject: 'getCollectionObject',
   GetTaxonDeterminations: 'getTaxonDeterminations',
   GetSource: 'getSource',
-  GetDepiction: 'getDepiction'
+  GetDepiction: 'getDepiction',
+  GetCitations: 'getCitations'
 }
 
 const GetterFunctions = {
@@ -41,7 +43,8 @@ const GetterFunctions = {
   [GetterNames.GetCollectionObject]: getCollectionObject,
   [GetterNames.GetTaxonDeterminations]: getTaxonDeterminations,
   [GetterNames.GetSource]: getSource,
-  [GetterNames.GetDepiction]: getDepiction
+  [GetterNames.GetDepiction]: getDepiction,
+  [GetterNames.GetCitations]: getCitations
 }
 
 export {
