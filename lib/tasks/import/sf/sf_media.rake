@@ -68,7 +68,7 @@ namespace :tw do
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_taxon_name_otu_id = import.get('TWTaxonNameIDToOtuID')
           get_tw_collection_object_id = import.get('SFSpecimenIDToCollObjID')
-          get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')  # an ill-formed SF taxon name
+          get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID') # an ill-formed SF taxon name
 
           # otu_id: get_otu_from_tw_taxon_id[tw_taxon_name_id]  # used for taxon_determination
           # get_tw_collection_object_id = {} # key = SF.SpecimenID, value = TW.collection_object.id OR TW.container.id (assign to all objects within a container)
@@ -87,7 +87,7 @@ namespace :tw do
 
           file.each_with_index do |row, i|
             begin
-              if row['AccessCode'].to_i != 0 or row['Status'].to_i != 0 
+              if row['AccessCode'].to_i != 0 or row['Status'].to_i != 0
                 # HLP: Lets start by not exposing data that could potentially be part of a manuscript for now.
                 # Emit a warning to remind us in the future of the missing images.
                 logger.warn "Skipping ImageID = #{row['ImageID']}, AccessCode = #{row['AccessCode']}, Status = #{row['Status']}"
@@ -144,35 +144,35 @@ namespace :tw do
               depiction_object = collection_object_id.nil? ? Otu.find(otu_id) : CollectionObject.find(collection_object_id)
 
               # depiction object: if collection_object_id not nil, use it, otherwise use otu_id
-              File.open("#{@args[:data_directory]}/images/#{row['ImageID']}") do | file |
+              File.open("#{@args[:data_directory]}/images/#{row['ImageID']}") do |file|
                 depiction = Depiction.create(
-                  image_attributes: { image_file: file, project_id: get_tw_project_id[row['FileID']] }, 
-                  created_at: row['CreatedOn'],
-                  updated_at: row['LastUpdate'],
-                  created_by_id: get_tw_user_id[row['CreatedBy']],
-                  updated_by_id: get_tw_user_id[row['ModifiedBy']],
-                  project_id: get_tw_project_id[row['FileID']],
-                  depiction_object: depiction_object
+                    image_attributes: {image_file: file, project_id: get_tw_project_id[row['FileID']]},
+                    created_at: row['CreatedOn'],
+                    updated_at: row['LastUpdate'],
+                    created_by_id: get_tw_user_id[row['CreatedBy']],
+                    updated_by_id: get_tw_user_id[row['ModifiedBy']],
+                    project_id: get_tw_project_id[row['FileID']],
+                    depiction_object: depiction_object
                 )
                 logger.error "Error saving ImageID = #{row['ImageID']}: #{depiction.errors.full_messages}" unless depiction.errors.empty?
               end
 
-              # can have temporary name w/o OTU via taxon_name_id:  Find OTU via SF.TaxonNameID to TW.otu: if no SF.TaxonNameID, must be SF.SpecimenID, therefore get TW.TaxonNameID via SpecimenID and get the OTU that way.
-              # Some no_otus have collection objects but still need otu whether co or not.
-              # Have SFTaxonNameIDToTWOtuID  for ill-formed SF taxon names but need a look up from SF.SpecimenID to SF.TaxonNameID
+                # can have temporary name w/o OTU via taxon_name_id:  Find OTU via SF.TaxonNameID to TW.otu: if no SF.TaxonNameID, must be SF.SpecimenID, therefore get TW.TaxonNameID via SpecimenID and get the OTU that way.
+                # Some no_otus have collection objects but still need otu whether co or not.
+                # Have SFTaxonNameIDToTWOtuID  for ill-formed SF taxon names but need a look up from SF.SpecimenID to SF.TaxonNameID
 
 
-              # if sf_taxon_name_id.to_i == 0
-              #   puts "No SF.TaxonNameID"
-              # end
-              # if specimen_id.to_i == 0
-              #   puts "No SF.SpecimenID"
-              # end
+                # if sf_taxon_name_id.to_i == 0
+                #   puts "No SF.TaxonNameID"
+                # end
+                # if specimen_id.to_i == 0
+                #   puts "No SF.SpecimenID"
+                # end
 
 
-              # object_ids = []
-              # object_type = nil
-              # determination_otu = nil
+                # object_ids = []
+                # object_type = nil
+                # determination_otu = nil
             rescue => exception
               logger.error "Unhandled exception ocurred while processing ImageID = #{row['ImageID']}\n\t#{exception.class}: #{exception.message}"
             end
@@ -304,7 +304,6 @@ namespace :tw do
         # end
 
 
-
         desc 'time rake tw:project_import:sf_import:media:create_otu_website_links user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define create_otu_website_links: [:data_directory, :environment, :user_id] do |logger|
 
@@ -358,8 +357,8 @@ namespace :tw do
             end
 
             links_data_types = row['DataTypes'].to_i
-            link_data_type_text = "[#{Utilities::Numbers.get_bits(links_data_types).collect{|i| topic_map[i]}.compact.join(', ')}]" if links_data_types > 0
-            link =  "* [#{row['Name']}](http://#{row['RootLink']}#{row['LinkSpecs']}) #{link_data_type_text}\n"
+            link_data_type_text = "[#{Utilities::Numbers.get_bits(links_data_types).collect {|i| topic_map[i]}.compact.join(', ')}]" if links_data_types > 0
+            link = "* [#{row['Name']}](http://#{row['RootLink']}#{row['LinkSpecs']}) #{link_data_type_text}\n"
             project_id = get_tw_project_id[row['FileID']]
 
             logger.info "Working with SF.TaxonNameID = '#{row['TaxonNameID']}', TW.TaxonNameID = '#{tw_taxon_name_id}, otu_id = '#{otu_id}, SF.FileID = '#{row['FileID']}', DataTypes = '#{row['DataTypes']}' \n"
@@ -375,6 +374,121 @@ namespace :tw do
                   text: link)
             end
           end
+        end
+
+
+        desc 'time rake tw:project_import:sf_import:media:create_common_names user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define create_common_names: [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Running create_common_names...'
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          tw_language_hash = import.get('SFToTWLanguageHash')
+
+          skipped_file_ids = import.get('SkippedFileIDs')
+          excluded_taxa = import.get('ExcludedTaxa')
+          get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
+          get_tw_project_id = import.get('SFFileIDToTWProjectID')
+          get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
+          get_taxon_name_otu_id = import.get('TWTaxonNameIDToOtuID')
+
+          data_types = {}
+          get_tw_project_id.each_value do |project_id|
+            puts project_id
+            data_type = Topic.create!(
+                name: 'External links to websites',
+                definition: 'External links to websites',
+                project_id: project_id)
+            data_types[project_id] = data_type.id
+          end
+
+          # ap data_types
+
+          topic_map = {0 => 'general information', 1 => 'key', 2 => 'distribution map', 3 => 'specimen level information'}
+
+          path = @args[:data_directory] + 'tblCommonNames.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          file.each_with_index do |row, i|
+            next if skipped_file_ids.include? row['FileID'].to_i
+            sf_taxon_name_id = row['TaxonNameID']
+            next if excluded_taxa.include? sf_taxon_name_id
+            tw_taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id]
+            otu_id = get_taxon_name_otu_id[tw_taxon_name_id]
+            if otu_id.nil?
+              otu_id = get_tw_otu_id[sf_taxon_name_id]
+              if otu_id.nil?
+                logger.error "No OTU found for SF.TaxonNameID = #{sf_taxon_name_id}, SF.FileID = #{row['FileID']}"
+                next
+              end
+            end
+
+            links_data_types = row['DataTypes'].to_i
+            link_data_type_text = "[#{Utilities::Numbers.get_bits(links_data_types).collect {|i| topic_map[i]}.compact.join(', ')}]" if links_data_types > 0
+            link = "* [#{row['Name']}](http://#{row['RootLink']}#{row['LinkSpecs']}) #{link_data_type_text}\n"
+            project_id = get_tw_project_id[row['FileID']]
+
+            logger.info "Working with SF.TaxonNameID = '#{row['TaxonNameID']}', TW.TaxonNameID = '#{tw_taxon_name_id}, otu_id = '#{otu_id}, SF.FileID = '#{row['FileID']}', DataTypes = '#{row['DataTypes']}' \n"
+
+            content = nil
+            if content = Content.where(topic_id: data_types[project_id], otu_id: otu_id, project_id: project_id).first
+              content.update(text: content.text + link)
+            else
+              content = Content.create!(
+                  topic_id: data_types[project_id],
+                  otu_id: otu_id,
+                  project_id: project_id,
+                  text: link)
+            end
+          end
+        end
+
+
+        desc 'time rake tw:project_import:sf_import:media:create_language_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define create_language_hash: [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Running create_language_hash...'
+
+          # Errors found:
+          # === Summary of warnings and errors for task tw:project_import:sf_import:media:create_language_hash ===
+          # [ERROR]2019-03-13 16:44:36.235: SF.LanguageID = 0, SF.Name = Unspecified, SF.LngAbbreviation =  [ errors = 1 ]
+          # [ERROR]2019-03-13 16:44:36.289: SF.LanguageID = 72, SF.Name = Kyrgyz, SF.LngAbbreviation =  [ errors = 2 ]
+          # [ERROR]2019-03-13 16:44:36.296: SF.LanguageID = 86, SF.Name = Moldavian, SF.LngAbbreviation = mo [ errors = 3 ]
+          # [ERROR]2019-03-13 16:44:36.311: SF.LanguageID = 107, SF.Name = Serbo-Croatian, SF.LngAbbreviation = sh [ errors = 4 ]
+          # [ERROR]2019-03-13 16:44:36.328: SF.LanguageID = 136, SF.Name = Unicode, SF.LngAbbreviation =  [ errors = 5 ]
+
+          tw_language_hash = {} # key = SF.tblLanguages.ID, value = tw.languages.id
+
+          error_count = 0
+
+          path = @args[:data_directory] + 'tblLanguageList.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          file.each_with_index do |row, i|
+            sf_language_id = row['LanguageID']
+            sf_name = row['Name']
+            sf_lng_abbreviation = row['LngAbbreviation']
+
+            puts "Working on LanguageID = #{sf_language_id}, Name = #{sf_name}, Abbreviation = #{sf_lng_abbreviation}"
+
+            tw_language = Language.find_by_english_name(sf_name)
+            if tw_language.nil?
+              # try matching to alpha-2
+              tw_language = Language.find_by_alpha_2(sf_lng_abbreviation)
+              if tw_language.nil?
+                logger.error "SF.LanguageID = #{sf_language_id}, SF.Name = #{sf_name}, SF.LngAbbreviation = #{sf_lng_abbreviation} [ errors = #{error_count += 1} ]"
+                next
+              end
+            end
+
+            tw_language_hash[sf_language_id] = tw_language.id.to_s
+          end
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SFToTWLanguageHash', tw_language_hash)
+
+          puts 'SFToTWLanguageHash'
+          ap tw_language_hash
         end
 
 

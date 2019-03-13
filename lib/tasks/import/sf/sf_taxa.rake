@@ -6,7 +6,6 @@ namespace :tw do
       namespace :taxa do
 
 
-
         desc 'time rake tw:project_import:sf_import:taxa:create_status_flag_relationships user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define create_status_flag_relationships: [:data_directory, :environment, :user_id] do |logger|
 
@@ -734,6 +733,22 @@ namespace :tw do
           get_tw_otu_id = {} # key = SF.TaxonNameID, value = TW.otu.id; used for temporary or bad valid SF taxa
           get_taxon_name_otu_id = {} # key = TW.TaxonName.id, value TW.OTU.id just created for newly added taxon_name
 
+          # ecology info setup
+          # row['Ecology'], row['LifeZone']
+
+          ecology_topic_ids = {}
+          get_tw_project_id.each_value do |project_id|
+            puts project_id
+            ecology_topic = Topic.create!(
+                name: 'Life zone and ecology data',
+                definition: 'Life zone and ecology data',
+                project_id: project_id)
+            ecology_topic_ids[project_id] = ecology_topic.id
+          end
+
+          ap ecology_topic_ids
+
+          life_zone_map = {0 => 'marine', 1 => 'brackish', 2 => 'freshwater', 3 => 'terrestrial'}   # must be bit position
 
           path = @args[:data_directory] + 'sfTaxaByTaxonNameStr.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -767,6 +782,15 @@ namespace :tw do
               use_this_ref_id = ref_id
             end
 
+            # For ecology
+            life_zones = row['LifeZone'].to_i
+            if life_zones == 0
+              life_zone_text = 'not specified'
+            else
+              life_zone_text = "[#{Utilities::Numbers.get_bits(life_zones).collect {|i| life_zone_map[i]}.compact.join(', ')}]"
+            end
+            ecology_text = "* Life zone #{life_zone_text}"
+            ecology_text += ": row['Ecology']" unless row['Ecology'].blank?
 
             logger.info "Working with TW.project_id: #{project_id} = SF.FileID #{row['FileID']}, SF.TaxonNameID #{sf_taxon_name_id} (count #{count_found += 1}) \n"
 
@@ -780,7 +804,7 @@ namespace :tw do
               if get_sf_parent_id[sf_taxon_name_id] == '0' # use animalia_id
                 parent_id = animalia_id
               else
-                parent_id = get_tw_taxon_name_id[get_sf_parent_id[sf_taxon_name_id]] # assumes tw_taxon_name_id exists
+                parent_id = get_tw_taxon_name_id[get_sf_parent_id[sf_taxon_name_id]] # assumes a TW taxon_name_id exists
               end
             elsif get_otu_sf_above_id[sf_taxon_name_id] # ill-formed sf taxon name, will make OTU
               parent_id = get_tw_taxon_name_id[get_otu_sf_above_id[sf_taxon_name_id]]
@@ -822,6 +846,15 @@ namespace :tw do
                 get_tw_otu_id[row['TaxonNameID']] = otu.id.to_s
                 get_sf_name_status[row['TaxonNameID']] = name_status
                 get_sf_status_flags[row['TaxonNameID']] = status_flags
+
+                # life zone and ecology for otu only
+                logger.info "Ecology: Working with SF.TaxonNameID = '#{row['TaxonNameID']}', otu_id = '#{otu.id}, SF.FileID = '#{row['FileID']}', life_zones = '#{life_zone_text}' \n"
+
+                content = Content.create!(
+                    topic_id: ecology_topic_ids[project_id],
+                    otu_id: otu.id,
+                    project_id: project_id,
+                    text: ecology_text)
 
               else
                 logger.error "OTU ERROR (#{error_counter += 1}) for SF.TaxonNameID = #{sf_taxon_name_id}: " + otu.errors.full_messages.join(';')
@@ -923,6 +956,18 @@ namespace :tw do
                 get_sf_name_status[row['TaxonNameID']] = name_status
                 get_sf_status_flags[row['TaxonNameID']] = status_flags
                 get_taxon_name_otu_id[taxon_name.id.to_s] = taxon_name.otus.last.id.to_s
+
+
+                # ecology
+
+                otu_id = get_taxon_name_otu_id[taxon_name.id.to_s]
+                logger.info "Ecology: Working with SF.TaxonNameID = '#{row['TaxonNameID']}', TW.TaxonNameID = '#{taxon_name.id}, otu_id = '#{otu_id}, SF.FileID = '#{row['FileID']}', life_zones = '#{life_zone_text}' \n"
+
+                content = Content.create!(
+                    topic_id: ecology_topic_ids[project_id],
+                    otu_id: otu_id,
+                    project_id: project_id,
+                    text: ecology_text)
 
               rescue ActiveRecord::RecordInvalid
                 logger.error "TaxonName ERROR (count = #{error_counter += 1}) AFTER synonym test (SF.TaxonNameID = #{sf_taxon_name_id}, parent_id = #{parent_id}): " + taxon_name.errors.full_messages.join(';')
