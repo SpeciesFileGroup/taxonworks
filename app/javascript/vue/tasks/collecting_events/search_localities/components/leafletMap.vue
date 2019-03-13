@@ -26,7 +26,13 @@
   })
   export default {
     props: {
-      clear: {
+      clearFound: {
+        type: Boolean,
+        default: () => {
+          return false
+        }
+      },
+      clearDrawn: {
         type: Boolean,
         default: () => {
           return false
@@ -103,10 +109,12 @@
           this.geoJSON(newVal)
         }
       },
-      clear() {
+      clearDrawn() {
         this.drawnItems.clearLayers();
-        this.foundItems.clearLayers();
-      }
+      },
+      clearFound() {
+        this.drawnItems.clearLayers();
+      },
     },
     mounted() {
       this.mapObject = L.map(this.mapId, {

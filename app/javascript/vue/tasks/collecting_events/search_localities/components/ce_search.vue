@@ -44,7 +44,8 @@
         width="1024px"
         :zoom="2"
         ref="leaflet"
-        :clear="clearMap"
+        :clearFound="clearFound"
+        :clearDrawn="clearDrawn"
         :geojson="geojsonFeatures"
         @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
         @geoJsonLayersEdited="editedShape($event)"
@@ -87,7 +88,8 @@
         collectingEventList: [],
         shapes: [],   // intended for eventual multiple shapes paradigm
         mode: 'list',
-        clearMap: false,
+        clearFound: false,
+        clearDrawn: false,
         isLoading: false,
         newFeatures:  [],
         geojsonFeatures: [    // trans-antimeridian polygon test features
@@ -103,7 +105,8 @@
     },
     methods: {
       clearTheMap() {
-        this.clearMap = true;
+        this.clearFound = true;
+        this.clearDrawn = true;
         this.geojsonFeatures = [];
       },
       getAreaData() {
@@ -124,6 +127,7 @@
         });
       },
       getShapesData(geojsonShape) {
+        this.clearFound = true;
         this.isLoading = true;
         let shapeText = this.shapes[this.shapes.length - 1];
         let searchShape = JSON.parse(shapeText);
@@ -132,12 +136,15 @@
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
           // filter out any existing colecting events...
           let foundEvents = response.body;
+          let extantEvents = this.collectingEventList.map(ce => {
+            return ce.id
+          });
           for (let i = foundEvents.length - 1; i > -1; i--) {
-            if (this.collectingEventList.id.includes(foundEvents[i].id)) {
+            if (extantEvents.includes(foundEvents[i].id)) {
               this.$delete(foundEvents, i)
             }
           }
-          this.collectingEventList = foundEvents;
+          if(foundEvents.length > 0) {this.collectingEventList = this.collectingEventList.concat(foundEvents);}
           this.$emit('collectingEventList', this.collectingEventList);
           let ce_ids = [];      // find the georeferences for these collecting_events
           this.collectingEventList.forEach(ce => {
@@ -169,7 +176,7 @@
             }
             Promise.all(promises).then(featuresArrays => {
               // if (searchShape) {FeatureCollection.features.push(searchShape)}
-              featuresArrays.forEach(f => {FeatureCollection.features = FeatureCollection.features.concat(f)})
+              featuresArrays.forEach(f => {FeatureCollection.features = FeatureCollection.features.concat(f)});
               that.geojsonFeatures = that.geojsonFeatures.concat(FeatureCollection.features);
               this.$emit('featuresList', this.geojsonFeatures);
             });
@@ -199,6 +206,7 @@
         this.shapes.push(JSON.stringify(shape[0]))
       },
       inspectLayer(layer) {
+        this.clearDrawn = true;
         let geoJ = layer.toGeoJSON();
         // alert (JSON.stringify(geoJ));
       },
