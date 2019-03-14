@@ -99,7 +99,7 @@
     watch: {
       geojsonFeatures() {
         if(this.geojsonFeatures.length === 0) {
-          this.clearTheMap
+          this.clearFound = true;
         }
       }
     },
@@ -134,17 +134,19 @@
         let foundEvents = [];
         let params = {shape: shapeText};  // take only last shape pro tem
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
-          // filter out any existing colecting events...
+          // filter out any existing collecting events...
           let foundEvents = response.body;
-          let extantEvents = this.collectingEventList.map(ce => {
-            return ce.id
-          });
-          for (let i = foundEvents.length - 1; i > -1; i--) {
-            if (extantEvents.includes(foundEvents[i].id)) {
-              this.$delete(foundEvents, i)
-            }
-          }
-          if(foundEvents.length > 0) {this.collectingEventList = this.collectingEventList.concat(foundEvents);}
+          // let extantEvents = this.collectingEventList.map(ce => {
+          //   return ce.id
+          // });
+          // for (let i = foundEvents.length - 1; i > -1; i--) {
+          //   if (extantEvents.includes(foundEvents[i].id)) {
+          //     this.$delete(foundEvents, i)
+          //   }
+          // }
+          // if(foundEvents.length > 0) {this.collectingEventList = this.collectingEventList.concat(foundEvents);}
+          // this.$emit('collectingEventList', this.collectingEventList);
+          if(foundEvents.length > 0) {this.collectingEventList = foundEvents;}
           this.$emit('collectingEventList', this.collectingEventList);
           let ce_ids = [];      // find the georeferences for these collecting_events
           this.collectingEventList.forEach(ce => {

@@ -113,7 +113,7 @@
         this.drawnItems.clearLayers();
       },
       clearFound() {
-        this.drawnItems.clearLayers();
+        this.foundItems.clearLayers();
       },
     },
     mounted() {

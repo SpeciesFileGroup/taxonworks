@@ -122,16 +122,17 @@
       }
     },
     methods: {
-      compileList(colEvList) {
+      compileList(newColEvList) {
         if (this.annotation_logic == 'append') {
           if (this.collectingEventList.length) {
-            this.collectingEventList = colEvList.concat(this.collectingEventList);
+
+            this.collectingEventList = newColEvList.concat(this.collectingEventList);
           } else {
-            this.collectingEventList = colEvList;
+            this.collectingEventList = newColEvList;
             this.selected = [];
           }
         } else {
-          this.collectingEventList = colEvList;
+          this.collectingEventList = newColEvList;
           this.selected = [];
         }
       },
