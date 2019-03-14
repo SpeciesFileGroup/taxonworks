@@ -21,6 +21,7 @@
     </div>
     <div class="flexbox">
       <licenses-section class="separate-right panel-section"/>
+      <source-component class="separate-left separate-right" />
       <copyright-holder
         class="separate-left"
         role-type="AttributionCopyrightHolder"
@@ -36,13 +37,15 @@ import CopyrightHolder from './copyrightHolder'
 import LicensesSection from './licensesSection'
 import { GetterNames } from '../store/getters/getters.js'
 import { MutationNames } from '../store/mutations/mutations.js'
+import SourceComponent from './source'
 
 
 export default {
   components: {
     PersonBox,
     LicensesSection,
-    CopyrightHolder
+    CopyrightHolder,
+    SourceComponent
   },
   computed: {
     owners: {

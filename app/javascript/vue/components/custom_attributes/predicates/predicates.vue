@@ -1,19 +1,26 @@
 <template>
-  <div>
+  <div class="custom_attributes">
     <fieldset>
       <spinner-component
         v-if="loading"
       />
       <legend>Custom attributes</legend>
-      <predicate-row
-        v-for="item in predicatesList"
-        :key="item.id"
-        :object-id="objectId"
-        :object-type="objectType"
-        :predicate-object="item"
-        :existing="findExisting(item.id)"
-        @onUpdate="addDataAttribute"
-      />
+      <template
+        v-if="predicatesList.length">
+        <predicate-row
+          v-for="item in predicatesList"
+          :key="item.id"
+          :object-id="objectId"
+          :object-type="objectType"
+          :predicate-object="item"
+          :existing="findExisting(item.id)"
+          @onUpdate="addDataAttribute"
+        />
+      </template>
+      <a
+        v-else
+        href="/controlled_vocabulary_terms/new">Create a term (Predicate) 
+      </a>
     </fieldset>
   </div>
 </template>
@@ -125,3 +132,13 @@ export default {
 }
 </script>
 
+<style lang="scss">
+  .custom_attributes {
+    input {
+      width: 100%;
+    }
+    .vue-autocomplete-input {
+      width: 100% !important;
+    }
+  }
+</style>

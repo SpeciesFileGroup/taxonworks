@@ -28,7 +28,7 @@ The foundation of TaxonWorks is funded by an endowment of the Species File Group
 
 [1]: https://travis-ci.org/SpeciesFileGroup/taxonworks.svg?branch=development
 [2]: https://travis-ci.org/SpeciesFileGroup/taxonworks
-[3]: https://coveralls.io/repos/SpeciesFileGroup/taxonworks/badge.png?branch=development
+[3]: https://coveralls.io/repos/SpeciesFileGroup/taxonworks/badge.svg?branch=development
 [4]: https://coveralls.io/r/SpeciesFileGroup/taxonworks?branch=development
 [5]: https://codeclimate.com/github/SpeciesFileGroup/taxonworks.png?branch=development
 [6]: https://codeclimate.com/github/SpeciesFileGroup/taxonworks?branch=development

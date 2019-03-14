@@ -10,6 +10,14 @@ module Queries
       super
     end
 
+    def base_query
+      ::Identifier.select('identifiers.*')
+    end
+
+    def table
+      ::Identifier.arel_table
+    end
+
     # @return [Arel:Nodes, nil]
     def and_clauses
       clauses = [
@@ -25,19 +33,11 @@ module Queries
       a
     end
 
-    # and clause
-    # @return [Arel::Nodes::<>, nil]
-    def is_identifier_object_type
-      return nil if identifier_object_types.empty?
-      table[:identifier_object_type].eq_any(identifier_object_types)
-    end
-
     def autocomplete
       queries = [
         autocomplete_exact_cached,
         autocomplete_exact_identifier,
         autocomplete_matching_cached,
-        autocomplete_matching_identifier,
         autocomplete_matching_cached_anywhere
      ]
 
@@ -60,8 +60,10 @@ module Queries
       result[0..29]
     end
 
-    def base_query
-      ::Identifier.select('identifiers.*')
+    # @return [Arel::Nodes::<>, nil]
+    def is_identifier_object_type
+      return nil if identifier_object_types.empty?
+      table[:identifier_object_type].eq_any(identifier_object_types)
     end
 
     def autocomplete_exact_cached
@@ -69,25 +71,15 @@ module Queries
     end
 
     def autocomplete_exact_identifier
-      base_query.where(with_identifier.to_sql).limit(15)
+      base_query.where(with_identifier_identifier.to_sql).limit(15)
     end
 
     def autocomplete_matching_cached 
-      base_query.where(with_cached_wildcard_end).order(Arel.sql('LENGTH(cached)')).limit(20)
-    end
-
-
-    def autocomplete_matching_identifier
-      base_query.where(with_identifier_wildcard_end).order(Arel.sql('LENGTH(cached)')).limit(20)
+      base_query.where(match_wildcard_end_in_cached).order(Arel.sql('LENGTH(cached)')).limit(20)
     end
 
     def autocomplete_matching_cached_anywhere 
-      base_query.where(with_cached_wildcard_anywhere).order(Arel.sql('LENGTH(cached)')).limit(20)
-    end
-
-    # @return [Arel::Table]
-    def table
-      ::Identifier.arel_table
+      base_query.where(with_identifier_cached_wildcarded).order(Arel.sql('LENGTH(cached)')).limit(20)
     end
 
   end

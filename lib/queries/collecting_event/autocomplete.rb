@@ -44,8 +44,7 @@ module Queries
         queries = [
           autocomplete_verbatim_trip_identifier_match,
           autocomplete_identifier_cached_exact,
-          autocomplete_identifier_exact,
-
+          autocomplete_identifier_identifier_exact,
           autocomplete_start_date_wild_card(:verbatim_locality), 
           autocomplete_start_date_wild_card(:cached),
 
@@ -56,13 +55,13 @@ module Queries
           autocomplete_cached_wildcard_anywhere,
           autocomplete_identifier_cached_like,
 
-
           # others?
           # - verbatim locality exact match (?) start date
           # - ce_cached wildcard wrapped autocomplete start date
           # - date (exact date)
-      
-        ].compact!
+        ]
+
+        queries.compact!
 
         return [] if queries.nil?
         updated_queries = []

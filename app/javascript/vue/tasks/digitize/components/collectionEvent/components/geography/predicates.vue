@@ -25,7 +25,6 @@ export default {
   methods: {
     setAttributes(dataAttributes) {
       this.$store.commit(MutationNames.SetCollectionEventDataAttributes, dataAttributes)
-      console.log(this.collectingEvent)
     }
   }
 }

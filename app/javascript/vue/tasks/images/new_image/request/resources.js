@@ -36,6 +36,10 @@ const CreateAttribution = function (data) {
   return ajaxCall('post', '/attributions.json', { attribution: data })
 }
 
+const CreateCitation = function (data) {
+  return ajaxCall('post', '/citations.json', { citation: data })
+}
+
 const CreateDepiction = function (data) {
   return ajaxCall('post', '/depictions.json', { depiction: data })
 }
@@ -62,6 +66,7 @@ const DestroyImage = function (id) {
 
 export {
   CreateAttribution,
+  CreateCitation,
   CreateCollectionObject,
   CreateDepiction,
   GetLicenses,

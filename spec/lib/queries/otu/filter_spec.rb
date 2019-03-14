@@ -164,11 +164,13 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
 
     context 'area search' do
       let(:cite2) { FactoryBot.create(:valid_citation, citation_object: by_bill) }
+
       let(:ad2) do
-        ad = AssertedDistribution.new(otu: by_bill,
-                                      geographic_area: sub_area_b,
-                                      by: geo_user,
-                                      project: geo_project)
+        ad = AssertedDistribution.new(
+          otu: by_bill,
+          geographic_area: sub_area_b,
+          by: geo_user,
+          project: geo_project)
         ad.origin_citation = cite2
         ad.save!
         ad

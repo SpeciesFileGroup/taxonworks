@@ -36,7 +36,12 @@ function makeInitialState () {
     newCOForSqed: true,
     collection_object: {
       total: 1
-    }
+    },
+    depiction: {
+      caption: ''
+    },
+    source: undefined,
+    citations: []
   }
 }
 

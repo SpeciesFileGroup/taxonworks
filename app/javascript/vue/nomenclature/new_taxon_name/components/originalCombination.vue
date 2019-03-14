@@ -28,7 +28,7 @@
             label="label"
             min="2"
             :disabled="disabled"
-            v-model="item.autocomplete"
+            @getItem="item.autocomplete = $event; searchForChanges(rankGroup,copyRankGroup)"
             event-send="autocomplete"
             :add-params="{ type: 'Protonym', 'nomenclature_group[]': nomenclatureGroup }"
             param="term"/>

@@ -105,18 +105,13 @@
               <pdf-button
                 v-if="citation.hasOwnProperty('target_document')"
                 :pdf="citation.target_document"/>
-              <a
-                class="button circle-button btn-citation button-default"
-                :href="`/tasks/nomenclature/by_source/${taxon.origin_citation.source.id}`"
-                target="blank"
-                />
+              <radial-object
+                class="separate-right"
+                :global-id="citation.source.global_id"/>
               <radial-annotator
                 type="annotations"
+                class="separate-left"
                 :global-id="citation.source.global_id"/>
-              <a
-                class="button circle-button btn-edit"
-                target="blank"
-                :href="`/sources/${taxon.origin_citation.source.id}/edit`"/>
               <span
                 class="circle-button btn-delete"
                 @click="removeSource(taxon.origin_citation.id)"/>
@@ -162,6 +157,7 @@ import RolePicker from 'components/role_picker.vue'
 import DefaultElement from 'components/getDefaultPin.vue'
 import Expand from './expand.vue'
 import RadialAnnotator from 'components/annotator/annotator.vue'
+import RadialObject from 'components/radial_object/radialObject'
 
 export default {
   components: {
@@ -173,7 +169,8 @@ export default {
     DefaultElement,
     CitationPages,
     RadialAnnotator,
-    Expand
+    Expand,
+    RadialObject
   },
   computed: {
     lastSave() {

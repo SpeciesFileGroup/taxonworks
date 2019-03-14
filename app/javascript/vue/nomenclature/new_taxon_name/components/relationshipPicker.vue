@@ -23,7 +23,7 @@
             url="/taxon_names/autocomplete"
             label="label_html"
             min="2"
-            v-model="taxonRelation"
+            @getItem="taxonRelation = $event"
             event-send="autocompleteTaxonRelationshipSelected"
             placeholder="Search taxon name for the new relationship..."
             :add-params="{ type: 'Protonym', 'nomenclature_group[]': getRankGroup }"

@@ -280,8 +280,8 @@ describe 'Users' do
           path = mail.body.match(/http(s)?:\/\/[^\/]+(?<path>\S+)/)['path']
           visit path
           # current error is 'Token not present or expired.'
-          fill_in 'Password', with: password
-          fill_in 'Password confirmation', with: password
+          fill_in 'New password', with: password
+          fill_in 'New password confirmation', with: password
           click_button 'Change password'
           expect(page).to have_content('Password successfuly changed')
           fill_in 'Email', with: 'user@example.com'
@@ -314,8 +314,8 @@ describe 'Users' do
         expect(page).to have_content('Password reset request sent!')
         mail = ActionMailer::Base.deliveries.last
         visit mail.body.match(/http(s)?:\/\/[^\/]+(?<path>\S+)/)['path']
-        fill_in 'Password', with: password
-        fill_in 'Password confirmation', with: password
+        fill_in 'New password', with: password
+        fill_in 'New password confirmation', with: password
         click_button 'Change password'
         expect(page).to have_content('Password successfuly changed')
         fill_in 'Email', with: 'flagged@example.com'

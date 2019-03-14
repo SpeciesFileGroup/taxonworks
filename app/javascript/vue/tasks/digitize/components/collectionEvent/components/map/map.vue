@@ -12,7 +12,7 @@
     v-else
     class="panel aligner"
     style="height: 300px; align-items: center; width:310px">
-    <h3>Fill lat/long to display the map</h3>
+    <h3>Unparsable, can not preview point</h3>
   </div>
 </template>
 
@@ -20,7 +20,7 @@
 
 import { GetterNames } from '../../../../store/getters/getters.js'
 import { LMap, LTileLayer, LMarker } from 'vue2-leaflet'
-import Spinner from 'components/spinner'
+import convertDMS from '../../../../helpers/parseDMS.js'
 
 delete L.Icon.Default.prototype._getIconUrl;
 
@@ -34,23 +34,22 @@ export default {
   components: {
     LMap,
     LTileLayer,
-    LMarker,
-    Spinner
+    LMarker
   },
   computed: {
     collectionEvent() {
       return this.$store.getters[GetterNames.GetCollectionEvent]
     },
     latitude() {
-      return this.$store.getters[GetterNames.GetCollectionEvent].verbatim_latitude
+      return convertDMS(this.$store.getters[GetterNames.GetCollectionEvent].verbatim_latitude)
     },
     longitude() {
-      return this.$store.getters[GetterNames.GetCollectionEvent].verbatim_longitude
+      return convertDMS(this.$store.getters[GetterNames.GetCollectionEvent].verbatim_longitude)
     }
   },
   data () {
     return {
-      zoom:13,
+      zoom:8,
       center: L.latLng(0, 0),
       url:'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
       attribution:'&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
@@ -59,15 +58,25 @@ export default {
   },
   watch: {
     latitude(newVal) {
-      if(!isNaN(newVal) && this.longitude) {
+      if(newVal && this.longitude) {
         this.center = L.latLng(newVal, this.longitude)
         this.marker = L.latLng(newVal, this.longitude)
       }
     },
     longitude(newVal) {
-      if(!isNaN(newVal) && this.latitude) {
+      if(newVal && this.latitude) {
         this.center = L.latLng(this.latitude, newVal)
         this.marker = L.latLng(this.latitude, newVal)
+      }
+    }
+  },
+  methods: {
+    convertDMS(value) {
+      try {
+        return parseDMS(value)
+      }
+      catch(error) {
+        return undefined
       }
     }
   }
