@@ -30,8 +30,7 @@
             v-if="showBuffered"
             class="separate-top separate-right"/>
           <div class="middle">
-            <btn-show
-              class="separate-right"
+            <expand-component
               :value="showBuffered"
               @input="showBuffered = $event; updatePreferences('tasks::digitize::collectionObjects::showBuffered', showBuffered)"/>
             <span
@@ -52,10 +51,10 @@
             default-message="Drop images here<br> to add collection object figures"
             action-save="SaveCollectionObject"/>
           <div class="middle">
-            <btn-show
-              class="separate-right"
+            <expand-component
               :value="showDepictions"
-              @input="showDepictions = $event; updatePreferences('tasks::digitize::collectionObjects::showDepictions', showDepictions)"/>
+              @input="showDepictions = $event; updatePreferences('tasks::digitize::collectionObjects::showDepictions', showDepictions)"
+            />
             <span
               v-if="!showDepictions"
               class="separate-left">Show depictions
@@ -83,6 +82,7 @@
 <script>
 
   import SpinnerComponent from 'components/spinner'
+  import ExpandComponent from 'components/expand.vue'
   import ContainerItems from './containerItems.vue'
   import PreparationType from './preparationType.vue'
   import CatalogueNumber from '../catalogueNumber/catalogNumber.vue'
@@ -111,7 +111,8 @@
       BlockLayout,
       RadialAnnotator,
       btnShow,
-      PredicatesComponent
+      PredicatesComponent,
+      ExpandComponent
     },
     computed: {
       preferences: {

@@ -1,4 +1,4 @@
-import { CreateAttribution, UpdateAttribution } from '../../request/resources'
+import { CreateAttribution, UpdateAttribution, CreateCitation } from '../../request/resources'
 import { MutationNames } from '../mutations/mutations'
 
 const roles = ['editor_roles', 'owner_roles', 'copyright_holder_roles', 'creator_roles']
@@ -17,6 +17,24 @@ export default function({ state, commit }) {
   let promises = []
   let alreadyCreated = undefined
 
+  function createCitation(image) {
+    let citation = {
+      citation_object_id: image.id,
+      citation_object_type: image.base_class,
+      source_id: state.source.id,
+      pages: undefined
+    }
+    return CreateCitation(citation).then(response => {
+      commit(MutationNames.AddCitation, response.body)
+    })
+  }
+
+  function citationAlreadyExistFor(image) {
+    return state.citations.find(citation => {
+      return citation.citation_object_id == image.id && state.source.id == citation.source_id
+    })
+  }
+
   state.imagesCreated.forEach(item => {
     state.settings.saving = true
 
@@ -26,6 +44,10 @@ export default function({ state, commit }) {
       attribution_object_type: item.base_class,
       attribution_object_id: item.id,
       roles_attributes: [].concat(state.people.authors, state.people.editors, state.people.owners, state.people.copyrightHolder)
+    }
+
+    if(state.source && !citationAlreadyExistFor(item)) {
+      promises.push(createCitation(item))
     }
     
     alreadyCreated = state.attributionsCreated.find(attribution => {

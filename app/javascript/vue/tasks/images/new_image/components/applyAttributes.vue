@@ -51,6 +51,9 @@ import validateSqed from '../helpers/validateSqed'
 
 export default {
   computed: {
+    source(){
+      return this.$store.getters[GetterNames.GetSource]
+    },
     validateSqedObject() {
       return validateSqed(this.getSqed)
     },
@@ -96,8 +99,8 @@ export default {
       return people.length ? `Image(s) by ${people.join('; ')}.` : ''
     },
     showPeopleAndLicense() {
-      if(this.imagesBy.length || this.license.length)
-        return `${this.imagesBy}${this.imagesBy.length > 0 ? ` ` : ``}${this.license}. ${this.getYear ? ` Copyright year ${this.getYear}` : ''}`
+      if(this.imagesBy.length || this.license.length || this.source != undefined)
+        return `${this.imagesBy}${this.imagesBy.length > 0 ? ` ` : ``}${this.license ? `${this.license}. ` : ''}${this.source ? `Source: ${this.source.object_tag}` : '' }${this.getYear ? ` Copyright year ${this.getYear}` : ''}`
       return 'The attribution summary will be displayed here when defined.'
     },
     objectsForDepictions() {
