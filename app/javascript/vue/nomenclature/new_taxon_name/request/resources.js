@@ -69,6 +69,8 @@ const updateTaxonRelationship = function (relationship) {
   return new Promise(function (resolve, reject) {
     Vue.http.patch(`/taxon_name_relationships/${relationship.taxon_name_relationship.id}`, relationship).then(response => {
       return resolve(response.body)
+    }, response => {
+      console.log(response)
     })
   })
 }
@@ -76,6 +78,16 @@ const updateTaxonRelationship = function (relationship) {
 const createTaxonStatus = function (newClassification) {
   return new Promise(function (resolve, reject) {
     Vue.http.post('/taxon_name_classifications', newClassification).then(response => {
+      return resolve(response.body)
+    }, response => {
+      return reject(response.body)
+    })
+  })
+}
+
+const GetTaxonNameSmartSelector = function () {
+  return new Promise(function (resolve, reject) {
+    Vue.http.get(`/taxon_names/select_options`).then(response => {
       return resolve(response.body)
     }, response => {
       return reject(response.body)
@@ -228,5 +240,6 @@ export {
   removeTaxonSource,
   removeTaxonRelationship,
   createTaxonRelationship,
-  changeTaxonSource
+  changeTaxonSource,
+  GetTaxonNameSmartSelector
 }

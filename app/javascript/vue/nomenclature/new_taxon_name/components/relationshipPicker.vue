@@ -16,18 +16,48 @@
     <div
       class="body"
       v-if="expanded">
+      <div v-if="editMode">
+        <p class="inline">
+          <span class="separate-right">Editing relationship: </span>
+          <span v-html="editMode.object_tag"/>
+          <span
+            title="Undo"
+            class="circle-button button-default btn-undo"
+            @click="closeEdit"/>
+        </p>
+      </div>
       <div v-if="!taxonRelation">
+        <smart-selector
+          class="separate-bottom"
+          v-model="view"
+          :options="options"/>
         <hard-validation field="object_taxon_name_id">
-          <autocomplete
-            slot="body"
-            url="/taxon_names/autocomplete"
-            label="label_html"
-            min="2"
-            @getItem="taxonRelation = $event"
-            event-send="autocompleteTaxonRelationshipSelected"
-            placeholder="Search taxon name for the new relationship..."
-            :add-params="{ type: 'Protonym', 'nomenclature_group[]': getRankGroup }"
-            param="term"/>
+          <div slot="body">
+            <autocomplete
+              v-if="view == 'search'"
+              url="/taxon_names/autocomplete"
+              label="label_html"
+              min="2"
+              @getItem="taxonRelation = $event"
+              event-send="autocompleteTaxonRelationshipSelected"
+              placeholder="Search taxon name for the new relationship..."
+              :add-params="{ type: 'Protonym', 'nomenclature_group[]': getRankGroup }"
+              param="term"/>
+            <ul
+              v-else
+              class="no_bullets">
+              <li
+                v-for="item in lists[view]"
+                :key="item.id">
+                <label>
+                  <input
+                    type="radio"
+                    @click="taxonRelation = item">
+                  <span v-html="item.object_tag"/>
+                </label>
+              </li>
+            </ul>
+          </div>
         </hard-validation>
       </div>
       <div v-else>
@@ -65,7 +95,7 @@
           <label for="relationship-picker-showall">Show all</label>
         </div>
         <p class="inline">
-          <span v-html="taxonRelation.label_html"/>
+          <span v-html="taxonLabel"/>
           <span
             type="button"
             title="Undo"
@@ -95,6 +125,8 @@
         @update="loadTaxonRelationships"
         @addCitation="setRelationship"
         @delete="removeRelationship"
+        :edit="true"
+        @edit="editRelationship"
         :list="GetRelationshipsCreated"
         :display="['subject_status_tag', { link: '/tasks/nomenclature/browse/', label: 'object_object_tag', param: 'object_taxon_name_id'}]"/>
     </div>
@@ -112,6 +144,11 @@ import Expand from './expand.vue'
 import Autocomplete from 'components/autocomplete.vue'
 import HardValidation from './hardValidation.vue'
 import getRankGroup from '../helpers/getRankGroup'
+import SmartSelector from 'components/switch'
+
+import { GetTaxonNameSmartSelector } from '../request/resources.js'
+import orderSmartSelector from 'helpers/smartSelector/orderSmartSelector'
+import selectFirstSmartOption from 'helpers/smartSelector/selectFirstSmartOption'
 
 export default {
   components: {
@@ -120,9 +157,13 @@ export default {
     Expand,
     TreeDisplay,
     ListCommon,
-    HardValidation
+    HardValidation,
+    SmartSelector
   },
   computed: {
+    taxonLabel() {
+      return this.taxonRelation.hasOwnProperty('label_html') ? this.taxonRelation.label_html : this.taxonRelation.object_tag
+    },
     treeList () {
       return this.$store.getters[GetterNames.GetRelationshipList]
     },
@@ -159,11 +200,15 @@ export default {
       return this.$store.getters[GetterNames.ActiveModalRelationship]
     }
   },
-  data: function () {
+  data () {
     return {
       objectLists: this.makeLists(),
       expanded: true,
-      showAdvance: false
+      showAdvance: false,
+      editMode: undefined,
+      options: [],
+      lists: undefined,
+      view: 'search'
     }
   },
   watch: {
@@ -174,6 +219,14 @@ export default {
       },
       immediate: true
     }
+  },
+  mounted() {
+    GetTaxonNameSmartSelector().then(response => {
+      this.options = orderSmartSelector(Object.keys(response))
+      this.options.push('search')
+      this.lists = response
+      this.view = selectFirstSmartOption(response, this.options)
+    })
   },
   methods: {
     loadTaxonRelationships: function () {
@@ -202,7 +255,8 @@ export default {
       return {
         tree: undefined,
         commonList: [],
-        allList: []
+        allList: [],
+        editMode: false
       }
     },
     filterAlreadyPicked: function (list, type) {
@@ -211,7 +265,27 @@ export default {
       })
     },
     addEntry: function (item) {
-      this.$store.dispatch(ActionNames.AddTaxonRelationship, item)
+      if(this.editMode) {
+        let relationship = {
+          id: this.editMode.id,
+          subject_taxon_name_id: this.taxon.id,
+          object_taxon_name_id: this.taxonRelation.hasOwnProperty('this.taxonRelation') ? this.taxonRelation.subject_taxon_name_id : this.taxonRelation.id,
+          type: item.type
+        }
+        this.$store.dispatch(ActionNames.UpdateTaxonRelationship, relationship)
+        this.editMode = undefined
+      }
+      else {
+        this.$store.dispatch(ActionNames.AddTaxonRelationship, item)
+      }
+    },
+    closeEdit() {
+      this.editMode = undefined
+      this.taxonRelation = undefined
+    },
+    editRelationship(value) {
+      this.taxonRelation = value
+      this.editMode = this.taxonRelation
     },
     getTreeList (list, ranksList) {
       for (var key in list) {
