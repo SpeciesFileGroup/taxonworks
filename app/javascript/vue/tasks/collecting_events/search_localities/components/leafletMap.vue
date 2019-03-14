@@ -26,6 +26,15 @@
   })
   export default {
     props: {
+      lightThisFeature: {
+        type: Object,
+        default: () => {
+          return {
+            collecting_event_id: undefined,
+            light:  false
+          }
+        }
+      },
       clearFound: {
         type: Boolean,
         default: () => {
@@ -114,6 +123,9 @@
       },
       clearFound() {
         this.foundItems.clearLayers();
+      },
+      lightThisFeature() {
+        this.findFeature(e)
       },
     },
     mounted() {
@@ -250,7 +262,7 @@
         if (!Array.isArray(geojsonFeature) || geojsonFeature.length === 0) return
         // this.removeLayers()
 
-        let newGeojson = []
+        let newGeojson = [];
         geojsonFeature.forEach(layer => {   // scan feature array and either (i) or (ii)
           //this.antimeridian(layer.geometry.coordinates, true)
           if (layer.geometry.type === 'Point' && layer.properties.hasOwnProperty('radius')) {
@@ -333,6 +345,12 @@
       },
       zoomToFeature(e) {
         this.mapObject.fitBounds(e.target.getBounds());
+      },
+      findFeature(light, ce_id) {
+        let leaflet_id = GeoJson.getLayers().forEach(layer => {
+          if(layer.properties.collecting_event_id == ce_id) return layer
+        });
+        this.highlightFeature(layer)
       }
     }
   }
