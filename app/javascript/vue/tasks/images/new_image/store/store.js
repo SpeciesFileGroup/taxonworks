@@ -40,7 +40,8 @@ function makeInitialState () {
     depiction: {
       caption: ''
     },
-    source: undefined
+    source: undefined,
+    citations: []
   }
 }
 
