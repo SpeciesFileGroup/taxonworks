@@ -383,36 +383,25 @@ namespace :tw do
           logger.info 'Running create_common_names...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
-          tw_language_hash = import.get('SFToTWLanguageHash')
-
           skipped_file_ids = import.get('SkippedFileIDs')
           excluded_taxa = import.get('ExcludedTaxa')
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
           get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
           get_taxon_name_otu_id = import.get('TWTaxonNameIDToOtuID')
-
-          data_types = {}
-          get_tw_project_id.each_value do |project_id|
-            puts project_id
-            data_type = Topic.create!(
-                name: 'External links to websites',
-                definition: 'External links to websites',
-                project_id: project_id)
-            data_types[project_id] = data_type.id
-          end
-
-          # ap data_types
-
-          topic_map = {0 => 'general information', 1 => 'key', 2 => 'distribution map', 3 => 'specimen level information'}
+          get_sf_taxon_info = import.get('SFTaxonNameIDMiscInfo')
+          tw_language_hash = import.get('SFToTWLanguageHash')
+          get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
 
           path = @args[:data_directory] + 'tblCommonNames.txt'
           file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           file.each_with_index do |row, i|
-            next if skipped_file_ids.include? row['FileID'].to_i
             sf_taxon_name_id = row['TaxonNameID']
+            sf_file_id = get_sf_taxon_info[sf_taxon_name_id]['file_id']
+            next if skipped_file_ids.include? sf_file_id.to_i
             next if excluded_taxa.include? sf_taxon_name_id
+            project_id = get_tw_project_id[sf_file_id]
             tw_taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id]
             otu_id = get_taxon_name_otu_id[tw_taxon_name_id]
             if otu_id.nil?
@@ -423,26 +412,23 @@ namespace :tw do
               end
             end
 
-            links_data_types = row['DataTypes'].to_i
-            link_data_type_text = "[#{Utilities::Numbers.get_bits(links_data_types).collect {|i| topic_map[i]}.compact.join(', ')}]" if links_data_types > 0
-            link = "* [#{row['Name']}](http://#{row['RootLink']}#{row['LinkSpecs']}) #{link_data_type_text}\n"
-            project_id = get_tw_project_id[row['FileID']]
+            logger.info "Working with SF.TaxonNameID = '#{sf_taxon_name_id}', TW.TaxonNameID = '#{tw_taxon_name_id}, otu_id = '#{otu_id}, SF.FileID = '#{sf_file_id}', CommonName = '#{row['Name']}', LanguageID = #{row['LanguageID']} \n"
 
-            logger.info "Working with SF.TaxonNameID = '#{row['TaxonNameID']}', TW.TaxonNameID = '#{tw_taxon_name_id}, otu_id = '#{otu_id}, SF.FileID = '#{row['FileID']}', DataTypes = '#{row['DataTypes']}' \n"
+            cn = CommonName.create!(
+                name: row['Name'],
+                otu_id: otu_id,
+                language_id: tw_language_hash[row['LanguageID']],
+                project_id: project_id,
+                created_at: row['CreatedOn'],
+                updated_at: row['LastUpdate'],
+                created_by_id: get_tw_user_id[row['CreatedBy']],
+                updated_by_id: get_tw_user_id[row['ModifiedBy']]
+            )
 
-            content = nil
-            if content = Content.where(topic_id: data_types[project_id], otu_id: otu_id, project_id: project_id).first
-              content.update(text: content.text + link)
-            else
-              content = Content.create!(
-                  topic_id: data_types[project_id],
-                  otu_id: otu_id,
-                  project_id: project_id,
-                  text: link)
-            end
+            # @todo: Do I need a SF to TW common name hash?
+
           end
         end
-
 
         desc 'time rake tw:project_import:sf_import:media:create_language_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define create_language_hash: [:data_directory, :environment, :user_id] do |logger|
