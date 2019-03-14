@@ -1254,6 +1254,7 @@ namespace :tw do
               begin
                 pr = row['PrecisionRadius'].to_i
                 c.generate_verbatim_data_georeference(true, no_cached: true) # reference self, no cache
+                puts "After generate_verbatim_data_georeference"
                 if c.georeferences.any?
                   c.georeferences[0].error_radius = pr unless pr == '0'
                 else
