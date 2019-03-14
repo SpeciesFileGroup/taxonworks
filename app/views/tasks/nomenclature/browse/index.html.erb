@@ -28,9 +28,6 @@
           <li><%= otus_radial_disambiguate(@taxon_name) %></li>
         </ul>
         <ul class="context-menu">
-          <li>
-            <a class="circle-button btn-edit" href="<%= new_taxon_name_task_path(@taxon_name) %>"></a>
-          </li>
           <li><%= radial_annotator(@taxon_name) %></li>
           <li><%= tag_default_icon(@taxon_name) %></li>
           <li><%= pin_item_to_pinboard_link(@taxon_name, sessions_current_user) %></li>
