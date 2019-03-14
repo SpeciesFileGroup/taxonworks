@@ -42,6 +42,14 @@
               @getId="getCollectingEvent"
               type="CollectingEvent"/>
           </div>
+          <div
+            v-if="collectingEvent.id"
+            class="horizontal-left-content">
+            <p v-html="collectingEvent.object_tag"/>
+            <span
+              class="circle-button button-default btn-undo"
+              @click="cleanCollectionEvent"/>
+          </div>
           <component
             :is="actualComponent"
             :list="lists[view]"/>
@@ -67,6 +75,7 @@
   import RadialAnnotator from 'components/annotator/annotator.vue'
   import { GetterNames } from '../../store/getters/getters.js'
   import { MutationNames } from '../../store/mutations/mutations.js'
+  import { ActionNames } from '../../store/actions/actions.js'
   import PinComponent from 'components/pin.vue'
   import PinDefault from 'components/getDefaultPin'
   import { GetCollectingEventsSmartSelector, GetCollectionEvent } from '../../request/resources.js'
@@ -151,6 +160,9 @@
         GetCollectionEvent(id).then(response => {
           this.$store.commit(MutationNames.SetCollectionEvent, Object.assign(makeCollectingEvent(), response))
         })
+      },
+      cleanCollectionEvent() {
+        this.$store.dispatch(ActionNames.NewCollectionEvent)
       }
     }
   }
