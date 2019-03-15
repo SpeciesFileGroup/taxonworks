@@ -130,6 +130,7 @@ module Queries
 
     end
 
+    # !! does not inherit from base query
     class FilterQuery
 
       # Query variables

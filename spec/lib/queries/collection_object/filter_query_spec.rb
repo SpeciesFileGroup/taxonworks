@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'support/shared_contexts/shared_geo'
 
-describe Queries::CollectionObject::FilterQuery, type: :model, group: [:geo, :collection_objects, :shared_geo] do
+describe Queries::CollectionObject::FilterQuery, type: :model, group: [:geo, :collection_object, :shared_geo] do
   context 'with properly built collection of objects' do
     include_context 'stuff for complex geo tests'
 
