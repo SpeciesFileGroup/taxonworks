@@ -27,14 +27,9 @@
         </p>
       </div>
       <div v-if="!taxonRelation">
-        <smart-selector
-          class="separate-bottom"
-          v-model="view"
-          :options="options"/>
         <hard-validation field="object_taxon_name_id">
           <div slot="body">
             <autocomplete
-              v-if="view == 'search'"
               url="/taxon_names/autocomplete"
               label="label_html"
               min="2"
@@ -43,20 +38,6 @@
               placeholder="Search taxon name for the new relationship..."
               :add-params="{ type: 'Protonym', 'nomenclature_group[]': getRankGroup }"
               param="term"/>
-            <ul
-              v-else
-              class="no_bullets">
-              <li
-                v-for="item in lists[view]"
-                :key="item.id">
-                <label>
-                  <input
-                    type="radio"
-                    @click="taxonRelation = item">
-                  <span v-html="item.object_tag"/>
-                </label>
-              </li>
-            </ul>
           </div>
         </hard-validation>
       </div>
@@ -221,12 +202,14 @@ export default {
     }
   },
   mounted() {
+    /*
     GetTaxonNameSmartSelector().then(response => {
       this.options = orderSmartSelector(Object.keys(response))
       this.options.push('search')
       this.lists = response
       this.view = selectFirstSmartOption(response, this.options)
     })
+    */
   },
   methods: {
     loadTaxonRelationships: function () {
