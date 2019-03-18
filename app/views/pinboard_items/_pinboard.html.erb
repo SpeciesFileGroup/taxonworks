@@ -17,5 +17,16 @@
         </ul>
     <% end %>
   <% end %>
-  <%= content_tag(:p, 'Nothing on your pinboard!', class: :subtle) if sessions_current_user.pinboard_hash(sessions_current_project_id).keys.empty? -%>
+  <% if sessions_current_user.pinboard_hash(sessions_current_project_id).keys.empty? %>
+    <div class="empty-message">
+    <h2 class="message">
+      <span>Nothing is on your pinboard yet!</span>
+      <span class="horizontal-center-content">
+        <span class="separate-right">Use the </span>
+        <span class="circle-button pin-button separate-left"></span>
+        <span class="separate-left">to add items here.</span>
+      </span>
+    </h2>
+    </div>
+  <% end %>
 </div>
