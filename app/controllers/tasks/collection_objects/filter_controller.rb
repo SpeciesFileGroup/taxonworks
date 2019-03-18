@@ -102,7 +102,7 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
 
 
   def collection_objects
-    scope = Queries::CollectionObject::FilterQuery.new(filter_params)
+    scope = Queries::CollectionObject::Filter.new(filter_params)
               .result
               .with_project_id(sessions_current_project_id)
               .includes(:repository, {taxon_determinations: [{otu: :taxon_name}]}, :identifiers)
