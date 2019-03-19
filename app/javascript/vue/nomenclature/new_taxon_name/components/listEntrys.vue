@@ -36,6 +36,12 @@
             v-if="getCitation(item)"
             @click="removeCitation(item)"/>
           <span
+            v-if="edit"
+            type="button"
+            class="circle-button btn-edit"
+            @click="$emit('edit', item)"/>
+          </span>
+          <span
             type="button"
             class="circle-button btn-delete"
             @click="remove(item)">Remove
@@ -47,19 +53,25 @@
 </template>
 <script>
 
-import Autocomplete from 'components/autocomplete.vue'
-import DefaultElement from 'components/getDefaultPin.vue'
-import CitationPages from './citationPages.vue'
 import RadialAnnotator from 'components/annotator/annotator.vue'
 
 export default {
   components: {
-    Autocomplete,
-    DefaultElement,
-    CitationPages,
     RadialAnnotator
   },
-  props: ['list', 'display'],
+  props: {
+    list: { 
+      type: Array,
+      default: () => { return [] }
+    }, 
+    display: {
+      type: Array
+    },
+    edit: {
+      type: Boolean,
+      default: false
+    }
+  },
   name: 'ListEntrys',
   methods: {
     composeLink (item, show) {

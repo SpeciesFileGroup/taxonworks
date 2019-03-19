@@ -38,3 +38,7 @@ if (!$('[data-pinboard-section="<%= @pinboard_item.pinned_object_type.pluralize 
 
 $(injectItem).appendTo('[data-pinboard-section="<%= @pinboard_item.pinned_object_type.pluralize -%>"]');
 
+if($(".slide-pinboard .empty-message").length) {
+  $(".empty-message").remove();
+}
+
