@@ -142,12 +142,14 @@ module Queries
       attr_accessor :query_id_namespace, :query_range_start, :query_range_stop
       attr_accessor :query_user, :query_date_type_select,
                     :query_user_date_range_end, :query_user_date_range_start
+      attr_accessor :query_params
 
       # Resolved/processed results
       attr_accessor :start_date, :end_date, :user_date_start, :user_date_end
 
       # @param [Hash] args
       def initialize(params)
+        @query_params = params
         params.reject! { |_k, v| v.blank? } # dump all entries with empty values
 
         @recent = params[:recent].blank? ? false : true
@@ -172,7 +174,7 @@ module Queries
       end
 
       # @return [Arel::Table]
-      def table_x
+      def table
         ::CollectionObject.arel_table
       end
 
@@ -182,7 +184,7 @@ module Queries
 
       # TODO: make generic
       def matching_keyword_ids
-        return nil if keyword_ids.empty?
+        return nil unless keyword_ids_set?
         o = table
         t = ::Tag.arel_table
 
@@ -286,6 +288,11 @@ module Queries
         if query_start_date || query_end_date
           @start_date, @end_date = Utilities::Dates.normalize_and_order_dates(query_start_date, query_end_date)
         end
+      end
+
+      # @return [Boolean]
+      def keyword_ids_set?
+        keyword_ids.any?
       end
 
       # @return [Boolean]
