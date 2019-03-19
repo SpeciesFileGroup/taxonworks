@@ -239,7 +239,6 @@ export default {
         tree: undefined,
         commonList: [],
         allList: [],
-        editMode: false
       }
     },
     filterAlreadyPicked: function (list, type) {
@@ -252,7 +251,7 @@ export default {
         let relationship = {
           id: this.editMode.id,
           subject_taxon_name_id: this.taxon.id,
-          object_taxon_name_id: this.taxonRelation.hasOwnProperty('this.taxonRelation') ? this.taxonRelation.subject_taxon_name_id : this.taxonRelation.id,
+          object_taxon_name_id: this.taxonRelation.hasOwnProperty('object_taxon_name_id') ? this.taxonRelation.object_taxon_name_id : this.taxonRelation.id,
           type: item.type
         }
         this.$store.dispatch(ActionNames.UpdateTaxonRelationship, relationship)
