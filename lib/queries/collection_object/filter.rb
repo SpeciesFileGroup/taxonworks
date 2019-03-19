@@ -2,133 +2,133 @@ module Queries
   module CollectionObject
 
     # !! does not inherit from base query
-    class SimpleFilter
-      # Boolean (TODO: reconcile with other use)
-      attr_accessor :recent
-
-      attr_accessor :keyword_ids
-
-      # TODO:
-      # identifiers
-
-      def initialize(params)
-        @recent = params[:recent].blank? ? false : true
-        @keyword_ids = params[:keyword_ids].blank? ? [] : params[:keyword_ids]
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::CollectionObject.arel_table
-      end
-
-      def tag_table
-        ::Tag.arel_table
-      end
-
-      # TODO: make generic
-      def matching_keyword_ids
-        return nil if keyword_ids.empty?
-        o = table
-        t = ::Tag.arel_table
-
-        a = o.alias("a_")
-        b = o.project(a[Arel.star]).from(a)
-
-        c = t.alias('t1')
-
-        b = b.join(c, Arel::Nodes::OuterJoin)
-          .on(
-            a[:id].eq(c[:tag_object_id])
-          .and(c[:tag_object_type].eq(table.name.classify))
-        )
-
-        e = c[:keyword_id].not_eq(nil)
-        f = c[:keyword_id].eq_any(keyword_ids)
-
-        b = b.where(e.and(f))
-        b = b.group(a['id'])
-        b = b.as('tz5_')
-
-        _a = ::CollectionObject.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
-      end
-
-      def matching_shape
-        return nil if shape.nil?
-
-        geometry = shape.geometry
-        this_type = geometry.geometry_type.to_s.downcase
-        geometry = geometry.as_text
-        radius = shape['radius'] || 100
-
-        case this_type
-        when 'point'
-          ::CollectionObject
-            .joins(:geographic_items)
-            .where(::GeographicItem.within_radius_of_wkt_sql(geometry, radius ))
-        when 'polygon'
-          ::CollectionObject
-            .joins(:geographic_items)
-            .where(::GeographicItem.contained_by_wkt_sql(geometry))
-        else
-          nil
-        end
-      end
-
-      # @return [ActiveRecord::Relation]
-      def and_clauses
-        clauses = []
-        # clauses += attribute_clauses
-
-        clauses += [
-        ].compact
-
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
-      end
-
-      def merge_clauses
-        clauses = [
-          matching_keyword_ids,
-          # matching_shape,
-        ].compact
-
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.merge(b)
-        end
-        a
-      end
-
-      # @return [ActiveRecord::Relation]
-      def all
-        a = and_clauses
-        b = merge_clauses
-
-        q = nil
-        if a && b
-          q = b.where(a).distinct
-        elsif a
-          q = ::CollectionObject.where(a).distinct
-        elsif b
-          q = b.distinct
-        else
-          q = ::CollectionObject.all
-        end
-
-        q = q.order(updated_at: :desc) if recent
-        q
-      end
-
-      protected
-
-    end
+    # class SimpleFilter
+    #   # Boolean (TODO: reconcile with other use)
+    #   attr_accessor :recent
+    #
+    #   attr_accessor :keyword_ids
+    #
+    #   # TODO:
+    #   # identifiers
+    #
+    #   def initialize(params)
+    #     @recent = params[:recent].blank? ? false : true
+    #     @keyword_ids = params[:keyword_ids].blank? ? [] : params[:keyword_ids]
+    #   end
+    #
+    #   # @return [Arel::Table]
+    #   def table
+    #     ::CollectionObject.arel_table
+    #   end
+    #
+    #   def tag_table
+    #     ::Tag.arel_table
+    #   end
+    #
+    #   # TODO: make generic
+    #   def matching_keyword_ids
+    #     return nil if keyword_ids.empty?
+    #     o = table
+    #     t = ::Tag.arel_table
+    #
+    #     a = o.alias("a_")
+    #     b = o.project(a[Arel.star]).from(a)
+    #
+    #     c = t.alias('t1')
+    #
+    #     b = b.join(c, Arel::Nodes::OuterJoin)
+    #       .on(
+    #         a[:id].eq(c[:tag_object_id])
+    #       .and(c[:tag_object_type].eq(table.name.classify))
+    #     )
+    #
+    #     e = c[:keyword_id].not_eq(nil)
+    #     f = c[:keyword_id].eq_any(keyword_ids)
+    #
+    #     b = b.where(e.and(f))
+    #     b = b.group(a['id'])
+    #     b = b.as('tz5_')
+    #
+    #     _a = ::CollectionObject.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
+    #   end
+    #
+    #   def matching_shape
+    #     return nil if shape.nil?
+    #
+    #     geometry = shape.geometry
+    #     this_type = geometry.geometry_type.to_s.downcase
+    #     geometry = geometry.as_text
+    #     radius = shape['radius'] || 100
+    #
+    #     case this_type
+    #     when 'point'
+    #       ::CollectionObject
+    #         .joins(:geographic_items)
+    #         .where(::GeographicItem.within_radius_of_wkt_sql(geometry, radius ))
+    #     when 'polygon'
+    #       ::CollectionObject
+    #         .joins(:geographic_items)
+    #         .where(::GeographicItem.contained_by_wkt_sql(geometry))
+    #     else
+    #       nil
+    #     end
+    #   end
+    #
+    #   # @return [ActiveRecord::Relation]
+    #   def and_clauses
+    #     clauses = []
+    #     # clauses += attribute_clauses
+    #
+    #     clauses += [
+    #     ].compact
+    #
+    #     return nil if clauses.empty?
+    #
+    #     a = clauses.shift
+    #     clauses.each do |b|
+    #       a = a.and(b)
+    #     end
+    #     a
+    #   end
+    #
+    #   def merge_clauses
+    #     clauses = [
+    #       matching_keyword_ids,
+    #       # matching_shape,
+    #     ].compact
+    #
+    #     return nil if clauses.empty?
+    #
+    #     a = clauses.shift
+    #     clauses.each do |b|
+    #       a = a.merge(b)
+    #     end
+    #     a
+    #   end
+    #
+    #   # @return [ActiveRecord::Relation]
+    #   def all
+    #     a = and_clauses
+    #     b = merge_clauses
+    #
+    #     q = nil
+    #     if a && b
+    #       q = b.where(a).distinct
+    #     elsif a
+    #       q = ::CollectionObject.where(a).distinct
+    #     elsif b
+    #       q = b.distinct
+    #     else
+    #       q = ::CollectionObject.all
+    #     end
+    #
+    #     q = q.order(updated_at: :desc) if recent
+    #     q
+    #   end
+    #
+    #   protected
+    #
+    # end
 
     # !! does not inherit from base query
     class Filter
@@ -172,7 +172,7 @@ module Queries
       end
 
       # @return [Arel::Table]
-      def table
+      def table_x
         ::CollectionObject.arel_table
       end
 
@@ -207,27 +207,27 @@ module Queries
         _a = ::CollectionObject.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
       end
 
-      def matching_shape
-        return nil if shape.nil?
-
-        geometry = shape.geometry
-        this_type = geometry.geometry_type.to_s.downcase
-        geometry = geometry.as_text
-        radius = shape['radius'] || 100
-
-        case this_type
-          when 'point'
-            ::CollectionObject
-              .joins(:geographic_items)
-              .where(::GeographicItem.within_radius_of_wkt_sql(geometry, radius ))
-          when 'polygon'
-            ::CollectionObject
-              .joins(:geographic_items)
-              .where(::GeographicItem.contained_by_wkt_sql(geometry))
-          else
-            nil
-        end
-      end
+      # def matching_shape_x
+      #   return nil if shape.nil?
+      #
+      #   geometry = shape.geometry
+      #   this_type = geometry.geometry_type.to_s.downcase
+      #   geometry = geometry.as_text
+      #   radius = shape['radius'] || 100
+      #
+      #   case this_type
+      #     when 'point'
+      #       ::CollectionObject
+      #         .joins(:geographic_items)
+      #         .where(::GeographicItem.within_radius_of_wkt_sql(geometry, radius ))
+      #     when 'polygon'
+      #       ::CollectionObject
+      #         .joins(:geographic_items)
+      #         .where(::GeographicItem.contained_by_wkt_sql(geometry))
+      #     else
+      #       nil
+      #   end
+      # end
 
       # @return [ActiveRecord::Relation]
       def and_clauses
@@ -247,10 +247,10 @@ module Queries
       end
 
       def merge_clauses
-        clauses = [
-          matching_keyword_ids,
-        # matching_shape,
-        ].compact
+        # from the simple filter
+        clauses = [matching_keyword_ids]
+        # from the complex query
+        clauses = applied_scopes(clauses).compact
 
         return nil if clauses.empty?
 
@@ -266,7 +266,7 @@ module Queries
         a = and_clauses
         b = merge_clauses
 
-        q = nil
+        # q = nil
         if a && b
           q = b.where(a).distinct
         elsif a
@@ -281,7 +281,7 @@ module Queries
         q
       end
 
-      # Only set (and therefor ultimately use) dates if they were provided!
+      # Only set (and therefor ultimately used) dates if they were provided!
       def set_and_order_dates
         if query_start_date || query_end_date
           @start_date, @end_date = Utilities::Dates.normalize_and_order_dates(query_start_date, query_end_date)
@@ -290,22 +290,22 @@ module Queries
 
       # @return [Boolean]
       def area_set?
-        !query_geographic_area_ids.nil?
+        query_geographic_area_ids.present?
       end
 
       # @return [Boolean]
       def date_set?
-        !start_date.nil?
+        start_date.present?
       end
 
       # @return [Boolean]
       def otu_set?
-        !query_otu_id.nil?
+        query_otu_id.present?
       end
 
       # @return [Boolean]
       def shape_set?
-        !query_shape.nil?
+        query_shape.present?
       end
 
       # @return [Boolean]
@@ -337,7 +337,9 @@ module Queries
         # This could be simplified if the AJAX selector returned a geographic_item_id rather than a GeographicAreaId
         target_geographic_item_ids = []
         query_geographic_area_ids.each do |ga_id|
-          target_geographic_item_ids.push(::GeographicArea.joins(:geographic_items).find(ga_id).default_geographic_item.id)
+          target_geographic_item_ids.push(::GeographicArea.joins(:geographic_items)
+                                            .find(ga_id)
+                                            .default_geographic_item.id)
         end
         ::CollectionObject.joins(:geographic_items)
           .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
@@ -350,9 +352,11 @@ module Queries
 
       # @return [Scope]
       def date_scope
-        sql = Queries::CollectingEvent::Filter.new(start_date: query_start_date, end_date: query_end_date, partial_overlap_dates: query_date_partial_overlap).between_date_range.to_sql
-        ::CollectionObject.joins(:collecting_event)
-          .where(sql)
+        sql = Queries::CollectingEvent::Filter.new(
+          start_date: query_start_date,
+          end_date: query_end_date,
+          partial_overlap_dates: query_date_partial_overlap).between_date_range.to_sql
+        ::CollectionObject.joins(:collecting_event).where(sql)
       end
 
       # @return [Scope]
@@ -396,26 +400,26 @@ module Queries
 
       # @return [Array] of symbols refering to methods
       #   determine which scopes to apply based on parameters provided
-      def applied_scopes
-        scopes = []
-        scopes.push :otu_scope if otu_set?
-        scopes.push :geographic_area_scope if area_set?
-        scopes.push :shape_scope if shape_set?
-        scopes.push :date_scope if date_set?
-        scopes.push :identifier_scope if identifier_set?
-        scopes.push :user_date_scope if user_date_set?
+      def applied_scopes(scopes)
+        # scopes = []
+        scopes.push otu_scope if otu_set?
+        scopes.push geographic_area_scope if area_set?
+        scopes.push shape_scope if shape_set?
+        scopes.push date_scope if date_set?
+        scopes.push identifier_scope if identifier_set?
+        scopes.push user_date_scope if user_date_set?
         scopes
       end
 
       # @return [Scope]
-      def result
-        return ::CollectionObject.none if applied_scopes.empty?
-        a = ::CollectionObject.all
-        applied_scopes.each do |scope|
-          a = a.merge(self.send(scope))
-        end
-        a
-      end
+      # def result
+      #   return ::CollectionObject.none if applied_scopes(merge_clauses).empty?
+      #   a = ::CollectionObject.all
+      #   applied_scopes(merge_clauses).each do |scope|
+      #     a = a.merge(self.send(scope))
+      #   end
+      #   a
+      # end
     end
   end
 end
