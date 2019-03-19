@@ -115,6 +115,7 @@ namespace :tw do
             project_id = get_tw_project_id[sf_file_id]
             sf_taxon_name_id = row['TaxonNameID']
             tw_taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id]
+            otu_id = nil # to make JDT happy!
             if tw_taxon_name_id.nil?
               # is ill-formed taxon name; use otu instead
               otu_id = get_tw_otu_id[sf_taxon_name_id]
@@ -412,269 +413,274 @@ namespace :tw do
 
             begin
 
-              ApplicationRecord.transaction do
-                current_objects = [] # stores all objects created in the row below temporarily
+              # ApplicationRecord.transaction do
+              current_objects = [] # stores all objects created in the row below temporarily
 
-                # This outer loop loops through total, category pairs, we create
-                # a new collection object for each pair
-                get_specimen_category_counts[specimen_id].each do |specimen_category_id, count|
+              # This outer loop loops through total, category pairs, we create
+              # a new collection object for each pair
+              get_specimen_category_counts[specimen_id].each do |specimen_category_id, count|
 
-                  count = 1 if count_override # is true (applies only to zero-count specimens with primary types except syntypes [=ranged_lot])
+                count = 1 if count_override # is true (applies only to zero-count specimens with primary types except syntypes [=ranged_lot])
 
-                  collection_object = CollectionObject::BiologicalCollectionObject.new(
-                      metadata.merge(
-                          total: count,
-                          ranged_lot_category_id: ranged_lot_category_id,
-                          collecting_event_id: collecting_event_id,
-                          repository_id: repository_id,
+                collection_object = CollectionObject::BiologicalCollectionObject.new(
+                    metadata.merge(
+                        total: count,
+                        ranged_lot_category_id: ranged_lot_category_id,
+                        collecting_event_id: collecting_event_id,
+                        repository_id: repository_id,
 
-                          biocuration_classifications_attributes: [{biocuration_class_id: get_biocuration_class_id[specimen_category_id.to_s], project_id: project_id}],
+                        biocuration_classifications_attributes: [{biocuration_class_id: get_biocuration_class_id[specimen_category_id.to_s], project_id: project_id}],
 
-                          taxon_determinations_attributes: [{otu_id: get_otu_from_tw_taxon_id[tw_taxon_name_id], project_id: project_id}],
-                          # taxon_determination notes here?
+                        taxon_determinations_attributes: [{otu_id: get_otu_from_tw_taxon_id[tw_taxon_name_id], project_id: project_id}],
+                        # taxon_determination notes here?
 
-                          # housekeeping for collection_object
-                          project_id: project_id,
-                          created_at: row['CreatedOn'],
-                          updated_at: row['LastUpdate'],
-                          created_by_id: get_tw_user_id[row['CreatedBy']],
-                          updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                      ))
+                        # housekeeping for collection_object
+                        project_id: project_id,
+                        created_at: row['CreatedOn'],
+                        updated_at: row['LastUpdate'],
+                        created_by_id: get_tw_user_id[row['CreatedBy']],
+                        updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                    ))
 
-                  collection_object.save!
-                  logger.info "Collection object is saved, id = #{collection_object.id}, number #{saved_counter += 1}"
-                  current_objects.push(collection_object)
+                collection_object.save!
+                logger.info "Collection object is saved, id = #{collection_object.id}, number #{saved_counter += 1}"
+                current_objects.push(collection_object)
 
-                  # end  # misplaced end?
+                # end  # misplaced end?
 
-                  # At this point the collection objects have been saved successfully
+                # At this point the collection objects have been saved successfully
 
-                  # 1) If there are two collection objects with the same SF specimen ID, then put them in a virtual container
-                  # 2) If there is an "identifier", associate it with a single collection object or the container (if applicable)
-                  identifier = nil
-                  if row['DepoCatNo'].present?
-                    identifier = Identifier::Local::CatalogNumber.new(
-                        identifier: "collection_object.id #{collection_object.id} (SF.SpecimenID #{specimen_id}): SF.DepoID #{sf_depo_id},  #{row['DepoCatNo']}",
-                        namespace: depo_namespace,
-                        project_id: project_id)
+                # 1) If there are two collection objects with the same SF specimen ID, then put them in a virtual container
+                # 2) If there is an "identifier", associate it with a single collection object or the container (if applicable)
+                identifier = nil
+                if row['DepoCatNo'].present?
+                  identifier = Identifier::Local::CatalogNumber.new(
+                      identifier: "collection_object.id #{collection_object.id} (SF.SpecimenID #{specimen_id}): SF.DepoID #{sf_depo_id},  #{row['DepoCatNo']}",
+                      namespace: depo_namespace,
+                      project_id: project_id)
 
-                    if current_objects.count == 1
-                      # The "Identifier" is attached to the only collection object that is created
+                  if current_objects.count == 1
+                    # The "Identifier" is attached to the only collection object that is created
 
-                      current_objects.first.identifiers << identifier if identifier
+                    current_objects.first.identifiers << identifier if identifier
 
-                    elsif current_objects.count > 1
-                      # There is more than one object, put them in a virtual container
-                      c = Container::Virtual.create!(project_id: project_id)
-                      current_objects.each do |o|
-                        o.put_in_container(c)
-                      end
-
-                      c.identifiers << identifier if identifier
-
-                    else
-                      puts 'OOPS' # would this happen?
-                    end
-                  end
-                end
-
-                # data_attributes to do:
-                #   import_attribute if identification.IdentifierName
-                #   other fields in tblIdentifications: HigherTaxonName, NomenclatorID, TaxonIdentNote, TypeTaxonNameID, RefID, IdentifierName/Year,
-                #     PlaceInCollection, IdentificationModeNote, VerbatimLabel
-
-
-                # Both SF Specimen and Identification tables have VerbatimLabel as field: Only used in Identification.
-                # Treat VerbatimLabel as buffered_collecting_event -- What's that??? Since it's in identification, could be more than one
-                # if identification['verbatim_label'].present?
-                #   verbatim_label = ImportAttribute.create!(import_predicate: 'VerbatimLabel',
-                #                                            value: identification['verbatim_label'],
-                #                                            project_id: project_id)
-                #   data_attributes_attributes.push(verbatim_label)
-                # end
-
-
-                if get_sf_identification_metadata[specimen_id]
-                  get_sf_identification_metadata[specimen_id].each do |identification|
+                  elsif current_objects.count > 1
+                    # There is more than one object, put them in a virtual container
+                    c = Container::Virtual.create!(project_id: project_id)
                     current_objects.each do |o|
+                      o.put_in_container(c)
+                    end
 
-                      # Add subsequent determinations
-                      nomenclator_id = nil
-                      target_nomenclator = nil
+                    c.identifiers << identifier if identifier
 
-                      # If nomenclator_id exists, use it; otherwise use higher_taxon_name if available
-                      if identification['nomenclator_id'].present?
-                        nomenclator_id = identification['nomenclator_id']
-                        # puts "Got the nomenclator_id = #{nomenclator_id}"
-                        if nomenclator_id != '0'
-                          # target_nomenclator = get_nomenclator_string[nomenclator_id]
-                          if get_nomenclator_metadata[nomenclator_id]['nomenclator_string'].gsub('.  ', '. ').nil?
-                            byebug
-                          end
-                          target_nomenclator = get_nomenclator_metadata[nomenclator_id]['nomenclator_string'].gsub('.  ', '. ') # delete 2nd space after period in var, form, etc.
-                        elsif identification['higher_taxon_name'].present?
-                          target_nomenclator = identification['higher_taxon_name']
+                  else
+                    puts 'OOPS' # would this happen?
+                  end
+                end
+              end
+
+              # data_attributes to do:
+              #   import_attribute if identification.IdentifierName
+              #   other fields in tblIdentifications: HigherTaxonName, NomenclatorID, TaxonIdentNote, TypeTaxonNameID, RefID, IdentifierName/Year,
+              #     PlaceInCollection, IdentificationModeNote, VerbatimLabel
+
+
+              # Both SF Specimen and Identification tables have VerbatimLabel as field: Only used in Identification.
+              # Treat VerbatimLabel as buffered_collecting_event -- What's that??? Since it's in identification, could be more than one
+              # if identification['verbatim_label'].present?
+              #   verbatim_label = ImportAttribute.create!(import_predicate: 'VerbatimLabel',
+              #                                            value: identification['verbatim_label'],
+              #                                            project_id: project_id)
+              #   data_attributes_attributes.push(verbatim_label)
+              # end
+
+
+              if get_sf_identification_metadata[specimen_id]
+                get_sf_identification_metadata[specimen_id].each do |identification|
+                  current_objects.each do |o|
+
+                    # Add subsequent determinations
+                    nomenclator_id = nil
+                    target_nomenclator = nil
+
+                    # If nomenclator_id exists, use it; otherwise use higher_taxon_name if available
+                    if identification['nomenclator_id'].present?
+                      nomenclator_id = identification['nomenclator_id']
+                      # puts "Got the nomenclator_id = #{nomenclator_id}"
+                      if nomenclator_id != '0'
+                        # target_nomenclator = get_nomenclator_string[nomenclator_id]
+                        if get_nomenclator_metadata[nomenclator_id]['nomenclator_string'].gsub('.  ', '. ').nil?
+                          byebug
                         end
+                        target_nomenclator = get_nomenclator_metadata[nomenclator_id]['nomenclator_string'].gsub('.  ', '. ') # delete 2nd space after period in var, form, etc.
+                      elsif identification['higher_taxon_name'].present?
+                        target_nomenclator = identification['higher_taxon_name']
                       end
+                    end
 
-                      if tw_taxon_name_id
-                        # Check if cached or cached_original_combination of current tw_taxon_name_id matches target_nomenclator
-                        #   otherwise, find or create otu with name = target_nomenclator
-                        taxon_name_obj = TaxonName.find(tw_taxon_name_id)
-                        if taxon_name_obj.cached == target_nomenclator
-                          otu_id = get_otu_from_tw_taxon_id[tw_taxon_name_id]
-                        elsif taxon_name_obj.cached_original_combination == target_nomenclator
-                          otu_id = get_otu_from_tw_taxon_id[tw_taxon_name_id]
-                        else
-                          otu = Otu.find_or_create_by!(name: target_nomenclator, taxon_name_id: tw_taxon_name_id, project_id: project_id)
-                          otu_id = otu.id
-                          logger.warning "Created new Otu(id = #{otu_id}, name = #{target_nomenclator}, taxon_name_id = #{tw_taxon_name_id}, project_id = #{project_id})"
-                        end
+                    # if target_nomenclator.include?("\t")  # must first check for nil
+                    #   byebug
+                    # end
+                    puts "before squish |#{target_nomenclator}|"
+                    target_nomenclator = Utilities::Strings.nil_squish_strip(target_nomenclator)
+                    puts "after squish |#{target_nomenclator}|"
+                     # Dichroplus	 elongatus
+                    # byebug
+
+
+                    if tw_taxon_name_id
+                      taxon_name_obj = TaxonName.find(tw_taxon_name_id)
+                      if taxon_name_obj.cached == target_nomenclator
+                        otu_id = get_otu_from_tw_taxon_id[tw_taxon_name_id]
+                      elsif taxon_name_obj.cached_original_combination == target_nomenclator
+                        otu_id = get_otu_from_tw_taxon_id[tw_taxon_name_id]
+                      else
+                        otu = Otu.find_or_create_by!(name: target_nomenclator, taxon_name_id: tw_taxon_name_id, project_id: project_id)
+                        otu_id = otu.id
+                        logger.warn "Created new Otu for TaxonDetermination (id = #{otu_id}, name = #{target_nomenclator}, taxon_name_id = #{tw_taxon_name_id}, project_id = #{project_id}, SpecimenID = #{specimen_id})"
                       end
-                      puts "otu_id = #{otu_id}, target_nomenclator = #{target_nomenclator}, taxon_name_obj.cached = #{taxon_name_obj.cached}, taxon_name_obj.cached_original_combination = #{taxon_name_obj.cached_original_combination}"
+                    end
+                    # puts "otu_id = #{otu_id}, target_nomenclator = #{target_nomenclator}, taxon_name_obj.cached = #{taxon_name_obj.cached}, taxon_name_obj.cached_original_combination = #{taxon_name_obj.cached_original_combination}"
 
-                      # create conditional attributes here
-                      data_attributes_attributes = []
+                    # create conditional attributes here
+                    data_attributes_attributes = []
 
-                      citations_attributes = []
-                      if identification['ref_id'].to_i > 0
-                        sf_ref_id = identification['ref_id']
-                        if get_tw_source_id[sf_ref_id]
-                          # source_id = get_tw_source_id[sf_ref_id]
-                          # citations_attributes = Citation.create!(source_id: get_tw_source_id[sf_ref_id], project_id: project_id)
-                          citations_attributes.push(source_id: get_tw_source_id[sf_ref_id], project_id: project_id)
-                        else # no TW source equiv, use verbatim as data_attribute
-                          verbatim_sf_ref = {type: 'ImportAttribute',
-                                             import_predicate: "verbatim_sf_ref_id_#{sf_ref_id}",
-                                             value: get_sf_verbatim_ref[sf_ref_id],
-                                             project_id: project_id}
-                          # puts "verbatim_sf_ref: #{get_sf_verbatim_ref[sf_ref_id]})"
-                          data_attributes_attributes.push(verbatim_sf_ref)
-                        end
-                      end
-
-
-                      if identification['identification_mode_note'].present?
-                        identification_mode_note = {type: 'ImportAttribute',
-                                                    import_predicate: 'IdentificationModeNote',
-                                                    value: identification['identification_mode_note'],
-                                                    project_id: project_id}
-                        # puts "identification_mode_note: #{identification['identification_mode_note']}"
-                        data_attributes_attributes.push(identification_mode_note)
-                      end
-
-                      # need IdentifierName: normally a role associated with the taxon determination. Since text field would be difficult to parse into people, for now adding SF tblIdentification.IdentifierName as import attribute
-
-                      if identification['identifier_name'].present?
-                        identifier_name = {type: 'ImportAttribute',
-                                           import_predicate: 'IdentifierName',
-                                           value: identification['identifier_name'],
+                    citations_attributes = []
+                    if identification['ref_id'].to_i > 0
+                      sf_ref_id = identification['ref_id']
+                      if get_tw_source_id[sf_ref_id]
+                        # source_id = get_tw_source_id[sf_ref_id]
+                        # citations_attributes = Citation.create!(source_id: get_tw_source_id[sf_ref_id], project_id: project_id)
+                        citations_attributes.push(source_id: get_tw_source_id[sf_ref_id], project_id: project_id)
+                      else # no TW source equiv, use verbatim as data_attribute
+                        verbatim_sf_ref = {type: 'ImportAttribute',
+                                           import_predicate: "verbatim_sf_ref_id_#{sf_ref_id}",
+                                           value: get_sf_verbatim_ref[sf_ref_id],
                                            project_id: project_id}
-                        # puts "identifier_name: #{identification['identifier_name']}"
-                        data_attributes_attributes.push(identifier_name)
-                        if identification['year'].to_i > 0
-                          identifier_year = {type: 'ImportAttribute',
-                                             import_predicate: 'IdentifierYear',
-                                             value: identification['year'],
-                                             project_id: project_id}
-                          # puts "identifier_year: #{identification['year']}"
-                          data_attributes_attributes.push(identifier_year)
-                        end
+                        # puts "verbatim_sf_ref: #{get_sf_verbatim_ref[sf_ref_id]})"
+                        data_attributes_attributes.push(verbatim_sf_ref)
                       end
+                    end
 
-                      # cannot do inline: need find_or_create
-                      confidences_attributes = []
-                      if get_sf_ident_qualifier[nomenclator_id]
-                        confidences_attributes.push({confidence_level: ConfidenceLevel.find_or_create_by(
-                            name: get_sf_ident_qualifier[nomenclator_id],
-                            definition: "tblIdentifications: #{'get_sf_ident_qualifier[nomenclator_id]'}",
-                            project_id: project_id)})
+
+                    if identification['identification_mode_note'].present?
+                      identification_mode_note = {type: 'ImportAttribute',
+                                                  import_predicate: 'IdentificationModeNote',
+                                                  value: identification['identification_mode_note'],
+                                                  project_id: project_id}
+                      # puts "identification_mode_note: #{identification['identification_mode_note']}"
+                      data_attributes_attributes.push(identification_mode_note)
+                    end
+
+                    # need IdentifierName: normally a role associated with the taxon determination. Since text field would be difficult to parse into people, for now adding SF tblIdentification.IdentifierName as import attribute
+
+                    if identification['identifier_name'].present?
+                      identifier_name = {type: 'ImportAttribute',
+                                         import_predicate: 'IdentifierName',
+                                         value: identification['identifier_name'],
+                                         project_id: project_id}
+                      # puts "identifier_name: #{identification['identifier_name']}"
+                      data_attributes_attributes.push(identifier_name)
+                      if identification['year'].to_i > 0
+                        identifier_year = {type: 'ImportAttribute',
+                                           import_predicate: 'IdentifierYear',
+                                           value: identification['year'],
+                                           project_id: project_id}
+                        # puts "identifier_year: #{identification['year']}"
+                        data_attributes_attributes.push(identifier_year)
                       end
+                    end
 
-                      # where/when is value for otu_id coming from?
+                    # cannot do inline: need find_or_create
+                    confidences_attributes = []
+                    if get_sf_ident_qualifier[nomenclator_id]
+                      confidences_attributes.push({confidence_level: ConfidenceLevel.find_or_create_by(
+                          name: get_sf_ident_qualifier[nomenclator_id],
+                          definition: "tblIdentifications: #{'get_sf_ident_qualifier[nomenclator_id]'}",
+                          project_id: project_id)})
+                    end
 
-                      t = TaxonDetermination.create!(
-                          otu_id: otu_id,
-                          biological_collection_object: o,
+                    t = TaxonDetermination.create!(
+                        otu_id: otu_id,
+                        biological_collection_object_id: o.id,
+                        citations_attributes: citations_attributes,
+                        data_attributes_attributes: data_attributes_attributes,
+                        notes_attributes: [text: identification['taxon_ident_note'], project_id: project_id],
+                        confidences_attributes: confidences_attributes,
+                        project_id: project_id)
+                    t.move_to_bottom # so it's not the first record
 
-                          citations_attributes: citations_attributes,
-                          data_attributes_attributes: data_attributes_attributes,
-                          notes_attributes: [text: identification['taxon_ident_note'], project_id: project_id],
-                          confidences_attributes: confidences_attributes,
-                          project_id: project_id)
-                      t.move_to_bottom # so it's not the first record
 
+                    if identification['verbatim_label'].present?
+                      o.update_column(:buffered_collecting_event, identification['verbatim_label'])
+                    end
 
-                      if identification['verbatim_label'].present?
-                        o.update_column(:buffered_collecting_event, identification['verbatim_label'])
-                      end
+                    if identification['place_in_collection'] == '1'
+                      # o.keywords << place_in_collection_keyword     # equivalent to line below
+                      # o.tags << Tag.new(keyword: place_in_collection_keyword, project_id: o.project_id)
+                      o.tags.create!(keyword: place_in_collection_keyword, project_id: project_id)
+                    end
 
-                      if identification['place_in_collection'] == '1'
-                        # o.keywords << place_in_collection_keyword     # equivalent to line below
-                        # o.tags << Tag.new(keyword: place_in_collection_keyword, project_id: o.project_id)
-                        o.tags.create!(keyword: place_in_collection_keyword, project_id: project_id)
-                      end
-
-                      type_kind_id = identification['type_kind_id'].to_i # exclude TypeKindID = undefined (0) and unknown (6)
-                      if [1, 2, 3, 4, 8, 10].include? type_kind_id
-                        type_kind = case type_kind_id
-                                    when 1
-                                      'holotype'
-                                    when 2
-                                      if o.total == 1
-                                        'syntype'
-                                      else
-                                        'syntypes'
-                                      end
-                                    when 3
-                                      'neotype'
-                                    when 4
-                                      'lectotype'
-                                    when 8
-                                      if o.total == 1
-                                        'paratype'
-                                      else
-                                        'paratypes'
-                                      end
-                                    when 10
-                                      if o.total == 1
-                                        'paralectotype'
-                                      else
-                                        'paralectotypes'
-                                      end
+                    type_kind_id = identification['type_kind_id'].to_i # exclude TypeKindID = undefined (0) and unknown (6)
+                    if [1, 2, 3, 4, 8, 10].include? type_kind_id
+                      type_kind = case type_kind_id
+                                  when 1
+                                    'holotype'
+                                  when 2
+                                    if o.total == 1
+                                      'syntype'
+                                    else
+                                      'syntypes'
                                     end
-
-                        TypeMaterial.create!(protonym_id: get_tw_taxon_name_id[identification['type_taxon_name_id']], # tw_taxon_name_id
-                                             material: o, # = collection_object/biological_collection_object
-                                             type_type: type_kind,
-                                             project_id: project_id)
-                        # puts "type_material created for '#{type_kind}'"
-
-                      elsif [5, 7, 9].include? type_kind_id
-                        # create a data_attribute
-                        type_kind = case type_kind_id
-                                    when 5
-                                      'unspecified primary type'
-                                    when 7
-                                      'allotype'
-                                    when 9
-                                      'topotype'
+                                  when 3
+                                    'neotype'
+                                  when 4
+                                    'lectotype'
+                                  when 8
+                                    if o.total == 1
+                                      'paratype'
+                                    else
+                                      'paratypes'
                                     end
-                        ImportAttribute.create!(import_predicate: 'SF.TypeKind',
-                                                value: type_kind,
-                                                project_id: project_id,
-                                                attribute_subject: o)
-                        # puts "data_attribute for type_kind created for '#{type_kind}'"
-                      end
+                                  when 10
+                                    if o.total == 1
+                                      'paralectotype'
+                                    else
+                                      'paralectotypes'
+                                    end
+                                  end
+
+                      TypeMaterial.create!(protonym_id: get_tw_taxon_name_id[identification['type_taxon_name_id']], # tw_taxon_name_id
+                                           material: o, # = collection_object/biological_collection_object
+                                           type_type: type_kind,
+                                           project_id: project_id)
+                      # puts "type_material created for '#{type_kind}'"
+
+                    elsif [5, 7, 9].include? type_kind_id
+                      # create a data_attribute
+                      type_kind = case type_kind_id
+                                  when 5
+                                    'unspecified primary type'
+                                  when 7
+                                    'allotype'
+                                  when 9
+                                    'topotype'
+                                  end
+                      ImportAttribute.create!(import_predicate: 'SF.TypeKind',
+                                              value: type_kind,
+                                              project_id: project_id,
+                                              attribute_subject: o)
+                      # puts "data_attribute for type_kind created for '#{type_kind}'"
                     end
                   end
                 end
-
-
-                puts 'CollectionObject created'
-                get_tw_collection_object_id[specimen_id] = current_objects.collect {|a| a.id.to_s} # an array of collection object ids for this specimen_id
-
               end
+
+
+              puts 'CollectionObject created'
+              get_tw_collection_object_id[specimen_id] = current_objects.collect {|a| a.id.to_s} # an array of collection object ids for this specimen_id
+
+                # end
 
             rescue ActiveRecord::RecordInvalid => e
               logger.error "CollectionObject ERROR SF.SpecimenID = #{specimen_id} (#{error_counter += 1}): " + e.record.errors.full_messages.join(';')
@@ -690,8 +696,8 @@ namespace :tw do
           ap get_sf_taxon_name_id
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/17_after_collections_objects/`
-          puts '** dumped 17_after_collections_objects **'
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/17_after_collection_objects/`
+          puts '** dumped 17_after_collection_objects **'
           #######################################################################################
         end
 
@@ -1254,7 +1260,6 @@ namespace :tw do
               begin
                 pr = row['PrecisionRadius'].to_i
                 c.generate_verbatim_data_georeference(true, no_cached: true) # reference self, no cache
-                puts "After generate_verbatim_data_georeference"
                 if c.georeferences.any?
                   c.georeferences[0].error_radius = pr unless pr == '0'
                 else
