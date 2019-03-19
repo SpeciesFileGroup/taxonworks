@@ -1,8 +1,9 @@
 import Vue from 'vue'
 
 export default function (state, relationship) {
+
   var position = state.taxonRelationshipList.findIndex(item => {
-    if (item.type == relationship.type) {
+    if (item.type == relationship.type || item.id == relationship.id) {
       return true
     }
   })
