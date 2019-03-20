@@ -368,8 +368,7 @@ module Queries
 
       # @return [Scope]
       def identifier_scope
-        ns = nil
-        ns = ::Namespace.where(short_name: query_id_namespace).first if query_id_namespace.present?
+        ns = query_id_namespace.present? ? ::Namespace.where(short_name: query_id_namespace).first : nil
         ::CollectionObject.with_identifier_type_and_namespace('Identifier::Local::CatalogNumber', ns, true)
           .where('CAST(identifiers.identifier AS integer) between ? and ?',
                  query_range_start.to_i, query_range_stop.to_i)
