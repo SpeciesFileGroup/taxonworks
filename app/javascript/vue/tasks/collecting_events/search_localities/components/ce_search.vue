@@ -82,6 +82,20 @@
       ModeSwitch,
       Spinner,
     },
+    props: {
+      lightRow: {
+        type: Number,
+        default: () => {
+          return 0
+        }
+      },
+      dimRow: {
+        type: Number,
+        default: () => {
+          return 0
+        }
+      }
+    },
     data() {
       return {
         geographicAreaList: [],
@@ -101,6 +115,12 @@
         if(this.geojsonFeatures.length === 0) {
           this.clearFound = true;
         }
+      },
+      lightRow() {
+        this.setHighlightProperty(this.lightRow)
+      },
+      dimRow() {
+        this.clearHighlightProperty(this.dimRow)
       }
     },
     methods: {
@@ -217,6 +237,22 @@
       },
       clearHighlight(id) {
         this.$emit("highlightRow", undefined)
+      },
+      setHighlightProperty(id) {
+        // find the right feature by collecting_event_id
+        this.geojsonFeatures.forEach(feature => {
+          if(feature.properties.collection_event_id == id) {
+            feature.properties.highlight = id
+          }
+        })
+      },
+      clearHighlightProperty(id) {
+        // find the right feature by collecting_event_id
+        this.geojsonFeatures.forEach(feature => {
+          if(feature.properties.collection_event_id == id) {
+            delete(feature.properties.highlight)
+          }
+        })
       },
     },
   }

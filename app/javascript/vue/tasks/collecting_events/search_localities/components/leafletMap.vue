@@ -270,7 +270,7 @@
           } else {
             newGeojson.push(layer)          // (ii) add this feature to the other array
           }
-        })
+        });
 
         // L.geoJSON(newGeojson).getLayers().forEach(layer => {
         //   this.drawnItems.on('mouseover', this.showCoords);
@@ -289,6 +289,9 @@
         this.mapObject.fitBounds(this.foundItems.getBounds())
       },
       onMyFeatures(feature, layer) {
+        if(layer.feature.properties.highlight) {
+          this.lightFeature(layer)
+        }
         layer.on({
           mouseover: this.highlightFeature,
           mouseout: this.resetHighlight,
@@ -297,6 +300,33 @@
       },
       highlightFeature(e) {
         let layer = e.target;
+        // if (geom.type != "Point") {
+        //   this.lightNonPoint(layer)
+        // } else {
+        //   if (geom.type == "Point") {
+        //     if (layer.feature.properties["radius"]) {
+        //       this.lightNonPoint(layer)
+        //     } else {
+        //       var myIcon = L.icon({
+        //         iconUrl: require('./map_icons/mm_20_blue.png'),
+        //         shadowUrl: require('./map_icons/mm_20_shadow.png')
+        //       });
+        //       layer.setIcon(myIcon);
+        //     }
+        //   }
+        // }
+        this.lightFeature(layer);
+        this.$emit("highlightRow", layer.feature.properties.collecting_event_id)
+      },
+      lightNonPoint(layer) {
+        GeoJson._layers[layer._leaflet_id].setStyle({
+          weight: 5,
+          color: '#606060',
+          dashArray: '',
+          fillOpacity: 0.7
+        });
+      },
+      lightFeature(layer) {
         let geom = layer.feature.geometry;
         if (geom.type != "Point") {
           this.lightNonPoint(layer)
@@ -311,18 +341,8 @@
               });
               layer.setIcon(myIcon);
             }
-
           }
         }
-        this.$emit("highlightRow", layer.feature.properties.collecting_event_id)
-      },
-      lightNonPoint(layer) {
-        GeoJson._layers[layer._leaflet_id].setStyle({
-          weight: 5,
-          color: '#606060',
-          dashArray: '',
-          fillOpacity: 0.7
-        });
       },
       resetHighlight(e) {
         let layer = e.target;

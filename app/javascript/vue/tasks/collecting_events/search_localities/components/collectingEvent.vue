@@ -16,6 +16,8 @@
           @featuresList="featuresList=$event"
           @highlightRow="highlightRow=$event"
           @restoreRow="restoreRow=$event"
+          :lightRow="lightRow"
+          :dimRow="dimRow"
         />
       </div>
       <div v-else-if="view === 'Tag'">
@@ -53,6 +55,8 @@
           v-for="(item, index) in collectingEventList"
           :key="item.id"
           :class="{'my-row': highlightRow==item.id}"
+          @mouseover="lightRow=item.id"
+          @mouseout="dimRow=item.id"
         >
           <td class="my-column">
           <span
@@ -112,6 +116,8 @@
         annotation_logic: 'append',
         highlightRow: undefined,
         restoreRow: undefined,
+        lightRow: undefined,
+        dimRow: undefined,
       }
     },
     watch: {
