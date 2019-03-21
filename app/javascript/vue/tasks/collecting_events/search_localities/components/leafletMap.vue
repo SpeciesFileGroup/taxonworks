@@ -303,31 +303,24 @@
       },
       highlightFeature(e) {
         let layer = e.target;
-        // if (geom.type != "Point") {
-        //   this.lightNonPoint(layer)
-        // } else {
-        //   if (geom.type == "Point") {
-        //     if (layer.feature.properties["radius"]) {
-        //       this.lightNonPoint(layer)
-        //     } else {
-        //       var myIcon = L.icon({
-        //         iconUrl: require('./map_icons/mm_20_blue.png'),
-        //         shadowUrl: require('./map_icons/mm_20_shadow.png')
-        //       });
-        //       layer.setIcon(myIcon);
-        //     }
-        //   }
-        // }
         this.lightFeature(layer);
         this.$emit("highlightRow", layer.feature.properties.collecting_event_id)
       },
       lightNonPoint(layer) {
-        GeoJson._layers[layer._leaflet_id].setStyle({
+        let highlightStyle = {
           weight: 5,
-          color: '#606060',
-          dashArray: '',
-          fillOpacity: 0.7
-        });
+            color: '#606060',
+            dashArray: '',
+            fillOpacity: 0.7
+        };
+        if(layer._leaflet_id) {
+          GeoJson._layers[layer._leaflet_id].setStyle(highlightStyle);
+        }
+        else {
+          layer.setStyle(highlightStyle);
+          layer.addTo(this.foundItems);
+        }
+
       },
       lightFeature(layer) {
         let geom = layer.feature.geometry;
@@ -338,11 +331,11 @@
             if (layer.feature.properties["radius"]) {
               this.lightNonPoint(layer)
             } else {
-              var myIcon = L.icon({
+              let blueIcon = L.icon({
                 iconUrl: require('./map_icons/mm_20_blue.png'),
                 shadowUrl: require('./map_icons/mm_20_shadow.png')
               });
-              layer.setIcon(myIcon);
+              layer.setIcon(blueIcon);
             }
           }
         }

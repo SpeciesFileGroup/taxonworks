@@ -231,8 +231,8 @@
         this.shapes.push(JSON.stringify(shape[0]))
       },
       inspectLayer(layer) {
-        this.clearDrawn = true;
-        let geoJ = layer.toGeoJSON();
+        // this.clearDrawn = true;
+        this.shapes.push(layer.toGeoJSON());
         // alert (JSON.stringify(geoJ));
       },
       setHighlight(id) {
