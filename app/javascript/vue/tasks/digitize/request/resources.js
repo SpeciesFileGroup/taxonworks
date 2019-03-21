@@ -58,7 +58,7 @@ const GetRepositorySmartSelector = function () {
 }
 
 const GetNamespacesSmartSelector = function () {
-  return ajaxCall('get', `/namespaces/select_options`)
+  return ajaxCall('get', `/namespaces/select_options?klass=CollectionObject`)
 }
 
 const GetTaxonNameSmartSelector = function () {

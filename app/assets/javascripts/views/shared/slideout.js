@@ -10,8 +10,21 @@ Object.assign(TW.views.shared.slideout, {
 		$(document).off('click', '.slide-panel-category-header');
 		$(document).off('click', '.slide-panel-circle-icon');
 
-		$(document).on('click', '.slide-panel-circle-icon', function() {		
-			that.closeHideSlideoutPanel($(this).closest('.slide-panel'));
+		$(document).on('click', '.slide-panel-circle-icon', function() {
+      //TODO: Remove this after make a new interface for filter CO and Otu by area
+      if($("#filter-collection-objects").length || $("#otu_by_area_and_nomen").length) {
+        that.closeHideSlideoutPanel($(this).closest('.slide-panel'));
+      }
+      //
+      else {
+        if($(this).closest('.slide-panel').hasClass("slice-panel-show")) {
+          $(this).closest('.slide-panel').removeClass("slice-panel-show").addClass("slice-panel-hide");
+        }
+        else {
+          $(this).closest('.slide-panel').removeClass("slice-panel-hide").addClass("slice-panel-show");
+        }
+      }
+			
 		});
 
 		$(document).on('click', '.slide-panel-category-header', function() {

@@ -7,7 +7,7 @@ ruby '2.5.1'
 gem 'bundler', '~> 2.0'
 
 gem 'rake', '~> 12.0'
-gem 'rails', '5.2.2'
+gem 'rails', '5.2.2.1'
 gem 'pg', '~> 1.1'
 gem 'activerecord-postgis-adapter', '~> 5.2.1'
 
