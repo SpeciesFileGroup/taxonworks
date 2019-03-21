@@ -404,6 +404,7 @@ module Queries
         scope
       end
 
+      # @param [Array] scopes
       # @return [Array] of symbols refering to methods
       #   determine which scopes to apply based on parameters provided
       def applied_scopes(scopes = [])
