@@ -116,11 +116,11 @@
           this.clearFound = true;
         }
       },
-      lightRow() {
-        this.setHighlightProperty(this.lightRow)
+      lightRow(newVal) {
+        this.setHighlightProperty(newVal)
       },
-      dimRow() {
-        this.clearHighlightProperty(this.dimRow)
+      dimRow(newVal) {
+        this.clearHighlightProperty(newVal)
       }
     },
     methods: {
@@ -204,6 +204,9 @@
             });
             this.isLoading = false;
           }
+          else {
+            this.isLoading = false;
+          }
         })
       },
       makePromise(params) {
@@ -240,19 +243,23 @@
       },
       setHighlightProperty(id) {
         // find the right feature by collecting_event_id
-        this.geojsonFeatures.forEach(feature => {
-          if(feature.properties.collection_event_id == id) {
+        this.geojsonFeatures.forEach((feature,index) => {
+          if(feature.properties.collecting_event_id == id) {
             feature.properties.highlight = id
+            this.$set(this.geojsonFeatures, index, feature)
           }
         })
+        console.log(JSON.stringify(this.geojsonFeatures))
       },
       clearHighlightProperty(id) {
         // find the right feature by collecting_event_id
-        this.geojsonFeatures.forEach(feature => {
-          if(feature.properties.collection_event_id == id) {
+        this.geojsonFeatures.forEach((feature, index) => {
+          if(feature.properties.collecting_event_id == id) {
             delete(feature.properties.highlight)
+            this.$set(this.geojsonFeatures, index, feature)
           }
         })
+        console.log(JSON.stringify(this.geojsonFeatures))
       },
     },
   }

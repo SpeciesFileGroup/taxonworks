@@ -208,4 +208,8 @@
   .my-row {
     background-color: #BBDDBB
   }
+
+  tr:hover {
+    background-color: #BBDDBB
+  }
 </style>
