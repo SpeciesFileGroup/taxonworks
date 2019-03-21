@@ -40,12 +40,12 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
         let(:params) { {geographic_area_ids: [area_e.id]} }
 
         specify 'collection objects count' do
-          result = Queries::CollectionObject::Filter.new(params).result
+          result = Queries::CollectionObject::Filter.new(params).all
           expect(result.count).to eq(2)
         end
 
         specify 'specific collection objects' do
-          result = Queries::CollectionObject::Filter.new(params).result
+          result = Queries::CollectionObject::Filter.new(params).all
           expect(result).to include(abra.collection_objects.first,
                                     nuther_dog.collection_objects.first)
         end
@@ -58,12 +58,12 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
           let(:params) { {drawn_area_shape: area_b.to_geo_json_feature} }
 
           specify 'collection objects count' do
-            result = Queries::CollectionObject::Filter.new(params).result
+            result = Queries::CollectionObject::Filter.new(params).all
             expect(result.count).to eq(1)
           end
 
           specify 'specific collection objects' do
-            result = Queries::CollectionObject::Filter.new(params).result
+            result = Queries::CollectionObject::Filter.new(params).all
             expect(result).to include(spooler.collection_objects.first)
           end
         end
@@ -72,12 +72,12 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
           let(:params) { {drawn_area_shape: area_a.to_geo_json_feature} }
 
           specify 'collection objects count' do
-            result = Queries::CollectionObject::Filter.new(params).result
+            result = Queries::CollectionObject::Filter.new(params).all
             expect(result.count).to eq(1)
           end
 
           specify 'specific collection objects' do
-            result = Queries::CollectionObject::Filter.new(params).result
+            result = Queries::CollectionObject::Filter.new(params).all
             expect(result).to include(otu_a.collection_objects.first)
           end
         end
@@ -89,14 +89,14 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       # TODO: need to build a descendant
       specify 'with descendants' do
         params_with = {otu_id: top_dog.id, otu_descendants: 'on'}
-        result      = Queries::CollectionObject::Filter.new(params_with).result
+        result      = Queries::CollectionObject::Filter.new(params_with).all
         expect(result.first.otus.count).to eq(6)
         expect(result).to contain_exactly(co_a)
       end
 
       specify 'without descendants' do
         params_without = {otu_id: top_dog.id, otu_descendants: 'off'}
-        result         = Queries::CollectionObject::Filter.new(params_without).result
+        result         = Queries::CollectionObject::Filter.new(params_without).all
         expect(result).to contain_exactly(top_dog.collection_objects.first)
       end
 
@@ -105,7 +105,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     context 'collecting event date search' do
       let(:params) { {search_start_date: '1971-01-01', search_end_date: '1980-12-31'} }
       specify 'start and end dates' do
-        result = Queries::CollectionObject::Filter.new(params).result
+        result = Queries::CollectionObject::Filter.new(params).all
         expect(result.count).to eq(1)
       end
     end
@@ -113,7 +113,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     context 'collecting event date search' do
       let(:params) { {search_start_date: '1975-01-01', search_end_date: '1982-12-31'} }
       specify 'start and end dates' do
-        result = Queries::CollectionObject::Filter.new(params).result
+        result = Queries::CollectionObject::Filter.new(params).all
         expect(result.count).to eq(1)
       end
     end
@@ -148,7 +148,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
         params = {id_namespace: ns1.short_name, id_range_start: '2', id_range_stop: '9'}
 
-        result = Queries::CollectionObject::Filter.new(params).result
+        result = Queries::CollectionObject::Filter.new(params).all
         expect(result).to contain_exactly(co_30, co_28, co_26, co_24)
       end
     end
@@ -184,40 +184,40 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
         params = {user: 'All users', date_type_select: 'created_at'}
 
-        result = Queries::CollectionObject::Filter.new(params).result
+        result = Queries::CollectionObject::Filter.new(params).all
         # 2 from previous (simple_world), and (2 + 10) generated above
         expect(result.count).to eq(14)
 
         params = {user: 'All users', date_type_select: 'created_at',
                   user_date_range_start: '2005-01-01', user_date_range_end: Date.yesterday.to_s}
 
-        result = Queries::CollectionObject::Filter.new(params).result
+        result = Queries::CollectionObject::Filter.new(params).all
         expect(result.count).to eq(5)
 
         params = {user:                  joe, date_type_select: 'created_at',
                   user_date_range_start: '2000/01/01', user_date_range_end: '2001/07/01'}
 
-        result = Queries::CollectionObject::Filter.new(params).result
+        result = Queries::CollectionObject::Filter.new(params).all
         # 2 from previous (simple_world), and 1 generated above
         expect(result.count).to eq(3)
 
         params = {user:                  joe, date_type_select: 'updated_at',
                   user_date_range_start: nil, user_date_range_end: Date.yesterday.to_s}
 
-        result = Queries::CollectionObject::Filter.new(params).result
+        result = Queries::CollectionObject::Filter.new(params).all
         expect(result.count).to eq(0)
 
         params = {user:                  joe.id, date_type_select: 'created_at',
                   user_date_range_start: '2000-01-01', user_date_range_end: Date.yesterday.to_s}
 
-        result = Queries::CollectionObject::Filter.new(params).result
+        result = Queries::CollectionObject::Filter.new(params).all
         # 2 from previous (simple_world), and 5 generated above
         expect(result.count).to eq(7)
 
         params = {user: pat_admin, date_type_select: 'created_at',
                   user_date_range_start: Date.yesterday.to_s, user_date_range_end: Date.yesterday.to_s}
 
-        result = Queries::CollectionObject::Filter.new(params).result
+        result = Queries::CollectionObject::Filter.new(params).all
         expect(result.count).to eq(0)
       end
     end
@@ -285,7 +285,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
         params.merge!({geographic_area_ids: [area_b.id]})
         params.merge!({search_start_date: '1970-01-01', search_end_date: '1986-12-31'})
 
-        result = Queries::CollectionObject::Filter.new(params).result
+        result = Queries::CollectionObject::Filter.new(params).all
         expect(result).to contain_exactly(co_b)
         expect(result.first.otus.count).to eq(3)
         expect(result.first.otus.order(:id).last.taxon_name.name).to eq(test_name)
