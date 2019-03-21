@@ -5,6 +5,7 @@ namespace :tw do
       require 'logged_task'
       namespace :media do
 
+        # NOTE: Use argument 'no_images=1' if you want to create depictions without "uploading" the actual images (works much faster)
         desc 'time rake tw:project_import:sf_import:media:images user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define images: [:data_directory, :environment, :user_id] do |logger|
           # TODO: SourceID not imported!
@@ -85,6 +86,8 @@ namespace :tw do
 
           skipped_file_ids << 0
 
+          default_images = {}
+
           file.each_with_index do |row, i|
             begin
               if row['AccessCode'].to_i != 0 or row['Status'].to_i != 0
@@ -144,18 +147,47 @@ namespace :tw do
               depiction_object = collection_object_id.nil? ? Otu.find(otu_id) : CollectionObject.find(collection_object_id)
 
               # depiction object: if collection_object_id not nil, use it, otherwise use otu_id
-              File.open("#{@args[:data_directory]}/images/#{row['ImageID']}") do |file|
-                depiction = Depiction.create(
-                    image_attributes: {image_file: file, project_id: get_tw_project_id[row['FileID']]},
-                    created_at: row['CreatedOn'],
-                    updated_at: row['LastUpdate'],
-                    created_by_id: get_tw_user_id[row['CreatedBy']],
-                    updated_by_id: get_tw_user_id[row['ModifiedBy']],
-                    project_id: get_tw_project_id[row['FileID']],
-                    depiction_object: depiction_object
+              depiction_attributes = {
+                  created_at: row['CreatedOn'],
+                  updated_at: row['LastUpdate'],
+                  created_by_id: get_tw_user_id[row['CreatedBy']],
+                  updated_by_id: get_tw_user_id[row['ModifiedBy']],
+                  project_id: get_tw_project_id[row['FileID']],
+                  depiction_object: depiction_object
+              }
+              project_id = get_tw_project_id[row['FileID']].to_i
+              depiction = nil
+
+              if ENV['no_images'].nil?
+                File.open("#{@args[:data_directory]}/images/#{row['ImageID']}") do |file|
+                  depiction = Depiction.create(
+                    depiction_attributes.merge(
+                      image_attributes: {image_file: file, project_id: project_id}
+                    )
+                  )
+                end
+              else
+                image = default_images[project_id] ||
+                  (default_images[project_id] = Image.create!({
+                    image_file: File.open('public/images/missing.jpg'),
+                    project_id: project_id
+                  }))
+                # Separate instances will be absolutely required later when adding attributions and other relations that may appear
+                image = image.dup
+                image.save!
+
+                depiction = Depiction.create(depiction_attributes.merge({ image: image }))
+
+                ##### Symlink image file from original Image to avoid broken <img> [WARNING: Deleting Image instance causes all of them to get broken]
+                path = ('%09d' % image.id).scan /.{3}/
+                FileUtils.mkdir_p 'public/system/images/image_files/' + path[0..1].join('/')
+                FileUtils.ln_s(
+                  '../../' + (('%09d' % default_images[project_id].id).scan /.{3}/).join('/'),
+                  'public/system/images/image_files/' + path.join('/')
                 )
-                logger.error "Error saving ImageID = #{row['ImageID']}: #{depiction.errors.full_messages}" unless depiction.errors.empty?
+                #####
               end
+              logger.error "Error saving ImageID = #{row['ImageID']}: #{depiction.errors.full_messages}" unless depiction.errors.empty?
 
                 # can have temporary name w/o OTU via taxon_name_id:  Find OTU via SF.TaxonNameID to TW.otu: if no SF.TaxonNameID, must be SF.SpecimenID, therefore get TW.TaxonNameID via SpecimenID and get the OTU that way.
                 # Some no_otus have collection objects but still need otu whether co or not.
