@@ -369,7 +369,7 @@ module Queries
       # @return [Scope]
       def identifier_scope
         ns = query_id_namespace.present? ? ::Namespace.where(short_name: query_id_namespace).first : nil
-        ::CollectionObject.with_identifier_type_and_namespace('Identifier::Local::CatalogNumber', ns, true)
+        ::CollectionObject.with_identifier_type_and_namespace('Identifier::Local::CatalogNumber', ns, false)
           .where('CAST(identifiers.identifier AS integer) between ? and ?',
                  query_range_start.to_i, query_range_stop.to_i)
       end
@@ -406,7 +406,7 @@ module Queries
 
       # @return [Array] of symbols refering to methods
       #   determine which scopes to apply based on parameters provided
-      def applied_scopes(scopes)
+      def applied_scopes(scopes = [])
         # scopes = []
         scopes.push otu_scope if otu_set?
         scopes.push geographic_area_scope if area_set?
@@ -418,14 +418,14 @@ module Queries
       end
 
       # @return [Scope]
-      # def result
-      #   return ::CollectionObject.none if applied_scopes(merge_clauses).empty?
-      #   a = ::CollectionObject.all
-      #   applied_scopes(merge_clauses).each do |scope|
-      #     a = a.merge(self.send(scope))
-      #   end
-      #   a
-      # end
+      def result
+        return ::CollectionObject.none if applied_scopes.empty?
+        a = ::CollectionObject.all
+        applied_scopes.each do |scope|
+          a = a.merge(scope)
+        end
+        a
+      end
     end
   end
 end
