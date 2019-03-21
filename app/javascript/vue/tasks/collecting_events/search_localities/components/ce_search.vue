@@ -249,7 +249,6 @@
             this.$set(this.geojsonFeatures, index, feature)
           }
         })
-        console.log(JSON.stringify(this.geojsonFeatures))
       },
       clearHighlightProperty(id) {
         // find the right feature by collecting_event_id
@@ -259,7 +258,6 @@
             this.$set(this.geojsonFeatures, index, feature)
           }
         })
-        console.log(JSON.stringify(this.geojsonFeatures))
       },
     },
   }

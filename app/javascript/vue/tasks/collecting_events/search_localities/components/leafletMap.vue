@@ -113,8 +113,6 @@
     watch: {
       geojson: {
         handler(newVal) {
-          console.log(newVal)
-          console.log("Se")
           if (newVal.length) {
             // this.removeLayers()
             this.foundItems.clearLayers();
