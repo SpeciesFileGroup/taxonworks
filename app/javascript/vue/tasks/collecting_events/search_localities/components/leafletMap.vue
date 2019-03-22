@@ -20,7 +20,7 @@
   var GeoJson;
 
   L.Icon.Default.mergeOptions({
-    iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+    // iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
     iconUrl: require('./map_icons/mm_20_red.png'),
     shadowUrl: require('./map_icons/mm_20_shadow.png')
   })
@@ -261,12 +261,12 @@
         L.circle(layer.geometry.coordinates.reverse(), layer.properties.radius).addTo(this.foundItems)
         // L.circle(layer.geometry.coordinates, layer.properties.radius).addTo(this.drawnItems)
       },
-      geoJSON(geojsonFeature) {
-        if (!Array.isArray(geojsonFeature) || geojsonFeature.length === 0) return
+      geoJSON(geoJsonFeatures) {
+        if (!Array.isArray(geoJsonFeatures) || geoJsonFeatures.length === 0) return
         // this.removeLayers()
 
         let newGeojson = [];
-        geojsonFeature.forEach(layer => {   // scan feature array and either (i) or (ii)
+        geoJsonFeatures.forEach(layer => {   // scan feature array and either (i) or (ii)
           //this.antimeridian(layer.geometry.coordinates, true)
           if (layer.geometry.type === 'Point' && layer.properties.hasOwnProperty('radius')) {
             this.addJsonCircle(layer)       // (i) add a leaflet circle to the drawnItems data element
@@ -275,10 +275,6 @@
           }
         });
 
-        // L.geoJSON(newGeojson).getLayers().forEach(layer => {
-        //   this.drawnItems.on('mouseover', this.showCoords);
-        //   this.drawnItems.addLayer(layer)
-        // });
         GeoJson = L.geoJson(newGeojson, {
           style: {
             weight: 1,
@@ -289,7 +285,9 @@
           onEachFeature: this.onMyFeatures
         }).addTo(this.foundItems);
 
-        this.mapObject.fitBounds(this.foundItems.getBounds())
+        if(!((this.lightThisFeature.light) || (this.highlightRow > 0))) {
+          this.mapObject.fitBounds(this.foundItems.getBounds())
+        }   // DON'T rebound the map when just highlighting by either method
       },
       onMyFeatures(feature, layer) {
         if(layer.feature.properties.highlight) {
@@ -308,8 +306,8 @@
       },
       lightNonPoint(layer) {
         let highlightStyle = {
-          weight: 5,
-            color: '#606060',
+          weight: 3,
+            color: '#909090',
             dashArray: '',
             fillOpacity: 0.7
         };
@@ -331,11 +329,15 @@
             if (layer.feature.properties["radius"]) {
               this.lightNonPoint(layer)
             } else {
-              let blueIcon = L.icon({
-                iconUrl: require('./map_icons/mm_20_blue.png'),
-                shadowUrl: require('./map_icons/mm_20_shadow.png')
-              });
-              layer.setIcon(blueIcon);
+              // let blueIcon = L.icon({
+              //   iconUrl: require('./map_icons/mm_20_blue.png'),
+              //   shadowUrl: require('./map_icons/mm_20_shadow.png')
+              // });
+              // layer.setIcon(blueIcon);
+              layer.setIcon(L.icon({
+                  iconUrl: require('./map_icons/mm_20_blue.png'),
+                  shadowUrl: require('./map_icons/mm_20_shadow.png')
+                }));
             }
           }
         }
