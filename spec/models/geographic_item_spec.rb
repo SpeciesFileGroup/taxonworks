@@ -497,27 +497,27 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
         end
 
         specify 'for line_string' do
-          expect(gi_shape_c1.centroid.to_s).to eq('POINT (16.4614536801933 19.2769570914595 0.0)')
+          expect(c1.centroid.to_s).to eq('POINT (16.4614536801933 19.2769570914595 0.0)')
         end
 
         specify 'for polygon' do
-          expect(gi_shape_b.centroid.to_s).to eq('POINT (-8.09134615384615 16.6666666666667 0.0)')
+          expect(b.centroid.to_s).to eq('POINT (-8.09134615384615 16.6666666666667 0.0)')
         end
 
         specify 'for multi_point' do
-          expect(gi_shape_h.centroid.to_s).to eq('POINT (5.0 -15.74 0.0)')
+          expect(h.centroid.to_s).to eq('POINT (5.0 -15.74 0.0)')
         end
 
         specify 'for multi_line_string' do
-          expect(gi_shape_c.centroid.to_s).to eq('POINT (16.5387567713192 15.3001668707456 0.0)')
+          expect(c.centroid.to_s).to eq('POINT (16.5387567713192 15.3001668707456 0.0)')
         end
 
         specify 'for multi_polygon' do
-          expect(gi_shape_g.centroid.to_s).to eq('POINT (21.1264542235711 -3.05523520485584 0.0)')
+          expect(g.centroid.to_s).to eq('POINT (21.1264542235711 -3.05523520485584 0.0)')
         end
 
         specify 'for geometry_collection' do
-          expect(gi_shape_j.centroid.to_s).to eq('POINT (21.1264542235711 -3.05523520485584 0.0)')
+          expect(j.centroid.to_s).to eq('POINT (21.1264542235711 -3.05523520485584 0.0)')
         end
       end
     end

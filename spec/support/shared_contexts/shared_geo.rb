@@ -446,14 +446,6 @@ shared_context 'stuff for complex geo tests' do
   let(:shape_l) { RSPEC_GEO_FACTORY.line(RSPEC_GEO_FACTORY.point(-16, -15.5, 0.0),
                                          RSPEC_GEO_FACTORY.point(-22, -20.5, 0.0)) }
 
-  # group of GeographicItem for #centroid test
-  let(:gi_shape_c1) { FactoryBot.create(:geographic_item_line_string, line_string: shape_c1) }
-  let(:gi_shape_b) { FactoryBot.create(:geographic_item_polygon, polygon: shape_b) }
-  let(:gi_shape_h) { FactoryBot.create(:geographic_item_multi_point, multi_point: shape_h) }
-  let(:gi_shape_c) { FactoryBot.create(:geographic_item_multi_line_string, multi_line_string: shape_c) }
-  let(:gi_shape_g) { FactoryBot.create(:geographic_item_multi_polygon, multi_polygon: shape_g) }
-  let(:gi_shape_j) { FactoryBot.create(:geographic_item_geometry_collection, geometry_collection: shape_j) }
-
   let(:list_t1) { RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-1, 1, 0.0),
                                                  RSPEC_GEO_FACTORY.point(1, 1, 0.0),
                                                  RSPEC_GEO_FACTORY.point(1, -1, 0.0),
