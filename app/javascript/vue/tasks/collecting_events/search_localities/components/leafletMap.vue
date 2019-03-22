@@ -108,6 +108,7 @@
         layers: [],
         highlightRow: undefined,
         restoreRow: undefined,
+        dontBound: false,
       }
     },
     watch: {
@@ -271,6 +272,7 @@
           if (layer.geometry.type === 'Point' && layer.properties.hasOwnProperty('radius')) {
             this.addJsonCircle(layer)       // (i) add a leaflet circle to the drawnItems data element
           } else {
+            if (layer.properties.highlight > 0) {this.dontBound = true}
             newGeojson.push(layer)          // (ii) add this feature to the other array
           }
         });
@@ -285,7 +287,7 @@
           onEachFeature: this.onMyFeatures
         }).addTo(this.foundItems);
 
-        if(!((this.lightThisFeature.light) || (this.highlightRow > 0))) {
+        if(!this.dontBound) {
           this.mapObject.fitBounds(this.foundItems.getBounds())
         }   // DON'T rebound the map when just highlighting by either method
       },
