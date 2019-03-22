@@ -1117,7 +1117,7 @@ class GeographicItem < ApplicationRecord
   def centroid
     # Gis::FACTORY.point(*center_coords.reverse)
     return geo_object if type == 'GeographicItem::Point'
-    return geo_object.centroid
+    return Gis::FACTORY.parse_wkt(self.st_centroid)
   end
 
   # @param [Integer] geographic_item_id
