@@ -20,10 +20,10 @@
   var GeoJson;
 
   L.Icon.Default.mergeOptions({
-    // iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+    iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
     iconUrl: require('./map_icons/mm_20_red.png'),
     shadowUrl: require('./map_icons/mm_20_shadow.png')
-  })
+  });
   export default {
     props: {
       lightThisFeature: {
@@ -265,7 +265,7 @@
       geoJSON(geoJsonFeatures) {
         if (!Array.isArray(geoJsonFeatures) || geoJsonFeatures.length === 0) return
         // this.removeLayers()
-
+        this.dontBound = false;
         let newGeojson = [];
         geoJsonFeatures.forEach(layer => {   // scan feature array and either (i) or (ii)
           //this.antimeridian(layer.geometry.coordinates, true)
@@ -337,8 +337,12 @@
               // });
               // layer.setIcon(blueIcon);
               layer.setIcon(L.icon({
-                  iconUrl: require('./map_icons/mm_20_blue.png'),
-                  shadowUrl: require('./map_icons/mm_20_shadow.png')
+                iconUrl: require('./map_icons/mm_20_blue.png'),
+                iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+                shadowUrl: require('./map_icons/mm_20_shadow.png'),
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                shadowSize: [41, 41]
                 }));
             }
           }
@@ -354,6 +358,7 @@
           else {
             layer.setIcon(L.icon({
               iconUrl: require('./map_icons/mm_20_red.png'),
+              iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
               shadowUrl: require('./map_icons/mm_20_shadow.png')
             }));
           }
