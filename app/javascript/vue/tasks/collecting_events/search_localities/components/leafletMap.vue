@@ -20,7 +20,7 @@
   var GeoJson;
 
   L.Icon.Default.mergeOptions({
-    iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+    // iconRetinaUrl: require('./map_icons/mm_20_red.png'),
     iconUrl: require('./map_icons/mm_20_red.png'),
     shadowUrl: require('./map_icons/mm_20_shadow.png')
   });
@@ -338,7 +338,8 @@
               // layer.setIcon(blueIcon);
               layer.setIcon(L.icon({
                 iconUrl: require('./map_icons/mm_20_blue.png'),
-                iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+                // iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+                // iconRetinaUrl: require('./map_icons/mm_20_shadow.png'),
                 shadowUrl: require('./map_icons/mm_20_shadow.png'),
                 iconSize: [25, 41],
                 iconAnchor: [12, 41],
@@ -358,7 +359,7 @@
           else {
             layer.setIcon(L.icon({
               iconUrl: require('./map_icons/mm_20_red.png'),
-              iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+              // iconRetinaUrl: require('./map_icons/mm_20_red.png'),
               shadowUrl: require('./map_icons/mm_20_shadow.png')
             }));
           }
