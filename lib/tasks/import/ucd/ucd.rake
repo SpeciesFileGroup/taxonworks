@@ -1889,10 +1889,18 @@ namespace :tw do
           i += 1
           print "\r#{i}"
           #          byebug if row['Code'] == 'PentarR'
+
           taxon = find_taxon_ucd(row['TaxonCode'])
           taxon1 = find_taxon_ucd(row['Code'])
+
+	  if taxon.nil? 
+	    puts "Unmatched(?) TaxonCode #{row['TaxonCode']}, skipping TSTAT row" 
+	    next
+	  end	
+
           ref = find_source_id_ucd(row['RefCode'])
           ref2 = find_source_id_ucd(row['RefCodeB'])
+
           if !combination[row['Status']].nil? # && @data.new_combinations[row['TaxonCode']]
             #            genus = @data.new_combinations[row['TaxonCode']]['genus']
             #            subgenus = @data.new_combinations[row['TaxonCode']]['subgenus']
@@ -1923,6 +1931,7 @@ namespace :tw do
               taxon.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
             end
           end
+
           if !notes[row['Status']].nil? && !taxon.nil?
             taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['status'], value: notes[row['Status']])
           end
