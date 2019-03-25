@@ -490,6 +490,36 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           expect(object.valid?).to be_truthy
         end
       end
+
+      context '#centroid' do
+        specify 'for point' do
+          expect(r2024.centroid.to_s).to eq('POINT (-88.241413 40.091655 0.0)')
+        end
+
+        specify 'for line_string' do
+          expect(c1.centroid.to_s).to eq('POINT (16.4614536801933 19.2769570914595 0.0)')
+        end
+
+        specify 'for polygon' do
+          expect(b.centroid.to_s).to eq('POINT (-8.09134615384615 16.6666666666667 0.0)')
+        end
+
+        specify 'for multi_point' do
+          expect(h.centroid.to_s).to eq('POINT (5.0 -15.74 0.0)')
+        end
+
+        specify 'for multi_line_string' do
+          expect(c.centroid.to_s).to eq('POINT (16.5387567713192 15.3001668707456 0.0)')
+        end
+
+        specify 'for multi_polygon' do
+          expect(g.centroid.to_s).to eq('POINT (21.1264542235711 -3.05523520485584 0.0)')
+        end
+
+        specify 'for geometry_collection' do
+          expect(j.centroid.to_s).to eq('POINT (21.1264542235711 -3.05523520485584 0.0)')
+        end
+      end
     end
 
     context 'class methods' do
@@ -887,9 +917,9 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             # This seems to be the reason these two objects *might* be in either order. Thus, one of the two
             # is excluded to prevent it from confusing the order (farthest first) of the appearance of the objects.
             expect(GeographicItem.ordered_by_longest_distance_from('multi_polygon', p3)
-                       .excluding(new_box_e)
-                       .limit(3).to_a)
-                .to eq([g, new_box_a, new_box_b])
+                     .excluding(new_box_e)
+                     .limit(3).to_a)
+              .to eq([g, new_box_a, new_box_b])
           end
 
           specify 'orders objects by distance from passed object geometry_collection' do
