@@ -530,7 +530,7 @@ namespace :tw do
                 c.save
                 if c.id.nil?
                   c1 = Combination.match_exists?(c.get_full_name, genus: c.genus.try(:id))
-                  c1 = Combination.matching_protonyms(c.get_full_name_html, genus: c.genus.try(:id)).first if c1.blank?
+                  c1 = Combination.matching_protonyms(c.get_full_name, genus: c.genus.try(:id)).first if c1.blank?
                   byebug if c1.blank?
                   c = c1
                 end
@@ -607,7 +607,7 @@ namespace :tw do
               c.save
               if c.id.nil?
                 c1 = Combination.match_exists?(c.get_full_name, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id))
-                c1 = Combination.matching_protonyms(c.get_full_name_html, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id)).first if c1.blank?
+                c1 = Combination.matching_protonyms(c.get_full_name, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id)).first if c1.blank?
                 byebug if c1.blank?
                 c = c1
               end
@@ -769,7 +769,7 @@ namespace :tw do
               c.save
               if c.id.nil?
                 c1 = Combination.match_exists?(c.get_full_name, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id), species: c.species.try(:id))
-                c1 = Combination.matching_protonyms(c.get_full_name_html, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id), species: c.species.try(:id)).first if c1.blank?
+                c1 = Combination.matching_protonyms(c.get_full_name, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id), species: c.species.try(:id)).first if c1.blank?
                 byebug if c1.blank?
                 c = c1
               end
@@ -852,7 +852,7 @@ namespace :tw do
               c.save
               if c.id.nil?
                 c1 = Combination.match_exists?(c.get_full_name, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id), species: c.species.try(:id), subspecies: c.subspecies.try(:id))
-                c1 = Combination.matching_protonyms(c.get_full_name_html, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id), species: c.species.try(:id), subspecies: c.subspecies.try(:id)).first if c1.blank?
+                c1 = Combination.matching_protonyms(c.get_full_name, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id), species: c.species.try(:id), subspecies: c.subspecies.try(:id)).first if c1.blank?
                 byebug if c1.blank?
                 c = c1
               end
@@ -1889,10 +1889,18 @@ namespace :tw do
           i += 1
           print "\r#{i}"
           #          byebug if row['Code'] == 'PentarR'
+
           taxon = find_taxon_ucd(row['TaxonCode'])
           taxon1 = find_taxon_ucd(row['Code'])
+
+	  if taxon.nil? 
+	    puts "Unmatched(?) TaxonCode #{row['TaxonCode']}, skipping TSTAT row" 
+	    next
+	  end	
+
           ref = find_source_id_ucd(row['RefCode'])
           ref2 = find_source_id_ucd(row['RefCodeB'])
+
           if !combination[row['Status']].nil? # && @data.new_combinations[row['TaxonCode']]
             #            genus = @data.new_combinations[row['TaxonCode']]['genus']
             #            subgenus = @data.new_combinations[row['TaxonCode']]['subgenus']
@@ -1923,6 +1931,7 @@ namespace :tw do
               taxon.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
             end
           end
+
           if !notes[row['Status']].nil? && !taxon.nil?
             taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['status'], value: notes[row['Status']])
           end
