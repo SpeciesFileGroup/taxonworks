@@ -47,7 +47,7 @@ $default-padding: 2em;
     overflow-y: auto;
     overflow-x: auto;
     width: 100%;
-    height: calc(100% - 60px);
+    height: calc(100vh - 60px) !important;
   }
 
   .slide-panel-header {
@@ -122,6 +122,8 @@ $default-padding: 2em;
     padding-right: $standard_padding;
     border-radius: 3px;
   }
+
+
 
 }
 
