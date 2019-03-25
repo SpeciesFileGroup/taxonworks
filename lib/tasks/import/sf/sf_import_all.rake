@@ -87,18 +87,17 @@ namespace :tw do
           # # '16_after_col_events_metadata': 10m17.584s on 15 Nov 2018
           # #
           # # 654m43.830s before crash on 13 Jan 2019
-          'specimens:collection_objects',
+          # 'specimens:collection_objects',
           # # '17_after_collection_objects': 197m20.585s on 19 Mar 2019; 211m4.168s on 1 Feb 2019; 202m27.938s on 20 Nov 2018; 227m33.097s on 15 Nov 2018
           # #
-          # 'supplementary:taxon_info',
-          # # 0m58.912s on 21 Nov 2018
-          # 'supplementary:scrutiny_related',
-          # # '18_after_scrutinies': 12m12.489s on 21 Nov 2018 [from 11:23:10.299 to 11:29:51.063, scrutiny authors being processed, no screen activity]
-          # # #
+          'supplementary:taxon_info',
+          # 0m58.912s on 21 Nov 2018
+          'supplementary:scrutiny_related',
+          # '18_after_scrutinies': 12m12.489s on 21 Nov 2018 [from 11:23:10.299 to 11:29:51.063, scrutiny authors being processed, no screen activity]
           #
-          # 'media:create_language_hash',
-          # 'media:create_common_names',
-          # 'media:create_otu_website_links',
+          'media:create_language_hash',
+          'media:create_common_names',
+          'media:create_otu_website_links',
           #
           # # 'citations:create_citations',
           # time: close to 10h (592m44.659s on 10 July 2015, 591m42.625s on 6 Sept 2018)
@@ -109,7 +108,7 @@ namespace :tw do
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_otu_cites',
           #
           #
-          # 'last:filter_users'
+          'last:filter_users'
           # # 5m26.662s on 25 Feb 2019
 
       ] do
