@@ -213,7 +213,7 @@
         let that = this
 
         that.record.content.text = [that.record.content.text.slice(0, cursorPosition),
-          TW.views.shared.slideout.pdf.textCopy,
+          document.querySelector('[data-panel-name="pinboard"]').getAttribute('data-clipboard'),
           that.record.content.text.slice(cursorPosition)].join('')
 
         if (that.newRecord) {

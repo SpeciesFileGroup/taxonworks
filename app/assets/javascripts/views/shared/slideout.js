@@ -18,11 +18,13 @@ Object.assign(TW.views.shared.slideout, {
       //
       else {
         if($(this).closest('.slide-panel').hasClass("slice-panel-show")) {
-          $(this).closest('.slide-panel').removeClass("slice-panel-show").addClass("slice-panel-hide");
+					document.dispatchEvent(new CustomEvent('onSlidePanelClose', { detail: { name: $(this).closest('.slide-panel').attr('data-panel-name') } } ));
+					$(this).closest('.slide-panel').removeClass("slice-panel-show").addClass("slice-panel-hide");
         }
         else {
-          $(this).closest('.slide-panel').removeClass("slice-panel-hide").addClass("slice-panel-show");
-        }
+					document.dispatchEvent(new CustomEvent('onSlidePanelOpen', { detail: { name: $(this).closest('.slide-panel').attr('data-panel-name') } } ));
+					$(this).closest('.slide-panel').removeClass("slice-panel-hide").addClass("slice-panel-show");
+				}
       }
 			
 		});
@@ -35,10 +37,13 @@ Object.assign(TW.views.shared.slideout, {
 			$(this).find('.slide-panel-description').text($(this).children('.slide-panel-header').text());
 		});
 
-		$('[data-pdfviewer]').on("click", function() {
-	      	that.closeHideSlideoutPanel($('[data-panel-name="pinboard"]'));
-	      	that.closeHideSlideoutPanel($('[data-panel-name="pdfviewer"]'));
-	  	});
+		document.body.addEventListener("click", function (event) {
+			if (event.target.getAttribute('data-pdfviewer')) {
+				$('[data-panel-name="pinboard"]').removeClass("slice-panel-show").addClass("slice-panel-hide");
+				$('[data-panel-name="pdfviewer"]').removeClass("slice-panel-hide").addClass("slice-panel-show");
+				document.dispatchEvent(new CustomEvent('pdfViewer:load', { detail: { url: event.target.getAttribute('data-pdfviewer') } } ));
+			}
+		});
 	},
 
 	closeHideSlideoutPanel: function(panel) {
