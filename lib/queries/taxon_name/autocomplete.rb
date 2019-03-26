@@ -129,7 +129,7 @@ module Queries
       end
 
       # @return [Scope]
-      # !! TODO: should be autocomplete
+      # !! TODO: should be autocomplete and array ...
       def all
         ::TaxonName.select('taxon_names.*, char_length(taxon_names.cached)').
           includes(:ancestor_hierarchies).
