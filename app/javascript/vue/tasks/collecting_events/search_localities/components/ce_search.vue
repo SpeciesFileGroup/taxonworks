@@ -106,6 +106,7 @@
         clearDrawn: false,
         isLoading: false,
         newFeatures:  [],
+        dontRescale:  false,
         geojsonFeatures: [    // trans-antimeridian polygon test features
         ]
       }
@@ -247,6 +248,7 @@
           if(feature.properties.collecting_event_id == id) {
             feature.properties.highlight = id
             this.$set(this.geojsonFeatures, index, feature)
+            this.dontRescale = true;
           }
         })
       },
@@ -256,6 +258,7 @@
           if(feature.properties.collecting_event_id == id) {
             delete(feature.properties.highlight)
             this.$set(this.geojsonFeatures, index, feature)
+            this.dontRescale = true;
           }
         })
       },

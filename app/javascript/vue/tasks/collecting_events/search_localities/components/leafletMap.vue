@@ -31,7 +31,7 @@
         default: () => {
           return {
             collecting_event_id: undefined,
-            light:  false
+            light: false
           }
         }
       },
@@ -86,7 +86,13 @@
         default: () => {
           return []
         }
-      }
+      },
+      dontRescale: {
+        type: Boolean,
+        default: () => {
+          return false
+        }
+      },
     },
     data() {
       return {
@@ -108,7 +114,7 @@
         layers: [],
         highlightRow: undefined,
         restoreRow: undefined,
-        dontBound: false,
+        // dontBound: false,
       }
     },
     watch: {
@@ -265,14 +271,14 @@
       geoJSON(geoJsonFeatures) {
         if (!Array.isArray(geoJsonFeatures) || geoJsonFeatures.length === 0) return
         // this.removeLayers()
-        this.dontBound = false;
+        // this.dontBound = false;
         let newGeojson = [];
         geoJsonFeatures.forEach(layer => {   // scan feature array and either (i) or (ii)
           //this.antimeridian(layer.geometry.coordinates, true)
           if (layer.geometry.type === 'Point' && layer.properties.hasOwnProperty('radius')) {
             this.addJsonCircle(layer)       // (i) add a leaflet circle to the drawnItems data element
           } else {
-            if (layer.properties.highlight > 0) {this.dontBound = true}
+            // if (layer.properties.highlight > 0) {this.dontBound = true}
             newGeojson.push(layer)          // (ii) add this feature to the other array
           }
         });
@@ -280,14 +286,14 @@
         GeoJson = L.geoJson(newGeojson, {
           style: {
             weight: 1,
-            color: '#804400',
+            color: '#BB4400',
             dashArray: '',
             fillOpacity: 0.4
           },
           onEachFeature: this.onMyFeatures
         }).addTo(this.foundItems);
 
-        if(!this.dontBound) {
+        if(!this.dontRescale) {
           this.mapObject.fitBounds(this.foundItems.getBounds())
         }   // DON'T rebound the map when just highlighting by either method
       },
@@ -339,7 +345,7 @@
               layer.setIcon(L.icon({
                 iconUrl: require('./map_icons/mm_20_blue.png'),
                 // iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-                // iconRetinaUrl: require('./map_icons/mm_20_shadow.png'),
+                // iconRetinaUrl: require('./map_icons/mm_20_blue.png'),
                 shadowUrl: require('./map_icons/mm_20_shadow.png'),
                 iconSize: [25, 41],
                 iconAnchor: [12, 41],
