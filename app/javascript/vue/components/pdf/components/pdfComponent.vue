@@ -3,7 +3,6 @@
     <slot v-if="loading" name="loading"/>
     <div id="viewerContainer" ref="container">
       <div id="viewer" class="pdfViewer"></div>
-      <resizeSensor :initial="true" @resize="resizeScale"/>
     </div>
   </div>
 </template>
@@ -13,7 +12,7 @@
 import 'pdfjs-dist/web/pdf_viewer.css'
 import pdfjsLib from 'pdfjs-dist/webpack.js'
 import { PDFLinkService, PDFPageView, PDFFindController, DefaultAnnotationLayerFactory, DefaultTextLayerFactory } from 'pdfjs-dist/web/pdf_viewer.js'
-import resizeSensor from 'vue-resize-sensor'
+//import resizeSensor from 'vue-resize-sensor'
 
 const DEFAULT_SCALE_DELTA = 1.1
 const MIN_SCALE = 0.25
@@ -56,7 +55,7 @@ function createLoadingTask (src, options) {
 export default {
   createLoadingTask: createLoadingTask,
   components: {
-    resizeSensor
+    //resizeSensor
   },
   data () {
     return {
