@@ -295,7 +295,8 @@
         }).addTo(this.foundItems);
 
         if(!this.dontRebound) {
-          this.mapObject.fitBounds(this.foundItems.getBounds())
+          this.mapObject.fitBounds(this.foundItems.getBounds());
+          this.dontRebound = false;
         }   // DON'T rebound the map when just highlighting by either method
       },
       onMyFeatures(feature, layer) {

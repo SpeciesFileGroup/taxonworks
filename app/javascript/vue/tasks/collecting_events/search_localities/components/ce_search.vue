@@ -53,6 +53,7 @@
         @highlightRow="setHighlight"
         @restoreRow="clearHighlight"
         :draw-controls="true"
+        :dont-rescale="dontRescale"
       />
       <!--@geoJsonLayerCreated="getShapesData($event)"-->
       <input
