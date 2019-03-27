@@ -2208,7 +2208,7 @@ namespace :tw do
                   subgenus = s.original_subgenus
                   species = s.original_species
                   subspecies = s.original_subspecies
-                  vname = s.cached_original_combination.to_s.gsub('<i>', '').gsub('</i>', '')
+                  vname = s.cached_original_combination # .to_s.gsub('<i>', '').gsub('</i>', '')
                   s.original_genus_relationship.destroy unless genus.blank?
                   s.original_subgenus_relationship.destroy unless subgenus.blank?
                   s.original_species_relationship.destroy unless species.blank?
@@ -2218,7 +2218,9 @@ namespace :tw do
                   s.verbatim_author = nil
                   s.rank_class = nil
                   s.type = 'Combination'
+                  
                   s = s.becomes(Combination)
+                 
                   s.genus = genus unless genus.nil?
                   s.subgenus = subgenus unless subgenus.nil?
                   s.species = species unless species.nil?
@@ -2233,9 +2235,11 @@ namespace :tw do
                   elsif !s.genus.nil?
                     s.genus = o
                   end
+                  
                   s.save
-                  if !s.valid?
-                    s = Protonym.find(s.id)
+
+                  if !s.valid? # Is this really being hit?
+                    s = TaxonName.find(s.id).reload # make sure we're not validating against a Combination Object in some cached check
                     TaxonNameRelationship.create!(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating')
                   else
                     TaxonNameRelationship.where(project_id: $project_id, subject_taxon_name_id: s.id).with_type_contains('Combination').each do |z|
