@@ -114,7 +114,7 @@
         layers: [],
         highlightRow: undefined,
         restoreRow: undefined,
-        // dontBound: false,
+        dontRebound: false,
       }
     },
     watch: {
@@ -137,6 +137,9 @@
       lightThisFeature() {
         this.findFeature(e)
       },
+      dontRescale(newVal) {
+        this.dontRebound = newVal
+                   }
     },
     mounted() {
       this.mapObject = L.map(this.mapId, {
@@ -209,7 +212,7 @@
                 showArea: true
               }
             }
-          }))
+          }));
           this.mapObject.addControl(this.drawnItems);
           // this.foundItems.addTo(this.mapObject);
         }
@@ -271,14 +274,12 @@
       geoJSON(geoJsonFeatures) {
         if (!Array.isArray(geoJsonFeatures) || geoJsonFeatures.length === 0) return
         // this.removeLayers()
-        // this.dontBound = false;
         let newGeojson = [];
         geoJsonFeatures.forEach(layer => {   // scan feature array and either (i) or (ii)
           //this.antimeridian(layer.geometry.coordinates, true)
           if (layer.geometry.type === 'Point' && layer.properties.hasOwnProperty('radius')) {
             this.addJsonCircle(layer)       // (i) add a leaflet circle to the drawnItems data element
           } else {
-            // if (layer.properties.highlight > 0) {this.dontBound = true}
             newGeojson.push(layer)          // (ii) add this feature to the other array
           }
         });
@@ -293,7 +294,7 @@
           onEachFeature: this.onMyFeatures
         }).addTo(this.foundItems);
 
-        if(!this.dontRescale) {
+        if(!this.dontRebound) {
           this.mapObject.fitBounds(this.foundItems.getBounds())
         }   // DON'T rebound the map when just highlighting by either method
       },
@@ -337,12 +338,7 @@
             if (layer.feature.properties["radius"]) {
               this.lightNonPoint(layer)
             } else {
-              // let blueIcon = L.icon({
-              //   iconUrl: require('./map_icons/mm_20_blue.png'),
-              //   shadowUrl: require('./map_icons/mm_20_shadow.png')
-              // });
-              // layer.setIcon(blueIcon);
-              layer.setIcon(L.icon({
+               layer.setIcon(L.icon({
                 iconUrl: require('./map_icons/mm_20_blue.png'),
                 // iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
                 // iconRetinaUrl: require('./map_icons/mm_20_blue.png'),
