@@ -790,7 +790,7 @@ namespace :tw do
               life_zone_text = "[#{Utilities::Numbers.get_bits(life_zones).collect {|i| life_zone_map[i]}.compact.join(', ')}]"
             end
             ecology_text = "* Life zone #{life_zone_text}"
-            ecology_text += ": row['Ecology']" unless row['Ecology'].blank?
+            ecology_text += ": #{row['Ecology']}" unless row['Ecology'].blank?
 
             logger.info "Working with TW.project_id: #{project_id} = SF.FileID #{row['FileID']}, SF.TaxonNameID #{sf_taxon_name_id} (count #{count_found += 1}) \n"
 
