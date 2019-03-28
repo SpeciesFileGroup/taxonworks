@@ -100,7 +100,7 @@ export default {
     },
     showPeopleAndLicense() {
       if(this.imagesBy.length || this.license.length || this.source != undefined)
-        return `${this.imagesBy}${this.imagesBy.length > 0 ? ` ` : ``}${this.license}.${this.source ? ` Source: ${this.source.object_tag}` : '' }${this.getYear ? ` Copyright year ${this.getYear}` : ''}`
+        return `${this.imagesBy}${this.imagesBy.length > 0 ? ` ` : ``}${this.license ? `${this.license}. ` : ''}${this.source ? `Source: ${this.source.object_tag}` : '' }${this.getYear ? ` Copyright year ${this.getYear}` : ''}`
       return 'The attribution summary will be displayed here when defined.'
     },
     objectsForDepictions() {
@@ -138,6 +138,8 @@ export default {
 <style scoped>
   .input-apply {
     width: 100%;
+    font-size: 110%;
+    color: #000000;
   }
 
   .button-apply-both {

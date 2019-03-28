@@ -140,8 +140,6 @@ namespace :tw do
 
         @data = ImportedDataUcd.new
 
-#$user_id = 1
-#$project_id = 1
 
 #=begin
 
@@ -472,7 +470,7 @@ namespace :tw do
             elsif row['ValGenus'].to_s == row['CitSubgen'].to_s && !row['CitSubgen'].blank? && row['ValSpecies'].blank?  && row['CitSpecies'].blank? && !@data.genus_codes[row['TaxonCode']].blank?
               @data.genera_index[name] = taxon.id
               if !@data.genus_codes[row['TaxonCode']].blank?
-                taxon.original_genus = TaxonName.find(origgen) unless origgen.blank?
+                taxon.original_genus = Protonym.find(origgen) unless origgen.blank?
                 taxon.original_subgenus = taxon
                 taxon.save!
               end
@@ -530,7 +528,7 @@ namespace :tw do
                 c.save
                 if c.id.nil?
                   c1 = Combination.match_exists?(c.get_full_name, genus: c.genus.try(:id))
-                  c1 = Combination.matching_protonyms(c.get_full_name_html, genus: c.genus.try(:id)).first if c1.blank?
+                  c1 = Combination.matching_protonyms(c.get_full_name, genus: c.genus.try(:id)).first if c1.blank?
                   byebug if c1.blank?
                   c = c1
                 end
@@ -596,18 +594,18 @@ namespace :tw do
 #              end
               taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
               taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
-              taxon.original_genus = TaxonName.find(origgen) unless origgen.blank?
+              taxon.original_genus = Protonym.find(origgen) unless origgen.blank?
               taxon.original_subgenus = taxon
               taxon.save!  if taxon.changed?
 
             else # elsif taxon.id == parent
               c = Combination.new()
-              c.genus = TaxonName.find(origgen) unless origgen.nil?
+              c.genus = Protonym.find(origgen) unless origgen.nil?
               c.subgenus = taxon
               c.save
               if c.id.nil?
                 c1 = Combination.match_exists?(c.get_full_name, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id))
-                c1 = Combination.matching_protonyms(c.get_full_name_html, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id)).first if c1.blank?
+                c1 = Combination.matching_protonyms(c.get_full_name, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id)).first if c1.blank?
                 byebug if c1.blank?
                 c = c1
               end
@@ -668,8 +666,8 @@ namespace :tw do
 
               if n1 == n2 && row['ValAuthor'].to_s.gsub('(', '').gsub(')', '') == row['CitAuthor'].to_s.gsub('(', '').gsub(')', '') && row['ValDate'].to_s == row['CitDate'].to_s && row['CitSubsp'].blank? && !@data.species_codes[row['TaxonCode']].blank? #  && @data.combinations[row['TaxonCode']].blank?
   #           if row['ValSpecies'].to_s == row['CitSpecies'] && row['ValAuthor'] == '(' + row['CitAuthor'] + ')' && row['ValDate'] == row['CitDate'] && row['CitSubsp'].blank? && @data.combinations['TaxonCode'].blank?
-                taxon.original_subgenus = TaxonName.find(origsubgen) unless origsubgen.nil?
-                taxon.original_genus = TaxonName.find(origgen) unless origgen.nil?
+                taxon.original_subgenus = Protonym.find(origsubgen) unless origsubgen.nil?
+                taxon.original_genus = Protonym.find(origgen) unless origgen.nil?
                 taxon.verbatim_name = row['CitSpecies'] if row['ValSpecies'].to_s != row['CitSpecies'].to_s
                 taxon.original_species = taxon
                 @data.species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
@@ -679,10 +677,10 @@ namespace :tw do
                 # @data.taxon_codes[row['TaxonCode']] = taxon.id
                 # taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
               elsif n1 == n3 && row['ValAuthor'].to_s.gsub('(', '').gsub(')', '') == row['CitAuthor'].to_s.gsub('(', '').gsub(')', '') && row['ValDate'].to_s == row['CitDate'].to_s && !row['CitSubsp'].blank? && !@data.species_codes[row['TaxonCode']].blank? #  && @data.combinations[row['TaxonCode']].blank?
-                taxon.original_subgenus = TaxonName.find(origsubgen) unless origsubgen.nil?
-                taxon.original_genus = TaxonName.find(origgen) unless origgen.nil?
+                taxon.original_subgenus = Protonym.find(origsubgen) unless origsubgen.nil?
+                taxon.original_genus = Protonym.find(origgen) unless origgen.nil?
                 taxon.original_subspecies = taxon
-                taxon.original_species = TaxonName.find(origspecies) unless origspecies.nil?
+                taxon.original_species = Protonym.find(origspecies) unless origspecies.nil?
                 taxon.verbatim_name = row['CitSubsp'] if row['ValSpecies'].to_s != row['CitSubsp'].to_s
                 @data.species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
                 set_data_for_taxon(taxon, row['TaxonCode'].to_s)
@@ -756,20 +754,20 @@ namespace :tw do
 #              end
               taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
               taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
-              taxon.original_genus = TaxonName.find(origgen) unless origgen.blank?
-              taxon.original_subgenus = TaxonName.find(origsubgen) unless origsubgen.blank?
+              taxon.original_genus = Protonym.find(origgen) unless origgen.blank?
+              taxon.original_subgenus = Protonym.find(origsubgen) unless origsubgen.blank?
               taxon.original_species = taxon
               taxon.save! if taxon.changed?
             else # elsif taxon.id == taxon1
               c = Combination.new()
-              c.genus = TaxonName.find(origgen) unless origgen.nil?
-              c.subgenus = TaxonName.find(origsubgen) unless origsubgen.nil?
+              c.genus = Protonym.find(origgen) unless origgen.nil?
+              c.subgenus = Protonym.find(origsubgen) unless origsubgen.nil?
               c.species = taxon
               c.verbatim_name = c.get_full_name
               c.save
               if c.id.nil?
                 c1 = Combination.match_exists?(c.get_full_name, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id), species: c.species.try(:id))
-                c1 = Combination.matching_protonyms(c.get_full_name_html, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id), species: c.species.try(:id)).first if c1.blank?
+                c1 = Combination.matching_protonyms(c.get_full_name, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id), species: c.species.try(:id)).first if c1.blank?
                 byebug if c1.blank?
                 c = c1
               end
@@ -837,22 +835,22 @@ namespace :tw do
 #              end
               taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
               taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
-              taxon.original_genus = TaxonName.find(origgen) unless origgen.blank?
-              taxon.original_subgenus = TaxonName.find(origsubgen) unless origsubgen.blank?
-              taxon.original_species = TaxonName.find(origspecies) unless origspecies.blank?
+              taxon.original_genus = Protonym.find(origgen) unless origgen.blank?
+              taxon.original_subgenus = Protonym.find(origsubgen) unless origsubgen.blank?
+              taxon.original_species = Protonym.find(origspecies) unless origspecies.blank?
               taxon.original_subspecies = taxon
               taxon.save! if taxon.changed?
             else # elsif taxon.id == taxon1
               c = Combination.new()
-              c.genus = TaxonName.find(origgen) unless origgen.nil?
-              c.subgenus = TaxonName.find(origsubgen) unless origsubgen.nil?
-              c.species = TaxonName.find(origspecies) unless origspecies.nil?
+              c.genus = Protonym.find(origgen) unless origgen.nil?
+              c.subgenus = Protonym.find(origsubgen) unless origsubgen.nil?
+              c.species = Protonym.find(origspecies) unless origspecies.nil?
               c.subspecies = taxon
               c.verbatim_name = c.get_full_name
               c.save
               if c.id.nil?
                 c1 = Combination.match_exists?(c.get_full_name, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id), species: c.species.try(:id), subspecies: c.subspecies.try(:id))
-                c1 = Combination.matching_protonyms(c.get_full_name_html, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id), species: c.species.try(:id), subspecies: c.subspecies.try(:id)).first if c1.blank?
+                c1 = Combination.matching_protonyms(c.get_full_name, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id), species: c.species.try(:id), subspecies: c.subspecies.try(:id)).first if c1.blank?
                 byebug if c1.blank?
                 c = c1
               end
@@ -1315,14 +1313,17 @@ namespace :tw do
           print "\n ERROR: TaxonCode: #{row['TaxonCode']} not found \n" if !row['TaxonCode'].blank? && taxon.nil?
           print "\n ERROR: Species Code: #{row['Code']} not found \n" if !row['Code'].blank? && species.nil?
           typedesign = row['TypeDesign'].blank? ? type_type[''] : type_type[row['TypeDesign']]
+
           unless taxon.nil?
             unless species.nil?
               TaxonNameRelationship.create(type: typedesign, subject_taxon_name_id: species, object_taxon_name: taxon,
                                            origin_citation_attributes: {source_id: designator, pages: row['PageDesign']})
             end
+
             unless ref.nil?
               taxon.citations.create(source_id: ref, pages: row['PageRef'], is_original: true)
             end
+
 #            if taxon.type == 'Combination' && !classification_type[row['CurrStat']].nil?
 #              # valid = TaxonName.find(taxon.cached_valid_taxon_name_id)
 #              valid = taxon.subgenus || taxon.genus
@@ -1437,6 +1438,7 @@ namespace :tw do
         file.each_with_index do |row, i|
           print "\r#{i}"
           name = row['Order'].to_s.gsub('.', '')
+
           if name.blank?
             taxon = @root
           else
@@ -1446,14 +1448,19 @@ namespace :tw do
             elsif row['Family'] =~/^[A-Z]\w*aceae/
               rnk = 'NomenclaturalRank::Icn::HigherClassificationGroup::Order'
             end
+
             taxon = Protonym.find_or_create_by(name: name, parent: @root, rank_class: rnk, project_id: $project_id)
           end
+
           parent = taxon
+	
           if row['SuperFam'] =~/^[A-Z]\w*oidea/
             name = row['SuperFam']
             taxon = Protonym.find_or_create_by(name: name, parent: parent, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id)
           end
+
           parent = taxon
+
           name = row['Family'].to_s.gsub(' indet.', '').gsub(' (part)', '').gsub(' ', '')
           if row['Family'] =~/^[A-Z]\w*idae/
             if row['SuperFam'] == 'Chalcidoidea'
@@ -1467,14 +1474,22 @@ namespace :tw do
             else
               taxon = Protonym.find_or_create_by(name: name, parent: parent, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family', project_id: $project_id)
             end
+
           elsif row['Family'] =~/^[A-Z]\w*aceae/
             taxon = Protonym.find_or_create_by(name: name, parent: plantae, rank_class: 'NomenclaturalRank::Icn::FamilyGroup::Family', project_id: $project_id)
           elsif row['Family'] == 'Slime mould'
             taxon = Protonym.find_or_create_by(name: 'Slime', parent: @root, rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom', project_id: $project_id)
           end
+
+          if taxon.nil? || taxon.id.nil?
+	    puts "invalid row #{row['Family']}, #{row['Code']}"
+	    next
+	  end
+
           taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['SuperFam'], value: row['SuperFam']) if !row['SuperFam'].blank? && !taxon.parent.nil? && taxon.parent.rank_class != 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily' && taxon.data_attributes.nil?
           taxon.identifiers.create(type: 'Identifier::Local::Import', namespace_id: @data.keywords['host_family_id'], identifier: row['Code']) if !row['Code'].blank?
           @data.hostfamilies[row['Code']] = taxon.id
+
         end
 
       end
@@ -1889,10 +1904,18 @@ namespace :tw do
           i += 1
           print "\r#{i}"
           #          byebug if row['Code'] == 'PentarR'
+
           taxon = find_taxon_ucd(row['TaxonCode'])
           taxon1 = find_taxon_ucd(row['Code'])
+
+	  if taxon.nil? 
+	    puts "Unmatched(?) TaxonCode #{row['TaxonCode']}, skipping TSTAT row" 
+	    next
+	  end	
+
           ref = find_source_id_ucd(row['RefCode'])
           ref2 = find_source_id_ucd(row['RefCodeB'])
+
           if !combination[row['Status']].nil? # && @data.new_combinations[row['TaxonCode']]
             #            genus = @data.new_combinations[row['TaxonCode']]['genus']
             #            subgenus = @data.new_combinations[row['TaxonCode']]['subgenus']
@@ -1906,10 +1929,10 @@ namespace :tw do
             #            taxon = TaxonName.where(cached: name, classified_as: classified_as, project_id: $project_id).first
             #            if taxon.nil?
             #              taxon = Combination.new
-            #              taxon.genus = TaxonName.find(@data.all_genera_index[genus]) unless genus.blank?
-            #              taxon.subgenus = TaxonName.find(@data.all_genera_index[subgenus]) unless subgenus.blank?
-            #              taxon.species = TaxonName.find(@data.all_species_index[species]) unless species.blank?
-            #              taxon.subspecies = TaxonName.find(@data.all_species_index[subspecies]) unless subspecies.blank?
+            #              taxon.genus = Protonym.find(@data.all_genera_index[genus]) unless genus.blank?
+            #              taxon.subgenus = Protonym.find(@data.all_genera_index[subgenus]) unless subgenus.blank?
+            #              taxon.species = Protonym.find(@data.all_species_index[species]) unless species.blank?
+            #              taxon.subspecies = Protonym.find(@data.all_species_index[subspecies]) unless subspecies.blank?
             #              if taxon.valid?
             #                taxon.save!
             #              else
@@ -1923,9 +1946,11 @@ namespace :tw do
               taxon.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
             end
           end
+
           if !notes[row['Status']].nil? && !taxon.nil?
             taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['status'], value: notes[row['Status']])
           end
+
           taxon.notes.create(text: row['Notes'].to_s.gsub('|','_') + ' ' + row['Code'].to_s) if !row['Notes'].blank? && !taxon.nil?
           if taxon.nil?
             print "\n ERROR: Invalid TaxonCode: #{row['TaxonCode']}\n"
@@ -2183,7 +2208,7 @@ namespace :tw do
                   subgenus = s.original_subgenus
                   species = s.original_species
                   subspecies = s.original_subspecies
-                  vname = s.cached_original_combination.to_s.gsub('<i>', '').gsub('</i>', '')
+                  vname = s.cached_original_combination # .to_s.gsub('<i>', '').gsub('</i>', '')
                   s.original_genus_relationship.destroy unless genus.blank?
                   s.original_subgenus_relationship.destroy unless subgenus.blank?
                   s.original_species_relationship.destroy unless species.blank?
@@ -2193,7 +2218,9 @@ namespace :tw do
                   s.verbatim_author = nil
                   s.rank_class = nil
                   s.type = 'Combination'
+                  
                   s = s.becomes(Combination)
+                 
                   s.genus = genus unless genus.nil?
                   s.subgenus = subgenus unless subgenus.nil?
                   s.species = species unless species.nil?
@@ -2208,10 +2235,16 @@ namespace :tw do
                   elsif !s.genus.nil?
                     s.genus = o
                   end
+                  
                   s.save
-                  if !s.valid?
-                    s = Protonym.find(s.id)
+
+                  if !s.valid? # Is this really being hit?
+                    s = TaxonName.find(s.id).reload # make sure we're not validating against a Combination Object in some cached check
                     TaxonNameRelationship.create!(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating')
+                    s.original_genus = genus unless genus.nil?
+                    s.original_subgenus = subgenus unless subgenus.nil?
+                    s.original_species = species unless species.nil?
+                    s.original_subspecies = subspecies unless subspecies.nil?
                   else
                     TaxonNameRelationship.where(project_id: $project_id, subject_taxon_name_id: s.id).with_type_contains('Combination').each do |z|
                       z.object_taxon_name.verbatim_name = z.object_taxon_name.cached if z.object_taxon_name.type = 'Combination' && z.object_taxon_name.verbatim_name.blank?

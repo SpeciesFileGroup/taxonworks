@@ -324,9 +324,7 @@ class Protonym < TaxonName
   #   A relationships for each possible original combination relationship
   def original_combination_relationships_and_stubs
     # TODO: figure out where to really put this, likely in one big sort
-    display_order = [
-      :original_genus, :original_subgenus, :original_species, :original_subspecies, :original_variety, :original_form
-    ]
+    display_order = [ :original_genus, :original_subgenus, :original_species, :original_subspecies, :original_variety, :original_subvariety, :original_form, :original_subform ]
 
     defined_relations = self.original_combination_relationships.all
     created_already   = defined_relations.collect{|a| a.class}
@@ -552,7 +550,7 @@ class Protonym < TaxonName
     if elements.any?
       elements[:genus] = '[GENUS NOT SPECIFIED]' if !elements[:genus] && !not_binomial?
       # If there is no :species, but some species group, add element
-      elements[:species] = '[SPECIES NOT SPECIFIED]' if !elements[:species] && ( [:subspecies, :variety, :form, :subform, :subvariety] & elements.keys ).size > 0
+      elements[:species] = '[SPECIES NOT SPECIFIED]' if !elements[:species] && ( [:subspecies, :variety, :form] & elements.keys ).size > 0
     end
 
     elements

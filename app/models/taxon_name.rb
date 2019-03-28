@@ -1249,23 +1249,30 @@ class TaxonName < ApplicationRecord
 
   end
 
+  # TODO: too many checks here, split them out
   def sv_missing_fields
     if !self.cached_misspelling && !self.name_is_missapplied?
       if self.source.nil?
         soft_validations.add(:base, 'Original publication is not selected')
-      elsif self.origin_citation.pages.nil?
+      elsif self.origin_citation.pages.blank?
         soft_validations.add(:base, 'Original citation pages are not indicated')
-      elsif !self.source.pages.nil? && self.origin_citation.pages =~ /\A[0-9]+\z/
+      elsif !self.source.pages.blank? && self.origin_citation.pages =~ /\A[0-9]+\z/
         matchdata = self.source.pages.match(/(\d+)[-–](\d+)|(\d+)/)
-        minP = matchdata[1] ? matchdata[1].to_i : matchdata[3].to_i
-        maxP = matchdata[2] ? matchdata[2].to_i : matchdata[3].to_i
-        unless (maxP && minP && minP <= self.origin_citation.pages.to_i && maxP >= self.origin_citation.pages.to_i)
-          soft_validations.add(:base, 'Original citation is out of the source page range')
-        end
+
+        if matchdata
+	  minP = matchdata[1] ? matchdata[1].to_i : matchdata[3].to_i
+          maxP = matchdata[2] ? matchdata[2].to_i : matchdata[3].to_i
+
+	  unless (maxP && minP && minP <= self.origin_citation.pages.to_i && maxP >= self.origin_citation.pages.to_i)
+            soft_validations.add(:base, 'Original citation is out of the source page range')
+	  end
+	end
       end
+
       soft_validations.add(:verbatim_author, 'Author is missing',
                            fix: :sv_fix_missing_author,
                            success_message: 'Author was updated') if self.author_string.nil? && self.type != 'Combination'
+
       soft_validations.add(:year_of_publication, 'Year is missing',
                            fix: :sv_fix_missing_year,
                            success_message: 'Year was updated') if self.year_integer.nil? && self.type != 'Combination'

@@ -1,11 +1,11 @@
 <h1 class="task_header"> Browse nomenclature </h1>
 
-<div id="browse-view" class="">
+<div id="browse-view" data-taxon-id="<%= @taxon_name.id %>">
   <div class="panel content">
     <div class="flex-separate middle">
 
 
-      <span class="left_float">
+      <span class="left_float separate-right">
         <%= form_tag( browse_nomenclature_task_path, method: :get) do %>
           <%= render  'workbench/elements/forms/ajax_select',
             controller: '/taxon_names',
@@ -18,17 +18,22 @@
       </span>
 
       
-      <span class="left_float">
+      <span class="left_float separate-left separate-right">
       <%= render('/taxon_names/breadcrumb_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
       </span>
 
-      <span class="right_float">
+      <span class="right_float flex-separate">
         <ul class="context-menu">
           <li><%= otus_redirect(@taxon_name) %></li>
           <li><%= otus_radial_disambiguate(@taxon_name) %></li>
+        </ul>
+        <ul class="context-menu">
+          <li><%= radial_annotator(@taxon_name) %></li>
           <li><%= tag_default_icon(@taxon_name) %></li>
           <li><%= pin_item_to_pinboard_link(@taxon_name, sessions_current_user) %></li>
-          <li><%= radial_annotator(@taxon_name) %></li>
+          <li>
+            <a class="circle-button btn-edit" href="<%= new_taxon_name_task_path(@taxon_name) %>"></a>
+          </li>
           <li><%= radial_object_tag(@taxon_name) %></li>
         </ul>
       </span>    

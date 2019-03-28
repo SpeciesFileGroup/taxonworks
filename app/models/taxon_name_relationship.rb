@@ -266,7 +266,7 @@ class TaxonNameRelationship < ApplicationRecord
 
   def validate_subject_and_object_share_code
     if object_taxon_name.type  == 'Protonym' && subject_taxon_name.type == 'Protonym'
-      errors.add(:object_taxon_name_id, 'The related taxon is not in the same monenclatural group (ICZN, ICN, ICNB, ICTV') if subject_taxon_name.rank_class.nomenclatural_code != object_taxon_name.rank_class.nomenclatural_code
+      errors.add(:object_taxon_name_id, 'The related taxon is not in the same monenclatural group (ICZN, ICN, ICNB, ICTV') if subject_taxon_name.rank_class.try(:nomenclatural_code) != object_taxon_name.rank_class.try(:nomenclatural_code)
     end
   end
 
@@ -286,9 +286,9 @@ class TaxonNameRelationship < ApplicationRecord
     tname = self.type_name
 
     if tname =~ /TaxonNameRelationship::(Icnp|Icn|Iczn|Ictv)/ && tname != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
-      rank_group = self.subject_taxon_name.rank_class.parent
-      unless rank_group == self.object_taxon_name.rank_class.parent
-        errors.add(:object_taxon_name_id, "Rank of related taxon should be in the #{rank_group.rank_name} rank group, not #{self.object_taxon_name.rank_class.rank_name}")
+      rank_group = self.subject_taxon_name.rank_class.try(:parent)
+      unless rank_group == self.object_taxon_name.rank_class.try(:parent)
+        errors.add(:object_taxon_name_id, "Rank of related taxon should be in the #{rank_group.try(:rank_name)} rank group, not #{self.object_taxon_name.rank_class.try(:rank_name)}")
       end
     end
 
