@@ -149,6 +149,7 @@
         });
       },
       getShapesData(geojsonShape) {
+        this.dontRescale = false;
         this.clearFound = true;
         this.isLoading = true;
         let shapeText = this.shapes[this.shapes.length - 1];
@@ -245,23 +246,25 @@
       },
       setHighlightProperty(id) {
         // find the right feature by collecting_event_id
+        this.dontRescale = true;
         this.geojsonFeatures.forEach((feature,index) => {
           if(feature.properties.collecting_event_id == id) {
             feature.properties.highlight = id
             this.$set(this.geojsonFeatures, index, feature)
-            this.dontRescale = true;
           }
-        })
+        });
+        // this.dontRescale = false;
       },
       clearHighlightProperty(id) {
         // find the right feature by collecting_event_id
+        this.dontRescale = true;
         this.geojsonFeatures.forEach((feature, index) => {
           if(feature.properties.collecting_event_id == id) {
-            delete(feature.properties.highlight)
+            delete(feature.properties.highlight);
             this.$set(this.geojsonFeatures, index, feature)
-            this.dontRescale = true;
           }
-        })
+        });
+        // this.dontRescale = false;
       },
     },
   }
