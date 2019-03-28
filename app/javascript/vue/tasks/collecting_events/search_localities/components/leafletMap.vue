@@ -20,7 +20,7 @@
   var GeoJson;
 
   L.Icon.Default.mergeOptions({
-    // iconRetinaUrl: require('./map_icons/mm_20_red.png'),
+    iconRetinaUrl: require('./map_icons/mm_20_red.png'),
     iconUrl: require('./map_icons/mm_20_red.png'),
     shadowUrl: require('./map_icons/mm_20_shadow.png')
   });
@@ -33,18 +33,6 @@
             collecting_event_id: undefined,
             light: false
           }
-        }
-      },
-      clearFound: {
-        type: Boolean,
-        default: () => {
-          return false
-        }
-      },
-      clearDrawn: {
-        type: Boolean,
-        default: () => {
-          return false
         }
       },
       width: {
@@ -128,12 +116,6 @@
         },
         deep: true
       },
-      clearDrawn() {
-        this.drawnItems.clearLayers();
-      },
-      clearFound() {
-        this.foundItems.clearLayers();
-      },
       lightThisFeature() {
         this.findFeature(e)
       },
@@ -188,6 +170,9 @@
             }
           }
         }
+      },
+      clearFound() {
+        this.foundItems.clearLayers();
       },
       addDrawControllers() {
         if (this.tilesSelection) {
@@ -340,7 +325,7 @@
                layer.setIcon(L.icon({
                 iconUrl: require('./map_icons/mm_20_blue.png'),
                 // iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-                // iconRetinaUrl: require('./map_icons/mm_20_blue.png'),
+                iconRetinaUrl: require('./map_icons/mm_20_blue.png'),
                 shadowUrl: require('./map_icons/mm_20_shadow.png'),
                 iconSize: [25, 41],
                 iconAnchor: [12, 41],
@@ -360,7 +345,7 @@
           else {
             layer.setIcon(L.icon({
               iconUrl: require('./map_icons/mm_20_red.png'),
-              // iconRetinaUrl: require('./map_icons/mm_20_red.png'),
+              iconRetinaUrl: require('./map_icons/mm_20_red.png'),
               shadowUrl: require('./map_icons/mm_20_shadow.png')
             }));
           }

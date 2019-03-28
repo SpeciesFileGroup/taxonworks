@@ -44,8 +44,6 @@
         width="1024px"
         :zoom="2"
         ref="leaflet"
-        :clearFound="clearFound"
-        :clearDrawn="clearDrawn"
         :geojson="geojsonFeatures"
         @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
         @geoJsonLayersEdited="editedShape($event)"
@@ -103,8 +101,6 @@
         collectingEventList: [],
         shapes: [],   // intended for eventual multiple shapes paradigm
         mode: 'list',
-        clearFound: false,
-        clearDrawn: false,
         isLoading: false,
         newFeatures:  [],
         dontRescale:  false,
@@ -115,7 +111,7 @@
     watch: {
       geojsonFeatures() {
         if(this.geojsonFeatures.length === 0) {
-          this.clearFound = true;
+          this.$refs.leaflet.clearFound()
         }
       },
       lightRow(newVal) {
@@ -127,8 +123,8 @@
     },
     methods: {
       clearTheMap() {
-        this.clearFound = true;
-        this.clearDrawn = true;
+        this.$refs.leaflet.clearFound()
+        this.$refs.leaflet.removeLayers()
         this.geojsonFeatures = [];
       },
       getAreaData() {
@@ -150,7 +146,7 @@
       },
       getShapesData(geojsonShape) {
         this.dontRescale = false;
-        this.clearFound = true;
+        this.$refs.leaflet.clearFound()
         this.isLoading = true;
         let shapeText = this.shapes[this.shapes.length - 1];
         let searchShape = JSON.parse(shapeText);
