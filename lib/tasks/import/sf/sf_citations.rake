@@ -267,7 +267,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           pwd = rand(36**10).to_s(36)
           @proceps = User.create(email: 'arboridia@gmail.com', password: pwd, password_confirmation: pwd, name: 'proceps', is_administrator: true, self_created: true, is_flagged_for_password_reset: true)
 
-          $user_id = @proceps.id
+          Current.user_id = @proceps.id
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
           excluded_taxa = import.get('ExcludedTaxa')
@@ -541,6 +541,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
                   protonym = TaxonName.find(taxon_name_id)
                   project_id = protonym.project_id.to_s #  TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
+                  Current.project_id = project_id
                   Note.create!(
                       note_object_type: protonym,
                       note_object_id: taxon_name_id,
@@ -570,6 +571,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
               protonym = TaxonName.find(taxon_name_id)
               project_id = protonym.project_id.to_s #  TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
+              Current.project_id = project_id
 
               if nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]].nil?
                 pr = Protonym.create(name: nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0], rank_class: Ranks.lookup(:iczn, 'Genus'), project_id: project_id, parent_id: protonym.root.id, created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']], created_at: row['CreatedOn'], updated_at: row['LastUpdate'])
@@ -580,7 +582,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                 #pr.original_genus = pr
                 pr.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus', subject_taxon_name: pr, project_id: pr.id)
                 pr.save
-                tw_taxa_ids[project_id + '_' + pr.name] = pr.id
+                tw_taxa_ids[project_id + '_' + pr.name] = pr.id if tw_taxa_ids[project_id + '_' + pr.name].nil?
                 if nomenclator_ids[row['NomenclatorID'].to_i]['subgenus'].nil? && nomenclator_ids[row['NomenclatorID'].to_i]['species'].nil? && nomenclator_ids[row['NomenclatorID'].to_i]['subspecies'].nil? && nomenclator_ids[row['NomenclatorID'].to_i]['infrasubspecies'].nil?
                   pr.parent_id = protonym.parent_id
                   pr.rank_class = protonym.rank_class
@@ -594,15 +596,14 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                   cites_id_done[row['TaxonNameID'].to_s + '_' + row['SeqNum'].to_s] = true
                   next
                 end
-#                TaxonNameRelationship.create(type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
 #                pr.original_subgenus = pr
-#                pr.original_genus = TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]) if nomenclator_ids[row['NomenclatorID'].to_i]['genus']
+#                pr.original_genus = TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]) if nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && pr.original_genus.nil?
                 pr.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus', subject_taxon_name: pr, project_id: project_id)
-                pr.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]), project_id: project_id) if nomenclator_ids[row['NomenclatorID'].to_i]['genus']
+                pr.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]), project_id: project_id) if nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && pr.original_genus.nil?
                 pr.save
                 tw_taxa_ids[project_id + '_' + pr.name] = pr.id
                 if nomenclator_ids[row['NomenclatorID'].to_i]['species'].nil? && nomenclator_ids[row['NomenclatorID'].to_i]['subspecies'].nil? && nomenclator_ids[row['NomenclatorID'].to_i]['infrasubspecies'].nil?
-                  tw_taxa_ids[project_id + '_' + nomenclator_string] = pr.id
+                  tw_taxa_ids[project_id + '_' + nomenclator_string] = pr.id && w_taxa_ids[project_id + '_' + nomenclator_string].nil?
                   pr.parent_id = protonym.parent_id
                   pr.rank_class = protonym.rank_class
                   pr.save
@@ -620,11 +621,11 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 #                pr.original_genus = TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]) if nomenclator_ids[row['NomenclatorID'].to_i]['genus']
                 pr.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies', subject_taxon_name: pr, project_id: project_id)
                 pr.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['subgenus'][0]]), project_id: project_id) if nomenclator_ids[row['NomenclatorID'].to_i]['subgenus']
-                pr.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]), project_id: project_id) if nomenclator_ids[row['NomenclatorID'].to_i]['genus']
+                pr.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]), project_id: project_id) if nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && pr.original_genus.nil?
                 pr.save
-                tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0] + '_' + pr.name] = pr.id
+                tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0] + '_' + pr.name] = pr.id if tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0] + '_' + pr.name].nil?
                 if nomenclator_ids[row['NomenclatorID'].to_i]['subspecies'].nil? && nomenclator_ids[row['NomenclatorID'].to_i]['infrasubspecies'].nil?
-                  tw_taxa_ids[project_id + '_' + nomenclator_string] = pr.id
+                  tw_taxa_ids[project_id + '_' + nomenclator_string] = pr.id if tw_taxa_ids[project_id + '_' + nomenclator_string].nil?
                   pr.parent_id = protonym.parent_id
                   pr.rank_class = protonym.rank_class
                   pr.save
@@ -644,28 +645,17 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                 pr.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalSubspecies', subject_taxon_name: pr, project_id: project_id)
                 pr.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0] + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['species'][0]]), project_id: project_id)  if nomenclator_ids[row['NomenclatorID'].to_i]['species']
                 pr.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['subgenus'][0]]), project_id: project_id) if nomenclator_ids[row['NomenclatorID'].to_i]['subgenus']
-                pr.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]), project_id: project_id) if nomenclator_ids[row['NomenclatorID'].to_i]['genus']
+                pr.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]), project_id: project_id) if nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && pr.original_genus.nil?
                 pr.save
-                tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0] + '_' + pr.name] = pr.id
+                tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0] + '_' + pr.name] = pr.id if tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0] + '_' + pr.name].nil?
                 if nomenclator_ids[row['NomenclatorID'].to_i]['infrasubspecies'].nil?
-                  tw_taxa_ids[project_id + '_' + nomenclator_string] = pr.id
+                  tw_taxa_ids[project_id + '_' + nomenclator_string] = pr.id if tw_taxa_ids[project_id + '_' + nomenclator_string].nil?
                   pr.parent_id = protonym.parent_id
                   pr.rank_class = protonym.rank_class
                   pr.save
                   pr.taxon_name_relationships.create(object_taxon_name: protonym, type: 'TaxonNameRelationship::Iczn::Invalidating', project_id: project_id, created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']], created_at: row['CreatedOn'], updated_at: row['LastUpdate'])
                 end
               end
-#              if nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['infrasubspecies'] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0] + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['infrasubspecies'][0]].nil?
-#                pr = Protonym.create(name: nomenclator_ids[row['NomenclatorID'].to_i]['infrasubspecies'][0], rank_class: Ranks.lookup(:iczn, 'Species'), project_id: project_id, parent_id: protonym.root.id, created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']], created_at: row['CreatedOn'], updated_at: row['LastUpdate'])
-#                pr.original_subspecies = pr
-#                pr.original_species = TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0] + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['species'][0]]) if nomenclator_ids[row['NomenclatorID'].to_i]['species']
-#                pr.original_subgenus = TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['subgenus'][0]]) if nomenclator_ids[row['NomenclatorID'].to_i]['subgenus']
-#                pr.original_genus = TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]) if nomenclator_ids[row['NomenclatorID'].to_i]['genus']
-#                pr.save
-#                tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0] + '_' + pr.name] = pr.id
-#                tw_taxa_ids[project_id + '_' + nomenclator_string] = pr.id
-#              end
-
 
               #logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
 
@@ -728,29 +718,29 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                 end
 
                 if rank_pass == 'genus' && nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && protonym.name == nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]
-#                  protonym.original_genus = protonym
-                  protonym.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus', subject_taxon_name: protonym, project_id: project_id)
+#                  protonym.original_genus = protonym && protonym.original_genus.nil?
+                  protonym.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus', subject_taxon_name: protonym, project_id: project_id) && protonym.original_genus.nil?
                 elsif rank_pass == 'subgenus' && nomenclator_ids[row['NomenclatorID'].to_i]['subgenus'] && protonym.name == nomenclator_ids[row['NomenclatorID'].to_i]['subgenus'][0]
 #                  protonym.original_subgenus = protonym
-#                  protonym.original_genus = TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]) if protonym.original_genus.nil? && nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus']
+#                  protonym.original_genus = TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]) if protonym.original_genus.nil? && nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && protonym.original_genus.nil?
                   protonym.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus', subject_taxon_name: protonym, project_id: project_id)
-                  protonym.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]), project_id: project_id) if protonym.original_genus.nil? && nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus']
+                  protonym.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]), project_id: project_id) if protonym.original_genus.nil? && nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && protonym.original_genus.nil?
                 elsif rank_pass == 'species' && nomenclator_ids[row['NomenclatorID'].to_i]['species'] && protonym.name == nomenclator_ids[row['NomenclatorID'].to_i]['species'][0]
 #                  protonym.original_species = protonym
 #                  protonym.original_subgenus = TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['subgenus'][0]]) if nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['subgenus']
-#                  protonym.original_genus = TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]) if protonym.original_genus.nil? && nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus']
+#                  protonym.original_genus = TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]) if protonym.original_genus.nil? && nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && protonym.original_genus.nil?
                   protonym.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies', subject_taxon_name: protonym, project_id: project_id)
                   protonym.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['subgenus'][0]]), project_id: project_id) if nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['subgenus']
-                  protonym.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]), project_id: project_id) if protonym.original_genus.nil? && nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus']
+                  protonym.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]), project_id: project_id) if protonym.original_genus.nil? && nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && protonym.original_genus.nil?
                 elsif rank_pass == 'subspecies' && nomenclator_ids[row['NomenclatorID'].to_i]['subspecies'] && protonym.name == nomenclator_ids[row['NomenclatorID'].to_i]['subspecies'][0]
 #                  protonym.original_subspecies = protonym
 #                  protonym.original_species = TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0] + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['species'][0]]) if nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && nomenclator_ids[row['NomenclatorID'].to_i]['species']
 #                  protonym.original_subgenus = TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['subgenus'][0]]) if nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['subgenus']
-#                  protonym.original_genus = TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]) if protonym.original_genus.nil? && nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus']
+#                  protonym.original_genus = TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]) if protonym.original_genus.nil? && nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && protonym.original_genus.nil?
                   protonym.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalSubspecies', subject_taxon_name: protonym, project_id: project_id)
                   protonym.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0] + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['species'][0]]), project_id: project_id) if nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && nomenclator_ids[row['NomenclatorID'].to_i]['species']
                   protonym.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['subgenus'][0]]), project_id: project_id) if nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['subgenus']
-                  protonym.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]), project_id: project_id) if protonym.original_genus.nil? && nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus']
+                  protonym.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]), project_id: project_id) if protonym.original_genus.nil? && nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && protonym.original_genus.nil?
                 elsif rank_pass == 'infrasubspecies' && nomenclator_ids[row['NomenclatorID'].to_i]['infrasubspecies'] && protonym.name == nomenclator_ids[row['NomenclatorID'].to_i]['infrasubspecies'][0]
                   if nomenclator_ids[row['NomenclatorID'].to_i]['kind'] == '0'
 #                    protonym.original_form = protonym
@@ -766,15 +756,15 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 #                  protonym.original_subspecies = TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0] + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['subspecies'][0]]) if nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && nomenclator_ids[row['NomenclatorID'].to_i]['subspecies']
 #                  protonym.original_species = TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0] + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['species'][0]]) if nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && nomenclator_ids[row['NomenclatorID'].to_i]['species']
 #                  protonym.original_subgenus = TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['subgenus'][0]]) if nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['subgenus']
-#                  protonym.original_genus = TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]) if protonym.original_genus.nil? && nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus']
+#                  protonym.original_genus = TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]) if protonym.original_genus.nil? && nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && protonym.original_genus.nil?
                   protonym.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalSubspecies', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0] + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['subspecies'][0]]), project_id: project_id) if nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && nomenclator_ids[row['NomenclatorID'].to_i]['subspecies']
                   protonym.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0] + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['species'][0]]), project_id: project_id) if nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && nomenclator_ids[row['NomenclatorID'].to_i]['species']
                   protonym.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['subgenus'][0]]), project_id: project_id) if nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['subgenus']
-                  protonym.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]), project_id: project_id) if protonym.original_genus.nil? && nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus']
+                  protonym.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]]), project_id: project_id) if protonym.original_genus.nil? && nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && protonym.original_genus.nil?
                 end
                 protonym.save
                 #string = [project_id, protonym.original_genus.try(:name), protonym.original_subgenus.try(:name), protonym.original_species.try(:name), protonym.original_subspecies.try(:name), protonym.original_variety.try(:name), protonym.original_form.try(:name)].compact.join('_')
-                tw_taxa_ids[project_id + '_' + nomenclator_string] = protonym.id
+                tw_taxa_ids[project_id + '_' + nomenclator_string] = protonym.id if tw_taxa_ids[project_id + '_' + nomenclator_string].nil?
                 cites_id_done[row['TaxonNameID'].to_s + '_' + row['SeqNum'].to_s] = true
                 next
               elsif row['NomenclatorID'] == '0'
@@ -852,67 +842,9 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
                 cites_id_done[row['TaxonNameID'].to_s + '_' + row['SeqNum'].to_s] = true
                 next if p.id.nil?
-                tw_taxa_ids[project_id + '_' + nomenclator_string] = p.id
+                tw_taxa_ids[project_id + '_' + nomenclator_string] = p.id if tw_taxa_ids[project_id + '_' + nomenclator_string].nil?
                 protonym = p
                 taxon_name_id = p.id
-              end
-
-
-
-              if !nomenclator_string.blank? && !nomenclator_string.include?('?') # has ? in string, skip combo but record string as tag
-                if !nomenclator_is_original_combination?(protonym, nomenclator_string) && !nomenclator_is_current_name?(protonym, nomenclator_string)
-                  combination = nil
-
-                  # @todo commented out 9 July
-                  # # [INFO]2018-03-21 04:23:59.785: total funny exceptions = '13410', total unique_bad_nomenclators = '4933'
-                  # # [INFO]2018-03-30 03:43:54.967: total funny exceptions = '56295', total unique_bad_nomenclators = '23051', new combo total = 14097
-                  # # [INFO]2018-03-31 18:44:23.471: total funny exceptions = '35106', total unique_bad_nomenclators = '15822', new combo total = 21,275
-                  # cr = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: nomenclator_string, project_id: project_id, code: :iczn)
-                  #
-                  # kn = {
-                  #     project_id: project_id,
-                  #     nomenclator_string: nomenclator_string,
-                  #     cr: cr,
-                  #     protonym: protonym,
-                  #
-                  #     housekeeping: {
-                  #         project_id: project_id,
-                  #         created_at: row['CreatedOn'],
-                  #         updated_at: row['LastUpdate'],
-                  #         created_by_id: get_tw_user_id[row['CreatedBy']],
-                  #         updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                  #     }
-                  # }
-                  #
-                  # kn[:is_original_combination] = true if is_original
-                  #
-                  # done = false
-                  #
-                  # [:m_single_match, :m_unambiguous, :m_current_species_homonym].each do |m|
-                  #   passed, c = send(m, kn) # return passed & c (= combination); args to m (= method), kn (= knowns)
-                  #   if passed
-                  #     if c.new_record?
-                  #       c.by = 1
-                  #       c.project_id = project_id
-                  #       c.save!
-                  #       new_combination_counter += 1
-                  #     end
-                  #     done = true
-                  #     taxon_name_id = c.id
-                  #     # total_combination_counter += 1
-                  #   end
-                  #   break if done
-                  # end
-                  #
-                  # if done
-                  #   logger.info Rainbow("Successful combination: new_combination_counter = #{new_combination_counter}, total_combination_counter = #{total_combination_counter}").rebeccapurple.bold
-                  # else # unsuccessful
-                  #   funny_exceptions_counter += 1
-                  #   unique_bad_nomenclators[nomenclator_string] = project_id
-                  #
-                  #   logger.warn "Funny exceptions ELSE nomenclator_string = '#{nomenclator_string}', cr.detail = '#{cr.detail}', cr.ambiguous_ranks = '#{cr.ambiguous_ranks}' (unique_bad_nomenclators.count = #{unique_bad_nomenclators.count})"
-                  # end
-                end
               end
 
               unless is_original
@@ -1121,8 +1053,6 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             s = t.subject_taxon_name
             o = t.object_taxon_name
             sval = s.valid_taxon_name
-#          next unless s.name == 'hispanicus' || s.name == 'hispanica'
-#          byebug
 
             if o.rank_string =~ /Family/
               if o.id != sval.id && o.cached_primary_homonym_alternative_spelling == sval.cached_primary_homonym_alternative_spelling
@@ -1166,8 +1096,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 =end
 
           print "\nHandling Invalid relationships: synonyms to combinations\n"
-          tr = TaxonNameRelationship.where(project_id: project_id).with_type_string('TaxonNameRelationship::Iczn::Invalidating')
-          tr.each do |t|
+          TaxonNameRelationship.where(project_id: project_id).with_type_string('TaxonNameRelationship::Iczn::Invalidating').find_each do |t|
             i += 1
             print "\r#{i}    Fixes applied: #{fixed}    Combinations created: #{combinations}"
             if t.citations.empty?
@@ -1186,13 +1115,16 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
 #            next unless s.name == 'hispanicus' || s.name == 'hispanica'
 #            byebug
+#
               if s.taxon_name_classifications.empty? && r.empty?
                 t.destroy
                 s.save
                 if o.rank_string =~ /Family/ && s.cached_primary_homonym_alternative_spelling == o.cached_primary_homonym_alternative_spelling && r2 == 1
+                  TaxonNameRelationship.create!(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm')
                   fixed += 1
-                  TaxonNameRelationship.create!(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm', created_at: created_at, updated_at: updated_at, created_by_id: created_by_id, updated_by_id: updated_by_id, project_id: project_id)
-
+                elsif  o.rank_string =~ /Species/ && !s.original_combination_source.nil? && s.original_combination_source == o.original_combination_source && s.cached_primary_homonym_alternative_spelling == o.cached_primary_homonym_alternative_spelling && r2 == 1
+                  TaxonNameRelationship.create!(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling')
+                  fixed += 1
                 elsif (o.rank_string =~ /Species/  && shas == o.cached_secondary_homonym_alternative_spelling && r2 == 1) ||
                     (o.rank_string =~ /Genus/  && s.cached_primary_homonym_alternative_spelling == o.cached_primary_homonym_alternative_spelling && r2 == 1)
                   combinations += 1
@@ -1214,6 +1146,15 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                   s.year_of_publication = nil
                   s.verbatim_author = nil
                   s.rank_class = nil
+                  s.cached_html = nil
+                  s.cached_author_year = nil
+                  s.cached_original_combination_html = nil
+                  s.cached_secondary_homonym = nil
+                  s.cached_primary_homonym = nil
+                  s.cached_secondary_homonym_alternative_spelling = nil
+                  s.cached_primary_homonym_alternative_spelling = nil
+                  s.cached = nil
+                  s.cached_original_combination = nil
                   s.type = 'Combination'
                   s = s.becomes(Combination)
                   s.genus = genus unless genus.nil?
@@ -1222,35 +1163,21 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                   s.subspecies = subspecies unless subspecies.nil?
                   s.variety = variety unless variety.nil?
                   s.form = form unless form.nil?
-
-
-#                  s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Genus', subject_taxon_name: genus, project_id: project_id) unless genus.nil?
-#                  s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Subgenus', subject_taxon_name: subgenus, project_id: project_id) unless subgenus.nil?
-#                  s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Species', subject_taxon_name: species, project_id: project_id) unless species.nil?
-#                  s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Subspecies', subject_taxon_name: subspecies, project_id: project_id) unless subspecies.nil?
-#                  s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Variety', subject_taxon_name: variety, project_id: project_id) unless variety.nil?
-#                  s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Form', subject_taxon_name: form, project_id: project_id) unless form.nil?
-
                   s.verbatim_name = vname
-#                  if !s.form.nil?
-#                    s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Form', subject_taxon_name: o, project_id: project_id)
-#                  elsif !s.variety.nil?
-#                    s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Variety', subject_taxon_name: o, project_id: project_id)
-#                  elsif !s.subspecies.nil?
-#                    s.subspecies = o
-#                    s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Subspecies', subject_taxon_name: o, project_id: project_id)
-#                  elsif !s.species.nil?
-#                    s.species = o
-#                    s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Species', subject_taxon_name: o, project_id: project_id)
-#                  elsif !s.subgenus.nil?
-#                    s.subgenus = o
-#                    s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Subgenus', subject_taxon_name: o, project_id: project_id)
-#                  elsif !s.genus.nil?
-#                    s.genus = o
-#                    s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Genus', subject_taxon_name: o, project_id: project_id)
-#                  end
+                  if !s.form.nil?
+                    s.form = o
+                  elsif !s.variety.nil?
+                    s.variety = o
+                  elsif !s.subspecies.nil?
+                    s.subspecies = o
+                  elsif !s.species.nil?
+                    s.species = o
+                  elsif !s.subgenus.nil?
+                    s.subgenus = o
+                  elsif !s.genus.nil?
+                    s.genus = o
+                  end
                   s.save
-byebug
                   if !s.valid?
                     s = Protonym.find(s.id)
                     TaxonNameRelationship.create!(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating', project_id: project_id)
@@ -1260,33 +1187,31 @@ byebug
                     s.original_subspecies = subspecies unless subspecies.nil?
                     s.original_variety = variety unless variety.nil?
                     s.original_form = form unless form.nil?
-
                   else
-                    TaxonNameRelationship.where(project_id: project_id, subject_taxon_name_id: s.id).with_type_contains('Combination').each do |z|
+                    TaxonNameRelationship.where(project_id: project_id, subject_taxon_name_id: s.id).with_type_contains('Combination').find_each do |z|
                       z.object_taxon_name.verbatim_name = z.object_taxon_name.cached if z.object_taxon_name.type = 'Combination' && z.object_taxon_name.verbatim_name.blank?
                       z.subject_taxon_name_id = o.id
                       z.save
                       z.subject_taxon_name.save
                       fixed += 1
                     end
-                    TaxonNameRelationship.where(project_id: project_id, subject_taxon_name_id: s.id).select{|i| i.type !~ /Combination/}.each do |z|
+                    TaxonNameRelationship.where(project_id: project_id, subject_taxon_name_id: s.id).select{|i| i.type !~ /Combination/}.find_each do |z|
                       z.subject_taxon_name_id = o.id
                       z.save
                       fixed += 1
                     end
-                    TaxonNameRelationship.where(project_id: project_id, subject_taxon_name_id: s.id).select{|i| i.type =~ /Combination/}.each do |z|
+                    TaxonNameRelationship.where(project_id: project_id, subject_taxon_name_id: s.id).select{|i| i.type =~ /Combination/}.find_each do |z|
                       z.object_taxon_name.verbatim_name = z.object_taxon_name.cached if z.object_taxon_name.type = 'Combination' && z.object_taxon_name.verbatim_name.blank?
                       z.subject_taxon_name_id = o.id
                       z.save
                       fixed += 1
                     end
-                    TaxonNameRelationship.where(project_id: project_id, object_taxon_name_id: s.id).select{|i| i.type !~ /Combination/}.each do |z|
+                    TaxonNameRelationship.where(project_id: project_id, object_taxon_name_id: s.id).select{|i| i.type !~ /Combination/}.find_each do |z|
                       z.object_taxon_name_id = o.id
                       z.save
                       fixed += 1
                     end
                   end
-
                 elsif s.cached_valid_taxon_name_id != svalid
                   TaxonNameRelationship.create!(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating', created_at: created_at, updated_at: updated_at, created_by_id: created_by_id, updated_by_id: updated_by_id, project_id: project_id)
                 else
