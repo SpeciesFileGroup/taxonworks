@@ -1108,6 +1108,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           fixed = 0
           combinations = 0
           i = 0
+          Current.project_id = project_id
 
 =begin
           j = 0
@@ -1174,6 +1175,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               updated_at = t.updated_at
               created_by_id = t.created_by_id
               updated_by_id = t.updated_by_id
+              Current.project_id =
 
               s = t.subject_taxon_name
               svalid = s.cached_valid_taxon_name_id
@@ -1194,7 +1196,6 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                 elsif (o.rank_string =~ /Species/  && shas == o.cached_secondary_homonym_alternative_spelling && r2 == 1) ||
                     (o.rank_string =~ /Genus/  && s.cached_primary_homonym_alternative_spelling == o.cached_primary_homonym_alternative_spelling && r2 == 1)
                   combinations += 1
-byebug
                   byebug if s.type != 'Protonym'
                   genus = s.original_genus
                   subgenus = s.original_subgenus
@@ -1215,39 +1216,51 @@ byebug
                   s.rank_class = nil
                   s.type = 'Combination'
                   s = s.becomes(Combination)
-#                  s.genus = genus unless genus.nil?
-#                  s.subgenus = subgenus unless subgenus.nil?
-#                  s.species = species unless species.nil?
-#                  s.subspecies = subspecies unless subspecies.nil?
-                  s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Genus', subject_taxon_name: genus, project_id: project_id) unless genus.nil?
-                  s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Subgenus', subject_taxon_name: subgenus, project_id: project_id) unless subgenus.nil?
-                  s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Species', subject_taxon_name: species, project_id: project_id) unless species.nil?
-                  s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Subspecies', subject_taxon_name: subspecies, project_id: project_id) unless subspecies.nil?
-                  s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Variety', subject_taxon_name: variety, project_id: project_id) unless variety.nil?
-                  s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Form', subject_taxon_name: form, project_id: project_id) unless form.nil?
+                  s.genus = genus unless genus.nil?
+                  s.subgenus = subgenus unless subgenus.nil?
+                  s.species = species unless species.nil?
+                  s.subspecies = subspecies unless subspecies.nil?
+                  s.variety = variety unless variety.nil?
+                  s.form = form unless form.nil?
+
+
+#                  s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Genus', subject_taxon_name: genus, project_id: project_id) unless genus.nil?
+#                  s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Subgenus', subject_taxon_name: subgenus, project_id: project_id) unless subgenus.nil?
+#                  s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Species', subject_taxon_name: species, project_id: project_id) unless species.nil?
+#                  s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Subspecies', subject_taxon_name: subspecies, project_id: project_id) unless subspecies.nil?
+#                  s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Variety', subject_taxon_name: variety, project_id: project_id) unless variety.nil?
+#                  s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Form', subject_taxon_name: form, project_id: project_id) unless form.nil?
 
                   s.verbatim_name = vname
-                  if !s.form.nil?
-                    s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Form', subject_taxon_name: o, project_id: project_id)
-                  elsif !s.variety.nil?
-                    s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Variety', subject_taxon_name: o, project_id: project_id)
-                  elsif !s.subspecies.nil?
+#                  if !s.form.nil?
+#                    s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Form', subject_taxon_name: o, project_id: project_id)
+#                  elsif !s.variety.nil?
+#                    s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Variety', subject_taxon_name: o, project_id: project_id)
+#                  elsif !s.subspecies.nil?
 #                    s.subspecies = o
-                    s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Subspecies', subject_taxon_name: o, project_id: project_id)
-                  elsif !s.species.nil?
+#                    s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Subspecies', subject_taxon_name: o, project_id: project_id)
+#                  elsif !s.species.nil?
 #                    s.species = o
-                    s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Species', subject_taxon_name: o, project_id: project_id)
-                  elsif !s.subgenus.nil?
+#                    s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Species', subject_taxon_name: o, project_id: project_id)
+#                  elsif !s.subgenus.nil?
 #                    s.subgenus = o
-                    s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Subgenus', subject_taxon_name: o, project_id: project_id)
-                  elsif !s.genus.nil?
+#                    s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Subgenus', subject_taxon_name: o, project_id: project_id)
+#                  elsif !s.genus.nil?
 #                    s.genus = o
-                    s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Genus', subject_taxon_name: o, project_id: project_id)
-                  end
+#                    s.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::Combination::Genus', subject_taxon_name: o, project_id: project_id)
+#                  end
                   s.save
+byebug
                   if !s.valid?
                     s = Protonym.find(s.id)
                     TaxonNameRelationship.create!(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating', project_id: project_id)
+                    s.original_genus = genus unless genus.nil?
+                    s.original_subgenus = subgenus unless subgenus.nil?
+                    s.original_species = species unless species.nil?
+                    s.original_subspecies = subspecies unless subspecies.nil?
+                    s.original_variety = variety unless variety.nil?
+                    s.original_form = form unless form.nil?
+
                   else
                     TaxonNameRelationship.where(project_id: project_id, subject_taxon_name_id: s.id).with_type_contains('Combination').each do |z|
                       z.object_taxon_name.verbatim_name = z.object_taxon_name.cached if z.object_taxon_name.type = 'Combination' && z.object_taxon_name.verbatim_name.blank?

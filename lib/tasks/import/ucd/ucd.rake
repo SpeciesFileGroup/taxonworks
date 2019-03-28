@@ -2241,6 +2241,10 @@ namespace :tw do
                   if !s.valid? # Is this really being hit?
                     s = TaxonName.find(s.id).reload # make sure we're not validating against a Combination Object in some cached check
                     TaxonNameRelationship.create!(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating')
+                    s.original_genus = genus unless genus.nil?
+                    s.original_subgenus = subgenus unless subgenus.nil?
+                    s.original_species = species unless species.nil?
+                    s.original_subspecies = subspecies unless subspecies.nil?
                   else
                     TaxonNameRelationship.where(project_id: $project_id, subject_taxon_name_id: s.id).with_type_contains('Combination').each do |z|
                       z.object_taxon_name.verbatim_name = z.object_taxon_name.cached if z.object_taxon_name.type = 'Combination' && z.object_taxon_name.verbatim_name.blank?
