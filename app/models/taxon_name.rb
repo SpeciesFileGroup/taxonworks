@@ -228,11 +228,8 @@ class TaxonName < ApplicationRecord
   accepts_nested_attributes_for :taxon_name_authors, :taxon_name_author_roles, allow_destroy: true
   accepts_nested_attributes_for :taxon_name_classifications, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank?  }
 
-
   scope :that_is_valid, -> { where('taxon_names.id = taxon_names.cached_valid_taxon_name_id') }
   scope :that_is_invalid, -> { where.not('taxon_names.id = taxon_names.cached_valid_taxon_name_id') }
-
-
 
   scope :with_type, -> (type) {where(type: type)}
 
@@ -251,6 +248,7 @@ class TaxonName < ApplicationRecord
     joins(:descendant_hierarchies)
       .where(taxon_name_hierarchies: {descendant_id: taxon_name.id})
   }
+
   # Includes taxon_name, doesn't order result
   scope :ancestors_and_descendants_of, -> (taxon_name) do
     a = TaxonName.self_and_ancestors_of(taxon_name)
