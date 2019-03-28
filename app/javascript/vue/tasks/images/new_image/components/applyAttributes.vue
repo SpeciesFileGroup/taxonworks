@@ -139,6 +139,7 @@ export default {
   .input-apply {
     width: 100%;
     font-size: 110%;
+    color: #000000;
   }
 
   .button-apply-both {
