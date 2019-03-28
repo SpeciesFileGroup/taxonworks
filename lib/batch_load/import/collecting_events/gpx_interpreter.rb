@@ -13,36 +13,13 @@ module BatchLoad
     # methode override for GPX processing which is quite different from CSV
     # @return [Hash, nil]
     def csv
-      gpx_file = GPX::GPXFile.new(gpx_file: @file.tempfile.path)
-      # @csv = Hash.from_xml(gpx.to_s)
-      # gpx = (Hash.from_xml(GPX::GPXFile.new(gpx_file: '/Users/tuckerjd/src/taxonworks/spec/files/batch/collecting_event/test.gpx').to_s))['gpx']end
-      # @csv = CSV.parse(gpx_string, {col_sep: "\t", headers: true, encoding: 'UTF-8'})
-      @csv = GPXToCSV.gpx_to_csv(gpx_file)
+      @csv = GPXToCSV.gpx_to_csv(GPX::GPXFile.new(gpx_file: @file.tempfile.path))
     end
 
     # TODO: update this
     def build_collecting_events
       @total_data_lines = 0
       i = 0
-
-      # # loop through rows
-      # csv.each do |row|
-      #   i += 1
-      #
-      #   parse_result = BatchLoad::RowParse.new
-      #   parse_result.objects[:collecting_event] = []
-      #
-      #   @processed_rows[i] = parse_result
-      #
-      #   begin # processing
-      #     # use a BatchLoad::ColumnResolver or other method to match row data to TW
-      #     #  ...
-      #
-      #     @total_data_lines += 1
-      #   rescue
-      #      # ....
-      #   end
-      # end
 
       # loop through rows
       csv.each do |row|
@@ -92,5 +69,4 @@ module BatchLoad
       end
     end
   end
-  # gpx = GPX::GPXFile.new(:gpx_file => '/Users/tuckerjd/src/taxonworks/spec/files/batch/collecting_event/test.gpx')
 end

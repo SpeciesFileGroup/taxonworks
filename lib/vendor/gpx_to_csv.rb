@@ -77,6 +77,3 @@ module GPXToCSV
     csv
   end
 end
-
-# gpx = GPX::GPXFile.new(:gpx_file => '/Users/tuckerjd/src/taxonworks/spec/files/batch/collecting_event/test.gpx')
-# GPXToCSV.gpx_to_csv(gpx)
