@@ -264,9 +264,12 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
           logger.info 'Creating citations...'
 
+          Current.project_id = 2
+          Current.user_id = 1
           pwd = rand(36**10).to_s(36)
-          @proceps = User.create(email: 'arboridia@gmail.com', password: pwd, password_confirmation: pwd, name: 'proceps', is_administrator: true, self_created: true, is_flagged_for_password_reset: true)
-
+          @proceps = User.where(email: 'arboridia@gmail.com').first
+          @proceps = User.create(email: 'arboridia@gmail.com', password: pwd, password_confirmation: pwd, name: 'proceps', is_administrator: true, self_created: true, is_flagged_for_password_reset: true) if @proceps.nil?
+          pm = ProjectMember.create(user: @proceps, project_id: Current.project_id, is_project_administrator: true)
           Current.user_id = @proceps.id
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
@@ -771,8 +774,11 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                 # no nomenclator data.
               elsif tw_taxa_ids[project_id + '_' + nomenclator_string]
                 # just create another citation
-                taxon_name_id = tw_taxa_ids[project_id + '_' + nomenclator_string]
-                protonym = TaxonName.find(taxon_name_id)
+                if rank_pass == 'genus' && nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0] == protonym.name
+                else
+                  taxon_name_id = tw_taxa_ids[project_id + '_' + nomenclator_string]
+                  protonym = TaxonName.find(taxon_name_id)
+                end
               else
                 p = Protonym.new(project_id: project_id)
                 if rank_pass == 'genus'

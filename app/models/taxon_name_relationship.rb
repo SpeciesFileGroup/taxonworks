@@ -376,6 +376,11 @@ class TaxonNameRelationship < ApplicationRecord
           
           if type_name =~/Misspelling/
             t.update_column(:cached_misspelling, t.get_cached_misspelling)
+            t.update_columns(
+                cached_author_year: t.get_author_and_year,
+                cached_original_combination: t.get_original_combination,
+                cached_original_combination_html: t.get_original_combination_html
+            )
           end
 
           vn = t.get_valid_taxon_name
@@ -461,8 +466,8 @@ class TaxonNameRelationship < ApplicationRecord
         if (s.type_taxon_name == o.type_taxon_name && !s.type_taxon_name.nil? ) || (!s.get_primary_type.empty? && s.has_same_primary_type(o) )
           soft_validations.add(:type, "Subjective synonyms #{s.cached_html} and #{o.cached_html} should not have the same type")
         end
-      when 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
-        soft_validations.add(:type, "#{self.subject_taxon_name.cached_html_name_and_author_year} and #{self.object_taxon_name.cached_html_name_and_author_year} are not similar enough to be homonyms") unless s.cached_primary_homonym_alternative_spelling == o.cached_primary_homonym_alternative_spelling
+#      when 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
+#        soft_validations.add(:type, "#{self.subject_taxon_name.cached_html_name_and_author_year} and #{self.object_taxon_name.cached_html_name_and_author_year} are not similar enough to be homonyms") unless s.cached_primary_homonym_alternative_spelling == o.cached_primary_homonym_alternative_spelling
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary' || 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Forgotten' || 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Suppressed'
         if s.original_genus != o.original_genus
           soft_validations.add(:type, "Primary homonyms {s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} should have the same original genus")
@@ -473,7 +478,6 @@ class TaxonNameRelationship < ApplicationRecord
           soft_validations.add(:type, "#{s.cached_html_name_and_author_year} was not described after 1899")
         end
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
-
         if s.original_genus == o.original_genus && !s.original_genus.nil?
           soft_validations.add(:type, "#{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} species described in the same original genus #{s.original_genus}, they are primary homonyms")
         elsif s.get_valid_taxon_name.ancestor_at_rank('genus') != o.get_valid_taxon_name.ancestor_at_rank('genus')
@@ -485,9 +489,7 @@ class TaxonNameRelationship < ApplicationRecord
         if (s.all_generic_placements & o.all_generic_placements).empty?
           soft_validations.add(:base, "No combination available showing #{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} placed in the same genus")
         end
-
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961'
-
         soft_validations.add(:type, "#{s.cached_html_name_and_author_year} was not described before 1961") if s.year_of_publication > 1960
         soft_validations.add(:type, "#{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} described in the same original genus #{s.original_genus}, they are primary homonyms") if s.original_genus == o.original_genus && !s.original_genus.nil?
         soft_validations.add(:base, 'The original publication is not selected') unless source
@@ -497,11 +499,9 @@ class TaxonNameRelationship < ApplicationRecord
         if (s.all_generic_placements & o.all_generic_placements).empty?
           soft_validations.add(:base, "No combination available showing #{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} placed in the same genus")
         end
-
       when 'TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961'
         soft_validations.add(:type, "#{s.cached_html_name_and_author_year} was not described before 1961") if s.year_of_publication > 1960
         soft_validations.add(:base, "#{s.cached_html_name_and_author_year} should be accepted as a replacement name before 1961") if self.source && self.source.year > 1960
-
       when 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
         soft_validations.add(:type, "Genus #{o.cached_html_name_and_author_year} described after 1930 is nomen nudum, if type was not designated in the original publication") if o.year_of_publication && o.year_of_publication > 1930
       when 'TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName'
@@ -534,6 +534,7 @@ class TaxonNameRelationship < ApplicationRecord
         if !!date1 && !!date2
           soft_validations.add(:base, "#{self.subject_taxon_name.cached_html_name_and_author_year} was not described at the time of citation (#{date1}") if date2 > date1
         end
+        elsif TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING.include?(self.type_name)
       else
         soft_validations.add(:base, 'The original publication is not selected')
       end

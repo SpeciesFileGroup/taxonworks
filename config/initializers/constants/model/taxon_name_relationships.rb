@@ -89,6 +89,7 @@ begin
     TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING = ['TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling',
                                                  'TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling',
                                                  'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
+                                                 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm',
                                                  'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'].freeze
 
 
