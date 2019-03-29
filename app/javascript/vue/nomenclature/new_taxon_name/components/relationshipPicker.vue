@@ -254,20 +254,18 @@ export default {
           object_taxon_name_id: this.taxonRelation.hasOwnProperty('object_taxon_name_id') ? this.taxonRelation.object_taxon_name_id : this.taxonRelation.id,
           type: item.type
         }
-        this.$store.dispatch(ActionNames.UpdateTaxonRelationship, relationship)
-        this.editMode = undefined
+        
+        this.$store.dispatch(ActionNames.UpdateTaxonRelationship, relationship).then(() => {
+          this.taxonRelation = undefined
+          this.$store.commit(MutationNames.UpdateLastSave)
+          this.editMode = undefined
+        })
       }
       else {
-        this.$store.dispatch(ActionNames.AddTaxonRelationship, item)
+        this.$store.dispatch(ActionNames.AddTaxonRelationship, item).then(() => {
+          this.$store.commit(MutationNames.UpdateLastSave)
+        })
       }
-    },
-    closeEdit() {
-      this.editMode = undefined
-      this.taxonRelation = undefined
-    },
-    editRelationship(value) {
-      this.taxonRelation = value
-      this.editMode = this.taxonRelation
     },
     getTreeList (list, ranksList) {
       for (var key in list) {
