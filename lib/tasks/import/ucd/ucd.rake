@@ -2276,7 +2276,6 @@ namespace :tw do
                       byebug if z.subject_taxon_name.type == 'Combination'
                     end
                   end
-
                 elsif s.cached_valid_taxon_name_id != svalid
                 TaxonNameRelationship.create!(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating')
               else
