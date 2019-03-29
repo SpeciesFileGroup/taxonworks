@@ -466,8 +466,8 @@ class TaxonNameRelationship < ApplicationRecord
         if (s.type_taxon_name == o.type_taxon_name && !s.type_taxon_name.nil? ) || (!s.get_primary_type.empty? && s.has_same_primary_type(o) )
           soft_validations.add(:type, "Subjective synonyms #{s.cached_html} and #{o.cached_html} should not have the same type")
         end
-#      when 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
-#        soft_validations.add(:type, "#{self.subject_taxon_name.cached_html_name_and_author_year} and #{self.object_taxon_name.cached_html_name_and_author_year} are not similar enough to be homonyms") unless s.cached_primary_homonym_alternative_spelling == o.cached_primary_homonym_alternative_spelling
+      when 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
+        soft_validations.add(:type, "#{self.subject_taxon_name.cached_html_name_and_author_year} and #{self.object_taxon_name.cached_html_name_and_author_year} are not similar enough to be homonyms") if s.cached_primary_homonym_alternative_spelling != o.cached_primary_homonym_alternative_spelling && s.cached_secondary_homonym_alternative_spelling != o.cached_secondary_homonym_alternative_spelling
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary' || 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Forgotten' || 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Suppressed'
         if s.original_genus != o.original_genus
           soft_validations.add(:type, "Primary homonyms {s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} should have the same original genus")
