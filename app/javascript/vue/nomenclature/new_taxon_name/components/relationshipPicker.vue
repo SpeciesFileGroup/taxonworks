@@ -267,6 +267,14 @@ export default {
         })
       }
     },
+    closeEdit() {
+      this.editMode = undefined
+      this.taxonRelation = undefined
+    },
+    editRelationship(value) {
+      this.taxonRelation = value
+      this.editMode = this.taxonRelation
+    },
     getTreeList (list, ranksList) {
       for (var key in list) {
         if (key in ranksList) {
