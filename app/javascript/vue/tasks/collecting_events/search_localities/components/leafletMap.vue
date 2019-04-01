@@ -27,12 +27,15 @@
   export default {
     props: {
       lightThisFeature: {
-        type: Object,
+        // type: Object,
+        // default: () => {
+        //   return {
+        //     collecting_event_id: undefined,
+        //     light: false
+        //   }
+        type: Number,
         default: () => {
-          return {
-            collecting_event_id: undefined,
-            light: false
-          }
+          return 0
         }
       },
       width: {
@@ -116,8 +119,8 @@
         },
         deep: true
       },
-      lightThisFeature() {
-        this.findFeature(e)
+      lightThisFeature(newVal) {
+        this.findFeature(newVal)
       },
       dontRescale(newVal) {
         this.dontRebound = newVal
@@ -358,11 +361,11 @@
       zoomToFeature(e) {
         this.mapObject.fitBounds(e.target.getBounds());
       },
-      findFeature(light, ce_id) {
-        let leaflet_id = GeoJson.getLayers().forEach(layer => {
-          if(layer.properties.collecting_event_id == ce_id) return layer
+      findFeature(ce_id) {
+        let layers = GeoJson.getLayers();
+        layers.forEach(layer => {
+          if(layer.feature.properties.collecting_event_id == ce_id) this.lightFeature(layer)
         });
-        this.highlightFeature(layer)
       }
     }
   }

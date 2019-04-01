@@ -131,9 +131,9 @@
       compileList(newColEvList) {
         if (this.annotation_logic == 'append') {
           if (this.collectingEventList.length) {
-          //don't add duplicates
+          let i;  // don't add duplicates
             let extantEvents = this.collectingEventList.map(ce => { return ce.id });
-            for (let i = newColEvList.length - 1; i > -1; i--) {
+            for (i = newColEvList.length - 1; i > -1; i--) {
               if (extantEvents.includes(newColEvList[i].id)) {
                 this.$delete(newColEvList, i)
               }
