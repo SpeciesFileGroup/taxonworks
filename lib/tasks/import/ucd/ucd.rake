@@ -2124,7 +2124,7 @@ byebug
 #=begin
         j = 0
         print "\nHandling Invalid relationships: synonyms of synonyms\n"
-        TaxonNameRelationship.where(project_id: $project_id).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).find_each do |t|
+        TaxonNameRelationship.where(project_id: $project_id).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).each do |t|
           j += 1
 
           print "\r#{j}    Fixes applied: #{fixed}   "
@@ -2176,7 +2176,7 @@ byebug
 #end
 
       print "\nHandling Invalid relationships: synonyms to combinations\n"
-        TaxonNameRelationship.where(project_id: $project_id).with_type_string('TaxonNameRelationship::Iczn::Invalidating').find_each do |t|
+        TaxonNameRelationship.where(project_id: $project_id).with_type_string('TaxonNameRelationship::Iczn::Invalidating').each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}    Combinations created: #{combinations}"
           if t.citations.empty?
