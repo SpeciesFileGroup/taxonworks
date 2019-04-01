@@ -141,7 +141,7 @@ namespace :tw do
         @data = ImportedDataUcd.new
 
         handle_projects_and_users_ucd
-=begin
+#=begin
         handle_countries_ucd
         handle_collections_ucd
         handle_keywords_ucd
@@ -171,7 +171,8 @@ namespace :tw do
         handle_ptype_ucd
         handle_hosts_ucd
         handle_dist_ucd
-=end
+#end
+byebug
         print "\n\n !! Pre soft validation done. End time: #{Time.now} \n\n"
 
         invalid_relationship_remove
