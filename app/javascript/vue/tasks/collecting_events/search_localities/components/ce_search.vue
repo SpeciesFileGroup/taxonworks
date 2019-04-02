@@ -120,7 +120,7 @@
         this.setHighlightProperty(newVal)
       },
       dimRow(newVal) {
-        this.clearHighlightProperty(newVal)
+        //this.clearHighlightProperty(newVal)
       }
     },
     methods: {
