@@ -379,6 +379,7 @@
         this.mapObject.fitBounds(e.target.getBounds());
       },
       findFeature(ce_id) {
+        if(ce_id == 0 || ce_id == -0) return
         let layers = GeoJson.getLayers();
         layers.forEach(layer => {
           if(ce_id > 0) {
@@ -387,8 +388,10 @@
             }
           }
           else {
-            delete layer.feature.properties.highlight;
-            this.dimFeature(layer)
+            // delete layer.feature.properties.highlight;
+            if(layer.feature.properties.collecting_event_id == -ce_id) {
+              this.dimFeature(layer)
+            }
           }
         });
       }
