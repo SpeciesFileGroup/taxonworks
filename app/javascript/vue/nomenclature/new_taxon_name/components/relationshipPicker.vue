@@ -281,6 +281,7 @@ export default {
           Object.defineProperty(list[key], 'type', { value: key })
           Object.defineProperty(list[key], 'object_status_tag', { value: ranksList[key].object_status_tag })
           Object.defineProperty(list[key], 'subject_status_tag', { value: ranksList[key].subject_status_tag })
+          Object.defineProperty(list[key], 'valid_subject_ranks', { value: ranksList[key].valid_subject_ranks })
         }
         this.getTreeList(list[key], ranksList)
       }
