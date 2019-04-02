@@ -44,7 +44,7 @@
         width="1024px"
         :zoom="2"
         ref="leaflet"
-        :light-this-feature="lightMapFeature"
+        :light-this-feature="lightMapFeatures"
         :geojson="geojsonFeatures"
         @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
         @geoJsonLayersEdited="editedShape($event)"
@@ -105,7 +105,7 @@
         isLoading: false,
         newFeatures:  [],
         dontRescale:  false,
-        lightMapFeature:  0,
+        lightMapFeatures:  0,
         geojsonFeatures: [    // trans-antimeridian polygon test features
         ]
       }
@@ -243,19 +243,20 @@
       //   // this.dontRescale = false;
       // },
       setHighlightProperty(id) {
-        // find the right feature by collecting_event_id
-        this.lightMapFeature = id;
+        // find the right features by collecting_event_id
+        this.lightMapFeatures = id;
       },
       clearHighlightProperty(id) {
         // find the right feature by collecting_event_id
-        this.dontRescale = true;
-        this.geojsonFeatures.forEach((feature, index) => {
-          if(feature.properties.collecting_event_id == id) {
-            delete(feature.properties.highlight);
-            this.$set(this.geojsonFeatures, index, feature)
-          }
-        });
-        // this.dontRescale = false;
+        // this.dontRescale = true;
+        // this.geojsonFeatures.forEach((feature, index) => {
+        //   if(feature.properties.collecting_event_id == id) {
+        //     delete(feature.properties.highlight);
+        //     this.$set(this.geojsonFeatures, index, feature)
+        //   }
+        // });
+      //   // this.dontRescale = false;
+        this.lightMapFeatures = 0;
       },
     },
   }

@@ -292,7 +292,7 @@
         }
         layer.on({
           mouseover: this.highlightFeature,
-          mouseout: this.resetHighlight,
+          mouseout: this.resetFeature,
           click: this.zoomToFeature
         });
       },
@@ -338,10 +338,19 @@
           }
         }
       },
-      resetHighlight(e) {
+      resetFeature(e) {
         let layer = e.target;
+        this.dimFeature(layer);
+        this.$emit("restoreRow", layer.feature.properties.collecting_event_id);
+      },
+      dimNonPoint(layer) {
+        GeoJson.resetStyle(layer)
+      },
+      dimFeature(layer) {
         let geom = layer.feature.geometry;
-        if (geom.type == "Point") {
+        if (geom.type != "Point") {
+          this.dimNonPoint(layer)
+        } else {
           if (layer.feature.properties["radius"]) {
             GeoJson.resetStyle(layer);
           }
@@ -353,10 +362,6 @@
             }));
           }
         }
-        else {
-          GeoJson.resetStyle(layer);
-        }
-        this.$emit("restoreRow", layer.feature.properties.collecting_event_id)
       },
       zoomToFeature(e) {
         this.mapObject.fitBounds(e.target.getBounds());
@@ -364,7 +369,14 @@
       findFeature(ce_id) {
         let layers = GeoJson.getLayers();
         layers.forEach(layer => {
-          if(layer.feature.properties.collecting_event_id == ce_id) this.lightFeature(layer)
+          if(ce_id) {
+            if(layer.feature.properties.collecting_event_id == ce_id) {
+              this.lightFeature(layer)
+            }
+          }
+          else {
+            delete layer.feature.properties.highlight
+          }
         });
       }
     }
