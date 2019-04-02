@@ -283,12 +283,6 @@ export default {
           Object.defineProperty(list[key], 'subject_status_tag', { value: ranksList[key].subject_status_tag })
           Object.defineProperty(list[key], 'valid_subject_ranks', { value: ranksList[key].valid_subject_ranks })
         }
-        else {
-          console.log('-----')
-          console.log(key)
-          console.log(ranksList)
-        }
-        
         this.getTreeList(list[key], ranksList)
       }
     },
