@@ -9,11 +9,12 @@
         slot="body"
         class="tree-list">
         <recursive-list
+          v-for="list in objectLists.tree"
           :getter-list="getterList"
           :display="displayName"
           :modal-mutation-name="mutationNameModal"
           :action-mutation-name="mutationNameAdd"
-          :object-list="objectLists.tree"/>
+          :object-list="list"/>
       </div>
     </modal>
   </form>
@@ -22,16 +23,12 @@
 
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import Autocomplete from 'components/autocomplete.vue'
 import RecursiveList from './recursiveList.vue'
-import ListEntrys from './listEntrys.vue'
 import Modal from 'components/modal.vue'
 
 export default {
   components: {
-    Autocomplete,
     RecursiveList,
-    ListEntrys,
     Modal
   },
   name: 'TreeDisplay',
