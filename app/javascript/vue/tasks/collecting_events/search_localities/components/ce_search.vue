@@ -52,7 +52,6 @@
         @highlightRow="setHighlight"
         @restoreRow="clearHighlight"
         :draw-controls="true"
-        :dont-rescale="dontRescale"
       />
       <!--@geoJsonLayerCreated="getShapesData($event)"-->
       <input
@@ -104,7 +103,6 @@
         mode: 'list',
         isLoading: false,
         newFeatures:  [],
-        dontRescale:  false,
         lightMapFeatures:  0,
         geojsonFeatures: [    // trans-antimeridian polygon test features
         ]
@@ -120,7 +118,7 @@
         this.setHighlightProperty(newVal)
       },
       dimRow(newVal) {
-        //this.clearHighlightProperty(newVal)
+        this.clearHighlightProperty(newVal)
       }
     },
     methods: {
@@ -147,7 +145,6 @@
         });
       },
       getShapesData(geojsonShape) {
-        this.dontRescale = false;
         this.$refs.leaflet.clearFound()
         this.isLoading = true;
         let shapeText = this.shapes[this.shapes.length - 1];
@@ -231,31 +228,18 @@
       clearHighlight(id) {
         this.$emit("highlightRow", undefined)
       },
-      // setHighlightProperty(id) {
-      //   // find the right feature by collecting_event_id
-      //   this.dontRescale = true;
-      //   this.geojsonFeatures.forEach((feature,index) => {
-      //     if(feature.properties.collecting_event_id == id) {
-      //       feature.properties.highlight = id
-      //       this.$set(this.geojsonFeatures, index, feature)
-      //     }
-      //   });
-      //   // this.dontRescale = false;
-      // },
       setHighlightProperty(id) {
         // find the right features by collecting_event_id
         this.lightMapFeatures = id;
       },
       clearHighlightProperty(id) {
         // find the right feature by collecting_event_id
-        // this.dontRescale = true;
-        // this.geojsonFeatures.forEach((feature, index) => {
-        //   if(feature.properties.collecting_event_id == id) {
-        //     delete(feature.properties.highlight);
-        //     this.$set(this.geojsonFeatures, index, feature)
-        //   }
-        // });
-      //   // this.dontRescale = false;
+        this.geojsonFeatures.forEach((feature, index) => {
+          if(feature.properties.collecting_event_id == id) {
+            delete(feature.properties.highlight);
+            this.$set(this.geojsonFeatures, index, feature)
+          }
+        });
         this.lightMapFeatures = -id;
       },
     },

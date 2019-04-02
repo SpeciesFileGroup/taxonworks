@@ -78,12 +78,6 @@
           return []
         }
       },
-      dontRescale: {
-        type: Boolean,
-        default: () => {
-          return false
-        }
-      },
     },
     data() {
       return {
@@ -105,7 +99,6 @@
         layers: [],
         highlightRow: undefined,
         restoreRow: undefined,
-        dontRebound: false,
       }
     },
     watch: {
@@ -122,9 +115,6 @@
       lightThisFeature(newVal) {
         this.findFeature(newVal)
       },
-      dontRescale(newVal) {
-        this.dontRebound = newVal
-                   }
     },
     mounted() {
       this.mapObject = L.map(this.mapId, {
@@ -282,9 +272,8 @@
           onEachFeature: this.onMyFeatures
         }).addTo(this.foundItems);
 
-        if(!this.dontRebound) {
           this.mapObject.fitBounds(this.foundItems.getBounds());
-        }   // DON'T rebound the map when just highlighting by either method
+         // DON'T rebound the map when just highlighting by either method
       },
       onMyFeatures(feature, layer) {
         if(layer.feature.properties.highlight) {
@@ -292,7 +281,7 @@
         }
         layer.on({
           mouseover: this.highlightFeature,
-          mouseout: this.resetFeature,
+          mouseout: this.resetHighlight,
           click: this.zoomToFeature
         });
       },
@@ -338,7 +327,27 @@
           }
         }
       },
-      resetFeature(e) {
+      resetHighlight(e) {   //reversion of working code from01APR2019
+        let layer = e.target;
+        let geom = layer.feature.geometry;
+        if (geom.type == "Point") {
+          if (layer.feature.properties["radius"]) {
+            GeoJson.resetStyle(layer);
+          }
+          else {
+            layer.setIcon(L.icon({
+              iconUrl: require('./map_icons/mm_20_red.png'),
+              iconRetinaUrl: require('./map_icons/mm_20_red.png'),
+              shadowUrl: require('./map_icons/mm_20_shadow.png')
+            }));
+          }
+        }
+        else {
+          GeoJson.resetStyle(layer);
+        }
+        this.$emit("restoreRow", layer.feature.properties.collecting_event_id)
+      },
+      XresetFeature(e) {
         let layer = e.target;
         this.dimFeature(layer);
         this.$emit("restoreRow", layer.feature.properties.collecting_event_id);
@@ -387,12 +396,12 @@
               this.lightFeature(layer)
             }
           }
-          else {
-            // delete layer.feature.properties.highlight;
-            if(layer.feature.properties.collecting_event_id == -ce_id) {
-              this.dimFeature(layer)
-            }
-          }
+          // else {
+          //   delete layer.feature.properties.highlight;
+            // if(layer.feature.properties.collecting_event_id == -ce_id) {
+            //   this.dimFeature(layer)
+            // }
+          // }
         });
       }
     }
