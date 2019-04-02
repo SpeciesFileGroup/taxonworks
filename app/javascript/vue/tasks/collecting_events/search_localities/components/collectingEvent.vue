@@ -55,8 +55,8 @@
           v-for="(item, index) in collectingEventList"
           :key="item.id"
           :class="{'my-row': highlightRow==item.id}"
-          @mouseover="lightRow=item.id"
-          @mouseout="dimRow=item.id"
+          @mouseover="lightRow=item.id; dimRow=0"
+          @mouseout="dimRow=item.id; lightRow=0"
         >
           <td class="my-column">
           <span

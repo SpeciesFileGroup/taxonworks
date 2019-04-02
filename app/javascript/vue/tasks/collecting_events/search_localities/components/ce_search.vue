@@ -240,7 +240,7 @@
             this.$set(this.geojsonFeatures, index, feature)
           }
         });
-        this.lightMapFeatures = -id;
+        // this.lightMapFeatures = -id;
       },
     },
   }
