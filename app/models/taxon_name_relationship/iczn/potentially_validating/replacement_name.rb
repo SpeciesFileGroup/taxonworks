@@ -11,7 +11,7 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName < Taxo
   end
 
   def subject_status
-    'nomen novum for'
+    'nomen novum'
   end
 
   def self.gbif_status_of_subject

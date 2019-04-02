@@ -486,9 +486,6 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             file.each do |row|
               i += 1
               print "\r#{i}"
-              byebug if i = 1
-next unless row['FileID'] == '1'
-byebug if row['NomenclatorID'] = '48784'
 
               #sf_taxon_name_id = row['TaxonNameID']
               next if cites_id_done[row['TaxonNameID'].to_s + '_' + row['SeqNum'].to_s]
@@ -578,6 +575,8 @@ byebug if row['NomenclatorID'] = '48784'
               protonym = TaxonName.find(taxon_name_id)
               project_id = protonym.project_id.to_s #  TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
               Current.project_id = project_id
+next unless project_id == 2
+byebug if row['NomenclatorID'] = '48784'
 
               if nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]].nil?
                 pr = Protonym.create(name: nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0], rank_class: Ranks.lookup(:iczn, 'Genus'), project_id: project_id, parent_id: protonym.root.id, created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']], created_at: row['CreatedOn'], updated_at: row['LastUpdate'])
