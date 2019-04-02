@@ -2,9 +2,9 @@
   <ul class="tree-status">
     <li
       v-for="(item, key) in orderList"
-      v-if="item.hasOwnProperty(display)"
       :key="key">
       <button
+        v-if="item.hasOwnProperty(display)"
         type="button"
         :value="item.type"
         @click="addStatus(item)"

@@ -9,12 +9,11 @@
         slot="body"
         class="tree-list">
         <recursive-list
-          v-for="list in objectLists.tree"
           :getter-list="getterList"
           :display="displayName"
           :modal-mutation-name="mutationNameModal"
           :action-mutation-name="mutationNameAdd"
-          :object-list="list"/>
+          :object-list="objectLists.tree"/>
       </div>
     </modal>
   </form>
