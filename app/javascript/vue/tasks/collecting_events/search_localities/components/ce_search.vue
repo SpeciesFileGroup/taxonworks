@@ -256,7 +256,7 @@
         //   }
         // });
       //   // this.dontRescale = false;
-        this.lightMapFeatures = 0;
+        this.lightMapFeatures = -id;
       },
     },
   }

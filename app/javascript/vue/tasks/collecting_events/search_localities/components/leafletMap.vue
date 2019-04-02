@@ -381,13 +381,14 @@
       findFeature(ce_id) {
         let layers = GeoJson.getLayers();
         layers.forEach(layer => {
-          if(ce_id) {
+          if(ce_id > 0) {
             if(layer.feature.properties.collecting_event_id == ce_id) {
               this.lightFeature(layer)
             }
           }
           else {
-            delete layer.feature.properties.highlight
+            delete layer.feature.properties.highlight;
+            this.dimFeature(layer)
           }
         });
       }
