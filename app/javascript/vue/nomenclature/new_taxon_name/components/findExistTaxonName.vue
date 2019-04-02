@@ -145,10 +145,13 @@ export default {
 <style lang="scss" scoped>
   .find-taxonname-picker {
     min-height:100px;
+    width: 510px;
+    overflow-x: scroll;
   }
   .find-taxonname-list {
     max-height: 200px;
     overflow-y: scroll;
+    overflow-x: scroll;
     margin-top: 1.2em;
     box-sizing: border-box;
     min-width: 250px;
@@ -163,6 +166,7 @@ export default {
     }
 
     li {
+      white-space: nowrap;
       margin-bottom: 8px; 
     }
 
