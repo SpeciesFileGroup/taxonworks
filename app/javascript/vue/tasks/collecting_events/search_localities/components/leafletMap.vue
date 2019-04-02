@@ -344,7 +344,7 @@
         this.$emit("restoreRow", layer.feature.properties.collecting_event_id);
       },
       dimNonPoint(layer) {
-        GeoJson.resetStyle(layer);
+        // GeoJson.resetStyle(layer);
         let dimStyle = {
           weight: 1,
           color: '#BB4400',
@@ -355,7 +355,7 @@
           GeoJson._layers[layer._leaflet_id].setStyle(dimStyle);
         }
         else {
-          layer.setStyle(dimStyle);
+          GeoJson.resetStyle(layer);
         }
       },
       dimFeature(layer) {
