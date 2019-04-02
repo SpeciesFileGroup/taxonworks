@@ -7,7 +7,7 @@ ruby '2.5.1'
 gem 'bundler', '~> 2.0'
 
 gem 'rake', '~> 12.0'
-gem 'rails', '5.2.2.1'
+gem 'rails', '5.2.3'
 gem 'pg', '~> 1.1'
 gem 'activerecord-postgis-adapter', '~> 5.2.1'
 
@@ -86,7 +86,7 @@ gem 'sassc-rails', '~> 2.1.0'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '0.4.0'
-gem 'sqed', '0.5.2'
+gem 'sqed', '0.5.4'
 gem 'dwc-archive', '~> 1.0.1'
 gem 'biodiversity', '~> 3.5.0'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
