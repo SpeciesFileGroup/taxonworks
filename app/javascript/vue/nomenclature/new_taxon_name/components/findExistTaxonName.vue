@@ -162,6 +162,10 @@ export default {
       padding: 12px;
     }
 
+    li {
+      margin-bottom: 8px; 
+    }
+
     li a {
       transition: padding 0.3s ease;
       cursor: pointer;
