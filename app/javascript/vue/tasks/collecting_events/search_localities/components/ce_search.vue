@@ -38,7 +38,7 @@
         :disabled="!geographicAreaList.length"
         value="Find">
     </div>
-    <div v-if="mode==='map'">
+    <div v-if="(mode==='map') || (mode==='list')">
       <l-map
         height="512px"
         width="1024px"
@@ -141,7 +141,7 @@
           if (this.collectingEventList) {
             this.$emit('collectingEventList', this.collectingEventList)
           }
-          // this.getGeoreferences();
+          this.getGeoreferences();
           this.isLoading = false;
         });
       },
