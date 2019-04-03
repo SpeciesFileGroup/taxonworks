@@ -75,6 +75,14 @@ TAXON_NAME_CLASS_NAMES_VALID = [
   TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished::Legitimate::Correct.descendants
 ].flatten.map(&:to_s).freeze
 
+EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS = [
+    'TaxonNameClassification::Iczn::Unavailable::NotLatin',
+    'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters',
+    'TaxonNameClassification::Iczn::Unavailable::NotLatinizedAfter1899',
+    'TaxonNameClassification::Iczn::Unavailable::NotLatinizedBefore1900AndNotAccepted',
+    'TaxonNameClassification::Iczn::Unavailable::NonBinomial'
+].freeze
+
 
 # JSON supporting
 module TaxonNameClassificationsHelper

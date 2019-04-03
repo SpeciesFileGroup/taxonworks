@@ -1,5 +1,7 @@
 <template>
-  <div class="find-taxonname-picker">
+  <div
+    class="find-taxonname-picker item"
+    :class="{'find-taxonname-picker-width': taxon.id }">
     <ul
       class="no_bullets find-taxonname-list"
       v-if="json.length > 0">
@@ -146,12 +148,18 @@ export default {
   .find-taxonname-picker {
     min-height:100px;
   }
+
+  .find-taxonname-picker-width {
+    width: 510px;
+  }
+
   .find-taxonname-list {
     max-height: 200px;
     overflow-y: scroll;
+    overflow-x: scroll;
     margin-top: 1.2em;
     box-sizing: border-box;
-    min-width: 250px;
+    min-width: auto;
     border: 1px solid #f5f5f5;
     padding: 12px;
     border-radius: 3px;
@@ -160,6 +168,11 @@ export default {
     }
     .body {
       padding: 12px;
+    }
+
+    li {
+      white-space: nowrap;
+      margin-bottom: 8px; 
     }
 
     li a {

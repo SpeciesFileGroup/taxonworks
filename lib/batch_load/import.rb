@@ -59,11 +59,11 @@ module BatchLoad
 
     # @param [Hash] args
     def initialize(project_id: nil, user_id: nil, file: nil, process: true, import_level: :warn, user_header_map: {})
-      @processed    = false
+      @processed = false
       @import_level = import_level
-      @project_id   = project_id
-      @user_id      = user_id
-      @file         = file
+      @project_id = project_id
+      @user_id = user_id
+      @file = file
 
       @user_header_map = user_header_map
 
@@ -73,7 +73,7 @@ module BatchLoad
       @user = User.find(@user_id)
 
       @file_errors = []
-      @errors      ||= [] # can be set in subclasses in some cases
+      @errors ||= [] # can be set in subclasses in some cases
 
       @create_attempted = false
 
@@ -93,16 +93,15 @@ module BatchLoad
     # @return [CSV, nil]
     def csv
       begin
-        @csv ||= CSV.parse(@file.tempfile.read.force_encoding('utf-8'),
-                           {headers:           true,
-                            header_converters: [:downcase,
-                                                lambda { |h| h.strip },
-                                                lambda { |h| user_map(h) }],
-                            col_sep:           "\t",
-                            encoding:          'UTF-8'})
+        @csv ||= CSV.parse(@file.tempfile.read.force_encoding('utf-8'), {
+          headers: true,
+          header_converters: [:downcase,
+                              lambda { |h| h.strip },
+                              lambda { |h| user_map(h) }],
+        col_sep: "\t",
+        encoding: 'UTF-8'})
 
-
-          #  rescue Encoding::UndefinedConversionError => e
+        #  rescue Encoding::UndefinedConversionError => e
 
       rescue ArgumentError => e
         @processed = false

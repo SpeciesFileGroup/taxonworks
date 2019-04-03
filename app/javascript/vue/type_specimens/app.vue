@@ -165,10 +165,6 @@ export default {
 
       transition: all 1s;
 
-      label {
-        display: block;
-      }
-
       height: 100%;
       box-sizing: border-box;
       display: flex;

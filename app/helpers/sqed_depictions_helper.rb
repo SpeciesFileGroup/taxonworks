@@ -48,7 +48,40 @@ module SqedDepictionsHelper
     SqedDepiction.without_collection_object_data.where(project_id: project_id).count
   end
 
+  def sqed_last_with_data_tag(project_id)
+    if o = SqedDepiction.with_collection_object_data.where(project_id: project_id).last
+      content_tag(:span, ('Last with data: ' + sqed_card_link(o)).html_safe, class: [:feedback, 'feedback-success'])
+    else
+      nil
+    end
+  end
 
+  def sqed_last_without_data_tag(project_id)
+    if o = SqedDepiction.without_collection_object_data.where(project_id: sessions_current_project_id).last
+      content_tag(:span, ('Last without data: ' + sqed_card_link(o)).html_safe, class: [:feedback, 'feedback-warning'])
+    else
+      nil
+    end
+  end
 
+  def sqed_first_without_data_tag(project_id)
+    if o = SqedDepiction.without_collection_object_data.where(project_id: sessions_current_project_id).first
+      content_tag(:span, ('First without data: ' + sqed_card_link(o)).html_safe, class: [:feedback, 'feedback-warning'])
+    else
+      nil
+    end
+  end
+  
+  def sqed_first_with_data_tag(project_id)
+    if o = SqedDepiction.with_collection_object_data.where(project_id: sessions_current_project_id).first
+      content_tag(:span, ('First with data: ' + sqed_card_link(o)).html_safe, class: [:feedback, 'feedback-success'])
+    else
+      nil
+    end
+  end
+
+  def sqed_card_link(sqed_depiction)
+    link_to(sqed_depiction.id, sqed_depiction_breakdown_task_path(sqed_depiction), 'data-turbolinks' => 'false') 
+  end
 
 end

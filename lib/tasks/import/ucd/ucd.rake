@@ -140,11 +140,8 @@ namespace :tw do
 
         @data = ImportedDataUcd.new
 
-
-#=begin
-
         handle_projects_and_users_ucd
-
+#=begin
         handle_countries_ucd
         handle_collections_ucd
         handle_keywords_ucd
@@ -174,12 +171,12 @@ namespace :tw do
         handle_ptype_ucd
         handle_hosts_ucd
         handle_dist_ucd
-
+#end
+byebug
         print "\n\n !! Pre soft validation done. End time: #{Time.now} \n\n"
 
         invalid_relationship_remove
         invalid_relationship_remove
-#end
         soft_validations_ucd
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
@@ -2127,8 +2124,7 @@ namespace :tw do
 #=begin
         j = 0
         print "\nHandling Invalid relationships: synonyms of synonyms\n"
-        tr = TaxonNameRelationship.where(project_id: $project_id).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM)
-        tr.each do |t|
+        TaxonNameRelationship.where(project_id: $project_id).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).each do |t|
           j += 1
 
           print "\r#{j}    Fixes applied: #{fixed}   "
@@ -2180,8 +2176,7 @@ namespace :tw do
 #end
 
       print "\nHandling Invalid relationships: synonyms to combinations\n"
-      tr = TaxonNameRelationship.where(project_id: $project_id).with_type_string('TaxonNameRelationship::Iczn::Invalidating')
-        tr.each do |t|
+        TaxonNameRelationship.where(project_id: $project_id).with_type_string('TaxonNameRelationship::Iczn::Invalidating').each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}    Combinations created: #{combinations}"
           if t.citations.empty?
@@ -2217,8 +2212,16 @@ namespace :tw do
                   s.year_of_publication = nil
                   s.verbatim_author = nil
                   s.rank_class = nil
+                  s.cached_html = nil
+                  s.cached_author_year = nil
+                  s.cached_original_combination_html = nil
+                  s.cached_secondary_homonym = nil
+                  s.cached_primary_homonym = nil
+                  s.cached_secondary_homonym_alternative_spelling = nil
+                  s.cached_primary_homonym_alternative_spelling = nil
+                  s.cached = nil
+                  s.cached_original_combination = nil
                   s.type = 'Combination'
-                  
                   s = s.becomes(Combination)
                  
                   s.genus = genus unless genus.nil?
@@ -2238,7 +2241,7 @@ namespace :tw do
                   
                   s.save
 
-                  if !s.valid? # Is this really being hit?
+                  if !s.valid?
                     s = TaxonName.find(s.id).reload # make sure we're not validating against a Combination Object in some cached check
                     TaxonNameRelationship.create!(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating')
                     s.original_genus = genus unless genus.nil?
@@ -2247,32 +2250,34 @@ namespace :tw do
                     s.original_subspecies = subspecies unless subspecies.nil?
                   else
                     TaxonNameRelationship.where(project_id: $project_id, subject_taxon_name_id: s.id).with_type_contains('Combination').each do |z|
-                      z.object_taxon_name.verbatim_name = z.object_taxon_name.cached if z.object_taxon_name.type = 'Combination' && z.object_taxon_name.verbatim_name.blank?
+                      z.object_taxon_name.verbatim_name = z.object_taxon_name.cached if z.object_taxon_name.type == 'Combination' && z.object_taxon_name.verbatim_name.blank?
                       z.subject_taxon_name_id = o.id
                       z.save
                       z.subject_taxon_name.save
                       fixed += 1
+                      byebug if z.subject_taxon_name.type == 'Combination'
                     end
                     TaxonNameRelationship.where(project_id: $project_id, subject_taxon_name_id: s.id).select{|i| i.type !~ /Combination/}.each do |z|
                       z.subject_taxon_name_id = o.id
                       z.save
                       fixed += 1
+                      byebug if z.subject_taxon_name.type == 'Combination'
                     end
                     TaxonNameRelationship.where(project_id: $project_id, subject_taxon_name_id: s.id).select{|i| i.type =~ /Combination/}.each do |z|
                       z.object_taxon_name.verbatim_name = z.object_taxon_name.cached if z.object_taxon_name.type = 'Combination' && z.object_taxon_name.verbatim_name.blank?
                       z.subject_taxon_name_id = o.id
                       z.save
                       fixed += 1
+                      byebug if z.subject_taxon_name.type == 'Combination'
                     end
                     TaxonNameRelationship.where(project_id: $project_id, object_taxon_name_id: s.id).select{|i| i.type !~ /Combination/}.each do |z|
                       z.object_taxon_name_id = o.id
                       z.save
                       fixed += 1
+                      byebug if z.subject_taxon_name.type == 'Combination'
                     end
                   end
-
-
-              elsif s.cached_valid_taxon_name_id != svalid
+                elsif s.cached_valid_taxon_name_id != svalid
                 TaxonNameRelationship.create!(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating')
               else
                 fixed += 1

@@ -8,10 +8,10 @@
 <% end %>
 
 <%= content_for :associated do %>
-  <% if @taxon_name.taxon_name_authors.any? %>
+  <% if @taxon_name.taxon_name_authors.load.any? %>
     <h3>Taxon name authors</h3>
     <ul>
-      <% @taxon_name.taxon_name_authors.each do |taxon_name_author| %>
+      <% @taxon_name.taxon_name_authors.order('roles.position').each do |taxon_name_author| %>
         <%= content_tag(:li, object_link(taxon_name_author)) %>
       <% end %>
     </ul>

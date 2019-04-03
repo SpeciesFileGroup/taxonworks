@@ -294,6 +294,14 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         expect(g2.cached_valid_taxon_name_id).to eq(g2.id)
       end
 
+      specify 'create misspelling relationship' do
+        r3 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2,
+                               type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
+        expect(s1.cached_misspelling).to be_truthy
+        expect(s1.cached).to eq('Aus aus [sic]')
+        expect(s1.cached_html).to eq('<i>Aus aus</i> [sic]')
+      end
+
       specify 'fixing synonym linked to another synonym' do
         r3 = FactoryBot.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, 
                               type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
@@ -302,8 +310,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         r3.fix_soft_validations
         r3.save!
         expect(s1.cached_misspelling).to be_truthy
-   
-        expect(s1.cached).to eq('Bus aus [sic]')
+           expect(s1.cached).to eq('Bus aus [sic]')
         expect(s1.cached_html).to eq('<i>Bus aus</i> [sic]')
       end
     end

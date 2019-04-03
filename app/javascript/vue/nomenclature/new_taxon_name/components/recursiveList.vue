@@ -2,13 +2,13 @@
   <ul class="tree-status">
     <li
       v-for="(item, key) in orderList"
-      v-if="item.hasOwnProperty(display)"
       :key="key">
       <button
+        v-if="item.hasOwnProperty(display)"
         type="button"
         :value="item.type"
         @click="addStatus(item)"
-        :disabled="(item.disabled || (findExist(item) != undefined))"
+        :disabled="((item.disabled || (findExist(item) != undefined)) || isForThisRank(item))"
         class="button button-default normal-input">
         {{ item[display] }}
       </button>
@@ -65,6 +65,9 @@ export default {
       })
       
       return sortableObject
+    },
+    taxon() {
+      return this.$store.getters[GetterNames.GetTaxon]
     }
   },
   methods: {
@@ -76,6 +79,9 @@ export default {
       return this.savedList.find(function (element) {
         return (element.type == status.type)
       })
+    },
+    isForThisRank(item) {
+      return (item.hasOwnProperty('valid_subject_ranks') ? !(item.valid_subject_ranks.includes(this.taxon.rank_string)) : false)
     }
   }
 }
