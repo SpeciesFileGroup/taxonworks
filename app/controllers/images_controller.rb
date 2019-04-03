@@ -121,11 +121,11 @@ class ImagesController < ApplicationController
 
   # GET /images/:id/ocr/:x/:y/:height/:width
   def ocr
-    tempfile = Tempfile.new(['ocr', '.jpg'], "#{Rails.root}/public/images/tmp", encoding: 'ASCII-8BIT')
-    tempfile.write(Image.cropped_blob(params))
+    tempfile = Tempfile.new(['ocr', '.jpg'], "#{Rails.root}/public/images/tmp", encoding: 'utf-8')
+    tempfile.write(Image.cropped_blob(params).force_encoding('utf-8'))
     tempfile.rewind
 
-    render json: {text: RTesseract.new(Magick::Image.read(tempfile.path).first).to_s.strip}
+    render json: {text: RTesseract.new(tempfile.path).to_s&.strip}
   end
 
   private

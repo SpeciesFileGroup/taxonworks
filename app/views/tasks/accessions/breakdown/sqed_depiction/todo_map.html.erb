@@ -1,14 +1,26 @@
 <h1> Collection object image breakdown (sqed) TODO list </h1>
 
-<p><em> Cards with no background color have no verbatim collecting event information.</em></p>
+<p> 
+  Legend:
+<%= content_tag(:span, 'Has verbatim collecting event information', class: [:feedback, 'feedback-success']) -%>
+&nbsp;<%= content_tag(:span, 'No verbatim collecting event information', class: [:feedback, 'feedback-warning']) -%>
+</p>
 
-<%= sqed_done_tag(sessions_current_project_id) -%> done. <%= sqed_not_done_tag(sessions_current_project_id) -%> remaining. 
-
+<p> Overview: 
+  <%= sqed_done_tag(sessions_current_project_id) -%> done. <%= sqed_not_done_tag(sessions_current_project_id) -%> remaining. 
+<p>
+  <%= sqed_first_with_data_tag(sessions_current_project_id)-%>&nbsp;
+  <%= sqed_first_without_data_tag(sessions_current_project_id) -%>&nbsp;
+  <%= sqed_last_with_data_tag(sessions_current_project_id) -%>&nbsp;
+  <%= sqed_last_without_data_tag(sessions_current_project_id) -%>&nbsp;
+  </p>
+</p>
+<br>
 <p><%= page_entries_info @sqed_depictions %></p> <%= paginate @sqed_depictions %> 
-<div id="todo_map">
 
-  <% @sqed_depictions.each do |i| -%>
-    <%= content_tag(:div, class: "card #{i.depiction.depiction_object.buffered_collecting_event.blank? ? '' : 'finished'}") do -%> 
+<div id="todo_map">
+  <% @sqed_depictions.find_each do |i| -%>
+    <%= content_tag(:div, class: ((i.depiction.depiction_object.buffered_collecting_event.blank? ? ['feedback-warning' ] : ['feedback-success']) + [:feedback, :card]) ) do -%>
       <%= content_tag(:p, link_to(i.id, sqed_depiction_breakdown_task_path(i), 'data-turbolinks' => 'false')) -%>
     <% end %>
   <% end %>
