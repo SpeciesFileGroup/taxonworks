@@ -140,7 +140,7 @@
             <button 
               type="button"
               class="button normal-input button-submit"
-              :disabled="!citation || citation.source.authors.length == 0"
+              :disabled="!citation || isAlreadyClone"
               @click="cloneFromSource">
               Clone from source
             </button>
@@ -193,6 +193,21 @@ export default {
     },
     verbatimFieldsWithData () {
       return (this.taxon.verbatim_author || this.taxon.year_of_publication)
+    },
+    isAlreadyClone() {
+      if(this.citation.source.authors.length == 0) return true
+
+      let authorsId = this.citation.source.authors.map(author => {
+          return Number(author.object_url.split('/')[2])
+      })
+
+      let personsIds = this.roles.map(role => {
+        return role.person.id
+      })
+      
+      return authorsId.every(id => {
+        return personsIds.includes(id)
+      })
     },
     roles: {
       get () {
@@ -253,10 +268,16 @@ export default {
       }, 3000)
     },
     cloneFromSource() {
+      let personsIds = this.roles.map(role => {
+        return role.person.id
+      })
+
       let authorsPerson = this.citation.source.authors.map(author => {
-        return {
-          person_id: author.object_url.split('/')[2],
-          type: "TaxonNameAuthor"
+        if(!personsIds.includes(Number(author.object_url.split('/')[2]))) {
+          return {
+            person_id: author.object_url.split('/')[2],
+            type: "TaxonNameAuthor"
+          }
         }
       })
       this.roles = authorsPerson
