@@ -64,10 +64,10 @@
               for="author-picker-person"
               v-help.section.author.person>
               <span>Person</span>
-              <div v-if="roles.length">
-                ({{ roles.length }})
+              <div class="horizontal-left-content" v-if="roles.length">
+                <span class="separate-left">({{ roles.length }})</span>
                 <span
-                  class="small-icon icon-without-space"
+                  class="small-icon icon-without-space separate-left"
                   data-icon="ok"/>
               </div>
             </label>
@@ -140,7 +140,7 @@
             <button 
               type="button"
               class="button normal-input button-submit"
-              :disabled="!citation"
+              :disabled="!citation || citation.source.authors.length == 0"
               @click="cloneFromSource">
               Clone from source
             </button>
