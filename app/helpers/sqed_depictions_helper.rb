@@ -1,3 +1,5 @@
+require 'waxy'
+
 module SqedDepictionsHelper
 
   def sqed_depiction_tag(sqed_depiction)
@@ -82,6 +84,30 @@ module SqedDepictionsHelper
 
   def sqed_card_link(sqed_depiction)
     link_to(sqed_depiction.id, sqed_depiction_breakdown_task_path(sqed_depiction), 'data-turbolinks' => 'false') 
+  end
+
+  def waxy_layout(sqed_depictions)
+    layout = Waxy::Geometry::Layout.new(
+      Waxy::Geometry::Orientation::LAYOUT_POINTY,
+      Waxy::Geometry::Point.new(20,20), # size
+      Waxy::Geometry::Point.new(20,20), # start
+    ) 
+
+    meta = []
+
+    sqed_depictions.each do |i|
+      a = Waxy::Meta.new
+      a.size = (0..5).collect{ rand(0.0..1.0) } 
+      a.stroke = 'grey'
+      a.link = sqed_card_link(i)
+      meta.push a 
+    end
+
+    meta.sort!{ |a,b| a.sum_size <=> b.sum_size }
+
+    c = Waxy::Render::Svg::Canvas.new(1000, 1000)
+    c.body << Waxy::Render::Svg.rectangle(layout, meta)
+    c.to_svg.html_safe
   end
 
 end
