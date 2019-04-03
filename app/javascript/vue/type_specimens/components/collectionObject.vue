@@ -63,14 +63,6 @@
     <div class="field">
       <toggle-switch :biological-id="biologicalId"/>
     </div>
-    <hr>
-    <div class="field">
-      <button
-        @click="sendEvent"
-        :disabled="total < 1"
-        type="button"
-        class="button normal-input button-submit">{{ (typeMaterial.id ? 'Update' : 'Create') }}</button>
-    </div>
   </div>
 </template>
 
