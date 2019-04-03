@@ -86,7 +86,7 @@ gem 'sassc-rails', '~> 2.1.0'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '0.4.0'
-gem 'sqed', '0.5.4'
+gem 'sqed', '0.5.6'
 gem 'dwc-archive', '~> 1.0.1'
 gem 'biodiversity', '~> 3.5.0'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
