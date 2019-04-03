@@ -141,6 +141,7 @@
           if (this.collectingEventList) {
             this.$emit('collectingEventList', this.collectingEventList)
           }
+          // this.getGeoreferences();
           this.isLoading = false;
         });
       },
@@ -155,46 +156,49 @@
           let foundEvents = response.body;
           if(foundEvents.length > 0) {this.collectingEventList = foundEvents;}
           this.$emit('collectingEventList', this.collectingEventList);
-          let ce_ids = [];      // find the georeferences for these collecting_events
-          this.collectingEventList.forEach(ce => {
-            ce_ids.push(ce.id)
-          });
-          if (ce_ids.length) {                // if the list has contents
-            let cycles = (ce_ids.length / 30);  // each item is about 30 characters, make each cycle less than 2000 chars
-            let FeatureCollection = {
-              "type": "FeatureCollection",
-              "features": []
-            };
-            let that = this;
-            let thisSlice = 0;
-            let endSlice;
-            let finalSlice = ce_ids.length;
-            let newFeatures = [];
-            this.newFeatures = [];
-            let promises = [];
-            for (let i = 0; i < cycles; i++) {
-              endSlice = thisSlice + 30;
-              if ((thisSlice + 30) > finalSlice) {
-                endSlice = finalSlice + 1
-              }
-              params = {
-                collecting_event_ids: ce_ids.slice(thisSlice, endSlice)
-              };
-              promises.push(this.makePromise(params));
-              thisSlice += 30;
-            }
-            Promise.all(promises).then(featuresArrays => {
-              // if (searchShape) {FeatureCollection.features.push(searchShape)}
-              featuresArrays.forEach(f => {FeatureCollection.features = FeatureCollection.features.concat(f)});
-              that.geojsonFeatures = that.geojsonFeatures.concat(FeatureCollection.features);
-              this.$emit('featuresList', this.geojsonFeatures);
-            });
-            this.isLoading = false;
-          }
-          else {
-            this.isLoading = false;
-          }
+          this.getGeoreferences()
         })
+      },
+      getGeoreferences(){
+        let ce_ids = [];      // find the georeferences for these collecting_events
+        this.collectingEventList.forEach(ce => {
+          ce_ids.push(ce.id)
+        });
+        if (ce_ids.length) {                // if the list has contents
+          let cycles = (ce_ids.length / 30);  // each item is about 30 characters, make each cycle less than 2000 chars
+          let FeatureCollection = {
+            "type": "FeatureCollection",
+            "features": []
+          };
+          let that = this;
+          let thisSlice = 0;
+          let endSlice;
+          let finalSlice = ce_ids.length;
+          let newFeatures = [];
+          this.newFeatures = [];
+          let promises = [];
+          for (let i = 0; i < cycles; i++) {
+            endSlice = thisSlice + 30;
+            if ((thisSlice + 30) > finalSlice) {
+              endSlice = finalSlice + 1
+            }
+            let params = {
+              collecting_event_ids: ce_ids.slice(thisSlice, endSlice)
+            };
+            promises.push(this.makePromise(params));
+            thisSlice += 30;
+          }
+          Promise.all(promises).then(featuresArrays => {
+            // if (searchShape) {FeatureCollection.features.push(searchShape)}
+            featuresArrays.forEach(f => {FeatureCollection.features = FeatureCollection.features.concat(f)});
+            that.geojsonFeatures = that.geojsonFeatures.concat(FeatureCollection.features);
+            this.$emit('featuresList', this.geojsonFeatures);
+          });
+          this.isLoading = false;
+        }
+        else {
+          this.isLoading = false;
+        }
       },
       makePromise(params) {
         return new Promise((resolve, reject) => {

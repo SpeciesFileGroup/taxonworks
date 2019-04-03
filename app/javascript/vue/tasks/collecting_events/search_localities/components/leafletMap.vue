@@ -388,7 +388,7 @@
         this.mapObject.fitBounds(e.target.getBounds());
       },
       findFeature(ce_id) {
-        // if(ce_id == 0 || ce_id == -0) return
+        if(ce_id == 0 || ce_id == -0) return;   // do not process toggles
         let layers = GeoJson.getLayers();
         layers.forEach(layer => {
           if(ce_id > 0) {
