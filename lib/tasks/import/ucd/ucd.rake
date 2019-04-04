@@ -703,7 +703,10 @@ byebug
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         i = 0
         file.each do |row|
-#          byebug if row['TaxonCode'] == 'Achrys pulchG' || row['TaxonCode'] == 'Achrys pulchGb'
+#byebug if row['TaxonCode'] == 'Tetras coeruB'
+#byebug if row['ValSpecies'] == 'pehlivani'
+#byebug if row['CitSpecies'] == 'asparagi'
+
 
           i += 1
           print "\r#{i}"
@@ -1904,6 +1907,8 @@ byebug
 
           taxon = find_taxon_ucd(row['TaxonCode'])
           taxon1 = find_taxon_ucd(row['Code'])
+#byebug if taxon.name == "asparagi"
+#byebug if taxon1.name == "asparagi"
 
 	  if taxon.nil? 
 	    puts "Unmatched(?) TaxonCode #{row['TaxonCode']}, skipping TSTAT row" 
@@ -2077,7 +2082,7 @@ byebug
         #        end
         print "\nApply soft validation fixes to taxa 1st pass \n"
         i = 0
-        TaxonName.where(project_id: $project_id).find_each do |t|
+        TaxonName.where(project_id: $project_id).find do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
 #          next if i < 7346
@@ -2092,7 +2097,7 @@ byebug
         print "\nApply soft validation fixes to relationships \n"
         i = 0
      
-        TaxonNameRelationship.where(project_id: $project_id).find_each do |t|
+        TaxonNameRelationship.where(project_id: $project_id).find do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
@@ -2104,7 +2109,7 @@ byebug
         print "\nApply soft validation fixes to taxa 2nd pass \n"
 
         i = 0
-        TaxonName.where(project_id: $project_id).find_each do |t|
+        TaxonName.where(project_id: $project_id).find do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
@@ -2124,7 +2129,7 @@ byebug
 #=begin
         j = 0
         print "\nHandling Invalid relationships: synonyms of synonyms\n"
-        TaxonNameRelationship.where(project_id: $project_id).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).find_each do |t|
+        TaxonNameRelationship.where(project_id: $project_id).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).each do |t|
           j += 1
 
           print "\r#{j}    Fixes applied: #{fixed}   "
@@ -2176,7 +2181,7 @@ byebug
 #end
 
       print "\nHandling Invalid relationships: synonyms to combinations\n"
-        TaxonNameRelationship.where(project_id: $project_id).with_type_string('TaxonNameRelationship::Iczn::Invalidating').find_each do |t|
+        TaxonNameRelationship.where(project_id: $project_id).with_type_string('TaxonNameRelationship::Iczn::Invalidating').each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}    Combinations created: #{combinations}"
           if t.citations.empty?
