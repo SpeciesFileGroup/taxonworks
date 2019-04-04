@@ -29,7 +29,9 @@ begin
         n = k.new
         return { 
           subject_status_tag: n.subject_status_tag,
-          object_status_tag:  n.object_status_tag
+          object_status_tag:  n.object_status_tag,
+          valid_object_ranks: k.valid_object_ranks,
+          valid_subject_ranks: k.valid_subject_ranks
         }
       end
 

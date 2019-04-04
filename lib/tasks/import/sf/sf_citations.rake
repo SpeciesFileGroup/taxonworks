@@ -575,6 +575,8 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               protonym = TaxonName.find(taxon_name_id)
               project_id = protonym.project_id.to_s #  TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
               Current.project_id = project_id
+next unless project_id == 2
+byebug if row['NomenclatorID'] = '48784'
 
               if nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]].nil?
                 pr = Protonym.create(name: nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0], rank_class: Ranks.lookup(:iczn, 'Genus'), project_id: project_id, parent_id: protonym.root.id, created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']], created_at: row['CreatedOn'], updated_at: row['LastUpdate'])
@@ -606,7 +608,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                 pr.save
                 tw_taxa_ids[project_id + '_' + pr.name] = pr.id
                 if nomenclator_ids[row['NomenclatorID'].to_i]['species'].nil? && nomenclator_ids[row['NomenclatorID'].to_i]['subspecies'].nil? && nomenclator_ids[row['NomenclatorID'].to_i]['infrasubspecies'].nil?
-                  tw_taxa_ids[project_id + '_' + nomenclator_string] = pr.id && w_taxa_ids[project_id + '_' + nomenclator_string].nil?
+                  tw_taxa_ids[project_id + '_' + nomenclator_string] = pr.id if tw_taxa_ids[project_id + '_' + nomenclator_string].nil?
                   pr.parent_id = protonym.parent_id
                   pr.rank_class = protonym.rank_class
                   pr.save
@@ -852,6 +854,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                 protonym = p
                 taxon_name_id = p.id
               end
+byebug if row['NomenclatorID'] = '48784'
 
               unless is_original
                 citation = Citation.new(
@@ -1036,6 +1039,13 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             print "\nApply fixes for the project #{value} \n"
 
             invalid_relationship_remove_sf(value.to_i)
+          end
+          get_tw_project_id.each do |key, value|
+            if skipped_file_ids.include? value.to_i
+              next
+            end
+            print "\nSoft validations for the project #{value} \n"
+
             soft_validations_sf(value.to_i)
           end
 
@@ -1101,8 +1111,9 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           end
 =end
 
-          print "\nHandling Invalid relationships: synonyms to combinations\n"
-          TaxonNameRelationship.where(project_id: project_id).with_type_string('TaxonNameRelationship::Iczn::Invalidating').find_each do |t|
+          print "\nHandling Invalid relationships: synonyms to combinations. Project: #{project_id}\n"
+
+          TaxonNameRelationship.where(project_id: project_id).with_type_string('TaxonNameRelationship::Iczn::Invalidating').each do |t|
             i += 1
             print "\r#{i}    Fixes applied: #{fixed}    Combinations created: #{combinations}"
             if t.citations.empty?
@@ -1110,7 +1121,6 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               updated_at = t.updated_at
               created_by_id = t.created_by_id
               updated_by_id = t.updated_by_id
-              Current.project_id =
 
               s = t.subject_taxon_name
               svalid = s.cached_valid_taxon_name_id
@@ -1194,32 +1204,32 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                     s.original_variety = variety unless variety.nil?
                     s.original_form = form unless form.nil?
                   else
-                    TaxonNameRelationship.where(project_id: project_id, subject_taxon_name_id: s.id).with_type_contains('Combination').find_each do |z|
+                    TaxonNameRelationship.where(project_id: project_id, subject_taxon_name_id: s.id).with_type_contains('Combination').each do |z|
                       z.object_taxon_name.verbatim_name = z.object_taxon_name.cached if z.object_taxon_name.type = 'Combination' && z.object_taxon_name.verbatim_name.blank?
                       z.subject_taxon_name_id = o.id
                       z.save
                       z.subject_taxon_name.save
                       fixed += 1
                     end
-                    TaxonNameRelationship.where(project_id: project_id, subject_taxon_name_id: s.id).select{|i| i.type !~ /Combination/}.find_each do |z|
+                    TaxonNameRelationship.where(project_id: project_id, subject_taxon_name_id: s.id).select{|i| i.type !~ /Combination/}.each do |z|
                       z.subject_taxon_name_id = o.id
                       z.save
                       fixed += 1
                     end
-                    TaxonNameRelationship.where(project_id: project_id, subject_taxon_name_id: s.id).select{|i| i.type =~ /Combination/}.find_each do |z|
+                    TaxonNameRelationship.where(project_id: project_id, subject_taxon_name_id: s.id).select{|i| i.type =~ /Combination/}.each do |z|
                       z.object_taxon_name.verbatim_name = z.object_taxon_name.cached if z.object_taxon_name.type = 'Combination' && z.object_taxon_name.verbatim_name.blank?
                       z.subject_taxon_name_id = o.id
                       z.save
                       fixed += 1
                     end
-                    TaxonNameRelationship.where(project_id: project_id, object_taxon_name_id: s.id).select{|i| i.type !~ /Combination/}.find_each do |z|
+                    TaxonNameRelationship.where(project_id: project_id, object_taxon_name_id: s.id).select{|i| i.type !~ /Combination/}.each do |z|
                       z.object_taxon_name_id = o.id
                       z.save
                       fixed += 1
                     end
                   end
                 elsif s.cached_valid_taxon_name_id != svalid
-                  TaxonNameRelationship.create!(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating', created_at: created_at, updated_at: updated_at, created_by_id: created_by_id, updated_by_id: updated_by_id, project_id: project_id)
+                  TaxonNameRelationship.create(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating', created_at: created_at, updated_at: updated_at, created_by_id: created_by_id, updated_by_id: updated_by_id, project_id: project_id)
                 else
                   fixed += 1
                 end
@@ -1232,7 +1242,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           fixed = 0
           print "\nApply soft validation fixes to taxa 1st pass \n"
           i = 0
-          TaxonName.where(project_id: project_id).find_each do |t|
+          TaxonName.where(project_id: project_id).each do |t|
             i += 1
             print "\r#{i}    Fixes applied: #{fixed}"
 #          next if i < 7346
@@ -1247,7 +1257,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           print "\nApply soft validation fixes to relationships \n"
           i = 0
 
-          TaxonNameRelationship.where(project_id: project_id).find_each do |t|
+          TaxonNameRelationship.where(project_id: project_id).each do |t|
             i += 1
             print "\r#{i}    Fixes applied: #{fixed}"
             t.soft_validate
@@ -1259,7 +1269,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           print "\nApply soft validation fixes to taxa 2nd pass \n"
 
           i = 0
-          TaxonName.where(project_id: project_id).find_each do |t|
+          TaxonName.where(project_id: project_id).each do |t|
             i += 1
             print "\r#{i}    Fixes applied: #{fixed}"
             t.soft_validate

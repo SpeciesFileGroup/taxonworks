@@ -65,7 +65,7 @@ describe Person, type: :model, group: :people do
 
     specify 'lifespan' do
       person.year_born = 1900
-      person.year_died = 2018
+      person.year_died = 2020
       person.valid?
       expect(person.errors.include?(:base)).to be_truthy
     end

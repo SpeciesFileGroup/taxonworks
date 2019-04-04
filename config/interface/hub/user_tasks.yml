@@ -399,6 +399,7 @@ index_topics_hub_task:
   status: prototype
   description: 'Report on the usage of Topics.'
 index_new_image_task:
+  description: 'Add images via drag-and-drop.  Applies attribution and depiction metadata across sets of added images.  Add staged specimen images.'
   hub: true
   name: 'New image'
   related:
