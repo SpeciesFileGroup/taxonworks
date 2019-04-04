@@ -213,8 +213,10 @@ export default {
       document.addEventListener('dblclick', (event) => {
         let name = event.target.nodeName
         if (name == "INPUT" || name == "TEXTAREA") {
-          let inputText = event.target.value
-          event.target.value = insertStringInPosition(inputText, that.textCopy, that.cursorPosition);
+          if (that.viewerActive) {
+            let inputText = event.target.value
+            event.target.value = insertStringInPosition(inputText, that.textCopy, that.cursorPosition);
+          }
         }
       })
     },

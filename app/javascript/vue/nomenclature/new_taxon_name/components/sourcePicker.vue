@@ -64,10 +64,10 @@
               for="author-picker-person"
               v-help.section.author.person>
               <span>Person</span>
-              <div v-if="roles.length">
-                ({{ roles.length }})
+              <div class="horizontal-left-content" v-if="roles.length">
+                <span class="separate-left">({{ roles.length }})</span>
                 <span
-                  class="small-icon icon-without-space"
+                  class="small-icon icon-without-space separate-left"
                   data-icon="ok"/>
               </div>
             </label>
@@ -99,22 +99,22 @@
                   target="_blank"
                   v-html="citation.source.object_tag"/>
               </p>
-              <citation-pages
-                @setPages="addPages($event.origin_citation_attributes)"
-                :citation="taxon"/>
-              <pdf-button
-                v-if="citation.hasOwnProperty('target_document')"
-                :pdf="citation.target_document"/>
-              <radial-object
-                class="separate-right"
-                :global-id="citation.source.global_id"/>
-              <radial-annotator
-                type="annotations"
-                class="separate-left"
-                :global-id="citation.source.global_id"/>
-              <span
-                class="circle-button btn-delete"
-                @click="removeSource(taxon.origin_citation.id)"/>
+              <div class="horizontal-left-content">
+                <citation-pages
+                  @setPages="addPages($event.origin_citation_attributes)"
+                  :citation="taxon"/>
+                <pdf-button
+                  v-if="citation.hasOwnProperty('target_document')"
+                  :pdf="citation.target_document"/>
+                <radial-object
+                  :global-id="citation.source.global_id"/>
+                <radial-annotator
+                  type="annotations"
+                  :global-id="citation.source.global_id"/>
+                <span
+                  class="circle-button btn-delete"
+                  @click="removeSource(taxon.origin_citation.id)"/>
+              </div>
             </div>
           </div>
         </div>
@@ -129,13 +129,22 @@
           </div>
         </div>
         <div v-if="show == 'person'">
-          <role-picker
-            v-model="roles"
-            @create="updateTaxonName"
-            @delete="updateTaxonName"
-            @sortable="updateTaxonName"
-            @update="updatePersons"
-            role-type="TaxonNameAuthor"/>
+          <div class="flex-separate">
+            <role-picker
+              v-model="roles"
+              @create="updateTaxonName"
+              @delete="updateTaxonName"
+              @sortable="updateTaxonName"
+              @update="updatePersons"
+              role-type="TaxonNameAuthor"/>
+            <button 
+              type="button"
+              class="button normal-input button-submit"
+              :disabled="!citation || isAlreadyClone"
+              @click="cloneFromSource">
+              Clone from source
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -184,6 +193,21 @@ export default {
     },
     verbatimFieldsWithData () {
       return (this.taxon.verbatim_author || this.taxon.year_of_publication)
+    },
+    isAlreadyClone() {
+      if(this.citation.source.authors.length == 0) return true
+
+      let authorsId = this.citation.source.authors.map(author => {
+          return Number(author.object_url.split('/')[2])
+      })
+
+      let personsIds = this.roles.map(role => {
+        return role.person.id
+      })
+      
+      return authorsId.every(id => {
+        return personsIds.includes(id)
+      })
     },
     roles: {
       get () {
@@ -242,6 +266,22 @@ export default {
       this.autosave = setTimeout(function () {
         that.$store.dispatch(ActionNames.UpdateTaxonName, that.taxon)
       }, 3000)
+    },
+    cloneFromSource() {
+      let personsIds = this.roles.map(role => {
+        return role.person.id
+      })
+
+      let authorsPerson = this.citation.source.authors.map(author => {
+        if(!personsIds.includes(Number(author.object_url.split('/')[2]))) {
+          return {
+            person_id: author.object_url.split('/')[2],
+            type: "TaxonNameAuthor"
+          }
+        }
+      })
+      this.roles = authorsPerson
+      this.updateTaxonName()
     },
     updatePersons: function (list) {
       this.$store.commit(MutationNames.SetRoles, list)

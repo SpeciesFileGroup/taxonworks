@@ -13,7 +13,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression::Partial <
     'conserved'
   end
 
-  def object_status
+  def subject_status
     'partially suppressed'
   end
 

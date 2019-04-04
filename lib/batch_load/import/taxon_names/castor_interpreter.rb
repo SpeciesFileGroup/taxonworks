@@ -132,7 +132,7 @@ module BatchLoad
 
           # TaxonNameClassification
           name_nomen_classification = row['name_nomen_classification']
-          p.taxon_name_classifications.new(type: name_nomen_classification) if TaxonName::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(name_nomen_classification)
+          p.taxon_name_classifications.new(type: name_nomen_classification) if EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(name_nomen_classification)
 
           taxon_concept_identifier_castor_text = row['guid']
 

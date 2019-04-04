@@ -112,8 +112,8 @@ export default {
       GetSourceSmartSelector().then(response => {
         this.lists = response.body
         this.options = OrderSmartSelector(Object.keys(response.body))
-        this.options.push('search')
         let newView = SelectFirstSmartOption(this.lists, this.options)
+        this.options.push('search')
         this.view = (newView ? newView : 'search')
       })
     },

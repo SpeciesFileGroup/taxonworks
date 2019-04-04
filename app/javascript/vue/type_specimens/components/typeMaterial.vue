@@ -1,78 +1,95 @@
 <template>
-  <div class="panel type-specimen-box">
-    <spinner
-      :show-spinner="false"
-      :show-legend="false"
-      v-if="!(protonymId && type)"/>
-    <div class="header flex-separate middle">
-      <h3>Collection object</h3>
-      <div class="horizontal-left-content middle">
-        <a
-          v-if="biologicalId"
-          target="blank"
-          :href="getDigitizeRoute()">Expanded edit
-        </a>
-        <radial-annotator
-          v-if="typeMaterial.id"
-          :global-id="getCollectionObject.global_id"/>
-        <expand v-model="displayBody"/>
+  <div>
+    <div class="panel type-specimen-box separate-bottom">
+      <spinner
+        :show-spinner="false"
+        :show-legend="false"
+        v-if="!(protonymId && type)" 
+      />
+      <div class="header flex-separate middle">
+        <h3>Collection object</h3>
+        <div class="horizontal-left-content middle">
+          <a
+            v-if="biologicalId"
+            target="blank"
+            :href="getDigitizeRoute()"
+          >Expanded edit
+          </a>
+          <radial-annotator
+            v-if="typeMaterial.id"
+            :global-id="getCollectionObject.global_id" 
+          />
+          <expand v-model="displayBody" />
+        </div>
       </div>
-    </div>
-    <div
-      class="body"
-      v-if="displayBody">
-      <div class="switch-radio field">
-        <template v-for="(item, index) in tabOptions">
-          <input
-            v-model="view"
-            :value="item"
-            :id="`switch-picker-${index}`"
-            name="switch-picker-options"
-            type="radio"
-            class="normal-input button-active"
-          >
-          <label
-            :for="`switch-picker-${index}`"
-            class="capitalize">{{ item }}</label>
-        </template>
-      </div>
-      <div class="flex-separate">
-        <div>
-
-          <collection-object
-            v-if="view == 'new'"
-            @send="createTypeMaterial"/>
-
-          <collection-object
-            v-if="view == 'edit'"
-            @send="updateCollectionObject"/>
-
-          <template
-          v-if="view == 'existing'">
-
-            <div class="field">
-              <label>Collection object</label>
-              <autocomplete
-                class="types_field"
-                url="/collection_objects/autocomplete"
-                param="term"
-                label="label_html"
-                :send-label="getOwnPropertyNested(typeMaterial, 'collection_object', 'object_tag')"
-                @getItem="biologicalId = $event.id; (typeMaterial.id ? updateTypeMaterial() : createTypeMaterial())"
-                display="label"
-                min="2"/>
-            </div>
-
+      <div
+        class="body"
+        v-if="displayBody"
+      >
+        <div class="switch-radio field">
+          <template v-for="(item, index) in tabOptions">
+            <input
+              v-model="view"
+              :value="item"
+              :id="`switch-picker-${index}`"
+              name="switch-picker-options"
+              type="radio"
+              class="normal-input button-active"
+            >
+            <label
+              :for="`switch-picker-${index}`"
+              class="capitalize"
+            >{{ item }}</label>
           </template>
         </div>
-        <div
-          class="field"
-          v-if="protonymId">
-          <label>Depiction</label>
-          <depictions-section/>
+        <div class="flex-separate">
+          <div>
+            <collection-object
+              v-if="view == 'new'"
+            />
+
+            <collection-object
+              v-if="view == 'edit'"
+            />
+
+            <template
+              v-if="view == 'existing'"
+            >
+              <div class="field">
+                <label>Collection object</label>
+                <autocomplete
+                  class="types_field"
+                  url="/collection_objects/autocomplete"
+                  param="term"
+                  label="label_html"
+                  :send-label="getOwnPropertyNested(typeMaterial, 'collection_object', 'object_tag')"
+                  @getItem="biologicalId = $event.id; (typeMaterial.id ? updateTypeMaterial() : createTypeMaterial())"
+                  display="label"
+                  min="2" 
+                />
+              </div>
+            </template>
+          </div>
+          <div
+            class="field"
+            v-if="protonymId"
+          >
+            <label>Depiction</label>
+            <depictions-section />
+          </div>
         </div>
       </div>
     </div>
+    <div class="field separate-top">
+      <button
+        @click="saveTypeMaterial"
+        :disabled="total < 1 || !(protonymId && type)"
+        type="button"
+        class="button normal-input button-submit"
+      >
+        {{ (typeMaterial.id ? 'Update' : 'Create') }}
+      </button>
+    </div>  
   </div>
 </template>
 
@@ -87,7 +104,6 @@ import radialAnnotator from '../../components/annotator/annotator.vue'
 import spinner from '../../components/spinner.vue'
 import expand from './expand.vue'
 import collectionObject from './collectionObject.vue'
-import toggleSwitch from './toggleSwitch.vue'
 import depictionsSection from './depictions.vue'
 
 import { RouteNames } from 'routes/routes'
@@ -98,7 +114,6 @@ export default {
     collectionObject,
     autocomplete,
     expand,
-    toggleSwitch,
     radialAnnotator,
     spinner
   },
@@ -108,6 +123,9 @@ export default {
     },
     getCollectionObject () {
       return this.$store.getters[GetterNames.GetCollectionObject]
+    },
+    total() {
+      return this.$store.getters[GetterNames.GetCollectionObjectTotal]
     },
     protonymId: {
       get () {
@@ -165,6 +183,14 @@ export default {
     },
     createTypeMaterial () {
       this.$store.dispatch(ActionNames.CreateTypeMaterial)
+    },
+    saveTypeMaterial() {
+      if(this.view == 'edit') {
+        this.updateTypeMaterial()
+      }
+      else {
+        this.createTypeMaterial()
+      }
     },
     updateTypeMaterial () {
       let typeMaterial = this.$store.getters[GetterNames.GetTypeMaterial]

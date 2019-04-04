@@ -182,6 +182,16 @@ const loadRanks = function () {
   })
 }
 
+const GetTypeMaterial = function (taxonId) {
+  return new Promise(function (resolve, reject) {
+    Vue.http.get(`/type_materials.json?protonym_id=${taxonId}`).then(response => {
+      return resolve(response.body)
+    }, response => {
+      return reject(response.body)
+    })
+  })
+}
+
 const loadStatus = function () {
   return new Promise(function (resolve, reject) {
     Vue.http.get('/taxon_name_classifications/taxon_name_classification_types').then(response => {
@@ -241,5 +251,6 @@ export {
   removeTaxonRelationship,
   createTaxonRelationship,
   changeTaxonSource,
-  GetTaxonNameSmartSelector
+  GetTaxonNameSmartSelector,
+  GetTypeMaterial
 }

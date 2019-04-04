@@ -146,24 +146,6 @@ class TaxonName < ApplicationRecord
   # Allows users to provide arbitrary annotations that "over-ride" rank string
   ALTERNATE_VALUES_FOR = [:rank_class].freeze # !! Don't even think about putting this on `name`
 
-  # TODO: Move to taxon name classification.rb
-  EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS = [
-    'TaxonNameClassification::Iczn::Unavailable::NotLatin',
-    'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters',
-    'TaxonNameClassification::Iczn::Unavailable::NotLatinizedAfter1899',
-    'TaxonNameClassification::Iczn::Unavailable::NotLatinizedBefore1900AndNotAccepted',
-    'TaxonNameClassification::Iczn::Unavailable::NonBinomial'
-    #'TaxonNameClassification::Iczn::Available::Invalid::FamilyGroupNameForm'
-  ].freeze
-
-  EXCEPTED_FORM_TAXON_NAME_RELATIONSHIPS = [
-    'TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling',
-    'TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling',
-    'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm',
-    'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling',
-    'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling'
-  ].freeze
-
   COMBINATION_ELEMENTS = [:genus, :subgenus, :species, :subspecies, :variety, :subvariety, :form, :subform].freeze
 
   SPECIES_EPITHET_RANKS = %w{species subspecies variety subvariety form subform}.freeze
@@ -228,11 +210,8 @@ class TaxonName < ApplicationRecord
   accepts_nested_attributes_for :taxon_name_authors, :taxon_name_author_roles, allow_destroy: true
   accepts_nested_attributes_for :taxon_name_classifications, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank?  }
 
-
   scope :that_is_valid, -> { where('taxon_names.id = taxon_names.cached_valid_taxon_name_id') }
   scope :that_is_invalid, -> { where.not('taxon_names.id = taxon_names.cached_valid_taxon_name_id') }
-
-
 
   scope :with_type, -> (type) {where(type: type)}
 
@@ -251,6 +230,7 @@ class TaxonName < ApplicationRecord
     joins(:descendant_hierarchies)
       .where(taxon_name_hierarchies: {descendant_id: taxon_name.id})
   }
+
   # Includes taxon_name, doesn't order result
   scope :ancestors_and_descendants_of, -> (taxon_name) do
     a = TaxonName.self_and_ancestors_of(taxon_name)
@@ -723,7 +703,7 @@ class TaxonName < ApplicationRecord
   end
 
   def get_cached_misspelling
-    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
+    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING - ['TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm'])
     misspelling.empty? ? nil : true
   end
 
@@ -1237,6 +1217,7 @@ class TaxonName < ApplicationRecord
         misspellings     = TaxonNameRelationship.collect_to_s(
           TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling,
           TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling,
+          TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling,
           TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling)
 
         ictv_species = (nomenclatural_code == :ictv && self.rank_string =~ /Species/) ? true : nil
@@ -1249,23 +1230,30 @@ class TaxonName < ApplicationRecord
 
   end
 
+  # TODO: too many checks here, split them out
   def sv_missing_fields
     if !self.cached_misspelling && !self.name_is_missapplied?
       if self.source.nil?
         soft_validations.add(:base, 'Original publication is not selected')
-      elsif self.origin_citation.pages.nil?
+      elsif self.origin_citation.pages.blank?
         soft_validations.add(:base, 'Original citation pages are not indicated')
-      elsif !self.source.pages.nil? && self.origin_citation.pages =~ /\A[0-9]+\z/
+      elsif !self.source.pages.blank? && self.origin_citation.pages =~ /\A[0-9]+\z/
         matchdata = self.source.pages.match(/(\d+)[-–](\d+)|(\d+)/)
-        minP = matchdata[1] ? matchdata[1].to_i : matchdata[3].to_i
-        maxP = matchdata[2] ? matchdata[2].to_i : matchdata[3].to_i
-        unless (maxP && minP && minP <= self.origin_citation.pages.to_i && maxP >= self.origin_citation.pages.to_i)
-          soft_validations.add(:base, 'Original citation is out of the source page range')
+
+        if matchdata
+          minP = matchdata[1] ? matchdata[1].to_i : matchdata[3].to_i
+          maxP = matchdata[2] ? matchdata[2].to_i : matchdata[3].to_i
+
+          unless (maxP && minP && minP <= self.origin_citation.pages.to_i && maxP >= self.origin_citation.pages.to_i)
+            soft_validations.add(:base, 'Original citation is out of the source page range')
+          end
         end
       end
+
       soft_validations.add(:verbatim_author, 'Author is missing',
                            fix: :sv_fix_missing_author,
                            success_message: 'Author was updated') if self.author_string.nil? && self.type != 'Combination'
+
       soft_validations.add(:year_of_publication, 'Year is missing',
                            fix: :sv_fix_missing_year,
                            success_message: 'Year was updated') if self.year_integer.nil? && self.type != 'Combination'

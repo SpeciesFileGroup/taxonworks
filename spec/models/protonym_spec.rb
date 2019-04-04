@@ -155,7 +155,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
 
       specify '#have_latinized_exceptions?' do
-        invalid_spelling.taxon_name_classifications << TaxonName::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.first.constantize.new
+        invalid_spelling.taxon_name_classifications << EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.first.constantize.new
         expect(invalid_spelling.has_latinized_exceptions?).to be_truthy
       end
 

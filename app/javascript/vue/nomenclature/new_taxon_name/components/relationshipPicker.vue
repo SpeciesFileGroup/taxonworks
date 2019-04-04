@@ -254,11 +254,17 @@ export default {
           object_taxon_name_id: this.taxonRelation.hasOwnProperty('object_taxon_name_id') ? this.taxonRelation.object_taxon_name_id : this.taxonRelation.id,
           type: item.type
         }
-        this.$store.dispatch(ActionNames.UpdateTaxonRelationship, relationship)
-        this.editMode = undefined
+        
+        this.$store.dispatch(ActionNames.UpdateTaxonRelationship, relationship).then(() => {
+          this.taxonRelation = undefined
+          this.$store.commit(MutationNames.UpdateLastSave)
+          this.editMode = undefined
+        })
       }
       else {
-        this.$store.dispatch(ActionNames.AddTaxonRelationship, item)
+        this.$store.dispatch(ActionNames.AddTaxonRelationship, item).then(() => {
+          this.$store.commit(MutationNames.UpdateLastSave)
+        })
       }
     },
     closeEdit() {
@@ -275,6 +281,7 @@ export default {
           Object.defineProperty(list[key], 'type', { value: key })
           Object.defineProperty(list[key], 'object_status_tag', { value: ranksList[key].object_status_tag })
           Object.defineProperty(list[key], 'subject_status_tag', { value: ranksList[key].subject_status_tag })
+          Object.defineProperty(list[key], 'valid_subject_ranks', { value: ranksList[key].valid_subject_ranks })
         }
         this.getTreeList(list[key], ranksList)
       }

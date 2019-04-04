@@ -324,9 +324,7 @@ class Protonym < TaxonName
   #   A relationships for each possible original combination relationship
   def original_combination_relationships_and_stubs
     # TODO: figure out where to really put this, likely in one big sort
-    display_order = [
-      :original_genus, :original_subgenus, :original_species, :original_subspecies, :original_variety, :original_form
-    ]
+    display_order = [ :original_genus, :original_subgenus, :original_species, :original_subspecies, :original_variety, :original_subvariety, :original_form, :original_subform ]
 
     defined_relations = self.original_combination_relationships.all
     created_already   = defined_relations.collect{|a| a.class}
@@ -350,16 +348,25 @@ class Protonym < TaxonName
     # Is faster than above?
     return true if rank_string =~ /Icnp/ && (name.start_with?('Candidatus ') || name.start_with?('Ca. '))
     taxon_name_classifications.each do |tc| # ! find_each
-      return true if TaxonName::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(tc.type)
+      return true if EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(tc.type)
     end
     taxon_name_relationships.each do |tr|
-      return true if TaxonName::EXCEPTED_FORM_TAXON_NAME_RELATIONSHIPS.include?(tr.type)
+      return true if TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING.include?(tr.type)
     end
     false
   end
 
   def is_latin?
     !NOT_LATIN.match(name) || has_latinized_exceptions?
+  end
+
+  # @return [Boolean]
+  #   whether this name has one of the TaxonNameRelationships which justify wrong form of the name
+  def has_misspelling_relationship?
+    taxon_name_relationships.each do |tr|
+      return true if TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING.include?(tr.type)
+    end
+    false
   end
 
   def is_species_rank?
@@ -552,7 +559,7 @@ class Protonym < TaxonName
     if elements.any?
       elements[:genus] = '[GENUS NOT SPECIFIED]' if !elements[:genus] && !not_binomial?
       # If there is no :species, but some species group, add element
-      elements[:species] = '[SPECIES NOT SPECIFIED]' if !elements[:species] && ( [:subspecies, :variety, :form, :subform, :subvariety] & elements.keys ).size > 0
+      elements[:species] = '[SPECIES NOT SPECIFIED]' if !elements[:species] && ( [:subspecies, :variety, :form] & elements.keys ).size > 0
     end
 
     elements
@@ -749,6 +756,7 @@ class Protonym < TaxonName
     if is_cached && cached_html != get_full_name_html ||
       cached_misspelling != get_cached_misspelling ||
       cached_original_combination != get_original_combination ||
+      cached_original_combination_html != get_original_combination_html ||
       cached_primary_homonym != get_genus_species(:original, :self) ||
       cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
       rank_string =~ /Species/ &&
