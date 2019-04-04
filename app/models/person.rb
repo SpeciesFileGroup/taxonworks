@@ -494,9 +494,10 @@ class Person < ApplicationRecord
     errors.add(:year_active_end, 'is younger than year of birth') if year_active_end && year_born && year_active_end < year_born
   end
 
+  # https://en.wikipedia.org/wiki/List_of_the_verified_oldest_people
   # @return [Ignored]
   def not_gandalf
-    errors.add(:base, 'fountain of eternal life does not exist yet') if year_born && year_died && year_died - year_born > 117
+    errors.add(:base, 'fountain of eternal life does not exist yet') if year_born && year_died && year_died - year_born > 119
   end
 
   # TODO: deprecate this, always set explicitly
