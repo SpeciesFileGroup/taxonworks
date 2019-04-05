@@ -3,7 +3,7 @@ require 'fileutils'
 ### nohup bundle exec rake tw:project_import:ucd:import_ucd no_transaction=true data_directory=/home/matt/src/sandbox/imports/ucd/working/ RAILS_ENV=production reset=true &
 ### nohup bundle exec rake tw:project_import:ucd:import_ucd no_transaction=true data_directory=/home/matt/src/sandbox/imports/ucd/working/ &
 ### rake tw:project_import:ucd:import_ucd data_directory=/Users/proceps/src/sf/import/ucd/working/ no_transaction=true
-### rake tw:db:restore backup_directory=/Users/proceps/src/sf/import/ucd/dump/ file=2016-09-07_211456UTC.dump
+### rake tw:db:restore backup_directory=/Users/proceps/src/pg_dumps/ file=2016-09-07_211456UTC.dump
 
 # COLL.txt          Done
 # COUNTRY.txt       Done
@@ -172,7 +172,7 @@ namespace :tw do
         handle_hosts_ucd
         handle_dist_ucd
 #end
-byebug
+#byebug
         print "\n\n !! Pre soft validation done. End time: #{Time.now} \n\n"
 
         invalid_relationship_remove
@@ -2082,11 +2082,10 @@ byebug
         #        end
         print "\nApply soft validation fixes to taxa 1st pass \n"
         i = 0
-        TaxonName.where(project_id: $project_id).find do |t|
+        TaxonName.where(project_id: $project_id).each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
 #          next if i < 7346
-#          byebug
           t.soft_validate
           t.fix_soft_validations
           t.soft_validations.soft_validations.each do |f|
@@ -2097,7 +2096,7 @@ byebug
         print "\nApply soft validation fixes to relationships \n"
         i = 0
      
-        TaxonNameRelationship.where(project_id: $project_id).find do |t|
+        TaxonNameRelationship.where(project_id: $project_id).each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
@@ -2109,7 +2108,7 @@ byebug
         print "\nApply soft validation fixes to taxa 2nd pass \n"
 
         i = 0
-        TaxonName.where(project_id: $project_id).find do |t|
+        TaxonName.where(project_id: $project_id).each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
@@ -2244,8 +2243,6 @@ byebug
                     s.genus = o
                   end
                   
-                  s.save
-
                   if !s.valid?
                     s = TaxonName.find(s.id).reload # make sure we're not validating against a Combination Object in some cached check
                     TaxonNameRelationship.create!(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating')
@@ -2254,32 +2251,29 @@ byebug
                     s.original_species = species unless species.nil?
                     s.original_subspecies = subspecies unless subspecies.nil?
                   else
+                    s.save
                     TaxonNameRelationship.where(project_id: $project_id, subject_taxon_name_id: s.id).with_type_contains('Combination').each do |z|
                       z.object_taxon_name.verbatim_name = z.object_taxon_name.cached if z.object_taxon_name.type == 'Combination' && z.object_taxon_name.verbatim_name.blank?
                       z.subject_taxon_name_id = o.id
                       z.save
                       z.subject_taxon_name.save
                       fixed += 1
-                      byebug if z.subject_taxon_name.type == 'Combination'
                     end
                     TaxonNameRelationship.where(project_id: $project_id, subject_taxon_name_id: s.id).select{|i| i.type !~ /Combination/}.each do |z|
                       z.subject_taxon_name_id = o.id
                       z.save
                       fixed += 1
-                      byebug if z.subject_taxon_name.type == 'Combination'
                     end
                     TaxonNameRelationship.where(project_id: $project_id, subject_taxon_name_id: s.id).select{|i| i.type =~ /Combination/}.each do |z|
                       z.object_taxon_name.verbatim_name = z.object_taxon_name.cached if z.object_taxon_name.type = 'Combination' && z.object_taxon_name.verbatim_name.blank?
                       z.subject_taxon_name_id = o.id
                       z.save
                       fixed += 1
-                      byebug if z.subject_taxon_name.type == 'Combination'
                     end
                     TaxonNameRelationship.where(project_id: $project_id, object_taxon_name_id: s.id).select{|i| i.type !~ /Combination/}.each do |z|
                       z.object_taxon_name_id = o.id
                       z.save
                       fixed += 1
-                      byebug if z.subject_taxon_name.type == 'Combination'
                     end
                   end
                 elsif s.cached_valid_taxon_name_id != svalid
