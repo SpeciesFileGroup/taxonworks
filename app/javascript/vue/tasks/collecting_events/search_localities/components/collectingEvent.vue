@@ -206,8 +206,61 @@
         // this.isSelectAll = ! this.isSelectAll;
       },
       processList() {
-        this.$refs.cesearch.getGeoreferences()
-      }
+        this.getGeoreferences()
+      },
+      getGeoreferences(){
+        let ce_ids = [];      // find the georeferences for these collecting_events
+        this.collectingEventList.forEach(ce => {
+          ce_ids.push(ce.id)
+        });
+        if (ce_ids.length) {                // if the list has contents
+          let cycles = (ce_ids.length / 30);  // each item is about 30 characters, make each cycle less than 2000 chars
+          let FeatureCollection = {
+            "type": "FeatureCollection",
+            "features": []
+          };
+          let that = this;
+          let thisSlice = 0;
+          let endSlice;
+          let finalSlice = ce_ids.length;
+          let newFeatures = [];
+          this.newFeatures = [];
+          let promises = [];
+          for (let i = 0; i < cycles; i++) {
+            endSlice = thisSlice + 30;
+            if ((thisSlice + 30) > finalSlice) {
+              endSlice = finalSlice + 1
+            }
+            let params = {
+              collecting_event_ids: ce_ids.slice(thisSlice, endSlice)
+            };
+            promises.push(this.makePromise(params));
+            thisSlice += 30;
+          }
+          Promise.all(promises).then(featuresArrays => {
+            // if (searchShape) {FeatureCollection.features.push(searchShape)}
+            featuresArrays.forEach(f => {FeatureCollection.features = FeatureCollection.features.concat(f)});
+            that.featuresList = that.featuresList.concat(FeatureCollection.features);
+            this.$emit('featuresList', this.featuresList);
+          });
+          this.isLoading = false;
+        }
+        else {
+          this.isLoading = false;
+        }
+      },
+      makePromise(params) {
+        return new Promise((resolve, reject) => {
+          this.$http.get('/georeferences.json', {params: params}).then(response => {
+            // put these geometries on the map as features
+            let newFeatures = response.body.map(georeference => {
+              georeference.geo_json.properties["collecting_event_id"] = georeference.collecting_event_id;
+              return georeference.geo_json
+            });
+            resolve(newFeatures);    // resolves to array of features
+          })
+        })
+      },
     },
     mounted: function () {
       this.$http.get('/collecting_events/select_options').then(response => {
