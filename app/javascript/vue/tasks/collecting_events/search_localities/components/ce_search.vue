@@ -141,7 +141,7 @@
           if (this.collectingEventList) {
             this.$emit('collectingEventList', this.collectingEventList)
           }
-          this.getGeoreferences();
+          // this.getGeoreferences();
           this.isLoading = false;
         });
       },
@@ -156,7 +156,7 @@
           let foundEvents = response.body;
           if(foundEvents.length > 0) {this.collectingEventList = foundEvents;}
           this.$emit('collectingEventList', this.collectingEventList);
-          this.getGeoreferences()
+          // this.getGeoreferences()
         })
       },
       getGeoreferences(){
