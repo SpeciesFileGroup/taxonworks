@@ -148,7 +148,7 @@
         if (!newVal) {
           this.selected = []
         }
-      }
+      },
     },
     methods: {
       compileList(newColEvList) {
@@ -170,6 +170,7 @@
           this.collectingEventList = newColEvList;
           this.selected = [];
         }
+        this.getGeoreferences();
       },
       resetList() {
         this.collectingEventList = [];
