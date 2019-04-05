@@ -18,6 +18,7 @@
           @restoreRow="restoreRow=$event"
           :lightRow="lightRow"
           :dimRow="dimRow"
+          ref="cesearch"
         />
       </div>
       <div v-else-if="view === 'Tag'">
@@ -47,10 +48,10 @@
         height="512px"
         width="1024px"
         :zoom="2"
-        ref="leaflet"
+        :geojson="featuresList"
+      ref="leaflet"
       />
         <!--:light-this-feature="lightMapFeatures"-->
-        <!--:geojson="geojsonFeatures"-->
         <!--@geoJsonLayerCreated="shapes.push(JSON.stringify($event));"-->
         <!--@geoJsonLayersEdited="editedShape($event)"-->
         <!--@shapeCreated="inspectLayer"-->
@@ -204,6 +205,9 @@
         }
         // this.isSelectAll = ! this.isSelectAll;
       },
+      processList() {
+        this.$refs.cesearch.getGeoreferences()
+      }
     },
     mounted: function () {
       this.$http.get('/collecting_events/select_options').then(response => {
