@@ -70,9 +70,9 @@
 </template>
 <script>
   import Autocomplete from 'components/autocomplete'
-  import lMap from './leafletMap.vue'
   import ModeSwitch from './mode_switch'
   import Spinner from 'components/spinner'
+  import lMap from './leafletMap.vue'
 
   export default {
     components: {

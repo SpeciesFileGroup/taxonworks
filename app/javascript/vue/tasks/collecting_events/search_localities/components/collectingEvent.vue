@@ -37,7 +37,27 @@
         type="button"
         @click="resetList()"
         value="Reset">
+      <input
+        type="button"
+        @click="processList()"
+        value="Add to Map">
     </template>
+    <div>
+      <l-map
+        height="512px"
+        width="1024px"
+        :zoom="2"
+        ref="leaflet"
+      />
+        <!--:light-this-feature="lightMapFeatures"-->
+        <!--:geojson="geojsonFeatures"-->
+        <!--@geoJsonLayerCreated="shapes.push(JSON.stringify($event));"-->
+        <!--@geoJsonLayersEdited="editedShape($event)"-->
+        <!--@shapeCreated="inspectLayer"-->
+        <!--@highlightRow="setHighlight"-->
+        <!--@restoreRow="clearHighlight"-->
+        <!--:draw-controls="false"-->
+    </div>
     <div>
       <div class="annotation_logic separate-left">
         <h2>Collecting Events</h2>
@@ -54,7 +74,7 @@
         <tr
           v-for="(item, index) in collectingEventList"
           :key="item.id"
-          :class="{'my-row': highlightRow==item.id}"
+          :class="{'ce-row': highlightRow==item.id}"
           @mouseover="lightRow=item.id; dimRow=0"
           @mouseout="dimRow=item.id; lightRow=0"
         >
@@ -92,6 +112,7 @@
   import ceTag from './ce_tag.vue'
   import AnnotationLogic from 'browse_annotations/components/annotation_logic'
   import PinComponent from "components/pin.vue"
+  import lMap from './leafletMap.vue'
 
   export default {
     components: {
@@ -102,6 +123,7 @@
       ceTag,
       AnnotationLogic,
       PinComponent,
+      lMap,
     },
     data() {
       return {
@@ -205,7 +227,7 @@
     min-width: 40%;
     max-width: 40%;
   }
-  .my-row {
+  .ce-row {
     background-color: #BBDDBB
   }
 
