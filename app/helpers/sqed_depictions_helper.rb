@@ -52,31 +52,31 @@ module SqedDepictionsHelper
 
   def sqed_last_with_data_tag(project_id)
     if o = SqedDepiction.with_collection_object_data.where(project_id: project_id).last
-      content_tag(:span, ('Last with data: ' + sqed_card_link(o)).html_safe, class: [:feedback, 'feedback-success'])
+      content_tag(:span, ('Last with data: ' + sqed_card_link(o)).html_safe, class: [:feedback, 'feedback-success', 'feedback-thin'])
     else
       nil
     end
   end
 
   def sqed_last_without_data_tag(project_id)
-    if o = SqedDepiction.without_collection_object_data.where(project_id: sessions_current_project_id).last
-      content_tag(:span, ('Last without data: ' + sqed_card_link(o)).html_safe, class: [:feedback, 'feedback-warning'])
+    if o = SqedDepiction.where(project_id: sessions_current_project_id).without_collection_object_data.last
+      content_tag(:span, ('Last without data: ' + sqed_card_link(o)).html_safe, class: [:feedback, 'feedback-warning', 'feedback-thin'])
     else
       nil
     end
   end
 
   def sqed_first_without_data_tag(project_id)
-    if o = SqedDepiction.without_collection_object_data.where(project_id: sessions_current_project_id).first
-      content_tag(:span, ('First without data: ' + sqed_card_link(o)).html_safe, class: [:feedback, 'feedback-warning'])
+    if o = SqedDepiction.where(project_id: sessions_current_project_id).without_collection_object_data.first
+      content_tag(:span, ('First without data: ' + sqed_card_link(o)).html_safe, class: [:feedback, 'feedback-warning', 'feedback-thin'])
     else
       nil
     end
   end
   
   def sqed_first_with_data_tag(project_id)
-    if o = SqedDepiction.with_collection_object_data.where(project_id: sessions_current_project_id).first
-      content_tag(:span, ('First with data: ' + sqed_card_link(o)).html_safe, class: [:feedback, 'feedback-success'])
+    if o = SqedDepiction.where(project_id: sessions_current_project_id).with_collection_object_data.first
+      content_tag(:span, ('First with data: ' + sqed_card_link(o)).html_safe, class: [:feedback, 'feedback-success', 'feedback-thin'])
     else
       nil
     end
@@ -91,23 +91,76 @@ module SqedDepictionsHelper
       Waxy::Geometry::Orientation::LAYOUT_POINTY,
       Waxy::Geometry::Point.new(20,20), # size
       Waxy::Geometry::Point.new(20,20), # start
+      9 # padding
     ) 
 
     meta = []
 
     sqed_depictions.each do |i|
       a = Waxy::Meta.new
-      a.size = (0..5).collect{ rand(0.0..1.0) } 
+      a.size = sqed_waxy_metadata(i)
       a.stroke = 'grey'
-      a.link = sqed_card_link(i)
-      meta.push a 
+      a.link = sqed_depiction_breakdown_task_path(i).html_safe
+      a.link_title = "#{i.id.to_s} created #{time_ago_in_words(i.created_at)} ago by #{user_tag(i.creator)}"
+      meta.unshift a
     end
 
-    meta.sort!{ |a,b| a.sum_size <=> b.sum_size }
-
-    c = Waxy::Render::Svg::Canvas.new(1000, 1000)
-    c.body << Waxy::Render::Svg.rectangle(layout, meta)
+    c = Waxy::Render::Svg::Canvas.new(600, 400)
+    c.body << Waxy::Render::Svg.rectangle(layout, meta, 9)
     c.to_svg.html_safe
+  end
+
+  # @return Array lenght 6
+  def sqed_waxy_metadata(sqed_depiction)
+    o = sqed_depiction.depiction_object
+    [
+      (o.identifiers.any? ? 1 : 0),
+      (o.buffered_collecting_event.blank? ? 0 : 1),
+      (o.buffered_determinations.blank? ? 0 : 1),
+      (o.buffered_other_labels.blank? ? 0 : 1),
+      (o.collecting_event_id ? 1 : 0),
+      (o.taxon_determinations.any? ? 1 : 0)
+    ]
+  end
+
+  def sqed_waxy_legend_section_tag(position, label)
+    layout = Waxy::Geometry::Layout.new(
+      Waxy::Geometry::Orientation::LAYOUT_POINTY,
+      Waxy::Geometry::Point.new(15,15), # size
+      Waxy::Geometry::Point.new(15,15), # start
+    )
+
+    a = Waxy::Meta.new
+    a.stroke = 'grey'
+    a.size = (0..5).collect{|s| position == s ? 1.0 : 0 }
+    meta = [a]
+
+    c = Waxy::Render::Svg::Canvas.new(35, 35)
+    c.body << Waxy::Render::Svg.rectangle(layout, meta)
+
+    content_tag(:figure) do
+      c.to_svg.html_safe +
+        content_tag(:figcaption, label)
+    end
+  end
+
+  def sqed_waxy_legend_tag
+    l = ''
+    {
+      0 => 'identifier(s)',
+      1 => 'buffered collecting event',
+      2 => 'buffered deterimination',
+      3 => 'buffered other labels',
+      4 => 'collecting event',
+      5 => 'taxon deterimination(s)'
+    }.each do |i,label|
+      l << sqed_waxy_legend_section_tag(i, label)
+    end
+    content_tag(:div) do
+      content_tag(:h3, 'Legend') +
+        content_tag(:p, content_tag(:em, 'Triangle indicates data presence')) +
+        content_tag(:div, l.html_safe)
+    end
   end
 
 end
