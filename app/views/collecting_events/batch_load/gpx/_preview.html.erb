@@ -1,0 +1,39 @@
+<h2> Batch preview </h2>
+
+<% if @result.valid? -%>
+    <p> To complete this batch import, select the file again and click create:
+      <%= content_for :batch_form -%>
+    </p>
+<% end %>
+
+<%= render partial: 'shared/data/all/batch_load/import_file_properties' %>
+
+<h3> Line breakdown </h3>
+<% if content_for?(:line_breakdown) -%>
+    <%= yield :line_breakdown -%>
+<% else %>
+
+    <table class="top_align_text" border="1">
+      <tr>
+        <th class="four_character_width">line</th>
+        <th class="four_character_width">data count</th>
+        <th class="four_character_width">valid count*</th>
+        <th class="one_third_width"> data errors</th>
+        <th> parse errors</th>
+      </tr>
+
+      <% @result.sorted_processed_rows.each do |i, rp| -%>
+          <tr>
+            <%= batch_line_link_td(i) -%>
+            <%= batch_all_objects_count_td(rp) -%>
+            <%= batch_valid_objects_td(rp) -%>
+            <%= batch_data_errors_td(rp) -%>
+            <%= batch_parse_errors_td(rp) -%>
+          </tr>
+      <% end -%>
+    </table>
+
+<% end %>
+
+<h3> Input file </h3>
+<%= render partial: '/shared/data/all/batch_load/input_file', locals: {csv: @result.csv} -%>

@@ -20,8 +20,8 @@ gem 'redis', '~> 4.1.0'
 gem 'thor', '~> 0.19.4' # See https://github.com/rails/rails/issues/27229
 gem 'rubyzip', '~> 1.2.2'
 gem 'daemons', '~> 1.3.1'
-gem 'tzinfo-data', '~> 1.2018.4' 
-gem 'psych', '~> 3.1.0' 
+gem 'tzinfo-data', '~> 1.2018.4'
+gem 'psych', '~> 3.1.0'
 gem 'rmagick', '~> 3.0'
 
 # Geo
@@ -31,6 +31,9 @@ gem 'rgeo', '~> 2.0.0'
 gem 'rgeo-geojson', '~> 2.1.1'
 gem 'rgeo-proj4', '~> 2.0'
 gem 'postgresql_cursor', '~> 0.6.1'
+
+# translate for geo
+gem 'gpx', '~> 1.0.0'
 
 # API/controllers
 gem 'rabl', '~> 0.13.1'
@@ -135,7 +138,7 @@ group :development do
 end
 
 group :doc do
-  gem 'sdoc', '~> 1.0', require: false 
+  gem 'sdoc', '~> 1.0', require: false
 end
 
 group :test do
