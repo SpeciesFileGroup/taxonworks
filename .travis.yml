@@ -48,13 +48,16 @@ env:
 services:
   - postgresql
 before_install:
+  - echo [TEST_WORKER=$TEST_WORKER before_install date] $(date)
   - nvm install node
   - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.7.0
   - export PATH=$HOME/.yarn/bin:$PATH
 install:
+  - echo [TEST_WORKER=$TEST_WORKER install date] $(date)
   - npm install
   - bundle install --without development production
 before_script:
+  - echo [TEST_WORKER=$TEST_WORKER before_script date] $(date)
   - "export DISPLAY=:99.0"
   - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1600x1200x16"
   - sleep 3
@@ -71,9 +74,12 @@ before_script:
   - export BEGIN_INDEX=$[($SPEC_COUNT + $TEST_WORKERS - 1) / $TEST_WORKERS * $TEST_WORKER + 1]
   - export END_INDEX=$[($SPEC_COUNT + $TEST_WORKERS - 1) / $TEST_WORKERS * ($TEST_WORKER + 1)]
 script:
+  - echo [TEST_WORKER=$TEST_WORKER script date] $(date)
   - bundle exec rake assets:precompile
 # - bundle exec parallel_test spec/ -n 6 --only-group $TEST_GROUP --group-by filesize --type rspec
+  - echo [TEST_WORKER=$TEST_WORKER TESTS_BEGIN date] $(date)
   - bundle exec rspec $(echo $SPEC_FILES | cut -d " " -f $BEGIN_INDEX-$END_INDEX)
+  - echo [TEST_WORKER=$TEST_WORKER TESTS_END date] $(date)
 notifications:
   email:
     recipients:
