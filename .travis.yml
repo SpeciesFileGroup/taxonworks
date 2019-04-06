@@ -36,14 +36,15 @@ env:
   global:
     - TEST_WORKERS=8
     - COVERALLS_PARALLEL=true
-  - TEST_WORKER=0
-  - TEST_WORKER=1
-  - TEST_WORKER=2
-  - TEST_WORKER=3
-  - TEST_WORKER=4
-  - TEST_WORKER=5
-  - TEST_WORKER=6
-  - TEST_WORKER=7
+  matrix:
+    - TEST_WORKER=0
+    - TEST_WORKER=1
+    - TEST_WORKER=2
+    - TEST_WORKER=3
+    - TEST_WORKER=4
+    - TEST_WORKER=5
+    - TEST_WORKER=6
+    - TEST_WORKER=7
 services:
   - postgresql
 before_install:
@@ -68,7 +69,7 @@ before_script:
   - export SPEC_FILES=$(find spec/ -type f -name "*_spec.rb" | sort)
   - export SPEC_COUNT=$(echo $SPEC_FILES | wc -w)
   - export BEGIN_INDEX=$[($SPEC_COUNT + $TEST_WORKERS - 1) / $TEST_WORKERS * $TEST_WORKER + 1]
-  - export END_INDEX=$[($SPEC_COUNT + $TEST_WORKERS - 1) / $TEST_WORKERS * ($TEST_WORKER+1)]
+  - export END_INDEX=$[($SPEC_COUNT + $TEST_WORKERS - 1) / $TEST_WORKERS * ($TEST_WORKER + 1)]
 script:
   - bundle exec rake assets:precompile
 # - bundle exec parallel_test spec/ -n 6 --only-group $TEST_GROUP --group-by filesize --type rspec
