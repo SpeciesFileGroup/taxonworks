@@ -387,14 +387,14 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
 
     context 'specific relationships' do
       before(:each) do
-        @f1     = FactoryBot.create(:relationship_family, parent: @kingdom, year_of_publication: 2000)
-        @f2     = FactoryBot.create(:relationship_family, parent: @kingdom, year_of_publication: 2001)
-        @g1     = FactoryBot.create(:relationship_genus, parent: @f1)
-        @g2     = FactoryBot.create(:relationship_genus, parent: @f2)
-        @s1     = FactoryBot.create(:relationship_species, parent: @g1)
-        @s2     = FactoryBot.create(:relationship_species, parent: @g2)
-        @r1     = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @g1, type: 'TaxonNameRelationship::Typification::Genus')
-        @r2     = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: @s2, object_taxon_name: @g2, type: 'TaxonNameRelationship::Typification::Genus')
+        @f1 = FactoryBot.create(:relationship_family, parent: @kingdom, year_of_publication: 2000)
+        @f2 = FactoryBot.create(:relationship_family, parent: @kingdom, year_of_publication: 2001)
+        @g1 = FactoryBot.create(:relationship_genus, parent: @f1)
+        @g2 = FactoryBot.create(:relationship_genus, parent: @f2)
+        @s1 = FactoryBot.create(:relationship_species, parent: @g1)
+        @s2 = FactoryBot.create(:relationship_species, parent: @g2)
+        @r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @g1, type: 'TaxonNameRelationship::Typification::Genus')
+        @r2 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: @s2, object_taxon_name: @g2, type: 'TaxonNameRelationship::Typification::Genus')
         @source = FactoryBot.create(:valid_source_bibtex, year: 2000)
       end
 
@@ -449,10 +449,11 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
 
       specify 'homonyms should be similar' do
         g = FactoryBot.create(:relationship_genus, name: 'Xus', parent: @f1)
-        expect(g.save).to be_truthy
+        # expect(g.save).to be_truthy # WHY?
         expect(@g2.save).to be_truthy
         g.reload
         @g2.reload
+        
         r = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: @g2, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym')
         r.soft_validate(:specific_relationship)
         expect(r.soft_validations.messages_on(:type).size).to eq(1)
@@ -505,10 +506,11 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         @s2.year_of_publication = 1970
         expect(@s2.save).to be_truthy
         @s2.reload
-        r = FactoryBot.build_stubbed(:taxon_name_relationship,
-                                     subject_taxon_name: @s2,
-                                     object_taxon_name:  @s1,
-                                     type:               'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961'
+        r = FactoryBot.build_stubbed(
+          :taxon_name_relationship,
+          subject_taxon_name: @s2,
+          object_taxon_name:  @s1,
+          type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961'
         )
 
         r.soft_validate(:specific_relationship)

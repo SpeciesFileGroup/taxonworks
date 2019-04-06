@@ -17,12 +17,10 @@
       <%= render "form" %>
     </div>
   <% else -%>
-    <div>
-      <ul>
-        <%= content_tag(:li, 'Record has invalid coordinates', class: :warning) -%><br><br>
-        <%= content_tag(:li, 'Image is unavailable', class: :warning) if @result.image_unavailable?  -%>
-      </ul>
-    </div>
+    <p>
+      <%= content_tag(:span, 'Record has invalid coordinates', class: [:feedback, 'feedback-danger']) -%><br><br><br>
+      <%= content_tag(:span, 'Image is unavailable', class: [:feedback, 'feedback-danger']) if @result.image_unavailable?  -%>
+    </p>
 
     <%= link_to('Skip to next', sqed_depiction_breakdown_task_path(@sqed_depiction.next_without_data, @result.namespace_id), 'data-turbolinks' => 'false') -%> 
   <% end %> 
