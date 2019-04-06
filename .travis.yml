@@ -17,6 +17,7 @@ branches:
     - development
     - rails52
     - digitize
+    - parallel_travis
 addons:
   postgresql: "10"
   firefox: "latest"
