@@ -32,17 +32,18 @@ addons:
       - postgresql-10
       - postgresql-client-10
       - postgresql-contrib-10
-#env:
-#  global:
-#  - IMAGEMAGICK_VERSION=6.8.9-10
-#  - PGPORT=5433
-#  - IMAGEMAGICK_VERSION=6.8.9-10 CONFIGURE_OPTIONS=--enable-hdri
-    #  global:
-#    - PGPORT=5433
-#   - TEST_GROUP=1
-#   - TEST_GROUP=2
-#   - TEST_GROUP=3
-#   - TEST_GROUP=4
+env:
+  global:
+    - TEST_WORKERS=8
+    - COVERALLS_PARALLEL=true
+  - TEST_WORKER=0
+  - TEST_WORKER=1
+  - TEST_WORKER=2
+  - TEST_WORKER=3
+  - TEST_WORKER=4
+  - TEST_WORKER=5
+  - TEST_WORKER=6
+  - TEST_WORKER=7
 services:
   - postgresql
 before_install:
@@ -63,11 +64,15 @@ before_script:
   - bundle exec rake db:create RAILS_ENV=test # database user by default is `travis` 
   - bundle exec rake db:migrate RAILS_ENV=test
   - ls -alh bin 
-  - ls -alh public/packs-test 
+  - ls -alh public/packs-test
+  - export SPEC_FILES=$(find spec/ -type f -name "*_spec.rb" | sort)
+  - export SPEC_COUNT=$(echo $SPEC_FILES | wc -w)
+  - export BEGIN_INDEX=$[($SPEC_COUNT + $TEST_WORKERS - 1) / $TEST_WORKERS * $TEST_WORKER + 1]
+  - export END_INDEX=$[($SPEC_COUNT + $TEST_WORKERS - 1) / $TEST_WORKERS * ($TEST_WORKER+1)]
 script:
   - bundle exec rake assets:precompile
 # - bundle exec parallel_test spec/ -n 6 --only-group $TEST_GROUP --group-by filesize --type rspec
-  - bundle exec rspec
+  - bundle exec rspec $(echo $SPEC_FILES | cut -d " " -f $BEGIN_INDEX-$END_INDEX)
 notifications:
   email:
     recipients:
