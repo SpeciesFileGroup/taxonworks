@@ -461,7 +461,7 @@ class TaxonNameRelationship < ApplicationRecord
   def sv_specific_relationship
     s = subject_taxon_name
     o = object_taxon_name
-    case type # self.type_name
+    case type
       when 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective' || 'TaxonNameRelationship::Icn::Unaccepting::Synonym::Heterotypic'
         if (s.type_taxon_name == o.type_taxon_name && !s.type_taxon_name.nil? ) || (!s.get_primary_type.empty? && s.has_same_primary_type(o) )
           soft_validations.add(:type, "Subjective synonyms #{s.cached_html} and #{o.cached_html} should not have the same type")
