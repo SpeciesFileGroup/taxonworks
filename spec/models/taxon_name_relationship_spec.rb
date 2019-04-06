@@ -446,23 +446,16 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         expect(r.soft_validations.messages_on(:type).size).to eq(1)
       end
 
-      specify 'homonyms should be similar' do
+      specify 'generic homonyms should be similar' do
         g = FactoryBot.create(:relationship_genus, name: 'Xus', parent: f1)
-        expect(g.save).to be_truthy # WHY?
-        expect(g2.save).to be_truthy
-        g.reload
-        g2.reload
-        
-        r = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: g2, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym')
-        
+        r = TaxonNameRelationship::Iczn::Invalidating::Homonym.create!(subject_taxon_name: g, object_taxon_name: g2)
         r.soft_validate(:specific_relationship)
-        
         expect(r.soft_validations.messages_on(:type).size).to eq(1)
       end
 
       specify 'primary homonyms should be similar' do
-        sp                 = FactoryBot.create(:relationship_species, name: 'xus', parent: g2)
-        sp.original_genus  = g1
+        sp = FactoryBot.create(:relationship_species, name: 'xus', parent: g2)
+        sp.original_genus = g1
         s2.original_genus = g1
         expect(sp.save).to be_truthy
         expect(s2.save).to be_truthy

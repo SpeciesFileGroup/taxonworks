@@ -912,7 +912,7 @@ class TaxonName < ApplicationRecord
     end
   end
 
-  # return (String)
+  # return [String, nil, false] # TODO: fix
   def get_genus_species(genus_option, self_option)
   # see protonym
     true
