@@ -34,7 +34,7 @@ addons:
       - postgresql-contrib-10
 env:
   global:
-    - TEST_WORKERS=8
+    - TEST_WORKERS=5
     - COVERALLS_PARALLEL=true
   matrix:
     - TEST_WORKER=0
@@ -42,9 +42,6 @@ env:
     - TEST_WORKER=2
     - TEST_WORKER=3
     - TEST_WORKER=4
-    - TEST_WORKER=5
-    - TEST_WORKER=6
-    - TEST_WORKER=7
 services:
   - postgresql
 before_install:
