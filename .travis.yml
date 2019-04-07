@@ -73,7 +73,7 @@ before_script:
   - export SPECS_TO_RUN=$(echo $SPEC_FILES | cut -d " " -f $BEGIN_INDEX-$END_INDEX)
 script:
   - echo ===[TEST_WORKER=$TEST_WORKER script $(date -u +%Y%m%d-%H%M%S)]===
-  - echo $SPECS_TO_RUN | grep -q "spec/features/" && bundle exec rake assets:precompile
+  - echo $SPECS_TO_RUN | grep -q "spec/features/" && bundle exec rake assets:precompile; true
 # - bundle exec parallel_test spec/ -n 6 --only-group $TEST_GROUP --group-by filesize --type rspec
   - echo ===[TEST_WORKER=$TEST_WORKER rspec $(date -u +%Y%m%d-%H%M%S)]===
   - bundle exec rspec $SPECS_TO_RUN
