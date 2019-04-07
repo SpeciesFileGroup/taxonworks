@@ -70,12 +70,13 @@ before_script:
   - export SPEC_COUNT=$(echo $SPEC_FILES | wc -w)
   - export BEGIN_INDEX=$[($SPEC_COUNT + $TEST_WORKERS - 1) / $TEST_WORKERS * $TEST_WORKER + 1]
   - export END_INDEX=$[($SPEC_COUNT + $TEST_WORKERS - 1) / $TEST_WORKERS * ($TEST_WORKER + 1)]
+  - export SPECS_TO_RUN=$(echo $SPEC_FILES | cut -d " " -f $BEGIN_INDEX-$END_INDEX)
 script:
   - echo ===[TEST_WORKER=$TEST_WORKER script $(date -u +%Y%m%d-%H%M%S)]===
-  - bundle exec rake assets:precompile
+  - echo $SPECS_TO_RUN | grep -q "spec/features/" && bundle exec rake assets:precompile
 # - bundle exec parallel_test spec/ -n 6 --only-group $TEST_GROUP --group-by filesize --type rspec
   - echo ===[TEST_WORKER=$TEST_WORKER rspec $(date -u +%Y%m%d-%H%M%S)]===
-  - bundle exec rspec $(echo $SPEC_FILES | cut -d " " -f $BEGIN_INDEX-$END_INDEX)
+  - bundle exec rspec $SPECS_TO_RUN
 after_script:
   - echo ===[TEST_WORKER=$TEST_WORKER after_script $(date -u +%Y%m%d-%H%M%S)]===
 notifications:
