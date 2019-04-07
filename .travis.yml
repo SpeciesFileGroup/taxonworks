@@ -83,3 +83,4 @@ notifications:
     recipients:
       - diapriid@gmail.com
     on_failure: change
+  webhooks: https://coveralls.io/webhook
