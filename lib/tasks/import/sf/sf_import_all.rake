@@ -28,8 +28,8 @@ namespace :tw do
           # 'start:map_pub_type',
           # # '3_after_pub_type': 0m27.396s on 30 Oct 2018
           #
-          'start:contained_cite_aux_data',
-          'start:create_sources',
+          # 'start:contained_cite_aux_data',
+          # 'start:create_sources',
           # '4_after_create_sources': 41m36.692s on 31 Oct 2018
           # #
           # 'start:create_misc_ref_info',
@@ -84,20 +84,21 @@ namespace :tw do
           # #
           # 'specimens:get_ident_qualifier_from_nomenclator',
           # 'specimens:create_sf_loc_col_events_metadata',
-          # # '16_after_col_events_metadata': 10m17.584s on 15 Nov 2018
+          # # # '16_after_col_events_metadata': 10m17.584s on 15 Nov 2018
           # #
           # # 654m43.830s before crash on 13 Jan 2019
-          # 'specimens:collection_objects',
-          # # '17_after_collection_objects': 197m20.585s on 19 Mar 2019; 211m4.168s on 1 Feb 2019; 202m27.938s on 20 Nov 2018; 227m33.097s on 15 Nov 2018
-          # #
-          # 'supplementary:taxon_info',
-          # # 0m58.912s on 21 Nov 2018
-          # 'supplementary:scrutiny_related',
-          # # '18_after_scrutinies': 12m12.489s on 21 Nov 2018 [from 11:23:10.299 to 11:29:51.063, scrutiny authors being processed, no screen activity]
-          # #
-          # 'media:create_language_hash',
-          # 'media:create_common_names',
-          # 'media:create_otu_website_links',
+          'specimens:collection_objects',
+          # '17_after_collection_objects': 197m20.585s on 19 Mar 2019; 211m4.168s on 1 Feb 2019; 202m27.938s on 20 Nov 2018; 227m33.097s on 15 Nov 2018
+          #
+          'supplementary:taxon_info',
+          # 0m58.912s on 21 Nov 2018
+          'supplementary:scrutiny_related',
+          # '18_after_scrutinies': 12m12.489s on 21 Nov 2018 [from 11:23:10.299 to 11:29:51.063, scrutiny authors being processed, no screen activity]
+          #
+          'media:create_language_hash',
+          'media:create_common_names',
+          'media:create_otu_website_links',
+          # # 19_after_links
           # #
           # # 'citations:create_citations',
           # time: close to 10h (592m44.659s on 10 July 2015, 591m42.625s on 6 Sept 2018)
@@ -108,8 +109,8 @@ namespace :tw do
           # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_otu_cites',
           #
           #
-          # 'last:filter_users'
-          # # 5m26.662s on 25 Feb 2019
+          'last:filter_users'
+          # # '99_after_filter_users': 5m26.662s on 25 Feb 2019
 
       ] do
         puts 'Ran all tasks!'

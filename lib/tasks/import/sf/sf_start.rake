@@ -735,12 +735,19 @@ namespace :tw do
           added_counter = 0
           error_counter = 0
 
+          # file.rewind maybe?
+          # id          pref_id       family_name
+          # sue         ''            jones
+          # peggy       sue           brown
+
           file.each_with_index do |row, i| # uses path & file from loop 1
             pref_id = row['PrefID']
             next if pref_id.to_i == 0 # handle only non-preferred records
 
+
             non_pref_family_name = row['FamilyName'] # use the non-preferred person's family name as default alternate name
 
+            # a = AlternateValue.create(type: 'AlternateValue::Translation', value: char_for_key_3i(row['CharRu']).capitalize, alternate_value_object: descriptor, alternate_value_object_attribute: 'key_name', language_id: lngru)
             if get_tw_person_id[pref_id]
               puts "working with SF.PrefID: #{pref_id} (from SF.PersonID: #{row['PersonID']}), TW.person_id: #{get_tw_person_id[pref_id]}"
               # pref_person.alternate_values.new(value: non_pref_family_name, type: 'AlternateValue::AlternateSpelling', alternate_value_object_attribute: 'last_name')
@@ -748,7 +755,8 @@ namespace :tw do
                   alternate_value_object_type: 'Person',
                   alternate_value_object_id: get_tw_person_id[pref_id],
                   value: non_pref_family_name,
-                  alternate_value_object_attribute: 'last_name'
+                  alternate_value_object_attribute: 'last_name',
+                  is_community_annotation: true # if no project_id
               )
 
               begin
