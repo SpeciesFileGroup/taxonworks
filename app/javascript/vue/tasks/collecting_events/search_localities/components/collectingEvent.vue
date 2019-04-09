@@ -171,7 +171,7 @@
         lightMapFeatures: 0,
         isLoading:  false,
         showResultList: true,
-        showResultMap:  false,
+        showResultMap:  true,
       }
     },
     watch: {
