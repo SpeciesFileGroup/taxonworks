@@ -43,13 +43,20 @@
         @click="processList()"
         value="Add to Map">
     </template>
-    <div>
+    <div class="results-map">
       <l-map
         height="512px"
         width="1024px"
         :zoom="2"
         :geojson="featuresList"
-      ref="leaflet"
+        ref="leaflet"
+        :light-this-feature="lightMapFeatures"
+        @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
+        @geoJsonLayersEdited="editedShape($event)"
+        @shapeCreated="inspectLayer"
+        @highlightRow="setHighlight"
+        @restoreRow="clearHighlight"
+        :draw-controls="true"
       />
         <!--:light-this-feature="lightMapFeatures"-->
         <!--@geoJsonLayerCreated="shapes.push(JSON.stringify($event));"-->
@@ -263,6 +270,18 @@
             resolve(newFeatures);    // resolves to array of features
           })
         })
+      },
+      editedShape() {
+
+      },
+      inspectLayer() {
+
+      },
+      setHighlight() {
+
+      },
+      clearHighlidht() {
+
       },
     },
     mounted: function () {

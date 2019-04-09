@@ -38,7 +38,7 @@
         :disabled="!geographicAreaList.length"
         value="Find">
     </div>
-    <div v-if="(mode==='map') || (mode==='list')">
+    <div class="leaflet-draw-actions">
       <l-map
         height="512px"
         width="1024px"
