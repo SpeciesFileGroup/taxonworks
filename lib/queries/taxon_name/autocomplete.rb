@@ -253,9 +253,9 @@ module Queries
         queries = [
           autocomplete_exact_cached,
           autocomplete_exact_cached_original_combination,
-          autocomplete_identifier_identifier_exact,
           autocomplete_identifier_cached_exact, 
           autocomplete_exact_name_and_year,
+          autocomplete_identifier_identifier_exact,
           autocomplete_top_name,
           autocomplete_top_cached,
           autocomplete_top_cached_subgenus, # not tested
