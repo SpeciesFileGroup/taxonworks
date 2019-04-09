@@ -1,7 +1,6 @@
 module Queries
   module TaxonName 
 
-    # !! does not inherit from base query
     class Filter << Queries::Query
 
       include Queries::Concerns::Tags
@@ -25,53 +24,15 @@ module Queries
 
       attr_accessor :valid
 
+      # [ ]
+      attr_accessor :in_relationship
+
       def initialize(params)
-     end
+      end
 
       # @return [Arel::Table]
       def table
         ::TaxonName.arel_table
-      end
-
-      def matching_shape
-        return nil if shape.nil?
-
-        geometry = shape.geometry
-        this_type = geometry.geometry_type.to_s.downcase
-        geometry = geometry.as_text
-        radius = shape['radius'] || 100
-
-        case this_type
-        when 'point'
-          ::TaxonName
-            .joins(:geographic_items)
-            .where(::GeographicItem.within_radius_of_wkt_sql(geometry, radius ))
-        when 'polygon'
-          ::TaxonName
-            .joins(:geographic_items)
-            .where(::GeographicItem.contained_by_wkt_sql(geometry))
-        else
-          nil
-        end
-      end 
-
-      # TODO: throttle by size?
-      def matching_spatial_via_geographic_area_ids
-        return nil if spatial_geographic_area_ids.empty? 
-        a = ::GeographicItem.default_by_geographic_area_ids(spatial_geographic_area_ids).ids 
-        ::TaxonName.joins(:geographic_items).where( ::GeographicItem.contained_by_where_sql( a ) )
-      end
-
-      def matching_any_label
-        return nil if in_labels.blank?
-        t = "%#{in_labels}%"
-        table[:verbatim_label].matches(t).or(table[:print_label].matches(t)).or(table[:document_label].matches(t))
-      end
-
-      def matching_verbatim_locality
-        return nil if in_verbatim_locality.blank?
-        t = "%#{in_verbatim_locality}%"
-        table[:verbatim_locality].matches(t)
       end
 
       # @return [ActiveRecord::Relation]
