@@ -1,49 +1,81 @@
 module Queries
   module TaxonName 
 
-    class Filter << Queries::Query
+    class Filter < Queries::Query
 
       include Queries::Concerns::Tags
-      
-      attr_accessor :type
+    
+      # -- General --
 
-      attr_accessor :nomenclature_group
+      attr_accessor :name
 
-      # []
-      attr_accessor :parent_id
+      attr_accessor :author
+
+      attr_accessor :year
 
       attr_accessor :exact
 
-      attr_accessor :as_object
+      attr_accessor :updated_since # yyyy/mm/dd 
 
-      attr_accessor :as_subject
+      attr_accessor :validity # :invalid, :valid (leave out for both)
 
-      attr_accessor :status
-      
+      # Boolean
+      attr_accessor :include_ancestors 
+
+
+      attr_accessor :taxon_name_relationship
+#       taxon_name_relationship[]=
+
+      attr_accessor :taxon_name_classification
+
+      # []
+      attr_accessor :nomenclature_group
+
+      # [] 
+      attr_accessor :parent_id
+
       attr_accessor :keyword_ids
 
-      attr_accessor :valid
+      # :without
+      # :with
+      attr_accessor :type_metadata
 
-      # [ ]
-      attr_accessor :in_relationship
+      # true
+      # false 
+      attr_accessor :cited
+
+      # true
+      # false 
+      attr_accessor :otus
+
 
       def initialize(params)
+        @name = params[:name]
+        @keyword_ids ||= []
+        @exact = params[:exact] == 'true' ? true : false 
       end
+
 
       # @return [Arel::Table]
       def table
         ::TaxonName.arel_table
       end
 
+      def cached_name
+        if exact
+          table[:cached].eq(name)
+        else
+          table[:cached].matches('%' + name + '%')
+        end
+      end
+
       # @return [ActiveRecord::Relation]
       def and_clauses
         clauses = []
-        clauses += attribute_clauses
        
         clauses += [
-          between_date_range,
-          matching_any_label,
-          matching_verbatim_locality,
+          cached_name,
+          with_project_id
         ].compact
         
         return nil if clauses.empty?
@@ -58,10 +90,6 @@ module Queries
       def merge_clauses
         clauses = [
           matching_keyword_ids,
-          matching_shape,
-          matching_spatial_via_geographic_area_ids
-
-          # matching_verbatim_author
         ].compact
 
         return nil if clauses.empty?
@@ -89,7 +117,7 @@ module Queries
           q = ::TaxonName.all
         end
 
-        q = q.order(updated_at: :desc).limit(recent) if recent
+        #  q = q.order(updated_at: :desc).limit(recent) if recent
         q
       end
   

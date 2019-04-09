@@ -6,8 +6,21 @@ class TaxonNamesController < ApplicationController
   # GET /taxon_names
   # GET /taxon_names.json
   def index
-    @recent_objects = TaxonName.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = TaxonName.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+
+      end
+      format.json {
+        @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
+      }
+    end
+  end
+
+
+  def filter_params
+    params.permit(:name, :valid, :exact, type: [], parent_id: [], nomenclature_group: []).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
   # GET /taxon_names/1
