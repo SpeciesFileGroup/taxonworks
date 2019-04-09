@@ -2282,6 +2282,8 @@ namespace :tw do
       end
 
       def soft_validations_ucd
+        @data = nil
+        GC.start
         fixed = 0
         #        print "\nApply soft validation fixes to relationships \n"
         #        TaxonNameRelationship.where(project_id: $project_id).each_with_index do |t, i|
@@ -2294,7 +2296,7 @@ namespace :tw do
         #        end
         print "\nApply soft validation fixes to taxa 1st pass \n"
         i = 0
-        TaxonName.where(project_id: $project_id).each do |t|
+        TaxonName.where(project_id: $project_id).find_each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
 #          next if i < 7346
@@ -2307,8 +2309,8 @@ namespace :tw do
       
         print "\nApply soft validation fixes to relationships \n"
         i = 0
-     
-        TaxonNameRelationship.where(project_id: $project_id).each do |t|
+        GC.start
+        TaxonNameRelationship.where(project_id: $project_id).find_each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate(:all, true, true)
@@ -2318,9 +2320,9 @@ namespace :tw do
           end
         end
         print "\nApply soft validation fixes to taxa 2nd pass \n"
-
+        GC.start
         i = 0
-        TaxonName.where(project_id: $project_id).each do |t|
+        TaxonName.where(project_id: $project_id).find_each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate(:all, true, true)
@@ -2333,16 +2335,27 @@ namespace :tw do
 
       def invalid_relationship_remove
 
+        @data = nil
+        GC.start
         fixed = 0
         combinations = 0
         i = 0
-
-#=begin
         j = 0
         print "\nHandling Invalid relationships: synonyms of synonyms\n"
-        TaxonNameRelationship.where(project_id: $project_id).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).each do |t|
+#begin
+        TaxonNameRelationship.where(project_id: $project_id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Homonym').find_each do |t|
           j += 1
+          print "\r#{j}    Fixes applied: #{fixed}   "
+          o = t.object_taxon_name
+          Protonym.where(id: o.cached_valid_taxon_name_id, cached_secondary_homonym_alternative_spelling: o.cached_secondary_homonym_alternative_spelling).not_self(o).each do |p|
+            t.object_taxon_name = p
+            t.save
+            fixed += 1
+          end
+        end
 
+        TaxonNameRelationship.where(project_id: $project_id).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).find_each do |t|
+          j += 1
           print "\r#{j}    Fixes applied: #{fixed}   "
           s = t.subject_taxon_name
           o = t.object_taxon_name
@@ -2366,7 +2379,6 @@ namespace :tw do
                   fixed += 1
                 end
               end
-
             end
           else
             #byebug if j == 7216
@@ -2387,7 +2399,6 @@ namespace :tw do
               end
             end
           end
-
         end
 #end
 
@@ -2395,7 +2406,6 @@ namespace :tw do
         TaxonNameRelationship.where(project_id: $project_id).with_type_string('TaxonNameRelationship::Iczn::Invalidating').each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}    Combinations created: #{combinations}"
-#byebug if t.subject_taxon_name.name == 'tibialis'
           if t.citations.empty?
             s = t.subject_taxon_name
             svalid = s.cached_valid_taxon_name_id
@@ -2403,9 +2413,6 @@ namespace :tw do
             shas = s.cached_secondary_homonym_alternative_spelling
             r = TaxonNameRelationship.where(project_id: $project_id, object_taxon_name_id: s.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating')
             r2 = TaxonNameRelationship.where(project_id: $project_id, subject_taxon_name_id: s.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating').count
-
-#            next unless s.name == 'hispanicus' || s.name == 'hispanica'
-#            byebug
             if s.taxon_name_classifications.empty? && r.empty?
               t.destroy
               s.save
