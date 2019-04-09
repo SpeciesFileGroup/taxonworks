@@ -23,7 +23,7 @@
           @restoreRow="restoreRow=$event"
           :lightRow="lightRow"
           :dimRow="dimRow"
-          ref="cesearch"
+          ref="cebyarea"
         />
       </div>
       <div v-else-if="view === 'Drawn Area Search'">
@@ -34,7 +34,7 @@
           @restoreRow="restoreRow=$event"
           :lightRow="lightRow"
           :dimRow="dimRow"
-          ref="cesearch"
+          ref="cebyshape"
         />
       </div>
       <div v-else-if="view === 'Tag'">
@@ -60,7 +60,7 @@
         value="Add to Map">
     </template>
     <div class="results-map">
-      <l-map
+      <l-map v-show="showResultMap.selected"
         height="512px"
         width="1024px"
         :zoom="2"
@@ -70,25 +70,22 @@
         :light-this-feature="lightMapFeatures"
         @geoJsonLayersEdited="editedShape($event)"
         @shapeCreated="inspectLayer"
-        @highlightRow="setHighlight"
-        @restoreRow="clearHighlight"
+        @highlightRow="highlightRow=$event"
+        @restoreRow="clearHighlightProperty($event)"
         :draw-controls="true"
       />
-        <!--:light-this-feature="lightMapFeatures"-->
-        <!--@geoJsonLayerCreated="shapes.push(JSON.stringify($event));"-->
-        <!--@geoJsonLayersEdited="editedShape($event)"-->
-        <!--@shapeCreated="inspectLayer"-->
-        <!--@highlightRow="setHighlight"-->
-        <!--@restoreRow="clearHighlight"-->
-        <!--:draw-controls="false"-->
     </div>
     <div>
       <div class="annotation_logic separate-left">
         <h2>Collecting Events</h2>
         <annotation-logic v-model="annotation_logic"/>
       </div>
+      <div>
+        <input type="checkbox" id="show_map" v-model="showResultMap"/> Show Map
+        <input type="checkbox" id="show_list" v-model="showResultList"/> Show List
+      </div>
       <span v-if="collectingEventList.length" v-html="'<br>' + collectingEventList.length + '  results found.'"/>
-      <table style="width: 100%">
+      <table style="width: 100%" v-show="showResultList.selected">
         <th>Cached</th>
         <th>Verbatim Locality</th>
         <th>Pin</th>
@@ -118,7 +115,7 @@
               :type="item.base_class"/>
           </td>
           <td>
-            <span data-icon="trash" @click="delistMe(index)"/>
+            <span data-icon="trash" @click="delistCE(index)"/>
           </td>
           <td><input type="checkbox" :value="item.id" v-model="selected"/></td>
           <td/>
@@ -173,6 +170,8 @@
         shapes: [],
         lightMapFeatures: 0,
         isLoading:  false,
+        showResultList: true,
+        showResultMap:  false,
       }
     },
     watch: {
@@ -210,7 +209,7 @@
       showObject(id) {
         window.open(`/collecting_events/` + id, '_blank');
       },
-      delistMe(index) {
+      delistCE(index) {
         let ce_id = this.collectingEventList[index].id;
         for (let i = this.featuresList.length - 1; i > -1; i--) {
           if (this.featuresList[i].properties.collecting_event_id == ce_id) {
@@ -222,7 +221,7 @@
       keepSelected() {  //loop down from top to avoid re-indexing issues
         for (let i = this.collectingEventList.length - 1; i > -1; i--) {
           if (!this.selected.includes(this.collectingEventList[i].id)) {
-            this.delistMe(i)
+            this.delistCE(i)
           }
         }
       },
@@ -303,8 +302,21 @@
       setHighlight() {
 
       },
-      clearHighlidht() {
+      clearHighlight() {
 
+      },
+      setHighlightProperty(id) {
+        // find the right features by collecting_event_id
+        this.lightMapFeatures = id;
+      },
+      clearHighlightProperty(id) {
+        // find the right feature by collecting_event_id
+        this.featuresList.forEach((feature, index) => {
+          if(feature.properties.collecting_event_id == id) {
+            delete(feature.properties.highlight);
+            this.$set(this.featuresList, index, feature)
+          }
+        });
       },
     },
     mounted: function () {
