@@ -60,7 +60,7 @@
         value="Add to Map">
     </template>
     <div class="results-map">
-      <l-map v-show="showResultMap"
+      <l-map v-if="showResultMap"
         height="512px"
         width="1024px"
         :zoom="2"
@@ -71,7 +71,7 @@
         @geoJsonLayersEdited="editedShape($event)"
         @shapeCreated="inspectLayer"
         @highlightRow="highlightRow=$event"
-        @restoreRow="clearHighlightProperty($event)"
+        @restoreRow="highlightRow=0"
         :draw-controls="true"
       />
     </div>
@@ -85,7 +85,7 @@
         <input type="checkbox" id="show_list" v-model="showResultList"/> Show List
       </div>
       <span v-if="collectingEventList.length" v-html="'<br>' + collectingEventList.length + '  results found.'"/>
-      <table style="width: 100%" v-show="showResultList">
+      <table style="width: 100%" v-if="showResultList">
         <th>Cached</th>
         <th>Verbatim Locality</th>
         <th>Pin</th>
@@ -171,7 +171,7 @@
         lightMapFeatures: 0,
         isLoading:  false,
         showResultList: true,
-        showResultMap:  true,
+        showResultMap:  false,
       }
     },
     watch: {
