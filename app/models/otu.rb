@@ -97,6 +97,23 @@ class Otu < ApplicationRecord
 
   accepts_nested_attributes_for :common_names, allow_destroy: true
 
+
+  # @return [Array]
+  #   all bilogical associations this Otu is part of
+  def all_biological_associations
+    # !! If self relationships are ever made possible this needs a DISTINCT clause
+    BiologicalAssociation.find_by_sql(
+      "SELECT biological_associations.*
+         FROM biological_associations
+         WHERE biological_associations.biological_association_subject_id = #{self.id} 
+           AND biological_associations.biological_association_subject_type = 'Otu'
+       UNION
+       SELECT biological_associations.*
+         FROM biological_associations
+         WHERE biological_associations.biological_association_object_id = #{self.id}
+           AND biological_associations.biological_association_object_type = 'Otu' ")
+  end
+
   # return [Scope] the Otus bound to that taxon name and its descendants
   def self.for_taxon_name(taxon_name)
     if taxon_name.kind_of?(String) || taxon_name.kind_of?(Integer)

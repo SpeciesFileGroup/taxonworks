@@ -109,6 +109,10 @@ module Shared::Citations
     end
   end
 
+  def sources_by_topic_id(topic_id)
+    Source.joins(:citation_topics).where(citations: {citation_object: self}, citation_topics: {topic_id: topic_id}) 
+  end
+
   class_methods do
     def oldest_by_citation
       order_by_oldest_source_first.to_a.first

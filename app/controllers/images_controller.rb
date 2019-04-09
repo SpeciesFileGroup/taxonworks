@@ -83,18 +83,7 @@ class ImagesController < ApplicationController
   end
 
   def autocomplete
-    @images = Image.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model
-
-    data = @images.collect do |t|
-      {id: t.id,
-       label: ImagesHelper.image_tag(t), # in helper
-       response_values: {
-         params[:method] => t.id
-       },
-       label_html: ImagesHelper.image_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
-      }
-    end
-    render json: data
+    @images = Queries::Image::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
   end
 
   # GET /images/download

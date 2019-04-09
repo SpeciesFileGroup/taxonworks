@@ -54,6 +54,11 @@ class Image < ApplicationRecord
 
   has_many :depictions, inverse_of: :image, dependent: :restrict_with_error
 
+  
+  has_many :collection_objects, through: :depictions, source: :depiction_object, source_type: 'CollectionObject'
+  has_many :otus, through: :depictions, source: :depiction_object, source_type: 'Otu'
+  has_many :taxon_names, through: :otus
+
   before_save :extract_tw_attributes
 
   # also using https://github.com/teeparham/paperclip-meta
@@ -122,12 +127,6 @@ class Image < ApplicationRecord
     # that will convert from degrees min sec to decimal degree
     # - maybe 2 versions? - one returns string, other decimal?
 
-  end
-
-  # @param [ActionController::Parameters] params
-  # @return [Scope]
-  def self.find_for_autocomplete(params)
-    where(id: params[:term]).with_project_id(params[:project_id])
   end
 
   # Returns the true, unscaled height/width ratio
