@@ -42,6 +42,7 @@ trap 'report' ERR
 echo ${SPECS_TO_RUN[$TEST_WORKER]} | grep -qv "spec/features/" || \
 bundle exec rake assets:precompile
 
-bundle exec rspec $SPECS_TO_RUN[$TEST_WORKER]
+echo "[TEST_WORKER=$TEST_WORKER specs set] ${SPECS_TO_RUN[$TEST_WORKER]}"
+bundle exec rspec ${SPECS_TO_RUN[$TEST_WORKER]}
 
 report
