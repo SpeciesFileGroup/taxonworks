@@ -51,10 +51,12 @@
 <% if @otu.topics.load.any? -%>
   <% @otu.topics.order('controlled_vocabulary_terms.name').uniq.each do |t| -%>
     <h3> <%= object_tag(t) -%> </h3>
-    <% @otu.sources_by_topic_id(t.id).each do |s| -%>
-      <%= source_author_year_tag(s) -%>
-      <%= radial_object_tag(s) -%>;
-    <% end %>
+    <div class="horizontal-left-content middle">
+      <% @otu.sources_by_topic_id(t.id).each do |s| -%>
+        <%= source_author_year_tag(s) -%>
+        <%= radial_object_tag(s) -%>;
+      <% end %>
+    </div>
   <%- end %> 
 <% else %>
   <em>None.</em>
