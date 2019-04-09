@@ -141,6 +141,8 @@
         restoreRow: undefined,
         lightRow: undefined,
         dimRow: undefined,
+        shapes: [],
+        lightMapFeatures: 0,
       }
     },
     watch: {
