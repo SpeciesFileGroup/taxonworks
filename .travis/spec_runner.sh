@@ -25,7 +25,8 @@ do
 done
 
 # Charge last worker with any remaining specs
-SPECS_TO_RUN[(($TEST_WORKERS-1))]+=$(echo $SPEC_FILES | cut -d " " -f $BEGIN_INDEX-$SPEC_COUNT)
+ [ "$BEGIN_INDEX" -gt "$SPEC_COUNT" ] || \
+ SPECS_TO_RUN[(($TEST_WORKERS-1))]+=$(echo $SPEC_FILES | cut -d " " -f $BEGIN_INDEX-$SPEC_COUNT)
 
 report() {
   END_TIME=$(date +%s)
@@ -38,9 +39,9 @@ START_TIME=$(date +%s)
 trap 'report' ERR
 
 # Precompile assets only if feature tests will be executed
-echo $SPECS_TO_RUN | grep -qv "spec/features/" || \
+echo ${SPECS_TO_RUN[$TEST_WORKER]} | grep -qv "spec/features/" || \
 bundle exec rake assets:precompile
 
-bundle exec rspec $SPECS_TO_RUN
+bundle exec rspec $SPECS_TO_RUN[$TEST_WORKER]
 
 report
