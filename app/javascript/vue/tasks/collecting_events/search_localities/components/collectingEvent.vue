@@ -10,7 +10,18 @@
       <div v-if="view === 'Filter'">
         <ce-filter @collectingEventList="compileList($event)"/>
       </div>
-      <div v-else-if="view === 'Search'">
+      <div v-else-if="view === 'Named Area Search'">
+        <ce-search
+          @collectingEventList="compileList($event)"
+          @featuresList="featuresList=$event"
+          @highlightRow="highlightRow=$event"
+          @restoreRow="restoreRow=$event"
+          :lightRow="lightRow"
+          :dimRow="dimRow"
+          ref="cesearch"
+        />
+      </div>
+      <div v-else-if="view === 'Drawn Area Search'">
         <ce-search
           @collectingEventList="compileList($event)"
           @featuresList="featuresList=$event"
@@ -55,6 +66,7 @@
         @geoJsonLayersEdited="editedShape($event)"
         @shapeCreated="inspectLayer"
         @highlightRow="setHighlight"
+        @restoreRow="clearHighlight"
         :draw-controls="true"
       />
         <!--:light-this-feature="lightMapFeatures"-->
@@ -119,6 +131,8 @@
   import ceTag from './ce_tag.vue'
   import AnnotationLogic from 'browse_annotations/components/annotation_logic'
   import PinComponent from "components/pin.vue"
+  import ModeSwitch from './mode_switch'
+  import Spinner from 'components/spinner'
   import lMap from './leafletMap.vue'
 
   export default {
@@ -131,6 +145,8 @@
       AnnotationLogic,
       PinComponent,
       lMap,
+      ModeSwitch,
+      Spinner,
     },
     data() {
       return {
