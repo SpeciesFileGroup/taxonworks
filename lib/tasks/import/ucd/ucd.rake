@@ -2298,7 +2298,7 @@ namespace :tw do
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
 #          next if i < 7346
-          t.soft_validate
+          t.soft_validate(:all, true, true)
           t.fix_soft_validations
           t.soft_validations.soft_validations.each do |f|
             fixed += 1  if f.fixed?
@@ -2311,7 +2311,7 @@ namespace :tw do
         TaxonNameRelationship.where(project_id: $project_id).each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
-          t.soft_validate
+          t.soft_validate(:all, true, true)
           t.fix_soft_validations
           t.soft_validations.soft_validations.each do |f|
             fixed += 1  if f.fixed?
@@ -2323,7 +2323,7 @@ namespace :tw do
         TaxonName.where(project_id: $project_id).each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
-          t.soft_validate
+          t.soft_validate(:all, true, true)
           t.fix_soft_validations
           t.soft_validations.soft_validations.each do |f|
             fixed += 1  if f.fixed?
