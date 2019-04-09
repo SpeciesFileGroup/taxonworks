@@ -60,7 +60,7 @@
         value="Add to Map">
     </template>
     <div class="results-map">
-      <l-map v-show="showResultMap.selected"
+      <l-map v-show="showResultMap"
         height="512px"
         width="1024px"
         :zoom="2"
@@ -85,7 +85,7 @@
         <input type="checkbox" id="show_list" v-model="showResultList"/> Show List
       </div>
       <span v-if="collectingEventList.length" v-html="'<br>' + collectingEventList.length + '  results found.'"/>
-      <table style="width: 100%" v-show="showResultList.selected">
+      <table style="width: 100%" v-show="showResultList">
         <th>Cached</th>
         <th>Verbatim Locality</th>
         <th>Pin</th>
