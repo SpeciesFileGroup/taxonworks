@@ -1,5 +1,10 @@
 <template>
   <div>
+    <spinner
+      v-if="isLoading"
+      :full-screen="true"
+      legend="Loading..."
+      :logo-size="{ width: '100px', height: '100px'}"/>
     <h3>Collecting event</h3>
     <smart-selector
       :options="tabs"
@@ -11,7 +16,7 @@
         <ce-filter @collectingEventList="compileList($event)"/>
       </div>
       <div v-else-if="view === 'Named Area Search'">
-        <ce-search
+        <ce-by-area
           @collectingEventList="compileList($event)"
           @featuresList="featuresList=$event"
           @highlightRow="highlightRow=$event"
@@ -22,7 +27,7 @@
         />
       </div>
       <div v-else-if="view === 'Drawn Area Search'">
-        <ce-search
+        <ce-by-shape
           @collectingEventList="compileList($event)"
           @featuresList="featuresList=$event"
           @highlightRow="highlightRow=$event"
@@ -127,7 +132,8 @@
   import SmartSelector from 'components/switch.vue'
   import Autocomplete from 'components/autocomplete.vue'
   import ceFilter from './ce_filter.vue'
-  import ceSearch from './ce_search.vue'
+  import ceByArea from './ce_by_area.vue'
+  import ceByShape from './ce_by_shape.vue'
   import ceTag from './ce_tag.vue'
   import AnnotationLogic from 'browse_annotations/components/annotation_logic'
   import PinComponent from "components/pin.vue"
@@ -140,7 +146,8 @@
       SmartSelector,
       Autocomplete,
       ceFilter,
-      ceSearch,
+      ceByArea,
+      ceByShape,
       ceTag,
       AnnotationLogic,
       PinComponent,
