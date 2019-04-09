@@ -50,8 +50,8 @@
         :zoom="2"
         :geojson="featuresList"
         ref="leaflet"
-        :light-this-feature="lightMapFeatures"
         @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
+        :light-this-feature="lightMapFeatures"
         @geoJsonLayersEdited="editedShape($event)"
         @shapeCreated="inspectLayer"
         @highlightRow="setHighlight"
@@ -150,6 +150,7 @@
         dimRow: undefined,
         shapes: [],
         lightMapFeatures: 0,
+        isLoading:  false,
       }
     },
     watch: {

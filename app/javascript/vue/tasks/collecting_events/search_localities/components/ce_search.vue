@@ -38,7 +38,7 @@
         :disabled="!geographicAreaList.length"
         value="Find">
     </div>
-    <div class="leaflet-draw-actions">
+    <div class="notlongforthisworld">
       <l-map
         height="512px"
         width="1024px"
@@ -199,6 +199,7 @@
         else {
           this.isLoading = false;
         }
+        this.isLoading = false;
       },
       makePromise(params) {
         return new Promise((resolve, reject) => {
