@@ -156,6 +156,7 @@
           let foundEvents = response.body;
           if(foundEvents.length > 0) {this.collectingEventList = foundEvents;}
           this.$emit('collectingEventList', this.collectingEventList);
+          this.isLoading = false;
           // this.getGeoreferences()
         })
       },

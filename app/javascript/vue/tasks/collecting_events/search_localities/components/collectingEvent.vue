@@ -55,7 +55,6 @@
         @geoJsonLayersEdited="editedShape($event)"
         @shapeCreated="inspectLayer"
         @highlightRow="setHighlight"
-        @restoreRow="clearHighlight"
         :draw-controls="true"
       />
         <!--:light-this-feature="lightMapFeatures"-->
