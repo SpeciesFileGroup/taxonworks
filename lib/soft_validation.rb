@@ -22,7 +22,9 @@ require 'soft_validation/soft_validation_method'
 #     # can be called individually.
 #     soft_validate(:other_soft_validation_method, set: :some_set)
 #     soft_validate(:yet_another_method, set: :some_other_set )
-#     soft_validate(:a_third_method, resolution: [:route_name, route_name2])
+#     soft_validate(:a_third_method, resolution: [:route_name, route_name2]) # resolution is a pointer to route/interface that can resolve the problem !! NOT TESTED
+
+#     soft_validate(:a_fourth_example, has_fix: false) # there are no fix methods assigned in :a_fourth_example 
 #
 #     $hungry = true
 #
@@ -118,15 +120,15 @@ module SoftValidation
     # @param [Hash] options
     # @return [SoftValidationMethod]
     def add_method(method, options)
-      n                                       = self.name
-      self.soft_validation_methods[n]         ||= {}
+      n = self.name
+      self.soft_validation_methods[n] ||= {}
       self.soft_validation_methods[n][method] = SoftValidationMethod.new(options)
     end
 
     # @param [Hash] method
     # @param [Hash] options
     def add_to_set(method, options)
-      n   = self.name
+      n = self.name
       set = options[:set]
 
       self.soft_validation_sets[n] ||= {}
@@ -157,15 +159,30 @@ module SoftValidation
     # @param [Boolean] ancestors whether to also return the ancestors validation methods
     # @return [Array] of Symbol
     #   the names of the soft validation methods
-    def soft_validators(set: :all, include_ancestors: true)
+    def soft_validators(set: :all, include_ancestors: true, fixable_only: false)
       methods = []
-      # klass_validators = self.soft_validation_methods[self.name][set] if has_self_soft_validations?
-      klass_validators = self.soft_validation_sets[self.name][set] if has_self_soft_validations?
+     
+      klass_validators = []
 
-      methods += klass_validators if !klass_validators.nil?
+      
+      
+      if has_self_soft_validations?
+        a = self.soft_validation_sets[self.name][set]
+      
+        if fixable_only
+          a.each do |m|
+            klass_validators.unshift(m) if self.soft_validation_methods[self.name][m].fixable? 
+          end
+        else
+          klass_validators = a if a # self.soft_validation_sets[self.name][set] if has_self_soft_validations?
+        end
+      end
+
+      methods += klass_validators # if !klass_validators.nil?
+
       if include_ancestors
         ancestor_klasses_with_validation.each do |klass|
-          methods += klass.soft_validators(set: set, include_ancestors: false)
+          methods += klass.soft_validators(set: set, include_ancestors: false, fixable_only: fixable_only)
         end
       end
       methods
@@ -207,7 +224,7 @@ module SoftValidation
   # @param [Symbol] set the set of soft validations to run
   # @param [Boolean] ancestors whether to also validate ancestors soft validations
   # @return [Boolean] always true
-  def soft_validate(set = :all, include_ancestors = true)
+  def soft_validate(set = :all, include_ancestors = true, only_fixable = false)
     clear_soft_validations
     soft_validations
     sets = case set.class.name
@@ -220,7 +237,7 @@ module SoftValidation
            end
 
     sets.each do |s|
-      self.class.soft_validators(set: s, include_ancestors: include_ancestors).each do |m|
+      self.class.soft_validators(set: s, include_ancestors: include_ancestors, fixable_only: only_fixable).each do |m|
         self.send(m)
       end
     end
@@ -233,6 +250,7 @@ module SoftValidation
   def fix_soft_validations(scope = :automatic)
     return false if !soft_validated?
     raise 'invalid scope passed to fix_soft_validations' if ![:all, :automatic, :requested].include?(scope)
+
     soft_validations.soft_validations.each do |v|
       if v.fix
         if v.fix_trigger == scope
