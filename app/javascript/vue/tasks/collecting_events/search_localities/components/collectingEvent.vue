@@ -137,7 +137,7 @@
       return {
         list: {},
         tabs: [],
-        moreOptions: ['Filter', 'Search', 'Tag'],
+        moreOptions: ['Filter', 'Named Area Search', 'Drawn Area Search', 'Tag'],
         view: undefined,
         collectingEventList: [],
         featuresList: [],
