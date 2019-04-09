@@ -45,12 +45,10 @@ env:
 services:
   - postgresql
 before_install:
-  - echo ===[TEST_WORKER=$TEST_WORKER before_install $(date -u +%Y%m%d-%H%M%S)]===
   - nvm install node
   - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.7.0
   - export PATH=$HOME/.yarn/bin:$PATH
 install:
-  - echo ===[TEST_WORKER=$TEST_WORKER install $(date -u +%Y%m%d-%H%M%S)]===
   - npm install
   - bundle install --without development production
 before_script:
@@ -66,20 +64,8 @@ before_script:
   - bundle exec rake db:migrate RAILS_ENV=test
   - ls -alh bin 
   - ls -alh public/packs-test
-  - export SPEC_FILES=$(find spec/ -type f -name "*_spec.rb" | sort)
-  - export SPEC_COUNT=$(echo $SPEC_FILES | wc -w)
-  - export BEGIN_INDEX=$[($SPEC_COUNT + $TEST_WORKERS - 1) / $TEST_WORKERS * $TEST_WORKER + 1]
-  - export END_INDEX=$[($SPEC_COUNT + $TEST_WORKERS - 1) / $TEST_WORKERS * ($TEST_WORKER + 1)]
-  - export SPECS_TO_RUN=$(echo $SPEC_FILES | cut -d " " -f $BEGIN_INDEX-$END_INDEX)
-  - echo $SPECS_TO_RUN | grep -q "spec/features/"; export PRECOMPILE_ASSETS=$?
 script:
-  - echo ===[TEST_WORKER=$TEST_WORKER script $(date -u +%Y%m%d-%H%M%S)]===
-  - (($PRECOMPILE_ASSETS)) || bundle exec rake assets:precompile
-# - bundle exec parallel_test spec/ -n 6 --only-group $TEST_GROUP --group-by filesize --type rspec
-  - echo ===[TEST_WORKER=$TEST_WORKER rspec $(date -u +%Y%m%d-%H%M%S)]===
-  - bundle exec rspec $SPECS_TO_RUN
-after_script:
-  - echo ===[TEST_WORKER=$TEST_WORKER after_script $(date -u +%Y%m%d-%H%M%S)]===
+  - .travis/spec_runner.sh
 notifications:
   email:
     recipients:

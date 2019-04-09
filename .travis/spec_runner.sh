@@ -1,0 +1,46 @@
+#!/bin/bash
+set -e
+
+PARAMS_FILE=".travis/spec_runner.rc"
+for ((i=0; i<TEST_WORKERS; i++))
+do
+  TEST_WORKERS_PROPORTIONS[i]=1/$TEST_WORKERS 
+done
+
+# Override array above to change specs distribution amongst workers (if params file exists)
+[ -f $PARAMS_FILE ] && source $PARAMS_FILE || true
+
+SPEC_FILES=$(find spec -type f -name "*_spec.rb" | sort)
+SPEC_COUNT=$[$(echo $SPEC_FILES | wc -w)]
+
+BEGIN_INDEX=1
+
+for ((i=0; i<TEST_WORKERS; i++))
+do
+  END_INDEX=$[$BEGIN_INDEX + $SPEC_COUNT * ${TEST_WORKERS_PROPORTIONS[i]}]
+
+  SPECS_TO_RUN[i]=$(echo $SPEC_FILES | cut -d " " -f $BEGIN_INDEX-$END_INDEX)
+
+  BEGIN_INDEX=$[$END_INDEX + 1]
+done
+
+# Charge last worker with any remaining specs
+SPECS_TO_RUN[(($TEST_WORKERS-1))]+=$(echo $SPEC_FILES | cut -d " " -f $BEGIN_INDEX-$SPEC_COUNT)
+
+report() {
+  END_TIME=$(date +%s)
+
+  echo "[TEST_WORKER=$TEST_WORKER Runtime] $[$END_TIME - $START_TIME]"
+  echo "[TEST_WORKER=$TEST_WORKER Proportion] $[$(echo $SPECS_TO_RUN | wc -w)]/$SPEC_COUNT"
+}
+
+START_TIME=$(date +%s)
+trap 'report' ERR
+
+# Precompile assets only if feature tests will be executed
+echo $SPECS_TO_RUN | grep -qv "spec/features/" || \
+bundle exec rake assets:precompile
+
+bundle exec rspec $SPECS_TO_RUN
+
+report
