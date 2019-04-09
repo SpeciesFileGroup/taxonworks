@@ -8,6 +8,7 @@
     "leaflet": "^1.4.0",
     "npm-check-updates": "^2.15.0",
     "parse-dms": "0.0.3",
+    "pdfjs-dist": "^2.0.943",
     "postcss-cssnext": "^3.1.0",
     "postcss-smart-import": "^0.7.6",
     "resolve-url-loader": "^3.0.1",
@@ -33,6 +34,7 @@
     "eslint-plugin-standard": "^4.0.0",
     "eslint-plugin-vue": "^5.2.2",
     "increase-memory-limit": "^1.0.6",
+    "raw-loader": "^2.0.0",
     "webpack-dev-server": "^3.2.1"
   },
   "scripts": {

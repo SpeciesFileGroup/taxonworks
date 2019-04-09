@@ -57,10 +57,16 @@ class ImagesController < ApplicationController
   # DELETE /images/1
   # DELETE /images/1.json
   def destroy
-    @image.destroy!
-    respond_to do |format|
-      format.html { redirect_to images_url, notice: 'Image was successfully destroyed.' }
-      format.json { head :no_content }
+    if @image.destroy
+      respond_to do |format|
+        format.html { redirect_to images_url, notice: 'Image was successfully destroyed.' }
+        format.json { head :no_content }
+      end
+    else
+      respond_to do |format|
+        format.html { redirect_to images_url, notice: @image.errors.full_messages.join('. ') }
+        format.json { head :no_content, status: :im_used }
+      end
     end
   end
 
@@ -77,18 +83,7 @@ class ImagesController < ApplicationController
   end
 
   def autocomplete
-    @images = Image.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model
-
-    data = @images.collect do |t|
-      {id: t.id,
-       label: ImagesHelper.image_tag(t), # in helper
-       response_values: {
-         params[:method] => t.id
-       },
-       label_html: ImagesHelper.image_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
-      }
-    end
-    render json: data
+    @images = Queries::Image::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
   end
 
   # GET /images/download
@@ -115,11 +110,11 @@ class ImagesController < ApplicationController
 
   # GET /images/:id/ocr/:x/:y/:height/:width
   def ocr
-    tempfile = Tempfile.new(['ocr', '.jpg'], "#{Rails.root}/public/images/tmp", encoding: 'ASCII-8BIT')
-    tempfile.write(Image.cropped_blob(params))
+    tempfile = Tempfile.new(['ocr', '.jpg'], "#{Rails.root}/public/images/tmp", encoding: 'utf-8')
+    tempfile.write(Image.cropped_blob(params).force_encoding('utf-8'))
     tempfile.rewind
 
-    render json: {text: RTesseract.new(Magick::Image.read(tempfile.path).first).to_s.strip}
+    render json: {text: RTesseract.new(tempfile.path).to_s&.strip}
   end
 
   private

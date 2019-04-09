@@ -1,6 +1,8 @@
 # AlternateValue(s) are annotations on an object or object attribute. Use only when the annotations are related
 # to the same thing. (e.g. Hernán vs. Hernan, NOT Bean Books (publisher1) vs. Dell Books (publisher2))
 #
+# If you want the annotation to be community wide and it's a valid target use `is_community_annotation: true`.
+#
 # @!attribute value
 #   @return [String]
 #   the annotated value

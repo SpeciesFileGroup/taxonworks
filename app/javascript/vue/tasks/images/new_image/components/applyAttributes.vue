@@ -138,6 +138,8 @@ export default {
 <style scoped>
   .input-apply {
     width: 100%;
+    font-size: 110%;
+    color: #000000;
   }
 
   .button-apply-both {

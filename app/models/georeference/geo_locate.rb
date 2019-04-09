@@ -24,9 +24,9 @@ class Georeference::GeoLocate < Georeference
       # make a circle from the geographic_item
       unless error_radius.blank?
         # q1 = "SELECT ST_BUFFER('#{self.geographic_item.geo_object}', #{error_radius.to_f / 111319.444444444});"
-        q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_BUFFER(?, ?);',
+        q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_Buffer(?, ?);',
                                                            self.geographic_item.geo_object.to_s,
-                                                           (error_radius.to_f / 111319.444444444)])
+                                                           (error_radius.to_f / 111_319.444444444)])
         value = GeographicItem.connection.select_all(q2).first['st_buffer']
         # circle                     = Gis::FACTORY.parse_wkb(value)
         # make_error_geographic_item([[long, lat], [long, lat], [long, lat]], error_radius)

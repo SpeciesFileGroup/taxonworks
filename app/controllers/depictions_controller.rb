@@ -26,6 +26,7 @@ class DepictionsController < ApplicationController
   # GET /depictions/1
   # GET /depictions/1.json
   def show
+    @depiction.sqed_depiction.preprocess(false) if @depiction.sqed_depiction
   end
 
   # GET /depictions/new

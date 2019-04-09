@@ -52,16 +52,29 @@
       :src="depiction.image.alternatives.thumb.image_file_url"
       :height="depiction.image.alternatives.thumb.height"
       :width="depiction.image.alternatives.thumb.width">
+    <div class="horizontal-left-content">
+      <radial-annotator
+        type="annotations"
+        :global-id="depiction.image.global_id"/>
+      <radial-annotator
+        type="annotations"
+        :global-id="depiction.global_id"/>
+      <span
+        class="circle-button btn-delete"
+        @click="deleteDepiction"/>
+    </div>
   </div>
 </template>
 <script>
 
 import Modal from 'components/modal.vue'
 import { UpdateDepiction } from '../request/resources'
+import RadialAnnotator from 'components/annotator/annotator'
 
 export default {
   components: {
-    Modal
+    Modal,
+    RadialAnnotator
   },
   props: {
     depiction: {

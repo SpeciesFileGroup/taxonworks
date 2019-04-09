@@ -27,6 +27,15 @@ module SoftValidation
     #  assign this soft validation method to a set
     attr_accessor :set
 
+    # @return[Boolean]
+    #   by default everything is fixable
+    #      nil = fixable
+    #      true = fixable (default value, not necessary option)
+    #      false = not fixable
+    #   manual assertion of whether the method has a fix
+    #   !! This needs better reconcilition ultimately, as it is not coupled with sv_method inspection !!
+    attr_accessor :has_fix
+
     # @param [Hash] args
     def initialize(options)
       raise(SoftValidationError, 'missing method and klass') if options[:method].nil? || options[:klass].nil?
@@ -34,6 +43,7 @@ module SoftValidation
       options.each do |k,v|
         send("#{k}=", v)
       end
+      @has_fix = true if @has_fix.nil?
     end
 
     # @param [Array] v
@@ -60,6 +70,12 @@ module SoftValidation
     #   whether there resolutions
     def resolutions?
       resolution.size > 0
+    end
+
+    # @return [Boolean]
+    #   alias for has_fix 
+    def fixable?
+      has_fix
     end
 
     # @return[String]

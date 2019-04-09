@@ -1,0 +1,19 @@
+<%= form_tag url, multipart: true do -%>
+    <%= file_field_tag :file -%>
+
+    <div class="field">
+      <%= label_tag :ce_area, 'Geographic area for collecting event',
+                    title: 'Choose a geographic_area for the collecting event.' -%>
+      <br>
+      <%#= collecting_event_geographic_area_select_tag -%>
+      (This is where the GeographicArea autocomplete goes.)
+      <br>
+      <%= label_tag :data_origin, 'Namespace for collecting event',
+                    title: 'Choose the namespace for the identifier to be applied to the collecting event.' -%>
+      <br>
+      <%= collecting_event_namespace_select_tag -%>
+    </div>
+
+    <%= content_for :warn_level -%>
+    <%= submit_tag submit -%>
+<% end %>

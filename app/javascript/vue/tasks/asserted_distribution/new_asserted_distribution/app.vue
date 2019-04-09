@@ -200,15 +200,16 @@ export default {
               return item.id == response.body.id
             }), response.body)
             this.asserted_distribution.id = response.body.id
-            this.asserted_distribution.citations_attributes = response.body.citations
+            this.setCitation(response.body.citations[0])
             TW.workbench.alert.create('Asserted distribution was successfully updated.', 'notice')
             resolve(response.body)
           })
         }
         else {
+          this.asserted_distribution.citations_attributes[0].id = undefined
           CreateAssertedDistribution(this.asserted_distribution).then(response => {
             this.asserted_distribution.id = response.body.id
-            this.asserted_distribution.citations_attributes = response.body.citations
+            this.setCitation(response.body.citations[0])
             this.list.push(response.body)
             TW.workbench.alert.create('Asserted distribution was successfully created.', 'notice')
             resolve(response.body)
@@ -226,14 +227,14 @@ export default {
     setSourceOtu(item) {
       this.newWithLock()
       this.asserted_distribution.id = undefined
-      this.setCitation(item)
+      this.setCitation(item.citation)
       this.asserted_distribution.otu_id = item.otu.id
       this.$refs.sourceComponent.setSelected(item.citation)
       this.$refs.otuComponent.setSelected(item.otu)
     },
     setSourceGeo(item) {
       this.newWithLock()
-      this.setCitation(item)
+      this.setCitation(item.citation)
       this.asserted_distribution.geographic_area_id = item.geo.id
       this.$refs.sourceComponent.setSelected(item.citation.source)
       this.$refs.geoComponent.setSelected(item.geo)
@@ -249,9 +250,10 @@ export default {
     setCitation(item) {
       this.asserted_distribution.citations_attributes = []
       this.asserted_distribution.citations_attributes.push({
-        source_id: item.citation.source_id,
-        is_original: item.citation.is_original,
-        pages: item.citation.pages
+        id: item.id,
+        source_id: item.source_id,
+        is_original: item.is_original,
+        pages: item.pages
       })      
     }
   }

@@ -120,15 +120,17 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
       }
     }
 
-    $('[data-history-valid-name="true"]').each(function () {
-      if (!$(this).has('[data-icon="ok"]').length) {
-        $(this).prepend('<span data-icon="ok"></span>');
-      }
-    })
-    $('[data-history-origin]').each(function () {
-      var type = $(this).attr("data-history-origin");
-      $(this).prepend('<span class="history__origin ' + type + '">' + type + '</span>');
-    })
+    if(document.querySelector('#browse-view').getAttribute('loaded') != 'true') {
+      $('[data-history-valid-name="true"]').each(function () {
+        if (!$(this).has('[data-icon="ok"]').length) {
+          $(this).prepend('<span data-icon="ok"></span>');
+        }
+      })
+      $('[data-history-origin]').each(function () {
+        var type = $(this).attr("data-history-origin");
+        $(this).prepend('<span class="history__origin ' + type + '">' + type + '</span>');
+      })
+    }    
 
     $('[data-global-id]').on('click', function () {
       var list = '';
@@ -229,6 +231,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
         }
       }
     });
+    document.querySelector('#browse-view').setAttribute('loaded', true)
   }
 });
 
