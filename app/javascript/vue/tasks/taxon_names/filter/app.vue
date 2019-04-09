@@ -1,24 +1,21 @@
-var TW = TW || {}
-TW.views = TW.views || {}
-TW.views.task = TW.views.task || {}
+<template>
+  <div>
+    <h1>Filter nomenclature</h1>
+    <filter-component/>
+  </div>
+</template>
 
+<script>
 
-import Vue from 'vue'
-import App from './app.vue'
+import FilterComponent from './components/filter.vue'
 
-Object.assign(TW.views.task, {
-  init: function () {
-    new Vue({
-      el: '#vue-task',
-      render: function (createElement) {
-        return createElement(App)
-      }
-    })
+export default {
+  components: {
+    FilterComponent
   }
-})
+}
+</script>
 
-$(document).on('turbolinks:load', function () {
-  if ($('#vue-task').length) {
-    TW.views.task.init()
-  }
-})
+<style>
+
+</style>
