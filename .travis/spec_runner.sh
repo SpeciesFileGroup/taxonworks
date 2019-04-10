@@ -17,7 +17,7 @@ BEGIN_INDEX=1
 
 for ((i=0; i<TEST_WORKERS; i++))
 do
-  END_INDEX=$[$BEGIN_INDEX + $SPEC_COUNT * ${TEST_WORKERS_PROPORTIONS[i]}]
+  END_INDEX=$[$BEGIN_INDEX + $SPEC_COUNT * ${TEST_WORKERS_PROPORTIONS[i]} - 1]
 
   SPECS_TO_RUN[i]=$(echo $SPEC_FILES | cut -d " " -f $BEGIN_INDEX-$END_INDEX)
 
@@ -32,7 +32,7 @@ report() {
   END_TIME=$(date +%s)
 
   echo "[TEST_WORKER=$TEST_WORKER Runtime] $[$END_TIME - $START_TIME]"
-  echo "[TEST_WORKER=$TEST_WORKER Proportion] $[$(echo $SPECS_TO_RUN | wc -w)]/$SPEC_COUNT"
+  echo "[TEST_WORKER=$TEST_WORKER Proportion] $[$(echo ${SPECS_TO_RUN[$TEST_WORKER]} | wc -w)]/$SPEC_COUNT"
 }
 
 START_TIME=$(date +%s)

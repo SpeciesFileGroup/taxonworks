@@ -2,4 +2,4 @@
 # PLEASE USE FRACTIONAL NUMBERS. Example: (1/10 3/10 1/2 1/10 1/10)
 # Make sure you specify as much items as there are workers.
 
-#TEST_WORKERS_PROPORTIONS=(1/10 3/10 1/2 1/10 1/10)
+TEST_WORKERS_PROPORTIONS=(94/508 51/508 47/508 137/508 179/508)
