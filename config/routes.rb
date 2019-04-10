@@ -33,12 +33,19 @@ TaxonWorks::Application.routes.draw do
   resources :sessions, only: :create
 
   get 'soft_validations/validate' => 'soft_validations#validate', defaults: {format: :json}
+  post 'soft_validations/fix' => 'soft_validations#fix', defaults: {format: :json}
 
   # Note singular 'resource'
   resource :hub, controller: 'hub', only: [:index] do
     get '/', action: :index
     get 'order_tabs' # should be POST
     post 'update_tab_order'
+    get 'tasks', defaults: {format: :json}
+  end
+
+  scope :metadata, controller: 'metadata', only: [:index] do
+    get 'object_radial/', action: :object_radial, defaults: {format: :json}
+    get '(/:klass)', action: :index, defaults: {format: :json}
   end
 
   scope :annotations, controller: :annotations do
@@ -65,6 +72,7 @@ TaxonWorks::Application.routes.draw do
     match '/', action: :index, as: 'administration', via: :get
     get 'user_activity'
     get 'data_overview'
+    get 'data_health'
   end
 
   resources :project_members, except: [:index] do
@@ -198,6 +206,9 @@ TaxonWorks::Application.routes.draw do
 
       post :preview_castor_batch_load
       post :create_castor_batch_load
+
+      post :preview_gpx_batch_load
+      post :create_gpx_batch_load
     end
   end
 
@@ -241,6 +252,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :data_attributes, except: [:show] do
     concerns [:data_routes]
+    collection do
+      get 'value_autocomplete', defaults: {format: :json}
+    end
   end
 
   resources :depictions do
@@ -296,10 +310,11 @@ TaxonWorks::Application.routes.draw do
 
   resources :geographic_items
 
-  resources :georeferences, only: [:index, :destroy, :new, :show, :edit] do
+  resources :georeferences, only: [:index, :destroy, :new, :show, :edit, :create] do
     concerns [:data_routes]
   end
 
+  # TODO: fix broken interfaces, deprecate?
   namespace :georeferences do
     resources :geo_locates, only: [:new, :create]
     resources :google_maps, only: [:new, :create]
@@ -308,8 +323,14 @@ TaxonWorks::Application.routes.draw do
 
   resources :identifiers, except: [:show] do
     concerns [:data_routes]
+
+    # Must be before member
     collection do
       get :identifier_types, {format: :json}
+    end
+
+    member do 
+      get :show, defaults: {format: :json}
     end
   end
 
@@ -329,6 +350,13 @@ TaxonWorks::Application.routes.draw do
       get :lookup_keyword
       get :select_options, defaults: {format: :json}
     end
+  end
+
+  resources :labels do
+    collection do
+      get :list
+    end
+    # is data?
   end
 
   resources :languages, only: [] do
@@ -352,13 +380,14 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :namespaces do
-    concerns [:data_routes]
-
     collection do
+      get :autocomplete, defaults: {format: :json} # TODO: add JSON to all autocomplete as default, until then this line has to be above concerns
       post :preview_simple_batch_load
       post :create_simple_batch_load
       get :select_options, defaults: {format: :json}
     end
+
+    concerns [:data_routes]
   end
 
 
@@ -449,6 +478,13 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+  resources :organizations do
+    collection do 
+      get :autocomplete, defaults: {format: :json}
+    end
+    concerns [:data_routes]
+  end
+
   resources :origin_relationships do
     concerns [:data_routes]
   end
@@ -463,6 +499,9 @@ TaxonWorks::Application.routes.draw do
       get :roles
       get :details
       post :merge, defaults: {format: :json}
+    end
+    collection do
+      get :select_options, defaults: {format: :json}
     end
   end
 
@@ -538,12 +577,21 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+
+
   resources :sources do
     concerns [:data_routes]
     collection do
+      get :select_options, defaults: {format: :json}
       post :preview_bibtex_batch_load # should be get
       post :create_bibtex_batch_load
       get :parse, defaults: {format: :json}
+    end
+  end
+
+  resources :sqed_depictions, only: [] do
+    collection do
+      get :metadata_options, defaults: {format: :json}
     end
   end
 
@@ -641,6 +689,31 @@ TaxonWorks::Application.routes.draw do
   ### End of data resources ###
 
   scope :tasks do
+    scope :images do
+      scope :new_image, controller: 'tasks/images/new_image' do
+        get :index, as: 'index_new_image_task'
+      end
+    end
+
+
+    scope :asserted_distribution do
+      scope :new_asserted_distribution, controller: 'tasks/asserted_distribution/new_asserted_distribution' do
+        get :index, as: 'index_new_asserted_distribution_task'
+      end
+    end
+
+    scope :projects do
+      scope :preferences, controller: 'tasks/projects/preferences' do
+        get :index, as: 'project_preferences_task'
+      end
+    end
+
+    scope :labels do
+      scope :print_labels, controller: 'tasks/labels/print_labels' do
+        get :index, as: 'index_print_labels_task'
+      end
+    end
+
     scope :descriptors do
       scope :new_descriptor, controller: 'tasks/descriptors/new_descriptor' do
         get '(:id)', action: :index, as: 'new_descriptor_task'
@@ -724,6 +797,10 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :sources do
+      scope :hub, controller: 'tasks/sources/hub' do
+        get :index, as: 'index_hub_task'
+      end
+
       scope :individual_bibtex_source, controller: 'tasks/sources/individual_bibtex_source' do
         get 'index', as: 'index_individual_bibtex_source_task'
       end
@@ -794,7 +871,7 @@ TaxonWorks::Application.routes.draw do
 
     scope :accessions do
       scope :comprehensive, controller: 'tasks/accessions/comprehensive' do
-        get 'index', as: 'comprehensive_collection_object_task'
+        get '(:id)', action: :index, as: 'comprehensive_collection_object_task'
       end
 
       scope :report do
@@ -858,6 +935,10 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :controlled_vocabularies do
+      scope :topics_hub, controller: 'tasks/controlled_vocabularies/topics_hub' do
+        get 'index', as: 'index_topics_hub_task'
+      end
+
       scope :biocuration, controller: 'tasks/controlled_vocabularies/biocuration' do
         get 'build_collection', as: 'build_biocuration_groups_task'
         post 'build_biocuration_group', as: 'build_biocuration_group_task'
@@ -968,11 +1049,17 @@ TaxonWorks::Application.routes.draw do
   ### End of task scopes, user related below ###
 
   resources :users, except: :new do
+    collection do
+      get :autocomplete, defaults: {format: :json}
+    end
     member do
       get 'recently_created_data'
       get 'recently_created_stats'
     end
   end
+
+  match '/preferences', to: 'users#preferences', via: 'get', defaults: {format: :json}
+  match '/project_preferences', to: 'projects#preferences', via: 'get', defaults: {format: :json}
 
   match '/signup', to: 'users#new', via: 'get'
   get '/forgot_password', to: 'users#forgot_password', as: 'forgot_password'

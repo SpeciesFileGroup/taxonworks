@@ -16,6 +16,8 @@ module Queries
   class Query
     include Arel::Nodes
 
+    include Queries::Concerns::Identifiers 
+
     attr_accessor :query_string
     attr_accessor :terms
     attr_accessor :project_id
@@ -249,6 +251,7 @@ module Queries
       end
     end
 
+    # TODO: rename :cached_matches or similar
     # @return [ActiveRecord::Relation, nil]
     #   cached matches full query string wildcarded
     def cached
@@ -259,17 +262,33 @@ module Queries
       end
     end
 
-    # match ALL wildcards, but unordered, if 2 - 6 pieces provided
     # @return [Arel::Nodes::Matches]
-    def match_wildcard_cached
-      b = fragments
-      return nil if b.empty?
-      a = table[:cached].matches_all(b)
+    def with_cached
+      table[:cached].eq(query_string)
+    end
+
+    # @return [Arel::Nodes::Matches]
+    def with_cached_like
+      table[:cached].matches(start_and_end_wildcard)
     end
 
     # @return [Arel::Nodes::Matches]
     def match_ordered_wildcard_pieces_in_cached
-      a = table[:cached].matches(wildcard_pieces)
+      table[:cached].matches(wildcard_pieces)
+    end
+
+    # match ALL wildcards, but unordered, if 2 - 6 pieces provided
+    # @return [Arel::Nodes::Matches]
+    def match_wildcard_end_in_cached
+      table[:cached].matches(end_wildcard)
+    end
+
+    # match ALL wildcards, but unordered, if 2 - 6 pieces provided
+    # @return [Arel::Nodes::Matches]
+    def match_wildcard_in_cached
+      b = fragments
+      return nil if b.empty?
+      table[:cached].matches_all(b)
     end
 
     # @return [Arel::Nodes::Grouping]
@@ -283,27 +302,6 @@ module Queries
       a
     end
 
-    # 
-    # Identifier
-    #
-
-    # @return [Arel::Table]
-    def identifier_table
-      ::Identifier.arel_table
-    end
-
-    # @return [Arel::Nodes::Grouping]
-    def with_identifier_like
-      a = [ start_and_end_wildcard ]
-      a = a + wildcard_wrapped_integers
-      identifier_table[:cached].matches_any(a)
-    end
-
-    # @return [Arel::Nodes::Equality]
-    def with_identifier
-      identifier_table[:cached].eq(query_string)
-    end
-
     #
     # Autocomplete
     #
@@ -315,6 +313,11 @@ module Queries
     end
 
     # @return [ActiveRecord::Relation]
+    def autocomplete_exact_id
+      base_query.where(id: query_string).limit(1)
+    end
+
+    # @return [ActiveRecord::Relation]
     def autocomplete_ordered_wildcard_pieces_in_cached
       base_query.where(match_ordered_wildcard_pieces_in_cached.to_sql).limit(5)
     end
@@ -322,7 +325,7 @@ module Queries
     # @return [ActiveRecord::Relation]
     #   removes years/integers!
     def autocomplete_cached_wildcard_anywhere
-      a = match_wildcard_cached
+      a = match_wildcard_in_cached
       return nil if a.nil?
       base_query.where(a.to_sql).limit(20)
     end
@@ -334,20 +337,11 @@ module Queries
       base_query.where(a.to_sql).limit(20)
     end
 
-    def autocomplete_identifier_cached_exact
-      base_query.joins(:identifiers).where(with_identifier.to_sql)
-    end
-
-    def autocomplete_identifier_cached_like
-      base_query.joins(:identifiers).where(with_identifier_like.to_sql)
-    end
-
     def autocomplete_start_date
       a = with_start_date 
       return nil if a.nil?
       base_query.where(a.to_sql).limit(20)
     end
-
 
   end
 end

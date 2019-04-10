@@ -1,15 +1,21 @@
 <h1> Related data </h1>
+<p><%= link_to 'back', metamorphosize_if(@object) -%></p>
 
-<h4> for <%= object_tag(@object) -%> (a <%= @object.class.name -%>)  <%= link_to 'back', metamorphosize_if(@object) -%></h4>
+<%= content_tag(:div, object_tag(@object), class: [:feedback, 'feedback-primary']) -%> 
+<%= content_tag(:span, @object.class.name, class: [:feedback, '-feedback-secondary']) -%>
 
-
+<br><br>
 
 <h2> Has many </h2>
-
 <% @object.class.reflect_on_all_associations(:has_many).sort { |a, b| a.name <=> b.name }.each do |r| -%>
-  <% next if r.name =~ /_hierarchies/ %>
+  <% next if r.name =~ /_hierarchies|project/ %>
   <% if @object.respond_to?(r.name) -%>
-    <% t = @object.send(r.name.to_s).count %>
+
+
+    <% q = @object.send(r.name.to_s) %>
+    <% q = q.where(project_id: sessions_current_project_id) if r.klass.column_names.include?('project_id')  %>
+
+    <% t = q.load.count %>
     <% if t > 0 %>
       <%= content_tag(:h4, r.name.to_s.humanize + ' (' + t.to_s + ')' ) -%> 
 
@@ -56,4 +62,3 @@
     <% end %>
   <% end %>
 </table> 
-

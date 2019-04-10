@@ -3,7 +3,7 @@ class UsersController < ApplicationController
   before_action :require_sign_in, only: [:recently_created_stats, :recently_created]
 
   before_action :require_administrator_sign_in, only: [:index, :destroy]
-  before_action :require_superuser_sign_in, only: [:new, :create]
+  before_action :require_superuser_sign_in, only: [:new, :create, :autocomplete]
   
   before_action :set_user, only: [:show, :edit, :update, :destroy, :recently_created_stats, :recently_created_data]
 
@@ -41,11 +41,17 @@ class UsersController < ApplicationController
 
   # PATCH or PUT /users/:id
   def update
-    if @user.update_attributes(user_params)
-      flash[:success] = 'Changes to your account information have been saved.'
-      redirect_to @user
-    else
-      render 'edit'
+    respond_to do |format|
+      if @user.update_attributes(user_params)
+        format.html do
+          flash[:success] = 'Changes to your account information have been saved.'
+          redirect_to @user
+        end
+        format.json { render :show, location: @user }
+      else
+        format.html { render 'edit' }
+        format.json { render json: @user.errors, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -91,12 +97,16 @@ class UsersController < ApplicationController
   # PATCH /set_password
   def set_password
     @user = User.find_by_password_reset_token!(Utilities::RandomToken.digest(params[:token]))
-    $user_id = @user.id
+
+    Current.user_id = @user.id # $user_id = @user.id WHY?
+
     @user.require_password_presence
+    
     @user.password_reset_token = nil
     @user.is_flagged_for_password_reset = false
+
     if @user.update_attributes(params.require(:user).permit([:password, :password_confirmation]))
-      flash[:success] = 'Password successfuly changed.'
+      flash[:notice] = 'Password successfuly changed.'
       redirect_to root_path
     else
       render 'password_reset.html.erb'
@@ -110,27 +120,36 @@ class UsersController < ApplicationController
     render json: @user.data_breakdown_for_chartkick_recent
   end
 
+  def preferences
+    @user = sessions_current_user
+  end
+
+  def autocomplete
+    @users = Queries::User::Autocomplete.new(params.require(:term)).autocomplete
+  end
+
   private
 
-    def user_params
-      # TODO: revisit authorization of specific field settings
-      basic = [:name,
+  def user_params
+    # TODO: revisit authorization of specific field settings
+    basic = [
+      :name,
       :email,
       :password,
       :password_confirmation,
-      :set_new_api_access_token]
+      :set_new_api_access_token] 
 
-      basic.push [:is_project_administrator, :is_flagged_for_password_reset] if is_superuser?
-      basic.push [:is_administrator] if is_administrator?
+    basic += [:is_project_administrator, :is_flagged_for_password_reset] if is_superuser?
+    basic += [:is_administrator] if is_administrator?
 
-      params.require(:user).permit(basic)
-    end
+    params.require(:user).permit(basic, User.key_value_preferences, User.array_preferences, User.hash_preferences)
+  end
 
-    def set_user
-      own_id = (params[:id].to_i == sessions_current_user_id)
+  def set_user
+    own_id = (params[:id].to_i == sessions_current_user_id)
 
-      @user = User.find((is_superuser? || own_id) ? params[:id] : nil)
-      @recent_object = @user 
-    end
+    @user = User.find((is_superuser? || own_id) ? params[:id] : nil)
+    @recent_object = @user 
+  end
 
 end

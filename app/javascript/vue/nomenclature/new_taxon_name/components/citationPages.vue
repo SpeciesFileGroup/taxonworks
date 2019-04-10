@@ -18,15 +18,7 @@ export default {
   },
   methods: {
     autoSave (item) {
-      var that = this
-
-      if (this.autosave) {
-        clearTimeout(this.autosave)
-        this.autosave = null
-      }
-      this.autosave = setTimeout(function () {
-        that.setPages(that.$el.value, item)
-      }, 3000)
+      this.setPages(this.$el.value, item)
     },
     getPages (item) {
       return (item.hasOwnProperty('origin_citation') ? item.origin_citation.pages : '')

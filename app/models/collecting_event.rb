@@ -185,6 +185,7 @@ class CollectingEvent < ApplicationRecord
   include Shared::Notes
   include Shared::Tags
   include Shared::Depictions
+  include Shared::Labels
   include Shared::IsData
   include Shared::Confidences
   include Shared::Documentation
@@ -221,14 +222,16 @@ class CollectingEvent < ApplicationRecord
 
   has_many :collection_objects, inverse_of: :collecting_event, dependent: :restrict_with_error
   has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy
-  has_many :collectors, through: :collector_roles, source: :person
+  has_many :collectors, through: :collector_roles, source: :person, inverse_of: :collecting_events
   has_many :georeferences, dependent: :destroy
   has_many :error_geographic_items, through: :georeferences, source: :error_geographic_item
   has_many :geographic_items, through: :georeferences # See also all_geographic_items, the union
   has_many :geo_locate_georeferences, class_name: 'Georeference::GeoLocate', dependent: :destroy
+  has_many :gpx_georeferences, class_name: 'Georeference::GPX', dependent: :destroy
 
-  accepts_nested_attributes_for :geo_locate_georeferences
   accepts_nested_attributes_for :verbatim_data_georeference
+  accepts_nested_attributes_for :geo_locate_georeferences
+  accepts_nested_attributes_for :gpx_georeferences
   accepts_nested_attributes_for :collectors, :collector_roles, allow_destroy: true
 
   validate :check_verbatim_geolocation_uncertainty,
@@ -326,7 +329,7 @@ class CollectingEvent < ApplicationRecord
     # TODO: remove all of this for direct call to Queries::CollectingEvent::Filter
     def in_date_range(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
       allow_partial = (partial_overlap.downcase == 'off' ? false : true)
-      q = Queries::CollectingEvent::Filter.new(start_date: search_start_date, end_date: search_end_date, partial_overlap_dates: allow_partial) 
+      q = Queries::CollectingEvent::Filter.new(start_date: search_start_date, end_date: search_end_date, partial_overlap_dates: allow_partial)
       where(q.between_date_range.to_sql).distinct # TODO: uniq should likely not be here
     end
 
@@ -375,7 +378,7 @@ class CollectingEvent < ApplicationRecord
 
       collecting_events
     end
-    
+
     # @return [Boolean] always true
     #   A development method only. Attempts to create a verbatim georeference for every
     #   collecting event record that doesn't have one.
@@ -1089,7 +1092,7 @@ class CollectingEvent < ApplicationRecord
 
   def set_cached
     v = [verbatim_label, print_label, document_label].compact.first
-    if v 
+    if v
       string = v
     else
       name = cached_geographic_name_classification.values.join(': ')

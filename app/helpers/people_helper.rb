@@ -20,7 +20,7 @@ module PeopleHelper
   end
 
   def person_timeframe_tag(person)
-    content_tag(:span, class: :subtle) do 
+    content_tag(:span, class: [ :feedback, 'feedback-secondary', 'feedback-thin' ]) do 
       (person_lived_tag(person) + ' ' + person_active_tag(person)).html_safe
     end.html_safe
   end
@@ -39,9 +39,9 @@ module PeopleHelper
   end
 
   def person_used_tag(person)
-    t = person.roles.count
-    content_tag(:span, class: [:subtle, :tiny_space,  (t > 0 ? :success : :warning ) ]) do
-      t > 0 ? "#{person.roles.count} #{"use".pluralize(t)}" : 'unused'
+    t = person.roles.load.count
+    content_tag(:span, class: [:feedback, 'feedback-thin', (t > 0 ? 'feedback-primary' : 'feedback-danger')] ) do
+      t > 0 ? "#{person.roles.size} #{"use".pluralize(t)}" : 'unused'
     end
   end
 

@@ -1,3 +1,3 @@
-module.exports = function (state, newTopic) {
+export default function (state, newTopic) {
   state.selected.topic = newTopic
 }

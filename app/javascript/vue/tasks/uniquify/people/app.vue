@@ -9,9 +9,9 @@
       </span>
     </div>
     <spinner
-      v-if="isLoading"
+      v-if="isLoading || isSaving"
       :full-screen="true"
-      legend="Loading..."
+      :legend="isLoading ? 'Loading...' : 'Merging...'"
       :logo-size="{ width: '100px', height: '100px'}"/>
     <div class="flexbox">
       <div class="flexbox">
@@ -42,7 +42,7 @@
           </button>
         </div>
         <div class="found_people separate-right separate-left second-column">
-          <h2>Select Person</h2>
+          <h2>Select person</h2>
           <found-people
             ref="foundPeople"
             v-model="selectedPerson"
@@ -52,7 +52,7 @@
           />
         </div>
         <div class="match_people separate-right separate-left" >
-          <h2>Match People</h2>
+          <h2>Match people</h2>
           <match-people
             ref="matchPeople"
             v-model="mergePerson"
@@ -108,6 +108,7 @@
         firstName: '',
         selectedRoles: {},
         isLoading: false,
+        isSaving: false,
         foundPeople: [],
         selectedPerson: {},
         matchPeople: [],
@@ -167,11 +168,13 @@
         let params = {
           person_to_destroy: this.mergePerson.id // this.selectedPerson.id
         };
+        this.isSaving = true
         this.$http.post('/people/' + this.selectedPerson.id.toString() + '/merge', params).then(response => {
           this.$refs.matchPeople.removeFromList(this.mergePerson.id)    // remove the merge person from the matchPerson list
           this.$refs.foundPeople.removeFromList(this.mergePerson.id)   // remove the merge person from the foundPerson list
           this.mergePerson = {};
           this.selectedPerson = response.body
+          this.isSaving = false
         })
       },
       resetApp() {

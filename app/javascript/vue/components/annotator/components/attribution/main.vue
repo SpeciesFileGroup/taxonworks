@@ -155,6 +155,7 @@ export default {
     },
     createNew() {
       this.setRolesAttributes()
+      console.log(this.attribution)
       this.create('/attributions', { attribution: this.attribution }).then(response => {
         this.setAttribution(response.body)
         TW.workbench.alert.create('Attribution was successfully created.', 'notice')
@@ -172,6 +173,7 @@ export default {
         })
       }
       else {
+        console.log(this.attribution)
         this.update(`/attributions/${this.attribution.id}.json`, { attribution: this.attribution }).then(response => {
           this.setAttribution(response.body)
           TW.workbench.alert.create('Attribution was successfully updated.', 'notice')

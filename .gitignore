@@ -24,6 +24,8 @@ secrets.yml
 application_settings.yml
 config/initializers/vendor/better_errors.rb
 
+config/initializers/vendor/better_errors.rb
+
 .yardoc/
 /doc
 /git_stats
@@ -56,3 +58,9 @@ yarn-debug.log*
 .yarn-integrity
 
 yarn.lock
+/public/packs
+/public/packs-test
+/node_modules
+/yarn-error.log
+yarn-debug.log*
+.yarn-integrity

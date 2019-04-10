@@ -12,7 +12,7 @@ class ControlledVocabularyTermsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @controlled_vocabulary_terms = ControlledVocabularyTerm.where(filter_params).with_project_id(sessions_current_project_id).order(:name)
+        @controlled_vocabulary_terms = ControlledVocabularyTerm.where(filter_params).order(:name)
       }
     end
   end
@@ -106,7 +106,7 @@ class ControlledVocabularyTermsController < ApplicationController
   def autocomplete
     @controlled_vocabulary_terms = Queries::ControlledVocabularyTerm::Autocomplete.new(
       params.require(:term),
-      of_type: filter_params[:type],
+      type: filter_params[:type],
       project_id: sessions_current_project_id
     ).all
   end
@@ -135,8 +135,7 @@ class ControlledVocabularyTermsController < ApplicationController
   end
 
   def filter_params
-    h = params.permit(of_type: []).to_h.symbolize_keys
-    return {type: h[:of_type], project_id: sessions_current_project_id}
+    params.permit(type: [], id: []).to_h.symbolize_keys.merge!(project_id: sessions_current_project_id)
   end
 
 end

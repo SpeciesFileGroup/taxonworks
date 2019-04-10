@@ -156,10 +156,10 @@ class Combination < TaxonName
   validate :composition, unless: Proc.new {|a| a.errors.full_messages.include? 'Combination exists.' }
   validates :rank_class, absence: true
 
-  soft_validate(:sv_combination_duplicates, set: :combination_duplicates)
-  soft_validate(:sv_year_of_publication_matches_source, set: :dates)
-  soft_validate(:sv_year_of_publication_not_older_than_protonyms, set: :dates)
-  soft_validate(:sv_source_not_older_than_protonyms, set: :dates)
+  soft_validate(:sv_combination_duplicates, set: :combination_duplicates, has_fix: false)
+  soft_validate(:sv_year_of_publication_matches_source, set: :dates, has_fix: false)
+  soft_validate(:sv_year_of_publication_not_older_than_protonyms, set: :dates, has_fix: false)
+  soft_validate(:sv_source_not_older_than_protonyms, set: :dates, has_fix: false)
 
   # @return [Scope]
   # @params keyword_args [Hash] like `{genus: 123, :species: 456}` (note no `_id` suffix)

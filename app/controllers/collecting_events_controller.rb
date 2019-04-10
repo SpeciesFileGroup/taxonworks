@@ -12,7 +12,7 @@ class CollectingEventsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @collecting_events = Queries::CollectingEvent::Filter.new(filter_params).all.page(params[:page]).per(500)
+        @collecting_events = Queries::CollectingEvent::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
       }
     end
   end
@@ -166,6 +166,33 @@ class CollectingEventsController < ApplicationController
     render :batch_load
   end
 
+  def preview_gpx_batch_load
+    if params[:file]
+      @result = BatchLoad::Import::CollectingEvents::GpxInterpreter.new(batch_params)
+      digest_cookie(params[:file].tempfile, :gpx_batch_load_collecting_events_md5)
+      render 'collecting_events/batch_load/gpx/preview'
+      # render '/shared/data/all/batch_load/preview'
+    else
+      flash[:notice] = "No file provided!"
+      redirect_to action: :batch_load
+    end
+  end
+
+  def create_gpx_batch_load
+    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :gpx_batch_load_collecting_events_md5)
+      @result = BatchLoad::Import::CollectingEvents::GpxInterpreter.new(batch_params)
+      if @result.create
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collecting events w/georeferences were created."
+        render 'collecting_events/batch_load/gpx/create' and return
+      else
+        flash[:alert] = 'Batch import failed.'
+      end
+    else
+      flash[:alert] = 'File to batch upload must be supplied.'
+    end
+    render :batch_load
+  end
+
   # GET /collecting_events/select_options
   def select_options
     @collecting_events = CollectingEvent.select_optimized(sessions_current_user_id, sessions_current_project_id)
@@ -192,12 +219,17 @@ class CollectingEventsController < ApplicationController
       :verbatim_elevation,
       roles_attributes: [:id, :_destroy, :type, :person_id, :position,
                          person_attributes: [:last_name, :first_name, :suffix, :prefix]],
-      identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy]
+      identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy],
+      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
     )
   end
 
   def batch_params
-    params.permit(:ce_namespace, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
+    params.permit(:ce_namespace,
+                  :ce_geographic_area_id,
+                  :file,
+                  :import_level).merge(user_id: sessions_current_user_id,
+                                       project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
   def filter_params

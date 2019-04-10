@@ -1,4 +1,4 @@
-module.exports = function (state, value) {
+export default function (state, value) {
   if (value) {
     state.hardValidation = Object.assign({}, state.hardValidation, value)
   } else {

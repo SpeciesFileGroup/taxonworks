@@ -29,7 +29,7 @@ module Queries
       attr_accessor :exact
 
       # @param [Hash] args
-      def initialize(string, project_id: nil, valid: nil, nomenclature_group: [], type: [], parent_id: [], exact: false)
+      def initialize(string, project_id: nil, valid: nil, exact: false, nomenclature_group: [], type: [], parent_id: [])
         @nomenclature_group = nomenclature_group
         @valid = valid == 'true' ? true : (valid == 'false' ? false : nil)
         @type = type
@@ -129,6 +129,7 @@ module Queries
       end
 
       # @return [Scope]
+      # !! TODO: should be autocomplete
       def all
         ::TaxonName.select('taxon_names.*, char_length(taxon_names.cached)').
           includes(:ancestor_hierarchies).
@@ -252,13 +253,16 @@ module Queries
         queries = [
           autocomplete_exact_cached,
           autocomplete_exact_cached_original_combination,
+          autocomplete_identifier_cached_exact, 
           autocomplete_exact_name_and_year,
+          autocomplete_identifier_identifier_exact,
           autocomplete_top_name,
           autocomplete_top_cached,
           autocomplete_top_cached_subgenus, # not tested
-          autocomplete_genus_species1(z), # not tested
-          autocomplete_genus_species2(z), # not tested
+          autocomplete_genus_species1(z),   # not tested
+          autocomplete_genus_species2(z),   # not tested
           autocomplete_cached_end_wildcard,
+          autocomplete_identifier_cached_like,
           autocomplete_cached_name_end_wildcard,
           autocomplete_cached_wildcard_whitespace,
           autocomplete_name_author_year_fragment,
@@ -308,7 +312,7 @@ module Queries
       def base_query
         ::TaxonName.select('taxon_names.*, char_length(taxon_names.cached)').
           includes(:ancestor_hierarchies).
-          order(Arel.sql('char_length(cached), cached ASC'))
+          order(Arel.sql('char_length(taxon_names.cached), taxon_Names.cached ASC'))
       end
 
       # @return [Arel::Table]

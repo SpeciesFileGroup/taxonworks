@@ -8,12 +8,12 @@ module Queries
 
     # @return [Scope]
     def result
-      Container.includes(:identifiers).where(where_sql).references(:identifiers)
+      ::Container.includes(:identifiers).where(where_sql).references(:identifiers)
     end
 
     # @return [Arel::Table]
     def table
-      Container.arel_table
+      ::Container.arel_table
     end
 
   end

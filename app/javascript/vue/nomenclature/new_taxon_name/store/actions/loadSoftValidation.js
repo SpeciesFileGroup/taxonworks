@@ -1,7 +1,7 @@
-const loadSoftValidation = require('../../request/resources').loadSoftValidation
-const MutationNames = require('../mutations/mutations').MutationNames
+import { loadSoftValidation } from '../../request/resources'
+import { MutationNames } from '../mutations/mutations'
 
-module.exports = function ({ commit, state }, type) {
+export default function ({ commit, state }, type) {
   let validations = []
   let promises = []
 

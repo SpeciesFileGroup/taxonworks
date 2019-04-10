@@ -1,7 +1,7 @@
-const updateTaxonRelationship = require('../../request/resources').updateTaxonRelationship
-const MutationNames = require('../mutations/mutations').MutationNames
+import { updateTaxonRelationship } from '../../request/resources'
+import { MutationNames } from '../mutations/mutations'
 
-module.exports = function ({ commit, state, dispatch }, relationship) {
+export default function ({ commit, state, dispatch }, relationship) {
   let patchRelationship = {
     taxon_name_relationship: relationship
   }

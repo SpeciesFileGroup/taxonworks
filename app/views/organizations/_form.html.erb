@@ -1,0 +1,129 @@
+See <%= link_to('https://schema.org/Organization for field definitions', 'https://schema.org/Organization', target: :_blank) -%><br> <br>
+
+<%= form_with(model: organization, local: true) do |f| %>
+
+  <%= render 'shared/errors', object: @organization %>
+
+  <div class="required">
+    <div class="field">
+      <%= f.label :name %>
+      <br>
+      <%= f.text_field :name, size: 120 %>
+    </div>
+  </div>
+
+  <div class="field">
+    <%= f.label :alternate_name %>
+    <br>
+    <%= f.text_field :alternate_name, size: 120 %>
+  </div>
+
+
+  <div class="field">
+    <%= f.label :description %>
+    <br>
+    <%= f.text_area :description %>
+  </div>
+
+  <div class="field">
+    <%= f.label :disambiguating_description %>
+    <br>
+    <%= f.text_area :disambiguating_description %>
+  </div>
+
+  <div class="field">
+    <%= f.label :address %>
+    <br>
+    <%= f.text_area :address, rows: 6, cols: 80 %>
+  </div>
+
+  <div class="field">
+    <%= f.label :email %>
+    <br>
+    <%= f.text_field :email %>
+  </div>
+
+  <div class="field">
+    <%= f.label :telephone %>
+    <br>
+    <%= f.text_field :telephone %>
+  </div>
+
+  <div class="field">
+    <%= f.label :duns %>
+    <br>
+    <%= f.text_field :duns %>
+  </div>
+
+  <div class="field">
+    <%= f.label :global_location_number %>
+    <br>
+    <%= f.text_field :global_location_number %>
+  </div>
+
+  <div class="field">
+    <%= f.label :legal_name %>
+    <br>
+    <%= f.text_field :legal_name, size: 120 %>
+  </div>
+
+  <div class="field">
+    <%= f.label :area_served %>
+    <br>
+    <%= render partial: 'workbench/elements/forms/ajax_select',
+      locals: {controller: 'geographic_areas',
+               object:     'organization',
+               method:     'area_served_id',
+               tag_id:     'area_served_id_for_organization',
+               display:    geographic_area_tag(@organization.area_served),
+               size: 80
+
+    } %>
+  </div>
+
+  <div class="field">
+    <%= f.label :same_as %>
+    <br>
+    <%= render partial: 'workbench/elements/forms/ajax_select',
+      locals: {controller: 'organizations',
+               object:     'organization',
+               method:     'same_as_id',
+               tag_id:     'same_as_id',
+               display:    organization_tag(@organization.same_as),
+               size: 80
+
+    } %>
+  </div>
+
+  <div class="field">
+    <%= f.label :department %>
+    <br>
+    <%= render partial: 'workbench/elements/forms/ajax_select',
+      locals: {controller: 'organizations',
+               object:     'organization',
+               method:     'department_id',
+               tag_id:     'department_id_for_organization',
+               display:    organization_tag(@organization.department),
+               size: 80
+
+    } %>
+  </div>
+
+  <div class="field">
+    <%= f.label :parent_organization %>
+    <br>
+    <%= render partial: 'workbench/elements/forms/ajax_select',
+      locals: {controller: 'organizations',
+               object:     'organization',
+               method:     'parent_organization_id',
+               tag_id:     'parent_organization_id_for_organization',
+               display:    organization_tag(@organization.parent_organization),
+               size: 80
+
+    } %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

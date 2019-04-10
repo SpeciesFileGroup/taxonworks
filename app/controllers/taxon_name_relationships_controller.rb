@@ -56,7 +56,7 @@ class TaxonNameRelationshipsController < ApplicationController
   def update
     respond_to do |format|
       if @taxon_name_relationship.update(taxon_name_relationship_params)
-        @taxon_name_relationship.reload
+        @taxon_name_relationship = TaxonNameRelationship.find(@taxon_name_relationship.id) # reset class
         format.html { redirect_to url_for(@taxon_name_relationship.metamorphosize),
                                   notice: 'Taxon name relationship was successfully updated.' }
         format.json { render :show, status: :ok, location: @taxon_name_relationship.metamorphosize }
@@ -91,23 +91,6 @@ class TaxonNameRelationshipsController < ApplicationController
     else
       redirect_to taxon_name_relationship_path(params[:id])
     end
-  end
-
-  def autocomplete
-    @taxon_name_relationships = TaxonNameRelationship
-                                  .find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
-    data                      = @taxon_name_relationships.collect do |t|
-      n = ApplicationController.helpers.taxon_name_relationship_tag(t)
-      {id:              t.id,
-       label:           n,
-       response_values: {
-         params[:method] => t.id
-       },
-       label_html:      n
-      }
-    end
-
-    render json: data
   end
 
   # GET /taxon_name_relationships/download

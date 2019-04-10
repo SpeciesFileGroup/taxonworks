@@ -165,7 +165,7 @@ class Taxonworks::TaskGenerator < Rails::Generators::Base
     if options[:vue]
 
       puts "Next steps:"
-      puts Rainbow('* Restart your rails development server and confirm the new 'TODO: Task name' card exists and resolves').blue
+      puts Rainbow("* Restart your rails development server and confirm the new 'TODO: Task name' card exists and resolves").blue
       puts Rainbow('* Update the generated code throught changing "vue-task" to something specific').blue
     end
 

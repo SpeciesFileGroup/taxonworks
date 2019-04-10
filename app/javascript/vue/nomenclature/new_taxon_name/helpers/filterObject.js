@@ -1,4 +1,4 @@
-module.exports = function (obj) {
+export default function (obj) {
   const ret = {}
   Object.keys(obj)
     .filter((key) => obj[key] !== undefined)

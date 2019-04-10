@@ -45,6 +45,7 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
 
   def set_sqed_depiction
     @sqed_depiction = SqedDepiction.find(params[:id])
+    @sqed_depiction.preprocess
   end
 
 end

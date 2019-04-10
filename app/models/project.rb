@@ -14,42 +14,15 @@ class Project < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Housekeeping::AssociationHelpers
+  include Project::Preferences
 
-  PREFERENCES = [
-    :workbench_starting_path,  # like '/hub'
-    :is_api_accessible         # Boolean, whether the read-only api is open 
-  ]
-
-  DEFAULT_WORKBENCH_STARTING_PATH = '/hub'.freeze
-  DEFAULT_WORKBENCH_SETTINGS = {
-    'workbench_starting_path' => DEFAULT_WORKBENCH_STARTING_PATH
-  }.freeze
-
-  store :preferences, accessors: PREFERENCES, coder: JSON
   attr_accessor :without_root_taxon_name
 
-  has_many :project_members, dependent: :restrict_with_error
-  has_many :users, through: :project_members
-  has_many :project_sources, dependent: :restrict_with_error
-  has_many :sources, through: :project_sources
-
-  after_initialize :set_default_preferences
-  after_create :create_root_taxon_name, unless: -> {self.without_root_taxon_name == true}
-
-  validates_presence_of :name
-  validates_uniqueness_of :name
-
-  def clear_preferences
-    update_column(:preferences, DEFAULT_WORKBENCH_SETTINGS)
-  end
-
-  # !! This is not production ready.
-  # @return [Boolean]
-  #   based on whether the project has successfully been deleted.  Can also raise on detected problems with configuration.
-  def nuke
-    known = ApplicationRecord.subclasses.select {|a| a.column_names.include?('project_id')}.map(&:name)
-
-    order = %w{
+  # ORDER MATTERS
+  # Used in nuke order (not available in production UI), but 
+  # ultimately also for dumping records
+  MANIFEST = %w{
+     Label
      Attribution
      DwcOccurrence
      ProtocolRelationship
@@ -116,16 +89,33 @@ class Project < ApplicationRecord
      Descriptor
      ProjectMember
     }
+  
+  has_many :project_members, dependent: :restrict_with_error
+  has_many :users, through: :project_members
+  has_many :project_sources, dependent: :restrict_with_error
+  has_many :sources, through: :project_sources
+
+
+  after_create :create_root_taxon_name, unless: -> {self.without_root_taxon_name == true}
+
+  validates_presence_of :name
+  validates_uniqueness_of :name
+
+  # !! This is not production ready.
+  # @return [Boolean]
+  #   based on whether the project has successfully been deleted.  Can also raise on detected problems with configuration.
+  def nuke
+    known = ApplicationRecord.subclasses.select {|a| a.column_names.include?('project_id')}.map(&:name)
 
     known.each do |k|
       next if k.constantize.table_name == 'test_classes' # TODO: a kludge to ignore stubbed classes in testing
-      if !order.include?(k)
+      if !MANIFEST.include?(k)
         raise "#{k} has not been added to #nuke order."
       end
     end
 
     begin
-      order.each do |o|
+      MANIFEST.each do |o|
         klass = o.constantize
         klass.where(project_id: id).delete_all
       end
@@ -156,10 +146,6 @@ class Project < ApplicationRecord
   end
 
   protected
-
-  def set_default_preferences
-    write_attribute(:preferences, DEFAULT_WORKBENCH_SETTINGS.merge(preferences ||= {}) )
-  end
 
   def create_root_taxon_name
     p = Protonym.stub_root(project_id: id, by: creator)

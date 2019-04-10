@@ -120,7 +120,16 @@ module NomenclatureCatalog
           s.push i.object.subject_taxon_name.origin_citation.try(:source) if i.object.object_taxon_name != reference_taxon_name
         end
       end
-      s.compact.uniq.sort_by {|a| a.cached}
+
+      s += TaxonNameClassification.where(taxon_name_id: all_protonyms.collect{|p| p.object}).all.
+        collect{|tnc| tnc.citations.collect{|c| c.source}}.flatten
+
+      s.compact.uniq.sort_by{|s| s.cached}
+    end
+
+    # @return [Array]
+    def all_protonyms
+      items.select{|i| i.origin == 'protonym' }
     end
 
     # @return [Array]

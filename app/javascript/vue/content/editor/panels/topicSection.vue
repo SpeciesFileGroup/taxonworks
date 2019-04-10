@@ -15,8 +15,8 @@
           <li
             v-for="(item, index) in topics"
             class="slide-panel-category-item"
-            :class="{ selected : (index == selected) }"
-            @click="loadTopic(item,index)"> {{ item.name }}
+            :class="{ selected : (topic && (item.id == topic['id'])) }"
+            @click="loadTopic(item)"> {{ item.name }}
           </li>
         </ul>
       </div>
@@ -32,7 +32,6 @@
   export default {
     data: function () {
       return {
-        selected: -1,
         topics: []
       }
     },
@@ -42,23 +41,40 @@
     computed: {
       active() {
         return this.$store.getters[GetterNames.ActiveTopicPanel]
+      },
+      topic: {
+        get() {
+          return this.$store.getters[GetterNames.GetTopicSelected]
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetTopicSelected, value)
+        }
       }
     },
     mounted: function () {
       this.loadList()
     },
     methods: {
-      loadTopic: function (item, index) {
-        this.selected = index
-        this.$store.commit(MutationNames.SetTopicSelected, item)
+      loadTopic: function (item) {
+        this.topic = item
         TW.views.shared.slideout.closeHideSlideoutPanel('[data-panel-name="topic_list"]')
       },
       loadList: function () {
-        var that
-        that = this
         this.$http.get('/topics/list').then(response => {
-          that.topics = response.body
+          this.topics = response.body
+          this.getParams()
         })
+      },
+      getParams() {
+        var url = new URL(window.location.href);
+        var topicId = url.searchParams.get("topic_id");
+        if(topicId != null && Number.isInteger(Number(topicId))) {
+          let selectedTopic = this.topics.find(topic => {
+            return topic.id == topicId
+          })
+          if(selectedTopic)
+            this.loadTopic(selectedTopic)
+        }        
       }
     }
   }

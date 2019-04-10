@@ -5,9 +5,11 @@
         :autofocus="autofocus"
         class="separate-right"
         url="/people/autocomplete"
-        label="label"
+        label="label_html"
+        display="label"
         min="2"
         @getInput="setInput"
+        ref="autocomplete"
         event-send="role_picker"
         :clear-after="true"
         placeholder="Family name, given name"
@@ -27,12 +29,12 @@
           </button>
           <button
             type="button"
-            class=" normal-input button"
+            class=" normal-input button button-default"
             @click="switchName(newNamePerson)">Switch
           </button>
           <button
             type="button"
-            class="normal-input button"
+            class="normal-input button button-default"
             @click="expandPerson = !expandPerson">Expand
           </button>
         </div>
@@ -156,9 +158,15 @@
       }
     },
     methods: {
+      reset() {
+        this.expandPerson = false,
+        this.searchPerson = '',
+        this.person_attributes = this.makeNewPerson(),
+        this.$refs.autocomplete.cleanInput()
+      },
       getUrl(role) {
-        if (role.hasOwnProperty('person')) {
-          return `/people/${role.person.id}/edit`
+        if (role.hasOwnProperty('person_id')) {
+          return `/people/${role.person_id}/edit`
         } else {
           return '#'
         }
@@ -180,6 +188,8 @@
       getLabel: function (person) {
         if (person.hasOwnProperty('person_attributes')) {
           return this.getFullName(person.person_attributes.first_name, person.person_attributes.last_name)
+        } else if (person.hasOwnProperty('person')) {
+          return this.getFullName(person.person.first_name, person.person.last_name)
         } else {
           return this.getFullName(person.first_name, person.last_name)
         }
@@ -195,9 +205,17 @@
         this.person_attributes.last_name = this.getLastName(name)
       },
       removePerson: function (index) {
-        this.$set(this.roles_attributes[index], '_destroy', true)
-        this.$emit('input', this.roles_attributes)
-        this.$emit('delete', this.roles_attributes[index])
+        if(this.roles_attributes[index].hasOwnProperty('id') && this.roles_attributes[index].id) {
+          this.$set(this.roles_attributes[index], '_destroy', true)
+          this.$emit('input', this.roles_attributes)
+          this.$emit('delete', this.roles_attributes[index])
+        }
+        else {
+          let person = this.roles_attributes[index]
+          this.roles_attributes.splice(index, 1)
+          this.$emit('input', this.roles_attributes)
+          this.$emit('delete', person)          
+        }
       },
       setInput: function (text) {
         this.searchPerson = text
@@ -213,7 +231,7 @@
       },
       alreadyExist: function (personId) {
         return (this.roles_attributes.find(function (item) {
-          return (personId == item.person.id)
+          return (personId == item['person_id'])
         }) != undefined)
       },
       processedList: function (list) {
@@ -222,14 +240,20 @@
 
         list.forEach(function (element, index) {
           let item = {
-            id: element.id,
-            person: {
-              id: element.person.id
-            },
+            id: (element.hasOwnProperty('id') ? element.id : undefined),
             type: element.type,
-            first_name: (element.first_name ? element.first_name : element.person.first_name),
-            last_name: (element.last_name ? element.last_name : element.person.last_name),
+            first_name: (element['first_name'] ? element.first_name : undefined),
+            last_name: (element['last_name'] ? element.last_name : undefined),
             position: element.position
+          }
+          if(element.hasOwnProperty('person_attributes')) {
+            item.person_attributes = element.person_attributes            
+          }
+          if(element.hasOwnProperty('person_id')) {
+            item.person_id = element.person_id
+          }
+          if(element.hasOwnProperty('person')) {
+            item.person = element.person
           }
           if(element.hasOwnProperty('_destroy')) {
             item['_destroy'] = element._destroy
@@ -299,9 +323,6 @@
         return {
           type: this.roleType,
           person_id: item.object_id,
-          person: {
-            id: item.object_id
-          },
           first_name: this.getFirstName(item.label),
           last_name: this.getLastName(item.label),
           position: (this.roles_attributes.length + 1)

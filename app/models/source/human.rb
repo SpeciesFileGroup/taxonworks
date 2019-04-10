@@ -11,7 +11,7 @@ class Source::Human < Source
                       :year_suffix, :url, :author, :cached, :cached_author_string,
                       :cached_nomenclature_date].freeze
 
-  IGNORE_SIMILAR   = IGNORE_IDENTICAL.dup.freeze
+  IGNORE_SIMILAR = IGNORE_IDENTICAL.dup.freeze
 
   has_many :source_source_roles, class_name: 'SourceSource', as: :role_object
   has_many :people, through: :source_source_roles, source: :person, validate: true

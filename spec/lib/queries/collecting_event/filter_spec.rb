@@ -45,15 +45,15 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
   end
 
   specify 'between date range 1' do
-    query.start_date = '1999/1/1'
-    query.end_date = '2001/1/1'
+    query.start_date = '1999-1-1'
+    query.end_date = '2001-1-1'
     expect(query.all.map(&:id)).to contain_exactly(ce2.id)
   end
 
   specify 'between date range 2 - conflicts' do
     query.start_date_year = '1945'
-    query.start_date = '1999/1/1'
-    query.end_date = '2001/1/1'
+    query.start_date = '1999-1-1'
+    query.end_date = '2001-1-1'
     expect(query.all.map(&:id)).to contain_exactly()
   end
 

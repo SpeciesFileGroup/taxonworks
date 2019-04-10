@@ -34,9 +34,15 @@
 </p>
 
 <% if @user.api_access_token %>
-    <p>
-      <strong>API access token:</strong>
-      <%= @user.api_access_token %>
-    </p>
+  <p>
+    <strong>API access token:</strong>
+    <%= @user.api_access_token %>
+  </p>
 <% end %>
+
+<p>
+  <strong>Preferences:</strong>
+  <%= ap(@user.preferences).html_safe %>
+</p>
+
 

@@ -95,9 +95,14 @@
 #   @return [true, false]
 #   Only used for when .new_record? is true. If true assigns creator and updater as self.
 #
+# @!attribute preferences [JSON] 
+#   @return [true, false]
+#   Only used for when .new_record? is true. If true assigns creator and updater as self.
 #
 class User < ApplicationRecord
   include Shared::Identifiers # TODO: this is required before Housekeeping::Users, resolve
+
+  include User::Preferences
 
   include Shared::DataAttributes
   include Shared::Notes
@@ -108,6 +113,7 @@ class User < ApplicationRecord
   include Housekeeping::AssociationHelpers
 
   include Shared::RandomTokenFields[:password_reset]
+
   has_secure_password
 
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
@@ -157,6 +163,27 @@ class User < ApplicationRecord
     administered_projects.any?
   end
 
+  # @return [Boolean]
+  def curates_data?
+    Project::MANIFEST.each do |m|
+      return true if creates_data_of_type?(m.safe_constantize)
+    end
+    false
+  end
+
+  # @return [Array]
+  def data_types_added
+    types = []
+    Project::MANIFEST.each do |m|
+      types.push(m) if creates_data_of_type?(m.safe_constantize)
+    end
+    types
+  end
+
+  def creates_data_of_type?(klass)
+    klass.column_names.include?('created_by_id') && (klass.where(created_by_id: id).or(klass.where(updated_by_id: id))).any?
+  end
+
   # TODO: Deprecate for a `lib/query/user/filter`  
   # @param [String, User, Integer] user
   # @return [Integer] selected user id
@@ -187,6 +214,8 @@ class User < ApplicationRecord
     user_id
   end
 
+
+  # TODO: deprecate for a User filter query
   # @param [String, User, Integer, Array] users
   # @return [Array of Integers] selected user ids
   def self.get_user_ids(*users)
@@ -268,29 +297,6 @@ class User < ApplicationRecord
     read_attribute(:hub_favorites) || {}
   end
 
-  # @param [Boolean] state
-  # @return [Ignored]
-  def able_chime(state)
-    preferences[:disable_chime] = (not state)
-  end
-
-  # @return [Ignored]
-  def enable_chime
-    able_chime(false)
-  end
-
-  # @return [Ignored]
-  def disable_chime
-    able_chime(true)
-  end
-
-  # @return [Boolean]
-  def chime_enabled?
-    preferences[:disable_chime]
-  end
-
-  
-  # TODO: move to User concern
   # rubocop:disable Style/StringHashKeys
   # @param [Hash] options
   # @return [Boolean] always true

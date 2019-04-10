@@ -32,6 +32,10 @@ class AttributionsController < ApplicationController
   def edit
   end
 
+  def list
+    @attributions = Attribution.with_project_id(sessions_current_project_id).page(params[:page])
+  end
+
   # POST /attribution
   # POST /attribution.json
   def create
@@ -81,6 +85,7 @@ class AttributionsController < ApplicationController
   end
 
   private
+
   def set_attribution
     @attribution = Attribution.find(params[:id])
   end
@@ -94,6 +99,7 @@ class AttributionsController < ApplicationController
         :_destroy,
         :type,
         :person_id,
+        :organization_id,
         :position,
         person_attributes: [
           :last_name, :first_name, :suffix, :prefix

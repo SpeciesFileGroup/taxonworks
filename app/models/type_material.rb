@@ -30,6 +30,7 @@ class TypeMaterial < ApplicationRecord
   include Shared::IsData
   include Shared::Notes
   include Shared::Tags
+  include Shared::Confidences
   include SoftValidation
 
   # Keys are valid values for type_type, values are

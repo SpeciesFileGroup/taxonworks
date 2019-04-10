@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Image, type: :model do
+describe Image, type: :model, group: [:images] do
 
   let(:i) { FactoryBot.build(:valid_image) }
 

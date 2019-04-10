@@ -5,7 +5,7 @@
     tag="ul">
     <li
       v-for="item in list"
-      :key="item.id"
+      :key="setKey ? item[setKey] : item.id"
       class="list-complete-item flex-separate middle"
       :class="{ 'highlight': checkHighlight(item) }">
       <span
@@ -49,6 +49,10 @@ export default {
       type: [String, Array],
       required: true
     },
+    setKey: {
+      type: String,
+      default: undefined
+    },
     edit: {
       type: Boolean,
       default: false
@@ -66,7 +70,7 @@ export default {
       default: undefined
     }
   },
-  mounted() {
+  beforeCreate() {
     this.$options.components['RadialAnnotator'] = RadialAnnotator
   },
   methods: {

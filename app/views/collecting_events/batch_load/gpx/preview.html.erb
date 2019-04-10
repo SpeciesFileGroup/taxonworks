@@ -1,0 +1,11 @@
+<% content_for :warn_level do -%>
+    <%= warn_level_input(@result) -%>
+<% end %>
+
+<%= content_for :batch_form do -%>
+  <%= render(partial: '/collecting_events/batch_load/gpx/form',
+             locals: {url: create_gpx_batch_load_collecting_events_path, submit: :create}) -%>
+<% end %>
+
+<%= render partial: '/shared/data/all/batch_load/preview' -%>
+

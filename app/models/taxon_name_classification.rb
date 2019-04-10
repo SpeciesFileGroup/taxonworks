@@ -38,9 +38,9 @@ class TaxonNameClassification < ApplicationRecord
   scope :with_type_array, -> (base_array) {where('type IN (?)', base_array ) }
   scope :with_type_contains, -> (base_string) {where('type LIKE ?', "%#{base_string}%" ) }
 
-  soft_validate(:sv_proper_classification, set: :proper_classification)
-  soft_validate(:sv_validate_disjoint_classes, set: :validate_disjoint_classes)
-  soft_validate(:sv_not_specific_classes, set: :not_specific_classes)
+  soft_validate(:sv_proper_classification, set: :proper_classification, has_fix: false)
+  soft_validate(:sv_validate_disjoint_classes, set: :validate_disjoint_classes, has_fix: false)
+  soft_validate(:sv_not_specific_classes, set: :not_specific_classes, has_fix: false)
 
   after_save :set_cached
   after_destroy :set_cached
@@ -55,7 +55,7 @@ class TaxonNameClassification < ApplicationRecord
     return nil
   end
 
-  # TODO: fix
+  # TODO: helper method 
   def self.label
     name.demodulize.underscore.humanize.downcase
   end

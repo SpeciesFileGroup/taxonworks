@@ -42,7 +42,15 @@ class PinboardItem < ApplicationRecord
 
   before_validation  :validate_is_cross_project
   validates_presence_of :user_id, :pinned_object_id, :pinned_object_type
-  validates_uniqueness_of :user_id, scope: [ :pinned_object_id, :pinned_object_type ]
+  validates_uniqueness_of :user_id, scope: [ :pinned_object_id, :pinned_object_type, :project_id ]
+
+  validate :pinned_object_type_is_ok
+
+  def pinned_object_type_is_ok
+    unless pinned_object_type&.safe_constantize
+      errors.add(:pinned_object_type, 'is not a legal type')
+    end
+  end
 
   after_save :update_insertable
 

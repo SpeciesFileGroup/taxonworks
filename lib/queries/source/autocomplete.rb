@@ -110,7 +110,7 @@ module Queries
       # @return [ActiveRecord::Relation, nil]
       def autocomplete_wildcard_anywhere_exact_year
         a = match_year
-        b = match_wildcard_cached
+        b = match_wildcard_in_cached
         return nil if a.nil? || b.nil?
         c = a.and(b)
         base_query.where(c.to_sql).limit(10)
@@ -168,10 +168,13 @@ module Queries
         queries = [
           autocomplete_exact_author_year_letter,
           autocomplete_exact_author_year,
+          autocomplete_identifier_cached_exact, 
           autocomplete_wildcard_author_exact_year,
           autocomplete_exact_author,
+          autocomplete_identifier_identifier_exact,
           autocomplete_start_of_author,  
           autocomplete_wildcard_anywhere_exact_year,
+          autocomplete_identifier_cached_like,
           autocomplete_ordered_wildcard_pieces_in_cached,
           autocomplete_cached_wildcard_anywhere,
           autocomplete_start_of_title
@@ -202,7 +205,7 @@ module Queries
 
       # @return [Arel::Table]
       def project_sources_table
-        ProjectSource.arel_table
+        ::ProjectSource.arel_table
       end
     end
   end

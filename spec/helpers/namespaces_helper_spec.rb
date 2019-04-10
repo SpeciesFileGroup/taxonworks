@@ -5,12 +5,8 @@ describe NamespacesHelper, type: :helper do
     let(:name) {'dangerzone'}
     let(:namespace) {FactoryBot.create(:valid_namespace, name:name)}
 
-    specify '::namespace_tag' do
-      expect(helper.namespace_tag(namespace)).to eq(name)
-    end
-
     specify '#namespace_tag' do
-      expect(helper.namespace_tag(namespace)).to eq(name)
+      expect(helper.namespace_tag(namespace)).to eq(namespace.short_name + ': ' + namespace.name)
     end
 
     specify '#namespace_link' do

@@ -41,6 +41,7 @@ class TaxonDetermination < ApplicationRecord
   include Shared::DataAttributes
   include Shared::Notes
   include Shared::Confidences
+  include Shared::Labels
   include Shared::HasRoles
   include Shared::IsData
   ignore_whitespace_on(:print_label)
@@ -84,12 +85,6 @@ class TaxonDetermination < ApplicationRecord
     Utilities::Dates.nomenclature_date(day_made, month_made, year_made)
   end
 
-  # @param [ActionController::Parameters] params
-  # @return [Scope]
-  def self.find_for_autocomplete(params)
-    where(id: params[:term]).with_project_id(params[:project_id])
-  end
-
   protected
 
   # @param [Hash] attributed
@@ -98,12 +93,12 @@ class TaxonDetermination < ApplicationRecord
     attributed['name'].blank? && attributed['taxon_name_id'].blank?
   end
 
-  # @return [Boolean] always true
+  # @return [true]
   def set_made_fields_if_not_provided
     if self.year_made.blank? && self.month_made.blank? && self.day_made.blank?
-      self.year_made  = Time.now.year
+      self.year_made = Time.now.year
       self.month_made = Time.now.month
-      self.day_made   = Time.now.day
+      self.day_made = Time.now.day
     end
     true
   end

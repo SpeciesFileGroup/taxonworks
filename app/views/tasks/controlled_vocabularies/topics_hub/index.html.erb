@@ -1,0 +1,25 @@
+<h1> Topic hub </h1>
+
+<%= link_to('New', new_controlled_vocabulary_term_path) -%>
+
+<table>
+  <tr> 
+    <th> Topic </th>
+    <th> Definition </th>
+    <th> Times used </th>
+    <th> On </th>
+    <th> Last applied </th>
+    <th> Edit </th>
+  </tr>
+  <% Topic.where(project_id: sessions_current_project_id).order('LOWER(name)' ).each do |t| -%>
+    <tr>
+      <%= content_tag(:td, object_link(t)) -%>
+      <%= content_tag(:td, t.definition) -%>
+      <%= content_tag(:td, t.citation_topics.count.to_s) -%>
+      <%= content_tag(:td, t.citations.select('distinct citations.citation_object_type').collect{|a| a.citation_object_type}.join('; ')) -%>
+      <%= content_tag(:td, t.citations.any? ? time_ago_in_words(t.citations.order(:updated_at).last.updated_at) + ' ago' : nil ) -%>
+      <%= content_tag(:td, edit_object_link(t)) -%>
+    </tr>
+  <% end %>
+</table>
+

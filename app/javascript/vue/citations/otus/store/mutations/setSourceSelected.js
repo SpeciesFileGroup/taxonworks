@@ -1,3 +1,3 @@
-module.exports = function (state, newSource) {
+export default function (state, newSource) {
   state.selected.source = newSource
 }

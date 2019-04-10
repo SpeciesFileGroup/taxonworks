@@ -117,9 +117,9 @@ describe 'Citations', type: :model, group: [:nomenclature, :citations] do
     let(:nil_source) { FactoryBot.create(:valid_source_bibtex, year: nil) }
 
     before do
-      Citation.create(citation_object: a, source: oldest_source)
-      Citation.create(citation_object: b, source: young_source)
-      Citation.create(citation_object: c, source: old_source)
+      Citation.create!(citation_object: a, source: oldest_source)
+      Citation.create!(citation_object: b, source: young_source)
+      Citation.create!(citation_object: c, source: old_source)
     end
 
     context '.without_citations' do
@@ -197,7 +197,7 @@ describe 'Citations', type: :model, group: [:nomenclature, :citations] do
 
       context 'one of which is older' do
         before do
-          Citation.create(citation_object: c, source: first_source_ever)
+          Citation.create!(citation_object: c, source: first_source_ever)
         end
 
         specify '.order_by_oldest_source_first.to_a' do

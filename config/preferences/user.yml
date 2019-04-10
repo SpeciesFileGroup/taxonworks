@@ -1,0 +1,22 @@
+# !! YOU MUST RESTART THE SERVER FOR CHANGES HERE TO TAKE AFFECT !!
+#
+# This is the default user preference set.
+#
+# * Values of `nil` should be avoided!
+#
+---
+
+layout: { }  # element_set_id: { element_id: position } 
+disable_chime: false
+items_per_list_page: 20
+taxon_name_autocomplete_redirects_to_valid: false
+default_hub_tab_order: # not ported
+  - tasks
+  - data
+  - favorite
+
+
+# To add, ex User
+# hub_tab_order
+# hub_favourites
+

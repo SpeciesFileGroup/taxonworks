@@ -12,7 +12,7 @@ class OtusController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @otus = Queries::Otu::Filter.new(filter_params).all.page(params[:page]).per(500)
+        @otus = Queries::Otu::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
       }
     end
   end
@@ -66,7 +66,6 @@ class OtusController < ApplicationController
     end
   end
 
-  # rubocop:disable Rails/SaveBang
   # DELETE /otus/1
   # DELETE /otus/1.json
   def destroy
@@ -92,7 +91,7 @@ class OtusController < ApplicationController
   end
 
   def autocomplete
-    @otus = Queries::Otu::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).all
+    @otus = Queries::Otu::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).autocomplete
   end
 
   def batch_load
@@ -205,18 +204,18 @@ class OtusController < ApplicationController
   # GET /otus/download
   def download
     send_data Download.generate_csv(Otu.where(project_id: sessions_current_project_id)),
-              type: 'text',
-              filename: "otus_#{DateTime.now}.csv"
+      type: 'text',
+      filename: "otus_#{DateTime.now}.csv"
   end
 
   # GET api/v1/otus/by_name/:name?token=:token&project_id=:id
   def by_name
     @otu_name = params.require(:name)
-    @otu_ids  = Queries::Otu::Autocomplete.new(@otu_name, project_id: params.require(:project_id)).all.pluck(:id)
+    @otu_ids  = Queries::Otu::Autocomplete.new(@otu_name, project_id: params.require(:project_id)).autocomplete.pluck(:id)
   end
 
   def select_options
-    @otus = Otu.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
+    @otus = Otu.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target])
   end
 
   private
@@ -231,9 +230,10 @@ class OtusController < ApplicationController
   end
 
   def batch_params
-    params.permit(:name, :file, :import_level,
-                  :create_new_otu, :source_id, :type_select, :create_new_predicate,
-                  files: [])
+    params.permit(
+      :name, :file, :import_level,
+      :create_new_otu, :source_id, :type_select, :create_new_predicate,
+      files: [])
       .merge(
         user_id: sessions_current_user_id,
         project_id: sessions_current_project_id)
@@ -246,7 +246,8 @@ class OtusController < ApplicationController
       :taxon_name_id, :otu_id,
       biological_association_ids: [], taxon_name_ids: [], otu_ids: [],
       taxon_name_relationship_ids: [],taxon_name_classification_ids: [],
-      asserted_distribution_ids: []
+      asserted_distribution_ids: [],
+      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
     )
   end
 
@@ -255,5 +256,5 @@ class OtusController < ApplicationController
     {user_header_map: {'otu' => 'otu_name'}}
   end
   # rubocop:enable Style/StringHashKeys
-  # rubocop:enable Rails/SaveBang
+
 end

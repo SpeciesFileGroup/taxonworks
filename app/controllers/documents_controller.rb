@@ -77,19 +77,7 @@ class DocumentsController < ApplicationController
   end
 
   def autocomplete
-    @documents = Queries::DocumentAutocompleteQuery.new(params[:term], project_id: params[:project_id]).all
-    data = @documents.collect do |t|
-      {
-        id: t.id,
-        label: ApplicationController.helpers.document_tag(t),
-        response_values: {
-          params[:method] => t.id
-        },
-        label_html: ApplicationController.helpers.document_tag(t) 
-      }
-    end
-
-    render json: data
+    @documents = Queries::Document::Autocomplete.new(params[:term], project_id: params[:project_id]).all
   end
 
   private

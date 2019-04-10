@@ -13,6 +13,24 @@
         type: String,
         default: '500px'
       },
+      lat: {
+        type: Number,
+        required: false,
+        default: 0
+      },
+      lng: {
+        type: Number,
+        required: false,
+        default: 0
+      },
+      zoom: {
+        type: Number,
+        default: 1
+      },
+      shapes: {
+        type: Object,
+        default: () => { return {} }
+      },
       circleOptions: {
         type: Object,
         default: () => {
@@ -64,30 +82,55 @@
             zIndex: 1
           }
         }
+      },
+      drawingMode: {
+        type: String,
+        default: ''
       }
     },
     data() {
       return {
         drawingManager: undefined,
-        shapes: undefined,
+        shape: undefined,
         overlay: undefined,
         drawingModes: ['marker', 'circle', 'polygon', 'polyline'],
-        drawingMode: 'circle'
+        map: undefined,
+        markers: []
+      }
+    },
+    watch: {
+      shapes: {
+        handler(newVal) {
+          if(this.overlay)
+            this.removeFromMap(this.overlay)
+
+          for (var i = 0; i < this.markers.length; i++) {
+            this.map.data.remove(this.markers[i])
+          }
+
+          this.markers = this.map.data.addGeoJson(newVal)
+            
+        },
+        deep: true
       }
     },
     mounted() {
       TW.vendor.lib.google.maps.loadGoogleMapsAPI().then(() => { 
         this.initMap() 
         this.listenEvents()
-        
       })
     },
     methods: {
       initMap() {
-        var map = new google.maps.Map(this.$el, {
-          center: {lat: -34.397, lng: 150.644},
-          zoom: 8
+        this.map = new google.maps.Map(this.$el, {
+          center: {lat: (isNaN(this.lat) ? 0 : this.lat), lng: (isNaN(this.lng) ? 0 : this.lng)},
+          zoom: this.zoom
         });
+        this.map.data.setStyle({
+            fillColor: '#ffff00',
+            fillOpacity: 0.2,
+            strokeWeight: 1,
+        })
 
         this.drawingManager = new google.maps.drawing.DrawingManager({
           drawingControl: true,
@@ -101,19 +144,7 @@
           markerOptions: this.markerOptions,
           polylineOptions: this.polylineOptions
         });
-        this.drawingManager.setMap(map);
-      },
-      createGeo() {
-        let data =  {
-            georeference: {
-            geographic_item_attributes: this.shapes,
-            collecting_event_id: 5,
-            type: 'Georeference::GoogleMap'
-          }
-        }
-        this.$http.post('/georeferences.json', data).then(response => {
-          console.log(response)
-        })
+        this.drawingManager.setMap(this.map);
       },
       listenEvents() {
         let that = this
@@ -121,8 +152,8 @@
           if(that.overlay)
             that.removeFromMap(that.overlay)
           that.overlay = event.overlay
-          that.shape = that.buildFeatureCollectionFromShape(event)
-          that.createGeo()
+          that.shape = JSON.stringify(that.buildFeatureCollectionFromShape(event))
+          that.$emit('shape', that.shape)
         })
       },
       removeFromMap(overlay) {
@@ -141,6 +172,9 @@
             switch (overlayType) {
               case 'polyline':
                 overlayType = 'LineString';
+                break;
+              case 'polygon':
+                overlayType = 'Polygon';
                 break;
               case 'marker':
                 overlayType = 'Point';
@@ -187,7 +221,7 @@
             if (radius != undefined) {
               feature[0]['properties'] = {"radius": radius};
             }
-            return feature
+            return feature[0]
           },
     }
   }

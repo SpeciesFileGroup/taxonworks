@@ -6,10 +6,7 @@ describe 'Content editor' do
 
   context 'Test new topic' do
     before {
-      echo                           = Capybara.default_max_wait_time
-      Capybara.default_max_wait_time = 15
       sign_in_user_and_select_project
-      Capybara.default_max_wait_time = echo
     }
 
     context 'create new topic', js: true do

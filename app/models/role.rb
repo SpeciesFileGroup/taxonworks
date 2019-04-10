@@ -1,8 +1,19 @@
-# A Role relates a Person (a Person is data in TaxonWorks) to other data.
+# A Role relates a Person or an Organization to other data. Both People and Organizations are "data" in TaxonWorks.
+# Every Role can reference a Person, a few can reference an Organization.
+#
+# Roles are the only place where person_id and organization_id must be referenced.
+
+# Had we started from scratch we might have implemented a polymorphic `role_agent`,
+# though we reference people *far* more often than organziations, so it would 
+# have felt klunky to always de-reference to role_agent.
 #
 # @!attribute person_id
 #   @return [Integer]
-#    The ID of the person in the role.
+#    The ID of the Person in the role.
+#
+# @!attribute organization_id 
+#   @return [Integer]
+#    The ID of the Organization in the role.
 #
 # @!attribute type
 #   @return [String]
@@ -31,53 +42,72 @@ class Role < ApplicationRecord
 
   acts_as_list scope: [:type, :role_object_type, :role_object_id]
 
-  belongs_to :role_object, polymorphic: :true #, validate: true
+  belongs_to :organization, inverse_of: :roles, validate: true
   belongs_to :person, inverse_of: :roles, validate: true
-  accepts_nested_attributes_for :person, reject_if: :all_blank, allow_destroy: true
+  belongs_to :role_object, polymorphic: :true #, validate: true
 
-  # Note:
-  # - acts_as_list adds :position in a manner that can not be validated with validate_presence_of
-  # - role_object is required but at the database constraint level at present
-  # validates :role_object, presence: true
-  validates_presence_of :type
-  validates :person, presence: true
-
-  validates_uniqueness_of :person_id, scope: [:role_object_id, :role_object_type, :type]
-
-  after_save :vet_person
   after_save :update_cached
+  
+  validates_presence_of :type
+  validate :agent_present,
+    :only_one_agent,
+    :agent_is_legal
 
-  protected
+  # role_object presences is a database constraint level
+  # validates :role_object, presence: true
 
-  def update_cached
-    role_object.send(:set_cached) if role_object.respond_to?(:set_cached, true)
+  # Must come after belongs_to associations
+  include Roles::Person
+
+  # Overrode in Roles::Organization
+  def organization_allowed?
+    false
   end
 
-  def vet_person
-    if Role.where(person_id: person_id).any?
-      c = Role.where(person_id: person_id).count
-      p = Person.find(person_id)
-      y = role_object.try(:year)
-      y ||= role_object.try(:year_of_publication)
-
-      yas = [y, person.year_active_start].compact.map(&:to_i).min
-      yae = [y, person.year_active_end].compact.map(&:to_i).max
-
-      # rubocop:disable Rails/SaveBang
-      begin
-        p.update(
-          type:              (c > 1 ? 'Person::Vetted' : 'Person::Unvetted'),
-          year_active_end:   yae,
-          year_active_start: yas
-        )
-      rescue ActiveRecord::RecordInvalid
-        # probably a year conflict, allow quietly
-      end
-      # rubocop:enable Rails/SaveBang
+  def agent_type
+    if person
+      :person
+    elsif organization
+      :organization
+    else
+      nil
     end
   end
 
+  protected
+
+  def agent_present
+    if !person.present? && !organization.present? 
+      errors.add(:base, 'missing an agent (person or organization)')
+    end
+  end
+
+  def agent_is_legal
+    if organization.present?
+      errors.add(:organization_id, 'is not permitted for this role type') unless organization_allowed?
+    end
+  end
+
+  def only_one_agent
+    if person && organization
+      errors.add(:person_id, 'organization is also selected') 
+      errors.add(:organization_id, 'organization is also selected') 
+    end
+  end
+
+  def update_cached
+    # TODO: optimize, perhaps on set_author_year
+    role_object.send(:set_cached) if role_object.respond_to?(:set_cached, true)
+  end
+
+  def is_last_role?
+    role_object.roles.count == 0
+  end
 end
+
+# This list can be reconsidered, but for now:
+#
+# Person only roles
 
 require_dependency 'taxon_name_author'
 require_dependency 'source_source'
@@ -91,3 +121,11 @@ require_dependency 'loan_recipient'
 require_dependency 'loan_supervisor'
 require_dependency 'accession_provider'
 require_dependency 'deaccession_recipient'
+
+require_dependency 'attribution_creator'
+require_dependency 'attribution_editor'
+
+# Person OR Organization roles
+
+require_dependency 'attribution_copyright_holder'
+require_dependency 'attribution_owner'

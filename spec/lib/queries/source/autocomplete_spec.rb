@@ -2,7 +2,7 @@ require 'rails_helper'
 
 require_relative "shared_context"
 
-describe Queries::Source::Autocomplete, type: :model, group: [:source] do
+describe Queries::Source::Autocomplete, type: :model, group: [:sources] do
 
     # let() statements are here, careful, they are used in filter specs as well
     include_examples 'source queries'

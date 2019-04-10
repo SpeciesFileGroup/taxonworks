@@ -9,6 +9,17 @@ describe ContainerItem, type: :model, group: :containers do
   let(:container1) { FactoryBot.create(:valid_container, name: 'Top') }
   let(:container2) { FactoryBot.create(:valid_container, name: 'Middle') }
 
+  specify '#create' do
+    expect(ContainerItem.create!(container_id: container2.id, global_entity: specimen.to_global_id.to_s)).to be_truthy
+  end
+
+  # TODO: move to concern
+  specify '#destroy of contained item destroys container item' do
+    c = ContainerItem.create!(container_id: container2.id, global_entity: specimen.to_global_id.to_s)  
+    specimen.destroy
+    expect { c.reload }.to raise_error ActiveRecord::RecordNotFound
+  end
+
   context 'validation' do
     context 'required' do
       before(:each) {

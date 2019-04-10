@@ -32,13 +32,18 @@
             <span><%= object_tag(object) -%></span>
             <span data-view="development">&nbsp;[ id: <%= object.id -%>, global_id: <%= CGI.escape(object.to_global_id.to_s) -%> ]</span>
           </div>
+          <div class="flex-separate">
           <ul class="context-menu">
             <li><a data-icon="show" href="#" data-turbolinks="false" view-bottom>Development view</a></li>
             <%= content_tag(:li, otus_radial(object)) if object.class.name === "Otu" %>
+          </ul>
+          <ul class="context-menu">
             <li><%= radial_annotator(object) %></li>
             <li><%= tag_default_icon(object) %></li>
             <li><%= pin_item_to_pinboard_link(object, sessions_current_user) %></li>
+            <li><%= radial_object_tag(object) %></li>
           </ul>
+          </div>
         </div> 
 
         <div class="navigation-controls">

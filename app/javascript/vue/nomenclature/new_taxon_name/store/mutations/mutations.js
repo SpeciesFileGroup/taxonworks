@@ -1,3 +1,44 @@
+import addTaxonStatus from './addTaxonStatus'
+import addTaxonRelationship from './addTaxonRelationship'
+import addOriginalCombination from './addOriginalCombination'
+import removeTaxonStatus from './removeTaxonStatus'
+import removeTaxonRelationship from './removeTaxonRelationship'
+import removeOriginalCombination from './removeOriginalCombination'
+import setInitLoad from './setInitLoad'
+import setModalStatus from './setModalStatus'
+import setModalType from './setModalType'
+import setModalRelationship from './setModalRelationship'
+import setAllRanks from './setAllRanks'
+import setParent from './setParent'
+import setParentId from './setParentId'
+import setRankClass from './setRankClass'
+import setRankList from './setRankList'
+import setParentRankGroup from './setParentRankGroup'
+import setRelationshipList from './setRelationshipList'
+import setTaxonRelationshipList from './setTaxonRelationshipList'
+import setStatusList from './setStatusList'
+import setSaving from './setSaving'
+import setTaxonRelationship from './setTaxonRelationship'
+import setTaxonType from './setTaxonType'
+import setTaxonStatusList from './setTaxonStatusList'
+import setTaxonAuthor from './setTaxonAuthor'
+import setTaxonMasculine from './setTaxonMasculine'
+import setTaxonFeminine from './setTaxonFeminine'
+import setTaxonNeuter from './setTaxonNeuter'
+import setTaxonName from './setTaxonName'
+import setTaxonId from './setTaxonId'
+import setTaxon from './setTaxon'
+import setRoles from './setRoles'
+import setCitation from './setCitation'
+import setEtymology from './setEtymology'
+import setSoftValidation from './setSoftValidation'
+import setHardValidation from './setHardValidation'
+import setTaxonYearPublication from './setTaxonYearPublication'
+import setOriginalCombination from './setOriginalCombination'
+import setNomenclaturalCode from './setNomenclaturalCode'
+import updateLastChange from './updateLastChange'
+import updateLastSave from './updateLastSave'
+
 const MutationNames = {
   AddTaxonStatus: 'addTaxonStatus',
   AddTaxonRelationship: 'addTaxonRelationship',
@@ -5,6 +46,7 @@ const MutationNames = {
   RemoveTaxonStatus: 'removeTaxonStatus',
   RemoveTaxonRelationship: 'removeTaxonRelationship',
   RemoveOriginalCombination: 'removeOriginalCombination',
+  SetInitLoad: 'setInitLoad',
   SetModalStatus: 'setModalStatus',
   SetModalType: 'setModalType',
   SetModalRelationship: 'setModalRelationship',
@@ -41,48 +83,49 @@ const MutationNames = {
 }
 
 const MutationFunctions = {
-  [MutationNames.AddTaxonStatus]: require('./addTaxonStatus'),
-  [MutationNames.AddTaxonRelationship]: require('./addTaxonRelationship'),
-  [MutationNames.AddOriginalCombination]: require('./addOriginalCombination'),
-  [MutationNames.RemoveTaxonStatus]: require('./removeTaxonStatus'),
-  [MutationNames.RemoveTaxonRelationship]: require('./removeTaxonRelationship'),
-  [MutationNames.RemoveOriginalCombination]: require('./removeOriginalCombination'),
-  [MutationNames.SetModalStatus]: require('./setModalStatus'),
-  [MutationNames.SetModalType]: require('./setModalType'),
-  [MutationNames.SetTaxonType]: require('./setTaxonType'),
-  [MutationNames.SetModalRelationship]: require('./setModalRelationship'),
-  [MutationNames.SetAllRanks]: require('./setAllRanks'),
-  [MutationNames.SetParent]: require('./setParent'),
-  [MutationNames.SetParentId]: require('./setParentId'),
-  [MutationNames.SetRelationshipList]: require('./setRelationshipList'),
-  [MutationNames.SetRankClass]: require('./setRankClass'),
-  [MutationNames.SetRankList]: require('./setRankList'),
-  [MutationNames.SetStatusList]: require('./setStatusList'),
-  [MutationNames.SetTaxonStatusList]: require('./setTaxonStatusList'),
-  [MutationNames.SetTaxonRelationship]: require('./setTaxonRelationship'),
-  [MutationNames.SetTaxonRelationshipList]: require('./setTaxonRelationshipList'),
-  [MutationNames.SetTaxonAuthor]: require('./setTaxonAuthor'),
-  [MutationNames.SetTaxonMasculine]: require('./setTaxonMasculine'),
-  [MutationNames.SetTaxonFeminine]: require('./setTaxonFeminine'),
-  [MutationNames.SetTaxonNeuter]: require('./setTaxonNeuter'),
-  [MutationNames.SetTaxonName]: require('./setTaxonName'),
-  [MutationNames.SetTaxonId]: require('./setTaxonId'),
-  [MutationNames.SetTaxon]: require('./setTaxon'),
-  [MutationNames.SetRoles]: require('./setRoles'),
-  [MutationNames.SetSaving]: require('./setSaving'),
-  [MutationNames.SetCitation]: require('./setCitation'),
-  [MutationNames.SetEtymology]: require('./setEtymology'),
-  [MutationNames.SetSoftValidation]: require('./setSoftValidation'),
-  [MutationNames.SetHardValidation]: require('./setHardValidation'),
-  [MutationNames.SetParentRankGroup]: require('./setParentRankGroup'),
-  [MutationNames.SetTaxonYearPublication]: require('./setTaxonYearPublication'),
-  [MutationNames.SetOriginalCombination]: require('./setOriginalCombination'),
-  [MutationNames.SetNomenclaturalCode]: require('./setNomenclaturalCode'),
-  [MutationNames.UpdateLastChange]: require('./updateLastChange'),
-  [MutationNames.UpdateLastSave]: require('./updateLastSave')
+  [MutationNames.AddTaxonStatus]: addTaxonStatus,
+  [MutationNames.AddTaxonRelationship]: addTaxonRelationship,
+  [MutationNames.AddOriginalCombination]: addOriginalCombination,
+  [MutationNames.RemoveTaxonStatus]: removeTaxonStatus,
+  [MutationNames.RemoveTaxonRelationship]: removeTaxonRelationship,
+  [MutationNames.RemoveOriginalCombination]: removeOriginalCombination,
+  [MutationNames.SetInitLoad]: setInitLoad,
+  [MutationNames.SetModalStatus]: setModalStatus,
+  [MutationNames.SetModalType]: setModalType,
+  [MutationNames.SetTaxonType]: setTaxonType,
+  [MutationNames.SetModalRelationship]: setModalRelationship,
+  [MutationNames.SetAllRanks]: setAllRanks,
+  [MutationNames.SetParent]: setParent,
+  [MutationNames.SetParentId]: setParentId,
+  [MutationNames.SetRelationshipList]: setRelationshipList,
+  [MutationNames.SetRankClass]: setRankClass,
+  [MutationNames.SetRankList]: setRankList,
+  [MutationNames.SetStatusList]: setStatusList,
+  [MutationNames.SetTaxonStatusList]: setTaxonStatusList,
+  [MutationNames.SetTaxonRelationship]: setTaxonRelationship,
+  [MutationNames.SetTaxonRelationshipList]: setTaxonRelationshipList,
+  [MutationNames.SetTaxonAuthor]: setTaxonAuthor,
+  [MutationNames.SetTaxonMasculine]: setTaxonMasculine,
+  [MutationNames.SetTaxonFeminine]: setTaxonFeminine,
+  [MutationNames.SetTaxonNeuter]: setTaxonNeuter,
+  [MutationNames.SetTaxonName]: setTaxonName,
+  [MutationNames.SetTaxonId]: setTaxonId,
+  [MutationNames.SetTaxon]: setTaxon,
+  [MutationNames.SetRoles]: setRoles,
+  [MutationNames.SetSaving]: setSaving,
+  [MutationNames.SetCitation]: setCitation,
+  [MutationNames.SetEtymology]: setEtymology,
+  [MutationNames.SetSoftValidation]: setSoftValidation,
+  [MutationNames.SetHardValidation]: setHardValidation,
+  [MutationNames.SetParentRankGroup]: setParentRankGroup,
+  [MutationNames.SetTaxonYearPublication]: setTaxonYearPublication,
+  [MutationNames.SetOriginalCombination]: setOriginalCombination,
+  [MutationNames.SetNomenclaturalCode]: setNomenclaturalCode,
+  [MutationNames.UpdateLastChange]: updateLastChange,
+  [MutationNames.UpdateLastSave]: updateLastSave
 }
 
-module.exports = {
+export {
   MutationNames,
   MutationFunctions
 }

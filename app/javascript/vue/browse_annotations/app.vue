@@ -72,7 +72,7 @@
   import ViewList from './components/view/list.vue'
   import RequestBar from './components/view/requestBar.vue'
 
-  import Spinner from '../components/spinner.vue'
+  import Spinner from 'components/spinner.vue'
 
   export default {
     components: {

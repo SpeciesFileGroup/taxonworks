@@ -1,5 +1,6 @@
 require 'citeproc'
 require 'csl/styles'
+require 'namecase'
 
 # Bibtex - Subclass of Source that represents most references.
 #   Cached values are formatted using the 'zootaxa' style from 'csl/styles'
@@ -39,9 +40,9 @@ require 'csl/styles'
 #
 #   We do not track stated_month or stated_day if they are present in addition to actual month and actual day.
 #
-#   Bibtex has month.
+#   BibTeX has month.
 #
-#   Bibtex does not have day.
+#   BibTeX does not have day.
 #
 # TW will add all non-standard or housekeeping attributes to the bibliography even though
 # the data may be ignored.
@@ -281,7 +282,7 @@ require 'csl/styles'
 #
 # @!attribute year_suffix
 #   @return [String]
-#   @todo
+#     like 1950a
 #
 # @!attribute url
 #   @return [String]
@@ -327,31 +328,30 @@ class Source::Bibtex < Source
   before_validation :check_has_field
 
   validates_inclusion_of :bibtex_type,
-                         in: ::VALID_BIBTEX_TYPES,
-                         message: '"%{value}" is not a valid source type'
+    in: ::VALID_BIBTEX_TYPES,
+    message: '"%{value}" is not a valid source type'
 
   validates_presence_of :year,
-                        if: -> { !month.blank? || !stated_year.blank? },
-                        message: 'is required when month or stated_year is provided'
+    if: -> { !month.blank? || !stated_year.blank? },
+    message: 'is required when month or stated_year is provided'
 
-  # @todo refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
   validates :year, date_year: {min_year: 1000, max_year: Time.now.year + 2,
                                message:  'must be an integer greater than 999 and no more than 2 years in the future'}
 
   validates_presence_of :month,
-                        unless:  -> { day.blank? },
-                        message: 'is required when day is provided'
+    unless:  -> { day.blank? },
+    message: 'is required when day is provided'
 
   validates_inclusion_of :month,
-                         in: ::VALID_BIBTEX_MONTHS,
-                         allow_blank: true,
-                         message: ' month'
+    in: ::VALID_BIBTEX_MONTHS,
+    allow_blank: true,
+    message: ' month'
 
   validates :day, date_day: {year_sym: :year, month_sym: :month},
             unless: -> { year.blank? || month.blank? }
 
-  validates :url, format:                                   {
-    with:    URI::regexp(%w(http https ftp)),
+  validates :url, format: {
+    with: URI::regexp(%w(http https ftp)),
     message: '[%{value}] is not a valid URL'}, allow_blank: true
 
   # includes nil last, exclude it explicitly with another condition if need be
@@ -359,122 +359,20 @@ class Source::Bibtex < Source
 
   soft_validate(:sv_has_some_type_of_year, set: :recommended_fields)
   soft_validate(:sv_contains_a_writer, set: :recommended_fields)
-  soft_validate(:sv_has_title, set: :recommended_fields)
-  soft_validate(:sv_is_article_missing_journal, set: :recommended_fields)
   soft_validate(:sv_missing_required_bibtex_fields, set: :bibtex_fields)
+  soft_validate(:sv_duplicate_title)
 
-  #region ruby-bibtex related
-
-  # @return [Array] journal, nil or name
-  def journal
-    [read_attribute(:journal), (self.serial.blank? ? nil : self.serial.name)].compact.first
-  end
-
-  # @return [String]
-  def verbatim_journal
-    read_attribute(:journal)
-  end
-
-  # rubocop:disable Metrics/MethodLength
-  # @return [BibTeX::Entry]
-  #   entry equivalent to self
-  def to_bibtex
-    b = BibTeX::Entry.new(bibtex_type: self[:bibtex_type])
-    ::BIBTEX_FIELDS.each do |f|
-      if (!self.send(f).blank?) && !(f == :bibtex_type)
-        b[f] = self.send(f)
-      end
-    end
-
-    if !self.year_suffix.blank?
-      b.year = self.year_with_suffix
-    end
-
-    unless self.verbatim_keywords.blank?
-      b[:keywords] = self.verbatim_keywords
-    end
-
-    b[:note] = concatenated_notes_string if !concatenated_notes_string.blank? # see Notable
-    unless self.serial.nil?
-      b[:journal] = self.serial.name
-      issns       = self.serial.identifiers.where(type: 'Identifier::Global::Issn') # of_type(:issn)
-      unless issns.empty?
-        b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
-      end
-    end
-
-    unless self.serial.nil?
-      b[:journal] = self.serial.name
-      issns       = self.serial.identifiers.where(type: 'Identifier::Global::Issn') # .of_type(:issn)
-      unless issns.empty?
-        b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
-      end
-    end
-
-    uris = self.identifiers.where(type: 'Identifier::Global::Uri') # of_type(:uri)
-    unless uris.empty?
-      b[:url] = uris.first.identifier # TW only allows one URI per object
-    end
-
-    isbns = self.identifiers.where(type: 'Identifier::Global::Isbn') #.of_type(:isbn)
-    unless isbns.empty?
-      b[:isbn] = isbns.first.identifier # TW only allows one ISBN per object
-    end
-
-    dois = self.identifiers.where(type: 'Identifier::Global::Doi') #.of_type(:isbn)
-    unless dois.empty?
-      b[:doi] = dois.first.identifier # TW only allows one DOI per object
-    end
-
-    b.author = self.compute_bibtex_names('author') unless (!self.authors.any? && self.author.blank?)
-    b.editor = self.compute_bibtex_names('editor') unless (!self.editors.any? && self.editor.blank?)
-
-    b.key    = self.id unless self.new_record?
-    b
-  end
-
-  # rubocop:enable Metrics/MethodLength
-
-  # @param [String] type either `author` or `editor`
-  # @return [String]
-  #   the bibtex version of the name strings created from the TW people
-  #   BibTeX format is 'lastname, firstname and lastname,firstname and lastname, firstname'
-  #   For a name list not joined by multiple 'and's, use compute_human_names
-  def compute_bibtex_names(type)
-    method  = type
-    methods = type + 's'
-    case self.send(methods).size
-      when 0
-        return self.send(method)
-      when 1
-        return self.send(methods).first.bibtex_name
-      else
-        return self.send(methods).collect { |a| a.bibtex_name }.join(' and ')
-    end
-  end
-
-  # @param [String] type either `author` or `editor`
-  # @return [String]
-  #   A human readable version of the person list
-  #   'firstname lastname, firstname lastname, & firstname lastname'
-  #  TODO: DEPRECATE
-  def compute_human_names(type)
-    method  = type
-    methods = type + 's'
-    case self.send(methods).size
-      when 0
-        return self.send(method)
-      when 1
-        return self.send(methods).first.name
-      else
-        return self.send(methods).collect { |a| a.name }.to_sentence(last_word_connector: ' & ')
-    end
-  end
-
-  # @return [Boolean]
-  #   whether the BibTeX::Entry representation of this source is valid
-  def valid_bibtex?
-    self.to_bibtex.valid?
+  # @param [BibTeX::Name] bibtex_author
+  # @return [Person, Boolean] new person, or false
+  def self.bibtex_author_to_person(bibtex_author)
+    return false if bibtex_author.class != BibTeX::Name
+    p = Person.new(
+      first_name: bibtex_author.first,
+      prefix: bibtex_author.prefix,
+      last_name: bibtex_author.last,
+      suffix: bibtex_author.suffix)
+    p.namecase_names
+    p
   end
 
   # @return [BibTeX::Entry]
@@ -523,19 +421,34 @@ class Source::Bibtex < Source
     s
   end
 
+  # @return [Array] journal, nil or name
+  def journal
+    [read_attribute(:journal), (self.serial.blank? ? nil : self.serial.name)].compact.first
+  end
+
+  # @return [String]
+  def verbatim_journal
+    read_attribute(:journal)
+  end
+
+  # @return [Boolean]
+  #   whether the BibTeX::Entry representation of this source is valid
+  def valid_bibtex?
+    to_bibtex.valid?
+  end
+
   # @return [String] A string that represents the year with suffix as seen in a BibTeX bibliography.
   #   returns "" if neither :year or :year_suffix are set.
   def year_with_suffix
-    self[:year].to_s + self[:year_suffix].to_s
+    [year, year_suffix].compact.join
   end
 
   # @return [String] A string that represents the authors last_names and year (no suffix)
   def author_year
-    return 'not yet calculated' if self.new_record?
+    return 'not yet calculated' if new_record?
     [cached_author_string, year].compact.join(', ')
   end
 
-  # rubocop:disable Metrics/MethodLength
   # Modified from build, the issues with polymorphic has_many and build
   # are more than we want to tackle right now
   # @return [Array, Boolean] of names, or false
@@ -546,11 +459,11 @@ class Source::Bibtex < Source
       self.roles.count > 0
 
     bibtex = to_bibtex
-    bibtex.parse_names
+    namecase_bibtex_entry(bibtex)
 
     begin
       Role.transaction do
-        unless bibtex.authors.blank?
+        if bibtex.authors
           bibtex.authors.each do |a|
             p = Source::Bibtex.bibtex_author_to_person(a)
             p.save!
@@ -558,7 +471,7 @@ class Source::Bibtex < Source
           end
         end
 
-        unless bibtex.editors.blank?
+        if bibtex.editors
           bibtex.editors.each do |a|
             p = Source::Bibtex.bibtex_author_to_person(a)
             p.save!
@@ -571,23 +484,6 @@ class Source::Bibtex < Source
     end
     true
   end
-
-  # rubocop:enable Metrics/MethodLength
-
-  # @param [BibTeX::Name] bibtex_author
-  # @return [Person, Boolean] new person, or false
-  def self.bibtex_author_to_person(bibtex_author)
-    return false if bibtex_author.class != BibTeX::Name
-    Person.new(
-      first_name: bibtex_author.first,
-      prefix:     bibtex_author.prefix,
-      last_name:  bibtex_author.last,
-      suffix:     bibtex_author.suffix)
-  end
-
-  # @todo create related Serials
-
-  #endregion ruby-bibtex related
 
   #region getters & setters
 
@@ -708,31 +604,33 @@ class Source::Bibtex < Source
  #endregion getters & setters
 
   # @return [Boolean]
-  def has_authors? # is there a bibtex author or author roles?
-    return true if !(author.blank?) # author attribute is empty
-    return false if new_record? # nothing saved yet, so no author roles are saved yet
+  # is there a bibtex author or author roles?
+  def has_authors? 
+    return true if !author.blank?
+    return false if new_record?
     # self exists in the db
-    (self.authors.count > 0) ? (return true) : (return false)
+    authors.count > 0 ? true : false
   end
 
   # @return [Boolean]
   def has_editors?
-    return true if !(self.editor.blank?)
+    return true if editor
     # editor attribute is empty
-    return false if self.new_record?
+    return false if new_record? # WHY!?
     # self exists in the db
-    (self.editors.count > 0) ? (return true) : (return false)
+    editors.count > 0 ? true : false
   end
 
   # @return [Boolean]
-  def has_writer? # contains either an author or editor
-    (has_authors?) || (has_editors?) ? true : false
+  #  true contains either an author or editor
+  def has_writer?
+    (has_authors? || has_editors?) ? true : false
   end
 
   # @return [Boolean]
   def has_some_year? # is there a year or stated year?
-    return true if !(self.year.blank?) || !(self.stated_year.blank?)
-    false
+    return false if year.blank? && stated_year.blank?
+    true 
   end
 
   # @return [Integer]
@@ -757,40 +655,95 @@ class Source::Bibtex < Source
     end
   end
 
-  # @return [String, nil]
-  #   last names formatted as displayed in nomenclatural authority (iczn), prioritizes
-  #   normalized people records before bibtex author string
-  def authority_name
-    if !authors.reload.any? # no normalized people, use string, !! not .any? because of in-memory setting?!
-      if author.blank?
-        return nil
-      else
-        b = to_bibtex
-        b.parse_names
-        return Utilities::Strings.authorship_sentence(b.author.tokens.collect { |t| t.last })
-      end
-    else # use normalized records
-      return Utilities::Strings.authorship_sentence(authors.reload.collect { |a| a.full_last_name })
-    end
-  end
 
-  # @return [BibTex::Bibliography]
-  #   initialized with this source as an entry
-  def bibtex_bibliography
+  # not used - move to a helper method if we want something not persisted
+  def bibtex_bibliography_for_zootaxa
     bx_entry = to_bibtex
     bx_entry.year = '0000' if bx_entry.year.blank? # cludge to fix render problem with year
+    v = volume
+    v = v + '(' + number + ')' unless number.blank?
+    v = [stated_year, v].compact.join(', ') if !stated_year.blank? and stated_year != year
+    bx_entry.volume = v if !v.blank? && bx_entry.try(:volume) && bx_entry.volume != v
     b = BibTeX::Bibliography.new
     b.add(bx_entry)
     b
   end
 
-  def bibtex_bibliography_for_zootaxa
+  # rubocop:disable Metrics/MethodLength
+  # @return [BibTeX::Entry]
+  #   entry equivalent to self, this should round-trip with no changes
+  def to_bibtex
+    b = BibTeX::Entry.new(bibtex_type: self[:bibtex_type])
+
+    ::BIBTEX_FIELDS.each do |f|
+      if (!self.send(f).blank?) && !(f == :bibtex_type)
+        b[f] = self.send(f)
+      end
+    end
+
+    b.year = year_with_suffix if !year_suffix.blank?
+    b[:keywords] = verbatim_keywords     unless verbatim_keywords.blank?
+
+    b[:note] = concatenated_notes_string if !concatenated_notes_string.blank? # see Notable
+    
+    unless serial.nil?
+      b[:journal] = serial.name
+      issns  = serial.identifiers.where(type: 'Identifier::Global::Issn') # of_type(:issn)
+      unless issns.empty?
+        b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
+      end
+    end
+
+    unless serial.nil?
+      b[:journal] = serial.name
+      issns = serial.identifiers.where(type: 'Identifier::Global::Issn') # .of_type(:issn)
+      unless issns.empty?
+        b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
+      end
+    end
+
+    uris = identifiers.where(type: 'Identifier::Global::Uri') # of_type(:uri)
+    unless uris.empty?
+      b[:url] = uris.first.identifier # TW only allows one URI per object
+    end
+
+    isbns = identifiers.where(type: 'Identifier::Global::Isbn') #.of_type(:isbn)
+    unless isbns.empty?
+      b[:isbn] = isbns.first.identifier # TW only allows one ISBN per object
+    end
+
+    dois = identifiers.where(type: 'Identifier::Global::Doi') #.of_type(:isbn)
+    unless dois.empty?
+      b[:doi] = dois.first.identifier # TW only allows one DOI per object
+    end
+
+    # Over-ride `author` and `editor` if there
+    b.author = compute_bibtex_names('authors') if authors.load.any? # unless (!authors.load.any? && author.blank?)
+    b.editor = compute_bibtex_names('editors') if editors.load.any? # unless (!editors.load.any? && editor.blank?)
+
+    b.key = id unless new_record?
+    b
+  end
+
+  # rubocop:enable Metrics/MethodLength
+
+  # Namecase all elements of all names
+  def namecase_bibtex_entry(bibtex_entry)
+    bibtex_entry.parse_names
+    bibtex_entry.names.each do |n|
+      n.first = NameCase(n.first)if n.first
+      n.last = NameCase(n.last) if n.last
+      n.prefix = NameCase(n.prefix) if n.prefix
+      n.suffix = NameCase(n.suffix) if n.suffix
+    end
+    true
+  end
+
+  # @return [BibTex::Bibliography]
+  #   initialized with this Source as an entry
+  def bibtex_bibliography
     bx_entry = to_bibtex
     bx_entry.year = '0000' if bx_entry.year.blank? # cludge to fix render problem with year
-    v = self.volume
-    v = v + '(' + self.number + ')' unless self.number.blank?
-    v = [self.stated_year, v].compact.join(', ') if !self.stated_year.blank? and self.stated_year != self.year
-    bx_entry.volume = v if !v.blank? && bx_entry.try(:volume) && bx_entry.volume != v
     b = BibTeX::Bibliography.new
     b.add(bx_entry)
     b
@@ -800,17 +753,11 @@ class Source::Bibtex < Source
   # @param [String] format
   # @return [String]
   #   this source, rendered in the provided CSL style, as text
-  def render_with_style(style = 'vancouver', format = 'text')
+  def render_with_style(style = 'vancouver', format = 'text', normalize_names = true)
     cp = CiteProc::Processor.new(style: style, format: format)
-    cp.import(bibtex_bibliography.to_citeproc)
-    # if style == 'zootaxa'
-    #   cp.import(bibtex_bibliography_for_zootaxa.to_citeproc)
-    # else
-    #   cp.import(bibtex_bibliography.to_citeproc)
-    # end
-    #name = cp.engine.style.macros['author'] > 'names' > 'name'
-    #name[:initialize] = 'false'
-
+    b = bibtex_bibliography
+    namecase_bibtex_entry(b) if normalize_names
+    cp.import(b.to_citeproc)
     cp.render(:bibliography, id: cp.items.keys.first).first.strip
   end
 
@@ -824,10 +771,39 @@ class Source::Bibtex < Source
   def cached_string(format = 'text')
     return nil unless (format == 'text') || (format == 'html')
     str = render_with_style('zootaxa', format) # the current TaxonWorks default ... make a constant
+
     str.sub('(0ADAD)', '') # citeproc renders year 0000 as (0ADAD)
   end
 
+  # @return [String, nil]
+  #   last names formatted as displayed in nomenclatural authority (iczn), prioritizes
+  #   normalized People before BibTeX author
+  def authority_name(reload = true)
+    reload ? authors.reload : authors.load
+
+    if !authors.any? # no normalized people, use string, !! not .any? because of in-memory setting?!
+      if author.blank?
+        return nil
+      else
+        b = to_bibtex
+        namecase_bibtex_entry(b)
+        return Utilities::Strings.authorship_sentence(b.author.tokens.collect{ |t| t.last })
+      end
+    else # use normalized records
+      return Utilities::Strings.authorship_sentence(authors.collect{ |a| a.full_last_name })
+    end
+  end
+
   protected
+
+  # @param [String] type either `author` or `editor`
+  # @return [String]
+  #   The bibtex version of the name strings created from People
+  #   BibTeX format is 'lastname, firstname and lastname, firstname and lastname, firstname'
+  #   This only references People, i.e. `authors` and `editors`. Do not adapt to reference the BibTeX attributes `author` or `editor`
+  def compute_bibtex_names(role_type)
+    send(role_type).collect{ |a| a.bibtex_name }.join(' and ')
+  end
 
   # @return [Ignored]
   def create_authors
@@ -847,14 +823,16 @@ class Source::Bibtex < Source
   # @return [Ignored]
   def set_cached
     if errors.empty?
-      attributes_to_update = {
+      attributes_to_update = {}
+
+      attributes_to_update[:author] = compute_bibtex_names('authors') if authors.reload.size > 0
+      attributes_to_update[:editor] = compute_bibtex_names('editors') if editors.reload.size > 0
+
+      attributes_to_update.merge!(
         cached: cached_string('text'),
         cached_nomenclature_date: nomenclature_date,
-        cached_author_string: authority_name
-      }
-
-      attributes_to_update[:author] = compute_bibtex_names('author') if author.blank? && authors.size > 0
-      attributes_to_update[:editor] = compute_bibtex_names('editor') if editor.blank? && editors.size > 0
+        cached_author_string: authority_name(false)
+      )
 
       update_columns(attributes_to_update)
     end
@@ -886,7 +864,14 @@ class Source::Bibtex < Source
 
   #endregion  hard validations
 
-  #region Soft_validation_methods
+  # @return [Ignored]
+  def sv_duplicate_title
+    # only used in validating BibTeX output
+    if Source.where(title: title).where.not(id: id).any?
+      soft_validations.add(:title, 'Another source with this title exists, it may be duplicate')
+    end
+  end
+
   # @return [Ignored]
   def sv_has_authors
     # only used in validating BibTeX output
@@ -928,15 +913,10 @@ class Source::Bibtex < Source
     end
   end
 
-  # def sv_missing_journal
-  # never used
-  #   soft_validations.add(:bibtex_type, 'The source is missing a journal name.') if self.journal.blank?
-  # end
-
   # @return [Ignored]
   def sv_is_article_missing_journal
     if bibtex_type == 'article'
-      if journal.blank? and serial.blank?
+      if !journal && !serial
         soft_validations.add(:bibtex_type, 'This article is missing a journal name or serial.')
       end
     end
@@ -990,68 +970,67 @@ class Source::Bibtex < Source
   # @return [Ignored]
   def sv_missing_required_bibtex_fields
     case bibtex_type
-      when 'article' #:article       => [:author,:title,:journal,:year]
+      when 'article' # :article => [:author,:title,:journal,:year]
         sv_has_authors
         sv_has_title
         sv_is_article_missing_journal
         sv_year_exists
-      when 'book' #:book          => [[:author,:editor],:title,:publisher,:year]
+      when 'book' #: book => [[:author,:editor],:title,:publisher,:year]
         sv_contains_a_writer
         sv_has_title
         sv_has_a_publisher
         sv_year_exists
-      when 'booklet' #    :booklet       => [:title],
+      when 'booklet' # :booklet => [:title],
         sv_has_title
-      when 'conference' #    :conference    => [:author,:title,:booktitle,:year],
+      when 'conference' # :conference => [:author,:title,:booktitle,:year],
         sv_has_authors
         sv_has_title
         sv_has_booktitle
         sv_year_exists
-      when 'inbook' #    :inbook        => [[:author,:editor],:title,[:chapter,:pages],:publisher,:year],
+      when 'inbook' # :inbook => [[:author,:editor],:title,[:chapter,:pages],:publisher,:year],
         sv_contains_a_writer
         sv_has_title
         sv_is_contained_has_chapter_or_pages
         sv_has_a_publisher
         sv_year_exists
-      when 'incollection' #    :incollection  => [:author,:title,:booktitle,:publisher,:year],
+      when 'incollection' # :incollection => [:author,:title,:booktitle,:publisher,:year],
         sv_has_authors
         sv_has_title
         sv_has_booktitle
         sv_has_a_publisher
         sv_year_exists
-      when 'inproceedings' #    :inproceedings => [:author,:title,:booktitle,:year],
+      when 'inproceedings' # :inproceedings => [:author,:title,:booktitle,:year],
         sv_has_authors
         sv_has_title
         sv_has_booktitle
         sv_year_exists
-      when 'manual' #    :manual        => [:title],
+      when 'manual' # :manual => [:title],
         sv_has_title
-      when 'mastersthesis' #    :mastersthesis => [:author,:title,:school,:year],
+      when 'mastersthesis' # :mastersthesis => [:author,:title,:school,:year],
         sv_has_authors
         sv_has_title
         sv_has_school
         sv_year_exists
-      #    :misc          => [],  (no required fields)
-      when 'phdthesis' #    :phdthesis     => [:author,:title,:school,:year],
+      #    :misc => [], (no required fields)
+      when 'phdthesis' # :phdthesis => [:author,:title,:school,:year],
         sv_has_authors
         sv_has_title
         sv_has_school
         sv_year_exists
-      when 'proceedings' #    :proceedings   => [:title,:year],
+      when 'proceedings' # :proceedings => [:title,:year],
         sv_has_title
         sv_year_exists
-      when 'techreport' #    :techreport    => [:author,:title,:institution,:year],
+      when 'techreport' # :techreport => [:author,:title,:institution,:year],
         sv_has_authors
         sv_has_title
         sv_has_institution
         sv_year_exists
-      when 'unpublished' #    :unpublished   => [:author,:title,:note]
+      when 'unpublished' # :unpublished => [:author,:title,:note]
         sv_has_authors
         sv_has_title
         sv_has_note
     end
   end
   # rubocop:enable Metrics/MethodLength
-  #endregion   Soft_validation_methods
 end
 

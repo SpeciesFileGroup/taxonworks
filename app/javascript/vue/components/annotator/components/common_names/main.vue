@@ -1,12 +1,14 @@
 <template>
   <div class="common_name_annotator separate-bottom">
-    <div class="separate-bottom">
+    <div class="separate-bottom separate-top">
       <div class="separate-bottom">
+        <label>Name</label>
         <input
           type="text"
           placeholder="Name"
           v-model="common_name.name">
       </div>
+      <label>Geographic area</label>
       <div class="horizontal-left-content separate-bottom">
         <autocomplete
           url="/geographic_areas/autocomplete"
@@ -22,6 +24,7 @@
           @getLabel="$refs.geoAutocomplete.setLabel($event)"
           @getId="common_name.geographic_area_id = $event"/>
       </div>
+      <label>Language</label>
       <autocomplete
         class="separate-bottom"
         url="/languages/autocomplete"
@@ -32,6 +35,7 @@
         placeholder="Select a language"
         @getItem="common_name.language_id = $event.id"/>
       <div class="separate-bottom">
+        <label>Start year</label>
         <input
           class="date-input"
           type="number"
@@ -41,6 +45,7 @@
           max="3000">
       </div>
       <div>
+        <label>End year</label>
         <input
           class="date-input"
           type="number"
@@ -124,6 +129,9 @@ export default {
 <style lang="scss">
 .radial-annotator {
   .common_name_annotator {
+    label {
+      display: block;
+    }
     button {
       min-width: 100px;
     }

@@ -1,3 +1,15 @@
+import activeOtuPanel from './activeOtuPanel'
+import activeRecentPanel from './activeRecentPanel'
+import activeTopicPanel from './activeTopicPanel'
+import getCitationsList from './getCitationsList'
+import getContentSelected from './getContentSelected'
+import getDepictionsList from './getDepictionsList'
+import getOtuSelected from './getOtuSelected'
+import getRecent from './getRecent'
+import getTopicSelected from './getTopicSelected'
+import panelCitations from './panelCitations'
+import panelFigures from './panelFigures'
+
 const GetterNames = {
   ActiveOtuPanel: 'activeOtuPanel',
   ActiveRecentPanel: 'activeRecentPanel',
@@ -13,20 +25,20 @@ const GetterNames = {
 }
 
 const GetterFunctions = {
-  [GetterNames.ActiveOtuPanel]: require('./activeOtuPanel.js'),
-  [GetterNames.ActiveRecentPanel]: require('./activeRecentPanel'),
-  [GetterNames.ActiveTopicPanel]: require('./activeTopicPanel'),
-  [GetterNames.GetCitationsList]: require('./getCitationsList'),
-  [GetterNames.GetContentSelected]: require('./getContentSelected'),
-  [GetterNames.GetDepictionsList]: require('./getDepictionsList'),
-  [GetterNames.GetOtuSelected]: require('./getOtuSelected'),
-  [GetterNames.GetRecent]: require('./getRecent'),
-  [GetterNames.GetTopicSelected]: require('./getTopicSelected'),
-  [GetterNames.PanelCitations]: require('./panelCitations'),
-  [GetterNames.PanelFigures]: require('./panelFigures')
+  [GetterNames.ActiveOtuPanel]: activeOtuPanel,
+  [GetterNames.ActiveRecentPanel]: activeRecentPanel,
+  [GetterNames.ActiveTopicPanel]: activeTopicPanel,
+  [GetterNames.GetCitationsList]: getCitationsList,
+  [GetterNames.GetContentSelected]: getContentSelected,
+  [GetterNames.GetDepictionsList]: getDepictionsList,
+  [GetterNames.GetOtuSelected]: getOtuSelected,
+  [GetterNames.GetRecent]: getRecent,
+  [GetterNames.GetTopicSelected]: getTopicSelected,
+  [GetterNames.PanelCitations]: panelCitations,
+  [GetterNames.PanelFigures]: panelFigures
 }
 
-module.exports = {
+export {
   GetterNames,
   GetterFunctions
 }

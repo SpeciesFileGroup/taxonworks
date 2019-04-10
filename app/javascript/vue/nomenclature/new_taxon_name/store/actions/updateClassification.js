@@ -1,7 +1,7 @@
-const updateClassification = require('../../request/resources').updateClassification
-const MutationNames = require('../mutations/mutations').MutationNames
+import { updateClassification } from '../../request/resources'
+import { MutationNames } from '../mutations/mutations'
 
-module.exports = function ({ dispatch, commit, state }, classification) {
+export default function ({ dispatch, commit, state }, classification) {
   let patchClassification = {
     taxon_name_classification: classification
   }

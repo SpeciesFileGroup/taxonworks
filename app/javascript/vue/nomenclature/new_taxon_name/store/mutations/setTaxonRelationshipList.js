@@ -1,3 +1,3 @@
-module.exports = function (state, list) {
+export default function (state, list) {
   state.taxonRelationshipList = list
 }

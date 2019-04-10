@@ -1,7 +1,7 @@
-const removeTaxonStatus = require('../../request/resources').removeTaxonStatus
-const MutationNames = require('../mutations/mutations').MutationNames
+import { removeTaxonStatus } from '../../request/resources'
+import { MutationNames } from '../mutations/mutations'
 
-module.exports = function ({ commit, state, dispatch }, status) {
+export default function ({ commit, state, dispatch }, status) {
   return new Promise((resolve, reject) => {
     removeTaxonStatus(status.id).then(response => {
       commit(MutationNames.RemoveTaxonStatus, status)

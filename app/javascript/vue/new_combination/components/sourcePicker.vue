@@ -36,7 +36,7 @@
           v-model="pages"
           placeholder="Pages" >
         <default-element
-          class="separate-left default-source"
+          class="separate-left"
           label="source"
           type="Source"
           @getLabel="autocompleteLabel = $event"

@@ -35,7 +35,10 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
     }
 
     TW.workbench.keyboard.createShortcut((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + "+t", "Edit taxon name", "Browse nomenclature", function () {
-      window.location.replace($('[data-task="new_taxon_name"]').attr('href'));
+      var taxonId = $("#browse-view").attr("data-taxon-id");
+      if (/^\d+$/.test(taxonId)) {
+        window.open('/tasks/nomenclature/new_taxon_name/' + taxonId, '_self');
+      }
     });
 
     $('.filter .open').on('click', function () {
@@ -117,15 +120,17 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
       }
     }
 
-    $('[data-history-valid-name="true"]').each(function () {
-      if (!$(this).has('[data-icon="ok"]').length) {
-        $(this).prepend('<span data-icon="ok"></span>');
-      }
-    })
-    $('[data-history-origin]').each(function () {
-      var type = $(this).attr("data-history-origin");
-      $(this).prepend('<span class="history__origin ' + type + '">' + type + '</span>');
-    })
+    if(document.querySelector('#browse-view').getAttribute('loaded') != 'true') {
+      $('[data-history-valid-name="true"]').each(function () {
+        if (!$(this).has('[data-icon="ok"]').length) {
+          $(this).prepend('<span data-icon="ok"></span>');
+        }
+      })
+      $('[data-history-origin]').each(function () {
+        var type = $(this).attr("data-history-origin");
+        $(this).prepend('<span class="history__origin ' + type + '">' + type + '</span>');
+      })
+    }    
 
     $('[data-global-id]').on('click', function () {
       var list = '';
@@ -226,6 +231,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
         }
       }
     });
+    document.querySelector('#browse-view').setAttribute('loaded', true)
   }
 });
 

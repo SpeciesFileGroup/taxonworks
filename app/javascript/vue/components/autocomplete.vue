@@ -79,17 +79,25 @@ export default {
   },
 
   watch: {
-    type: function () {
+    value (newVal) {
+      this.type = newVal
+    },
+    type (newVal) {
       if (this.type.length < Number(this.min)) {
         this.json = []
       }
+      this.$emit('input', newVal)
     },
-    sendLabel: function (val) {
+    sendLabel (val) {
       this.type = (val ? val : '')
     }
   },
 
   props: {
+
+    value: {
+      type: [String, Number]
+    },
 
     autofocus: {
       type: Boolean,
@@ -128,7 +136,6 @@ export default {
 
     label: { 
       type: [String, Array],
-      required: true
     },
 
     display: {
@@ -220,15 +227,20 @@ export default {
     },
 
     getNested(item, nested) {
-      if(Array.isArray(nested)) {
-        let tmp = item
-        this.nested.forEach((itemLabel) => {
-          tmp = tmp[itemLabel]
-        })
-        return tmp
-      }
-      else if(typeof nested === 'string') {
-        return item[nested]
+      if(nested) {
+        if(Array.isArray(nested)) {
+          let tmp = item
+          this.nested.forEach((itemLabel) => {
+            tmp = tmp[itemLabel]
+          })
+          return tmp
+        }
+        else if(typeof nested === 'string') {
+          return item[nested]
+        }
+        else {
+          return item
+        }
       }
       else {
         return item
@@ -256,7 +268,14 @@ export default {
       var params = ''
       if (Object.keys(this.addParams).length) {
         Object.keys(this.addParams).forEach((key) => {
-          params += `&${key}=${this.addParams[key]}`
+          if(Array.isArray(this.addParams[key])) {
+            this.addParams[key].forEach((param) => {
+              params += `&${key}=${param}`
+            })
+          }
+          else {
+            params += `&${key}=${this.addParams[key]}`
+          }
         })
       }
       return tempUrl + params

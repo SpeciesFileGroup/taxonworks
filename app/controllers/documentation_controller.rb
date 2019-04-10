@@ -12,9 +12,8 @@ class DocumentationController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @documenation = Documentation.where(project_id: sessions_current_project_id).where(
-          Queries::Annotator::polymorphic_params(params, Documentation)
-        )
+        @documentation = ::Queries::Documentation::Filter.new(params).all.where(project_id: sessions_current_project_id).
+        page(params[:page]).per(params[:per] || 500)
       }
     end
   end
