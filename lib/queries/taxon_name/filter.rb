@@ -9,6 +9,7 @@ module Queries
 
       attr_accessor :name
 
+      # Use "&" for and
       attr_accessor :author
 
       attr_accessor :year
@@ -51,8 +52,10 @@ module Queries
 
       def initialize(params)
         @name = params[:name]
-        @keyword_ids ||= []
         @exact = params[:exact] == 'true' ? true : false 
+        @author = params[:author]
+
+        @keyword_ids ||= []
       end
 
 
@@ -62,10 +65,20 @@ module Queries
       end
 
       def cached_name
+        return nil if name.blank?
         if exact
           table[:cached].eq(name)
         else
           table[:cached].matches('%' + name + '%')
+        end
+      end
+
+      def author_facet 
+        return nil if author.blank?
+        if exact
+          table[:cached_author_year].eq(author)
+        else
+          table[:cached_author_year].matches('%' + author + '%')
         end
       end
 
@@ -74,6 +87,7 @@ module Queries
         clauses = []
        
         clauses += [
+          author_facet,
           cached_name,
           with_project_id
         ].compact
