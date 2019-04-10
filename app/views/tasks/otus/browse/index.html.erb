@@ -8,10 +8,10 @@
 </div>
 
 <div class="horizontal-left-content middle">
-<%= link_to('To show', otu_path(@otu)) -%>
 
-<div data-otu-radial="true" data-global-id="<%= @otu.to_global_id.to_s %>"></div>
-<%= radial_annotator(@otu) -%>
+  <div data-otu-radial="true" data-global-id="<%= @otu.to_global_id.to_s %>"></div>
+  <%= radial_annotator(@otu) -%>
+  <%= radial_object_tag(@otu) -%>
 </div>
 
 <h2> Contents </h2>
@@ -22,14 +22,22 @@
     <div><%= c.text -%> <%= link_to('Edit', index_editor_task_path(otu_id: @otu.id, topic_id: c.topic.id)) -%>  </div>
   <% end %>
 <% else %>
-  <em>None.</em>
+  <em>No text content yet.</em>
+<% end %>
+
+
+<h2> Images/depictions</h2>
+<% if @otu.depictions.load.any? %>
+  <% @otu.depictions.each do |d| -%>
+    <%= image_link(d.image) -%>
+  <% end %>
+<% else %>
+  <em> No depictions yet. </em>
 <% end %>
 
 <h2> Asserted distribution </h2>
 <% if @otu.geographic_areas_from_asserted_distributions.load.any? %>
-  <% @otu.geographic_areas_from_asserted_distributions.each do |g| -%>
-    <h3><%= object_tag(g) -%></h3>
-  <% end %>
+  <%= @otu.geographic_areas_from_asserted_distributions.collect{|g| object_tag(g)}.sort.join(', ') -%>
 <% else %>
   <em> None. </em>
 <% end %>
@@ -41,10 +49,30 @@
 
 <h2> Topics </h2>
 <% if @otu.topics.load.any? -%>
-  <% @otu.topics.each do |t| -%>
+  <% @otu.topics.order('controlled_vocabulary_terms.name').uniq.each do |t| -%>
     <h3> <%= object_tag(t) -%> </h3>
-    <%= t.sources.collect{|s| source_author_year_tag(s) }.join('; ').html_safe -%>
+    <div class="horizontal-left-content middle">
+      <%= @otu.sources_by_topic_id(t.id).order('sources.cached').collect{|s| 
+        (source_author_year_tag(s) + 
+        radial_object_tag(s)).html_safe
+      }.join('; ').html_safe -%>
+    </div>
   <%- end %> 
+<% else %>
+  <em>None.</em>
+<% end %>
+
+<h2> Biological associations </h2>
+<% if @otu.all_biological_associations.any? -%>
+  <table>
+    <% @otu.all_biological_associations.each do |a| -%>
+        <tr> 
+          <td> <%= object_tag(a.biological_association_subject)  -%> </td> 
+          <td> <%= object_tag(a.biological_relationship) -%> </td>
+          <td> <%= object_tag(a.biological_association_object)  -%> </td> 
+        </tr>
+      <% end %>
+    </table>
 <% else %>
   <em>None.</em>
 <% end %>

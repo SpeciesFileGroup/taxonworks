@@ -36,7 +36,7 @@ gem 'postgresql_cursor', '~> 0.6.1'
 gem 'gpx', '~> 1.0.0'
 
 # API/controllers
-gem 'rabl', '~> 0.13.1'
+gem 'rabl', '~> 0.14'
 gem 'jbuilder', '~> 2.7'
 gem 'responders', '~> 2.4' # Used?!
 
@@ -144,7 +144,7 @@ end
 group :test do
   gem 'rspec', '~> 3.6'
   gem 'coveralls', '~> 0.8.22', require: false
-  gem 'capybara', '~> 3.14.0'
+  gem 'capybara', '~> 3.16'
   gem 'timecop', '~> 0.9.1'
   gem 'webmock', '~> 3.5.1'
   gem 'vcr', '~> 4.0.0'

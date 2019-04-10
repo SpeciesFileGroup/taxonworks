@@ -57,10 +57,6 @@ module Queries::Concerns::Identifiers
     base_query.joins(:identifiers).where(with_identifier_cached_wildcarded.to_sql)
   end
 
-  def autocomplete_identifier_identifier_like
-    base_query.joins(:identifiers).where(with_identifier_like.to_sql)
-  end
-
   def autocomplete_identifier_matching_cached_anywhere
     base_query.joins(:identifiers).where(with_identifier_cached_wildcarded.to_sql)
   end

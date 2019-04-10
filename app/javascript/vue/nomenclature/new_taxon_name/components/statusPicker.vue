@@ -23,6 +23,7 @@
         :parent="parent"
         :show-modal="showModal"
         :filter="getStatusCreated"
+        @selected="addEntry"
         mutation-name-add="AddTaxonStatus"
         mutation-name-modal="SetModalStatus"
         getter-list="GetTaxonStatusList"

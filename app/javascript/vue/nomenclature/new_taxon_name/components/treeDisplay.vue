@@ -11,6 +11,7 @@
         <recursive-list
           :getter-list="getterList"
           :display="displayName"
+          @selected="$emit('selected', $event)"
           :modal-mutation-name="mutationNameModal"
           :action-mutation-name="mutationNameAdd"
           :object-list="objectLists.tree"/>
