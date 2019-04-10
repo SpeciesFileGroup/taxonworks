@@ -34,7 +34,7 @@ const GetUserPreferences = function () {
 }
 
 const CheckForExistingIdentifier = function (namespaceId, identifier) {
-  return ajaxCall('get', `/identifiers.json?type=Identifier::Local::CatalogNumber&identifier_namespace_id=${namespaceId}&identifier=${identifier}`)
+  return ajaxCall('get', `/identifiers.json?type=Identifier::Local::CatalogNumber&namespace_id=${namespaceId}&identifier=${identifier}`)
 }
 
 const GetIdentifiersFromCO = function (id) {
