@@ -189,67 +189,67 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
         end
 
 
-        def nomenclator_is_original_combination?(protonym, nomenclator_string)
-          protonym.cached_original_combination == "<i>#{nomenclator_string}</i>"
-        end
-
-        def nomenclator_is_current_name?(protonym, nomenclator_string)
-          protonym.cached == nomenclator_string
-        end
-
-        def m_original_combination(kn)
-          return false, nil if !kn[:is_original_combination]
-
-          id = kn[:protonym].id
-          kn[:cr].disambiguate_combination(genus: id, subgenus: id, species: id, subspecies: id, variety: id, form: id)
-          kn[:protonym].build_original_combination_from_biodiversity(kn[:cr], kn[:housekeeping_params])
-          kn[:protonym].save!
-          return true, kn[:protonym]
-        end
-
-        def m_single_match(kn) # test for single match
-          potential_matches = TaxonName.where(cached: kn[:nomenclator_string], project_id: kn[:project_id])
-          if potential_matches.count == 1
-            puts 'm_single_match'
-            return true, potential_matches.first
-          end
-          return false, nil
-        end
-
-        def m_unambiguous(kn) # test combination is unambiguous and has genus
-          if kn[:cr].is_unambiguous?
-            if kn[:cr].genus
-              puts 'm_unambiguous'
-              return true, kn[:cr].combination
-            end
-          end
-          return false, nil
-        end
-
-        def m_current_species_homonym(kn) # test known genus and current species homonym
-          if kn[:protonym].rank == "species"
-            a = kn[:cr].disambiguate_combination(species: kn[:protonym].id)
-            if a.get_full_name == kn[:nomenclator_string]
-              puts 'm_current_species_homonym'
-              return true, a
-            end
-          end
-          return false, nil
-        end
-
-
-        # Returns a symbol/name of the decision to
-        # be taken for the row in question
-        def decide(knowns)
-
-
-        end
-
-        # something that can be called in decide
-        def decide_method_a
-
-        end
-
+        # def nomenclator_is_original_combination?(protonym, nomenclator_string)
+        #   protonym.cached_original_combination == "<i>#{nomenclator_string}</i>"
+        # end
+        #
+        # def nomenclator_is_current_name?(protonym, nomenclator_string)
+        #   protonym.cached == nomenclator_string
+        # end
+        #
+        # def m_original_combination(kn)
+        #   return false, nil if !kn[:is_original_combination]
+        #
+        #   id = kn[:protonym].id
+        #   kn[:cr].disambiguate_combination(genus: id, subgenus: id, species: id, subspecies: id, variety: id, form: id)
+        #   kn[:protonym].build_original_combination_from_biodiversity(kn[:cr], kn[:housekeeping_params])
+        #   kn[:protonym].save!
+        #   return true, kn[:protonym]
+        # end
+        #
+        # def m_single_match(kn) # test for single match
+        #   potential_matches = TaxonName.where(cached: kn[:nomenclator_string], project_id: kn[:project_id])
+        #   if potential_matches.count == 1
+        #     puts 'm_single_match'
+        #     return true, potential_matches.first
+        #   end
+        #   return false, nil
+        # end
+        #
+        # def m_unambiguous(kn) # test combination is unambiguous and has genus
+        #   if kn[:cr].is_unambiguous?
+        #     if kn[:cr].genus
+        #       puts 'm_unambiguous'
+        #       return true, kn[:cr].combination
+        #     end
+        #   end
+        #   return false, nil
+        # end
+        #
+        # def m_current_species_homonym(kn) # test known genus and current species homonym
+        #   if kn[:protonym].rank == "species"
+        #     a = kn[:cr].disambiguate_combination(species: kn[:protonym].id)
+        #     if a.get_full_name == kn[:nomenclator_string]
+        #       puts 'm_current_species_homonym'
+        #       return true, a
+        #     end
+        #   end
+        #   return false, nil
+        # end
+        #
+        #
+        # # Returns a symbol/name of the decision to
+        # # be taken for the row in question
+        # def decide(knowns)
+        #
+        #
+        # end
+        #
+        # # something that can be called in decide
+        # def decide_method_a
+        #
+        # end
+        #
 
 
 
@@ -270,7 +270,10 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           @proceps = User.where(email: 'arboridia@gmail.com').first
           @proceps = User.create(email: 'arboridia@gmail.com', password: pwd, password_confirmation: pwd, name: 'proceps', is_administrator: true, self_created: true, is_flagged_for_password_reset: true) if @proceps.nil?
           pm = ProjectMember.create(user: @proceps, project_id: Current.project_id, is_project_administrator: true)
+
           Current.user_id = @proceps.id
+          Current.project_id = nil
+
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
           excluded_taxa = import.get('ExcludedTaxa')
