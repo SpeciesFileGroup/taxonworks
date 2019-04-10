@@ -59,22 +59,6 @@
         @click="processList()"
         value="Add to Map">
     </template>
-    <div class="results-map">
-      <l-map v-if="showResultMap"
-        height="512px"
-        width="1024px"
-        :zoom="2"
-        :geojson="featuresList"
-        ref="leaflet"
-        @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
-        :light-this-feature="lightMapFeatures"
-        @geoJsonLayersEdited="editedShape($event)"
-        @shapeCreated="inspectLayer"
-        @highlightRow="highlightRow=$event"
-        @restoreRow="highlightRow=0"
-        :draw-controls="true"
-      />
-    </div>
     <div>
       <div class="annotation_logic separate-left">
         <h2>Collecting Events</h2>
@@ -85,44 +69,89 @@
         <input type="checkbox" id="show_list" v-model="showResultList"/> Show List
       </div>
       <span v-if="collectingEventList.length" v-html="'<br>' + collectingEventList.length + '  results found.'"/>
-      <table style="width: 100%" v-if="showResultList">
-        <th>Cached</th>
-        <th>Verbatim Locality</th>
-        <th>Pin</th>
-        <th data-icon="trash" @click="resetList()">All</th>
-        <th><input type="checkbox" @click="selectAllList()" v-model="isSelectAll"/> All</th>
-        <th><span class="remove_area" data-icon="trash" @click="keepSelected()"> unchecked</span></th>
-        <tr
-          v-for="(item, index) in collectingEventList"
-          :key="item.id"
-          :class="{'ce-row': highlightRow==item.id}"
-          @mouseover="lightRow=item.id; dimRow=0"
-          @mouseout="dimRow=item.id; lightRow=0"
-        >
-          <td class="my-column">
-          <span
-            v-html="item.id + ' ' + item.cached"
-            @click="showObject(item.id)"
-          />
-          </td>
-          <td class="my-column">
-            <span v-html="item.verbatim_locality"/>
-          </td>
-          <td>
-            <pin-component
-              v-if="item.id"
-              :object-id="item.id"
-              :type="item.base_class"/>
-          </td>
-          <td>
-            <span data-icon="trash" @click="delistCE(index)"/>
-          </td>
-          <td><input type="checkbox" :value="item.id" v-model="selected"/></td>
-          <td/>
-        </tr>
-      </table>
     </div>
-  </div>
+    <div>
+      <div class="first-column separate-right" v-if="showResultList">
+        <table style="width: 100%">
+          <th>Verbatim Locality</th>
+          <th v-if="!showResultMap">Date start</th>
+          <th v-if="!showResultMap">Date end</th>
+          <th v-if="!showResultMap">Country</th>
+          <th v-if="!showResultMap">State</th>
+          <th>Total objects</th>
+          <th v-if="!showResultMap">Pin</th>
+          <th v-if="!showResultMap" data-icon="trash" @click="resetList()">All</th>
+          <th><input type="checkbox" @click="selectAllList()" v-model="isSelectAll"/> All</th>
+          <th><span class="remove_area" data-icon="trash" @click="keepSelected()"> unchecked</span></th>
+          <tr
+            v-for="(item, index) in collectingEventList"
+            :key="item.id"
+            :class="{'ce-row': highlightRow==item.id}"
+            @mouseover="lightRow=item.id; dimRow=0"
+            @mouseout="dimRow=item.id; lightRow=0"
+          >
+            <td class="my-column">
+            <span
+              v-html="item.id + ' ' + item.verbatim_locality"
+              @click="showObject(item.id)"
+            />
+            </td>
+            <td v-if="!showResultMap">
+            <span
+              v-html="makeDate(item.start_date_year, item.start_date_month, item.start_date_day)"
+            />
+            </td>
+            <td v-if="!showResultMap">
+            <span
+              v-html="makeDate(item.end_date_year, item.end_date_month, item.end_date_day)"
+            />
+            </td>
+            <td v-if="!showResultMap">
+              <pin-component
+                v-if="item.id"
+                :object-id="item.id"
+                :type="item.base_class"/>
+            </td>
+            <td v-if="!showResultMap">
+              <span data-icon="trash" @click="delistCE(index)"/>
+            </td>
+            <td><input type="checkbox" :value="item.id" v-model="selected"/></td>
+            <td/>
+          </tr>
+        </table>
+      </div>
+      <div class="second-column separate-right" v-if="showResultMap">
+        <l-map v-if="showResultList"
+          height="256px"
+          width="512px"
+          :zoom="2"
+          :geojson="featuresList"
+          ref="leaflet"
+          @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
+          :light-this-feature="lightMapFeatures"
+          @geoJsonLayersEdited="editedShape($event)"
+          @shapeCreated="inspectLayer"
+          @highlightRow="highlightRow=$event"
+          @restoreRow="highlightRow=0"
+          :draw-controls="true"
+        />
+        <l-map v-else
+          height="512px"
+          width="1024px"
+          :zoom="2"
+          :geojson="featuresList"
+          ref="leaflet"
+          @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
+          :light-this-feature="lightMapFeatures"
+          @geoJsonLayersEdited="editedShape($event)"
+          @shapeCreated="inspectLayer"
+          @highlightRow="highlightRow=$event"
+          @restoreRow="highlightRow=0"
+          :draw-controls="true"
+        />
+      </div>
+    </div>
+ </div>
 </template>
 
 <script>
@@ -169,9 +198,9 @@
         dimRow: undefined,
         shapes: [],
         lightMapFeatures: 0,
-        isLoading:  false,
+        isLoading: false,
         showResultList: true,
-        showResultMap:  false,
+        showResultMap: false,
       }
     },
     watch: {
@@ -185,8 +214,10 @@
       compileList(newColEvList) {
         if (this.annotation_logic == 'append') {
           if (this.collectingEventList.length) {
-          let i;  // don't add duplicates
-            let extantEvents = this.collectingEventList.map(ce => { return ce.id });
+            let i;  // don't add duplicates
+            let extantEvents = this.collectingEventList.map(ce => {
+              return ce.id
+            });
             for (i = newColEvList.length - 1; i > -1; i--) {
               if (extantEvents.includes(newColEvList[i].id)) {
                 this.$delete(newColEvList, i)
@@ -227,8 +258,7 @@
       },
       selectAllList() {
         this.selected = [];               // toggle on state of header checkbox (??  !!)
-        if (this.isSelectAll)
-        {
+        if (this.isSelectAll) {
           for (let i = this.collectingEventList.length - 1; i > -1; i--) {
             if (!this.selected.includes(this.collectingEventList[i].id)) {
               this.selected.push(this.collectingEventList[i].id);
@@ -240,7 +270,7 @@
       processList() {
         this.getGeoreferences()
       },
-      getGeoreferences(){
+      getGeoreferences() {
         let ce_ids = [];      // find the georeferences for these collecting_events
         this.collectingEventList.forEach(ce => {
           ce_ids.push(ce.id)
@@ -271,13 +301,14 @@
           }
           Promise.all(promises).then(featuresArrays => {
             // if (searchShape) {FeatureCollection.features.push(searchShape)}
-            featuresArrays.forEach(f => {FeatureCollection.features = FeatureCollection.features.concat(f)});
+            featuresArrays.forEach(f => {
+              FeatureCollection.features = FeatureCollection.features.concat(f)
+            });
             that.featuresList = that.featuresList.concat(FeatureCollection.features);
             this.$emit('featuresList', this.featuresList);
           });
           this.isLoading = false;
-        }
-        else {
+        } else {
           this.isLoading = false;
         }
       },
@@ -312,12 +343,20 @@
       clearHighlightProperty(id) {
         // find the right feature by collecting_event_id
         this.featuresList.forEach((feature, index) => {
-          if(feature.properties.collecting_event_id == id) {
-            delete(feature.properties.highlight);
+          if (feature.properties.collecting_event_id == id) {
+            delete (feature.properties.highlight);
             this.$set(this.featuresList, index, feature)
           }
         });
       },
+      makeDate(year, month, day) {
+        year = year ? year : '';
+        month = month ? month : '';
+        day = day ? day : '';
+        let date = year.toString() + '-' + month.toString() + '-' + day.toString();
+        if (date == '--') return '';
+        return date
+      }
     },
     mounted: function () {
       this.$http.get('/collecting_events/select_options').then(response => {
@@ -331,6 +370,14 @@
     computed: {
       showList() {
         return this.list
+      },
+      mapHeight() {
+        if (showResultList) return '256px';
+        return '512px'
+      },
+      mapWidth() {
+        if (showResultList) return '512px';
+        return '1024px'
       }
     }
   }
@@ -341,6 +388,7 @@
     min-width: 40%;
     max-width: 40%;
   }
+
   .ce-row {
     background-color: #BBDDBB
   }
