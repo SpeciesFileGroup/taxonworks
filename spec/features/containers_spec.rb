@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Containers' do
+describe 'Containers', type: :feature do
 
   context 'resource routes' do
    #  before { 
