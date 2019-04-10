@@ -106,11 +106,14 @@
               v-html="makeDate(item.end_date_year, item.end_date_month, item.end_date_day)"
             />
             </td>
-            <td>
-              <span> -no country data- " </span>
+            <td v-if="!showResultMap">
+              <span> -no country data- </span>
+            </td>
+            <td v-if="!showResultMap">
+              <span> -no state data- </span>
             </td>
             <td>
-              <span> -no state data- " </span>
+              <span> -no object count- </span>
             </td>
             <td v-if="!showResultMap">
               <pin-component
@@ -130,7 +133,7 @@
         <l-map v-if="showResultList"
           height="256px"
           width="512px"
-          :zoom="2"
+          :zoom="1"
           :geojson="featuresList"
           ref="leaflet"
           @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
