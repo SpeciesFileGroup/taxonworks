@@ -4,8 +4,13 @@
       <modal
         v-if="display"
         @close="closeModal()">
-        <h3 slot="header">
+        <h3
+          slot="header"
+          class="flex-separate">
           <span v-html="title"/>
+          <span
+            v-if="metadata"
+            class="separate-right"> {{ metadata.object_type }}</span>
         </h3>
         <div
           slot="body"

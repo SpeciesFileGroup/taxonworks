@@ -289,13 +289,13 @@ class TaxonName < ApplicationRecord
     TaxonName.with_cached_valid_taxon_name_id(self.id)
   end
 
-  soft_validate(:sv_validate_name, set: :validate_name)
-  soft_validate(:sv_missing_fields, set: :missing_fields)
-  soft_validate(:sv_parent_is_valid_name, set: :parent_is_valid_name)
-  soft_validate(:sv_cached_names, set: :cached_names)
-  soft_validate(:sv_not_synonym_of_self, set: :not_synonym_of_self)
-  soft_validate(:sv_two_unresolved_alternative_synonyms, set: :two_unresolved_alternative_synonyms)
-  soft_validate(:sv_incomplete_combination, set: :incomplete_combination)
+  soft_validate(:sv_validate_name, set: :validate_name, has_fix: false)
+  soft_validate(:sv_missing_fields, set: :missing_fields, has_fix: true) # could be split, some do, some don't
+  soft_validate(:sv_parent_is_valid_name, set: :parent_is_valid_name, has_fix: true) # could be split, some do, some don't 
+  soft_validate(:sv_cached_names, set: :cached_names, has_fix: true) # some do, some don't
+  soft_validate(:sv_not_synonym_of_self, set: :not_synonym_of_self, has_fix: false)
+  soft_validate(:sv_two_unresolved_alternative_synonyms, set: :two_unresolved_alternative_synonyms, has_fix: false)
+  soft_validate(:sv_incomplete_combination, set: :incomplete_combination, has_fix: false)
 
   # @return [Array of TaxonName]
   #   ordered by rank, a scope-like hack
@@ -912,7 +912,7 @@ class TaxonName < ApplicationRecord
     end
   end
 
-  # return (String)
+  # return [String, nil, false] # TODO: fix
   def get_genus_species(genus_option, self_option)
   # see protonym
     true
@@ -1213,21 +1213,20 @@ class TaxonName < ApplicationRecord
 
       unless correct_name_format
         invalid_statuses = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID
-        invalid_statuses = invalid_statuses & taxon_name_classifications.pluck(&:type_class) # self.taxon_name_classifications.collect { |c| c.type_class.to_s }
-        misspellings     = TaxonNameRelationship.collect_to_s(
+        invalid_statuses = invalid_statuses & taxon_name_classifications.pluck(&:type_class)
+        misspellings = TaxonNameRelationship.collect_to_s(
           TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling,
           TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling,
           TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling,
           TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling)
 
         ictv_species = (nomenclatural_code == :ictv && self.rank_string =~ /Species/) ? true : nil
-        misspellings     = misspellings & taxon_name_relationships.pluck(&:type_class) # self.taxon_name_relationships.collect { |c| c.type_class.to_s }
+        misspellings = misspellings & taxon_name_relationships.pluck(&:type_class)
         if invalid_statuses.empty? && misspellings.empty? && ictv_species.nil?
           soft_validations.add(:name, 'Name should not have spaces or special characters, unless it has a status of misspelling or original misspelling')
         end
       end
     end
-
   end
 
   # TODO: too many checks here, split them out
@@ -1302,7 +1301,7 @@ class TaxonName < ApplicationRecord
     if parent.unavailable_or_invalid?
       # parent of a taxon is unavailable or invalid
       soft_validations.add(:parent_id, 'Parent should be a valid taxon',
-                           fix:             :sv_fix_parent_is_valid_name,
+                           fix: :sv_fix_parent_is_valid_name,
                            success_message: 'Parent was updated')
     else # TODO: This seems like a different validation, split with above?
       classifications = self.taxon_name_classifications.reload

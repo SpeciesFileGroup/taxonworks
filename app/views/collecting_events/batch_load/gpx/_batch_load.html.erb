@@ -1,0 +1,47 @@
+<div>
+  <h2> GPX batchload </h2>
+
+  <div class="flexbox full_viewport_whitespace">
+    <div class="item item1">
+      <h3> Description and requirements </h3>
+
+      <p> Creates collecting events with georeferences.
+        (required structure:GPX)<br>
+        <em> A text file with unix line endings is required.</em>
+      </p>
+    </div>
+
+    <div class="item item2">
+      <h3> Example file </h3>
+
+      <pre class="xml-pre xml-highlight">
+        <span></span>
+        <span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+        <span class="nt">&lt;gpx</span> <span class="na">version=</span><span class="s">"1.0"</span><span class="nt">&gt;</span>
+        	<span class="nt">&lt;name&gt;</span>Example gpx<span class="nt">&lt;/name&gt;</span>
+        	<span class="nt">&lt;wpt</span> <span class="na">lat=</span><span class="s">"46.57638889"</span> <span class="na">lon=</span><span class="s">"8.89263889"</span><span class="nt">&gt;</span>
+        		<span class="nt">&lt;ele&gt;</span>2372<span class="nt">&lt;/ele&gt;</span>
+        		<span class="nt">&lt;name&gt;</span>LAGORETICO<span class="nt">&lt;/name&gt;</span>
+        	<span class="nt">&lt;/wpt&gt;</span>
+        	<span class="nt">&lt;trk&gt;&lt;name&gt;</span>Example gpx<span class="nt">&lt;/name&gt;&lt;number&gt;</span>1<span class="nt">&lt;/number&gt;&lt;trkseg&gt;</span>
+        		<span class="nt">&lt;trkpt</span> <span class="na">lat=</span><span class="s">"46.57608333"</span> <span class="na">lon=</span><span class="s">"8.89241667"</span><span class="nt">&gt;&lt;ele&gt;</span>2376<span class="nt">&lt;/ele&gt;&lt;time&gt;</span>2007-10-14T10:09:57Z<span class="nt">&lt;/time&gt;&lt;/trkpt&gt;</span>
+        		<span class="nt">&lt;trkpt</span> <span class="na">lat=</span><span class="s">"46.57619444"</span> <span class="na">lon=</span><span class="s">"8.89252778"</span><span class="nt">&gt;&lt;ele&gt;</span>2375<span class="nt">&lt;/ele&gt;&lt;time&gt;</span>2007-10-14T10:10:52Z<span class="nt">&lt;/time&gt;&lt;/trkpt&gt;</span>
+        		<span class="nt">&lt;trkpt</span> <span class="na">lat=</span><span class="s">"46.57641667"</span> <span class="na">lon=</span><span class="s">"8.89266667"</span><span class="nt">&gt;&lt;ele&gt;</span>2372<span class="nt">&lt;/ele&gt;&lt;time&gt;</span>2007-10-14T10:12:39Z<span class="nt">&lt;/time&gt;&lt;/trkpt&gt;</span>
+        		<span class="nt">&lt;trkpt</span> <span class="na">lat=</span><span class="s">"46.57650000"</span> <span class="na">lon=</span><span class="s">"8.89280556"</span><span class="nt">&gt;&lt;ele&gt;</span>2373<span class="nt">&lt;/ele&gt;&lt;time&gt;</span>2007-10-14T10:13:12Z<span class="nt">&lt;/time&gt;&lt;/trkpt&gt;</span>
+        		<span class="nt">&lt;trkpt</span> <span class="na">lat=</span><span class="s">"46.57638889"</span> <span class="na">lon=</span><span class="s">"8.89302778"</span><span class="nt">&gt;&lt;ele&gt;</span>2374<span class="nt">&lt;/ele&gt;&lt;time&gt;</span>2007-10-14T10:13:20Z<span class="nt">&lt;/time&gt;&lt;/trkpt&gt;</span>
+        		<span class="nt">&lt;trkpt</span> <span class="na">lat=</span><span class="s">"46.57652778"</span> <span class="na">lon=</span><span class="s">"8.89322222"</span><span class="nt">&gt;&lt;ele&gt;</span>2375<span class="nt">&lt;/ele&gt;&lt;time&gt;</span>2007-10-14T10:13:48Z<span class="nt">&lt;/time&gt;&lt;/trkpt&gt;</span>
+        		<span class="nt">&lt;trkpt</span> <span class="na">lat=</span><span class="s">"46.57661111"</span> <span class="na">lon=</span><span class="s">"8.89344444"</span><span class="nt">&gt;&lt;ele&gt;</span>2376<span class="nt">&lt;/ele&gt;&lt;time&gt;</span>2007-10-14T10:14:08Z<span class="nt">&lt;/time&gt;&lt;/trkpt&gt;</span>
+        	<span class="nt">&lt;/trkseg&gt;&lt;/trk&gt;</span>
+        <span class="nt">&lt;/gpx&gt;</span>
+      </pre>
+    </div>
+    <div class="item item3">
+      <h3> Go! </h3>
+      <%= render partial: '/collecting_events/batch_load/gpx/form',
+                 locals: {url: preview_gpx_batch_load_collecting_events_path,
+                          submit: :preview} -%>
+    </div>
+
+  </div>
+</div>
+

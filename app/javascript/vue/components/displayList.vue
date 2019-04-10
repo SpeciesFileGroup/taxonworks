@@ -70,7 +70,7 @@ export default {
       default: undefined
     }
   },
-  mounted() {
+  beforeCreate() {
     this.$options.components['RadialAnnotator'] = RadialAnnotator
   },
   methods: {

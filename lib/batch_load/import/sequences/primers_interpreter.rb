@@ -16,7 +16,7 @@ module BatchLoad
       sequence_values = {}
       i = 0
 
-      # loop throw rows
+      # loop through rows
       csv.each do |row|
         i += 1
 

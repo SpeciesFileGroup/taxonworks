@@ -23,6 +23,7 @@
         :parent="parent"
         :show-modal="showModal"
         :filter="getStatusCreated"
+        @selected="addEntry"
         mutation-name-add="AddTaxonStatus"
         mutation-name-modal="SetModalStatus"
         getter-list="GetTaxonStatusList"
@@ -176,7 +177,7 @@ export default {
       this.objectLists = Object.assign({}, this.makeLists())
       this.objectLists.tree = Object.assign({}, copyList.tree)
 
-      this.getStatusListForThisRank(copyList.all, this.parent.rank_string).then(resolve => {
+      this.getStatusListForThisRank(copyList.all, this.taxon.rank_string).then(resolve => {
         this.objectLists.allList = resolve
         this.getTreeListForThisRank(this.objectLists.tree, copyList.all, resolve)
       })
