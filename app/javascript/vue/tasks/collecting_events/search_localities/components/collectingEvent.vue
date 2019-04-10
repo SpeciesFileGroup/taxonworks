@@ -70,7 +70,7 @@
       </div>
       <span v-if="collectingEventList.length" v-html="'<br>' + collectingEventList.length + '  results found.'"/>
     </div>
-    <div>
+    <div class="flexbox">
       <div class="first-column separate-right" v-if="showResultList">
         <table style="width: 100%">
           <th>Verbatim Locality</th>
@@ -105,6 +105,12 @@
             <span
               v-html="makeDate(item.end_date_year, item.end_date_month, item.end_date_day)"
             />
+            </td>
+            <td>
+              <span> -no country data- " </span>
+            </td>
+            <td>
+              <span> -no state data- " </span>
             </td>
             <td v-if="!showResultMap">
               <pin-component
