@@ -105,7 +105,6 @@
       geojson: {
         handler(newVal) {
           if (newVal.length) {
-            // this.removeLayers()
             this.foundItems.clearLayers();
             this.geoJSON(newVal)
           }
@@ -115,6 +114,9 @@
       lightThisFeature(newVal) {
         this.findFeature(newVal)
       },
+      zoom(newVal) {
+        this.mapObject.setZoom(newVal)
+      }
     },
     mounted() {
       this.mapObject = L.map(this.mapId, {

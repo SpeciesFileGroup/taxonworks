@@ -21,8 +21,8 @@
           @featuresList="featuresList=$event"
           @highlightRow="highlightRow=$event"
           @restoreRow="restoreRow=$event"
-          :lightRow="lightRow"
-          :dimRow="dimRow"
+          :light-row="lightRow"
+          :dim-row="dimRow"
           ref="cebyarea"
         />
       </div>
@@ -32,8 +32,8 @@
           @featuresList="featuresList=$event"
           @highlightRow="highlightRow=$event"
           @restoreRow="restoreRow=$event"
-          :lightRow="lightRow"
-          :dimRow="dimRow"
+          :light-row="lightRow"
+          :dim-row="dimRow"
           ref="cebyshape"
         />
       </div>
@@ -65,118 +65,113 @@
         <annotation-logic v-model="annotation_logic"/>
       </div>
       <div>
-        <input type="checkbox" id="show_map" v-model="showResultMap"/> Show Map
-        <input type="checkbox" id="show_list" v-model="showResultList"/> Show List
+        <input
+          type="checkbox"
+          v-model="showResultMap"> Show Map
+        <input
+          type="checkbox"
+          v-model="showResultList"> Show List
       </div>
-      <span v-if="collectingEventList.length" v-html="'<br>' + collectingEventList.length + '  results found.'"/>
+      <span
+        v-if="collectingEventList.length"
+        v-html="'<br>' + collectingEventList.length + '  results found.'"/>
     </div>
     <div class="flexbox">
-      <div class="first-column separate-right" v-if="showResultList">
-        <table style="width: 100%">
-          <th>Verbatim Locality</th>
-          <th v-if="!showResultMap">Date start</th>
-          <th v-if="!showResultMap">Date end</th>
-          <th v-if="!showResultMap">Country</th>
-          <th v-if="!showResultMap">State</th>
-          <th>Total objects</th>
-          <th v-if="!showResultMap">Pin</th>
-          <th v-if="!showResultMap" data-icon="trash" @click="resetList()">All</th>
-          <th><input type="checkbox" @click="selectAllList()" v-model="isSelectAll"/> All</th>
-          <th><span class="remove_area" data-icon="trash" @click="keepSelected()"> unchecked</span></th>
-          <tr
-            v-for="(item, index) in collectingEventList"
-            :key="item.id"
-            :class="{'ce-row': highlightRow==item.id}"
-            @mouseover="lightRow=item.id; dimRow=0"
-            @mouseout="dimRow=item.id; lightRow=0"
-          >
-            <td class="my-column">
-            <span
-              v-html="item.id + ' ' + item.verbatim_locality"
-              @click="showObject(item.id)"
-            />
-            </td>
-            <td v-if="!showResultMap">
-            <span
-              v-html="makeDate(item.start_date_year, item.start_date_month, item.start_date_day)"
-            />
-            </td>
-            <td v-if="!showResultMap">
-            <span
-              v-html="makeDate(item.end_date_year, item.end_date_month, item.end_date_day)"
-            />
-            </td>
-            <td>
-              <span> -no country data- " </span>
-            </td>
-            <td>
-              <span> -no state data- " </span>
-            </td>
-            <td v-if="!showResultMap">
-              <pin-component
-                v-if="item.id"
-                :object-id="item.id"
-                :type="item.base_class"/>
-            </td>
-            <td v-if="!showResultMap">
-              <span data-icon="trash" @click="delistCE(index)"/>
-            </td>
-            <td><input type="checkbox" :value="item.id" v-model="selected"/></td>
-            <td/>
-          </tr>
+      <div
+        class="first-column separate-right"
+        v-if="showResultList">
+        <table class="full_width">
+          <thead>
+            <th>Verbatim Locality</th>
+            <th v-if="!showResultMap">Date start</th>
+            <th v-if="!showResultMap">Date end</th>
+            <th v-if="!showResultMap">Country</th>
+            <th v-if="!showResultMap">State</th>
+            <th>Total objects</th>
+            <th v-if="!showResultMap">Pin</th>
+            <th v-if="!showResultMap" data-icon="trash" @click="resetList()">All</th>
+            <th><input type="checkbox" @click="selectAllList()" v-model="isSelectAll"/> All</th>
+            <th><span class="remove_area" data-icon="trash" @click="keepSelected()"> unchecked</span></th>
+          </thead>
+          <tbody>
+            <tr
+              v-for="(item, index) in collectingEventList"
+              :key="item.id"
+              :class="{'ce-row': highlightRow==item.id}"
+              @mouseover="lightRow=item.id; dimRow=0"
+              @mouseout="dimRow=item.id; lightRow=0"
+            >
+              <td class="my-column">
+                <span
+                  v-html="item.id + ' ' + item.verbatim_locality"
+                  @click="showObject(item.id)"
+                />
+              </td>
+              <td v-if="!showResultMap">
+                <span
+                  v-html="makeDate(item.start_date_year, item.start_date_month, item.start_date_day)"
+                />
+              </td>
+              <td v-if="!showResultMap">
+                <span
+                  v-html="makeDate(item.end_date_year, item.end_date_month, item.end_date_day)"
+                />
+              </td>
+              <td>
+                <span> -no country data- " </span>
+              </td>
+              <td>
+                <span> -no state data- " </span>
+              </td>
+              <td v-if="!showResultMap">
+                <pin-component
+                  v-if="item.id"
+                  :object-id="item.id"
+                  :type="item.base_class"/>
+              </td>
+              <td v-if="!showResultMap">
+                <span data-icon="trash" @click="delistCE(index)"/>
+              </td>
+              <td><input type="checkbox" :value="item.id" v-model="selected"/></td>
+              <td/>
+            </tr>
+          </tbody>
         </table>
       </div>
-      <div class="second-column separate-right" v-if="showResultMap">
-        <l-map v-if="showResultList"
-          height="256px"
-          width="512px"
-          :zoom="2"
-          :geojson="featuresList"
-          ref="leaflet"
-          @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
-          :light-this-feature="lightMapFeatures"
-          @geoJsonLayersEdited="editedShape($event)"
-          @shapeCreated="inspectLayer"
-          @highlightRow="highlightRow=$event"
-          @restoreRow="highlightRow=0"
-          :draw-controls="true"
-        />
-        <l-map v-else
-          height="512px"
-          width="1024px"
-          :zoom="2"
-          :geojson="featuresList"
-          ref="leaflet"
-          @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
-          :light-this-feature="lightMapFeatures"
-          @geoJsonLayersEdited="editedShape($event)"
-          @shapeCreated="inspectLayer"
-          @highlightRow="highlightRow=$event"
-          @restoreRow="highlightRow=0"
-          :draw-controls="true"
-        />
-      </div>
+      <l-map
+        class="separate-right"
+        v-if="showResultMap"
+        height="256px"
+        width="100%"
+        :zoom="zoomForMap"
+        :geojson="featuresList"
+        ref="leaflet"
+        @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
+        :light-this-feature="lightMapFeatures"
+        @geoJsonLayersEdited="editedShape($event)"
+        @shapeCreated="inspectLayer"
+        @highlightRow="highlightRow=$event"
+        @restoreRow="highlightRow=0"
+        :draw-controls="true"
+      />
     </div>
  </div>
 </template>
 
 <script>
   import SmartSelector from 'components/switch.vue'
-  import Autocomplete from 'components/autocomplete.vue'
   import ceFilter from './ce_filter.vue'
   import ceByArea from './ce_by_area.vue'
   import ceByShape from './ce_by_shape.vue'
   import ceTag from './ce_tag.vue'
   import AnnotationLogic from 'browse_annotations/components/annotation_logic'
   import PinComponent from "components/pin.vue"
-  import ModeSwitch from './mode_switch'
   import Spinner from 'components/spinner'
   import lMap from './leafletMap.vue'
 
   export default {
     components: {
       SmartSelector,
-      Autocomplete,
       ceFilter,
       ceByArea,
       ceByShape,
@@ -184,8 +179,15 @@
       AnnotationLogic,
       PinComponent,
       lMap,
-      ModeSwitch,
       Spinner,
+    },
+    computed: {
+      zoomForMap() {
+        return this.showResultList ? 2 : 1
+      },
+      showList() {
+        return this.list
+      }
     },
     data() {
       return {
@@ -215,6 +217,11 @@
           this.selected = []
         }
       },
+      showResultList() {
+        this.$nextTick(() => {
+          this.$refs.leaflet.mapObject.invalidateSize()
+        })
+      }
     },
     methods: {
       compileList(newColEvList) {
@@ -291,7 +298,6 @@
           let thisSlice = 0;
           let endSlice;
           let finalSlice = ce_ids.length;
-          let newFeatures = [];
           this.newFeatures = [];
           let promises = [];
           for (let i = 0; i < cycles; i++) {
@@ -372,19 +378,6 @@
           this.view = this.tabs[0]
         }
       })
-    },
-    computed: {
-      showList() {
-        return this.list
-      },
-      mapHeight() {
-        if (showResultList) return '256px';
-        return '512px'
-      },
-      mapWidth() {
-        if (showResultList) return '512px';
-        return '1024px'
-      }
     }
   }
 </script>
