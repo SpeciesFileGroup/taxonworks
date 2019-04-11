@@ -1,28 +1,49 @@
 <template>
   <div>
     <h2>Precision</h2>
+    <datalist id="days">
+      <option
+        v-for="(option, index) in options"
+        :value="index"/>
+    </datalist>
+    <input
+      type="range"
+      list="days"
+      value="0"
+      min="0"
+      max="4"
+      step="0"
+      v-model="optionValue">
     <div class="options-label">
       <span
         v-for="option in options"
         v-html="option.label"/>
     </div>
-    <datalist id="days">
-      <option
-        v-for="option in options"
-        :value="option.value"
-        :label="option.label"/>
-    </datalist>
-    <input type="range" list="days" max="4" min="0">
   </div>
 </template>
 
 <script>
 export default {
+  props: {
+    value: {
+      default: undefined
+    }
+  },
+  computed: {
+    optionValue: {
+      get() {
+        return this.value ? this.value : 0
+      },
+      set(value) {
+        this.$emit('input', this.options[value].value)
+      }
+    }
+  },
   data() {
     return {
       options: [
         {
-          value: 0,
+          value: undefined,
           label: 'Any time'
         },
         {
@@ -30,15 +51,15 @@ export default {
           label: '1'
         },
         {
-          value: 2,
+          value: 10,
           label: '10'
         },
         {
-          value: 3,
+          value: 100,
           label: '100'
         },
         {
-          value: 4,
+          value: 365,
           label: '365'
         }
       ]
@@ -50,10 +71,21 @@ export default {
 <style lang="scss" scoped>
 .options-label {
   display: flex;
-  width: 300px;
+  width: 262px;
+  padding: 0 21px;
+  margin-top: -10px;
   justify-content: space-between;
   span {
-    width: 60px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    width: 1px;
+    white-space: nowrap;
+    background: #D3D3D3;
+    height: 10px;
+    line-height: 40px;
+    margin: 0 0 20px 0;
   }
 }
   datalist {
@@ -66,10 +98,5 @@ export default {
   input[type="range"] {
     width: 300px;
   }
-  option {
-      width: 1px;
-      height: 4px;
-      border-left: 1px solid #000;
-      z-index: -1;
-  }
+
 </style>

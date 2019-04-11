@@ -20,7 +20,7 @@ class TaxonNamesController < ApplicationController
 
 
   def filter_params
-    params.permit(:name, :valid, :exact, type: [], parent_id: [], nomenclature_group: []).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
+    params.permit(:name, :author, :year, :valid, :exact, type: [], parent_id: [], nomenclature_group: []).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
   # GET /taxon_names/1
