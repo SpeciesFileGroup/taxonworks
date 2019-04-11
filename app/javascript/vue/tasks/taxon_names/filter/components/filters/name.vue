@@ -6,6 +6,7 @@
       <input
         type="text"
         placeholder="Name"
+        class="full_width"
         @keyup.enter="$emit('onSearch')"
         v-model="value.name">
     </div>
@@ -13,6 +14,7 @@
       <label>Author</label>
       <input
         type="text"
+        class="full_width"
         placeholder="Author"
         @keyup.enter="$emit('onSearch')"
         v-model="value.author">
@@ -20,6 +22,7 @@
     <div class="field">
       <label>Year</label>
       <input
+        class="field-year"
         type="text"
         placeholder="Year"
         @keyup.enter="$emit('onSearch')"
@@ -58,4 +61,8 @@ export default {
       display: block;
     }
   }
+  .field-year {
+    width: 60px;
+  }
+
 </style>

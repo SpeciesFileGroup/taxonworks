@@ -1,9 +1,24 @@
 <template>
   <div>
-    <h1>Filter nomenclature</h1>
+    <div class="flex-separate middle">
+      <h1>Filter nomenclature</h1>
+      <div>
+        <label>
+          <input
+            type="checkbox"
+            v-model="activeFilter">
+          Show filter
+        </label>
+      </div>
+    </div>
     <div class="horizontal-left-content align-start">
-      <filter-component @result="list = $event"/>
-      <list-component :list="list"/>
+      <filter-component
+        class="separate-right"
+        v-show="activeFilter"
+        @result="list = $event"/>
+      <list-component
+        :class="{ 'separate-left': activeFilter }"
+        :list="list"/>
     </div>
   </div>
 </template>
@@ -21,6 +36,7 @@ export default {
   data() {
     return {
       list: [],
+      activeFilter: true
     }
   }
 }
