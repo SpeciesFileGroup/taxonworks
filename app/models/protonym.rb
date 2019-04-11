@@ -666,6 +666,62 @@ class Protonym < TaxonName
     is_genus_or_species_rank? && parent == protonym && parent.name == protonym.name
   end
 
+
+  # This only works for generic invalidating combinations
+  # @return [false, or self as Combination]
+  def become_combination
+    a = TaxonNameRelationship::Iczn::Invalidating.where(subject_taxon_name: self).first
+    return false unless a
+    b = a.similar_homonym_string
+    return false unless b
+    c = original_genus
+    return false unless c
+
+    return false if taxon_name_classifications.any?
+    return false if related_taxon_name_relationships.with_type_base('TaxonNameRelationship::Iczn').any?
+
+    original_relationships = original_combination_relationships.load
+
+    return false if original_relationships.select{|r| r.subject_taxon_name_id == id}.empty?
+
+    begin
+
+      Protonym.transaction do
+        t = becomes!(Combination)
+
+        t.write_attribute(:rank_class, nil)
+        t.write_attribute(veratim_name: cached_original_combination)
+
+        t.clear_cached
+        t.disable_combination_relationship_check = true
+
+        # Get rid of general invalidating relationship
+        o = a.object_taxon_name
+        a.destroy!
+
+        taxon_name_relationships.find_each do |r|
+          r.update(subject_taxon_name_id: o.id)
+        end
+
+        # reload to get updated subject_taxon_name_id 
+        original_relationships.each do |i|
+          i.reload
+          orel.update(type: orel.type.gsub!(/TaxonNameRelationship::OriginalCombination::Original/, 'TaxonNameRelationshp::Combination::' )
+        end
+
+        t.save!
+
+        t.disable_combination_relationship_check = false
+      end
+
+    rescue
+      return false 
+    end
+
+    t 
+  end
+
+
   protected
 
   # TODO: move to Protonym

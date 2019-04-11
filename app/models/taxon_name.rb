@@ -664,6 +664,25 @@ class TaxonName < ApplicationRecord
     end
   end
 
+  def clear_cached(update: false)
+    attributes = {
+      cached_html: nil,
+      cached_author_year: nil,
+      cached_original_combination_html: nil,
+      cached_secondary_homonym: nil,
+      cached_primary_homonym: nil,
+      cached_secondary_homonym_alternative_spelling: nil,
+      cached_primary_homonym_alternative_spelling: nil,
+      cached_misspelling: nil,
+      cached_classified_as: nil,
+      cached: nil,
+      cached_valid_taxon_name_id: nil,
+      cached_original_combination: nil
+    }
+
+    save if update
+  end
+
   def set_cached
     n = get_full_name
     update_column(:cached, n)
