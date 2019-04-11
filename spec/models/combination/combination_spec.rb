@@ -1,13 +1,12 @@
 require 'rails_helper'
 describe Combination, type: :model, group: :nomenclature do
 
-
   context 'protonym becoms combination' do
 
     let(:family) { FactoryBot.create(:relationship_family, name: 'Aidae', year_of_publication: 2000) }
     let(:genus) {FactoryBot.create(:iczn_genus, name: 'Aus', parent: family)}
     let(:subgenus) {FactoryBot.create(:iczn_subgenus, name: 'Aus', parent: genus) }
-    let(:species) {FactoryBot.create(:iczn_species, name: 'bus', parent: subgenus) }
+    let(:species) {FactoryBot.create(:iczn_species, name: 'bus', parent: subgenus) } # our valid name
 
     let(:combination) {
       Combination.create!(genus: genus, species: species)
@@ -19,112 +18,99 @@ describe Combination, type: :model, group: :nomenclature do
       expect(combination.save!).to be_truthy
     end
 
-    specify 'combination created' do
-      p = Combination.new
-      p.genus = genus
-      p.species = species
-      p.save
-      p.reload
+    let(:p) { Protonym.create(name: 'bum', parent: species.parent, rank_class: species.rank_class) }
+    let(:invalidating_relationship) { TaxonNameRelationship::Iczn::Invalidating.create!(object_taxon_name: species, subject_taxon_name: p) }
+
+    specify '#becomes' do
+      p.becomes!(Combination)
       expect(p.type).to eq('Combination')
-      expect(p.related_taxon_name_relationships.count).to eq(2)
-      expect(p.genus).to eq(genus)
-      expect(p.species).to eq(species)
+    end 
+
+    specify '#become_combination 1' do
+      expect(p.become_combination).to be_falsey
     end
 
-    context 'from a protonym' do
-      let(:p) do
-        z = Protonym.new(name: species.name, parent: species.parent, rank_class: species.rank_class)
-        z.original_genus = genus
-        z.original_species = species
-        z.save!
-        z
+    specify '#become_combination 2' do
+      p.update(original_genus: genus, original_species: p)
+      invalidating_relationship
+      expect(p.become_combination).to be_truthy
+    end
+
+    specify '#become_combination 3' do
+      p.update(name: 'aum')
+      expect(p.become_combination).to be_falsey
+    end
+
+    specify '#become_combination 4' do
+      TaxonNameClassification::Iczn::Unavailable.create!(taxon_name: p)
+      expect(p.become_combination).to be_falsey
+    end
+
+    context 'complicated' do
+      let!(:p1) { Protonym.create(name: 'bum', parent: species.parent, rank_class: species.rank_class, original_species: p, original_genus: genus)  }
+
+      specify 'not allowed because of second invalidating relationship' do
+        TaxonNameRelationship::Iczn::Invalidating.create!(object_taxon_name: p, subject_taxon_name: p1) 
+        expect(p.become_combination).to be_falsey
       end
 
-      specify 'originals set' do
-        expect(p.original_genus).to eq(genus)
-      end 
+      specify 'original species' do
+        invalidating_relationship
+        p.become_combination
+        expect(p1.original_species.id).to eq(species.id) # failing
+      end
+    end
 
-      specify '#becomes 1' do
-        p.becomes!(Combination)
-        expect(p.type).to eq('Combination')
-      end 
-
-      specify '#becomes 2' do
-        q = p.becomes!(Combination)
-        q.save!
-        expect(Combination.find(q.id)).to be_truthy
+    context 'with an valid conversion' do
+      before do
+        p.update(original_genus: genus, original_species: p)
+        invalidating_relationship
       end
 
+      let!(:c) { p.become_combination }
 
-      context 'must have invalid relationship' do
-        specify '#become_combination 1' do
-          expect(p.become_combination).to be_falsey
-        end
-
-        context 'with invalid relationship' do
-          before {
-            TaxonNameRelationship::Iczn::Invalidating.create!(object_taxon_name: species, subject_taxon_name: p)
-          }
-
-          context 'with original_genus' do
-            specify '#become_combination 2' do
-              expect(p.become_combination).to be_truthy
-            end
-          end
-
-          specify '#become_combination 3' do
-            expect(p.become_combination).to be_falsey
-          end
-        end
+      specify 'is Combination' do
+        expect(c.type).to eq('Combination')
       end
 
-      specify 'test' do
-        expect(p.valid?).to be_truthy
+      specify '#name cleared' do
+        expect(c.name).to eq(nil)
+      end
 
-        p.taxon_name_relationships.create(object_taxon_name: species, type: 'TaxonNameRelationship::Iczn::Invalidating')
-        p.reload
+      specify '#rank_class cleared' do
+        expect(c.rank_class).to eq(nil)
+      end
 
-        p.taxon_name_relationships.first.destroy
-        p.original_genus_relationship.destroy
-        p.original_species_relationship.destroy
+      specify 'relationship types are updated' do
+        expect(TaxonNameRelationship.all.pluck(:type)).to contain_exactly('TaxonNameRelationship::Combination::Genus', 'TaxonNameRelationship::Combination::Species' )
+      end
 
-        p.parent_id = nil
-        p.year_of_publication = nil
-        p.verbatim_author = nil
-        p.rank_class = nil
+      specify '#original_relationships' do
+        expect(c.combination_relationships.count).to eq(2)
+      end
 
-        p.cached_html = nil
-        p.cached_author_year = nil
-        p.cached_original_combination_html = nil
-        p.cached_secondary_homonym = nil
-        p.cached_primary_homonym = nil
-        p.cached_secondary_homonym_alternative_spelling = nil
-        p.cached_primary_homonym_alternative_spelling = nil
-        p.cached = nil
-        p.cached_original_combination = nil
+      specify '#genus' do
+        expect(c.genus).to eq(genus)
+      end
 
-        q = p.becomes!(Combination)
+      specify '#species' do
+        expect(c.species).to eq(species)
+      end
 
-        # q.reload
-        # q.type = 'Combination'
+      specify '#verbatim_name' do
+        expect(c.verbatim_name).to eq('Aus bum')
+      end
 
-        q.genus = genus
-        q.species = species
-        q.save!
-        expect(q.valid?).to be_truthy
-        expect(q.genus).to eq(genus)
-        expect(q.species).to eq(species)
+      specify '#cached' do
+        expect(c.cached).to eq('Aus bum')
+      end
 
-        #      p.genus = genus
-        #      p.species = species
-        #      p.save
-        #      p.reload
-        # expect(q.type).to eq('Combination')
+      specify '#cached_author_year' do
+        expect(c.cached_author_year).to eq('McAtee, 1830') # regenerated on cache from save
+      end
 
-        expect(q.related_taxon_name_relationships.load.size).to eq(2)
-
-        expect(q.genus).to eq(genus)
-        expect(q.species).to eq(species)
+      specify '#cached_original_combination_html' do
+        expect(c.cached_original_combination_html).to eq(nil)
       end
     end
   end

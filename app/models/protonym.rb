@@ -670,13 +670,12 @@ class Protonym < TaxonName
   # This only works for generic invalidating combinations
   # @return [false, or self as Combination]
   def become_combination
+    t = nil
+
     a = TaxonNameRelationship::Iczn::Invalidating.where(subject_taxon_name: self).first
     return false unless a
-    b = a.similar_homonym_string
-    return false unless b
-    c = original_genus
-    return false unless c
-
+    return false unless a.similar_homonym_string
+    return false unless original_genus 
     return false if taxon_name_classifications.any?
     return false if related_taxon_name_relationships.with_type_base('TaxonNameRelationship::Iczn').any?
 
@@ -686,11 +685,14 @@ class Protonym < TaxonName
 
     begin
 
+      # Remember, we are in a transaction here, so the database will
+      # not reload chancges
       Protonym.transaction do
         t = becomes!(Combination)
 
         t.write_attribute(:rank_class, nil)
-        t.write_attribute(veratim_name: cached_original_combination)
+        t.write_attribute(:name, nil)
+        t.write_attribute(:verbatim_name, cached_original_combination)
 
         t.clear_cached
         t.disable_combination_relationship_check = true
@@ -700,13 +702,19 @@ class Protonym < TaxonName
         a.destroy!
 
         taxon_name_relationships.find_each do |r|
+          
+          next if r.object_taxon_name_id == r.subject_taxon_name_id 
           r.update(subject_taxon_name_id: o.id)
         end
-
-        # reload to get updated subject_taxon_name_id 
+     
         original_relationships.each do |i|
-          i.reload
-          orel.update(type: orel.type.gsub!(/TaxonNameRelationship::OriginalCombination::Original/, 'TaxonNameRelationshp::Combination::' )
+          atr = { type: i.type.gsub(/TaxonNameRelationship::OriginalCombination::Original/, 'TaxonNameRelationship::Combination::' ) }
+
+          if i.object_taxon_name_id == i.subject_taxon_name_id 
+            atr[:subject_taxon_name_id] = o.id
+          end
+
+          i.update_columns(atr)
         end
 
         t.save!
@@ -715,10 +723,11 @@ class Protonym < TaxonName
       end
 
     rescue
-      return false 
+      raise
+#      return false 
     end
 
-    t 
+   t 
   end
 
 

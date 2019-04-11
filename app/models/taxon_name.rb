@@ -665,7 +665,7 @@ class TaxonName < ApplicationRecord
   end
 
   def clear_cached(update: false)
-    attributes = {
+    assign_attributes(
       cached_html: nil,
       cached_author_year: nil,
       cached_original_combination_html: nil,
@@ -678,7 +678,9 @@ class TaxonName < ApplicationRecord
       cached: nil,
       cached_valid_taxon_name_id: nil,
       cached_original_combination: nil
-    }
+    )
+
+    
 
     save if update
   end
