@@ -26,7 +26,7 @@ done
 
 # Charge last worker with any remaining specs
  [ "$BEGIN_INDEX" -gt "$SPEC_COUNT" ] || \
- SPECS_TO_RUN[(($TEST_WORKERS-1))]+=$(echo $SPEC_FILES | cut -d " " -f $BEGIN_INDEX-$SPEC_COUNT)
+ SPECS_TO_RUN[(($TEST_WORKERS-1))]+=" $(echo $SPEC_FILES | cut -d " " -f $BEGIN_INDEX-$SPEC_COUNT)"
 
 report() {
   END_TIME=$(date +%s)
