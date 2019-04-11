@@ -20,6 +20,7 @@ menu structure:
   <canvas
     :style="{ width: width+'px', height: height+'px' }"
     @click="sendEvent()"
+    @contextmenu.prevent="sendEventContext()"
     :width="width + 'px'"
     :height="height + 'px'"
     @mousemove="update($event)"
@@ -203,6 +204,13 @@ export default {
       this.optionSelected = this.optionMouseOver
       if (this.optionSelected) {
         this.$emit('selected', this.optionSelected.event)
+        this.update(false)
+      }
+    },
+    sendEventContext: function () {
+      this.optionSelected = this.optionMouseOver
+      if (this.optionSelected) {
+        this.$emit('contextmenu', this.optionSelected.event)
         this.update(false)
       }
     },

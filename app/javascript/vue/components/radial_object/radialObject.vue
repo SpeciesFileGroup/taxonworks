@@ -19,7 +19,8 @@
               <radial-menu
                 v-if="menuCreated"
                 :menu="menuOptions"
-                @selected="selectedRadialOption"
+                @selected="selectedRadialOption($event)"
+                @contextmenu="selectedRadialOption($event, '_blank')"
                 width="400"
                 height="400"/>
             </div>
@@ -177,7 +178,7 @@
       }
     },
     methods: {
-      selectedRadialOption(selected) {
+      selectedRadialOption(selected, target = '_self') {
 
         if(Object.keys(defaultOptions).includes(selected) || selected == 'alltasks') {
           this.currentView = undefined
@@ -186,13 +187,13 @@
               this.currentView = 'Recent'
               break
             case defaultOptions.Edit:
-              window.open(`${this.metadata.resource_path}/edit`, '_self')
+              window.open(`${this.metadata.resource_path}/edit`, target)
               break
             case defaultOptions.New:
-              window.open(`${this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf("/"))}/new`, '_self')
+              window.open(`${this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf("/"))}/new`, target)
               break
             case defaultOptions.Show:
-              window.open(this.metadata.resource_path, '_self')
+              window.open(this.metadata.resource_path, target)
               break
             case defaultOptions.Destroy:
               if(window.confirm('Are you sure you want to destroy this record?')) {
@@ -211,7 +212,7 @@
           }
         }
         else {
-          window.open(this.metadata.tasks[selected].path, '_self')
+          window.open(this.metadata.tasks[selected].path, target)
         }
       },
       closeModal () {

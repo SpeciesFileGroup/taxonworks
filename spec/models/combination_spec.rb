@@ -437,6 +437,68 @@ describe Combination, type: :model, group: :nomenclature do
     end
   end
 
+  context 'protonym becoms combination' do
+    let(:genus) {FactoryBot.create(:iczn_genus, name: 'Aus', parent: family)}
+    let(:subgenus) {FactoryBot.create(:iczn_subgenus, name: 'Aus', parent: genus) }
+    let(:species) {FactoryBot.create(:iczn_species, name: 'bus', parent: subgenus) }
+    specify 'combination created' do
+      p = Combination.new
+      p.genus = genus
+      p.species = species
+      p.save
+      p.reload
+      expect(p.type).to eq('Combination')
+      expect(p.related_taxon_name_relationships.count).to eq(2)
+      expect(p.genus).to eq(genus)
+      expect(p.species).to eq(species)
+    end
+
+    specify 'test' do
+      p = Protonym.new(name: species.name, parent: species.parent, rank_class: species.rank_class)
+      p.original_genus = genus
+      p.original_species = species
+      p.save
+      expect(p.valid?).to be_truthy
+      p.taxon_name_relationships.create(object_taxon_name: species, type: 'TaxonNameRelationship::Iczn::Invalidating')
+      p.reload
+
+      p.taxon_name_relationships.first.destroy
+      p.original_genus_relationship.destroy
+      p.original_species_relationship.destroy
+      p.parent_id = nil
+      p.year_of_publication = nil
+      p.verbatim_author = nil
+      p.rank_class = nil
+      p.cached_html = nil
+      p.cached_author_year = nil
+      p.cached_original_combination_html = nil
+      p.cached_secondary_homonym = nil
+      p.cached_primary_homonym = nil
+      p.cached_secondary_homonym_alternative_spelling = nil
+      p.cached_primary_homonym_alternative_spelling = nil
+      p.cached = nil
+      p.cached_original_combination = nil
+      p = p.becomes(Combination)
+      p.type = 'Combination'
+      p.genus = genus
+      p.species = species
+      p.save
+      expect(p.valid?).to be_truthy
+      expect(p.genus).to eq(genus)
+      expect(p.species).to eq(species)
+      p.reload
+#      p.genus = genus
+#      p.species = species
+#      p.save
+#      p.reload
+      expect(p.type).to eq('Combination')
+      expect(p.related_taxon_name_relationships.count).to eq(2)
+      expect(p.genus).to eq(genus)
+      expect(p.species).to eq(species)
+    end
+  end
+
+
   context 'concerns' do
     it_behaves_like 'citations'
   end
