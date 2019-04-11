@@ -2,19 +2,39 @@
   <div>
     <div class="flex-separate middle">
       <h1>Filter nomenclature</h1>
-      <div>
-        <label>
-          <input
-            type="checkbox"
-            v-model="activeFilter">
-          Show filter
-        </label>
+      <ul class="context-menu">
+        <li>
+          <label>
+            <input
+              type="checkbox"
+              v-model="activeFilter">
+            Show filter
+          </label>
+        </li>
+        <li>
+          <label>
+            <input
+              type="checkbox"
+              v-model="activeJSONRequest">
+            Show JSON Request
+          </label>
+        </li>
+      </ul>
+    </div>
+    <div
+      v-if="activeJSONRequest"
+      class="panel content separate-bottom">
+      <div class="flex-separate middle">
+        <span>
+          JSON Request: {{ urlRequest }}
+        </span>
       </div>
     </div>
     <div class="horizontal-left-content align-start">
       <filter-component
         class="separate-right"
         v-show="activeFilter"
+        @urlRequest="urlRequest = $event"
         @result="list = $event"/>
       <list-component
         :class="{ 'separate-left': activeFilter }"
@@ -36,7 +56,9 @@ export default {
   data() {
     return {
       list: [],
-      activeFilter: true
+      urlRequest: '',
+      activeFilter: true,
+      activeJSONRequest: false
     }
   }
 }

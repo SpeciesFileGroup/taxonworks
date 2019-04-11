@@ -65,6 +65,7 @@ export default {
   methods: {
     resetFilter() {
       this.$emit('result', [])
+      this.$emit('urlRequest', undefined)
       this.params = this.initParams()
     },
     searchForTaxonNames() {
@@ -72,6 +73,7 @@ export default {
       GetTaxonNames(Object.assign({}, this.params.taxon, this.params.related, this.params.base)).then(response => {
         this.result = response.body
         this.$emit('result', this.result)
+        this.$emit('urlRequest', response.url)
         this.searching = false
       }, () => { 
         this.searching = false
