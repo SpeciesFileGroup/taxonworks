@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Precision</h2>
+    <h2>Updated</h2>
     <datalist id="days">
       <option
         v-for="(option, index) in options"

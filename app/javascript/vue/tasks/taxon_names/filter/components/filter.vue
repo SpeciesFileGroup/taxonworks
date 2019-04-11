@@ -1,7 +1,12 @@
 <template>
   <div class="panel">
     <div class="flex-separate content middle action-line">
-      Filter
+      <span>Filter</span>
+      <span
+        data-icon="reset"
+        class="cursor-pointer"
+        @click="resetFilter">Reset
+      </span>
     </div>
     <spinner-component
       :full-screen="true"
@@ -58,6 +63,10 @@ export default {
     }
   },
   methods: {
+    resetFilter() {
+      this.$emit('result', [])
+      this.params = this.initParams()
+    },
     searchForTaxonNames() {
       this.searching = true
       GetTaxonNames(Object.assign({}, this.params.taxon, this.params.related, this.params.base)).then(response => {
