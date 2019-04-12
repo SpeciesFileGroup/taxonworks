@@ -103,8 +103,8 @@
     },
     watch: {
       geojson: {
-        handler(newVal) {
-          if (newVal.length) {
+        handler(newVal) { // an empty geojson object is valid
+          /*if (newVal.length)*/ {
             this.foundItems.clearLayers();
             this.geoJSON(newVal)
           }

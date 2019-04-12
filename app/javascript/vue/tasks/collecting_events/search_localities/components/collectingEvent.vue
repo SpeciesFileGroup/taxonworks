@@ -63,6 +63,12 @@
       <div class="annotation_logic separate-left">
         <h2>Collecting Events</h2>
         <annotation-logic v-model="annotation_logic"/>
+        <input type="button" @click="selectAllList" value="Select All" />
+        <input type="button" @click="deselectAllList" value="Select None" />
+        <input type="button" @click="keepSelected" value="remove Unselected" />
+        <input type="button" @click="removeAllList" value="Remove All" />
+
+
       </div>
       <div>
         <input
@@ -89,9 +95,9 @@
             <th v-if="!showResultMap">State</th>
             <th>Total objects</th>
             <th v-if="!showResultMap">Pin</th>
-            <th v-if="!showResultMap" data-icon="trash" @click="resetList()">All</th>
-            <th><input type="checkbox" @click="selectAllList()" v-model="isSelectAll"/> All</th>
-            <th><span class="remove_area" data-icon="trash" @click="keepSelected()"> unchecked</span></th>
+            <th v-if="!showResultMap"></th>
+            <th> Select </th>
+            <th></th>
           </thead>
           <tbody>
             <tr
@@ -144,7 +150,7 @@
       <l-map
         class="separate-right"
         v-if="showResultMap"
-        height="256px"
+        height="512px"
         width="100%"
         :zoom="zoomForMap"
         :geojson="featuresList"
@@ -274,7 +280,7 @@
       },
       selectAllList() {
         this.selected = [];               // toggle on state of header checkbox (??  !!)
-        if (this.isSelectAll) {
+        /*if (this.isSelectAll)*/ {
           for (let i = this.collectingEventList.length - 1; i > -1; i--) {
             if (!this.selected.includes(this.collectingEventList[i].id)) {
               this.selected.push(this.collectingEventList[i].id);
@@ -282,6 +288,14 @@
           }
         }
         // this.isSelectAll = ! this.isSelectAll;
+      },
+      deselectAllList() {
+        this.selected = []
+      },
+      removeAllList() {
+        for (let i = this.collectingEventList.length - 1; i > -1; i--) {
+           this.delistCE(i)
+        }
       },
       processList() {
         this.getGeoreferences()
