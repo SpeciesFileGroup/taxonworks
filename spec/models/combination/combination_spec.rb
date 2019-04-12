@@ -56,6 +56,7 @@ describe Combination, type: :model, group: :nomenclature do
 
       specify 'original species' do
         p1
+        #
         p.update(original_genus: genus, original_species: p)
         invalidating_relationship
         expect(p.become_combination).to be_truthy
