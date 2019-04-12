@@ -63,7 +63,7 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
   end
 
   # @return [Boolean]
-  #   See use in Protonym.become_combination. It does not make sense to run this on all relationships.
+  #   See use in Protonym.becomes_combination. It does not make sense to run this on all relationships.
   def similar_homonym_string
     a = subject_taxon_name
     b = object_taxon_name

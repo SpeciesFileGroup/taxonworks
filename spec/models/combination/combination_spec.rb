@@ -28,32 +28,48 @@ describe Combination, type: :model, group: :nomenclature do
       expect(p.type).to eq('Combination')
     end 
 
-    specify '#become_combination - when we fail, then we return self, and we are still a protonym' do
-      expect(p.become_combination.type).to eq('Protonym')
+    specify '#becomes_combination - when we fail, then we return self, and we are still a protonym' do
+      expect(p.becomes_combination.type).to eq('Protonym')
     end
 
-    specify '#become_combination 1' do
-      p.become_combination
+    specify '#becomes_combination 1' do
+      p.becomes_combination
       expect(p.errors[:base]).to include('Required TaxonNameRelationship::Iczn::Invalidating relationship not found on this name.')
     end
 
     specify 'with necessary elements method succeeds' do
       p.update(original_genus: genus, original_species: p)
       invalidating_relationship
-      expect(p.become_combination).to be_truthy
+      expect(p.becomes_combination).to be_truthy
+    end
+
+    specify 'soft_validation does not fix with the scope = :automatic' do
+      p.update(original_genus: genus, original_species: p)
+      invalidating_relationship
+      p.soft_validate(:protonym_to_combination)
+      p.fix_soft_validations
+      expect(p.type).to eq('Protonym')
+    end
+
+    specify 'soft_validation fixes with the scope = :requested' do
+      p.update(original_genus: genus, original_species: p)
+      invalidating_relationship
+      p.soft_validate(:protonym_to_combination)
+      p.fix_soft_validations(scope = :requested)
+      expect(p.type).to eq('Combination')
     end
 
     context 'testing conversion prerequisites' do
       before { invalidating_relationship }
 
       specify 'without original_genus method fails' do
-        p.become_combination
+        p.becomes_combination
         expect(p.errors[:base]).to include('Protonym does not have original genus assigned.')
       end
 
       specify 'without similar enough names method fails' do
         p.update(name: 'aum')
-        p.become_combination
+        p.becomes_combination
         expect(p.errors[:base]).to include('Related invalid name is not similar enough to protonym to be treated as combination.')
       end
 
@@ -62,14 +78,14 @@ describe Combination, type: :model, group: :nomenclature do
         specify 'with any classification method fails' do
           TaxonNameClassification::Iczn::Unavailable.create!(taxon_name: p)
           p.reload #! why needed
-          p.become_combination
+          p.becomes_combination
           expect(p.errors[:base]).to include('Protonym has taxon name classifications, it can not be converted to combination.')
         end
 
         specify 'with any addition invalidating relationship method fails' do
           p1 
           TaxonNameRelationship::Iczn::Invalidating.create!(object_taxon_name: p, subject_taxon_name: p1)
-          p.become_combination
+          p.becomes_combination
           expect(p.errors[:base]).to include('Protonym has additional taxon name relationships, it can not be converted to combination.')
         end
       end
@@ -84,13 +100,13 @@ describe Combination, type: :model, group: :nomenclature do
 
       specify 'returns false when combination matches original combination of protonym' do
         p.update(original_genus: genus, original_species: p)
-        p.become_combination
+        p.becomes_combination
         expect(p.errors[:base]).to contain_exactly("Combination failed to save: Combination exists as protonym(s) with matching original combination: Aus (Aus) ba.") 
       end
 
       specify 'updates original combination when genera differ' do
         p.update(original_genus: genus1, original_species: p)
-        expect(p.become_combination).to be_truthy
+        expect(p.becomes_combination).to be_truthy
         expect(p1.reload.original_species.id).to eq(species.id) 
       end
     end
@@ -101,7 +117,7 @@ describe Combination, type: :model, group: :nomenclature do
         invalidating_relationship
       end
 
-      let!(:c) { p.become_combination }
+      let!(:c) { p.becomes_combination }
 
       specify 'is Combination' do
         expect(c.type).to eq('Combination')

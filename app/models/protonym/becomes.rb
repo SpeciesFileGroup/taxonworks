@@ -80,7 +80,7 @@ module Protonym::Becomes
 
   # Convert a Protonym into a Combination.
   # @return [self, or self as Combination]
-  def become_combination
+  def becomes_combination
     a, original_relationships, c = nil, nil, nil
 
     if b = convertable_to_combination? 

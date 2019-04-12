@@ -2408,6 +2408,14 @@ namespace :tw do
           print "\r#{i}    Fixes applied: #{fixed}    Combinations created: #{combinations}"
           if t.citations.empty?
             s = t.subject_taxon_name
+            s.soft_validate(:protonym_to_combination)
+            s.fix_soft_validations(scope = :requested)
+            s.soft_validations.soft_validations.each do |f|
+              fixed += 1  if f.fixed?
+            end
+
+
+=begin
             svalid = s.cached_valid_taxon_name_id
             o = t.object_taxon_name
             shas = s.cached_secondary_homonym_alternative_spelling
@@ -2502,6 +2510,7 @@ namespace :tw do
                 fixed += 1
               end
             end
+=end
           end
         end
 #end

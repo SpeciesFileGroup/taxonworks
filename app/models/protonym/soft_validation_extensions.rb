@@ -22,7 +22,8 @@ module Protonym::SoftValidationExtensions
       sv_potential_homonyms: { set: :potential_homonyms},
       sv_source_not_older_then_description: { set: :dates},
       sv_original_combination_relationships: { set: :original_combination_relationships},
-      sv_extant_children: { set: :extant_children}
+      sv_extant_children: { set: :extant_children},
+      sv_protonym_to_combination: { set: :protonym_to_combination}
 
     }.freeze
 
@@ -486,6 +487,13 @@ module Protonym::SoftValidationExtensions
             end
           end
         end
+      end
+    end
+
+    def sv_protonym_to_combination
+      if convertable_to_combination?
+        soft_validations.add(:base, "Invalid #{self.cached_original_combination_html} could be converted into a Combination",
+                             fix: :becomes_combination, success_message: "Protonym #{self.cached_original_combination_html} was successfully converted into a combination", fix_trigger: :requested)
       end
     end
 
