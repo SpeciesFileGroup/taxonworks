@@ -1,8 +1,9 @@
 <template>
-  <div v-if="biologicalId">
+  <div>
     <fieldset>
       <legend>Biocurations</legend>
       <template
+        v-if="biologicalId"
         v-for="item in biocutarionsType">
         <button
           type="button"

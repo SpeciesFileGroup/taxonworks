@@ -437,6 +437,8 @@ describe Combination, type: :model, group: :nomenclature do
     end
   end
 
+
+
   context 'concerns' do
     it_behaves_like 'citations'
   end

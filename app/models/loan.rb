@@ -111,10 +111,6 @@ class Loan < ApplicationRecord
 
   scope :overdue, -> {where('now() > loans.date_return_expected AND date_closed IS NULL', Time.now.to_date)}
 
-  def self.find_for_autocomplete(params)
-    where('recipient_email LIKE ?', "#{params[:term]}%")
-  end
-
   # @return [Scope] of CollectionObject
   def collection_objects
     list = collection_object_ids
