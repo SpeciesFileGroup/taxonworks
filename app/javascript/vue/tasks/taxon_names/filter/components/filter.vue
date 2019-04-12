@@ -40,6 +40,8 @@ import RelatedComponent from './filters/related'
 import CitationsComponent from './filters/citations'
 import OtusComponent from './filters/otus'
 import MetadataComponent from './filters/metadata'
+import RelationshipsComponent from './filters/relationships'
+
 import { GetTaxonNames } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
 
@@ -53,6 +55,7 @@ export default {
     CitationsComponent,
     OtusComponent,
     MetadataComponent,
+    RelationshipsComponent,
     SpinnerComponent
   },
   data() {
