@@ -679,9 +679,6 @@ class TaxonName < ApplicationRecord
       cached_valid_taxon_name_id: nil,
       cached_original_combination: nil
     )
-
-    
-
     save if update
   end
 

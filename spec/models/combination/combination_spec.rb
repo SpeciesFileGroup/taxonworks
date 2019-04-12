@@ -19,6 +19,8 @@ describe Combination, type: :model, group: :nomenclature do
     end
 
     let(:p) { Protonym.create(name: 'bum', parent: species.parent, rank_class: species.rank_class) }
+    let(:p1) { Protonym.create(name: 'ba', parent: species.parent, rank_class: species.rank_class, original_species: p, original_genus: genus)  }
+
     let(:invalidating_relationship) { TaxonNameRelationship::Iczn::Invalidating.create!(object_taxon_name: species, subject_taxon_name: p) }
 
     specify '#becomes' do
@@ -26,41 +28,70 @@ describe Combination, type: :model, group: :nomenclature do
       expect(p.type).to eq('Combination')
     end 
 
-    specify '#become_combination 1' do
-      expect(p.become_combination).to be_falsey
+    specify '#become_combination - when we fail, then we return self, and we are still a protonym' do
+      expect(p.become_combination.type).to eq('Protonym')
     end
 
-    specify '#become_combination 2' do
+    specify '#become_combination 1' do
+      p.become_combination
+      expect(p.errors[:base]).to include('Required TaxonNameRelationship::Iczn::Invalidating relationship not found on this name.')
+    end
+
+    specify 'with necessary elements method succeeds' do
       p.update(original_genus: genus, original_species: p)
       invalidating_relationship
       expect(p.become_combination).to be_truthy
     end
 
-    specify '#become_combination 3' do
-      p.update(name: 'aum')
-      expect(p.become_combination).to be_falsey
-    end
+    context 'testing conversion prerequisites' do
+      before { invalidating_relationship }
 
-    specify '#become_combination 4' do
-      TaxonNameClassification::Iczn::Unavailable.create!(taxon_name: p)
-      expect(p.become_combination).to be_falsey
+      specify 'without original_genus method fails' do
+        p.become_combination
+        expect(p.errors[:base]).to include('Protonym does not have original genus assigned.')
+      end
+
+      specify 'without similar enough names method fails' do
+        p.update(name: 'aum')
+        p.become_combination
+        expect(p.errors[:base]).to include('Related invalid name is not similar enough to protonym to be treated as combination.')
+      end
+
+      context 'with original genus set' do
+        before {  p.update(original_genus: genus, original_species: p) }
+        specify 'with any classification method fails' do
+          TaxonNameClassification::Iczn::Unavailable.create!(taxon_name: p)
+          p.reload #! why needed
+          p.become_combination
+          expect(p.errors[:base]).to include('Protonym has taxon name classifications, it can not be converted to combination.')
+        end
+
+        specify 'with any addition invalidating relationship method fails' do
+          p1 
+          TaxonNameRelationship::Iczn::Invalidating.create!(object_taxon_name: p, subject_taxon_name: p1)
+          p.become_combination
+          expect(p.errors[:base]).to include('Protonym has additional taxon name relationships, it can not be converted to combination.')
+        end
+      end
     end
 
     context 'complicated' do
-      let!(:p1) { Protonym.create(name: 'ba', parent: species.parent, rank_class: species.rank_class, original_species: p, original_genus: genus)  }
-
-      specify 'not allowed because of second invalidating relationship' do
-        TaxonNameRelationship::Iczn::Invalidating.create!(object_taxon_name: p, subject_taxon_name: p1)
-        expect(p.become_combination).to be_falsey
+      let(:genus1) { Protonym.create(name: 'Gus', parent: genus.parent, rank_class: genus.rank_class)  }
+      before do 
+        invalidating_relationship
+        p1
       end
 
-      specify 'original species' do
-        p1
-        #
+      specify 'returns false when combination matches original combination of protonym' do
         p.update(original_genus: genus, original_species: p)
-        invalidating_relationship
+        p.become_combination
+        expect(p.errors[:base]).to contain_exactly("Combination failed to save: Combination exists as protonym(s) with matching original combination: Aus (Aus) ba.") 
+      end
+
+      specify 'updates original combination when genera differ' do
+        p.update(original_genus: genus1, original_species: p)
         expect(p.become_combination).to be_truthy
-        expect(p1.reload.original_species.id).to eq(species.id) # failing
+        expect(p1.reload.original_species.id).to eq(species.id) 
       end
     end
 

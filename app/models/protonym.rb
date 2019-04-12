@@ -15,6 +15,7 @@ class Protonym < TaxonName
 
   extend Protonym::SoftValidationExtensions::Klass
   include Protonym::SoftValidationExtensions::Instance
+  include Protonym::Becomes
 
   alias_method :original_combination_source, :source
 
@@ -664,71 +665,6 @@ class Protonym < TaxonName
   # @return [boolean]
   def nominotypical_sub_of?(protonym)
     is_genus_or_species_rank? && parent == protonym && parent.name == protonym.name
-  end
-
-
-  # This only works for generic invalidating combinations
-  # @return [false, or self as Combination]
-  def become_combination
-    t = nil
-
-    a = TaxonNameRelationship::Iczn::Invalidating.where(subject_taxon_name: self).first
-    return false unless a
-    return false unless a.similar_homonym_string
-    return false unless original_genus 
-    return false if taxon_name_classifications.any?
-    return false if related_taxon_name_relationships.with_type_base('TaxonNameRelationship::Iczn').any?
-
-    original_relationships = original_combination_relationships.load
-
-    return false if original_relationships.select{|r| r.subject_taxon_name_id == id}.empty?
-
-    begin
-
-      # Remember, we are in a transaction here, so the database will
-      # not reload chancges
-      Protonym.transaction do
-        t = becomes!(Combination)
-
-        t.write_attribute(:rank_class, nil)
-        t.write_attribute(:name, nil)
-        t.write_attribute(:verbatim_name, cached_original_combination)
-
-        t.clear_cached
-        t.disable_combination_relationship_check = true
-
-        # Get rid of general invalidating relationship
-        o = a.object_taxon_name
-        a_id = a.id
-        a.destroy!
-
-        tr1 = taxon_name_relationships.each do |r|
-          next if r.object_taxon_name_id == r.subject_taxon_name_id
-          next if r.id == a_id
-          r.update_column(:subject_taxon_name_id, o.id)
-        end
-     
-        original_relationships.each do |i|
-          atr = { type: i.type.gsub(/TaxonNameRelationship::OriginalCombination::Original/, 'TaxonNameRelationship::Combination::' ) }
-
-          if i.object_taxon_name_id == i.subject_taxon_name_id 
-            atr[:subject_taxon_name_id] = o.id
-          end
-
-          i.update_columns(atr)
-        end
-
-        t.save!
-
-        t.disable_combination_relationship_check = false
-      end
-
-    rescue
-      raise
-#      return false 
-    end
-
-   t 
   end
 
 
