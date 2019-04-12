@@ -23,6 +23,7 @@
       <updated-component v-model="params.base.updated"/>
       <validity-component v-model="params.base.validity" />
       <related-component v-model="params.related"/>
+      <relationships-component/>
       <metadata-component v-model="params.base.metadata" />
       <citations-component v-model="params.base.citations"/>
       <otus-component v-model="params.base.otus"/>

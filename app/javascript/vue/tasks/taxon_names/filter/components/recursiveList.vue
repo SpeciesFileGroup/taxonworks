@@ -8,7 +8,7 @@
         type="button"
         :value="item.type"
         @click="selectItem(item)"
-        :disabled="((item.disabled || (findExist(item) != undefined)) || isForThisRank(item))"
+        :disabled="(item.disabled || (findExist(item) != undefined))"
         class="button button-default normal-input">
         {{ item[display] }}
       </button>
@@ -36,6 +36,10 @@ export default {
     display: {
       type: String,
       required: true
+    },
+    created: {
+      type: Array,
+      default: () => { return [] }
     }
   },
   computed: {
@@ -68,9 +72,9 @@ export default {
     selectItem: function (optionSelected) {
       this.$emit('selected', optionSelected)
     },
-    findExist: function (status) {
-      return this.savedList.find(function (element) {
-        return (element.type == status.type)
+    findExist: function (item) {
+      return this.created.find(function (element) {
+        return (element.type == item.type)
       })
     },
     isForThisRank(item) {
@@ -80,3 +84,14 @@ export default {
 }
 
 </script>
+<style lang="scss" scoped>
+  .tree-status {
+    list-style: none;
+    li {
+      margin-top: 6px;
+      button:first-letter {
+        text-transform: capitalize;
+      }
+    }
+  }
+</style>
