@@ -47,17 +47,19 @@ describe Combination, type: :model, group: :nomenclature do
     end
 
     context 'complicated' do
-      let!(:p1) { Protonym.create(name: 'bum', parent: species.parent, rank_class: species.rank_class, original_species: p, original_genus: genus)  }
+      let!(:p1) { Protonym.create(name: 'ba', parent: species.parent, rank_class: species.rank_class, original_species: p, original_genus: genus)  }
 
       specify 'not allowed because of second invalidating relationship' do
-        TaxonNameRelationship::Iczn::Invalidating.create!(object_taxon_name: p, subject_taxon_name: p1) 
+        TaxonNameRelationship::Iczn::Invalidating.create!(object_taxon_name: p, subject_taxon_name: p1)
         expect(p.become_combination).to be_falsey
       end
 
       specify 'original species' do
+        p1
+        p.update(original_genus: genus, original_species: p)
         invalidating_relationship
-        p.become_combination
-        expect(p1.original_species.id).to eq(species.id) # failing
+        expect(p.become_combination).to be_truthy
+        expect(p1.reload.original_species.id).to eq(species.id) # failing
       end
     end
 

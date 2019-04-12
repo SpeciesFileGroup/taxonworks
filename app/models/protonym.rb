@@ -699,12 +699,13 @@ class Protonym < TaxonName
 
         # Get rid of general invalidating relationship
         o = a.object_taxon_name
+        a_id = a.id
         a.destroy!
 
-        taxon_name_relationships.find_each do |r|
-          
-          next if r.object_taxon_name_id == r.subject_taxon_name_id 
-          r.update(subject_taxon_name_id: o.id)
+        tr1 = taxon_name_relationships.each do |r|
+          next if r.object_taxon_name_id == r.subject_taxon_name_id
+          next if r.id == a_id
+          r.update_column(:subject_taxon_name_id, o.id)
         end
      
         original_relationships.each do |i|
