@@ -2411,7 +2411,9 @@ namespace :tw do
             s.soft_validate(:protonym_to_combination)
             s.fix_soft_validations(scope = :requested)
             s.soft_validations.soft_validations.each do |f|
-              fixed += 1  if f.fixed?
+              if f.fixed?
+                combinations += 1  if f.fixed?
+              end
             end
 
 
