@@ -22,12 +22,15 @@
       </ul>
     </div>
     <div
-      v-if="activeJSONRequest"
+      v-show="activeJSONRequest"
       class="panel content separate-bottom">
       <div class="flex-separate middle">
         <span>
           JSON Request: {{ urlRequest }}
         </span>
+        <div>
+          <csv-component :list="list"/>
+        </div>
       </div>
     </div>
     <div class="horizontal-left-content align-start">
@@ -47,11 +50,13 @@
 
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
+import CsvComponent from './components/convertCsv'
 
 export default {
   components: {
     FilterComponent,
-    ListComponent
+    ListComponent,
+    CsvComponent
   },
   data() {
     return {
@@ -63,7 +68,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>
