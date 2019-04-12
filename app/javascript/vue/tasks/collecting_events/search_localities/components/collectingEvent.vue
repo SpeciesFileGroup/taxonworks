@@ -52,7 +52,7 @@
       </template>
       <input
         type="button"
-        @click="resetList()"
+        @click="removeAllList()"
         value="Reset">
       <input
         type="button"
