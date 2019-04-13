@@ -23,9 +23,8 @@ module Queries
       # Boolean
       attr_accessor :include_ancestors 
 
-
       attr_accessor :taxon_name_relationship
-#       taxon_name_relationship[]=
+      # taxon_name_relationship[]=
 
       attr_accessor :taxon_name_classification
 
@@ -49,19 +48,23 @@ module Queries
       # false 
       attr_accessor :otus
 
-
       def initialize(params)
         @name = params[:name]
-        @exact = params[:exact] == 'true' ? true : false 
+        @exact = (params[:exact] == 'true' ? true : false) if !params[:exact].nil?
+        @validity = (params[:validity] == 'true' ? true : false) if !params[:exact].nil?
         @author = params[:author]
-
+        @year = params[:year].to_s 
+        @updated_since = params[:updated_since].to_s 
         @keyword_ids ||= []
       end
-
 
       # @return [Arel::Table]
       def table
         ::TaxonName.arel_table
+      end
+
+      def year=(value)
+        @year = value.to_s
       end
 
       def cached_name
@@ -82,6 +85,25 @@ module Queries
         end
       end
 
+      def year_facet 
+        return nil if year.blank?
+        table[:cached_author_year].matches('%' + year + '%')
+      end
+
+      def updated_since_facet
+        return nil if updated_since.blank?
+        table[:updated_at].gt(Date.parse(updated_since))
+      end
+
+      def validity_facet 
+        return nil if validity.nil? 
+        if validity 
+          table[:id].eq(table[:cached_valid_taxon_name_id])
+        else
+          table[:id].not_eq(table[:cached_valid_taxon_name_id])
+        end
+      end
+
       # @return [ActiveRecord::Relation]
       def and_clauses
         clauses = []
@@ -89,6 +111,9 @@ module Queries
         clauses += [
           author_facet,
           cached_name,
+          year_facet,
+          updated_since_facet,
+          validity_facet,
           with_project_id
         ].compact
         
