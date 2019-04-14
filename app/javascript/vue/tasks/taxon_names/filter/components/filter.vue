@@ -76,7 +76,7 @@ export default {
       this.searching = true
       let params = Object.assign({}, this.params.taxon, this.params.related, this.params.base)
       params.updated_since = params.updated_since ? this.setDays(params.updated_since) : undefined
-      console.log(params)
+
       GetTaxonNames(params).then(response => {
         this.result = response.body
         this.$emit('result', this.result)
