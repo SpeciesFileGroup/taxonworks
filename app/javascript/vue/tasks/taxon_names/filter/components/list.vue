@@ -11,10 +11,7 @@
           <th>Valid?</th>
           <th>Valid children</th>
           <th>Valid parents</th>
-          <th>Pin</th>
-          <th>Object radial</th>
-          <th>Radial annotator</th>
-          <th>Default tag</th>
+          <th>Options</th>
         </tr>
       </thead>
       <tbody>
@@ -29,21 +26,17 @@
           <td></td>
           <td></td>
           <td></td>
-          <td>
-            <pin-component 
-              :object-id="item.id"
-              :type="item.base_class"/>
-          </td>
-          <td>
-            <radial-object :global-id="item.global_id"/>
-          </td>
-          <td>
-            <radial-annotator
-              type="annotations"
-              :global-id="item.global_id"/>
-          </td>
-          <td>
-            <default-tag :global-id="item.global_id"/>
+          <td class="options-column">
+            <div class="horizontal-left-content">
+              <pin-component 
+                :object-id="item.id"
+                :type="item.base_class"/>
+              <radial-object :global-id="item.global_id"/>
+              <radial-annotator
+                type="annotations"
+                :global-id="item.global_id"/>
+              <default-tag :global-id="item.global_id"/>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -80,5 +73,8 @@ export default {
   }
   tr {
     height: 44px;
+  }
+  .options-column {
+    width: 130px;
   }
 </style>
