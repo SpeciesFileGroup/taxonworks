@@ -19,8 +19,8 @@
         v-model="params.taxon"
         @onSearch="searchForTaxonNames" 
       />
-      <precision-component v-model="params.base.precision" />
-      <updated-component v-model="params.base.updated"/>
+      <precision-component v-model="params.base.exact" />
+      <updated-component v-model="params.base.updated_since"/>
       <validity-component v-model="params.base.validity" />
       <related-component v-model="params.related"/>
       <relationships-component/>
@@ -95,8 +95,8 @@ export default {
           descendants: undefined
         },
         base: {
-          precision: undefined,
-          updated: undefined,
+          exact: undefined,
+          updated_since: undefined,
           validity: undefined,
           metadata: undefined,
           citations: undefined,
