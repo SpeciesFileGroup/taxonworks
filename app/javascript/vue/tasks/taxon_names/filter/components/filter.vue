@@ -74,7 +74,10 @@ export default {
     },
     searchForTaxonNames() {
       this.searching = true
-      GetTaxonNames(Object.assign({}, this.params.taxon, this.params.related, this.params.base)).then(response => {
+      let params = Object.assign({}, this.params.taxon, this.params.related, this.params.base)
+      params.updated_since = params.updated_since ? this.setDays(params.updated_since) : undefined
+      console.log(params)
+      GetTaxonNames(params).then(response => {
         this.result = response.body
         this.$emit('result', this.result)
         this.$emit('urlRequest', response.url)
@@ -103,6 +106,11 @@ export default {
           otus: undefined
         }
       }
+    },
+    setDays(days) {
+      var date = new Date();
+      date.setDate(date.getDate() + days);
+      return date.toISOString().slice(0,10);
     }
   }
 }
