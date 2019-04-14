@@ -15,6 +15,7 @@ class Protonym < TaxonName
 
   extend Protonym::SoftValidationExtensions::Klass
   include Protonym::SoftValidationExtensions::Instance
+  include Protonym::Becomes
 
   alias_method :original_combination_source, :source
 
@@ -665,6 +666,7 @@ class Protonym < TaxonName
   def nominotypical_sub_of?(protonym)
     is_genus_or_species_rank? && parent == protonym && parent.name == protonym.name
   end
+
 
   protected
 

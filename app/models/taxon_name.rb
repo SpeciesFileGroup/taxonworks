@@ -664,6 +664,24 @@ class TaxonName < ApplicationRecord
     end
   end
 
+  def clear_cached(update: false)
+    assign_attributes(
+      cached_html: nil,
+      cached_author_year: nil,
+      cached_original_combination_html: nil,
+      cached_secondary_homonym: nil,
+      cached_primary_homonym: nil,
+      cached_secondary_homonym_alternative_spelling: nil,
+      cached_primary_homonym_alternative_spelling: nil,
+      cached_misspelling: nil,
+      cached_classified_as: nil,
+      cached: nil,
+      cached_valid_taxon_name_id: nil,
+      cached_original_combination: nil
+    )
+    save if update
+  end
+
   def set_cached
     n = get_full_name
     update_column(:cached, n)
@@ -1231,6 +1249,10 @@ class TaxonName < ApplicationRecord
 
   # TODO: too many checks here, split them out
   def sv_missing_fields
+
+    # should be removed once the alternative solution is implemented. It is havily used now
+    confidence_level_array = [93]
+    confidence_level_array = confidence_level_array & ConfidenceLevel.where(project_id: self.id).pluck(&:id)
     if !self.cached_misspelling && !self.name_is_missapplied?
       if self.source.nil?
         soft_validations.add(:base, 'Original publication is not selected')
@@ -1248,7 +1270,7 @@ class TaxonName < ApplicationRecord
           end
         end
       end
-
+      soft_validations.add(:base, 'Confidence level is missing') if !confidence_level_array.empty? && (self.confidences.pluck(&:id) & confidence_level_array).empty?
       soft_validations.add(:verbatim_author, 'Author is missing',
                            fix: :sv_fix_missing_author,
                            success_message: 'Author was updated') if self.author_string.nil? && self.type != 'Combination'
