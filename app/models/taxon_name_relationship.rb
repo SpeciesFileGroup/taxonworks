@@ -84,7 +84,7 @@ class TaxonNameRelationship < ApplicationRecord
   soft_validate(:sv_specific_relationship, set: :specific_relationship, has_fix: true) # some do, some don't
   soft_validate(:sv_objective_synonym_relationship, set: :objective_synonym_relationship, has_fix: false)
   soft_validate(:sv_synonym_relationship, set: :synonym_relationship, has_fix: false)
-  soft_validate(:sv_not_specific_relationship, set: :not_specific_relationship, has_fix: false)
+  soft_validate(:sv_not_specific_relationship, set: :not_specific_relationship, has_fix: true)
   soft_validate(:sv_synonym_linked_to_valid_name, set: :synonym_linked_to_valid_name, has_fix: true)
   soft_validate(:sv_matching_type_genus, set: :matching_type_genus, has_fix: false)
   soft_validate(:sv_validate_priority, set: :validate_priority, has_fix: false)
