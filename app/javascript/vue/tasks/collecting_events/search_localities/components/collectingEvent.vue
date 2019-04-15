@@ -67,8 +67,6 @@
         <input type="button" @click="deselectAllList" value="Select None" />
         <input type="button" @click="keepSelected" value="remove Unselected" />
         <input type="button" @click="removeAllList" value="Remove All" />
-
-
       </div>
       <div>
         <input
@@ -88,16 +86,19 @@
         v-if="showResultList">
         <table class="full_width">
           <thead>
-            <th>Verbatim Locality</th>
-            <th v-if="!showResultMap">Date start</th>
-            <th v-if="!showResultMap">Date end</th>
-            <th v-if="!showResultMap">Country</th>
-            <th v-if="!showResultMap">State</th>
-            <th>Total objects</th>
-            <th v-if="!showResultMap">Pin</th>
-            <th v-if="!showResultMap"></th>
-            <th> Select </th>
-            <th></th>
+            <tr>
+              <th>Verbatim Locality</th>
+              <th v-if="!showResultMap">Date start</th>
+              <th v-if="!showResultMap">Date end</th>
+              <th v-if="!showResultMap">Country</th>
+              <th v-if="!showResultMap">State</th>
+              <th>Total objects</th>
+              <th>Annotator</th>
+              <th>Object radial</th>
+              <th v-if="!showResultMap">Pin</th>
+              <th v-if="!showResultMap"></th>
+              <th> Select </th>
+            </tr>
           </thead>
           <tbody>
             <tr
@@ -129,9 +130,15 @@
             <td v-if="!showResultMap">
               <span> -no state data- </span>
             </td>
-            <td>
-              <span> -no object count- </span>
-            </td>
+              <td>
+                <span> -no object count- </span>
+              </td>
+              <td>
+                <radial-annotator :global-id="item.global_id" />
+              </td>
+              <td>
+                <object-annotator :global-id="item.global_id" />
+              </td>
             <td v-if="!showResultMap">
               <pin-component
                 v-if="item.id"
@@ -177,6 +184,8 @@
   import PinComponent from "components/pin.vue"
   import Spinner from 'components/spinner'
   import lMap from './leafletMap.vue'
+  import RadialAnnotator from 'components/annotator/annotator'
+  import ObjectAnnotator from 'components/radial_object/radialObject'
 
   export default {
     components: {
@@ -189,6 +198,8 @@
       PinComponent,
       lMap,
       Spinner,
+      RadialAnnotator,
+      ObjectAnnotator,
     },
     computed: {
       zoomForMap() {
@@ -312,21 +323,21 @@
             "features": []
           };
           let that = this;
-          let thisSlice = 0;
-          let endSlice;
-          let finalSlice = ce_ids.length;
+          let thisCycle = 0;
+          let endCycle;
+          let finalCycle = ce_ids.length;
           this.newFeatures = [];
           let promises = [];
           for (let i = 0; i < cycles; i++) {
-            endSlice = thisSlice + 30;
-            if ((thisSlice + 30) > finalSlice) {
-              endSlice = finalSlice + 1
+            endCycle = thisCycle + 30;
+            if ((thisCycle + 30) > finalCycle) {
+              endCycle = finalCycle + 1
             }
             let params = {
-              collecting_event_ids: ce_ids.slice(thisSlice, endSlice)
+              collecting_event_ids: ce_ids.slice(thisCycle, endCycle)
             };
             promises.push(this.makePromise(params));
-            thisSlice += 30;
+            thisCycle += 30;
           }
           Promise.all(promises).then(featuresArrays => {
             // if (searchShape) {FeatureCollection.features.push(searchShape)}
