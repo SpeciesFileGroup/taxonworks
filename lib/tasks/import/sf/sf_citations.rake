@@ -1108,8 +1108,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                 elsif (o.rank_string =~ /Species/  && shas == o.cached_secondary_homonym_alternative_spelling && r2 == 1) ||
                     (o.rank_string =~ /Genus/  && s.cached_primary_homonym_alternative_spelling == o.cached_primary_homonym_alternative_spelling && r2 == 1)
 
-                  s.soft_validate(:protonym_to_combination)
-                  s.fix_soft_validations(scope = :requested)
+                  s = s.becomes_combination
                   combinations += 1  if s.type == 'Combination'
                 end
               end
