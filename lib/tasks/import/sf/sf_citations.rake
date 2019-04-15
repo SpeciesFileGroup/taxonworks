@@ -971,24 +971,25 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           ap new_name_status
         end
 
-#        ################################################################################################# Nomenclator Fixes - Invalid to Combination
-#        desc 'time rake tw:project_import:sf_import:citations:create_combinations user_id=1 data_directory=/Users/proceps/src/sf/import/onedb2tw/working/'
-#        LoggedTask.define create_combinations: [:data_directory, :environment, :user_id] do |logger|
-#          @proceps = User.where(email: 'arboridia@gmail.com').first
+        ################################################################################################# Nomenclator Fixes - Invalid to Combination
+        desc 'time rake tw:project_import:sf_import:citations:create_combinations user_id=1 data_directory=/Users/proceps/src/sf/import/onedb2tw/working/'
+        LoggedTask.define create_combinations: [:data_directory, :environment, :user_id] do |logger|
+          @proceps = User.where(email: 'arboridia@gmail.com').first
 
-#          Current.user_id = @proceps.id
-#          import = Import.find_or_create_by(name: 'SpeciesFileData')
-#          skipped_file_ids = import.get('SkippedFileIDs')
-#          get_tw_project_id = import.get('SFFileIDToTWProjectID')
+          Current.user_id = @proceps.id
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
+          get_tw_project_id = import.get('SFFileIDToTWProjectID')
 
-#          get_tw_project_id.each do |key, value|
-#            if skipped_file_ids.include? value.to_i
-#              next
-#            end
-#            print "\nApply fixes for the project #{value} \n"
-#            invalid_relationship_remove_sf(value.to_i)
-#          end
-#        end
+          get_tw_project_id.each do |key, value|
+            if skipped_file_ids.include? value.to_i
+              next
+            end
+            print "\nApply fixes for the project #{value} \n"
+            Current.project_id = value.to_i
+            invalid_relationship_remove_sf(value.to_i)
+          end
+        end
 
         ################################################################################################# Nomenclator Fixes - Soft validation fixes
         desc 'time rake tw:project_import:sf_import:citations:soft_validation_fixes user_id=1 data_directory=/Users/proceps/src/sf/import/onedb2tw/working/'
@@ -1005,6 +1006,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               next
             end
             print "\nSoft validations for the project #{value} \n"
+            Current.project_id = value.to_i
             soft_validations_sf(value.to_i)
           end
         end
@@ -1083,117 +1085,32 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               updated_by_id = t.updated_by_id
 
               s = t.subject_taxon_name
-              svalid = s.cached_valid_taxon_name_id
               o = t.object_taxon_name
               shas = s.cached_secondary_homonym_alternative_spelling
               r = TaxonNameRelationship.where(project_id: project_id, object_taxon_name_id: s.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating')
               r2 = TaxonNameRelationship.where(project_id: project_id, subject_taxon_name_id: s.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating').count
 
               if s.taxon_name_classifications.empty? && r.empty?
-                t.destroy
-                s.save
                 if o.rank_string =~ /Family/ && s.cached_primary_homonym_alternative_spelling == o.cached_primary_homonym_alternative_spelling && r2 == 1
+                  t.destroy
+                  s.save
                   TaxonNameRelationship.create!(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm')
                   fixed += 1
                 elsif  o.rank_string =~ /Species/ && !s.original_combination_source.nil? && s.original_combination_source == o.original_combination_source && s.cached_primary_homonym_alternative_spelling == o.cached_primary_homonym_alternative_spelling && r2 == 1
-                  TaxonNameRelationship.create!(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling')
-                  unless s.original_subgenus.nil?
-                    o.original_subgenus = s.original_subgenus
+                  t.type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'
+                  t.save
+                  unless s.original_subgenus.nil? && !o.original_subgenus.nil?
+                    s.original_subgenus = o.original_subgenus
                     o.save
+                    fixed += 1
                   end
                   fixed += 1
                 elsif (o.rank_string =~ /Species/  && shas == o.cached_secondary_homonym_alternative_spelling && r2 == 1) ||
                     (o.rank_string =~ /Genus/  && s.cached_primary_homonym_alternative_spelling == o.cached_primary_homonym_alternative_spelling && r2 == 1)
-                  combinations += 1
-                  byebug if s.type != 'Protonym'
-                  genus = s.original_genus
-                  subgenus = s.original_subgenus
-                  species = s.original_species
-                  subspecies = s.original_subspecies
-                  variety = s.original_variety
-                  form = s.original_form
-                  vname = s.cached_original_combination #.to_s.gsub('<i>', '').gsub('</i>', '')
-                  s.original_genus_relationship.destroy unless genus.blank?
-                  s.original_subgenus_relationship.destroy unless subgenus.blank?
-                  s.original_species_relationship.destroy unless species.blank?
-                  s.original_subspecies_relationship.destroy unless subspecies.blank?
-                  s.original_variety_relationship.destroy unless variety.blank?
-                  s.original_form_relationship.destroy unless form.blank?
-                  s.parent_id = nil
-                  s.year_of_publication = nil
-                  s.verbatim_author = nil
-                  s.rank_class = nil
-                  s.cached_html = nil
-                  s.cached_author_year = nil
-                  s.cached_original_combination_html = nil
-                  s.cached_secondary_homonym = nil
-                  s.cached_primary_homonym = nil
-                  s.cached_secondary_homonym_alternative_spelling = nil
-                  s.cached_primary_homonym_alternative_spelling = nil
-                  s.cached = nil
-                  s.cached_original_combination = nil
-                  s.type = 'Combination'
-                  s = s.becomes(Combination)
-                  s.genus = genus unless genus.nil?
-                  s.subgenus = subgenus unless subgenus.nil?
-                  s.species = species unless species.nil?
-                  s.subspecies = subspecies unless subspecies.nil?
-                  s.variety = variety unless variety.nil?
-                  s.form = form unless form.nil?
-                  s.verbatim_name = vname
-                  if !s.form.nil?
-                    s.form = o
-                  elsif !s.variety.nil?
-                    s.variety = o
-                  elsif !s.subspecies.nil?
-                    s.subspecies = o
-                  elsif !s.species.nil?
-                    s.species = o
-                  elsif !s.subgenus.nil?
-                    s.subgenus = o
-                  elsif !s.genus.nil?
-                    s.genus = o
-                  end
-                  s.save
-                  byebug
-                  if !s.valid?
-                    s = Protonym.find(s.id)
-                    TaxonNameRelationship.create!(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating', project_id: project_id)
-                    s.original_genus = genus unless genus.nil?
-                    s.original_subgenus = subgenus unless subgenus.nil?
-                    s.original_species = species unless species.nil?
-                    s.original_subspecies = subspecies unless subspecies.nil?
-                    s.original_variety = variety unless variety.nil?
-                    s.original_form = form unless form.nil?
-                  else
-                    TaxonNameRelationship.where(project_id: project_id, subject_taxon_name_id: s.id).with_type_contains('Combination').each do |z|
-                      z.object_taxon_name.verbatim_name = z.object_taxon_name.cached if z.object_taxon_name.type == 'Combination' && z.object_taxon_name.verbatim_name.blank?
-                      z.subject_taxon_name_id = o.id
-                      z.save
-                      z.subject_taxon_name.save
-                      fixed += 1
-                    end
-                    TaxonNameRelationship.where(project_id: project_id, subject_taxon_name_id: s.id).select{|i| i.type !~ /Combination/}.each do |z|
-                      z.subject_taxon_name_id = o.id
-                      z.save
-                      fixed += 1
-                    end
-                    TaxonNameRelationship.where(project_id: project_id, subject_taxon_name_id: s.id).select{|i| i.type =~ /Combination/}.each do |z|
-                      z.object_taxon_name.verbatim_name = z.object_taxon_name.cached if z.object_taxon_name.type == 'Combination' && z.object_taxon_name.verbatim_name.blank?
-                      z.subject_taxon_name_id = o.id
-                      z.save
-                      fixed += 1
-                    end
-                    TaxonNameRelationship.where(project_id: project_id, object_taxon_name_id: s.id).select{|i| i.type !~ /Combination/}.each do |z|
-                      z.object_taxon_name_id = o.id
-                      z.save
-                      fixed += 1
-                    end
-                  end
-                elsif s.cached_valid_taxon_name_id != svalid
-                  TaxonNameRelationship.create(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating', created_at: created_at, updated_at: updated_at, created_by_id: created_by_id, updated_by_id: updated_by_id, project_id: project_id)
-                else
-                  fixed += 1
+
+                  s.soft_validate(:protonym_to_combination)
+                  s.fix_soft_validations(scope = :requested)
+                  combinations += 1  if s.type == 'Combination'
                 end
               end
             end
@@ -1209,16 +1126,10 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           TaxonName.where(project_id: project_id).find_each do |t|
             i += 1
             print "\r#{i}    Fixes applied: #{fixed}         Combinations: #{combinations}"
-#          next if i < 7346
-#          byebug
             t.soft_validate(:all, true, true)
             t.fix_soft_validations
             t.soft_validations.soft_validations.each do |f|
               fixed += 1  if f.fixed?
-            end
-            t.fix_soft_validations(scope = :requested)
-            t.soft_validations.soft_validations.each do |f|
-              combinations += 1  if f.fixed?
             end
           end
 
@@ -1233,17 +1144,15 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             t.soft_validations.soft_validations.each do |f|
               fixed += 1  if f.fixed?
             end
-            s.fix_soft_validations(scope = :requested)
           end
           print "\nApply soft validation fixes to taxa 2nd pass \n"
 
+=begin
           i = 0
           GC.start
           TaxonName.where(project_id: project_id).find_each do |t|
             i += 1
             print "\r#{i}    Fixes applied: #{fixed}         Combinations: #{combinations}"
-#          next if i < 7346
-#          byebug
             t.soft_validate(:all, true, true)
             t.fix_soft_validations
             t.soft_validations.soft_validations.each do |f|
@@ -1254,6 +1163,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               combinations += 1  if f.fixed?
             end
           end
+=end
         end
 
       end
