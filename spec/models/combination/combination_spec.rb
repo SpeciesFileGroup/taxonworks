@@ -1,7 +1,7 @@
 require 'rails_helper'
 describe Combination, type: :model, group: :nomenclature do
 
-  context 'protonym becoms combination' do
+  context 'protonym becomes combination' do
 
     let(:family) { FactoryBot.create(:relationship_family, name: 'Aidae', year_of_publication: 2000) }
     let(:genus) {FactoryBot.create(:iczn_genus, name: 'Aus', parent: family)}
@@ -61,12 +61,11 @@ describe Combination, type: :model, group: :nomenclature do
 
     specify 'soft_validation fixes with the scope = :requested, conversion fails' do
       p.update(original_genus: genus, original_species: p)
-      c = Combination.create(genus: genus, species: species)
+      c = Combination.create!(genus: genus, species: species, verbatim_name: 'Aus bum')
       invalidating_relationship
-      p.soft_validate(:protonym_to_combination)
-      p.fix_soft_validations(scope = :requested)
-      expect(p.valid?).to be_falsey
-      expect(p.type).to eq('Protonym')
+      z = p.becomes_combination
+      expect(z.errors.any?).to be_truthy
+      expect(z.type).to eq('Protonym')
     end
 
     context 'testing conversion prerequisites' do

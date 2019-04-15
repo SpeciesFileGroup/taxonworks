@@ -124,13 +124,13 @@ module Protonym::Becomes
 
         c.save!
         c.disable_combination_relationship_check = false
+        c
       end
 
     # Note: technically a.destroy could hit this, but that should never happen.
     rescue ActiveRecord::RecordInvalid => e
       errors.add(:base, 'Combination failed to save: ' + c.errors.full_messages.join('; '))
-      z = c.becomes!(Protonym) # if not, the variable returns back as Combination
-      return false
+      z = becomes!(Protonym)
     rescue
       raise
     end
