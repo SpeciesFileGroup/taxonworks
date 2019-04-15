@@ -47,7 +47,7 @@ module Protonym::Becomes
   end
 
   def becomes_test_for_other_relationships
-    if related_taxon_name_relationships.with_type_base('TaxonNameRelationship::Iczn').any?
+    if related_taxon_name_relationships.with_type_base('TaxonNameRelationship::Iczn').any? || related_taxon_name_relationships.with_type_base('TaxonNameRelationship::Typification').any?
       errors.add(:base, 'Protonym has additional taxon name relationships, it can not be converted to combination.')
       false
     else
