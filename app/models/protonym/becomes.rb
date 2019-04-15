@@ -129,7 +129,7 @@ module Protonym::Becomes
     # Note: technically a.destroy could hit this, but that should never happen.
     rescue ActiveRecord::RecordInvalid => e
       errors.add(:base, 'Combination failed to save: ' + c.errors.full_messages.join('; '))
-      c = becomes(Protonym)
+      c = becomes(Protonym) # if not, the variable returns back as Combination
       return false
     rescue
       raise
