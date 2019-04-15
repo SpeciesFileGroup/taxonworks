@@ -59,6 +59,16 @@ describe Combination, type: :model, group: :nomenclature do
       expect(p.type).to eq('Combination')
     end
 
+    specify 'soft_validation fixes with the scope = :requested, conversion fails' do
+      p.update(original_genus: genus, original_species: p)
+      c = Combination.create(genus: genus, species: species)
+      invalidating_relationship
+      p.soft_validate(:protonym_to_combination)
+      p.fix_soft_validations(scope = :requested)
+      expect(p.valid?).to be_falsey
+      expect(p.type).to eq('Protonym')
+    end
+
     context 'testing conversion prerequisites' do
       before { invalidating_relationship }
 
