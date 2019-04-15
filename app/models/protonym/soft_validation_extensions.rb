@@ -23,7 +23,7 @@ module Protonym::SoftValidationExtensions
       sv_source_not_older_then_description: { set: :dates, has_fix: false},
       sv_original_combination_relationships: { set: :original_combination_relationships, has_fix: false},
       sv_extant_children: { set: :extant_children, has_fix: false},
-      sv_protonym_to_combination: { set: :protonym_to_combination, has_fix: true}
+      sv_protonym_to_combination: { set: :protonym_to_combination, has_fix: false}
 
     }.freeze
 
