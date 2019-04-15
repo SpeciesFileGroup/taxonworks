@@ -971,24 +971,24 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           ap new_name_status
         end
 
-        ################################################################################################# Nomenclator Fixes - Invalid to Combination
-        desc 'time rake tw:project_import:sf_import:citations:create_combinations user_id=1 data_directory=/Users/proceps/src/sf/import/onedb2tw/working/'
-        LoggedTask.define create_combinations: [:data_directory, :environment, :user_id] do |logger|
-          @proceps = User.where(email: 'arboridia@gmail.com').first
+#        ################################################################################################# Nomenclator Fixes - Invalid to Combination
+#        desc 'time rake tw:project_import:sf_import:citations:create_combinations user_id=1 data_directory=/Users/proceps/src/sf/import/onedb2tw/working/'
+#        LoggedTask.define create_combinations: [:data_directory, :environment, :user_id] do |logger|
+#          @proceps = User.where(email: 'arboridia@gmail.com').first
 
-          Current.user_id = @proceps.id
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
-          skipped_file_ids = import.get('SkippedFileIDs')
-          get_tw_project_id = import.get('SFFileIDToTWProjectID')
+#          Current.user_id = @proceps.id
+#          import = Import.find_or_create_by(name: 'SpeciesFileData')
+#          skipped_file_ids = import.get('SkippedFileIDs')
+#          get_tw_project_id = import.get('SFFileIDToTWProjectID')
 
-          get_tw_project_id.each do |key, value|
-            if skipped_file_ids.include? value.to_i
-              next
-            end
-            print "\nApply fixes for the project #{value} \n"
-            invalid_relationship_remove_sf(value.to_i)
-          end
-        end
+#          get_tw_project_id.each do |key, value|
+#            if skipped_file_ids.include? value.to_i
+#              next
+#            end
+#            print "\nApply fixes for the project #{value} \n"
+#            invalid_relationship_remove_sf(value.to_i)
+#          end
+#        end
 
         ################################################################################################# Nomenclator Fixes - Soft validation fixes
         desc 'time rake tw:project_import:sf_import:citations:soft_validation_fixes user_id=1 data_directory=/Users/proceps/src/sf/import/onedb2tw/working/'
@@ -1201,19 +1201,24 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
         end
 
         def soft_validations_sf(project_id)
+          combinations = 0
           fixed = 0
           print "\nApply soft validation fixes to taxa 1st pass \n"
           i = 0
           GC.start
           TaxonName.where(project_id: project_id).find_each do |t|
             i += 1
-            print "\r#{i}    Fixes applied: #{fixed}"
+            print "\r#{i}    Fixes applied: #{fixed}         Combinations: #{combinations}"
 #          next if i < 7346
 #          byebug
             t.soft_validate(:all, true, true)
             t.fix_soft_validations
             t.soft_validations.soft_validations.each do |f|
               fixed += 1  if f.fixed?
+            end
+            t.fix_soft_validations(scope = :requested)
+            t.soft_validations.soft_validations.each do |f|
+              combinations += 1  if f.fixed?
             end
           end
 
@@ -1228,6 +1233,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             t.soft_validations.soft_validations.each do |f|
               fixed += 1  if f.fixed?
             end
+            s.fix_soft_validations(scope = :requested)
           end
           print "\nApply soft validation fixes to taxa 2nd pass \n"
 
@@ -1235,11 +1241,17 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           GC.start
           TaxonName.where(project_id: project_id).find_each do |t|
             i += 1
-            print "\r#{i}    Fixes applied: #{fixed}"
+            print "\r#{i}    Fixes applied: #{fixed}         Combinations: #{combinations}"
+#          next if i < 7346
+#          byebug
             t.soft_validate(:all, true, true)
             t.fix_soft_validations
             t.soft_validations.soft_validations.each do |f|
               fixed += 1  if f.fixed?
+            end
+            t.fix_soft_validations(scope = :requested)
+            t.soft_validations.soft_validations.each do |f|
+              combinations += 1  if f.fixed?
             end
           end
         end
