@@ -10,20 +10,20 @@ module Protonym::SoftValidationExtensions
         description: 'Validates parent rank.'
       },
 
-      sv_missing_relationships: { set: :missing_relationships},
-      sv_missing_classifications: { set: :missing_classifications},
-      sv_species_gender_agreement: { set: :species_gender_agreement},
-      sv_type_placement: { set: :type_placement},
-      sv_primary_types: { set: :primary_types},
-      sv_validate_coordinated_names: { set: :validate_coordinated_names},
-      sv_single_sub_taxon: { set: :single_sub_taxon},
-      sv_parent_priority: { set: :parent_priority},
-      sv_homotypic_synonyms: { set: :homotypic_synonyms},
-      sv_potential_homonyms: { set: :potential_homonyms},
-      sv_source_not_older_then_description: { set: :dates},
-      sv_original_combination_relationships: { set: :original_combination_relationships},
-      sv_extant_children: { set: :extant_children},
-      sv_protonym_to_combination: { set: :protonym_to_combination}
+      sv_missing_relationships: { set: :missing_relationships, has_fix: false},
+      sv_missing_classifications: { set: :missing_classifications, has_fix: false},
+      sv_species_gender_agreement: { set: :species_gender_agreement, has_fix: false},
+      sv_type_placement: { set: :type_placement, has_fix: false},
+      sv_primary_types: { set: :primary_types, has_fix: false},
+      sv_validate_coordinated_names: { set: :validate_coordinated_names, has_fix: true},
+      sv_single_sub_taxon: { set: :single_sub_taxon, has_fix: true},
+      sv_parent_priority: { set: :parent_priority, has_fix: false},
+      sv_homotypic_synonyms: { set: :homotypic_synonyms, has_fix: false},
+      sv_potential_homonyms: { set: :potential_homonyms, has_fix: false},
+      sv_source_not_older_then_description: { set: :dates, has_fix: false},
+      sv_original_combination_relationships: { set: :original_combination_relationships, has_fix: false},
+      sv_extant_children: { set: :extant_children, has_fix: false},
+      sv_protonym_to_combination: { set: :protonym_to_combination, has_fix: true}
 
     }.freeze
 
