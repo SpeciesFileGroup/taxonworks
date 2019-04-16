@@ -136,7 +136,7 @@ namespace :tw do
         puts @args
         Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/**/*.txt"])
 
-        $user_id, $project_id = nil, nil
+        Current.user_id, Current.project_id = nil, nil
 
         @data = ImportedDataUcd.new
 
@@ -174,9 +174,9 @@ namespace :tw do
         handle_ptype_ucd
         handle_hosts_ucd
         handle_dist_ucd
+        print "\n\n !! Pre soft validation done. End time: #{Time.now} \n\n"
 #end
 #byebug
-        print "\n\n !! Pre soft validation done. End time: #{Time.now} \n\n"
 
         invalid_relationship_remove
         invalid_relationship_remove
@@ -198,8 +198,8 @@ namespace :tw do
         if @data.done?(handle)
           print "from database.\n"
 
-          $project_id = @data.project_id 
-          $user_id = @data.user_id
+          Current.project_id = @data.project_id 
+          Current.user_id = @data.user_id
         else
           print "as newly parsed.\n"
 
@@ -221,17 +221,17 @@ namespace :tw do
           @data.user_id = user.id 
         end
 
-        $project_id = @data.project_id 
-        $user_id = @data.user_id
+        Current.project_id = @data.project_id 
+        Current.user_id = @data.user_id
 
-        raise '$project_id or $user_id not set.' if $project_id.nil? || $user_id.nil?
+        raise 'Current.project_id or Current.user_id not set.' if Current.project_id.nil? || Current.user_id.nil?
 
-        @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id)
-        @order = Protonym.find_or_create_by(name: 'Hymenoptera', parent: @root, rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Order', project_id: $project_id)
+        @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: Current.project_id)
+        @order = Protonym.find_or_create_by(name: 'Hymenoptera', parent: @root, rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Order', project_id: Current.project_id)
 
-        @data.superfamilies['1'] = Protonym.find_or_create_by(name: 'Serphitoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id
-        @data.superfamilies['2'] = Protonym.find_or_create_by(name: 'Chalcidoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id
-        @data.superfamilies['3'] = Protonym.find_or_create_by(name: 'Mymarommatoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id
+        @data.superfamilies['1'] = Protonym.find_or_create_by(name: 'Serphitoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: Current.project_id).id
+        @data.superfamilies['2'] = Protonym.find_or_create_by(name: 'Chalcidoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: Current.project_id).id
+        @data.superfamilies['3'] = Protonym.find_or_create_by(name: 'Mymarommatoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: Current.project_id).id
         @data.families[''] = @order.id # Use the order ID as a parent if no family is provided
 
         @data.keywords['ucd_imported'] = Keyword.find_or_create_by(name: 'UCD_imported', definition: 'Imported from UCD database.').id
@@ -266,9 +266,9 @@ namespace :tw do
             i += 1
             print "\r#{i}"
 
-            family = row['Family'].blank? ? nil : Protonym.find_or_create_by!(name: row['Family'], parent_id: @data.superfamilies[row['SuperfamFK']], rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family', project_id: $project_id)
-            subfamily = row['Subfam'].blank? ? nil : Protonym.find_or_create_by!(name: row['Subfam'], parent: family, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Subfamily', project_id: $project_id)
-            tribe = row['Tribe'].blank? ? nil : Protonym.find_or_create_by!(name: row['Tribe'], parent: subfamily, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Tribe', project_id: $project_id)
+            family = row['Family'].blank? ? nil : Protonym.find_or_create_by!(name: row['Family'], parent_id: @data.superfamilies[row['SuperfamFK']], rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family', project_id: Current.project_id)
+            subfamily = row['Subfam'].blank? ? nil : Protonym.find_or_create_by!(name: row['Subfam'], parent: family, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Subfamily', project_id: Current.project_id)
+            tribe = row['Tribe'].blank? ? nil : Protonym.find_or_create_by!(name: row['Tribe'], parent: subfamily, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Tribe', project_id: Current.project_id)
 
             if !tribe.nil?
               @data.families[row['FamCode']] = tribe.id
@@ -296,9 +296,9 @@ namespace :tw do
         if !@data.done?(handle)
           puts 'as new'
 
-          tags = {'1' => Keyword.find_or_create_by(name: '1', definition: 'Taxonomic (Definition is needed for the term)', project_id: $project_id),
-                  '2' => Keyword.find_or_create_by(name: '2', definition: 'Biological (Definition is needed for the term)', project_id: $project_id),
-                  '3' => Keyword.find_or_create_by(name: '3', definition: 'Economic (Definition is needed for the term)', project_id: $project_id),
+          tags = {'1' => Keyword.find_or_create_by(name: '1', definition: 'Taxonomic (Definition is needed for the term)', project_id: Current.project_id),
+                  '2' => Keyword.find_or_create_by(name: '2', definition: 'Biological (Definition is needed for the term)', project_id: Current.project_id),
+                  '3' => Keyword.find_or_create_by(name: '3', definition: 'Economic (Definition is needed for the term)', project_id: Current.project_id),
           }.freeze
           
           path = @args[:data_directory] + 'KEYWORDS.txt'
@@ -314,7 +314,7 @@ namespace :tw do
             #definition = row['Meaning'].to_s.length < 21 ? row['Meaning'] + '.................' : row['Meaning']
             n = row['Meaning'].to_s + '(' + row['KeyWords'] + ')'
 
-            topic = Topic.find_or_create_by!(name: n, definition: 'Definition is needed for the term: ' + n, project_id: $project_id)
+            topic = Topic.find_or_create_by!(name: n, definition: 'Definition is needed for the term: ' + n, project_id: Current.project_id)
 
             topic.tags.create(keyword: tags[row['Category']]) unless row['Category'].blank?
             
@@ -357,7 +357,7 @@ namespace :tw do
             name = row['ValAuthor'].split(' ').first
             author = row['ValAuthor'].gsub(name + ' ', '')
 
-            taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
+            taxon = Protonym.find_or_create_by(name: name, project_id: Current.project_id)
           
             taxon.parent = @order if taxon.parent_id.nil?
 
@@ -440,7 +440,7 @@ namespace :tw do
 
           if !row['ValGenus'].blank? && @data.genera_index[row['ValGenus']].nil?
             name = row['ValGenus']
-            taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
+            taxon = Protonym.find_or_create_by(name: name, project_id: Current.project_id)
             taxon.name = 'Luna' if taxon.name == 'luna'
             taxon.parent_id = find_family_id_ucd(row['Family']) if taxon.parent_id.nil?
             taxon.year_of_publication = row['ValDate'] if taxon.year_of_publication.nil? && row['ValSpecies'].blank?
@@ -494,14 +494,14 @@ namespace :tw do
           changed = false
 #          byebug if row['CitGenus'] == 'Risbecia'
           if !row['CitGenus'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
-            taxon = Protonym.find_or_create_by(name: row['CitGenus'], project_id: $project_id)
+            taxon = Protonym.find_or_create_by(name: row['CitGenus'], project_id: Current.project_id)
             if !@data.genus_codes[row['TaxonCode']].blank? && row['CitSubgen'].blank? && !taxon.identifiers.empty?
-              taxon = Protonym.create(name: row['CitGenus'], project_id: $project_id)
+              taxon = Protonym.create(name: row['CitGenus'], project_id: Current.project_id)
             elsif @data.combinations[row['TaxonCode']].blank? && row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank? && row['CitSubsp'].blank?
-              taxon = Protonym.create(name: row['CitGenus'], project_id: $project_id)
+              taxon = Protonym.create(name: row['CitGenus'], project_id: Current.project_id)
             end
             changed = true if taxon.changed?
-            taxon1 = Protonym.find_by(name: row['ValGenus'], project_id: $project_id)
+            taxon1 = Protonym.find_by(name: row['ValGenus'], project_id: Current.project_id)
             taxon.parent_id = find_family_id_ucd(row['Family']) if taxon.parent_id.nil?
 #            taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil? && row['CitSpecies'].blank? && row['CitSubgen'].blank?
 #            taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil? && row['CitSpecies'].blank? && row['CitSubgen'].blank?
@@ -559,14 +559,14 @@ namespace :tw do
           changed = false
 #          byebug if row['CitGenus'] == 'Risbecia'
           if !row['CitGenus'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
-            taxon = Protonym.find_or_create_by(name: row['CitGenus'], project_id: $project_id)
+            taxon = Protonym.find_or_create_by(name: row['CitGenus'], project_id: Current.project_id)
             if !@data.genus_codes[row['TaxonCode']].blank? && row['CitSubgen'].blank? && !taxon.identifiers.empty?
-              taxon = Protonym.create(name: row['CitGenus'], project_id: $project_id)
+              taxon = Protonym.create(name: row['CitGenus'], project_id: Current.project_id)
             elsif @data.combinations[row['TaxonCode']].blank? && row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank? && row['CitSubsp'].blank?
-              taxon = Protonym.create(name: row['CitGenus'], project_id: $project_id)
+              taxon = Protonym.create(name: row['CitGenus'], project_id: Current.project_id)
             end
             changed = true if taxon.changed?
-            taxon1 = Protonym.find_by(name: row['ValGenus'], project_id: $project_id)
+            taxon1 = Protonym.find_by(name: row['ValGenus'], project_id: Current.project_id)
             taxon.parent_id = find_family_id_ucd(row['Family']) if taxon.parent_id.nil?
 #            taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil? && row['CitSpecies'].blank? && row['CitSubgen'].blank?
 #            taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil? && row['CitSpecies'].blank? && row['CitSubgen'].blank?
@@ -624,14 +624,14 @@ namespace :tw do
           changed = false
 #          byebug if row['CitGenus'] == 'Risbecia'
           if !row['CitGenus'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
-            taxon = Protonym.find_or_create_by(name: row['CitGenus'], project_id: $project_id)
+            taxon = Protonym.find_or_create_by(name: row['CitGenus'], project_id: Current.project_id)
             if !@data.genus_codes[row['TaxonCode']].blank? && row['CitSubgen'].blank? && !taxon.identifiers.empty?
-              taxon = Protonym.create(name: row['CitGenus'], project_id: $project_id)
+              taxon = Protonym.create(name: row['CitGenus'], project_id: Current.project_id)
             elsif @data.combinations[row['TaxonCode']].blank? && row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank? && row['CitSubsp'].blank?
-              taxon = Protonym.create(name: row['CitGenus'], project_id: $project_id)
+              taxon = Protonym.create(name: row['CitGenus'], project_id: Current.project_id)
             end
             changed = true if taxon.changed?
-            taxon1 = Protonym.find_by(name: row['ValGenus'], project_id: $project_id)
+            taxon1 = Protonym.find_by(name: row['ValGenus'], project_id: Current.project_id)
             taxon.parent_id = find_family_id_ucd(row['Family']) if taxon.parent_id.nil?
 #            taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil? && row['CitSpecies'].blank? && row['CitSubgen'].blank?
 #            taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil? && row['CitSpecies'].blank? && row['CitSubgen'].blank?
@@ -690,11 +690,11 @@ namespace :tw do
           if !row['CitSubgen'].blank? && row['CitSpecies'].blank? && row['CitSubsp'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
             name = row['CitSubgen'].gsub(')', '').gsub('?', '').capitalize
             parent = @data.genera_index[row['ValGenus']]
-            taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
+            taxon = Protonym.find_or_create_by(name: name, project_id: Current.project_id)
             if !@data.genus_codes[row['TaxonCode']].blank? && !taxon.identifiers.empty?
-              taxon = Protonym.create(name: name, project_id: $project_id)
+              taxon = Protonym.create(name: name, project_id: Current.project_id)
             elsif @data.combinations[row['TaxonCode']].blank?
-              taxon = Protonym.create(name: name, project_id: $project_id)
+              taxon = Protonym.create(name: name, project_id: Current.project_id)
             end
             changed = true if taxon.changed?
             taxon.parent_id = parent if taxon.parent_id.nil? && parent
@@ -704,7 +704,7 @@ namespace :tw do
               taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus'
               taxon.parent_id = taxon.parent.parent_id
             end
-            taxon1 = Protonym.find_by(name: row['ValGenus'], project_id: $project_id)
+            taxon1 = Protonym.find_by(name: row['ValGenus'], project_id: Current.project_id)
             origgen = @data.all_genera_index[row['CitGenus']]
 
             begin
@@ -766,11 +766,11 @@ namespace :tw do
           if !row['CitSubgen'].blank? && row['CitSpecies'].blank? && row['CitSubsp'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
             name = row['CitSubgen'].gsub(')', '').gsub('?', '').capitalize
             parent = @data.genera_index[row['ValGenus']]
-            taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
+            taxon = Protonym.find_or_create_by(name: name, project_id: Current.project_id)
             if !@data.genus_codes[row['TaxonCode']].blank? && !taxon.identifiers.empty?
-              taxon = Protonym.create(name: name, project_id: $project_id)
+              taxon = Protonym.create(name: name, project_id: Current.project_id)
             elsif @data.combinations[row['TaxonCode']].blank?
-              taxon = Protonym.create(name: name, project_id: $project_id)
+              taxon = Protonym.create(name: name, project_id: Current.project_id)
             end
             changed = true if taxon.changed?
             taxon.parent_id = parent if taxon.parent_id.nil? && parent
@@ -780,7 +780,7 @@ namespace :tw do
               taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus'
               taxon.parent_id = taxon.parent.parent_id
             end
-            taxon1 = Protonym.find_by(name: row['ValGenus'], project_id: $project_id)
+            taxon1 = Protonym.find_by(name: row['ValGenus'], project_id: Current.project_id)
             origgen = @data.all_genera_index[row['CitGenus']]
 
             begin
@@ -851,7 +851,7 @@ namespace :tw do
             n2 = name_to_unified_ucd(row['CitSpecies'].to_s)
             n3 = name_to_unified_ucd(row['CitSubsp'].to_s)
 
-            taxon = Protonym.find_or_create_by(name: name, parent_id: parent_id, project_id: $project_id)
+            taxon = Protonym.find_or_create_by(name: name, parent_id: parent_id, project_id: Current.project_id)
             taxon.year_of_publication = row['ValDate'] if taxon.year_of_publication.nil?
             taxon.verbatim_author = row['ValAuthor'] if taxon.verbatim_author.nil?
             taxon.rank_class = 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
@@ -930,11 +930,11 @@ namespace :tw do
             name = row['CitSpecies'].gsub('sp. ', '').to_s
 
             #@data.combinations
-            taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: $project_id)
+            taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: Current.project_id)
             if !@data.species_codes[row['TaxonCode']].blank? && row['CitSubsp'].blank? && !taxon.identifiers.empty?
-              taxon = Protonym.create(name: name, parent_id: parent, project_id: $project_id)
+              taxon = Protonym.create(name: name, parent_id: parent, project_id: Current.project_id)
             elsif @data.combinations[row['TaxonCode']].blank?
-              taxon = Protonym.create(name: name, parent_id: parent, project_id: $project_id)
+              taxon = Protonym.create(name: name, parent_id: parent, project_id: Current.project_id)
             end
             changed = true if taxon.changed?
             taxon.rank_class = 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
@@ -958,7 +958,7 @@ namespace :tw do
               r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name_id: taxon1) if taxon.id != taxon1
               byebug if r.id.nil?
 #              if !r.nil? && r.id.nil?
-#                taxon2 = Protonym.new(name: name, parent_id: parent, project_id: $project_id)
+#                taxon2 = Protonym.new(name: name, parent_id: parent, project_id: Current.project_id)
 #                taxon2.rank_class = 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
 #                taxon2.save!
 #                taxon = taxon2
@@ -1006,11 +1006,11 @@ namespace :tw do
             origsubgen = @data.all_genera_index[row['CitSubgen']]
             origspecies = @data.all_species_index[row['CitGenus'].to_s + ' ' + row['CitSpecies'].to_s]
             name = row['CitSubsp'].gsub('sp. ', '').to_s
-            taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: $project_id)
+            taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: Current.project_id)
             if !@data.species_codes[row['TaxonCode']].blank?
-              taxon = Protonym.create(name: name, parent_id: parent, project_id: $project_id) unless taxon.identifiers.empty?
+              taxon = Protonym.create(name: name, parent_id: parent, project_id: Current.project_id) unless taxon.identifiers.empty?
             elsif @data.combinations[row['TaxonCode']].blank?
-              taxon = Protonym.create(name: name, parent_id: parent, project_id: $project_id) unless taxon.identifiers.empty?
+              taxon = Protonym.create(name: name, parent_id: parent, project_id: Current.project_id) unless taxon.identifiers.empty?
             end
             changed = true if taxon.changed?
 #            taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
@@ -1034,7 +1034,7 @@ namespace :tw do
 #              r = nil
               r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name_id: taxon1) if taxon.id != taxon1
 #              if !r.nil? && r.id.nil?
-#                taxon2 = Protonym.new(name: name, parent_id: parent, project_id: $project_id)
+#                taxon2 = Protonym.new(name: name, parent_id: parent, project_id: Current.project_id)
 #                taxon2.rank_class = 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
 #                begin
 #                  taxon2.save!
@@ -1169,14 +1169,14 @@ namespace :tw do
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
           file.each_with_index do |row, i|
             print "\r#{i}"
-            c = ConfidenceLevel.find_or_create_by(name: row['Score'], definition: row['Meaning'], project_id: $project_id)
+            c = ConfidenceLevel.find_or_create_by(name: row['Score'], definition: row['Meaning'], project_id: Current.project_id)
             @data.reliable[row['Score']] = c.id
           end
 
           @data.reliable['or'] = ConfidenceLevel.find_or_create_by(
-            name: 'Primary source', definition: 'Asserted distribution is taken from a primary source.', project_id: $project_id).id
+            name: 'Primary source', definition: 'Asserted distribution is taken from a primary source.', project_id: Current.project_id).id
           @data.reliable['rv'] = ConfidenceLevel.find_or_create_by(
-            name: 'Secondary source', definition: 'Asserted distribution is not taken from a primary source.', project_id: $project_id).id
+            name: 'Secondary source', definition: 'Asserted distribution is not taken from a primary source.', project_id: Current.project_id).id
 
           @data.done!(handle)
           @data.persist!
@@ -1250,16 +1250,16 @@ namespace :tw do
 
         namespace = Namespace.find_or_create_by(name: 'UCD_RefCode', short_name: 'UCD_RefCode')
         keywords = {
-          'Refs:Location' => Predicate.find_or_create_by(name: 'Refs::Location', definition: 'The verbatim value in Ref#location.', project_id: $project_id),
-          'Refs:Source' => Predicate.find_or_create_by(name: 'Refs::Source', definition: 'The verbatim value in Ref#source.', project_id: $project_id),
-          'Refs:Check' => Predicate.find_or_create_by(name: 'Refs::Check', definition: 'The verbatim value in Ref#check.', project_id: $project_id),
-          'Refs:LanguageA' => Predicate.find_or_create_by(name: 'Refs::LanguageA', definition: 'The verbatim value in Refs#LanguageA', project_id: $project_id),
-          'Refs:LanguageB' => Predicate.find_or_create_by(name: 'Refs::LanguageB', definition: 'The verbatim value in Refs#LanguageB', project_id: $project_id),
-          'Refs:LanguageC' => Predicate.find_or_create_by(name: 'Refs::LanguageC', definition: 'The verbatim value in Refs#LanguageC', project_id: $project_id),
-          'Refs:ChalcFam' => Predicate.find_or_create_by(name: 'Refs::ChalcFam', definition: 'The verbatim value in Refs#ChalcFam', project_id: $project_id),
-          'Refs:M_Y' => Predicate.find_or_create_by(name: 'Refs::M_Y', definition: 'The verbatim value in Refs#M_Y.', project_id: $project_id),
-          'Refs:PDF_file' => Predicate.find_or_create_by(name: 'Refs::PDF_file', definition: 'The verbatim value in Refs#PDF_file.', project_id: $project_id),
-          'RefsExt:Translate' => Predicate.find_or_create_by(name: 'RefsExt::Translate', definition: 'The verbatim value in RefsExt#Translate.', project_id: $project_id),
+          'Refs:Location' => Predicate.find_or_create_by(name: 'Refs::Location', definition: 'The verbatim value in Ref#location.', project_id: Current.project_id),
+          'Refs:Source' => Predicate.find_or_create_by(name: 'Refs::Source', definition: 'The verbatim value in Ref#source.', project_id: Current.project_id),
+          'Refs:Check' => Predicate.find_or_create_by(name: 'Refs::Check', definition: 'The verbatim value in Ref#check.', project_id: Current.project_id),
+          'Refs:LanguageA' => Predicate.find_or_create_by(name: 'Refs::LanguageA', definition: 'The verbatim value in Refs#LanguageA', project_id: Current.project_id),
+          'Refs:LanguageB' => Predicate.find_or_create_by(name: 'Refs::LanguageB', definition: 'The verbatim value in Refs#LanguageB', project_id: Current.project_id),
+          'Refs:LanguageC' => Predicate.find_or_create_by(name: 'Refs::LanguageC', definition: 'The verbatim value in Refs#LanguageC', project_id: Current.project_id),
+          'Refs:ChalcFam' => Predicate.find_or_create_by(name: 'Refs::ChalcFam', definition: 'The verbatim value in Refs#ChalcFam', project_id: Current.project_id),
+          'Refs:M_Y' => Predicate.find_or_create_by(name: 'Refs::M_Y', definition: 'The verbatim value in Refs#M_Y.', project_id: Current.project_id),
+          'Refs:PDF_file' => Predicate.find_or_create_by(name: 'Refs::PDF_file', definition: 'The verbatim value in Refs#PDF_file.', project_id: Current.project_id),
+          'RefsExt:Translate' => Predicate.find_or_create_by(name: 'RefsExt::Translate', definition: 'The verbatim value in RefsExt#Translate.', project_id: Current.project_id),
         }
 
         fext_data = {}
@@ -1441,7 +1441,7 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
 
         keywords = {
-          'FamTrib:Status' => Predicate.find_or_create_by(name: 'FamTrib:Status', definition: 'The verbatim value in FamTrib#Status.', project_id: $project_id)
+          'FamTrib:Status' => Predicate.find_or_create_by(name: 'FamTrib:Status', definition: 'The verbatim value in FamTrib#Status.', project_id: Current.project_id)
         }.freeze
 
         status_type = {
@@ -1496,7 +1496,7 @@ namespace :tw do
         }.freeze
 
         keywords = {
-          'Genus:Status' => Predicate.find_or_create_by(name: 'Genus:Status', definition: 'The verbatim value in Genus#Status.', project_id: $project_id)
+          'Genus:Status' => Predicate.find_or_create_by(name: 'Genus:Status', definition: 'The verbatim value in Genus#Status.', project_id: Current.project_id)
         }.freeze
 
         status_type = {
@@ -1556,23 +1556,23 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
 
         keywords = {
-          'Region' => Predicate.find_or_create_by(name: 'Species:Region', definition: 'The verbatim value in Species#Region.', project_id: $project_id),
-          'Species:Country' => Predicate.find_or_create_by(name: 'Species:Country', definition: 'The verbatim value in Species#Coutry-State.', project_id: $project_id),
-          'Coll:Depository' => Predicate.find_or_create_by(name: 'Coll:Depository', definition: 'The verbatim value in Coll#Depository.', project_id: $project_id),
-          'Sex' => Predicate.find_or_create_by(name: 'Species:Sex', definition: 'The verbatim value in Species#Sex.', project_id: $project_id),
-          'Figures' => Predicate.find_or_create_by(name: 'Species:Figures', definition: 'The verbatim value in Species#Figures.', project_id: $project_id),
-          'PrimType' => Predicate.find_or_create_by(name: 'Species:PrimType', definition: 'The verbatim value in Species#PrimType.', project_id: $project_id),
-          'TypeSex' => Predicate.find_or_create_by(name: 'Species:TypeSex', definition: 'The verbatim value in Species#TypeSex.', project_id: $project_id),
-          'Designator' => Predicate.find_or_create_by(name: 'Species:Designator', definition: 'The verbatim value in Species#Designator.', project_id: $project_id),
-          'Depository' => Predicate.find_or_create_by(name: 'Species:Depository', definition: 'The verbatim value in Species#Depository.', project_id: $project_id),
-          'TypeNumber' => Predicate.find_or_create_by(name: 'Species:TypeNumber', definition: 'The verbatim value in Species#TypeNumber.', project_id: $project_id),
-          'DeposB' => Predicate.find_or_create_by(name: 'Species:DeposB', definition: 'The verbatim value in Species#DeposB.', project_id: $project_id),
-          'DeposC' => Predicate.find_or_create_by(name: 'Species:DeposC', definition: 'The verbatim value in Species#DeposC.', project_id: $project_id),
-          'Species:CurrStat' => Predicate.find_or_create_by(name: 'Species:CurrStat', definition: 'The verbatim value in Species#CurrStat.', project_id: $project_id),
-          'Status:Meaning' => Predicate.find_or_create_by(name: 'Status:Meaning', definition: 'The verbatim value in Status#Meaning.', project_id: $project_id)
+          'Region' => Predicate.find_or_create_by(name: 'Species:Region', definition: 'The verbatim value in Species#Region.', project_id: Current.project_id),
+          'Species:Country' => Predicate.find_or_create_by(name: 'Species:Country', definition: 'The verbatim value in Species#Coutry-State.', project_id: Current.project_id),
+          'Coll:Depository' => Predicate.find_or_create_by(name: 'Coll:Depository', definition: 'The verbatim value in Coll#Depository.', project_id: Current.project_id),
+          'Sex' => Predicate.find_or_create_by(name: 'Species:Sex', definition: 'The verbatim value in Species#Sex.', project_id: Current.project_id),
+          'Figures' => Predicate.find_or_create_by(name: 'Species:Figures', definition: 'The verbatim value in Species#Figures.', project_id: Current.project_id),
+          'PrimType' => Predicate.find_or_create_by(name: 'Species:PrimType', definition: 'The verbatim value in Species#PrimType.', project_id: Current.project_id),
+          'TypeSex' => Predicate.find_or_create_by(name: 'Species:TypeSex', definition: 'The verbatim value in Species#TypeSex.', project_id: Current.project_id),
+          'Designator' => Predicate.find_or_create_by(name: 'Species:Designator', definition: 'The verbatim value in Species#Designator.', project_id: Current.project_id),
+          'Depository' => Predicate.find_or_create_by(name: 'Species:Depository', definition: 'The verbatim value in Species#Depository.', project_id: Current.project_id),
+          'TypeNumber' => Predicate.find_or_create_by(name: 'Species:TypeNumber', definition: 'The verbatim value in Species#TypeNumber.', project_id: Current.project_id),
+          'DeposB' => Predicate.find_or_create_by(name: 'Species:DeposB', definition: 'The verbatim value in Species#DeposB.', project_id: Current.project_id),
+          'DeposC' => Predicate.find_or_create_by(name: 'Species:DeposC', definition: 'The verbatim value in Species#DeposC.', project_id: Current.project_id),
+          'Species:CurrStat' => Predicate.find_or_create_by(name: 'Species:CurrStat', definition: 'The verbatim value in Species#CurrStat.', project_id: Current.project_id),
+          'Status:Meaning' => Predicate.find_or_create_by(name: 'Status:Meaning', definition: 'The verbatim value in Status#Meaning.', project_id: Current.project_id)
         }.freeze
         topics = {
-          'Figures' => Topic.find_or_create_by(name: 'Figures', definition: 'Original source has figures.', project_id: $project_id)
+          'Figures' => Topic.find_or_create_by(name: 'Figures', definition: 'Original source has figures.', project_id: Current.project_id)
         }
 
         status_type = {
@@ -1618,7 +1618,7 @@ namespace :tw do
               c = taxon.citations.create(source_id: ref, pages: row['PageRef'], is_original: true)
 
               if !c.id.blank? 
-                c.citation_topics.find_or_create_by(topic: topics['Figures'], project_id: $project_id) unless row['Figures'].blank?
+                c.citation_topics.find_or_create_by(topic: topics['Figures'], project_id: Current.project_id) unless row['Figures'].blank?
               end
 
             end
@@ -1638,14 +1638,14 @@ namespace :tw do
 
       def handle_h_fam_ucd
         keywords = {
-          'SuperFam' => Predicate.find_or_create_by(name: 'H-Fam:SuperFam', definition: 'The verbatim value in H-Fam#SuperFam.', project_id: $project_id)
+          'SuperFam' => Predicate.find_or_create_by(name: 'H-Fam:SuperFam', definition: 'The verbatim value in H-Fam#SuperFam.', project_id: Current.project_id)
         }.freeze
 
         path = @args[:data_directory] + 'H-FAM.txt'
         print "\nHandling H-FAM\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
-        plantae = Protonym.find_or_create_by!(name: 'Plantae', rank_class: Ranks.lookup(:icn, 'kingdom'), parent: @root, project_id: $project_id)
+        plantae = Protonym.find_or_create_by!(name: 'Plantae', rank_class: Ranks.lookup(:icn, 'kingdom'), parent: @root, project_id: Current.project_id)
 
         file.each_with_index do |row, i|
           print "\r#{i}"
@@ -1661,14 +1661,14 @@ namespace :tw do
               rnk = 'NomenclaturalRank::Icn::HigherClassificationGroup::Order'
             end
 
-            taxon = Protonym.find_or_create_by(name: name, parent: @root, rank_class: rnk, project_id: $project_id)
+            taxon = Protonym.find_or_create_by(name: name, parent: @root, rank_class: rnk, project_id: Current.project_id)
           end
 
           parent = taxon
 	
           if row['SuperFam'] =~/^[A-Z]\w*oidea/
             name = row['SuperFam']
-            taxon = Protonym.find_or_create_by(name: name, parent: parent, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id)
+            taxon = Protonym.find_or_create_by(name: name, parent: parent, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: Current.project_id)
           end
 
           parent = taxon
@@ -1676,21 +1676,24 @@ namespace :tw do
           name = row['Family'].to_s.gsub(' indet.', '').gsub(' (part)', '').gsub(' ', '')
           if row['Family'] =~/^[A-Z]\w*idae/
             if row['SuperFam'] == 'Chalcidoidea'
-              taxon = Protonym.find_or_create_by(name: name, cached: name, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family', project_id: $project_id)
+              taxon = Protonym.find_or_create_by(name: name, cached: name, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family', project_id: Current.project_id)
               if taxon.id.nil?
                 name1 = Protonym.family_group_name_at_rank(name, 'Subfamily')
-                taxon = Protonym.find_or_create_by(name: name1, cached: name1, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Subfamily', project_id: $project_id)
+                taxon = Protonym.find_or_create_by(name: name1, cached: name1, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Subfamily', project_id: Current.project_id)
               end
 
               byebug if taxon.id.nil?
             else
-              taxon = Protonym.find_or_create_by(name: name, parent: parent, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family', project_id: $project_id)
+              taxon = Protonym.find_or_create_by(name: name, parent: parent, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family', project_id: Current.project_id)
             end
 
           elsif row['Family'] =~/^[A-Z]\w*aceae/
-            taxon = Protonym.find_or_create_by(name: name, parent: plantae, rank_class: 'NomenclaturalRank::Icn::FamilyGroup::Family', project_id: $project_id)
+            taxon = Protonym.find_or_create_by(name: name, parent: plantae, rank_class: 'NomenclaturalRank::Icn::FamilyGroup::Family', project_id: Current.project_id)
+          elsif row['Family'] == 'Bacteria indet.'
+            taxon = Protonym.find_or_create_by(name: 'Bacteria', parent: @root, rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom', project_id: Current.project_id)
           elsif row['Family'] == 'Slime mould'
-            taxon = Protonym.find_or_create_by(name: 'Slime', parent: @root, rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom', project_id: $project_id)
+            k = Protonym.find_or_create_by(name: 'Bacteria', parent: @root, rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom', project_id: Current.project_id)
+            taxon = Protonym.find_or_create_by(name: 'Slime', parent: k, rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Phylum', project_id: Current.project_id)
           end
 
           if taxon.nil? || taxon.id.nil?
@@ -1721,15 +1724,15 @@ namespace :tw do
 
           nc = parent == @root ? :iczn : parent.rank_class.nomenclatural_code
 
-          taxon = Protonym.where(name: row['HosGenus'], rank_class: Ranks.lookup(nc, 'Genus'), project_id: $project_id).order(:id).first
+          taxon = Protonym.where(name: row['HosGenus'], rank_class: Ranks.lookup(nc, 'Genus'), project_id: Current.project_id).order(:id).first
 
           if !taxon.nil?
             ancestors = taxon.safe_self_and_ancestors.collect{|t| t.id}
             if !ancestors.include?(family)
-              taxon = Protonym.find_or_create_by(name: row['HosGenus'], parent: parent, rank_class: Ranks.lookup(nc, 'Genus'), project_id: $project_id)
+              taxon = Protonym.find_or_create_by(name: row['HosGenus'], parent: parent, rank_class: Ranks.lookup(nc, 'Genus'), project_id: Current.project_id)
             end
           else
-            taxon = Protonym.find_or_create_by(name: row['HosGenus'], parent: parent, rank_class: Ranks.lookup(nc, 'Genus'), project_id: $project_id)
+            taxon = Protonym.find_or_create_by(name: row['HosGenus'], parent: parent, rank_class: Ranks.lookup(nc, 'Genus'), project_id: Current.project_id)
           end
 
 
@@ -1737,14 +1740,14 @@ namespace :tw do
 
           # TODO: now re-using taxon?.. confusing 
           unless row['HosSpecies'].blank?
-            taxon = Protonym.where(cached: row['HosGenus'] + ' ' + row['HosSpecies'], rank_class: Ranks.lookup(nc, 'Species'), project_id: $project_id).order(:id).first
+            taxon = Protonym.where(cached: row['HosGenus'] + ' ' + row['HosSpecies'], rank_class: Ranks.lookup(nc, 'Species'), project_id: Current.project_id).order(:id).first
             if !taxon.nil?
               ancestors = taxon.safe_self_and_ancestors.collect{|t| t.id}
               if !ancestors.include?(family)
-                taxon = Protonym.find_or_create_by(name: row['HosSpecies'], rank_class: Ranks.lookup(nc, 'Species'), parent: parent, project_id: $project_id)
+                taxon = Protonym.find_or_create_by(name: row['HosSpecies'], rank_class: Ranks.lookup(nc, 'Species'), parent: parent, project_id: Current.project_id)
               end
             else
-              taxon = Protonym.find_or_create_by(name: row['HosSpecies'], rank_class: Ranks.lookup(nc, 'Species'), parent: parent, project_id: $project_id)
+              taxon = Protonym.find_or_create_by(name: row['HosSpecies'], rank_class: Ranks.lookup(nc, 'Species'), parent: parent, project_id: Current.project_id)
             end
           end
 
@@ -1765,12 +1768,12 @@ namespace :tw do
       end
 
       def handle_hosts_ucd
-        relation = {'APL' => BiologicalRelationship.find_or_create_by(name: 'Plant associate', project_id: $project_id),
-                    'AST' => BiologicalRelationship.find_or_create_by(name: 'Associate', project_id: $project_id),
-                    'HYP' => BiologicalRelationship.find_or_create_by(name: 'Parasitoid', project_id: $project_id),
-                    'PAH' => BiologicalRelationship.find_or_create_by(name: 'Parasitoid host', project_id: $project_id),
-                    'PLH' => BiologicalRelationship.find_or_create_by(name: 'Plant host', project_id: $project_id),
-                    'PRH' => BiologicalRelationship.find_or_create_by(name: 'Primary host', project_id: $project_id),
+        relation = {'APL' => BiologicalRelationship.find_or_create_by(name: 'Plant associate', project_id: Current.project_id),
+                    'AST' => BiologicalRelationship.find_or_create_by(name: 'Associate', project_id: Current.project_id),
+                    'HYP' => BiologicalRelationship.find_or_create_by(name: 'Parasitoid', project_id: Current.project_id),
+                    'PAH' => BiologicalRelationship.find_or_create_by(name: 'Parasitoid host', project_id: Current.project_id),
+                    'PLH' => BiologicalRelationship.find_or_create_by(name: 'Plant host', project_id: Current.project_id),
+                    'PRH' => BiologicalRelationship.find_or_create_by(name: 'Primary host', project_id: Current.project_id),
         }.freeze
 
         bp = { 'Pollinator' => BiologicalProperty.find_or_create_by(name: 'Pollinator', definition:'An insect pollinating a plant'),
@@ -1781,28 +1784,28 @@ namespace :tw do
                'Parasitoid' => BiologicalProperty.find_or_create_by(name: 'Parasitoid', definition:'An organism that lives in or on another organism'),
         }
 
-        BiologicalRelationshipType::BiologicalRelationshipSubjectType.find_or_create_by(project_id: $project_id, biological_property: bp['Pollinator'], biological_relationship: relation['APL'])
-        BiologicalRelationshipType::BiologicalRelationshipObjectType.find_or_create_by(project_id: $project_id, biological_property: bp['Pollinated plant'], biological_relationship: relation['APL'])
-        BiologicalRelationshipType::BiologicalRelationshipSubjectType.find_or_create_by(project_id: $project_id, biological_property: bp['Attendant'], biological_relationship: relation['AST'])
-        BiologicalRelationshipType::BiologicalRelationshipObjectType.find_or_create_by(project_id: $project_id, biological_property: bp['Attended insect'], biological_relationship: relation['AST'])
-        BiologicalRelationshipType::BiologicalRelationshipSubjectType.find_or_create_by(project_id: $project_id, biological_property: bp['Host'], biological_relationship: relation['HYP'])
-        BiologicalRelationshipType::BiologicalRelationshipObjectType.find_or_create_by(project_id: $project_id, biological_property: bp['Parasitoid'], biological_relationship: relation['HYP'])
-        BiologicalRelationshipType::BiologicalRelationshipSubjectType.find_or_create_by(project_id: $project_id, biological_property: bp['Parasitoid'], biological_relationship: relation['PAH'])
-        BiologicalRelationshipType::BiologicalRelationshipObjectType.find_or_create_by(project_id: $project_id, biological_property: bp['Host'], biological_relationship: relation['PAH'], type: '')
-        BiologicalRelationshipType::BiologicalRelationshipSubjectType.find_or_create_by(project_id: $project_id, biological_property: bp['Parasitoid'], biological_relationship: relation['PLH'])
-        BiologicalRelationshipType::BiologicalRelationshipObjectType.find_or_create_by(project_id: $project_id, biological_property: bp['Host'], biological_relationship: relation['PLH'])
-        BiologicalRelationshipType::BiologicalRelationshipSubjectType.find_or_create_by(project_id: $project_id, biological_property: bp['Parasitoid'], biological_relationship: relation['PRH'])
-        BiologicalRelationshipType::BiologicalRelationshipObjectType.find_or_create_by(project_id: $project_id, biological_property: bp['Host'], biological_relationship: relation['PRH'])
+        BiologicalRelationshipType::BiologicalRelationshipSubjectType.find_or_create_by(project_id: Current.project_id, biological_property: bp['Pollinator'], biological_relationship: relation['APL'])
+        BiologicalRelationshipType::BiologicalRelationshipObjectType.find_or_create_by(project_id: Current.project_id, biological_property: bp['Pollinated plant'], biological_relationship: relation['APL'])
+        BiologicalRelationshipType::BiologicalRelationshipSubjectType.find_or_create_by(project_id: Current.project_id, biological_property: bp['Attendant'], biological_relationship: relation['AST'])
+        BiologicalRelationshipType::BiologicalRelationshipObjectType.find_or_create_by(project_id: Current.project_id, biological_property: bp['Attended insect'], biological_relationship: relation['AST'])
+        BiologicalRelationshipType::BiologicalRelationshipSubjectType.find_or_create_by(project_id: Current.project_id, biological_property: bp['Host'], biological_relationship: relation['HYP'])
+        BiologicalRelationshipType::BiologicalRelationshipObjectType.find_or_create_by(project_id: Current.project_id, biological_property: bp['Parasitoid'], biological_relationship: relation['HYP'])
+        BiologicalRelationshipType::BiologicalRelationshipSubjectType.find_or_create_by(project_id: Current.project_id, biological_property: bp['Parasitoid'], biological_relationship: relation['PAH'])
+        BiologicalRelationshipType::BiologicalRelationshipObjectType.find_or_create_by(project_id: Current.project_id, biological_property: bp['Host'], biological_relationship: relation['PAH'], type: '')
+        BiologicalRelationshipType::BiologicalRelationshipSubjectType.find_or_create_by(project_id: Current.project_id, biological_property: bp['Parasitoid'], biological_relationship: relation['PLH'])
+        BiologicalRelationshipType::BiologicalRelationshipObjectType.find_or_create_by(project_id: Current.project_id, biological_property: bp['Host'], biological_relationship: relation['PLH'])
+        BiologicalRelationshipType::BiologicalRelationshipSubjectType.find_or_create_by(project_id: Current.project_id, biological_property: bp['Parasitoid'], biological_relationship: relation['PRH'])
+        BiologicalRelationshipType::BiologicalRelationshipObjectType.find_or_create_by(project_id: Current.project_id, biological_property: bp['Host'], biological_relationship: relation['PRH'])
 
         keywords = {
-          'ParTypeA' => Predicate.find_or_create_by(name: 'Hosts:ParTypeA', definition: 'The verbatim value in Hosts#ParTypeA.', project_id: $project_id),
-          'ParTypeB' => Predicate.find_or_create_by(name: 'Hosts:ParTypeB', definition: 'The verbatim value in Hosts#ParTypeB.', project_id: $project_id),
-          'ParTypeC' => Predicate.find_or_create_by(name: 'Hosts:ParTypeC', definition: 'The verbatim value in Hosts#ParTypeC.', project_id: $project_id),
-          'ParTypeD' => Predicate.find_or_create_by(name: 'Hosts:ParTypeD', definition: 'The verbatim value in Hosts#ParTypeD.', project_id: $project_id),
-          #'ReliableA' => Predicate.find_or_create_by(name: 'Hosts:ReliableA', definition: 'The verbatim value in Hosts#ReliableA.', project_id: $project_id),
-          #'ReliableB' => Predicate.find_or_create_by(name: 'Hosts:ReliableB', definition: 'The verbatim value in Hosts#ReliableB.', project_id: $project_id),
-          'Comment' => Predicate.find_or_create_by(name: 'Hosts:Comment', definition: 'The verbatim value in Hosts#Comment.', project_id: $project_id),
-          'CommonName' => Predicate.find_or_create_by(name: 'Hosts:CommonName', definition: 'The verbatim value in Hosts#CommenName.', project_id: $project_id),
+          'ParTypeA' => Predicate.find_or_create_by(name: 'Hosts:ParTypeA', definition: 'The verbatim value in Hosts#ParTypeA.', project_id: Current.project_id),
+          'ParTypeB' => Predicate.find_or_create_by(name: 'Hosts:ParTypeB', definition: 'The verbatim value in Hosts#ParTypeB.', project_id: Current.project_id),
+          'ParTypeC' => Predicate.find_or_create_by(name: 'Hosts:ParTypeC', definition: 'The verbatim value in Hosts#ParTypeC.', project_id: Current.project_id),
+          'ParTypeD' => Predicate.find_or_create_by(name: 'Hosts:ParTypeD', definition: 'The verbatim value in Hosts#ParTypeD.', project_id: Current.project_id),
+          #'ReliableA' => Predicate.find_or_create_by(name: 'Hosts:ReliableA', definition: 'The verbatim value in Hosts#ReliableA.', project_id: Current.project_id),
+          #'ReliableB' => Predicate.find_or_create_by(name: 'Hosts:ReliableB', definition: 'The verbatim value in Hosts#ReliableB.', project_id: Current.project_id),
+          'Comment' => Predicate.find_or_create_by(name: 'Hosts:Comment', definition: 'The verbatim value in Hosts#Comment.', project_id: Current.project_id),
+          'CommonName' => Predicate.find_or_create_by(name: 'Hosts:CommonName', definition: 'The verbatim value in Hosts#CommenName.', project_id: Current.project_id),
         }.freeze
 
         path = @args[:data_directory] + 'HOSTS.txt'
@@ -1824,10 +1827,10 @@ namespace :tw do
           
           if taxon && host && br
 
-            subject = Otu.find_or_create_by(taxon_name_id: taxon, project_id: $project_id)
-            object = Otu.find_or_create_by(taxon_name_id: host, project_id: $project_id)
+            subject = Otu.find_or_create_by(taxon_name_id: taxon, project_id: Current.project_id)
+            object = Otu.find_or_create_by(taxon_name_id: host, project_id: Current.project_id)
 
-            r = BiologicalAssociation.find_or_create_by!(biological_relationship: br, biological_association_subject: subject, biological_association_object: object, project_id: $project_id)
+            r = BiologicalAssociation.find_or_create_by!(biological_relationship: br, biological_association_subject: subject, biological_association_object: object, project_id: Current.project_id)
             r.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
             r.notes.create(text: row['Notes'].gsub('|','_')) unless row['Notes'].blank?
             r.data_attributes.create(type: 'InternalAttribute', predicate: keywords['ParTypeA'], value: @data.ptype[row['ParTypeA']]) unless row['ParTypeA'].blank?
@@ -1887,7 +1890,7 @@ namespace :tw do
           ad = AssertedDistribution.find_or_create_by(
             otu: otu,
             geographic_area_id: geographic_area_id, 
-            project_id: $project_id 
+            project_id: Current.project_id 
           )
 
           c = nil
@@ -2104,7 +2107,7 @@ namespace :tw do
         }.freeze
 
         keywords = {
-          'status' => Predicate.find_or_create_by(name: 'Status:Defenition', definition: 'The verbatim value in Status#Defenition.', project_id: $project_id)
+          'status' => Predicate.find_or_create_by(name: 'Status:Defenition', definition: 'The verbatim value in Status#Defenition.', project_id: Current.project_id)
         }.freeze
 
         path = @args[:data_directory] + 'TSTAT.txt'
@@ -2140,7 +2143,7 @@ namespace :tw do
             #            name << species.split.last unless species.blank?
             #            name << subspecies.split.last unless subspecies.blank?
             #            name = name.join(' ')
-            #            taxon = TaxonName.where(cached: name, classified_as: classified_as, project_id: $project_id).first
+            #            taxon = TaxonName.where(cached: name, classified_as: classified_as, project_id: Current.project_id).first
             #            if taxon.nil?
             #              taxon = Combination.new
             #              taxon.genus = Protonym.find(@data.all_genera_index[genus]) unless genus.blank?
@@ -2239,46 +2242,46 @@ namespace :tw do
       def set_data_for_taxon(taxon, taxon_code)
         @data.taxon_codes[taxon_code] = taxon.id
         Identifier::Local::Import.create!(identifier_object: taxon, namespace_id: @data.keywords['taxon_id'], identifier: taxon_code)
-        @data.otus[taxon_code] = Otu.find_or_create_by(taxon_name: taxon, project_id: $project_id).id
+        @data.otus[taxon_code] = Otu.find_or_create_by(taxon_name: taxon, project_id: Current.project_id).id
       end
 
       # Return a TW TaxonName id 
       def find_taxon_id_ucd(key)
-        @data.taxon_codes[key.to_s] || Identifier.where(cached: 'UCD_Taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
+        @data.taxon_codes[key.to_s] || Identifier.where(cached: 'UCD_Taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: Current.project_id).limit(1).pluck(:identifier_object_id).first
       end
 
       # Return a TW TaxonName id 
       def find_family_id_ucd(key)
-        @data.families[key.to_s] || Identifier.where(cached: 'UCD_Family_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
+        @data.families[key.to_s] || Identifier.where(cached: 'UCD_Family_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: Current.project_id).limit(1).pluck(:identifier_object_id).first
       end
 
       def find_host_family_id_ucd(key)
-        @data.hostfamilies[key.to_s] || Identifier.where(cached: 'UCD_Host_Family_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
+        @data.hostfamilies[key.to_s] || Identifier.where(cached: 'UCD_Host_Family_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: Current.project_id).limit(1).pluck(:identifier_object_id).first
       end
 
       def find_host_id_ucd(key)
-        @data.taxon_codes[key.to_s] || Identifier.where(cached: 'UCD_Hos_Number ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
+        @data.taxon_codes[key.to_s] || Identifier.where(cached: 'UCD_Hos_Number ' + key.to_s, identifier_object_type: 'TaxonName', project_id: Current.project_id).limit(1).pluck(:identifier_object_id).first
       end
 
       # TODO: This should pluck an :id not, return the object?
       def find_taxon_ucd(key)
-        Identifier.find_by(cached: 'UCD_Taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).try(:identifier_object)
+        Identifier.find_by(cached: 'UCD_Taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: Current.project_id).try(:identifier_object)
       end
 
       # TODO: This should pluck an :id not, return the object?
       # Not used?!
       # def find_host_ucd(key)
-      #  Identifier.find_by(cached: 'UCD_Hos_Number ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).try(:identifier_object)
+      #  Identifier.find_by(cached: 'UCD_Hos_Number ' + key.to_s, identifier_object_type: 'TaxonName', project_id: Current.project_id).try(:identifier_object)
       # end
 
       # TODO: This should pluck an :id not, return the object?
       # NOT used?!
       # def find_source_ucd(key)
-      #   Identifier.find_by(cached: 'UCD_RefCode ' + key.to_s, identifier_object_type: 'Source', project_id: $project_id).try(:identifier_object)
+      #   Identifier.find_by(cached: 'UCD_RefCode ' + key.to_s, identifier_object_type: 'Source', project_id: Current.project_id).try(:identifier_object)
       # end
 
       def find_source_id_ucd(key)
-        @data.references[key.to_s] || Identifier.where(cached: 'UCD_RefCode ' + key.to_s, identifier_object_type: 'Source', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
+        @data.references[key.to_s] || Identifier.where(cached: 'UCD_RefCode ' + key.to_s, identifier_object_type: 'Source', project_id: Current.project_id).limit(1).pluck(:identifier_object_id).first
       end
 
       def soft_validations_ucd
@@ -2286,7 +2289,7 @@ namespace :tw do
         GC.start
         fixed = 0
         #        print "\nApply soft validation fixes to relationships \n"
-        #        TaxonNameRelationship.where(project_id: $project_id).each_with_index do |t, i|
+        #        TaxonNameRelationship.where(project_id: Current.project_id).each_with_index do |t, i|
         #          print "\r#{i}    Fixes applied: #{fixed}"
         #          t.soft_validate
         #          t.fix_soft_validations
@@ -2296,10 +2299,9 @@ namespace :tw do
         #        end
         print "\nApply soft validation fixes to taxa 1st pass \n"
         i = 0
-        TaxonName.where(project_id: $project_id).find_each do |t|
+        TaxonName.where(project_id: Current.project_id).find_each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
-#          next if i < 7346
           t.soft_validate(:all, true, true)
           t.fix_soft_validations
           t.soft_validations.soft_validations.each do |f|
@@ -2310,7 +2312,7 @@ namespace :tw do
         print "\nApply soft validation fixes to relationships \n"
         i = 0
         GC.start
-        TaxonNameRelationship.where(project_id: $project_id).find_each do |t|
+        TaxonNameRelationship.where(project_id: Current.project_id).find_each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate(:all, true, true)
@@ -2319,10 +2321,11 @@ namespace :tw do
             fixed += 1  if f.fixed?
           end
         end
+
         print "\nApply soft validation fixes to taxa 2nd pass \n"
         GC.start
         i = 0
-        TaxonName.where(project_id: $project_id).find_each do |t|
+        TaxonName.where(project_id: Current.project_id).find_each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate(:all, true, true)
@@ -2342,8 +2345,8 @@ namespace :tw do
         i = 0
         j = 0
         print "\nHandling Invalid relationships: synonyms of synonyms\n"
-#begin
-        TaxonNameRelationship.where(project_id: $project_id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Homonym').find_each do |t|
+
+        TaxonNameRelationship.where(project_id: Current.project_id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Homonym').find_each do |t|
           j += 1
           print "\r#{j}    Fixes applied: #{fixed}   "
           o = t.object_taxon_name
@@ -2354,7 +2357,7 @@ namespace :tw do
           end
         end
 
-        TaxonNameRelationship.where(project_id: $project_id).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).find_each do |t|
+        TaxonNameRelationship.where(project_id: Current.project_id).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).find_each do |t|
           j += 1
           print "\r#{j}    Fixes applied: #{fixed}   "
           s = t.subject_taxon_name
@@ -2400,27 +2403,75 @@ namespace :tw do
             end
           end
         end
-#end
 
       print "\nHandling Invalid relationships: synonyms to combinations\n"
-        TaxonNameRelationship.where(project_id: $project_id).with_type_string('TaxonNameRelationship::Iczn::Invalidating').each do |t|
+        TaxonNameRelationship.where(project_id: Current.project_id).with_type_string('TaxonNameRelationship::Iczn::Invalidating').pluck(:id).each do |t1|
+          t = TaxonNameRelationship.find(t1)
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}    Combinations created: #{combinations}"
           if t.citations.empty?
-            s = t.subject_taxon_name
-            s.soft_validate(:protonym_to_combination)
-            s.fix_soft_validations(scope = :requested)
-            s.soft_validations.soft_validations.each do |f|
-              fixed += 1  if f.fixed?
+          s = t.subject_taxon_name
+          svalid = s.cached_valid_taxon_name_id
+          o = t.object_taxon_name
+          shas = s.cached_secondary_homonym_alternative_spelling
+          r = TaxonNameRelationship.where(project_id: Current.project_id, object_taxon_name_id: s.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating')
+          r2 = TaxonNameRelationship.where(project_id: Current.project_id, subject_taxon_name_id: s.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating').count
+          if s.taxon_name_classifications.empty? && r.empty?
+            if o.rank_string =~ /Family/ && s.cached_primary_homonym_alternative_spelling == o.cached_primary_homonym_alternative_spelling && r2 == 1
+              t.destroy
+              s.save
+              fixed += 1
+              TaxonNameRelationship.create!(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm')
+            elsif (o.rank_string =~ /Species/  && shas == o.cached_secondary_homonym_alternative_spelling && r2 == 1) ||
+                (o.rank_string =~ /Genus/  && s.cached_primary_homonym_alternative_spelling == o.cached_primary_homonym_alternative_spelling && r2 == 1)
+
+              s = s.becomes_combination
+              combinations +=1 if s.type == 'Combination'
+#              byebug if s.type == 'Combination' && TaxonName.find(s.id).type != 'Combination'
+              if s.type == 'Combination'
+                TaxonNameRelationship.where(project_id: Current.project_id, subject_taxon_name_id: s.id).with_type_contains('Combination').each do |z|
+                  z.object_taxon_name.verbatim_name = z.object_taxon_name.cached if z.object_taxon_name.type == 'Combination' && z.object_taxon_name.verbatim_name.blank?
+                  z.subject_taxon_name_id = o.id
+                  z.save
+                  z.subject_taxon_name.save
+                  fixed += 1
+                end
+#                TaxonNameRelationship.where(project_id: Current.project_id, subject_taxon_name_id: s.id).select{|i| i.type !~ /Combination/}.each do |z|
+#byebug
+#                  z.subject_taxon_name_id = o.id
+#                  z.save
+#                  fixed += 1
+#                end
+#                TaxonNameRelationship.where(project_id: Current.project_id, subject_taxon_name_id: s.id).select{|i| i.type =~ /Combination/}.each do |z|
+#byebug
+#                  z.object_taxon_name.verbatim_name = z.object_taxon_name.cached if z.object_taxon_name.type == 'Combination' && z.object_taxon_name.verbatim_name.blank?
+#                  z.subject_taxon_name_id = o.id
+#                  z.save
+#                  fixed += 1
+#                end
+#                TaxonNameRelationship.where(project_id: Current.project_id, object_taxon_name_id: s.id).select{|i| i.type !~ /Combination/}.each do |z|
+#byebug
+#                  z.object_taxon_name_id = o.id
+#                  z.save
+#                  fixed += 1
+#                end
+              end
             end
 
 
+
+
+
+            end
+          end
+end
 =begin
+            s = t.subject_taxon_name
             svalid = s.cached_valid_taxon_name_id
             o = t.object_taxon_name
             shas = s.cached_secondary_homonym_alternative_spelling
-            r = TaxonNameRelationship.where(project_id: $project_id, object_taxon_name_id: s.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating')
-            r2 = TaxonNameRelationship.where(project_id: $project_id, subject_taxon_name_id: s.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating').count
+            r = TaxonNameRelationship.where(project_id: Current.project_id, object_taxon_name_id: s.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating')
+            r2 = TaxonNameRelationship.where(project_id: Current.project_id, subject_taxon_name_id: s.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating').count
             if s.taxon_name_classifications.empty? && r.empty?
               t.destroy
               s.save
@@ -2480,25 +2531,25 @@ namespace :tw do
                     s.original_subspecies = subspecies unless subspecies.nil?
                   else
                     s.save
-                    TaxonNameRelationship.where(project_id: $project_id, subject_taxon_name_id: s.id).with_type_contains('Combination').each do |z|
+                    TaxonNameRelationship.where(project_id: Current.project_id, subject_taxon_name_id: s.id).with_type_contains('Combination').each do |z|
                       z.object_taxon_name.verbatim_name = z.object_taxon_name.cached if z.object_taxon_name.type == 'Combination' && z.object_taxon_name.verbatim_name.blank?
                       z.subject_taxon_name_id = o.id
                       z.save
                       z.subject_taxon_name.save
                       fixed += 1
                     end
-                    TaxonNameRelationship.where(project_id: $project_id, subject_taxon_name_id: s.id).select{|i| i.type !~ /Combination/}.each do |z|
+                    TaxonNameRelationship.where(project_id: Current.project_id, subject_taxon_name_id: s.id).select{|i| i.type !~ /Combination/}.each do |z|
                       z.subject_taxon_name_id = o.id
                       z.save
                       fixed += 1
                     end
-                    TaxonNameRelationship.where(project_id: $project_id, subject_taxon_name_id: s.id).select{|i| i.type =~ /Combination/}.each do |z|
+                    TaxonNameRelationship.where(project_id: Current.project_id, subject_taxon_name_id: s.id).select{|i| i.type =~ /Combination/}.each do |z|
                       z.object_taxon_name.verbatim_name = z.object_taxon_name.cached if z.object_taxon_name.type == 'Combination' && z.object_taxon_name.verbatim_name.blank?
                       z.subject_taxon_name_id = o.id
                       z.save
                       fixed += 1
                     end
-                    TaxonNameRelationship.where(project_id: $project_id, object_taxon_name_id: s.id).select{|i| i.type !~ /Combination/}.each do |z|
+                    TaxonNameRelationship.where(project_id: Current.project_id, object_taxon_name_id: s.id).select{|i| i.type !~ /Combination/}.each do |z|
                       z.object_taxon_name_id = o.id
                       z.save
                       fixed += 1
@@ -2511,15 +2562,13 @@ namespace :tw do
               end
             end
 =end
-          end
-        end
-#end
+
 
 
 #        print "\nHandling Invalid relationships: cached valid\n"
 #        i = 0
 #        fixed = 0
-#        tn = TaxonName.where(project_id: $project_id)
+#        tn = TaxonName.where(project_id: Current.project_id)
 #        tn.each do |t|
 #          i += 1
 #          print "\r#{i}    wrong cached valid fixed: #{fixed}   "
@@ -2534,7 +2583,7 @@ namespace :tw do
 #        print "\nHandling Invalid relationships: wrong combination relationships\n"
 #        i = 0
 #        fixed = 0
-#        tr = TaxonNameRelationship.where(project_id: $project_id).with_type_contains('Combination')
+#        tr = TaxonNameRelationship.where(project_id: Current.project_id).with_type_contains('Combination')
 #        tr.each do |t|
 #          i += 1
 #          print "\r#{i}    Wrong combinations found: #{fixed}   "
@@ -2551,6 +2600,7 @@ namespace :tw do
     end
   end
 end
+
 
 
 
