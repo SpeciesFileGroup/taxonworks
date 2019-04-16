@@ -152,10 +152,11 @@ export default {
     },
     relationships() {
       let newList = this.relationships.map(item => {
+        let originalParam = item.hasOwnProperty('subject_status_tag') ? 'subject_status_tag' : 'object_status_tag'
         let name = item.hasOwnProperty('subject_status_tag') ? 'subject_taxon_name_id' : 'object_taxon_name_id'
         return {
           type: item.type,
-          [name]: item[name]
+          [name]: item[originalParam]
         }
       })
       this.$emit('input', newList)
