@@ -108,14 +108,16 @@
           this.$emit('collectingEventList', this.collectingEventList);
           this.isLoading = false;
           // this.getGeoreferences()
-        })
+        });
+        this.$emit("searchShape", JSON.parse(this.shapes[this.shapes.length - 1]))
       },
       editedShape(shape) {
         this.shapes.push(JSON.stringify(shape[0]))
       },
       inspectLayer(layer) {
         // this.clearDrawn = true;
-        this.shapes.push(layer.toGeoJSON());
+        //////// this.shapes.push(layer.toGeoJSON());
+        // this.$emit("searchShape", this.shapes[this.shapes.length - 1])
         // alert (JSON.stringify(geoJ));
       },
       setHighlight(id) {

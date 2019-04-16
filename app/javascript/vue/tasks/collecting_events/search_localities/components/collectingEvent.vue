@@ -32,7 +32,7 @@
           @featuresList="featuresList=$event"
           @highlightRow="highlightRow=$event"
           @restoreRow="restoreRow=$event"
-          :shapes="shapes"
+          @searchShape="shapes=$event;"
           :light-row="lightRow"
           :dim-row="dimRow"
           ref="cebyshape"
@@ -166,7 +166,7 @@
         @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
         :light-this-feature="lightMapFeatures"
         @geoJsonLayersEdited="editedShape($event)"
-        @shapeCreated="inspectLayer"
+        @shapeCreated="addSearchShape"
         @highlightRow="highlightRow=$event"
         @restoreRow="highlightRow=0"
         :draw-controls="true"
@@ -206,6 +206,9 @@
       zoomForMap() {
         return this.showResultList ? 2 : 1
       },
+      widthForMap() {
+        return this.showResultList ? '100%' : '75%'
+      },
       showList() {
         return this.list
       }
@@ -239,12 +242,12 @@
       // },
       showResultList() {
         this.$nextTick(() => {
-          // this.$refs.leaflet.mapObject.invalidateSize()
           this.$refs.leaflet.mapObject.fitBounds(this.$refs.leaflet.foundItems.getBounds())
+          this.$refs.leaflet.mapObject.invalidateSize()
         })
       },
       shapes(newVal) {
-        this.featuresList.push(this.shapes[shapes.length - 1])
+        this.featuresList.push(newVal)
       }
     },
     methods: {
@@ -371,8 +374,9 @@
       editedShape() {
 
       },
-      inspectLayer() {
-
+      addSearchShape(shape) {
+        this.shapes = shape;
+        this.featuresList.push(shape);
       },
       setHighlight() {
 
