@@ -23,8 +23,10 @@
       <scope-component v-model="params.base.parent_id"/>
       <updated-component v-model="params.base.updated_since"/>
       <validity-component v-model="params.base.validity" />
-      <related-component v-model="params.related"/>
-      <relationships-component/>
+      <related-component
+        v-model="params.base.descendants"
+        :taxon-name="params.taxon.name"/>
+      <relationships-component v-model="params.base.taxon_name_relationship"/>
       <metadata-component v-model="params.base.metadata" />
       <citations-component v-model="params.base.citations"/>
       <otus-component v-model="params.base.otus"/>
@@ -92,13 +94,9 @@ export default {
     initParams() {
       return {
         taxon: {
-          name: undefined,
+          name: '',
           author: undefined,
           year: undefined
-        },
-        related: {
-          ancestors: undefined,
-          descendants: undefined
         },
         base: {
           exact: undefined,
@@ -107,7 +105,9 @@ export default {
           metadata: undefined,
           citations: undefined,
           otus: undefined,
-          parent_id: []
+          descendants: undefined,
+          parent_id: [],
+          taxon_name_relationship: []
         }
       }
     },

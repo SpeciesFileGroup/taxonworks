@@ -8,7 +8,7 @@
       label="label_html"
       placeholder="Search for a taxon name"
       :clear-after="true"
-      :add-params="{ exclude_leaves: true }"
+      :add-params="{ no_leaves: true }"
       @getItem="setTaxon"
     />
     <p
@@ -37,7 +37,7 @@ export default {
   },
   watch: {
     value(newVal) {
-      if(newVal && newVal[0] != this.selectedTaxon.id) {
+      if(newVal && this.selectedTaxon && newVal[0] != this.selectedTaxon.id) {
         this.selectedTaxon = undefined
       }
     }

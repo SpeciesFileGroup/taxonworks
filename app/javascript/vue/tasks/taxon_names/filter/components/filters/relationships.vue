@@ -2,40 +2,88 @@
   <div>
     <h2>Relationships</h2>
     <smart-selector
+      v-if="taxon"
       class="separate-bottom"
       :options="options"
       v-model="view" 
     />
-    <tree-display
-      v-if="view == smartOptions.all"
-      @close="view = smartOptions.common"
-      :object-lists="mergeLists"
-      modal-title="Relationships"
-      display="subject_status_tag" 
-    />
-    <ul
-      v-if="view == smartOptions.common"
-      class="no_bullets"
-    >
-      <li v-for="item in mergeLists.common">
-        <label>
-          <input type="radio">
-          {{ item.object_status_tag }}
-        </label>
-      </li>
-    </ul>
-    <autocomplete
-      v-if="view == smartOptions.advanced"
-      url=""
-      :array-list="Object.keys(mergeLists.all).map(key => mergeLists.all[key])"
-      label="subject_status_tag"
-      :clear-after="true"
-      min="3"
-      time="0"
-      placeholder="Search"
-      event-send="autocompleteRelationshipSelected"
-      param="term" 
-    />
+    <div class="flex-separate middle">
+      <template>
+        <div
+          v-if="taxon"
+          class="horizontal-left-content">
+          <span v-html="taxon.label"/>
+          <span
+            title="Undo"
+            class="circle-button button-default btn-undo"
+            @click="taxon = undefined"/>
+        </div>
+        <autocomplete
+          v-else
+          placeholder="Select a taxon name for the relationship"
+          url="/taxon_names/autocomplete"
+          param="term"
+          label="label_html"
+          :clear-after="true"
+          @getItem="setTaxon"/>
+      </template>
+      <ul class="no_bullets type-list">
+        <li
+          v-for="type in types">
+          <label>
+            <input 
+              type="radio"
+              :value="type.value"
+              v-model="display">
+            {{ type.label }}
+          </label>
+        </li>
+      </ul>
+    </div>
+    <div
+      class="separate-top"
+      v-if="taxon">
+      <tree-display
+        v-if="view == smartOptions.all"
+        @close="view = undefined"
+        :object-lists="mergeLists"
+        modal-title="Relationships"
+        :display="display"
+        @selected="addRelationshipType"
+      />
+      <ul
+        v-if="view == smartOptions.common"
+        class="no_bullets"
+      >
+        <li
+          v-for="(item, key) in mergeLists.common"
+          :key="key">
+          <label>
+            <input
+              :value="key"
+              @click="item.type = key; addRelationshipType(item)"
+              type="radio">
+            {{ item[display] }}
+          </label>
+        </li>
+      </ul>
+      <autocomplete
+        v-if="view == smartOptions.advanced"
+        url=""
+        :array-list="Object.keys(mergeLists.all).map(key => mergeLists.all[key])"
+        label="subject_status_tag"
+        :clear-after="true"
+        min="3"
+        time="0"
+        @getItem="addRelationshipType"
+        placeholder="Search"
+        event-send="autocompleteRelationshipSelected"
+        param="term" 
+      />
+    </div>
+    <list-component
+      :list="relationships"
+      @delete="removeItem"/>
   </div>
 </template>
 
@@ -45,6 +93,7 @@ import SmartSelector from 'components/switch'
 import TreeDisplay from '../treeDisplay'
 import { GetRelationshipsMetadata } from '../../request/resources.js'
 import Autocomplete from 'components/autocomplete'
+import ListComponent from '../relationshipsList'
 
 const OPTIONS = {
   common: 'common',
@@ -56,7 +105,13 @@ export default {
   components: {
     SmartSelector,
     TreeDisplay,
-    Autocomplete
+    Autocomplete,
+    ListComponent
+  },
+  props: {
+    value: {
+
+    }
   },
   computed: {
     smartOptions() {
@@ -67,10 +122,43 @@ export default {
     return {
       options: Object.values(OPTIONS),
       lists: [],
-      view: undefined,
+      paramRelationships: undefined,
+      view: OPTIONS.common,
       relationshipsList: {},
       mergeLists: {},
       showAll: false,
+      relationships: [],
+      taxon: undefined,
+      display: 'subject_status_tag',
+      types: [
+        {
+          label: 'as subject',
+          value: 'subject_status_tag'
+        },
+        {
+          label: 'as object',
+          value: 'object_status_tag'
+        }
+      ],
+      typeSelected: undefined
+    }
+  },
+  watch: {
+    value(newVal) {
+      if(newVal.length || !this.relationships.length) return
+      this.taxon = undefined,
+      this.typeSelected = undefined,
+      this.relationships = []
+    },
+    relationships() {
+      let newList = this.relationships.map(item => {
+        let name = item.hasOwnProperty('subject_status_tag') ? 'subject_status_tag' : 'object_status_tag'
+        return {
+          type: item.type,
+          [name]: item[name]
+        }
+      })
+      this.$emit('input', newList)
     }
   },
   mounted() {
@@ -106,6 +194,39 @@ export default {
         this.getTreeList(list[key], ranksList)
       }
     },
+    addRelationshipType(relationship) {
+      this.view = undefined
+      this.typeSelected = relationship
+      this.addRelationship()
+    },
+    setTaxon(taxon) {
+      this.taxon = taxon
+    },
+    addRelationship() {
+      this.relationships.push( 
+        { 
+          type: this.typeSelected.type,
+          taxon_label: this.taxon.label, 
+          type_label: this.typeSelected[this.display],
+          [this.display]: this.taxon.id,
+        }
+      )
+      this.typeSelected = undefined
+      this.taxon = undefined
+      this.view = OPTIONS.common
+    },
+    removeItem(key) {
+      this.$delete(this.relationships, key)
+    }
   }
 }
 </script>
+<style scoped>
+>>> .vue-autocomplete-input {
+  width: 210px;
+}
+
+.type-list {
+  min-width: 84px;
+}
+</style>

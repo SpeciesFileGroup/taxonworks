@@ -6,15 +6,8 @@
         <label>
           <input
             type="checkbox"
-            v-model="optionValue.ancestors">
-          Include ancestors
-        </label>
-      </li>
-      <li>
-        <label>
-          <input
-            type="checkbox"
-            v-model="optionValue.descendants">
+            :disabled="!taxonName.length"
+            v-model="optionValue">
           Include descendants
         </label>
       </li>
@@ -27,6 +20,10 @@ export default {
   props: {
     value: {
       default: undefined
+    },
+    taxonName: {
+      type: String,
+      default: ''
     }
   },
   computed: {
