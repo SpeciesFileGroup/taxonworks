@@ -20,6 +20,7 @@
         @onSearch="searchForTaxonNames" 
       />
       <precision-component v-model="params.base.exact" />
+      <scope-component v-model="params.base.parent_id"/>
       <updated-component v-model="params.base.updated_since"/>
       <validity-component v-model="params.base.validity" />
       <related-component v-model="params.related"/>
@@ -42,6 +43,7 @@ import CitationsComponent from './filters/citations'
 import OtusComponent from './filters/otus'
 import MetadataComponent from './filters/metadata'
 import RelationshipsComponent from './filters/relationships'
+import ScopeComponent from './filters/scope'
 
 import { GetTaxonNames } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
@@ -57,7 +59,8 @@ export default {
     OtusComponent,
     MetadataComponent,
     RelationshipsComponent,
-    SpinnerComponent
+    SpinnerComponent,
+    ScopeComponent
   },
   data() {
     return {
@@ -103,7 +106,8 @@ export default {
           validity: undefined,
           metadata: undefined,
           citations: undefined,
-          otus: undefined
+          otus: undefined,
+          parent_id: []
         }
       }
     },
