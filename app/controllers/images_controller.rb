@@ -1,7 +1,7 @@
 class ImagesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_image, only: [:show, :edit, :update, :destroy]
+  before_action :set_image, only: [:show, :edit, :update, :destroy, :rotate]
 
   # GET /images
   # GET /images.json
@@ -74,6 +74,7 @@ class ImagesController < ApplicationController
     @images = Image.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
+  # TODO: remove for /images.json
   def search
     if params[:id].blank?
       redirect_to images_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
@@ -117,6 +118,19 @@ class ImagesController < ApplicationController
     render json: {text: RTesseract.new(tempfile.path).to_s&.strip}
   end
 
+  # !! This is a kludge until we get active storage working
+  # PATCH /images/123/rotate
+  def rotate
+    begin
+      @image.rotate = params.require(:image).require(:rotate)
+      @image.image_file.reprocess!
+      flash[:notice] = 'Image rotated.'
+    rescue ActionController::ParameterMissing
+      flash[:notice] ='Select a rotation option.'
+    end
+    render :show
+  end
+
   private
 
   # Use callbacks to share common setup or constraints between actions.
@@ -128,7 +142,7 @@ class ImagesController < ApplicationController
   # Never trust parameters from the scary internet, only allow the white list through.
   def image_params
     params.require(:image).permit(
-      :image_file,
+      :image_file, :rotate,
       citations_attributes: [:id, :is_original, :_destroy, :source_id, :pages, :citation_object_id, :citation_object_type]
     )
   end
