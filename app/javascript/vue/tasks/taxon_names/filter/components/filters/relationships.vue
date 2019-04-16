@@ -7,7 +7,7 @@
       :options="options"
       v-model="view" 
     />
-    <div class="flex-separate middle">
+    <div>
       <template>
         <div
           v-if="taxon"
@@ -27,18 +27,6 @@
           :clear-after="true"
           @getItem="setTaxon"/>
       </template>
-      <ul class="no_bullets type-list">
-        <li
-          v-for="type in types">
-          <label>
-            <input 
-              type="radio"
-              :value="type.value"
-              v-model="display">
-            {{ type.label }}
-          </label>
-        </li>
-      </ul>
     </div>
     <div
       class="separate-top"
@@ -83,6 +71,7 @@
     </div>
     <list-component
       :list="relationships"
+      @flip="flipRelationship"
       @delete="removeItem"/>
   </div>
 </template>
@@ -152,11 +141,10 @@ export default {
     },
     relationships() {
       let newList = this.relationships.map(item => {
-        let originalParam = item.hasOwnProperty('subject_status_tag') ? 'subject_status_tag' : 'object_status_tag'
-        let name = item.hasOwnProperty('subject_status_tag') ? 'subject_taxon_name_id' : 'object_taxon_name_id'
+        let name = item.type_name == 'subject_status_tag' ? 'subject_taxon_name_id' : 'object_taxon_name_id'
         return {
           type: item.type,
-          [name]: item[originalParam]
+          [name]: item.taxonId
         }
       })
       this.$emit('input', newList)
@@ -206,10 +194,12 @@ export default {
     addRelationship() {
       this.relationships.push( 
         { 
+          type_object: this.typeSelected,
           type: this.typeSelected.type,
           taxon_label: this.taxon.label, 
           type_label: this.typeSelected[this.display],
-          [this.display]: this.taxon.id,
+          type_name: this.display,
+          taxonId: this.taxon.id,
         }
       )
       this.typeSelected = undefined
@@ -218,13 +208,22 @@ export default {
     },
     removeItem(key) {
       this.$delete(this.relationships, key)
+    },
+    flipRelationship(relationship) {
+      let index = this.relationships.findIndex(item => {
+        return item.type == relationship.type && item.type_name == relationship.type_name
+      })
+      let flipType = (relationship.type_name == 'subject_status_tag' ? 'object_status_tag' : 'subject_status_tag')
+      relationship.type_name = flipType
+      relationship.type_label = relationship.type_object[flipType]
+      this.$set(this.relationships, index, relationship)
     }
   }
 }
 </script>
 <style scoped>
 >>> .vue-autocomplete-input {
-  width: 210px;
+  width: 100%;
 }
 
 .type-list {

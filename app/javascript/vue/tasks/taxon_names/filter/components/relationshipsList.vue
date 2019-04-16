@@ -13,6 +13,10 @@
         <span>(?)</span>
       </span>
       <div class="list-controls">
+        <button
+          type="button"
+          class="button button-default normal-input"
+          @click="flipItem(item)">Flip</button>
         <span
           class="circle-button btn-delete"
           @click="deleteItem(key)">Remove
@@ -35,6 +39,9 @@ export default {
       if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
         this.$emit('delete', key)
       }
+    },
+    flipItem(item) {
+      this.$emit('flip', item)
     }
   }
 }
