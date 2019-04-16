@@ -21,11 +21,11 @@
       />
       <precision-component v-model="params.base.exact" />
       <scope-component v-model="params.base.parent_id"/>
-      <updated-component v-model="params.base.updated_since"/>
-      <validity-component v-model="params.base.validity" />
       <related-component
         v-model="params.base.descendants"
         :taxon-name="params.taxon.name"/>
+      <updated-component v-model="params.base.updated_since"/>
+      <validity-component v-model="params.base.validity" />
       <relationships-component v-model="params.base.taxon_name_relationship"/>
       <status-component v-model="params.base.taxon_name_classification"/>
       <metadata-component v-model="params.base.metadata" />
