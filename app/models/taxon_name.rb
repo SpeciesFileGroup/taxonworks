@@ -310,7 +310,6 @@ class TaxonName < ApplicationRecord
      ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(t['id']))))
   end
 
-
   # @return [Scope] Protonym(s) the **broad sense** synonyms of this name
   def synonyms
     TaxonName.with_cached_valid_taxon_name_id(self.id)

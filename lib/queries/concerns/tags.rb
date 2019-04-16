@@ -3,6 +3,8 @@ module Queries::Concerns::Tags
 
   extend ActiveSupport::Concern
 
+  attr_accessor :keyword_ids
+
   # @return [Arel::Table]
   def tag_table 
     ::Tag.arel_table

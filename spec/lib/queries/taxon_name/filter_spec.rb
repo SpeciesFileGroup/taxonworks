@@ -15,6 +15,28 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     verbatim_author: 'Fitch & Say',
     year_of_publication: 1800) }
 
+  specify '#taxon_name_relationship[] 1' do
+    query.taxon_name_relationship = { '0' => { 'subject_taxon_name_id' => genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } } 
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify '#taxon_name_relationship[] 2' do
+    TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(subject_taxon_name_id: genus.id.to_s, object_taxon_name_id: original_genus.id)
+    query.taxon_name_relationship = { '0' => { 'subject_taxon_name_id' => genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } } 
+    expect(query.all.map(&:id)).to contain_exactly(original_genus.id)
+  end
+
+  specify '#parent_id[]' do
+    query.parent_id = [root.id]
+    expect(query.all.map(&:id)).to contain_exactly(genus.id, original_genus.id)
+  end
+
+  specify '#parent_id[] 2' do
+    query.parent_id = [genus.id]
+    query.descendants = true
+    expect(query.all.map(&:id)).to contain_exactly(species.id, genus.id)
+  end
+
   specify '#name' do
     query.name = 'vulner' 
     expect(query.all.map(&:id)).to contain_exactly(species.id)

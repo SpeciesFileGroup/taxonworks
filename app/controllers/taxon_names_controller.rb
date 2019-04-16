@@ -13,13 +13,23 @@ class TaxonNamesController < ApplicationController
 
       end
       format.json {
-        @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
+        @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 5)
       }
     end
   end
 
   def filter_params
-    params.permit(:name, :author, :year, :validity, :exact, :updated_since, type: [], parent_id: [], nomenclature_group: []).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
+    params.permit(
+      :name, :author, :year,
+      :exact,
+      :validity,
+      :descendants,
+      :updated_since,
+      type: [],
+      parent_id: [],
+      nomenclature_group: [],
+      taxon_name_relationship: {}
+    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
   # GET /taxon_names/1
