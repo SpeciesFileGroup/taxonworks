@@ -123,3 +123,8 @@ export default {
   }
 }
 </script>
+<style scoped>
+>>> .btn-delete {
+    background-color: #5D9ECE;
+  }
+</style>
