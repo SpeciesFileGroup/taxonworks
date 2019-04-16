@@ -32,6 +32,7 @@
           @featuresList="featuresList=$event"
           @highlightRow="highlightRow=$event"
           @restoreRow="restoreRow=$event"
+          :shapes="shapes"
           :light-row="lightRow"
           :dim-row="dimRow"
           ref="cebyshape"
@@ -218,7 +219,6 @@
         collectingEventList: [],
         featuresList: [],
         selected: [],
-        isSelectAll: false,
         annotation_logic: 'append',
         highlightRow: undefined,
         restoreRow: undefined,
@@ -232,15 +232,19 @@
       }
     },
     watch: {
-      isSelectAll(newVal) {
-        if (!newVal) {
-          this.selected = []
-        }
-      },
+      // isSelectAll(newVal) {
+      //   if (!newVal) {
+      //     this.selected = []
+      //   }
+      // },
       showResultList() {
         this.$nextTick(() => {
-          this.$refs.leaflet.mapObject.invalidateSize()
+          // this.$refs.leaflet.mapObject.invalidateSize()
+          this.$refs.leaflet.mapObject.fitBounds(this.$refs.leaflet.foundItems.getBounds())
         })
+      },
+      shapes(newVal) {
+        this.featuresList.push(this.shapes[shapes.length - 1])
       }
     },
     methods: {
