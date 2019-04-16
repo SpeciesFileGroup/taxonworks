@@ -71,7 +71,7 @@
         v-if="view == smartOptions.advanced"
         url=""
         :array-list="Object.keys(mergeLists.all).map(key => mergeLists.all[key])"
-        label="subject_status_tag"
+        :label="display"
         :clear-after="true"
         min="3"
         time="0"
@@ -152,7 +152,7 @@ export default {
     },
     relationships() {
       let newList = this.relationships.map(item => {
-        let name = item.hasOwnProperty('subject_status_tag') ? 'subject_status_tag' : 'object_status_tag'
+        let name = item.hasOwnProperty('subject_status_tag') ? 'subject_taxon_name_id' : 'object_taxon_name_id'
         return {
           type: item.type,
           [name]: item[name]

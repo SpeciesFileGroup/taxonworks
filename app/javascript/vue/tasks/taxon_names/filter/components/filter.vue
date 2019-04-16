@@ -27,6 +27,7 @@
         v-model="params.base.descendants"
         :taxon-name="params.taxon.name"/>
       <relationships-component v-model="params.base.taxon_name_relationship"/>
+      <status-component v-model="params.base.taxon_name_classification"/>
       <metadata-component v-model="params.base.metadata" />
       <citations-component v-model="params.base.citations"/>
       <otus-component v-model="params.base.otus"/>
@@ -46,6 +47,7 @@ import OtusComponent from './filters/otus'
 import MetadataComponent from './filters/metadata'
 import RelationshipsComponent from './filters/relationships'
 import ScopeComponent from './filters/scope'
+import StatusComponent from './filters/status'
 
 import { GetTaxonNames } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
@@ -62,7 +64,8 @@ export default {
     MetadataComponent,
     RelationshipsComponent,
     SpinnerComponent,
-    ScopeComponent
+    ScopeComponent,
+    StatusComponent
   },
   data() {
     return {
@@ -107,7 +110,8 @@ export default {
           otus: undefined,
           descendants: undefined,
           parent_id: [],
-          taxon_name_relationship: []
+          taxon_name_relationship: [],
+          taxon_name_classification: []
         }
       }
     },

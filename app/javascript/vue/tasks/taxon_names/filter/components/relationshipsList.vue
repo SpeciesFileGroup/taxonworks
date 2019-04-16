@@ -14,7 +14,7 @@
       </span>
       <div class="list-controls">
         <span
-          class="circle-button btn-delete"
+          class="circle-button btn-delete button-default"
           @click="deleteItem(key)">Remove
         </span>
       </div>
