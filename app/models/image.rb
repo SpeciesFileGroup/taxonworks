@@ -40,7 +40,6 @@
 #
 class Image < ApplicationRecord
   include Housekeeping
-
   include Shared::Identifiers
   include Shared::Notes
   include Shared::Tags
@@ -50,10 +49,11 @@ class Image < ApplicationRecord
   include Shared::IsData
   include SoftValidation
 
+  attr_accessor :rotate
+
   MISSING_IMAGE_PATH = '/public/images/missing.jpg'.freeze
 
   has_many :depictions, inverse_of: :image, dependent: :restrict_with_error
-
   
   has_many :collection_objects, through: :depictions, source: :depiction_object, source_type: 'CollectionObject'
   has_many :otus, through: :depictions, source: :depiction_object, source_type: 'Otu'
@@ -65,7 +65,8 @@ class Image < ApplicationRecord
   has_attached_file :image_file,
     styles: {medium: ['300x300>', :jpg], thumb: ['100x100>', :png]},
     default_url: MISSING_IMAGE_PATH,
-    filename_cleaner:  Utilities::CleanseFilename
+    filename_cleaner:  Utilities::CleanseFilename,
+    processors: [:rotator]
 
   #:restricted_characters => /[^A-Za-z0-9\.]/,
   validates_attachment_content_type :image_file, content_type: /\Aimage\/.*\Z/

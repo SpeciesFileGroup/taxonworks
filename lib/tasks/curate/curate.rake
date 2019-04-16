@@ -36,7 +36,7 @@ namespace :tw do
     end
 
     desc 'Re-calculate the boundaries for Sqed depictions'
-    task recalculate_sqed_boundaries: [:environment, :project_id] do |t|
+    task recalculate_sqed_boundaries: [:environment, :project_id, :id_start, :id_end] do |t|
       project_id = ENV['project_id']
 
       a = SqedDepiction.where(project_id: project_id).order(:id)
@@ -45,14 +45,7 @@ namespace :tw do
 
       puts Rainbow("id range for project #{project_id} is #{id_min}-#{id_max}.").blue
 
-      if ENV['id_start'].nil? || ENV['id_end'].nil?
-        puts Rainbow("Must set id_start= and id_end=").red
-      end
-
-      min_id = ENV['id_start'].to_i
-      max_id = ENV['id_end'].to_i
-
-      records = a.where('id > ?', min_id - 1).where('id < ?', max_id + 1)
+      records = a.where('id > ?', @args[:id_start] - 1).where('id < ?', @args[:id_end] + 1)
 
       puts Rainbow("Processing #{records.count} sqed_depictions.").blue
 
@@ -75,5 +68,50 @@ namespace :tw do
       end
     end
 
+    desc 'Rotate images'
+    task rotate_images: [:environment, :project_id, :user_id, :id_start, :id_end] do |t|
+      raise TaxonWorks::Error, Rainbow('Specify rotate, like rotate=180').yellow if ENV['rotate'].blank?
+      rotate = ENV['rotate'].to_i
+
+      a = Image.where(project_id: @args[:project_id]).order(:id)
+
+      records = a.where('id > ?', @args[:id_start] - 1).where('id < ?', @args[:id_end] + 1)
+
+      puts Rainbow("Processing #{records.count} images.").blue
+
+      i = 0
+
+      begin
+        print Rainbow("Rotating\n").bold
+        records.order(:id).find_each do |i|
+          ApplicationRecord.transaction do
+            original_file = i.image_file.path(:original)
+            puts Rainbow(i.id.to_s + ': ' + original_file).purple
+
+            temp_original = original_file + '.tmp'
+
+            FileUtils.cp(original_file, temp_original)
+
+            begin
+              j = Magick::Image::read(original_file).first
+
+              jr = j.rotate(rotate)
+
+              File.delete(original_file)
+              jr.write(original_file)
+            rescue
+              FileUtils.cp(temp_original, original_file)
+              raise
+            ensure
+              File.delete(temp_original) if File.exists?(temp_original)
+            end
+
+            i.image_file.reprocess!
+          rescue
+            raise
+          end
+        end
+      end
+    end
   end
 end
