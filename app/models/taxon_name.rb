@@ -143,30 +143,6 @@ class TaxonName < ApplicationRecord
   include SoftValidation
   include Shared::IsData
 
-  def self.not_leaves
-    t = self.arel_table
-    h = ::TaxonNameHierarchy.arel_table
-
-    a = t.alias('a_')
-    b = t.project(a[Arel.star]).from(a)
-
-    c = h.alias('h1')
-
-    b = b.join(c, Arel::Nodes::OuterJoin)
-      .on(
-        a[:id].eq(c[:ancestor_id])
-    )
-    
-    e = c[:generations].not_eq(0)
-    f = c[:ancestor_id].not_eq(c[:descendant_id])
-
-    b = b.where(e.and(f))
-    b = b.group(a[:id])
-    b = b.as('tnh_')
-
-     ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(t['id']))))
-  end
-
   # Allows users to provide arbitrary annotations that "over-ride" rank string
   ALTERNATE_VALUES_FOR = [:rank_class].freeze # !! Don't even think about putting this on `name`
 
@@ -307,6 +283,33 @@ class TaxonName < ApplicationRecord
   scope :with_cached_valid_taxon_name_id, -> (cached_valid_taxon_name_id) {where(cached_valid_taxon_name_id: cached_valid_taxon_name_id)}
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
   scope :with_cached_html, -> (html) { where(cached_html: html) } # WHY? - DEPRECATE for cached
+
+  # @return Scope
+  #   names that are not leaves
+  def self.not_leaves
+    t = self.arel_table
+    h = ::TaxonNameHierarchy.arel_table
+
+    a = t.alias('a_')
+    b = t.project(a[Arel.star]).from(a)
+
+    c = h.alias('h1')
+
+    b = b.join(c, Arel::Nodes::OuterJoin)
+      .on(
+        a[:id].eq(c[:ancestor_id])
+    )
+    
+    e = c[:generations].not_eq(0)
+    f = c[:ancestor_id].not_eq(c[:descendant_id])
+
+    b = b.where(e.and(f))
+    b = b.group(a[:id])
+    b = b.as('tnh_')
+
+     ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(t['id']))))
+  end
+
 
   # @return [Scope] Protonym(s) the **broad sense** synonyms of this name
   def synonyms
