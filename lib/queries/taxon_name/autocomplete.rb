@@ -28,12 +28,18 @@ module Queries
       #   if 'true' then only #name = query_string results are returned (no fuzzy matching)
       attr_accessor :exact
 
+      # @return [Boolean]
+      #   &no_leaves=<"true"|"false">
+      #   if 'true' then no taxon names with parents will be found 
+      attr_accessor :no_leaves
+
       # @param [Hash] args
-      def initialize(string, project_id: nil, valid: nil, exact: false, nomenclature_group: [], type: [], parent_id: [])
+      def initialize(string, project_id: nil, valid: nil, exact: nil, no_leaves: nil, nomenclature_group: [], type: [], parent_id: [])
         @nomenclature_group = nomenclature_group
         @valid = valid == 'true' ? true : (valid == 'false' ? false : nil)
         @type = type
         @parent_id = parent_id
+        @no_leaves = exact == 'true' ? true : (exact == 'false' ? false : nil)
         @exact = exact == 'true' ? true : (exact == 'false' ? false : nil)
         super
       end
@@ -65,7 +71,7 @@ module Queries
           valid_state,
           is_type,
           with_parent_id,
-          with_nomenclature_group
+          with_nomenclature_group,
         ].compact
 
         return nil if clauses.nil?
@@ -129,7 +135,7 @@ module Queries
       end
 
       # @return [Scope]
-      # !! TODO: should be autocomplete
+      # !! TODO: should be autocomplete and array ...
       def all
         ::TaxonName.select('taxon_names.*, char_length(taxon_names.cached)').
           includes(:ancestor_hierarchies).
@@ -277,6 +283,7 @@ module Queries
           a = q
           a = q.where(project_id: project_id) if project_id
           a = a.where(and_clauses.to_sql) if and_clauses
+          a = a.not_leaves if no_leaves
           updated_queries[i] = a
         end
 

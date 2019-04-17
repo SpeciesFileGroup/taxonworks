@@ -690,6 +690,12 @@ TaxonWorks::Application.routes.draw do
   ### End of data resources ###
 
   scope :tasks do
+    scope :taxon_names do
+      scope :filter, controller: 'tasks/taxon_names/filter' do
+        get :index, as: 'index_filter_task'
+      end
+    end
+
     scope :images do
       scope :new_image, controller: 'tasks/images/new_image' do
         get :index, as: 'index_new_image_task'

@@ -6,8 +6,35 @@ class TaxonNamesController < ApplicationController
   # GET /taxon_names
   # GET /taxon_names.json
   def index
-    @recent_objects = TaxonName.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = TaxonName.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+
+      end
+      format.json {
+        @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
+      }
+    end
+  end
+
+  def filter_params
+    params.permit(
+      :name, :author, :year,
+      :exact,
+      :validity,
+      :descendants,
+      :updated_since,
+      :type_metadata,
+      :citations,
+      :otus,
+      :nomenclature_group, # !! different than autocomplete
+      :nomenclature_code,
+      type: [],
+      parent_id: [],
+      taxon_name_classification: [],
+      taxon_name_relationship: {}
+    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
   # GET /taxon_names/1
@@ -176,7 +203,7 @@ class TaxonNamesController < ApplicationController
   end
 
   def autocomplete_params
-    params.permit(:valid, :exact, type: [], parent_id: [], nomenclature_group: []).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
+    params.permit(:valid, :exact, :no_leaves, type: [], parent_id: [], nomenclature_group: []).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
   def taxon_name_params
