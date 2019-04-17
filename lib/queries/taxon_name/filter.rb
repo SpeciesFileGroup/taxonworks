@@ -276,7 +276,7 @@ module Queries
           q = ::TaxonName.all
         end
 
-        #  q = q.order(updated_at: :desc).limit(recent) if recent
+        q = q.where(project_id: project_id) if project_id
         q
       end
 
