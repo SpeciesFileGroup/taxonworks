@@ -1092,8 +1092,8 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                 elsif  o.rank_string =~ /Species/ && !s.original_combination_source.nil? && s.original_combination_source == o.original_combination_source && s.cached_primary_homonym_alternative_spelling == o.cached_primary_homonym_alternative_spelling && r2 == 1
                   t.type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'
                   t.save
-                  unless s.original_subgenus.nil? && !o.original_subgenus.nil?
-                    s.original_subgenus = o.original_subgenus
+                  if !s.original_subgenus.nil? && o.original_subgenus.nil?
+                    o.original_subgenus = s.original_subgenus
                     o.save
                     fixed += 1
                   end
