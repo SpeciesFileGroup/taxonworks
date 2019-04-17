@@ -1,0 +1,161 @@
+require 'rails_helper'
+
+describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
+
+  let(:query) { Queries::TaxonName::Filter.new({}) }
+
+  let(:root) { FactoryBot.create(:root_taxon_name)}
+  let(:genus) { Protonym.create(name: 'Erasmoneura', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
+  let(:original_genus) { Protonym.create(name: 'Bus', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
+  let!(:species) { Protonym.create!(
+    name: 'vulnerata',
+    rank_class: Ranks.lookup(:iczn, 'species'),
+    parent: genus,
+    original_genus: original_genus,
+    verbatim_author: 'Fitch & Say',
+    year_of_publication: 1800) }
+
+  specify '#nomenclature_group 1' do
+    query.nomenclature_group = 'Species'
+    expect(query.all.map(&:id)).to contain_exactly(species.id) 
+  end
+
+  specify '#nomenclature_code 1' do
+    query.nomenclature_group = 'Icnb'
+    expect(query.all.map(&:id)).to contain_exactly() 
+  end
+
+  specify '#nomenclature_code 2' do
+    query.nomenclature_group = 'Iczn'
+    expect(query.all.map(&:id).size).to eq(3) # Root has no rank!
+  end
+
+  specify '#citations 1' do
+    query.citations = 'without_citations' 
+    expect(query.all.map(&:id).size).to eq(4)
+  end
+
+  specify '#citations 2' do
+    query.citations = 'without_citations' 
+    Citation.create!(citation_object: species, source: FactoryBot.create(:valid_source))
+    expect(query.all.map(&:id).size).to eq(3)
+  end
+
+  specify '#citations 3' do
+    query.citations = 'without_origin_citation' 
+    Citation.create!(citation_object: species, source: FactoryBot.create(:valid_source))
+    expect(query.all.map(&:id).size).to eq(4)
+  end
+
+  specify '#citations 4' do
+    query.citations = 'without_origin_citation' 
+    Citation.create!(citation_object: species, is_original: true, source: FactoryBot.create(:valid_source))
+    expect(query.all.map(&:id).size).to eq(3)
+  end
+
+  specify '#otus 1' do
+    query.otus = true
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify '#otus 2' do
+    Otu.create!(taxon_name: species)
+    query.otus = true
+    expect(query.all.map(&:id)).to contain_exactly(species.id)
+  end
+
+  specify '#type_metadata 1' do
+    query.type_metadata = true
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify '#type_metadata 2' do
+    query.type_metadata = false 
+    expect(query.all.map(&:id).size).to eq(4)  
+  end
+
+  specify '#type_metadata 3' do
+    query.type_metadata = true
+    query.name = species.name
+    TypeMaterial.create!(protonym: species, type_type: 'holotype', material:  FactoryBot.create(:valid_specimen)) 
+    expect(query.all.map(&:id)).to contain_exactly(species.id)  
+  end
+
+  specify '#type_metadata 4' do
+    query.type_metadata = false 
+    TypeMaterial.create!(protonym: species, type_type: 'holotype', material:  FactoryBot.create(:valid_specimen)) 
+    expect(query.all.map(&:id)).to contain_exactly(root.id, genus.id, original_genus.id)  
+  end
+
+  specify '#taxon_name_classification[]' do
+    TaxonNameClassification::Iczn::Available.create!(taxon_name: genus)
+    query.taxon_name_classification = [ 'TaxonNameClassification::Iczn::Available' ]
+    expect(query.all.map(&:id)).to contain_exactly(genus.id)
+  end
+
+  specify '#taxon_name_relationship[] 1' do
+    query.taxon_name_relationship = { '0' => { 'subject_taxon_name_id' => genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } } 
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify '#taxon_name_relationship[] 2' do
+    TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(subject_taxon_name_id: genus.id.to_s, object_taxon_name_id: original_genus.id)
+    query.taxon_name_relationship = { '0' => { 'subject_taxon_name_id' => genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } } 
+    expect(query.all.map(&:id)).to contain_exactly(original_genus.id)
+  end
+
+  specify '#parent_id[]' do
+    query.parent_id = [root.id]
+    expect(query.all.map(&:id)).to contain_exactly(genus.id, original_genus.id)
+  end
+
+  specify '#parent_id[] 2' do
+    query.parent_id = [genus.id]
+    query.descendants = true
+    expect(query.all.map(&:id)).to contain_exactly(species.id, genus.id)
+  end
+
+  specify '#name' do
+    query.name = 'vulner' 
+    expect(query.all.map(&:id)).to contain_exactly(species.id)
+  end
+
+  specify '#name, #exact' do
+    query.name = 'vulnerata' 
+    query.exact = true
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify '#author' do
+    query.author = 'Fitch & S' 
+    expect(query.all.map(&:id)).to contain_exactly(species.id)
+  end
+
+  specify '#author, #exact' do
+    query.author = 'Fit'
+    query.exact = true 
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify '#year' do
+    query.year = 1800
+    expect(query.all.map(&:id)).to contain_exactly(species.id)
+  end
+
+  specify '#updated_since' do
+    species.update(updated_at: '2050/1/1')
+    query.updated_since = '2049-12-01'
+    expect(query.all.map(&:id)).to contain_exactly(species.id) 
+  end
+
+  specify '#validity 1' do
+    query.validity = true
+    expect(query.all.map(&:id).size).to eq(4)
+  end
+
+  specify '#validity 2' do
+    query.validity = false 
+    expect(query.all.map(&:id)).to contain_exactly() 
+  end
+
+end

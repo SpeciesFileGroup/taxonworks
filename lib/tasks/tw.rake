@@ -38,6 +38,8 @@ namespace :tw do
     raise "You must specify a user_id like 'user_id=2'" unless ENV['user_id']
     raise "User #{ENV['user_id']} doesn't exist." if !User.find(ENV['user_id'])
     Current.user_id = ENV['user_id'].to_i
+    @args ||= {}
+    @args[:user_id] = Current.user_id
   end
 
   desc 'Sets Current.project_id via "project_id=1" option. checks to see it exists.'
@@ -45,6 +47,8 @@ namespace :tw do
     raise "You must specify a project_id like 'project_id=1" unless ENV['project_id']
     raise "Project #{ENV['project_id']} doesn't exist." if !Project.find(ENV['project_id'])
     Current.project_id =  ENV['project_id'].to_i
+    @args ||= {}
+    @args[:project_id] = Current.project_id
   end
 
   # TODO: Use Current
@@ -62,13 +66,13 @@ namespace :tw do
   desc 'a default method to add a data_directory_argument, include trailing slash'
   task data_directory: [:environment] do
     default = Settings.default_data_directory
-    @args   ||= {}
+    @args ||= {}
     if ENV['data_directory'].blank?
       if default
         puts "no data_directory passed, using default (#{default})"
       else
         raise 'no data_directory passed (like data_directory=/tmp/foo) and default_data_directory setting is not ' \
-              'present (see application_settings.yml in /config)'
+          'present (see application_settings.yml in /config)'
       end
     end
     @args.merge!(data_directory: (ENV['data_directory'] || default))
@@ -86,7 +90,7 @@ namespace :tw do
         puts "No backup_directory passed, using default (#{default})"
       else
         raise 'No backup_directory passed (like backup_directory=/tmp/foo) and backup_directory setting is not ' \
-              'present (see application_settings.yml in /config)'
+          'present (see application_settings.yml in /config)'
       end
     end
 
@@ -97,10 +101,23 @@ namespace :tw do
 
   desc 'a general purpose task to supply a file @args, file=file.txt'
   task :file do
-    file = ENV['file']
     raise TaxonWorks::Error, Rainbow('Specify a file, like file=myfile.dump').yellow if not ENV['file']
-    @args        ||= {}
-    @args[:file] = file
+    @args ||= {}
+    @args[:file] = ENV['file']
+  end
+
+  desc 'a general purpose task to supply a id in a range to @args, id_start=1'
+  task :id_start do
+    raise TaxonWorks::Error, Rainbow('Specify a minimum id, like id_start=123').yellow if not ENV['id_start']
+    @args ||= {}
+    @args[:id_start] = ENV['id_start'].to_i
+  end
+
+  desc 'a general purpose task to supply a id in a range to @args, id_end=1'
+  task :id_end do
+    raise TaxonWorks::Error, Rainbow('Specify a maximum id, like id_end=123').yellow if not ENV['id_end']
+    @args ||= {}
+    @args[:id_end] = ENV['id_end'].to_i
   end
 
   desc 'provide file=/foo/something.bar and ensure file exists with provided value'
@@ -126,7 +143,7 @@ namespace :tw do
   def table_exists(table_name)
     ApplicationRecord.connection
       .execute("SELECT EXISTS(SELECT * FROM information_schema.tables " \
-        "WHERE table_name = '#{table_name}');").first['exists'] == 't'
+               "WHERE table_name = '#{table_name}');").first['exists'] == 't'
   end
 
 end

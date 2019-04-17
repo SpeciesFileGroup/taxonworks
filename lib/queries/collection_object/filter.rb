@@ -201,9 +201,10 @@ module Queries
           .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
       end
 
+
       # @return [Scope]
       def shape_scope
-        ::GeographicItem.gather_map_data(query_shape, 'CollectionObject', Current.project_id)
+        ::GeographicItem.gather_map_data(query_shape, 'CollectionObject', Current.project_id)       # !!! ARG NO !!!
       end
 
       # @return [Scope]

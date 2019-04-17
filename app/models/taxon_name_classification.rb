@@ -171,7 +171,23 @@ class TaxonNameClassification < ApplicationRecord
             cached: t.get_full_name,
             cached_html: t.get_full_name_html
           )
-
+        elsif type_name =~ /Latinized::Gender/
+          t.descendants.select{|t| t.id == t.cached_valid_taxon_name_id}.find_each do |t1|
+            t1.update_columns(
+                cached: t1.get_full_name,
+                cached_html: t1.get_full_name_html
+            )
+          end
+          TaxonNameRelationship.where(type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus', subject_taxon_name: t).collect{|i| i.object_taxon_name}.find_each do |t1|
+            t1.update_cached_original_combinations
+          end
+          TaxonNameRelationship.where(type: 'TaxonNameRelationship::Combination::Genus', subject_taxon_name: t).collect{|i| i.object_taxon_name}.find_each do |t1|
+            t1.update_column(:verbatim_name, cached) if t1.verbatim_name.nil?
+            t1.update_columns(
+                cached: t1.get_full_name,
+                cached_html: t1.get_full_name_html
+            )
+          end
         elsif TAXON_NAME_CLASS_NAMES_VALID.include?(type_name)
           vn = t.get_valid_taxon_name
           vn.update_column(:cached_valid_taxon_name_id, vn.id)  # update self too!
