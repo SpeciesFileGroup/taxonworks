@@ -32,7 +32,7 @@
         class="button normal-input button-default separate-left"
         type="button"
         @click="clearTheMap"
-        value="Clear Map">
+        value="Clear Search Map">
     </div>
   </div>
 </template>

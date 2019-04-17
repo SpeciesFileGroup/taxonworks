@@ -32,11 +32,12 @@
           @featuresList="featuresList=$event"
           @highlightRow="highlightRow=$event"
           @restoreRow="restoreRow=$event"
-          @searchShape="shapes=$event;"
+          @searchShape="addSearchShape"
           :light-row="lightRow"
           :dim-row="dimRow"
           ref="cebyshape"
         />
+<!--        @searchShape="shapes=$event;"-->
       </div>
       <div v-else-if="view === 'Tag'">
         <ce-tag @collectingEventList="compileList($event)"/>
@@ -53,12 +54,12 @@
       </template>
       <input
         type="button"
-        @click="removeAllList()"
+        @click="resetPage()"
         value="Reset">
-      <input
-        type="button"
-        @click="processList()"
-        value="Add to Map">
+<!--      <input-->
+<!--        type="button"-->
+<!--        @click="processList()"-->
+<!--        value="Add to Map">-->
     </template>
     <div>
       <div class="annotation_logic separate-left">
@@ -274,8 +275,11 @@
         }
         this.getGeoreferences();
       },
-      resetList() {
-        this.collectingEventList = [];
+      resetPage() {
+        this.removeAllList();  // clear the collecting event list
+        // this.$refs.leaflet.clearFound();
+        this.$refs.cebyshape.clearTheMap();
+        this.featuresList = [];
       },
       showObject(id) {
         window.open(`/collecting_events/` + id, '_blank');
@@ -376,7 +380,7 @@
       },
       addSearchShape(shape) {
         this.shapes = shape;
-        this.featuresList.push(shape);
+        // this.featuresList.push(shape); // watcher does this
       },
       setHighlight() {
 
