@@ -40,6 +40,9 @@ module Queries
       # []
       attr_accessor :taxon_name_classification
 
+      # TODO - to use or not, some filters are scoped in controller (probably bad?!)
+      attr_accessor :project_id
+
       # []
       attr_accessor :nomenclature_group
 
@@ -55,7 +58,7 @@ module Queries
       # false 
       attr_accessor :otus
 
-      attr_accessor :project_id
+
 
 
       def initialize(params)
