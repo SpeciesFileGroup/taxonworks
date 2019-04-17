@@ -1076,6 +1076,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           TaxonNameRelationship.where(project_id: project_id).with_type_string('TaxonNameRelationship::Iczn::Invalidating').pluck(:id).each do |t1|
             t = TaxonNameRelationship.find(t1)
             i += 1
+            next if i<10000
             print "\r#{i}    Fixes applied: #{fixed}    Combinations created: #{combinations}"
             if t.citations.empty?
               s = t.subject_taxon_name
@@ -1090,14 +1091,75 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                   t.save
                   fixed += 1
                 elsif  o.rank_string =~ /Species/ && !s.original_combination_source.nil? && s.original_combination_source == o.original_combination_source && s.cached_primary_homonym_alternative_spelling == o.cached_primary_homonym_alternative_spelling && r2 == 1
-                  t.type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'
-                  t.save
                   if !s.original_subgenus.nil? && o.original_subgenus.nil?
                     o.original_subgenus = s.original_subgenus
-                    o.save
                     fixed += 1
                   end
-                  fixed += 1
+                  if !s.original_species.nil? && o.original_species.nil?
+                    o.original_species = s.original_species
+                    fixed += 1
+                  end
+                  if !s.original_subspecies.nil? && o.original_subspecies.nil?
+                    o.original_subspecies = s.original_subspecies
+                    fixed += 1
+                  end
+                  if !s.original_variety.nil? && o.original_variety.nil?
+                    o.original_variety = s.original_variety
+                    fixed += 1
+                  end
+                  if !s.original_form.nil? && o.original_form.nil?
+                    o.original_form = s.original_form
+                    fixed += 1
+                  end
+                  if !o.original_form.nil?
+                    o.original_form = o
+                  elsif !o.original_variety.nil?
+                    o.original_variety = o
+                  elsif !o.original_subspecies.nil?
+                    o.original_subspecies = o
+                  elsif !o.original_species.nil?
+                    o.original_species = o
+                  end
+                  s.citations.each do |c|
+                    c.citation_object_id = o.id
+                    c.save
+                  end
+                  s.notes.each do |c|
+                    c.note_object_id = o.id
+                    c.save
+                  end
+                  s.tags.each do |c|
+                    c.tag_object_id = o.id
+                    c.save
+                  end
+                  s.data_attributes.each do |c|
+                    c.attribute_subject_id = o.id
+                    c.save
+                  end
+                  s.confidences.each do |c|
+                    c.confidence_object_id = o.id
+                    c.save
+                  end
+
+                  o.origin_citation.pages = s.origin_citation.pages if o.origin_citation.pages.blank?
+                  o.data_attributes.create!(type: 'ImportAttribute', import_predicate: 'original name in SF', value: o.name)
+                  old_name = o.name
+                  o.name = s.name
+                  o.taxon_name_classifications.new(type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
+                  t.destroy
+                  s.destroy
+                  o.save
+                  gen = o.ancestor_at_rank('genus')
+                  if o.masculine_name == old_name
+                    gen.taxon_name_classifications.create(type: 'TaxonNameClassification::Latinized::Gender::Masculine') if gen
+                  elsif o.feminine_name == old_name
+                    gen.taxon_name_classifications.create(type: 'TaxonNameClassification::Latinized::Gender::Feminine') if gen
+                  elsif o.neuter_name == old_name
+                    gen.taxon_name_classifications.create(type: 'TaxonNameClassification::Latinized::Gender::Neuter') if gen
+                  end
+#                  t.type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'
+#                  t.save
+#                  fixed += 1
                 elsif (o.rank_string =~ /Species/  && shas == o.cached_secondary_homonym_alternative_spelling && r2 == 1) || (o.rank_string =~ /Genus/  && s.cached_primary_homonym_alternative_spelling == o.cached_primary_homonym_alternative_spelling && r2 == 1)
                   s = s.becomes_combination
                   combinations += 1  if s.type == 'Combination'
