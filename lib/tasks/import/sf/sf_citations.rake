@@ -1076,7 +1076,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           TaxonNameRelationship.where(project_id: project_id).with_type_string('TaxonNameRelationship::Iczn::Invalidating').pluck(:id).each do |t1|
             t = TaxonNameRelationship.find(t1)
             i += 1
-            next if i<10800
+            # next if i<10800
             print "\r#{i}    Fixes applied: #{fixed}    Combinations created: #{combinations}"
             if t.citations.empty?
               s = t.subject_taxon_name
