@@ -31,7 +31,8 @@ export default {
   },
   methods: {
     getDefault() {
-      return document.querySelector('[data-pinboard-section="ControlledVocabularyTerms"] [data-insert="true"]').getAttribute('data-pinboard-object-id')
+      let defaultTag = document.querySelector('[data-pinboard-section="ControlledVocabularyTerms"] [data-insert="true"]')
+      return defaultTag ? defaultTag.getAttribute('data-pinboard-object-id') : undefined
     },
     alreadyTagged: function(element) {
       if(!this.keyId) return
@@ -58,6 +59,7 @@ export default {
       }
       this.$http.post('/tags', tagItem).then(response => {
         this.tagItem = response.body
+        this.created = true
         TW.workbench.alert.create('Tag item was successfully created.', 'notice')
       })
     },
@@ -66,7 +68,8 @@ export default {
 				annotated_global_entity: this.globalId,
 				_destroy: true
 			}
-      this.$http.delete(`/tags/${this.pin.id}`, { tag: tag }).then(response => {
+      this.$http.delete(`/tags/${this.tagItem.id}`, { tag: tag }).then(response => {
+        this.created = false
         TW.workbench.alert.create('Tag item was successfully destroyed.', 'notice')
       })
     }

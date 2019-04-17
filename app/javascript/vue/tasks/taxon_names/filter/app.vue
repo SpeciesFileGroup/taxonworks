@@ -19,6 +19,14 @@
             Show JSON Request
           </label>
         </li>
+        <li>
+          <label>
+            <input
+              type="checkbox"
+              v-model="append">
+            Append results
+          </label>
+        </li>
       </ul>
     </div>
     <div
@@ -38,7 +46,7 @@
         class="separate-right"
         v-show="activeFilter"
         @urlRequest="urlRequest = $event"
-        @result="list = $event"/>
+        @result="loadList"/>
       <list-component
         :class="{ 'separate-left': activeFilter }"
         :list="list"/>
@@ -63,7 +71,25 @@ export default {
       list: [],
       urlRequest: '',
       activeFilter: true,
-      activeJSONRequest: false
+      activeJSONRequest: false,
+      append: false
+    }
+  },
+  methods: {
+    loadList(newList) {
+      if(this.append) {
+        let concat = newList.concat(this.list)
+              
+        concat = concat.filter((item, index, self) =>
+          index === self.findIndex((i) => (
+            i.id === item.id
+          ))
+        )
+        this.list = concat
+      }
+      else {
+        this.list = newList
+      }
     }
   }
 }
