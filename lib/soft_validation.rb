@@ -249,7 +249,7 @@ module SoftValidation
   # @return [Boolean]
   def fix_soft_validations(scope = :automatic)
     return false if !soft_validated?
-    raise 'invalid scope passed to fix_soft_validations' if ![:all, :automatic, :requested].include?(scope)
+    raise 'invalid scope passed to fix_soft_validations' if ![:automatic, :requested].include?(scope)
 
     soft_validations.soft_validations.each do |v|
       if v.fix

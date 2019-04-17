@@ -48,10 +48,10 @@ module SoftValidation
       @soft_validations << sv
     end
 
- #  def soft_validations(scope = :all)
- #    set = ( scope == :all ? [:automatic, :requested] : [scope] )
- #    @soft_validations.select{|v| set.include?(v.fix_trigger)}
- #  end
+    #  def soft_validations(scope = :all)
+    #    set = ( scope == :all ? [:automatic, :requested] : [scope] )
+    #    @soft_validations.select{|v| set.include?(v.fix_trigger)}
+    #  end
 
     # @return [Boolean]
     #   soft validations have been run
