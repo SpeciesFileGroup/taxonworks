@@ -5,7 +5,7 @@
     tag="ul">
     <li
       v-for="(item, key) in list"
-      :key="key"
+      :key="item.type + item.taxonId"
       class="list-complete-item flex-separate middle">
       <span>
         <span v-html="item.taxon_label"/>

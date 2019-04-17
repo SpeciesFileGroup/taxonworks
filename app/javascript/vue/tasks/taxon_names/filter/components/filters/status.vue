@@ -124,6 +124,9 @@ export default {
       nomenclatureCodes.forEach(key => {
         newList.all = Object.assign(newList.all, this.statusList[key].all)
         newList.tree = Object.assign(newList.tree, this.statusList[key].tree)
+        for (var keyType in this.statusList[key].common) {
+          this.statusList[key].common[keyType].name = `${this.statusList[key].common[keyType].name} (${key})`
+        }
         newList.common = Object.assign(newList.common, this.statusList[key].common)
       })
       this.getTreeList(newList.tree, newList.all)
