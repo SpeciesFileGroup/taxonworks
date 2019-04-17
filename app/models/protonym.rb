@@ -637,22 +637,22 @@ class Protonym < TaxonName
         i.update_columns(columns_to_update)
       end
 
-      related_through_original_combination_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
+      related_through_original_combination_relationships.collect{|i| i.object_taxon_name}.uniq.find_each do |i|
         i.update_cached_original_combinations
       end
 
       # Update values in Combinations
-      combination_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
+      combination_relationships.collect{|i| i.object_taxon_name}.uniq.find_each do |i|
         i.update_columns(
           cached: i.get_full_name,
           cached_html: i.get_full_name_html)
       end
 
-      classified_as_relationships.collect{|i| i.subject_taxon_name}.uniq.each do |i|
+      classified_as_relationships.collect{|i| i.subject_taxon_name}.uniq.find_each do |i|
         i.update_column(:cached_classified_as, i.get_cached_classified_as)
       end
 
-      classified_as_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
+      classified_as_relationships.collect{|i| i.object_taxon_name}.uniq.find_each do |i|
         i.update_columns(
           cached: i.get_full_name,
           cached_html: i.get_full_name_html
