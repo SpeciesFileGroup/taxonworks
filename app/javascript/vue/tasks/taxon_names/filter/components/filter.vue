@@ -83,8 +83,7 @@ export default {
   },
   methods: {
     resetFilter() {
-      this.$emit('result', [])
-      this.$emit('urlRequest', undefined)
+      this.$emit('reset')
       this.params = this.initParams()
     },
     searchForTaxonNames() {
