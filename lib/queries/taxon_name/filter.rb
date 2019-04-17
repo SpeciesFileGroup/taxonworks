@@ -92,26 +92,22 @@ module Queries
         @author = params[:author]
         @year = params[:year].to_s 
         @exact = (params[:exact] == 'true' ? true : false) if !params[:exact].nil?
-
         @parent_id = params[:parent_id] || []
         @descendants = (params[:descendants] == 'true' ? true : false) if !params[:descendants].nil?
-        
         @updated_since = params[:updated_since].to_s 
         @validity = (params[:validity] == 'true' ? true : false) if !params[:validity].nil?
-
         @taxon_name_relationship = params[:taxon_name_relationship] || {}
         @taxon_name_classification = params[:taxon_name_classification] || [] 
-
         @type_metadata = (params[:type_metadata] == 'true' ? true : false) if !params[:type_metadata].nil?
         @citations = params[:citations]
         @otus = (params[:otus] == 'true' ? true : false) if !params[:otus].nil?
-
         @project_id = params[:project_id]
 
-        @keyword_ids ||= []
-     
         @nomenclature_group = params[:nomenclature_group]  if !params[:nomenclature_group].nil?
         @nomenclature_code = params[:nomenclature_code]  if !params[:nomenclature_code].nil?
+
+        # TODO: support here? 
+        @keyword_ids ||= []
       end
 
       # @return [Arel::Table]
@@ -122,75 +118,33 @@ module Queries
       def year=(value)
         @year = value.to_s
       end
-
-      # and_clause
-      # @return [Array]
+      
+      # @return [String, nil] 
+      #   accessor for attr :nomenclature_group, wrap with needed wildcards 
       def nomenclature_group
         return nil unless @nomenclature_group
         "NomenclaturalRank::%#{@nomenclature_group}%"
       end
 
-      # and_clause
-      # @return [Array]
+      # @return [String, nil] 
+      #   accessor for attr :nomenclature_code, wrap with needed wildcards 
       def nomenclature_code
         return nil unless @nomenclature_code
         "NomenclaturalRank::#{@nomenclature_code}%"
       end
 
-      def cached_name
-        return nil if name.blank?
-        if exact
-          table[:cached].eq(name)
-        else
-          table[:cached].matches('%' + name + '%')
-        end
-      end
-
-      def author_facet 
-        return nil if author.blank?
-        if exact
-          table[:cached_author_year].eq(author)
-        else
-          table[:cached_author_year].matches('%' + author + '%')
-        end
-      end
-
-      def year_facet 
-        return nil if year.blank?
-        table[:cached_author_year].matches('%' + year + '%')
-      end
-
-      def updated_since_facet
-        return nil if updated_since.blank?
-        table[:updated_at].gt(Date.parse(updated_since))
-      end
-
-      def validity_facet 
-        return nil if validity.nil? 
-        if validity 
-          table[:id].eq(table[:cached_valid_taxon_name_id])
-        else
-          table[:id].not_eq(table[:cached_valid_taxon_name_id])
-        end
-      end
-
-      # merge facet
-      def parent_facet
-        return nil if parent_id.empty? || descendants
-        table[:parent_id].eq_any(parent_id)
-      end
-
       # @return Scope
       #   names that are not leaves
+      # A merge facet.
       def descendant_facet
         return nil if parent_id.empty? || !descendants
         o = table
         h = ::TaxonNameHierarchy.arel_table
 
-        a = o.alias('a_')
+        a = o.alias('tfa_')
         b = o.project(a[Arel.star]).from(a)
 
-        c = h.alias('desc1')
+        c = h.alias('tfa_r')
 
         b = b.join(c, Arel::Nodes::OuterJoin)
           .on(
@@ -202,20 +156,21 @@ module Queries
 
         b = b.where(e.and(f))
         b = b.group(a[:id])
-        b = b.as('tndes_')
+        b = b.as('tfa_a_')
 
         ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(table['id']))))
       end
 
       # @return Scope
+      #   wrapped in descendant_facet!
       def taxon_name_relationship_facet(hsh, trn_alias = '1') 
         o = table
         h = ::TaxonNameRelationship.arel_table
 
-        a = o.alias("ta_#{trn_alias}_")
+        a = o.alias("tfb_#{trn_alias}_")
         b = o.project(a[Arel.star]).from(a)
 
-        c = h.alias("tnr#{trn_alias}")
+        c = h.alias("tfb_r_#{trn_alias}")
 
         trg = hsh['subject_taxon_name_id'] ? 'subject_taxon_name_id' : 'object_taxon_name_id'
         opp = hsh['subject_taxon_name_id'] ? 'object_taxon_name_id' : 'subject_taxon_name_id'
@@ -233,7 +188,7 @@ module Queries
 
         b = b.where(e.and(f))
         b = b.group(a[:id])
-        b = b.as("tnr_a_#{trn_alias}_")
+        b = b.as("tfb_a_#{trn_alias}_")
 
         ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(table['id']))))
       end
@@ -244,10 +199,10 @@ module Queries
         o = table
         h = ::TaxonNameClassification.arel_table
 
-        a = o.alias("tnc_")
+        a = o.alias("tfc_")
         b = o.project(a[Arel.star]).from(a)
 
-        c = h.alias("tntnc")
+        c = h.alias("tfc_r_")
 
         b = b.join(c, Arel::Nodes::OuterJoin)
           .on(
@@ -259,7 +214,7 @@ module Queries
 
         b = b.where(e.and(f))
         b = b.group(a[:id])
-        b = b.as("tnc_a_")
+        b = b.as("tfc_a_")
 
         ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(table['id']))))
       end
@@ -270,10 +225,10 @@ module Queries
         o = table
         h = ::TypeMaterial.arel_table
 
-        a = o.alias("tm_")
+        a = o.alias("tfd_")
         b = o.project(a[Arel.star]).from(a)
 
-        c = h.alias("tn_tm")
+        c = h.alias("tfd_r_")
 
         b = b.join(c, Arel::Nodes::OuterJoin)
           .on(
@@ -287,7 +242,7 @@ module Queries
         end
 
         b = b.group(a[:id])
-        b = b.as("tnc_a_")
+        b = b.as("tfd_a_")
 
         ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(table['id']))))
       end
@@ -298,10 +253,10 @@ module Queries
         o = table
         h = ::Otu.arel_table
 
-        a = o.alias("to_")
+        a = o.alias("tfe_")
         b = o.project(a[Arel.star]).from(a)
 
-        c = h.alias("tn_tm")
+        c = h.alias("tfe_r_")
 
         b = b.join(c, Arel::Nodes::OuterJoin)
           .on(
@@ -315,7 +270,7 @@ module Queries
         end
 
         b = b.group(a[:id])
-        b = b.as("tnc_o_")
+        b = b.as("tfe_a_")
 
         ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(table['id']))))
       end
@@ -326,10 +281,10 @@ module Queries
         o = table
         h = ::Citation.arel_table
 
-        a = o.alias("to_")
+        a = o.alias("tff_")
         b = o.project(a[Arel.star]).from(a)
 
-        c = h.alias("tn_tm")
+        c = h.alias("tff_r_")
 
         j = a[:id].eq(c[:citation_object_id]).
             and(c[:citation_object_type].eq('TaxonName'))
@@ -340,7 +295,7 @@ module Queries
 
         b = b.where(c[:id].eq(nil))
         b = b.group(a[:id])
-        b = b.as("tnc_o_")
+        b = b.as("tff_a_")
 
         ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(table['id']))))
       end
@@ -357,6 +312,48 @@ module Queries
       def with_nomenclature_code
         return nil if nomenclature_code.nil?
         table[:rank_class].matches(nomenclature_code)
+      end
+
+      def cached_name
+        return nil if name.blank?
+        if exact
+          table[:cached].eq(name)
+        else
+          table[:cached].matches('%' + name + '%')
+        end
+      end
+    
+      def author_facet 
+        return nil if author.blank?
+        if exact
+          table[:cached_author_year].eq(author)
+        else
+          table[:cached_author_year].matches('%' + author + '%')
+        end
+      end
+     
+      def year_facet 
+        return nil if year.blank?
+        table[:cached_author_year].matches('%' + year + '%')
+      end
+      
+      def updated_since_facet
+        return nil if updated_since.blank?
+        table[:updated_at].gt(Date.parse(updated_since))
+      end
+
+      def validity_facet 
+        return nil if validity.nil? 
+        if validity 
+          table[:id].eq(table[:cached_valid_taxon_name_id])
+        else
+          table[:id].not_eq(table[:cached_valid_taxon_name_id])
+        end
+      end
+
+      def parent_facet
+        return nil if parent_id.empty? || descendants
+        table[:parent_id].eq_any(parent_id)
       end
 
       # @return [ActiveRecord::Relation]
