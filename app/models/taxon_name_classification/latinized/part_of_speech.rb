@@ -42,7 +42,4 @@ class TaxonNameClassification::Latinized::PartOfSpeech < TaxonNameClassification
       )
     end
   end
-
-
-
 end
