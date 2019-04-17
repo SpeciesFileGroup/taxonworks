@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Citations</h2>
+    <h2>Nomenclature code</h2>
     <ul class="no_bullets">
       <li
         v-for="option in options">
@@ -37,16 +37,24 @@ export default {
     return {
       options: [
         {
-          label: 'With/out citations',
+          label: 'Any code',
           value: undefined 
         },
         { 
-          label: 'Without origin citation',
-          value: 'without_origin_citation'
+          label: 'ICZN (animals)',
+          value: 'Iczn'
         },
         { 
-          label: 'Without citations',
-          value: 'without_citations'
+          label: 'ICN (plants)',
+          value: 'Icn'
+        },
+        { 
+          label: 'ICNP (bacteria)',
+          value: 'Icnb'
+        },
+        { 
+          label: 'ICTV (viruses)',
+          value: 'Ictv'
         }
       ]
     }

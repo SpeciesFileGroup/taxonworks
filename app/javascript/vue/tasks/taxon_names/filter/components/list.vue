@@ -6,11 +6,10 @@
           <th>Name</th>
           <th>Author</th>
           <th>Year</th>
-          <th>Original citation</th>
           <th>Original combination</th>
           <th>Valid?</th>
-          <th>Valid children</th>
-          <th>Valid parents</th>
+          <th>Rank</th>
+          <th>Parent</th>
           <th>Options</th>
         </tr>
       </thead>
@@ -21,11 +20,10 @@
           <td v-html="item.cached_html"/>
           <td>{{item.verbatim_author}}</td>
           <td>{{ item.year_of_publication }}</td>
-          <td></td>
           <td v-html="item.original_combination"></td>
-          <td></td>
-          <td></td>
-          <td></td>
+          <td>{{ item.id === item.cached_valid_taxon_name_id }}</td>
+          <td>{{ item.rank }}</td>
+          <td v-html="item.parent.cached_html"></td> 
           <td class="options-column">
             <div class="horizontal-left-content">
               <pin-component 

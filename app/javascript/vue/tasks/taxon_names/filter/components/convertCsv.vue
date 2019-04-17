@@ -10,7 +10,7 @@
 <script>
 import { parse } from 'json2csv'
  
-const fields = ['name_string', 'original_combination', 'year_of_publication'];
+const fields = ['name_string', 'original_combination', 'year_of_publication', 'rank'];
 const opts = { fields };
  
 export default {

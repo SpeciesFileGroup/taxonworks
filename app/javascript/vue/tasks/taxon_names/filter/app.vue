@@ -27,6 +27,9 @@
             Append results
           </label>
         </li>
+        <li>
+          <csv-component :list="list"/>
+        </li>
       </ul>
     </div>
     <div
@@ -36,11 +39,9 @@
         <span>
           JSON Request: {{ urlRequest }}
         </span>
-        <div>
-          <csv-component :list="list"/>
-        </div>
       </div>
     </div>
+
     <div class="horizontal-left-content align-start">
       <filter-component
         class="separate-right"

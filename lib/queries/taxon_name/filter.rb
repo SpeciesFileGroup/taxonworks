@@ -4,82 +4,114 @@ module Queries
     class Filter < Queries::Query
 
       include Queries::Concerns::Tags
-
+ 
+      # @param name [String]
+      #  Matches against cached.  See also exact.
       attr_accessor :name
 
-      # Use "&" for and
+      # @param author [String]
+      #   Use "&" for "and". Matches against cached_author_year.
       attr_accessor :author
 
-      # String
-      #   yyyy
+      # @param year [String]
+      #   "yyyy"
+      # Matches against cached_author_year.
       attr_accessor :year
 
-      # Boolean
+      # @param exact [Boolean]
+      #   ['true' or 'false'] on initialize
       #   true if only valid, false if only invalid, nil if both 
       attr_accessor :exact
 
-      # String
-      #   yyyy-mm-dd 
+      # @param updated_since [String] in format yyyy-mm-dd
+      #  Names updated (.modified_at) since this date. 
       attr_accessor :updated_since 
 
-      # Boolean
+      # @prams validity [ Boolean]
+      # ['true' or 'false'] on initialize
       #   true if only valid, false if only invalid, nil if both 
       attr_accessor :validity
 
-      # []
-      # includes self 
+      # @params parent_id [Array]
+      #   An array of taxon_name_id.
+      # @return
+      #   Return all children of these parents. Results includes self (parent_id).  
       attr_accessor :parent_id
 
-      # Boolean
-      #   when parent_id[] provided then all children are as well, otherwise ignored
+      # @param descendants [Boolean]
+      # ['true' or 'false'] on initialize
+      #   Ignored when parent_id[].empty? Return descendants of parents as well.
       attr_accessor :descendants
 
-      # taxon_name_relationship[]= {}
+      # @param taxon_name_relationship [Hash]
+      #   { "0" => {'type' => 'TaxonNameRelationship::<>', 'subject|object_taxon_name_id' => '123'}, "1" => {} ... } 
+      # Root keys are unique symbols, typically numbers.
+      # Each entry must have a 'type'
+      # Each entry must have one (and only one) of 'subject_taxon_name_id' or 'object_taxon_name_id'
+      #
+      # Return all taxon names in a relationship of a given type and in relation to a another name. For example, return all synonyms of Aus bus.
       attr_accessor :taxon_name_relationship
 
-      # []
+      # @param taxon_name_classification [Array]
+      #   Class names of TaxonNameClassification, as strings.
       attr_accessor :taxon_name_classification
 
-      # TODO - to use or not, some filters are scoped in controller (probably bad?!)
-      attr_accessor :project_id
+      # @param project_id [String]
+      #   The project scope.
+      # TODO: probably should be an array for API purposes.
+      # TODO: unify globally as to whether param belongs here, or at controller level.
+      attr_accessor :project_id 
 
-      # []
-      attr_accessor :nomenclature_group
+      # @params citations [String]
+      #  'without_citations' - names without citations
+      #  'without_origin_citation' - names without an origin citation
+      attr_accessor :citations
 
-      # :without
-      # :with
-      attr_accessor :type_metadata
-
-      # true
-      # false 
-      attr_accessor :cited
-
-      # true
-      # false 
+      # @param otus [Boolean]
+      # ['true' or 'false'] on initialize
+      #   whether the name has an Otu 
       attr_accessor :otus
 
+      # @params type_material [Boolean]
+      # ['true' or 'false'] on initialize
+      #   whether the name has TypeMaterial
+      attr_accessor :type_metadata 
 
+      # @return [Array, nil]
+      #   &nomenclature_group=<Higher|Family|Genus|Species>>
+      attr_accessor :nomenclature_group
 
+      # @return [Array, nil]
+      #   &nomenclature_code=Iczn|Icnb|Icn|Ictv
+      attr_accessor :nomenclature_code
 
+      # @param params [Params] 
+      #   a permitted via controller
       def initialize(params)
         @name = params[:name]
         @author = params[:author]
         @year = params[:year].to_s 
-
         @exact = (params[:exact] == 'true' ? true : false) if !params[:exact].nil?
+
+        @parent_id = params[:parent_id] || []
+        @descendants = (params[:descendants] == 'true' ? true : false) if !params[:descendants].nil?
+        
+        @updated_since = params[:updated_since].to_s 
         @validity = (params[:validity] == 'true' ? true : false) if !params[:validity].nil?
 
-        @descendants = (params[:descendants] == 'true' ? true : false) if !params[:descendants].nil?
-
-        @updated_since = params[:updated_since].to_s 
-        @keyword_ids ||= []
-
         @taxon_name_relationship = params[:taxon_name_relationship] || {}
-
         @taxon_name_classification = params[:taxon_name_classification] || [] 
 
+        @type_metadata = (params[:type_metadata] == 'true' ? true : false) if !params[:type_metadata].nil?
+        @citations = params[:citations]
+        @otus = (params[:otus] == 'true' ? true : false) if !params[:otus].nil?
+
         @project_id = params[:project_id]
-        @parent_id = params[:parent_id] || []
+
+        @keyword_ids ||= []
+     
+        @nomenclature_group = params[:nomenclature_group]  if !params[:nomenclature_group].nil?
+        @nomenclature_code = params[:nomenclature_code]  if !params[:nomenclature_code].nil?
       end
 
       # @return [Arel::Table]
@@ -89,6 +121,20 @@ module Queries
 
       def year=(value)
         @year = value.to_s
+      end
+
+      # and_clause
+      # @return [Array]
+      def nomenclature_group
+        return nil unless @nomenclature_group
+        "NomenclaturalRank::%#{@nomenclature_group}%"
+      end
+
+      # and_clause
+      # @return [Array]
+      def nomenclature_code
+        return nil unless @nomenclature_code
+        "NomenclaturalRank::#{@nomenclature_code}%"
       end
 
       def cached_name
@@ -206,7 +252,7 @@ module Queries
         b = b.join(c, Arel::Nodes::OuterJoin)
           .on(
             a[:id].eq(c[:taxon_name_id])
-             )
+        )
 
         e = c[:taxon_name_id].not_eq(nil)
         f = c[:type].eq_any(taxon_name_classification)
@@ -216,6 +262,101 @@ module Queries
         b = b.as("tnc_a_")
 
         ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(table['id']))))
+      end
+
+      # @return Scope
+      def type_metadata_facet 
+        return nil if type_metadata.nil?
+        o = table
+        h = ::TypeMaterial.arel_table
+
+        a = o.alias("tm_")
+        b = o.project(a[Arel.star]).from(a)
+
+        c = h.alias("tn_tm")
+
+        b = b.join(c, Arel::Nodes::OuterJoin)
+          .on(
+            a[:id].eq(c[:protonym_id])
+        )
+
+        if type_metadata
+          b = b.where(c[:protonym_id].not_eq(nil))
+        else
+          b = b.where(c[:protonym_id].eq(nil))
+        end
+
+        b = b.group(a[:id])
+        b = b.as("tnc_a_")
+
+        ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(table['id']))))
+      end
+
+      # @return Scope
+      def otus_facet 
+        return nil if otus.nil?
+        o = table
+        h = ::Otu.arel_table
+
+        a = o.alias("to_")
+        b = o.project(a[Arel.star]).from(a)
+
+        c = h.alias("tn_tm")
+
+        b = b.join(c, Arel::Nodes::OuterJoin)
+          .on(
+            a[:id].eq(c[:taxon_name_id])
+        )
+
+        if otus 
+          b = b.where(c[:taxon_name_id].not_eq(nil))
+        else
+          b = b.where(c[:taxon_name_id].eq(nil))
+        end
+
+        b = b.group(a[:id])
+        b = b.as("tnc_o_")
+
+        ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(table['id']))))
+      end
+
+      # @return Scope
+      def citations_facet 
+        return nil if citations.nil?
+        o = table
+        h = ::Citation.arel_table
+
+        a = o.alias("to_")
+        b = o.project(a[Arel.star]).from(a)
+
+        c = h.alias("tn_tm")
+
+        j = a[:id].eq(c[:citation_object_id]).
+            and(c[:citation_object_type].eq('TaxonName'))
+
+        j = j.and(c[:is_original].eq(true)) if citations == 'without_origin_citation'
+
+        b = b.join(c, Arel::Nodes::OuterJoin).on(j)
+
+        b = b.where(c[:id].eq(nil))
+        b = b.group(a[:id])
+        b = b.as("tnc_o_")
+
+        ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(table['id']))))
+      end
+
+      # @return [Arel::Nodes::Grouping, nil]
+      #   and clause
+      def with_nomenclature_group
+        return nil if nomenclature_group.nil?
+        table[:rank_class].matches(nomenclature_group)
+      end
+
+      # @return [Arel::Nodes::Grouping, nil]
+      #   and clause
+      def with_nomenclature_code
+        return nil if nomenclature_code.nil?
+        table[:rank_class].matches(nomenclature_code)
       end
 
       # @return [ActiveRecord::Relation]
@@ -229,7 +370,8 @@ module Queries
           updated_since_facet,
           validity_facet,
           parent_facet,
-
+          with_nomenclature_group,
+          with_nomenclature_code,
         ].compact
 
         return nil if clauses.empty?
@@ -246,6 +388,9 @@ module Queries
           descendant_facet,
           taxon_name_classification_facet,
           matching_keyword_ids,
+          type_metadata_facet,
+          otus_facet,
+          citations_facet
         ].compact
 
         i = 0

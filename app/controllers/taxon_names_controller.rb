@@ -13,7 +13,7 @@ class TaxonNamesController < ApplicationController
 
       end
       format.json {
-        @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 5)
+        @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
       }
     end
   end
@@ -25,9 +25,13 @@ class TaxonNamesController < ApplicationController
       :validity,
       :descendants,
       :updated_since,
+      :type_metadata,
+      :citations,
+      :otus,
+      :nomenclature_group, # !! different than autocomplete
+      :nomenclature_code,
       type: [],
       parent_id: [],
-      nomenclature_group: [],
       taxon_name_classification: [],
       taxon_name_relationship: {}
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)

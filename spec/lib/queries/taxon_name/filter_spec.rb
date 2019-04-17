@@ -15,6 +15,78 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     verbatim_author: 'Fitch & Say',
     year_of_publication: 1800) }
 
+  specify '#nomenclature_group 1' do
+    query.nomenclature_group = 'Species'
+    expect(query.all.map(&:id)).to contain_exactly(species.id) 
+  end
+
+  specify '#nomenclature_code 1' do
+    query.nomenclature_group = 'Icnb'
+    expect(query.all.map(&:id)).to contain_exactly() 
+  end
+
+  specify '#nomenclature_code 2' do
+    query.nomenclature_group = 'Iczn'
+    expect(query.all.map(&:id).size).to eq(3) # Root has no rank!
+  end
+
+  specify '#citations 1' do
+    query.citations = 'without_citations' 
+    expect(query.all.map(&:id).size).to eq(4)
+  end
+
+  specify '#citations 2' do
+    query.citations = 'without_citations' 
+    Citation.create!(citation_object: species, source: FactoryBot.create(:valid_source))
+    expect(query.all.map(&:id).size).to eq(3)
+  end
+
+  specify '#citations 3' do
+    query.citations = 'without_origin_citation' 
+    Citation.create!(citation_object: species, source: FactoryBot.create(:valid_source))
+    expect(query.all.map(&:id).size).to eq(4)
+  end
+
+  specify '#citations 4' do
+    query.citations = 'without_origin_citation' 
+    Citation.create!(citation_object: species, is_original: true, source: FactoryBot.create(:valid_source))
+    expect(query.all.map(&:id).size).to eq(3)
+  end
+
+  specify '#otus 1' do
+    query.otus = true
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify '#otus 2' do
+    Otu.create!(taxon_name: species)
+    query.otus = true
+    expect(query.all.map(&:id)).to contain_exactly(species.id)
+  end
+
+  specify '#type_metadata 1' do
+    query.type_metadata = true
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify '#type_metadata 2' do
+    query.type_metadata = false 
+    expect(query.all.map(&:id).size).to eq(4)  
+  end
+
+  specify '#type_metadata 3' do
+    query.type_metadata = true
+    query.name = species.name
+    TypeMaterial.create!(protonym: species, type_type: 'holotype', material:  FactoryBot.create(:valid_specimen)) 
+    expect(query.all.map(&:id)).to contain_exactly(species.id)  
+  end
+
+  specify '#type_metadata 4' do
+    query.type_metadata = false 
+    TypeMaterial.create!(protonym: species, type_type: 'holotype', material:  FactoryBot.create(:valid_specimen)) 
+    expect(query.all.map(&:id)).to contain_exactly(root.id, genus.id, original_genus.id)  
+  end
+
   specify '#taxon_name_classification[]' do
     TaxonNameClassification::Iczn::Available.create!(taxon_name: genus)
     query.taxon_name_classification = [ 'TaxonNameClassification::Iczn::Available' ]

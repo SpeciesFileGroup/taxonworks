@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Citations</h2>
+    <h2>Nomenclature rank</h2>
     <ul class="no_bullets">
       <li
         v-for="option in options">
@@ -37,16 +37,24 @@ export default {
     return {
       options: [
         {
-          label: 'With/out citations',
+          label: 'Any rank',
           value: undefined 
         },
         { 
-          label: 'Without origin citation',
-          value: 'without_origin_citation'
+          label: 'Higher',
+          value: 'Higher'
         },
         { 
-          label: 'Without citations',
-          value: 'without_citations'
+          label: 'Family group',
+          value: 'Family'
+        },
+        { 
+          label: 'Genus group',
+          value: 'Genus'
+        },
+        { 
+          label: 'Species group',
+          value: 'Species'
         }
       ]
     }

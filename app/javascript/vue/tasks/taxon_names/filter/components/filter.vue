@@ -24,11 +24,14 @@
       <related-component
         v-model="params.base.descendants"
         :taxon-name="params.taxon.name"/>
-      <updated-component v-model="params.base.updated_since"/>
+
+      <rank-component v-model="params.base.nomenclature_group"/>
+      <code-component v-model="params.base.nomenclature_code"/>
       <validity-component v-model="params.base.validity" />
       <relationships-component v-model="params.base.taxon_name_relationship"/>
       <status-component v-model="params.base.taxon_name_classification"/>
-      <metadata-component v-model="params.base.metadata" />
+      <updated-component v-model="params.base.updated_since"/>
+      <metadata-component v-model="params.base.type_metadata" />
       <citations-component v-model="params.base.citations"/>
       <otus-component v-model="params.base.otus"/>
     </div>
@@ -44,10 +47,12 @@ import ValidityComponent from './filters/validity'
 import RelatedComponent from './filters/related'
 import CitationsComponent from './filters/citations'
 import OtusComponent from './filters/otus'
-import MetadataComponent from './filters/metadata'
+import MetadataComponent from './filters/type_metadata'
 import RelationshipsComponent from './filters/relationships'
 import ScopeComponent from './filters/scope'
 import StatusComponent from './filters/status'
+import RankComponent from './filters/nomenclature_group'
+import CodeComponent from './filters/nomenclature_code'
 
 import { GetTaxonNames } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
@@ -59,6 +64,8 @@ export default {
     UpdatedComponent,
     ValidityComponent,
     RelatedComponent,
+    RankComponent,
+    CodeComponent,
     CitationsComponent,
     OtusComponent,
     MetadataComponent,
@@ -105,10 +112,12 @@ export default {
           exact: undefined,
           updated_since: undefined,
           validity: undefined,
-          metadata: undefined,
+          type_metadata: undefined,
           citations: undefined,
           otus: undefined,
           descendants: undefined,
+          nomenclature_group: undefined,
+          nomenclature_code: undefined,
           parent_id: [],
           taxon_name_relationship: [],
           taxon_name_classification: []
