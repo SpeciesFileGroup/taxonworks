@@ -47,10 +47,17 @@
         class="separate-right"
         v-show="activeFilter"
         @urlRequest="urlRequest = $event"
-        @result="loadList"/>
-      <list-component
-        :class="{ 'separate-left': activeFilter }"
-        :list="list"/>
+        @result="loadList"
+        @reset="resetTask"/>
+      <div class="full_width">
+        <list-component
+          :class="{ 'separate-left': activeFilter }"
+          :list="list"/>
+        <h3
+          v-if="alreadySearch && !list.length"
+          class="subtle middle horizontal-center-content">No records found.
+        </h3>
+      </div>
     </div>
   </div>
 </template>
@@ -73,10 +80,16 @@ export default {
       urlRequest: '',
       activeFilter: true,
       activeJSONRequest: false,
-      append: false
+      append: false,
+      alreadySearch: false,
     }
   },
   methods: {
+    resetTask() {
+      this.alreadySearch = false
+      this.list = []
+      this.urlRequest = ''
+    },
     loadList(newList) {
       if(this.append) {
         let concat = newList.concat(this.list)
@@ -91,6 +104,7 @@ export default {
       else {
         this.list = newList
       }
+      this.alreadySearch = true
     }
   }
 }
