@@ -37,6 +37,7 @@ module Queries
       # taxon_name_relationship[]= {}
       attr_accessor :taxon_name_relationship
 
+      # []
       attr_accessor :taxon_name_classification
 
       # []
@@ -71,6 +72,8 @@ module Queries
         @keyword_ids ||= []
 
         @taxon_name_relationship = params[:taxon_name_relationship] || {}
+
+        @taxon_name_classification = params[:taxon_name_classification] || [] 
 
         @project_id = params[:project_id]
         @parent_id = params[:parent_id] || []
@@ -156,7 +159,6 @@ module Queries
       end
 
       # @return Scope
-      #   meta, should not 
       def taxon_name_relationship_facet(hsh, trn_alias = '1') 
         o = table
         h = ::TaxonNameRelationship.arel_table
@@ -187,6 +189,32 @@ module Queries
         ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(table['id']))))
       end
 
+      # @return Scope
+      def taxon_name_classification_facet
+        return nil if taxon_name_classification.empty?
+        o = table
+        h = ::TaxonNameClassification.arel_table
+
+        a = o.alias("tnc_")
+        b = o.project(a[Arel.star]).from(a)
+
+        c = h.alias("tntnc")
+
+        b = b.join(c, Arel::Nodes::OuterJoin)
+          .on(
+            a[:id].eq(c[:taxon_name_id])
+             )
+
+        e = c[:taxon_name_id].not_eq(nil)
+        f = c[:type].eq_any(taxon_name_classification)
+
+        b = b.where(e.and(f))
+        b = b.group(a[:id])
+        b = b.as("tnc_a_")
+
+        ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(table['id']))))
+      end
+
       # @return [ActiveRecord::Relation]
       def and_clauses
         clauses = []
@@ -197,7 +225,8 @@ module Queries
           year_facet,
           updated_since_facet,
           validity_facet,
-          parent_facet,  
+          parent_facet,
+
         ].compact
 
         return nil if clauses.empty?
@@ -206,13 +235,13 @@ module Queries
         clauses.each do |b|
           a = a.and(b)
         end
-
         a
       end
 
       def merge_clauses
         clauses = [
           descendant_facet,
+          taxon_name_classification_facet,
           matching_keyword_ids,
         ].compact
 

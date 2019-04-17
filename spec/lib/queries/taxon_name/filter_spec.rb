@@ -15,6 +15,12 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     verbatim_author: 'Fitch & Say',
     year_of_publication: 1800) }
 
+  specify '#taxon_name_classification[]' do
+    TaxonNameClassification::Iczn::Available.create!(taxon_name: genus)
+    query.taxon_name_classification = [ 'TaxonNameClassification::Iczn::Available' ]
+    expect(query.all.map(&:id)).to contain_exactly(genus.id)
+  end
+
   specify '#taxon_name_relationship[] 1' do
     query.taxon_name_relationship = { '0' => { 'subject_taxon_name_id' => genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } } 
     expect(query.all.map(&:id)).to contain_exactly()

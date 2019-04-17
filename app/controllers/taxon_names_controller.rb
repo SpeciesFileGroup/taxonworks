@@ -28,6 +28,7 @@ class TaxonNamesController < ApplicationController
       type: [],
       parent_id: [],
       nomenclature_group: [],
+      taxon_name_classification: [],
       taxon_name_relationship: {}
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end

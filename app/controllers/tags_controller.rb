@@ -89,8 +89,8 @@ class TagsController < ApplicationController
 
   def exists
     if @tag = Tag.exists?(['?', params.require(:global_id)],
-                          params.require(:keyword_id),
-                          sessions_current_project_id)
+        params.require(:keyword_id),
+        sessions_current_project_id)
       render :show
     else
       render json: false
