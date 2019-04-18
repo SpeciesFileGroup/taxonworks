@@ -52,10 +52,6 @@
           </tr>
         </table>
       </template>
-<!--      <input-->
-<!--        type="button"-->
-<!--        @click="processList()"-->
-<!--        value="Add to Map">-->
     </template>
     <div>
       <div class="annotation_logic separate-left">
@@ -233,11 +229,6 @@
       }
     },
     watch: {
-      // isSelectAll(newVal) {
-      //   if (!newVal) {
-      //     this.selected = []
-      //   }
-      // },
       showResultList() {
         this.$nextTick(() => {
           this.$refs.leaflet.mapObject.fitBounds(this.$refs.leaflet.foundItems.getBounds())
