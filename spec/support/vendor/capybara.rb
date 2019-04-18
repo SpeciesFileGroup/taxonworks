@@ -79,6 +79,8 @@ Capybara.register_driver :selenium do |app|
     options = Selenium::WebDriver::Firefox::Options.new
     options.profile = profile
 
+    options.headless! if Settings.selenium_settings[:headless]
+
     Capybara::Selenium::Driver.new(
       app,
       browser: :firefox,

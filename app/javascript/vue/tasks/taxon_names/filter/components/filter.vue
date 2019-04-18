@@ -96,6 +96,9 @@ export default {
         this.$emit('result', this.result)
         this.$emit('urlRequest', response.url)
         this.searching = false
+        if(this.result.length == 500) {
+          TW.workbench.alert.create('Results may be truncated.', 'notice')
+        }
       }, () => { 
         this.searching = false
       })

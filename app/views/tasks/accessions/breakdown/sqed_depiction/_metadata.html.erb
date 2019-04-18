@@ -1,6 +1,6 @@
 <!-- transcribe for javascript reference -->
 <span id="image_sections"
-      <%= @result.image_sections.each do |section| %>
+      <% @result.image_sections.each do |section| %>
     data-section-<%= section -%>="<%= @result.class::TEXT_MAP[section.to_sym] -%>"
   <% end %>
       hidden=true

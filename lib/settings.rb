@@ -183,7 +183,7 @@ module Settings
   # @param [Hash] settings
   # @return [Hash]
   def self.load_selenium_config(settings)
-    invalid = settings.keys - [:browser, :marionette, :firefox_binary_path, :chromedriver_path]
+    invalid = settings.keys - [:browser, :marionette, :firefox_binary_path, :chromedriver_path, :headless]
 
     raise Error, "#{invalid} are not valid settings for test:selenium." unless invalid.empty?
     raise Error, "Can not find Firefox browser binary #{settings[:firefox_binary_path]}." if settings[:browser] == :firefox && !settings[:firefox_binary_path].blank? && !File.exists?(settings[:firefox_binary_path])
