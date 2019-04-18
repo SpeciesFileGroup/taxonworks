@@ -52,10 +52,6 @@
           </tr>
         </table>
       </template>
-      <input
-        type="button"
-        @click="resetPage()"
-        value="Reset">
 <!--      <input-->
 <!--        type="button"-->
 <!--        @click="processList()"-->
@@ -69,6 +65,7 @@
         <input type="button" @click="deselectAllList" value="Select None" />
         <input type="button" @click="keepSelected" value="remove Unselected" />
         <input type="button" @click="removeAllList" value="Remove All" />
+        <input type="button" @click="resetPage()" value="Reset">
       </div>
       <div>
         <input
