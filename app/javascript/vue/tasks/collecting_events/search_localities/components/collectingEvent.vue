@@ -61,7 +61,8 @@
         <input type="button" @click="deselectAllList" value="Select None" />
         <input type="button" @click="keepSelected" value="remove Unselected" />
         <input type="button" @click="removeAllList" value="Remove All" />
-        <input type="button" @click="resetPage()" value="Reset">
+        <span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span>
+        <input type="button" @click="resetPage()" value="Reset Page" class="button button-default" />
       </div>
       <div>
         <input
@@ -265,9 +266,10 @@
       },
       resetPage() {
         this.removeAllList();  // clear the collecting event list
-        // this.$refs.leaflet.clearFound();
         this.$refs.cebyshape.clearTheMap();
-        this.featuresList = [];
+        for (let i = this.featuresList.length - 1; i > -1; i--) {
+          this.$delete(this.featuresList, i);
+        }
       },
       showObject(id) {
         window.open(`/collecting_events/` + id, '_blank');

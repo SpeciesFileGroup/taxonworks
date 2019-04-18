@@ -27,12 +27,6 @@
   export default {
     props: {
       lightThisFeature: {
-        // type: Object,
-        // default: () => {
-        //   return {
-        //     collecting_event_id: undefined,
-        //     light: false
-        //   }
         type: Number,
         default: () => {
           return 0
@@ -190,7 +184,10 @@
               polygon: {
                 allowIntersection: false,
                 showArea: true
-              }
+              },
+              marker: false,
+              circlemarker: false,
+              circle: false
             }
           }));
           this.mapObject.addControl(this.drawnItems);
