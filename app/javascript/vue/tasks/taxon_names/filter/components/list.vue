@@ -23,7 +23,11 @@
           <td v-html="item.original_combination"></td>
           <td>{{ item.id === item.cached_valid_taxon_name_id }}</td>
           <td>{{ item.rank }}</td>
-          <td v-html="item.parent.cached_html"></td> 
+          <td>
+            <a
+              :href="`/tasks/nomenclature/browse/${item.parent.id}`"
+              v-html="item.parent.cached_html"/>
+          </td> 
           <td class="options-column">
             <div class="horizontal-left-content">
               <pin-component 

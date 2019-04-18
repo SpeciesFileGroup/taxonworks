@@ -10,7 +10,14 @@
 <script>
 import { parse } from 'json2csv'
  
-const fields = ['name_string', 'original_combination', 'year_of_publication', 'rank'];
+const fields = [
+  'id',
+  { label: 'name', value: 'cached' }, 
+  { label: 'author', value: 'verbatim_author' },
+  { label: 'year of publication', value: 'year_of_publication' },
+  { label: 'original combination', value: 'cached_original_combination' }, 
+  'rank',
+  { label: 'parent', value: 'parent.cached' }];
 const opts = { fields };
  
 export default {
