@@ -1,3 +1,3 @@
-module.exports = function (state, newOtu) {
+export default function (state, newOtu) {
   state.selected.otu = newOtu
 }

@@ -29,7 +29,7 @@
 
 <script>
 
-  import Spinner from '../../components/spinner.vue'
+  import Spinner from 'components/spinner.vue'
 
   export default {
     components: {

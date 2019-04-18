@@ -11,11 +11,11 @@ describe 'Identifiable', type: :model do
   end
 
    context 'methods' do
-    specify '.identified?' do
+    specify '#identified?' do
       expect(identifiable_instance.identified?).to eq(false)
     end
 
-    specify 'identified? with some identifiers' do
+    specify '#identified? with some identifiers' do
       identifiable_instance.identifiers << Identifier::Global::Uri.new(identifier: 'http:/uri.org/foo/123')
       expect(identifiable_instance.identified?).to eq(true)
     end
@@ -33,7 +33,7 @@ describe 'Identifiable', type: :model do
       let!(:identifier2) { FactoryBot.create(:valid_identifier, identifier_object: identifiable_instance, identifier: '456', namespace: n2) }
       let!(:identifier3) { FactoryBot.create(:valid_identifier, identifier_object: identifiable_instance, identifier: '789', namespace: n3) }
 
-      specify '.identified?' do
+      specify '#identified?' do
         expect(identifiable_instance.identified?).to eq(true)
       end
 

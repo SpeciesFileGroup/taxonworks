@@ -7,25 +7,35 @@
       v-if="loading || saving"/>
     <div class="flex-separate middle">
       <h1>{{ (descriptor['id'] ? 'Edit' : 'New') }} descriptor</h1>
-      <span
-        @click="resetDescriptor"
-        data-icon="reset"
-        class="middle reload-app">Reset</span>
+      <ul class="context-menu">
+        <li>
+          <a href="/tasks/observation_matrices/observation_matrix_hub/index">Observation matrix hub</a>
+        </li>
+        <li>
+          <span
+            @click="resetDescriptor"
+            data-icon="reset"
+            class="middle reload-app">Reset</span>
+        </li>
+      </ul>
     </div>
     <div>
       <div class="flexbox horizontal-center-content align-start">
         <div class="ccenter item separate-right">
           <type-component 
-          class="separate-bottom"
-          :descriptor-id="descriptor['id']"
-          v-model="descriptor.type"/>
+            class="separate-bottom"
+            :descriptor-id="descriptor['id']"
+            v-model="descriptor.type"/>
           <template v-if="descriptor.type">
             <definition-component 
-            class="separate-bottom"
-            :descriptor="descriptor"
-            @save="saveDescriptor(descriptor)"
-            @onNameChange="descriptor.name = $event"
-            @onDescriptionChange="descriptor.description = $event"/>
+              class="separate-bottom"
+              :descriptor="descriptor"
+              @save="saveDescriptor(descriptor)"
+              @onNameChange="descriptor.name = $event"
+              @onShortNameChange="descriptor.short_name = $event"
+              @onKeyNameChange="descriptor.key_name = $event"
+              @onDescriptionNameChange="descriptor.description_name = $event"
+              @onDescriptionChange="descriptor.description = $event"/>
             <template v-if="existComponent">
               <div>
                 <spinner
@@ -34,7 +44,8 @@
                   :legend-style="{ fontSize: '14px', color: '#444', textAlign: 'center', paddingTop: '20px'}"
                   v-if="!descriptor['id']"/>
                 <component 
-                  v-if="descriptor.type && showDescriptor" :is="loadComponent + 'Component'"
+                  v-if="descriptor.type && showDescriptor"
+                  :is="loadComponent + 'Component'"
                   @save="saveDescriptor"
                   :descriptor="descriptor"/>
               </div>
@@ -53,7 +64,7 @@
 </template>
 <script>
 
-  import Spinner from '../../components/spinner.vue'
+  import Spinner from 'components/spinner.vue'
   import TypeComponent from './components/type/type.vue'
   import DefinitionComponent from './components/definition/definition.vue'
   import QualitativeComponent from './components/character/character.vue'
@@ -86,7 +97,10 @@
         descriptor: {
           type: undefined,
           name: undefined,
-          description: undefined
+          description: undefined,
+          description_name: undefined,
+          key_name: undefined,
+          short_name: undefined
         },
         loading: false,
         saving: false

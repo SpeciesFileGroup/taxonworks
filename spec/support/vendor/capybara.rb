@@ -2,7 +2,8 @@
 require 'capybara/rails'
 require 'capybara/rspec'
 
-# Capybara.default_max_wait_time = 8
+# Leave this in
+Capybara.default_max_wait_time = 30
 
 # Set in config/application_settings:
 #
@@ -77,6 +78,8 @@ Capybara.register_driver :selenium do |app|
 
     options = Selenium::WebDriver::Firefox::Options.new
     options.profile = profile
+
+    options.headless! if Settings.selenium_settings[:headless]
 
     Capybara::Selenium::Driver.new(
       app,

@@ -7,9 +7,13 @@
     <tr>
       <%= fancy_th_tag(name: 'Source') -%>
       <%= fancy_th_tag(name: 'Year') -%>
+      <%= fancy_th_tag(name: 'Documents') -%>
       <%= fancy_th_tag(name: 'Citations') -%>
-      <%= fancy_th_tag(name: 'In project') -%>
+      <%= fancy_th_tag(name: 'Navigation') -%>
+      <%= fancy_th_tag(name: 'Annotate') -%>
       <%= fancy_th_tag(name: 'Pin') -%>
+      <%= fancy_th_tag(name: 'Tags') -%>
+      <%= fancy_th_tag(name: 'In project') -%>
     </tr>
   </thead>
 
@@ -18,6 +22,7 @@
       <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
         <td><%= source.cached.html_safe %></td>
         <td><%= source.year %></td>
+        <td><%= documentation_links(source) %></td>
         <td>
           <a class="citation-count" href="<%= nomenclature_by_source_task_path(source.id) %>">
             <span class="citation-count button-data circle-button btn-citation">
@@ -25,9 +30,12 @@
             </span>
           </a>
         </td>
-        <td><%= add_source_to_project_form(source) %></td>
+        <td><%= radial_object_tag(source) %></td>
+        <td><%= radial_annotator(source) %></td>  
         <td><%= pin_item_to_pinboard_link(source, sessions_current_user) %></td>
-        <%= fancy_options_cells_tag(source) -%>
+        <td><%= tag_pills_tag(source) %></td>
+        <td><%= add_source_to_project_form(source) %></td>
+        <%= fancy_options_cells_tag(source) %>
       <% end %>
     <% end %>
   </tbody>

@@ -7,11 +7,12 @@ import Vue from 'vue'
 import vueResource from 'vue-resource'
 import HelpSystem from '../plugins/help/help'
 import en from './lang/help/en'
+import vueShortkey from 'vue-shortkey'
 
 Object.assign(TW.views.tasks.new_combination, {
   init: function () {
     Vue.use(vueResource)
-    Vue.use(require('vue-shortkey'))
+    Vue.use(vueShortkey)
     Vue.use(HelpSystem, { 
       languages: {
         en: en

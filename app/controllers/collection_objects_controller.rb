@@ -4,14 +4,21 @@ class CollectionObjectsController < ApplicationController
   before_action :set_collection_object, only: [:show, :edit, :update, :destroy, :containerize,
                                                :depictions, :images, :geo_json]
 
-  # GET /collection_objects
-  # GET /collection_objects.json
+  # GET /collecting_events
+  # GET /collecting_events.json
   def index
-    @recent_objects = CollectionObject.recent_from_project_id(sessions_current_project_id)
-      .order(updated_at: :desc)
-      .includes(:identifiers, :taxon_determinations)
-      .limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = CollectionObject.recent_from_project_id(sessions_current_project_id)
+          .order(updated_at: :desc)
+          .includes(:identifiers, :taxon_determinations)
+          .limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @collection_objects = Queries::CollectionObject::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
+      }
+    end
   end
 
   # GET /collection_objects/1
@@ -114,22 +121,10 @@ class CollectionObjectsController < ApplicationController
 
   def autocomplete
     @collection_objects =
-      Queries::BiologicalCollectionObjectAutocompleteQuery.new(
+      Queries::CollectionObject::Autocomplete.new(
         params[:term],
         project_id: sessions_current_project_id
     ).autocomplete
-
-    data = @collection_objects.collect do |t|
-      {id: t.id,
-       label: ApplicationController.helpers.collection_object_tag(t),
-       gid: t.to_global_id.to_s,
-       response_values: {
-         params[:method] => t.id
-       },
-       label_html: ApplicationController.helpers.collection_object_tag(t)
-      }
-    end
-    render json: data
   end
 
   # GET /collection_objects/download
@@ -225,7 +220,7 @@ class CollectionObjectsController < ApplicationController
   end
 
   def select_options
-    @collection_objects = CollectionObject.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
+    @collection_objects = CollectionObject.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target])
   end
 
   private
@@ -242,7 +237,8 @@ class CollectionObjectsController < ApplicationController
       :buffered_collecting_event, :buffered_determinations,
       :buffered_other_labels, :deaccessioned_at, :deaccession_reason,
       :contained_in,
-      collecting_event_attributes: []
+      collecting_event_attributes: [],  # needs to be filled out!
+      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
     )
   end
 
@@ -252,15 +248,20 @@ class CollectionObjectsController < ApplicationController
   end
 
   def user_map
-    {user_header_map: {
-      'otu'         => 'otu_name',
-      'start_day'   => 'start_date_day',
-      'start_month' => 'start_date_month',
-      'start_year'  => 'start_date_year',
-      'end_day'     => 'end_date_day',
-      'end_month'   => 'end_date_month',
-      'end_year'    => 'end_date_year'}}
+    {
+      user_header_map: {
+        'otu'         => 'otu_name',
+        'start_day'   => 'start_date_day',
+        'start_month' => 'start_date_month',
+        'start_year'  => 'start_date_year',
+        'end_day'     => 'end_date_day',
+        'end_month'   => 'end_date_month',
+        'end_year'    => 'end_date_year'}}
   end
+
+  def filter_params
+    params.permit(:recent)
+  end 
 
 end
 

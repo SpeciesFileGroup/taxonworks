@@ -4,8 +4,13 @@
       <modal
         v-if="display"
         @close="closeModal()">
-        <h3 slot="header">
+        <h3
+          slot="header"
+          class="flex-separate">
           <span v-html="title"/>
+          <span
+            v-if="metadata"
+            class="separate-right"> {{ metadata.object_type }}</span>
         </h3>
         <div
           slot="body"
@@ -60,7 +65,7 @@
   import confidencesAnnotator from './components/confidence_annotator.vue'
   import depictionsAnnotator from './components/depiction_annotator.vue'
   import documentationAnnotator from './components/documentation_annotator.vue'
-  import identifiersAnnotator from './components/identifier_annotator.vue'
+  import identifiersAnnotator from './components/identifier/identifier_annotator.vue'
   import tagsAnnotator from './components/tag_annotator.vue'
   import notesAnnotator from './components/note_annotator.vue'
   import data_attributesAnnotator from './components/data_attribute_annotator.vue'
@@ -71,6 +76,7 @@
   import asserted_distributionsAnnotator from './components/asserted_distributions/asserted_distributions_annotator.vue'
   import common_namesAnnotator from './components/common_names/main.vue'
   import contentsAnnotator from './components/contents/main.vue'
+  import attributionAnnotator from './components/attribution/main.vue'
 
   import Icons from './images/icons.js'
 
@@ -94,7 +100,8 @@
       biological_associationsAnnotator,
       asserted_distributionsAnnotator,
       common_namesAnnotator,
-      contentsAnnotator
+      contentsAnnotator,
+      attributionAnnotator
     },
     props: {
       reload: {
@@ -225,44 +232,44 @@
     }
     .modal-container {
       min-width: 1024px;
-      width: 1024px;
+      width: 1200px;
     }
     .radial-annotator-template {
       border-radius: 3px;
       background: #FFFFFF;
       padding: 1em;
-      width: 50%;
-      max-width: 50%;
+      width: 100%;
+      max-width: 100%;
       min-height: 600px;
     }
     .radial-annotator-container {
       display: flex;
       height: 600px;
       flex-direction: column;
-      button {
-        min-width: 100px;
-      }
     }
     .radial-annotator-menu {
       padding-top: 1em;
       padding-bottom: 1em;
-      width: 50%;
+      width: 700px;
       min-height: 650px;
     }
     .annotator-buttons-list {
       overflow-y: scroll;
     }
-    .tag_button {
-      padding-left: 12px;
-      padding-right: 8px;
-      width: auto !important;
-      min-width: auto !important;
-      cursor: pointer;
-      margin: 2px;
-      border: none;
-      border-top-left-radius: 15px;
-      border-bottom-left-radius: 15px;
+    .save-annotator-button {
+      width: 100px;
     }
   }
 
+  .tag_button {
+    padding-left: 12px;
+    padding-right: 8px;
+    width: auto !important;
+    min-width: auto !important;
+    cursor: pointer;
+    margin: 2px;
+    border: none;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+  }
 </style>

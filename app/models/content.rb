@@ -27,9 +27,11 @@ class Content < ApplicationRecord
   include Shared::Depictions
   include Shared::Confidences
   include Shared::Citations
+  include Shared::Attributions
   include Shared::IsData
   include Shared::HasPapertrail
   include Shared::DataAttributes
+  ignore_whitespace_on(:text)
 
   belongs_to :otu, inverse_of: :contents
   belongs_to :topic, inverse_of: :contents

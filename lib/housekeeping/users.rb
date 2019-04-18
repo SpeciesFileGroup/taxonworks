@@ -9,6 +9,7 @@ module Housekeeping::Users
     belongs_to :creator, foreign_key: :created_by_id, class_name: 'User'
     belongs_to :updater, foreign_key: :updated_by_id, class_name: 'User'
 
+    # TODO: why do we need this plural scope?!
     scope :created_by_user, ->(user) { where(created_by_id: User.get_user_id(user)) }
     scope :updated_by_user, ->(user) { where(updated_by_id: User.get_user_id(user)) }
 
@@ -75,11 +76,9 @@ module Housekeeping::Users
   # It may help to unwind the logic.
   # WRT .changed? vs .saved_changes? Deprecation warning
   def set_updated_by_id
-#    ActiveSupport::Deprecation.silence do
-      if (saved_changes? || new_record?) && !updated_by_id_changed? && by.blank? # changed?
-        self.updated_by_id = Current.user_id || $user_id
-      end
-#    end
+    if (changed? || new_record?) && !updated_by_id_changed? && by.blank?
+      self.updated_by_id = Current.user_id || $user_id
+    end
   end
 
 end

@@ -70,6 +70,7 @@ describe ImagesController, type: :controller do
         expect(assigns(:image)).to eq(image)
       end
 
+      # TODO: Move all these tests out of controller to API
       context 'JSON format request' do
         render_views
 
@@ -77,18 +78,10 @@ describe ImagesController, type: :controller do
           before { get :show, params: {id: image.to_param, format: :json}, session: valid_session }
           let (:data) { JSON.parse(response.body) }
 
-          it 'returns a successful JSON response' do
-            expect(data['success']).to be true
-          end
-
           describe 'JSON data contents' do
 
-            it 'has a result object' do
-              expect(data['result']).to be_truthy
-            end
-
             describe 'result attributes' do
-              let (:result) { data['result'] }
+              let (:result) { data }
 
               it 'has an id' do
                 expect(result['id']).to eq(image.id)
@@ -111,7 +104,7 @@ describe ImagesController, type: :controller do
               end
 
               it 'has a download URL' do
-                expect(result['url']).to eq("#{request.base_url}#{image.image_file.url}")
+                expect(result['image_file_url']).to eq("#{request.base_url}#{image.image_file.url}")
               end
 
               # xit "has a last modified time" do
@@ -145,7 +138,7 @@ describe ImagesController, type: :controller do
                   end
 
                   it 'has a download URL' do
-                    expect(alternative['url']).to eq("#{request.base_url}#{image.image_file.url(:medium)}")
+                    expect(alternative['image_file_url']).to eq("#{request.base_url}#{image.image_file.url(:medium)}")
                   end
                 end
 
@@ -165,7 +158,7 @@ describe ImagesController, type: :controller do
                   end
 
                   it 'has a download URL' do
-                    expect(alternative['url']).to eq("#{request.base_url}#{image.image_file.url(:thumb)}")
+                    expect(alternative['image_file_url']).to eq("#{request.base_url}#{image.image_file.url(:thumb)}")
                   end
                 end
 

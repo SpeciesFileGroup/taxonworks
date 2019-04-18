@@ -22,8 +22,15 @@ export default function ({state, commit}, descriptorId) {
       })
 
       commit(MutationNames.SetDescriptorSavedOnce, descriptorId)
+      return true
+    }, response => {
+      commit(MutationNames.SetDescriptorSaving, {
+        descriptorId,
+        isSaving: false
+      })
+      return false
     })
-};
+}
 
 function isNotUpdatable (componentName) {
   return componentName === ComponentNames.Qualitative

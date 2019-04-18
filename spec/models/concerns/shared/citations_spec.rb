@@ -52,6 +52,13 @@ describe 'Citations', type: :model, group: [:nomenclature, :citations] do
         expect(t.citations.first.is_original?).to be_truthy
       end
 
+      specify '#pages can be updated with nested attributed, without source' do
+        t = TestCitable.create
+        t.update!( origin_citation_attributes: {source_id: source.to_param, pages: nil} )
+        t.update!( origin_citation_attributes: { id: t.origin_citation.id , pages: 22 } )
+        expect(t.origin_citation.pages).to eq('22')
+      end
+
       specify '#source can be set with nested attributed and previously saved object 2' do
         t = TestCitable.create
         expect(t.update( citations_attributes: [ {source_id: source.to_param} ] )).to be_truthy
@@ -110,9 +117,9 @@ describe 'Citations', type: :model, group: [:nomenclature, :citations] do
     let(:nil_source) { FactoryBot.create(:valid_source_bibtex, year: nil) }
 
     before do
-      Citation.create(citation_object: a, source: oldest_source)
-      Citation.create(citation_object: b, source: young_source)
-      Citation.create(citation_object: c, source: old_source)
+      Citation.create!(citation_object: a, source: oldest_source)
+      Citation.create!(citation_object: b, source: young_source)
+      Citation.create!(citation_object: c, source: old_source)
     end
 
     context '.without_citations' do
@@ -190,7 +197,7 @@ describe 'Citations', type: :model, group: [:nomenclature, :citations] do
 
       context 'one of which is older' do
         before do
-          Citation.create(citation_object: c, source: first_source_ever)
+          Citation.create!(citation_object: c, source: first_source_ever)
         end
 
         specify '.order_by_oldest_source_first.to_a' do

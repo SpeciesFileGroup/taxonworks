@@ -3,15 +3,14 @@
     <summary-view :descriptor="descriptor">
       <ul>
         <li
-          class="horizontal-left-content"
+          class="horizontal-left-content qualitative-descriptor__descriptor-li"
           v-for="(characterState, index) in descriptor.characterStates">
           <label>
             <input
               type="checkbox"
               :checked="isStateChecked(characterState.id)"
-              @change="updateStateChecked(characterState.id, $event)" >
-
-            {{ characterState.label }}: {{ characterState.name }}
+              @change="updateStateChecked(characterState.id, $event)">
+              {{ characterState.label }}: {{ characterState.name }}
           </label>
           <template v-if="getObservationFromCharacterId(characterState.id)">
             <radial-annotator 

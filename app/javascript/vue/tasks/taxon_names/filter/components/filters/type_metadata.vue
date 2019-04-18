@@ -1,0 +1,55 @@
+<template>
+  <div>
+    <h2>Type metadata</h2>
+    <ul class="no_bullets">
+      <li
+        v-for="option in options">
+        <label>
+          <input
+            :value="option.value"
+            v-model="optionValue"
+            type="radio">
+          {{ option.label }}
+        </label>
+      </li>
+    </ul>
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    value: {
+      default: undefined
+    }
+  },
+  computed: {
+    optionValue: {
+      get() {
+        return this.value
+      },
+      set(value) {
+        this.$emit('input', value)
+      }
+    }
+  },
+  data() {
+    return {
+      options: [
+        {
+          label: 'With/out metadata',
+          value: undefined 
+        },
+        { 
+          label: 'With metadata',
+          value: true
+        },
+        { 
+          label: 'Without metadata',
+          value: false
+        }
+      ]
+    }
+  }
+}
+</script>

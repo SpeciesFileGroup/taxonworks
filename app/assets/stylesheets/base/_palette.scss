@@ -26,7 +26,7 @@ $color-secondary-2-0: #9DA7AB; /* Main Secondary color (2) */
 $color-secondary-2-1: #FCFCFC;
 $color-secondary-2-2: #D0D3D5;
 $color-secondary-2-3: #788990;
-$color-secondary-2-4: #5D9ECE;
+$color-secondary-2-4: #5D9ECE; // !! This is obviously modified to be more blue, original value is different // 
 
 // gray-green (do)
 $color-complement-0: #C1D2C1; /* Main Complement color */
@@ -35,33 +35,48 @@ $color-complement-2: #E3E8E3;
 $color-complement-3: #98B798;
 $color-complement-4: #6E9C6E;
 
-// help
+/* CSS - Cascading Style Sheet */
+/* Palette color codes */
+/* Palette URL: http://paletton.com/#uid=13J0B0kb4++00++00++kNZeo6Ty */
 
+/* As hex codes */
+
+// blues - label is temporary prior to union
+// color is an experiment, is not part of the generation above
+$color-blue-0: #B0CAFF;	/* Main Primary color */
+$color-blue-1: #FFFFFF;
+$color-blue-2: #FFFFFF;
+$color-blue-3: #6899FA;
+$color-blue-4: #4C81EB;
+
+
+// 
+
+// TODO: deprecate, remove 
+// help
 $color-help-bubbles: #FFA000;
 $color-help-button: #FF8F00;
 $color-help-description: #444;
 $color-help-text: #F5F5F5;
 
-// buttons
+// TODO - deprecate, remove
 
 $color-button-default: #F5F5F5;
-
 $color-create-button: #9ccc65;
 $color-action-button: #9ccc65;
-
 $color-request-button: $color-secondary-2-4;
-
 $color-button-disabled: #e5e5e5;
-
 $color-remove-button: #F44336;
 
-// aliases
+// TODO - deprecate
+// aliases 
 $muted_blue: $color-secondary-2-0;
 $muted_red: $color-secondary-1-3;
 $background_gray: $color-secondary-2-1;
 $title_gray: $color-secondary-2-4;
 $note_yellow: $color-secondary-1-2;
 
+// TODO - all these should deprecated into a unified palette
 $body_background: #f7f9fa;
 $default_text: #000; // black, not gray
 $navigation_border: #e5e5e5;
@@ -74,6 +89,7 @@ $navigation_focus_color: $color-secondary-2-0;
 $navigation_focus_background: $color-secondary-2-4;
 $panel_background: #FFF;
 $focus_link_color: #000;
+$color-data: #006ebf;
 
 $input-border-color: #d5d5d5;
 
@@ -107,7 +123,7 @@ $color-header: #78909C;
 }
 
 .list_line_even {
-  background: #ffffff;
+  background: #fff;
 }
 
 /* valid for tables only */

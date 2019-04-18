@@ -14,14 +14,9 @@ class AssertedDistributionsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @asserted_distributions = AssertedDistribution.where(project_id: sessions_current_project_id)
-          .where(index_params)
+        @asserted_distributions = Queries::AssertedDistribution::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
       }
     end
-  end
-
-  def index_params
-    params.permit(:otu_id, :geographic_area_id)
   end
 
   # GET /asserted_distributions/1
@@ -86,19 +81,10 @@ class AssertedDistributionsController < ApplicationController
   end
 
   def autocomplete
-    @asserted_distributions = AssertedDistribution.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model
-    data  = @asserted_distributions.collect do |t|
-      {id: t.id,
-       label: AssertedDistributionsHelper.asserted_distribution_tag(t), # in helper
-       response_values: {
-         params[:method] => t.id
-       },
-       label_html: AssertedDistributionsHelper.asserted_distribution_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
-      }
-    end
-    render json: data
+    @asserted_distributions = Queries::AssertedDistribution::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).autocomplete
   end
 
+  # TODO: deprecate
   def search
     if params[:id].blank?
       redirect_to asserted_distributions_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
@@ -110,7 +96,7 @@ class AssertedDistributionsController < ApplicationController
   # GET /asserted_distributions/download
   def download
     send_data(Download.generate_csv(AssertedDistribution.where(project_id: sessions_current_project_id)),
-              type:     'text',
+              type: 'text',
               filename: "asserted_distributions_#{DateTime.now}.csv")
   end
 
@@ -129,7 +115,6 @@ class AssertedDistributionsController < ApplicationController
     end
   end
 
-  # rubocop:disable Rails/SaveBang
   def create_simple_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :batch_asserted_distributions_md5)
       @result =  BatchLoad::Import::AssertedDistributions.new(batch_params)
@@ -144,7 +129,6 @@ class AssertedDistributionsController < ApplicationController
     end
     render :batch_load
   end
-  # rubocop:enable Rails/SaveBang
 
   private
 
@@ -159,11 +143,17 @@ class AssertedDistributionsController < ApplicationController
       :is_absent,
       otu_attributes: [:id, :_destroy, :name, :taxon_name_id],
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
-      citations_attributes: [:id, :is_original, :_destroy, :source_id, :pages]
+      citations_attributes: [:id, :is_original, :_destroy, :source_id, :pages, :citation_object_id, :citation_object_type],
+      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
     )
   end
 
   def batch_params
     params.permit(:data_origin, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
   end
+
+  def filter_params
+    params.permit(:otu_id, :geographic_area_id, :recent)
+  end
+
 end

@@ -1,3 +1,5 @@
+require_dependency 'queries/tag/filter'
+
 class TagsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
@@ -8,12 +10,12 @@ class TagsController < ApplicationController
   def index
     respond_to do |format|
       format.html {
-        @recent_objects = Tag.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        @recent_objects = ::Tag.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       }
       format.json {
-        @tags = Queries::Tag::Filter.new(params).all.where(project_id: sessions_current_project_id).
-        page(params[:page]).per(500)
+        @tags = ::Queries::Tag::Filter.new(params).all.where(project_id: sessions_current_project_id).
+        page(params[:page]).per(params[:per] || 500)
       }
     end
   end
@@ -41,7 +43,7 @@ class TagsController < ApplicationController
     respond_to do |format|
       if @tag.save
         format.html { redirect_to url_for(@tag.tag_object.metamorphosize),
-                                  notice: 'Tag was successfully created.' }
+                      notice: 'Tag was successfully created.' }
         format.json { render action: 'show', status: :created, location: @tag }
       else
         format.html {
@@ -59,7 +61,7 @@ class TagsController < ApplicationController
     respond_to do |format|
       if @tag.update(tag_params)
         format.html { redirect_to url_for(@tag.tag_object.metamorphosize),
-                                  notice: 'Tag was successfully updated.' }
+                      notice: 'Tag was successfully updated.' }
         format.json { render :show, status: :ok, location: @tag }
       else
         format.html { redirect_back(fallback_location: (request.referer || root_path),
@@ -86,9 +88,9 @@ class TagsController < ApplicationController
   end
 
   def exists
-    if @tag = Tag.exists?(['?', params.require(:global_id)],
-                          params.require(:keyword_id),
-                          sessions_current_project_id)
+    if @tag = Tag.exists?(params.require(:global_id),
+        params.require(:keyword_id),
+        sessions_current_project_id)
       render :show
     else
       render json: false
@@ -128,7 +130,7 @@ class TagsController < ApplicationController
       tags_attributes: [:_destroy, :id, :keyword_id, :position,
                         keyword_attributes: [:name, :definition, :uri, :html_color]
 
-      ])
+    ])
   end
 
   def taggable_object

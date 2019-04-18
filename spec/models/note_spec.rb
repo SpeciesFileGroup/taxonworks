@@ -89,6 +89,13 @@ describe Note, type: :model, group: :annotator do
     end
   end
 
+  specify '#text is not trimmed' do
+    s = " asdf sd  \n  asdfd \r\n" 
+    note.text = s
+    note.valid?
+    expect(note.text).to eq(s)
+  end
+
   context 'concerns' do
     it_behaves_like 'is_data'
   end

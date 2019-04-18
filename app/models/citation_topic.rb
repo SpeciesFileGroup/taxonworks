@@ -1,4 +1,4 @@
-# A citation topic links a Topic to a Citation.  It is the assertion that a Citation contains
+# A citation topic links a Topic to a Citation. It is the assertion that a Citation contains
 # information on a specific topic for the Citations subject. For example:
 #
 # Otu     Citation (Source)           CitationTopic  Topic (= ControlledVocabularyTerm of type "Topic")
@@ -30,16 +30,13 @@ class CitationTopic < ApplicationRecord
 
   belongs_to :topic, inverse_of: :citation_topics
   belongs_to :citation, inverse_of: :citation_topics
+  has_one :source, through: :citation, inverse_of: :topics
 
   # DO NOT INCLUDE (borks accepts_nested_attributes), handled with not null in DB
   # validates_presence_of :topic_id  :citation_id
 
   validates_uniqueness_of :topic_id, scope: :citation_id
-
   accepts_nested_attributes_for :topic, allow_destroy: true, reject_if: :reject_topic
-
-  # deprecated, all values are nilified
-  # nil_trim_attributes(:pages)
 
   protected
 

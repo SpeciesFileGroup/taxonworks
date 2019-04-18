@@ -513,10 +513,10 @@ class Georeference < ApplicationRecord
       error_depth > 8_800 # 8,800 meters
   end
 
-  # @return [Boolean] true iff error_radius is less than 20,000 kilometers (12,400 miles).
+  # @return [Boolean] true iff error_radius is less than 10 kilometers (6.6 miles).
   def add_error_radius
-    errors.add(:error_radius, ' must be less than 20,000 kilometers (12,400 miles).') if error_radius &&
-      error_radius > 20_000_000 # 20,000 km
+    errors.add(:error_radius, ' must be less than 10 kilometers (6.6 miles).') if error_radius.present? &&
+      error_radius > 10_000 # 10 km
   end
 
   def geographic_item_present_if_error_radius_provided

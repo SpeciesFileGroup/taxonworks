@@ -84,7 +84,7 @@ module Utilities::Strings
     [pre, content, post].compact.join.html_safe
   end
 
-  # @param [Array] last_names
+  # @param last_names [Array]
   # @return [String, nil]
   # TODO: DEPRECATE
   def self.authorship_sentence(last_names = [])
@@ -92,13 +92,25 @@ module Utilities::Strings
     last_names.to_sentence(two_words_connector: ' & ', last_word_connector: ' & ')
   end
 
-  # @param [String] string
+  # @param string [String]
   # @return [Array]
   #   array of whitespace split strings, with any string containing a digit eliminated
   def self.alphabetic_strings(string)
     return [] if string.nil? || string.length == 0
     a = string.gsub(/[^a-zA-Z]/, ' ').split(/\s+/)
     a.empty? ? [] : a
+  end
+
+
+  # @param string [String]
+  # @return [String, false]
+  def self.encode_with_utf8(string)
+    return false if string.nil?
+    if Encoding.compatible?('test'.encode(Encoding::UTF_8), string) 
+      string.force_encoding(Encoding::UTF_8)
+    else
+      false
+    end
   end
 
 end

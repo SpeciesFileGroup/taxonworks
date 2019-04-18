@@ -31,6 +31,7 @@ module Settings
   @@sandbox_commit_date = nil
 
   @@selenium_settings = {}
+
   # @param [Hash] config
   # @param [Hash] hash
   # @return [Boolean]
@@ -171,7 +172,7 @@ module Settings
     if settings
       invalid = settings.keys - [:sandbox_mode]
       raise Error, "#{invalid} are not valid settings for interface" unless invalid.empty?
-      if settings[:sandbox_mode]
+      if settings[:sandbox_mode] == true
         @@sandbox_mode = true
         @@sandbox_commit_sha = TaxonworksNet.commit_sha
         @@sandbox_commit_date = TaxonworksNet.commit_date
@@ -182,7 +183,7 @@ module Settings
   # @param [Hash] settings
   # @return [Hash]
   def self.load_selenium_config(settings)
-    invalid = settings.keys - [:browser, :marionette, :firefox_binary_path, :chromedriver_path]
+    invalid = settings.keys - [:browser, :marionette, :firefox_binary_path, :chromedriver_path, :headless]
 
     raise Error, "#{invalid} are not valid settings for test:selenium." unless invalid.empty?
     raise Error, "Can not find Firefox browser binary #{settings[:firefox_binary_path]}." if settings[:browser] == :firefox && !settings[:firefox_binary_path].blank? && !File.exists?(settings[:firefox_binary_path])

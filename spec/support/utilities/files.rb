@@ -11,7 +11,7 @@ module Spec
         # @param file_name [String] 
         # @param path [String] you likely shouldn't change this
         def self.generate_pdf(pages: 3, file_name: 'hello.pdf', path: Rails.configuration.x.test_tmp_file_dir)
-          f = "#{path}hello.pdf"
+          f = File.join(path, file_name)
           Prawn::Document.generate(f) do
             (1..pages).each do |p|
               start_new_page unless p == 1
@@ -19,6 +19,15 @@ module Spec
             end
           end
           f
+        end
+
+        def self.generate_png(file_name: 'i.png', path: Rails.configuration.x.test_tmp_file_dir)
+          f = File.join(path, file_name)
+          a = ChunkyPNG::Image.new(1024, 1024, ChunkyPNG::Color::TRANSPARENT)
+          a.line(1, 1, 10, 1, ChunkyPNG::Color.from_hex('#aa007f'))
+          a[1,1] = ChunkyPNG::Color.rgba(10, 20, 30, 128) 
+          b = a.save(f, interlace: true)
+          b.path
         end
 
       end

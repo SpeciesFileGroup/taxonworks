@@ -24,6 +24,8 @@ class CollectionObjectObservation < ApplicationRecord
   include Shared::Notes
   include Shared::Depictions
 
+  ignore_whitespace_on(:data)
+
   has_many :derived_collection_objects, inverse_of: :collection_object_observations
   has_many :collection_objects, through: :derived_collection_objects
 

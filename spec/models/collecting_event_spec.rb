@@ -360,6 +360,13 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
     expect(collecting_event.time_end).to eq('04:02:01')
   end
 
+  specify 'labels are not trimmed' do
+    s = ' asdf sd   asdfd '
+    collecting_event.document_label = s
+    collecting_event.valid?
+    expect(collecting_event.document_label).to eq(s)
+  end
+
   context 'concerns' do
     it_behaves_like 'citations'
     it_behaves_like 'data_attributes'

@@ -6,7 +6,10 @@
       legend="Loading..."
       :logo-size="{ width: '100px', height: '100px'}"/>
     <div>
-      <h1 class="task_header">Citations by source</h1>
+      <div class="flex-separate middle">
+        <h1 class="task_header">Citations by source</h1>
+        <a href="/tasks/sources/hub/index">Back to source hub</a>
+      </div>
       <nomen-source @sourceID="lists = initStoreList(); sourceID = $event"/>
     </div>
     <div class="flexbox">

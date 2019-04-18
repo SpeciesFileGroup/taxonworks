@@ -1,7 +1,7 @@
-const removeTaxonSource = require('../../request/resources').removeTaxonSource
-const MutationNames = require('../mutations/mutations').MutationNames
+import { removeTaxonSource } from '../../request/resources'
+import { MutationNames } from '../mutations/mutations'
 
-module.exports = function ({ commit, state }, citationId) {
+export default function ({ commit, state }, citationId) {
   removeTaxonSource(state.taxon_name.id, citationId).then(response => {
     commit(MutationNames.SetCitation, response)
   })

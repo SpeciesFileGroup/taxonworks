@@ -1,33 +1,26 @@
-<%= content_for :head do -%>
-  <%= javascript_include_tag "https://www.gstatic.com/charts/loader.js", "chartkick" %>
-<% end %>
-
 <h1><%= @project.name -%></h1>
-
 <div> 
+  
   <div class="row1">
     <div class="flexbox">
       <div class="item item1">
+
+        <h2> Edit </h2>
+        <ul class="no_bullets list list-arrow">
+          <%= content_tag(:li, link_to('Edit', edit_project_path(@project)) ) %> 
+          <%= content_tag(:li, link_to('Preferences', project_preferences_task_path, data: { turbolinks: false } ) ) %>
+        </ul>
+
         <h2> Project attributes </h2>
-<%= link_to 'Edit', edit_project_path(@project) %> 
-        <%= render 'attributes' -%>
-        <h2> Preferences </h2>
-        <table>
-          <tr> 
-            <th> Preference </th>
-            <th> Value </th>
-          </tr>
-          <% @project.preferences.each do |k, v| -%>
-            <tr>
-              <td><%= k -%></td>
-              <td><%= v -%></td>
-            </tr>
-          <% end %>
-        </table>
+        <div class="attributes">
+          <%= render partial: 'attributes' -%>
+        </div>
+
       </div>
 
       <div class="item item2">
-        <h2> Members (<%= @project.users.count -%>) </h2>
+        <h2> Members </h2>
+
         <ul class="no_bullets list list-arrow">
           <%= content_tag(:li, add_project_member_link(@project))  -%>
           <%= content_tag(:li, link_to('Add many project members', many_new_project_members_path(project_member: {project_id: @project}) )) -%>
@@ -38,9 +31,10 @@
           <table> 
             <tr> 
               <th> Name </th> 
-              <th> Project administrator? </th> 
+
               <th> Member since </th> 
               <th> Last seen </th> 
+              <th> Project administrator? </th> 
               <th> </th> 
             </tr>
 
@@ -48,10 +42,24 @@
               <% @project.project_members.includes(:user).order('users.name').each do |pm| -%>
                 <tr> 
                   <td> <%= pm.user.name -%> </td>
-                  <td> <%= pm.is_project_administrator ? 'yes' : 'no' -%> </td>
                   <td> <%= time_ago_in_words(pm.created_at) -%> ago </td>
                   <td> <%= user_last_seen_tag(pm.user) -%> </td>
-                  <td> <%= link_to('Remove', pm,  method: :delete, data: { confirm: 'Are you sure?' }) %></td>
+                  <td> 
+                    <%= form_for(pm) do |f| -%>
+                      <div class="actions">
+                      <%= f.check_box(:is_project_administrator) -%>
+                        <%= f.submit 'Update' %>
+                      </div>
+                    <% end %> 
+                  </td>
+                  <td>
+
+                    <%= form_for(pm, method: :delete) do |f| -%>
+                      <%= f.hidden_field :_destroy, value: :true -%>
+                        <%= f.submit 'Remove', method: :delete, class: ['button-delete'] %>
+                      
+                    <% end %> 
+
                 </tr>
               <% end %>
             </tbody>
@@ -72,5 +80,4 @@
       </div>
     </div>
   </div>
-
 </div>

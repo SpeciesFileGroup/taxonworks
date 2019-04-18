@@ -8,7 +8,6 @@ module Queries
 
       # any project == all roles
       # project_id - the target project in general
-      #
 
       # @param [Hash] args
       def initialize(string, roles: :all)
@@ -37,6 +36,12 @@ module Queries
       def autocomplete_exact_match
         base_query.where(
           table[:cached].eq(normalize_name).to_sql
+        ).limit(20)
+      end
+
+      def autocomplete_exact_last_name_match
+        base_query.where(
+          table[:last_name].eq(query_string).to_sql
         ).limit(20)
       end
 
@@ -74,9 +79,11 @@ module Queries
 
       # @return [Array]
       def autocomplete
+        return [] if query_string.blank?
         queries = [
           autocomplete_exact_match,
           autocomplete_exact_inverted,
+          autocomplete_exact_last_name_match,
           autocomplete_ordered_wildcard_pieces_in_cached,
           autocomplete_cached_wildcard_anywhere, # in Queries::Query
           autocomplete_cached

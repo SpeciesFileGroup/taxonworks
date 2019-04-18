@@ -29,6 +29,6 @@ function newStore () {
   })
 }
 
-module.exports = {
+export {
   newStore
 }

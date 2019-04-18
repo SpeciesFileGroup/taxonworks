@@ -82,7 +82,7 @@ end
 class TestIsData < ApplicationRecord
   include FakeTable
   include Shared::IsData
-# with IGNORE_CONSTANTS
+  # with IGNORE_CONSTANTS
   IGNORE_SIMILAR   = [:type, :parent_id].freeze
   IGNORE_IDENTICAL = [:type, :parent_id].freeze
 end
@@ -90,7 +90,7 @@ end
 class TestIsData2 < ApplicationRecord
   include FakeTable
   include Shared::IsData
-# without IGNORE_CONSTANTS
+  # without IGNORE_CONSTANTS
 end
 
 class TestIsDataSubclass < TestIsData

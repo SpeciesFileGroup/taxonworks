@@ -5,7 +5,7 @@ describe Queries::Confidence::Filter, type: :model do
   let(:query) { Queries::Confidence::Filter.new({}) }
 
   specify '#polymorphic_ids 0' do
-    q = Queries::Citation::Filter.new( { collecting_event_id: 1 } )
+    q = Queries::Confidence::Filter.new( { collecting_event_id: 1 } )
     expect(q.polymorphic_ids).to eq({collecting_event_id: 1})
   end
 

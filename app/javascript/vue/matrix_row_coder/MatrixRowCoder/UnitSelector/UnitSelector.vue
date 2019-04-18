@@ -1,5 +1,5 @@
 <template>
-  <label class="unit-selector">
+  <label class="unit-selector separate-left">
     Unit:
     <select @change="unitSelected">
       <option

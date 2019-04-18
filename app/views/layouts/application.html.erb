@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title><%= meta_title %></title>
+    <%= title_tag -%>
  
     <% meta_data.each do |name, content| %>
       <% next if content.to_s.empty? || name.to_s.empty? %>
@@ -12,10 +12,12 @@
     <%= yield :head %>
 
     <%= stylesheet_link_tag "application", media: "all", "data-turbolinks-track" => true %>
-    <%= javascript_include_tag "application", "data-turbolinks-track" => 'reload' %>
-    <%= javascript_include_tag "separated_application", "data-turbolinks-track" => 'reload' %>
-    <%= javascript_pack_tag "application" %>
-    <%= stylesheet_pack_tag "application" %>
+    <% if sessions_signed_in? %>
+      <%= javascript_include_tag "application", "data-turbolinks-track" => 'reload' %>
+      <%= javascript_include_tag "separated_application", "data-turbolinks-track" => 'reload' %>
+      <%= javascript_pack_tag "application" %>
+      <%= stylesheet_pack_tag "application" %>
+    <% end %>
     <%= csrf_meta_tags %>
 
   </head>
@@ -27,13 +29,9 @@
     </header>
 
     <nav>
-      <!-- TODO: refine calling of header navigation -->
       <%= quick_bar -%> 
-      <%= task_bar -%> 
-      <%= slideout_pinboard -%>
-      <%= slideout_pdf_viewer -%>
-      <%= slideout_recent -%>
-      <%= slideout_clipboard -%>
+      <%= task_bar -%>
+      <%= slideouts -%>
     </nav>
 
     <div id="main">

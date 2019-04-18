@@ -10,18 +10,18 @@ RSpec.describe Document, type: :model, group: :documentation do
     document.run_callbacks(:commit)
   }
 
-    # Taken verbatim from the doc. 
+  # Taken verbatim from the doc. 
   context 'default paperclip tests' do
     it { is_expected.to have_attached_file(:document_file) }
     it { is_expected.to validate_attachment_presence(:document_file) }
     it { is_expected.to validate_attachment_content_type(:document_file).
-                  allowing('application/pdf', 'text/plain', 'text/xml').
-                  rejecting('image/png') }
+         allowing('application/pdf', 'text/plain', 'text/xml').
+         rejecting('image/png') }
     it { is_expected.to validate_attachment_size(:document_file).
-                  greater_than(1.byte) }
+         greater_than(1.byte) }
   end
 
-    
+
   context 'should manipulate the file system' do
     specify 'creating a document should add it to the filesystem' do
       expect(document.save).to be_truthy
@@ -32,10 +32,25 @@ RSpec.describe Document, type: :model, group: :documentation do
       path = document.document_file.path
       expect(document.destroy).to be_truthy
 
-      document.run_callbacks(:commit) #       # NOTE: apparently resolved in Paperclip 
-
+      document.run_callbacks(:commit) # NOTE: apparently resolved in Paperclip 
       expect(File.exist?(path)).to be_falsey
     end
+
+    specify 'destroying with a single documentation destroys documentation' do
+      a = FactoryBot.create(:valid_documentation, document: document)
+      expect(document.destroy).to be_truthy
+      expect {a.reload}.to raise_error ActiveRecord::RecordNotFound
+    end
+
+    specify 'destroying with > 1 documentation fails' do
+      a = FactoryBot.create(:valid_documentation, document: document)
+      b = FactoryBot.create(:valid_documentation, document: document)
+      document.destroy
+      expect(document.destroyed?).to be_falsey 
+      expect(a.reload).to be_truthy
+      expect(b.reload).to be_truthy
+    end
+
   end
 
   context 'pages' do
@@ -104,7 +119,7 @@ RSpec.describe Document, type: :model, group: :documentation do
             expect(document.page_map).to eq({'1' => ['99', 'xi']})
           end 
         end
-      
+
         context 'many to one' do
           before do
             document.update_attribute(:page_total, 10)  # !! fake page total

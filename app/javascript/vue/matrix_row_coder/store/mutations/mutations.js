@@ -1,33 +1,3 @@
-export const MutationNames = {
-  SetDescriptors: 'setDescriptors',
-  SetTaxonTitle: 'setTaxonTitle',
-  SetTaxonId: 'setTaxonId',
-  SetConfidenceLevels: 'setConfidenceLevels',
-  SetObservation: 'setObservation',
-  SetDescriptorNotes: 'setDescriptorNotes',
-  SetDescriptorDepictions: 'setDescriptorDepictions',
-  SetObservationNotes: 'setObservationNotes',
-  SetObservationDepictions: 'setObservationDepictions',
-  SetObservationConfidences: 'setObservationConfidences',
-  SetObservationCitations: 'setObservationCitations',
-  SetDescriptorZoom: 'setDescriptorZoom',
-  SetContinuousValue: 'setContinuousValue',
-  SetContinuousUnit: 'setContinuousUnit',
-  SetPresence: 'setPresence',
-  SetCharacterStateChecked: 'setCharacterStateChecked',
-  SetSampleMaxFor: `setSampleMaxFor`,
-  SetSampleMinFor: `setSampleMinFor`,
-  SetSampleNFor: `setSampleNFor`,
-  SetSampleUnitFor: `setSampleUnitFor`,
-  SetMatrixRow: `setMatrixRow`,
-  ClearObservation: 'clearObservation',
-  ObservationSaved: `observationSaved`,
-  CountdownStartedFor: `countdownStartedFor`,
-  SetDescriptorSaving: `setDescriptorSaving`,
-  SetDescriptorSavedOnce: `setDescriptorSavedOnce`,
-  SetObservationId: `setObservationId`
-}
-
 import setDescriptors from './setDescriptors'
 import setTaxonTitle from './setTaxonTitle'
 import setTaxonId from './setTaxonId'
@@ -48,6 +18,10 @@ import setSampleMaxFor from './setSampleMaxFor'
 import setSampleMinFor from './setSampleMinFor'
 import setSampleNFor from './setSampleNFor'
 import setSampleUnitFor from './setSampleUnitFor'
+import setSampleMedian from './setSampleMedian'
+import setSampleStandardDeviation from './setSampleStandardDeviation'
+import setSampleStandardMean from './setSampleStandardMean'
+import setSampleStandardError from './setSampleStandardError'
 import clearObservation from './clearObservation'
 import observationSaved from './observationSaved'
 import countdownStartedFor from './countdownStartedFor'
@@ -55,8 +29,45 @@ import setDescriptorSaving from './setDescriptorSaving'
 import setDescriptorSavedOnce from './setDescriptorSavedOnce'
 import setObservationId from './setObservationId'
 import setMatrixRow from './setMatrixRow'
+import resetState from './resetState'
+
+export const MutationNames = {
+  SetDescriptors: 'setDescriptors',
+  SetTaxonTitle: 'setTaxonTitle',
+  SetTaxonId: 'setTaxonId',
+  SetConfidenceLevels: 'setConfidenceLevels',
+  SetObservation: 'setObservation',
+  SetDescriptorNotes: 'setDescriptorNotes',
+  SetDescriptorDepictions: 'setDescriptorDepictions',
+  SetObservationNotes: 'setObservationNotes',
+  SetObservationDepictions: 'setObservationDepictions',
+  SetObservationConfidences: 'setObservationConfidences',
+  SetObservationCitations: 'setObservationCitations',
+  SetDescriptorZoom: 'setDescriptorZoom',
+  SetContinuousValue: 'setContinuousValue',
+  SetContinuousUnit: 'setContinuousUnit',
+  SetPresence: 'setPresence',
+  SetCharacterStateChecked: 'setCharacterStateChecked',
+  SetSampleMedian: 'setSampleMedian ',
+  SetSampleStandardMean: 'setSampleStandardMean',
+  SetSampleStandardDeviation: 'setSampleStandardDeviation',
+  SetSampleStandardError: 'setSampleStandardError',
+  SetSampleMaxFor: 'setSampleMaxFor',
+  SetSampleMinFor: `setSampleMinFor`,
+  SetSampleNFor: `setSampleNFor`,
+  SetSampleUnitFor: `setSampleUnitFor`,
+  SetMatrixRow: `setMatrixRow`,
+  ClearObservation: 'clearObservation',
+  ObservationSaved: `observationSaved`,
+  CountdownStartedFor: `countdownStartedFor`,
+  SetDescriptorSaving: `setDescriptorSaving`,
+  SetDescriptorSavedOnce: `setDescriptorSavedOnce`,
+  SetObservationId: `setObservationId`,
+  ResetState: `resetState`,
+}
 
 export const MutationFunctions = {
+  [MutationNames.ResetState]: resetState,
   [MutationNames.SetDescriptors]: setDescriptors,
   [MutationNames.SetTaxonTitle]: setTaxonTitle,
   [MutationNames.SetTaxonId]: setTaxonId,
@@ -73,6 +84,10 @@ export const MutationFunctions = {
   [MutationNames.SetContinuousUnit]: setContinuousUnit,
   [MutationNames.SetPresence]: setPresence,
   [MutationNames.SetCharacterStateChecked]: setCharacterStateChecked,
+  [MutationNames.SetSampleMedian]: setSampleMedian,
+  [MutationNames.SetSampleStandardMean]: setSampleStandardMean,
+  [MutationNames.SetSampleStandardDeviation]: setSampleStandardDeviation,
+  [MutationNames.SetSampleStandardError]: setSampleStandardError,
   [MutationNames.SetSampleMaxFor]: setSampleMaxFor,
   [MutationNames.SetSampleMinFor]: setSampleMinFor,
   [MutationNames.SetSampleNFor]: setSampleNFor,

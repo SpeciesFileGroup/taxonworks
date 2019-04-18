@@ -10,6 +10,7 @@ import { newStore } from './store/store.js'
 
 Object.assign(TW.views.tasks.loan, {
   init: function () {
+    var store = newStore()
     Vue.use(vueResource)
     Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
 

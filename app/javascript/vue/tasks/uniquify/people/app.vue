@@ -9,9 +9,9 @@
       </span>
     </div>
     <spinner
-      v-if="isLoading"
+      v-if="isLoading || isSaving"
       :full-screen="true"
-      legend="Loading..."
+      :legend="isLoading ? 'Loading...' : 'Merging...'"
       :logo-size="{ width: '100px', height: '100px'}"/>
     <div class="flexbox">
       <div class="flexbox">
@@ -42,7 +42,7 @@
           </button>
         </div>
         <div class="found_people separate-right separate-left second-column">
-          <h2>Select Person</h2>
+          <h2>Select person</h2>
           <found-people
             ref="foundPeople"
             v-model="selectedPerson"
@@ -52,7 +52,7 @@
           />
         </div>
         <div class="match_people separate-right separate-left" >
-          <h2>Match People</h2>
+          <h2>Match people</h2>
           <match-people
             ref="matchPeople"
             v-model="mergePerson"
@@ -108,6 +108,7 @@
         firstName: '',
         selectedRoles: {},
         isLoading: false,
+        isSaving: false,
         foundPeople: [],
         selectedPerson: {},
         matchPeople: [],
@@ -144,10 +145,16 @@
       },
       findPerson() {
         let params = {
-          last_name: this.lastName,
+          last_name_starts_with: this.lastName,
           first_name: this.firstName,
+          per: 100,
           roles: Object.keys(this.selectedRoles)
-        };
+        }
+
+        if(!params.first_name.length) {
+          delete params.first_name
+        }
+        
         this.isLoading = true;
         this.clearFoundData();
         this.displayCount = true;
@@ -159,15 +166,15 @@
       },
       mergePeople() {
         let params = {
-          new_person_id: this.mergePerson.id
+          person_to_destroy: this.mergePerson.id // this.selectedPerson.id
         };
+        this.isSaving = true
         this.$http.post('/people/' + this.selectedPerson.id.toString() + '/merge', params).then(response => {
-          this.$http.delete('/people/' + this.mergePerson.id).then(response => {
-            this.$refs.matchPeople.removeFromList(this.mergePerson.id)    // remove the merge person from the matchPerson list
-            this.$refs.foundPeople.removeFromList(this.mergePerson.id)   // remove the merge person from the foundPerson list
-            this.mergePerson = {};
-          })
+          this.$refs.matchPeople.removeFromList(this.mergePerson.id)    // remove the merge person from the matchPerson list
+          this.$refs.foundPeople.removeFromList(this.mergePerson.id)   // remove the merge person from the foundPerson list
+          this.mergePerson = {};
           this.selectedPerson = response.body
+          this.isSaving = false
         })
       },
       resetApp() {
@@ -196,6 +203,7 @@
     mounted: function() {   // accepts only last_name param in links from other pages
       if (window.location.href.split('last_name=').length > 1) {
         this.lastName =  window.location.href.split('last_name=')[1].split('&')[0];
+        this.findPerson()
       }
     }
   }

@@ -26,8 +26,10 @@ class TaxonNameClassification::Latinized::PartOfSpeech < TaxonNameClassification
         m_name, f_name, n_name = t.name, t.name[0..-3] + 'ra', t.name[0..-3] + 'rum'
       when /(um|rum)$/
         m_name, f_name, n_name = t.name[0..-3] + 'us', t.name[0..-3] + 'a', t.name
-      when /(a|ra)$/
-        m_name, f_name, n_name = t.name[0..-3] + 'us', t.name, t.name[0..-3] + 'um'
+      when /ra$/
+        m_name, f_name, n_name = t.name[0..-3] + 'er', t.name, t.name[0..-3] + 'rum'
+      when /a$/
+        m_name, f_name, n_name = t.name[0..-2] + 'us', t.name, t.name[0..-2] + 'um'
       when /or$/
         # TODO: Move check for names ending in `or` to soft valdiation vs. Partciple/Adjective (combination shouldn't exist) 
       else

@@ -68,7 +68,7 @@
           placeholder="Search an taxon name"
           @getItem="getFromAutocomplete"
           param="term"
-          :add-params="{ 'type[]': 'Protonym', 'nomenclature_group[]': rankName }"/>
+          :add-params="{ 'type[]': 'Protonym', 'nomenclature_group[]': searchGroup }"/>
         <a
           class="separate-left" 
           target="_blank"
@@ -110,6 +110,18 @@ export default {
       set (taxon) {
         this.$emit('rankPicked', this.rankName)
         this.selectTaxon(taxon)
+      }
+    },
+    searchGroup() {
+      switch(this.rankName) {
+        case 'subgenus':
+        return 'genus'
+        case 'subspecies':
+        return 'species'
+        case 'variety':
+        return 'species'
+        default:
+        return this.rankName
       }
     }
   },

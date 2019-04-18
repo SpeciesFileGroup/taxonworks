@@ -4,6 +4,7 @@ module Queries::Concerns::Polymorphic
 
   included do
     attr_accessor :polymorphic_ids
+    attr_accessor :object_global_id
 
     def self.polymorphic_klass(klass)
       define_singleton_method(:annotating_class){klass} 
@@ -11,15 +12,28 @@ module Queries::Concerns::Polymorphic
  
     def polymorphic_ids=(hash)
       set_polymorphic_ids(hash)
-    end 
+    end
+
+   def object_global_id=(value)
+      @object_global_id = value
+   end 
   end
 
-   def set_polymorphic_ids(hash)
+  def set_polymorphic_ids(hash)
     @polymorphic_ids = hash.select{|k,v| self.class.annotating_class.related_foreign_keys.include?(k.to_s)} 
     @polymorphic_ids ||= {}
   end
-   
-   # TODO: Dry with polymorphic_params
+
+  # @return [ActiveRecord object, nil]
+  def object_for
+    if o = GlobalID::Locator.locate(object_global_id)
+      o
+    else
+      nil
+    end
+  end
+
+  # TODO: Dry with polymorphic_params
    # @return [Arel::Node, nil]
    def matching_polymorphic_ids
      nodes = Queries::Annotator.polymorphic_nodes(polymorphic_ids, self.class.annotating_class)

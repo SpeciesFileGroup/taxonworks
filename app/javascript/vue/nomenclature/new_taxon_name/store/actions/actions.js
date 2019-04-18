@@ -1,3 +1,25 @@
+import setParentAndRanks from './setParentAndRanks'
+import addTaxonStatus from './addTaxonStatus'
+import addTaxonType from './addTaxonType'
+import addTaxonRelationship from './addTaxonRelationship'
+import addOriginalCombination from './addOriginalCombination'
+import createTaxonName from './createTaxonName'
+import updateTaxonName from './updateTaxonName'
+import removeTaxonStatus from './removeTaxonStatus'
+import removeTaxonRelationship from './removeTaxonRelationship'
+import removeOriginalCombination from './removeOriginalCombination'
+import loadSoftValidation from './loadSoftValidation'
+import loadTaxonName from './loadTaxonName'
+import loadTaxonRelationships from './loadTaxonRelationships'
+import loadTaxonStatus from './loadTaxonStatus'
+import loadRanks from './loadRanks'
+import loadStatus from './loadStatus'
+import loadRelationships from './loadRelationships'
+import changeTaxonSource from './changeTaxonSource'
+import removeSource from './removeSource'
+import updateClassification from './updateClassification'
+import updateTaxonRelationship from './updateTaxonRelationship'
+
 const ActionNames = {
   SetParentAndRanks: 'setParentAndRanks',
   AddTaxonStatus: 'addTaxonStatus',
@@ -23,30 +45,30 @@ const ActionNames = {
 }
 
 const ActionFunctions = {
-  [ActionNames.LoadSoftValidation]: require('./loadSoftValidation'),
-  [ActionNames.LoadTaxonName]: require('./loadTaxonName'),
-  [ActionNames.LoadRanks]: require('./loadRanks'),
-  [ActionNames.LoadStatus]: require('./loadStatus'),
-  [ActionNames.LoadRelationships]: require('./loadRelationships'),
-  [ActionNames.LoadTaxonRelationships]: require('./loadTaxonRelationships'),
-  [ActionNames.LoadTaxonStatus]: require('./loadTaxonStatus'),
-  [ActionNames.SetParentAndRanks]: require('./setParentAndRanks'),
-  [ActionNames.AddTaxonStatus]: require('./addTaxonStatus'),
-  [ActionNames.AddTaxonType]: require('./addTaxonType'),
-  [ActionNames.AddTaxonRelationship]: require('./addTaxonRelationship'),
-  [ActionNames.AddOriginalCombination]: require('./addOriginalCombination'),
-  [ActionNames.CreateTaxonName]: require('./createTaxonName'),
-  [ActionNames.UpdateTaxonName]: require('./updateTaxonName'),
-  [ActionNames.RemoveTaxonStatus]: require('./removeTaxonStatus'),
-  [ActionNames.RemoveTaxonRelationship]: require('./removeTaxonRelationship'),
-  [ActionNames.RemoveOriginalCombination]: require('./removeOriginalCombination'),
-  [ActionNames.RemoveSource]: require('./removeSource'),
-  [ActionNames.ChangeTaxonSource]: require('./changeTaxonSource'),
-  [ActionNames.UpdateClassification]: require('./updateClassification'),
-  [ActionNames.UpdateTaxonRelationship]: require('./updateTaxonRelationship')
+  [ActionNames.LoadSoftValidation]: loadSoftValidation,
+  [ActionNames.LoadTaxonName]: loadTaxonName,
+  [ActionNames.LoadRanks]: loadRanks,
+  [ActionNames.LoadStatus]: loadStatus,
+  [ActionNames.LoadRelationships]: loadRelationships,
+  [ActionNames.LoadTaxonRelationships]: loadTaxonRelationships,
+  [ActionNames.LoadTaxonStatus]: loadTaxonStatus,
+  [ActionNames.SetParentAndRanks]: setParentAndRanks,
+  [ActionNames.AddTaxonStatus]: addTaxonStatus,
+  [ActionNames.AddTaxonType]: addTaxonType,
+  [ActionNames.AddTaxonRelationship]: addTaxonRelationship,
+  [ActionNames.AddOriginalCombination]: addOriginalCombination,
+  [ActionNames.CreateTaxonName]: createTaxonName,
+  [ActionNames.UpdateTaxonName]: updateTaxonName,
+  [ActionNames.RemoveTaxonStatus]: removeTaxonStatus,
+  [ActionNames.RemoveTaxonRelationship]: removeTaxonRelationship,
+  [ActionNames.RemoveOriginalCombination]: removeOriginalCombination,
+  [ActionNames.RemoveSource]: removeSource,
+  [ActionNames.ChangeTaxonSource]: changeTaxonSource,
+  [ActionNames.UpdateClassification]: updateClassification,
+  [ActionNames.UpdateTaxonRelationship]: updateTaxonRelationship
 }
 
-module.exports = {
+export {
   ActionNames,
   ActionFunctions
 }

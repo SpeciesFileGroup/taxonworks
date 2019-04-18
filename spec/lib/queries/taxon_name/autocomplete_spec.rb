@@ -18,6 +18,18 @@ describe Queries::TaxonName::Autocomplete, type: :model do
 
   let(:query) { Queries::TaxonName::Autocomplete.new('') }
 
+  specify '#no_leaves 1' do
+    query.terms = genus.name
+    query.no_leaves = true
+    expect(query.autocomplete.map(&:id)).to contain_exactly(genus.id)
+  end
+
+  specify '#no_leaves 2' do
+    query.terms = species.name
+    query.no_leaves = true
+    expect(query.autocomplete.map(&:id)).to contain_exactly()
+  end
+
   specify '#autocomplete_exact_name_and_year 1' do
     query.terms = 'vulnerata' 
     expect(query.autocomplete_exact_name_and_year).to eq(nil)

@@ -13,31 +13,8 @@ module Queries
   # Lots of optimization possible, at minimum this is nice for nested OR
   class Otu::Autocomplete < Queries::Query
 
-    # @return [Scope]
-    def where_sql
-      with_project_id.and(or_clauses).to_sql
-    end
-
-    # @return [Scope]
-    def or_clauses
-      clauses = [
-        named,
-        taxon_name_named,
-        taxon_name_author_year_matches,
-        with_id
-      ].compact
-
-      a = clauses.shift
-      clauses.each do |b|
-        a = a.or(b)
-      end
-      a
-    end
-
-    # @return [Scope]
-    def all
-      # For references, this is equivalent: Otu.eager_load(:taxon_name).where(where_sql)
-      ::Otu.includes(:taxon_name).where(where_sql).references(:taxon_names).order(name: :asc).limit(50).order('taxon_names.cached ASC')
+    def base_query
+      ::Otu.select('otus.*')
     end
 
     # @return [Arel::Table]
@@ -48,6 +25,62 @@ module Queries
     # @return [Arel::Table]
     def table
       ::Otu.arel_table
+    end
+
+    # @return [Array]
+    #   TODO: optimize limits
+    def autocomplete
+      queries = [
+        autocomplete_or_clauses,
+        autocomplete_identifier_cached_exact,
+        autocomplete_identifier_identifier_exact,
+        autocomplete_identifier_cached_like,
+      ]
+        
+      queries.compact!
+
+      return [] if queries.nil?
+      updated_queries = []
+
+      queries.each_with_index do |q ,i|
+        a = q.where(project_id: project_id) if project_id
+        a ||= q 
+        updated_queries[i] = a
+      end
+
+      result = []
+      updated_queries.each do |q|
+        result += q.to_a
+        result.uniq!
+        break if result.count > 39 
+      end
+      result[0..39]
+    end
+
+    # @return [Scope]
+    def or_clauses
+      clauses = [
+        named,
+        taxon_name_named,
+        taxon_name_author_year_matches,
+        with_id,
+      ].compact
+
+      a = clauses.shift
+      clauses.each do |b|
+        a = a.or(b)
+      end
+      a
+    end
+
+    # @return [Scope]
+    def where_sql
+      with_project_id.and(or_clauses).to_sql
+    end
+
+    # @return [Scope]
+    def autocomplete_or_clauses
+      ::Otu.includes(:taxon_name).where(where_sql).references(:taxon_names).order(name: :asc).limit(50).order('taxon_names.cached ASC')
     end
 
     # @return [Arel::Nodes::Matches]

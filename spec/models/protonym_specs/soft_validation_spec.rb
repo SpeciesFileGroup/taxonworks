@@ -26,7 +26,6 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
   context 'soft_validation' do
     before(:each) do
       @subspecies = FactoryBot.create(:iczn_subspecies)
-
       @kingdom = @subspecies.ancestor_at_rank('kingdom')
       @family = @subspecies.ancestor_at_rank('family')
       @subfamily = @subspecies.ancestor_at_rank('subfamily')
@@ -35,7 +34,6 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       @genus = @subspecies.ancestor_at_rank('genus')
       @subgenus = @subspecies.ancestor_at_rank('subgenus')
       @species = @subspecies.ancestor_at_rank('species')
-      
       @subtribe.source = @tribe.source # update_column(:source_id, @tribe.source.id)
       @subtribe.save
 
@@ -88,9 +86,27 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       specify 'source author, year are missing' do
         @species.etymology = 'Test'
         @species.soft_validate(:missing_fields)
-        expect(@species.soft_validations.messages_on(:base).empty?).to be_truthy
+        expect(@species.soft_validations.messages_on(:base).include?('Original citation pages are not indicated')).to be_truthy
+        @species.origin_citation.pages = 1 if !@species.source.nil?
+        @species.soft_validate(:missing_fields)
+        expect(@species.soft_validations.messages_on(:base).include?('Original citation pages are not indicated')).to be_falsey
         expect(@species.soft_validations.messages_on(:verbatim_author).empty?).to be_truthy
         expect(@species.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
+      end
+      specify 'page is out or range' do
+        @genus.source.pages = '1-10, i-v'
+        @genus.origin_citation.pages = '11'
+        @genus.soft_validate(:missing_fields)
+        expect(@genus.soft_validations.messages_on(:base).include?('Original citation is out of the source page range')).to be_truthy
+        @genus.origin_citation.pages = '1'
+        @genus.soft_validate(:missing_fields)
+        expect(@genus.soft_validations.messages_on(:base).include?('Original citation is out of the source page range')).to be_falsey
+        @genus.origin_citation.pages = '10'
+        @genus.soft_validate(:missing_fields)
+        expect(@genus.soft_validations.messages_on(:base).include?('Original citation is out of the source page range')).to be_falsey
+        @genus.origin_citation.pages = '5'
+        @genus.soft_validate(:missing_fields)
+        expect(@genus.soft_validations.messages_on(:base).include?('Original citation is out of the source page range')).to be_falsey
       end
       specify 'etymology is missing' do
         @species.soft_validate(:missing_fields)
@@ -155,6 +171,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       specify 'mismatching author, year and type genus in family' do
         tribe = FactoryBot.create(:iczn_tribe, name: 'Typhlocybini', verbatim_author: nil, year_of_publication: nil, parent: @subfamily)
         genus = FactoryBot.create(:relationship_genus, verbatim_author: 'Dmitriev', name: 'Typhlocyba', year_of_publication: 2013, parent: tribe)
+        tribe.source = nil
         @subfamily.type_genus = genus
         expect(@subfamily.save).to be_truthy
         @subfamily.soft_validate(:validate_coordinated_names)
@@ -167,11 +184,9 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         expect(tribe.soft_validations.messages_on(:base).empty?).to be_falsey
 
         tribe.fix_soft_validations
-
         tribe.soft_validate(:validate_coordinated_names)
         expect(tribe.soft_validations.messages_on(:verbatim_author).empty?).to be_truthy
         expect(tribe.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
-        
         expect(tribe.soft_validations.messages_on(:base).empty?).to be_truthy
 
         @subfamily.type_genus = nil
@@ -207,6 +222,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         end
 
         specify 'is fixable' do
+          @ssp1.source = nil
           @species.fix_soft_validations
           @species.soft_validate(:validate_coordinated_names)
           @ssp1.soft_validate(:validate_coordinated_names)
@@ -227,12 +243,13 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         g = FactoryBot.create(:iczn_genus, name: 'Typhlocyba', parent: @subfamily)
         r = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: @subfamily, type: 'TaxonNameRelationship::Typification::Family' )
         @subfamily.soft_validate
-        expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_falsey
+        expect(@subfamily.soft_validations.messages_on(:base).count).to eq(3)
         @subfamily.fix_soft_validations
         @subfamily.reload
         expect(@subfamily.valid?).to be_truthy
+        @subfamily.origin_citation.pages = 1 if !@subfamily.source.nil?
         @subfamily.soft_validate
-        expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_truthy
+        expect(@subfamily.soft_validations.messages_on(:base).count).to eq(0)
       end
 
       specify 'only one subtribe in a tribe' do
@@ -614,7 +631,6 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         s1.soft_validate(:original_combination_relationships)
         expect(s1.soft_validations.messages_on(:base).size).to eq(1) # relationship is not selected at the lowest nomenclatural rank
       end
-
     end
 
     context 'fossils' do
@@ -631,7 +647,5 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         expect(g.soft_validations.messages_on(:base).empty?).to be_truthy
       end
     end
-
   end
-
 end

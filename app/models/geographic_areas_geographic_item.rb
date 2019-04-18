@@ -48,18 +48,38 @@ class GeographicAreasGeographicItem < ApplicationRecord
   #      END"
   #   )
   # }
-
+  #
   # https://github.com/DimaSavitsky/test-prototype/blob/df3c7c792331e19adfbb2065c7185623cabef24e/app/models/onet/occupation.rb#L61
   def self.ordered_by_data_origin
+    order(origin_order_clause)
+  end
+
+  def self.origin_order_clause(table_alias = nil)
+
     t = arel_table
+    t = t.alias(table_alias) if !table_alias.blank?
+
     c = Arel::Nodes::Case.new(t[:data_origin])
     c.when('ne_country').then(1)
     c.when('ne_state').then(2)
-    c.when('gadm').then(2)
+    c.when('gadm').then(3)
     c.else(4)
-    
-    order(c)
+    c
   end
 
+  def self.default_geographic_item_data
+    q =  "WITH summary AS (
+             SELECT p.id,
+             p.geographic_area_id,
+             p.geographic_item_id,
+             ROW_NUMBER() OVER(PARTITION BY p.geographic_area_id
+                           ORDER BY #{origin_order_clause('p').to_sql}) AS rk
+                           FROM geographic_areas_geographic_items p)
+          SELECT s.*
+            FROM summary s
+            WHERE s.rk = 1"
+
+    GeographicAreasGeographicItem.joins("JOIN (#{q}) as z ON geographic_areas_geographic_items.id = z.id")
+  end
 
 end

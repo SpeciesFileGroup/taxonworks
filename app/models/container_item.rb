@@ -43,6 +43,7 @@ class ContainerItem < ApplicationRecord
   include Shared::IsData
 
   attr_accessor :global_entity
+  attr_accessor :container_id
 
   belongs_to :contained_object, polymorphic: true
 
@@ -75,6 +76,7 @@ class ContainerItem < ApplicationRecord
 
   # @param value [a Container#id]
   def container_id=(value)
+    @container_id = value
     c = Container.find(value)
     if parent
       parent.contained_object = c 
@@ -126,9 +128,9 @@ class ContainerItem < ApplicationRecord
     end
   end
 
-  # if the contained_object is a CollectionObject, it must have a parent container reference
+  # If the contained_object is a CollectionObject, it must have a parent container reference
   def contained_object_is_container_when_parent_id_is_blank
-    if parent_id.blank?
+    if parent_id.blank? && container_id.blank?
       errors.add(:parent_id, 'can only be blank if object is a container') if contained_object_type != 'Container'
     end
   end

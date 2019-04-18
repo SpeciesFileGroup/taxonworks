@@ -970,5 +970,5 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     it_behaves_like 'notable'
     it_behaves_like 'is_data'
   end
-# rspec -t group:nomenclatureç
+# rspec -t group:nomenclature
 end

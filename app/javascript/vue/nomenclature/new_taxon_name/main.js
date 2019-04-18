@@ -11,6 +11,7 @@ import en from './lang/help/en'
 import App from './app.vue'
 import { init as initRequest } from './request/resources'
 import { newStore } from './store/store.js'
+import vueShortkey from 'vue-shortkey'
 
 Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
   init: function () {
@@ -20,7 +21,7 @@ Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
         en: en
       }
     })
-    Vue.use(require('vue-shortkey'))
+    Vue.use(vueShortkey)
 
     var token = $('[name="csrf-token"]').attr('content')
     Vue.http.headers.common['X-CSRF-Token'] = token

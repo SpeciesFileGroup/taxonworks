@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_11_12_174838) do
+ActiveRecord::Schema.define(version: 2019_03_26_154155) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -964,6 +964,25 @@ ActiveRecord::Schema.define(version: 2018_11_12_174838) do
     t.json "metadata_json"
   end
 
+  create_table "labels", force: :cascade do |t|
+    t.string "text", null: false
+    t.integer "total", null: false
+    t.string "style"
+    t.string "label_object_type"
+    t.bigint "label_object_id"
+    t.boolean "is_copy_edited", default: false
+    t.boolean "is_printed", default: false
+    t.integer "project_id"
+    t.integer "created_by_id"
+    t.integer "updated_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "labels_created_by_id_index"
+    t.index ["label_object_type", "label_object_id"], name: "index_labels_on_label_object_type_and_label_object_id"
+    t.index ["project_id"], name: "index_labels_on_project_id"
+    t.index ["updated_by_id"], name: "labels_updated_by_id_index"
+  end
+
   create_table "languages", id: :serial, force: :cascade do |t|
     t.string "alpha_3_bibliographic"
     t.string "alpha_3_terminologic"
@@ -1177,6 +1196,30 @@ ActiveRecord::Schema.define(version: 2018_11_12_174838) do
     t.index ["project_id"], name: "index_observations_on_project_id"
   end
 
+  create_table "organizations", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "alternate_name"
+    t.text "description"
+    t.text "disambiguating_description"
+    t.string "address"
+    t.string "email"
+    t.string "telephone"
+    t.string "duns"
+    t.string "global_location_number"
+    t.string "legal_name"
+    t.integer "same_as_id"
+    t.integer "area_served_id"
+    t.integer "department_id"
+    t.integer "parent_organization_id"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_organizations_on_created_by_id"
+    t.index ["name"], name: "index_organizations_on_name"
+    t.index ["updated_by_id"], name: "index_organizations_on_updated_by_id"
+  end
+
   create_table "origin_relationships", id: :serial, force: :cascade do |t|
     t.string "old_object_type", null: false
     t.integer "old_object_id", null: false
@@ -1327,8 +1370,7 @@ ActiveRecord::Schema.define(version: 2018_11_12_174838) do
     t.datetime "updated_at", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.jsonb "preferences", default: {}, null: false
-    t.string "api_access_token"
+    t.jsonb "preferences", default: "{}", null: false
     t.index ["created_by_id"], name: "index_projects_on_created_by_id"
     t.index ["updated_by_id"], name: "index_projects_on_updated_by_id"
   end
@@ -1407,7 +1449,7 @@ ActiveRecord::Schema.define(version: 2018_11_12_174838) do
   end
 
   create_table "roles", id: :serial, force: :cascade do |t|
-    t.integer "person_id", null: false
+    t.integer "person_id"
     t.string "type", null: false
     t.integer "role_object_id", null: false
     t.string "role_object_type", null: false
@@ -1417,7 +1459,9 @@ ActiveRecord::Schema.define(version: 2018_11_12_174838) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id"
+    t.bigint "organization_id"
     t.index ["created_by_id"], name: "index_roles_on_created_by_id"
+    t.index ["organization_id"], name: "index_roles_on_organization_id"
     t.index ["person_id"], name: "index_roles_on_person_id"
     t.index ["position"], name: "index_roles_on_position"
     t.index ["project_id"], name: "index_roles_on_project_id"
@@ -1565,8 +1609,8 @@ ActiveRecord::Schema.define(version: 2018_11_12_174838) do
     t.string "boundary_finder", null: false
     t.boolean "has_border", null: false
     t.string "layout", null: false
-    t.jsonb "metadata_map", default: {}, null: false
-    t.jsonb "specimen_coordinates", default: {}, null: false
+    t.jsonb "metadata_map", default: "{}", null: false
+    t.jsonb "specimen_coordinates", default: "{}", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1705,6 +1749,8 @@ ActiveRecord::Schema.define(version: 2018_11_12_174838) do
     t.integer "cached_valid_taxon_name_id"
     t.text "etymology"
     t.string "cached_original_combination"
+    t.index ["cached"], name: "index_taxon_names_on_cached"
+    t.index ["cached_original_combination"], name: "index_taxon_names_on_cached_original_combination"
     t.index ["created_by_id"], name: "index_taxon_names_on_created_by_id"
     t.index ["name"], name: "index_taxon_names_on_name"
     t.index ["parent_id"], name: "index_taxon_names_on_parent_id"
@@ -1939,6 +1985,9 @@ ActiveRecord::Schema.define(version: 2018_11_12_174838) do
   add_foreign_key "images", "projects", name: "images_project_id_fkey"
   add_foreign_key "images", "users", column: "created_by_id", name: "images_created_by_id_fkey"
   add_foreign_key "images", "users", column: "updated_by_id", name: "images_updated_by_id_fkey"
+  add_foreign_key "labels", "projects"
+  add_foreign_key "labels", "users", column: "created_by_id", name: "labels_created_by_id_fk"
+  add_foreign_key "labels", "users", column: "updated_by_id", name: "labels_updated_by_id_fk"
   add_foreign_key "languages", "users", column: "created_by_id", name: "languages_created_by_id_fkey"
   add_foreign_key "languages", "users", column: "updated_by_id", name: "languages_updated_by_id_fkey"
   add_foreign_key "loan_items", "loans", name: "loan_items_loan_id_fkey"
@@ -1986,6 +2035,12 @@ ActiveRecord::Schema.define(version: 2018_11_12_174838) do
   add_foreign_key "observations", "projects"
   add_foreign_key "observations", "users", column: "created_by_id"
   add_foreign_key "observations", "users", column: "updated_by_id"
+  add_foreign_key "organizations", "geographic_areas", column: "area_served_id"
+  add_foreign_key "organizations", "organizations", column: "department_id"
+  add_foreign_key "organizations", "organizations", column: "parent_organization_id"
+  add_foreign_key "organizations", "organizations", column: "same_as_id"
+  add_foreign_key "organizations", "users", column: "created_by_id"
+  add_foreign_key "organizations", "users", column: "updated_by_id"
   add_foreign_key "origin_relationships", "projects"
   add_foreign_key "origin_relationships", "users", column: "created_by_id"
   add_foreign_key "origin_relationships", "users", column: "updated_by_id"
@@ -2037,6 +2092,7 @@ ActiveRecord::Schema.define(version: 2018_11_12_174838) do
   add_foreign_key "ranged_lot_categories", "users", column: "updated_by_id", name: "ranged_lot_categories_updated_by_id_fkey"
   add_foreign_key "repositories", "users", column: "created_by_id", name: "repositories_created_by_id_fkey"
   add_foreign_key "repositories", "users", column: "updated_by_id", name: "repositories_updated_by_id_fkey"
+  add_foreign_key "roles", "organizations"
   add_foreign_key "roles", "people", name: "roles_person_id_fkey"
   add_foreign_key "roles", "projects", name: "roles_project_id_fkey"
   add_foreign_key "roles", "users", column: "created_by_id", name: "roles_created_by_id_fkey"

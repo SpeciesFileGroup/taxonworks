@@ -3,7 +3,7 @@
     class="figures-container"
     :class="{ 'card-handle' : !edit }">
     <div class="figures-header">
-      <img :src="depiction.image.result.url">
+      <img :src="depiction.image.image_file_url">
       <div
         class="button-delete circle-button figures-delete"
         @click="deleteDepiction()"/>

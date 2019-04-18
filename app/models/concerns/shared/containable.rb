@@ -10,12 +10,12 @@ module Shared::Containable
 
     after_save :contain, unless: -> {contained_in.blank?} #  || !contained_in_id.blank?
 
-    has_one :container_item, as: :contained_object
+    has_one :container_item, as: :contained_object, dependent: :destroy
     has_one :parent_container_item, through: :container_item, source: :parent, class_name: 'ContainerItem'
     has_one :container, through: :parent_container_item, source: :contained_object, source_type: 'Container'
   end
 
-  # what has been put in contained_in might be a container, or the id of a container:
+  # What has been put in contained_in might be a container, or the id of a container:
   # convert an id to a container, and put self into that container
   def contain
     c = nil

@@ -9,6 +9,7 @@
     <%= fancy_th_tag(name: 'Abstract') -%>
     <%= fancy_th_tag(name: 'Type') -%>
     <%= fancy_th_tag(name: 'Bibtex type') -%>
+    <%= fancy_th_tag(name: 'Documents', group: 'housekeeping') -%>
     <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
     <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
@@ -23,6 +24,7 @@
           <td><%= source.abstract %></td>
           <td><%= source.type %></td>
           <td><%= source.bibtex_type %></td>
+          <td><%= documentation_links(source) -%></td>
           <%= fancy_metadata_cells_tag(source) -%>
       <% end %>
   <% end %>

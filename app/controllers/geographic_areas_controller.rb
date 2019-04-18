@@ -40,18 +40,7 @@ class GeographicAreasController < ApplicationController
   end
 
   def autocomplete
-    @geographic_areas = Queries::GeographicAreaAutocompleteQuery.new(params[:term]).all
-    data = @geographic_areas.collect do |t|
-      show_this = render_to_string(partial: 'autocomplete_geographic_area', locals: {term: params[:term], geographic_area: t } )
-      {id:  t.id,
-       label: t.name,
-       response_values: {
-         params[:method] => t.id
-       },
-       label_html: show_this
-      }
-    end
-    render json: data
+    @geographic_areas = Queries::GeographicArea::Autocomplete.new(params[:term]).autocomplete
   end
 
   # GET /geographic_areas/download

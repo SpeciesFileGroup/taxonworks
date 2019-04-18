@@ -44,21 +44,29 @@ class Image < ApplicationRecord
   include Shared::Notes
   include Shared::Tags
   include Shared::ProtocolRelationships
+  include Shared::Citations
+  include Shared::Attributions
   include Shared::IsData
   include SoftValidation
 
-  #constants
+  attr_accessor :rotate
+
   MISSING_IMAGE_PATH = '/public/images/missing.jpg'.freeze
 
   has_many :depictions, inverse_of: :image, dependent: :restrict_with_error
+  
+  has_many :collection_objects, through: :depictions, source: :depiction_object, source_type: 'CollectionObject'
+  has_many :otus, through: :depictions, source: :depiction_object, source_type: 'Otu'
+  has_many :taxon_names, through: :otus
 
   before_save :extract_tw_attributes
 
   # also using https://github.com/teeparham/paperclip-meta
   has_attached_file :image_file,
-                    styles: {medium: ['300x300>', :jpg], thumb: ['100x100>', :png]},
-                    default_url: MISSING_IMAGE_PATH,
-                    filename_cleaner:  Utilities::CleanseFilename
+    styles: {medium: ['300x300>', :jpg], thumb: ['100x100>', :png]},
+    default_url: MISSING_IMAGE_PATH,
+    filename_cleaner:  Utilities::CleanseFilename,
+    processors: [:rotator]
 
   #:restricted_characters => /[^A-Za-z0-9\.]/,
   validates_attachment_content_type :image_file, content_type: /\Aimage\/.*\Z/
@@ -96,7 +104,6 @@ class Image < ApplicationRecord
       # }
     end
 
-
     ret_val # return
   end
 
@@ -121,12 +128,6 @@ class Image < ApplicationRecord
     # that will convert from degrees min sec to decimal degree
     # - maybe 2 versions? - one returns string, other decimal?
 
-  end
-
-  # @param [ActionController::Parameters] params
-  # @return [Scope]
-  def self.find_for_autocomplete(params)
-    where(id: params[:term]).with_project_id(params[:project_id])
   end
 
   # Returns the true, unscaled height/width ratio
@@ -279,14 +280,14 @@ class Image < ApplicationRecord
     # NOTE: assumes content type is an image.
     tempfile = image_file.queued_for_write[:original]
     if tempfile.nil?
-      self.width          = 0
-      self.height         = 0
+      self.width = 0
+      self.height = 0
       self.user_file_name = nil
     else
       self.user_file_name = tempfile.original_filename
-      geometry            = Paperclip::Geometry.from_file(tempfile)
-      self.width          = geometry.width.to_i
-      self.height         = geometry.height.to_i
+      geometry = Paperclip::Geometry.from_file(tempfile)
+      self.width = geometry.width.to_i
+      self.height = geometry.height.to_i
     end
   end
 

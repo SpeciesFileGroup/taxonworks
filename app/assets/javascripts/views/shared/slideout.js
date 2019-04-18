@@ -10,8 +10,23 @@ Object.assign(TW.views.shared.slideout, {
 		$(document).off('click', '.slide-panel-category-header');
 		$(document).off('click', '.slide-panel-circle-icon');
 
-		$(document).on('click', '.slide-panel-circle-icon', function() {		
-			that.closeHideSlideoutPanel($(this).closest('.slide-panel'));
+		$(document).on('click', '.slide-panel-circle-icon', function() {
+      //TODO: Remove this after make a new interface for filter CO and Otu by area
+      if($("#filter-collection-objects").length || $("#otu_by_area_and_nomen").length) {
+        that.closeHideSlideoutPanel($(this).closest('.slide-panel'));
+      }
+      //
+      else {
+        if($(this).closest('.slide-panel').hasClass("slice-panel-show")) {
+					document.dispatchEvent(new CustomEvent('onSlidePanelClose', { detail: { name: $(this).closest('.slide-panel').attr('data-panel-name') } } ));
+					$(this).closest('.slide-panel').removeClass("slice-panel-show").addClass("slice-panel-hide");
+        }
+        else {
+					document.dispatchEvent(new CustomEvent('onSlidePanelOpen', { detail: { name: $(this).closest('.slide-panel').attr('data-panel-name') } } ));
+					$(this).closest('.slide-panel').removeClass("slice-panel-hide").addClass("slice-panel-show");
+				}
+      }
+			
 		});
 
 		$(document).on('click', '.slide-panel-category-header', function() {
@@ -22,10 +37,13 @@ Object.assign(TW.views.shared.slideout, {
 			$(this).find('.slide-panel-description').text($(this).children('.slide-panel-header').text());
 		});
 
-		$('[data-pdfviewer]').on("click", function() {
-	      	that.closeHideSlideoutPanel($('[data-panel-name="pinboard"]'));
-	      	that.closeHideSlideoutPanel($('[data-panel-name="pdfviewer"]'));
-	  	});
+		document.body.addEventListener("click", function (event) {
+			if (event.target.getAttribute('data-pdfviewer')) {
+				$('[data-panel-name="pinboard"]').removeClass("slice-panel-show").addClass("slice-panel-hide");
+				$('[data-panel-name="pdfviewer"]').removeClass("slice-panel-hide").addClass("slice-panel-show");
+				document.dispatchEvent(new CustomEvent('pdfViewer:load', { detail: { url: event.target.getAttribute('data-pdfviewer') } } ));
+			}
+		});
 	},
 
 	closeHideSlideoutPanel: function(panel) {

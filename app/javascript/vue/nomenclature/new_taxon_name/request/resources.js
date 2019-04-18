@@ -31,24 +31,9 @@ const createTaxonName = function (taxon) {
 }
 
 const updateTaxonName = function (taxon) {
-  var taxon_name = {
-    taxon_name: {
-      name: taxon.name,
-      parent_id: taxon.parent_id,
-      rank_class: taxon.rank_string,
-      year_of_publication: taxon.year_of_publication,
-      verbatim_author: taxon.verbatim_author,
-      etymology: taxon.etymology,
-      feminine_name: taxon.feminine_name,
-      masculine_name: taxon.masculine_name,
-      neuter_name: taxon.neuter_name,
-      roles_attributes: taxon.roles_attributes,
-      type: 'Protonym'
-    }
-  }
 
   return new Promise(function (resolve, reject) {
-    Vue.http.patch(`/taxon_names/${taxon.id}.json`, taxon_name).then(response => {
+    Vue.http.patch(`/taxon_names/${taxon.id}.json`, { taxon_name: taxon }).then(response => {
       if (!response.body.hasOwnProperty('taxon_name_author_roles')) {
         response.body['taxon_name_author_roles'] = []
       }
@@ -84,6 +69,8 @@ const updateTaxonRelationship = function (relationship) {
   return new Promise(function (resolve, reject) {
     Vue.http.patch(`/taxon_name_relationships/${relationship.taxon_name_relationship.id}`, relationship).then(response => {
       return resolve(response.body)
+    }, response => {
+      console.log(response)
     })
   })
 }
@@ -91,6 +78,16 @@ const updateTaxonRelationship = function (relationship) {
 const createTaxonStatus = function (newClassification) {
   return new Promise(function (resolve, reject) {
     Vue.http.post('/taxon_name_classifications', newClassification).then(response => {
+      return resolve(response.body)
+    }, response => {
+      return reject(response.body)
+    })
+  })
+}
+
+const GetTaxonNameSmartSelector = function () {
+  return new Promise(function (resolve, reject) {
+    Vue.http.get(`/taxon_names/select_options`).then(response => {
       return resolve(response.body)
     }, response => {
       return reject(response.body)
@@ -157,6 +154,7 @@ const changeTaxonSource = function (taxonId, source, citation) {
   return new Promise(function (resolve, reject) {
     let data = {
       taxon_name: {
+        id: taxonId,
         origin_citation_attributes: {
           id: (citation == undefined ? null : citation.id),
           source_id: source.id,
@@ -164,6 +162,9 @@ const changeTaxonSource = function (taxonId, source, citation) {
           pages: (source == undefined ? null : source.pages)
         }
       }
+    }
+    if(data.taxon_name.origin_citation_attributes.source_id == undefined) {
+      delete data.taxon_name.origin_citation_attributes.source_id 
     }
     Vue.http.patch(`/taxon_names/${taxonId}`, data).then(response => {
       return resolve(response.body)
@@ -174,6 +175,16 @@ const changeTaxonSource = function (taxonId, source, citation) {
 const loadRanks = function () {
   return new Promise(function (resolve, reject) {
     Vue.http.get('/taxon_names/ranks').then(response => {
+      return resolve(response.body)
+    }, response => {
+      return reject(response.body)
+    })
+  })
+}
+
+const GetTypeMaterial = function (taxonId) {
+  return new Promise(function (resolve, reject) {
+    Vue.http.get(`/type_materials.json?protonym_id=${taxonId}`).then(response => {
       return resolve(response.body)
     }, response => {
       return reject(response.body)
@@ -239,5 +250,7 @@ export {
   removeTaxonSource,
   removeTaxonRelationship,
   createTaxonRelationship,
-  changeTaxonSource
+  changeTaxonSource,
+  GetTaxonNameSmartSelector,
+  GetTypeMaterial
 }

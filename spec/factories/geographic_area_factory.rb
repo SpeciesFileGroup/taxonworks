@@ -33,12 +33,11 @@ FactoryBot.define do
   end
 
   factory :geographic_area, traits: [:creator_and_updater,], aliases: [:geographic_area_stack] do
-# TODO: fix to *really* be valid
+    #  TODO: fix to *really* be valid
     factory :valid_geographic_area, traits: [:parent_earth] do
       data_origin { 'Test Data' }
       name { 'Test' }
       valid_gat
-      # geographic_area_type factory: :valid_geographic_area_type
       after(:build) { |o| o.level0 = o }
     end
 
@@ -49,11 +48,9 @@ FactoryBot.define do
         name { 'Champaign' }
         parent_state
         county_gat
-        # association :geographic_area_type, factory: :county_geographic_area_type
         after(:build) { |o|
           o.level2 = o
           o.level1 = o.parent
-          # o.level0 = FactoryBot.build(:level0_geographic_area)
           o.level0 = o.parent.parent
         }
       end
@@ -63,7 +60,6 @@ FactoryBot.define do
         tdwgID { '74ILL-00' }
         parent_country
         state_gat
-        # association :geographic_area_type, factory: :state_geographic_area_type
         after(:build) { |o|
           o.level1 = o
           o.level0 = o.parent
@@ -76,7 +72,6 @@ FactoryBot.define do
         iso_3166_a2 { 'US' }
         parent_earth
         country_gat
-        # association :geographic_area_type, factory: :country_geographic_area_type
         after(:build) { |o| o.level0 = o }
       end
 
@@ -85,7 +80,6 @@ FactoryBot.define do
         parent_id { nil }
         level0_id { nil }
         planet_gat
-        # association :geographic_area_type, factory: :planet_geographic_area_type
       end
 
     end

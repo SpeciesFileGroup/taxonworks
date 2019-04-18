@@ -23,6 +23,7 @@
         :parent="parent"
         :show-modal="showModal"
         :filter="getStatusCreated"
+        @selected="addEntry"
         mutation-name-add="AddTaxonStatus"
         mutation-name-modal="SetModalStatus"
         getter-list="GetTaxonStatusList"
@@ -71,6 +72,13 @@
           @addEntry="addEntry"
           :list-created="getStatusCreated"/>
       </div>
+      <ul
+        v-if="!getStatusCreated.length"
+        class="table-entrys-list">
+        <li class="list-complete-item middle">
+          <p>Valid as default</p>
+        </li>
+      </ul>
       <list-entrys
         @update="loadTaxonStatus"
         @addCitation="setCitation"
@@ -169,7 +177,7 @@ export default {
       this.objectLists = Object.assign({}, this.makeLists())
       this.objectLists.tree = Object.assign({}, copyList.tree)
 
-      this.getStatusListForThisRank(copyList.all, this.parent.rank_string).then(resolve => {
+      this.getStatusListForThisRank(copyList.all, this.taxon.rank_string).then(resolve => {
         this.objectLists.allList = resolve
         this.getTreeListForThisRank(this.objectLists.tree, copyList.all, resolve)
       })

@@ -128,7 +128,7 @@ namespace :tw do
         user_data = YAML.load_file(file)
       else
         print "not found, skipping.\n"
-        exit
+        next 
       end
 
       user_data.each do |k, v|

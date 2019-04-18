@@ -12,7 +12,10 @@
     <div
       v-if="!isCountingDown"
       class="save-countdown__status-bar"
-      :class="{ 'save-countdown__status-bar--saving': isSaving, 'save-countdown__status-bar--saved-at-least-once': savedAtLeastOnce }"/>
+      :class="{ 
+        'save-countdown__status-bar--saving': isSaving, 
+        'save-countdown__status-bar--failed': failed, 
+        'save-countdown__status-bar--saved-at-least-once': savedAtLeastOnce }"/>
 
     <button
       class="save-countdown__save-button"
@@ -37,7 +40,8 @@ export default {
   props: ['descriptor'],
   data: function () {
     return {
-      isCountingDown: false
+      isCountingDown: false,
+      failed: false
     }
   },
   computed: {
@@ -54,7 +58,12 @@ export default {
   methods: {
     doSave () {
       this.isCountingDown = false
-      this.$store.dispatch(ActionNames.SaveObservationsFor, this.$props.descriptor.id)
+      this.$store.dispatch(ActionNames.SaveObservationsFor, this.$props.descriptor.id).then(response =>
+      {
+        if(response.includes(false)) {
+          this.failed = true
+        }
+      })
     }
   },
   watch: {
@@ -62,6 +71,7 @@ export default {
       if (needsCountdown) {
         this.isCountingDown = false
         requestAnimationFrame(_ => {
+          this.failed = false
           this.isCountingDown = true
           this.$store.commit(MutationNames.CountdownStartedFor, this.$props.descriptor.id)
         })

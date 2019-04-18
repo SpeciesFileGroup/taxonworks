@@ -5,6 +5,14 @@ module SourcesHelper
     source.cached ? source.cached.html_safe : (source.new_record? ? nil : 'ERROR - Source cache not set, please notify admin.')
   end
 
+  def source_author_year_tag(source)
+    if source && source.type == 'Source::Bibtex' && source.author_year.present?
+      source.author_year
+    else
+      content_tag(:span, 'Author, year not yet provided for source.', class: [:feedback, 'feedback-thin', 'feedback-warning'])
+    end
+  end
+
   def sources_search_form
     render('/sources/quick_search_form')
   end
@@ -14,8 +22,13 @@ module SourcesHelper
     link_to(source_tag(source).html_safe, source.metamorphosize )
   end
 
+  def short_sources_tag(sources)
+    return nil if !sources.load.any?
+    sources.collect{|s| source_author_year_tag(s) }.join('; ')
+  end
+
   def source_document_viewer_option_tag(source)
-    return nil if !source.documents.any?
+    return nil if !source.documents.load.any?
     content_tag(:span, class: 'pdfviewerItem') do
       source.documents.collect{|d| content_tag(:a, 'View', class: 'circle-button', data: { pdfviewer: d.document_file(:original, false), sourceid: source.id})}.join.html_safe
     end.html_safe
@@ -82,9 +95,9 @@ module SourcesHelper
   end
 
   def source_nomenclature_tag(source, topics)
-    t = [source_tag(source)]
+    t = [content_tag(:span, source_tag(source))]
     t.push [':', topic_list_tag(topics).html_safe] if !topics.blank?
-    t.push link_to('', nomenclature_by_source_task_path(source), class: 'separate-left button-default button-circle button-small btn-citation', target: :_blank)
+    t.push radial_object_tag(source)
     t.flatten.compact.join(' ').html_safe
   end
 

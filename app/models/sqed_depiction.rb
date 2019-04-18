@@ -41,6 +41,8 @@ class SqedDepiction < ApplicationRecord
   belongs_to :depiction
   has_one :image, through: :depiction
 
+  has_one :collection_object, through: :depiction, source_type: 'CollectionObject', source: :depiction_object 
+
   validates_presence_of  :depiction
   validates_presence_of  :metadata_map, :boundary_color
   validates_inclusion_of :layout, in: SqedConfig::LAYOUTS.keys.map(&:to_s)
@@ -63,15 +65,38 @@ class SqedDepiction < ApplicationRecord
     depiction.depiction_object
   end
 
+  def self.with_collection_object_data
+    t = CollectionObject.arel_table
+    q = t[:buffered_collecting_event].not_eq(nil).
+      or(t[:buffered_determinations].not_eq(nil)).
+      or(t[:buffered_other_labels].not_eq(nil))
+
+    joins(:collection_object).where(q.to_sql)
+  end
+
   def self.without_collection_object_data
-    CollectionObject.joins(:sqed_depictions).where(buffered_collecting_event: nil, buffered_determinations: nil, buffered_other_labels: nil)
+    t = CollectionObject.arel_table
+    q = t[:buffered_collecting_event].eq(nil).
+      and(t[:buffered_determinations].eq(nil)).
+      and(t[:buffered_other_labels].eq(nil))
+
+    joins(:collection_object).where(q.to_sql)
   end
 
   # @return [SqedDepiction]
   #   the next record in which the collection object has no buffered data
   def next_without_data
     object = SqedDepiction.without_collection_object_data.with_project_id(project_id).where('collection_objects.id <> ?', depiction_object.id).where('sqed_depictions.id > ?', id).order(:id).first
-    object.nil? ? SqedDepiction.where(project_id: project_id).order(:id).first : object.sqed_depictions.first
+    object.nil? ? SqedDepiction.where(project_id: project_id).order(:id).first : object
+  end
+
+  def self.last_without_data(project_id)
+    object = SqedDepiction.without_collection_object_data.with_project_id(project_id).order(:id).first
+    object.nil? ? SqedDepiction.where(project_id: project_id).order(id: :asc).first : object
+  end
+
+  def self.last_with_data(project_id)
+
   end
 
   # @return [CollectionObject, nil]
@@ -85,7 +110,7 @@ class SqedDepiction < ApplicationRecord
   # @return [Array of symbols]
   #   the (named) sections in this depiction that may have collecting event label metadata
   def collecting_event_sections
-      # !! master merge
+    # !! master merge
     [:collecting_event_labels, :annotated_specimen] & extraction_metadata[:metadata_map].values
   end
 
@@ -100,13 +125,22 @@ class SqedDepiction < ApplicationRecord
     sd.any? ? sd.first : SqedDepiction.where(project_id: project_id).first
   end
 
-  def preprocess
+  def preprocess(force = true)
+    return true if !File.exists?(depiction.image.image_file.path(:original))
+    # don't rebuild if not forced and one or both cache is empty
+    if !force
+      if !result_ocr.blank? || !result_boundary_coordinates.blank?
+        return true
+      end
+    end
+
+    # otherwise rebuild
     result = SqedToTaxonworks::Result.new(depiction_id: depiction.id)
     result.cache_all
   end
 
   # @return [Integer]
-  #   caches section coordinates and ocr text for the first images that don't have such caches !! does not take into account, just finds and processes
+  #   caches section coordinates and ocr text for the first images that don't have such caches !! does not take into account project or user, just finds and processes
   def self.preprocess_empty(total = 10)
     t = SqedDepiction.arel_table
     i = 0

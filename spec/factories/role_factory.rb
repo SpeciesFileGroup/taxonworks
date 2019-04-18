@@ -12,5 +12,13 @@ FactoryBot.define do
       association :person, factory: :valid_person
       association :role_object, factory: :valid_collecting_event
     end
+
+    # This is a stub for Project warning/specs
+    factory :valid_attribution_role do
+      type { 'Creator' } 
+      association :person, factory: :valid_person
+      association :role_object, factory: :valid_content
+    end
+
   end
 end

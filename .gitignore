@@ -4,6 +4,8 @@
 # or operating system, you probably want to add a global ignore instead:
 #   git config --global core.excludesfile '~/.gitignore_global'
 
+*.dump
+
 .ctags
 .idea/
 .vscode/
@@ -22,6 +24,8 @@
 database.yml
 secrets.yml
 application_settings.yml
+config/initializers/vendor/better_errors.rb
+
 config/initializers/vendor/better_errors.rb
 
 .yardoc/
@@ -56,3 +60,9 @@ yarn-debug.log*
 .yarn-integrity
 
 yarn.lock
+/public/packs
+/public/packs-test
+/node_modules
+/yarn-error.log
+yarn-debug.log*
+.yarn-integrity

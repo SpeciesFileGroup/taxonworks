@@ -1,7 +1,7 @@
-const createTaxonStatus = require('../../request/resources').createTaxonStatus
-const MutationNames = require('../mutations/mutations').MutationNames
+import { createTaxonStatus } from '../../request/resources'
+import { MutationNames } from '../mutations/mutations'
 
-module.exports = function ({ dispatch, commit, state }, status) {
+export default function ({ dispatch, commit, state }, status) {
   var position = state.taxonStatusList.findIndex(item => {
     if (item.type == status.type) {
       return true

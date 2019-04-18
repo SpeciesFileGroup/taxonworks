@@ -9,18 +9,22 @@
         v-if="anchor"
         :name="anchor"
         class="anchor"/>
-      <div class="header flex-separate middle">
+      <div 
+        class="header flex-separate middle"
+        :class="{ 'validation-warning': warning }">
         <slot name="header">
           <h3>Default title</h3>
         </slot>
         <div class="horizontal-left-content">
           <slot name="options"/>
-          <expand-component v-model="expanded"/>
+          <expand-component 
+            v-if="expand"
+            v-model="expanded"/>
         </div>
       </div>
       <div
         class="body"
-        v-if="expanded">
+        v-show="expanded">
         <slot name="body"/>
       </div>
     </div>
@@ -37,9 +41,17 @@ export default {
     SpinnerComponent
   },
   props: {
+    expand: {
+      type: Boolean,
+      default: false
+    },
     anchor: {
       type: String,
       default: undefined
+    },
+    warning: {
+      type: Boolean,
+      default: false
     },
     spinner: {
       type: Boolean,

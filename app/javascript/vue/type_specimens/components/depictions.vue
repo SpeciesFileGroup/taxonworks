@@ -72,11 +72,13 @@ export default {
   },
   watch: {
     getTypeMaterial (newVal, oldVal) {
-      if (newVal.id && (newVal.id != oldVal.id)) {
-        this.$refs.depiction.setOption('autoProcessQueue', true)
-        GetDepictions(newVal.collection_object.id).then(response => {
-          this.figuresList = response
-        })
+      if (newVal.id) {
+        if(newVal.id != oldVal.id) {
+          this.$refs.depiction.setOption('autoProcessQueue', true)
+          GetDepictions(newVal.collection_object.id).then(response => {
+            this.figuresList = response
+          })
+        }
       } else {
         this.figuresList = []
         this.$refs.depiction.setOption('autoProcessQueue', false)
@@ -99,7 +101,6 @@ export default {
           var that = this
           setTimeout(function () {
             that.$refs.depiction.setOption('autoProcessQueue', true)
-            console.log(response)
             that.$refs.depiction.processQueue()
             that.creatingType = false
           }, 500)

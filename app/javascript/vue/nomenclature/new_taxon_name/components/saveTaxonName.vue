@@ -25,7 +25,7 @@ export default {
     validateInfo () {
       return (this.parent != undefined && 
         (this.taxon.name != undefined && 
-        this.taxon.name.replace(' ','').length > 2))
+        this.taxon.name.replace(' ','').length >= 2))
     }
   },
   methods: {

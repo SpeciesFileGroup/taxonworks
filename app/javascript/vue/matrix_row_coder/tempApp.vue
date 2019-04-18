@@ -2,10 +2,23 @@
   <div>
     <template v-if="matrixRow">
       <h1>Matrix row coder</h1>
-      <span>Matrix: </span><b><span v-html="matrixRow.observation_matrix.object_tag"/></b>
-      <a :href="`/tasks/observation_matrices/new_matrix/${matrixRow.observation_matrix.id}`">
-        Edit observation matrix
-      </a>
+      <div class="flex-separate">
+        <div>
+          <span>Matrix: </span><b><span v-html="matrixRow.observation_matrix.object_tag"/></b>
+          <a :href="`/tasks/observation_matrices/new_matrix/${matrixRow.observation_matrix.id}`">
+            Edit
+          </a> | 
+          <a :href="`/tasks/observation_matrices/view/${matrixRow.observation_matrix.id}`">
+            View
+          </a>
+        </div>
+        <ul class="context-menu">
+          <li>
+            <a href="/tasks/observation_matrices/observation_matrix_hub/index">Observation matrix hub</a>
+          </li>
+        </ul>
+      </div>
+    
     </template>
     <div class="content-menu">
       <template v-if="!matrixRow">
@@ -21,21 +34,23 @@
         </button>
       </template>
       <template v-if="matrixRow">
-        <p>
-          Navigate adjacent rows:
-          <button
-            type="button"
-            class="button normal-input button-default"
-            v-if="matrixRow.hasOwnProperty('previous_row')"
-            @click="initializeData.rowId = matrixRow.previous_row.id; loadMatrix()"
-            v-html="matrixRow.previous_row.row_object.object_tag"/>
-          <button
-            type="button"
-            class="button normal-input button-default"
-            v-if="matrixRow.hasOwnProperty('next_row')"
-            @click="initializeData.rowId = matrixRow.next_row.id; loadMatrix()"
-            v-html="matrixRow.next_row.row_object.object_tag"/>
-        </p>
+        <div class="flex-separate">
+          <div class="separate-top separate-bottom">
+            Navigate adjacent rows:
+            <button
+              type="button"
+              class="button normal-input button-default"
+              v-if="matrixRow.hasOwnProperty('previous_row')"
+              @click="initializeData.rowId = matrixRow.previous_row.id; loadMatrix()"
+              v-html="matrixRow.previous_row.row_object.object_tag"/>
+            <button
+              type="button"
+              class="button normal-input button-default"
+              v-if="matrixRow.hasOwnProperty('next_row')"
+              @click="initializeData.rowId = matrixRow.next_row.id; loadMatrix()"
+              v-html="matrixRow.next_row.row_object.object_tag"/>
+          </div>
+        </div>
       </template>
     </div>
   </div>
@@ -83,7 +98,6 @@ export default {
       })
       request.getMatrixRow(this.initializeData.rowId).then(response => {
         this.matrixRow = response
-        console.log(response)
       })
     },
     loadMatrix () {

@@ -33,6 +33,14 @@ class Repository < ApplicationRecord
   include Shared::SharedAcrossProjects
   include Shared::IsData
   include Shared::IsApplicationData
+  include Shared::AlternateValues
+  include Shared::DataAttributes
+  include Shared::Identifiers
+  include Shared::Notes
+  include Shared::Tags
+  include Shared::Confidences
+
+  ALTERNATE_VALUES_FOR = [:name, :acronym]
 
   has_many :collection_objects, inverse_of: :repository, dependent: :restrict_with_error
   validates_presence_of :name, :url, :acronym, :status

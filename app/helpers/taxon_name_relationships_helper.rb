@@ -43,11 +43,4 @@ module TaxonNameRelationshipsHelper
                )
   end
 
-
-  def taxon_name_relationships_search_form
-    render '/taxon_name_relationships/quick_search_form'
-  end
-
-
-
 end

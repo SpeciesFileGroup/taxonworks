@@ -14,7 +14,7 @@ class PeopleController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @people = Queries::Person::Filter.new(filter_params).all.order(:last_name, :first_name).page(params[:page]).per(params[:per])
+        @people = Queries::Person::Filter.new(filter_params).all.order(:cached).page(params[:page]).per(params[:per]) 
       }
     end
   end
@@ -50,7 +50,7 @@ class PeopleController < ApplicationController
   end
 
   def similar
-    @people = @person.levenshtein_similar(2).order(:last_name, :first_name)
+    @people =  Queries::Person::Filter.new(last_name: @person.last_name, first_name: @person.first_name, levenshtein_cuttoff: 3).levenshtein_similar.order(:last_name, :first_name) 
     render '/people/index'
   end
 
@@ -86,7 +86,7 @@ class PeopleController < ApplicationController
   def search
     if params[:id].blank?
       redirect_to people_path, notice: 'You must select an item from the list with a click ' \
-                                          'or tab press before clicking show.'
+        'or tab press before clicking show.'
     else
       redirect_to person_path(params[:id])
     end
@@ -94,15 +94,20 @@ class PeopleController < ApplicationController
 
   def autocomplete
     @people = Queries::Person::Autocomplete.new(
-        params.require(:term),
-        autocomplete_params
+      params.permit(:term)[:term],
+      autocomplete_params
     ).autocomplete
   end
 
+  # GET /people/select_options
+  def select_options
+    @people = Person.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:role_type])
+  end
+
   def merge
-    old_person = Person.find(params[:id])
-    @person = Person.find(params[:new_person_id])
-    if old_person.merge_with(@person.id)
+    @person = Person.find(params[:id]) # the person to *keep*
+    person_to_remove = Person.find(params[:person_to_destroy])
+    if @person.hard_merge(person_to_remove.id)
       render 'show'
     else
       render json: {status: 'Failed'}
@@ -114,6 +119,7 @@ class PeopleController < ApplicationController
     send_data Download.generate_csv(Person.all), type: 'text', filename: "people_#{DateTime.now}.csv"
   end
 
+  # GET /people/123/roles
   def roles
   end
 

@@ -14,4 +14,17 @@ module DocumentsHelper
     render('/documents/quick_search_form')
   end
 
+  def document_type_label(document)
+    case document.document_file_content_type
+    when 'application/pdf'
+      'pdf'
+    when 'application/octet-stream'
+      'binary (Word or other)'
+    when 'text/plain'
+      'text'
+    when 'text/xml'
+      'xml'
+    end
+  end
+
 end

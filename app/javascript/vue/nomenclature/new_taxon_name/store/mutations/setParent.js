@@ -1,3 +1,3 @@
-module.exports = function (state, parent) {
+export default function (state, parent) {
   state.parent = parent
 }

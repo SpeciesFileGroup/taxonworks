@@ -8,6 +8,7 @@
         data-icon="reset">Reset
       </span>
     </div>
+    <a href="/tasks/sources/hub/index">Back to source hub</a>
     <spinner
       v-if="isLoading"
       :full-screen="true"
@@ -104,7 +105,15 @@ export default {
       this.isLoading = false;
     }
   },
+  mounted() {
+    this.loadRecent()
+  },
   methods: {
+    loadRecent() {
+      this.$http.get('/sources.json?recent=true&per=15').then(response => {
+        this.recentCreated = response.body
+      })
+    },
     parseBibtex(create) {
       let params = {
         bibtex_input: this.bibtexInput,
@@ -124,7 +133,7 @@ export default {
       this.isLoading = true;
       this.$http.post("/sources.json", { bibtex_input: this.bibtexInput }).then(response => {
         this.parsedBibtex = {}
-        this.recentCreated.push(response.body)
+        this.recentCreated.unshift(response.body)
         this.bibtexInput = ""
         this.isLoading = false;
       });     

@@ -91,6 +91,15 @@ describe Content, type: :model do
     end
   end
 
+  specify '#text is not trimmed' do
+    s = " asdf sd  \n  asdfd \r\n" 
+    content.text = s
+    content.valid?
+    expect(content.text).to eq(s)
+  end
+
+
+
   context 'concerns' do
     it_behaves_like 'is_data'
   end

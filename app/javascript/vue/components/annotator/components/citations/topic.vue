@@ -139,7 +139,7 @@
         promises.push(this.getList(`/topics/select_options?klass=${this.objectType}&target=Citation`).then(response => {
           tabList = response.body
         }))
-        promises.push(this.getList(`/controlled_vocabulary_terms.json?of_type[]=${type}`).then(response => {
+        promises.push(this.getList(`/controlled_vocabulary_terms.json?type[]=${type}`).then(response => {
           allList = response.body
         }))
 

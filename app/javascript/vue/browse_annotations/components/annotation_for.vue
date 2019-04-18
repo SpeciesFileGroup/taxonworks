@@ -5,20 +5,23 @@
       name="annotation"
       :add-option="moreOptions"
       v-model="view"/>
-    <button
-      v-if="view"
-      v-for="item in showList[view]"
-      :key="item.id"
-      type="button"
-      :class="{ 'button-default': !(selectedList.hasOwnProperty(item.id))}"
-      class="button normal-input biocuration-toggle-button"
-      @click="selectFor(item)"
-      v-html="item.name"/>
+    <template v-if="view">
+      <button
+        v-for="item in showList[view]"
+        :key="item.id"
+        type="button"
+        :class="{ 'button-default': !(selectedList.hasOwnProperty(item.id))}"
+        class="button normal-input biocuration-toggle-button"
+        @click="selectFor(item)"
+        v-html="item.name"/>
+    </template>
   </div>
 </template>
 
 <script>
-  import smartSelector from './smartSelector.vue'
+  import smartSelector from 'components/switch.vue'
+  import OrderSmartSelector from 'helpers/smartSelector/orderSmartSelector'
+  import SelectFirstSmartOption from 'helpers/smartSelector/selectFirstSmartOption'
 
   export default {
     components: {
@@ -40,14 +43,14 @@
     },
     watch: {
       selectOptionsUrl() {
-        this.selectedList = {};   // clear the selected items list
-        this.list = {};           // clear the displayable lists
-        this.view = undefined;    // delelect which view of the displayable list
-        this.tabs = [];           // clear the tabs in the smart selector
+        this.selectedList = {}   // clear the selected items list
+        this.list = {}           // clear the displayable lists
+        this.view = undefined    // delelect which view of the displayable list
+        this.tabs = []           // clear the tabs in the smart selector
         this.moreOptions = []
       },
       onModel(newVal) {
-        this.selectedList = {};
+        this.selectedList = {}
         if (this.selectOptionsUrl && newVal) { this.getSelectOptions(newVal) }
       }
     },
@@ -71,20 +74,21 @@
           this.$delete(this.selectedList, item.id)
         }
         else {
-          this.$set(this.selectedList, item.id, item);
+          this.$set(this.selectedList, item.id, item)
         }
-        this.$emit('input', this.selectedList);
-        this.$emit('selected_for', this.selectedList);
+        this.$emit('input', this.selectedList)
+        this.$emit('selected_for', this.selectedList)
       },
       getSelectOptions(onModel) {
         this.$http.get(this.selectOptionsUrl, {params: {klass: this.onModel}}).then(response => {
-          this.tabs = Object.keys(response.body);
-          this.list = response.body;
+          this.tabs = OrderSmartSelector(Object.keys(response.body))
+          this.list = response.body
           this.$http.get(this.allSelectOptionUrl).then(response => {
             if(response.body.length) {
               this.moreOptions = ['all']
             }
-            this.$set(this.list, 'all', response.body);
+            this.$set(this.list, 'all', response.body)
+            this.view = SelectFirstSmartOption(this.list, this.tabs)
           })
         })
       }

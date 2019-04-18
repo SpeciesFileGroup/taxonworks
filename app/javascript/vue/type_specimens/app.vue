@@ -74,7 +74,7 @@ export default {
   watch: {
     taxon (newVal) {
       if (newVal != undefined) {
-        setParamsId('protonym_id', newVal.id)
+        setParamsId('taxon_name_id', newVal.id)
       }
     }
   },
@@ -85,6 +85,9 @@ export default {
     loadTaxonTypes () {
       let urlParams = new URLSearchParams(window.location.search)
       let protonymId = urlParams.get('protonym_id')
+      if(!protonymId) {
+        protonymId = urlParams.get('taxon_name_id')
+      }
       let typeId = urlParams.get('type_material_id')
 
       if (/^\d+$/.test(protonymId)) {
@@ -164,10 +167,6 @@ export default {
     .type-specimen-box {
 
       transition: all 1s;
-
-      label {
-        display: block;
-      }
 
       height: 100%;
       box-sizing: border-box;

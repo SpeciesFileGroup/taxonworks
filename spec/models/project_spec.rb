@@ -27,8 +27,8 @@ describe Project, type: :model do
     end
 
     after do
-      Current.user_id = 1 
-      Current.project_id = 1 
+      Current.user_id = 1
+      Current.project_id = 1
     end
 
     specify 'create 2' do
@@ -112,7 +112,7 @@ describe Project, type: :model do
       end
     end
   end
-
+  # Unsure, this might have been moved!
   context 'preferences' do
     before(:each) {
       project.update!(name: 'Workbench settings')
@@ -202,9 +202,9 @@ describe Project, type: :model do
       project.update!(name: 'Destroy sanity')
 
       project.asserted_distributions << AssertedDistribution.new(
-        otu: FactoryBot.create(:valid_otu),
+        otu:             FactoryBot.create(:valid_otu),
         geographic_area: FactoryBot.create(:valid_geographic_area),
-        source: FactoryBot.create(:valid_source)
+        source:          FactoryBot.create(:valid_source)
       )
       project.save!
     }
@@ -235,7 +235,7 @@ describe Project, type: :model do
       Current.user_id = u.id
 
       @factories_under_test  = {}
-      @failed_factories = {}
+      @failed_factories      = {}
       @project_build_err_msg = ''
 
       exceptions = [:valid_project, :valid_user, :valid_taxon_name]
@@ -253,20 +253,20 @@ describe Project, type: :model do
             end
           rescue => detail
             @failed_factories[f_name] = detail
-            @project_build_err_msg += "\n\"#{f_name}\" build => #{detail}"
+            @project_build_err_msg    += "\n\"#{f_name}\" build => #{detail}"
           else
             if test_factory.valid?
               begin
                 test_factory.save
               rescue => detail
                 @failed_factories[f_name] = detail
-                @project_build_err_msg += "\n\"#{f_name}\" save => #{detail}"
+                @project_build_err_msg    += "\n\"#{f_name}\" save => #{detail}"
               else
                 @factories_under_test[f_name] = test_factory
               end
             else
               @failed_factories[f_name] = test_factory.errors
-              @project_build_err_msg += "\n\"#{f_name}\" is not valid: #{test_factory.errors.to_a}"
+              @project_build_err_msg    += "\n\"#{f_name}\" is not valid: #{test_factory.errors.to_a}"
             end
           end
 
@@ -301,7 +301,7 @@ describe Project, type: :model do
               count = this_class.where(project_id: p.id).all.reload.count
               if count > 0
                 project_destroy_err_msg += "\nFactory '#{f_name}': #{this_class}: #{count} orphan #{'record'.pluralize(count)}, remaining project_ids: #{this_class.all.pluck(:project_id).uniq.join(',')}."
-                orphans[this_class] = count
+                orphans[this_class]          = count
               end
             end
           end
@@ -320,7 +320,7 @@ describe Project, type: :model do
           f_name = factory.to_s
           if f_name =~ /^valid_/
             this_class = factory.build_class
-            model = this_class.to_s.constantize
+            model      = this_class.to_s.constantize
             unless model.column_names.include?('project_id')
               expect(model.all.reload.count).to be >= 1
             end

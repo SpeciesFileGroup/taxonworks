@@ -61,4 +61,21 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
     # aus.iczn_invalid = bus   ## Equal to synonym in broad sense
     :iczn_invalid
   end
+
+  # @return [Boolean]
+  #   See use in Protonym.becomes_combination. It does not make sense to run this on all relationships.
+  def similar_homonym_string
+    a = subject_taxon_name
+    b = object_taxon_name
+
+    if a.is_species_rank?
+      return true if a.cached_secondary_homonym_alternative_spelling && (a.cached_secondary_homonym_alternative_spelling == b.cached_secondary_homonym_alternative_spelling)
+    elsif a.is_genus_rank?
+      return true if a.cached_primary_homonym_alternative_spelling && (a.cached_primary_homonym_alternative_spelling == b.cached_primary_homonym_alternative_spelling)
+    else
+      return false
+    end
+    false
+  end
+
 end

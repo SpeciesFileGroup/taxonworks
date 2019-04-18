@@ -32,7 +32,7 @@ const GetTypeMaterial = function (protonymId) {
 }
 
 const GetBiocurationsTypes = function (protonymId) {
-  return ajaxCall('get', `/controlled_vocabulary_terms.json?of_type[]=BiocurationClass`)
+  return ajaxCall('get', `/controlled_vocabulary_terms.json?type[]=BiocurationClass`)
 }
 
 const GetBiocurationsCreated = function (biologicalId) {

@@ -1,3 +1,5 @@
+json.id @observation_matrix_row.id
+
 json.row_object do
   json.partial! "row_object", row_object: @observation_matrix_row.row_object
 end
@@ -19,7 +21,7 @@ if a = @observation_matrix_row.previous_row
 end
 
 json.descriptors do |descriptors|
-  descriptors.array!(@observation_matrix_row.observation_matrix.descriptors) do |descriptor|
+  descriptors.array!(@observation_matrix_row.observation_matrix.descriptors.includes(:observation_matrix_columns).order('observation_matrix_columns.position ASC')) do |descriptor|
     descriptors.partial! '/descriptors/attributes', descriptor: descriptor
   end
 end

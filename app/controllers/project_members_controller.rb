@@ -85,8 +85,11 @@ class ProjectMembersController < ApplicationController
   end
 
   def clipboard
-    @project_member = sessions_current_user.project_members.where(project_id: sessions_current_project_id).first  
-    render :show
+    if @project_member = sessions_current_user.project_members.where(project_id: sessions_current_project_id).first
+      render :show
+    else
+      render json: {}
+    end
   end
 
   # DELETE /project_members/1

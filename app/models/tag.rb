@@ -25,9 +25,8 @@
 #     a user definable sort code on the tags on an object, handled by acts_as_list
 #
 class Tag < ApplicationRecord
-
+  
   # Tags can not be cited.
-
   include Housekeeping
   include Shared::IsData
   include Shared::AttributeAnnotations

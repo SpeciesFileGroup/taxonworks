@@ -198,10 +198,16 @@ class Source < ApplicationRecord
   include Shared::HasPapertrail
   include SoftValidation
 
+  ignore_whitespace_on(:verbatim_contents)
+
   ALTERNATE_VALUES_FOR = [:address, :annote, :booktitle, :edition, :editor, :institution, :journal, :note, :organization,
                           :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url].freeze
 
   has_many :citations, inverse_of: :source, dependent: :restrict_with_error
+  
+  has_many :citation_topics, through: :citations, inverse_of: :source
+
+  has_many :topics, through: :citation_topics, inverse_of: :sources 
   has_many :asserted_distributions, through: :citations, source: :citation_object, source_type: 'AssertedDistribution'
   has_many :project_sources, dependent: :destroy
   has_many :projects, through: :project_sources
@@ -210,75 +216,10 @@ class Source < ApplicationRecord
 
   validates_presence_of :type
   validates :type, inclusion: {in: ['Source::Bibtex', 'Source::Human', 'Source::Verbatim']}
+  validate :validate_year_suffix
 
   accepts_nested_attributes_for :project_sources, reject_if: :reject_project_sources
 
-  # Create a new Source instance from a full text citatation.  By default,
-  # try to detect and clean up a DOI, then
-  # try to resolve the citation against Crossref, use the returned
-  # bibtex to populate the object if it successfully resolves.
-  #
-  # Once created followup with .create_related_people_and_roles to create related people.
-  #
-  # @param citation [String] the full text of the citation to convert
-  # @param resolve [Boolean] whether to resolve against CrossRef, if false then creates a verbatim instance
-  # @return [Source::BibTex.new] a new instance
-  # @return [Source::Verbatim.new] a new instance
-  # @return [false]
-  # Four possible paths:
-  # 1)  citation.
-  # 2)  citation which includes a doi.
-  # 3)  naked doi, e.g., '10.3897/zookeys.20.205'.
-  # 4)  doi with preamble, e.g., 'http://dx.doi.org/10.3897/zookeys.20.205' or
-  #                              'https://doi.org/10.3897/zookeys.20.205'.
-  def self.new_from_citation(citation: nil, resolve: true)
-    return false if citation.length < 6
-    path = 1  # assumes straight citation text
-
-    doi = Identifier::Global::Doi.new(identifier: citation)
-    if doi.valid?
-      citation = Identifier::Global::Doi.preface_doi(doi.identifier)
-      path = 3
-    end
-
-    case path
-      when 1, 2
-        bibtex_string = Ref2bibtex.get(citation) if resolve
-      when 3, 4
-        bibtex_string = Ref2bibtex.get_bibtex(citation)
-      else
-    end
-    # check string encoding, if not UTF-8, check if compatible with UTF-8,
-    # if so convert to UTF-8 and parse with latex, else use type verbatim
-    if bibtex_string
-      unless bibtex_string.encoding == Encoding::UTF_8
-        x = 'test'.encode(Encoding::UTF_8)
-        if Encoding.compatible?(x, bibtex_string)
-          bibtex_string.force_encoding(Encoding::UTF_8)
-        else
-          return Source::Verbatim.new(verbatim: citation)
-        end
-      end
-
-      bibliography = BibTeX.parse(bibtex_string).convert(:latex)
-      b = bibliography.first
-      return Source::Bibtex.new_from_bibtex(b)
-    else
-      return Source::Verbatim.new(verbatim: citation)
-    end
-  end
-
-  # @param [String] doi
-  # @return [Source::Bibtex, Boolean]
-  def self.new_from_doi(doi: nil)
-    return false unless doi
-    bibtex_string = Ref2bibtex.get_bibtex(doi)
-    if bibtex_string
-      b = BibTeX.parse(bibtex_string).first
-      return Source::Bibtex.new_from_bibtex(b)
-    end
-    false
-  end
 
   # Redirect type here
   # @param [String] file
@@ -345,6 +286,47 @@ class Source < ApplicationRecord
     projects.where(id: project_id).any?
   end
 
+
+  # @param used_on [String] a model name 
+  # @return [Scope]
+  #    the max 10 most recently used (1 week, could parameterize) TaxonName, as used 
+  def self.used_recently(used_on = 'TaxonName')
+    t = Citation.arel_table
+    p = Source.arel_table
+
+    # i is a select manager
+    i = t.project(t['source_id'], t['created_at']).from(t)
+      .where(t['created_at'].gt(1.weeks.ago))
+      .order(t['created_at'])
+      .take(10)
+      .distinct
+
+    # z is a table alias
+    z = i.as('recent_t')
+
+    Source.joins(
+      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['source_id'].eq(p['id'])))
+    )
+  end
+
+  # @params target [String] a citable model name
+  # @return [Hash] sources optimized for user selection
+  def self.select_optimized(user_id, project_id, target = 'TaxonName')
+    h = {
+      quick: [],
+      pinboard: Source.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a
+    }
+
+    h[:recent] = Source.joins(:citations).where(citations: {project_id: project_id}).
+      used_recently(target).
+      limit(10).distinct.to_a
+
+    h[:recent] ||= []
+
+    h[:quick] = ( Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a + h[:recent][0..3]).uniq
+    h
+  end
+
   protected
 
   # Defined in subclasses
@@ -357,6 +339,17 @@ class Source < ApplicationRecord
   def reject_project_sources(attributed)
     return true if attributed['project_id'].blank?
     return true if ProjectSource.where(project_id: attributed['project_id'], source_id: id).any?
+  end
+
+  def validate_year_suffix
+    unless year_suffix.blank?
+      if self.id
+        s = Source.where(author: author, year: year, year_suffix: year_suffix).not_self(self).first
+      else
+        s = Source.where(author: author, year: year, year_suffix: year_suffix).first
+      end
+      errors.add(:year_suffix, 'is already used') unless s.nil?
+    end
   end
 
 end

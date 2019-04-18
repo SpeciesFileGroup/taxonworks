@@ -4,12 +4,12 @@ module Queries
 
     # [Array]
     #   of :type 
-    attr_accessor :of_type
+    attr_accessor :type
 
     def initialize(string, **keyword_args)
       @query_string = string
       @project_id = keyword_args[:project_id]
-      @of_type = keyword_args[:of_type] || []
+      @type = keyword_args[:type] || []
     end
 
     def and_clauses
@@ -64,7 +64,7 @@ module Queries
     end
 
     def with_type 
-      table[:type].eq_any(of_type) if of_type.any?    
+      table[:type].eq_any(type) if type.any?    
     end
 
     def uri_equal_to

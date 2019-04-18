@@ -1,7 +1,7 @@
-const createTaxonName = require('../../request/resources').createTaxonName
-const MutationNames = require('../mutations/mutations').MutationNames
+import { createTaxonName } from '../../request/resources'
+import { MutationNames } from '../mutations/mutations'
 
-module.exports = function ({ commit, state, dispatch }, taxon) {
+export default function ({ commit, state, dispatch }, taxon) {
   createTaxonName(taxon).then(response => {
     commit(MutationNames.SetTaxon, response)
     commit(MutationNames.SetHardValidation, undefined)

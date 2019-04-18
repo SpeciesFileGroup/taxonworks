@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Queries::Person::Autocomplete, type: :model do
+describe Queries::Person::Autocomplete, type: :model, group: :people do
 
   let!(:p1) { Person.create!(last_name: 'Smith') }
   let!(:p2) { Person.create!(last_name: 'Smith', first_name: 'Sarah') }

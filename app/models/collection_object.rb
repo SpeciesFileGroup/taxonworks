@@ -74,11 +74,13 @@ class CollectionObject < ApplicationRecord
   include Shared::ProtocolRelationships
   include Shared::HasPapertrail
   include Shared::IsData
+  include Shared::Observations
   include SoftValidation
 
   include Shared::IsDwcOccurrence
   include CollectionObject::DwcExtensions
 
+  ignore_whitespace_on(:buffered_collecting_event, :buffered_determinations, :buffered_other_labels)
   is_origin_for 'CollectionObject', 'Extract', 'AssertedDistribution'
 
   CO_OTU_HEADERS      = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
@@ -118,10 +120,6 @@ class CollectionObject < ApplicationRecord
   has_many :derived_collection_objects, inverse_of: :collection_object, dependent: :restrict_with_error
   has_many :collection_object_observations, through: :derived_collection_objects, inverse_of: :collection_objects
   has_many :sqed_depictions, through: :depictions, dependent: :restrict_with_error
-
-  has_many :observations, inverse_of: :collection_object, dependent: :restrict_with_error
-  has_many :observation_matrix_rows, inverse_of: :collection_object, dependent: :destroy 
-  has_many :observation_matrix_row_items, inverse_of: :collection_object, dependent: :destroy
 
   # This is a problem, but here for the foreseeable future for nested attributes purporses.
   has_many :taxon_determinations, foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object, dependent: :destroy
@@ -188,7 +186,7 @@ class CollectionObject < ApplicationRecord
 
     collection_objects.each do |co|
       breakdown[:collecting_events].merge!(co => co.collecting_event) if co.collecting_event
-      breakdown[:determinations].merge!(co => co.taxon_determinations) if co.taxon_determinations.any?
+      breakdown[:determinations].merge!(co => co.taxon_determinations) if co.taxon_determinations.load.any?
       breakdown[:bio_overview].push([co.total, co.biocuration_classes.collect { |a| a.name }])
     end
 
@@ -237,7 +235,7 @@ class CollectionObject < ApplicationRecord
 
   def annotations
     h = annotations_hash
-    (h['biocuration classifications'] = self.biocuration_classes) if self.biological? && self.biocuration_classifications.any?
+    (h['biocuration classifications'] = self.biocuration_classes) if self.biological? && self.biocuration_classifications.load.any?
     h
   end
 
@@ -320,7 +318,7 @@ class CollectionObject < ApplicationRecord
     else
       d = a || b
     end
-    d.to_s + '/01/01'
+    d.to_s + '-01-01'
   end
 
   # TODO: this should be refactored to be collection object centric AFTER
@@ -329,7 +327,7 @@ class CollectionObject < ApplicationRecord
     a = CollectingEvent.joins(:collection_objects).where(project_id: project_id).maximum(:start_date_year)
     b = CollectingEvent.joins(:collection_objects).where(project_id: project_id).maximum(:end_date_year)
 
-    c = Time.now.strftime('%Y/%m/%d')
+    c = Time.now.strftime('%Y-%m-%d')
 
     return c if a.nil? && b.nil?
 
@@ -564,14 +562,14 @@ class CollectionObject < ApplicationRecord
     retval
   end
 
-  # @param [Hash] search_start_date string in form 'yyyy/mm/dd'
-  # @param [Hash] search_end_date string in form 'yyyy/mm/dd'
+  # @param [Hash] search_start_date string in form 'yyyy-mm-dd'
+  # @param [Hash] search_end_date string in form 'yyyy-mm-dd'
   # @param [Hash] partial_overlap 'on' or 'off'
   # @return [Scope] of selected collection objects through collecting events with georeferences, remember to scope to project!
   def self.in_date_range(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
     allow_partial = (partial_overlap.downcase == 'off' ? false : true) # TODO: Just get the correct values from the form!
-    where_sql     = CollectingEvent.date_sql_from_dates(search_start_date, search_end_date, allow_partial)
-    joins(:collecting_event).where(where_sql)
+    q = Queries::CollectingEvent::Filter.new(start_date: search_start_date, end_date: search_end_date, partial_overlap_dates: allow_partial)
+    joins(:collecting_event).where(q.between_date_range.to_sql)
   end
 
   def sv_missing_accession_fields
@@ -601,38 +599,38 @@ class CollectionObject < ApplicationRecord
   # @return [Scope]
   #    the max 10 most recently used collection_objects, as `used_on`
   def self.used_recently(used_on = '')
-    t = case used_on
+    t = case used_on 
         when 'TaxonDetermination'
           TaxonDetermination.arel_table
         when 'BiologicalAssociation'
           BiologicalAssociation.arel_table
         end
 
-    p = CollectionObject.arel_table
+    p = CollectionObject.arel_table 
 
     # i is a select manager
-    i = case used_on
+    i = case used_on 
         when 'BiologicalAssociation'
-          t.project(t['biological_association_subject_id'], t['created_at']).from(t)
+          t.project(t['biological_association_subject_id'], t['updated_at']).from(t)
             .where(
-              t['created_at'].gt(1.weeks.ago).and(
+              t['updated_at'].gt(1.weeks.ago).and(
                 t['biological_association_subject_type'].eq('CollectionObject') # !! note it's not biological_collection_object_id
               )
           )
-            .order(t['created_at'])
+            .order(t['updated_at'])
         else
-          t.project(t['biological_collection_object_id'], t['created_at']).from(t)
-            .where(t['created_at'].gt( 1.weeks.ago ))
-            .order(t['created_at'])
+          t.project(t['biological_collection_object_id'], t['updated_at']).from(t)
+            .where(t['updated_at'].gt( 1.weeks.ago ))
+            .order(t['updated_at'])
         end
 
-    # z is a table alias
+    # z is a table alias 
     z = i.as('recent_t')
 
     j = case used_on
-        when 'BiologicalAssociation'
+        when 'BiologicalAssociation' 
           Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
-            z['biological_association_subject_id'].eq(p['id'])
+            z['biological_association_subject_id'].eq(p['id'])  
           ))
         else
           Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['biological_collection_object_id'].eq(p['id']))) # !! note it's not biological_collection_object_id
@@ -641,16 +639,21 @@ class CollectionObject < ApplicationRecord
     CollectionObject.joins(j).distinct.limit(10)
   end
 
-  # @params target [String] one of `TaxonDetermination`, `BiologicalAssociation`
+  # @params target [String] one of `TaxonDetermination`, `BiologicalAssociation` , nil
   # @return [Hash] otus optimized for user selection
-  def self.select_optimized(user_id, project_id, target = '')
+  def self.select_optimized(user_id, project_id, target = nil)
     h = {
       quick: [],
       pinboard: CollectionObject.pinned_by(user_id).where(project_id: project_id).to_a
     }
 
-    h[:recent] = CollectionObject.joins(target.tableize.to_sym).where(project_id: project_id).used_recently(target).limit(10).distinct.to_a
-    h[:quick] = (CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq
+    if target
+      h[:recent] = CollectionObject.joins(target.tableize.to_sym).where(project_id: project_id).used_recently(target).limit(10).distinct.to_a
+    else
+      h[:recent] = CollectionObject.where(project_id: project_id).order('updated_at DESC').limit(10).to_a
+    end
+
+    h[:quick] = (CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq 
     h
   end
 

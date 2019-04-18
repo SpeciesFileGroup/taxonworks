@@ -1,15 +1,16 @@
 FactoryBot.define do
 
+  # TODO: scope
   minLat = -85
   maxLat = 85
   minLng = -180
   maxLng = 180
-  rng    = Random.new(Time.now.to_i)
+  rng = Random.new(Time.now.to_i)
 
-# FactoryBot.build(:geographic_item, :random_point)
+  # FactoryBot.build(:geographic_item, :random_point)
   trait :random_point do
     point { RSPEC_GEO_FACTORY.point(minLat + rng.rand * (maxLat - minLat),
-                                              minLng + rng.rand * (maxLng - minLng)) }
+                                    minLng + rng.rand * (maxLng - minLng)) }
   end
 
   factory :geographic_item, traits: [:creator_and_updater] do

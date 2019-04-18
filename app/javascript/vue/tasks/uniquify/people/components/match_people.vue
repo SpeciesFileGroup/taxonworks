@@ -3,8 +3,8 @@
     <autocomplete
       url="/people/autocomplete"
       min="2"
-      label="label"
-      placeholder="Search person"
+      label="label_html"
+      placeholder="Find another person"
       display="label"
       @getItem="addToList($event)"
       param="term"/>
@@ -16,10 +16,10 @@
             <input
               name="match-people"
               type="radio"
-              v-model="selected"
+              :checked="person.id == selected['id']"
               :value="person.id"
               @click="selectMergePerson(person)">
-            {{ person.cached }}
+            <span v-html="person.label_html"/>
           </label>
         </li>
       </ul>
@@ -29,7 +29,7 @@
 <script>
 // this is a list for selecting one person from potential matchees
 // only one person can be selected
-import Autocomplete from '../../../../components/autocomplete.vue'
+import Autocomplete from 'components/autocomplete.vue'
 
 export default {
   components: {
@@ -73,9 +73,7 @@ export default {
       this.selected = person
     },
     selectMergePerson(person) {
-      this.$http
-        .get("/people/" + person.id.toString() + ".json")
-        .then(response => {
+      this.$http.get(`/people/${person.id}.json`).then(response => {
           this.mergePerson = response.body;
           this.$emit("input", this.mergePerson);
         });
@@ -89,16 +87,12 @@ export default {
         this.selected = {};
         return false;
       }
-    //   let params = {   // fudge up new search for match params to give some likely hits
-    //   id: person.id
-    //   last_name: person.last_name.substr(0,3),
-    //   first_name: '', //person.first_name[0] + '*',
-    //   roles: []
-    // };
-      this.$http.get("/people/" + person.id.toString() + "/similar").then(response => {
+      this.$http.get(`/people/${person.id}/similar`).then(response => {
         this.matchPeople = response.body;
         this.removeFromList(person.id);
         this.$emit("matchPeople", this.matchPeople)   // notify app's watcher
+      }, (response) => {
+        this.$emit("matchPeople", {})
       });
     }
   }

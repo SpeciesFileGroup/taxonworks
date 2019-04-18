@@ -9,7 +9,7 @@ if loan.roles.any?
     json.array! loan.loan_recipient_roles.each do |role|
       json.extract! role, :id, :position
       json.person do
-        json.partial! '/people/attributes', person: role.person 
+        json.partial! '/people/base_attributes', person: role.person
       end
     end
   end
@@ -18,7 +18,7 @@ if loan.roles.any?
     json.array! loan.loan_supervisor_roles.each do |role|
       json.extract! role, :id, :position
       json.person do
-        json.partial! '/people/attributes', person: role.person 
+        json.partial! '/people/base_attributes', person: role.person
       end
     end
   end

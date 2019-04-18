@@ -1,7 +1,7 @@
 
 module SoftValidation
 
- # A SoftValidations instance contains a set of SoftValidations
+  # A SoftValidations instance contains a set of SoftValidations
   # and some code that tracks whether those validations have
   # been fixed, etc.
   #
@@ -48,10 +48,10 @@ module SoftValidation
       @soft_validations << sv
     end
 
- #  def soft_validations(scope = :all)
- #    set = ( scope == :all ? [:automatic, :requested] : [scope] )
- #    @soft_validations.select{|v| set.include?(v.fix_trigger)}
- #  end
+    #  def soft_validations(scope = :all)
+    #    set = ( scope == :all ? [:automatic, :requested] : [scope] )
+    #    @soft_validations.select{|v| set.include?(v.fix_trigger)}
+    #  end
 
     # @return [Boolean]
     #   soft validations have been run
@@ -106,6 +106,10 @@ module SoftValidation
     # @return [Array]
     def messages_on(attribute)
       on(attribute).collect{|v| v.message}
+    end
+
+    def size
+      soft_validations.size
     end
   end
 

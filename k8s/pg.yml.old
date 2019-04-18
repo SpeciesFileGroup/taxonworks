@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: tw
+  name: taxonworks-db
+  labels:
+    app: taxonworks
+    tier: backend
+spec:
+  type: NodePort
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: taxonworks
+    tier: backend
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: tw
+  name: taxonworks-db
+spec:
+  replicas: 1
+  template:
+    metadata:
+      namespace: tw
+      name: taxonworks
+      labels:
+        app: taxonworks
+        tier: backend
+    spec:
+      volumes:
+        - name: taxonworks-db-vol
+          persistentVolumeClaim:
+            claimName: taxonworks-db-pv-claim
+      containers:
+        - name: taxonworks-db
+          image: mdillon/postgis:9.5
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: taxonworks
+                  key: db.user.password
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: taxonworks
+                  key: db.user
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: taxonworks
+                  key: db
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          ports:
+            - containerPort: 5432
+              name: psql
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: taxonworks-db-vol

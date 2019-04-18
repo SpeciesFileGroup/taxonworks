@@ -79,7 +79,7 @@ class RepositoriesController < ApplicationController
 
   def autocomplete
 
-    @repositories = Queries::RepositoryAutocompleteQuery.new(params[:term]).all
+    @repositories = Queries::Repository::Autocomplete.new(params[:term]).all
 
     data = @repositories.collect do |t|
       {id:              t.id,

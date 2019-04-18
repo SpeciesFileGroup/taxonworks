@@ -36,9 +36,9 @@
             controller: '/namespaces',
             object:     'identifier',
             method:     'namespace_id',
-            tag_id:     'identifier_namespace',
-            display:    namespace_tag(@namespace),
-            size:       20
+            tag_id:  'identifier_namespace',
+            display: (@namespace ? namespace_tag(@namespace) : nil),
+            size: 20
           %>
 
         <%= lock_tag(@locks, :locks, :namespace ) %>

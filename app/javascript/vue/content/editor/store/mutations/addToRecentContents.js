@@ -1,4 +1,4 @@
-module.exports = function (state, content) {
+export default function (state, content) {
   var position = state.recent.contents.findIndex(item => {
     if (content.id === item.id) {
       return true

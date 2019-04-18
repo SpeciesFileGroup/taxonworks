@@ -13,14 +13,14 @@ describe 'Pinnable', type: :model do
   end
 
   specify '#pinned? (none)' do
-    expect(instance_with_pin.pinned?(user1)).to be_falsey
+    expect(instance_with_pin.pinned?(user1, Current.project_id)).to be_falsey
   end
 
   context 'pinned' do
     let!(:pinboard_item1) { PinboardItem.create(user: user1, pinned_object: instance_with_pin)} 
     
     specify '#pinned?' do
-      expect(instance_with_pin.pinned?(user1)).to be_truthy
+      expect(instance_with_pin.pinned?(user1, Current.project_id)).to be_truthy
     end
 
     specify '#pinboard_items' do

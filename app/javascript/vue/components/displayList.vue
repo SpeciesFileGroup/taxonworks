@@ -5,7 +5,7 @@
     tag="ul">
     <li
       v-for="item in list"
-      :key="item.id"
+      :key="setKey ? item[setKey] : item.id"
       class="list-complete-item flex-separate middle"
       :class="{ 'highlight': checkHighlight(item) }">
       <span
@@ -34,11 +34,11 @@
 </template>
 <script>
 
-import radialAnnotator from './annotator/annotator.vue'
+import RadialAnnotator from './annotator/annotator.vue'
 
 export default {
   components: {
-    radialAnnotator
+    RadialAnnotator
   },
   props: {
     list: {
@@ -48,6 +48,10 @@ export default {
     label: {
       type: [String, Array],
       required: true
+    },
+    setKey: {
+      type: String,
+      default: undefined
     },
     edit: {
       type: Boolean,
@@ -64,7 +68,14 @@ export default {
     highlight: {
       type: Object,
       default: undefined
+    },
+    deleteWarning: {
+      type: Boolean,
+      default: true
     }
+  },
+  beforeCreate() {
+    this.$options.components['RadialAnnotator'] = RadialAnnotator
   },
   methods: {
     displayName (item) {
@@ -89,7 +100,12 @@ export default {
       return false
     },
     deleteItem(item) {
-      if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+      if(this.deleteWarning) {
+        if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+          this.$emit('delete', item)
+        }
+      }
+      else {
         this.$emit('delete', item)
       }
     }
