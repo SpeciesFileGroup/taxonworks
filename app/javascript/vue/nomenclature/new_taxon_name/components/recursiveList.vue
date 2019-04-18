@@ -7,7 +7,7 @@
         v-if="item.hasOwnProperty(display)"
         type="button"
         :value="item.type"
-        @click="addStatus(item)"
+        @click="selectItem(item)"
         :disabled="((item.disabled || (findExist(item) != undefined)) || isForThisRank(item))"
         class="button button-default normal-input">
         {{ item[display] }}
@@ -15,6 +15,7 @@
       <recursive-list
         :getter-list="getterList"
         :display="display"
+        @selected="$emit('selected', $event)"
         :modal-mutation-name="modalMutationName"
         :action-mutation-name="actionMutationName"
         :object-list="item"/>
@@ -71,9 +72,9 @@ export default {
     }
   },
   methods: {
-    addStatus: function (status) {
+    selectItem: function (optionSelected) {
+      this.$emit('selected', optionSelected)
       this.$store.commit(MutationNames[this.modalMutationName], false)
-      this.$store.dispatch(ActionNames[this.actionMutationName], status)
     },
     findExist: function (status) {
       return this.savedList.find(function (element) {

@@ -8,7 +8,7 @@ module Shared::DualAnnotator
 
   module ClassMethods
   end
-
+  
   attr_accessor :is_community_annotation
 
   def is_community_annotation?

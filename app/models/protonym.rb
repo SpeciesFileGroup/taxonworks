@@ -15,6 +15,7 @@ class Protonym < TaxonName
 
   extend Protonym::SoftValidationExtensions::Klass
   include Protonym::SoftValidationExtensions::Instance
+  include Protonym::Becomes
 
   alias_method :original_combination_source, :source
 
@@ -220,30 +221,36 @@ class Protonym < TaxonName
     ay.blank? ? nil : ay
   end
 
+  # This method is currently only used for setting cached_primary_homonym
+  # @return [nil, false, String]
+  #   !! Why both?
   def get_genus_species(genus_option, self_option)
     return nil if rank_class.nil?
     genus = nil
     name1 = nil
 
-    if self.rank_string =~ /Species/
+    if is_species_rank? # self.rank_string =~ /Species/
       if genus_option == :original
-        genus = self.original_genus
+        genus = original_genus
       elsif genus_option == :current
-        genus = self.ancestor_at_rank('genus')
+        genus = ancestor_at_rank('genus')
       else
         return false
       end
+
       genus = genus.name unless genus.blank?
       return nil if genus.blank?
     end
+
     if self_option == :self
-      name1 = self.name
+      name1 = name
     elsif self_option == :alternative
       name1 = name_with_alternative_spelling
     end
 
-    return nil if genus.nil? && name1.nil?
-    (genus.to_s + ' ' + name1.to_s).squish
+    return nil if genus.nil? && name1.nil? # <- hitting this because Genus is never set
+    [genus, name1].compact.join(' ')
+    # (genus.to_s + ' ' + name1.to_s).squish
   end
 
   # TODO, make back half of this raw SQL
@@ -660,6 +667,7 @@ class Protonym < TaxonName
     is_genus_or_species_rank? && parent == protonym && parent.name == protonym.name
   end
 
+
   protected
 
   # TODO: move to Protonym
@@ -741,7 +749,7 @@ class Protonym < TaxonName
   # Validate whether cached names need to be rebuilt.
   #
   # TODO: this is kind of pointless, we generate
-  # all the alues need for cached, names, at that point
+  # all the values need for cached, names, at that point
   # the cached values should just be persisted
   # The logic here also duplicates the tracking
   # needed for building cached names.

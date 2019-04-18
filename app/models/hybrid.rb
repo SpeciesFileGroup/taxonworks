@@ -13,7 +13,7 @@ class Hybrid < TaxonName
 
   validates_presence_of :rank_class, message: 'is a required field'
 
-  soft_validate(:sv_hybrid_name_relationships, set: :hybrid_name_relationships)
+  soft_validate(:sv_hybrid_name_relationships, set: :hybrid_name_relationships, has_fix: false)
 
   accepts_nested_attributes_for :hybrid_relationships
 

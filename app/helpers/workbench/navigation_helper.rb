@@ -281,7 +281,7 @@ DEPRECATED FOR RADIAL
   end
 
   def radial_object_tag(object)
-    content_tag(:div, '', data: { 'global-id' => object.to_global_id.to_s, 'radial-object' => 'true'})
+    content_tag(:span, '', data: { 'global-id' => object.to_global_id.to_s, 'radial-object' => 'true'})
   end
 
 end

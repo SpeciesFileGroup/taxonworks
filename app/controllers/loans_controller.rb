@@ -84,19 +84,7 @@ class LoansController < ApplicationController
   end
 
   def autocomplete
-    @loans = Loan.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
-
-    data = @loans.collect do |t|
-      {id: t.id,
-       label: ApplicationController.helpers.loan_tag(t),
-       response_values: {
-           params[:method] => t.id
-       },
-       label_html: ApplicationController.helpers.loan_tag(t)
-      }
-    end
-
-    render json: data
+    @loans = Queries::Loan::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
   end
 
   # GET /loans/download

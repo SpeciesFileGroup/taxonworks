@@ -166,6 +166,33 @@ class CollectingEventsController < ApplicationController
     render :batch_load
   end
 
+  def preview_gpx_batch_load
+    if params[:file]
+      @result = BatchLoad::Import::CollectingEvents::GpxInterpreter.new(batch_params)
+      digest_cookie(params[:file].tempfile, :gpx_batch_load_collecting_events_md5)
+      render 'collecting_events/batch_load/gpx/preview'
+      # render '/shared/data/all/batch_load/preview'
+    else
+      flash[:notice] = "No file provided!"
+      redirect_to action: :batch_load
+    end
+  end
+
+  def create_gpx_batch_load
+    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :gpx_batch_load_collecting_events_md5)
+      @result = BatchLoad::Import::CollectingEvents::GpxInterpreter.new(batch_params)
+      if @result.create
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collecting events w/georeferences were created."
+        render 'collecting_events/batch_load/gpx/create' and return
+      else
+        flash[:alert] = 'Batch import failed.'
+      end
+    else
+      flash[:alert] = 'File to batch upload must be supplied.'
+    end
+    render :batch_load
+  end
+
   # GET /collecting_events/select_options
   def select_options
     @collecting_events = CollectingEvent.select_optimized(sessions_current_user_id, sessions_current_project_id)
@@ -198,7 +225,11 @@ class CollectingEventsController < ApplicationController
   end
 
   def batch_params
-    params.permit(:ce_namespace, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
+    params.permit(:ce_namespace,
+                  :ce_geographic_area_id,
+                  :file,
+                  :import_level).merge(user_id: sessions_current_user_id,
+                                       project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
   def filter_params

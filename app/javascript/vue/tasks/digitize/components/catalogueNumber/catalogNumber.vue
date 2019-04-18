@@ -23,7 +23,7 @@
             class="separate-right"
             url="/namespaces/autocomplete"
             min="2"
-            @getItem="namespace = $event.id; namespaceSelected = $event.label_html"
+            @getItem="namespace = $event.id; namespaceSelected = $event.label_html; checkIdentifier()"
             :clear-after="true"
             label="label_html"
             placeholder="Select a namespace"
@@ -48,7 +48,7 @@
                 <input
                   type="radio"
                   :checked="item.id == namespace"
-                  @click="namespace = item.id; namespaceSelected = item.object_tag"
+                  @click="namespace = item.id; namespaceSelected = item.object_tag; checkIdentifier()"
                   :value="item.id">
                 <span v-html="item.object_tag"/>
               </label>

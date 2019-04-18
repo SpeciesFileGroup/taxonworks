@@ -1370,7 +1370,7 @@ ActiveRecord::Schema.define(version: 2019_03_26_154155) do
     t.datetime "updated_at", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.jsonb "preferences", default: {}, null: false
+    t.jsonb "preferences", default: "{}", null: false
     t.index ["created_by_id"], name: "index_projects_on_created_by_id"
     t.index ["updated_by_id"], name: "index_projects_on_updated_by_id"
   end
@@ -1609,8 +1609,8 @@ ActiveRecord::Schema.define(version: 2019_03_26_154155) do
     t.string "boundary_finder", null: false
     t.boolean "has_border", null: false
     t.string "layout", null: false
-    t.jsonb "metadata_map", default: {}, null: false
-    t.jsonb "specimen_coordinates", default: {}, null: false
+    t.jsonb "metadata_map", default: "{}", null: false
+    t.jsonb "specimen_coordinates", default: "{}", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false

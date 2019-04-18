@@ -203,14 +203,12 @@
 }
 
 .btn-tag-delete {
-  margin: 0px;
   background-color: #F44336;
   background-size: 12px;
   background-image: image-url("label.svg");
 }
 
 .btn-tag-add {
-  margin: 0px;
   background-color: $color-action-button;
   background-size: 12px;
   background-image: image-url("label.svg");
@@ -271,7 +269,6 @@
 .pin-button {
   @extend .circle-button;
   background-color: $color-action-button;
-  margin: 0px;
   background-size: 14px;
   background-image: image-url("b_pin.svg");
 }

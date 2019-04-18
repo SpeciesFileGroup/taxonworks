@@ -2,32 +2,28 @@
 
 <div class="breakdown_nav">
   <%= render '/tasks/accessions/breakdown/breakdown_nav_items' -%>
-  <div> <%= link_to('Buffered breakdown', collection_object_buffered_data_breakdown_task_path(@result.depiction.depiction_object),
-                    'data-turbolinks' => false) -%>
+  <div> <%= link_to(
+    'Buffered breakdown', collection_object_buffered_data_breakdown_task_path(@result.depiction.depiction_object),
+    'data-turbolinks' => false) -%>
   </div>
+
 </div>
 
 <div id="breakdown_sqed_depiction" class="flexbox sqed_breakdown">
-
   <% if @result.coordinates_valid? -%>
     <%= render "metadata" %>
-
     <div class="item item3">
       <%= render "extracted_header" %>
       <%= render "form" %>
     </div>
-
   <% else -%>
-    <div>
-      <ul>
-      <%= content_tag(:li, 'Record has invalid coordinates', class: :warning) -%><br><br>
-      <%= content_tag(:li, 'Image is unavailable', class: :warning) if @result.image_unavailable?  -%>
-      </ul>
-    </div>
+    <p>
+      <%= content_tag(:span, 'Record has invalid coordinates', class: [:feedback, 'feedback-danger']) -%><br><br><br>
+      <%= content_tag(:span, 'Image is unavailable', class: [:feedback, 'feedback-danger']) if @result.image_unavailable?  -%>
+    </p>
 
     <%= link_to('Skip to next', sqed_depiction_breakdown_task_path(@sqed_depiction.next_without_data, @result.namespace_id), 'data-turbolinks' => 'false') -%> 
   <% end %> 
-
 </div>
 
 <%= image_tag(@result.depiction.image.image_file.url(:original), id: 'original_image', hidden: true) -%>

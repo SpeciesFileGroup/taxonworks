@@ -423,3 +423,11 @@ index_hub_task:
     - source
   status: prototype
   description: 'A centralized hub unifying access to the different means of creating and managing sources.'
+index_filter_task:
+  hub: true
+  name: 'Filter nomenclature'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Search and filter taxon names. Download CSV.  Generate JSON paths for offline use.'

@@ -363,7 +363,7 @@ class User < ApplicationRecord
       when /\/autocomplete\?/ # any path used for AJAX autocomplete
       else
 
-        fp                     = footprints.dup
+        fp = footprints.dup
         fp['recently_visited'] ||= []
 
         attrs = {recent_route => {}}
@@ -385,7 +385,13 @@ class User < ApplicationRecord
   # @param [Integer] project_id
   # @return [Scope] of pinboard items
   def pinboard_hash(project_id)
-    pinboard_items.where(project_id: project_id).order('pinned_object_type DESC, position').to_a.group_by { |a| a.pinned_object_type }
+    h = {}
+    pinboard_items.where(project_id: project_id).order('pinned_object_type DESC, position').each do |i|
+      l = i.pinned_object_type == 'ControlledVocabularyTerm' ? i.pinned_object.class.name : i.pinned_object_type
+      h[l] ||= []
+      h[l].push i
+    end
+    h
   end
 
   # @param [String] klass

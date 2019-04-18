@@ -2385,6 +2385,8 @@ namespace :tw do
       end
 
       def soft_validations_3i
+        @data = nil
+        GC.start
         fixed = 0
         print "\nApply soft validation fixes to taxa 1st pass \n"
         i = 0
@@ -2400,6 +2402,7 @@ namespace :tw do
         end
         print "\nApply soft validation fixes to relationships \n"
         i = 0
+        GC.start
         TaxonNameRelationship.where(project_id: $project_id).find_each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
@@ -2411,6 +2414,7 @@ namespace :tw do
         end
         print "\nApply soft validation fixes to taxa 2nd pass \n"
         i = 0
+        GC.start
         TaxonName.where(project_id: $project_id).find_each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}"

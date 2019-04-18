@@ -1,6 +1,7 @@
 <template>
   <div
     class="button-circle button-data"
+    title="Lock / Unlock"
     :class="{ 
       'btn-locked': value,
       'btn-unlocked': !value 

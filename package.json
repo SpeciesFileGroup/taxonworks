@@ -5,6 +5,7 @@
     "babel-preset-stage-0": "^6.24.1",
     "browser-request": "^0.3.3",
     "file-loader": "^3.0.1",
+    "json2csv": "^4.4.1",
     "leaflet": "^1.4.0",
     "leaflet-draw": "^1.0.4",
     "npm-check-updates": "^2.15.0",

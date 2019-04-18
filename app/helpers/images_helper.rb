@@ -17,11 +17,20 @@ module ImagesHelper
     true 
   end
 
-# <div class="easyzoom easyzoom--overlay">
-#   <a href="<%= @image.image_file.url(:medium) %>">
-#     <%= image_tag(@image.image_file.url(:medium), 'class' => 'imageZoom') %>
-#   </a>
-# </div>
+  def image_autocomplete_tag(image)
+    content_tag(:figure) do
+      (
+        image_tag(image.image_file.url(:thumb)) +
+        content_tag(:caption, "id:#{image.id}", class: ['feedback', 'feedback-primary', 'feedback-thin']) 
+      ).html_safe
+    end
+  end
+
+  # <div class="easyzoom easyzoom--overlay">
+  #   <a href="<%= @image.image_file.url(:medium) %>">
+  #     <%= image_tag(@image.image_file.url(:medium), 'class' => 'imageZoom') %>
+  #   </a>
+  # </div>
 
   def thumb_list_tag(object)
     if object.depictions.any?

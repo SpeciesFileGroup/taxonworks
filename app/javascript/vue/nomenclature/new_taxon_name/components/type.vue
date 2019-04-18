@@ -19,7 +19,7 @@
       <div v-if="!taxonRelation">
         <hard-validation
           field="type"
-          v-if="!showForThisGroup(['SpeciesGroup'], taxon) && !(GetRelationshipsCreated.length)">
+          v-if="!showForThisGroup(['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'], taxon) && !(GetRelationshipsCreated.length)">
           <autocomplete
             slot="body"
             url="/taxon_names/autocomplete"
@@ -32,9 +32,9 @@
             :add-params="{ type: 'Protonym', 'nomenclature_group[]': childOfParent[getRankGroup.toLowerCase()] }"
             param="term"/>
         </hard-validation>
-        <template v-if="showForThisGroup(['SpeciesGroup'], taxon)">
+        <template v-if="showForThisGroup(['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'], taxon)">
           <a
-            :href="`/tasks/type_material/edit_type_material?protonym_id=${taxon.id}`"
+            :href="`/tasks/type_material/edit_type_material?taxon_name_id=${taxon.id}`"
             target="_blank">Add type specimens
           </a>
           <hr>
@@ -43,7 +43,7 @@
               v-for="typeSpecimen in typeMaterialList"
               :key="typeSpecimen.id">
               <a
-                :href="`/tasks/type_material/edit_type_material?protonym_id=${taxon.id}&type_material_id=${typeSpecimen.id}`"
+                :href="`/tasks/type_material/edit_type_material?taxon_name_id=${taxon.id}&type_material_id=${typeSpecimen.id}`"
                 v-html="typeSpecimen.object_tag"/>
             </li>
           </ul>

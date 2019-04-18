@@ -206,6 +206,9 @@ TaxonWorks::Application.routes.draw do
 
       post :preview_castor_batch_load
       post :create_castor_batch_load
+
+      post :preview_gpx_batch_load
+      post :create_gpx_batch_load
     end
   end
 
@@ -338,6 +341,7 @@ TaxonWorks::Application.routes.draw do
       get 'scale(/:x/:y/:width/:height/:new_width/:new_height)', action: :scale
       get 'scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)', action: :scale_to_box
       get 'ocr(/:x/:y/:width/:height)', action: :ocr
+      patch 'rotate', action: 'rotate'
     end
   end
 
@@ -686,6 +690,12 @@ TaxonWorks::Application.routes.draw do
   ### End of data resources ###
 
   scope :tasks do
+    scope :taxon_names do
+      scope :filter, controller: 'tasks/taxon_names/filter' do
+        get :index, as: 'index_filter_task'
+      end
+    end
+
     scope :images do
       scope :new_image, controller: 'tasks/images/new_image' do
         get :index, as: 'index_new_image_task'

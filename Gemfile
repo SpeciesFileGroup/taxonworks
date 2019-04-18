@@ -20,8 +20,8 @@ gem 'redis', '~> 4.1.0'
 gem 'thor', '~> 0.19.4' # See https://github.com/rails/rails/issues/27229
 gem 'rubyzip', '~> 1.2.2'
 gem 'daemons', '~> 1.3.1'
-gem 'tzinfo-data', '~> 1.2018.4' 
-gem 'psych', '~> 3.1.0' 
+gem 'tzinfo-data', '~> 1.2018.4'
+gem 'psych', '~> 3.1.0'
 gem 'rmagick', '~> 3.0'
 
 # Geo
@@ -32,8 +32,11 @@ gem 'rgeo-geojson', '~> 2.1.1'
 gem 'rgeo-proj4', '~> 2.0'
 gem 'postgresql_cursor', '~> 0.6.1'
 
+# translate for geo
+gem 'gpx', '~> 1.0.0'
+
 # API/controllers
-gem 'rabl', '~> 0.13.1'
+gem 'rabl', '~> 0.14'
 gem 'jbuilder', '~> 2.7'
 gem 'responders', '~> 2.4' # Used?!
 
@@ -83,6 +86,7 @@ gem 'kaminari', '~> 1.1.1'
 gem 'best_in_place', '~> 3.1.1'
 gem 'redcarpet', '~> 3.4'
 gem 'sassc-rails', '~> 2.1.0'
+gem 'waxy', '~> 0.1'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '0.4.0'
@@ -134,13 +138,13 @@ group :development do
 end
 
 group :doc do
-  gem 'sdoc', '~> 1.0', require: false 
+  gem 'sdoc', '~> 1.0', require: false
 end
 
 group :test do
   gem 'rspec', '~> 3.6'
   gem 'coveralls', '~> 0.8.22', require: false
-  gem 'capybara', '~> 3.14.0'
+  gem 'capybara', '~> 3.16'
   gem 'timecop', '~> 0.9.1'
   gem 'webmock', '~> 3.5.1'
   gem 'vcr', '~> 4.0.0'
