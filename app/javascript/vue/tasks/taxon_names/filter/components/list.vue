@@ -33,6 +33,9 @@
               <radial-annotator
                 type="annotations"
                 :global-id="item.global_id"/>
+              <otu-radial
+                :taxon-id="item.id"
+                :taxon-name="item.object_tag"/>
               <default-tag :global-id="item.global_id"/>
             </div>
           </td>
@@ -52,13 +55,15 @@ import PinComponent from 'components/pin'
 import RadialAnnotator from 'components/annotator/annotator'
 import RadialObject from 'components/radial_object/radialObject'
 import DefaultTag from 'components/defaultTag'
+import OtuRadial from 'components/otu/otu.vue'
 
 export default {
   components: {
     PinComponent,
     RadialAnnotator,
     RadialObject,
-    DefaultTag
+    DefaultTag,
+    OtuRadial
   },
   props: {
     list: {
