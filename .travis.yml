@@ -55,9 +55,7 @@ install:
   - bundle install --without development production
 before_script:
   - echo ===[TEST_WORKER=$TEST_WORKER before_script $(date -u +%Y%m%d-%H%M%S)]===
-  - "export DISPLAY=:99.0"
-  - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1600x1200x16"
-  - sleep 3
+  - cp config/application_settings.yml.travis config/application_settings.yml
   - cp config/database.yml.travis config/database.yml
   - cp config/secrets.yml.example config/secrets.yml
   - mkdir -p tmp/downloads
