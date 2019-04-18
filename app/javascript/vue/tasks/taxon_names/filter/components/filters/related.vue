@@ -15,8 +15,8 @@ export default {
       default: undefined
     },
     taxonName: {
-      type: String,
-      default: ''
+      type: Array,
+      required: true
     }
   },
   computed: {

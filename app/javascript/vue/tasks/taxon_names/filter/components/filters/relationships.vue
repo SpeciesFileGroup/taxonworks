@@ -58,7 +58,7 @@
       <autocomplete
         v-if="view == smartOptions.advanced"
         url=""
-        :array-list="Object.keys(mergeLists.all).map(key => mergeLists.all[key])"
+        :array-list="Object.keys(mergeLists.all).map(key => { mergeLists.all[key].type = key; return mergeLists.all[key] })"
         :label="display"
         :clear-after="true"
         min="3"

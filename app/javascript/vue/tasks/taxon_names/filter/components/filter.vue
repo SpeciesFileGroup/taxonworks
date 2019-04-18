@@ -23,7 +23,7 @@
       <scope-component v-model="params.base.parent_id"/>
       <related-component
         v-model="params.base.descendants"
-        :taxon-name="params.taxon.name"/>
+        :taxon-name="params.base.parent_id"/>
 
       <rank-component v-model="params.base.nomenclature_group"/>
       <code-component v-model="params.base.nomenclature_code"/>
