@@ -3,12 +3,22 @@
     <table class="full_width">
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Author</th>
-          <th>Year</th>
-          <th>Original combination</th>
+          <th
+            :class="classSort('name')"
+            @click="sortTable('name')">Name</th>
+          <th
+            :class="classSort('verbatim_author')"
+            @click="sortTable('verbatim_author')">Author</th>
+          <th
+            :class="classSort('year_of_publication')"
+            @click="sortTable('year_of_publication')">Year</th>
+          <th
+            :class="classSort('original_combination')"
+            @click="sortTable('original_combination')">Original combination</th>
           <th>Valid?</th>
-          <th>Rank</th>
+          <th
+            :class="classSort('rank')"
+            @click="sortTable('rank')">Rank</th>
           <th>Parent</th>
           <th>Options</th>
         </tr>
@@ -73,6 +83,41 @@ export default {
     list: {
       type: Array,
       default: () => { return [] }
+    }
+  },
+  data() {
+    return {
+      sortColumns: {
+        name: undefined,
+        verbatim_author: undefined,
+        year_of_publication: undefined,
+        rank: undefined,
+        original_combination: undefined
+      }
+    }
+  },
+  methods: {
+    sortTable(sortProperty) {
+      let that = this
+      function compare(a,b) {
+        if (a[sortProperty] < b[sortProperty])
+          return (that.sortColumns[sortProperty] ? -1 : 1)
+        if (a[sortProperty] > b[sortProperty])
+          return (that.sortColumns[sortProperty] ? 1 : -1);
+        return 0
+      }
+      if(this.sortColumns[sortProperty] == undefined) {
+        this.sortColumns[sortProperty] = true
+      }
+      else {
+        this.sortColumns[sortProperty] = !this.sortColumns[sortProperty]
+      }
+      this.list.sort(compare);      
+    },
+    classSort(value) {
+      if(this.sortColumns[value] == true) { return 'headerSortDown' }
+      if(this.sortColumns[value] == false) { return 'headerSortUp' }
+      return ''
     }
   }
 }
