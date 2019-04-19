@@ -11,6 +11,9 @@
           classs="separate-right"
           v-if="collectionObject.id"
           :global-id="collectionObject.global_id"/>
+        <radial-object 
+          v-if="collectionObject.id"
+          :global-id="collectionObject.global_id"/>
       </div>
       <div slot="body">
         <div
@@ -92,9 +95,9 @@
   import { GetterNames } from '../../store/getters/getters'
   import { MutationNames } from '../../store/mutations/mutations.js'
   import { ActionNames } from '../../store/actions/actions'
-  import BlockLayout from '../../../../components/blockLayout.vue'
-  import RadialAnnotator from '../../../../components/annotator/annotator.vue'
-  import btnShow from 'components/btnShow.vue'
+  import BlockLayout from 'components/blockLayout.vue'
+  import RadialAnnotator from 'components/annotator/annotator.vue'
+  import RadialObject from 'components/radial_object/radialObject.vue'
   import PredicatesComponent from 'components/custom_attributes/predicates/predicates'
 
   import { GetCollectionObjectDepictions, CreateDepiction, UpdateUserPreferences } from '../../request/resources.js'
@@ -110,9 +113,9 @@
       RepositoryComponent,
       BlockLayout,
       RadialAnnotator,
-      btnShow,
       PredicatesComponent,
-      ExpandComponent
+      ExpandComponent,
+      RadialObject
     },
     computed: {
       preferences: {
