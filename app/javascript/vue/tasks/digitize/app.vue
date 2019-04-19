@@ -54,6 +54,8 @@
     },
     mounted() {
       let coId = location.pathname.split('/')[4]
+      let urlParams = new URLSearchParams(window.location.search)
+      let coIdParam = urlParams.get('collection_object_id')
 
       this.addShortcutsDescription()
 
@@ -63,6 +65,9 @@
 
       if (/^\d+$/.test(coId)) {
         this.$store.dispatch(ActionNames.LoadDigitalization, coId)
+      }
+      else if (/^\d+$/.test(coIdParam)) {
+        this.$store.dispatch(ActionNames.LoadDigitalization, coIdParam)
       }
     },
     methods: {
