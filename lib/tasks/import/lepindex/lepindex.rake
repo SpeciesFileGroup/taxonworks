@@ -114,10 +114,10 @@ namespace :tw do
         @relationship_classes = {
           'type species' => 'TaxonNameRelationship::Typification::Genus',
           'by absolute tautonymy' => 'TaxonNameRelationship::Typification::Genus::Tautonomy::Absolute',
-          'by monotypy' => 'TaxonNameRelationship::Typification::Genus::Monotypy::Original',
-          'by original designation' => 'TaxonNameRelationship::Typification::Genus::OriginalDesignation',
+          'by monotypy' => 'TaxonNameRelationship::Typification::Genus::Original::OriginalMonotypy',
+          'by original designation' => 'TaxonNameRelationship::Typification::Genus::Original::OriginalDesignation',
           'by subsequent designation' => 'TaxonNameRelationship::Typification::Genus::Tautonomy',
-          'by subsequent monotypy' => 'TaxonNameRelationship::Typification::Genus::Monotypy::Subsequent',
+          'by subsequent monotypy' => 'TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentMonotypy',
           'Incorrect original spelling' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling',
           'Incorrect subsequent spelling' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
           'Junior objective synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective',

@@ -1,9 +1,9 @@
-class TaxonNameRelationship::Typification::Genus::Monotypy::Original < TaxonNameRelationship::Typification::Genus::Monotypy
+class TaxonNameRelationship::Typification::Genus::Original::OriginalMonotypy < TaxonNameRelationship::Typification::Genus::Original
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
-        self.collect_to_s(TaxonNameRelationship::Typification::Genus::Monotypy,
-            TaxonNameRelationship::Typification::Genus::Monotypy::Subsequent)
+        self.collect_to_s(TaxonNameRelationship::Typification::Genus::Original,
+                          TaxonNameRelationship::Typification::Genus::Original::OriginalDesignation)
   end
 
   def object_status
@@ -23,3 +23,5 @@ class TaxonNameRelationship::Typification::Genus::Monotypy::Original < TaxonName
   end
 
 end
+
+

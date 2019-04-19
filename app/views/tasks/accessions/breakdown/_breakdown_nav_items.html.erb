@@ -3,7 +3,7 @@
   depiction:  <%= link_to(@result.sqed_depiction.to_param, depiction_path(@result.sqed_depiction.depiction)) -%> </div>
 <div>
   <% if @result.depiction.image -%>  
-    <%= link_to('Original image', @result.depiction.image.image_file.url(:original), target: '_blank') -%>     
+    <%= link_to('OriginalMonotypy image', @result.depiction.image.image_file.url(:original), target: '_blank') -%>
   <% else %> 
     INVALID DEPICTION- MISSING IMAGE.
   <% end %>

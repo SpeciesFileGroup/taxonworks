@@ -513,7 +513,7 @@ class TaxonNameRelationship < ApplicationRecord
         r1 = TaxonNameRelationship.where(type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym', subject_taxon_name_id: o.id, object_taxon_name_id: s.id).first
         r2 = TaxonNameRelationship.where(type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName', subject_taxon_name_id: s.id, object_taxon_name_id: o.id).first
         soft_validations.add(:base, "Missing relationship: #{s.cached_html_name_and_author_year} is a replacement name for #{o.cached_html_name_and_author_year}. Please add an objective synonym relationship(either 'replaced homonym' or 'unnecessary replacement name')") if r1.nil? && r2.nil?
-      when 'TaxonNameRelationship::Typification::Genus::Monotypy::Original'
+      when 'TaxonNameRelationship::Typification::Genus::Monotypy::OriginalMonotypy'
         # @todo Check if more than one species associated with the genus in the original paper
     end
   end
@@ -714,7 +714,7 @@ class TaxonNameRelationship < ApplicationRecord
         when :reverse
           if date1 > date2 && invalid_statuses.empty?
             if self.type_name =~ /TaxonNameRelationship::(Typification|Combination|OriginalCombination)/
-              if self.type_name != 'TaxonNameRelationship::Typification::Genus::RulingByCommission' || (self.type_name =~ /TaxonNameRelationship::Typification::Genus::(Monotypy::Subsequent|SubsequentDesignation)/ && date2 > '1930-12-31'.to_time)
+              if self.type_name != 'TaxonNameRelationship::Typification::Genus::RulingByCommission' || (self.type_name =~ /TaxonNameRelationship::Typification::Genus::(Monotypy::SubsequentMonotypy|SubsequentDesignation)/ && date2 > '1930-12-31'.to_time)
                 soft_validations.add(:subject_taxon_name_id, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be younger than #{self.object_taxon_name.cached_html_name_and_author_year}")
               end
             else
