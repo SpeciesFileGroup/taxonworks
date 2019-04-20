@@ -1,40 +1,24 @@
 <template>
   <div>
-    <select v-model="month">
+    <select v-model="monthSelected">
       <option
-        value=""
-        label=""/>
-      <option value="1">January</option>
-      <option value="2">February</option>
-      <option value="3">March</option>
-      <option value="4">April</option>
-      <option value="5">May</option>
-      <option value="6">June</option>
-      <option value="7">July</option>
-      <option value="8">August</option>
-      <option value="9">September</option>
-      <option value="10">October</option>
-      <option value="11">November</option>
-      <option value="12">December</option>
+        v-for="(month, index) in months"
+        :key="month"
+        :value="(index+1)"> {{ month }} </option>
     </select>
   </div>
 </template>
 <script>
   export default {
-    // props: {
-    //   name: {
-    //     type: String,
-    //     default: ''
-    //   }
-    // },
     data() {
       return {
-        month: ''
+        monthSelected: '',
+        months: ['January', ' February', 'March', 'April', 'May', 'June', 'July', ' August', 'September', 'October', 'November', 'December']
       }
     },
     watch: {
-      month() {
-        this.$emit('month', this.month)
+      monthSelected() {
+        this.$emit('month', this.monthSelected)
       }
     }
   }

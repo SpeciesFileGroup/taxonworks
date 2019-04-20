@@ -12,12 +12,7 @@
 
   delete L.Icon.Default.prototype._getIconUrl
 
-  // L.Icon.Default.mergeOptions({
-  //   iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-  //   iconUrl: require('leaflet/dist/images/marker-icon.png'),
-  //   shadowUrl: require('leaflet/dist/images/marker-shadow.png')
-  // })
-  var GeoJson;
+  var GeoJson
 
   L.Icon.Default.mergeOptions({
     iconRetinaUrl: require('./map_icons/mm_20_red.png'),
@@ -191,7 +186,6 @@
             }
           }));
           this.mapObject.addControl(this.drawnItems);
-          // this.foundItems.addTo(this.mapObject);
         }
       },
       showCoords(layer) {
@@ -204,11 +198,8 @@
         let that = this
         this.mapObject.on(L.Draw.Event.CREATED, function (e) {
           var layer = e.layer;
-          var popUp = L.popup();
           var geoJsonLayer = layer.toGeoJSON()
-          // if (geoJsonLayer.hasOwnProperty('geometry') && geoJsonLayer.geometry.hasOwnProperty('coordinates')) {
-          //   //that.antimeridian(geoJsonLayer.geometry.coordinates, false)
-          // }
+
           if (e.layerType === 'circle') {
             geoJsonLayer.properties.radius = layer.getRadius()
           }
@@ -235,8 +226,6 @@
           if (typeof layer.getRadius === 'function') {
             layerJson.properties.radius = layer.getRadius()
           }
-          //this.antimeridian(layerJson.geometry.coordinates, false)
-          // alert(JSON.stringify(layerJson));
           arrayLayers.push(layerJson)
         })
         return arrayLayers
@@ -246,14 +235,11 @@
       },
       addJsonCircle(layer) {
         L.circle(layer.geometry.coordinates.reverse(), layer.properties.radius).addTo(this.foundItems)
-        // L.circle(layer.geometry.coordinates, layer.properties.radius).addTo(this.drawnItems)
       },
       geoJSON(geoJsonFeatures) {
         if (!Array.isArray(geoJsonFeatures) || geoJsonFeatures.length === 0) return
-        // this.removeLayers()
         let newGeojson = [];
         geoJsonFeatures.forEach(layer => {   // scan feature array and either (i) or (ii)
-          //this.antimeridian(layer.geometry.coordinates, true)
           if (layer.geometry.type === 'Point' && layer.properties.hasOwnProperty('radius')) {
             this.addJsonCircle(layer)       // (i) add a leaflet circle to the drawnItems data element
           } else {
@@ -315,7 +301,6 @@
             } else {
                layer.setIcon(L.icon({
                 iconUrl: require('./map_icons/mm_20_blue.png'),
-                // iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
                 iconRetinaUrl: require('./map_icons/mm_20_blue.png'),
                 shadowUrl: require('./map_icons/mm_20_shadow.png'),
                 iconSize: [25, 41],
@@ -352,7 +337,6 @@
         this.$emit("restoreRow", layer.feature.properties.collecting_event_id);
       },
       dimNonPoint(layer) {
-        // GeoJson.resetStyle(layer);
         let dimStyle = {
           weight: 1,
           color: '#BB4400',
@@ -395,12 +379,6 @@
               this.lightFeature(layer)
             }
           }
-          // else {
-          //   delete layer.feature.properties.highlight;
-            // if(layer.feature.properties.collecting_event_id == -ce_id) {
-            //   this.dimFeature(layer)
-            // }
-          // }
         });
       }
     }

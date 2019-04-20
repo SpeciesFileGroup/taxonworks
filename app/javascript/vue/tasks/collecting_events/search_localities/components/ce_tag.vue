@@ -14,9 +14,16 @@
           <td>
             <a
               v-html="item.label_html"
-              @click="showObject()"/>
+              @click="showObject()"
+            />
           </td>
-          <td><span class="remove_area" data-icon="trash" @click="delistMe(index)"/></td>
+          <td>
+            <span
+              class="remove_area"
+              data-icon="trash"
+              @click="delistMe(index)"
+            />
+          </td>
         </tr>
       </table>
     </div>
@@ -33,10 +40,12 @@
       :autofocus="true"
       :clear-after="true"/>
     <input
-      type="button" class="button normal-input button-default separate-left"
+      type="button"
+      class="button normal-input button-default separate-left"
       @click="getTagData()"
       :disabled="!tagList.length"
-      value="Find">
+      value="Find"
+    >
   </div>
 </template>
 <script>
@@ -66,7 +75,7 @@
           keyword_ids: tag_ids
         };
         this.isLoading = true;
-        this.$http.get('/collecting_events', {params: params}).then(response => {
+        this.$http.get('/collecting_events', { params: params }).then(response => {
           this.collectingEventList = response.body;
           if(this.collectingEventList) {
             this.$emit('collectingEventList', this.collectingEventList);

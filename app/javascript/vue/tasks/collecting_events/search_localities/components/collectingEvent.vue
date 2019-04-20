@@ -4,27 +4,21 @@
       v-if="isLoading"
       :full-screen="true"
       legend="Loading..."
-      :logo-size="{ width: '100px', height: '100px'}"/>
+      :logo-size="{ width: '100px', height: '100px'}"
+    />
     <h3>Collecting event</h3>
     <smart-selector
       :options="tabs"
       name="collecting_event"
       :add-option="moreOptions"
-      v-model="view"/>
+      v-model="view" 
+    />
     <template>
       <div v-if="view === 'Filter'">
-        <ce-filter @collectingEventList="compileList($event)"/>
+        <ce-filter @collectingEventList="compileList($event)" />
       </div>
       <div v-else-if="view === 'Named Area Search'">
-        <ce-by-area
-          @collectingEventList="compileList($event)"
-          @featuresList="featuresList=$event"
-          @highlightRow="highlightRow=$event"
-          @restoreRow="restoreRow=$event"
-          :light-row="lightRow"
-          :dim-row="dimRow"
-          ref="cebyarea"
-        />
+        <ce-by-area @collectingEventList="compileList($event)" />
       </div>
       <div v-else-if="view === 'Drawn Area Search'">
         <ce-by-shape
@@ -37,62 +31,95 @@
           :dim-row="dimRow"
           ref="cebyshape"
         />
-<!--        @searchShape="shapes=$event;"-->
       </div>
       <div v-else-if="view === 'Tag'">
-        <ce-tag @collectingEventList="compileList($event)"/>
+        <ce-tag @collectingEventList="compileList($event)" />
       </div>
       <template v-else>
         <table>
           <tr
             v-for="item in showList[view]"
-            :key="item.id">
+            :key="item.id"
+          >
             <td
-              v-html="item.cached"/>
+              v-html="item.cached"
+            />
           </tr>
         </table>
       </template>
     </template>
     <div>
-      <div class="annotation_logic separate-left">
+      <div class="separate-left">
         <h2>Collecting Events</h2>
-        <annotation-logic v-model="annotation_logic"/>
-        <input type="button" @click="selectAllList" value="Select All" />
-        <input type="button" @click="deselectAllList" value="Select None" />
-        <input type="button" @click="keepSelected" value="remove Unselected" />
-        <input type="button" @click="removeAllList" value="Remove All" />
-        <span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span>
-        <input type="button" @click="resetPage()" value="Reset Page" class="button button-default" />
+        <annotation-logic v-model="annotation_logic" />
+        <div class="horizontal-left-content">
+          <div class="separate-right">
+            <input
+              type="button"
+              @click="selectAllList"
+              value="Select All"
+            >
+            <input
+              type="button"
+              @click="deselectAllList"
+              value="Select None"
+            >
+            <input
+              type="button"
+              @click="keepSelected"
+              value="remove Unselected"
+            >
+            <input
+              type="button"
+              @click="removeAllList"
+              value="Remove All"
+            >
+          </div>
+          <input
+            type="button"
+            @click="resetPage()"
+            value="Reset Page"
+            class="button button-default separate-left"
+          >
+        </div>
       </div>
       <div>
         <input
           type="checkbox"
-          v-model="showResultMap"> Show Map
+          v-model="showResultMap"
+        > Show Map
         <input
           type="checkbox"
-          v-model="showResultList"> Show List
+          v-model="showResultList"
+        > Show List
       </div>
       <span
         v-if="collectingEventList.length"
-        v-html="'<br>' + collectingEventList.length + '  results found.'"/>
+        v-html="'<br>' + collectingEventList.length + '  results found.'"
+      />
     </div>
     <div class="flexbox">
       <div
         class="first-column separate-right"
-        v-if="showResultList">
+        v-if="showResultList"
+      >
         <table class="full_width">
           <thead>
             <tr>
               <th>Verbatim Locality</th>
-              <th v-if="!showResultMap">Date start</th>
-              <th v-if="!showResultMap">Date end</th>
-              <th v-if="!showResultMap">Country</th>
-              <th v-if="!showResultMap">State</th>
+              <template v-if="!showResultMap">
+                <th>Date start</th>
+                <th>Date end</th>
+                <th>Country</th>
+                <th>State</th>
+              </template>
               <th>Total objects</th>
               <th>Annotator</th>
               <th>Object radial</th>
-              <th v-if="!showResultMap">Pin</th>
-              <th v-if="!showResultMap"></th>
+              <th v-if="!showResultMap">
+                Pin
+              </th>
+              <th v-if="!showResultMap" />
               <th> Select </th>
             </tr>
           </thead>
@@ -110,22 +137,20 @@
                   @click="showObject(item.id)"
                 />
               </td>
-              <td v-if="!showResultMap">
-                <span
-                  v-html="makeDate(item.start_date_year, item.start_date_month, item.start_date_day)"
-                />
-              </td>
-              <td v-if="!showResultMap">
-                <span
-                  v-html="makeDate(item.end_date_year, item.end_date_month, item.end_date_day)"
-                />
-              </td>
-            <td v-if="!showResultMap">
-              <span> -no country data- </span>
-            </td>
-            <td v-if="!showResultMap">
-              <span> -no state data- </span>
-            </td>
+              <template v-if="!showResultMap">
+                <td>
+                  <span v-html="makeDate(item.start_date_year, item.start_date_month, item.start_date_day)"/>
+                </td>
+                <td>
+                  <span v-html="makeDate(item.end_date_year, item.end_date_month, item.end_date_day)"/>
+                </td>
+                <td>
+                  <span> -no country data- </span>
+                </td>
+                <td>
+                  <span> -no state data- </span>
+                </td>
+              </template>
               <td>
                 <span> -no object count- </span>
               </td>
@@ -135,18 +160,28 @@
               <td>
                 <object-annotator :global-id="item.global_id" />
               </td>
-            <td v-if="!showResultMap">
-              <pin-component
-                v-if="item.id"
-                :object-id="item.id"
-                :type="item.base_class"/>
-            </td>
-            <td v-if="!showResultMap">
-              <span data-icon="trash" @click="delistCE(index)"/>
-            </td>
-            <td><input type="checkbox" :value="item.id" v-model="selected"/></td>
-            <td/>
-          </tr>
+              <td v-if="!showResultMap">
+                <pin-component
+                  v-if="item.id"
+                  :object-id="item.id"
+                  :type="item.base_class" 
+                />
+              </td>
+              <td v-if="!showResultMap">
+                <span
+                  data-icon="trash"
+                  @click="delistCE(index)"
+                />
+              </td>
+              <td>
+                <input
+                  type="checkbox"
+                  :value="item.id"
+                  v-model="selected"
+                >
+              </td>
+              <td />
+            </tr>
           </tbody>
         </table>
       </div>
@@ -160,14 +195,13 @@
         ref="leaflet"
         @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
         :light-this-feature="lightMapFeatures"
-        @geoJsonLayersEdited="editedShape($event)"
         @shapeCreated="addSearchShape"
         @highlightRow="highlightRow=$event"
         @restoreRow="highlightRow=0"
         :draw-controls="true"
       />
     </div>
- </div>
+  </div>
 </template>
 
 <script>
@@ -292,14 +326,12 @@
       },
       selectAllList() {
         this.selected = [];               // toggle on state of header checkbox (??  !!)
-        /*if (this.isSelectAll)*/ {
-          for (let i = this.collectingEventList.length - 1; i > -1; i--) {
-            if (!this.selected.includes(this.collectingEventList[i].id)) {
-              this.selected.push(this.collectingEventList[i].id);
-            }
+        
+        for (let i = this.collectingEventList.length - 1; i > -1; i--) {
+          if (!this.selected.includes(this.collectingEventList[i].id)) {
+            this.selected.push(this.collectingEventList[i].id);
           }
         }
-        // this.isSelectAll = ! this.isSelectAll;
       },
       deselectAllList() {
         this.selected = []
@@ -308,9 +340,6 @@
         for (let i = this.collectingEventList.length - 1; i > -1; i--) {
            this.delistCE(i)
         }
-      },
-      processList() {
-        this.getGeoreferences()
       },
       getGeoreferences() {
         let ce_ids = [];      // find the georeferences for these collecting_events
@@ -341,7 +370,6 @@
             thisCycle += 30;
           }
           Promise.all(promises).then(featuresArrays => {
-            // if (searchShape) {FeatureCollection.features.push(searchShape)}
             featuresArrays.forEach(f => {
               FeatureCollection.features = FeatureCollection.features.concat(f)
             });
@@ -365,18 +393,8 @@
           })
         })
       },
-      editedShape() {
-
-      },
       addSearchShape(shape) {
         this.shapes = shape;
-        // this.featuresList.push(shape); // watcher does this
-      },
-      setHighlight() {
-
-      },
-      clearHighlight() {
-
       },
       setHighlightProperty(id) {
         // find the right features by collecting_event_id

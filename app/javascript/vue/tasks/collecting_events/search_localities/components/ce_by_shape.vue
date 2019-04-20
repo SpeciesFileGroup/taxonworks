@@ -16,12 +16,10 @@
         :geojson="geojsonFeatures"
         @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
         @geoJsonLayersEdited="editedShape($event)"
-        @shapeCreated="inspectLayer"
         @highlightRow="setHighlight"
         @restoreRow="clearHighlight"
         :draw-controls="true"
       />
-      <!--@geoJsonLayerCreated="getShapesData($event)"-->
       <input
         class="button normal-input button-default separate-left"
         type="button"
@@ -37,16 +35,13 @@
   </div>
 </template>
 <script>
-  import Autocomplete from 'components/autocomplete'
-  import ModeSwitch from './mode_switch'
+  
   import Spinner from 'components/spinner'
   import lMap from './leafletMap.vue'
 
   export default {
     components: {
-      Autocomplete,
       lMap,
-      ModeSwitch,
       Spinner,
     },
     props: {
@@ -68,9 +63,7 @@
         geographicAreaList: [],
         collectingEventList: [],
         shapes: [],   // intended for eventual multiple shapes paradigm
-        mode: 'list',
         isLoading: false,
-        newFeatures:  [],
         lightMapFeatures:  0,
         geojsonFeatures: [    // trans-antimeridian polygon test features
         ]
@@ -99,26 +92,17 @@
         this.$refs.leaflet.clearFound()
         this.isLoading = true;
         let shapeText = this.shapes[this.shapes.length - 1];
-        let searchShape = JSON.parse(shapeText);
-        let foundEvents = [];
         let params = {shape: shapeText};  // take only last shape pro tem
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
           let foundEvents = response.body;
           if(foundEvents.length > 0) {this.collectingEventList = foundEvents;}
           this.$emit('collectingEventList', this.collectingEventList);
           this.isLoading = false;
-          // this.getGeoreferences()
         });
         this.$emit("searchShape", JSON.parse(this.shapes[this.shapes.length - 1]))
       },
       editedShape(shape) {
         this.shapes.push(JSON.stringify(shape[0]))
-      },
-      inspectLayer(layer) {
-        // this.clearDrawn = true;
-        //////// this.shapes.push(layer.toGeoJSON());
-        // this.$emit("searchShape", this.shapes[this.shapes.length - 1])
-        // alert (JSON.stringify(geoJ));
       },
       setHighlight(id) {
         this.$emit("highlightRow", id)

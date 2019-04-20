@@ -15,9 +15,16 @@
           <td>
             <a
               v-html="item.label_html"
-              @click="showObject()"/>
+              @click="showObject()"
+            />
           </td>
-          <td><span class="remove_area" data-icon="trash" @click="delistMe(index)"/></td>
+          <td>
+            <span
+              class="remove_area"
+              data-icon="trash"
+              @click="delistMe(index)"
+            />
+          </td>
         </tr>
       </table>
       <autocomplete
@@ -33,7 +40,8 @@
         :clear-after="true"
       />
       <input
-        type="button" class="button normal-input button-default separate-left"
+        type="button"
+        class="button normal-input button-default separate-left"
         @click="getAreaData()"
         :disabled="!geographicAreaList.length"
         value="Find">
@@ -53,7 +61,6 @@
         @restoreRow="clearHighlight"
         :draw-controls="true"
       />
-      <!--@geoJsonLayerCreated="getShapesData($event)"-->
       <input
         class="button normal-input button-default separate-left"
         type="button"
@@ -141,7 +148,6 @@
           if (this.collectingEventList) {
             this.$emit('collectingEventList', this.collectingEventList)
           }
-          // this.getGeoreferences();
           this.isLoading = false;
         });
       },
@@ -149,70 +155,14 @@
         this.$refs.leaflet.clearFound()
         this.isLoading = true;
         let shapeText = this.shapes[this.shapes.length - 1];
-        let searchShape = JSON.parse(shapeText);
-        let foundEvents = [];
         let params = {shape: shapeText};  // take only last shape pro tem
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
           let foundEvents = response.body;
           if(foundEvents.length > 0) {this.collectingEventList = foundEvents;}
           this.$emit('collectingEventList', this.collectingEventList);
           this.isLoading = false;
-          // this.getGeoreferences()
         })
       },
-      // getGeoreferences(){
-      //   let ce_ids = [];      // find the georeferences for these collecting_events
-      //   this.collectingEventList.forEach(ce => {
-      //     ce_ids.push(ce.id)
-      //   });
-      //   if (ce_ids.length) {                // if the list has contents
-      //     let cycles = (ce_ids.length / 30);  // each item is about 30 characters, make each cycle less than 2000 chars
-      //     let FeatureCollection = {
-      //       "type": "FeatureCollection",
-      //       "features": []
-      //     };
-      //     let that = this;
-      //     let thisSlice = 0;
-      //     let endSlice;
-      //     let finalSlice = ce_ids.length;
-      //     let newFeatures = [];
-      //     this.newFeatures = [];
-      //     let promises = [];
-      //     for (let i = 0; i < cycles; i++) {
-      //       endSlice = thisSlice + 30;
-      //       if ((thisSlice + 30) > finalSlice) {
-      //         endSlice = finalSlice + 1
-      //       }
-      //       let params = {
-      //         collecting_event_ids: ce_ids.slice(thisSlice, endSlice)
-      //       };
-      //       promises.push(this.makePromise(params));
-      //       thisSlice += 30;
-      //     }
-      //     Promise.all(promises).then(featuresArrays => {
-      //       // if (searchShape) {FeatureCollection.features.push(searchShape)}
-      //       featuresArrays.forEach(f => {FeatureCollection.features = FeatureCollection.features.concat(f)});
-      //       that.geojsonFeatures = that.geojsonFeatures.concat(FeatureCollection.features);
-      //       this.$emit('featuresList', this.geojsonFeatures);
-      //     });
-      //     this.isLoading = false;
-      //   }
-      //   else {
-      //     this.isLoading = false;
-      //   }
-      // },
-      // makePromise(params) {
-      //   return new Promise((resolve, reject) => {
-      //     this.$http.get('/georeferences.json', {params: params}).then(response => {
-      //       // put these geometries on the map as features
-      //       let newFeatures = response.body.map(georeference => {
-      //         georeference.geo_json.properties["collecting_event_id"] = georeference.collecting_event_id;
-      //         return georeference.geo_json
-      //       });
-      //      resolve(newFeatures);    // resolves to array of features
-      //     })
-      //   })
-      // },
       addGeographicArea(item) {
         this.geographicAreaList.push(item);
       },
@@ -223,9 +173,7 @@
         this.shapes.push(JSON.stringify(shape[0]))
       },
       inspectLayer(layer) {
-        // this.clearDrawn = true;
         this.shapes.push(layer.toGeoJSON());
-        // alert (JSON.stringify(geoJ));
       },
       setHighlight(id) {
         this.$emit("highlightRow", id)
@@ -245,7 +193,6 @@
             this.$set(this.geojsonFeatures, index, feature)
           }
         });
-        // this.lightMapFeatures = -id;
       },
     },
   }
