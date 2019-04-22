@@ -1,12 +1,11 @@
 <template>
-  <div>
+  <div class="panel content">
     <spinner
       v-if="isLoading"
       :full-screen="true"
       legend="Loading..."
       :logo-size="{ width: '100px', height: '100px'}"
     />
-    <h3>Collecting event</h3>
     <smart-selector
       :options="tabs"
       name="collecting_event"
@@ -14,20 +13,20 @@
       v-model="view" 
     />
     <template>
-      <div v-if="view === 'Filter'">
+      <div v-if="view === TABS.attribute">
         <ce-filter @collectingEventList="compileList($event)" />
       </div>
-      <div v-else-if="view === 'Named Area Search'">
+      <div v-else-if="view === TABS.namedAreaSearch">
         <ce-by-area @collectingEventList="compileList($event)" />
       </div>
-      <div v-else-if="view === 'Drawn Area Search'">
+      <div v-else-if="view === TABS.drawAreaSearch">
         <ce-by-shape
           @collectingEventList="compileList($event)"
           @searchShape="addSearchShape"
           ref="cebyshape"
         />
       </div>
-      <div v-else-if="view === 'Tag'">
+      <div v-else-if="view === TABS.tag">
         <ce-tag @collectingEventList="compileList($event)" />
       </div>
       <template v-else>
@@ -44,49 +43,51 @@
       </template>
     </template>
     <div>
-      <div class="separate-left">
+      <div class="separate-top">
         <h2>Collecting Events</h2>
         <annotation-logic v-model="tableMode" />
-        <div class="horizontal-left-content">
+        <div class="horizontal-right-content separate-top content">
           <div class="separate-right">
             <input
               type="button"
+              class="button button-default normal-input"
               @click="selectAllList"
-              value="Select All"
+              value="Select all"
             >
             <input
               type="button"
+              class="button button-default normal-input"
               @click="deselectAllList"
-              value="Select None"
+              value="Select none"
             >
             <input
               type="button"
+              class="button button-default normal-input"
               @click="keepSelected"
-              value="remove Unselected"
+              value="Remove unselected"
             >
             <input
               type="button"
+              class="button button-default normal-input"
               @click="removeAllList"
-              value="Remove All"
+              value="Remove all"
             >
           </div>
-          <input
-            type="button"
-            @click="resetPage()"
-            value="Reset Page"
-            class="button button-default separate-left"
-          >
+          <div>
+            <label>
+              <input
+                type="checkbox"
+                v-model="showResultMap"> 
+              Show map
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                v-model="showResultList">
+              Show list
+            </label>
+          </div>
         </div>
-      </div>
-      <div>
-        <input
-          type="checkbox"
-          v-model="showResultMap"
-        > Show Map
-        <input
-          type="checkbox"
-          v-model="showResultList"
-        > Show List
       </div>
       <span
         v-if="collectingEventList.length"
@@ -95,13 +96,13 @@
     </div>
     <div class="flexbox">
       <div
-        class="first-column separate-right"
+        class="first-column"
         v-if="showResultList"
       >
         <table class="full_width">
           <thead>
             <tr>
-              <th>Verbatim Locality</th>
+              <th>Verbatim locality</th>
               <template v-if="!showResultMap">
                 <th>Date start</th>
                 <th>Date end</th>
@@ -118,11 +119,14 @@
               <th> Select </th>
             </tr>
           </thead>
-          <tbody>
+          <transition-group
+            name="list-complete"
+            tag="tbody">
             <tr
               v-for="(item, index) in collectingEventList"
               :key="item.id"
-              :class="{'ce-row': lightRow==item.id}"
+              class="list-complete-item"
+              :class="{'ce-row': lightRow == item.id}"
               @mouseover="lightRow = item.id"
               @mouseout="lightRow = 0"
             >
@@ -177,29 +181,34 @@
               </td>
               <td />
             </tr>
-          </tbody>
+          </transition-group>
         </table>
       </div>
-      <l-map
-        class="separate-right"
+      <div
         v-if="showResultMap"
-        height="512px"
-        width="100%"
-        :zoom="zoomForMap"
-        :geojson="featuresList"
-        ref="leaflet"
-        @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
-        :light-this-feature="lightRow"
-        @shapeCreated="addSearchShape"
-        @highlightRow="lightRow = $event"
-        @restoreRow="lightRow = undefined"
-        :draw-controls="true"
-      />
+        class="content">
+        <l-map
+          class="separate-right"
+          height="512px"
+          width="100%"
+          :zoom="zoomForMap"
+          :geojson="featuresList"
+          ref="leaflet"
+          @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
+          :light-this-feature="lightRow"
+          @shapeCreated="addSearchShape"
+          @highlightRow="lightRow = $event"
+          @restoreRow="lightRow = undefined"
+          :draw-controls="false"
+          :resize="true"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+
   import SmartSelector from 'components/switch.vue'
   import ceFilter from './ce_filter.vue'
   import ceByArea from './ce_by_area.vue'
@@ -211,6 +220,13 @@
   import lMap from './leafletMap.vue'
   import RadialAnnotator from 'components/annotator/annotator'
   import ObjectAnnotator from 'components/radial_object/radialObject'
+
+  const TABS = {
+    attribute: 'By attribute',
+    namedAreaSearch: 'Named area search',
+    drawAreaSearch: 'Draw area search',
+    tag: 'tag'
+  }
 
   export default {
     components: {
@@ -235,13 +251,16 @@
       },
       showList() {
         return this.list
+      },
+      TABS() {
+        return TABS
       }
     },
     data() {
       return {
         list: {},
         tabs: [],
-        moreOptions: ['Filter', 'Named Area Search', 'Drawn Area Search', 'Tag'],
+        moreOptions: Object.values(TABS),
         view: undefined,
         collectingEventList: [],
         featuresList: [],
@@ -256,13 +275,6 @@
       }
     },
     watch: {
-      showResultList(newVal) {
-        if(newVal)
-          this.$nextTick(() => {
-            this.$refs.leaflet.mapObject.fitBounds(this.$refs.leaflet.foundItems.getBounds())
-            this.$refs.leaflet.mapObject.invalidateSize()
-          })
-      },
       shapes(newVal) {
         this.featuresList.push(newVal)
       }

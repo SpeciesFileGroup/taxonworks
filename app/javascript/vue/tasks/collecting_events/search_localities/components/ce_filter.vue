@@ -90,41 +90,32 @@
         </tr>
       </tbody>
     </table>
-    <table>
-      <tr>
-        <td class="field">
-          <label>Verbatim locality containing</label>
-        </td>
-        <td>
-          <input
-            v-model="parameters['in_verbatim_locality']"
-            type="text"
-            size="35">
-        </td>
-      </tr>
-      <tr>
-        <td class="field">
-          <label>Any label containing</label>
-        </td>
-        <td>
-          <input
-            v-model="parameters['in_labels']"
-            type="text"
-            size="35">
-        </td>
-      </tr>
-      <tr>
-        <td class="field">
-          <label>An identifier containing</label>
-        </td>
-        <td>
-          <input
-            v-model="parameters['identifier_text']"
-            type="text"
-            size="35">
-        </td>
-      </tr>
-    </table>
+    <div>
+      <div class="field">
+        <label>Verbatim locality containing</label>
+        <br>
+        <input
+          v-model="parameters['in_verbatim_locality']"
+          type="text"
+          size="35">
+      </div>
+      <div class="field">
+        <label>Any label containing</label>
+        <br>
+        <input
+          v-model="parameters['in_labels']"
+          type="text"
+          size="35">
+      </div>
+      <div class="field">
+        <label>An identifier containing</label>
+        <br>
+        <input
+          v-model="parameters['identifier_text']"
+          type="text"
+          size="35">
+      </div>
+    </div>
     <input
       class="button normal-input button-default separate-left"
       type="button"

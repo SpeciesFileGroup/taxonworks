@@ -1,7 +1,15 @@
 <template>
   <div>
-    <h1>Search and List Localities</h1>
+    <div class="flex-separate middle">
+      <h1>Filter collecting events</h1>
+      <span
+        data-icon="reset"
+        class="cursor-pointer">
+        Reset
+      </span>
+    </div>
     <collecting-event
+      ref="ce"
       @itemid="selectedItem=$event"
     />
   </div>
@@ -13,5 +21,10 @@
     components: {
       CollectingEvent,
     },
+    methods: {
+      resetApp() {
+        this.$refs.ce.resetPage()
+      }
+    }
   }
 </script>

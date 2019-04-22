@@ -9,7 +9,7 @@
     <div class="notlongforthisworld">
       <l-map
         height="512px"
-        width="1024px"
+        width="100%"
         :zoom="2"
         ref="leaflet"
         :geojson="geojsonFeatures"
@@ -17,17 +17,19 @@
         @geoJsonLayersEdited="editedShape($event)"
         :draw-controls="true"
       />
-      <input
-        class="button normal-input button-default separate-left"
-        type="button"
-        @click="getShapesData()"
-        :disabled="!shapes.length"
-        value="Find">
-      <input
-        class="button normal-input button-default separate-left"
-        type="button"
-        @click="clearTheMap"
-        value="Clear Search Map">
+      <div class="separate-top">
+        <input
+          class="button normal-input button-default"
+          type="button"
+          @click="getShapesData()"
+          :disabled="!shapes.length"
+          value="Find">
+        <input
+          class="button normal-input button-default separate-left"
+          type="button"
+          @click="clearTheMap"
+          value="Clear Search Map">
+      </div>
     </div>
   </div>
 </template>

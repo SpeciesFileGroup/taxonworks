@@ -61,6 +61,10 @@
           return [0, 0]
         }
       },
+      resize: {
+        type: Boolean,
+        default: false,
+      },
       geojson: {
         type: Array,
         default: () => {
@@ -70,6 +74,8 @@
     },
     data() {
       return {
+        mapSize: undefined,
+        observeMap: undefined,
         mapId: Math.random().toString(36).substring(7),
         mapObject: undefined,
         drawnItems: undefined,
@@ -122,8 +128,30 @@
       if (this.geojson.length) {
         this.geoJSON(this.geojson)
       }
+      if(this.resize)
+        this.initEvents()
     },
     methods: {
+      resizeMap(mutationsList, observer) {
+        if(this.$el.clientWidth != this.mapSize) {
+          this.$nextTick(() => {
+            this.mapSize = this.$el.clientWidth
+            let bounds = this.foundItems.getBounds()
+            if(Object.keys(bounds).length) {
+              this.mapObject.fitBounds(bounds)
+            }
+            this.mapObject.invalidateSize()
+          })
+        }
+      },
+      initEvents() {
+        this.mapSize = this.$el.clientWidth
+        this.observeMap = new MutationObserver(this.resizeMap)
+        this.observeMap.observe(this.$el, { attributes: true, childList: true, subtree: true })
+      },
+      destroyed() {
+        this.observeMap.disconnect()
+      },
       antimeridian(elem, anti) {
         if (Array.isArray(elem)) {
           for (var i = 0; i < elem.length; i++) {
