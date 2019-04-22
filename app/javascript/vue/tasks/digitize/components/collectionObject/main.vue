@@ -6,11 +6,17 @@
       </div>
       <div
         slot="options"
+        v-if="collectionObject.id"
         class="horizontal-left-content">
         <radial-annotator
           classs="separate-right"
-          v-if="collectionObject.id"
           :global-id="collectionObject.global_id"/>
+        <radial-object
+          classs="separate-right"
+          :global-id="collectionObject.global_id"/>
+        <default-tag
+          classs="separate-right"
+          :global-id="collectionObject.global_id" />
       </div>
       <div slot="body">
         <div
@@ -94,8 +100,9 @@
   import { ActionNames } from '../../store/actions/actions'
   import BlockLayout from '../../../../components/blockLayout.vue'
   import RadialAnnotator from '../../../../components/annotator/annotator.vue'
-  import btnShow from 'components/btnShow.vue'
   import PredicatesComponent from 'components/custom_attributes/predicates/predicates'
+  import RadialObject from 'components/radial_object/radialObject'
+  import DefaultTag from 'components/defaultTag.vue'
 
   import { GetCollectionObjectDepictions, CreateDepiction, UpdateUserPreferences } from '../../request/resources.js'
 
@@ -110,9 +117,10 @@
       RepositoryComponent,
       BlockLayout,
       RadialAnnotator,
-      btnShow,
       PredicatesComponent,
-      ExpandComponent
+      ExpandComponent,
+      RadialObject,
+      DefaultTag
     },
     computed: {
       preferences: {
