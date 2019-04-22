@@ -191,6 +191,8 @@
         @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
         :light-this-feature="lightRow"
         @shapeCreated="addSearchShape"
+        @highlightRow="lightRow = $event"
+        @restoreRow="lightRow = undefined"
         :draw-controls="true"
       />
     </div>
