@@ -1074,7 +1074,7 @@ namespace :tw do
             if taxon.rank_string =~ /Genus/ && !row['Type'].blank?
               case row['TypeDesignation']
                 when 'original monotypy'
-                  taxon.type_species_by_original_monotypy = find_taxon_3i(row['Type'])
+                  taxon.type_species_by_original_original_monotypy = find_taxon_3i(row['Type'])
                 when 'monotypy'
                   taxon.type_species_by_monotypy = find_taxon_3i(row['Type'])
                 when 'subsequent monotypy'
@@ -1088,7 +1088,7 @@ namespace :tw do
                   byebug if tssd.id.nil?
                   tssd.citations.create(source_id: source1, is_original: true) unless source1.nil?
                 when 'ruling by commission'
-                  taxon.type_species_by_ruling_by_Commission = find_taxon_3i(row['Type'])
+                  taxon.type_species_by_ruling_by_commission = find_taxon_3i(row['Type'])
                 else
                   taxon.type_species = find_taxon_3i(row['Type'])
               end

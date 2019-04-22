@@ -209,7 +209,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: genus, type: 'TaxonNameRelationship::Typification::Genus')
         expect(r1.valid?).to be_truthy
         expect(r1.errors.include?(:object_taxon_name_id)).to be_falsey
-        r2 = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: genus, type: 'TaxonNameRelationship::Typification::Genus::Monotypy')
+        r2 = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: genus, type: 'TaxonNameRelationship::Typification::Genus::Original')
         r2.valid?
         expect(r2.errors.include?(:object_taxon_name_id)).to be_truthy
       end

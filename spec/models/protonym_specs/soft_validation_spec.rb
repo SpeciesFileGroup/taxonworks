@@ -405,7 +405,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
 
       specify 'mismatching' do
-        @genus.type_species_by_monotypy = @species
+        @genus.type_species_by_original_designation_or_monotypy = @species
         @subgenus.type_species_by_original_monotypy = @species
         expect(@genus.save).to be_truthy
         expect(@subgenus.save).to be_truthy

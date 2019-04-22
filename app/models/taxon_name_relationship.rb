@@ -513,7 +513,7 @@ class TaxonNameRelationship < ApplicationRecord
         r1 = TaxonNameRelationship.where(type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym', subject_taxon_name_id: o.id, object_taxon_name_id: s.id).first
         r2 = TaxonNameRelationship.where(type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName', subject_taxon_name_id: s.id, object_taxon_name_id: o.id).first
         soft_validations.add(:base, "Missing relationship: #{s.cached_html_name_and_author_year} is a replacement name for #{o.cached_html_name_and_author_year}. Please add an objective synonym relationship(either 'replaced homonym' or 'unnecessary replacement name')") if r1.nil? && r2.nil?
-      when 'TaxonNameRelationship::Typification::Genus::Monotypy::OriginalMonotypy'
+      when 'TaxonNameRelationship::Typification::Genus::Original::OriginalMonotypy'
         # @todo Check if more than one species associated with the genus in the original paper
     end
   end
@@ -551,8 +551,10 @@ class TaxonNameRelationship < ApplicationRecord
     case self.type_name
       when 'TaxonNameRelationship::Typification::Genus'
         soft_validations.add(:type, 'Please specify if the type designation is original or subsequent')
-      when 'TaxonNameRelationship::Typification::Genus::Monotypy'
-        soft_validations.add(:type, 'Please specify if the monotypy is original or subsequent')
+      when 'TaxonNameRelationship::Typification::Genus::Original'
+        soft_validations.add(:type, 'Please specify if this is Original Designation or Original Monotypy')
+      when 'TaxonNameRelationship::Typification::Genus::Subsequent'
+        soft_validations.add(:type, 'Please specify if this is Subsequent Designation or Subsequent Monotypy')
       when 'TaxonNameRelationship::Typification::Genus::Tautonomy'
         soft_validations.add(:type, 'Please specify if the tautonomy is absolute or Linnaean')
       when 'TaxonNameRelationship::Icn::Unaccepting'

@@ -19,7 +19,7 @@ FactoryBot.define do
     factory :type_species_relationship do
       association :subject_taxon_name, factory: :relationship_species
       association :object_taxon_name, factory: :relationship_genus
-      type { 'TaxonNameRelationship::Typification::Genus::Monotypy::OriginalMonotypy' }
+      type { 'TaxonNameRelationship::Typification::Genus::Original::OriginalMonotypy' }
     end
   end
 end
