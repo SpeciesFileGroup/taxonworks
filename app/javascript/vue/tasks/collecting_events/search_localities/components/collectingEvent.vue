@@ -48,8 +48,8 @@
     <div>
       <div class="separate-top">
         <h2>Collecting Events</h2>
-        <div class="horizontal-right-content separate-top content">
-          <div class="separate-right">
+        <div class="horizontal-right-content separate-top">
+          <div>
             <input
               type="button"
               class="button button-default normal-input"
@@ -74,20 +74,6 @@
               @click="removeAllList"
               value="Remove all"
             >
-          </div>
-          <div>
-            <label>
-              <input
-                type="checkbox"
-                v-model="showResultMap"> 
-              Show map
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                v-model="showResultList">
-              Show list
-            </label>
           </div>
         </div>
       </div>
