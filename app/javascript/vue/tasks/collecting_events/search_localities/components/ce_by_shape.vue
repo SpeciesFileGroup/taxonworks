@@ -12,12 +12,9 @@
         width="1024px"
         :zoom="2"
         ref="leaflet"
-        :light-this-feature="lightMapFeatures"
         :geojson="geojsonFeatures"
         @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
         @geoJsonLayersEdited="editedShape($event)"
-        @highlightRow="setHighlight"
-        @restoreRow="clearHighlight"
         :draw-controls="true"
       />
       <input
@@ -44,27 +41,12 @@
       lMap,
       Spinner,
     },
-    props: {
-      lightRow: {
-        type: Number,
-        default: () => {
-          return 0
-        }
-      },
-      dimRow: {
-        type: Number,
-        default: () => {
-          return 0
-        }
-      }
-    },
     data() {
       return {
         geographicAreaList: [],
         collectingEventList: [],
         shapes: [],   // intended for eventual multiple shapes paradigm
         isLoading: false,
-        lightMapFeatures:  0,
         geojsonFeatures: [    // trans-antimeridian polygon test features
         ]
       }
@@ -75,12 +57,6 @@
           this.$refs.leaflet.clearFound()
         }
       },
-      lightRow(newVal) {
-        this.setHighlightProperty(newVal)
-      },
-      dimRow(newVal) {
-        this.clearHighlightProperty(newVal)
-      }
     },
     methods: {
       clearTheMap() {
@@ -103,26 +79,7 @@
       },
       editedShape(shape) {
         this.shapes.push(JSON.stringify(shape[0]))
-      },
-      setHighlight(id) {
-        this.$emit("highlightRow", id)
-      },
-      clearHighlight(id) {
-        this.$emit("highlightRow", undefined)
-      },
-      setHighlightProperty(id) {
-        // find the right features by collecting_event_id
-        this.lightMapFeatures = id;
-      },
-      clearHighlightProperty(id) {
-        // find the right feature by collecting_event_id
-        this.geojsonFeatures.forEach((feature, index) => {
-          if(feature.properties.collecting_event_id == id) {
-            delete(feature.properties.highlight);
-            this.$set(this.geojsonFeatures, index, feature)
-          }
-        });
-      },
+      }
     },
   }
 </script>

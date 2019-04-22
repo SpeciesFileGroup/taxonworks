@@ -23,12 +23,7 @@
       <div v-else-if="view === 'Drawn Area Search'">
         <ce-by-shape
           @collectingEventList="compileList($event)"
-          @featuresList="featuresList=$event"
-          @highlightRow="highlightRow=$event"
-          @restoreRow="restoreRow=$event"
           @searchShape="addSearchShape"
-          :light-row="lightRow"
-          :dim-row="dimRow"
           ref="cebyshape"
         />
       </div>
@@ -51,7 +46,7 @@
     <div>
       <div class="separate-left">
         <h2>Collecting Events</h2>
-        <annotation-logic v-model="annotation_logic" />
+        <annotation-logic v-model="tableMode" />
         <div class="horizontal-left-content">
           <div class="separate-right">
             <input
@@ -127,9 +122,9 @@
             <tr
               v-for="(item, index) in collectingEventList"
               :key="item.id"
-              :class="{'ce-row': highlightRow==item.id}"
-              @mouseover="lightRow=item.id; dimRow=0"
-              @mouseout="dimRow=item.id; lightRow=0"
+              :class="{'ce-row': lightRow==item.id}"
+              @mouseover="lightRow = item.id"
+              @mouseout="lightRow = 0"
             >
               <td class="my-column">
                 <span
@@ -194,10 +189,8 @@
         :geojson="featuresList"
         ref="leaflet"
         @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
-        :light-this-feature="lightMapFeatures"
+        :light-this-feature="lightRow"
         @shapeCreated="addSearchShape"
-        @highlightRow="highlightRow=$event"
-        @restoreRow="highlightRow=0"
         :draw-controls="true"
       />
     </div>
@@ -251,11 +244,8 @@
         collectingEventList: [],
         featuresList: [],
         selected: [],
-        annotation_logic: 'append',
-        highlightRow: undefined,
-        restoreRow: undefined,
+        tableMode: 'append',
         lightRow: undefined,
-        dimRow: undefined,
         shapes: [],
         lightMapFeatures: 0,
         isLoading: false,
@@ -264,11 +254,12 @@
       }
     },
     watch: {
-      showResultList() {
-        this.$nextTick(() => {
-          this.$refs.leaflet.mapObject.fitBounds(this.$refs.leaflet.foundItems.getBounds())
-          this.$refs.leaflet.mapObject.invalidateSize()
-        })
+      showResultList(newVal) {
+        if(newVal)
+          this.$nextTick(() => {
+            this.$refs.leaflet.mapObject.fitBounds(this.$refs.leaflet.foundItems.getBounds())
+            this.$refs.leaflet.mapObject.invalidateSize()
+          })
       },
       shapes(newVal) {
         this.featuresList.push(newVal)
@@ -276,7 +267,7 @@
     },
     methods: {
       compileList(newColEvList) {
-        if (this.annotation_logic == 'append') {
+        if (this.tableMode == 'append') {
           if (this.collectingEventList.length) {
             let i;  // don't add duplicates
             let extantEvents = this.collectingEventList.map(ce => {
@@ -346,6 +337,9 @@
         this.collectingEventList.forEach(ce => {
           ce_ids.push(ce.id)
         });
+        if(this.tableMode == 'replace') {
+          this.featuresList = []
+        }
         if (ce_ids.length) {                // if the list has contents
           let cycles = (ce_ids.length / 30);  // each item is about 30 characters, make each cycle less than 2000 chars
           let FeatureCollection = {
@@ -374,7 +368,6 @@
               FeatureCollection.features = FeatureCollection.features.concat(f)
             });
             that.featuresList = that.featuresList.concat(FeatureCollection.features);
-            this.$emit('featuresList', this.featuresList);
           });
           this.isLoading = false;
         } else {

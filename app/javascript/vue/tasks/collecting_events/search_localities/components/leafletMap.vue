@@ -262,7 +262,7 @@
       },
       onMyFeatures(feature, layer) {
         if(layer.feature.properties.highlight) {
-          this.lightFeature(layer)
+          this.styleFeature(layer, true)
         }
         layer.on({
           mouseover: this.highlightFeature,
@@ -272,7 +272,7 @@
       },
       highlightFeature(e) {
         let layer = e.target;
-        this.lightFeature(layer);
+        this.styleFeature(layer, true);
         this.$emit("highlightRow", layer.feature.properties.collecting_event_id)
       },
       lightNonPoint(layer) {
@@ -290,26 +290,44 @@
           layer.addTo(this.foundItems);
         }
       },
-      lightFeature(layer) {
+      styleFeature(layer, light) {
         let geom = layer.feature.geometry;
-        if (geom.type != "Point") {
-          this.lightNonPoint(layer)
-        } else {
-          if (geom.type == "Point") {
-            if (layer.feature.properties["radius"]) {
-              this.lightNonPoint(layer)
-            } else {
-               layer.setIcon(L.icon({
-                iconUrl: require('./map_icons/mm_20_blue.png'),
-                iconRetinaUrl: require('./map_icons/mm_20_blue.png'),
-                shadowUrl: require('./map_icons/mm_20_shadow.png'),
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-                shadowSize: [41, 41]
-                }));
+        if (geom.type == "Point") {
+          if (layer.feature.properties["radius"]) {
+            this.lightNonPoint(layer)
+          }
+          else {
+            if(light) {
+              this.setLightPointer(layer)
+            }
+            else {
+              this.setDefaultPointer(layer)
             }
           }
         }
+        else {
+          this.lightNonPoint(layer)
+        }
+      },
+      setLightPointer(layer) {
+        layer.setIcon(L.icon({
+          iconUrl: require('./map_icons/mm_20_blue.png'),
+          iconRetinaUrl: require('./map_icons/mm_20_blue.png'),
+          shadowUrl: require('./map_icons/mm_20_shadow.png'),
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          shadowSize: [41, 41]
+        }))
+      },
+      setDefaultPointer(layer) {
+        layer.setIcon(L.icon({
+          iconUrl: require('./map_icons/mm_20_red.png'),
+          iconRetinaUrl: require('./map_icons/mm_20_red.png'),
+          shadowUrl: require('./map_icons/mm_20_shadow.png'),
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          shadowSize: [41, 41]
+        }))
       },
       resetHighlight(e) {   //reversion of working code from01APR2019
         let layer = e.target;
@@ -319,11 +337,7 @@
             GeoJson.resetStyle(layer);
           }
           else {
-            layer.setIcon(L.icon({
-              iconUrl: require('./map_icons/mm_20_red.png'),
-              iconRetinaUrl: require('./map_icons/mm_20_red.png'),
-              shadowUrl: require('./map_icons/mm_20_shadow.png')
-            }));
+            this.setDefaultPointer(layer);
           }
         }
         else {
@@ -359,11 +373,7 @@
             GeoJson.resetStyle(layer);
           }
           else {
-            layer.setIcon(L.icon({
-              iconUrl: require('./map_icons/mm_20_red.png'),
-              iconRetinaUrl: require('./map_icons/mm_20_red.png'),
-              shadowUrl: require('./map_icons/mm_20_shadow.png')
-            }));
+            this.setDefaultPointer(layer)
           }
         }
       },
@@ -371,13 +381,13 @@
         this.mapObject.fitBounds(e.target.getBounds());
       },
       findFeature(ce_id) {
-        if(ce_id == 0 || ce_id == -0) return;   // do not process toggles
-        let layers = GeoJson.getLayers();
+        let layers = GeoJson.getLayers()
         layers.forEach(layer => {
-          if(ce_id > 0) {
-            if(layer.feature.properties.collecting_event_id == ce_id) {
-              this.lightFeature(layer)
-            }
+          if(layer.feature.properties.collecting_event_id == ce_id) {
+            this.styleFeature(layer, true)
+          }
+          else {
+            this.styleFeature(layer, false)
           }
         });
       }
