@@ -7,6 +7,7 @@
       :logo-size="{ width: '100px', height: '100px'}"
     />
     <smart-selector
+      class="separate-bottom"
       :options="tabs"
       name="collecting_event"
       :add-option="moreOptions"
@@ -29,23 +30,24 @@
       <div v-else-if="view === TABS.tag">
         <ce-tag @collectingEventList="compileList($event)" />
       </div>
-      <template v-else>
-        <table>
-          <tr
-            v-for="item in showList[view]"
-            :key="item.id"
-          >
-            <td
-              v-html="item.cached"
-            />
-          </tr>
-        </table>
-      </template>
+      <ul
+        class="no_bullets"
+        v-if="!Object.values(TABS).includes(view)">
+        <li
+          v-for="item in showList[view]"
+          :key="item.id">
+          <label>
+            <input
+              type="radio"
+              :name="view">
+            <span v-html="item.object_tag"/>
+          </label>
+        </li>
+      </ul>
     </template>
     <div>
       <div class="separate-top">
         <h2>Collecting Events</h2>
-        <annotation-logic v-model="tableMode" />
         <div class="horizontal-right-content separate-top content">
           <div class="separate-right">
             <input
@@ -214,7 +216,6 @@
   import ceByArea from './ce_by_area.vue'
   import ceByShape from './ce_by_shape.vue'
   import ceTag from './ce_tag.vue'
-  import AnnotationLogic from 'browse_annotations/components/annotation_logic'
   import PinComponent from "components/pin.vue"
   import Spinner from 'components/spinner'
   import lMap from './leafletMap.vue'
@@ -235,12 +236,25 @@
       ceByArea,
       ceByShape,
       ceTag,
-      AnnotationLogic,
       PinComponent,
       lMap,
       Spinner,
       RadialAnnotator,
       ObjectAnnotator,
+    },
+    props: {
+      showResultList: {
+        type: Boolean,
+        default: true
+      },
+      showResultMap: {
+        type: Boolean,
+        default: false
+      },
+      append: {
+        type: Boolean,
+        default: false
+      }
     },
     computed: {
       zoomForMap() {
@@ -265,13 +279,10 @@
         collectingEventList: [],
         featuresList: [],
         selected: [],
-        tableMode: 'append',
         lightRow: undefined,
         shapes: [],
         lightMapFeatures: 0,
         isLoading: false,
-        showResultList: true,
-        showResultMap: false,
       }
     },
     watch: {
@@ -281,7 +292,7 @@
     },
     methods: {
       compileList(newColEvList) {
-        if (this.tableMode == 'append') {
+        if (this.append) {
           if (this.collectingEventList.length) {
             let i;  // don't add duplicates
             let extantEvents = this.collectingEventList.map(ce => {
@@ -351,7 +362,7 @@
         this.collectingEventList.forEach(ce => {
           ce_ids.push(ce.id)
         });
-        if(this.tableMode == 'replace') {
+        if(!this.append) {
           this.featuresList = []
         }
         if (ce_ids.length) {                // if the list has contents
