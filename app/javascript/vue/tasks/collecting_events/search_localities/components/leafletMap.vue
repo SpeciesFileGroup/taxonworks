@@ -248,17 +248,20 @@
         });
 
         GeoJson = L.geoJson(newGeojson, {
-          style: {
-            weight: 1,
-            color: '#BB4400',
-            dashArray: '',
-            fillOpacity: 0.4
-          },
+          style: this.defaultShapeStyle(),
           onEachFeature: this.onMyFeatures
         }).addTo(this.foundItems);
 
           this.mapObject.fitBounds(this.foundItems.getBounds());
          // DON'T rebound the map when just highlighting by either method
+      },
+      defaultShapeStyle() {
+        return {
+          weight: 1,
+          color: '#BB4400',
+          dashArray: '',
+          fillOpacity: 0.4
+        }
       },
       onMyFeatures(feature, layer) {
         if(layer.feature.properties.highlight) {
@@ -275,26 +278,30 @@
         this.styleFeature(layer, true);
         this.$emit("highlightRow", layer.feature.properties.collecting_event_id)
       },
-      lightNonPoint(layer) {
-        let highlightStyle = {
-          weight: 3,
+      lightNonPoint(layer, light) {
+        let highlightStyle
+        if(!light) {
+          highlightStyle = this.defaultShapeStyle()
+        } else {
+          highlightStyle = {
+            weight: 3,
             color: '#909090',
             dashArray: '',
             fillOpacity: 0.7
-        };
+          }
+        }
         if(layer._leaflet_id) {
           GeoJson._layers[layer._leaflet_id].setStyle(highlightStyle);
         }
         else {
           layer.setStyle(highlightStyle);
-          layer.addTo(this.foundItems);
         }
       },
       styleFeature(layer, light) {
         let geom = layer.feature.geometry;
         if (geom.type == "Point") {
           if (layer.feature.properties["radius"]) {
-            this.lightNonPoint(layer)
+            this.lightNonPoint(layer, light)
           }
           else {
             if(light) {
@@ -306,7 +313,7 @@
           }
         }
         else {
-          this.lightNonPoint(layer)
+          this.lightNonPoint(layer, light)
         }
       },
       setLightPointer(layer) {
