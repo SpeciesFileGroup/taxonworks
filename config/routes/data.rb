@@ -22,6 +22,12 @@ resources :alternate_values, except: [:show, :new] do
 end
 match '/alternate_values/:global_id/metadata', to: 'alternate_values#metadata', via: :get, defaults: {format: :json} 
 
+match '/attributions/licenses', to: 'attributions#licenses', via: :get, defaults: {format: :json}
+match '/attributions/role_types', to: 'attributions#role_types', via: :get, defaults: {format: :json}
+resources :attributions, except: [:new] do
+  concerns [:data_routes]
+end
+
 resources :asserted_distributions do
   concerns [:data_routes]
   collection do
@@ -120,6 +126,9 @@ resources :collecting_events do
 
     post :preview_castor_batch_load
     post :create_castor_batch_load
+
+    post :preview_gpx_batch_load
+    post :create_gpx_batch_load
   end
 end
 
@@ -163,6 +172,10 @@ end
 
 resources :data_attributes, except: [:show] do
   concerns [:data_routes]
+
+  collection do
+    get 'value_autocomplete', defaults: {format: :json}
+  end
 end
 
 resources :depictions do
@@ -222,6 +235,7 @@ resources :georeferences, only: [:index, :destroy, :new, :show, :edit] do
   concerns [:data_routes]
 end
 
+# TODO: fix broken interfaces, deprecate?
 namespace :georeferences do
   resources :geo_locates, only: [:new, :create]
   resources :google_maps, only: [:new, :create]
@@ -230,8 +244,14 @@ end
 
 resources :identifiers, except: [:show] do
   concerns [:data_routes]
+
+  # Must be before member
   collection do
     get :identifier_types, {format: :json}
+  end
+
+  member do 
+    get :show, defaults: {format: :json}
   end
 end
 
@@ -242,6 +262,7 @@ resources :images do
     get 'scale(/:x/:y/:width/:height/:new_width/:new_height)', action: :scale
     get 'scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)', action: :scale_to_box
     get 'ocr(/:x/:y/:width/:height)', action: :ocr
+    patch 'rotate', action: 'rotate'
   end
 end
 
@@ -251,6 +272,13 @@ resources :keywords, only: [] do
     get :lookup_keyword
     get :select_options, defaults: {format: :json}
   end
+end
+
+resources :labels do
+  collection do
+    get :list
+  end
+  # is data?
 end
 
 resources :languages, only: [] do
@@ -274,17 +302,17 @@ resources :loan_items do
 end
 
 resources :namespaces do
-  concerns [:data_routes]
-
   collection do
+    get :autocomplete, defaults: {format: :json} # TODO: add JSON to all autocomplete as default, until then this line has to be above concerns
     post :preview_simple_batch_load
     post :create_simple_batch_load
     get :select_options, defaults: {format: :json}
   end
+
+  concerns [:data_routes]
 end
-
-
 match 'observation_matrices/row/', to: 'observation_matrices#row', via: :get, method: :json
+
 resources :observation_matrices do
   concerns [:data_routes]
 
@@ -342,20 +370,21 @@ resources :otus do
   resources :contents, only: [:index]
   collection do
 
+    # TODO: this is get
     post :preview_data_attributes_batch_load
     post :create_data_attributes_batch_load
 
+    # TODO: this is get
     post :preview_simple_batch_load # should be get (batch loader fix)
     post :create_simple_batch_load
 
+    # TODO: this is get
     post :preview_simple_batch_file_load
     post :create_simple_batch_file_load
 
+    # TODO: this is get
     post :preview_identifiers_batch_load
     post :create_identifiers_batch_load
-
-    post :preview_data_attributes_batch_load
-    post :create_data_attributes_batch_load
 
     get :select_options, defaults: {format: :json}
   end
@@ -369,6 +398,13 @@ resources :otu_page_layouts do
   member do
     get 'related'
   end
+end
+
+resources :organizations do
+  collection do
+    get :autocomplete, defaults: {format: :json}
+  end
+  concerns [:data_routes]
 end
 
 resources :origin_relationships do
@@ -463,9 +499,16 @@ end
 resources :sources do
   concerns [:data_routes]
   collection do
+    get :select_options, defaults: {format: :json}
     post :preview_bibtex_batch_load # should be get
     post :create_bibtex_batch_load
     get :parse, defaults: {format: :json}
+  end
+end
+
+resources :sqed_depictions, only: [] do
+  collection do
+    get :metadata_options, defaults: {format: :json}
   end
 end
 

@@ -1,61 +1,13 @@
 scope :tasks do
-  scope :descriptors do
-    scope :new_descriptor, controller: 'tasks/descriptors/new_descriptor' do
-      get '(:id)', action: :index, as: 'new_descriptor_task'
+
+  scope :asserted_distribution do
+    scope :new_asserted_distribution, controller: 'tasks/asserted_distribution/new_asserted_distribution' do
+      get :index, as: 'index_new_asserted_distribution_task'
     end
   end
 
   scope :browse_annotations, controller: 'tasks/browse_annotations' do
     get 'index', as: 'browse_annotations_task'
-  end
-
-  scope :uniquify_people, controller: 'tasks/uniquify/people' do
-    get 'index', as: 'uniquify_people_task'
-  end
-
-  scope :otus do
-    scope :browse, controller: 'tasks/otus/browse' do
-      get '/(:otu_id)', action: :index, as: 'browse_otus_task'
-    end
-  end
-
-  scope :type_material do
-    scope :edit_type_material, controller: 'tasks/type_material/edit_type_material' do
-      get '/', as: 'edit_type_material_task', action: :index
-    end
-  end
-
-  scope :observation_matrices do
-    scope :new_matrix, controller: 'tasks/observation_matrices/new_matrix' do
-      get 'observation_matrix_row_item_metadata', as: 'observation_matrix_row_item_metdata', defaults: {format: :json}
-      get 'observation_matrix_column_item_metadata', as: 'observation_matrix_column_item_metdata', defaults: {format: :json}
-      get '(:id)', action: :index, as: 'new_matrix_task'
-    end
-
-    scope :row_coder, controller: 'tasks/observation_matrices/row_coder' do
-      get 'index', as: 'index_row_coder_task'
-      get 'set', as: 'set_row_coder_task'
-    end
-  end
-
-  scope :import do
-    scope :dwca do
-      scope :psu_import, controller: 'tasks/import/dwca/psu_import' do
-        get 'index', as: 'psu_import_task'
-        post 'do_psu_import', as: 'do_psu_import'
-      end
-    end
-  end
-
-  scope :loans do
-    scope :edit_loan, controller: 'tasks/loans/edit_loan' do
-      get 'loan_item_metadata', as: 'loan_item_metdata', defaults: {format: :json}
-      get '(:id)', action: :index, as: 'edit_loan_task'
-    end
-
-    scope :overdue, controller: 'tasks/loans/overdue' do
-      get 'index', as: 'overdue_loans_task'
-    end
   end
 
   scope :citations do
@@ -72,7 +24,55 @@ scope :tasks do
     end
   end
 
+  scope :descriptors do
+    scope :new_descriptor, controller: 'tasks/descriptors/new_descriptor' do
+      get '(:id)', action: :index, as: 'new_descriptor_task'
+    end
+  end
+
+  scope :images do
+    scope :new_image, controller: 'tasks/images/new_image' do
+      get :index, as: 'index_new_image_task'
+    end
+  end
+
+  scope :import do
+    scope :dwca do
+      scope :psu_import, controller: 'tasks/import/dwca/psu_import' do
+        get 'index', as: 'psu_import_task'
+        post 'do_psu_import', as: 'do_psu_import'
+      end
+    end
+  end
+
+  scope :labels do
+    scope :print_labels, controller: 'tasks/labels/print_labels' do
+      get :index, as: 'index_print_labels_task'
+    end
+  end
+
+  scope :loans do
+    scope :edit_loan, controller: 'tasks/loans/edit_loan' do
+      get 'loan_item_metadata', as: 'loan_item_metdata', defaults: {format: :json}
+      get '(:id)', action: :index, as: 'edit_loan_task'
+    end
+
+    scope :overdue, controller: 'tasks/loans/overdue' do
+      get 'index', as: 'overdue_loans_task'
+    end
+  end
+
+  scope :projects do
+    scope :preferences, controller: 'tasks/projects/preferences' do
+      get :index, as: 'project_preferences_task'
+    end
+  end
+
   scope :sources do
+    scope :hub, controller: 'tasks/sources/hub' do
+      get :index, as: 'index_hub_task'
+    end
+
     scope :individual_bibtex_source, controller: 'tasks/sources/individual_bibtex_source' do
       get 'index', as: 'index_individual_bibtex_source_task'
     end
@@ -126,20 +126,6 @@ scope :tasks do
       post 'tag_all', action: 'tag_all', as: 'tag_all_collection_object_filter_result',  defaults: {format: :json}
     end
   end
-
-  scope :otus do
-    scope :filter, controller: 'tasks/otus/filter' do
-      get 'index', as: 'otus_filter_task' #'index_area_and_date_task'
-      get 'find', as: 'find_otus_task' # 'find_area_and_date_task'
-      get 'set_area', as: 'set_area_for_otu_filter'
-      get 'set_author', as: 'set_author_for_otu_filter'
-      get 'set_nomen', as: 'set_nomen_for_otu_filter'
-      get 'set_verbatim', as: 'set_verbatim_for_otu_filter'
-      get 'download', action: 'download', as: 'download_otus_filter_result'
-    end
-  end
-
-  # Scopes arranged alphabetically first level below :tasks
 
   scope :accessions do
     scope :comprehensive, controller: 'tasks/accessions/comprehensive' do
@@ -207,6 +193,10 @@ scope :tasks do
   end
 
   scope :controlled_vocabularies do
+    scope :topics_hub, controller: 'tasks/controlled_vocabularies/topics_hub' do
+      get 'index', as: 'index_topics_hub_task'
+    end
+
     scope :biocuration, controller: 'tasks/controlled_vocabularies/biocuration' do
       get 'build_collection', as: 'build_biocuration_groups_task'
       post 'build_biocuration_group', as: 'build_biocuration_group_task'
@@ -263,8 +253,6 @@ scope :tasks do
 
   scope :gis, controller: 'tasks/gis/otu_distribution_data' do
     get 'otu_distribution_data/(:id)', action: 'show', as: 'otu_distribution_data_task'
-    #      get 'otu_distribution_data', action: 'show', as: 'first_otu_distribution_data_task'
-
     get 'taxon_name_distribution_data/:id', action: 'show_for_taxon_name', as: 'taxon_name_distribution_data_task'
   end
 
@@ -292,6 +280,45 @@ scope :tasks do
     end
   end
 
+  scope :observation_matrices do
+
+    scope :view, controller: 'tasks/observation_matrices/view' do
+      get '(:id)', as: 'observation_matrix_view_task', action: :index
+    end
+
+    scope :observation_matrix_hub, controller: 'tasks/observation_matrices/observation_matrix_hub' do
+      get 'index', as: 'observation_matrices_hub_task' # 'index_observation_matrix_hub_task'
+      post 'copy_observations', as: 'observation_matrix_hub_copy_observations', defaults: {format: :json}
+    end
+
+    scope :new_matrix, controller: 'tasks/observation_matrices/new_matrix' do
+      get 'observation_matrix_row_item_metadata', as: 'observation_matrix_row_item_metdata', defaults: {format: :json}
+      get 'observation_matrix_column_item_metadata', as: 'observation_matrix_column_item_metdata', defaults: {format: :json}
+      get '(:id)', action: :index, as: 'new_matrix_task'
+    end
+
+    scope :row_coder, controller: 'tasks/observation_matrices/row_coder' do
+      get 'index', as: 'index_row_coder_task'
+      get 'set', as: 'set_row_coder_task'
+    end
+  end
+
+  scope :otus do
+    scope :browse, controller: 'tasks/otus/browse' do
+      get '/(:otu_id)', action: :index, as: 'browse_otus_task'
+    end
+
+    scope :filter, controller: 'tasks/otus/filter' do
+      get 'index', as: 'otus_filter_task' #'index_area_and_date_task'
+      get 'find', as: 'find_otus_task' # 'find_area_and_date_task'
+      get 'set_area', as: 'set_area_for_otu_filter'
+      get 'set_author', as: 'set_author_for_otu_filter'
+      get 'set_nomen', as: 'set_nomen_for_otu_filter'
+      get 'set_verbatim', as: 'set_verbatim_for_otu_filter'
+      get 'download', action: 'download', as: 'download_otus_filter_result'
+    end
+  end
+
   scope :people, controller: 'tasks/people/author' do
     get 'author', action: 'list', as: 'author_list_task'
     get 'source_list_for_author/:id', action: 'source_list_for_author', as: 'author_source_list_task'
@@ -299,6 +326,22 @@ scope :tasks do
 
   scope :serials, controller: 'tasks/serials/similar' do
     get 'like(/:id)', action: 'like', as: 'similar_serials_task'
+  end
+
+  scope :taxon_names do
+    scope :filter, controller: 'tasks/taxon_names/filter' do
+      get :index, as: 'index_filter_task'
+    end
+  end
+
+  scope :type_material do
+    scope :edit_type_material, controller: 'tasks/type_material/edit_type_material' do
+      get '/', as: 'edit_type_material_task', action: :index
+    end
+  end
+
+  scope :uniquify_people, controller: 'tasks/uniquify/people' do
+    get 'index', as: 'uniquify_people_task'
   end
 
   scope :usage, controller: 'tasks/usage/user_activity' do
