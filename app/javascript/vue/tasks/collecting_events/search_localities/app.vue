@@ -30,7 +30,8 @@
         <li>
           <span
             data-icon="reset"
-            class="cursor-pointer">
+            class="cursor-pointer"
+            @click="resetApp">
             Reset
           </span>
         </li>
