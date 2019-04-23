@@ -348,7 +348,7 @@ class Combination < TaxonName
       sr_a = sr.alias("b_#{rank}")
       b = b.join(sr_a).on(
         sr_a['object_taxon_name_id'].eq(j['id']),
-        sr_a['type'].eq("TaxonNameRelationship::OriginalCombination::OriginalMonotypy#{rank.capitalize}"),
+        sr_a['type'].eq("TaxonNameRelationship::OriginalCombination::Original#{rank.capitalize}"),
         sr_a['subject_taxon_name_id'].eq(id)
       )
     end

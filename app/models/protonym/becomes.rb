@@ -114,7 +114,7 @@ module Protonym::Becomes
         end
 
         original_relationships.each do |i|
-          atr = { type: i.type.gsub(/TaxonNameRelationship::OriginalCombination::OriginalMonotypy/, 'TaxonNameRelationship::Combination::' ) }
+          atr = { type: i.type.gsub(/TaxonNameRelationship::OriginalCombination::Original/, 'TaxonNameRelationship::Combination::' ) }
           if i.object_taxon_name_id == i.subject_taxon_name_id 
             atr[:subject_taxon_name_id] = o.id
           end
