@@ -408,8 +408,13 @@
         }
       },
       zoomToFeature(e) {
-        console.log(e)
-        this.mapObject.fitBounds(e.target.getBounds());
+        let layer = e.target
+        if (layer instanceof L.Marker || layer instanceof L.Circle) {
+          this.mapObject.fitBounds([layer.getLatLng()])
+        }
+        else {
+          this.mapObject.fitBounds(e.target.getBounds())
+        }
       },
       findFeature(ce_id) {
         if(!GeoJson) return
