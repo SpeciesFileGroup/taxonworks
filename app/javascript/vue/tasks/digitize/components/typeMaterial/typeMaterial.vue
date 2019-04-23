@@ -218,12 +218,7 @@
       GetTypes().then(response => {
         this.types = response
       })
-      GetTypeDesignatorSmartSelector().then(response => {
-        this.options = orderSmartSelector(Object.keys(response))
-        this.lists = response
-        this.options.push("new/Search")
-        this.view = selectFirstSmartOption(response, this.options)
-      })
+
       GetTaxonNameSmartSelector().then(response => {
         this.optionsTaxon = orderSmartSelector(Object.keys(response))
         this.listsTaxon = response   
