@@ -46,7 +46,7 @@ const GetLabelsFromCE = function (id) {
 }
 
 const GetRecentCollectionObjects = function () {
-  return ajaxCall('get', `/collection_objects.json`, { params: { recent: true, per: 5 } })
+  return ajaxCall('get', `/tasks/accessions/report/dwc.json?per=10`)
 }
 
 const UpdateUserPreferences = function (id, data) {

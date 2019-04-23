@@ -145,7 +145,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
 
   def current_collecting_event
     finding = collecting_event_id_param
-    finding.nil? ? CollectingEvent.first : CollectingEvent.find(finding)
+    finding.nil? ? CollectingEvent.where(project_id: sessions_current_project_id).first : CollectingEvent.find(finding)
   end
 
   def similar_params

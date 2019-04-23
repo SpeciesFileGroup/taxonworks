@@ -23,12 +23,9 @@
     <h3 v-help.section.recent.overview>Recent</h3>
     <display-list
       :list="combinations"
-      :edit="true"
-      :annotator="true"
       @edit="editCombination"
       @delete="deleteCombination"
-      @placement="updatePlacement"
-      label="object_tag"/>
+      @placement="updatePlacement"/>
   </div>
 </template>
 <script>

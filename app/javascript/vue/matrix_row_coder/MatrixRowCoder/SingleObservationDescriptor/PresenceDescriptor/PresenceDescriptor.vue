@@ -1,6 +1,8 @@
 <template>
   <div class="presence-descriptor">
-    <summary-view :descriptor="descriptor">
+    <summary-view
+      :descriptor="descriptor"
+      :index="index">
       <div class="horizontal-left-content">
         <label>
           Present
@@ -42,6 +44,7 @@ import { MutationNames } from '../../../store/mutations/mutations'
 export default {
   mixins: [SingleObservationDescriptor],
   name: 'PresenceDescriptor',
+  props: ['index'],
   computed: {
     isPresent () {
       return this.$store.getters[GetterNames.GetPresenceFor](this.$props.descriptor.id)

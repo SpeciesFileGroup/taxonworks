@@ -31,7 +31,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
     next_id = next_collecting_event_id
     ce = current_collecting_event
     any_failed = false
-    # if ce.update_attributes(collecting_event_params)
+    
     start_date = convert_params[:start_date].split(' ')
     end_date = convert_params[:end_date].split(' ')
     start_date_year = start_date[0]
@@ -41,13 +41,13 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
     end_date_month = end_date[1]
     end_date_day = end_date[2]
     if ce.update_attributes({start_date_year: start_date[0],
-                             start_date_month: start_date[1],
-                             start_date_day: start_date[2],
-                             end_date_year: end_date[0],
-                             end_date_month: end_date[1],
-                             end_date_day: end_date[2],
-                             verbatim_date: convert_params['verbatim_date']
-                            })
+        start_date_month: start_date[1],
+        start_date_day: start_date[2],
+        end_date_year: end_date[0],
+        end_date_month: end_date[1],
+        end_date_day: end_date[2],
+        verbatim_date: convert_params['verbatim_date']
+    })
     else
       any_failed = true
       message = 'Failed to update the collecting event.'
@@ -59,7 +59,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
     else # a.k.a. success
       flash['notice'] = 'Updated.'
     end
-    # where do we go from here?
+   
     redirect_to dates_index_task_path(collecting_event_id: next_id,
                                       filters: parse_filters(params))
   end
@@ -74,7 +74,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
     else
       any_failed = false
       selected.each {|item_id|
-        ce = CollectingEvent.find(item_id)
+        ce = CollectingEvent.where(project_id: sessions_current_project_id).find(item_id)
         unless ce.nil?
           start_date = convert_params[:start_date].split(' ')
           end_date = convert_params[:end_date].split(' ')
@@ -85,13 +85,13 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
           end_date_month = end_date[1]
           end_date_day = end_date[2]
           if ce.update_attributes({start_date_year: start_date[0],
-                                   start_date_month: start_date[1],
-                                   start_date_day: start_date[2],
-                                   end_date_year: end_date[0],
-                                   end_date_month: end_date[1],
-                                   end_date_day: end_date[2],
-                                   verbatim_date: convert_params['verbatim_date']
-                                  })
+              start_date_month: start_date[1],
+              start_date_day: start_date[2],
+              end_date_year: end_date[0],
+              end_date_month: end_date[1],
+              end_date_day: end_date[2],
+              verbatim_date: convert_params['verbatim_date']
+          })
           else
             any_failed = true
             message = 'one or more of the collecting events.'
@@ -128,28 +128,29 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
     where_clause += ' and (verbatim_date is null)' unless include_values
     if method[0] == :undefined # where verbatim label is entered without selecting a result and its method
       selected_items = CollectingEvent.where(where_clause)
-                           .with_project_id(sessions_current_project_id)
-                           .order(:id)
-                           .where.not(id: collecting_event_id).distinct
+        .with_project_id(sessions_current_project_id)
+        .order(:id)
+        .where.not(id: collecting_event_id).distinct
     else
       selected_items = Queries::CollectingEventDatesExtractorQuery.new(
-          collecting_event_id: nil,
-          filters: method)
-                           .all
-                           .with_project_id(sessions_current_project_id)
-                           .order(:id)
-                           .where.not(id: collecting_event_id)
-                           .where(where_clause).distinct
+        collecting_event_id: nil,
+        filters: method)
+        .all
+        .with_project_id(sessions_current_project_id)
+        .order(:id)
+        .where.not(id: collecting_event_id)
+        .where(where_clause).distinct
     end
 
     retval[:count] = selected_items.count.to_s
-    retval[:table] = render_to_string(partial: 'make_dates_matching_table',
-                                      locals: {
-                                          piece: piece,
-                                          start_date: start_date,
-                                          end_date: end_date,
-                                          selected_items: selected_items
-                                      })
+    retval[:table] = render_to_string(
+      partial: 'make_dates_matching_table',
+      locals: {
+        piece: piece,
+        start_date: start_date,
+        end_date: end_date,
+        selected_items: selected_items
+      })
     render(json: retval)
   end
 
@@ -173,13 +174,13 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
       # nothing provided, get the first possible one
       # return CollectingEvent.with_project_id(sessions_current_project_id).order(:id).limit(1).pluck(:id)[0]
       retval = Queries::CollectingEventDatesExtractorQuery.new(
-          collecting_event_id: nil,
-          filters: parse_filters(params))
-                   .all
-                   .with_project_id(sessions_current_project_id)
-                   .order(:id)
-                   .limit(1)
-                   .pluck(:id)[0]
+        collecting_event_id: nil,
+        filters: parse_filters(params))
+        .all
+        .with_project_id(sessions_current_project_id)
+        .order(:id)
+        .limit(1)
+        .pluck(:id)[0]
     end
     retval
   end
@@ -188,13 +189,13 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
   def next_collecting_event_id
     filters = parse_filters(params)
     Queries::CollectingEventDatesExtractorQuery.new(
-        collecting_event_id: collecting_event_id_param,
-        filters: filters)
-        .all
-        .with_project_id(sessions_current_project_id)
-        .order(:id)
-        .limit(1)
-        .pluck(:id)[0]
+      collecting_event_id: collecting_event_id_param,
+      filters: filters)
+      .all
+      .with_project_id(sessions_current_project_id)
+      .order(:id)
+      .limit(1)
+      .pluck(:id)[0]
   end
 
   def current_collecting_event
