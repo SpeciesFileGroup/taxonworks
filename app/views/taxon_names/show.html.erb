@@ -30,7 +30,7 @@
   <% unless Otu.for_taxon_name(@taxon_name.to_param).empty? %>
       <%= content_tag(:li, link_to(
         'Distribution',
-        taxon_name_distribution_data_task_path(@taxon_name.to_param),
+        otu_distribution_data_task_path(taxon_name_id: @taxon_name.to_param),
         'data-turbolinks' => false)) 
       %>
   <% end %>
