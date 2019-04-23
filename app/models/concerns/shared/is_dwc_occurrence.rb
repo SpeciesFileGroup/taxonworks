@@ -20,7 +20,7 @@ module Shared::IsDwcOccurrence
   #  TODO:  !! Currently uses updater_id of this record, need to change that to be user-definable
   def set_dwc_occurrence
     if dwc_occurrence_persisted?
-      dwc_occurrence.update_columns(dwc_occurrence_attributes)
+      dwc_occurrence.update(dwc_occurrence_attributes)
     else
       create_dwc_occurrence!(dwc_occurrence_attributes)
     end
