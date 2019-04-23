@@ -98,9 +98,10 @@ match_georeference_task:
   status: prototype
 otu_distribution_data_task:
   hub: true
-  name: 'OTU distribution data'
-  description: 'Display distribution data for an otu.'
+  name: 'Otu distribution'
+  description: 'Display distribution data and map for an Otu (or taxon name).'
   categories:
+    - nomenclature
     - collecting_event
     - collection_object
   status: prototype
@@ -159,7 +160,7 @@ report_dwc_task:
     - collecting_event
 collection_objects_filter_task:
   hub: true
-  name: 'Collection objects filter by area, date, OTU, identifier and user/creation date.'
+  name: 'Collection object filter'
   related:
   categories:
     - collection_object
@@ -167,12 +168,12 @@ collection_objects_filter_task:
   description: 'Find collection objects using an area, date range, taxon determination (OTU), applied identifier, or user/created date range.'
 otus_filter_task:
   hub: true
-  name: 'OTU lookup by geography, nomenclature, or author'
+  name: 'OTU filter'
   related:
   categories:
     - otu
   status: prototype
-  description: 'Find OTUs nomenclaturally or geographically'
+  description: 'Find OTUs by nomenclature, geography and author.'
 geographic_area_lookup_task:
   hub: true
   name: 'Geographic area lookup'

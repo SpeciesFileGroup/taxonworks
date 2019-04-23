@@ -1005,8 +1005,7 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :gis, controller: 'tasks/gis/otu_distribution_data' do
-      get 'otu_distribution_data/(:otu_id)', action: 'show', as: 'otu_distribution_data_task'
-      get 'taxon_name_distribution_data/(:taxon_name_id)', action: 'show_for_taxon_name', as: 'taxon_name_distribution_data_task'
+      get 'otu_distribution_data', action: 'show', as: 'otu_distribution_data_task'
     end
 
     scope :nomenclature do
