@@ -10,19 +10,13 @@
         <span v-if="collectingEvent.id">Sequential uses: {{ (this.subsequentialUses == 0 ? '-' : this.subsequentialUses) }}</span>
         <div
           v-if="collectingEvent.id"
-          class="separate-left separate-right">
-          <a
-            :href="`/collecting_events/${collectingEvent.id}`"
-            target="blank">Show
-          </a>
+          class="horizontal-left-content separate-left separate-right">
+          <radial-annotator :global-id="collectingEvent.global_id"/>
+          <radial-object :global-id="collectingEvent.global_id"/>
+          <pin-component 
+            :object-id="collectingEvent.id" 
+            type="CollectingEvent"/>
         </div>
-        <radial-annotator 
-          v-if="collectingEvent.id"
-          :global-id="collectingEvent.global_id"/>
-        <pin-component 
-          v-if="collectingEvent.id"
-          :object-id="collectingEvent.id" 
-          type="CollectingEvent"/>
       </div>
       <div slot="body">
         <fieldset class="separate-bottom">
@@ -73,6 +67,7 @@
   import BlockMap from  './components/map/main.vue'
   import BlockLayout from 'components/blockLayout.vue'
   import RadialAnnotator from 'components/annotator/annotator.vue'
+  import RadialObject from 'components/radial_object/radialObject.vue'
   import { GetterNames } from '../../store/getters/getters.js'
   import { MutationNames } from '../../store/mutations/mutations.js'
   import { ActionNames } from '../../store/actions/actions.js'
@@ -98,6 +93,7 @@
       BlockGeography,
       SmartSelector,
       RadialAnnotator,
+      RadialObject,
       PinComponent,
       BlockMap,
       SearchComponent,

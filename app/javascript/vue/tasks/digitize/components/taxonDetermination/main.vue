@@ -133,6 +133,7 @@
       <display-list
         :list="list"
         @delete="removeTaxonDetermination"
+        :radial-object="true"
         set-key="otu_id"
         label="object_tag"/>
     </div>
