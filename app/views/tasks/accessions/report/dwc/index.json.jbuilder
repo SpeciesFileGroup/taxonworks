@@ -1,5 +1,7 @@
 json.array! @collection_objects do |c|
 
+  json.id c.id
+
   json.partial! '/shared/data/all/metadata', object: c # maybe not, since uses object_tag
   json.update_at c.updated_at
 
