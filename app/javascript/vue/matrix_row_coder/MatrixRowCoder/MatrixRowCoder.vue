@@ -38,7 +38,7 @@
 
         <div
           :is="descriptor.componentName" 
-          :index="index"
+          :index="(index+1)"
           :descriptor="descriptor"/>
       </li>
     </ul>
