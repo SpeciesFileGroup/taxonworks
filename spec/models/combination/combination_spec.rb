@@ -171,4 +171,5 @@ describe Combination, type: :model, group: :nomenclature do
       end
     end
   end
+  end
 end

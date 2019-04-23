@@ -1084,7 +1084,7 @@ namespace :tw do
                 when 'subsequent designation'
                   #taxon.type_species_by_subsequent_designation = find_taxon_3i(row['Type'])
                   source1 = row['Key3a'].blank? ? nil : @data.publications_index[row['Key3a']]
-                  tssd = taxon.related_taxon_name_relationships.create(subject_taxon_name: find_taxon_3i(row['Type']),  type: 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation')
+                  tssd = taxon.related_taxon_name_relationships.create(subject_taxon_name: find_taxon_3i(row['Type']),  type: 'TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentDesignation')
                   byebug if tssd.id.nil?
                   tssd.citations.create(source_id: source1, is_original: true) unless source1.nil?
                 when 'ruling by commission'

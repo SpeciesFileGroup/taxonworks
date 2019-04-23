@@ -516,7 +516,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       end
 
       specify 'type species by subsequent designation' do
-        r1.type = 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
+        r1.type = 'TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentDesignation'
         expect(r1.save).to be_truthy
         r1.reload
         r1.soft_validate(:synonym_relationship)
@@ -564,7 +564,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       end
 
       specify 'subsequent type designation after 1930' do
-        r1.type = 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
+        r1.type = 'TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentDesignation'
         expect(r1.save).to be_truthy
         r1.soft_validate('specific_relationship')
         expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy

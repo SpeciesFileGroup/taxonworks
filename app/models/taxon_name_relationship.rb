@@ -507,7 +507,7 @@ class TaxonNameRelationship < ApplicationRecord
       when 'TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961'
         soft_validations.add(:type, "#{s.cached_html_name_and_author_year} was not described before 1961") if s.year_of_publication > 1960
         soft_validations.add(:base, "#{s.cached_html_name_and_author_year} should be accepted as a replacement name before 1961") if self.source && self.source.year > 1960
-      when 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
+      when 'TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentDesignation'
         soft_validations.add(:type, "Genus #{o.cached_html_name_and_author_year} described after 1930 is nomen nudum, if type was not designated in the original publication") if o.year_of_publication && o.year_of_publication > 1930
       when 'TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName'
         r1 = TaxonNameRelationship.where(type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym', subject_taxon_name_id: o.id, object_taxon_name_id: s.id).first
@@ -530,8 +530,8 @@ class TaxonNameRelationship < ApplicationRecord
 
   def sv_synonym_relationship
     relationships = TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM +
-      TaxonNameRelationship.collect_to_s(TaxonNameRelationship::Typification::Genus::SubsequentDesignation,
-                                         TaxonNameRelationship::Typification::Genus::RulingByCommission)
+      TaxonNameRelationship.collect_to_s(TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentDesignation,
+                                         TaxonNameRelationship::Typification::Genus::Subsequent::RulingByCommission)
     if relationships.include?(self.type_name)
       if self.source
         date1 = self.source.cached_nomenclature_date.to_time
@@ -716,7 +716,7 @@ class TaxonNameRelationship < ApplicationRecord
         when :reverse
           if date1 > date2 && invalid_statuses.empty?
             if self.type_name =~ /TaxonNameRelationship::(Typification|Combination|OriginalCombination)/
-              if self.type_name != 'TaxonNameRelationship::Typification::Genus::RulingByCommission' || (self.type_name =~ /TaxonNameRelationship::Typification::Genus::(Monotypy::SubsequentMonotypy|SubsequentDesignation)/ && date2 > '1930-12-31'.to_time)
+              if self.type_name != 'TaxonNameRelationship::Typification::Genus::Subsequent::RulingByCommission' || (self.type_name =~ /TaxonNameRelationship::Typification::Genus::(Monotypy::SubsequentMonotypy|SubsequentDesignation)/ && date2 > '1930-12-31'.to_time)
                 soft_validations.add(:subject_taxon_name_id, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be younger than #{self.object_taxon_name.cached_html_name_and_author_year}")
               end
             else
