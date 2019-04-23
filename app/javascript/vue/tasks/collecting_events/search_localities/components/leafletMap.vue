@@ -217,12 +217,6 @@
           this.mapObject.addControl(this.drawnItems);
         }
       },
-      showCoords(layer) {
-        let content = layer._latlng.toString() + ' CE_ID:' + layer.feature.properties.collecting_event_id.toString();
-        L.popup().setLatLng(event.latlng)
-          .setContent(content)
-          .openOn(this.mapObject);
-      },
       handleEvents() {
         let that = this
         this.mapObject.on(L.Draw.Event.CREATED, function (e) {
@@ -392,19 +386,6 @@
         }
         else {
           GeoJson.resetStyle(layer);
-        }
-      },
-      dimFeature(layer) {
-        let geom = layer.feature.geometry;
-        if (geom.type != "Point") {
-          this.dimNonPoint(layer)
-        } else {
-          if (layer.feature.properties["radius"]) {
-            GeoJson.resetStyle(layer);
-          }
-          else {
-            this.setDefaultPointer(layer)
-          }
         }
       },
       zoomToFeature(e) {
