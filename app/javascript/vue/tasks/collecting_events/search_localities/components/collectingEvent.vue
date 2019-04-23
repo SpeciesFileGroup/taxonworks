@@ -302,7 +302,6 @@
       },
       makePromise(params) {
         return new Promise((resolve, reject) => {
-          console.log("enter")
           this.$http.get('/georeferences.json', {params: params}).then(response => {
             // put these geometries on the map as features
             let newFeatures = response.body.map(georeference => {
