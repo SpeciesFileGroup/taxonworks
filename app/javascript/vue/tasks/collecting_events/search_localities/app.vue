@@ -15,6 +15,16 @@
           <label>
             <input
               type="checkbox"
+              v-model="showFilter">
+            Show filter
+          </label>
+        </li>
+        <li>
+          <label>
+            <input
+              type="checkbox"
+              v-shortkey="[getMacKey, 'm']"
+              @shortkey="showMap = !showMap"
               v-model="showMap">
             Show map
           </label>
@@ -23,6 +33,8 @@
           <label>
             <input
               type="checkbox"
+              v-shortkey="[getMacKey, 'l']"
+              @shortkey="showList = !showList"
               v-model="showList">
             Show list
           </label>
@@ -41,23 +53,31 @@
       ref="ce"
       :show-result-map="showMap"
       :show-result-list="showList"
+      :show-filter="showFilter"
       @itemid="selectedItem=$event"
     />
   </div>
 </template>
 <script>
 
+  import GetMacKey from 'helpers/getMacKey.js'
   import CollectingEvent from './components/collectingEvent.vue'
 
   export default {
     components: {
       CollectingEvent,
     },
+    computed: {
+      getMacKey() {
+        return GetMacKey()
+      }
+    },
     data() {
       return {
         append: false,
         showMap: false,
-        showList: true
+        showList: true,
+        showFilter: true
       }
     },
     methods: {

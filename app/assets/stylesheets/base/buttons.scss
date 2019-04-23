@@ -9,7 +9,7 @@
   border-radius: 3px;
   &:disabled {
     color: #999;
-    background-color: $color-button-disabled;
+    background-color: $color-button-disabled !important;
   }
   &:hover {
     opacity: 0.8;
@@ -24,7 +24,7 @@
 
 .button-default {
   color: #FFF;
-  background-color: $color-secondary-2-4;
+  background-color: $color-secondary-2-4 !important;
 }
 
 .button-default-pin {

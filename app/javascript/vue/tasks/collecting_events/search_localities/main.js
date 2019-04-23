@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import vueResource from 'vue-resource'
+import vueShortkey from 'vue-shortkey'
 
 var TW = TW || {};
 TW.views = TW.views || {};
@@ -14,7 +15,8 @@ import L from 'leaflet'
 Object.assign(TW.views.tasks.collecting_events.search_locality, {
 
   init: function () {
-    Vue.use(vueResource);
+    Vue.use(vueResource)
+    Vue.use(vueShortkey)
 
     //var store = require('./store/store.js').newStore()
     var App = require('./app.vue').default;

@@ -210,7 +210,8 @@
               },
               marker: false,
               circlemarker: false,
-              circle: false
+              circle: true,
+              polyline: false
             }
           }));
           this.mapObject.addControl(this.drawnItems);
@@ -262,7 +263,9 @@
         return this.convertGeoJSONWithPointRadius(this.drawnItems)
       },
       addJsonCircle(layer) {
-        L.circle(layer.geometry.coordinates.reverse(), layer.properties.radius).addTo(this.foundItems)
+        let circle = L.circle([...layer.geometry.coordinates].reverse(), layer.properties.radius)
+        circle.setStyle(this.defaultShapeStyle())
+        circle.addTo(this.foundItems)
       },
       geoJSON(geoJsonFeatures) {
         if (!Array.isArray(geoJsonFeatures) || geoJsonFeatures.length === 0) return
@@ -292,9 +295,6 @@
         }
       },
       onMyFeatures(feature, layer) {
-        if(layer.feature.properties.highlight) {
-          this.styleFeature(layer, true)
-        }
         layer.on({
           mouseover: this.highlightFeature,
           mouseout: this.resetHighlight,
@@ -380,11 +380,6 @@
         }
         this.$emit("restoreRow", layer.feature.properties.collecting_event_id)
       },
-      XresetFeature(e) {
-        let layer = e.target;
-        this.dimFeature(layer);
-        this.$emit("restoreRow", layer.feature.properties.collecting_event_id);
-      },
       dimNonPoint(layer) {
         let dimStyle = {
           weight: 1,
@@ -413,9 +408,11 @@
         }
       },
       zoomToFeature(e) {
+        console.log(e)
         this.mapObject.fitBounds(e.target.getBounds());
       },
       findFeature(ce_id) {
+        if(!GeoJson) return
         let layers = GeoJson.getLayers()
         layers.forEach(layer => {
           if(layer.feature.properties.collecting_event_id == ce_id) {

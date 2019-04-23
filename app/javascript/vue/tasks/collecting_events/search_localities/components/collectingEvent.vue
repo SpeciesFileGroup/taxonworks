@@ -6,49 +6,47 @@
       legend="Loading..."
       :logo-size="{ width: '100px', height: '100px'}"
     />
-    <smart-selector
-      class="separate-bottom"
-      :options="tabs"
-      name="collecting_event"
-      :add-option="moreOptions"
-      v-model="view" 
-    />
-    <template>
-      <div v-if="view === TABS.attribute">
-        <ce-filter @collectingEventList="compileList($event)" />
-      </div>
-      <div v-else-if="view === TABS.namedAreaSearch">
-        <ce-by-area @collectingEventList="compileList($event)" />
-      </div>
-      <div v-else-if="view === TABS.drawAreaSearch">
-        <ce-by-shape
-          @collectingEventList="compileList($event)"
-          @searchShape="addSearchShape"
-          ref="cebyshape"
-        />
-      </div>
-      <div v-else-if="view === TABS.tag">
-        <ce-tag @collectingEventList="compileList($event)" />
-      </div>
-      <ul
-        class="no_bullets"
-        v-if="!Object.values(TABS).includes(view)">
-        <li
-          v-for="item in showList[view]"
-          :key="item.id">
-          <label>
-            <input
-              type="radio"
-              :name="view">
-            <span v-html="item.object_tag"/>
-          </label>
-        </li>
-      </ul>
-    </template>
+    <div v-show="showFilter"> 
+      <smart-selector
+        class="separate-bottom"
+        :options="tabs"
+        name="collecting_event"
+        :add-option="moreOptions"
+        v-model="view" 
+      />
+      <template>
+        <div v-if="view === TABS.attribute">
+          <ce-filter @collectingEventList="compileList($event)" />
+        </div>
+        <div v-else-if="view === TABS.namedAreaSearch">
+          <ce-by-area @collectingEventList="compileList($event)" />
+        </div>
+        <div v-else-if="view === TABS.drawAreaSearch">
+          <ce-by-shape
+            @collectingEventList="compileList($event)"
+            @searchShape="addSearchShape"
+            ref="cebyshape"
+          />
+        </div>
+        <div v-else-if="view === TABS.tag">
+          <ce-tag @collectingEventList="compileList($event)" />
+        </div>
+        <smart-list
+          v-if="!Object.values(TABS).includes(view)"
+          :list="showList[view]"
+          :view="view"
+          :list-selected="collectingEventList"/>
+      </template>
+    </div>
     <div>
       <div class="separate-top">
         <h2>Collecting Events</h2>
-        <div class="horizontal-right-content separate-top">
+        <div class="flex-separate separate-top">
+          <div>
+            <span v-if="collectingEventList.length">
+              {{ collectingEventList.length }} results found.
+            </span>
+          </div>
           <div>
             <input
               type="button"
@@ -77,10 +75,6 @@
           </div>
         </div>
       </div>
-      <span
-        v-if="collectingEventList.length"
-        v-html="'<br>' + collectingEventList.length + '  results found.'"
-      />
     </div>
     <div class="flexbox">
       <div
@@ -93,30 +87,25 @@
               <th>Verbatim locality</th>
               <template v-if="!showResultMap">
                 <th>Date start</th>
-                <th>Date end</th>
-                <th>Country</th>
-                <th>State</th>
+                <th>Level 1</th>
+                <th>Level 2</th>
+                <th>Level 3</th>
               </template>
               <th>Total objects</th>
-              <th>Annotator</th>
-              <th>Object radial</th>
-              <th v-if="!showResultMap">
-                Pin
-              </th>
-              <th v-if="!showResultMap" />
+              <th>Options</th>
               <th> Select </th>
             </tr>
           </thead>
           <transition-group
             name="list-complete"
-            tag="tbody">
+            tag="tbody"
+            @mouseout.native="lightRow = 0">
             <tr
               v-for="(item, index) in collectingEventList"
               :key="item.id"
               class="list-complete-item"
               :class="{'ce-row': lightRow == item.id}"
               @mouseover="lightRow = item.id"
-              @mouseout="lightRow = 0"
             >
               <td class="my-column">
                 <span
@@ -128,35 +117,23 @@
                 <td>
                   <span v-html="makeDate(item.start_date_year, item.start_date_month, item.start_date_day)"/>
                 </td>
-                <td>
-                  <span v-html="makeDate(item.end_date_year, item.end_date_month, item.end_date_day)"/>
-                </td>
-                <td>
-                  <span> -no country data- </span>
-                </td>
-                <td>
-                  <span> -no state data- </span>
-                </td>
+                <td>{{ item.cached_level0_geographic_name }}</td>
+                <td>{{ item.cached_level1_geographic_name }}</td>
+                <td>{{ item.cached_level2_geographic_name }}</td>
               </template>
               <td>
                 <span> -no object count- </span>
               </td>
-              <td>
+              <td class="horizontal-left-content">
                 <radial-annotator :global-id="item.global_id" />
-              </td>
-              <td>
                 <object-annotator :global-id="item.global_id" />
-              </td>
-              <td v-if="!showResultMap">
                 <pin-component
                   v-if="item.id"
                   :object-id="item.id"
                   :type="item.base_class" 
                 />
-              </td>
-              <td v-if="!showResultMap">
                 <span
-                  data-icon="trash"
+                  class="circle-button btn-delete button-default"
                   @click="delistCE(index)"
                 />
               </td>
@@ -167,24 +144,21 @@
                   v-model="selected"
                 >
               </td>
-              <td />
             </tr>
           </transition-group>
         </table>
       </div>
       <div
         v-if="showResultMap"
-        class="content">
+        :class="{ 'separate-left': showResultList }"
+        class="separate-map">
         <l-map
           class="separate-right"
           height="512px"
           width="100%"
           :zoom="zoomForMap"
           :geojson="featuresList"
-          ref="leaflet"
-          @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
           :light-this-feature="lightRow"
-          @shapeCreated="addSearchShape"
           @highlightRow="lightRow = $event"
           @restoreRow="lightRow = undefined"
           :draw-controls="false"
@@ -198,6 +172,7 @@
 <script>
 
   import SmartSelector from 'components/switch.vue'
+  import SmartList from './smartList.vue'
   import ceFilter from './ce_filter.vue'
   import ceByArea from './ce_by_area.vue'
   import ceByShape from './ce_by_shape.vue'
@@ -210,7 +185,7 @@
 
   const TABS = {
     attribute: 'By attribute',
-    namedAreaSearch: 'Named area search',
+    namedAreaSearch: 'By geographic area',
     drawAreaSearch: 'Draw area search',
     tag: 'tag'
   }
@@ -218,6 +193,7 @@
   export default {
     components: {
       SmartSelector,
+      SmartList,
       ceFilter,
       ceByArea,
       ceByShape,
@@ -236,6 +212,10 @@
       showResultMap: {
         type: Boolean,
         default: false
+      },
+      showFilter: {
+        type: Boolean,
+        default: true
       },
       append: {
         type: Boolean,
@@ -349,7 +329,7 @@
           ce_ids.push(ce.id)
         });
         if(!this.append) {
-          this.featuresList = []
+          this.featuresList = [].concat(this.shapes)
         }
         if (ce_ids.length) {                // if the list has contents
           let cycles = (ce_ids.length / 30);  // each item is about 30 characters, make each cycle less than 2000 chars
@@ -446,5 +426,9 @@
 
   tr:hover {
     background-color: #BBDDBB
+  }
+
+  .separate-map {
+    padding-top: 1em;
   }
 </style>
