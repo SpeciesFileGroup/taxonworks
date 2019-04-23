@@ -205,11 +205,25 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
 
     specify 'md5_of_verbatim_collecting_event is unique within project' do
       label = "Label\nAnother line\nYet another line."
-      c1    = FactoryBot.create(:valid_collecting_event, verbatim_label: label)
-      c2    = FactoryBot.build(:valid_collecting_event, verbatim_label: label)
+      c1 = FactoryBot.create(:valid_collecting_event, verbatim_label: label)
+      c2 = FactoryBot.build(:valid_collecting_event, verbatim_label: label)
       expect(c2.valid?).to be_falsey
       expect(c2.errors[:md5_of_verbatim_label].count).to eq(1)
     end
+
+    specify 'md5_of_verbatim_collecting_event is unique on update 1' do
+      label = "SOUTH AFRICA: WCape Prov.\n" + 
+        "De Hoop Nat. Res.\n"	+
+        "S34°27.150' E20°25.486'  19.6 m\n" +
+        "11-XII-2004 a 04-22\n" +
+        "col. J.N. Zahniser  sweep"
+
+      c1 = CollectingEvent.create(verbatim_label: label)
+      label.gsub!(/\sa\s/, ' # ')
+      c1.update(verbatim_label: label)
+      expect(c1.errors[:base]).to eq([])
+    end
+
   end
 
   context 'soft validation' do
