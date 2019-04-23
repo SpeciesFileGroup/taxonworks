@@ -35,6 +35,7 @@
           v-if="!Object.values(TABS).includes(view)"
           :list="showList[view]"
           :view="view"
+          @selected="compileList"
           :list-selected="collectingEventList"/>
       </template>
     </div>
@@ -199,22 +200,15 @@
     },
     methods: {
       compileList(newColEvList) {
-        if (this.append) {
-          if (this.collectingEventList.length) {
-            let i;  // don't add duplicates
-            let extantEvents = this.collectingEventList.map(ce => {
-              return ce.id
-            });
-            for (i = newColEvList.length - 1; i > -1; i--) {
-              if (extantEvents.includes(newColEvList[i].id)) {
-                this.$delete(newColEvList, i)
-              }
-            }
-            this.collectingEventList = newColEvList.concat(this.collectingEventList);
-          } else {
-            this.collectingEventList = newColEvList;
-            this.selected = [];
-          }
+        if (this.append) {  
+          let concat = newColEvList.concat(this.collectingEventList)
+                  
+          concat = concat.filter((item, index, self) =>
+            index === self.findIndex((i) => (
+              i.id === item.id
+            ))
+          )
+          this.collectingEventList = concat
         } else {
           this.collectingEventList = newColEvList;
           this.selected = [];
@@ -318,19 +312,6 @@
       addSearchShape(shape) {
         this.shapes = shape;
       },
-      setHighlightProperty(id) {
-        // find the right features by collecting_event_id
-        this.lightMapFeatures = id;
-      },
-      clearHighlightProperty(id) {
-        // find the right feature by collecting_event_id
-        this.featuresList.forEach((feature, index) => {
-          if (feature.properties.collecting_event_id == id) {
-            delete (feature.properties.highlight);
-            this.$set(this.featuresList, index, feature)
-          }
-        });
-      }
     },
     mounted: function () {
       this.$http.get('/collecting_events/select_options').then(response => {

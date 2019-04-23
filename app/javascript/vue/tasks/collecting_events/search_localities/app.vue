@@ -56,6 +56,7 @@
       :show-result-map="showMap"
       :show-result-list="showList"
       :show-filter="showFilter"
+      :append="append"
       @itemid="selectedItem=$event"
     />
   </div>

@@ -12,7 +12,7 @@
             <input
               type="radio"
               :value="item.id"
-              @click="addCE(item)">
+              @click="$emit('selected', [item])">
             <span v-html="item.object_tag" />
           </label>
         </li>
@@ -40,11 +40,6 @@ export default {
   computed: {
     cesIdSelected() {
       return this.listSelected.map(ce => { return ce.id})
-    }
-  },
-  methods: {
-    addCE(ce) {
-      this.listSelected.push(ce)
     }
   }
 }
