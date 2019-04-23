@@ -264,6 +264,13 @@ export default {
     }
   },
   mounted() {
+    let urlParams = new URLSearchParams(window.location.search)
+    let otuId = urlParams.get('otu_id')
+
+    if (/^\d+$/.test(otuId)) {
+      this.otuId = otuId
+    }
+
     GetOtuSmartSelector().then(response => {
       this.options = orderSmartSelector(Object.keys(response))
       this.options.push('new/Search')
