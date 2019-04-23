@@ -49,6 +49,7 @@
     <display-list
       label="name"
       set-key="type"
+      :delete-warning="false"
       :list="statusSelected"
       @delete="removeItem"/>
   </div>

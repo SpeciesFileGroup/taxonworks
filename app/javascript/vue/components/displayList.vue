@@ -68,6 +68,10 @@ export default {
     highlight: {
       type: Object,
       default: undefined
+    },
+    deleteWarning: {
+      type: Boolean,
+      default: true
     }
   },
   beforeCreate() {
@@ -96,7 +100,12 @@ export default {
       return false
     },
     deleteItem(item) {
-      if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+      if(this.deleteWarning) {
+        if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+          this.$emit('delete', item)
+        }
+      }
+      else {
         this.$emit('delete', item)
       }
     }

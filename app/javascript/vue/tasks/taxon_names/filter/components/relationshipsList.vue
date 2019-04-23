@@ -36,9 +36,7 @@ export default {
   },
   methods: {
     deleteItem(key) {
-      if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
-        this.$emit('delete', key)
-      }
+      this.$emit('delete', key)
     },
     flipItem(item) {
       this.$emit('flip', item)

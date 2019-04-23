@@ -33,8 +33,12 @@ export default {
     }
   },
   watch: {
-    list() {
-      this.parseJSONToCSV()
+    list(newVal) {
+      if(newVal.length)
+        this.parseJSONToCSV()
+      else {
+        this.csvFile = undefined
+      }
     }
   },
   methods: {
