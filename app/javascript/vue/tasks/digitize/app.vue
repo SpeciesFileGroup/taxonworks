@@ -95,5 +95,8 @@
         margin: 15px;
         border: 0;
     }
+    .modal-container {
+      width: 90vw;
+    }
   }
 </style>
