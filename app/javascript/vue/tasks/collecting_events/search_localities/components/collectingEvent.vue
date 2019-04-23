@@ -48,30 +48,31 @@
             </span>
           </div>
           <div>
-            <input
+            <button
               type="button"
               class="button button-default normal-input"
-              @click="selectAllList"
-              value="Select all"
-            >
-            <input
+              @click="selectAllList">
+              Select all
+            </button>
+            <button
               type="button"
               class="button button-default normal-input"
-              @click="deselectAllList"
-              value="Select none"
-            >
-            <input
+              @click="deselectAllList">
+              Select none
+            </button>
+            <button
               type="button"
               class="button button-default normal-input"
-              @click="keepSelected"
-              value="Remove unselected"
-            >
-            <input
+              @click="keepSelected">
+              Remove unselected
+            </button>
+            <csv-button :list="collectingEventList"/>
+            <button
               type="button"
               class="button button-default normal-input"
-              @click="removeAllList"
-              value="Remove all"
-            >
+              @click="removeAllList">
+              Remove all
+            </button>
           </div>
         </div>
       </div>
@@ -81,72 +82,14 @@
         class="first-column"
         v-if="showResultList"
       >
-        <table class="full_width">
-          <thead>
-            <tr>
-              <th>Verbatim locality</th>
-              <template v-if="!showResultMap">
-                <th>Date start</th>
-                <th>Level 1</th>
-                <th>Level 2</th>
-                <th>Level 3</th>
-              </template>
-              <th>Total objects</th>
-              <th>Options</th>
-              <th> Select </th>
-            </tr>
-          </thead>
-          <transition-group
-            name="list-complete"
-            tag="tbody"
-            @mouseout.native="lightRow = 0">
-            <tr
-              v-for="(item, index) in collectingEventList"
-              :key="item.id"
-              class="list-complete-item"
-              :class="{'ce-row': lightRow == item.id}"
-              @mouseover="lightRow = item.id"
-            >
-              <td class="my-column">
-                <span
-                  v-html="item.id + ' ' + item.verbatim_locality"
-                  @click="showObject(item.id)"
-                />
-              </td>
-              <template v-if="!showResultMap">
-                <td>
-                  <span v-html="makeDate(item.start_date_year, item.start_date_month, item.start_date_day)"/>
-                </td>
-                <td>{{ item.cached_level0_geographic_name }}</td>
-                <td>{{ item.cached_level1_geographic_name }}</td>
-                <td>{{ item.cached_level2_geographic_name }}</td>
-              </template>
-              <td>
-                <span> -no object count- </span>
-              </td>
-              <td class="horizontal-left-content">
-                <radial-annotator :global-id="item.global_id" />
-                <object-annotator :global-id="item.global_id" />
-                <pin-component
-                  v-if="item.id"
-                  :object-id="item.id"
-                  :type="item.base_class" 
-                />
-                <span
-                  class="circle-button btn-delete button-default"
-                  @click="delistCE(index)"
-                />
-              </td>
-              <td>
-                <input
-                  type="checkbox"
-                  :value="item.id"
-                  v-model="selected"
-                >
-              </td>
-            </tr>
-          </transition-group>
-        </table>
+        <list-ce 
+          :list="collectingEventList"
+          :highlight-id="lightRow"
+          @mouseover="lightRow = $event.id"
+          @mouseout="lightRow = 0"
+          @remove="delistCE($event)"
+          v-model="selected"
+        />
       </div>
       <div
         v-if="showResultMap"
@@ -177,11 +120,10 @@
   import ceByArea from './ce_by_area.vue'
   import ceByShape from './ce_by_shape.vue'
   import ceTag from './ce_tag.vue'
-  import PinComponent from "components/pin.vue"
   import Spinner from 'components/spinner'
   import lMap from './leafletMap.vue'
-  import RadialAnnotator from 'components/annotator/annotator'
-  import ObjectAnnotator from 'components/radial_object/radialObject'
+  import CsvButton from 'components/csvButton.vue'
+  import ListCe from './list.vue'
 
   const TABS = {
     attribute: 'By attribute',
@@ -198,11 +140,10 @@
       ceByArea,
       ceByShape,
       ceTag,
-      PinComponent,
       lMap,
       Spinner,
-      RadialAnnotator,
-      ObjectAnnotator,
+      CsvButton,
+      ListCe
     },
     props: {
       showResultList: {
@@ -286,9 +227,6 @@
         for (let i = this.featuresList.length - 1; i > -1; i--) {
           this.$delete(this.featuresList, i);
         }
-      },
-      showObject(id) {
-        window.open(`/collecting_events/` + id, '_blank');
       },
       delistCE(index) {
         let ce_id = this.collectingEventList[index].id;
@@ -392,14 +330,6 @@
             this.$set(this.featuresList, index, feature)
           }
         });
-      },
-      makeDate(year, month, day) {
-        year = year ? year : '';
-        month = month ? month : '';
-        day = day ? day : '';
-        let date = year.toString() + '-' + month.toString() + '-' + day.toString();
-        if (date == '--') return '';
-        return date
       }
     },
     mounted: function () {
@@ -414,20 +344,6 @@
   }
 </script>
 <style scoped>
-  .my-column {
-    width: 40%;
-    min-width: 40%;
-    max-width: 40%;
-  }
-
-  .ce-row {
-    background-color: #BBDDBB
-  }
-
-  tr:hover {
-    background-color: #BBDDBB
-  }
-
   .separate-map {
     padding-top: 1em;
   }
