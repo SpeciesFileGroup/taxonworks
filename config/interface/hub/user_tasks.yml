@@ -351,12 +351,12 @@ index_individual_bibtex_source_task:
   description: 'Parse a captured BibTeX string into a new source'
 index_search_locality_task:
   hub: true
-  name: 'Search locality by name'
+  name: 'Filter collecting events'
   related:
   categories:
     - collecting_event
   status: prototype
-  description: 'Alphabetically list localities from shape (drawn or by name)'
+  description: 'Filter collecting events by shape, tag, and various other params.'
 observation_matrices_hub_task:
   hub: true
   name: 'Observation matrix hub'
