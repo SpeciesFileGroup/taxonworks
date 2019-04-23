@@ -13,8 +13,7 @@
           class="normal-input button-active"
         >
         <label
-          :for="`switch-${name}-${index}`"
-          class="capitalize">{{ item }}
+          :for="`switch-${name}-${index}`">{{ item }}
         </label>
       </template>
     </template>
@@ -52,3 +51,8 @@
   }
 
 </script>
+<style scoped>
+  label::first-letter {
+    text-transform: capitalize;
+  }
+</style>

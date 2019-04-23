@@ -13,10 +13,7 @@
           v-for="(item, index) in geographicAreaList"
           :key="item.id">
           <td>
-            <a
-              v-html="item.label_html"
-              @click="showObject()"
-            />
+            <span v-html="item.label_html"/>
           </td>
           <td>
             <span
@@ -41,7 +38,7 @@
       />
       <input
         type="button"
-        class="button normal-input button-default separate-left"
+        class="button normal-input button-default"
         @click="getAreaData()"
         :disabled="!geographicAreaList.length"
         value="Find">
@@ -74,7 +71,7 @@
         let params = {
           spatial_geographic_area_ids: geo_ids
         };
-        this.$http.get('/collecting_events.json', {params: params}).then(response => {
+        this.$http.get('/collecting_events.json', { params: params }).then(response => {
           this.collectingEventList = response.body;
           if (this.collectingEventList) {
             this.$emit('collectingEventList', this.collectingEventList)

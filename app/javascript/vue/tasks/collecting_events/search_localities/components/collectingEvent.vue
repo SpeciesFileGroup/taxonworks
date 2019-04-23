@@ -80,8 +80,7 @@
     </div>
     <div class="flexbox">
       <div
-        class="first-column"
-        v-if="showResultList"
+        v-show="showResultList"
       >
         <list-ce 
           :list="collectingEventList"
@@ -129,7 +128,7 @@
   const TABS = {
     attribute: 'By attribute',
     namedAreaSearch: 'By geographic area',
-    drawAreaSearch: 'Draw area search',
+    drawAreaSearch: 'By drawn area',
     tag: 'tag'
   }
 
@@ -259,7 +258,8 @@
         let ce_ids = [];      // find the georeferences for these collecting_events
         this.collectingEventList.forEach(ce => {
           ce_ids.push(ce.id)
-        });
+        })
+
         if(!this.append) {
           this.featuresList = [].concat(this.shapes)
         }
@@ -268,14 +268,17 @@
           let FeatureCollection = {
             "type": "FeatureCollection",
             "features": []
-          };
-          let that = this;
-          let thisCycle = 0;
-          let endCycle;
-          let finalCycle = ce_ids.length;
-          this.newFeatures = [];
-          let promises = [];
+          }
+
+          let that = this
+          let thisCycle = 0
+          let endCycle
+          let finalCycle = ce_ids.length
+          let promises = []
+          this.featuresList = []
+
           for (let i = 0; i < cycles; i++) {
+
             endCycle = thisCycle + 30;
             if ((thisCycle + 30) > finalCycle) {
               endCycle = finalCycle + 1
@@ -299,6 +302,7 @@
       },
       makePromise(params) {
         return new Promise((resolve, reject) => {
+          console.log("enter")
           this.$http.get('/georeferences.json', {params: params}).then(response => {
             // put these geometries on the map as features
             let newFeatures = response.body.map(georeference => {

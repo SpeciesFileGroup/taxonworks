@@ -14,18 +14,23 @@
         </th>
         <th
           :class="classSort('date_start_string')"
-          @click="sortTable('date_start_string')">Date start</th>
+          @click="sortTable('date_start_string')">
+          Date start
+        </th>
         <th
           :class="classSort('cached_level0_geographic_name')"
-          @click="sortTable('cached_level0_geographic_name')">Level 1
+          @click="sortTable('cached_level0_geographic_name')">
+          Level 1
         </th>
         <th
           :class="classSort('cached_level1_geographic_name')"
-          @click="sortTable('cached_level1_geographic_name')">Level 2
+          @click="sortTable('cached_level1_geographic_name')">
+          Level 2
         </th>
         <th
           :class="classSort('cached_level2_geographic_name')"
-          @click="sortTable('cached_level2_geographic_name')">Level 3
+          @click="sortTable('cached_level2_geographic_name')">
+          Level 3
         </th>
         <th>Options</th>
         <th>Select</th>
