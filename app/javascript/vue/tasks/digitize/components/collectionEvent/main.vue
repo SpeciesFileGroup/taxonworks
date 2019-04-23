@@ -30,7 +30,7 @@
           <div class="horizontal-left-content separate-bottom">
             <smart-selector
               name="collection-event"
-              class="separate-right"
+              class="separate-right item"
               v-model="view"
               :add-option="staticOptions"
               :options="tabs"/>

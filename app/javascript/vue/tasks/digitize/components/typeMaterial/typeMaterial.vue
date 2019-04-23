@@ -26,7 +26,7 @@
             <legend>Taxon name</legend>
             <smart-selector
               v-model="viewTaxon"
-              class="separate-bottom"
+              class="separate-bottom item"
               name="taxon-type"
               :options="optionsTaxon"/>
             <div
@@ -95,7 +95,7 @@
           <legend>Type designator</legend>
           <smart-selector
             v-model="view"
-            class="separate-bottom"
+            class="separate-bottom item"
             name="type-designator"
             :options="options"/>
           <div

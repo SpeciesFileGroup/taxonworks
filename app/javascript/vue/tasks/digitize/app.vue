@@ -87,14 +87,6 @@
 </script>
 <style lang="scss">
   #vue-all-in-one {
-
-    .switch-radio {
-      flex: 1 auto;
-      label {
-        width: 100% !important; 
-      }
-    }
-
     hr {
         height: 1px;
         color: #f5f5f5;

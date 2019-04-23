@@ -6,6 +6,7 @@
       <div class="horizontal-left-content middle separate-bottom">
         <smart-selector 
           name="repository"
+          class="item"
           v-model="view"
           :add-option="['search']"
           :options="options"/>

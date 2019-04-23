@@ -12,7 +12,7 @@
         <div class="horizontal-left-content separate-bottom middle">
           <smart-selector
             v-model="view"
-            class="separate-right"
+            class="separate-right item"
             name="otu-determination"
             :options="options"/>
           <lock-component v-model="locked.taxon_determination.otu_id"/>
@@ -61,7 +61,7 @@
         <div class="horizontal-left-content separate-bottom middle">
           <smart-selector
             v-model="viewDeterminer"
-            class="separate-right"
+            class="separate-right item"
             name="determiner"
             :options="optionsDeterminer"/>
           <lock-component v-model="locked.taxon_determination.roles_attributes"/>
