@@ -8,7 +8,9 @@
       v-if="showModal"
       @close="showModal = false">
       <h3 slot="header">Recent collection objects</h3>
-      <table slot="body">
+      <table
+        class="full_width"
+        slot="body">
         <thead>
           <tr>
             <th>Family</th>
