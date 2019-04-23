@@ -105,7 +105,6 @@
   import RadialAnnotator from 'components/annotator/annotator.vue'
   import RadialObject from 'components/radial_object/radialObject.vue'
   import PredicatesComponent from 'components/custom_attributes/predicates/predicates'
-  import RadialObject from 'components/radial_object/radialObject'
   import DefaultTag from 'components/defaultTag.vue'
 
   import { GetCollectionObjectDepictions, CreateDepiction, UpdateUserPreferences } from '../../request/resources.js'
