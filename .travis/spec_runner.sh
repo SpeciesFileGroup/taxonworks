@@ -41,6 +41,9 @@ trap 'report' ERR
 # Refresh VCRs on CRON event
 [ "$TRAVIS_EVENT_TYPE" != "cron" ] || rm -rf spec/fixtures/vcr_cassettes/* && echo "VCRs cleared"
 
+# Refresh assets cache on CRON event
+[ "$TRAVIS_EVENT_TYPE" != "cron" ] || rm -rf tmp/cache && rm -rf assets/* && echo "Assets cleared"
+
 # Precompile assets only if feature tests will be executed
 echo ${SPECS_TO_RUN[$TEST_WORKER]} | grep -qv "spec/features/" || \
 bundle exec rake assets:precompile
