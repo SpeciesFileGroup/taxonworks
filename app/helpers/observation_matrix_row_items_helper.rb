@@ -19,5 +19,3 @@ module ObservationMatrixRowItemsHelper
   end
 
 end
-
-
