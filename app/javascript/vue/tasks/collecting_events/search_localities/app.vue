@@ -15,6 +15,8 @@
           <label>
             <input
               type="checkbox"
+              v-shortkey="[getMacKey, 'f']"
+              @shortkey="showFilter = !showFilter"
               v-model="showFilter">
             Show filter
           </label>
