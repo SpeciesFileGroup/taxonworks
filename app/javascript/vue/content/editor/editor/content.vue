@@ -21,7 +21,9 @@
               :otu="otu"
               class="separate-options"
               :redirect="true"/>
-            <radial-object :global-id="otu.global_id"/>
+            <radial-object 
+              v-if="otu"
+              :global-id="otu.global_id"/>
             <select-topic-otu class="separate-left"/>
           </div>
         </div>
