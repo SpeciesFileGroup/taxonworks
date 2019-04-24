@@ -2,7 +2,7 @@ class PeopleController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
   before_action :set_person, only: [:show, :edit, :update, :destroy, :roles, :similar]
-  after_action -> { set_pagination_headers(:people) }, on: [:index], if: :json_request? 
+  after_action -> { set_pagination_headers(:people) }, only: [:index], if: :json_request? 
 
   # GET /people
   # GET /people.json

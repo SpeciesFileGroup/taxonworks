@@ -2,7 +2,7 @@ class OtusController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_otu, only: [:show, :edit, :update, :destroy, :collection_objects]
-  after_action -> { set_pagination_headers(:otus) }, on: [:index], if: :json_request? 
+  after_action -> { set_pagination_headers(:otus) }, only: [:index], if: :json_request? 
 
   # GET /otus
   # GET /otus.json
