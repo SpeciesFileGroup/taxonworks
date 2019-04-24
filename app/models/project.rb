@@ -21,7 +21,9 @@ class Project < ApplicationRecord
   include Project::Preferences
 
   attr_accessor :without_root_taxon_name
-
+  attr_accessor :clear_api_access_token
+  attr_accessor :set_new_api_access_token
+  
   # ORDER MATTERS
   # Used in nuke order (not available in production UI), but 
   # ultimately also for dumping records
@@ -99,7 +101,8 @@ class Project < ApplicationRecord
   has_many :project_sources, dependent: :restrict_with_error
   has_many :sources, through: :project_sources
 
-
+  before_save :generate_api_access_token, if: :set_new_api_access_token
+  before_save :destroy_api_access_token, if: -> { self.clear_api_access_token}
   after_create :create_root_taxon_name, unless: -> {self.without_root_taxon_name == true}
 
   validates_presence_of :name
