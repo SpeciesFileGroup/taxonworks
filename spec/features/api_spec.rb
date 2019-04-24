@@ -2,7 +2,10 @@ require 'rails_helper'
 
 describe ApiController, type: :feature do 
 
-  # We maintain these few feature tests to ensure browser based calls also authenticate.
+  # !!
+  # !! We maintain these few feature tests only ensure browser based calls also authenticate. They are hacky.
+  # !! 
+  
   # See /requests for all other API tests.
   context 'GET /api using browser address bar', js: true do
     let(:user) { FactoryBot.create(:valid_user, :user_valid_token) }
@@ -13,12 +16,11 @@ describe ApiController, type: :feature do
       context 'with a valid token' do
         it 'shows a JSON success response' do
           visit path + "?token=#{user.api_access_token}"
-          expect((find('.objectBox').text)).to eq('true')
+          expect(page.find('.objectBox', text: 'true')).to be_truthy 
         end
       end
 
       context 'with an invalid token' do
-
         it 'shows a JSON failure response' do
           visit path + '?token=FOO'
           expect((find('.objectBox').text)).to eq('false')
@@ -27,17 +29,16 @@ describe ApiController, type: :feature do
     end
 
     context 'project tokens' do
-
-  let(:path) { '/api/v1/project_authenticated' }
+      let(:path) { '/api/v1/project_authenticated' }
       context 'with a valid token' do
         it 'shows a JSON success response' do
           visit path + "?project_token=#{project.api_access_token}"
-          expect((find('.objectBox').text)).to eq('true')
+          expect(page.find('.objectBox', text: 'true')).to be_truthy
         end
       end
 
-      context 'with an invalid token' do
 
+      context 'with an invalid token' do
         it 'shows a JSON failure response' do
           visit path + '?project_token=FOO'
           expect((find('.objectBox').text)).to eq('false')
