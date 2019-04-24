@@ -67,5 +67,6 @@ notifications:
   email:
     recipients:
       - diapriid@gmail.com
+      - ellocodelassembler@gmail.com
     on_failure: change
   webhooks: https://coveralls.io/webhook
