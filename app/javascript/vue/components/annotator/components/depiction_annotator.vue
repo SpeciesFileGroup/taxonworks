@@ -14,6 +14,49 @@
         <input class="normal-input" type="text" v-model="depiction.figure_label" placeholder="Label">
       </div>
       <textarea class="normal-input separate-bottom" type="text" v-model="depiction.caption" placeholder="Caption"/>
+
+      <div class="separate-top separate-bottom">
+        <ul class="no_bullets">
+          <li
+            v-for="type in objectTypes"
+            :key="type.value">
+            <label>
+              <input
+                type="radio"
+                name="depiction-type"
+                v-model="selectedType"
+                :value="type">
+              {{ type.label }}
+            </label>
+          </li>
+        </ul>
+        <div
+          v-if="selectedType && !selectedObject"
+          class="separate-top">
+          <autocomplete
+            v-if="selectedType.value != 'Otu'"
+            :disabled="!selectedType"
+            :url="selectedType.url"
+            label="label_html"
+            :placeholder="`Select a ${selectedType.label.toLowerCase()}`"
+            :clear-after="true"
+            @getItem="selectedObject = $event"
+            param="term"/>
+          <otu-picker
+            v-else
+            :clear-after="true"
+            @getItem="selectedObject = $event"/>
+        </div>
+        <div
+          v-if="selectedObject"
+          class="horizontal-left-content">
+          <span v-html="selectedObject.label_html"/>
+          <span
+            class="circle-button button-default btn-undo"
+            @click="selectedObject = undefined"/>
+        </div>
+      </div>
+
       <div>
         <button type="button" class="normal-input button button-submit" @click="updateFigure()">Update</button>
         <button type="button" class="normal-input button button-default" @click="depiction = undefined">New</button>
@@ -31,12 +74,21 @@ import CRUD from '../request/crud.js'
 import displayList from './displayList.vue'
 import dropzone from '../../dropzone.vue'
 import annotatorExtend from '../components/annotatorExtend.js'
+import Autocomplete from 'components/autocomplete'
+import OtuPicker from 'components/otu/otu_picker/otu_picker'
 
 export default {
   mixins: [CRUD, annotatorExtend],
   components: {
     dropzone,
-    displayList
+    displayList,
+    Autocomplete,
+    OtuPicker
+  },
+  computed: {
+    updateObjectType() {
+      return (this.selectedObject && this.selectedType)
+    }
   },
   data: function () {
     return {
@@ -49,23 +101,51 @@ export default {
         },
         dictDefaultMessage: 'Drop images here to add figures',
         acceptedFiles: 'image/*'
-      }
+      },
+      objectTypes: [
+        {
+          value: 'Otu',
+          label: 'Otu',
+          url: '/otus/autocomplete'
+        },
+        {
+          value: 'CollectingEvent',
+          label: 'Collecting event',
+          url: '/collecting_events/autocomplete'
+        },
+        {
+          value: 'CollectionObject',
+          label: 'Collection object',
+          url: '/collection_objects/autocomplete'
+        }
+      ],
+      selectedType: undefined,
+      selectedObject: undefined
     }
   },
   methods: {
-	        'success': function (file, response) {
-	        	this.list.push(response)
-	        	this.$refs.figure.removeFile(file)
-	        },
-	        'sending': function (file, xhr, formData) {
-	          	formData.append('depiction[annotated_global_entity]', decodeURIComponent(this.globalId))
-	        },
-	        updateFigure () {
-	        	this.update(`/depictions/${this.depiction.id}`, { depiction: this.depiction }).then(response => {
-	        		this.$set(this.list, this.list.findIndex(element => this.depiction.id == element.id), response.body)
-	        		this.depiction = undefined
-	        	})
-	        }
+    'success': function (file, response) {
+      this.list.push(response)
+      this.$refs.figure.removeFile(file)
+    },
+    'sending': function (file, xhr, formData) {
+      formData.append('depiction[annotated_global_entity]', decodeURIComponent(this.globalId))
+    },
+    updateFigure () {
+      if(this.updateObjectType) {
+        this.depiction.depiction_object_type = this.selectedType.value
+        this.depiction.depiction_object_id = this.selectedObject.id
+      }
+      this.update(`/depictions/${this.depiction.id}`, { depiction: this.depiction }).then(response => {
+        if(this.updateObjectType) {
+          this.$delete(this.list, this.list.findIndex(element => this.depiction.id == element.id), response.body)
+        }
+        else {
+          this.$set(this.list, this.list.findIndex(element => this.depiction.id == element.id), response.body)
+        }
+        this.depiction = undefined
+      })
+    }
   }
 }
 </script>
@@ -82,6 +162,9 @@ export default {
 			width: 100%;
 			height: 100px;
 		}
+    /deep/ .vue-autocomplete-input {
+      width: 400px;
+    }
 	}
 }
 </style>

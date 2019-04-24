@@ -18,7 +18,7 @@
         <tbody>
         <% @observation_matrices.each do |om| %>
           <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%> 
-            <td> <%= om.name -%> </td> as
+            <td> <%= om.name -%> </td>
             <td> <%= om.observation_matrix_rows.count -%> </td> 
             <td> <%= om.observation_matrix_columns.count -%> </td> 
             <td> <%= link_to('View', observation_matrix_view_task_path(om)) if om.cell_count < 10000-%> </td> 

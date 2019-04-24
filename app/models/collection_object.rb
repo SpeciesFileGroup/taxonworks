@@ -520,7 +520,8 @@ class CollectionObject < ApplicationRecord
   # @return [Array] of attributes
   # Retrieve all the attributes associated with the column names (col_defs) for a specific collection_object
   def self.bc_attributes(collection_object, col_defs)
-    retval = []; collection = col_defs
+    retval = []
+    collection = col_defs
     unless collection.nil?
       group = collection[:bc]
       unless group.nil?

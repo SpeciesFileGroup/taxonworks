@@ -1,6 +1,8 @@
 <template>
   <div class="sample-descriptor">
-    <summary-view :descriptor="descriptor">
+    <summary-view
+      :descriptor="descriptor"
+      :index="index">
       <div class="horizontal-left-content">
         <label class="separate-right">
           Min:
@@ -92,6 +94,7 @@ import UnitSelector from '../../UnitSelector/UnitSelector.vue'
 export default {
   mixins: [SingleObservationDescriptor],
   name: 'SampleDescriptor',
+  props: ['index'],
   computed: {
     sampleMin () {
       return this.$store.getters[GetterNames.GetSampleMinFor](this.$props.descriptor.id)
