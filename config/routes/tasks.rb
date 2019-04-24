@@ -84,6 +84,10 @@ scope :tasks do
   end
 
   scope :collecting_events do
+    scope :search_locality, controller: 'tasks/collecting_events/search_locality' do
+      get 'index', as: 'index_search_locality_task'
+    end 
+ 
     scope :parse do
       scope :stepwise do
         scope :dates, controller: 'tasks/collecting_events/parse/stepwise/dates' do
