@@ -112,34 +112,6 @@ describe Project, type: :model do
       end
     end
   end
-  # Unsure, this might have been moved!
-  context 'preferences' do
-    before(:each) {
-      project.update!(name: 'Workbench settings')
-    }
-
-    specify 'are set to default' do
-      expect(project.preferences).to eq(Project::DEFAULT_WORKBENCH_SETTINGS)
-    end
-
-    specify 'can be cleared with #clear_preferences' do
-      project.clear_preferences
-      expect(project.preferences).to eq(Project::DEFAULT_WORKBENCH_SETTINGS)
-    end
-
-    specify 'workbench_starting_path defaults to DEFAULT_WORKBENCH_STARTING_PATH 1' do
-      expect(project.workbench_starting_path).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
-    end
-
-    specify 'workbench_starting_path defaults to DEFAULT_WORKBENCH_STARTING_PATH 2' do
-      expect(project.preferences['workbench_starting_path']).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
-    end
-
-    specify 'updating an attribute' do
-      expect(project.update!(workbench_starting_path: '/dashboard')).to be_truthy
-      expect(project.workbench_starting_path).to eq('/dashboard')
-    end
-  end
 
   specify '#set_new_api_access_token 1' do
     project.update!(name: 'Foo', set_new_api_access_token: true)
