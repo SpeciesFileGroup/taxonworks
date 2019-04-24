@@ -23,4 +23,10 @@ class TaxonNameRelationship::Typification::Genus::Subsequent < TaxonNameRelation
     :type_species_by_subsequent_designation_or_monotypy
   end
 
+  def sv_specific_relationship
+    o = object_taxon_name
+    if o.year_of_publication && o.year_of_publication > 1930
+      soft_validations.add(:type, "Genus #{o.cached_html_name_and_author_year} described after 1930 is nomen nudum, if type was not designated in the original publication")
+    end
+  end
 end

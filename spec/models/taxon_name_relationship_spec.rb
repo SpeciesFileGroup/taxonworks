@@ -429,7 +429,12 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         r  = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
         r.soft_validate(:specific_relationship)
         expect(r.soft_validations.messages_on(:type).size).to eq(1)
-        r.type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective'
+      end
+
+      specify 'objective synonyms have same type specimen' do
+        type_material1 = FactoryBot.create(:valid_type_material, protonym: s1)
+        type_material2 = FactoryBot.create(:valid_type_material, biological_object_id: type_material1.biological_object_id, protonym: s2)
+        r  = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
         r.soft_validate(:specific_relationship)
         expect(r.soft_validations.messages_on(:type).empty?).to be_truthy
       end
@@ -546,7 +551,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression::Total')
         r2 = TaxonNameRelationship::Iczn::Invalidating::Homonym.new(subject_taxon_name: genus, object_taxon_name: g2, source: source)
         r2.soft_validate('validate_homonym_relationships')
-        expect(r2.soft_validations.messages_on(:type).size).to eq(1)
+        expect(r2.soft_validations.messages_on(:type)).to include('Taxon should not be treated as homonym, since the related taxon is totally suppressed')
       end
 
       specify 'homonym without nomen novum' do
