@@ -144,7 +144,7 @@ end
 group :test do
   gem 'rspec', '~> 3.6'
   gem 'coveralls', '~> 0.8.22', require: false
-  gem 'capybara', '~> 3.16'
+  gem 'capybara', '~> 3.18'
   gem 'timecop', '~> 0.9.1'
   gem 'webmock', '~> 3.5.1'
   gem 'vcr', '~> 4.0.0'
