@@ -1,12 +1,10 @@
 <template>
-  <div>
-    <select v-model="monthSelected">
-      <option
-        v-for="(month, index) in months"
-        :key="month"
-        :value="(index == 0 ? '' : index)"> {{ month }} </option>
-    </select>
-  </div>
+  <select class="normal-input" v-model="monthSelected">
+    <option
+      v-for="(month, index) in months"
+      :key="month"
+      :value="(index == 0 ? '' : index)"> {{ month }} </option>
+  </select>
 </template>
 <script>
   export default {

@@ -5,116 +5,114 @@
       :full-screen="true"
       legend="Loading..."
       :logo-size="{ width: '100px', height: '100px'}"/>
-    <h3>Find collecting events</h3>
-    <table>
-      <tbody>
-        <tr>
-          <td>Originating<br>on exactly</td>
-          <td>Day</td>
-          <td>Month</td>
-          <td>Year</td> 
-          <td>between start date</td>
-        </tr>
-        <tr>
-          <td/>
-          <td>
-            <input
-              v-model="parameters['start_date_day']"
-              type=text
-              size="2"
-              maxlength="2">
-          </td>
-          <td>
-            <month-select @month="parameters['start_date_month']=$event"/>
-          </td>
-          <td>
-            <input
-              v-model="parameters['start_date_year']"
-              type=text
-              size="4"
-              maxlength="4">
-          </td>
-          <td> &nbsp; OR &nbsp; </td>
-          <td>
-            <input
-              id="vueStartDate"
-              v-model="parameters['start_date']"
-              type="date">
-            <button
-              type="button"
-              class="button normal-input button-default separate-left"
-              @click="setTodaysDateForStart">
-              Now
-            </button>
-          </td>
-        </tr>
-        <tr>
-          <td>And ending<br>on exactly</td>
-          <td>Day</td>
-          <td>Month</td>
-          <td>Year</td>
-          <td>and end date</td>
-        </tr>
-        <tr>
-          <td/>
-          <td>
-            <input
-              v-model="parameters['end_date_day']"
-              type="text"
-              size="2"
-              maxlength="2">
-          </td>
-          <td>
-            <month-select @month="parameters['end_date_month']=$event"/>
-          </td>
-          <td>
-            <input
-              v-model="parameters['end_date_year']"
-              type="text"
-              size="4"
-              maxlength="4">
-          </td>
-          <td/>
-          <td>
-            <input
-              id="vueEndDate"
-              v-model="parameters['end_date']"
-              type="date">
-            <button
-              type="button"
-              class="button normal-input button-default separate-left"
-              @click="setTodaysDateForEnd">
-              Now
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
     <div>
-      <div class="field">
-        <label>Verbatim locality containing</label>
-        <br>
-        <input
-          v-model="parameters['in_verbatim_locality']"
-          type="text"
-          size="35">
+      <h2>Date - exact match</h2>
+      <div>
+        <label>
+          <b>Start date</b>
+        </label>
+        <div class="horizontal-left-content separate-bottom">
+          <div class="separate-right">
+            <label>Day</label>
+            <input
+              class="date-input"
+              v-model="parameters.start_date_day"
+              type="text"
+              maxlength="4">
+          </div>
+          <div class="separate-left separate-right">
+            <label>Month</label>
+            <month-select
+              class="date-input"
+              @month="parameters.start_date_month = $event"/>
+          </div>
+          <div class="separate-left">
+            <label>Year</label>
+            <input
+              class="date-input"
+              v-model="parameters.start_date_year"
+              type="text"
+              maxlength="2">
+          </div>
+        </div>
       </div>
-      <div class="field">
-        <label>Any label containing</label>
-        <br>
-        <input
-          v-model="parameters['in_labels']"
-          type="text"
-          size="35">
+      <div>
+        <label>
+          <b>End date</b>
+        </label>
+        <div class="horizontal-left-content separate-bottom">
+          <div class="separate-right">
+            <label>Day</label>
+            <input
+              class="date-input"
+              v-model="parameters.end_date_day"
+              type="text"
+              maxlength="4">
+          </div>
+          <div class="separate-left separate-right">
+            <label>Month</label>
+            <month-select
+              class="date-input"
+              @month="parameters.end_date_month = $event"/>
+          </div>
+          <div class="separate-left">
+            <label>Year</label>
+            <input
+              class="date-input"
+              v-model="parameters.end_date_year"
+              type="text"
+              maxlength="2">
+          </div>
+        </div>
       </div>
+      <h2>Date between</h2>
       <div class="field">
-        <label>An identifier containing</label>
-        <br>
         <input
-          v-model="parameters['identifier_text']"
-          type="text"
-          size="35">
+          id="vueStartDate"
+          v-model="parameters.start_date"
+          type="date">
+        <button
+          type="button"
+          class="button normal-input button-default separate-left"
+          @click="setTodaysDateForStart">
+          Now
+        </button>
       </div>
+      <div>
+        <input
+          id="vueEndDate"
+          v-model="parameters.end_date"
+          type="date">
+        <button
+          type="button"
+          class="button normal-input button-default separate-left"
+          @click="setTodaysDateForEnd">
+          Now
+        </button>
+      </div>    
+    </div>
+    <h2>Matching fields</h2>
+    <div class="field">
+      <label>Verbatim locality containing</label>
+      <input
+        v-model="parameters.in_verbatim_locality"
+        type="text"
+        size="35">
+    </div>
+    <div class="field">
+      <label>Any label containing</label>
+      <input
+        v-model="parameters.in_labels"
+        type="text"
+        size="35">
+    </div>
+    <h2>Matching identifier</h2>
+    <div class="field">
+      <label>An identifier containing</label>
+      <input
+        v-model="parameters.identifier_text"
+        type="text"
+        size="35">
     </div>
     <input
       class="button normal-input button-default separate-left"
@@ -203,3 +201,11 @@
     },
   }
 </script>
+<style scoped>
+  label {
+    display: block;
+  }
+  .date-input {
+    max-width: 60px;
+  }
+</style>
