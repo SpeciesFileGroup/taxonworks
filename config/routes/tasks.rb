@@ -172,6 +172,7 @@ scope :tasks do
     scope :simple, controller: 'tasks/accessions/quick/simple' do
       get 'new', as: 'simple_specimen_task'
       post 'create', as: 'create_simple_specimen_task'
+      # needs a name to remove conflicts?
       get 'collecting_events', format: :js
     end
   end

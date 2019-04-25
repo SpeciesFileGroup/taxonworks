@@ -34,6 +34,8 @@ end
 resources :projects do
   collection do
     get 'list'
+    get 'search'
+    get 'autocomplete' 
   end
 
   member do

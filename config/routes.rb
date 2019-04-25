@@ -6,8 +6,8 @@ Rails.application.eager_load!
 # Routes are moved to config/routes.  
 TaxonWorks::Application.routes.draw do
   draw :base
+  draw :data
   draw :tasks
   draw :api_v1
-  draw :data
   draw :annotations
 end
