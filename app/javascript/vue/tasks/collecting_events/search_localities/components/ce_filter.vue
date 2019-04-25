@@ -148,7 +148,8 @@
           in_verbatim_locality: '',
           in_labels: '',
           identifier_text: '',
-          shape: ''},
+          shape: ''
+        },
         collectingEventList: [],
         isLoading:  false,
         haveParams: false,
@@ -157,7 +158,7 @@
     watch: {
       parameters: {
         handler(newVal) {
-          this.disableFind();
+          this.disableFind()
         },
         deep: true
       }
@@ -193,13 +194,11 @@
         return date.toISOString().slice(0,10)
       },
       disableFind() {
-        let haveParams = 0;
-        let i = 0;
-        let paramKeys = Object.keys(this.parameters);
-        for (i=0; i < paramKeys.length; i++) {
-          haveParams += this.parameters[paramKeys[i]].length;
-        }
-        this.haveParams = (haveParams > 0);
+        let count = 0
+        Object.values(this.parameters).forEach(param => {
+          count += param.length
+        })
+        this.haveParams = (count > 0)
       }
     },
   }
