@@ -24,7 +24,7 @@ export default {
       return `gid://taxon-works/Protonym/${id}`
     },
     showObject() {
-      window.open(this.citation.citation_object.object_url, '_blank');
+      return this.citation.citation_object.object_url
     },
     changePage() {
       let that = this;
