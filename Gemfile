@@ -36,7 +36,6 @@ gem 'postgresql_cursor', '~> 0.6.1'
 gem 'gpx', '~> 1.0.0'
 
 # API/controllers
-gem 'rabl', '~> 0.14'
 gem 'jbuilder', '~> 2.7'
 gem 'responders', '~> 2.4' # Used?!
 
