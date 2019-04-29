@@ -3,7 +3,7 @@
 <%= link_to('Observation matrix hub', observation_matrices_hub_task_path) -%> |
 <%= link_to('Edit', new_matrix_task_path(@observation_matrix)) -%>
 
-<table>
+<table id="observation_matrices">
   <thead>
     <tr>
       <th> </th>
@@ -20,7 +20,7 @@
       <tr>
         <%= content_tag(:td, (i + 1).to_s) -%>
         <%= content_tag(:td, link_to('code', index_row_coder_task_path(observation_matrix_row_id: row.id) , class: ['circle-button', 'btn-row-coder']   )) -%>
-        <%= content_tag(:td, object_link(row.row_object), class: 'full_width') -%>
+        <%= content_tag(:td, object_link(row.row_object), class: 'otu_column') -%>
 
         <% @observation_matrix.observation_matrix_columns.order(:position).each do |col| -%>
 
