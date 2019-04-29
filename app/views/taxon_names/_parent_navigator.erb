@@ -1,5 +1,11 @@
 <div class="title nav-line" data-help="Within the hierarchy the first number is the number of valid children, the second the number of invalid children.">
-  Hierarchy
+  Navigate
+</div>
+
+<div class="navigation-controls">
+  <%= previous_sibling_browse_taxon_name_link(@taxon_name) %>
+  <a href="/taxon_names/random" class="navigation-item">Random</a>
+  <%= next_sibling_browse_taxon_name_link(@taxon_name) %>
 </div>
 
 <div id="show_taxon_name_hierarchy" class="content">
