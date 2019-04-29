@@ -62,7 +62,7 @@
       if (this.sourceID) {
         this.$http.get('/sources/' + this.sourceID + '.json').then(response => {
           this.source = response.body
-          history.pushState(null, null, `/tasks/nomenclature/by_source/${this.source.id}`)
+          history.pushState(null, null, `/tasks/nomenclature/by_source?source_id=${this.source.id}`)
           this.$emit('sourceID', this.sourceID);
         })
       }
@@ -86,9 +86,13 @@
     }
   },
   mounted() {
-    let pieces = window.location.href.split('/');
-    this.sourceID = pieces[pieces.length - 1];
-    if (this.sourceID.length && Number.isInteger(Number(this.sourceID))) this.getSource();
+    let urlParams = new URLSearchParams(window.location.search)
+    let sourceId = urlParams.get('source_id')
+
+    if (/^\d+$/.test(sourceId)) {
+      this.sourceID = sourceId
+      this.getSource()
+    }
   }
 }
 </script>
