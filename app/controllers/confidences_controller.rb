@@ -14,11 +14,10 @@ class ConfidencesController < ApplicationController
       }
       format.json {
         @confidences = Queries::Confidence::Filter.new(filter_params).all
-          .where(project_id: sessions_current_project_id).page(params[:page]).per(500)
+          .where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
       }
     end
   end
-
 
   # GET /confidences/new
   def new
