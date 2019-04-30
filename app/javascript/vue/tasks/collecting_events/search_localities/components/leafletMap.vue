@@ -71,6 +71,10 @@
           return []
         }
       },
+      fitBounds: {
+        type: Boolean,
+        default: true
+      }
     },
     data() {
       return {
@@ -138,7 +142,8 @@
             this.mapSize = this.$el.clientWidth
             let bounds = this.foundItems.getBounds()
             if(Object.keys(bounds).length) {
-              this.mapObject.fitBounds(bounds)
+              if(this.fitBounds)
+                this.mapObject.fitBounds(bounds)
             }
             this.mapObject.invalidateSize()
           })
@@ -276,9 +281,8 @@
           style: this.defaultShapeStyle(),
           onEachFeature: this.onMyFeatures
         }).addTo(this.foundItems);
-
-          this.mapObject.fitBounds(this.foundItems.getBounds());
-         // DON'T rebound the map when just highlighting by either method
+        if(this.fitBounds)
+          this.mapObject.fitBounds(this.foundItems.getBounds())
       },
       defaultShapeStyle() {
         return {
@@ -390,11 +394,13 @@
       },
       zoomToFeature(e) {
         let layer = e.target
-        if (layer instanceof L.Marker || layer instanceof L.Circle) {
-          this.mapObject.fitBounds([layer.getLatLng()])
-        }
-        else {
-          this.mapObject.fitBounds(e.target.getBounds())
+        if(this.fitBounds) {
+          if (layer instanceof L.Marker || layer instanceof L.Circle) {
+            this.mapObject.fitBounds([layer.getLatLng()])
+          }
+          else {
+            this.mapObject.fitBounds(e.target.getBounds())
+          }
         }
       },
       findFeature(ce_id) {

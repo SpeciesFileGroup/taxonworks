@@ -12,9 +12,9 @@
         width="100%"
         :zoom="2"
         ref="leaflet"
-        :geojson="geojsonFeatures"
-        @geoJsonLayerCreated="shapes.push(JSON.stringify($event));"
-        @geoJsonLayersEdited="editedShape($event)"
+        :fit-bounds="false"
+        @geoJsonLayerCreated="addShape"
+        @geoJsonLayersEdited="editedShape"
         :draw-controls="true"
       />
       <div class="separate-top">
@@ -49,22 +49,12 @@
         collectingEventList: [],
         shapes: [],   // intended for eventual multiple shapes paradigm
         isLoading: false,
-        geojsonFeatures: [    // trans-antimeridian polygon test features
-        ]
       }
-    },
-    watch: {
-      geojsonFeatures() {
-        if(this.geojsonFeatures.length === 0) {
-          this.$refs.leaflet.clearFound()
-        }
-      },
     },
     methods: {
       clearTheMap() {
         this.$refs.leaflet.clearFound()
         this.$refs.leaflet.removeLayers()
-        this.geojsonFeatures = [];
       },
       getShapesData(geojsonShape) {
         this.$refs.leaflet.clearFound()
@@ -81,6 +71,10 @@
       },
       editedShape(shape) {
         this.shapes.push(JSON.stringify(shape[0]))
+      },
+      addShape(newShapes) {
+        this.shapes.push(JSON.stringify(newShapes))
+        this.$refs.leaflet.removeLayers()
       }
     },
   }
