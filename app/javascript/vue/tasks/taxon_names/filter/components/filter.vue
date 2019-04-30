@@ -23,7 +23,7 @@
       <scope-component v-model="params.base.parent_id"/>
       <related-component
         v-model="params.base.descendants"
-        :taxon-name="params.taxon.name"/>
+        :taxon-name="params.base.parent_id"/>
 
       <rank-component v-model="params.base.nomenclature_group"/>
       <code-component v-model="params.base.nomenclature_code"/>
@@ -83,8 +83,7 @@ export default {
   },
   methods: {
     resetFilter() {
-      this.$emit('result', [])
-      this.$emit('urlRequest', undefined)
+      this.$emit('reset')
       this.params = this.initParams()
     },
     searchForTaxonNames() {
@@ -97,6 +96,9 @@ export default {
         this.$emit('result', this.result)
         this.$emit('urlRequest', response.url)
         this.searching = false
+        if(this.result.length == 500) {
+          TW.workbench.alert.create('Results may be truncated.', 'notice')
+        }
       }, () => { 
         this.searching = false
       })

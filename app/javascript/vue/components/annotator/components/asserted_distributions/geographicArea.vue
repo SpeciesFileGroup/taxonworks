@@ -76,7 +76,7 @@
         }
         else {
           return 'search'
-        }        
+        }
       }
     }
   }

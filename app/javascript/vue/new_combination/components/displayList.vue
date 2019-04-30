@@ -11,16 +11,17 @@
         :href="`/tasks/nomenclature/browse/${item.id}`"
         target="_blank"
         class="list-item"
-        v-html="displayName(item)"/>
+      >
+        <span v-html="item.cached_html"/>
+        <span v-html="item.cached_author_year"/>
+      </a>
       <div class="list-controls">
         <placement-component
           @created="$emit('placement', item)"
           :combination="item"/>
         <radial-annotator
-          v-if="annotator"
           :global-id="item.global_id"/>
         <span
-          v-if="edit"
           class="circle-button btn-edit"
           @click="$emit('edit', Object.assign({}, item))">Edit
         </span>
@@ -46,32 +47,8 @@ export default {
     list: {
       type: Array,
       default: () => []
-    },
-    label: {
-      required: true
-    },
-    edit: {
-      type: Boolean,
-      default: false
-    },
-    annotator: {
-      type: Boolean,
-      default: false
     }
   },
-  methods: {
-    displayName (item) {
-      if (typeof this.label === 'string') {
-        return item[this.label]
-      } else {
-        let tmp = item
-        this.label.forEach(function (label) {
-          tmp = tmp[label]
-        })
-        return tmp
-      }
-    }
-  }
 }
 </script>
 <style lang="scss" scoped>

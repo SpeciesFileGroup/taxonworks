@@ -31,7 +31,7 @@ export default {
   },
   methods: {
     getDefault() {
-      let defaultTag = document.querySelector('[data-pinboard-section="ControlledVocabularyTerms"] [data-insert="true"]')
+      let defaultTag = document.querySelector('[data-pinboard-section="Keywords"] [data-insert="true"]')
       return defaultTag ? defaultTag.getAttribute('data-pinboard-object-id') : undefined
     },
     alreadyTagged: function(element) {

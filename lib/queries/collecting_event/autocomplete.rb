@@ -42,6 +42,7 @@ module Queries
       #   TODO: optimize limits
       def autocomplete
         queries = [
+          autocomplete_exact_id,
           autocomplete_verbatim_trip_identifier_match,
           autocomplete_identifier_cached_exact,
           autocomplete_identifier_identifier_exact,

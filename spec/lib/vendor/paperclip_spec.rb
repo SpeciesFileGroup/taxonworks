@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Paperclip::Rotator, type: :model, group: [:image] do
+describe 'Paperclip::Rotator', type: :model, group: [:image] do
 
   let(:i) { FactoryBot.build(:valid_image) }
 

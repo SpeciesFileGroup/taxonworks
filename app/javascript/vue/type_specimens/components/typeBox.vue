@@ -14,6 +14,7 @@
           </a>
           <div class="taxon-options">
             <radial-annotator :global-id="taxon.global_id"/>
+            <radial-object :global-id="taxon.global_id"/>
           </div>
         </h3>
         <span
@@ -43,12 +44,14 @@
 
 import displayList from '../../components/displayList.vue'
 import radialAnnotator from '../../components/annotator/annotator.vue'
+import RadialObject from 'components/radial_object/radialObject.vue'
 import { GetterNames } from '../store/getters/getters'
 import ActionNames from '../store/actions/actionNames'
 
 export default {
   components: {
     radialAnnotator,
+    RadialObject,
     displayList
   },
   computed: {

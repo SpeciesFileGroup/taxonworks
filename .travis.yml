@@ -5,6 +5,8 @@ cache:
     - $TRAVIS_BUILD_DIR/node_modules
     - $TRAVIS_BUILD_DIR/spec/fixtures/vcr_cassettes
     - $TRAVIS_BUILD_DIR/public/packs-test
+    - $TRAVIS_BUILD_DIR/public/assets
+    - $TRAVIS_BUILD_DIR/tmp/cache
     - /home/travis/.rvm/ 
 dist: xenial
 # sudo: required
@@ -15,9 +17,7 @@ branches:
   only:
     - master
     - development
-    - rails52
-    - digitize
-    - parallel_travis
+    - api
 addons:
   postgresql: "10"
   firefox: "latest"
@@ -32,44 +32,39 @@ addons:
       - postgresql-10
       - postgresql-client-10
       - postgresql-contrib-10
-#env:
-#  global:
-#  - IMAGEMAGICK_VERSION=6.8.9-10
-#  - PGPORT=5433
-#  - IMAGEMAGICK_VERSION=6.8.9-10 CONFIGURE_OPTIONS=--enable-hdri
-    #  global:
-#    - PGPORT=5433
-#   - TEST_GROUP=1
-#   - TEST_GROUP=2
-#   - TEST_GROUP=3
-#   - TEST_GROUP=4
+env:
+  global:
+    - TEST_WORKERS=5
+    - COVERALLS_PARALLEL=true
+  matrix:
+    - TEST_WORKER=0
+    - TEST_WORKER=1
+    - TEST_WORKER=2
+    - TEST_WORKER=3
+    - TEST_WORKER=4
 services:
   - postgresql
 before_install:
-  - nvm install node
+  - nvm install 10.15.3
   - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.7.0
   - export PATH=$HOME/.yarn/bin:$PATH
 install:
   - npm install
   - bundle install --without development production
 before_script:
-  - "export DISPLAY=:99.0"
-  - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1600x1200x16"
-  - sleep 3
+  - echo ===[TEST_WORKER=$TEST_WORKER before_script $(date -u +%Y%m%d-%H%M%S)]===
+  - cp config/application_settings.yml.travis config/application_settings.yml
   - cp config/database.yml.travis config/database.yml
   - cp config/secrets.yml.example config/secrets.yml
-  - mkdir tmp/
-  - mkdir tmp/downloads
+  - mkdir -p tmp/downloads
   - bundle exec rake db:create RAILS_ENV=test # database user by default is `travis` 
   - bundle exec rake db:migrate RAILS_ENV=test
-  - ls -alh bin 
-  - ls -alh public/packs-test 
 script:
-  - bundle exec rake assets:precompile
-# - bundle exec parallel_test spec/ -n 6 --only-group $TEST_GROUP --group-by filesize --type rspec
-  - bundle exec rspec
+  - .travis/spec_runner.sh
 notifications:
   email:
     recipients:
       - diapriid@gmail.com
+      - ellocodelassembler@gmail.com
     on_failure: change
+  webhooks: https://coveralls.io/webhook

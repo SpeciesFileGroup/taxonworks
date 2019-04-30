@@ -11,7 +11,7 @@ module SqedToTaxonworks
       annotated_specimen: :buffered_collecting_event,
       collecting_event_labels: :buffered_collecting_event,
       curator_metadata: :buffered_other_labels,
-      determination_labels: :buffered_determination_labels,
+      determination_labels: :buffered_determinations,
       identifier: :buffered_other_labels,
       image_registration: nil,
       other_labels: :buffered_other_labels,

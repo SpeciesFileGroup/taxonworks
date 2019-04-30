@@ -5,7 +5,7 @@
     tag="ul">
     <li
       v-for="(item, key) in list"
-      :key="key"
+      :key="item.type + item.taxonId"
       class="list-complete-item flex-separate middle">
       <span>
         <span v-html="item.taxon_label"/>
@@ -36,9 +36,7 @@ export default {
   },
   methods: {
     deleteItem(key) {
-      if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
-        this.$emit('delete', key)
-      }
+      this.$emit('delete', key)
     },
     flipItem(item) {
       this.$emit('flip', item)

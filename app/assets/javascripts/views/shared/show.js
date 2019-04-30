@@ -39,19 +39,19 @@ Object.assign(TW.views.shared.show, {
   },
 
   bindShortcut: function() {
-    TW.workbench.keyboard.createShortcut("left", "Go to previous", "Taxon names browse", function() {
-      if($('[data-arrow="back"]').is('a')) {
-        location.href = $('[data-arrow="back"]').attr('href');
+    TW.workbench.keyboard.createShortcut("alt+left", "Go to previous", "Taxon names browse", function() {
+      if($('[data-button="back"]').is('a')) {
+        document.querySelector('[data-button="back"]').click();
       }
     });
 
-    TW.workbench.keyboard.createShortcut("right", "Go to next", "Taxon names browse", function() {
-      if($('[data-arrow="next"]').is('a')) {
-        location.href = $('[data-arrow="next"]').attr('href');
+    TW.workbench.keyboard.createShortcut("alt+right", "Go to next", "Taxon names browse", function() {
+      if($('[data-button="next"]').is('a')) {
+        document.querySelector('[data-button="next"]').click();
       }
     });    
-
-    TW.workbench.keyboard.createShortcut("up", "Go to ancestor", "Taxon names browse", function() {
+    /*
+    TW.workbench.keyboard.createShortcut(getOSKey + "up", "Go to ancestor", "Taxon names browse", function() {
       if($('[data-arrow="back"]').is('a')) {
         location.href = $('[data-arrow="ancestor"]').attr('href');
       }
@@ -62,6 +62,7 @@ Object.assign(TW.views.shared.show, {
         location.href = $('[data-arrow="descendant"]').attr('href');
       }
     });
+    */
   },
 
   isEmpty: function( el ){
@@ -71,7 +72,7 @@ Object.assign(TW.views.shared.show, {
 
 
 $(document).on('turbolinks:load', function() {
-  if($("#show").length) {
+  if($("#show").length || $("#browse-view").length) {
     TW.views.shared.show.init();
   }
 });

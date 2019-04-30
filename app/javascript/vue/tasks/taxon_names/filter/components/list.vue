@@ -3,12 +3,22 @@
     <table class="full_width">
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Author</th>
-          <th>Year</th>
-          <th>Original combination</th>
+          <th
+            :class="classSort('name')"
+            @click="sortTable('name')">Name</th>
+          <th
+            :class="classSort('verbatim_author')"
+            @click="sortTable('verbatim_author')">Author</th>
+          <th
+            :class="classSort('year_of_publication')"
+            @click="sortTable('year_of_publication')">Year</th>
+          <th
+            :class="classSort('original_combination')"
+            @click="sortTable('original_combination')">Original combination</th>
           <th>Valid?</th>
-          <th>Rank</th>
+          <th
+            :class="classSort('rank')"
+            @click="sortTable('rank')">Rank</th>
           <th>Parent</th>
           <th>Options</th>
         </tr>
@@ -23,7 +33,11 @@
           <td v-html="item.original_combination"></td>
           <td>{{ item.id === item.cached_valid_taxon_name_id }}</td>
           <td>{{ item.rank }}</td>
-          <td v-html="item.parent.cached_html"></td> 
+          <td>
+            <a
+              :href="`/tasks/nomenclature/browse/${item.parent.id}`"
+              v-html="item.parent.cached_html"/>
+          </td> 
           <td class="options-column">
             <div class="horizontal-left-content">
               <pin-component 
@@ -33,12 +47,19 @@
               <radial-annotator
                 type="annotations"
                 :global-id="item.global_id"/>
+              <otu-radial
+                :taxon-id="item.id"
+                :taxon-name="item.object_tag"/>
               <default-tag :global-id="item.global_id"/>
             </div>
           </td>
         </tr>
       </tbody>
     </table>
+    <span
+      v-if="list.length"
+      class="horizontal-left-content">{{ list.length }} records.
+    </span>
   </div>
 </template>
 
@@ -48,18 +69,55 @@ import PinComponent from 'components/pin'
 import RadialAnnotator from 'components/annotator/annotator'
 import RadialObject from 'components/radial_object/radialObject'
 import DefaultTag from 'components/defaultTag'
+import OtuRadial from 'components/otu/otu.vue'
 
 export default {
   components: {
     PinComponent,
     RadialAnnotator,
     RadialObject,
-    DefaultTag
+    DefaultTag,
+    OtuRadial
   },
   props: {
     list: {
       type: Array,
       default: () => { return [] }
+    }
+  },
+  data() {
+    return {
+      sortColumns: {
+        name: undefined,
+        verbatim_author: undefined,
+        year_of_publication: undefined,
+        rank: undefined,
+        original_combination: undefined
+      }
+    }
+  },
+  methods: {
+    sortTable(sortProperty) {
+      let that = this
+      function compare(a,b) {
+        if (a[sortProperty] < b[sortProperty])
+          return (that.sortColumns[sortProperty] ? -1 : 1)
+        if (a[sortProperty] > b[sortProperty])
+          return (that.sortColumns[sortProperty] ? 1 : -1);
+        return 0
+      }
+      if(this.sortColumns[sortProperty] == undefined) {
+        this.sortColumns[sortProperty] = true
+      }
+      else {
+        this.sortColumns[sortProperty] = !this.sortColumns[sortProperty]
+      }
+      this.list.sort(compare);      
+    },
+    classSort(value) {
+      if(this.sortColumns[value] == true) { return 'headerSortDown' }
+      if(this.sortColumns[value] == false) { return 'headerSortUp' }
+      return ''
     }
   }
 }

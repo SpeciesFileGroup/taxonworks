@@ -38,8 +38,8 @@
                 target="_blank"
                 class="circle-button btn-row-coder"
                 :href="`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${item.id}`"/>
-              <radial-annotator
-              :global-id="getValue(item, globalIdPath)"/>
+              <radial-annotator :global-id="getValue(item, globalIdPath)"/>
+              <radial-object :global-id="getValue(item, globalIdPath)"/>
             </template>
             <template>
               <span
@@ -62,13 +62,15 @@
 
   import Autocomplete from 'components/autocomplete.vue'
   import RadialAnnotator from 'components/annotator/annotator.vue'
+  import RadialObject from 'components/radial_object/radialObject.vue'
   import Draggable from 'vuedraggable'
 
   export default {
     components: {
       Autocomplete,
       RadialAnnotator,
-      Draggable
+      Draggable,
+      RadialObject
     },
     props: {
       list: {

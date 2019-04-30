@@ -13,12 +13,16 @@ export default function ({ commit, state }) {
         UpdateCollectionEvent(collection_event).then(response => {
           commit(MutationNames.SetCollectionEvent, response)
           return resolve(response)
+        }, (response) => {
+          reject(response)
         })
       }
       else {
         CreateCollectionEvent(collection_event).then(response => {
           commit(MutationNames.SetCollectionEvent, response)
           return resolve(response)
+        }, (response) => {
+          reject(response)
         })
       }
     }

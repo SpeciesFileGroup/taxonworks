@@ -40,6 +40,7 @@
       <radial-annotator
         type="annotations"
         :global-id="image.global_id"/>
+      <radial-object :global-id="image.global_id"/>
       <span
         class="circle-button btn-delete"
         @click="deleteImage"/>
@@ -50,11 +51,13 @@
 
 import Modal from 'components/modal.vue'
 import RadialAnnotator from 'components/annotator/annotator'
+import RadialObject from 'components/radial_object/radialObject'
 
 export default {
   components: {
     Modal,
-    RadialAnnotator
+    RadialAnnotator,
+    RadialObject
   },
   props: {
     image: {

@@ -30,13 +30,16 @@
         </ul>
       </div>
     </div>
-    <ul class="matrix-row-coder__descriptor-list">
+    <ul class="matrix-row-coder__descriptor-list no_bullets">
       <li
         class="matrix-row-coder__descriptor-container"
-        v-for="descriptor in descriptors"
+        v-for="(descriptor, index) in descriptors"
         :data-descriptor-id="descriptor.id">
 
-        <div :is="descriptor.componentName" :descriptor="descriptor"/>
+        <div
+          :is="descriptor.componentName" 
+          :index="(index+1)"
+          :descriptor="descriptor"/>
       </li>
     </ul>
   </div>

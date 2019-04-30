@@ -1,0 +1,22 @@
+<%= content_for :head do -%>
+  <%= javascript_include_tag "https://www.gstatic.com/charts/loader.js", "chartkick" %>
+<% end %> 
+
+<h2> Task - Visualize confidences</h2>
+
+<h3> For: <%= @for.titleize -%> </h3>
+
+<p> There are <%= a = @for.safe_constantize.where(project_id: sessions_current_project_id).all.count -%> records. 
+Of those <%= b = Confidence.where(project_id: sessions_current_project_id, confidence_object_type: @for).select(:id).distinct.count -%> have a confidence applied. 
+This is %<%= (a.to_f / b.to_f).round(2) -%>. To further explore the data use the <%= link_to('Browse annotations task', browse_annotations_task_path) -%>.
+</p>
+
+<%= column_chart Confidence.where(project_id: sessions_current_project_id, confidence_object_type: @for).joins(:confidence_level).group(:name).count(:id),
+  discrete: true, ytitle: 'Count', xtitle: 'Confidence level'
+%>
+
+<%= column_chart Confidence.where(project_id: sessions_current_project_id, confidence_object_type: @for).joins(:creator).group(:name).count(:id),
+  discrete: true, xtitle: 'Confidence creator', ytitle: 'Count'
+%> 
+
+
