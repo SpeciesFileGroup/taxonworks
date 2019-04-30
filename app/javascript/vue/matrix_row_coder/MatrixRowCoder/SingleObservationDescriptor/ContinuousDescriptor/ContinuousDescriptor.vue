@@ -1,6 +1,7 @@
 <template>
   <div class="continuous-descriptor">
     <summary-view
+    :index="index"
     :descriptor="descriptor">
       <div class="horizontal-left-content">
         <label>
@@ -50,6 +51,7 @@ import UnitSelector from '../../UnitSelector/UnitSelector.vue'
 export default {
   mixins: [SingleObservationDescriptor],
   name: 'continuous-descriptor',
+  props: ['index'],
   computed: {
     continuousValue: function () {
       return this.$store.getters[GetterNames.GetContinuousValueFor](this.$props.descriptor.id)

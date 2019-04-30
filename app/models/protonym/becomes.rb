@@ -10,7 +10,8 @@ module Protonym::Becomes
   end
 
   def becomes_test_for_relationship
-    a = TaxonNameRelationship::Iczn::Invalidating.where(subject_taxon_name: self).first
+    # a = TaxonNameRelationship::Iczn::Invalidating.where(subject_taxon_name: self).first ### This one returns all subclasses
+    a = TaxonNameRelationship.where(subject_taxon_name: self, type: 'TaxonNameRelationship::Iczn::Invalidating').first
     if a.nil?
       errors.add(:base, 'Required TaxonNameRelationship::Iczn::Invalidating relationship not found on this name.')
       false

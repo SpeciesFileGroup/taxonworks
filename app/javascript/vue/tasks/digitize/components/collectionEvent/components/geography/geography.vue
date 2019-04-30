@@ -2,7 +2,7 @@
   <fieldset>
     <legend>Geographic area</legend>
     <smart-selector
-      class="separate-bottom"
+      class="separate-bottom item"
       name="geography"
       v-model="view"
       :add-option="moreOptions"

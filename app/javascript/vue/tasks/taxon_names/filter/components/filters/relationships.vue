@@ -58,7 +58,7 @@
       <autocomplete
         v-if="view == smartOptions.advanced"
         url=""
-        :array-list="Object.keys(mergeLists.all).map(key => mergeLists.all[key])"
+        :array-list="Object.keys(mergeLists.all).map(key => { mergeLists.all[key].type = key; return mergeLists.all[key] })"
         :label="display"
         :clear-after="true"
         min="3"
@@ -167,6 +167,9 @@ export default {
       nomenclatureCodes.forEach(key => {
         newList.all = Object.assign(newList.all, this.relationshipsList[key].all)
         newList.tree = Object.assign(newList.tree, this.relationshipsList[key].tree)
+        for (var keyType in this.relationshipsList[key].common) {
+          this.relationshipsList[key].common[keyType].subject_status_tag = `${this.relationshipsList[key].common[keyType].subject_status_tag} (${key})`
+        }
         newList.common = Object.assign(newList.common, this.relationshipsList[key].common)
       })
       this.getTreeList(newList.tree, newList.all)

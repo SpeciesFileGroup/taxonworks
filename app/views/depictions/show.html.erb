@@ -10,14 +10,18 @@
     <%= @depiction.sqed_depiction.metadata_map %>
     </p>
     <p><strong>Layout:</strong>
-    <%= @depiction.sqed_depiction.layout %>
+      <%= @depiction.sqed_depiction.layout %>
     </p>
+    
+    <p><strong>Border:</strong>
+    <%= @depiction.sqed_depiction.has_border %>
+    </p>
+   
     <p><strong>Result boundary coordinates:</strong>
-    <%= @depiction.sqed_depiction.result_boundary_coordinates %>
+      <%= @depiction.sqed_depiction.result_boundary_coordinates %>
     </p>
   <% end %>
 <% end %>
-
 <%= render(partial: 'shared/data/project/show', locals: {object: @depiction}) -%>
 
 

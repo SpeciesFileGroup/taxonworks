@@ -18,6 +18,9 @@
         <radial-annotator
           v-if="annotator"
           :global-id="item.global_id"/>
+        <radial-object
+          v-if="radialObject && item.hasOwnProperty('global_id')"
+          :global-id="item.global_id"/>
         <span
           v-if="edit"
           class="circle-button btn-edit"
@@ -35,6 +38,7 @@
 <script>
 
 import RadialAnnotator from './annotator/annotator.vue'
+import RadialObject from './radial_object/radialObject.vue'
 
 export default {
   components: {
@@ -65,13 +69,22 @@ export default {
       type: Boolean,
       default: false
     },
+    radialObject: {
+      type: Boolean,
+      default: false
+    },
     highlight: {
       type: Object,
       default: undefined
+    },
+    deleteWarning: {
+      type: Boolean,
+      default: true
     }
   },
   beforeCreate() {
     this.$options.components['RadialAnnotator'] = RadialAnnotator
+    this.$options.components['RadialObject'] = RadialObject
   },
   methods: {
     displayName (item) {
@@ -96,7 +109,12 @@ export default {
       return false
     },
     deleteItem(item) {
-      if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+      if(this.deleteWarning) {
+        if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+          this.$emit('delete', item)
+        }
+      }
+      else {
         this.$emit('delete', item)
       }
     }

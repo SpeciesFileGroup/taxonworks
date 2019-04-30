@@ -26,7 +26,7 @@
             <legend>Taxon name</legend>
             <smart-selector
               v-model="viewTaxon"
-              class="separate-bottom"
+              class="separate-bottom item"
               name="taxon-type"
               :options="optionsTaxon"/>
             <div
@@ -95,7 +95,7 @@
           <legend>Type designator</legend>
           <smart-selector
             v-model="view"
-            class="separate-bottom"
+            class="separate-bottom item"
             name="type-designator"
             :options="options"/>
           <div
@@ -218,12 +218,7 @@
       GetTypes().then(response => {
         this.types = response
       })
-      GetTypeDesignatorSmartSelector().then(response => {
-        this.options = orderSmartSelector(Object.keys(response))
-        this.lists = response
-        this.options.push("new/Search")
-        this.view = selectFirstSmartOption(response, this.options)
-      })
+
       GetTaxonNameSmartSelector().then(response => {
         this.optionsTaxon = orderSmartSelector(Object.keys(response))
         this.listsTaxon = response   

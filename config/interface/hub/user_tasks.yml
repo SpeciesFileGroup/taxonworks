@@ -64,7 +64,7 @@ quick_verbatim_material_task:
     - build_biocuration_groups_task
   categories:
     - collection_object
-  status: stable 
+  status: stable
 create_verbatim_material_task:
   name:
 new_verbatim_reference_task:
@@ -98,9 +98,10 @@ match_georeference_task:
   status: prototype
 otu_distribution_data_task:
   hub: true
-  name: 'OTU distribution data'
-  description: 'Display distribution data for an otu.'
+  name: 'Otu distribution'
+  description: 'Display distribution data and map for an Otu (or taxon name).'
   categories:
+    - nomenclature
     - collecting_event
     - collection_object
   status: prototype
@@ -138,7 +139,7 @@ browse_nomenclature_task:
   hub: true
   name: 'Browse nomenclature'
   description: 'Browse through nomenclature, focusing on a single record at a time.'
-  status: stable 
+  status: stable
   categories:
     - nomenclature
 nomenclature_by_source_task:
@@ -159,7 +160,7 @@ report_dwc_task:
     - collecting_event
 collection_objects_filter_task:
   hub: true
-  name: 'Collection objects filter by area, date, OTU, identifier and user/creation date.'
+  name: 'Collection object filter'
   related:
   categories:
     - collection_object
@@ -167,12 +168,12 @@ collection_objects_filter_task:
   description: 'Find collection objects using an area, date range, taxon determination (OTU), applied identifier, or user/created date range.'
 otus_filter_task:
   hub: true
-  name: 'OTU lookup by geography, nomenclature, or author'
+  name: 'OTU filter'
   related:
   categories:
     - otu
   status: prototype
-  description: 'Find OTUs nomenclaturally or geographically'
+  description: 'Find OTUs by nomenclature, geography and author.'
 geographic_area_lookup_task:
   hub: true
   name: 'Geographic area lookup'
@@ -220,7 +221,7 @@ new_taxon_name_task:
   related:
   categories:
     - nomenclature
-  status: stable 
+  status: stable
   description: 'Create or edit a taxon name along with its related metadata including original combinations, status, type material and synonym.'
 dates_index_task:
   hub: true
@@ -289,7 +290,7 @@ new_combination_task:
   related:
   categories:
     - nomenclature
-  status: stable 
+  status: stable
   description: 'Create a new or subsequent nomenclatural combination.'
 browse_otus_task:
   hub: true
@@ -303,7 +304,7 @@ browse_annotations_task:
   name: 'Browse annotations'
   related:
   categories:
-    - collection_object 
+    - collection_object
     - collecting_event
     - biology
     - source
@@ -337,7 +338,7 @@ uniquify_people_task:
   name: 'Uniquify people'
   related:
   categories:
-    - source 
+    - source
     - nomenclature
   status: prototype
   description: 'Find and merge redundant or duplicated people, e.g., from import.'
@@ -346,9 +347,17 @@ index_individual_bibtex_source_task:
   name: 'New source from BibTeX'
   related:
   categories:
-    - source 
+    - source
   status: prototype
   description: 'Parse a captured BibTeX string into a new source'
+index_search_locality_task:
+  hub: true
+  name: 'Filter collecting events'
+  related:
+  categories:
+    - collecting_event
+  status: prototype
+  description: 'Filter collecting events by shape, tag, and various other params.'
 observation_matrices_hub_task:
   hub: true
   name: 'Observation matrix hub'
@@ -417,9 +426,16 @@ index_hub_task:
   description: 'A centralized hub unifying access to the different means of creating and managing sources.'
 index_filter_task:
   hub: true
-  name: 'Filter taxon names'
+  name: 'Filter nomenclature'
   related:
   categories:
     - nomenclature
   status: prototype
-  description: 'Search and filter taxon names.'
+  description: 'Search and filter taxon names. Download CSV.  Generate JSON paths for offline use.'
+visualize_confidences_task:
+  hub: true
+  name: 'Visualize confidences.'
+  related:
+  categories:
+  status: prototype
+  description: 'See a graph of confidences applied per data type.'

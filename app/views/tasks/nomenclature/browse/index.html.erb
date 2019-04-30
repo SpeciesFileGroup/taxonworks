@@ -4,23 +4,23 @@
   <div class="panel content">
     <div class="flex-separate middle">
 
+      <div class="middle">
+        <div class="separate-right">
+          <%= form_tag( browse_nomenclature_task_path, method: :get) do %>
+            <%= render  'workbench/elements/forms/ajax_select',
+              controller: '/taxon_names',
+              object: '',
+              method:  'id',
+              send_select: true,
+              tag_id:  'taxon_name_id_for_browse_nomenclature',
+              size: 20 %>
+          <% end %>
+        </div>
 
-      <span class="left_float separate-right">
-        <%= form_tag( browse_nomenclature_task_path, method: :get) do %>
-          <%= render  'workbench/elements/forms/ajax_select',
-            controller: '/taxon_names',
-            object: '',
-            method:  'id',
-            send_select: true,
-            tag_id:  'taxon_name_id_for_browse_nomenclature',
-            size: 20 %>
-        <% end %>
-      </span>
-
-      
-      <span class="left_float separate-left separate-right">
-      <%= render('/taxon_names/breadcrumb_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
-      </span>
+        <div class="separate-left separate-right">
+        <%= render('/taxon_names/breadcrumb_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
+        </div>
+      </div>
 
       <span class="right_float flex-separate">
         <ul class="context-menu">

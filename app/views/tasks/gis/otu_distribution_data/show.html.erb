@@ -1,17 +1,16 @@
-<h1>Task: <%= "#{@type_tag}" %>  distribution</h1>
+<h1>Task: <%= @otu ? 'Otu' : 'Taxon name' %> distribution</h1>
 <div id="otu_distribution_widget">
   <div class="flexbox">
     <div class="item item1">
 
-      <% case @type_tag %>
-      <% when 'Taxon name' %>
-        <h3>Taxon name: <%= object_link(@taxon_name) %></h3>
-        <p><%= distribution_previous_next(@taxon_name, @type_tag) %></p>
-      <% when 'Otu' %>
-        <h3>Otu: <%= object_link(@otu) %></h3>
-        <p><%= distribution_previous_next(@otu, @type_tag, @distribution) %></p>
-      <% else %>
-          ?!
+      <% if @taxon_name %>
+             <h3>Taxon name: <%= object_link(@taxon_name) %> <%= radial_object_tag(@taxon_name) -%></h3>
+        <p><%= distribution_previous_next(@taxon_name, 'Taxon name') %></p>
+      <% end %>
+
+      <% if @otu %>
+        <h3>Otu: <%= object_link(@otu) %> <%= radial_object_tag(@otu) -%> </h3>
+        <p><%= distribution_previous_next(@otu, 'Otu', @distribution) %></p>
       <% end %>
 
       <%= paginate @distribution.otus %>
@@ -22,7 +21,7 @@
           <tbody>
             <tr>
               <th>Otu</th>
-              <th style="width:400px">
+              <th>
                 <%= link_to(otu_tag(otu), otu_path(otu.to_param), {id: "link_otu_#{otu.id}"}) %>
               </th>
             </tr>

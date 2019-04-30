@@ -54,6 +54,8 @@
     },
     mounted() {
       let coId = location.pathname.split('/')[4]
+      let urlParams = new URLSearchParams(window.location.search)
+      let coIdParam = urlParams.get('collection_object_id')
 
       this.addShortcutsDescription()
 
@@ -63,6 +65,9 @@
 
       if (/^\d+$/.test(coId)) {
         this.$store.dispatch(ActionNames.LoadDigitalization, coId)
+      }
+      else if (/^\d+$/.test(coIdParam)) {
+        this.$store.dispatch(ActionNames.LoadDigitalization, coIdParam)
       }
     },
     methods: {
@@ -82,14 +87,6 @@
 </script>
 <style lang="scss">
   #vue-all-in-one {
-
-    .switch-radio {
-      flex: 1 auto;
-      label {
-        width: 100% !important; 
-      }
-    }
-
     hr {
         height: 1px;
         color: #f5f5f5;
@@ -97,6 +94,9 @@
         font-size: 0;
         margin: 15px;
         border: 0;
+    }
+    .modal-container {
+      width: 90vw;
     }
   }
 </style>

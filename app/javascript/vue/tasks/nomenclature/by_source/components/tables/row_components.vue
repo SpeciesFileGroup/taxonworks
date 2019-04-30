@@ -14,7 +14,11 @@
         @change="updateCitation"
         type="checkbox">
     </td>
-    <td><a v-html="citation.citation_object.object_tag" @click="showObject()"/></td>
+    <td>
+      <a 
+        :href="showObject()"
+        v-html="citation.citation_object.object_tag" />
+    </td>
     <td>
       <radial-annotator :global-id="citation.citation_object.global_id" />
     </td>

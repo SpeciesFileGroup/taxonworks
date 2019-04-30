@@ -12,7 +12,7 @@
         <div class="horizontal-left-content separate-bottom middle">
           <smart-selector
             v-model="view"
-            class="separate-right"
+            class="separate-right item"
             name="otu-determination"
             :options="options"/>
           <lock-component v-model="locked.taxon_determination.otu_id"/>
@@ -61,7 +61,7 @@
         <div class="horizontal-left-content separate-bottom middle">
           <smart-selector
             v-model="viewDeterminer"
-            class="separate-right"
+            class="separate-right item"
             name="determiner"
             :options="optionsDeterminer"/>
           <lock-component v-model="locked.taxon_determination.roles_attributes"/>
@@ -133,6 +133,7 @@
       <display-list
         :list="list"
         @delete="removeTaxonDetermination"
+        :radial-object="true"
         set-key="otu_id"
         label="object_tag"/>
     </div>
@@ -263,6 +264,13 @@ export default {
     }
   },
   mounted() {
+    let urlParams = new URLSearchParams(window.location.search)
+    let otuId = urlParams.get('otu_id')
+
+    if (/^\d+$/.test(otuId)) {
+      this.otuId = otuId
+    }
+
     GetOtuSmartSelector().then(response => {
       this.options = orderSmartSelector(Object.keys(response))
       this.options.push('new/Search')

@@ -17,7 +17,7 @@
     <td>
       <a
         v-html="citation.citation_object.object_tag"
-        @click="showObject()"/>
+        :href="showObject()"/>
     </td>
     <td>
       <radial-annotator :global-id="citation.citation_object.global_id" />

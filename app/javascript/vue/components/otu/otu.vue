@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="otu-radial">
     <span 
       class="circle-button button-default"
       :title="redirect ? 'Otu browse' : 'Otu radial'"
@@ -163,3 +163,10 @@
     }
   }
 </script>
+<style lang="scss">
+  .otu-radial {
+    .circle-count {
+      bottom: -2px !important;
+    }
+  }
+</style>
