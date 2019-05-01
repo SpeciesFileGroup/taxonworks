@@ -105,16 +105,15 @@
     </div>
   </div>
 
-
   <div class="flex-seperate">
     <ul class="context-menu">
       <li> <%= tag_default_icon(@result.sqed_depiction.depiction_object.metamorphosize) -%> </li>
       <li> <%= radial_annotator(@result.sqed_depiction.depiction_object.metamorphosize) -%> </li>
       <li> <%= radial_object_tag(@result.sqed_depiction.depiction_object.metamorphosize) -%> </li>
       <li> <%= submit_tag('Save and next [n]', id: :save_and_next) -%>  </li>
-      <li> <%= link_to('Skip to next', sqed_depiction_breakdown_task_path(@sqed_depiction.next_without_data, @result.namespace_id), 'data-turbolinks' => 'false') -%>  </li>
       <li> <%= submit_tag -%> </li>
+      <li> <%= link_to('Next without data', sqed_depiction_breakdown_task_path(@sqed_depiction.next_without_data, @result.namespace_id), 'data-turbolinks' => 'false') -%>  </li>
+      <li> <%= sqed_previous_next_links(@sqed_depiction) -%> </li>
     </ul>
   </div>
-
 <% end %>

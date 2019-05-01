@@ -11,10 +11,10 @@
 
 <div id="breakdown_sqed_depiction" class="flexbox sqed_breakdown">
   <% if @result.coordinates_valid? -%>
-    <%= render "metadata" %>
+    <%= render 'metadata' %>
     <div class="item item3">
-      <%= render "extracted_header" %>
-      <%= render "form" %>
+      <%= render 'extracted_header' %>
+      <%= render 'form' %>
     </div>
   <% else -%>
     <p>
