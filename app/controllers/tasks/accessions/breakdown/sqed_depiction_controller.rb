@@ -20,7 +20,16 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
       flash[:alert] = 'Failed to update! ' + @sqed_depiction.depiction.depiction_object.errors.full_messages.join('; ').html_safe
     end
 
-    next_sqed_depiction = (params[:commit] == 'Save and next [n]' ? @sqed_depiction.next_without_data : @sqed_depiction )
+    next_sqed_depiction = 
+      case params[:commit] 
+      when 'Save and next w/out data [n]' 
+        @sqed_depiction.next_without_data 
+      when 'Save and next'
+        @sqed_depiction.nearby_sqed_depictions(0, 1)[:after].first
+      else 
+        @sqed_depiction 
+      end
+
     namespace_id = (params[:lock_namespace] ? params[:collection_object][:identifiers_attributes]['0'][:namespace_id] : nil)
 
     redirect_to sqed_depiction_breakdown_task_path(next_sqed_depiction, namespace_id)
