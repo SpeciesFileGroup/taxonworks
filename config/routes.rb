@@ -630,6 +630,7 @@ TaxonWorks::Application.routes.draw do
       post :create_castor_batch_load
 
       get :parse, defaults: {format: :json}
+      get :random
     end
 
     member do
@@ -690,6 +691,12 @@ TaxonWorks::Application.routes.draw do
   ### End of data resources ###
 
   scope :tasks do
+    scope :confidences do
+      scope :visualize, controller: 'tasks/confidences/visualize' do
+        get 'index', as: 'visualize_confidences_task'
+      end
+    end
+
     scope :taxon_names do
       scope :filter, controller: 'tasks/taxon_names/filter' do
         get :index, as: 'index_filter_task'
@@ -962,7 +969,11 @@ TaxonWorks::Application.routes.draw do
       post 'list' # , action: 'list', as: 'locatity_list_task'
     end
 
-    scope :gis do
+    scope :collecting_events do
+      scope :search_locality, controller: 'tasks/collecting_events/search_locality' do
+        get 'index', as: 'index_search_locality_task'
+      end
+
       scope :geographic_area_lookup, controller: 'tasks/gis/geographic_area_lookup' do
         get 'index', as: 'geographic_area_lookup_task'
         get 'resolve', as: 'geographic_area_lookup_resolve_task', format: :js
@@ -1001,10 +1012,7 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :gis, controller: 'tasks/gis/otu_distribution_data' do
-      get 'otu_distribution_data/(:id)', action: 'show', as: 'otu_distribution_data_task'
-#      get 'otu_distribution_data', action: 'show', as: 'first_otu_distribution_data_task'
-
-      get 'taxon_name_distribution_data/:id', action: 'show_for_taxon_name', as: 'taxon_name_distribution_data_task'
+      get 'otu_distribution_data', action: 'show', as: 'otu_distribution_data_task'
     end
 
     scope :nomenclature do
@@ -1027,7 +1035,7 @@ TaxonWorks::Application.routes.draw do
       end
 
       scope :by_source, controller: 'tasks/nomenclature/by_source' do
-        get '(:id)', action: :index, as: 'nomenclature_by_source_task'
+        get '(:source_id)', action: :index, as: 'nomenclature_by_source_task'
       end
     end
 

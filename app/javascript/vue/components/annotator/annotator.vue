@@ -51,6 +51,11 @@
         :class="[buttonClass]"
         @click="displayAnnotator()">Radial annotator
       </span>
+      <div
+        v-if="metadataCount && showCount"
+        class="circle-count button-submit middle">
+        <span class="citation-count-text">{{ metadataCount }}</span>
+      </div>
     </div>
   </div>
 </template>
@@ -124,6 +129,10 @@
         type: String,
         default: 'Radial annotator'
       },
+      showCount: {
+        type: Boolean,
+        default: false
+      },
       components: {
         type: Object,
         default: () => {
@@ -149,6 +158,24 @@
     computed: {
       menuCreated() {
         return this.menuOptions.length > 0
+      },
+      metadataCount() {
+        if(this.metadata) {
+          let totalCounts = 0
+          for(let key in this.metadata.endpoints) {
+            let section = this.metadata.endpoints[key]
+            if(typeof section == 'object') {
+              totalCounts = totalCounts + Number(section.total)
+            }
+          }
+          return totalCounts
+        }
+        return undefined
+      }
+    },
+    mounted() {
+      if(this.showCount) {
+        this.loadMetadata()
       }
     },
     methods: {
@@ -215,6 +242,7 @@
 <style lang="scss">
 
   .radial-annotator {
+    position: relative;
     .view-title {
       font-size: 18px;
       font-weight: 300;
@@ -258,6 +286,9 @@
     }
     .save-annotator-button {
       width: 100px;
+    }
+    .circle-count {
+      bottom: -6px;
     }
   }
 

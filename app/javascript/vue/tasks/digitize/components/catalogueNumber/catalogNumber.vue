@@ -14,7 +14,7 @@
           <div class="horizontal-left-content middle field separate-bottom">
             <smart-selector
               v-model="view"
-              class="separate-right"
+              class="separate-right item"
               :options="options"/>
             <lock-component v-model="locked.identifier"/>
           </div>

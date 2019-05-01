@@ -6,10 +6,16 @@
       </div>
       <div
         slot="options"
+        v-if="collectionObject.id"
         class="horizontal-left-content">
         <radial-annotator
           classs="separate-right"
-          v-if="collectionObject.id"
+          :global-id="collectionObject.global_id"/>
+        <radial-object
+          classs="separate-right"
+          :global-id="collectionObject.global_id"/>
+        <default-tag
+          classs="separate-right"
           :global-id="collectionObject.global_id"/>
         <radial-object 
           v-if="collectionObject.id"
@@ -99,6 +105,7 @@
   import RadialAnnotator from 'components/annotator/annotator.vue'
   import RadialObject from 'components/radial_object/radialObject.vue'
   import PredicatesComponent from 'components/custom_attributes/predicates/predicates'
+  import DefaultTag from 'components/defaultTag.vue'
 
   import { GetCollectionObjectDepictions, CreateDepiction, UpdateUserPreferences } from '../../request/resources.js'
 
@@ -115,7 +122,8 @@
       RadialAnnotator,
       PredicatesComponent,
       ExpandComponent,
-      RadialObject
+      RadialObject,
+      DefaultTag
     },
     computed: {
       preferences: {

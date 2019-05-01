@@ -1,20 +1,24 @@
 <template>
   <tr>
-    <td v-html="otu.object_tag"/>
+    <td> 
+      <a
+        :href="`/otus/${otu.id}`"
+        v-html="otu.object_tag"/>
+    </td>
     <td>
       <radial-annotator :global-id="otu.global_id" />
     </td>
     <td>
       <otu-radial
-          :taxon-id="otu.global_id"
-          :otu="otu"
-          :redirect="false"/>
+        :taxon-id="otu.global_id"
+        :otu="otu"
+        :redirect="false"/>
     </td>
     <td>
       <otu-radial
-          :taxon-id="otu.global_id"
-          :otu="otu"
-          :redirect="true"/>
+        :taxon-id="otu.global_id"
+        :otu="otu"
+        :redirect="true"/>
     </td>
   </tr>
 </template>
