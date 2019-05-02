@@ -24,6 +24,8 @@
   import SourceList from './components/source_list.vue'
   import Spinner from 'components/spinner.vue'
 
+  import GetPagination from 'helpers/getPagination.js'
+
   export default {
     components: {
       AlphabetButtons,
@@ -36,11 +38,15 @@
         authorsList: [],
         sourcesList: [],
         isLoading: false,
+        pagination: {}
       }
     },
     mounted() {
       let urlParams = new URLSearchParams(window.location.search)
-      let letterParam = urlParams.get('letter').toUpperCase()
+      let letterParam = urlParams.get('letter')
+      if(letterParam) {
+        letterParam = letterParam.toUpperCase()
+      }
 
       if (/([A-Z])$/.test(letterParam) && letterParam.length == 1) {
         this.getAuthors(letterParam)
@@ -51,7 +57,9 @@
       getAuthors(key) {
         this.isLoading = true
         this.$http.get(`/people.json?roles[]=SourceAuthor&last_name_starts_with=${key}`).then(response => {
-          this.authorsList = response.body;
+          console.log(response)
+          this.authorsList = response.body
+          this.pagination = GetPagination(response)
           this.isLoading = false
         })
       },
