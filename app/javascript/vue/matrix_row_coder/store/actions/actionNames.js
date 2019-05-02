@@ -9,6 +9,7 @@ const ActionNames = {
   RequestObservationConfidences: 'requestObservationConfidences',
   RequestObservationCitations: 'requestObservationCitations',
   RemoveObservation: 'removeObservation',
+  RemoveObservationsRow: 'removeObservationsRow',
   UpdateObservation: 'updateObservation',
   CreateObservation: 'createObservation',
   CreateClone: 'createClone',

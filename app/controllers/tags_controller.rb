@@ -23,9 +23,9 @@ class TagsController < ApplicationController
   def new
     if !Keyword.with_project_id(sessions_current_project_id).any? # if there are none
       @return_path = "/tags/new?tag[tag_object_attribute]=&tag[tag_object_id]=#{params[:tag_object_id]}" \
-                                      "&tag[tag_object_type]=#{params[:tag_object_type]}"
+        "&tag[tag_object_type]=#{params[:tag_object_type]}"
       redirect_to new_controlled_vocabulary_term_path(return_path: @return_path),
-                  notice: 'Create a keyword or two first!' and return
+        notice: 'Create a keyword or two first!' and return
     end
 
     @taggable_object = taggable_object
@@ -100,7 +100,7 @@ class TagsController < ApplicationController
   # GET /tags/download
   def download
     send_data Download.generate_csv(Tag.where(project_id: sessions_current_project_id)),
-              type: 'text', filename: "tags_#{DateTime.now}.csv"
+      type: 'text', filename: "tags_#{DateTime.now}.csv"
   end
 
   # POST /tags/batch_remove?keyword_id=123&klass=456

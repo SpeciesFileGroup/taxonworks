@@ -49,6 +49,12 @@ module SqedDepictionsHelper
   def sqed_not_done_tag(project_id)
     SqedDepiction.without_collection_object_data.where(project_id: project_id).count
   end
+  
+  def sqed_previous_next_links(sqed_depiction)
+    around = sqed_depiction.nearby_sqed_depictions(1, 1)
+    (link_to('Previous', sqed_depiction_breakdown_task_path(around[:before].first), 'data-turbolinks' => 'false') + ' | '.html_safe +
+     link_to('Next', sqed_depiction_breakdown_task_path(around[:after].first), 'data-turbolinks' => 'false')).html_safe
+  end
 
   def sqed_last_with_data_tag(project_id)
     if o = SqedDepiction.with_collection_object_data.where(project_id: project_id).last

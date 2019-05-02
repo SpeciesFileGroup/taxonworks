@@ -7,27 +7,31 @@
       v-if="isLoading"/>
     <div class="flex-separate">
       <h1 class="matrix-row-coder__title" v-html="title"/>
-      <clone-scoring
-        @create="loadMatrixRow({
-          rowId: $event,
-          otuId: otuId
-      })"/>
     </div>
     <div>
-      <div class="flex-wrap-row flex-separate">
-        <ul
-          class="matrix-row-coder__descriptor-menu flex-wrap-column"
-          v-for="descriptorGroup in descriptors.chunk(Math.ceil(descriptors.length/3))">
-          <li v-for="descriptor in descriptorGroup">
-            <div>
-              <a
-                class="matrix-row-coder__descriptor-item"
-                :data-icon="observationsCount(descriptor.id) ? 'ok' : false"
-                @click="zoomDescriptor(descriptor.id)"
-                v-html="descriptor.title"/>
-            </div>
-          </li>
-        </ul>
+      <div class="flex-separate">
+        <div class="align-start">
+          <ul
+            class="matrix-row-coder__descriptor-menu flex-wrap-column"
+            v-for="descriptorGroup in descriptors.chunk(Math.ceil(descriptors.length/3))">
+            <li v-for="descriptor in descriptorGroup">
+              <div>
+                <a
+                  class="matrix-row-coder__descriptor-item"
+                  :data-icon="observationsCount(descriptor.id) ? 'ok' : false"
+                  @click="zoomDescriptor(descriptor.id)"
+                  v-html="descriptor.title"/>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <destroy-all-observations
+            @onConfirm="destroyAllObservations"/>
+          <clone-scoring
+            @onCopy="copyScorings"
+            @onClone="cloneScorings"/>
+        </div>
       </div>
     </div>
     <ul class="matrix-row-coder__descriptor-list no_bullets">
@@ -58,6 +62,7 @@ import QualitativeDescriptor from './QualitativeDescriptor/QualitativeDescriptor
 import SampleDescriptor from './SingleObservationDescriptor/SampleDescriptor/SampleDescriptor.vue'
 import Spinner from '../../components/spinner'
 import CloneScoring from './Clone/Clone'
+import DestroyAllObservations from './ObservationRow/destroyObservationRow'
 
 const computed = mapState({
   title: state => state.taxonTitle,
@@ -109,6 +114,34 @@ export default {
         this.isLoading = false
       })
       this.$store.dispatch(ActionNames.RequestConfidenceLevels)      
+    },
+    destroyAllObservations() {
+      this.$store.dispatch(ActionNames.RemoveObservationsRow, this.rowId).then(() => {
+        this.loadMatrixRow({
+          rowId: this.rowId,
+          otuId: this.otuId
+        })
+      })
+    },
+    cloneScorings(args) {
+      this.isLoading = true
+      this.$store.dispatch(ActionNames.CreateClone, args).then(() => {
+        this.isLoading = false
+      }, () => {
+        this.isLoading = false
+      })
+    },
+    copyScorings(args) {
+      this.isLoading = true
+      this.$store.dispatch(ActionNames.CreateClone, args).then(() => {
+        this.isLoading = false
+        this.loadMatrixRow({
+          rowId: this.rowId,
+          otuId: this.otuId
+        })
+      }, () => {
+        this.isLoading = false
+      })
     }
   },
   components: {
@@ -117,7 +150,8 @@ export default {
     PresenceDescriptor,
     QualitativeDescriptor,
     SampleDescriptor,
-    Spinner
+    Spinner,
+    DestroyAllObservations
   }
 }
 </script>

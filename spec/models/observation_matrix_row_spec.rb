@@ -39,6 +39,23 @@ RSpec.describe ObservationMatrixRow, type: :model, group: :matrix do
       end
     end
 
+    context 'observations' do
+      let!(:o) { FactoryBot.create(:valid_observation, otu: otu) }
+      let!(:o1) { FactoryBot.create(:valid_observation, otu: otu) } # does not use same dd
+      let(:d) { o.descriptor }
+      let!(:c) { FactoryBot.create(:valid_observation_matrix_column, observation_matrix: observation_matrix, descriptor: d ) }
+      let!(:r) { FactoryBot.create(:valid_observation_matrix_row, observation_matrix: observation_matrix, otu: otu) }
+      let!(:r1) { FactoryBot.create(:valid_observation_matrix_row, observation_matrix: observation_matrix) }
+
+      specify '#observations' do
+        expect(r.observations.map(&:id)).to contain_exactly(o.id)
+      end
+
+      specify '#observations2' do
+        expect(r1.observations.map(&:id)).to contain_exactly()
+      end
+    end
+
     context '#sort' do
       let!(:row1) { FactoryBot.create(:valid_observation_matrix_row, observation_matrix: observation_matrix) }
       let!(:row2) { FactoryBot.create(:valid_observation_matrix_row, observation_matrix: observation_matrix) }
