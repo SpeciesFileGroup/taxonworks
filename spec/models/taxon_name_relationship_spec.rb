@@ -513,7 +513,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         )
 
         r.soft_validate(:specific_relationship)
-        expect(r.soft_validations.messages_on(:type).size).to eq(1)
+        expect(r.soft_validations.messages_on(:type).size).to eq(2)
         expect(r.soft_validations.messages_on(:base).size).to eq(1)
         r.source = source
         r.soft_validate(:specific_relationship)
@@ -569,14 +569,15 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       end
 
       specify 'subsequent type designation after 1930' do
-        r1.type = 'TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentDesignation'
-        expect(r1.save).to be_truthy
-        r1.soft_validate('specific_relationship')
-        expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy
-        r1.object_taxon_name.year_of_publication = 1950
-        expect(r1.save).to be_truthy
-        r1.soft_validate('specific_relationship')
-        expect(r1.soft_validations.messages_on(:type).size).to eq(1)
+        gen1 = FactoryBot.create(:relationship_genus, name: 'Aus')
+        r3 = TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentDesignation.create(subject_taxon_name: species, object_taxon_name: gen1)
+        expect(r3.save).to be_truthy
+        r3.soft_validate('described_after_1930')
+        expect(r3.soft_validations.messages_on(:type).empty?).to be_truthy
+        r3.object_taxon_name.year_of_publication = 1950
+        expect(r3.save).to be_truthy
+        r3.soft_validate('described_after_1930')
+        expect(r3.soft_validations.messages_on(:type).size).to eq(1)
       end
 
       context 'secondary homonyms missing combination' do
