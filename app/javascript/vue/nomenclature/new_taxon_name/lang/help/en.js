@@ -10,7 +10,7 @@ export default {
     },
     author: {
       container: "Use this section to provide the authorship authorship of the taxon name.  Authorship can be asserted in different ways.  If provided in more than one way the priority used is the first of Verbatim, Person, Source. The preferred mechanism assigning a source that has people assigned to it as authors.",
-      source: "Assign authorship via proxy to the authorship of a Source. The author name is taken from the verbatim author string of the source, or the Person who is assigned as an author of the source. If a source is selected and it includes both a verbatim author and an assigned person as author, then the verbatim value has priority. Assigning a source here creates an originating Citation. Subsequent citations can be created via the radial annotator.",
+      source: "Assign authorship via proxy to the authorship of a Source. The author name is taken from the verbatim author string of the source, or the Person who is assigned as an author of the source. If a source is selected and it includes both a verbatim author and an assigned person as author, then the verbatim value has priority. Assigning a source here creates an originating Citation. SubsequentMonotypy citations can be created via the radial annotator.",
       verbatim: "Assign the authorship by direct reference to the name provide. Takes top priority.",
       person: "Assign a person as the author. This is the preferred method if source can not be provided. New people can be created directly inline."
     },

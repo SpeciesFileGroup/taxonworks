@@ -88,6 +88,19 @@ class Observation < ApplicationRecord
     true
   end
 
+  # Remove all observations for the set of descriptors in a given row
+  def self.destroy_row(observation_matrix_row_id)
+    r = ObservationMatrixRow.find(observation_matrix_row_id)
+    begin
+      Observation.transaction do
+        r.observations.destroy_all
+      end
+    rescue
+      raise
+    end
+    true
+  end
+
   protected
 
   def convert_observation_object_global_id

@@ -263,6 +263,9 @@
         if(!this.append) {
           this.featuresList = [].concat(this.shapes)
         }
+        else {
+          this.featuresList = this.featuresList.concat(this.shapes)
+        }
         if (ce_ids.length) {                // if the list has contents
           let cycles = (ce_ids.length / 30);  // each item is about 30 characters, make each cycle less than 2000 chars
           let FeatureCollection = {
@@ -275,7 +278,6 @@
           let endCycle
           let finalCycle = ce_ids.length
           let promises = []
-          this.featuresList = []
 
           for (let i = 0; i < cycles; i++) {
 

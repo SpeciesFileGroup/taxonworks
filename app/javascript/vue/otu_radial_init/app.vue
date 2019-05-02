@@ -3,6 +3,7 @@
     :id="id"
     type="graph"
     buttonClass="btn-hexagon-w button-default"
+    :show-count="showCount"
     :global-id="globalId"/>
 </template>
 <script>
@@ -22,6 +23,10 @@
         type: String,
         required: true
       },
+      showCount: {
+        type: Boolean,
+        default: false
+      }
     }
   }
 </script>

@@ -1412,7 +1412,7 @@ namespace :tw do
           'RV' => 'Revived combination, valid species for',
           'SC' => 'New status, new combination for',
           'SF' => 'New status, subgenus of',
-          'SJ' => 'Subsequent use of unjustified emendation of',
+          'SJ' => 'SubsequentMonotypy use of unjustified emendation of',
           'SN' => 'New status for',
           'SR' => 'Status revived',
           'SS' => 'Subspecies',
@@ -1487,11 +1487,11 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
 
         type_type = {
-          'MT' => 'TaxonNameRelationship::Typification::Genus::Monotypy::Original',
-          'OD' => 'TaxonNameRelationship::Typification::Genus::OriginalDesignation',
-          'OM' => 'TaxonNameRelationship::Typification::Genus::OriginalDesignation',
-          'SD' => 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation',
-          'SM' => 'TaxonNameRelationship::Typification::Genus::Monotypy::Subsequent',
+          'MT' => 'TaxonNameRelationship::Typification::Genus::Original::OriginalMonotypy',
+          'OD' => 'TaxonNameRelationship::Typification::Genus::Original::OriginalDesignation',
+          'OM' => 'TaxonNameRelationship::Typification::Genus::Original',
+          'SD' => 'TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentDesignation',
+          'SM' => 'TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentMonotypy',
           ''   => 'TaxonNameRelationship::Typification::Genus' # This is correct
         }.freeze
 
@@ -1572,7 +1572,7 @@ namespace :tw do
           'Status:Meaning' => Predicate.find_or_create_by(name: 'Status:Meaning', definition: 'The verbatim value in Status#Meaning.', project_id: Current.project_id)
         }.freeze
         topics = {
-          'Figures' => Topic.find_or_create_by(name: 'Figures', definition: 'Original source has figures.', project_id: Current.project_id)
+          'Figures' => Topic.find_or_create_by(name: 'Figures', definition: 'OriginalMonotypy source has figures.', project_id: Current.project_id)
         }
 
         status_type = {
@@ -1958,7 +1958,7 @@ namespace :tw do
           'AT' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling', # 'Alternative original status of',
           'CH' => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary', # 'Junior secondary homonym of',
           'CM' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelt species name, compared with',
-          'DT' => 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation', # 'Designated type species of'
+          'DT' => 'TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentDesignation', # 'Designated type species of'
           'IC' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelling based on original lapsus for',
           'ID' => 'TaxonNameRelationship::Iczn::Invalidating', # 'Identified subsequently as',
           'IE' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation', # 'Incorrect, justified emendation of',
@@ -1980,7 +1980,7 @@ namespace :tw do
           'NM' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelt species name, new combination for',
           'NR' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression', # 'Name rejected in favour of',
           'NQ' => 'TaxonNameRelationship::Iczn::Invalidating', # 'Nomen nudum, but identified subsequently as',
-          'OT' => 'TaxonNameRelationship::Typification::Genus::RulingByCommission', # 'Placed on official list as type species of',
+          'OT' => 'TaxonNameRelationship::Typification::Genus::Subsequent::RulingByCommission', # 'Placed on official list as type species of',
           'PL' => 'TaxonNameRelationship::Iczn::Invalidating', # 'Possible lapsus for',
           'PM' => 'TaxonNameRelationship::Iczn::Invalidating', # 'Misidentification (in part) of',
           'PO' => 'TaxonNameRelationship::Iczn::Invalidating', # 'Possible misidentification of',
@@ -1992,7 +1992,7 @@ namespace :tw do
           'SL' => 'TaxonNameRelationship::Iczn::Invalidating', # 'New status, lapsus for',
           'ST' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym', # 'Synonymized, by implication, with',
           'SY' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym', # 'Synonym of',
-          'TD' => 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation', # 'Designated type species of',
+          'TD' => 'TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentDesignation', # 'Designated type species of',
           'TS' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym', # 'Type species transferred to',
           'UE' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation', # 'Unjustified emendation',
           'UI' => 'TaxonNameRelationship::Iczn::Invalidating', # 'Unavailable name, identified subsequently as',
@@ -2050,7 +2050,7 @@ namespace :tw do
           'RV' => 'Revived combination, valid species for',
           'SC' => 'New status, new combination for',
           'SF' => 'New status, subgenus of',
-          'SJ' => 'Subsequent use of unjustified emendation of',
+          'SJ' => 'SubsequentMonotypy use of unjustified emendation of',
           'SN' => 'New status for',
           'SR' => 'Status revived',
           'SS' => 'Subspecies',

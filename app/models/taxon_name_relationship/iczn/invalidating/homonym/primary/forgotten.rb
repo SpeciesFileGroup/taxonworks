@@ -2,6 +2,8 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Forgotten < T
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000106'.freeze
 
+  soft_validate(:sv_forgotten_homonym, set: :specific_relationship, has_fix: false)
+
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
         self.collect_to_s(TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary) +
@@ -30,5 +32,10 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Forgotten < T
     :reverse
   end
 
-
+  def sv_forgotten_homonym
+    s = subject_taxon_name
+    if s.year_of_publication > 1899
+      soft_validations.add(:type, "#{s.cached_html_name_and_author_year} was not described before 1900. It should not be treated as forgotten name.")
+    end
+  end
 end

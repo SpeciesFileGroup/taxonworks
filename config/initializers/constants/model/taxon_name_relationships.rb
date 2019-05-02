@@ -164,9 +164,9 @@ begin
         typification: {
         all:  TaxonNameRelationshipsConstantHelper::descendants_collection( TaxonNameRelationship::Typification ),
         common:  TaxonNameRelationshipsConstantHelper.collection([
-          TaxonNameRelationship::Typification::Genus::OriginalDesignation,
-          TaxonNameRelationship::Typification::Genus::Monotypy::Original,
-          TaxonNameRelationship::Typification::Genus::Monotypy::Subsequent
+          TaxonNameRelationship::Typification::Genus::Original::OriginalDesignation,
+          TaxonNameRelationship::Typification::Genus::Original::OriginalMonotypy,
+          TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentDesignation
         ]),
         tree: []
       }

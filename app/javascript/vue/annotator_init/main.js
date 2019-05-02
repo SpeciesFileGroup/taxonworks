@@ -9,6 +9,7 @@ Object.assign(TW.vue.annotator, {
   init: function (element) {
     let id = `radial-annotator-${(Math.random().toString(36).substr(2, 5))}`
     let globalId = $(element).attr('data-global-id')
+    let showCount = $(element).attr('data-show-count')
 
     if (globalId) {
       $(element).attr('id', id)
@@ -19,7 +20,8 @@ Object.assign(TW.vue.annotator, {
           return createElement(App, {
             props: {
               id: id,
-              globalId: globalId
+              globalId: globalId,
+              showCount: (showCount == 'true') ? true : false
             }
           })
         }

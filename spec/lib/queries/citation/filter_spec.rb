@@ -4,35 +4,17 @@ describe Queries::Citation::Filter, type: :model do
 
   let(:query) { Queries::Citation::Filter.new({}) }
 
-  specify '#polymorphic_ids 0' do
-    q = Queries::Citation::Filter.new( { collecting_event_id: 1 } )
-    expect(q.polymorphic_ids).to eq({collecting_event_id: 1})
+  specify '#options 1' do
+    p = ActionController::Parameters.new(collecting_event_id: 1 )
+    query.options = p 
+    expect(query.all.to_sql).to eq("SELECT DISTINCT \"citations\".* FROM \"citations\" WHERE \"citations\".\"citation_object_id\" = 1 AND \"citations\".\"citation_object_type\" = 'CollectingEvent'")
   end
 
-  specify '#polymorphic_ids 1' do
-    query.polymorphic_ids = { collecting_event_id: 1 }
-    expect(query.polymorphic_ids).to eq({collecting_event_id: 1})
+  # foo is ignored
+  specify '#options 2' do
+    p = ActionController::Parameters.new(collecting_event_id: 1, foo: 1 )
+    query.options = p 
+    expect(query.all.to_sql).to eq("SELECT DISTINCT \"citations\".* FROM \"citations\" WHERE \"citations\".\"citation_object_id\" = 1 AND \"citations\".\"citation_object_type\" = 'CollectingEvent'")
   end
-
-  specify '#polymorphic_ids 2' do
-    query.polymorphic_ids = { collecting_event_id: 1, foo_id: 22 }
-    expect(query.polymorphic_ids).to eq({collecting_event_id: 1})
-  end
-
-  specify '#matching_polymorphic_ids 1' do
-    query.polymorphic_ids = { collecting_event_id: 1 }
-    expect(query.matching_polymorphic_ids.class).to eq(Arel::Nodes::And)
-  end
-
-  specify '#matching_polymorphic_ids 2' do
-    query.polymorphic_ids = { collecting_event_id: 1, citation_object_id: 99 }
-    expect(query.matching_polymorphic_ids.to_sql).to eq("\"citations\".\"citation_object_id\" = 1 AND \"citations\".\"citation_object_type\" = 'CollectingEvent'")
-  end
-
-  specify 'no polymorphic_ids' do
-    query.source_id = 22
-    expect(query.matching_polymorphic_ids).to eq(nil)
-  end
-
 
 end

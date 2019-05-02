@@ -78,11 +78,11 @@ export default {
     rowGlobalId() {
       return this.$store.getters[GetterNames.GetMatrixRow].row_object.global_id
     },
-    rowId() {
-      return this.$store.getters[GetterNames.GetMatrixRow].id
+    rowClass() {
+      return this.$store.getters[GetterNames.GetMatrixRow].row_object.base_class
     },
     buttonLabel() {
-      return `${this.copy ? 'Copy observation from ' : 'Clone observation to '}${this.objectSelected ? this.objectSelected.label : '<pick object>'} to this row`
+      return this.copy ? `Copy observation from [pick object] to this ${this.rowClass}` : `Clone observations in this row to ${this.objectSelected ? this.objectSelected.label : '[pick object] '}`
     }
   },
   data() {
@@ -99,13 +99,11 @@ export default {
   methods: {
     cloneScorings() {
       if(window.confirm('Are you sure you want to proceed?')) {
-        this.$store.dispatch(ActionNames.CreateClone, {
-          old_global_id: this.copy ? this.rowGlobalId : this.objectSelected.gid,
-          new_global_id: this.copy ? this.objectSelected.gid : this.rowGlobalId
-        }).then(() => {
-          this.objectSelected = undefined
-          this.$emit('create', this.rowId)
+        this.$emit(this.copy ? 'onCopy' : 'onClone', {
+          old_global_id: !this.copy ? this.rowGlobalId : this.objectSelected.gid,
+          new_global_id: !this.copy ? this.objectSelected.gid : this.rowGlobalId
         })
+        this.objectSelected = undefined
       }
     }
   }

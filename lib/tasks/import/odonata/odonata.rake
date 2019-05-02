@@ -38,7 +38,7 @@ namespace :tw do
         @relationship_classes = {
             0 => '', ### valid
             1 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective',   #### ::Objective or ::Subjective
-            2 => '', ### Original combination
+            2 => '', ### OriginalMonotypy combination
             3 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary',
             4 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary', #### or 'Secondary::Secondary1961'
             5 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym', ## Preocupied
@@ -70,11 +70,11 @@ namespace :tw do
 
             'type species' => 'TaxonNameRelationship::Typification::Genus',
             'absolute tautonymy' => 'TaxonNameRelationship::Typification::Genus::Tautonomy::Absolute',
-            'monotypy' => 'TaxonNameRelationship::Typification::Genus::Monotypy::Original',
-            'original designation' => 'TaxonNameRelationship::Typification::Genus::OriginalDesignation',
-            'subsequent designation' => 'TaxonNameRelationship::Typification::Genus::Tautonomy',
-            'original monotypy' => 'TaxonNameRelationship::Typification::Genus::Monotypy::Original',
-            'subsequent monotypy' => 'TaxonNameRelationship::Typification::Genus::Monotypy::Subsequent',
+            'monotypy' => 'TaxonNameRelationship::Typification::Genus::Original::OriginalMonotypy',
+            'original designation' => 'TaxonNameRelationship::Typification::Genus::Original::OriginalDesignation',
+            'subsequent designation' => 'TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentDesignation',
+            'original monotypy' => 'TaxonNameRelationship::Typification::Genus::Original::OriginalMonotypy',
+            'subsequent monotypy' => 'TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentMonotypy',
             'Incorrect original spelling' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling',
             'Incorrect subsequent spelling' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
             'Junior objective synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective',
@@ -206,7 +206,7 @@ namespace :tw do
         print "\nHandling CV \n"
 
         @data.keywords.merge!(
-            'questionable' => Keyword.find_or_create_by(name: 'Original genus is questionable', definition: 'Original genus is questionable', project_id: $project_id),
+            'questionable' => Keyword.find_or_create_by(name: 'OriginalMonotypy genus is questionable', definition: 'OriginalMonotypy genus is questionable', project_id: $project_id),
             'ref_id' => Namespace.find_or_create_by(institution: 'Odonata', name: 'Odonata_ref_ID', short_name: 'ref_ID'),
             'accession_number' => Namespace.find_or_create_by(institution: 'Odonata', name: 'Odonata_accession_number', short_name: 'accession_number'),
             'Key' => Namespace.find_or_create_by(institution: 'Odonota', name: 'Odonata_taxon_ID', short_name: 'taxon_ID'),

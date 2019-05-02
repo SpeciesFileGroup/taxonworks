@@ -124,9 +124,7 @@ describe Combination, type: :model, group: :nomenclature do
       before do
         p.update(original_genus: genus, original_species: p)
         invalidating_relationship
-      end
-
-      let!(:c) { p.becomes_combination }
+      enlet!(:c) { p.becomes_combination }
 
       specify 'is Combination' do
         expect(c.type).to eq('Combination')
@@ -172,5 +170,6 @@ describe Combination, type: :model, group: :nomenclature do
         expect(c.cached_original_combination_html).to eq(nil)
       end
     end
+  end
   end
 end
