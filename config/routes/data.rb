@@ -350,15 +350,19 @@ resources :observation_matrix_row_items do
   end
 end
 
-resources :notes, except: [:show] do
-  concerns [:data_routes]
-end
-
 resources :observations do
   concerns [:data_routes]
+  collection do
+    delete :destroy_row, defaults: {format: :json}
+  end
+
   member do
     get :annotations, defaults: {format: :json}
   end
+end
+
+resources :notes, except: [:show] do
+  concerns [:data_routes]
 end
 
 resources :otus do
@@ -546,6 +550,7 @@ resources :taxon_names do
     post :create_castor_batch_load
 
     get :parse, defaults: {format: :json}
+    get :random
   end
 
   member do

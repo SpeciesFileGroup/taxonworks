@@ -16,6 +16,12 @@ scope :tasks do
     end
   end
 
+  scope :confidences do
+    scope :visualize, controller: 'tasks/confidences/visualize' do
+      get 'index', as: 'visualize_confidences_task'
+    end
+  end
+
   scope :content do
     scope :editor, controller: 'tasks/content/editor' do
       get 'index', as: 'index_editor_task'
@@ -257,8 +263,7 @@ scope :tasks do
   end
 
   scope :gis, controller: 'tasks/gis/otu_distribution_data' do
-    get 'otu_distribution_data/(:id)', action: 'show', as: 'otu_distribution_data_task'
-    get 'taxon_name_distribution_data/:id', action: 'show_for_taxon_name', as: 'taxon_name_distribution_data_task'
+    get 'otu_distribution_data', action: 'show', as: 'otu_distribution_data_task'
   end
 
   scope :nomenclature do
@@ -281,7 +286,7 @@ scope :tasks do
     end
 
     scope :by_source, controller: 'tasks/nomenclature/by_source' do
-      get '(:id)', action: :index, as: 'nomenclature_by_source_task'
+      get '(:source_id)', action: :index, as: 'nomenclature_by_source_task'
     end
   end
 
