@@ -39,8 +39,6 @@ module TaxonNamesHelper
     content_tag(:span, taxon_name.cached_original_combination, class: css_class)
   end
 
-
-
   # @return [String]
   #   the taxon name in original combination, without author year, with HTML
   def original_taxon_name_tag(taxon_name)
@@ -230,9 +228,9 @@ module TaxonNamesHelper
     text = 'Next'
     link_object = taxon_name.next_sibling
     if link_object.nil? 
-      content_tag(:div, content_tag(:span, text, class: 'small-icon icon-right', data: {icon: 'arrow-right'}), class:  'navigation-item disable')
+      content_tag(:div, content_tag(:span, text), class:  'navigation-item disable')
     else 
-      link_to(content_tag(:span, taxon_name_tag(link_object), data: {icon: 'arrow-right'}, class: 'small-icon icon-right'), send(path, link_object.metamorphosize), class: 'navigation-item', data: {arrow: 'next'})
+      link_to(text, send(path, link_object.metamorphosize), title: taxon_name_tag(link_object), class: 'navigation-item', data: { button: 'next' })
     end
   end
 
@@ -241,9 +239,9 @@ module TaxonNamesHelper
     link_object = taxon_name.previous_sibling
 
     if link_object.nil?
-      content_tag(:div, content_tag(:span, text, class: 'small-icon', data: {icon: 'arrow-left'}), class: 'navigation-item disable')
+      content_tag(:div, content_tag(:span, text), class: 'navigation-item disable')
     else 
-      link_to(content_tag(:span, taxon_name_tag(link_object), data: {icon: 'arrow-left'}, class: 'small-icon'), send(path, link_object.metamorphosize), class: 'navigation-item', data: {arrow: 'back'})
+      link_to(text, send(path, link_object.metamorphosize), class: 'navigation-item', data: { button: 'back' })
     end
   end
 

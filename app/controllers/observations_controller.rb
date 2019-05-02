@@ -80,6 +80,16 @@ class ObservationsController < ApplicationController
     end
   end
 
+  # DELETE /observations/destroy_row.json?observation_matrix_row_id=123
+  def destroy_row
+    @observation_matrix_row = ObservationMatrixRow.where(project_id: sessions_current_project_id).find(params.require(:observation_matrix_row_id))
+    if Observation.destroy_row(@observation_matrix_row.id)
+      render json: {success: true}
+    else
+      render json: {success: false}
+    end
+  end
+
   # GET /annotations
   def annotations
     @object = @observation

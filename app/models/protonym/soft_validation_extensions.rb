@@ -53,7 +53,7 @@ module Protonym::SoftValidationExtensions
     def sv_missing_relationships
       if  !self.cached_misspelling && !self.name_is_missapplied?
         if is_species_rank?
-          soft_validations.add(:base, 'Missing relationship: Original genus is not selected') if self.original_genus.nil?
+          soft_validations.add(:base, 'Missing relationship: OriginalMonotypy genus is not selected') if self.original_genus.nil?
         elsif is_genus_rank?
           soft_validations.add(:base, 'Missing relationship: Type species is not selected') if self.type_species.nil?
         elsif is_family_rank?
@@ -134,7 +134,7 @@ module Protonym::SoftValidationExtensions
       r = self.iczn_set_as_incorrect_original_spelling_of_relationship
       list_of_coordinated_names.each do |t|
         soft_validations.add(:base, "The original publication does not match with the original publication of the coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Original publication was updated') if self.source && t.source && self.source.id != t.source.id
+                             fix: :sv_fix_coordinated_names, success_message: 'OriginalMonotypy publication was updated') if self.source && t.source && self.source.id != t.source.id
         soft_validations.add(:verbatim_author, "The author does not match with the author of the coordinated #{t.rank_class.rank_name}",
                              fix: :sv_fix_coordinated_names, success_message: 'Author was updated') unless self.verbatim_author == t.verbatim_author
         soft_validations.add(:year_of_publication, "The year of publication does not match with the year of the coordinated #{t.rank_class.rank_name}",
@@ -144,11 +144,11 @@ module Protonym::SoftValidationExtensions
         soft_validations.add(:base, "The part of speech status does not match with the part of speech of the coordinated #{t.rank_class.rank_name}",
                              fix: :sv_fix_coordinated_names, success_message: 'Gender was updated') if rank_string =~ /Species/ && self.part_of_speech_class != t.part_of_speech_class && !has_misspelling_relationship?
         soft_validations.add(:base, "The original genus does not match with the original genus of coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Original genus was updated') if self.original_genus != t.original_genus && r.blank?
+                             fix: :sv_fix_coordinated_names, success_message: 'OriginalMonotypy genus was updated') if self.original_genus != t.original_genus && r.blank?
         soft_validations.add(:base, "The original subgenus does not match with the original subgenus of the coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Original subgenus was updated') if self.original_subgenus != t.original_subgenus && r.blank?
+                             fix: :sv_fix_coordinated_names, success_message: 'OriginalMonotypy subgenus was updated') if self.original_subgenus != t.original_subgenus && r.blank?
         soft_validations.add(:base, "The original species does not match with the original species of the coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Original species was updated') if self.original_species != t.original_species && r.blank?
+                             fix: :sv_fix_coordinated_names, success_message: 'OriginalMonotypy species was updated') if self.original_species != t.original_species && r.blank?
         soft_validations.add(:base, "The type species does not match with the type species of the coordinated #{t.rank_class.rank_name}",
                              fix: :sv_fix_coordinated_names, success_message: 'Type species was updated') if self.type_species != t.type_species && !has_misspelling_relationship?
         soft_validations.add(:base, "The type genus does not match with the type genus of the coordinated #{t.rank_class.rank_name}",

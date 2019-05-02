@@ -52,6 +52,12 @@ class TaxonNamesController < ApplicationController
     @taxon_name.source = Source.new if !@taxon_name.source
   end
 
+  def random
+    redirect_to browse_nomenclature_task_path(
+      id: TaxonName.where(project_id: sessions_current_project_id).order('random()').limit(1).pluck(:id).first # TODO: migrate to taxon_name_id: 123
+    )
+  end
+
   # GET /taxon_names/select_options
   def select_options
     @taxon_names = TaxonName.select_optimized(sessions_current_user_id, sessions_current_project_id)

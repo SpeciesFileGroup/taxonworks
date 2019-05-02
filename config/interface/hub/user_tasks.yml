@@ -432,3 +432,10 @@ index_filter_task:
     - nomenclature
   status: prototype
   description: 'Search and filter taxon names. Download CSV.  Generate JSON paths for offline use.'
+visualize_confidences_task:
+  hub: true
+  name: 'Visualize confidences.'
+  related:
+  categories:
+  status: prototype
+  description: 'See a graph of confidences applied per data type.'

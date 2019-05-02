@@ -18,7 +18,7 @@
       <span>
         <a
           v-html="citation.citation_object.object_tag"
-          @click="showObject()"/> 
+          :href="showObject()"/> 
         {{ legend }}
         <span 
           v-if="isInvalid"
@@ -83,7 +83,7 @@
     },
     methods: {
       showObject() {
-        window.open('/tasks/nomenclature/browse/' + this.citation.citation_object_id, '_blank');
+        return `/tasks/nomenclature/browse/${this.citation.citation_object_id}`
       },
       nameAuthorYear() {
           let taxon = this.citation.citation_object;
