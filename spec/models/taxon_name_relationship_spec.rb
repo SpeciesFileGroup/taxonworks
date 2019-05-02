@@ -209,7 +209,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: genus, type: 'TaxonNameRelationship::Typification::Genus')
         expect(r1.valid?).to be_truthy
         expect(r1.errors.include?(:object_taxon_name_id)).to be_falsey
-        r2 = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: genus, type: 'TaxonNameRelationship::Typification::Genus::Monotypy')
+        r2 = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: genus, type: 'TaxonNameRelationship::Typification::Genus::Original')
         r2.valid?
         expect(r2.errors.include?(:object_taxon_name_id)).to be_truthy
       end
@@ -364,7 +364,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       s = FactoryBot.create(:relationship_species, parent: g)
       FactoryBot.create(:taxon_name_classification, taxon_name: g, type: 'TaxonNameClassification::Iczn::Unavailable')
 
-      r1 = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: g, type: 'TaxonNameRelationship::Typification::Genus::OriginalDesignation')
+      r1 = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: g, type: 'TaxonNameRelationship::Typification::Genus::Original::OriginalDesignation')
       r1.soft_validate(:validate_disjoint_object)
 
       expect(r1.soft_validations.messages_on(:type).size).to eq(1)
@@ -376,7 +376,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       g = FactoryBot.create(:relationship_genus, parent: family)
       s = FactoryBot.create(:relationship_species, parent: g)
       FactoryBot.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Unavailable')
-      r1 = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: g, type: 'TaxonNameRelationship::Typification::Genus::OriginalDesignation')
+      r1 = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: g, type: 'TaxonNameRelationship::Typification::Genus::Original::OriginalDesignation')
       r1.soft_validate(:validate_disjoint_subject)
       expect(r1.soft_validations.messages_on(:type).size).to eq(1)
       expect(r1.soft_validations.messages_on(:subject_taxon_name_id).size).to eq(1)
@@ -429,7 +429,12 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         r  = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
         r.soft_validate(:specific_relationship)
         expect(r.soft_validations.messages_on(:type).size).to eq(1)
-        r.type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective'
+      end
+
+      specify 'objective synonyms have same type specimen' do
+        type_material1 = FactoryBot.create(:valid_type_material, protonym: s1)
+        type_material2 = FactoryBot.create(:valid_type_material, biological_object_id: type_material1.biological_object_id, protonym: s2)
+        r  = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
         r.soft_validate(:specific_relationship)
         expect(r.soft_validations.messages_on(:type).empty?).to be_truthy
       end
@@ -508,7 +513,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         )
 
         r.soft_validate(:specific_relationship)
-        expect(r.soft_validations.messages_on(:type).size).to eq(1)
+        expect(r.soft_validations.messages_on(:type).size).to eq(2)
         expect(r.soft_validations.messages_on(:base).size).to eq(1)
         r.source = source
         r.soft_validate(:specific_relationship)
@@ -516,7 +521,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       end
 
       specify 'type species by subsequent designation' do
-        r1.type = 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
+        r1.type = 'TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentDesignation'
         expect(r1.save).to be_truthy
         r1.reload
         r1.soft_validate(:synonym_relationship)
@@ -546,7 +551,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression::Total')
         r2 = TaxonNameRelationship::Iczn::Invalidating::Homonym.new(subject_taxon_name: genus, object_taxon_name: g2, source: source)
         r2.soft_validate('validate_homonym_relationships')
-        expect(r2.soft_validations.messages_on(:type).size).to eq(1)
+        expect(r2.soft_validations.messages_on(:type)).to include('Taxon should not be treated as homonym, since the related taxon is totally suppressed')
       end
 
       specify 'homonym without nomen novum' do
@@ -564,14 +569,15 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       end
 
       specify 'subsequent type designation after 1930' do
-        r1.type = 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
-        expect(r1.save).to be_truthy
-        r1.soft_validate('specific_relationship')
-        expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy
-        r1.object_taxon_name.year_of_publication = 1950
-        expect(r1.save).to be_truthy
-        r1.soft_validate('specific_relationship')
-        expect(r1.soft_validations.messages_on(:type).size).to eq(1)
+        gen1 = FactoryBot.create(:relationship_genus, name: 'Aus')
+        r3 = TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentDesignation.create(subject_taxon_name: species, object_taxon_name: gen1)
+        expect(r3.save).to be_truthy
+        r3.soft_validate('described_after_1930')
+        expect(r3.soft_validations.messages_on(:type).empty?).to be_truthy
+        r3.object_taxon_name.year_of_publication = 1950
+        expect(r3.save).to be_truthy
+        r3.soft_validate('described_after_1930')
+        expect(r3.soft_validations.messages_on(:type).size).to eq(1)
       end
 
       context 'secondary homonyms missing combination' do

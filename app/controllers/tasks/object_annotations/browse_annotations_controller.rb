@@ -3,7 +3,6 @@ class Tasks::BrowseAnnotationsController < ApplicationController
 
   # GET
   def index
-
   end
 
   def get_type
@@ -12,14 +11,6 @@ class Tasks::BrowseAnnotationsController < ApplicationController
 
   def get_type_list
     render(json: AnnotationsController.types)
-    # render(json: {
-    #     "tags": "Tags (by Keyword)",
-    #     "data_attributes": "Data attribues (by Predicates)",
-    #     "confidence": "Confidence (by Confidence Level)",
-    #     "alternate_values": "Alternate values",
-    #     "notes": "notes"
-    # }
-    # )
   end
 
   def annotation_on
@@ -32,12 +23,11 @@ class Tasks::BrowseAnnotationsController < ApplicationController
 
   def get_for_list
     render(json: {
-        "tag": "selected keyword)",
-        "data_attribute": "selected predicate",
-        "alternate_value": "selected alternate value",
-        "notes": "notes"
-    }
-    )
+      "tag": "selected keyword)",
+      "data_attribute": "selected predicate",
+      "alternate_value": "selected alternate value",
+      "notes": "notes"
+    })
   end
 
 
@@ -50,7 +40,8 @@ class Tasks::BrowseAnnotationsController < ApplicationController
   end
 
   def get_model_list
-    render(json: {
+    render(
+      json: {
         otu: 'by OTU',
         taxon_name: 'by Taxon Name',
         specimen: 'by Specimen'}

@@ -517,15 +517,15 @@ namespace :tw do
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           type_species_reason_hash = {'0' => 'TaxonNameRelationship::Typification::Genus', # unknown
-                                      '1' => 'TaxonNameRelationship::Typification::Genus::Monotypy::Original',
-                                      '2' => 'TaxonNameRelationship::Typification::Genus::OriginalDesignation',
-                                      '3' => 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation',
-                                      '4' => 'TaxonNameRelationship::Typification::Genus::OriginalDesignation', # was monotypy and original designation, OriginalDesignation has priority per Dmitry, make note about SF value
-                                      '5' => 'TaxonNameRelationship::Typification::Genus::Monotypy::Subsequent',
+                                      '1' => 'TaxonNameRelationship::Typification::Genus::Original::OriginalMonotypy',
+                                      '2' => 'TaxonNameRelationship::Typification::Genus::Original::OriginalDesignation',
+                                      '3' => 'TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentDesignation',
+                                      '4' => 'TaxonNameRelationship::Typification::Genus::Original',
+                                      '5' => 'TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentMonotypy',
                                       '6' => 'TaxonNameRelationship::Typification::Genus::Tautonomy::Absolute',
                                       '7' => 'TaxonNameRelationship::Typification::Genus::Tautonomy::Linnaean',
-                                      '8' => 'TaxonNameRelationship::Typification::Genus::RulingByCommission',
-                                      '9' => 'TaxonNameRelationship::Typification::Genus' # inherited from replaced name
+                                      '8' => 'TaxonNameRelationship::Typification::Genus::Subsequent::RulingByCommission',
+                                      '9' => 'TaxonNameRelationship::Typification::Genus' # inherited from replaced name (TODO: it should be the same relationship as for replaced name)
           }
 
           count_found = 0

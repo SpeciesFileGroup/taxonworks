@@ -28,7 +28,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       @species_type_of_genus = FactoryBot.create(:taxon_name_relationship,
                                                   subject_taxon_name: @protonym,
                                                   object_taxon_name: @genus,
-                                                  type: 'TaxonNameRelationship::Typification::Genus::Monotypy::Original')
+                                                  type: 'TaxonNameRelationship::Typification::Genus::Original::OriginalMonotypy')
       @genus_type_of_family = FactoryBot.create(:taxon_name_relationship,
                                                  subject_taxon_name: @genus,
                                                  object_taxon_name: @family,

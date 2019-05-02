@@ -119,6 +119,11 @@ export default class MatrixRowCoderRequest extends IMatrixRowCoderRequest {
     return deleteResource(url)
   }
 
+  removeAllObservationsRow (rowId) {
+    const url = `${this.apiBase}/observations/destroy_row.json?observation_matrix_row_id=${rowId}${MatrixRowCoderRequest.stringifyApiParams(this.apiParams)}`
+    return deleteResource(url)
+  }
+
   getDescriptorNotes (descriptorId) {
     const url = this.buildGetUrl(`/descriptors/${descriptorId}/notes.json`)
     return getJSON(url)

@@ -1,5 +1,5 @@
 # To identify the polymorphic params, include the pertinent model we rereference here
-require_dependency Rails.root.to_s + '/app/models/collecting_event'
+# require_dependency Rails.root.to_s + '/app/models/collecting_event'
 
 module Queries
   module Citation
@@ -7,8 +7,11 @@ module Queries
     # !! does not inherit from base query
     class Filter
       
-      include Concerns::Polymorphic
-      polymorphic_klass(::Citation)
+      # General annotator options handling 
+      # happens directly on the params as passed
+      # through to the controller, keep them
+      # together here
+      attr_accessor :options
 
       # Array, Integer
       attr_accessor :citation_object_type, :citation_object_id, :source_id
@@ -19,16 +22,16 @@ module Queries
         @citation_object_type = params[:citation_object_type]
         @citation_object_id = params[:citation_object_id]
         @source_id = params[:source_id]
-        set_polymorphic_ids(params)
+        @options = params
       end
 
       # @return [ActiveRecord::Relation, nil]
       def and_clauses
         clauses = [
+          ::Queries::Annotator.annotator_params(options, ::Citation),
           matching_citation_object_type,
           matching_citation_object_id,
           matching_source_id,
-          matching_polymorphic_ids,
         ].compact
 
         return nil if clauses.empty?
@@ -58,7 +61,7 @@ module Queries
       # @return [ActiveRecord::Relation]
       def all
         if a = and_clauses
-          ::Citation.where(and_clauses)
+          ::Citation.where(and_clauses).distinct
         else
           ::Citation.all
         end

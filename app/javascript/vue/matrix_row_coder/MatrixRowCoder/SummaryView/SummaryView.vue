@@ -6,10 +6,9 @@
       legend="Saving changes..."
       :logo-size="{ width: '50px', height: '50px'}"
       v-if="isSaving"/>
-    {{ index }}
     <h2 class="summary-view__title flex-separate">
       <div class="horizontal-left-content">
-        {{ descriptor.title }}
+        {{ index }} {{ descriptor.title }}
         <radial-annotator :global-id="descriptor.globalId"/>
         <radial-object :global-id="descriptor.globalId"/>
       </div>

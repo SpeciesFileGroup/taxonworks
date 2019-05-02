@@ -2,6 +2,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary19
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000292'.freeze
 
+  soft_validate(:sv_year_of_description, set: :specific_relationship, has_fix: false)
+  soft_validate(:sv_source_not_selected, set: :specific_relationship, has_fix: false)
+  soft_validate(:sv_source_after_1960, set: :specific_relationship, has_fix: false)
+
+
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
         [TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary.to_s]
@@ -25,4 +30,19 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary19
     :iczn_secondary_homonym_before_1961
   end
 
+  def sv_year_of_description
+    s = subject_taxon_name
+    soft_validations.add(:type, "#{s.cached_html_name_and_author_year} was not described before 1961") if s.year_of_publication > 1960
+  end
+
+  def sv_source_not_selected
+    soft_validations.add(:base, 'The original publication is not selected') unless source
+  end
+
+  def sv_source_after_1960
+    if self.source
+      s = subject_taxon_name
+      soft_validations.add(:base, "#{s.cached_html_name_and_author_year} should not be treated as a homonym established before 1961") if self.source.year > 1960
+    end
+  end
 end

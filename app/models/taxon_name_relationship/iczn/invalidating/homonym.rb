@@ -2,7 +2,9 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000289'.freeze
 
-  soft_validate(:sv_validate_homonym_relationships, set: :validate_homonym_relationships)
+  soft_validate(:sv_validate_total_suppression, set: :validate_homonym_relationships, has_fix: false)
+  soft_validate(:sv_missing_nomen_novum, set: :validate_homonym_relationships, has_fix: false)
+  soft_validate(:sv_missing_replacement_name, set: :validate_homonym_relationships, has_fix: false)
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
@@ -47,8 +49,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
     :iczn_homonym
   end
 
-  def sv_add_synonym_for_homonym
-    # if self.type_name =~ /TaxonNameRelationship::Iczn::Invalidating::Homonym/
+  def sv_fix_add_synonym_for_homonym
     if self.subject_taxon_name.iczn_set_as_synonym_of.nil?
       unless self.subject_taxon_name.iczn_replacement_names.empty?
         self.subject_taxon_name.iczn_set_as_synonym_of = self.object_taxon_name
@@ -61,24 +62,35 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
         end
       end
     end
-    # end
     false
   end
 
-  def sv_validate_homonym_relationships
-    #  if self.type_name =~ /TaxonNameRelationship::Iczn::Invalidating::Homonym/
+  def sv_validate_total_suppression
     if !self.object_taxon_name.iczn_set_as_total_suppression_of.nil?
       soft_validations.add(:type, 'Taxon should not be treated as homonym, since the related taxon is totally suppressed')
-    elsif self.subject_taxon_name.iczn_set_as_synonym_of.nil?
-      if self.subject_taxon_name.iczn_replacement_names.empty?
-        soft_validations.add(:type, 'Please select a nomen novum and/or valid name')
-      else
-        soft_validations.add(:type, 'Please select a valid name using synonym relationships',
-                             fix: :sv_add_synonym_for_homonym, success_message: 'Synonym relationship was added')
-      end
     end
-    #  end
   end
 
+  def sv_missing_nomen_novum
+    if self.subject_taxon_name.iczn_set_as_synonym_of.nil? && self.subject_taxon_name.iczn_replacement_names.empty?
+      soft_validations.add(:type, 'Please select a nomen novum and/or valid name')
+    end
+  end
 
+  def sv_missing_replacement_name
+    if self.subject_taxon_name.iczn_set_as_synonym_of.nil? && !self.subject_taxon_name.iczn_replacement_names.empty?
+      soft_validations.add(:type, 'Please select a valid name using synonym relationships',
+                           fix: :sv_fix_add_synonym_for_homonym, success_message: 'Synonym relationship was added')
+    end
+  end
+
+  def sv_specific_relationship
+    s = subject_taxon_name
+    o = object_taxon_name
+    if (s.cached_primary_homonym_alternative_spelling != o.cached_primary_homonym_alternative_spelling)
+      if (s.cached_secondary_homonym_alternative_spelling.blank? && o.cached_secondary_homonym_alternative_spelling.blank?) || (s.cached_secondary_homonym_alternative_spelling != o.cached_secondary_homonym_alternative_spelling)
+        soft_validations.add(:type, "#{subject_taxon_name.cached_html_name_and_author_year} and #{object_taxon_name.cached_html_name_and_author_year} are not similar enough to be homonyms")
+      end
+    end
+  end
 end

@@ -121,7 +121,7 @@ namespace :tw do
         @relationship_classes = {
             0 => '', ### valid
             1 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Heterotypic',   #### ::Homotypic or ::Heterotypic
-            2 => '', ### Original combination
+            2 => '', ### OriginalMonotypy combination
             3 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary',
             4 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary', #### or 'Secondary::Secondary1961'
             5 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym', ## Preocupied
@@ -153,11 +153,11 @@ namespace :tw do
 
             'type species' => 'TaxonNameRelationship::Typification::Genus',
             'absolute tautonymy' => 'TaxonNameRelationship::Typification::Genus::Tautonomy::Absolute',
-            'monotypy' => 'TaxonNameRelationship::Typification::Genus::Monotypy::Original',
-            'original designation' => 'TaxonNameRelationship::Typification::Genus::OriginalDesignation',
+            'monotypy' => 'TaxonNameRelationship::Typification::Genus::Original::OriginalMonotypy',
+            'original designation' => 'TaxonNameRelationship::Typification::Genus::Original::OriginalDesignation',
             'subsequent designation' => 'TaxonNameRelationship::Typification::Genus::Tautonomy',
-            'original monotypy' => 'TaxonNameRelationship::Typification::Genus::Monotypy::Original',
-            'subsequent monotypy' => 'TaxonNameRelationship::Typification::Genus::Monotypy::Subsequent',
+            'original monotypy' => 'TaxonNameRelationship::Typification::Genus::Original::OriginalMonotypy',
+            'subsequent monotypy' => 'TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentMonotypy',
             'Incorrect original spelling' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling',
             'Incorrect subsequent spelling' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
             'Junior objective synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Homotypic',
@@ -1074,7 +1074,7 @@ namespace :tw do
             if taxon.rank_string =~ /Genus/ && !row['Type'].blank?
               case row['TypeDesignation']
                 when 'original monotypy'
-                  taxon.type_species_by_original_monotypy = find_taxon_3i(row['Type'])
+                  taxon.type_species_by_original_original_monotypy = find_taxon_3i(row['Type'])
                 when 'monotypy'
                   taxon.type_species_by_monotypy = find_taxon_3i(row['Type'])
                 when 'subsequent monotypy'
@@ -1084,11 +1084,11 @@ namespace :tw do
                 when 'subsequent designation'
                   #taxon.type_species_by_subsequent_designation = find_taxon_3i(row['Type'])
                   source1 = row['Key3a'].blank? ? nil : @data.publications_index[row['Key3a']]
-                  tssd = taxon.related_taxon_name_relationships.create(subject_taxon_name: find_taxon_3i(row['Type']),  type: 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation')
+                  tssd = taxon.related_taxon_name_relationships.create(subject_taxon_name: find_taxon_3i(row['Type']),  type: 'TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentDesignation')
                   byebug if tssd.id.nil?
                   tssd.citations.create(source_id: source1, is_original: true) unless source1.nil?
                 when 'ruling by commission'
-                  taxon.type_species_by_ruling_by_Commission = find_taxon_3i(row['Type'])
+                  taxon.type_species_by_ruling_by_commission = find_taxon_3i(row['Type'])
                 else
                   taxon.type_species = find_taxon_3i(row['Type'])
               end
@@ -1220,7 +1220,7 @@ namespace :tw do
             CommonName.create!(otu: find_taxon_3i(row['Parent']).otus.first, name: row['Name'], language: lng)
 #          elsif row['Status'] == '13' && row['Rank'] == '0' # Nomen nudum
 #            tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: 'TaxonNameRelationship::Iczn::Invalidating')
-          elsif row['Status'] == '2' || !row['OriginalCombinationOf'].blank? ### Original combination
+          elsif row['Status'] == '2' || !row['OriginalCombinationOf'].blank? ### OriginalMonotypy combination
             taxon = find_taxon_3i(row['OriginalCombinationOf']) || find_taxon_3i(row['Parent'])
             if taxon.blank?
               byebug

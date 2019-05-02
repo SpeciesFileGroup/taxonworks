@@ -13,7 +13,7 @@ class ConfidencesController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @confidences = Queries::Confidence::Filter.new(filter_params).all
+        @confidences = Queries::Confidence::Filter.new(params).all
           .where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
       }
     end
@@ -100,13 +100,6 @@ class ConfidencesController < ApplicationController
 
   def set_confidence
     @confidence = Confidence.find(params[:id])
-  end
-
-  def filter_params
-    params.permit(
-      :confidence_level_id, :object_global_id, :confidence_object_type, 
-      Confidence.related_foreign_keys.map(&:to_sym)
-    )
   end
 
   def confidence_params

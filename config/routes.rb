@@ -436,6 +436,10 @@ TaxonWorks::Application.routes.draw do
 
   resources :observations do
     concerns [:data_routes]
+    collection do
+      delete :destroy_row, defaults: {format: :json}
+    end
+
     member do
       get :annotations, defaults: {format: :json}
     end
