@@ -13,7 +13,7 @@ class CitationsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @citations = Queries::Citation::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).includes(:source)
+        @citations = Queries::Citation::Filter.new(params).all.where(project_id: sessions_current_project_id).includes(:source)
           .order(:source_id, :pages)
           .page(params[:page]).per(params[:per] || 500)
         @verbose_object = params[:verbose_object]
@@ -117,13 +117,6 @@ class CitationsController < ApplicationController
   end
 
   private
-
-  def filter_params
-    params.permit(
-        :citation_object_type, :citation_object_id, :source_id,
-        Citation.related_foreign_keys.map(&:to_sym)
-    ).merge(project_id: sessions_current_project_id)
-  end
 
   def set_citation
     @citation = Citation.with_project_id(sessions_current_project_id).find(params[:id])

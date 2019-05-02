@@ -3,10 +3,14 @@ module Queries
 
     # !! does not inherit from base query
     class Filter 
-      include Concerns::Polymorphic
-      polymorphic_klass(::Confidence)
 
       # Params specific to Confidence 
+
+      # General annotator options handling 
+      # happens directly on the params as passed
+      # through to the controller, keep them
+      # together here
+      attr_accessor :options
 
       # Array, Integer
       attr_accessor :confidence_level_id, :object_global_id, :confidence_object_type
@@ -16,16 +20,16 @@ module Queries
         @confidence_level_id = [params[:confidence_level_id]].flatten.compact
         @object_global_id = params[:object_global_id]
         @confidence_object_type = params[:confidence_object_type]
-        set_polymorphic_ids(params)
+        @options = params
       end
 
       # @return [ActiveRecord::Relation]
       def and_clauses
         clauses = [
+          ::Queries::Annotator.annotator_params(options, ::Confidence),
           matching_confidence_level_id,
           matching_confidence_object_type,
           matching_object,
-          matching_polymorphic_ids
         ].compact
 
         return nil if clauses.empty? 
