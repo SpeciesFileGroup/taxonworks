@@ -168,7 +168,13 @@ export default {
       }
     })
 
-    let taxonId = location.pathname.split('/')[4]
+    let urlParams = new URLSearchParams(window.location.search)
+    let taxonId = urlParams.get('taxon_name_id')
+
+    if(!taxonId) {
+      taxonId = location.pathname.split('/')[4]
+    }
+    
     this.initLoad().then(function () {
       if (/^\d+$/.test(taxonId)) {
         that.$store.dispatch(ActionNames.LoadTaxonName, taxonId).then(function () {
