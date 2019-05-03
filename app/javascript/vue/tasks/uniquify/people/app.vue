@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="vue-people-uniquify">
     <div class="flex-separate middle">
       <h1>Uniquify people</h1>
       <span
@@ -164,6 +164,14 @@
           that.isLoading = false
         })
       },
+      getPerson(id) {
+        this.isLoading = true
+        this.$http.get(`/people/${id}.json`,).then(response => {
+          this.foundPeople = [response.body]
+          this.selectedPerson = response.body
+          this.isLoading = false
+        })
+      },
       mergePeople() {
         let params = {
           person_to_destroy: this.mergePerson.id // this.selectedPerson.id
@@ -201,19 +209,33 @@
       },
     },
     mounted: function() {   // accepts only last_name param in links from other pages
-      if (window.location.href.split('last_name=').length > 1) {
-        this.lastName =  window.location.href.split('last_name=')[1].split('&')[0];
+      let urlParams = new URLSearchParams(window.location.search)
+      let lastName = urlParams.get('last_name')
+      let personId = urlParams.get('person_id')
+
+      if (/^\d+$/.test(personId)) {
+        this.getPerson(personId)
+      }
+      else if (lastName) {
+        this.lastName = lastName
         this.findPerson()
       }
     }
   }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+#vue-people-uniquify {
   .first-column, .second-column {
     width: 200px;
   }
   .merge-column {
     width: 150px;
   }
+
+  .feedback {
+    line-height: 2.5 !important;
+  }
+}
+
 </style>
