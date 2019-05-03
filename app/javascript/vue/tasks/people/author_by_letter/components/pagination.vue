@@ -2,7 +2,7 @@
   <div class="horizontal-left-content ">
     <div class="page-navigator separate-right">
       <template>
-        <span v-if="pagination['previousPage']">
+        <span v-if="pagination['previousPage'] && pagination['previousPage'] != 1">
           <a
             class="cursor-pointer"
             @click="sendPage(pagination.previousPage)">
@@ -14,7 +14,7 @@
         </span>
       </template>
       <template>
-        <span v-if="pagination['nextPage']">
+        <span v-if="pagination['nextPage'] && pagination['nextPage'] != pagination.totalPages">
           <a
             class="cursor-pointer"
             @click="sendPage(pagination.nextPage)">Next ›
@@ -46,7 +46,7 @@
         v-if="(pagination.totalPages - pagination.paginationPage) >= rangePages"
         class="page gap">...</span>
       <span
-        v-if="pagination.paginationPage != 1"
+        v-if="pagination.paginationPage != 1 && pagination.paginationPage"
         @click="sendPage(1)"
         class="first cursor-pointer">
         <a>« First</a>
