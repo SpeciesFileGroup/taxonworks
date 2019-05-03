@@ -10,13 +10,14 @@
       @keypress="key = $event; getAuthors()"
       ref="alphabetButtons"/>
     <div>
+      <pagination-component
+        :pagination="pagination"
+        @nextPage="getAuthors"/>
       <author-list
         :list="authorsList"
         :pagination="pagination"
         @selected="getSources"/>
-      <pagination-component
-        :pagination="pagination"
-        @nextPage="getAuthors"/>
+
       <h2>Sources for selected author</h2>
       <source-list :list="sourcesList"/>
     </div>
