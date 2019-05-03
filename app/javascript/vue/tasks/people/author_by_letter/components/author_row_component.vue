@@ -1,9 +1,8 @@
 <template>
   <tr v-if="author">
-    <td>
+    <td class="author-column">
       <a
         v-html="author.cached"
-        target="blank"
         :href="`/people/${this.author.id}`"/>
     </td>
     <td>
@@ -58,3 +57,8 @@
     }
   }
 </script>
+<style scoped>
+  .author-column {
+    min-width: 200px;
+  }
+</style>
