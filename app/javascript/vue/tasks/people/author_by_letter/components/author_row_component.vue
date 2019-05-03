@@ -6,7 +6,6 @@
         target="blank"
         :href="`/people/${this.author.id}`"/>
     </td>
-    <td> {{ author.id }} </td>
     <td>
       <button
         v-if="author.roles[0]"
@@ -15,6 +14,7 @@
         Sources
       </button>
     </td>
+    <td> {{ author.id }} </td>
     <td>
       <a
         target="blank"

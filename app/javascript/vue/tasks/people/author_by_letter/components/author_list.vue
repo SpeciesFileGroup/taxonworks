@@ -22,18 +22,19 @@
 <script>
 
   import AuthorRowComponent from './author_row_component'
-  import SourceRowComponent from './source_row_component'
 
   export default {
     components: {
-      AuthorRowComponent,
-      SourceRowComponent,
+      AuthorRowComponent
     },
     props: {
       list: {
         type: Array,
         required: true
       },
+      pagination: {
+        type: Object,
+      }
     },
     methods: {
       removeAuthor(author) {
