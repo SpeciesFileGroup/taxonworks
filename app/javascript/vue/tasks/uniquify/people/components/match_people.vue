@@ -10,7 +10,7 @@
       param="term"/>
     <p v-if="Object.keys(selectedPerson).length">{{ matchPeople.length }}  matches found</p>
     <div>
-      <ul class="no_bullets">
+      <ul class="no_bullets list-search">
         <li v-for="person in matchPeople">
           <label>
             <input
@@ -99,3 +99,10 @@ export default {
 };
 </script>
 
+<style scoped>
+.list-search {
+  max-height: 500px;
+  overflow-y: scroll;
+}
+
+</style>

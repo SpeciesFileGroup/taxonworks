@@ -10,10 +10,11 @@
           <th></th>
         </tr>
         <author-row-component
+          :class="{ highlight: selected == item.id }"
           v-for="item in list"
           :key="item.id"
           @delete="removeAuthor"
-          @sources="$emit('selected', item.id)"
+          @sources="selectAuthorSources(item.id)"
           :author="item"/>
       </table>
     </div>
@@ -22,18 +23,24 @@
 <script>
 
   import AuthorRowComponent from './author_row_component'
-  import SourceRowComponent from './source_row_component'
 
   export default {
     components: {
-      AuthorRowComponent,
-      SourceRowComponent,
+      AuthorRowComponent
     },
     props: {
       list: {
         type: Array,
         required: true
       },
+      pagination: {
+        type: Object,
+      }
+    },
+    data() {
+      return {
+        selected: undefined
+      }
     },
     methods: {
       removeAuthor(author) {
@@ -44,6 +51,15 @@
           this.list.splice(index, 1)
         }
       },
+      selectAuthorSources(id) {
+        this.$emit('selected', id)
+        this.selected = id
+      }
     }
   }
 </script>
+<style scoped>
+  .highlight {
+    background-color: #E3E8E3;
+  }
+</style>

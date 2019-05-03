@@ -128,7 +128,7 @@ export default {
     },
     setDays(days) {
       var date = new Date();
-      date.setDate(date.getDate() + days);
+      date.setDate(date.getDate() - days);
       return date.toISOString().slice(0,10);
     }
   }

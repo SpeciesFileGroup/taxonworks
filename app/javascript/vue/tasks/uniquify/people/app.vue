@@ -1,12 +1,40 @@
 <template>
-  <div>
+  <div id="vue-people-uniquify">
     <div class="flex-separate middle">
       <h1>Uniquify people</h1>
-      <span
-        @click="resetApp"
-        class="reload-app"
-        data-icon="reset">Reset
-      </span>
+      <ul class="context-menu">
+        <li>
+          <label>
+            <input
+              type="checkbox"
+              v-model="showSearch">
+            Show search
+          </label>
+        </li>
+        <li>
+          <label>
+            <input
+              type="checkbox"
+              v-model="showFound">
+            Show found people
+          </label>
+        </li>
+        <li>
+          <label>
+            <input
+              type="checkbox"
+              v-model="showMatch">
+            Show match people
+          </label>
+        </li>
+        <li>
+          <span
+            @click="resetApp"
+            class="reload-app"
+            data-icon="reset">Reset
+          </span>
+        </li>
+      </ul>
     </div>
     <spinner
       v-if="isLoading || isSaving"
@@ -15,7 +43,9 @@
       :logo-size="{ width: '100px', height: '100px'}"/>
     <div class="flexbox">
       <div class="flexbox">
-        <div class="first-column">
+        <div
+          v-show="showSearch"
+          class="first-column">
           <div class="last_name separate-right">
             <h2>Search</h2>
             <h3>Last Name</h3>
@@ -41,7 +71,9 @@
             type="submit">Find Person
           </button>
         </div>
-        <div class="found_people separate-right separate-left second-column">
+        <div
+          v-show="showFound"
+          class="found_people separate-right separate-left second-column">
           <h2>Select person</h2>
           <found-people
             ref="foundPeople"
@@ -51,7 +83,9 @@
             :display-count="displayCount"
           />
         </div>
-        <div class="match_people separate-right separate-left" >
+        <div
+          v-show="showMatch"
+          class="match_people separate-right separate-left" >
           <h2>Match people</h2>
           <match-people
             ref="matchPeople"
@@ -115,6 +149,9 @@
         mergePerson: {},
         displayCount: false,
         haltWatcher: false,
+        showMatch: true,
+        showFound: true,
+        showSearch: true
       }
     },
     watch: {
@@ -164,6 +201,14 @@
           that.isLoading = false
         })
       },
+      getPerson(id) {
+        this.isLoading = true
+        this.$http.get(`/people/${id}.json`,).then(response => {
+          this.foundPeople = [response.body]
+          this.selectedPerson = response.body
+          this.isLoading = false
+        })
+      },
       mergePeople() {
         let params = {
           person_to_destroy: this.mergePerson.id // this.selectedPerson.id
@@ -201,19 +246,33 @@
       },
     },
     mounted: function() {   // accepts only last_name param in links from other pages
-      if (window.location.href.split('last_name=').length > 1) {
-        this.lastName =  window.location.href.split('last_name=')[1].split('&')[0];
+      let urlParams = new URLSearchParams(window.location.search)
+      let lastName = urlParams.get('last_name')
+      let personId = urlParams.get('person_id')
+
+      if (/^\d+$/.test(personId)) {
+        this.getPerson(personId)
+      }
+      else if (lastName) {
+        this.lastName = lastName
         this.findPerson()
       }
     }
   }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+#vue-people-uniquify {
   .first-column, .second-column {
     width: 200px;
   }
   .merge-column {
     width: 150px;
   }
+
+  .feedback {
+    line-height: 2.5 !important;
+  }
+}
+
 </style>

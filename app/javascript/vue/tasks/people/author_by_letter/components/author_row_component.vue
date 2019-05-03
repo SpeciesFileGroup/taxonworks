@@ -1,12 +1,10 @@
 <template>
   <tr v-if="author">
-    <td>
+    <td class="author-column">
       <a
         v-html="author.cached"
-        target="blank"
         :href="`/people/${this.author.id}`"/>
     </td>
-    <td> {{ author.id }} </td>
     <td>
       <button
         v-if="author.roles[0]"
@@ -15,6 +13,7 @@
         Sources
       </button>
     </td>
+    <td> {{ author.id }} </td>
     <td>
       <a
         target="blank"
@@ -22,7 +21,11 @@
         Uniquify
       </a>
     </td>
-    <td>
+    <td class="horizontal-left-content">
+      <radial-annotator
+        type="annotations"
+        :global-id="author.global_id"/>
+      <radial-object :global-id="author.global_id"/>
       <pin
         v-if="author.id"
         :object-id="author.id"
@@ -36,9 +39,11 @@
 
   import RadialAnnotator from 'components/annotator/annotator'
   import Pin from 'components/pin'
+  import RadialObject from 'components/radial_object/radialObject'
 
   export default {
     components: {
+      RadialObject,
       RadialAnnotator,
       Pin
     },
@@ -58,3 +63,8 @@
     }
   }
 </script>
+<style scoped>
+  .author-column {
+    min-width: 200px;
+  }
+</style>

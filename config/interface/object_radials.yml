@@ -60,4 +60,8 @@ ObservationMatrix:
     - observation_matrices_hub_task
   config:
     recent: true    
-
+Person:
+  tasks:
+    - uniquify_people_task
+  config:
+    recent: true

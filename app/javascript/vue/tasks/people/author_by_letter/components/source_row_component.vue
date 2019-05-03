@@ -5,7 +5,8 @@
         v-html="source.cached"
         @click="showSource"/>
     </td>
-    <td>
+    <td class="horizontal-left-content">
+      <radial-object :global-id="source.global_id"/>
       <pin
         v-if="source.id"
         :object-id="source.id"
@@ -22,13 +23,13 @@
 
 <script>
 
-  import RadialAnnotator from 'components/annotator/annotator'
   import Pin from 'components/pin'
   import AddToProject from 'components/addToProjectSource'
+  import RadialObject from 'components/radial_object/radialObject'
 
   export default {
     components: {
-      RadialAnnotator,
+      RadialObject,
       Pin,
       AddToProject
     },

@@ -17,7 +17,6 @@ branches:
   only:
     - master
     - development
-    - api
 addons:
   postgresql: "10"
   firefox: "latest"
