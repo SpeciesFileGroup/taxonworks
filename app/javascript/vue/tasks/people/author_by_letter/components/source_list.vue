@@ -1,15 +1,20 @@
 <template>
-  <table id="source-table">
-    <tr>
-      <th>Source</th>
-      <th/>
-      <th/>
-    </tr>
-    <source-row-component
-      v-for="src in list"
-      :key="src.id"
-      :source="src"/>
-  </table>
+  <div>
+    <table id="source-table">
+      <tr>
+        <th>Source</th>
+        <th/>
+        <th/>
+      </tr>
+      <source-row-component
+        v-for="src in list"
+        :key="src.id"
+        :source="src"/>
+    </table>
+    <span v-if="list.length">
+      {{ list.length }} sources
+    </span>
+  </div>
 </template>
 <script>
   import SourceRowComponent from './source_row_component'
