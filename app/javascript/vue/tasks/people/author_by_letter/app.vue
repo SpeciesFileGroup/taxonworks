@@ -5,21 +5,25 @@
       :full-screen="true"
       legend="Loading..."
       :logo-size="{ width: '100px', height: '100px'}"/>
-    <h1>Author by First Letter</h1>
+    <h1>Author by first letter</h1>
     <alphabet-buttons
       @keypress="key = $event; getAuthors()"
       ref="alphabetButtons"/>
-    <div>
-      <pagination-component
-        :pagination="pagination"
-        @nextPage="getAuthors"/>
-      <author-list
-        :list="authorsList"
-        :pagination="pagination"
-        @selected="getSources"/>
-
-      <h2>Sources for selected author</h2>
-      <source-list :list="sourcesList"/>
+    <pagination-component
+      :pagination="pagination"
+      @nextPage="getAuthors"/>
+    <div class="horizontal-left-content align-start">
+      <div class="separate-right">
+        <author-list
+          :list="authorsList"
+          :pagination="pagination"
+          @selected="getSources"/>
+      </div>
+      <div class="separate-left">
+        <source-list
+          v-show="sourcesList.length"
+          :list="sourcesList"/>
+      </div>
     </div>
   </div>
 </template>
@@ -82,7 +86,10 @@
         this.$http.get(`/sources.json?author_ids[]=${author_id}`).then(response => {
           this.sourcesList = response.body;
           this.isLoading = false
-          document.getElementById('source-table').scrollIntoView({ behavior: "smooth" })
+          this.$nextTick(() => {
+            document.getElementById('source-table').scrollIntoView({ behavior: "smooth" })
+          })
+          
         })
       },
     }
