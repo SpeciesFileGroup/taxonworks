@@ -21,7 +21,11 @@
         Uniquify
       </a>
     </td>
-    <td>
+    <td class="horizontal-left-content">
+      <radial-annotator
+        type="annotations"
+        :global-id="author.global_id"/>
+      <radial-object :global-id="author.global_id"/>
       <pin
         v-if="author.id"
         :object-id="author.id"
@@ -35,9 +39,11 @@
 
   import RadialAnnotator from 'components/annotator/annotator'
   import Pin from 'components/pin'
+  import RadialObject from 'components/radial_object/radialObject'
 
   export default {
     components: {
+      RadialObject,
       RadialAnnotator,
       Pin
     },
