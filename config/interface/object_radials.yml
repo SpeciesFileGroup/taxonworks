@@ -32,7 +32,7 @@ Otu:
   tasks:
     - browse_otus_task
     - comprehensive_collection_object_task
-    - otus_filter_tasku
+    - otus_filter_task
     - cite_otus_task_task
     - otu_distribution_data_task
     - index_editor_task
