@@ -2,11 +2,39 @@
   <div id="vue-people-uniquify">
     <div class="flex-separate middle">
       <h1>Uniquify people</h1>
-      <span
-        @click="resetApp"
-        class="reload-app"
-        data-icon="reset">Reset
-      </span>
+      <ul class="context-menu">
+        <li>
+          <label>
+            <input
+              type="checkbox"
+              v-model="showSearch">
+            Show search
+          </label>
+        </li>
+        <li>
+          <label>
+            <input
+              type="checkbox"
+              v-model="showFound">
+            Show found people
+          </label>
+        </li>
+        <li>
+          <label>
+            <input
+              type="checkbox"
+              v-model="showMatch">
+            Show match people
+          </label>
+        </li>
+        <li>
+          <span
+            @click="resetApp"
+            class="reload-app"
+            data-icon="reset">Reset
+          </span>
+        </li>
+      </ul>
     </div>
     <spinner
       v-if="isLoading || isSaving"
@@ -15,7 +43,9 @@
       :logo-size="{ width: '100px', height: '100px'}"/>
     <div class="flexbox">
       <div class="flexbox">
-        <div class="first-column">
+        <div
+          v-show="showSearch"
+          class="first-column">
           <div class="last_name separate-right">
             <h2>Search</h2>
             <h3>Last Name</h3>
@@ -41,7 +71,9 @@
             type="submit">Find Person
           </button>
         </div>
-        <div class="found_people separate-right separate-left second-column">
+        <div
+          v-show="showFound"
+          class="found_people separate-right separate-left second-column">
           <h2>Select person</h2>
           <found-people
             ref="foundPeople"
@@ -51,7 +83,9 @@
             :display-count="displayCount"
           />
         </div>
-        <div class="match_people separate-right separate-left" >
+        <div
+          v-show="showMatch"
+          class="match_people separate-right separate-left" >
           <h2>Match people</h2>
           <match-people
             ref="matchPeople"
@@ -115,6 +149,9 @@
         mergePerson: {},
         displayCount: false,
         haltWatcher: false,
+        showMatch: true,
+        showFound: true,
+        showSearch: true
       }
     },
     watch: {
