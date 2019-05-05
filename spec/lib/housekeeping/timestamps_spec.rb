@@ -49,9 +49,9 @@ describe 'Housekeeping::Timestamps' do
       end
 
       specify 'created_before_date' do
-        expect(GeographicItem.created_before_date('2/1/16').count).to eq(0)
-        expect(GeographicItem.created_before_date('2/1/17').count).to eq(1)
-        expect(GeographicItem.created_before_date('2/1/18').count).to eq(2)
+        expect(GeographicItem.created_before_date('16/2/1').count).to eq(0)
+        expect(GeographicItem.created_before_date('17/2/1').count).to eq(1)
+        expect(GeographicItem.created_before_date('18/2/1').count).to eq(2)
       end
     end
   end
