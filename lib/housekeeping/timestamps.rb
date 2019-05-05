@@ -15,7 +15,7 @@ module Housekeeping::Timestamps
       where(created_at: Time.parse(start.to_s)..Time.parse(c_end.to_s))
     }
     scope :updated_in_date_range, ->(start, u_end) {
-      where(updated_at: Time.parse(start.to_s)..Time.parse(c_end.to_s))
+      where(updated_at: Time.parse(start.to_s)..Time.parse(u_end.to_s))
     }
   end
 
