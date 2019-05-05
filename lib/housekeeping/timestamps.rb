@@ -10,7 +10,7 @@ module Housekeeping::Timestamps
     # related_table_name = self.table_name
 
     # TODO: Coerce to DateTime in a cheaper way when date param already is either Date, Time or DateTime rather than String.
-    scope :created_before_date, ->(date) { where{created_at < DateTime.parse(date.to_s)} }
+    scope :created_before_date, ->(date) { where(self.arel_table[:created_at].lt DateTime.parse(date.to_s)) }
     scope :created_in_date_range, ->(start, c_end) {
       where(created_at: DateTime.parse(start.to_s)..DateTime.parse(c_end.to_s))
     }
