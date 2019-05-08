@@ -2,7 +2,7 @@ import Vue from 'vue'
 
 export default function (state, status) {
   var position = state.taxonStatusList.findIndex(item => {
-    if (item.type == status.type) {
+    if (item.id == status.id || item.type == status.type) {
       return true
     }
   })
