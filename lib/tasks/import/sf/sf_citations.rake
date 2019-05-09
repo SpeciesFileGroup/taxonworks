@@ -504,6 +504,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               end
 
               taxon_name_id = get_tw_taxon_name_id[row['TaxonNameID']] # cannot to_i because if nil, nil.to_i = 0
+              taxon_name_id1 = nil
 
               if taxon_name_id.nil?
                 if get_tw_otu_id[row['TaxonNameID']]
@@ -575,7 +576,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               protonym = TaxonName.find(taxon_name_id)
               project_id = protonym.project_id.to_s #  TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
               Current.project_id = project_id.to_i
-byebug if nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && nomenclator_ids[row['NomenclatorID'].to_i]['species'] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0] == 'Jivarus' && (nomenclator_ids[row['NomenclatorID'].to_i]['species'][0] == 'alienus' || nomenclator_ids[row['NomenclatorID'].to_i]['species'][0] == 'cerdai')
+#byebug if nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && nomenclator_ids[row['NomenclatorID'].to_i]['species'] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0] == 'Jivarus' && (nomenclator_ids[row['NomenclatorID'].to_i]['species'][0] == 'alienus' || nomenclator_ids[row['NomenclatorID'].to_i]['species'][0] == 'cerdai')
 
               if nomenclator_ids[row['NomenclatorID'].to_i] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && tw_taxa_ids[project_id + '_' + nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0]].nil?
                 pr = Protonym.create(name: nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0], rank_class: Ranks.lookup(:iczn, 'Genus'), also_create_otu: true, project_id: project_id, parent_id: protonym.root.id, created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']], created_at: row['CreatedOn'], updated_at: row['LastUpdate'])
@@ -755,8 +756,8 @@ byebug if nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && nomenclator_ids
                 # just create another citation
                 if rank_pass == 'genus' && nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0] == protonym.name
                 else
-                  taxon_name_id = tw_taxa_ids[project_id + '_' + nomenclator_string]
-                  protonym = TaxonName.find(taxon_name_id)
+                  taxon_name_id1 = tw_taxa_ids[project_id + '_' + nomenclator_string]
+                  protonym = TaxonName.find(taxon_name_id1)
                 end
               else
                 p = Protonym.new(project_id: project_id, also_create_otu: true)
@@ -831,13 +832,12 @@ byebug if nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && nomenclator_ids
 
                 begin
                   citation.save
-                  unless citation.id.nil?
-                    unless row['Note'].blank?
+                    if !row['Note'].blank?
                       #n = protonym.notes.find_or_create_by(text: row['Note'], project_id: project_id)
                       #n.citations.create!(source_id: citation.source_id, project_id: project_id, created_at: row['CreatedOn'], updated_at: row['LastUpdate'], created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']])
-byebug if nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && nomenclator_ids[row['NomenclatorID'].to_i]['species'] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0] == 'Jivarus' && (nomenclator_ids[row['NomenclatorID'].to_i]['species'][0] == 'alienus' || nomenclator_ids[row['NomenclatorID'].to_i]['species'][0] == 'cerdai')
+#byebug if nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && nomenclator_ids[row['NomenclatorID'].to_i]['species'] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0] == 'Jivarus' && (nomenclator_ids[row['NomenclatorID'].to_i]['species'][0] == 'alienus' || nomenclator_ids[row['NomenclatorID'].to_i]['species'][0] == 'cerdai')
                       if ['Synonym', 'synonym', 'Syn.', 'syn.', 'syn', 'Syn'].include? row['Note']
-                        syn_tnr = TaxonNameRelationship.where(subject_taxon_name_id: protonym.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym')
+                        syn_tnr = TaxonNameRelationship.where(subject_taxon_name_id: taxon_name_id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym')
                         if syn_tnr.count == 1
                           citation = Citation.create(
                               source_id: source_id,
@@ -850,10 +850,11 @@ byebug if nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && nomenclator_ids
                               updated_by_id: get_tw_user_id[row['ModifiedBy']]
                           )
                         end
-                      else
+                      elsif !citation.id.nil?
                         citation.notes.create(text: row['Note'], project_id: project_id, created_at: row['CreatedOn'], updated_at: row['LastUpdate'], created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']])
                       end
                     end
+                  unless citation.id.nil?
                     unless new_name_cvt_id.blank?
                       #n = protonym.tags.find_or_create_by(keyword_id: new_name_cvt_id, project_id: project_id)
                       #n.citations.create!(source_id: citation.source_id, project_id: project_id)
