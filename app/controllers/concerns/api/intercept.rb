@@ -26,7 +26,7 @@ module Api
       intercept_user if params[:authenticate_user]
       intercept_project if params[:authenticate_project]
       set_project_from_params if params[:project_id]
-      true
+      @api_request = true
     end
 
   end
