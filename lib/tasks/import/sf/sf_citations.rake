@@ -662,7 +662,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
               is_original = false
 
-              # OriginalMonotypy description citation most likely already exists but pages are source pages, not cite pages
+              # Original description citation most likely already exists but pages are source pages, not cite pages
               citation = Citation.where(source_id: source_id, citation_object_type: 'TaxonName', citation_object_id: taxon_name_id, is_original: true).first
 
 

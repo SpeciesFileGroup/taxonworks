@@ -121,7 +121,7 @@ namespace :tw do
         @relationship_classes = {
             0 => '', ### valid
             1 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Heterotypic',   #### ::Homotypic or ::Heterotypic
-            2 => '', ### OriginalMonotypy combination
+            2 => '', ### Original combination
             3 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary',
             4 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary', #### or 'Secondary::Secondary1961'
             5 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym', ## Preocupied
@@ -1220,7 +1220,7 @@ namespace :tw do
             CommonName.create!(otu: find_taxon_3i(row['Parent']).otus.first, name: row['Name'], language: lng)
 #          elsif row['Status'] == '13' && row['Rank'] == '0' # Nomen nudum
 #            tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: 'TaxonNameRelationship::Iczn::Invalidating')
-          elsif row['Status'] == '2' || !row['OriginalCombinationOf'].blank? ### OriginalMonotypy combination
+          elsif row['Status'] == '2' || !row['OriginalCombinationOf'].blank? ### Original combination
             taxon = find_taxon_3i(row['OriginalCombinationOf']) || find_taxon_3i(row['Parent'])
             if taxon.blank?
               byebug
