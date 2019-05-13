@@ -20,14 +20,15 @@ describe 'Api::V1::Otus', type: :request do
       it_behaves_like 'unauthorized response'
     end
 
-    context 'with a valid user token and project_id' do
+    # project token-only for now
+    xcontext 'with a valid user token and project_id' do
       before { get path, headers: headers, params: { project_id: otu.project_id } } 
       it_behaves_like 'a successful response'
     end
 
     context 'with a valid user token and valid project token (project set by proxy)' do
       before { otu.project.update(set_new_api_access_token: true) }
-      before { get path, headers: headers, params: { project_id: otu.project.api_access_token } } 
+      before { get path, headers: headers, params: { project_token: otu.project.api_access_token } }
       it_behaves_like 'a successful response'
     end
 

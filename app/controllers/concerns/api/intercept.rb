@@ -23,10 +23,13 @@ module Api
     #   If authentication is requried, as defined in the routes, 
     #   then it must pass here.
     def intercept_api
-      intercept_user if params[:authenticate_user]
-      intercept_project if params[:authenticate_project]
-      set_project_from_params if params[:project_id]
       @api_request = true
+
+      res = intercept_user if params[:authenticate_user]
+      res = intercept_project if res && params[:authenticate_project]
+      res = set_project_from_params if res && params[:project_id]
+
+      res
     end
 
   end
