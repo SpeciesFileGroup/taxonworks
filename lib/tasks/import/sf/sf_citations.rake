@@ -855,6 +855,10 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                       end
                     end
                   unless citation.id.nil?
+                    if row['NomenclatorID'] == '0'
+                      kw = Keyword.find_or_create_by(name: 'no nomenclator ID', definition: 'No nomenclator ID is provided in the original SF database.', project_id: project_id)
+                      citation.tags.create(keyword_id: kw.id, project_id: project_id)
+                    end
                     unless new_name_cvt_id.blank?
                       #n = protonym.tags.find_or_create_by(keyword_id: new_name_cvt_id, project_id: project_id)
                       #n.citations.create!(source_id: citation.source_id, project_id: project_id)
