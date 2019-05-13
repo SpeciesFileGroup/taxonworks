@@ -1572,7 +1572,7 @@ namespace :tw do
           'Status:Meaning' => Predicate.find_or_create_by(name: 'Status:Meaning', definition: 'The verbatim value in Status#Meaning.', project_id: Current.project_id)
         }.freeze
         topics = {
-          'Figures' => Topic.find_or_create_by(name: 'Figures', definition: 'OriginalMonotypy source has figures.', project_id: Current.project_id)
+          'Figures' => Topic.find_or_create_by(name: 'Figures', definition: 'Original source has figures.', project_id: Current.project_id)
         }
 
         status_type = {
