@@ -27,6 +27,8 @@ namespace :api, defaults: {format: :json} do
       get '/both_authenticated', to: 'base#index'
 
       get '/otus', to: '/otus#index'
+
+      get '/taxon_names', to: '/taxon_names#index'
     end
 
     # Authenticate membership at the data controller level
