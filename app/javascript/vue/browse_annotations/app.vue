@@ -47,12 +47,15 @@
       </div>
     </div>
     <button
-      class="button normal-input button-default"
+      class="button normal-input button-default separate-bottom"
       @click="processResult"
       :disabled="submitAvailable"
       type="submit">Submit
     </button>
     <request-bar
+      class="separate-top"
+      :list="resultList"
+      :type="filter.annotation_type.type"
       :url="request.url"
       :total="request.total"/>
     <view-list 
@@ -104,7 +107,7 @@
           tags: 'keyword_id',
           data_attributes: 'controlled_vocabulary_term_id',
           confidences: 'confidence_level_id',
-        }
+        },
       }
     },
     methods: {

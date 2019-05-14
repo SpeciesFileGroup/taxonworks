@@ -84,8 +84,7 @@ Capybara.register_driver :selenium do |app|
     Capybara::Selenium::Driver.new(
       app,
       browser: :firefox,
-      options: options,
-      driver_path: geckodriver
+      options: options
     )
 
   else

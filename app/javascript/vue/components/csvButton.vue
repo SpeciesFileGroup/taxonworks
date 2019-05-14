@@ -8,16 +8,8 @@
 </template>
 
 <script>
+
 import { parse } from 'json2csv'
- 
-const fields = [
-  'id',
-  { label: 'name', value: 'cached' }, 
-  { label: 'author', value: 'verbatim_author' },
-  { label: 'year of publication', value: 'year_of_publication' },
-  { label: 'original combination', value: 'cached_original_combination' }, 
-  'rank',
-  { label: 'parent', value: 'parent.cached' }];
  
 export default {
   props: {
@@ -26,7 +18,7 @@ export default {
       default: () => { return [] }
     },
     options: {
-      type: Array,
+      type: [Array, Object],
       default: () => { return [] }
     }
   },
@@ -36,11 +28,25 @@ export default {
     }
   },
   watch: {
-    list(newVal) {
-      if(newVal.length)
-        this.parseJSONToCSV()
-      else 
-        this.csvFile = undefined
+    list: {
+      handler(newVal) {
+        if(newVal.length)
+          this.parseJSONToCSV()
+        else 
+          this.csvFile = undefined
+      },
+      deep: true,
+      immediate: true
+    },
+    options: {
+      handler(newVal) {
+        if(this.list.length)
+          this.parseJSONToCSV()
+        else 
+          this.csvFile = undefined
+      },
+      deep: true,
+      immediate: true 
     }
   },
   methods: {

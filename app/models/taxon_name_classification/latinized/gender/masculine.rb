@@ -7,7 +7,7 @@ class TaxonNameClassification::Latinized::Gender::Masculine < TaxonNameClassific
   end
 
   def self.possible_species_endings
-    %w(iensis ensis ianus anus culus ulus lus ger fer er is os ius us)
+    %w(iensis ensis ianus anus culus ulus lus ger fer er is os ius us or)
   end
 
   def self.questionable_species_endings

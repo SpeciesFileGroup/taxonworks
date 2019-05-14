@@ -29,6 +29,16 @@
         getter-list="GetTaxonStatusList"
         name-module="Status"
         display-name="name"/>
+      <div v-if="editStatus">
+        <p class="inline">
+          <span class="separate-right">Editing status: </span>
+          <span v-html="editStatus.object_tag"/>
+          <span
+            title="Undo"
+            class="circle-button button-default btn-undo"
+            @click="editStatus = undefined"/>
+        </p>
+      </div>
       <div class="switch-radio">
         <input
           name="status-picker-options"
@@ -83,6 +93,8 @@
         @update="loadTaxonStatus"
         @addCitation="setCitation"
         @delete="removeStatus"
+        @edit="editStatus = $event"
+        :edit="true"
         :list="getStatusCreated"
         :display="['object_tag']"/>
     </div>
@@ -136,7 +148,8 @@ export default {
     return {
       objectLists: this.makeLists(),
       expanded: true,
-      showAdvance: false
+      showAdvance: false,
+      editStatus: undefined,
     }
   },
   watch: {
@@ -166,7 +179,14 @@ export default {
       this.$store.dispatch(ActionNames.RemoveTaxonStatus, item)
     },
     addEntry: function (item) {
-      this.$store.dispatch(ActionNames.AddTaxonStatus, item)
+      if(this.editStatus) {
+        item.id = this.editStatus.id
+        this.$store.dispatch(ActionNames.UpdateTaxonStatus, item)
+        this.editStatus = undefined
+      }
+      else {
+        this.$store.dispatch(ActionNames.AddTaxonStatus, item)
+      }
     },
     activeModal: function (value) {
       this.$store.commit(MutationNames.SetModalStatus, value)

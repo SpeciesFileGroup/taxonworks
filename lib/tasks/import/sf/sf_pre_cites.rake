@@ -35,7 +35,7 @@ namespace :tw do
             if get_tw_taxon_name_id[row['OriginalGenusID']]
               original_genus_id = get_tw_taxon_name_id[row['OriginalGenusID']]
             else
-              logger.error "TW OriginalMonotypy Genus not found: SF.OriginalGenusID = #{row['OriginalGenusID']}, SF.FileID = #{row['FileID']} (not_found #{not_found += 1}) \n"
+              logger.error "TW Original Genus not found: SF.OriginalGenusID = #{row['OriginalGenusID']}, SF.FileID = #{row['FileID']} (not_found #{not_found += 1}) \n"
               next
             end
 

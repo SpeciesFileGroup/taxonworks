@@ -111,7 +111,7 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #
 # @!attribute cached_primary_homonym_alternative_spelling
 #   @return [String]
-#   OriginalMonotypy genus and species name in alternative spelling. Used to find and validate primary homonyms.
+#   Original genus and species name in alternative spelling. Used to find and validate primary homonyms.
 #
 # @!attribute cached_misspelling
 #   @return [Boolean]
@@ -1281,9 +1281,9 @@ class TaxonName < ApplicationRecord
     confidence_level_array = confidence_level_array & ConfidenceLevel.where(project_id: self.id).pluck(&:id)
     if !self.cached_misspelling && !self.name_is_missapplied?
       if self.source.nil?
-        soft_validations.add(:base, 'OriginalMonotypy publication is not selected')
+        soft_validations.add(:base, 'Original publication is not selected')
       elsif self.origin_citation.pages.blank?
-        soft_validations.add(:base, 'OriginalMonotypy citation pages are not indicated')
+        soft_validations.add(:base, 'Original citation pages are not indicated')
       elsif !self.source.pages.blank? && self.origin_citation.pages =~ /\A[0-9]+\z/
         matchdata = self.source.pages.match(/(\d+)[-–](\d+)|(\d+)/)
 
@@ -1292,7 +1292,7 @@ class TaxonName < ApplicationRecord
           maxP = matchdata[2] ? matchdata[2].to_i : matchdata[3].to_i
 
           unless (maxP && minP && minP <= self.origin_citation.pages.to_i && maxP >= self.origin_citation.pages.to_i)
-            soft_validations.add(:base, 'OriginalMonotypy citation is out of the source page range')
+            soft_validations.add(:base, 'Original citation is out of the source page range')
           end
         end
       end

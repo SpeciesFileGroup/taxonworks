@@ -19,6 +19,7 @@ import changeTaxonSource from './changeTaxonSource'
 import removeSource from './removeSource'
 import updateClassification from './updateClassification'
 import updateTaxonRelationship from './updateTaxonRelationship'
+import updateTaxonStatus from './updateTaxonStatus'
 
 const ActionNames = {
   SetParentAndRanks: 'setParentAndRanks',
@@ -41,7 +42,8 @@ const ActionNames = {
   ChangeTaxonSource: 'changeTaxonSource',
   RemoveSource: 'removeSource',
   UpdateClassification: 'updateClassification',
-  UpdateTaxonRelationship: 'updateTaxonRelationship'
+  UpdateTaxonRelationship: 'updateTaxonRelationship',
+  UpdateTaxonStatus: 'updateTaxonStatus'
 }
 
 const ActionFunctions = {
@@ -65,7 +67,8 @@ const ActionFunctions = {
   [ActionNames.RemoveSource]: removeSource,
   [ActionNames.ChangeTaxonSource]: changeTaxonSource,
   [ActionNames.UpdateClassification]: updateClassification,
-  [ActionNames.UpdateTaxonRelationship]: updateTaxonRelationship
+  [ActionNames.UpdateTaxonRelationship]: updateTaxonRelationship,
+  [ActionNames.UpdateTaxonStatus]: updateTaxonStatus
 }
 
 export {
