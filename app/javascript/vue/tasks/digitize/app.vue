@@ -14,6 +14,7 @@
     <div class="horizontal-left-content align-start separate-top main-panel">
       <div class="separate-right left-section">
         <taxon-determination-layout class="separate-bottom"/>
+        <biological-association class="separate-bottom separate-top"/>
         <type-material class="separate-top"/>
       </div>
       <collection-event-layout class="separate-left item ce-section"/>
@@ -28,6 +29,7 @@
   import TaxonDeterminationLayout from './components/taxonDetermination/main.vue'
   import CollectionEventLayout from './components/collectionEvent/main.vue'
   import TypeMaterial from './components/typeMaterial/typeMaterial.vue'
+  import BiologicalAssociation from './components/biologicalAssociation/main.vue'
   import { GetUserPreferences } from './request/resources.js'
   import { MutationNames } from './store/mutations/mutations.js'
   import { ActionNames } from './store/actions/actions.js'
@@ -41,6 +43,7 @@
       CollectionObject,
       TypeMaterial,
       TaxonDeterminationLayout,
+      BiologicalAssociation,
       CollectionEventLayout,
       SpinnerComponent,
     },
