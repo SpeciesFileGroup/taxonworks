@@ -2,7 +2,7 @@ class TaxonNamesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination]
-
+  after_action -> { set_pagination_headers(:taxon_names) }, only: [:index], if: :json_request?
   # GET /taxon_names
   # GET /taxon_names.json
   def index
@@ -13,7 +13,7 @@ class TaxonNamesController < ApplicationController
 
       end
       format.json {
-        @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 50)
+        @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 100].min, 1].max)
       }
     end
   end
