@@ -22,8 +22,8 @@ end
 
 shared_examples_for 'secured by both user and project token' do | factory, path |
   let(:user) { FactoryBot.create(:valid_user, :user_valid_token) }
-  let(:headers) { { "Authorization": 'Token token=' + user.api_access_token, project_id: model.project_id } }
   let(:model) { FactoryBot.create(factory) }
+  let(:headers) { { "Authorization": 'Token ' + user.api_access_token, project_id: model.project_id } }
 
   context 'without a user token' do
     before { get path }
