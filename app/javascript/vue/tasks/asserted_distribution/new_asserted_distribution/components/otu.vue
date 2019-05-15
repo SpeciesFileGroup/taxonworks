@@ -83,8 +83,8 @@ export default {
       GetOtuSmartSelector().then(response => {
         this.lists = response.body
         this.options = OrderSmartSelector(Object.keys(response.body))
-        this.options.push('search/new')
         let newView = SelectFirstSmartOption(this.lists, this.options)
+        this.options.push('search/new')
         this.view = (newView ? newView : 'search/new')
       })
     },

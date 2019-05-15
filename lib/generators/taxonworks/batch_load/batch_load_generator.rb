@@ -19,7 +19,8 @@ class Taxonworks::BatchLoadGenerator < Rails::Generators::Base
   def add_routes
     # To insert rows in order use a template, and pass it to routes
     route_block = ERB.new(File.open(find_in_source_paths('routes.tt')).read)
-    route route_block.result(binding) 
+    prepend_to_file('config/routes/data.rb', route_block.result(binding)) 
+    # route route_block.result(binding)  
   end
 
   def add_batch_load_index

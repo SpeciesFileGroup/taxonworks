@@ -12,7 +12,7 @@ module BatchLoad
       @total_data_lines = 0
       i = 0
 
-      # loop throw rows
+      # loop through rows
       csv.each do |row|
         i += 1
 
@@ -22,7 +22,7 @@ module BatchLoad
         @processed_rows[i] = parse_result
 
         begin # processing
-          # use a BatchLoad::ColumnResolver or other method to match row data to TW 
+          # use a BatchLoad::ColumnResolver or other method to match row data to TW
           #  ...
 
           @total_data_lines += 1

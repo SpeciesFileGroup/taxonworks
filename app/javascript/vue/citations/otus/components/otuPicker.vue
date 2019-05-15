@@ -15,7 +15,7 @@
     <modal
       @close="showModal = false"
       v-if="showModal"
-      @otupicker="loadOtu">
+      @otupicker="loadOtu($event.id)">
       <h3 slot="header">Select OTU</h3>
       <div slot="body">
         <autocomplete
@@ -53,9 +53,17 @@
         return this.$store.getters[GetterNames.GetOtuSelected]
       }
     },
+    mounted() {
+      let urlParams = new URLSearchParams(window.location.search)
+      let otuId = urlParams.get('otu_id')
+
+      if (/^\d+$/.test(otuId)) {
+        this.loadOtu(otuId)
+      }
+    },
     methods: {
-      loadOtu: function (item) {
-        this.$http.get('/otus/' + item.id).then(response => {
+      loadOtu: function (id) {
+        this.$http.get(`/otus/${id}`).then(response => {
           this.$store.commit(MutationNames.SetOtuSelected, response.body)
           this.showModal = false
         })

@@ -28,7 +28,7 @@
 
         <div class="flexbox">
           <list-group
-            class="item"
+            class="item1"
             v-for="(list, key) in rankLists"
             :key="key"
             ref="listGroup"

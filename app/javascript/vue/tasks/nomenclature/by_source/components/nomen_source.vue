@@ -17,11 +17,7 @@
         <span v-html="source.cached"/>
         <span class="separate-right">(Published on {{ source.cached_nomenclature_date }})</span>
       </span>
-      <a
-        class="separate-right separate-left"
-        :href="`/sources/${sourceID}`"
-        target="blank">Show
-      </a>
+      <radial-object :global-id="source.global_id"/>
       <radial-annotator :global-id="source.global_id"/>
       <pin-component
         v-if="source.id"
@@ -46,11 +42,13 @@
   import Autocomplete from "components/autocomplete";
   import RadialAnnotator from "components/annotator/annotator.vue";
   import PinComponent from "components/pin.vue"
+  import RadialObject from "components/radial_object/radialObject.vue"
 
   export default {
     components: {
       Autocomplete,
       RadialAnnotator,
+      RadialObject,
       PinComponent
     },
     data() {
@@ -64,7 +62,7 @@
       if (this.sourceID) {
         this.$http.get('/sources/' + this.sourceID + '.json').then(response => {
           this.source = response.body
-          history.pushState(null, null, `/tasks/nomenclature/by_source/${this.source.id}`)
+          history.pushState(null, null, `/tasks/nomenclature/by_source?source_id=${this.source.id}`)
           this.$emit('sourceID', this.sourceID);
         })
       }
@@ -88,9 +86,13 @@
     }
   },
   mounted() {
-    let pieces = window.location.href.split('/');
-    this.sourceID = pieces[pieces.length - 1];
-    if (this.sourceID.length && Number.isInteger(Number(this.sourceID))) this.getSource();
+    let urlParams = new URLSearchParams(window.location.search)
+    let sourceId = urlParams.get('source_id')
+
+    if (/^\d+$/.test(sourceId)) {
+      this.sourceID = sourceId
+      this.getSource()
+    }
   }
 }
 </script>

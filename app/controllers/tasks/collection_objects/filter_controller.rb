@@ -33,7 +33,7 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
         render json: { result: 'good' }
       else
         render json: { result: 'bad, error tagging objects' }
-      end 
+      end
     else
       render json: { result: 'Limited to tagging 2000 objects, refine result.' }
     end
@@ -102,7 +102,7 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
 
 
   def collection_objects
-    scope = Queries::CollectionObjectFilterQuery.new(filter_params)
+    scope = Queries::CollectionObject::Filter.new(filter_params)
               .result
               .with_project_id(sessions_current_project_id)
               .includes(:repository, {taxon_determinations: [{otu: :taxon_name}]}, :identifiers)

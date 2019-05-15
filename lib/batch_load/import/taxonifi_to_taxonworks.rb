@@ -132,7 +132,9 @@ module BatchLoad
                                  suffix: suffix,
                                })
       end
-      author_attributes.reverse
+      author_attributes
+      # author_attributes.reverse
     end
+
   end
 end

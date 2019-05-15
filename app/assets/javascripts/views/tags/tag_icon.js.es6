@@ -32,7 +32,7 @@ Object.assign(TW.views.tags.tag_icon, {
 		$(this).removeAttr('data-is-default-tagged');
 
 		$(document).on('pinboard:insert', function(event) {
-			if(event.detail.type === "ControlledVocabularyTerm") {
+			if(event.detail.type === "Keyword") {
 				that.checkExist(that.objectElement);
 			}
 		});
@@ -209,11 +209,11 @@ Object.assign(TW.views.tags.tag_icon, {
 		}
 	},
 	getDefaultString: function() {
-		return $('[data-pinboard-section="ControlledVocabularyTerms"] [data-insert="true"] a')[0].textContent;
+		return $('[data-pinboard-section="Keywords"] [data-insert="true"] a')[0].textContent;
 	},
 
 	getDefault: function() {
-		return $('[data-pinboard-section="ControlledVocabularyTerms"] [data-insert="true"]').attr('data-pinboard-object-id');
+		return $('[data-pinboard-section="Keywords"] [data-insert="true"]').attr('data-pinboard-object-id');
 	}
 });
 

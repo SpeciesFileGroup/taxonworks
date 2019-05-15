@@ -1,0 +1,78 @@
+# TaxonNameAutocompleteQuery
+module Queries
+  module Loan 
+    class Autocomplete < Queries::Query
+
+      # @param [Hash] args
+      def initialize(string, project_id: nil)
+        super
+      end
+
+      # @return [String]
+      def where_sql
+        with_project_id.and(or_and).to_sql
+      end
+
+      # @return [Array]
+      def autocomplete
+        queries = [
+          autocomplete_recipient_email,
+          autocomplete_exact_date_sent,
+          autocomplete_exact_date_requested,
+          autocomplete_exact_date_received,
+          autocomplete_exact_id,
+          autocomplete_identifier_identifier_exact,
+          autocomplete_identifier_cached_like,
+        ]
+        queries.compact!
+
+        updated_queries = []
+        queries.each_with_index do |q,i|
+          a = q
+          a = q.where(project_id: project_id) if project_id
+          updated_queries[i] = a
+        end
+
+        result = []
+        updated_queries.each do |q|
+          result += q.to_a
+          result.uniq!
+          break if result.count > 19
+        end
+
+        result[0..40]
+      end
+
+      def autocomplete_recipient_email
+        o = table[:recipient_email].matches('%' + query_string + '%')
+        ::Loan.where(o.to_sql)
+      end
+
+      def autocomplete_exact_date_sent
+        o = table[:date_sent].eq(query_string)
+        ::Loan.where(o.to_sql)
+      end
+
+      def autocomplete_exact_date_requested
+        o = table[:date_requested].eq(query_string)
+        ::Loan.where(o.to_sql)
+      end
+
+      def autocomplete_exact_date_received
+        o = table[:date_received].eq(query_string)
+        ::Loan.where(o.to_sql)
+      end
+
+      # @return [Scope]
+      def base_query
+        ::Loan.select('loans.*')
+      end
+
+      # @return [Arel::Table]
+      def table
+        ::Loan.arel_table
+      end
+
+    end
+  end
+end

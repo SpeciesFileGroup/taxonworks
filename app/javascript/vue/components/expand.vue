@@ -3,9 +3,11 @@
     <span
       @click="$emit('input', false)"
       data-icon="contract"
+      title="Contract"
       v-if="value"/>
     <span
       @click="$emit('input', true)"
+      title="Expand"
       data-icon="expand"
       v-else/>
   </div>

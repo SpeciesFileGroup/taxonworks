@@ -40,6 +40,7 @@ ENV RAILS_ENV production
 
 RUN echo 'gem: --no-rdoc --no-ri >> "$HOME/.gemrc"'
 RUN gem update --system
+RUN gem install bundler
 
 ADD package.json /app/
 ADD package-lock.json /app/

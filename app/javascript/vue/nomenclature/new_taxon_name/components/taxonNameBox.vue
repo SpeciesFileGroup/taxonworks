@@ -28,14 +28,12 @@
           <div class="taxon-options">
             <pin-object
               v-if="taxon.id"
-              class="separate-options"
               :pin-object="taxon['pinboard_item']"
               :object-id="taxon.id"
               :type="taxon.base_class"/>
             <radial-annotator
               :global-id="taxon.global_id"/>
             <otu-radial
-              class="separate-options"
               :taxon-id="taxon.id"
               :taxon-name="taxon.object_tag"/>
             <span
@@ -139,23 +137,18 @@ export default {
 #taxonNameBox {
   .taxon-options {
     display: flex;
-    justify-content: space-between;
-    width: 120px;
   }
   .annotator {
     width:30px;
     margin-left: 14px;
   }
   .separate-options {
-    margin-left: 6px;
-    margin-right: 6px;
+    margin-left: 4px;
+    margin-right: 4px;
   }
   .header {
     padding: 1em;
     border: 1px solid #f5f5f5;
-    .circle-button {
-      margin: 0px;
-    }
   }
   .taxonname {
     font-size: 14px;

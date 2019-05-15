@@ -13,7 +13,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression::Condition
     'conserved'
   end
 
-  def object_status
+  def subject_status
     'conditionaly suppressed'
   end
 

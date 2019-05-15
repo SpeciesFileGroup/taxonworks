@@ -37,7 +37,8 @@
             <th>Date returned</th>
             <th>Collection object status</th>
             <th>Total</th>
-            <th/>
+            <th>Pin</th>
+            <th>Delete</th>
           </tr>
         </thead>
         <transition-group
@@ -62,6 +63,11 @@
             <td v-html="item.disposition"/>
             <td v-html="item.total"/>
             <td>
+              <pin-component
+                :object-id="item.loan_item_object_id"
+                :type="item.loan_item_object_type"/>
+            </td>
+            <td>
               <span
                 class="circle-button btn-delete"
                 @click="deleteItem(item)">Remove
@@ -80,13 +86,15 @@
   import {MutationNames} from '../store/mutations/mutations'
   import ActionNames from '../store/actions/actionNames'
 
-  import spinner from '../../components/spinner.vue'
-  import expand from './expand.vue'
+  import Spinner from 'components/spinner.vue'
+  import Expand from './expand.vue'
+  import PinComponent from 'components/pin.vue'
 
   export default {
     components: {
-      spinner,
-      expand
+      Spinner,
+      Expand,
+      PinComponent
     },
     computed: {
       list() {
@@ -113,7 +121,9 @@
         this.$store.commit(MutationNames.CleanEditLoanItems)
       },
       deleteItem(item) {
-        this.$store.dispatch(ActionNames.DeleteLoanItem, item.id)
+        if (window.confirm(`You're trying to delete a record. Are you sure want to proceed?`)) {
+          this.$store.dispatch(ActionNames.DeleteLoanItem, item.id)
+        }
       },
       switchOption(item) {
         if (this.editLoanItems.find(value => {

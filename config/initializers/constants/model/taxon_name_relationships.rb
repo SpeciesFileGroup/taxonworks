@@ -29,7 +29,9 @@ begin
         n = k.new
         return { 
           subject_status_tag: n.subject_status_tag,
-          object_status_tag:  n.object_status_tag
+          object_status_tag:  n.object_status_tag,
+          valid_object_ranks: k.valid_object_ranks,
+          valid_subject_ranks: k.valid_subject_ranks
         }
       end
 
@@ -89,6 +91,7 @@ begin
     TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING = ['TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling',
                                                  'TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling',
                                                  'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
+                                                 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm',
                                                  'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'].freeze
 
 
@@ -161,9 +164,9 @@ begin
         typification: {
         all:  TaxonNameRelationshipsConstantHelper::descendants_collection( TaxonNameRelationship::Typification ),
         common:  TaxonNameRelationshipsConstantHelper.collection([
-          TaxonNameRelationship::Typification::Genus::OriginalDesignation,
-          TaxonNameRelationship::Typification::Genus::Monotypy::Original,
-          TaxonNameRelationship::Typification::Genus::Monotypy::Subsequent
+          TaxonNameRelationship::Typification::Genus::Original::OriginalDesignation,
+          TaxonNameRelationship::Typification::Genus::Original::OriginalMonotypy,
+          TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentDesignation
         ]),
         tree: []
       }

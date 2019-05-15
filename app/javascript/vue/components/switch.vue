@@ -13,8 +13,7 @@
           class="normal-input button-active"
         >
         <label
-          :for="`switch-${name}-${index}`"
-          class="capitalize">{{ item }}
+          :for="`switch-${name}-${index}`">{{ item }}
         </label>
       </template>
     </template>
@@ -39,7 +38,8 @@
       },
       name: {
         type: String,
-        required: true
+        required: false,
+        default: () => { return Math.random().toString(36).substr(2, 5) }
       },
       filter: {
         type: Function,
@@ -51,3 +51,8 @@
   }
 
 </script>
+<style scoped>
+  label::first-letter {
+    text-transform: capitalize;
+  }
+</style>

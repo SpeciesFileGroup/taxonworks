@@ -8,8 +8,9 @@
       v-if="isSaving"/>
     <h2 class="summary-view__title flex-separate">
       <div class="horizontal-left-content">
-        {{ descriptor.title }}
+        {{ index }} {{ descriptor.title }}
         <radial-annotator :global-id="descriptor.globalId"/>
+        <radial-object :global-id="descriptor.globalId"/>
       </div>
       <p>
         <button
@@ -34,10 +35,11 @@ import { GetterNames } from '../../store/getters/getters'
 import Spinner from '../../../components/spinner.vue'
 import saveCountdown from '../SaveCountdown/SaveCountdown.vue'
 import RadialAnnotator from '../../../components/annotator/annotator'
+import RadialObject from 'components/radial_object/radialObject'
 
 export default {
   name: 'SummaryView',
-  props: ['descriptor'],
+  props: ['descriptor', 'index'],
   computed: {
     isUnsaved: function () {
       return this.$store.getters[GetterNames.IsDescriptorUnsaved](this.$props.descriptor.id)
@@ -63,6 +65,7 @@ export default {
   components: {
     saveCountdown,
     RadialAnnotator,
+    RadialObject,
     Spinner
   }
 }

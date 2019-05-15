@@ -1,0 +1,67 @@
+# This configuration file determines what is shown per object radial
+# 
+# The values here are returned as JSON via /metadata/radial/:klass
+#
+# Valid attributes (* required)
+#   tasks: - A named task (see user_tasks.yml) !! Limit this to 3 or 4 
+#   recent: - defaults to true if not provided, if false no recent list is shown
+#   allow_destroy: - false if no
+#   edit: over-ride data->edit
+#   show: over-ride data->show
+#
+---
+Source:
+  tasks:
+    - index_hub_task
+    - new_verbatim_reference_task
+    - nomenclature_by_source_task
+    - index_individual_bibtex_source_task
+  config:
+    recent: true
+TaxonName:
+  tasks:
+    - browse_nomenclature_task 
+    - nomenclature_by_source_task 
+    - new_taxon_name_task 
+    - edit_type_material_task
+    - new_combination_task
+    - otu_distribution_data_task
+  config:
+    recent: true
+Otu:
+  tasks:
+    - browse_otus_task
+    - comprehensive_collection_object_task
+    - otus_filter_task
+    - cite_otus_task_task
+    - otu_distribution_data_task
+    - index_editor_task
+  config:
+    recent: true
+CollectionObject:
+  tasks:
+    - collection_objects_filter_task
+    - comprehensive_collection_object_task
+    - report_dwc_task
+    - browse_collection_objects_task
+    - build_biocuration_groups_task
+  config: 
+    recent: true
+Loan:
+  tasks:
+    - overdue_loans_task
+    - edit_loan_task
+  config:
+    recent: true
+ObservationMatrix:
+  tasks:
+    - new_matrix_task
+    - new_descriptor_task
+    - observation_matrices_hub_task
+  config:
+    recent: true    
+Person:
+  tasks:
+    - uniquify_people_task
+  config:
+    recent: true

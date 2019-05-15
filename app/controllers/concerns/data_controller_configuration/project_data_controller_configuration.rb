@@ -6,8 +6,6 @@ module DataControllerConfiguration::ProjectDataControllerConfiguration
     before_action :require_sign_in_and_project_selection
   end
 
-  # protected (?)
-
   # @return [ Arel::Nodes, :unprocessable_entity ]
   #   wrap the the params gathering, if no valid params
   #   are provided return as unprocessable
@@ -22,6 +20,5 @@ module DataControllerConfiguration::ProjectDataControllerConfiguration
       w
     end
   end
-
 
 end

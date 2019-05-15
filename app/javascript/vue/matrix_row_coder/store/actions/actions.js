@@ -14,6 +14,7 @@ import updateObservation from './updateObservation'
 import createObservation from './createObservation'
 import createClone from './createClone'
 import saveObservationsFor from './saveObservationsFor'
+import removeObservationsRow from './removeObservationsRow'
 
 const ActionFunctions = {
   [ActionNames.RequestMatrixRow]: requestMatrixRow,
@@ -26,6 +27,7 @@ const ActionFunctions = {
   [ActionNames.RequestObservationConfidences]: requestObservationConfidences,
   [ActionNames.RequestObservationCitations]: requestObservationCitations,
   [ActionNames.RemoveObservation]: removeObservation,
+  [ActionNames.RemoveObservationsRow]: removeObservationsRow,
   [ActionNames.UpdateObservation]: updateObservation,
   [ActionNames.CreateObservation]: createObservation,
   [ActionNames.CreateClone]: createClone,

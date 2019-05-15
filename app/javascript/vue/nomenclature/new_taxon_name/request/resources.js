@@ -69,6 +69,8 @@ const updateTaxonRelationship = function (relationship) {
   return new Promise(function (resolve, reject) {
     Vue.http.patch(`/taxon_name_relationships/${relationship.taxon_name_relationship.id}`, relationship).then(response => {
       return resolve(response.body)
+    }, response => {
+      console.log(response)
     })
   })
 }
@@ -76,6 +78,26 @@ const updateTaxonRelationship = function (relationship) {
 const createTaxonStatus = function (newClassification) {
   return new Promise(function (resolve, reject) {
     Vue.http.post('/taxon_name_classifications', newClassification).then(response => {
+      return resolve(response.body)
+    }, response => {
+      return reject(response.body)
+    })
+  })
+}
+
+const updateTaxonStatus = function (newClassification) {
+  return new Promise(function (resolve, reject) {
+    Vue.http.patch(`/taxon_name_classifications/${newClassification.taxon_name_classification.id}.json`, newClassification).then(response => {
+      return resolve(response.body)
+    }, response => {
+      return reject(response.body)
+    })
+  })
+}
+
+const GetTaxonNameSmartSelector = function () {
+  return new Promise(function (resolve, reject) {
+    Vue.http.get(`/taxon_names/select_options`).then(response => {
       return resolve(response.body)
     }, response => {
       return reject(response.body)
@@ -170,6 +192,16 @@ const loadRanks = function () {
   })
 }
 
+const GetTypeMaterial = function (taxonId) {
+  return new Promise(function (resolve, reject) {
+    Vue.http.get(`/type_materials.json?protonym_id=${taxonId}`).then(response => {
+      return resolve(response.body)
+    }, response => {
+      return reject(response.body)
+    })
+  })
+}
+
 const loadStatus = function () {
   return new Promise(function (resolve, reject) {
     Vue.http.get('/taxon_name_classifications/taxon_name_classification_types').then(response => {
@@ -225,8 +257,11 @@ export {
   loadSoftValidation,
   createTaxonStatus,
   removeTaxonStatus,
+  updateTaxonStatus,
   removeTaxonSource,
   removeTaxonRelationship,
   createTaxonRelationship,
-  changeTaxonSource
+  changeTaxonSource,
+  GetTaxonNameSmartSelector,
+  GetTypeMaterial
 }

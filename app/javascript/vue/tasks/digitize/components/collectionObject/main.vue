@@ -6,9 +6,18 @@
       </div>
       <div
         slot="options"
+        v-if="collectionObject.id"
         class="horizontal-left-content">
         <radial-annotator
           classs="separate-right"
+          :global-id="collectionObject.global_id"/>
+        <radial-object
+          classs="separate-right"
+          :global-id="collectionObject.global_id"/>
+        <default-tag
+          classs="separate-right"
+          :global-id="collectionObject.global_id"/>
+        <radial-object 
           v-if="collectionObject.id"
           :global-id="collectionObject.global_id"/>
       </div>
@@ -25,13 +34,12 @@
             <preparation-type/>
           </div>
         </div>
-        <div class="horizontal-left-content">
+        <div class="horizontal-right-content">
           <buffered-component
             v-if="showBuffered"
             class="separate-top separate-right"/>
           <div class="middle">
-            <btn-show
-              class="separate-right"
+            <expand-component
               :value="showBuffered"
               @input="showBuffered = $event; updatePreferences('tasks::digitize::collectionObjects::showBuffered', showBuffered)"/>
             <span
@@ -40,9 +48,9 @@
             </span>
           </div>
         </div>
-        <div class="horizontal-left-content separate-top separate-bottom">
+        <div class="horizontal-right-content separate-top separate-bottom">
           <depictions-component
-            v-if="showDepictions"
+            v-show="showDepictions"
             class="separate-top separate-right"
             :object-value="collectionObject"
             :get-depictions="GetCollectionObjectDepictions"
@@ -52,22 +60,28 @@
             default-message="Drop images here<br> to add collection object figures"
             action-save="SaveCollectionObject"/>
           <div class="middle">
-            <btn-show
-              class="separate-right"
+            <expand-component
               :value="showDepictions"
-              @input="showDepictions = $event; updatePreferences('tasks::digitize::collectionObjects::showDepictions', showDepictions)"/>
+              @input="showDepictions = $event; updatePreferences('tasks::digitize::collectionObjects::showDepictions', showDepictions)"
+            />
             <span
               v-if="!showDepictions"
               class="separate-left">Show depictions
             </span>
           </div>
         </div>
+        <div>
+          <spinner-component
+            v-if="!collectionObject.id"
+            :show-spinner="false"
+            legend="Locked until first save"/>
           <predicates-component
             :object-id="collectionObject.id"
             object-type="CollectionObject"
             model="CollectionObject"
             @onUpdate="setAttributes"
           />
+        </div>
         <container-items/>
       </div>
     </block-layout>
@@ -76,40 +90,40 @@
 
 <script>
 
+  import SpinnerComponent from 'components/spinner'
+  import ExpandComponent from 'components/expand.vue'
   import ContainerItems from './containerItems.vue'
   import PreparationType from './preparationType.vue'
   import CatalogueNumber from '../catalogueNumber/catalogNumber.vue'
-  import TableCollectionObjects from './tableCollectionObjects.vue'
-  import Bioclassification from './bioclassification.vue'
   import BufferedComponent from './bufferedData.vue'
   import DepictionsComponent from '../shared/depictions.vue'
   import RepositoryComponent from './repository.vue'
   import { GetterNames } from '../../store/getters/getters'
   import { MutationNames } from '../../store/mutations/mutations.js'
   import { ActionNames } from '../../store/actions/actions'
-  import BlockLayout from '../../../../components/blockLayout.vue'
-  import RadialAnnotator from '../../../../components/annotator/annotator.vue'
-  import LockComponent from 'components/lock.vue'
-  import btnShow from 'components/btnShow.vue'
+  import BlockLayout from 'components/blockLayout.vue'
+  import RadialAnnotator from 'components/annotator/annotator.vue'
+  import RadialObject from 'components/radial_object/radialObject.vue'
   import PredicatesComponent from 'components/custom_attributes/predicates/predicates'
+  import DefaultTag from 'components/defaultTag.vue'
 
   import { GetCollectionObjectDepictions, CreateDepiction, UpdateUserPreferences } from '../../request/resources.js'
 
   export default {
     components: {
-      LockComponent,
+      SpinnerComponent,
       ContainerItems,
       PreparationType,
       CatalogueNumber,
-      TableCollectionObjects,
-      Bioclassification,
       BufferedComponent,
       DepictionsComponent,
       RepositoryComponent,
       BlockLayout,
       RadialAnnotator,
-      btnShow,
-      PredicatesComponent
+      PredicatesComponent,
+      ExpandComponent,
+      RadialObject,
+      DefaultTag
     },
     computed: {
       preferences: {

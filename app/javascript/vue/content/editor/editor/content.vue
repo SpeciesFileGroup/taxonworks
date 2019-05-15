@@ -21,6 +21,9 @@
               :otu="otu"
               class="separate-options"
               :redirect="true"/>
+            <radial-object 
+              v-if="otu"
+              :global-id="otu.global_id"/>
             <select-topic-otu class="separate-left"/>
           </div>
         </div>
@@ -101,6 +104,7 @@
   import SelectTopicOtu from './selectTopicOtu.vue'
   import MarkdownEditor from 'components/markdown-editor.vue'
   import RadialAnnotator from 'components/annotator/annotator'
+  import RadialObject from 'components/radial_object/radialObject'
   import OtuButton from 'components/otu/otu'
   import { GetterNames } from '../store/getters/getters'
   import { MutationNames } from '../store/mutations/mutations'
@@ -112,6 +116,7 @@
       MarkdownEditor,
       SelectTopicOtu,
       RadialAnnotator,
+      RadialObject,
       OtuButton
     },
     computed: {
@@ -213,7 +218,7 @@
         let that = this
 
         that.record.content.text = [that.record.content.text.slice(0, cursorPosition),
-          TW.views.shared.slideout.pdf.textCopy,
+          document.querySelector('[data-panel-name="pinboard"]').getAttribute('data-clipboard'),
           that.record.content.text.slice(cursorPosition)].join('')
 
         if (that.newRecord) {

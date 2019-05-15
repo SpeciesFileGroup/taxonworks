@@ -1,6 +1,7 @@
 <template>
   <radial-annotator
     :id="id"
+    :show-count="showCount"
     :global-id="globalId"/>
 </template>
 <script>
@@ -19,6 +20,10 @@
       globalId: {
         type: String,
         required: true
+      },
+      showCount: {
+        type: Boolean,
+        default: false
       }
     }
   }

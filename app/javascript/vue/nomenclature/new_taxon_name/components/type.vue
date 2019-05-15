@@ -19,7 +19,7 @@
       <div v-if="!taxonRelation">
         <hard-validation
           field="type"
-          v-if="!showForThisGroup(['SpeciesGroup'], taxon) && !(GetRelationshipsCreated.length)">
+          v-if="!showForThisGroup(['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'], taxon) && !(GetRelationshipsCreated.length)">
           <autocomplete
             slot="body"
             url="/taxon_names/autocomplete"
@@ -32,11 +32,22 @@
             :add-params="{ type: 'Protonym', 'nomenclature_group[]': childOfParent[getRankGroup.toLowerCase()] }"
             param="term"/>
         </hard-validation>
-        <a
-          v-if="showForThisGroup(['SpeciesGroup'], taxon)"
-          :href="`/tasks/type_material/edit_type_material?protonym_id=${taxon.id}`"
-          target="_blank">Add type specimens
-        </a>
+        <template v-if="showForThisGroup(['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'], taxon)">
+          <a
+            :href="`/tasks/type_material/edit_type_material?taxon_name_id=${taxon.id}`"
+            target="_blank">Add type specimens
+          </a>
+          <hr>
+          <ul class="no_bullets">
+            <li
+              v-for="typeSpecimen in typeMaterialList"
+              :key="typeSpecimen.id">
+              <a
+                :href="`/tasks/type_material/edit_type_material?taxon_name_id=${taxon.id}&type_material_id=${typeSpecimen.id}`"
+                v-html="typeSpecimen.object_tag"/>
+            </li>
+          </ul>
+        </template>
       </div>
       <div v-else>
         <tree-display
@@ -107,6 +118,8 @@ import HardValidation from './hardValidation.vue'
 import getRankGroup from '../helpers/getRankGroup'
 import childOfParent from '../helpers/childOfParent'
 
+import { GetTypeMaterial } from '../request/resources.js'
+
 export default {
   components: {
     ListEntrys,
@@ -166,7 +179,8 @@ export default {
       objectLists: this.makeLists(),
       expanded: true,
       showAdvance: false,
-      childOfParent: childOfParent
+      childOfParent: childOfParent,
+      typeMaterialList: []
     }
   },
   watch: {
@@ -176,6 +190,17 @@ export default {
         this.refresh()
       },
       immediate: true
+    },
+    taxon: {
+      handler(newVal) {
+        if(newVal.id) {
+          GetTypeMaterial(newVal.id).then(response => {
+            this.typeMaterialList = response
+          }) 
+        }
+      },
+      immediate: true,
+      deep: true
     }
   },
   methods: {

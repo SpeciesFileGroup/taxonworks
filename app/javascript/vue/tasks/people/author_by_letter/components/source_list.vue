@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-separate">
+  <div>
     <table id="source-table">
       <tr>
         <th>Source</th>
@@ -11,6 +11,9 @@
         :key="src.id"
         :source="src"/>
     </table>
+    <span v-if="list.length">
+      {{ list.length }} sources
+    </span>
   </div>
 </template>
 <script>

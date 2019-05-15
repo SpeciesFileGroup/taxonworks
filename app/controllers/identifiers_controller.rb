@@ -87,7 +87,13 @@ class IdentifiersController < ApplicationController
   end
 
   def autocomplete
-    @identifiers = Queries::Identifier::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).autocomplete
+    render json: {} and return if params[:term].blank?
+
+    @identifiers = Queries::Identifier::Autocomplete.new(
+      params.require(:term),
+      autocomplete_params.to_h   
+    ).autocomplete
+  
   end
 
   # GET /identifiers/download
@@ -111,4 +117,11 @@ class IdentifiersController < ApplicationController
       :id, :identifier_object_id, :identifier_object_type, :identifier, :type, :namespace_id, :annotated_global_entity
     )
   end
+
+
+  def autocomplete_params
+    params.permit(identifier_object_types: []).to_h.symbolize_keys.merge(project_id: sessions_current_project_id) # :exact 
+  end
+
+
 end

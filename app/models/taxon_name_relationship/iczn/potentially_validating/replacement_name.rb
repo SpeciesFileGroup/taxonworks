@@ -11,7 +11,7 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName < Taxo
   end
 
   def subject_status
-    'nomen novum for'
+    'nomen novum'
   end
 
   def self.gbif_status_of_subject
@@ -31,5 +31,16 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName < Taxo
 
   def self.nomenclatural_priority
     :direct
+  end
+
+  def sv_specific_relationship
+    s = subject_taxon_name
+    o = object_taxon_name
+    if s.cached_secondary_homonym_alternative_spelling != o.cached_secondary_homonym_alternative_spelling
+      soft_validations.add(:type, "#{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} are not similar enough to be homonyms")
+    end
+    r1 = TaxonNameRelationship.where(type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym', subject_taxon_name_id: o.id, object_taxon_name_id: s.id).first
+    r2 = TaxonNameRelationship.where(type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName', subject_taxon_name_id: s.id, object_taxon_name_id: o.id).first
+    soft_validations.add(:base, "Missing relationship: #{s.cached_html_name_and_author_year} is a replacement name for #{o.cached_html_name_and_author_year}. Please add an objective synonym relationship (either 'replaced homonym' or 'unnecessary replacement name')") if r1.nil? && r2.nil?
   end
 end

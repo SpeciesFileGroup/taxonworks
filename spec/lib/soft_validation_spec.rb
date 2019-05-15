@@ -47,6 +47,32 @@ describe 'SoftValidation', group: :soft_validation do
         expect(Softy.soft_validation_methods['Softy'][:needs_moar_cheez?].description).to eq('Open bun, look for cheeze.') 
         expect(Softy.soft_validation_methods['Softy'][:needs_moar_cheez?].resolution).to contain_exactly(:root_path) 
       end
+
+      specify 'assignment with name, fixable' do
+        expect(Softy.soft_validate(:needs_moar_cheez?, name: 'Check for cheeze', has_fix: false)).to be_truthy
+        expect(Softy.soft_validation_methods['Softy'][:needs_moar_cheez?].has_fix).to eq(false) 
+        expect(Softy.soft_validation_methods['Softy'][:needs_moar_cheez?].fixable?).to eq(false) 
+      end
+    end
+
+    context 'fixable methods' do
+      before(:each) {
+        Softy.reset_soft_validation!
+        expect(Softy.soft_validate(:needs_moar_cheez?, name: 'Check for cheeze')).to be_truthy
+        expect(Softy.soft_validate(:needs_less_cheez?, name: 'Too much cheeze', has_fix: false)).to be_truthy
+      }
+
+      specify '.soft_validators default are all' do
+        expect(Softy.soft_validators).to contain_exactly(:needs_moar_cheez?, :needs_less_cheez?) 
+      end
+
+      specify '.soft_validators, fixable_only' do
+        expect(Softy.soft_validators(fixable_only: true)).to contain_exactly(:needs_moar_cheez?) 
+      end
+
+      specify '.soft_validators false is all' do
+        expect(Softy.soft_validators(fixable_only: false)).to contain_exactly(:needs_moar_cheez?, :needs_less_cheez?) 
+      end
     end
 
     context 'soft_validations between classes' do
@@ -111,15 +137,13 @@ describe 'SoftValidation', group: :soft_validation do
   end
 
   context 'example usage' do
-    before do
-      Softy.reset_soft_validation!
-    end
+    before { Softy.reset_soft_validation! }
 
     context 'with a validation that has resolution' do
-      before {
+      before do 
         Softy.soft_validate(:just_bun?, resolution: [:root_path])
         Softy.soft_validate(:needs_moar_cheez?)
-      }
+      end 
 
       let(:softy) {Softy.new}
 
@@ -139,7 +163,7 @@ describe 'SoftValidation', group: :soft_validation do
 
       let(:softy) {Softy.new}
 
-      context 'after valiation' do
+      context 'after validation' do
         before { softy.soft_validate }
 
         specify 'resolution is possible' do

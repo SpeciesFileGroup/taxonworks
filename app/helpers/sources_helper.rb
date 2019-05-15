@@ -9,7 +9,7 @@ module SourcesHelper
     if source && source.type == 'Source::Bibtex' && source.author_year.present?
       source.author_year
     else
-      content_tag(:span, 'Author, year not yet provided for source.', class: :subtle)
+      content_tag(:span, 'Author, year not yet provided for source.', class: [:feedback, 'feedback-thin', 'feedback-warning'])
     end
   end
 
@@ -95,9 +95,9 @@ module SourcesHelper
   end
 
   def source_nomenclature_tag(source, topics)
-    t = [source_tag(source)]
+    t = [content_tag(:span, source_tag(source))]
     t.push [':', topic_list_tag(topics).html_safe] if !topics.blank?
-    t.push link_to('', nomenclature_by_source_task_path(source), class: 'separate-left button-default button-circle button-small btn-citation', target: :_blank)
+    t.push radial_object_tag(source)
     t.flatten.compact.join(' ').html_safe
   end
 

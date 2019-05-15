@@ -1,4 +1,4 @@
-# These are *controller* methods.
+# These are used in both controllers and views.
 module Workbench::SessionsHelper
 
   # User methods
@@ -14,6 +14,7 @@ module Workbench::SessionsHelper
     @sessions_current_user ||= User.find_by(remember_token: User.encrypt(cookies[:remember_token]))
   end
 
+  # TODO: Move to co its own concern in /vendor
   # Papertrail
   alias_method :current_user, :sessions_current_user
 
@@ -49,24 +50,42 @@ module Workbench::SessionsHelper
   end
 
   # Project methods
+
+  def set_project_from_params
+    if sessions_current_project_id
+      respond_to do |format| 
+        format.html { redirect_to root_url, notice: 'Project token and project are not the same.'  }
+        format.json { render(json: {success: false}, status: :unauthorized) && return } # TODO: bad request, not unauthorized
+      end
+    else
+      self.sessions_current_project_id = params[:project_id]
+    end
+  end
+
   def sessions_project_selected?
     !sessions_current_project_id.nil?
   end
 
   def sessions_current_project_id=(project_id)
-    session[:project_id] = project_id
+    if @api_request
+      @sessions_current_project = Project.find(project_id)
+    else
+      session[:project_id] = project_id
+    end
+    project_id
   end
 
   def sessions_current_project_id
-    session[:project_id]
+    @api_request ? @sessions_current_project.id : session[:project_id]
   end
 
   def sessions_current_project
     return nil unless sessions_current_project_id
-   if @sessions_current_project.nil? || @sessions_current_project.id != sessions_current_project_id
-     @sessions_current_project = Project.find(sessions_current_project_id)
-   end
-     @sessions_current_project
+
+    if @sessions_current_project.nil? || @sessions_current_project.id != sessions_current_project_id
+      @sessions_current_project = Project.find(sessions_current_project_id)
+    end
+      @sessions_current_project
   end
 
   def sessions_select_project(project)
@@ -75,7 +94,11 @@ module Workbench::SessionsHelper
   end
 
   def sessions_clear_selected_project
-    session[:project_id] = nil
+    if @api_request
+      @sessions_current_project = nil
+    else
+      session[:project_id] = nil
+    end
   end
 
   # Authorization methods
@@ -115,7 +138,13 @@ module Workbench::SessionsHelper
   end
 
   def require_sign_in_and_project_selection
-    redirect_to root_url, notice: 'Whoa there, sign in and select a project first.' unless sessions_signed_in? && sessions_project_selected?
+    # TODO: account for permitted token based projects 
+    unless sessions_signed_in? && sessions_project_selected?
+      respond_to do |format|
+        format.html { redirect_to root_url, notice: 'Whoa there, sign in and select a project first.'  }
+        format.json { render(json: {success: false}, status: :unauthorized) && return } # TODO: bad request, not unauthorized
+      end
+    end
   end
 
   def require_administrator_sign_in
@@ -173,6 +202,5 @@ module Workbench::SessionsHelper
   def administration_link
     sessions_current_user.is_administrator? ? link_to('Administration', administration_path) : nil
   end
-
 
 end

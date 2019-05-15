@@ -10,18 +10,19 @@ export default function ({ commit, state }) {
     }
     else {
       if(collection_event.id) {
-        
         UpdateCollectionEvent(collection_event).then(response => {
-          TW.workbench.alert.create('Collection object was successfully updated.', 'notice')
           commit(MutationNames.SetCollectionEvent, response)
           return resolve(response)
+        }, (response) => {
+          reject(response)
         })
       }
       else {
         CreateCollectionEvent(collection_event).then(response => {
-          TW.workbench.alert.create('Collection object was successfully created.', 'notice')
           commit(MutationNames.SetCollectionEvent, response)
           return resolve(response)
+        }, (response) => {
+          reject(response)
         })
       }
     }

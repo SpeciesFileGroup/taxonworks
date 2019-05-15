@@ -134,7 +134,7 @@ export default {
 
 }
 </script>
-<style>
+<style scoped>
  table,td,tr {
    position: relative !important;
  }

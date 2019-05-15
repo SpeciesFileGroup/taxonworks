@@ -1,5 +1,5 @@
 <%= content_for :report do -%>
-  <%= content_tag(:li, link_to('Original image', @image.image_file.url)) -%> 
+  <%= content_tag(:li, link_to('OriginalMonotypy image', @image.image_file.url)) -%>
 <% end %>
 
 <%= content_for :associated do -%>
@@ -12,7 +12,17 @@
     <% end %> 
     </ul>
   <% end %>
+<% end %>
 
+<%= content_for :additional_navigation do %>
+
+  <div class="content">
+    <em> Rotate derivatives, relative or *original* orientation.  Original image is untouched. </em>
+    <%= form_for(@image, url: rotate_image_path(@image)) do |f| %>
+      <%= f.collection_radio_buttons :rotate, %w{0 90 180 270}, :to_s, :to_i %>
+      <%= f.submit :Rotate, data: {type: :submit}, class: [:actions, 'button-submit', :button] -%>
+    <% end %>
+  </div>
 <% end %>
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @image}) -%>

@@ -77,6 +77,13 @@ describe Citation, type: :model, group: [:annotators, :citations] do
       expect(c2.errors[:is_original]).to be_truthy
     end
 
+    specify 'many is_original is false per citation_object' do
+      c1.update(is_original: false)
+      c2.is_original = false
+      expect(c1.valid?).to be_truthy
+      expect(c2.errors[:is_original].empty?).to be_truthy
+    end
+
     specify 'exact duplicates are invalid' do
       expect(c2.valid?).to be_falsey
     end

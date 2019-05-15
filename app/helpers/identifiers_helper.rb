@@ -22,9 +22,14 @@ module IdentifiersHelper
   # @return [String, nil]
   def identifier_autocomplete_tag(identifier)
     return nil if identifier.nil?
-    content_tag(:span, identifier_tag(identifier), class: :annotation__identifier) + 
-      content_tag(:span, ("&nbsp; on " + identifier.annotated_object.class.name).html_safe, class: [:subtle] ) + '<br>'.html_safe + object_tag(identifier.annotated_object.metamorphosize) 
-   end
+    content_tag(:span, class: :annotation__identifier) do
+      [
+        object_tag(identifier.annotated_object.metamorphosize),
+        content_tag(:span, identifier.identifier_object_type, class: [:feedback, 'feedback-thin', 'feedback-primary']),
+        content_tag(:span, identifier.type, class: [:feedback, 'feedback-thin', 'feedback-secondary']),
+      ].join('&nbsp;').html_safe
+    end
+  end
 
   # @return [String, nil]
   def identifier_type_tag(identifier)

@@ -29,12 +29,12 @@
           </button>
           <button
             type="button"
-            class=" normal-input button"
+            class=" normal-input button button-default"
             @click="switchName(newNamePerson)">Switch
           </button>
           <button
             type="button"
-            class="normal-input button"
+            class="normal-input button button-default"
             @click="expandPerson = !expandPerson">Expand
           </button>
         </div>
@@ -205,9 +205,17 @@
         this.person_attributes.last_name = this.getLastName(name)
       },
       removePerson: function (index) {
-        this.$set(this.roles_attributes[index], '_destroy', true)
-        this.$emit('input', this.roles_attributes)
-        this.$emit('delete', this.roles_attributes[index])
+        if(this.roles_attributes[index].hasOwnProperty('id') && this.roles_attributes[index].id) {
+          this.$set(this.roles_attributes[index], '_destroy', true)
+          this.$emit('input', this.roles_attributes)
+          this.$emit('delete', this.roles_attributes[index])
+        }
+        else {
+          let person = this.roles_attributes[index]
+          this.roles_attributes.splice(index, 1)
+          this.$emit('input', this.roles_attributes)
+          this.$emit('delete', person)          
+        }
       },
       setInput: function (text) {
         this.searchPerson = text

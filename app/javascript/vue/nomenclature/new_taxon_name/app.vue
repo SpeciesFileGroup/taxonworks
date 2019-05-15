@@ -34,7 +34,7 @@
           </div>
           <div class="new-taxon-name-block">
             <type-block
-              v-if="getTaxon.id && showForThisGroup(['FamilyGroup','GenusGroup', 'SpeciesGroup'], getTaxon)"
+              v-if="getTaxon.id && showForThisGroup(['FamilyGroup','GenusGroup', 'SpeciesGroup', 'SpeciesAndInfraspeciesGroup'], getTaxon)"
               class="separate-top separate-bottom"/>
           </div>
           <div
@@ -55,7 +55,7 @@
           </div>
           <div
             class="new-taxon-name-block"
-            v-if="showForThisGroup(['SpeciesGroup','GenusGroup'], getTaxon)">
+            v-if="showForThisGroup(['SpeciesGroup','GenusGroup', 'SpeciesAndInfraspeciesGroup'], getTaxon)">
             <spinner
               :show-spinner="false"
               :show-legend="false"
@@ -64,7 +64,7 @@
           </div>
           <div
             class="new-taxon-name-block"
-            v-if="getTaxon.id && showForThisGroup(['SpeciesGroup','GenusGroup'], getTaxon)">
+            v-if="getTaxon.id && showForThisGroup(['SpeciesGroup','GenusGroup', 'SpeciesAndInfraspeciesGroup'], getTaxon)">
             <spinner
               :show-spinner="false"
               :show-legend="false"
@@ -142,10 +142,10 @@ export default {
         'Author': true,
         'Status': true,
         'Relationship': true,
-        'Type': showForThisGroup(['SpeciesGroup', 'GenusGroup', 'FamilyGroup'], this.getTaxon),
-        'Original combination': showForThisGroup(['SpeciesGroup', 'GenusGroup'], this.getTaxon),
-        'Etymology': showForThisGroup(['SpeciesGroup', 'GenusGroup'], this.getTaxon),
-        'Gender': showForThisGroup(['SpeciesGroup', 'GenusGroup'], this.getTaxon)
+        'Type': showForThisGroup(['SpeciesGroup', 'GenusGroup', 'FamilyGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),
+        'Original combination': showForThisGroup(['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),
+        'Etymology': showForThisGroup(['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),
+        'Gender': showForThisGroup(['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon)
       }
     }
   },
@@ -168,7 +168,13 @@ export default {
       }
     })
 
-    let taxonId = location.pathname.split('/')[4]
+    let urlParams = new URLSearchParams(window.location.search)
+    let taxonId = urlParams.get('taxon_name_id')
+
+    if(!taxonId) {
+      taxonId = location.pathname.split('/')[4]
+    }
+    
     this.initLoad().then(function () {
       if (/^\d+$/.test(taxonId)) {
         that.$store.dispatch(ActionNames.LoadTaxonName, taxonId).then(function () {
@@ -235,6 +241,9 @@ export default {
       min-width: 350px;
       max-width: 350px;
       width: 300px;
+    }
+    .ccenter {
+      max-width: 880px;
     }
     #cright-panel {
       width: 350px;

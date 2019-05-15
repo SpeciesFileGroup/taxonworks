@@ -3,22 +3,38 @@ module Workbench::NavigationHelper
 
   NO_NEW_FORMS = %w{Attribution ObservationMatrixRow ObservationMatrixColumn Note Tag Citation Identifier DataAttribute AlternateValue GeographicArea ContainerItem ProtocolRelationship}.freeze
 
+  NOT_DATA_PATHS = %w{/project /administration /user}.freeze
+
   # Slideout panels
 
+  def slideouts
+    if sessions_current_project && sessions_signed_in? && on_workbench?
+      [ slideout_pinboard, 
+      slideout_pdf_viewer, 
+      slideout_clipboard ].join.html_safe
+    end
+  end
+
   def slideout_clipboard
-    render(partial: '/shared/data/slideout/clipboard')  if sessions_current_project && sessions_signed_in?
+    render(partial: '/shared/data/slideout/clipboard')
   end
 
   def slideout_pinboard
-    render(partial: '/shared/data/slideout/pinboard')  if sessions_current_project && sessions_signed_in?
+    render(partial: '/shared/data/slideout/pinboard')
   end
 
   def slideout_recent
-    render(partial: '/shared/data/slideout/recent')  if sessions_current_project && sessions_signed_in?
+    render(partial: '/shared/data/slideout/recent') 
   end
 
   def slideout_pdf_viewer
-    render(partial: '/shared/data/slideout/document')  if sessions_current_project && sessions_signed_in?
+    render(partial: '/shared/data/slideout/document')  
+  end
+
+  # @return [Boolean]
+  # 
+  def on_workbench?
+    !(request.path =~ /#{NOT_DATA_PATHS.join('|')}/)
   end
 
   def quick_bar
@@ -257,6 +273,15 @@ DEPRECATED FOR RADIAL
         letters.collect{|l| content_tag(:li, link_to("#{l}", "\##{l}")) }.join.html_safe
       end
     end
+  end
+
+  def title_tag
+    splash = request.path =~ /task/ ? request.path.demodulize.humanize : request.path.split('/')&.second&.humanize
+    content_tag(:title, ['TaxonWorks', splash].compact.join(' - ') )
+  end
+
+  def radial_object_tag(object)
+    content_tag(:span, '', data: { 'global-id' => object.to_global_id.to_s, 'radial-object' => 'true'})
   end
 
 end

@@ -1,6 +1,8 @@
 <template>
   <div class="qualitative-descriptor">
-    <summary-view :descriptor="descriptor">
+    <summary-view
+      :index="index"
+      :descriptor="descriptor">
       <ul>
         <li
           class="horizontal-left-content qualitative-descriptor__descriptor-li"
@@ -36,7 +38,7 @@ import descriptorDetails from '../DescriptorDetails/DescriptorDetails.vue'
 
 export default {
   name: 'QualitativeDescriptor',
-  props: ['descriptor'],
+  props: ['descriptor', 'index'],
   created: function () {
     const descriptorId = this.$props.descriptor.id
     const otuId = this.$store.state.taxonId

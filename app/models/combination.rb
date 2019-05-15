@@ -63,6 +63,10 @@ class Combination < TaxonName
 
   before_validation :set_parent
 
+
+  # TODO: make access private
+  attr_accessor :disable_combination_relationship_check
+
   # Overwritten here from TaxonName to allow for destroy
   has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship',
     foreign_key: :object_taxon_name_id,
@@ -153,13 +157,13 @@ class Combination < TaxonName
   validate :is_unique
   validate :does_not_exist_as_original_combination, unless: Proc.new {|a| a.errors.full_messages.include? 'Combination exists.' }
   validate :parent_is_properly_set , unless: Proc.new {|a| a.errors.full_messages.include? 'Combination exists.' }
-  validate :composition, unless: Proc.new {|a| a.errors.full_messages.include? 'Combination exists.' }
+  validate :composition, unless: Proc.new {|a| disable_combination_relationship_check == true || a.errors.full_messages.include?('Combination exists.') }
   validates :rank_class, absence: true
 
-  soft_validate(:sv_combination_duplicates, set: :combination_duplicates)
-  soft_validate(:sv_year_of_publication_matches_source, set: :dates)
-  soft_validate(:sv_year_of_publication_not_older_than_protonyms, set: :dates)
-  soft_validate(:sv_source_not_older_than_protonyms, set: :dates)
+  soft_validate(:sv_combination_duplicates, set: :combination_duplicates, has_fix: false)
+  soft_validate(:sv_year_of_publication_matches_source, set: :dates, has_fix: false)
+  soft_validate(:sv_year_of_publication_not_older_than_protonyms, set: :dates, has_fix: false)
+  soft_validate(:sv_source_not_older_than_protonyms, set: :dates, has_fix: false)
 
   # @return [Scope]
   # @params keyword_args [Hash] like `{genus: 123, :species: 456}` (note no `_id` suffix)
@@ -267,6 +271,7 @@ class Combination < TaxonName
     end
     result
   end
+
 
   # @return [Array of Integers]
   #   the collective years the protonyms were (nomenclaturaly) published on (ordered from genus to below)

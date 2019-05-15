@@ -97,6 +97,23 @@ class Otu < ApplicationRecord
 
   accepts_nested_attributes_for :common_names, allow_destroy: true
 
+
+  # @return [Array]
+  #   all bilogical associations this Otu is part of
+  def all_biological_associations
+    # !! If self relationships are ever made possible this needs a DISTINCT clause
+    BiologicalAssociation.find_by_sql(
+      "SELECT biological_associations.*
+         FROM biological_associations
+         WHERE biological_associations.biological_association_subject_id = #{self.id} 
+           AND biological_associations.biological_association_subject_type = 'Otu'
+       UNION
+       SELECT biological_associations.*
+         FROM biological_associations
+         WHERE biological_associations.biological_association_object_id = #{self.id}
+           AND biological_associations.biological_association_object_type = 'Otu' ")
+  end
+
   # return [Scope] the Otus bound to that taxon name and its descendants
   def self.for_taxon_name(taxon_name)
     if taxon_name.kind_of?(String) || taxon_name.kind_of?(Integer)
@@ -176,7 +193,6 @@ class Otu < ApplicationRecord
   # @return [Scope]
   #    the max 10 most recently used otus, as `used_on`
   def self.used_recently(used_on = '')
-
     t = case used_on 
         when 'AssertedDistribution'
           AssertedDistribution.arel_table
@@ -193,17 +209,17 @@ class Otu < ApplicationRecord
     # i is a select manager
     i = case used_on 
         when 'BiologicalAssociation'
-          t.project(t['biological_association_subject_id'], t['created_at']).from(t)
+          t.project(t['biological_association_object_id'], t['updated_at']).from(t)
             .where(
-              t['created_at'].gt(1.weeks.ago).and(
-                t['biological_association_subject_type'].eq('Otu')
+              t['updated_at'].gt(1.weeks.ago).and(
+                t['biological_association_object_type'].eq('Otu')
               )
           )
-            .order(t['created_at'])
+            .order(t['updated_at'])
         else
-          t.project(t['otu_id'], t['created_at']).from(t)
-            .where(t['created_at'].gt( 1.weeks.ago ))
-            .order(t['created_at'])
+          t.project(t['otu_id'], t['updated_at']).from(t)
+            .where(t['updated_at'].gt( 1.weeks.ago ))
+            .order(t['updated_at'])
         end
 
     # z is a table alias 
@@ -212,7 +228,7 @@ class Otu < ApplicationRecord
     j = case used_on
         when 'BiologicalAssociation' 
           Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
-            z['biological_association_subject_id'].eq(p['id'])  
+            z['biological_association_object_id'].eq(p['id'])
           ))
         else
           Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['otu_id'].eq(p['id'])))
@@ -221,15 +237,20 @@ class Otu < ApplicationRecord
     Otu.joins(j).distinct.limit(10)
   end
 
-  # @params target [String] one of `AssertedDistribution`, `Content`, `BiologicalAssociation`, 'TaxonDetermination'
+  # @params target [String] one of nil, `AssertedDistribution`, `Content`, `BiologicalAssociation`, 'TaxonDetermination'
   # @return [Hash] otus optimized for user selection
-  def self.select_optimized(user_id, project_id, target = '')
+  def self.select_optimized(user_id, project_id, target = nil)
     h = {
       quick: [],
       pinboard: Otu.pinned_by(user_id).where(project_id: project_id).to_a
     }
 
-    h[:recent] = Otu.joins(target.tableize.to_sym).where(project_id: project_id).used_recently(target).limit(10).distinct.to_a
+    if target
+      h[:recent] = Otu.where(project_id: project_id).used_recently(target).limit(10).to_a
+    else
+      h[:recent] = Otu.where(project_id: project_id).order('updated_at DESC').limit(10).to_a
+    end
+
     h[:quick] = (Otu.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq 
     h
   end
@@ -244,13 +265,14 @@ class Otu < ApplicationRecord
   end
 
   def sv_taxon_name
-    soft_validations.add(:taxon_name_id, 'Taxon is not selected') if self.taxon_name_id.nil?
+    soft_validations.add(:taxon_name_id, 'Nomenclature (taxon name) is not assigned') if self.taxon_name_id.nil?
   end
 
   def sv_duplicate_otu
     unless Otu.with_taxon_name_id(self.taxon_name_id).with_name(self.name).not_self(self).with_project_id(self.project_id).empty?
-      soft_validations.add(:taxon_name_id, 'Duplicate Taxon and Name combination')
-      soft_validations.add(:name, 'Duplicate Taxon and Name combination')
+      m = "Another OTU with an identical nomenclature (taxon name) and name exists in this project"
+      soft_validations.add(:taxon_name_id, m)
+      soft_validations.add(:name, m )
     end
   end
 

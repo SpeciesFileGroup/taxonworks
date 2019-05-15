@@ -16,27 +16,27 @@ module TaxonNamesHelper
   def taxon_name_autocomplete_tag(taxon_name, term)
     return nil if taxon_name.nil?
     klass = taxon_name.rank_class ? taxon_name.rank_class.nomenclatural_code : nil
+    a = [
+      content_tag(:span, mark_tag(taxon_name.cached_html_name_and_author_year, term),  class: :klass), 
+      taxon_name_rank_tag(taxon_name),
+      taxon_name_parent_tag(taxon_name),
+      taxon_name_original_combination_tag(taxon_name)
+    ].compact.join('&nbsp;').html_safe
+  end
 
-    a = ''
-    if taxon_name.parent_id
-      a = content_tag(:span, class: :subtle) do
-        (' (' +
-         (taxon_name.rank || 'Combination') +
-         ', parent ' +
-         taxon_name_tag(taxon_name.parent).html_safe +
-         ')').html_safe
-      end
-    end
+  def taxon_name_rank_tag(taxon_name, css_class = [:feedback, 'feedback-info', 'feedback-thin'] )
+    return nil if taxon_name.nil?
+    content_tag(:span, taxon_name.rank || 'Combination', class: css_class)
+  end
 
-    t = Regexp.escape(term)
+  def taxon_name_parent_tag(taxon_name, css_class = [:feedback, 'feedback-secondary', 'feedback-thin'] )
+    return nil if taxon_name.nil? || taxon_name.parent_id.nil?
+    content_tag(:span, taxon_name_tag(taxon_name.parent).html_safe, class: css_class)
+  end
 
-    content_tag(:span, class: :klass) do
-      taxon_name.
-        cached_html_name_and_author_year.
-        gsub(/(#{t})/i, content_tag(:mark, '\1')).
-        html_safe +
-        a.html_safe
-    end
+  def taxon_name_original_combination_tag(taxon_name, css_class = [:feedback, 'feedback-notice', 'feedback-thin'] )
+    return nil if taxon_name.nil? || taxon_name.cached_original_combination.blank?
+    content_tag(:span, taxon_name.cached_original_combination, class: css_class)
   end
 
   # @return [String]
@@ -228,9 +228,9 @@ module TaxonNamesHelper
     text = 'Next'
     link_object = taxon_name.next_sibling
     if link_object.nil? 
-      content_tag(:div, content_tag(:span, text, class: 'small-icon icon-right', data: {icon: 'arrow-right'}), class:  'navigation-item disable')
+      content_tag(:div, content_tag(:span, text), class:  'navigation-item disable')
     else 
-      link_to(content_tag(:span, taxon_name_tag(link_object), data: {icon: 'arrow-right'}, class: 'small-icon icon-right'), send(path, link_object.metamorphosize), class: 'navigation-item', data: {arrow: 'next'})
+      link_to(text, send(path, link_object.metamorphosize), title: taxon_name_tag(link_object), class: 'navigation-item', data: { button: 'next' })
     end
   end
 
@@ -239,9 +239,9 @@ module TaxonNamesHelper
     link_object = taxon_name.previous_sibling
 
     if link_object.nil?
-      content_tag(:div, content_tag(:span, text, class: 'small-icon', data: {icon: 'arrow-left'}), class: 'navigation-item disable')
+      content_tag(:div, content_tag(:span, text), class: 'navigation-item disable')
     else 
-      link_to(content_tag(:span, taxon_name_tag(link_object), data: {icon: 'arrow-left'}, class: 'small-icon'), send(path, link_object.metamorphosize), class: 'navigation-item', data: {arrow: 'back'})
+      link_to(text, send(path, link_object.metamorphosize), class: 'navigation-item', data: { button: 'back' })
     end
   end
 

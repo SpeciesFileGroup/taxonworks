@@ -2,6 +2,9 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961 < Tax
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000042'.freeze
 
+  soft_validate(:sv_year_of_description, set: :specific_relationship, has_fix: false)
+  soft_validate(:sv_source_after_1960, set: :specific_relationship, has_fix: false)
+
   # left_side
   def self.valid_subject_ranks
     FAMILY_RANK_NAMES_ICZN
@@ -38,5 +41,15 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961 < Tax
   def self.assignable
     true
   end
+  def sv_year_of_description
+    s = subject_taxon_name
+    soft_validations.add(:type, "#{s.cached_html_name_and_author_year} was not described before 1961") if s.year_of_publication > 1960
+  end
 
+  def sv_source_after_1960
+    if self.source
+      s = subject_taxon_name
+      soft_validations.add(:base, "#{s.cached_html_name_and_author_year} should be accepted as a replacement name before 1961") if self.source.year > 1960
+    end
+  end
 end

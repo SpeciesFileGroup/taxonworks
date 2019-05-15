@@ -15,6 +15,7 @@ class Protonym < TaxonName
 
   extend Protonym::SoftValidationExtensions::Klass
   include Protonym::SoftValidationExtensions::Instance
+  include Protonym::Becomes
 
   alias_method :original_combination_source, :source
 
@@ -131,13 +132,15 @@ class Protonym < TaxonName
   # TODO: isn't this the way to do it now? (It does not work, may need extra investigation. DD)
   #   scope :that_is_valid, -> {where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') }
 
-  scope :that_is_valid, -> {
-    joins('LEFT OUTER JOIN taxon_name_relationships tnr ON taxon_names.id = tnr.subject_taxon_name_id').
-    where("taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type ILIKE 'TaxonNameRelationship::Iczn::Invalidating%' OR type ILIKE 'TaxonNameRelationship::Icn::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Icnp::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Ictv::Unaccepting%')")
-  }
-
+  # This was crazy!
+  # scope :that_is_valid, -> {
+  #   joins('LEFT OUTER JOIN taxon_name_relationships tnr ON taxon_names.id = tnr.subject_taxon_name_id').
+  #   where("taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type ILIKE 'TaxonNameRelationship::Iczn::Invalidating%' OR type ILIKE 'TaxonNameRelationship::Icn::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Icnp::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Ictv::Unaccepting%')")
+  # }
   scope :is_species_group, -> { where("rank_class ILIKE '%speciesgroup%'") }
   scope :is_genus_group, -> { where("rank_class ILIKE '%genusgroup%'") }
+
+  scope :is_species_or_genus_group, -> {  where("rank_class ILIKE '%speciesgroup%' OR rank_class ILIKE '%genusgroup%'")   }
 
   # @return [Array of Strings]
   #   genera where the species was placed
@@ -218,30 +221,36 @@ class Protonym < TaxonName
     ay.blank? ? nil : ay
   end
 
+  # This method is currently only used for setting cached_primary_homonym
+  # @return [nil, false, String]
+  #   !! Why both?
   def get_genus_species(genus_option, self_option)
     return nil if rank_class.nil?
     genus = nil
     name1 = nil
 
-    if self.rank_string =~ /Species/
+    if is_species_rank? # self.rank_string =~ /Species/
       if genus_option == :original
-        genus = self.original_genus
+        genus = original_genus
       elsif genus_option == :current
-        genus = self.ancestor_at_rank('genus')
+        genus = ancestor_at_rank('genus')
       else
         return false
       end
+
       genus = genus.name unless genus.blank?
       return nil if genus.blank?
     end
+
     if self_option == :self
-      name1 = self.name
+      name1 = name
     elsif self_option == :alternative
       name1 = name_with_alternative_spelling
     end
 
-    return nil if genus.nil? && name1.nil?
-    (genus.to_s + ' ' + name1.to_s).squish
+    return nil if genus.nil? && name1.nil? # <- hitting this because Genus is never set
+    [genus, name1].compact.join(' ')
+    # (genus.to_s + ' ' + name1.to_s).squish
   end
 
   # TODO, make back half of this raw SQL
@@ -322,9 +331,7 @@ class Protonym < TaxonName
   #   A relationships for each possible original combination relationship
   def original_combination_relationships_and_stubs
     # TODO: figure out where to really put this, likely in one big sort
-    display_order = [
-      :original_genus, :original_subgenus, :original_species, :original_subspecies, :original_variety, :original_form
-    ]
+    display_order = [ :original_genus, :original_subgenus, :original_species, :original_subspecies, :original_variety, :original_subvariety, :original_form, :original_subform ]
 
     defined_relations = self.original_combination_relationships.all
     created_already   = defined_relations.collect{|a| a.class}
@@ -348,16 +355,25 @@ class Protonym < TaxonName
     # Is faster than above?
     return true if rank_string =~ /Icnp/ && (name.start_with?('Candidatus ') || name.start_with?('Ca. '))
     taxon_name_classifications.each do |tc| # ! find_each
-      return true if TaxonName::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(tc.type)
+      return true if EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(tc.type)
     end
     taxon_name_relationships.each do |tr|
-      return true if TaxonName::EXCEPTED_FORM_TAXON_NAME_RELATIONSHIPS.include?(tr.type)
+      return true if TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING.include?(tr.type)
     end
     false
   end
 
   def is_latin?
     !NOT_LATIN.match(name) || has_latinized_exceptions?
+  end
+
+  # @return [Boolean]
+  #   whether this name has one of the TaxonNameRelationships which justify wrong form of the name
+  def has_misspelling_relationship?
+    taxon_name_relationships.each do |tr|
+      return true if TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING.include?(tr.type)
+    end
+    false
   end
 
   def is_species_rank?
@@ -550,7 +566,7 @@ class Protonym < TaxonName
     if elements.any?
       elements[:genus] = '[GENUS NOT SPECIFIED]' if !elements[:genus] && !not_binomial?
       # If there is no :species, but some species group, add element
-      elements[:species] = '[SPECIES NOT SPECIFIED]' if !elements[:species] && ( [:subspecies, :variety, :form, :subform, :subvariety] & elements.keys ).size > 0
+      elements[:species] = '[SPECIES NOT SPECIFIED]' if !elements[:species] && ( [:subspecies, :variety, :form] & elements.keys ).size > 0
     end
 
     elements
@@ -651,6 +667,7 @@ class Protonym < TaxonName
     is_genus_or_species_rank? && parent == protonym && parent.name == protonym.name
   end
 
+
   protected
 
   # TODO: move to Protonym
@@ -732,7 +749,7 @@ class Protonym < TaxonName
   # Validate whether cached names need to be rebuilt.
   #
   # TODO: this is kind of pointless, we generate
-  # all the alues need for cached, names, at that point
+  # all the values need for cached, names, at that point
   # the cached values should just be persisted
   # The logic here also duplicates the tracking
   # needed for building cached names.
@@ -747,6 +764,7 @@ class Protonym < TaxonName
     if is_cached && cached_html != get_full_name_html ||
       cached_misspelling != get_cached_misspelling ||
       cached_original_combination != get_original_combination ||
+      cached_original_combination_html != get_original_combination_html ||
       cached_primary_homonym != get_genus_species(:original, :self) ||
       cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
       rank_string =~ /Species/ &&

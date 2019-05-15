@@ -10,19 +10,20 @@ module Protonym::SoftValidationExtensions
         description: 'Validates parent rank.'
       },
 
-      sv_missing_relationships: { set: :missing_relationships},
-      sv_missing_classifications: { set: :missing_classifications},
-      sv_species_gender_agreement: { set: :species_gender_agreement},
-      sv_type_placement: { set: :type_placement},
-      sv_primary_types: { set: :primary_types},
-      sv_validate_coordinated_names: { set: :validate_coordinated_names},
-      sv_single_sub_taxon: { set: :single_sub_taxon},
-      sv_parent_priority: { set: :parent_priority},
-      sv_homotypic_synonyms: { set: :homotypic_synonyms},
-      sv_potential_homonyms: { set: :potential_homonyms},
-      sv_source_not_older_then_description: { set: :dates},
-      sv_original_combination_relationships: { set: :original_combination_relationships},
-      sv_extant_children: { set: :extant_children}
+      sv_missing_relationships: { set: :missing_relationships, has_fix: false},
+      sv_missing_classifications: { set: :missing_classifications, has_fix: false},
+      sv_species_gender_agreement: { set: :species_gender_agreement, has_fix: false},
+      sv_type_placement: { set: :type_placement, has_fix: false},
+      sv_primary_types: { set: :primary_types, has_fix: false},
+      sv_validate_coordinated_names: { set: :validate_coordinated_names, has_fix: true},
+      sv_single_sub_taxon: { set: :single_sub_taxon, has_fix: true},
+      sv_parent_priority: { set: :parent_priority, has_fix: false},
+      sv_homotypic_synonyms: { set: :homotypic_synonyms, has_fix: false},
+      sv_potential_homonyms: { set: :potential_homonyms, has_fix: false},
+      sv_source_not_older_then_description: { set: :dates, has_fix: false},
+      sv_original_combination_relationships: { set: :original_combination_relationships, has_fix: false},
+      sv_extant_children: { set: :extant_children, has_fix: false},
+      sv_protonym_to_combination: { set: :protonym_to_combination, has_fix: false}
 
     }.freeze
 
@@ -52,7 +53,7 @@ module Protonym::SoftValidationExtensions
     def sv_missing_relationships
       if  !self.cached_misspelling && !self.name_is_missapplied?
         if is_species_rank?
-          soft_validations.add(:base, 'Missing relationship: Original genus is not selected') if self.original_genus.nil?
+          soft_validations.add(:base, 'Missing relationship: OriginalMonotypy genus is not selected') if self.original_genus.nil?
         elsif is_genus_rank?
           soft_validations.add(:base, 'Missing relationship: Type species is not selected') if self.type_species.nil?
         elsif is_family_rank?
@@ -65,7 +66,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_missing_classifications
-      if !self.cached_misspelling && !self.name_is_missapplied?
+      if !self.cached_misspelling && !self.name_is_missapplied? && !has_misspelling_relationship?
         if is_species_rank?
           soft_validations.add(:base, 'Part of speech is not specified. Please select if the name is a noun or an adjective.') if self.part_of_speech_class.nil?
         elsif is_genus_rank?
@@ -78,7 +79,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_species_gender_agreement
-      if is_species_rank?
+      if is_species_rank? && !has_misspelling_relationship?
         s = part_of_speech_name
         unless part_of_speech_name.nil?
           if %w{adjective participle}.include?(s)
@@ -133,27 +134,27 @@ module Protonym::SoftValidationExtensions
       r = self.iczn_set_as_incorrect_original_spelling_of_relationship
       list_of_coordinated_names.each do |t|
         soft_validations.add(:base, "The original publication does not match with the original publication of the coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Original publication was updated') if self.source && t.source && self.source.id != t.source.id
+                             fix: :sv_fix_coordinated_names, success_message: 'OriginalMonotypy publication was updated') if self.source && t.source && self.source.id != t.source.id
         soft_validations.add(:verbatim_author, "The author does not match with the author of the coordinated #{t.rank_class.rank_name}",
                              fix: :sv_fix_coordinated_names, success_message: 'Author was updated') unless self.verbatim_author == t.verbatim_author
         soft_validations.add(:year_of_publication, "The year of publication does not match with the year of the coordinated #{t.rank_class.rank_name}",
                              fix: :sv_fix_coordinated_names, success_message: 'Year was updated') unless self.year_of_publication == t.year_of_publication
         soft_validations.add(:base, "The gender status does not match with the gender of the coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Gender was updated') if rank_string =~ /Genus/ && self.gender_class != t.gender_class
+                             fix: :sv_fix_coordinated_names, success_message: 'Gender was updated') if rank_string =~ /Genus/ && self.gender_class != t.gender_class && !has_misspelling_relationship?
         soft_validations.add(:base, "The part of speech status does not match with the part of speech of the coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Gender was updated') if rank_string =~ /Species/ && self.part_of_speech_class != t.part_of_speech_class
+                             fix: :sv_fix_coordinated_names, success_message: 'Gender was updated') if rank_string =~ /Species/ && self.part_of_speech_class != t.part_of_speech_class && !has_misspelling_relationship?
         soft_validations.add(:base, "The original genus does not match with the original genus of coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Original genus was updated') if self.original_genus != t.original_genus && r.blank?
+                             fix: :sv_fix_coordinated_names, success_message: 'OriginalMonotypy genus was updated') if self.original_genus != t.original_genus && r.blank?
         soft_validations.add(:base, "The original subgenus does not match with the original subgenus of the coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Original subgenus was updated') if self.original_subgenus != t.original_subgenus && r.blank?
+                             fix: :sv_fix_coordinated_names, success_message: 'OriginalMonotypy subgenus was updated') if self.original_subgenus != t.original_subgenus && r.blank?
         soft_validations.add(:base, "The original species does not match with the original species of the coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Original species was updated') if self.original_species != t.original_species && r.blank?
+                             fix: :sv_fix_coordinated_names, success_message: 'OriginalMonotypy species was updated') if self.original_species != t.original_species && r.blank?
         soft_validations.add(:base, "The type species does not match with the type species of the coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Type species was updated') unless self.type_species == t.type_species
+                             fix: :sv_fix_coordinated_names, success_message: 'Type species was updated') if self.type_species != t.type_species && !has_misspelling_relationship?
         soft_validations.add(:base, "The type genus does not match with the type genus of the coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Type genus was updated') unless self.type_genus == t.type_genus
+                             fix: :sv_fix_coordinated_names, success_message: 'Type genus was updated') if self.type_genus != t.type_genus && !has_misspelling_relationship?
         soft_validations.add(:base, "The type specimen does not match with the type specimen of the coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Type specimen was updated') unless self.has_same_primary_type(t)
+                             fix: :sv_fix_coordinated_names, success_message: 'Type specimen was updated') if !self.has_same_primary_type(t) && !has_misspelling_relationship?
         sttnr = self.type_taxon_name_relationship
         tttnr = t.type_taxon_name_relationship
         unless sttnr.nil? || tttnr.nil?
@@ -403,7 +404,7 @@ module Protonym::SoftValidationExtensions
 
 
     def sv_potential_homonyms
-      if self.parent && !self.cached_misspelling && !self.name_is_missapplied?
+      if persisted? && !self.cached_misspelling && !self.name_is_missapplied?
         unless classification_invalid_or_unavailable? || !Protonym.with_taxon_name_relationships_as_subject.with_homonym_or_suppressed.empty? #  self.unavailable_or_invalid?
           if self.id == self.lowest_rank_coordinated_taxon.id
             rank_base = self.rank_class.parent.to_s
@@ -486,6 +487,13 @@ module Protonym::SoftValidationExtensions
             end
           end
         end
+      end
+    end
+
+    def sv_protonym_to_combination
+      if convertable_to_combination?
+        soft_validations.add(:base, "Invalid #{self.cached_original_combination_html} could be converted into a Combination",
+                             fix: :becomes_combination, success_message: "Protonym #{self.cached_original_combination_html} was successfully converted into a combination", fix_trigger: :requested)
       end
     end
 

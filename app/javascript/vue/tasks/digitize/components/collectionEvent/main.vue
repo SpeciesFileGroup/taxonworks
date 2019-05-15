@@ -2,7 +2,7 @@
   <div>
     <block-layout :warning="!collectingEvent.id">
       <div slot="header">
-        <h3>Collection Event</h3>
+        <h3>Collecting Event</h3>
       </div>
       <div
         slot="options" 
@@ -10,19 +10,13 @@
         <span v-if="collectingEvent.id">Sequential uses: {{ (this.subsequentialUses == 0 ? '-' : this.subsequentialUses) }}</span>
         <div
           v-if="collectingEvent.id"
-          class="separate-left separate-right">
-          <a
-            :href="`/collecting_events/${collectingEvent.id}`"
-            target="blank">Show
-          </a>
+          class="horizontal-left-content separate-left separate-right">
+          <radial-annotator :global-id="collectingEvent.global_id"/>
+          <radial-object :global-id="collectingEvent.global_id"/>
+          <pin-component 
+            :object-id="collectingEvent.id" 
+            type="CollectingEvent"/>
         </div>
-        <radial-annotator 
-          v-if="collectingEvent.id"
-          :global-id="collectingEvent.global_id"/>
-        <pin-component 
-          v-if="collectingEvent.id"
-          :object-id="collectingEvent.id" 
-          type="CollectingEvent"/>
       </div>
       <div slot="body">
         <fieldset class="separate-bottom">
@@ -30,7 +24,7 @@
           <div class="horizontal-left-content separate-bottom">
             <smart-selector
               name="collection-event"
-              class="separate-right"
+              class="separate-right item"
               v-model="view"
               :add-option="staticOptions"
               :options="tabs"/>
@@ -41,6 +35,14 @@
               section="CollectingEvents"
               @getId="getCollectingEvent"
               type="CollectingEvent"/>
+          </div>
+          <div
+            v-if="collectingEvent.id"
+            class="horizontal-left-content">
+            <p v-html="collectingEvent.object_tag"/>
+            <span
+              class="circle-button button-default btn-undo"
+              @click="cleanCollectionEvent"/>
           </div>
           <component
             :is="actualComponent"
@@ -65,8 +67,10 @@
   import BlockMap from  './components/map/main.vue'
   import BlockLayout from 'components/blockLayout.vue'
   import RadialAnnotator from 'components/annotator/annotator.vue'
+  import RadialObject from 'components/radial_object/radialObject.vue'
   import { GetterNames } from '../../store/getters/getters.js'
   import { MutationNames } from '../../store/mutations/mutations.js'
+  import { ActionNames } from '../../store/actions/actions.js'
   import PinComponent from 'components/pin.vue'
   import PinDefault from 'components/getDefaultPin'
   import { GetCollectingEventsSmartSelector, GetCollectionEvent } from '../../request/resources.js'
@@ -89,6 +93,7 @@
       BlockGeography,
       SmartSelector,
       RadialAnnotator,
+      RadialObject,
       PinComponent,
       BlockMap,
       SearchComponent,
@@ -151,6 +156,9 @@
         GetCollectionEvent(id).then(response => {
           this.$store.commit(MutationNames.SetCollectionEvent, Object.assign(makeCollectingEvent(), response))
         })
+      },
+      cleanCollectionEvent() {
+        this.$store.dispatch(ActionNames.NewCollectionEvent)
       }
     }
   }

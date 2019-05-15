@@ -20,7 +20,7 @@
             <%= content_tag(:td, o.id) %>
             <%= content_tag(:td, object_link(o)) %>
             <%= content_tag(:td, time_ago_in_words(o.updated_at) + " ago", class: :subtle) %> 
-            <%= content_tag(:td, (o.responds_to?(:project) ? o.project.name : nil ) ) %> 
+            <%= content_tag(:td, (o.respond_to?(:project) ? o.project.name : nil ) ) %> 
           </tr>
         <% end %> 
       </table>

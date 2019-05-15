@@ -57,13 +57,13 @@ spec:
               name: taxonworks-staging-vol
           readinessProbe:
             httpGet:
-              path: /ping
+              path: /api/v1/ping
               port: 80
             initialDelaySeconds: 900 # 30 
             timeoutSeconds: 3
           livenessProbe:
             httpGet:
-              path: /ping
+              path: /api/v1/ping
               port: 80
             initialDelaySeconds: 900 # 1600 # 180
             timeoutSeconds: 3

@@ -34,7 +34,7 @@ const GetUserPreferences = function () {
 }
 
 const CheckForExistingIdentifier = function (namespaceId, identifier) {
-  return ajaxCall('get', `/identifiers.json?type=Identifier::Local::CatalogNumber&identifier_namespace_id=${namespaceId}&identifier=${identifier}`)
+  return ajaxCall('get', `/identifiers.json?type=Identifier::Local::CatalogNumber&namespace_id=${namespaceId}&identifier=${identifier}`)
 }
 
 const GetIdentifiersFromCO = function (id) {
@@ -46,7 +46,7 @@ const GetLabelsFromCE = function (id) {
 }
 
 const GetRecentCollectionObjects = function () {
-  return ajaxCall('get', `/collection_objects.json`, { params: { recent: true, per: 5 } })
+  return ajaxCall('get', `/tasks/accessions/report/dwc.json?per=10`)
 }
 
 const UpdateUserPreferences = function (id, data) {
@@ -55,6 +55,10 @@ const UpdateUserPreferences = function (id, data) {
 
 const GetRepositorySmartSelector = function () {
   return ajaxCall('get', `/repositories/select_options`)
+}
+
+const GetNamespacesSmartSelector = function () {
+  return ajaxCall('get', `/namespaces/select_options?klass=CollectionObject`)
 }
 
 const GetTaxonNameSmartSelector = function () {
@@ -111,6 +115,10 @@ const GetTaxon = function (id) {
 
 const GetCollectionEvent = function (id) {
   return ajaxCall('get', `/collecting_events/${id}.json`)
+}
+
+const GetBiologicalRelationshipsSmartSelector = function () {
+  return ajaxCall('get', '/biological_relationships/select_options')
 }
 
 const CreateLabel = function (data) {
@@ -185,6 +193,14 @@ const GetCollectionObjectDepictions = function (id) {
   return ajaxCall('get', `/collection_objects/${id}/depictions.json`)
 }
 
+const GetBiologicalRelationships = function () {
+  return ajaxCall('get', '/biological_relationships.json')
+}
+
+const GetBiologicalRelationshipsCreated = function (globalId) {
+  return ajaxCall('get', `/biological_associations.json?subject_global_id=${encodeURIComponent(globalId)}`)
+}
+
 const GetCollectionEventDepictions = function (id) {
   return ajaxCall('get', `/collecting_events/${id}/depictions.json`)
 }
@@ -193,12 +209,24 @@ const GetRepository = function (id) {
   return ajaxCall('get', `/repositories/${id}.json`)
 }
 
+const GetOtuBiologicalAssociationsSmartSelector = function () {
+  return ajaxCall('get', '/otus/select_options?target=BiologicalAssociation')
+}
+
+const GetCOBiologicalAssociationSmartSelector = function () {
+  return ajaxCall('get', `/collection_objects/select_options?target=BiologicalAssociation`)
+}
+
 const GetIdentifier = function (id) {
   return ajaxCall('get', `/identifiers/${id}.json`)
 }
 
 const GetNamespace = function (id) {
   return ajaxCall('get', `/namespaces/${id}.json`)
+}
+
+const CreateBiologicalAssociation = function (data) {
+  return ajaxCall('post', '/biological_associations.json', { biological_association: data })
 }
 
 const CreateTypeMaterial = function (data) {
@@ -249,6 +277,10 @@ const DestroyCollectionObject = function (id) {
   return ajaxCall('delete', `/collection_objects/${id}.json`)
 }
 
+const DestroyBiologicalAssociation = function (id) {
+  return ajaxCall('delete', `/biological_associations/${id}.json`)
+}
+
 export {
   CheckForExistingIdentifier,
   GetLabelsFromCE,
@@ -256,11 +288,16 @@ export {
   GetOtu,
   GetIdentifiersFromCO,
   GetRecentCollectionObjects,
+  GetBiologicalRelationshipsCreated,
   GetTaxonNameSmartSelector,
   GetCollectorsSmartSelector,
   GetRepositorySmartSelector,
   GetGeographicSmartSelector,
   GetTaxonDeterminatorSmartSelector,
+  GetBiologicalRelationshipsSmartSelector,
+  GetBiologicalRelationships,
+  GetOtuBiologicalAssociationsSmartSelector,
+  GetCOBiologicalAssociationSmartSelector,
   GetOtuSmartSelector,
   GetCollectingEventsSmartSelector,
   GetTypeDesignatorSmartSelector,
@@ -272,6 +309,7 @@ export {
   GetTypes,
   GetTaxon,
   CreateTaxonDetermination,
+  CreateBiologicalAssociation,
   CreateIdentifier,
   CreateLabel,
   UpdateLabel,
@@ -303,6 +341,8 @@ export {
   DestroyDepiction,
   DestroyCollectionObject,
   DestroyTaxonDetermination,
+  DestroyBiologicalAssociation,
   CreateContainer,
-  CreateContainerItem
+  CreateContainerItem,
+  GetNamespacesSmartSelector
 }

@@ -3,6 +3,7 @@
     id="vue-all-in-one"
     v-shortkey="[getMacKey(), 'l']"
     @shortkey="setLockAll">
+    <h1>Comprehensive specimen digitization</h1>
     <spinner-component
       v-if="saving || loading"
       :full-screen="true"
@@ -13,10 +14,12 @@
     <div class="horizontal-left-content align-start separate-top main-panel">
       <div class="separate-right left-section">
         <taxon-determination-layout class="separate-bottom"/>
+        <biological-association class="separate-bottom separate-top"/>
         <type-material class="separate-top"/>
       </div>
       <collection-event-layout class="separate-left item ce-section"/>
     </div>
+    <task-header/>
   </div>
 </template>
 
@@ -26,6 +29,7 @@
   import TaxonDeterminationLayout from './components/taxonDetermination/main.vue'
   import CollectionEventLayout from './components/collectionEvent/main.vue'
   import TypeMaterial from './components/typeMaterial/typeMaterial.vue'
+  import BiologicalAssociation from './components/biologicalAssociation/main.vue'
   import { GetUserPreferences } from './request/resources.js'
   import { MutationNames } from './store/mutations/mutations.js'
   import { ActionNames } from './store/actions/actions.js'
@@ -39,6 +43,7 @@
       CollectionObject,
       TypeMaterial,
       TaxonDeterminationLayout,
+      BiologicalAssociation,
       CollectionEventLayout,
       SpinnerComponent,
     },
@@ -52,6 +57,8 @@
     },
     mounted() {
       let coId = location.pathname.split('/')[4]
+      let urlParams = new URLSearchParams(window.location.search)
+      let coIdParam = urlParams.get('collection_object_id')
 
       this.addShortcutsDescription()
 
@@ -61,6 +68,9 @@
 
       if (/^\d+$/.test(coId)) {
         this.$store.dispatch(ActionNames.LoadDigitalization, coId)
+      }
+      else if (/^\d+$/.test(coIdParam)) {
+        this.$store.dispatch(ActionNames.LoadDigitalization, coIdParam)
       }
     },
     methods: {
@@ -80,14 +90,6 @@
 </script>
 <style lang="scss">
   #vue-all-in-one {
-
-    .switch-radio {
-      flex: 1 auto;
-      label {
-        width: 100% !important; 
-      }
-    }
-
     hr {
         height: 1px;
         color: #f5f5f5;
@@ -95,6 +97,9 @@
         font-size: 0;
         margin: 15px;
         border: 0;
+    }
+    .modal-container {
+      width: 90vw;
     }
   }
 </style>

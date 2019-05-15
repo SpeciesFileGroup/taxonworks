@@ -2,19 +2,20 @@
   <ul class="tree-status">
     <li
       v-for="(item, key) in orderList"
-      v-if="item.hasOwnProperty(display)"
       :key="key">
       <button
+        v-if="item.hasOwnProperty(display)"
         type="button"
         :value="item.type"
-        @click="addStatus(item)"
-        :disabled="(item.disabled || (findExist(item) != undefined))"
+        @click="selectItem(item)"
+        :disabled="((item.disabled || (findExist(item) != undefined)) || isForThisRank(item))"
         class="button button-default normal-input">
         {{ item[display] }}
       </button>
       <recursive-list
         :getter-list="getterList"
         :display="display"
+        @selected="$emit('selected', $event)"
         :modal-mutation-name="modalMutationName"
         :action-mutation-name="actionMutationName"
         :object-list="item"/>
@@ -65,17 +66,23 @@ export default {
       })
       
       return sortableObject
+    },
+    taxon() {
+      return this.$store.getters[GetterNames.GetTaxon]
     }
   },
   methods: {
-    addStatus: function (status) {
+    selectItem: function (optionSelected) {
+      this.$emit('selected', optionSelected)
       this.$store.commit(MutationNames[this.modalMutationName], false)
-      this.$store.dispatch(ActionNames[this.actionMutationName], status)
     },
     findExist: function (status) {
       return this.savedList.find(function (element) {
         return (element.type == status.type)
       })
+    },
+    isForThisRank(item) {
+      return (item.hasOwnProperty('valid_subject_ranks') ? !(item.valid_subject_ranks.includes(this.taxon.rank_string)) : false)
     }
   }
 }

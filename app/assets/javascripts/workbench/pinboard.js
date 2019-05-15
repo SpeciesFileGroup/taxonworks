@@ -81,6 +81,11 @@ Object.assign(TW.workbench.pinboard, {
     },
 
     addToPinboard: function(object) {
+      console.log("se");
+      if($(".slide-pinboard .empty-message").length) {
+        $(".empty-message").remove();
+      }
+
       var injectItem = '<li class="slide-panel-category-item" data-insert="false" data-pinboard-object-id="' + object.pinned_object_id +'" data-pinboard-item-id="' + object.id + '" data-pin-item="' + object.id + '" id="order_' + object.id + '"> \
         <div class="handle flex-separate middle ui-sortable-handle"> \
           <a href="'+ object.pinned_object.object_url +'">\
