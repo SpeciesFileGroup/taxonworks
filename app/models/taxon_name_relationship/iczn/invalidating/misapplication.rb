@@ -43,4 +43,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Misapplication < TaxonNameRelat
     nil
   end
 
+  def sv_not_specific_relationship
+    true
+  end
 end

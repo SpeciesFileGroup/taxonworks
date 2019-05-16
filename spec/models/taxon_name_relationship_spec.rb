@@ -409,7 +409,12 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         r = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
         r.soft_validate(:objective_synonym_relationship)
         expect(r.soft_validations.messages_on(:type).size).to eq(1)
-        r.type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective'
+      end
+
+      specify 'objective synonyms should have the same type specimen 2' do
+        type_material1 = FactoryBot.create(:valid_type_material, protonym: s1)
+        type_material2 = FactoryBot.create(:valid_type_material, protonym: s2)
+        r = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
         r.soft_validate(:objective_synonym_relationship)
         expect(r.soft_validations.messages_on(:type).empty?).to be_truthy
       end
@@ -521,11 +526,9 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       end
 
       specify 'type species by subsequent designation' do
-        r1.type = 'TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentDesignation'
-        expect(r1.save).to be_truthy
-        r1.reload
-        r1.soft_validate(:synonym_relationship)
-        expect(r1.soft_validations.messages_on(:base).size).to eq(1)
+        r = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentDesignation')
+        r.soft_validate(:synonym_relationship)
+        expect(r.soft_validations.messages_on(:base).size).to eq(1)
       end
 
       specify 'errors on family synonym before 1961' do
@@ -637,6 +640,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         r1.soft_validate(:not_specific_relationship)
         expect(r1.soft_validations.messages_on(:type).size).to eq(1)
         r1.fix_soft_validations
+        r1 = TaxonNameRelationship.find(r1.id)
         r1.soft_validate(:not_specific_relationship)
         expect(r1.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
         expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy

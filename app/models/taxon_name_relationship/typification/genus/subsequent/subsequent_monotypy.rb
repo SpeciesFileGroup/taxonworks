@@ -31,4 +31,8 @@ class TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentMonotypy
       soft_validations.add(:type, "Genus #{o.cached_html_name_and_author_year} described after 1930 is nomen nudum, if type was not designated in the original publication")
     end
   end
+
+  def sv_not_specific_relationship
+    true
+  end
 end

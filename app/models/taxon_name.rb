@@ -1278,7 +1278,7 @@ class TaxonName < ApplicationRecord
 
     # should be removed once the alternative solution is implemented. It is havily used now
     confidence_level_array = [93]
-    confidence_level_array = confidence_level_array & ConfidenceLevel.where(project_id: self.id).pluck(&:id)
+    confidence_level_array = confidence_level_array & ConfidenceLevel.where(project_id: self.project_id).pluck(:id)
     if !self.cached_misspelling && !self.name_is_missapplied?
       if self.source.nil?
         soft_validations.add(:base, 'Original publication is not selected')
@@ -1296,7 +1296,7 @@ class TaxonName < ApplicationRecord
           end
         end
       end
-      soft_validations.add(:base, 'Confidence level is missing') if !confidence_level_array.empty? && (self.confidences.pluck(&:id) & confidence_level_array).empty?
+      soft_validations.add(:base, 'Confidence level is missing') if !confidence_level_array.empty? && (self.confidences.pluck(:id) & confidence_level_array).empty?
       soft_validations.add(:verbatim_author, 'Author is missing',
                            fix: :sv_fix_missing_author,
                            success_message: 'Author was updated') if self.author_string.nil? && self.type != 'Combination'

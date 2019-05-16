@@ -21,4 +21,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage < TaxonNameRelationship::
     ' of'
   end
 
+  def sv_not_specific_relationship
+    true
+  end
 end

@@ -37,4 +37,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName < TaxonN
     :iczn_forgotten_name
   end
 
+  def sv_not_specific_relationship
+    true
+  end
 end

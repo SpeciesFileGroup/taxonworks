@@ -54,4 +54,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression < TaxonNam
     :iczn_suppression
   end
 
+  def sv_not_specific_relationship
+    soft_validations.add(:type, 'Please specify if this is a total, partial, or conditional suppression')
+  end
 end

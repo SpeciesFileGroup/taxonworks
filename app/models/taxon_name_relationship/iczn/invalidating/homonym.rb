@@ -93,4 +93,35 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
       end
     end
   end
+
+  def sv_not_specific_relationship
+      if SPECIES_RANK_NAMES_ICZN.include?(self.subject_taxon_name.rank_string)
+        soft_validations.add(:type, 'Please specify if this is a primary or secondary homonym',
+                             fix: :sv_fix_specify_homonymy_type, success_message: 'Homonym updated to being primary or secondary')
+      end
+  end
+
+  def sv_fix_specify_homonymy_type
+    subject_original_genus = self.subject_taxon_name.original_genus
+    object_original_genus = self.object_taxon_name.original_genus
+    subject_genus = self.subject_taxon_name.ancestor_at_rank('genus')
+    object_genus = self.subject_taxon_name.ancestor_at_rank('genus')
+    new_relationship_name = 'nil'
+    if subject_original_genus == object_original_genus && !subject_original_genus.nil?
+      new_relationship_name = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary'
+    elsif subject_genus != object_genus && !subject_genus.nil?
+      new_relationship_name = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
+    end
+    if self.type_name != new_relationship_name
+      self.type = new_relationship_name
+      begin
+        TaxonNameRelationship.transaction do
+          self.save
+          return true
+        end
+      rescue
+      end
+    end
+    false
+  end
 end

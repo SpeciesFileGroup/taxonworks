@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Typification::Genus::Subsequent::RulingByCommission < TaxonNameRelationship::Typification::Genus::Subsequent
 
-def self.disjoint_taxon_name_relationships
+  def self.disjoint_taxon_name_relationships
   self.parent.disjoint_taxon_name_relationships +
       self.collect_to_s(TaxonNameRelationship::Typification::Genus::Subsequent,
                         TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentMonotypy,
@@ -27,4 +27,7 @@ end
       nil
     end
 
+  def sv_not_specific_relationship
+    true
+  end
 end
