@@ -8,4 +8,7 @@ class TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished < Ta
         self.collect_descendants_and_itself_to_s(TaxonNameClassification::Icnp::EffectivelyPublished::InvalidlyPublished)
   end
 
+  def self.sv_not_specific_classes
+    soft_validations.add(:type, 'Please specify if the name is Legitimate or Illegitimate')
+  end
 end

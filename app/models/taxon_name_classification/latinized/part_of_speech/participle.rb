@@ -18,4 +18,17 @@ class TaxonNameClassification::Latinized::PartOfSpeech::Participle < TaxonNameCl
     super
   end
 
+  def self.sv_not_specific_classes
+    t = taxon_name.name
+    if !t.end_with?('us') &&
+        !t.end_with?('a') &&
+        !t.end_with?('um') &&
+        !t.end_with?('is') &&
+        !t.end_with?('e') &&
+        !t.end_with?('or') &&
+        !t.end_with?('er')
+      soft_validations.add(:type, 'Participle name should end with one of the ' \
+                                              'following endings: -us, -a, -um, -is, -e, -er, -or')
+    end
+  end
 end
