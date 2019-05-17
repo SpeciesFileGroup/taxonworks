@@ -300,7 +300,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       end
 
       specify 'fixing synonym linked to another synonym' do
-        r3 = FactoryBot.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, 
+        r3 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2,
                               type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
         r3.soft_validate(:synonym_linked_to_valid_name)
         expect(r3.soft_validations.messages_on(:subject_taxon_name_id).size).to eq(1)
@@ -651,10 +651,11 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         s2             = FactoryBot.create(:relationship_species, parent: genus)
         type_material1 = FactoryBot.create(:valid_type_material, protonym: s1)
         type_material2 = FactoryBot.create(:valid_type_material, biological_object_id: type_material1.biological_object_id, protonym: s2)
-        r              = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+        r              = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
         r.soft_validate(:not_specific_relationship)
         expect(r.soft_validations.messages_on(:type).size).to eq(1)
         r.fix_soft_validations
+        r = TaxonNameRelationship.find(r.id)
         r.soft_validate(:not_specific_relationship)
         expect(r.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
         expect(r.soft_validations.messages_on(:type).empty?).to be_truthy
@@ -665,10 +666,11 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         s2             = FactoryBot.create(:relationship_species, parent: genus)
         type_material1 = FactoryBot.create(:valid_type_material, protonym: s1)
         type_material2 = FactoryBot.create(:valid_type_material, protonym: s2)
-        r              = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+        r              = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
         r.soft_validate(:not_specific_relationship)
         expect(r.soft_validations.messages_on(:type).size).to eq(1)
         r.fix_soft_validations
+        r = TaxonNameRelationship.find(r.id)
         r.soft_validate(:not_specific_relationship)
         expect(r.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
         expect(r.soft_validations.messages_on(:type).empty?).to be_truthy
@@ -680,9 +682,12 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s2, object_taxon_name: s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym')
         r2 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: genus, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
         r3 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: genus, object_taxon_name: s2, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+        s1.reload
+        s2.reload
         r1.soft_validate(:not_specific_relationship)
         expect(r1.soft_validations.messages_on(:type).size).to eq(1)
         r1.fix_soft_validations
+        r1 = TaxonNameRelationship.find(r1.id)
         r1.soft_validate(:not_specific_relationship)
         expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy
       end
@@ -758,7 +763,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       specify 'reverse priority original genus' do
         r1 = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: g1_all, object_taxon_name: s2_all, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
         r1.soft_validate(:validate_priority)
-        expect(r1.soft_validations.messages_on(:subject_taxon_name_id).size).to eq(1)
+        expect(r1.soft_validations.messages_on(:type).size).to eq(1)
       end
 
       specify 'synonym and homonym or conserved' do

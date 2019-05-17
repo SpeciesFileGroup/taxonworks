@@ -105,8 +105,8 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
     subject_original_genus = self.subject_taxon_name.original_genus
     object_original_genus = self.object_taxon_name.original_genus
     subject_genus = self.subject_taxon_name.ancestor_at_rank('genus')
-    object_genus = self.subject_taxon_name.ancestor_at_rank('genus')
-    new_relationship_name = 'nil'
+    object_genus = self.object_taxon_name.ancestor_at_rank('genus')
+    new_relationship_name = nil
     if subject_original_genus == object_original_genus && !subject_original_genus.nil?
       new_relationship_name = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary'
     elsif subject_genus != object_genus && !subject_genus.nil?
@@ -123,5 +123,13 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
       end
     end
     false
+  end
+
+  def sv_validate_priority
+    date1 = self.subject_taxon_name.nomenclature_date
+    date2 = self.object_taxon_name.nomenclature_date
+    if !!date1 && !!date2 && date2 > date1 && subject_invalid_statuses.empty?
+      soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be older than #{self.object_status} #{self.object_taxon_name.cached_html_name_and_author_year}")
+    end
   end
 end
