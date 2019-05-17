@@ -844,30 +844,30 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
                 begin
                   citation.save
-                    if !row['Note'].blank?
-                      #n = protonym.notes.find_or_create_by(text: row['Note'], project_id: project_id)
-                      #n.citations.create!(source_id: citation.source_id, project_id: project_id, created_at: row['CreatedOn'], updated_at: row['LastUpdate'], created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']])
+                  if !row['Note'].blank?
+                    #n = protonym.notes.find_or_create_by(text: row['Note'], project_id: project_id)
+                    #n.citations.create!(source_id: citation.source_id, project_id: project_id, created_at: row['CreatedOn'], updated_at: row['LastUpdate'], created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']])
 #byebug if nomenclator_ids[row['NomenclatorID'].to_i]['genus'] && nomenclator_ids[row['NomenclatorID'].to_i]['species'] && nomenclator_ids[row['NomenclatorID'].to_i]['genus'][0] == 'Jivarus' && (nomenclator_ids[row['NomenclatorID'].to_i]['species'][0] == 'alienus' || nomenclator_ids[row['NomenclatorID'].to_i]['species'][0] == 'cerdai')
-                      if ['Synonym', 'synonym', 'Syn.', 'syn.', 'syn', 'Syn'].include? row['Note']
-                        syn_tnr = TaxonNameRelationship.where(subject_taxon_name_id: taxon_name_id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym')
-                        if syn_tnr.count == 1
-                          citation = Citation.create(
-                              source_id: source_id,
-                              pages: row['CitePages'],
-                              citation_object: syn_tnr.first,
-                              project_id: project_id,
-                              created_at: row['CreatedOn'],
-                              updated_at: row['LastUpdate'],
-                              created_by_id: get_tw_user_id[row['CreatedBy']],
-                              updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                          )
-                        end
-                      elsif !citation.id.nil?
-                        citation.notes.create(text: row['Note'], project_id: project_id, created_at: row['CreatedOn'], updated_at: row['LastUpdate'], created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']])
+                    if ['Synonym', 'synonym', 'Syn.', 'syn.', 'syn', 'Syn'].include? row['Note']
+                      syn_tnr = TaxonNameRelationship.where(subject_taxon_name_id: taxon_name_id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym')
+                      if syn_tnr.count == 1
+                        citation = Citation.create(
+                            source_id: source_id,
+                            pages: row['CitePages'],
+                            citation_object: syn_tnr.first,
+                            project_id: project_id,
+                            created_at: row['CreatedOn'],
+                            updated_at: row['LastUpdate'],
+                            created_by_id: get_tw_user_id[row['CreatedBy']],
+                            updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                        )
                       end
+                    elsif !citation.id.nil?
+                      citation.notes.create(text: row['Note'], project_id: project_id, created_at: row['CreatedOn'], updated_at: row['LastUpdate'], created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']])
                     end
+                  end
                   unless citation.id.nil?
-                    if row['NomenclatorID'] == '0'
+                    if row['NomenclatorID'] == '0' && (protonym.is_species_rank? || protonym.is_genus_rank?)
                       kw = Keyword.find_or_create_by(name: 'no nomenclator ID', definition: 'No nomenclator ID is provided in the original SF database.', project_id: project_id)
                       citation.tags.create(keyword_id: kw.id, project_id: project_id)
                     end
