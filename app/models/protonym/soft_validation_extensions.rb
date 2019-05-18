@@ -99,7 +99,7 @@ module Protonym::SoftValidationExtensions
         s = part_of_speech_name
         if !s.nil? && !has_misspelling_relationship?
           if %w{adjective participle}.include?(s)
-            if (name == masculine_name || name == feminine_name || name == neuter_name)
+            if !feminine_name.blank? && !masculine_name.blank? && !neuter_name.blank? && (name == masculine_name || name == feminine_name || name == neuter_name)
               if feminine_name.blank?
                 soft_validations.add(:feminine_name, "The species name is marked as #{part_of_speech_name}, but the name spelling in feminine is not provided")
               else
@@ -121,7 +121,7 @@ module Protonym::SoftValidationExtensions
                 soft_validations.add(:neuter_name, "Name has a non neuter ending: -#{e}") unless e.nil?
               end
             else
-                soft_validation.add(:base, 'Species name does not match with either of three alternative forms')
+                soft_validations.add(:base, 'Species name does not match with either of three alternative forms')
             end
           end
         end
@@ -319,15 +319,13 @@ module Protonym::SoftValidationExtensions
             search_name = [self.name]
             sister_names = sisters.collect{|i| i.name }
           end
-          if search_name.include?(self.parent.name)
-            if sisters.count == 1
-              soft_validations.add(:base, "#{self.cached_html} is a single #{self.rank_class.rank_name} in the nominal #{self.parent.rank_class.rank_name} #{self.parent.cached_html}")
-            elsif !sisters.empty? && self.parent.name == Protonym.family_group_base(self.parent.name) && rank =~ /Family/
-              # do nothing
-            elsif !sisters.empty?
-              soft_validations.add(:base, "The parent #{self.parent.rank_class.rank_name} #{self.parent.cached_html} of this #{self.rank_class.rank_name} does not contain nominotypical #{self.rank_class.rank_name} #{self.parent.name}",
-                                   fix: :sv_fix_add_nominotypical_sub, success_message: "Nominotypical #{self.rank_class.rank_name} #{self.parent.name} was added to nominal #{self.parent.rank_class.rank_name} #{self.parent.name}")
-            end
+          if search_name.include?(self.parent.name) && sisters.count == 1
+            soft_validations.add(:base, "#{self.cached_html} is a single #{self.rank_class.rank_name} in the nominal #{self.parent.rank_class.rank_name} #{self.parent.cached_html}")
+          elsif !sister_names.include?(self.parent.name) && !sisters.empty? && self.parent.name == Protonym.family_group_base(self.parent.name) && rank =~ /Family/
+            # do nothing
+          elsif !sister_names.include?(self.parent.name) && !sisters.empty?
+            soft_validations.add(:base, "The parent #{self.parent.rank_class.rank_name} #{self.parent.cached_html} of this #{self.rank_class.rank_name} does not contain nominotypical #{self.rank_class.rank_name} #{self.parent.name}",
+                                 fix: :sv_fix_add_nominotypical_sub, success_message: "Nominotypical #{self.rank_class.rank_name} #{self.parent.name} was added to nominal #{self.parent.rank_class.rank_name} #{self.parent.name}")
           end
         end
       end

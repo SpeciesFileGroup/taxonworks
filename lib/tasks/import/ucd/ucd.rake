@@ -919,7 +919,7 @@ namespace :tw do
 #byebug if row['TaxonCode'] == 'Tetras coeruB'
 #byebug if row['ValSpecies'] == 'pehlivani'
 #byebug if row['CitSpecies'] == 'asparagi'
-byebug if row['CitSpecies'] == 'abrotoni'
+#byebug if row['CitSpecies'] == 'abrotoni'
 
 
           i += 1
@@ -2124,8 +2124,8 @@ byebug if row['CitSpecies'] == 'abrotoni'
 
           taxon = find_taxon_ucd(row['TaxonCode'])
           taxon1 = find_taxon_ucd(row['Code'])
-byebug if taxon.name == "abrotoni"
-byebug if taxon1.name == "abrotoni"
+byebug if taxon && taxon.name == "abrotoni"
+byebug if taxon1 && taxon1.name == "abrotoni"
 
           if taxon.nil?
 	    puts "Unmatched(?) TaxonCode #{row['TaxonCode']}, skipping TSTAT row" 
