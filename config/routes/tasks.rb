@@ -1,4 +1,10 @@
 scope :tasks do
+    scope :new_sequence do
+      scope :new_sequence, controller: 'tasks/new_sequence/new_sequence' do
+        get :index, as: 'index_new_sequence_task'
+      end
+    end
+
 
   scope :asserted_distribution do
     scope :new_asserted_distribution, controller: 'tasks/asserted_distribution/new_asserted_distribution' do

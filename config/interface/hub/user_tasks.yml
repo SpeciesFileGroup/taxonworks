@@ -439,3 +439,11 @@ visualize_confidences_task:
   categories:
   status: prototype
   description: 'See a graph of confidences applied per data type.'
+
+index_new_sequence_task:
+  hub: true
+  name: 'TODO: Task name'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'
