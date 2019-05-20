@@ -98,4 +98,7 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
     extend InnerClass
   end
 
+  def self.sv_not_specific_classes
+    soft_validations.add(:type, 'Please specify the reasons for the name being Excluded')
+  end
 end

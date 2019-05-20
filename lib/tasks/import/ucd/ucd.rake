@@ -919,7 +919,7 @@ namespace :tw do
 #byebug if row['TaxonCode'] == 'Tetras coeruB'
 #byebug if row['ValSpecies'] == 'pehlivani'
 #byebug if row['CitSpecies'] == 'asparagi'
-byebug if row['CitSpecies'] == 'abrotoni'
+#byebug if row['CitSpecies'] == 'abrotoni'
 
 
           i += 1
@@ -2124,8 +2124,8 @@ byebug if row['CitSpecies'] == 'abrotoni'
 
           taxon = find_taxon_ucd(row['TaxonCode'])
           taxon1 = find_taxon_ucd(row['Code'])
-byebug if taxon.name == "abrotoni"
-byebug if taxon1.name == "abrotoni"
+#byebug if taxon && taxon.name == "abrotoni"
+#byebug if taxon1 && taxon1.name == "abrotoni"
 
           if taxon.nil?
 	    puts "Unmatched(?) TaxonCode #{row['TaxonCode']}, skipping TSTAT row" 
@@ -2192,9 +2192,8 @@ byebug if taxon1.name == "abrotoni"
               if relationship[row['Status']].include?('TaxonNameRelationship::Iczn::Invalidating') && !c.nil?
                 c.update_column(:type, relationship[row['Status']])
               else
-                # c3 = TaxonNameClassification.find_or_create_by(taxon_name: taxon, type: 'TaxonNameClassification::Iczn::Available::Valid') if taxon.id == taxon.cached_valid_taxon_name_id
-                c = TaxonNameRelationship.find_or_create_by(subject_taxon_name: taxon, object_taxon_name: taxon1, type: relationship[row['Status']])
                 c2 = TaxonNameClassification.find_or_create_by(taxon_name: taxon, type: 'TaxonNameClassification::Iczn::Available::Valid') if @data.valid_taxon_codes[taxon.id] == 1
+                c = TaxonNameRelationship.find_or_create_by(subject_taxon_name: taxon, object_taxon_name: taxon1, type: relationship[row['Status']])
               end
 
               if !c.id.blank? # valid?
@@ -2340,7 +2339,7 @@ byebug if taxon1.name == "abrotoni"
       end
 
       def invalid_relationship_remove
-byebug
+#byebug
         @data = nil
         GC.start
         fixed = 0
@@ -2365,7 +2364,7 @@ byebug
           print "\r#{j}    Fixes applied: #{fixed}   "
           s = t.subject_taxon_name
           o = t.object_taxon_name
-byebug if s.name == 'abrotoni'
+#byebug if s.name == 'abrotoni'
           sval = s.valid_taxon_name
 #          next unless s.name == 'hispanicus' || s.name == 'hispanica'
 #          byebug
@@ -2415,7 +2414,7 @@ byebug if s.name == 'abrotoni'
           print "\r#{i}    Fixes applied: #{fixed}    Combinations created: #{combinations}"
           if t.citations.empty?
           s = t.subject_taxon_name
-byebug if s.name == 'abrotoni'
+#byebug if s.name == 'abrotoni'
           svalid = s.cached_valid_taxon_name_id
           o = t.object_taxon_name
           shas = s.cached_secondary_homonym_alternative_spelling

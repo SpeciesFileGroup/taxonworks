@@ -84,6 +84,7 @@ module Protonym::Becomes
   def becomes_combination
     a, original_relationships, c = nil, nil, nil
 
+    byebug if name == "abrotoni" || name == "abrotani"
     if b = convertable_to_combination? 
       a, original_relationships = b 
     else
@@ -92,6 +93,7 @@ module Protonym::Becomes
 
     begin
       Protonym.transaction do
+        byebug if name == "abrotoni" || name == "abrotani"
         c = becomes!(Combination)
 
         c.assign_attributes(

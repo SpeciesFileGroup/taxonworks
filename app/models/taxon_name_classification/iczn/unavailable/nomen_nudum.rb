@@ -268,4 +268,7 @@ class TaxonNameClassification::Iczn::Unavailable::NomenNudum < TaxonNameClassifi
     extend InnerClassStart2012
   end
 
+  def self.sv_not_specific_classes
+    soft_validations.add(:type, 'Please specify the reasons for the name being Nomen Nudum')
+  end
 end

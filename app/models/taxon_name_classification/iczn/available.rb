@@ -15,4 +15,7 @@ class TaxonNameClassification::Iczn::Available < TaxonNameClassification::Iczn
     true
   end
 
+  def self.sv_not_specific_classes
+      soft_validations.add(:type, 'Please specify if the name is Valid or Invalid')
+  end
 end

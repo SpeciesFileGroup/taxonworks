@@ -138,6 +138,26 @@ describe TaxonNameClassification, type: :model do
     end
   end
 
+  context '#valid status' do
+    specify 'and synonym relationship' do
+      species = FactoryBot.create(:relationship_species)
+      genus = species.ancestor_at_rank('genus')
+      genus1 = FactoryBot.create(:relationship_genus, name: 'Aus')
+      species1 = FactoryBot.create(:relationship_species, name: 'aaa', parent: genus1)
+      c = Combination.new
+      c.genus = genus1
+      c.species = species
+      c.save
+      expect(c.cached_valid_taxon_name_id).to eq (species.id)
+      TaxonNameRelationship.create(subject_taxon_name: species, object_taxon_name: species1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+      c.reload
+      expect(c.cached_valid_taxon_name_id).to eq (species1.id)
+      TaxonNameClassification.create(taxon_name: species, type: 'TaxonNameClassification::Iczn::Available::Valid')
+      c.reload
+      expect(c.cached_valid_taxon_name_id).to eq (species.id)
+    end
+  end
+
  context 'soft_validation' do
     before(:each) do
       TaxonName.delete_all
