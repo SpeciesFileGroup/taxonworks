@@ -263,13 +263,13 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         @subtribe.soft_validate(:single_sub_taxon)
         expect(@subtribe.soft_validations.messages_on(:base).empty?).to be_truthy
       end
-      specify 'type species or genus' do
+      specify 'type species' do
         @genus.soft_validate(:missing_relationships)
+        expect(@genus.soft_validations.messages_on(:base)).to include('Missing relationship: Type species is not selected')
+      end
+      specify 'type genus' do
         @family.soft_validate(:missing_relationships)
-        # type species is not selected
-        expect(@genus.soft_validations.messages_on(:base).size).to eq(1)
-        # type genus is not selected
-        expect(@family.soft_validations.messages_on(:base).size).to eq(1)
+        expect(@family.soft_validations.messages_on(:base)).to include('Missing relationship: Type genus is not selected')
       end
       specify 'type specimen is not selected' do
         @species.soft_validate(:primary_types)
@@ -600,15 +600,14 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         g1 = FactoryBot.create(:relationship_genus, name: 'Bbbus', parent: @family, year_of_publication: 1900)
         g2 = FactoryBot.create(:relationship_genus, name: 'Cccus', parent: @family)
         g3 = FactoryBot.create(:iczn_subgenus, name: 'Bbbus', parent: g2, year_of_publication: 1850)
-        g3.type_species = @species
         g3.iczn_set_as_homonym_of = g1
         expect(g3.save).to be_truthy
         g3.soft_validate(:missing_relationships)
-        expect(g3.soft_validations.messages_on(:base).size).to eq(1)
+        expect(g3.soft_validations.messages_on(:base).include?('Missing relationship: The name is a homonym, but the substitute name is not selected')).to be_truthy
         g3.iczn_set_as_synonym_of = g2
         expect(g3.save).to be_truthy
         g3.soft_validate(:missing_relationships)
-        expect(g3.soft_validations.messages_on(:base).empty?).to be_truthy
+        expect(g3.soft_validations.messages_on(:base).include?('Missing relationship: The name is a homonym, but the substitute name is not selected')).to be_falsey
       end
 
       specify 'missing original combination relationships to self' do

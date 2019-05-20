@@ -92,7 +92,6 @@ module Protonym::Becomes
 
     begin
       Protonym.transaction do
-        byebug if name == "abrotoni" || name == "abrotani"
         c = becomes!(Combination)
 
         c.assign_attributes(
