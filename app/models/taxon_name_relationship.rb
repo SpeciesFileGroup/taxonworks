@@ -100,10 +100,9 @@ class TaxonNameRelationship < ApplicationRecord
   scope :with_type_contains, -> (base_string) {where('"taxon_name_relationships"."type" LIKE ?', "%#{base_string}%")}
 
   scope :with_two_type_bases, -> (base_string1, base_string2) {
-    where("taxon_name_relationships.type LIKE ? OR taxon_name_relationships.type LIKE ?",
-          "#{base_string1}%",
-          "#{base_string2}%")
-  }
+    where("taxon_name_relationships.type LIKE ? OR taxon_name_relationships.type LIKE ?", "#{base_string1}%", "#{base_string2}%") }
+
+  scope :homonym_or_suppressed, -> {where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Homonym%' OR taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Suppression::Total'") }
   scope :with_type_array, -> (base_array) {where('taxon_name_relationships.type IN (?)', base_array ) }
 
   # @return [Array of TaxonNameClassification]

@@ -56,39 +56,39 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_missing_original_genus
-      if is_species_rank? && self.original_genus.nil? && !self.cached_misspelling && !self.name_is_missapplied?
+      if is_species_rank? && self.original_genus.nil? && !self.cached_misspelling && !self.name_is_missapplied? && !self.classification_invalid_or_unavailable?
         soft_validations.add(:base, 'Missing relationship: Original genus is not selected')
       end
     end
 
     def sv_missing_type_species
-      if is_genus_rank? && self.type_species.nil? && !self.cached_misspelling && !self.name_is_missapplied?
+      if is_genus_rank? && self.type_species.nil? && !self.cached_misspelling && !self.name_is_missapplied? && !self.classification_invalid_or_unavailable?
         soft_validations.add(:base, 'Missing relationship: Type species is not selected')
       end
     end
 
     def sv_missing_type_genus
-      if is_family_rank? && self.type_genus.nil? && !self.cached_misspelling && !self.name_is_missapplied?
+      if is_family_rank? && self.type_genus.nil? && !self.cached_misspelling && !self.name_is_missapplied? && !self.classification_invalid_or_unavailable?
         soft_validations.add(:base, 'Missing relationship: Type genus is not selected')
       end
     end
 
     def sv_missing_substitute_name
       if !self.iczn_set_as_homonym_of.nil? || !TaxonNameClassification.where_taxon_name(self).with_type_string('TaxonNameClassification::Iczn::Available::Invalid::Homonym').empty?
-        if self.iczn_set_as_synonym_of.nil? && !self.cached_misspelling && !self.name_is_missapplied?
+        if self.iczn_set_as_synonym_of.nil? && !self.cached_misspelling && !self.name_is_missapplied? && !self.classification_invalid_or_unavailable?
           soft_validations.add(:base, 'Missing relationship: The name is a homonym, but the substitute name is not selected')
         end
       end
     end
 
     def sv_missing_part_of_speach
-      if is_species_rank? && self.part_of_speech_class.nil? && !self.cached_misspelling && !self.name_is_missapplied? && !has_misspelling_relationship?
+      if is_species_rank? && self.part_of_speech_class.nil? && !self.cached_misspelling && !self.name_is_missapplied? && !has_misspelling_relationship? && !self.classification_invalid_or_unavailable?
         soft_validations.add(:base, 'Part of speech is not specified. Please select if the name is a noun or an adjective.')
       end
     end
 
     def sv_missing_gender
-      if is_genus_rank? && self.gender_class.nil? && !self.cached_misspelling && !self.name_is_missapplied? && !has_misspelling_relationship?
+      if is_genus_rank? && self.gender_class.nil? && !self.cached_misspelling && !self.name_is_missapplied? && !has_misspelling_relationship? && !self.classification_invalid_or_unavailable?
         g = genus_suggested_gender
         soft_validations.add(:base, "Gender is not specified#{ g.nil? ? '' : ' (possible gender is ' + g + ')'}")
       end
@@ -97,7 +97,7 @@ module Protonym::SoftValidationExtensions
     def sv_species_gender_agreement
       if is_species_rank?
         s = part_of_speech_name
-        if !s.nil? && !has_misspelling_relationship?
+        if !s.nil? && !has_misspelling_relationship? && !self.name_is_missapplied? && !self.classification_invalid_or_unavailable?
           if %w{adjective participle}.include?(s)
             if !feminine_name.blank? && !masculine_name.blank? && !neuter_name.blank? && (name == masculine_name || name == feminine_name || name == neuter_name)
               soft_validations.add(:base, 'Species name does not match with either of three alternative forms')
@@ -129,7 +129,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_species_gender_agreement_not_required
-      if is_species_rank? && ((!feminine_name.blank? || !masculine_name.blank? || !neuter_name.blank?)) && !has_misspelling_relationship?
+      if is_species_rank? && ((!feminine_name.blank? || !masculine_name.blank? || !neuter_name.blank?)) && !has_misspelling_relationship? && !self.classification_invalid_or_unavailable?
         s = part_of_speech_name
         if !s.nil? && !%w{adjective participle}.include?(s)
           soft_validations.add(:feminine_name, 'Alternative spelling is not required for the name which is not adjective or participle.') unless feminine_name.blank?
@@ -295,7 +295,7 @@ module Protonym::SoftValidationExtensions
 
     def sv_primary_types
       if self.rank_class
-        if self.rank_class.parent.to_s =~ /Species/ && !self.cached_misspelling && !self.name_is_missapplied?
+        if self.rank_class.parent.to_s =~ /Species/ && !self.cached_misspelling && !self.name_is_missapplied? && !self.classification_invalid_or_unavailable?
           if self.type_materials.primary.empty? && self.type_materials.syntypes.empty?
             soft_validations.add(:base, 'Primary type is not selected')
           elsif self.type_materials.primary.count > 1 || (!self.type_materials.primary.empty? && !self.type_materials.syntypes.empty?)
@@ -415,8 +415,9 @@ module Protonym::SoftValidationExtensions
 
 
     def sv_potential_homonyms
-      if persisted? && !self.cached_misspelling && !self.name_is_missapplied?
-        unless classification_invalid_or_unavailable? || !Protonym.with_taxon_name_relationships_as_subject.with_homonym_or_suppressed.empty? #  self.unavailable_or_invalid?
+      if persisted? && !self.cached_misspelling && !self.name_is_missapplied? && !self.classification_invalid_or_unavailable?
+#        unless !Protonym.with_taxon_name_relationships_as_subject.with_homonym_or_suppressed.empty?
+        if TaxonNameRelationship.where_subject_is_taxon_name(self).homonym_or_suppressed.empty?
           if self.id == self.lowest_rank_coordinated_taxon.id
             rank_base = self.rank_class.parent.to_s
             name1 = self.cached_primary_homonym ? self.cached_primary_homonym : nil
@@ -487,19 +488,19 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_missing_author
-      if self.author_string.nil? && !self.cached_misspelling && !self.name_is_missapplied?
+      if self.author_string.nil? && !self.cached_misspelling && !self.name_is_missapplied? && !self.classification_invalid_or_unavailable?
         soft_validations.add(:verbatim_author, 'Author is missing', fix: :sv_fix_missing_author, success_message: 'Author was updated')
       end
     end
 
     def sv_missing_year
-      if self.year_integer.nil? && !self.cached_misspelling && !self.name_is_missapplied?
+      if self.year_integer.nil? && !self.cached_misspelling && !self.name_is_missapplied? && !self.classification_invalid_or_unavailable?
         soft_validations.add(:year_of_publication, 'Year is missing', fix: :sv_fix_missing_year, success_message: 'Year was updated')
       end
     end
 
     def sv_missing_etymology
-      if self.etymology.nil? && self.rank_string =~ /(Genus|Species)/ && !self.cached_misspelling && !self.name_is_missapplied?
+      if self.etymology.nil? && self.rank_string =~ /(Genus|Species)/ && !self.cached_misspelling && !self.name_is_missapplied? && !self.classification_invalid_or_unavailable?
         soft_validations.add(:etymology, 'Etymology is missing')
       end
     end
