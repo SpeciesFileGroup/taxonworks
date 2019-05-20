@@ -100,6 +100,8 @@ module Protonym::SoftValidationExtensions
         if !s.nil? && !has_misspelling_relationship?
           if %w{adjective participle}.include?(s)
             if !feminine_name.blank? && !masculine_name.blank? && !neuter_name.blank? && (name == masculine_name || name == feminine_name || name == neuter_name)
+              soft_validations.add(:base, 'Species name does not match with either of three alternative forms')
+            else
               if feminine_name.blank?
                 soft_validations.add(:feminine_name, "The species name is marked as #{part_of_speech_name}, but the name spelling in feminine is not provided")
               else
@@ -120,8 +122,6 @@ module Protonym::SoftValidationExtensions
                 e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Neuter, neuter_name)
                 soft_validations.add(:neuter_name, "Name has a non neuter ending: -#{e}") unless e.nil?
               end
-            else
-                soft_validations.add(:base, 'Species name does not match with either of three alternative forms')
             end
           end
         end

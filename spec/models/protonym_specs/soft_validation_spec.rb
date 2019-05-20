@@ -319,7 +319,6 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         expect(@species.soft_validations.messages_on(:masculine_name).size).to eq(1)
         expect(@species.soft_validations.messages_on(:feminine_name).size).to eq(1)
         expect(@species.soft_validations.messages_on(:neuter_name).size).to eq(1)
-
         c1.destroy
       end
 
@@ -355,12 +354,12 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         c1 = FactoryBot.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Feminine')
         c2 = FactoryBot.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
         s.soft_validate(:species_gender_agreement)
-        expect(s.soft_validations.messages_on(:name).size).to eq(0)
+        expect(s.soft_validations.messages_on(:masculine_name).size).to eq(0)
         s.feminine_name = nil
         s.masculine_name = nil
         s.neuter_name = nil
         s.soft_validate(:species_gender_agreement)
-        expect(s.soft_validations.messages_on(:name).size).to eq(1)
+        expect(s.soft_validations.messages_on(:masculine_name).size).to eq(1)
         c1.destroy
       end
     end
