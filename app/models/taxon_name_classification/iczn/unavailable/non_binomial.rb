@@ -26,6 +26,10 @@ class TaxonNameClassification::Iczn::Unavailable::NonBinomial < TaxonNameClassif
           TaxonNameClassification::Iczn::Unavailable::NonBinomial::SubgenusNotIntercalare,
           TaxonNameClassification::Iczn::Unavailable::NonBinomial::SubspeciesNotTrinomial)
     end
+
+    def sv_not_specific_classes
+      true
+    end
   end
 
   class SpeciesNotBinomial < TaxonNameClassification::Iczn::Unavailable::NonBinomial
@@ -41,6 +45,10 @@ class TaxonNameClassification::Iczn::Unavailable::NonBinomial < TaxonNameClassif
           TaxonNameClassification::Iczn::Unavailable::NonBinomial::NotUninomial,
           TaxonNameClassification::Iczn::Unavailable::NonBinomial::SubgenusNotIntercalare,
           TaxonNameClassification::Iczn::Unavailable::NonBinomial::SubspeciesNotTrinomial)
+    end
+
+    def sv_not_specific_classes
+      true
     end
   end
 
@@ -58,6 +66,10 @@ class TaxonNameClassification::Iczn::Unavailable::NonBinomial < TaxonNameClassif
           TaxonNameClassification::Iczn::Unavailable::NonBinomial::SpeciesNotBinomial,
           TaxonNameClassification::Iczn::Unavailable::NonBinomial::SubspeciesNotTrinomial)
     end
+
+    def sv_not_specific_classes
+      true
+    end
   end
 
   class SubspeciesNotTrinomial < TaxonNameClassification::Iczn::Unavailable::NonBinomial
@@ -67,6 +79,7 @@ class TaxonNameClassification::Iczn::Unavailable::NonBinomial < TaxonNameClassif
     def applicable_ranks
       SPECIES_RANK_NAMES_ICZN
     end
+
     def self.disjoint_taxon_name_classes
       self.parent.disjoint_taxon_name_classes + self.collect_to_s(
           TaxonNameClassification::Iczn::Unavailable::NonBinomial,
@@ -74,9 +87,13 @@ class TaxonNameClassification::Iczn::Unavailable::NonBinomial < TaxonNameClassif
           TaxonNameClassification::Iczn::Unavailable::NonBinomial::SpeciesNotBinomial,
           TaxonNameClassification::Iczn::Unavailable::NonBinomial::SubgenusNotIntercalare)
     end
+
+    def sv_not_specific_classes
+      true
+    end
   end
 
-  def self.sv_not_specific_classes
+  def sv_not_specific_classes
     soft_validations.add(:type, 'Please specify the reasons for the name being Non Binomial')
   end
 end

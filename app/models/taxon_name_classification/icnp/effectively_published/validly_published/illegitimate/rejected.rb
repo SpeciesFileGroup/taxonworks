@@ -13,4 +13,7 @@ class TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished::Ill
     'rejiciendum'
   end
 
+  def sv_not_specific_classes
+    true
+  end
 end

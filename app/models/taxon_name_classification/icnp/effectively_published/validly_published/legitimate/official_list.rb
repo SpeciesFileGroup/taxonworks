@@ -8,4 +8,7 @@ class TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished::Leg
         TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished::Legitimate::Candidatus)
   end
 
+  def sv_not_specific_classes
+    true
+  end
 end

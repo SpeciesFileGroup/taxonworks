@@ -192,7 +192,7 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
     end
   end
 
-  def self.sv_not_specific_classes
+  def sv_not_specific_classes
     soft_validations.add(:type, 'Please specify the reasons for the name being Unavailable')
   end
 end

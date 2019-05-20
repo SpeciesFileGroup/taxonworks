@@ -251,7 +251,6 @@ class TaxonNameClassification < ApplicationRecord
     end
   end
 
-  # TODO: These soft validations should be added to individual classes!
   def sv_not_specific_classes
     true # moved to subclasses
 =begin
