@@ -19,8 +19,7 @@ module Queries
       attr_accessor :year
 
       # @param exact [Boolean]
-      #   ['true' or 'false'] on initialize
-      #   true if only valid, false if only invalid, nil if both 
+      #   true if matching must be exact, false if partial matches are allowed.
       attr_accessor :exact
 
       # @param updated_since [String] in format yyyy-mm-dd
