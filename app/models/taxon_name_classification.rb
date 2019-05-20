@@ -190,10 +190,16 @@ class TaxonNameClassification < ApplicationRecord
             )
           end
         elsif TAXON_NAME_CLASS_NAMES_VALID.include?(type_name)
+#          TaxonName.where(cached_valid_taxon_name_id: t.cached_valid_taxon_name_id).each do |vn|
+#            vn.update_column(:cached_valid_taxon_name_id, vn.get_valid_taxon_name.id)  # update self too!
+#          end
           vn = t.get_valid_taxon_name
           vn.update_column(:cached_valid_taxon_name_id, vn.id)  # update self too!
           vn.list_of_invalid_taxon_names.each do |s|
             s.update_column(:cached_valid_taxon_name_id, vn.id)
+          end
+          t.combination_list_self.each do |c|
+            c.update_column(:cached_valid_taxon_name_id, vn.id)
           end
         end
       end

@@ -615,6 +615,7 @@ class TaxonName < ApplicationRecord
   # @return [Array of TaxonName]
   #  returns list of invalid names for a given taxon.
   # TODO: Can't we just use #valid_id now?
+  # this list does not return combinations
   def list_of_invalid_taxon_names
     first_pass = true
     list = {}
