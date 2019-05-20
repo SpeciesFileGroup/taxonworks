@@ -442,8 +442,9 @@ visualize_confidences_task:
 
 index_new_sequence_task:
   hub: true
-  name: 'TODO: Task name'
+  name: 'New sequence'
   related:
   categories:
+    - dna
   status: prototype
   description: 'TODO: Task description'
