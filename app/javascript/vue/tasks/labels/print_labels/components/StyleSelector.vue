@@ -16,9 +16,9 @@
       </li>
     </ul>
     <div
-      v-show="value == 'ce_custom_style'"
+      v-show="value == 'custom_style'"
       class="separate-top">
-      <custom-style/>
+      <custom-style @onNewStyle="$emit('onNewStyle', $event)"/>
     </div>
   </div>
 </template>
@@ -52,8 +52,8 @@ export default {
         value: 'ce_lbl_4_dram_ETOH'
       },
       {
-        label: 'Custom style (Not functional yet)',
-        value: 'ce_custom_style'
+        label: 'Custom style',
+        value: 'custom_style'
       }]
     }
   },

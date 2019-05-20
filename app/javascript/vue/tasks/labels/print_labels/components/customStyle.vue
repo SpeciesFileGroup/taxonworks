@@ -9,7 +9,7 @@
     <modal-component
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Customize style (Not functional yet)</h3>
+      <h3 slot="header">Customize style</h3>
       <div
         slot="body"
         class="preview-box horizontal-center-content middle">
@@ -159,6 +159,18 @@ export default {
       style['padding'] = `${this.options.padding.top}px ${this.options.padding.right}px ${this.options.padding.bottom}px ${this.options.padding.left}px`
 
       return style
+    },
+    cssFormat() {
+      return `border: ${this.options.border.size}px ${this.options.border.type} ${this.options.border.color}; 
+      border-radius: ${this.options.border.radius}px;
+      font-size: ${this.options.font.size}pt;
+      font-weight: ${this.options.font.weight};
+      font-family: ${this.options.font.fontFamily};
+      line-height: ${this.options.font.lineHeight}%;
+      text-align: ${this.options.font.textAlign};
+      white-space: pre;
+      padding: ${this.options.padding.top}px ${this.options.padding.right}px ${this.options.padding.bottom}px ${this.options.padding.left}px;
+      `
     }
   },
   data() {
@@ -186,6 +198,16 @@ export default {
       },
       showModal: false,
       fontTypes: ['Times', 'Arial', 'Helvetica', 'Verdana', 'monospace']
+    }
+  },
+  watch: {
+    customStyle() {
+      this.setStyle()
+    }
+  },
+  methods: {
+    setStyle() {
+      this.$emit('onNewStyle', this.cssFormat)
     }
   }
 }
