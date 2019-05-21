@@ -1,8 +1,8 @@
 <template>
 </template>
 
-<style>
+<script>
 export default {
   
 }
-</style>
+</script>

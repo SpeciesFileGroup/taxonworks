@@ -86,10 +86,10 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       specify 'source author, year are missing' do
         @species.etymology = 'Test'
         @species.soft_validate(:missing_fields)
-        expect(@species.soft_validations.messages_on(:base).include?('OriginalMonotypy citation pages are not indicated')).to be_truthy
+        expect(@species.soft_validations.messages_on(:base).include?('Original citation pages are not indicated')).to be_truthy
         @species.origin_citation.pages = 1 if !@species.source.nil?
         @species.soft_validate(:missing_fields)
-        expect(@species.soft_validations.messages_on(:base).include?('OriginalMonotypy citation pages are not indicated')).to be_falsey
+        expect(@species.soft_validations.messages_on(:base).include?('Original citation pages are not indicated')).to be_falsey
         expect(@species.soft_validations.messages_on(:verbatim_author).empty?).to be_truthy
         expect(@species.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
       end
@@ -97,16 +97,16 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         @genus.source.pages = '1-10, i-v'
         @genus.origin_citation.pages = '11'
         @genus.soft_validate(:missing_fields)
-        expect(@genus.soft_validations.messages_on(:base).include?('OriginalMonotypy citation is out of the source page range')).to be_truthy
+        expect(@genus.soft_validations.messages_on(:base).include?('Original citation is out of the source page range')).to be_truthy
         @genus.origin_citation.pages = '1'
         @genus.soft_validate(:missing_fields)
-        expect(@genus.soft_validations.messages_on(:base).include?('OriginalMonotypy citation is out of the source page range')).to be_falsey
+        expect(@genus.soft_validations.messages_on(:base).include?('Original citation is out of the source page range')).to be_falsey
         @genus.origin_citation.pages = '10'
         @genus.soft_validate(:missing_fields)
-        expect(@genus.soft_validations.messages_on(:base).include?('OriginalMonotypy citation is out of the source page range')).to be_falsey
+        expect(@genus.soft_validations.messages_on(:base).include?('Original citation is out of the source page range')).to be_falsey
         @genus.origin_citation.pages = '5'
         @genus.soft_validate(:missing_fields)
-        expect(@genus.soft_validations.messages_on(:base).include?('OriginalMonotypy citation is out of the source page range')).to be_falsey
+        expect(@genus.soft_validations.messages_on(:base).include?('Original citation is out of the source page range')).to be_falsey
       end
       specify 'etymology is missing' do
         @species.soft_validate(:missing_fields)
@@ -263,13 +263,13 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         @subtribe.soft_validate(:single_sub_taxon)
         expect(@subtribe.soft_validations.messages_on(:base).empty?).to be_truthy
       end
-      specify 'type species or genus' do
+      specify 'type species' do
         @genus.soft_validate(:missing_relationships)
+        expect(@genus.soft_validations.messages_on(:base)).to include('Missing relationship: Type species is not selected')
+      end
+      specify 'type genus' do
         @family.soft_validate(:missing_relationships)
-        # type species is not selected
-        expect(@genus.soft_validations.messages_on(:base).size).to eq(1)
-        # type genus is not selected
-        expect(@family.soft_validations.messages_on(:base).size).to eq(1)
+        expect(@family.soft_validations.messages_on(:base)).to include('Missing relationship: Type genus is not selected')
       end
       specify 'type specimen is not selected' do
         @species.soft_validate(:primary_types)
@@ -319,7 +319,6 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         expect(@species.soft_validations.messages_on(:masculine_name).size).to eq(1)
         expect(@species.soft_validations.messages_on(:feminine_name).size).to eq(1)
         expect(@species.soft_validations.messages_on(:neuter_name).size).to eq(1)
-
         c1.destroy
       end
 
@@ -355,12 +354,12 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         c1 = FactoryBot.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Feminine')
         c2 = FactoryBot.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
         s.soft_validate(:species_gender_agreement)
-        expect(s.soft_validations.messages_on(:name).size).to eq(0)
+        expect(s.soft_validations.messages_on(:masculine_name).size).to eq(0)
         s.feminine_name = nil
         s.masculine_name = nil
         s.neuter_name = nil
         s.soft_validate(:species_gender_agreement)
-        expect(s.soft_validations.messages_on(:name).size).to eq(1)
+        expect(s.soft_validations.messages_on(:masculine_name).size).to eq(1)
         c1.destroy
       end
     end
@@ -601,15 +600,14 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         g1 = FactoryBot.create(:relationship_genus, name: 'Bbbus', parent: @family, year_of_publication: 1900)
         g2 = FactoryBot.create(:relationship_genus, name: 'Cccus', parent: @family)
         g3 = FactoryBot.create(:iczn_subgenus, name: 'Bbbus', parent: g2, year_of_publication: 1850)
-        g3.type_species = @species
         g3.iczn_set_as_homonym_of = g1
         expect(g3.save).to be_truthy
         g3.soft_validate(:missing_relationships)
-        expect(g3.soft_validations.messages_on(:base).size).to eq(1)
+        expect(g3.soft_validations.messages_on(:base).include?('Missing relationship: The name is a homonym, but the substitute name is not selected')).to be_truthy
         g3.iczn_set_as_synonym_of = g2
         expect(g3.save).to be_truthy
         g3.soft_validate(:missing_relationships)
-        expect(g3.soft_validations.messages_on(:base).empty?).to be_truthy
+        expect(g3.soft_validations.messages_on(:base).include?('Missing relationship: The name is a homonym, but the substitute name is not selected')).to be_falsey
       end
 
       specify 'missing original combination relationships to self' do

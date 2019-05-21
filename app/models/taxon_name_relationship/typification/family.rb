@@ -1,5 +1,7 @@
 class TaxonNameRelationship::Typification::Family < TaxonNameRelationship::Typification
 
+  soft_validate(:sv_matching_type_genus, set: :matching_type_genus, has_fix: false)
+
   # left side
   def self.valid_subject_ranks
     GENUS_RANK_NAMES
@@ -35,4 +37,9 @@ class TaxonNameRelationship::Typification::Family < TaxonNameRelationship::Typif
     true
   end
 
+  def sv_matching_type_genus
+    if self.object_taxon_name.name.slice(0, 1) != self.subject_taxon_name.name.slice(0, 1)
+      soft_validations.add(:object_taxon_name_id, "The type genus #{self.subject_taxon_name.cached_html_name_and_author_year} should have the same initial letters as the family-group name #{self.object_taxon_name.cached_html_name_and_author_year}")
+    end
+  end
 end

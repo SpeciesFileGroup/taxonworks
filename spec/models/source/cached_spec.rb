@@ -47,7 +47,7 @@ describe Source, type: :model, group: :sources do
 
     specify '#cached' do
       source.update(author: author)
-      expect(source.reload.cached).to match('Joaqui, T.I., Moctezuma, V., Sánchez-Huerta, J.L. & Escobar, F.')
+      expect(source.reload.cached).to match('Joaqui, T.I., Moctezuma, V., Sánchez-Huerta, J.L. &amp; Escobar, F. (1776) Bears in the woods.')
     end
   end
 end

@@ -7,7 +7,7 @@ function getLinesCount(str) {
   return str.split(/\r\n|\r|\n/).length
 }
 
-function createHeader() {
+function createHeader(customClass) {
   return `<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
@@ -30,6 +30,8 @@ function createHeader() {
       margin-bottom: .8pt;
       white-space: pre;
     }
+
+    div.custom_style { ${customClass }}
     
     div.ce_lbl_4_dram_ETOH { /* sensu Cammack */
       font-size: 8pt;
@@ -68,9 +70,9 @@ function addSeparator(separator, spaceAround) {
   return ''
 }
 
-function createPages(labels, maxColumns, maxRows, divisor, cssStye, separator = '', spaceAround) {
+function createPages(labels, maxColumns, maxRows, divisor, cssStye, customStyle, separator = '', spaceAround) {
   let columns = 1
-  let pages = createHeader() + `<body><div class="ce_label_pg"><div class="ce_label_col">`
+  let pages = createHeader(customStyle) + `<body><div class="ce_label_pg"><div class="ce_label_col">`
   
 
   labels.forEach(label => {

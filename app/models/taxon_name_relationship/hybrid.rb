@@ -29,4 +29,11 @@ class TaxonNameRelationship::Hybrid < TaxonNameRelationship
     ::ICZN + ['TaxonNameClassification::Icn::Hybrid']
   end
 
+  def sv_coordinated_taxa
+    true # not applicable
+  end
+
+  def sv_coordinated_taxa_object
+    true # not applicable
+  end
 end

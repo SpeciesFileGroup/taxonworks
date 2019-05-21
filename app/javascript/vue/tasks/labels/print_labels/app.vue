@@ -4,6 +4,7 @@
     <div class="horizontal-left-content align-start separate-bottom">
       <style-selector
         class="separate-right"
+        @onNewStyle="customStyle = $event"
         v-model="styleSelected"/>
       <layout-component
         class="separate-left separate-right"
@@ -19,6 +20,7 @@
         :columns="layout.columns"
         :divisor="layout.divisor"
         :separator="layout.separator"
+        :custom-style="customStyle"
         :labels="labels"/>
     </div>
     <table-component @selected="labels = $event"/>
@@ -48,7 +50,8 @@ export default {
         columns: 9,
         separator: '',
         divisor: false
-      }
+      },
+      customStyle: ''
     }
   }
 }

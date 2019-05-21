@@ -9,4 +9,7 @@ class TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished::Ill
         TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished::Illegitimate::Homonym)
   end
 
+  def sv_not_specific_classes
+    true
+  end
 end

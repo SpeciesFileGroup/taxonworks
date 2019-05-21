@@ -486,7 +486,7 @@ describe Source::Bibtex, type: :model, group: :sources do
         end
 
         specify 'which equals...(currently failing due to problems with citeproc)' do
-          expect(l_src.cached).to eq('Person, T. (1700) I am a soft valid article. Journal of Test Articles.')
+          expect(l_src.cached).to eq('Person, T. (1700) I am a soft valid article. <i>Journal of Test Articles</i>.')
         end
 
         specify 'cached author should be set' do
@@ -561,7 +561,7 @@ describe Source::Bibtex, type: :model, group: :sources do
         end
 
         specify 'cached string should be correct' do
-          expect(l_src.cached).to eq('Thomas, D., Fowler, C. & Hunt, A. (1920) Article with multiple authors. Journal of Test Articles.')
+          expect(l_src.cached).to eq('Thomas, D., Fowler, C. &amp; Hunt, A. (1920) Article with multiple authors. <i>Journal of Test Articles</i>.')
         end
       end
 
@@ -910,34 +910,34 @@ describe Source::Bibtex, type: :model, group: :sources do
         context 'check cached strings after update' do
           specify 'authors' do
             src1 = FactoryBot.create(:soft_valid_bibtex_source_article)
-            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. Journal of Test Articles.')
+            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. <i>Journal of Test Articles</i>.')
             expect(src1.cached_author_string).to eq('Person')
 
             src1.authors << vp1
-            expect(src1.reload.cached).to eq('Smith (1700) I am a soft valid article. Journal of Test Articles.')
+            expect(src1.reload.cached).to eq('Smith (1700) I am a soft valid article. <i>Journal of Test Articles</i>.')
             expect(src1.cached_author_string).to eq('Smith')
 
             src1.authors << vp2
-            expect(src1.reload.cached).to eq('Smith & Von Adams, J. (1700) I am a soft valid article. Journal of Test Articles.')
+            expect(src1.reload.cached).to eq('Smith &amp; Von Adams, J. (1700) I am a soft valid article. <i>Journal of Test Articles</i>.')
             expect(src1.cached_author_string).to eq('Smith & Von Adams')
           end
 
           specify 'editors' do
             src1 = FactoryBot.create(:src_editor)
-            expect(src1.cached).to eq('Person, T. ed. (1700) I am a soft valid article. Journal of Test Articles.')
+            expect(src1.cached).to eq('Person, T. ed. (1700) I am a soft valid article. <i>Journal of Test Articles</i>.')
             src1.editors << vp1
-            expect(src1.reload.cached).to eq('Smith ed. (1700) I am a soft valid article. Journal of Test Articles.')
+            expect(src1.reload.cached).to eq('Smith ed. (1700) I am a soft valid article. <i>Journal of Test Articles</i>.')
 
             src1.editors << vp2
-            expect(src1.reload.cached).to eq('Smith & Von Adams, J. eds. (1700) I am a soft valid article. Journal of Test Articles.')
+            expect(src1.reload.cached).to eq('Smith &amp; Von Adams, J. eds. (1700) I am a soft valid article. <i>Journal of Test Articles</i>.')
           end
 
           specify 'stated_year' do
             src1 = FactoryBot.create(:soft_valid_bibtex_source_article)
             src1.update(stated_year: '1699')
-            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. Journal of Test Articles.')
+            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. <i>Journal of Test Articles</i>. [1699]')
             src1.update(volume: '25')
-            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. Journal of Test Articles 25.')
+            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. <i>Journal of Test Articles</i> 25. [1699]')
           end
 
         end

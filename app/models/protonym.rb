@@ -367,6 +367,10 @@ class Protonym < TaxonName
     !NOT_LATIN.match(name) || has_latinized_exceptions?
   end
 
+  def is_homonym_or_suppressed?
+
+  end
+
   # @return [Boolean]
   #   whether this name has one of the TaxonNameRelationships which justify wrong form of the name
   def has_misspelling_relationship?
@@ -584,8 +588,6 @@ class Protonym < TaxonName
     Utilities::Italicize.taxon_name(get_original_combination)
   end
 
-  # TODO: @proceps - confirm this is only applicable to Protonym, NOT Combination
-  # @mjy - yes this is applicable to Protonym only
   def update_cached_original_combinations
     update_columns(
       cached_original_combination: get_original_combination,
@@ -601,8 +603,6 @@ class Protonym < TaxonName
     )
   end
 
-  # TODO: @proceps - confirm this is only applicable to Protonym, NOT Combination
-  # Should this be in Protonym
   def set_cached_names_for_dependants
     dependants = []
     related_through_original_combination_relationships = []

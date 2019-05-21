@@ -14,4 +14,8 @@ class TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRej
   def classification_label
     'Official Index of Rejected and Invalid Works in Zoological Nomenclature'
   end
+
+  def sv_not_specific_classes
+    true
+  end
 end

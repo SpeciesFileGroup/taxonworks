@@ -11,4 +11,7 @@ class TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished::Re
     'oppressa'
   end
 
+  def sv_not_specific_classes
+    true
+  end
 end
