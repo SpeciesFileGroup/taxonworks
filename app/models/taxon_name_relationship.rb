@@ -381,6 +381,10 @@ class TaxonNameRelationship < ApplicationRecord
             )
           end
 
+          if type_name =~/Misapplication/
+            t.update_column(    :cached_author_year, t.get_author_and_year)
+          end
+
           vn = t.get_valid_taxon_name
 
           t.update_columns(

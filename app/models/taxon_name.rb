@@ -969,7 +969,7 @@ class TaxonName < ApplicationRecord
   end
 
   # return [Boolean] whether there is missaplication relationship
-  def name_is_missapplied?
+  def name_is_misapplied?
     !TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::Invalidating::Misapplication').empty?
   end
 
@@ -1286,7 +1286,7 @@ class TaxonName < ApplicationRecord
   end
 
   def sv_missing_original_publication
-    if !self.cached_misspelling && !self.name_is_missapplied?
+    if !self.cached_misspelling && !self.name_is_misapplied?
       if self.source.nil?
         soft_validations.add(:base, 'Original publication is not selected')
       elsif self.origin_citation.pages.blank?

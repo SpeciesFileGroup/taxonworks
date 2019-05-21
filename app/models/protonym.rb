@@ -187,7 +187,7 @@ class Protonym < TaxonName
   end
 
   def is_available?
-    !has_misspelling_relationship? && !name_is_missapplied? && !classification_invalid_or_unavailable?
+    !has_misspelling_relationship? && !name_is_misapplied? && !classification_invalid_or_unavailable?
   end
 
   # @return [Protonym]
@@ -587,7 +587,7 @@ class Protonym < TaxonName
   #    a monomial, as originally rendered, with parens if subgenus
   def original_name
     n = verbatim_name.nil? ? name_with_misspelling(nil) : verbatim_name
-    n = "(#{n})" if n && rank == 'subgenus'
+    n = "(#{n})" if n && rank_name == 'subgenus'
     n
   end 
 
