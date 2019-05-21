@@ -18,14 +18,23 @@
       class="separate-top separate-bottom"
       v-model="view"
       :options="tabs"/>
-    <ul v-if="isList">
-      <li v-for="item in list">
+    <ul
+      class="no_bullets"
+      v-if="isList">
+      <li v-for="item in list[view]">
         <label>
           <input type="radio">
           <span v-html="item.object_tag"/>
         </label>
       </li>
     </ul>
+    <autocomplete
+      v-else
+      :url="types[type].url"
+      param="term"
+      label="label_html"
+      @getItem="selected.push($event)"
+    />
   </div>
 </template>
 
@@ -34,20 +43,25 @@
 import SmartSelector from 'components/switch'
 import Autocomplete from 'components/autocomplete'
 
+import { GetOtuSmartSelector, GetCollectionObjectSmartSelector, GetExtractSmartSelector } from '../request/resources'
+
 export default {
   components: {
     SmartSelector,
     Autocomplete
   },
-  isList() {
-    return Object.keys(this.lists).includes(this.view)
+  computed: {
+    isList() {
+      return Object.keys(this.lists).includes(this.view)
+    }
   },
   data () {
     return {
-      type: undefined,
+      type: 'CollectionObject',
       lists: [],
       tabs: ['search'],
       view: undefined,
+      selected: [],
       types: {
         CollectionObject: {
           url: '/collection_objects/autocomplete'
@@ -59,6 +73,34 @@ export default {
           url: '/otus/autocomplete'
         }
       }
+    }
+  },
+  watch: {
+    type(newVal) {
+      switch(newVal) {
+        case 'CollectionObject':
+          GetOtuSmartSelector().then(response => {
+            this.setSmartLists(response.body)
+          })
+          break;
+        case 'Extract':
+          GetExtractSmartSelector().then(response => {
+            this.setSmartLists(response.body)
+          })
+          break;
+        case 'Otu':
+          GetOtuSmartSelector().then(response => {
+            this.setSmartLists(response.body)
+          })
+          break;
+      }
+    }
+  },
+  methods: {
+    setSmartLists(lists) {
+      this.lists = lists
+      this.tabs = Object.keys(lists)
+      this.tabs.push('search')
     }
   }
 }
