@@ -18,6 +18,14 @@
       class="separate-top separate-bottom"
       v-model="view"
       :options="tabs"/>
+    <ul v-if="isList">
+      <li v-for="item in list">
+        <label>
+          <input type="radio">
+          <span v-html="item.object_tag"/>
+        </label>
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -31,6 +39,9 @@ export default {
     SmartSelector,
     Autocomplete
   },
+  isList() {
+    return Object.keys(this.lists).includes(this.view)
+  },
   data () {
     return {
       type: undefined,
@@ -42,7 +53,7 @@ export default {
           url: '/collection_objects/autocomplete'
         },
         Extract: {
-
+          url: '/extracts/autocomplete'
         },
         Otu: {
           url: '/otus/autocomplete'
