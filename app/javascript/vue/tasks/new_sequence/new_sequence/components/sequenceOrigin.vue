@@ -33,6 +33,7 @@
       :url="types[type].url"
       param="term"
       label="label_html"
+      :placeholder="`Search a ${types[type].label}`"
       @getItem="selected.push($event)"
     />
   </div>
@@ -43,7 +44,10 @@
 import SmartSelector from 'components/switch'
 import Autocomplete from 'components/autocomplete'
 
-import { GetOtuSmartSelector, GetCollectionObjectSmartSelector, GetExtractSmartSelector } from '../request/resources'
+import { 
+  GetOtuSmartSelector,
+  GetCollectionObjectSmartSelector,
+  GetExtractSmartSelector } from '../request/resources'
 
 export default {
   components: {
@@ -64,12 +68,15 @@ export default {
       selected: [],
       types: {
         CollectionObject: {
+          label: 'collection object',
           url: '/collection_objects/autocomplete'
         },
         Extract: {
+          label: 'extract',
           url: '/extracts/autocomplete'
         },
         Otu: {
+          label: 'OTU',
           url: '/otus/autocomplete'
         }
       }
@@ -79,7 +86,7 @@ export default {
     type(newVal) {
       switch(newVal) {
         case 'CollectionObject':
-          GetOtuSmartSelector().then(response => {
+          GetCollectionObjectSmartSelector().then(response => {
             this.setSmartLists(response.body)
           })
           break;
