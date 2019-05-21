@@ -1,15 +1,14 @@
 <template>
   <div>
     <h2>Sequence being annotated</h2>
-    <table>
+    <table class="full_width">
       <thead>
         <tr>
           <th>Sequence</th>
           <th>Name</th>
           <th>Type</th>
           <th>Target</th>
-          <th>Radial annotator</th>
-          <th>Destroy</th>
+          <th>Options</th>
         </tr>
       </thead>
       <tbody>
@@ -23,7 +22,7 @@
             {{ item.name }}
           </td>
           <td>
-            {{ item.type }}
+            {{ item.sequence_type }}
           </td>
           <td>
             {{ item.target }}
@@ -32,8 +31,6 @@
             <radial-annotator
               type="annotations"
               :global-id="item.global_id"/>
-          </td>
-          <td>
             <span class="button circle-button btn-delete"/>
           </td>
         </tr>
@@ -54,6 +51,11 @@ export default {
     list: {
       type: Array,
       required: true
+    }
+  },
+  methods: {
+    removeItem(item) {
+      this.$emit('delete', item)
     }
   }
 }

@@ -1,26 +1,41 @@
 <template>
   <div>
-    <h2>Reverse Primer</h2>
+    <h2>{{ title }}</h2>
     <smart-selector
+      class="separate-bottom"
       :options="tabs"
       v-model="view"/>
-    <ul
-      v-if="isList"
-      class="no_bullets">
-      <li
-        v-for="item in lists[view]"
-        :key="item.id">
-        <label>
-          <input type="radio">
-          <span v-html="item.object_tag"/>
-        </label>
-      </li>
-    </ul>
-    <autocomplete
-      v-else
-      url="/sequences/autocomplete"
-      param="term"
-      placeholder="Search a sequence"/>
+    <div
+      v-if="selected"
+      class="horizontal-left-content">
+      <span v-html="selectedLabel"></span>
+      <span
+        class="button circle-button btn-undo button-default"
+        @click="selected = undefined"/>
+    </div>
+    <template v-else>
+      <ul
+        v-if="isList"
+        class="no_bullets">
+        <li
+          v-for="item in lists[view]"
+          :key="item.id">
+          <label>
+            <input
+              type="radio"
+              @click="selected = item">
+            <span v-html="item.object_tag"/>
+          </label>
+        </li>
+      </ul>
+      <autocomplete
+        v-else
+        url="/sequences/autocomplete"
+        param="term"
+        label="label_html"
+        placeholder="Search a sequence"
+        @getItem="selected = $event"/>
+    </template>
   </div>
 </template>
 
@@ -34,6 +49,12 @@ import OrderSmartSelector from '../../../../helpers/smartSelector/orderSmartSele
 import SelectFirstSmartOption from '../../../../helpers/smartSelector/selectFirstSmartOption.js'
 
 export default {
+  props: {
+    title: {
+      type: String,
+      required: true
+    }
+  },
   components: {
     SmartSelector,
     Autocomplete
@@ -41,13 +62,17 @@ export default {
   computed: {
     isList() {
       return Object.keys(this.lists).includes(this.view)
+    },
+    selectedLabel() {
+      return this.selected.hasOwnProperty('label_html') ? this.selected.label_html : this.selected.object_tag
     }
   },
   data () {
     return {
       lists: [],
-      tabs: [],
+      tabs: ['search'],
       view: undefined,
+      selected: undefined
     }
   },
   mounted() {
@@ -59,3 +84,8 @@ export default {
   }
 }
 </script>
+<style scoped>
+  /deep/ .vue-autocomplete-input {
+    width: 100%;
+  }
+</style>

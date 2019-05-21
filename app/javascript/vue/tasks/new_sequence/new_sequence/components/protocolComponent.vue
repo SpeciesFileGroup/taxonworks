@@ -19,28 +19,42 @@
         </label>
       </li>
     </ul>
+    <autocomplete
+      url="/protocols/autocomplete"
+      param="term"
+      label="label_html"
+    />
   </div>
 </template>
 
 <script>
 
+import Autocomplete from 'components/autocomplete'
 import SmartSelector from 'components/switch'
+import { GetProtocolSmartSelector } from '../request/resources'
 
 export default {
   components: {
+    Autocomplete,
     SmartSelector
   },
   computed: {
     optionList() {
+      if (!this.view) return
       return Object.keys(this.list).includes(this.view)
     }
   },
   data () {
     return {
       lists: [],
-      tabs: [],
+      tabs: ['search'],
       view: undefined
     }
+  },
+  mounted() {
+    GetProtocolSmartSelector().then(response => {
+      this.lists = response.body
+    })
   },
   methods: {
     addProtocol(protocol) {

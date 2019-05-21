@@ -1,5 +1,10 @@
 <template>
   <div>
+    <h2>Sequence origin</h2>
+    <smart-selector
+      v-model="view"
+      :options="tabs"
+    />
     <ul class="context-menu">
       <li>
         <label>
@@ -22,7 +27,7 @@
     </ul>
     <smart-selector
       v-model="view"
-      :options="tabs">
+      :options="tabs"/>
   </div>
 </template>
 
@@ -40,7 +45,7 @@ export default {
       co: false,
       extract: false,
       lists: [],
-      tabs: [],
+      tabs: ['search'],
       view: undefined
     }
   }

@@ -1,7 +1,11 @@
 <template>
   <div>
     <h2>&nbsp</h2>
-    <textare v-model="pasteSequence"/>
+    <textarea
+      class="full_width"
+      rows="5"
+      v-model="pasteSequence"
+      placeholder="Paste sequence"/>
     <dropzone-component
       id="dropzone-fasta"
       :vdropzone-success="addSequence"
