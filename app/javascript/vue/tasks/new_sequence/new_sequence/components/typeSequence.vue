@@ -1,6 +1,6 @@
 <template>
   <div>
-    <ul class="context-menu">
+    <ul class="no_bullets context-menu">
       <li
         v-for="type in types"
         :key="type">
@@ -32,7 +32,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>

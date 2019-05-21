@@ -1,31 +1,21 @@
 <template>
   <div>
     <h2>Sequence origin</h2>
-    <smart-selector
-      v-model="view"
-      :options="tabs"
-    />
-    <ul class="context-menu">
-      <li>
+    <ul class="no_bullets context-menu">
+      <li
+        v-for="(item, key) in types"
+        :key="key">
         <label>
-          <input type="checkbox">
-          OTU
-        </label>
-      </li>
-      <li>
-        <label>
-          <input type="checkbox">
-          Collection object
-        </label>
-      </li>
-      <li>
-        <label>
-          <input type="checkbox">
-          Extract
+          <input
+            v-model="type"
+            :value="key"
+            type="radio">
+          {{ key }}
         </label>
       </li>
     </ul>
     <smart-selector
+      class="separate-top separate-bottom"
       v-model="view"
       :options="tabs"/>
   </div>
@@ -34,24 +24,31 @@
 <script>
 
 import SmartSelector from 'components/switch'
+import Autocomplete from 'components/autocomplete'
 
 export default {
   components: {
-    SmartSelector
+    SmartSelector,
+    Autocomplete
   },
   data () {
     return {
-      otu: false,
-      co: false,
-      extract: false,
+      type: undefined,
       lists: [],
       tabs: ['search'],
-      view: undefined
+      view: undefined,
+      types: {
+        CollectionObject: {
+          url: '/collection_objects/autocomplete'
+        },
+        Extract: {
+
+        },
+        Otu: {
+          url: '/otus/autocomplete'
+        }
+      }
     }
   }
 }
 </script>
-
-<style>
-
-</style>
