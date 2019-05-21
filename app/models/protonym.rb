@@ -186,6 +186,10 @@ class Protonym < TaxonName
     return list
   end
 
+  def is_available?
+    !has_misspelling_relationship? && !name_is_missapplied? && !classification_invalid_or_unavailable?
+  end
+
   # @return [Protonym]
   #   the accepted "valid" version of this name in the present classification
   def get_valid_taxon_name
@@ -522,7 +526,8 @@ class Protonym < TaxonName
     e = original_combination_elements
     return nil if e.none? 
 
-    # Weird, why? TODO: needs spec
+    # Weird, why?
+    # DD: in ICTV the species name is "Potato spindle tuber viroid", the genus name is only used for classification...
     return e[:species] if rank_class =~ /Ictv/
 
     p = TaxonName::COMBINATION_ELEMENTS.inject([]){|ary, r| ary.push(e[r]) } 
@@ -540,6 +545,8 @@ class Protonym < TaxonName
     # Why this? 
     #   We need to apply gender to "internal" names for original combinations, everything
     #   but the last name
+    # DD: if we have subspecies, the species name should be used not in the original form,
+    # but the form correlated with the present genus gender
     # TODO: get SQL based ordering for original_combination_relationships, hard coded
 
     # order the relationships
@@ -554,13 +561,13 @@ class Protonym < TaxonName
       if j.type =~ /enus/ || i == total
         g = nil
       else
-      #unless (j.type =~ /genus/) || i == total
         g = gender
       end
       elements.merge! j.combination_name(g)
     end
 
-    # TODO: what is point of this? Do we get around this check by requiring self relationships? (species aus has species relationship to self)
+    # what is point of this? Do we get around this check by requiring self relationships? (species aus has species relationship to self)
+    # DD: we do not require it, it is optional
     if !r.empty? && r.collect{|i| i.subject_taxon_name}.last.lowest_rank_coordinated_taxon.id != lowest_rank_coordinated_taxon.id
       if elements[this_rank].nil?
         elements[this_rank] = [original_name] 

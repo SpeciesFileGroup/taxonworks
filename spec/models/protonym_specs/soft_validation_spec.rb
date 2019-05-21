@@ -135,7 +135,6 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         end
 
         specify 'genus and subgenus have different author' do
-
           expect(@genus.soft_validations.messages_on(:verbatim_author).empty?).to be_falsey
         end
 
@@ -143,7 +142,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
           expect(@sgen.soft_validations.messages_on(:verbatim_author).empty?).to be_falsey
         end
 
-        specify 'genus and subgenus have different year (error on year_of_publication' do
+        specify 'genus and subgenus have different year (error on year_of_publication)' do
           expect(@sgen.soft_validations.messages_on(:year_of_publication).empty?).to be_falsey
         end
 
@@ -223,6 +222,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
         specify 'is fixable' do
           @ssp1.source = nil
+          @ssp1.fix_soft_validations
           @species.fix_soft_validations
           @species.soft_validate(:validate_coordinated_names)
           @ssp1.soft_validate(:validate_coordinated_names)
