@@ -118,7 +118,7 @@ describe 'Sources', type: :feature, group: :sources do
 
       specify 'who can edit or destroy any source' do
         visit sources_path
-        expect(src1.cached).to eq('Author1 (2014) Article Title. Test journal.')
+        expect(src1.cached).to eq('Author1 (2014) Article Title. <i>Test journal</i>.')
         expect(page).to have_link('Author1 (2014) Article Title. Test journal.')
         expect(page).to have_link('Edit') # there is a recent update list & 'Edit' link is active
         click_link('Author1 (2014) Article Title. Test journal.') # go to show the source not created by admin

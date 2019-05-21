@@ -20,7 +20,7 @@
                 v-if="menuCreated"
                 :menu="menuOptions"
                 @selected="selectedRadialOption($event)"
-                @contextmenu="selectedRadialOption($event, '_blank')"
+                @contextmenu="selectedRadialOption($event, '_blank'); closeModal()"
                 width="400"
                 height="400"/>
             </div>

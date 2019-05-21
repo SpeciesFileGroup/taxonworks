@@ -42,7 +42,7 @@ class Georeference::VerbatimData < Georeference
         test_grs = []
       else
         test_grs = GeographicItem::Point
-                     .where("point = ST_GeographyFromText('POINT(? ? ?)::geography')", point.x, point.y, point.z)
+                     .where("point = ST_GeographyFromText('POINT(? ? ?)')", point.x, point.y, point.z)
                      # .where(['ST_Z(point::geometry) = ?', point.z])
       end
 

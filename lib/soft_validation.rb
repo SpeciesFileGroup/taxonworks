@@ -287,7 +287,7 @@ module SoftValidation
 
 end
 
-# OriginalMonotypy version was an AR extension, might revert to this at some point.
+# Original version was an AR extension, might revert to this at some point.
 # class ApplicationRecord
 #   include SoftValidation
 # end

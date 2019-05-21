@@ -24,4 +24,16 @@ module ProjectsHelper
     projects.collect { |p| content_tag(:li, project_link(p)) }.join.html_safe
   end
 
+  # Came from application_controller
+
+  def invalid_object(object)
+    !(!object.try(:project_id) || project_matches(object))
+  end
+
+  def project_matches(object)
+    object.try(:project_id) == sessions_current_project_id
+  end
+
+
+
 end

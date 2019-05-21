@@ -44,4 +44,12 @@ class TaxonNameRelationship::Ictv::Unaccepting::Supressed < TaxonNameRelationshi
     # aus.iczn_suppression = bus
     :ictv_suppressed
   end
+
+  def sv_validate_priority
+    date1 = self.subject_taxon_name.nomenclature_date
+    date2 = self.object_taxon_name.nomenclature_date
+    if !!date1 && !!date2 && date1 > date2 && subject_invalid_statuses.empty?
+      soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be younger than #{self.object_taxon_name.cached_html_name_and_author_year}")
+    end
+  end
 end

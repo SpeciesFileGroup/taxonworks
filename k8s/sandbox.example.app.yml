@@ -57,13 +57,13 @@ spec:
               name: sandbox-backup-vol
           readinessProbe:
             httpGet:
-              path: /ping
+              path: /api/v1/ping
               port: 80
             initialDelaySeconds: 2000 
             timeoutSeconds: 3
           livenessProbe:
             httpGet:
-              path: /ping
+              path: /api/v1/ping
               port: 80
             initialDelaySeconds: 2000 
             timeoutSeconds: 3

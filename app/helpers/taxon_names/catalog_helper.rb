@@ -148,6 +148,7 @@ module TaxonNames::CatalogHelper
   #   only renders the pages in that citation
   def history_subject_original_citation(catalog_item)
     return nil if !catalog_item.from_relationship? || catalog_item.object.subject_taxon_name.origin_citation.blank?
+    return nil if catalog_item.from_relationship?
     t = catalog_item.object.subject_taxon_name
     c = t.origin_citation
 

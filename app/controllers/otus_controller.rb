@@ -2,6 +2,7 @@ class OtusController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_otu, only: [:show, :edit, :update, :destroy, :collection_objects]
+  after_action -> { set_pagination_headers(:otus) }, only: [:index], if: :json_request? 
 
   # GET /otus
   # GET /otus.json
@@ -32,7 +33,7 @@ class OtusController < ApplicationController
   end
 
   def list
-    @otus = Otu.with_project_id(sessions_current_project_id).page(params[:page])
+    @otus = Otu.with_project_id(sessions_current_project_id).page(params[:page]).per(params[:per])
   end
 
   # POST /otus
@@ -211,11 +212,11 @@ class OtusController < ApplicationController
   # GET api/v1/otus/by_name/:name?token=:token&project_id=:id
   def by_name
     @otu_name = params.require(:name)
-    @otu_ids  = Queries::Otu::Autocomplete.new(@otu_name, project_id: params.require(:project_id)).autocomplete.pluck(:id)
+    @otu_ids  = Queries::Otu::Autocomplete.new(@otu_name, project_id: params.require(:project_id)).all.pluck(:id)
   end
 
   def select_options
-    @otus = Otu.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target])
+    @otus = Otu.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
   end
 
   private

@@ -9,4 +9,7 @@ class TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Ille
         TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate::Superfluous)
   end
 
+  def sv_not_specific_classes
+    true
+  end
 end

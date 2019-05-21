@@ -26,4 +26,7 @@ class TaxonNameRelationship::Icnp::Unaccepting::Synonym::Heterotypic < TaxonName
     :icnp_subjective_synonym
   end
 
+  def sv_not_specific_relationship
+    true
+  end
 end

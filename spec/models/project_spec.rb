@@ -6,7 +6,7 @@ describe Project, type: :model do
     Rails.application.eager_load!
   }
 
-  let(:project) { FactoryBot.build(:project) }
+  let(:project) { Project.new }
 
   let(:user) { User.create!(
     password:  'password',
@@ -113,6 +113,22 @@ describe Project, type: :model do
     end
   end
 
+  specify '#set_new_api_access_token 1' do
+    project.update!(name: 'Foo', set_new_api_access_token: true)
+    expect(project.reload.api_access_token).to be_truthy
+  end
+
+  specify '#set_new_api_access_token 2' do
+    project.update(name: 'Foo', set_new_api_access_token: '1')
+    expect(project.reload.api_access_token).to be_truthy
+  end
+
+  specify '#clear_api_access_token 2' do
+    project.update!(name: 'Foo', set_new_api_access_token: '1')
+    project.update!(clear_api_access_token: true)
+    expect(project.reload.api_access_token).to eq(nil)
+  end
+
   context 'root taxon name' do
     before(:each) {
       project.name = 'Root taxon name'
@@ -155,8 +171,7 @@ describe Project, type: :model do
 
   context '#destroy sanity test' do
     before(:each) {
-      project.name = 'Destroy sanity'
-      project.save!
+      project.update!(name: 'Destroy sanity')
 
       project.asserted_distributions << AssertedDistribution.new(
         otu:             FactoryBot.create(:valid_otu),
@@ -180,16 +195,16 @@ describe Project, type: :model do
     let(:p) { Project.create!(name: 'a little bit of everything', created_by_id: u.to_param, updated_by_id: u.to_param) }
 
     after(:all) {
-      $user_id    = 1
-      $project_id = 1
+      Current.user_id = 1
+      Current.project_id = 1
     }
 
     before(:each) {
       # Generate 1 of ever valid_ factory
       #    loop through all factories
       #       if a valid_ factory build one setting the project_id to @p.id when present
-      $project_id            = p.id
-      $user_id               = u.id
+      Current.project_id = p.id
+      Current.user_id = u.id
 
       @factories_under_test  = {}
       @failed_factories      = {}
@@ -240,18 +255,10 @@ describe Project, type: :model do
       expect(@project_build_err_msg.length).to eq(0), @project_build_err_msg
     end
 
-    # You can never use #destroy
-    specify '#destroy is impossible with data' do
-      expect(p.destroy).to be(false)
-      expect(p.destroyed?).to be(false)
-    end
-
     context '#nuke' do
       before(:each) {
         p.nuke
       }
-
-      # need to wipe image folder here
 
       specify '#nuke nukes "everything"' do
         # loop through all the valid_ factories, for each find the class that they build

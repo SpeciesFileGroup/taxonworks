@@ -828,8 +828,12 @@ class Source::Bibtex < Source
       attributes_to_update[:author] = compute_bibtex_names('authors') if authors.reload.size > 0
       attributes_to_update[:editor] = compute_bibtex_names('editors') if editors.reload.size > 0
 
+      c = cached_string('html')
+      if stated_year && year && stated_year != year
+        c = c + " [#{stated_year}]"
+      end
       attributes_to_update.merge!(
-        cached: cached_string('text'),
+        cached: c,
         cached_nomenclature_date: nomenclature_date,
         cached_author_string: authority_name(false)
       )

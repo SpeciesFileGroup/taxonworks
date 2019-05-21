@@ -7,7 +7,6 @@
           class="flex-separate middle">
           <a
             :href="`/tasks/nomenclature/browse/${taxon.id}`"
-            target="_blank"
             class="taxonname">
             <span v-html="taxon.cached_html"/>
             <span v-html="taxon.cached_author_year"/>

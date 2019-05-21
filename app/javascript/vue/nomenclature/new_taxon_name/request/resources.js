@@ -85,6 +85,16 @@ const createTaxonStatus = function (newClassification) {
   })
 }
 
+const updateTaxonStatus = function (newClassification) {
+  return new Promise(function (resolve, reject) {
+    Vue.http.patch(`/taxon_name_classifications/${newClassification.taxon_name_classification.id}.json`, newClassification).then(response => {
+      return resolve(response.body)
+    }, response => {
+      return reject(response.body)
+    })
+  })
+}
+
 const GetTaxonNameSmartSelector = function () {
   return new Promise(function (resolve, reject) {
     Vue.http.get(`/taxon_names/select_options`).then(response => {
@@ -247,6 +257,7 @@ export {
   loadSoftValidation,
   createTaxonStatus,
   removeTaxonStatus,
+  updateTaxonStatus,
   removeTaxonSource,
   removeTaxonRelationship,
   createTaxonRelationship,

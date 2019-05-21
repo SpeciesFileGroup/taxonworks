@@ -2,7 +2,6 @@ class GeographicAreasController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
   before_action :set_geographic_area, only: [:show]
-  before_action :disable_turbolinks, only: [:show, :list, :index]
 
   # GET /geographic_areas
   # GET /geographic_areas.json

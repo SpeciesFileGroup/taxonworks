@@ -17,7 +17,7 @@ branches:
   only:
     - master
     - development
-    - api
+    - dates
 addons:
   postgresql: "10"
   firefox: "latest"

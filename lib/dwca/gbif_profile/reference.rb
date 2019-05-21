@@ -126,7 +126,7 @@ module Dwca::GbifProfile
     #
     # Vocabulary: http://rs.gbif.org/vocabulary/gbif/reference_type.xml
     #
-    # Example: “OriginalMonotypy publication of new combination (comb nov.)”
+    # Example: “Original publication of new combination (comb nov.)”
     attr_accessor :type # [USED IN SF]
 
   end

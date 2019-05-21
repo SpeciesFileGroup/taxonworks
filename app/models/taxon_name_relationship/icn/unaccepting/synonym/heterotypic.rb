@@ -33,4 +33,8 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym::Heterotypic < TaxonNameR
       soft_validations.add(:type, "Subjective synonyms #{s.cached_html} and #{o.cached_html} should not have the same type")
     end
   end
+
+  def sv_not_specific_relationship
+    true
+  end
 end

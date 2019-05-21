@@ -7,4 +7,7 @@ class TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished::No
         TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished)
   end
 
+  def sv_not_specific_classes
+    true
+  end
 end

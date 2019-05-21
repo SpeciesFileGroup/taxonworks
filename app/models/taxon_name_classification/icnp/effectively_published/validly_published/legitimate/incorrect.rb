@@ -12,4 +12,7 @@ class TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished::Leg
     'invalidum'
   end
 
+  def sv_not_specific_classes
+    true
+  end
 end

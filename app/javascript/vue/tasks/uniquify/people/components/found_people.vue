@@ -11,7 +11,8 @@
     <p v-if="displayCount">{{ foundPeople.length }}  people found</p>
     <div>
       <ul class="no_bullets">
-        <li v-for="person in foundPeople">
+        <li
+          v-for="person in foundPeople">
           <label>
             <input
               name="found-people"
@@ -85,3 +86,4 @@
     }
   }
 </script>
+
