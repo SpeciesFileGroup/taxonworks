@@ -325,10 +325,13 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         expect(@species.soft_validations.messages_on(:base).size).to eq(1)
       end
       specify 'more than one type is selected' do
-        t1 = FactoryBot.create(:valid_type_material, protonym: @species, type_type: 'neotype')
+        t1 = FactoryBot.create(:valid_type_material, protonym: @species, type_type: 'syntype')
         t2 = FactoryBot.create(:valid_type_material, protonym: @species, type_type: 'holotype')
         @species.soft_validate(:primary_types)
-        expect(@species.soft_validations.messages_on(:base).size).to eq(1)
+        expect(@species.soft_validations.messages_on(:base).size).to eq(3)
+        expect(@species.soft_validations.messages_on(:base)).to include('More than one of primary types are selected. Uncheck the specimens which are not primary types for this taxon')
+        expect(@species.soft_validations.messages_on(:base)).to include('Primary type repository is not set')
+        expect(@species.soft_validations.messages_on(:base)).to include('Syntype repository is not set')
       end
     end
 

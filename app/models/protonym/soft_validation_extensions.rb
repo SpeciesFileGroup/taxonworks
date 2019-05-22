@@ -21,6 +21,7 @@ module Protonym::SoftValidationExtensions
       sv_type_placement: { set: :type_placement, has_fix: false},
       sv_type_placement1: { set: :type_placement, has_fix: false},
       sv_primary_types: { set: :primary_types, has_fix: false},
+      sv_primary_types_repository: { set: :primary_types, has_fix: false},
 #      sv_validate_coordinated_names: { set: :validate_coordinated_names, has_fix: true},
       sv_validate_coordinated_names_source: { set: :validate_coordinated_names, has_fix: true},
       sv_validate_coordinated_names_author: { set: :validate_coordinated_names, has_fix: true},
@@ -725,12 +726,24 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_primary_types
-      if self.rank_class
-        if self.rank_class.parent.to_s =~ /Species/ && is_available?
-          if self.type_materials.primary.empty? && self.type_materials.syntypes.empty?
-            soft_validations.add(:base, 'Primary type is not selected')
-          elsif self.type_materials.primary.count > 1 || (!self.type_materials.primary.empty? && !self.type_materials.syntypes.empty?)
-            soft_validations.add(:base, 'More than one of primary types are selected. Uncheck the specimens which are not primary types for this taxon')
+      if is_species_rank? && is_available?
+        if self.type_materials.primary.empty? && self.type_materials.syntypes.empty?
+          soft_validations.add(:base, 'Primary type is not selected')
+        elsif self.type_materials.primary.count > 1 || (!self.type_materials.primary.empty? && !self.type_materials.syntypes.empty?)
+          soft_validations.add(:base, 'More than one of primary types are selected. Uncheck the specimens which are not primary types for this taxon')
+        end
+      end
+    end
+
+    def sv_primary_types_repository
+      if is_species_rank?
+        s = self.type_materials
+        unless s.empty?
+          s.primary.each do |t|
+            soft_validations.add(:base, 'Primary type repository is not set') if t.material.try(:repository).nil?
+          end
+          s.syntypes.each do |t|
+            soft_validations.add(:base, 'Syntype repository is not set') if t.material.try(:repository).nil?
           end
         end
       end
