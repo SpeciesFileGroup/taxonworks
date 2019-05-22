@@ -876,7 +876,6 @@ class TaxonName < ApplicationRecord
     n = name 
     # n = verbatim_name.blank? ? name : verbatim_name
     return  "\"<i>Candidatus</i> #{n}\"" if is_candidatus?
-    
     v = Utilities::Italicize.taxon_name(n)
     v = '† ' + v if is_fossil?
     v = '× ' + v if is_hybrid?
