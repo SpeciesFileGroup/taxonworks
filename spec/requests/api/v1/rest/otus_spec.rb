@@ -6,7 +6,7 @@ describe 'Api::V1::Otus', type: :request do
 
   context 'otu/index' do
 
-    # let!(:otu) { Otu.create!(name: 'Foo') } 
+    # let!(:otu) { Otu.create!(name: 'Foo') }
     # let(:headers) { { "Authorization": 'Token token=' + user.api_access_token, project_id: otu.project_id } }
     # let(:path) { '/api/v1/otus/' }
 
@@ -14,7 +14,7 @@ describe 'Api::V1::Otus', type: :request do
 
     # project token-only for now
     xcontext 'with a valid user token and project_id' do
-      before { get path, headers: headers, params: { project_id: otu.project_id } } 
+      before { get path, headers: headers, params: { project_id: otu.project_id } }
       it_behaves_like 'a successful response'
     end
 

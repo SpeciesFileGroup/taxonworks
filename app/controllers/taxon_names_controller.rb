@@ -13,9 +13,16 @@ class TaxonNamesController < ApplicationController
 
       end
       format.json {
-        @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 100].min, 1].max)
+        @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
       }
     end
+  end
+
+  # GET /api/v1/taxon_names
+  def api_index
+    @taxon_names =
+      Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 100].min, 1].max)
+    render '/taxon_names/api/index.json.jbuilder'
   end
 
   def filter_params

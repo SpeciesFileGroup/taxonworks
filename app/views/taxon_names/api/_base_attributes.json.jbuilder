@@ -3,7 +3,7 @@ json.extract! taxon_name, :id, :name, :parent_id, :cached, :cached_html, :femini
               :type, :created_by_id, :updated_by_id, :project_id, :cached_valid_taxon_name_id, :cached_original_combination, :cached_original_combination_html,
               :cached_secondary_homonym, :cached_primary_homonym, :created_at, :updated_at, :nomenclatural_code, :verbatim_name
 
-json.partial! '/shared/data/all/metadata', object: taxon_name, klass: 'TaxonName'
+#json.partial! '/shared/data/all/metadata', object: taxon_name, klass: 'TaxonName'
 
 # TODO, likely rename
 json.name_string taxon_name_name_string(taxon_name)

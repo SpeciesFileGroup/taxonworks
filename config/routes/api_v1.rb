@@ -28,7 +28,7 @@ namespace :api, defaults: {format: :json} do
 
       get '/otus', to: '/otus#index'
 
-      get '/taxon_names', to: '/taxon_names#index'
+      get '/taxon_names', to: '/taxon_names#api_index'
     end
 
     # Authenticate membership at the data controller level
