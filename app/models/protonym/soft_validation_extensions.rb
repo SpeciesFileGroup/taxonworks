@@ -46,8 +46,13 @@ module Protonym::SoftValidationExtensions
       sv_source_not_older_then_description: { set: :dates, has_fix: false},
       sv_original_combination_relationships: { set: :original_combination_relationships, has_fix: false},
       sv_extant_children: { set: :extant_children, has_fix: false},
-      sv_protonym_to_combination: { set: :protonym_to_combination, has_fix: false}
-
+      sv_protonym_to_combination: { set: :protonym_to_combination, has_fix: false},
+      sv_missing_roles: { set: :missing_roles, has_fix: false},
+      sv_year_is_not_required: { set: :year_is_not_required, has_fix: true },
+      sv_author_is_not_required: { set: :author_is_not_required, has_fix: true },
+      sv_misspelling_roles_are_not_required: { set: :roles_are_not_required, has_fix: true },
+      sv_misspelling_author_is_not_required: { set: :roles_are_not_required, has_fix: true },
+      sv_misspelling_year_is_not_required: { set: :roles_are_not_required, has_fix: true }
     }.freeze
 
     VALIDATIONS.each_key do |k|
@@ -987,6 +992,68 @@ module Protonym::SoftValidationExtensions
                              fix: :becomes_combination, success_message: "Protonym #{self.cached_original_combination_html} was successfully converted into a combination", fix_trigger: :requested)
       end
     end
+
+    def sv_missing_roles
+      soft_validations.add(:base, 'Taxon name author role is not selected') if self.roles.empty?
+    end
+
+    def sv_year_is_not_required
+      if !self.year_of_publication.nil? && self.source && self.year_of_publication == self.source.year
+        soft_validations.add(:year_of_publication, 'Year of publication is not required, it is derived from the source', fix: :sv_fix_year_is_not_required, success_message: 'Year of publication was deleted')
+      end
+    end
+
+    def sv_fix_year_is_not_required
+      self.update_column(:year_of_publication, nil)
+      return true
+    end
+
+    def sv_author_is_not_required
+      if self.verbatim_author && (!self.roles.empty? || (self.source && self.verbatim_author == self.source.authority_name))
+        soft_validations.add(:verbatim_author, 'Verbatim author is not required, it is derived from the source and taxon name author roles', fix: :sv_fix_author_is_not_required, success_message: 'Taxon name verbatim author was deleted')
+      end
+    end
+
+    def sv_fix_author_is_not_required
+      self.update_column(:verbatim_author, nil)
+      return true
+    end
+
+    def sv_misspelling_roles_are_not_required
+      if !self.roles.empty? && self.source && (has_misspelling_relationship? || name_is_misapplied?)
+        soft_validations.add(:base, 'Taxon name author role is not required for misspellings and misapplications', fix: :sv_fix_misspelling_roles_are_not_required, success_message: 'Roles were deleted')
+      end
+    end
+
+    def sv_fix_misspelling_roles_are_not_required
+      self.roles.each do |r|
+        r.destroy
+      end
+      return true
+    end
+
+    def sv_misspelling_author_is_not_required
+      if self.verbatim_author && self.source && (has_misspelling_relationship? || name_is_misapplied?)
+        soft_validations.add(:verbatim_author, 'Verbatim author is not required for misspellings and misapplications', fix: :sv_fix_misspelling_author_is_not_required, success_message: 'Verbatim author was deleted')
+      end
+    end
+
+    def sv_fix_misspelling_author_is_not_required
+      self.update_column(:verbatim_author, nil)
+      return true
+    end
+
+    def sv_misspelling_year_is_not_required
+      if self.year_of_publication && self.source && (has_misspelling_relationship? || name_is_misapplied?)
+        soft_validations.add(:year_of_publication, 'Year is not required for misspellings and misapplications', fix: :sv_fix_misspelling_year_is_not_required, success_message: 'Year was deleted')
+      end
+    end
+
+    def sv_fix_misspelling_year_is_not_required
+      self.update_column(:year_of_publication, nil)
+      return true
+    end
+
 
     #  def sv_fix_add_relationship(method, object_id)
     #    begin

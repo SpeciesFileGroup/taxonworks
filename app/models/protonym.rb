@@ -627,9 +627,6 @@ class Protonym < TaxonName
       # Combination can hit here
       classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
 
-      # TODO: not used!?
-      # hybrid_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('Hybrid')
-
       dependants.each do |i|
         columns_to_update = {
           cached: i.get_full_name,

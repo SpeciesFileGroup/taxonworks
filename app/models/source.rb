@@ -231,7 +231,7 @@ class Source < ApplicationRecord
       sources = []
       bibliography.each do |record|
         a = Source::Bibtex.new_from_bibtex(record)
-        a.soft_validate() # why?
+#        a.soft_validate() # why?
         sources.push(a)
       end
       return sources, nil
@@ -257,7 +257,7 @@ class Source < ApplicationRecord
             if a.save
               valid += 1
             end
-            a.soft_validate()
+#            a.soft_validate()
           else
             # error_msg = a.errors.messages.to_s
           end
