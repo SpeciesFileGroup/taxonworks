@@ -121,6 +121,52 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_falsey
         expect(@kingdom.soft_validations.messages_on(:etymology).empty?).to be_truthy
       end
+      specify 'missing role' do
+        @species.soft_validate(:missing_roles)
+        expect(@species.soft_validations.messages_on(:base).empty?).to be_falsey
+        person= FactoryBot.create(:person, first_name: 'J.', last_name: 'McDonald')
+        @species.taxon_name_authors << person
+        @species.soft_validate(:missing_roles)
+        expect(@species.soft_validations.messages_on(:base).empty?).to be_truthy
+      end
+      specify 'year is not required' do
+        @genus.verbatim_author = @genus.source.authority_name
+        @genus.year_of_publication = @genus.source.year
+        @genus.save
+        @genus.soft_validate(:year_is_not_required)
+        expect(@genus.soft_validations.messages_on(:year_of_publication).empty?).to be_falsey
+        @genus.fix_soft_validations
+        @genus.soft_validate(:year_is_not_required)
+        expect(@genus.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
+      end
+      specify 'author is not required' do
+        @genus.verbatim_author = 'Green'
+        person= FactoryBot.create(:person, first_name: 'J.', last_name: 'McDonald')
+        @genus.taxon_name_authors << person
+        @genus.save
+        @genus.soft_validate(:author_is_not_required)
+        expect(@genus.soft_validations.messages_on(:verbatim_author).empty?).to be_falsey
+        @genus.fix_soft_validations
+        @genus.soft_validate(:author_is_not_required)
+        expect(@genus.soft_validations.messages_on(:verbatim_author).empty?).to be_truthy
+      end
+      specify 'unneded fields' do
+        g = FactoryBot.build(:iczn_genus, verbatim_author: 'Green', year_of_publication: '1995', parent: @genus.parent, source: @genus.source)
+        person = FactoryBot.create(:person, first_name: 'J.', last_name: 'McDonald')
+        g.taxon_name_authors << person
+        g.save
+        r3 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: @genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
+        g.soft_validate(:roles_are_not_required)
+        expect(g.soft_validations.messages_on(:verbatim_author).empty?).to be_falsey
+        expect(g.soft_validations.messages_on(:year_of_publication).empty?).to be_falsey
+        expect(g.soft_validations.messages_on(:base).empty?).to be_falsey
+        g.fix_soft_validations
+        g.reload
+        g.soft_validate(:roles_are_not_required)
+        expect(g.soft_validations.messages_on(:verbatim_author).empty?).to be_truthy
+        expect(g.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
+        expect(g.soft_validations.messages_on(:base).empty?).to be_truthy
+      end
     end
 
     context 'coordinated taxa' do
@@ -135,7 +181,6 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         end
 
         specify 'genus and subgenus have different author' do
-
           expect(@genus.soft_validations.messages_on(:verbatim_author).empty?).to be_falsey
         end
 
@@ -143,7 +188,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
           expect(@sgen.soft_validations.messages_on(:verbatim_author).empty?).to be_falsey
         end
 
-        specify 'genus and subgenus have different year (error on year_of_publication' do
+        specify 'genus and subgenus have different year (error on year_of_publication)' do
           expect(@sgen.soft_validations.messages_on(:year_of_publication).empty?).to be_falsey
         end
 
@@ -223,6 +268,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
         specify 'is fixable' do
           @ssp1.source = nil
+          @ssp1.fix_soft_validations
           @species.fix_soft_validations
           @species.soft_validate(:validate_coordinated_names)
           @ssp1.soft_validate(:validate_coordinated_names)
@@ -242,12 +288,15 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         expect(@subfamily.soft_validations.messages_on(:base).size).to eq(1)
         g = FactoryBot.create(:iczn_genus, name: 'Typhlocyba', parent: @subfamily)
         r = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: @subfamily, type: 'TaxonNameRelationship::Typification::Family' )
+        person = FactoryBot.create(:person, first_name: 'J.', last_name: 'McDonald')
+        @subfamily.taxon_name_authors << person
         @subfamily.soft_validate
         expect(@subfamily.soft_validations.messages_on(:base).count).to eq(3)
         @subfamily.fix_soft_validations
         @subfamily.reload
         expect(@subfamily.valid?).to be_truthy
         @subfamily.origin_citation.pages = 1 if !@subfamily.source.nil?
+        @subfamily.save
         @subfamily.soft_validate
         expect(@subfamily.soft_validations.messages_on(:base).count).to eq(0)
       end
@@ -276,10 +325,13 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         expect(@species.soft_validations.messages_on(:base).size).to eq(1)
       end
       specify 'more than one type is selected' do
-        t1 = FactoryBot.create(:valid_type_material, protonym: @species, type_type: 'neotype')
+        t1 = FactoryBot.create(:valid_type_material, protonym: @species, type_type: 'syntype')
         t2 = FactoryBot.create(:valid_type_material, protonym: @species, type_type: 'holotype')
         @species.soft_validate(:primary_types)
-        expect(@species.soft_validations.messages_on(:base).size).to eq(1)
+        expect(@species.soft_validations.messages_on(:base).size).to eq(3)
+        expect(@species.soft_validations.messages_on(:base)).to include('More than one of primary types are selected. Uncheck the specimens which are not primary types for this taxon')
+        expect(@species.soft_validations.messages_on(:base)).to include('Primary type repository is not set')
+        expect(@species.soft_validations.messages_on(:base)).to include('Syntype repository is not set')
       end
     end
 

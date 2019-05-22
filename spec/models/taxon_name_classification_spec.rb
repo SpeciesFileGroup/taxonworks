@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe TaxonNameClassification, type: :model do
+describe TaxonNameClassification, type: :model, group: [:nomenclature] do
 
   let(:taxon_name_classification) { TaxonNameClassification.new }
 

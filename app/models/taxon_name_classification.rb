@@ -170,7 +170,9 @@ class TaxonNameClassification < ApplicationRecord
         if type_name =~ /(Fossil|Hybrid|Candidatus)/
           t.update_columns(
             cached: t.get_full_name,
-            cached_html: t.get_full_name_html
+            cached_html: t.get_full_name_html,
+            cached_original_combination: t.get_original_combination,
+            cached_original_combination_html: t.get_original_combination_html
           )
         elsif type_name =~ /Latinized::Gender/
           t.descendants.select{|t| t.id == t.cached_valid_taxon_name_id}.uniq.each do |t1|
