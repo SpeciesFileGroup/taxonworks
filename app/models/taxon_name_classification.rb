@@ -58,7 +58,7 @@ class TaxonNameClassification < ApplicationRecord
 
   # TODO: helper method 
   def self.label
-    name.demodulize.underscore.humanize.downcase
+    name.demodulize.underscore.humanize.downcase.gsub(/\d+/, ' \0 ').squish
   end
 
   # @return [String]
@@ -83,7 +83,7 @@ class TaxonNameClassification < ApplicationRecord
   #   this is helper-esqe, but also useful in validation, so here for now
   def classification_label
     return nil if type_name.nil?
-    type_name.demodulize.underscore.humanize.downcase #+
+    type_name.demodulize.underscore.humanize.downcase.gsub(/\d+/, ' \0 ').squish #+
       #(nomenclature_code ? " [#{nomenclature_code}]" : '')
   end
 

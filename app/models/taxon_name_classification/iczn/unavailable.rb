@@ -4,6 +4,11 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
     true
   end
 
+  def classification_label
+    return 'unavailable' if type_name.to_s == 'TaxonNameClassification::Iczn::Unavailable'
+    'unavailable: ' + type_name.demodulize.underscore.humanize.downcase.gsub(/\d+/, ' \0 ').squish
+  end
+
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000168'.freeze
 
   def self.disjoint_taxon_name_classes
