@@ -748,7 +748,7 @@ namespace :tw do
 
           ap ecology_topic_ids
 
-          life_zone_map = {0 => 'marine', 1 => 'brackish', 2 => 'freshwater', 3 => 'terrestrial'}   # must be bit position
+          life_zone_map = {0 => 'marine', 1 => 'brackish', 2 => 'freshwater', 3 => 'terrestrial'} # must be bit position
 
           path = @args[:data_directory] + 'sfTaxaByTaxonNameStr.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -774,12 +774,16 @@ namespace :tw do
             next if row['AccessCode'].to_i == 4
 
             project_id = get_tw_project_id[row['FileID']]
-            ref_id = row['RefID']
+            ref_id = row['RefID'] # preserve this value; used intact below for creating taxon_name_author list if this is a contained ref
             # Use ContainingRefID if SFContainedCiteAuxData[ref_id]
             if get_contained_cite_aux_data[ref_id]
               use_this_ref_id = get_contained_cite_aux_data[ref_id]['containing_ref_id']
+              add_different_authors = true
+              ## add taxon_name_authors for contained ref
             else
               use_this_ref_id = ref_id
+              add_different_authors = false
+              ## copy source_author list to taxon_name_author list
             end
 
             # For ecology
@@ -842,6 +846,7 @@ namespace :tw do
                 logger.info "Note!! Created OTU for temporary or ill-formed taxon SF.TaxonNameID = #{sf_taxon_name_id}, otu.id = #{otu.id}"
 
                 otu.citations << Citation.new(source_id: get_tw_source_id[use_this_ref_id], is_original: true, project_id: project_id) if use_this_ref_id.to_i > 0
+                # Note: If contained ref, no need to specify separate taxon_name_author for OTUs
 
                 get_tw_otu_id[row['TaxonNameID']] = otu.id.to_s
                 get_sf_name_status[row['TaxonNameID']] = name_status
@@ -968,6 +973,16 @@ namespace :tw do
                     otu_id: otu_id,
                     project_id: project_id,
                     text: ecology_text)
+
+
+                # taxon_name_roles for original citation
+
+                if add_different_authors
+                  # This is a ref in ref, taxon_name_authors listed in sfRefAuthorsOrdered, use value in ref_id, not use_this_ref_id
+                else
+                  # This is a simple citation, copy source author list to taxon name author list
+                end
+
 
               rescue ActiveRecord::RecordInvalid
                 logger.error "TaxonName ERROR (count = #{error_counter += 1}) AFTER synonym test (SF.TaxonNameID = #{sf_taxon_name_id}, parent_id = #{parent_id}): " + taxon_name.errors.full_messages.join(';')

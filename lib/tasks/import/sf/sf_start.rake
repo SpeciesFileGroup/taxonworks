@@ -22,7 +22,7 @@ namespace :tw do
           # get_containing_source_id = import.get('TWSourceIDToContainingSourceID')
           ref_file_id = import.get('RefIDsByFileID')
           ref_id_containing_id_hash = import.get('RefContainingRefHash')
-          get_contained_cite_aux_data = import.get('SFContainedCiteAuxData')
+          # get_contained_cite_aux_data = import.get('SFContainedCiteAuxData')
           ref_id_editor_array = import.get('RefIDEditorArray') # author as editor if RefID is in array
           ref_id_pub_id_hash = import.get('RefIDPubIDHash')
           ref_id_pub_type = import.get('SFPubIDToPubTypeString')
@@ -35,10 +35,19 @@ namespace :tw do
 
           author_error_counter = 0
 
+          ##### New logic
+          # Only create source authors for refs that do not have a ContainingRefID
+          #
+          # has_containing_ref_id
+          #
+          # loop through tblRefs only, use RefID as index into sfRefAuthorsOrdered
+
+
+
           file.each_with_index do |row, i|
             ref_id = row['RefID']
             next if skipped_file_ids.include? ref_file_id[ref_id].to_i
-            next if get_contained_cite_aux_data[ref_id] # skip if authors contained in articles
+            next if ref_id_containing_id_hash[ref_id] # skip if authors contained in articles
             source_id = get_tw_source_id[ref_id]
             next if source_id.nil? # @todo Should be recorded
             # Reloop if TW.source record is verbatim
@@ -61,30 +70,40 @@ namespace :tw do
             begin
               role.save!
             rescue ActiveRecord::RecordInvalid
-              logger.error "Author role ERROR (#{author_error_counter += 1}): " + role.errors.full_messages.join(';')
+              logger.error "SourceAuthor role ERROR (#{author_error_counter += 1}): " + role.errors.full_messages.join(';')
             end
           end
 
 
-          ## Second pass:  Check tblRefs rather than sfRefAuthorsOrdered
+          ## Second pass:  Check tblRefs rather than sfRefAuthorsOrdered for editors
 
           path = @args[:data_directory] + 'tblRefs.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           editor_error_counter = 0
+          containing_source_id_nil = 0
+          source_id_nil = 0
 
           file.each_with_index do |row, i|
             next if row['ContainingRefID'] == '0' # reloop if no containing ref (eliminate most common attribute first)
             next if skipped_file_ids.include? row['FileID'].to_i # ref_file_id[ref_id].to_i
             ref_id = row['RefID']
             source_id = get_tw_source_id[ref_id]
-            next if source_id.nil? # @todo Should be recorderd
-            # containing_ref_id = ref_id_containing_id_hash[ref_id]
+
+            if source_id.nil?
+              logger.error "SourceID ERROR: ref_id = #{ref_id} (#{source_id_nil += 1})"
+              next
+            end
+
             containing_ref_id = row['ContainingRefID']
             next unless ref_id_pub_type[ref_id_pub_id_hash[containing_ref_id]] == 'book' # is the containing ref a book
             next unless ref_id_editor_array.include? containing_ref_id # did author act as editor
             containing_source_id = get_tw_source_id[containing_ref_id]
-            next if containing_source_id.nil? # @todo Should be recorded
+
+            if containing_source_id.nil?
+              logger.error "ContainingSourceID ERROR: source_id = #{source_id}, ref_id = #{ref_id}, containing_ref_id = #{containing_ref_id} (#{containing_source_id_nil += 1})"
+              next
+            end
 
             logger.info "working with SF.RefID = #{ref_id}, SF.ContainingRefID = #{containing_ref_id}, TW.source_id = #{source_id}, TW.containing_source_id = #{containing_source_id} \n"
 
@@ -110,6 +129,115 @@ namespace :tw do
             end
           end
 
+
+
+          ######################################################################################
+          # import = Import.find_or_create_by(name: 'SpeciesFileData')
+          # skipped_file_ids = import.get('SkippedFileIDs')
+          # get_tw_person_id = import.get('SFPersonIDToTWPersonID')
+          # get_tw_source_id = import.get('SFRefIDToTWSourceID')
+          # get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
+          # # source_editor_array = import.get('TWSourceEditorList') # if source.id is in array
+          # # get_containing_source_id = import.get('TWSourceIDToContainingSourceID')
+          # ref_file_id = import.get('RefIDsByFileID')
+          # ref_id_containing_id_hash = import.get('RefContainingRefHash')
+          # get_contained_cite_aux_data = import.get('SFContainedCiteAuxData')
+          # ref_id_editor_array = import.get('RefIDEditorArray') # author as editor if RefID is in array
+          # ref_id_pub_id_hash = import.get('RefIDPubIDHash')
+          # ref_id_pub_type = import.get('SFPubIDToPubTypeString')
+          #
+          # # First pass: Create authors for sources (standalone only and contained in books): NOTE: Authors in contained refs, not books, will be assigned as taxon name authors later; they can be skipped here
+          # # Second pass: Create editors in containing sources (applies only to books where author acted as editor)
+          #
+          # path = @args[:data_directory] + 'sfRefAuthorsOrdered.txt'
+          # file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          #
+          # author_error_counter = 0
+          #
+          # ##### New logic
+          # # Only create source authors for refs that do not have a ContainingRefID
+          # #
+          # # has_containing_ref_id
+          # #
+          # # loop through tblRefs only, use RefID as index into sfRefAuthorsOrdered
+          #
+          #
+          #
+          # file.each_with_index do |row, i|
+          #   ref_id = row['RefID']
+          #   next if skipped_file_ids.include? ref_file_id[ref_id].to_i
+          #   next if get_contained_cite_aux_data[ref_id] # skip if authors contained in articles
+          #   source_id = get_tw_source_id[ref_id]
+          #   next if source_id.nil? # @todo Should be recorded
+          #   # Reloop if TW.source record is verbatim
+          #   # next if Source.find(source_id).try(:class) == Source::Verbatim # << Hernán's, Source.find(source_id).type == 'Source::Verbatim'
+          #   # next if Source.where(id: source_id).pluck(:type)[0] == 'Source::Verbatim' # faster per Matt   #  there aren't any?
+          #
+          #   logger.info "working with SF.RefID = #{row['RefID']}, TW.source_id = #{source_id}, position = #{row['SeqNum']} \n"
+          #
+          #   role = Role.new(
+          #       person_id: get_tw_person_id[row['PersonID']],
+          #       type: 'SourceAuthor',
+          #       role_object_id: source_id,
+          #       role_object_type: 'Source',
+          #       created_at: row['CreatedOn'],
+          #       updated_at: row['LastUpdate'],
+          #       created_by_id: get_tw_user_id[row['CreatedBy']],
+          #       updated_by_id: get_tw_user_id[row['ModifiedBy']]
+          #   )
+          #
+          #   begin
+          #     role.save!
+          #   rescue ActiveRecord::RecordInvalid
+          #     logger.error "SourceAuthor role ERROR (#{author_error_counter += 1}): " + role.errors.full_messages.join(';')
+          #   end
+          # end
+          #
+          #
+          # ## Second pass:  Check tblRefs rather than sfRefAuthorsOrdered for editors
+          #
+          # path = @args[:data_directory] + 'tblRefs.txt'
+          # file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          #
+          # editor_error_counter = 0
+          #
+          # file.each_with_index do |row, i|
+          #   next if row['ContainingRefID'] == '0' # reloop if no containing ref (eliminate most common attribute first)
+          #   next if skipped_file_ids.include? row['FileID'].to_i # ref_file_id[ref_id].to_i
+          #   ref_id = row['RefID']
+          #   source_id = get_tw_source_id[ref_id]
+          #   next if source_id.nil? # @todo Should be recorderd
+          #   # containing_ref_id = ref_id_containing_id_hash[ref_id]
+          #   containing_ref_id = row['ContainingRefID']
+          #   next unless ref_id_pub_type[ref_id_pub_id_hash[containing_ref_id]] == 'book' # is the containing ref a book
+          #   next unless ref_id_editor_array.include? containing_ref_id # did author act as editor
+          #   containing_source_id = get_tw_source_id[containing_ref_id]
+          #   next if containing_source_id.nil? # @todo Should be recorded
+          #
+          #   logger.info "working with SF.RefID = #{ref_id}, SF.ContainingRefID = #{containing_ref_id}, TW.source_id = #{source_id}, TW.containing_source_id = #{containing_source_id} \n"
+          #
+          #   ordered_editors = SourceAuthor.where(role_object_id: containing_source_id).order(:position).pluck(:person_id).each do |person_id|
+          #     puts person_id
+          #   end
+          #
+          #   ordered_editors.each do |person_id|
+          #     role = SourceEditor.new(
+          #         person_id: person_id,
+          #         role_object_id: source_id, # the ref in ref's editors, not the contained ref's editors
+          #         role_object_type: 'Source',
+          #         created_at: row['CreatedOn'],
+          #         updated_at: row['LastUpdate'],
+          #         created_by_id: get_tw_user_id[row['CreatedBy']],
+          #         updated_by_id: get_tw_user_id[row['ModifiedBy']]
+          #     )
+          #     begin
+          #       role.save!
+          #     rescue ActiveRecord::RecordInvalid
+          #       logger.error "Editor role ERROR person_id = #{person_id} (#{editor_error_counter += 1}): " + role.errors.full_messages.join(';')
+          #     end
+          #   end
+          # end
+          #
           #######################################################################################
           `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/5_after_source_roles/`
           puts '** dumped 5_after_source_roles **'
