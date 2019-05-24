@@ -20,6 +20,8 @@ module PaginationHeaders
     def set_pagination_headers(name) 
       scope = instance_variable_get("@#{name}")
       scope.tap do |d|
+        # See how can we fit what is described in the url below to avoid double-querying
+        # https://stackoverflow.com/questions/156114/best-way-to-get-result-count-before-limit-was-applied/8242764#8242764
         response.set_header('Pagination-Total', d.total_count.to_s )
         response.set_header('Pagination-Total-Pages', d.total_pages.to_s )
         response.set_header('Pagination-Page', d.current_page.to_s )

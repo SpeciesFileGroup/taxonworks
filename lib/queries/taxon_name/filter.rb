@@ -121,15 +121,13 @@ module Queries
       # @return [String, nil] 
       #   accessor for attr :nomenclature_group, wrap with needed wildcards 
       def nomenclature_group
-        return nil unless @nomenclature_group
-        "NomenclaturalRank::%#{@nomenclature_group}%"
+        @nomenclature_group ? "NomenclaturalRank::%#{@nomenclature_group}%" : nil
       end
 
       # @return [String, nil] 
       #   accessor for attr :nomenclature_code, wrap with needed wildcards 
       def nomenclature_code
-        return nil unless @nomenclature_code
-        "NomenclaturalRank::#{@nomenclature_code}%"
+        @nomenclature_code ? "NomenclaturalRank::#{@nomenclature_code}%" : nil
       end
 
       # @return Scope
@@ -137,27 +135,22 @@ module Queries
       # A merge facet.
       def descendant_facet
         return nil if parent_id.empty? || !descendants
-        o = table
-        h = ::TaxonNameHierarchy.arel_table
 
-        a = o.alias('tfa_')
-        b = o.project(a[Arel.star]).from(a)
-
-        c = h.alias('tfa_r')
-
-        b = b.join(c, Arel::Nodes::OuterJoin)
-          .on(
-            a[:id].eq(c[:descendant_id])
+        ::TaxonName.where(
+          ::TaxonNameHierarchy.where(
+            ::TaxonNameHierarchy.arel_table[:descendant_id].eq(::TaxonName.arel_table[:id]).and(
+            ::TaxonNameHierarchy.arel_table[:ancestor_id].in(parent_id))
+          ).arel.exists
         )
+      end
 
-        e = c[:descendant_id].not_eq(nil)
-        f = c[:ancestor_id].eq_any(parent_id)
+      # @return Scope
+      def otus_facet
+        return nil if otus.nil?
 
-        b = b.where(e.and(f))
-        b = b.group(a[:id])
-        b = b.as('tfa_a_')
+        subquery = ::Otu.where(::Otu.arel_table[:taxon_name_id].eq(::TaxonName.arel_table[:id])).arel.exists
 
-        ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(table['id']))))
+        ::TaxonName.where(otus ? subquery : subquery.not)
       end
 
       # @return Scope
@@ -219,59 +212,21 @@ module Queries
       end
 
       # @return Scope
-      def type_metadata_facet 
+      def type_metadata_facet
         return nil if type_metadata.nil?
-        o = table
-        h = ::TypeMaterial.arel_table
 
-        a = o.alias("tfd_")
-        b = o.project(a[Arel.star]).from(a)
+        subquery = ::TypeMaterial.where(::TypeMaterial.arel_table[:protonym_id].eq(::TaxonName.arel_table[:id])).arel.exists
 
-        c = h.alias("tfd_r_")
-
-        b = b.join(c, Arel::Nodes::OuterJoin)
-          .on(
-            a[:id].eq(c[:protonym_id])
-        )
-
-        if type_metadata
-          b = b.where(c[:protonym_id].not_eq(nil))
-        else
-          b = b.where(c[:protonym_id].eq(nil))
-        end
-
-        b = b.group(a[:id])
-        b = b.as("tfd_a_")
-
-        ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(table['id']))))
+        ::TaxonName.where(type_metadata ? subquery : subquery.not)
       end
 
       # @return Scope
-      def otus_facet 
+      def otus_facet
         return nil if otus.nil?
-        o = table
-        h = ::Otu.arel_table
 
-        a = o.alias("tfe_")
-        b = o.project(a[Arel.star]).from(a)
+        subquery = ::Otu.where(::Otu.arel_table[:taxon_name_id].eq(::TaxonName.arel_table[:id])).arel.exists
 
-        c = h.alias("tfe_r_")
-
-        b = b.join(c, Arel::Nodes::OuterJoin)
-          .on(
-            a[:id].eq(c[:taxon_name_id])
-        )
-
-        if otus 
-          b = b.where(c[:taxon_name_id].not_eq(nil))
-        else
-          b = b.where(c[:taxon_name_id].eq(nil))
-        end
-
-        b = b.group(a[:id])
-        b = b.as("tfe_a_")
-
-        ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(table['id']))))
+        ::TaxonName.where(otus ? subquery : subquery.not)
       end
 
       # @return Scope
