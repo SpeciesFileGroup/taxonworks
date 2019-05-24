@@ -105,7 +105,6 @@ export default {
         this.parentSelected(parentId)
     },
     setParentRank: function (parent) {
-      this.$store.commit(MutationNames.SetRankClass, undefined)
       this.$store.dispatch(ActionNames.SetParentAndRanks, parent)
       this.$store.commit(MutationNames.UpdateLastChange)
     },
