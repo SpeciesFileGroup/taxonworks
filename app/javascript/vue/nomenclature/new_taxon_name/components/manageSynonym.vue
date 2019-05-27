@@ -56,7 +56,14 @@
                 </td>
                 <td v-html="children.parent.name"/>
                 <td>
-                  {{ validTaxon.name }}
+                  <autocomplete
+                    url="/taxon_names/autocomplete"
+                    param="term"
+                    min="2"
+                    label="label"
+                    @getItem="addPreSelected(children.id, $event.id)"
+                    :add-params="{ type: 'Protonym', 'nomenclature_group[]': 'Genus' }"
+                    :placeholder="validTaxon.name"/>
                 </td>
                 <td class="horizontal-left-content">
                   <span
@@ -75,6 +82,7 @@
           </table>
           <button
             class="button normal-input button-submit"
+            :disabled="!selected.length"
             @click="confirmSave">
             Save
           </button>
@@ -115,13 +123,15 @@ import RadialAnnotator from 'components/annotator/annotator'
 import Expand from './expand.vue'
 import ModalComponent from 'components/modal'
 import SpinnerComponent from 'components/spinner'
+import Autocomplete from 'components/autocomplete'
 
 export default {
   components: {
     Expand,
     ModalComponent,
     RadialAnnotator,
-    SpinnerComponent
+    SpinnerComponent,
+    Autocomplete
   },
   computed: {
     taxon() {
@@ -142,7 +152,8 @@ export default {
       validTaxon: undefined,
       showModal: false,
       moveInput: '',
-      saving: false
+      saving: false,
+      preSelected: []
     }
   },
   watch: {
@@ -186,17 +197,35 @@ export default {
       this.showModal = false
       this.moveInput = ''
 
-      this.selected.forEach(id => {
-        promises.push(this.$http.patch(`/taxon_names/${id}`, { taxon_name: { parent_id: this.taxon.cached_valid_taxon_name_id } }))
+      this.selected.forEach((id, index) => {
+        let findPreSelected = this.preSelected.find(children => {
+          return children.childrenId == id
+        })
+        if(findPreSelected) {
+          promises.push(this.$http.patch(`/taxon_names/${id}`, { taxon_name: { parent_id: findPreSelected.parentId } }))
+        }
+        else {
+          promises.push(this.$http.patch(`/taxon_names/${id}`, { taxon_name: { parent_id: this.taxon.cached_valid_taxon_name_id } }))
+        }
       })
 
       Promise.all(promises).then(() => {
         this.childrenList = this.childrenList.filter(children => {
           return !this.selected.includes(children.id)
         })
-        this.selected = []
+        this.selected = [],
+        this.preSelected = []
         this.saving = false
         TW.workbench.alert.create(`Taxon name was successfully moved.`, 'notice')
+      }, (response) => {
+        TW.workbench.alert.create(`Something went wrong: ${JSON.stringify(response.body)}`, 'error')
+        this.saving = false
+      })
+    },
+    addPreSelected(childrenId, parentId) {
+      this.preSelected.push({ 
+        childrenId: childrenId, 
+        parentId: parentId
       })
     }
   }
