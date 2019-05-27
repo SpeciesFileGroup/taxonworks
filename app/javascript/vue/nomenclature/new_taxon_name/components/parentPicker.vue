@@ -17,6 +17,20 @@
         section="TaxonNames"
         @getId="parentSelected"
         type="TaxonName"/>
+      <div
+        v-if="parent && parent.id != parent.cached_valid_taxon_name_id"
+        class="horizontal-left-content separate-left">
+        <span
+          data-icon="warning"
+          title="This parent is invalid"/>
+        <button
+          v-if="validParent"
+          type="button"
+          class="button normal-input button-submit"
+          @click="parentSelected(parent.cached_valid_taxon_name_id, true)">
+          Set to {{ validParent.name }}
+        </button>
+      </div>
     </div>
     <div
       class="field"
@@ -82,19 +96,26 @@ export default {
   },
   data: function () {
     return {
-      code: undefined
+      code: undefined,
+      validParent: undefined
     }
   },
   mounted: function () {
     this.$on('parentSelected', function (item) {
       this.parentSelected(item.id)
     })
-    //this.loadWithParentID()
   },
   watch: {
     getInitLoad(newVal) {
       if(newVal)
         this.loadWithParentID()
+    },
+    parent(newVal) {
+      if(newVal && newVal.id != newVal.cached_valid_taxon_name_id) {
+        this.$http.get(`/taxon_names/${newVal.cached_valid_taxon_name_id}`).then(response => {
+          this.validParent = response.body
+        })
+      }
     }
   },
   methods: {
@@ -108,12 +129,15 @@ export default {
       this.$store.dispatch(ActionNames.SetParentAndRanks, parent)
       this.$store.commit(MutationNames.UpdateLastChange)
     },
-    parentSelected(id) {
+    parentSelected(id, saveToo = false) {
       this.$store.commit(MutationNames.SetParentId, id)
       this.$http.get(`/taxon_names/${id}`).then(response => {
         if (response.body.parent_id != null) {
           this.$store.commit(MutationNames.SetNomenclaturalCode, response.body.nomenclatural_code)
           this.setParentRank(response.body)
+          if(saveToo) {
+            this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
+          }
         } else {
           this.$store.commit(MutationNames.SetParent, response.body)
         }
