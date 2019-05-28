@@ -217,7 +217,9 @@ export default {
       this.$store.dispatch(ActionNames.LoadTaxonRelationships, this.taxon.id)
     },
     removeRelationship: function (item) {
-      this.$store.dispatch(ActionNames.RemoveTaxonRelationship, item)
+      this.$store.dispatch(ActionNames.RemoveTaxonRelationship, item).then(() => {
+        this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
+      })
     },
     setRelationship (item) {
       this.$store.dispatch(ActionNames.UpdateTaxonRelationship, item)
@@ -260,11 +262,13 @@ export default {
           this.taxonRelation = undefined
           this.$store.commit(MutationNames.UpdateLastSave)
           this.editMode = undefined
+          this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
         })
       }
       else {
         this.$store.dispatch(ActionNames.AddTaxonRelationship, item).then(() => {
           this.$store.commit(MutationNames.UpdateLastSave)
+          this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
         })
       }
     },
