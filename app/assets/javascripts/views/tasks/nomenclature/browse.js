@@ -34,10 +34,18 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
       }
     }
 
+    var taxonId = $("#browse-view").attr("data-taxon-id");
+    var taxonType = $("[data-taxon-type]").attr("data-taxon-type");
+
+    if(taxonType == 'Combination')
+      $('.edit-taxon-name').attr('href', '/tasks/nomenclature/new_combination/index?taxon_name_id=' + taxonId);
+
     TW.workbench.keyboard.createShortcut((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + "+t", "Edit taxon name", "Browse nomenclature", function () {
-      var taxonId = $("#browse-view").attr("data-taxon-id");
       if (/^\d+$/.test(taxonId)) {
-        window.open('/tasks/nomenclature/new_taxon_name/' + taxonId, '_self');
+        if(taxonType == 'Combination')
+          window.open('/tasks/nomenclature/new_combination/index?taxon_name_id=' + taxonId, '_self');
+        else
+          window.open('/tasks/nomenclature/new_taxon_name/' + taxonId, '_self');
       }
     });
 
