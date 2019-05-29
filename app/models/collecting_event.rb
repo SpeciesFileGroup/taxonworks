@@ -1086,7 +1086,7 @@ class CollectingEvent < ApplicationRecord
 
   def clone
     a = dup
-    a.verbatim_collecting_labe = verbatim_label + " [CLONED FROM #{id}]"
+    a.verbatim_collecting_labe = [verbatim_label, "[CLONED FROM #{id}]"].compact.join(' ')
     begin
       a.save!
     rescue ActiveRecord::RecordInvalid
