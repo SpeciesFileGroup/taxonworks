@@ -111,7 +111,7 @@ author_list_task:
   description: 'Display all source authors with links to source list.'
   categories:
     - source
-  status: prototype
+  status: stable 
 sqed_depiction_breakdown_todo_map_task:
   hub: true
   name: 'Collection object image breakdown TODO list'
@@ -311,7 +311,7 @@ browse_annotations_task:
     - nomenclature
     - matrix
     - dna
-  status: prototype
+  status: stable 
   description: 'Filter data by annotations (e.g. Notes, Data attributes).  Delete or create additional annotations on filtered objects.  Generate JSON request based on annotations.'
 new_descriptor_task:
   hub: true
@@ -340,7 +340,7 @@ uniquify_people_task:
   categories:
     - source
     - nomenclature
-  status: prototype
+  status: stable 
   description: 'Find and merge redundant or duplicated people, e.g., from import.'
 index_individual_bibtex_source_task:
   hub: true
@@ -437,5 +437,5 @@ visualize_confidences_task:
   name: 'Visualize confidences.'
   related:
   categories:
-  status: prototype
+  status: stable 
   description: 'See a graph of confidences applied per data type.'
