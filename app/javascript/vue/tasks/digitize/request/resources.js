@@ -153,6 +153,10 @@ const CreateCollectionEvent = function (data) {
   return ajaxCall('post', `/collecting_events.json`, { collecting_event: data })
 }
 
+const CloneCollectionEvent = function (id) {
+  return ajaxCall('post', `/collecting_events/${id}/clone`)
+}
+
 const GetCollectionObject = function (id) {
   return ajaxCall('get', `/collection_objects/${id}.json`)
 }
@@ -283,6 +287,7 @@ const DestroyBiologicalAssociation = function (id) {
 
 export {
   CheckForExistingIdentifier,
+  CloneCollectionEvent,
   GetLabelsFromCE,
   GetUserPreferences,
   GetOtu,
