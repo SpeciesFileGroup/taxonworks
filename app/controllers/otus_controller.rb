@@ -72,8 +72,13 @@ class OtusController < ApplicationController
   def destroy
     @otu.destroy
     respond_to do |format|
-      format.html { redirect_to otus_url }
-      format.json { head :no_content }
+      if @otu.destroyed?
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Otu was successfully destroyed.')}
+        format.json {head :no_content}
+      else
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Otu was not destroyed, ' + errors.messages)}
+        format.json {render json: @otu.errors, status: :unprocessable_entity}
+      end
     end
   end
 
