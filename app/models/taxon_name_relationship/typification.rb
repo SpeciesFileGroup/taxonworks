@@ -31,5 +31,7 @@ class TaxonNameRelationship::Typification < TaxonNameRelationship
     ' with'
   end
 
-
+  def sv_coordinated_taxa_object
+    true # not applicable
+  end
 end

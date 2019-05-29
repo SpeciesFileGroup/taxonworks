@@ -20,7 +20,7 @@
                 v-if="menuCreated"
                 :menu="menuOptions"
                 @selected="selectedRadialOption($event)"
-                @contextmenu="selectedRadialOption($event, '_blank')"
+                @contextmenu="selectedRadialOption($event, '_blank'); closeModal()"
                 width="400"
                 height="400"/>
             </div>
@@ -197,12 +197,20 @@
               break
             case defaultOptions.Destroy:
               if(window.confirm('Are you sure you want to destroy this record?')) {
-                this.destroy(`${this.metadata.resource_path}.json`).then(() => {
+                this.destroy(`${this.metadata.resource_path}.json`).then((response) => {
                   TW.workbench.alert.create(`${this.metadata.type} was successfully destroyed.`, 'notice')
                   if(this.globalId == this.metadata.globalId) {
                     this.eventDestroy()
                     this.deleted = true
                   }
+                  if(window.location.pathname == this.metadata.resource_path) {
+                    window.open(`/${window.location.pathname.split('/')[1]}`, '_self')
+                  }
+                  else {
+                    window.location.reload()
+                  }
+                }, () => {
+                  TW.workbench.alert.create(`${this.metadata.type} could not be destroyed.`, 'error')
                 })
               }
               break

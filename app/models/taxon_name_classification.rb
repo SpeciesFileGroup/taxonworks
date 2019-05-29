@@ -39,6 +39,7 @@ class TaxonNameClassification < ApplicationRecord
   scope :with_type_contains, -> (base_string) {where('type LIKE ?', "%#{base_string}%" ) }
 
   soft_validate(:sv_proper_classification, set: :proper_classification, has_fix: false)
+  soft_validate(:sv_proper_year, set: :proper_classification, has_fix: false)
   soft_validate(:sv_validate_disjoint_classes, set: :validate_disjoint_classes, has_fix: false)
   soft_validate(:sv_not_specific_classes, set: :not_specific_classes, has_fix: false)
 
@@ -57,7 +58,7 @@ class TaxonNameClassification < ApplicationRecord
 
   # TODO: helper method 
   def self.label
-    name.demodulize.underscore.humanize.downcase
+    name.demodulize.underscore.humanize.downcase.gsub(/\d+/, ' \0 ').squish
   end
 
   # @return [String]
@@ -82,7 +83,7 @@ class TaxonNameClassification < ApplicationRecord
   #   this is helper-esqe, but also useful in validation, so here for now
   def classification_label
     return nil if type_name.nil?
-    type_name.demodulize.underscore.humanize.downcase #+
+    type_name.demodulize.underscore.humanize.downcase.gsub(/\d+/, ' \0 ').squish #+
       #(nomenclature_code ? " [#{nomenclature_code}]" : '')
   end
 
@@ -169,7 +170,9 @@ class TaxonNameClassification < ApplicationRecord
         if type_name =~ /(Fossil|Hybrid|Candidatus)/
           t.update_columns(
             cached: t.get_full_name,
-            cached_html: t.get_full_name_html
+            cached_html: t.get_full_name_html,
+            cached_original_combination: t.get_original_combination,
+            cached_original_combination_html: t.get_original_combination_html
           )
         elsif type_name =~ /Latinized::Gender/
           t.descendants.select{|t| t.id == t.cached_valid_taxon_name_id}.uniq.each do |t1|
@@ -189,32 +192,38 @@ class TaxonNameClassification < ApplicationRecord
             )
           end
         elsif TAXON_NAME_CLASS_NAMES_VALID.include?(type_name)
+#          TaxonName.where(cached_valid_taxon_name_id: t.cached_valid_taxon_name_id).each do |vn|
+#            vn.update_column(:cached_valid_taxon_name_id, vn.get_valid_taxon_name.id)  # update self too!
+#          end
           vn = t.get_valid_taxon_name
           vn.update_column(:cached_valid_taxon_name_id, vn.id)  # update self too!
           vn.list_of_invalid_taxon_names.each do |s|
             s.update_column(:cached_valid_taxon_name_id, vn.id)
+          end
+          t.combination_list_self.each do |c|
+            c.update_column(:cached_valid_taxon_name_id, vn.id)
           end
         end
       end
     rescue ActiveRecord::RecordInvalid
       # should return false here, right?
     end
-    false # TODO: why false, success == true?
+#    false # TODO: why false, success == true?
   end
 
   #region Validation
-  # @TODO validate, that all the taxon_classes in the table could be linked to taxon_classes in classes (if those had changed)
   def validate_uniqueness_of_latinized
-    if /Latinized/.match(self.type_name)
-      lat = TaxonNameClassification.where(taxon_name_id: self.taxon_name_id).with_type_contains('Latinized').not_self(self)
-      unless lat.empty?
-        if /Gender/.match(lat.first.type_name)
-          errors.add(:taxon_name_id, 'The Gender is already selected')
-        elsif /PartOfSpeech/.match(lat.first.type_name)
-          errors.add(:taxon_name_id, 'The Part of speech is already selected')
-        end
-      end
-    end
+    true # moved to subclasses
+#    if /Latinized/.match(self.type_name)
+#      lat = TaxonNameClassification.where(taxon_name_id: self.taxon_name_id).with_type_contains('Latinized').not_self(self)
+#      unless lat.empty?
+#        if /Gender/.match(lat.first.type_name)
+#          errors.add(:taxon_name_id, 'The Gender is already selected')
+#        elsif /PartOfSpeech/.match(lat.first.type_name)
+#          errors.add(:taxon_name_id, 'The Part of speech is already selected')
+#        end
+#      end
+#    end
   end
 
   #endregion
@@ -228,11 +237,12 @@ class TaxonNameClassification < ApplicationRecord
         soft_validations.add(:type, "The status '#{self.type_class.label}' is unapplicable to the taxon #{self.taxon_name.cached_html} at the rank of #{self.taxon_name.rank_class.rank_name}")
       end
     end
+  end
+
+  def sv_proper_year
     y = self.taxon_name.year_of_publication
-    if not y.nil?
-      if y > self.type_class.code_applicability_end_year || y < self.type_class.code_applicability_start_year
-        soft_validations.add(:type, "The status '#{self.type_class.label}' is unapplicable to the taxon #{self.taxon_name.cached_html} published in the year #{y}")
-      end
+    if !y.nil? && (y > self.type_class.code_applicability_end_year || y < self.type_class.code_applicability_start_year)
+      soft_validations.add(:type, "The status '#{self.type_class.label}' is unapplicable to the taxon #{self.taxon_name.cached_html} published in the year #{y}")
     end
   end
 
@@ -243,8 +253,9 @@ class TaxonNameClassification < ApplicationRecord
     end
   end
 
-  # TODO: These soft validations should be added to individual classes!
   def sv_not_specific_classes
+    true # moved to subclasses
+=begin
     case self.type_name
       when 'TaxonNameClassification::Iczn::Available'
         soft_validations.add(:type, 'Please specify if the name is Valid or Invalid')
@@ -298,6 +309,7 @@ class TaxonNameClassification < ApplicationRecord
                                               'following endings: -us, -a, -um, -is, -e, -er, -or')
         end
     end
+=end
   end
 
   #endregion

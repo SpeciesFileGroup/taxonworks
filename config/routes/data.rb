@@ -119,6 +119,7 @@ resources :collecting_events do
   get :autocomplete_collecting_event_verbatim_locality, on: :collection
   member do
     get :card
+    post :clone, defaults: {format: :json}
   end
 
   collection do

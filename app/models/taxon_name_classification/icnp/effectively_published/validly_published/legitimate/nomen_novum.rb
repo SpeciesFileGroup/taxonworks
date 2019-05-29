@@ -11,4 +11,7 @@ class TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished::Leg
     'novum'
   end
 
+  def sv_not_specific_classes
+    true
+  end
 end

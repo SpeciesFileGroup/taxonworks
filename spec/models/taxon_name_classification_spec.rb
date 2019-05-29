@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe TaxonNameClassification, type: :model do
+describe TaxonNameClassification, type: :model, group: [:nomenclature] do
 
   let(:taxon_name_classification) { TaxonNameClassification.new }
 
@@ -138,6 +138,26 @@ describe TaxonNameClassification, type: :model do
     end
   end
 
+  context '#valid status' do
+    specify 'and synonym relationship' do
+      species = FactoryBot.create(:relationship_species)
+      genus = species.ancestor_at_rank('genus')
+      genus1 = FactoryBot.create(:relationship_genus, name: 'Aus')
+      species1 = FactoryBot.create(:relationship_species, name: 'aaa', parent: genus1)
+      c = Combination.new
+      c.genus = genus1
+      c.species = species
+      c.save
+      expect(c.cached_valid_taxon_name_id).to eq (species.id)
+      TaxonNameRelationship.create(subject_taxon_name: species, object_taxon_name: species1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+      c.reload
+      expect(c.cached_valid_taxon_name_id).to eq (species1.id)
+      TaxonNameClassification.create(taxon_name: species, type: 'TaxonNameClassification::Iczn::Available::Valid')
+      c.reload
+      expect(c.cached_valid_taxon_name_id).to eq (species.id)
+    end
+  end
+
  context 'soft_validation' do
     before(:each) do
       TaxonName.delete_all
@@ -175,13 +195,20 @@ describe TaxonNameClassification, type: :model do
       #conflicting with c1
       expect(c2.soft_validations.messages_on(:type).size).to eq(1)
     end
-    specify 'not specific classes' do
-      c1 = FactoryBot.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
-      c2 = FactoryBot.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Iczn::Available::Invalid::Homonym')
+    specify 'not specific classes: nomen nudum' do
+      c1 = FactoryBot.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
       c1.soft_validate(:not_specific_classes)
-      c2.soft_validate(:not_specific_classes)
       expect(c1.soft_validations.messages_on(:type).size).to eq(1)
-      expect(c2.soft_validations.messages_on(:type).size).to eq(1)
+    end
+    specify 'not specific classes: homonym' do
+      c1 = FactoryBot.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Iczn::Available::Invalid::Homonym')
+      c1.soft_validate(:not_specific_classes)
+      expect(c1.soft_validations.messages_on(:type).size).to eq(1)
+    end
+    specify 'not specific classes: CitationOfUnavailableName' do
+      c1 = FactoryBot.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::CitationOfUnavailableName')
+      c1.soft_validate(:not_specific_classes)
+      expect(c1.soft_validations.messages_on(:type).size).to eq(0)
     end
   end
 

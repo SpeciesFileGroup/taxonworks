@@ -117,6 +117,10 @@ const GetCollectionEvent = function (id) {
   return ajaxCall('get', `/collecting_events/${id}.json`)
 }
 
+const GetBiologicalRelationshipsSmartSelector = function () {
+  return ajaxCall('get', '/biological_relationships/select_options')
+}
+
 const CreateLabel = function (data) {
   return ajaxCall('post', '/labels', { label: data })
 }
@@ -147,6 +151,10 @@ const CreateContainerItem = function (data) {
 
 const CreateCollectionEvent = function (data) {
   return ajaxCall('post', `/collecting_events.json`, { collecting_event: data })
+}
+
+const CloneCollectionEvent = function (id) {
+  return ajaxCall('post', `/collecting_events/${id}/clone`)
 }
 
 const GetCollectionObject = function (id) {
@@ -189,6 +197,14 @@ const GetCollectionObjectDepictions = function (id) {
   return ajaxCall('get', `/collection_objects/${id}/depictions.json`)
 }
 
+const GetBiologicalRelationships = function () {
+  return ajaxCall('get', '/biological_relationships.json')
+}
+
+const GetBiologicalRelationshipsCreated = function (globalId) {
+  return ajaxCall('get', `/biological_associations.json?subject_global_id=${encodeURIComponent(globalId)}`)
+}
+
 const GetCollectionEventDepictions = function (id) {
   return ajaxCall('get', `/collecting_events/${id}/depictions.json`)
 }
@@ -197,12 +213,24 @@ const GetRepository = function (id) {
   return ajaxCall('get', `/repositories/${id}.json`)
 }
 
+const GetOtuBiologicalAssociationsSmartSelector = function () {
+  return ajaxCall('get', '/otus/select_options?target=BiologicalAssociation')
+}
+
+const GetCOBiologicalAssociationSmartSelector = function () {
+  return ajaxCall('get', `/collection_objects/select_options?target=BiologicalAssociation`)
+}
+
 const GetIdentifier = function (id) {
   return ajaxCall('get', `/identifiers/${id}.json`)
 }
 
 const GetNamespace = function (id) {
   return ajaxCall('get', `/namespaces/${id}.json`)
+}
+
+const CreateBiologicalAssociation = function (data) {
+  return ajaxCall('post', '/biological_associations.json', { biological_association: data })
 }
 
 const CreateTypeMaterial = function (data) {
@@ -253,18 +281,28 @@ const DestroyCollectionObject = function (id) {
   return ajaxCall('delete', `/collection_objects/${id}.json`)
 }
 
+const DestroyBiologicalAssociation = function (id) {
+  return ajaxCall('delete', `/biological_associations/${id}.json`)
+}
+
 export {
   CheckForExistingIdentifier,
+  CloneCollectionEvent,
   GetLabelsFromCE,
   GetUserPreferences,
   GetOtu,
   GetIdentifiersFromCO,
   GetRecentCollectionObjects,
+  GetBiologicalRelationshipsCreated,
   GetTaxonNameSmartSelector,
   GetCollectorsSmartSelector,
   GetRepositorySmartSelector,
   GetGeographicSmartSelector,
   GetTaxonDeterminatorSmartSelector,
+  GetBiologicalRelationshipsSmartSelector,
+  GetBiologicalRelationships,
+  GetOtuBiologicalAssociationsSmartSelector,
+  GetCOBiologicalAssociationSmartSelector,
   GetOtuSmartSelector,
   GetCollectingEventsSmartSelector,
   GetTypeDesignatorSmartSelector,
@@ -276,6 +314,7 @@ export {
   GetTypes,
   GetTaxon,
   CreateTaxonDetermination,
+  CreateBiologicalAssociation,
   CreateIdentifier,
   CreateLabel,
   UpdateLabel,
@@ -307,6 +346,7 @@ export {
   DestroyDepiction,
   DestroyCollectionObject,
   DestroyTaxonDetermination,
+  DestroyBiologicalAssociation,
   CreateContainer,
   CreateContainerItem,
   GetNamespacesSmartSelector

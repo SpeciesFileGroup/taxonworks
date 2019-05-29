@@ -98,8 +98,13 @@ class CollectionObjectsController < ApplicationController
   def destroy
     @collection_object.destroy
     respond_to do |format|
-      format.html { redirect_to collection_objects_url, notice: 'Collection object was successfully destroyed.' }
-      format.json { head :no_content }
+      if @collection_object.destroyed?
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectionObject was successfully destroyed.')}
+        format.json {head :no_content}
+      else
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectionObject was not destroyed, ' + errors.messages)}
+        format.json {render json: @collection_object.errors, status: :unprocessable_entity}
+      end
     end
   end
 

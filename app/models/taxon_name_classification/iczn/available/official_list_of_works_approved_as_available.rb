@@ -5,4 +5,8 @@ class TaxonNameClassification::Iczn::Available::OfficialListOfWorksApprovedAsAva
   def classification_label
     'Official List of Works Approved as Available in Zoological Nomenclature'
   end
+
+  def sv_not_specific_classes
+    true
+  end
 end

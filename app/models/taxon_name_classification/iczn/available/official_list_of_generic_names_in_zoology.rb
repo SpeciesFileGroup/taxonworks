@@ -16,4 +16,8 @@ class TaxonNameClassification::Iczn::Available::OfficialListOfGenericNamesInZool
   def classification_label
     'Official List of Generic Names in Zoological Nomenclature'
   end
+
+  def sv_not_specific_classes
+    true
+  end
 end

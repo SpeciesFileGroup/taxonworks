@@ -9,14 +9,12 @@ namespace :api, defaults: {format: :json} do
     get :pingz, controller: 'ping'
 
     # authenticated by user_token
-    defaults authenticate_user: true do 
+    defaults authenticate_user: true do
       get '/user_authenticated', to: 'base#index'
-
-      get '/otus', to: '/otus#index'
     end
 
     # authenticated by project token
-    defaults authenticate_project: true do 
+    defaults authenticate_project: true do
       get '/project_authenticated', to: 'base#index'
 
 
@@ -24,9 +22,11 @@ namespace :api, defaults: {format: :json} do
 
     end
 
-    defaults authenticate_project: true, authenticate_user: true do
+    defaults authenticate_user: true, authenticate_project: true do
       # authenticated by user and project
       get '/both_authenticated', to: 'base#index'
+
+      get '/otus', to: '/otus#index'
     end
 
     # Authenticate membership at the data controller level

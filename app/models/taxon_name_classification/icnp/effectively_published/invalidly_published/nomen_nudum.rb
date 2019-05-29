@@ -11,4 +11,7 @@ class TaxonNameClassification::Icnp::EffectivelyPublished::InvalidlyPublished::N
     'nudum'
   end
 
+  def sv_not_specific_classes
+    true
+  end
 end

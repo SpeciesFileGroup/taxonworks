@@ -32,6 +32,15 @@
               v-if="!getTaxon.id"/>
             <relationship-picker class="separate-top separate-bottom"/>
           </div>
+          <div
+            class="new-taxon-name-block"
+            v-if="showForThisGroup(['GenusGroup'], getTaxon)">
+            <spinner
+              :show-spinner="false"
+              :show-legend="false"
+              v-if="!getTaxon.id"/>
+            <manage-synonymy class="separate-bottom"/>
+          </div>          
           <div class="new-taxon-name-block">
             <type-block
               v-if="getTaxon.id && showForThisGroup(['FamilyGroup','GenusGroup', 'SpeciesGroup', 'SpeciesAndInfraspeciesGroup'], getTaxon)"
@@ -88,7 +97,6 @@
 
 <script>
 import showForThisGroup from './helpers/showForThisGroup'
-import Otu from '../../components/otu/otu.vue'
 import SourcePicker from './components/sourcePicker.vue'
 import RelationshipPicker from './components/relationshipPicker.vue'
 import StatusPicker from './components/statusPicker.vue'
@@ -99,8 +107,8 @@ import GenderBlock from './components/gender.vue'
 import CheckChanges from './components/checkChanges.vue'
 import TypeBlock from './components/type.vue'
 import BasicInformation from './components/basicInformation.vue'
-import OriginalCombination from './components/originalCombination.vue'
 import PickOriginalCombination from './components/pickOriginalCombination.vue'
+import ManageSynonymy from './components/manageSynonym'
 
 import SoftValidation from './components/softValidation.vue'
 import Spinner from 'components/spinner.vue'
@@ -122,12 +130,11 @@ export default {
     BasicInformation,
     SoftValidation,
     BlockLayout,
-    OriginalCombination,
+    ManageSynonymy,
     PickOriginalCombination,
     TypeBlock,
     GenderBlock,
     CheckChanges,
-    Otu
   },
   computed: {
     getTaxon () {

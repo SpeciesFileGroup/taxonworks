@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_05_02_194315) do
+ActiveRecord::Schema.define(version: 2019_05_23_142444) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -510,6 +510,7 @@ ActiveRecord::Schema.define(version: 2019_05_02_194315) do
     t.integer "position"
     t.text "caption"
     t.string "figure_label"
+    t.boolean "is_metadata_depiction"
     t.index ["created_by_id"], name: "index_depictions_on_created_by_id"
     t.index ["depiction_object_id"], name: "index_depictions_on_depiction_object_id"
     t.index ["depiction_object_type"], name: "index_depictions_on_depiction_object_type"

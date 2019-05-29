@@ -181,11 +181,15 @@ export default {
     addEntry: function (item) {
       if(this.editStatus) {
         item.id = this.editStatus.id
-        this.$store.dispatch(ActionNames.UpdateTaxonStatus, item)
-        this.editStatus = undefined
+        this.$store.dispatch(ActionNames.UpdateTaxonStatus, item).then(() => {
+          this.editStatus = undefined
+          this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
+        })
       }
       else {
-        this.$store.dispatch(ActionNames.AddTaxonStatus, item)
+        this.$store.dispatch(ActionNames.AddTaxonStatus, item).then(() => {
+          this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
+        })
       }
     },
     activeModal: function (value) {

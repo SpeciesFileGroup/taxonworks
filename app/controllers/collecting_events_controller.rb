@@ -1,7 +1,7 @@
 class CollectingEventsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_collecting_event, only: [:show, :edit, :update, :destroy, :card]
+  before_action :set_collecting_event, only: [:show, :edit, :update, :destroy, :card, :clone]
 
   # GET /collecting_events
   # GET /collecting_events.json
@@ -46,6 +46,12 @@ class CollectingEventsController < ApplicationController
     end
   end
 
+  # POST /collecting_events/1/clone.json
+  def clone
+    @collecting_event = @collecting_event.clone
+    render :show
+  end
+
   # PATCH/PUT /collecting_events/1
   # PATCH/PUT /collecting_events/1.json
   def update
@@ -65,8 +71,13 @@ class CollectingEventsController < ApplicationController
   def destroy
     @collecting_event.destroy
     respond_to do |format|
-      format.html { redirect_to collecting_events_url }
-      format.json { head :no_content }
+      if @collecting_event.destroyed?
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectingEvent was successfully destroyed.')}
+        format.json {head :no_content}
+      else
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectingEvent was not destroyed, ' + errors.messages)}
+        format.json {render json: @collecting_event.errors, status: :unprocessable_entity}
+      end
     end
   end
 

@@ -22,7 +22,6 @@ namespace :tw do
           ref_id_containing_id_hash = import.get('RefContainingRefHash')
           ref_file_id = import.get('RefIDsByFileID')
           ref_id_editor_array = import.get('RefIDEditorArray') # author as editor if RefID is in array
-          ref_id_pub_id_hash = import.get('RefIDPubIDHash')
 
           ref_taxon_name_authors = {} # key = SF.RefID (contained ref), value = array of SF.Person.IDs (ordered)
 
@@ -42,7 +41,6 @@ namespace :tw do
           # else has containing_ref_id
           #   create taxon_name_author hash (test for same ref_id or new ref_id)
 
-
           file.each_with_index do |row, i|
             ref_id = row['RefID']
             next if skipped_file_ids.include? ref_file_id[ref_id].to_i
@@ -60,11 +58,9 @@ namespace :tw do
               next
             end
 
-            containing_ref_id = ref_id_containing_id_hash[ref_id]
-
             logger.info "working with SF.RefID = #{row['RefID']}, SF.ContainingRefID = #{containing_ref_id}, SF.PersonID = #{tw_person_id}, TW.source_id = #{get_tw_source_id}, TW.person_id = #{tw_person_id}, position = #{row['SeqNum']} \n"
 
-            if containing_ref_id == '0'
+            if ref_id_containing_id_hash[ref_id].nil?  # this RefID does not have a ContainingRefID, therefore create author role
               role = Role.new(
                   person_id: tw_person_id,
                   type: 'SourceAuthor',
@@ -135,12 +131,13 @@ namespace :tw do
           skipped_file_ids = import.get('SkippedFileIDs')
 
           ref_id_editor_array = []
-          ref_id_containing_id_hash = {} # key = RefID, value = ContainingRefID   # NOTE: No distinction between containing ref is/isn't book, use SFContainedCiteAuxData for this AND NEVER USED
+          ref_id_containing_id_hash = {} # key = RefID, value = ContainingRefID
           ref_id_pub_id_hash = {} # key = RefID, value = PubID
           ref_file_id = {} # key = SF.RefID, value = SF.FileID
 
           # Part I: a) Create array of refs with editor flag set
-          #         b) Create hash of SF.RefID to SF.PubID
+          #         b) Create hash of refs with containing refs
+          #         c) Create hash of SF.RefID to SF.PubID
           path = @args[:data_directory] + 'tblRefs.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
@@ -153,6 +150,7 @@ namespace :tw do
             logger.info "working with SF.RefID = #{ref_id}, SF.ContainingRefID = #{row['ContainingRefID']}, flags = #{row['Flags']} \n"
 
             ref_id_editor_array.push(ref_id) if row['Flags'].to_i & 2 == 2 # is_editor
+            ref_id_containing_id_hash[ref_id] = containing_ref_id if containing_ref_id != '0'
             ref_id_pub_id_hash[ref_id] = pub_id
           end
 
@@ -170,6 +168,9 @@ namespace :tw do
 
           puts 'RefIDEditorArray'
           ap ref_id_editor_array
+
+          puts 'RefContainingRefHash'
+          ap ref_id_containing_id_hash
 
           puts 'RefIDPubIDHash'
           ap ref_id_pub_id_hash

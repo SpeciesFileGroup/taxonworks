@@ -91,21 +91,24 @@ export default {
   watch: {
     ranks: {
       handler: function (val, oldVal) {
-        if (this.rankClass == undefined) {
-          if (this.rankGroup) {
-            this.ranks[this.childOfParent[this.rankGroup]].find(item => {
-              if (this.defaultRanks.indexOf(item.name) >= 0) {
-                this.rankClass = item.rank_class
-              }
-            })
-          }
-        }
+        this.refresh()
       },
       deep: true,
       immediate: true
     }
   },
   methods: {
+    refresh: function () {
+      if (this.rankClass == undefined) {
+        if (this.rankGroup) {
+          this.ranks[this.childOfParent[this.rankGroup]].find(item => {
+            if (this.defaultRanks.indexOf(item.name) >= 0) {
+              this.rankClass = item.rank_class
+            }
+          })
+        }
+      }
+    },
     isMajor: function (groupName, findGroup) {
       return (Object.keys(this.ranks).indexOf(groupName) > Object.keys(this.ranks).indexOf(findGroup))
     },

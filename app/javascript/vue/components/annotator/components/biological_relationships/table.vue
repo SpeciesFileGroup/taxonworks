@@ -1,5 +1,5 @@
 <template>
-  <div class="vue-table-container">
+  <div>
     <table class="vue-table">
       <thead>
         <tr>
@@ -81,10 +81,6 @@
   }
 </script>
 <style lang="scss" scoped>
-  .vue-table-container {
-    padding: 0px;
-    position: relative;
-  }
 
   .vue-table {
     width: 100%;

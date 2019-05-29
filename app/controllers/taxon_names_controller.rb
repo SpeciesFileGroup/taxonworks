@@ -99,8 +99,13 @@ class TaxonNamesController < ApplicationController
   def destroy
     @taxon_name.destroy
     respond_to do |format|
-      format.html { redirect_to taxon_names_url }
-      format.json { head :no_content }
+      if @taxon_name.destroyed?
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'TaxonName was successfully destroyed.')}
+        format.json {head :no_content}
+      else
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'TaxonName was not destroyed, ' + errors.messages)}
+        format.json {render json: @taxon_name.errors, status: :unprocessable_entity}
+      end
     end
   end
 

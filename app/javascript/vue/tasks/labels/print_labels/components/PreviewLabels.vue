@@ -17,6 +17,10 @@ export default {
       type: String,
       default: 'ce'
     },
+    customStyle: {
+      type: String,
+      default: ''
+    },
     rows: {
       type: [String, Number],
       required: true
@@ -43,7 +47,7 @@ export default {
     renderLabels() {
       var w = window.open()
 
-      w.document.write(createLabels(this.labels, this.columns, this.rows, this.divisor, this.classSelected, this.separator, this.divisor))
+      w.document.write(createLabels(this.labels, this.columns, this.rows, this.divisor, this.classSelected, this.customStyle, this.separator, this.divisor))
       w.document.close()
     }
   }
