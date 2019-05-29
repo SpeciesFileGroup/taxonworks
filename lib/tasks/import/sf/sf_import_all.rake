@@ -42,6 +42,7 @@ namespace :tw do
           # 'taxa:create_rank_hash',
           # 'taxa:create_animalia_below_root',
           # 'taxa:create_sf_synonym_id_to_new_parent_id_hash',
+          # 'taxa:create_sf_taxon_name_authors',
           # 'taxa:create_otus_for_ill_formed_names_hash',
           # # '6_after_otus_hash': 0m55.165s on 8 Nov 2018
           # #
@@ -62,7 +63,6 @@ namespace :tw do
           # #
           # 'pre_cites:import_nomenclator_strings',
           # 'pre_cites:create_cvts_for_citations',
-          # 'pre_cites:create_sf_taxon_name_authors',
           # 'pre_cites:create_sf_family_taxon_name_authors',
           # 'pre_cites:check_original_genus_ids',
           # # '12_after_orig_genus_ids': 21m32.190s on 8 Feb 2019; 19m59.741s on 14 Nov 2018

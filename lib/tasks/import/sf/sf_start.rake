@@ -18,117 +18,160 @@ namespace :tw do
           get_tw_person_id = import.get('SFPersonIDToTWPersonID')
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
-          # source_editor_array = import.get('TWSourceEditorList') # if source.id is in array
-          # get_containing_source_id = import.get('TWSourceIDToContainingSourceID')
-          ref_file_id = import.get('RefIDsByFileID')
+
           ref_id_containing_id_hash = import.get('RefContainingRefHash')
-          # get_contained_cite_aux_data = import.get('SFContainedCiteAuxData')
+          ref_file_id = import.get('RefIDsByFileID')
           ref_id_editor_array = import.get('RefIDEditorArray') # author as editor if RefID is in array
           ref_id_pub_id_hash = import.get('RefIDPubIDHash')
-          ref_id_pub_type = import.get('SFPubIDToPubTypeString')
 
-          # First pass: Create authors for sources (standalone only and contained in books): NOTE: Authors in contained refs, not books, will be assigned as taxon name authors later; they can be skipped here
-          # Second pass: Create editors in containing sources (applies only to books where author acted as editor)
+          ref_taxon_name_authors = {} # key = SF.RefID (contained ref), value = array of SF.Person.IDs (ordered)
 
           path = @args[:data_directory] + 'sfRefAuthorsOrdered.txt'
           file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
-          author_error_counter = 0
+          previous_ref_id = '0'
+          person_error_counter = 0
+          source_nil_counter = 0
+          tw_person_nil_counter = 0
 
-          ##### New logic
-          # Only create source authors for refs that do not have a ContainingRefID
-          #
-          # has_containing_ref_id
-          #
-          # loop through tblRefs only, use RefID as index into sfRefAuthorsOrdered
-
+          ##### Newest logic
+          # If containing_ref_is == "0"
+          #   create role for person
+          #   if author acted as editor
+          #     create editor role for person
+          # else has containing_ref_id
+          #   create taxon_name_author hash (test for same ref_id or new ref_id)
 
 
           file.each_with_index do |row, i|
             ref_id = row['RefID']
             next if skipped_file_ids.include? ref_file_id[ref_id].to_i
-            next if ref_id_containing_id_hash[ref_id] # skip if authors contained in articles
+
             source_id = get_tw_source_id[ref_id]
-            next if source_id.nil? # @todo Should be recorded
-            # Reloop if TW.source record is verbatim
-            # next if Source.find(source_id).try(:class) == Source::Verbatim # << Hernán's, Source.find(source_id).type == 'Source::Verbatim'
-            # next if Source.where(id: source_id).pluck(:type)[0] == 'Source::Verbatim' # faster per Matt   #  there aren't any?
-
-            logger.info "working with SF.RefID = #{row['RefID']}, TW.source_id = #{source_id}, position = #{row['SeqNum']} \n"
-
-            role = Role.new(
-                person_id: get_tw_person_id[row['PersonID']],
-                type: 'SourceAuthor',
-                role_object_id: source_id,
-                role_object_type: 'Source',
-                created_at: row['CreatedOn'],
-                updated_at: row['LastUpdate'],
-                created_by_id: get_tw_user_id[row['CreatedBy']],
-                updated_by_id: get_tw_user_id[row['ModifiedBy']]
-            )
-
-            begin
-              role.save!
-            rescue ActiveRecord::RecordInvalid
-              logger.error "SourceAuthor role ERROR (#{author_error_counter += 1}): " + role.errors.full_messages.join(';')
-            end
-          end
-
-
-          ## Second pass:  Check tblRefs rather than sfRefAuthorsOrdered for editors
-
-          path = @args[:data_directory] + 'tblRefs.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
-
-          editor_error_counter = 0
-          containing_source_id_nil = 0
-          source_id_nil = 0
-
-          file.each_with_index do |row, i|
-            next if row['ContainingRefID'] == '0' # reloop if no containing ref (eliminate most common attribute first)
-            next if skipped_file_ids.include? row['FileID'].to_i # ref_file_id[ref_id].to_i
-            ref_id = row['RefID']
-            source_id = get_tw_source_id[ref_id]
-
             if source_id.nil?
-              logger.error "SourceID ERROR: ref_id = #{ref_id} (#{source_id_nil += 1})"
+              logger.error "Missing source ERROR: SF.RefID = #{ref_id} (source_nil_counter = #{source_nil_counter += 1})"
               next
             end
 
-            containing_ref_id = row['ContainingRefID']
-            next unless ref_id_pub_type[ref_id_pub_id_hash[containing_ref_id]] == 'book' # is the containing ref a book
-            next unless ref_id_editor_array.include? containing_ref_id # did author act as editor
-            containing_source_id = get_tw_source_id[containing_ref_id]
-
-            if containing_source_id.nil?
-              logger.error "ContainingSourceID ERROR: source_id = #{source_id}, ref_id = #{ref_id}, containing_ref_id = #{containing_ref_id} (#{containing_source_id_nil += 1})"
+            sf_person_id = row['PersonID']
+            tw_person_id = get_tw_person_id[sf_person_id]
+            if tw_person_id.nil?
+              logger.error "Missing person ERROR: SF.PersonID = #{sf_person_id} (person_nil_counter = #{person_nil_counter += 1})"
               next
             end
 
-            logger.info "working with SF.RefID = #{ref_id}, SF.ContainingRefID = #{containing_ref_id}, TW.source_id = #{source_id}, TW.containing_source_id = #{containing_source_id} \n"
+            containing_ref_id = ref_id_containing_id_hash[ref_id]
 
-            ordered_editors = SourceAuthor.where(role_object_id: containing_source_id).order(:position).pluck(:person_id).each do |person_id|
-              puts person_id
-            end
+            logger.info "working with SF.RefID = #{row['RefID']}, SF.ContainingRefID = #{containing_ref_id}, SF.PersonID = #{tw_person_id}, TW.source_id = #{get_tw_source_id}, TW.person_id = #{tw_person_id}, position = #{row['SeqNum']} \n"
 
-            ordered_editors.each do |person_id|
-              role = SourceEditor.new(
-                  person_id: person_id,
-                  role_object_id: source_id, # the ref in ref's editors, not the contained ref's editors
+            if containing_ref_id == '0'
+              role = Role.new(
+                  person_id: tw_person_id,
+                  type: 'SourceAuthor',
+                  role_object_id: source_id,
                   role_object_type: 'Source',
                   created_at: row['CreatedOn'],
                   updated_at: row['LastUpdate'],
                   created_by_id: get_tw_user_id[row['CreatedBy']],
                   updated_by_id: get_tw_user_id[row['ModifiedBy']]
               )
+
               begin
                 role.save!
               rescue ActiveRecord::RecordInvalid
-                logger.error "Editor role ERROR person_id = #{person_id} (#{editor_error_counter += 1}): " + role.errors.full_messages.join(';')
+                logger.error "SourceAuthor role ERROR (#{person_error_counter += 1}): " + role.errors.full_messages.join(';')
+              end
+
+              if ref_id_editor_array.include? ref_id # person is also editor
+                role = Role.new(
+                    person_id: tw_person_id,
+                    type: 'SourceEditor',
+                    role_object_id: source_id,
+                    role_object_type: 'Source',
+                    created_at: row['CreatedOn'],
+                    updated_at: row['LastUpdate'],
+                    created_by_id: get_tw_user_id[row['CreatedBy']],
+                    updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                )
+
+                begin
+                  role.save!
+                rescue ActiveRecord::RecordInvalid
+                  logger.error "SourceEditor role ERROR (#{person_error_counter += 1}): " + role.errors.full_messages.join(';')
+                end
+              end
+
+            else
+              if ref_id == previous_ref_id # this is the same RefID as last row, add another author
+                ref_taxon_name_authors[ref_id].push(sf_person_id)
+
+              else # this is a new RefID, start a new author array
+                ref_taxon_name_authors[ref_id] = [sf_person_id]
               end
             end
+
+            previous_ref_id = ref_id
           end
 
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SFRefIDToTaxonNameAuthors', ref_taxon_name_authors)
+
+          puts 'SFRefIDToTaxonNameAuthors'
+          ap ref_taxon_name_authors
+
+          ################## ONE PASS ONLY
+          ## Second pass:  Check tblRefs rather than sfRefAuthorsOrdered for editors
+          # path = @args[:data_directory] + 'tblRefs.txt'
+          # file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          #
+          # editor_error_counter = 0
+          # containing_source_id_nil = 0
+          # source_id_nil = 0
+          #
+          # file.each_with_index do |row, i|
+          #   next if row['ContainingRefID'] == '0' # reloop if no containing ref (eliminate most common attribute first)
+          #   next if skipped_file_ids.include? row['FileID'].to_i # ref_file_id[ref_id].to_i
+          #   ref_id = row['RefID']
+          #   source_id = get_tw_source_id[ref_id]
+          #
+          #   if source_id.nil?
+          #     logger.error "SourceID ERROR: ref_id = #{ref_id} (#{source_id_nil += 1})"
+          #     next
+          #   end
+          #
+          #   containing_ref_id = row['ContainingRefID']
+          #   next unless ref_id_pub_type[ref_id_pub_id_hash[containing_ref_id]] == 'book' # is the containing ref a book
+          #   next unless ref_id_editor_array.include? containing_ref_id # did author act as editor
+          #   containing_source_id = get_tw_source_id[containing_ref_id]
+          #
+          #   if containing_source_id.nil?
+          #     logger.error "ContainingSourceID ERROR: source_id = #{source_id}, ref_id = #{ref_id}, containing_ref_id = #{containing_ref_id} (#{containing_source_id_nil += 1})"
+          #     next
+          #   end
+          #
+          #   logger.info "working with SF.RefID = #{ref_id}, SF.ContainingRefID = #{containing_ref_id}, TW.source_id = #{source_id}, TW.containing_source_id = #{containing_source_id} \n"
+          #
+          #   ordered_editors = SourceAuthor.where(role_object_id: containing_source_id).order(:position).pluck(:person_id).each do |person_id|
+          #     puts person_id
+          #   end
+          #
+          #   ordered_editors.each do |person_id|
+          #     role = SourceEditor.new(
+          #         person_id: person_id,
+          #         role_object_id: source_id, # the ref in ref's editors, not the contained ref's editors
+          #         role_object_type: 'Source',
+          #         created_at: row['CreatedOn'],
+          #         updated_at: row['LastUpdate'],
+          #         created_by_id: get_tw_user_id[row['CreatedBy']],
+          #         updated_by_id: get_tw_user_id[row['ModifiedBy']]
+          #     )
+          #     begin
+          #       role.save!
+          #     rescue ActiveRecord::RecordInvalid
+          #       logger.error "Editor role ERROR person_id = #{person_id} (#{editor_error_counter += 1}): " + role.errors.full_messages.join(';')
+          #     end
+          #   end
+          # end
 
 
           ######################################################################################
@@ -244,6 +287,35 @@ namespace :tw do
           #######################################################################################
         end
 
+        # desc 'time rake tw:project_import:sf_import:start:ref_authors_ordered user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        # # map SF.PubID by SF.PubType
+        # LoggedTask.define ref_authors_ordered: [:data_directory, :environment, :user_id] do |logger|
+        #   # Can be run independently at any time
+        #
+        #   logger.info 'Running ref_authors_ordered...'
+        #
+        #   import = Import.find_or_create_by(name: 'SpeciesFileData')
+        #   skipped_file_ids = import.get('SkippedFileIDs')
+        #   ref_file_id = import.get('RefIDsByFileID')
+        #
+        #   sf_ref_authors_ordered = {} # key = SF.RefID, value = {person_id:, seq_num:}
+        #
+        #   path = @args[:data_directory] + 'sfRefAuthorsOrdered.txt'
+        #   file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+        #
+        #   file.each_with_index do |row|
+        #     ref_id = row['RefID']
+        #     next if skipped_file_ids.include? ref_file_id[ref_id].to_i
+        #
+        #     sf_ref_authors_ordered[row['RefID']] = {person_id: row['PersonID'], seq_num: row['SeqNum']}
+        #   end
+        #
+        #   import.set('SFRefAuthorsOrdered', sf_ref_authors_ordered)
+        #
+        #   puts 'SFRefAuthorsOrdered'
+        #   ap sf_ref_authors_ordered
+        # end
+
         desc 'time rake tw:project_import:sf_import:start:create_misc_ref_info user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         # via tblRefs
         LoggedTask.define create_misc_ref_info: [:data_directory, :environment, :user_id] do |logger|
@@ -258,9 +330,8 @@ namespace :tw do
           ref_id_pub_id_hash = {} # key = RefID, value = PubID
           ref_file_id = {} # key = SF.RefID, value = SF.FileID
 
-          # Part I: Create array of refs with editor flag set
-          # Part II: Create hash of refs with containing refs
-          # Part III: Create hash of SF.RefID to SF.PubID
+          # Part I: a) Create array of refs with editor flag set
+          #         b) Create hash of SF.RefID to SF.PubID
           path = @args[:data_directory] + 'tblRefs.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
@@ -273,11 +344,10 @@ namespace :tw do
             logger.info "working with SF.RefID = #{ref_id}, SF.ContainingRefID = #{row['ContainingRefID']}, flags = #{row['Flags']} \n"
 
             ref_id_editor_array.push(ref_id) if row['Flags'].to_i & 2 == 2 # is_editor
-            ref_id_containing_id_hash[ref_id] = containing_ref_id if containing_ref_id != '0'
             ref_id_pub_id_hash[ref_id] = pub_id
           end
 
-          # Part IV: Create hash of RefID and FileID
+          # Part II: Create hash of RefID and FileID
           path = @args[:data_directory] + 'sfRefIDsByFileID.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
@@ -286,23 +356,19 @@ namespace :tw do
           end
 
           import.set('RefIDEditorArray', ref_id_editor_array)
-          import.set('RefContainingRefHash', ref_id_containing_id_hash)
           import.set('RefIDPubIDHash', ref_id_pub_id_hash)
           import.set('RefIDsByFileID', ref_file_id)
 
           puts 'RefIDEditorArray'
           ap ref_id_editor_array
 
-          puts 'RefContainingRefHash'
-          ap ref_id_containing_id_hash
-
           puts 'RefIDPubIDHash'
           ap ref_id_pub_id_hash
 
           puts 'RefIDsByFileID'
           ap ref_file_id
-
         end
+
 
         desc 'time rake tw:project_import:sf_import:start:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define create_sources: [:data_directory, :environment, :user_id] do |logger|
@@ -327,7 +393,7 @@ namespace :tw do
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
           get_sf_booktitle_publisher_address = import.get('SFPubIDTitlePublisherAddress') # key = SF.PubID, value = hash of booktitle, publisher, address
           get_sf_pub_type_string = import.get('SFPubIDToPubTypeString')
-          get_contained_cite_aux_data = import.get('SFContainedCiteAuxData')
+          # get_contained_cite_aux_data = import.get('SFContainedCiteAuxData')
 
           get_tw_source_id = {} # key = SF.RefID, value = TW.source_id
           get_containing_source_id = {} # key = TW.contained_source_id, value = TW.containing_source_id # use for containing auths/eds
@@ -501,37 +567,37 @@ namespace :tw do
           #######################################################################################
         end
 
-        desc 'time rake tw:project_import:sf_import:start:contained_cite_aux_data user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define contained_cite_aux_data: [:data_directory, :environment, :user_id] do |logger|
-
-          logger.info 'Creating SF contained cite aux data...'
-
-          # Misc. data associated with contained ref acting as taxon name author. Ref in refs of articles, not books. Do not create source records
-          #   for these. The aux data will be used in a note for a citation. The containing ref ID will be the actual record for the citation.
-
-          get_contained_cite_aux_data = {} # key = SF.RefID, value = ContainingRefID, RefPages, Note, LinkID
-
-          path = @args[:data_directory] + 'sfContainedCiteAuxData.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
-
-          file.each do |row|
-            ref_id = row['RefID']
-
-            logger.info "Working with SF.RefID = '#{ref_id}' \n"
-
-            get_contained_cite_aux_data[ref_id] = {containing_ref_id: row['ContainingRefID'], ref_pages: row['RefPages'], note: row['Note'], link_id: row['LinkID']}
-          end
-
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
-          import.set('SFContainedCiteAuxData', get_contained_cite_aux_data)
-
-          puts 'SFContainedCiteAuxData'
-          ap get_contained_cite_aux_data
-
-          #######################################################################################
-          # `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/`
-          #######################################################################################
-        end
+        # desc 'time rake tw:project_import:sf_import:start:contained_cite_aux_data user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        # LoggedTask.define contained_cite_aux_data: [:data_directory, :environment, :user_id] do |logger|
+        #
+        #   logger.info 'Creating SF contained cite aux data...'
+        #
+        #   # Misc. data associated with contained ref acting as taxon name author. Ref in refs of articles, not books. Do not create source records
+        #   #   for these. The aux data will be used in a note for a citation. The containing ref ID will be the actual record for the citation.
+        #
+        #   get_contained_cite_aux_data = {} # key = SF.RefID, value = ContainingRefID, RefPages, Note, LinkID
+        #
+        #   path = @args[:data_directory] + 'sfContainedCiteAuxData.txt'
+        #   file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+        #
+        #   file.each do |row|
+        #     ref_id = row['RefID']
+        #
+        #     logger.info "Working with SF.RefID = '#{ref_id}' \n"
+        #
+        #     get_contained_cite_aux_data[ref_id] = {containing_ref_id: row['ContainingRefID'], ref_pages: row['RefPages'], note: row['Note'], link_id: row['LinkID']}
+        #   end
+        #
+        #   import = Import.find_or_create_by(name: 'SpeciesFileData')
+        #   import.set('SFContainedCiteAuxData', get_contained_cite_aux_data)
+        #
+        #   puts 'SFContainedCiteAuxData'
+        #   ap get_contained_cite_aux_data
+        #
+        #   #######################################################################################
+        #   # `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/`
+        #   #######################################################################################
+        # end
 
         desc 'time rake tw:project_import:sf_import:start:map_pub_type user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         # map SF.PubID by SF.PubType
