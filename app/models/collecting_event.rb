@@ -1084,6 +1084,17 @@ class CollectingEvent < ApplicationRecord
     cache_geographic_names[:state]
   end
 
+  def clone
+    a = dup
+    a.verbatim_collecting_labe = verbatim_label + " [CLONED FROM #{id}]"
+    begin
+      a.save!
+    rescue ActiveRecord::RecordInvalid
+      return false
+    end
+    a
+  end
+
   protected
 
   def sql_tick_fix(item)

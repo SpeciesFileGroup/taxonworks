@@ -1,7 +1,7 @@
 class CollectingEventsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_collecting_event, only: [:show, :edit, :update, :destroy, :card]
+  before_action :set_collecting_event, only: [:show, :edit, :update, :destroy, :card, :clone]
 
   # GET /collecting_events
   # GET /collecting_events.json
@@ -44,6 +44,12 @@ class CollectingEventsController < ApplicationController
         format.json { render json: @collecting_event.errors, status: :unprocessable_entity }
       end
     end
+  end
+
+  # POST /collecting_events/1/clone.json
+  def clone
+    @collecting_event = @collecting_event.clone
+    render :show
   end
 
   # PATCH/PUT /collecting_events/1
