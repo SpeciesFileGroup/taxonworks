@@ -430,7 +430,7 @@ index_filter_task:
   related:
   categories:
     - nomenclature
-  status: prototype
+  status: stable 
   description: 'Search and filter taxon names. Download CSV.  Generate JSON paths for offline use.'
 visualize_confidences_task:
   hub: true
