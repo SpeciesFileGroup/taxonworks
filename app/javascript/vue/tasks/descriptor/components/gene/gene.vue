@@ -4,9 +4,8 @@
       <h3>Gene attributes</h3>
     </div>
     <div class="body">
-      <div class="flex-separate separate-bottom">
+      <div class="separate-bottom">
         <instance-component title="Reverse primer"/>
-        <primer-component title="Forward primer"/>
       </div>
       <button
         type="button"

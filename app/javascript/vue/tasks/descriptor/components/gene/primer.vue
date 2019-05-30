@@ -27,20 +27,14 @@
           </label>
         </li>
       </ul>
-      <autocomplete
-        v-else
-        url="/sequences/autocomplete"
-        param="term"
-        label="label_html"
-        placeholder="Search a sequence"
-        @getItem="sendSelected"/>
+      <sequence-picker @getItem="sendSelected($event.id)"/>
     </template>
   </div>
 </template>
 
 <script>
 import SmartSelector from 'components/switch'
-import Autocomplete from 'components/autocomplete.vue'
+import SequencePicker from 'components/sequence/sequence_picker/sequence_picker.vue'
 import { GetSequenceSmartSelector } from '../../request/resources.js'
 import OrderSmartSelector from 'helpers/smartSelector/orderSmartSelector.js'
 import SelectFirstSmartOption from 'helpers/smartSelector/selectFirstSmartOption.js'
@@ -53,7 +47,7 @@ export default {
   },
   components: {
     SmartSelector,
-    Autocomplete
+    SequencePicker
   },
   computed: {
     isList() {
