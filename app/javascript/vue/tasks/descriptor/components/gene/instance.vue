@@ -87,6 +87,15 @@ export default {
         }
       })
       return formatExpression
+    },
+    geneAttributes() {
+      return this.expression.map((item, index) => {
+        return {
+          sequence_relationship_type: (item.type == 'Sequence' ? item.relationshipType : item.type), 
+          sequence_id: item.value, 
+          position: index
+        }
+      })
     }
   },
   data () {
@@ -151,6 +160,9 @@ export default {
       this.expression.push(item)
       this.operatorMode = false
     },
+    sendSequenceRelationship() {
+      let sequenceRelation = {}
+    }
   }
 }
 </script>
