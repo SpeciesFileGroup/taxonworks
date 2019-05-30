@@ -47,10 +47,15 @@ const GetUnits = function() {
   return ajaxCall('get','/descriptors/units')
 }
 
+const GetSequenceSmartSelector = () => {
+  return ajaxCall('get', '/sequences/select_options')
+}
+
 export {
   CreateDescriptor,
   DeleteDescriptor,
   UpdateDescriptor,
   LoadDescriptor,
-  GetUnits
+  GetUnits,
+  GetSequenceSmartSelector,
 }

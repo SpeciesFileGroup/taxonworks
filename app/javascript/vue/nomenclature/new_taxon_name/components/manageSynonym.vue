@@ -22,7 +22,7 @@
         class="body"
         v-show="expanded">
         <div>
-          <p>This name is invalid. the valid name is <span v-html="validTaxon.name"/></p>
+          <p>This name is invalid. The valid name is <span v-html="validTaxon.name"/></p>
           <div class="horizontal-right-content">
             <button
               class="button normal-input button-default separate-right"
