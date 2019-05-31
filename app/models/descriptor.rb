@@ -45,7 +45,7 @@ class Descriptor < ApplicationRecord
     type == 'Descriptor::Qualitative'
   end
 
-  def gene 
+  def gene?
     type == 'Descriptor::Gene'
   end
  
