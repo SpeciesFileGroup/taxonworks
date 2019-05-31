@@ -4,7 +4,6 @@
       <primer-component
         :title="title"
         @selected="addSequence"/>
-      <button @click="addSequence()">Add</button>
     </template>
     <h3>Type</h3>
     <ul class="no_bullets">
@@ -39,6 +38,7 @@
             <draggable
               class="delete-drag-box"
               title="Remove all"
+              v-model="trashExpressions"
               :group="randomGroup"/>
           </div>
         </div>
@@ -153,6 +153,7 @@ export default {
       operatorMode: false,
       randomGroup: Math.random().toString(36).substr(2, 1).toUpperCase(),
       expression: [],
+      trashExpressions: [],
       showMenu: false,
       styleMenu: {
         top: 40,
@@ -218,7 +219,14 @@ export default {
       newDescriptor.gene_attribute_logic = this.composeExpression
       newDescriptor.gene_attributes_attributes = this.geneAttributes
 
+      this.trashExpressions.forEach(item => {
+        if(item.hasOwnProperty('id')) {
+          newDescriptor.gene_attributes_attributes.push({ id: item.id, _destroy: true })
+        }
+      })
+
       this.$emit('save', newDescriptor)
+      this.trashExpressions = []
     }
   }
 }
