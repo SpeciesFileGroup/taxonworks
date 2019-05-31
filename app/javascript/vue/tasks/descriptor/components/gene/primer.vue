@@ -4,31 +4,21 @@
       class="separate-bottom"
       :options="tabs"
       v-model="view"/>
-    <div
-      v-if="selected"
-      class="horizontal-left-content">
-      <span v-html="selectedLabel"></span>
-      <span
-        class="button circle-button btn-undo button-default"
-        @click="selected = undefined"/>
-    </div>
-    <template v-else>
-      <ul
-        v-if="isList"
-        class="no_bullets">
-        <li
-          v-for="item in lists[view]"
-          :key="item.id">
-          <label>
-            <input
-              type="radio"
-              @click="sendSelected(item)">
-            <span v-html="item.object_tag"/>
-          </label>
-        </li>
-      </ul>
-      <sequence-picker @getItem="sendSelected($event.id)"/>
-    </template>
+    <ul
+      v-if="isList"
+      class="no_bullets">
+      <li
+        v-for="item in lists[view]"
+        :key="item.id">
+        <label>
+          <input
+            type="radio"
+            @click="sendSelected(item)">
+          <span v-html="item.object_tag"/>
+        </label>
+      </li>
+    </ul>
+    <sequence-picker @getItem="sendSelected($event.id)"/>
   </div>
 </template>
 

@@ -5,7 +5,10 @@
     </div>
     <div class="body">
       <div class="separate-bottom">
-        <instance-component title="Reverse primer"/>
+        <instance-component
+          title="Reverse primer"
+          :descriptor="descriptor"
+          @save="$emit('save', $event)"/>
       </div>
       <button
         type="button"
@@ -17,13 +20,17 @@
 </template>
 <script>
 
-import PrimerComponent from './primer'
 import InstanceComponent from './instance'
 
 export default {
   components: {
-    PrimerComponent,
     InstanceComponent
+  },
+  props: {
+    descriptor: {
+      type: Object,
+      required: true
+    }
   },
   data () {
     return {

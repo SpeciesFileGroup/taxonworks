@@ -21,22 +21,33 @@
       </li>
     </ul> 
     <template>
-      <h3>Operators</h3>
-      <ul class="no_bullets context-menu">
-        <li v-for="operator in operators">
-          <button
-            type="button"
-            @click="addOperator(operator.value)">
-            {{ operator.label }}
-          </button>
-        </li>
-      </ul> 
+      <h3>Expression</h3>
+      <div class="panel content">
+        <div class="flex-separate">
+          <ul class="no_bullets context-menu">
+            <li v-for="operator in operators">
+              <button
+                type="button"
+                @click="addOperator(operator.value)">
+                {{ operator.label }}
+              </button>
+            </li>
+          </ul>
+          <div
+            class="delete-box"
+            @click="expression = []">
+            <draggable
+              class="delete-drag-box"
+              title="Remove all"
+              :group="randomGroup"/>
+          </div>
+        </div>
+      </div> 
     </template>
     <div v-if="expression.length">
-      <h3>Expression</h3>
-      <div class="separate-bottom horizontal-left-content ">
+      <div class="separate-bottom horizontal-left-content">
         <draggable
-          class="horizontal-left-content expression-box"
+          class="horizontal-left-content expression-box full_width"
           v-model="expression"
           :group="randomGroup">
           <div
@@ -47,15 +58,13 @@
           </div>
         </draggable>
       </div>
-      <div
-        class="delete-box separate-top separate-bottom"
-        @click="expression = []">
-        <draggable
-          class="delete-drag-box"
-          title="Remove all"
-          :group="randomGroup"/>
-      </div>
     </div>
+    <button
+      type="button"
+      class="button normal-input button-submit separate-top"
+      @click="sendDescriptor">
+      Save
+    </button>
   </div>
 </template>
 
@@ -73,6 +82,10 @@ export default {
     title: {
       type: String,
       required: true
+    },
+    descriptor: {
+      type: Object,
+      required: true
     }
   },
   computed: {
@@ -89,13 +102,21 @@ export default {
       return formatExpression
     },
     geneAttributes() {
-      return this.expression.map((item, index) => {
-        return {
-          sequence_relationship_type: (item.type == 'Sequence' ? item.relationshipType : item.type), 
-          sequence_id: item.value, 
-          position: index
+      let attributes = []
+      let index = 0
+      this.expression.forEach((item) => {
+        if(item.type == 'Sequence') {
+          attributes.push({
+            id: item['id'],
+            sequence_relationship_type: item.relationshipType,
+            sequence_id: item.value, 
+            position: index
+          })
+          index++
         }
       })
+      
+      return attributes
     }
   },
   data () {
@@ -139,12 +160,43 @@ export default {
       }
     }
   },
+  watch: {
+    descriptor: {
+      handler(newVal) {
+        if(newVal.hasOwnProperty('gene_attribute_logic')) {
+          this.expression = []
+          newVal.gene_attribute_logic.split(' ').forEach(item => {
+            if(item.includes('.')) {
+              let sequence = item.split('.')
+              this.expression.push({
+                key: (Math.random().toString(36).substr(2, 5)),
+                id: newVal.gene_attributes.find((seq) => { return seq.sequence_id == sequence[1] }).id,
+                type: 'Sequence',
+                relationshipType: sequence[0],
+                value: sequence[1]
+              })
+            }
+            else {
+              let foundedOperator = this.operators.find(operator => {
+                return operator.label == item
+              })
+              if(foundedOperator) {
+                this.addOperator(foundedOperator.value)
+              }
+            }
+          })
+        }
+      },
+      deep: true,
+      immediate: true
+    }
+  },
   methods: {
-    addSequence(sequenceId = Math.random().toString(36).substr(2, 1).toUpperCase()) {
+    addSequence(sequenceId = Math.random().toString(36).substr(2, 1).toUpperCase(), sequenceType = undefined) {
       let item = {
         key: (Math.random().toString(36).substr(2, 5)),
         type: 'Sequence',
-        relationshipType: this.type,
+        relationshipType: sequenceType ? sequenceType : this.type,
         value: sequenceId
       }
 
@@ -160,8 +212,13 @@ export default {
       this.expression.push(item)
       this.operatorMode = false
     },
-    sendSequenceRelationship() {
-      let sequenceRelation = {}
+    sendDescriptor() {
+      let newDescriptor = this.descriptor
+      
+      newDescriptor.gene_attribute_logic = this.composeExpression
+      newDescriptor.gene_attributes_attributes = this.geneAttributes
+
+      this.$emit('save', newDescriptor)
     }
   }
 }
@@ -201,7 +258,7 @@ export default {
     background-image: url('../../assets/images/trash.svg');
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 20px;
+    background-size: 17px;
     background-color: #FAFAFA;
     border-radius: 0px;
     border-style: dashed;
