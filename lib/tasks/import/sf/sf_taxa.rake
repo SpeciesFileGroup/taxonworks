@@ -724,8 +724,11 @@ namespace :tw do
           get_animalia_id = import.get('ProjectIDToAnimaliaID') # key = TW.Project.id, value TW.TaxonName.id where Name = 'Animalia', used when AboveID = 0
           get_sf_parent_id = import.get('SFSynonymIDToSFParentID')
           get_otu_sf_above_id = import.get('SFIllFormedNameIDToSFAboveID')
+          get_tw_person_id = import.get('SFPersonIDToTWPersonID')
           # get_sf_new_parent_id = import.get('SFSubordinateIDToSFNewParentID')
-          get_contained_cite_aux_data = import.get('SFContainedCiteAuxData')
+          # get_contained_cite_aux_data = import.get('SFContainedCiteAuxData')
+          ref_id_containing_id_hash = import.get('RefIDContainingHash')
+          ref_taxon_name_authors = import.get('SFRefIDToTaxonNameAuthors')
 
           get_tw_taxon_name_id = {} # key = SF.TaxonNameID, value = TW.taxon_name.id
           get_sf_name_status = {} # key = SF.TaxonNameID, value = SF.NameStatus
@@ -776,14 +779,14 @@ namespace :tw do
             project_id = get_tw_project_id[row['FileID']]
             ref_id = row['RefID'] # preserve this value; used intact below for creating taxon_name_author list if this is a contained ref
             # Use ContainingRefID if SFContainedCiteAuxData[ref_id]
-            if get_contained_cite_aux_data[ref_id]
-              use_this_ref_id = get_contained_cite_aux_data[ref_id]['containing_ref_id']
-              add_different_authors = true
-              ## add taxon_name_authors for contained ref
-            else
+            if ref_id_containing_id_hash[ref_id].nil? # this RefID does not have a ContainingRefID
               use_this_ref_id = ref_id
               add_different_authors = false
               ## copy source_author list to taxon_name_author list
+            else
+              use_this_ref_id = [ref_id]
+              add_different_authors = true
+              ## add taxon_name_authors for contained ref
             end
 
             # For ecology
@@ -979,30 +982,30 @@ namespace :tw do
 
                 if add_different_authors
                   # This is a ref in ref, taxon_name_authors listed in sfRefAuthorsOrdered, use value in ref_id, not use_this_ref_id
-                  get_sf_taxon_name_authors[row['RefID']].each do |sf_person_id| # person_id from author_array
-                    protonym.roles.create!(
+                  ref_taxon_name_authors[row['RefID']].each do |sf_person_id| # person_id from author_array
+                    TaxonNameAuthor.create!(
                         person_id: get_tw_person_id[sf_person_id],
-                        person: person,
-                        type: 'TaxonNameAuthor',
-                        project_id: project_id, # role is project_role
+                        role_object_id: taxon_name.id,
+                        role_object_type: 'TaxonName',
+                        project_id: project_id # role is project_role
                     )
                   end
                 else
                   # This is a simple citation, copy source author list to taxon name author list
-                  ordered_authors = SourceAuthor.where(role_object_id: get_tw_source_id[use_this_ref_id]).order(:position).pluck(:person_id).each do |person_id|
+                  # SourceAuthor.where(role_object_type: 'Source', role_object_id: source).find_each do |sa|
+                  #   TaxonNameAuthor.create(person_id: sa.person_id, role_object: taxon, position: sa.position)
+
+                    ordered_authors = SourceAuthor.where(role_object_id: get_tw_source_id[use_this_ref_id]).order(:position).pluck(:person_id).each do |person_id|
                     puts person_id
                   end
 
                   ordered_authors.each do |person_id|
                     role = TaxonNameAuthor.new(
                         person_id: person_id,
-                        role_object_id: source_id, # the ref in ref's editors, not the contained ref's editors
-                        role_object_type: 'Source',
-                        created_at: row['CreatedOn'],
-                        updated_at: row['LastUpdate'],
-                        created_by_id: get_tw_user_id[row['CreatedBy']],
-                        updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                    )
+                        role_object_id: taxon_name.id,
+                        role_object_type: 'TaxonName',
+                        project_id: project_id
+                     )
                     begin
                       role.save!
                     rescue ActiveRecord::RecordInvalid
@@ -1077,40 +1080,6 @@ namespace :tw do
           `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/6_after_otus_hash/`
           puts '** dumped 6_after_otus_hash **'
           #######################################################################################
-        end
-
-        desc 'time rake tw:project_import:sf_import:taxa:create_sf_taxon_name_authors user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define create_sf_taxon_name_authors: [:data_directory, :environment, :user_id] do |logger|
-
-          logger.info 'Running create_sf_taxon_name_authors...'
-
-          get_sf_taxon_name_authors = {} # key = SF.RefID (contained ref), value = array of SF.Person.IDs (ordered)
-
-          path = @args[:data_directory] + 'sfRefsPeople.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
-
-          counter = 0
-          previous_ref_id = ''
-
-          file.each_with_index do |row, i|
-            ref_id = row['RefID']
-
-            logger.info "working with (contained) RefID #{ref_id} (counter #{counter += 1})"
-
-            if ref_id == previous_ref_id # this is the same RefID as last row, add another author
-              get_sf_taxon_name_authors[ref_id].push(row['PersonID'])
-
-            else # this is a new RefID, start a new author array
-              get_sf_taxon_name_authors[ref_id] = [row['PersonID']]
-              previous_ref_id = ref_id
-            end
-          end
-
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
-          import.set('SFRefIDToTaxonNameAuthors', get_sf_taxon_name_authors)
-
-          puts 'SFRefIDToTaxonNameAuthors'
-          ap get_sf_taxon_name_authors
         end
 
         desc 'time rake tw:project_import:sf_import:taxa:create_sf_synonym_id_to_new_parent_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'

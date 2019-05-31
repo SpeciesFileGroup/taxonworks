@@ -19,7 +19,7 @@ namespace :tw do
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
 
-          ref_id_containing_id_hash = import.get('RefContainingRefHash')
+          ref_id_containing_id_hash = import.get('RefIDContainingHash')
           ref_file_id = import.get('RefIDsByFileID')
           ref_id_editor_array = import.get('RefIDEditorArray') # author as editor if RefID is in array
 
@@ -58,9 +58,9 @@ namespace :tw do
               next
             end
 
-            logger.info "working with SF.RefID = #{row['RefID']}, SF.ContainingRefID = #{containing_ref_id}, SF.PersonID = #{tw_person_id}, TW.source_id = #{get_tw_source_id}, TW.person_id = #{tw_person_id}, position = #{row['SeqNum']} \n"
+            logger.info "working with SF.RefID = #{ref_id}, SF.ContainingRefID = #{ref_id_containing_id_hash[ref_id]}, SF.PersonID = #{tw_person_id}, TW.source_id = #{source_id}, TW.person_id = #{tw_person_id}, position = #{row['SeqNum']} \n"
 
-            if ref_id_containing_id_hash[ref_id].nil?  # this RefID does not have a ContainingRefID, therefore create author role
+            if ref_id_containing_id_hash[ref_id].nil? # this RefID does not have a ContainingRefID, therefore create author role
               role = Role.new(
                   person_id: tw_person_id,
                   type: 'SourceAuthor',
@@ -109,7 +109,6 @@ namespace :tw do
             previous_ref_id = ref_id
           end
 
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
           import.set('SFRefIDToTaxonNameAuthors', ref_taxon_name_authors)
 
           puts 'SFRefIDToTaxonNameAuthors'
@@ -163,13 +162,14 @@ namespace :tw do
           end
 
           import.set('RefIDEditorArray', ref_id_editor_array)
+          import.set('RefIDContainingHash', ref_id_containing_id_hash)
           import.set('RefIDPubIDHash', ref_id_pub_id_hash)
           import.set('RefIDsByFileID', ref_file_id)
 
           puts 'RefIDEditorArray'
           ap ref_id_editor_array
 
-          puts 'RefContainingRefHash'
+          puts 'RefIDContainingHash'
           ap ref_id_containing_id_hash
 
           puts 'RefIDPubIDHash'
@@ -206,7 +206,7 @@ namespace :tw do
           # get_contained_cite_aux_data = import.get('SFContainedCiteAuxData')
 
           get_tw_source_id = {} # key = SF.RefID, value = TW.source_id
-          get_containing_source_id = {} # key = TW.contained_source_id, value = TW.containing_source_id # use for containing auths/eds
+          # get_containing_source_id = {} # key = TW.contained_source_id, value = TW.containing_source_id # use for containing auths/eds
           # byebug
 
           # Namespace for Identifier
@@ -214,18 +214,16 @@ namespace :tw do
 
           count_found = 0
           error_counter = 0
-          contained_error_counter = 0
+          # contained_error_counter = 0
           source_not_found_error = 0
 
           path = @args[:data_directory] + 'tblRefs.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
-          ##### First Ref loop: Create sources for SF.tblRefs.ContainingRefID = 0
-
           file.each_with_index do |row, i|
             # break if i == 20
             next if skipped_file_ids.include? row['FileID'].to_i
-            next if row['ContainingRefID'].to_i > 0 # Create source in second loop
+            next if row['ContainingRefID'].to_i > 0 # Only create sources for standalone refs
             next if (row['Title'].empty? and row['PubID'] == '0' and row['Series'].empty? and row['Volume'].empty? and row['Issue'].empty? and row['ActualYear'].empty? and row['StatedYear'].empty?) or row['AccessCode'] == '4'
             ref_id = row['RefID']
 
@@ -293,7 +291,7 @@ namespace :tw do
               )
 
             rescue ActiveRecord::RecordInvalid
-              logger.info "Source (ContainingRefID = 0) ERROR (#{error_counter += 1}): " + source.errors.full_messages.join(';')
+              logger.info "Source ERROR (#{error_counter += 1}): " + source.errors.full_messages.join(';')
               # @todo Not found: Slater, J.A. Date unknown. A Catalogue of the Lygaeidae of the world. << RefID = 44058, PubID = 21898
             end
           end
@@ -301,75 +299,75 @@ namespace :tw do
           ##### Second Ref loop: Create sources for SF.tblRefs.ContainingRefID > 0
           # skip if get_contained_cite_aux_data[sf_ref_id] -- do not create this source stub
 
-          file.each_with_index do |row, i|
-            next if row['ContainingRefID'].to_i == 0 # Creating only contained references in this pass
-            next if get_contained_cite_aux_data[row['RefID']] # if get_contained_cite_aux_data[sf_ref_id] is true, this is a taxon author, not chapter author
-
-            ref_id = row['RefID']
-            containing_ref_id = row['ContainingRefID']
-            containing_source_id = get_tw_source_id[containing_ref_id]
-
-            logger.info "working with contained SF.RefID = #{ref_id}, SF.ContainingRefID = #{containing_ref_id}, tw.containing_source_id = #{containing_source_id}, SF.FileID = #{row['FileID']} (count = #{count_found += 1}) \n"
-
-            begin
-              containing_source = Source.find(containing_source_id)
-            rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound
-              logger.error "Source ERROR: containing source not found for RefID = #{containing_source_id} (source not found = #{source_not_found_error += 1})"
-              next
-            end
-
-            if containing_source.bibtex_type == 'book'
-              pub_type_string = 'inbook'
-            else
-              logger.error "Source ERROR: containing source bibtex_type is not 'book', SF.RefID = #{ref_id}, SF.ContainingRefID = #{containing_ref_id}, TW.containing_source_id = #{containing_source_id}"
-              next
-              # pub_type_string = 'misc' # per Matt, parent source is 'article'
-            end
-
-            source = Source::Bibtex.new(
-                bibtex_type: pub_type_string,
-                title: row['Title'],
-                booktitle: containing_source.booktitle,
-                publisher: containing_source.publisher,
-                address: containing_source.address,
-                serial_id: containing_source.serial_id,
-                series: containing_source.series,
-                volume: containing_source.volume,
-                number: containing_source.number,
-                pages: row['RefPages'],
-                year: containing_source.year,
-                stated_year: containing_source.stated_year,
-                url: row['LinkID'].to_i > 0 ? get_sf_ref_link[ref_id] : nil,
-                created_at: row['CreatedOn'],
-                updated_at: row['LastUpdate'],
-                created_by_id: get_tw_user_id[row['CreatedBy']],
-                updated_by_id: get_tw_user_id[row['ModifiedBy']]
-            )
-
-            begin
-              source.save!
-
-              source_id = source.id.to_s
-              get_tw_source_id[ref_id] = source_id
-              get_containing_source_id[source_id] = containing_source_id
-
-              # Also keep db record of containing_source_id for future reference
-              source.data_attributes << ImportAttribute.new(import_predicate: 'containing_source_id', value: containing_source_id)
-
-            rescue ActiveRecord::RecordInvalid
-              logger.info "Source (Containing_ref_id > 0) ERROR (#{contained_error_counter += 1}): " + source.errors.full_messages.join(';')
-            end
-
-          end
+          # file.each_with_index do |row, i|
+          #   next if row['ContainingRefID'].to_i == 0 # Creating only contained references in this pass
+          #   next if get_contained_cite_aux_data[row['RefID']] # if get_contained_cite_aux_data[sf_ref_id] is true, this is a taxon author, not chapter author
+          #
+          #   ref_id = row['RefID']
+          #   containing_ref_id = row['ContainingRefID']
+          #   containing_source_id = get_tw_source_id[containing_ref_id]
+          #
+          #   logger.info "working with contained SF.RefID = #{ref_id}, SF.ContainingRefID = #{containing_ref_id}, tw.containing_source_id = #{containing_source_id}, SF.FileID = #{row['FileID']} (count = #{count_found += 1}) \n"
+          #
+          #   begin
+          #     containing_source = Source.find(containing_source_id)
+          #   rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound
+          #     logger.error "Source ERROR: containing source not found for RefID = #{containing_source_id} (source not found = #{source_not_found_error += 1})"
+          #     next
+          #   end
+          #
+          #   if containing_source.bibtex_type == 'book'
+          #     pub_type_string = 'inbook'
+          #   else
+          #     logger.error "Source ERROR: containing source bibtex_type is not 'book', SF.RefID = #{ref_id}, SF.ContainingRefID = #{containing_ref_id}, TW.containing_source_id = #{containing_source_id}"
+          #     next
+          #     # pub_type_string = 'misc' # per Matt, parent source is 'article'
+          #   end
+          #
+          #   source = Source::Bibtex.new(
+          #       bibtex_type: pub_type_string,
+          #       title: row['Title'],
+          #       booktitle: containing_source.booktitle,
+          #       publisher: containing_source.publisher,
+          #       address: containing_source.address,
+          #       serial_id: containing_source.serial_id,
+          #       series: containing_source.series,
+          #       volume: containing_source.volume,
+          #       number: containing_source.number,
+          #       pages: row['RefPages'],
+          #       year: containing_source.year,
+          #       stated_year: containing_source.stated_year,
+          #       url: row['LinkID'].to_i > 0 ? get_sf_ref_link[ref_id] : nil,
+          #       created_at: row['CreatedOn'],
+          #       updated_at: row['LastUpdate'],
+          #       created_by_id: get_tw_user_id[row['CreatedBy']],
+          #       updated_by_id: get_tw_user_id[row['ModifiedBy']]
+          #   )
+          #
+          #   begin
+          #     source.save!
+          #
+          #     source_id = source.id.to_s
+          #     get_tw_source_id[ref_id] = source_id
+          #     get_containing_source_id[source_id] = containing_source_id
+          #
+          #     # Also keep db record of containing_source_id for future reference
+          #     source.data_attributes << ImportAttribute.new(import_predicate: 'containing_source_id', value: containing_source_id)
+          #
+          #   rescue ActiveRecord::RecordInvalid
+          #     logger.info "Source (Containing_ref_id > 0) ERROR (#{contained_error_counter += 1}): " + source.errors.full_messages.join(';')
+          #   end
+          #
+          # end
 
           import.set('SFRefIDToTWSourceID', get_tw_source_id)
-          import.set('TWSourceIDToContainingSourceID', get_containing_source_id)
+          # import.set('TWSourceIDToContainingSourceID', get_containing_source_id)
 
           puts 'SFRefIDToTWSourceID'
           ap get_tw_source_id
 
-          puts 'TWSourceIDToContainingSourceID'
-          ap get_containing_source_id
+          # puts 'TWSourceIDToContainingSourceID'
+          # ap get_containing_source_id
 
           #######################################################################################
           `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/4_after_create_sources/`
