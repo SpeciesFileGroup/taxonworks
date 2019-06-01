@@ -18,7 +18,9 @@
         </label>
       </li>
     </ul>
-    <sequence-picker @getItem="sendSelected($event.id)"/>
+    <sequence-picker
+      :clear-after="true"
+      @getItem="sendSelected($event.id)"/>
   </div>
 </template>
 

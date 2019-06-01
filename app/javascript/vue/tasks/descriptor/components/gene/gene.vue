@@ -10,11 +10,6 @@
           :descriptor="descriptor"
           @save="$emit('save', $event)"/>
       </div>
-      <button
-        type="button"
-        class="button normal-input button-submit separate-top">
-        Create
-      </button>
     </div>
   </div>
 </template>

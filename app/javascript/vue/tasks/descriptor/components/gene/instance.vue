@@ -62,6 +62,7 @@
     <button
       type="button"
       class="button normal-input button-submit separate-top"
+      :disabled="isParensOpen || !geneAttributes.length"
       @click="sendDescriptor">
       Save
     </button>
@@ -115,8 +116,40 @@ export default {
           index++
         }
       })
-      
       return attributes
+    },
+    isParensOpen() {
+      let parenOpen = false
+      let parenClose = false
+      let parensOpen = []
+      let parensClosed = []
+
+      let foundedParens = this.expression.filter(item => {
+        return item.type == 'Operator' && (item.value == '(' ||  item.value == ')')
+      })
+
+      for (let i = 0; i < foundedParens.length; i++) {
+        if(foundedParens[i].value == ')') {
+          parensClosed.push(i)
+          if(parenOpen) {
+            parenOpen = false
+            parenClose = false
+          }
+          else {
+            if(parensClosed.length != parensOpen.length)
+              parenClose = true
+          }
+        }
+        else {
+          if(foundedParens[i].value == '(') {
+            parensOpen.push(i)
+            parenOpen = true
+          }
+        }
+      }
+      if((parenOpen || parenClose) || (parensOpen.length != parensClosed.length) || (parensOpen[parensOpen.length-1] > parensClosed[parensClosed.length-1]))
+        return true
+      return false
     }
   },
   data () {
@@ -193,7 +226,7 @@ export default {
     }
   },
   methods: {
-    addSequence(sequenceId = Math.random().toString(36).substr(2, 1).toUpperCase(), sequenceType = undefined) {
+    addSequence(sequenceId, sequenceType = undefined) {
       let item = {
         key: (Math.random().toString(36).substr(2, 5)),
         type: 'Sequence',
