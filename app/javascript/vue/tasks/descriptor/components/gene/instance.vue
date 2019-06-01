@@ -51,10 +51,11 @@
           v-model="expression"
           :group="randomGroup">
           <div
-            class="drag-expression-element"
+            class="drag-expression-element horizontal-left-content feedback"
+            :class="`${(element.type == 'Operator' ? 'feedback-secondary' : 'feedback-primary')}`"
             v-for="element in expression"
             :key="element.key">
-            {{ element.value }}
+            {{ element.name }}
           </div>
         </draggable>
       </div>
@@ -97,10 +98,10 @@ export default {
           formatExpression.push(`${item.relationshipType}.${item.value}`)
         }
         else {
-          formatExpression.push(item.value)
+          formatExpression.push(` ${item.value} `)
         }
       })
-      return formatExpression
+      return formatExpression.join('')
     },
     geneAttributes() {
       let attributes = []
@@ -162,16 +163,24 @@ export default {
         {
           label: 'Reverse',
           value: 'SequenceRelationship::ReversePrimer'
+        },
+        {
+          label: 'Blast query sequence',
+          value: 'SequenceRelationship::BlastQuerySequence'
+        },
+        {
+          label: 'Reference sequence for assembly',
+          value: 'SequenceRelationship::ReferenceSequenceForAssembly'
         }
       ],
       operators: [
         {
           label: 'AND',
-          value: '&'
+          value: 'AND'
         },
         {
           label: 'OR',
-          value: '|'
+          value: 'OR'
         },
         {
           label: '(',
@@ -202,10 +211,12 @@ export default {
           newVal.gene_attribute_logic.split(' ').forEach(item => {
             if(item.includes('.')) {
               let sequence = item.split('.')
+              let sequenceObject = newVal.gene_attributes.find((seq) => { return seq.sequence_id == sequence[1] })
               this.expression.push({
                 key: (Math.random().toString(36).substr(2, 5)),
-                id: newVal.gene_attributes.find((seq) => { return seq.sequence_id == sequence[1] }).id,
+                id: sequenceObject.id,
                 type: 'Sequence',
+                name: sequenceObject.sequence.name,
                 relationshipType: sequence[0],
                 value: sequence[1]
               })
@@ -226,12 +237,13 @@ export default {
     }
   },
   methods: {
-    addSequence(sequenceId, sequenceType = undefined) {
+    addSequence(sequence, sequenceType = undefined) {
       let item = {
         key: (Math.random().toString(36).substr(2, 5)),
+        name: sequence.name,
         type: 'Sequence',
         relationshipType: sequenceType ? sequenceType : this.type,
-        value: sequenceId
+        value: sequence.hasOwnProperty('sequence_id') ? sequence.sequence_id : sequence.id
       }
 
       this.expression.push(item)
@@ -241,6 +253,7 @@ export default {
       let item = {
         key: (Math.random().toString(36).substr(2, 5)),
         type: 'Operator',
+        name: operator,
         value: operator
       }
       this.expression.push(item)
@@ -265,12 +278,15 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+  .feedback {
+    margin-bottom: 0px;
+  }
   .drag-expression-element {
     padding: 2px;
-    width: 10px;
     cursor: pointer;
     text-align: center;
-    border: 1px solid transparent;
+    margin: 4px;
+    //border: 1px solid transparent;
   }
 
   .drag-expression-element:hover {
@@ -279,9 +295,10 @@ export default {
   }
 
   .expression-box {
-    padding: 4px;
-    height: 20px;
-    border: 1px solid #EAEAEA;
+    padding: 8px;
+    box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
+    //height: 20px;
+    border-top: 1px solid #EAEAEA;
     background-color: #FAFAFA;
   }
 

@@ -13,7 +13,7 @@
         <label>
           <input
             type="radio"
-            @click="sendSelected(item)">
+            @click="sendSelected(item.id)">
           <span v-html="item.object_tag"/>
         </label>
       </li>
@@ -27,7 +27,7 @@
 <script>
 import SmartSelector from 'components/switch'
 import SequencePicker from 'components/sequence/sequence_picker/sequence_picker.vue'
-import { GetSequenceSmartSelector } from '../../request/resources.js'
+import { GetSequenceSmartSelector, GetSequence } from '../../request/resources.js'
 import OrderSmartSelector from 'helpers/smartSelector/orderSmartSelector.js'
 import SelectFirstSmartOption from 'helpers/smartSelector/selectFirstSmartOption.js'
 export default {
@@ -65,9 +65,12 @@ export default {
     })
   },
   methods: {
-    sendSelected(item) {
-      this.selected = item
-      this.$emit('selected', item)
+    sendSelected(id) {
+      GetSequence(id).then(response => {
+        console.log(response)
+        this.selected = response
+        this.$emit('selected', response)        
+      })
     }
   }
 }

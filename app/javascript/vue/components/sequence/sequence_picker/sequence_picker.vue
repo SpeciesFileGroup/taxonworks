@@ -103,7 +103,7 @@ export default {
     type(newVal, oldVal) {
       if(newVal != oldVal) {
         this.resetPicker()
-        this.otu.name = newVal
+        this.sequence.name = newVal
         this.found = true
         this.$emit('getInput', newVal)
       }

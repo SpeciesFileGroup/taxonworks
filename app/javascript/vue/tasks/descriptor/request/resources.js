@@ -51,6 +51,10 @@ const GetSequenceSmartSelector = () => {
   return ajaxCall('get', '/sequences/select_options')
 }
 
+const GetSequence = (id) => {
+  return ajaxCall('get', `/sequences/${id}`)
+}
+
 export {
   CreateDescriptor,
   DeleteDescriptor,
@@ -58,4 +62,5 @@ export {
   LoadDescriptor,
   GetUnits,
   GetSequenceSmartSelector,
+  GetSequence,
 }
