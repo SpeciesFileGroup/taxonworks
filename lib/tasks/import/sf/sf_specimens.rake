@@ -174,9 +174,9 @@ namespace :tw do
                 geographic_area_id = CollectingEvent.find(collecting_event_id).geographic_area_id
 
                 sf_ref_id = get_sf_identification_metadata[specimen_id][0]['ref_id']
-                if ref_id_containing_id_hash[sf_ref_id]
-                  sf_ref_id = ref_id_containing_id_hash[sf_ref_id]
-                end
+                # if ref_id_containing_id_hash[sf_ref_id]
+                #   sf_ref_id = ref_id_containing_id_hash[sf_ref_id]
+                # end
                 source_id = get_tw_source_id[sf_ref_id] # assume first ident record
 
                 logger.info "In AssertedDistribution section: SpecimenID = #{specimen_id}, FileID = #{sf_file_id}, SF.TaxonNameID = #{sf_taxon_name_id}, tw_taxon_name_id = #{tw_taxon_name_id}, otu_id = #{otu_id}, geographic_area_id = #{geographic_area_id}, SF.RefID = #{sf_ref_id}, source_id = #{source_id} \n"
