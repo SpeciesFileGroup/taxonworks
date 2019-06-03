@@ -95,7 +95,7 @@ namespace :tw do
           'media:create_language_hash',
           'media:create_common_names',
           'media:create_otu_website_links',
-          # # 19_after_links
+          # # 19_after_links: 18-19 took 19m3.097s on 2 June 2019
           # #
           # # 'citations:create_citations',
           # time: close to 10h (592m44.659s on 10 July 2015, 591m42.625s on 6 Sept 2018)
