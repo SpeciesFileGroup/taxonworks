@@ -277,9 +277,6 @@ export default {
         gene_attribute_logic: this.composeExpression,
         gene_attributes_attributes: this.filterDuplicates(this.geneAttributes)
       }
-      
-      //newDescriptor.gene_attribute_logic = this.composeExpression
-      //newDescriptor.gene_attributes_attributes = this.filterDuplicates(this.geneAttributes)
 
       this.trashExpressions.forEach(item => {
         if(item.hasOwnProperty('id')) {
@@ -302,7 +299,6 @@ export default {
     cursor: pointer;
     text-align: center;
     margin: 4px;
-    //border: 1px solid transparent;
   }
 
   .drag-expression-element:hover {
