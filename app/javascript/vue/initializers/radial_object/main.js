@@ -1,13 +1,7 @@
-var TW = TW || {}
-TW.vue = TW.vue || {}
-TW.vue.radial = TW.vue.radial || {}
-TW.vue.radial.object = TW.vue.radial.object || {}
-
 import Vue from 'vue'
 import App from './app.vue'
 
-Object.assign(TW.vue.radial.object, {
-  init: function (element) {
+  function init(element) {
     let id = `radial-object-${(Math.random().toString(36).substr(2, 5))}`
     let globalId = $(element).attr('data-global-id')
 
@@ -27,12 +21,11 @@ Object.assign(TW.vue.radial.object, {
       })
     }
   }
-})
 
 $(document).on('turbolinks:load', function () {
-  if ($('[data-radial-object="true"]').length) {
-    $('[data-radial-object="true"]').each(function () {
-      TW.vue.radial.object.init(this)
+  if (document.querySelector('[data-radial-object="true"]')) {
+    document.querySelectorAll('[data-radial-object="true"]').forEach((element) => {
+      init(element)
     })
   }
 })

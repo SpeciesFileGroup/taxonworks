@@ -1,30 +1,24 @@
-var TW = TW || {}
-TW.views = TW.views || {}
-TW.views.tasks = TW.views.tasks || {}
-TW.views.tasks.new_matrix = TW.views.tasks.new_matrix || {}
-
 import Vue from 'vue'
 import vueResource from 'vue-resource'
+import App from './app.vue'
+import { newStore } from './store/store.js'
 
-Object.assign(TW.views.tasks.new_matrix, {
-  init: function () {
+  function init() {
     Vue.use(vueResource)
-    var App = require('./app.vue').default
-    var store = require('./store/store.js').newStore()
+    var store = newStore()
     Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
 
     new Vue({
       store,
-		  	el: '#vue_new_matrix_task',
-		  	render: function (createElement) {
-		  		return createElement(App)
-		  	}
+      el: '#vue_new_matrix_task',
+      render: function (createElement) {
+        return createElement(App)
+      }
     })
   }
-})
 
 $(document).on('turbolinks:load', function () {
-  if ($('#vue_new_matrix_task').length) {
-    TW.views.tasks.new_matrix.init()
+  if (document.querySelector('#vue_new_matrix_task')) {
+    init()
   }
 })

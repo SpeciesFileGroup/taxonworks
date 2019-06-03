@@ -1,11 +1,6 @@
-var TW = TW || {}
-TW.vue = TW.vue || {}
-TW.vue.otuRadial = TW.vue.otuRadial || {}
-
 import Vue from 'vue'
 
-Object.assign(TW.vue.otuRadial, {
-  init: function (element) {
+function init (element) {
     var App = require('./app.vue').default
 
     let id = `otu-radial-${(Math.random().toString(36).substr(2, 5))}`
@@ -31,12 +26,11 @@ Object.assign(TW.vue.otuRadial, {
       })
     }
   }
-})
 
 $(document).on('turbolinks:load', function () {
-  if ($('[data-otu-button="true"]').length) {
-    $('[data-otu-button="true"]').each(function () {
-      TW.vue.otuRadial.init(this)
+  if (document.querySelector('[data-otu-button="true"]')) {
+    document.querySelectorAll('[data-otu-button="true"]').forEach((element) => {
+      init(element)
     })
   }
 })

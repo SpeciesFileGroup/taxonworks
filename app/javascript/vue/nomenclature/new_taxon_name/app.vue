@@ -250,7 +250,7 @@ export default {
       width: 300px;
     }
     .ccenter {
-      max-width: 880px;
+      max-width: 1240px;
     }
     #cright-panel {
       width: 350px;
