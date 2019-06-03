@@ -34,7 +34,7 @@
           </ul>
           <div
             class="delete-box"
-            @click="expression = []">
+            @click="removeAll">
             <draggable
               class="delete-drag-box"
               title="Remove all"
@@ -263,6 +263,13 @@ export default {
       return sequencesArray.map(e => e['sequence_id'])
       .map((e, i, final) => final.indexOf(e) === i && i)
       .filter(e => sequencesArray[e]).map(e => sequencesArray[e])
+    },
+    removeAll() {
+      this.trashExpressions = this.geneAttributes.filter(item => {
+        return item.id
+      })
+      this.expression = []
+      this.sendDescriptor()
     },
     sendDescriptor() {
       let newDescriptor = this.descriptor
