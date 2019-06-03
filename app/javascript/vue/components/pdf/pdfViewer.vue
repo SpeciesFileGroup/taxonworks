@@ -127,7 +127,7 @@ export default {
       }
       else {
         if(p > 0 && p <= this.numPages) {
-          let containerPosition = Math.abs(document.querySelector('#viewer').getBoundingClientRect().y)
+          let containerPosition = Math.abs(document.querySelector('#viewer').getBoundingClientRect().y) + 120
           if ((containerPosition <= this.findPos(document.getElementById(p)) || p == 1) || (document.getElementById(p + 1) && containerPosition >= this.findPos(document.getElementById(p + 1)))) {
             document.getElementById(p).scrollIntoView()
           }
@@ -150,6 +150,7 @@ export default {
     },
     getPdf (url) {
       var self = this
+      
       self.pdfdata = PdfViewer.createLoadingTask(url)
       self.pdfdata.then(pdf => {
         self.numPages = pdf.numPages
@@ -160,15 +161,18 @@ export default {
         function changePage (event) {
           var i = 1
           var count = Number(pdf.numPages)
-          let containerPosition = Math.abs(document.querySelector('#viewer').getBoundingClientRect().y) + 100
-          do {
-            if (containerPosition >= self.findPos(document.getElementById(i)) && containerPosition <= self.findPos(document.getElementById(i + 1))) {
+          if(count > 1) {
+            let containerPosition = Math.abs(document.querySelector('#viewer').getBoundingClientRect().y) + 120
+
+            do {
+              if (containerPosition >= self.findPos(document.getElementById(i)) && containerPosition <= self.findPos(document.getElementById(i + 1))) {
+                self.displayPage = i
+              }
+              i++
+            } while (i < count)
+            if (containerPosition >= self.findPos(document.getElementById(i))) {
               self.displayPage = i
             }
-            i++
-          } while (i < count)
-          if (containerPosition >= self.findPos(document.getElementById(i))) {
-            self.displayPage = i
           }
         }
       })
@@ -233,6 +237,7 @@ export default {
       return '';
     },
     loadPDF(event) {
+      this.showPage = 1
       this.getPdf(event.detail.url)
     }
   }

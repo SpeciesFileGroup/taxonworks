@@ -151,13 +151,9 @@ export default {
         this.drawScaled('page-width')
       }
     },
-    resetPdf() {
-      self.pdf = undefined
-      self.pdfViewer = null
-    },
     loadPdf() {
       var self = this
-      this.resetPdf()
+      //this.resetPdf()
       if (!isPDFDocumentLoadingTask(self.internalSrc)) {
         self.internalSrc = createLoadingTask(self.internalSrc)
         self.$emit('loading', true)
@@ -167,28 +163,7 @@ export default {
 
       var container = this.$refs.container
 
-      // (Optionally) enable hyperlinks within PDF files.
       var pdfLinkService = new PDFLinkService()
-
-      // self.pdf = pdfSinglePageViewer;
-      // console.log(self.pdf.currentScaleValue);
-      // pdfLinkService.setViewer(self.pdf);
-      //
-      // // (Optionally) enable find controller.
-      // var pdfFindController = new PDFFindController({
-      //   pdfViewer: self.pdf,
-      // });
-      // self.pdf.setFindController(pdfFindController);
-      //
-      // container.addEventListener('pagesinit', function () {
-      //   // We can use pdfSinglePageViewer now, e.g. let's change default scale.
-      //   self.pdf.currentScaleValue = 'page-width';
-      //
-      //   if (SEARCH_FOR) { // We can try search for things
-      //     pdfFindController.executeCommand('find', {query: SEARCH_FOR});
-      //   }
-      // });
-      //
       let annotationLayer; let textLayer
       if (self.annotation) {
         annotationLayer = new DefaultAnnotationLayerFactory()
