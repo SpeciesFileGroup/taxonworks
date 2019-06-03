@@ -218,7 +218,7 @@ export default {
                 type: 'Sequence',
                 name: sequenceObject.sequence.name,
                 relationshipType: sequence[0],
-                value: sequence[1]
+                value: Number(sequence[1])
               })
             }
             else {
@@ -272,10 +272,14 @@ export default {
       this.sendDescriptor()
     },
     sendDescriptor() {
-      let newDescriptor = this.descriptor
+      let newDescriptor = {
+        id: this.descriptor.id,
+        gene_attribute_logic: this.composeExpression,
+        gene_attributes_attributes: this.filterDuplicates(this.geneAttributes)
+      }
       
-      newDescriptor.gene_attribute_logic = this.composeExpression
-      newDescriptor.gene_attributes_attributes = this.filterDuplicates(this.geneAttributes)
+      //newDescriptor.gene_attribute_logic = this.composeExpression
+      //newDescriptor.gene_attributes_attributes = this.filterDuplicates(this.geneAttributes)
 
       this.trashExpressions.forEach(item => {
         if(item.hasOwnProperty('id')) {
