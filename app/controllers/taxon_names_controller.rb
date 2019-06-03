@@ -25,6 +25,12 @@ class TaxonNamesController < ApplicationController
     render '/taxon_names/api/index.json.jbuilder'
   end
 
+  # GET /api/v1/taxon_names/:id
+  def api_show
+    @taxon_name = TaxonName.find(params[:id])
+    render '/taxon_names/api/show.json.jbuilder'
+  end
+
   def filter_params
     params.permit(
       :name, :author, :year,

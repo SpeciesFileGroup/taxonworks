@@ -1,3 +1,10 @@
+# json._links do
+#   json.self url_for(controller: 'taxon_names', action: 'show', id: taxon_name.id, only_path: false)
+#   if taxon_name.parent_id
+#     json.parent url_for(controller: 'taxon_names', action: 'show', id: taxon_name.parent_id, only_path: false)
+#   end
+# end
+
 json.extract! taxon_name, :id, :name, :parent_id, :cached, :cached_html, :feminine_name, :masculine_name,
               :neuter_name, :cached_author_year, :etymology, :year_of_publication, :verbatim_author, :rank, :rank_string,
               :type, :created_by_id, :updated_by_id, :project_id, :cached_valid_taxon_name_id, :cached_original_combination, :cached_original_combination_html,
