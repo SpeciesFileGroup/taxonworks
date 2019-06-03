@@ -4,7 +4,7 @@ import App from './app.vue'
 
 function init() {
   Vue.use(vueResource)
-  var token = $('[name="csrf-token"]').attr('content')
+  var token = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
   Vue.http.headers.common['X-CSRF-Token'] = token
 
   new Vue({
@@ -15,7 +15,7 @@ function init() {
   })
 }
 
-$(document).on('turbolinks:load', function () {
+document.addEventListener('turbolinks:load', (event) => {
   if (document.querySelector('#single_bibtex_source')) {
     init()
   }

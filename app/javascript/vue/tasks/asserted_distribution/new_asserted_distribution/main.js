@@ -12,7 +12,7 @@ import VueShortkey from 'vue-shortkey'
     })
   }
 
-$(document).on('turbolinks:load', function () {
+document.addEventListener('turbolinks:load', (event) => {
   if (document.querySelector('#vue-task-asserted-distribution-new')) {
     init()
   }

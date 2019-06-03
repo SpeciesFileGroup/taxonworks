@@ -17,7 +17,7 @@ import { newStore } from './store/store.js'
     })
   }
 
-$(document).on('turbolinks:load', function () {
+document.addEventListener('turbolinks:load', (event) => {
   if (document.querySelector('#vue_new_matrix_task')) {
     init()
   }

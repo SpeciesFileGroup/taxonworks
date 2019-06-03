@@ -16,7 +16,7 @@ function init() {
     })
   }
 
-$(document).on('turbolinks:load', function () {
+document.addEventListener('turbolinks:load', (event) => {
   if (document.querySelector('#vue-clipboard-app')) {
     init()
   }

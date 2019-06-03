@@ -4,8 +4,8 @@ import App from './app.vue'
 
 function init() {
   Vue.use(vueResource);
-  var token = $('[name="csrf-token"]').attr('content');
-  Vue.http.headers.common['X-CSRF-Token'] = token;
+  var token = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+  Vue.http.headers.common['X-CSRF-Token'] = token
 
   new Vue({
     el: '#browse_annotations',
@@ -15,7 +15,7 @@ function init() {
   })
 }
 
-$(document).on('turbolinks:load', function () {
+document.addEventListener('turbolinks:load', (event) => {
   if (document.querySelector('#browse_annotations')) {
     init()
   }

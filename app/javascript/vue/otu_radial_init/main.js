@@ -4,10 +4,10 @@ import App from './app.vue'
 
 function init(element) {
   let id = `otu-radial-${(Math.random().toString(36).substr(2, 5))}`
-  let globalId = $(element).attr('data-global-id')
+  let globalId = element.getAttribute('data-global-id')
 
   if (globalId) {
-    $(element).attr('id', id)
+    element.setAttribute('id', id)
 
     new Vue({
       el: `#${id}`,
@@ -23,7 +23,7 @@ function init(element) {
   }
 }
 
-$(document).on('turbolinks:load', function () {
+document.addEventListener('turbolinks:load', (event) => {
   if (document.querySelector('[data-otu-radial="true"]')) {
     document.querySelectorAll('[data-otu-radial="true"]').forEach((element) => {
       init(element)

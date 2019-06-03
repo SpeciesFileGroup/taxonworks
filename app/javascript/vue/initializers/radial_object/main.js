@@ -3,10 +3,10 @@ import App from './app.vue'
 
   function init(element) {
     let id = `radial-object-${(Math.random().toString(36).substr(2, 5))}`
-    let globalId = $(element).attr('data-global-id')
+    let globalId = element.getAttribute('data-global-id')
 
     if (globalId) {
-      $(element).attr('id', id)
+      element.setAttribute('id', id)
 
       new Vue({
         el: `#${id}`,
@@ -22,7 +22,7 @@ import App from './app.vue'
     }
   }
 
-$(document).on('turbolinks:load', function () {
+document.addEventListener('turbolinks:load', (event) => {
   if (document.querySelector('[data-radial-object="true"]')) {
     document.querySelectorAll('[data-radial-object="true"]').forEach((element) => {
       init(element)

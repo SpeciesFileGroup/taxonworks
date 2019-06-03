@@ -156,18 +156,18 @@ export default {
       }
     }
   },
-  data: function () {
+  data () {
     return {
       loading: true
     }
   },
-  mounted: function () {
+  mounted () {
     var that = this
 
-    $(window).scroll(function () {
+    window.addEventListener('scroll', () => {
       let element = document.querySelector('#cright-panel')
       if (element) {
-        if (($(window).scrollTop() > 154) && (that.isMinor())) {
+        if (((window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0) > 154) && (that.isMinor())) {
           element.classList.add('cright-fixed-top')
         } else {
           element.classList.remove('cright-fixed-top')

@@ -16,7 +16,7 @@ import vueShortkey from 'vue-shortkey'
     })
     Vue.use(vueShortkey)
 
-    var token = $('[name="csrf-token"]').attr('content')
+    var token = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
     Vue.http.headers.common['X-CSRF-Token'] = token
     new Vue({
       store: newStore,
@@ -27,8 +27,8 @@ import vueShortkey from 'vue-shortkey'
     })
   }
 
-$(document).on('turbolinks:load', function () {
-  if ($('#new_taxon_name_task').length) {
+document.addEventListener('turbolinks:load', (event) => {
+  if (document.querySelector('#new_taxon_name_task')) {
     initRequest()
     init()
   }

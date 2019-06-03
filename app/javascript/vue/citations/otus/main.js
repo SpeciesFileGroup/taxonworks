@@ -5,7 +5,7 @@ import { newStore } from './store/store.js'
 
 function init() {
   Vue.use(vueResource)
-  var token = $('[name="csrf-token"]').attr('content')
+  var token = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
   Vue.http.headers.common['X-CSRF-Token'] = token
 
   new Vue({
@@ -17,8 +17,8 @@ function init() {
   })
 }
 
-$(document).on('turbolinks:load', function () {
-  if ($('#cite_otus').length) {
+document.addEventListener('turbolinks:load', (event) => {
+  if (document.querySelector('#cite_otus')) {
     init()
   }
 })

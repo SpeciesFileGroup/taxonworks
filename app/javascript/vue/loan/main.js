@@ -17,8 +17,8 @@ import { newStore } from './store/store.js'
     })
   }
 
-$(document).on('turbolinks:load', function () {
-  if ($('#edit_loan_task').length) {
+document.addEventListener('turbolinks:load', (event) => {
+  if (document.querySelector('#edit_loan_task')) {
     init()
   }
 })

@@ -8,7 +8,7 @@ function init () {
     Vue.use(vueShortkey)
 
     var App = require('./app.vue').default;
-    var token = $('[name="csrf-token"]').attr('content');
+    var token = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
     Vue.http.headers.common['X-CSRF-Token'] = token;
 
     new Vue({
@@ -19,7 +19,7 @@ function init () {
     })
   }
 
-$(document).on('turbolinks:load', function () {
+document.addEventListener('turbolinks:load', (event) => {
   if (document.querySelector('#search_locality')) {
     init();
   }

@@ -50,10 +50,10 @@
       }
     },
     mounted() {
-      $(document).off("keydown");
-      $(document).on("keyup")
-      $(document).on("keydown", this.KeyPress);
-      $(document).on("keyup", this.removeKey)
+      document.removeEventListener("keydown", this.KeyPress)
+      document.removeEventListener("keyup", this.removeKey)
+      document.addEventListener("keydown", this.KeyPress)
+      document.addEventListener("keyup", this.removeKey)
       GetClipboard().then(response => {
         Object.assign(this.clipboard, response.clipboard)
       })

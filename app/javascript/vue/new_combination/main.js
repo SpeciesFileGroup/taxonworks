@@ -3,6 +3,7 @@ import vueResource from 'vue-resource'
 import HelpSystem from '../plugins/help/help'
 import en from './lang/help/en'
 import vueShortkey from 'vue-shortkey'
+import App from './app.vue'
 
 function init () {
   Vue.use(vueResource)
@@ -13,7 +14,6 @@ function init () {
     }
   })
 
-  var App = require('./app.vue').default
   Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
 
   new Vue({
@@ -24,8 +24,8 @@ function init () {
   })
 }
 
-$(document).on('turbolinks:load', function () {
-  if ($('#vue_new_combination').length) {
+document.addEventListener('turbolinks:load', (event) => {
+  if (document.querySelector('#vue_new_combination')) {
     init()
   }
 })

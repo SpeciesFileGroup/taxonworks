@@ -2,7 +2,7 @@
   <div>
     <slot v-if="loading" name="loading"/>
     <div id="viewerContainer" ref="container">
-      <div id="viewer" class="pdfViewer"></div>
+
     </div>
   </div>
 </template>
@@ -25,6 +25,9 @@ function isPDFDocumentLoadingTask (obj) {
 }
 
 function createLoadingTask (src, options) {
+  if(document.querySelector('#viewerContainer'))
+    document.querySelector('#viewerContainer').innerHTML = ''
+
   var source
   if (typeof (src) === 'string') { source = { url: src } } else
   if (typeof (src) === 'object' && src !== null) { source = Object.assign({}, src) } else { throw new TypeError('invalid src type') }
@@ -115,6 +118,10 @@ export default {
         this.pdfViewer.update(this.scale, newRotate)
         this.pdfViewer.draw()
       }
+    },
+    src(newVal) {
+      this.internalSrc = newVal
+      this.loadPdf()
     }
   },
   methods: {
@@ -143,70 +150,78 @@ export default {
       if (this.resize) {
         this.drawScaled('page-width')
       }
+    },
+    resetPdf() {
+      self.pdf = undefined
+      self.pdfViewer = null
+    },
+    loadPdf() {
+      var self = this
+      this.resetPdf()
+      if (!isPDFDocumentLoadingTask(self.internalSrc)) {
+        self.internalSrc = createLoadingTask(self.internalSrc)
+        self.$emit('loading', true)
+      }
+
+      var SEARCH_FOR = 'Mozilla' // try 'Mozilla';
+
+      var container = this.$refs.container
+
+      // (Optionally) enable hyperlinks within PDF files.
+      var pdfLinkService = new PDFLinkService()
+
+      // self.pdf = pdfSinglePageViewer;
+      // console.log(self.pdf.currentScaleValue);
+      // pdfLinkService.setViewer(self.pdf);
+      //
+      // // (Optionally) enable find controller.
+      // var pdfFindController = new PDFFindController({
+      //   pdfViewer: self.pdf,
+      // });
+      // self.pdf.setFindController(pdfFindController);
+      //
+      // container.addEventListener('pagesinit', function () {
+      //   // We can use pdfSinglePageViewer now, e.g. let's change default scale.
+      //   self.pdf.currentScaleValue = 'page-width';
+      //
+      //   if (SEARCH_FOR) { // We can try search for things
+      //     pdfFindController.executeCommand('find', {query: SEARCH_FOR});
+      //   }
+      // });
+      //
+      let annotationLayer; let textLayer
+      if (self.annotation) {
+        annotationLayer = new DefaultAnnotationLayerFactory()
+      }
+      if (self.text) {
+        textLayer = new DefaultTextLayerFactory()
+      }
+
+      self.internalSrc
+        .then(function (pdfDocument) {
+        // Document loaded, retrieving the page.
+          self.pdf = pdfDocument
+          return pdfDocument.getPage(self.page)
+        }).then(function (pdfPage) {
+        // Creating the page view with default parameters.
+          self.pdfViewer = new PDFPageView({
+            container: container,
+            id: self.page,
+            scale: 1,
+            defaultViewport: pdfPage.getViewport(1),
+            // We can enable text/annotations layers, if needed
+            textLayerFactory: textLayer,
+            annotationLayerFactory: annotationLayer
+          })
+          // Associates the actual page with the view, and drawing it
+          self.pdfViewer.setPdfPage(pdfPage)
+          pdfLinkService.setViewer(self.pdfViewer)
+          self.drawScaled(self.scale)
+        })
     }
   },
   mounted() {
-    var self = this
-    if (!isPDFDocumentLoadingTask(self.internalSrc)) {
-      self.internalSrc = createLoadingTask(self.internalSrc)
-      self.$emit('loading', true)
-    }
-
-    var SEARCH_FOR = 'Mozilla' // try 'Mozilla';
-
-    var container = this.$refs.container
-
-    // (Optionally) enable hyperlinks within PDF files.
-    var pdfLinkService = new PDFLinkService()
-
-    // self.pdf = pdfSinglePageViewer;
-    // console.log(self.pdf.currentScaleValue);
-    // pdfLinkService.setViewer(self.pdf);
-    //
-    // // (Optionally) enable find controller.
-    // var pdfFindController = new PDFFindController({
-    //   pdfViewer: self.pdf,
-    // });
-    // self.pdf.setFindController(pdfFindController);
-    //
-    // container.addEventListener('pagesinit', function () {
-    //   // We can use pdfSinglePageViewer now, e.g. let's change default scale.
-    //   self.pdf.currentScaleValue = 'page-width';
-    //
-    //   if (SEARCH_FOR) { // We can try search for things
-    //     pdfFindController.executeCommand('find', {query: SEARCH_FOR});
-    //   }
-    // });
-    //
-    let annotationLayer; let textLayer
-    if (self.annotation) {
-      annotationLayer = new DefaultAnnotationLayerFactory()
-    }
-    if (self.text) {
-      textLayer = new DefaultTextLayerFactory()
-    }
-
-    self.internalSrc
-      .then(function (pdfDocument) {
-      // Document loaded, retrieving the page.
-        self.pdf = pdfDocument
-        return pdfDocument.getPage(self.page)
-      }).then(function (pdfPage) {
-      // Creating the page view with default parameters.
-        self.pdfViewer = new PDFPageView({
-          container: container,
-          id: self.page,
-          scale: 1,
-          defaultViewport: pdfPage.getViewport(1),
-          // We can enable text/annotations layers, if needed
-          textLayerFactory: textLayer,
-          annotationLayerFactory: annotationLayer
-        })
-        // Associates the actual page with the view, and drawing it
-        self.pdfViewer.setPdfPage(pdfPage)
-        pdfLinkService.setViewer(self.pdfViewer)
-        self.drawScaled(self.scale)
-      })
+    this.loadPdf()
   }
 }
 </script>

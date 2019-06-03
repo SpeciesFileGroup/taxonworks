@@ -18,7 +18,7 @@ function init() {
   })
 }
 
-$(document).on('turbolinks:load', function () {
+document.addEventListener('turbolinks:load', (event) => {
   if (document.querySelector('#vue_type_specimens')) {
     init()
   }
