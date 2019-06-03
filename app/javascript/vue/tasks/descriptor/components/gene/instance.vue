@@ -259,11 +259,16 @@ export default {
       this.expression.push(item)
       this.operatorMode = false
     },
+    filterDuplicates(sequencesArray) {
+      return sequencesArray.map(e => e['sequence_id'])
+      .map((e, i, final) => final.indexOf(e) === i && i)
+      .filter(e => sequencesArray[e]).map(e => sequencesArray[e])
+    },
     sendDescriptor() {
       let newDescriptor = this.descriptor
       
       newDescriptor.gene_attribute_logic = this.composeExpression
-      newDescriptor.gene_attributes_attributes = this.geneAttributes
+      newDescriptor.gene_attributes_attributes = this.filterDuplicates(this.geneAttributes)
 
       this.trashExpressions.forEach(item => {
         if(item.hasOwnProperty('id')) {
