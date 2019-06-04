@@ -5,8 +5,10 @@ import App from './app.vue'
 
 function init() {
   Vue.use(vueResource)
-  var token = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-  Vue.http.headers.common['X-CSRF-Token'] = token
+  var token = document.querySelector('meta[name="csrf-token"]')
+  if(token) {
+    Vue.http.headers.common['X-CSRF-Token'] = token.getAttribute('content')
+  }
 
   new Vue({
     store: newStore,
