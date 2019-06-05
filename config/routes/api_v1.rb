@@ -29,6 +29,7 @@ namespace :api, defaults: {format: :json} do
       get '/otus', to: '/otus#index'
 
       get '/taxon_names', to: '/taxon_names#api_index'
+      get '/taxon_names/autocomplete', to: '/taxon_names#autocomplete'
       get '/taxon_names/:id', to: '/taxon_names#api_show'
     end
 

@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe 'Api::V1::TaxonNames', type: :request do
 
-  context 'taxon_names/index' do
+  context 'taxon_names' do
 
     # let(:taxon_name) { FactoryBot.create(:valid_taxon_name) }
     # let(:headers) { { "Authorization": 'Token token=' + user.api_access_token, project_id: taxon_name.project_id } }
@@ -15,6 +15,11 @@ describe 'Api::V1::TaxonNames', type: :request do
       before { get path, headers: headers, params: { project_id: taxon_name.project_id } }
       it_behaves_like 'a successful response'
     end
+  end
+
+  context 'taxon_names/autocomplete' do
+
+    it_behaves_like 'secured by both user and project token', :valid_taxon_name, '/api/v1/taxon_names/autocomplete'
 
   end
 end
