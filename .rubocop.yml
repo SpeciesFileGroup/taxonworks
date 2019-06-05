@@ -1,3 +1,5 @@
+require: rubocop-rails
+
 # inherit_from: .rubocop_todo.yml
 
 # Documentation: http://www.rubydoc.info/gems/rubocop

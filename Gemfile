@@ -131,6 +131,7 @@ group :development do
 
   gem 'web-console', '~> 3.7.0'
   gem 'rubocop', '~> 0.70'
+  gem 'rubocop-rails'
   gem 'rubocop-rspec'
   gem 'brakeman', '~> 4.4.0', require: false
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'
