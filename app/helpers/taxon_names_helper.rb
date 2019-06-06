@@ -97,7 +97,7 @@ module TaxonNamesHelper
       if taxon_name.unavailable_or_invalid? 
           content_tag(:span, "This name is not valid/accepted.<br>The valid name is #{taxon_name_browse_link(taxon_name.valid_taxon_name)}.".html_safe, class: :brief_status, data: {icon: :attention, status: :invalid})
       else
-        content_tag(:span, 'This name is valid/accepted.', class: :brief_status, data: {icon: :ok }) 
+        content_tag(:span, 'This name is valid/accepted.', class: :brief_status, data: {icon: :ok, status: :valid }) 
       end
     end
   end
