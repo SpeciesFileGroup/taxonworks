@@ -92,10 +92,10 @@ module TaxonNamesHelper
       t = (taxon_name.valid_taxon_name)
       # TODO: deprecate :brief_status 
       content_tag(:span, 
-                  "This name is subsequent combination for #{link_to(original_taxon_name_tag(t), browse_nomenclature_task_path(t))} #{original_author_year(taxon_name)}.".html_safe, class: :brief_status, data: {icon: :attention})
+                  "This name is subsequent combination for #{link_to(original_taxon_name_tag(t), browse_nomenclature_task_path(t))} #{original_author_year(taxon_name)}.".html_safe, class: :brief_status, data: {icon: :attention, status: :combination})
     else
       if taxon_name.unavailable_or_invalid? 
-        content_tag(:span, "This name is not valid/accepted. The valid name is #{taxon_name_browse_link(taxon_name.valid_taxon_name)}.".html_safe, class: :brief_status, data: {icon: :attention}) 
+          content_tag(:span, "This name is not valid/accepted. The valid name is #{taxon_name_browse_link(taxon_name.valid_taxon_name)}.".html_safe, class: :brief_status, data: {icon: :attention, status: :invalid})
       else
         content_tag(:span, 'This name is valid/accepted.', class: :brief_status, data: {icon: :ok }) 
       end
