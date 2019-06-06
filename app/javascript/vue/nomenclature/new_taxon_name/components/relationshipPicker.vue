@@ -290,9 +290,10 @@ export default {
         }
         else {
           let label = key.split('::')
+
           Object.defineProperty(list[key], 'type', { value: key })
-          Object.defineProperty(list[key], 'object_status_tag', { value: label[label.length-1] })
-          Object.defineProperty(list[key], 'subject_status_tag', { value: label[label.length-1] })
+          Object.defineProperty(list[key], 'object_status_tag', { value: label[label.length-1].replace(/\.?([A-Z])/g, function (x,y){return " " + y.toLowerCase()}).replace(/^_/, "").toLowerCase().trim() })
+          Object.defineProperty(list[key], 'subject_status_tag', { value: label[label.length-1].replace(/\.?([A-Z])/g, function (x,y){return " " + y.toLowerCase()}).replace(/^_/, "").toLowerCase().trim() })
           Object.defineProperty(list[key], 'valid_subject_ranks', { value: [] })    
         }
         this.getTreeList(list[key], ranksList)
