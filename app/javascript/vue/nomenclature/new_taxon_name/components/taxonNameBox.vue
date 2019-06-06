@@ -31,11 +31,11 @@
               :pin-object="taxon['pinboard_item']"
               :object-id="taxon.id"
               :type="taxon.base_class"/>
-            <radial-annotator
-              :global-id="taxon.global_id"/>
+            <radial-annotator :global-id="taxon.global_id" />
             <otu-radial
               :taxon-id="taxon.id"
               :taxon-name="taxon.object_tag"/>
+            <radial-object :global-id="taxon.global_id" />
             <span
               v-if="taxon.id"
               @click="showModal = true"
@@ -53,6 +53,7 @@
 
 import OtuRadial from 'components/otu/otu.vue'
 import RadialAnnotator from 'components/annotator/annotator.vue'
+import RadialObject from 'components/radial_object/radialObject.vue'
 import PinObject from 'components/pin.vue'
 
 import { GetterNames } from '../store/getters/getters'
@@ -62,6 +63,7 @@ export default {
   components: {
     Modal,
     RadialAnnotator,
+    RadialObject,
     OtuRadial,
     PinObject
   },
