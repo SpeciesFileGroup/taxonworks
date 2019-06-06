@@ -7,6 +7,9 @@
     There are <%= @data.names.count -%> names referenced in this entry.
     <%= "Citations for this record include following topics: #{@data.topics.map(&:name).to_sentence}." if !@data.topics.empty? -%><br>
     <%= Utilities::Dates.date_range_sentence_tag(@data.date_range) -%><br>
+    <% v = @taxon_name.descendants.that_is_valid.count -%>
+    <% iv = @taxon_name.descendants.that_is_invalid.count -%>
+    <%= 'There are ' + ["#{v} valid", "#{iv} invalid"].to_sentence + ' descendants. ' if v > 0 || iv > 0  %>
     <%= taxon_name_otus_links(@taxon_name) -%>
   </p>
 </div>
