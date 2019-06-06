@@ -88,12 +88,12 @@ module TaxonNamesHelper
 
   def taxon_name_short_status(taxon_name)
     if taxon_name.type.eql?("Combination") 
-      content_tag(:span, "This name is subsequent combination for #{taxon_name_browse_link(taxon_name.valid_taxon_name)}.".html_safe, class: :brief_status, data: {icon: :attention})
+      content_tag(:span, "This name is subsequent combination for #{taxon_name_browse_link(taxon_name.valid_taxon_name)}.".html_safe, class: :brief_status, data: { icon: :attention, status: :combination })
     else
       if taxon_name.unavailable_or_invalid? || taxon_name.type.eql?("Combination")
-        content_tag(:span, "This name is not valid/accepted. The valid name is #{taxon_name_browse_link(taxon_name.valid_taxon_name)}.".html_safe, class: :brief_status, data: {icon: :attention}) 
+        content_tag(:span, "This name is not valid/accepted. The valid name is #{taxon_name_browse_link(taxon_name.valid_taxon_name)}.".html_safe, class: :brief_status, data: { icon: :attention, status: :invalid }) 
       else
-        content_tag(:span, 'This name is valid/accepted.', class: :brief_status, data: {icon: :ok }) 
+        content_tag(:span, 'This name is valid/accepted.', class: :brief_status, data: { icon: :ok, status: :valid  }) 
       end
     end
   end

@@ -34,8 +34,13 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
       }
     }
 
-    var taxonId = $("#browse-view").attr("data-taxon-id");
-    var taxonType = $("[data-taxon-type]").attr("data-taxon-type");
+    var taxonId = document.querySelector("#browse-view").getAttribute("data-taxon-id");
+    var taxonType = document.querySelector("[data-taxon-type]").getAttribute("data-taxon-type");
+    var taxonStatus = document.querySelector('[data-status]').getAttribute('data-status');
+
+    if(taxonStatus == 'invalid') {
+      document.querySelector('#browse-nomenclature-taxon-name').classList.add('bg-warning');
+    }
 
     if(taxonType == 'Combination')
       $('.edit-taxon-name').attr('href', '/tasks/nomenclature/new_combination/index?taxon_name_id=' + taxonId);
