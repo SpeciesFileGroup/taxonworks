@@ -39,7 +39,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
     var taxonStatus = document.querySelector('[data-status]').getAttribute('data-status');
 
     if(taxonStatus == 'invalid') {
-      document.querySelector('#browse-nomenclature-taxon-name').classList.add('bg-warning');
+      document.querySelector('#browse-nomenclature-taxon-name').classList.add('feedback-warning');
     }
 
     if(taxonType == 'Combination')
