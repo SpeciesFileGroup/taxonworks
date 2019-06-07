@@ -17,9 +17,22 @@
       class="body"
       v-if="expanded">
       <div v-if="!taxonRelation">
+        <div 
+          v-if="editType"
+          class="horizontal-left-content">
+          <span>
+            <span v-html="GetRelationshipsCreated[0].object_status_tag"/>
+            <a
+              v-html="GetRelationshipsCreated[0].subject_object_tag"
+              :href="`/tasks/nomenclature/browse/${GetRelationshipsCreated[0].subject_taxon_name_id}`"/>
+          </span>
+          <span
+            class="button circle-button btn-undo button-default"
+            @click="editType = undefined"/>
+        </div>
         <hard-validation
           field="type"
-          v-if="!showForThisGroup(['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'], taxon) && !(GetRelationshipsCreated.length)">
+          v-if="!showForThisGroup(['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'], taxon) && (!(GetRelationshipsCreated.length) || editType)">
           <autocomplete
             slot="body"
             url="/taxon_names/autocomplete"
@@ -96,8 +109,10 @@
       <list-entrys
         @update="loadTaxonRelationships"
         @addCitation="setType"
+        :edit="true"
         :list="GetRelationshipsCreated"
         @delete="removeType"
+        @edit="editType = $event"
         :display="['object_status_tag', { link: '/tasks/nomenclature/browse/', label: 'subject_object_tag', param: 'subject_taxon_name_id'}]"/>
     </div>
   </form>
@@ -179,6 +194,7 @@ export default {
       objectLists: this.makeLists(),
       expanded: true,
       showAdvance: false,
+      editType: undefined,
       childOfParent: childOfParent,
       typeMaterialList: []
     }
@@ -235,7 +251,20 @@ export default {
       if (this.getRankGroup == 'Family') { this.addEntry(this.objectLists.tree[Object.keys(this.objectLists.tree)[0]]) }
     },
     addEntry: function (item) {
-      this.$store.dispatch(ActionNames.AddTaxonType, item)
+      if(this.editType) {
+        item.id = this.editType.id
+        this.$store.dispatch(ActionNames.UpdateTaxonType, item).then(() => {
+          this.$store.commit(MutationNames.UpdateLastSave)
+          this.editType = undefined
+          this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
+        })
+      }
+      else {
+        this.$store.dispatch(ActionNames.AddTaxonType, item).then(() => {
+          this.$store.commit(MutationNames.UpdateLastSave)
+          this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
+        })
+      }
     },
     filterList: function (list, filter) {
       let tmp = {}
