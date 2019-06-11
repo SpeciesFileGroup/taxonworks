@@ -74,8 +74,14 @@ class PinboardItem < ApplicationRecord
 
   def update_insertable
     if is_inserted?
-      PinboardItem.where(project_id: project_id, pinned_object_type: pinned_object_type).where.not(id: id).find_each do |p|
-        p.update_column(:is_inserted, false)
+      r = PinboardItem.where(project_id: project_id, pinned_object_type: pinned_object_type).where.not(id: id)
+      if pinned_object_type == 'ControlledVocabularyTerm'
+        n = pinned_object.class.name
+        r.find_each do |i| 
+          i.update(is_inserted: false) if i.pinned_object.type == n
+        end 
+      else
+        r.update_all(is_inserted: false)
       end
     end
   end
