@@ -87,23 +87,24 @@ namespace :tw do
           # 'specimens:collection_objects',
           # # '17_after_collection_objects': 197m20.585s on 19 Mar 2019; 211m4.168s on 1 Feb 2019; 202m27.938s on 20 Nov 2018; 227m33.097s on 15 Nov 2018; 187m21.639s on 1 June 2019
           # #
-          'supplementary:taxon_info',
-          # 0m58.912s on 21 Nov 2018
-          'supplementary:scrutiny_related',
-          # '18_after_scrutinies': 12m12.489s on 21 Nov 2018 [from 11:23:10.299 to 11:29:51.063, scrutiny authors being processed, no screen activity]
-          #
-          'media:create_language_hash',
-          'media:create_common_names',
-          'media:create_otu_website_links',
+          # 'supplementary:taxon_info',
+          # # 0m58.912s on 21 Nov 2018
+          # 'supplementary:scrutiny_related',
+          # # '18_after_scrutinies': 12m12.489s on 21 Nov 2018 [from 11:23:10.299 to 11:29:51.063, scrutiny authors being processed, no screen activity]
+          # #
+          # 'media:create_language_hash',
+          # 'media:create_common_names',
+          # 'media:create_otu_website_links',
           # # 19_after_links: 18-19 took 19m3.097s on 2 June 2019
           # #
-          # # 'citations:create_citations',
-          # time: close to 10h (592m44.659s on 10 July 2015, 591m42.625s on 6 Sept 2018)
-          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_taxon_citations',
+          # 'citations:create_citations',
+          # # 20_after_taxon_citations: close to 10h (592m44.659s on 10 July 2015, 591m42.625s on 6 Sept 2018); 2023m53.988s (33.716666 hours) on 4 June 2019
           #
-          # 'citations:create_otu_cites',
-          # time: 1m (1m2.000s on 16 July 2018z0, 0m55.486s on 7 Sept 2018)
-          # 'rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/_after_otu_cites',
+          # 'citations:create_combinations',
+          # # 21_after_create_combinations: 112m27.918s on 6 June 2019
+          # #
+          'citations:create_otu_cites',
+          # # 25_after_otu_cites: 1m2.000s on 16 July 2018; 0m55.486s on 7 Sept 2018
           #
           #
           # 'last:filter_users'
