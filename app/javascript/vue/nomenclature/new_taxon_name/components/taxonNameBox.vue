@@ -31,6 +31,7 @@
               :pin-object="taxon['pinboard_item']"
               :object-id="taxon.id"
               :type="taxon.base_class"/>
+            <default-confidence :global-id="taxon.global_id"/>
             <radial-annotator :global-id="taxon.global_id" />
             <otu-radial
               :taxon-id="taxon.id"
@@ -54,6 +55,7 @@
 import OtuRadial from 'components/otu/otu.vue'
 import RadialAnnotator from 'components/annotator/annotator.vue'
 import RadialObject from 'components/radial_object/radialObject.vue'
+import DefaultConfidence from 'components/defaultConfidence.vue'
 import PinObject from 'components/pin.vue'
 
 import { GetterNames } from '../store/getters/getters'
@@ -65,7 +67,8 @@ export default {
     RadialAnnotator,
     RadialObject,
     OtuRadial,
-    PinObject
+    PinObject,
+    DefaultConfidence
   },
   data: function () {
     return {
