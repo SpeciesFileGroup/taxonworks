@@ -44,10 +44,12 @@
         </div>
       </div> 
     </template>
-    <div v-if="expression.length">
+    <div
+      v-if="expression.length">
       <div class="separate-bottom horizontal-left-content">
         <draggable
           class="horizontal-left-content expression-box full_width"
+          :class="{ 'warning-box': (isParensOpen || !validateExpression)}"
           v-model="expression"
           :group="randomGroup">
           <div
@@ -59,11 +61,23 @@
           </div>
         </draggable>
       </div>
+      <div
+        v-if="isParensOpen || !validateExpression"
+        class="warning-message">
+        Wrong expression: 
+        <span
+          v-if="isParensOpen">
+          Close parentheses.
+        </span>
+        <span v-if="!validateExpression">
+          Logical operators needs something on the other side.
+        </span>
+      </div>
     </div>
     <button
       type="button"
       class="button normal-input button-submit separate-top"
-      :disabled="isParensOpen || !geneAttributes.length"
+      :disabled="!validateExpression || isParensOpen || !geneAttributes.length"
       @click="sendDescriptor">
       Save
     </button>
@@ -151,6 +165,37 @@ export default {
       if((parenOpen || parenClose) || (parensOpen.length != parensClosed.length) || (parensOpen[parensOpen.length-1] > parensClosed[parensClosed.length-1]))
         return true
       return false
+    },
+    validateExpression() {
+      let previousOperator = true
+      let currentOperator = false
+      let validated = true
+
+      for (let i = 0; i < this.expression.length; i++) {
+        if(this.expression[i].type == 'Operator') {
+          if(this.expression[i].value != ')' && this.expression[i].value != '(') {
+            currentOperator = true
+            if(previousOperator) {
+              validated = false
+              break
+            }
+          }
+          else {
+            if(this.expression[i].value == ')' && previousOperator) {
+              validated = false
+              break
+            }
+          }
+        }
+        else {
+          currentOperator = false
+        }
+        previousOperator = currentOperator
+      }
+      if(currentOperator && previousOperator) {
+        return false
+      }
+      return validated
     }
   },
   data () {
@@ -309,7 +354,6 @@ export default {
   .expression-box {
     padding: 8px;
     box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
-    //height: 20px;
     border-top: 1px solid #EAEAEA;
     background-color: #FAFAFA;
   }
@@ -317,6 +361,16 @@ export default {
   .delete-drag-box {
     height: 20px;
     width: 20px;
+  }
+
+  .warning-message {
+    color: red
+  }
+
+  .warning-box {
+    border: 1px solid red;
+    background-color: #ffa9a9 !important;
+    color: #FFFFFF !important;
   }
 
   .delete-box {
