@@ -96,6 +96,16 @@ class ConfidencesController < ApplicationController
     send_data Download.generate_csv(Confidence.where(project_id: sessions_current_project_id)), type: 'text', filename: "confidences_#{DateTime.now}.csv"
   end
 
+  def exists
+    if @confidence = Confidence.exists?(params.require(:global_id),
+        params.require(:confidence_level_id),
+        sessions_current_project_id)
+      render :show
+    else
+      render json: false
+    end
+  end
+
   private
 
   def set_confidence

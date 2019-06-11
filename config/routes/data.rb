@@ -76,6 +76,7 @@ resources :confidences do # , except: [:edit, :show]
     post :confidence_object_update
   end
 end
+get 'confidences/exists', to: 'confidences#exists', defaults: {format: :json}
 
 resources :confidence_levels, only: [:index] do
   collection do
