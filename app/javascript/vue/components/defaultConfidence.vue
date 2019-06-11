@@ -4,11 +4,13 @@
       <div
         v-if="!created"
         class="default_tag_widget circle-button btn-confidences btn-submit"
-        @click="createConfidence()"/>
+        @click="createConfidence()"
+        title="Set default confidence"/>
       <div
         v-else
         class="default_tag_widget circle-button btn-confidences btn-delete"
-        @click="deleteConfidence()"/>
+        @click="deleteConfidence()"
+        title="Remove default confidence"/>
     </div>
     <div
       v-else
