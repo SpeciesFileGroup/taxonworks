@@ -70,13 +70,13 @@ resources :citations do # except: [:show]
   concerns [:data_routes]
 end
 
+get 'confidences/exists', to: 'confidences#exists', defaults: {format: :json}
 resources :confidences do # , except: [:edit, :show]
   concerns [:data_routes]
   collection do
     post :confidence_object_update
   end
 end
-get 'confidences/exists', to: 'confidences#exists', defaults: {format: :json}
 
 resources :confidence_levels, only: [:index] do
   collection do
@@ -518,6 +518,7 @@ resources :sqed_depictions, only: [] do
   end
 end
 
+get 'tags/exists', to: 'tags#exists', defaults: {format: :json}
 resources :tags, except: [:edit, :show, :new] do
   concerns [:data_routes]
   collection do
@@ -526,7 +527,6 @@ resources :tags, except: [:edit, :show, :new] do
     post :batch_remove, defaults: {format: :json}
   end
 end
-get 'tags/exists', to: 'tags#exists', defaults: {format: :json}
 
 resources :tagged_section_keywords, only: [:create, :update, :destroy]
 
