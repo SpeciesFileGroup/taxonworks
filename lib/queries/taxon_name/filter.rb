@@ -167,7 +167,7 @@ module Queries
 
       # @return Scope
       def taxon_name_relationship_type_facet
-        return nil if taxon_name_relationship_type.nil?
+        return nil if taxon_name_relationship_type.empty?
         ::TaxonName.with_taxon_name_relationship(taxon_name_relationship_type)
       end
 
@@ -318,7 +318,7 @@ module Queries
 
       def merge_clauses
         clauses = [
-        #  taxon_name_relationship_type_facet,
+          taxon_name_relationship_type_facet,
           leaves_facet,
           descendant_facet,
           taxon_name_classification_facet,
