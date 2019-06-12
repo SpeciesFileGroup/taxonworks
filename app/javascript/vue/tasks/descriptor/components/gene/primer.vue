@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <fieldset>
+    <legend>Sequence</legend>
     <smart-selector
       class="separate-bottom"
       :options="tabs"
@@ -21,7 +22,7 @@
     <sequence-picker
       :clear-after="true"
       @getItem="sendSelected($event.id)"/>
-  </div>
+  </fieldset>
 </template>
 
 <script>
