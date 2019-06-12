@@ -111,31 +111,31 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
   end
 
   specify '#taxon_name_relationship[] 1' do
-    query.taxon_name_relationship = { '0' => { 'subject_taxon_name_id' => genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } }
+    query.taxon_name_relationship = [ { 'subject_taxon_name_id' => genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } ]
     expect(query.all.map(&:id)).to contain_exactly()
   end
 
   specify '#taxon_name_relationship[] 2' do
     TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(subject_taxon_name_id: genus.id, object_taxon_name_id: original_genus.id)
-    query.taxon_name_relationship = { '0' => { 'subject_taxon_name_id' => genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } }
+    query.taxon_name_relationship = [ { 'subject_taxon_name_id' => genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } ]
     expect(query.all.map(&:id)).to contain_exactly(original_genus.id)
   end
 
   specify '#taxon_name_relationship[] 3' do
     TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(subject_taxon_name_id: original_genus.id, object_taxon_name_id: genus.id)
-    query.taxon_name_relationship = { '0' => { 'subject_taxon_name_id' => original_genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } }
+    query.taxon_name_relationship = [ { 'subject_taxon_name_id' => original_genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } ]
     expect(query.all.map(&:id)).to contain_exactly(genus.id)
   end
 
   specify '#taxon_name_relationship[] 4' do
     TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(object_taxon_name_id: genus.id, subject_taxon_name_id: original_genus.id)
-    query.taxon_name_relationship = { '0' => { 'object_taxon_name_id' => genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } }
+    query.taxon_name_relationship = [ { 'object_taxon_name_id' => genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } ]
     expect(query.all.map(&:id)).to contain_exactly(original_genus.id)
   end
 
   specify '#taxon_name_relationship[] 5' do
     TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(object_taxon_name_id: original_genus.id, subject_taxon_name_id: genus.id)
-    query.taxon_name_relationship = { '0' => { 'object_taxon_name_id' => original_genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } }
+    query.taxon_name_relationship = [ { 'object_taxon_name_id' => original_genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } ]
     expect(query.all.map(&:id)).to contain_exactly(genus.id)
   end
 
@@ -143,10 +143,9 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(subject_taxon_name_id: genus.id, object_taxon_name_id: original_genus.id)
     TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName.create!(subject_taxon_name_id: original_genus.id, object_taxon_name_id: genus.id)
 
-    query.taxon_name_relationship = {
-      '0' => { 'subject_taxon_name_id' => original_genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName' },
-      '1' => { 'object_taxon_name_id' => original_genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' }
-    }
+    query.taxon_name_relationship = [
+       { 'subject_taxon_name_id' => original_genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName' },
+        { 'object_taxon_name_id' => original_genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } ]
     expect(query.all.map(&:id)).to contain_exactly(genus.id)
   end
 
@@ -218,7 +217,7 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     query.otus = true
     query.type_metadata = true
     query.taxon_name_classification = [ 'TaxonNameClassification::Iczn::Available' ]
-    query.taxon_name_relationship = { '0' => { 'object_taxon_name_id' => genus.id.to_s, 'type' => 'TaxonNameRelationship::Typification::Genus' } }
+    query.taxon_name_relationship = [ { 'object_taxon_name_id' => genus.id.to_s, 'type' => 'TaxonNameRelationship::Typification::Genus' } ]
     query.parent_id = [genus.id]
     query.name = 'Erasmoneura vulnerata'
     query.author = '(Fitch & Say, 1800)'

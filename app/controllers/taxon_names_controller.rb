@@ -48,7 +48,7 @@ class TaxonNamesController < ApplicationController
       parent_id: [],
       taxon_name_classification: [],
       taxon_name_relationship_type: [],
-      taxon_name_relationship: {}
+      taxon_name_relationship: []
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 

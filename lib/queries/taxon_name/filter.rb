@@ -42,9 +42,8 @@ module Queries
       #   Ignored when parent_id[].empty? Return descendants of parents as well.
       attr_accessor :descendants
 
-      # @param taxon_name_relationship [Hash]
-      #   { "0" => {'type' => 'TaxonNameRelationship::<>', 'subject|object_taxon_name_id' => '123'}, "1" => {} ... } 
-      # Root keys are unique symbols, typically numbers.
+      # @param taxon_name_relationship [Array]
+      #  [ { 'type' => 'TaxonNameRelationship::<>', 'subject|object_taxon_name_id' => '123' } ... {} ] 
       # Each entry must have a 'type'
       # Each entry must have one (and only one) of 'subject_taxon_name_id' or 'object_taxon_name_id'
       #
@@ -106,7 +105,7 @@ module Queries
         @descendants = (params[:descendants] == 'true' ? true : false) if !params[:descendants].nil?
         @updated_since = params[:updated_since].to_s 
         @validity = (params[:validity] == 'true' ? true : false) if !params[:validity].nil?
-        @taxon_name_relationship = params[:taxon_name_relationship] || {}
+        @taxon_name_relationship = params[:taxon_name_relationship] || [] 
         @taxon_name_relationship_type = params[:taxon_name_relationship_type] || [] 
         @taxon_name_classification = params[:taxon_name_classification] || [] 
         @type_metadata = (params[:type_metadata] == 'true' ? true : false) if !params[:type_metadata].nil?
@@ -319,7 +318,7 @@ module Queries
 
       def merge_clauses
         clauses = [
-          taxon_name_relationship_type_facet,
+        #  taxon_name_relationship_type_facet,
           leaves_facet,
           descendant_facet,
           taxon_name_classification_facet,
@@ -329,8 +328,8 @@ module Queries
           citations_facet
         ].compact
 
-        taxon_name_relationship.each do |k, values|
-          clauses << taxon_name_relationship_facet(values)
+        taxon_name_relationship.each do |hsh|
+          clauses << taxon_name_relationship_facet(hsh)
         end
 
         return nil if clauses.empty?
