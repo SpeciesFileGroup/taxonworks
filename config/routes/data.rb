@@ -482,6 +482,8 @@ resources :sequences do
   concerns [:data_routes]
 
   collection do
+    get :select_options, defaults: {format: :json}
+    
     post :preview_genbank_batch_file_load
     post :create_genbank_batch_file_load
 
