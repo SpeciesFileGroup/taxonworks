@@ -1,24 +1,25 @@
 <template>
   <div>
     <template>
+      <h3>Type</h3>
+      <ul class="no_bullets">
+        <li
+          v-for="item in sequenceRelationshipTypes"
+          :key="item.value">
+          <label>
+            <input
+              type="radio"
+              :value="item.value"
+              v-model="type">
+            {{ item.label }}
+          </label>
+        </li>
+      </ul> 
       <primer-component
+        class="separate-top"
         :title="title"
         @selected="addSequence"/>
     </template>
-    <h3>Type</h3>
-    <ul class="no_bullets">
-      <li
-        v-for="item in sequenceRelationshipTypes"
-        :key="item.value">
-        <label>
-          <input
-            type="radio"
-            :value="item.value"
-            v-model="type">
-          {{ item.label }}
-        </label>
-      </li>
-    </ul> 
     <template>
       <h3>Expression</h3>
       <div class="panel content">
@@ -64,13 +65,13 @@
       <div
         v-if="isParensOpen || !validateExpression"
         class="warning-message">
-        Wrong expression: 
+        Invalid expression: 
         <span
           v-if="isParensOpen">
           Close parentheses.
         </span>
         <span v-if="!validateExpression">
-          Logical operators needs something on the other side.
+          Logical operators needs sequence on the other side.
         </span>
       </div>
     </div>
