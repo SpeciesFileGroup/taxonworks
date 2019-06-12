@@ -31,6 +31,7 @@
       <relationships-component v-model="params.base.taxon_name_relationship"/>
       <status-component v-model="params.base.taxon_name_classification"/>
       <updated-component v-model="params.base.updated_since"/>
+      <children-component v-model="params.base.leaves"/>
       <metadata-component v-model="params.base.type_metadata" />
       <citations-component v-model="params.base.citations"/>
       <otus-component v-model="params.base.otus"/>
@@ -53,6 +54,7 @@ import ScopeComponent from './filters/scope'
 import StatusComponent from './filters/status'
 import RankComponent from './filters/nomenclature_group'
 import CodeComponent from './filters/nomenclature_code'
+import ChildrenComponent from './filters/children'
 
 import { GetTaxonNames } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
@@ -72,7 +74,8 @@ export default {
     RelationshipsComponent,
     SpinnerComponent,
     ScopeComponent,
-    StatusComponent
+    StatusComponent,
+    ChildrenComponent
   },
   data() {
     return {
@@ -120,6 +123,7 @@ export default {
           descendants: undefined,
           nomenclature_group: undefined,
           nomenclature_code: undefined,
+          leaves: undefined,
           parent_id: [],
           taxon_name_relationship: [],
           taxon_name_classification: []
