@@ -87,9 +87,31 @@ class Sequence < ApplicationRecord
       .where(t['updated_at'].gt( 1.weeks.ago ))
       .order(t['updated_at'])
 
+    # i is a select manager
+    i = case used_on 
+        when 'SequenceRelationship'
+          t.project(t['object_sequence_id'], t['updated_at']).from(t)
+            .where(
+              t['updated_at'].gt(1.weeks.ago)
+          )
+            .order(t['updated_at'])
+        else
+          t.project(t['sequence_id'], t['updated_at']).from(t)
+            .where(t['updated_at'].gt( 1.weeks.ago ))
+            .order(t['updated_at'])
+        end
+
     # z is a table alias
     z = i.as('recent_t')
-    j = Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['sequence_id'].eq(p['id'])))
+
+    j = case used_on
+        when 'SequenceRelationship' 
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
+            z['object_sequence_id'].eq(p['id'])
+          ))
+        else
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['sequence_id'].eq(p['id'])))
+        end
 
     Sequence.joins(j).distinct.limit(10)
   end

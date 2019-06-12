@@ -15,6 +15,23 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     verbatim_author: 'Fitch & Say',
     year_of_publication: 1800) }
 
+  specify '#taxon_name_relationship_type 1' do
+    a = TaxonNameRelationship::Iczn::Invalidating
+    a.create!(subject_taxon_name: genus, object_taxon_name: original_genus)
+    query.taxon_name_relationship_type = [ a.to_s ]
+    expect(query.all.map(&:id)).to contain_exactly(genus.id, original_genus.id)
+  end
+
+  specify '#leaves 1' do
+    query.leaves = true
+    expect(query.all.map(&:id)).to contain_exactly(species.id, original_genus.id)
+  end
+
+  specify '#leaves 2' do
+    query.leaves = false
+    expect(query.all.map(&:id)).to contain_exactly(genus.id, root.id)
+  end
+
   specify '#nomenclature_group 1' do
     query.nomenclature_group = 'Species'
     expect(query.all.map(&:id)).to contain_exactly(species.id) 

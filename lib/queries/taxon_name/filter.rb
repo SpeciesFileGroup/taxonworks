@@ -51,6 +51,10 @@ module Queries
       # Return all taxon names in a relationship of a given type and in relation to a another name. For example, return all synonyms of Aus bus.
       attr_accessor :taxon_name_relationship
 
+      # @param taxon_name_relationship [Array]
+      #   All names involved in any of these relationship
+      attr_accessor :taxon_name_relationship_type
+
       # @param taxon_name_classification [Array]
       #   Class names of TaxonNameClassification, as strings.
       attr_accessor :taxon_name_classification
@@ -66,12 +70,12 @@ module Queries
       #  'without_origin_citation' - names without an origin citation
       attr_accessor :citations
 
-      # @param otus [Boolean]
+      # @param otus [Boolean, nil]
       # ['true' or 'false'] on initialize
       #   whether the name has an Otu
       attr_accessor :otus
 
-      # @params type_material [Boolean]
+      # @params type_material [Boolean, nil]
       # ['true' or 'false'] on initialize
       #   whether the name has TypeMaterial
       attr_accessor :type_metadata 
@@ -83,6 +87,13 @@ module Queries
       # @return [Array, nil]
       #   &nomenclature_code=Iczn|Icnb|Icn|Ictv
       attr_accessor :nomenclature_code
+
+      # TODO: inverse is duplicated in autocomplete
+      # @return [Boolean, nil]
+      #   &leaves=<"true"|"false">
+      #   if 'true' then return only names without descendents
+      #   if 'false' then return only names with descendents
+      attr_accessor :leaves
 
       # @param params [Params] 
       #   a permitted via controller
@@ -96,12 +107,13 @@ module Queries
         @updated_since = params[:updated_since].to_s 
         @validity = (params[:validity] == 'true' ? true : false) if !params[:validity].nil?
         @taxon_name_relationship = params[:taxon_name_relationship] || {}
+        @taxon_name_relationship_type = params[:taxon_name_relationship_type] || [] 
         @taxon_name_classification = params[:taxon_name_classification] || [] 
         @type_metadata = (params[:type_metadata] == 'true' ? true : false) if !params[:type_metadata].nil?
         @citations = params[:citations]
         @otus = (params[:otus] == 'true' ? true : false) if !params[:otus].nil?
         @project_id = params[:project_id]
-
+        @leaves = exact == 'true' ? true : (exact == 'false' ? false : nil)
         @nomenclature_group = params[:nomenclature_group]  if !params[:nomenclature_group].nil?
         @nomenclature_code = params[:nomenclature_code]  if !params[:nomenclature_code].nil?
 
@@ -133,11 +145,10 @@ module Queries
       end
 
       # @return Scope
-      #   names that are not leaves
+      #   match only names that are a descendant of some parent_id
       # A merge facet.
       def descendant_facet
         return nil if parent_id.empty? || !descendants
-
         ::TaxonName.where(
           ::TaxonNameHierarchy.where(
             ::TaxonNameHierarchy.arel_table[:descendant_id].eq(::TaxonName.arel_table[:id]).and(
@@ -153,6 +164,18 @@ module Queries
         subquery = ::Otu.where(::Otu.arel_table[:taxon_name_id].eq(::TaxonName.arel_table[:id])).arel.exists
 
         ::TaxonName.where(otus ? subquery : subquery.not)
+      end
+
+      # @return Scope
+      def taxon_name_relationship_type_facet
+        return nil if taxon_name_relationship_type.nil?
+        ::TaxonName.with_taxon_name_relationship(taxon_name_relationship_type)
+      end
+
+      # @return Scope
+      def leaves_facet
+        return nil if leaves.nil?
+        leaves ? ::TaxonName.leaves : ::TaxonName.not_leaves
       end
 
       # @return Scope
@@ -296,6 +319,8 @@ module Queries
 
       def merge_clauses
         clauses = [
+          taxon_name_relationship_type_facet,
+          leaves_facet,
           descendant_facet,
           taxon_name_classification_facet,
           matching_keyword_ids,

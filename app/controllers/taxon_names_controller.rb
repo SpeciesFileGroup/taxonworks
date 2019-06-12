@@ -34,6 +34,7 @@ class TaxonNamesController < ApplicationController
   def filter_params
     params.permit(
       :name, :author, :year,
+      :leaves,
       :exact,
       :validity,
       :descendants,
@@ -46,6 +47,7 @@ class TaxonNamesController < ApplicationController
       type: [],
       parent_id: [],
       taxon_name_classification: [],
+      taxon_name_relationship_type: [],
       taxon_name_relationship: {}
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
