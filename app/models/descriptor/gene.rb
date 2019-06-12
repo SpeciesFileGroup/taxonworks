@@ -182,9 +182,12 @@ class Descriptor::Gene < Descriptor
   #   a lookup linking key/value terms to their single letter representation
   #   note that
   def gene_attribute_term_index
+    h = {}
+    return h if gene_attribute_logic.blank?
+
     symbols = ('a'..'z').to_a + ('A'..'Z').to_a
     matches = gene_attribute_logic.scan(/([A-Za-z:]+\.[\d]+)/).flatten
-    h = {}
+  
     matches.each_with_index do |m, i|
       h[m] = symbols[i]
     end
