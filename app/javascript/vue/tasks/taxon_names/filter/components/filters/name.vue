@@ -28,11 +28,6 @@
         @keyup.enter="$emit('onSearch')"
         v-model="value.year">
     </div>
-    <button
-      type="button"
-      class="button normal-input button-default"
-      @click="$emit('onSearch')">Search
-    </button>
   </div>
 </template>
 

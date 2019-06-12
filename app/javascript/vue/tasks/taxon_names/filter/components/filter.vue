@@ -15,10 +15,13 @@
       v-if="searching" 
     />
     <div class="content">
-      <taxon-name-component
-        v-model="params.taxon"
-        @onSearch="searchForTaxonNames" 
-      />
+      <button 
+        class="button button-default normal-input full_width"
+        type="button"
+        @click="searchForTaxonNames">
+        Search
+      </button>
+      <taxon-name-component v-model="params.taxon"/>
       <precision-component v-model="params.base.exact" />
       <scope-component v-model="params.base.parent_id"/>
       <related-component
