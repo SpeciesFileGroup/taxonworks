@@ -30,7 +30,7 @@
       <validity-component v-model="params.base.validity" />
       <relationships-component v-model="params.base.taxon_name_relationship"/>
       <status-component v-model="params.base.taxon_name_classification"/>
-      <in-relationship-component v-model="params.base.taxon_name_relationship_types"/>
+      <in-relationship-component v-model="params.base.taxon_name_relationship_type"/>
       <updated-component v-model="params.base.updated_since"/>
       <children-component v-model="params.base.leaves"/>
       <metadata-component v-model="params.base.type_metadata" />
@@ -129,7 +129,7 @@ export default {
           leaves: undefined,
           parent_id: [],
           taxon_name_relationship: [],
-          taxon_name_relationship_types: [],
+          taxon_name_relationship_type: [],
           taxon_name_classification: []
         }
       }
