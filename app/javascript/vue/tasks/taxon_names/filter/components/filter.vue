@@ -30,6 +30,7 @@
       <validity-component v-model="params.base.validity" />
       <relationships-component v-model="params.base.taxon_name_relationship"/>
       <status-component v-model="params.base.taxon_name_classification"/>
+      <in-relationship-component v-model="params.base.taxon_name_relationship_types"/>
       <updated-component v-model="params.base.updated_since"/>
       <children-component v-model="params.base.leaves"/>
       <metadata-component v-model="params.base.type_metadata" />
@@ -55,6 +56,7 @@ import StatusComponent from './filters/status'
 import RankComponent from './filters/nomenclature_group'
 import CodeComponent from './filters/nomenclature_code'
 import ChildrenComponent from './filters/children'
+import InRelationshipComponent from './filters/in_relationship'
 
 import { GetTaxonNames } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
@@ -75,7 +77,8 @@ export default {
     SpinnerComponent,
     ScopeComponent,
     StatusComponent,
-    ChildrenComponent
+    ChildrenComponent,
+    InRelationshipComponent
   },
   data() {
     return {
@@ -126,6 +129,7 @@ export default {
           leaves: undefined,
           parent_id: [],
           taxon_name_relationship: [],
+          taxon_name_relationship_types: [],
           taxon_name_classification: []
         }
       }
