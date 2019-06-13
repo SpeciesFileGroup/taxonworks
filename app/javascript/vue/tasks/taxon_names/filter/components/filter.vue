@@ -18,6 +18,8 @@
       <button 
         class="button button-default normal-input full_width"
         type="button"
+        v-shortkey="[getMacKey, 'f']"
+        @shortkey="searchForTaxonNames()"
         @click="searchForTaxonNames">
         Search
       </button>
@@ -63,6 +65,7 @@ import InRelationshipComponent from './filters/in_relationship'
 
 import { GetTaxonNames } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
+import GetMacKey from 'helpers/getMacKey.js'
 
 export default {
   components: {
@@ -82,6 +85,11 @@ export default {
     StatusComponent,
     ChildrenComponent,
     InRelationshipComponent
+  },
+  computed: {
+    getMacKey() {
+      return GetMacKey()
+    }
   },
   data() {
     return {
