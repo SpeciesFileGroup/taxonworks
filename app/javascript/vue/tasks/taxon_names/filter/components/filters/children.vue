@@ -42,11 +42,11 @@ export default {
         },
         { 
           label: 'With children',
-          value: true
+          value: false
         },
         { 
           label: 'Without children',
-          value: false
+          value: true
         }
       ]
     }
