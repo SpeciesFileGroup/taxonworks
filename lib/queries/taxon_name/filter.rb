@@ -112,7 +112,7 @@ module Queries
         @citations = params[:citations]
         @otus = (params[:otus] == 'true' ? true : false) if !params[:otus].nil?
         @project_id = params[:project_id]
-        @leaves = exact == 'true' ? true : (exact == 'false' ? false : nil)
+        @leaves = (params[:leaves] == 'true' ? true : false) if !params[:leaves].nil?
         @nomenclature_group = params[:nomenclature_group]  if !params[:nomenclature_group].nil?
         @nomenclature_code = params[:nomenclature_code]  if !params[:nomenclature_code].nil?
 
