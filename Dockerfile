@@ -54,6 +54,11 @@ RUN npm install
 
 COPY . /app
 
+# Set up REVISION if provided as build-arg
+ARG REVISION
+RUN [ "x$REVISION" != "x" ] && echo $REVISION > REVISION && \
+    echo "Set up REVISION to $REVISION" || true
+
 # See https://github.com/phusion/passenger-docker 
 RUN mkdir -p /etc/my_init.d
 ADD config/docker/nginx/init.sh /etc/my_init.d/init.sh
@@ -75,6 +80,3 @@ RUN chown 9999:9999 /app/log/production.log
 RUN chmod 0664 /app/log/production.log
 
 CMD ["/sbin/my_init"]
-
-
-
