@@ -198,6 +198,8 @@ class Descriptor::Gene < Descriptor
   #   translates each key/value (SequenceRelationshipType.SequenceID) term into a single letter term
   #   and translates 'AND' to '+' and 'OR' to '.'
   def compress_logic
+    return '' if gene_attribute_logic.blank?
+
     a = gene_attribute_logic.dup
     b = gene_attribute_term_index
 
