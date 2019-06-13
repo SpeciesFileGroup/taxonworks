@@ -68,18 +68,15 @@ export default {
       activePosition: 0
     }
   },
-  created: function () {
-    $(document).ready(function () {
-      $(window).scroll(function () {
-        if ($(window).scrollTop() > 155) {
-          $('#taxonNavBar').addClass('navbar-fixed-top')
+  mounted: function () {
+      window.addEventListener('scroll', () => {
+        if ((window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0) > 155) {
+          document.querySelector('#taxonNavBar').classList.add('navbar-fixed-top')
         }
-
-        if ($(window).scrollTop() < 162) {
-          $('#taxonNavBar').removeClass('navbar-fixed-top')
+        else {
+          document.querySelector('#taxonNavBar').classList.remove('navbar-fixed-top')
         }
       })
-    })
   }
 }
 </script>

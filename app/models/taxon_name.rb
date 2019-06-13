@@ -253,6 +253,7 @@ class TaxonName < ApplicationRecord
   scope :as_object_with_taxon_name_relationship_base, -> (taxon_name_relationship) { includes(:related_taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "#{taxon_name_relationship}%").references(:related_taxon_name_relationships) }
   scope :as_object_with_taxon_name_relationship_containing, -> (taxon_name_relationship) { includes(:related_taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "%#{taxon_name_relationship}%").references(:related_taxon_name_relationships) }
 
+  # @param relationship [Array, String]
   def self.with_taxon_name_relationship(relationship)
     a = TaxonName.joins(:taxon_name_relationships).where(taxon_name_relationships: {type: relationship})
     b = TaxonName.joins(:related_taxon_name_relationships).where(taxon_name_relationships: {type: relationship})
@@ -299,7 +300,7 @@ class TaxonName < ApplicationRecord
       .on(
         a[:id].eq(c[:ancestor_id])
     )
-    
+
     e = c[:generations].not_eq(0)
     f = c[:ancestor_id].not_eq(c[:descendant_id])
 
@@ -307,7 +308,7 @@ class TaxonName < ApplicationRecord
     b = b.group(a[:id])
     b = b.as('tnh_')
 
-     ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(t['id']))))
+    ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(t['id']))))
   end
 
   # @return [Scope] Protonym(s) the **broad sense** synonyms of this name
@@ -876,7 +877,6 @@ class TaxonName < ApplicationRecord
     n = name 
     # n = verbatim_name.blank? ? name : verbatim_name
     return  "\"<i>Candidatus</i> #{n}\"" if is_candidatus?
-    
     v = Utilities::Italicize.taxon_name(n)
     v = '† ' + v if is_fossil?
     v = '× ' + v if is_hybrid?
@@ -1279,6 +1279,7 @@ class TaxonName < ApplicationRecord
     end
   end
 
+  # @proceps, this is not OK.
   def sv_missing_confidence_level # should be removed once the alternative solution is implemented. It is havily used now
     confidence_level_array = [93]
     confidence_level_array = confidence_level_array & ConfidenceLevel.where(project_id: self.project_id).pluck(:id)

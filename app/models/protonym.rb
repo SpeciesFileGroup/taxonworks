@@ -592,7 +592,11 @@ class Protonym < TaxonName
   end 
 
   def get_original_combination_html
-    Utilities::Italicize.taxon_name(get_original_combination)
+    return  "\"<i>Candidatus</i> #{get_original_combination}\"" if is_candidatus?
+    v = Utilities::Italicize.taxon_name(get_original_combination)
+    v = '† ' + v if !v.blank? && is_fossil?
+    v = '× ' + v if !v.blank? && is_hybrid?
+    v
   end
 
   def update_cached_original_combinations
@@ -626,9 +630,6 @@ class Protonym < TaxonName
 
       # Combination can hit here
       classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
-
-      # TODO: not used!?
-      # hybrid_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('Hybrid')
 
       dependants.each do |i|
         columns_to_update = {

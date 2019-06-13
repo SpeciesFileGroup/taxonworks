@@ -15,10 +15,13 @@
       v-if="searching" 
     />
     <div class="content">
-      <taxon-name-component
-        v-model="params.taxon"
-        @onSearch="searchForTaxonNames" 
-      />
+      <button 
+        class="button button-default normal-input full_width"
+        type="button"
+        @click="searchForTaxonNames">
+        Search
+      </button>
+      <taxon-name-component v-model="params.taxon"/>
       <precision-component v-model="params.base.exact" />
       <scope-component v-model="params.base.parent_id"/>
       <related-component
@@ -30,7 +33,9 @@
       <validity-component v-model="params.base.validity" />
       <relationships-component v-model="params.base.taxon_name_relationship"/>
       <status-component v-model="params.base.taxon_name_classification"/>
+      <in-relationship-component v-model="params.base.taxon_name_relationship_type"/>
       <updated-component v-model="params.base.updated_since"/>
+      <children-component v-model="params.base.leaves"/>
       <metadata-component v-model="params.base.type_metadata" />
       <citations-component v-model="params.base.citations"/>
       <otus-component v-model="params.base.otus"/>
@@ -53,6 +58,8 @@ import ScopeComponent from './filters/scope'
 import StatusComponent from './filters/status'
 import RankComponent from './filters/nomenclature_group'
 import CodeComponent from './filters/nomenclature_code'
+import ChildrenComponent from './filters/children'
+import InRelationshipComponent from './filters/in_relationship'
 
 import { GetTaxonNames } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
@@ -72,7 +79,9 @@ export default {
     RelationshipsComponent,
     SpinnerComponent,
     ScopeComponent,
-    StatusComponent
+    StatusComponent,
+    ChildrenComponent,
+    InRelationshipComponent
   },
   data() {
     return {
@@ -120,8 +129,10 @@ export default {
           descendants: undefined,
           nomenclature_group: undefined,
           nomenclature_code: undefined,
+          leaves: undefined,
           parent_id: [],
           taxon_name_relationship: [],
+          taxon_name_relationship_type: [],
           taxon_name_classification: []
         }
       }

@@ -174,13 +174,13 @@ class TaxonNameRelationship < ApplicationRecord
   # @return [String]
   #    the status inferred by the relationship to the object name
   def object_status
-    self.type_name.demodulize.underscore.humanize.downcase
+    self.type_name.demodulize.underscore.humanize.downcase.gsub(/\d+/, ' \0 ').squish
   end
 
   # @return [String]
   #    the status inferred by the relationship to the subject name
   def subject_status
-    self.type_name.demodulize.underscore.humanize.downcase
+    self.type_name.demodulize.underscore.humanize.downcase.gsub(/\d+/, ' \0 ').squish
   end
 
   # @return [String]
@@ -382,7 +382,7 @@ class TaxonNameRelationship < ApplicationRecord
           end
 
           if type_name =~/Misapplication/
-            t.update_column(    :cached_author_year, t.get_author_and_year)
+            t.update_column( :cached_author_year, t.get_author_and_year)
           end
 
           vn = t.get_valid_taxon_name

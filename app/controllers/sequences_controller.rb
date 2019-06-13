@@ -77,17 +77,17 @@ class SequencesController < ApplicationController
   end
 
   def autocomplete
-    @sequences = Sequence.where(project_id: sessions_current_project_id).where('sequence ILIKE ?', "#{params[:term]}%")
-
+    t = "#{params[:term]}%"
+    @sequences = Sequence.where(project_id: sessions_current_project_id).where('sequence ILIKE ? OR name ILIKE ?', t, t)
     data = @sequences.collect do |t|
-      {id:              t.id,
-       label:           t.sequence,
-       gid:             t.to_global_id.to_s,
+      l = [t.name, t.sequence[0..10]].compact.join(': ')
+      {id: t.id,
+       label: l, 
+       gid: t.to_global_id.to_s,
        response_values: {
          params[:method] => t.id
        },
-       label_html:      t.sequence
-      }
+       label_html: l      }
     end
 
     render json: data
@@ -172,6 +172,10 @@ class SequencesController < ApplicationController
       flash[:alert] = 'File to batch upload must be supplied.'
     end
     render :batch_load
+  end
+
+  def select_options
+    @sequences = Sequence.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target])
   end
 
   private

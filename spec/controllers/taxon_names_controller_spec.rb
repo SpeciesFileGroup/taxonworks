@@ -170,6 +170,7 @@ describe TaxonNamesController, type: :controller do
       end
 
       it 'redirects to the taxon_name list' do
+        request.env['HTTP_REFERER'] = taxon_names_url
         taxon_name = TaxonName.create! valid_attributes
         delete :destroy, params: {id: taxon_name.to_param}, session: valid_session
         expect(response).to redirect_to(taxon_names_url)

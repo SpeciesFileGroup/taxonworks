@@ -70,6 +70,7 @@ resources :citations do # except: [:show]
   concerns [:data_routes]
 end
 
+get 'confidences/exists', to: 'confidences#exists', defaults: {format: :json}
 resources :confidences do # , except: [:edit, :show]
   concerns [:data_routes]
   collection do
@@ -119,6 +120,7 @@ resources :collecting_events do
   get :autocomplete_collecting_event_verbatim_locality, on: :collection
   member do
     get :card
+    post :clone, defaults: {format: :json}
   end
 
   collection do
@@ -480,6 +482,8 @@ resources :sequences do
   concerns [:data_routes]
 
   collection do
+    get :select_options, defaults: {format: :json}
+    
     post :preview_genbank_batch_file_load
     post :create_genbank_batch_file_load
 
@@ -516,6 +520,7 @@ resources :sqed_depictions, only: [] do
   end
 end
 
+get 'tags/exists', to: 'tags#exists', defaults: {format: :json}
 resources :tags, except: [:edit, :show, :new] do
   concerns [:data_routes]
   collection do
@@ -524,7 +529,6 @@ resources :tags, except: [:edit, :show, :new] do
     post :batch_remove, defaults: {format: :json}
   end
 end
-get 'tags/exists', to: 'tags#exists', defaults: {format: :json}
 
 resources :tagged_section_keywords, only: [:create, :update, :destroy]
 

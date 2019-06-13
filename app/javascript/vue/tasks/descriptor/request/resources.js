@@ -2,9 +2,9 @@ import Vue from 'vue'
 import VueResource from 'vue-resource'
 
 Vue.use(VueResource)
-Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
 
 const ajaxCall = function (type, url, data = null) {
+  Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
   return new Promise(function (resolve, reject) {
     Vue.http[type](url, data).then(response => {
       return resolve(response.body)
@@ -47,10 +47,20 @@ const GetUnits = function() {
   return ajaxCall('get','/descriptors/units')
 }
 
+const GetSequenceSmartSelector = () => {
+  return ajaxCall('get', '/sequences/select_options')
+}
+
+const GetSequence = (id) => {
+  return ajaxCall('get', `/sequences/${id}`)
+}
+
 export {
   CreateDescriptor,
   DeleteDescriptor,
   UpdateDescriptor,
   LoadDescriptor,
-  GetUnits
+  GetUnits,
+  GetSequenceSmartSelector,
+  GetSequence,
 }

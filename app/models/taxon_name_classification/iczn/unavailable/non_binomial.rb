@@ -4,6 +4,11 @@ class TaxonNameClassification::Iczn::Unavailable::NonBinomial < TaxonNameClassif
 
   # LABEL = 'non binomial (ICZN)'
 
+  def classification_label
+    return 'non binomial' if type_name.to_s == 'TaxonNameClassification::Iczn::Unavailable::NonBinomial'
+    'non binomial: ' + type_name.demodulize.underscore.humanize.downcase.gsub(/\d+/, ' \0 ').squish
+  end
+
   def self.disjoint_taxon_name_classes
     self.parent.disjoint_taxon_name_classes + self.collect_descendants_and_itself_to_s(
         TaxonNameClassification::Iczn::Unavailable::Excluded,

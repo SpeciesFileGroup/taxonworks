@@ -78,7 +78,7 @@ gem 'ref2bibtex', '~> 0.3.0'
 gem 'pdf-reader', '~> 2.2'
 
 # UI/UX
-gem 'chartkick', '~> 3.0.2'
+gem 'chartkick', '~> 3.2.0'
 gem 'groupdate', '~> 4.1.1'
 gem 'dropzonejs-rails', '~> 0.8.1'
 gem 'kaminari', '~> 1.1.1'
@@ -130,7 +130,8 @@ group :development do
   gem 'guard-rspec', '~> 4.7.3', require: false
 
   gem 'web-console', '~> 3.7.0'
-  gem 'rubocop', '~> 0.65.0'
+  gem 'rubocop', '~> 0.70'
+  gem 'rubocop-rails'
   gem 'rubocop-rspec'
   gem 'brakeman', '~> 4.4.0', require: false
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'

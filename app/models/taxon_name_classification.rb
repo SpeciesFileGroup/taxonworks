@@ -58,7 +58,7 @@ class TaxonNameClassification < ApplicationRecord
 
   # TODO: helper method 
   def self.label
-    name.demodulize.underscore.humanize.downcase
+    name.demodulize.underscore.humanize.downcase.gsub(/\d+/, ' \0 ').squish
   end
 
   # @return [String]
@@ -83,7 +83,7 @@ class TaxonNameClassification < ApplicationRecord
   #   this is helper-esqe, but also useful in validation, so here for now
   def classification_label
     return nil if type_name.nil?
-    type_name.demodulize.underscore.humanize.downcase #+
+    type_name.demodulize.underscore.humanize.downcase.gsub(/\d+/, ' \0 ').squish #+
       #(nomenclature_code ? " [#{nomenclature_code}]" : '')
   end
 
@@ -170,7 +170,9 @@ class TaxonNameClassification < ApplicationRecord
         if type_name =~ /(Fossil|Hybrid|Candidatus)/
           t.update_columns(
             cached: t.get_full_name,
-            cached_html: t.get_full_name_html
+            cached_html: t.get_full_name_html,
+            cached_original_combination: t.get_original_combination,
+            cached_original_combination_html: t.get_original_combination_html
           )
         elsif type_name =~ /Latinized::Gender/
           t.descendants.select{|t| t.id == t.cached_valid_taxon_name_id}.uniq.each do |t1|
@@ -239,7 +241,7 @@ class TaxonNameClassification < ApplicationRecord
 
   def sv_proper_year
     y = self.taxon_name.year_of_publication
-    if !y.nil? && y > self.type_class.code_applicability_end_year || y < self.type_class.code_applicability_start_year
+    if !y.nil? && (y > self.type_class.code_applicability_end_year || y < self.type_class.code_applicability_start_year)
       soft_validations.add(:type, "The status '#{self.type_class.label}' is unapplicable to the taxon #{self.taxon_name.cached_html} published in the year #{y}")
     end
   end

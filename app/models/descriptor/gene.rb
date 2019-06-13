@@ -11,7 +11,7 @@
 #     return sequences. Call @gene_attribute.to_logic_literal for the format of individual gene attribute references.
 #     Use parenthesis, ` AND ` and ` OR ` to compose the statements.
 #     For example:
-#        ( SequenceRelationship::ForwardPrimer.2 OR SequenceRelationship::ForwardPrimer.3) AND SequenceRelationship::ReversePrimer.4
+#        (SequenceRelationship::ForwardPrimer.2 OR SequenceRelationship::ForwardPrimer.3) AND SequenceRelationship::ReversePrimer.4
 #
 #  @!attribute cached_gene_attribute_sql
 #   @return [String]
@@ -20,7 +20,6 @@
 class Descriptor::Gene < Descriptor
 
   has_many :gene_attributes, inverse_of: :descriptor, foreign_key: :descriptor_id
-  accepts_nested_attributes_for :gene_attributes
 
   # A Sequence, if provided clone that sequence description to this Descriptor::Gene
   attr_accessor :base_on_sequence
@@ -28,18 +27,18 @@ class Descriptor::Gene < Descriptor
   before_validation :add_gene_attributes, if: -> {base_on_sequence.present?}
 
   validate :gene_attribute_logic_compresses, if: :gene_attribute_logic_changed?
+ 
   validate :gene_attribute_logic_parses, if: -> {
-    ActiveSupport::Deprecation.silence do
-      gene_attribute_logic_changed? && !errors.any?
-    end
+    gene_attribute_logic_changed? && !errors.any?
   }
+  
   validate :gene_attribute_logic_matches_gene_attributes, if: :gene_attribute_logic_changed?
 
   after_save :cache_gene_attribute_logic_sql, if: -> {
-    ActiveSupport::Deprecation.silence do
-      saved_change_to_gene_attribute_logic? && valid?
-    end
+    saved_change_to_gene_attribute_logic? && valid?
   }
+
+  accepts_nested_attributes_for :gene_attributes, allow_destroy: true
 
   # @return [Scope]
   #   Sequences using AND for the supplied target attributes
@@ -183,9 +182,12 @@ class Descriptor::Gene < Descriptor
   #   a lookup linking key/value terms to their single letter representation
   #   note that
   def gene_attribute_term_index
+    h = {}
+    return h if gene_attribute_logic.blank?
+
     symbols = ('a'..'z').to_a + ('A'..'Z').to_a
     matches = gene_attribute_logic.scan(/([A-Za-z:]+\.[\d]+)/).flatten
-    h = {}
+  
     matches.each_with_index do |m, i|
       h[m] = symbols[i]
     end
@@ -239,9 +241,10 @@ class Descriptor::Gene < Descriptor
 
   def gene_attribute_logic_matches_gene_attributes
     a = gene_attribute_term_index.keys
-    b = gene_attributes.collect {|ga| ga.to_logic_literal}
+    b = gene_attributes.select{|ga| !ga.marked_for_destruction? }.collect{|l| l.to_logic_literal}
     c = a - b
     d = b - a
+
     errors.add(:gene_attribute_logic, "provided logic without matching gene attribute: #{c.join(';')}") if !c.empty?
     errors.add(:gene_attribute_logic, "gene attribute (#{d.join(';')}) not referenced in provided logic") if !d.empty?
     !errors.any?

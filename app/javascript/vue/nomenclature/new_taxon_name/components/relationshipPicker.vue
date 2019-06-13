@@ -217,7 +217,9 @@ export default {
       this.$store.dispatch(ActionNames.LoadTaxonRelationships, this.taxon.id)
     },
     removeRelationship: function (item) {
-      this.$store.dispatch(ActionNames.RemoveTaxonRelationship, item)
+      this.$store.dispatch(ActionNames.RemoveTaxonRelationship, item).then(() => {
+        this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
+      })
     },
     setRelationship (item) {
       this.$store.dispatch(ActionNames.UpdateTaxonRelationship, item)
@@ -260,11 +262,13 @@ export default {
           this.taxonRelation = undefined
           this.$store.commit(MutationNames.UpdateLastSave)
           this.editMode = undefined
+          this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
         })
       }
       else {
         this.$store.dispatch(ActionNames.AddTaxonRelationship, item).then(() => {
           this.$store.commit(MutationNames.UpdateLastSave)
+          this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
         })
       }
     },
@@ -283,6 +287,14 @@ export default {
           Object.defineProperty(list[key], 'object_status_tag', { value: ranksList[key].object_status_tag })
           Object.defineProperty(list[key], 'subject_status_tag', { value: ranksList[key].subject_status_tag })
           Object.defineProperty(list[key], 'valid_subject_ranks', { value: ranksList[key].valid_subject_ranks })
+        }
+        else {
+          let label = key.split('::')
+
+          Object.defineProperty(list[key], 'type', { value: key })
+          Object.defineProperty(list[key], 'object_status_tag', { value: label[label.length-1].replace(/\.?([A-Z])/g, function (x,y){return " " + y.toLowerCase()}).replace(/^_/, "").toLowerCase().trim() })
+          Object.defineProperty(list[key], 'subject_status_tag', { value: label[label.length-1].replace(/\.?([A-Z])/g, function (x,y){return " " + y.toLowerCase()}).replace(/^_/, "").toLowerCase().trim() })
+          Object.defineProperty(list[key], 'valid_subject_ranks', { value: [] })    
         }
         this.getTreeList(list[key], ranksList)
       }

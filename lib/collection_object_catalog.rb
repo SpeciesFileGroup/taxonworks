@@ -20,7 +20,6 @@ module CollectionObjectCatalog
     :annotated,
     :cited,
     :containerized,
-    :imaged,
     :extracted_from,
     :sequenced,
     :dissected,
@@ -29,6 +28,10 @@ module CollectionObjectCatalog
     :added_attribute,
     :biologically_classified,
     :fossilized_between, # chronological time period b/w which specimen was fossilized
+    :imaged, # == depicted
+    :metadata_depicted,
+    :collecting_event_metadata_depicted,
+    :collection_site_imaged, 
   ].freeze
 
   # rubocop:disable Metrics/MethodLength
@@ -97,10 +100,20 @@ module CollectionObjectCatalog
                                                            start_date: n.created_at.to_time)
     end
 
-    o.images.each do |i|
-      data.items << CollectionObjectCatalog::EntryItem.new(type: :imaged,
-                                                           object: i,
-                                                           start_date: i.created_at.to_time)
+    o.depictions.each do |d|
+      t = d.is_metadata_depiction ? :metadata_depicted : :imaged
+
+      data.items << CollectionObjectCatalog::EntryItem.new(type: t,
+                                                           object: d,
+                                                           start_date: d.created_at.to_time)
+    end
+
+    o.collecting_event && o.collecting_event.depictions.each do |d|
+      t = d.is_metadata_depiction ? :collecting_event_metadata_depicted : :collection_site_imaged
+
+      data.items << CollectionObjectCatalog::EntryItem.new(type: t,
+                                                           object: d,
+                                                           start_date: d.created_at.to_time)
     end
 
     data.items << CollectionObjectCatalog::EntryItem.new(type: :containerized,

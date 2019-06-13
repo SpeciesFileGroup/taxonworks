@@ -1084,6 +1084,18 @@ class CollectingEvent < ApplicationRecord
     cache_geographic_names[:state]
   end
 
+  # @return [CollectingEvent instance]
+  def clone
+    a = dup
+    a.verbatim_label = [verbatim_label, "[CLONED FROM #{id}", "at #{Time.now}]"].compact.join(' ')
+    begin
+      a.save!
+    rescue ActiveRecord::RecordInvalid
+      return false
+    end
+    a
+  end
+
   protected
 
   def sql_tick_fix(item)
