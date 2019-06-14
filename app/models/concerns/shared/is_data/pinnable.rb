@@ -14,13 +14,13 @@ module Shared::IsData::Pinnable
   # @return [Boolean]
   #   whether the object is pinned by the user 
   def pinned?(user, project_id)
-    user.pinboard_items.where(project_id: project_id).for_object(self.metamorphosize).any?
+    user && user.pinboard_items.where(project_id: project_id).for_object(self.metamorphosize).any?
   end
 
   # @return [PinboardItem, nil]
   #   the pinboard item corresponding to the object, if present 
   def pinboard_item_for(user)
-    user.pinboard_items.for_object(self.metamorphosize).first
+    user && user.pinboard_items.for_object(self.metamorphosize).first
   end
 
   # @return [Boolean]
