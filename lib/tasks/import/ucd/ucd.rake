@@ -62,6 +62,7 @@ namespace :tw do
           references 
           topics 
           combinations
+          misspelt_genus
           species_codes
           genus_codes
           new_combinations 
@@ -565,6 +566,7 @@ namespace :tw do
             elsif @data.combinations[row['TaxonCode']].blank? && row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank? && row['CitSubsp'].blank?
               taxon = Protonym.create(name: row['CitGenus'], project_id: Current.project_id)
             end
+
             changed = true if taxon.changed?
             taxon1 = Protonym.find_by(name: row['ValGenus'], project_id: Current.project_id)
             taxon.parent_id = find_family_id_ucd(row['Family']) if taxon.parent_id.nil?
@@ -583,8 +585,12 @@ namespace :tw do
 
             if row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank? && row['CitSubsp'].blank?
               if changed
-#                r = nil
-                r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
+                r = nil
+                if !@data.misspelt_genus[row['TaxonCode']].blank? && (!row['CitSpecies'].blank? && !row['CitSubgen'].blank?)
+                  r = TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
+                else
+                  r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
+                end
                 taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
                 taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
                 taxon.original_genus = taxon
@@ -625,7 +631,7 @@ namespace :tw do
 #          byebug if row['CitGenus'] == 'Risbecia'
           if !row['CitGenus'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
             taxon = Protonym.find_or_create_by(name: row['CitGenus'], project_id: Current.project_id)
-            if !@data.genus_codes[row['TaxonCode']].blank? && row['CitSubgen'].blank? && !taxon.identifiers.empty?
+            if !@data.misspelt_genus[row['TaxonCode']].blank? && (!row['CitSpecies'].blank? && !row['CitSubgen'].blank?)
               taxon = Protonym.create(name: row['CitGenus'], project_id: Current.project_id)
             elsif @data.combinations[row['TaxonCode']].blank? && row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank? && row['CitSubsp'].blank?
               taxon = Protonym.create(name: row['CitGenus'], project_id: Current.project_id)
@@ -649,7 +655,11 @@ namespace :tw do
             if row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank? && row['CitSubsp'].blank?
               if changed
 #                r = nil
-                r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
+                if !@data.misspelt_genus[row['TaxonCode']].blank?
+                  r = TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
+                else
+                  r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
+                end
                 taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
                 taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
                 taxon.original_genus = taxon
@@ -1400,6 +1410,7 @@ namespace :tw do
           'NC' => 'New combination for',
           'NE' => 'New combination, justified emendation of',
           'NF' => 'New combination based on misspelt species name',
+          'MG' => 'Misspelt genus name',
           'NH' => 'New combination based on unjustified emendation of',
           'NI' => 'New combination based on lapsus for',
           'NJ' => 'New combination based on incorrect emendation of',
@@ -1424,6 +1435,10 @@ namespace :tw do
           'VC' => 'Valid species, new combination',
           'VO' => 'Variety, new status for',
         }.freeze
+        misspelling = {
+            'MG' => 'Misspelt genus name',
+            'MB' => 'Misspelt genus and species names'
+        }.freeze
 
         path = @args[:data_directory] + 'TSTAT.txt'
         print "\nHandling TSTAT - combinations\n"
@@ -1432,6 +1447,7 @@ namespace :tw do
         file.each_with_index do |row, i|
           print "\r#{i}"
           @data.combinations[row['TaxonCode']] = true if combinations[row['Status']] && row['TaxonCode'].to_s != row['Code'].to_s
+          @data.misspelt_genus[row['TaxonCode']] = true if misspelling[row['Status']] && row['TaxonCode'].to_s != row['Code'].to_s
         end
       end
 
@@ -1970,9 +1986,9 @@ namespace :tw do
           'JH' => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary', # 'Junior primary homonym of',
           'LA' => 'TaxonNameRelationship::Iczn::Invalidating', # 'Lapsus for',
           'MA' => 'TaxonNameRelationship::Iczn::Invalidating', # 'Misidentified as',
-          'MB' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelling of genus and species names of',
+          'MB' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelling of genus and species names of', #####
           'MF' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelt family group name',
-          'MG' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelling of genus name',
+          'MG' => 'TaxonNameRelationship::Iczn::Invalidating', # 'Misspelling of genus name',   ######
           'MI' => 'TaxonNameRelationship::Iczn::Invalidating', # 'Misidentification',
           'MJ' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelt species name, synonym of',
           'MO' => 'TaxonNameRelationship::Iczn::Invalidating', # 'Misidentification of',
@@ -2126,11 +2142,12 @@ namespace :tw do
           taxon1 = find_taxon_ucd(row['Code'])
 #byebug if taxon && taxon.name == "abrotoni"
 #byebug if taxon1 && taxon1.name == "abrotoni"
+byebug if row['TaxonCode'] == 'IhambrA' && row['Code'] == 'IhrambA'
 
           if taxon.nil?
-	    puts "Unmatched(?) TaxonCode #{row['TaxonCode']}, skipping TSTAT row" 
-	    next
-	  end	
+	          puts "Unmatched(?) TaxonCode #{row['TaxonCode']}, skipping TSTAT row"
+	          next
+	        end
 
           ref = find_source_id_ucd(row['RefCode'])
           ref2 = find_source_id_ucd(row['RefCodeB'])
@@ -2167,16 +2184,29 @@ namespace :tw do
           end
 
           if !notes[row['Status']].nil? && !taxon.nil?
-            taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['status'], value: notes[row['Status']])
+            nt = notes[row['Status']]
+            nt += ' ' + taxon1.cached_html + ' ' + taxon1.cached_author_year if taxon1
+            c = taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['status'], value: nt)
+
+            if !c.id.blank? # valid?
+              if !ref2.nil? && !ref.nil?
+                taxon.citations.create(source_id: ref, pages: row['PageRef'], is_original: true) unless ref.nil?
+                c.citations.create(source_id: ref2, pages: row['PagesB']) unless ref2.nil?
+              else
+                c.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
+              end
+            else
+              print "\n ERROR: Invalid relationship: TaxonCode: #{row['TaxonCode']}, Status: #{row['Status']}, Code: #{row['Code']}\n"
+            end
           end
 
-          taxon.notes.create(text: row['Notes'].to_s.gsub('|','_') + ' ' + row['Code'].to_s) if !row['Notes'].blank? && !taxon.nil?
           if taxon.nil?
             print "\n ERROR: Invalid TaxonCode: #{row['TaxonCode']}\n"
           elsif taxon.type == 'Combination'
             valid = TaxonName.find(taxon.cached_valid_taxon_name_id)
             taxon = valid
           end
+          taxon.notes.create(text: row['Notes'].to_s.gsub('|','_') + ' ' + row['Code'].to_s) if !row['Notes'].blank? && !taxon.nil?
 
           if !taxon1.nil? && taxon1.type == 'Combination'
             valid = TaxonName.find(taxon1.cached_valid_taxon_name_id)
@@ -2187,7 +2217,6 @@ namespace :tw do
             if taxon != taxon1
 
               c = TaxonNameRelationship.where(subject_taxon_name: taxon, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating').first
-#              c1 = TaxonNameRelationship.where(subject_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating').first
 
               if relationship[row['Status']].include?('TaxonNameRelationship::Iczn::Invalidating') && !c.nil?
                 c.update_column(:type, relationship[row['Status']])

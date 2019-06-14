@@ -225,6 +225,7 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     query.year = 1800
     query.updated_since = '2049-12-01'
     query.validity = true
+    query.leaves = true
 
     expect(query.all.map(&:id)).to contain_exactly(species.id)
   end
