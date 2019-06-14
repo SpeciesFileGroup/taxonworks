@@ -439,3 +439,12 @@ visualize_confidences_task:
   categories:
   status: stable 
   description: 'See a graph of confidences applied per data type.'
+
+index_matrix_image_task:
+  hub: true
+  name: 'Image matrix'
+  related:
+  categories:
+  - matrix
+  status: prototype
+  description: 'TODO: Task description'
