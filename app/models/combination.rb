@@ -62,7 +62,7 @@ class Combination < TaxonName
                         series subseries species subspecies variety subvariety form subform}.freeze
 
   before_validation :set_parent
-
+  validate :validate_absence_of_subject_relationships
 
   # TODO: make access private
   attr_accessor :disable_combination_relationship_check
@@ -380,6 +380,12 @@ class Combination < TaxonName
   end
 
   protected
+
+  def validate_absence_of_subject_relationships
+    if TaxonNameRelationship.where(subject_taxon_name_id: self.id).any?
+      errors.add(:base, 'This combination could not be used as a Subject in any TaxonNameRelationships.')
+    end
+  end
 
   # TODO: this is a TaxonName level validation, it doesn't belong here
   def sv_year_of_publication_matches_source
