@@ -20,10 +20,10 @@ shared_examples_for 'unauthorized response' do
 # end
 end
 
-shared_examples_for 'secured by both user and project token' do | factory, path |
+shared_examples_for 'secured by user and project token' do | factory, path |
   let(:user) { FactoryBot.create(:valid_user, :user_valid_token) }
   let(:model) { FactoryBot.create(factory) }
-  let(:headers) { { "Authorization": 'Token ' + user.api_access_token, project_id: model.project_id } }
+  let(:headers) { { "Authorization": 'Token ' + user.api_access_token } }
 
   context 'without a user token' do
     before { get path }
@@ -35,9 +35,14 @@ shared_examples_for 'secured by both user and project token' do | factory, path 
     it_behaves_like 'unauthorized response'
   end
 
-  context 'with a valid user token and valid project token (project set by proxy)' do
+  context 'with a valid user token and project_id' do
+    before { get path, headers: headers, params: { project_id: model.project_id } }
+    it_behaves_like 'a successful response'
+  end
+
+  context 'with a valid project token' do
     before { model.project.update(set_new_api_access_token: true) }
-    before { get path, headers: headers, params: { project_token: model.project.api_access_token } }
+    before { get path, params: { project_token: model.project.api_access_token } }
     it_behaves_like 'a successful response'
   end
 end

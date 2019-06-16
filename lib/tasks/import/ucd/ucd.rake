@@ -2185,7 +2185,7 @@ byebug if row['TaxonCode'] == 'IhambrA' && row['Code'] == 'IhrambA'
 
           if !notes[row['Status']].nil? && !taxon.nil?
             nt = notes[row['Status']]
-            nt += ' ' + taxon1.cached_html + ' ' + taxon1.cached_author_year if taxon1
+            nt += ' ' + taxon1.cached_html.to_s + ' ' + taxon1.cached_author_year.to_s if taxon1
             c = taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['status'], value: nt)
 
             if !c.id.blank? # valid?

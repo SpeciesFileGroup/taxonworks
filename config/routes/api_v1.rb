@@ -19,13 +19,14 @@ namespace :api, defaults: {format: :json} do
 
 
       # !@ may not be many things here, doesn't make a lot of sense?!
-
     end
 
     defaults authenticate_user: true, authenticate_project: true do
       # authenticated by user and project
       get '/both_authenticated', to: 'base#index'
+    end
 
+    defaults authenticate_user_or_project: true do
       get '/otus', to: '/otus#index'
 
       get '/taxon_names', to: '/taxon_names#api_index'
