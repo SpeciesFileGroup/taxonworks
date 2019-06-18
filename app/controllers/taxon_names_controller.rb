@@ -1,4 +1,5 @@
 class TaxonNamesController < ApplicationController
+
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination]
@@ -201,6 +202,32 @@ class TaxonNamesController < ApplicationController
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} items were created."
         render 'taxon_names/batch_load/castor/create' and return
+      else
+        flash[:alert] = 'Batch import failed.'
+      end
+    else
+      flash[:alert] = 'File to batch upload must be supplied.'
+    end
+    render :batch_load
+  end
+
+  def preview_dwca_checklist_batch_load 
+    if params[:file] 
+      @result = BatchLoad::Import::TaxonNames::DwcaChecklistInterpreter.new(batch_params)
+      digest_cookie(params[:file].tempfile, :dwca_checklist_batch_load_taxon_names_md5)
+      render 'taxon_names/batch_load/dwca_checklist/preview'
+    else
+      flash[:notice] = "No file provided!"
+      redirect_to action: :batch_load 
+    end
+  end
+
+  def create_dwca_checklist_batch_load
+    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :dwca_checklist_batch_load_taxon_names_md5)
+      @result = BatchLoad::Import::TaxonNames::DwcaChecklistInterpreter.new(batch_params)
+      if @result.create
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} taxon names were created."
+        render 'taxon_names/batch_load/dwca_checklist/create' and return
       else
         flash[:alert] = 'Batch import failed.'
       end

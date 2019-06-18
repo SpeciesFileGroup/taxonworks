@@ -1,0 +1,36 @@
+<div>
+  <h2> Dwca Checklist batch load </h2>
+
+  <div class="flexbox full_viewport_whitespace">
+    <div class="item item1 one_third_width">
+      <h3> Description and requirements </h3>
+
+      <p> Creates hierarchy of names from DwC-A checklist </p>
+      <ul>
+        <li>A tab-delimited, UTF-8 compatible text file is required.</li>
+        <li>Column headers are (see <%= link_to('sample template', asset_path('batch_load_templates/taxon_names/dwca_checklist_batch_load.tab'), target: '_blank') -%>).</li>
+        <li>Multiple uploads of the same data will duplicate info [DEVELOPMENT].</li>
+        <li>It is assumed dataset does not have integrity issues.</li>
+        <li>Only valid names (only initially, will support nomenclatural and taxonomic synonymy).
+        <li>There is currently no size limit to the file being loaded but this may change in the future.</li>
+      </ul>
+    </div>
+
+    <div class="item item2 one_third_width">
+      <h3> Example file </h3>
+
+      <p> A tab delimited formatted file. In the example whitespace is a tab. View sample file template.</p>
+
+      <pre class="fixed_width_font">
+        taxonID parentNameUsageID taxonRank genus subgenus specificEpithet infraspecificEpithet scientificName scientificNameAuthorship
+        20 5  genus Aus "" "" "" Aus "Smith 2015"
+        21 20 species Aus "" cus "" "Aus cus" "Smith 2015"
+        22 6 species Bus "" eus "" "Bus eus" "(Wilson 1960)"</pre>
+    </div>
+
+    <div class="item item3">
+      <h3> Go! </h3>
+      <%= render partial: '/taxon_names/batch_load/dwca_checklist/form', locals: {url: preview_dwca_checklist_batch_load_taxon_names_path, submit: :preview} -%>
+    </div>
+  </div>
+</div>

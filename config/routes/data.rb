@@ -553,6 +553,9 @@ resources :taxon_names do
     post :preview_castor_batch_load
     post :create_castor_batch_load
 
+    post :preview_dwca_checklist_batch_load
+    post :create_dwca_checklist_batch_load
+
     get :parse, defaults: {format: :json}
     get :random
   end
