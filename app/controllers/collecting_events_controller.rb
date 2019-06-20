@@ -49,7 +49,10 @@ class CollectingEventsController < ApplicationController
   # POST /collecting_events/1/clone.json
   def clone
     @collecting_event = @collecting_event.clone
-    render :show
+    respond_to do |format|
+      format.html { redirect_to edit_collecting_event_path(@collecting_event), notice: 'Cloned successful, on new record.' }
+      format.json { render :show }
+    end
   end
 
   # PATCH/PUT /collecting_events/1
