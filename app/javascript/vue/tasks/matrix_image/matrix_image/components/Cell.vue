@@ -1,13 +1,17 @@
 <template>
   <div>
     <draggable-component
-      group="cells">
+      group="cells"
+      v-model="images"
+      @add="movedObservation"
+      @remove="removedObservationFromList">
       <div v-if="observations.length">
         <span
           v-for="observation in observations"
           :key="observation.id"
           v-html="observation.object_tag"/>
       </div>
+      <span v-for="image in images">{{ image }}</span>
     </draggable-component>
     <dropzone-component
       class="dropzone-card"
@@ -47,7 +51,7 @@ export default {
     return {
       newIndex: 0,
       observations: [],
-      images: [],
+      images: [1, 2, 3],
       dropzone: {
         paramName: 'observation[depiction][image_attributes][image_file]',
         url: '/observations',
@@ -64,6 +68,17 @@ export default {
     GetObservation(this.row.row_object.global_id, this.column.descriptor.id).then(response => {
       this.observations = response.body
     })
+    this.newIndex = this.index
+  },
+  methods: {
+    removedObservationFromList(event) {
+      console.log('Removed: ')
+      console.log(event)
+    },
+    movedObservation(event) {
+      console.log('Added: ')
+      console.log(event)
+    }
   }
 }
 </script>

@@ -1,5 +1,9 @@
 import ajaxCall from 'helpers/ajaxCall'
 
+const CreateObservation = (observation) => {
+  return ajaxCall('post', '/observations.json', { observation: observation })
+}
+
 const GetObservationMatrix = (id) => {
   return ajaxCall('get', `/observation_matrices/${id}.json`)
 }
@@ -20,5 +24,6 @@ export {
   GetObservationMatrix,
   GetMatrixObservationColumns,
   GetMatrixObservationRows,
-  GetObservation
+  GetObservation,
+  CreateObservation
 }

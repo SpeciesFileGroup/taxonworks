@@ -13,14 +13,14 @@
       <tbody>
         <tr
           class="row-cell"
-          v-for="(row) in rows">
+          v-for="(row, rIndex) in rows">
           <td v-html="row.row_object.object_tag"/>
           <td
             class="padding-cell"
-            v-for="(column, index) in columns"
+            v-for="(column, cIndex) in columns"
             :key="column.id">
             <cell-component 
-              :index="index"
+              :index="rIndex + cIndex"
               :column="column"
               :row="row"/>
           </td>
