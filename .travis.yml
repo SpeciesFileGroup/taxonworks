@@ -18,6 +18,7 @@ branches:
     - master
     - development
     - dates
+    - docker-travis
 addons:
   postgresql: "10"
   firefox: "latest"
