@@ -6,7 +6,7 @@ cache:
     - $TRAVIS_BUILD_DIR/spec/fixtures/vcr_cassettes
     - $TRAVIS_BUILD_DIR/public/packs-test
     - $TRAVIS_BUILD_DIR/public/assets
-    - $TRAVIS_BUILD_DIR/tmp/cache
+    - $TRAVIS_BUILD_DIR/tmp/cache/webpacker
     - /home/travis/.rvm/ 
 dist: xenial
 # sudo: required
