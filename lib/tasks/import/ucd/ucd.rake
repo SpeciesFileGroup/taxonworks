@@ -496,9 +496,9 @@ namespace :tw do
 #          byebug if row['CitGenus'] == 'Risbecia'
           if !row['CitGenus'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
             taxon = Protonym.find_or_create_by(name: row['CitGenus'], project_id: Current.project_id)
-            if !@data.genus_codes[row['TaxonCode']].blank? && row['CitSubgen'].blank? && !taxon.identifiers.empty?
+            if !@data.genus_codes[row['TaxonCode']].blank? && row['CitSubgen'].blank? && row['CitSpecies'].blank? && !taxon.identifiers.empty? && @data.misspelt_genus[row['TaxonCode']].blank?
               taxon = Protonym.create(name: row['CitGenus'], project_id: Current.project_id)
-            elsif @data.combinations[row['TaxonCode']].blank? && row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank? && row['CitSubsp'].blank?
+            elsif @data.combinations[row['TaxonCode']].blank? && row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank? && row['CitSubsp'].blank? && @data.misspelt_genus[row['TaxonCode']].blank?
               taxon = Protonym.create(name: row['CitGenus'], project_id: Current.project_id)
             end
             changed = true if taxon.changed?
@@ -517,6 +517,8 @@ namespace :tw do
 
             @data.all_genera_index[taxon.name] = taxon.id if @data.all_genera_index[taxon.name].nil?
 
+#            if !@data.misspelt_genus[row['TaxonCode']].blank? # && (!row['CitSpecies'].blank? && !row['CitSubgen'].blank?)
+#              r = TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
             if row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank? && row['CitSubsp'].blank?
               if changed
 #                r = nil
@@ -560,10 +562,11 @@ namespace :tw do
           changed = false
 #          byebug if row['CitGenus'] == 'Risbecia'
           if !row['CitGenus'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
+#byebug if row['CitGenus'] == 'Sympiezus'
             taxon = Protonym.find_or_create_by(name: row['CitGenus'], project_id: Current.project_id)
-            if !@data.genus_codes[row['TaxonCode']].blank? && row['CitSubgen'].blank? && !taxon.identifiers.empty?
+            if !@data.genus_codes[row['TaxonCode']].blank? && row['CitSubgen'].blank? && row['CitSpecies'].blank? && !taxon.identifiers.empty? && @data.misspelt_genus[row['TaxonCode']].blank?
               taxon = Protonym.create(name: row['CitGenus'], project_id: Current.project_id)
-            elsif @data.combinations[row['TaxonCode']].blank? && row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank? && row['CitSubsp'].blank?
+            elsif @data.combinations[row['TaxonCode']].blank? && row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank? && row['CitSubsp'].blank? && @data.misspelt_genus[row['TaxonCode']].blank?
               taxon = Protonym.create(name: row['CitGenus'], project_id: Current.project_id)
             end
 
@@ -583,14 +586,12 @@ namespace :tw do
 
             @data.all_genera_index[taxon.name] = taxon.id if @data.all_genera_index[taxon.name].nil?
 
-            if row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank? && row['CitSubsp'].blank?
+            if !@data.misspelt_genus[row['TaxonCode']].blank? #&& (!row['CitSpecies'].blank? && !row['CitSubgen'].blank?)
+              r = TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
+            elsif row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank? && row['CitSubsp'].blank?
               if changed
                 r = nil
-                if !@data.misspelt_genus[row['TaxonCode']].blank? && (!row['CitSpecies'].blank? && !row['CitSubgen'].blank?)
-                  r = TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
-                else
-                  r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
-                end
+                r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
                 taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
                 taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
                 taxon.original_genus = taxon
@@ -617,7 +618,6 @@ namespace :tw do
         end
       end
 
-
       def handle_master_ucd_invalid_genera2
         path = @args[:data_directory] + 'MASTER.txt'
         print "\nHandling MASTER -- Invalid genera\n"
@@ -630,10 +630,11 @@ namespace :tw do
           changed = false
 #          byebug if row['CitGenus'] == 'Risbecia'
           if !row['CitGenus'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
+# byebug if row['CitGenus'] == 'Sympiezus'
             taxon = Protonym.find_or_create_by(name: row['CitGenus'], project_id: Current.project_id)
-            if !@data.misspelt_genus[row['TaxonCode']].blank? && (!row['CitSpecies'].blank? && !row['CitSubgen'].blank?)
+            if !@data.genus_codes[row['TaxonCode']].blank? && row['CitSubgen'].blank? && row['CitSpecies'].blank? && !taxon.identifiers.empty? && @data.misspelt_genus[row['TaxonCode']].blank?
               taxon = Protonym.create(name: row['CitGenus'], project_id: Current.project_id)
-            elsif @data.combinations[row['TaxonCode']].blank? && row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank? && row['CitSubsp'].blank?
+            elsif @data.combinations[row['TaxonCode']].blank? && row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank? && row['CitSubsp'].blank? && @data.misspelt_genus[row['TaxonCode']].blank?
               taxon = Protonym.create(name: row['CitGenus'], project_id: Current.project_id)
             end
             changed = true if taxon.changed?
@@ -652,14 +653,11 @@ namespace :tw do
 
             @data.all_genera_index[taxon.name] = taxon.id if @data.all_genera_index[taxon.name].nil?
 
-            if row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank? && row['CitSubsp'].blank?
+            if !@data.misspelt_genus[row['TaxonCode']].blank?
+              r = TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
+            elsif row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank? && row['CitSubsp'].blank?
               if changed
-#                r = nil
-                if !@data.misspelt_genus[row['TaxonCode']].blank?
-                  r = TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
-                else
-                  r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
-                end
+                r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
                 taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
                 taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
                 taxon.original_genus = taxon
@@ -2086,6 +2084,7 @@ namespace :tw do
           'CF' => 'Compared with',
           'CR' => 'New combination and replacement',
           'CV' => 'Request to ICZN for conservation of name',
+          'CM' => 'Misspelt species name, compared with', # 'Misspelt species name, compared with',
           'DI' => 'Division of',
           'EX' => 'Excluded from Chalcidoidea',
           'ID' => 'Identified subsequently as', # 'Identified subsequently as',
@@ -2142,7 +2141,8 @@ namespace :tw do
           taxon1 = find_taxon_ucd(row['Code'])
 #byebug if taxon && taxon.name == "abrotoni"
 #byebug if taxon1 && taxon1.name == "abrotoni"
-byebug if row['TaxonCode'] == 'IhambrA' && row['Code'] == 'IhrambA'
+#          byebug if row['TaxonCode'] == 'IhambrA' && row['Code'] == 'IhrambA'
+#          byebug if taxon.try(:name) == 'Ihambrek' || taxon1.try(:name) == 'Ihambrek'
 
           if taxon.nil?
 	          puts "Unmatched(?) TaxonCode #{row['TaxonCode']}, skipping TSTAT row"
@@ -2222,7 +2222,11 @@ byebug if row['TaxonCode'] == 'IhambrA' && row['Code'] == 'IhrambA'
                 c.update_column(:type, relationship[row['Status']])
               else
                 c2 = TaxonNameClassification.find_or_create_by(taxon_name: taxon, type: 'TaxonNameClassification::Iczn::Available::Valid') if @data.valid_taxon_codes[taxon.id] == 1
-                c = TaxonNameRelationship.find_or_create_by(subject_taxon_name: taxon, object_taxon_name: taxon1, type: relationship[row['Status']])
+                if row['Status'] == 'MG' && taxon.rank_string == 'NomenclaturalRank::Iczn::GenusGroup::Genus'
+                  c = TaxonNameRelationship.find_or_create_by(subject_taxon_name: taxon, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
+                else
+                  c = TaxonNameRelationship.find_or_create_by(subject_taxon_name: taxon, object_taxon_name: taxon1, type: relationship[row['Status']])
+                end
               end
 
               if !c.id.blank? # valid?
@@ -2457,7 +2461,7 @@ byebug if row['TaxonCode'] == 'IhambrA' && row['Code'] == 'IhrambA'
               TaxonNameRelationship.create!(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm')
             elsif (o.rank_string =~ /Species/  && shas == o.cached_secondary_homonym_alternative_spelling && r2 == 1) ||
                 (o.rank_string =~ /Genus/  && s.cached_primary_homonym_alternative_spelling == o.cached_primary_homonym_alternative_spelling && r2 == 1)
-
+#byebug if s.name == 'truncatus'
               s = s.becomes_combination
               combinations +=1 if s.type == 'Combination'
 #              byebug if s.type == 'Combination' && TaxonName.find(s.id).type != 'Combination'
