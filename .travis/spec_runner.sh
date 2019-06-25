@@ -28,11 +28,12 @@ done
  [ "$BEGIN_INDEX" -gt "$SPEC_COUNT" ] || \
  SPECS_TO_RUN[(($TEST_WORKERS-1))]+=" $(echo $SPEC_FILES | cut -d " " -f $BEGIN_INDEX-$SPEC_COUNT)"
 
-report() {
+report_cleanup() {
   END_TIME=$(date +%s)
 
   echo "[TEST_WORKER=$TEST_WORKER Runtime] $[$END_TIME - $START_TIME]"
   echo "[TEST_WORKER=$TEST_WORKER Proportion] $[$(echo ${SPECS_TO_RUN[$TEST_WORKER]} | wc -w)]/$SPEC_COUNT"
+  [! -f public/assets/.sprockets-manifest-*.json ] || rm public/assets/.sprockets-manifest-*.json
 }
 
 START_TIME=$(date +%s)
@@ -51,4 +52,4 @@ bundle exec rake assets:precompile
 echo "[TEST_WORKER=$TEST_WORKER specs set] ${SPECS_TO_RUN[$TEST_WORKER]}"
 bundle exec rspec ${SPECS_TO_RUN[$TEST_WORKER]}
 
-report
+report_cleanup
