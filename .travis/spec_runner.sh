@@ -33,7 +33,7 @@ report_cleanup() {
 
   echo "[TEST_WORKER=$TEST_WORKER Runtime] $[$END_TIME - $START_TIME]"
   echo "[TEST_WORKER=$TEST_WORKER Proportion] $[$(echo ${SPECS_TO_RUN[$TEST_WORKER]} | wc -w)]/$SPEC_COUNT"
-  [! -f public/assets/.sprockets-manifest-*.json ] || rm public/assets/.sprockets-manifest-*.json
+  [ ! -f public/assets/.sprockets-manifest-*.json ] || rm public/assets/.sprockets-manifest-*.json
 }
 
 START_TIME=$(date +%s)
