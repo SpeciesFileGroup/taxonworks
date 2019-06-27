@@ -37,7 +37,7 @@ report_cleanup() {
 }
 
 START_TIME=$(date +%s)
-trap 'report' ERR
+trap 'report_cleanup' ERR
 
 # Refresh VCRs on CRON event
 [ "$TRAVIS_EVENT_TYPE" != "cron" ] || (rm -rf spec/fixtures/vcr_cassettes/* && echo "VCRs cleared")
