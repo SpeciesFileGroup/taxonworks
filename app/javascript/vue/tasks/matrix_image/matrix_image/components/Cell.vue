@@ -17,8 +17,10 @@
       class="dropzone-card"
       ref="depiction"
       :id="`depiction-${row.id}-${column.id}`"
-      url="/depictions"
+      url="/observations"
       :use-custom-dropzone-options="true"
+      @vdropzone-sending="sending"
+      @vdropzone-success="success"
       :dropzone-options="dropzone"/>
   </div>
 </template>
@@ -52,10 +54,11 @@ export default {
       newIndex: 0,
       observations: [],
       images: [1, 2, 3],
+      imagesList: [],
       dropzone: {
-        paramName: 'observation[depiction][image_attributes][image_file]',
+        paramName: 'observation[images_attributes][image_file]',
         url: '/observations',
-        autoProcessQueue: false,
+        autoProcessQueue: true,
         headers: {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
@@ -78,7 +81,16 @@ export default {
     movedObservation(event) {
       console.log('Added: ')
       console.log(event)
-    }
+    },
+    success(file, response) {
+      this.imagesList.push(response)
+      this.$refs.depiction.removeFile(file)
+      this.$emit('create', response)
+    },
+    sending(file, xhr, formData) {
+      formData.append('observation[descriptor_id]', this.column.descriptor_id)
+      formData.append('observation[type]', 'Observation::Media')
+    },
   }
 }
 </script>
