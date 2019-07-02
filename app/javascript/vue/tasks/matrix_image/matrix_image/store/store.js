@@ -12,7 +12,8 @@ function makeInitialState () {
     observationRows: [],
     observationColumns: [],
     observationMatrix: undefined,
-    observations: []
+    observations: [],
+    observationMoved: undefined
   }
 }
 

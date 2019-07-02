@@ -20,10 +20,20 @@ const GetObservation = (globalId, descriptorId) => {
   return ajaxCall('get', `/observations.json?observation_object_global_id=${globalId}&descriptor_id=${descriptorId}`)
 }
 
+const DestroyObservation = (id) => {
+  return ajaxCall('delete', `/observations/${id}.json`)
+}
+
+const UpdateObservation = (observation) => {
+  return ajaxCall('patch', `/observations/${observation.id}.json`, { observation: observation })
+}
+
 export {
   GetObservationMatrix,
   GetMatrixObservationColumns,
   GetMatrixObservationRows,
   GetObservation,
-  CreateObservation
+  CreateObservation,
+  DestroyObservation,
+  UpdateObservation
 }

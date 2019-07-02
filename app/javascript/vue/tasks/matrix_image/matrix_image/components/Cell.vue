@@ -2,16 +2,21 @@
   <div>
     <draggable-component
       group="cells"
-      v-model="images"
       @add="movedObservation"
+      @choose="setObservationDragged"
       @remove="removedObservationFromList">
-      <div v-if="observations.length">
-        <span
-          v-for="observation in observations"
-          :key="observation.id"
+      <div
+        v-for="observation in observations"
+        :key="observation.id"
+        v-if="observation.hasOwnProperty('depictions')">
+        <img
+          v-for="depiction in observation.depictions"
+          :src="depiction.image.alternatives.thumb.image_file_url"
+          :width="depiction.image.alternatives.thumb.width"
+          :height="depiction.image.alternatives.thumb.height"
+          :key="depiction.id"
           v-html="observation.object_tag"/>
       </div>
-      <span v-for="image in images">{{ image }}</span>
     </draggable-component>
     <dropzone-component
       class="dropzone-card"
@@ -29,7 +34,9 @@
 
 import DropzoneComponent from 'components/dropzone'
 import DraggableComponent from 'vuedraggable'
-import { GetObservation } from '../request/resources'
+import { GetObservation, DestroyObservation, UpdateObservation } from '../request/resources'
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
 
 export default {
   components: {
@@ -49,11 +56,20 @@ export default {
       type: [Number, String]
     }
   },
+  computed: {
+    observationMoved: {
+      get() {
+        return this.$store.getters[GetterNames.GetObservationMoved]
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetObservationMoved, value)
+      }
+    }
+  },
   data() {
     return {
       newIndex: 0,
       observations: [],
-      images: [1, 2, 3],
       dropzone: {
         paramName: 'observation[images_attributes][][image_file]',
         url: '/observations',
@@ -75,11 +91,26 @@ export default {
   methods: {
     removedObservationFromList(event) {
       console.log('Removed: ')
-      console.log(event)
+      console.log(this.observations[event.oldIndex])
+      //DestroyObservation(this.observations[event.oldIndex].id).then(() => {
+        this.observations.splice(event.oldIndex, 1)
+      //})
     },
     movedObservation(event) {
       console.log('Added: ')
-      console.log(event)
+      let newObservation = {
+        id: this.observationMoved.id,
+        descriptor_id: this.column.descriptor_id,
+        [this.row.row_object.base_class == 'Otu' ? 'otu_id' : 'collection_object_id']: this.row.row_object.id
+      }
+      UpdateObservation(newObservation).then((response) => {
+        this.observations.push(response.body)
+        this.observationMoved = undefined
+      })
+      console.log(this.observationMoved)
+    },
+    setObservationDragged(event) {
+      this.observationMoved = this.observations[event.oldIndex]
     },
     success(file, response) {
       this.observations.push(response)
