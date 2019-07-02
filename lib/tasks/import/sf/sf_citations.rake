@@ -55,8 +55,8 @@ namespace :tw do
             otu = Otu.find(otu_id) # need otu object for project_id and
             project_id = otu.project_id.to_s
 
-#            logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{sf_taxon_name_id} = TW.otu_id #{otu.id},
-#        SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
+            logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{sf_taxon_name_id} = TW.otu_id #{otu.id},
+       SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
 
 #cite_pages = row['CitePages']
 
@@ -173,37 +173,38 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 ## Nomenclator: DataAttribute of citation, NomenclatorID > 0
             if row['NomenclatorID'] != '0' # OR could value: be evaluated below based on NomenclatorID?
               # byebug
-              da = DataAttribute.create!(type: 'ImportAttribute',
-                                         # attribute_subject: citation.citation_object, # replaces next two lines
-                                         attribute_subject_id: otu_id,
-                                         attribute_subject_type: 'Otu',
-                                         import_predicate: 'Nomenclator',
-                                         value: get_nomenclator_metadata[row['NomenclatorID']]['nomenclator_string'],
-                                         origin_citation_attributes: {
-                                             source_id: source_id,
-                                             project_id: project_id,
-                                             created_at: row['CreatedOn'],
-                                             updated_at: row['LastUpdate'],
-                                             created_by_id: get_tw_user_id[row['CreatedBy']],
-                                             updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                                         },
-                                         project_id: project_id,
-                                         created_at: row['CreatedOn'],
-                                         updated_at: row['LastUpdate'],
-                                         created_by_id: get_tw_user_id[row['CreatedBy']],
-                                         updated_by_id: get_tw_user_id[row['ModifiedBy']]
+              logger.info "Nomenclator string = #{get_nomenclator_metadata[row['NomenclatorID']]['nomenclator_string']} \n"
+              da = DataAttribute.find_or_create_by!(type: 'ImportAttribute',
+                                                    # attribute_subject: citation.citation_object, # replaces next two lines
+                                                    attribute_subject_id: otu_id,
+                                                    attribute_subject_type: 'Otu',
+                                                    import_predicate: 'Nomenclator',
+                                                    value: get_nomenclator_metadata[row['NomenclatorID']]['nomenclator_string'],
+                                                    # origin_citation_attributes: {
+                                                    #     source_id: source_id,
+                                                    #     project_id: project_id,
+                                                    #     created_at: row['CreatedOn'],
+                                                    #     updated_at: row['LastUpdate'],
+                                                    #     created_by_id: get_tw_user_id[row['CreatedBy']],
+                                                    #     updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                                                    # },
+                                                    project_id: project_id,
+              # created_at: row['CreatedOn'],
+              # updated_at: row['LastUpdate'],
+              # created_by_id: get_tw_user_id[row['CreatedBy']],
+              # updated_by_id: get_tw_user_id[row['ModifiedBy']]
               )
-              # otu_da_citation = Citation.create!(
-              #     source_id: source_id,
-              #     citation_object: da,
-              #
-              #     # housekeeping for citation
-              #     project_id: project_id,
+              otu_da_citation = Citation.create!(
+                  source_id: source_id,
+                  citation_object: da,
+                  #
+                  #     # housekeeping for citation
+                  project_id: project_id,
               #     created_at: row['CreatedOn'],
               #     updated_at: row['LastUpdate'],
               #     created_by_id: get_tw_user_id[row['CreatedBy']],
               #     updated_by_id: get_tw_user_id[row['ModifiedBy']]
-              # )
+              )
             end
           end
 
