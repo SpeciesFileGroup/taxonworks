@@ -54,7 +54,6 @@ export default {
       newIndex: 0,
       observations: [],
       images: [1, 2, 3],
-      imagesList: [],
       dropzone: {
         paramName: 'observation[images_attributes][image_file]',
         url: '/observations',
@@ -83,13 +82,14 @@ export default {
       console.log(event)
     },
     success(file, response) {
-      this.imagesList.push(response)
+      this.observations.push(response)
       this.$refs.depiction.removeFile(file)
       this.$emit('create', response)
     },
     sending(file, xhr, formData) {
       formData.append('observation[descriptor_id]', this.column.descriptor_id)
       formData.append('observation[type]', 'Observation::Media')
+      formData.append(this.row.row_object.base_class == 'Otu' ? 'otu_id' : 'collection_object_id', this.row.row_object.id)
     },
   }
 }
