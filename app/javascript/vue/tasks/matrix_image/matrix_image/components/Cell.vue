@@ -55,7 +55,7 @@ export default {
       observations: [],
       images: [1, 2, 3],
       dropzone: {
-        paramName: 'observation[images_attributes][image_file]',
+        paramName: 'observation[images_attributes][][image_file]',
         url: '/observations',
         autoProcessQueue: true,
         headers: {
@@ -89,7 +89,7 @@ export default {
     sending(file, xhr, formData) {
       formData.append('observation[descriptor_id]', this.column.descriptor_id)
       formData.append('observation[type]', 'Observation::Media')
-      formData.append(this.row.row_object.base_class == 'Otu' ? 'otu_id' : 'collection_object_id', this.row.row_object.id)
+      formData.append(`observation[${this.row.row_object.base_class == 'Otu' ? 'otu_id' : 'collection_object_id'}]`, this.row.row_object.id)
     },
   }
 }
