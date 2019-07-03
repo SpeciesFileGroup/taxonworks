@@ -41,15 +41,19 @@ export default {
     }
   },
   mounted() {
-    GetObservationMatrix(16).then(response => {
-      this.observationMatrix = response.body
-    })
-    GetMatrixObservationColumns(16).then(response => {
-      this.observationColumns = response.body
-    })
-    GetMatrixObservationRows(16).then(response => {
-      this.observationRows = response.body
-    })
+    let urlParams = new URLSearchParams(window.location.search)
+    let obsIdParam = urlParams.get('observation_matrix_id')
+    if (/^\d+$/.test(obsIdParam)) {
+      GetObservationMatrix(obsIdParam).then(response => {
+        this.observationMatrix = response.body
+      })
+      GetMatrixObservationColumns(obsIdParam).then(response => {
+        this.observationColumns = response.body
+      })
+      GetMatrixObservationRows(obsIdParam).then(response => {
+        this.observationRows = response.body
+      })
+    }    
   }
 }
 </script>
