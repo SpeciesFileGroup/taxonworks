@@ -53,7 +53,8 @@ export default {
 
 <style scoped lang="scss">
   .padding-cell {
-    padding: 1em
+    padding: 1em;
+    vertical-align: top;
   }
   tr:hover {
     background-color: initial !important;

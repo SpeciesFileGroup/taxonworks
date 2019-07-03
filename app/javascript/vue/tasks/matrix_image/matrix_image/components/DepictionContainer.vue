@@ -7,7 +7,9 @@
       :key="depiction.id">
     <div class="horizontal-left-content">
       <radial-annotator :global-id="depiction.global_id"/>
-      <span class="circle-button btn-delete"/>
+      <span
+        class="circle-button btn-delete"
+        @click="$emit('delete', depiction)"/>
     </div>
   </div>
 </template>

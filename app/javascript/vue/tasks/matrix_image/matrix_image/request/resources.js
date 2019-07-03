@@ -32,8 +32,8 @@ const UpdateDepiction = (depiction) => {
   return ajaxCall('patch', `/depictions/${depiction.id}.json`, { depiction: depiction })
 }
 
-const DestroyDepiction = (depiction) => {
-  return ajaxCall('delete', `/depictions/${depiction.id}.json`)
+const DestroyDepiction = (id) => {
+  return ajaxCall('delete', `/depictions/${id}.json`)
 }
 
 export {

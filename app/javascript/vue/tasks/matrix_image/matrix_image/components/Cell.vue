@@ -1,22 +1,5 @@
 <template>
   <div>
-    <draggable-component
-      class="flex-wrap-row"
-      group="cells"
-      @add="movedObservation"
-      @choose="setObservationDragged"
-      @remove="removedObservationFromList">
-      <template v-if="observationsMedia.length && observationsMedia[0].hasOwnProperty('depictions')">
-        <div
-          v-for="depiction in observationsMedia[0].depictions"
-          :key="depiction.id"
-          class="drag-container">
-          <depiction-container
-            :depiction="depiction"
-          />
-        </div>
-      </template>
-    </draggable-component>
     <template>
       <div v-show="existObservations">
         <dropzone-component
@@ -41,6 +24,25 @@
           :dropzone-options="dropzoneObservation"/>
         </div>
     </template>
+
+    <draggable-component
+      class="flex-wrap-row matrix-image-draggable"
+      group="cells"
+      @add="movedObservation"
+      @choose="setObservationDragged"
+      @remove="removedObservationFromList">
+      <template v-if="observationsMedia.length && observationsMedia[0].hasOwnProperty('depictions')">
+        <div
+          v-for="depiction in observationsMedia[0].depictions"
+          :key="depiction.id"
+          class="drag-container">
+          <depiction-container
+            :depiction="depiction"
+            @delete="removeDepiction"
+          />
+        </div>
+      </template>
+    </draggable-component>
   </div>
 </template>
 
@@ -49,7 +51,14 @@
 import DropzoneComponent from 'components/dropzone'
 import DraggableComponent from 'vuedraggable'
 import DepictionContainer from './DepictionContainer'
-import { GetObservation, DestroyObservation, UpdateObservation, UpdateDepiction, CreateObservation } from '../request/resources'
+import { 
+  GetObservation, 
+  DestroyObservation, 
+  UpdateObservation, 
+  UpdateDepiction,
+  DestroyDepiction,
+  CreateObservation
+  } from '../request/resources'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 
@@ -106,7 +115,7 @@ export default {
         headers: {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
-        dictDefaultMessage: 'Drop image here',
+        dictDefaultMessage: 'Drop<br>image<br>here',
         acceptedFiles: 'image/*'
       },
       dropzoneDepiction: {
@@ -116,7 +125,7 @@ export default {
         headers: {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
-        dictDefaultMessage: 'Drop image here',
+        dictDefaultMessage: 'Drop<br>image<br>here',
         acceptedFiles: 'image/*'
       }
     }
@@ -195,6 +204,24 @@ export default {
       this.depictionMoved = this.observationsMedia[0].depictions[event.oldIndex]
       this.observationMoved = this.observationsMedia[0]
     },
+    removeDepiction(depiction) {
+      this.$store.commit(MutationNames.SetIsSaving, true)
+      DestroyDepiction(depiction.id).then(() => {
+        let index = this.observations[0].depictions.findIndex(item => {
+          return item.id === depiction.id
+        })
+        this.observations[0].depictions.splice(index, 1)
+        if(!this.observations[0].depictions.length) {
+          DestroyObservation(this.observations[0].id).then(() => {
+            this.observations.splice(0, 1)
+            this.$store.commit(MutationNames.SetIsSaving, false)
+          })
+        }
+        else {
+          this.$store.commit(MutationNames.SetIsSaving, false)
+        }
+      })
+    },
     success(file, response) {
       this.observations.push(response)
       this.$refs.depictionObs.removeFile(file)
@@ -221,5 +248,9 @@ export default {
 <style scoped>
   .drag-container {
     padding: 0.5em;
+  }
+  
+  .matrix-image-draggable {
+    min-height: 100px;
   }
 </style>
