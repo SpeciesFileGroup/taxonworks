@@ -17,6 +17,15 @@
 #   @return [Integer]
 #     the project ID
 #
+# @!attribute svg_clip
+#   @return [xml, nil]
+#     a clipping mask to isolate some portion of the picture
+#
+# @!attribute is_metadata_depiction
+#   @return [Boolean, nil]
+#      If true then this depiction depicts data that describes the entity, rather than the entity itself.
+#      For example, a CollectionObject depiction of a insect, vs. a picture of some text that says "the specimen is blue"
+#
 class Depiction < ApplicationRecord
   # TODO: add position scoping
 
