@@ -1,5 +1,8 @@
 <template>
   <div>
+    <spinner-component
+      :legend="('Loading...')"
+      v-if="isLoading"/>
     <template>
       <div v-show="existObservations">
         <dropzone-component
@@ -51,6 +54,7 @@
 import DropzoneComponent from 'components/dropzone'
 import DraggableComponent from 'vuedraggable'
 import DepictionContainer from './DepictionContainer'
+import SpinnerComponent from 'components/spinner'
 import { 
   GetObservation, 
   DestroyObservation, 
@@ -66,7 +70,8 @@ export default {
   components: {
     DropzoneComponent,
     DraggableComponent,
-    DepictionContainer
+    DepictionContainer,
+    SpinnerComponent
   },
   props: {
     row: {
@@ -108,6 +113,7 @@ export default {
   data() {
     return {
       observations: [],
+      isLoading: true,
       dropzoneObservation: {
         paramName: 'observation[images_attributes][][image_file]',
         url: '/observations',
@@ -135,6 +141,7 @@ export default {
       this.observations = response.body.filter((item) => {
         return item.type == 'Observation::Media'
       })
+      this.isLoading = false
     })
   },
   methods: {

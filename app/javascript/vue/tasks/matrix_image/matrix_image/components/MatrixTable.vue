@@ -1,6 +1,6 @@
 <template>
   <div>
-    <table class="full_width">
+    <table>
       <thead>
         <tr>
           <th>Rows/columns</th>
@@ -52,6 +52,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
+  table {
+    table-layout: fixed;
+    width: 100%;
+  }
   .padding-cell {
     padding: 1em;
     vertical-align: top;
