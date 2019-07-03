@@ -1,6 +1,6 @@
 <template>
   <div>
-    <table>
+    <table class="full_width">
       <thead>
         <tr>
           <th>Rows/columns</th>

@@ -1,32 +1,46 @@
 <template>
   <div>
     <draggable-component
+      class="flex-wrap-row"
       group="cells"
       @add="movedObservation"
       @choose="setObservationDragged"
       @remove="removedObservationFromList">
-      <div
-        v-for="observation in observations"
-        :key="observation.id"
-        v-if="observation.hasOwnProperty('depictions')">
-        <img
-          v-for="depiction in observation.depictions"
-          :src="depiction.image.alternatives.thumb.image_file_url"
-          :width="depiction.image.alternatives.thumb.width"
-          :height="depiction.image.alternatives.thumb.height"
+      <template v-if="observationsMedia.length && observationsMedia[0].hasOwnProperty('depictions')">
+        <div
+          v-for="depiction in observationsMedia[0].depictions"
           :key="depiction.id"
-          v-html="observation.object_tag"/>
-      </div>
+          class="drag-container">
+          <depiction-container
+            :depiction="depiction"
+          />
+        </div>
+      </template>
     </draggable-component>
-    <dropzone-component
-      class="dropzone-card"
-      ref="depiction"
-      :id="`depiction-${row.id}-${column.id}`"
-      url="/observations"
-      :use-custom-dropzone-options="true"
-      @vdropzone-sending="sending"
-      @vdropzone-success="success"
-      :dropzone-options="dropzone"/>
+    <template>
+      <div v-show="existObservations">
+        <dropzone-component
+          class="dropzone-card"
+          ref="depictionDepic"
+          url="/depictions"
+          :id="`depiction-${row.id}-${column.id}-depic`"
+          :use-custom-dropzone-options="true"
+          @vdropzone-sending="sendingDepic"
+          @vdropzone-success="successDepic"
+          :dropzone-options="dropzoneDepiction"/>
+      </div>
+      <div v-show="!existObservations">
+        <dropzone-component
+          class="dropzone-card"
+          ref="depictionObs"
+          url="/observations"
+          :id="`depiction-${row.id}-${column.id}-obs`"
+          :use-custom-dropzone-options="true"
+          @vdropzone-sending="sending"
+          @vdropzone-success="success"
+          :dropzone-options="dropzoneObservation"/>
+        </div>
+    </template>
   </div>
 </template>
 
@@ -34,14 +48,16 @@
 
 import DropzoneComponent from 'components/dropzone'
 import DraggableComponent from 'vuedraggable'
-import { GetObservation, DestroyObservation, UpdateObservation } from '../request/resources'
+import DepictionContainer from './DepictionContainer'
+import { GetObservation, DestroyObservation, UpdateObservation, UpdateDepiction, CreateObservation } from '../request/resources'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 
 export default {
   components: {
     DropzoneComponent,
-    DraggableComponent
+    DraggableComponent,
+    DepictionContainer
   },
   props: {
     row: {
@@ -64,15 +80,38 @@ export default {
       set(value) {
         this.$store.commit(MutationNames.SetObservationMoved, value)
       }
+    },
+    depictionMoved: {
+      get() {
+        return this.$store.getters[GetterNames.GetDepictionMoved]
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetDepictionMoved, value)
+      }
+    },
+    observationsMedia() {
+      return this.observations
+    },
+    existObservations() {
+      return this.observations.length > 0
     }
   },
   data() {
     return {
-      newIndex: 0,
       observations: [],
-      dropzone: {
+      dropzoneObservation: {
         paramName: 'observation[images_attributes][][image_file]',
         url: '/observations',
+        autoProcessQueue: true,
+        headers: {
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        dictDefaultMessage: 'Drop image here',
+        acceptedFiles: 'image/*'
+      },
+      dropzoneDepiction: {
+        paramName: 'depiction[image_attributes][image_file]',
+        url: '/depictions',
         autoProcessQueue: true,
         headers: {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
@@ -84,37 +123,81 @@ export default {
   },
   mounted() {
     GetObservation(this.row.row_object.global_id, this.column.descriptor.id).then(response => {
-      this.observations = response.body
+      this.observations = response.body.filter((item) => {
+        return item.type == 'Observation::Media'
+      })
     })
-    this.newIndex = this.index
   },
   methods: {
     removedObservationFromList(event) {
       console.log('Removed: ')
-      console.log(this.observations[event.oldIndex])
-      //DestroyObservation(this.observations[event.oldIndex].id).then(() => {
-        this.observations.splice(event.oldIndex, 1)
-      //})
+      console.log(this.observationsMedia[0].depictions[event.oldIndex])
+      if(this.observationsMedia[0].depictions.length == 1) {
+        //DestroyObservation(this.observations[event.oldIndex].id).then(() => {
+          this.observations.splice(event.oldIndex, 1)
+        //})        
+      }
+      else {
+        let index = this.observations.findIndex(item => {
+          return item.id == this.observationsMedia[0].id
+        })
+        this.observations[index].depictions.splice([event.oldIndex], 1)
+      }
     },
     movedObservation(event) {
       console.log('Added: ')
-      let newObservation = {
-        id: this.observationMoved.id,
-        descriptor_id: this.column.descriptor_id,
-        [this.row.row_object.base_class == 'Otu' ? 'otu_id' : 'collection_object_id']: this.row.row_object.id
+      if(this.observationsMedia.length) {
+        this.updateDepiction()
       }
-      UpdateObservation(newObservation).then((response) => {
-        this.observations.push(response.body)
-        this.observationMoved = undefined
+      else {
+        let newObservation = {
+          descriptor_id: this.column.descriptor_id,
+          type: 'Observation::Media',
+          [this.row.row_object.base_class == 'Otu' ? 'otu_id' : 'collection_object_id']: this.row.row_object.id,
+        }
+        CreateObservation(newObservation).then(response => {
+          this.observations.push(response.body)
+          this.updateDepiction()         
+        })
+      }
+      console.log(this.depictionMoved)
+    },
+    updateDepiction() {
+     let newDepiction = {
+        id: this.depictionMoved.id,
+        depiction_object_id: this.observationsMedia[0].id, 
+        depiction_object_type: this.observationsMedia[0].base_class,
+      }
+      let changeObservation = {
+        id: this.observationMoved.id,
+        depictions_attributes: [newDepiction]
+      }
+      UpdateObservation(changeObservation).then(response => {
+        if(!response.body.hasOwnProperty('depictions')) {
+          DestroyObservation(response.body.id)
+        }
       })
-      console.log(this.observationMoved)
+      this.$store.commit(MutationNames.SetIsSaving, true)
+      UpdateDepiction(newDepiction).then((response) => {
+        let index = this.observations.findIndex(item => {
+          return item.id == this.observationsMedia[0].id
+        })
+        if(this.observations[index].hasOwnProperty('depictions'))
+          this.observations[index].depictions.push(response.body)
+        else
+          this.$set(this.observations[index],'depictions', [response.body])
+        this.depictionMoved = undefined
+        this.observationMoved = undefined
+        this.$store.commit(MutationNames.SetIsSaving, false)
+      })      
     },
     setObservationDragged(event) {
-      this.observationMoved = this.observations[event.oldIndex]
+      this.depictionMoved = this.observationsMedia[0].depictions[event.oldIndex]
+      this.observationMoved = this.observationsMedia[0]
     },
     success(file, response) {
       this.observations.push(response)
-      this.$refs.depiction.removeFile(file)
+      this.$refs.depictionObs.removeFile(file)
       this.$emit('create', response)
     },
     sending(file, xhr, formData) {
@@ -122,12 +205,21 @@ export default {
       formData.append('observation[type]', 'Observation::Media')
       formData.append(`observation[${this.row.row_object.base_class == 'Otu' ? 'otu_id' : 'collection_object_id'}]`, this.row.row_object.id)
     },
+    successDepic(file, response) {
+      this.observations[0].depictions.push(response)
+      this.$refs.depictionDepic.removeFile(file)
+      this.$emit('create', response)
+    },
+    sendingDepic(file, xhr, formData) {
+      formData.append('depiction[depiction_object_id]', this.observations[0].id)
+      formData.append('depiction[depiction_object_type]', this.observations[0].base_class)
+    },
   }
 }
 </script>
 
 <style scoped>
   .drag-container {
-    padding: 1em;
+    padding: 0.5em;
   }
 </style>

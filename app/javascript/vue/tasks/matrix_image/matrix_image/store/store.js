@@ -9,11 +9,13 @@ Vue.use(Vuex)
 
 function makeInitialState () {
   return {
+    isSaving: false,
     observationRows: [],
     observationColumns: [],
     observationMatrix: undefined,
     observations: [],
-    observationMoved: undefined
+    observationMoved: undefined,
+    depictionMoved: undefined
   }
 }
 

@@ -28,6 +28,14 @@ const UpdateObservation = (observation) => {
   return ajaxCall('patch', `/observations/${observation.id}.json`, { observation: observation })
 }
 
+const UpdateDepiction = (depiction) => {
+  return ajaxCall('patch', `/depictions/${depiction.id}.json`, { depiction: depiction })
+}
+
+const DestroyDepiction = (depiction) => {
+  return ajaxCall('delete', `/depictions/${depiction.id}.json`)
+}
+
 export {
   GetObservationMatrix,
   GetMatrixObservationColumns,
@@ -35,5 +43,7 @@ export {
   GetObservation,
   CreateObservation,
   DestroyObservation,
-  UpdateObservation
+  DestroyDepiction,
+  UpdateObservation,
+  UpdateDepiction
 }
