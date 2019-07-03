@@ -5,7 +5,14 @@
       :legend="('Saving changes...')"
       :logo-size="{ width: '100px', height: '100px'}"
       v-if="isSaving"/>
-    <h1>Image matrix</h1>
+    <div class="flex-separate">
+      <h1>Image matrix</h1>
+      <ul class="context-menu">
+        <li>
+          <a href="/tasks/observation_matrices/observation_matrix_hub/index">Back to observation matrix hub</a>
+        </li>
+      </ul>
+    </div>
     <matrix-table
       :columns="observationColumns"
       :rows="observationRows"/>
