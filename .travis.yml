@@ -19,6 +19,7 @@ branches:
     - development
     - dates
     - docker-travis
+    - build-with-assets
 addons:
   postgresql: "10"
   firefox: "latest"
