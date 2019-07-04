@@ -73,3 +73,7 @@ notifications:
       - ellocodelassembler@gmail.com
     on_failure: change
   webhooks: https://coveralls.io/webhook
+jobs:
+  include:
+    - stage: deploy
+      script: .travis/docker-deploy.sh
