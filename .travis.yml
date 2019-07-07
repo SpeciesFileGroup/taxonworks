@@ -78,12 +78,11 @@ jobs:
       language: minimal
       services:
         - docker
-      before_install:
-        - docker build . -t sfgrp/taxonworks --build-arg REVISION=$(git rev-parse --short HEAD)
       install:
-        - cd .travis && docker-compose up -d
+        - export REVISION=$(git rev-parse --short HEAD)
+        - docker build . -t sfgrp/taxonworks --build-arg REVISION=$REVISION
       script:
-        - curl -v http://localhost/api/v1/ping
+        - cd .travis && docker-compose up
 notifications:
   email:
     recipients:

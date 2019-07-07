@@ -1,24 +1,17 @@
 version: "2.1"
 services:
-  app:
-    image: sfgrp/taxonworks
+  taxonworks:
+    build:
+      context: .
+      dockerfile: Dockerfile.taxonworks
     container_name: tw_container
-    command: >
-      bash -c "
-      psql -U postgres -h db -c 'CREATE ROLE travis SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;' &&
-      psql -U postgres -h db -c 'CREATE DATABASE travis;' &&
-      psql -U travis -h db -c 'CREATE EXTENSION postgis; CREATE EXTENSION postgis_topology;' &&
-      /sbin/my_init
-      "
     depends_on:
       db:
         condition: service_healthy
-    ports: 
+    ports:
       - "127.0.0.1:80:80" # local:docker
     links:
       - db
-    stdin_open: true
-    tty: true
     environment:
       - RAILS_ENV=production
       - SERVER_NAME=localhost
@@ -29,29 +22,37 @@ services:
       - SECRET_KEY_BASE=93cd9bcf60b5f3550071463e28b25fb163e5b8ccb7c877900e5edfecab14871e082975a19f63db3540d3d38ce67f9ff59dd7dd6d3218500658b877f7d7d23dd7
       - TW_EXCEPTION_NOTIFICATION_EMAIL_PREFIX='"[TW-Error] "'
       - TW_EXCEPTION_NOTIFICATION_SENDER_ADDRESS='"\"notifier\" <notifier@example.com>"'
-      - TW_EXCEPTION_RECIPIENTS="exceptions@example.com"
+      - TW_EXCEPTION_RECIPIENTS=exceptions@example.com
       - TW_ACTION_MAILER_SMTP_SETTINGS_ADDRESS=smtp.example.com
-      - TW_ACTION_MAILER_SMTP_SETTINGS_PORT="25"
+      - TW_ACTION_MAILER_SMTP_SETTINGS_PORT=25
       - TW_ACTION_MAILER_SMTP_SETTINGS_DOMAIN=example.com
-      - TW_ACTION_MAILER_URL_HOST=localhost
+      - TW_ACTION_MAILER_URL_HOST=taxonworks
       - TW_MAIL_DOMAIN=example.com
       - TW_PATHS_STAGING=/staging
       - TW_PATHS_BACKUP=/backup
-      - TW_SANDBOX_MODE="true"
+      - TW_SANDBOX_MODE=true
     healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost/api/v1/ping"]
+      test: ["CMD", "curl", "--fail", "http://taxonworks/api/v1/ping"]
       interval: 5s
       timeout: 3s
       retries: 20
   db:
-    image: mdillon/postgis:10
+    build:
+      context: .
+      dockerfile: Dockerfile.db
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres", "-h", "db"]
       interval: 1s
       timeout: 3s
-      retries: 10      
-  wait_taxonworks_to_be_ready:
-    image: alpine
+      retries: 30
+  test:
+    build: ./docker-image-test
+    stdin_open: true
+    tty: true
     depends_on:
-      app:
+      taxonworks:
         condition: service_healthy
+    links:
+      - taxonworks
+    environment:
+      - REVISION=${REVISION}
