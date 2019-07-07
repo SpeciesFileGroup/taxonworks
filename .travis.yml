@@ -82,7 +82,7 @@ jobs:
         - export REVISION=$(git rev-parse --short HEAD)
         - docker build . -t sfgrp/taxonworks --build-arg REVISION=$REVISION
       script:
-        - cd .travis && docker-compose up
+        - cd .travis && docker-compose up --build --exit-code-from test
 notifications:
   email:
     recipients:
