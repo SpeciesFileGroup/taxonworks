@@ -1,0 +1,11 @@
+FROM sfgrp/taxonworks
+
+RUN {\
+  echo "bundle exec rails r \"User.create!(\
+    name: 'Admin', \
+    email: 'admin@example.com', \
+    password: 'taxonworks', \
+    password_confirmation: 'taxonworks', \
+    is_administrator: true, \
+    self_created: true)\""; \
+} >> /etc/my_init.d/init.sh
