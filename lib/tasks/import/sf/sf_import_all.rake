@@ -103,8 +103,8 @@ namespace :tw do
           # 'citations:create_combinations',
           # # 21_after_create_combinations: 112m27.918s on 6 June 2019
           # #
-          'citations:create_otu_cites',
-          # # 25_after_otu_cites: 1m2.000s on 16 July 2018; 0m55.486s on 7 Sept 2018
+          # 'citations:create_otu_cites',
+          # # 25_after_otu_cites: 1m2.000s on 16 July 2018; 0m55.486s on 7 Sept 2018; 2m1.501s on 2 July 2019
           #
           #
           # 'last:filter_users'
