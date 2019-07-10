@@ -22,10 +22,12 @@
       <p> A tab delimited formatted file. In the example whitespace is a tab. View sample file template.</p>
 
       <pre class="fixed_width_font">
-        taxonID parentNameUsageID taxonRank genus subgenus specificEpithet infraspecificEpithet scientificName scientificNameAuthorship
-        20 5  genus Aus "" "" "" Aus "Smith 2015"
-        21 20 species Aus "" cus "" "Aus cus" "Smith 2015"
-        22 6 species Bus "" eus "" "Bus eus" "(Wilson 1960)"</pre>
+        taxonID parentNameUsageID taxonRank genus subgenus specificEpithet infraspecificEpithet scientificName scientificNameAuthorship typeStatus
+        10    tribe "" "" "" ""     Ausini  "Doe 1950"
+        11 10  genus Bus "" "" "" Aus "Doe 1950"
+        20 10  genus Aus "" "" "" Aus "Smith 2015" typeGenus
+        21 20 species Aus "" cus "" "Aus cus" "Smith 2015" typeSpecies
+        22 11 species Bus "" eus "" "Bus eus" "(Wilson 1960)"</pre>
     </div>
 
     <div class="item item3">

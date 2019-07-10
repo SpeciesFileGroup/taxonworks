@@ -21,12 +21,12 @@
         <%= batch_line_link_td(i) -%> 
         <%= batch_all_objects_count_td(rp) -%>
         <td>
-          <%= 'EXAMPLE' -%>
+          <%= rp.objects[:taxon_name].first.rank -%> <%= rp.objects[:taxon_name].first.get_full_name_html.html_safe -%>
         </td> 
         <%= batch_data_errors_td(rp) -%>
         <%= batch_parse_errors_td(rp) -%>
       </tr>
-    <% end -%> 
+    <% end -%>
   </table>
 <% end %>
 
