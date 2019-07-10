@@ -135,7 +135,7 @@ namespace :tw do
           ref_file_id = {} # key = SF.RefID, value = SF.FileID
 
           # Part I: a) Create array of refs with editor flag set
-          #         b) Create hash of refs with containing refs
+          #         b) Create hash of refs with containing refs NOTE: Only includes those with ContainingRefIDs > 0
           #         c) Create hash of SF.RefID to SF.PubID
           path = @args[:data_directory] + 'tblRefs.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')

@@ -30,7 +30,7 @@ module Queries
 
       # @return [Boolean]
       #   &no_leaves=<"true"|"false">
-      #   if 'true' then no taxon names with parents will be found 
+      #   if 'true' then only names with descendents will be returned
       attr_accessor :no_leaves
 
       # @param [Hash] args

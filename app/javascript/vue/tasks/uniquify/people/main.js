@@ -1,33 +1,23 @@
 import Vue from 'vue'
 import vueResource from 'vue-resource'
+import App from './app.vue'
 
-var TW = TW || {};
-TW.views = TW.views || {};
-TW.views.tasks = TW.views.tasks || {};
-TW.views.tasks.uniquify_people = TW.views.tasks.uniquify_people || {};
+function init() {
+  Vue.use(vueResource);
 
-Object.assign(TW.views.tasks.uniquify_people, {
+  var token = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+  Vue.http.headers.common['X-CSRF-Token'] = token
 
-  init: function () {
-    Vue.use(vueResource);
+  new Vue({
+    el: '#uniquify_people',
+    render: function (createElement) {
+      return createElement(App)
+    }
+  })
+}
 
-    //var store = require('./store/store.js').newStore()
-    var App = require('./app.vue').default;
-    var token = $('[name="csrf-token"]').attr('content');
-    Vue.http.headers.common['X-CSRF-Token'] = token;
-
-    new Vue({
-      //store,
-      el: '#uniquify_people',
-      render: function (createElement) {
-        return createElement(App);
-      }
-    })
-  }
-});
-
-$(document).on('turbolinks:load', function () {
-  if ($('#uniquify_people').length) {
-    TW.views.tasks.uniquify_people.init();
+document.addEventListener('turbolinks:load', (event) => {
+  if (document.querySelector('#uniquify_people')) {
+    init()
   }
 });

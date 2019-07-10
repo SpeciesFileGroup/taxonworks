@@ -86,14 +86,18 @@ module TaxonNamesHelper
     taxon_name.cached_author_year
   end
 
+
   def taxon_name_short_status(taxon_name)
-    if taxon_name.type.eql?("Combination") 
-      content_tag(:span, "This name is subsequent combination for #{taxon_name_browse_link(taxon_name.valid_taxon_name)}.".html_safe, class: :brief_status, data: {icon: :attention})
+    if taxon_name.type.eql?('Combination')
+      t = (taxon_name.valid_taxon_name)
+      # TODO: deprecate :brief_status 
+      content_tag(:span, 
+                  "This name is subsequent combination for<br>&nbsp;&nbsp;#{link_to(original_taxon_name_tag(t), browse_nomenclature_task_path(t))} #{original_author_year(taxon_name)}.".html_safe, class: :brief_status, data: {icon: :attention, status: :combination})
     else
-      if taxon_name.unavailable_or_invalid? || taxon_name.type.eql?("Combination")
-        content_tag(:span, "This name is not valid/accepted. The valid name is #{taxon_name_browse_link(taxon_name.valid_taxon_name)}.".html_safe, class: :brief_status, data: {icon: :attention}) 
+      if taxon_name.unavailable_or_invalid? 
+          content_tag(:span, "This name is not valid/accepted.<br>The valid name is #{taxon_name_browse_link(taxon_name.valid_taxon_name)}.".html_safe, class: :brief_status, data: {icon: :attention, status: :invalid})
       else
-        content_tag(:span, 'This name is valid/accepted.', class: :brief_status, data: {icon: :ok }) 
+        content_tag(:span, 'This name is valid/accepted.', class: :brief_status, data: {icon: :ok, status: :valid }) 
       end
     end
   end
@@ -246,8 +250,13 @@ module TaxonNamesHelper
   end
 
   def taxon_name_otus_links(taxon_name)
-    if taxon_name.otus.any?
-      "The following Otus are linked to this name: #{taxon_name.otus.collect{|o| otu_link(o)}.to_sentence}".html_safe
+    if taxon_name.otus.load.any?
+      ('The following Otus are linked to this name: ' +
+      content_tag(:ul, class: 'no_bullets') do
+       taxon_name.otus.each do |o|
+          concat(content_tag(:li, otu_link(o) ))
+        end
+      end.html_safe).html_safe
     else
       content_tag(:em, 'There are no Otus linked to this name.')
     end

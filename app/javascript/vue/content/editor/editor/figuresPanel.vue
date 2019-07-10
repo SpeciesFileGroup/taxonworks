@@ -31,7 +31,6 @@ import Dropzone from 'components/dropzone.vue'
 import FigureItem from './figureItem.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-var token = $('[name="csrf-token"]').attr('content')
 
 export default {
   computed: {
@@ -62,7 +61,7 @@ export default {
         paramName: 'depiction[image_attributes][image_file]',
         url: '/depictions',
         headers: {
-          'X-CSRF-Token': token
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').getAttribute('content')
         },
         dictDefaultMessage: 'Drop images here to add figures',
         acceptedFiles: 'image/*'

@@ -1,38 +1,31 @@
-var TW = TW || {}
-TW.views = TW.views || {}
-TW.views.tasks = TW.views.tasks || {}
-TW.views.tasks.new_combination = TW.views.tasks.new_combination || {}
-
 import Vue from 'vue'
 import vueResource from 'vue-resource'
 import HelpSystem from '../plugins/help/help'
 import en from './lang/help/en'
 import vueShortkey from 'vue-shortkey'
+import App from './app.vue'
 
-Object.assign(TW.views.tasks.new_combination, {
-  init: function () {
-    Vue.use(vueResource)
-    Vue.use(vueShortkey)
-    Vue.use(HelpSystem, { 
-      languages: {
-        en: en
-      }
-    })
+function init () {
+  Vue.use(vueResource)
+  Vue.use(vueShortkey)
+  Vue.use(HelpSystem, { 
+    languages: {
+      en: en
+    }
+  })
 
-    var App = require('./app.vue').default
-    Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+  Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
 
-    new Vue({
-      el: '#vue_new_combination',
-      render: function (createElement) {
-        return createElement(App)
-      }
-    })
-  }
-})
+  new Vue({
+    el: '#vue_new_combination',
+    render: function (createElement) {
+      return createElement(App)
+    }
+  })
+}
 
-$(document).on('turbolinks:load', function () {
-  if ($('#vue_new_combination').length) {
-    TW.views.tasks.new_combination.init()
+document.addEventListener('turbolinks:load', (event) => {
+  if (document.querySelector('#vue_new_combination')) {
+    init()
   }
 })

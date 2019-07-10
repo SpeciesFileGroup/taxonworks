@@ -29,6 +29,7 @@
         </ul>
         <ul class="context-menu">
           <li><%= radial_annotator(@taxon_name) %></li>
+          <li><%= confidences_default_icon(@taxon_name) %></li>
           <li><%= tag_default_icon(@taxon_name) %></li>
           <li><%= pin_item_to_pinboard_link(@taxon_name, sessions_current_user) %></li>
           <li>
@@ -54,7 +55,7 @@
       <div class="flexbox separate-bottom">
         <div class="panel separate-left separate-right">
           <div class="break_words">
-            <div class="content subtitle filter middle"> 
+            <div id="browse-nomenclature-taxon-name" class="content subtitle filter middle"> 
               <%= content_tag(:p, full_taxon_name_tag(@taxon_name), class: 'item center_text name') -%>
             </div>
             <div class="horizontal-center-content filter">

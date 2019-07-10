@@ -29,6 +29,10 @@ module ConfidencesHelper
     render('/confidences/quick_search_form')
   end
 
+  def confidences_default_icon(object)
+    content_tag(:span, '', data: { 'global-id' => object.to_global_id.to_s, 'confidence-default' => 'true' }, class: [:default_confidence_widget, 'circle-button', 'btn-disabled'])
+  end
+
   def add_confidence_link(object: nil)
     link_to('Add confidence', new_confidence_path( 
                                                   confidence_object_type: object.class.base_class.name,

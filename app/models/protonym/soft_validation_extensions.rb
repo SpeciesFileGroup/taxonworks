@@ -116,7 +116,7 @@ module Protonym::SoftValidationExtensions
         s = part_of_speech_name
         if !s.nil? && is_available?
           if %w{adjective participle}.include?(s)
-            if !feminine_name.blank? && !masculine_name.blank? && !neuter_name.blank? && (name == masculine_name || name == feminine_name || name == neuter_name)
+            if !feminine_name.blank? && !masculine_name.blank? && !neuter_name.blank? && name != masculine_name && name != feminine_name && name != neuter_name
               soft_validations.add(:base, 'Species name does not match with either of three alternative forms')
             else
               if feminine_name.blank?

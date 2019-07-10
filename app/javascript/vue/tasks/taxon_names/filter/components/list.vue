@@ -27,7 +27,11 @@
         <tr
           v-for="item in list"
           :key="item.id">
-          <td v-html="item.cached_html"/>
+          <td>
+            <a
+              :href="`/tasks/nomenclature/browse/${item.id}`"
+              v-html="item.cached_html"/>
+          </td>
           <td>{{item.verbatim_author}}</td>
           <td>{{ item.year_of_publication }}</td>
           <td v-html="item.original_combination"></td>

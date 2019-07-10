@@ -46,7 +46,7 @@ TaxonWorks::Application.configure do
   # end
 
   # Assets
-  # config.assets.raise_runtime_errors = true
+  config.assets.raise_runtime_errors = true
   # config.assets.debug = true
   # config.assets.quiet = false
 

@@ -21,10 +21,9 @@ Source:
 TaxonName:
   tasks:
     - browse_nomenclature_task 
-    - nomenclature_by_source_task 
+    - new_combination_task
     - new_taxon_name_task 
     - edit_type_material_task
-    - new_combination_task
     - otu_distribution_data_task
   config:
     recent: true

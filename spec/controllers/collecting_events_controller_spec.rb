@@ -172,6 +172,7 @@ describe CollectingEventsController, type: :controller do
     end
 
     it 'redirects to the collecting_events list' do
+      request.env['HTTP_REFERER'] = collecting_events_url
       collecting_event = CollectingEvent.create! valid_attributes
       delete :destroy, params: {id: collecting_event.to_param}, session: valid_session
       expect(response).to redirect_to(collecting_events_url)

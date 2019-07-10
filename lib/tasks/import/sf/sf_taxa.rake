@@ -778,13 +778,14 @@ namespace :tw do
 
             project_id = get_tw_project_id[row['FileID']]
             ref_id = row['RefID'] # preserve this value; used intact below for creating taxon_name_author list if this is a contained ref
-            # Use ContainingRefID if SFContainedCiteAuxData[ref_id]
             if ref_id_containing_id_hash[ref_id].nil? # this RefID does not have a ContainingRefID
+              containing_ref_id = '0'
               use_this_ref_id = ref_id
               add_different_authors = false
               ## copy source_author list to taxon_name_author list
             else
-              use_this_ref_id = [ref_id]
+              containing_ref_id = ref_id_containing_id_hash[ref_id]
+              use_this_ref_id = containing_ref_id
               add_different_authors = true
               ## add taxon_name_authors for contained ref
             end
@@ -848,7 +849,7 @@ namespace :tw do
               if otu.save
                 logger.info "Note!! Created OTU for temporary or ill-formed taxon SF.TaxonNameID = #{sf_taxon_name_id}, otu.id = #{otu.id}"
 
-                otu.citations << Citation.new(source_id: get_tw_source_id[use_this_ref_id], is_original: true, project_id: project_id) if use_this_ref_id.to_i > 0
+                otu.citations << Citation.new(source_id: get_tw_source_id[use_this_ref_id], is_original: true, project_id: project_id)
                 # Note: If contained ref, no need to specify separate taxon_name_author for OTUs
 
                 get_tw_otu_id[row['TaxonNameID']] = otu.id.to_s
@@ -995,7 +996,7 @@ namespace :tw do
                   # SourceAuthor.where(role_object_type: 'Source', role_object_id: source).find_each do |sa|
                   #   TaxonNameAuthor.create(person_id: sa.person_id, role_object: taxon, position: sa.position)
 
-                    ordered_authors = SourceAuthor.where(role_object_id: get_tw_source_id[use_this_ref_id]).order(:position).pluck(:person_id).each do |person_id|
+                  ordered_authors = SourceAuthor.where(role_object_id: get_tw_source_id[use_this_ref_id]).order(:position).pluck(:person_id).each do |person_id|
                     puts person_id
                   end
 
@@ -1005,7 +1006,7 @@ namespace :tw do
                         role_object_id: taxon_name.id,
                         role_object_type: 'TaxonName',
                         project_id: project_id
-                     )
+                    )
                     begin
                       role.save!
                     rescue ActiveRecord::RecordInvalid

@@ -4,11 +4,9 @@ import VueResource from 'vue-resource'
 Vue.use(VueResource)
 
 const init = function () {
-  var token = $('[name="csrf-token"]').attr('content')
+  var token = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
   Vue.http.headers.common['X-CSRF-Token'] = token
 }
-
-
 
 const createTaxonName = function (taxon) {
   return new Promise(function (resolve, reject) {

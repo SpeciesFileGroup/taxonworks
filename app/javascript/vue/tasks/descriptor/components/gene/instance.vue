@@ -1,24 +1,25 @@
 <template>
   <div>
     <template>
+      <h3>Type</h3>
+      <ul class="no_bullets">
+        <li
+          v-for="item in sequenceRelationshipTypes"
+          :key="item.value">
+          <label>
+            <input
+              type="radio"
+              :value="item.value"
+              v-model="type">
+            {{ item.label }}
+          </label>
+        </li>
+      </ul> 
       <primer-component
+        class="separate-top"
         :title="title"
         @selected="addSequence"/>
     </template>
-    <h3>Type</h3>
-    <ul class="no_bullets">
-      <li
-        v-for="item in sequenceRelationshipTypes"
-        :key="item.value">
-        <label>
-          <input
-            type="radio"
-            :value="item.value"
-            v-model="type">
-          {{ item.label }}
-        </label>
-      </li>
-    </ul> 
     <template>
       <h3>Expression</h3>
       <div class="panel content">
@@ -34,7 +35,7 @@
           </ul>
           <div
             class="delete-box"
-            @click="expression = []">
+            @click="removeAll">
             <draggable
               class="delete-drag-box"
               title="Remove all"
@@ -44,10 +45,12 @@
         </div>
       </div> 
     </template>
-    <div v-if="expression.length">
+    <div
+      v-if="expression.length">
       <div class="separate-bottom horizontal-left-content">
         <draggable
           class="horizontal-left-content expression-box full_width"
+          :class="{ 'warning-box': (isParensOpen || !validateExpression)}"
           v-model="expression"
           :group="randomGroup">
           <div
@@ -59,11 +62,23 @@
           </div>
         </draggable>
       </div>
+      <div
+        v-if="isParensOpen || !validateExpression"
+        class="warning-message">
+        Invalid expression: 
+        <span
+          v-if="isParensOpen">
+          Close parentheses.
+        </span>
+        <span v-if="!validateExpression">
+          Logical operators needs sequence on the other side.
+        </span>
+      </div>
     </div>
     <button
       type="button"
       class="button normal-input button-submit separate-top"
-      :disabled="isParensOpen || !geneAttributes.length"
+      :disabled="!validateExpression || isParensOpen || !geneAttributes.length"
       @click="sendDescriptor">
       Save
     </button>
@@ -151,6 +166,37 @@ export default {
       if((parenOpen || parenClose) || (parensOpen.length != parensClosed.length) || (parensOpen[parensOpen.length-1] > parensClosed[parensClosed.length-1]))
         return true
       return false
+    },
+    validateExpression() {
+      let previousOperator = true
+      let currentOperator = false
+      let validated = true
+
+      for (let i = 0; i < this.expression.length; i++) {
+        if(this.expression[i].type == 'Operator') {
+          if(this.expression[i].value != ')' && this.expression[i].value != '(') {
+            currentOperator = true
+            if(previousOperator) {
+              validated = false
+              break
+            }
+          }
+          else {
+            if(this.expression[i].value == ')' && previousOperator) {
+              validated = false
+              break
+            }
+          }
+        }
+        else {
+          currentOperator = false
+        }
+        previousOperator = currentOperator
+      }
+      if(currentOperator && previousOperator) {
+        return false
+      }
+      return validated
     }
   },
   data () {
@@ -218,7 +264,7 @@ export default {
                 type: 'Sequence',
                 name: sequenceObject.sequence.name,
                 relationshipType: sequence[0],
-                value: sequence[1]
+                value: Number(sequence[1])
               })
             }
             else {
@@ -259,11 +305,24 @@ export default {
       this.expression.push(item)
       this.operatorMode = false
     },
+    filterDuplicates(sequencesArray) {
+      return sequencesArray.map(e => e['sequence_id'])
+      .map((e, i, final) => final.indexOf(e) === i && i)
+      .filter(e => sequencesArray[e]).map(e => sequencesArray[e])
+    },
+    removeAll() {
+      this.trashExpressions = this.geneAttributes.filter(item => {
+        return item.id
+      })
+      this.expression = []
+      this.sendDescriptor()
+    },
     sendDescriptor() {
-      let newDescriptor = this.descriptor
-      
-      newDescriptor.gene_attribute_logic = this.composeExpression
-      newDescriptor.gene_attributes_attributes = this.geneAttributes
+      let newDescriptor = {
+        id: this.descriptor.id,
+        gene_attribute_logic: this.composeExpression,
+        gene_attributes_attributes: this.filterDuplicates(this.geneAttributes)
+      }
 
       this.trashExpressions.forEach(item => {
         if(item.hasOwnProperty('id')) {
@@ -286,7 +345,6 @@ export default {
     cursor: pointer;
     text-align: center;
     margin: 4px;
-    //border: 1px solid transparent;
   }
 
   .drag-expression-element:hover {
@@ -297,7 +355,6 @@ export default {
   .expression-box {
     padding: 8px;
     box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
-    //height: 20px;
     border-top: 1px solid #EAEAEA;
     background-color: #FAFAFA;
   }
@@ -305,6 +362,16 @@ export default {
   .delete-drag-box {
     height: 20px;
     width: 20px;
+  }
+
+  .warning-message {
+    color: red
+  }
+
+  .warning-box {
+    border: 1px solid red;
+    background-color: #ffa9a9 !important;
+    color: #FFFFFF !important;
   }
 
   .delete-box {

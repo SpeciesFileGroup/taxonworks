@@ -339,7 +339,7 @@ class Source::Bibtex < Source
                                message:  'must be an integer greater than 999 and no more than 2 years in the future'}
 
   validates_presence_of :month,
-    unless:  -> { day.blank? },
+    unless: -> { day.blank? },
     message: 'is required when day is provided'
 
   validates_inclusion_of :month,

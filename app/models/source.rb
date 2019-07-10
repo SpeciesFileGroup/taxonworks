@@ -60,6 +60,7 @@
 # @!attribute month
 #   @return [String]
 #    see https://en.wikipedia.org/wiki/BibTeX#Field_types
+#      stored as a three letter value, see ::VALID_BIBTEX_MONTHS
 #
 # @!attribute note
 #   @return [String]
@@ -129,11 +130,12 @@
 #
 # @!attribute stated_year
 #   @return [String]
-#   @todo
+#    See source/bibtex.rb
+#    TODO: Why is this character but year is int?
 #
 # @!attribute day
 #   @return [Integer]
-#   @todo
+#     the calendar day (1-31)
 ##
 # @!attribute isbn
 #   @return [String]

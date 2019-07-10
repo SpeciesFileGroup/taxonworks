@@ -1,20 +1,15 @@
-var TW = TW || {}
-TW.vue = TW.vue || {}
-TW.vue.otuRadial = TW.vue.otuRadial || {}
-
 import Vue from 'vue'
 
-Object.assign(TW.vue.otuRadial, {
-  init: function (element) {
+function init (element) {
     var App = require('./app.vue').default
 
     let id = `otu-radial-${(Math.random().toString(36).substr(2, 5))}`
-    let taxonId = $(element).attr('data-taxon-id')
-    let taxonName = $(element).attr('data-taxon-name')
-    let redirect = $(element).attr('data-redirect')
+    let taxonId = element.getAttribute('data-taxon-id')
+    let taxonName = element.getAttribute('data-taxon-name')
+    let redirect = element.getAttribute('data-redirect')
 
     if (taxonId && taxonName) {
-      $(element).attr('id', id)
+      element.setAttribute('id', id)
 
       new Vue({
         el: `#${id}`,
@@ -31,12 +26,11 @@ Object.assign(TW.vue.otuRadial, {
       })
     }
   }
-})
 
-$(document).on('turbolinks:load', function () {
-  if ($('[data-otu-button="true"]').length) {
-    $('[data-otu-button="true"]').each(function () {
-      TW.vue.otuRadial.init(this)
+document.addEventListener('turbolinks:load', (event) => {
+  if (document.querySelector('[data-otu-button="true"]')) {
+    document.querySelectorAll('[data-otu-button="true"]').forEach((element) => {
+      init(element)
     })
   }
 })

@@ -374,6 +374,19 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         c1.destroy
       end
 
+      specify 'missmatching alternative spellings for species participle' do
+        c1 = FactoryBot.create(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Participle')
+        @species.masculine_name = 'foo'
+        @species.feminine_name = 'foo'
+        @species.neuter_name = 'foo'
+        @species.soft_validate(:species_gender_agreement)
+        expect(@species.soft_validations.messages_on(:base)).to include('Species name does not match with either of three alternative forms')
+        @species.masculine_name = @species.name
+        @species.soft_validate(:species_gender_agreement)
+        expect(@species.soft_validations.messages_on(:base).empty?).to be_truthy
+        c1.destroy
+      end
+
       specify 'unnecessary alternative spellings for species noun' do
         s = FactoryBot.create(:relationship_species, parent: @genus, masculine_name: 'foo', feminine_name: 'foo', neuter_name: 'foo')
         c1 = FactoryBot.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::NounInGenitiveCase')
@@ -384,7 +397,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
 
       specify 'unproper noun names (endings incorrect)' do
-        s = FactoryBot.create(:relationship_species, parent: @genus, masculine_name: 'vita', feminine_name: 'vitus', neuter_name: 'viter')
+        s = FactoryBot.create(:relationship_species, parent: @genus, masculine_name: 'vita', feminine_name: 'vitus', neuter_name: 'vitis')
         c1 = FactoryBot.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
         s.soft_validate(:species_gender_agreement)
         expect(s.soft_validations.messages_on(:masculine_name).size).to eq(1)

@@ -210,7 +210,7 @@ export default {
           CreateAssertedDistribution(this.asserted_distribution).then(response => {
             this.asserted_distribution.id = response.body.id
             this.setCitation(response.body.citations[0])
-            this.list.push(response.body)
+            this.list.unshift(response.body)
             TW.workbench.alert.create('Asserted distribution was successfully created.', 'notice')
             resolve(response.body)
           })
