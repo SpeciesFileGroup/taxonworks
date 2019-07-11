@@ -77,7 +77,7 @@ GEM
       coderay (>= 1.0.0)
       erubi (>= 1.0.0)
       rack (>= 0.9.0)
-    bibtex-ruby (4.4.7)
+    bibtex-ruby (5.0.0)
       latex-decode (~> 0.0)
     bindex (0.8.1)
     binding_of_caller (0.8.0)
@@ -515,7 +515,7 @@ DEPENDENCIES
   bcrypt (~> 3.1.11)
   best_in_place (~> 3.1.1)
   better_errors (~> 2.4)
-  bibtex-ruby (~> 4.4.7)
+  bibtex-ruby (~> 5.0.0)
   binding_of_caller
   biodiversity (~> 3.5.0)
   brakeman (~> 4.4.0)
