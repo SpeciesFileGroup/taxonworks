@@ -254,7 +254,7 @@ export default {
 
 <style scoped>
   .drag-container {
-    padding: 0.5em;
+    padding-top: 0.5em;
   }
   
   .matrix-image-draggable {

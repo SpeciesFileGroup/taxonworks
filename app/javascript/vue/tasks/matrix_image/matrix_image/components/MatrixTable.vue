@@ -3,11 +3,15 @@
     <table>
       <thead>
         <tr>
-          <th>Rows/columns</th>
+          <th/>
           <th 
+            class="header-cell"
             v-for="column in columns"
-            :key="column.id"
-            v-html="column.descriptor.name"/>
+            :key="column.id">
+            <span
+              class="header-label"
+              v-html="column.descriptor.name"/>
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -53,21 +57,24 @@ export default {
 
 <style scoped lang="scss">
   table {
-    table-layout: fixed;
-    width: 100%;
+    //table-layout: fixed;
+    //width: 100%;
   }
   .padding-cell {
     padding: 1em;
     vertical-align: top;
+    max-width: 100px;
   }
-  tr:hover {
-    background-color: initial !important;
-    border-width: 1px !important;
-    td {
+  tbody {
+    tr:hover {
+      background-color: initial !important;
       border-width: 1px !important;
+      td {
+        margin: 0;
+        border-width: 1px !important;
+      }
     }
   }
-
   .row-cell { 
     td {
       border-bottom: 1px solid #e5e5e5;
@@ -78,6 +85,29 @@ export default {
     background-color: #FFFFFF;
     td {
       border-left:1px solid #e5e5e5;
+    }
+  }
+  .header-label {
+    transform: rotate(-30deg);
+    position: absolute;
+    transform-origin: 0 0;
+    width: 200px;
+    bottom: 0;
+    left: 0;
+  }
+  .header-cell {
+    position: relative;
+    text-align: left;
+  }
+  thead {
+    tr {
+      height: 0px !important;
+      background-color: transparent;
+    }
+    th {
+      max-height: 0px !important;
+      border-bottom: 1px solid #e5e5e5;
+      background-color: transparent;
     }
   }
 </style>
