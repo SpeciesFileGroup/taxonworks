@@ -16,6 +16,8 @@
       <div class="content header">
         <h3
           v-if="taxon.id"
+          v-shortkey="[getMacKey(), 'p']"
+          @shortkey="loadParent()"          
           class="flex-separate middle">
           <a
             v-shortkey="[getMacKey(), 't']"
@@ -59,6 +61,7 @@ import DefaultConfidence from 'components/defaultConfidence.vue'
 import PinObject from 'components/pin.vue'
 
 import { GetterNames } from '../store/getters/getters'
+import { ActionNames } from '../store/actions/actions'
 import Modal from 'components/modal.vue'
 
 export default {
@@ -134,6 +137,14 @@ export default {
     },
     getMacKey: function () {
       return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
+    },
+    loadParent() {
+      if(this.taxon.id && this.parent.id) {
+        this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon).then((response) => {
+          console.log(response)
+          window.open(`/tasks/nomenclature/new_taxon_name?taxon_name_id=${response.parent_id}`, '_self')
+        })
+      }
     }
   }
 }
