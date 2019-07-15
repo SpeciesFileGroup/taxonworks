@@ -92,7 +92,5 @@ RUN bundle exec rake assets:precompile \
 
 FROM base
 COPY --from=assets-precompiler --chown=9999:9999 /app/public /app/public
-# TODO: Check if next step is actually needed (it will certainly make running `rake assets:precompile` again much faster)
-COPY --from=assets-precompiler --chown=9999:9999 /app/tmp/cache /app/tmp/cache
 
 CMD ["/sbin/my_init"]
