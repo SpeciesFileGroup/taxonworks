@@ -619,7 +619,7 @@ namespace :tw do
           logger.info 'Running map_serials...'
 
           # pubs = DataAttribute.where(import_predicate: 'SF ID', attribute_subject_type: 'Serial').limit(10).pluck(:value, :attribute_subject_id)
-          get_tw_serial_id = DataAttribute.where(import_predicate: 'SF ID', attribute_subject_type: 'Serial').pluck(:value, :attribute_subject_id).to_h
+          get_tw_serial_id = DataAttribute.where(import_predicate: 'SF ID', attribute_subject_type: 'Serial').pluck(:value, :attribute_subject_id).to_h.to_s
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           import.set('SFPubIDToTWSerialID', get_tw_serial_id)
