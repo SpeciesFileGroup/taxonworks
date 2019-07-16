@@ -259,5 +259,6 @@ export default {
   
   .matrix-image-draggable {
     min-height: 100px;
+    box-sizing: content-box;
   }
 </style>
