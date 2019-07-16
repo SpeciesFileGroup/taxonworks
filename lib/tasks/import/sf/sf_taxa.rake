@@ -779,13 +779,14 @@ namespace :tw do
             project_id = get_tw_project_id[row['FileID']]
             ref_id = row['RefID'] # preserve this value; used intact below for creating taxon_name_author list if this is a contained ref
             if ref_id_containing_id_hash[ref_id].nil? # this RefID does not have a ContainingRefID
-              containing_ref_id = '0'
+              # containing_ref_id = '0'
               use_this_ref_id = ref_id
               add_different_authors = false
               ## copy source_author list to taxon_name_author list
             else
-              containing_ref_id = ref_id_containing_id_hash[ref_id]
-              use_this_ref_id = containing_ref_id
+              # containing_ref_id = ref_id_containing_id_hash[ref_id]
+              # use_this_ref_id = containing_ref_id
+              use_this_ref_id = ref_id_containing_id_hash[ref_id]
               add_different_authors = true
               ## add taxon_name_authors for contained ref
             end
@@ -983,7 +984,7 @@ namespace :tw do
 
                 if add_different_authors
                   # This is a ref in ref, taxon_name_authors listed in sfRefAuthorsOrdered, use value in ref_id, not use_this_ref_id
-                  ref_taxon_name_authors[row['RefID']].each do |sf_person_id| # person_id from author_array
+                  ref_taxon_name_authors[ref_id].each do |sf_person_id| # person_id from author_array
                     TaxonNameAuthor.create!(
                         person_id: get_tw_person_id[sf_person_id],
                         role_object_id: taxon_name.id,

@@ -23,7 +23,7 @@ namespace :tw do
           ref_file_id = import.get('RefIDsByFileID')
           ref_id_editor_array = import.get('RefIDEditorArray') # author as editor if RefID is in array
 
-          ref_taxon_name_authors = {} # key = SF.RefID (contained ref), value = array of SF.Person.IDs (ordered)
+          ref_taxon_name_authors = {} # key = SF.RefID (contained ref), value = array of SF.Person.IDs (ordered); only contains ref in ref taxon_name_authors
 
           path = @args[:data_directory] + 'sfRefAuthorsOrdered.txt'
           file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -43,45 +43,28 @@ namespace :tw do
 
           file.each_with_index do |row, i|
             ref_id = row['RefID']
-            next unless ref_id_containing_id_hash[ref_id].nil? # only process simple refs (not ref in refs)
             next if skipped_file_ids.include? ref_file_id[ref_id].to_i
 
-            source_id = get_tw_source_id[ref_id]
-            if source_id.nil?
-              logger.error "Missing source ERROR: SF.RefID = #{ref_id} (source_nil_counter = #{source_nil_counter += 1})"
-              next
-            end
+            if ref_id_containing_id_hash[ref_id].nil? # only executed if simple ref (no ref in ref)
 
-            sf_person_id = row['PersonID']
-            tw_person_id = get_tw_person_id[sf_person_id]
-            if tw_person_id.nil?
-              logger.error "Missing person ERROR: SF.PersonID = #{sf_person_id} (person_nil_counter = #{tw_person_nil_counter += 1})"
-              next
-            end
+              source_id = get_tw_source_id[ref_id]
+              if source_id.nil?
+                logger.error "Missing source ERROR: SF.RefID = #{ref_id} (source_nil_counter = #{source_nil_counter += 1})"
+                next
+              end
 
-            logger.info "working with SF.RefID = #{ref_id}, SF.PersonID = #{tw_person_id}, TW.source_id = #{source_id}, TW.person_id = #{tw_person_id}, position = #{row['SeqNum']} \n"
+              sf_person_id = row['PersonID']
+              tw_person_id = get_tw_person_id[sf_person_id]
+              if tw_person_id.nil?
+                logger.error "Missing person ERROR: SF.PersonID = #{sf_person_id} (person_nil_counter = #{tw_person_nil_counter += 1})"
+                next
+              end
 
-            role = Role.new(
-                person_id: tw_person_id,
-                type: 'SourceAuthor',
-                role_object_id: source_id,
-                role_object_type: 'Source',
-                created_at: row['CreatedOn'],
-                updated_at: row['LastUpdate'],
-                created_by_id: get_tw_user_id[row['CreatedBy']],
-                updated_by_id: get_tw_user_id[row['ModifiedBy']]
-            )
+              logger.info "working with SF.RefID = #{ref_id}, SF.PersonID = #{tw_person_id}, TW.source_id = #{source_id}, TW.person_id = #{tw_person_id}, position = #{row['SeqNum']} \n"
 
-            begin
-              role.save!
-            rescue ActiveRecord::RecordInvalid
-              logger.error "SourceAuthor role ERROR (#{person_error_counter += 1}): " + role.errors.full_messages.join(';')
-            end
-
-            if ref_id_editor_array.include? ref_id # person is also editor
               role = Role.new(
                   person_id: tw_person_id,
-                  type: 'SourceEditor',
+                  type: 'SourceAuthor',
                   role_object_id: source_id,
                   role_object_type: 'Source',
                   created_at: row['CreatedOn'],
@@ -93,97 +76,117 @@ namespace :tw do
               begin
                 role.save!
               rescue ActiveRecord::RecordInvalid
-                logger.error "SourceEditor role ERROR (#{person_error_counter += 1}): " + role.errors.full_messages.join(';')
+                logger.error "SourceAuthor role ERROR (#{person_error_counter += 1}): " + role.errors.full_messages.join(';')
+              end
+
+              if ref_id_editor_array.include? ref_id # person is also editor
+                role = Role.new(
+                    person_id: tw_person_id,
+                    type: 'SourceEditor',
+                    role_object_id: source_id,
+                    role_object_type: 'Source',
+                    created_at: row['CreatedOn'],
+                    updated_at: row['LastUpdate'],
+                    created_by_id: get_tw_user_id[row['CreatedBy']],
+                    updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                )
+
+                begin
+                  role.save!
+                rescue ActiveRecord::RecordInvalid
+                  logger.error "SourceEditor role ERROR (#{person_error_counter += 1}): " + role.errors.full_messages.join(';')
+                end
+              end
+
+            else # only executed if ref in ref
+              # byebug
+              if ref_id == previous_ref_id # this is the same RefID as last row, add another author
+                ref_taxon_name_authors[ref_id].push(sf_person_id)
+
+              else # this is a new RefID, start a new author array
+                ref_taxon_name_authors[ref_id] = [sf_person_id]
               end
             end
 
-            # else
-            if ref_id == previous_ref_id # this is the same RefID as last row, add another author
-              ref_taxon_name_authors[ref_id].push(sf_person_id)
+            previous_ref_id = ref_id
+          end
 
-            else # this is a new RefID, start a new author array
-              ref_taxon_name_authors[ref_id] = [sf_person_id]
-            end
+          import.set('SFRefIDToTaxonNameAuthors', ref_taxon_name_authors)
 
-          previous_ref_id = ref_id
+          puts 'SFRefIDToTaxonNameAuthors'
+          ap ref_taxon_name_authors
+
+          #######################################################################################
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/5_after_source_roles/`
+          puts '** dumped 5_after_source_roles **'
+          #######################################################################################
         end
 
-        import.set('SFRefIDToTaxonNameAuthors', ref_taxon_name_authors)
+        desc 'time rake tw:project_import:sf_import:start:create_misc_ref_info user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        # via tblRefs
+        LoggedTask.define create_misc_ref_info: [:data_directory, :environment, :user_id] do |logger|
 
-        puts 'SFRefIDToTaxonNameAuthors'
-        ap ref_taxon_name_authors
+          logger.info 'Running create_misc_ref_info...'
 
-        #######################################################################################
-        `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/5_after_source_roles/`
-        puts '** dumped 5_after_source_roles **'
-        #######################################################################################
-      end
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
 
-      desc 'time rake tw:project_import:sf_import:start:create_misc_ref_info user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-      # via tblRefs
-      LoggedTask.define create_misc_ref_info: [:data_directory, :environment, :user_id] do |logger|
+          ref_id_editor_array = []
+          ref_id_containing_id_hash = {} # key = RefID, value = ContainingRefID
+          ref_id_pub_id_hash = {} # key = RefID, value = PubID
+          ref_file_id = {} # key = SF.RefID, value = SF.FileID
 
-        logger.info 'Running create_misc_ref_info...'
+          # Part I: a) Create array of refs with editor flag set
+          #         b) Create hash of refs with containing refs NOTE: Only includes those with ContainingRefIDs > 0
+          #         c) Create hash of SF.RefID to SF.PubID
+          path = @args[:data_directory] + 'tblRefs.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
-        import = Import.find_or_create_by(name: 'SpeciesFileData')
-        skipped_file_ids = import.get('SkippedFileIDs')
+          file.each do |row|
+            next if skipped_file_ids.include? row['FileID'].to_i
+            ref_id = row['RefID']
+            containing_ref_id = row['ContainingRefID']
+            pub_id = row['PubID']
 
-        ref_id_editor_array = []
-        ref_id_containing_id_hash = {} # key = RefID, value = ContainingRefID
-        ref_id_pub_id_hash = {} # key = RefID, value = PubID
-        ref_file_id = {} # key = SF.RefID, value = SF.FileID
+            logger.info "working with SF.RefID = #{ref_id}, SF.ContainingRefID = #{row['ContainingRefID']}, flags = #{row['Flags']} \n"
 
-        # Part I: a) Create array of refs with editor flag set
-        #         b) Create hash of refs with containing refs NOTE: Only includes those with ContainingRefIDs > 0
-        #         c) Create hash of SF.RefID to SF.PubID
-        path = @args[:data_directory] + 'tblRefs.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+            ref_id_editor_array.push(ref_id) if row['Flags'].to_i & 2 == 2 # is_editor
+            ref_id_containing_id_hash[ref_id] = containing_ref_id if containing_ref_id != '0'
+            ref_id_pub_id_hash[ref_id] = pub_id
+          end
 
-        file.each do |row|
-          next if skipped_file_ids.include? row['FileID'].to_i
-          ref_id = row['RefID']
-          containing_ref_id = row['ContainingRefID']
-          pub_id = row['PubID']
+          # Part II: Create hash of RefID and FileID
+          path = @args[:data_directory] + 'sfRefIDsByFileID.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
-          logger.info "working with SF.RefID = #{ref_id}, SF.ContainingRefID = #{row['ContainingRefID']}, flags = #{row['Flags']} \n"
+          file.each do |row|
+            ref_file_id[row['RefID']] = row['FileID']
+          end
 
-          ref_id_editor_array.push(ref_id) if row['Flags'].to_i & 2 == 2 # is_editor
-          ref_id_containing_id_hash[ref_id] = containing_ref_id if containing_ref_id != '0'
-          ref_id_pub_id_hash[ref_id] = pub_id
+          import.set('RefIDEditorArray', ref_id_editor_array)
+          import.set('RefIDContainingHash', ref_id_containing_id_hash)
+          import.set('RefIDPubIDHash', ref_id_pub_id_hash)
+          import.set('RefIDsByFileID', ref_file_id)
+
+          puts 'RefIDEditorArray'
+          ap ref_id_editor_array
+
+          puts 'RefIDContainingHash'
+          ap ref_id_containing_id_hash
+
+          puts 'RefIDPubIDHash'
+          ap ref_id_pub_id_hash
+
+          puts 'RefIDsByFileID'
+          ap ref_file_id
         end
 
-        # Part II: Create hash of RefID and FileID
-        path = @args[:data_directory] + 'sfRefIDsByFileID.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
-        file.each do |row|
-          ref_file_id[row['RefID']] = row['FileID']
-        end
+        desc 'time rake tw:project_import:sf_import:start:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define create_sources: [:data_directory, :environment, :user_id] do |logger|
+          # @todo: See :create_sf_book_hash and :update_sources_with_book_info above. Should be incorporated here.
 
-        import.set('RefIDEditorArray', ref_id_editor_array)
-        import.set('RefIDContainingHash', ref_id_containing_id_hash)
-        import.set('RefIDPubIDHash', ref_id_pub_id_hash)
-        import.set('RefIDsByFileID', ref_file_id)
-
-        puts 'RefIDEditorArray'
-        ap ref_id_editor_array
-
-        puts 'RefIDContainingHash'
-        ap ref_id_containing_id_hash
-
-        puts 'RefIDPubIDHash'
-        ap ref_id_pub_id_hash
-
-        puts 'RefIDsByFileID'
-        ap ref_file_id
-      end
-
-
-      desc 'time rake tw:project_import:sf_import:start:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-      LoggedTask.define create_sources: [:data_directory, :environment, :user_id] do |logger|
-        # @todo: See :create_sf_book_hash and :update_sources_with_book_info above. Should be incorporated here.
-
-        logger.info 'Running create_sources...'
+          logger.info 'Running create_sources...'
 
 =begin  Old logic
           # tblRefs columns to import: Title, PubID, Series, Volume, Issue, RefPages, ActualYear, StatedYear, LinkID, LastUpdate, ModifiedBy, CreatedOn, CreatedBy
@@ -193,400 +196,400 @@ namespace :tw do
           #   Verbatim => not used
 =end
 
-        import = Import.find_or_create_by(name: 'SpeciesFileData')
-        skipped_file_ids = import.get('SkippedFileIDs')
-        get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
-        get_tw_serial_id = import.get('SFPubIDToTWSerialID') # for FK
-        get_sf_ref_link = import.get('RefIDToRefLink') # key is SF.RefID, value is URL string
-        get_sf_verbatim_ref = import.get('RefIDToVerbatimRef') # key is SF.RefID, value is verbatim string
-        get_tw_project_id = import.get('SFFileIDToTWProjectID')
-        get_sf_booktitle_publisher_address = import.get('SFPubIDTitlePublisherAddress') # key = SF.PubID, value = hash of booktitle, publisher, address
-        get_sf_pub_type_string = import.get('SFPubIDToPubTypeString')
-        # get_contained_cite_aux_data = import.get('SFContainedCiteAuxData')
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
+          get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
+          get_tw_serial_id = import.get('SFPubIDToTWSerialID') # for FK
+          get_sf_ref_link = import.get('RefIDToRefLink') # key is SF.RefID, value is URL string
+          get_sf_verbatim_ref = import.get('RefIDToVerbatimRef') # key is SF.RefID, value is verbatim string
+          get_tw_project_id = import.get('SFFileIDToTWProjectID')
+          get_sf_booktitle_publisher_address = import.get('SFPubIDTitlePublisherAddress') # key = SF.PubID, value = hash of booktitle, publisher, address
+          get_sf_pub_type_string = import.get('SFPubIDToPubTypeString')
+          # get_contained_cite_aux_data = import.get('SFContainedCiteAuxData')
 
-        get_tw_source_id = {} # key = SF.RefID, value = TW.source_id
-        # get_containing_source_id = {} # key = TW.contained_source_id, value = TW.containing_source_id # use for containing auths/eds
-        # byebug
+          get_tw_source_id = {} # key = SF.RefID, value = TW.source_id
+          # get_containing_source_id = {} # key = TW.contained_source_id, value = TW.containing_source_id # use for containing auths/eds
+          # byebug
 
-        # Namespace for Identifier
-        # source_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'tblRefs', short_name: 'SF RefID')
+          # Namespace for Identifier
+          # source_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'tblRefs', short_name: 'SF RefID')
 
-        count_found = 0
-        error_counter = 0
-        # contained_error_counter = 0
-        source_not_found_error = 0
+          count_found = 0
+          error_counter = 0
+          # contained_error_counter = 0
+          source_not_found_error = 0
 
-        path = @args[:data_directory] + 'tblRefs.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          path = @args[:data_directory] + 'tblRefs.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
-        file.each_with_index do |row, i|
-          # break if i == 20
-          next if skipped_file_ids.include? row['FileID'].to_i
-          next if row['ContainingRefID'].to_i > 0 # Only create sources for standalone refs
-          next if (row['Title'].empty? and row['PubID'] == '0' and row['Series'].empty? and row['Volume'].empty? and row['Issue'].empty? and row['ActualYear'].empty? and row['StatedYear'].empty?) or row['AccessCode'] == '4'
-          ref_id = row['RefID']
+          file.each_with_index do |row, i|
+            # break if i == 20
+            next if skipped_file_ids.include? row['FileID'].to_i
+            next if row['ContainingRefID'].to_i > 0 # Only create sources for standalone refs
+            next if (row['Title'].empty? and row['PubID'] == '0' and row['Series'].empty? and row['Volume'].empty? and row['Issue'].empty? and row['ActualYear'].empty? and row['StatedYear'].empty?) or row['AccessCode'] == '4'
+            ref_id = row['RefID']
 
-          logger.info "working with SF.RefID = #{ref_id}, SF.FileID = #{row['FileID']} (count = #{count_found += 1}) \n"
+            logger.info "working with SF.RefID = #{ref_id}, SF.FileID = #{row['FileID']} (count = #{count_found += 1}) \n"
 
-          pub_id = row['PubID']
-          pub_type_string = get_sf_pub_type_string[pub_id]
+            pub_id = row['PubID']
+            pub_type_string = get_sf_pub_type_string[pub_id]
 
-          booktitle = nil
-          publisher = nil
-          address = nil
+            booktitle = nil
+            publisher = nil
+            address = nil
 
-          if get_sf_booktitle_publisher_address[pub_id]
-            booktitle = get_sf_booktitle_publisher_address[pub_id]['booktitle']
-            publisher = get_sf_booktitle_publisher_address[pub_id]['publisher']
-            address = get_sf_booktitle_publisher_address[pub_id]['address']
-          end
-
-          # if year range, select min year (record full verbatim ref as data attribute after save)
-          actual_year = row['ActualYear'].split('-').map(&:to_i).min
-          stated_year = row['StatedYear'].split('-').map(&:to_i).min
-
-          source = Source::Bibtex.new(
-              bibtex_type: pub_type_string,
-              title: row['Title'],
-              booktitle: booktitle.blank? ? nil : booktitle,
-              publisher: publisher.blank? ? nil : publisher,
-              address: address.blank? ? nil : address,
-              serial_id: get_tw_serial_id[row['PubID']],
-              series: row['Series'],
-              volume: row['Volume'],
-              number: row['Issue'],
-              pages: row['RefPages'],
-              year: actual_year,
-              stated_year: stated_year,
-              url: row['LinkID'].to_i > 0 ? get_sf_ref_link[ref_id] : nil,
-              created_at: row['CreatedOn'],
-              updated_at: row['LastUpdate'],
-              created_by_id: get_tw_user_id[row['CreatedBy']],
-              updated_by_id: get_tw_user_id[row['ModifiedBy']]
-          )
-          # end
-
-          begin
-            source.save!
-
-            if row['ActualYear'].include?('-') or row['StatedYear'].include?('-')
-              source.data_attributes << ImportAttribute.new(import_predicate: 'SF verbatim reference for year range', value: get_sf_verbatim_ref[ref_id])
+            if get_sf_booktitle_publisher_address[pub_id]
+              booktitle = get_sf_booktitle_publisher_address[pub_id]['booktitle']
+              publisher = get_sf_booktitle_publisher_address[pub_id]['publisher']
+              address = get_sf_booktitle_publisher_address[pub_id]['address']
             end
 
-            if pub_type_string == 'unpublished'
-              source.data_attributes << ImportAttribute.new(import_predicate: 'SF verbatim reference for unpublished reference', value: get_sf_verbatim_ref[ref_id])
-            end
+            # if year range, select min year (record full verbatim ref as data attribute after save)
+            actual_year = row['ActualYear'].split('-').map(&:to_i).min
+            stated_year = row['StatedYear'].split('-').map(&:to_i).min
 
-            source_id = source.id.to_s
-            get_tw_source_id[ref_id] = source_id
-
-            ProjectSource.create!(
-                project_id: get_tw_project_id[row['FileID']],
-                source_id: source.id,
+            source = Source::Bibtex.new(
+                bibtex_type: pub_type_string,
+                title: row['Title'],
+                booktitle: booktitle.blank? ? nil : booktitle,
+                publisher: publisher.blank? ? nil : publisher,
+                address: address.blank? ? nil : address,
+                serial_id: get_tw_serial_id[row['PubID']],
+                series: row['Series'],
+                volume: row['Volume'],
+                number: row['Issue'],
+                pages: row['RefPages'],
+                year: actual_year,
+                stated_year: stated_year,
+                url: row['LinkID'].to_i > 0 ? get_sf_ref_link[ref_id] : nil,
                 created_at: row['CreatedOn'],
                 updated_at: row['LastUpdate'],
                 created_by_id: get_tw_user_id[row['CreatedBy']],
                 updated_by_id: get_tw_user_id[row['ModifiedBy']]
             )
+            # end
 
-          rescue ActiveRecord::RecordInvalid
-            logger.info "Source ERROR (#{error_counter += 1}): " + source.errors.full_messages.join(';')
-            # @todo Not found: Slater, J.A. Date unknown. A Catalogue of the Lygaeidae of the world. << RefID = 44058, PubID = 21898
+            begin
+              source.save!
+
+              if row['ActualYear'].include?('-') or row['StatedYear'].include?('-')
+                source.data_attributes << ImportAttribute.new(import_predicate: 'SF verbatim reference for year range', value: get_sf_verbatim_ref[ref_id])
+              end
+
+              if pub_type_string == 'unpublished'
+                source.data_attributes << ImportAttribute.new(import_predicate: 'SF verbatim reference for unpublished reference', value: get_sf_verbatim_ref[ref_id])
+              end
+
+              source_id = source.id.to_s
+              get_tw_source_id[ref_id] = source_id
+
+              ProjectSource.create!(
+                  project_id: get_tw_project_id[row['FileID']],
+                  source_id: source.id,
+                  created_at: row['CreatedOn'],
+                  updated_at: row['LastUpdate'],
+                  created_by_id: get_tw_user_id[row['CreatedBy']],
+                  updated_by_id: get_tw_user_id[row['ModifiedBy']]
+              )
+
+            rescue ActiveRecord::RecordInvalid
+              logger.info "Source ERROR (#{error_counter += 1}): " + source.errors.full_messages.join(';')
+              # @todo Not found: Slater, J.A. Date unknown. A Catalogue of the Lygaeidae of the world. << RefID = 44058, PubID = 21898
+            end
           end
+
+          ##### Second Ref loop: Create sources for SF.tblRefs.ContainingRefID > 0
+          # skip if get_contained_cite_aux_data[sf_ref_id] -- do not create this source stub
+
+          # file.each_with_index do |row, i|
+          #   next if row['ContainingRefID'].to_i == 0 # Creating only contained references in this pass
+          #   next if get_contained_cite_aux_data[row['RefID']] # if get_contained_cite_aux_data[sf_ref_id] is true, this is a taxon author, not chapter author
+          #
+          #   ref_id = row['RefID']
+          #   containing_ref_id = row['ContainingRefID']
+          #   containing_source_id = get_tw_source_id[containing_ref_id]
+          #
+          #   logger.info "working with contained SF.RefID = #{ref_id}, SF.ContainingRefID = #{containing_ref_id}, tw.containing_source_id = #{containing_source_id}, SF.FileID = #{row['FileID']} (count = #{count_found += 1}) \n"
+          #
+          #   begin
+          #     containing_source = Source.find(containing_source_id)
+          #   rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound
+          #     logger.error "Source ERROR: containing source not found for RefID = #{containing_source_id} (source not found = #{source_not_found_error += 1})"
+          #     next
+          #   end
+          #
+          #   if containing_source.bibtex_type == 'book'
+          #     pub_type_string = 'inbook'
+          #   else
+          #     logger.error "Source ERROR: containing source bibtex_type is not 'book', SF.RefID = #{ref_id}, SF.ContainingRefID = #{containing_ref_id}, TW.containing_source_id = #{containing_source_id}"
+          #     next
+          #     # pub_type_string = 'misc' # per Matt, parent source is 'article'
+          #   end
+          #
+          #   source = Source::Bibtex.new(
+          #       bibtex_type: pub_type_string,
+          #       title: row['Title'],
+          #       booktitle: containing_source.booktitle,
+          #       publisher: containing_source.publisher,
+          #       address: containing_source.address,
+          #       serial_id: containing_source.serial_id,
+          #       series: containing_source.series,
+          #       volume: containing_source.volume,
+          #       number: containing_source.number,
+          #       pages: row['RefPages'],
+          #       year: containing_source.year,
+          #       stated_year: containing_source.stated_year,
+          #       url: row['LinkID'].to_i > 0 ? get_sf_ref_link[ref_id] : nil,
+          #       created_at: row['CreatedOn'],
+          #       updated_at: row['LastUpdate'],
+          #       created_by_id: get_tw_user_id[row['CreatedBy']],
+          #       updated_by_id: get_tw_user_id[row['ModifiedBy']]
+          #   )
+          #
+          #   begin
+          #     source.save!
+          #
+          #     source_id = source.id.to_s
+          #     get_tw_source_id[ref_id] = source_id
+          #     get_containing_source_id[source_id] = containing_source_id
+          #
+          #     # Also keep db record of containing_source_id for future reference
+          #     source.data_attributes << ImportAttribute.new(import_predicate: 'containing_source_id', value: containing_source_id)
+          #
+          #   rescue ActiveRecord::RecordInvalid
+          #     logger.info "Source (Containing_ref_id > 0) ERROR (#{contained_error_counter += 1}): " + source.errors.full_messages.join(';')
+          #   end
+          #
+          # end
+
+          import.set('SFRefIDToTWSourceID', get_tw_source_id)
+          # import.set('TWSourceIDToContainingSourceID', get_containing_source_id)
+
+          puts 'SFRefIDToTWSourceID'
+          ap get_tw_source_id
+
+          # puts 'TWSourceIDToContainingSourceID'
+          # ap get_containing_source_id
+
+          #######################################################################################
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/4_after_create_sources/`
+          puts '** dumped 4_after_create_sources **'
+          #######################################################################################
         end
 
-        ##### Second Ref loop: Create sources for SF.tblRefs.ContainingRefID > 0
-        # skip if get_contained_cite_aux_data[sf_ref_id] -- do not create this source stub
-
-        # file.each_with_index do |row, i|
-        #   next if row['ContainingRefID'].to_i == 0 # Creating only contained references in this pass
-        #   next if get_contained_cite_aux_data[row['RefID']] # if get_contained_cite_aux_data[sf_ref_id] is true, this is a taxon author, not chapter author
+        # desc 'time rake tw:project_import:sf_import:start:contained_cite_aux_data user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        # LoggedTask.define contained_cite_aux_data: [:data_directory, :environment, :user_id] do |logger|
         #
-        #   ref_id = row['RefID']
-        #   containing_ref_id = row['ContainingRefID']
-        #   containing_source_id = get_tw_source_id[containing_ref_id]
+        #   logger.info 'Creating SF contained cite aux data...'
         #
-        #   logger.info "working with contained SF.RefID = #{ref_id}, SF.ContainingRefID = #{containing_ref_id}, tw.containing_source_id = #{containing_source_id}, SF.FileID = #{row['FileID']} (count = #{count_found += 1}) \n"
+        #   # Misc. data associated with contained ref acting as taxon name author. Ref in refs of articles, not books. Do not create source records
+        #   #   for these. The aux data will be used in a note for a citation. The containing ref ID will be the actual record for the citation.
         #
-        #   begin
-        #     containing_source = Source.find(containing_source_id)
-        #   rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound
-        #     logger.error "Source ERROR: containing source not found for RefID = #{containing_source_id} (source not found = #{source_not_found_error += 1})"
-        #     next
+        #   get_contained_cite_aux_data = {} # key = SF.RefID, value = ContainingRefID, RefPages, Note, LinkID
+        #
+        #   path = @args[:data_directory] + 'sfContainedCiteAuxData.txt'
+        #   file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+        #
+        #   file.each do |row|
+        #     ref_id = row['RefID']
+        #
+        #     logger.info "Working with SF.RefID = '#{ref_id}' \n"
+        #
+        #     get_contained_cite_aux_data[ref_id] = {containing_ref_id: row['ContainingRefID'], ref_pages: row['RefPages'], note: row['Note'], link_id: row['LinkID']}
         #   end
         #
-        #   if containing_source.bibtex_type == 'book'
-        #     pub_type_string = 'inbook'
-        #   else
-        #     logger.error "Source ERROR: containing source bibtex_type is not 'book', SF.RefID = #{ref_id}, SF.ContainingRefID = #{containing_ref_id}, TW.containing_source_id = #{containing_source_id}"
-        #     next
-        #     # pub_type_string = 'misc' # per Matt, parent source is 'article'
-        #   end
+        #   import = Import.find_or_create_by(name: 'SpeciesFileData')
+        #   import.set('SFContainedCiteAuxData', get_contained_cite_aux_data)
         #
-        #   source = Source::Bibtex.new(
-        #       bibtex_type: pub_type_string,
-        #       title: row['Title'],
-        #       booktitle: containing_source.booktitle,
-        #       publisher: containing_source.publisher,
-        #       address: containing_source.address,
-        #       serial_id: containing_source.serial_id,
-        #       series: containing_source.series,
-        #       volume: containing_source.volume,
-        #       number: containing_source.number,
-        #       pages: row['RefPages'],
-        #       year: containing_source.year,
-        #       stated_year: containing_source.stated_year,
-        #       url: row['LinkID'].to_i > 0 ? get_sf_ref_link[ref_id] : nil,
-        #       created_at: row['CreatedOn'],
-        #       updated_at: row['LastUpdate'],
-        #       created_by_id: get_tw_user_id[row['CreatedBy']],
-        #       updated_by_id: get_tw_user_id[row['ModifiedBy']]
-        #   )
+        #   puts 'SFContainedCiteAuxData'
+        #   ap get_contained_cite_aux_data
         #
-        #   begin
-        #     source.save!
-        #
-        #     source_id = source.id.to_s
-        #     get_tw_source_id[ref_id] = source_id
-        #     get_containing_source_id[source_id] = containing_source_id
-        #
-        #     # Also keep db record of containing_source_id for future reference
-        #     source.data_attributes << ImportAttribute.new(import_predicate: 'containing_source_id', value: containing_source_id)
-        #
-        #   rescue ActiveRecord::RecordInvalid
-        #     logger.info "Source (Containing_ref_id > 0) ERROR (#{contained_error_counter += 1}): " + source.errors.full_messages.join(';')
-        #   end
-        #
+        #   #######################################################################################
+        #   # `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/`
+        #   #######################################################################################
         # end
 
-        import.set('SFRefIDToTWSourceID', get_tw_source_id)
-        # import.set('TWSourceIDToContainingSourceID', get_containing_source_id)
+        desc 'time rake tw:project_import:sf_import:start:map_pub_type user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        # map SF.PubID by SF.PubType
+        LoggedTask.define map_pub_type: [:data_directory, :environment, :user_id] do |logger|
+          # Can be run independently at any time
 
-        puts 'SFRefIDToTWSourceID'
-        ap get_tw_source_id
+          logger.info 'Running map_pub_types...'
 
-        # puts 'TWSourceIDToContainingSourceID'
-        # ap get_containing_source_id
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
 
-        #######################################################################################
-        `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/4_after_create_sources/`
-        puts '** dumped 4_after_create_sources **'
-        #######################################################################################
-      end
+          get_sf_pub_type_string = {} # key = SF.PubID, value = SF.PubType
 
-      # desc 'time rake tw:project_import:sf_import:start:contained_cite_aux_data user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-      # LoggedTask.define contained_cite_aux_data: [:data_directory, :environment, :user_id] do |logger|
-      #
-      #   logger.info 'Creating SF contained cite aux data...'
-      #
-      #   # Misc. data associated with contained ref acting as taxon name author. Ref in refs of articles, not books. Do not create source records
-      #   #   for these. The aux data will be used in a note for a citation. The containing ref ID will be the actual record for the citation.
-      #
-      #   get_contained_cite_aux_data = {} # key = SF.RefID, value = ContainingRefID, RefPages, Note, LinkID
-      #
-      #   path = @args[:data_directory] + 'sfContainedCiteAuxData.txt'
-      #   file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
-      #
-      #   file.each do |row|
-      #     ref_id = row['RefID']
-      #
-      #     logger.info "Working with SF.RefID = '#{ref_id}' \n"
-      #
-      #     get_contained_cite_aux_data[ref_id] = {containing_ref_id: row['ContainingRefID'], ref_pages: row['RefPages'], note: row['Note'], link_id: row['LinkID']}
-      #   end
-      #
-      #   import = Import.find_or_create_by(name: 'SpeciesFileData')
-      #   import.set('SFContainedCiteAuxData', get_contained_cite_aux_data)
-      #
-      #   puts 'SFContainedCiteAuxData'
-      #   ap get_contained_cite_aux_data
-      #
-      #   #######################################################################################
-      #   # `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/`
-      #   #######################################################################################
-      # end
+          path = @args[:data_directory] + 'tblPubs.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
-      desc 'time rake tw:project_import:sf_import:start:map_pub_type user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-      # map SF.PubID by SF.PubType
-      LoggedTask.define map_pub_type: [:data_directory, :environment, :user_id] do |logger|
-        # Can be run independently at any time
+          file.each_with_index do |row|
+            next if skipped_file_ids.include? row['FileID'].to_i
 
-        logger.info 'Running map_pub_types...'
+            pub_type = row['PubType']
+            if pub_type == '1'
+              pub_type_string = 'article'
+            elsif pub_type == '3'
+              pub_type_string = 'book'
+            elsif pub_type == '4'
+              pub_type_string = 'unpublished'
+            else
+              pub_type_string = '**ERROR**'
+            end
 
-        import = Import.find_or_create_by(name: 'SpeciesFileData')
-        skipped_file_ids = import.get('SkippedFileIDs')
-
-        get_sf_pub_type_string = {} # key = SF.PubID, value = SF.PubType
-
-        path = @args[:data_directory] + 'tblPubs.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
-
-        file.each_with_index do |row|
-          next if skipped_file_ids.include? row['FileID'].to_i
-
-          pub_type = row['PubType']
-          if pub_type == '1'
-            pub_type_string = 'article'
-          elsif pub_type == '3'
-            pub_type_string = 'book'
-          elsif pub_type == '4'
-            pub_type_string = 'unpublished'
-          else
-            pub_type_string = '**ERROR**'
+            get_sf_pub_type_string[row['PubID']] = pub_type_string
           end
 
-          get_sf_pub_type_string[row['PubID']] = pub_type_string
+          import.set('SFPubIDToPubTypeString', get_sf_pub_type_string)
+
+          puts 'SFPubIDToPubTypeString'
+          ap get_sf_pub_type_string
+
+          #######################################################################################
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/3_after_pub_type`
+          puts '** dumped 3_after_pub_type **'
+          #######################################################################################
         end
 
-        import.set('SFPubIDToPubTypeString', get_sf_pub_type_string)
+        desc 'time rake tw:project_import:sf_import:start:create_sf_book_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        # consists of book_title:, publisher:, and place_published: (address)'
+        LoggedTask.define create_sf_book_hash: [:data_directory, :environment, :user_id] do |logger|
+          # Can be run independently at any time
 
-        puts 'SFPubIDToPubTypeString'
-        ap get_sf_pub_type_string
+          logger.info 'Running create_sf_book_hash...'
 
-        #######################################################################################
-        `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/3_after_pub_type`
-        puts '** dumped 3_after_pub_type **'
-        #######################################################################################
-      end
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
 
-      desc 'time rake tw:project_import:sf_import:start:create_sf_book_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-      # consists of book_title:, publisher:, and place_published: (address)'
-      LoggedTask.define create_sf_book_hash: [:data_directory, :environment, :user_id] do |logger|
-        # Can be run independently at any time
+          get_sf_booktitle_publisher_address = {} # key = SF.PubID, value = booktitle, publisher, and address from tblPubs
 
-        logger.info 'Running create_sf_book_hash...'
+          path = @args[:data_directory] + 'tblPubs.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
-        import = Import.find_or_create_by(name: 'SpeciesFileData')
-        skipped_file_ids = import.get('SkippedFileIDs')
+          file.each_with_index do |row, i|
+            next if skipped_file_ids.include? row['FileID'].to_i
+            next unless row['PubType'] == '3' # book
 
-        get_sf_booktitle_publisher_address = {} # key = SF.PubID, value = booktitle, publisher, and address from tblPubs
+            logger.info "working with PubID #{row['PubID']}"
 
-        path = @args[:data_directory] + 'tblPubs.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
-
-        file.each_with_index do |row, i|
-          next if skipped_file_ids.include? row['FileID'].to_i
-          next unless row['PubType'] == '3' # book
-
-          logger.info "working with PubID #{row['PubID']}"
-
-          get_sf_booktitle_publisher_address[row['PubID']] = {booktitle: row['ShortName'], publisher: row['Publisher'], address: row['PlacePublished']}
-        end
-
-        import.set('SFPubIDTitlePublisherAddress', get_sf_booktitle_publisher_address)
-
-        puts 'SFPubIDTitlePublisherAddress'
-        ap get_sf_booktitle_publisher_address
-      end
-
-      desc 'time rake tw:project_import:sf_import:start:create_projects user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-      LoggedTask.define create_projects: [:data_directory, :environment, :user_id] do |logger|
-
-        logger.info 'Running create_projects...'
-
-        get_tw_project_id = {} # key = SF.FileID, value = TW.project_id
-
-        # create mb as project member for each project -- comment out for Sandbox
-        user = User.find_by_email('mbeckman@illinois.edu')
-        $user_id = user.id # not sure if this is really needed?
-
-        import = Import.find_or_create_by(name: 'SpeciesFileData')
-        skipped_file_ids = import.get('SkippedFileIDs')
-
-        path = @args[:data_directory] + 'tblFiles.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
-
-        file.each_with_index do |row, i|
-          file_id = row['FileID']
-          next if file_id == '0'
-          next if skipped_file_ids.include? file_id.to_i
-
-          website_name = row['WebsiteName'].downcase # want to be lower case
-
-          # project = Project.new(name: "#{website_name}_species_file(#{Time.now})", without_root_taxon_name: true)
-          project = Project.new(
-              name: "#{website_name}_species_file(#{Time.now})"
-          )
-
-          # byebug
-
-          if project.save
-            # Protonym.create!(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil, project: project, creator: user, updater: user, cached_html: 'Root')
-
-            get_tw_project_id[file_id] = project.id.to_s
-
-            # comment out project_member for Sandbox use
-            ProjectMember.create!(user_id: user.id, project: project, is_project_administrator: true)
-
-          else
-            logger.info "ERROR (#{error_counter += 1}): " + source.errors.full_messages.join(';')
-            logger.info "FileID: #{file_id}, sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
+            get_sf_booktitle_publisher_address[row['PubID']] = {booktitle: row['ShortName'], publisher: row['Publisher'], address: row['PlacePublished']}
           end
+
+          import.set('SFPubIDTitlePublisherAddress', get_sf_booktitle_publisher_address)
+
+          puts 'SFPubIDTitlePublisherAddress'
+          ap get_sf_booktitle_publisher_address
         end
 
-        import.set('SFFileIDToTWProjectID', get_tw_project_id)
-        puts 'SFFileIDToTWProjectID'
-        ap get_tw_project_id
+        desc 'time rake tw:project_import:sf_import:start:create_projects user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define create_projects: [:data_directory, :environment, :user_id] do |logger|
 
-      end
+          logger.info 'Running create_projects...'
 
-      desc 'time rake tw:project_import:sf_import:start:list_verbatim_refs user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-      LoggedTask.define list_verbatim_refs: [:data_directory, :environment, :user_id] do |logger|
-        # Can be run independently at any time before referenced
+          get_tw_project_id = {} # key = SF.FileID, value = TW.project_id
 
-        logger.info 'Running list_verbatim_refs...'
+          # create mb as project member for each project -- comment out for Sandbox
+          user = User.find_by_email('mbeckman@illinois.edu')
+          $user_id = user.id # not sure if this is really needed?
 
-        get_sf_verbatim_ref = {} # key = SF.RefID, value = SF verbatim ref (table generated from a script)
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
 
-        path = @args[:data_directory] + 'sfVerbatimRefs.txt'
-        file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          path = @args[:data_directory] + 'tblFiles.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
-        file.each do |row|
-          # byebug
-          # puts row.inspect
-          ref_id = row['RefID']
-          logger.info "working with #{ref_id} \n"
-          get_sf_verbatim_ref[ref_id] = row['RefString']
+          file.each_with_index do |row, i|
+            file_id = row['FileID']
+            next if file_id == '0'
+            next if skipped_file_ids.include? file_id.to_i
+
+            website_name = row['WebsiteName'].downcase # want to be lower case
+
+            # project = Project.new(name: "#{website_name}_species_file(#{Time.now})", without_root_taxon_name: true)
+            project = Project.new(
+                name: "#{website_name}_species_file(#{Time.now})"
+            )
+
+            # byebug
+
+            if project.save
+              # Protonym.create!(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil, project: project, creator: user, updater: user, cached_html: 'Root')
+
+              get_tw_project_id[file_id] = project.id.to_s
+
+              # comment out project_member for Sandbox use
+              ProjectMember.create!(user_id: user.id, project: project, is_project_administrator: true)
+
+            else
+              logger.info "ERROR (#{error_counter += 1}): " + source.errors.full_messages.join(';')
+              logger.info "FileID: #{file_id}, sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
+            end
+          end
+
+          import.set('SFFileIDToTWProjectID', get_tw_project_id)
+          puts 'SFFileIDToTWProjectID'
+          ap get_tw_project_id
+
         end
 
-        i = Import.find_or_create_by(name: 'SpeciesFileData')
-        i.set('RefIDToVerbatimRef', get_sf_verbatim_ref)
+        desc 'time rake tw:project_import:sf_import:start:list_verbatim_refs user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define list_verbatim_refs: [:data_directory, :environment, :user_id] do |logger|
+          # Can be run independently at any time before referenced
 
-        puts 'RefIDToVerbatimRef'
-        ap get_sf_verbatim_ref
+          logger.info 'Running list_verbatim_refs...'
 
-        #######################################################################################
-        `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/2_after_verbatim_refs/`
-        puts '** dumped 2_after_verbatim_refs **'
-        #######################################################################################
-      end
+          get_sf_verbatim_ref = {} # key = SF.RefID, value = SF verbatim ref (table generated from a script)
 
-      desc 'time rake tw:project_import:sf_import:start:map_ref_links user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-      LoggedTask.define map_ref_links: [:data_directory, :environment, :user_id] do |logger|
-        # Can be run independently at any time before referenced
+          path = @args[:data_directory] + 'sfVerbatimRefs.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
-        logger.info 'Running map_ref_links...'
+          file.each do |row|
+            # byebug
+            # puts row.inspect
+            ref_id = row['RefID']
+            logger.info "working with #{ref_id} \n"
+            get_sf_verbatim_ref[ref_id] = row['RefString']
+          end
 
-        get_sf_ref_link = {} # key = SF.RefID, value = SF ref link (table generated from a script)
+          i = Import.find_or_create_by(name: 'SpeciesFileData')
+          i.set('RefIDToVerbatimRef', get_sf_verbatim_ref)
 
-        path = @args[:data_directory] + 'sfRefLinks.txt'
-        file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          puts 'RefIDToVerbatimRef'
+          ap get_sf_verbatim_ref
 
-        file.each do |row|
-          # byebug
-          # puts row.inspect
-          ref_id = row['RefID']
-          logger.info "working with #{ref_id} \n"
-          get_sf_ref_link[ref_id] = row['RefLink']
+          #######################################################################################
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/2_after_verbatim_refs/`
+          puts '** dumped 2_after_verbatim_refs **'
+          #######################################################################################
         end
 
-        import = Import.find_or_create_by(name: 'SpeciesFileData')
-        import.set('RefIDToRefLink', get_sf_ref_link)
+        desc 'time rake tw:project_import:sf_import:start:map_ref_links user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define map_ref_links: [:data_directory, :environment, :user_id] do |logger|
+          # Can be run independently at any time before referenced
 
-        puts 'RefIDToRefLink'
-        ap get_sf_ref_link
+          logger.info 'Running map_ref_links...'
 
-      end
+          get_sf_ref_link = {} # key = SF.RefID, value = SF ref link (table generated from a script)
+
+          path = @args[:data_directory] + 'sfRefLinks.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          file.each do |row|
+            # byebug
+            # puts row.inspect
+            ref_id = row['RefID']
+            logger.info "working with #{ref_id} \n"
+            get_sf_ref_link[ref_id] = row['RefLink']
+          end
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('RefIDToRefLink', get_sf_ref_link)
+
+          puts 'RefIDToRefLink'
+          ap get_sf_ref_link
+
+        end
 
 =begin  obsolete
         # :create_no_ref_list_array is now created on the fly in :create_sources (data conflicts)
@@ -611,31 +614,31 @@ namespace :tw do
         # end
 =end
 
-      desc 'time rake tw:project_import:sf_import:start:map_serials user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-      LoggedTask.define map_serials: [:environment, :user_id] do |logger|
-        # Can be run independently at any time before referenced: Why can't the value be cast as string??
+        desc 'time rake tw:project_import:sf_import:start:map_serials user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define map_serials: [:environment, :user_id] do |logger|
+          # Can be run independently at any time before referenced: Why can't the value be cast as string??
 
-        logger.info 'Running map_serials...'
+          logger.info 'Running map_serials...'
 
-        # pubs = DataAttribute.where(import_predicate: 'SF ID', attribute_subject_type: 'Serial').limit(10).pluck(:value, :attribute_subject_id)
-        get_tw_serial_id = DataAttribute.where(import_predicate: 'SF ID', attribute_subject_type: 'Serial').pluck(:value, :attribute_subject_id).to_h.to_s
+          # pubs = DataAttribute.where(import_predicate: 'SF ID', attribute_subject_type: 'Serial').limit(10).pluck(:value, :attribute_subject_id)
+          get_tw_serial_id = DataAttribute.where(import_predicate: 'SF ID', attribute_subject_type: 'Serial').pluck(:value, :attribute_subject_id).to_h.to_s
 
-        import = Import.find_or_create_by(name: 'SpeciesFileData')
-        import.set('SFPubIDToTWSerialID', get_tw_serial_id)
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SFPubIDToTWSerialID', get_tw_serial_id)
 
-        puts 'SFPubIDToTWSerialID'
-        ap get_tw_serial_id
+          puts 'SFPubIDToTWSerialID'
+          ap get_tw_serial_id
 
-        #######################################################################################
-        `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/1_after_serials/`
-        puts '** dumped 1_after_serials **'
-        #######################################################################################
-      end
+          #######################################################################################
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/1_after_serials/`
+          puts '** dumped 1_after_serials **'
+          #######################################################################################
+        end
 
-      desc 'time rake tw:project_import:sf_import:start:create_people user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-      LoggedTask.define create_people: [:data_directory, :environment, :user_id] do |logger|
+        desc 'time rake tw:project_import:sf_import:start:create_people user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define create_people: [:data_directory, :environment, :user_id] do |logger|
 
-        logger.info 'Running create_people...'
+          logger.info 'Running create_people...'
 
 =begin  Thinking through logic:
 
@@ -664,117 +667,117 @@ namespace :tw do
           # $project_id = @project.id
 =end
 
-        import = Import.find_or_create_by(name: 'SpeciesFileData')
-        get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
 
-        get_tw_person_id ||= {} # key = SF.PersonID, value = TW.person_id; make empty hash if doesn't exist (otherwise it would be nil), used in loop 2
+          get_tw_person_id ||= {} # key = SF.PersonID, value = TW.person_id; make empty hash if doesn't exist (otherwise it would be nil), used in loop 2
 
-        # create Namespace for Identifier (used in loop below): Species File, tblPeople, SF PersonID
-        # 'Key3' => Namespace.find_or_create_by(name: '3i_Source_ID', short_name: '3i_Source_ID')     # 'Key3' was key in hash @data.keywords.merge! ??
-        # auth_user_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'tblAuthUsers', short_name: 'SF AuthUserID')
-        person_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'tblPeople', short_name: 'SF PersonID')
+          # create Namespace for Identifier (used in loop below): Species File, tblPeople, SF PersonID
+          # 'Key3' => Namespace.find_or_create_by(name: '3i_Source_ID', short_name: '3i_Source_ID')     # 'Key3' was key in hash @data.keywords.merge! ??
+          # auth_user_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'tblAuthUsers', short_name: 'SF AuthUserID')
+          person_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'tblPeople', short_name: 'SF PersonID')
 
-        # No longer using InternalAttribute for following import values; using ImportAttribute instead since it doesn't require a project_id
-        # file_id = Predicate.find_or_create_by(name: 'FileID', definition: 'SpeciesFile.FileID', project_id: $project_id)
-        # person_roles = Predicate.find_or_create_by(name: 'Roles', definition: 'Bitmap of person roles', project_id: $project_id)
-        # example of internal attr:
-        # person.data_attributes << InternalAttribute.new(predicate: person_roles, value: row['Role'])
-        # person.identifiers.new(type: 'Identifier::Local::Import', namespace: person_namespace, identifier: sf_person_id)
-        # # probably only writes to memory, to save in db, use <<
+          # No longer using InternalAttribute for following import values; using ImportAttribute instead since it doesn't require a project_id
+          # file_id = Predicate.find_or_create_by(name: 'FileID', definition: 'SpeciesFile.FileID', project_id: $project_id)
+          # person_roles = Predicate.find_or_create_by(name: 'Roles', definition: 'Bitmap of person roles', project_id: $project_id)
+          # example of internal attr:
+          # person.data_attributes << InternalAttribute.new(predicate: person_roles, value: row['Role'])
+          # person.identifiers.new(type: 'Identifier::Local::Import', namespace: person_namespace, identifier: sf_person_id)
+          # # probably only writes to memory, to save in db, use <<
 
-        path = @args[:data_directory] + 'tblPeople.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          path = @args[:data_directory] + 'tblPeople.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
-        # loop 1: Get preferred records only
+          # loop 1: Get preferred records only
 
-        person_error_counter = 0
+          person_error_counter = 0
 
-        file.each_with_index do |row, i|
-          sf_person_id = row['PersonID']
-          # next if get_tw_person_id[sf_person_id] # do not create if already exists
+          file.each_with_index do |row, i|
+            sf_person_id = row['PersonID']
+            # next if get_tw_person_id[sf_person_id] # do not create if already exists
 
-          pref_id = row['PrefID']
-          next if pref_id.to_i > 0 # alternate spellings will be handled in second loop
+            pref_id = row['PrefID']
+            next if pref_id.to_i > 0 # alternate spellings will be handled in second loop
 
-          logger.info "working with SF.PersonID: #{sf_person_id} \n"
+            logger.info "working with SF.PersonID: #{sf_person_id} \n"
 
-          person = Person::Vetted.new(
-              # type: 'Person_Vetted',
-              last_name: row['FamilyName'],
-              first_name: row['GivenNames'].blank? ? row['GivenInitials'] : row['GivenNames'],
-              created_at: row['CreatedOn'],
-              updated_at: row['LastUpdate'],
-              suffix: row['Suffix'],
-              # prefix: '',
-              created_by_id: get_tw_user_id[row['CreatedBy']],
-              updated_by_id: get_tw_user_id[row['ModifiedBy']]
-              # cached: '?'
-          )
-
-          begin
-            person.save!
-
-            person.data_attributes << ImportAttribute.new(import_predicate: 'FileID', value: row['FileID'])
-            person.data_attributes << ImportAttribute.new(import_predicate: 'Role', value: row['Role'])
-
-            person.identifiers << Identifier::Local::Import.new(namespace: person_namespace, identifier: sf_person_id)
-
-            get_tw_person_id[sf_person_id] = person.id.to_s
-
-          rescue ActiveRecord::RecordInvalid
-            logger.info "Person ERROR (#{person_error_counter += 1}): " + person.errors.full_messages.join(';')
-          end
-
-        end
-
-        import.set('SFPersonIDToTWPersonID', get_tw_person_id) # write to db
-        logger.info 'SFPersonIDToTWPersonID'
-        ap get_tw_person_id
-
-        # loop 2: Get non-preferred records and save as alternate values
-
-        added_counter = 0
-        error_counter = 0
-
-        # file.rewind maybe?
-        # id          pref_id       family_name
-        # sue         ''            jones
-        # peggy       sue           brown
-
-        file.each_with_index do |row, i| # uses path & file from loop 1
-          pref_id = row['PrefID']
-          next if pref_id.to_i == 0 # handle only non-preferred records
-
-
-          non_pref_family_name = row['FamilyName'] # use the non-preferred person's family name as default alternate name
-
-          # a = AlternateValue.create(type: 'AlternateValue::Translation', value: char_for_key_3i(row['CharRu']).capitalize, alternate_value_object: descriptor, alternate_value_object_attribute: 'key_name', language_id: lngru)
-          if get_tw_person_id[pref_id]
-            puts "working with SF.PrefID: #{pref_id} (from SF.PersonID: #{row['PersonID']}), TW.person_id: #{get_tw_person_id[pref_id]}"
-            # pref_person.alternate_values.new(value: non_pref_family_name, type: 'AlternateValue::AlternateSpelling', alternate_value_object_attribute: 'last_name')
-            a = AlternateValue::AlternateSpelling.new(
-                alternate_value_object_type: 'Person',
-                alternate_value_object_id: get_tw_person_id[pref_id],
-                value: non_pref_family_name,
-                alternate_value_object_attribute: 'last_name',
-                is_community_annotation: true # if no project_id
+            person = Person::Vetted.new(
+                # type: 'Person_Vetted',
+                last_name: row['FamilyName'],
+                first_name: row['GivenNames'].blank? ? row['GivenInitials'] : row['GivenNames'],
+                created_at: row['CreatedOn'],
+                updated_at: row['LastUpdate'],
+                suffix: row['Suffix'],
+                # prefix: '',
+                created_by_id: get_tw_user_id[row['CreatedBy']],
+                updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                # cached: '?'
             )
 
             begin
-              a.save!
-              logger.info "Attribute added (#{added_counter += 1})"
+              person.save!
+
+              person.data_attributes << ImportAttribute.new(import_predicate: 'FileID', value: row['FileID'])
+              person.data_attributes << ImportAttribute.new(import_predicate: 'Role', value: row['Role'])
+
+              person.identifiers << Identifier::Local::Import.new(namespace: person_namespace, identifier: sf_person_id)
+
+              get_tw_person_id[sf_person_id] = person.id.to_s
+
             rescue ActiveRecord::RecordInvalid
-              logger.info "Attribute ERROR (#{error_counter += 1}): invalid attribute -- " + a.errors.full_messages.join(';')
+              logger.info "Person ERROR (#{person_error_counter += 1}): " + person.errors.full_messages.join(';')
+            end
+
+          end
+
+          import.set('SFPersonIDToTWPersonID', get_tw_person_id) # write to db
+          logger.info 'SFPersonIDToTWPersonID'
+          ap get_tw_person_id
+
+          # loop 2: Get non-preferred records and save as alternate values
+
+          added_counter = 0
+          error_counter = 0
+
+          # file.rewind maybe?
+          # id          pref_id       family_name
+          # sue         ''            jones
+          # peggy       sue           brown
+
+          file.each_with_index do |row, i| # uses path & file from loop 1
+            pref_id = row['PrefID']
+            next if pref_id.to_i == 0 # handle only non-preferred records
+
+
+            non_pref_family_name = row['FamilyName'] # use the non-preferred person's family name as default alternate name
+
+            # a = AlternateValue.create(type: 'AlternateValue::Translation', value: char_for_key_3i(row['CharRu']).capitalize, alternate_value_object: descriptor, alternate_value_object_attribute: 'key_name', language_id: lngru)
+            if get_tw_person_id[pref_id]
+              puts "working with SF.PrefID: #{pref_id} (from SF.PersonID: #{row['PersonID']}), TW.person_id: #{get_tw_person_id[pref_id]}"
+              # pref_person.alternate_values.new(value: non_pref_family_name, type: 'AlternateValue::AlternateSpelling', alternate_value_object_attribute: 'last_name')
+              a = AlternateValue::AlternateSpelling.new(
+                  alternate_value_object_type: 'Person',
+                  alternate_value_object_id: get_tw_person_id[pref_id],
+                  value: non_pref_family_name,
+                  alternate_value_object_attribute: 'last_name',
+                  is_community_annotation: true # if no project_id
+              )
+
+              begin
+                a.save!
+                logger.info "Attribute added (#{added_counter += 1})"
+              rescue ActiveRecord::RecordInvalid
+                logger.info "Attribute ERROR (#{error_counter += 1}): invalid attribute -- " + a.errors.full_messages.join(';')
+              end
             end
           end
+          logger.info "person_error_counter = #{person_error_counter}, added_counter = #{added_counter}, error_counter = #{error_counter}"
         end
-        logger.info "person_error_counter = #{person_error_counter}, added_counter = #{added_counter}, error_counter = #{error_counter}"
-      end
 
-      desc 'time rake tw:project_import:sf_import:start:create_users user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-      LoggedTask.define create_users: [:data_directory, :environment, :user_id] do |logger|
+        desc 'time rake tw:project_import:sf_import:start:create_users user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define create_users: [:data_directory, :environment, :user_id] do |logger|
 
-        logger.info 'Running create_users...'
+          logger.info 'Running create_users...'
 
 =begin
         Most logic for authorized users (one login per user) vs. file users (same authorized user for Orthoptera, Plecoptera, and Phasmida but each is different in each SF)
@@ -804,175 +807,175 @@ namespace :tw do
 
 =end
 
-        auth_user_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'tblAuthUsers', short_name: 'SF AuthUserID')
+          auth_user_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'tblAuthUsers', short_name: 'SF AuthUserID')
 
-        import = Import.find_or_create_by(name: 'SpeciesFileData')
-        skipped_file_ids = import.get('SkippedFileIDs')
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
 
-        # find unique editors/admin, i.e. people getting users accounts in TW
-        unique_auth_users = {} # unique sf.authorized users with edit+ access, not stored in Import, used only in this task
-        sf_file_user_id_to_sf_auth_user_id = {} # not stored in Import; multiple file users map onto same auth user
-        get_tw_user_id = {} # key = sf.file_user_id, value = tw.user_id
-        get_sf_file_id = {} # key = sf.file_user_id, value sf.file_id; for future use when creating projects and project members
+          # find unique editors/admin, i.e. people getting users accounts in TW
+          unique_auth_users = {} # unique sf.authorized users with edit+ access, not stored in Import, used only in this task
+          sf_file_user_id_to_sf_auth_user_id = {} # not stored in Import; multiple file users map onto same auth user
+          get_tw_user_id = {} # key = sf.file_user_id, value = tw.user_id
+          get_sf_file_id = {} # key = sf.file_user_id, value sf.file_id; for future use when creating projects and project members
 
-        @user_index = {}
-        project_url = 'speciesfile.org'
+          @user_index = {}
+          project_url = 'speciesfile.org'
 
-        path = @args[:data_directory] + 'tblFileUsers.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          path = @args[:data_directory] + 'tblFileUsers.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
-        file.each_with_index do |row, i|
-          next if skipped_file_ids.include? row['FileID'].to_i
-          au_id = row['AuthUserID']
-          fu_id = row['FileUserID']
-          # next if [0, 8].freeze.include?(row['Access'].to_i)
-          next if [8].freeze.include?(row['Access'].to_i) # in some cases, user access has been rescinded after user edited something; keep this user, if no name, use NoName_1, 2, 3, etc.
+          file.each_with_index do |row, i|
+            next if skipped_file_ids.include? row['FileID'].to_i
+            au_id = row['AuthUserID']
+            fu_id = row['FileUserID']
+            # next if [0, 8].freeze.include?(row['Access'].to_i)
+            next if [8].freeze.include?(row['Access'].to_i) # in some cases, user access has been rescinded after user edited something; keep this user, if no name, use NoName_1, 2, 3, etc.
 
-          logger.info "WARNING - NON UNIQUE FileUserID: #{fu_id}" if sf_file_user_id_to_sf_auth_user_id[fu_id]
+            logger.info "WARNING - NON UNIQUE FileUserID: #{fu_id}" if sf_file_user_id_to_sf_auth_user_id[fu_id]
 
-          sf_file_user_id_to_sf_auth_user_id[fu_id] = au_id
+            sf_file_user_id_to_sf_auth_user_id[fu_id] = au_id
 
-          if unique_auth_users[au_id]
-            unique_auth_users[au_id].push fu_id
-          else
-            unique_auth_users[au_id] = [fu_id]
-          end
-
-          get_sf_file_id[fu_id] = row['FileID']
-        end
-
-        path = @args[:data_directory] + 'tblAuthUsers.txt'
-        logger.info "Creating users\n"
-        raise "file #{path} not found" if not File.exists?(path)
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
-
-        error_counter = 0
-        no_name_counter = 0
-
-        file.each_with_index do |row, i|
-          au_id = row['AuthUserID']
-
-          logger.info "working with AuthUser: #{au_id}"
-
-          user_name = row['Name']
-          if user_name.blank?
-            user_name = "NoName_#{no_name_counter += 1}"
-          end
-
-          if unique_auth_users[au_id]
-            logger.info "is a unique user, creating:  #{i}: #{user_name}"
-
-            user = User.new(
-                name: user_name,
-                password: '12345678',
-                email: 'auth_user_id' + au_id.to_s + '_random' + rand(1000).to_s + '@' + project_url
-            )
-
-            if user.save
-
-              unique_auth_users[au_id].each do |fu_id|
-                get_tw_user_id[fu_id] = user.id.to_s # @ Making user.id into string for consistency of all hash values being strings
-              end
-
-              @user_index[row['FileUserID']] = user.id # maps multiple FileUserIDs onto single TW user.id
-
-              # create AuthUserID as DataAttribute as InternalAttribute for table users
-              # user.data_attributes << InternalAttribute.new(predicate: predicates['AuthUserID'], value: au_id)
-              # Now using an identifier for this:
-              user.identifiers.new(type: 'Identifier::Local::Import', namespace: auth_user_namespace, identifier: au_id)
-
-              # Do not create project_members right now; store hash of file_user_id => file_id in Import table
-              # ProjectMember.create(user: user, project: @project)
-
+            if unique_auth_users[au_id]
+              unique_auth_users[au_id].push fu_id
             else
-              logger.info "User ERROR (#{error_counter += 1}): " + user.errors.full_messages.join(';')
+              unique_auth_users[au_id] = [fu_id]
             end
 
-          else
-            logger.info " skipping, public access only\n"
+            get_sf_file_id[fu_id] = row['FileID']
           end
+
+          path = @args[:data_directory] + 'tblAuthUsers.txt'
+          logger.info "Creating users\n"
+          raise "file #{path} not found" if not File.exists?(path)
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          error_counter = 0
+          no_name_counter = 0
+
+          file.each_with_index do |row, i|
+            au_id = row['AuthUserID']
+
+            logger.info "working with AuthUser: #{au_id}"
+
+            user_name = row['Name']
+            if user_name.blank?
+              user_name = "NoName_#{no_name_counter += 1}"
+            end
+
+            if unique_auth_users[au_id]
+              logger.info "is a unique user, creating:  #{i}: #{user_name}"
+
+              user = User.new(
+                  name: user_name,
+                  password: '12345678',
+                  email: 'auth_user_id' + au_id.to_s + '_random' + rand(1000).to_s + '@' + project_url
+              )
+
+              if user.save
+
+                unique_auth_users[au_id].each do |fu_id|
+                  get_tw_user_id[fu_id] = user.id.to_s # @ Making user.id into string for consistency of all hash values being strings
+                end
+
+                @user_index[row['FileUserID']] = user.id # maps multiple FileUserIDs onto single TW user.id
+
+                # create AuthUserID as DataAttribute as InternalAttribute for table users
+                # user.data_attributes << InternalAttribute.new(predicate: predicates['AuthUserID'], value: au_id)
+                # Now using an identifier for this:
+                user.identifiers.new(type: 'Identifier::Local::Import', namespace: auth_user_namespace, identifier: au_id)
+
+                # Do not create project_members right now; store hash of file_user_id => file_id in Import table
+                # ProjectMember.create(user: user, project: @project)
+
+              else
+                logger.info "User ERROR (#{error_counter += 1}): " + user.errors.full_messages.join(';')
+              end
+
+            else
+              logger.info " skipping, public access only\n"
+            end
+          end
+
+          # Save the file user mappings to the import table
+          import.set('SFFileUserIDToTWUserID', get_tw_user_id)
+          import.set('SFFileUserIDToSFFileID', get_sf_file_id) # will be used when tables containing FileID are imported
+
+          # display user mappings
+          puts 'unique authorized users with edit+ access'
+          ap unique_auth_users # list of unique authorized users (who may or may not currently have edit+ access via FileUserIDs)
+          puts 'multiple FileUserIDs mapped to single AuthUserID'
+          ap sf_file_user_id_to_sf_auth_user_id # map multiple FileUserIDs onto single AuthUserID
+          puts 'SFFileUserIDToTWUserID'
+          ap get_tw_user_id # map multiple FileUserIDs on single TW user.id
+          puts 'SFFileUserIDToSFFileID'
+          ap get_sf_file_id
+
         end
 
-        # Save the file user mappings to the import table
-        import.set('SFFileUserIDToTWUserID', get_tw_user_id)
-        import.set('SFFileUserIDToSFFileID', get_sf_file_id) # will be used when tables containing FileID are imported
+        desc 'time rake tw:project_import:sf_import:start:list_skipped_file_ids user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define list_skipped_file_ids: [:data_directory, :environment, :user_id] do |logger|
 
-        # display user mappings
-        puts 'unique authorized users with edit+ access'
-        ap unique_auth_users # list of unique authorized users (who may or may not currently have edit+ access via FileUserIDs)
-        puts 'multiple FileUserIDs mapped to single AuthUserID'
-        ap sf_file_user_id_to_sf_auth_user_id # map multiple FileUserIDs onto single AuthUserID
-        puts 'SFFileUserIDToTWUserID'
-        ap get_tw_user_id # map multiple FileUserIDs on single TW user.id
-        puts 'SFFileUserIDToSFFileID'
-        ap get_sf_file_id
+          logger.info 'Running list_skipped_file_ids...'
 
-      end
+          skipped_file_ids = [
+              9, # Lepidoptera
+              24, # Collembola
+              48, # Rhyparochromidae
+              54, # Heteroptera
+              56, # Membracoidea
+              66, # Odonata
+              70, # Tortricidae
+              77, # Erebidae
+              78, # Melanoplus
+              80, # Pyrgomorphidae
+              81, # Ommexechidae
+              82, # Carabidae
+              83, # Cicadoidea
+              84, # Psychodidae
+              85, # Megaloptera
+              86, # Scutelleridae
+              88, # Praxibulini
+              89, # Prostoia
+              92 # Dysoniini
+          ]
 
-      desc 'time rake tw:project_import:sf_import:start:list_skipped_file_ids user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-      LoggedTask.define list_skipped_file_ids: [:data_directory, :environment, :user_id] do |logger|
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SkippedFileIDs', skipped_file_ids)
 
-        logger.info 'Running list_skipped_file_ids...'
-
-        skipped_file_ids = [
-            9, # Lepidoptera
-            24, # Collembola
-            48, # Rhyparochromidae
-            54, # Heteroptera
-            56, # Membracoidea
-            66, # Odonata
-            70, # Tortricidae
-            77, # Erebidae
-            78, # Melanoplus
-            80, # Pyrgomorphidae
-            81, # Ommexechidae
-            82, # Carabidae
-            83, # Cicadoidea
-            84, # Psychodidae
-            85, # Megaloptera
-            86, # Scutelleridae
-            88, # Praxibulini
-            89, # Prostoia
-            92 # Dysoniini
-        ]
-
-        import = Import.find_or_create_by(name: 'SpeciesFileData')
-        import.set('SkippedFileIDs', skipped_file_ids)
-
-        puts 'SkippedFileIDs'
-        ap skipped_file_ids
-      end
-
-    end # :start
-
-
-    namespace :last do
-
-      desc 'time rake tw:project_import:sf_import:last:filter_users user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-      LoggedTask.define filter_users: [:data_directory, :environment, :user_id] do |logger|
-
-        logger.info 'Running filter_users...'
-
-        destroyed_counter = 0
-
-        User.all.each do |user|
-          puts "user.id = #{user.id} \n"
-          unless user.curates_data?
-            user.destroy
-            puts "destroyed, count = #{destroyed_counter += 1} \n"
-          end
+          puts 'SkippedFileIDs'
+          ap skipped_file_ids
         end
 
-        #######################################################################################
-        `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/99_after_filter_users/`
-        puts '** dumped 99_after_filter_users **'
-        #######################################################################################
-      end
-
-    end # :last
+      end # :start
 
 
-  end # :sf_import
-end # :project-import
+      namespace :last do
+
+        desc 'time rake tw:project_import:sf_import:last:filter_users user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define filter_users: [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Running filter_users...'
+
+          destroyed_counter = 0
+
+          User.all.each do |user|
+            puts "user.id = #{user.id} \n"
+            unless user.curates_data?
+              user.destroy
+              puts "destroyed, count = #{destroyed_counter += 1} \n"
+            end
+          end
+
+          #######################################################################################
+          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/99_after_filter_users/`
+          puts '** dumped 99_after_filter_users **'
+          #######################################################################################
+        end
+
+      end # :last
+
+
+    end # :sf_import
+  end # :project-import
 end # :tw
 

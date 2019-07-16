@@ -32,9 +32,9 @@ namespace :tw do
           # 'start:create_sources',
           # '4_after_create_sources': 41m36.692s on 31 Oct 2018
           #
-          'start:create_misc_ref_info',
-          'start:create_source_roles',
-          # # '5_after_source_roles': 76m51.040s on 7 Nov 2018; 132m58.252s b1_ on 25 Nov 2018; 65m3.663s on 30 May 2019
+          # 'start:create_misc_ref_info',
+          # 'start:create_source_roles',
+          # # '5_after_source_roles': 76m51.040s on 7 Nov 2018; 132m58.252s b1_ on 25 Nov 2018; 65m3.663s on 30 May 2019; 70m34.672s on 16 July 2019
           # # 4, 5: 104m51.735s on 15 July 2019
           # #
           # 'taxa:list_excluded_taxa',
@@ -43,9 +43,9 @@ namespace :tw do
           # 'taxa:create_animalia_below_root',
           # 'taxa:create_sf_synonym_id_to_new_parent_id_hash',
           # 'taxa:create_otus_for_ill_formed_names_hash',
-          # # '6_after_otus_hash': 0m55.165s on 8 Nov 2018; 3m20.635s on 30 May 2019
+          # # '6_after_otus_hash': 0m55.165s on 8 Nov 2018; 3m20.635s on 30 May 2019; 3m21.575s on 16 July 2019
           # #
-          # 'taxa:create_all_sf_taxa_pass1',
+          'taxa:create_all_sf_taxa_pass1',
           # # '7_after_run_all_taxa': 298m12.627s on 8 Nov 2018; 347m33.882s on 13 June 2018
           # #
           # 'taxa:create_type_species',
