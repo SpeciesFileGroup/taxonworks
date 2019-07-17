@@ -146,12 +146,8 @@ export default {
   },
   methods: {
     removedObservationFromList(event) {
-      console.log('Removed: ')
-      console.log(this.observationsMedia[0].depictions[event.oldIndex])
       if(this.observationsMedia[0].depictions.length == 1) {
-        //DestroyObservation(this.observations[event.oldIndex].id).then(() => {
           this.observations.splice(event.oldIndex, 1)
-        //})        
       }
       else {
         let index = this.observations.findIndex(item => {
@@ -161,7 +157,6 @@ export default {
       }
     },
     movedObservation(event) {
-      console.log('Added: ')
       if(this.observationsMedia.length) {
         this.updateDepiction()
       }
@@ -176,7 +171,6 @@ export default {
           this.updateDepiction()         
         })
       }
-      console.log(this.depictionMoved)
     },
     updateDepiction() {
      let newDepiction = {
