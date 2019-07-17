@@ -1,5 +1,15 @@
 <%= form_tag url, multipart: true do -%>
     <div class="field">
+      <%= label_tag :nomenclature_code, 'Nomenclature code (required only if parent is Root)' %><br>
+      <%= radio_button_tag 'nomenclature_code', 'iczn', true -%> ICZN <br>
+      <%= radio_button_tag 'nomenclature_code', 'icn' -%> ICN <br>
+    </div>
+    <div class="field">
+      <%= label_tag(:data_origin, 'Namespace for taxon record identifier',
+                  title: 'Choose the namespace for the identifier to be applied to the taxon record.') -%>
+      <%= namespace_select_tag(:dwca_namespace) -%><br>
+    </div>
+    <div class="field">
       <%= label_tag :file, 'Select a file' -%>
       <br>
       <%= file_field_tag :file -%>

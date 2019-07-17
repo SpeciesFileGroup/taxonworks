@@ -283,7 +283,8 @@ class TaxonNamesController < ApplicationController
       :parent_taxon_name_id,
       :nomenclature_code,
       :also_create_otu,
-      :import_level).merge(
+      :import_level,
+      :dwca_namespace).merge(
         user_id: sessions_current_user_id,
         project_id: sessions_current_project_id
       ).to_h.symbolize_keys

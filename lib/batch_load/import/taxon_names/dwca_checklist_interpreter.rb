@@ -1,33 +1,72 @@
 module BatchLoad
   class Import::TaxonNames::DwcaChecklistInterpreter < BatchLoad::Import
-    NAME_COMPONENTS = ['infraspecificepithet', 'specificepithet', 'subgenus', 'genus', 'scientificname']
+    CLASSIFICATION_NAMES = [
+      'infraspecificepithet', 'specificepithet',
+      'subgenus', 'genus',
+      'scientificname']
 
-    def initialize(**args)
+    # @param [Hash] args
+    def initialize(nomenclature_code: nil, dwca_namespace: nil, **args)
+      @nomenclature_code = nomenclature_code
+      @dwca_namespace = Namespace.find_by_short_name(dwca_namespace) if dwca_namespace
       @taxon_names = {}
       super(args)
     end
 
+    ## CANADENSYS DATASET: ranks set by term (all terms before a given term are null/blank)
+    # infraspecificEpithet: ['subspecies', 'variety']
+    # specificEpithet: ['species', 'subspecies', 'variety'] # Last two were not expected. Dataset error? All 6 cases are synonyms
+    # subgenus: ['section', 'series', 'subgenus', 'subsection'] # WARNING: Only when rank=='subgenus' name can be extracted out from this term
+    # genus: ['family', 'genus', 'section', 'series', 'subsection', 'tribe']
+    #         WARNING: Only when rank=='genus' name can be extracted out from this term
+    #         'tribe' unexpected. Only 2 cases both synonyms.
+    #         'family' unexpected. Only 7 cases all synonyms.
+
+
     def _build_taxon_names(records, parent)
       records.each do |record|
         begin
+          next if record[:row]['taxonrank'] == 'superorder' # Rank doesn't exists in TW for ICN
+          next if record[:row]['scientificname'] =~ /×/ # Cannot handle hybrids yet
+
+          name = verbatim_name = record[:row]['scientificname'].chomp(record[:row]['scientificnameauthorship']).strip
+
+          case record[:row]['taxonrank']
+            when 'species', 'subspecies', 'variety', 'genus'
+              name = record[:row][CLASSIFICATION_NAMES.detect { |x| !record[:row][x].blank? }]
+            when 'subgenus'
+              name = record[:row]['subgenus']
+              name = $1 if (name =~ /^\(([^)]*)\)$/ || name =~ /\s+subg(?:en)?(?:us)?(?:\.|\s)\s*(.*)/)
+            when 'series'
+              name = $1 if verbatim_name =~ /\s+ser(?:ies)?(?:\.|\s)\s*(.*)/
+            when 'section', 'subsection'
+              name = $1 if verbatim_name =~ /\s+(?:sub)?sect?(?:ion)?(?:\.|\s)\s*(.*)/
+          end
+
           protonym_attributes = {
-            name: record[:row][NAME_COMPONENTS.detect { |x| !record[:row][x].blank? }],
+            name: name,
+            verbatim_name: record[:row]['scientificname'],
             parent: parent,
-            rank_class: Ranks.lookup(:iczn, record[:row]['taxonrank']),
+            rank_class: Ranks.lookup(@nomenclature_code.to_sym, record[:row]['taxonrank']),
             by: @user,
             also_create_otu: false,
             project: @project,
             verbatim_author: record[:row]['scientificnameauthorship']
           }
-
           protonym_attributes[:year_of_publication] = $1 if /(\s\d{4})(?!.*\d+)/ =~ protonym_attributes[:verbatim_author]
+          #protonym_attributes[:name].gsub!('×', '')
 
           parse_result = BatchLoad::RowParse.new
+
           name = Protonym.new(protonym_attributes)
           parse_result.objects[:taxon_name] = [name]
 
-          if "typeGenus" == record[:row]["typestatus"]
-
+          if @dwca_namespace
+            name.identifiers.new(
+              type: Identifier::Local::Import,
+              namespace: @dwca_namespace,
+              identifier: record[:row]['id']
+            )
           end
 
           @processed_rows[record[:rowno]] = parse_result
@@ -61,6 +100,8 @@ module BatchLoad
           end
 
           parent = records[v[:row]["parentnameusageid"]]
+
+          parent = records[parent[:row]["parentnameusageid"]] if parent[:row]["taxonrank"] == "superorder"
 
           parent[:children] << v
           v[:parent] = parent

@@ -21,13 +21,15 @@
 
       <p> A tab delimited formatted file. In the example whitespace is a tab. View sample file template.</p>
 
-      <pre class="fixed_width_font">
-        taxonID parentNameUsageID taxonRank genus subgenus specificEpithet infraspecificEpithet scientificName scientificNameAuthorship typeStatus
-        10    tribe "" "" "" ""     Ausini  "Doe 1950"
-        11 10  genus Bus "" "" "" Aus "Doe 1950"
-        20 10  genus Aus "" "" "" Aus "Smith 2015" typeGenus
-        21 20 species Aus "" cus "" "Aus cus" "Smith 2015" typeSpecies
-        22 11 species Bus "" eus "" "Bus eus" "(Wilson 1960)"</pre>
+      <pre class="fixed_width_font" style="overflow: scroll;">
+id	taxonID	acceptedNameUsageID	parentNameUsageID	nameAccordingToID	scientificName	class	order	family	genus	subgenus	specificEpithet	infraspecificEpithet	taxonRank	scientificNameAuthorship
+73	73	73		http://dx.doi.org/10.1111/j.1095-8339.2009.01002.x	Equisetopsida C. Aghard	Equisetopsida							class	C. Aghard
+35	35	35	73	http://dx.doi.org/10.1111/j.1095-8339.2009.01002.x	Lycopodiidae Beketov	Equisetopsida							subclass	Beketov
+34	34	34	35	http://www.mapress.com/phytotaxa/content/2011/f/pt00019p054.pdf	Isoetales Prantl	Equisetopsida	Isoetales						order	Prantl
+148	148	148	34	http://www.mapress.com/phytotaxa/content/2011/f/pt00019p054.pdf	Isoetaceae Dumortier	Equisetopsida	Isoetales	Isoetaceae					family	Dumortier
+1291	1291	1291	148	http://www.efloras.org/volume_page.aspx?volume_id=1002&flora_id=1	Isoetes Linnaeus	Equisetopsida	Isoetales	Isoetaceae	Isoetes				genus	Linnaeus
+6213	6213	6213	1291	http://www.efloras.org/volume_page.aspx?volume_id=1002&flora_id=1	Isoetes acadiensis Kott	Equisetopsida	Isoetales	Isoetaceae	Isoetes		acadiensis		species	Kott
+      </pre>
     </div>
 
     <div class="item item3">
