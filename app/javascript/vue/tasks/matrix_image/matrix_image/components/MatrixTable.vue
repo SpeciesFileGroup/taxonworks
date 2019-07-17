@@ -132,7 +132,7 @@ export default {
 
   tbody {
     display: block;
-    max-height: calc(100vh - 200px);
+    max-height: calc(100vh - 300px);
     overflow-y: auto;
     tr:hover {
       background-color: initial !important;

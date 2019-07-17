@@ -46,6 +46,7 @@
       </ul>
     </div>
     <matrix-table
+      class="separate-table"
       ref="matrixTable"
       :columns="observationColumns"
       :rows="observationRows"/>
@@ -127,3 +128,8 @@ export default {
   }
 }
 </script>
+<style scoped>
+.separate-table {
+  margin-top: 100px;
+}
+</style>
