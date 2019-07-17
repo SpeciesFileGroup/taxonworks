@@ -83,6 +83,16 @@ export default {
       collapseRows: [],
       collapseColumns: []
     }
+  },
+  methods: {
+    reset() {
+      this.collapseRows = []
+      this.collapseColumns = []
+    },
+    collapseAll() {
+      this.collapseRows = this.rows.map(row => { return row.id })
+      this.collapseColumns = this.columns.map(column => { return column.id })
+    }
   }
 }
 </script>

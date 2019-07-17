@@ -4,6 +4,30 @@ const CreateObservation = (observation) => {
   return ajaxCall('post', '/observations.json', { observation: observation })
 }
 
+const CreateRow = (data) => {
+  return ajaxCall('post', '/observation_matrix_row_items', { observation_matrix_row_item: data })
+}
+
+const CreateColumn = (data) => {
+  return ajaxCall('post', '/observation_matrix_column_items', { observation_matrix_column_item: data })
+}
+
+const CreateDescriptor = (data) => {
+  return ajaxCall('post', '/descriptors', { descriptor: data })
+}
+
+const GetOtu = (id) => {
+  return ajaxCall('get', `/otus/${id}`)
+}
+
+const GetCollectionObject = (id) => {
+  return ajaxCall('get', `/collection_objects/${id}`)
+}
+
+const GetDescriptor = (id) => {
+  return ajaxCall('get', `/descriptors/${id}`)
+}
+
 const GetObservationMatrix = (id) => {
   return ajaxCall('get', `/observation_matrices/${id}.json`)
 }
@@ -41,7 +65,13 @@ export {
   GetMatrixObservationColumns,
   GetMatrixObservationRows,
   GetObservation,
+  GetOtu,
+  GetCollectionObject,
+  GetDescriptor,
+  CreateDescriptor,
   CreateObservation,
+  CreateColumn,
+  CreateRow,
   DestroyObservation,
   DestroyDepiction,
   UpdateObservation,
