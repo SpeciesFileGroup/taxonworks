@@ -256,6 +256,15 @@ export default {
   .drag-container {
     padding-top: 0.5em;
   }
+
+  .dropzone-card {
+    min-height: 100px !important;
+    height: 100px;
+  }
+
+  /deep/ .dz-message {
+    margin: 1em 0 !important;
+  }
   
   .matrix-image-draggable {
     min-height: 100px;
