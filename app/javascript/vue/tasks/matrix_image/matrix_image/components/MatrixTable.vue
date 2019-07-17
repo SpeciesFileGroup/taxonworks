@@ -4,7 +4,7 @@
       <thead>
         <tr>
           <th class="checkbox-cell">
-            <span class="header-label">Collapse</span>
+            <label class="header-label">Collapse</label>
           </th>
           <th class="object-cell"/>
           <th 
@@ -12,7 +12,7 @@
             :class="{ 'collapse-cell': collapseColumns.includes(column.id)}"
             v-for="column in columns"
             :key="column.id">
-            <label class="header-label">
+            <label class="header-label cursor-pointer">
               <input
                 type="checkbox"
                 :value="column.id"

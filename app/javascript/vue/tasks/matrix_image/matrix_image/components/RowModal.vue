@@ -73,6 +73,7 @@ export default {
       }
       this.saving = true
       CreateRow(data).then(response => {
+        TW.workbench.alert.create('Row item was successfully created.', 'notice')
         this.$emit('create', response.body)
         this.saving = false
       }, () => {

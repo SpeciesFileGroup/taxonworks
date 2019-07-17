@@ -77,6 +77,7 @@ export default {
         }
         CreateColumn(data).then(response => {
           response.body.descriptor = responseDescriptor.body
+          TW.workbench.alert.create('Column item was successfully created.', 'notice')
           this.$emit('create', response.body)
           this.saving = false
         }, () => {
