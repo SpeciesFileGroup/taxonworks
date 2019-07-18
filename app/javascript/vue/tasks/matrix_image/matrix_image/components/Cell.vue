@@ -53,7 +53,6 @@
 
 import DropzoneComponent from 'components/dropzone'
 import DraggableComponent from 'vuedraggable'
-import DepictionContainer from './DepictionContainer'
 import DepictionModalViewer from 'components/depictionModalViewer/depictionModalViewer.vue'
 import SpinnerComponent from 'components/spinner'
 import { 
@@ -71,7 +70,6 @@ export default {
   components: {
     DropzoneComponent,
     DraggableComponent,
-    DepictionContainer,
     SpinnerComponent,
     DepictionModalViewer
   },
