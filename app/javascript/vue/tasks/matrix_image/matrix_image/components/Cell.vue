@@ -39,7 +39,7 @@
           v-for="depiction in observationsMedia[0].depictions"
           :key="depiction.id"
           class="drag-container">
-          <depiction-container
+          <depiction-modal-viewer
             :depiction="depiction"
             @delete="removeDepiction"
           />
@@ -54,6 +54,7 @@
 import DropzoneComponent from 'components/dropzone'
 import DraggableComponent from 'vuedraggable'
 import DepictionContainer from './DepictionContainer'
+import DepictionModalViewer from 'components/depictionModalViewer/depictionModalViewer.vue'
 import SpinnerComponent from 'components/spinner'
 import { 
   GetObservation, 
@@ -71,7 +72,8 @@ export default {
     DropzoneComponent,
     DraggableComponent,
     DepictionContainer,
-    SpinnerComponent
+    SpinnerComponent,
+    DepictionModalViewer
   },
   props: {
     row: {
