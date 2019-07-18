@@ -1,5 +1,5 @@
 <template>
-  <div class="depiction-thumb-container">
+  <div class="depiction-viewer-thumb-container">
     <modal
       v-if="viewMode"
       @close="viewMode = false"
@@ -108,30 +108,29 @@ export default {
   }
 }
 </script>
-<style lang="scss">
-  .depiction-thumb-container {
+<style lang="scss" scoped>
+  .depiction-viewer-thumb-container {
     .modal-container {
-     max-width: 100vh;
-   }
-   margin: 4px;
-   .img-thumb {
-     cursor: pointer;
-   }
+      max-width: 100vh;
+    }
+    .img-thumb {
+      cursor: pointer;
+    }
    .img-maxsize {
-    transition: all 0.5s ease;
-    max-width: 100%;
-    max-height: 60vh;
-  }
-  .img-fullsize {
-    cursor: zoom-out
-  }
-  .img-normalsize {
-    cursor: zoom-in
-  }
-  .field {
-    input, textarea {
-     width: 100%
-   }
-  }
+      transition: all 0.5s ease;
+      max-width: 100%;
+      max-height: 60vh;
+    }
+    .img-fullsize {
+      cursor: zoom-out
+    }
+    .img-normalsize {
+      cursor: zoom-in
+    }
+    .field {
+      input, textarea {
+        width: 100%
+      }
+    }
   }
 </style>
