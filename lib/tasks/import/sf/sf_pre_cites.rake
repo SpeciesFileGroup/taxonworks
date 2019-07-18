@@ -157,8 +157,8 @@ namespace :tw do
 
               # info_flag_status used to be type = 'ConfidenceLevel'; now citations cannot have confidences, so changed to keyword
               info_flag_status: [
-                  {name: 'partial data or needs review', definition: 'InfoFlagStatus: partial data or needs review', uri: 'http://speciesfile.org/legacy/info_flag_status/1', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'complete data', definition: 'InfoFlagStatus: complete data', uri: 'http://speciesfile.org/legacy/info_flag_status/2', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                  {name: 'partial data or needs review', definition: 'InfoFlagStatus: partial data or needs review', uri: 'http://speciesfile.org/legacy/info_flag_status/1', uri_relation: 'skos:closeMatch', type: 'ConfidenceLevel'},
+                  {name: 'complete data', definition: 'InfoFlagStatus: complete data', uri: 'http://speciesfile.org/legacy/info_flag_status/2', uri_relation: 'skos:closeMatch', type: 'ConfidenceLevel'},
               ]
 
           }.freeze

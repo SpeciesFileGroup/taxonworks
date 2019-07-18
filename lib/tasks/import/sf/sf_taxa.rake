@@ -711,6 +711,8 @@ namespace :tw do
           # === Summary of warnings and errors for task tw:project_import:sf_import:taxa:create_all_sf_taxa_pass1 ===
           # [ERROR]2017-03-15 13:11:40.264: TaxonName ERROR (1) AFTER synonym test (SF.TaxonNameID = 1225991, parent_id = 68332): Parent The parent rank (subspecies) is not higher than subspecies
           # [ERROR]2017-03-15 13:20:22.621: TaxonName ERROR (2) AFTER synonym test (SF.TaxonNameID = 1170406, parent_id = 71920): Parent The parent rank (subspecies) is not higher than subspecies
+          #
+          # Error count = 6582 after synonym test on 16 July 2019
 
           logger.info 'Creating all SF taxa (pass 1)...'
 

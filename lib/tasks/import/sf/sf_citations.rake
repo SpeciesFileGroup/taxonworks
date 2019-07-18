@@ -910,6 +910,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                     end
                     unless info_flag_status_cvt_id.blank?
                       n = protonym.confidences.find_or_create_by(confidence_level_id: info_flag_status_cvt_id, project_id: project_id)
+                      byebug if n.nil? || n.id.nil?
                       n.citations.create(source_id: citation.source_id, project_id: project_id, created_at: row['CreatedOn'], updated_at: row['LastUpdate'], created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']])
                     end
                   end
