@@ -40,18 +40,14 @@
           <template>
             <template v-for="(column, cIndex) in columns">
               <td
-                v-if="!collapseColumns.includes(column.id) && !collapseRows.includes(row.id)"
-                class="padding-cell"
+                :class="{ [!filterCell(column.id, row.id) ? 'padding-cell' : 'collapse-cell']: true }"
                 :key="column.id">
                 <cell-component 
                   :index="rIndex + cIndex"
                   :column="column"
+                  :show="!filterCell(column.id, row.id)"
                   :row="row"/>
               </td>
-              <td
-                v-else
-                :key="column.id"
-                class="collapse-cell"/>
             </template>
           </template>
         </tr>
@@ -92,6 +88,9 @@ export default {
     collapseAll() {
       this.collapseRows = this.rows.map(row => { return row.id })
       this.collapseColumns = this.columns.map(column => { return column.id })
+    },
+    filterCell(columnId, rowId) {
+      return this.collapseColumns.includes(columnId) || this.collapseRows.includes(rowId)
     }
   }
 }

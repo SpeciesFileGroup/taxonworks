@@ -1,51 +1,56 @@
 <template>
   <div>
-    <spinner-component
-      :legend="('Loading...')"
-      v-if="isLoading"/>
-    <template>
-      <div v-show="existObservations">
-        <dropzone-component
-          class="dropzone-card"
-          ref="depictionDepic"
-          url="/depictions"
-          :id="`depiction-${row.id}-${column.id}-depic-${Math.random().toString(36).slice(2)}`"
-          :use-custom-dropzone-options="true"
-          @vdropzone-sending="sendingDepic"
-          @vdropzone-success="successDepic"
-          :dropzone-options="dropzoneDepiction"/>
-      </div>
-      <div v-show="!existObservations">
-        <dropzone-component
-          class="dropzone-card"
-          ref="depictionObs"
-          url="/observations"
-          :id="`depiction-${row.id}-${column.id}-obs-${Math.random().toString(36).slice(2)}`"
-          :use-custom-dropzone-options="true"
-          @vdropzone-sending="sending"
-          @vdropzone-success="success"
-          :dropzone-options="dropzoneObservation"/>
+    <div v-show="show">
+      <spinner-component
+        :legend="('Loading...')"
+        v-if="isLoading"/>
+      <template>
+        <div v-show="existObservations">
+          <dropzone-component
+            class="dropzone-card"
+            ref="depictionDepic"
+            url="/depictions"
+            :id="`depiction-${row.id}-${column.id}-depic-${Math.random().toString(36).slice(2)}`"
+            :use-custom-dropzone-options="true"
+            @vdropzone-sending="sendingDepic"
+            @vdropzone-success="successDepic"
+            :dropzone-options="dropzoneDepiction"/>
         </div>
-    </template>
-
-    <draggable-component
-      class="flex-wrap-row matrix-image-draggable"
-      group="cells"
-      @add="movedObservation"
-      @choose="setObservationDragged"
-      @remove="removedObservationFromList">
-      <template v-if="observationsMedia.length && observationsMedia[0].hasOwnProperty('depictions')">
-        <div
-          v-for="depiction in observationsMedia[0].depictions"
-          :key="depiction.id"
-          class="drag-container">
-          <depiction-modal-viewer
-            :depiction="depiction"
-            @delete="removeDepiction"
-          />
-        </div>
+        <div v-show="!existObservations">
+          <dropzone-component
+            class="dropzone-card"
+            ref="depictionObs"
+            url="/observations"
+            :id="`depiction-${row.id}-${column.id}-obs-${Math.random().toString(36).slice(2)}`"
+            :use-custom-dropzone-options="true"
+            @vdropzone-sending="sending"
+            @vdropzone-success="success"
+            :dropzone-options="dropzoneObservation"/>
+          </div>
       </template>
-    </draggable-component>
+
+      <draggable-component
+        class="flex-wrap-row matrix-image-draggable"
+        group="cells"
+        @add="movedObservation"
+        @choose="setObservationDragged"
+        @remove="removedObservationFromList">
+        <template v-if="observationsMedia.length && observationsMedia[0].hasOwnProperty('depictions')">
+          <div
+            v-for="depiction in observationsMedia[0].depictions"
+            :key="depiction.id"
+            class="drag-container">
+            <depiction-modal-viewer
+              :depiction="depiction"
+              @delete="removeDepiction"
+            />
+          </div>
+        </template>
+      </draggable-component>
+    </div>
+    <div
+      v-if="!show && existObservations"
+      class="background-cell-image"/>
   </div>
 </template>
 
@@ -63,6 +68,7 @@ import {
   DestroyDepiction,
   CreateObservation
   } from '../request/resources'
+
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 
@@ -84,9 +90,16 @@ export default {
     },
     index: {
       type: [Number, String]
+    },
+    show: {
+      type: Boolean,
+      default: true
     }
   },
   computed: {
+    getImage() {
+      return Image
+    },
     observationMoved: {
       get() {
         return this.$store.getters[GetterNames.GetObservationMoved]
@@ -258,6 +271,15 @@ export default {
 
   /deep/ .dz-message {
     margin: 1em 0 !important;
+  }
+
+  .background-cell-image {
+    width: 25px;
+    height: 20px;
+    background-size: 20px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-image: url('../assets/images/image.svg')
   }
   
   .matrix-image-draggable {
