@@ -7,20 +7,21 @@
             <label class="header-label">Collapse</label>
           </th>
           <th class="object-cell"/>
-          <th 
-            class="header-cell"
-            :class="{ 'collapse-cell': collapseColumns.includes(column.id)}"
-            v-for="column in columns"
-            :key="column.id">
-            <label class="header-label cursor-pointer">
-              <input
-                type="checkbox"
-                :value="column.id"
-                v-model="collapseColumns"
-              />
-              {{ column.descriptor.name }}
-            </label>
-          </th>
+          <template v-for="column in columns">
+            <th 
+              :key="column.id"
+              class="header-cell"
+              v-if="column.descriptor.type == 'Descriptor::Media'"
+              :class="{ 'collapse-cell': collapseColumns.includes(column.id)}">
+              <label class="header-label cursor-pointer">
+                <input
+                  type="checkbox"
+                  :value="column.id"
+                  v-model="collapseColumns">
+                {{ column.descriptor.name }}
+              </label>
+            </th>
+          </template>
         </tr>
       </thead>
       <tbody>
@@ -40,6 +41,7 @@
           <template>
             <template v-for="(column, cIndex) in columns">
               <td
+                v-if="column.descriptor.type == 'Descriptor::Media'"
                 :class="{ [!filterCell(column.id, row.id) ? 'padding-cell' : 'collapse-cell']: true }"
                 :key="column.id">
                 <cell-component 
@@ -131,7 +133,7 @@ export default {
 
   tbody {
     display: block;
-    max-height: calc(100vh - 300px);
+    max-height: calc(100vh - 320px);
     overflow-y: auto;
     tr:hover {
       background-color: initial !important;
