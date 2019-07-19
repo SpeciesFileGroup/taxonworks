@@ -27,7 +27,7 @@ class TaxonNamesController < ApplicationController
 
   # GET /api/v1/taxon_names/:id
   def api_show
-    @taxon_name = TaxonName.find(params[:id])
+    @taxon_name = TaxonName.where(project_id: sessions_current_project_id).find(params[:id])
     render '/taxon_names/api/show.json.jbuilder'
   end
 
