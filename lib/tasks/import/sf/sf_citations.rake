@@ -209,7 +209,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
           #######################################################################################
           `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/25_after_otu_citations/`
-          puts '** dumped 21_after_otu_citations **'
+          puts '** dumped 25_after_otu_citations **'
           #######################################################################################
 
         end

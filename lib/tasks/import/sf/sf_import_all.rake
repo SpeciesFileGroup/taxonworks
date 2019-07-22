@@ -105,13 +105,13 @@ namespace :tw do
           # # 19_after_links: 18-19 took 19m3.097s on 2 June 2019
           # # 18, 19: 19m38.508s on 18 July 2019
           # #
-          'citations:create_citations',
-          # # 20_after_taxon_citations: close to 10h (592m44.659s on 10 July 2015, 591m42.625s on 6 Sept 2018); 2023m53.988s (33.716666 hours) on 4 June 2019
+          # 'citations:create_citations',
+          # # 20_after_taxon_citations: close to 10h (592m44.659s on 10 July 2015, 591m42.625s on 6 Sept 2018); 2023m53.988s (33.716666 hours) on 4 June 2019; 1982m48.521s on 20 July 2019
           #
           # 'citations:create_combinations',
-          # # 21_after_create_combinations: 112m27.918s on 6 June 2019
+          # # 21_after_create_combinations: 112m27.918s on 6 June 2019; 108m9.593s on 22 July 2019
           # #
-          # 'citations:create_otu_cites',
+          'citations:create_otu_cites',
           # # 25_after_otu_cites: 1m2.000s on 16 July 2018; 0m55.486s on 7 Sept 2018; 2m1.501s on 2 July 2019
           #
           #
