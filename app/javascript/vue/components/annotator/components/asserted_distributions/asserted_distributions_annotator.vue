@@ -171,13 +171,15 @@
           geographic_area_id: undefined,
           citations: [],
           citations_attributes: [{
-            source_id: undefined
+            source_id: undefined,
+            pages: undefined
           }],
           is_absent: undefined
         }
       },
       setSource(source) {
         this.asserted_distribution.citations_attributes[0].source_id = source.source_id
+        this.asserted_distribution.citations_attributes[0].pages = source.pages
         this.asserted_distribution.is_absent = source.is_absent
       }
     },

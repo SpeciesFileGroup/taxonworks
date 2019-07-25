@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <h3>Source</h3>
-    <div class="separate-bottom inline">
+  <fieldset class="separate-bottom">
+    <legend>Source</legend>
+    <div class="inline separate-bottom">
       <autocomplete
         url="/sources/autocomplete"
         label="label"
@@ -28,7 +28,12 @@
           data-icon="reset"/>
       </template>
     </div>
-    <div class="separate-bottom">
+    <div class="flex-separate">
+      <input
+        class="normal-input inline pages"
+        v-model="citation.pages"
+        placeholder="pages"
+        type="text">
       <label class="inline middle">
         <input
           v-model="citation.is_absent"
@@ -36,7 +41,7 @@
         Is absent
       </label>
     </div>
-  </div>
+  </fieldset>
 </template>
 
 <script>
