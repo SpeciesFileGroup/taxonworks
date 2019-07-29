@@ -28,24 +28,14 @@ namespace :tw do
           path = @args[:data_directory] + 'tblCites.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
-          # tblCites columns: TaxonNameID, SeqNum, RefID, CitePages, Note, NomenclatorID, NewNameStatusID, TypeInfoID, ConceptChangeID, CurrentConcept, InfoFlags, InfoFlagStatus, PolynomialStatus, [housekeeping]
-          #   Handle: TaxonNameID, RefID, CitePages, Note, NomenclatorID (verbatim), NewNameStatus(ID), TypeInfo(ID), InfoFlags, InfoFlagStatus, [housekeeping]
-          #   Do not handle: Seqnum, ConceptChangeID, CurrentConcept, PolynomialStatus
-
-
           count_found = 0
           error_counter = 0
-          # no_taxon_counter = 0
-          cite_found_counter = 0
-          # otu_not_found_counter = 0
-          orig_desc_source_id = 0 # make sure only first cite to original description is handled as such (when more than one cite to same source)
-          # otu_only_counter = 0
 
           base_uri = 'http://speciesfile.org/legacy/'
 
           file.each_with_index do |row, i|
             sf_taxon_name_id = row['TaxonNameID']
-            next unless get_tw_otu_id.has_key?(sf_taxon_name_id)
+            next if get_tw_otu_id[sf_taxon_name_id].nil?
             otu_id = get_tw_otu_id[sf_taxon_name_id]
 
             sf_ref_id = row['RefID']
@@ -55,122 +45,119 @@ namespace :tw do
             otu = Otu.find(otu_id) # need otu object for project_id and
             project_id = otu.project_id.to_s
 
-#            logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{sf_taxon_name_id} = TW.otu_id #{otu.id},
-#        SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
+            seqnum = row['SeqNum']
+            cite_pages = row['CitePages']
 
-#cite_pages = row['CitePages']
+            logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{sf_taxon_name_id} = TW.otu_id #{otu_id},SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{seqnum}, cite_pages #{cite_pages} ( count #{count_found += 1} ) \n"
 
-            new_name_uri = (base_uri + 'new_name_status/' + row['NewNameStatusID']) unless row['NewNameStatusID'] == '0'
-            type_info_uri = (base_uri + 'type_info/' + row['TypeInfoID']) unless row['TypeInfoID'] == '0'
-            info_flag_status_uri = (base_uri + 'info_flag_status/' + row['InfoFlagStatus']) unless row['InfoFlagStatus'] == '0'
+            # byebug
 
-            new_name_cvt_id = get_cvt_id[project_id][new_name_uri]
-            type_info_cvt_id = get_cvt_id[project_id][type_info_uri]
-            info_flag_status_cvt_id = get_cvt_id[project_id][info_flag_status_uri]
+            if seqnum == "1" # original citation already in; need to find it and update cite_pages
+              citation = Citation.where(citation_object_type: 'Otu', citation_object_id: otu, is_original: :true, source_id: source_id)
+              if citation.nil?
+                puts 'ERROR'
+              end
+              citation.update(pages: cite_pages)
 
-            info_flags = row['InfoFlags'].to_i
-            citation_topics_attributes = []
+            else # not the first citation for this name, create new citation
+              citation = Citation.new(
+                  source_id: source_id,
+                  pages: row['CitePages'],
+                  citation_object: otu,
+                  project_id: project_id,
+                  created_at: row['CreatedOn'],
+                  updated_at: row['LastUpdate'],
+                  created_by_id: get_tw_user_id[row['CreatedBy']],
+                  updated_by_id: get_tw_user_id[row['ModifiedBy']]
+              )
+              begin
+                citation.save!
+              rescue ActiveRecord::RecordInvalid # citation not valid
 
-            if info_flags > 0
-              base_cite_info_flags_uri = (base_uri + 'cite_info_flags/') # + bit_position below
-              cite_info_flags_array = Utilities::Numbers.get_bits(info_flags)
-
-              citation_topics_attributes = cite_info_flags_array.collect {|bit_position|
-                {topic_id: get_cvt_id[project_id][base_cite_info_flags_uri + bit_position.to_s],
-                 project_id: project_id,
-                 created_at: row['CreatedOn'],
-                 updated_at: row['LastUpdate'],
-                 created_by_id: get_tw_user_id[row['CreatedBy']],
-                 updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                }
-              }
-            end
-
-# citation_topics_attributes ||= [] # or or equals
-
-            metadata = {
-                ## Note: Add as attribute before save citation
-                notes_attributes: [{text: row['Note'], # (row['Note'].blank? ? nil :   rejected automatically by notable
-                                    project_id: project_id,
-                                    created_at: row['CreatedOn'],
-                                    updated_at: row['LastUpdate'],
-                                    created_by_id: get_tw_user_id[row['CreatedBy']],
-                                    updated_by_id: get_tw_user_id[row['ModifiedBy']]}],
-
-                ## NewNameStatus: As tags to citations, create 16 keywords for each project, set up in case statement; test for NewNameStatusID > 0
-                ## TypeInfo: As tags to citations, create n keywords for each project, set up in case statement (2364 cases!)
-                # tags_attributes: [
-                #     #  {keyword_id: (row['NewNameStatus'].to_i > 0 ?
-                # ControlledVocabularyTerm.where('uri LIKE ? and project_id = ?', "%/new_name_status/#{row['NewNameStatusID']}", project_id).limit(1).pluck(:id).first : nil), project_id: project_id},
-                #     #  {keyword_id: (row['TypeInfoID'].to_i > 0 ? ControlledVocabularyTerm.where('uri LIKE ? and project_id = ?', "%/type_info/#{row['TypeInfoID']}", project_id).limit(1).pluck(:id).first : nil), project_id: project_id}
-                #     {keyword_id: (new_name_uri ? new_name_cvt_id : nil), project_id: project_id},
-                #     {keyword_id: (type_info_uri ? Keyword.where('uri = ? AND project_id = ?', type_info_uri, project_id).limit(1).pluck(:id).first : nil), project_id: project_id}
-                #
-                # ],
-                ## InfoFlagStatus: Add confidence, 1 = partial data or needs review, 2 = complete data
-
-                tags_attributes: [{keyword_id: new_name_cvt_id, project_id: project_id},
-                                  {keyword_id: type_info_cvt_id, project_id: project_id},
-                                  {keyword_id: info_flag_status_cvt_id, project_id: project_id}],
-
-
-                citation_topics_attributes: citation_topics_attributes
-            }
-
-# byebug
-
-            citation = Citation.new(
-                metadata.merge(
-                    source_id: source_id,
-                    pages: row['CitePages'],
-                    # is_original: (row['SeqNum'] == '1' ? true : false),
-                    citation_object: otu,
-
-                    # housekeeping for citation
-                    project_id: project_id,
-                    created_at: row['CreatedOn'],
-                    updated_at: row['LastUpdate'],
-                    created_by_id: get_tw_user_id[row['CreatedBy']],
-                    updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                )
-            )
-
-            begin
-              citation.save!
-            rescue ActiveRecord::RecordInvalid # citation not valid
-
-              # yes I know this is ugly but it works
-              if citation.errors.messages[:source_id].nil?
-                logger.error "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']},
+                # yes I know this is ugly but it works
+                if citation.errors.messages[:source_id].nil?
+                  logger.error "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']},
 SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
-                next
-              else # make pages unique and save again
-                if citation.errors.messages[:source_id].include?('has already been taken') # citation.errors.messages[:source_id][0] == 'has already been taken'
-                  citation.pages = "#{row['CitePages']} [dupl #{row['SeqNum']}"
-                  begin
-                    citation.save!
-                  rescue ActiveRecord::RecordInvalid
+                  next
+                else # make pages unique and save again
+                  if citation.errors.messages[:source_id].include?('has already been taken') # citation.errors.messages[:source_id][0] == 'has already been taken'
+                    citation.pages = "#{row['CitePages']} [dupl #{row['SeqNum']}"
+                    begin
+                      citation.save!
+                    rescue ActiveRecord::RecordInvalid
+                      logger.error "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
+                      next
+                    end
+                  else # citation error was not already been taken (other validation failure)
                     logger.error "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
                     next
                   end
-                else # citation error was not already been taken (other validation failure)
-                  logger.error "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
-                  next
                 end
               end
             end
 
-# kluge that worked but even uglier
-# old_citation = Citation.where(source_id: source_id, citation_object: otu).first # instantiate so nomenclator string can be appended
-# logger.info "Citation (= #{old_citation.id}) to this OTU (= #{otu.id}, SF.TaxonNameID #{sf_taxon_name_id}) from this source (= #{source_id}, SF.RefID #{sf_ref_id}) with these pages (= #{row['CitePages']}) already exists (cite_found_counter = #{cite_found_counter += 1})"
-# old_citation.notes << Note.new(text: "Duplicate citation source to same OTU; nomenclator string = '#{get_nomenclator_string[row['NomenclatorID']]}'", project_id: project_id)
-# # note_text = row['Note'].gsub('|', ':')
-# old_citation.notes << Note.new(text: "Note for duplicate citation = '#{row['Note']}'", project_id: project_id) unless row['Note'].blank?
+            if row['Note'].present?
+              Note.create!(
+                  text: row['Note'],
+                  note_object_id: otu_id,
+                  note_object_type: 'Otu',
+                  project_id: project_id,
+                  created_at: row['CreatedOn'],
+                  updated_at: row['LastUpdate'],
+                  created_by_id: get_tw_user_id[row['CreatedBy']],
+                  updated_by_id: get_tw_user_id[row['ModifiedBy']]
+              )
+            end
+
+            ##### ***** following needs debugging -- used to be citation attributes, now stand-alone objects
+            # new_name_uri = (base_uri + 'new_name_status/' + row['NewNameStatusID']) unless row['NewNameStatusID'] == '0'
+            # type_info_uri = (base_uri + 'type_info/' + row['TypeInfoID']) unless row['TypeInfoID'] == '0'
+            # info_flag_status_uri = (base_uri + 'info_flag_status/' + row['InfoFlagStatus']) unless row['InfoFlagStatus'] == '0'
+            #
+            # new_name_cvt_id = get_cvt_id[project_id][new_name_uri]
+            # type_info_cvt_id = get_cvt_id[project_id][type_info_uri]
+            # info_flag_status_cvt_id = get_cvt_id[project_id][info_flag_status_uri]
+            #
+            # info_flags = row['InfoFlags'].to_i
+            # citation_topics_attributes = []
+            #
+            # if info_flags > 0
+            #   base_cite_info_flags_uri = (base_uri + 'cite_info_flags/') # + bit_position below
+            #   cite_info_flags_array = Utilities::Numbers.get_bits(info_flags)
+            #
+            #   citation_topics_attributes = cite_info_flags_array.collect {|bit_position|
+            #     {topic_id: get_cvt_id[project_id][base_cite_info_flags_uri + bit_position.to_s],
+            #      project_id: project_id,
+            #      created_at: row['CreatedOn'],
+            #      updated_at: row['LastUpdate'],
+            #      created_by_id: get_tw_user_id[row['CreatedBy']],
+            #      updated_by_id: get_tw_user_id[row['ModifiedBy']]
+            #     }
+            #   }
+            #
+            #   CitationTopics.create!(citation_topics_attributes)
+            # end
+            #
+            # ## NewNameStatus: As tags to citations, create 16 keywords for each project, set up in case statement; test for NewNameStatusID > 0
+            # ## TypeInfo: As tags to citations, create n keywords for each project, set up in case statement (2364 cases!)
+            # # tags_attributes: [
+            # #     #  {keyword_id: (row['NewNameStatus'].to_i > 0 ?
+            # # ControlledVocabularyTerm.where('uri LIKE ? and project_id = ?', "%/new_name_status/#{row['NewNameStatusID']}", project_id).limit(1).pluck(:id).first : nil), project_id: project_id},
+            # #     #  {keyword_id: (row['TypeInfoID'].to_i > 0 ? ControlledVocabularyTerm.where('uri LIKE ? and project_id = ?', "%/type_info/#{row['TypeInfoID']}", project_id).limit(1).pluck(:id).first : nil), project_id: project_id}
+            # #     {keyword_id: (new_name_uri ? new_name_cvt_id : nil), project_id: project_id},
+            # #     {keyword_id: (type_info_uri ? Keyword.where('uri = ? AND project_id = ?', type_info_uri, project_id).limit(1).pluck(:id).first : nil), project_id: project_id}
+            # #
+            # # ],
+            # ## InfoFlagStatus: Add confidence, 1 = partial data or needs review, 2 = complete data
+            #
+            # Tag.create!(keyword_id: new_name_cvt_id, tag_object: otu, project_id: project_id)
+            # Tag.create!(keyword_id: type_info_cvt_id, tag_object: otu, project_id: project_id)
+            # Tag.create!(keyword_id: info_flag_status_cvt_id, tag_object: otu, project_id: project_id)
 
 
-### After citation updated or created
+            ### After citation updated or created
 
-## Nomenclator: DataAttribute of citation, NomenclatorID > 0
+            ## Nomenclator: DataAttribute of citation, NomenclatorID > 0
             if row['NomenclatorID'] != '0' # OR could value: be evaluated below based on NomenclatorID?
               # byebug
               da = DataAttribute.create!(type: 'ImportAttribute',
@@ -178,32 +165,13 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                                          attribute_subject_id: otu_id,
                                          attribute_subject_type: 'Otu',
                                          import_predicate: 'Nomenclator',
-                                         value: get_nomenclator_metadata[row['NomenclatorID']]['nomenclator_string'],
-                                         origin_citation_attributes: {
-                                             source_id: source_id,
-                                             project_id: project_id,
-                                             created_at: row['CreatedOn'],
-                                             updated_at: row['LastUpdate'],
-                                             created_by_id: get_tw_user_id[row['CreatedBy']],
-                                             updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                                         },
+                                         value: "#{get_nomenclator_metadata[row['NomenclatorID']]['nomenclator_string']} from source_id #{source_id}",
                                          project_id: project_id,
                                          created_at: row['CreatedOn'],
                                          updated_at: row['LastUpdate'],
                                          created_by_id: get_tw_user_id[row['CreatedBy']],
                                          updated_by_id: get_tw_user_id[row['ModifiedBy']]
               )
-              # otu_da_citation = Citation.create!(
-              #     source_id: source_id,
-              #     citation_object: da,
-              #
-              #     # housekeeping for citation
-              #     project_id: project_id,
-              #     created_at: row['CreatedOn'],
-              #     updated_at: row['LastUpdate'],
-              #     created_by_id: get_tw_user_id[row['CreatedBy']],
-              #     updated_by_id: get_tw_user_id[row['ModifiedBy']]
-              # )
             end
           end
 
