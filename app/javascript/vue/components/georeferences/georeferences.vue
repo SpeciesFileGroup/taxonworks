@@ -14,11 +14,14 @@
       <map-component 
         :height="height"
         :width="width"
-        :shapes="shapes"
+        :geojson="shapes['features']"
         :lat="lat"
         :lng="lng"
         :zoom="zoom"
-        @shape="saveGeoreference($event)"/>
+        :resize="true"
+        :draw-controls="true"
+        @geoJsonLayersEdited="updateGeoreference($event)"
+        @geoJsonLayerCreated="saveGeoreference($event)"/>
     </div>
     <display-list
       :list="georeferences"
@@ -50,7 +53,7 @@ export default {
     },
     width: {
       type: String,
-      default: '500px'
+      default: 'auto'
     },
     lat: {
       type: Number,
@@ -67,7 +70,7 @@ export default {
       default: 1
     }
   },
-  data() {
+  data () {
     return {
       showSpinner: false,
       selectedGeoreference: undefined,
@@ -78,14 +81,14 @@ export default {
       }
     }
   },
-  mounted() {
+  mounted () {
     this.getGeoreferences()
   },
   methods: {
-    saveGeoreference(shape) {
-      let data =  {
-          georeference: {
-          geographic_item_attributes: { shape: shape },
+    saveGeoreference (shape) {
+      const data = {
+        georeference: {
+          geographic_item_attributes: { shape: JSON.stringify(shape) },
           collecting_event_id: this.collectingEventId,
           type: 'Georeference::GoogleMap'
         }
@@ -97,6 +100,28 @@ export default {
         this.populateShapes()
         this.$emit('created', response.body)
       })
+    },
+    updateGeoreference (shape) {
+      let georeference = {
+        id: shape.properties.georeference.id,
+        geographic_item_attributes: { shape: JSON.stringify(shape) },
+        collecting_event_id: this.collectingEventId,
+        type: 'Georeference::GoogleMap'
+      }
+
+      this.showSpinner = true
+     
+      this.$http.patch(`/georeferences/${georeference.id}.json`, { georeference: georeference }).then(response => {
+        this.showSpinner = false
+        let index = this.georeferences.findIndex(geo => { return geo.id == response.body.id })
+        this.georeferences[index] = response.body
+        this.shapes = []
+        this.populateShapes()
+        this.$emit('updated', response.body)
+      }, () => {
+        this.showSpinner = false
+      })
+      
     },
     getGeoreferences() {
       this.$http.get(`/georeferences.json?collecting_event_id=${this.collectingEventId}`).then(response => {
