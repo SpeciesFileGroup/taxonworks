@@ -3,11 +3,12 @@
     <h2>Parsed</h2>
     <draggable
       v-model="componentsOrder"
-      :options="{ disabled: enableDraggable }"
+      :options="{ disabled: disableDraggable }"
       @end="updatePreferences">
       <component
         class="separate-bottom"
         v-for="componentName in componentsOrder"
+        @onModal="setDraggable"
         :key="componentName"
         :is="componentName"/>
     </draggable>
@@ -42,9 +43,15 @@ export default {
   },
   data () {
     return {
-      enableDraggable: true,
+      disableDraggable: false,
       componentsOrder: ['Geography', 'Georeferences', 'Elevation', 'Dates', 'Times', 'Collectors', 'Group', 'Predicates'],
       keyStorage: 'tasks::digitize::GeographyOrder'
+    }
+  },
+  methods: {
+    setDraggable (mode) {
+      this.disableDraggable = mode
+      console.log(mode)
     }
   }
 }

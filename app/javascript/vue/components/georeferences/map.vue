@@ -45,6 +45,42 @@ export default {
         return false
       }
     },
+    drawCircle: {
+      type: Boolean,
+      default: true
+    },
+    drawMarker: {
+      type: Boolean,
+      default: true
+    },
+    drawPolyline: {
+      type: Boolean,
+      default: true
+    },
+    drawRectangle: {
+      type: Boolean,
+      default: true
+    },
+    drawPolygon: {
+      type: Boolean,
+      default: true
+    },
+    editMode: {
+      type: Boolean,
+      default: true
+    },
+    dragMode: {
+      type: Boolean,
+      default: true
+    },
+    cutPolygon: {
+      type: Boolean,
+      default: true
+    },
+    removalMode: {
+      type: Boolean,
+      default: true
+    },
     tilesSelection: {
       type: Boolean,
       default: true
@@ -118,8 +154,9 @@ export default {
     if (this.geojson.length) {
       this.geoJSON(this.geojson)
     }
-    if (this.resize)
-      {this.initEvents()}
+    if (this.resize) {
+      this.initEvents()
+    }
   },
   methods: {
     resizeMap (mutationsList, observer) {
@@ -157,7 +194,16 @@ export default {
 
       if (this.drawControls) {
         this.mapObject.pm.addControls({
-          position: 'topleft'
+          position: 'topleft',
+          drawCircle: this.drawCircle,
+          drawMarker: this.drawMarker,
+          drawPolyline: this.drawPolyline,
+          drawPolygon: this.drawPolygon,
+          drawRectangle: this.drawRectangle,
+          editMode: this.editMode,
+          dragMode: this.dragMode,
+          cutPolygon: this.cutPolygon,
+          removalMode: this.removalMode
         })
       }
     },
@@ -165,7 +211,7 @@ export default {
       const that = this
       this.mapObject.on('pm:create', (e) => {
         var layer = e.layer
-        var geoJsonLayer = layer.toGeoJSON()
+        var geoJsonLayer = this.convertGeoJSONWithPointRadius(layer)
 
         if (e.layerType === 'circle') {
           geoJsonLayer.properties.radius = layer.getRadius()
@@ -186,7 +232,8 @@ export default {
     },
     convertGeoJSONWithPointRadius (layer) {
       const layerJson = layer.toGeoJSON()
-
+      console.log(layerJson)
+      console.log(layer)
       if (typeof layer.getRadius === 'function') {
         layerJson.properties.radius = layer.getRadius()
       }

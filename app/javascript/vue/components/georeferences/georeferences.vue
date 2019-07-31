@@ -1,7 +1,9 @@
 <template>
   <div
     :style="{
-      width: width
+      width: width,
+      maxHeight: '80vh',
+      overflowY: 'scroll'
   }">
     <div 
       :style="{
@@ -20,6 +22,9 @@
         :zoom="zoom"
         :resize="true"
         :draw-controls="true"
+        :draw-polyline="false"
+        :cut-polygon="false"
+        :removal-mode="false"
         @geoJsonLayersEdited="updateGeoreference($event)"
         @geoJsonLayerCreated="saveGeoreference($event)"/>
     </div>
@@ -34,7 +39,7 @@
 
 import MapComponent from './map'
 import SpinnerComponent from 'components/spinner'
-import DisplayList from 'components/displayList'
+import DisplayList from './list'
 
 export default {
   components: {
@@ -90,7 +95,7 @@ export default {
         georeference: {
           geographic_item_attributes: { shape: JSON.stringify(shape) },
           collecting_event_id: this.collectingEventId,
-          type: 'Georeference::GoogleMap'
+          type: 'Georeference::Leaflet'
         }
       }
       this.showSpinner = true
@@ -106,14 +111,14 @@ export default {
         id: shape.properties.georeference.id,
         geographic_item_attributes: { shape: JSON.stringify(shape) },
         collecting_event_id: this.collectingEventId,
-        type: 'Georeference::GoogleMap'
+        type: 'Georeference::Leaflet'
       }
 
       this.showSpinner = true
      
       this.$http.patch(`/georeferences/${georeference.id}.json`, { georeference: georeference }).then(response => {
+        const index = this.georeferences.findIndex(geo => { return geo.id == response.body.id })
         this.showSpinner = false
-        let index = this.georeferences.findIndex(geo => { return geo.id == response.body.id })
         this.georeferences[index] = response.body
         this.shapes = []
         this.populateShapes()

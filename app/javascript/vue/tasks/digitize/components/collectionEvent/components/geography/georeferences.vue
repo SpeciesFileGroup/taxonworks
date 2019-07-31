@@ -1,7 +1,7 @@
 <template>
   <div>
     <button
-      @click="show = !show"
+      @click="onModal"
       type="button"
       :disabled="!collectingEvent.id"
       class="button normal-input button-default">
@@ -9,7 +9,7 @@
     </button>
     <modal-component
       class="modal-georeferences"
-      @close="show = false"
+      @close="onModal"
       v-if="show">
       <h3 slot="header">Georeferences</h3>
       <div slot="body">
@@ -45,9 +45,15 @@ export default {
       return parseFloat(this.collectingEvent.verbatim_longitude)
     }
   },
-  data() {
+  data () {
     return {
       show: false
+    }
+  },
+  methods: {
+    onModal () {
+      this.show = !this.show
+      this.$emit('onModal', this.show)
     }
   }
 }
