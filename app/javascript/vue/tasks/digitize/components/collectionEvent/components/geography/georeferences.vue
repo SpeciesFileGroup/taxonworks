@@ -17,6 +17,8 @@
           :zoom="5"
           :lat="lat"
           :lng="lng"
+          :verbatim-lat="collectingEvent.verbatim_latitude"
+          :verbatim-lng="collectingEvent.verbatim_longitude"
           :collecting-event-id="collectingEvent.id"/>
       </div>
     </modal-component>

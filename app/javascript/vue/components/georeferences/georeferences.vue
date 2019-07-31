@@ -28,6 +28,14 @@
         @geoJsonLayersEdited="updateGeoreference($event)"
         @geoJsonLayerCreated="saveGeoreference($event)"/>
     </div>
+    <button
+      type="button"
+      v-if="verbatimLat && verbatimLng"
+      :disabled="verbatimGeoreferenceAlreadyCreated"
+      @click="createVerbatimShape"
+      class="button normal-input button-submit separate-bottom separate-top">
+      Create georeference from verbatim 
+    </button>
     <display-list
       :list="georeferences"
       @delete="removeGeoreference"
@@ -70,9 +78,26 @@ export default {
       required: false,
       default: 0
     },
+    verbatimLng: {
+      type: [Number, String],
+      default: 0
+    },
+    verbatimLat: {
+      type: [Number, String],
+      default: 0
+    },
     zoom: {
       type: Number,
       default: 1
+    }
+  },
+  computed: {
+    verbatimGeoreferenceAlreadyCreated () {
+      return this.georeferences.find(item => {
+        return item.geo_json.geometry.type === 'Point' &&
+          Number(item.geo_json.geometry.coordinates[0]) === Number(this.verbatimLng) &&
+          Number(item.geo_json.geometry.coordinates[1]) === Number(this.verbatimLat)
+      })
     }
   },
   data () {
@@ -146,6 +171,30 @@ export default {
           return item.id == geo.id
         })), 1)
         this.populateShapes()
+      })
+    },
+    createVerbatimShape() {
+      const shape = {
+        type: 'Feature',
+        properties: {},
+        geometry: {
+          type: 'Point',
+          coordinates: [this.verbatimLng, this.verbatimLat]
+        }
+      }
+      const data = {
+        georeference: {
+          geographic_item_attributes: { shape: JSON.stringify(shape) },
+          collecting_event_id: this.collectingEventId,
+          type: 'Georeference::VerbatimData'
+        }
+      }
+      this.showSpinner = true
+      this.$http.post('/georeferences.json', data).then(response => {
+        this.showSpinner = false
+        this.georeferences.push(response.body)
+        this.populateShapes()
+        this.$emit('created', response.body)
       })
     }
   }
