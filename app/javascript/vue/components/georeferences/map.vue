@@ -213,16 +213,29 @@ export default {
         var layer = e.layer
         var geoJsonLayer = this.convertGeoJSONWithPointRadius(layer)
 
+        //layer.setStyle(this.randomShapeStyle())
+
         if (e.layerType === 'circle') {
           geoJsonLayer.properties.radius = layer.getRadius()
         }
         that.$emit('shapeCreated', layer)
         that.$emit('geoJsonLayerCreated', geoJsonLayer)
-        that.drawnItems.addLayer(layer.setStyle({ color: '#444400', fillColor: '#888800' }))
+        that.drawnItems.addLayer(layer.setStyle(this.randomShapeStyle()))
       })
     },
     removeLayers () {
       this.drawnItems.clearLayers()
+    },
+    removeLayer (layer) {
+      this.mapObject.eachLayer(item => {
+        console.log(item)
+       // item._layers.forEach(featureLayer => {
+          //if(featureLayer.feature.properties.georeference.id === layer.properties.georeference.id) {
+            //this.drawnItems.removeLayer(featureLayer)
+       //   }
+      // })
+      })
+      //this.drawControls.removeLayer(layer)
     },
     editedLayer (e) {
       var layer = e.target
@@ -239,34 +252,52 @@ export default {
       return layerJson
     },
     addJsonCircle (layer) {
-      const circle = L.circle([layer.geometry.coordinates[1], layer.geometry.coordinates[0]], Number(layer.properties.radius))
-      circle.on('pm:edit', e => this.editedLayer(e))
-      circle.addTo(this.drawnItems)
+      return L.circle([layer.geometry.coordinates[1], layer.geometry.coordinates[0]], Number(layer.properties.radius))
     },
     geoJSON (geoJsonFeatures) {
       if (!Array.isArray(geoJsonFeatures) || geoJsonFeatures.length === 0) return
-      const newGeojson = []
-      geoJsonFeatures.forEach(layer => { // scan feature array and either (i) or (ii)
-        if (layer.geometry.type === 'Point' && layer.properties.hasOwnProperty('radius')) {
-          this.addJsonCircle(layer) // (i) add a leaflet circle to the drawnItems data element
-        } else {
-          newGeojson.push(layer) // (ii) add this feature to the other array
-        }
-      })
 
-      L.geoJson(newGeojson, {
-        style: this.defaultShapeStyle(),
-        onEachFeature: this.onMyFeatures
-      }).addTo(this.drawnItems)
-      
+      this.addGeoJsonLayer(geoJsonFeatures)
+
       if (this.fitBounds) {
         this.mapObject.fitBounds(this.drawnItems.getBounds())
       }
     },
+    addGeoJsonLayer (geoJsonLayers) {
+      const that = this
+
+      L.geoJson(geoJsonLayers, {
+        style: function (feature) {
+          return that.randomShapeStyle()
+        },
+        onEachFeature: this.onMyFeatures,
+        pointToLayer: function (feature, latlng) {
+          let shape = (feature.properties.hasOwnProperty('radius') ? that.addJsonCircle(feature) : L.marker(latlng))
+          Object.assign(shape, { feature: feature })
+          console.log(shape)
+          return shape
+        }
+      }).addTo(this.drawnItems)
+    },
+    getRandomColor() {
+      const letters = '0123456789ABCDEF'
+      let color = '#'
+      for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)]
+      }
+      return color
+    },
     defaultShapeStyle () {
       return {
         weight: 1,
-        color: '#BB4400',
+        dashArray: '',
+        fillOpacity: 0.4
+      }
+    },
+    randomShapeStyle () {
+      return {
+        weight: 1,
+        color: this.getRandomColor(),
         dashArray: '',
         fillOpacity: 0.4
       }

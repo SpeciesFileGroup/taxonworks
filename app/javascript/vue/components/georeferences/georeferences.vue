@@ -14,6 +14,7 @@
         v-if="showSpinner || !collectingEventId"
         :legend="!collectingEventId ? 'Need collecting event ID' : 'Saving...'"/>
       <map-component 
+        ref="leaflet"
         :height="height"
         :width="width"
         :geojson="shapes['features']"
@@ -128,7 +129,7 @@ export default {
       this.$http.post('/georeferences.json', data).then(response => {
         this.showSpinner = false
         this.georeferences.push(response.body)
-        this.populateShapes()
+        //this.$refs.leaflet.addGeoJsonLayer(response.body.geo_json)
         this.$emit('created', response.body)
       })
     },
@@ -172,8 +173,9 @@ export default {
     },
     removeGeoreference(geo) {
       this.$http.delete(`/georeferences/${geo.id}.json`).then(() => {
+        this.$refs.leaflet.removeLayer(geo.geo_json)
         this.georeferences.splice(this.georeferences.findIndex((item => {
-          return item.id == geo.id
+          return item.id === geo.id
         })), 1)
         this.populateShapes()
       })
