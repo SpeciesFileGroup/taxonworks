@@ -74,6 +74,11 @@ module Queries
       #   whether the name has an Otu
       attr_accessor :otus
 
+      # @param authors [Boolean, nil]
+      # ['true' or 'false'] on initialize
+      #   whether the name has an author string, from any source, provided 
+      attr_accessor :authors
+
       # @params type_material [Boolean, nil]
       # ['true' or 'false'] on initialize
       #   whether the name has TypeMaterial
@@ -115,6 +120,8 @@ module Queries
         @leaves = (params[:leaves] == 'true' ? true : false) if !params[:leaves].nil?
         @nomenclature_group = params[:nomenclature_group]  if !params[:nomenclature_group].nil?
         @nomenclature_code = params[:nomenclature_code]  if !params[:nomenclature_code].nil?
+
+        @authors = (params[:authors] == 'true' ? true : false) if !params[:authors].nil?
 
         # TODO: support here?
         @keyword_ids ||= []
@@ -159,10 +166,16 @@ module Queries
       # @return Scope
       def otus_facet
         return nil if otus.nil?
-
         subquery = ::Otu.where(::Otu.arel_table[:taxon_name_id].eq(::TaxonName.arel_table[:id])).arel.exists
-
         ::TaxonName.where(otus ? subquery : subquery.not)
+      end
+
+      # @return Scope
+      def authors_facet
+        return nil if authors.nil?
+        authors ? 
+          ::TaxonName.where.not(cached_author_year: nil) :
+          ::TaxonName.where(cached_author_year: nil)
       end
 
       # @return Scope
@@ -216,9 +229,7 @@ module Queries
       # @return Scope
       def otus_facet
         return nil if otus.nil?
-
         subquery = ::Otu.where(::Otu.arel_table[:taxon_name_id].eq(::TaxonName.arel_table[:id])).arel.exists
-
         ::TaxonName.where(otus ? subquery : subquery.not)
       end
 
@@ -325,6 +336,7 @@ module Queries
           matching_keyword_ids,
           type_metadata_facet,
           otus_facet,
+          authors_facet,
           citations_facet
         ].compact
 
