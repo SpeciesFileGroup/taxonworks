@@ -119,6 +119,7 @@ export default {
       const data = {
         georeference: {
           geographic_item_attributes: { shape: JSON.stringify(shape) },
+          error_radius: (shape.properties.hasOwnProperty('radius') ? shape.properties.radius : undefined),
           collecting_event_id: this.collectingEventId,
           type: 'Georeference::Leaflet'
         }
@@ -132,8 +133,9 @@ export default {
       })
     },
     updateGeoreference (shape) {
-      let georeference = {
+      const georeference = {
         id: shape.properties.georeference.id,
+        error_radius: (shape.properties.hasOwnProperty('radius') ? shape.properties.radius : undefined),
         geographic_item_attributes: { shape: JSON.stringify(shape) },
         collecting_event_id: this.collectingEventId,
         type: 'Georeference::Leaflet'
@@ -162,6 +164,9 @@ export default {
     populateShapes() {
       this.shapes.features = []
       this.georeferences.forEach(geo => {
+        if (geo.error_radius != null) {
+          geo.geo_json.properties.radius = geo.error_radius
+        }
         this.shapes.features.push(geo.geo_json)
       })
     },

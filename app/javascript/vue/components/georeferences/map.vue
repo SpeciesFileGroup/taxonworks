@@ -232,8 +232,6 @@ export default {
     },
     convertGeoJSONWithPointRadius (layer) {
       const layerJson = layer.toGeoJSON()
-      console.log(layerJson)
-      console.log(layer)
       if (typeof layer.getRadius === 'function') {
         layerJson.properties.radius = layer.getRadius()
       }
@@ -241,8 +239,7 @@ export default {
       return layerJson
     },
     addJsonCircle (layer) {
-      const circle = L.circle([...layer.geometry.coordinates].reverse(), layer.properties.radius)
-      circle.setStyle(this.defaultShapeStyle())
+      const circle = L.circle([layer.geometry.coordinates[1], layer.geometry.coordinates[0]], Number(layer.properties.radius))
       circle.on('pm:edit', e => this.editedLayer(e))
       circle.addTo(this.drawnItems)
     },
