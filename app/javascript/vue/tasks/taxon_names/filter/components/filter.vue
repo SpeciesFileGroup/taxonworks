@@ -86,7 +86,8 @@ export default {
     ScopeComponent,
     StatusComponent,
     ChildrenComponent,
-    InRelationshipComponent
+    InRelationshipComponent,
+    AuthorsComponent
   },
   computed: {
     getMacKey() {
