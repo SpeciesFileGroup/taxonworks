@@ -81,6 +81,11 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     expect(query.all.map(&:id)).to contain_exactly(species.id)
   end
 
+  specify '#authors 1' do
+    query.authors = true 
+    expect(query.all.map(&:id)).to contain_exactly(species.id)
+  end
+
   specify '#type_metadata 1' do
     query.type_metadata = true
     expect(query.all.map(&:id)).to contain_exactly()
@@ -215,6 +220,7 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     query.nomenclature_group = 'Iczn'
     query.citations = 'without_origin_citation'
     query.otus = true
+    query.authors = true
     query.type_metadata = true
     query.taxon_name_classification = [ 'TaxonNameClassification::Iczn::Available' ]
     query.taxon_name_relationship = [ { 'object_taxon_name_id' => genus.id.to_s, 'type' => 'TaxonNameRelationship::Typification::Genus' } ]

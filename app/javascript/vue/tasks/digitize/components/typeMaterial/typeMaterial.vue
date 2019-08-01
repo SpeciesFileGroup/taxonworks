@@ -7,12 +7,12 @@
       <ul
         class="no_bullets"
         v-if="typeMaterials.length">
-        <li 
+        <li
           v-for="item in typeMaterials"
           :key="item.id"
           class="horizontal-left-content">
-          <span v-html="item.object_tag"/>
-          <radial-annotator 
+          <span v-html="item.object_tag" />
+          <radial-annotator
             :global-id="item.global_id"
             type="annotations"/>
           <span
@@ -32,7 +32,7 @@
             <div
               v-if="taxon"
               class="horizontal-left-content">
-              <span v-html="taxon.object_tag"/>
+              <span v-html="taxon.object_tag" />
               <span
                 class="button circle-button btn-undo button-default"
                 @click="taxon = undefined"/>
@@ -66,7 +66,7 @@
                       name="taxon-type-material"
                       :value="item.id"
                       type="radio">
-                    <span v-html="item.object_tag"/>
+                    <span v-html="item.object_tag" />
                   </label>
                 </li>
               </ul>
@@ -92,35 +92,52 @@
           <span v-else>Select a taxon name first</span>
         </div>
         <fieldset>
-          <legend>Type designator</legend>
+          <legend>Source</legend>
           <smart-selector
             v-model="view"
             class="separate-bottom item"
-            name="type-designator"
+            name="source-picker"
             :options="options"/>
           <div
-            v-if="view != 'new/Search'"
+            v-if="view != 'search'"
             class="separate-bottom">
             <ul class="no_bullets">
               <li
                 v-for="item in lists[view]"
-                v-if="!roleExist(item.id)"
                 :key="item.id">
                 <label>
                   <input
                     type="radio"
-                    @click="addRole(item)"
-                    :checked="roleExist(item.id)">
+                    :value="item.id"
+                    v-model="origin_citation_attributes.source_id"
+                    @click="selectSource(item)">
                   {{ item.object_tag }}
                 </label>
               </li>
             </ul>
           </div>
-          <role-picker
-            v-model="roles"
-            :autofocus="false"
-            role-type="TypeDesignator"
-            class="types_field"/>
+          <autocomplete
+            v-else
+            class="separate-bottom"
+            url="/sources/autocomplete"
+            placeholder="Select a source"
+            param="term"
+            label="label_html"
+            :clear-after="true"
+            @getItem="selectSource"/>
+
+          <div
+            v-if="sourceSelected"
+            class="horizontal-left-content">
+            <span v-html="sourceSelected.hasOwnProperty('label_html') ? sourceSelected.label_html : sourceSelected.object_tag"/>
+            <span
+              class="button circle-button btn-undo button-default"
+              @click="newCitation(); sourceSelected = undefined"/>
+          </div>
+          <input
+            type="text"
+            v-model="origin_citation_attributes.pages"
+            placeholder="Pages">
         </fieldset>
       </template>
     </div>
@@ -129,123 +146,137 @@
 
 <script>
 
-  import Autocomplete from '../../../../components/autocomplete.vue'
-  import { 
-    GetTaxon,
-    GetTypes, 
-    GetTypeDesignatorSmartSelector,
-    GetTaxonNameSmartSelector } from '../../request/resources.js'
-  import RolePicker from '../../../../components/role_picker.vue'
-  import ActionNames from '../../store/actions/actionNames.js'
-  import { GetterNames } from '../../store/getters/getters.js'
-  import { MutationNames } from '../../store/mutations/mutations'
-  import BlockLayout from '../../../../components/blockLayout.vue'
-  import SmartSelector from 'components/switch.vue'
-  import CreatePerson from '../../helpers/createPerson.js'
-  import orderSmartSelector from '../../helpers/orderSmartSelector.js'
-  import selectFirstSmartOption from '../../helpers/selectFirstSmartOption'
-  import RadialAnnotator from 'components/annotator/annotator'
+import Autocomplete from 'components/autocomplete.vue'
+import {
+  GetTaxon,
+  GetTypes,
+  GetTaxonNameSmartSelector,
+  GetSourceSmartSelector } from '../../request/resources.js'
+import ActionNames from '../../store/actions/actionNames.js'
+import { GetterNames } from '../../store/getters/getters.js'
+import { MutationNames } from '../../store/mutations/mutations'
+import BlockLayout from '../../../../components/blockLayout.vue'
+import SmartSelector from 'components/switch.vue'
+import orderSmartSelector from '../../helpers/orderSmartSelector.js'
+import selectFirstSmartOption from '../../helpers/selectFirstSmartOption'
+import RadialAnnotator from 'components/annotator/annotator'
 
-  export default {
-    components: {
-      Autocomplete,
-      RolePicker,
-      BlockLayout,
-      SmartSelector,
-      RadialAnnotator
+export default {
+  components: {
+    Autocomplete,
+    BlockLayout,
+    SmartSelector,
+    RadialAnnotator
+  },
+  computed: {
+    taxonIdFormOtu () {
+      const tmpOtu = this.$store.getters[GetterNames.GetTmpData].otu
+      return (tmpOtu && tmpOtu.hasOwnProperty('taxon_name_id')) ? tmpOtu.taxon_name_id : undefined
     },
-    computed: {
-      taxonIdFormOtu() {
-        let tmpOtu = this.$store.getters[GetterNames.GetTmpData].otu
-        return (tmpOtu && tmpOtu.hasOwnProperty('taxon_name_id')) ? tmpOtu.taxon_name_id : undefined
+    checkForTypeList () {
+      return this.types && this.taxon
+    },
+    typeMaterial () {
+      return this.$store.getters[GetterNames.GetTypeMaterial]
+    },
+    typeMaterials () {
+      return this.$store.getters[GetterNames.GetTypeMaterials]
+    },
+    taxon: {
+      get () {
+        return this.$store.getters[GetterNames.GetTypeMaterial].taxon
       },
-      checkForTypeList () {
-        return this.types && this.taxon
-      },
-      typeMaterial() {
-        return this.$store.getters[GetterNames.GetTypeMaterial]
-      },
-      typeMaterials() {
-        return this.$store.getters[GetterNames.GetTypeMaterials]
-      },
-      taxon: {
-        get() {
-          return this.$store.getters[GetterNames.GetTypeMaterial].taxon
-        },
-        set(value) {
-          this.$store.commit(MutationNames.SetTypeMaterialTaxon)
-        }
-      },
-      type: {
-        get() {
-          return this.$store.getters[GetterNames.GetTypeMaterial].type_type
-        },
-        set(value) {
-          this.$store.commit(MutationNames.SetTypeMaterialType, value)
-        }
-      },
-      roles: {
-        get() {
-          return this.$store.getters[GetterNames.GetTypeMaterial].roles_attributes
-        },
-        set(value) {
-          this.$store.commit(MutationNames.SetTypeMaterialRoles, value)
-        }
+      set (value) {
+        this.$store.commit(MutationNames.SetTypeMaterialTaxon)
       }
     },
-    data() {
-      return {
-        types: undefined,
-        options: [],
-        optionsTaxon: [],
-        lists: {},
-        listsTaxon: {},
-        view: 'new/Search',
-        viewTaxon: 'search'
-      }
-    },
-    watch: {
-      taxonIdFormOtu(newVal) {
-        if(newVal) {
-          GetTaxon(newVal).then(response => {
-            this.listsTaxon.quick.unshift(response)
-            this.viewTaxon = 'quick'
-          })
-        }
-      }
-    },
-    mounted: function () {
-      GetTypes().then(response => {
-        this.types = response
-      })
-
-      GetTaxonNameSmartSelector().then(response => {
-        this.optionsTaxon = orderSmartSelector(Object.keys(response))
-        this.listsTaxon = response   
-        this.optionsTaxon.push("search") 
-        this.viewTaxon = selectFirstSmartOption(response, this.optionsTaxon)
-      })
-    },
-    methods: {
-      selectTaxon(taxonId) {
-        this.$store.dispatch(ActionNames.GetTaxon, taxonId)
+    type: {
+      get () {
+        return this.$store.getters[GetterNames.GetTypeMaterial].type_type
       },
-      destroyTypeMateria(item) {
-        this.$store.dispatch(ActionNames.RemoveTypeMaterial, item).then(response => {
-          TW.workbench.alert.create('Type material was successfully destroyed.', 'notice')
+      set (value) {
+        this.$store.commit(MutationNames.SetTypeMaterialType, value)
+      }
+    },
+    citation: {
+      get () {
+        return this.$store.getters[GetterNames.GetTypeMaterial].origin_citation_attributes
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetTypeMaterialCitation, value)
+      }
+    }
+  },
+  data () {
+    return {
+      types: undefined,
+      options: [],
+      optionsTaxon: [],
+      lists: {},
+      listsTaxon: {},
+      view: 'search',
+      viewTaxon: 'search',
+      sourceSelected: undefined,
+      origin_citation_attributes: {
+        source_id: undefined,
+        pages: undefined
+      }
+    }
+  },
+  watch: {
+    taxonIdFormOtu (newVal) {
+      if (newVal) {
+        GetTaxon(newVal).then(response => {
+          this.listsTaxon.quick.unshift(response)
+          this.viewTaxon = 'quick'
         })
+      }
+    },
+    origin_citation_attributes: {
+      handler (newVal) {
+        this.citation = newVal
       },
-      roleExist(id) {
-        return (this.roles.find((role) => {
-          return !role.hasOwnProperty('_destroy') && role.hasOwnProperty('person') && role.person.id == id
-        }) ? true : false)
-      },
-      addRole(role) {
-        if(!this.roleExist(role.id)) {
-          this.roles.push(CreatePerson(role, 'Collector'))
-        }
+      deep: true
+    }
+  },
+  mounted: function () {
+    GetTypes().then(response => {
+      this.types = response
+    })
+
+    GetTaxonNameSmartSelector().then(response => {
+      this.optionsTaxon = orderSmartSelector(Object.keys(response))
+      this.listsTaxon = response
+      this.optionsTaxon.push('search')
+      this.viewTaxon = selectFirstSmartOption(response, this.optionsTaxon)
+    })
+
+    GetSourceSmartSelector().then(response => {
+      this.options = orderSmartSelector(Object.keys(response))
+      this.lists = response
+      this.options.push('search')
+      this.view = selectFirstSmartOption(response, this.optionsTaxon)
+    })
+  },
+  methods: {
+    selectTaxon (taxonId) {
+      this.$store.dispatch(ActionNames.GetTaxon, taxonId)
+    },
+    destroyTypeMateria (item) {
+      this.$store.dispatch(ActionNames.RemoveTypeMaterial, item).then(response => {
+        TW.workbench.alert.create('Type material was successfully destroyed.', 'notice')
+      })
+    },
+    selectSource (source) {
+      this.origin_citation_attributes.source_id = source.id
+      this.sourceSelected = source
+    },
+    newCitation () {
+      this.origin_citation_attributes = {
+        source_id: undefined,
+        pages: undefined
       }
     }
   }
+}
 </script>
-

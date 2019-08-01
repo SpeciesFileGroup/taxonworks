@@ -83,6 +83,7 @@ import setCollectionEventRoles from './CollectionEvent/setCollectionEventRoles'
 
 import setTypeMaterial from './TypeMaterial/setTypeMaterial'
 import setTypeMaterials from './TypeMaterial/setTypeMaterials'
+import setTypeMaterialCitation from './TypeMaterial/setTypeMaterialCitation'
 import setTypeMaterialBiologicalObjectId from './TypeMaterial/setTypeMaterialBiologicalObjectId'
 import setTypeMaterialCollectionObject from './TypeMaterial/setTypeMaterialCollectionObject'
 import setTypeMaterialCollectionObjectId from './TypeMaterial/setTypeMaterialCollectionObjectId'
@@ -163,6 +164,7 @@ const MutationNames = {
 
   SetTypeMaterial: 'setTypeMaterial',
   SetTypeMaterials: 'setTypeMaterials',
+  SetTypeMaterialCitation: 'setTypeMaterialCitation',
   SetTypeMaterialBiologicalObjectId: 'setTypeMaterialBiologicalObjectId',
   SetTypeMaterialCollectionObject: 'setTypeMaterialCollectionObject',
   SetTypeMaterialCollectionObjectId: 'setTypeMaterialCollectionObjectId',
@@ -276,6 +278,7 @@ const MutationFunctions = {
 
   [MutationNames.SetTypeMaterial]: setTypeMaterial,
   [MutationNames.SetTypeMaterials]: setTypeMaterials,
+  [MutationNames.SetTypeMaterialCitation]: setTypeMaterialCitation,
   [MutationNames.SetTypeMaterialBiologicalObjectId]: setTypeMaterialBiologicalObjectId,
   [MutationNames.SetTypeMaterialCollectionObject]: setTypeMaterialCollectionObject,
   [MutationNames.SetTypeMaterialCollectionObjectId]: setTypeMaterialCollectionObjectId,

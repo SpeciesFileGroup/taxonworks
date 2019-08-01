@@ -40,6 +40,7 @@
       <children-component v-model="params.base.leaves"/>
       <metadata-component v-model="params.base.type_metadata" />
       <citations-component v-model="params.base.citations"/>
+      <authors-component v-model="params.base.authors"/>
       <otus-component v-model="params.base.otus"/>
     </div>
   </div>
@@ -54,6 +55,7 @@ import ValidityComponent from './filters/validity'
 import RelatedComponent from './filters/related'
 import CitationsComponent from './filters/citations'
 import OtusComponent from './filters/otus'
+import AuthorsComponent from './filters/authors'
 import MetadataComponent from './filters/type_metadata'
 import RelationshipsComponent from './filters/relationships'
 import ScopeComponent from './filters/scope'
@@ -84,7 +86,8 @@ export default {
     ScopeComponent,
     StatusComponent,
     ChildrenComponent,
-    InRelationshipComponent
+    InRelationshipComponent,
+    AuthorsComponent
   },
   computed: {
     getMacKey() {
@@ -134,6 +137,7 @@ export default {
           type_metadata: undefined,
           citations: undefined,
           otus: undefined,
+          authors: undefined,
           descendants: undefined,
           nomenclature_group: undefined,
           nomenclature_code: undefined,

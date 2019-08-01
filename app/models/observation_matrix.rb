@@ -30,4 +30,11 @@ class ObservationMatrix < ApplicationRecord
     observation_matrix_rows.count * observation_matrix_columns.count 
   end
 
+  def is_media_matrix?
+    observation_matrix_columns.each do |c|
+      return false unless c.descriptor.type == 'Descriptor::Media'
+    end
+    true
+  end
+    
 end

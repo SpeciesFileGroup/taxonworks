@@ -27,7 +27,13 @@
                   class="new-combination-rank-list-taxon-name"
                   v-html="taxon.original_combination"/>
                 <span class="disabled"> ({{ taxon.rank }})</span>
+
               </span>
+              <span
+                v-if="taxon.id != taxon.cached_valid_taxon_name_id"
+                class="separate-left"
+                title="Invalid"
+                data-icon="warning"/>
             </label>
           </li>
         </ul>
