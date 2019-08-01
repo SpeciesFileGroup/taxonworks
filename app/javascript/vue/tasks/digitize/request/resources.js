@@ -57,6 +57,10 @@ const GetRepositorySmartSelector = function () {
   return ajaxCall('get', `/repositories/select_options`)
 }
 
+const GetSourceSmartSelector = function () {
+  return ajaxCall('get', `/sources/select_options`)
+}
+
 const GetNamespacesSmartSelector = function () {
   return ajaxCall('get', `/namespaces/select_options?klass=CollectionObject`)
 }
@@ -298,6 +302,7 @@ export {
   GetCollectorsSmartSelector,
   GetRepositorySmartSelector,
   GetGeographicSmartSelector,
+  GetSourceSmartSelector,
   GetTaxonDeterminatorSmartSelector,
   GetBiologicalRelationshipsSmartSelector,
   GetBiologicalRelationships,
