@@ -51,7 +51,6 @@ export default {
   methods: {
     setDraggable (mode) {
       this.disableDraggable = mode
-      console.log(mode)
     }
   }
 }

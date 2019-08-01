@@ -213,29 +213,16 @@ export default {
         var layer = e.layer
         var geoJsonLayer = this.convertGeoJSONWithPointRadius(layer)
 
-        //layer.setStyle(this.randomShapeStyle())
-
         if (e.layerType === 'circle') {
           geoJsonLayer.properties.radius = layer.getRadius()
         }
         that.$emit('shapeCreated', layer)
         that.$emit('geoJsonLayerCreated', geoJsonLayer)
-        that.drawnItems.addLayer(layer.setStyle(this.randomShapeStyle()))
+        that.mapObject.removeLayer(layer)
       })
     },
     removeLayers () {
       this.drawnItems.clearLayers()
-    },
-    removeLayer (layer) {
-      this.mapObject.eachLayer(item => {
-        console.log(item)
-       // item._layers.forEach(featureLayer => {
-          //if(featureLayer.feature.properties.georeference.id === layer.properties.georeference.id) {
-            //this.drawnItems.removeLayer(featureLayer)
-       //   }
-      // })
-      })
-      //this.drawControls.removeLayer(layer)
     },
     editedLayer (e) {
       var layer = e.target
@@ -274,7 +261,6 @@ export default {
         pointToLayer: function (feature, latlng) {
           let shape = (feature.properties.hasOwnProperty('radius') ? that.addJsonCircle(feature) : L.marker(latlng))
           Object.assign(shape, { feature: feature })
-          console.log(shape)
           return shape
         }
       }).addTo(this.drawnItems)

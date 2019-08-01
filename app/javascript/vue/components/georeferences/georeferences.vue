@@ -129,7 +129,7 @@ export default {
       this.$http.post('/georeferences.json', data).then(response => {
         this.showSpinner = false
         this.georeferences.push(response.body)
-        //this.$refs.leaflet.addGeoJsonLayer(response.body.geo_json)
+        this.$refs.leaflet.addGeoJsonLayer(response.body.geo_json)
         this.$emit('created', response.body)
       })
     },
@@ -148,8 +148,6 @@ export default {
         const index = this.georeferences.findIndex(geo => { return geo.id == response.body.id })
         this.showSpinner = false
         this.georeferences[index] = response.body
-        this.shapes = []
-        this.populateShapes()
         this.$emit('updated', response.body)
       }, () => {
         this.showSpinner = false
@@ -173,7 +171,6 @@ export default {
     },
     removeGeoreference(geo) {
       this.$http.delete(`/georeferences/${geo.id}.json`).then(() => {
-        this.$refs.leaflet.removeLayer(geo.geo_json)
         this.georeferences.splice(this.georeferences.findIndex((item => {
           return item.id === geo.id
         })), 1)
