@@ -272,7 +272,7 @@ export default {
       this.sourceSelected = source
     },
     newCitation () {
-      return {
+      this.origin_citation_attributes = {
         source_id: undefined,
         pages: undefined
       }
