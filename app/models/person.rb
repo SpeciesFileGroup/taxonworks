@@ -103,7 +103,6 @@ class Person < ApplicationRecord
   has_many :collector_roles, class_name: 'Collector', dependent: :restrict_with_error, inverse_of: :person
   has_many :determiner_roles, class_name: 'Determiner', dependent: :restrict_with_error, inverse_of: :person
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', dependent: :restrict_with_error, inverse_of: :person
-  has_many :type_designator_roles, class_name: 'TypeDesignator', dependent: :restrict_with_error, inverse_of: :person
   has_many :georeferencer_roles, class_name: 'Georeferencer', dependent: :restrict_with_error, inverse_of: :person
 
   # has_many :sources, through: :roles # TODO: test and confirm dependent
@@ -114,7 +113,6 @@ class Person < ApplicationRecord
   has_many :collecting_events, through: :collector_roles, source: :role_object, source_type: 'CollectingEvent', inverse_of: :collectors
   has_many :taxon_determinations, through: :determiner_roles, source: :role_object, source_type: 'TaxonDetermination', inverse_of: :determiners
   has_many :authored_taxon_names, through: :taxon_name_author_roles, source: :role_object, source_type: 'TaxonName', inverse_of: :taxon_name_authors
-  has_many :type_material, through: :type_designator_roles, source: :role_object, source_type: 'TypeMaterial', inverse_of: :type_designators
   has_many :georeferences, through: :georeferencer_roles, source: :role_object, source_type: 'Georeference', inverse_of: :georeferencers
 
   scope :created_before, -> (time) { where('created_at < ?', time) }
@@ -377,11 +375,6 @@ class Person < ApplicationRecord
   # @return [Boolean]
   def is_taxon_name_author?
     taxon_name_author_roles.any?
-  end
-
-  # @return [Boolean]
-  def is_type_designator?
-    type_designator_roles.any?
   end
 
   # @return [Boolean]
