@@ -76,7 +76,7 @@ jobs:
     - <<: *test-stage
       env:
         - TEST_WORKER=4
-    - stage: deploy
+    - stage: release (simulated)
       language: minimal
       services:
         - docker
