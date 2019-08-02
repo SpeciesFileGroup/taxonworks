@@ -87,7 +87,8 @@ RUN printf "production:\n  adapter: nulldb" > config/database.yml \
 &&  printf "production:\n  secret_key_base: $(bundle exec rake secret)" > config/secrets.yml
 
 # Precompiling and also removing config files just in case someone uses `docker build --target=assets-precompiler`
-RUN bundle exec rake assets:precompile \
+
+RUN NODE_OPTIONS="--max-old-space-size=4096" bundle exec rake assets:precompile \
 && rm config/database.yml config/secrets.yml
 
 FROM base
