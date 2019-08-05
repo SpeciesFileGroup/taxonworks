@@ -158,6 +158,7 @@ export default {
       this.$http.get(`/georeferences.json?collecting_event_id=${this.collectingEventId}`).then(response => {
         this.georeferences = response.body
         this.populateShapes()
+        this.$emit('onGeoreferences', this.georeferences)
       })
     },
     populateShapes() {

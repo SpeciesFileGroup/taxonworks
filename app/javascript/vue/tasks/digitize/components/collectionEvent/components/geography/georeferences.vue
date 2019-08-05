@@ -6,6 +6,9 @@
       :disabled="!collectingEvent.id"
       class="button normal-input button-default">
       Georeferences
+      <template v-if="count > 0">
+        ({{ count }})
+      </template>
     </button>
     <modal-component
       class="modal-georeferences"
@@ -14,6 +17,7 @@
       <h3 slot="header">Georeferences</h3>
       <div slot="body">
         <georeferences
+          @onGeoreferences="count = $event.length"
           :zoom="5"
           :lat="lat"
           :lng="lng"
@@ -49,7 +53,8 @@ export default {
   },
   data () {
     return {
-      show: false
+      show: false,
+      count: 0
     }
   },
   methods: {
