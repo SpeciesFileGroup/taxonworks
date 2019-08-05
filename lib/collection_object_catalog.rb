@@ -63,7 +63,7 @@ module CollectionObjectCatalog
 
     # Broken, definitely broken
     o.type_designations.each do |t|
-      date = t.origin_citation ? t.origin_citation.nomenclature_date : nil
+      date = t&.source&.nomenclature_date #  ? t.source.nomenclature_date : nil
       data.items << CollectionObjectCatalog::EntryItem.new(type: :typified, object: t, start_date: date)
     end
 
