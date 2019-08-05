@@ -131,6 +131,7 @@ export default {
         this.georeferences.push(response.body)
         this.$refs.leaflet.addGeoJsonLayer(response.body.geo_json)
         this.$emit('created', response.body)
+        this.$emit('onGeoreferences', this.georeferences)
       })
     },
     updateGeoreference (shape) {
