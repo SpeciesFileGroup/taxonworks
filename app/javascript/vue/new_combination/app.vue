@@ -19,6 +19,7 @@
       @save="resetInput(); addToList($event)"
       @onSearchStart="searching = true"
       @onSearchEnd="searching = false"
+      :accept-taxon-ids="accept_taxon_name_ids"
       :taxon-name="taxon"/>
     <h3 v-help.section.recent.overview>Recent</h3>
     <display-list
@@ -49,7 +50,8 @@ export default {
       searching: false,
       taxon: null,
       combinations: [],
-      loading: false
+      loading: false,
+      accept_taxon_name_ids: []
     }
   },
   mounted: function () {
@@ -107,6 +109,7 @@ export default {
           history.pushState(null, null, window.location.href.split('?')[0])
           GetTaxonName(combinationId).then(response => {
             this.$refs.inputSearch.processString(`${response.parent.name} ${response.name}`)
+            this.accept_taxon_name_ids.push(response.id)
             this.loading = false
           }, () => {
             this.loading = false

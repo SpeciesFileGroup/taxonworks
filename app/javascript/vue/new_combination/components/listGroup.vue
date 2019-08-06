@@ -106,6 +106,10 @@ export default {
     },
     selected: {
       type: Object
+    },
+    acceptTaxonIds: {
+      type: Array,
+      default: () => { return [] }
     }
   },
   computed: {
@@ -146,9 +150,12 @@ export default {
             this.rankChoose = newVal[0]
             this.expanded = false
           } else {
+            this.rankChoose = newVal.find(item => {
+              return this.acceptTaxonIds.includes(item.id)
+            })
             this.expanded = true
           }
-          this.displaySearch = false;
+          this.displaySearch = false
         }
         else {
           this.haltWatcher = false
