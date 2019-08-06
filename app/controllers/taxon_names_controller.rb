@@ -12,7 +12,6 @@ class TaxonNamesController < ApplicationController
         render '/shared/data/all/index'
 
       end
-      byebug
       format.json {
         @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
       }
