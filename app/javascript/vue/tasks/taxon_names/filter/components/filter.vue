@@ -33,6 +33,7 @@
       <rank-component v-model="params.base.nomenclature_group"/>
       <code-component v-model="params.base.nomenclature_code"/>
       <validity-component v-model="params.base.validity" />
+      <type-component v-model="params.base.type"/>
       <relationships-component v-model="params.base.taxon_name_relationship"/>
       <status-component v-model="params.base.taxon_name_classification"/>
       <in-relationship-component v-model="params.base.taxon_name_relationship_type"/>
@@ -64,6 +65,7 @@ import RankComponent from './filters/nomenclature_group'
 import CodeComponent from './filters/nomenclature_code'
 import ChildrenComponent from './filters/children'
 import InRelationshipComponent from './filters/in_relationship'
+import TypeComponent from './filters/type'
 
 import { GetTaxonNames } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
@@ -87,7 +89,8 @@ export default {
     StatusComponent,
     ChildrenComponent,
     InRelationshipComponent,
-    AuthorsComponent
+    AuthorsComponent,
+    TypeComponent
   },
   computed: {
     getMacKey() {
@@ -131,6 +134,7 @@ export default {
           year: undefined
         },
         base: {
+          type: undefined,
           exact: undefined,
           updated_since: undefined,
           validity: undefined,
