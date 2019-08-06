@@ -35,7 +35,7 @@ import InputSearch from './components/inputSearch.vue'
 import DisplayList from './components/displayList.vue'
 import Spinner from 'components/spinner.vue'
 
-import { GetLastCombinations, DestroyCombination, GetCombination } from './request/resources'
+import { GetLastCombinations, DestroyCombination, GetCombination, GetTaxonName } from './request/resources'
 
 export default {
   components: {
@@ -100,8 +100,18 @@ export default {
       if (/^\d+$/.test(combinationId)) {
         this.loading = true
         GetCombination(combinationId).then(response => {
+          console.log(response)
           this.editCombination(response)
           this.loading = false
+        }, () => {
+          history.pushState(null, null, window.location.href.split('?')[0])
+          GetTaxonName(combinationId).then(response => {
+            this.$refs.inputSearch.processString(`${response.parent.name} ${response.name}`)
+            this.loading = false
+          }, () => {
+            this.loading = false
+          })
+          
         })
       }
     }
