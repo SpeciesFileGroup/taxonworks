@@ -111,7 +111,7 @@ export default {
     },
     searchForTaxonNames() {
       this.searching = true
-      let params = Object.assign({}, this.params.taxon, this.params.related, this.params.base)
+      let params = Object.assign({}, this.filterEmptyParams(this.params.taxon), this.params.related, this.params.base)
       params.updated_since = params.updated_since ? this.setDays(params.updated_since) : undefined
 
       GetTaxonNames(params).then(response => {
@@ -129,7 +129,7 @@ export default {
     initParams() {
       return {
         taxon: {
-          name: '',
+          name: undefined,
           author: undefined,
           year: undefined
         },
@@ -157,6 +157,15 @@ export default {
       var date = new Date();
       date.setDate(date.getDate() - days);
       return date.toISOString().slice(0,10);
+    },
+    filterEmptyParams(object) {
+      let keys = Object.keys(object)
+      keys.forEach(key => {
+        if(object[key] === '') {
+          delete object[key]
+        }
+      })
+      return object
     }
   }
 }
