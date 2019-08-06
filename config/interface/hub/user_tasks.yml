@@ -20,28 +20,6 @@
 #               unknown: task has not been classified
 #
 ---
-nearby_locality_task:
-  hub: true
-  name: 'Nearby collecting events'
-  related:
-    - collecting_events
-    - geographic_areas
-  categories:
-    - collecting_event
-  status: prototype
-  description: 'Find collecting events within a selected radius.'
-new_list_task:
-  hub: true
-  name: 'Alphabetical list of localities by area.'
-  related:
-    - collecting_events
-    - geographic_areas
-  categories:
-    - collecting_event
-  status: prototype
-  description: 'Find collecting events within a selected area.'
-within_locality_task:
-  name:
 similar_serials_task:
   hub: true
   name: 'Similar serials'

@@ -223,13 +223,6 @@ scope :tasks do
     end
   end
 
-  scope :gis, controller: 'tasks/gis/locality' do
-    get 'nearby(/:id)', action: 'nearby', as: 'nearby_locality_task'
-    get 'within(/:id)', action: 'within', as: 'within_locality_task'
-    get 'new_list', action: 'new_list', as: 'new_list_task'
-    post 'list' # , action: 'list', as: 'locatity_list_task'
-  end
-
   scope :gis do
     scope :geographic_area_lookup, controller: 'tasks/gis/geographic_area_lookup' do
       get 'index', as: 'geographic_area_lookup_task'
