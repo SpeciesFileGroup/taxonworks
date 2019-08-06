@@ -74,6 +74,7 @@
       @select="biologicalRelation = $event"/>
     <new-citation
       class="separate-top"
+      ref="citation"
       @create="citation = $event"
       :global-id="globalId"/>
 
@@ -145,6 +146,7 @@
           this.biologicalRelationship = undefined
           this.biologicalRelation = undefined
           this.citation = undefined
+          this.$refs.citation.cleanCitation()
           TW.workbench.alert.create('Biological association was successfully created.', 'notice')
           this.list.push(response.body)
         })
