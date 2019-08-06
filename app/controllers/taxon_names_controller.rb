@@ -45,6 +45,7 @@ class TaxonNamesController < ApplicationController
       :authors,
       :nomenclature_group, # !! different than autocomplete
       :nomenclature_code,
+      :taxon_name_type,
       type: [],
       parent_id: [],
       taxon_name_classification: [],
