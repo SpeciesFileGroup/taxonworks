@@ -570,7 +570,7 @@ class TaxonName < ApplicationRecord
   # @return [Boolean]
   #   true if this name has a TaxonNameClassification of hybrid
   def is_hybrid?
-    taxon_name_classifications.where_taxon_name(self).with_type_contains('Hybrid').any?
+    taxon_name_classifications.any? { |x| /Hybrid/ =~ x.type }
   end
 
   # @return [True|False]
@@ -1080,7 +1080,7 @@ class TaxonName < ApplicationRecord
 
   # @return [Boolean]
   def parent_is_set?
-    !parent_id.nil? || (parent && parent.persisted?)
+    !parent_id.nil? || parent #(parent && parent.persisted?)
   end
 
   def next_sibling

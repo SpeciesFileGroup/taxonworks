@@ -22,12 +22,10 @@ module BatchLoad
     #         'tribe' unexpected. Only 2 cases both synonyms.
     #         'family' unexpected. Only 7 cases all synonyms.
 
-
     def _build_taxon_names(records, parent)
       records.each do |record|
         begin
           next if record[:row]['taxonrank'] == 'superorder' # Rank doesn't exists in TW for ICN
-          next if record[:row]['scientificname'] =~ /×/ # Cannot handle hybrids yet
 
           name = verbatim_name = record[:row]['scientificname'].chomp(record[:row]['scientificnameauthorship']).strip
 
@@ -43,6 +41,12 @@ module BatchLoad
               name = $1 if verbatim_name =~ /\s+(?:sub)?sect?(?:ion)?(?:\.|\s)\s*(.*)/
           end
 
+          is_hybrid = (verbatim_name =~ /×/)
+
+          # Skip hybrid names that are not simple
+          next if is_hybrid && (name !~ /^\s*×\s*[^\s×]+\s*$/)
+          next if 2 < CLASSIFICATION_NAMES.inject(0) { |c, f| c + (/×/ =~ record[:row][f] ? 1 : 0) }
+
           protonym_attributes = {
             name: name,
             verbatim_name: record[:row]['scientificname'],
@@ -54,11 +58,13 @@ module BatchLoad
             verbatim_author: record[:row]['scientificnameauthorship']
           }
           protonym_attributes[:year_of_publication] = $1 if /(\s\d{4})(?!.*\d+)/ =~ protonym_attributes[:verbatim_author]
-          #protonym_attributes[:name].gsub!('×', '')
+          protonym_attributes[:name].gsub!('×', '')
 
           parse_result = BatchLoad::RowParse.new
 
           name = Protonym.new(protonym_attributes)
+          name.taxon_name_classifications.build(type: TaxonNameClassification::Icn::Hybrid) if is_hybrid
+
           parse_result.objects[:taxon_name] = [name]
 
           if @dwca_namespace
@@ -74,8 +80,6 @@ module BatchLoad
           @total_data_lines += 1
 
           _build_taxon_names(record[:children], name)
-        rescue Exception => ex
-          ap ex
         end
       end
     end
