@@ -16,8 +16,8 @@ RUN mkdir /app
 WORKDIR /app
 
 RUN wget -q \
-    'https://github.com/lightbody/browsermob-proxy/releases/download/browsermob-proxy-2.1.4/browsermob-proxy-2.1.4-bin.zip' \ 
-&&  unzip browsermob-proxy-2.1.4-bin.zip
+    'https://github.com/browserup/browserup-proxy/releases/download/v2.0.0/browserup-proxy-2.0.0.zip' \
+&&  unzip browserup-proxy-2.0.0.zip
 
 COPY Gemfile .
 
@@ -25,4 +25,4 @@ RUN bundle install
 
 COPY . .
 
-CMD ["bundle", "exec", "rspec", "-fd"]
+#CMD ["bundle", "exec", "rspec", "-fd"]

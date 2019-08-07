@@ -4,7 +4,7 @@ require 'selenium-webdriver'
 require 'rspec/expectations'
 require 'capybara/rspec'
 
-server = BrowserMob::Proxy::Server.new("./browsermob-proxy-2.1.4/bin/browsermob-proxy")
+server = BrowserMob::Proxy::Server.new("./browserup-proxy-2.0.0/bin/browserup-proxy")
 server.start
 
 proxy = server.create_proxy

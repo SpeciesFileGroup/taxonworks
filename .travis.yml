@@ -83,8 +83,12 @@ jobs:
       install:
         - export REVISION=$(git rev-parse --short HEAD)
         - docker build . -t sfgrp/taxonworks --build-arg REVISION=$REVISION
+        - cd .travis; docker-compose up --build -d
+        - cd .travis; docker-compose logs
       script:
-        - cd .travis && docker-compose up --build --exit-code-from test
+        - cd .travis; docker-compose exec test bundle exec rspec -fd
+      after_success:
+        - cd .travis; docker-compose down --volumes
 notifications:
   email:
     recipients:
