@@ -29,22 +29,22 @@ export default {
       header: ['Type', 'Object type', 'Object', 'Annotation', 'Value', 'Object attribute', 'Created by', 'Created at', ''],
       types: {
         Tag: {
-          attributes: ['type', 'tag_object_type', ['annotated_object', 'object_tag'], ['keyword', 'object_tag'], 'value', 'object_attribute', 'created_by', 'created_at']
+          attributes: ['base_class', 'tag_object_type', ['annotated_object', 'object_tag'], ['keyword', 'object_tag'], 'value', 'object_attribute', 'created_by', 'created_at']
         },
         Confidence: {
-          attributes: ['type', 'confidence_object_type', ['annotated_object', 'object_tag'], ['confidence_level', 'object_tag'], 'value', 'object_attribute','created_by', 'created_at']
+          attributes: ['base_class', 'confidence_object_type', ['annotated_object', 'object_tag'], ['confidence_level', 'object_tag'], 'value', 'object_attribute','created_by', 'created_at']
         },
         Note: {
-          attributes: ['type', 'note_object_type', ['annotated_object', 'object_tag'], 'annotation', 'text', 'object_attribute', 'created_by', 'created_at']
+          attributes: ['base_class', 'note_object_type', ['annotated_object', 'object_tag'], 'annotation', 'text', 'object_attribute', 'created_by', 'created_at']
         },
         Alternate_value: {
-          attributes: ['type', 'alternate_value_object_type', ['annotated_object', 'object_tag'], 'annotation', ['alternate_value', 'type'], 'value', 'attribute_column', 'created_by', 'created_at']
+          attributes: ['base_class', 'alternate_value_object_type', ['annotated_object', 'object_tag'], 'annotation', ['alternate_value', 'type'], 'value', 'attribute_column', 'created_by', 'created_at']
         },
         ImportAttribute: {
-          attributes: ['type', 'attribute_subject_type', ['annotated_object', 'object_tag'], 'predicate_name', 'value', 'object_attribute', 'created_by', 'created_at']
+          attributes: ['base_class', 'attribute_subject_type', ['annotated_object', 'object_tag'], 'predicate_name', 'value', 'object_attribute', 'created_by', 'created_at']
         },
         InternalAttribute: {
-          attributes: ['type', 'attribute_subject_type', ['annotated_object', 'object_tag'], 'predicate_name', 'value', 'object_attribute', 'created_by', 'created_at']
+          attributes: ['base_class', 'attribute_subject_type', ['annotated_object', 'object_tag'], 'predicate_name', 'value', 'object_attribute', 'created_by', 'created_at']
         },
       },
       listWithCreators: [],
