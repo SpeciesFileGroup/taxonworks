@@ -6,7 +6,13 @@ cd "$(dirname "$0")"
 
 docker build .. -t sfgrp/taxonworks --build-arg REVISION=$(git rev-parse --short HEAD)
 
-REVISION=$(git rev-parse --short HEAD) docker-compose up --build --exit-code-from test
+export REVISION=$(git rev-parse --short HEAD)
+
+docker-compose up --build -d
+
+docker-compose logs
+
+docker-compose exec test bundle exec rspec -fd
 
 docker-compose down --volumes
 
