@@ -5,7 +5,19 @@ TW.view.sources = TW.view.sources || {};
 
 Object.assign(TW.view.sources, {
   init: function () {
-    var that = this
+    var nodeChecked;
+    var that = this;
+
+    document.querySelectorAll('input[name=source\\[type\\]]').forEach(node => {
+      if (node.checked) {
+        nodeChecked = node;
+      }
+    })
+
+    if (nodeChecked) {
+      TW.view.sources.toggle_source_form_fields(nodeChecked.value);
+    }
+
     if ($('#source_edit_type').length > 0) {
       var currentType = $('#source_edit_type input[checked="checked"]').first();
 
@@ -58,14 +70,5 @@ Object.assign(TW.view.sources, {
 
 document.addEventListener('turbolinks:load', (event) => {
   TW.view.sources.init();
-  var nodeChecked;
-  document.querySelectorAll('input[name=source\\[type\\]]').forEach(node => {
-    if (node.checked) {
-      nodeChecked = node
-      console.log(node.checked)
-    }
-  })
-  if (nodeChecked) {
-    TW.view.sources.toggle_source_form_fields(nodeChecked.value)
-  }
+
 });
