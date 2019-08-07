@@ -65,6 +65,7 @@ module BatchLoad
           name = Protonym.new(protonym_attributes)
           name.taxon_name_classifications.build(type: TaxonNameClassification::Icn::Hybrid) if is_hybrid
 
+          record[:taxon_name] = name
           parse_result.objects[:taxon_name] = [name]
 
           if @dwca_namespace
@@ -76,6 +77,7 @@ module BatchLoad
           end
 
           @processed_rows[record[:rowno]] = parse_result
+          record[:parse_result] = parse_result
 
           @total_data_lines += 1
 
@@ -112,11 +114,27 @@ module BatchLoad
         end
       end
 
-      records = records.values.select { |v| v[:row]["parentnameusageid"].blank? }
+      roots = records.values.select { |v| v[:row]["parentnameusageid"].blank? }
 
       # loop through rows
 
-      _build_taxon_names(records, Project.find(@project_id).root_taxon_name)
+      _build_taxon_names(roots, Project.find(@project_id).root_taxon_name)
+
+      # WORKS WHEN PREVIEWING ONLY, BUT CRASHES WITH NULL CONTRAINT VIOLATION WHEN CREATING
+      # records.each do |k, record|
+      #   parse_result = record[:parse_result]
+
+      #   unless parse_result.nil?
+      #     parse_result.objects[:taxon_name_relationship] = []
+
+      #     record[:row]['hybrid parent of'].strip.split('|').each do |p|
+      #       parse_result.objects[:taxon_name_relationship] << TaxonNameRelationship::Hybrid.new(
+      #         subject_taxon_name: records[p][:taxon_name],
+      #         object_taxon_name: record[:taxon_name]
+      #       )
+      #     end
+      #   end
+      # end
 
       @total_lines = i
     end
