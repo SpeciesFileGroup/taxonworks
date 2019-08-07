@@ -168,7 +168,7 @@ class Person < ApplicationRecord
   #
   def merge_with(person_id)
     return false if person_id == id
-    if r_person = Person.find(person_id) # get the new (merged into self) person
+    if r_person = Person.find(person_id) # get the person to merge to this person
       begin
         ApplicationRecord.transaction do
           # !! Role.where(person_id: r_person.id).update(person_id: id) is BAAAD
@@ -176,7 +176,7 @@ class Person < ApplicationRecord
           # !! Role#vet_person, etc.
           # update merge person's roles to old
           Role.where(person_id: r_person.id).each do |r|
-            r.update(person_id: id) 
+            return false unless r.update(person_id: id) 
           end
 
           roles.reload

@@ -33,6 +33,7 @@
       <rank-component v-model="params.base.nomenclature_group"/>
       <code-component v-model="params.base.nomenclature_code"/>
       <validity-component v-model="params.base.validity" />
+      <taxon-name-type-component v-model="params.base.taxon_name_type"/>
       <relationships-component v-model="params.base.taxon_name_relationship"/>
       <status-component v-model="params.base.taxon_name_classification"/>
       <in-relationship-component v-model="params.base.taxon_name_relationship_type"/>
@@ -64,6 +65,7 @@ import RankComponent from './filters/nomenclature_group'
 import CodeComponent from './filters/nomenclature_code'
 import ChildrenComponent from './filters/children'
 import InRelationshipComponent from './filters/in_relationship'
+import TaxonNameTypeComponent from './filters/taxon_name_type'
 
 import { GetTaxonNames } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
@@ -87,7 +89,8 @@ export default {
     StatusComponent,
     ChildrenComponent,
     InRelationshipComponent,
-    AuthorsComponent
+    AuthorsComponent,
+    TaxonNameTypeComponent
   },
   computed: {
     getMacKey() {
@@ -108,7 +111,7 @@ export default {
     },
     searchForTaxonNames() {
       this.searching = true
-      let params = Object.assign({}, this.params.taxon, this.params.related, this.params.base)
+      let params = Object.assign({}, this.filterEmptyParams(this.params.taxon), this.params.related, this.params.base)
       params.updated_since = params.updated_since ? this.setDays(params.updated_since) : undefined
 
       GetTaxonNames(params).then(response => {
@@ -126,11 +129,12 @@ export default {
     initParams() {
       return {
         taxon: {
-          name: '',
+          name: undefined,
           author: undefined,
           year: undefined
         },
         base: {
+          taxon_name_type: undefined,
           exact: undefined,
           updated_since: undefined,
           validity: undefined,
@@ -153,6 +157,15 @@ export default {
       var date = new Date();
       date.setDate(date.getDate() - days);
       return date.toISOString().slice(0,10);
+    },
+    filterEmptyParams(object) {
+      let keys = Object.keys(object)
+      keys.forEach(key => {
+        if(object[key] === '') {
+          delete object[key]
+        }
+      })
+      return object
     }
   }
 }

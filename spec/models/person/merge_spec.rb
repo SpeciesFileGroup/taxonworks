@@ -319,4 +319,18 @@ describe Person, type: :model, group: :people do
       expect(person1.reload.type).to eq('Person::Vetted') # The role is merged, the person is vetted
     end
   end
+
+  # When a source lists the same person 2x, and that person is merged
+  context 'double authored sources' do
+    let!(:role_object) { FactoryBot.create(:valid_source_bibtex) }
+    let!(:role1) { SourceAuthor.create(person: person1, role_object: role_object) }
+    let!(:role2) { SourceAuthor.create(person: person1b, role_object: role_object) }
+
+
+    specify 'can not be merged' do
+      expect(person1.merge_with(person1b.id)).to be_falsey
+    end
+  end 
+
+  
 end

@@ -37,6 +37,7 @@
             :selected="newCombination.protonyms[key]"
             :rank-name="key"
             :parse-string="parseRanks[key]"
+            :accept-taxon-ids="acceptTaxonIds"
             :list="list"
             v-if="parseRanks[key]"/>
         </div>
@@ -92,7 +93,6 @@ import SaveCombination from './saveCombination.vue'
 import PreviewView from './previewView.vue'
 import SourcePicker from './sourcePicker.vue'
 import Spinner from '../../components/spinner.vue'
-import DisplayList from '../../components/displayList.vue'
 import MatchGroup from './matchGroup.vue'
 
 export default {
@@ -110,6 +110,10 @@ export default {
     },
     combination: {
       type: Object
+    },
+    acceptTaxonIds: {
+      type: Array,
+      default: () => { return [] }
     }
   },
   computed: {

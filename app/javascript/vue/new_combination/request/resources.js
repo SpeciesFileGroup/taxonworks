@@ -9,7 +9,7 @@ const ajaxCall = function (type, url, data = null) {
     Vue.http[type](url, data).then(response => {
       return resolve(response.body)
     }, response => {
-      handleError(response.body)
+      // handleError(response.body)
       return reject(response)
     })
   })

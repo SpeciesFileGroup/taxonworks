@@ -7,7 +7,6 @@
     "file-loader": "^4.1.0",
     "json2csv": "^4.5.2",
     "leaflet": "^1.5.1",
-    "leaflet-draw": "^1.0.4",
     "leaflet.pm": "^2.1.0",
     "npm-check-updates": "^3.1.20",
     "parse-dms": "0.0.3",
