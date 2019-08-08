@@ -264,7 +264,7 @@ class TaxonNameClassification < ApplicationRecord
       when 'TaxonNameClassification::Iczn::Available::Invalid'
         soft_validations.add(:type, 'Although this status can be used, it is better to replace it with appropriate relationship (for example Synonym relationship)')
       when 'TaxonNameClassification::Iczn::Available::Invalid::Homonym'
-        soft_validations.add(:type, 'Although this status can be used, it is better to replace it with with appropriate relationship (for example Prymary Homonym)')
+        soft_validations.add(:type, 'Although this status can be used, it is better to replace it with with appropriate relationship (for example Primary Homonym)')
       when 'TaxonNameClassification::Iczn::Available::Valid'
         soft_validations.add(:type, 'This status should only be used when one or more conflicting invalidating relationships present in the database (for example, a taxon was used as a synonym in the past, but not now, and a synonym relationship is stored in the database for a historical record). Otherwise, this status should not be used. By default, any name which does not have invalidating relationship is a valid name')
       when 'TaxonNameClassification::Iczn::Unavailable::Suppressed'
