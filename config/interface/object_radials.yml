@@ -34,6 +34,7 @@ Combination:
     - new_combination_task
     - otu_distribution_data_task
   edit: new_combination_task
+  new: new_combination_task
   config:
     recent: true
 Otu:
