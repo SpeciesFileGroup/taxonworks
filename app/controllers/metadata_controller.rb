@@ -27,6 +27,4 @@ class MetadataController < ApplicationController
     end
   end
 
-
-
 end

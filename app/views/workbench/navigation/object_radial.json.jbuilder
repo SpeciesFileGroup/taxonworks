@@ -27,6 +27,14 @@ json.tasks do
   end
 end
 
+if @data['edit']
+  json.edit send("#{@data['edit']}_path", "#{resource.singularize}_id" => @object.id)
+end
+
+if @data['show']
+  json.show send("#{@data['show']}_path", "#{resource.singularize}_id" => @object.id)
+end
+
 if @data
   if @data['config']['recent']
     json.recent_url resource + '?recent=true'

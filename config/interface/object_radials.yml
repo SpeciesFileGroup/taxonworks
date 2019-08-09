@@ -33,7 +33,7 @@ Combination:
     - browse_nomenclature_task
     - new_combination_task
     - otu_distribution_data_task
-  edit: new_taxon_name_task
+  edit: new_combination_task
   config:
     recent: true
 Otu:
