@@ -97,7 +97,7 @@ export default {
     },
     loadCombination () {
       let urlParams = new URLSearchParams(window.location.search)
-      let combinationId = urlParams.get('id') || urlParams.get('taxon_name_id')
+      let combinationId = urlParams.get('id') || urlParams.get('taxon_name_id') || urlParams.get('combination_id')
 
       if (/^\d+$/.test(combinationId)) {
         this.loading = true
