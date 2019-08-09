@@ -7,6 +7,7 @@
 #   recent: - defaults to true if not provided, if false no recent list is shown
 #   allow_destroy: - false if no
 #   edit: over-ride data->edit
+#   new: over-ride data->new
 #   show: over-ride data->show
 #
 ---

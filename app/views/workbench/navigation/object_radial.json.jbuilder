@@ -35,6 +35,10 @@ if @data['show']
   json.show send("#{@data['show']}_path", "#{resource.singularize}_id" => @object.id)
 end
 
+if @data['new']
+  json.new send("#{@data['new']}_path", "#{resource.singularize}_id" => @object.id)
+end
+
 if @data
   if @data['config']['recent']
     json.recent_url resource + '?recent=true'
