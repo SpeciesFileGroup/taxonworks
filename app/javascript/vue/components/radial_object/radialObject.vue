@@ -54,16 +54,15 @@
 </template>
 <script>
 
-  import radialMenu from '../radialMenu.vue'
-  import modal from '../modal.vue'
-  import spinner from '../spinner.vue'
+  import RadialMenu from '../radialMenu.vue'
+  import Modal from '../modal.vue'
+  import Spinner from '../spinner.vue'
 
   import CRUD from './request/crud'
   import Icons from './images/icons.js'
 
   import RecentComponent from './components/recent.vue'
   import all_tasksComponent from './components/allTasks.vue'
-
 
   const defaultOptions = {
     New: 'New',
@@ -79,9 +78,9 @@
     components: {
       all_tasksComponent,
       RecentComponent,
-      radialMenu,
-      modal,
-      spinner,
+      RadialMenu,
+      Modal,
+      Spinner,
     },
     props: {
       reload: {
@@ -187,10 +186,10 @@
               this.currentView = 'Recent'
               break
             case defaultOptions.Edit:
-              window.open(`${this.metadata.resource_path}/edit`, target)
+              window.open(this.metadata['edit'] ? this.metadata.edit : `${this.metadata.resource_path}/edit`, target)
               break
             case defaultOptions.New:
-              window.open(`${this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf("/"))}/new`, target)
+              window.open(this.metadata['new'] ? this.metadata.new : `${this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf("/"))}/new`, target)
               break
             case defaultOptions.Show:
               window.open(this.metadata.resource_path, target)
