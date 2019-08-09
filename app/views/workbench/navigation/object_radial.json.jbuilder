@@ -36,7 +36,7 @@ if @data['show']
 end
 
 if @data['new']
-  json.new send("#{@data['new']}_path", "#{resource.singularize}_id" => @object.id)
+  json.new send("#{@data['new']}_path")
 end
 
 if @data
