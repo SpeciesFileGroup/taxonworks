@@ -4,6 +4,8 @@
       type="button"
       class="button normal-input button-submit"
       :disabled="!taxon.id"
+      v-shortkey="[getMacKey, 'l']"
+      @shortkey="showModal = taxon.id ? true : false"
       @click="showModal = true">
       Clone
     </button>
@@ -30,6 +32,7 @@
         <input
           type="text"
           class="full_width"
+          autofocus
           v-model="inputValue"
           :placeholder="`Write ${checkWord} to continue`">
       </div>
@@ -62,6 +65,9 @@ export default {
     },
     checkInput () {
       return this.inputValue.toUpperCase() !== this.checkWord
+    },
+    getMacKey () {
+      return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
     }
   },
   data () {
