@@ -34,6 +34,7 @@
           class="full_width"
           autofocus
           v-model="inputValue"
+          @keypress.enter.prevent="cloneTaxon()"
           :placeholder="`Write ${checkWord} to continue`">
       </div>
       <div slot="footer">
@@ -120,7 +121,9 @@ export default {
   },
   methods: {
     cloneTaxon () {
-      this.$store.dispatch(ActionNames.CloneTaxon, this.copyValues)
+      if (!this.checkInput) {
+        this.$store.dispatch(ActionNames.CloneTaxon, this.copyValues)
+      }
     }
   }
 }
