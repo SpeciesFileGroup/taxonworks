@@ -19,7 +19,6 @@ const createTaxonName = function (taxon) {
       }
     }
     Vue.http.post('/taxon_names.json', taxon_name).then(response => {
-      history.pushState(null, null, `/tasks/nomenclature/new_taxon_name/${response.body.id}`)
       TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully created.`, 'notice')
       return resolve(response.body)
     }, response => {

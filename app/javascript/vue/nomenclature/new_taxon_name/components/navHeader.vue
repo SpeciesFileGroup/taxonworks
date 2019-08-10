@@ -29,7 +29,8 @@
               </transition>
               <save-taxon-name
                 v-if="taxon.id"
-                class="normal-input button button-submit"/>
+                class="normal-input button button-submit separate-right"/>
+              <clone-taxon-name class="separate-right"/>
               <create-new-button />
             </form>
           </div>
@@ -42,6 +43,7 @@
 
 import SaveTaxonName from './saveTaxonName.vue'
 import CreateNewButton from './createNewButton.vue'
+import CloneTaxonName from './cloneTaxon'
 import { GetterNames } from '../store/getters/getters'
 
 export default {
@@ -53,7 +55,8 @@ export default {
   },
   components: {
     SaveTaxonName,
-    CreateNewButton
+    CreateNewButton,
+    CloneTaxonName
   },
   computed: {
     unsavedChanges () {
@@ -92,7 +95,6 @@ export default {
 }
 #taxonNavBar {
   button {
-    margin-left: 6px;
     min-width: 100px;
     width: 100%;
   }

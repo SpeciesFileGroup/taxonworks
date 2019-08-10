@@ -12,7 +12,7 @@
           type="text"
           class="full_width"
           v-model="value"
-          placeholder="Wirte DELETE to continue">
+          placeholder="Write DELETE to continue">
       </div>
       <div slot="footer">
         <button 

@@ -3,6 +3,7 @@ import addTaxonStatus from './addTaxonStatus'
 import addTaxonType from './addTaxonType'
 import addTaxonRelationship from './addTaxonRelationship'
 import addOriginalCombination from './addOriginalCombination'
+import cloneTaxon from './cloneTaxon'
 import createTaxonName from './createTaxonName'
 import updateTaxonName from './updateTaxonName'
 import removeTaxonStatus from './removeTaxonStatus'
@@ -28,6 +29,7 @@ const ActionNames = {
   AddTaxonType: 'addTaxonType',
   AddTaxonRelationship: 'addTaxonRelationship',
   AddOriginalCombination: 'addOriginalCombination',
+  CloneTaxon: 'cloneTaxon',
   CreateTaxonName: 'createTaxonName',
   UpdateTaxonName: 'updateTaxonName',
   RemoveTaxonStatus: 'removeTaxonStatus',
@@ -61,6 +63,7 @@ const ActionFunctions = {
   [ActionNames.AddTaxonType]: addTaxonType,
   [ActionNames.AddTaxonRelationship]: addTaxonRelationship,
   [ActionNames.AddOriginalCombination]: addOriginalCombination,
+  [ActionNames.CloneTaxon]: cloneTaxon,
   [ActionNames.CreateTaxonName]: createTaxonName,
   [ActionNames.UpdateTaxonName]: updateTaxonName,
   [ActionNames.RemoveTaxonStatus]: removeTaxonStatus,
