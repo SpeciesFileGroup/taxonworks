@@ -1088,6 +1088,11 @@ class CollectingEvent < ApplicationRecord
   def clone
     a = dup
     a.verbatim_label = [verbatim_label, "[CLONED FROM #{id}", "at #{Time.now}]"].compact.join(' ')
+
+    collectors.each do |p|
+      a.collector_roles.build(person: p)
+    end
+
     begin
       a.save!
     rescue ActiveRecord::RecordInvalid
