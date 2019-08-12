@@ -191,8 +191,8 @@ export default {
           width: '20',
           height: '20'
         },
-        background: this.isPinned ? '#FF0000' : '#9ccc65',
-        backgroundHover: this.isPinned ? '#DD0000' : '#81a553'
+        background: this.isPinned ? '#F44336' : '#9ccc65',
+        backgroundHover: this.isPinned ? '#CE3430' : '#81a553'
       }
     }
   },
