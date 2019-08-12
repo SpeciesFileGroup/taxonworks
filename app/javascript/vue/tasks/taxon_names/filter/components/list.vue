@@ -44,9 +44,6 @@
           </td> 
           <td class="options-column">
             <div class="horizontal-left-content">
-              <pin-component 
-                :object-id="item.id"
-                :type="item.base_class"/>
               <radial-object :global-id="item.global_id"/>
               <radial-annotator
                 type="annotations"
@@ -68,18 +65,14 @@
 
 <script>
 
-import PinComponent from 'components/pin'
 import RadialAnnotator from 'components/annotator/annotator'
 import RadialObject from 'components/radial_object/radialObject'
-import DefaultTag from 'components/defaultTag'
 import OtuRadial from 'components/otu/otu.vue'
 
 export default {
   components: {
-    PinComponent,
     RadialAnnotator,
     RadialObject,
-    DefaultTag,
     OtuRadial
   },
   props: {
