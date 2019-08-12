@@ -27,6 +27,8 @@ json.tasks do
   end
 end
 
+json.partial! '/pinboard_items/pinned', object: @object
+
 if @data['edit']
   json.edit send("#{@data['edit']}_path", "#{resource.singularize}_id" => @object.id)
 end
