@@ -11,7 +11,6 @@ class ObservationMatrixRowsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        byebug
         @observation_matrix_rows = ObservationMatrixRow.where(filter_params).where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per])
       }
     end
