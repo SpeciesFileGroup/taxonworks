@@ -224,7 +224,9 @@ export default {
     },
     selectComponent (event) {
       if (event === 'circleButton') {
-        this.isTagged ? this.deleteTag() : this.createTag()
+        if(this.getDefault()) {
+          this.isTagged ? this.deleteTag() : this.createTag()
+        }
       }
       else {
         this.currentAnnotator = event
