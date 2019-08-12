@@ -54,7 +54,6 @@
               <otu-radial
                 :taxon-id="item.id"
                 :taxon-name="item.object_tag"/>
-              <default-tag :global-id="item.global_id"/>
             </div>
           </td>
         </tr>
