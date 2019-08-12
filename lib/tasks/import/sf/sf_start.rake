@@ -32,6 +32,7 @@ namespace :tw do
           person_error_counter = 0
           source_nil_counter = 0
           tw_person_nil_counter = 0
+          in_ref_counter = 0
 
           ##### Newest logic
           # If containing_ref_is == "0"
@@ -45,6 +46,16 @@ namespace :tw do
             ref_id = row['RefID']
             next if skipped_file_ids.include? ref_file_id[ref_id].to_i
 
+            sf_person_id = row['PersonID']
+            tw_person_id = get_tw_person_id[sf_person_id]
+            if tw_person_id.nil?
+              logger.error "Missing person ERROR: SF.PersonID = #{sf_person_id} (person_nil_counter = #{tw_person_nil_counter += 1})"
+              next
+            end
+
+            logger.info "working with SF.RefID = #{ref_id}, SF.PersonID = #{sf_person_id}, TW.person_id = #{tw_person_id}, position = #{row['SeqNum']} \n"
+
+
             if ref_id_containing_id_hash[ref_id].nil? # only executed if simple ref (no ref in ref)
 
               source_id = get_tw_source_id[ref_id]
@@ -53,14 +64,7 @@ namespace :tw do
                 next
               end
 
-              sf_person_id = row['PersonID']
-              tw_person_id = get_tw_person_id[sf_person_id]
-              if tw_person_id.nil?
-                logger.error "Missing person ERROR: SF.PersonID = #{sf_person_id} (person_nil_counter = #{tw_person_nil_counter += 1})"
-                next
-              end
-
-              logger.info "working with SF.RefID = #{ref_id}, SF.PersonID = #{tw_person_id}, TW.source_id = #{source_id}, TW.person_id = #{tw_person_id}, position = #{row['SeqNum']} \n"
+              logger.info "working with TW.source_id = #{source_id} \n"
 
               role = Role.new(
                   person_id: tw_person_id,
@@ -100,6 +104,9 @@ namespace :tw do
 
             else # only executed if ref in ref
               # byebug
+
+              logger.info "processing ref in ref, in-ref counter = #{in_ref_counter += 1} \n"
+
               if ref_id == previous_ref_id # this is the same RefID as last row, add another author
                 ref_taxon_name_authors[ref_id].push(sf_person_id)
 
