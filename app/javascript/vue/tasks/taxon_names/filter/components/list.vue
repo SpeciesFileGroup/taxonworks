@@ -48,9 +48,6 @@
               <radial-annotator
                 type="annotations"
                 :global-id="item.global_id"/>
-              <otu-radial
-                :taxon-id="item.id"
-                :taxon-name="item.object_tag"/>
             </div>
           </td>
         </tr>
@@ -67,13 +64,11 @@
 
 import RadialAnnotator from 'components/annotator/annotator'
 import RadialObject from 'components/radial_object/radialObject'
-import OtuRadial from 'components/otu/otu.vue'
 
 export default {
   components: {
     RadialAnnotator,
-    RadialObject,
-    OtuRadial
+    RadialObject
   },
   props: {
     list: {
