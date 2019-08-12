@@ -157,7 +157,9 @@ export default {
       globalIdSaved: undefined,
       metadata: undefined,
       title: 'Radial annotator',
-      menuOptions: []
+      menuOptions: [],
+      defaultTag: undefined,
+      tagCreated: false
     }
   },
   computed: {
@@ -177,18 +179,18 @@ export default {
       }
       return undefined
     },
-    isPinned () {
-      return this.metadata['pinboard_item']
+    isTagged () {
+      return this.tagCreated
     },
     pinStyle () {
       return {
         icon: {
-          url: Icons.pin,
+          url: Icons.tags,
           width: '20',
           height: '20'
         },
-        background: this.isPinned ? '#F44336' : '#9ccc65',
-        backgroundHover: this.isPinned ? '#CE3430' : '#81a553'
+        background: this.getDefault() ? (this.isTagged ? '#F44336' : '#9ccc65') : '#CACACA',
+        backgroundHover: this.getDefault() ? (this.isTagged ? '#CE3430' : '#81a553') : '#CACACA'
       }
     }
   },
@@ -198,9 +200,31 @@ export default {
     }
   },
   methods: {
+    getDefault () {
+      const defaultTag = document.querySelector('[data-pinboard-section="Keywords"] [data-insert="true"]')
+      return defaultTag ? defaultTag.getAttribute('data-pinboard-object-id') : undefined
+    },
+    alreadyTagged: function() {
+      const keyId = this.getDefault()
+      if( !keyId) return
+
+      let params = {
+        global_id: this.globalId,
+        keyword_id: keyId
+      }
+      this.getList('/tags/exists', { params: params }).then(response => {
+        if(response.body) {
+          this.defaultTag = response.body
+          this.tagCreated = true
+        }
+        else {
+          this.tagCreated = false
+        }
+      })
+    },
     selectComponent (event) {
       if (event === 'circleButton') {
-        this.isPinned ? this.destroyPin() : this.createPin()
+        this.isTagged ? this.deleteTag() : this.createTag()
       }
       else {
         this.currentAnnotator = event
@@ -215,6 +239,7 @@ export default {
       this.display = true
       this.currentAnnotator = undefined
       this.loadMetadata()
+      this.alreadyTagged()
     },
     loadMetadata: function () {
       if (this.globalId == this.globalIdSaved && this.menuCreated && !this.reload) return
@@ -263,24 +288,28 @@ export default {
     windowHeight () {
       return ((window.innerHeight - 100) > 650 ? 650 : window.innerHeight - 100) + 'px !important'
     },
-    createPin () {
-      const pinItem = {
-        pinboard_item: {
-          pinned_object_id: this.metadata.object_id,
-          pinned_object_type: this.metadata.object_type
+    createTag: function () {
+      let tagItem = {
+        tag: {
+          keyword_id: this.getDefault(),
+          annotated_global_entity: this.globalId
         }
       }
-      this.create('/pinboard_items', pinItem).then(response => {
-        this.$set(this.metadata, 'pinboard_item', { id: response.body.id })
-        TW.workbench.pinboard.addToPinboard(response.body)
-        TW.workbench.alert.create('Pinboard item was successfully created.', 'notice')
+      this.create('/tags', tagItem).then(response => {
+        this.defaultTag = response.body
+        this.tagCreated = true
+        TW.workbench.alert.create('Tag item was successfully created.', 'notice')
       })
     },
-    destroyPin: function () {
-      this.destroy(`/pinboard_items/${this.metadata.pinboard_item.id}`, { _destroy: true }).then(response => {
-        TW.workbench.alert.create('Pinboard item was successfully destroyed.', 'notice')
-        TW.workbench.pinboard.removeItem(this.metadata.pinboard_item.id)
-        this.$delete(this.metadata, 'pinboard_item')
+    deleteTag: function () {
+      let tag = {
+        annotated_global_entity: this.globalId,
+        _destroy: true
+      }
+      this.destroy(`/tags/${this.defaultTag.id}`, { tag: tag }).then(response => {
+        this.tagCreated = false
+        this.defaultTag = undefined
+        TW.workbench.alert.create('Tag item was successfully destroyed.', 'notice')
       })
     }
   }
