@@ -149,13 +149,20 @@ export default {
       }
     }
   },
-  mounted() {
-    GetObservation(this.row.row_object.global_id, this.column.descriptor.id).then(response => {
-      this.observations = response.body.filter((item) => {
-        return item.type == 'Observation::Media'
-      })
-      this.isLoading = false
-    })
+  watch: {
+    row: {
+      handler () {
+        this.isLoading = true
+        GetObservation(this.row.row_object.global_id, this.column.descriptor.id).then(response => {
+          this.observations = response.body.filter((item) => {
+            return item.type == 'Observation::Media'
+          })
+          this.isLoading = false
+        })
+      },
+      deep: true,
+      immediate: true
+    }
   },
   methods: {
     removedObservationFromList(event) {
