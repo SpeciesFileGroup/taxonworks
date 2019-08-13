@@ -143,8 +143,6 @@ module Queries
       (::Otu.joins(:collection_objects)
         .where(collection_objects: {id: ::CollectionObject.joins(:geographic_items)
         .where(gi_sql).distinct})).distinct)
-
-
     end
 
     # @return [Scope]

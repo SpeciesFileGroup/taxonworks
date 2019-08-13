@@ -76,16 +76,17 @@ class Otu < ApplicationRecord
   # @param [Integer] otu_id
   # @param [String] rank_class
   # @return [Scope]
+  #    Otu.joins(:taxon_name).where(taxon_name: q).to_sql
   def self.self_and_descendants_of(otu_id, rank_class = nil)
-    o = Otu.includes(:taxon_name).find(otu_id)
-    if o && o.taxon_name
-      with_taxon_name_id(o.taxon_name.self_and_descendants)
+    if o = Otu.joins(:taxon_name).find(otu_id)
       if rank_class.nil?
-        with_taxon_name_id(o.taxon_name.self_and_descendants)
+        joins(:taxon_name).where(taxon_name: o.taxon_name.self_and_descendants)
+        # with_taxon_name_id(o.taxon_name.self_and_descendants)
       else
-        with_taxon_name_id(o.taxon_name.self_and_descendants.where(rank_class: rank_class))
+        joins(:taxon_name).where(taxon_name: o.taxon_name.self_and_descendants.where( rank_class: rank_class))
+        # with_taxon_name_id(o.taxon_name.self_and_descendants.where(rank_class: rank_class))
       end
-    else
+    else # no taxon name just return self in scope
       Otu.where(id: otu_id)
     end
   end
@@ -96,7 +97,6 @@ class Otu < ApplicationRecord
   soft_validate(:sv_duplicate_otu, set: :duplicate_otu)
 
   accepts_nested_attributes_for :common_names, allow_destroy: true
-
 
   # @return [Array]
   #   all bilogical associations this Otu is part of

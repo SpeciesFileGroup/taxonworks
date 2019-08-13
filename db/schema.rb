@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_05_23_142444) do
+ActiveRecord::Schema.define(version: 2019_08_13_201512) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -511,6 +511,7 @@ ActiveRecord::Schema.define(version: 2019_05_23_142444) do
     t.text "caption"
     t.string "figure_label"
     t.boolean "is_metadata_depiction"
+    t.xml "svg_clip"
     t.index ["created_by_id"], name: "index_depictions_on_created_by_id"
     t.index ["depiction_object_id"], name: "index_depictions_on_depiction_object_id"
     t.index ["depiction_object_type"], name: "index_depictions_on_depiction_object_type"
@@ -1134,12 +1135,14 @@ ActiveRecord::Schema.define(version: 2019_05_23_142444) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "position"
+    t.bigint "taxon_name_id"
     t.index ["collection_object_id"], name: "omri_co_index"
     t.index ["controlled_vocabulary_term_id"], name: "omri_cvt_index"
     t.index ["created_by_id"], name: "index_observation_matrix_row_items_on_created_by_id"
     t.index ["observation_matrix_id"], name: "omri_om_index"
     t.index ["otu_id"], name: "index_observation_matrix_row_items_on_otu_id"
     t.index ["project_id"], name: "index_observation_matrix_row_items_on_project_id"
+    t.index ["taxon_name_id"], name: "index_observation_matrix_row_items_on_taxon_name_id"
     t.index ["updated_by_id"], name: "index_observation_matrix_row_items_on_updated_by_id"
   end
 
@@ -1155,11 +1158,13 @@ ActiveRecord::Schema.define(version: 2019_05_23_142444) do
     t.datetime "updated_at", null: false
     t.integer "reference_count"
     t.integer "cached_observation_matrix_row_item_id"
+    t.bigint "taxon_name_id"
     t.index ["collection_object_id"], name: "index_observation_matrix_rows_on_collection_object_id"
     t.index ["created_by_id"], name: "index_observation_matrix_rows_on_created_by_id"
     t.index ["observation_matrix_id"], name: "omr_om_index"
     t.index ["otu_id"], name: "index_observation_matrix_rows_on_otu_id"
     t.index ["project_id"], name: "index_observation_matrix_rows_on_project_id"
+    t.index ["taxon_name_id"], name: "index_observation_matrix_rows_on_taxon_name_id"
     t.index ["updated_by_id"], name: "index_observation_matrix_rows_on_updated_by_id"
   end
 
@@ -2023,12 +2028,14 @@ ActiveRecord::Schema.define(version: 2019_05_23_142444) do
   add_foreign_key "observation_matrix_row_items", "observation_matrices"
   add_foreign_key "observation_matrix_row_items", "otus"
   add_foreign_key "observation_matrix_row_items", "projects"
+  add_foreign_key "observation_matrix_row_items", "taxon_names"
   add_foreign_key "observation_matrix_row_items", "users", column: "created_by_id"
   add_foreign_key "observation_matrix_row_items", "users", column: "updated_by_id"
   add_foreign_key "observation_matrix_rows", "collection_objects"
   add_foreign_key "observation_matrix_rows", "observation_matrices"
   add_foreign_key "observation_matrix_rows", "otus"
   add_foreign_key "observation_matrix_rows", "projects"
+  add_foreign_key "observation_matrix_rows", "taxon_names"
   add_foreign_key "observation_matrix_rows", "users", column: "created_by_id"
   add_foreign_key "observation_matrix_rows", "users", column: "updated_by_id"
   add_foreign_key "observations", "collection_objects"

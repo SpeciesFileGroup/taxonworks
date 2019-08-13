@@ -12,7 +12,7 @@ class ObservationMatrixRowItem::TaxonNameRowItem < ObservationMatrixRowItem
   end
 
   def otus
-    join(:taxon_name).where(taxon_name: taxon_name.self_and_descendants)
+    Otu.joins(:taxon_name).where(taxon_name: taxon_name.self_and_descendants)
   end
 
   def collection_objects
