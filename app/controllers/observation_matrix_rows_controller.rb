@@ -2,6 +2,7 @@ class ObservationMatrixRowsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_matrix_row, only: [:show]
+  after_action -> { set_pagination_headers(:observation_matrix_rows) }, only: [:index], if: :json_request?
 
   # GET /observation_matrix_rows.json
   def index
