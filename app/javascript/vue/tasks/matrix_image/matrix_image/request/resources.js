@@ -32,12 +32,12 @@ const GetObservationMatrix = (id) => {
   return ajaxCall('get', `/observation_matrices/${id}.json`)
 }
 
-const GetMatrixObservationColumns = function(id) {
-  return ajaxCall('get',`/observation_matrices/${id}/observation_matrix_columns.json`)
+const GetMatrixObservationColumns = (id) => {
+  return ajaxCall('get', `/observation_matrices/${id}/observation_matrix_columns.json`)
 }
 
-const GetMatrixObservationRows = function(id) {
-  return ajaxCall('get',`/observation_matrices/${id}/observation_matrix_rows.json`)
+const GetMatrixObservationRows = (id, data) => {
+  return ajaxCall('get', `/observation_matrices/${id}/observation_matrix_rows.json`, data)
 }
 
 const GetObservation = (globalId, descriptorId) => {
