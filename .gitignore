@@ -53,16 +53,12 @@ config/initializers/vendor/better_errors.rb
 /spec/test_files/
 
 REVISION
-/public/packs
-/public/packs-test
-/node_modules
 yarn-debug.log*
 .yarn-integrity
+npm-debug.log
 
 yarn.lock
 /public/packs
 /public/packs-test
 /node_modules
 /yarn-error.log
-yarn-debug.log*
-.yarn-integrity
