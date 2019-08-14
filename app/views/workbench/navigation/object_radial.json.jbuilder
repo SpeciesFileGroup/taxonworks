@@ -33,8 +33,8 @@ if @data['edit']
   json.edit send("#{@data['edit']}_path", "#{resource.singularize}_id" => @object.id)
 end
 
-if @data['show']
-  json.show send("#{@data['show']}_path", "#{resource.singularize}_id" => @object.id)
+if @data['home']
+  json.home send("#{@data['home']}_path", "#{resource.singularize}_id" => @object.id)
 end
 
 if @data['new']
