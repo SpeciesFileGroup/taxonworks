@@ -63,8 +63,8 @@ import Draggable from 'vuedraggable'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
-import Autocomplete from '../../../components/autocomplete.vue'
-import RadialAnnotator from '../../../components/annotator/annotator.vue'
+import Autocomplete from 'components/autocomplete.vue'
+import RadialAnnotator from 'components/annotator/annotator.vue'
 
 export default {
   components: {

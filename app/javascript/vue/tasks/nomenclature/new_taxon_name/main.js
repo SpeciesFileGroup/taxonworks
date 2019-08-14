@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import vueResource from 'vue-resource'
-import HelpSystem from '../../plugins/help/help'
+import HelpSystem from 'plugins/help/help'
 import en from './lang/help/en'
 import App from './app.vue'
 import { init as initRequest } from './request/resources'
