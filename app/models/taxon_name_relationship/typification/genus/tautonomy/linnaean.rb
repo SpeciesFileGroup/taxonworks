@@ -27,4 +27,7 @@ class TaxonNameRelationship::Typification::Genus::Tautonomy::Linnaean < TaxonNam
     :type_species_by_Linnaean_tautonomy
   end
 
+  def sv_not_specific_relationship
+    true
+  end
 end

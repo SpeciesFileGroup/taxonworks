@@ -60,6 +60,7 @@
 # @!attribute month
 #   @return [String]
 #    see https://en.wikipedia.org/wiki/BibTeX#Field_types
+#      stored as a three letter value, see ::VALID_BIBTEX_MONTHS
 #
 # @!attribute note
 #   @return [String]
@@ -129,11 +130,12 @@
 #
 # @!attribute stated_year
 #   @return [String]
-#   @todo
+#    See source/bibtex.rb
+#    TODO: Why is this character but year is int?
 #
 # @!attribute day
 #   @return [Integer]
-#   @todo
+#     the calendar day (1-31)
 ##
 # @!attribute isbn
 #   @return [String]
@@ -215,7 +217,7 @@ class Source < ApplicationRecord
   after_save :set_cached
 
   validates_presence_of :type
-  validates :type, inclusion: {in: ['Source::Bibtex', 'Source::Human', 'Source::Verbatim']}
+  validates :type, inclusion: {in: ['Source::Bibtex', 'Source::Human', 'Source::Verbatim']} # TODO: not needed
   validate :validate_year_suffix
 
   accepts_nested_attributes_for :project_sources, reject_if: :reject_project_sources
@@ -231,7 +233,7 @@ class Source < ApplicationRecord
       sources = []
       bibliography.each do |record|
         a = Source::Bibtex.new_from_bibtex(record)
-        a.soft_validate() # why?
+#        a.soft_validate() # why?
         sources.push(a)
       end
       return sources, nil
@@ -257,7 +259,7 @@ class Source < ApplicationRecord
             if a.save
               valid += 1
             end
-            a.soft_validate()
+#            a.soft_validate()
           else
             # error_msg = a.errors.messages.to_s
           end
@@ -285,7 +287,6 @@ class Source < ApplicationRecord
   def is_in_project?(project_id)
     projects.where(id: project_id).any?
   end
-
 
   # @param used_on [String] a model name 
   # @return [Scope]

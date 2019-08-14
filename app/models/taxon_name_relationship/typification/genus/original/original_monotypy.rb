@@ -25,6 +25,10 @@ class TaxonNameRelationship::Typification::Genus::Original::OriginalMonotypy < T
   def sv_specific_relationship
     # @todo Check if more than one species associated with the genus in the original paper
   end
+
+  def sv_not_specific_relationship
+    true
+  end
 end
 
 

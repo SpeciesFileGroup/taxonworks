@@ -2,11 +2,14 @@
   <h2> Summary </h2>
   <p> 
     <%= taxon_name_short_status(@taxon_name) -%><br>
-    The record is for a <%= @taxon_name.type -%>.
+    <span data-taxon-type="<%= @taxon_name.type -%>">The record is for a <%= @taxon_name.type -%>.</span>
     <%= content_tag(:span, taxon_name_latinization_tag(@taxon_name)) -%><br>
     There are <%= @data.names.count -%> names referenced in this entry.
     <%= "Citations for this record include following topics: #{@data.topics.map(&:name).to_sentence}." if !@data.topics.empty? -%><br>
     <%= Utilities::Dates.date_range_sentence_tag(@data.date_range) -%><br>
+    <% v = @taxon_name.descendants.that_is_valid.count -%>
+    <% iv = @taxon_name.descendants.that_is_invalid.count -%>
+    <%= 'There are ' + ["#{v} valid", "#{iv} invalid"].to_sentence + ' descendants. ' if v > 0 || iv > 0  %>
     <%= taxon_name_otus_links(@taxon_name) -%>
   </p>
 </div>

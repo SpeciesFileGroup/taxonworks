@@ -27,4 +27,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression::Condition
     :iczn_conditional_suppression
   end
 
+  def sv_not_specific_relationship
+    true
+  end
 end

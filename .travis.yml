@@ -6,7 +6,7 @@ cache:
     - $TRAVIS_BUILD_DIR/spec/fixtures/vcr_cassettes
     - $TRAVIS_BUILD_DIR/public/packs-test
     - $TRAVIS_BUILD_DIR/public/assets
-    - $TRAVIS_BUILD_DIR/tmp/cache
+    - $TRAVIS_BUILD_DIR/tmp/cache/webpacker
     - /home/travis/.rvm/ 
 dist: xenial
 # sudo: required
@@ -18,6 +18,8 @@ branches:
     - master
     - development
     - dates
+    - docker-travis
+    - build-with-assets
 addons:
   postgresql: "10"
   firefox: "latest"
@@ -48,8 +50,10 @@ before_install:
   - nvm install 10.15.3
   - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.7.0
   - export PATH=$HOME/.yarn/bin:$PATH
+  - export BUNDLER_VERSION=$(tail -n1 Gemfile.lock | tr -d '[:space:]')
 install:
   - npm install
+  - gem install bundler --no-ri --no-rdoc -v $BUNDLER_VERSION
   - bundle install --without development production
 before_script:
   - echo ===[TEST_WORKER=$TEST_WORKER before_script $(date -u +%Y%m%d-%H%M%S)]===

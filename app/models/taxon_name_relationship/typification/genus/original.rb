@@ -23,4 +23,7 @@ class TaxonNameRelationship::Typification::Genus::Original < TaxonNameRelationsh
     :type_species_by_original_designation_or_monotypy
   end
 
+  def sv_not_specific_relationship
+    soft_validations.add(:type, 'Please specify if this is Original Designation or Original Monotypy')
+  end
 end

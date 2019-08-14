@@ -13,4 +13,7 @@ class TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Ille
     'superfluum'
   end
 
+  def sv_not_specific_classes
+    true
+  end
 end

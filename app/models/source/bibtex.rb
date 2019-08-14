@@ -339,7 +339,7 @@ class Source::Bibtex < Source
                                message:  'must be an integer greater than 999 and no more than 2 years in the future'}
 
   validates_presence_of :month,
-    unless:  -> { day.blank? },
+    unless: -> { day.blank? },
     message: 'is required when day is provided'
 
   validates_inclusion_of :month,
@@ -357,10 +357,11 @@ class Source::Bibtex < Source
   # includes nil last, exclude it explicitly with another condition if need be
   scope :order_by_nomenclature_date, -> { order(:cached_nomenclature_date) }
 
-  soft_validate(:sv_has_some_type_of_year, set: :recommended_fields)
-  soft_validate(:sv_contains_a_writer, set: :recommended_fields)
-  soft_validate(:sv_missing_required_bibtex_fields, set: :bibtex_fields)
-  soft_validate(:sv_duplicate_title)
+  soft_validate(:sv_has_some_type_of_year, set: :recommended_fields, has_fix: false)
+  soft_validate(:sv_contains_a_writer, set: :recommended_fields, has_fix: false)
+  soft_validate(:sv_missing_required_bibtex_fields, set: :bibtex_fields, has_fix: false)
+  soft_validate(:sv_duplicate_title, set: :duplicate_title, has_fix: false)
+  soft_validate(:sv_missing_roles, set: :missing_roles, has_fix: false)
 
   # @param [BibTeX::Name] bibtex_author
   # @return [Person, Boolean] new person, or false
@@ -828,8 +829,12 @@ class Source::Bibtex < Source
       attributes_to_update[:author] = compute_bibtex_names('authors') if authors.reload.size > 0
       attributes_to_update[:editor] = compute_bibtex_names('editors') if editors.reload.size > 0
 
+      c = cached_string('html')
+      if stated_year && year && stated_year != year
+        c = c + " [#{stated_year}]"
+      end
       attributes_to_update.merge!(
-        cached: cached_string('text'),
+        cached: c,
         cached_nomenclature_date: nomenclature_date,
         cached_author_string: authority_name(false)
       )
@@ -909,15 +914,17 @@ class Source::Bibtex < Source
     if year.blank?
       soft_validations.add(:year, 'Valid BibTeX requires a year with this type of source.')
     elsif year < 1700
-      soft_validations.add(:year, 'This year is prior to the 1700s')
+      soft_validations.add(:year, 'This year is prior to the 1700s.')
     end
   end
 
   # @return [Ignored]
   def sv_is_article_missing_journal
     if bibtex_type == 'article'
-      if !journal && !serial
-        soft_validations.add(:bibtex_type, 'This article is missing a journal name or serial.')
+      if journal.nil? && serial_id.nil?
+        soft_validations.add(:bibtex_type, 'This article is missing a journal name.')
+      elsif serial_id.nil?
+        soft_validations.add(:serial_id, 'This article is missing a serial.')
       end
     end
   end
@@ -1031,6 +1038,11 @@ class Source::Bibtex < Source
         sv_has_note
     end
   end
+
+  def sv_missing_roles
+    soft_validations.add(:base, 'Author roles are not selected.') if self.roles.empty?
+  end
+
   # rubocop:enable Metrics/MethodLength
 end
 

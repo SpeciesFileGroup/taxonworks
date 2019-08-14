@@ -2,6 +2,12 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000026'.freeze
 
+  def classification_label
+    return 'excluded' if type_name.to_s == 'TaxonNameClassification::Iczn::Unavailable::Excluded'
+    'excluded: ' + type_name.demodulize.underscore.humanize.downcase.gsub(/\d+/, ' \0 ').squish
+  end
+
+
   def self.disjoint_taxon_name_classes
     self.parent.disjoint_taxon_name_classes +
         self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Unavailable::Suppressed,
@@ -16,11 +22,10 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
   end
 
   module InnerClass
-
     def disjoint_taxon_name_classes
       self.parent.disjoint_taxon_name_classes +
           [TaxonNameClassification::Iczn::Unavailable::Excluded.to_s]
-    end    
+    end
   end
 
   class BasedOnFossilGenusFormula < TaxonNameClassification::Iczn::Unavailable::Excluded
@@ -32,6 +37,10 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
     def self.applicable_ranks
       FAMILY_RANK_NAMES_ICZN
     end
+
+    def sv_not_specific_classes
+      True
+    end
   end
 
   class HypotheticalConcept < TaxonNameClassification::Iczn::Unavailable::Excluded
@@ -39,6 +48,10 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000191'.freeze
 
     extend InnerClass
+
+    def sv_not_specific_classes
+      True
+    end
   end
 
   class Infrasubspecific < TaxonNameClassification::Iczn::Unavailable::Excluded
@@ -50,27 +63,47 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
     def self.applicable_ranks
       SPECIES_RANK_NAMES_ICZN
     end
+
+    def sv_not_specific_classes
+      True
+    end
   end
 
   class NameForHybrid < TaxonNameClassification::Iczn::Unavailable::Excluded
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000193'.freeze
+    NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000193'.freeze
 
     extend InnerClass
+
+    def self.applicable_ranks
+      SPECIES_RANK_NAMES_ICZN
+    end
+
+    def sv_not_specific_classes
+      True
+    end
   end
 
   class NameForTerratologicalSpecimen < TaxonNameClassification::Iczn::Unavailable::Excluded
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000192'.freeze
+    NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000192'.freeze
 
     extend InnerClass
+
+    def sv_not_specific_classes
+      True
+    end
   end
 
   class NotForNomenclature < TaxonNameClassification::Iczn::Unavailable::Excluded
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000197'.freeze
+    NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000197'.freeze
 
     extend InnerClass
+
+    def sv_not_specific_classes
+      True
+    end
   end
 
   class TemporaryName < TaxonNameClassification::Iczn::Unavailable::Excluded
@@ -78,6 +111,10 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
     NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000194'.freeze
 
     extend InnerClass
+
+    def sv_not_specific_classes
+      True
+    end
   end
 
   class WorkOfExtantAnimalAfter1930 < TaxonNameClassification::Iczn::Unavailable::Excluded
@@ -89,13 +126,28 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
     def self.code_applicability_start_year
       1931
     end
+
+    def sv_not_specific_classes
+      True
+    end
   end
 
   class ZoologicalFormula < TaxonNameClassification::Iczn::Unavailable::Excluded
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000196'.freeze
+    NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000196'.freeze
 
     extend InnerClass
+
+    def self.applicable_ranks
+      GENUS_RANK_NAMES_ICZN
+    end
+
+    def sv_not_specific_classes
+      True
+    end
   end
 
+  def sv_not_specific_classes
+    soft_validations.add(:type, 'Please specify the reasons for the name being Excluded')
+  end
 end

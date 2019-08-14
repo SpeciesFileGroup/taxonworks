@@ -53,8 +53,8 @@ const destroy = function (url, data) {
   return ajaxCall('delete', url, data)
 }
 
-const getList = function (url) {
-  return ajaxCall('get', url, null)
+const getList = function (url, data = {}) {
+  return ajaxCall('get', url, data)
 }
 
 const vueCrud = {

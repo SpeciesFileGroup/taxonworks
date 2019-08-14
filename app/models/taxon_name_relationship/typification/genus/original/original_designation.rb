@@ -22,4 +22,7 @@ class TaxonNameRelationship::Typification::Genus::Original::OriginalDesignation 
     :type_species_by_original_designation
   end
 
+  def sv_not_specific_relationship
+    true
+  end
 end

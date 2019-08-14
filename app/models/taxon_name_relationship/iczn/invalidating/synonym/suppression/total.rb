@@ -28,4 +28,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression::Total < T
     :iczn_total_suppression
   end
 
+  def sv_not_specific_relationship
+    true
+  end
 end

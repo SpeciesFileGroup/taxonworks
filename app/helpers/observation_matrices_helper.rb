@@ -22,6 +22,4 @@ module ObservationMatricesHelper
     Keyword.joins(:tags).where(project_id: sessions_current_project_id).where(tags: {tag_object_type: 'Descriptor'}).distinct.all
   end 
 
-
-
 end

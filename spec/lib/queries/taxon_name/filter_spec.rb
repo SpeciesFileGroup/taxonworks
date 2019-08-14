@@ -15,6 +15,33 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     verbatim_author: 'Fitch & Say',
     year_of_publication: 1800) }
 
+  specify '#taxon_name_type 1' do
+    query.taxon_name_type = 'Combination'
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify '#taxon_name_type 2' do
+    query.taxon_name_type = 'Protonym'
+    expect(query.all.map(&:id)).to contain_exactly(root.id, genus.id, original_genus.id, species.id)
+  end
+
+  specify '#taxon_name_relationship_type 1' do
+    a = TaxonNameRelationship::Iczn::Invalidating
+    a.create!(subject_taxon_name: genus, object_taxon_name: original_genus)
+    query.taxon_name_relationship_type = [ a.to_s ]
+    expect(query.all.map(&:id)).to contain_exactly(genus.id, original_genus.id)
+  end
+
+  specify '#leaves 1' do
+    query.leaves = true
+    expect(query.all.map(&:id)).to contain_exactly(species.id, original_genus.id)
+  end
+
+  specify '#leaves 2' do
+    query.leaves = false
+    expect(query.all.map(&:id)).to contain_exactly(genus.id, root.id)
+  end
+
   specify '#nomenclature_group 1' do
     query.nomenclature_group = 'Species'
     expect(query.all.map(&:id)).to contain_exactly(species.id) 
@@ -64,6 +91,11 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     expect(query.all.map(&:id)).to contain_exactly(species.id)
   end
 
+  specify '#authors 1' do
+    query.authors = true 
+    expect(query.all.map(&:id)).to contain_exactly(species.id)
+  end
+
   specify '#type_metadata 1' do
     query.type_metadata = true
     expect(query.all.map(&:id)).to contain_exactly()
@@ -94,14 +126,42 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
   end
 
   specify '#taxon_name_relationship[] 1' do
-    query.taxon_name_relationship = { '0' => { 'subject_taxon_name_id' => genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } } 
+    query.taxon_name_relationship = [ { 'subject_taxon_name_id' => genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } ]
     expect(query.all.map(&:id)).to contain_exactly()
   end
 
   specify '#taxon_name_relationship[] 2' do
-    TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(subject_taxon_name_id: genus.id.to_s, object_taxon_name_id: original_genus.id)
-    query.taxon_name_relationship = { '0' => { 'subject_taxon_name_id' => genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } } 
+    TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(subject_taxon_name_id: genus.id, object_taxon_name_id: original_genus.id)
+    query.taxon_name_relationship = [ { 'subject_taxon_name_id' => genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } ]
     expect(query.all.map(&:id)).to contain_exactly(original_genus.id)
+  end
+
+  specify '#taxon_name_relationship[] 3' do
+    TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(subject_taxon_name_id: original_genus.id, object_taxon_name_id: genus.id)
+    query.taxon_name_relationship = [ { 'subject_taxon_name_id' => original_genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } ]
+    expect(query.all.map(&:id)).to contain_exactly(genus.id)
+  end
+
+  specify '#taxon_name_relationship[] 4' do
+    TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(object_taxon_name_id: genus.id, subject_taxon_name_id: original_genus.id)
+    query.taxon_name_relationship = [ { 'object_taxon_name_id' => genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } ]
+    expect(query.all.map(&:id)).to contain_exactly(original_genus.id)
+  end
+
+  specify '#taxon_name_relationship[] 5' do
+    TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(object_taxon_name_id: original_genus.id, subject_taxon_name_id: genus.id)
+    query.taxon_name_relationship = [ { 'object_taxon_name_id' => original_genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } ]
+    expect(query.all.map(&:id)).to contain_exactly(genus.id)
+  end
+
+  specify '#taxon_name_relationship[] 6' do
+    TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(subject_taxon_name_id: genus.id, object_taxon_name_id: original_genus.id)
+    TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName.create!(subject_taxon_name_id: original_genus.id, object_taxon_name_id: genus.id)
+
+    query.taxon_name_relationship = [
+       { 'subject_taxon_name_id' => original_genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName' },
+        { 'object_taxon_name_id' => original_genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } ]
+    expect(query.all.map(&:id)).to contain_exactly(genus.id)
   end
 
   specify '#parent_id[]' do
@@ -155,7 +215,36 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
 
   specify '#validity 2' do
     query.validity = false 
-    expect(query.all.map(&:id)).to contain_exactly() 
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify 'all filters combined' do
+    Citation.create!(citation_object: species, source: FactoryBot.create(:valid_source))
+    Otu.create!(taxon_name: species)
+    TypeMaterial.create!(protonym: species, type_type: 'holotype', material: FactoryBot.create(:valid_specimen))
+    TaxonNameClassification::Iczn::Available.create!(taxon_name: species)
+    TaxonNameRelationship::Typification::Genus.create!(subject_taxon_name_id: species.id, object_taxon_name_id: genus.id)
+    species.update(updated_at: '2050/1/1')
+
+    query.nomenclature_group = 'Species'
+    query.nomenclature_group = 'Iczn'
+    query.citations = 'without_origin_citation'
+    query.otus = true
+    query.authors = true
+    query.type_metadata = true
+    query.taxon_name_classification = [ 'TaxonNameClassification::Iczn::Available' ]
+    query.taxon_name_relationship = [ { 'object_taxon_name_id' => genus.id.to_s, 'type' => 'TaxonNameRelationship::Typification::Genus' } ]
+    query.parent_id = [genus.id]
+    query.name = 'Erasmoneura vulnerata'
+    query.author = '(Fitch & Say, 1800)'
+    query.exact = true
+    query.year = 1800
+    query.updated_since = '2049-12-01'
+    query.validity = true
+    query.leaves = true
+    query.taxon_name_type = 'Protonym'
+
+    expect(query.all.map(&:id)).to contain_exactly(species.id)
   end
 
 end

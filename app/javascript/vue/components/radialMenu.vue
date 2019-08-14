@@ -72,6 +72,16 @@ export default {
           backgroundSelected: '#A0A0A0'
         }
       }
+    },
+    circleStyle: {
+      type: Object,
+      default: () => {
+        return {
+          text: '#FFFFFF',
+          background: 'yellow',
+          backgroundHover: 'yellow'
+        }
+      }
     }
   },
   data: function () {
@@ -81,6 +91,7 @@ export default {
       segmentWidth: ((this.maxAngle - this.getAngleSizeFromObjects(this.menu)) / this.getSlicesWithDefaultSize(this.menu)),
       optionSelected: undefined,
       optionMouseOver: undefined,
+      circleIcon: undefined,
       icons: []
     }
   },
@@ -92,8 +103,14 @@ export default {
   },
   watch: {
     menu: {
-      handler: function () {
+      handler () {
         this.padding = (this.menu.length > 1 ? this.space : 0)
+        this.update(false)
+      },
+      deep: true
+    },
+    circleStyle: {
+      handler () {
         this.update(false)
       },
       deep: true
@@ -107,22 +124,29 @@ export default {
       }
     },
     loadIcons: function () {
-      var that = this
+      const that = this
       this.menu.forEach(function (item, index) {
         if (item.hasOwnProperty('icon') && item.icon) {
-          let icon = {}
-          icon['image'] = new Image()
-          icon['loaded'] = false
-          icon['image'].addEventListener('load', function () {
-            icon['loaded'] = true
-            icon['width'] = item.icon['width'] ? item.icon.width : icon['image'].width
-            icon['height'] = item.icon['height'] ? item.icon.height : icon['image'].height
-            that.update(false)
-          }, false)
-          icon['image'].src = item.icon.url
-          that.icons[index] = icon
-        } 
+          that.icons[index] = that.loadIcon(item)
+        }
       })
+      if (this.circleStyle.hasOwnProperty('icon')) {
+        this.circleIcon = that.loadIcon(this.circleStyle)
+      }
+    },
+    loadIcon (item) {
+      const that = this
+      let icon = {}
+      icon['image'] = new Image()
+      icon['loaded'] = false
+      icon['image'].addEventListener('load', function () {
+        icon['loaded'] = true
+        icon['width'] = item.icon['width'] ? item.icon.width : icon['image'].width
+        icon['height'] = item.icon['height'] ? item.icon.height : icon['image'].height
+        that.update(false)
+      }, false)
+      icon['image'].src = item.icon.url
+      return icon
     },
     getAngleSizeFromObjects(menu) {
       let angleSizes = 0
@@ -214,12 +238,17 @@ export default {
         this.update(false)
       }
     },
-    drawCircle: function () {
-      this.ctx.fillStyle = 'yellow'
+    drawCircle: function (colorStyle = 'yellow') {
+      this.ctx.fillStyle = colorStyle
       this.ctx.beginPath()
       this.ctx.arc(this.width / 2, this.height / 2, 30, 0, 2 * Math.PI, false)
       this.ctx.fill()
       this.ctx.closePath()
+      if (this.circleStyle['icon']) {
+        this.ctx.beginPath()
+        this.ctx.drawImage(this.circleIcon.image, (this.width / 2 - this.circleIcon.width / 2), (this.height / 2 - this.circleIcon.height / 2), this.circleIcon.width, this.circleIcon.height)
+        this.ctx.closePath()
+      }
     },
     drawOption: function (color, angle, startPosition, endPosition, segmentWidth) {
       var positionArcCount = this.findNewPoint(this.width / 2, this.height / 2, Math.degrees(angle) + ((segmentWidth + (this.padding )) / 2), this.padding)
@@ -257,11 +286,19 @@ export default {
       var mangle = (-Math.atan2(mx - width / 2, my - height / 2) + Math.PI * 2.5) % (Math.PI * 2)
       var mradius = Math.sqrt(Math.pow(mx - width / 2, 2) + Math.pow(my - height / 2, 2))
 
-      if (((mangle > angle && mangle < (angle + Math.radians(segmentWidth))) || (mangle > Math.PI * (this.getSlicesWithDefaultSize(this.menu) * 2) / this.getSlicesWithDefaultSize(this.menu) && position == 0)) && mradius <= width / 2 && mradius >= 50) {
+      if (((mangle > angle && mangle < (angle + Math.radians(segmentWidth))) || (mangle > Math.PI * (this.getSlicesWithDefaultSize(this.menu) * 2) / this.getSlicesWithDefaultSize(this.menu) && position == 0)) && mradius <= width / 2 && mradius >= 44) {
         return true
       } else {
         return false
       }
+    },
+    isInsideCircle(E, radius) {
+      const centerX = this.width / 2
+      const centerY = this.height / 2
+      const a = centerX - this.getPosition(E).x;
+      const b = centerY - this.getPosition(E).y;
+
+      return Math.sqrt(a * a + b * b) < radius
     },
     getSegmentSize(position) {
       let size = 0
@@ -283,7 +320,14 @@ export default {
 
       this.$el.style.cursor = 'initial'
       this.ctx.clearRect(0, 0, width, height)
-      this.drawCircle()
+      if (this.isInsideCircle(E, 30)) {
+        this.drawCircle(this.circleStyle.backgroundHover)
+        this.$el.style.cursor = 'pointer'
+        this.optionMouseOver = { event: 'circleButton' }
+      }
+      else {
+        this.drawCircle(this.circleStyle.background)
+      }
 
       for (var i = 0; i < slices; i++) {
         var segmentWidth = (this.menu[i].hasOwnProperty('size') ? this.menu[i].size : this.segmentWidth)

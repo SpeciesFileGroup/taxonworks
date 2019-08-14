@@ -38,7 +38,7 @@ namespace :tw do
         @relationship_classes = {
             0 => '', ### valid
             1 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective',   #### ::Objective or ::Subjective
-            2 => '', ### OriginalMonotypy combination
+            2 => '', ### Original combination
             3 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary',
             4 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary', #### or 'Secondary::Secondary1961'
             5 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym', ## Preocupied
@@ -206,7 +206,7 @@ namespace :tw do
         print "\nHandling CV \n"
 
         @data.keywords.merge!(
-            'questionable' => Keyword.find_or_create_by(name: 'OriginalMonotypy genus is questionable', definition: 'OriginalMonotypy genus is questionable', project_id: $project_id),
+            'questionable' => Keyword.find_or_create_by(name: 'OriginalMonotypy genus is questionable', definition: 'Original genus is questionable', project_id: $project_id),
             'ref_id' => Namespace.find_or_create_by(institution: 'Odonata', name: 'Odonata_ref_ID', short_name: 'ref_ID'),
             'accession_number' => Namespace.find_or_create_by(institution: 'Odonata', name: 'Odonata_accession_number', short_name: 'accession_number'),
             'Key' => Namespace.find_or_create_by(institution: 'Odonota', name: 'Odonata_taxon_ID', short_name: 'taxon_ID'),

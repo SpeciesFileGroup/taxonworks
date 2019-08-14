@@ -3,6 +3,12 @@ require 'rails_helper'
 RSpec.describe PinboardItem do
   let(:pinboard_item) { PinboardItem.new }
 
+  specify 'good pinboard_item_type subclass' do
+    pinboard_item.pinned_object_type = 'Keyword'
+    pinboard_item.valid?
+    expect(pinboard_item.errors.messages.keys).to_not include(:pinned_object_type)
+  end
+
   specify 'bad pinboard_item_type' do
     pinboard_item.pinned_object_type = 'People'
     pinboard_item.valid?

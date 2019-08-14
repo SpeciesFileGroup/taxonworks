@@ -14,5 +14,4 @@ class TaxonNameClassification::Icn::NotEffectivelyPublished < TaxonNameClassific
   def self.assignable
     true
   end
-
 end

@@ -1,4 +1,10 @@
 scope :tasks do
+    scope :matrix_image do
+      scope :matrix_image, controller: 'tasks/matrix_image/matrix_image' do
+        get :index, as: 'index_matrix_image_task'
+      end
+    end
+
 
   scope :asserted_distribution do
     scope :new_asserted_distribution, controller: 'tasks/asserted_distribution/new_asserted_distribution' do
@@ -215,13 +221,6 @@ scope :tasks do
       post 'create_biocuration_group'
       post 'create_biocuration_class'
     end
-  end
-
-  scope :gis, controller: 'tasks/gis/locality' do
-    get 'nearby(/:id)', action: 'nearby', as: 'nearby_locality_task'
-    get 'within(/:id)', action: 'within', as: 'within_locality_task'
-    get 'new_list', action: 'new_list', as: 'new_list_task'
-    post 'list' # , action: 'list', as: 'locatity_list_task'
   end
 
   scope :gis do

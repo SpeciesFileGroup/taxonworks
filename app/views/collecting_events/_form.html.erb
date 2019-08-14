@@ -1,5 +1,16 @@
+<% if @collecting_event.persisted? %>
+  <div class="actions" class="right_float" >
+    <%= button_to "Clone", { action: "clone", id: @collecting_event.id },
+      data: { confirm: "Clone this record? Changes will not be saved!" } %>
+  </div>
+<% end %>
+
 <%= form_for(@collecting_event, html: {id: :collecting_event_form}) do |f| %>
     <%= render 'shared/errors', object: @collecting_event %>
+
+    <div class="actions">
+      <%= f.submit %>
+    </div>
 
     <div class="flexbox">
       <div class="item item1">

@@ -2,29 +2,21 @@ import Vue from 'vue'
 import vueResource from 'vue-resource'
 import App from './app.vue'
 
-var TW = TW || {};
-TW.views = TW.views || {};
-TW.views.tasks = TW.views.tasks || {};
-TW.views.tasks.nomenclature_by_source = TW.views.tasks.nomenclature_by_source || {};
+function init () {
+  Vue.use(vueResource);
+  var token = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+  Vue.http.headers.common['X-CSRF-Token'] = token;
 
-Object.assign(TW.views.tasks.nomenclature_by_source, {
+  new Vue({
+    el: '#nomenclature_by_source',
+    render: function (createElement) {
+      return createElement(App);
+    }
+  })
+}
 
-  init: function () {
-    Vue.use(vueResource);
-    var token = $('[name="csrf-token"]').attr('content');
-    Vue.http.headers.common['X-CSRF-Token'] = token;
-
-    new Vue({
-      el: '#nomenclature_by_source',
-      render: function (createElement) {
-        return createElement(App);
-      }
-    })
+document.addEventListener('turbolinks:load', (event) => {
+  if (document.querySelector('#nomenclature_by_source')) {
+    init()
   }
-});
-
-$(document).on('turbolinks:load', function () {
-  if ($('#nomenclature_by_source').length) {
-    TW.views.tasks.nomenclature_by_source.init();
-  }
-});
+})

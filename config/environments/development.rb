@@ -32,7 +32,7 @@ TaxonWorks::Application.configure do
   # number of complex assets.
   config.assets.debug = false # false # true if you are stuck
   #config.assets.quiet = false # is true by default
-  #config.assets.raise_runtime_errors = true
+  config.assets.raise_runtime_errors = true
 
 
   config.action_mailer.default_url_options = { host: 'localhost:3000' }

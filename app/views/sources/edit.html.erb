@@ -4,3 +4,9 @@
 
 <%= link_to 'Show', @source.metamorphosize %>
 
+<div id="validation-panel" class="panel separate-left separate-bottom">
+  <div class="content">
+    <%= render( partial: '/shared/data/all/show/soft_validation', locals: {object: @source} ) -%>
+  </div>
+</div>
+

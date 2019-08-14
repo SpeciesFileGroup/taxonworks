@@ -71,4 +71,8 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary < TaxonNameR
       soft_validations.add(:base, "No combination available showing #{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} placed in the same genus")
     end
   end
+
+  def sv_not_specific_relationship
+    true
+  end
 end

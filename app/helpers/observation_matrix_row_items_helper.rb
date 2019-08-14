@@ -4,7 +4,14 @@ module ObservationMatrixRowItemsHelper
   def observation_matrix_row_item_tag(observation_matrix_row_item)
     return nil if observation_matrix_row_item.nil?
     if observation_matrix_row_item.is_dynamic?
-      (controlled_vocabulary_term_tag(observation_matrix_row_item.controlled_vocabulary_term) + ' (tag keyword)').html_safe
+      case observation_matrix_row_item.type
+      when 'ObservationMatrixRowItem::TagRowItem'
+        (controlled_vocabulary_term_tag(observation_matrix_row_item.controlled_vocabulary_term) + ' (tag keyword)').html_safe
+      when 'ObservationMatrixRowItem::TaxonNameRowItem'
+        (taxon_name_tag(observation_matrix_row_item.taxon_name) + ' (taxon name)').html_safe
+      else
+        'bad type'
+      end
     else
       [
         object_tag(observation_matrix_row_item.matrix_row_item_object),

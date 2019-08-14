@@ -2,9 +2,9 @@ import Vue from 'vue'
 import VueResource from 'vue-resource'
 
 Vue.use(VueResource)
-Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
 
 const ajaxCall = function (type, url, data = null) {
+  Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
   return new Promise(function (resolve, reject) {
     Vue.http[type](url, data).then(response => {
       console.log(response)
@@ -55,6 +55,10 @@ const UpdateUserPreferences = function (id, data) {
 
 const GetRepositorySmartSelector = function () {
   return ajaxCall('get', `/repositories/select_options`)
+}
+
+const GetSourceSmartSelector = function () {
+  return ajaxCall('get', `/sources/select_options`)
 }
 
 const GetNamespacesSmartSelector = function () {
@@ -151,6 +155,10 @@ const CreateContainerItem = function (data) {
 
 const CreateCollectionEvent = function (data) {
   return ajaxCall('post', `/collecting_events.json`, { collecting_event: data })
+}
+
+const CloneCollectionEvent = function (id) {
+  return ajaxCall('post', `/collecting_events/${id}/clone`)
 }
 
 const GetCollectionObject = function (id) {
@@ -283,6 +291,7 @@ const DestroyBiologicalAssociation = function (id) {
 
 export {
   CheckForExistingIdentifier,
+  CloneCollectionEvent,
   GetLabelsFromCE,
   GetUserPreferences,
   GetOtu,
@@ -293,6 +302,7 @@ export {
   GetCollectorsSmartSelector,
   GetRepositorySmartSelector,
   GetGeographicSmartSelector,
+  GetSourceSmartSelector,
   GetTaxonDeterminatorSmartSelector,
   GetBiologicalRelationshipsSmartSelector,
   GetBiologicalRelationships,

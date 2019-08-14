@@ -169,13 +169,13 @@ class Protonym < TaxonName
           search_name = nil
         end
 
-        unless search_name.nil?
+        r = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
+        if !search_name.nil? && r.empty?
           list = Protonym.ancestors_and_descendants_of(self).not_self(self).
             with_rank_class_including(search_rank).
-            # TODO @proceps Rails 5.0 makes this scope fail, for reasons I have not yet investigated. @tuckerjd
-            # with_name_in_array(search_name).
             where('name in (?)', search_name).
-            as_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym')
+            as_subject_without_taxon_name_relationship_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM)
+            #as_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').
         else
           list = []
         end
@@ -184,6 +184,10 @@ class Protonym < TaxonName
       end
     end
     return list
+  end
+
+  def is_available?
+    !has_misspelling_relationship? && !name_is_misapplied? && !classification_invalid_or_unavailable?
   end
 
   # @return [Protonym]
@@ -367,6 +371,10 @@ class Protonym < TaxonName
     !NOT_LATIN.match(name) || has_latinized_exceptions?
   end
 
+  def is_homonym_or_suppressed?
+
+  end
+
   # @return [Boolean]
   #   whether this name has one of the TaxonNameRelationships which justify wrong form of the name
   def has_misspelling_relationship?
@@ -515,10 +523,12 @@ class Protonym < TaxonName
   end
 
   def get_original_combination
+    return verbatim_name if !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string) && !verbatim_name.nil?
     e = original_combination_elements
     return nil if e.none? 
 
-    # Weird, why? TODO: needs spec
+    # Weird, why?
+    # DD: in ICTV the species name is "Potato spindle tuber viroid", the genus name is only used for classification...
     return e[:species] if rank_class =~ /Ictv/
 
     p = TaxonName::COMBINATION_ELEMENTS.inject([]){|ary, r| ary.push(e[r]) } 
@@ -536,6 +546,8 @@ class Protonym < TaxonName
     # Why this? 
     #   We need to apply gender to "internal" names for original combinations, everything
     #   but the last name
+    # DD: if we have subspecies, the species name should be used not in the original form,
+    # but the form correlated with the present genus gender
     # TODO: get SQL based ordering for original_combination_relationships, hard coded
 
     # order the relationships
@@ -550,13 +562,13 @@ class Protonym < TaxonName
       if j.type =~ /enus/ || i == total
         g = nil
       else
-      #unless (j.type =~ /genus/) || i == total
         g = gender
       end
       elements.merge! j.combination_name(g)
     end
 
-    # TODO: what is point of this? Do we get around this check by requiring self relationships? (species aus has species relationship to self)
+    # what is point of this? Do we get around this check by requiring self relationships? (species aus has species relationship to self)
+    # DD: we do not require it, it is optional
     if !r.empty? && r.collect{|i| i.subject_taxon_name}.last.lowest_rank_coordinated_taxon.id != lowest_rank_coordinated_taxon.id
       if elements[this_rank].nil?
         elements[this_rank] = [original_name] 
@@ -576,16 +588,23 @@ class Protonym < TaxonName
   #    a monomial, as originally rendered, with parens if subgenus
   def original_name
     n = verbatim_name.nil? ? name_with_misspelling(nil) : verbatim_name
-    n = "(#{n})" if n && rank == 'subgenus'
+    n = "(#{n})" if n && rank_name == 'subgenus'
     n
   end 
 
   def get_original_combination_html
-    Utilities::Italicize.taxon_name(get_original_combination)
+    return  "\"<i>Candidatus</i> #{get_original_combination}\"" if is_candidatus?
+    v = get_original_combination
+    if !v.blank? && is_hybrid?
+      w = v.split(' ')
+      w[-1] = ('×' + w[-1]).gsub('×(', '(×')
+      v = w.join(' ')
+    end
+    v = Utilities::Italicize.taxon_name(v)
+    v = '† ' + v if !v.blank? && is_fossil?
+    v
   end
 
-  # TODO: @proceps - confirm this is only applicable to Protonym, NOT Combination
-  # @mjy - yes this is applicable to Protonym only
   def update_cached_original_combinations
     update_columns(
       cached_original_combination: get_original_combination,
@@ -601,8 +620,6 @@ class Protonym < TaxonName
     )
   end
 
-  # TODO: @proceps - confirm this is only applicable to Protonym, NOT Combination
-  # Should this be in Protonym
   def set_cached_names_for_dependants
     dependants = []
     related_through_original_combination_relationships = []
@@ -619,9 +636,6 @@ class Protonym < TaxonName
 
       # Combination can hit here
       classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
-
-      # TODO: not used!?
-      # hybrid_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('Hybrid')
 
       dependants.each do |i|
         columns_to_update = {

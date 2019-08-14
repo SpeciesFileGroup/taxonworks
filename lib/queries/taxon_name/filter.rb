@@ -19,8 +19,7 @@ module Queries
       attr_accessor :year
 
       # @param exact [Boolean]
-      #   ['true' or 'false'] on initialize
-      #   true if only valid, false if only invalid, nil if both 
+      #   true if matching must be exact, false if partial matches are allowed.
       attr_accessor :exact
 
       # @param updated_since [String] in format yyyy-mm-dd
@@ -35,7 +34,7 @@ module Queries
       # @params parent_id [Array]
       #   An array of taxon_name_id.
       # @return
-      #   Return all children of these parents. Results includes self (parent_id).  
+      #   Return all children of these parents. Results includes self (parent_id).
       attr_accessor :parent_id
 
       # @param descendants [Boolean]
@@ -43,14 +42,17 @@ module Queries
       #   Ignored when parent_id[].empty? Return descendants of parents as well.
       attr_accessor :descendants
 
-      # @param taxon_name_relationship [Hash]
-      #   { "0" => {'type' => 'TaxonNameRelationship::<>', 'subject|object_taxon_name_id' => '123'}, "1" => {} ... } 
-      # Root keys are unique symbols, typically numbers.
+      # @param taxon_name_relationship [Array]
+      #  [ { 'type' => 'TaxonNameRelationship::<>', 'subject|object_taxon_name_id' => '123' } ... {} ] 
       # Each entry must have a 'type'
       # Each entry must have one (and only one) of 'subject_taxon_name_id' or 'object_taxon_name_id'
       #
       # Return all taxon names in a relationship of a given type and in relation to a another name. For example, return all synonyms of Aus bus.
       attr_accessor :taxon_name_relationship
+
+      # @param taxon_name_relationship [Array]
+      #   All names involved in any of these relationship
+      attr_accessor :taxon_name_relationship_type
 
       # @param taxon_name_classification [Array]
       #   Class names of TaxonNameClassification, as strings.
@@ -67,12 +69,17 @@ module Queries
       #  'without_origin_citation' - names without an origin citation
       attr_accessor :citations
 
-      # @param otus [Boolean]
+      # @param otus [Boolean, nil]
       # ['true' or 'false'] on initialize
-      #   whether the name has an Otu 
+      #   whether the name has an Otu
       attr_accessor :otus
 
-      # @params type_material [Boolean]
+      # @param authors [Boolean, nil]
+      # ['true' or 'false'] on initialize
+      #   whether the name has an author string, from any source, provided 
+      attr_accessor :authors
+
+      # @params type_material [Boolean, nil]
       # ['true' or 'false'] on initialize
       #   whether the name has TypeMaterial
       attr_accessor :type_metadata 
@@ -85,6 +92,18 @@ module Queries
       #   &nomenclature_code=Iczn|Icnb|Icn|Ictv
       attr_accessor :nomenclature_code
 
+      # TODO: inverse is duplicated in autocomplete
+      # @return [Boolean, nil]
+      #   &leaves=<"true"|"false">
+      #   if 'true' then return only names without descendents
+      #   if 'false' then return only names with descendents
+      attr_accessor :leaves
+
+
+      # @return [String, nil]
+      #   &taxon_name_type=<Protonym|Combination|Hybrid>
+      attr_accessor :taxon_name_type
+
       # @param params [Params] 
       #   a permitted via controller
       def initialize(params)
@@ -96,17 +115,21 @@ module Queries
         @descendants = (params[:descendants] == 'true' ? true : false) if !params[:descendants].nil?
         @updated_since = params[:updated_since].to_s 
         @validity = (params[:validity] == 'true' ? true : false) if !params[:validity].nil?
-        @taxon_name_relationship = params[:taxon_name_relationship] || {}
+        @taxon_name_relationship = params[:taxon_name_relationship] || [] 
+        @taxon_name_relationship_type = params[:taxon_name_relationship_type] || [] 
         @taxon_name_classification = params[:taxon_name_classification] || [] 
         @type_metadata = (params[:type_metadata] == 'true' ? true : false) if !params[:type_metadata].nil?
         @citations = params[:citations]
         @otus = (params[:otus] == 'true' ? true : false) if !params[:otus].nil?
         @project_id = params[:project_id]
-
+        @leaves = (params[:leaves] == 'true' ? true : false) if !params[:leaves].nil?
         @nomenclature_group = params[:nomenclature_group]  if !params[:nomenclature_group].nil?
         @nomenclature_code = params[:nomenclature_code]  if !params[:nomenclature_code].nil?
+        @taxon_name_type = params[:taxon_name_type]
 
-        # TODO: support here? 
+        @authors = (params[:authors] == 'true' ? true : false) if !params[:authors].nil?
+
+        # TODO: support here?
         @keyword_ids ||= []
       end
 
@@ -120,184 +143,114 @@ module Queries
       end
       
       # @return [String, nil] 
-      #   accessor for attr :nomenclature_group, wrap with needed wildcards 
+      #   accessor for attr :nomenclature_group, wrap with needed wildcards
       def nomenclature_group
         return nil unless @nomenclature_group
         "NomenclaturalRank::%#{@nomenclature_group}%"
       end
 
       # @return [String, nil] 
-      #   accessor for attr :nomenclature_code, wrap with needed wildcards 
+      #   accessor for attr :nomenclature_code, wrap with needed wildcards
       def nomenclature_code
         return nil unless @nomenclature_code
         "NomenclaturalRank::#{@nomenclature_code}%"
       end
 
       # @return Scope
-      #   names that are not leaves
+      #   match only names that are a descendant of some parent_id
       # A merge facet.
       def descendant_facet
         return nil if parent_id.empty? || !descendants
-        o = table
-        h = ::TaxonNameHierarchy.arel_table
-
-        a = o.alias('tfa_')
-        b = o.project(a[Arel.star]).from(a)
-
-        c = h.alias('tfa_r')
-
-        b = b.join(c, Arel::Nodes::OuterJoin)
-          .on(
-            a[:id].eq(c[:descendant_id])
+        ::TaxonName.where(
+          ::TaxonNameHierarchy.where(
+            ::TaxonNameHierarchy.arel_table[:descendant_id].eq(::TaxonName.arel_table[:id]).and(
+            ::TaxonNameHierarchy.arel_table[:ancestor_id].in(parent_id))
+          ).arel.exists
         )
+      end
 
-        e = c[:descendant_id].not_eq(nil)
-        f = c[:ancestor_id].eq_any(parent_id)
+      # @return Scope
+      def otus_facet
+        return nil if otus.nil?
+        subquery = ::Otu.where(::Otu.arel_table[:taxon_name_id].eq(::TaxonName.arel_table[:id])).arel.exists
+        ::TaxonName.where(otus ? subquery : subquery.not)
+      end
 
-        b = b.where(e.and(f))
-        b = b.group(a[:id])
-        b = b.as('tfa_a_')
+      # @return Scope
+      def authors_facet
+        return nil if authors.nil?
+        authors ? 
+          ::TaxonName.where.not(cached_author_year: nil) :
+          ::TaxonName.where(cached_author_year: nil)
+      end
 
-        ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(table['id']))))
+      # @return Scope
+      def taxon_name_relationship_type_facet
+        return nil if taxon_name_relationship_type.empty?
+        ::TaxonName.with_taxon_name_relationship(taxon_name_relationship_type)
+      end
+
+      # @return Scope
+      def leaves_facet
+        return nil if leaves.nil?
+        leaves ? ::TaxonName.leaves : ::TaxonName.not_leaves
       end
 
       # @return Scope
       #   wrapped in descendant_facet!
-      def taxon_name_relationship_facet(hsh, trn_alias = '1') 
-        o = table
-        h = ::TaxonNameRelationship.arel_table
+      def taxon_name_relationship_facet(hsh)
+        param_key = hsh['subject_taxon_name_id'] ? 'subject_taxon_name_id' : 'object_taxon_name_id'
+        join_key = hsh['subject_taxon_name_id'] ? 'object_taxon_name_id' : 'subject_taxon_name_id'
 
-        a = o.alias("tfb_#{trn_alias}_")
-        b = o.project(a[Arel.star]).from(a)
-
-        c = h.alias("tfb_r_#{trn_alias}")
-
-        trg = hsh['subject_taxon_name_id'] ? 'subject_taxon_name_id' : 'object_taxon_name_id'
-        opp = hsh['subject_taxon_name_id'] ? 'object_taxon_name_id' : 'subject_taxon_name_id'
-
-        typ = hsh['type']
-
-        b = b.join(c, Arel::Nodes::OuterJoin)
-          .on(
-            a[:id].eq(c[opp]).
-            and(c[:type].eq(typ))
+        ::TaxonName.where(
+          ::TaxonNameRelationship.where(
+            ::TaxonNameRelationship.arel_table[join_key].eq(::TaxonName.arel_table[:id]).and(
+            ::TaxonNameRelationship.arel_table[param_key].eq(hsh[param_key])).and(
+            ::TaxonNameRelationship.arel_table[:type].eq(hsh['type']))
+          ).arel.exists
         )
-
-        e = c[trg].not_eq(nil)
-        f = c[trg].eq(hsh[trg])
-
-        b = b.where(e.and(f))
-        b = b.group(a[:id])
-        b = b.as("tfb_a_#{trn_alias}_")
-
-        ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(table['id']))))
       end
 
       # @return Scope
       def taxon_name_classification_facet
         return nil if taxon_name_classification.empty?
-        o = table
-        h = ::TaxonNameClassification.arel_table
 
-        a = o.alias("tfc_")
-        b = o.project(a[Arel.star]).from(a)
-
-        c = h.alias("tfc_r_")
-
-        b = b.join(c, Arel::Nodes::OuterJoin)
-          .on(
-            a[:id].eq(c[:taxon_name_id])
+        ::TaxonName.where(
+          ::TaxonNameClassification.where(
+            ::TaxonNameClassification.arel_table[:taxon_name_id].eq(::TaxonName.arel_table[:id]).and(
+            ::TaxonNameClassification.arel_table[:type].in(taxon_name_classification))
+          ).arel.exists
         )
-
-        e = c[:taxon_name_id].not_eq(nil)
-        f = c[:type].eq_any(taxon_name_classification)
-
-        b = b.where(e.and(f))
-        b = b.group(a[:id])
-        b = b.as("tfc_a_")
-
-        ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(table['id']))))
       end
 
       # @return Scope
-      def type_metadata_facet 
+      def type_metadata_facet
         return nil if type_metadata.nil?
-        o = table
-        h = ::TypeMaterial.arel_table
 
-        a = o.alias("tfd_")
-        b = o.project(a[Arel.star]).from(a)
+        subquery = ::TypeMaterial.where(::TypeMaterial.arel_table[:protonym_id].eq(::TaxonName.arel_table[:id])).arel.exists
 
-        c = h.alias("tfd_r_")
-
-        b = b.join(c, Arel::Nodes::OuterJoin)
-          .on(
-            a[:id].eq(c[:protonym_id])
-        )
-
-        if type_metadata
-          b = b.where(c[:protonym_id].not_eq(nil))
-        else
-          b = b.where(c[:protonym_id].eq(nil))
-        end
-
-        b = b.group(a[:id])
-        b = b.as("tfd_a_")
-
-        ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(table['id']))))
+        ::TaxonName.where(type_metadata ? subquery : subquery.not)
       end
 
       # @return Scope
-      def otus_facet 
+      def otus_facet
         return nil if otus.nil?
-        o = table
-        h = ::Otu.arel_table
-
-        a = o.alias("tfe_")
-        b = o.project(a[Arel.star]).from(a)
-
-        c = h.alias("tfe_r_")
-
-        b = b.join(c, Arel::Nodes::OuterJoin)
-          .on(
-            a[:id].eq(c[:taxon_name_id])
-        )
-
-        if otus 
-          b = b.where(c[:taxon_name_id].not_eq(nil))
-        else
-          b = b.where(c[:taxon_name_id].eq(nil))
-        end
-
-        b = b.group(a[:id])
-        b = b.as("tfe_a_")
-
-        ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(table['id']))))
+        subquery = ::Otu.where(::Otu.arel_table[:taxon_name_id].eq(::TaxonName.arel_table[:id])).arel.exists
+        ::TaxonName.where(otus ? subquery : subquery.not)
       end
 
       # @return Scope
       def citations_facet 
         return nil if citations.nil?
-        o = table
-        h = ::Citation.arel_table
 
-        a = o.alias("tff_")
-        b = o.project(a[Arel.star]).from(a)
+        citation_conditions = ::Citation.arel_table[:citation_object_id].eq(::TaxonName.arel_table[:id]).and(
+          ::Citation.arel_table[:citation_object_type].eq('TaxonName'))
 
-        c = h.alias("tff_r_")
+        if citations == 'without_origin_citation'
+          citation_conditions = citation_conditions.and(::Citation.arel_table[:is_original].eq(true))
+        end
 
-        j = a[:id].eq(c[:citation_object_id]).
-            and(c[:citation_object_type].eq('TaxonName'))
-
-        j = j.and(c[:is_original].eq(true)) if citations == 'without_origin_citation'
-
-        b = b.join(c, Arel::Nodes::OuterJoin).on(j)
-
-        b = b.where(c[:id].eq(nil))
-        b = b.group(a[:id])
-        b = b.as("tff_a_")
-
-        ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(table['id']))))
+        ::TaxonName.where.not(::Citation.where(citation_conditions).arel.exists)
       end
 
       # @return [Arel::Nodes::Grouping, nil]
@@ -314,6 +267,11 @@ module Queries
         table[:rank_class].matches(nomenclature_code)
       end
 
+      def taxon_name_type_facet
+        return nil if taxon_name_type.blank?
+        table[:type].eq(taxon_name_type)
+      end
+
       def cached_name
         return nil if name.blank?
         if exact
@@ -322,7 +280,7 @@ module Queries
           table[:cached].matches('%' + name + '%')
         end
       end
-    
+
       def author_facet 
         return nil if author.blank?
         if exact
@@ -331,12 +289,12 @@ module Queries
           table[:cached_author_year].matches('%' + author + '%')
         end
       end
-     
+
       def year_facet 
         return nil if year.blank?
         table[:cached_author_year].matches('%' + year + '%')
       end
-      
+
       def updated_since_facet
         return nil if updated_since.blank?
         table[:updated_at].gt(Date.parse(updated_since))
@@ -369,6 +327,7 @@ module Queries
           parent_facet,
           with_nomenclature_group,
           with_nomenclature_code,
+          taxon_name_type_facet
         ].compact
 
         return nil if clauses.empty?
@@ -382,18 +341,19 @@ module Queries
 
       def merge_clauses
         clauses = [
+          taxon_name_relationship_type_facet,
+          leaves_facet,
           descendant_facet,
           taxon_name_classification_facet,
           matching_keyword_ids,
           type_metadata_facet,
           otus_facet,
+          authors_facet,
           citations_facet
         ].compact
 
-        i = 0
-        taxon_name_relationship.each do |k, values|
-          clauses << taxon_name_relationship_facet(values, i.to_s)
-          i += 1
+        taxon_name_relationship.each do |hsh|
+          clauses << taxon_name_relationship_facet(hsh)
         end
 
         return nil if clauses.empty?
@@ -412,11 +372,11 @@ module Queries
 
         q = nil 
         if a && b
-          q = b.where(a).distinct
+          q = b.where(a)
         elsif a
-          q = ::TaxonName.where(a).distinct
+          q = ::TaxonName.where(a)
         elsif b
-          q = b.distinct
+          q = b
         else
           q = ::TaxonName.all
         end
