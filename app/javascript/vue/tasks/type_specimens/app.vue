@@ -39,7 +39,7 @@ import nameSection from './components/nameSection.vue'
 import typeMaterialSection from './components/typeMaterial.vue'
 import metadataSection from './components/metadataSection.vue'
 import typeBox from './components/typeBox.vue'
-import spinner from '../components/spinner.vue'
+import spinner from 'components/spinner.vue'
 
 import ActionNames from './store/actions/actionNames'
 import { GetterNames } from './store/getters/getters'

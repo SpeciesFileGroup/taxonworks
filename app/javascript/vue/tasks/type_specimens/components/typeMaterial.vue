@@ -95,27 +95,27 @@
 
 <script>
 
-import {GetterNames} from '../store/getters/getters'
-import {MutationNames} from '../store/mutations/mutations'
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
 import ActionNames from '../store/actions/actionNames'
 
-import autocomplete from '../../components/autocomplete.vue'
-import radialAnnotator from '../../components/annotator/annotator.vue'
-import spinner from '../../components/spinner.vue'
-import expand from './expand.vue'
-import collectionObject from './collectionObject.vue'
-import depictionsSection from './depictions.vue'
+import Autocomplete from 'components/autocomplete.vue'
+import RadialAnnotator from 'components/annotator/annotator.vue'
+import Spinner from 'components/spinner.vue'
+import Expand from './expand.vue'
+import CollectionObject from './collectionObject.vue'
+import DepictionsSection from './depictions.vue'
 
 import { RouteNames } from 'routes/routes'
 
 export default {
   components: {
-    depictionsSection,
-    collectionObject,
-    autocomplete,
-    expand,
-    radialAnnotator,
-    spinner
+    DepictionsSection,
+    CollectionObject,
+    Autocomplete,
+    Expand,
+    RadialAnnotator,
+    Spinner
   },
   computed: {
     typeMaterial () {

@@ -33,16 +33,14 @@ import ActionNames from '../store/actions/actionNames'
 import { GetterNames } from '../store/getters/getters'
 import { GetDepictions, DestroyDepiction } from '../request/resources'
 
-import dropzone from '../../components/dropzone.vue'
-import expand from './expand.vue'
-import spinner from '../../components/spinner.vue'
+import dropzone from 'components/dropzone.vue'
+import spinner from 'components/spinner.vue'
 import depictionImage from './depictionImage.vue'
 
 export default {
   components: {
     depictionImage,
     dropzone,
-    expand,
     spinner
   },
   computed: {

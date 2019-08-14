@@ -41,20 +41,20 @@
 
 <script>
 
-import expand from './expand.vue'
-import autocomplete from '../../components/autocomplete.vue'
-import spinner from '../../components/spinner.vue'
-import rolePicker from '../../components/role_picker.vue'
+import Expand from './expand.vue'
+import Autocomplete from 'components/autocomplete.vue'
+import Spinner from 'components/spinner.vue'
+import RolePicker from 'components/role_picker.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { GetTypes } from '../request/resources'
 
 export default {
   components: {
-    autocomplete,
-    rolePicker,
-    spinner,
-    expand
+    Autocomplete,
+    RolePicker,
+    Spinner,
+    Expand
   },
   computed: {
     roles: {

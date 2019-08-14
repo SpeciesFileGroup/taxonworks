@@ -34,18 +34,18 @@
 
 <script>
 
-import expand from './expand.vue'
-import autocomplete from '../../components/autocomplete.vue'
-import displayList from '../../components/displayList.vue'
+import Expand from './expand.vue'
+import Autocomplete from 'components/autocomplete.vue'
+import DisplayList from 'components/displayList.vue'
 
 import { GetterNames } from '../store/getters/getters'
 import ActionNames from '../store/actions/actionNames'
 
 export default {
   components: {
-    displayList,
-    autocomplete,
-    expand
+    DisplayList,
+    Autocomplete,
+    Expand
   },
   computed: {
     typesMaterial () {

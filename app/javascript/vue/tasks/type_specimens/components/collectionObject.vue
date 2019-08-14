@@ -68,7 +68,7 @@
 
 <script>
 
-import autocomplete from '../../components/autocomplete.vue'
+import autocomplete from 'components/autocomplete.vue'
 import toggleSwitch from './toggleSwitch.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
