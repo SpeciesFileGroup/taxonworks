@@ -8,7 +8,7 @@
 #   allow_destroy: - false if no
 #   edit: over-ride data->edit
 #   new: over-ride data->new
-#   show: over-ride data->show
+#   home: where requested, use this path rather than show
 #
 ---
 Source:
@@ -28,6 +28,7 @@ TaxonName:
     - browse_otus_task
     - otu_distribution_data_task
   edit: new_taxon_name_task
+  home: browse_nomenclature_task
   config:
     recent: true
 Combination:
