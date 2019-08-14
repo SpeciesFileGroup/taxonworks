@@ -1,7 +1,7 @@
 import { MutationNames } from '../mutations/mutations'
 
 export default function ({ commit, state }) {
-  let type_material = {
+  const type_material = {
     id: undefined,
     protonym_id: state.type_material.protonym_id,
     biological_object_id: undefined,
@@ -16,7 +16,12 @@ export default function ({ commit, state }) {
       buffered_collecting_event: undefined,
       buffered_determinations: undefined,
       buffered_other_labels: undefined
-    }
+    },
+    origin_citation_attributes: {
+      source_id: undefined,
+      pages: undefined
+    },
+    origin_citation: undefined
   }
   commit(MutationNames.SetMaterialTab, 'new')
   commit(MutationNames.SetTypeMaterial, type_material)

@@ -51,6 +51,10 @@ const GetTypes = function () {
   return ajaxCall('get', `/type_materials/type_types.json`)
 }
 
+const GetSource = function (id) {
+  return ajaxCall('get', `/sources/${id}.json`)
+}
+
 const GetDepictions = function (id) {
   return ajaxCall('get', `/collection_objects/${id}/depictions.json`)
 }
@@ -87,6 +91,10 @@ const UpdateCollectionObject = function (id, data) {
   return ajaxCall('patch', `/collection_objects/${id}.json`, { collection_object: data })
 }
 
+const DestroyCitation = function (id) {
+  return ajaxCall('delete', `/citations/${id}.json`)
+}
+
 const DestroyTypeMaterial = function (id) {
   return ajaxCall('delete', `/type_materials/${id}.json`)
 }
@@ -106,6 +114,7 @@ export {
   GetTypeMaterial,
   GetTaxonName,
   GetTypes,
+  GetSource,
   GetDepictions,
   GetPreparationTypes,
   GetRepository,
@@ -116,6 +125,7 @@ export {
   UpdateDepiction,
   DestroyTypeMaterial,
   DestroyBiocuration,
+  DestroyCitation,
   UpdateCollectionObject,
   DestroyDepiction
 }
