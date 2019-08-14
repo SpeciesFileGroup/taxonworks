@@ -22,7 +22,7 @@
           <a
             v-shortkey="[getMacKey(), 't']"
             @shortkey="switchBrowse()"
-            :href="`/tasks/nomenclature/browse/${taxon.id}`"
+            :href="`/tasks/nomenclature/browse/index?taxon_name_id=${taxon.id}`"
             class="taxonname">
             <span v-html="taxon.cached_html"/>
             <span v-html="taxon.cached_author_year"/>
@@ -133,7 +133,7 @@ export default {
       }
     },
     switchBrowse: function () {
-      window.location.replace(`/tasks/nomenclature/browse/${this.taxon.id}`)
+      window.location.replace(`/tasks/nomenclature/browse/index?taxon_name_id=${this.taxon.id}`)
     },
     getMacKey: function () {
       return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')

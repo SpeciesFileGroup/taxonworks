@@ -3,7 +3,6 @@
     <div class="horizontal-left-content separate-bottom">
       <autocomplete
         url="/sources/autocomplete"
-
         min="2"
         param="term"
         label="label"
