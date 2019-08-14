@@ -108,8 +108,6 @@ describe TypeMaterial, type: :model, group: :nomenclature do
     specify 'self type_source' do
       expect(t.type_source).not_to eq(t.protonym.source)
     end
-
-    # skip 'TypeDesignator role(s) should be possible when a specific person needs to be identified as the person who designated the type'
   end
 
   context 'nested attributes' do
