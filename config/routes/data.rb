@@ -313,8 +313,8 @@ resources :namespaces do
 
   concerns [:data_routes]
 end
-match 'observation_matrices/row/', to: 'observation_matrices#row', via: :get, method: :json
 
+match 'observation_matrices/row/', to: 'observation_matrices#row', via: :get, method: :json
 resources :observation_matrices do
   concerns [:data_routes]
 
@@ -322,6 +322,11 @@ resources :observation_matrices do
   resources :observation_matrix_rows, shallow: true, only: [:index], defaults: {format: :json}
   resources :observation_matrix_row_items, shallow: true, only: [:index], defaults: {format: :json}
   resources :observation_matrix_column_items, shallow: true, only: [:index], defaults: {format: :json}
+  
+ 
+  member do 
+   get :nexml, defaults: {format: :rdf}
+  end 
 end
 
 resources :observation_matrix_columns, only: [:index, :show] do
