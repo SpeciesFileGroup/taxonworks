@@ -15,6 +15,16 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     verbatim_author: 'Fitch & Say',
     year_of_publication: 1800) }
 
+  specify '#taxon_name_type 1' do
+    query.taxon_name_type = 'Combination'
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify '#taxon_name_type 2' do
+    query.taxon_name_type = 'Protonym'
+    expect(query.all.map(&:id)).to contain_exactly(root.id, genus.id, original_genus.id, species.id)
+  end
+
   specify '#taxon_name_relationship_type 1' do
     a = TaxonNameRelationship::Iczn::Invalidating
     a.create!(subject_taxon_name: genus, object_taxon_name: original_genus)
@@ -78,6 +88,11 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
   specify '#otus 2' do
     Otu.create!(taxon_name: species)
     query.otus = true
+    expect(query.all.map(&:id)).to contain_exactly(species.id)
+  end
+
+  specify '#authors 1' do
+    query.authors = true 
     expect(query.all.map(&:id)).to contain_exactly(species.id)
   end
 
@@ -215,6 +230,7 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     query.nomenclature_group = 'Iczn'
     query.citations = 'without_origin_citation'
     query.otus = true
+    query.authors = true
     query.type_metadata = true
     query.taxon_name_classification = [ 'TaxonNameClassification::Iczn::Available' ]
     query.taxon_name_relationship = [ { 'object_taxon_name_id' => genus.id.to_s, 'type' => 'TaxonNameRelationship::Typification::Genus' } ]
@@ -226,6 +242,7 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     query.updated_since = '2049-12-01'
     query.validity = true
     query.leaves = true
+    query.taxon_name_type = 'Protonym'
 
     expect(query.all.map(&:id)).to contain_exactly(species.id)
   end

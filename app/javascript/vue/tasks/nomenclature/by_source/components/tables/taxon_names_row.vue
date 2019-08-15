@@ -83,7 +83,7 @@
     },
     methods: {
       showObject() {
-        return `/tasks/nomenclature/browse/${this.citation.citation_object_id}`
+        return `/tasks/nomenclature/browse/index?taxon_name_id=${this.citation.citation_object_id}`
       },
       nameAuthorYear() {
           let taxon = this.citation.citation_object;

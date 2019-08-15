@@ -55,6 +55,7 @@
       clearTheMap() {
         this.$refs.leaflet.clearFound()
         this.$refs.leaflet.removeLayers()
+        this.shapes = []
       },
       getShapesData(geojsonShape) {
         this.$refs.leaflet.clearFound()
@@ -62,15 +63,14 @@
         let shapeText = this.shapes[this.shapes.length - 1];
         let params = {shape: shapeText};  // take only last shape pro tem
         this.$http.get('/collecting_events.json', {params: params}).then(response => {
-          let foundEvents = response.body;
-          if(foundEvents.length > 0) {this.collectingEventList = foundEvents;}
+          this.collectingEventList = response.body
           this.$emit('collectingEventList', this.collectingEventList);
           this.isLoading = false;
         });
         this.$emit("searchShape", JSON.parse(this.shapes[this.shapes.length - 1]))
       },
       editedShape(shape) {
-        this.shapes.push(JSON.stringify(shape[0]))
+        this.shapes.push(JSON.stringify(shape))
       },
       addShape(newShapes) {
         this.shapes.push(JSON.stringify(newShapes))

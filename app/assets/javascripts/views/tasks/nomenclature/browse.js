@@ -50,7 +50,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
         if(taxonType == 'Combination')
           window.open('/tasks/nomenclature/new_combination/index?taxon_name_id=' + taxonId, '_self');
         else
-          window.open('/tasks/nomenclature/new_taxon_name/' + taxonId, '_self');
+          window.open('/tasks/nomenclature/new_taxon_name/index?taxon_name_id=' + taxonId, '_self');
       }
     });
 

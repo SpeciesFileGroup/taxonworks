@@ -233,7 +233,7 @@ resources :geographic_area_types
 
 resources :geographic_items
 
-resources :georeferences, only: [:index, :destroy, :new, :show, :edit] do
+resources :georeferences, only: [:index, :destroy, :new, :create, :show, :edit, :update] do
   concerns [:data_routes]
 end
 

@@ -42,8 +42,10 @@ class TaxonNamesController < ApplicationController
       :type_metadata,
       :citations,
       :otus,
+      :authors,
       :nomenclature_group, # !! different than autocomplete
       :nomenclature_code,
+      :taxon_name_type,
       type: [],
       parent_id: [],
       taxon_name_classification: [],

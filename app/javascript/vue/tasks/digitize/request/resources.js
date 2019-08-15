@@ -57,6 +57,10 @@ const GetRepositorySmartSelector = function () {
   return ajaxCall('get', `/repositories/select_options`)
 }
 
+const GetSourceSmartSelector = function () {
+  return ajaxCall('get', `/sources/select_options`)
+}
+
 const GetNamespacesSmartSelector = function () {
   return ajaxCall('get', `/namespaces/select_options?klass=CollectionObject`)
 }
@@ -70,7 +74,7 @@ const GetCollectingEventsSmartSelector = function () {
 }
 
 const GetTypeDesignatorSmartSelector = function () {
-  return ajaxCall('get', `/people/select_options?role_type=TypeDesignator`)
+  return ajaxCall('get', `/people/select_options`)
 }
 
 const FilterCollectingEvent = function (params) {
@@ -298,6 +302,7 @@ export {
   GetCollectorsSmartSelector,
   GetRepositorySmartSelector,
   GetGeographicSmartSelector,
+  GetSourceSmartSelector,
   GetTaxonDeterminatorSmartSelector,
   GetBiologicalRelationshipsSmartSelector,
   GetBiologicalRelationships,

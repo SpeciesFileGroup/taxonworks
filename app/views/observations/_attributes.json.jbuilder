@@ -6,3 +6,12 @@ json.extract! observation, :id, :descriptor_id, :otu_id, :collection_object_id, 
 json.partial! '/shared/data/all/metadata', object: observation 
 
 
+
+if observation.depictions.any?
+  json.depictions do
+    json.array! observation.depictions.each do |depiction|
+      json.partial! '/depictions/attributes', depiction: depiction
+    end
+  end
+end 
+
