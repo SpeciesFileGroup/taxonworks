@@ -15,6 +15,7 @@ gem 'hiredis', '~> 0.6.1'
 gem 'redis', '~> 4.1.0'
 
 # gem 'json', '>= 2.1.0'
+gem 'rdf', '~> 3.0'
 
 # System
 gem 'thor', '~> 0.19.4' # See https://github.com/rails/rails/issues/27229
