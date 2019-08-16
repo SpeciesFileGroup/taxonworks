@@ -351,7 +351,7 @@ class GeographicArea < ApplicationRecord
     Georeference::GeoLocate::RequestUI.new(geolocate_attributes).request_params_hash
   end
 
-  # "http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=United States of
+  # "http://www.geo-locate.org/web/webgeoreflight.aspx?country=United States of
   # America&state=Illinois&locality=Champaign&
   # points=40.091622|-88.241179|Champaign|low|7000&georef=run|false|false|true|true|false|false|false|0&gc=Tester"
   # @return [String]
