@@ -144,6 +144,10 @@ scope :tasks do
   end
 
   scope :accessions do
+      scope :process_buffered, controller: 'tasks/accessions/process_buffered' do
+        get :index, as: 'index_process_buffered_task'
+      end
+
     scope :comprehensive, controller: 'tasks/accessions/comprehensive' do
       get 'index', as: 'comprehensive_collection_object_task'
     end
