@@ -1,1 +1,1 @@
-# Nexml.new(:target => xml, :mx => @mx, :transform => @transform).doc
+Nexml.serialize(target: xml, observation_matrix: @observation_matrix, transform: false).doc #  @transform

@@ -1,7 +1,7 @@
 class ObservationMatricesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_matrix, only: [:show, :edit, :update, :destroy]
+  before_action :set_matrix, only: [:show, :edit, :update, :destroy, :nexml]
 
   # GET /observation_matrices
   # GET /observation_matrices.json
@@ -79,6 +79,9 @@ class ObservationMatricesController < ApplicationController
       redirect_to observation_matrix_path(params[:id])
     end
   end
+
+  def nexml
+  end 
 
   # GET /observation_matrices/row.json?observation_matrix_row_id=1
   def row

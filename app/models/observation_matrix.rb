@@ -36,5 +36,36 @@ class ObservationMatrix < ApplicationRecord
     end
     true
   end
-    
+
+  def observations
+    Observation.in_observation_matrix(id)
+  end
+
+  # @param descriptor: Descriptor
+  # @param symbol_start: Integer  #  takes :chr => Chr, :symbol_start => Int
+  # @return Hash
+  #     1 => [] 
+  #   used as an index method for nexml output
+  # Original code in mx
+  def polymorphic_cells_for_chr(options)
+    opt = {symbol_start: 0}.merge!(options.to_options!)
+
+    cells = Hash.new{|hash, key| hash[key] = Array.new}
+    observations.where(descriptor_id: opt[:descriptor_id]).each do |c|
+      cells[c.observation_object_global_id].push(c.chr_state_id)
+    end
+
+    foo = Hash.new{|hash, key| hash[key] = Array.new}
+    i = 0
+    cells.keys.each do |k|
+      if foo # must be some other idiom
+        if cells[k].size > 1
+          foo[opt[:symbol_start] + i] = cells[k].sort 
+          i += 1
+        end
+      end
+    end
+    foo
+  end
+
 end

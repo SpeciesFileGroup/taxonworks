@@ -24,6 +24,12 @@ class Observation < ApplicationRecord
 
   validates_presence_of :descriptor, :type
   validate :otu_or_collection_object_set
+  
+  def self.in_observation_matrix(observation_matrix_id)
+    om = ObservationMatrix.find(observation_matrix_id)
+    where(descriptor: om.descriptors, otu: om.otus).or(
+    where(descriptor: om.descriptors, collection_object: om.collection_objects))
+  end
 
   def self.object_scope(object)
     return Observation.none if object.nil?
