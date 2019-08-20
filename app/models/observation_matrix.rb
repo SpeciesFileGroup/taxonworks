@@ -41,6 +41,58 @@ class ObservationMatrix < ApplicationRecord
     Observation.in_observation_matrix(id)
   end
 
+  # ex mx
+  # this could definitely be optimized
+  # position is from 1 but grid is from 0 !!
+  # optimize by 
+  # - returning only codings within Otu range, not just Chr range
+  def codings_in_grid(options = {})
+    opts = {
+      row_start:  1,
+      row_end: 'all',
+      col_start: 1,
+      col_end: 'all'
+    }.merge!(options.symbolize_keys)
+
+    return false if (opts[:row_start] == 0) || (opts[:col_start] == 0) # catch problems with forgetting index starts at 1
+
+    rows = []  # y axis
+    cols = []  # x axis
+    r = []
+    c = []
+    if opts[:row_end] == 'all'
+      r = observation_matrix_rows
+    else
+      r = observation_matrix_rows.where("observation_matrix_rows.position >= ? and observation_matrix_rows.position <= ?", opts[:row_start], opts[:row_end])
+    end
+    return false if rows.size == 0
+    rows = r.collect{|o| o.to_global_id.to_s} # should be object, not row
+
+    if opts[:col_end] == 'all'
+      c = descriptors.order(:position)
+    else
+      c = observation_matrix_rows.where("observation_matrix_columns.position >= ? and observation_matrix_columns.position <= ?", opts[:col_start], opts[:col_end])  #self.chrs.within_mx_range(opts[:chr_start], opts[:chr_end])
+    end
+
+    cols = c.collect{|c| c.id} # global id ?
+    return false if cols.size == 0
+
+    # three dimensional array
+    grid = Array.new(cols.size){Array.new(rows.size){Array.new}}
+   
+    Observation.where(descriptor_id: cols,   "chr_id in (#{chrs.join(",")}) AND otu_id in (#{otus.join(",")})").each do |c|    
+    
+      Coding.find(:all, :conditions => "chr_id in (#{chrs.join(",")}) AND otu_id in (#{otus.join(",")})").each do |c|    
+        if otus.index(c.otu_id)
+          grid[chrs.index(c.chr_id)][otus.index(c.otu_id)].push(c) 
+        end
+    end
+    
+    {grid: grid, chrs: @c, otus: @o }
+  end
+
+
+
   # @param descriptor: Descriptor
   # @param symbol_start: Integer  #  takes :chr => Chr, :symbol_start => Int
   # @return Hash

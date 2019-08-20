@@ -85,11 +85,11 @@ module Nexml
             end  # end character loop for multistate states 
 
 
-            m.chrs.that_are_multistate.collect{|c| xml.char(id: "c#{c.id}", states: "states_for_chr_#{c.id}", label: c.name)}
+            m.descriptors.where(type: 'Descriptor::Qualitative').each_with_index.collect{|c| xml.char(id: "c#{c.id}", states: "states_for_chr_#{c.id}", label: c.name)}
 
           end # end format
 
-          include_multistate_matrix(opt.merge(chrs: m.chrs.that_are_multistate)) if opt[:include_matrix] 
+          include_multistate_matrix(opt.merge(descriptors: m.descriptors.where(type: 'Descriptor::Qualitative'))) if opt[:include_matrix] 
         end # end characters
 
 
@@ -100,7 +100,7 @@ module Nexml
           'xsi:type' => 'nex:ContinuousCells',
           label: "Continuous characters for matrix #{m.name}") do
             xml.format do
-              mx.chrs.that_are_continuous.collect{|c| xml.char(:id => "c#{c.id}",  :label => c.name)}
+              m.chrs.that_are_continuous.collect{|c| xml.char(:id => "c#{c.id}",  :label => c.name)}
             end # end format
 
             include_continuous_matrix(opt.merge(:chrs => m.chrs.that_are_continuous)) if opt[:include_matrix] 
@@ -112,19 +112,19 @@ module Nexml
 
 
     def include_multistate_matrix(options = {})
-      opt = {:target => '', :chrs => []}.merge!(options)
-      xml = Builder::XmlMarkup.new(:target => opt[:target])
+      opt = {target: '', descriptors: []}.merge!(options)
+      xml = Builder::XmlMarkup.new(target: opt[:target])
       m = opt[:observation_matrix]
 
       # the matrix 
-      cells = mx.codings_in_grid({})[:grid]
+      cells = m.codings_in_grid({})[:grid]
 
       xml.matrix do |m|
         m.otus.each do |o|
           xml.row(:id => "multistate_row#{o.id}", :otu => "otu_#{o.id}") do |r| # use Otu#id to uniquely id the row
 
             # cell representation
-            opt[:chrs].each do |c|
+            opt[:descriptors].each do |c|
 
               codings = cells[m.chrs.index(c)][m.otus.index(o)]
 
