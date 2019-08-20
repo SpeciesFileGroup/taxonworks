@@ -23,4 +23,4 @@
 
 <%= image_tag(@result.depiction.image.image_file.url(:original), id: 'original_image', hidden: true) -%>
 
-<%= render "script" unless @result.image_unavailable? || !@result.coordinates_valid? %>
+<%= render 'script' unless @result.image_unavailable? || !@result.coordinates_valid? %>

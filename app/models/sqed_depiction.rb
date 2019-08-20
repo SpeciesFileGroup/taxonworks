@@ -38,6 +38,9 @@ class SqedDepiction < ApplicationRecord
   include Shared::Tags
   include Shared::Notes
 
+  # Vendor object linking TW to Sqed
+  attr_accessor :result
+
   belongs_to :depiction
   has_one :image, through: :depiction
 
@@ -135,8 +138,11 @@ class SqedDepiction < ApplicationRecord
     end
 
     # otherwise rebuild
-    result = SqedToTaxonworks::Result.new(depiction_id: depiction.id)
     result.cache_all
+  end
+
+  def result
+    @result ||= SqedToTaxonworks::Result.new(depiction_id: depiction.id)
   end
 
   # @return [Integer]
