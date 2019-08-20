@@ -11,6 +11,8 @@ module Queries
       attr_accessor :depiction_object_ids
       attr_accessor :depiction_object_types
 
+      attr_accessor :sqed_depiction
+
       # TODO -> attribute does nothing yet
       # Probably turn it into component parts
       attr_accessor :object_global_id
@@ -25,6 +27,8 @@ module Queries
         @depiction_object_ids = params[:depiction_object_ids] || []
         @depiction_object_types = params[:depiction_object_types] || []
 
+        @sqed_depiction = params[:sqed_depiction]&.downcase == 'true' ? true : false
+
         self.object_global_id = params[:object_global_id]
 
         set_polymorphic_ids(params)
@@ -38,7 +42,7 @@ module Queries
           matching_depiction_attribute(:depiction_object_id),
           matching_depiction_object_types,
           matching_depiction_object_ids,
-          matching_polymorphic_ids
+          matching_polymorphic_ids,
         ].compact
 
         a = clauses.shift
@@ -46,6 +50,28 @@ module Queries
           a = a.and(b)
         end
         a
+      end
+
+      # @return [ActiveRecord::Relation]
+      def merge_clauses
+        # from the simple filter
+        clauses = [depiction_facet]
+        clauses.compact!
+        # from the complex query
+        # clauses = applied_scopes(clauses).compact
+
+        return nil if clauses.empty?
+
+        a = clauses.shift
+        clauses.each do |b|
+          a = a.merge(b)
+        end
+        a
+      end
+
+      def depiction_facet
+        return nil unless sqed_depiction
+        ::Depiction.joins(:sqed_depiction)
       end
 
       # @return [Arel::Node, nil]
@@ -67,12 +93,21 @@ module Queries
       # @return [ActiveRecord::Relation]
       def all
         a = and_clauses
-        if a
-          ::Depiction.where(a) # .distinct
+        b = merge_clauses
+
+        # q = nil
+        if a && b
+          q = b.where(a)
+        elsif a
+          q = ::Depiction.where(a)
+        elsif b
+          q = b
         else
-          ::Depiction.all
+          q = ::Depiction.all
         end
       end
+
+
 
       # @return [Arel::Table]
       def table
