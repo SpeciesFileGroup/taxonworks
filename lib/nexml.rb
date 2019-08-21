@@ -93,6 +93,7 @@ module Nexml
         end # end characters
 
 
+        d = m.descriptors.where(type: 'Descriptor::Continuous')
         # continuous characters
         xml.characters(
           id: "continuous_character_block_#{m.id}",
@@ -100,13 +101,11 @@ module Nexml
           'xsi:type' => 'nex:ContinuousCells',
           label: "Continuous characters for matrix #{m.name}") do
             xml.format do
-              m.chrs.that_are_continuous.collect{|c| xml.char(:id => "c#{c.id}",  :label => c.name)}
+              d.collect{|c| xml.char(:id => "c#{c.id}",  :label => c.name)}
             end # end format
 
-            include_continuous_matrix(opt.merge(:chrs => m.chrs.that_are_continuous)) if opt[:include_matrix] 
+            include_continuous_matrix(opt.merge(descriptors: d)) if opt[:include_matrix] 
           end # end multistate characters
-
-
           return opt[:target]
     end
 
@@ -114,20 +113,27 @@ module Nexml
     def include_multistate_matrix(options = {})
       opt = {target: '', descriptors: []}.merge!(options)
       xml = Builder::XmlMarkup.new(target: opt[:target])
+
       m = opt[:observation_matrix]
 
       # the matrix 
       cells = m.codings_in_grid({})[:grid]
 
+      z = m.observation_matrix_rows.map.collect{|i| i.row_object.to_global_id}
+
       xml.matrix do |m|
-        m.otus.each do |o|
-          xml.row(:id => "multistate_row#{o.id}", :otu => "otu_#{o.id}") do |r| # use Otu#id to uniquely id the row
+        m.rows.each do |o|
+          xml.row(id: "multistate_row#{o.id}", otu: "otu_#{o.id}") do |r| # use Otu#id to uniquely id the row
+
 
             # cell representation
-            opt[:descriptors].each do |c|
+            opt[:descriptors].all.each do |c|
+              
+              x = m.descriptors.all.index(c)
+              y = z.index(o.to_global_id)
 
-              codings = cells[m.chrs.index(c)][m.otus.index(o)]
-
+              codings = cells[ x ][ y ]
+             
               case codings.size
               when 0 
                 state = "missing#{c.id}"
@@ -137,7 +143,7 @@ module Nexml
                 state = "cs#{c.id}unc_#{codings.collect{|i| i.chr_state_id}.sort.join}" # should just unify identifiers with above.
               end
 
-              xml.cell(:char => "c#{c.id}", :state => state)
+              xml.cell(char: "c#{c.id}", state: state)
             end
           end # end the row
         end # end OTUs
@@ -147,8 +153,8 @@ module Nexml
     end
 
     def include_continuous_matrix(options = {})
-      opt = {:target => '', :chrs => []}.merge!(options)
-      xml = Builder::XmlMarkup.new(:target => opt[:target])
+      opt = {target:  '', descriptors: []}.merge!(options)
+      xml = Builder::XmlMarkup.new(target: opt[:target])
       m = opt[:observation_matrix]
 
       # the matrix 
@@ -156,12 +162,12 @@ module Nexml
 
       xml.matrix do |m|
         m.otus.each do |o|
-          xml.row(:id => "continuous_row#{o.id}", :otu => "otu_#{o.id}") do |r| # use Otu#id to uniquely id the row
+          xml.row(id: "continuous_row#{o.id}", :otu => "otu_#{o.id}") do |r| # use Otu#id to uniquely id the row
 
             # cell representation
-            opt[:chrs].each do |c|
+            opt[:descriptors].each do |c|
 
-              codings = cells[m.chrs.index(c)][m.otus.index(o)]
+              codings = cells[m.descriptors.index(c)][m.otus.index(o)]
               if codings.size > 0  && !codings.first.continuous_state.nil?
                 xml.cell(:char => "c#{c.id}", :state => codings.first.continuous_state)
               end

@@ -60,13 +60,16 @@ class ObservationMatrix < ApplicationRecord
     cols = []  # x axis
     r = []
     c = []
+   
     if opts[:row_end] == 'all'
       r = observation_matrix_rows
     else
       r = observation_matrix_rows.where("observation_matrix_rows.position >= ? and observation_matrix_rows.position <= ?", opts[:row_start], opts[:row_end])
     end
-    return false if rows.size == 0
-    rows = r.collect{|o| o.to_global_id.to_s} # should be object, not row
+    
+    return false if r.size == 0
+
+    rows = r.collect{|o| o.row_object.to_global_id} # should be object, not row
 
     if opts[:col_end] == 'all'
       c = descriptors.order(:position)
@@ -74,21 +77,28 @@ class ObservationMatrix < ApplicationRecord
       c = observation_matrix_rows.where("observation_matrix_columns.position >= ? and observation_matrix_columns.position <= ?", opts[:col_start], opts[:col_end])  #self.chrs.within_mx_range(opts[:chr_start], opts[:chr_end])
     end
 
-    cols = c.collect{|c| c.id} # global id ?
+    cols = c.pluck(:id) # collect{|c| c.id} # global id ?
     return false if cols.size == 0
 
     # three dimensional array
     grid = Array.new(cols.size){Array.new(rows.size){Array.new}}
-   
-    Observation.where(descriptor_id: cols,   "chr_id in (#{chrs.join(",")}) AND otu_id in (#{otus.join(",")})").each do |c|    
-    
-      Coding.find(:all, :conditions => "chr_id in (#{chrs.join(",")}) AND otu_id in (#{otus.join(",")})").each do |c|    
-        if otus.index(c.otu_id)
-          grid[chrs.index(c.chr_id)][otus.index(c.otu_id)].push(c) 
-        end
+
+    Observation.by_descriptors_and_rows(cols, rows ).each do |c|
+      i = c.observation_object.to_global_id
+      if rows.index(i)
+        grid[cols.index(c.descriptor_id)][rows.index(i)].push(c) 
+      end
     end
+
+#    Observation.where(descriptor_id: cols,  "chr_id in (#{chrs.join(",")}) AND otu_id in (#{otus.join(",")})").each do |c|    
+#   
+#    # Coding.find(:all, :conditions => "chr_id in (#{chrs.join(",")}) AND otu_id in (#{otus.join(",")})").each do |c|    
+#       if otus.index(c.otu_id)
+#         grid[chrs.index(c.chr_id)][otus.index(c.otu_id)].push(c) 
+#       end
+#   end
     
-    {grid: grid, chrs: @c, otus: @o }
+    {grid: grid, rows: rows, cols: cols }
   end
 
 
