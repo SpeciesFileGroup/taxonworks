@@ -1,0 +1,115 @@
+<template>
+  <svg
+    :width="image.large_height_width.split(', ')[0]"
+    :height="image.large_height_width.split(', ')[1]"
+    @mousemove="checkDrag"
+    @mouseup="dragEnd">
+    <image
+      :xlink:href="image.large_image"
+      :height="image.large_height_width.split(', ')[1]"
+      :width="image.large_height_width.split(', ')[0]"
+      :x="0"
+      :y="0"/>
+    <rect
+      :x="svgBoxStyle.x"
+      :y="svgBoxStyle.y"
+      :width="svgBoxStyle.width"
+      :height="svgBoxStyle.height"
+      :fill="svgBoxStyle.fill"
+      :stroke="svgBoxStyle.stroke"
+      :opacity="svgBoxStyle.opacity"
+      :stroke-width="svgBoxStyle['stroke-width']"
+      @mousedown="dragging = true"
+      @mouseup="dragEnd"
+      @mousemove="changeCursor"/>
+  </svg>
+</template>
+<script>
+export default {
+  props: {
+    image: {
+      type: [String, Object]
+    }
+  },
+  data () {
+    return {
+      paperWidth: 400,
+      paperHeight: 400,
+      movedElement: undefined,
+      svgBoxStyle: {
+        x: 0,
+        y: 0,
+        width: 50,
+        height: 50,
+        fill: '#ffffff',
+        stroke: '#000000',
+        'stroke-width': 1,
+        opacity: 0.4
+      },
+      cursorStyle: undefined,
+      dragging: false,
+      resize: false,
+      canvas: undefined
+    }
+  },
+  methods: {
+    resetStates () {
+      this.dragging = false
+      this.resize = false
+      this.cursorStyle = undefined
+    },
+    checkDrag (e) {
+      if (!this.dragging) return
+      if (this.cursorStyle === 'move') {
+        this.svgBoxStyle.x = e.offsetX
+        this.svgBoxStyle.y = e.offsetY
+      } else {
+        this.svgBoxStyle.width = e.offsetX - this.svgBoxStyle.x
+        this.svgBoxStyle.height = e.offsetY - this.svgBoxStyle.y
+      }
+    },
+    dragEnd () {
+      if (this.dragging) {
+        this.$emit('imagePosition', {
+          x: this.svgBoxStyle.x,
+          y: this.svgBoxStyle.y,
+          width: this.svgBoxStyle.width,
+          height: this.svgBoxStyle.height
+        })
+      }
+      this.resetStates()
+    },
+    changeCursor (e) {
+      if (this.dragging || this.dragging) return
+      this.movedElement = e.srcElement
+
+      const relativeX = e.layerX - (this.$el.getBoundingClientRect().left) - this.svgBoxStyle.x
+      const relativeY = e.layerY - (this.$el.getBoundingClientRect().top) - this.svgBoxStyle.y
+      const shapeWidth = this.svgBoxStyle.width
+      const shapeHeight = this.svgBoxStyle.height
+      const resizeBorder = 10
+
+      if (relativeX < resizeBorder && relativeY < resizeBorder) {
+        this.cursorStyle = 'nw-resize'
+      } else if (relativeX > shapeWidth - resizeBorder && relativeY < resizeBorder) {
+        this.cursorStyle = 'ne-resize'
+      } else if (relativeX > shapeWidth - resizeBorder && relativeY > shapeHeight - resizeBorder) {
+        this.cursorStyle = 'se-resize'
+      } else if (relativeX < resizeBorder && relativeY > shapeHeight - resizeBorder) {
+        this.cursorStyle = 'sw-resize'
+      } else if (relativeX < resizeBorder && relativeY < shapeHeight - resizeBorder) {
+        this.cursorStyle = 'w-resize'
+      } else if (relativeX > shapeWidth - resizeBorder && relativeY < shapeHeight - resizeBorder) {
+        this.cursorStyle = 'e-resize'
+      } else if (relativeX > resizeBorder && relativeY > shapeHeight - resizeBorder) {
+        this.cursorStyle = 's-resize'
+      } else if (relativeX > resizeBorder && relativeY < resizeBorder) {
+        this.cursorStyle = 'n-resize'
+      } else {
+        this.cursorStyle = 'move'
+      }
+      this.movedElement.setAttribute('cursor', this.cursorStyle)
+    }
+  }
+}
+</script>
