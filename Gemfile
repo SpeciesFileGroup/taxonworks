@@ -7,17 +7,16 @@ ruby '2.5.1'
 gem 'bundler', '~> 2.0'
 
 gem 'rake', '~> 12.0'
-gem 'rails', '5.2.3'
+gem 'rails', '~> 6.0'
 gem 'pg', '~> 1.1'
-gem 'activerecord-postgis-adapter', '~> 5.2.1'
-
+gem "activerecord-postgis-adapter", git: "https://github.com/rgeo/activerecord-postgis-adapter", branch: "activerecord-6" 
 gem 'hiredis', '~> 0.6.1'
 gem 'redis', '~> 4.1.0'
 
 # gem 'json', '>= 2.1.0'
 
 # System
-gem 'thor', '~> 0.19.4' # See https://github.com/rails/rails/issues/27229
+#gem 'thor', '~> 0.19.4' # See https://github.com/rails/rails/issues/27229
 gem 'rubyzip', '~> 1.2.2'
 gem 'daemons', '~> 1.3.1'
 gem 'tzinfo-data', '~> 1.2018.4'
@@ -27,8 +26,8 @@ gem 'rmagick', '~> 3.0'
 # Geo
 gem 'ffi-geos', '~> 2.0.0'
 # gem 'rgeo-shapefile', '~> 0.4.2'  # deprecated? not compatible- perhaps only used in
-gem 'rgeo', '~> 2.0.0'
-gem 'rgeo-geojson', '~> 2.1.1'
+gem 'rgeo', '~> 2.1'
+gem 'rgeo-geojson', '~> 2.1', '>= 2.1.1'
 gem 'rgeo-proj4', '~> 2.0'
 gem 'postgresql_cursor', '~> 0.6.1'
 
@@ -37,17 +36,17 @@ gem 'gpx', '~> 1.0.0'
 
 # API/controllers
 gem 'jbuilder', '~> 2.7'
-gem 'responders', '~> 2.4' # Used?!
+gem 'responders', '~> 3.0' # Used?!
 
 # Email
-gem 'exception_notification', '~> 4.3.0'
+gem 'exception_notification', '~> 4.4'
 
 # Models
 gem 'bcrypt', '~> 3.1.11'
 gem 'closure_tree', '~> 7.0'
 gem 'delayed_job_active_record', '~> 4.1.3'
 gem 'validates_timeliness', '~> 4.0.2'
-gem 'paper_trail', '~> 10.2.0'
+gem 'paper_trail', '~> 10.3', '>= 10.3.1'
 gem 'acts_as_list', '~> 0.9.12'
 gem 'modularity', '~> 2.0.1' # Used!?
 gem 'paperclip', '~> 6.1.0'

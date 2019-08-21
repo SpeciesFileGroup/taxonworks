@@ -2,11 +2,11 @@
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
 #
-# Note that this schema.rb definition is the authoritative source for your
-# database schema. If you need to create the application database on another
-# system, you should be using db:schema:load, not running all the migrations
-# from scratch. The latter is a flawed and unsustainable approach (the more migrations
-# you'll amass, the slower it'll run and the greater likelihood for issues).
+# This file is the source Rails uses to define your schema when running `rails
+# db:schema:load`. When creating a new database, `rails db:schema:load` tends to
+# be faster and is potentially less error prone than running all of your
+# migrations from scratch. Old migrations may fail to apply correctly if those
+# migrations use external dependencies or application code.
 #
 # It's strongly recommended that you check this file into your version control system.
 
@@ -366,8 +366,8 @@ ActiveRecord::Schema.define(version: 2019_08_14_194707) do
   end
 
   create_table "confidences", id: :serial, force: :cascade do |t|
-    t.integer "confidence_object_id", null: false
     t.string "confidence_object_type", null: false
+    t.integer "confidence_object_id", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -557,8 +557,8 @@ ActiveRecord::Schema.define(version: 2019_08_14_194707) do
   end
 
   create_table "documentation", id: :serial, force: :cascade do |t|
-    t.integer "documentation_object_id", null: false
     t.string "documentation_object_type", null: false
+    t.integer "documentation_object_id", null: false
     t.integer "document_id", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -576,7 +576,7 @@ ActiveRecord::Schema.define(version: 2019_08_14_194707) do
   create_table "documents", id: :serial, force: :cascade do |t|
     t.string "document_file_file_name", null: false
     t.string "document_file_content_type", null: false
-    t.integer "document_file_file_size", null: false
+    t.bigint "document_file_file_size", null: false
     t.datetime "document_file_updated_at", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -762,8 +762,8 @@ ActiveRecord::Schema.define(version: 2019_08_14_194707) do
     t.string "vernacularName"
     t.string "waterBody"
     t.string "year"
-    t.integer "dwc_occurrence_object_id"
     t.string "dwc_occurrence_object_type"
+    t.integer "dwc_occurrence_object_id"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id"
@@ -947,7 +947,7 @@ ActiveRecord::Schema.define(version: 2019_08_14_194707) do
     t.datetime "updated_at", null: false
     t.string "image_file_file_name"
     t.string "image_file_content_type"
-    t.integer "image_file_file_size"
+    t.bigint "image_file_file_size"
     t.datetime "image_file_updated_at"
     t.integer "updated_by_id", null: false
     t.text "image_file_meta"
@@ -1007,8 +1007,8 @@ ActiveRecord::Schema.define(version: 2019_08_14_194707) do
     t.integer "project_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "loan_item_object_id"
     t.string "loan_item_object_type"
+    t.integer "loan_item_object_id"
     t.integer "total"
     t.string "disposition"
     t.index ["created_by_id"], name: "index_loan_items_on_created_by_id"
@@ -1037,7 +1037,7 @@ ActiveRecord::Schema.define(version: 2019_08_14_194707) do
     t.datetime "updated_at", null: false
     t.string "recipient_honorific"
     t.string "recipient_country"
-    t.text "lender_address", default: "Lender's address not provided.", null: false
+    t.text "lender_address", null: false
     t.index ["created_by_id"], name: "index_loans_on_created_by_id"
     t.index ["project_id"], name: "index_loans_on_project_id"
     t.index ["updated_by_id"], name: "index_loans_on_updated_by_id"
@@ -1224,10 +1224,10 @@ ActiveRecord::Schema.define(version: 2019_08_14_194707) do
   end
 
   create_table "origin_relationships", id: :serial, force: :cascade do |t|
-    t.integer "old_object_id", null: false
     t.string "old_object_type", null: false
-    t.integer "new_object_id", null: false
+    t.integer "old_object_id", null: false
     t.string "new_object_type", null: false
+    t.integer "new_object_id", null: false
     t.integer "position"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1308,8 +1308,8 @@ ActiveRecord::Schema.define(version: 2019_08_14_194707) do
   end
 
   create_table "pinboard_items", id: :serial, force: :cascade do |t|
-    t.integer "pinned_object_id", null: false
     t.string "pinned_object_type", null: false
+    t.integer "pinned_object_id", null: false
     t.integer "user_id", null: false
     t.integer "project_id", null: false
     t.integer "position", null: false
@@ -1373,7 +1373,7 @@ ActiveRecord::Schema.define(version: 2019_08_14_194707) do
     t.datetime "updated_at", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.jsonb "preferences", default: {}, null: false
+    t.jsonb "preferences", default: "{}", null: false
     t.string "api_access_token"
     t.index ["created_by_id"], name: "index_projects_on_created_by_id"
     t.index ["updated_by_id"], name: "index_projects_on_updated_by_id"
@@ -1381,8 +1381,8 @@ ActiveRecord::Schema.define(version: 2019_08_14_194707) do
 
   create_table "protocol_relationships", id: :serial, force: :cascade do |t|
     t.integer "protocol_id", null: false
-    t.integer "protocol_relationship_object_id", null: false
     t.string "protocol_relationship_object_type", null: false
+    t.integer "protocol_relationship_object_id", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1421,6 +1421,22 @@ ActiveRecord::Schema.define(version: 2019_08_14_194707) do
     t.index ["project_id"], name: "index_public_contents_on_project_id"
     t.index ["topic_id"], name: "index_public_contents_on_topic_id"
     t.index ["updated_by_id"], name: "index_public_contents_on_updated_by_id"
+  end
+
+  create_table "queued_batch_loads", force: :cascade do |t|
+    t.string "interpreter", null: false
+    t.string "action", null: false
+    t.string "state", null: false
+    t.jsonb "params", null: false
+    t.text "report"
+    t.bigint "project_id"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_queued_batch_loads_on_created_by_id"
+    t.index ["project_id"], name: "index_queued_batch_loads_on_project_id"
+    t.index ["updated_by_id"], name: "index_queued_batch_loads_on_updated_by_id"
   end
 
   create_table "ranged_lot_categories", id: :serial, force: :cascade do |t|
@@ -1613,8 +1629,8 @@ ActiveRecord::Schema.define(version: 2019_08_14_194707) do
     t.string "boundary_finder", null: false
     t.boolean "has_border", null: false
     t.string "layout", null: false
-    t.jsonb "metadata_map", default: {}, null: false
-    t.jsonb "specimen_coordinates", default: {}, null: false
+    t.jsonb "metadata_map", default: "{}", null: false
+    t.jsonb "specimen_coordinates", default: "{}", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -2092,6 +2108,7 @@ ActiveRecord::Schema.define(version: 2019_08_14_194707) do
   add_foreign_key "public_contents", "projects", name: "public_contents_project_id_fkey"
   add_foreign_key "public_contents", "users", column: "created_by_id", name: "public_contents_created_by_id_fkey"
   add_foreign_key "public_contents", "users", column: "updated_by_id", name: "public_contents_updated_by_id_fkey"
+  add_foreign_key "queued_batch_loads", "projects"
   add_foreign_key "ranged_lot_categories", "projects", name: "ranged_lot_categories_project_id_fkey"
   add_foreign_key "ranged_lot_categories", "users", column: "created_by_id", name: "ranged_lot_categories_created_by_id_fkey"
   add_foreign_key "ranged_lot_categories", "users", column: "updated_by_id", name: "ranged_lot_categories_updated_by_id_fkey"
