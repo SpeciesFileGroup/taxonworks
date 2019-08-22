@@ -17,6 +17,15 @@ module NotesHelper
     end
   end
 
+  def note_autocomplete_tag(note, term)
+    return nil if note.nil?
+    a = [
+      content_tag(:span, mark_tag(note.text, term), class: [:regular_type]), 
+      content_tag(:div, object_tag(note.note_object), class: [:feedback, 'feedback-secondary', 'feedback-thin'] ),
+      content_tag(:span, note.note_object_type, class: [:feedback, 'feedback-info', 'feedback-thin'] ),
+    ].compact.join('&nbsp;').html_safe
+  end
+
   def link_to_destroy_note(link_text, note)
     link_to(link_text, '', class: 'note-destroy', note_id: note.id)
   end
