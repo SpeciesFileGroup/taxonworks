@@ -83,9 +83,14 @@ class NotesController < ApplicationController
       redirect_to note_path, notice: 'You must select an item from the list with a click or' \
         ' tab press before clicking show.'
     else
-      redirect_to note_path(params[:id])
+      if @note = Note.find(params[:id])
+        redirect_to url_for(@note.note_object.metamorphosize)
+      else
+        redirect_to identifier_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      end
     end
   end
+
 
   def autocomplete
     render json: {} and return if params[:term].blank?
