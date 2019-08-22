@@ -55,7 +55,7 @@ module TaxonNames::CatalogHelper
     soft_validation = nil
 
     if target
-      body = link_to(name, send(target, taxon_name) )
+      body = link_to(name, send(target, taxon_name_id: taxon_name.id) )
     else
       body = name 
     end
