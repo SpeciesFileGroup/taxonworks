@@ -65,6 +65,7 @@ module Queries
 
         updated_queries = []
         queries.each_with_index do |q ,i|
+          a = q.where(with_project_id.to_sql) if project_id 
           a ||= q
           updated_queries[i] = a
         end

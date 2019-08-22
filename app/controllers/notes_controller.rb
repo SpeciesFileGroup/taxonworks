@@ -91,7 +91,6 @@ class NotesController < ApplicationController
     end
   end
 
-
   def autocomplete
     render json: {} and return if params[:term].blank?
     @notes = Queries::Note::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).autocomplete
