@@ -92,7 +92,7 @@ module TaxonNamesHelper
       t = (taxon_name.valid_taxon_name)
       # TODO: deprecate :brief_status 
       content_tag(:span, 
-                  "This name is subsequent combination for<br>&nbsp;&nbsp;#{link_to(original_taxon_name_tag(t), browse_nomenclature_task_path(t))} #{original_author_year(taxon_name)}.".html_safe, class: :brief_status, data: {icon: :attention, status: :combination})
+                  "This name is subsequent combination for<br>&nbsp;&nbsp;#{link_to(original_taxon_name_tag(t), browse_nomenclature_task_path(taxon_name_id: t.id))} #{original_author_year(taxon_name)}.".html_safe, class: :brief_status, data: {icon: :attention, status: :combination})
     else
       if taxon_name.unavailable_or_invalid? 
           content_tag(:span, "This name is not valid/accepted.<br>The valid name is #{taxon_name_browse_link(taxon_name.valid_taxon_name)}.".html_safe, class: :brief_status, data: {icon: :attention, status: :invalid})
@@ -123,12 +123,12 @@ module TaxonNamesHelper
 
   def taxon_name_browse_link(taxon_name)
     return nil if taxon_name.nil?
-    [ link_to(taxon_name_tag(taxon_name), browse_nomenclature_task_path(taxon_name.metamorphosize)).html_safe,  taxon_name.cached_author_year].compact.join(' ').html_safe
+    [ link_to(taxon_name_tag(taxon_name), browse_nomenclature_task_path(taxon_name_id: taxon_name.id)).html_safe,  taxon_name.cached_author_year].compact.join(' ').html_safe
   end
 
   def original_taxon_name_link(taxon_name)
     return nil if taxon_name.nil?
-    link_to(original_taxon_name_tag(taxon_name).html_safe, browse_nomenclature_task_path(taxon_name))
+    link_to(original_taxon_name_tag(taxon_name).html_safe, browse_nomenclature_task_path(taxon_name_id: taxon_name.id))
   end
 
   # @return [String]
