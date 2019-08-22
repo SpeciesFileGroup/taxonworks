@@ -3,7 +3,7 @@
 class Georeference::GeoLocate < Georeference
   attr_accessor :api_response, :iframe_response
 
-  API_HOST       = 'www.museum.tulane.edu'.freeze
+  API_HOST       = 'www.geo-locate.org'.freeze
   API_PATH       = '/webservices/geolocatesvcv2/glcwrap.aspx?'.freeze
   EMBED_PATH     = '/web/webgeoreflight.aspx?'.freeze
   EMBED_HOST     = 'www.geo-locate.org'.freeze
@@ -199,7 +199,7 @@ class Georeference::GeoLocate < Georeference
       @succeeded = nil
     end
 
-    # "http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=United States of
+    # "http://www.geo-locate.org/web/webgeoreflight.aspx?country=United States of
     # America&state=Illinois&locality=Champaign&points=40.091622
     # |-88.241179|Champaign|low|7000&georef=run|false|false|true|true|false|false|false|0&gc=Tester"
     # @return [String] a string to invoke as an api call to hunt for a particular place.

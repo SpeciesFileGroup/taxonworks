@@ -43,7 +43,7 @@ module PinboardItemsHelper
   def pinboard_item_li_tag(pinboard_item)
     content_tag(:li, class: 'slide-panel-category-item', id: "order_#{pinboard_item.id}", data: { pinboard_object_id: pinboard_item.pinned_object.id, pinboard_item_id: pinboard_item.id, insert: pinboard_item.is_inserted }) do
       content_tag(:div, class: [:handle, 'flex-separate', :middle]) do
-        object_link(pinboard_item.pinned_object) +  pinboard_item_options(pinboard_item)
+        object_home_link(pinboard_item.pinned_object) + pinboard_item_options(pinboard_item)
       end
     end 
   end

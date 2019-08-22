@@ -53,7 +53,9 @@ class Role < ApplicationRecord
     :only_one_agent,
     :agent_is_legal
 
-  # role_object presences is a database constraint level
+  # validates_uniqueness_of :person_id, scope: [:project_id, :role_object_type, :role_object_id]
+
+  # role_object presence is a database constraint level
   # validates :role_object, presence: true
 
   # Must come after belongs_to associations
@@ -116,7 +118,6 @@ require_dependency 'source_editor'
 require_dependency 'collector'
 require_dependency 'georeferencer'
 require_dependency 'determiner'
-require_dependency 'type_designator'
 require_dependency 'loan_recipient'
 require_dependency 'loan_supervisor'
 require_dependency 'accession_provider'

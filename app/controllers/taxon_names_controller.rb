@@ -27,7 +27,7 @@ class TaxonNamesController < ApplicationController
 
   # GET /api/v1/taxon_names/:id
   def api_show
-    @taxon_name = TaxonName.find(params[:id])
+    @taxon_name = TaxonName.where(project_id: sessions_current_project_id).find(params[:id])
     render '/taxon_names/api/show.json.jbuilder'
   end
 
@@ -42,8 +42,10 @@ class TaxonNamesController < ApplicationController
       :type_metadata,
       :citations,
       :otus,
+      :authors,
       :nomenclature_group, # !! different than autocomplete
       :nomenclature_code,
+      :taxon_name_type,
       type: [],
       parent_id: [],
       taxon_name_classification: [],
@@ -69,7 +71,7 @@ class TaxonNamesController < ApplicationController
 
   def random
     redirect_to browse_nomenclature_task_path(
-      id: TaxonName.where(project_id: sessions_current_project_id).order('random()').limit(1).pluck(:id).first # TODO: migrate to taxon_name_id: 123
+      taxon_name_id: TaxonName.where(project_id: sessions_current_project_id).order('random()').limit(1).pluck(:id).first # TODO: migrate to taxon_name_id: 123
     )
   end
 

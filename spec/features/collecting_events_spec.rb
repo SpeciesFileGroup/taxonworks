@@ -50,7 +50,10 @@ describe 'CollectingEvents', type: :feature do
       click_link('New')
       fill_in 'Verbatim label', with: 'This is a label.\nAnd a second line.'
 
-      click_button 'Create Collecting event'
+      buttons = page.all(:button, 'Create Collecting event')
+      expect(buttons.size).to eq(2)
+
+      buttons.first.click
       expect(page).to have_content('Collecting event was successfully created.')
     end
   end

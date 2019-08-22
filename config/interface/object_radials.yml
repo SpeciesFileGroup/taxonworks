@@ -7,7 +7,8 @@
 #   recent: - defaults to true if not provided, if false no recent list is shown
 #   allow_destroy: - false if no
 #   edit: over-ride data->edit
-#   show: over-ride data->show
+#   new: over-ride data->new
+#   home: where requested, use this path rather than show
 #
 ---
 Source:
@@ -21,10 +22,22 @@ Source:
 TaxonName:
   tasks:
     - browse_nomenclature_task 
-    - new_combination_task
     - new_taxon_name_task 
+    - new_combination_task
     - edit_type_material_task
+    - browse_otus_task
     - otu_distribution_data_task
+  edit: new_taxon_name_task
+  home: browse_nomenclature_task
+  config:
+    recent: true
+Combination:
+  tasks:
+    - browse_nomenclature_task
+    - new_combination_task
+    - otu_distribution_data_task
+  edit: new_combination_task
+  new: new_combination_task
   config:
     recent: true
 Otu:

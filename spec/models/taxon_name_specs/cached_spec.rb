@@ -134,7 +134,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         before { TaxonNameClassification::Icn::Hybrid.create!(taxon_name: hybrid_species) } 
 
         specify '#cached_html' do
-          expect(hybrid_species.cached_html).to eq('× <i>Aus aaa</i>')
+          expect(hybrid_species.cached_html).to eq('<i>Aus</i> ×<i>aaa</i>')
         end
 
         specify '#cached' do

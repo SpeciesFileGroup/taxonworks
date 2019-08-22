@@ -12,6 +12,15 @@
     <%= content_tag(:div, 'This source is used in another project.', class: [:feedback, 'feedback-warning']) -%>
   <% end %>
 
+  <% if @source.type == 'Source::Human' %>
+    <h3>People</h3>
+    <ul>
+      <% @source.people.each do |p| %>
+        <%= content_tag(:li, person_link(p)) %>
+      <% end %>
+    </ul>
+  <% end %>
+
   <% if @source.type == 'Source::Bibtex' %>
     <% if @source.authors.load.any? %>
       <h3>Authors</h3>

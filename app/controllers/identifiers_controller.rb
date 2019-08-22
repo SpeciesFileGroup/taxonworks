@@ -93,7 +93,6 @@ class IdentifiersController < ApplicationController
       params.require(:term),
       autocomplete_params.to_h   
     ).autocomplete
-  
   end
 
   # GET /identifiers/download
@@ -118,10 +117,8 @@ class IdentifiersController < ApplicationController
     )
   end
 
-
   def autocomplete_params
     params.permit(identifier_object_types: []).to_h.symbolize_keys.merge(project_id: sessions_current_project_id) # :exact 
   end
-
 
 end

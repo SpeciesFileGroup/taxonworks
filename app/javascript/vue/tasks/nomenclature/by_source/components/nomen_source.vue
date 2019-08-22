@@ -1,15 +1,20 @@
 <template>
   <div class="nomen-source">
-    <autocomplete
-      url="/sources/autocomplete"
-      class="separate-bottom"
-      min="2"
-      param="term"
-      label="label"
-      :clear-after="true"
-      placeholder="search for a Source"
-      @getItem="getNewSource($event)"
-    />
+    <div class="horizontal-left-content separate-bottom">
+      <autocomplete
+        url="/sources/autocomplete"
+        min="2"
+        param="term"
+        label="label"
+        :clear-after="true"
+        placeholder="Search for a Source"
+        @getItem="getNewSource($event.id)"
+      />
+      <default-source
+        section="Sources"
+        @getId="getNewSource"
+        type="Source"/>
+    </div>
     <span
       v-if="source"
       class="source-text horizontal-left-content">
@@ -43,13 +48,15 @@
   import RadialAnnotator from "components/annotator/annotator.vue";
   import PinComponent from "components/pin.vue"
   import RadialObject from "components/radial_object/radialObject.vue"
+  import DefaultSource from 'components/getDefaultPin'
 
   export default {
     components: {
       Autocomplete,
       RadialAnnotator,
       RadialObject,
-      PinComponent
+      PinComponent,
+      DefaultSource
     },
     data() {
       return {
@@ -67,8 +74,8 @@
         })
       }
     },
-    getNewSource(event) {
-      this.sourceID = event.id.toString()
+    getNewSource(id) {
+      this.sourceID = id.toString()
       this.getSource()
       this.$emit('sourceID', this.sourceID);  // since we avoided the AJAX
     },

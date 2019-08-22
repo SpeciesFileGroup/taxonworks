@@ -120,7 +120,7 @@ resources :collecting_events do
   get :autocomplete_collecting_event_verbatim_locality, on: :collection
   member do
     get :card
-    post :clone, defaults: {format: :json}
+    post :clone
   end
 
   collection do
@@ -233,7 +233,7 @@ resources :geographic_area_types
 
 resources :geographic_items
 
-resources :georeferences, only: [:index, :destroy, :new, :show, :edit] do
+resources :georeferences, only: [:index, :destroy, :new, :create, :show, :edit, :update] do
   concerns [:data_routes]
 end
 

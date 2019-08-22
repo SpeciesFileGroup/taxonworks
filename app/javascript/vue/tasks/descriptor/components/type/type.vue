@@ -51,6 +51,7 @@
           'Descriptor::Sample': 'Sample ( a statistical summary, n, min, max, std, etc.)',
           'Descriptor::Gene': 'Gene',
           'Descriptor::Working': 'Free text',
+          'Descriptor::Media': 'Media',
         }
       }
     },

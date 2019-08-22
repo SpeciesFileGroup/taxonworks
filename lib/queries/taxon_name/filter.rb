@@ -74,6 +74,11 @@ module Queries
       #   whether the name has an Otu
       attr_accessor :otus
 
+      # @param authors [Boolean, nil]
+      # ['true' or 'false'] on initialize
+      #   whether the name has an author string, from any source, provided 
+      attr_accessor :authors
+
       # @params type_material [Boolean, nil]
       # ['true' or 'false'] on initialize
       #   whether the name has TypeMaterial
@@ -93,6 +98,11 @@ module Queries
       #   if 'true' then return only names without descendents
       #   if 'false' then return only names with descendents
       attr_accessor :leaves
+
+
+      # @return [String, nil]
+      #   &taxon_name_type=<Protonym|Combination|Hybrid>
+      attr_accessor :taxon_name_type
 
       # @param params [Params] 
       #   a permitted via controller
@@ -115,6 +125,9 @@ module Queries
         @leaves = (params[:leaves] == 'true' ? true : false) if !params[:leaves].nil?
         @nomenclature_group = params[:nomenclature_group]  if !params[:nomenclature_group].nil?
         @nomenclature_code = params[:nomenclature_code]  if !params[:nomenclature_code].nil?
+        @taxon_name_type = params[:taxon_name_type]
+
+        @authors = (params[:authors] == 'true' ? true : false) if !params[:authors].nil?
 
         # TODO: support here?
         @keyword_ids ||= []
@@ -159,10 +172,16 @@ module Queries
       # @return Scope
       def otus_facet
         return nil if otus.nil?
-
         subquery = ::Otu.where(::Otu.arel_table[:taxon_name_id].eq(::TaxonName.arel_table[:id])).arel.exists
-
         ::TaxonName.where(otus ? subquery : subquery.not)
+      end
+
+      # @return Scope
+      def authors_facet
+        return nil if authors.nil?
+        authors ? 
+          ::TaxonName.where.not(cached_author_year: nil) :
+          ::TaxonName.where(cached_author_year: nil)
       end
 
       # @return Scope
@@ -216,9 +235,7 @@ module Queries
       # @return Scope
       def otus_facet
         return nil if otus.nil?
-
         subquery = ::Otu.where(::Otu.arel_table[:taxon_name_id].eq(::TaxonName.arel_table[:id])).arel.exists
-
         ::TaxonName.where(otus ? subquery : subquery.not)
       end
 
@@ -248,6 +265,11 @@ module Queries
       def with_nomenclature_code
         return nil if nomenclature_code.nil?
         table[:rank_class].matches(nomenclature_code)
+      end
+
+      def taxon_name_type_facet
+        return nil if taxon_name_type.blank?
+        table[:type].eq(taxon_name_type)
       end
 
       def cached_name
@@ -305,6 +327,7 @@ module Queries
           parent_facet,
           with_nomenclature_group,
           with_nomenclature_code,
+          taxon_name_type_facet
         ].compact
 
         return nil if clauses.empty?
@@ -325,6 +348,7 @@ module Queries
           matching_keyword_ids,
           type_metadata_facet,
           otus_facet,
+          authors_facet,
           citations_facet
         ].compact
 

@@ -15,7 +15,7 @@ module Utilities::Italicize
     '[GENUS NOT SPECIFIED]',
     '[SPECIES NOT SPECIFIED]',
     '† ', # fossil dagger
-    '× ',  # hybrid ×
+    ' ×',  # hybrid ×
     # 'Candidatus' ? 
   ].freeze
 
