@@ -28,6 +28,7 @@ module SqedDepictionsHelper
     end
   end
 
+  # TODO: Deprecate for sqed_depictions/:id/nearby.json
   def sqed_depiction_thumb_navigator(sqed_depiction, before = 3, after = 3)
     around = sqed_depiction.nearby_sqed_depictions(before, after)
     

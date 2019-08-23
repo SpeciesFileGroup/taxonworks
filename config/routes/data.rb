@@ -518,6 +518,9 @@ resources :sqed_depictions, only: [] do
   collection do
     get :metadata_options, defaults: {format: :json}
   end
+  member do
+    get :nearby, defaults: {format: :json}
+  end
 end
 
 get 'tags/exists', to: 'tags#exists', defaults: {format: :json}
