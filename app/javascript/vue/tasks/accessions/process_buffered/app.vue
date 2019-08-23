@@ -1,18 +1,31 @@
 <template>
   <div>
     <h1>Buffered data</h1>
-    <div class="flexbox">
-      <depictions-container
-        :depictions="depictions"
-        @selectedImage="image=$event"/>
+    <div class="horizontal-left-content align-start">
       <div>
-        <image-editor
-          :image="image"
-          @imagePosition="setImageValues"/>
-        <canvas-container :image="canvasImage"/>
+        <h2>Collection object</h2>
+        <nav-collection-objects
+          :co-objects="nearbyCO"/>
+        <hr>
+        <collection-object-container/>
+        <div class="flexbox">
+          <depictions-container
+            :depictions="depictions"
+            @selectedImage="image=$event"/>
+          <div>
+            <image-editor
+              :image="image"
+              @imagePosition="setImageValues"/>
+            <canvas-container :image="canvasImage"/>
+          </div>
+        </div>
       </div>
-      <collecting-event
-        :collection-object="collectionObject"/>
+
+      <div>
+        <h2>Collecting event</h2>
+        <collecting-event
+          :collection-object="collectionObject"/>
+      </div>
     </div>
   </div>
 </template>
@@ -23,15 +36,19 @@ import CollectingEvent from './components/collectingEvent'
 import DepictionsContainer from './components/depictionsContainer'
 import ImageEditor from './components/imageEditor'
 import CanvasContainer from './components/canvasContainer'
+import NavCollectionObjects from './components/navCollectionObjects'
+import CollectionObjectContainer from './components/collectionObject'
 
-import { GetDepictionByCOId, GetCollectionObject } from './request/resource'
+import { GetDepictionByCOId, GetCollectionObject, GetNearbyCOFromDepictionSqedId } from './request/resource'
 
 export default {
   components: {
     CanvasContainer,
     CollectingEvent,
     DepictionsContainer,
-    ImageEditor
+    ImageEditor,
+    NavCollectionObjects,
+    CollectionObjectContainer
   },
   data () {
     return {
@@ -39,11 +56,24 @@ export default {
       depictions: undefined,
       image: undefined,
       canvasImage: undefined,
+      nearbyCO: {},
       imagePosition: []
     }
   },
   mounted () {
     this.checkForParams()
+  },
+  watch: {
+    depictions (newVal) {
+      const sqed = this.depictions.find(item => {
+        return item.hasOwnProperty('sqed_depiction')
+      })
+      if (sqed) {
+        GetNearbyCOFromDepictionSqedId(sqed.sqed_depiction.id).then(response => {
+          this.nearbyCO = response.body
+        })
+      }
+    }
   },
   methods: {
     checkForParams () {

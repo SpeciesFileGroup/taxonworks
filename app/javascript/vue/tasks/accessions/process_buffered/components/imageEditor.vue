@@ -83,8 +83,8 @@ export default {
       if (this.dragging || this.dragging) return
       this.movedElement = e.srcElement
 
-      const relativeX = e.layerX - (this.$el.getBoundingClientRect().left) - this.svgBoxStyle.x
-      const relativeY = e.layerY - (this.$el.getBoundingClientRect().top) - this.svgBoxStyle.y
+      const relativeX = e.clientX - (this.$el.getBoundingClientRect().left + document.body.scrollLeft) - this.svgBoxStyle.x
+      const relativeY = e.clientY - (this.$el.getBoundingClientRect().top + document.body.scrollTop) - this.svgBoxStyle.y
       const shapeWidth = this.svgBoxStyle.width
       const shapeHeight = this.svgBoxStyle.height
       const resizeBorder = 10

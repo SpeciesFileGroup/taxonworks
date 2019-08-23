@@ -1,12 +1,14 @@
 <template>
-  <div>
-    <div v-for="depiction in depictions">
-      <div>
-        <img
-          :class="{ 'selected-depiction': (selectedDepiction && selectedDepiction.id === depiction.id) }"
-          class="cursor-pointer depiction-image"
-          :src="depiction.image.alternatives.thumb.image_file_url"
-          @click="selectDepiction(depiction)">
+  <div class="horizontal-left-content align-start">
+    <div>
+      <div v-for="depiction in depictions">
+        <div>
+          <img
+            :class="{ 'selected-depiction': (selectedDepiction && selectedDepiction.id === depiction.id) }"
+            class="cursor-pointer depiction-image"
+            :src="depiction.image.alternatives.thumb.image_file_url"
+            @click="selectDepiction(depiction)">
+        </div>
       </div>
     </div>
     <div v-if="selectedDepiction && selectedDepiction.hasOwnProperty('sqed_depiction')">
