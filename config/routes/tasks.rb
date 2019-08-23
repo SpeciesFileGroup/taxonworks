@@ -281,7 +281,7 @@ scope :tasks do
     end
 
     scope :browse, controller: 'tasks/nomenclature/browse' do
-      get '(:id)', action: :index, as: 'browse_nomenclature_task'
+      get '', action: :index, as: 'browse_nomenclature_task'
     end
 
     scope :by_source, controller: 'tasks/nomenclature/by_source' do

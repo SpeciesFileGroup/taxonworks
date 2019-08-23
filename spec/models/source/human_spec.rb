@@ -31,7 +31,7 @@ describe Source::Human, type: :model, group: [:people, :sources] do
     end
 
     specify 'specifying as role is OK' do
-      source_human.roles.build(tperson: franklin)
+      source_human.roles.build(person: franklin, type: 'SourceSource')
       expect(source_human.save).to be_truthy
     end
   end

@@ -83,24 +83,17 @@ class NotesController < ApplicationController
       redirect_to note_path, notice: 'You must select an item from the list with a click or' \
         ' tab press before clicking show.'
     else
-      redirect_to note_path(params[:id])
+      if @note = Note.find(params[:id])
+        redirect_to url_for(@note.note_object.metamorphosize)
+      else
+        redirect_to note_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      end
     end
   end
 
   def autocomplete
-    @notes = Note.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
-
-    data = @notes.collect do |t|
-      str = render_to_string(partial: 'tag', locals: {note: t})
-      {id:              t.id,
-       label:           str,
-       response_values: {
-         params[:method] => t.id},
-       label_html:      str
-      }
-    end
-
-    render json: data
+    render json: {} and return if params[:term].blank?
+    @notes = Queries::Note::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).autocomplete
   end
 
   # GET /notes/download

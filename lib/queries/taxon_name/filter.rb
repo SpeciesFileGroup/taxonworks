@@ -226,9 +226,7 @@ module Queries
       # @return Scope
       def type_metadata_facet
         return nil if type_metadata.nil?
-
         subquery = ::TypeMaterial.where(::TypeMaterial.arel_table[:protonym_id].eq(::TaxonName.arel_table[:id])).arel.exists
-
         ::TaxonName.where(type_metadata ? subquery : subquery.not)
       end
 
