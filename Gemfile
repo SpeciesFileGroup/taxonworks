@@ -109,7 +109,7 @@ gem 'capistrano-npm', '~> 1.0.2'
 
 group :test, :development do
   gem 'faker', '~> 1.9.1'
-  gem 'rspec-rails', '~> 3.6'
+  gem 'rspec-rails', '~> 4.0.0.beta2'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'byebug', '~> 11.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 5.0.1'
