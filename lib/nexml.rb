@@ -126,12 +126,12 @@ module Nexml
 
             # cell representation
             opt[:descriptors].all.each do |c|
-
+              
               x = m.descriptors.index(c)
               y = z.index(o.row_object.to_global_id)
 
               codings = cells[ x ][ y ]
-
+             
               case codings.size
               when 0 
                 state = "missing#{c.id}"
@@ -221,7 +221,7 @@ module Nexml
             xml.meta(s.id, 'xsi:type' => 'LiteralMeta', 'property' => 'dwc:catalogNumber') 
           end
         end
-      end # end specimens
+       end # end specimens
 
       return opt[:target]
     end
