@@ -9,7 +9,7 @@ gem 'bundler', '~> 2.0'
 gem 'rake', '~> 12.0'
 gem 'rails', '~> 6.0'
 gem 'pg', '~> 1.1'
-gem "activerecord-postgis-adapter", git: "https://github.com/rgeo/activerecord-postgis-adapter", branch: "activerecord-6" 
+gem 'activerecord-postgis-adapter', '~> 6.0'
 gem 'hiredis', '~> 0.6.1'
 gem 'redis', '~> 4.1.0'
 

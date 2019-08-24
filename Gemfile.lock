@@ -5,15 +5,6 @@ GIT
     seedbank (0.5.0)
       rake (>= 10.0)
 
-GIT
-  remote: https://github.com/rgeo/activerecord-postgis-adapter
-  revision: 671be146d937530476e235ab96534caf69df0c32
-  branch: activerecord-6
-  specs:
-    activerecord-postgis-adapter (5.2.2)
-      activerecord (~> 6.0)
-      rgeo-activerecord (~> 6.0)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -62,6 +53,9 @@ GEM
     activerecord (6.0.0)
       activemodel (= 6.0.0)
       activesupport (= 6.0.0)
+    activerecord-postgis-adapter (6.0.0)
+      activerecord (~> 6.0)
+      rgeo-activerecord (~> 6.0)
     activestorage (6.0.0)
       actionpack (= 6.0.0)
       activejob (= 6.0.0)
@@ -530,7 +524,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activerecord-postgis-adapter!
+  activerecord-postgis-adapter (~> 6.0)
   acts_as_list (~> 0.9.12)
   awesome_print (~> 1.8)
   bcrypt (~> 3.1.11)
