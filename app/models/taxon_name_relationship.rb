@@ -119,6 +119,12 @@ class TaxonNameRelationship < ApplicationRecord
     []
   end
 
+  # @return class
+  #   this method calls Module#module_parent
+  def self.parent
+    self.module_parent
+  end
+
   # @return [Array of NomenclatureRank]
   #   the valid ranks to which the subject name can belong, set in subclasses. (left side)
   def self.valid_subject_ranks
