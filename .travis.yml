@@ -20,6 +20,7 @@ branches:
     - dates
     - docker-travis
     - build-with-assets
+    - rails6
 addons:
   postgresql: "10"
   firefox: "latest"
