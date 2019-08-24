@@ -918,7 +918,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             # is excluded to prevent it from confusing the order (farthest first) of the appearance of the objects.
             expect(GeographicItem.ordered_by_longest_distance_from('multi_polygon', p3)
                      .excluding(new_box_e)
-                     .limit(3).to_a)
+                     .limit(3).to_a) # TODO: Limit is being called over an array. Check whether this is a gem/rails bug or we need to update code.
               .to eq([g, new_box_a, new_box_b])
           end
 

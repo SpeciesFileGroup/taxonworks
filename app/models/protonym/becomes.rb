@@ -137,6 +137,8 @@ module Protonym::Becomes
     end
 
     c 
+    # TODO: This fixes ./spec/models/combination/combination_spec.rb:62. But is returning `self` (or `z`) when fails trustworthy?
+    # self
   end
 
 end
