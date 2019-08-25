@@ -21,7 +21,7 @@ gem 'rubyzip', '~> 1.2.2'
 gem 'daemons', '~> 1.3.1'
 gem 'tzinfo-data', '~> 1.2018.4'
 gem 'psych', '~> 3.1.0'
-gem 'rmagick', '~> 3.0'
+gem 'rmagick', '~> 3.0' # Sqed currently depends on this version (latest is 4.0)
 
 # Geo
 gem 'ffi-geos', '~> 2.0.0'
@@ -45,7 +45,7 @@ gem 'exception_notification', '~> 4.4'
 gem 'bcrypt', '~> 3.1.11'
 gem 'closure_tree', '~> 7.0'
 gem 'delayed_job_active_record', '~> 4.1.3'
-gem 'validates_timeliness', '~> 4.0.2'
+gem 'validates_timeliness', '~> 4.1', '>= 4.1.1'
 gem 'paper_trail', '~> 10.3', '>= 10.3.1'
 gem 'acts_as_list', '~> 0.9.12'
 gem 'modularity', '~> 2.0.1' # Used!?
@@ -108,13 +108,13 @@ gem 'namecase', '~> 2.0'
 gem 'capistrano-npm', '~> 1.0.2'
 
 group :test, :development do
-  gem 'faker', '~> 1.9.1'
+  gem 'faker', '~> 2.1', '>= 2.1.2'
   gem 'rspec-rails', '~> 4.0.0.beta2'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'byebug', '~> 11.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 5.0.1'
   gem 'selenium-webdriver', '~> 3.141'
-  gem 'geckodriver-helper', '~> 0.23.0'
+  gem 'geckodriver-helper', '~> 0.24.0'
   gem 'prawn', '~> 2.2.2'
 end
 
@@ -122,17 +122,17 @@ gem 'parallel_tests', group: [:development, :test]
 
 group :development do
 # gem 'tunemygc'
-  gem 'ruby-prof', '~> 0.17.0'
+  gem 'ruby-prof', '~> 1.0'
   gem 'better_errors', '~> 2.4'
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.4'
   gem 'guard-rspec', '~> 4.7.3', require: false
 
-  gem 'web-console', '~> 3.7.0'
+  gem 'web-console', '~> 4.0', '>= 4.0.1'
   gem 'rubocop', '~> 0.70'
   gem 'rubocop-rails'
   gem 'rubocop-rspec'
-  gem 'brakeman', '~> 4.4.0', require: false
+  gem 'brakeman', '~> 4.6', '>= 4.6.1', require: false
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'
 end
 
@@ -145,8 +145,8 @@ group :test do
   gem 'coveralls', '~> 0.8.22', require: false
   gem 'capybara', '~> 3.18'
   gem 'timecop', '~> 0.9.1'
-  gem 'webmock', '~> 3.5.1'
-  gem 'vcr', '~> 4.0.0'
+  gem 'webmock', '~> 3.6', '>= 3.6.2'
+  gem 'vcr', '~> 5.0'
   gem 'database_cleaner', '~> 1.7.0'
   gem 'rails-controller-testing', '~> 1.0.2'
 
