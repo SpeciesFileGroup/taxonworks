@@ -5,6 +5,7 @@
         <tr>
           <th>Relationship</th>
           <th>Related</th>
+          <th>Inverted</th>
           <th>Citation</th>
           <th></th>
         </tr>
@@ -18,8 +19,12 @@
           class="list-complete-item">
           <td v-html="item.biological_relationship.name"/>
           <td v-html="getSubjectOrObject(item)"/>
+          <td>{{ item.biological_association_object_id === metadata.object_id }}</td>
           <td v-html="getCitationString(item)"/>
           <td class="vue-table-options">
+            <span
+              class="circle-button btn-edit"
+              @click="$emit('edit', item)"/>
             <radial-annotator :global-id="item.global_id"/>
             <span
               class="circle-button btn-delete"

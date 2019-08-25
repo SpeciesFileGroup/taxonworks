@@ -217,7 +217,7 @@ class Source < ApplicationRecord
   after_save :set_cached
 
   validates_presence_of :type
-  validates :type, inclusion: {in: ['Source::Bibtex', 'Source::Human', 'Source::Verbatim']}
+  validates :type, inclusion: {in: ['Source::Bibtex', 'Source::Human', 'Source::Verbatim']} # TODO: not needed
   validate :validate_year_suffix
 
   accepts_nested_attributes_for :project_sources, reject_if: :reject_project_sources
@@ -287,7 +287,6 @@ class Source < ApplicationRecord
   def is_in_project?(project_id)
     projects.where(id: project_id).any?
   end
-
 
   # @param used_on [String] a model name 
   # @return [Scope]

@@ -13,10 +13,13 @@ class Source::Human < Source
 
   IGNORE_SIMILAR = IGNORE_IDENTICAL.dup.freeze
 
-  has_many :source_source_roles, class_name: 'SourceSource', as: :role_object
-  has_many :people, through: :source_source_roles, source: :person, validate: true
+  has_many :source_source_roles, -> { order('roles.position ASC') }, class_name: 'SourceSource',
+           as: :role_object, validate: true
 
-  accepts_nested_attributes_for :people, :source_source_roles
+  has_many :people, -> { order('roles.position ASC') },
+           through: :source_source_roles, source: :person, validate: true
+
+  accepts_nested_attributes_for :people, :source_source_roles, allow_destroy: true
 
   validate :at_least_one_person_is_provided
 
@@ -79,7 +82,6 @@ class Source::Human < Source
     Source::Human.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(s['id']))))
   end
 
-
   protected
 
   # @return [Ignored]
@@ -89,7 +91,7 @@ class Source::Human < Source
 
   # @return [Ignored]
   def at_least_one_person_is_provided
-    if people.size < 1 # size not count
+    if people.size < 1 && source_source_roles.size < 1 && roles.size < 1 # size not count
       errors.add(:base, 'at least one person must be provided')
     end
   end

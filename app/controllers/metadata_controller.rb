@@ -23,10 +23,8 @@ class MetadataController < ApplicationController
       @object = nil
     else
       @object = GlobalID::Locator.locate(params.require(:global_id))
-      @klass = @object.class.base_class.name
+      @klass = OBJECT_RADIALS[@object.class.name] ? @object.class.name : @object.class.base_class.name
     end
   end
-
-
 
 end

@@ -169,13 +169,13 @@ class Protonym < TaxonName
           search_name = nil
         end
 
-        unless search_name.nil?
+        r = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
+        if !search_name.nil? && r.empty?
           list = Protonym.ancestors_and_descendants_of(self).not_self(self).
             with_rank_class_including(search_rank).
-            # TODO @proceps Rails 5.0 makes this scope fail, for reasons I have not yet investigated. @tuckerjd
-            # with_name_in_array(search_name).
             where('name in (?)', search_name).
-            as_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym')
+            as_subject_without_taxon_name_relationship_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM)
+            #as_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').
         else
           list = []
         end
@@ -523,6 +523,7 @@ class Protonym < TaxonName
   end
 
   def get_original_combination
+    return verbatim_name if !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string) && !verbatim_name.nil?
     e = original_combination_elements
     return nil if e.none? 
 
@@ -593,9 +594,14 @@ class Protonym < TaxonName
 
   def get_original_combination_html
     return  "\"<i>Candidatus</i> #{get_original_combination}\"" if is_candidatus?
-    v = Utilities::Italicize.taxon_name(get_original_combination)
+    v = get_original_combination
+    if !v.blank? && is_hybrid?
+      w = v.split(' ')
+      w[-1] = ('×' + w[-1]).gsub('×(', '(×')
+      v = w.join(' ')
+    end
+    v = Utilities::Italicize.taxon_name(v)
     v = '† ' + v if !v.blank? && is_fossil?
-    v = '× ' + v if !v.blank? && is_hybrid?
     v
   end
 

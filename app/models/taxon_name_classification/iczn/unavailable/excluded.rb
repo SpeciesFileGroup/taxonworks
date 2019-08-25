@@ -22,14 +22,9 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
   end
 
   module InnerClass
-
     def disjoint_taxon_name_classes
       self.parent.disjoint_taxon_name_classes +
           [TaxonNameClassification::Iczn::Unavailable::Excluded.to_s]
-    end
-
-    def sv_not_specific_classes
-      true
     end
   end
 
@@ -42,6 +37,10 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
     def self.applicable_ranks
       FAMILY_RANK_NAMES_ICZN
     end
+
+    def sv_not_specific_classes
+      True
+    end
   end
 
   class HypotheticalConcept < TaxonNameClassification::Iczn::Unavailable::Excluded
@@ -49,6 +48,10 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000191'.freeze
 
     extend InnerClass
+
+    def sv_not_specific_classes
+      True
+    end
   end
 
   class Infrasubspecific < TaxonNameClassification::Iczn::Unavailable::Excluded
@@ -57,6 +60,13 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
 
     extend InnerClass
 
+    def self.applicable_ranks
+      SPECIES_RANK_NAMES_ICZN
+    end
+
+    def sv_not_specific_classes
+      True
+    end
   end
 
   class NameForHybrid < TaxonNameClassification::Iczn::Unavailable::Excluded
@@ -68,6 +78,10 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
     def self.applicable_ranks
       SPECIES_RANK_NAMES_ICZN
     end
+
+    def sv_not_specific_classes
+      True
+    end
   end
 
   class NameForTerratologicalSpecimen < TaxonNameClassification::Iczn::Unavailable::Excluded
@@ -76,8 +90,8 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
 
     extend InnerClass
 
-    def self.applicable_ranks
-      SPECIES_RANK_NAMES_ICZN
+    def sv_not_specific_classes
+      True
     end
   end
 
@@ -87,8 +101,8 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
 
     extend InnerClass
 
-    def self.applicable_ranks
-      SPECIES_RANK_NAMES_ICZN
+    def sv_not_specific_classes
+      True
     end
   end
 
@@ -98,8 +112,8 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
 
     extend InnerClass
 
-    def self.applicable_ranks
-      SPECIES_RANK_NAMES_ICZN
+    def sv_not_specific_classes
+      True
     end
   end
 
@@ -113,9 +127,9 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
       1931
     end
 
-  def self.applicable_ranks
-    SPECIES_RANK_NAMES_ICZN
-  end
+    def sv_not_specific_classes
+      True
+    end
   end
 
   class ZoologicalFormula < TaxonNameClassification::Iczn::Unavailable::Excluded
@@ -125,7 +139,11 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
     extend InnerClass
 
     def self.applicable_ranks
-      SPECIES_RANK_NAMES_ICZN
+      GENUS_RANK_NAMES_ICZN
+    end
+
+    def sv_not_specific_classes
+      True
     end
   end
 

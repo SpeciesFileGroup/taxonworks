@@ -92,10 +92,10 @@ module TaxonNamesHelper
       t = (taxon_name.valid_taxon_name)
       # TODO: deprecate :brief_status 
       content_tag(:span, 
-                  "This name is subsequent combination for<br>&nbsp;&nbsp;#{link_to(original_taxon_name_tag(t), browse_nomenclature_task_path(t))} #{original_author_year(taxon_name)}.".html_safe, class: :brief_status, data: {icon: :attention, status: :combination})
+                  "This name is subsequent combination for<br>&nbsp;&nbsp;#{link_to(original_taxon_name_tag(t), browse_nomenclature_task_path(taxon_name_id: t.id))} #{original_author_year(taxon_name)}.".html_safe, class: :brief_status, data: {icon: :attention, status: :combination})
     else
       if taxon_name.unavailable_or_invalid? 
-          content_tag(:span, "This name is not valid/accepted.<br>The valid name is #{taxon_name_browse_link(taxon_name.valid_taxon_name)}.".html_safe, class: :brief_status, data: {icon: :attention, status: :invalid})
+        content_tag(:span, "This name is not valid/accepted.<br>The valid name is #{taxon_name_browse_link(taxon_name)}.".html_safe, class: :brief_status, data: {icon: :attention, status: :invalid})
       else
         content_tag(:span, 'This name is valid/accepted.', class: :brief_status, data: {icon: :ok, status: :valid }) 
       end
@@ -123,12 +123,12 @@ module TaxonNamesHelper
 
   def taxon_name_browse_link(taxon_name)
     return nil if taxon_name.nil?
-    [ link_to(taxon_name_tag(taxon_name), browse_nomenclature_task_path(taxon_name.metamorphosize)).html_safe,  taxon_name.cached_author_year].compact.join(' ').html_safe
+    [ link_to(taxon_name_tag(taxon_name), browse_nomenclature_task_path(taxon_name_id: taxon_name.id)).html_safe,  taxon_name.cached_author_year].compact.join(' ').html_safe
   end
 
   def original_taxon_name_link(taxon_name)
     return nil if taxon_name.nil?
-    link_to(original_taxon_name_tag(taxon_name).html_safe, browse_nomenclature_task_path(taxon_name))
+    link_to(original_taxon_name_tag(taxon_name).html_safe, browse_nomenclature_task_path(taxon_name_id: taxon_name.id))
   end
 
   # @return [String]
@@ -211,7 +211,7 @@ module TaxonNamesHelper
     if taxon_name.ancestors.any?
       a = taxon_name.ancestors.first.metamorphosize
       text = object_tag(a)
-      link_to(content_tag(:span, text, data: {icon: 'arrow-up'}, class: 'small-icon'), send(path, a), class: 'navigation-item', data: {arrow: 'ancestor'})
+      link_to(content_tag(:span, text, data: {icon: 'arrow-up'}, class: 'small-icon'), send(path, taxon_name_id: a.id), class: 'navigation-item', data: {arrow: 'ancestor'})
     else 
       content_tag(:div, content_tag(:span, text, class: 'small-icon', data: {icon: 'arrow-up'}), class: 'navigation-item disable')
     end
@@ -222,7 +222,7 @@ module TaxonNamesHelper
     if taxon_name.descendants.any? 
       a = taxon_name.descendants.first.metamorphosize
       text = taxon_name_tag(a)
-      link_to(content_tag(:span, text, data: {icon: 'arrow-down'}, class: 'small-icon'), send(path, a), class: 'navigation-item', data: {arrow: 'descendant'}) 
+      link_to(content_tag(:span, text, data: {icon: 'arrow-down'}, class: 'small-icon'), send(path, taxon_name_id: a.id), class: 'navigation-item', data: {arrow: 'descendant'}) 
     else 
       content_tag(:div, content_tag(:span, text, class: 'small-icon', data: {icon: 'arrow-down'}), class: 'navigation-item disable') 
     end
@@ -234,7 +234,7 @@ module TaxonNamesHelper
     if link_object.nil? 
       content_tag(:div, content_tag(:span, text), class:  'navigation-item disable')
     else 
-      link_to(text, send(path, link_object.metamorphosize), title: taxon_name_tag(link_object), class: 'navigation-item', data: { button: 'next' })
+      link_to(text, send(path, taxon_name_id: link_object.id), title: taxon_name_tag(link_object), class: 'navigation-item', data: { button: 'next' })
     end
   end
 
@@ -245,7 +245,7 @@ module TaxonNamesHelper
     if link_object.nil?
       content_tag(:div, content_tag(:span, text), class: 'navigation-item disable')
     else 
-      link_to(text, send(path, link_object.metamorphosize), class: 'navigation-item', data: { button: 'back' })
+      link_to(text, send(path, taxon_name_id: link_object.id), class: 'navigation-item', data: { button: 'back' })
     end
   end
 

@@ -27,6 +27,20 @@ json.tasks do
   end
 end
 
+json.partial! '/pinboard_items/pinned', object: @object
+
+if @data['edit']
+  json.edit send("#{@data['edit']}_path", "#{resource.singularize}_id" => @object.id)
+end
+
+if @data['home']
+  json.home send("#{@data['home']}_path", "#{resource.singularize}_id" => @object.id)
+end
+
+if @data['new']
+  json.new send("#{@data['new']}_path")
+end
+
 if @data
   if @data['config']['recent']
     json.recent_url resource + '?recent=true'

@@ -284,4 +284,22 @@ DEPRECATED FOR RADIAL
     content_tag(:span, '', data: { 'global-id' => object.to_global_id.to_s, 'radial-object' => 'true'})
   end
 
+  # If a "home" is provided, use it instead of show link
+  # See also over ride in object_link - which we might need to merge
+  def object_home_link(object)
+    k = object.class
+    klass = OBJECT_RADIALS[k.name] ? k.name : k.base_class.name
+
+    p = OBJECT_RADIALS[klass]
+    if p && p['home']
+      link_to(
+        object_tag(object),
+        send("#{p['home']}_path", "#{klass.tableize.singularize}_id" => object.id)
+      )
+    else
+      object_link(object)
+    end
+  end
+
+
 end

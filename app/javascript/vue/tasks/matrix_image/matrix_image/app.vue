@@ -63,25 +63,29 @@
       ref="matrixTable"
       :columns="observationColumns"
       :rows="observationRows"/>
+    <pagination-component
+      :pagination="pagination"
+      @nextPage="getRows($event.page)"/>
   </div>
 </template>
 
 <script>
 
 import {
-    GetObservationMatrix,
-    GetMatrixObservationColumns,
-    GetMatrixObservationRows,
-    GetOtu,
-    GetCollectionObject } from './request/resources'
+  GetObservationMatrix,
+  GetMatrixObservationColumns,
+  GetMatrixObservationRows,
+  GetOtu } from './request/resources'
 
 import MatrixTable from './components/MatrixTable.vue'
 import SpinnerComponent from 'components/spinner.vue'
 import RowModal from './components/RowModal.vue'
 import ColumnModal from './components/ColumnModal.vue'
 import Autocomplete from 'components/autocomplete.vue'
+import PaginationComponent from 'components/pagination.vue'
 
 import { GetterNames } from './store/getters/getters'
+import GetPagination from 'helpers/getPagination.js'
 
 export default {
   components: {
@@ -89,6 +93,7 @@ export default {
     SpinnerComponent,
     RowModal,
     ColumnModal,
+    PaginationComponent,
     Autocomplete
   },
   computed: {
@@ -103,7 +108,9 @@ export default {
       observationRows: [],
       showRowModal: false,
       showColumnModal: false,
-      matrixId: undefined
+      matrixId: undefined,
+      pagination: {},
+      maxPerPage: 20
     }
   },
   created() {
@@ -141,9 +148,13 @@ export default {
       GetMatrixObservationColumns(id).then(response => {
         this.observationColumns = response.body
       })
-      GetMatrixObservationRows(id).then(response => {
+      this.getRows(1)
+    },
+    getRows(page) {
+      GetMatrixObservationRows(this.matrixId, { params: { per: this.maxPerPage, page: page } }).then(response => {
         this.observationRows = response.body
-      })
+        this.pagination = GetPagination(response)
+      })      
     }
   }
 }

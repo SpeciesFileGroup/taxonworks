@@ -248,6 +248,8 @@ class TaxonName < ApplicationRecord
   scope :as_subject_with_taxon_name_relationship, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where(taxon_name_relationships: {type: taxon_name_relationship}) }
   scope :as_subject_with_taxon_name_relationship_base, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "#{taxon_name_relationship}%").references(:taxon_name_relationships) }
   scope :as_subject_without_taxon_name_relationship_base, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where('(taxon_name_relationships.type NOT LIKE ?) OR (taxon_name_relationships.subject_taxon_name_id IS NULL)', "#{taxon_name_relationship}%").references(:taxon_name_relationships) }
+  scope :as_subject_with_taxon_name_relationship_array, -> (taxon_name_relationship_name_array) { includes(:taxon_name_relationships).where('(taxon_name_relationships.type IN (?)) OR (taxon_name_relationships.subject_taxon_name_id IS NULL)', "#{taxon_name_relationship_name_array}%").references(:taxon_name_relationships) }
+  scope :as_subject_without_taxon_name_relationship_array, -> (taxon_name_relationship_name_array) { includes(:taxon_name_relationships).where('(taxon_name_relationships.type NOT IN (?)) OR (taxon_name_relationships.subject_taxon_name_id IS NULL)', "#{taxon_name_relationship_name_array}%").references(:taxon_name_relationships) }
   scope :as_subject_with_taxon_name_relationship_containing, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "%#{taxon_name_relationship}%").references(:taxon_name_relationships) }
   scope :as_object_with_taxon_name_relationship, -> (taxon_name_relationship) { includes(:related_taxon_name_relationships).where(taxon_name_relationships: {type: taxon_name_relationship}) }
   scope :as_object_with_taxon_name_relationship_base, -> (taxon_name_relationship) { includes(:related_taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "#{taxon_name_relationship}%").references(:related_taxon_name_relationships) }
@@ -856,7 +858,7 @@ class TaxonName < ApplicationRecord
   # @return [String]
   #  a monomial if names is above genus, or a full epithet if below.
   def get_full_name
-    return verbatim_name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string) && !verbatim_name.nil?
+    return name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
     return name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
     return name if rank_class =~ /Ictv/
     return verbatim_name if !verbatim_name.nil? && type == 'Combination'
@@ -873,14 +875,17 @@ class TaxonName < ApplicationRecord
      
   def get_full_name_html(name = nil)
     name = get_full_name if name.nil? 
-    return name unless is_italicized?
-    n = name 
+    n = name
     # n = verbatim_name.blank? ? name : verbatim_name
     return  "\"<i>Candidatus</i> #{n}\"" if is_candidatus?
-    v = Utilities::Italicize.taxon_name(n)
-    v = '† ' + v if is_fossil?
-    v = '× ' + v if is_hybrid?
-    v
+    if !n.blank? && is_hybrid?
+      w = n.split(' ')
+      w[-1] = ('×' + w[-1]).gsub('×(', '(×')
+      n = w.join(' ')
+    end
+    n = Utilities::Italicize.taxon_name(n) if is_italicized?
+    n = '† ' + n if is_fossil?
+    n
   end
 
   def genus_name_elements(*args)
@@ -1256,7 +1261,8 @@ class TaxonName < ApplicationRecord
           (nomenclatural_code == :icnp && name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
           (nomenclatural_code == :icn && name =~  /^[a-zA-Z]*-[a-zA-Z]*$/) ||
           (nomenclatural_code == :icn && name =~  /^[a-zA-Z]*\s×\s[a-zA-Z]*$/) ||
-          (nomenclatural_code == :icn && name =~  /^×\s[a-zA-Z]*$/) ||
+          (nomenclatural_code == :icn && name =~  /^[a-zA-Z]*\s×[a-zA-Z]*$/) ||
+          (nomenclatural_code == :icn && name =~  /^×[a-zA-Z]*$/) ||
           (nomenclatural_code == :ictv)
         correct_name_format = true
       end
@@ -1297,8 +1303,9 @@ class TaxonName < ApplicationRecord
         if matchdata
           minP = matchdata[1] ? matchdata[1].to_i : matchdata[3].to_i
           maxP = matchdata[2] ? matchdata[2].to_i : matchdata[3].to_i
+          minP = 1 if minP == maxP && maxP.to_s == self.source.pages && %w{book booklet manual mastersthesis phdthesis techreport}.include?(self.source.bibtex_type)
           unless (maxP && minP && minP <= self.origin_citation.pages.to_i && maxP >= self.origin_citation.pages.to_i)
-            soft_validations.add(:base, 'Original citation is out of the source page range')
+            soft_validations.add(:base, "Original citation is out of the source page range")
           end
         end
       end

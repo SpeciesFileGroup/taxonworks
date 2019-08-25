@@ -81,7 +81,6 @@ Object.assign(TW.workbench.pinboard, {
     },
 
     addToPinboard: function(object) {
-      console.log("se");
       if($(".slide-pinboard .empty-message").length) {
         $(".empty-message").remove();
       }
@@ -115,8 +114,8 @@ Object.assign(TW.workbench.pinboard, {
     },
 
     createCategory: function(title) {
-      var injectCategory = '<div id="order_'+ title +'s"> \
-              <div class="slide-panel-category-header">'+ title +'s</div> \
+      var injectCategory = '<div id="order_'+ title +'"> \
+              <div class="slide-panel-category-header">'+ title +'</div> \
                 <ul class="slide-panel-category-content" \
                           data-pinboard-section="'+ title +'" \
                           data-sortable \
