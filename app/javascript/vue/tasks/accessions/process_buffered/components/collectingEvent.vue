@@ -61,6 +61,7 @@
           <label>Year</label>
           <br>
           <input
+            class="date-field separate-right"
             type="text"
             v-model="collectingEvent.start_date_year">
         </div>
@@ -68,6 +69,7 @@
           <label>Month</label>
           <br>
           <input
+            class="date-field separate-right"
             type="text"
             v-model="collectingEvent.start_date_month">
         </div>
@@ -75,6 +77,7 @@
           <label>Day</label>
           <br>
           <input
+            class="date-field"
             type="text"
             v-model="collectingEvent.start_date_day">
         </div>
@@ -87,6 +90,7 @@
           <label>Year</label>
           <br>
           <input
+            class="date-field separate-right"
             type="text"
             v-model="collectingEvent.end_date_year">
         </div>
@@ -94,6 +98,7 @@
           <label>Month</label>
           <br>
           <input
+            class="date-field separate-right"
             type="text"
             v-model="collectingEvent.end_date_month">
         </div>
@@ -101,6 +106,7 @@
           <label>Day</label>
           <br>
           <input
+            class="date-field"
             type="text"
             v-model="collectingEvent.end_date_day">
         </div>
@@ -114,6 +120,7 @@
 import { GetCollectingEvent, GetGeographicSmartSelector } from '../request/resource'
 import Autocomplete from 'components/autocomplete'
 import SmartSelector from 'components/switch'
+import { GetterNames } from '../store/getters/getters'
 
 export default {
   components: {
@@ -124,6 +131,14 @@ export default {
     collectionObject: {
       type: Object,
       default: undefined
+    }
+  },
+  computed: {
+    settings () {
+      return this.$store.getters[GetterNames.GetSettings]
+    },
+    getSelection () {
+      return this.$store.getters[GetterNames.GetSelection]
     }
   },
   data () {
@@ -155,6 +170,11 @@ export default {
         }
       },
       immediate: true
+    },
+    getSelection (newVal) {
+      if (newVal.length) {
+        this.collectingEvent.verbatim_locality = newVal
+      }
     }
   },
   mounted () {
@@ -168,3 +188,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+  .date-field {
+    width: 50px;
+  }
+</style>
