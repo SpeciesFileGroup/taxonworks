@@ -1,20 +1,20 @@
 import setSettings from './setSettings'
 import setSelection from './setSelection'
-import getCollectionObject from './setCollectionObject'
-import getCollectingEvent from './setCollectingEvent'
+import setCollectionObject from './setCollectionObject'
+import setCollectingEvent from './setCollectingEvent'
 
 const MutationNames = {
   SetSettings: 'setSettings',
   SetSelection: 'setSelection',
-  GetCollectingEvent: 'getCollectingEvent',
-  GetCollectionObject: 'getCollectionObject'
+  SetCollectingEvent: 'setCollectingEvent',
+  SetCollectionObject: 'setCollectionObject'
 }
 
 const MutationFunctions = {
   [MutationNames.SetSettings]: setSettings,
   [MutationNames.SetSelection]: setSelection,
-  [MutationNames.GetCollectingEvent]: getCollectingEvent,
-  [MutationNames.GetCollectionObject]: getCollectionObject
+  [MutationNames.SetCollectingEvent]: setCollectingEvent,
+  [MutationNames.SetCollectionObject]: setCollectionObject
 }
 
 export {

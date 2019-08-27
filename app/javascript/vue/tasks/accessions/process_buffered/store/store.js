@@ -13,6 +13,7 @@ function makeInitialState () {
       highlight: false
     },
     collectionObject: {
+      id: undefined,
       buffered_collecting_event: undefined
     },
     collectingEvent: {},

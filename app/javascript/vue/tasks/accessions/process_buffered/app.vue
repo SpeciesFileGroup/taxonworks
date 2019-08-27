@@ -23,6 +23,25 @@
 
       <div>
         <h2>Collecting event</h2>
+        <div>
+          <button
+            type="button"
+            class="button normal-input button-default"
+            :disabled="!collectionObject.id"
+            @click="openDigitize()">
+            Open full
+          </button>
+          <button
+            type="button"
+            class="button normal-input button-default">
+            Save
+          </button>
+          <button
+            type="button"
+            class="button normal-input button-submit"> <!-- Next Sqed -->
+            Save and next
+          </button>
+        </div>
         <collecting-event
           :collection-object="collectionObject"/>
       </div>
@@ -40,6 +59,9 @@ import NavCollectionObjects from './components/navCollectionObjects'
 import CollectionObjectContainer from './components/collectionObject'
 
 import { GetDepictionByCOId, GetCollectionObject, GetNearbyCOFromDepictionSqedId } from './request/resource'
+import { RouteNames } from 'routes/routes'
+import { GetterNames } from './store/getters/getters'
+import { MutationNames } from './store/mutations/mutations'
 
 export default {
   components: {
@@ -50,9 +72,13 @@ export default {
     NavCollectionObjects,
     CollectionObjectContainer
   },
+  computed: {
+    collectionObject () {
+      return this.$store.getters[GetterNames.GetCollectionObject]
+    }
+  },
   data () {
     return {
-      collectionObject: undefined,
       depictions: undefined,
       image: undefined,
       canvasImage: undefined,
@@ -86,6 +112,7 @@ export default {
         })
         GetCollectionObject(COId).then(response => {
           this.collectionObject = response.body
+          this.$store.commit(MutationNames.SetCollectionObject, response.body)
         })
       }
     },
@@ -97,6 +124,9 @@ export default {
         width: values.width,
         height: values.height
       }
+    },
+    openDigitize (id) {
+      window.open(`${RouteNames.DigitizeTask}?collection_object_id=${this.collectionObject.id}`, '_self')
     }
   }
 }
