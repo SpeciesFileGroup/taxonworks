@@ -16,6 +16,8 @@ function makeInitialState () {
       id: undefined,
       buffered_collecting_event: undefined
     },
+    nearbyCO: undefined,
+    sqedDepictions: [],
     collectingEvent: {},
     inputSelection: undefined
   }
