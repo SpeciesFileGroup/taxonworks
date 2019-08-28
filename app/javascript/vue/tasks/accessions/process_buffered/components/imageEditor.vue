@@ -1,13 +1,13 @@
 <template>
   <svg
-    :width="width*scale"
-    :height="height*scale"
+    :width="width/scale"
+    :height="height/scale"
+    :viewBox="`0 0 ${width/scale} ${height/scale}`"
     @mousemove="checkDrag"
     @mouseup="dragEnd">
     <image
       :xlink:href="image.large_image"
-      :height="height*scale"
-      :width="width*scale"
+      :width="width/scale"
       :x="0"
       :y="0"/>
     <rect
@@ -42,14 +42,14 @@ export default {
   },
   computed: {
     width () {
-      return this.image ? this.image.large_height_width.split(', ')[0] : 0
+      return this.image ? Number(this.image.large_height_width.split(', ')[0]) : 0
     },
     height () {
-      return this.image ? this.image.large_height_width.split(', ')[1] : 0
+      return this.image ? Number(this.image.large_height_width.split(', ')[1]) : 0
     },
     scale () {
-      const scaleHeight = this.height > this.maxHeight ? this.height / this.imageHeight : 1
-      const scaleWidth = this.width > this.maxWidth ? this.width / window.outerWidth : 1
+      const scaleHeight = this.height > this.maxHeight ? this.height / this.maxHeight : 1
+      const scaleWidth = this.width > this.maxWidth ? this.width / this.maxWidth : 1
 
       return scaleHeight > scaleWidth ? scaleHeight : scaleWidth
     }
@@ -92,10 +92,10 @@ export default {
     dragEnd () {
       if (this.dragging) {
         this.$emit('imagePosition', {
-          x: this.svgBoxStyle.x / this.scale,
-          y: this.svgBoxStyle.y / this.scale,
-          width: this.svgBoxStyle.width / this.scale,
-          height: this.svgBoxStyle.height / this.scale,
+          x: this.svgBoxStyle.x * this.scale,
+          y: this.svgBoxStyle.y * this.scale,
+          width: this.svgBoxStyle.width * this.scale,
+          height: this.svgBoxStyle.height * this.scale,
           imageWidth: this.width,
           imageHeight: this.height,
           scale: this.scale

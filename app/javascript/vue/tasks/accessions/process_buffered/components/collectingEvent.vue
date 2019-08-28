@@ -139,7 +139,7 @@
 
 <script>
 
-import { GetGeographicSmartSelector } from '../request/resource'
+import { GetGeographicSmartSelector, GetGeographicArea } from '../request/resource'
 import Autocomplete from 'components/autocomplete'
 import SmartSelector from 'components/switch'
 import { GetterNames } from '../store/getters/getters'
@@ -178,7 +178,8 @@ export default {
     return {
       smartList: undefined,
       options: [],
-      view: 'search'
+      view: 'search',
+      selectedGeographicAreaLabel: undefined
     }
   },
   watch: {
@@ -186,6 +187,16 @@ export default {
       if (newVal.length) {
         this.collectingEvent.verbatim_locality = newVal
       }
+    },
+    collectingEvent: {
+      handler (newVal, oldVal) {
+        if (newVal.geographic_area_id && newVal !== oldVal) {
+          GetGeographicArea(newVal.geographic_area_id).then(response => {
+            this.selectedGeographicAreaLabel = response.body.name
+          })
+        }
+      },
+      deep: true
     }
   },
   mounted () {
