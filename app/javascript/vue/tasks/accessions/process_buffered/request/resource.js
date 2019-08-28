@@ -16,6 +16,10 @@ const GetDepiction = (id) => {
   return ajaxCall('get', `/depictions/${id}`)
 }
 
+const GetGeographicArea = (id) => {
+  return ajaxCall('get', `/geographic_areas/${id}`)
+}
+
 const GetDepictionByCOId = (id) => {
   return ajaxCall('get', `/depictions.json`, { params: { depiction_object_type: 'CollectionObject', depiction_object_id: id } })
 }
@@ -40,6 +44,7 @@ export {
   CreateCollectingEvent,
   GetCollectingEvent,
   GetCollectionObject,
+  GetGeographicArea,
   GetGeographicSmartSelector,
   GetNearbyCOFromDepictionSqedId,
   GetDepiction,

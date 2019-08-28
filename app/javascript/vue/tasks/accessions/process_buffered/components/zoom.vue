@@ -1,11 +1,11 @@
 <template>
   <div class="flexbox">
     <depictions-container
-      :depictions="depictions"
       @selectedImage="image=$event"/>
     <div>
-      <div class="horizontal-left-content">
+      <div class="horizontal-left-content align-start">
         <image-editor
+          class="separate-right"
           :image="image"
           @imagePosition="setImageValues"/>
         <canvas-container :image="canvasImage"/>
@@ -28,7 +28,8 @@ export default {
   },
   data () {
     return {
-      image: undefined
+      image: undefined,
+      canvasImage: undefined
     }
   },
   methods: {
@@ -38,7 +39,9 @@ export default {
         x: values.x,
         y: values.y,
         width: values.width,
-        height: values.height
+        height: values.height,
+        imageWidth: values.imageWidth,
+        imageHeight: values.imageHeight
       }
     }
   }

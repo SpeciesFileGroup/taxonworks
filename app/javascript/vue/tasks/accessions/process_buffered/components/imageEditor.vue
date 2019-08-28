@@ -1,13 +1,13 @@
 <template>
   <svg
-    :width="image.large_height_width.split(', ')[0]"
-    :height="image.large_height_width.split(', ')[1]"
+    :width="width*scale"
+    :height="height*scale"
     @mousemove="checkDrag"
     @mouseup="dragEnd">
     <image
       :xlink:href="image.large_image"
-      :height="image.large_height_width.split(', ')[1]"
-      :width="image.large_height_width.split(', ')[0]"
+      :height="height*scale"
+      :width="width*scale"
       :x="0"
       :y="0"/>
     <rect
@@ -28,13 +28,34 @@
 export default {
   props: {
     image: {
-      type: [String, Object]
+      type: [String, Object],
+      default: undefined
+    },
+    maxWidth: {
+      type: Number,
+      default: 300
+    },
+    maxHeight: {
+      type: Number,
+      default: 300
+    }
+  },
+  computed: {
+    width () {
+      return this.image ? this.image.large_height_width.split(', ')[0] : 0
+    },
+    height () {
+      return this.image ? this.image.large_height_width.split(', ')[1] : 0
+    },
+    scale () {
+      const scaleHeight = this.height > this.maxHeight ? this.height / this.imageHeight : 1
+      const scaleWidth = this.width > this.maxWidth ? this.width / window.outerWidth : 1
+
+      return scaleHeight > scaleWidth ? scaleHeight : scaleWidth
     }
   },
   data () {
     return {
-      paperWidth: 400,
-      paperHeight: 400,
       movedElement: undefined,
       svgBoxStyle: {
         x: 0,
@@ -71,10 +92,13 @@ export default {
     dragEnd () {
       if (this.dragging) {
         this.$emit('imagePosition', {
-          x: this.svgBoxStyle.x,
-          y: this.svgBoxStyle.y,
-          width: this.svgBoxStyle.width,
-          height: this.svgBoxStyle.height
+          x: this.svgBoxStyle.x / this.scale,
+          y: this.svgBoxStyle.y / this.scale,
+          width: this.svgBoxStyle.width / this.scale,
+          height: this.svgBoxStyle.height / this.scale,
+          imageWidth: this.width,
+          imageHeight: this.height,
+          scale: this.scale
         })
       }
       this.resetStates()

@@ -1,5 +1,5 @@
 <template>
-  <div class="horizontal-left-content align-start">
+  <div class="flex-wrap-column align-start panel content">
     <div>
       <div v-for="depiction in depictions">
         <div>
@@ -11,7 +11,8 @@
         </div>
       </div>
     </div>
-    <div v-if="selectedDepiction && selectedDepiction.hasOwnProperty('sqed_depiction')">
+    <br>
+    <div  v-if="selectedDepiction && selectedDepiction.hasOwnProperty('sqed_depiction')">
       <div
         v-for="image in selectedDepiction.sqed_depiction.image_sections"
         :key="image.small_image">
@@ -55,6 +56,7 @@ export default {
 <style scoped>
   .depiction-image {
     border: 1px solid transparent;
+    max-height: 80px;
   }
   .selected-depiction {
     border: 1px solid black;

@@ -7,13 +7,14 @@
     <h1>Buffered data</h1>
     <div class="horizontal-left-content align-start">
       <div class="separate-right">
-        <h2>Collection object</h2>
+        <h3>Collection object</h3>
         <div class="panel content">
           <nav-collection-objects
             :co-objects="nearbyCO"/>
           <hr>
           <collection-object-container/>
           <switch-component
+            class="separate-bottom"
             :options="depictionTabs"
             v-model="view"/>
           <div>
@@ -23,9 +24,9 @@
       </div>
 
       <div class="separate-left">
-        <h2>Collecting event</h2>
+        <h3>Collecting event</h3>
         <div class="panel content">
-          <div>
+          <div class="separate-bottom">
             <button
               type="button"
               class="button normal-input button-default"
@@ -57,9 +58,6 @@
 
 import CollectingEvent from './components/collectingEvent'
 import ZoomComponent from './components/zoom'
-import DepictionsContainer from './components/depictionsContainer'
-import ImageEditor from './components/imageEditor'
-import CanvasContainer from './components/canvasContainer'
 import NavCollectionObjects from './components/navCollectionObjects'
 import CollectionObjectContainer from './components/collectionObject'
 import SwitchComponent from 'components/switch'
@@ -73,10 +71,7 @@ import { ActionNames } from './store/actions/actions'
 
 export default {
   components: {
-    CanvasContainer,
     CollectingEvent,
-    DepictionsContainer,
-    ImageEditor,
     NavCollectionObjects,
     CollectionObjectContainer,
     SwitchComponent,
