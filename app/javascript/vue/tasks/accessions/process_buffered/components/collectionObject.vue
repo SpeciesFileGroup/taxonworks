@@ -4,11 +4,11 @@
       v-if="edit"
       rows="5"
       class="full_width"
-      v-model="co.buffered_collecting_event"/>
+      v-model="collectionObject.buffered_collecting_event"/>
     <div
       class="edit-box"
       v-else>
-      <span @mouseup="getSelectionHighlight">{{ co.buffered_collecting_event }}</span>
+      <span @mouseup="getSelectionHighlight">{{ collectionObject.buffered_collecting_event }}</span>
     </div>
     <ul class="no_bullets context-menu">
       <li>
@@ -37,12 +37,6 @@ export default {
   components: {
     SwitchSlider
   },
-  props: {
-    collectionObject: {
-      type: Object,
-      default: undefined
-    }
-  },
   computed: {
     settings: {
       get () {
@@ -51,13 +45,18 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetSettings, value)
       }
+    },
+    collectionObject: {
+      get () {
+        return this.$store.getters[GetterNames.GetCollectionObject]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetCollectionObject, value)
+      }
     }
   },
   data () {
     return {
-      co: {
-        buffered_collecting_event: ''
-      },
       edit: false
     }
   },

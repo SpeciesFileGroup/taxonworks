@@ -1,5 +1,9 @@
 <template>
   <div>
+    <spinner-component
+      v-if="settings.isSaving"
+      :full-screen="true"
+      legend="Saving..."/>
     <h1>Buffered data</h1>
     <div class="horizontal-left-content align-start">
       <div>
@@ -36,7 +40,8 @@
           </button>
           <button
             type="button"
-            class="button normal-input button-default">
+            class="button normal-input button-default"
+            @click="saveSqed">
             Save
           </button>
           <button
@@ -61,6 +66,7 @@ import CanvasContainer from './components/canvasContainer'
 import NavCollectionObjects from './components/navCollectionObjects'
 import CollectionObjectContainer from './components/collectionObject'
 import SwitchComponent from 'components/switch'
+import SpinnerComponent from 'components/spinner'
 
 import { GetCollectionObject, GetNearbyCOFromDepictionSqedId } from './request/resource'
 import { RouteNames } from 'routes/routes'
@@ -76,7 +82,8 @@ export default {
     ImageEditor,
     NavCollectionObjects,
     CollectionObjectContainer,
-    SwitchComponent
+    SwitchComponent,
+    SpinnerComponent
   },
   computed: {
     collectionObject: {
@@ -89,6 +96,9 @@ export default {
     },
     depictions () {
       return this.$store.getters[GetterNames.GetSqedDepictions]
+    },
+    settings () {
+      return this.$store.getters[GetterNames.GetSettings]
     }
   },
   data () {
@@ -137,6 +147,9 @@ export default {
     },
     openDigitize (id) {
       window.open(`${RouteNames.DigitizeTask}?collection_object_id=${this.collectionObject.id}`, '_self')
+    },
+    saveSqed () {
+      this.$store.dispatch(ActionNames.SaveSqed)
     }
   }
 }

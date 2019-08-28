@@ -1,5 +1,9 @@
 import ajaxCall from 'helpers/ajaxCall.js'
 
+const CreateCollectingEvent = (data) => {
+  return ajaxCall('post', `/collecting_events.json`, { collecting_event: data })
+}
+
 const GetCollectingEvent = (id) => {
   return ajaxCall('get', `/collecting_events/${id}`)
 }
@@ -33,6 +37,7 @@ const UpdateCollectionObject = (data) => {
 }
 
 export {
+  CreateCollectingEvent,
   GetCollectingEvent,
   GetCollectionObject,
   GetGeographicSmartSelector,

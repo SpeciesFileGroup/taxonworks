@@ -12,7 +12,8 @@
         @end="onSortable">
         <tr
           v-for="(item, index) in newList"
-          class="list-complete-item">
+          class="list-complete-item"
+          :key="item.id">
           <td
             v-for="label in attributes"
             v-html="getValue(item, label)"/>

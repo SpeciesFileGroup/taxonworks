@@ -10,7 +10,20 @@ Vue.use(Vuex)
 function makeInitialState () {
   return {
     settings: {
-      highlight: false
+      highlight: false,
+      isSaving: false
+    },
+    collectingEvent: {
+      verbatim_locality: undefined,
+      geographic_area_id: undefined,
+      verbatim_latitude: undefined,
+      verbatim_longitude: undefined,
+      start_date_day: undefined,
+      start_date_month: undefined,
+      start_date_year: undefined,
+      end_date_day: undefined,
+      end_date_month: undefined,
+      end_date_year: undefined
     },
     collectionObject: {
       id: undefined,
@@ -18,7 +31,6 @@ function makeInitialState () {
     },
     nearbyCO: undefined,
     sqedDepictions: [],
-    collectingEvent: {},
     inputSelection: undefined
   }
 }

@@ -121,17 +121,12 @@ import { GetCollectingEvent, GetGeographicSmartSelector } from '../request/resou
 import Autocomplete from 'components/autocomplete'
 import SmartSelector from 'components/switch'
 import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations';
 
 export default {
   components: {
     Autocomplete,
     SmartSelector
-  },
-  props: {
-    collectionObject: {
-      type: Object,
-      default: undefined
-    }
   },
   computed: {
     settings () {
@@ -139,38 +134,24 @@ export default {
     },
     getSelection () {
       return this.$store.getters[GetterNames.GetSelection]
+    },
+    collectingEvent: {
+      get () {
+        return this.$store.getters[GetterNames.GetCollectingEvent]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetCollectingEvent, value)
+      }
     }
   },
   data () {
     return {
-      collectingEvent: {
-        verbatim_locality: undefined,
-        geographic_area_id: undefined,
-        verbatim_latitude: undefined,
-        verbatim_longitude: undefined,
-        start_date_day: undefined,
-        start_date_month: undefined, 
-        start_date_year: undefined,
-        end_date_day: undefined,
-        end_date_month: undefined,
-        end_date_year: undefined
-      },
       smartList: undefined,
       options: [],
       view: 'search'
     }
   },
   watch: {
-    collectionObject: {
-      handler (newVal) {
-        if (newVal && newVal.collecting_event_id) {
-          GetCollectingEvent(newVal.collecting_event_id).then(response => {
-            this.collectingEvent = response.body
-          })
-        }
-      },
-      immediate: true
-    },
     getSelection (newVal) {
       if (newVal.length) {
         this.collectingEvent.verbatim_locality = newVal
