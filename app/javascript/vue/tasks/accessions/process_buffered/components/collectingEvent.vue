@@ -81,6 +81,17 @@
             type="text"
             v-model="collectingEvent.start_date_day">
         </div>
+        <div class="separate-left">
+          <label>&nbsp;</label>
+          <br>
+          <button
+            v-if="getExtractDate"
+            type="button"
+            class="button normal-input button-default"
+            @click="setStartExtractDate">
+            Use {{ getExtractDate }}
+          </button>
+        </div>
       </div>
     </div>
     <div>
@@ -110,6 +121,17 @@
             type="text"
             v-model="collectingEvent.end_date_day">
         </div>
+        <div class="separate-left">
+          <label>&nbsp;</label>
+          <br>
+          <button
+            v-if="getExtractDate"
+            type="button"
+            class="button normal-input button-default"
+            @click="setEndExtractDate">
+            Use {{ getExtractDate }}
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -117,11 +139,13 @@
 
 <script>
 
-import { GetCollectingEvent, GetGeographicSmartSelector } from '../request/resource'
+import { GetGeographicSmartSelector } from '../request/resource'
 import Autocomplete from 'components/autocomplete'
 import SmartSelector from 'components/switch'
 import { GetterNames } from '../store/getters/getters'
-import { MutationNames } from '../store/mutations/mutations';
+import { MutationNames } from '../store/mutations/mutations'
+
+import extractDate from '../helpers/extractDate'
 
 export default {
   components: {
@@ -135,6 +159,9 @@ export default {
     getSelection () {
       return this.$store.getters[GetterNames.GetSelection]
     },
+    collectionObject () {
+      return this.$store.getters[GetterNames.GetCollectionObject]
+    },
     collectingEvent: {
       get () {
         return this.$store.getters[GetterNames.GetCollectingEvent]
@@ -142,6 +169,9 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetCollectingEvent, value)
       }
+    },
+    getExtractDate () {
+      return extractDate(this.collectionObject.buffered_collecting_event)
     }
   },
   data () {
@@ -166,6 +196,18 @@ export default {
     })
   },
   methods: {
+    setEndExtractDate() {
+      let date = this.getExtractDate.split('/')
+      this.collectingEvent.end_date_year = date[0]
+      this.collectingEvent.end_date_month = date[1]
+      this.collectingEvent.end_date_day = date[2]
+    },
+    setStartExtractDate() {
+      let date = this.getExtractDate.split('/')
+      this.collectingEvent.start_date_year = date[0]
+      this.collectingEvent.start_date_month = date[1]
+      this.collectingEvent.start_date_day = date[2]
+    }
   }
 }
 </script>

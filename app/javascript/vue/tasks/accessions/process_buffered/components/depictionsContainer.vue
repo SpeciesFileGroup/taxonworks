@@ -25,11 +25,13 @@
   </div>
 </template>
 <script>
+
+import { GetterNames } from '../store/getters/getters'
+
 export default {
-  props: {
-    depictions: {
-      type: Array,
-      default: () => { return [] }
+  computed: {
+    depictions () {
+      return this.$store.getters[GetterNames.GetSqedDepictions]
     }
   },
   data () {

@@ -6,52 +6,48 @@
       legend="Saving..."/>
     <h1>Buffered data</h1>
     <div class="horizontal-left-content align-start">
-      <div>
+      <div class="separate-right">
         <h2>Collection object</h2>
-        <nav-collection-objects
-          :co-objects="nearbyCO"/>
-        <hr>
-        <collection-object-container/>
-        <div class="flexbox">
-          <depictions-container
-            :depictions="depictions"
-            @selectedImage="image=$event"/>
+        <div class="panel content">
+          <nav-collection-objects
+            :co-objects="nearbyCO"/>
+          <hr>
+          <collection-object-container/>
+          <switch-component
+            :options="depictionTabs"
+            v-model="view"/>
           <div>
-            <switch-component
-              :options="depictionTabs"
-              v-model="view"/>
-            <image-editor
-              :image="image"
-              @imagePosition="setImageValues"/>
-            <canvas-container :image="canvasImage"/>
+            <zoom-component/>
           </div>
         </div>
       </div>
 
-      <div>
+      <div class="separate-left">
         <h2>Collecting event</h2>
-        <div>
-          <button
-            type="button"
-            class="button normal-input button-default"
-            :disabled="!collectionObject.id"
-            @click="openDigitize()">
-            Open full
-          </button>
-          <button
-            type="button"
-            class="button normal-input button-default"
-            @click="saveSqed">
-            Save
-          </button>
-          <button
-            type="button"
-            class="button normal-input button-submit"> <!-- Next Sqed -->
-            Save and next
-          </button>
+        <div class="panel content">
+          <div>
+            <button
+              type="button"
+              class="button normal-input button-default"
+              :disabled="!collectionObject.id"
+              @click="openDigitize()">
+              Open full
+            </button>
+            <button
+              type="button"
+              class="button normal-input button-default"
+              @click="saveSqed">
+              Save
+            </button>
+            <button
+              type="button"
+              class="button normal-input button-submit"> <!-- Next Sqed -->
+              Save and next
+            </button>
+          </div>
+          <collecting-event
+            :collection-object="collectionObject"/>
         </div>
-        <collecting-event
-          :collection-object="collectionObject"/>
       </div>
     </div>
   </div>
@@ -60,6 +56,7 @@
 <script>
 
 import CollectingEvent from './components/collectingEvent'
+import ZoomComponent from './components/zoom'
 import DepictionsContainer from './components/depictionsContainer'
 import ImageEditor from './components/imageEditor'
 import CanvasContainer from './components/canvasContainer'
@@ -83,7 +80,8 @@ export default {
     NavCollectionObjects,
     CollectionObjectContainer,
     SwitchComponent,
-    SpinnerComponent
+    SpinnerComponent,
+    ZoomComponent
   },
   computed: {
     collectionObject: {
