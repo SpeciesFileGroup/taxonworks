@@ -6,6 +6,7 @@
     @mousemove="onMouseMove"
     @mouseup="dragEnd">
     <image
+      v-if="image"
       :xlink:href="image.large_image"
       :width="width/scale"
       :x="0"
@@ -21,7 +22,7 @@
       :stroke-width="svgBoxStyle['stroke-width']"
       @mousedown="dragging = true"
       @mouseup="dragEnd"
-      @mousemove="onMouseMove"/>
+      @mousemove="onMouseMove($event); changeCursor($event)"/>
   </svg>
 </template>
 <script>
@@ -75,6 +76,11 @@ export default {
       currentMouseY: 0,
       lastMouseX: 0,
       lastMouseY: 0
+    }
+  },
+  watch: {
+    image (newVal) {
+      this.emitEvent()
     }
   },
   methods: {
@@ -133,17 +139,20 @@ export default {
     },
     dragEnd () {
       if (this.dragging) {
-        this.$emit('imagePosition', {
-          x: this.svgBoxStyle.x * this.scale,
-          y: this.svgBoxStyle.y * this.scale,
-          width: this.svgBoxStyle.width * this.scale,
-          height: this.svgBoxStyle.height * this.scale,
-          imageWidth: this.width,
-          imageHeight: this.height,
-          scale: this.scale
-        })
+        this.emitEvent()
       }
       this.resetStates()
+    },
+    emitEvent () {
+      this.$emit('imagePosition', {
+        x: this.svgBoxStyle.x * this.scale,
+        y: this.svgBoxStyle.y * this.scale,
+        width: this.svgBoxStyle.width * this.scale,
+        height: this.svgBoxStyle.height * this.scale,
+        imageWidth: this.width,
+        imageHeight: this.height,
+        scale: this.scale
+      })      
     },
     changeCursor (event) {
       if (this.dragging || this.dragging) return
@@ -180,7 +189,6 @@ export default {
       this.currentMouseX = event.clientX - (this.$el.getBoundingClientRect().left + document.body.scrollLeft)
       this.currentMouseY = event.clientY - (this.$el.getBoundingClientRect().top + document.body.scrollTop)
 
-      this.changeCursor(event)
       this.checkDrag(event, this.currentMouseX, this.currentMouseY)
 
       this.lastMouseX = this.currentMouseX
