@@ -1,19 +1,18 @@
 <template>
   <div class="flex-wrap-column align-start panel content">
-    <div>
-      <div v-for="depiction in depictions">
-        <div>
-          <img
-            :class="{ 'selected-depiction': (selectedDepiction && selectedDepiction.id === depiction.id) }"
-            class="cursor-pointer depiction-image"
-            :src="depiction.image.alternatives.thumb.image_file_url"
-            @click="selectDepiction(depiction)">
-        </div>
+    <div v-for="depiction in depictions">
+      <div class="flex-wrap-column middle">
+        <img
+          :class="{ 'selected-depiction': (selectedDepiction && selectedDepiction.id === depiction.id) }"
+          class="cursor-pointer depiction-image"
+          :src="depiction.image.alternatives.thumb.image_file_url"
+          @click="selectDepiction(depiction)">
       </div>
     </div>
     <br>
     <div  v-if="selectedDepiction && selectedDepiction.hasOwnProperty('sqed_depiction')">
       <div
+        class="flex-wrap-column middle"
         v-for="image in selectedDepiction.sqed_depiction.image_sections"
         :key="image.small_image">
         <img
@@ -55,10 +54,10 @@ export default {
 </script>
 <style scoped>
   .depiction-image {
-    border: 1px solid transparent;
+    border: 2px solid transparent;
     max-height: 80px;
   }
   .selected-depiction {
-    border: 1px solid black;
+    border: 2px solid black;
   }
 </style>

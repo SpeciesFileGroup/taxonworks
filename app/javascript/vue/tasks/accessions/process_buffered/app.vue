@@ -14,7 +14,7 @@
           <hr>
           <collection-object-container/>
           <switch-component
-            class="separate-bottom"
+            class="separate-bottom separate-top"
             :options="depictionTabs"
             v-model="view"/>
           <div>
@@ -101,7 +101,7 @@ export default {
       nearbyCO: {},
       imagePosition: [],
       depictionTabs: ['Zoom', 'Group'],
-      view: undefined
+      view: 'Zoom'
     }
   },
   mounted () {

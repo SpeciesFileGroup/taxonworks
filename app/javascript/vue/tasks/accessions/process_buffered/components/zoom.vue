@@ -1,6 +1,7 @@
 <template>
   <div class="flexbox">
     <depictions-container
+      class="separate-right"
       @selectedImage="image=$event"/>
     <div>
       <div class="horizontal-left-content align-start">
