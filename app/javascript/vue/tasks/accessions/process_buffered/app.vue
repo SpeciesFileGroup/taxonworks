@@ -46,9 +46,13 @@
               Save and next
             </button>
           </div>
-          <collecting-event
-            :collection-object="collectionObject"/>
+          <div>
+            <collecting-event
+              :collection-object="collectionObject"/>
+            </div>
+            
         </div>
+        <existing-container/>
       </div>
     </div>
   </div>
@@ -62,6 +66,7 @@ import NavCollectionObjects from './components/navCollectionObjects'
 import CollectionObjectContainer from './components/collectionObject'
 import SwitchComponent from 'components/switch'
 import SpinnerComponent from 'components/spinner'
+import ExistingContainer from './components/existingContainer'
 
 import { GetCollectionObject, GetNearbyCOFromDepictionSqedId } from './request/resource'
 import { RouteNames } from 'routes/routes'
@@ -76,7 +81,8 @@ export default {
     CollectionObjectContainer,
     SwitchComponent,
     SpinnerComponent,
-    ZoomComponent
+    ZoomComponent,
+    ExistingContainer
   },
   computed: {
     collectionObject: {

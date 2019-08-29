@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <fieldset>
+    <legend>Buffered</legend>
     <textarea
       v-if="!settings.highlight"
       rows="5"
@@ -10,14 +11,11 @@
       v-else>
       <span @mouseup="getSelectionHighlight">{{ collectionObject.buffered_collecting_event }}</span>
     </div>
-    <ul class="no_bullets context-menu">
-
-      <li class="middle">
-        <span class="separate-right">Highlight to copy</span>
-        <switch-slider v-model="settings.highlight"/>
-      </li>
-    </ul>
-  </div>
+    <div class="horizontal-left-content middle separate-top">
+      <span class="separate-right">Highlight to copy</span>
+      <switch-slider v-model="settings.highlight"/>
+    </div>
+  </fieldset>
 </template>
 
 <script>

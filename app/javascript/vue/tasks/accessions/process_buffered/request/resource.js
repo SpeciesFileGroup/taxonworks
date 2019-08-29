@@ -8,6 +8,10 @@ const GetCollectingEvent = (id) => {
   return ajaxCall('get', `/collecting_events/${id}`)
 }
 
+const GetCollectingEventsFilter = (params) => {
+  return ajaxCall('get', `/collecting_events.json`, { params: params })
+}
+
 const GetCollectionObject = (id) => {
   return ajaxCall('get', `/collection_objects/${id}`)
 }
@@ -43,6 +47,7 @@ const UpdateCollectionObject = (data) => {
 export {
   CreateCollectingEvent,
   GetCollectingEvent,
+  GetCollectingEventsFilter,
   GetCollectionObject,
   GetGeographicArea,
   GetGeographicSmartSelector,

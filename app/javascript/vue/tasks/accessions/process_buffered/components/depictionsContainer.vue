@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-wrap-column align-start panel content">
+  <fieldset class="flex-wrap-column align-start content">
     <div v-for="depiction in depictions">
       <div class="flex-wrap-column middle">
         <img
@@ -22,7 +22,7 @@
           @click="selectImage(image)">
       </div>
     </div>
-  </div>
+  </fieldset>
 </template>
 <script>
 

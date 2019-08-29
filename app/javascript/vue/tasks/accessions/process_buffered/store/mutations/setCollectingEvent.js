@@ -1,3 +1,3 @@
 export default (state, value) => {
-  state.inputSelection = value
+  state.collectingEvent = value
 }

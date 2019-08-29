@@ -1,33 +1,35 @@
 <template>
-  <div
-    class="horizontal-left-content"
+  <fieldset
     v-if="Object.keys(coObjects).length">
-    <a
-      class="separate-right"
-      v-for="depic in coObjects.before"
-      :key="depic.id"
-      :href="coUrl(depic)">
-      <img
-        class="depiction-box"
-        :src="getPrimaryImage(depic).small_image">
-    </a>
-    <a
-      class="separate-right"
-      :href="coUrl(coObjects.current)">
-      <img
-        class="depiction-selected"
-        :src="getPrimaryImage(coObjects.current).small_image">
-    </a>
-    <a
-      class="separate-right"
-      v-for="depic in coObjects.after"
-      :key="depic.id"
-      :href="coUrl(depic)">
-      <img
-        class="depiction-box"
-        :src="getPrimaryImage(depic).small_image">
-    </a>
-  </div>
+    <legend>Navigate</legend>
+    <div class="horizontal-left-content">
+      <a
+        class="separate-right"
+        v-for="depic in coObjects.before"
+        :key="depic.id"
+        :href="coUrl(depic)">
+        <img
+          class="depiction-box"
+          :src="getPrimaryImage(depic).small_image">
+      </a>
+      <a
+        class="separate-right"
+        :href="coUrl(coObjects.current)">
+        <img
+          class="depiction-selected"
+          :src="getPrimaryImage(coObjects.current).small_image">
+      </a>
+      <a
+        class="separate-right"
+        v-for="depic in coObjects.after"
+        :key="depic.id"
+        :href="coUrl(depic)">
+        <img
+          class="depiction-box"
+          :src="getPrimaryImage(depic).small_image">
+      </a>
+    </div>
+  </fieldset>
 </template>
 
 <script>
