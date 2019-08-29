@@ -84,8 +84,6 @@ export default {
       this.cursorStyle = undefined
     },
     checkDrag (e, deltaX, deltaY) {
-      console.log([deltaX, deltaY])
-      console.log([deltaX - this.lastMouseX, deltaY - this.lastMouseY])
       if (!this.dragging) return
 
       switch (this.cursorStyle) {
@@ -109,7 +107,6 @@ export default {
           this.svgBoxStyle.height = this.svgBoxStyle.height - (deltaY - this.lastMouseY)
           break
         case 'ne-resize':
-          //this.svgBoxStyle.x =  this.svgBoxStyle.x  (deltaX - this.lastMouseX)
           this.svgBoxStyle.y = this.svgBoxStyle.y + (deltaY - this.lastMouseY)
           this.svgBoxStyle.width = this.svgBoxStyle.width + (deltaX - this.lastMouseX)
           this.svgBoxStyle.height = this.svgBoxStyle.height - (deltaY - this.lastMouseY)
