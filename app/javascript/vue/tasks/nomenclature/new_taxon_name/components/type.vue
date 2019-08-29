@@ -24,7 +24,7 @@
             <span v-html="GetRelationshipsCreated[0].object_status_tag"/>
             <a
               v-html="GetRelationshipsCreated[0].subject_object_tag"
-              :href="`/tasks/nomenclature/browse/index?taxon_name_id=${GetRelationshipsCreated[0].subject_taxon_name_id}`"/>
+              :href="`/tasks/nomenclature/browse?taxon_name_id=${GetRelationshipsCreated[0].subject_taxon_name_id}`"/>
           </span>
           <span
             class="button circle-button btn-undo button-default"
@@ -113,7 +113,7 @@
         :list="GetRelationshipsCreated"
         @delete="removeType"
         @edit="editType = $event"
-        :display="['object_status_tag', { link: '/tasks/nomenclature/browse/index?taxon_name_id=', label: 'subject_object_tag', param: 'subject_taxon_name_id'}]"/>
+        :display="['object_status_tag', { link: '/tasks/nomenclature/browse?taxon_name_id=', label: 'subject_object_tag', param: 'subject_taxon_name_id'}]"/>
     </div>
   </form>
 </template>

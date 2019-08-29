@@ -39,7 +39,7 @@
           <td>{{ item.rank }}</td>
           <td>
             <a
-              :href="`/tasks/nomenclature/browse/index?taxon_name_id=${item.parent.id}`"
+              :href="`/tasks/nomenclature/browse?taxon_name_id=${item.parent.id}`"
               v-html="item.parent.cached_html"/>
           </td> 
           <td class="options-column">
