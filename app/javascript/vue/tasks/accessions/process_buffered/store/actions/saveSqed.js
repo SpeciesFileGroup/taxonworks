@@ -20,6 +20,7 @@ export default ({ state, commit }) => {
     UpdateCollectionObject(state.collectionObject).then(response => {
       commit(MutationNames.SetCollectionObject, response.body)
       state.settings.isSaving = false
+      state.settings.lastSave = Date.now()
       TW.workbench.alert.create('Sqed was successfully saved.', 'notice')
     })
   })

@@ -6,7 +6,7 @@ export default ({ state, commit }, id) => {
     commit(MutationNames.SetCollectionObject, response.body)
     if (state.collectionObject.collecting_event_id) {
       GetCollectingEvent(state.collectionObject.collecting_event_id).then(response => {
-        state.collectingEvent = response.body
+        commit(MutationNames.SetCollectingEvent, response.body)
       })
     }
   })

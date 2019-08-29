@@ -7,7 +7,12 @@
     <h1>Buffered data</h1>
     <div class="horizontal-left-content align-start">
       <div class="separate-right">
-        <h3>Collection object</h3>
+        <div class="panel basic-information">
+          <div
+            class="header flex-separate middle">
+            <h3>Collecting object</h3>
+          </div>
+        </div>
         <div class="panel content">
           <nav-collection-objects
             :co-objects="nearbyCO"/>
@@ -24,7 +29,7 @@
       </div>
 
       <div class="separate-left">
-        <h3>Collecting event</h3>
+        <status-bar/>
         <div class="panel content">
           <div class="separate-bottom">
             <button
@@ -47,12 +52,18 @@
             </button>
           </div>
           <div>
+            <switch-component
+              :options="collectingEventTabs"
+              v-model="viewCe"/>
             <collecting-event
+              class="separate-top"
+              v-show="viewCe == 'Collecting event'"
               :collection-object="collectionObject"/>
-            </div>
-            
+            <existing-container
+              v-show="viewCe == collectingEventTabs[1]"
+              @search="setCount"/>
+          </div>
         </div>
-        <existing-container/>
       </div>
     </div>
   </div>
@@ -67,6 +78,7 @@ import CollectionObjectContainer from './components/collectionObject'
 import SwitchComponent from 'components/switch'
 import SpinnerComponent from 'components/spinner'
 import ExistingContainer from './components/existingContainer'
+import StatusBar from './components/statusBar'
 
 import { GetCollectionObject, GetNearbyCOFromDepictionSqedId } from './request/resource'
 import { RouteNames } from 'routes/routes'
@@ -82,7 +94,8 @@ export default {
     SwitchComponent,
     SpinnerComponent,
     ZoomComponent,
-    ExistingContainer
+    ExistingContainer,
+    StatusBar
   },
   computed: {
     collectionObject: {
@@ -96,8 +109,16 @@ export default {
     depictions () {
       return this.$store.getters[GetterNames.GetSqedDepictions]
     },
-    settings () {
-      return this.$store.getters[GetterNames.GetSettings]
+    settings: {
+      get () {
+        return this.$store.getters[GetterNames.GetSettings]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSettings, value)
+      }
+    },
+    collectingEvents () {
+      return this.$store.getters[GetterNames.GetCollectingEvent]
     }
   },
   data () {
@@ -107,6 +128,8 @@ export default {
       nearbyCO: {},
       imagePosition: [],
       depictionTabs: ['Zoom', 'Group'],
+      collectingEventTabs: ['Collecting event', 'Similar'],
+      viewCe: 'Collecting event',
       view: 'Zoom'
     }
   },
@@ -120,6 +143,16 @@ export default {
           this.nearbyCO = response.body
         })
       }
+    },
+    collectingEvents: {
+      handler (newVal, oldVal) {
+        if (this.settings.lastSave) {
+          this.settings.lastChange = Date.now()
+        } else {
+          this.settings.lastSave = Date.now()
+        }
+      },
+      deep: true
     }
   },
   methods: {
@@ -149,6 +182,12 @@ export default {
     },
     saveSqed () {
       this.$store.dispatch(ActionNames.SaveSqed)
+    },
+    setCount (list) {
+      this.$set(this.collectingEventTabs, 1, `Similar (${list.length})`)
+      if (this.viewCe !== this.collectingEventTabs[0]) {
+        this.viewCe = this.collectingEventTabs[1]
+      }
     }
   }
 }

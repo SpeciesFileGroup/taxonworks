@@ -11,7 +11,9 @@ function makeInitialState () {
   return {
     settings: {
       highlight: true,
-      isSaving: false
+      isSaving: false,
+      lastSave: undefined,
+      lastChange: undefined
     },
     collectingEvent: {
       verbatim_locality: undefined,

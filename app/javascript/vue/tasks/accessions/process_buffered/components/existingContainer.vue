@@ -1,31 +1,28 @@
 <template>
   <div>
-    <h3>Existing and similar collecting events</h3>
-    <div class="panel content">
-      <ul class="table-entrys-list">
-        <li
-          v-for="item in list"
-          class="list-complete-item middle"
-          :key="item.id">
-          <span v-html="item.object_tag"/>
-          <div class="horizontal-left-content separate-left">
-            <button
-              v-if="item.id == collectingEvent.id"
-              type="button"
-              class="button normal-input button-default separate-right"
-              disabled>Current
-            </button>
-            <button
-              v-else
-              type="button"
-              @click="collectingEvent = item"
-              class="button normal-input button-default separate-right">Select
-            </button>
-            <view-ce :collecting-event="item"/>
-          </div>
-        </li>
-      </ul>
-    </div>
+    <ul class="table-entrys-list">
+      <li
+        v-for="item in list"
+        class="list-complete-item middle"
+        :key="item.id">
+        <span v-html="item.object_tag" />
+        <div class="horizontal-left-content separate-left">
+          <button
+            v-if="item.id == collectingEvent.id"
+            type="button"
+            class="button normal-input button-default separate-right"
+            disabled>Current
+          </button>
+          <button
+            v-else
+            type="button"
+            class="button normal-input button-default separate-right"
+            @click="collectingEvent = item">Select
+          </button>
+          <view-ce :collecting-event="item" />
+        </div>
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -81,6 +78,7 @@ export default {
     getList (params) {
       GetCollectingEventsFilter(params).then(response => {
         this.list = response.body
+        this.$emit('search', this.list)
       })
     }
   }

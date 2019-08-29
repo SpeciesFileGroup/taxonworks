@@ -153,8 +153,13 @@ export default {
     SmartSelector
   },
   computed: {
-    settings () {
-      return this.$store.getters[GetterNames.GetSettings]
+    settings: {
+      get () {
+        return this.$store.getters[GetterNames.GetSettings]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSettings, value)
+      }
     },
     getSelection () {
       return this.$store.getters[GetterNames.GetSelection]
