@@ -29,7 +29,7 @@
           :key="item.id">
           <td>
             <a
-              :href="`/tasks/nomenclature/browse/index?taxon_name_id=${item.id}`"
+              :href="`/tasks/nomenclature/browse?taxon_name_id=${item.id}`"
               v-html="item.cached_html"/>
           </td>
           <td>{{item.verbatim_author}}</td>
