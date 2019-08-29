@@ -41,7 +41,6 @@ export default {
     collectingEvent: {
       handler (newVal) {
         if (newVal.id) {
-          console.log("asdf")
           this.currentCEUsed()
         }
       },

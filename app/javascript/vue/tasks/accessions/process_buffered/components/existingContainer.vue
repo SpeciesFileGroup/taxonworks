@@ -43,7 +43,6 @@ export default {
         return this.$store.getters[GetterNames.GetCollectingEvent]
       },
       set (value) {
-        console.log(value)
         this.$store.commit(MutationNames.SetCollectingEvent, value)
       }
     },
