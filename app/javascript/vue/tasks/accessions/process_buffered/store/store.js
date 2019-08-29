@@ -10,7 +10,7 @@ Vue.use(Vuex)
 function makeInitialState () {
   return {
     settings: {
-      highlight: false,
+      highlight: true,
       isSaving: false
     },
     collectingEvent: {

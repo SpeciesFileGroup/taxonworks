@@ -1,7 +1,7 @@
 <template>
   <div>
     <textarea
-      v-if="edit"
+      v-if="!settings.highlight"
       rows="5"
       class="full_width"
       v-model="collectionObject.buffered_collecting_event"/>
@@ -11,14 +11,7 @@
       <span @mouseup="getSelectionHighlight">{{ collectionObject.buffered_collecting_event }}</span>
     </div>
     <ul class="no_bullets context-menu">
-      <li>
-        <label>
-          <input
-            type="checkbox"
-            v-model="edit">
-          Edit in place
-        </label>
-      </li>
+
       <li class="middle">
         <span class="separate-right">Highlight to copy</span>
         <switch-slider v-model="settings.highlight"/>
