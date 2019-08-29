@@ -3,7 +3,7 @@
     :width="width/scale"
     :height="height/scale"
     :viewBox="`0 0 ${width/scale} ${height/scale}`"
-    @mousemove="checkDrag"
+    @mousemove="onMouseMove"
     @mouseup="dragEnd">
     <image
       :xlink:href="image.large_image"
@@ -21,7 +21,7 @@
       :stroke-width="svgBoxStyle['stroke-width']"
       @mousedown="dragging = true"
       @mouseup="dragEnd"
-      @mousemove="changeCursor"/>
+      @mousemove="onMouseMove"/>
   </svg>
 </template>
 <script>
@@ -70,7 +70,11 @@ export default {
       cursorStyle: undefined,
       dragging: false,
       resize: false,
-      canvas: undefined
+      canvas: undefined,
+      currentMouseX: 0,
+      currentMouseY: 0,
+      lastMouseX: 0,
+      lastMouseY: 0
     }
   },
   methods: {
@@ -79,15 +83,56 @@ export default {
       this.resize = false
       this.cursorStyle = undefined
     },
-    checkDrag (e) {
+    checkDrag (e, deltaX, deltaY) {
+      console.log([deltaX, deltaY])
+      console.log([deltaX - this.lastMouseX, deltaY - this.lastMouseY])
       if (!this.dragging) return
-      if (this.cursorStyle === 'move') {
-        this.svgBoxStyle.x = e.offsetX
-        this.svgBoxStyle.y = e.offsetY
-      } else {
-        this.svgBoxStyle.width = e.offsetX - this.svgBoxStyle.x
-        this.svgBoxStyle.height = e.offsetY - this.svgBoxStyle.y
+
+      switch (this.cursorStyle) {
+        case 'move':
+          this.svgBoxStyle.x = this.svgBoxStyle.x + deltaX - this.lastMouseX
+          this.svgBoxStyle.y = this.svgBoxStyle.y + deltaY - this.lastMouseY
+          break
+        case 'se-resize':
+          this.svgBoxStyle.width = e.offsetX - this.svgBoxStyle.x
+          this.svgBoxStyle.height = e.offsetY - this.svgBoxStyle.y
+          break
+        case 'sw-resize':
+          this.svgBoxStyle.x =  this.svgBoxStyle.x + (deltaX - this.lastMouseX)
+          this.svgBoxStyle.width = this.svgBoxStyle.width - (deltaX - this.lastMouseX)
+          this.svgBoxStyle.height = this.svgBoxStyle.height + (deltaY - this.lastMouseY)
+          break
+        case 'nw-resize':
+          this.svgBoxStyle.x =  this.svgBoxStyle.x + (deltaX - this.lastMouseX)
+          this.svgBoxStyle.y = this.svgBoxStyle.y + (deltaY - this.lastMouseY)
+          this.svgBoxStyle.width = this.svgBoxStyle.width - (deltaX - this.lastMouseX)
+          this.svgBoxStyle.height = this.svgBoxStyle.height - (deltaY - this.lastMouseY)
+          break
+        case 'ne-resize':
+          //this.svgBoxStyle.x =  this.svgBoxStyle.x  (deltaX - this.lastMouseX)
+          this.svgBoxStyle.y = this.svgBoxStyle.y + (deltaY - this.lastMouseY)
+          this.svgBoxStyle.width = this.svgBoxStyle.width + (deltaX - this.lastMouseX)
+          this.svgBoxStyle.height = this.svgBoxStyle.height - (deltaY - this.lastMouseY)
+          break
+        case 'w-resize':
+          this.svgBoxStyle.x =  this.svgBoxStyle.x + (deltaX - this.lastMouseX)
+          this.svgBoxStyle.width = this.svgBoxStyle.width - (deltaX - this.lastMouseX)
+          break
+        case 'e-resize':
+          this.svgBoxStyle.width = this.svgBoxStyle.width + (deltaX - this.lastMouseX)
+          break
+        case 'n-resize':
+          this.svgBoxStyle.y = this.svgBoxStyle.y + (deltaY - this.lastMouseY)
+          this.svgBoxStyle.height = this.svgBoxStyle.height - (deltaY - this.lastMouseY)
+          break
+        case 's-resize':
+          this.svgBoxStyle.height = this.svgBoxStyle.height + (deltaY - this.lastMouseY)
+          break
+        default:
+          break
       }
+      this.lastMouseX = e.pageX
+      this.lastMouseY = e.pageY
     },
     dragEnd () {
       if (this.dragging) {
@@ -103,12 +148,12 @@ export default {
       }
       this.resetStates()
     },
-    changeCursor (e) {
+    changeCursor (event) {
       if (this.dragging || this.dragging) return
-      this.movedElement = e.srcElement
+      this.movedElement = event.srcElement
 
-      const relativeX = e.clientX - (this.$el.getBoundingClientRect().left + document.body.scrollLeft) - this.svgBoxStyle.x
-      const relativeY = e.clientY - (this.$el.getBoundingClientRect().top + document.body.scrollTop) - this.svgBoxStyle.y
+      const relativeX = event.clientX - (this.$el.getBoundingClientRect().left + document.body.scrollLeft) - this.svgBoxStyle.x
+      const relativeY = event.clientY - (this.$el.getBoundingClientRect().top + document.body.scrollTop) - this.svgBoxStyle.y
       const shapeWidth = this.svgBoxStyle.width
       const shapeHeight = this.svgBoxStyle.height
       const resizeBorder = 10
@@ -133,6 +178,16 @@ export default {
         this.cursorStyle = 'move'
       }
       this.movedElement.setAttribute('cursor', this.cursorStyle)
+    },
+    onMouseMove (event) {
+      this.currentMouseX = event.clientX - (this.$el.getBoundingClientRect().left + document.body.scrollLeft)
+      this.currentMouseY = event.clientY - (this.$el.getBoundingClientRect().top + document.body.scrollTop)
+
+      this.changeCursor(event)
+      this.checkDrag(event, this.currentMouseX, this.currentMouseY)
+
+      this.lastMouseX = this.currentMouseX
+      this.lastMouseY = this.currentMouseY
     }
   }
 }
