@@ -6,11 +6,13 @@ class ObservationMatrixRow < ApplicationRecord
   include Shared::Tags
   include Shared::Notes
 
-  acts_as_list
+  acts_as_list scope: [:observation_matrix_id, :project_id]
 
   belongs_to :observation_matrix, inverse_of: :observation_matrix_rows
   belongs_to :otu, inverse_of: :observation_matrix_rows
   belongs_to :collection_object, inverse_of: :observation_matrix_rows
+
+  attr_accessor :row_object_global_id
 
   def observation_matrix_columns
     ObservationMatrixColumn.where(observation_matrix_id: observation_matrix_id)
@@ -48,6 +50,12 @@ class ObservationMatrixRow < ApplicationRecord
       return c
     end
     nil
+  end
+
+  # ! if row_object changes (it never should, just create/destroy) this memoization is bad
+  def row_object_global_id
+    @row_object_global_id ||= row_object.to_global_id.to_s
+    @row_object_global_id 
   end
 
   def row_object_class_name

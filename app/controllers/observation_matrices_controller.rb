@@ -1,7 +1,7 @@
 class ObservationMatricesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_matrix, only: [:show, :edit, :update, :destroy, :nexml]
+  before_action :set_observation_matrix, only: [:show, :edit, :update, :destroy, :nexml, :tnt, :nexus]
 
   # GET /observation_matrices
   # GET /observation_matrices.json
@@ -80,8 +80,43 @@ class ObservationMatricesController < ApplicationController
     end
   end
 
+  # def nexml
+  #   render '/observation_matrices/export/nexml/nexml' 
+  # end 
+
   def nexml
-  end 
+    @options = nexml_params
+    respond_to do |format|
+      base =  '/observation_matrices/export/nexml/nexml'
+      format.html { render base }
+      format.text {
+        s = render_to_string(base, layout: false, formats: [:rdf])
+        send_data(s, filename: "nexml_#{DateTime.now}.txt", type: 'text/plain')  
+      }
+    end
+  end
+
+  def tnt
+    respond_to do |format|
+      base = '/observation_matrices/export/tnt/'
+      format.html { render base + 'index' }
+      format.text {
+        s = render_to_string(partial: base + 'tnt', locals: { as_file: true }, layout: false, formats: [:html])
+        send_data(s, filename: "tnt_#{DateTime.now}.txt", type: 'text/plain')  
+      }
+    end
+  end
+
+  def nexus
+    respond_to do |format|
+      base = '/observation_matrices/export/nexus/'
+      format.html { render base + 'index' }
+      format.text {
+        s = render_to_string(partial: base + 'nexus', locals: { as_file: true }, layout: false, formats: [:html])
+        send_data(s, filename: "nexus_#{DateTime.now}.nex", type: 'text/plain')  
+      }
+    end
+  end
 
   # GET /observation_matrices/row.json?observation_matrix_row_id=1
   def row
@@ -94,7 +129,28 @@ class ObservationMatricesController < ApplicationController
 
   private
 
-  def set_matrix
+  def nexml_params
+    { observation_matrix: @observation_matrix,
+      target: '', 
+      include_otus: 'true',
+      include_collection_objects: 'true',
+      include_descriptors: 'true',
+      include_matrix: 'true', 
+      include_trees: 'false',
+      rdf: false }.merge!(
+        params.permit( 
+                      :include_otus,
+                      :include_collection_objects,
+                      :include_descriptors,
+                      :include_matrix,
+                      :include_trees,
+                      :rdf
+                     ).to_h
+      )
+  end
+
+
+  def set_observation_matrix
     @observation_matrix = ObservationMatrix.where(project_id: sessions_current_project_id).find(params[:id])
   end
 

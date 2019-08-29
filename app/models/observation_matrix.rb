@@ -26,6 +26,34 @@ class ObservationMatrix < ApplicationRecord
   # TODO: restrict these- you can not directly create these!
   has_many :descriptors, through: :observation_matrix_columns, inverse_of: :observation_matrices
 
+  def qualitative_descriptors
+    descriptors.where(type: 'Descriptor::Qualitative')
+  end 
+
+  def continuous_descriptors
+    descriptors.where(type: 'Descriptor::Continuous')
+  end 
+
+  def presence_absence_descriptors
+    descriptors.where(type: 'Descriptor::PresenceAbsence')
+  end 
+
+  def sample_descriptors
+    descriptors.where(type: 'Descriptor::Sample')
+  end 
+
+  def media_descriptors
+    descriptors.where(type: 'Descriptor::Media')
+  end 
+
+  def gene_descriptors
+    descriptors.where(type: 'Descriptor::Gene')
+  end 
+
+  def working_descriptors
+    descriptors.where(type: 'Descriptor::Working')
+  end 
+
   def cell_count
     observation_matrix_rows.count * observation_matrix_columns.count 
   end
@@ -59,49 +87,39 @@ class ObservationMatrix < ApplicationRecord
     rows = []  # y axis
     cols = []  # x axis
     r = []
-    c = []
+    d = []
    
     if opts[:row_end] == 'all'
-      r = observation_matrix_rows
+      r = observation_matrix_rows.order(:position)
     else
-      r = observation_matrix_rows.where("observation_matrix_rows.position >= ? and observation_matrix_rows.position <= ?", opts[:row_start], opts[:row_end])
+      r = observation_matrix_rows.where("observation_matrix_rows.position >= ? and observation_matrix_rows.position <= ?", opts[:row_start], opts[:row_end]).order(:position)
     end
     
     return false if r.size == 0
 
-    rows = r.collect{|o| o.row_object.to_global_id} # should be object, not row
+    rows = r.collect{|i| i.row_object.to_global_id}
 
     if opts[:col_end] == 'all'
-      c = descriptors.order(:position)
+      d = descriptors.order(:position) # all descriptors
     else
-      c = observation_matrix_rows.where("observation_matrix_columns.position >= ? and observation_matrix_columns.position <= ?", opts[:col_start], opts[:col_end])  #self.chrs.within_mx_range(opts[:chr_start], opts[:chr_end])
+      d = observation_matrix_rows.where("observation_matrix_columns.position >= ? and observation_matrix_columns.position <= ?", opts[:col_start], opts[:col_end])  #self.chrs.within_mx_range(opts[:chr_start], opts[:chr_end])
     end
 
-    cols = c.pluck(:id) # collect{|c| c.id} # global id ?
+    cols = d.pluck(:descriptor_id) # collect{|c| c.id} # global id ?
     return false if cols.size == 0
 
     # three dimensional array
     grid = Array.new(cols.size){Array.new(rows.size){Array.new}}
 
-    Observation.by_descriptors_and_rows(cols, rows ).each do |c|
-      i = c.observation_object.to_global_id
+    Observation.by_descriptors_and_rows(cols, rows).each do |o|
+      i = o.observation_object.to_global_id
       if rows.index(i)
-        grid[cols.index(c.descriptor_id)][rows.index(i)].push(c) 
+        grid[cols.index(o.descriptor_id)][rows.index(i)].push(o) 
       end
     end
-
-#    Observation.where(descriptor_id: cols,  "chr_id in (#{chrs.join(",")}) AND otu_id in (#{otus.join(",")})").each do |c|    
-#   
-#    # Coding.find(:all, :conditions => "chr_id in (#{chrs.join(",")}) AND otu_id in (#{otus.join(",")})").each do |c|    
-#       if otus.index(c.otu_id)
-#         grid[chrs.index(c.chr_id)][otus.index(c.otu_id)].push(c) 
-#       end
-#   end
     
     {grid: grid, rows: rows, cols: cols }
   end
-
-
 
   # @param descriptor: Descriptor
   # @param symbol_start: Integer  #  takes :chr => Chr, :symbol_start => Int
@@ -109,12 +127,12 @@ class ObservationMatrix < ApplicationRecord
   #     1 => [] 
   #   used as an index method for nexml output
   # Original code in mx
-  def polymorphic_cells_for_chr(options)
+  def polymorphic_cells_for_chr(options = {})
     opt = {symbol_start: 0}.merge!(options.to_options!)
 
     cells = Hash.new{|hash, key| hash[key] = Array.new}
-    observations.where(descriptor_id: opt[:descriptor_id]).each do |c|
-      cells[c.observation_object_global_id].push(c.chr_state_id)
+    observations.where(descriptor_id: opt[:descriptor_id]).each do |o|
+      cells[o.observation_object_global_id].push(o.character_state_id)
     end
 
     foo = Hash.new{|hash, key| hash[key] = Array.new}
@@ -128,6 +146,17 @@ class ObservationMatrix < ApplicationRecord
       end
     end
     foo
+  end
+
+  # @return [Hash]
+  #  a hash of hashes of arrays with the coding objects nicely organized
+  #   descriptor_id1 =>{row_object_global_id => [observation1, observation2], descriptor_id: nil}
+  # 
+  #  was `codings_mx` in mx where this: "likely should add scope and merge with above, though this seems to be slower"
+  def observations_hash
+    h = Hash.new{|hash, key| hash[key] = Hash.new{|hash2, key2| hash2[key2] = Array.new}} 
+    observations.each {|o| h[o.descriptor_id][o.observation_object_global_id].push(o) }
+    h
   end
 
 end

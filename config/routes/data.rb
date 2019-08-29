@@ -322,10 +322,13 @@ resources :observation_matrices do
   resources :observation_matrix_rows, shallow: true, only: [:index], defaults: {format: :json}
   resources :observation_matrix_row_items, shallow: true, only: [:index], defaults: {format: :json}
   resources :observation_matrix_column_items, shallow: true, only: [:index], defaults: {format: :json}
-  
- 
+
   member do 
-   get :nexml, defaults: {format: :rdf}
+    get :nexml, defaults: {format: :rdf}
+    get :tnt
+    get :nexus
+    get :csv
+    get :biom
   end 
 end
 

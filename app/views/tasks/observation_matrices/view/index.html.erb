@@ -1,7 +1,20 @@
 <%= content_tag(:h1, observation_matrix_tag(@observation_matrix)) -%>
 
-<%= link_to('Observation matrix hub', observation_matrices_hub_task_path) -%> |
-<%= link_to('Edit', new_matrix_task_path(@observation_matrix)) -%>
+<ul class="context-menu">
+  <li> View </li>
+  <%= content_tag(:li, link_to('Observation matrix hub', observation_matrices_hub_task_path)) -%>
+  <%= content_tag(:li, link_to('Edit', new_matrix_task_path(@observation_matrix))) -%>
+  <%= content_tag(:li, link_to('TNT', tnt_observation_matrix_path(@observation_matrix))) -%>
+  <%= content_tag(:li, link_to('nexus', nexus_observation_matrix_path(@observation_matrix))) -%>
+</ul>
+
+
+<ul class="context-menu">
+  <li>Download</li>
+  <%= content_tag(:li, link_to('TNT', tnt_observation_matrix_path(@observation_matrix, format: :text))) -%>
+  <%= content_tag(:li, link_to('nexus', nexus_observation_matrix_path(@observation_matrix, format: :text))) -%>
+  <%= content_tag(:li, link_to('NeXML', nexml_observation_matrix_path(@observation_matrix, format: :xml))) -%>
+</ul>
 
 <table id="observation_matrices">
   <thead>
@@ -10,7 +23,7 @@
       <th> Code </th>
       <th style="column-width: auto;" > OTUs </th>
       <% @observation_matrix.observation_matrix_columns.order(:position).each do |d| -%>
-        <%= content_tag(:th, descriptor_matrix_column_link(d.descriptor)) -%>
+        <%= content_tag(:th, content_tag(:label, descriptor_matrix_column_link(d.descriptor), class: ['header-label'])) -%>
       <% end %>
     </tr>
   </thead>

@@ -1,5 +1,7 @@
 # Derived from mx
+
 module Nexml
+
   class << self
 
     def serialize(options = {})
@@ -57,7 +59,7 @@ module Nexml
 
           xml.format do
             # TODO: expand to mx.chrs.that_are_continuous and mx.chrs.that_are_multistate
-            m.descriptors.where(type: 'Descriptor::Qualitative').each do |c|
+            m.qualitative_descriptors.each do |c|
               # uncertain_cells = {}
 
               xml.states(id: "states_for_chr_#{c.id}") do
@@ -84,11 +86,11 @@ module Nexml
             end  # end character loop for multistate states 
 
 
-            m.descriptors.where(type: 'Descriptor::Qualitative').each_with_index.collect{|c| xml.char(id: "c#{c.id}", states: "states_for_chr_#{c.id}", label: c.name)}
+            m.qualitative_descriptors.each_with_index.collect{|c| xml.char(id: "c#{c.id}", states: "states_for_chr_#{c.id}", label: c.name)}
 
           end # end format
 
-          include_multistate_matrix(opt.merge(descriptors: m.descriptors.where(type: 'Descriptor::Qualitative'))) if opt[:include_matrix] 
+          include_multistate_matrix(opt.merge(descriptors: m.qualitative_descriptors)) if opt[:include_matrix] 
         end # end characters
 
 
@@ -191,13 +193,13 @@ module Nexml
         id: "otu_block_#{m.id}",
         label: "Otus for matrix #{m.name}"
       ) do 
-        m.otus.each do |otu|
+        m.observation_matrix_rows.each do |r|
           xml.otu(
-            id: "otu_#{otu.id}", 
-            about: "#otu_#{otu.id}", # technically only need this for proper RDFa extraction  
-            label: otu_matrix_name(otu)  # otu.display_name(type: :matrix_name)
+            id: "row_#{r.id}",
+            about: "#row_#{r.id}", # technically only need this for proper RDFa extraction  !!! Might need this to be different, is it about row, or row object!
+            label: observation_matrix_row_label(r) # otu_matrix_name(otu)  # otu.display_name(type: :matrix_name)
           ) do
-            include_collection_objects(opt.merge(otu: otu)) if opt[:include_collection_objects]
+            include_collection_objects(opt.merge(otu: o.row_object)) if opt[:include_collection_objects]
           end
         end
       end 

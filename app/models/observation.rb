@@ -24,7 +24,15 @@ class Observation < ApplicationRecord
 
   validates_presence_of :descriptor, :type
   validate :otu_or_collection_object_set
-  
+ 
+  validate :type_matches_descriptor
+
+  def type_matches_descriptor
+    a = type.split('::').last
+    b = descriptor.type.split('::').last
+    errors.add(:type, 'type of Observation does not match type of Descriptor') if a && b && a != b
+  end
+
   def self.in_observation_matrix(observation_matrix_id)
     om = ObservationMatrix.find(observation_matrix_id)
 
@@ -72,6 +80,7 @@ class Observation < ApplicationRecord
     end 
   end
 
+  # TODO: this is not memoized correctly ?!
   def observation_object_global_id
     if observation_object
       observation_object.to_global_id.to_s
