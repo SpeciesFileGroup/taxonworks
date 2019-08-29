@@ -40,7 +40,6 @@ export default {
   },
   methods: {
     coUrl (depic) {
-      console.log(depic)
       return `/tasks/accessions/process_buffered/index?collection_object_id=${depic.depiction_object_id}`
     },
     getPrimaryImage (depiction) {

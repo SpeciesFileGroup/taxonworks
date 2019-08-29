@@ -79,8 +79,11 @@ export default {
     }
   },
   watch: {
-    image (newVal) {
-      this.emitEvent()
+    image: {
+      handler (newVal) {
+        this.emitEvent()
+      },
+      deep: true
     }
   },
   methods: {
@@ -145,6 +148,7 @@ export default {
     },
     emitEvent () {
       this.$emit('imagePosition', {
+        src: this.image.large_image,
         x: this.svgBoxStyle.x * this.scale,
         y: this.svgBoxStyle.y * this.scale,
         width: this.svgBoxStyle.width * this.scale,
@@ -152,7 +156,7 @@ export default {
         imageWidth: this.width,
         imageHeight: this.height,
         scale: this.scale
-      })      
+      })
     },
     changeCursor (event) {
       if (this.dragging || this.dragging) return

@@ -39,8 +39,6 @@ export default {
       const context = this.canvas.getContext('2d')
 
       context.clearRect(0, 0, this.width, this.height)
-      let imageCanvas = new Image()
-      imageCanvas.src = this.image.src
 
       const imageAspectRatio = this.image.imageWidth / this.image.imageHeight
 
@@ -68,8 +66,13 @@ export default {
 
       const destX = this.width / 2 - destWidth / 2
       const destY = 0
+      const imageCanvas = new Image()
 
-      context.drawImage(imageCanvas, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight)
+      imageCanvas.src = this.image.src
+
+      imageCanvas.onload = () => {
+        context.drawImage(imageCanvas, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight)
+      }
     }
   }
 }

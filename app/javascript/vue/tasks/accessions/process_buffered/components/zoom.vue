@@ -35,7 +35,7 @@ export default {
   methods: {
     setImageValues (values) {
       this.canvasImage = {
-        src: this.image.large_image,
+        src: values.src,
         x: values.x,
         y: values.y,
         width: values.width,
