@@ -5,7 +5,7 @@ module ObservationMatrices::Export::NexmlHelper
     xml = Builder::XmlMarkup.new(target: opt[:target])
     m = opt[:observation_matrix]
 
-    # multistate characters
+    # Multistate characters
     xml.characters(
       id: "multistate_character_block_#{m.id}",
       otus: "otu_block_#{m.id}", 
@@ -13,34 +13,44 @@ module ObservationMatrices::Export::NexmlHelper
       label:  "Multistate characters for matrix #{m.name}"
     ) do
 
+      descriptors = m.symbol_descriptors.load
       xml.format do
-        m.qualitative_descriptors.order('observation_matrix_columns.position').load.each do |c|
+        
+        descriptors.each do |c|
           xml.states(id: "states_for_chr_#{c.id}") do
-            c.character_states.each_with_index do |cs,i|
-              xml.state(id: "cs#{cs.id}", label: cs.name, symbol: "#{i}") 
-            end
+            if c.qualitative?
 
-            # Add a missing state for each character regardless of whether we use it or not
-            xml.state(id: "missing#{c.id}", symbol: c.character_states.size, label: "?")
-
-            # Poll the matrix for polymorphic/uncertain states
-            uncertain = m.polymorphic_cells_for_descriptor(descriptor_id: c.id, symbol_start: c.character_states.size + 1)
-
-            uncertain.keys.each do |pc|
-              xml.uncertain_state_set(id: "cs#{c.id}unc_#{uncertain[pc].sort.join}", symbol: pc) do |uss|
-                uncertain[pc].collect{|m| xml.member(state: "cs#{m}") }
+              c.character_states.each_with_index do |cs,i|
+                xml.state(id: "cs#{cs.id}", label: cs.name, symbol: "#{i}") 
               end
-            end
-          end # end states block
+
+              # Add a missing state for each character regardless of whether we use it or not
+              xml.state(id: "missing#{c.id}", symbol: c.character_states.size, label: "?")
+
+              # Poll the matrix for polymorphic/uncertain states
+              uncertain = m.polymorphic_cells_for_descriptor(descriptor_id: c.id, symbol_start: c.character_states.size + 1)
+
+              uncertain.keys.each do |pc|
+                xml.uncertain_state_set(id: "cs#{c.id}unc_#{uncertain[pc].sort.join}", symbol: pc) do |uss|
+                  uncertain[pc].collect{|m| xml.member(state: "cs#{m}") }
+                end
+              end
+            elsif c.presence_absence?
+         
+         
+            end # end states block
+          
+          end
         end  # end character loop for multistate states 
 
-        m.qualitative_descriptors.order('observation_matrix_columns.position').collect{|c| xml.char(id: "c#{c.id}", states: "states_for_chr_#{c.id}", label: c.name)}
+
+
+
+        descriptors.collect{|c| xml.char(id: "c#{c.id}", states: "states_for_chr_#{c.id}", label: c.name)}
 
       end # end format
-      include_multistate_matrix(opt.merge(descriptors: m.qualitative_descriptors.order('observation_matrix_columns.position'))) if opt[:include_matrix] 
+      include_multistate_matrix(opt.merge(descriptors: descriptors)) if opt[:include_matrix] 
     end # end characters
-
-
 
     d = m.continuous_descriptors.order('observation_matrix_columns.position').load
     # continuous characters
@@ -132,7 +142,6 @@ module ObservationMatrices::Export::NexmlHelper
         end # end the row
       end # end OTUs
     end # end matrix
-
     return opt[:target]
   end
 
@@ -149,7 +158,7 @@ module ObservationMatrices::Export::NexmlHelper
         xml.otu(
           id: "row_#{r.id}",
           about: "#row_#{r.id}", # technically only need this for proper RDFa extraction  !!! Might need this to be different, is it about row, or row object!
-          label: observation_matrix_row_label(r) # otu_matrix_name(otu)  # otu.display_name(type: :matrix_name)
+          label: observation_matrix_row_label(r)
         ) do
           include_collection_objects(opt.merge(otu: r.row_object)) if opt[:include_collection_objects]
         end

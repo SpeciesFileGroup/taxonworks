@@ -30,12 +30,12 @@ class ObservationMatrix < ApplicationRecord
     descriptors.where(type: 'Descriptor::Qualitative')
   end 
 
-  def continuous_descriptors
-    descriptors.where(type: 'Descriptor::Continuous')
-  end 
-
   def presence_absence_descriptors
     descriptors.where(type: 'Descriptor::PresenceAbsence')
+  end 
+
+  def continuous_descriptors
+    descriptors.where(type: 'Descriptor::Continuous')
   end 
 
   def sample_descriptors
@@ -53,6 +53,12 @@ class ObservationMatrix < ApplicationRecord
   def working_descriptors
     descriptors.where(type: 'Descriptor::Working')
   end 
+
+  # As handled in export/parsing by external tools
+  # !! Note order() is applied !!
+  def symbol_descriptors
+    descriptors.where(type: ['Descriptor::PresenceAbsence', 'Descriptor::Qualitative']).order('observation_matrix_columns.position')
+  end
 
   def cell_count
     observation_matrix_rows.count * observation_matrix_columns.count 

@@ -8,12 +8,11 @@
   <%= content_tag(:li, link_to('nexus', nexus_observation_matrix_path(@observation_matrix))) -%>
 </ul>
 
-
 <ul class="context-menu">
   <li>Download</li>
   <%= content_tag(:li, link_to('TNT', tnt_observation_matrix_path(@observation_matrix, format: :text))) -%>
   <%= content_tag(:li, link_to('nexus', nexus_observation_matrix_path(@observation_matrix, format: :text))) -%>
-  <%= content_tag(:li, link_to('NeXML', nexml_observation_matrix_path(@observation_matrix, format: :xml))) -%>
+  <%= content_tag(:li, link_to('NeXML', nexml_observation_matrix_path(@observation_matrix, format: :text))) -%>
 </ul>
 
 <table id="observation_matrices">
@@ -27,16 +26,15 @@
       <% end %>
     </tr>
   </thead>
- 
+
   <tbody>
     <% @observation_matrix.observation_matrix_rows.each_with_index do |row, i| -%>
       <tr>
         <%= content_tag(:td, (i + 1).to_s) -%>
-        <%= content_tag(:td, link_to('code', index_row_coder_task_path(observation_matrix_row_id: row.id) , class: ['circle-button', 'btn-row-coder']   )) -%>
+        <%= content_tag(:td, link_to('code', index_row_coder_task_path(observation_matrix_row_id: row.id) , class: ['circle-button', 'btn-row-coder'] )) -%>
         <%= content_tag(:td, object_link(row.row_object), class: 'otu_column') -%>
 
         <% @observation_matrix.observation_matrix_columns.order(:position).each do |col| -%>
-
           <%= content_tag(:td, observation_matrix_cell_tag(row.row_object, col.descriptor)) -%>
         <% end %> 
       </tr>
