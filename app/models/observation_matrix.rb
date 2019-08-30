@@ -69,12 +69,14 @@ class ObservationMatrix < ApplicationRecord
     Observation.in_observation_matrix(id)
   end
 
-  # ex mx
-  # this could definitely be optimized
-  # position is from 1 but grid is from 0 !!
-  # optimize by 
-  # - returning only codings within Otu range, not just Chr range
-  def codings_in_grid(options = {})
+  # @return [Hash]
+  #   grid: [columns][rows][observations]
+  #   rows: [row_object.GlobalId, row_object.GlobalId] (Klass)
+  #   columns: [descriptor.id, desriptor.id]
+  # Derived from mx code. TODO: optimize by returning only observations with Otu range, not just Chr range (? still relevant ?)
+  #  :position attribute starts at 1
+  # Grid starts at 0!!
+  def observations_in_grid(options = {})
     opts = {
       row_start:  1,
       row_end: 'all',
@@ -87,12 +89,10 @@ class ObservationMatrix < ApplicationRecord
     rows = []  # y axis
     cols = []  # x axis
     r = []
-    d = []
-   
     if opts[:row_end] == 'all'
-      r = observation_matrix_rows.order(:position)
+      r = observation_matrix_rows.order('observation_matrix_rows.position')
     else
-      r = observation_matrix_rows.where("observation_matrix_rows.position >= ? and observation_matrix_rows.position <= ?", opts[:row_start], opts[:row_end]).order(:position)
+      r = observation_matrix_rows.where("observation_matrix_rows.position >= ? and observation_matrix_rows.position <= ?", opts[:row_start], opts[:row_end]).order('observation_matrix_rows.position')
     end
     
     return false if r.size == 0
@@ -100,17 +100,19 @@ class ObservationMatrix < ApplicationRecord
     rows = r.collect{|i| i.row_object.to_global_id}
 
     if opts[:col_end] == 'all'
-      d = descriptors.order(:position) # all descriptors
+      cols = descriptors.order('observation_matrix_columns.position').pluck(:id) # all descriptors
     else
-      d = observation_matrix_rows.where("observation_matrix_columns.position >= ? and observation_matrix_columns.position <= ?", opts[:col_start], opts[:col_end])  #self.chrs.within_mx_range(opts[:chr_start], opts[:chr_end])
+      cols = observation_matrix_rows.
+        where("observation_matrix_columns.position >= ? and observation_matrix_columns.position <= ?", opts[:col_start], opts[:col_end]).
+        order('observation_matrix_columns.position').
+        pluck(:descriptor_id)  # self.chrs.within_mx_range(opts[:chr_start], opts[:chr_end])
     end
 
-    cols = d.pluck(:descriptor_id) # collect{|c| c.id} # global id ?
     return false if cols.size == 0
 
-    # three dimensional array
     grid = Array.new(cols.size){Array.new(rows.size){Array.new}}
 
+    # Dump the observations into bins
     Observation.by_descriptors_and_rows(cols, rows).each do |o|
       i = o.observation_object.to_global_id
       if rows.index(i)
@@ -121,31 +123,31 @@ class ObservationMatrix < ApplicationRecord
     {grid: grid, rows: rows, cols: cols }
   end
 
-  # @param descriptor: Descriptor
-  # @param symbol_start: Integer  #  takes :chr => Chr, :symbol_start => Int
+  # @param descriptor_id [Descriptor]
+  # @param symbol_start [Integer]  #  takes :chr => Chr, :symbol_start => Int
   # @return Hash
-  #     1 => [] 
-  #   used as an index method for nexml output
+  #     1 => [character_state.id, charater_state.id] 
+  #   Used soley as a indexing method for nexml output
   # Original code in mx
-  def polymorphic_cells_for_chr(options = {})
-    opt = {symbol_start: 0}.merge!(options.to_options!)
-
+  def polymorphic_cells_for_descriptor(symbol_start: 0, descriptor_id:)
+    symbol_start ||= 0
     cells = Hash.new{|hash, key| hash[key] = Array.new}
-    observations.where(descriptor_id: opt[:descriptor_id]).each do |o|
+
+    observations.where(descriptor_id: descriptor_id).each do |o|
       cells[o.observation_object_global_id].push(o.character_state_id)
     end
 
-    foo = Hash.new{|hash, key| hash[key] = Array.new}
+    r = Hash.new{|hash, key| hash[key] = Array.new}
     i = 0
     cells.keys.each do |k|
-      if foo # must be some other idiom
+      if r # must be some other idiom
         if cells[k].size > 1
-          foo[opt[:symbol_start] + i] = cells[k].sort 
+          r[symbol_start + i] = cells[k].sort 
           i += 1
         end
       end
     end
-    foo
+    r 
   end
 
   # @return [Hash]

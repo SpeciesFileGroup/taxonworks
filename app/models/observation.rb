@@ -14,8 +14,10 @@ class Observation < ApplicationRecord
 
   ignore_whitespace_on(:description)
 
+  # String, not GlobalId
   attr_accessor :observation_object_global_id
 
+  belongs_to :character_state, inverse_of: :observations
   belongs_to :descriptor, inverse_of: :observations
   belongs_to :otu, inverse_of: :observations
   belongs_to :collection_object, inverse_of: :observations
@@ -26,6 +28,14 @@ class Observation < ApplicationRecord
   validate :otu_or_collection_object_set
  
   validate :type_matches_descriptor
+
+  before_validation :set_type_from_descriptor
+
+  def set_type_from_descriptor
+    if type.blank? && descriptor.type
+      write_attribute(:type, 'Observation::' + descriptor.type.split('::').last)
+    end
+  end
 
   def type_matches_descriptor
     a = type.split('::').last
@@ -80,6 +90,7 @@ class Observation < ApplicationRecord
     end 
   end
 
+  # @return [String]
   # TODO: this is not memoized correctly ?!
   def observation_object_global_id
     if observation_object

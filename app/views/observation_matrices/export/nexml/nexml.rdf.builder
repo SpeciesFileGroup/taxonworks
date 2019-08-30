@@ -6,7 +6,7 @@
 xml.instruct!
 
 xml.nex(:nexml,  
-'version'            => '0.1',
+'version'            => '0.9',
 'generator'          => 'TaxonWorks',                    
 'xmlns:xsi'          => 'http://www.w3.org/2001/XMLSchema-instance',
 'xmlns:xml'          => 'http://www.w3.org/XML/1998/namespace',
