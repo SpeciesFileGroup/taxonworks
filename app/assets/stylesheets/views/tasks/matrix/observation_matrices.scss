@@ -6,6 +6,9 @@
   thead tr {
     height: auto;
   }
+  th {
+    min-width: auto;
+  }
 }
 .header-slanted-label {
   transform: rotate(-30deg);
