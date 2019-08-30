@@ -71,6 +71,30 @@ class ObservationMatrix < ApplicationRecord
     true
   end
 
+  def reorder_rows(by = 'reindex')
+    case by
+    when 'reindex'
+      observation_matrix_rows.order('observation_matrix_rows.position').each.with_index do |r,i|
+        r.update_column(:position, i)
+      end
+    else
+      return  false
+    end
+    true
+  end
+
+  def reorder_columns(by = 'reindex')
+    case by
+    when 'reindex'
+      observation_matrix_columns.order('observation_matrix_columns.position').each.with_index do |c,i|
+        c.update_column(:position, i)
+      end
+    else
+      return false
+    end
+    true
+  end
+
   def observations
     Observation.in_observation_matrix(id)
   end

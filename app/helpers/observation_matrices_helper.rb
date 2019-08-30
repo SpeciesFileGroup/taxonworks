@@ -21,11 +21,11 @@ module ObservationMatricesHelper
 
   def keywords_on_addable_row_items
     Keyword.joins(:tags).where(project_id: sessions_current_project_id).where(tags: {tag_object_type: ['Otu', 'CollectionObject']}).distinct.all
-  end 
+  end
 
   def keywords_on_addable_column_items
     Keyword.joins(:tags).where(project_id: sessions_current_project_id).where(tags: {tag_object_type: 'Descriptor'}).distinct.all
-  end 
+  end
 
   # Matrix export helpers
 
@@ -40,9 +40,9 @@ module ObservationMatricesHelper
   end
 
   # @return [String]
-  # was Mx.print_codings
-  # show states in tnt or nexus format for a 'cell' (e.g. [ab]) 
-  # presently used for nexus/tnt rendering
+  #   the fully formatted cell, handles polymorphisms
+  #   show states in tnt or nexus format for a 'cell' (e.g. [ab]) 
+  #   Mx.print_codings in mx
   def observations_cell_label(observations_hash, descriptor, row_object_global_id, style = :tnt)
     case observations_hash[descriptor.id][row_object_global_id].size
     when 0
@@ -52,7 +52,7 @@ module ObservationMatricesHelper
       s = observation_export_value(o)
 
       if s.length > 1 && style == :nexus && o.type == 'Observation::Qualitative'
-        "#{s} [WARNING STATE '#{s}' is TOO LARGE FOR PAUP (0-9, A-Z only).]" 
+        "#{s} [WARNING STATE '#{s}' is TOO LARGE FOR PAUP (0-9, A-Z only).]"
       else
         s
       end
@@ -67,13 +67,12 @@ module ObservationMatricesHelper
     end
   end
 
+  # @return [String]
+  #   the value shown in the cell
   def observation_export_value(observation)
     case observation.type
     when 'Observation::Qualitative'
       observation.character_state.label
-    when 'Observation::Continuous'
-      # !! 
-      observation.continuous_value.to_s
     when 'Observation::PresenceAbsence' 
       case observation.presence
       when true
@@ -88,6 +87,8 @@ module ObservationMatricesHelper
     when 'Observation::Continuous'
       ## ! TODO: auto convert to descriptor standard units (model method)
       observation.continuous_value.to_s
+
+
     else
       '-' # ? not sure 
     end

@@ -1,7 +1,7 @@
 class ObservationMatricesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_observation_matrix, only: [:show, :edit, :update, :destroy, :nexml, :tnt, :nexus]
+  before_action :set_observation_matrix, only: [:show, :edit, :update, :destroy, :nexml, :tnt, :nexus, :reorder_rows, :reorder_columns]
 
   # GET /observation_matrices
   # GET /observation_matrices.json
@@ -58,6 +58,18 @@ class ObservationMatricesController < ApplicationController
     end
   end
 
+  def reorder_rows
+    if @observation_matrix.reorder_rows(params.require(:by))
+      render json: :success
+    else
+      render json:  :error, status: :unprocessable_entity 
+    end
+  end
+
+  def reorder_columns
+    @observation_matrix.reorder_columns(params.require(:by))
+  end
+
   # DELETE /observation_matrices/1
   # DELETE /observation_matrices/1.json
   def destroy
@@ -80,9 +92,8 @@ class ObservationMatricesController < ApplicationController
     end
   end
 
-  # def nexml
-  #   render '/observation_matrices/export/nexml/nexml' 
-  # end 
+
+  # TODO export formats can move to a concern controller
 
   def nexml
     @options = nexml_params
@@ -91,7 +102,7 @@ class ObservationMatricesController < ApplicationController
       format.html { render base }
       format.text {
         s = render_to_string(base, layout: false, formats: [:rdf])
-        send_data(s, filename: "nexml_#{DateTime.now}.txt", type: 'text/plain')  
+        send_data(s, filename: "nexml_#{DateTime.now}.xml", type: 'text/plain')
       }
     end
   end
@@ -102,7 +113,7 @@ class ObservationMatricesController < ApplicationController
       format.html { render base + 'index' }
       format.text {
         s = render_to_string(partial: base + 'tnt', locals: { as_file: true }, layout: false, formats: [:html])
-        send_data(s, filename: "tnt_#{DateTime.now}.txt", type: 'text/plain')  
+        send_data(s, filename: "tnt_#{DateTime.now}.tnt", type: 'text/plain')
       }
     end
   end
@@ -113,12 +124,13 @@ class ObservationMatricesController < ApplicationController
       format.html { render base + 'index' }
       format.text {
         s = render_to_string(partial: base + 'nexus', locals: { as_file: true }, layout: false, formats: [:html])
-        send_data(s, filename: "nexus_#{DateTime.now}.nex", type: 'text/plain')  
+        send_data(s, filename: "nexus_#{DateTime.now}.nex", type: 'text/plain')
       }
     end
   end
 
   # GET /observation_matrices/row.json?observation_matrix_row_id=1
+  # TODO: Why is this here?
   def row
     @observation_matrix_row = ObservationMatrixRow.where(project_id: sessions_current_project_id).find(params.require(:observation_matrix_row_id))
   end
@@ -129,6 +141,7 @@ class ObservationMatricesController < ApplicationController
 
   private
 
+  # TODO: Not all params are supported yet.
   def nexml_params
     { observation_matrix: @observation_matrix,
       target: '', 
@@ -148,7 +161,6 @@ class ObservationMatricesController < ApplicationController
                      ).to_h
       )
   end
-
 
   def set_observation_matrix
     @observation_matrix = ObservationMatrix.where(project_id: sessions_current_project_id).find(params[:id])

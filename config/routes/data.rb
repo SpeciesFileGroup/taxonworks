@@ -327,9 +327,13 @@ resources :observation_matrices do
     get :nexml, defaults: {format: :rdf}
     get :tnt
     get :nexus
-    get :csv
-    get :biom
+   #  get :csv
+   #  get :biom
+
+   get :reorder_rows, defaults: {format: :json}
+   get :reorder_columns, defaults: {format: :json}
   end 
+
 end
 
 resources :observation_matrix_columns, only: [:index, :show] do

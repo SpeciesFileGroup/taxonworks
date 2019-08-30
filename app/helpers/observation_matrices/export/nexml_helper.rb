@@ -8,8 +8,8 @@ module ObservationMatrices::Export::NexmlHelper
     # Multistate characters
     xml.characters(
       id: "multistate_character_block_#{m.id}",
-      otus: "otu_block_#{m.id}", 
-      'xsi:type' => 'nex:StandardCells', 
+      otus: "otu_block_#{m.id}",
+      'xsi:type' => 'nex:StandardCells',
       label:  "Multistate characters for matrix #{m.name}"
     ) do
 
@@ -21,7 +21,7 @@ module ObservationMatrices::Export::NexmlHelper
             if c.qualitative?
 
               c.character_states.each_with_index do |cs,i|
-                xml.state(id: "cs#{cs.id}", label: cs.name, symbol: "#{i}") 
+                xml.state(id: "cs#{cs.id}", label: cs.name, symbol: "#{i}")
               end
 
               # Add a missing state for each character regardless of whether we use it or not
@@ -36,9 +36,9 @@ module ObservationMatrices::Export::NexmlHelper
               end
 
             elsif c.presence_absence?
-              # like "cs_4_0' 
-              xml.state(id: "cs_#{c.id}_0", label: 'absent', symbol: "0") 
-              xml.state(id: "cs_#{c.id}_1", label: 'present', symbol: "1") 
+              # like "cs_4_0'
+              xml.state(id: "cs_#{c.id}_0", label: 'absent', symbol: "0")
+              xml.state(id: "cs_#{c.id}_1", label: 'present', symbol: "1")
 
               xml.state(id: "missing#{c.id}", symbol: '2', label: "?")
 
@@ -51,12 +51,11 @@ module ObservationMatrices::Export::NexmlHelper
             end # end states block
 
           end
-        end  # end character loop for multistate states 
-
+        end  # end character loop for multistate states
 
         descriptors.collect{|c| xml.char(id: "c#{c.id}", states: "states_for_chr_#{c.id}", label: c.name)}
       end # end format
-      include_multistate_matrix(opt.merge(descriptors: descriptors)) if opt[:include_matrix] 
+      include_multistate_matrix(opt.merge(descriptors: descriptors)) if opt[:include_matrix]
     end # end characters
 
     d = m.continuous_descriptors.order('observation_matrix_columns.position').load
@@ -70,11 +69,10 @@ module ObservationMatrices::Export::NexmlHelper
           d.collect{|c| xml.char(id: "c#{c.id}", label: c.name)}
         end # end format
 
-        include_continuous_matrix(opt.merge(descriptors: d)) if opt[:include_matrix] 
+        include_continuous_matrix(opt.merge(descriptors: d)) if opt[:include_matrix]
       end # end multistate characters
       opt[:target]
   end
-
 
   def include_multistate_matrix(options = {})
     opt = {target: '', descriptors: []}.merge!(options)
@@ -82,7 +80,7 @@ module ObservationMatrices::Export::NexmlHelper
 
     m = opt[:observation_matrix]
 
-    # the matrix 
+    # the matrix
     cells = m.observations_in_grid({})[:grid]
 
     p = m.observation_matrix_columns.order('observation_matrix_columns.position').map(&:descriptor_id)
@@ -182,7 +180,7 @@ module ObservationMatrices::Export::NexmlHelper
           include_collection_objects(opt.merge(otu: r.row_object)) if opt[:include_collection_objects]
         end
       end
-    end 
+    end
     return opt[:target]
   end
 
