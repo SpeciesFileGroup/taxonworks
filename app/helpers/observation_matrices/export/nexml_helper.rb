@@ -15,7 +15,7 @@ module ObservationMatrices::Export::NexmlHelper
 
       descriptors = m.symbol_descriptors.load
       xml.format do
-        
+
         descriptors.each do |c|
           xml.states(id: "states_for_chr_#{c.id}") do
             if c.qualitative?
@@ -29,25 +29,32 @@ module ObservationMatrices::Export::NexmlHelper
 
               # Poll the matrix for polymorphic/uncertain states
               uncertain = m.polymorphic_cells_for_descriptor(descriptor_id: c.id, symbol_start: c.character_states.size + 1)
-
               uncertain.keys.each do |pc|
-                xml.uncertain_state_set(id: "cs#{c.id}unc_#{uncertain[pc].sort.join}", symbol: pc) do |uss|
+                xml.uncertain_state_set(id: "cs#{c.id}unc_#{uncertain[pc].sort.join}", symbol: pc) do
                   uncertain[pc].collect{|m| xml.member(state: "cs#{m}") }
                 end
               end
+
             elsif c.presence_absence?
-         
-         
+              # like "cs_4_0' 
+              xml.state(id: "cs_#{c.id}_0", label: 'absent', symbol: "0") 
+              xml.state(id: "cs_#{c.id}_1", label: 'present', symbol: "1") 
+
+              xml.state(id: "missing#{c.id}", symbol: '2', label: "?")
+
+              uncertain = m.polymorphic_cells_for_descriptor(descriptor_id: c.id, symbol_start: 2)
+              uncertain.keys.each do |pc|
+                xml.uncertain_state_set(id: "cs#{c.id}unc_#{uncertain[pc].sort.join}", symbol: pc) do
+                  uncertain[pc].collect{|m| xml.member(state: "cs_#{m}") } # m is built in pcfd
+                end
+              end
             end # end states block
-          
+
           end
         end  # end character loop for multistate states 
 
 
-
-
         descriptors.collect{|c| xml.char(id: "c#{c.id}", states: "states_for_chr_#{c.id}", label: c.name)}
-
       end # end format
       include_multistate_matrix(opt.merge(descriptors: descriptors)) if opt[:include_matrix] 
     end # end characters
@@ -78,7 +85,7 @@ module ObservationMatrices::Export::NexmlHelper
     # the matrix 
     cells = m.observations_in_grid({})[:grid]
 
-    p = opt[:descriptors].map(&:id)
+    p = m.observation_matrix_columns.order('observation_matrix_columns.position').map(&:descriptor_id)
     q = m.observation_matrix_rows.order('observation_matrix_rows.position').collect{|i| i.row_object.to_global_id }
 
     xml.matrix do
@@ -88,7 +95,7 @@ module ObservationMatrices::Export::NexmlHelper
           # cell representation
           opt[:descriptors].each do |d|
 
-          #  byebug if d.id == 37
+            #  byebug if d.id == 37
             x = p.index(d.id) # opt[:descriptors].index(d)  #   .index(d)
             y = q.index(r.row_object.to_global_id)
 
@@ -98,9 +105,21 @@ module ObservationMatrices::Export::NexmlHelper
             when 0 
               state = "missing#{d.id}"
             when 1
-              state = "cs#{observations[0].character_state_id}"
+              o = observations.first
+              if d.qualitative? 
+                state = "cs#{o.character_state_id}"
+              elsif d.presence_absence?
+                # WRONG
+                state = "cs_#{o.descriptor_id}_#{o.presence ? '1' : '0'}"
+              else
+                state = "ERROR"
+              end
             else # > 1 
-              state = "cs#{d.id}unc_#{observations.collect{|i| i.character_state_id}.sort.join}" # should just unify identifiers with above.
+              if d.qualitative?
+                state = "cs#{d.id}unc_#{observations.collect{|i| i.character_state_id}.sort.join}" # should just unify identifiers with above.
+              elsif d.presence_absence?
+                state = "cs_#{o.descriptor_id}_unc_#{ observations.collect{|i| i.character_state_id}.sort.join}"
+              end
             end
 
             #byebug if state == 'cs' # d.id == 37 

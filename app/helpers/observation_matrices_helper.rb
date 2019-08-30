@@ -5,6 +5,11 @@ module ObservationMatricesHelper
     observation_matrix.name
   end
 
+  def observation_matrix_label(observation_matrix)
+    return nil if observation_matrix.nil?
+    observation_matrix.name
+  end
+
   def observation_matrices_search_form
     render('/observation_matrices/quick_search_form')
   end

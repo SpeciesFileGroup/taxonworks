@@ -32,6 +32,14 @@ class ObservationMatrixRowsController < ApplicationController
     head :no_content 
   end
 
+  def autocomplete
+    @observation_matrix_rows = Queries::ObservationMatrixRow::Autocomplete.new(
+      params.require(:term),
+      project_id: sessions_current_project_id,
+      observation_matrix_id: params[:observation_matrix_id]
+    ).autocomplete
+  end
+
   private
   
   def set_matrix_row

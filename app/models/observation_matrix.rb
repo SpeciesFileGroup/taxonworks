@@ -140,7 +140,9 @@ class ObservationMatrix < ApplicationRecord
     cells = Hash.new{|hash, key| hash[key] = Array.new}
 
     observations.where(descriptor_id: descriptor_id).each do |o|
-      cells[o.observation_object_global_id].push(o.character_state_id)
+      cells[o.observation_object_global_id].push(
+        o.qualitative? ? o.character_state_id : "#{o.descriptor_id}_#{o.presence_absence? ? '1' : '0'}"
+      )
     end
 
     r = Hash.new{|hash, key| hash[key] = Array.new}

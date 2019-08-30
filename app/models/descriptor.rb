@@ -45,6 +45,10 @@ class Descriptor < ApplicationRecord
     type == 'Descriptor::Qualitative'
   end
 
+  def presence_absence?
+    type == 'Descriptor::PresenceAbsence'
+  end
+
   def gene?
     type == 'Descriptor::Gene'
   end

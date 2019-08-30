@@ -31,6 +31,20 @@ class Observation < ApplicationRecord
 
   before_validation :set_type_from_descriptor
 
+  def qualitative?
+    type == 'Observation::Qualitative'
+  end
+
+  def presence_absence?
+    type == 'Observation::PresenceAbsence'
+  end
+
+  def continuous?
+    type == 'Observation::Continuous'
+  end
+
+
+
   def set_type_from_descriptor
     if type.blank? && descriptor.type
       write_attribute(:type, 'Observation::' + descriptor.type.split('::').last)
