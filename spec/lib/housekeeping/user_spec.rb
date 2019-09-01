@@ -48,7 +48,7 @@ describe 'Housekeeping::User' do
       end
 
       specify 'works with update_attributes' do
-        instance.update_attributes(by: user)
+        instance.update(by: user)
         expect(instance.updater).to eq(user)
         expect(instance.creator).to eq(user)
       end
