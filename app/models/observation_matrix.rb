@@ -77,8 +77,19 @@ class ObservationMatrix < ApplicationRecord
       observation_matrix_rows.order('observation_matrix_rows.position').each.with_index do |r,i|
         r.update_column(:position, i)
       end
+    when 'nomenclature'
+      # TODO: probably not correct, a quick and dirty attempt
+      objects = []
+      observation_matrix_rows.each do |r|
+        objects.push [r, r.current_taxon_name.ancestor_ids]
+      end
+
+      objects.sort!{|a, b| a[1] <=> b[1]} # add internal loop on name
+      objects.each_with_index do |r,i|
+        r[0].update_column(:position, i)
+      end
     else
-      return  false
+      return false
     end
     true
   end
@@ -87,6 +98,10 @@ class ObservationMatrix < ApplicationRecord
     case by
     when 'reindex'
       observation_matrix_columns.order('observation_matrix_columns.position').each.with_index do |c,i|
+        c.update_column(:position, i)
+      end
+    when 'name'
+      observation_matrix_columns.order('descriptors.name').each.with_index do |c,i|
         c.update_column(:position, i)
       end
     else

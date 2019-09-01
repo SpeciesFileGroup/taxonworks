@@ -64,6 +64,15 @@ class ObservationMatrixRow < ApplicationRecord
     raise
   end
 
+  def current_taxon_name
+    case row_object_class_name
+    when 'Otu'
+      row_object.taxon_name
+    when 'CollectionObject'
+      row_object.current_taxon_name
+    end
+  end
+
   # TODO: belong in helpers
   def next_row
     observation_matrix.observation_matrix_rows.where("position > ?", position).order(:position).first 
