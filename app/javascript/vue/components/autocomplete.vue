@@ -48,7 +48,10 @@ Parameters:
         :class="activeClass(index)"
         @mouseover="itemActive(index)"
         @click.prevent="itemClicked(index)">
-        <span v-html="getNested(item, label)"/>
+        <span
+          v-if="typeof label !== 'function'"
+          v-html="getNested(item, label)"/>
+        <span v-html="label(item)"></span>
       </li>
       <li v-if="json.length == 20">Results may be truncated</li>
     </ul>
@@ -135,7 +138,7 @@ export default {
     },
 
     label: { 
-      type: [String, Array],
+      type: [String, Array, Function],
     },
 
     display: {
