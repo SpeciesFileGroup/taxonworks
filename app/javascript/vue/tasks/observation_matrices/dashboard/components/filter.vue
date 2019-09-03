@@ -15,10 +15,11 @@
       v-if="searching"
     />
     <div class="content">
-      <taxon-name v-model="store.taxonName"/>
+      <taxon-name v-model="taxonName"/>
+      <otu-filter/>
       <ranks-filter
-        :taxon-name="store.taxonName"
-        v-model="store.ranks"/>
+        :taxon-name="taxonName"
+        v-model="ranks"/>
     </div>
   </div>
 </template>
@@ -29,11 +30,13 @@ import SpinnerComponent from 'components/spinner'
 import GetMacKey from 'helpers/getMacKey.js'
 import taxonName from './filters/taxonName'
 import RanksFilter from './filters/ranks'
+import OtuFilter from './filters/otus'
 
 export default {
   components: {
     SpinnerComponent,
     RanksFilter,
+    OtuFilter,
     taxonName
   },
   computed: {
@@ -43,24 +46,34 @@ export default {
   },
   data () {
     return {
-      store: this.initParams(),
+      taxonName: undefined,
+      ranks: [],
       result: [],
       searching: false
+    }
+  },
+  watch: {
+    taxonName: {
+      handler (newVal) {
+        this.ranks = []
+        if (newVal.rank) {
+          this.ranks.push(newVal.rank)
+        }
+        if (newVal.parent && newVal.parent.rank) {
+          this.ranks.push(newVal.parent.rank)
+        }
+      },
+      deep: true
     }
   },
   methods: {
     resetFilter () {
       this.$emit('reset')
-      this.store = this.initParams()
+      this.taxonName = undefined
+      this.ranks = []
     },
     searchForTaxonNames () {
 
-    },
-    initParams () {
-      return {
-        taxonName: undefined,
-        ranks: []
-      }
     },
     filterEmptyParams (object) {
       const keys = Object.keys(object)

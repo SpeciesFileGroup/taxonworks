@@ -1,12 +1,14 @@
 <template>
   <div v-if="taxonName">
     <h3>Select ranks</h3>
-    <template v-for="group in ranks[taxonName.nomenclatural_code]">
-      <div class="separate-top capitalize">
-        <ul
-          v-for="rank in group"
-          class="no_bullets">
-          <li>
+    <template v-for="(group, key) in ranks[taxonName.nomenclatural_code]">
+      <div
+        class="separate-top capitalize"
+        :key="key">
+        <ul class="no_bullets">
+          <li
+            v-for="rank in group"
+            :key="rank.name">
             <label>
               <input
                 v-model="ranksSelected"
@@ -49,14 +51,6 @@ export default {
   data () {
     return {
       ranks: []
-    }
-  },
-  watch: {
-    taxonName: {
-      handler () {
-        console.log("yes")
-      },
-      deep: true
     }
   },
   mounted () {
