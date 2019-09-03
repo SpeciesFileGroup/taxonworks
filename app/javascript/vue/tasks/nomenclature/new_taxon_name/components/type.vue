@@ -64,10 +64,11 @@
       </div>
       <div v-else>
         <tree-display
-          :tree-list="treeList"
+          :tree-list="{ treeList }"
           :parent="parent"
           :object-lists="objectLists"
           :show-modal="showModal"
+          @selected="addEntry"
           mutation-name-add="AddTaxonType"
           mutation-name-modal="SetModalType"
           name-module="Types"

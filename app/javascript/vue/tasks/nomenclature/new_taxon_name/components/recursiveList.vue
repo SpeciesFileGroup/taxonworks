@@ -13,6 +13,7 @@
         {{ item[display] }}
       </button>
       <recursive-list
+        v-if="isObject(item)"
         :getter-list="getterList"
         :display="display"
         @selected="$emit('selected', $event)"
@@ -27,7 +28,6 @@
 import RecursiveList from './recursiveList.vue'
 import { MutationNames } from '../store/mutations/mutations'
 import { GetterNames } from '../store/getters/getters'
-import { ActionNames } from '../store/actions/actions'
 
 export default {
   components: {
@@ -81,8 +81,11 @@ export default {
         return (element.type == status.type)
       })
     },
-    isForThisRank(item) {
+    isForThisRank (item) {
       return (item.hasOwnProperty('valid_subject_ranks') ? !(item.valid_subject_ranks.includes(this.taxon.rank_string)) : false)
+    },
+    isObject (item) {
+      return typeof item === 'object'
     }
   }
 }
