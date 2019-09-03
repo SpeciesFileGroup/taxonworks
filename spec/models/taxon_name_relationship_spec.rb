@@ -518,7 +518,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         )
 
         r.soft_validate(:specific_relationship)
-        expect(r.soft_validations.messages_on(:type).size).to eq(2)
+        expect(r.soft_validations.messages_on(:type).size).to eq(1)
         expect(r.soft_validations.messages_on(:base).size).to eq(1)
         r.source = source
         r.soft_validate(:specific_relationship)

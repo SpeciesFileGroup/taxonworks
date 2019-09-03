@@ -576,7 +576,13 @@ class Protonym < TaxonName
     end
 
     if elements.any?
-      elements[:genus] = '[GENUS NOT SPECIFIED]' if !elements[:genus] && !not_binomial?
+      if !elements[:genus] && !not_binomial?
+        if original_genus
+          elements[:genus] = "[#{original_genus&.name}]"
+        else
+          elements[:genus] = '[GENUS NOT SPECIFIED]'
+        end
+      end
       # If there is no :species, but some species group, add element
       elements[:species] = '[SPECIES NOT SPECIFIED]' if !elements[:species] && ( [:subspecies, :variety, :form] & elements.keys ).size > 0
     end

@@ -837,7 +837,11 @@ class TaxonName < ApplicationRecord
     end
 
     if data['genus'].nil?
-      data['genus'] = [nil, '[GENUS NOT SPECIFIED]']
+      if original_genus
+        data['genus'] = [nil, "[#{original_genus&.name}]"]
+      else
+        data['genus'] = [nil, '[GENUS NOT SPECIFIED]']
+      end
     end
     
     if data['species'].nil? && (!data['subspecies'].nil? || !data['variety'].nil? || !data['subvariety'].nil? || !data['form'].nil? || !data['subform'].nil?)
