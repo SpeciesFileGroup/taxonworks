@@ -567,6 +567,8 @@ resources :taxon_names do
 
     get :parse, defaults: {format: :json}
     get :random
+
+    get :rank_table, defaults: {format: :json}
   end
 
   member do
