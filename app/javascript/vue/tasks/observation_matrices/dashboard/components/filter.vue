@@ -72,9 +72,6 @@ export default {
       this.taxonName = undefined
       this.ranks = []
     },
-    searchForTaxonNames () {
-
-    },
     filterEmptyParams (object) {
       const keys = Object.keys(object)
       keys.forEach(key => {
