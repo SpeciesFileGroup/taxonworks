@@ -51,7 +51,9 @@ Parameters:
         <span
           v-if="typeof label !== 'function'"
           v-html="getNested(item, label)"/>
-        <span v-html="label(item)"></span>
+        <span
+          v-else
+          v-html="label(item)"/>
       </li>
       <li v-if="json.length == 20">Results may be truncated</li>
     </ul>
