@@ -1,5 +1,16 @@
+<h1> CoLDP exports </h1>
 
+<i> Will be removed for a proper hub </i>
 
-HELLO WORLD
+<% otu = Otu.find(45287) %>
+<% otus = Export::Coldp.otus( 45287 )  %> 
 
-<%= TaxonWorks::Export::Coldp.otus( Otu.where(project_id: sessions_current_project_id, id: 123) -%> 
+<h2> Taxon </h2>
+<pre>
+<%= Export::Coldp::Files::Taxon.generate(otus) %> 
+</pre>
+
+<h2> Name </h2>
+<pre>
+<%= Export::Coldp::Files::Name.generate(otu) %> 
+</pre>
