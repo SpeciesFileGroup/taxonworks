@@ -1,29 +1,44 @@
 <%= content_tag(:h1, observation_matrix_tag(@observation_matrix)) -%>
 
-<%= link_to('Observation matrix hub', observation_matrices_hub_task_path) -%> |
-<%= link_to('Edit', new_matrix_task_path(@observation_matrix)) -%>
+<ul class="context-menu">
+  <li> View </li>
+  <%= content_tag(:li, link_to('Observation matrix hub', observation_matrices_hub_task_path)) -%>
+  <%= content_tag(:li, link_to('Edit', new_matrix_task_path(@observation_matrix))) -%>
+  <%= content_tag(:li, link_to('TNT', tnt_observation_matrix_path(@observation_matrix))) -%>
+  <%= content_tag(:li, link_to('nexus', nexus_observation_matrix_path(@observation_matrix))) -%>
+</ul>
+
+<ul class="context-menu">
+  <li>Download</li>
+  <%= content_tag(:li, link_to('TNT', tnt_observation_matrix_path(@observation_matrix, format: :text))) -%>
+  <%= content_tag(:li, link_to('nexus', nexus_observation_matrix_path(@observation_matrix, format: :text))) -%>
+  <%= content_tag(:li, link_to('NeXML', nexml_observation_matrix_path(@observation_matrix, format: :text))) -%>
+</ul>
 
 <table id="observation_matrices">
   <thead>
     <tr>
-      <th> </th>
-      <th> Code </th>
-      <th style="column-width: auto;" > OTUs </th>
+      <th class="header-slanted-cell"></th>
+      <th class="header-slanted-cell">
+        <span class="header-slanted-label">Code</span>
+      </th>
+      <th class="header-slanted-cell" style="column-width: auto;" >
+        <span class="header-slanted-label"> OTUs </span>
+      </th>
       <% @observation_matrix.observation_matrix_columns.order(:position).each do |d| -%>
-        <%= content_tag(:th, descriptor_matrix_column_link(d.descriptor)) -%>
+        <%= content_tag(:th, content_tag(:label, descriptor_matrix_column_link(d.descriptor), class: ['header-slanted-label']), class: ['header-slanted-cell']) -%>
       <% end %>
     </tr>
   </thead>
- 
+
   <tbody>
     <% @observation_matrix.observation_matrix_rows.each_with_index do |row, i| -%>
       <tr>
         <%= content_tag(:td, (i + 1).to_s) -%>
-        <%= content_tag(:td, link_to('code', index_row_coder_task_path(observation_matrix_row_id: row.id) , class: ['circle-button', 'btn-row-coder']   )) -%>
+        <%= content_tag(:td, link_to('code', index_row_coder_task_path(observation_matrix_row_id: row.id) , class: ['circle-button', 'btn-row-coder'] )) -%>
         <%= content_tag(:td, object_link(row.row_object), class: 'otu_column') -%>
 
         <% @observation_matrix.observation_matrix_columns.order(:position).each do |col| -%>
-
           <%= content_tag(:td, observation_matrix_cell_tag(row.row_object, col.descriptor)) -%>
         <% end %> 
       </tr>

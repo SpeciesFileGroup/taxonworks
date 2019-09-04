@@ -27,16 +27,19 @@ module Queries
       ::Otu.arel_table
     end
 
-    # @return [Array]
-    #   TODO: optimize limits
-    def autocomplete
+    # @return [Scope]
+    def where_sql
+      with_project_id.and(or_clauses).to_sql
+    end
+
+    def base_queries
       queries = [
         autocomplete_or_clauses,
         autocomplete_identifier_cached_exact,
         autocomplete_identifier_identifier_exact,
         autocomplete_identifier_cached_like,
       ]
-        
+
       queries.compact!
 
       return [] if queries.nil?
@@ -47,7 +50,12 @@ module Queries
         a ||= q 
         updated_queries[i] = a
       end
+    end
 
+    # @return [Array]
+    #   TODO: optimize limits
+    def autocomplete
+      updated_queries = base_queries      
       result = []
       updated_queries.each do |q|
         result += q.to_a
@@ -71,11 +79,6 @@ module Queries
         a = a.or(b)
       end
       a
-    end
-
-    # @return [Scope]
-    def where_sql
-      with_project_id.and(or_clauses).to_sql
     end
 
     # @return [Scope]
