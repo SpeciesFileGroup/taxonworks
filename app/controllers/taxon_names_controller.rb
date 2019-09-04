@@ -159,7 +159,8 @@ class TaxonNamesController < ApplicationController
     @q = Queries::TaxonName::Tabular.new(
       ancestor_id: params.require(:ancestor_id),
       project_id: sessions_current_project_id, 
-      ranks: params.require(:ranks)
+      ranks: params.require(:ranks),
+      fieldsets: params[:fieldsets]
     )
   end
 

@@ -64,6 +64,9 @@ class Otu < ApplicationRecord
 
   has_many :content_topics, through: :contents, source: :topic
 
+  has_many :observations, inverse_of: :otu
+  has_many :descriptors, through: :observations
+
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
   scope :with_name, -> (name) { where(name: name) }
 
