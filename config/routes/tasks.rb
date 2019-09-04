@@ -1,4 +1,10 @@
 scope :tasks do
+    scope :exports do
+      scope :coldp, controller: 'tasks/exports/coldp' do
+        get 'index', as: 'export_coldp_task'
+      end
+    end
+
     scope :matrix_image do
       scope :matrix_image, controller: 'tasks/matrix_image/matrix_image' do
         get :index, as: 'index_matrix_image_task'

@@ -433,3 +433,11 @@ index_dashboard_task:
   categories:
   status: prototype
   description: 'TODO: Task description'
+export_coldp_task:
+  hub: true
+  name: 'CoLDP exports'
+  related:
+  categories:
+   - nomenclature
+  status: prototype
+  description: 'Preview, manage, and export CoLDP formatted data'
