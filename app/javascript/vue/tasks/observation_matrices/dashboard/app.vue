@@ -18,12 +18,14 @@
       <filter-component
         class="separate-right"
         v-show="activeFilter"
-        @result="loadList"
+        @rankTable="loadRankTable"
+        @onTaxon="taxon = $event"
         @reset="resetTask"/>
       <div class="full_width">
-        <!-- List here -->
+        <span v-if="taxon">Scoped: {{ taxon.name }}</span>
+        <rank-table :table-ranks="rankTable"/>
         <h3
-          v-if="!list.length"
+          v-if="!Object.keys(rankTable).length"
           class="subtle middle horizontal-center-content">No records found.
         </h3>
       </div>
@@ -34,23 +36,26 @@
 <script>
 
 import FilterComponent from './components/filter.vue'
+import RankTable from './components/table'
 
 export default {
   components: {
-    FilterComponent
+    FilterComponent,
+    RankTable
   },
   data () {
     return {
-      list: [],
-      activeFilter: true
+      rankTable: {},
+      activeFilter: true,
+      taxon: undefined
     }
   },
   methods: {
     resetTask () {
       this.list = []
     },
-    loadList (newList) {
-      this.list = newList
+    loadRankTable (newList) {
+      this.rankTable = newList
     }
   }
 }

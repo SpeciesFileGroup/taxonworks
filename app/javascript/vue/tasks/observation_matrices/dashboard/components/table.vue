@@ -1,13 +1,15 @@
 <template>
-  <table>
+  <table v-if="tableRanks">
     <thead>
       <tr>
-        <th v-for="rank in ranks">{{ rank }}</th>
+        <th v-for="rank in tableRanks.column_headers">{{ rank }}</th>
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td></td>
+      <tr v-for="row in tableRanks.data">
+        <td v-for="data in row">
+          {{ data }}
+        </td>
       </tr>
     </tbody>
   </table>
@@ -16,9 +18,9 @@
 <script>
 export default {
   props: {
-    ranks: {
-      type: Array,
-      default: () => { return [] }
+    tableRanks: {
+      type: Object,
+      default: () => { return {} }
     }
   }
 }

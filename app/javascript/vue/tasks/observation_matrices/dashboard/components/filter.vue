@@ -32,6 +32,8 @@ import taxonName from './filters/taxonName'
 import RanksFilter from './filters/ranks'
 import OtuFilter from './filters/otus'
 
+import { GetRanksTable } from '../request/resources'
+
 export default {
   components: {
     SpinnerComponent,
@@ -48,7 +50,7 @@ export default {
     return {
       taxonName: undefined,
       ranks: [],
-      result: [],
+      rankTable: undefined,
       searching: false
     }
   },
@@ -61,6 +63,21 @@ export default {
         }
         if (newVal.parent && newVal.parent.rank) {
           this.ranks.push(newVal.parent.rank)
+        }
+        this.$emit('onTaxon', newVal)
+      },
+      deep: true
+    },
+    ranks: {
+      handler (newVal) {
+        if (newVal.length) {
+          GetRanksTable(this.taxonName.id, newVal).then(response => {
+            // console.log(response.body)
+            this.rankTable = response.body
+            this.$emit('rankTable', this.rankTable)
+          })
+        } else {
+          this.$emit('rankTable', {})
         }
       },
       deep: true
