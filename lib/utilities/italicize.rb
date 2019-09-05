@@ -12,8 +12,10 @@ module Utilities::Italicize
     ' subf.',
     ' sect.', # not covered in original combination
     ' ser.',  # not covered in original combination 
-    '[GENUS NOT SPECIFIED]',
-    '[SPECIES NOT SPECIFIED]',
+    'GENUS NOT SPECIFIED',
+    'SPECIES NOT SPECIFIED',
+    '[',
+    ']',
     '† ', # fossil dagger
     ' ×',  # hybrid ×
     # 'Candidatus' ? 
@@ -33,8 +35,8 @@ module Utilities::Italicize
     
     string.gsub!(/(#{COMBINATION_INJECTION_REGEX})/, '</i>\1<i>')
     string = "<i>#{string}</i>"
-    string.gsub!(/<i><\/i>/, '')
-    string.gsub!(/<i>\s/, ' <i>')
+    string.gsub!('<i> ', ' <i>')
+    string.gsub!('<i></i>', '')
     string
   end
 

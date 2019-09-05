@@ -24,8 +24,8 @@
 class Otu < ApplicationRecord
   include Housekeeping
   include SoftValidation
-  #include Shared::AlternateValues  # 1/26/15 with MJY - not going to allow alternate values in Burlap
-  include Shared::Citations # TODO: have to think hard about this vs. using Nico's framework
+  #include Shared::AlternateValues   # 1/26/15 with MJY - not going to allow alternate values in Burlap
+  include Shared::Citations          # TODO: have to think hard about this vs. using Nico's framework
   include Shared::DataAttributes
   include Shared::Identifiers
   include Shared::Notes
@@ -64,6 +64,9 @@ class Otu < ApplicationRecord
 
   has_many :content_topics, through: :contents, source: :topic
 
+  has_many :observations, inverse_of: :otu
+  has_many :descriptors, through: :observations
+
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
   scope :with_name, -> (name) { where(name: name) }
 
@@ -89,6 +92,10 @@ class Otu < ApplicationRecord
     else # no taxon name just return self in scope
       Otu.where(id: otu_id)
     end
+  end
+
+  def current_collection_objects
+    collection_objects.where(taxon_determinations: {position: 1})
   end
 
   validate :check_required_fields
@@ -191,7 +198,7 @@ class Otu < ApplicationRecord
 
   # @param used_on [String] required, one of `AssertedDistribution`, `Content`, `BiologicalAssociation`
   # @return [Scope]
-  #    the max 10 most recently used otus, as `used_on`
+  #   the max 10 most recently used otus, as `used_on`
   def self.used_recently(used_on = '')
     t = case used_on 
         when 'AssertedDistribution'

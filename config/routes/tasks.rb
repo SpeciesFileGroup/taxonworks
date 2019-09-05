@@ -38,7 +38,7 @@ scope :tasks do
 
   scope :descriptors do
     scope :new_descriptor, controller: 'tasks/descriptors/new_descriptor' do
-      get '(:id)', action: :index, as: 'new_descriptor_task'
+      get '(:descriptor_id)', action: :index, as: 'new_descriptor_task'
     end
   end
 
@@ -290,9 +290,13 @@ scope :tasks do
   end
 
   scope :observation_matrices do
+      scope :dashboard, controller: 'tasks/observation_matrices/dashboard' do
+        get :index, as: 'index_dashboard_task'
+      end
+
 
     scope :view, controller: 'tasks/observation_matrices/view' do
-      get '(:id)', as: 'observation_matrix_view_task', action: :index
+      get '(:observation_matrix_id)', as: 'observation_matrix_view_task', action: :index
     end
 
     scope :observation_matrix_hub, controller: 'tasks/observation_matrices/observation_matrix_hub' do
@@ -301,9 +305,9 @@ scope :tasks do
     end
 
     scope :new_matrix, controller: 'tasks/observation_matrices/new_matrix' do
-      get 'observation_matrix_row_item_metadata', as: 'observation_matrix_row_item_metdata', defaults: {format: :json}
+      get 'observation_matrix_row_item_metadata', as: 'observation_matrix_row_item_metadata', defaults: {format: :json}
       get 'observation_matrix_column_item_metadata', as: 'observation_matrix_column_item_metdata', defaults: {format: :json}
-      get '(:id)', action: :index, as: 'new_matrix_task'
+      get '(:observation_matrix_id)', action: :index, as: 'new_matrix_task'
     end
 
     scope :row_coder, controller: 'tasks/observation_matrices/row_coder' do

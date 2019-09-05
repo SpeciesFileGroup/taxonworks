@@ -6,7 +6,7 @@
           v-if="taxon.id"
           class="flex-separate middle">
           <a
-            :href="`/tasks/nomenclature/browse/index?taxon_name_id=${taxon.id}`"
+            :href="`/tasks/nomenclature/browse?taxon_name_id=${taxon.id}`"
             class="taxonname">
             <span v-html="taxon.cached_html"/>
             <span v-html="taxon.cached_author_year"/>

@@ -273,18 +273,18 @@ module Queries
       def cached_name
         return nil if name.blank?
         if exact
-          table[:cached].eq(name)
+          table[:cached].eq(name.strip)
         else
-          table[:cached].matches('%' + name + '%')
+          table[:cached].matches('%' + name.strip.gsub(/\s+/, '%') + '%')
         end
       end
 
       def author_facet 
         return nil if author.blank?
         if exact
-          table[:cached_author_year].eq(author)
+          table[:cached_author_year].eq(author.strip)
         else
-          table[:cached_author_year].matches('%' + author + '%')
+          table[:cached_author_year].matches('%' + author.strip.gsub(/\s/, '%') + '%')
         end
       end
 

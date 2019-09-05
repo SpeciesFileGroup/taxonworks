@@ -367,6 +367,25 @@ class TaxonName < ApplicationRecord
     Ranks.valid?(r) ? r.safe_constantize : r
   end
 
+  # @return [TaxonName, nil] an ancestor at the specified rank
+  # @params rank [symbol|string|
+  #   like :species or 'genus'
+  def ancestor_at_rank(rank)
+    ancestors.with_rank_class(
+      Ranks.lookup(nomenclatural_code, rank)
+    ).first
+  end
+
+ # @return scope [TaxonName, nil] an ancestor at the specified rank
+  # @params rank [symbol|string|
+  #   like :species or 'genus'
+  def descendants_at_rank(rank)
+    return TaxonName.none if nomenclatural_code.blank? # Root names
+    descendants.with_rank_class(
+      Ranks.lookup(nomenclatural_code, rank)
+    )
+  end
+
   # @return [Array]
   #   all TaxonNameRelationships where this taxon is an object or subject.
   def all_taxon_name_relationships
@@ -503,16 +522,9 @@ class TaxonName < ApplicationRecord
   end
 
   # @return [String] combination of cached and cached_author_year.
- def cached_name_and_author_year
-   [cached, cached_author_year].compact.join(' ')
- end
-
-  # @return [TaxonName, nil] an ancestor at the specified rank
- def ancestor_at_rank(rank)
-   ancestors.with_rank_class(
-     Ranks.lookup(nomenclatural_code, rank)
-   ).first
- end
+  def cached_name_and_author_year
+    [cached, cached_author_year].compact.join(' ')
+  end
 
   # @return [Array of TaxonName] ancestors of type 'Protonym'
   def ancestor_protonyms
@@ -844,7 +856,11 @@ class TaxonName < ApplicationRecord
     end
 
     if data['genus'].nil?
-      data['genus'] = [nil, '[GENUS NOT SPECIFIED]']
+      if original_genus
+        data['genus'] = [nil, "[#{original_genus&.name}]"]
+      else
+        data['genus'] = [nil, '[GENUS NOT SPECIFIED]']
+      end
     end
     
     if data['species'].nil? && (!data['subspecies'].nil? || !data['variety'].nil? || !data['subvariety'].nil? || !data['form'].nil? || !data['subform'].nil?)

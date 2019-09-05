@@ -57,6 +57,17 @@
       </ul>
     </div>
     <h3 v-if="observationMatrix">{{ observationMatrix.object_tag }}</h3>
+    <template v-if="observationMatrix">
+      <autocomplete
+        url="/observation_matrix_rows/autocomplete"
+        param="term"
+        label="label"
+        placeholder="Search a row"
+        :clear-after="true"
+        :params="{  observation_matrix_id: matrixId }"
+        @getItem="findRow($event.id, $event.position)"
+      />
+    </template>
     <matrix-table
       v-if="matrixId"
       class="separate-table"
@@ -87,6 +98,9 @@ import PaginationComponent from 'components/pagination.vue'
 import { GetterNames } from './store/getters/getters'
 import GetPagination from 'helpers/getPagination.js'
 
+import scrollParentToChild from 'helpers/scrollParentToChild.js'
+import { Promise } from 'q';
+
 export default {
   components: {
     MatrixTable,
@@ -110,15 +124,17 @@ export default {
       showColumnModal: false,
       matrixId: undefined,
       pagination: {},
-      maxPerPage: 20
+      maxPerPage: 3
     }
   },
   created() {
-    let urlParams = new URLSearchParams(window.location.search)
-    let obsIdParam = urlParams.get('observation_matrix_id')
+    const urlParams = new URLSearchParams(window.location.search)
+    const obsIdParam = urlParams.get('observation_matrix_id')
+    const rowIdParam = urlParams.get('row_id')
+    const rowPositionParam = urlParams.get('row_position')
     if (/^\d+$/.test(obsIdParam)) {
-      this.loadMatrix(obsIdParam)
-    }   
+      this.loadMatrix(obsIdParam, /^\d+$/.test(rowIdParam) ? rowIdParam : undefined, /^\d+$/.test(rowPositionParam) ? rowPositionParam : undefined)
+    }
   },
   methods: {
     resetTable() {
@@ -140,21 +156,46 @@ export default {
       this.showColumnModal = false
       this.observationColumns.push(column)
     },
-    loadMatrix(id) {
+    loadMatrix(id, rowId = undefined, position = undefined) {
       this.matrixId = id
-      GetObservationMatrix(id).then(response => {
+      let promises = []
+      promises.push(GetObservationMatrix(id).then(response => {
         this.observationMatrix = response.body
-      })
-      GetMatrixObservationColumns(id).then(response => {
+      }))
+      promises.push(GetMatrixObservationColumns(id).then(response => {
         this.observationColumns = response.body
+      }))
+
+      Promise.all(promises).then(() => { 
+        if (rowId && position) {
+          this.findRow(rowId, Number(position))
+        } else {
+          this.getRows(1)
+        }
       })
-      this.getRows(1)
     },
-    getRows(page) {
-      GetMatrixObservationRows(this.matrixId, { params: { per: this.maxPerPage, page: page } }).then(response => {
-        this.observationRows = response.body
-        this.pagination = GetPagination(response)
-      })      
+    getRows (page) {
+      return new Promise((resolve, reject) => {
+        GetMatrixObservationRows(this.matrixId, { params: { per: this.maxPerPage, page: page } }).then(response => {
+          this.observationRows = response.body
+          this.pagination = GetPagination(response)
+          return resolve(response.body)
+        })
+      })
+    },
+    findRow (rowId, position) {
+      if (this.observationRows.find(item => {
+        return item.id === rowId
+      })) {
+        scrollParentToChild(document.querySelector('tbody'), document.querySelector(`[data-matrix-id="${rowId}"]`))
+      } else {
+        const page = Math.ceil((position + 1) / this.maxPerPage)
+        this.getRows(page).then(() => {
+          this.$nextTick(() => {
+            scrollParentToChild(document.querySelector('tbody'), document.querySelector(`[data-matrix-id="${rowId}"]`))
+          })
+        })
+      }
     }
   }
 }
