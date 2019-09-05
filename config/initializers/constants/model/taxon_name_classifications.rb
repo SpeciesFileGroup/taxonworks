@@ -117,7 +117,6 @@ TAXON_NAME_CLASSIFICATION_JSON = {
     common: TaxonNameClassificationsHelper.collection([
       TaxonNameClassification::Iczn::Unavailable,
       TaxonNameClassification::Iczn::Unavailable::NomenNudum,
-      TaxonNameClassification::Iczn::Available::Invalid::Homonym,
       TaxonNameClassification::Iczn::Available::Valid::NomenDubium,
       TaxonNameClassification::Iczn::Fossil
     ])
@@ -128,7 +127,6 @@ TAXON_NAME_CLASSIFICATION_JSON = {
     common: TaxonNameClassificationsHelper.collection([
       TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished,
       TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished::NomenNudum,
-      TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate::Homonym,
       TaxonNameClassification::Icn::Fossil
     ])
   },
@@ -136,7 +134,7 @@ TAXON_NAME_CLASSIFICATION_JSON = {
     tree: ApplicationEnumeration.nested_subclasses(TaxonNameClassification::Icnp),
     all: TaxonNameClassificationsHelper::descendants_collection(TaxonNameClassification::Icnp),
     common: TaxonNameClassificationsHelper.collection([
-
+      TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished::Legitimate::Candidatus
     ])
   },
     ictv: {
@@ -150,9 +148,6 @@ TAXON_NAME_CLASSIFICATION_JSON = {
     tree: ApplicationEnumeration.nested_subclasses(TaxonNameClassification::Latinized),
     all: TaxonNameClassificationsHelper::descendants_collection(TaxonNameClassification::Latinized),
     common: TaxonNameClassificationsHelper.collection([
-      TaxonNameClassification::Icnp::EffectivelyPublished::InvalidlyPublished,
-      TaxonNameClassification::Icnp::EffectivelyPublished::InvalidlyPublished::NomenNudum,
-      TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished::Illegitimate::Homonym
     ])
   }
 }.freeze

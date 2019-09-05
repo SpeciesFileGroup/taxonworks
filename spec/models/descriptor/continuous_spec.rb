@@ -34,7 +34,7 @@ RSpec.describe Descriptor::Continuous, type: :model, group: :matrix do
     context '#observations' do
       let(:continuous_descriptor) { Descriptor::Continuous.create!(name: 'Head length') }
       let!(:observation1) { Observation::Continuous.create!(otu: otu, descriptor: descriptor, continuous_value: 42, continuous_unit: 'cm' ) }
-      let!(:observation2) { Observation::PresenceAbsence.create!(otu: otu, descriptor: continuous_descriptor, presence: false, continuous_unit: 'm') }
+      let!(:observation2) { Observation::PresenceAbsence.create!(otu: otu, descriptor: FactoryBot.create(:valid_descriptor, type: 'Descriptor::PresenceAbsence'), presence: false, continuous_unit: 'm') }
 
       specify 'only co-typed observations are returned' do
         expect(descriptor.observations).to contain_exactly(observation1)

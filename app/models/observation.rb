@@ -14,16 +14,48 @@ class Observation < ApplicationRecord
 
   ignore_whitespace_on(:description)
 
+  # String, not GlobalId
   attr_accessor :observation_object_global_id
 
+  belongs_to :character_state, inverse_of: :observations
   belongs_to :descriptor, inverse_of: :observations
   belongs_to :otu, inverse_of: :observations
   belongs_to :collection_object, inverse_of: :observations
 
   after_initialize :convert_observation_object_global_id
+  before_validation :set_type_from_descriptor
 
   validates_presence_of :descriptor, :type
   validate :otu_or_collection_object_set
+  validate :type_matches_descriptor
+
+  def qualitative?
+    type == 'Observation::Qualitative'
+  end
+
+  def presence_absence?
+    type == 'Observation::PresenceAbsence'
+  end
+
+  def continuous?
+    type == 'Observation::Continuous'
+  end
+
+  def self.in_observation_matrix(observation_matrix_id)
+    om = ObservationMatrix.find(observation_matrix_id)
+
+    where(descriptor: om.descriptors, otu: om.otus).or(
+    where(descriptor: om.descriptors, collection_object: om.collection_objects))
+  end
+
+  # @params row_object_global_ids [Array of global_id instances (not string)
+  def self.by_descriptors_and_rows(descriptor_ids, row_object_global_ids)
+    collection_object_ids = ::GlobalIdHelper.ids_by_class_name(row_object_global_ids, 'CollectionObject')
+    otu_ids = ::GlobalIdHelper.ids_by_class_name(row_object_global_ids, 'Otu')
+
+    where(descriptor_id: descriptor_ids, otu_id: otu_ids).or(
+      where(descriptor_id: descriptor_ids, collection_object_id: collection_object_ids))
+  end
 
   def self.object_scope(object)
     return Observation.none if object.nil?
@@ -56,6 +88,8 @@ class Observation < ApplicationRecord
     end 
   end
 
+  # @return [String]
+  # TODO: this is not memoized correctly ?!
   def observation_object_global_id
     if observation_object
       observation_object.to_global_id.to_s
@@ -102,6 +136,19 @@ class Observation < ApplicationRecord
   end
 
   protected
+
+  def set_type_from_descriptor
+    if type.blank? && descriptor&.type
+      write_attribute(:type, 'Observation::' + descriptor.type.split('::').last)
+    end
+  end
+
+  def type_matches_descriptor
+    a = type&.split('::')&.last
+    b = descriptor&.type&.split('::')&.last
+    errors.add(:type, 'type of Observation does not match type of Descriptor') if a && b && a != b
+  end
+
 
   def convert_observation_object_global_id
     set_observation_object_id(GlobalID::Locator.locate(observation_object_global_id)) if observation_object_global_id 

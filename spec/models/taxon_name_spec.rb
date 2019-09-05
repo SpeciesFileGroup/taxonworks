@@ -243,7 +243,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             expect(g.reload.get_full_name_html).to eq('<i>Errorneura</i> [sic]')
             
             expect(@subspecies.get_original_combination).to eq('Errorneura [sic] [SPECIES NOT SPECIFIED] vitata')
-            expect(@subspecies.get_original_combination_html).to eq('<i>Errorneura</i> [sic] <i></i>[SPECIES NOT SPECIFIED] <i>vitata</i>')
+            expect(@subspecies.get_original_combination_html).to eq('<i>Errorneura</i> [sic] [SPECIES NOT SPECIFIED] <i>vitata</i>')
             expect(@subspecies.get_author_and_year).to eq ('(McAtee, 1900)')
           end
 
