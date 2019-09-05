@@ -26,6 +26,8 @@
 <script>
 
 import { LoadRanks } from '../../request/resources'
+import { MutationNames } from '../../store/mutations/mutations'
+import { GetterNames } from '../../store/getters/getters'
 
 export default {
   props: {
@@ -46,11 +48,14 @@ export default {
       set (value) {
         this.$emit('input', value)
       }
-    }
-  },
-  data () {
-    return {
-      ranks: []
+    },
+    ranks: {
+      get () {
+        return this.$store.getters[GetterNames.GetRanks]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetRanks, value)
+      }
     }
   },
   mounted () {
