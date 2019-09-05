@@ -26,6 +26,8 @@ module Queries
 
       attr_accessor :column_headers
 
+      attr_accessor :validity
+
       # @param params [Params] 
       #   a permitted via controller
       def initialize(params)
@@ -36,7 +38,9 @@ module Queries
         @ancestor = ::Protonym.where(project_id: project_id).find(ancestor_id)
 
         @fieldsets = params[:fieldsets] || []
-        @column_headers =    ['generations', 'otu_id', 'taxon_name_id', 'cached'] + ranks 
+        @column_headers = ['generations', 'otu_id', 'taxon_name_id', 'cached'] + ranks 
+
+        @validity = (params[:validity]&.downcase == 'true' ? true : false) if !params[:validity].nil?
 
         build_query
       end
@@ -66,6 +70,7 @@ module Queries
         q = h.where(h[:ancestor_id].eq(ancestor_id))
 
         rank_joins.each_with_index do |t, i|
+          t = t.where(t[:cached_taxon_name_id].eq(t[:id])) if validity
           q = q.join(t, Arel::Nodes::OuterJoin)
             .on(t[:id].eq(h[:descendant_id]).
                 and(t[:rank_class].eq( Ranks.lookup(ancestor.nomenclatural_code, ranks[i]))))
@@ -84,13 +89,11 @@ module Queries
           otu_table[:id].as('otu_id'),
           coalesce_ranks(fields2).as('taxon_name_id'),
           coalesce_ranks(rank_joins.reverse.collect{|j| j[:cached]}).as('cached'),
-        ]
+        ] + fields.values
 
         fieldsets.each do |f|
           q = send(f + '_set', q) 
         end
-
-        @projected_fields.push fields.values
 
         @query = q.distinct.project( *@projected_fields ).order(h[:generations], *fields.keys)
       end
@@ -103,14 +106,38 @@ module Queries
         ApplicationRecord.connection.execute(@query.to_sql)
       end
 
+      # TODO: break out fieldset to its own concern
       def observations_set(query)
-        @projected_fields.push '"fs_o"."observation_count" as observation_count'
+        @projected_fields.push '"fs_o1"."observation_count" as observation_count'
         @column_headers.push 'observation_count'
-
         o = ::Observation.arel_table
-        x = o.project(o[:otu_id], o[:otu_id].count.as('observation_count')).group(o[:otu_id]).as('fs_o')
+        x = o.project(
+          o[:otu_id], 
+          o[:otu_id].count.as('observation_count')
+        ).group(o[:otu_id]).as('fs_o1')
 
         query.join(x, Arel::Nodes::OuterJoin).on(x[:otu_id].eq(otu_table[:id]))
+
+        @projected_fields.push '"fs_o2"."observation_depictions" as observation_depictions'
+        @column_headers.push 'observation_depictions'
+        p = ::Depiction.arel_table
+        y = p.join(o, Arel::Nodes::OuterJoin).on(
+          p[:depiction_object_id].eq(o[:otu_id])).where(p[:depiction_object_type].eq('Observation'))
+          .project(
+            p[:depiction_object_id], 
+            p[:depiction_object_id].count.as('observation_depictions')
+        ).group(p[:depiction_object_id]).as('fs_o2')
+
+        query.join(y, Arel::Nodes::OuterJoin).on(y[:depiction_object_id].eq(otu_table[:id]))
+
+        @projected_fields.push '"fs_d1"."descriptors_scored" as descriptors_scored'
+        @column_headers.push 'descriptors_scored'
+        z = o.project(
+          o[:otu_id], 
+          o[:descriptor_id].count.as('descriptors_scored')
+        ).group(o[:otu_id]).as('fs_d1')
+
+        query.join(z, Arel::Nodes::OuterJoin).on(z[:otu_id].eq(otu_table[:id]))
       end
 
     end
