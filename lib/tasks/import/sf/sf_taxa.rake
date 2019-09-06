@@ -740,8 +740,11 @@ namespace :tw do
 
           # ecology info setup
           # row['Ecology'], row['LifeZone']
+          # distribution text set up
+          # row['Distribution']
 
           ecology_topic_ids = {}
+          distribution_topic_ids = {}
           get_tw_project_id.each_value do |project_id|
             puts project_id
             ecology_topic = Topic.create!(
@@ -749,9 +752,16 @@ namespace :tw do
                 definition: 'Life zone and ecology data',
                 project_id: project_id)
             ecology_topic_ids[project_id] = ecology_topic.id
+
+            distribution_topic = Topic.create!(
+                name: 'Distribution text',
+                definition: 'List of documented place names',
+                project_id: project_id)
+            distribution_topic_ids[project_id] = distribution_topic.id
           end
 
           ap ecology_topic_ids
+          ap distribution_topic_ids
 
           life_zone_map = {0 => 'marine', 1 => 'brackish', 2 => 'freshwater', 3 => 'terrestrial'} # must be bit position
 
@@ -798,10 +808,17 @@ namespace :tw do
             if life_zones == 0
               life_zone_text = 'not specified'
             else
-              life_zone_text = "[#{Utilities::Numbers.get_bits(life_zones).collect {|i| life_zone_map[i]}.compact.join(', ')}]"
+              life_zone_text = "[#{Utilities::Numbers.get_bits(life_zones).collect { |i| life_zone_map[i] }.compact.join(', ')}]"
             end
             ecology_text = "* Life zone #{life_zone_text}"
             ecology_text += ": #{row['Ecology']}" unless row['Ecology'].blank?
+
+            # For distribution
+            distribution = row['Distribution']
+            distribution_text = ''
+            if distribution.present?
+              distribution_text = "* Distribution text: #{distribution}"
+            end
 
             logger.info "Working with TW.project_id: #{project_id} = SF.FileID #{row['FileID']}, SF.TaxonNameID #{sf_taxon_name_id} (count #{count_found += 1}) \n"
 
@@ -862,11 +879,22 @@ namespace :tw do
                 # life zone and ecology for otu only
                 logger.info "Ecology: Working with SF.TaxonNameID = '#{row['TaxonNameID']}', otu_id = '#{otu.id}, SF.FileID = '#{row['FileID']}', life_zones = '#{life_zone_text}' \n"
 
-                content = Content.create!(
+                Content.create!(
                     topic_id: ecology_topic_ids[project_id],
                     otu_id: otu.id,
                     project_id: project_id,
                     text: ecology_text)
+
+                # distribution text for otu only
+                logger.info "Distribution: Working with SF.TaxonNameID = '#{row['TaxonNameID']}', otu_id = '#{otu.id}, SF.FileID = '#{row['FileID']}', distribution_text = '#{distribution_text}' \n"
+
+                if distribution_text.present?
+                  Content.create!(
+                      topic_id: distribution_topic_ids[project_id],
+                      otu_id: otu.id,
+                      project_id: project_id,
+                      text: distribution_text)
+                end
 
               else
                 logger.error "OTU ERROR (#{error_counter += 1}) for SF.TaxonNameID = #{sf_taxon_name_id}: " + otu.errors.full_messages.join(';')
@@ -975,12 +1003,23 @@ namespace :tw do
                 otu_id = get_taxon_name_otu_id[taxon_name.id.to_s]
                 logger.info "Ecology: Working with SF.TaxonNameID = '#{row['TaxonNameID']}', TW.TaxonNameID = '#{taxon_name.id}, otu_id = '#{otu_id}, SF.FileID = '#{row['FileID']}', life_zones = '#{life_zone_text}' \n"
 
-                content = Content.create!(
+                Content.create!(
                     topic_id: ecology_topic_ids[project_id],
                     otu_id: otu_id,
                     project_id: project_id,
                     text: ecology_text)
 
+                # distribution
+
+                logger.info "Distribution: Working with SF.TaxonNameID = '#{row['TaxonNameID']}', otu_id = '#{otu.id}, SF.FileID = '#{row['FileID']}', distribution_text = '#{distribution_text}' \n"
+
+                if distribution_text.present?
+                  Content.create!(
+                      topic_id: distribution_topic_ids[project_id],
+                      otu_id: otu.id,
+                      project_id: project_id,
+                      text: distribution_text)
+                end
 
                 # taxon_name_roles for original citation
 
