@@ -312,16 +312,20 @@ class Source::Bibtex < Source
   IGNORE_IDENTICAL = IGNORE_SIMILAR.dup.freeze
 
   belongs_to :serial, inverse_of: :sources
+
+  # handle conflict with BibTex language field.
   belongs_to :source_language, class_name: 'Language', foreign_key: :language_id, inverse_of: :sources
-  # above to handle clash with bibtex language field.
+
 
   has_many :author_roles, -> { order('roles.position ASC') }, class_name: 'SourceAuthor',
            as: :role_object, validate: true
-  has_many :authors, -> { order('roles.position ASC') },
-           through: :author_roles, source: :person, validate: true
+
+  has_many :authors, -> { order('roles.position ASC') }, through: :author_roles, source: :person, validate: true
+  
   has_many :editor_roles, -> { order('roles.position ASC') }, class_name: 'SourceEditor',
-           as: :role_object, validate: true # ditto for self.editor & self.editors
+           as: :role_object, validate: true
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person, validate: true
+ 
   accepts_nested_attributes_for :authors, :editors, :author_roles, :editor_roles, allow_destroy: true
 
   before_validation :create_authors, if: -> { !authors_to_create.nil? }
