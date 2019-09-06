@@ -47,7 +47,7 @@ class TaxonNamesController < ApplicationController
       :nomenclature_code,
       :taxon_name_type,
       type: [],
-      parent_id: [],
+      taxon_name_id: [],
       taxon_name_classification: [],
       taxon_name_relationship_type: [],
       taxon_name_relationship: []
