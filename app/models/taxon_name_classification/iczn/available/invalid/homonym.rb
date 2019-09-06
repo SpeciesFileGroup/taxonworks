@@ -10,6 +10,6 @@ class TaxonNameClassification::Iczn::Available::Invalid::Homonym < TaxonNameClas
   end
 
   def sv_not_specific_classes
-    soft_validations.add(:type, 'Although this status can be used, it is better to replace it with with appropriate relationship (for example Prymary Homonym)')
+    soft_validations.add(:type, 'Although this status can be used, it is better to replace it with with appropriate relationship (for example Primary Homonym)')
   end
 end

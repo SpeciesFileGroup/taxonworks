@@ -15,6 +15,7 @@ gem 'hiredis', '~> 0.6.1'
 gem 'redis', '~> 4.1.0'
 
 # gem 'json', '>= 2.1.0'
+gem 'rdf', '~> 3.0'
 
 # System
 gem 'thor', '~> 0.19.4' # See https://github.com/rails/rails/issues/27229
@@ -70,7 +71,7 @@ gem 'jquery-turbolinks', '~> 2.1'
 
 # BibTeX handling
 gem 'csl', '~> 1.5.0'
-gem 'bibtex-ruby', '~> 4.4.7'
+gem 'bibtex-ruby', '~> 5.0.0'
 gem 'citeproc-ruby', '~> 1.1.10'
 gem 'csl-styles', '~> 1.0.1.8'
 gem 'ref2bibtex', '~> 0.3.0'

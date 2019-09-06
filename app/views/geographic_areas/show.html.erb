@@ -3,7 +3,7 @@
   <% if @geographic_area.geographic_items.count > 0 -%>
     <p>
     <strong>"Default" shape:</strong>
-    <%= link_to('(Collecting events within)', within_locality_task_path(@geographic_area.geographic_items.first.id)) %>
+    <%= link_to('(Collecting events within)', index_search_locality_task_path(spatial_geographic_area_ids: [@geographic_area.id])) %>
     <%= simple_map([@geographic_area]) -%>
   <% end %>
 

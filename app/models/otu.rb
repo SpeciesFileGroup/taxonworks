@@ -24,8 +24,8 @@
 class Otu < ApplicationRecord
   include Housekeeping
   include SoftValidation
-  #include Shared::AlternateValues  # 1/26/15 with MJY - not going to allow alternate values in Burlap
-  include Shared::Citations # TODO: have to think hard about this vs. using Nico's framework
+  #include Shared::AlternateValues   # 1/26/15 with MJY - not going to allow alternate values in Burlap
+  include Shared::Citations          # TODO: have to think hard about this vs. using Nico's framework
   include Shared::DataAttributes
   include Shared::Identifiers
   include Shared::Notes
@@ -64,6 +64,9 @@ class Otu < ApplicationRecord
 
   has_many :content_topics, through: :contents, source: :topic
 
+  has_many :observations, inverse_of: :otu
+  has_many :descriptors, through: :observations
+
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
   scope :with_name, -> (name) { where(name: name) }
 
@@ -76,18 +79,23 @@ class Otu < ApplicationRecord
   # @param [Integer] otu_id
   # @param [String] rank_class
   # @return [Scope]
+  #    Otu.joins(:taxon_name).where(taxon_name: q).to_sql
   def self.self_and_descendants_of(otu_id, rank_class = nil)
-    o = Otu.includes(:taxon_name).find(otu_id)
-    if o && o.taxon_name
-      with_taxon_name_id(o.taxon_name.self_and_descendants)
+    if o = Otu.joins(:taxon_name).find(otu_id)
       if rank_class.nil?
-        with_taxon_name_id(o.taxon_name.self_and_descendants)
+        joins(:taxon_name).where(taxon_name: o.taxon_name.self_and_descendants)
+        # with_taxon_name_id(o.taxon_name.self_and_descendants)
       else
-        with_taxon_name_id(o.taxon_name.self_and_descendants.where(rank_class: rank_class))
+        joins(:taxon_name).where(taxon_name: o.taxon_name.self_and_descendants.where( rank_class: rank_class))
+        # with_taxon_name_id(o.taxon_name.self_and_descendants.where(rank_class: rank_class))
       end
-    else
+    else # no taxon name just return self in scope
       Otu.where(id: otu_id)
     end
+  end
+
+  def current_collection_objects
+    collection_objects.where(taxon_determinations: {position: 1})
   end
 
   validate :check_required_fields
@@ -96,7 +104,6 @@ class Otu < ApplicationRecord
   soft_validate(:sv_duplicate_otu, set: :duplicate_otu)
 
   accepts_nested_attributes_for :common_names, allow_destroy: true
-
 
   # @return [Array]
   #   all bilogical associations this Otu is part of
@@ -191,7 +198,7 @@ class Otu < ApplicationRecord
 
   # @param used_on [String] required, one of `AssertedDistribution`, `Content`, `BiologicalAssociation`
   # @return [Scope]
-  #    the max 10 most recently used otus, as `used_on`
+  #   the max 10 most recently used otus, as `used_on`
   def self.used_recently(used_on = '')
     t = case used_on 
         when 'AssertedDistribution'

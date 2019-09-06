@@ -10,7 +10,7 @@
             <%= render  'workbench/elements/forms/ajax_select',
               controller: '/taxon_names',
               object: '',
-              method:  'id',
+              method:  'taxon_name_id',
               send_select: true,
               tag_id:  'taxon_name_id_for_browse_nomenclature',
               size: 20 %>
@@ -33,7 +33,7 @@
           <li><%= tag_default_icon(@taxon_name) %></li>
           <li><%= pin_item_to_pinboard_link(@taxon_name, sessions_current_user) %></li>
           <li>
-            <a class="circle-button btn-edit edit-taxon-name" href="<%= new_taxon_name_task_path(@taxon_name) %>"></a>
+            <a class="circle-button btn-edit edit-taxon-name" href="<%= new_taxon_name_task_path(taxon_name_id: @taxon_name.id) %>"></a>
           </li>
           <li><%= radial_object_tag(@taxon_name) %></li>
         </ul>

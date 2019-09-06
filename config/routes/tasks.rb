@@ -1,4 +1,10 @@
 scope :tasks do
+    scope :matrix_image do
+      scope :matrix_image, controller: 'tasks/matrix_image/matrix_image' do
+        get :index, as: 'index_matrix_image_task'
+      end
+    end
+
 
   scope :asserted_distribution do
     scope :new_asserted_distribution, controller: 'tasks/asserted_distribution/new_asserted_distribution' do
@@ -32,7 +38,7 @@ scope :tasks do
 
   scope :descriptors do
     scope :new_descriptor, controller: 'tasks/descriptors/new_descriptor' do
-      get '(:id)', action: :index, as: 'new_descriptor_task'
+      get '(:descriptor_id)', action: :index, as: 'new_descriptor_task'
     end
   end
 
@@ -217,13 +223,6 @@ scope :tasks do
     end
   end
 
-  scope :gis, controller: 'tasks/gis/locality' do
-    get 'nearby(/:id)', action: 'nearby', as: 'nearby_locality_task'
-    get 'within(/:id)', action: 'within', as: 'within_locality_task'
-    get 'new_list', action: 'new_list', as: 'new_list_task'
-    post 'list' # , action: 'list', as: 'locatity_list_task'
-  end
-
   scope :gis do
     scope :geographic_area_lookup, controller: 'tasks/gis/geographic_area_lookup' do
       get 'index', as: 'geographic_area_lookup_task'
@@ -282,7 +281,7 @@ scope :tasks do
     end
 
     scope :browse, controller: 'tasks/nomenclature/browse' do
-      get '(:id)', action: :index, as: 'browse_nomenclature_task'
+      get '', action: :index, as: 'browse_nomenclature_task'
     end
 
     scope :by_source, controller: 'tasks/nomenclature/by_source' do
@@ -291,9 +290,13 @@ scope :tasks do
   end
 
   scope :observation_matrices do
+      scope :dashboard, controller: 'tasks/observation_matrices/dashboard' do
+        get :index, as: 'index_dashboard_task'
+      end
+
 
     scope :view, controller: 'tasks/observation_matrices/view' do
-      get '(:id)', as: 'observation_matrix_view_task', action: :index
+      get '(:observation_matrix_id)', as: 'observation_matrix_view_task', action: :index
     end
 
     scope :observation_matrix_hub, controller: 'tasks/observation_matrices/observation_matrix_hub' do
@@ -302,9 +305,9 @@ scope :tasks do
     end
 
     scope :new_matrix, controller: 'tasks/observation_matrices/new_matrix' do
-      get 'observation_matrix_row_item_metadata', as: 'observation_matrix_row_item_metdata', defaults: {format: :json}
+      get 'observation_matrix_row_item_metadata', as: 'observation_matrix_row_item_metadata', defaults: {format: :json}
       get 'observation_matrix_column_item_metadata', as: 'observation_matrix_column_item_metdata', defaults: {format: :json}
-      get '(:id)', action: :index, as: 'new_matrix_task'
+      get '(:observation_matrix_id)', action: :index, as: 'new_matrix_task'
     end
 
     scope :row_coder, controller: 'tasks/observation_matrices/row_coder' do

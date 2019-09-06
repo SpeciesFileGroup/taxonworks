@@ -36,6 +36,8 @@ namespace :api, defaults: {format: :json} do
 
     # Authenticate membership at the data controller level
 
+    # Default response when no route matches
+    match '/:path', to: 'base#not_found', via: :all
   end
 end
 
