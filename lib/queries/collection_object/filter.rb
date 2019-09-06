@@ -2,7 +2,6 @@ module Queries
   module CollectionObject
     # !! does not inherit from base query
 
-
     # TODO 
     # - use date processing?
     # - remove all prepended 'query'
@@ -11,18 +10,19 @@ module Queries
 
     class Filter
       attr_accessor :recent 
-      
+
       attr_accessor :keyword_ids
 
       # Query variables
       attr_accessor :geographic_area_ids # not tested
       attr_accessor :shape
-      
+
       attr_accessor :date_partial_overlap, :query_start_date, :query_end_date
+
       attr_accessor :query_otu_id, :query_otu_descendants
       attr_accessor :query_id_namespace, :query_range_start, :query_range_stop
       attr_accessor :query_user, :query_date_type_select,
-                    :query_user_date_range_end, :query_user_date_range_start
+        :query_user_date_range_end, :query_user_date_range_start
       attr_accessor :query_params
 
       # Resolved/processed results
@@ -38,10 +38,10 @@ module Queries
 
         @geographic_area_ids   = params[:geographic_area_ids]
         @shape                 = params[:drawn_area_shape]
-        @query_start_date            = params[:search_start_date] # TODO: sync key names
-        @query_end_date              = params[:search_end_date]
-        @query_otu_id                = params[:otu_id]
-        @query_otu_descendants       = params[:descendants]
+        @query_start_date      = params[:search_start_date] # TODO: sync key names
+        @query_end_date        = params[:search_end_date]
+        @query_otu_id          = params[:otu_id]
+        @query_otu_descendants = params[:descendants]
         @date_partial_overlap  = params[:partial_overlap]
         @query_id_namespace          = params[:id_namespace]
         @query_range_start           = params[:id_range_start]
@@ -75,10 +75,10 @@ module Queries
         c = t.alias('t1')
 
         b = b.join(c, Arel::Nodes::OuterJoin)
-              .on(
-                a[:id].eq(c[:tag_object_id])
-                  .and(c[:tag_object_type].eq(table.name.classify))
-              )
+          .on(
+            a[:id].eq(c[:tag_object_id])
+          .and(c[:tag_object_type].eq(table.name.classify))
+        )
 
         e = c[:keyword_id].not_eq(nil)
         f = c[:keyword_id].eq_any(keyword_ids)
@@ -205,8 +205,8 @@ module Queries
         target_geographic_item_ids = []
         geographic_area_ids.each do |ga_id|
           target_geographic_item_ids.push(::GeographicArea.joins(:geographic_items)
-                                            .find(ga_id)
-                                            .default_geographic_item.id)
+            .find(ga_id)
+            .default_geographic_item.id)
         end
         ::CollectionObject.joins(:geographic_items)
           .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
@@ -224,7 +224,7 @@ module Queries
           start_date: query_start_date,
           end_date: query_end_date,
           partial_overlap_dates: date_partial_overlap).between_date_range.to_sql
-        ::CollectionObject.joins(:collecting_event).where(sql)
+          ::CollectionObject.joins(:collecting_event).where(sql)
       end
 
       # @return [Scope]
@@ -238,29 +238,31 @@ module Queries
       # noinspection RubyResolve
       # @return [Scope]
       def user_date_scope
-        @user_date_start, @user_date_end = Utilities::Dates.normalize_and_order_dates(query_user_date_range_start,
-                                                                                      query_user_date_range_end)
-        @user_date_start                 += ' 00:00:00' # adjust dates to beginning
-        @user_date_end                   += ' 23:59:59' # and end of date days
+        @user_date_start, @user_date_end = Utilities::Dates.normalize_and_order_dates(
+          query_user_date_range_start,
+          query_user_date_range_end)
+        
+        @user_date_start += ' 00:00:00' # adjust dates to beginning
+        @user_date_end   += ' 23:59:59' # and end of date days
 
         scope = case query_date_type_select
-                  when 'created_at', nil
-                    ::CollectionObject.created_in_date_range(@user_date_start, @user_date_end)
-                  when 'updated_at'
-                    ::CollectionObject.updated_in_date_range(@user_date_start, @user_date_end)
-                  else
-                    ::CollectionObject.all
+                when 'created_at', nil
+                  ::CollectionObject.created_in_date_range(@user_date_start, @user_date_end)
+                when 'updated_at'
+                  ::CollectionObject.updated_in_date_range(@user_date_start, @user_date_end)
+                else
+                  ::CollectionObject.all
                 end
 
         unless query_user == 'All users' || query_user == 0
-          user_id = User.get_user_id(query_user)
-          scope   = case query_date_type_select
-                      when 'created_at'
-                        # noinspection RubyResolve
-                        scope.created_by_user(user_id)
-                      when 'updated_at'
-                        scope.updated_by_user(user_id)
-                    end
+          user_id = ::User.get_user_id(query_user)
+          scope = case query_date_type_select
+                  when 'created_at'
+                    # noinspection RubyResolve
+                    scope.created_by_user(user_id)
+                  when 'updated_at'
+                    scope.updated_by_user(user_id)
+                  end
         end
         scope
       end
