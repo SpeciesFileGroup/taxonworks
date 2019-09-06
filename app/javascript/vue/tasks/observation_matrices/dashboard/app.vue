@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="vue-task-observation-dashboard">
     <div class="flex-separate middle">
       <h1>Observation matrices dashboard</h1>
       <ul class="context-menu">
@@ -22,10 +22,16 @@
         @onTaxon="taxon = $event"
         @reset="resetTask"/>
       <div class="full_width">
-        <span v-if="taxon">Scoped: {{ taxon.name }}</span>
-        <rank-table :table-ranks="rankTable"/>
-        <table-fixed
-          :table-values="rankTable" />
+        <div
+          v-show="Object.keys(rankTable).length"
+          class="horizontal-left-content align-start">
+          <rank-table
+            class="separate-right"
+            :table-ranks="rankTable"/>
+          <table-fixed
+            class="separate-left full_width"
+            :table-values="rankTable" />
+        </div> 
         <h3
           v-if="!Object.keys(rankTable).length"
           class="subtle middle horizontal-center-content">No records found.
@@ -85,3 +91,10 @@ export default {
   }
 }
 </script>
+<style lang="scss">
+  #vue-task-observation-dashboard {
+    .header-box {
+      height: 30px;
+    }
+  }
+</style>

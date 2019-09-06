@@ -1,19 +1,23 @@
 <template>
   <div>
-    <select class="normal-input">
-      <option
-        v-for="field in fieldset"
-        :key="field.value"
-        :value="field.value">
-        {{ field.label }}
-      </option>
-    </select>
-    <button
-      type="button"
-      class="button normal-input button-default">
-      Set
-    </button>
-    <table v-if="Object.keys(tableObject)">
+    <div class="header-box middle">
+      <select class="normal-input">
+        <option
+          v-for="field in fieldset"
+          :key="field.value"
+          :value="field.value">
+          {{ field.label }}
+        </option>
+      </select>
+      <button
+        type="button"
+        class="button normal-input button-default">
+        Set
+      </button>
+    </div>
+    <table 
+      v-if="Object.keys(tableObject)"
+      class="full_width">
       <thead>
         <draggable v-model="tableObject.headers" tag="tr" draggable=".th-draggable">
           <th v-for="header in tableObject.headers" :key="header" scope="col" class="th-draggable">

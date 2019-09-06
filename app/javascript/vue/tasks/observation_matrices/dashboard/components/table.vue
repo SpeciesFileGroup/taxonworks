@@ -1,23 +1,29 @@
 <template>
-  <table v-if="tableRanks">
-    <thead>
-      <tr>
-        <th 
-          v-if="!isFiltered(header) || rankNames.includes(header)"
-          v-for="(header, index) in tableRanks.column_headers">{{ header }}</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr 
-        v-for="(row, index) in tableRanks.data">
-        <template v-for="(header, hindex) in tableRanks.column_headers">
-          <td v-if="!isFiltered(header) || rankNames.includes(header)">
-            {{ row[hindex] }}
-          </td>
-        </template>
-      </tr>
-    </tbody>
-  </table>
+  <div>
+    <div class="header-box middle">
+      <span v-if="taxon">Scoped: {{ taxon.name }}</span>
+    </div>
+    <table
+      v-if="tableRanks">
+      <thead>
+        <tr>
+          <th 
+            v-if="!isFiltered(header) || rankNames.includes(header)"
+            v-for="(header, index) in tableRanks.column_headers">{{ header }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr 
+          v-for="(row, index) in tableRanks.data">
+          <template v-for="(header, hindex) in tableRanks.column_headers">
+            <td v-if="!isFiltered(header) || rankNames.includes(header)">
+              {{ row[hindex] }}
+            </td>
+          </template>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
 
 <script>
@@ -34,6 +40,9 @@ export default {
   computed: {
     rankList () {
       return this.$store.getters[GetterNames.GetRanks]
+    },
+    taxon () {
+      return this.$store.getters[GetterNames.GetTaxon]
     }
   },
   data () {
