@@ -27,11 +27,11 @@
           class="horizontal-left-content align-start">
           <rank-table
             class="separate-right"
-            :table-ranks="rankTable"/>
+            :table-list="rankTable"/>
           <table-fixed
             class="separate-left full_width"
             :table-values="rankTable" />
-        </div> 
+        </div>
         <h3
           v-if="!Object.keys(rankTable).length"
           class="subtle middle horizontal-center-content">No records found.

@@ -8,7 +8,6 @@
       <thead>
         <tr>
           <th 
-            v-if="!isFiltered(header) || rankNames.includes(header)"
             v-for="(header, index) in tableRanks.column_headers">{{ header }}</th>
         </tr>
       </thead>
@@ -16,7 +15,7 @@
         <tr 
           v-for="(row, index) in tableRanks.data">
           <template v-for="(header, hindex) in tableRanks.column_headers">
-            <td v-if="!isFiltered(header) || rankNames.includes(header)">
+            <td>
               {{ row[hindex] }}
             </td>
           </template>
@@ -32,7 +31,7 @@ import { GetterNames } from '../store/getters/getters'
 
 export default {
   props: {
-    tableRanks: {
+    tableList: {
       type: Object,
       default: () => { return {} }
     }
@@ -48,7 +47,8 @@ export default {
   data () {
     return {
       show: ['cached'],
-      rankNames: []
+      rankNames: [],
+      tableRanks: {}
     }
   },
   watch: {
@@ -57,6 +57,12 @@ export default {
         this.rankNames = [...new Set(this.getRankNames(newVal))]
       },
       deep: true
+    },
+    tableList: {
+      handler (newVal) {
+        console.log(this.orderRanksTable(newVal))
+        this.tableRanks = this.orderRanksTable(newVal)
+      }
     }
   },
   methods: {
@@ -74,6 +80,24 @@ export default {
         }
       }
       return nameList
+    },
+    orderRanksTable (list) {
+      let newDataList = []
+      let ranksOrder = this.rankNames.filter(rank => {
+        return list.column_headers.includes(rank)
+      })
+      ranksOrder = ranksOrder.concat(this.show)
+      
+
+      ranksOrder.forEach((rank, index) => {
+        const indexHeader = list.column_headers.findIndex(item => { return item === rank })
+        if (indexHeader >= 0) {
+          list.data.forEach((row, rIndex) => {
+            newDataList[rIndex] ? newDataList[rIndex].push(row[indexHeader]) : newDataList[rIndex] = [row[indexHeader]]
+          })
+        }
+      })
+      return { column_headers: ranksOrder, data: newDataList }
     }
   }
 }
