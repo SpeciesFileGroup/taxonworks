@@ -1296,7 +1296,7 @@ namespace :tw do
             stated_year = nil
           end
 
-          print "\n ERROR: Year out of range: [#{year.to_i == 0 ? 'not provided' : year}]\n" if year.to_i < 1500 || year.to_i > 2018
+          print "\n ERROR: #{row['RefCode']} : Year out of range: [#{year.to_i == 0 ? 'not provided' : year}]\n" if year.to_i < 1500 || year.to_i > 2018
           year = nil if year.to_i < 1500 || year.to_i > 2018
           stated_year = nil if stated_year.to_i < 1500 || stated_year.to_i > 2018
 
@@ -1359,7 +1359,7 @@ namespace :tw do
             end
             @data.references[row['RefCode']] = b.id
           else
-            print "\nThe reference with RefCode: #{row['RefCode']} is invalid\n"
+            print "\nThe reference with RefCode: #{row['RefCode']} is invalid: #{b.errors.full_messages.join('; ')}.\n"
           end
 
         end
