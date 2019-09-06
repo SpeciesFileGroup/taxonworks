@@ -14,7 +14,7 @@ class TaxonNameClassification::Iczn::Unavailable::Suppressed < TaxonNameClassifi
     'rejiciendum'
   end
 
-  def self.sv_not_specific_classes
+  def sv_not_specific_classes
     soft_validations.add(:type, 'Please specify the reasons for the name being Suppressed')
   end
 end

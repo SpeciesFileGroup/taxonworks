@@ -192,10 +192,6 @@ describe Person, type: :model, group: [:sources, :people] do
         expect(person).to respond_to(:authored_taxon_names)
       end
 
-      specify '#type_designations' do
-        expect(person).to respond_to(:type_material)
-      end
-
       specify '#georeferences' do
         expect(person).to respond_to(:georeferences)
       end
@@ -535,14 +531,7 @@ describe Person, type: :model, group: [:sources, :people] do
           taxon_name.taxon_name_authors << vp
           expect(vp.is_taxon_name_author?).to be_truthy
         end
-
-        specify 'is_type_designator?' do
-          expect(vp.is_type_designator?).to be_falsey
-          type_material = FactoryBot.create(:valid_type_material)
-          type_material.type_designators << vp
-          expect(vp.is_type_designator?).to be_truthy
-        end
-
+        
         specify 'is_georeferencer?' do
           expect(vp.is_georeferencer?).to be_falsey
           gr1.georeferencers << vp

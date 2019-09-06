@@ -100,10 +100,9 @@ class TaxonNameRelationship < ApplicationRecord
   scope :with_type_contains, -> (base_string) {where('"taxon_name_relationships"."type" LIKE ?', "%#{base_string}%")}
 
   scope :with_two_type_bases, -> (base_string1, base_string2) {
-    where("taxon_name_relationships.type LIKE ? OR taxon_name_relationships.type LIKE ?",
-          "#{base_string1}%",
-          "#{base_string2}%")
-  }
+    where("taxon_name_relationships.type LIKE ? OR taxon_name_relationships.type LIKE ?", "#{base_string1}%", "#{base_string2}%") }
+
+  scope :homonym_or_suppressed, -> {where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Homonym%' OR taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Suppression::Total'") }
   scope :with_type_array, -> (base_array) {where('taxon_name_relationships.type IN (?)', base_array ) }
 
   # @return [Array of TaxonNameClassification]
@@ -175,13 +174,13 @@ class TaxonNameRelationship < ApplicationRecord
   # @return [String]
   #    the status inferred by the relationship to the object name
   def object_status
-    self.type_name.demodulize.underscore.humanize.downcase
+    self.type_name.demodulize.underscore.humanize.downcase.gsub(/\d+/, ' \0 ').squish
   end
 
   # @return [String]
   #    the status inferred by the relationship to the subject name
   def subject_status
-    self.type_name.demodulize.underscore.humanize.downcase
+    self.type_name.demodulize.underscore.humanize.downcase.gsub(/\d+/, ' \0 ').squish
   end
 
   # @return [String]
@@ -380,6 +379,10 @@ class TaxonNameRelationship < ApplicationRecord
                 cached_original_combination: t.get_original_combination,
                 cached_original_combination_html: t.get_original_combination_html
             )
+          end
+
+          if type_name =~/Misapplication/
+            t.update_column( :cached_author_year, t.get_author_and_year)
           end
 
           vn = t.get_valid_taxon_name

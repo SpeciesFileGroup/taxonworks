@@ -2,9 +2,9 @@ import Vue from 'vue'
 import VueResource from 'vue-resource'
 
 Vue.use(VueResource)
-Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
 
 const ajaxCall = function (type, url, data = null) {
+  Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
   return new Promise(function (resolve, reject) {
     Vue.http[type](url, data).then(response => {
       return resolve(response.body)
@@ -44,7 +44,15 @@ const GetMatrixObservationRows = function(id) {
 }
 
 const GetMatrixObservationRowsDynamic = function(id) {
-  return ajaxCall('get',`/observation_matrices/${id}/observation_matrix_row_items.json?type=ObservationMatrixRowItem::TaggedRowItem`)
+  return new Promise((resolve, reject) => {
+    let promises = []
+    promises.push(ajaxCall('get',`/observation_matrices/${id}/observation_matrix_row_items.json?type=ObservationMatrixRowItem::TaggedRowItem`))
+    promises.push(ajaxCall('get',`/observation_matrices/${id}/observation_matrix_row_items.json?type=ObservationMatrixRowItem::TaxonNameRowItem`))
+
+    Promise.all(promises).then((response) => {
+      return resolve(response[0].concat(response[1]))
+    })
+  })
 }
 
 const GetMatrixObservationColumns = function(id) {

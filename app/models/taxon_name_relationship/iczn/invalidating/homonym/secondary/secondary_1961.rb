@@ -45,4 +45,13 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary19
       soft_validations.add(:base, "#{s.cached_html_name_and_author_year} should not be treated as a homonym established before 1961") if self.source.year > 1960
     end
   end
+
+  def sv_same_genus
+    true
+  end
+
+  def sv_specific_relationship
+    true
+  end
+
 end

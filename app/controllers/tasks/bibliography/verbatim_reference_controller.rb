@@ -1,4 +1,4 @@
-class Tasks::Bibliography::VerbatimReferenceController <ApplicationController
+class Tasks::Bibliography::VerbatimReferenceController < ApplicationController
   include TaskControllerConfiguration
 
   # GET build_source_from_crossref_task_path

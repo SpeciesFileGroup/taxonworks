@@ -15,6 +15,7 @@ gem 'hiredis', '~> 0.6.1'
 gem 'redis', '~> 4.1.0'
 
 # gem 'json', '>= 2.1.0'
+gem 'rdf', '~> 3.0'
 
 # System
 gem 'thor', '~> 0.19.4' # See https://github.com/rails/rails/issues/27229
@@ -70,7 +71,7 @@ gem 'jquery-turbolinks', '~> 2.1'
 
 # BibTeX handling
 gem 'csl', '~> 1.5.0'
-gem 'bibtex-ruby', '~> 4.4.7'
+gem 'bibtex-ruby', '~> 5.0.0'
 gem 'citeproc-ruby', '~> 1.1.10'
 gem 'csl-styles', '~> 1.0.1.8'
 gem 'ref2bibtex', '~> 0.3.0'
@@ -78,7 +79,7 @@ gem 'ref2bibtex', '~> 0.3.0'
 gem 'pdf-reader', '~> 2.2'
 
 # UI/UX
-gem 'chartkick', '~> 3.0.2'
+gem 'chartkick', '~> 3.2.0'
 gem 'groupdate', '~> 4.1.1'
 gem 'dropzonejs-rails', '~> 0.8.1'
 gem 'kaminari', '~> 1.1.1'
@@ -130,7 +131,8 @@ group :development do
   gem 'guard-rspec', '~> 4.7.3', require: false
 
   gem 'web-console', '~> 3.7.0'
-  gem 'rubocop', '~> 0.65.0'
+  gem 'rubocop', '~> 0.70'
+  gem 'rubocop-rails'
   gem 'rubocop-rspec'
   gem 'brakeman', '~> 4.4.0', require: false
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'

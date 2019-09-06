@@ -69,6 +69,7 @@ module Roles::Person
 
       rescue ActiveRecord::RecordInvalid
         # probably a year conflict, allow quietly
+        # !? 
       end
     end
   end

@@ -18,7 +18,7 @@ class TaxonNameClassification::Latinized::PartOfSpeech::Adjective < TaxonNameCla
     super
   end
 
-  def self.sv_not_specific_classes
+  def sv_not_specific_classes
     t = taxon_name.name
     if !t.end_with?('us') &&
         !t.end_with?('a') &&

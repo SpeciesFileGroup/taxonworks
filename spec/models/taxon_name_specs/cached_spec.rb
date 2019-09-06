@@ -134,7 +134,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         before { TaxonNameClassification::Icn::Hybrid.create!(taxon_name: hybrid_species) } 
 
         specify '#cached_html' do
-          expect(hybrid_species.cached_html).to eq('× <i>Aus aaa</i>')
+          expect(hybrid_species.cached_html).to eq('<i>Aus</i> ×<i>aaa</i>')
         end
 
         specify '#cached' do
@@ -392,6 +392,30 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               expect(combination.cached_valid_taxon_name_id).to eq(species_syn.id)
             end
           end
+
+          context 'two synonym relationships' do
+            let!(:species1) { FactoryBot.create(:relationship_species, name: 'aus', parent: genus1)}
+            let!(:species2) { FactoryBot.create(:relationship_species, name: 'bus', parent: genus1)}
+            let!(:species_syn) { FactoryBot.create(:relationship_species, name: 'cus', parent: genus1)}
+            let!( :r1) { FactoryBot.create(:taxon_name_relationship, subject_taxon_name: species_syn, object_taxon_name: species1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym' )}
+            let!( :r2) { FactoryBot.create(:taxon_name_relationship, subject_taxon_name: species_syn, object_taxon_name: species2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym' )}
+            let!(:source1) { FactoryBot.create(:soft_valid_bibtex_source_article, year: 1999) }
+            let!(:source2) { FactoryBot.create(:soft_valid_bibtex_source_article, year: 2000) }
+
+            specify 'valid species with one citation' do
+              r1.citations.create(source: source1)
+              species_syn.reload
+              expect(species_syn.cached_valid_taxon_name_id).to eq (species1.id)
+            end
+
+            specify 'valid species with two citation' do
+              r1.citations.create(source: source1)
+              r2.citations.create(source: source2)
+              species_syn.reload
+              expect(species_syn.cached_valid_taxon_name_id).to eq (species2.id)
+            end
+          end
+
         end
       end
     end

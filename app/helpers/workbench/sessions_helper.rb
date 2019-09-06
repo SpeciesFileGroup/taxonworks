@@ -76,7 +76,11 @@ module Workbench::SessionsHelper
   end
 
   def sessions_current_project_id
-    @api_request ? @sessions_current_project.id : session[:project_id]
+    if @api_request
+      return @sessions_current_project.id if @sessions_current_project
+    else
+      session[:project_id]
+    end
   end
 
   def sessions_current_project
@@ -139,7 +143,7 @@ module Workbench::SessionsHelper
 
   def require_sign_in_and_project_selection
     # TODO: account for permitted token based projects 
-    unless sessions_signed_in? && sessions_project_selected?
+    unless (sessions_signed_in? or @api_request) && sessions_project_selected?
       respond_to do |format|
         format.html { redirect_to root_url, notice: 'Whoa there, sign in and select a project first.'  }
         format.json { render(json: {success: false}, status: :unauthorized) && return } # TODO: bad request, not unauthorized

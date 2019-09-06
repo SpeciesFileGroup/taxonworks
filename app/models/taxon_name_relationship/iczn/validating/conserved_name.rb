@@ -42,6 +42,10 @@ class TaxonNameRelationship::Iczn::Validating::ConservedName < TaxonNameRelation
     'rejiciendum'
   end
 
+  def self.assignable
+    true
+  end
+
   # as.
   def self.assignment_method
     # bus.set_as_conserved_name_of(aus)

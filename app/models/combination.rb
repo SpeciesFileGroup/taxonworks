@@ -62,7 +62,7 @@ class Combination < TaxonName
                         series subseries species subspecies variety subvariety form subform}.freeze
 
   before_validation :set_parent
-
+  validate :validate_absence_of_subject_relationships
 
   # TODO: make access private
   attr_accessor :disable_combination_relationship_check
@@ -213,7 +213,7 @@ class Combination < TaxonName
   end
 
   # @return [Boolean]
-  #   true if the finest level (typically species) is currently has the same parent
+  #   true if the finest level (typically species) currently has the same parent
   def is_current_placement?
     return false if protonyms.second_to_last.nil?
     protonyms.last.parent_id == protonyms.second_to_last.id
@@ -223,7 +223,7 @@ class Combination < TaxonName
   #   pre-ordered by rank
   def protonyms
     return protonyms_by_association if new_record?
-    p = combination_taxon_names.sort{|a,b| RANKS.index(a.rank_string) <=> RANKS.index(b.rank_string) } # .ordered_by_rank
+    p = combination_taxon_names.sort{|a,b| RANKS.index(a.rank_string) <=> RANKS.index(b.rank_string) }
     return protonyms_by_association if p.empty?
     return p
   end
@@ -272,7 +272,6 @@ class Combination < TaxonName
     result
   end
 
-
   # @return [Array of Integers]
   #   the collective years the protonyms were (nomenclaturaly) published on (ordered from genus to below)
   def publication_years
@@ -318,6 +317,11 @@ class Combination < TaxonName
     c = protonyms_by_rank
     return self if c.empty?
     c[c.keys.last].valid_taxon_name
+  end
+
+ 
+  def finest_protonym
+    protonyms_by_rank.values.last
   end
 
   def get_author_and_year
@@ -380,6 +384,12 @@ class Combination < TaxonName
   end
 
   protected
+
+  def validate_absence_of_subject_relationships
+    if TaxonNameRelationship.where(subject_taxon_name_id: self.id).any?
+      errors.add(:base, 'This combination could not be used as a Subject in any TaxonNameRelationships.')
+    end
+  end
 
   # TODO: this is a TaxonName level validation, it doesn't belong here
   def sv_year_of_publication_matches_source

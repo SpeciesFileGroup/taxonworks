@@ -16,4 +16,8 @@ class TaxonNameClassification::Iczn::Available::OfficialListOfSpecificNamesInZoo
   def classification_label
     'Official List of Specific Names in Zoological Nomenclature'
   end
+
+  def sv_not_specific_classes
+    true
+  end
 end

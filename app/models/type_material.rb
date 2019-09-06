@@ -63,10 +63,7 @@ class TypeMaterial < ApplicationRecord
 
   belongs_to :material, foreign_key: :biological_object_id, class_name: 'CollectionObject', inverse_of: :type_designations
   belongs_to :protonym
-  has_many :type_designator_roles, class_name: 'TypeDesignator', as: :role_object
-  has_many :type_designators, through: :type_designator_roles, source: :person
 
-  accepts_nested_attributes_for :type_designators, :type_designator_roles, allow_destroy: true
   accepts_nested_attributes_for :material, allow_destroy: true
 
   scope :where_protonym, -> (taxon_name) { where(protonym_id: taxon_name) }

@@ -74,7 +74,9 @@ RUN touch /app/log/production.log
 RUN chown 9999:9999 /app/log/production.log
 RUN chmod 0664 /app/log/production.log
 
+# Set up REVISION if provided as build-arg
+ARG REVISION
+RUN [ "x$REVISION" != "x" ] && echo $REVISION > /app/REVISION && \
+    echo "Set up REVISION to $REVISION" || true
+
 CMD ["/sbin/my_init"]
-
-
-

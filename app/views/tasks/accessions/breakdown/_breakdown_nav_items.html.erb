@@ -2,8 +2,8 @@
   <ul class="context-menu actions">
     <li> Sqed depiction:  <%= link_to(@result.sqed_depiction.to_param, depiction_path(@result.sqed_depiction.depiction)) -%></li>
 
-    <li><%= link_to('Next without data', sqed_depiction_breakdown_task_path(@sqed_depiction.next_without_data, @result.namespace_id), 'data-turbolinks' => 'false') -%>  </li>
-    <li><%= sqed_previous_next_links(@sqed_depiction) -%> </li>
+    <li><%= link_to('Next without data', sqed_depiction_breakdown_task_path(@result.sqed_depiction.next_without_data, @result.namespace_id), 'data-turbolinks' => 'false') -%>  </li>
+    <li><%= sqed_previous_next_links(@result.sqed_depiction) -%> </li>
     <li> <%= link_to('TODO map', sqed_depiction_breakdown_todo_map_task_path) -%> </li>
 
     <li>

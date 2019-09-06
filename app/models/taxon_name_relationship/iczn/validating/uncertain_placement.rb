@@ -38,6 +38,10 @@ class TaxonNameRelationship::Iczn::Validating::UncertainPlacement < TaxonNameRel
     ' in'
   end
 
+  def self.assignable
+    true
+  end
+
   #species.iczn_uncertain_placement = family
   def self.assignment_method
     :iczn_uncertain_placement

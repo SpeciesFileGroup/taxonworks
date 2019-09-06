@@ -41,12 +41,24 @@ RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :matrix, :dn
       end
 
       specify 'via default addition of attributes' do
-        expect(descriptor.cached_gene_attribute_sql.blank?).to be_falsey
+        descriptor.update!(gene_attribute_logic: "#{attribute1.to_logic_literal} OR #{attribute2.to_logic_literal}")
+
+        expect(
+          descriptor.update!(
+            gene_attribute_logic: "#{attribute1.to_logic_literal}",
+            gene_attributes_attributes: [{id: attribute2.id , _destroy: true} ]
+          )
+        ).to be_truthy
       end 
     end
 
     context 'is valid when' do
       specify 'set by user and logic matches attributes' do
+        descriptor.gene_attribute_logic = "#{attribute1.to_logic_literal} OR #{attribute2.to_logic_literal}"
+        expect(descriptor.save).to be_truthy
+      end
+
+      specify 'logic and attribute changes simultaneously' do
         descriptor.gene_attribute_logic = "#{attribute1.to_logic_literal} OR #{attribute2.to_logic_literal}"
         expect(descriptor.save).to be_truthy
       end

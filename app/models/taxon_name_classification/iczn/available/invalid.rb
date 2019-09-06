@@ -15,7 +15,7 @@ class TaxonNameClassification::Iczn::Available::Invalid < TaxonNameClassificatio
     'invalid'
   end
 
-  def self.sv_not_specific_classes
+  def sv_not_specific_classes
     soft_validations.add(:type, 'Although this status can be used, it is better to replace it with appropriate relationship (for example Synonym relationship)')
   end
 end

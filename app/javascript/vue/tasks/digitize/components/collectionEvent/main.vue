@@ -43,6 +43,12 @@
             <span
               class="circle-button button-default btn-undo"
               @click="cleanCollectionEvent"/>
+            <button
+              type="button"
+              class="button normal-input button-submit"
+              @click="cloneCE">
+              Clone
+            </button>
           </div>
           <component
             :is="actualComponent"
@@ -73,7 +79,7 @@
   import { ActionNames } from '../../store/actions/actions.js'
   import PinComponent from 'components/pin.vue'
   import PinDefault from 'components/getDefaultPin'
-  import { GetCollectingEventsSmartSelector, GetCollectionEvent } from '../../request/resources.js'
+  import { GetCollectingEventsSmartSelector, GetCollectionEvent, CloneCollectionEvent } from '../../request/resources.js'
   import makeCollectingEvent from '../../const/collectingEvent.js'
   import orderSmartSelector from '../../helpers/orderSmartSelector.js'
 
@@ -159,6 +165,12 @@
       },
       cleanCollectionEvent() {
         this.$store.dispatch(ActionNames.NewCollectionEvent)
+      },
+      cloneCE() {
+        CloneCollectionEvent(this.collectingEvent.id).then(response => {
+          this.$store.commit(MutationNames.SetCollectionEvent, Object.assign(makeCollectingEvent(), response))
+          this.$store.dispatch(ActionNames.SaveDigitalization)
+        })
       }
     }
   }

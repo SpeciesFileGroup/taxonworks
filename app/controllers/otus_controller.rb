@@ -77,6 +77,19 @@ class OtusController < ApplicationController
     end
   end
 
+  def destroy
+    @otu.destroy
+    respond_to do |format|
+      if @otu.destroyed?
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Otu was successfully destroyed.')}
+        format.json {head :no_content}
+      else
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Otu was not destroyed, ' + errors.messages)}
+        format.json {render json: @otu.errors, status: :unprocessable_entity}
+      end
+    end
+  end
+
   # GET /api/v1/otus/1/collection_objects
   def collection_objects
     @collection_objects = Otu.find(params[:id]).collection_objects.pluck(:id)

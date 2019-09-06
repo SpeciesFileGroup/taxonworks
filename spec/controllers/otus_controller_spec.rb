@@ -169,6 +169,7 @@ describe OtusController, type: :controller do
       end
 
       it 'redirects to the otus list' do
+        request.env['HTTP_REFERER'] = otus_url
         otu = Otu.create! valid_attributes
         delete :destroy, params: {id: otu.to_param}, session: valid_session
         expect(response).to redirect_to(otus_url)
