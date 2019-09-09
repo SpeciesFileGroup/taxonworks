@@ -1321,8 +1321,7 @@ namespace :tw do
 
 #          b = Identifier.find_by(cached: 'UCD_RefCode ' + row['RefCode'] + row['Letter'].to_s).try(:identifier_object)
 
-          b = Source::Bibtex.find_or_create_by(
-            no_year_suffix_validation: true, # only used on create?
+          b = Source::Bibtex.where(
             author: author.split(/\s*\;\s*/).compact.join(' and '),
             year: (year.blank? ? nil : year.to_i),
             month: month,
@@ -1339,7 +1338,28 @@ namespace :tw do
             language: language,
             publisher: (fext_data[row['RefCode']] ? fext_data[row['RefCode']][:publisher] : nil),
             editor: (fext_data[row['RefCode']] ? fext_data[row['RefCode']][:editor].split(/\s*\;\s*/).compact.join(' and ') : nil )
-          )
+          ).first
+
+          b = Source::Bibtex.create(
+              no_year_suffix_validation: true, # only used on create?
+              author: author.split(/\s*\;\s*/).compact.join(' and '),
+              year: (year.blank? ? nil : year.to_i),
+              month: month,
+              day: (day.blank? ? nil : day.to_i) ,
+              stated_year: stated_year,
+              year_suffix: row['Letter'],
+              title: title,
+              booktitle: journal,
+              serial_id: serial_id,
+              volume: row['Volume'],
+              pages: row['Pages'],
+              bibtex_type: 'article',
+              language_id: language_id,
+              language: language,
+              publisher: (fext_data[row['RefCode']] ? fext_data[row['RefCode']][:publisher] : nil),
+              editor: (fext_data[row['RefCode']] ? fext_data[row['RefCode']][:editor].split(/\s*\;\s*/).compact.join(' and ') : nil )
+          ) if b.nil?
+
 
           if !b.id.blank?
             b.project_sources.create
