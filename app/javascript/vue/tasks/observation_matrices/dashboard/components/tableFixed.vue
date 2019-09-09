@@ -20,7 +20,13 @@
       class="full_width">
       <thead>
         <draggable v-model="tableObject.headers" tag="tr" draggable=".th-draggable">
-          <th v-for="header in tableObject.headers" :key="header" scope="col" class="th-draggable">
+          <th
+            v-for="header in tableObject.headers"
+            :key="header"
+            scope="col"
+            @click="sortBy(header)"
+            class="th-draggable"
+            :class="{ headerSortDown: headersOrder.includes(header), headerSortUp: !headersOrder.includes(header)  }">
             {{ header }}
           </th>
           <th>Code</th>
@@ -46,16 +52,22 @@
 
 import Draggable from 'vuedraggable'
 import modalList from './modalList'
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
 
 export default {
   components: {
     Draggable,
     modalList
   },
-  props: {
+  computed: {
     tableValues: {
-      type: Object,
-      default: () => { return {} }
+      get () {
+        return this.$store.getters[GetterNames.GetRankTable]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetRankTable)
+      }
     }
   },
   data () {
@@ -72,7 +84,8 @@ export default {
         value: 'observations',
         set: ['observation_count', 'observation_depictions', 'descriptors_scored']
       },
-      tableObject: {}
+      tableObject: {},
+      headersOrder: []
     }
   },
   watch: {
@@ -111,6 +124,36 @@ export default {
       })
       return this.tableValues.data[rowIndex][otuIndex]
     },
+    sortBy (headerName) {
+      const direction = this.headersOrder.findIndex(item => { return item === headerName })
+
+      const index = this.tableValues.column_headers.findIndex(item => {
+        return item === headerName
+      })
+      if (direction >= 0) {
+        this.tableValues.data.sort(function (a, b) {
+          if (a[index] > b[index]) {
+            return 1
+          }
+          if (a[index] < b[index]) {
+            return -1
+          }
+          return 0
+        })
+        this.headersOrder.splice(direction, 1)
+      } else {
+        this.tableValues.data.sort(function (a, b) {
+          if (a[index] > b[index]) {
+            return -1
+          }
+          if (a[index] < b[index]) {
+            return 1
+          }
+          return 0
+        })
+        this.headersOrder.push(headerName)
+      }
+    }
   }
 }
 </script>
