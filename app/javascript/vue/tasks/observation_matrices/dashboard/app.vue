@@ -49,15 +49,27 @@ import TableFixed from './components/tableFixed'
 
 import { GetRanksTable } from './request/resources'
 
+import { GetterNames } from './store/getters/getters'
+import { MutationNames } from './store/mutations/mutations'
+
 export default {
   components: {
     FilterComponent,
     RankTable,
     TableFixed
   },
+  computed: {
+    rankTable: {
+      get () {
+        return this.$store.getters[GetterNames.GetRankTable]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetRankTable, value)
+      }
+    }
+  },
   data () {
     return {
-      rankTable: {},
       activeFilter: true,
       taxon: undefined,
       fieldSet: ['observations'],

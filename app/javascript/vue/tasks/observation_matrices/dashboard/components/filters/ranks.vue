@@ -32,7 +32,6 @@
 import { LoadRanks } from '../../request/resources'
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
-import GetRankNames from '../../helpers/getRankNames'
 
 export default {
   props: {
@@ -76,7 +75,6 @@ export default {
           break
         }
       }
-
       return { group: group, groupIndex: Object.keys(groups).findIndex(item => { return item === group }), rankIndex: rankIndex }
     }
   },
@@ -84,9 +82,6 @@ export default {
     LoadRanks().then(response => {
       this.ranks = response.body
     })
-  },
-  methods: {
-
   }
 }
 </script>

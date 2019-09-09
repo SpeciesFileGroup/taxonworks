@@ -28,9 +28,14 @@
         </draggable>
       </thead>
       <tbody>
-        <tr v-for="row in tableObject.objects">
+        <tr v-for="(row, rowIndex) in tableObject.objects">
           <td v-for="(item, key, index) in row">
             {{ row[tableObject.headers[index]] }}
+          </td>
+          <td>
+            <modal-list
+              :otu-id="getValueFromTable('otu_id', rowIndex)"
+              :taxon-id="getValueFromTable('taxon_name_id', rowIndex)"/>
           </td>
         </tr>
       </tbody>
@@ -41,10 +46,12 @@
 <script>
 
 import Draggable from 'vuedraggable'
+import modalList from './modalList'
 
 export default {
   components: {
-    Draggable
+    Draggable,
+    modalList
   },
   props: {
     tableValues: {
@@ -59,10 +66,6 @@ export default {
           label: 'Observations',
           value: 'observations',
           set: ['observation_count', 'observation_depictions', 'descriptors_scored']
-        },
-        {
-          label: 'Observation depictions',
-          value: 'depictions'
         }
       ],
       selectedFieldSet: {
@@ -102,7 +105,13 @@ export default {
         values.objects.push(object)
       })
       return values
-    }
+    },
+    getValueFromTable (header, rowIndex) {
+      const otuIndex = this.tableValues.column_headers.findIndex(item => {
+        return item === header
+      })
+      return this.tableValues.data[rowIndex][otuIndex]
+    },
   }
 }
 </script>

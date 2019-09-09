@@ -9,7 +9,8 @@ Vue.use(Vuex)
 function makeInitialState () {
   return {
     taxon: undefined,
-    ranksList: []
+    ranksList: [],
+    rankTable: {}
   }
 }
 
