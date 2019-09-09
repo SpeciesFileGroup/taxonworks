@@ -35,22 +35,14 @@
 class PinboardItem < ApplicationRecord
   include Housekeeping
 
-  acts_as_list scope: [:project_id, :pinned_object_type]
+  acts_as_list scope: [:project_id, :pinned_object_type, :user_id]
 
   belongs_to :user
-  belongs_to :pinned_object, polymorphic: true
+  belongs_to :pinned_object, polymorphic: true, validate: true
 
   before_validation  :validate_is_cross_project
   validates_presence_of :user_id, :pinned_object_id, :pinned_object_type
   validates_uniqueness_of :user_id, scope: [ :pinned_object_id, :pinned_object_type, :project_id ]
-
-  validate :pinned_object_type_is_ok
-
-  def pinned_object_type_is_ok
-    unless pinned_object_type&.safe_constantize
-      errors.add(:pinned_object_type, 'is not a legal type')
-    end
-  end
 
   after_save :update_insertable
 
@@ -74,7 +66,7 @@ class PinboardItem < ApplicationRecord
 
   def update_insertable
     if is_inserted?
-      r = PinboardItem.where(project_id: project_id, pinned_object_type: pinned_object_type).where.not(id: id)
+      r = PinboardItem.where(project_id: project_id, pinned_object_type: pinned_object_type, user_id: user_id).where.not(id: id)
       if pinned_object_type == 'ControlledVocabularyTerm'
         n = pinned_object.class.name
         r.find_each do |i| 

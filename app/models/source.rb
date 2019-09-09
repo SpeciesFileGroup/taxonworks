@@ -205,23 +205,25 @@ class Source < ApplicationRecord
   ALTERNATE_VALUES_FOR = [:address, :annote, :booktitle, :edition, :editor, :institution, :journal, :note, :organization,
                           :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url].freeze
 
-  has_many :citations, inverse_of: :source, dependent: :restrict_with_error
-  
-  has_many :citation_topics, through: :citations, inverse_of: :source
+  # @return [Boolean]
+  #  When true, cached values are not built
+  attr_accessor :no_year_suffix_validation
 
-  has_many :topics, through: :citation_topics, inverse_of: :sources 
   has_many :asserted_distributions, through: :citations, source: :citation_object, source_type: 'AssertedDistribution'
+  has_many :citation_topics, through: :citations, inverse_of: :source
+  has_many :citations, inverse_of: :source, dependent: :restrict_with_error
   has_many :project_sources, dependent: :destroy
   has_many :projects, through: :project_sources
+  has_many :topics, through: :citation_topics, inverse_of: :sources
 
   after_save :set_cached
 
   validates_presence_of :type
   validates :type, inclusion: {in: ['Source::Bibtex', 'Source::Human', 'Source::Verbatim']} # TODO: not needed
-  validate :validate_year_suffix
+
+  validate :validate_year_suffix, unless: -> { self.no_year_suffix_validation || (self.type != 'Source::Bibtex') }
 
   accepts_nested_attributes_for :project_sources, reject_if: :reject_project_sources
-
 
   # Redirect type here
   # @param [String] file
@@ -272,22 +274,6 @@ class Source < ApplicationRecord
     return {records: sources, count: valid}
   end
 
-  # @return [Array]
-  #    objects this source is linked to through citations
-  def cited_objects
-    self.citations.collect { |t| t.citation_object }
-  end
-
-  # @return [Boolean]
-  def is_bibtex?
-    type == 'Source::Bibtex'
-  end
-
-  # @return [Boolean]
-  def is_in_project?(project_id)
-    projects.where(id: project_id).any?
-  end
-
   # @param used_on [String] a model name 
   # @return [Scope]
   #    the max 10 most recently used (1 week, could parameterize) TaxonName, as used 
@@ -328,6 +314,22 @@ class Source < ApplicationRecord
     h
   end
 
+  # @return [Array]
+  #    objects this source is linked to through citations
+  def cited_objects
+    self.citations.collect { |t| t.citation_object }
+  end
+
+  # @return [Boolean]
+  def is_bibtex?
+    type == 'Source::Bibtex'
+  end
+
+  # @return [Boolean]
+  def is_in_project?(project_id)
+    projects.where(id: project_id).any?
+  end
+
   protected
 
   # Defined in subclasses
@@ -343,13 +345,14 @@ class Source < ApplicationRecord
   end
 
   def validate_year_suffix
-    unless year_suffix.blank?
-      if self.id
-        s = Source.where(author: author, year: year, year_suffix: year_suffix).not_self(self).first
+      a = get_author 
+    unless year_suffix.blank? || year.blank? || a.blank?
+      if new_record?
+        s = Source.where(author: a, year: year, year_suffix: year_suffix).first
       else
-        s = Source.where(author: author, year: year, year_suffix: year_suffix).first
+        s = Source.where(author: a, year: year, year_suffix: year_suffix).not_self(self).first
       end
-      errors.add(:year_suffix, 'is already used') unless s.nil?
+      errors.add(:year_suffix, " '#{year_suffix}' is already used for #{a} #{year}") unless s.nil?
     end
   end
 

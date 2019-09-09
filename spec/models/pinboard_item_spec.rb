@@ -10,15 +10,9 @@ RSpec.describe PinboardItem do
   end
 
   specify 'bad pinboard_item_type' do
-    pinboard_item.pinned_object_type = 'People'
-    pinboard_item.valid?
-    expect(pinboard_item.errors.messages.keys).to include(:pinned_object_type)
-  end
-
-  specify 'bad pinboard_item_type' do
-    pinboard_item.pinned_object_type = 'Otu'
-    pinboard_item.valid?
-    expect(pinboard_item.errors.messages.keys).to_not include(:pinned_object_type)
+    p = FactoryBot.create(:valid_pinboard_item)
+    p.pinned_object_type = 'Foo'
+    expect {p.save!}.to raise_error
   end
 
   context 'associations' do

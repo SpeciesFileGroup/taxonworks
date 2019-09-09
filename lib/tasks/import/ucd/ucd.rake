@@ -664,6 +664,7 @@ namespace :tw do
                 taxon.save!
               else # elsif taxon.id == taxon1.id
                 c = Combination.new()
+                taxon = Protonym.find_or_create_by(name: name, cached_valid_taxon_name_id: taxon1, project_id: Current.project_id) if taxon.cached_valid_taxon_name_id != taxon1
                 c.genus = taxon
                 c.save
                 if c.id.nil?
@@ -742,6 +743,7 @@ namespace :tw do
             else # elsif taxon.id == parent
               c = Combination.new()
               c.genus = Protonym.find(origgen) unless origgen.nil?
+              taxon = Protonym.find_or_create_by(name: name, cached_valid_taxon_name_id: taxon1, project_id: Current.project_id) if taxon.cached_valid_taxon_name_id != taxon1
               c.subgenus = taxon
               c.save
               if c.id.nil?
@@ -818,6 +820,7 @@ namespace :tw do
             else # elsif taxon.id == parent
               c = Combination.new()
               c.genus = Protonym.find(origgen) unless origgen.nil?
+              taxon = Protonym.find_or_create_by(name: name, cached_valid_taxon_name_id: taxon1, project_id: Current.project_id) if taxon.cached_valid_taxon_name_id != taxon1
               c.subgenus = taxon
               c.save
               if c.id.nil?
@@ -924,7 +927,7 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         i = 0
         file.each do |row|
-#byebug if row['TaxonCode'] == 'Tetras coeruB'
+#byebug if row['TaxonCode'] == 'Closte pulchG'
 #byebug if row['ValSpecies'] == 'pehlivani'
 #byebug if row['CitSpecies'] == 'asparagi'
 #byebug if row['CitSpecies'] == 'abrotoni'
@@ -984,6 +987,7 @@ namespace :tw do
               c = Combination.new()
               c.genus = Protonym.find(origgen) unless origgen.nil?
               c.subgenus = Protonym.find(origsubgen) unless origsubgen.nil?
+              taxon = Protonym.find_or_create_by(name: name, parent_id: parent, cached_valid_taxon_name_id: taxon1, project_id: Current.project_id) if taxon.cached_valid_taxon_name_id != taxon1
               c.species = taxon
               c.verbatim_name = c.get_full_name
               c.save
@@ -1067,6 +1071,7 @@ namespace :tw do
               c.genus = Protonym.find(origgen) unless origgen.nil?
               c.subgenus = Protonym.find(origsubgen) unless origsubgen.nil?
               c.species = Protonym.find(origspecies) unless origspecies.nil?
+              taxon = Protonym.find_or_create_by(name: name, parent_id: parent, cached_valid_taxon_name_id: taxon1, project_id: Current.project_id) if taxon.cached_valid_taxon_name_id != taxon1
               c.subspecies = taxon
               c.verbatim_name = c.get_full_name
               c.save
@@ -1296,7 +1301,7 @@ namespace :tw do
             stated_year = nil
           end
 
-          print "\n ERROR: Year out of range: [#{year.to_i == 0 ? 'not provided' : year}]\n" if year.to_i < 1500 || year.to_i > 2018
+          print "\n ERROR: #{row['RefCode']} : Year out of range: [#{year.to_i == 0 ? 'not provided' : year}]\n" if year.to_i < 1500 || year.to_i > 2018
           year = nil if year.to_i < 1500 || year.to_i > 2018
           stated_year = nil if stated_year.to_i < 1500 || stated_year.to_i > 2018
 
@@ -1316,7 +1321,7 @@ namespace :tw do
 
 #          b = Identifier.find_by(cached: 'UCD_RefCode ' + row['RefCode'] + row['Letter'].to_s).try(:identifier_object)
 
-          b = Source::Bibtex.find_or_create_by(
+          b = Source::Bibtex.where(
             author: author.split(/\s*\;\s*/).compact.join(' and '),
             year: (year.blank? ? nil : year.to_i),
             month: month,
@@ -1333,7 +1338,28 @@ namespace :tw do
             language: language,
             publisher: (fext_data[row['RefCode']] ? fext_data[row['RefCode']][:publisher] : nil),
             editor: (fext_data[row['RefCode']] ? fext_data[row['RefCode']][:editor].split(/\s*\;\s*/).compact.join(' and ') : nil )
-          )
+          ).first
+
+          b = Source::Bibtex.create(
+              no_year_suffix_validation: true, # only used on create?
+              author: author.split(/\s*\;\s*/).compact.join(' and '),
+              year: (year.blank? ? nil : year.to_i),
+              month: month,
+              day: (day.blank? ? nil : day.to_i) ,
+              stated_year: stated_year,
+              year_suffix: row['Letter'],
+              title: title,
+              booktitle: journal,
+              serial_id: serial_id,
+              volume: row['Volume'],
+              pages: row['Pages'],
+              bibtex_type: 'article',
+              language_id: language_id,
+              language: language,
+              publisher: (fext_data[row['RefCode']] ? fext_data[row['RefCode']][:publisher] : nil),
+              editor: (fext_data[row['RefCode']] ? fext_data[row['RefCode']][:editor].split(/\s*\;\s*/).compact.join(' and ') : nil )
+          ) if b.nil?
+
 
           if !b.id.blank?
             b.project_sources.create
@@ -1359,7 +1385,7 @@ namespace :tw do
             end
             @data.references[row['RefCode']] = b.id
           else
-            print "\nThe reference with RefCode: #{row['RefCode']} is invalid\n"
+            print "\nThe reference with RefCode: #{row['RefCode']} is invalid: #{b.errors.full_messages.join('; ')}.\n"
           end
 
         end
@@ -2139,6 +2165,7 @@ namespace :tw do
 
           taxon = find_taxon_ucd(row['TaxonCode'])
           taxon1 = find_taxon_ucd(row['Code'])
+#byebug if           row['TaxonCode'] == 'Closte pulchG'
 #byebug if taxon && taxon.name == "abrotoni"
 #byebug if taxon1 && taxon1.name == "abrotoni"
 #          byebug if row['TaxonCode'] == 'IhambrA' && row['Code'] == 'IhrambA'
@@ -2196,21 +2223,24 @@ namespace :tw do
                 c.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
               end
             else
-              print "\n ERROR: Invalid relationship: TaxonCode: #{row['TaxonCode']}, Status: #{row['Status']}, Code: #{row['Code']}\n"
+              print "\n ERROR: Invalid status: TaxonCode: #{row['TaxonCode']}, Status: #{row['Status']}\n"
+              print "\n ERROR: Invalid status: Taxon1: #{taxon.try(:cached)}, Status: #{nt}\n"
             end
           end
 
           if taxon.nil?
             print "\n ERROR: Invalid TaxonCode: #{row['TaxonCode']}\n"
           elsif taxon.type == 'Combination'
-            valid = TaxonName.find(taxon.cached_valid_taxon_name_id)
-            taxon = valid
+            #valid = TaxonName.find(taxon.cached_valid_taxon_name_id)
+            #taxon = valid
+            taxon = taxon.protonyms.last
           end
           taxon.notes.create(text: row['Notes'].to_s.gsub('|','_') + ' ' + row['Code'].to_s) if !row['Notes'].blank? && !taxon.nil?
 
           if !taxon1.nil? && taxon1.type == 'Combination'
-            valid = TaxonName.find(taxon1.cached_valid_taxon_name_id)
-            taxon1 = valid
+            #valid = TaxonName.find(taxon1.cached_valid_taxon_name_id)
+            #taxon1 = valid
+            taxon1 = taxon1.protonyms.last
           end
 
           if !relationship[row['Status']].nil? && !taxon.nil? && !taxon1.nil?
@@ -2238,6 +2268,7 @@ namespace :tw do
                 end
               else
                 print "\n ERROR: Invalid relationship: TaxonCode: #{row['TaxonCode']}, Status: #{row['Status']}, Code: #{row['Code']}\n"
+                print "\n ERROR: Invalid relationship: Taxon1: #{taxon.try(:cached)}, Status: #{relationship[row['Status']]}, Taxon2: #{taxon1.try(:cached)}\n"
               end
 
             else

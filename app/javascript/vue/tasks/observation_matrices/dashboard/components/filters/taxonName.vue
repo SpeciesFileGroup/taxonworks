@@ -8,6 +8,7 @@
         param="term"
         display="label"
         label="label_html"
+        :clear-after="true"
         placeholder="Search a taxon name"
         @getItem="getTaxon"/>
     </div>
@@ -18,6 +19,7 @@
 
 import Autocomplete from 'components/autocomplete'
 import { GetTaxonName } from '../../request/resources'
+import { MutationNames } from '../../store/mutations/mutations'
 
 export default {
   props: {
@@ -32,7 +34,7 @@ export default {
   methods: {
     getTaxon (event) {
       GetTaxonName(event.id).then(response => {
-        this.taxonName = response.body
+        this.$store.commit(MutationNames.SetTaxon, response.body)
         this.$emit('input', response.body)
       })
     }

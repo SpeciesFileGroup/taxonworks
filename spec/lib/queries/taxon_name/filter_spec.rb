@@ -164,13 +164,13 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     expect(query.all.map(&:id)).to contain_exactly(genus.id)
   end
 
-  specify '#parent_id[]' do
-    query.parent_id = [root.id]
-    expect(query.all.map(&:id)).to contain_exactly(genus.id, original_genus.id)
+  specify '#taxon_name_id[]' do
+    query.taxon_name_id = [root.id]
+    expect(query.all.map(&:id)).to contain_exactly(root.id)
   end
 
-  specify '#parent_id[] 2' do
-    query.parent_id = [genus.id]
+  specify '#taxon_name_id[] 2' do
+    query.taxon_name_id = [genus.id]
     query.descendants = true
     expect(query.all.map(&:id)).to contain_exactly(species.id, genus.id)
   end
@@ -234,7 +234,7 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     query.type_metadata = true
     query.taxon_name_classification = [ 'TaxonNameClassification::Iczn::Available' ]
     query.taxon_name_relationship = [ { 'object_taxon_name_id' => genus.id.to_s, 'type' => 'TaxonNameRelationship::Typification::Genus' } ]
-    query.parent_id = [genus.id]
+    query.taxon_name_id = [species.id]
     query.name = 'Erasmoneura vulnerata'
     query.author = '(Fitch & Say, 1800)'
     query.exact = true
