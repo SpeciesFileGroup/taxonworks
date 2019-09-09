@@ -8,7 +8,7 @@
     </button>
     <modal-component
       v-if="show"
-      @close="show = false">
+      @close="reset">
       <h3 slot="header">Select matrix</h3>
       <div
         slot="body">
@@ -24,7 +24,8 @@
             />
             <default-pin 
               section="ObservationMatrices"
-              type="ObservationMatrix"/>
+              type="ObservationMatrix"
+              @getId="setMatrix"/>
           </div>
           <ul class="no_bullets">
             <li v-for="item in matrices">
@@ -40,8 +41,8 @@
           </ul>
         </div>
         <div v-else>
-          <div class="horizontal-left-content middle separate-bottom">
-            <h4 class="separate-right">{{ selectedMatrix.name }}</h4>
+          <div class="horizontal-left-content middle">
+            <h3 class="separate-right">{{ selectedMatrix.name }}</h3>
             <span
               class="button button-circle btn-undo button-default"
               @click="selectedMatrix = undefined"/>
@@ -85,7 +86,7 @@ import ModalComponent from 'components/modal'
 import Autocomplete from 'components/autocomplete'
 import DefaultPin from 'components/getDefaultPin'
 
-import { GetObservationMatrices, GetObservationRow, CreateObservationMatrixRow } from '../request/resources'
+import { GetObservationMatrices, GetObservationRow, CreateObservationMatrixRow, GetObservationMatrix } from '../request/resources'
 
 export default {
   components: {
@@ -123,6 +124,12 @@ export default {
         })
       })
     },
+    reset () {
+      this.selectedMatrix = undefined
+      this.row = undefined
+      this.create = false
+      this.show = false
+    },
     createRow () {
       return new Promise((resolve, reject) => {
         let data = {
@@ -135,6 +142,11 @@ export default {
             return resolve()
           })
         })
+      })
+    },
+    setMatrix (id) {
+      GetObservationMatrix(id).then(response => {
+        this.selectedMatrix = response.body
       })
     },
     openMatrixRowCoder () {
@@ -158,3 +170,10 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+  /deep/ .modal-body {
+    max-height: 80vh;
+    overflow-y: scroll;
+  }
+</style>

@@ -16,6 +16,10 @@ const GetObservationMatrices = () => {
   return ajaxCall('get', `/observation_matrices.json`)
 }
 
+const GetObservationMatrix = (id) => {
+  return ajaxCall('get', `/observation_matrices/${id}.json`)
+}
+
 const GetObservationRow = (matrixId, otuId) => {
   return ajaxCall('get', `/observation_matrix_rows.json?observation_matrix_id=${matrixId}&otu_id=${otuId}`)
 }
@@ -26,6 +30,7 @@ const CreateObservationMatrixRow = (data) => {
 
 export {
   CreateObservationMatrixRow,
+  GetObservationMatrix,
   GetTaxonName,
   LoadRanks,
   GetRanksTable,
