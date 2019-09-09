@@ -3,7 +3,7 @@
     <button 
       type="button"
       class="button normal-input button-default"
-      @click="show = true">
+      @click="openModal">
       Select matrix
     </button>
     <modal-component
@@ -12,6 +12,9 @@
       <h3 slot="header">Select matrix</h3>
       <div
         slot="body">
+        <spinner-component
+          v-if="loading"
+          legend="Loading"/>
         <div v-if="!selectedMatrix">
           <div
             class="separate-bottom horizontal-left-content">
@@ -84,7 +87,7 @@
 <script>
 
 import ModalComponent from 'components/modal'
-import Autocomplete from 'components/autocomplete'
+import SpinnerComponent from 'components/spinner'
 import DefaultPin from 'components/getDefaultPin'
 
 import { GetObservationMatrices, GetObservationRow, CreateObservationMatrixRow, GetObservationMatrix } from '../request/resources'
@@ -92,7 +95,7 @@ import { GetObservationMatrices, GetObservationRow, CreateObservationMatrixRow, 
 export default {
   components: {
     ModalComponent,
-    Autocomplete,
+    SpinnerComponent,
     DefaultPin
   },
   props: {
@@ -108,13 +111,12 @@ export default {
       selectedMatrix: undefined,
       row: undefined,
       create: false,
-      filterType: ''
+      filterType: '',
+      loading: false
     }
   },
   mounted () {
-    GetObservationMatrices().then(response => {
-      this.matrices = response.body
-    })
+
   },
   methods: {
     loadMatrix (matrix) {
@@ -124,6 +126,14 @@ export default {
           this.row = response.body
           return resolve()
         })
+      })
+    },
+    openModal () {
+      this.loading = true
+      this.show = true
+      GetObservationMatrices().then(response => {
+        this.matrices = response.body
+        this.loading = false
       })
     },
     reset () {
