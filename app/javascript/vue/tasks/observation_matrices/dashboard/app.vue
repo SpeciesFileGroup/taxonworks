@@ -106,7 +106,7 @@ export default {
     },
     loadRankTable () {
       const params = { 
-        ancestor_id: this.taxon.id, 
+        ancestor_id: this.taxon.id,
         ranks: this.ranks,
         fieldsets: this.fieldSet
       }
