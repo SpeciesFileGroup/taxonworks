@@ -1,0 +1,160 @@
+<template>
+  <div>
+    <button 
+      type="button"
+      class="button normal-input button-default"
+      @click="show = true">
+      Select matrix
+    </button>
+    <modal-component
+      v-if="show"
+      @close="show = false">
+      <h3 slot="header">Select matrix</h3>
+      <div
+        slot="body">
+        <div v-if="!selectedMatrix">
+          <div
+            class="separate-bottom horizontal-left-content">
+            <autocomplete
+              :array-list="matrices"
+              param="name"
+              label="name"
+              placeholder="Search a matrix"
+              @getItem="loadMatrix"
+            />
+            <default-pin 
+              section="ObservationMatrices"
+              type="ObservationMatrix"/>
+          </div>
+          <ul class="no_bullets">
+            <li v-for="item in matrices">
+              <label>
+                <input
+                  @click="loadMatrix(item)"
+                  :value="item"
+                  name="select-matrix"
+                  type="radio">
+                <span v-html="item.object_tag"/>
+              </label>
+            </li>
+          </ul>
+        </div>
+        <div v-else>
+          <div class="horizontal-left-content middle separate-bottom">
+            <h4 class="separate-right">{{ selectedMatrix.name }}</h4>
+            <span
+              class="button button-circle btn-undo button-default"
+              @click="selectedMatrix = undefined"/>
+          </div>
+          <div v-if="row">
+            <div
+              v-if="!row.length"
+              class="separate-bottom">
+              <label>
+                <input
+                  v-model="create"
+                  type="checkbox">
+                Add to matrix
+              </label>
+            </div>
+            <button
+              type="button"
+              class="button normal-input button-default"
+              @click="openMatrixRowCoder"
+              :disabled="!create && !row.length">
+              Matrix row coder
+            </button>
+            <button
+              v-if="selectedMatrix.is_media_matrix"
+              type="button"
+              class="button normal-input button-default"
+              :disabled="!create && !row.length"
+              @click="openImageMatrix">
+              Image matrix
+            </button>
+          </div>
+        </div>
+      </div>
+    </modal-component>
+  </div>
+</template>
+
+<script>
+
+import ModalComponent from 'components/modal'
+import Autocomplete from 'components/autocomplete'
+import DefaultPin from 'components/getDefaultPin'
+
+import { GetObservationMatrices, GetObservationRow, CreateObservationMatrixRow } from '../request/resources'
+
+export default {
+  components: {
+    ModalComponent,
+    Autocomplete,
+    DefaultPin
+  },
+  props: {
+    otuId: {
+      type: [String, Number],
+      default: undefined
+    }
+  },
+  data () {
+    return {
+      show: false,
+      matrices: [],
+      selectedMatrix: undefined,
+      row: undefined,
+      create: false
+    }
+  },
+  mounted () {
+    GetObservationMatrices().then(response => {
+      this.matrices = response.body
+    })
+  },
+  methods: {
+    loadMatrix (matrix) {
+      return new Promise((resolve, reject) => {
+        this.selectedMatrix = matrix
+        GetObservationRow(matrix.id, this.otuId).then(response => {
+          this.row = response.body
+          return resolve()
+        })
+      })
+    },
+    createRow () {
+      return new Promise((resolve, reject) => {
+        let data = {
+          observation_matrix_id: this.selectedMatrix.id,
+          otu_id: this.otuId,
+          type: 'ObservationMatrixRowItem::SingleOtu'
+        }
+        CreateObservationMatrixRow(data).then(response => {
+          this.loadMatrix(this.selectedMatrix).then(() => {
+            return resolve()
+          })
+        })
+      })
+    },
+    openMatrixRowCoder () {
+      if (this.row.length) {
+        window.open(`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${this.row[0].id}`, '_self')
+      } else {
+        this.createRow().then(() => {
+          window.open(`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${this.row[0].id}`, '_self')
+        })
+      }
+    },
+    openImageMatrix () {
+      if (this.row.length) {
+        window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_id=${this.row[0].id}&row_position=${this.row[0].position}`, '_self')
+      } else {
+        this.createRow().then(() => {
+          window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_id=${this.row[0].id}&row_position=${this.row[0].position}`, '_self')
+        })
+      }
+    }
+  }
+}
+</script>

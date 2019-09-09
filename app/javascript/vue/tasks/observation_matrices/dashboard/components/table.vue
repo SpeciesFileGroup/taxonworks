@@ -87,6 +87,7 @@ export default {
         return list.column_headers.includes(rank)
       })
       ranksOrder = ranksOrder.concat(this.show)
+      console.log(ranksOrder)
 
       ranksOrder.forEach((rank, index) => {
         const indexHeader = list.column_headers.findIndex(item => { return item === rank })
