@@ -664,6 +664,7 @@ namespace :tw do
                 taxon.save!
               else # elsif taxon.id == taxon1.id
                 c = Combination.new()
+                taxon = Protonym.find_or_create_by(name: name, cached_valid_taxon_name_id: taxon1, project_id: Current.project_id) if taxon.cached_valid_taxon_name_id != taxon1
                 c.genus = taxon
                 c.save
                 if c.id.nil?
@@ -742,6 +743,7 @@ namespace :tw do
             else # elsif taxon.id == parent
               c = Combination.new()
               c.genus = Protonym.find(origgen) unless origgen.nil?
+              taxon = Protonym.find_or_create_by(name: name, cached_valid_taxon_name_id: taxon1, project_id: Current.project_id) if taxon.cached_valid_taxon_name_id != taxon1
               c.subgenus = taxon
               c.save
               if c.id.nil?
@@ -818,6 +820,7 @@ namespace :tw do
             else # elsif taxon.id == parent
               c = Combination.new()
               c.genus = Protonym.find(origgen) unless origgen.nil?
+              taxon = Protonym.find_or_create_by(name: name, cached_valid_taxon_name_id: taxon1, project_id: Current.project_id) if taxon.cached_valid_taxon_name_id != taxon1
               c.subgenus = taxon
               c.save
               if c.id.nil?
@@ -924,7 +927,7 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         i = 0
         file.each do |row|
-#byebug if row['TaxonCode'] == 'Tetras coeruB'
+#byebug if row['TaxonCode'] == 'Closte pulchG'
 #byebug if row['ValSpecies'] == 'pehlivani'
 #byebug if row['CitSpecies'] == 'asparagi'
 #byebug if row['CitSpecies'] == 'abrotoni'
@@ -984,6 +987,7 @@ namespace :tw do
               c = Combination.new()
               c.genus = Protonym.find(origgen) unless origgen.nil?
               c.subgenus = Protonym.find(origsubgen) unless origsubgen.nil?
+              taxon = Protonym.find_or_create_by(name: name, parent_id: parent, cached_valid_taxon_name_id: taxon1, project_id: Current.project_id) if taxon.cached_valid_taxon_name_id != taxon1
               c.species = taxon
               c.verbatim_name = c.get_full_name
               c.save
@@ -1067,6 +1071,7 @@ namespace :tw do
               c.genus = Protonym.find(origgen) unless origgen.nil?
               c.subgenus = Protonym.find(origsubgen) unless origsubgen.nil?
               c.species = Protonym.find(origspecies) unless origspecies.nil?
+              taxon = Protonym.find_or_create_by(name: name, parent_id: parent, cached_valid_taxon_name_id: taxon1, project_id: Current.project_id) if taxon.cached_valid_taxon_name_id != taxon1
               c.subspecies = taxon
               c.verbatim_name = c.get_full_name
               c.save
@@ -2139,6 +2144,7 @@ namespace :tw do
 
           taxon = find_taxon_ucd(row['TaxonCode'])
           taxon1 = find_taxon_ucd(row['Code'])
+#byebug if           row['TaxonCode'] == 'Closte pulchG'
 #byebug if taxon && taxon.name == "abrotoni"
 #byebug if taxon1 && taxon1.name == "abrotoni"
 #          byebug if row['TaxonCode'] == 'IhambrA' && row['Code'] == 'IhrambA'
