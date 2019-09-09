@@ -15,29 +15,30 @@
         <div v-if="!selectedMatrix">
           <div
             class="separate-bottom horizontal-left-content">
-            <autocomplete
-              :array-list="matrices"
-              param="name"
-              label="name"
-              placeholder="Search a matrix"
-              @getItem="loadMatrix"
-            />
+            <input
+              v-model="filterType"
+              type="text"
+              placeholder="Filter matrix">
             <default-pin 
               section="ObservationMatrices"
               type="ObservationMatrix"
               @getId="setMatrix"/>
           </div>
           <ul class="no_bullets">
-            <li v-for="item in matrices">
-              <label>
-                <input
-                  @click="loadMatrix(item)"
-                  :value="item"
-                  name="select-matrix"
-                  type="radio">
-                <span v-html="item.object_tag"/>
-              </label>
-            </li>
+            <template v-for="item in matrices">
+              <li
+                :key="item.id"
+                v-if="item.object_tag.toLowerCase().includes(filterType.toLowerCase())">
+                <label>
+                  <input
+                    @click="loadMatrix(item)"
+                    :value="item"
+                    name="select-matrix"
+                    type="radio">
+                  <span v-html="item.object_tag"/>
+                </label>
+              </li>
+            </template>
           </ul>
         </div>
         <div v-else>
@@ -106,7 +107,8 @@ export default {
       matrices: [],
       selectedMatrix: undefined,
       row: undefined,
-      create: false
+      create: false,
+      filterType: ''
     }
   },
   mounted () {
@@ -175,5 +177,8 @@ export default {
   /deep/ .modal-body {
     max-height: 80vh;
     overflow-y: scroll;
+  }
+  /deep/ .modal-container {
+    width: 800px;
   }
 </style>

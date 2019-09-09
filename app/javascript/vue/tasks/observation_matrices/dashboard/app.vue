@@ -7,13 +7,23 @@
           <label>
             <input
               type="checkbox"
+              v-model="activeJson">
+            Show JSON Request
+          </label>
+        </li>
+        <li>
+          <label>
+            <input
+              type="checkbox"
               v-model="activeFilter">
             Show filter
           </label>
         </li>
       </ul>
     </div>
-
+    <json-bar
+      v-if="activeJson"
+      :json-url="jsonUrl"/>
     <div class="horizontal-left-content align-start">
       <filter-component
         class="separate-right"
@@ -46,6 +56,7 @@
 import FilterComponent from './components/filter.vue'
 import RankTable from './components/table'
 import TableFixed from './components/tableFixed'
+import JsonBar from './components/headerBar'
 
 import { GetRanksTable } from './request/resources'
 
@@ -56,7 +67,8 @@ export default {
   components: {
     FilterComponent,
     RankTable,
-    TableFixed
+    TableFixed,
+    JsonBar
   },
   computed: {
     rankTable: {
@@ -73,7 +85,9 @@ export default {
       activeFilter: true,
       taxon: undefined,
       fieldSet: ['observations'],
-      ranks: []
+      ranks: [],
+      jsonUrl: '',
+      activeJson: false
     }
   },
   watch: {
@@ -97,6 +111,7 @@ export default {
         fieldsets: this.fieldSet
       }
       GetRanksTable(this.taxon.id, params).then(response => {
+        this.jsonUrl = response.url
         this.rankTable = response.body
       })
     }

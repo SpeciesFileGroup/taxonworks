@@ -11,7 +11,7 @@
       </select>
       <button
         type="button"
-        class="button normal-input button-default">
+        class="button normal-input button-default separate-left">
         Set
       </button>
     </div>
@@ -23,7 +23,6 @@
           <th v-for="header in tableObject.headers" :key="header" scope="col" class="th-draggable">
             {{ header }}
           </th>
-          <th>Code for matrix</th>
           <th>Code</th>
         </draggable>
       </thead>

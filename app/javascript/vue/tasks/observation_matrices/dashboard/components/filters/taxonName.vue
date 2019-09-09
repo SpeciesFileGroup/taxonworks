@@ -8,6 +8,7 @@
         param="term"
         display="label"
         label="label_html"
+        :clear-after="true"
         placeholder="Search a taxon name"
         @getItem="getTaxon"/>
     </div>
