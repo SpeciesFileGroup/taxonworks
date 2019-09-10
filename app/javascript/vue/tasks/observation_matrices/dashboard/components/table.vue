@@ -38,7 +38,9 @@
       </thead>
       <tbody>
         <tr 
-          v-for="(row, index) in tableRanks.data">
+          v-for="(row, index) in tableRanks.data"
+          class="contextMenuCells btn btn-neutral"
+          :class="{ even: (index % 2)}">
           <template v-for="(header, hindex) in tableRanks.column_headers">
             <td v-if="isFiltered(header)">
               {{ row[hindex] }}
