@@ -68,11 +68,12 @@
           :parent="parent"
           :object-lists="objectLists"
           :show-modal="showModal"
+          valid-property="valid_object_ranks"
           @selected="addEntry"
           mutation-name-add="AddTaxonType"
           mutation-name-modal="SetModalType"
           name-module="Types"
-          display-name="subject_status_tag"/>
+          display-name="object_status_tag"/>
         <div class="switch-radio">
           <input
             name="type-picker-options"
@@ -103,7 +104,7 @@
             :object-lists="objectLists.common"
             :filter="true"
             @addEntry="addEntry"
-            display="subject_status_tag"
+            display="object_status_tag"
             :list-created="GetRelationshipsCreated"/>
         </div>
       </div>
