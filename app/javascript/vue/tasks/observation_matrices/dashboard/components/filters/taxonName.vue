@@ -55,6 +55,6 @@ export default {
     width: 60px;
   }
   /deep/ .vue-autocomplete-list {
-    min-width: 500px;
+    min-width: 800px;
   }
 </style>

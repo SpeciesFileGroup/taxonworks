@@ -91,7 +91,8 @@ export default {
       ranks: [],
       jsonUrl: '',
       activeJson: false,
-      validity: false
+      validity: false,
+      limit: 1000
     }
   },
   watch: {
@@ -102,6 +103,14 @@ export default {
         }
       },
       deep: true
+    },
+    rankTable: {
+      handler (newVal) {
+        if (newVal.data.length === this.limit) {
+          TW.workbench.alert.create('Result contains 1000 rows, it may be truncated.', 'notice')
+        }
+      },
+      deep: true
     }
   },
   methods: {
@@ -109,11 +118,12 @@ export default {
       this.list = []
     },
     loadRankTable () {
-      const params = { 
+      const params = {
         ancestor_id: this.taxon.id,
         ranks: this.ranks,
         fieldsets: this.fieldSet,
-        validity: this.validity ? true : undefined
+        validity: this.validity ? true : undefined,
+        limit: this.limit
       }
       GetRanksTable(this.taxon.id, params).then(response => {
         this.jsonUrl = response.url
