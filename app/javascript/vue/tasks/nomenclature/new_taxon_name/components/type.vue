@@ -114,7 +114,7 @@
         :edit="true"
         :list="GetRelationshipsCreated"
         @delete="removeType"
-        @edit="editType = $event"
+        @edit="setEdit"
         :display="['object_status_tag', { link: '/tasks/nomenclature/browse?taxon_name_id=', label: 'subject_object_tag', param: 'subject_taxon_name_id'}]"/>
     </div>
   </form>
@@ -222,6 +222,13 @@ export default {
     }
   },
   methods: {
+    setEdit(relationship) {
+      this.editType = relationship
+      this.addTaxonType({
+        id: relationship.subject_taxon_name_id,
+        label_html: relationship.object_tag
+      })
+    },
     loadTaxonRelationships: function () {
       this.$store.dispatch(ActionNames.LoadTaxonRelationships, this.taxon.id)
     },
