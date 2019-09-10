@@ -27,7 +27,7 @@
             @click="sortBy(header)"
             class="th-draggable"
             :class="{ headerSortDown: headersOrder.includes(header), headerSortUp: !headersOrder.includes(header) }">
-            {{ header.replace('_', ' ') }}
+            <span v-html="header.replace('_', '<br>')"/>
           </th>
           <th>Code</th>
         </draggable>
