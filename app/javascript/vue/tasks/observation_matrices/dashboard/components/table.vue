@@ -114,7 +114,13 @@ export default {
     },
     tableList: {
       handler (newVal) {
-        this.tableRanks = this.orderRanksTable(newVal)
+        this.sorting = true
+        setTimeout(() => {
+          this.tableRanks = this.orderRanksTable(newVal)
+          this.$nextTick(() => {
+            this.sorting = false
+          })
+        }, 50)
       }
     }
   },
@@ -180,7 +186,7 @@ export default {
         this.$nextTick(() => {
           this.sorting = false
         })
-      }, 0)
+      }, 50)
     }
   }
 }
