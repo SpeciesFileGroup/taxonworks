@@ -266,6 +266,10 @@ scope :tasks do
   end
 
   scope :nomenclature do
+      scope :stats, controller: 'tasks/nomenclature/stats' do
+        get :index, as: 'index_stats_task'
+      end
+
     scope :new_combination, controller: 'tasks/nomenclature/new_combination' do
       get 'index', as: 'new_combination_task'
     end
