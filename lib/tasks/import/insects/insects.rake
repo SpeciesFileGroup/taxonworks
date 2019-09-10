@@ -351,6 +351,7 @@ namespace :tw do
         print 'Handling namespaces  '
 
         catalogue_namespaces = [
+            'Amber',
             'Acari',
             'Araneae',
             'Coleoptera',
@@ -379,75 +380,31 @@ namespace :tw do
         ]
 
         if import.metadata['namespaces']
-          @taxon_namespace = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS Taxon Code', short_name: 'Taxon Code').first
-          @accession_namespace = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS Legacy Accession Code', short_name: 'Accession Code').first
-          @user_namespace = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS Legacy User ID', short_name: 'User ID').first
+          @taxon_namespace = Namespace.where(institution: 'Illinois Natural History Survey', name: 'INHS Taxon Code', short_name: 'Taxon Code').first
+          @accession_namespace = Namespace.where(institution: 'Illinois Natural History Survey', name: 'INHS Legacy Accession Code', short_name: 'Accession Code').first
+          @user_namespace = Namespace.where(institution: 'Illinois Natural History Survey', name: 'INHS Legacy User ID', short_name: 'User ID').first
           print "from database.\n"
         else
           print "as newly parsed.\n"
-          @taxon_namespace = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS Taxon Code', short_name: 'Taxon Code')
-          @accession_namespace = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS Legacy Accession Code', short_name: 'Accession Code')
-          @user_namespace = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS Legacy User ID', short_name: 'User ID')
+          @taxon_namespace = Namespace.create(institution: 'Illinois Natural History Survey', name: 'INHS Taxon Code', short_name: 'Taxon Code')
+          @accession_namespace = Namespace.create(institution: 'Illinois Natural History Survey', name: 'INHS Legacy Accession Code', short_name: 'Accession Code')
+          @user_namespace = Namespace.create(institution: 'Illinois Natural History Survey', name: 'INHS Legacy User ID', short_name: 'User ID')
           import.metadata['namespaces'] = true
         end
 
         catalogue_namespaces.each do |cn|
-          n = Namespace.where(institution: 'INHS Insect Collection', short_name: cn)
-          if n.empty?
-            n = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS ' + cn, short_name: cn)
-          else
-            n = n.first
-          end
+          n = Namespace.find_or_create_by(institution: 'Illinois Natural History Survey', name: 'Illinois Natural History Survey ' + cn, short_name: 'INHS ' + cn)
           data.namespaces[cn] = n
         end
 
-        n = Namespace.where(institution: 'INHS Insect Collection', short_name: 'NEON')
-        if n.empty?
-          n = Namespace.create(institution: 'INHS Insect Collection', name: 'NEON', short_name: 'NEON')
-        else
-          n = n.first
-        end
+          n = Namespace.find_or_create_by(institution: 'Illinois Natural History Survey', name: 'INHS NEON', short_name: 'NEON')
         data.namespaces['NEON'] = n
 
-        n = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS loan invoice')
-        if n.empty?
-          n = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS loan invoice', short_name: 'Invoice')
-        else
-          n = n.first
-        end
+          n = Namespace.find_or_create_by(institution: 'Illinois Natural History Survey', name: 'Illinois Natural History Survey loan invoice', short_name: 'INHS Invoice')
         data.namespaces['Invoice'] = n
 
-        n = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS container')
-        if n.empty?
-          n = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS container', short_name: 'Container')
-        else
-          n = n.first
-        end
+          n = Namespace.find_or_create_by(institution: 'Illinois Natural History Survey', name: 'Illinois Natural History Survey container', short_name: 'INHS Container')
         data.namespaces['container'] = n
-
-#        n = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS drawer')
-#        if n.empty?
-#          n = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS drawer', short_name: 'D')
-#        else
-#          n = n.first
-#        end
-#        data.namespaces['dry'] = n
-
-#        n = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS vial rack')
-#        if n.empty?
-#          n = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS vial rack', short_name: 'R')
-#        else
-#          n = n.first
-#        end
-#        data.namespaces['wet'] = n
-
-#        n = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS slide box')
-#        if n.empty?
-#          n = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS slide box', short_name: 'S')
-#        else
-#          n = n.first
-#        end
-#        data.namespaces['slide'] = n
 
         data.namespaces.merge!(taxon_namespace: @taxon_namespace)
         data.namespaces.merge!(accession_namespace: @accession_namespace)
@@ -615,9 +572,9 @@ namespace :tw do
 
           # from handle taxa
           data.keywords.merge!(
-              'Taxa:TaxonCode' => Predicate.create(name: 'TaxonCode', definition: 'The verbatim value on import from INHS FileMaker database for Taxa#TaxonCode.'),
-              'Taxa:Synonyms' => Predicate.create(name: 'Synonyms', definition: 'The verbatim value on import from INHS FileMaker database for Taxa#Synonyms.'),
-              'Taxa:References' => Predicate.create(name: 'References', definition: 'The verbatim value on import INHS FileMaker database for Taxa#References.')
+              'TaxonCode' => Predicate.create(name: 'TaxonCode', definition: 'The verbatim value on import from INHS FileMaker database for Taxa#TaxonCode.'),
+              'Synonyms' => Predicate.create(name: 'Synonyms', definition: 'The verbatim value on import from INHS FileMaker database for Taxa#Synonyms.'),
+              'References' => Predicate.create(name: 'References', definition: 'The verbatim value on import INHS FileMaker database for Taxa#References.')
           )
 
           # from handle people
@@ -1648,12 +1605,12 @@ namespace :tw do
             object = nil
             subject = nil
 
-            unless row['Prefix'].blank? || row['CatalogNumber'].blank?
-              identifier = Identifier.where(cached: row['Prefix'] + ' ' + row['CatalogNumber'], type: 'Identifier::Local::CatalogNumber', project_id: $project_id)
+            if !row['Prefix'].blank? && !row['CatalogNumber'].blank?
+              identifier = Identifier.where(cached: 'INHS ' + row['Prefix'] + ' ' + row['CatalogNumber'], type: 'Identifier::Local::CatalogNumber', project_id: $project_id)
               specimen = identifier.empty? ? nil : identifier.first.identifier_object
             end
-            unless row['AssociatedPrefix'].blank? || row['AssociatedCatalogNumber'].blank?
-              identifier = Identifier.where(cached: row['AssociatedPrefix'] + ' ' + row['AssociatedCatalogNumber'], type: 'Identifier::Local::CatalogNumber', project_id: $project_id)
+            if !row['AssociatedPrefix'].blank? && !row['AssociatedCatalogNumber'].blank?
+              identifier = Identifier.where(cached: 'INHS ' + row['AssociatedPrefix'] + ' ' + row['AssociatedCatalogNumber'], type: 'Identifier::Local::CatalogNumber', project_id: $project_id)
               related_specimen = identifier.empty? ? nil : identifier.first.identifier_object
             end
             if !row['AssociatedTaxonCode'].blank? && related_specimen.nil?
@@ -1827,7 +1784,7 @@ namespace :tw do
               total = data.loan_invoice_speciments[row['CatalogNumber']]['Total']
             else
               loan_item_object = Identifier.where(
-                cached: row['Prefix'] + ' ' + row['CatalogNumber'],
+                cached: 'INHS ' + row['Prefix'] + ' ' + row['CatalogNumber'],
                 type: 'Identifier::Local::CatalogNumber',
                 project_id: $project_id,
                 identifier_object_type: 'CollectionObject'
