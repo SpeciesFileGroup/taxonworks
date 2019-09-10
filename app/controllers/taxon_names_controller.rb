@@ -160,7 +160,8 @@ class TaxonNamesController < ApplicationController
       ancestor_id: params.require(:ancestor_id),
       project_id: sessions_current_project_id, 
       ranks: params.require(:ranks),
-      fieldsets: params[:fieldsets]
+      fieldsets: params[:fieldsets],
+      limit: params[:limit]
     )
   end
 

@@ -28,12 +28,14 @@ module Queries
 
       attr_accessor :validity
 
+      attr_accessor :limit
+
       # @param params [Params] 
       #   a permitted via controller
       def initialize(params)
         super(nil, params)
 
-        @ranks = params[:ranks] 
+        @ranks = params[:ranks] || [] 
         @ancestor_id = params[:ancestor_id]
         @ancestor = ::Protonym.where(project_id: project_id).find(ancestor_id)
 
@@ -41,6 +43,8 @@ module Queries
         @column_headers = ['generations', 'otu_id', 'taxon_name_id', 'cached'] + ranks 
 
         @validity = (params[:validity]&.downcase == 'true' ? true : false) if !params[:validity].nil?
+
+        @limit = params[:limit]
 
         build_query
       end
@@ -94,6 +98,8 @@ module Queries
         fieldsets.each do |f|
           q = send(f + '_set', q) 
         end
+
+        q.q.take(limit) if limit
 
         @query = q.distinct.project( *@projected_fields ).order(h[:generations], *fields.keys)
       end
