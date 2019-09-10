@@ -111,7 +111,7 @@ export default {
         ancestor_id: this.taxon.id,
         ranks: this.ranks,
         fieldsets: this.fieldSet,
-        validity: this.validity
+        validity: this.validity ? true : undefined
       }
       GetRanksTable(this.taxon.id, params).then(response => {
         this.jsonUrl = response.url
