@@ -24,7 +24,7 @@
       <thead>
         <tr>
           <th 
-            v-if="!isFiltered(header) || selectedFieldSet.set.includes(header) || ranksSelected.includes(header)"
+            v-if="isFiltered(header)"
             v-for="(header, index) in tableRanks.column_headers"
             @click="sortBy(header)">
             <span v-html="header.replace('_', '<br>')"/>
@@ -36,7 +36,7 @@
         <tr 
           v-for="(row, index) in tableRanks.data">
           <template v-for="(header, hindex) in tableRanks.column_headers">
-            <td v-if="!isFiltered(header) || selectedFieldSet.set.includes(header) || ranksSelected.includes(header)">
+            <td v-if="isFiltered(header)">
               {{ row[hindex] }}
             </td>
           </template>
@@ -95,8 +95,7 @@ export default {
         value: 'observations',
         set: ['observation_count', 'observation_depictions', 'descriptors_scored']
       },
-      tableObject: {},
-      headersOrder: []
+      ascending: false
     }
   },
   watch: {
@@ -113,8 +112,8 @@ export default {
     }
   },
   methods: {
-    isFiltered (value) {
-      return !this.show.includes(value)
+    isFiltered (header) {
+      return this.show.includes(header) || this.selectedFieldSet.set.includes(header) || this.ranksSelected.includes(header)
     },
     getRankNames (list, nameList = []) {
       for (var key in list) {
@@ -155,33 +154,20 @@ export default {
       return this.tableRanks.data[rowIndex][otuIndex]
     },
     sortBy (headerName) {
-      const direction = this.headersOrder.findIndex(item => { return item === headerName })
 
       const index = this.tableRanks.column_headers.findIndex(item => {
         return item === headerName
       })
-      if (direction >= 0) {
+      if (this.ascending) {
         this.tableRanks.data.sort(function (a, b) {
-          if (a[index] > b[index]) {
-            return 1
-          }
-          if (a[index] < b[index]) {
-            return -1
-          }
-          return 0
+          return (a[index] === null) - (b[index] === null) || +(a[index] > b[index]) || -(a[index] < b[index])
         })
-        this.headersOrder.splice(direction, 1)
+        this.ascending = false
       } else {
         this.tableRanks.data.sort(function (a, b) {
-          if (a[index] > b[index]) {
-            return -1
-          }
-          if (a[index] < b[index]) {
-            return 1
-          }
-          return 0
+          return (a[index] === null) - (b[index] === null) || -(a[index] > b[index]) || +(a[index] < b[index])
         })
-        this.headersOrder.push(headerName)
+        this.ascending = true
       }
     }
   }
