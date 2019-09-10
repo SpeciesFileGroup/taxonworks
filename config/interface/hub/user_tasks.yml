@@ -422,7 +422,7 @@ index_matrix_image_task:
   name: 'Image matrix'
   related:
   categories:
-  - matrix
+    - matrix
   status: prototype
   description: 'Code a special type of image-based matrix by organizing images into a matrix.  Uses media-type descriptors.'
 index_dashboard_task:
@@ -430,6 +430,14 @@ index_dashboard_task:
   name: 'Observation matrices dashboard'
   related:
   categories:
-  - matrix
+    - matrix
   status: prototype
   description: 'Summarize observations across a nomenclaturally-based hierarchy.'
+index_stats_task:
+  hub: true
+  name: 'Nomenclature stats'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Get counts of names as different ranks.'
