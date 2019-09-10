@@ -23,7 +23,7 @@
       <span
         class="middle cursor-pointer"
         data-icon="reset"
-        @click="resetList">Reset</span>
+        @click="resetList">Reset order</span>
     </div>
     <table
       class="full_width"
