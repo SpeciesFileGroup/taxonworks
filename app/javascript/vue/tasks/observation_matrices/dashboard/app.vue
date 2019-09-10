@@ -30,6 +30,7 @@
         v-show="activeFilter"
         @rankSelected="ranks = $event"
         @onTaxon="taxon = $event"
+        @onValidity="validity = $event"
         @reset="resetTask"/>
       <div class="full_width">
         <div
@@ -87,7 +88,8 @@ export default {
       fieldSet: ['observations'],
       ranks: [],
       jsonUrl: '',
-      activeJson: false
+      activeJson: false,
+      validity: false
     }
   },
   watch: {
@@ -108,7 +110,8 @@ export default {
       const params = { 
         ancestor_id: this.taxon.id,
         ranks: this.ranks,
-        fieldsets: this.fieldSet
+        fieldsets: this.fieldSet,
+        validity: this.validity
       }
       GetRanksTable(this.taxon.id, params).then(response => {
         this.jsonUrl = response.url
