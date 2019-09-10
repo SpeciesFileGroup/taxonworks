@@ -26,8 +26,8 @@
             scope="col"
             @click="sortBy(header)"
             class="th-draggable"
-            :class="{ headerSortDown: headersOrder.includes(header), headerSortUp: !headersOrder.includes(header)  }">
-            {{ header }}
+            :class="{ headerSortDown: headersOrder.includes(header), headerSortUp: !headersOrder.includes(header) }">
+            {{ header.replace('_', ' ') }}
           </th>
           <th>Code</th>
         </draggable>
