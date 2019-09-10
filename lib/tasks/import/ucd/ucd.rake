@@ -743,7 +743,8 @@ namespace :tw do
             else # elsif taxon.id == parent
               c = Combination.new()
               c.genus = Protonym.find(origgen) unless origgen.nil?
-              taxon = Protonym.find_or_create_by(name: name, cached_valid_taxon_name_id: taxon1, project_id: Current.project_id) if taxon.cached_valid_taxon_name_id != taxon1
+              t = Protonym.find_by(name: name, cached_valid_taxon_name_id: taxon1.cached_valid_taxon_name_id, project_id: Current.project_id)
+              taxon = t unless t.nil?
               c.subgenus = taxon
               c.save
               if c.id.nil?
@@ -820,7 +821,8 @@ namespace :tw do
             else # elsif taxon.id == parent
               c = Combination.new()
               c.genus = Protonym.find(origgen) unless origgen.nil?
-              taxon = Protonym.find_or_create_by(name: name, cached_valid_taxon_name_id: taxon1, project_id: Current.project_id) if taxon.cached_valid_taxon_name_id != taxon1
+              t = Protonym.find_by(name: name, cached_valid_taxon_name_id: taxon1.cached_valid_taxon_name_id, project_id: Current.project_id)
+              taxon = t unless t.nil?
               c.subgenus = taxon
               c.save
               if c.id.nil?
@@ -960,7 +962,7 @@ namespace :tw do
             end
 
             # !?! DON'T Create identifier ... (invalid)
-            @data.taxon_codes[row['TaxonCode']] = taxon.id
+            @data.taxon_codes[row['TaxonCode']] = taxon.id if taxon.changed?
             @data.all_species_index[row['CitGenus'].to_s + ' ' + name] = taxon.id if @data.all_species_index[row['CitGenus'].to_s + ' ' + name].nil?
             #@data.species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
             taxon1 = @data.all_species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s]
@@ -987,7 +989,19 @@ namespace :tw do
               c = Combination.new()
               c.genus = Protonym.find(origgen) unless origgen.nil?
               c.subgenus = Protonym.find(origsubgen) unless origsubgen.nil?
-              taxon = Protonym.find_or_create_by(name: name, parent_id: parent, cached_valid_taxon_name_id: taxon1, project_id: Current.project_id) if taxon.cached_valid_taxon_name_id != taxon1
+              taxon1 = Protonym.find(taxon1)
+              t = Protonym.find_by(name: name, parent_id: parent, cached_valid_taxon_name_id: taxon1.cached_valid_taxon_name_id, project_id: Current.project_id)
+              if t.nil?
+                Protonym.where(cached_valid_taxon_name_id: taxon1.cached_valid_taxon_name_id).find_each do |r|
+                  if taxon.name_with_alternative_spelling == r.name_with_alternative_spelling
+                    r.taxon_name_classifications.create(type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
+                    taxon = r
+                    break
+                  end
+                end
+              else
+                taxon = t
+              end
               c.species = taxon
               c.verbatim_name = c.get_full_name
               c.save
@@ -1039,7 +1053,7 @@ namespace :tw do
             end
 
             # !! don't create identifier, invalid!!
-            @data.taxon_codes[row['TaxonCode']] = taxon.id
+            @data.taxon_codes[row['TaxonCode']] = taxon.id if taxon.changed?
             #@data.species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
             taxon1 = @data.all_species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s]
 
@@ -1071,7 +1085,19 @@ namespace :tw do
               c.genus = Protonym.find(origgen) unless origgen.nil?
               c.subgenus = Protonym.find(origsubgen) unless origsubgen.nil?
               c.species = Protonym.find(origspecies) unless origspecies.nil?
-              taxon = Protonym.find_or_create_by(name: name, parent_id: parent, cached_valid_taxon_name_id: taxon1, project_id: Current.project_id) if taxon.cached_valid_taxon_name_id != taxon1
+              taxon1 = Protonym.find(taxon1)
+              t = Protonym.find_by(name: name, parent_id: parent, cached_valid_taxon_name_id: taxon1.cached_valid_taxon_name_id, project_id: Current.project_id)
+              if t.nil?
+                Protonym.where(cached_valid_taxon_name_id: taxon1.cached_valid_taxon_name_id).find_each do |r|
+                  if taxon.name_with_alternative_spelling == r.name_with_alternative_spelling
+                    r.taxon_name_classifications.create(type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
+                    taxon = r
+                    break
+                  end
+                end
+              else
+                taxon = t
+              end
               c.subspecies = taxon
               c.verbatim_name = c.get_full_name
               c.save

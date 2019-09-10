@@ -304,26 +304,26 @@ namespace :tw do
                                      'Reared' => ['Exuvia or pupa', 'Body'] }
 
         export_relationships = { '15430'  => :ignore,
-                                 'attendant' => ['Attendance', :direct],
+                                 'attendant' => ['Attendance', :reverse],
                                  'body'  => :ignore,
 #                                 'body part (not genitalia)' => ['Dissected body part', :reverse],
 #                                 'genitalia' => ['Dissected genitalia', :reverse],
                                  'body part (not genitalia)' => :origin,
                                  'genitalia' => :origin,
-                                 'host' => ['Host plant', :reverse],
-                                 'host of' => ['Host plant', :reverse],
-                                 'mate' => ['Mating', :direct],
-                                 'parasite' => ['Parasitims', :direct],
-                                 'parasite of' => ['Parasitims', :direct],
-                                 'pollinating' => ['Pollination', :direct],
-                                 'pollination' => ['Pollination', :direct],
-                                 'predator' => ['Predation', :reverse],
-                                 'prey' => ['Predation', :direct],
-                                 'puparium' => ['Reared', :reverse],
-                                 'reared from' => ['Parasitims', :direct],
+                                 'host' => ['Host plant', :direct],
+                                 'host of' => ['Host plant', :direct],
+                                 'mate' => ['Mating', :reverse],
+                                 'parasite' => ['Parasitims', :reverse],
+                                 'parasite of' => ['Parasitims', :reverse],
+                                 'pollinating' => ['Pollination', :reverse],
+                                 'pollination' => ['Pollination', :reverse],
+                                 'predator' => ['Predation', :direct],
+                                 'prey' => ['Predation', :reverse],
+                                 'puparium' => ['Reared', :direct],
+                                 'reared from' => ['Parasitims', :reverse],
                                  'soil' => :ignore,
-                                 'tending' => ['Attendance', :direct],
-                                 'vicinity' => ['Pollination', :direct] }
+                                 'tending' => ['Attendance', :reverse],
+                                 'vicinity' => ['Pollination', :reverse] }
 
         biological_relationships.each_key do |br|
           b = BiologicalRelationship.where(name: br, project_id: $project_id)
@@ -354,6 +354,7 @@ namespace :tw do
             'Acari',
             'Araneae',
             'Coleoptera',
+            'Collembola',
             'Diplopoda',
             'Diptera',
             'Ephemeroptera',
@@ -1381,8 +1382,8 @@ namespace :tw do
                 end
                 unless host.blank?
                   BiologicalAssociation.create(biological_relationship: br,
-                                               biological_association_subject: host,
-                                               biological_association_object: specimen
+                                               biological_association_subject: specimen,
+                                               biological_association_object: host
                                               )
                 end
 
@@ -1674,8 +1675,8 @@ namespace :tw do
 
               if object && subject
                 BiologicalAssociation.create(biological_relationship: br,
-                                             biological_association_subject: subject,
-                                             biological_association_object: object
+                                             biological_association_subject: object,
+                                             biological_association_object: subject
                 )
               end
             end
