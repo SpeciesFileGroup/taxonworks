@@ -1,5 +1,9 @@
 <template>
   <div class="full_width">
+    <spinner-component
+      v-if="sorting"
+      :full-screen="true"
+      legend="Loading..."/>
     <div class="header-box middle">
       <span v-if="taxon">Scoped: {{ taxon.name }}</span>
     </div>
@@ -55,10 +59,13 @@
 
 import ModalList from './modalList'
 import { GetterNames } from '../store/getters/getters'
+import SpinnerComponent from 'components/spinner'
+import { setTimeout } from 'timers';
 
 export default {
   components: {
-    ModalList
+    ModalList,
+    SpinnerComponent
   },
   props: {
     tableList: {
@@ -95,7 +102,8 @@ export default {
         value: 'observations',
         set: ['observation_count', 'observation_depictions', 'descriptors_scored']
       },
-      ascending: false
+      ascending: false,
+      sorting: false
     }
   },
   watch: {
@@ -154,21 +162,26 @@ export default {
       return this.tableRanks.data[rowIndex][otuIndex]
     },
     sortBy (headerName) {
-
-      const index = this.tableRanks.column_headers.findIndex(item => {
-        return item === headerName
-      })
-      if (this.ascending) {
-        this.tableRanks.data.sort(function (a, b) {
-          return (a[index] === null) - (b[index] === null) || +(a[index] > b[index]) || -(a[index] < b[index])
+      this.sorting = true
+      setTimeout(() => {
+        const index = this.tableRanks.column_headers.findIndex(item => {
+          return item === headerName
         })
-        this.ascending = false
-      } else {
-        this.tableRanks.data.sort(function (a, b) {
-          return (a[index] === null) - (b[index] === null) || -(a[index] > b[index]) || +(a[index] < b[index])
+        if (this.ascending) {
+          this.tableRanks.data.sort(function (a, b) {
+            return (a[index] === null) - (b[index] === null) || +(a[index] > b[index]) || -(a[index] < b[index])
+          })
+          this.ascending = false
+        } else {
+          this.tableRanks.data.sort(function (a, b) {
+            return (a[index] === null) - (b[index] === null) || -(a[index] > b[index]) || +(a[index] < b[index])
+          })
+          this.ascending = true
+        }
+        this.$nextTick(() => {
+          this.sorting = false
         })
-        this.ascending = true
-      }
+      }, 0)
     }
   }
 }
