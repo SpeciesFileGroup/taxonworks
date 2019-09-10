@@ -34,7 +34,7 @@ end
     proxy.new_har
 
 describe "Docker image test", js: true do
-  before(:all) do
+  before(:each) do
 
     visit '/'
 
@@ -44,7 +44,11 @@ describe "Docker image test", js: true do
     click_button 'sign_in'
   end
 
-  context 'hub page' do
+  context 'dashboard page' do
+    it "shows that the dashboard is for the logged in user" do
+      expect(page).to have_content("Dashboard for John Doe")
+    end
+
     it "shows the revision matching git HEAD short hash (#{ENV['REVISION']})" do
       expect(page).to have_content(ENV['REVISION'])
     end
