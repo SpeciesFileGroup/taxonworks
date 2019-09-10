@@ -4,23 +4,20 @@
       v-if="sorting"
       :full-screen="true"
       legend="Loading..."/>
-    <div class="header-box middle">
-      <span v-if="taxon">Scoped: {{ taxon.name }}</span>
-    </div>
-    <div class="header-box middle">
-      <select class="normal-input">
-        <option
-          v-for="field in fieldset"
-          :key="field.value"
-          :value="field.value">
-          {{ field.label }}
-        </option>
-      </select>
-      <button
-        type="button"
-        class="button normal-input button-default separate-left">
-        Set
-      </button>
+    <div class="horizontal-left-content">
+      <div class="header-box middle separate-right">
+        <span v-if="taxon">Scoped: {{ taxon.name }}</span>
+      </div>
+      <div class="header-box middle separate-left">
+        <select class="normal-input">
+          <option
+            v-for="field in fieldset"
+            :key="field.value"
+            :value="field.value">
+            {{ field.label }}
+          </option>
+        </select>
+      </div>
     </div>
     <table
       class="full_width"
