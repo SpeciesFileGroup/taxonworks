@@ -4,20 +4,26 @@
       v-if="sorting"
       :full-screen="true"
       legend="Loading..."/>
-    <div class="horizontal-left-content">
-      <div class="header-box middle separate-right">
-        <span v-if="taxon">Scoped: {{ taxon.name }}</span>
+    <div class="flex-separate">
+      <div class="horizontal-left-content">
+        <div class="header-box middle separate-right">
+          <span v-if="taxon">Scoped: {{ taxon.name }}</span>
+        </div>
+        <div class="header-box middle separate-left">
+          <select class="normal-input">
+            <option
+              v-for="field in fieldset"
+              :key="field.value"
+              :value="field.value">
+              {{ field.label }}
+            </option>
+          </select>
+        </div>
       </div>
-      <div class="header-box middle separate-left">
-        <select class="normal-input">
-          <option
-            v-for="field in fieldset"
-            :key="field.value"
-            :value="field.value">
-            {{ field.label }}
-          </option>
-        </select>
-      </div>
+      <span
+        class="middle cursor-pointer"
+        data-icon="reset"
+        @click="resetList">Reset</span>
     </div>
     <table
       class="full_width"
@@ -127,6 +133,9 @@ export default {
   methods: {
     isFiltered (header) {
       return this.show.includes(header) || this.selectedFieldSet.set.includes(header) || this.ranksSelected.includes(header)
+    },
+    resetList() {
+      this.tableRanks = this.orderRanksTable(this.tableList)
     },
     getRankNames (list, nameList = []) {
       for (var key in list) {

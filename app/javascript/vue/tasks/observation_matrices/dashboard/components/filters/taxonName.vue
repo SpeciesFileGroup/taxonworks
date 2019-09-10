@@ -10,6 +10,9 @@
         label="label_html"
         :clear-after="true"
         placeholder="Search a taxon name"
+        :add-params="{
+          'type[]': 'Protonym'
+        }"
         @getItem="getTaxon"/>
     </div>
   </div>
@@ -50,5 +53,8 @@ export default {
   }
   .field-year {
     width: 60px;
+  }
+  /deep/ .vue-autocomplete-list {
+    min-width: 500px;
   }
 </style>
