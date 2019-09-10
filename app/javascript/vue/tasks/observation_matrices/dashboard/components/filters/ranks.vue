@@ -11,7 +11,7 @@
           <template v-for="(rank, rIndex) in group">
             <li
               :key="rank.name"
-              v-if="rankGroup.rankIndex <= rIndex && index >= rankGroup.groupIndex">
+              v-if="!(index == rankGroup.groupIndex && rankGroup.rankIndex > rIndex)">
               <label>
                 <input
                   v-model="ranksSelected"
