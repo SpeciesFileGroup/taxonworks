@@ -99,7 +99,7 @@ module Queries
           q = send(f + '_set', q) 
         end
 
-        q = q.take(limit) if limit
+        q = q.take(limit.to_i) if limit
 
         @query = q.distinct.project( *@projected_fields ).order(h[:generations], *fields.keys)
       end
