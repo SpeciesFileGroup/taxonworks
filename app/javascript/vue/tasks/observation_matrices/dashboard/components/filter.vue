@@ -49,9 +49,6 @@ export default {
         if (newVal.rank) {
           this.ranks.push(newVal.rank)
         }
-        if (newVal.parent && newVal.parent.rank) {
-          this.ranks.push(newVal.parent.rank)
-        }
       },
       deep: true
     },
