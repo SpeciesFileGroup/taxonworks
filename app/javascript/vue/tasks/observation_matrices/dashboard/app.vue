@@ -35,11 +35,13 @@
       <div class="full_width">
         <div
           v-show="Object.keys(rankTable).length"
-          class="horizontal-left-content align-start">
+          class="horizontal-left-content align-start full_width">
           <rank-table
             class="separate-right"
+            :ranksSelected="ranks"
             :table-list="rankTable"/>
           <table-fixed
+            v-if="false"
             class="separate-left full_width"
             :table-values="rankTable" />
         </div>
