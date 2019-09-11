@@ -1011,12 +1011,12 @@ namespace :tw do
 
                 # distribution
 
-                logger.info "Distribution: Working with SF.TaxonNameID = '#{row['TaxonNameID']}', otu_id = '#{otu.id}, SF.FileID = '#{row['FileID']}', distribution_text = '#{distribution_text}' \n"
+                logger.info "Distribution: Working with SF.TaxonNameID = '#{row['TaxonNameID']}', otu_id = '#{otu_id}, SF.FileID = '#{row['FileID']}', distribution_text = '#{distribution_text}' \n"
 
                 if distribution_text.present?
                   Content.create!(
                       topic_id: distribution_topic_ids[project_id],
-                      otu_id: otu.id,
+                      otu_id: otu_id,
                       project_id: project_id,
                       text: distribution_text)
                 end

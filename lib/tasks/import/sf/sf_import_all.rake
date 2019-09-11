@@ -46,7 +46,7 @@ namespace :tw do
           # # '6_after_otus_hash': 0m55.165s on 8 Nov 2018; 3m20.635s on 30 May 2019; 3m21.575s on 16 July 2019; 2m59.249s on 8 Aug 2019
           # #
           # 'taxa:create_all_sf_taxa_pass1',
-          # # '7_after_run_all_taxa': 298m12.627s on 8 Nov 2018; 347m33.882s on 13 June 2018; 427m0.242s on 16 July 2019; 447m56.323s on 8 Aug 2019
+          # # '7_after_run_all_taxa': 298m12.627s on 8 Nov 2018; 347m33.882s on 13 June 2018; 427m0.242s on 16 July 2019; 447m56.323s on 8 Aug 2019; 432m46.254s on 6 Sep 2019
           # #
           # 'taxa:create_type_species',
           # # '8_after_type_species': 6m33.833s on 13 Nov 2018; no log summary appears at end
@@ -56,10 +56,11 @@ namespace :tw do
           # #
           # 'taxa:create_some_related_taxa',
           # # '10_after_some_related_taxa': 3m2.116s on 13 Nov 2018
-          # # 8, 9, 10: 10m46.204s on 17 July 2019
+          # # 8, 9, 10: 10m46.204s on 17 July 2019; 432m46.254s 9 Sep 2019
           # #
           # 'taxa:create_status_flag_relationships',
-          # # '11_after_status_flag_rels': dumps 7-11 took 466m18.113s on 7 Feb 2019; 171m8.794s on 14 Nov 2018; 8-11 took 186m52.699s on 31 May 2019; 174m45.979s on 17 May 2019
+          # # '11_after_status_flag_rels': dumps 7-11 took 466m18.113s on 7 Feb 2019; 171m8.794s on 14 Nov 2018; 8-11 took 186m52.699s on 31 May 2019; 174m45.979s on 17 May 2019;
+          # # 183m32.701s 9 Sep 2019 (200 errors)
           # #
           # 'pre_cites:import_nomenclator_strings',
           # 'pre_cites:create_cvts_for_citations',
@@ -74,8 +75,8 @@ namespace :tw do
           # #
           # 'specimens:geographic_area_ids',
           # 'specimens:collecting_events',
-          # 14_after_coll_events': 235m50.824s for dumps 13 & 14 on 8 Feb 2019; 38m14.238s on 15 Nov 2018; 42m43.927s on 16 June 2018; 47m53.101s on 26 June 2018; 207m46.345s on 31 May 2019
-          # 12, 13, 14: 272m5.476s on 17 July 2019
+          # # 14_after_coll_events': 235m50.824s for dumps 13 & 14 on 8 Feb 2019; 38m14.238s on 15 Nov 2018; 42m43.927s on 16 June 2018; 47m53.101s on 26 June 2018; 207m46.345s on 31 May 2019
+          # # 12, 13, 14: 272m5.476s on 17 July 2019
           #
           # 'specimens:import_sf_depos',
           # 'specimens:create_biocuration_classes',
@@ -83,15 +84,16 @@ namespace :tw do
           # 'specimens:create_sf_source_metadata',
           # 'specimens:create_sf_identification_metadata',
           # # '15_after_identification_metadata': 9m47.689s on 15 Nov 2018
+          # # 12, 13, 14, 15: 278m26.986s on 9 Sep 2019
           # #
           # 'specimens:get_ident_qualifier_from_nomenclator',
           # 'specimens:create_sf_loc_col_events_metadata',
-          # # '16_after_col_events_metadata': 10m17.584s on 15 Nov 2018; 15-16 took 21m27.003s
+          # # '16_after_col_events_metadata': 10m17.584s on 15 Nov 2018; 15-16 took 21m27.003s; 11m19.933s on 10 Sep 2019
           # # 15, 16: 21m24.452s on 18 July 2019
           #
           # 'specimens:collection_objects',
-          # # '17_after_collection_objects': 197m20.585s on 19 Mar 2019; 211m4.168s on 1 Feb 2019; 202m27.938s on 20 Nov 2018; 227m33.097s on 15 Nov 2018;
-          # # 187m21.639s on 1 June 2019; 183m35.099s on 18 July 2019
+          # # # '17_after_collection_objects': 197m20.585s on 19 Mar 2019; 211m4.168s on 1 Feb 2019; 202m27.938s on 20 Nov 2018; 227m33.097s on 15 Nov 2018;
+          # # 187m21.639s on 1 June 2019; 183m35.099s on 18 July 2019; 185m41.408s on 10 Sep 2019
           # #
           # 'supplementary:taxon_info',
           # # 0m58.912s on 21 Nov 2018
@@ -102,7 +104,7 @@ namespace :tw do
           # 'media:create_common_names',
           # 'media:create_otu_website_links',
           # # 19_after_links: 18-19 took 19m3.097s on 2 June 2019
-          # # 18, 19: 19m38.508s on 18 July 2019
+          # # 18, 19: 19m38.508s on 18 July 2019; 21m5.009s on 10 Sep 2019
           # # 15, 16, 17, 18, 19: 474m38.770s on 8-9 Aug 2019
           # #
           # 'citations:create_citations',
