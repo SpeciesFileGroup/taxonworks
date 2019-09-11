@@ -115,7 +115,8 @@ export default {
     },
 
     url: {
-      required: true
+      type: String,
+      default: undefined
     },
 
     headers: {
@@ -311,7 +312,7 @@ export default {
         var that = this
 
         this.arrayList.forEach(function (item) {
-          if (item[that.label].includes(that.type)) {
+          if (item[that.label].toLowerCase().includes(that.type.toLowerCase())) {
             finded.push(item)
           }
         })

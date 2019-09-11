@@ -6,8 +6,16 @@ class ObservationMatricesController < ApplicationController
   # GET /observation_matrices
   # GET /observation_matrices.json
   def index
-    @recent_objects = ObservationMatrix.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+
+        @recent_objects = ObservationMatrix.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @observation_matrices = ObservationMatrix.where(project_id: sessions_current_project_id)
+      }
+    end
   end
 
   # GET /observation_matrices/1

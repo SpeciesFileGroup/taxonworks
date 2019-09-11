@@ -47,6 +47,7 @@
           :parent="parent"
           :object-lists="objectLists"
           :show-modal="showModal"
+          valid-property="valid_subject_ranks"
           @selected="addEntry"
           mutation-name-add="AddTaxonRelationship"
           mutation-name-modal="SetModalRelationship"

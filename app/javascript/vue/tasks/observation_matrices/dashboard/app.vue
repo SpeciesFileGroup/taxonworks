@@ -1,8 +1,16 @@
 <template>
-  <div>
+  <div id="vue-task-observation-dashboard">
     <div class="flex-separate middle">
       <h1>Observation matrices dashboard</h1>
       <ul class="context-menu">
+        <li>
+          <label>
+            <input
+              type="checkbox"
+              v-model="activeJson">
+            Show JSON Request
+          </label>
+        </li>
         <li>
           <label>
             <input
@@ -13,17 +21,30 @@
         </li>
       </ul>
     </div>
-
+    <json-bar
+      v-if="activeJson"
+      :json-url="jsonUrl"/>
     <div class="horizontal-left-content align-start">
       <filter-component
         class="separate-right"
         v-show="activeFilter"
-        @rankTable="loadRankTable"
+        @rankSelected="ranks = $event"
         @onTaxon="taxon = $event"
+        @onValidity="validity = $event"
         @reset="resetTask"/>
       <div class="full_width">
-        <span v-if="taxon">Scoped: {{ taxon.name }}</span>
-        <rank-table :table-ranks="rankTable"/>
+        <div
+          v-show="Object.keys(rankTable).length"
+          class="horizontal-left-content align-start full_width">
+          <rank-table
+            class="separate-right"
+            :ranksSelected="ranks"
+            :table-list="rankTable"/>
+          <table-fixed
+            v-if="false"
+            class="separate-left full_width"
+            :table-values="rankTable" />
+        </div>
         <h3
           v-if="!Object.keys(rankTable).length"
           class="subtle middle horizontal-center-content">No records found.
@@ -37,26 +58,85 @@
 
 import FilterComponent from './components/filter.vue'
 import RankTable from './components/table'
+import TableFixed from './components/tableFixed'
+import JsonBar from './components/headerBar'
+
+import { GetRanksTable } from './request/resources'
+
+import { GetterNames } from './store/getters/getters'
+import { MutationNames } from './store/mutations/mutations'
 
 export default {
   components: {
     FilterComponent,
-    RankTable
+    RankTable,
+    TableFixed,
+    JsonBar
+  },
+  computed: {
+    rankTable: {
+      get () {
+        return this.$store.getters[GetterNames.GetRankTable]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetRankTable, value)
+      }
+    }
   },
   data () {
     return {
-      rankTable: {},
       activeFilter: true,
-      taxon: undefined
+      taxon: undefined,
+      fieldSet: ['observations'],
+      ranks: [],
+      jsonUrl: '',
+      activeJson: false,
+      validity: false,
+      limit: 1000
+    }
+  },
+  watch: {
+    ranks: {
+      handler (newVal) {
+        if (newVal.length) {
+          this.loadRankTable()
+        }
+      },
+      deep: true
+    },
+    rankTable: {
+      handler (newVal) {
+        if (newVal.data.length === this.limit) {
+          TW.workbench.alert.create('Result contains 1000 rows, it may be truncated.', 'notice')
+        }
+      },
+      deep: true
     }
   },
   methods: {
     resetTask () {
       this.list = []
     },
-    loadRankTable (newList) {
-      this.rankTable = newList
+    loadRankTable () {
+      const params = {
+        ancestor_id: this.taxon.id,
+        ranks: this.ranks,
+        fieldsets: this.fieldSet,
+        validity: this.validity ? true : undefined,
+        limit: this.limit
+      }
+      GetRanksTable(this.taxon.id, params).then(response => {
+        this.jsonUrl = response.url
+        this.rankTable = response.body
+      })
     }
   }
 }
 </script>
+<style lang="scss">
+  #vue-task-observation-dashboard {
+    .header-box {
+      height: 30px;
+    }
+  }
+</style>

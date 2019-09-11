@@ -43,7 +43,7 @@ class TagsController < ApplicationController
     respond_to do |format|
       if @tag.save
         format.html { redirect_to url_for(@tag.tag_object.metamorphosize),
-                      notice: 'Tag was successfully created.' }
+                      notice: "Tag #{@tag.keyword.name} was successfully created." }
         format.json { render action: 'show', status: :created, location: @tag }
       else
         format.html {
