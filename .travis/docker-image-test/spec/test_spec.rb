@@ -50,7 +50,6 @@ describe "Docker image test", js: true do
     end
 
     it "shows the revision matching git HEAD short hash (#{ENV['REVISION']})" do
-      puts page.html # DEBUG: Checking why the pull request test fails while works perfectly fine in build-with-assets branch
       expect(page).to have_content(ENV['REVISION'])
     end
   end
