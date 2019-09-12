@@ -20,10 +20,7 @@
             v-html="getValue(item, attr)"/>
           <td class="vue-table-options">
             <radial-annotator :global-id="item.annotated_object.global_id"/>
-            <span
-              class="circle-button btn-edit"
-              @click="editObject(item)">Remove
-            </span>
+            <radial-object :global-id="item.annotated_object.global_id"/>
             <span
               class="circle-button btn-delete"
               @click="deleteObject(item)">Remove
@@ -37,10 +34,12 @@
 <script>
 
   import RadialAnnotator from 'components/annotator/annotator.vue'
+  import RadialObject from 'components/radial_object/radialObject'
 
   export default {
     components: {
-      RadialAnnotator
+      RadialAnnotator,
+      RadialObject
     },
     props: {
       list: {

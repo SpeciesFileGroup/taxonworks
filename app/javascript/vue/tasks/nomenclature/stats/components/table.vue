@@ -4,10 +4,12 @@
       v-if="sorting"
       :full-screen="true"
       legend="Loading..."/>
-    <div class="flex-separate">
+    <div 
+      class="flex-separate"
+      v-if="taxon">
       <div class="horizontal-left-content">
         <div class="header-box middle separate-right">
-          <span v-if="taxon">Scoped: {{ taxon.name }}</span>
+          <h3 v-if="taxon">Scoped: {{ taxon.name }}</h3>
         </div>
         <div class="header-box middle separate-left">
           <select class="normal-input">
@@ -20,10 +22,16 @@
           </select>
         </div>
       </div>
-      <span
-        class="middle cursor-pointer"
-        data-icon="reset"
-        @click="resetList">Reset order</span>
+      <div class="flex-separate">
+        <span
+          class="middle cursor-pointer"
+          data-icon="reset"
+          @click="resetList">Reset order</span>
+        <csv-button
+          class="separate-left"
+          :list="tableRanks.data"
+          :options="{ fields: csvFields }" />
+      </div>
     </div>
     <table
       class="full_width"
@@ -31,12 +39,12 @@
       <thead>
         <tr>
           <th 
-            v-if="renderFromPosition <= index"
+            v-if="index >= renderPosition"
             v-for="(header, index) in tableRanks.column_headers"
             @click="sortBy(header)">
             <span v-html="header.replace('_', '<br>')"/>
           </th>
-          <th>Code</th>
+          <th>Show</th>
         </tr>
       </thead>
       <tbody>
@@ -45,14 +53,12 @@
           class="contextMenuCells btn btn-neutral"
           :class="{ even: (index % 2)}">
           <template v-for="(header, hindex) in tableRanks.column_headers">
-            <td v-if="renderFromPosition <= hindex">
+            <td v-if="hindex >= renderPosition">
               {{ row[hindex] }}
             </td>
           </template>
           <td>
-            <modal-list
-              :otu-id="getValueFromTable('otu_id', index)"
-              :taxon-id="getValueFromTable('taxon_name_id', index)"/>
+            <a :href="getBrowseUrl(getValueFromTable('taxon_name_id', index))">{{ getValueFromTable('cached', index) }}</a>
           </td>
         </tr>
       </tbody>
@@ -62,15 +68,17 @@
 
 <script>
 
-import ModalList from './modalList'
 import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
+import { GetTaxonName } from '../request/resources'
 import SpinnerComponent from 'components/spinner'
-import { setTimeout } from 'timers';
+import CsvButton from 'components/csvButton'
+import { RouteNames } from 'routes/routes'
 
 export default {
   components: {
-    ModalList,
-    SpinnerComponent
+    SpinnerComponent,
+    CsvButton
   },
   props: {
     tableList: {
@@ -86,26 +94,41 @@ export default {
     rankList () {
       return this.$store.getters[GetterNames.GetRanks]
     },
-    taxon () {
-      return this.$store.getters[GetterNames.GetTaxon]
+    taxon: {
+      get () {
+        return this.$store.getters[GetterNames.GetTaxon]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetTaxon, value)
+      }
+    },
+    csvFields () {
+      if (!Object.keys(this.tableRanks).length) return []
+      return this.tableRanks.column_headers.map((item, index) => {
+        return {
+          label: item,
+          value: (row, field) => row[index] || field.default,
+          default: ''
+        }
+      })
     }
   },
   data () {
     return {
-      renderFromPosition: 4,
+      renderPosition: 4,
       rankNames: [],
       tableRanks: {},
       fieldset: [
         {
-          label: 'Observations',
-          value: 'observations',
-          set: ['observation_count', 'observation_depictions', 'descriptors_scored']
+          label: 'Nomenclature stats',
+          value: 'nomenclatureStates',
+          set: ['valid_', 'invalid_']
         }
       ],
       selectedFieldSet: {
-        label: 'Observations',
-        value: 'observations',
-        set: ['observation_count', 'observation_depictions', 'descriptors_scored']
+        label: 'Nomenclature stats',
+        value: 'nomenclatureStates',
+        set: ['valid_', 'invalid_']
       },
       ascending: false,
       sorting: false
@@ -122,20 +145,24 @@ export default {
       handler (newVal) {
         this.sorting = true
         setTimeout(() => {
-          this.tableRanks = this.tableList
+          this.tableRanks = newVal
           this.$nextTick(() => {
             this.sorting = false
           })
         }, 50)
-      }
+      },
+      deep: true
     }
   },
   methods: {
-    isFiltered (header) {
-      return this.show.includes(header) || this.selectedFieldSet.set.includes(header) || this.ranksSelected.includes(header)
+    getBrowseUrl (id) {
+      return `${RouteNames.BrowseNomenclature}?taxon_name_id=${id}`
     },
-    resetList() {
-      this.tableRanks = this.orderRanksTable(this.tableList)
+    isFiltered (header) {
+      return this.selectedFieldSet.set.find((item) => { return header.indexOf(item) > -1 }) || this.ranksSelected.includes(header)
+    },
+    resetList () {
+      this.tableRanks = this.tableList
     },
     getRankNames (list, nameList = []) {
       for (var key in list) {
@@ -151,13 +178,20 @@ export default {
     },
     orderRanksTable (list) {
       let newDataList = []
+      let headerRanksOrder = []
       let ranksOrder = this.rankNames.filter(rank => {
-        return list.column_headers.includes(rank)
+        return list.column_headers.includes(`valid_${rank}`) || list.column_headers.includes(`invalid_${rank}`)
       })
 
-      ranksOrder = ranksOrder.concat(list.column_headers.filter(item => {
+      ranksOrder.forEach(item => {
+        headerRanksOrder.push(`valid_${item}`)
+        headerRanksOrder.push(`invalid_${item}`)
+      })
+
+      ranksOrder = ranksOrder.concat(headerRanksOrder)
+      ranksOrder = list.column_headers.filter(item => {
         return !ranksOrder.includes(item)
-      }))
+      }).concat(ranksOrder)
 
       ranksOrder.forEach((rank, index) => {
         const indexHeader = list.column_headers.findIndex(item => { return item === rank })
