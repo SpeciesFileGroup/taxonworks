@@ -124,6 +124,10 @@ scope :tasks do
   end
 
   scope :collection_objects do
+      scope :filter2, controller: 'tasks/collection_objects/filter2' do
+        get :index, as: 'index_filter2_task'
+      end
+
     scope :browse, controller: 'tasks/collection_objects/browse' do
       get 'index', as: 'browse_collection_objects_task'
     end
