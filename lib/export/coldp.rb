@@ -1,3 +1,13 @@
+#
+# http://api.col.plus/datapackage
+# https://github.com/frictionlessdata/datapackage-rb
+# https://github.com/frictionlessdata/tableschema-rb
+#
+#
+# TODO: use https://github.com/frictionlessdata/datapackage-rb to ingest frictionless data,
+# then each module will provide a correspond method to each field
+# write tests to check for coverage (missing methods)
+# 
 module Export
   module Coldp
     
@@ -12,4 +22,19 @@ module Export
       ::Otu.joins(:taxon_name).where(taxon_name: a) 
     end
   end
+
+  # columns = []
+  # some_resource.fields.each do |f|
+  #   columns.push get_value(f)
+  # end
+  #
+  # capture no method
+  #def get_value(f)
+  #  if a = send(f)
+  #    a
+  #  else
+  #    nil
+  #  end
+  #end
+
 end

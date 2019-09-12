@@ -2,6 +2,8 @@
 
 require_dependency Rails.root.to_s + '/app/models/nomenclatural_rank'
 
+# Crossreference with http://api.col.plus/vocab/nomcode
+
 # !! All constants are now composed of Strings only.  They must not reference a class. !!
 #
 # Contains NOMEN classes of rank/hierarchy in various format.
@@ -9,6 +11,7 @@ require_dependency Rails.root.to_s + '/app/models/nomenclatural_rank'
 # ICN, ICZN, ICNB class names ordered in an Array
 ICN = NomenclaturalRank::Icn.ordered_ranks.map(&:to_s).freeze 
 ICZN = NomenclaturalRank::Iczn.ordered_ranks.map(&:to_s).freeze
+
 ICNB = NomenclaturalRank::Icnp.ordered_ranks.map(&:to_s).freeze
 ICTV = NomenclaturalRank::Ictv.ordered_ranks.map(&:to_s).freeze
 
