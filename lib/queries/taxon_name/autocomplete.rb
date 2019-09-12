@@ -4,7 +4,7 @@ module Queries
     class Autocomplete < Queries::Query
 
       # @return [Array, nil]
-      #   &nomenclature_group[]=<<Iczn|Icnb|Icn>::<Higher|Family|Genus|Species>>
+      #   &nomenclature_group[]=<<Iczn|Icnp|Icn>::<Higher|Family|Genus|Species>>
       attr_accessor :nomenclature_group
 
       # @return [Boolean, nil]
