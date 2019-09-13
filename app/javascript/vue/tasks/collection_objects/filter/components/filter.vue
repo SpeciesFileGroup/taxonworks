@@ -23,9 +23,10 @@
         @click="searchForCollectionObjects">
         Search
       </button>
+      <geographic-component/>
       <otu-component v-model="params.base.otu_id"/>
-      <taxon-name-component v-model="params.taxon"/>
-      <precision-component v-model="params.base.exact"/>
+      <date-component/>
+      <user-component/>
     </div>
   </div>
 </template>
@@ -33,6 +34,9 @@
 <script>
 
 import OtuComponent from './filters/otu'
+import DateComponent from './filters/date'
+import UserComponent from './filters/user'
+import GeographicComponent from './filters/geographic'
 
 import { GetCollectionObjects } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
@@ -41,7 +45,10 @@ import GetMacKey from 'helpers/getMacKey.js'
 export default {
   components: {
     SpinnerComponent,
-    OtuComponent
+    OtuComponent,
+    DateComponent,
+    UserComponent,
+    GeographicComponent
   },
   computed: {
     getMacKey () {

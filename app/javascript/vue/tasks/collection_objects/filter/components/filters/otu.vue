@@ -1,11 +1,13 @@
 <template>
   <div>
     <h2>Otu</h2>
-    <label>
-      <input
-        type="checkbox">
-      Descendants (if available)
-    </label>
+    <div class="field">
+      <label>
+        <input
+          type="checkbox">
+        Descendants (if available)
+      </label>
+    </div>
     <autocomplete
       url="/otus/autocomplete"
       placeholder="Select an otu"
