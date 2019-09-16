@@ -7,6 +7,14 @@
           <label>
             <input
               type="checkbox"
+              v-model="jsonBar">
+            Show JSON Request
+          </label>
+        </li>
+        <li>
+          <label>
+            <input
+              type="checkbox"
               v-model="append">
             Append results
           </label>
@@ -51,12 +59,16 @@
         </li>
       </ul>
     </div>
+    <header-bar
+      v-if="jsonBar"
+      :jsonUrl="jsonUrl"/>
     <collecting-event
       ref="ce"
       :show-result-map="showMap"
       :show-result-list="showList"
       :show-filter="showFilter"
       :append="append"
+      @jsonUrl="jsonUrl = $event"
       @itemid="selectedItem=$event"
     />
   </div>
@@ -65,10 +77,12 @@
 
   import GetMacKey from 'helpers/getMacKey.js'
   import CollectingEvent from './components/collectingEvent.vue'
+  import HeaderBar from './components/headerBar'
 
   export default {
     components: {
       CollectingEvent,
+      HeaderBar
     },
     computed: {
       getMacKey() {
@@ -80,7 +94,9 @@
         append: false,
         showMap: false,
         showList: true,
-        showFilter: true
+        showFilter: true,
+        jsonBar: false,
+        jsonUrl: ''
       }
     },
     methods: {
