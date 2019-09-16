@@ -18,7 +18,7 @@
               class="date-input"
               v-model="parameters.start_date_day"
               type="text"
-              maxlength="4">
+              maxlength="2">
           </div>
           <div class="separate-left separate-right">
             <label>Month</label>
@@ -32,7 +32,7 @@
               class="date-input"
               v-model="parameters.start_date_year"
               type="text"
-              maxlength="2">
+              maxlength="4">
           </div>
         </div>
       </div>
@@ -47,7 +47,7 @@
               class="date-input"
               v-model="parameters.end_date_day"
               type="text"
-              maxlength="4">
+              maxlength="2">
           </div>
           <div class="separate-left separate-right">
             <label>Month</label>
@@ -61,7 +61,7 @@
               class="date-input"
               v-model="parameters.end_date_year"
               type="text"
-              maxlength="2">
+              maxlength="4">
           </div>
         </div>
       </div>
