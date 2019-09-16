@@ -102,9 +102,11 @@ class GeographicArea < ApplicationRecord
 
   #  HashAggregate  (cost=100.89..100.97 rows=8 width=77)
   scope :ancestors_and_descendants_of, -> (geographic_area) do
-    a = GeographicArea.self_and_ancestors_of(geographic_area)
-    b = GeographicArea.descendants_of(geographic_area)
-    GeographicArea.from("((#{a.to_sql}) UNION (#{b.to_sql})) as geographic_areas")
+    scoping do
+      a = GeographicArea.self_and_ancestors_of(geographic_area)
+      b = GeographicArea.descendants_of(geographic_area)
+      GeographicArea.from("((#{a.to_sql}) UNION (#{b.to_sql})) as geographic_areas")
+    end
   end
 
   scope :with_name_like, lambda { |string|

@@ -633,7 +633,7 @@ class Protonym < TaxonName
 
     TaxonName.transaction do
       if is_genus_or_species_rank?
-        dependants = Protonym.descendants_of(self).to_a
+        dependants = Protonym.unscoped.descendants_of(self).to_a
         related_through_original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
         combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Combination')
       end

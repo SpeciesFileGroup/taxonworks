@@ -240,9 +240,11 @@ class TaxonName < ApplicationRecord
 
   # Includes taxon_name, doesn't order result
   scope :ancestors_and_descendants_of, -> (taxon_name) do
-    a = TaxonName.self_and_ancestors_of(taxon_name)
-    b = TaxonName.descendants_of(taxon_name)
-    TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
+    scoping do
+      a = TaxonName.self_and_ancestors_of(taxon_name)
+      b = TaxonName.descendants_of(taxon_name)
+      TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
+    end
   end
 
   scope :with_rank_class, -> (rank_class_name) { where(rank_class: rank_class_name) }
