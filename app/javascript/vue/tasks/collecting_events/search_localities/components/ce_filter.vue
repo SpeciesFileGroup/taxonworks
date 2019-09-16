@@ -179,6 +179,7 @@
         this.isLoading = true;
         this.$http.get('/collecting_events.json', { params: params }).then(response => {
           this.collectingEventList = response.body;
+          this.$emit('jsonUrl', response.url)
           if(this.collectingEventList) {
             this.$emit('collectingEventList', this.collectingEventList)
           }
