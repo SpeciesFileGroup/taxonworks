@@ -2133,7 +2133,7 @@ namespace :tw do
           'FM' => 'Form',
           'FR' => 'Form, new status for',
           'PS' => 'Possible synonym of',
-          'CF' => 'Compared with',
+          'CF' => 'Compared with', # BIO REL
           'CR' => 'New combination and replacement',
           'CV' => 'Request to ICZN for conservation of name',
           'CM' => 'Misspelt species name, compared with', # 'Misspelt species name, compared with',
@@ -2163,12 +2163,12 @@ namespace :tw do
           'SZ' => 'Superfamily',
           'TC' => 'Type species cited as',
           'VF' => 'Family of',
-          'VG' => 'Valid genus',
+          'VG' => 'Valid genus', # like VG
           'VI' => 'Valid subtribe of',
           'VR' => 'Variety',
-          'VS' => 'Valid species',
-          'VT' => 'Valid tribe of',
-          'VY' => 'Valid superfamily',
+          'VS' => 'Valid species',   # like VS
+          'VT' => 'Valid tribe of', # like VY
+          'VY' => 'Valid superfamily', # citations on protonym with note "VT: [note field]"
           'GQ' => 'Generic placement queried',
           'GR' => 'Generic placement queried, new combination for',
           'GI' => 'Generic placement incorrect',
@@ -2236,6 +2236,7 @@ namespace :tw do
             end
           end
 
+          # create predicates for status
           if !notes[row['Status']].nil? && !taxon.nil?
             nt = notes[row['Status']]
             nt += ' ' + taxon1.cached_html.to_s + ' ' + taxon1.cached_author_year.to_s if taxon1
