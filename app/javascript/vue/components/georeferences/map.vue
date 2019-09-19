@@ -185,9 +185,10 @@ export default {
       this.drawnItems.clearLayers()
     },
     addDrawControllers () {
+      this.tiles.osm.addTo(this.mapObject)
       if (this.tilesSelection) {
         L.control.layers({
-          OSM: this.tiles.osm.addTo(this.mapObject),
+          OSM: this.tiles.osm,
           Google: this.tiles.google
         }, { 'Draw layers': this.drawnItems }, { position: 'topleft', collapsed: false }).addTo(this.mapObject)
       }
