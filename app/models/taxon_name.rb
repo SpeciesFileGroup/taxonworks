@@ -360,6 +360,20 @@ class TaxonName < ApplicationRecord
     Ranks.valid?(r) ? r.safe_constantize : r
   end
 
+  def self.foo(rank_classes)
+    from <<-SQL.strip_heredoc
+      ( SELECT *, rank() 
+           OVER ( 
+               PARTITION BY rank_class, parent_id 
+               ORDER BY generations asc, name
+            ) AS rn
+         FROM taxon_names 
+         INNER JOIN "taxon_name_hierarchies" ON "taxon_names"."id" = "taxon_name_hierarchies"."descendant_id"
+         WHERE #{rank_classes.collect{|c| "rank_class = '#{c}'" }.join(' OR ')}
+         ) as taxon_names 
+    SQL
+  end
+
   # @return [TaxonName, nil] an ancestor at the specified rank
   # @params rank [symbol|string|
   #   like :species or 'genus'

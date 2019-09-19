@@ -10,12 +10,16 @@
       v-if="searching"
     />
     <div class="content">
-      <taxon-name v-model="taxonName"/>
-      <otu-filter v-model="validity"/>
-      <combinations-filter/>
+      <taxon-name />
       <ranks-filter
+        title="Count columns"
         :taxon-name="taxonName"
         v-model="ranks"/>
+      <combinations-filter/>
+      <ranks-filter
+        title="Display rows"
+        :taxon-name="taxonName"
+        v-model="rankData"/>
     </div>
   </div>
 </template>
@@ -25,23 +29,35 @@
 import SpinnerComponent from 'components/spinner'
 import taxonName from './filters/taxonName'
 import RanksFilter from './filters/ranks'
-import OtuFilter from './filters/otus'
 import CombinationsFilter from './filters/combinations'
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
 
 export default {
   components: {
     SpinnerComponent,
     CombinationsFilter,
     RanksFilter,
-    OtuFilter,
     taxonName
+  },
+  computed: {
+    taxonName () {
+      return this.$store.getters[GetterNames.GetTaxon]
+    },
+    tableList: {
+      get () {
+        return this.$store.getters[GetterNames.GetRankTable]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetRankTable, value)
+      }
+    }
   },
   data () {
     return {
-      taxonName: undefined,
       ranks: [],
       searching: false,
-      validity: false
+      rankData: []
     }
   },
   watch: {
@@ -51,20 +67,24 @@ export default {
         this.$emit('onTaxon', newVal)
         if (newVal.rank) {
           this.ranks.push(newVal.rank)
+          this.rankData.push(newVal.rank)
         }
       },
       deep: true
     },
     ranks: {
-      handler (newVal) {
+      handler (newVal, oldVal) {
         if (newVal.length) {
           this.$emit('rankSelected', newVal)
         }
       },
       deep: true
     },
-    validity (newVal) {
-      this.$emit('onValidity', newVal)
+    rankData: {
+      handler (newVal) {
+        this.$emit('onDisplayRow', newVal)
+      },
+      deep: true
     }
   }
 }
