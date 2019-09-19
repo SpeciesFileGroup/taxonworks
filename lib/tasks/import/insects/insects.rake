@@ -215,7 +215,7 @@ namespace :tw do
 
       def handle_projects_and_users_insects(data, import)
         print 'Handling projects and users '
-        email = 'inhs_admin@replace.me'
+        email = 'arboridia@gmail.com'
         project_name = 'INHS Insect Collection'
         user_name = 'INHS Insect Collection Import'
         $user_id, $project_id, @collection_container = nil, nil, nil
@@ -239,15 +239,15 @@ namespace :tw do
           end
           $user_id = user.id # set for project line below
 
-          project = Project.where(name: project_name)
-          if project.empty?
-            project = Project.create(name: project_name)
-          else
-            project = project.first
-          end
+          project = Project.find_or_create_by(name: project_name)
 
           $project_id = project.id
-          pm = ProjectMember.new(user: user, project: project, is_project_administrator: true)
+          pm = ProjectMember.find_by(user: user, project: project)
+          if pm.nil?
+            pm = ProjectMember.new(user: user, project: project, is_project_administrator: true)
+          else
+            pm.is_project_administrator = true
+          end
           pm.save
 
           cc = Container.where(name: project_name)
@@ -725,7 +725,23 @@ namespace :tw do
            GPSSource
            CollectionDateAccuracy
            SamplingProtocol
-           SiteCode}.freeze
+           SiteCode
+
+            LedgersComments
+            Remarks
+            LedgersCountry
+            LedgersState
+            LedgersCounty
+            LedgersLocality
+            Description
+            Family
+            Genus
+            HostGenus
+            HostSpecies
+            LedgerBook
+            Order
+            Sex
+            Species}.freeze
 
       def find_or_create_collecting_event_insects(ce, data)
         tmp_ce = { }
@@ -1263,6 +1279,9 @@ namespace :tw do
           i += 1
           print "\r#{i}      "
 
+#          next if (row['Prefix'] != 'Araneae' || row['CatalogNumber'].to_s != '12610')
+#          byebug
+
           tmp_m = {}
           match_fields.each do |m|
             tmp_m[m] = row[m] unless row[m].blank?
@@ -1271,8 +1290,16 @@ namespace :tw do
 
           locality_code = partially_resolved.nil? ? nil : partially_resolved['LocalityCode']
 
+          if locality_code.blank?
+            if row['LocalityCode'].blank?
+              locality_code = nil
+            else
+              locality_code = row['LocalityCode']
+            end
+          end
+
           extra_fields = {}
-          unless partially_resolved.nil?
+#          unless partially_resolved.nil?
             if locality_code.nil?
               locality_fields_without_locality_code.each do |m|
                 extra_fields[m] = row[m] unless row[m].blank?
@@ -1282,7 +1309,7 @@ namespace :tw do
                 extra_fields[m] = row[m] unless row[m].blank?
               end
             end
-          end
+#          end
 
           se = { }
 
@@ -1298,7 +1325,7 @@ namespace :tw do
           se.merge!(extra_fields)
 
           collecting_event = nil
-          collecting_event = find_or_create_collecting_event_insects(se, data) if row['Done'] == '1'
+          collecting_event = find_or_create_collecting_event_insects(se, data) if row['Done'] == '1' || row['Prefix'] == 'Araneae'
           preparation_type = data.preparation_types[se['PreparationType']]
 
           no_specimens = false
@@ -1552,6 +1579,8 @@ namespace :tw do
           fields.each do |c|
             tmp_ce[c] = row[c] unless row[c].blank?
           end
+
+#          byebug if !row['Sex'].blank?
          
           unless tmp_ce['LocalityCode'].nil?
             if data.localities_index[tmp_ce['LocalityCode']].nil?
