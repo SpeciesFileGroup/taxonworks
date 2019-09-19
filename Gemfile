@@ -106,9 +106,6 @@ gem 'logic_tools'
 gem 'chunky_png', '~> 1.3.11'
 gem 'namecase', '~> 2.0'
 
-# Deploy, deprecated soon
-gem 'capistrano-npm', '~> 1.0.2'
-
 group :test, :development do
   gem 'faker', '~> 1.9.1'
   gem 'rspec-rails', '~> 3.6'
