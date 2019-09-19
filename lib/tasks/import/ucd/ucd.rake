@@ -2266,6 +2266,21 @@ namespace :tw do
             end
           end
 
+          if taxon.nil?
+            print "\n ERROR: Invalid TaxonCode: #{row['TaxonCode']}\n"
+          elsif taxon.type == 'Combination'
+            #valid = TaxonName.find(taxon.cached_valid_taxon_name_id)
+            #taxon = valid
+            taxon = taxon.protonyms.last
+          end
+
+          if !taxon1.nil? && taxon1.type == 'Combination'
+            #valid = TaxonName.find(taxon1.cached_valid_taxon_name_id)
+            #taxon1 = valid
+            taxon1 = taxon1.protonyms.last
+          end
+          taxon.notes.create(text: row['Notes'].to_s.gsub('|','_') + ' ' + row['Code'].to_s) if !row['Notes'].blank? && !taxon.nil?
+
           # create biological associations for CF status
           if !compared_with[row['Status']].nil? && !taxon.nil? && !taxon1.nil?
           otu1 = taxon1.otus.first
@@ -2295,21 +2310,6 @@ namespace :tw do
               print "\n ERROR: Invalid status: Taxon1: #{taxon.try(:cached)}, Status: #{nt}\n"
             end
 
-          end
-
-          if taxon.nil?
-            print "\n ERROR: Invalid TaxonCode: #{row['TaxonCode']}\n"
-          elsif taxon.type == 'Combination'
-            #valid = TaxonName.find(taxon.cached_valid_taxon_name_id)
-            #taxon = valid
-            taxon = taxon.protonyms.last
-          end
-          taxon.notes.create(text: row['Notes'].to_s.gsub('|','_') + ' ' + row['Code'].to_s) if !row['Notes'].blank? && !taxon.nil?
-
-          if !taxon1.nil? && taxon1.type == 'Combination'
-            #valid = TaxonName.find(taxon1.cached_valid_taxon_name_id)
-            #taxon1 = valid
-            taxon1 = taxon1.protonyms.last
           end
 
           if !relationship[row['Status']].nil? && !taxon.nil? && !taxon1.nil?
