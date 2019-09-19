@@ -162,7 +162,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             sp  = FactoryBot.create(:iczn_species, verbatim_author: 'Smith', year_of_publication: 2000, parent: @genus)
             sp.iczn_set_as_misapplication_of = @species
             expect(sp.save).to be_truthy
-            expect(sp.cached_author_year).to eq('Smith, 2000 nec McAtee, 1830')
+            expect(sp.cached_author_year).to eq('Smith, 2000 non McAtee, 1830')
           end
 
           specify 'ICZN combination' do
