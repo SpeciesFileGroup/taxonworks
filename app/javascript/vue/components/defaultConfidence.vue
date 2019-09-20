@@ -9,7 +9,7 @@
         arrow-size="small"
         :inertia="true"
         :arrow="true"
-        :content="`<p>Create confidence: ${getDefaultElement().firstChild.firstChild.textContent}.<br>Used already on more of ${confidenceCount}</p>`">
+        :content="`<p>Create confidence: ${getDefaultElement().firstChild.firstChild.textContent}.<br>Used already on more of ${confidenceCount} objects</p>`">
         <template v-slot:trigger>
           <div
             class="default_tag_widget circle-button btn-confidences btn-submit"
@@ -25,7 +25,7 @@
         arrow-size="small"
         :inertia="true"
         :arrow="true"
-        :content="`<p>Remove confidence: ${getDefaultElement().firstChild.firstChild.textContent}.<br>Used already on more of ${confidenceCount}</p>`">
+        :content="`<p>Remove confidence: ${getDefaultElement().firstChild.firstChild.textContent}.<br>Used already on more of ${confidenceCount} objects</p>`">
         <template v-slot:trigger>
           <div
             class="default_tag_widget circle-button btn-confidences btn-delete"
@@ -83,7 +83,7 @@ export default {
   mounted () {
     this.alreadyCreated()
     document.addEventListener('pinboard:insert', (event) => {
-      let details = event.detail
+      const details = event.detail
       if (details.type === 'ControlledVocabularyTerm') {
         this.keyId = this.getDefault()
         this.getCount()
