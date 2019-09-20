@@ -25,12 +25,38 @@ module ConfidencesHelper
     content_tag(:span, controlled_vocabulary_term_tag(confidence.confidence_level), class: [:annotation__confidence])
   end
 
+
+
+  def tag_link(tag)
+
   def confidences_search_form
     render('/confidences/quick_search_form')
   end
 
   def confidences_default_icon(object)
     content_tag(:span, '', data: { 'global-id' => object.to_global_id.to_s, 'confidence-default' => 'true' }, class: [:default_confidence_widget, 'circle-button', 'btn-disabled'])
+  end
+
+  def inserted_confidence_level_count
+    inserted_confidence_level.try(:confidences).try(:count)
+  end
+
+  def inserted_confidence_level
+    inserted_pinboard_item_object_for_klass('ConfidenceLevel')
+  end
+
+  def confidence_default_icon(object)
+    content_tag(:span, '', data: {'confidence-object-global-id' => object.to_global_id.to_s, 'default-confidenced-id' => is_default_confidenced?(object), 'inserted-confidence-level-count' => inserted_confidence_level_count  }, class: [:default_confidence_widget, 'circle-button', 'btn-disabled'])
+  end
+
+  # @return [Integer, false]
+  #   true if the object is tagged, and is tagged with the keyword presently defaulted on the pinboard
+  def is_default_confidenced?(object)
+    return false if object.blank?
+    confidence_level = inserted_confidence
+    return false if keyword.blank?
+    t = Confidence.where(confidence_object: object, confidence_level: confidence_level).first.try(:id)
+    t ? t : false
   end
 
   def add_confidence_link(object: nil)
