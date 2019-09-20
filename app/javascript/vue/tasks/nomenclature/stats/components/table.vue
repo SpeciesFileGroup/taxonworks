@@ -69,8 +69,6 @@
 <script>
 
 import { GetterNames } from '../store/getters/getters'
-import { MutationNames } from '../store/mutations/mutations'
-import { GetTaxonName } from '../request/resources'
 import SpinnerComponent from 'components/spinner'
 import CsvButton from 'components/csvButton'
 import { RouteNames } from 'routes/routes'
@@ -91,13 +89,8 @@ export default {
     }
   },
   computed: {
-    taxon: {
-      get () {
-        return this.$store.getters[GetterNames.GetTaxon]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetTaxon, value)
-      }
+    taxon () {
+      return this.$store.getters[GetterNames.GetTaxon]
     },
     csvFields () {
       if (!Object.keys(this.tableRanks).length) return []
@@ -113,7 +106,6 @@ export default {
   data () {
     return {
       renderPosition: 4,
-      rankNames: [],
       tableRanks: {},
       fieldset: [
         {
