@@ -82,10 +82,6 @@ export default {
     tableList: {
       type: Object,
       default: () => { return {} }
-    },
-    ranksSelected: {
-      type: Array,
-      default: () => { return [] }
     }
   },
   computed: {
