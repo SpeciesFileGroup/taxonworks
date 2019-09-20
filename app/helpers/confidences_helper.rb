@@ -54,7 +54,7 @@ module ConfidencesHelper
   def is_default_confidenced?(object)
     return false if object.blank?
     confidence_level = inserted_confidence
-    return false if keyword.blank?
+    return false if confidence_level.blank?
     t = Confidence.where(confidence_object: object, confidence_level: confidence_level).first.try(:id)
     t ? t : false
   end

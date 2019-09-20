@@ -25,7 +25,7 @@ module ContainersHelper
       container.name,
       container.print_label
     ].compact
-      
+
     a = [ container.id ] if a.empty?
     a.join('&nsbp;').html_safe
   end
