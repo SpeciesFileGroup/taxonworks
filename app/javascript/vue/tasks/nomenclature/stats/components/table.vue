@@ -44,7 +44,7 @@
             @click="sortBy(header)">
             <span v-html="header.replace('_', '<br>')"/>
           </th>
-          <th>Show</th>
+          <th @click="sortBy('cached')">Show</th>
         </tr>
       </thead>
       <tbody>
