@@ -2249,7 +2249,7 @@ namespace :tw do
             nt += ' ' + taxon1.cached.to_s + ' ' + taxon1.cached_author_year.to_s if taxon1
 
             pred = keywords[row['Status']]
-            byebug if pred.nil?
+            byebug if pred.nil? || pred.id.nil?
             c = taxon.internal_attributes.find_or_create_by(controlled_vocabulary_term_id: pred.id, value: nt, project_id: Current.project_id)
 
 
