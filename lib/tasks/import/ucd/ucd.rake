@@ -167,6 +167,7 @@ namespace :tw do
         handle_family_ucd
         handle_genus_ucd
         handle_species_ucd
+#end
         handle_tstat_ucd
 
         handle_hknew_ucd
@@ -328,7 +329,6 @@ namespace :tw do
           puts 'from database'  
         end
       end
-
 
       def handle_master_ucd_families
         #TaxonCode
@@ -1248,7 +1248,6 @@ namespace :tw do
         end
       end
 
-
       def handle_references_ucd
         # - 0   RefCode   | varchar(15)  |
         # - 1   Author    | varchar(52)  |
@@ -1442,7 +1441,6 @@ namespace :tw do
         end
       end
 
-
       def combinations_codes_ucd
         combinations = {
           'CG' => 'Misspelt generic name, new combination for',
@@ -1501,7 +1499,6 @@ namespace :tw do
         end
       end
 
-
       def handle_family_ucd
         path = @args[:data_directory] + 'FAMTRIB.txt'
         print "\nHandling FAMTRIB\n"
@@ -1546,7 +1543,6 @@ namespace :tw do
           end
         end
       end
-
 
       def handle_genus_ucd
         path = @args[:data_directory] + 'GENUS.txt'
@@ -2182,8 +2178,8 @@ namespace :tw do
 
         keywords = {}
 
-        notes.each do |n|
-          keywords[n] = Predicate.find_or_create_by(name: n[0], definition: 'The status in UCD database ' + n[1], project_id: Current.project_id)
+        notes.keys.each do |n|
+          keywords[n] = Predicate.find_or_create_by(name: n, definition: 'The status in UCD database: ' + notes[n], project_id: Current.project_id)
         end
 
 #        keywords.merge!{
@@ -2250,8 +2246,12 @@ namespace :tw do
           # create predicates for status
           if !notes[row['Status']].nil? && !taxon.nil?
             nt = notes[row['Status']]
-            nt += ' ' + taxon1.cached_html.to_s + ' ' + taxon1.cached_author_year.to_s if taxon1
-            c = taxon.data_attributes.find_or_create_by(type: 'InternalAttribute', predicate: keywords[row['Status']], value: nt)
+            nt += ' ' + taxon1.cached.to_s + ' ' + taxon1.cached_author_year.to_s if taxon1
+
+            pred = keywords[row['Status']]
+            byebug if pred.nil? || pred.id.nil?
+            c = taxon.internal_attributes.find_or_create_by(controlled_vocabulary_term_id: pred.id, value: nt, project_id: Current.project_id)
+
 
             if !c.id.blank? # valid?
               taxon.citations.create(source_id: ref, pages: row['PageRef'])
@@ -2320,11 +2320,11 @@ namespace :tw do
               if relationship[row['Status']].include?('TaxonNameRelationship::Iczn::Invalidating') && !c.nil?
                 c.update_column(:type, relationship[row['Status']])
               else
-                c2 = TaxonNameClassification.find_or_create_by(taxon_name: taxon, type: 'TaxonNameClassification::Iczn::Available::Valid') if @data.valid_taxon_codes[taxon.id] == 1
+                c2 = TaxonNameClassification.find_or_create_by(taxon_name: taxon, type: 'TaxonNameClassification::Iczn::Available::Valid', project_id: Current.project_id) if @data.valid_taxon_codes[taxon.id] == 1
                 if row['Status'] == 'MG' && taxon.rank_string == 'NomenclaturalRank::Iczn::GenusGroup::Genus'
-                  c = TaxonNameRelationship.find_or_create_by(subject_taxon_name: taxon, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
+                  c = TaxonNameRelationship.find_or_create_by(subject_taxon_name: taxon, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', project_id: Current.project_id)
                 else
-                  c = TaxonNameRelationship.find_or_create_by(subject_taxon_name: taxon, object_taxon_name: taxon1, type: relationship[row['Status']])
+                  c = TaxonNameRelationship.find_or_create_by(subject_taxon_name: taxon, object_taxon_name: taxon1, type: relationship[row['Status']], project_id: Current.project_id)
                 end
               end
 
@@ -2351,7 +2351,7 @@ namespace :tw do
           end
 
           if !classification[row['Status']].nil? && !taxon.nil?
-            c = TaxonNameClassification.find_or_create_by(taxon_name: taxon, type: classification[row['Status']])
+            c = TaxonNameClassification.find_or_create_by(taxon_name: taxon, type: classification[row['Status']], project_id: Current.project_id)
 
             if !c.id.blank?
               if !ref2.nil? && !ref.nil?

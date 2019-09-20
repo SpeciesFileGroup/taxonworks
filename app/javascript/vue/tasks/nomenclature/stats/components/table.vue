@@ -44,7 +44,7 @@
             @click="sortBy(header)">
             <span v-html="header.replace('_', '<br>')"/>
           </th>
-          <th>Show</th>
+          <th @click="sortBy('cached')">Show</th>
         </tr>
       </thead>
       <tbody>
@@ -69,8 +69,6 @@
 <script>
 
 import { GetterNames } from '../store/getters/getters'
-import { MutationNames } from '../store/mutations/mutations'
-import { GetTaxonName } from '../request/resources'
 import SpinnerComponent from 'components/spinner'
 import CsvButton from 'components/csvButton'
 import { RouteNames } from 'routes/routes'
@@ -84,23 +82,11 @@ export default {
     tableList: {
       type: Object,
       default: () => { return {} }
-    },
-    ranksSelected: {
-      type: Array,
-      default: () => { return [] }
     }
   },
   computed: {
-    rankList () {
-      return this.$store.getters[GetterNames.GetRanks]
-    },
-    taxon: {
-      get () {
-        return this.$store.getters[GetterNames.GetTaxon]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetTaxon, value)
-      }
+    taxon () {
+      return this.$store.getters[GetterNames.GetTaxon]
     },
     csvFields () {
       if (!Object.keys(this.tableRanks).length) return []
@@ -116,7 +102,6 @@ export default {
   data () {
     return {
       renderPosition: 4,
-      rankNames: [],
       tableRanks: {},
       fieldset: [
         {
@@ -135,12 +120,6 @@ export default {
     }
   },
   watch: {
-    rankList: {
-      handler (newVal) {
-        this.rankNames = [...new Set(this.getRankNames(newVal))]
-      },
-      deep: true
-    },
     tableList: {
       handler (newVal) {
         this.sorting = true
@@ -158,50 +137,8 @@ export default {
     getBrowseUrl (id) {
       return `${RouteNames.BrowseNomenclature}?taxon_name_id=${id}`
     },
-    isFiltered (header) {
-      return this.selectedFieldSet.set.find((item) => { return header.indexOf(item) > -1 }) || this.ranksSelected.includes(header)
-    },
     resetList () {
       this.tableRanks = this.tableList
-    },
-    getRankNames (list, nameList = []) {
-      for (var key in list) {
-        if (typeof list[key] === 'object') {
-          this.getRankNames(list[key], nameList)
-        } else {
-          if (key === 'name') {
-            nameList.push(list[key])
-          }
-        }
-      }
-      return nameList
-    },
-    orderRanksTable (list) {
-      let newDataList = []
-      let headerRanksOrder = []
-      let ranksOrder = this.rankNames.filter(rank => {
-        return list.column_headers.includes(`valid_${rank}`) || list.column_headers.includes(`invalid_${rank}`)
-      })
-
-      ranksOrder.forEach(item => {
-        headerRanksOrder.push(`valid_${item}`)
-        headerRanksOrder.push(`invalid_${item}`)
-      })
-
-      ranksOrder = ranksOrder.concat(headerRanksOrder)
-      ranksOrder = list.column_headers.filter(item => {
-        return !ranksOrder.includes(item)
-      }).concat(ranksOrder)
-
-      ranksOrder.forEach((rank, index) => {
-        const indexHeader = list.column_headers.findIndex(item => { return item === rank })
-        if (indexHeader >= 0) {
-          list.data.forEach((row, rIndex) => {
-            newDataList[rIndex] ? newDataList[rIndex].push(row[indexHeader]) : newDataList[rIndex] = [row[indexHeader]]
-          })
-        }
-      })
-      return { column_headers: ranksOrder, data: newDataList }
     },
     getValueFromTable (header, rowIndex) {
       const otuIndex = this.tableRanks.column_headers.findIndex(item => {
