@@ -25,10 +25,6 @@ module ConfidencesHelper
     content_tag(:span, controlled_vocabulary_term_tag(confidence.confidence_level), class: [:annotation__confidence])
   end
 
-
-
-  def tag_link(tag)
-
   def confidences_search_form
     render('/confidences/quick_search_form')
   end
@@ -46,11 +42,15 @@ module ConfidencesHelper
   end
 
   def confidence_default_icon(object)
-    content_tag(:span, '', data: {'confidence-object-global-id' => object.to_global_id.to_s, 'default-confidenced-id' => is_default_confidenced?(object), 'inserted-confidence-level-count' => inserted_confidence_level_count  }, class: [:default_confidence_widget, 'circle-button', 'btn-disabled'])
+    content_tag(:span, '', data: {
+      'confidence-object-global-id' => object.to_global_id.to_s,
+      'default-confidenced-id' => is_default_confidenced?(object), 
+      'inserted-confidence-level-count' => inserted_confidence_level_count  }, 
+      class: [:default_confidence_widget, 'circle-button', 'btn-disabled'])
   end
 
   # @return [Integer, false]
-  #   true if the object is tagged, and is tagged with the keyword presently defaulted on the pinboard
+  #   true if the object has the confidence level, and is annotated with the confidence level presently defaulted on the pinboard
   def is_default_confidenced?(object)
     return false if object.blank?
     confidence_level = inserted_confidence
@@ -60,10 +60,10 @@ module ConfidencesHelper
   end
 
   def add_confidence_link(object: nil)
-    link_to('Add confidence', new_confidence_path( 
-                                                  confidence_object_type: object.class.base_class.name,
-                                                  confidence_object_id: object.id
-                                                 )) if object.has_confidences?
+    link_to('Add confidence', new_confidence_path(
+      confidence_object_type: object.class.base_class.name,
+      confidence_object_id: object.id
+    )) if object.has_confidences?
   end
 
 end
