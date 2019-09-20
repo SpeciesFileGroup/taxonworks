@@ -10,6 +10,26 @@ module ContainersHelper
     link_to(container_tag(container.metamorphosize).html_safe, container.metamorphosize)
   end
 
+  def container_label(container)
+    return nil if container.nil?
+    [ identifier_label(container.identifiers.first),
+      container.name,
+      container.print_label,
+    ].compact.join.html_safe
+  end
+
+  def container_autocomplete_tag(container)
+    return nil if container.nil?
+    a = [
+      identifier_short_tag(container.identifiers.first),
+      container.name,
+      container.print_label
+    ].compact
+      
+    a = [ container.id ] if a.empty?
+    a.join('&nsbp;').html_safe
+  end
+
   def container_parent_tag(container)
     return nil if container.container_item.nil?
     return nil if container.container_item.parent.nil?
