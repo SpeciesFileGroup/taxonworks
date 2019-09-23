@@ -36,6 +36,12 @@
           <span>Filter</span>
         </div>
         <div class="content">
+          <button
+            type="button"
+            class="button normal-input button-default full_width"
+            @click="loadRankTable">
+            Search
+          </button>
           <taxon-name v-if="Object.keys(rankList).length"/>
           <ranks-filter
             title="Count columns"
@@ -124,14 +130,14 @@ export default {
   watch: {
     rankData: {
       handler (newVal) {
-        this.loadRankTable()
+        //this.loadRankTable()
       },
       deep: true
     },
     ranks: {
       handler (newVal, oldVal) {
         if (newVal.length) {
-          this.loadRankTable()
+          //this.loadRankTable()
         }
       },
       deep: true
@@ -146,7 +152,7 @@ export default {
     },
     combinations (newVal) {
       if (this.taxon) {
-        this.loadRankTable()
+        //this.loadRankTable()
       }
     },
     taxon (newVal) {
@@ -162,10 +168,6 @@ export default {
       this.list = []
     },
     loadRankTable () {
-      if (this.halt) {
-        this.halt = false
-        return
-      }
       const params = {
         ancestor_id: this.taxon.id,
         ranks: this.orderRanks(this.ranks),
