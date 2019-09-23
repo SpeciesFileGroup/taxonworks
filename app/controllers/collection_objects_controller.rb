@@ -261,15 +261,13 @@ class CollectionObjectsController < ApplicationController
         'start_year'  => 'start_date_year',
         'end_day'     => 'end_date_day',
         'end_month'   => 'end_date_month',
-        'end_year'    => 'end_date_year'}}
+        'end_year'    => 'end_date_year'}
+    }
   end
 
   def filter_params
     params.permit(
       :recent,
-      collecting_event_ids: [],
-      geographic_area_ids: [],
-      keyword_ids: []
       Queries::CollectingEvent::Filter::ATTRIBUTES,
       :in_labels,
       :in_verbatim_locality,
@@ -279,10 +277,13 @@ class CollectionObjectsController < ApplicationController
       :partial_overlap_dates,
       keyword_ids: [],
       spatial_geographic_area_ids: [],
-      collecting_event: {
-        :recent,
-        keyword_ids: []
-      }
+      collecting_event_ids: [],
+      geographic_area_ids: [],
+   #   keyword_ids: [],
+   #  collecting_event: {
+   #   :recent,
+   #   keyword_ids: []
+   # }
     )
   end 
 
