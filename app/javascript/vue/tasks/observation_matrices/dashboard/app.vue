@@ -31,7 +31,8 @@
         @rankSelected="ranks = $event"
         @onTaxon="taxon = $event"
         @onValidity="validity = $event"
-        @reset="resetTask"/>
+        @reset="resetTask"
+        @onSearch="loadRankTable"/>
       <div class="full_width">
         <div
           v-show="Object.keys(rankTable).length"
@@ -99,7 +100,7 @@ export default {
     ranks: {
       handler (newVal) {
         if (newVal.length) {
-          this.loadRankTable()
+          //this.loadRankTable()
         }
       },
       deep: true
@@ -114,7 +115,7 @@ export default {
     },
     combination (newVal) {
       if (this.taxon) {
-        this.loadRankTable()
+        //this.loadRankTable()
       }
     }
   },
