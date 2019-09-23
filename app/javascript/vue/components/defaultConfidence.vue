@@ -33,12 +33,10 @@
             title="Remove default confidence"/>
         </template>
       </tippy-component>
-
     </div>
     <div
       v-else
-      class="default_tag_widget circle-button btn-confidences btn-disabled"
-      @click="deleteConfidence()"/>
+      class="default_tag_widget circle-button btn-confidences btn-disabled"/>
   </div>
 </template>
 
