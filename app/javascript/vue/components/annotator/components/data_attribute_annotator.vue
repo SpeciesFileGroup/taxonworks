@@ -134,7 +134,6 @@ export default {
 <style lang="scss">
 .radial-annotator {
 	.data_attribute_annotator {
-    overflow-y: scroll;
 		button {
 			min-width: 100px;
 		}
