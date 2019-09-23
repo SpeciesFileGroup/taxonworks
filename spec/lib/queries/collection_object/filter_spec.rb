@@ -2,32 +2,70 @@ require 'rails_helper'
 require 'support/shared_contexts/shared_geo'
 
 describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collection_object, :collecting_event, :shared_geo] do
-  context 'simple filter' do
+
+
+  context 'simple' do
     let(:params) { {} }
-    let(:query) { Queries::CollectionObject::Filter.new(params) }
+    let(:query) { Queries::CollectionObject::Filter.new({}) }
 
-    let(:ce1) { CollectingEvent.create(verbatim_locality: 'Out there',
-                                       start_date_year: 2010,
-                                       start_date_month: 2,
-                                       start_date_day: 18) }
+    let(:ce1) { CollectingEvent.create(
+      verbatim_locality: 'Out there',
+      start_date_year: 2010,
+      start_date_month: 2,
+      start_date_day: 18) }
 
-    let(:ce2) { CollectingEvent.create(verbatim_locality: 'Out there, under the stars',
-                                       verbatim_trip_identifier: 'Foo manchu',
-                                       start_date_year: 2000,
-                                       start_date_month: 2,
-                                       start_date_day: 18,
-                                       print_label: 'THERE: under the stars:18-2-2000') }
+    let(:ce2) { CollectingEvent.create(
+      verbatim_locality: 'Out there, under the stars',
+      verbatim_trip_identifier: 'Foo manchu',
+      start_date_year: 2000,
+      start_date_month: 2,
+      start_date_day: 18,
+      print_label: 'THERE: under the stars:18-2-2000') }
 
 
     let!(:co1) { Specimen.create!(collecting_event: ce1) }
+    let!(:co2) { Specimen.create!(collecting_event: ce2) }
 
     # let!(:namespace) { FactoryBot.create(:valid_namespace, short_name: 'Foo') }
     # let!(:i1) { Identifier::Local::TripCode.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
     # let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
+   
+    specify '#collecting_event_query' do
+      expect(query.collecting_event_query.class.name).to eq('Queries::CollectingEvent::Filter')
+    end
+
     specify '#recent' do
+      query.recent = true
+      expect(query.all.map(&:id)).to contain_exactly(co1.id, co2.id)
+    end
+
+    specify '#collecting_event_ids' do
+      query.collecting_event_ids = [ce1.id]
       params.merge!({recent: true})
       expect(query.all.map(&:id)).to contain_exactly(co1.id)
     end
+
+    # Concerns
+    specify '#keyword_ids' do
+      t = FactoryBot.create(:valid_tag, tag_object: co1)
+      query.keyword_ids = [t.keyword.id]
+      expect(query.all.map(&:id)).to contain_exactly(co1.id)
+    end
+
+    # Collecting event
+    # Only a couple of each are included to test the merge, the rest are in 
+
+    specify '#geographic_area_ids' do
+      ce1.update(geographic_area: FactoryBot.create(:valid_geographic_area))
+      query.collecting_event_query.geographic_area_ids = [ce1.geographic_area.id]
+      expect(query.all.map(&:id)).to contain_exactly(co1.id)
+    end
+
+    specify '#verbatim_locality' do
+      query.collecting_event_query.verbatim_locality = 'Out there'
+      expect(query.all.map(&:id)).to contain_exactly(co1.id)
+    end
+
   end
 
   context 'with properly built collection of objects' do

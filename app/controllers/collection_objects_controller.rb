@@ -265,7 +265,25 @@ class CollectionObjectsController < ApplicationController
   end
 
   def filter_params
-    params.permit(:recent)
+    params.permit(
+      :recent,
+      collecting_event_ids: [],
+      geographic_area_ids: [],
+      keyword_ids: []
+      Queries::CollectingEvent::Filter::ATTRIBUTES,
+      :in_labels,
+      :in_verbatim_locality,
+      :shape,
+      :start_date,
+      :end_date,
+      :partial_overlap_dates,
+      keyword_ids: [],
+      spatial_geographic_area_ids: [],
+      collecting_event: {
+        :recent,
+        keyword_ids: []
+      }
+    )
   end 
 
 end

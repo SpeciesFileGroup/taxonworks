@@ -1,13 +1,16 @@
 module Queries
   module CollectingEvent 
 
-    # !! does not inherit from base query
     class Filter 
 
+      # TODO:
+      # identifiers
+
+      include Queries::Concerns::Tags
       include Queries::Concerns::DateRanges
 
+      # Params exists for all CollectingEvent attributes except these
       ATTRIBUTES = (::CollectingEvent.column_names - %w{project_id created_by_id updated_by_id created_at updated_at})
-
       ATTRIBUTES.each do |a|
         class_eval { attr_accessor a.to_sym }
       end
@@ -22,16 +25,20 @@ module Queries
       # An integer, order result and return the last :recent records
       attr_accessor :recent
 
-      attr_accessor :keyword_ids
-
-      # TODO:
-      # identifiers
-
       # An RGeo::GeoJSON feature
       attr_accessor :shape
 
       # Reference geographic areas to do a spatial query 
+      # TODO: deprecate
       attr_accessor :spatial_geographic_area_ids
+
+      # [Array]
+      #   match only CollectionObjects mapped to CollectingEvents that
+      #   have these specific ids.  No spatial calculations are included
+      #   in this parameter by default.  See 'spatial_geographic_areas = true'.
+      attr_accessor :geographic_area_ids # not tested
+
+
 
       def initialize(params)
         @in_labels = params[:in_labels]
@@ -41,6 +48,8 @@ module Queries
 
         @keyword_ids = params[:keyword_ids].blank? ? [] : params[:keyword_ids]
         @spatial_geographic_area_ids = params[:spatial_geographic_area_ids].blank? ? [] : params[:spatial_geographic_area_ids]
+
+        @geographic_area_ids = params[:geographic_area_ids].blank? ? [] : params[:geographic_area_ids]
 
         set_attributes(params)
         set_dates(params)
@@ -61,9 +70,9 @@ module Queries
       def table
         ::CollectingEvent.arel_table
       end
-
-      def tag_table
-        ::Tag.arel_table
+      
+      def base_query
+        ::CollectingEvent
       end
 
       def attribute_clauses
@@ -74,32 +83,6 @@ module Queries
           end
         end
         c
-      end
-
-      def matching_keyword_ids
-        return nil if keyword_ids.empty?
-        o = table
-        t = ::Tag.arel_table
-
-        a = o.alias("a_")
-        b = o.project(a[Arel.star]).from(a)
-
-        c = t.alias('t1')
-
-        b = b.join(c, Arel::Nodes::OuterJoin)
-          .on(
-            a[:id].eq(c[:tag_object_id])
-          .and(c[:tag_object_type].eq(table.name.classify))
-        )
-
-        e = c[:keyword_id].not_eq(nil)
-        f = c[:keyword_id].eq_any(keyword_ids)
-
-        b = b.where(e.and(f))
-        b = b.group(a['id'])
-        b = b.as('tz5_')
-
-        _a = ::CollectingEvent.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
       end
 
       def matching_shape
@@ -137,23 +120,44 @@ module Queries
         table[:verbatim_label].matches(t).or(table[:print_label].matches(t)).or(table[:document_label].matches(t))
       end
 
+      def matching_geographic_area_ids
+        return nil if geographic_area_ids.empty? || spatial_geographic_area_ids.any? # BLOCKER TODO: update to match BOOLEAN
+        table[:geographic_area_id].eq_any(geographic_area_ids)
+      end
+
       def matching_verbatim_locality
         return nil if in_verbatim_locality.blank?
         t = "%#{in_verbatim_locality}%"
         table[:verbatim_locality].matches(t)
       end
 
-      # @return [ActiveRecord::Relation]
-      def and_clauses
+      # @return [Array]
+      def base_and_clauses
         clauses = []
         clauses += attribute_clauses
-       
+
         clauses += [
           between_date_range,
+          matching_geographic_area_ids,
           matching_any_label,
           matching_verbatim_locality,
-        ].compact
-        
+        ].compact!
+
+        clauses
+      end
+
+      def base_merge_clauses
+        clauses = [
+          matching_keyword_ids,
+          matching_shape,
+          matching_spatial_via_geographic_area_ids
+        ].compact!
+        clauses
+      end
+
+      # @return [ActiveRecord::Relation]
+      def and_clauses
+        clauses = base_and_clauses        
         return nil if clauses.empty?
 
         a = clauses.shift
@@ -164,14 +168,7 @@ module Queries
       end
 
       def merge_clauses
-        clauses = [
-          matching_keyword_ids,
-          matching_shape,
-          matching_spatial_via_geographic_area_ids
-
-          # matching_verbatim_author
-        ].compact
-
+        clauses = base_merge_clauses
         return nil if clauses.empty?
 
         a = clauses.shift
@@ -196,13 +193,11 @@ module Queries
         else
           q = ::CollectingEvent.all
         end
-
+        
         q = q.order(updated_at: :desc).limit(recent) if recent
         q
       end
-  
-      protected
-
     end
+    
   end
 end

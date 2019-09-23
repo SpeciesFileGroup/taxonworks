@@ -247,6 +247,7 @@ class CollectingEventsController < ApplicationController
   end
 
   def filter_params
+    # TODO: unify for use in CO
     params.permit(
       Queries::CollectingEvent::Filter::ATTRIBUTES,
       :in_labels,
