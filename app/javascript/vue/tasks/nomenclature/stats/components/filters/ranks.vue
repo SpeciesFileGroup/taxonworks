@@ -1,6 +1,12 @@
 <template>
   <div v-if="taxonName">
     <h2>{{ title }}</h2>
+    <label>
+      <input
+        v-model="typicalUse"
+        type="checkbox">
+      Typical use
+    </label>
     <template
       v-for="(group, key, index) in ranks[taxonName.nomenclatural_code]">
       <div
@@ -9,17 +15,20 @@
         :key="key">
         <ul class="no_bullets">
           <template v-for="(rank, rIndex) in group">
-            <li
-              :key="rank.name"
+            <template
               v-if="!(index == rankGroup.groupIndex && rankGroup.rankIndex > rIndex)">
-              <label>
-                <input
-                  v-model="ranksSelected"
-                  :value="rank.name"
-                  type="checkbox">
-                {{ rank.name }}
-              </label>
-            </li>
+              <li
+                :key="rank.name"
+                v-if="(typicalUse ? (rank.typical_use) : true)">
+                <label>
+                  <input
+                    v-model="ranksSelected"
+                    :value="rank.name"
+                    type="checkbox">
+                  {{ rank.name }}
+                </label>
+              </li>
+            </template>
           </template>
         </ul>
       </div>
@@ -80,6 +89,11 @@ export default {
         }
       }
       return { group: group, groupIndex: Object.keys(groups).findIndex(item => { return item === group }), rankIndex: rankIndex }
+    }
+  },
+  data () {
+    return {
+      typicalUse: true
     }
   },
   mounted () {
