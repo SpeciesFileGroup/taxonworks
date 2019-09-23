@@ -1,13 +1,7 @@
 <template>
   <div>
-    <h2>Otu</h2>
-    <div class="field">
-      <label>
-        <input
-          type="checkbox">
-        Descendants (if available)
-      </label>
-    </div>
+    <h2>Determinations</h2>
+    <h3>Otu</h3>
     <autocomplete
       url="/otus/autocomplete"
       placeholder="Select an otu"
@@ -15,6 +9,13 @@
       label="label_html"
       display="label"
       @getItem="otu = $event" />
+    <div class="field separate-top">
+      <label>
+        <input
+          type="checkbox">
+        Descendants (if available)
+      </label>
+    </div>
   </div>
 </template>
 

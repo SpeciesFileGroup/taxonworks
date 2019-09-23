@@ -72,18 +72,18 @@ export default {
       default: () => { return [] }
     }
   },
-  data() {
+  data () {
     return {
       ascending: false
     }
   },
   methods: {
-    sortTable(sortProperty) {
+    sortTable (sortProperty) {
       function compare (a,b) {
         if (a[sortProperty] < b[sortProperty])
           return (this.ascending ? -1 : 1)
         if (a[sortProperty] > b[sortProperty])
-          return (this.ascending ? 1 : -1);
+          return (this.ascending ? 1 : -1)
         return 0
       }
       this.list.sort(compare)

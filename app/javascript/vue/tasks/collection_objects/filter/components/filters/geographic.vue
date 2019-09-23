@@ -17,6 +17,8 @@
       <georeference-map
         width="300px"
         height="300px"
+        ref="leaflet"
+        :geojson="geojson"
         :draw-controls="true"
         :draw-polyline="false"
         :draw-marker="false"
@@ -24,6 +26,7 @@
         :cut-polygon="false"
         :tiles-selection="false"
         :zoom="1"
+        @geoJsonLayerCreated="addShape"
       />
     </div>
   </div>
@@ -45,7 +48,17 @@ export default {
     return {
       view: 'area',
       tabs: ['area', 'map'],
-      geographic_area: undefined
+      geographic_area: undefined,
+      geojson: [],
+      shapes: {
+        type: "FeatureCollection",
+        features: []
+      }
+    }
+  },
+  methods: {
+    addShape (shape) {
+      this.$refs.leaflet.addGeoJsonLayer([shape])
     }
   }
 }

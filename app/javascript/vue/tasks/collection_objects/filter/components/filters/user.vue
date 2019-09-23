@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Select user and range date</h2>
+    <h2>User</h2>
     <div class="field">
       <select v-model="user">
         <option
