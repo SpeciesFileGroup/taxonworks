@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3>Combinations</h3>
+    <h2>Combinations</h2>
     <label>
       <input
         type="checkbox"

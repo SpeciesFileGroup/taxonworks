@@ -10,6 +10,12 @@
       v-if="searching"
     />
     <div class="content">
+      <button 
+        class="button normal-input button-default full_width"
+        type="button"
+        @click="$emit('onSearch')">
+        Search
+      </button>
       <taxon-name v-model="taxonName"/>
       <otu-filter v-model="validity"/>
       <combinations-filter/>
