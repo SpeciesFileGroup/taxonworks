@@ -26,7 +26,13 @@ module TagsHelper
   end
   
   def tag_default_icon(object)
-    content_tag(:span, 'Tag', data: {'tag-object-global-id' => object.to_global_id.to_s, 'default-tagged-id' => is_default_tagged?(object), 'inserted-keyword-count' => inserted_keyword_tag_count  }, class: [:default_tag_widget, 'circle-button', 'btn-disabled'])
+    content_tag(:span, 'Tag', 
+      data: {
+      'tag-default' => 'true',
+      'tag-object-global-id' => object.to_global_id.to_s,
+      'default-tagged-id' => is_default_tagged?(object),
+      'inserted-keyword-count' => inserted_keyword_tag_count
+      }, class: [:default_tag_widget, 'circle-button', 'btn-disabled'])
   end
 
   def tag_link(tag)
