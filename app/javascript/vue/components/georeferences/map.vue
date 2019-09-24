@@ -49,6 +49,10 @@ export default {
       type: Boolean,
       default: true
     },
+    drawCircleMarker: {
+      type: Boolean,
+      default: true
+    },
     drawMarker: {
       type: Boolean,
       default: true
@@ -197,6 +201,7 @@ export default {
         this.mapObject.pm.addControls({
           position: 'topleft',
           drawCircle: this.drawCircle,
+          drawCircleMarker: this.drawCircleMarker,
           drawMarker: this.drawMarker,
           drawPolyline: this.drawPolyline,
           drawPolygon: this.drawPolygon,

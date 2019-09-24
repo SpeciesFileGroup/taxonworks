@@ -8,7 +8,12 @@ const GetUsers = () => {
   return ajaxCall('get', '/project_members.json')
 }
 
+const GetCollectingEventSmartSelector = () => {
+  return ajaxCall('get', '/collecting_events/select_options')
+}
+
 export {
   GetCollectionObjects,
-  GetUsers
+  GetUsers,
+  GetCollectingEventSmartSelector
 }

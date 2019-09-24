@@ -24,7 +24,9 @@
         :draw-marker="false"
         :drag-mode="false"
         :cut-polygon="false"
+        :draw-circle-marker="false"
         :tiles-selection="false"
+        :edit-mode="false"
         :zoom="1"
         @geoJsonLayerCreated="addShape"
       />
@@ -63,3 +65,8 @@ export default {
   }
 }
 </script>
+<style scoped>
+  /deep/ .vue-autocomplete-input {
+    width: 100%
+  }
+</style>

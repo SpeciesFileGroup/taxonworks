@@ -34,7 +34,7 @@
 <script>
 
 import OtuComponent from './filters/otu'
-import DateComponent from './filters/date'
+import DateComponent from './filters/collectingEvent'
 import UserComponent from './filters/user'
 import GeographicComponent from './filters/geographic'
 
