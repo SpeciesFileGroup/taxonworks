@@ -34,7 +34,7 @@
 <script>
 
 import OtuComponent from './filters/otu'
-import DateComponent from './filters/date'
+import DateComponent from './filters/collectingEvent'
 import UserComponent from './filters/user'
 import GeographicComponent from './filters/geographic'
 
@@ -93,6 +93,12 @@ export default {
         },
         base: {
           otu_id: undefined
+        },
+        collectingEvents: {
+          collecting_event_ids: [],
+          spatial: undefined,
+          start_date: undefined,
+          end_date: undefined
         }
       }
     },

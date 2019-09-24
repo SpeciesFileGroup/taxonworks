@@ -49,6 +49,10 @@ export default {
       type: Boolean,
       default: true
     },
+    drawCircleMarker: {
+      type: Boolean,
+      default: true
+    },
     drawMarker: {
       type: Boolean,
       default: true
@@ -82,6 +86,10 @@ export default {
       default: true
     },
     tilesSelection: {
+      type: Boolean,
+      default: true
+    },
+    tooltips: {
       type: Boolean,
       default: true
     },
@@ -197,6 +205,7 @@ export default {
         this.mapObject.pm.addControls({
           position: 'topleft',
           drawCircle: this.drawCircle,
+          drawCircleMarker: this.drawCircleMarker,
           drawMarker: this.drawMarker,
           drawPolyline: this.drawPolyline,
           drawPolygon: this.drawPolygon,
@@ -207,6 +216,13 @@ export default {
           removalMode: this.removalMode
         })
       }
+
+      this.mapObject.pm.enableDraw('Marker', { tooltips: this.tooltips })
+      this.mapObject.pm.enableDraw('Polygon', { tooltips: this.tooltips })
+      this.mapObject.pm.enableDraw('Circle', { tooltips: this.tooltips })
+      this.mapObject.pm.enableDraw('Line', { tooltips: this.tooltips })
+      this.mapObject.pm.enableDraw('Rectangle', { tooltips: this.tooltips })
+      this.mapObject.pm.enableDraw('Cut', { tooltips: this.tooltips })
     },
     handleEvents () {
       const that = this
@@ -253,10 +269,11 @@ export default {
     },
     addGeoJsonLayer (geoJsonLayers) {
       const that = this
-
+      let index = -1
       L.geoJson(geoJsonLayers, {
         style: function (feature) {
-          return that.randomShapeStyle()
+          index = index + 1
+          return that.randomShapeStyle(index)
         },
         onEachFeature: this.onMyFeatures,
         pointToLayer: function (feature, latlng) {
@@ -274,6 +291,11 @@ export default {
       }
       return color
     },
+    generateHue (index) {
+      const PHI = (1 + Math.sqrt(5)) / 2
+      const n = index * PHI - Math.floor(index * PHI)
+      return `hsl(${Math.floor(n * 256)}, ${Math.floor(n * 70) + 40}% , ${(Math.floor((n) + 1) * 60) + 20}%)`
+    },
     defaultShapeStyle () {
       return {
         weight: 1,
@@ -281,10 +303,10 @@ export default {
         fillOpacity: 0.4
       }
     },
-    randomShapeStyle () {
+    randomShapeStyle (index) {
       return {
         weight: 1,
-        color: this.getRandomColor(),
+        color: this.generateHue(index),
         dashArray: '',
         fillOpacity: 0.4
       }

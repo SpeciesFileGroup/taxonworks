@@ -15,7 +15,7 @@
     </div>
     <div v-else>
       <georeference-map
-        width="300px"
+        width="330px"
         height="300px"
         ref="leaflet"
         :geojson="geojson"
@@ -24,8 +24,11 @@
         :draw-marker="false"
         :drag-mode="false"
         :cut-polygon="false"
+        :draw-circle-marker="false"
         :tiles-selection="false"
+        :edit-mode="false"
         :zoom="1"
+        :tooltips="false"
         @geoJsonLayerCreated="addShape"
       />
     </div>
@@ -58,8 +61,13 @@ export default {
   },
   methods: {
     addShape (shape) {
-      this.$refs.leaflet.addGeoJsonLayer([shape])
+      this.geojson.push(shape)
     }
   }
 }
 </script>
+<style scoped>
+  /deep/ .vue-autocomplete-input {
+    width: 100%
+  }
+</style>
