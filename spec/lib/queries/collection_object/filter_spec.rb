@@ -66,6 +66,12 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       expect(query.all.map(&:id)).to contain_exactly(co1.id)
     end
 
+    specify '#start_date/#end_date' do
+      query.collecting_event_query.start_date = '1999-1-1'
+      query.collecting_event_query.end_date = '2001-1-1'
+      expect(query.all.map(&:id)).to contain_exactly(co2.id)
+    end
+
   end
 
   context 'with properly built collection of objects' do
@@ -138,22 +144,6 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
         expect(result).to contain_exactly(top_dog.collection_objects.first)
       end
 
-    end
-
-    context 'collecting event date search' do
-      let(:params) { {search_start_date: '1971-01-01', search_end_date: '1980-12-31'} }
-      specify 'start and end dates' do
-        result = Queries::CollectionObject::Filter.new(params).all
-        expect(result.count).to eq(1)
-      end
-    end
-
-    context 'collecting event date search' do
-      let(:params) { {search_start_date: '1975-01-01', search_end_date: '1982-12-31'} }
-      specify 'start and end dates' do
-        result = Queries::CollectionObject::Filter.new(params).all
-        expect(result.count).to eq(1)
-      end
     end
 
     context 'identifier search' do
@@ -321,7 +311,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
                        id_range_stop:  '8'
                       })
         params.merge!({geographic_area_ids: [area_b.id]})
-        params.merge!({search_start_date: '1970-01-01', search_end_date: '1986-12-31'})
+       # params.merge!({search_start_date: '1970-01-01', search_end_date: '1986-12-31'})
 
         result = Queries::CollectionObject::Filter.new(params).all
         expect(result).to contain_exactly(co_b)

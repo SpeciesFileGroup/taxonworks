@@ -14,9 +14,6 @@ module Queries
 
       include Queries::Concerns::Tags
 
-      # NO, a query for CE 
-      include Queries::Concerns::DateRanges
-      
       attr_accessor :recent 
 
       # [Array]
@@ -30,36 +27,26 @@ module Queries
       
       # !!!!! Merge with CE filter !!!!! 
 
-      attr_accessor :shape
-
-      attr_accessor :date_partial_overlap # not tested
-     
-      # replace with date range 
-      attr_accessor :query_start_date
-      attr_accessor :query_end_date
-
       attr_accessor :otu_id
       
       attr_accessor :otu_descendants
 
+      attr_accessor :shape
+
+      # Identifier 
       attr_accessor :namespace_id
-     
       attr_accessor :query_range_start
-     
       attr_accessor :query_range_stop
    
       attr_accessor :query_user
-  
       attr_accessor :query_date_type_select
- 
       attr_accessor :query_user_date_range_end
-  
       attr_accessor :query_user_date_range_start
  
       attr_accessor :query_params
       
       # Resolved/processed results
-      attr_accessor :start_date, :end_date, :user_date_start, :user_date_end
+      attr_accessor :user_date_start, :user_date_end
 
       # @param [Hash] args
       def initialize(params)
@@ -74,11 +61,10 @@ module Queries
         @collecting_event_query = Queries::CollectingEvent::Filter.new(params)
 
         @shape = params[:drawn_area_shape]
-        @query_start_date      = params[:search_start_date] # TODO: sync key names
-        @query_end_date        = params[:search_end_date]
+        
         @otu_id          = params[:otu_id]
         @otu_descendants = params[:descendants]
-        @date_partial_overlap  = params[:partial_overlap]
+
         @namespace_id          = params[:id_namespace]
         @query_range_start           = params[:id_range_start]
         @query_range_stop            = params[:id_range_stop]
@@ -88,7 +74,6 @@ module Queries
         @query_user_date_range_start = params[:user_date_range_start]
         @query_user_date_range_end   = params[:user_date_range_end]
 
-        set_and_order_dates
       end
 
       # @return [Arel::Table]
@@ -186,13 +171,6 @@ module Queries
         q
       end
 
-      # Only set (and therefor ultimately used) dates if they were provided!
-      def set_and_order_dates
-        if query_start_date || query_end_date
-          @start_date, @end_date = Utilities::Dates.normalize_and_order_dates(query_start_date, query_end_date)
-        end
-      end
-
       # @return [Boolean]
       def area_set?
         geographic_area_ids.present?
@@ -256,15 +234,6 @@ module Queries
         ::GeographicItem.gather_map_data(shape, 'CollectionObject', Current.project_id)       # !!! ARG NO !!!
       end
 
-      # @return [Scope]
-      def date_scope
-        sql = Queries::CollectingEvent::Filter.new(
-          start_date: query_start_date,
-          end_date: query_end_date,
-          partial_overlap_dates: date_partial_overlap).between_date_range.to_sql
-          ::CollectionObject.joins(:collecting_event).where(sql)
-      end
-
       # TODO: remove to IDentifiers concern
       # @return [Scope]
       def identifier_scope
@@ -314,7 +283,7 @@ module Queries
         scopes.push otu_scope if otu_set?
      #   scopes.push geographic_area_scope if area_set?
         scopes.push shape_scope if shape_set?
-        scopes.push date_scope if date_set?
+     #   scopes.push date_scope if date_set?
         scopes.push identifier_scope if identifier_set?
         scopes.push user_date_scope if user_date_set?
         scopes

@@ -254,11 +254,12 @@ class CollectingEventsController < ApplicationController
       :in_verbatim_locality,
       :recent,
       :shape,
-      :start_date,
-      :end_date,
+      :start_date, # used in date range
+      :end_date,   # used in date range
       :partial_overlap_dates,
       keyword_ids: [],
       spatial_geographic_area_ids: []
     )
   end
+
 end
