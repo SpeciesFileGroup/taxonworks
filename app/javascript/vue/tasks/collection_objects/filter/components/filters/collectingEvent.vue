@@ -1,6 +1,12 @@
 <template>
   <div>
     <h2>Collecting Event</h2>
+    <label>
+      <input 
+        v-model="spatial"
+        type="checkbox"/>
+      Collecting events are spatial
+    </label>
     <h3>Date range</h3>
     <div class="field">
       <label>
@@ -93,7 +99,8 @@ export default {
       view: undefined,
       tabs: [],
       smartLists: {},
-      collectingEvents: []
+      collectingEvents: [],
+      spatial: false
     }
   },
   mounted () {
