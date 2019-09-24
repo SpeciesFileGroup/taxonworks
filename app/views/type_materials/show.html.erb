@@ -1,21 +1,10 @@
-<%= content_for :associated do %>
-  <% if @type_material.type_designators.any? %>
-    <h3>Type designators</h3>
-    <ul>
-      <% @type_material.type_designators.each do |type_designator| %>
-        <%= content_tag(:li, object_link(type_designator)) %>
-      <% end %>
-    </ul>
-  <% end %>
-<% end %>
-
 <%= content_for :tasks do %>
-  <%= content_tag(:li, 
-                  link_to(
-                    content_tag(:span, 'Edit type material (task)', 'data-icon' => 'edit', class: 'small-icon'), 
-                    edit_type_material_task_path(protonym_id: @type_material.protonym, target: :edit_type_material),
-                    class: 'navigation-item')
-                 ) -%>
+  <%= content_tag(
+    :li, 
+    link_to(
+      content_tag(:span, 'Edit type material (task)', 'data-icon' => 'edit', class: 'small-icon'), 
+      edit_type_material_task_path(protonym_id: @type_material.protonym, target: :edit_type_material),
+      class: 'navigation-item'
+    )) -%>
 <% end %>
-
 <%= render(partial: 'shared/data/project/show', locals: {object: @type_material}) -%>

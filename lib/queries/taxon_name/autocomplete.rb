@@ -4,7 +4,7 @@ module Queries
     class Autocomplete < Queries::Query
 
       # @return [Array, nil]
-      #   &nomenclature_group[]=<<Iczn|Icnb|Icn>::<Higher|Family|Genus|Species>>
+      #   &nomenclature_group[]=<<Iczn|Icnp|Icn>::<Higher|Family|Genus|Species>>
       attr_accessor :nomenclature_group
 
       # @return [Boolean, nil]
@@ -157,6 +157,12 @@ module Queries
       end
 
       # @return [Scope]
+      def autocomplete_wildcard_cached_original_combination
+        a = table[:cached_original_combination].matches(wildcard_pieces)
+        base_query.where(a.to_sql).order('cached_author_year ASC').limit(20)
+      end
+
+      # @return [Scope]
       def autocomplete_exact_name_and_year
         a = alphabetic_strings
         b = years
@@ -248,7 +254,7 @@ module Queries
       def autocomplete_wildcard_joined_strings
         return nil if alphabetic_strings.empty?
         a = table[:cached].matches("%#{alphabetic_strings.join('%')}%")
-        base_query.where(a.to_sql).limit(1)
+        base_query.where(a.to_sql).limit(10)
       end
 
       # rubocop:disable Metrics/MethodLength
@@ -274,7 +280,8 @@ module Queries
           autocomplete_name_author_year_fragment,
           autocomplete_cached_author_year,
           autocomplete_wildcard_joined_strings,
-          autocomplete_wildcard_author_year_joined_pieces
+          autocomplete_wildcard_author_year_joined_pieces,
+          autocomplete_wildcard_cached_original_combination
         ]
         queries.compact!
 

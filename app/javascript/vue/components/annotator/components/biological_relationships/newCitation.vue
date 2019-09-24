@@ -8,6 +8,7 @@
           label="label"
           min="2"
           :send-label="autocompleteLabel"
+          ref="autocomplete"
           @getItem="citation.source_id = $event.id"
           placeholder="Select a source"
           param="term"/>
@@ -86,7 +87,8 @@
         }
       },
       cleanCitation() {
-        this.autocompleteLabel = undefined
+        this.autocompleteLabel = ''
+        this.$refs.autocomplete.cleanInput()
         this.citation = this.newCitation()
       }
     }

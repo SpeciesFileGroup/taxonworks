@@ -29,7 +29,7 @@ RSpec.describe ObservationMatrixRowItem, type: :model, group: :matrix do
           expect(klass.subclass_attributes.size).to be > 0
         end
 
-        specify '.subclass_attributes are present in ALL_STI_ATTRIBUTES' do
+        specify ".subclass_attributes are present in ALL_STI_ATTRIBUTES (#{k})" do
           expect((klass.subclass_attributes - ObservationMatrixRowItem::ALL_STI_ATTRIBUTES).size).to be 0
         end
       end

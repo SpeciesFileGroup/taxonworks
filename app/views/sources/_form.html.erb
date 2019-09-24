@@ -12,11 +12,15 @@
     <ul>
       <li> <%= content_tag(:span, 'BibTeX', data: {help: 'The citation is in BibTeX format, the default for TaxonWorks that gives you the most flexibility.'}) -%> <%= f.radio_button :type, 'Source::Bibtex' %> </li>
       <li> <%= content_tag(:span, 'Verbatim', data: {help: 'The citation is a single field, with no parts broken out.'}) -%>  <%= f.radio_button :type, 'Source::Verbatim' %></li>
-      <li><span class="disabled"> Person </span> <%= f.radio_button :type, 'Source::Person', disabled: true %> </li>
+      <li><span> Person </span> <%= f.radio_button :type, 'Source::Human' %></li>
     </ul>
   </div>
 
-  <div class="flexbox" style="justify-content: normal">
+  <div id="fields_for_human" class="flexbox" style="justify-content: normal">
+    <%= render partial: '/people/role_picker', locals: {role: SourceSource.new(), object: @source, f: f} %>
+  </div>
+
+  <div id="fields_for_bibtex" class="flexbox" style="justify-content: normal">
     <div class="item item1">
 
       <div class="field">

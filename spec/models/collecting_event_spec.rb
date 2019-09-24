@@ -381,6 +381,20 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
     expect(collecting_event.document_label).to eq(s)
   end
 
+  context '#clone' do
+    before do
+      collecting_event.update(
+        verbatim_label: 'my label',
+        collector_roles_attributes: [{person: FactoryBot.create(:valid_person) }]
+      )
+    end
+
+   specify 'clones collectors' do
+      a = collecting_event.clone
+      expect(a.collectors.count).to eq(1)
+   end 
+  end
+
   context 'concerns' do
     it_behaves_like 'citations'
     it_behaves_like 'data_attributes'

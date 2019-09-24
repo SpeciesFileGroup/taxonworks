@@ -1,228 +1,309 @@
 <template>
-  <div :style="{ height: height, width: width }"/>
+  <div
+    :style="{ width: this.width, height: this.height }"
+    ref="leafletMap"
+    :id="mapId"
+ />
 </template>
 
 <script>
-  export default {
-    props: {
-      height: {
-        type: String,
-        default: '500px'
-      },
-      width: {
-        type: String,
-        default: '500px'
-      },
-      lat: {
-        type: Number,
-        required: false,
-        default: 0
-      },
-      lng: {
-        type: Number,
-        required: false,
-        default: 0
-      },
-      zoom: {
-        type: Number,
-        default: 1
-      },
-      shapes: {
-        type: Object,
-        default: () => { return {} }
-      },
-      circleOptions: {
-        type: Object,
-        default: () => {
-          return {
-            fillColor: '#ffff00',
-            fillOpacity: 0.2,
-            strokeWeight: 1,
-            clickable: false,
-            editable: true,
-            zIndex: 1
-          }
-        }
-      },
-      polygonOptions: {
-        type: Object,
-        default: () => {
-          return {
-            fillColor: '#ffff00',
-            fillOpacity: 0.2,
-            strokeWeight: 1,
-            clickable: false,
-            editable: true,
-            zIndex: 1
-          }
-        }
-      },
-      markerOptions: {
-        type: Object,
-        default: () => {
-          return {
-            fillColor: '#ffff00',
-            fillOpacity: 0.2,
-            strokeWeight: 1,
-            clickable: false,
-            editable: true,
-            zIndex: 1
-          }
-        }
-      },
-      polylineOptions: {
-        type: Object,
-        default: () => {
-          return {
-            fillColor: '#ffff00',
-            fillOpacity: 0.2,
-            strokeWeight: 1,
-            clickable: false,
-            editable: true,
-            zIndex: 1
-          }
-        }
-      },
-      drawingMode: {
-        type: String,
-        default: ''
-      }
-    },
-    data() {
-      return {
-        drawingManager: undefined,
-        shape: undefined,
-        overlay: undefined,
-        drawingModes: ['marker', 'circle', 'polygon', 'polyline'],
-        map: undefined,
-        markers: []
-      }
-    },
-    watch: {
-      shapes: {
-        handler(newVal) {
-          if(this.overlay)
-            this.removeFromMap(this.overlay)
 
-          for (var i = 0; i < this.markers.length; i++) {
-            this.map.data.remove(this.markers[i])
-          }
+import L from 'leaflet'
+import 'leaflet.pm'
 
-          this.markers = this.map.data.addGeoJson(newVal)
-            
-        },
-        deep: true
+delete L.Icon.Default.prototype._getIconUrl
+
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+  iconUrl: require('leaflet/dist/images/marker-icon.png'),
+  shadowUrl: require('leaflet/dist/images/marker-shadow.png')
+})
+
+export default {
+  props: {
+    width: {
+      type: String,
+      default: () => {
+        return '500px'
       }
     },
-    mounted() {
-      TW.vendor.lib.google.maps.loadGoogleMapsAPI().then(() => { 
-        this.initMap() 
-        this.listenEvents()
+    height: {
+      type: String,
+      default: () => {
+        return '500px'
+      }
+    },
+    zoom: {
+      type: Number,
+      default: () => {
+        return 18
+      }
+    },
+    drawControls: {
+      type: Boolean,
+      default: () => {
+        return false
+      }
+    },
+    drawCircle: {
+      type: Boolean,
+      default: true
+    },
+    drawMarker: {
+      type: Boolean,
+      default: true
+    },
+    drawPolyline: {
+      type: Boolean,
+      default: true
+    },
+    drawRectangle: {
+      type: Boolean,
+      default: true
+    },
+    drawPolygon: {
+      type: Boolean,
+      default: true
+    },
+    editMode: {
+      type: Boolean,
+      default: true
+    },
+    dragMode: {
+      type: Boolean,
+      default: true
+    },
+    cutPolygon: {
+      type: Boolean,
+      default: true
+    },
+    removalMode: {
+      type: Boolean,
+      default: true
+    },
+    tilesSelection: {
+      type: Boolean,
+      default: true
+    },
+    center: {
+      type: Array,
+      default: () => {
+        return [0, 0]
+      }
+    },
+    resize: {
+      type: Boolean,
+      default: false
+    },
+    geojson: {
+      type: Array,
+      default: () => {
+        return []
+      }
+    },
+    fitBounds: {
+      type: Boolean,
+      default: true
+    }
+  },
+  data () {
+    return {
+      mapSize: undefined,
+      observeMap: undefined,
+      mapId: Math.random().toString(36).substring(7),
+      mapObject: undefined,
+      drawnItems: undefined,
+      drawControl: undefined,
+      tiles: {
+        osm: L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 18
+        }),
+        google: L.tileLayer('http://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}', {
+          attribution: 'Google',
+          maxZoom: 18
+        })
+      },
+      layers: [],
+      highlightRow: undefined,
+      restoreRow: undefined
+    }
+  },
+  watch: {
+    geojson: {
+      handler (newVal) { 
+        this.drawnItems.clearLayers()
+        this.geoJSON(newVal)
+      },
+      deep: true
+    },
+    zoom (newVal) {
+      this.mapObject.setZoom(newVal)
+    }
+  },
+  mounted () {
+    this.mapObject = L.map(this.mapId, {
+      center: this.center,
+      zoom: this.zoom
+    })
+    this.drawnItems = new L.FeatureGroup()
+    this.mapObject.addLayer(this.drawnItems)
+
+    this.addDrawControllers()
+    this.handleEvents()
+    if (this.geojson.length) {
+      this.geoJSON(this.geojson)
+    }
+    if (this.resize) {
+      this.initEvents()
+    }
+  },
+  methods: {
+    resizeMap (mutationsList, observer) {
+      if (this.$el.clientWidth != this.mapSize) {
+        this.$nextTick(() => {
+          this.mapSize = this.$el.clientWidth
+          const bounds = this.drawnItems.getBounds()
+          if (Object.keys(bounds).length) {
+            if (this.fitBounds) {
+              this.mapObject.fitBounds(bounds)
+            }
+          }
+          this.mapObject.invalidateSize()
+        })
+      }
+    },
+    initEvents () {
+      this.mapSize = this.$el.clientWidth
+      this.observeMap = new MutationObserver(this.resizeMap)
+      this.observeMap.observe(this.$el, { attributes: true, childList: true, subtree: true })
+    },
+    destroyed () {
+      this.observeMap.disconnect()
+    },
+    clearFound () {
+      this.drawnItems.clearLayers()
+    },
+    addDrawControllers () {
+      if (this.tilesSelection) {
+        L.control.layers({
+          OSM: this.tiles.osm.addTo(this.mapObject),
+          Google: this.tiles.google
+        }, { 'Draw layers': this.drawnItems }, { position: 'topleft', collapsed: false }).addTo(this.mapObject)
+      }
+
+      if (this.drawControls) {
+        this.mapObject.pm.addControls({
+          position: 'topleft',
+          drawCircle: this.drawCircle,
+          drawMarker: this.drawMarker,
+          drawPolyline: this.drawPolyline,
+          drawPolygon: this.drawPolygon,
+          drawRectangle: this.drawRectangle,
+          editMode: this.editMode,
+          dragMode: this.dragMode,
+          cutPolygon: this.cutPolygon,
+          removalMode: this.removalMode
+        })
+      }
+    },
+    handleEvents () {
+      const that = this
+      this.mapObject.on('pm:create', (e) => {
+        var layer = e.layer
+        var geoJsonLayer = this.convertGeoJSONWithPointRadius(layer)
+
+        if (e.layerType === 'circle') {
+          geoJsonLayer.properties.radius = layer.getRadius()
+        }
+        that.$emit('shapeCreated', layer)
+        that.$emit('geoJsonLayerCreated', geoJsonLayer)
+        that.mapObject.removeLayer(layer)
       })
     },
-    methods: {
-      initMap() {
-        this.map = new google.maps.Map(this.$el, {
-          center: {lat: (isNaN(this.lat) ? 0 : this.lat), lng: (isNaN(this.lng) ? 0 : this.lng)},
-          zoom: this.zoom
-        });
-        this.map.data.setStyle({
-            fillColor: '#ffff00',
-            fillOpacity: 0.2,
-            strokeWeight: 1,
-        })
+    removeLayers () {
+      this.drawnItems.clearLayers()
+    },
+    editedLayer (e) {
+      var layer = e.target
 
-        this.drawingManager = new google.maps.drawing.DrawingManager({
-          drawingControl: true,
-          drawingMode: this.drawingMode,
-          drawingControlOptions: {
-            position: google.maps.ControlPosition.TOP_CENTER,
-            drawingModes: this.drawingModes,
-          },
-          circleOptions: this.circleOptions,
-          polygonOptions: this.polygonOptions,
-          markerOptions: this.markerOptions,
-          polylineOptions: this.polylineOptions
-        });
-        this.drawingManager.setMap(this.map);
-      },
-      listenEvents() {
-        let that = this
-        google.maps.event.addListener(this.drawingManager, 'overlaycomplete', function (event) {
-          if(that.overlay)
-            that.removeFromMap(that.overlay)
-          that.overlay = event.overlay
-          that.shape = JSON.stringify(that.buildFeatureCollectionFromShape(event))
-          that.$emit('shape', that.shape)
-        })
-      },
-      removeFromMap(overlay) {
-        overlay.setMap(null)
-      },
-      buildFeatureCollectionFromShape: function (shape) {
-        
-            let feature = [];
-            let coordinates = [];
-            let coordList = [];
-            let geometry = [];
-            let overlayType = shape.type;
-            let radius = undefined;
-            shape = shape.overlay
+      this.$emit('shapesEdited', layer)
+      this.$emit('geoJsonLayersEdited', this.convertGeoJSONWithPointRadius(layer))
+    },
+    convertGeoJSONWithPointRadius (layer) {
+      const layerJson = layer.toGeoJSON()
+      if (typeof layer.getRadius === 'function') {
+        layerJson.properties.radius = layer.getRadius()
+      }
 
-            switch (overlayType) {
-              case 'polyline':
-                overlayType = 'LineString';
-                break;
-              case 'polygon':
-                overlayType = 'Polygon';
-                break;
-              case 'marker':
-                overlayType = 'Point';
-                coordinates.push(shape.position);
-                break;
-              case 'circle':
-                overlayType = 'Point';
-                coordinates.push(shape.center);
-                radius = shape.radius;
-                break;
-            }
+      return layerJson
+    },
+    addJsonCircle (layer) {
+      return L.circle([layer.geometry.coordinates[1], layer.geometry.coordinates[0]], Number(layer.properties.radius))
+    },
+    geoJSON (geoJsonFeatures) {
+      if (!Array.isArray(geoJsonFeatures) || geoJsonFeatures.length === 0) return
 
-            if (coordinates.length == 0) {      // 0 if not a point or circle, coordinates is empty
-              coordinates = shape.getPath().getArray();     // so get the array from the path
+      this.addGeoJsonLayer(geoJsonFeatures)
 
-              for (var i = 0; i < coordinates.length; i++) {      // for LineString or Polygon
-                geometry.push([coordinates[i].lng(), coordinates[i].lat()]);
-              }
+      if (this.fitBounds) {
+        this.mapObject.fitBounds(this.drawnItems.getBounds())
+      }
+    },
+    addGeoJsonLayer (geoJsonLayers) {
+      const that = this
 
-              if (overlayType == 'Polygon') {
-                geometry.push([coordinates[0].lng(), coordinates[0].lat()]);
-                coordList.push(geometry);
-              }
-              else {
-                coordList = geometry;
-              }
-
-            }
-            else {          // it is a circle or point
-              geometry = [coordinates[0].lng(), coordinates[0].lat()];
-              coordList = geometry;
-            }
-
-            feature.push({
-              "type": "Feature",
-              "geometry": {
-                "type": overlayType,
-                "coordinates": coordList
-              },
-              "properties": {}
-            });
-
-            // if it is a circle, the radius will be defined, so set the property
-            if (radius != undefined) {
-              feature[0]['properties'] = {"radius": radius};
-            }
-            return feature[0]
-          },
+      L.geoJson(geoJsonLayers, {
+        style: function (feature) {
+          return that.randomShapeStyle()
+        },
+        onEachFeature: this.onMyFeatures,
+        pointToLayer: function (feature, latlng) {
+          let shape = (feature.properties.hasOwnProperty('radius') ? that.addJsonCircle(feature) : L.marker(latlng))
+          Object.assign(shape, { feature: feature })
+          return shape
+        }
+      }).addTo(this.drawnItems)
+    },
+    getRandomColor() {
+      const letters = '0123456789ABCDEF'
+      let color = '#'
+      for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)]
+      }
+      return color
+    },
+    defaultShapeStyle () {
+      return {
+        weight: 1,
+        dashArray: '',
+        fillOpacity: 0.4
+      }
+    },
+    randomShapeStyle () {
+      return {
+        weight: 1,
+        color: this.getRandomColor(),
+        dashArray: '',
+        fillOpacity: 0.4
+      }
+    },
+    onMyFeatures (feature, layer) {
+      layer.on({
+        'pm:edit': this.editedLayer,
+        click: this.zoomToFeature
+      })
+    },
+    zoomToFeature (e) {
+      const layer = e.target
+      if (this.fitBounds) {
+        if (layer instanceof L.Marker || layer instanceof L.Circle) {
+          this.mapObject.fitBounds([layer.getLatLng()])
+        } else {
+          this.mapObject.fitBounds(e.target.getBounds())
+        }
+      }
     }
   }
+}
 </script>

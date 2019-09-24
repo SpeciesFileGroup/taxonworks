@@ -120,7 +120,7 @@ resources :collecting_events do
   get :autocomplete_collecting_event_verbatim_locality, on: :collection
   member do
     get :card
-    post :clone, defaults: {format: :json}
+    post :clone
   end
 
   collection do
@@ -233,7 +233,7 @@ resources :geographic_area_types
 
 resources :geographic_items
 
-resources :georeferences, only: [:index, :destroy, :new, :show, :edit] do
+resources :georeferences, only: [:index, :destroy, :new, :create, :show, :edit, :update] do
   concerns [:data_routes]
 end
 
@@ -313,8 +313,8 @@ resources :namespaces do
 
   concerns [:data_routes]
 end
-match 'observation_matrices/row/', to: 'observation_matrices#row', via: :get, method: :json
 
+match 'observation_matrices/row/', to: 'observation_matrices#row', via: :get, method: :json
 resources :observation_matrices do
   concerns [:data_routes]
 
@@ -322,6 +322,18 @@ resources :observation_matrices do
   resources :observation_matrix_rows, shallow: true, only: [:index], defaults: {format: :json}
   resources :observation_matrix_row_items, shallow: true, only: [:index], defaults: {format: :json}
   resources :observation_matrix_column_items, shallow: true, only: [:index], defaults: {format: :json}
+
+  member do 
+    get :nexml, defaults: {format: :rdf}
+    get :tnt
+    get :nexus
+   #  get :csv
+   #  get :biom
+
+   get :reorder_rows, defaults: {format: :json}
+   get :reorder_columns, defaults: {format: :json}
+  end 
+
 end
 
 resources :observation_matrix_columns, only: [:index, :show] do
@@ -558,6 +570,8 @@ resources :taxon_names do
 
     get :parse, defaults: {format: :json}
     get :random
+
+    get :rank_table, defaults: {format: :json}
   end
 
   member do

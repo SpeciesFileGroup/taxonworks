@@ -50,12 +50,25 @@ describe Role, type: :model, group: [:sources, :people, :roles] do
       expect(AttributionCopyrightHolder.create(person: person, role_object: FactoryBot.create(:valid_content)).persisted?).to be_truthy
     end
 
+    # From Roles::Person concern
     context 'duplicate roles' do
       let!(:role_object) { FactoryBot.create(:valid_source_bibtex) }
       let!(:role1) { SourceAuthor.create(person: person, role_object: role_object) }
 
-      specify 'are not permitted' do
+      specify 'are not permitted 1' do
         role2 = Role.new(person: person, role_object: role_object, type: 'SourceAuthor')
+        expect(role2.valid?).to be_falsey
+        expect(role2.errors.include?(:person_id)).to be_truthy
+      end
+
+      specify 'are not permitted 2' do
+        role2 = Role.new(person_id: person.id, role_object: role_object, type: 'SourceAuthor')
+        expect(role2.valid?).to be_falsey
+        expect(role2.errors.include?(:person_id)).to be_truthy
+      end
+
+      specify 'are not permitted 3' do
+        role2 = role_object.author_roles.build(person_id: person.id)
         expect(role2.valid?).to be_falsey
         expect(role2.errors.include?(:person_id)).to be_truthy
       end

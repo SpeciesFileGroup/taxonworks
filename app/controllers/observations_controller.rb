@@ -111,7 +111,19 @@ class ObservationsController < ApplicationController
       :sample_n, :sample_min, :sample_max, :sample_median, :sample_mean, :sample_units, :sample_standard_deviation, :sample_standard_error,
       :presence,
       :description,
-      :type)
+      :type, 
+      images_attributes: [:id, :_destroy, :image_file, :rotate],
+      depictions_attributes: [
+        :id, 
+        :_destroy,
+        :depiction_object_id, :depiction_object_type,
+        :annotated_global_entity, :caption,
+        :is_metadata_depiction,
+        :image_id,
+        :figure_label,
+        image_attributes: [:image_file]
+      ]
+    )
   end
 
   def filter_params

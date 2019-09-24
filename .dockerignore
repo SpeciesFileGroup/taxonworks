@@ -45,5 +45,5 @@ public/index.html
 public/packs-test
 
 spec
-travis
+.travis
 k8s

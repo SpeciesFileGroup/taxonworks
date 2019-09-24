@@ -9,8 +9,8 @@ module Ranks
     ::RANKS.include?(rank.to_s)
   end
 
-  # @param [Symbol] code
-  # @param [Symbol] rank
+  # @param code [Symbol]
+  # @param rank [Symbol] 
   # @return [String] representing the name of the NomenclaturalRank class
   #   Ranks::lookup(:iczn, 'superfamily')   # => 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily'
   def self.lookup(code, rank)
@@ -21,7 +21,7 @@ module Ranks
       when :iczn
         ::ICZN_LOOKUP[r]
       when :icnp
-        ::ICNB_LOOKUP[r]
+        ::ICNP_LOOKUP[r]
       when :ictv
         ::ICTV_LOOKUP[r]
       when :icn

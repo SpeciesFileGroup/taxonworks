@@ -74,29 +74,20 @@ class DataAttributesController < ApplicationController
 
   # GET /data_attributes/search
   def search
-    if params[:id].blank?
-      redirect_to data_attribute_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    if @data_attribute = DataAttribute.find(params[:id])
+      redirect_to url_for(@data_attribute.attribute_subject.metamorphosize)
     else
-      redirect_to data_attribute_path(params[:id])
+      redirect_to data_attribute_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
     end
   end
 
   def autocomplete
-    @data_attributes = DataAttribute.find_for_autocomplete(
-      params.merge(project_id: sessions_current_project_id)
-    ).limit(20)
+    render json: {} and return if params[:term].blank?
 
-    data = @data_attributes.collect do |t|
-      str = render_to_string(partial: 'tag', locals: {data_attribute: t})
-      {id: t.id,
-       label: str,
-       response_values: {
-           params[:method] => t.id},
-       label_html: str
-      }
-    end
-
-    render json: data
+    @data_attributes = Queries::DataAttribute::Autocomplete.new(
+      params.require(:term),
+      project_id: sessions_current_project_id
+    ).autocomplete
   end
 
   def value_autocomplete

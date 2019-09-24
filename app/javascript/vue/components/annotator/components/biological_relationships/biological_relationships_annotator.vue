@@ -2,6 +2,18 @@
   <div class="biological_relationships_annotator">
     <div class="separate-bottom">
       <template>
+        <template v-if="edit">
+          <div class="flex-separate">
+            <h3>Edit mode</h3>
+            <button
+              type="button"
+              class="button button-default"
+              @click="reset">
+              Cancel
+            </button>
+          </div>
+          <br>
+        </template>
         <h3 v-html="metadata.object_tag"/>
         <h3 v-if="biologicalRelationship" class="relationship-title">
           <template v-if="flip">
@@ -74,6 +86,7 @@
       @select="biologicalRelation = $event"/>
     <new-citation
       class="separate-top"
+      ref="citation"
       @create="citation = $event"
       :global-id="globalId"/>
 
@@ -81,76 +94,110 @@
       <button
         type="button"
         :disabled="!validateFields"
-        @click="createAssociation"
-        class="normal-input button button-submit">Create
+        @click="edit ? updateAssociation() : createAssociation()"
+        class="normal-input button button-submit">{{ edit ? 'Update' : 'Create' }}
       </button>
     </div>
     <table-list 
       class="separate-top"
       :list="list"
       :metadata="metadata"
+      @edit="editBiologicalRelationship"
       @delete="removeItem"/>
   </div>
 </template>
 <script>
 
-  import CRUD from '../../request/crud.js'
-  import AnnotatorExtend from '../annotatorExtend.js'
-  import Biological from './biological.vue'
-  import Related from './related.vue'
-  import NewCitation from './newCitation.vue'
-  import TableList from './table.vue'
+import CRUD from '../../request/crud.js'
+import AnnotatorExtend from '../annotatorExtend.js'
+import Biological from './biological.vue'
+import Related from './related.vue'
+import NewCitation from './newCitation.vue'
+import TableList from './table.vue'
 
-  export default {
-    mixins: [CRUD, AnnotatorExtend],
-    components: {
-      Biological,
-      Related,
-      NewCitation,
-      TableList
+export default {
+  mixins: [CRUD, AnnotatorExtend],
+  components: {
+    Biological,
+    Related,
+    NewCitation,
+    TableList
+  },
+  computed: {
+    validateFields () {
+      return this.biologicalRelationship && this.biologicalRelation
     },
-    computed: {
-      validateFields() {
-        return this.biologicalRelationship && this.biologicalRelation
-      },
-      displayRelated() {
-        if(this.biologicalRelation) {
-          return (this.biologicalRelation['object_tag'] ? this.biologicalRelation.object_tag : this.biologicalRelation.label_html)
-        }
-        else {
-          return undefined
-        }
+    displayRelated () {
+      if(this.biologicalRelation) {
+        return (this.biologicalRelation['object_tag'] ? this.biologicalRelation.object_tag : this.biologicalRelation.label_html)
       }
-    },
-    data() {
-      return {
-        list: [],
-        biologicalRelationship: undefined,
-        biologicalRelation: undefined,
-        citation: undefined,
-        flip: false,
-        urlList: `/biological_associations.json?subject_global_id=${encodeURIComponent(this.globalId)}`
-      }
-    },
-    methods: {
-      createAssociation() {
-        let data = {
-          biological_relationship_id: this.biologicalRelationship.id,
-          object_global_id: (this.flip ? this.globalId : this.biologicalRelation.global_id),
-          subject_global_id: (this.flip ? this.biologicalRelation.global_id : this.globalId),
-          origin_citation_attributes: this.citation
-        }
-
-        this.create('/biological_associations.json', { biological_association: data }).then(response => {
-          this.biologicalRelationship = undefined
-          this.biologicalRelation = undefined
-          this.citation = undefined
-          TW.workbench.alert.create('Biological association was successfully created.', 'notice')
-          this.list.push(response.body)
-        })
+      else {
+        return undefined
       }
     }
+  },
+  data () {
+    return {
+      list: [],
+      edit: undefined,
+      biologicalRelationship: undefined,
+      biologicalRelation: undefined,
+      citation: undefined,
+      flip: false,
+      urlList: `/biological_associations.json?subject_global_id=${encodeURIComponent(this.globalId)}`
+    }
+  },
+  methods: {
+    reset() {
+      this.biologicalRelation = undefined
+      this.biologicalRelationship = undefined
+      this.citation = undefined
+      this.flip = false
+      this.edit = undefined
+      this.$refs.citation.cleanCitation()
+    },
+    createAssociation () {
+      const data = {
+        biological_relationship_id: this.biologicalRelationship.id,
+        object_global_id: (this.flip ? this.globalId : this.biologicalRelation.global_id),
+        subject_global_id: (this.flip ? this.biologicalRelation.global_id : this.globalId),
+        origin_citation_attributes: this.citation
+      }
+
+      this.create('/biological_associations.json', { biological_association: data }).then(response => {
+        this.reset()
+        TW.workbench.alert.create('Biological association was successfully created.', 'notice')
+        this.list.push(response.body)
+      })
+    },
+    updateAssociation () {
+      let data = {
+        id: this.edit.id,
+        biological_relationship_id: this.biologicalRelationship.id,
+        object_global_id: (this.flip ? this.globalId : this.biologicalRelation.global_id),
+        subject_global_id: (this.flip ? this.biologicalRelation.global_id : this.globalId),
+      }
+
+      if (this.citation) {
+        data.origin_citation_attributes = this.citation
+      }
+
+      this.update(`/biological_associations/${data.id}.json`, { biological_association: data }).then(response => {
+        this.reset()
+        TW.workbench.alert.create('Biological association was successfully updated.', 'notice')
+        this.$set(this.list, this.list.findIndex(item => {
+          return item.id === response.body.id
+        }), response.body)
+      })
+    },
+    editBiologicalRelationship (bioRelation) {
+      this.edit = bioRelation
+      this.biologicalRelationship = bioRelation.biological_relationship
+      this.biologicalRelation = bioRelation.object
+      this.flip = (bioRelation.object.id === this.metadata.object_id)
+    }
   }
+}
 </script>
 <style lang="scss">
   .radial-annotator {
