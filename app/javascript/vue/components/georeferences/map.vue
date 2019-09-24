@@ -89,6 +89,10 @@ export default {
       type: Boolean,
       default: true
     },
+    tooltips: {
+      type: Boolean,
+      default: true
+    },
     center: {
       type: Array,
       default: () => {
@@ -212,6 +216,13 @@ export default {
           removalMode: this.removalMode
         })
       }
+
+      this.mapObject.pm.enableDraw('Marker', { tooltips: this.tooltips })
+      this.mapObject.pm.enableDraw('Polygon', { tooltips: this.tooltips })
+      this.mapObject.pm.enableDraw('Circle', { tooltips: this.tooltips })
+      this.mapObject.pm.enableDraw('Line', { tooltips: this.tooltips })
+      this.mapObject.pm.enableDraw('Rectangle', { tooltips: this.tooltips })
+      this.mapObject.pm.enableDraw('Cut', { tooltips: this.tooltips })
     },
     handleEvents () {
       const that = this

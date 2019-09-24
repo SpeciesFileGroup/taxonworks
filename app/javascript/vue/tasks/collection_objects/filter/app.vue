@@ -67,9 +67,9 @@ import ListComponent from './components/list'
 export default {
   components: {
     FilterComponent,
-    ListComponent,
+    ListComponent
   },
-  data() {
+  data () {
     return {
       list: [],
       urlRequest: '',

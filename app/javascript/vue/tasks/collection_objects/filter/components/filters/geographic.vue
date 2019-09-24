@@ -15,7 +15,7 @@
     </div>
     <div v-else>
       <georeference-map
-        width="300px"
+        width="330px"
         height="300px"
         ref="leaflet"
         :geojson="geojson"
@@ -28,6 +28,7 @@
         :tiles-selection="false"
         :edit-mode="false"
         :zoom="1"
+        :tooltips="false"
         @geoJsonLayerCreated="addShape"
       />
     </div>

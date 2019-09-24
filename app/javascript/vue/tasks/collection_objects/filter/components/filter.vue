@@ -93,6 +93,12 @@ export default {
         },
         base: {
           otu_id: undefined
+        },
+        collectingEvents: {
+          collecting_event_ids: [],
+          spatial: undefined,
+          start_date: undefined,
+          end_date: undefined
         }
       }
     },
