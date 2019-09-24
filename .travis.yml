@@ -21,6 +21,7 @@ branches:
     - docker-travis
     - build-with-assets
     - rails6
+    - cofilter2
 addons:
   postgresql: "10"
   firefox: "latest"
