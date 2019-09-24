@@ -253,10 +253,11 @@ export default {
     },
     addGeoJsonLayer (geoJsonLayers) {
       const that = this
-
+      let index = -1
       L.geoJson(geoJsonLayers, {
         style: function (feature) {
-          return that.randomShapeStyle()
+          index = index + 1
+          return that.randomShapeStyle(index)
         },
         onEachFeature: this.onMyFeatures,
         pointToLayer: function (feature, latlng) {
@@ -274,6 +275,11 @@ export default {
       }
       return color
     },
+    generateHue (index) {
+      const PHI = (1 + Math.sqrt(5)) / 2
+      const n = index * PHI - Math.floor(index * PHI)
+      return `hsl(${Math.floor(n * 256)}, ${Math.floor(n * 70) + 40}% , ${(Math.floor((n) + 1) * 60) + 20}%)`
+    },
     defaultShapeStyle () {
       return {
         weight: 1,
@@ -281,10 +287,10 @@ export default {
         fillOpacity: 0.4
       }
     },
-    randomShapeStyle () {
+    randomShapeStyle (index) {
       return {
         weight: 1,
-        color: this.getRandomColor(),
+        color: this.generateHue(index),
         dashArray: '',
         fillOpacity: 0.4
       }

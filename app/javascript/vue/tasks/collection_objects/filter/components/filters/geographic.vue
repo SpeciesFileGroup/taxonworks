@@ -58,7 +58,7 @@ export default {
   },
   methods: {
     addShape (shape) {
-      this.$refs.leaflet.addGeoJsonLayer([shape])
+      this.geojson.push(shape)
     }
   }
 }

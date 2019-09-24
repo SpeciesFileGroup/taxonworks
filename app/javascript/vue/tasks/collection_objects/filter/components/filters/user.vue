@@ -6,8 +6,8 @@
         <option
           v-for="u in users"
           :key="u.id"
-          :value="u.id">
-          {{ u.name }}
+          :value="u.user.id">
+          {{ u.user.name }}
         </option>
       </select>
     </div>
@@ -26,12 +26,20 @@
 </template>
 
 <script>
+
+import { GetUsers } from '../../request/resources'
+
 export default {
   data () {
     return {
       users: [],
       user: undefined
     }
+  },
+  mounted () {
+    GetUsers().then(response => {
+      this.users = response.body
+    })
   }
 }
 </script>
