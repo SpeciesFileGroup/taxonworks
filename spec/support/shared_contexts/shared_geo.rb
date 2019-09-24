@@ -1,3 +1,5 @@
+require 'support/vendor/rspec_geo_helpers'
+
 RSPEC_GEO_FACTORY = Gis::FACTORY
 
 shared_context 'stuff for complex geo tests' do
@@ -2297,19 +2299,3 @@ Two different shapes with the same name, 'East Boxia', and
 
 end
 
-module RspecGeoHelpers
-  # @return [Multipolygon]
-  def self.make_box(base, offset_x, offset_y, size_x, size_y)
-    box = RSPEC_GEO_FACTORY.polygon(
-      RSPEC_GEO_FACTORY.line_string(
-        [
-          RSPEC_GEO_FACTORY.point(base.x + offset_x, base.y - offset_y, 0.0),
-          RSPEC_GEO_FACTORY.point(base.x + offset_x + size_x, base.y - offset_y, 0.0),
-          RSPEC_GEO_FACTORY.point(base.x + offset_x + size_x, base.y - offset_y - size_y, 0.0),
-          RSPEC_GEO_FACTORY.point(base.x + offset_x, base.y - offset_y - size_y, 0.0)
-        ]
-      )
-    )
-    RSPEC_GEO_FACTORY.multi_polygon([box])
-  end
-end

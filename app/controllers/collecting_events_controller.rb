@@ -253,7 +253,9 @@ class CollectingEventsController < ApplicationController
       :in_labels,
       :in_verbatim_locality,
       :recent,
-      :shape,
+      :wkt,
+      :radius,
+      :geo_json,
       :start_date, # used in date range
       :end_date,   # used in date range
       :partial_overlap_dates,

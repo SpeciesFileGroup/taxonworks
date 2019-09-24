@@ -28,7 +28,6 @@ module Queries
       # !!!!! Merge with CE filter !!!!! 
 
       attr_accessor :otu_id
-      
       attr_accessor :otu_descendants
 
       attr_accessor :shape
@@ -60,7 +59,7 @@ module Queries
 
         @collecting_event_query = Queries::CollectingEvent::Filter.new(params)
 
-        @shape = params[:drawn_area_shape]
+       # @shape = params[:drawn_area_shape]
         
         @otu_id          = params[:otu_id]
         @otu_descendants = params[:descendants]
@@ -171,15 +170,10 @@ module Queries
         q
       end
 
-      # @return [Boolean]
-      def area_set?
-        geographic_area_ids.present?
-      end
-
-      # @return [Boolean]
-      def date_set?
-        start_date.present?
-      end
+     # @return [Boolean]
+    # def area_set?
+    #   geographic_area_ids.present?
+    # end
 
       # @return [Boolean]
       def otu_set?
@@ -228,11 +222,11 @@ module Queries
           .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
       end
 
-
-      # @return [Scope]
-      def shape_scope
-        ::GeographicItem.gather_map_data(shape, 'CollectionObject', Current.project_id)       # !!! ARG NO !!!
-      end
+   # TODO: Potential deprecate of gather_map_data ...
+   #  # @return [Scope]
+   #  def shape_scope
+   #    ::GeographicItem.gather_map_data(shape, 'CollectionObject', Current.project_id)       # !!! ARG NO !!!
+   #  end
 
       # TODO: remove to IDentifiers concern
       # @return [Scope]
@@ -282,7 +276,7 @@ module Queries
         # scopes = []
         scopes.push otu_scope if otu_set?
      #   scopes.push geographic_area_scope if area_set?
-        scopes.push shape_scope if shape_set?
+     #   scopes.push shape_scope if shape_set?
      #   scopes.push date_scope if date_set?
         scopes.push identifier_scope if identifier_set?
         scopes.push user_date_scope if user_date_set?

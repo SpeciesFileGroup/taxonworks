@@ -98,11 +98,11 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
   end
 
   context 'geo' do
-    let(:point_lat) { '20.0' }
-    let(:point_long) { '20.0' }
+    let(:point_lat) { '10.0' }
+    let(:point_long) { '10.0' }
 
     let(:factory_point) { RSPEC_GEO_FACTORY.point(point_lat, point_long) }
-
+    let(:factory_polygon) { RSPEC_GEO_FACTORY.polygon(point_lat, point_long) }
     let(:geographic_item) { GeographicItem::Point.create!( point: factory_point ) }
 
     let!(:point_georeference) {
@@ -112,28 +112,47 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
       )
     }
 
-    let(:point_shape) { 
-      s = geographic_item.to_geo_json_feature
-      s['properties'].merge!('radius' => 20)
-      s
+    let(:wkt_point) { 'POINT (10.0 10.0)'}
+    let(:wkt_polygon) { 'POLYGON ((5 5, 15 5, 15 15, 5 15, 5 5))'}
+    let(:wkt_multipolygon) { 'MULTIPOLYGON ( ((5 5, 15 5, 15 15, 5 15, 5 5)), ((20 35, 35 35, 40 40, 20 35)) )' }
+
+    let(:geo_json_polygon) {
+      '{ "type": "Polygon","coordinates": [[ [5.0, 5.0], [15.0, 5.0], [15.0, 15.0], [5.0, 15.0], [5.0, 5.0] ]] }' 
     }
 
-    specify '#shape (point)' do
-      query.shape = point_shape
+    specify '#wkt (POINT)' do
+      query.wkt = wkt_point
       expect(query.all.map(&:id)).to contain_exactly(ce1.id)
     end 
 
-    specify '#shape, combined 1' do
-      query.shape = point_shape
-      query.in_verbatim_locality = 'out'
+    specify '#wkt (POLYGON)' do
+      query.wkt = wkt_point
+      expect(query.all.map(&:id)).to contain_exactly(ce1.id)
+    end 
+
+    specify '#wkt (MULTIPOLYGON)' do
+      query.wkt = wkt_multipolygon
       expect(query.all.map(&:id)).to contain_exactly(ce1.id)
     end
 
-    specify '#shape, combined 2' do
-      query.shape = point_shape
-      query.in_verbatim_locality = 'RRRRAWR!'
-      expect(query.all.map(&:id)).to contain_exactly()
+    specify '#geo_json (POLYGON)' do
+      query.geo_json = geo_json_polygon
+      expect(query.all.map(&:id)).to contain_exactly(ce1.id)
     end
+
+
+
+  # specify '#shape, combined 1' do
+  #   query.shape = point_shape
+  #   query.in_verbatim_locality = 'out'
+  #   expect(query.all.map(&:id)).to contain_exactly(ce1.id)
+  # end
+
+  # specify '#shape, combined 2' do
+  #   query.shape = point_shape
+  #   query.in_verbatim_locality = 'RRRRAWR!'
+  #   expect(query.all.map(&:id)).to contain_exactly()
+  # end
   end
 
 end

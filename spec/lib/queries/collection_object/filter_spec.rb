@@ -96,36 +96,35 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
       end
 
-      context 'area shapes' do
+    # context 'area shapes' do
+    #   context 'area shape area b' do
+    #     let(:params) { {drawn_area_shape: area_b.to_geo_json_feature} }
 
-        context 'area shape area b' do
-          let(:params) { {drawn_area_shape: area_b.to_geo_json_feature} }
+    #     specify 'collection objects count' do
+    #       result = Queries::CollectionObject::Filter.new(params).all
+    #       expect(result.count).to eq(1)
+    #     end
 
-          specify 'collection objects count' do
-            result = Queries::CollectionObject::Filter.new(params).all
-            expect(result.count).to eq(1)
-          end
+    #     specify 'specific collection objects' do
+    #       result = Queries::CollectionObject::Filter.new(params).all
+    #       expect(result).to include(spooler.collection_objects.first)
+    #     end
+    #   end
 
-          specify 'specific collection objects' do
-            result = Queries::CollectionObject::Filter.new(params).all
-            expect(result).to include(spooler.collection_objects.first)
-          end
-        end
+    #   context 'area shape area a' do
+    #     let(:params) { {drawn_area_shape: area_a.to_geo_json_feature} }
 
-        context 'area shape area a' do
-          let(:params) { {drawn_area_shape: area_a.to_geo_json_feature} }
+    #     specify 'collection objects count' do
+    #       result = Queries::CollectionObject::Filter.new(params).all
+    #       expect(result.count).to eq(1)
+    #     end
 
-          specify 'collection objects count' do
-            result = Queries::CollectionObject::Filter.new(params).all
-            expect(result.count).to eq(1)
-          end
-
-          specify 'specific collection objects' do
-            result = Queries::CollectionObject::Filter.new(params).all
-            expect(result).to include(otu_a.collection_objects.first)
-          end
-        end
-      end
+    #     specify 'specific collection objects' do
+    #       result = Queries::CollectionObject::Filter.new(params).all
+    #       expect(result).to include(otu_a.collection_objects.first)
+    #     end
+    #   end
+    # end
     end
 
     context 'otu search' do

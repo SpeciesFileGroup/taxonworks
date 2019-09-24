@@ -25,8 +25,14 @@ module Queries
       # An integer, order result and return the last :recent records
       attr_accessor :recent
 
-      # An RGeo::GeoJSON feature
-      attr_accessor :shape
+      attr_accessor :wkt
+
+      # Integer in Meters
+      attr_accessor :radius
+
+      # @return [Hash, nil]
+      #  in geo_json format (no Feature ...) ?!
+      attr_accessor :geo_json
 
       # Reference geographic areas to do a spatial query 
       # TODO: deprecate
@@ -38,13 +44,14 @@ module Queries
       #   in this parameter by default.  See 'spatial_geographic_areas = true'.
       attr_accessor :geographic_area_ids # not tested
 
-
-
       def initialize(params)
         @in_labels = params[:in_labels]
         @in_verbatim_locality = params[:in_verbatim_locality]
         @recent = params[:recent].blank? ? nil : params[:recent].to_i
-        self.shape = params[:shape]
+      
+        @wkt = params[:wkt]
+        @geo_json = params[:geo_json]
+        @radius = params[:wkt_radius].blank? ? 100 : params[:wkt_radius] 
 
         @keyword_ids = params[:keyword_ids].blank? ? [] : params[:keyword_ids]
         @spatial_geographic_area_ids = params[:spatial_geographic_area_ids].blank? ? [] : params[:spatial_geographic_area_ids]
@@ -53,11 +60,6 @@ module Queries
 
         set_attributes(params)
         set_dates(params)
-      end
-
-      def shape=(value)
-        @shape = ::RGeo::GeoJSON.decode(value, json_parser: :json)
-        @shape
       end
 
       def set_attributes(params)
@@ -85,27 +87,41 @@ module Queries
         c
       end
 
-      def matching_shape
-        return nil if shape.nil?
+     ## TODO: what is it @param value [String] ?!
+     ## In 
+     #def shape=(value)
+     #  @shape = ::RGeo::GeoJSON.decode(value, json_parser: :json)
+     #  @shape
+     #end
 
-        geometry = shape.geometry
-        this_type = geometry.geometry_type.to_s.downcase
-        geometry = geometry.as_text
-        radius = shape['radius'] || 100
+      def wkt_facet
+        return nil if wkt.nil?
+        a = RGeo::WKRep::WKTParser.new
+        b = a.parse(wkt)
+        spatial_query(b.geometry_type.to_s, wkt) 
+      end 
 
-        case this_type
-        when 'point'
+      # Shape is a Hash in GeoJSON format
+      def geo_json_facet
+        return nil if geo_json.nil?
+        a = RGeo::GeoJSON.decode(geo_json)
+        spatial_query(a.geometry_type.to_s, a.to_s)
+      end 
+
+      def spatial_query(geometry_type, wkt)
+        case geometry_type 
+        when 'Point'
           ::CollectingEvent
             .joins(:geographic_items)
-            .where(::GeographicItem.within_radius_of_wkt_sql(geometry, radius ))
-        when 'polygon'
+            .where(::GeographicItem.within_radius_of_wkt_sql(wkt, radius ))
+        when 'Polygon', 'MultiPolygon'
           ::CollectingEvent
             .joins(:geographic_items)
-            .where(::GeographicItem.contained_by_wkt_sql(geometry))
+            .where(::GeographicItem.contained_by_wkt_sql(wkt))
         else
           nil
         end
-      end 
+      end
 
       # TODO: throttle by size?
       def matching_spatial_via_geographic_area_ids
@@ -149,7 +165,10 @@ module Queries
       def base_merge_clauses
         clauses = [
           matching_keyword_ids,
-          matching_shape,
+
+          wkt_facet,
+          geo_json_facet,
+
           matching_spatial_via_geographic_area_ids
         ].compact!
         clauses
