@@ -42,7 +42,7 @@ module Queries
       #   match only CollectionObjects mapped to CollectingEvents that
       #   have these specific ids.  No spatial calculations are included
       #   in this parameter by default.  See 'spatial_geographic_areas = true'.
-      attr_accessor :geographic_area_ids # not tested
+      attr_accessor :geographic_area_ids
 
       def initialize(params)
         @in_labels = params[:in_labels]

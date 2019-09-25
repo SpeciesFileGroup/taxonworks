@@ -136,7 +136,8 @@ module Queries
         clauses = collecting_event_merge_clauses + collecting_event_and_clauses
         # from the simple filter
         clauses += [
-          matching_keyword_ids
+          matching_keyword_ids,
+          otus_facet
         ]
         # from the complex query
         clauses = applied_scopes(clauses).compact
@@ -170,19 +171,9 @@ module Queries
         q
       end
 
-     # @return [Boolean]
-    # def area_set?
-    #   geographic_area_ids.present?
-    # end
-
       # @return [Boolean]
       def otu_set?
         otu_id.present?
-      end
-
-      # @return [Boolean]
-      def shape_set?
-        shape.present?
       end
 
       # @return [Boolean]
@@ -203,10 +194,21 @@ module Queries
       # All scopes might end up in CollectionObject directly
 
       # @return [Scope]
-      def otu_scope
+      def otus_facet
         # Challenge: Refactor to use a join pattern instead of SELECT IN
         inner_scope = with_descendants? ? ::Otu.self_and_descendants_of(otu_id) : ::Otu.where(id: otu_id)
         ::CollectionObject.joins(:otus).where(otus: {id: inner_scope})
+
+        return nil if otu_id.nil?
+
+        ::CollectionObject.where(
+          ::TaxonDetermination.where(
+            ::TaxonDetermination.arel_table[:collection_object_id].eq(::CollectionObject.arel_table[:id]).and(
+              ::TaxonDetermination.arel_table[:otu_id].eq(otu_id))
+          ).arel.exists
+        )
+
+
       end
 
       # @return [Scope]
@@ -274,7 +276,7 @@ module Queries
       #   determine which scopes to apply based on parameters provided
       def applied_scopes(scopes = [])
         # scopes = []
-        scopes.push otu_scope if otu_set?
+#        scopes.push otu_scope if otu_set?
      #   scopes.push geographic_area_scope if area_set?
      #   scopes.push shape_scope if shape_set?
      #   scopes.push date_scope if date_set?
