@@ -39,7 +39,7 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
     end
 
     def sv_not_specific_classes
-      True
+      true
     end
   end
 
@@ -50,7 +50,7 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
     extend InnerClass
 
     def sv_not_specific_classes
-      True
+      true
     end
   end
 
@@ -65,7 +65,7 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
     end
 
     def sv_not_specific_classes
-      True
+      true
     end
   end
 
@@ -80,7 +80,7 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
     end
 
     def sv_not_specific_classes
-      True
+      true
     end
   end
 
@@ -91,7 +91,7 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
     extend InnerClass
 
     def sv_not_specific_classes
-      True
+      true
     end
   end
 
@@ -102,7 +102,7 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
     extend InnerClass
 
     def sv_not_specific_classes
-      True
+      true
     end
   end
 
@@ -113,7 +113,7 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
     extend InnerClass
 
     def sv_not_specific_classes
-      True
+      true
     end
   end
 
@@ -128,7 +128,7 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
     end
 
     def sv_not_specific_classes
-      True
+      true
     end
   end
 
@@ -143,7 +143,7 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
     end
 
     def sv_not_specific_classes
-      True
+      true
     end
   end
 

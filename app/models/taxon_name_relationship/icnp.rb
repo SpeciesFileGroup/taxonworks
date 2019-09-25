@@ -6,12 +6,12 @@ class TaxonNameRelationship::Icnp < TaxonNameRelationship
 
   # left_side
   def self.valid_subject_ranks
-    ::ICNB
+    ::ICNP
   end
 
   # right_side
   def self.valid_object_ranks
-    ::ICNB
+    ::ICNP
   end
 
   def self.disjoint_subject_classes

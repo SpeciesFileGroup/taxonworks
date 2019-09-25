@@ -7,6 +7,7 @@ branches:
     - docker-travis
     - build-with-assets
     - rails6
+    - cofilter2
 env:
   global:
     - TEST_WORKERS=5

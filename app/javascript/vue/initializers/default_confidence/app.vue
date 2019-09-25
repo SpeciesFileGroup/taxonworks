@@ -1,5 +1,7 @@
 <template>
-  <default-confidence :global-id="globalId"/>
+  <default-confidence 
+    :count="count"
+    :global-id="globalId"/>
 </template>
 <script>
 
@@ -13,6 +15,10 @@
       globalId: {
         type: String,
         required: true
+      },
+      count: {
+        type: [String, Number],
+        default: undefined
       }
     }
   }

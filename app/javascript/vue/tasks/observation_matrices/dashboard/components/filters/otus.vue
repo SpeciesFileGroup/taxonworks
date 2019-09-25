@@ -1,11 +1,10 @@
 <template>
   <div>
-    <h3>Otu</h3>
+    <h2>Otu</h2>
     <label>
-      <input type="checkbox"/> All/Terminal
-    </label>
-    <label>
-      <input type="checkbox"> 
+      <input
+        type="checkbox"
+        v-model="validity">
       Linked to valid only
     </label>
   </div>
@@ -13,16 +12,21 @@
 
 <script>
 
-//import SwitchButton from 'components/forms/switchSlider.vue'
-
 export default {
-  components: {
-    //SwitchButton
+  props: {
+    value: {
+      type: Boolean,
+      default: false
+    }
   },
-  data () {
-    return {
-      all: false,
-      valid: false
+  computed: {
+    validity: {
+      get () {
+        return this.value
+      },
+      set (value) {
+        this.$emit('input', value)
+      }
     }
   }
 }

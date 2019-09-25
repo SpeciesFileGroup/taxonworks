@@ -16,20 +16,27 @@
       />
       <template>
         <div v-if="view === TABS.attribute">
-          <ce-filter @collectingEventList="compileList($event)" />
+          <ce-filter
+            @jsonUrl="$emit('jsonUrl', $event)"
+            @collectingEventList="compileList($event)" />
         </div>
         <div v-else-if="view === TABS.namedAreaSearch">
-          <ce-by-area @collectingEventList="compileList($event)" />
+          <ce-by-area
+            @jsonUrl="$emit('jsonUrl', $event)"
+            @collectingEventList="compileList($event)" />
         </div>
         <div v-else-if="view === TABS.drawAreaSearch">
           <ce-by-shape
+            @jsonUrl="$emit('jsonUrl', $event)"
             @collectingEventList="compileList($event)"
             @searchShape="addSearchShape"
             ref="cebyshape"
           />
         </div>
         <div v-else-if="view === TABS.tag">
-          <ce-tag @collectingEventList="compileList($event)" />
+          <ce-tag
+            @jsonUrl="$emit('jsonUrl', $event)"
+            @collectingEventList="compileList($event)" />
         </div>
         <smart-list
           v-if="!Object.values(TABS).includes(view)"

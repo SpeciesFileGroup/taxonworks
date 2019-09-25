@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3>Taxon name</h3>
+    <h2>Taxon name</h2>
     <div class="field">
       <autocomplete
         class="fill_width"
@@ -10,6 +10,9 @@
         label="label_html"
         :clear-after="true"
         placeholder="Search a taxon name"
+        :add-params="{
+          'type[]': 'Protonym'
+        }"
         @getItem="getTaxon"/>
     </div>
   </div>
@@ -50,5 +53,8 @@ export default {
   }
   .field-year {
     width: 60px;
+  }
+  /deep/ .vue-autocomplete-list {
+    min-width: 800px;
   }
 </style>
