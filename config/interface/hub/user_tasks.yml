@@ -441,3 +441,14 @@ index_stats_task:
     - nomenclature
   status: prototype
   description: 'Get counts of names as different ranks.'
+
+index_dwca_import_task:
+  hub: true
+  name: 'Darwin Core Archive (DwC-A) import'
+  related:
+  categories:
+    - nomenclature
+    - collecting_event
+    - collection_object
+  status: prototype
+  description: 'Import Darwin Core Archive data into project.'

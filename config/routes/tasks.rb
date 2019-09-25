@@ -1,4 +1,10 @@
 scope :tasks do
+    scope :dwca_import do
+      scope :dwca_import, controller: 'tasks/dwca_import/dwca_import' do
+        get :index, as: 'index_dwca_import_task'
+      end
+    end
+
     scope :matrix_image do
       scope :matrix_image, controller: 'tasks/matrix_image/matrix_image' do
         get :index, as: 'index_matrix_image_task'
