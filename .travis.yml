@@ -5,7 +5,6 @@ branches:
     - development
     - dates
     - docker-travis
-    - build-with-assets
     - rails6
     - cofilter2
 env:
@@ -79,6 +78,7 @@ jobs:
       env:
         - TEST_WORKER=4
     - stage: deliver (simulated)
+      if: branch = development
       language: minimal
       services:
         - docker
