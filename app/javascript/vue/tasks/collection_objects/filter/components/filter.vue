@@ -25,7 +25,7 @@
       </button>
       <geographic-component
         v-model="params.geographic"/>
-      <otu-component v-model="params.base.otu_id"/>
+      <otu-component v-model="params.base.otu_ids"/>
       <collecting-event
         v-model="params.collectingEvents"/>
       <user-component/>
@@ -88,7 +88,7 @@ export default {
     initParams () {
       return {
         base: {
-          otu_id: undefined
+          otu_ids: []
         },
         collectingEvents: {
           collecting_event_ids: [],
@@ -132,9 +132,6 @@ export default {
       :end_date,
       :partial_overlap_dates,
       keyword_ids: [],
-      spatial_geographic_area_ids: [],
-      collecting_event_ids: [],
-      geographic_area_ids: [],
       */
 </script>
 <style scoped>
