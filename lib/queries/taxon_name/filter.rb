@@ -31,15 +31,15 @@ module Queries
       #   true if only valid, false if only invalid, nil if both 
       attr_accessor :validity
 
-      # @params parent_id [Array]
+      # @params taxon_name_id [Array]
       #   An array of taxon_name_id.
       # @return
-      #   Return all children of these parents. Results includes self (parent_id).
-      attr_accessor :parent_id
+      #   Return the taxon name(s) with this/these ids 
+      attr_accessor :taxon_name_id
 
       # @param descendants [Boolean]
       # ['true' or 'false'] on initialize
-      #   Ignored when parent_id[].empty? Return descendants of parents as well.
+      #   Ignored when taxon_name_id[].empty? Return descendants of parents as well.
       attr_accessor :descendants
 
       # @param taxon_name_relationship [Array]
@@ -89,7 +89,7 @@ module Queries
       attr_accessor :nomenclature_group
 
       # @return [Array, nil]
-      #   &nomenclature_code=Iczn|Icnb|Icn|Ictv
+      #   &nomenclature_code=Iczn|Icnp|Icn|Ictv
       attr_accessor :nomenclature_code
 
       # TODO: inverse is duplicated in autocomplete
@@ -99,7 +99,6 @@ module Queries
       #   if 'false' then return only names with descendents
       attr_accessor :leaves
 
-
       # @return [String, nil]
       #   &taxon_name_type=<Protonym|Combination|Hybrid>
       attr_accessor :taxon_name_type
@@ -107,28 +106,27 @@ module Queries
       # @param params [Params] 
       #   a permitted via controller
       def initialize(params)
-        @name = params[:name]
         @author = params[:author]
-        @year = params[:year].to_s 
-        @exact = (params[:exact] == 'true' ? true : false) if !params[:exact].nil?
-        @parent_id = params[:parent_id] || []
-        @descendants = (params[:descendants] == 'true' ? true : false) if !params[:descendants].nil?
-        @updated_since = params[:updated_since].to_s 
-        @validity = (params[:validity] == 'true' ? true : false) if !params[:validity].nil?
+        @authors = (params[:authors]&.downcase == 'true' ? true : false) if !params[:authors].nil?
+        @citations = params[:citations]
+        @descendants = (params[:descendants]&.downcase == 'true' ? true : false) if !params[:descendants].nil?
+        @exact = (params[:exact]&.downcase == 'true' ? true : false) if !params[:exact].nil?
+        @leaves = (params[:leaves]&.downcase == 'true' ? true : false) if !params[:leaves].nil?
+        @name = params[:name]
+        @nomenclature_code = params[:nomenclature_code]  if !params[:nomenclature_code].nil?
+        @nomenclature_group = params[:nomenclature_group]  if !params[:nomenclature_group].nil?
+        @otus = (params[:otus]&.downcase == 'true' ? true : false) if !params[:otus].nil?
+        @project_id = params[:project_id]
+        @taxon_name_classification = params[:taxon_name_classification] || [] 
+        @taxon_name_id = params[:taxon_name_id] || []
         @taxon_name_relationship = params[:taxon_name_relationship] || [] 
         @taxon_name_relationship_type = params[:taxon_name_relationship_type] || [] 
-        @taxon_name_classification = params[:taxon_name_classification] || [] 
-        @type_metadata = (params[:type_metadata] == 'true' ? true : false) if !params[:type_metadata].nil?
-        @citations = params[:citations]
-        @otus = (params[:otus] == 'true' ? true : false) if !params[:otus].nil?
-        @project_id = params[:project_id]
-        @leaves = (params[:leaves] == 'true' ? true : false) if !params[:leaves].nil?
-        @nomenclature_group = params[:nomenclature_group]  if !params[:nomenclature_group].nil?
-        @nomenclature_code = params[:nomenclature_code]  if !params[:nomenclature_code].nil?
         @taxon_name_type = params[:taxon_name_type]
-
-        @authors = (params[:authors] == 'true' ? true : false) if !params[:authors].nil?
-
+        @type_metadata = (params[:type_metadata]&.downcase == 'true' ? true : false) if !params[:type_metadata].nil?
+        @updated_since = params[:updated_since].to_s 
+        @validity = (params[:validity]&.downcase == 'true' ? true : false) if !params[:validity].nil?
+        @year = params[:year].to_s 
+        
         # TODO: support here?
         @keyword_ids ||= []
       end
@@ -157,14 +155,14 @@ module Queries
       end
 
       # @return Scope
-      #   match only names that are a descendant of some parent_id
+      #   match only names that are a descendant of some taxon_name_id 
       # A merge facet.
       def descendant_facet
-        return nil if parent_id.empty? || !descendants
+        return nil if taxon_name_id.empty? || descendants == false
         ::TaxonName.where(
           ::TaxonNameHierarchy.where(
             ::TaxonNameHierarchy.arel_table[:descendant_id].eq(::TaxonName.arel_table[:id]).and(
-            ::TaxonNameHierarchy.arel_table[:ancestor_id].in(parent_id))
+            ::TaxonNameHierarchy.arel_table[:ancestor_id].in(taxon_name_id))
           ).arel.exists
         )
       end
@@ -273,18 +271,18 @@ module Queries
       def cached_name
         return nil if name.blank?
         if exact
-          table[:cached].eq(name)
+          table[:cached].eq(name.strip)
         else
-          table[:cached].matches('%' + name + '%')
+          table[:cached].matches('%' + name.strip.gsub(/\s+/, '%') + '%')
         end
       end
 
       def author_facet 
         return nil if author.blank?
         if exact
-          table[:cached_author_year].eq(author)
+          table[:cached_author_year].eq(author.strip)
         else
-          table[:cached_author_year].matches('%' + author + '%')
+          table[:cached_author_year].matches('%' + author.strip.gsub(/\s/, '%') + '%')
         end
       end
 
@@ -307,9 +305,9 @@ module Queries
         end
       end
 
-      def parent_facet
-        return nil if parent_id.empty? || descendants
-        table[:parent_id].eq_any(parent_id)
+      def taxon_name_id_facet
+        return nil if taxon_name_id.empty? || descendants
+        table[:id].eq_any(taxon_name_id)
       end
 
       # @return [ActiveRecord::Relation]
@@ -322,7 +320,7 @@ module Queries
           year_facet,
           updated_since_facet,
           validity_facet,
-          parent_facet,
+          taxon_name_id_facet,
           with_nomenclature_group,
           with_nomenclature_code,
           taxon_name_type_facet
@@ -384,7 +382,6 @@ module Queries
       end
 
       protected
-
     end
   end
 end

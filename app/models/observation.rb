@@ -23,13 +23,11 @@ class Observation < ApplicationRecord
   belongs_to :collection_object, inverse_of: :observations
 
   after_initialize :convert_observation_object_global_id
+  before_validation :set_type_from_descriptor
 
   validates_presence_of :descriptor, :type
   validate :otu_or_collection_object_set
- 
   validate :type_matches_descriptor
-
-  before_validation :set_type_from_descriptor
 
   def qualitative?
     type == 'Observation::Qualitative'
@@ -41,20 +39,6 @@ class Observation < ApplicationRecord
 
   def continuous?
     type == 'Observation::Continuous'
-  end
-
-
-
-  def set_type_from_descriptor
-    if type.blank? && descriptor.type
-      write_attribute(:type, 'Observation::' + descriptor.type.split('::').last)
-    end
-  end
-
-  def type_matches_descriptor
-    a = type.split('::').last
-    b = descriptor.type.split('::').last
-    errors.add(:type, 'type of Observation does not match type of Descriptor') if a && b && a != b
   end
 
   def self.in_observation_matrix(observation_matrix_id)
@@ -152,6 +136,19 @@ class Observation < ApplicationRecord
   end
 
   protected
+
+  def set_type_from_descriptor
+    if type.blank? && descriptor&.type
+      write_attribute(:type, 'Observation::' + descriptor.type.split('::').last)
+    end
+  end
+
+  def type_matches_descriptor
+    a = type&.split('::')&.last
+    b = descriptor&.type&.split('::')&.last
+    errors.add(:type, 'type of Observation does not match type of Descriptor') if a && b && a != b
+  end
+
 
   def convert_observation_object_global_id
     set_observation_object_id(GlobalID::Locator.locate(observation_object_global_id)) if observation_object_global_id 

@@ -360,6 +360,20 @@ class TaxonName < ApplicationRecord
     Ranks.valid?(r) ? r.safe_constantize : r
   end
 
+  def self.foo(rank_classes)
+    from <<-SQL.strip_heredoc
+      ( SELECT *, rank() 
+           OVER ( 
+               PARTITION BY rank_class, parent_id 
+               ORDER BY generations asc, name
+            ) AS rn
+         FROM taxon_names 
+         INNER JOIN "taxon_name_hierarchies" ON "taxon_names"."id" = "taxon_name_hierarchies"."descendant_id"
+         WHERE #{rank_classes.collect{|c| "rank_class = '#{c}'" }.join(' OR ')}
+         ) as taxon_names 
+    SQL
+  end
+
   # @return [TaxonName, nil] an ancestor at the specified rank
   # @params rank [symbol|string|
   #   like :species or 'genus'
@@ -480,7 +494,7 @@ class TaxonName < ApplicationRecord
 
   # @return [Scope]
   def taxon_name_classifications_for_statuses
-    taxon_name_classifications.with_type_array(ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICNB_TAXON_NAME_CLASSIFICATION_NAMES + ICTV_TAXON_NAME_CLASSIFICATION_NAMES)
+    taxon_name_classifications.with_type_array(ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICNP_TAXON_NAME_CLASSIFICATION_NAMES + ICTV_TAXON_NAME_CLASSIFICATION_NAMES)
   end
 
   # @return [Array of String]
@@ -1021,7 +1035,7 @@ class TaxonName < ApplicationRecord
     end
 
     unless misapplication.empty? || m_obj.author_string.blank?
-      ay += ' nec ' + [m_obj.author_string]
+      ay += ' non ' + [m_obj.author_string]
       t  += ['(' + m_obj.year_integer.to_s + ')'] unless m_obj.year_integer.nil?
       ay = t.compact.join(' ')
     end
@@ -1067,7 +1081,7 @@ class TaxonName < ApplicationRecord
     obj = misapplication.empty? ? nil : misapplication.first.object_taxon_name
 
     unless misapplication.empty? || obj.author_string.blank?
-      ay += ' nec ' + ([obj.author_string] + [obj.year_integer]).compact.join(', ')
+      ay += ' non ' + ([obj.author_string] + [obj.year_integer]).compact.join(', ')
     end
 
     if SPECIES_RANK_NAMES_ICZN.include?(taxon.rank_string)

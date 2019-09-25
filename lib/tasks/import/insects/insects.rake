@@ -215,7 +215,7 @@ namespace :tw do
 
       def handle_projects_and_users_insects(data, import)
         print 'Handling projects and users '
-        email = 'inhs_admin@replace.me'
+        email = 'arboridia@gmail.com'
         project_name = 'INHS Insect Collection'
         user_name = 'INHS Insect Collection Import'
         $user_id, $project_id, @collection_container = nil, nil, nil
@@ -239,15 +239,15 @@ namespace :tw do
           end
           $user_id = user.id # set for project line below
 
-          project = Project.where(name: project_name)
-          if project.empty?
-            project = Project.create(name: project_name)
-          else
-            project = project.first
-          end
+          project = Project.find_or_create_by(name: project_name)
 
           $project_id = project.id
-          pm = ProjectMember.new(user: user, project: project, is_project_administrator: true)
+          pm = ProjectMember.find_by(user: user, project: project)
+          if pm.nil?
+            pm = ProjectMember.new(user: user, project: project, is_project_administrator: true)
+          else
+            pm.is_project_administrator = true
+          end
           pm.save
 
           cc = Container.where(name: project_name)
@@ -304,26 +304,26 @@ namespace :tw do
                                      'Reared' => ['Exuvia or pupa', 'Body'] }
 
         export_relationships = { '15430'  => :ignore,
-                                 'attendant' => ['Attendance', :direct],
+                                 'attendant' => ['Attendance', :reverse],
                                  'body'  => :ignore,
 #                                 'body part (not genitalia)' => ['Dissected body part', :reverse],
 #                                 'genitalia' => ['Dissected genitalia', :reverse],
                                  'body part (not genitalia)' => :origin,
                                  'genitalia' => :origin,
-                                 'host' => ['Host plant', :reverse],
-                                 'host of' => ['Host plant', :reverse],
-                                 'mate' => ['Mating', :direct],
-                                 'parasite' => ['Parasitims', :direct],
-                                 'parasite of' => ['Parasitims', :direct],
-                                 'pollinating' => ['Pollination', :direct],
-                                 'pollination' => ['Pollination', :direct],
-                                 'predator' => ['Predation', :reverse],
-                                 'prey' => ['Predation', :direct],
-                                 'puparium' => ['Reared', :reverse],
-                                 'reared from' => ['Parasitims', :direct],
+                                 'host' => ['Host plant', :direct],
+                                 'host of' => ['Host plant', :direct],
+                                 'mate' => ['Mating', :reverse],
+                                 'parasite' => ['Parasitims', :reverse],
+                                 'parasite of' => ['Parasitims', :reverse],
+                                 'pollinating' => ['Pollination', :reverse],
+                                 'pollination' => ['Pollination', :reverse],
+                                 'predator' => ['Predation', :direct],
+                                 'prey' => ['Predation', :reverse],
+                                 'puparium' => ['Reared', :direct],
+                                 'reared from' => ['Parasitims', :reverse],
                                  'soil' => :ignore,
-                                 'tending' => ['Attendance', :direct],
-                                 'vicinity' => ['Pollination', :direct] }
+                                 'tending' => ['Attendance', :reverse],
+                                 'vicinity' => ['Pollination', :reverse] }
 
         biological_relationships.each_key do |br|
           b = BiologicalRelationship.where(name: br, project_id: $project_id)
@@ -351,9 +351,11 @@ namespace :tw do
         print 'Handling namespaces  '
 
         catalogue_namespaces = [
+            'Amber',
             'Acari',
             'Araneae',
             'Coleoptera',
+            'Collembola',
             'Diplopoda',
             'Diptera',
             'Ephemeroptera',
@@ -378,75 +380,31 @@ namespace :tw do
         ]
 
         if import.metadata['namespaces']
-          @taxon_namespace = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS Taxon Code', short_name: 'Taxon Code').first
-          @accession_namespace = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS Legacy Accession Code', short_name: 'Accession Code').first
-          @user_namespace = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS Legacy User ID', short_name: 'User ID').first
+          @taxon_namespace = Namespace.where(institution: 'Illinois Natural History Survey', name: 'INHS Taxon Code', short_name: 'Taxon Code').first
+          @accession_namespace = Namespace.where(institution: 'Illinois Natural History Survey', name: 'INHS Legacy Accession Code', short_name: 'Accession Code').first
+          @user_namespace = Namespace.where(institution: 'Illinois Natural History Survey', name: 'INHS Legacy User ID', short_name: 'User ID').first
           print "from database.\n"
         else
           print "as newly parsed.\n"
-          @taxon_namespace = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS Taxon Code', short_name: 'Taxon Code')
-          @accession_namespace = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS Legacy Accession Code', short_name: 'Accession Code')
-          @user_namespace = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS Legacy User ID', short_name: 'User ID')
+          @taxon_namespace = Namespace.create(institution: 'Illinois Natural History Survey', name: 'INHS Taxon Code', short_name: 'Taxon Code')
+          @accession_namespace = Namespace.create(institution: 'Illinois Natural History Survey', name: 'INHS Legacy Accession Code', short_name: 'Accession Code')
+          @user_namespace = Namespace.create(institution: 'Illinois Natural History Survey', name: 'INHS Legacy User ID', short_name: 'User ID')
           import.metadata['namespaces'] = true
         end
 
         catalogue_namespaces.each do |cn|
-          n = Namespace.where(institution: 'INHS Insect Collection', short_name: cn)
-          if n.empty?
-            n = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS ' + cn, short_name: cn)
-          else
-            n = n.first
-          end
+          n = Namespace.find_or_create_by(institution: 'Illinois Natural History Survey', name: 'Illinois Natural History Survey ' + cn, short_name: 'INHS ' + cn)
           data.namespaces[cn] = n
         end
 
-        n = Namespace.where(institution: 'INHS Insect Collection', short_name: 'NEON')
-        if n.empty?
-          n = Namespace.create(institution: 'INHS Insect Collection', name: 'NEON', short_name: 'NEON')
-        else
-          n = n.first
-        end
+          n = Namespace.find_or_create_by(institution: 'Illinois Natural History Survey', name: 'INHS NEON', short_name: 'NEON')
         data.namespaces['NEON'] = n
 
-        n = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS loan invoice')
-        if n.empty?
-          n = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS loan invoice', short_name: 'Invoice')
-        else
-          n = n.first
-        end
+          n = Namespace.find_or_create_by(institution: 'Illinois Natural History Survey', name: 'Illinois Natural History Survey loan invoice', short_name: 'INHS Invoice')
         data.namespaces['Invoice'] = n
 
-        n = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS container')
-        if n.empty?
-          n = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS container', short_name: 'Container')
-        else
-          n = n.first
-        end
+          n = Namespace.find_or_create_by(institution: 'Illinois Natural History Survey', name: 'Illinois Natural History Survey container', short_name: 'INHS Container')
         data.namespaces['container'] = n
-
-#        n = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS drawer')
-#        if n.empty?
-#          n = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS drawer', short_name: 'D')
-#        else
-#          n = n.first
-#        end
-#        data.namespaces['dry'] = n
-
-#        n = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS vial rack')
-#        if n.empty?
-#          n = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS vial rack', short_name: 'R')
-#        else
-#          n = n.first
-#        end
-#        data.namespaces['wet'] = n
-
-#        n = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS slide box')
-#        if n.empty?
-#          n = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS slide box', short_name: 'S')
-#        else
-#          n = n.first
-#        end
-#        data.namespaces['slide'] = n
 
         data.namespaces.merge!(taxon_namespace: @taxon_namespace)
         data.namespaces.merge!(accession_namespace: @accession_namespace)
@@ -614,9 +572,9 @@ namespace :tw do
 
           # from handle taxa
           data.keywords.merge!(
-              'Taxa:TaxonCode' => Predicate.create(name: 'TaxonCode', definition: 'The verbatim value on import from INHS FileMaker database for Taxa#TaxonCode.'),
-              'Taxa:Synonyms' => Predicate.create(name: 'Synonyms', definition: 'The verbatim value on import from INHS FileMaker database for Taxa#Synonyms.'),
-              'Taxa:References' => Predicate.create(name: 'References', definition: 'The verbatim value on import INHS FileMaker database for Taxa#References.')
+              'TaxonCode' => Predicate.create(name: 'TaxonCode', definition: 'The verbatim value on import from INHS FileMaker database for Taxa#TaxonCode.'),
+              'Synonyms' => Predicate.create(name: 'Synonyms', definition: 'The verbatim value on import from INHS FileMaker database for Taxa#Synonyms.'),
+              'References' => Predicate.create(name: 'References', definition: 'The verbatim value on import INHS FileMaker database for Taxa#References.')
           )
 
           # from handle people
@@ -767,7 +725,23 @@ namespace :tw do
            GPSSource
            CollectionDateAccuracy
            SamplingProtocol
-           SiteCode}.freeze
+           SiteCode
+
+            LedgersComments
+            Remarks
+            LedgersCountry
+            LedgersState
+            LedgersCounty
+            LedgersLocality
+            Description
+            Family
+            Genus
+            HostGenus
+            HostSpecies
+            LedgerBook
+            Order
+            Sex
+            Species}.freeze
 
       def find_or_create_collecting_event_insects(ce, data)
         tmp_ce = { }
@@ -1305,6 +1279,9 @@ namespace :tw do
           i += 1
           print "\r#{i}      "
 
+#          next if (row['Prefix'] != 'Araneae' || row['CatalogNumber'].to_s != '12610')
+#          byebug
+
           tmp_m = {}
           match_fields.each do |m|
             tmp_m[m] = row[m] unless row[m].blank?
@@ -1313,8 +1290,16 @@ namespace :tw do
 
           locality_code = partially_resolved.nil? ? nil : partially_resolved['LocalityCode']
 
+          if locality_code.blank?
+            if row['LocalityCode'].blank?
+              locality_code = nil
+            else
+              locality_code = row['LocalityCode']
+            end
+          end
+
           extra_fields = {}
-          unless partially_resolved.nil?
+#          unless partially_resolved.nil?
             if locality_code.nil?
               locality_fields_without_locality_code.each do |m|
                 extra_fields[m] = row[m] unless row[m].blank?
@@ -1324,7 +1309,7 @@ namespace :tw do
                 extra_fields[m] = row[m] unless row[m].blank?
               end
             end
-          end
+#          end
 
           se = { }
 
@@ -1340,7 +1325,7 @@ namespace :tw do
           se.merge!(extra_fields)
 
           collecting_event = nil
-          collecting_event = find_or_create_collecting_event_insects(se, data) if row['Done'] == '1'
+          collecting_event = find_or_create_collecting_event_insects(se, data) if row['Done'] == '1' || row['Prefix'] == 'Araneae'
           preparation_type = data.preparation_types[se['PreparationType']]
 
           no_specimens = false
@@ -1381,8 +1366,8 @@ namespace :tw do
                 end
                 unless host.blank?
                   BiologicalAssociation.create(biological_relationship: br,
-                                               biological_association_subject: host,
-                                               biological_association_object: specimen
+                                               biological_association_subject: specimen,
+                                               biological_association_object: host
                                               )
                 end
 
@@ -1594,6 +1579,8 @@ namespace :tw do
           fields.each do |c|
             tmp_ce[c] = row[c] unless row[c].blank?
           end
+
+#          byebug if !row['Sex'].blank?
          
           unless tmp_ce['LocalityCode'].nil?
             if data.localities_index[tmp_ce['LocalityCode']].nil?
@@ -1647,12 +1634,12 @@ namespace :tw do
             object = nil
             subject = nil
 
-            unless row['Prefix'].blank? || row['CatalogNumber'].blank?
-              identifier = Identifier.where(cached: row['Prefix'] + ' ' + row['CatalogNumber'], type: 'Identifier::Local::CatalogNumber', project_id: $project_id)
+            if !row['Prefix'].blank? && !row['CatalogNumber'].blank?
+              identifier = Identifier.where(cached: 'INHS ' + row['Prefix'] + ' ' + row['CatalogNumber'], type: 'Identifier::Local::CatalogNumber', project_id: $project_id)
               specimen = identifier.empty? ? nil : identifier.first.identifier_object
             end
-            unless row['AssociatedPrefix'].blank? || row['AssociatedCatalogNumber'].blank?
-              identifier = Identifier.where(cached: row['AssociatedPrefix'] + ' ' + row['AssociatedCatalogNumber'], type: 'Identifier::Local::CatalogNumber', project_id: $project_id)
+            if !row['AssociatedPrefix'].blank? && !row['AssociatedCatalogNumber'].blank?
+              identifier = Identifier.where(cached: 'INHS ' + row['AssociatedPrefix'] + ' ' + row['AssociatedCatalogNumber'], type: 'Identifier::Local::CatalogNumber', project_id: $project_id)
               related_specimen = identifier.empty? ? nil : identifier.first.identifier_object
             end
             if !row['AssociatedTaxonCode'].blank? && related_specimen.nil?
@@ -1674,8 +1661,8 @@ namespace :tw do
 
               if object && subject
                 BiologicalAssociation.create(biological_relationship: br,
-                                             biological_association_subject: subject,
-                                             biological_association_object: object
+                                             biological_association_subject: object,
+                                             biological_association_object: subject
                 )
               end
             end
@@ -1826,7 +1813,7 @@ namespace :tw do
               total = data.loan_invoice_speciments[row['CatalogNumber']]['Total']
             else
               loan_item_object = Identifier.where(
-                cached: row['Prefix'] + ' ' + row['CatalogNumber'],
+                cached: 'INHS ' + row['Prefix'] + ' ' + row['CatalogNumber'],
                 type: 'Identifier::Local::CatalogNumber',
                 project_id: $project_id,
                 identifier_object_type: 'CollectionObject'

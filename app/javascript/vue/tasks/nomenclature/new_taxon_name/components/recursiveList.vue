@@ -16,6 +16,7 @@
         v-if="isObject(item)"
         :getter-list="getterList"
         :display="display"
+        :valid-property="validProperty"
         @selected="$emit('selected', $event)"
         :modal-mutation-name="modalMutationName"
         :action-mutation-name="actionMutationName"
@@ -34,7 +35,7 @@ export default {
     RecursiveList
   },
   name: 'RecursiveList',
-  props: ['objectList', 'modalMutationName', 'actionMutationName', 'display', 'getterList'],
+  props: ['objectList', 'modalMutationName', 'actionMutationName', 'display', 'getterList', 'validProperty'],
   computed: {
     savedList () {
       if (this.getterList != undefined) {
@@ -82,7 +83,7 @@ export default {
       })
     },
     isForThisRank (item) {
-      return (item.hasOwnProperty('valid_subject_ranks') ? !(item.valid_subject_ranks.includes(this.taxon.rank_string)) : false)
+      return (item.hasOwnProperty(this.validProperty) ? !(item[this.validProperty].includes(this.taxon.rank_string)) : false)
     },
     isObject (item) {
       return typeof item === 'object'
