@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3>Taxon name</h3>
+    <h2>Taxon name</h2>
     <div class="field">
       <autocomplete
         class="fill_width"

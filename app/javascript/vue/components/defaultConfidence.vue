@@ -1,30 +1,65 @@
 <template>
   <div>
     <div v-if="keyId">
-      <div
+      <tippy-component
         v-if="!created"
-        class="default_tag_widget circle-button btn-confidences btn-submit"
-        @click="createConfidence()"
-        title="Set default confidence"/>
-      <div
+        animation="scale"
+        placement="bottom"
+        size="small"
+        arrow-size="small"
+        :inertia="true"
+        :arrow="true"
+        :content="`<p>Create confidence: ${getDefaultElement().firstChild.firstChild.textContent}.<br>Used already on more of ${confidenceCount} objects</p>`">
+        <template v-slot:trigger>
+          <div
+            class="default_tag_widget circle-button btn-confidences btn-submit"
+            @click="createConfidence()"/>
+        </template>
+      </tippy-component>
+
+      <tippy-component
         v-else
-        class="default_tag_widget circle-button btn-confidences btn-delete"
-        @click="deleteConfidence()"
-        title="Remove default confidence"/>
+        animation="scale"
+        placement="bottom"
+        size="small"
+        arrow-size="small"
+        :inertia="true"
+        :arrow="true"
+        :content="`<p>Remove confidence: ${getDefaultElement().firstChild.firstChild.textContent}.<br>Used already on more of ${confidenceCount} objects</p>`">
+        <template v-slot:trigger>
+          <div
+            class="default_tag_widget circle-button btn-confidences btn-delete"
+            @click="deleteConfidence()"
+            title="Remove default confidence"/>
+        </template>
+      </tippy-component>
     </div>
     <div
       v-else
-      class="default_tag_widget circle-button btn-confidences btn-disabled"
-      @click="deleteConfidence()"/>
+      class="default_tag_widget circle-button btn-confidences btn-disabled"/>
   </div>
 </template>
 
 <script>
+
+import { TippyComponent } from 'vue-tippy'
+
 export default {
+  components: {
+    TippyComponent
+  },
   props: {
     globalId: {
       type: String,
       required: true
+    },
+    tooltip: {
+      type: Boolean,
+      default: true
+    },
+    count: {
+      type: [Number, String],
+      default: undefined
     }
   },
   data: function () {
@@ -32,15 +67,35 @@ export default {
       confidenceItem: undefined,
       keyId: this.getDefault(),
       created: false,
+      confidenceCount: undefined
     }
   },
-  mounted() {
+  watch: {
+    count: {
+      handler (newVal) {
+        this.confidenceCount = newVal
+      },
+      immediate: true
+    }
+  },
+  mounted () {
     this.alreadyCreated()
+    document.addEventListener('pinboard:insert', (event) => {
+      const details = event.detail
+      if (details.type === 'ControlledVocabularyTerm') {
+        this.keyId = this.getDefault()
+        this.getCount()
+        this.alreadyCreated()
+      }
+    })
   },
   methods: {
-    getDefault() {
-      let defaultConfidence = document.querySelector('[data-pinboard-section="ConfidenceLevels"] [data-insert="true"]')
+    getDefault () {
+      let defaultConfidence = this.getDefaultElement()
       return defaultConfidence ? defaultConfidence.getAttribute('data-pinboard-object-id') : undefined
+    },
+    getDefaultElement () {
+      return document.querySelector('[data-pinboard-section="ConfidenceLevels"] [data-insert="true"]')
     },
     alreadyCreated: function(element) {
       if(!this.keyId) return
@@ -57,6 +112,16 @@ export default {
         else {
           this.created = false
         }
+      })
+    },
+    getCount () {
+      if(!this.keyId) return
+      const params = {
+        confidence_level_id: [this.keyId],
+        per: 100
+      }
+      this.$http.get('/confidences', { params: params }).then(response => {
+        this.confidenceCount = response.body.length
       })
     },
     createConfidence: function () {

@@ -26,6 +26,7 @@ TaxonName:
     - new_combination_task
     - edit_type_material_task
     - browse_otus_task
+    - index_stats_task 
     - otu_distribution_data_task
   edit: new_taxon_name_task
   home: browse_nomenclature_task

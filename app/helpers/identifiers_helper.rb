@@ -37,6 +37,17 @@ module IdentifiersHelper
     identifier.class.name.demodulize.underscore.humanize.downcase
   end
 
+  # @return [String, nil]
+  def identifier_short_tag(identifier)
+    return nil if identifier.nil?
+    content_tag(:span, identifier.cached, class: [:feedback, 'feedback-thin', 'feedback-primary'])
+  end
+
+  def identifier_label(identifier)
+    return nil if identifier.nil?
+    identifier.cached
+  end
+
   # @return [String]
   #   assumes the display context is on the object in question
   def identifier_list_tag(object)

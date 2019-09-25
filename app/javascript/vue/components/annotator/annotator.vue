@@ -352,6 +352,7 @@ export default {
       display: flex;
       height: 600px;
       flex-direction: column;
+      overflow-y: scroll;
     }
     .radial-annotator-menu {
       padding-top: 1em;
