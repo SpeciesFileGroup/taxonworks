@@ -859,17 +859,22 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               end
 
               unless is_original
+
                 otu_id = get_taxon_name_otu_id[protonym.id.to_s].to_i
-                if :is_species_or_genus_group && nomenclator_id = '0'
+                # byebug
+                if protonym.is_genus_or_species_rank? && nomenclator_id == '0'
                   use_this_object_id = otu_id
+                  this_object_type = 'Otu'
                 else
-                  use_this_object_id = protonym
+                  use_this_object_id = protonym.id
+                  this_object_type = 'TaxonName'
                 end
                 citation = Citation.new(
                     source_id: source_id,
                     pages: row['CitePages'],
                     is_original: (row['SeqNum'] == '1' ? true : false),
-                    citation_object: use_this_object_id,
+                    citation_object_id: use_this_object_id,
+                    citation_object_type: this_object_type,
                     project_id: project_id,
                     created_at: row['CreatedOn'],
                     updated_at: row['LastUpdate'],
@@ -902,7 +907,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                     end
                   end
                   unless citation.id.nil?
-                    if nomenclator_id == '0' && (protonym.is_species_rank? || protonym.is_genus_rank?)
+                    if nomenclator_id == '0' && protonym.is_genus_or_species_rank?
                       citation.tags.create(keyword_id: no_nomenclator_keywords[project_id])
                     end
                     unless new_name_cvt_id.blank?

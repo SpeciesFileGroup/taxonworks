@@ -62,10 +62,46 @@ namespace :tw do
         desc 'time rake tw:project_import:sf_import:pre_cites:create_sf_family_taxon_name_authors user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define create_sf_family_taxon_name_authors: [:data_directory, :environment, :user_id] do |logger|
 
+          # @todo! THIS TASK MUST MOVE AHEAD OF CREATING TAXA -- COMPARABLE NOT-FAMILY RELATED AUTHORS AND ROLES ARE FOUND IN START!!!!
+
+
+
+
           logger.info 'Running create_sf_family_taxon_name_authors...'
 
-          # Analogous to list of contained ref authors for family group name authors
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
+          excluded_taxa = import.get('ExcludedTaxa')
 
+          # This task now has two subtasks: 1) identifying the reference for the family group name, and 2) list of author ids for the reference/group name author.
+
+          # Subtask 1
+          family_group_related_info = {} # key = SF.TaxonNameID, value = { FileID, RankID, Name (family group), FirstUseRefID, TypeGenusID, FirstFamGrpNameID, FamilyAuthorRefID }
+
+          path = @args[:data_directory] + 'sfFamilyGroupRelatedInfo.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          file.each_with_index do |row, i|
+            sf_file_id = row['FileID']
+            next if skipped_file_ids.include? row['FileID'].to_i
+            sf_taxon_name_id = row['TaxonNameID']
+            next if excluded_taxa.include? sf_taxon_name_id
+
+            logger.info "working with TaxonNameID #{sf_taxon_name_id}"
+
+            family_group_related_info[sf_taxon_name_id] = {sf_file_id: sf_file_id, rank_id: row['RankID'], family_name: row['Name'],
+                                                           first_use_ref_id: row['FirstUseRefID'], type_genus_id: row['TypeGenusID'],
+                                                           first_fam_grp_name_id: row['FirstFamGrpNameID'], family_author_ref_id: row['FamilyAuthorRefID']}
+          end
+
+          import.set('SFFamilyGroupRelatedInfo', family_group_related_info)
+
+          puts 'SFFamilyGroupRelatedInfo'
+          ap family_group_related_info
+
+
+          # Subtask 2
+          # Analogous to list of contained ref authors for family group name authors
           family_taxon_name_authors = {} # key = SF.RefID, value = array of SF.PersonIDs (ordered)
 
           path = @args[:data_directory] + 'sfFamilyAuthorList.txt'
@@ -88,7 +124,6 @@ namespace :tw do
             end
           end
 
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
           import.set('SFRefIDToFamilyTaxonNameAuthors', family_taxon_name_authors)
 
           puts 'SFRefIDToFamilyTaxonNameAuthors'

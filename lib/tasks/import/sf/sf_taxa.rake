@@ -731,6 +731,8 @@ namespace :tw do
           # get_contained_cite_aux_data = import.get('SFContainedCiteAuxData')
           ref_id_containing_id_hash = import.get('RefIDContainingHash')
           ref_taxon_name_authors = import.get('SFRefIDToTaxonNameAuthors')
+          family_taxon_name_authors = import.get('SFRefIDToFamilyTaxonNameAuthors')
+          family_group_related_info = import.get('SFFamilyGroupRelatedInfo')
 
           get_tw_taxon_name_id = {} # key = SF.TaxonNameID, value = TW.taxon_name.id
           get_sf_name_status = {} # key = SF.TaxonNameID, value = SF.NameStatus
@@ -784,13 +786,20 @@ namespace :tw do
           file.each_with_index do |row, i|
             next if skipped_file_ids.include? row['FileID'].to_i
             sf_taxon_name_id = row['TaxonNameID']
+            sf_rank_id = row['RankID']
             next if excluded_taxa.include? sf_taxon_name_id
-            next if row['RankID'] == '90' # TaxonNameID = 1221948, Name = Deletable, RankID = 90 == Life, FileID = 1
+            next if sf_rank_id == '90' # TaxonNameID = 1221948, Name = Deletable, RankID = 90 == Life, FileID = 1
             next if row['AccessCode'].to_i == 4
 
             project_id = get_tw_project_id[row['FileID']]
             ref_id = row['RefID'] # preserve this value; used intact below for creating taxon_name_author list if this is a contained ref
-            if ref_id_containing_id_hash[ref_id].nil? # this RefID does not have a ContainingRefID
+
+            # If family-group name, get RefID from family_taxon_name_authors hash for family_taxon_name_author; value in tblTaxa is first use of this family_group name
+            is_family_group = [22...44].include?(sf_rank_id.to_i)
+            if family_group_related_info[sf_taxon_name_id]  # has a row in hash
+              use_this_ref_id = family_group_related_info[sf_taxon_name_id][family_author_ref_id]
+              add_different_authors = true
+            elsif ref_id_containing_id_hash[ref_id].nil? # this RefID does not have a ContainingRefID
               # containing_ref_id = '0'
               use_this_ref_id = ref_id
               add_different_authors = false

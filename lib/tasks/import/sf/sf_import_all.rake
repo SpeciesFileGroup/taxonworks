@@ -28,10 +28,10 @@ namespace :tw do
           # 'start:map_pub_type',
           # # '3_after_pub_type': 0m27.396s on 30 Oct 2018
           # # 1, 2, 3: 18m34.415s on 15 July 2019
-          #
+          # #
           # 'start:create_sources',
-          # '4_after_create_sources': 41m36.692s on 31 Oct 2018
-          #
+          # # '4_after_create_sources': 41m36.692s on 31 Oct 2018
+          # #
           # 'start:create_misc_ref_info',
           # 'start:create_source_roles',
           # # '5_after_source_roles': 76m51.040s on 7 Nov 2018; 132m58.252s b1_ on 25 Nov 2018; 65m3.663s on 30 May 2019; 70m34.672s on 16 July 2019; 66m38.395s on 7 Aug 2019
@@ -108,7 +108,7 @@ namespace :tw do
           # # 15, 16, 17, 18, 19: 474m38.770s on 8-9 Aug 2019
           # #
           # 'citations:create_citations',
-          # # 20_after_taxon_citations: close to 10h (592m44.659s on 10 July 2015, 591m42.625s on 6 Sept 2018); 2023m53.988s (33.716666 hours) on 4 June 2019; 1982m48.521s on 20 July 2019
+          # # 20_after_taxon_citations: close to 10h (592m44.659s on 10 July 2015, 591m42.625s on 6 Sept 2018); 2023m53.988s (33.716666 hours) on 4 June 2019; 1982m48.521s on 20 July 2019; 2078m46.235s on 14 Sep 2019
           # #
           # 'citations:create_combinations',
           # # 21_after_create_combinations: 112m27.918s on 6 June 2019; 108m9.593s on 22 July 2019
@@ -116,10 +116,11 @@ namespace :tw do
           # 'citations:create_otu_cites',
           # # 25_after_otu_cites: 1m2.000s on 16 July 2018; 0m55.486s on 7 Sept 2018; 2m1.501s on 2 July 2019; 1m55.952s on 29 July 2019 (sans some attributes)
           # # 20, 21, 25: 2398m41.120s on 10 Aug 2019
+          # # 21, 25: 131m12.529s on 16 Sep 2019
           # #
           # #
           # 'last:filter_users'
-          # # '99_after_filter_users': 5m26.662s on 25 Feb 2019; 6m12.567s on 30 July 2019; 5m44.281s on 11 Aug 2019
+          # # '99_after_filter_users': 5m26.662s on 25 Feb 2019; 6m12.567s on 30 July 2019; 5m44.281s on 11 Aug 2019; 6m23.155s on 15 Sep 2019
           #
           # Total run time ~ 65 hours
 
