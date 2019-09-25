@@ -236,6 +236,18 @@ export default {
         that.$emit('shapeCreated', layer)
         that.$emit('geoJsonLayerCreated', geoJsonLayer)
         that.mapObject.removeLayer(layer)
+        that.drawnItems.removeLayer(layer)
+      })
+      this.mapObject.on('pm:remove', (e) => {
+        let geoArray = []
+        Object.keys(this.drawnItems.getLayers()[0]._layers).forEach((layerId) => {
+          if (Number(layerId) !== Number(e.layer._leaflet_id)) {
+            if (this.drawnItems.getLayers()[0]._layers[layerId]) {
+              geoArray.push(this.convertGeoJSONWithPointRadius(this.drawnItems.getLayers()[0]._layers[layerId]))
+            }
+          }
+        })
+        this.$emit('geojson', geoArray)
       })
     },
     removeLayers () {

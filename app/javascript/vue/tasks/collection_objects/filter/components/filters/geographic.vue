@@ -19,6 +19,7 @@
         height="300px"
         ref="leaflet"
         :geojson="geojson"
+        @geojson="geojson = $event"
         :draw-controls="true"
         :draw-polyline="false"
         :draw-marker="false"
@@ -52,11 +53,15 @@ export default {
       view: 'area',
       tabs: ['area', 'map'],
       geographic_area: undefined,
-      geojson: [],
-      shapes: {
-        type: "FeatureCollection",
-        features: []
-      }
+      geojson: []
+    }
+  },
+  watch: {
+    geojson: {
+      handler (newVal) {
+        this.$emit('geojson', JSON.stringify(newVal))
+      },
+      deep: true
     }
   },
   methods: {
