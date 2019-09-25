@@ -54,7 +54,9 @@ module Export::Coldp::Files::Taxon
   # "supporting the taxonomic concept" 
   # Potentially- all other Citations tied to Otu, what exactly supports a concept?
   def self.reference_id(otu)
-    otu.sources.pluck(:id).join(',')
+    i = otu.sources.pluck(:id)
+    return i.join(',') if i.any?
+    nil
     # TODO: add sources to reference list
   end
 

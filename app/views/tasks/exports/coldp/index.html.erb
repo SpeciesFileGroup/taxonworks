@@ -2,8 +2,8 @@
 
 <i> Will be removed for a proper hub </i>
 
-<% otu = Otu.find(45287) %>
-<% otus = Export::Coldp.otus( 45287 )  %> 
+<% otu = Otu.find(1637) %>
+<% otus = Export::Coldp.otus( 1637 )  %> 
 
 <h2> Taxon </h2>
 <pre>
@@ -18,4 +18,15 @@
 <h2> Synonym </h2>
 <pre>
 <%= Export::Coldp::Files::Synonym.generate(otus) %> 
+</pre>
+
+<h2> Vernacular Name </h2>
+<pre>
+<%= Export::Coldp::Files::VernacularName.generate(otus) %> 
+</pre>
+
+
+<h2> Description </h2>
+<pre>
+<%= Export::Coldp::Files::Description.generate(otus) %> 
 </pre>
