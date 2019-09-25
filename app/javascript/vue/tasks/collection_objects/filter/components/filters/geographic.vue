@@ -6,12 +6,34 @@
       v-model="view"
       :options="tabs"/>
     <div v-if="view === 'area'">
-      <autocomplete
-        url="/geographic_areas/autocomplete"
-        label="label"
-        placeholder="Search a geographic area"
-        param="term"
-        @getItem="geographic_area = $event"/>
+      <div class="field">
+        <autocomplete
+          url="/geographic_areas/autocomplete"
+          label="label"
+          :clear-after="true"
+          placeholder="Search a geographic area"
+          param="term"
+          @getItem="addGeoArea"/>
+      </div>
+      <label>
+        <input 
+          v-model="geographic.spatial_geographic_areas"
+          type="checkbox"/>
+        Treat geographic areas as spatial
+      </label>
+      <div class="field separate-top">
+        <ul class="no_bullets table-entrys-list">
+          <li
+            class="middle flex-separate list-complete-item"
+            v-for="(geoArea, index) in geographic_areas"
+            :key="geoArea.id">
+            <span v-html="geoArea.label"/>
+            <span
+              class="btn-delete button-circle"
+              @click="removeGeoArea(index)"/>
+          </li>
+        </ul>
+      </div>
     </div>
     <div v-else>
       <georeference-map
@@ -48,18 +70,34 @@ export default {
     Autocomplete,
     GeoreferenceMap
   },
+  props: {
+    value: {
+      type: Object,
+      required: true
+    }
+  },
+  computed: {
+    geographic: {
+      get () {
+        return this.value
+      },
+      set (value) {
+        this.$emit('input', value)
+      }
+    }
+  },
   data () {
     return {
       view: 'area',
       tabs: ['area', 'map'],
-      geographic_area: undefined,
+      geographic_areas: [],
       geojson: []
     }
   },
   watch: {
     geojson: {
       handler (newVal) {
-        this.$emit('geojson', JSON.stringify(newVal))
+        this.geographic.geojson = JSON.stringify(newVal)
       },
       deep: true
     }
@@ -67,6 +105,14 @@ export default {
   methods: {
     addShape (shape) {
       this.geojson.push(shape)
+    },
+    removeGeoArea (index) {
+      this.geographic.geographic_area_ids.splice(index, 1)
+      this.geographic_areas.splice(index, 1)
+    },
+    addGeoArea (item) {
+      this.geographic.geographic_area_ids.push(item.id)
+      this.geographic_areas.push(item)
     }
   }
 }

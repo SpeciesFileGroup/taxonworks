@@ -23,9 +23,11 @@
         @click="searchForCollectionObjects">
         Search
       </button>
-      <geographic-component/>
+      <geographic-component
+        v-model="params.geographic"/>
       <otu-component v-model="params.base.otu_id"/>
-      <date-component/>
+      <collecting-event
+        v-model="params.collectingEvents"/>
       <user-component/>
     </div>
   </div>
@@ -34,7 +36,7 @@
 <script>
 
 import OtuComponent from './filters/otu'
-import DateComponent from './filters/collectingEvent'
+import CollectingEvent from './filters/collectingEvent'
 import UserComponent from './filters/user'
 import GeographicComponent from './filters/geographic'
 
@@ -46,7 +48,7 @@ export default {
   components: {
     SpinnerComponent,
     OtuComponent,
-    DateComponent,
+    CollectingEvent,
     UserComponent,
     GeographicComponent
   },
@@ -69,8 +71,7 @@ export default {
     },
     searchForCollectionObjects () {
       this.searching = true
-      let params = Object.assign({}, this.filterEmptyParams(this.params.taxon), this.params.related, this.params.base)
-      params.updated_since = params.updated_since ? this.setDays(params.updated_since) : undefined
+      const params = Object.assign({}, this.params.base, this.params.geographic, this.params.collectingEvents, this.params.user)
 
       GetCollectionObjects(params).then(response => {
         this.result = response.body
@@ -86,19 +87,21 @@ export default {
     },
     initParams () {
       return {
-        taxon: {
-          name: undefined,
-          author: undefined,
-          year: undefined
-        },
         base: {
           otu_id: undefined
         },
         collectingEvents: {
           collecting_event_ids: [],
-          spatial: undefined,
           start_date: undefined,
           end_date: undefined
+        },
+        user: {
+          user_start_date: undefined,
+          user_end_date: undefined
+        },
+        geographic: {
+          spatial_geographic_areas: false,
+          geographic_area_ids: []
         }
       }
     },
@@ -118,6 +121,21 @@ export default {
     }
   }
 }
+
+/*
+      :in_labels,
+      :in_verbatim_locality,
+      :geo_json,
+      :wkt,
+      :radius,
+      :start_date,
+      :end_date,
+      :partial_overlap_dates,
+      keyword_ids: [],
+      spatial_geographic_area_ids: [],
+      collecting_event_ids: [],
+      geographic_area_ids: [],
+      */
 </script>
 <style scoped>
 >>> .btn-delete {

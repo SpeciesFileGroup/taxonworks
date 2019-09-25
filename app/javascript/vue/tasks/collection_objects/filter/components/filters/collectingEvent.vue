@@ -1,12 +1,6 @@
 <template>
   <div>
     <h2>Collecting Event</h2>
-    <label>
-      <input 
-        v-model="spatial"
-        type="checkbox"/>
-      Collecting events are spatial
-    </label>
     <h3>Date range</h3>
     <div class="field">
       <label>
@@ -22,7 +16,7 @@
         <br>
         <input 
           type="date"
-          v-model="search_start_date">
+          v-model="cEvent.start_date">
       </div>
 
       <div class="field">
@@ -30,7 +24,7 @@
         <br>
         <input 
           type="date"
-          v-model="search_end_date">
+          v-model="cEvent.end_date">
       </div>
     </div>
     <div class="field">
@@ -91,6 +85,22 @@ export default {
     SmartSelector,
     Autocomplete
   },
+  props: {
+    value: {
+      type: Object,
+      required: true
+    }
+  },
+  computed: {
+    cEvent: {
+      get () {
+        return this.value
+      },
+      set (value) {
+        this.$emit('input', value)
+      }
+    }
+  },
   data () {
     return {
       search_start_date: undefined,
@@ -99,8 +109,7 @@ export default {
       view: undefined,
       tabs: [],
       smartLists: {},
-      collectingEvents: [],
-      spatial: false
+      collectingEvents: []
     }
   },
   mounted () {
@@ -115,9 +124,11 @@ export default {
       if (ce.hasOwnProperty('label_html')) {
         ce.object_tag = ce.label_html
       }
+      this.cEvent.collecting_event_ids.push(ce.id)
       this.collectingEvents.push(ce)
     },
     removeCe (index) {
+      this.cEvent.collecting_event_ids.splice(index, 1)
       this.collectingEvents.splice(index, 1)
     }
   }
