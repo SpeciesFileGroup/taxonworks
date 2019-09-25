@@ -43,6 +43,8 @@ public/images/tmp
 public/system
 public/index.html
 public/packs-test
+public/packs
+public/assets
 
 spec
 .travis

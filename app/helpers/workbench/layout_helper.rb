@@ -10,8 +10,8 @@ module Workbench::LayoutHelper
     if Settings.sandbox_mode? 
       content_tag(:span) do
         [ 'SANDBOX - build',
-          (Settings.sandbox_commit_sha ?
-           link_to(Settings.sandbox_commit_sha[0..7], 'https://github.com/SpeciesFileGroup/taxonworks/tree/' + Settings.sandbox_commit_sha, class: [:regular_type]) :
+          (Settings.sandbox_short_commit_sha ?
+           link_to(Settings.sandbox_short_commit_sha, 'https://github.com/SpeciesFileGroup/taxonworks/tree/' + Settings.sandbox_commit_sha, class: [:regular_type]) :
            'unknown SHA'
           ),
           'on',  
