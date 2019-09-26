@@ -13,8 +13,9 @@
     <div class="field separate-top">
       <label>
         <input
+          v-model="otus.otu_descendants"
           type="checkbox">
-        Descendants (if available)
+        Include descendants (if available)
       </label>
     </div>
     <div class="field separate-top">
@@ -43,7 +44,7 @@ export default {
   },
   props: {
     value: {
-      type: Array,
+      type: Object,
       default: undefined
     }
   },
@@ -64,11 +65,11 @@ export default {
   },
   methods: {
     removeOtu (index) {
-      this.otus.splice(index, 1)
+      this.otus.otu_ids.splice(index, 1)
       this.otusStore.splice(index, 1)
     },
     addOtu (item) {
-      this.otus.push(item.id)
+      this.otus.otu_ids.push(item.id)
       this.otusStore.push(item)
     }
   }

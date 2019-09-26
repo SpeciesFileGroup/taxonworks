@@ -25,7 +25,7 @@
       </button>
       <geographic-component
         v-model="params.geographic"/>
-      <otu-component v-model="params.base.otu_ids"/>
+      <otu-component v-model="params.otus"/>
       <collecting-event
         v-model="params.collectingEvents"/>
       <user-component/>
@@ -71,7 +71,7 @@ export default {
     },
     searchForCollectionObjects () {
       this.searching = true
-      const params = Object.assign({}, this.params.base, this.params.geographic, this.params.collectingEvents, this.params.user)
+      const params = Object.assign({}, this.params.otus, this.params.geographic, this.params.collectingEvents, this.params.user)
 
       GetCollectionObjects(params).then(response => {
         this.result = response.body
@@ -87,8 +87,9 @@ export default {
     },
     initParams () {
       return {
-        base: {
-          otu_ids: []
+        otus: {
+          otu_ids: [],
+          otu_descendants: undefined
         },
         collectingEvents: {
           collecting_event_ids: [],
