@@ -223,6 +223,7 @@ export default {
       this.mapObject.pm.enableDraw('Line', { tooltips: this.tooltips })
       this.mapObject.pm.enableDraw('Rectangle', { tooltips: this.tooltips })
       this.mapObject.pm.enableDraw('Cut', { tooltips: this.tooltips })
+      this.mapObject.pm.toggleGlobalDragMode()
     },
     handleEvents () {
       const that = this
