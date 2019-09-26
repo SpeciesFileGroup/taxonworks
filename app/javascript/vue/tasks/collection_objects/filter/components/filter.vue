@@ -100,6 +100,7 @@ export default {
           user_end_date: undefined
         },
         geographic: {
+          geo_json: undefined,
           spatial_geographic_areas: false,
           geographic_area_ids: []
         }

@@ -97,7 +97,7 @@ export default {
   watch: {
     geojson: {
       handler (newVal) {
-        this.geographic.geojson = JSON.stringify({ type: "MultiPolygon", coordinates: newVal.map(feature => { return feature.geometry.coordinates }) })
+        this.geographic.geo_json = JSON.stringify({ type: "MultiPolygon", coordinates: newVal.map(feature => { return feature.geometry.coordinates }) })
       },
       deep: true
     }
