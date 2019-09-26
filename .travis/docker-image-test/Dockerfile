@@ -1,4 +1,4 @@
-FROM ruby:2.5.1-stretch
+FROM ruby:2.6.4-stretch
 
 RUN apt-get update 
 RUN apt-get install -y curl bzip2 unzip default-jre \
