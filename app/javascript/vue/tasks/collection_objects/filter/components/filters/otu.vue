@@ -63,6 +63,16 @@ export default {
       otusStore: []
     }
   },
+  watch: {
+    otus: {
+      handler (newVal) {
+        if (!newVal.otu_ids.length) {
+          this.otusStore = []
+        }
+      },
+      deep: true
+    }
+  },
   methods: {
     removeOtu (index) {
       this.otus.otu_ids.splice(index, 1)

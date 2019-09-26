@@ -106,6 +106,9 @@ export default {
         if (!newVal.geo_json) {
           this.geojson = []
         }
+        if (!newVal.geographic_area_ids.length) {
+          this.geographic_areas = []
+        }
       },
       deep: true
     }
