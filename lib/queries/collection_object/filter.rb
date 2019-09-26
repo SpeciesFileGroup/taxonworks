@@ -27,7 +27,7 @@ module Queries
       
       # !!!!! Merge with CE filter !!!!! 
 
-      attr_accessor :otu_id
+      attr_accessor :otu_ids
       attr_accessor :otu_descendants
 
       attr_accessor :shape
@@ -59,12 +59,10 @@ module Queries
 
         @collecting_event_query = Queries::CollectingEvent::Filter.new(params)
 
-       # @shape = params[:drawn_area_shape]
-        
-        @otu_id          = params[:otu_id]
-        @otu_descendants = params[:descendants]
+        @otu_ids = params[:otu_ids] || []
+        @otu_descendants = (params[:otu_descendants]&.downcase == 'true' ? true : false) if !params[:otu_descendants].nil?
 
-        @namespace_id          = params[:id_namespace]
+        @namespace_id  = params[:id_namespace]
         @query_range_start           = params[:id_range_start]
         @query_range_stop            = params[:id_range_stop]
         @query_date_type_select      = params[:date_type_select]
@@ -97,12 +95,11 @@ module Queries
 
       def collecting_event_merge_clauses
         c = []
-        
+       
         # Convert base and clauses to merge clauses
         collecting_event_query.base_merge_clauses.each do |i|
-          c.push ::CollectionObject.joins(:collecting_event).where( i ) 
+          c.push ::CollectionObject.joins(:collecting_event).merge( i ) 
         end
-
         c
       end
 
@@ -155,7 +152,6 @@ module Queries
       def all
         a = and_clauses
         b = merge_clauses
-
         # q = nil
         if a && b
           q = b.where(a).distinct
@@ -195,16 +191,19 @@ module Queries
 
       # @return [Scope]
       def otus_facet
+        return nil if otu_ids.empty?
+
         # Challenge: Refactor to use a join pattern instead of SELECT IN
         inner_scope = with_descendants? ? ::Otu.self_and_descendants_of(otu_id) : ::Otu.where(id: otu_id)
+        
         ::CollectionObject.joins(:otus).where(otus: {id: inner_scope})
 
-        return nil if otu_id.nil?
+
 
         ::CollectionObject.where(
           ::TaxonDetermination.where(
             ::TaxonDetermination.arel_table[:collection_object_id].eq(::CollectionObject.arel_table[:id]).and(
-              ::TaxonDetermination.arel_table[:otu_id].eq(otu_id))
+              ::TaxonDetermination.arel_table[:otu_id].eq_any(otu_ids))
           ).arel.exists
         )
 
@@ -224,12 +223,6 @@ module Queries
           .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
       end
 
-   # TODO: Potential deprecate of gather_map_data ...
-   #  # @return [Scope]
-   #  def shape_scope
-   #    ::GeographicItem.gather_map_data(shape, 'CollectionObject', Current.project_id)       # !!! ARG NO !!!
-   #  end
-
       # TODO: remove to IDentifiers concern
       # @return [Scope]
       def identifier_scope
@@ -245,7 +238,7 @@ module Queries
         @user_date_start, @user_date_end = Utilities::Dates.normalize_and_order_dates(
           query_user_date_range_start,
           query_user_date_range_end)
-        
+
         @user_date_start += ' 00:00:00' # adjust dates to beginning
         @user_date_end   += ' 23:59:59' # and end of date days
 

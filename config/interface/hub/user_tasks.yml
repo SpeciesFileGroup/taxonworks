@@ -438,6 +438,6 @@ index_filter2_task:
   name: 'Collection object filter [refactor]'
   related:
   categories:
-  - collection_object
+    - collection_object
   status: prototype
   description: 'Filter collection objects, download or visualize results.'

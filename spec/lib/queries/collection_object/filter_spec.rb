@@ -3,7 +3,6 @@ require 'support/shared_contexts/shared_geo'
 
 describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collection_object, :collecting_event, :shared_geo] do
 
-
   context 'simple' do
     let(:params) { {} }
     let(:query) { Queries::CollectionObject::Filter.new({}) }
@@ -54,7 +53,8 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
     # Collecting event
     # Only a couple of each are included to test the merge, the rest are in 
-
+    #
+    # And clauses
     specify '#geographic_area_ids' do
       ce1.update(geographic_area: FactoryBot.create(:valid_geographic_area))
       query.collecting_event_query.geographic_area_ids = [ce1.geographic_area.id]
@@ -70,6 +70,27 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       query.collecting_event_query.start_date = '1999-1-1'
       query.collecting_event_query.end_date = '2001-1-1'
       expect(query.all.map(&:id)).to contain_exactly(co2.id)
+    end
+
+    # Merge clauses
+    context 'merge' do
+      let(:factory_point) { RSPEC_GEO_FACTORY.point('10.0', '10.0') }
+      let(:geographic_item) { GeographicItem::Point.create!( point: factory_point ) }
+
+      let!(:point_georeference) {
+        Georeference::VerbatimData.create!(
+          collecting_event: ce1,
+          geographic_item: geographic_item,
+        )
+      }
+
+      let(:wkt_point) { 'POINT (10.0 10.0)'}
+
+      specify '#wkt (POINT)' do
+        query.collecting_event_query.wkt = wkt_point
+        expect(query.all.map(&:id)).to contain_exactly(co1.id)
+      end 
+
     end
 
   end

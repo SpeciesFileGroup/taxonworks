@@ -277,6 +277,8 @@ class CollectionObjectsController < ApplicationController
       :start_date,
       :end_date,
       :partial_overlap_dates,
+      :otu_descendants,
+      otu_ids: [],
       keyword_ids: [],
       spatial_geographic_area_ids: [],
       collecting_event_ids: [],

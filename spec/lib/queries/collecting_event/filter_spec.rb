@@ -101,8 +101,9 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     let(:point_lat) { '10.0' }
     let(:point_long) { '10.0' }
 
-    let(:factory_point) { RSPEC_GEO_FACTORY.point(point_lat, point_long) }
-    let(:factory_polygon) { RSPEC_GEO_FACTORY.polygon(point_lat, point_long) }
+   
+   # let(:factory_polygon) { RSPEC_GEO_FACTORY.polygon(point_lat, point_long) }
+   let(:factory_point) { RSPEC_GEO_FACTORY.point(point_lat, point_long) }
     let(:geographic_item) { GeographicItem::Point.create!( point: factory_point ) }
 
     let!(:point_georeference) {
