@@ -26,7 +26,7 @@ jobs:
           - $TRAVIS_BUILD_DIR/tmp/cache/webpacker
           - /home/travis/.rvm/
       rvm:
-        - 2.5.1
+        - 2.5.5
       bundler_args: --without development production
       addons:
         postgresql: "10"
@@ -53,7 +53,7 @@ jobs:
         - export BUNDLER_VERSION=$(tail -n1 Gemfile.lock | tr -d '[:space:]')
       install:
         - npm install
-        - gem install bundler --no-ri --no-rdoc -v $BUNDLER_VERSION
+        - gem install bundler -v $BUNDLER_VERSION
         - bundle install --without development production
       before_script:
         - echo ===[TEST_WORKER=$TEST_WORKER before_script $(date -u +%Y%m%d-%H%M%S)]===
