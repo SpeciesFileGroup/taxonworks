@@ -100,6 +100,14 @@ export default {
         this.geographic.geo_json = JSON.stringify({ type: "MultiPolygon", coordinates: newVal.map(feature => { return feature.geometry.coordinates }) })
       },
       deep: true
+    },
+    geographic: {
+      handler (newVal) {
+        if (!newVal.geo_json) {
+          this.geojson = []
+        }
+      },
+      deep: true
     }
   },
   methods: {
