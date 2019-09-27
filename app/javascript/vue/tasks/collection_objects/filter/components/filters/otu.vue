@@ -108,7 +108,7 @@ export default {
       taxon: undefined,
       currentDeterminationsOptions: [
         {
-          label: 'Both',
+          label: 'Current and historical',
           value: undefined,
         },
         {

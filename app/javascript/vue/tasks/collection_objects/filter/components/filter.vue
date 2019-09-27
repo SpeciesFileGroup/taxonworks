@@ -112,7 +112,8 @@ export default {
         collectingEvents: {
           collecting_event_ids: [],
           start_date: undefined,
-          end_date: undefined
+          end_date: undefined,
+          partial_overlap_dates: undefined
         },
         user: {
           user_id: undefined,
@@ -143,18 +144,6 @@ export default {
     }
   }
 }
-
-/*
-      :in_labels,
-      :in_verbatim_locality,
-      :geo_json,
-      :wkt,
-      :radius,
-      :start_date,
-      :end_date,
-      :partial_overlap_dates,
-      keyword_ids: [],
-      */
 </script>
 <style scoped>
 >>> .btn-delete {

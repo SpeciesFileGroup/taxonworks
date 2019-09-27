@@ -2,14 +2,6 @@
   <div>
     <h2>Collecting Event</h2>
     <h3>Date range</h3>
-    <div class="field">
-      <label>
-        <input
-          type="checkbox"
-          v-model="partial">
-        Partial overlap search
-      </label>
-    </div>
     <div class="horizontal-left-content">
       <div class="field separate-right">
         <label>Start date</label>
@@ -26,6 +18,14 @@
           type="date"
           v-model="cEvent.end_date">
       </div>
+    </div>
+    <div class="field">
+      <label>
+        <input
+          type="checkbox"
+          v-model="cEvent.partial_overlap_dates">
+        Allow partial overlaps
+      </label>
     </div>
     <div class="field">
       <h3>Select collecting events</h3>
@@ -103,8 +103,6 @@ export default {
   },
   data () {
     return {
-      search_start_date: undefined,
-      search_end_date: undefined,
       partial: false,
       view: undefined,
       tabs: [],
