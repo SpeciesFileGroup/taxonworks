@@ -160,11 +160,11 @@ export default {
     },
     setTaxon(taxon) {
       this.taxon = taxon
-      this.ancestor_id = taxon.id
+      this.determination.ancestor_id = taxon.id
     },
     removeTaxon() {
       this.taxon = undefined
-      this.ancestor_id = undefined
+      this.determination.ancestor_id = undefined
     }
   }
 }
