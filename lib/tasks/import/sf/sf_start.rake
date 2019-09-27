@@ -129,6 +129,40 @@ namespace :tw do
           #######################################################################################
         end
 
+
+        desc 'time rake tw:project_import:sf_import:start:create_sf_family_group_related_info user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define create_sf_family_taxon_name_authors: [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Running create_sf_family_group_related_info...'
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
+          excluded_taxa = import.get('ExcludedTaxa')
+
+          family_group_related_info = {} # key = SF.TaxonNameID, value = { FileID, RankID, Name (family group), FirstUseRefID, TypeGenusID, FirstFamGrpNameID, FamilyAuthorRefID }
+
+          path = @args[:data_directory] + 'sfFamilyGroupRelatedInfo.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          file.each_with_index do |row, i|
+            sf_file_id = row['FileID']
+            next if skipped_file_ids.include? row['FileID'].to_i
+            sf_taxon_name_id = row['TaxonNameID']
+            next if excluded_taxa.include? sf_taxon_name_id
+
+            logger.info "working with TaxonNameID #{sf_taxon_name_id}"
+
+            family_group_related_info[sf_taxon_name_id] = {sf_file_id: sf_file_id, rank_id: row['RankID'], family_name: row['Name'],
+                                                           first_use_ref_id: row['FirstUseRefID'], type_genus_id: row['TypeGenusID'],
+                                                           first_fam_grp_name_id: row['FirstFamGrpNameID'], family_author_ref_id: row['FamilyAuthorRefID']}
+          end
+
+          import.set('SFFamilyGroupRelatedInfo', family_group_related_info)
+
+          puts 'SFFamilyGroupRelatedInfo'
+          ap family_group_related_info
+        end
+
         desc 'time rake tw:project_import:sf_import:start:create_misc_ref_info user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         # via tblRefs
         LoggedTask.define create_misc_ref_info: [:data_directory, :environment, :user_id] do |logger|
