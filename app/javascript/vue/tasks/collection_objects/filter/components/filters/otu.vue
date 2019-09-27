@@ -1,6 +1,42 @@
 <template>
   <div>
     <h2>Determinations</h2>
+    <h3>Taxon name</h3>
+    <div>
+      <autocomplete
+        url="/taxon_names/autocomplete"
+        param="term"
+        label="label_html"
+        :clear-after="true"
+        placeholder="Search a taxon name"
+        @getItem="setTaxon"
+      />
+      <div 
+        v-if="taxon"
+        class="field middle">
+        <span
+          v-html="taxon.label_html"/>
+        <span
+          class="separate-left button button-circle btn-undo button-default"
+          @click="removeTaxon"/>
+      </div>
+      <div class="field separate-top">
+        <ul class="no_bullets">
+          <li 
+            v-for="item in validityOptions"
+            :key="item.value">
+            <label>
+              <input 
+                type="radio"
+                :value="item.value"
+                name="taxon-validity"
+                v-model="determination.validity">
+              {{ item.label }}
+            </label>
+          </li>
+        </ul>
+      </div>      
+    </div>
     <h3>Otu</h3>
     <autocomplete
       url="/otus/autocomplete"
@@ -11,12 +47,20 @@
       display="label"
       @getItem="addOtu" />
     <div class="field separate-top">
-      <label>
-        <input
-          v-model="otus.otu_descendants"
-          type="checkbox">
-        Include descendants (if available)
-      </label>
+      <ul class="no_bullets">
+        <li 
+          v-for="item in currentDeterminationsOptions"
+          :key="item.value">
+          <label>
+            <input 
+              type="radio"
+              :value="item.value"
+              name="current-determination"
+              v-model="determination.current_determinations">
+            {{ item.label }}
+          </label>
+        </li>
+      </ul>
     </div>
     <div class="field separate-top">
       <ul class="no_bullets table-entrys-list">
@@ -49,7 +93,7 @@ export default {
     }
   },
   computed: {
-    otus: {
+    determination: {
       get () {
         return this.value
       },
@@ -60,14 +104,46 @@ export default {
   },
   data () {
     return {
-      otusStore: []
+      otusStore: [],
+      taxon: undefined,
+      currentDeterminationsOptions: [
+        {
+          label: 'Both',
+          value: undefined,
+        },
+        {
+          label: 'Current only',
+          value: true
+        },
+        {
+          label: 'Historical only',
+          value: false
+        }
+      ],
+      validityOptions: [
+        {
+          label: 'Both valid',
+          value: undefined
+        },
+        {
+          label: 'Valid only',
+          value: true
+        },
+        {
+          label: 'Invalid only',
+          value: false
+        }
+      ]
     }
   },
   watch: {
-    otus: {
+    determination: {
       handler (newVal) {
         if (!newVal.otu_ids.length) {
           this.otusStore = []
+        }
+        if(!newVal.ancestor_id) {
+          this.taxon = undefined
         }
       },
       deep: true
@@ -75,12 +151,20 @@ export default {
   },
   methods: {
     removeOtu (index) {
-      this.otus.otu_ids.splice(index, 1)
+      this.determination.otu_ids.splice(index, 1)
       this.otusStore.splice(index, 1)
     },
     addOtu (item) {
-      this.otus.otu_ids.push(item.id)
+      this.determination.otu_ids.push(item.id)
       this.otusStore.push(item)
+    },
+    setTaxon(taxon) {
+      this.taxon = taxon
+      this.ancestor_id = taxon.id
+    },
+    removeTaxon() {
+      this.taxon = undefined
+      this.ancestor_id = undefined
     }
   }
 }

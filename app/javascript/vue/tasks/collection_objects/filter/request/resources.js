@@ -12,8 +12,13 @@ const GetCollectingEventSmartSelector = () => {
   return ajaxCall('get', '/collecting_events/select_options')
 }
 
+const GetKeywordSmartSelector = () => {
+  return ajaxCall('get', '/keywords/select_options?klass=CollectionObject')
+}
+
 export {
   GetCollectionObjects,
   GetUsers,
-  GetCollectingEventSmartSelector
+  GetCollectingEventSmartSelector,
+  GetKeywordSmartSelector
 }

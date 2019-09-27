@@ -25,10 +25,11 @@
       </button>
       <geographic-component
         v-model="params.geographic"/>
-      <otu-component v-model="params.otus"/>
+      <otu-component v-model="params.determination"/>
       <collecting-event
         v-model="params.collectingEvents"/>
       <user-component/>
+      <keywords-component v-model="params.keywords.keywords_id" />
     </div>
   </div>
 </template>
@@ -39,6 +40,7 @@ import OtuComponent from './filters/otu'
 import CollectingEvent from './filters/collectingEvent'
 import UserComponent from './filters/user'
 import GeographicComponent from './filters/geographic'
+import KeywordsComponent from './filters/tags'
 
 import { GetCollectionObjects } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
@@ -50,7 +52,8 @@ export default {
     OtuComponent,
     CollectingEvent,
     UserComponent,
-    GeographicComponent
+    GeographicComponent,
+    KeywordsComponent
   },
   computed: {
     getMacKey () {
@@ -71,7 +74,7 @@ export default {
     },
     searchForCollectionObjects () {
       this.searching = true
-      const params = Object.assign({}, this.params.otus, this.params.geographic, this.params.collectingEvents, this.params.user)
+      const params = Object.assign({}, this.params.determination, this.params.keywords, this.params.geographic, this.params.collectingEvents, this.params.user)
 
       GetCollectionObjects(params).then(response => {
         this.result = response.body
@@ -87,9 +90,14 @@ export default {
     },
     initParams () {
       return {
-        otus: {
+        keywords: {
+          keywords_id: []
+        },
+        determination: {
           otu_ids: [],
-          otu_descendants: undefined
+          current_determinations: undefined,
+          ancestor_id: undefined,
+          validity: undefined
         },
         collectingEvents: {
           collecting_event_ids: [],
