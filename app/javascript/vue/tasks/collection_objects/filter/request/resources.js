@@ -16,9 +16,14 @@ const GetKeywordSmartSelector = () => {
   return ajaxCall('get', '/keywords/select_options?klass=CollectionObject')
 }
 
+const GetNamespacesSmartSelector = () => {
+  return ajaxCall('get', '/namespaces/select_options')
+}
+
 export {
   GetCollectionObjects,
   GetUsers,
   GetCollectingEventSmartSelector,
-  GetKeywordSmartSelector
+  GetKeywordSmartSelector,
+  GetNamespacesSmartSelector
 }

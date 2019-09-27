@@ -30,6 +30,7 @@
         v-model="params.collectingEvents"/>
       <user-component v-model="params.user"/>
       <keywords-component v-model="params.keywords.keywords_id" />
+      <identifier-component v-model="params.identifier"/>
     </div>
   </div>
 </template>
@@ -41,6 +42,7 @@ import CollectingEvent from './filters/collectingEvent'
 import UserComponent from './filters/user'
 import GeographicComponent from './filters/geographic'
 import KeywordsComponent from './filters/tags'
+import IdentifierComponent from './filters/identifier'
 
 import { GetCollectionObjects } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
@@ -53,7 +55,8 @@ export default {
     CollectingEvent,
     UserComponent,
     GeographicComponent,
-    KeywordsComponent
+    KeywordsComponent,
+    IdentifierComponent
   },
   computed: {
     getMacKey () {
@@ -74,7 +77,7 @@ export default {
     },
     searchForCollectionObjects () {
       this.searching = true
-      const params = Object.assign({}, this.params.determination, this.params.keywords, this.params.geographic, this.params.collectingEvents, this.filterEmptyParams(this.params.user))
+      const params = Object.assign({}, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.collectingEvents, this.filterEmptyParams(this.params.user))
 
       GetCollectionObjects(params).then(response => {
         this.result = response.body
@@ -90,6 +93,13 @@ export default {
     },
     initParams () {
       return {
+        identifier: {
+          identifier: undefined,
+          identifier_exact: undefined,
+          identifier_start: undefined,
+          identifier_end: undefined,
+          namespace_id: undefined
+        },
         keywords: {
           keywords_id: []
         },
