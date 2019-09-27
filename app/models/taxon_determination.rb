@@ -13,13 +13,9 @@
 #
 # @!attribute position
 #   @return [Integer]
-#     for acts_as_list, !! the determinations with the smallest position is the current/preferred determination,
-#     i.e. the one that you want to be seen for the collection object, it is NOT necessarily the most recent
-#     determination made
-#
-# @!attribute project_id
-#   @return [Integer]
-#   the project ID
+#     a cached, field managed by acts_as_list
+#     the deterimination of a specimen with position '1' is the *accepted* determination, it NOT
+#     necessarily the most recent determination made
 #
 # @!attribute year_made
 #   @return [Integer]
@@ -33,8 +29,12 @@
 #   @return [Integer]
 #   the day of the month the determination was made
 #
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
+#
 class TaxonDetermination < ApplicationRecord
-  acts_as_list scope: [:biological_collection_object_id]
+  acts_as_list scope: [:biological_collection_object_id, :project_id], add_new_at: :top
 
   include Housekeeping
   include Shared::Citations
@@ -66,14 +66,12 @@ class TaxonDetermination < ApplicationRecord
   validates :month_made, date_month: true
   validates :day_made, date_day: {year_sym: :year_made, month_sym: :month_made}, unless: -> {year_made.nil? || month_made.nil?}
 
-  before_save :set_made_fields_if_not_provided
-  after_create :sort_to_top
+  validates_uniqueness_of :position, scope: [:biological_collection_object_id, :project_id]
 
-  # @return [Object]
-  def sort_to_top
-    reload
-    self.move_to_top
-  end
+  before_save :set_made_fields_if_not_provided
+
+  scope :current, -> { where(position: 1)}
+  scope :historical, -> { where.not(position: 1)}
 
   # @return [String]
   def date

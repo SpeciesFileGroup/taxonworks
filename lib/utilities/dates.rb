@@ -1,4 +1,9 @@
+# TODO: Extract to gem
+#  - remove reference to `blank?` (no Rails methods)
+#  - use && not `and` ?
 module Utilities::Dates
+
+  EARLIEST_DATE = '1700/01/10'.freeze # Reconcile with in-app 
 
   LONG_MONTHS = %w{january february march april may june july august september october november december}.freeze
   SHORT_MONTHS = %w{jan feb mar apr may jun jul aug sep oct nov dec}.freeze
@@ -247,25 +252,25 @@ module Utilities::Dates
     Time.new(year, month, day)
   end
 
-  # @param [String] start_date in the form of 'yyyy/mm/dd'
-  # @param [String] end_date in the form of 'yyyy/mm/dd'
-  # @return [String, String] start_date, end_date in proper order
+  # @param [String] start_date in the form of 'yyyy*mm*dd'
+  # @param [String] end_date in the form of 'yyyy*mm*dd'
+  # @return [String, String] start_date, end_date
+  #   - orders dates from start to end (if they were passed incorrectly)
+  #   - creates a one-day range (duplicates the only date) if only one date is provided
+  #   - creates a date range from EARLIEST_DATE to Today if none provided
   def self.normalize_and_order_dates(start_date, end_date)
-    if start_date.blank? and end_date.blank? # set entire range
-      start_date =EARLIEST_DATE  # 1700-01-01
-      end_date = Time.zone.today.strftime('%Y-%m-%d')
+    if start_date.blank? && end_date.blank? # set entire range
+      [ EARLIEST_DATE, today] # 1700-01-01 - Today
     else
-      if end_date.blank? # set a one-day range
-        end_date = start_date
-      end
-      if start_date.blank? # set a one-day range
-        start_date = end_date
-      end
+      end_date = start_date if end_date.blank?
+      start_date = end_date if start_date.blank?
+      order_dates(start_date, end_date)
     end
+  end
 
-    start_date, end_date = order_dates(start_date, end_date)
-
-    return start_date, end_date
+  # @return [String]
+  def self.today
+    Time.zone.today.strftime('%Y-%m-%d') 
   end
 
   # @param [Array] label of strings
@@ -280,8 +285,8 @@ module Utilities::Dates
     label[left..right]
   end
 
-  # @param [String] start_date in the form of 'yyyy/mm/dd'
-  # @param [String] end_date in the form of 'yyyy/mm/dd'
+  # @param [String] start_date in the form of 'yyyy-mm-dd'
+  # @param [String] end_date in the form of 'yyyy-mm-dd'
   # @return [String, String] start_date, end_date in proper order
   def self.order_dates(start_date, end_date)
     if Date.parse(start_date) > Date.parse(end_date) # need to swap s and e?

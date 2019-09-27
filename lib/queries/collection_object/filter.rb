@@ -7,70 +7,71 @@ module Queries
     # - remove all prepended 'query'
     # - add tests(?) for unchecked params
     # - syncronize with GIS/GEO
-  
+
     # Use DateConcern
 
     class Filter
 
       include Queries::Concerns::Tags
+      include Queries::Concerns::Users
+      include Queries::Concerns::Identifiers
 
+      # TODO: look for name collisions with CE filter
+
+      # @return [Boolen, nil]
+      #  true - order by updated_at
+      #  false, nil - do not apply ordering 
       attr_accessor :recent 
 
       # [Array]
+      #   only return objects with this collecting event ID
       attr_accessor :collecting_event_ids
 
+      # All params managed by CollectingEvent filter are available here as well
       attr_accessor :collecting_event_query
 
-      # All params managed by CollectingEvent filter are available here as well
-     
-      # TODO: look for name collisions
-      
-      # !!!!! Merge with CE filter !!!!! 
-
+      # @return [Array, nil]
+      #    a list of Otu ids, matches one ot one only
       attr_accessor :otu_ids
-      attr_accessor :otu_descendants
 
-      attr_accessor :shape
+      # @return [Protonym.id, nil]
+      #   return all collection objects determined as an Otu that is self or descendant linked
+      #   to this TaxonName
+      attr_accessor :ancestor_id
 
-      # Identifier 
-      attr_accessor :namespace_id
-      attr_accessor :query_range_start
-      attr_accessor :query_range_stop
-   
-      attr_accessor :query_user
-      attr_accessor :query_date_type_select
-      attr_accessor :query_user_date_range_end
-      attr_accessor :query_user_date_range_start
- 
-      attr_accessor :query_params
-      
-      # Resolved/processed results
-      attr_accessor :user_date_start, :user_date_end
+      # @return [Boolean, nil]
+      #   nil =  Match against all ancestors, valid or invalid  
+      #   true = Match against only valid ancestors
+      #   false = Match against only invalid ancestors 
+      attr_accessor :validity
 
-      # @param [Hash] args
+      # @return [Boolean, nil]
+      #   nil = TaxonDeterminations match regardless of current or historical
+      #   true = TaxonDetermination must be .current
+      #   false = TaxonDetermination must be .historical
+      attr_accessor :current_determinations 
+
+      # @param [Hash] args are permitted params
       def initialize(params)
-        @query_params = params
-        params.reject! { |_k, v| v.blank? } # dump all entries with empty values
+        params.reject!{ |_k, v| v.blank? } # dump all entries with empty values
 
         @recent = params[:recent].blank? ? false : true
-        @keyword_ids = params[:keyword_ids].blank? ? [] : params[:keyword_ids]
 
         @collecting_event_ids = params[:collecting_event_id].blank? ? [] : params[:collecting_event_id]
-
-        @collecting_event_query = Queries::CollectingEvent::Filter.new(params)
 
         @otu_ids = params[:otu_ids] || []
         @otu_descendants = (params[:otu_descendants]&.downcase == 'true' ? true : false) if !params[:otu_descendants].nil?
 
-        @namespace_id  = params[:id_namespace]
-        @query_range_start           = params[:id_range_start]
-        @query_range_stop            = params[:id_range_stop]
-        @query_date_type_select      = params[:date_type_select]
+        @ancestor_id = params[:ancestor_id]
 
-        @query_user                  = params[:user]
-        @query_user_date_range_start = params[:user_date_range_start]
-        @query_user_date_range_end   = params[:user_date_range_end]
+        @current_determinations = (params[:current_determinations]&.downcase == 'true' ? true : false) if !params[:current_determinations].nil?
+        @validity = (params[:validity]&.downcase == 'true' ? true : false) if !params[:validity].nil?
 
+        @collecting_event_query = Queries::CollectingEvent::Filter.new(params)
+
+        set_identifier(params)
+        set_tags_params(params)
+        set_user_dates(params)
       end
 
       # @return [Arel::Table]
@@ -78,13 +79,23 @@ module Queries
         ::CollectionObject.arel_table
       end
 
+      def base_query
+        ::CollectionObject.select('*')
+      end
+
       # @return [Arel::Table]
       def collecting_event_table 
         ::CollectingEvent.arel_table
       end
 
-      def tag_table
-        ::Tag.arel_table
+      # @return [Arel::Table]
+      def otu_table 
+        ::Otu.arel_table
+      end
+
+      # @return [Arel::Table]
+      def taxon_determination_table 
+        ::TaxonDetermination.arel_table
       end
 
       # @return Scope
@@ -95,7 +106,7 @@ module Queries
 
       def collecting_event_merge_clauses
         c = []
-       
+
         # Convert base and clauses to merge clauses
         collecting_event_query.base_merge_clauses.each do |i|
           c.push ::CollectionObject.joins(:collecting_event).merge( i ) 
@@ -117,7 +128,9 @@ module Queries
       def and_clauses
         clauses = [
           collecting_event_ids_facet
-        ].compact
+        ]
+
+        clauses.compact!
 
         return nil if clauses.empty?
 
@@ -133,12 +146,15 @@ module Queries
         clauses = collecting_event_merge_clauses + collecting_event_and_clauses
         # from the simple filter
         clauses += [
-          matching_keyword_ids,
-          otus_facet
+          otus_facet,
+          ancestors_facet,
+          matching_keyword_ids, # See Queries::Concerns::Tags
+          created_modified_facet, # See Queries::Concerns::Users
+          identifier_between_facet,
+          identifier_facet
         ]
-        # from the complex query
-        clauses = applied_scopes(clauses).compact
 
+        clauses.compact!
         return nil if clauses.empty?
 
         a = clauses.shift
@@ -158,7 +174,7 @@ module Queries
         elsif a
           q = ::CollectionObject.where(a).distinct
         elsif b
-          q = b
+          q = b.distinct
         else
           q = ::CollectionObject.all
         end
@@ -167,47 +183,54 @@ module Queries
         q
       end
 
-      # @return [Boolean]
-      def otu_set?
-        otu_id.present?
-      end
-
-      # @return [Boolean]
-      def with_descendants?
-        otu_descendants == 'on'
-      end
-
-      # @return [Boolean]
-      def identifier_set?
-        query_range_start.present? || query_range_stop.present?
-      end
-
-      # @return [Boolean]
-      def user_date_set?
-        query_user.present? or (query_user_date_range_start.present? or query_user_date_range_end.present?)
-      end
-
-      # All scopes might end up in CollectionObject directly
-
       # @return [Scope]
       def otus_facet
         return nil if otu_ids.empty?
 
-        # Challenge: Refactor to use a join pattern instead of SELECT IN
-        inner_scope = with_descendants? ? ::Otu.self_and_descendants_of(otu_id) : ::Otu.where(id: otu_id)
-        
-        ::CollectionObject.joins(:otus).where(otus: {id: inner_scope})
+        w = taxon_determination_table[:biological_collection_object_id].eq(table[:id])
+          .and( taxon_determination_table[:otu_id].eq_any(otu_ids) )
 
-
+        if current_determinations 
+          w = w.and(taxon_determination_table[:position].eq(1))
+        elsif current_determinations == false
+          w = w.and(taxon_determination_table[:position].gt(1))
+        end
 
         ::CollectionObject.where(
-          ::TaxonDetermination.where(
-            ::TaxonDetermination.arel_table[:collection_object_id].eq(::CollectionObject.arel_table[:id]).and(
-              ::TaxonDetermination.arel_table[:otu_id].eq_any(otu_ids))
-          ).arel.exists
+          ::TaxonDetermination.where(w).arel.exists
+        )
+      end
+
+      def ancestors_facet
+        return nil if ancestor_id.nil?
+        h = Arel::Table.new(:taxon_name_hierarchies)
+        t = ::TaxonName.arel_table
+
+        q = table.join(taxon_determination_table, Arel::Nodes::InnerJoin).on(
+          table[:id].eq(taxon_determination_table[:biological_collection_object_id])
+        ).join(otu_table, Arel::Nodes::InnerJoin).on(
+          taxon_determination_table[:otu_id].eq(otu_table[:id])
+        ).join(t, Arel::Nodes::InnerJoin).on(
+          otu_table[:taxon_name_id].eq(t[:id])
+        ).join(h, Arel::Nodes::InnerJoin).on(
+          t[:id].eq(h[:descendant_id])
         )
 
+        z = h[:ancestor_id].eq(ancestor_id)
 
+        if validity == true
+          z = z.and(t[:cached_valid_taxon_name_id].eq(t[:id]))
+        elsif validity == false
+          z = z.and(t[:cached_valid_taxon_name_id].not_eq(t[:id]))
+        end
+
+        if current_determinations == true
+          z = z.and(taxon_determination_table[:position].eq(1))
+        elsif current_determinations == false
+          z = z.and(taxon_determination_table[:position].gt(1))
+        end
+
+        ::CollectionObject.joins(q.join_sources).where(z)
       end
 
       # @return [Scope]
@@ -220,68 +243,11 @@ module Queries
             .default_geographic_item.id)
         end
         ::CollectionObject.joins(:geographic_items)
-          .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
+          .where(::GeographicItem.contained_by_where_sql(target_geographic_item_ids))
       end
 
-      # TODO: remove to IDentifiers concern
-      # @return [Scope]
-      def identifier_scope
-        ns = namespace_id.present? ? ::Namespace.where(short_name: namespace_id).first : nil
-        ::CollectionObject.with_identifier_type_and_namespace('Identifier::Local::CatalogNumber', ns, false)
-          .where('CAST(identifiers.identifier AS integer) between ? and ?',
-                 query_range_start.to_i, query_range_stop.to_i)
-      end
 
-      # noinspection RubyResolve
-      # @return [Scope]
-      def user_date_scope
-        @user_date_start, @user_date_end = Utilities::Dates.normalize_and_order_dates(
-          query_user_date_range_start,
-          query_user_date_range_end)
-
-        @user_date_start += ' 00:00:00' # adjust dates to beginning
-        @user_date_end   += ' 23:59:59' # and end of date days
-
-        scope = case query_date_type_select
-                when 'created_at', nil
-                  ::CollectionObject.created_in_date_range(@user_date_start, @user_date_end)
-                when 'updated_at'
-                  ::CollectionObject.updated_in_date_range(@user_date_start, @user_date_end)
-                else
-                  ::CollectionObject.all
-                end
-
-        unless query_user == 'All users' || query_user == 0
-          user_id = ::User.get_user_id(query_user)
-          scope = case query_date_type_select
-                  when 'created_at'
-                    # noinspection RubyResolve
-                    scope.created_by_user(user_id)
-                  when 'updated_at'
-                    scope.updated_by_user(user_id)
-                  end
-        end
-        scope
-      end
-
-      # @param [Array] scopes
-      # @return [Array] of symbols refering to methods
-      #   determine which scopes to apply based on parameters provided
-      def applied_scopes(scopes = [])
-        # scopes = []
-#        scopes.push otu_scope if otu_set?
-     #   scopes.push geographic_area_scope if area_set?
-     #   scopes.push shape_scope if shape_set?
-     #   scopes.push date_scope if date_set?
-        scopes.push identifier_scope if identifier_set?
-        scopes.push user_date_scope if user_date_set?
-        scopes
-      end
-
-      # @return [Scope]
-      def result
-        return all
-      end
     end
+
   end
 end

@@ -266,7 +266,7 @@ class CollectionObjectsController < ApplicationController
   end
 
   def filter_params
-    params.permit(
+    a = params.permit(
       :recent,
       Queries::CollectingEvent::Filter::ATTRIBUTES,
       :in_labels,
@@ -277,18 +277,30 @@ class CollectionObjectsController < ApplicationController
       :start_date,
       :end_date,
       :partial_overlap_dates,
-      :otu_descendants,
+      :ancestor_id, 
+      :current_determinations,
+      :validity,
+      :user_target,
+      :user_start_date,
+      :user_end_date,
+      :identifier,
+      :identifier_start,
+      :identifier_end,
+      :identifier_exact,
       otu_ids: [],
       keyword_ids: [],
       spatial_geographic_area_ids: [],
       collecting_event_ids: [],
       geographic_area_ids: [],
-   #   keyword_ids: [],
-   #  collecting_event: {
-   #   :recent,
-   #   keyword_ids: []
-   # }
+      #  keyword_ids: [],
+      #  collecting_event: {
+      #   :recent,
+      #   keyword_ids: []
+      # }
     )
+    
+    a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
+    a
   end 
 
 end

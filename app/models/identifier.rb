@@ -62,10 +62,6 @@ class Identifier < ApplicationRecord
   # TODO: DRY to IsData? Test. 
   scope :with_type_string, -> (base_string) {where('type LIKE ?', "#{base_string}")}
 
-  def self.find_for_autocomplete(params)
-    where('identifier LIKE ?', "#{params[:term]}%")
-  end
-
   # @return [String, Identifer]
   def self.prototype_identifier(project_id, created_by_id)
     identifiers = Identifier.where(project_id: project_id, created_by_id: created_by_id).limit(1)

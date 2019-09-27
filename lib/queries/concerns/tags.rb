@@ -3,7 +3,14 @@ module Queries::Concerns::Tags
 
   extend ActiveSupport::Concern
 
-  attr_accessor :keyword_ids
+  included do
+    # @return [Array]
+    attr_accessor :keyword_ids
+  end
+
+  def set_tags_params(params)
+    @keyword_ids = params[:keyword_ids].blank? ? [] : params[:keyword_ids]
+  end
 
   # @return [Arel::Table]
   def tag_table 
