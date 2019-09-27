@@ -38,7 +38,7 @@
 <script>
 
 import OtuComponent from './filters/otu'
-import CollectingEvent from './filters/collectingEvent'
+import CollectingEvent from './filters/collectingEvent/collectingEvent'
 import UserComponent from './filters/user'
 import GeographicComponent from './filters/geographic'
 import KeywordsComponent from './filters/tags'
@@ -113,7 +113,8 @@ export default {
           collecting_event_ids: [],
           start_date: undefined,
           end_date: undefined,
-          partial_overlap_dates: undefined
+          partial_overlap_dates: undefined,
+          collecting_event_partial_matches: []
         },
         user: {
           user_id: undefined,

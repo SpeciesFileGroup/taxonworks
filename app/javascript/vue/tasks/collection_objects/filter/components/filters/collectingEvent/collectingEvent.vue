@@ -72,18 +72,21 @@
         </li>
       </ul>
     </div>
+    <add-field/>
   </div>
 </template>
 
 <script>
-import { GetCollectingEventSmartSelector } from '../../request/resources'
+import { GetCollectingEventSmartSelector } from '../../../request/resources'
 import SmartSelector from 'components/switch'
 import Autocomplete from 'components/autocomplete'
+import AddField from './addFields'
 
 export default {
   components: {
     SmartSelector,
-    Autocomplete
+    Autocomplete,
+    AddField
   },
   props: {
     value: {
