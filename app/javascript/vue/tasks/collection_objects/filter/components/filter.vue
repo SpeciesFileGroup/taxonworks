@@ -28,7 +28,7 @@
       <otu-component v-model="params.determination"/>
       <collecting-event
         v-model="params.collectingEvents"/>
-      <user-component/>
+      <user-component v-model="params.user"/>
       <keywords-component v-model="params.keywords.keywords_id" />
     </div>
   </div>
@@ -74,7 +74,7 @@ export default {
     },
     searchForCollectionObjects () {
       this.searching = true
-      const params = Object.assign({}, this.params.determination, this.params.keywords, this.params.geographic, this.params.collectingEvents, this.params.user)
+      const params = Object.assign({}, this.params.determination, this.params.keywords, this.params.geographic, this.params.collectingEvents, this.filterEmptyParams(this.params.user))
 
       GetCollectionObjects(params).then(response => {
         this.result = response.body
@@ -105,8 +105,10 @@ export default {
           end_date: undefined
         },
         user: {
-          user_start_date: undefined,
-          user_end_date: undefined
+          user_id: undefined,
+          user_target: undefined,
+          user_date_start: undefined,
+          user_date_end: undefined
         },
         geographic: {
           geo_json: undefined,
