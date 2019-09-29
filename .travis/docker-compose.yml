@@ -34,7 +34,8 @@ services:
     healthcheck:
       test: ["CMD", "exe/docker_health_check.sh", "300", "80"]
       timeout: 305s
-      retries: 1
+      interval: 10s
+      retries: 3
   db:
     build:
       context: .
