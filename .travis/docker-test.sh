@@ -15,5 +15,3 @@ docker-compose logs
 docker-compose exec test bundle exec rspec -fd
 
 docker-compose down --volumes
-
-# TODO: Push to Docker Hub here
