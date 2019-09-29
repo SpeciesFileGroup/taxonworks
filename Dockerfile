@@ -1,6 +1,7 @@
 FROM phusion/passenger-ruby25:0.9.35 AS base
 MAINTAINER Matt Yoder
 ENV LAST_FULL_REBUILD 2018-08-10
+ARG BUNDLER_WORKERS=1
 
 # From Phusion
 ENV HOME /root
@@ -49,7 +50,7 @@ ADD Gemfile.lock /app/
 
 WORKDIR /app
 
-RUN bundle install --without=development test
+RUN bundle install -j$BUNDLER_WORKERS --without=development test
 RUN npm install
 
 COPY . /app
