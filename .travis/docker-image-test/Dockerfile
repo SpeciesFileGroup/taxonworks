@@ -21,7 +21,7 @@ RUN wget -q \
 
 COPY Gemfile .
 
-RUN bundle install
+RUN bundle install -j3
 
 COPY . .
 

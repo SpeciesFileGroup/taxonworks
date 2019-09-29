@@ -53,7 +53,7 @@ jobs:
       install:
         - npm install
         - gem install bundler --no-ri --no-rdoc -v $BUNDLER_VERSION
-        - bundle install --without development production
+        - bundle install -j3 --without development production
       before_script:
         - echo ===[TEST_WORKER=$TEST_WORKER before_script $(date -u +%Y%m%d-%H%M%S)]===
         - cp config/application_settings.yml.travis config/application_settings.yml
@@ -84,8 +84,9 @@ jobs:
       install:
         - export REVISION=$(git rev-parse --short HEAD)
         - cd .travis
-        - docker build .. -t sfgrp/taxonworks:latest --build-arg REVISION=$REVISION
-        - docker-compose up --build -d
+        - docker build .. -t sfgrp/taxonworks:latest --build-arg REVISION=$REVISION --build-arg BUNDLER_WORKERS=3
+        - docker-compose build --parallel
+        - docker-compose up -d --no-build
         - docker-compose logs
       script:
         - docker-compose exec test bundle exec rspec -fd
