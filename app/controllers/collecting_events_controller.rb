@@ -96,6 +96,11 @@ class CollectingEventsController < ApplicationController
     @collecting_events = CollectingEvent.with_project_id(sessions_current_project_id).order(:id).page(params[:page])
   end
 
+
+  def attributes
+    render json:  Queries::CollectingEvent::Filter::ATTRIBUTES
+  end
+
   # GET /collecting_events/search
   def search
     if params[:id].blank?
@@ -245,6 +250,8 @@ class CollectingEventsController < ApplicationController
                   :import_level).merge(user_id: sessions_current_user_id,
                                        project_id: sessions_current_project_id).to_h.symbolize_keys
   end
+
+
 
   def filter_params
     # TODO: unify for use in CO

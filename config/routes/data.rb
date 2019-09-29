@@ -124,6 +124,9 @@ resources :collecting_events do
   end
 
   collection do
+
+    get :attributes, defaults: {format: :json}
+
     get :select_options, defaults: {format: :json}
 
     post :preview_castor_batch_load
