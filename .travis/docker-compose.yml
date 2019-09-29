@@ -32,10 +32,9 @@ services:
       - TW_PATHS_BACKUP=/backup
       - TW_SANDBOX_MODE=true
     healthcheck:
-      test: ["CMD", "curl", "--fail", "http://taxonworks/api/v1/ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
+      test: ["CMD", "exe/docker_health_check.sh", "300", "80"]
+      timeout: 305s
+      retries: 1
   db:
     build:
       context: .
