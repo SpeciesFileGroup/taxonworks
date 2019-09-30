@@ -1,8 +1,9 @@
 module ObservationMatrixRowsHelper
 
+  # Display in app
   def observation_matrix_row_tag(observation_matrix_row)
     return nil if observation_matrix_row.nil?
-    get_observation_matrix_row_name(observation_matrix_row)
+    object_tag(observation_matrix_row.row_object)
   end
 
   def observation_matrix_row_link(observation_matrix_row)
@@ -10,8 +11,15 @@ module ObservationMatrixRowsHelper
     link_to(observation_matrix_row_tag(observation_matrix_row).html_safe, observation_matrix_row)
   end
 
-  def get_observation_matrix_row_name(observation_matrix_row)
-    object_tag(observation_matrix_row.row_object)
+  # @return [String]
+  #  !! No HTML !!
+  #    The label used in exports
+  def observation_matrix_row_label(observation_matrix_row)
+    return observation_matrix_row.name unless observation_matrix_row.name.blank?
+    o = observation_matrix_row.row_object
+    s = label_for(o) 
+    s.gsub!(/[^\w]/, '_')
+    s[0..11] + "_#{o.id}"
   end
 
   # @return [Id, nil]

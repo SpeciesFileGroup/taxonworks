@@ -25,7 +25,7 @@ class ObservationMatrixRowItem < ApplicationRecord
 
   acts_as_list scope: [:observation_matrix_id, :project_id]
 
-  ALL_STI_ATTRIBUTES = [:otu_id, :collection_object_id, :controlled_vocabulary_term_id].freeze
+  ALL_STI_ATTRIBUTES = [:otu_id, :collection_object_id, :controlled_vocabulary_term_id, :taxon_name_id].freeze
 
   belongs_to :observation_matrix, inverse_of: :observation_matrix_row_items
   belongs_to :otu, inverse_of: :observation_matrix_row_items

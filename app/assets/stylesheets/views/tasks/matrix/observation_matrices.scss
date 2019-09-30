@@ -1,5 +1,25 @@
 #observation_matrices {
+  margin-top:50px;
   .otu_column {
     min-width: 400px;
   }
+  thead tr {
+    height: auto;
+  }
+  th {
+    min-width: 24px;
+  }
+}
+.header-slanted-label {
+  transform: rotate(-30deg);
+  position: absolute;
+  transform-origin: 0 0;
+  width: 200px;
+  bottom: 0;
+  left: 0;
+}
+.header-slanted-cell {
+  min-width: 70px;
+  position: relative;
+  text-align: left;
 }

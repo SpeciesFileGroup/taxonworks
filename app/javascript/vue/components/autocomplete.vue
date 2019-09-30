@@ -48,7 +48,12 @@ Parameters:
         :class="activeClass(index)"
         @mouseover="itemActive(index)"
         @click.prevent="itemClicked(index)">
-        <span v-html="getNested(item, label)"/>
+        <span
+          v-if="typeof label !== 'function'"
+          v-html="getNested(item, label)"/>
+        <span
+          v-else
+          v-html="label(item)"/>
       </li>
       <li v-if="json.length == 20">Results may be truncated</li>
     </ul>
@@ -110,7 +115,8 @@ export default {
     },
 
     url: {
-      required: true
+      type: String,
+      default: undefined
     },
 
     headers: {
@@ -135,7 +141,7 @@ export default {
     },
 
     label: { 
-      type: [String, Array],
+      type: [String, Array, Function],
     },
 
     display: {
@@ -306,7 +312,7 @@ export default {
         var that = this
 
         this.arrayList.forEach(function (item) {
-          if (item[that.label].includes(that.type)) {
+          if (item[that.label].toLowerCase().includes(that.type.toLowerCase())) {
             finded.push(item)
           }
         })

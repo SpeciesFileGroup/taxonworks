@@ -113,17 +113,17 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       end
 
       context 'Candidatus' do
-        let(:icnb_genus) { Protonym.create(name: 'Aus', rank_class: Ranks.lookup(:icnp, :genus), parent: root) }
-        let(:icnb_species) { Protonym.create(name: 'bus', rank_class: Ranks.lookup(:icnp, :species), parent: icnb_genus) }
+        let(:icnp_genus) { Protonym.create(name: 'Aus', rank_class: Ranks.lookup(:icnp, :genus), parent: root) }
+        let(:icnp_species) { Protonym.create(name: 'bus', rank_class: Ranks.lookup(:icnp, :species), parent: icnp_genus) }
 
-        before { TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished::Legitimate::Candidatus.create!(taxon_name: icnb_species) }
+        before { TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished::Legitimate::Candidatus.create!(taxon_name: icnp_species) }
 
         specify '#cached_html' do
-          expect(icnb_species.cached_html).to eq('"<i>Candidatus</i> Aus bus"')
+          expect(icnp_species.cached_html).to eq('"<i>Candidatus</i> Aus bus"')
         end
 
         specify 'cached' do
-          expect(icnb_species.cached).to eq('Aus bus')
+          expect(icnp_species.cached).to eq('Aus bus')
         end
       end
 
@@ -392,6 +392,30 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               expect(combination.cached_valid_taxon_name_id).to eq(species_syn.id)
             end
           end
+
+          context 'two synonym relationships' do
+            let!(:species1) { FactoryBot.create(:relationship_species, name: 'aus', parent: genus1)}
+            let!(:species2) { FactoryBot.create(:relationship_species, name: 'bus', parent: genus1)}
+            let!(:species_syn) { FactoryBot.create(:relationship_species, name: 'cus', parent: genus1)}
+            let!( :r1) { FactoryBot.create(:taxon_name_relationship, subject_taxon_name: species_syn, object_taxon_name: species1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym' )}
+            let!( :r2) { FactoryBot.create(:taxon_name_relationship, subject_taxon_name: species_syn, object_taxon_name: species2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym' )}
+            let!(:source1) { FactoryBot.create(:soft_valid_bibtex_source_article, year: 1999) }
+            let!(:source2) { FactoryBot.create(:soft_valid_bibtex_source_article, year: 2000) }
+
+            specify 'valid species with one citation' do
+              r1.citations.create(source: source1)
+              species_syn.reload
+              expect(species_syn.cached_valid_taxon_name_id).to eq (species1.id)
+            end
+
+            specify 'valid species with two citation' do
+              r1.citations.create(source: source1)
+              r2.citations.create(source: source2)
+              species_syn.reload
+              expect(species_syn.cached_valid_taxon_name_id).to eq (species2.id)
+            end
+          end
+
         end
       end
     end

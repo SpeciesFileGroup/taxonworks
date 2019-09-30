@@ -3,7 +3,7 @@ class TaxonNameClassification::Icnp < TaxonNameClassification
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000110'.freeze
 
   def self.applicable_ranks
-    ICNB
+    ICNP
   end
 
   def self.disjoint_taxon_name_classes

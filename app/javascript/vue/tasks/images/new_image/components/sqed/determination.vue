@@ -19,7 +19,7 @@
           class="horizontal-left-content"
         >
           <otu-picker
-            @getItem="taxonDetermination.otu_id = $event.id; otuSelected = $event.label_html" 
+            @getItem="taxonDetermination.otu_id = $event.id; otuSelected = ($event.hasOwnProperty('label_html') ? $event.label_html : $event.object_tag)" 
           /> 
           <pin-default
             class="separate-left"

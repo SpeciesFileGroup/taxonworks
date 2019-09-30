@@ -398,13 +398,17 @@ module TaxonWorks
           if a = parse_result[:scientificName] 
             if b = a[:positions]
               c = b.select{|k,v| v[0] == 'author_word'}.keys.min
-              p = [name.length, c].compact.min 
+              p = [name.length, c].compact.min
             end
           end
         end
 
         def name_without_author_year
-          name[0..author_word_position - 1].strip 
+          pos = author_word_position
+          # author_word doesn't point to parens if any
+          offset = pos > 0 && '(' == name[pos-1] ? 2 : 1
+
+          name[0..pos - offset].strip
         end
 
         # @return [Hash]

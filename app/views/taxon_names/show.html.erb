@@ -26,7 +26,7 @@
 
 <% content_for :report do %>
  
- <%= content_tag(:li, link_to("Browse nomenclature", browse_nomenclature_task_path(@taxon_name))) -%>
+ <%= content_tag(:li, link_to("Browse nomenclature", browse_nomenclature_task_path(taxon_name_id: @taxon_name.id))) -%>
   <% unless Otu.for_taxon_name(@taxon_name.to_param).empty? %>
       <%= content_tag(:li, link_to(
         'Distribution',
