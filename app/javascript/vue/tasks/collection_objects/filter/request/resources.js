@@ -24,11 +24,16 @@ const GetCEAttributes = () => {
   return ajaxCall('get', `/collecting_events/attributes`)
 }
 
+const GetTypes = function () {
+  return ajaxCall('get', `/type_materials/type_types.json`)
+}
+
 export {
   GetCollectionObjects,
   GetUsers,
   GetCollectingEventSmartSelector,
   GetKeywordSmartSelector,
   GetNamespacesSmartSelector,
-  GetCEAttributes
+  GetCEAttributes,
+  GetTypes
 }
