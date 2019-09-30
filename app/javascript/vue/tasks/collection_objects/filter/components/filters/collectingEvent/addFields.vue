@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3>Add fields</h3>
+    <h3>By attribute</h3>
     <div class="horizontal-left-content align-start">
       <div class="field separate-right full_width">
         <label>Field</label>
@@ -10,6 +10,8 @@
           v-model="selectedField">
           <option
             :value="field"
+            :key="field.name"
+            v-if="!selectedFields.find(item => { return item.param === field.name })"
             v-for="field in fields">
             {{ field.name }}
           </option>
@@ -70,6 +72,7 @@
             <td>{{ field.value }}</td>
             <td>
               <input
+                v-if="checkForMatch(field.type)"
                 v-model="field.exact"
                 type="checkbox">
             </td>
@@ -135,12 +138,19 @@ export default {
     })
   },
   methods: {
+    resetFields() {
+      this.selectedField = undefined,
+      this.fieldValue = undefined,
+      this.exact = undefined
+    },
     addField() {
       this.selectedFields.push({
         param: this.selectedField.name,
         value: this.fieldValue,
+        type: this.selectedField.type,
         exact: this.exact
       })
+      this.resetFields()
     },
     removeField(index) {
       this.selectedFields.splice(index, 1)
