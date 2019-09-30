@@ -96,9 +96,11 @@ class CollectingEventsController < ApplicationController
     @collecting_events = CollectingEvent.with_project_id(sessions_current_project_id).order(:id).page(params[:page])
   end
 
-
   def attributes
-    render json:  Queries::CollectingEvent::Filter::ATTRIBUTES
+    render json: ::CollectingEvent.columns.select{
+      |a| Queries::CollectingEvent::Filter::ATTRIBUTES.include?(
+        a.name)
+    }.collect{|b| {'name' => b.name, 'type' => b.type } }
   end
 
   # GET /collecting_events/search

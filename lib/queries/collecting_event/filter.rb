@@ -9,6 +9,7 @@ module Queries
       include Queries::Concerns::Tags
       include Queries::Concerns::DateRanges
 
+      # TODO: likely move to model
       # Params exists for all CollectingEvent attributes except these
       ATTRIBUTES = (::CollectingEvent.column_names - %w{project_id created_by_id updated_by_id created_at updated_at})
       ATTRIBUTES.each do |a|
@@ -18,11 +19,12 @@ module Queries
       # Wildcard wrapped matching any label
       attr_accessor :in_labels
 
-      # Wildcard wrapped matching verbatim_locality
+      # TODO: remove for exact/array
+      # Wildcard wrapped matching verbatim_locality via ATTRIBUTES
       attr_accessor :in_verbatim_locality
 
-      # TODO: factor to include
-      # An integer, order result and return the last :recent records
+      # TODO: reffactor to Concern or remove (likely doesn't belong here)
+      # @return [True, nil]
       attr_accessor :recent
 
       attr_accessor :wkt
@@ -34,15 +36,19 @@ module Queries
       #  in geo_json format (no Feature ...) ?!
       attr_accessor :geo_json
 
+      # @return [True, nil]
       # Reference geographic areas to do a spatial query 
-      # TODO: deprecate
       attr_accessor :spatial_geographic_area_ids
 
-      # [Array]
+      # @return [Array]
       #   match only CollectionObjects mapped to CollectingEvents that
       #   have these specific ids.  No spatial calculations are included
       #   in this parameter by default.  See 'spatial_geographic_areas = true'.
       attr_accessor :geographic_area_ids
+
+      # @return [Array]
+      #   values are ATTRIBUTES that should *not* be wildcarded
+      attr_accessor :collecting_event_exact_matches
 
       def initialize(params)
         @in_labels = params[:in_labels]
@@ -57,6 +63,8 @@ module Queries
         @spatial_geographic_area_ids = params[:spatial_geographic_area_ids].blank? ? [] : params[:spatial_geographic_area_ids]
 
         @geographic_area_ids = params[:geographic_area_ids].blank? ? [] : params[:geographic_area_ids]
+
+        @collecting_event_exact_matches = params[:collecting_event_exact_matches] || []
 
         set_attributes(params)
         set_dates(params)
@@ -81,7 +89,13 @@ module Queries
         c = []
         ATTRIBUTES.each do |a|
           if v = send(a)
-            c.push table[a.to_sym].eq(v) if !v.blank?
+            if !v.blank?
+              if collecting_event_exact_matches.include?(a)
+                c.push table[a.to_sym].eq(v)
+              else
+                c.push table[a.to_sym].matches('%' + v.to_s + '%')
+              end
+            end
           end
         end
         c
