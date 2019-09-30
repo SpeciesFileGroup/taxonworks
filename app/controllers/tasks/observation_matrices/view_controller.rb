@@ -4,7 +4,7 @@ class Tasks::ObservationMatrices::ViewController < ApplicationController
   # GET
   def index
     q = ObservationMatrix.where(project_id: sessions_current_project_id)
-    @observation_matrix = params[:id] ? q.find(params[:id]) : q.first
+    @observation_matrix = params[:observation_matrix_id] ? q.find(params[:observation_matrix_id]) : q.first
     redirect_to new_observation_matrix_path and return if @observation_matrix.nil? || @observation_matrix.cell_count > 10000
   end
 

@@ -8,7 +8,7 @@
       :key="item.id"
       class="list-complete-item flex-separate middle">
       <a
-        :href="`/tasks/nomenclature/browse/index?taxon_name_id=${item.id}`"
+        :href="`/tasks/nomenclature/browse?taxon_name_id=${item.id}`"
         target="_blank"
         class="list-item"
       >

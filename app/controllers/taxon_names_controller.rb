@@ -47,7 +47,7 @@ class TaxonNamesController < ApplicationController
       :nomenclature_code,
       :taxon_name_type,
       type: [],
-      parent_id: [],
+      taxon_name_id: [],
       taxon_name_classification: [],
       taxon_name_relationship_type: [],
       taxon_name_relationship: []
@@ -67,17 +67,6 @@ class TaxonNamesController < ApplicationController
   # GET /taxon_names/1/edit
   def edit
     @taxon_name.source = Source.new if !@taxon_name.source
-  end
-
-  def random
-    redirect_to browse_nomenclature_task_path(
-      taxon_name_id: TaxonName.where(project_id: sessions_current_project_id).order('random()').limit(1).pluck(:id).first # TODO: migrate to taxon_name_id: 123
-    )
-  end
-
-  # GET /taxon_names/select_options
-  def select_options
-    @taxon_names = TaxonName.select_optimized(sessions_current_user_id, sessions_current_project_id)
   end
 
   # POST /taxon_names
@@ -158,6 +147,30 @@ class TaxonNamesController < ApplicationController
 
   def ranks
     render json: RANKS_JSON.to_json
+  end
+
+  def random
+    redirect_to browse_nomenclature_task_path(
+      taxon_name_id: TaxonName.where(project_id: sessions_current_project_id).order('random()').limit(1).pluck(:id).first
+    )
+  end
+
+  def rank_table
+    @q = Queries::TaxonName::Tabular.new(
+      ancestor_id: params.require(:ancestor_id),
+      ranks: params.require(:ranks),
+      fieldsets: params[:fieldsets],
+      limit: params[:limit],
+      validity: params[:validity],
+      combinations: params[:combinations],
+      project_id: sessions_current_project_id,
+      rank_data: params[:rank_data]
+    )
+  end
+
+  # GET /taxon_names/select_options
+  def select_options
+    @taxon_names = TaxonName.select_optimized(sessions_current_user_id, sessions_current_project_id)
   end
 
   def preview_simple_batch_load

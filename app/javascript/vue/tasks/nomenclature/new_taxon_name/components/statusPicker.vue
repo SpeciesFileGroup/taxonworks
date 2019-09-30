@@ -23,6 +23,7 @@
         :parent="parent"
         :show-modal="showModal"
         :filter="getStatusCreated"
+        valid-property="valid_subject_ranks"
         @selected="addEntry"
         mutation-name-add="AddTaxonStatus"
         mutation-name-modal="SetModalStatus"

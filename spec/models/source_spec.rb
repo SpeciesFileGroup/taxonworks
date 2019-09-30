@@ -1,17 +1,8 @@
 require 'rails_helper'
 
 describe Source, type: :model, group: :source do
+
   let(:source) { Source.new }
-  let(:string1) { 'This is a base string.' }
-  let!(:s1) { FactoryBot.create(:valid_source_verbatim, verbatim: string1) }
-  let(:s1a) {
-    s = s1.dup
-    s.save!
-    s
-  }
-  let!(:s3) { FactoryBot.create(:valid_source_verbatim, verbatim: 'This is a roof string.') }
-  let!(:s2) { FactoryBot.create(:valid_source_verbatim, verbatim: string1) }
-  let!(:s4) { FactoryBot.create(:valid_source_verbatim, verbatim: 'This is a r00f string.') }
 
   after(:all) {
     Source.destroy_all
@@ -42,57 +33,52 @@ describe Source, type: :model, group: :source do
     end
   end
 
-  context 'fuzzy matching' do
-
-    specify '#nearest_by_levenshtein(compared_string, column, limit) 1' do
-      expect(s1.nearest_by_levenshtein(s1.verbatim, :cached).first).to eq(s2)
-    end
-
-    specify '#nearest_by_levenshtein 2' do
-      expect(s2.nearest_by_levenshtein(s2.verbatim, :cached).first).to eq(s1)
-    end
-
-    specify '#nearest_by_levenshtein 3' do
-      expect(s3.nearest_by_levenshtein(s3.verbatim, :cached).first).to eq(s4)
-    end
-
-    specify '#nearest_by_levenshtein 4' do
-      expect(s4.nearest_by_levenshtein(s4.verbatim, :cached).first).to eq(s3)
-    end
-  end
-
   context 'concerns matching' do
-    context 'instance methods' do
-      context '#identical' do
-        specify 'full matching' do
-          # duplicate record
-          [s1a]
+    let(:string1) { 'This is a base string.' }
+    let!(:s1) { FactoryBot.create(:valid_source_verbatim, verbatim: string1) }
+    let!(:s3) { FactoryBot.create(:valid_source_verbatim, verbatim: 'This is a roof string.') }
+    let!(:s2) { FactoryBot.create(:valid_source_verbatim, verbatim: string1) }
+    let!(:s4) { FactoryBot.create(:valid_source_verbatim, verbatim: 'This is a r00f string.') }
+
+    context 'fuzzy matching' do
+      specify '#nearest_by_levenshtein(compared_string, column, limit) 1' do
+        expect(s1.nearest_by_levenshtein(s1.verbatim, :cached).first).to eq(s2)
+      end
+
+      specify '#nearest_by_levenshtein 2' do
+        expect(s2.nearest_by_levenshtein(s2.verbatim, :cached).first).to eq(s1)
+      end
+
+      specify '#nearest_by_levenshtein 3' do
+        expect(s3.nearest_by_levenshtein(s3.verbatim, :cached).first).to eq(s4)
+      end
+
+      specify '#nearest_by_levenshtein 4' do
+        expect(s4.nearest_by_levenshtein(s4.verbatim, :cached).first).to eq(s3)
+      end
+
+      context 'similar and identical' do
+
+        # duplicate record
+        let!(:s1a) do 
+          s = s1.dup
+          s.save!
+          s
+        end
+
+        specify '#identical full matching' do
           expect(s1.identical.ids).to contain_exactly(s1a.id, s2.id)
         end
-      end
 
-      context '#similar' do
-        specify 'full matching' do
-          # duplicate record
-          [s1a]
+        specify '#similar full matching' do
           expect(s1.similar.ids).to contain_exactly(s1a.id, s2.id)
         end
-      end
-    end
 
-    context 'class methods' do
-      context '#identical' do
-        specify 'full matching' do
-          # duplicate record
-          [s1a]
+        specify '.identical full matching ' do
           expect(Source.identical(s1.attributes).ids).to contain_exactly(s1.id, s1a.id, s2.id)
         end
-      end
 
-      context '#similar' do
-        specify 'full matching' do
-          # duplicate record
-          [s1a]
+        specify '.similar full matching' do
           expect(Source.similar(s1.attributes).ids).to contain_exactly(s1a.id, s2.id, s1.id)
         end
       end
@@ -102,7 +88,7 @@ describe Source, type: :model, group: :source do
   context 'duplicate record tests' do
 =begin
     Species File conventions to remember:
-      Two references are considered a match even if access code or th3 editor, OSF copy, or citation flags are different.
+      Two references are considered a match even if access code or the editor, OSF copy, or citation flags are different.
       Two references are considered different if they have different verbatim reference fields
         (including different capitalization), even if everything else matches!
       A reference is considered different if author, pub or containing ref aren't identical
@@ -115,33 +101,43 @@ describe Source, type: :model, group: :source do
   end
 
   context 'validate' do
-    specify 'year_suffix' do
-      source1 = FactoryBot.create(:soft_valid_bibtex_source_article, year: 1999, year_suffix: 'a')
-      person1 = Person.create(last_name: 'Smith', first_name: 'Jones')
-      source1.author_roles.create(person: person1)
-      source2 = FactoryBot.build(:soft_valid_bibtex_source_article, year: 1999, year_suffix: nil)
-      source2.author_roles.build(person: person1)
-      
-      expect(source2.valid?).to be_truthy
-      source2.update(year_suffix: 'b')
+    let!(:person1) { Person.create!(last_name: 'Smith', first_name: 'Jones') }
+    let(:valid_attributes) { 
+      {year: 1999,
+       year_suffix: 'a',
+       authors: [person1],
+       bibtex_type: 'article'}
+    }
 
-      expect(source2.valid?).to be_truthy
-      source2.update(year_suffix: 'a')
+    let!(:source1) { Source::Bibtex.create!(valid_attributes) } 
+    let!(:source2) { Source::Bibtex.new( valid_attributes) } 
 
-      expect(source2.valid?).to be_falsey
+    specify '#year_suffix different suffix 1' do
+      expect(source2.valid?).to be_falsey 
     end
 
-    specify 'year suffix different authors' do
-      source1 = FactoryBot.create(:soft_valid_bibtex_source_article, year: 1999, year_suffix: 'a', author: nil)
-      person1 = Person.create(last_name: 'Smith', first_name: 'Jones')
-      source1.author_roles.create(person: person1)
-      source2 = FactoryBot.build(:soft_valid_bibtex_source_article, year: 1999, year_suffix: nil, author: nil)
-      person2 = Person.create(last_name: 'Smith', first_name: 'Chris')
-      source2.author_roles.build(person: person2)
+    specify '#year_suffix different suffix 2' do
+      source2.update(year_suffix: 'b')
       expect(source2.valid?).to be_truthy
-      source2.year_suffix = 'b'
+    end
+
+    specify '#year_suffix different authors 1' do
+      source1.author_roles.create(person: FactoryBot.create(:valid_person))
       expect(source2.valid?).to be_truthy
-      source2.year_suffix = 'a'
+    end
+
+    specify '#year_suffix different authors 2' do
+      source2.author_roles.build(person: FactoryBot.create(:valid_person))
+      expect(source2.valid?).to be_truthy
+    end
+
+    specify '#year_suffix different years 1' do
+      source2.update(year: 2000) 
+      expect(source2.valid?).to be_truthy
+    end
+
+    specify '#year_suffix validation disabled' do
+      source2.no_year_suffix_validation = true
       expect(source2.valid?).to be_truthy
     end
   end

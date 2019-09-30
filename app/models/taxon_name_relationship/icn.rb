@@ -15,11 +15,11 @@ class TaxonNameRelationship::Icn < TaxonNameRelationship
   end
 
   def self.disjoint_subject_classes
-    ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICNB_TAXON_NAME_CLASSIFICATION_NAMES + ICTV_TAXON_NAME_CLASSIFICATION_NAMES
+    ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICNP_TAXON_NAME_CLASSIFICATION_NAMES + ICTV_TAXON_NAME_CLASSIFICATION_NAMES
   end
 
   def self.disjoint_object_classes
-    ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICNB_TAXON_NAME_CLASSIFICATION_NAMES +
+    ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICNP_TAXON_NAME_CLASSIFICATION_NAMES +
         self.collect_descendants_and_itself_to_s(TaxonNameClassification::Icn::NotEffectivelyPublished,
             TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished,
             TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate)

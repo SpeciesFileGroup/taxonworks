@@ -27,6 +27,7 @@
       <tbody>
         <tr
           class="row-cell"
+          :data-matrix-id="row.id"
           v-for="(row, rIndex) in rows">
           <td class="checkbox-cell">
             <input

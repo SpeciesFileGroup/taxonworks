@@ -289,14 +289,20 @@ require 'namecase'
 #   A TW required attribute for certain bibtex_types (TW requires a value in one of the required attributes.)
 #
 # @!attribute author
-#   @return [String] the list of author names in BibTeX format
-#   @return [nil] means the attribute is not stored in the database.
-#   BibTeX standard field (required for types: )(optional for types:)
-#   A TW required attribute (TW requires a value in one of any of the required attributes.)
-#   The name(s) of the author(s), in the format described in the LaTeX book. Names should be formatted as
-#   "Last name, FirstName MiddleName". FirstName and MiddleName can be initials. If there are multiple authors,
-#   each author name should be separated by the word " and ". It should be noted that all the names before the
+#   @return [String, nil] author names preferably rendered in BibTeX format,
+#   "Last name, FirstName MiddleName". FirstName and MiddleName can be initials. 
+#   Additional authors are joined with ` and `. All names before the
 #   comma are treated as a single last name.
+#
+#   The contents of `author` follow the following rules:
+#   * `author` (a) and `authors` (People) (b) can both be used to generate the author string
+#   * if a & !b then `author` = a verbatim (and therefor may not match the BibTeX format)
+#   * if !a & b then `author` = b, collected and rendered in BibTeX format
+#   * if a & b then `author` = b, collected and rendered in BibTeX format on each update.  !! Updates to `author` directly will be overwritten !!
+#   `author` is automatically populated from `authors` if the latter is provided
+#   !! This is different behavious from TaxonName, where `verbatim_author` has priority over taxon_name_author (People) in rendering.
+#
+#   See also `cached_author_author_string` 
 #
 class Source::Bibtex < Source
 
@@ -312,16 +318,19 @@ class Source::Bibtex < Source
   IGNORE_IDENTICAL = IGNORE_SIMILAR.dup.freeze
 
   belongs_to :serial, inverse_of: :sources
+
+  # handle conflict with BibTex language field.
   belongs_to :source_language, class_name: 'Language', foreign_key: :language_id, inverse_of: :sources
-  # above to handle clash with bibtex language field.
 
   has_many :author_roles, -> { order('roles.position ASC') }, class_name: 'SourceAuthor',
            as: :role_object, validate: true
-  has_many :authors, -> { order('roles.position ASC') },
-           through: :author_roles, source: :person, validate: true
+
+  has_many :authors, -> { order('roles.position ASC') }, through: :author_roles, source: :person, validate: true
+  
   has_many :editor_roles, -> { order('roles.position ASC') }, class_name: 'SourceEditor',
-           as: :role_object, validate: true # ditto for self.editor & self.editors
+           as: :role_object, validate: true
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person, validate: true
+ 
   accepts_nested_attributes_for :authors, :editors, :author_roles, :editor_roles, allow_destroy: true
 
   before_validation :create_authors, if: -> { !authors_to_create.nil? }
@@ -719,14 +728,24 @@ class Source::Bibtex < Source
     end
 
     # Over-ride `author` and `editor` if there
-    b.author = compute_bibtex_names('authors') if authors.load.any? # unless (!authors.load.any? && author.blank?)
-    b.editor = compute_bibtex_names('editors') if editors.load.any? # unless (!editors.load.any? && editor.blank?)
+    b.author = compute_bibtex_names('author') if author_roles.load.any? # unless (!authors.load.any? && author.blank?)
+    b.editor = compute_bibtex_names('editor') if editor_roles.load.any? # unless (!editors.load.any? && editor.blank?)
 
     b.key = id unless new_record?
     b
   end
 
-  # rubocop:enable Metrics/MethodLength
+  # @return [String, nil]
+  #  priority is Person, string
+  #  !! Not the cached value !! 
+  def get_author
+    a = authors.load
+    if a.any?
+      compute_bibtex_names('author')
+    else
+      author.blank? ? nil : author
+    end
+  end
 
   # Namecase all elements of all names
   def namecase_bibtex_entry(bibtex_entry)
@@ -778,7 +797,8 @@ class Source::Bibtex < Source
 
   # @return [String, nil]
   #   last names formatted as displayed in nomenclatural authority (iczn), prioritizes
-  #   normalized People before BibTeX author
+  #   normalized People before BibTeX `author`
+  #   !! This is NOT a legal BibTeX format  !!
   def authority_name(reload = true)
     reload ? authors.reload : authors.load
 
@@ -799,11 +819,12 @@ class Source::Bibtex < Source
 
   # @param [String] type either `author` or `editor`
   # @return [String]
-  #   The bibtex version of the name strings created from People
+  #   The BibTeX version of the name strings created from People
   #   BibTeX format is 'lastname, firstname and lastname, firstname and lastname, firstname'
-  #   This only references People, i.e. `authors` and `editors`. Do not adapt to reference the BibTeX attributes `author` or `editor`
+  #   This only references People, i.e. `authors` and `editors`.
+  #   !! Do not adapt to reference the BibTeX attributes `author` or `editor`
   def compute_bibtex_names(role_type)
-    send(role_type).collect{ |a| a.bibtex_name }.join(' and ')
+    send("#{role_type}_roles").collect{ |a| a.person.bibtex_name }.join(' and ')
   end
 
   # @return [Ignored]
@@ -826,8 +847,8 @@ class Source::Bibtex < Source
     if errors.empty?
       attributes_to_update = {}
 
-      attributes_to_update[:author] = compute_bibtex_names('authors') if authors.reload.size > 0
-      attributes_to_update[:editor] = compute_bibtex_names('editors') if editors.reload.size > 0
+      attributes_to_update[:author] = compute_bibtex_names('author') if authors.reload.size > 0
+      attributes_to_update[:editor] = compute_bibtex_names('editor') if editors.reload.size > 0
 
       c = cached_string('html')
       if stated_year && year && stated_year != year

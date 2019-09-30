@@ -25,10 +25,10 @@
       </button>
       <taxon-name-component v-model="params.taxon"/>
       <precision-component v-model="params.base.exact" />
-      <scope-component v-model="params.base.parent_id"/>
+      <scope-component v-model="params.base.taxon_name_id"/>
       <related-component
         v-model="params.base.descendants"
-        :taxon-name="params.base.parent_id"/>
+        :taxon-name="params.base.taxon_name_id"/>
 
       <rank-component v-model="params.base.nomenclature_group"/>
       <code-component v-model="params.base.nomenclature_code"/>
@@ -146,7 +146,7 @@ export default {
           nomenclature_group: undefined,
           nomenclature_code: undefined,
           leaves: undefined,
-          parent_id: [],
+          taxon_name_id: [],
           taxon_name_relationship: [],
           taxon_name_relationship_type: [],
           taxon_name_classification: []

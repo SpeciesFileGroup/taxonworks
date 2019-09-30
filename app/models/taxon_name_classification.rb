@@ -185,7 +185,7 @@ class TaxonNameClassification < ApplicationRecord
             t1.update_cached_original_combinations
           end
           TaxonNameRelationship.where(type: 'TaxonNameRelationship::Combination::Genus', subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
-            t1.update_column(:verbatim_name, cached) if t1.verbatim_name.nil?
+            t1.update_column(:verbatim_name, t1.cached) if t1.verbatim_name.nil?
             t1.update_columns(
                 cached: t1.get_full_name,
                 cached_html: t1.get_full_name_html

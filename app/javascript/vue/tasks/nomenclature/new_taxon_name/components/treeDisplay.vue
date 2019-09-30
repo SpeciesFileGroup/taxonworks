@@ -14,6 +14,7 @@
           @selected="$emit('selected', $event)"
           :modal-mutation-name="mutationNameModal"
           :action-mutation-name="mutationNameAdd"
+          :valid-property="validProperty"
           :object-list="objectLists.tree"/>
       </div>
     </modal>
@@ -32,7 +33,7 @@ export default {
     Modal
   },
   name: 'TreeDisplay',
-  props: ['treeList', 'parent', 'showModal', 'mutationNameAdd', 'mutationNameModal', 'objectLists', 'displayName', 'nameModule', 'getterList'],
+  props: ['treeList', 'parent', 'showModal', 'mutationNameAdd', 'mutationNameModal', 'objectLists', 'displayName', 'nameModule', 'getterList', 'validProperty'],
   data: function () {
     return {
       showAdvance: false
