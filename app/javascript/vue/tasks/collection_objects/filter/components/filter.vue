@@ -33,6 +33,8 @@
       <identifier-component v-model="params.identifier"/>
       <types-component v-model="params.types"/>
       <loan-component v-model="params.loans"/>
+      <in-relationship v-model="params.relationships.relationships"/>
+      <biocurations-component v-model="params.biocurations.biocuration_class_ids"/>
     </div>
   </div>
 </template>
@@ -47,6 +49,8 @@ import KeywordsComponent from './filters/tags'
 import IdentifierComponent from './filters/identifier'
 import TypesComponent from './filters/types'
 import LoanComponent from './filters/loan'
+import InRelationship from './filters/relationship/in_relationship'
+import BiocurationsComponent from './filters/biocurations'
 
 import { GetCollectionObjects } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
@@ -62,7 +66,9 @@ export default {
     KeywordsComponent,
     IdentifierComponent,
     TypesComponent,
-    LoanComponent
+    LoanComponent,
+    InRelationship,
+    BiocurationsComponent
   },
   computed: {
     getMacKey () {
@@ -83,7 +89,7 @@ export default {
     },
     searchForCollectionObjects () {
       this.searching = true
-      const params = Object.assign({}, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
+      const params = Object.assign({}, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
 
       GetCollectionObjects(params).then(response => {
         this.result = response.body
@@ -99,6 +105,12 @@ export default {
     },
     initParams () {
       return {
+        biocurations: {
+          biocuration_class_ids: []
+        },
+        relationships: {
+          relationships: []
+        },
         loans: {
           on_loan: undefined,
           loaned: undefined,

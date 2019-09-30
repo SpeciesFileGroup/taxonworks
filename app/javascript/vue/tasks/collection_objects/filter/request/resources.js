@@ -28,6 +28,14 @@ const GetTypes = function () {
   return ajaxCall('get', `/type_materials/type_types.json`)
 }
 
+const GetRelationshipsMetadata = () => {
+  return ajaxCall('get', '/taxon_name_relationships/taxon_name_relationship_types')
+}
+
+const GetBiocurations = () => {
+  return ajaxCall('get', '/controlled_vocabulary_terms.json?type[]=BiocurationClass')
+}
+
 export {
   GetCollectionObjects,
   GetUsers,
@@ -35,5 +43,7 @@ export {
   GetKeywordSmartSelector,
   GetNamespacesSmartSelector,
   GetCEAttributes,
-  GetTypes
+  GetTypes,
+  GetRelationshipsMetadata,
+  GetBiocurations
 }
