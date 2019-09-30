@@ -72,7 +72,7 @@
         </li>
       </ul>
     </div>
-    <add-field/>
+    <add-field @fields="cEvent.fields = $event"/>
   </div>
 </template>
 

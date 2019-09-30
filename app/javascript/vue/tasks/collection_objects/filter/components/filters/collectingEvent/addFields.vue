@@ -1,35 +1,45 @@
 <template>
   <div>
-    <div class="horizontal-left-content">
-      <div class="field separate-right">
+    <h3>Add fields</h3>
+    <div class="horizontal-left-content align-start">
+      <div class="field separate-right full_width">
         <label>Field</label>
         <br>
         <select 
-          class="normal-input"
+          class="normal-input full_width"
           v-model="selectedField">
-          <option 
+          <option
+            :value="field"
             v-for="field in fields">
-            {{ field }}
+            {{ field.name }}
           </option>
         </select>
       </div>
-      <div class="field separate-right">
-        <label>
-          Value
-        </label>
-        <br>
-        <input 
-          type="text"
-          v-model="fieldValue">
-      </div>
-      <div class="field separate-right">
+      <div
+        v-if="selectedField && checkForMatch(selectedField.type)"
+        class="field separate-right">
         <label>
           Exact?
         </label>
         <br>
         <input 
+          :disabled="!checkForMatch(selectedField.type)"
           type="checkbox"
           v-model="exact">
+      </div>
+    </div>
+    <div
+      v-if="selectedField"
+      class="horizontal-left-content">
+      <div class="field separate-right full_width">
+        <label>
+          Value
+        </label>
+        <br>
+        <input 
+          class="full_width"
+          :type="types[selectedField.type]"
+          v-model="fieldValue">
       </div>
       <div class="field">
         <label>
@@ -76,12 +86,26 @@
 </template>
 
 <script>
+
+import { GetCEAttributes } from '../../../request/resources'
+
+const TYPES = {
+  text: 'text',
+  string: 'text',
+  integer: 'number',
+  decimal: 'number'
+}
+
 export default {
+  computed: {
+    types() {
+      return TYPES
+    }
+  },
   data () {
     return {
       fields: ['verbatim_locality', 'habitat'],
       exact: false,
-      collecting_event_exact_matches: [],
       selectedFields: [],
       selectedField: undefined,
       fieldValue: undefined
@@ -92,7 +116,7 @@ export default {
       handler (newVal) {
         let matches = newVal.filter(item => { return item.exact }).map(item => { return item.param })
         let fields = {
-          collecting_event_exact_matches: matches
+          collecting_event_partial_matches: matches
         }
         newVal.forEach(item => {
           fields[item.param] = item.value
@@ -100,21 +124,29 @@ export default {
         this.$emit('fields', fields)
       },
       deep: true
+    },
+    selectedField() {
+      this.fieldValue = undefined
     }
+  },
+  mounted () {
+    GetCEAttributes().then(response => {
+      this.fields = response.body
+    })
   },
   methods: {
     addField() {
-      if(this.exact) {
-        this.collecting_event_exact_matches.push(this.selectedField)
-      }
       this.selectedFields.push({
-        param: this.selectedField,
+        param: this.selectedField.name,
         value: this.fieldValue,
         exact: this.exact
       })
     },
     removeField(index) {
       this.selectedFields.splice(index, 1)
+    },
+    checkForMatch(type) {
+      return (type === 'string' || type === 'text')
     }
   }
 }

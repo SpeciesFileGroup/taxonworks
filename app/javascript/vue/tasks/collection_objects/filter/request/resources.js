@@ -20,10 +20,15 @@ const GetNamespacesSmartSelector = () => {
   return ajaxCall('get', '/namespaces/select_options')
 }
 
+const GetCEAttributes = () => {
+  return ajaxCall('get', `/collecting_events/attributes`)
+}
+
 export {
   GetCollectionObjects,
   GetUsers,
   GetCollectingEventSmartSelector,
   GetKeywordSmartSelector,
-  GetNamespacesSmartSelector
+  GetNamespacesSmartSelector,
+  GetCEAttributes
 }

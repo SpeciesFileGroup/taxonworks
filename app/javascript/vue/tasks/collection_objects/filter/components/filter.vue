@@ -77,7 +77,7 @@ export default {
     },
     searchForCollectionObjects () {
       this.searching = true
-      const params = Object.assign({}, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.collectingEvents, this.filterEmptyParams(this.params.user))
+      const params = Object.assign({}, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
 
       GetCollectionObjects(params).then(response => {
         this.result = response.body
@@ -114,7 +114,8 @@ export default {
           start_date: undefined,
           end_date: undefined,
           partial_overlap_dates: undefined,
-          collecting_event_partial_matches: []
+          collecting_event_partial_matches: [],
+          fields: undefined
         },
         user: {
           user_id: undefined,
@@ -142,6 +143,11 @@ export default {
         }
       })
       return object
+    },
+    flatObject(object, key) {
+      let tmp = Object.assign({}, object, object[key])
+      delete tmp[key]
+      return tmp
     }
   }
 }
@@ -149,9 +155,5 @@ export default {
 <style scoped>
 >>> .btn-delete {
     background-color: #5D9ECE;
-  }
-
-  .filter-container {
-    width: 400px;
   }
 </style>
