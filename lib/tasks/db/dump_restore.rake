@@ -1,4 +1,5 @@
 require 'rake'
+require 'securerandom'
 
 namespace :tw do
   namespace :db do
@@ -27,7 +28,7 @@ namespace :tw do
         end
 
         database = ApplicationRecord.connection.current_database
-        path  = File.join(@args[:backup_directory], @args[:server_name] + '_' + Time.now.utc.strftime('%Y-%m-%d_%H%M%S%Z') + '.dump')
+        path  = File.join(@args[:backup_directory], [  SecureRandom.hex(8), @args[:server_name], Time.now.utc.strftime('%Y-%m-%d_%H%M%S%Z')].join('_') + '.dump')
 
         puts Rainbow("Dumping #{database} to #{path}").yellow
 
