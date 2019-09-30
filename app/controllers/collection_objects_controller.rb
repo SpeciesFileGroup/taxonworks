@@ -1,8 +1,10 @@
 class CollectionObjectsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_collection_object, only: [:show, :edit, :update, :destroy, :containerize,
-                                               :depictions, :images, :geo_json]
+  before_action :set_collection_object, only: [
+    :show, :edit, :update, :destroy, :containerize,
+    :depictions, :images, :geo_json,
+    :dwca]
 
   # GET /collecting_events
   # GET /collecting_events.json
@@ -91,6 +93,11 @@ class CollectionObjectsController < ApplicationController
         format.json { render json: @collection_object.errors, status: :unprocessable_entity }
       end
     end
+  end
+
+  def dwca
+    @dwc_occurrence = CollectionObject.includes(:dwc_occurrence).find(params[:id]).get_dwc_occurrence # find or compute for
+    render json: @dwc_occurrence.to_json
   end
 
   # DELETE /collection_objects/1

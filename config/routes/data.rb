@@ -92,6 +92,7 @@ resources :collection_objects do
   member do
     get 'depictions', constraints: {format: :html}
     get 'containerize'
+    get 'dwca', defaults: {format: :json}
   end
 
   collection do
