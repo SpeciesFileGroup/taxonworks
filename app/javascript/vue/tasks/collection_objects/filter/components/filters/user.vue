@@ -97,6 +97,7 @@ export default {
   mounted () {
     GetUsers().then(response => {
       this.users = response.body
+      this.$emit('onUserslist', this.users)
       this.users.unshift({ user: { name: '--none--', id: undefined } })
     })
   }

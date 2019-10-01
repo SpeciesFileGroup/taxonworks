@@ -4,7 +4,7 @@
       <thead>
         <tr>
           <th
-            @click="sortTable('catalogue_number')">Catalogue number</th>
+            @click="sortTable('catalogNumber')">Catalogue number</th>
           <th
             @click="sortTable('repository')">Repository</th>
           <th
@@ -26,18 +26,31 @@
           <th
             @click="sortTable('longitude')">Longitude</th>
           <th
-            @click="sortTable('precision')">Precision (m)</th>
-          <th
             @click="sortTable('updated_by')">Updated by</th>
           <th
-            @click="sortTable('last_updated')">Last updated</th>
+            @click="sortTable('updated_at')">Last updated</th>
           <th>Options</th>
         </tr>
       </thead>
       <tbody>
         <tr
-          v-for="item in list"
+          class="contextMenuCells"
+          :class="{ even: index % 2 }"
+          v-for="(item, index) in list"
           :key="item.id">
+          <td>{{ item.catalogNumber }}</td>
+          <td>{{ item.repository_id }}</td>
+          <td>{{ item.family }}</td>
+          <td>{{ item.genus }}</td>
+          <td>{{ item.scientificName }}</td>
+          <td>{{ item.country }}</td>
+          <td>{{ item.stateProvince }}</td>
+          <td>{{ item.county }}</td>
+          <td>{{ item.locality }}</td>
+          <td>{{ item.decimalLatitude }}</td>
+          <td>{{ item.decimalLongitude }}</td>
+          <td>{{ item.updated_by }}</td>
+          <td>{{ item.updated_at }}</td>
           <td class="options-column">
             <div class="horizontal-left-content">
               <radial-object :global-id="item.global_id"/>

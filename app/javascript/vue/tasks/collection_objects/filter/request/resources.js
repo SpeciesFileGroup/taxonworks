@@ -36,6 +36,10 @@ const GetBiocurations = () => {
   return ajaxCall('get', '/controlled_vocabulary_terms.json?type[]=BiocurationClass')
 }
 
+const GetCODWCA = (id) => {
+  return ajaxCall('get', `/collection_objects/${id}/dwca`)
+}
+
 export {
   GetCollectionObjects,
   GetUsers,
@@ -45,5 +49,6 @@ export {
   GetCEAttributes,
   GetTypes,
   GetRelationshipsMetadata,
-  GetBiocurations
+  GetBiocurations,
+  GetCODWCA
 }

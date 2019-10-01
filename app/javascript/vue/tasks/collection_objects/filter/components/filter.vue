@@ -28,7 +28,9 @@
       <otu-component v-model="params.determination"/>
       <collecting-event
         v-model="params.collectingEvents"/>
-      <user-component v-model="params.user"/>
+      <user-component 
+        @onUserslist="usersList = $event"
+        v-model="params.user"/>
       <keywords-component v-model="params.keywords.keywords_id" />
       <identifier-component v-model="params.identifier"/>
       <types-component v-model="params.types"/>
@@ -52,7 +54,7 @@ import LoanComponent from './filters/loan'
 import InRelationship from './filters/relationship/in_relationship'
 import BiocurationsComponent from './filters/biocurations'
 
-import { GetCollectionObjects } from '../request/resources.js'
+import { GetCollectionObjects, GetCODWCA } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
 import GetMacKey from 'helpers/getMacKey.js'
 
@@ -79,7 +81,10 @@ export default {
     return {
       params: this.initParams(),
       result: [],
-      searching: false
+      searching: false,
+      perRequest: 10,
+      coList: [],
+      usersList: []
     }
   },
   methods: {
@@ -92,8 +97,8 @@ export default {
       const params = Object.assign({}, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
 
       GetCollectionObjects(params).then(response => {
-        this.result = response.body
-        this.$emit('result', this.result)
+        this.coList = response.body
+        this.getDWCATable(response.body)
         this.$emit('urlRequest', response.url)
         this.searching = false
         if(this.result.length === 500) {
@@ -174,6 +179,35 @@ export default {
       let tmp = Object.assign({}, object, object[key])
       delete tmp[key]
       return tmp
+    },
+    getDWCATable(list) {
+      const IDS = list.map(item => { return item.id })
+      const chunk = IDS.length / this.perRequest
+
+      var i, j;
+      let chunkArray = []
+      for (i = 0,j = IDS.length; i < j; i += chunk) {
+          chunkArray.push(IDS.slice(i,i+chunk))
+      }
+      this.getDWCA(chunkArray)
+    },
+    getDWCA(ids) {
+      if(ids.length) {
+        let promises = []
+        ids[0].forEach(id => {
+          promises.push(GetCODWCA(id).then(response => {
+            let dwcaObject = response.body
+            let user = this.usersList.find(user => { return user.user.id === dwcaObject.updated_by_id })
+            dwcaObject.updated_by = (user ? user.user.name : undefined)
+            this.result.push(Object.assign({}, dwcaObject, this.coList.find(item => { return dwcaObject.dwc_occurrence_object_id == item.id })))
+          }))
+        })
+        Promise.all(promises).then(() => {
+          ids.splice(0, 1)
+          this.$emit('result', this.result)
+          this.getDWCA(ids)
+        })
+      }
     }
   }
 }
