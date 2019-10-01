@@ -28,9 +28,15 @@ RUN apt-get update && \
       libpq-dev libproj-dev libgeos-dev libgeos++-dev \
       tesseract-ocr \
       cmake \
-      nodejs yarn && \
+      nodejs yarn \
+      redis-server libhiredis-dev && \
       apt clean && \ 
       rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/* 
+
+## Setup Redis.
+RUN mkdir /etc/service/redis
+RUN cp /app/exe/redis /etc/service/redis/run
+RUN cp /app/config/redis.conf /etc/redis/redis.conf
 
 RUN locale-gen en_US.UTF-8
 
