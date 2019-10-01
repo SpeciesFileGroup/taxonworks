@@ -1,27 +1,32 @@
 <template>
   <div class="data_attribute_annotator">
-    <div class="field separate-bottom separate-top">
-      <template v-for="(predicate, index) in data_attributes">
-        <div class="field">
-          <label>
-            {{ defaultPredicates[index].name }}
-          </label>
-          <br>
-          <input
-            class="full_width"
-            v-model="predicate.value"
-            type="text">
-        </div>
-      </template>
-    </div>
+    <h3 v-if="!data_attributes.length">
+      <i>Set new default attributes using project preferences, or use the radial annotator.</i>
+    </h3> 
+    <template v-else>
+      <div class="field separate-bottom separate-top">
+        <template v-for="(predicate, index) in data_attributes">
+          <div class="field">
+            <label>
+              {{ defaultPredicates[index].name }}
+            </label>
+            <br>
+            <input
+              class="full_width"
+              v-model="predicate.value"
+              type="text">
+          </div>
+        </template>
+      </div>
 
-    <div>
-      <button 
-        @click="createNew()" 
-        class="button button-submit normal-input separate-bottom" 
-        type="button">Create
-      </button>
-    </div>
+      <div>
+        <button 
+          @click="createNew()" 
+          class="button button-submit normal-input separate-bottom" 
+          type="button">Create
+        </button>
+      </div>
+    </template>
 
     <table-list
       :list="list"
