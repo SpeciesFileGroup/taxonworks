@@ -441,3 +441,11 @@ index_stats_task:
     - nomenclature
   status: prototype
   description: 'Get counts of names as different ranks.'
+
+index_browse_asserted_distributions_task:
+  hub: true
+  name: 'TODO: Task name'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'
