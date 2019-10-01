@@ -31,7 +31,10 @@ function makeInitialState () {
         buffered_determinations: undefined,
         buffered_other_labels: undefined
       },
-      origin_citation_attributes: undefined,
+      origin_citation_attributes: {
+        source_id: undefined,
+        pages: undefined
+      },
       type_designator_roles: []
     },
     type_materials: []

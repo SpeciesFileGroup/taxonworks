@@ -41,12 +41,12 @@ module ObservationsHelper
   def sample_observation_cell_tag(observation)
     o = observation 
     r = []
-    
+
     r.push [o.sample_min, o.sample_max].compact.join('-')
     r.push "#{o.sample_units}" if o.sample_units.present?
-    
+
     m = []  
-      
+
     m.push "median = #{o.sample_median}" if o.sample_median.present?
     m.push "&#956; = #{o.sample_mean}" if o.sample_mean.present?
     m.push ["s = #{o.sample_standard_error}", (o.sample_units.present? ? " #{o.sample_units}" : nil)].compact.join if o.sample_standard_error.present?
@@ -57,8 +57,5 @@ module ObservationsHelper
 
     r.compact.join(' ').html_safe
   end
-
-
-
 
 end

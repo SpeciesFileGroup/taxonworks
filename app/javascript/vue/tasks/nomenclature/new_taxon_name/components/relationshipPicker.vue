@@ -47,6 +47,7 @@
           :parent="parent"
           :object-lists="objectLists"
           :show-modal="showModal"
+          valid-property="valid_subject_ranks"
           @selected="addEntry"
           mutation-name-add="AddTaxonRelationship"
           mutation-name-modal="SetModalRelationship"
@@ -110,7 +111,7 @@
         :edit="true"
         @edit="editRelationship"
         :list="GetRelationshipsCreated"
-        :display="['subject_status_tag', { link: '/tasks/nomenclature/browse/index?taxon_name_id=', label: 'object_object_tag', param: 'object_taxon_name_id'}]"/>
+        :display="['subject_status_tag', { link: '/tasks/nomenclature/browse?taxon_name_id=', label: 'object_object_tag', param: 'object_taxon_name_id'}]"/>
     </div>
   </form>
 </template>

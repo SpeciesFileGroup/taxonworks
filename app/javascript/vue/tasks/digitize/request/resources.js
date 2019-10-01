@@ -74,7 +74,7 @@ const GetCollectingEventsSmartSelector = function () {
 }
 
 const GetTypeDesignatorSmartSelector = function () {
-  return ajaxCall('get', `/people/select_options?role_type=TypeDesignator`)
+  return ajaxCall('get', `/people/select_options`)
 }
 
 const FilterCollectingEvent = function (params) {

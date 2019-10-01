@@ -24,7 +24,7 @@
             <span v-html="GetRelationshipsCreated[0].object_status_tag"/>
             <a
               v-html="GetRelationshipsCreated[0].subject_object_tag"
-              :href="`/tasks/nomenclature/browse/index?taxon_name_id=${GetRelationshipsCreated[0].subject_taxon_name_id}`"/>
+              :href="`/tasks/nomenclature/browse?taxon_name_id=${GetRelationshipsCreated[0].subject_taxon_name_id}`"/>
           </span>
           <span
             class="button circle-button btn-undo button-default"
@@ -64,14 +64,16 @@
       </div>
       <div v-else>
         <tree-display
-          :tree-list="treeList"
+          :tree-list="{ treeList }"
           :parent="parent"
           :object-lists="objectLists"
           :show-modal="showModal"
+          valid-property="valid_object_ranks"
+          @selected="addEntry"
           mutation-name-add="AddTaxonType"
           mutation-name-modal="SetModalType"
           name-module="Types"
-          display-name="subject_status_tag"/>
+          display-name="object_status_tag"/>
         <div class="switch-radio">
           <input
             name="type-picker-options"
@@ -102,7 +104,7 @@
             :object-lists="objectLists.common"
             :filter="true"
             @addEntry="addEntry"
-            display="subject_status_tag"
+            display="object_status_tag"
             :list-created="GetRelationshipsCreated"/>
         </div>
       </div>
@@ -112,8 +114,8 @@
         :edit="true"
         :list="GetRelationshipsCreated"
         @delete="removeType"
-        @edit="editType = $event"
-        :display="['object_status_tag', { link: '/tasks/nomenclature/browse/index?taxon_name_id=', label: 'subject_object_tag', param: 'subject_taxon_name_id'}]"/>
+        @edit="setEdit"
+        :display="['object_status_tag', { link: '/tasks/nomenclature/browse?taxon_name_id=', label: 'subject_object_tag', param: 'subject_taxon_name_id'}]"/>
     </div>
   </form>
 </template>
@@ -220,6 +222,13 @@ export default {
     }
   },
   methods: {
+    setEdit(relationship) {
+      this.editType = relationship
+      this.addTaxonType({
+        id: relationship.subject_taxon_name_id,
+        label_html: relationship.object_tag
+      })
+    },
     loadTaxonRelationships: function () {
       this.$store.dispatch(ActionNames.LoadTaxonRelationships, this.taxon.id)
     },

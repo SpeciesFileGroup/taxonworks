@@ -45,10 +45,13 @@ class Descriptor < ApplicationRecord
     type == 'Descriptor::Qualitative'
   end
 
+  def presence_absence?
+    type == 'Descriptor::PresenceAbsence'
+  end
+
   def gene?
     type == 'Descriptor::Gene'
   end
- 
 
   protected
 
@@ -65,7 +68,6 @@ class Descriptor < ApplicationRecord
   def sv_short_name_is_short
     soft_validations.add(:short_name, 'should likely be less than 12 characters long') if short_name && short_name.length > 12
   end
-
 end
 
 Dir[Rails.root.to_s + '/app/models/descriptor/**/*.rb'].each { |file| require_dependency file }

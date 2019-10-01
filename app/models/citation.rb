@@ -35,6 +35,9 @@ class Citation < ApplicationRecord
   include Shared::Tags
   include Shared::IsData
   include Shared::PolymorphicAnnotator
+
+  attr_accessor :no_cached
+
   polymorphic_annotates('citation_object')
 
   belongs_to :source, inverse_of: :citations
@@ -57,6 +60,10 @@ class Citation < ApplicationRecord
 
   after_create :add_source_to_project
   after_save :update_related_cached_values, if: :is_original?
+
+  after_save :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
+  after_destroy :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
+
 
   # TODO: deprecate
   # @return [Scope of matching sources]
@@ -120,6 +127,35 @@ class Citation < ApplicationRecord
     if !marked_for_destruction? && !new_record? && citation_object.requires_citation? && citation_object.citations.reload.count == 1
       errors.add(:base, 'at least one citation is required')
       throw :abort
+    end
+  end
+
+  def set_cached_names_for_taxon_names
+    if citation_object_type == 'TaxonNameRelationship' && TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(citation_object.try(:type_name))
+      begin
+        TaxonNameRelationship.transaction do
+          t = citation_object.subject_taxon_name
+          vn = t.get_valid_taxon_name
+
+          t.update_columns(
+              cached: t.get_full_name,
+              cached_html: t.get_full_name_html,
+              cached_valid_taxon_name_id: vn.id)
+          t.combination_list_self.each do |c|
+            c.update_column(:cached_valid_taxon_name_id, vn.id)
+          end
+
+          vn.list_of_invalid_taxon_names.each do |s|
+            s.update_column(:cached_valid_taxon_name_id, vn.id)
+            s.combination_list_self.each do |c|
+              c.update_column(:cached_valid_taxon_name_id, vn.id)
+            end
+          end
+        end
+      rescue ActiveRecord::RecordInvalid
+        raise
+      end
+      false
     end
   end
 

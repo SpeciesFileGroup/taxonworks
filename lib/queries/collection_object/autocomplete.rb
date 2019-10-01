@@ -47,9 +47,7 @@ module Queries
           order('otus.name ASC').limit(10) 
       end
 
-      # @return [Array]
-      #   TODO: optimize limits
-      def autocomplete
+      def base_queries
         queries = [
           autocomplete_identifier_cached_exact,
           autocomplete_identifier_identifier_exact,
@@ -69,6 +67,13 @@ module Queries
           a ||= q 
           updated_queries[i] = a
         end
+        updated_queries
+      end
+
+      # @return [Array]
+      #   TODO: optimize limits
+      def autocomplete
+        updated_queries = base_queries
 
         result = []
         updated_queries.each do |q|

@@ -20,6 +20,10 @@ export default {
     options: {
       type: [Array, Object],
       default: () => { return [] }
+    },
+    filename: {
+      type: String,
+      default: 'list.csv'
     }
   },
   data() {
@@ -58,7 +62,13 @@ export default {
       }
     },
     downloadCSV() {
-      window.open(encodeURI(`data:text/csv;charset=utf-8,${this.csvFile}`));
+      var a = window.document.createElement('a');
+      a.href = window.URL.createObjectURL(new Blob([this.csvFile], { type: 'text/csv' }))
+      a.download = this.filename
+
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
     }
   }
 }

@@ -52,10 +52,6 @@ class Note < ApplicationRecord
     :text
   end
 
-  def self.find_for_autocomplete(params)
-    where('text LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
-  end
-
   # TODO: make a helper
   # Format a note
   def note_string

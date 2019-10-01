@@ -213,7 +213,7 @@ class Combination < TaxonName
   end
 
   # @return [Boolean]
-  #   true if the finest level (typically species) is currently has the same parent
+  #   true if the finest level (typically species) currently has the same parent
   def is_current_placement?
     return false if protonyms.second_to_last.nil?
     protonyms.last.parent_id == protonyms.second_to_last.id
@@ -223,7 +223,7 @@ class Combination < TaxonName
   #   pre-ordered by rank
   def protonyms
     return protonyms_by_association if new_record?
-    p = combination_taxon_names.sort{|a,b| RANKS.index(a.rank_string) <=> RANKS.index(b.rank_string) } # .ordered_by_rank
+    p = combination_taxon_names.sort{|a,b| RANKS.index(a.rank_string) <=> RANKS.index(b.rank_string) }
     return protonyms_by_association if p.empty?
     return p
   end
@@ -272,7 +272,6 @@ class Combination < TaxonName
     result
   end
 
-
   # @return [Array of Integers]
   #   the collective years the protonyms were (nomenclaturaly) published on (ordered from genus to below)
   def publication_years
@@ -318,6 +317,11 @@ class Combination < TaxonName
     c = protonyms_by_rank
     return self if c.empty?
     c[c.keys.last].valid_taxon_name
+  end
+
+ 
+  def finest_protonym
+    protonyms_by_rank.values.last
   end
 
   def get_author_and_year

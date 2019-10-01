@@ -1,6 +1,7 @@
 FROM ubuntu:16.04
 MAINTAINER Matt Yoder
 ENV LAST_FULL_REBUILD 2018-10-05
+ARG BUNDLER_WORKERS=1
 
 RUN apt-get update && \
     apt-get install -y curl software-properties-common apt-transport-https && \
@@ -83,7 +84,7 @@ RUN gem install bundler && \
 WORKDIR /app
 COPY Gemfile /app
 COPY Gemfile.lock /app
-RUN bundle install
+RUN bundle install -j$BUNDLER_WORKERS
 
 CMD ["exe/docker_compose_start.sh"]
 
