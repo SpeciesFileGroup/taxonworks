@@ -33,11 +33,6 @@ RUN apt-get update && \
       apt clean && \ 
       rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/* 
 
-## Setup Redis.
-RUN mkdir /etc/service/redis
-RUN cp /app/exe/redis /etc/service/redis/run
-RUN cp /app/config/redis.conf /etc/redis/redis.conf
-
 RUN locale-gen en_US.UTF-8
 
 ENV LANG en_US.UTF-8
@@ -71,6 +66,11 @@ RUN chmod +x /etc/my_init.d/init.sh && \
     mkdir /app/public/images/tmp && \
     chmod +x /app/public/images/tmp && \
     rm -f /etc/service/nginx/down
+
+## Setup Redis.
+RUN mkdir /etc/service/redis
+RUN cp /app/exe/redis /etc/service/redis/run
+RUN cp /app/config/docker/redis.conf /etc/redis/redis.conf
 
 RUN chown 9999:9999 /app/public
 RUN chown 9999:9999 /app/public/images/tmp
