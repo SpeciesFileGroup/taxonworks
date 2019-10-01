@@ -66,23 +66,17 @@
 </template>
 <script>
 
-import radialMenu from '../radialMenu.vue'
-import modal from '../modal.vue'
-import spinner from '../spinner.vue'
+import radialMenu from 'components/radialMenu.vue'
+import modal from 'components/modal.vue'
+import spinner from 'components/spinner.vue'
 
 import CRUD from './request/crud'
 
-import confidencesAnnotator from './components/confidence_annotator.vue'
-import depictionsAnnotator from './components/depiction_annotator.vue'
-import documentationAnnotator from './components/documentation_annotator.vue'
-import identifiersAnnotator from './components/identifier/identifier_annotator.vue'
-import tagsAnnotator from './components/tag_annotator.vue'
-import notesAnnotator from './components/note_annotator.vue'
-import data_attributesAnnotator from './components/data_attribute_annotator.vue'
-import alternate_valuesAnnotator from './components/alternate_value_annotator.vue'
-import citationsAnnotator from './components/citations/citation_annotator.vue'
-import protocol_relationshipsAnnotator from './components/protocol_annotator.vue'
-import attributionAnnotator from './components/attribution/main.vue'
+import data_attributesAnnotator from './components/data_attribute/data_attribute_annotator.vue'
+import biological_associationsAnnotator from './components/biological_relationships/biological_relationships_annotator.vue'
+import asserted_distributionsAnnotator from './components/asserted_distributions/asserted_distributions_annotator.vue'
+import common_namesAnnotator from './components/common_names/main.vue'
+import contentsAnnotator from './components/contents/main.vue'
 
 import Icons from './images/icons.js'
 
@@ -93,17 +87,11 @@ export default {
     radialMenu,
     modal,
     spinner,
-    notesAnnotator,
-    citationsAnnotator,
-    confidencesAnnotator,
-    depictionsAnnotator,
     data_attributesAnnotator,
-    documentationAnnotator,
-    alternate_valuesAnnotator,
-    identifiersAnnotator,
-    tagsAnnotator,
-    protocol_relationshipsAnnotator,
-    attributionAnnotator
+    biological_associationsAnnotator,
+    asserted_distributionsAnnotator,
+    common_namesAnnotator,
+    contentsAnnotator,
   },
   props: {
     reload: {
@@ -138,7 +126,7 @@ export default {
     },
     type: {
       type: String,
-      default: 'annotations'
+      default: 'graph'
     }
   },
   data: function () {
@@ -148,7 +136,7 @@ export default {
       url: undefined,
       globalIdSaved: undefined,
       metadata: undefined,
-      title: 'Radial annotator',
+      title: 'Otu radial',
       menuOptions: [],
       defaultTag: undefined,
       tagCreated: false
