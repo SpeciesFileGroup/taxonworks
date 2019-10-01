@@ -35,7 +35,7 @@
           legend="Creating Otu..."/>
       </div>
     </modal>
-    <radial-annotator
+    <otu-radial
       ref="annotator"
       type="graph"
       :show-bottom="false"
@@ -47,7 +47,7 @@
 
   import Modal from '../modal.vue'
   import Spinner from '../spinner.vue'
-  import RadialAnnotator from '../annotator/annotator.vue'
+  import RadialAnnotator from './otu_radial/radial'
   import { GetOtus, CreateOtu } from './request/resources'
 
   export default {
