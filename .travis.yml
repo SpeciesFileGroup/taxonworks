@@ -89,7 +89,7 @@ jobs:
         - docker-compose up -d --no-build
         - docker-compose logs
       script:
-        - docker-compose exec test bundle exec rspec -fd
+        - docker-compose exec test bundle exec rspec -fd && docker-compose exec taxonworks redis-cli ping
       after_success:
         - |
           [ "$TRAVIS_REPO_SLUG" == "SpeciesFileGroup/taxonworks" ] && \
