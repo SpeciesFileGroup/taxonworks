@@ -28,8 +28,8 @@ const GetTypes = function () {
   return ajaxCall('get', `/type_materials/type_types.json`)
 }
 
-const GetRelationshipsMetadata = () => {
-  return ajaxCall('get', '/taxon_name_relationships/taxon_name_relationship_types')
+const GetBiologicalRelationships = () => {
+  return ajaxCall('get', '/biological_relationships.json')
 }
 
 const GetBiocurations = () => {
@@ -48,7 +48,7 @@ export {
   GetNamespacesSmartSelector,
   GetCEAttributes,
   GetTypes,
-  GetRelationshipsMetadata,
+  GetBiologicalRelationships,
   GetBiocurations,
   GetCODWCA
 }

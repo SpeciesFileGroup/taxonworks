@@ -1,100 +1,54 @@
 <template>
   <div>
     <h2>In relationship</h2>
-    <smart-selector
-      class="separate-bottom"
-      :options="options"
-      v-model="view" 
-    />
-    <div class="separate-top">
-      <tree-display
-        v-if="view == smartOptions.all"
-        @close="view = undefined"
-        :object-lists="mergeLists"
-        modal-title="Relationships"
-        display="name"
-        @selected="addRelationship"
-      />
-      <ul
-        v-if="view == smartOptions.common"
-        class="no_bullets"
-      >
+    <div class="separate-bottom">
+      <ul class="no_bullets">
         <li
-          v-for="(item, key) in mergeLists.common"
+          v-for="(item, key) in biologicalRelationships"
           :key="key"
-          v-if="!filterAlreadyPicked(item.type)">
+          v-if="!filterAlreadyPicked(item.id)">
           <label>
             <input
               :value="key"
               @click="addRelationship(item)"
               type="radio">
-            {{ item.name }}
+            {{item.inverted_name? `${item.name} / ${item.inverted_name}` : item.name }}
           </label>
         </li>
       </ul>
-      <autocomplete
-        v-if="view == smartOptions.advanced"
-        url=""
-        :array-list="Object.keys(mergeLists.all).map(key => mergeLists.all[key])"
-        label="name"
-        :clear-after="true"
-        min="3"
-        time="0"
-        @getItem="addRelationship"
-        placeholder="Search"
-        event-send="autocompleteRelationshipSelected"
-        param="term" 
-      />
     </div>
-    <display-list
-      label="name"
-      set-key="type"
-      :delete-warning="false"
-      :list="relationshipSelected"
-      @delete="removeItem"/>
+    <div class="field separate-top">
+      <ul class="no_bullets table-entrys-list">
+        <li
+          class="middle flex-separate list-complete-item"
+          v-for="item in relationshipSelected"
+          :key="item.id">
+          <span>{{item.inverted_name? `${item.name} / ${item.inverted_name}` : item.name }}</span>
+          <span
+            class="btn-delete button-circle"
+            @click="removeItem(item)"/>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
 <script>
 
-import SmartSelector from 'components/switch'
-import TreeDisplay from './treeDisplay'
-import { GetRelationshipsMetadata } from '../../../request/resources.js'
-import Autocomplete from 'components/autocomplete'
-import DisplayList from 'components/displayList.vue'
-
-const OPTIONS = {
-  common: 'common',
-  advanced: 'advanced',
-  all: 'all'
-}
+import { GetBiologicalRelationships } from '../../../request/resources.js'
 
 export default {
-  components: {
-    SmartSelector,
-    TreeDisplay,
-    Autocomplete,
-    DisplayList
-  },
   props: {
     value: {
 
     }
   },
-  computed: {
-    smartOptions() {
-      return OPTIONS
-    }
-  },
   data() {
     return {
-      options: Object.values(OPTIONS),
       lists: [],
       paramRelationships: undefined,
-      view: OPTIONS.common,
-      relationshipsList: {},
+      biologicalRelationships: {},
       relationshipSelected: [],
-      mergeLists: {},
       relationships: [],
       typeSelected: undefined
     }
@@ -105,44 +59,15 @@ export default {
       this.relationshipSelected = []
     },
     relationshipSelected(newVal) {
-      this.$emit('input', newVal.map(relationship => { return relationship.type }))
+      this.$emit('input', newVal.map(relationship => { return relationship.id }))
     }
   },
   mounted() {
-    GetRelationshipsMetadata().then(response => {
-      this.relationshipsList = response.body
-      this.merge()
+    GetBiologicalRelationships().then(response => {
+      this.biologicalRelationships = response.body
     })
   },
   methods: {
-    merge() {
-      let nomenclatureCodes = Object.keys(this.relationshipsList)
-      let newList = {
-        all: {},
-        common: {},
-        tree: {}
-      }
-      nomenclatureCodes.forEach(key => {
-        newList.all = Object.assign(newList.all, this.relationshipsList[key].all)
-        newList.tree = Object.assign(newList.tree, this.relationshipsList[key].tree)
-        for (var keyType in this.relationshipsList[key].common) {
-          this.relationshipsList[key].common[keyType].name = `${this.relationshipsList[key].common[keyType].subject_status_tag} (${key})`
-          this.relationshipsList[key].common[keyType].type = keyType
-        }
-        newList.common = Object.assign(newList.common, this.relationshipsList[key].common)
-      })
-      this.getTreeList(newList.tree, newList.all)
-      this.mergeLists = newList
-    },
-    getTreeList (list, ranksList) {
-      for (var key in list) {
-        if (key in ranksList) {
-          Object.defineProperty(list[key], 'type', { value: key })
-          Object.defineProperty(list[key], 'name', { value: ranksList[key].subject_status_tag })
-        }
-        this.getTreeList(list[key], ranksList)
-      }
-    },
     removeItem(relationship) {
       this.relationshipSelected.splice(this.relationshipSelected.findIndex(item => {
         return item.type == relationship.type
@@ -150,11 +75,10 @@ export default {
     },
     addRelationship(item) {
       this.relationshipSelected.push(item)
-      this.view = OPTIONS.common
     },
-    filterAlreadyPicked: function (type) {
+    filterAlreadyPicked: function (id) {
       return this.relationshipSelected.find(function (item) {
-        return (item.type == type)
+        return (item.id == id)
       })
     }
   }

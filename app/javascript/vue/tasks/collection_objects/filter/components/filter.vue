@@ -35,7 +35,7 @@
       <identifier-component v-model="params.identifier"/>
       <types-component v-model="params.types"/>
       <loan-component v-model="params.loans"/>
-      <in-relationship v-model="params.relationships.relationships"/>
+      <in-relationship v-model="params.relationships.biological_relationship_ids"/>
       <biocurations-component v-model="params.biocurations.biocuration_class_ids"/>
     </div>
   </div>
@@ -114,7 +114,7 @@ export default {
           biocuration_class_ids: []
         },
         relationships: {
-          relationships: []
+          biological_relationship_ids: []
         },
         loans: {
           on_loan: undefined,
