@@ -47,14 +47,14 @@
 
   import Modal from '../modal.vue'
   import Spinner from '../spinner.vue'
-  import RadialAnnotator from './otu_radial/radial'
+  import OtuRadial from './otu_radial/radial'
   import { GetOtus, CreateOtu } from './request/resources'
 
   export default {
     components: {
       Modal,
       Spinner,
-      RadialAnnotator
+      OtuRadial
     },
     props: {
       taxonId: {
