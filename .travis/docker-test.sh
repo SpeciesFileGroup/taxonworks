@@ -16,4 +16,7 @@ docker-compose logs
 
 docker-compose exec test bundle exec rspec -fd
 
+# Test redis is running
+docker-compose exec taxonworks redis-cli ping
+
 docker-compose down --volumes
