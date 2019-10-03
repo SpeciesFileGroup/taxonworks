@@ -16,6 +16,7 @@
     />
     <div class="content">
       <otu-component v-model="params.base.otu_id"/>
+      <nav-bar-component :otu-id="params.base.otu_id"/>
     </div>
   </div>
 </template>
@@ -23,6 +24,7 @@
 <script>
 
 import OtuComponent from './filters/otu'
+import NavBarComponent from './navBar'
 
 import { GetOtuAssertedDistribution } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
@@ -31,7 +33,8 @@ import GetMacKey from 'helpers/getMacKey.js'
 export default {
   components: {
     OtuComponent,
-    SpinnerComponent
+    SpinnerComponent,
+    NavBarComponent
   },
   computed: {
     getMacKey() {

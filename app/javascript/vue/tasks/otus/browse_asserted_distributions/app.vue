@@ -28,7 +28,7 @@
           </label>
         </li>
         <li>
-          <csv-component :list="list"/>
+          <csv-component :list="assertedDistribution"/>
         </li>
       </ul>
     </div>
@@ -62,9 +62,9 @@
         </div>
         <list-component
           :class="{ 'separate-left': activeFilter }"
-          :list="list"/>
+          :list="assertedDistribution"/>
         <h3
-          v-if="alreadySearch && !list.length"
+          v-if="alreadySearch && !assertedDistribution.length"
           class="subtle middle horizontal-center-content">No records found.
         </h3>
       </div>
@@ -99,7 +99,6 @@ export default {
   data () {
     return {
       assertedDistribution: [],
-      list: [],
       urlRequest: '',
       activeFilter: true,
       activeJSONRequest: false,
@@ -115,8 +114,8 @@ export default {
     },
     resetTask() {
       this.alreadySearch = false
-      this.list = []
       this.urlRequest = ''
+      this.assertedDistribution = []
     },
     loadList(newList) {
       if(this.append) {
@@ -143,8 +142,8 @@ export default {
       height: 30px;
     }
     .filter {
-      width: 300px;
-      min-width: 300px;
+      width: 400px;
+      min-width: 400px;
     }
     /deep/ .vue-autocomplete-input {
       width: 100%;

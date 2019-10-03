@@ -4,22 +4,8 @@
       <thead>
         <tr>
           <th
-            :class="classSort('name')"
-            @click="sortTable('name')">Name</th>
-          <th
-            :class="classSort('verbatim_author')"
-            @click="sortTable('verbatim_author')">Author</th>
-          <th
-            :class="classSort('year_of_publication')"
-            @click="sortTable('year_of_publication')">Year</th>
-          <th
-            :class="classSort('original_combination')"
-            @click="sortTable('original_combination')">Original combination</th>
-          <th>Valid?</th>
-          <th
-            :class="classSort('rank')"
-            @click="sortTable('rank')">Rank</th>
-          <th>Parent</th>
+            :class="classSort('object_tag')"
+            @click="sortTable('object_tag')">Object tag</th>
           <th>Options</th>
         </tr>
       </thead>
@@ -28,19 +14,7 @@
           v-for="item in list"
           :key="item.id">
           <td>
-            <a
-              :href="`/tasks/nomenclature/browse?taxon_name_id=${item.id}`"
-              v-html="item.cached_html"/>
-          </td>
-          <td>{{item.verbatim_author}}</td>
-          <td>{{ item.year_of_publication }}</td>
-          <td v-html="item.original_combination"></td>
-          <td>{{ item.id === item.cached_valid_taxon_name_id }}</td>
-          <td>{{ item.rank }}</td>
-          <td>
-            <a
-              :href="`/tasks/nomenclature/browse?taxon_name_id=${item.parent.id}`"
-              v-html="item.parent.cached_html"/>
+            <span v-html="item.object_tag"/>
           </td> 
           <td class="options-column">
             <div class="horizontal-left-content">
