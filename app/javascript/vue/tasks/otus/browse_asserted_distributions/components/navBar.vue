@@ -10,7 +10,7 @@
             <radial-object :globalId="navList.current_otu.global_id"/>
           </div>
         </h3>
-      <template v-if="navList['parent_otus']">
+      <template v-if="navList.parent_otus.length">
         <h4>Parent</h4>
         <ul class="no_bullets">
           <li
@@ -20,7 +20,7 @@
           </li>
         </ul>
       </template>
-      <template v-if="navList['previous_otus']">
+      <template v-if="navList.previous_otus.length">
         <h4>Previous</h4>
         <ul class="no_bullets">
           <li 
@@ -30,7 +30,7 @@
           </li>
         </ul>
       </template>
-      <template v-if="navList['next_otus']">
+      <template v-if="navList.next_otus.length">
         <h4>Next</h4>
         <ul class="no_bullets">
           <li

@@ -27,9 +27,6 @@
             Append results
           </label>
         </li>
-        <li>
-          <csv-component :list="assertedDistribution"/>
-        </li>
       </ul>
     </div>
     <div
@@ -76,7 +73,6 @@
 import MapComponent from 'components/georeferences/map.vue'
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
-import CsvComponent from 'components/csvButton.vue'
 
 import { GetOtuAssertedDistribution } from './request/resources'
 
@@ -84,8 +80,7 @@ export default {
   components: {
     MapComponent,
     FilterComponent,
-    ListComponent,
-    CsvComponent
+    ListComponent
   },
   computed: {
     geojson() {
