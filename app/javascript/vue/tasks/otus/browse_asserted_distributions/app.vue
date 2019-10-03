@@ -61,7 +61,6 @@
             :resize="true"/>
         </div>
         <list-component
-          :class="{ 'separate-left': activeFilter }"
           :list="assertedDistribution"/>
         <h3
           v-if="alreadySearch && !assertedDistribution.length"
