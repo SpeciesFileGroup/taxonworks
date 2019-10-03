@@ -66,7 +66,7 @@ module OtusHelper
 
   def previous_otus(otu)
     if otu.taxon_name_id
-      if t = otu.taxon_name.previous_sibling&.otus.all
+      if t = otu.taxon_name.previous_sibling&.otus
         t 
       else
         []
