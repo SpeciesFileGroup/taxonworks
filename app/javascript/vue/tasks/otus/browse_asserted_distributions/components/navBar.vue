@@ -74,7 +74,7 @@ export default {
         this.loadNav(newVal)
       }
       else {
-        this.navList = []
+        this.navList = undefined
       }
     }
   },
