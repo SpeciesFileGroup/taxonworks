@@ -10,30 +10,36 @@
             <radial-object :globalId="navList.current_otu.global_id"/>
           </div>
         </h3>
-      <h4>Parent</h4>
-      <ul class="no_bullets">
-        <li
-          v-for="item in navList.parent_otus"
-          :key="item.id">
-          <a :href="`/tasks/otus/browse_asserted_distributions/index?otu_id=${item.id}`"> {{ item.object_label }}</a>
-        </li>
-      </ul>
-      <h4>Previous</h4>
-      <ul class="no_bullets">
-        <li 
-          v-for="item in navList.previous_otus"
-          :key="item.id">
-          <a :href="`/tasks/otus/browse_asserted_distributions/index?otu_id=${item.id}`"> {{ item.object_label }}</a>
-        </li>
-      </ul>
-      <h4>Next</h4>
-      <ul class="no_bullets">
-        <li
-          v-for="item in navList.next_otus"
-          :key="item.id">
-          <a :href="`/tasks/otus/browse_asserted_distributions/index?otu_id=${item.id}`"> {{ item.object_label }}</a>
-        </li>
-      </ul>
+      <template v-if="navList['parent_otus']">
+        <h4>Parent</h4>
+        <ul class="no_bullets">
+          <li
+            v-for="item in navList.parent_otus"
+            :key="item.id">
+            <a :href="`/tasks/otus/browse_asserted_distributions/index?otu_id=${item.id}`"> {{ item.object_label }}</a>
+          </li>
+        </ul>
+      </template>
+      <template v-if="navList['previous_otus']">
+        <h4>Previous</h4>
+        <ul class="no_bullets">
+          <li 
+            v-for="item in navList.previous_otus"
+            :key="item.id">
+            <a :href="`/tasks/otus/browse_asserted_distributions/index?otu_id=${item.id}`"> {{ item.object_label }}</a>
+          </li>
+        </ul>
+      </template>
+      <template v-if="navList['next_otus']">
+        <h4>Next</h4>
+        <ul class="no_bullets">
+          <li
+            v-for="item in navList.next_otus"
+            :key="item.id">
+            <a :href="`/tasks/otus/browse_asserted_distributions/index?otu_id=${item.id}`"> {{ item.object_label }}</a>
+          </li>
+        </ul>
+      </template>
     </div>
   </div>
 </template>
