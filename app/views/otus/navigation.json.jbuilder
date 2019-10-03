@@ -7,10 +7,10 @@ json.parent_otus do
 end
 
 json.previous_otus do
-  json.array! next_otus(@otu), partial:  'attributes', as: :otu
+  json.array! previous_otus(@otu), partial:  'attributes', as: :otu
 end
 
 json.next_otus do
-  json.array! previous_otus(@otu), partial:  'attributes', as: :otu
+  json.array! next_otus(@otu), partial:  'attributes', as: :otu
 end
 

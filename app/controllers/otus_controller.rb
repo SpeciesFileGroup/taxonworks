@@ -36,8 +36,8 @@ class OtusController < ApplicationController
     @otus = Otu.with_project_id(sessions_current_project_id).page(params[:page]).per(params[:per])
   end
 
+  # GET /otus/1/navigation.json
   def navigation
-
   end
 
   # POST /otus
