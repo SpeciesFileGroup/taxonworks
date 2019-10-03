@@ -15,9 +15,7 @@
     <div class="panel basic-information">
       <div class="content header">
         <h3
-          v-if="taxon.id"
-          v-shortkey="[getMacKey(), 'p']"
-          @shortkey="loadParent()"          
+          v-if="taxon.id"       
           class="flex-separate middle">
           <a
             v-shortkey="[getMacKey(), 't']"
