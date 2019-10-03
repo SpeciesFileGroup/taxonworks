@@ -1,7 +1,7 @@
 <template>
   <div id="vue-task-browse-asserted-distribution-otu">
     <div class="flex-separate middle">
-      <h1>Otu distributions</h1>
+      <h1>OTU asserted distributions</h1>
       <ul class="context-menu">
         <li>
           <label>
