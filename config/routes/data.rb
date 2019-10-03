@@ -386,8 +386,8 @@ resources :otus do
   resources :common_names, shallow: true, only: [:index], defaults: {format: :json}
 
   resources :contents, only: [:index]
-  collection do
 
+  collection do
     # TODO: this is get
     post :preview_data_attributes_batch_load
     post :create_data_attributes_batch_load
@@ -406,6 +406,11 @@ resources :otus do
 
     get :select_options, defaults: {format: :json}
   end
+
+  member do
+    get :navigation, defaults: {format: :json}
+  end
+
 end
 
 resources :otu_page_layouts do
