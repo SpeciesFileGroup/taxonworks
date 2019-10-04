@@ -131,7 +131,7 @@ namespace :tw do
 
 
         desc 'time rake tw:project_import:sf_import:start:create_sf_family_group_related_info user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define create_sf_family_taxon_name_authors: [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_sf_family_taxon_name_info: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Running create_sf_family_group_related_info...'
 
