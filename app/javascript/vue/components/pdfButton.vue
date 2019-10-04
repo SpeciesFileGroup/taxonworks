@@ -26,7 +26,6 @@
             pageNumber: this.pdf.target_page
           }
         }
-        console.log(details)
         document.dispatchEvent(new CustomEvent('pdfViewer:load', {
           detail: details
         }));
