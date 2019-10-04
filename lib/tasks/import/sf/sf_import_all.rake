@@ -4,13 +4,10 @@ namespace :tw do
 
       # @todo: Matt: combinations for citations
 
-      # rake tw:db:restore backup_directory=../db_backup file=../db_backup/0_pristine_tw_init_all/2016-04-26_192513UTC.dump
-
       desc 'time rake tw:project_import:sf_import:run_all_import_tasks user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
       #  time rake tw:project_import:sf_import:run_all_import_tasks user_id=1 data_directory=/Users/sfg/src/onedb2tw/working/
       task run_all_import_tasks: [
 
-          # 'tw:db:restore backup_directory=../db_backup file=../db_backup/0_pristine_tw_init_all/2016-04-26_192513UTC.dump',
           # rake tw:db:restore_last backup_directory=../db_backup/0_pristine_tw_init_all/
 
           # 'start:list_skipped_file_ids',
