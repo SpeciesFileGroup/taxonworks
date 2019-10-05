@@ -19,7 +19,7 @@ gem 'rdf', '~> 3.0'
 
 # System
 gem 'thor', '~> 0.19.4' # See https://github.com/rails/rails/issues/27229
-gem 'rubyzip', '~> 1.2.2'
+gem 'rubyzip', '~> 2.0.0'
 gem 'daemons', '~> 1.3.1'
 gem 'tzinfo-data', '~> 1.2018.4'
 gem 'psych', '~> 3.1.0'
