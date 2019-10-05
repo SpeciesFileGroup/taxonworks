@@ -209,8 +209,6 @@ class Source < ApplicationRecord
   #  When true, cached values are not built
   attr_accessor :no_year_suffix_validation
 
-
-
   # Keep this order for citations/topics
   has_many :citations, inverse_of: :source, dependent: :restrict_with_error
   has_many :citation_topics, through: :citations, inverse_of: :source
