@@ -168,7 +168,7 @@ export default {
           this.$http.get(`/taxon_names/${this.taxon.cached_valid_taxon_name_id}`).then(res => {
             this.validTaxon = res.body
             this.isLoading = true
-            this.$http.get(`/taxon_names?parent_id[]=${this.taxon.id}`).then(response => {
+            this.$http.get(`/taxon_names?taxon_name_id[]=${this.taxon.id}&descendants=true`).then(response => {
               this.childrenList = response.body
               this.isLoading = false
             })
