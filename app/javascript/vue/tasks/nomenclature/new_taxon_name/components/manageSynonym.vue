@@ -169,7 +169,7 @@ export default {
             this.validTaxon = res.body
             this.isLoading = true
             this.$http.get(`/taxon_names?taxon_name_id[]=${this.taxon.id}&descendants=true`).then(response => {
-              this.childrenList = response.body
+              this.childrenList = response.body.filter(item => { return item.id != this.taxon.id })
               this.isLoading = false
             })
           })
