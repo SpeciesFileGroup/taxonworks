@@ -447,7 +447,7 @@ class Person < ApplicationRecord
   # @return [Hash] geographic_areas optimized for user selection
   def self.select_optimized(user_id, project_id, role_type = 'SourceAuthor')
     h = {
-      quick:    [],
+      quick: [],
       pinboard: Person.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a
     }
 
@@ -458,7 +458,6 @@ class Person < ApplicationRecord
     h[:quick] = (Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a + h[:recent][0..3]).uniq
     h
   end
-
 
   protected
 
