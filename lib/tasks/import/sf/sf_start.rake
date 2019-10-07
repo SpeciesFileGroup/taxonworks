@@ -295,7 +295,7 @@ namespace :tw do
                 booktitle: booktitle.blank? ? nil : booktitle,
                 publisher: publisher.blank? ? nil : publisher,
                 address: address.blank? ? nil : address,
-                serial_id: get_tw_serial_id[row['PubID']],
+                serial_id: get_tw_serial_id[pub_id],
                 series: row['Series'],
                 volume: row['Volume'],
                 number: row['Issue'],
@@ -308,10 +308,11 @@ namespace :tw do
                 created_by_id: get_tw_user_id[row['CreatedBy']],
                 updated_by_id: get_tw_user_id[row['ModifiedBy']]
             )
-            # end
 
             begin
               source.save!
+
+              puts "RefID = #{ref_id}, PubID = #{pub_id}, serial_id = #{get_tw_serial_id[pub_id]}"
 
               if row['ActualYear'].include?('-') or row['StatedYear'].include?('-')
                 source.data_attributes << ImportAttribute.new(import_predicate: 'SF verbatim reference for year range', value: get_sf_verbatim_ref[ref_id])
@@ -335,9 +336,19 @@ namespace :tw do
 
             rescue ActiveRecord::RecordInvalid
               logger.info "Source ERROR (#{error_counter += 1}): " + source.errors.full_messages.join(';')
-              # @todo Not found: Slater, J.A. Date unknown. A Catalogue of the Lygaeidae of the world. << RefID = 44058, PubID = 21898
+                # @todo Not found: Slater, J.A. Date unknown. A Catalogue of the Lygaeidae of the world. << RefID = 44058, PubID = 21898
+            rescue StandardError => e
+              # byebug
+              puts "Rescued: #{e.inspect}"
+            rescue AnotherError => e
+              # byebug
+              puts "Rescued, but with a different block: #{e.inspect}"
             end
+
           end
+          
+
+
 
           ##### Second Ref loop: Create sources for SF.tblRefs.ContainingRefID > 0
           # skip if get_contained_cite_aux_data[sf_ref_id] -- do not create this source stub
@@ -662,7 +673,7 @@ namespace :tw do
           logger.info 'Running map_serials...'
 
           # pubs = DataAttribute.where(import_predicate: 'SF ID', attribute_subject_type: 'Serial').limit(10).pluck(:value, :attribute_subject_id)
-          get_tw_serial_id = DataAttribute.where(import_predicate: 'SF ID', attribute_subject_type: 'Serial').pluck(:value, :attribute_subject_id).to_h.to_s
+          get_tw_serial_id = DataAttribute.where(import_predicate: 'SF ID', attribute_subject_type: 'Serial').pluck(:value, :attribute_subject_id).to_h #.to_s
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           import.set('SFPubIDToTWSerialID', get_tw_serial_id)
