@@ -51,6 +51,23 @@ module Queries
       #   false = TaxonDetermination must be .historical
       attr_accessor :current_determinations 
 
+      # @return [True, nil]
+      attr_accessor :on_loan
+
+      # @return [True, nil]
+      attr_accessor :loaned
+
+      # @return [True, nil]
+      attr_accessor :never_loaned
+
+      # @return [Array]
+      #   of biocuration_class ids
+      attr_accessor :biocuration_class_ids
+
+      # @return [Array]
+      #   of biological_relationship_ids
+      attr_accessor :biological_relationship_ids
+
       # @param [Hash] args are permitted params
       def initialize(params)
         params.reject!{ |_k, v| v.blank? } # dump all entries with empty values
@@ -67,7 +84,18 @@ module Queries
         @current_determinations = (params[:current_determinations]&.downcase == 'true' ? true : false) if !params[:current_determinations].nil?
         @validity = (params[:validity]&.downcase == 'true' ? true : false) if !params[:validity].nil?
 
+        @on_loan = (params[:on_loan]&.downcase == 'true' ? true : false) if !params[:on_loan].nil?
+        @loaned = (params[:loaned]&.downcase == 'true' ? true : false) if !params[:loaned].nil?
+        @never_loaned = (params[:never_loaned]&.downcase == 'true' ? true : false) if !params[:never_loaned].nil?
+
+        @biocuration_class_ids = params[:biocuration_class_ids] || []
+
+        @biological_relationship_ids = params[:biological_relationship_ids] || []
+
+
         @collecting_event_query = Queries::CollectingEvent::Filter.new(params)
+
+       
 
         set_identifier(params)
         set_tags_params(params)
@@ -96,6 +124,31 @@ module Queries
       # @return [Arel::Table]
       def taxon_determination_table 
         ::TaxonDetermination.arel_table
+      end
+
+      def biocuration_facet
+        return nil if biocuration_class_ids.empty?
+        ::CollectionObject::BiologicalCollectionObject.joins(:biocuration_classifications).where(biocuration_classifications: {biocuration_class_id: biocuration_class_ids}) 
+      end
+
+      def biological_relationship_ids_facet
+        return nil if biological_relationship_ids.empty?
+        ::CollectionObject.with_biological_relationship_ids(biological_relationship_ids)
+      end
+
+      def loaned_facet
+        return nil unless loaned 
+        ::CollectionObject.loaned
+      end
+
+      def never_loaned_facet
+        return nil unless never_loaned 
+        ::CollectionObject.never_loaned
+      end
+
+      def on_loan_facet
+        return nil unless on_loan
+        ::CollectionObject.on_loan
       end
 
       # @return Scope
@@ -151,12 +204,16 @@ module Queries
           matching_keyword_ids, # See Queries::Concerns::Tags
           created_modified_facet, # See Queries::Concerns::Users
           identifier_between_facet,
-          identifier_facet
+          identifier_facet,
+          loaned_facet,
+          on_loan_facet,
+          never_loaned_facet,
+          biocuration_facet,
+          biological_relationship_ids_facet
         ]
 
         clauses.compact!
         return nil if clauses.empty?
-
         a = clauses.shift
         clauses.each do |b|
           a = a.merge(b)

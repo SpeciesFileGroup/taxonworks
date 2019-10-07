@@ -34,7 +34,9 @@ class Otu < ApplicationRecord
   include Shared::Loanable
   include Shared::Confidences
   include Shared::Observations 
+  include Shared::BiologicalAssociations 
   include Shared::HasPapertrail
+  
   include Shared::IsData
 
   GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents]
@@ -42,9 +44,6 @@ class Otu < ApplicationRecord
   belongs_to :taxon_name, inverse_of: :otus
 
   has_many :asserted_distributions, inverse_of: :otu
-
-  has_many :biological_associations, as: :biological_association_subject, inverse_of: :biological_association_subject 
-  has_many :related_biological_associations, as: :biological_association_object, inverse_of: :biological_association_object, class_name: 'BiologicalAssociation'
 
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy
   has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus
@@ -69,12 +68,6 @@ class Otu < ApplicationRecord
 
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
   scope :with_name, -> (name) { where(name: name) }
-
-  scope :with_biological_associations, -> {
-    joins("LEFT OUTER JOIN biological_associations tnr1 ON otus.id = tnr1.biological_association_subject_id AND tnr1.biological_association_object_type = 'Otu'").
-    joins("LEFT OUTER JOIN biological_associations tnr2 ON otus.id = tnr2.biological_association_object_id AND tnr2.biological_association_object_type = 'Otu'").
-    where('tnr1.biological_association_object_id IS NOT NULL OR tnr2.biological_association_object_id IS NOT NULL')
-  }
 
   # @param [Integer] otu_id
   # @param [String] rank_class
@@ -104,22 +97,6 @@ class Otu < ApplicationRecord
   soft_validate(:sv_duplicate_otu, set: :duplicate_otu)
 
   accepts_nested_attributes_for :common_names, allow_destroy: true
-
-  # @return [Array]
-  #   all bilogical associations this Otu is part of
-  def all_biological_associations
-    # !! If self relationships are ever made possible this needs a DISTINCT clause
-    BiologicalAssociation.find_by_sql(
-      "SELECT biological_associations.*
-         FROM biological_associations
-         WHERE biological_associations.biological_association_subject_id = #{self.id} 
-           AND biological_associations.biological_association_subject_type = 'Otu'
-       UNION
-       SELECT biological_associations.*
-         FROM biological_associations
-         WHERE biological_associations.biological_association_object_id = #{self.id}
-           AND biological_associations.biological_association_object_type = 'Otu' ")
-  end
 
   # return [Scope] the Otus bound to that taxon name and its descendants
   def self.for_taxon_name(taxon_name)

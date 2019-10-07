@@ -47,8 +47,8 @@ module Queries
       attr_accessor :geographic_area_ids
 
       # @return [Array]
-      #   values are ATTRIBUTES that should *not* be wildcarded
-      attr_accessor :collecting_event_exact_matches
+      #   values are ATTRIBUTES that should be wildcarded
+      attr_accessor :collecting_event_wildcards
 
       def initialize(params)
         @in_labels = params[:in_labels]
@@ -64,7 +64,7 @@ module Queries
 
         @geographic_area_ids = params[:geographic_area_ids].blank? ? [] : params[:geographic_area_ids]
 
-        @collecting_event_exact_matches = params[:collecting_event_exact_matches] || []
+        @collecting_event_wildcards = params[:collecting_event_wildcards] || []
 
         set_attributes(params)
         set_dates(params)
@@ -90,10 +90,10 @@ module Queries
         ATTRIBUTES.each do |a|
           if v = send(a)
             if !v.blank?
-              if collecting_event_exact_matches.include?(a)
-                c.push table[a.to_sym].eq(v)
-              else
+              if collecting_event_wildcards.include?(a)
                 c.push table[a.to_sym].matches('%' + v.to_s + '%')
+              else
+                c.push table[a.to_sym].eq(v)
               end
             end
           end

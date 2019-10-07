@@ -194,15 +194,65 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       expect(query.all.map(&:id)).to contain_exactly(co1.id)
     end
 
-    specify '#verbatim_locality' do
+    specify '#verbatim_locality (partial)' do
       query.collecting_event_query.verbatim_locality = 'Out there'
-      expect(query.all.map(&:id)).to contain_exactly(co1.id)
+      query.collecting_event_query.collecting_event_wildcards = ['verbatim_locality']
+      expect(query.all.map(&:id)).to contain_exactly(co1.id, co2.id)
+    end
+
+    specify '#verbatim_locality (exact)' do
+      query.collecting_event_query.verbatim_locality = 'Out there, under the stars'
+      expect(query.all.map(&:id)).to contain_exactly(co2.id)
     end
 
     specify '#start_date/#end_date' do
       query.collecting_event_query.start_date = '1999-1-1'
       query.collecting_event_query.end_date = '2001-1-1'
       expect(query.all.map(&:id)).to contain_exactly(co2.id)
+    end
+
+    context 'biological_relationships' do
+      let!(:co3) { Specimen.create! }
+      let!(:br) { FactoryBot.create(:valid_biological_association, biological_association_subject: co1) }
+
+      specify '#biological_relationship_ids' do
+        query.biological_relationship_ids = [ br.biological_relationship_id ] 
+        expect(query.all.map(&:id)).to contain_exactly(co1.id)
+      end
+    end
+
+    context 'biocuration' do
+      let!(:bc1) { FactoryBot.create(:valid_biocuration_classification, biological_collection_object: co1) }
+
+      specify '#biocuration_class_ids' do
+        query.biocuration_class_ids = [ co1.biocuration_classes.first.id ]
+        expect(query.all.map(&:id)).to contain_exactly(co1.id)
+      end
+
+      specify '#biocuration_class_ids + not bio' do
+        query.biocuration_class_ids = [ co1.biocuration_classes.first.id ]
+        query.loaned = false
+        expect(query.all.map(&:id)).to contain_exactly(co1.id)
+      end
+    end
+
+    context 'loans' do
+      let!(:li1) { FactoryBot.create(:valid_loan_item, loan_item_object: co1) }
+
+      specify '#loaned' do
+        query.loaned = true 
+        expect(query.all.map(&:id)).to contain_exactly(co1.id)
+      end
+
+      specify '#on_loan' do
+        query.on_loan = true 
+        expect(query.all.map(&:id)).to contain_exactly(co1.id)
+      end
+
+      specify '#never_loaned' do
+        query.never_loaned = true 
+        expect(query.all.map(&:id)).to contain_exactly(co2.id)
+      end
     end
 
     # Merge clauses

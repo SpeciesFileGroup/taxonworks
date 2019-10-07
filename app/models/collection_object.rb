@@ -73,8 +73,9 @@ class CollectionObject < ApplicationRecord
   include Shared::Confidences
   include Shared::ProtocolRelationships
   include Shared::HasPapertrail
-  include Shared::IsData
   include Shared::Observations
+  include Shared::BiologicalAssociations # Belongs in BiologicalCollectionObject ultimately
+  include Shared::IsData
   include SoftValidation
 
   include Shared::IsDwcOccurrence
@@ -113,9 +114,6 @@ class CollectionObject < ApplicationRecord
   has_one :accession_provider, through: :accession_provider_role, source: :person
   has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object, dependent: :destroy
   has_one :deaccession_recipient, through: :deaccession_recipient_role, source: :person
-
-  has_many :biological_associations, as: :biological_association_subject, inverse_of: :biological_association_subject, dependent: :restrict_with_error
-  has_many :related_biological_associations, as: :biological_association_object, inverse_of: :biological_association_object, class_name: 'BiologicalAssociation'
 
   has_many :derived_collection_objects, inverse_of: :collection_object, dependent: :restrict_with_error
   has_many :collection_object_observations, through: :derived_collection_objects, inverse_of: :collection_objects
@@ -235,7 +233,7 @@ class CollectionObject < ApplicationRecord
 
   def annotations
     h = annotations_hash
-    (h['biocuration classifications'] = self.biocuration_classes) if self.biological? && self.biocuration_classifications.load.any?
+    (h['biocuration classifications'] = biocuration_classes) if biological? && biocuration_classifications.load.any?
     h
   end
 

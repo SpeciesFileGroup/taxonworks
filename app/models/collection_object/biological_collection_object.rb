@@ -1,6 +1,10 @@
 # A collection object that is classified as being biological in origin.
 #
 class CollectionObject::BiologicalCollectionObject < CollectionObject
+
+  # Belongs here (see also TaxonDetermination), added to CollectionObject
+  # include Shared::BiologicalAssociations
+
   is_origin_for 'Extract', 'CollectionObject::BiologicalCollectionObject'
 
   has_many :biocuration_classifications,  inverse_of: :biological_collection_object, dependent: :destroy
@@ -50,6 +54,8 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
     end
     return true
   end
+
+  protected 
 
   def sv_missing_determination
     soft_validations.add(:base, 'Determination is missing') if self.reload_current_taxon_determination.nil?
