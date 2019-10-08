@@ -17,6 +17,7 @@
             <input
               type="radio"
               :value="item.value"
+              :disabled="!identifier.identifier || !identifier.identifier.length"
               v-model="identifier.identifier_exact"
               name="match-radio">
             {{ item.label }}
@@ -27,17 +28,17 @@
     <h3>In range</h3>
     <div class="horizontal-left-content">
       <div class="field separate-right">
-        <label>Start date:</label>
+        <label>Start:</label>
         <br>
         <input 
-          type="date"
+          type="text"
           v-model="identifier.identifier_start">
       </div>
       <div class="field">
-        <label>End date:</label>
+        <label>End:</label>
         <br>
         <input
-          type="date"
+          type="text"
           v-model="identifier.identifier_end">
       </div>
     </div>
@@ -106,6 +107,16 @@ export default {
       set (value) {
         this.$emit('input', value)
       }
+    }
+  },
+  watch: {
+    identifier: {
+      handler(newVal) {
+        if(!newVal.identifier || !newVal.identifier.length) {
+          this.identifier.identifier_exact = undefined
+        }
+      },
+      deep: true
     }
   },
   data () {

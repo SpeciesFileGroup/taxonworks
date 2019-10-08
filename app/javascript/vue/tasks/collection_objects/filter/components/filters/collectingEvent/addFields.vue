@@ -119,7 +119,7 @@ export default {
       handler (newVal) {
         let matches = newVal.filter(item => { return item.exact }).map(item => { return item.param })
         let fields = {
-          collecting_event_partial_matches: matches
+          collecting_event_wildcards: matches
         }
         newVal.forEach(item => {
           fields[item.param] = item.value

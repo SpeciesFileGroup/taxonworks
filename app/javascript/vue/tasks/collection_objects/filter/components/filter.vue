@@ -145,7 +145,7 @@ export default {
           start_date: undefined,
           end_date: undefined,
           partial_overlap_dates: undefined,
-          collecting_event_partial_matches: [],
+          collecting_event_wildcards: [],
           fields: undefined
         },
         user: {
