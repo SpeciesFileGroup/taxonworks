@@ -608,7 +608,7 @@ class Source::Bibtex < Source
   #   the identifier of this type, relies on Identifier to enforce has_one for Global identifiers
   #   !! behaviour for Identifier::Local types may be unexpected
   def identifier_string_of_type(type_value)
-    identifiers.where(type: type_value).first.try(:identifier)
+    identifiers.where(type: type_value).first&:identifier
   end
 
  #endregion getters & setters

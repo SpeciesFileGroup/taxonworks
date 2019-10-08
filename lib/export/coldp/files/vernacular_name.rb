@@ -8,7 +8,7 @@
 # lifestage
 # sex
 # reference_id
-
+#
 module Export::Coldp::Files::VernacularName
 
   # return the 'English' translation(s) if available
@@ -25,30 +25,33 @@ module Export::Coldp::Files::VernacularName
     common_name.geographic_area&.self_and_ancestors&.collect{|a| a.name}&.join('; ')
   end
 
-  # TODO: Map to biocuration attribute?
+  # TODO: Map to biocuration attribute via URI hopefully
   def self.life_stage(common_name)
     nil
   end
 
-  # TODO: Map to biocuration attribute?
+  # TODO: Map to biocuration attribute via URI hopefully
   def self.sex(common_name)
     nil
   end
 
   # "supporting the taxonomic concept" 
   # Potentially- all other Citations tied to Otu, what exactly supports a concept?
+  # Not used internally, for reference only
   def self.reference_id(common_name)
     i = common_name.sources.pluck(:id)
     return i.join(',') if i.any?
     nil
-    # TODO: add sources to reference list
   end
 
-  def self.generate(otus)
+  def self.generate(otus, reference_csv = nil )
     # TODO tabs delimit
     CSV.generate do |csv|
       otus.each do |o|
         o.common_names.each do |n|
+
+          sources = n.sources.load
+
           csv << [
             o.id,
             n.name,
@@ -56,11 +59,12 @@ module Export::Coldp::Files::VernacularName
             n.language&.alpha_3_bibliographic,
             n.geographic_area&.level0&.iso_3166_a2,
             area(n),
-           reference_id(n)
+            sources.collect{|a| a.id}.join(',')  # reference_id  
           ]
+        
+          Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv) if reference_csv && sources.any?
         end
       end
     end
   end
 end
-

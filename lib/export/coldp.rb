@@ -1,16 +1,23 @@
-#
-# http://api.col.plus/datapackage
-# https://github.com/frictionlessdata/datapackage-rb
-# https://github.com/frictionlessdata/tableschema-rb
-#
-#
-# TODO: use https://github.com/frictionlessdata/datapackage-rb to ingest frictionless data,
-# then each module will provide a correspond method to each field
-# write tests to check for coverage (missing methods)
-# 
+require 'zip'
+
 module Export
+
+  # TODO: Explore https://github.com/frictionlessdata/datapackage-rb to ingest frictionless data,
+  # then each module will provide a correspond method to each field
+  # write tests to check for coverage (missing methods)
+  # 
+  # http://api.col.plus/datapackage
+  # https://github.com/frictionlessdata/datapackage-rb
+  # https://github.com/frictionlessdata/tableschema-rb
+  #
+  #
+  # * Update all files formats to use tabs 
+  #
+  # Exports to the Catalog of Life in the new "coldp" format.
   module Coldp
-    
+
+    FILETYPES = %w{Description Name Synonym Taxon VernacularName}.freeze
+
     # @return [Scope]
     #   should return the full set of Otus (= Taxa in CoLDP) that are to
     #   be sent.
@@ -21,20 +28,33 @@ module Export
       a = o.taxon_name.descendants
       ::Otu.joins(:taxon_name).where(taxon_name: a) 
     end
+
+    def self.export(otu_id)
+      otus = otus(otu_id)
+      ref_csv = CSV.new('temp_ref_csv')
+
+      # TODO: This will likely have to change, it is renamed on serving the file.
+      zipfile_name = "/tmp/_#{SecureRandom.hex(8)}_coldp.zip"
+
+      Zip::File.open(zipfile_name, Zip::File::CREATE) do |zipfile|
+        # Synonym doesn't have source
+        # Name uses different params
+        (FILETYPES - ['Name']).each do |ft| 
+          m = "Export::Coldp::Files::#{ft}".safe_constantize
+          zipfile.get_output_stream("#{ft}.csv") { |f| f.write m.generate(otus, ref_csv) }
+        end 
+
+        zipfile.get_output_stream('Name.csv') { |f| f.write Export::Coldp::Files::Name.generate( Otu.find(otu_id), ref_csv) }
+
+        ref_csv.rewind
+        zipfile.get_output_stream('References.csv') { |f| f.write ref_csv.string }
+        ref_csv.close
+      end
+      
+      # TODO: 
+
+      zipfile_name
+    end 
+
   end
-
-  # columns = []
-  # some_resource.fields.each do |f|
-  #   columns.push get_value(f)
-  # end
-  #
-  # capture no method
-  #def get_value(f)
-  #  if a = send(f)
-  #    a
-  #  else
-  #    nil
-  #  end
-  #end
-
 end

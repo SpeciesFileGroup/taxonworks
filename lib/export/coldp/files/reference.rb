@@ -1,32 +1,39 @@
-# IS THIS OTU/OTU synonymy?!
-# Technically this is Otu to Name
-#   however in backend this is NameUsage : Name
-module Export::Coldp::Files::Synonym
+module Export::Coldp::Files::Reference
 
+  # This default method dumps the whole of project sources,
+  # as an alternate way to generate the reference file.
+  #
+  # !! It is not integrated yet.
+  # 
+  def self.generate(project_id)
     CSV.generate do |csv|
-      otus.each do |o|
-
-        # description
-        o.contents.each do |c|
-        end
-  
-        # name
-        otu.taxon_name.descendants.each do |t|
-        end
-     
-        # synonym
-        o.taxon_name.self_and_descendants.that_is_invalid.each do |t|
-        end
-      
-        # taxon
-         otu.sources.pluck(:id)
-       
-        # vernacular_names
-         o.common_names.each do |n|
-         end
-
+      Source.joins(:project_sources).where(project_sources: {project_id: project_id} ).each do |s|
+        csv << ref_row(source)
       end
     end
   end
-end
+    
+  def self.add_reference_rows(sources = [], reference_csv)
+    sources.each do |s|
+      reference_csv << ref_row(s)   
+    end 
+  end
 
+  def self.ref_row(source)
+    [
+      source.id,
+      source.cached,
+      source.cached_author_string,
+      source.year,
+      source.journal,                # source.source
+      reference_details(source),     # details (pages, volume, year)
+      source.doi 
+    ]
+  end
+
+  # TODO: this makes little sense without more structure, just spam stuff in until we understand more
+  def self.reference_details(source)
+    [source.pages, source.volume, source.number, source.bibtex_type].compact.join(';') 
+  end
+  
+end

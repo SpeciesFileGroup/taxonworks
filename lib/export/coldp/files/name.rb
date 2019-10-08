@@ -1,9 +1,6 @@
-# remarks
-
-# References
-#   http://api.col.plus/vocab/rank
-#
-#  https://github.com/SpeciesFileGroup/taxonworks/issues/1040
+# See 
+# * http://api.col.plus/vocab/rank
+# * https://github.com/SpeciesFileGroup/taxonworks/issues/1040
 module Export::Coldp::Files::Name
 
   # We don't cover ICNCP?
@@ -28,15 +25,17 @@ module Export::Coldp::Files::Name
     Utilities::Strings.nil_squish_strip(taxon_name.notes.collect{|n| n.text}.join('; ')) # remarks - !! check for tabs
   end
 
-  def self.published_in_id_field(taxon_name)
-    a = taxon_name.source&.id 
-    # export_object.sources.push a # keep track of all the sources we need when we get to source tracking
-    a
+  # Not used in main loop, for reference only
+  def published_in_id(taxon_name)
+    taxon_name.source&.id
   end
 
-  def self.generate(otu)
+  def self.generate(otu, reference_csv = nil)
     CSV.generate do |csv|
       otu.taxon_name.descendants.each do |t|
+
+        source = t.source # published_in_id_field
+
         csv << [
           t.id,                                      # ID
           t.cached,                                  # scientificName
@@ -46,8 +45,8 @@ module Export::Coldp::Files::Name
           t.ancestor_at_rank('subgenus')&.cached,    # infragenericEpithet
           t.ancestor_at_rank('species')&.cached,     # specificEpithet 
           t.ancestor_at_rank('subspecies')&.cached,  # infraspecificEpithet
-          published_in_id_field(t),                  # publishedInID
-          t.source&.pages,                           # publishedInPage
+          source&.id,                                # publishedInID
+          source&.pages,                             # publishedInPage
           t.year_of_publication,                     # publishedInYear
           t.type == 'Protonym' ? true : false,       # original 
           code_field(t),                             # code 
@@ -55,9 +54,10 @@ module Export::Coldp::Files::Name
           nil,                                       # link (probably TW public or API)
           remarks_field(t),                                       # remarks
         ] 
+
+        Export::Coldp::Files::Reference.add_reference_rows([source], reference_csv) if reference_csv
       end
     end
 
   end
 end
-

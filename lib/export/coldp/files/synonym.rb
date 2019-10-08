@@ -1,10 +1,11 @@
-# IS THIS OTU/OTU synonymy?!
+# Is this OTU/OTU synonymy?!
 # Technically this is Otu to Name
 #   however in backend this is NameUsage : Name
+#   
 module Export::Coldp::Files::Synonym
 
   # We don't cover ICNCP?
-  def self.generate(otus)
+  def self.generate(otus, reference_csv = nil)
 
     # @return String
     # Last 3 of http://api.col.plus/vocab/taxonomicstatus
@@ -14,7 +15,7 @@ module Export::Coldp::Files::Synonym
       #'ambiguous synonym'
 
       #'missaplied'
-     
+
       'synonym' 
     end
 
@@ -33,7 +34,9 @@ module Export::Coldp::Files::Synonym
           ]
         end
       end
+
+      # If we cite relationships then we add sources here (when CoL allows)
+      # Export::Coldp::Files::Reference.add_reference_rows([], reference_csv) if reference_csv
     end
   end
 end
-

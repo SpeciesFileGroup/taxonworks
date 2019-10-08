@@ -1,17 +1,25 @@
-
-# ID	parentID	nameID	provisional	accordingTo	accordingToID	accordingToDate	referenceID	fossil	recent	lifezone	link	remarks
-
-
 #
-
-
-
-
-
-
-
+# ID
+# parentID
+# nameID
+# provisional
+# accordingTo
+# accordingToID
+# accordingToDate
+# referenceID
+# fossil
+# recent
+# lifezone
+# link
+# remarks
+#
 module Export::Coldp::Files::Taxon
 
+  # TODO: populate
+  def self.references(otus)
+    []
+  end
+  
   # return [Boolean, nil]
   #  TODO - reason in TW this is provision
   def self.provisional(otu)
@@ -51,16 +59,6 @@ module Export::Coldp::Files::Taxon
     nil
   end
 
-  # "supporting the taxonomic concept" 
-  # Potentially- all other Citations tied to Otu, what exactly supports a concept?
-  def self.reference_id(otu)
-    i = otu.sources.pluck(:id)
-    return i.join(',') if i.any?
-    nil
-    # TODO: add sources to reference list
-  end
-
-
   # Predicates in TaxonWorks
   #   - make them default on Otu form
   #   - read in constants from API
@@ -97,58 +95,41 @@ module Export::Coldp::Files::Taxon
     otu.notes.pluck(:text).join('|')
   end
 
-  def self.generate(otus)
+  # "supporting the taxonomic concept" 
+  # Potentially- all other Citations tied to Otu, what exactly supports a concept?
+  def self.reference_id(sources)
+    i = sources.pluck(:id)
+    return i.join(',') if i.any?
+    nil
+  end
+
+  def self.generate(otus, reference_csv = nil )
     # TODO tabs delimit
     CSV.generate do |csv|
       otus.each do |o|
+
+        # TODO: Use Otu.coordinate_otus to summarize accros different instances
+        sources = o.sources 
+        
         csv << [
-          o.id,                              # ID
-          o.parent_otu.id,                   # parentID
-          o.taxon_name.id,                   # nameID
-          provisional(o),                    # provisional
-          according_to(o),                   # accordingTo
-          according_to_id(o),                # accordingToID
-          according_to_date(o),              # accordingToDate
-          reference_id(o),                   # referenceID
-          extinct(o),                        # extinct
-          temporal_range_start(o),           # temporalRangeStart
-          temporal_range_end(o),             # temporalRangeEnd
-          lifezone(o),                       # lifezone
-          link(o),                           # link
-          remarks(o)                         # remarks
+          o.id,                     # ID
+          o.parent_otu.id,          # parentID
+          o.taxon_name.id,          # nameID
+          provisional(o),           # provisional
+          according_to(o),          # accordingTo
+          according_to_id(o),       # accordingToID
+          according_to_date(o),     # accordingToDate
+          reference_id(sources),    # referenceID
+          extinct(o),               # extinct
+          temporal_range_start(o),  # temporalRangeStart
+          temporal_range_end(o),    # temporalRangeEnd
+          lifezone(o),              # lifezone
+          link(o),                  # link
+          remarks(o)                # remarks
         ]
+
+        Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv) if reference_csv
       end
     end
   end
-
-  # if table_data.nil?
-  #   scope.order(id: :asc).each do |c_o|
-  #     row = [c_o.otu_id,
-  #            c_o.otu_name,
-  #            c_o.name_at_rank_string(:family),
-  #            c_o.name_at_rank_string(:genus),
-  #            c_o.name_at_rank_string(:species),
-  #            c_o.collecting_event.country_name,
-  #            c_o.collecting_event.state_name,
-  #            c_o.collecting_event.county_name,
-  #            c_o.collecting_event.verbatim_locality,
-  #            c_o.collecting_event.georeference_latitude.to_s,
-  #            c_o.collecting_event.georeference_longitude.to_s
-  #     ]
-  #     row += ce_attributes(c_o, col_defs)
-  #     row += co_attributes(c_o, col_defs)
-  #     row += bc_attributes(c_o, col_defs)
-  #     csv << row.collect { |item|
-  #       item.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-  #     }
-
-  #   end
-  # else
-  #   table_data.each_value { |value|
-  #     csv << value.collect { |item|
-  #       item.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-  #     }
-  #   }
-  # end
 end
-
