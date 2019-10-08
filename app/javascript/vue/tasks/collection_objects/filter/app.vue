@@ -86,6 +86,7 @@ export default {
       this.urlRequest = ''
     },
     loadList(newList) {
+      console.log(newList)
       if(this.append) {
         let concat = newList.concat(this.list)
               

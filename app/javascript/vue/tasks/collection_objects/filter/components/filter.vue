@@ -5,6 +5,8 @@
       <span
         data-icon="reset"
         class="cursor-pointer"
+        v-shortkey="[getMacKey, 'r']"
+        @shortkey="resetFilter"        
         @click="resetFilter">Reset
       </span>
     </div>
@@ -19,7 +21,7 @@
         class="button button-default normal-input full_width"
         type="button"
         v-shortkey="[getMacKey, 'f']"
-        @shortkey="searchForCollectionObjects()"
+        @shortkey="searchForCollectionObjects"
         @click="searchForCollectionObjects">
         Search
       </button>
@@ -98,7 +100,11 @@ export default {
 
       GetCollectionObjects(params).then(response => {
         this.coList = response.body
-        this.getDWCATable(response.body)
+        if(response.body.length) {
+          this.getDWCATable(response.body)
+        } else {
+          this.$emit('result', [])
+        }
         this.$emit('urlRequest', response.url)
         this.searching = false
         if(this.result.length === 500) {

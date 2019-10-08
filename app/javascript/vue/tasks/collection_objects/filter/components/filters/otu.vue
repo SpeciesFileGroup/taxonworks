@@ -122,7 +122,7 @@ export default {
       ],
       validityOptions: [
         {
-          label: 'Both valid',
+          label: 'Both valid/invalid',
           value: undefined
         },
         {
