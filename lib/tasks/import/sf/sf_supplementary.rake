@@ -206,7 +206,7 @@ namespace :tw do
           end
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}18_after_scrutinies/`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/18_after_scrutinies/`
           puts '** dumped 18_after_scrutinies **'
           #######################################################################################
         end

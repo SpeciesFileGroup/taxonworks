@@ -176,7 +176,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           end
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}25_after_otu_citations/`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/25_after_otu_citations/`
           puts '** dumped 25_after_otu_citations **'
           #######################################################################################
 
@@ -1054,7 +1054,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           ap new_name_status
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}20_after_taxon_name_citations/`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/20_after_taxon_name_citations/`
           puts '** dumped 20_after_taxon_name_citations **'
           #######################################################################################
         end
@@ -1078,7 +1078,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           end
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}21_after_create_combinations/`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/21_after_create_combinations/`
           puts '** dumped 21_after_create_combinations **'
           #######################################################################################
         end

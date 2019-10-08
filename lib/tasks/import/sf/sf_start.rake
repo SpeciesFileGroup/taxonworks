@@ -124,7 +124,7 @@ namespace :tw do
           ap ref_taxon_name_authors
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}5_after_source_roles/`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/5_after_source_roles/`
           puts '** dumped 5_after_source_roles **'
           #######################################################################################
         end
@@ -446,7 +446,7 @@ namespace :tw do
           # ap get_containing_source_id
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}4_after_create_sources/`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/4_after_create_sources/`
           puts '** dumped 4_after_create_sources **'
           #######################################################################################
         end
@@ -521,7 +521,7 @@ namespace :tw do
           ap get_sf_pub_type_string
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}3_after_pub_type`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/3_after_pub_type`
           puts '** dumped 3_after_pub_type **'
           #######################################################################################
         end
@@ -633,7 +633,7 @@ namespace :tw do
           ap get_sf_verbatim_ref
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}2_after_verbatim_refs/`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/2_after_verbatim_refs/`
           puts '** dumped 2_after_verbatim_refs **'
           #######################################################################################
         end
@@ -704,7 +704,7 @@ namespace :tw do
           ap get_tw_serial_id
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}1_after_serials/`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/1_after_serials/`
           puts '** dumped 1_after_serials **'
           #######################################################################################
         end
@@ -1041,7 +1041,7 @@ namespace :tw do
           end
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}99_after_filter_users/`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/99_after_filter_users/`
           puts '** dumped 99_after_filter_users **'
           #######################################################################################
         end

@@ -696,7 +696,7 @@ namespace :tw do
           ap get_sf_taxon_name_id
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}17_after_collection_objects/`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/17_after_collection_objects/`
           puts '** dumped 17_after_collection_objects **'
           #######################################################################################
         end
@@ -769,7 +769,7 @@ namespace :tw do
           ap get_sf_collect_event_metadata
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}16_after_col_events_metadata/`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/16_after_col_events_metadata/`
           puts '** dumped 16_after_col_events_metadata **'
           #######################################################################################
         end
@@ -870,7 +870,7 @@ namespace :tw do
           ap get_sf_identification_metadata
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}15_after_identification_metadata/`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/15_after_identification_metadata/`
           puts '** dumped 15_after_identification_metadata **'
           #######################################################################################
         end
@@ -1284,7 +1284,7 @@ namespace :tw do
           ap get_tw_collecting_event_id
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}14_after_coll_events/`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/14_after_coll_events/`
           puts '** dumped 14_after_coll_events **'
           #######################################################################################
         end
@@ -1368,7 +1368,7 @@ namespace :tw do
           ap get_sf_geo_level4
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}13_after_geo_level_4/`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/13_after_geo_level_4/`
           puts '** dumped 13_after_geo_level_4 **'
           #######################################################################################
         end
