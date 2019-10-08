@@ -337,7 +337,7 @@ namespace :tw do
 
 
         desc 'time rake tw:project_import:sf_import:media:create_otu_website_links user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define create_otu_website_links: [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_otu_website_links: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
 
           logger.info 'Running create_otu_website_links...'
 
@@ -408,7 +408,7 @@ namespace :tw do
           end
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/19_after_links/`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/19_after_links` # `/Users/mbeckman/src/db_backup/19_after_links/`
           puts '** dumped 19_after_links **'
           #######################################################################################
         end

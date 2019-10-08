@@ -124,11 +124,10 @@ namespace :tw do
           ap ref_taxon_name_authors
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/5_after_source_roles/`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}5_after_source_roles/`
           puts '** dumped 5_after_source_roles **'
           #######################################################################################
         end
-
 
         desc 'time rake tw:project_import:sf_import:start:create_sf_family_group_related_info user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define create_sf_family_group_related_info: [:data_directory, :environment, :user_id] do |logger|
@@ -145,6 +144,7 @@ namespace :tw do
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           file.each_with_index do |row, i|
+            puts "TaxonNameID = #{row['TaxonNameID']}"
             sf_file_id = row['FileID']
             next if skipped_file_ids.include? row['FileID'].to_i
             sf_taxon_name_id = row['TaxonNameID']
@@ -161,6 +161,28 @@ namespace :tw do
 
           puts 'SFFamilyGroupRelatedInfo'
           ap family_group_related_info
+        end
+
+        desc 'time rake tw:project_import:sf_import:start:list_excluded_taxa user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define list_excluded_taxa: [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Running list_excluded_taxa...'
+
+          excluded_taxa = [] # list of taxa with AccessCode = 4, TaxonNameID = 0, those used for anatomy, known errors, bad ranks, assorted others
+
+          path = @args[:data_directory] + 'sfExcludedTaxa.txt'
+          file = CSV.read(path, col_sep: "\r", headers: true, encoding: 'UTF-16:UTF-8')
+          # file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          file.each_with_index do |row|
+            excluded_taxa.push(row['TaxonNameID'])
+          end
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('ExcludedTaxa', excluded_taxa)
+
+          puts 'ExcludedTaxa'
+          ap excluded_taxa
         end
 
         desc 'time rake tw:project_import:sf_import:start:create_misc_ref_info user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
@@ -346,7 +368,7 @@ namespace :tw do
             end
 
           end
-          
+
 
 
 
@@ -424,7 +446,7 @@ namespace :tw do
           # ap get_containing_source_id
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/4_after_create_sources/`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}4_after_create_sources/`
           puts '** dumped 4_after_create_sources **'
           #######################################################################################
         end

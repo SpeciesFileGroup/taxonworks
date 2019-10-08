@@ -10,32 +10,33 @@ namespace :tw do
 
           # rake tw:db:restore_last backup_directory=../db_backup/0_pristine_tw_init_all/
 
-          'start:list_skipped_file_ids',
-          'start:create_users',
-          'start:create_people',
-          'start:map_serials',
-          # '1_after_serials': 14m32.537s on 30 Oct 2018
-          #
-          'start:map_ref_links',
-          'start:list_verbatim_refs',
-          # '2_after_verbatim_refs': 0m24.701s on 30 Oct 2018
-          #
-          'start:create_projects',
-          'start:create_sf_book_hash',
-          'start:map_pub_type',
-          # '3_after_pub_type': 0m27.396s on 30 Oct 2018
-          # 1, 2, 3: 18m34.415s on 15 July 2019
-          #
-          'start:create_sources',
-          # # # '4_after_create_sources': 41m36.692s on 31 Oct 2018
+          # 'start:list_skipped_file_ids',
+          # 'start:create_users',
+          # 'start:create_people',
+          # 'start:map_serials',
+          # # '1_after_serials': 14m32.537s on 30 Oct 2018
           # #
-          # 'start:create_misc_ref_info',
-          # 'start:create_sf_family_group_related_info',
-          # 'start:create_source_roles',
+          # 'start:map_ref_links',
+          # 'start:list_verbatim_refs',
+          # # '2_after_verbatim_refs': 0m24.701s on 30 Oct 2018
+          # #
+          # 'start:create_projects',
+          # 'start:create_sf_book_hash',
+          # 'start:map_pub_type',
+          # # '3_after_pub_type': 0m27.396s on 30 Oct 2018
+          # # 1, 2, 3: 18m34.415s on 15 July 2019
+          # #
+          # 'start:create_sources',
+          # # # '4_after_create_sources': 41m36.692s on 31 Oct 2018
+          # # 1, 2, 3, 4: 59m41.271s on 7 Oct 2019
+          # #
+          'start:create_misc_ref_info',
+          'start:list_excluded_taxa',
+          'start:create_sf_family_group_related_info',
+          'start:create_source_roles',
           # # '5_after_source_roles': 76m51.040s on 7 Nov 2018; 132m58.252s b1_ on 25 Nov 2018; 65m3.663s on 30 May 2019; 70m34.672s on 16 July 2019; 66m38.395s on 7 Aug 2019
           # # 4, 5: 104m51.735s on 15 July 2019
           # #
-          # 'taxa:list_excluded_taxa',
           # 'taxa:create_sf_taxa_misc_info',
           # 'taxa:create_rank_hash',
           # 'taxa:create_animalia_below_root',
