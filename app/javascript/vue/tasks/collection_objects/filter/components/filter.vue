@@ -16,6 +16,13 @@
       :logo-size="{ width: '100px', height: '100px'}"
       v-if="searching" 
     />
+
+    <spinner-component
+      :full-screen="true"
+      :legend="`Loading DWCA table... ${ DWCACount } of ${ coList.length }`"
+      :logo-size="{ width: '100px', height: '100px'}"
+      v-if="loadingDWCA" 
+    />
     <div class="content">
       <button 
         class="button button-default normal-input full_width"
@@ -86,7 +93,9 @@ export default {
       searching: false,
       perRequest: 10,
       coList: [],
-      usersList: []
+      usersList: [],
+      loadingDWCA: false,
+      DWCACount: 0
     }
   },
   methods: {
@@ -95,11 +104,13 @@ export default {
       this.params = this.initParams()
     },
     searchForCollectionObjects () {
+      if(this.loadingDWCA) return
       this.searching = true
-      const params = Object.assign({}, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
+      const params = Object.assign({},  this.params.settings, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
 
       GetCollectionObjects(params).then(response => {
         this.coList = response.body
+        this.DWCACount = 0
         if(response.body.length) {
           this.getDWCATable(response.body)
         } else {
@@ -116,6 +127,9 @@ export default {
     },
     initParams () {
       return {
+        settings: {
+          per: 1000
+        },
         biocurations: {
           biocuration_class_ids: []
         },
@@ -199,13 +213,19 @@ export default {
     },
     getDWCA(ids) {
       if(ids.length) {
+        //this.DWCACount = this.DWCACount + ids[0].length
+        this.loadingDWCA = true
         let promises = []
         ids[0].forEach(id => {
           promises.push(GetCODWCA(id).then(response => {
             let dwcaObject = response.body
+            this.DWCACount++
             let user = this.usersList.find(user => { return user.user.id === dwcaObject.updated_by_id })
             dwcaObject.updated_by = (user ? user.user.name : undefined)
             this.result.push(Object.assign({}, dwcaObject, this.coList.find(item => { return dwcaObject.dwc_occurrence_object_id == item.id })))
+          }, (response) => {
+            this.loadingDWCA = false
+            TW.workbench.alert.create(`Error: ${response}`, 'warning')
           }))
         })
         Promise.all(promises).then(() => {
@@ -213,6 +233,8 @@ export default {
           this.$emit('result', this.result)
           this.getDWCA(ids)
         })
+      } else {
+        this.loadingDWCA = false
       }
     }
   }
