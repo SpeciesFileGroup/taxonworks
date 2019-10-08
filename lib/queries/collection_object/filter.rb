@@ -92,10 +92,7 @@ module Queries
 
         @biological_relationship_ids = params[:biological_relationship_ids] || []
 
-
         @collecting_event_query = Queries::CollectingEvent::Filter.new(params)
-
-       
 
         set_identifier(params)
         set_tags_params(params)

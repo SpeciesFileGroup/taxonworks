@@ -51,7 +51,11 @@ module Queries::Concerns::Identifiers
   end
 
   def cast
-    Arel::Nodes::NamedFunction.new('CAST', [identifier_table[:identifier].as('integer')])
+    Arel::Nodes::NamedFunction.new('CAST', [substring])
+  end
+
+  def substring
+    Arel::Nodes::NamedFunction.new('SUBSTRING', [ identifier_table[:identifier], Arel::Nodes::SqlLiteral.new("'([\\d]{1,9})$'") ]).as('integer')
   end
 
   def between
@@ -63,6 +67,8 @@ module Queries::Concerns::Identifiers
       )
     )
   end
+
+ 
   
   def identifier_facet
     return nil if identifier.blank?

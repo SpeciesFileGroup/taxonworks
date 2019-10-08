@@ -76,6 +76,16 @@ class DwcOccurrence < ApplicationRecord
     'Undefined'
   end
 
+  def self.by_collection_object_filter(collection_object_filter_query)
+    q = collection_object_filter_query
+    t = ::DwcOccurrence.arel_table
+    q = q.join(t ,Arel::Nodes::OuterJoin).on(
+      t[:].eq().and(t[:].eq('CollectionObject'))
+    ) 
+    
+    DwcOccurrence.join(collection_object_filter_query.join_sources)
+  end
+
   def stale?
     dwc_occurrence_object.updated_at > updated_at
   end
@@ -87,6 +97,3 @@ class DwcOccurrence < ApplicationRecord
   end
 
 end
-
-
-

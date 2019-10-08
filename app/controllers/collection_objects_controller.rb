@@ -3,8 +3,7 @@ class CollectionObjectsController < ApplicationController
 
   before_action :set_collection_object, only: [
     :show, :edit, :update, :destroy, :containerize,
-    :depictions, :images, :geo_json,
-    :dwca]
+    :depictions, :images, :geo_json]
 
   # GET /collecting_events
   # GET /collecting_events.json

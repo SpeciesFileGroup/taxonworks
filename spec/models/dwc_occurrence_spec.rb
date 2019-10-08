@@ -8,13 +8,22 @@ describe DwcOccurrence, type: :model, group: :darwin_core do
   let(:source_bibtex) { FactoryBot.create(:valid_source_bibtex) }
   let(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution) } 
 
+  context 'scoping to collection object' do
+    let!(:c1) { Specimen.create! }
+
+    specify '#by_collection_object_filter' do
+      a = Queries::CollectionObject::Filter.new(never_loaned: 'true')
+      expect(DwcOccurrence.by_collection_object_filter(a)).to contain_exactly(c1.id)
+    end
+  end
+
   context 'validation' do
     context 'with a new instance' do
       before { dwc_occurrence.valid? } 
 
-    # specify '#basisOfRecord is required' do
-    #   expect(dwc_occurrence.errors.include?(:basisOfRecord)).to be_truthy
-    # end
+      # specify '#basisOfRecord is required' do
+      #   expect(dwc_occurrence.errors.include?(:basisOfRecord)).to be_truthy
+      # end
 
       specify '#dwc_occurrence_object is required' do
         expect(dwc_occurrence.errors.include?(:dwc_occurrence_object)).to be_truthy
