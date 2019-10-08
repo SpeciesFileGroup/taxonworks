@@ -120,7 +120,7 @@ export default {
         }
         this.$emit('urlRequest', response.url)
         this.searching = false
-        if(this.result.length === 500) {
+        if(this.result.length === this.params.settings.per) {
           TW.workbench.alert.create('Results may be truncated.', 'notice')
         }
       }, () => { 
