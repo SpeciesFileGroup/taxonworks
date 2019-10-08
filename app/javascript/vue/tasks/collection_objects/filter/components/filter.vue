@@ -106,6 +106,8 @@ export default {
     searchForCollectionObjects () {
       if(this.loadingDWCA) return
       this.searching = true
+      this.result = []
+      this.$emit('newSearch')
       const params = Object.assign({},  this.params.settings, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
 
       GetCollectionObjects(params).then(response => {

@@ -43,6 +43,7 @@
       <filter-component
         class="separate-right"
         v-show="activeFilter"
+        @newSearch="newSearch"
         @urlRequest="urlRequest = $event"
         @result="loadList"
         @reset="resetTask"/>
@@ -101,6 +102,11 @@ export default {
         this.list = newList
       }
       this.alreadySearch = true
+    },
+    newSearch() {
+      if(!this.append) {
+        this.list = []
+      }
     }
   }
 }
