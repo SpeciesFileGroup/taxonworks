@@ -50,10 +50,10 @@
         <list-component
           :class="{ 'separate-left': activeFilter }"
           :list="list"/>
-        <h3
+        <h2
           v-if="alreadySearch && !list.length"
-          class="subtle middle horizontal-center-content">No records found.
-        </h3>
+          class="subtle middle horizontal-center-content no-found-message">No records found.
+        </h2>
       </div>
     </div>
   </div>
@@ -105,3 +105,8 @@ export default {
   }
 }
 </script>
+<style scoped>
+  .no-found-message {
+    height: 70vh;
+  }
+</style>
