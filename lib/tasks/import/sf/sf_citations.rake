@@ -7,8 +7,8 @@ namespace :tw do
       require 'logged_task'
       namespace :citations do
 
-        desc 'time rake tw:project_import:sf_import:citations:create_otu_cites user_id=1 data_directory=/Users/~//src/onedb2tw/working/'
-        LoggedTask.define create_otu_cites: [:data_directory, :environment, :user_id] do |logger|
+        desc 'time rake tw:project_import:sf_import:citations:create_otu_cites user_id=1 data_directory=~/src/onedb2tw/working/'
+        LoggedTask.define create_otu_cites: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating citations for OTUs...'
 
@@ -176,7 +176,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           end
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=/Users/~//src/db_backup/25_after_otu_citations/`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}25_after_otu_citations/`
           puts '** dumped 25_after_otu_citations **'
           #######################################################################################
 
@@ -251,8 +251,8 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
         # Prior to running next task:
         #   Which dump file to restore
         # desc 'time rake tw:project_import:sf_import:citations:create_citations user_id=1 data_directory=/Users/proceps/src/sf/import/onedb2tw/working/'
-        desc 'time rake tw:project_import:sf_import:citations:create_citations user_id=1 data_directory=/Users/~//src/onedb2tw/working/'
-        LoggedTask.define create_citations: [:data_directory, :environment, :user_id] do |logger|
+        desc 'time rake tw:project_import:sf_import:citations:create_citations user_id=1 data_directory=~/src/onedb2tw/working/'
+        LoggedTask.define create_citations: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
 
 
           logger.info 'Creating citations...'
@@ -1054,14 +1054,14 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           ap new_name_status
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=/Users/~//src/db_backup/20_after_taxon_name_citations/`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}20_after_taxon_name_citations/`
           puts '** dumped 20_after_taxon_name_citations **'
           #######################################################################################
         end
 
         ################################################################################################# Nomenclator 2nd pass - Invalid to Combination
         desc 'time rake tw:project_import:sf_import:citations:create_combinations user_id=1 data_directory=/Users/proceps/src/sf/import/onedb2tw/working/'
-        LoggedTask.define create_combinations: [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_combinations: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
           # proceps = User.where(email: 'arboridia@gmail.com').first
           #
           # Current.user_id = proceps.id
@@ -1078,14 +1078,14 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           end
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=/Users/~//src/db_backup/21_after_create_combinations/`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}21_after_create_combinations/`
           puts '** dumped 21_after_create_combinations **'
           #######################################################################################
         end
 
         ################################################################################################# Nomenclator 3rd pass - Soft validation fixes
         desc 'time rake tw:project_import:sf_import:citations:soft_validation_fixes user_id=1 data_directory=/Users/proceps/src/sf/import/onedb2tw/working/'
-        LoggedTask.define soft_validation_fixes: [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define soft_validation_fixes: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
           proceps = User.where(email: 'arboridia@gmail.com').first
 
           Current.user_id = proceps.id

@@ -8,7 +8,7 @@ namespace :tw do
         # Anyone who runs these tasks:  Substitute your id as user_id, not user_id=1
         # check out default user_id if SF.FileUserID < 1 (indicates change was made programmatically)
 
-        desc 'time rake tw:project_import:sf_import:start:create_source_roles user_id=1 data_directory=/~//src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:start:create_source_roles user_id=1 data_directory=~/src/onedb2tw/working/'
         LoggedTask.define create_source_roles: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
 
           logger.info 'Running create_source_roles...'
@@ -129,8 +129,8 @@ namespace :tw do
           #######################################################################################
         end
 
-        desc 'time rake tw:project_import:sf_import:start:create_sf_family_group_related_info user_id=1 data_directory=/~//src/onedb2tw/working/'
-        LoggedTask.define create_sf_family_group_related_info: [:data_directory, :environment, :user_id] do |logger|
+        desc 'time rake tw:project_import:sf_import:start:create_sf_family_group_related_info user_id=1 data_directory=~/src/onedb2tw/working/'
+        LoggedTask.define create_sf_family_group_related_info: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
 
           logger.info 'Running create_sf_family_group_related_info...'
 
@@ -163,8 +163,8 @@ namespace :tw do
           ap family_group_related_info
         end
 
-        desc 'time rake tw:project_import:sf_import:start:list_excluded_taxa user_id=1 data_directory=/~//src/onedb2tw/working/'
-        LoggedTask.define list_excluded_taxa: [:data_directory, :environment, :user_id] do |logger|
+        desc 'time rake tw:project_import:sf_import:start:list_excluded_taxa user_id=1 data_directory=~/src/onedb2tw/working/'
+        LoggedTask.define list_excluded_taxa: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
 
           logger.info 'Running list_excluded_taxa...'
 
@@ -185,9 +185,9 @@ namespace :tw do
           ap excluded_taxa
         end
 
-        desc 'time rake tw:project_import:sf_import:start:create_misc_ref_info user_id=1 data_directory=/~//src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:start:create_misc_ref_info user_id=1 data_directory=~/src/onedb2tw/working/'
         # via tblRefs
-        LoggedTask.define create_misc_ref_info: [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_misc_ref_info: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
 
           logger.info 'Running create_misc_ref_info...'
 
@@ -245,8 +245,8 @@ namespace :tw do
         end
 
 
-        desc 'time rake tw:project_import:sf_import:start:create_sources user_id=1 data_directory=/~//src/onedb2tw/working/'
-        LoggedTask.define create_sources: [:data_directory, :environment, :user_id] do |logger|
+        desc 'time rake tw:project_import:sf_import:start:create_sources user_id=1 data_directory=~/src/onedb2tw/working/'
+        LoggedTask.define create_sources: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
           # @todo: See :create_sf_book_hash and :update_sources_with_book_info above. Should be incorporated here.
 
           logger.info 'Running create_sources...'
@@ -451,8 +451,8 @@ namespace :tw do
           #######################################################################################
         end
 
-        # desc 'time rake tw:project_import:sf_import:start:contained_cite_aux_data user_id=1 data_directory=/~//src/onedb2tw/working/'
-        # LoggedTask.define contained_cite_aux_data: [:data_directory, :environment, :user_id] do |logger|
+        # desc 'time rake tw:project_import:sf_import:start:contained_cite_aux_data user_id=1 data_directory=~/src/onedb2tw/working/'
+        # LoggedTask.define contained_cite_aux_data: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
         #
         #   logger.info 'Creating SF contained cite aux data...'
         #
@@ -479,13 +479,13 @@ namespace :tw do
         #   ap get_contained_cite_aux_data
         #
         #   #######################################################################################
-        #   # `rake tw:db:dump backup_directory=/~//src/db_backup/`
+        #   # `rake tw:db:dump backup_directory=~/src/db_backup/`
         #   #######################################################################################
         # end
 
-        desc 'time rake tw:project_import:sf_import:start:map_pub_type user_id=1 data_directory=/~//src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:start:map_pub_type user_id=1 data_directory=~/src/onedb2tw/working/'
         # map SF.PubID by SF.PubType
-        LoggedTask.define map_pub_type: [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define map_pub_type: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
           logger.info 'Running map_pub_types...'
@@ -521,14 +521,14 @@ namespace :tw do
           ap get_sf_pub_type_string
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=/~//src/db_backup/3_after_pub_type`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}3_after_pub_type`
           puts '** dumped 3_after_pub_type **'
           #######################################################################################
         end
 
-        desc 'time rake tw:project_import:sf_import:start:create_sf_book_hash user_id=1 data_directory=/~//src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:start:create_sf_book_hash user_id=1 data_directory=~/src/onedb2tw/working/'
         # consists of book_title:, publisher:, and place_published: (address)'
-        LoggedTask.define create_sf_book_hash: [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_sf_book_hash: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
           logger.info 'Running create_sf_book_hash...'
@@ -556,8 +556,8 @@ namespace :tw do
           ap get_sf_booktitle_publisher_address
         end
 
-        desc 'time rake tw:project_import:sf_import:start:create_projects user_id=1 data_directory=/~//src/onedb2tw/working/'
-        LoggedTask.define create_projects: [:data_directory, :environment, :user_id] do |logger|
+        desc 'time rake tw:project_import:sf_import:start:create_projects user_id=1 data_directory=~/src/onedb2tw/working/'
+        LoggedTask.define create_projects: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
 
           logger.info 'Running create_projects...'
 
@@ -607,8 +607,8 @@ namespace :tw do
 
         end
 
-        desc 'time rake tw:project_import:sf_import:start:list_verbatim_refs user_id=1 data_directory=/~//src/onedb2tw/working/'
-        LoggedTask.define list_verbatim_refs: [:data_directory, :environment, :user_id] do |logger|
+        desc 'time rake tw:project_import:sf_import:start:list_verbatim_refs user_id=1 data_directory=~/src/onedb2tw/working/'
+        LoggedTask.define list_verbatim_refs: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time before referenced
 
           logger.info 'Running list_verbatim_refs...'
@@ -633,13 +633,13 @@ namespace :tw do
           ap get_sf_verbatim_ref
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=/~//src/db_backup/2_after_verbatim_refs/`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}2_after_verbatim_refs/`
           puts '** dumped 2_after_verbatim_refs **'
           #######################################################################################
         end
 
-        desc 'time rake tw:project_import:sf_import:start:map_ref_links user_id=1 data_directory=/~//src/onedb2tw/working/'
-        LoggedTask.define map_ref_links: [:data_directory, :environment, :user_id] do |logger|
+        desc 'time rake tw:project_import:sf_import:start:map_ref_links user_id=1 data_directory=~/src/onedb2tw/working/'
+        LoggedTask.define map_ref_links: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time before referenced
 
           logger.info 'Running map_ref_links...'
@@ -668,8 +668,8 @@ namespace :tw do
 =begin  obsolete
         # :create_no_ref_list_array is now created on the fly in :create_sources (data conflicts)
         # desc 'make array from no_ref_list'
-        # task :create_no_ref_list_array => [:data_directory, :environment, :user_id] do
-        #   ### rake tw:project_import:sf_start:create_no_ref_list_array user_id=1 data_directory=/~//src/onedb2tw/working/
+        # task :create_no_ref_list_array => [:data_directory, :backup_directory, :environment, :user_id] do
+        #   ### rake tw:project_import:sf_start:create_no_ref_list_array user_id=1 data_directory=~/src/onedb2tw/working/
         #   sf_no_ref_list = []
         #
         #   path = @args[:data_directory] + 'direct_from_sf/no_ref_list.txt'
@@ -688,7 +688,7 @@ namespace :tw do
         # end
 =end
 
-        desc 'time rake tw:project_import:sf_import:start:map_serials user_id=1 data_directory=/~//src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:start:map_serials user_id=1 data_directory=~/src/onedb2tw/working/'
         LoggedTask.define map_serials: [:environment, :user_id] do |logger|
           # Can be run independently at any time before referenced: Why can't the value be cast as string??
 
@@ -704,13 +704,13 @@ namespace :tw do
           ap get_tw_serial_id
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=/~//src/db_backup/1_after_serials/`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}1_after_serials/`
           puts '** dumped 1_after_serials **'
           #######################################################################################
         end
 
-        desc 'time rake tw:project_import:sf_import:start:create_people user_id=1 data_directory=/~//src/onedb2tw/working/'
-        LoggedTask.define create_people: [:data_directory, :environment, :user_id] do |logger|
+        desc 'time rake tw:project_import:sf_import:start:create_people user_id=1 data_directory=~/src/onedb2tw/working/'
+        LoggedTask.define create_people: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
 
           logger.info 'Running create_people...'
 
@@ -848,8 +848,8 @@ namespace :tw do
           logger.info "person_error_counter = #{person_error_counter}, added_counter = #{added_counter}, error_counter = #{error_counter}"
         end
 
-        desc 'time rake tw:project_import:sf_import:start:create_users user_id=1 data_directory=/~//src/onedb2tw/working/'
-        LoggedTask.define create_users: [:data_directory, :environment, :user_id] do |logger|
+        desc 'time rake tw:project_import:sf_import:start:create_users user_id=1 data_directory=~/src/onedb2tw/working/'
+        LoggedTask.define create_users: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
 
           logger.info 'Running create_users...'
 
@@ -986,8 +986,8 @@ namespace :tw do
 
         end
 
-        desc 'time rake tw:project_import:sf_import:start:list_skipped_file_ids user_id=1 data_directory=/~//src/onedb2tw/working/'
-        LoggedTask.define list_skipped_file_ids: [:data_directory, :environment, :user_id] do |logger|
+        desc 'time rake tw:project_import:sf_import:start:list_skipped_file_ids user_id=1 data_directory=~/src/onedb2tw/working/'
+        LoggedTask.define list_skipped_file_ids: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
 
           logger.info 'Running list_skipped_file_ids...'
 
@@ -1025,8 +1025,8 @@ namespace :tw do
 
       namespace :last do
 
-        desc 'time rake tw:project_import:sf_import:last:filter_users user_id=1 data_directory=/~//src/onedb2tw/working/'
-        LoggedTask.define filter_users: [:data_directory, :environment, :user_id] do |logger|
+        desc 'time rake tw:project_import:sf_import:last:filter_users user_id=1 data_directory=~/src/onedb2tw/working/'
+        LoggedTask.define filter_users: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
 
           logger.info 'Running filter_users...'
 
@@ -1041,7 +1041,7 @@ namespace :tw do
           end
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=/~//src/db_backup/99_after_filter_users/`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}99_after_filter_users/`
           puts '** dumped 99_after_filter_users **'
           #######################################################################################
         end

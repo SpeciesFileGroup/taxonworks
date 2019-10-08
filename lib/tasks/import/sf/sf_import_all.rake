@@ -4,8 +4,7 @@ namespace :tw do
 
       # @todo: Matt: combinations for citations
 
-      desc 'time rake tw:project_import:sf_import:run_all_import_tasks user_id=1 data_directory=/~//src/onedb2tw/working/'
-      #  time rake tw:project_import:sf_import:run_all_import_tasks user_id=1 data_directory=/Users/sfg/src/onedb2tw/working/
+      desc 'time rake tw:project_import:sf_import:run_all_import_tasks user_id=1 data_directory=~/src/onedb2tw/working/'
       task run_all_import_tasks: [
 
           # rake tw:db:restore_last backup_directory=../db_backup/0_pristine_tw_init_all/
@@ -34,7 +33,7 @@ namespace :tw do
           # 'start:list_excluded_taxa',
           # 'start:create_sf_family_group_related_info',
           # 'start:create_source_roles',
-          # # '5_after_source_roles': 76m51.040s on 7 Nov 2018; 132m58.252s b1_ on 25 Nov 2018; 65m3.663s on 30 May 2019; 70m34.672s on 16 July 2019; 66m38.395s on 7 Aug 2019
+          # # '5_after_source_roles': 76m51.040s on 7 Nov 2018; 132m58.252s b1_ on 25 Nov 2018; 65m3.663s on 30 May 2019; 70m34.672s on 16 July 2019; 66m38.395s on 7 Aug 2019; 71m55.240s on 8 Oct 2019
           # # 4, 5: 104m51.735s on 15 July 2019
           # #
           # 'taxa:create_sf_taxa_misc_info',
