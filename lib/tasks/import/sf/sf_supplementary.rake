@@ -15,7 +15,7 @@ namespace :tw do
         # Source::Human.joins(:people).where(person_ids: [1,2,3], year: 1234)
 
 
-        desc 'time rake tw:project_import:sf_import:supplementary:scrutiny_related user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:supplementary:scrutiny_related user_id=1 data_directory=/Users/~//src/onedb2tw/working/'
         LoggedTask.define scrutiny_related: [:data_directory, :environment, :user_id] do |logger|
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
@@ -116,7 +116,7 @@ namespace :tw do
           end
         end
 
-        desc 'time rake tw:project_import:sf_import:supplementary:taxon_info user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:supplementary:taxon_info user_id=1 data_directory=/Users/~//src/onedb2tw/working/'
         LoggedTask.define taxon_info: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Importing SupplementaryTaxonInformation...'
@@ -206,7 +206,7 @@ namespace :tw do
           end
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/18_after_scrutinies/`
+          `rake tw:db:dump backup_directory=/Users/~//src/db_backup/18_after_scrutinies/`
           puts '** dumped 18_after_scrutinies **'
           #######################################################################################
         end

@@ -4,7 +4,7 @@ namespace :tw do
 
       # @todo: Matt: combinations for citations
 
-      desc 'time rake tw:project_import:sf_import:run_all_import_tasks user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+      desc 'time rake tw:project_import:sf_import:run_all_import_tasks user_id=1 data_directory=/~//src/onedb2tw/working/'
       #  time rake tw:project_import:sf_import:run_all_import_tasks user_id=1 data_directory=/Users/sfg/src/onedb2tw/working/
       task run_all_import_tasks: [
 
@@ -30,10 +30,10 @@ namespace :tw do
           # # # '4_after_create_sources': 41m36.692s on 31 Oct 2018
           # # 1, 2, 3, 4: 59m41.271s on 7 Oct 2019
           # #
-          'start:create_misc_ref_info',
-          'start:list_excluded_taxa',
-          'start:create_sf_family_group_related_info',
-          'start:create_source_roles',
+          # 'start:create_misc_ref_info',
+          # 'start:list_excluded_taxa',
+          # 'start:create_sf_family_group_related_info',
+          # 'start:create_source_roles',
           # # '5_after_source_roles': 76m51.040s on 7 Nov 2018; 132m58.252s b1_ on 25 Nov 2018; 65m3.663s on 30 May 2019; 70m34.672s on 16 July 2019; 66m38.395s on 7 Aug 2019
           # # 4, 5: 104m51.735s on 15 July 2019
           # #

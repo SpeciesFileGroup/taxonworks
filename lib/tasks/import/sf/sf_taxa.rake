@@ -6,7 +6,7 @@ namespace :tw do
       namespace :taxa do
 
 
-        desc 'time rake tw:project_import:sf_import:taxa:create_status_flag_relationships user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:taxa:create_status_flag_relationships user_id=1 data_directory=/~//src/onedb2tw/working/'
         LoggedTask.define create_status_flag_relationships: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating relationships from StatusFlags...'
@@ -303,12 +303,12 @@ namespace :tw do
           end
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/11_after_status_flag_rels/`
+          `rake tw:db:dump backup_directory=/~//src/db_backup/11_after_status_flag_rels/`
           puts '** dumped 11_after_status_flag_rels **'
           #######################################################################################
         end
 
-        desc 'time rake tw:project_import:sf_import:taxa:create_some_related_taxa user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:taxa:create_some_related_taxa user_id=1 data_directory=/~//src/onedb2tw/working/'
         LoggedTask.define create_some_related_taxa: [:data_directory, :environment, :user_id] do |logger|
           logger.info 'Creating some related taxa...'
 
@@ -406,12 +406,12 @@ namespace :tw do
           end
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/10_after_some_related_taxa/`
+          `rake tw:db:dump backup_directory=/~//src/db_backup/10_after_some_related_taxa/`
           puts '** dumped 10_after_some_related_taxa **'
           #######################################################################################
         end
 
-        desc 'time rake tw:project_import:sf_import:taxa:create_type_genera user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:taxa:create_type_genera user_id=1 data_directory=/~//src/onedb2tw/working/'
         LoggedTask.define create_type_genera: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating type genera...'
@@ -494,12 +494,12 @@ namespace :tw do
           end
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/9_after_type_genera/`
+          `rake tw:db:dump backup_directory=/~//src/db_backup/9_after_type_genera/`
           puts '** dumped 9_after_type_genera **'
           #######################################################################################
         end
 
-        desc 'time rake tw:project_import:sf_import:taxa:create_type_species user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:taxa:create_type_species user_id=1 data_directory=/~//src/onedb2tw/working/'
         LoggedTask.define create_type_species: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating type species...'
@@ -645,7 +645,7 @@ namespace :tw do
           end
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/8_after_type_species/`
+          `rake tw:db:dump backup_directory=/~//src/db_backup/8_after_type_species/`
           puts '** dumped 8_after_type_species **'
           #######################################################################################
         end
@@ -684,7 +684,7 @@ namespace :tw do
         # pass 2
 
         # desc 'try the logger utility'
-        # ### time rake tw:project_import:sf_taxa:try_logger user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+        # ### time rake tw:project_import:sf_taxa:try_logger user_id=1 data_directory=/~//src/onedb2tw/working/
         # LoggedTask.define :try_logger => [:data_directory, :environment, :user_id] do |logger|
         #   logger.info "This is :try_logger"
         #   logger.warn "This is a logger warning"
@@ -695,7 +695,7 @@ namespace :tw do
 
         ############ check if taxon description requires a source where ContainingRefID > 0
 
-        desc 'time rake tw:project_import:sf_import:taxa:create_all_sf_taxa_pass1 user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:taxa:create_all_sf_taxa_pass1 user_id=1 data_directory=/~//src/onedb2tw/working/'
         LoggedTask.define create_all_sf_taxa_pass1: [:data_directory, :environment, :user_id] do |logger|
 
           ################ NOTE NOTE NOTE
@@ -1093,12 +1093,12 @@ namespace :tw do
           ap get_taxon_name_otu_id
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/7_after_run_all_taxa/`
+          `rake tw:db:dump backup_directory=/~//src/db_backup/7_after_run_all_taxa/`
           puts '** dumped 7_after_run_all_taxa **'
           #######################################################################################
         end
 
-        desc 'time rake tw:project_import:sf_import:taxa:create_otus_for_ill_formed_names_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:taxa:create_otus_for_ill_formed_names_hash user_id=1 data_directory=/~//src/onedb2tw/working/'
         LoggedTask.define create_otus_for_ill_formed_names_hash: [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
@@ -1130,12 +1130,12 @@ namespace :tw do
           ap get_otu_sf_above_id
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/6_after_otus_hash/`
+          `rake tw:db:dump backup_directory=/~//src/db_backup/6_after_otus_hash/`
           puts '** dumped 6_after_otus_hash **'
           #######################################################################################
         end
 
-        desc 'time rake tw:project_import:sf_import:taxa:create_sf_synonym_id_to_new_parent_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:taxa:create_sf_synonym_id_to_new_parent_id_hash user_id=1 data_directory=/~//src/onedb2tw/working/'
         # also nomina nuda and dubia IDs to new parent.id hash
         LoggedTask.define create_sf_synonym_id_to_new_parent_id_hash: [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
@@ -1167,7 +1167,7 @@ namespace :tw do
 
         end
 
-        desc 'time rake tw:project_import:sf_import:taxa:create_animalia_below_root user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:taxa:create_animalia_below_root user_id=1 data_directory=/~//src/onedb2tw/working/'
         # creates Animalia taxon name subordinate to each project Root (and make hash of project.id, animalia.id
         LoggedTask.define create_animalia_below_root: [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time after projects created BUT not after animalia species created (must restore to before)
@@ -1207,7 +1207,7 @@ namespace :tw do
 
         end
 
-        desc 'time rake tw:project_import:sf_import:taxa:create_rank_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:taxa:create_rank_hash user_id=1 data_directory=/~//src/onedb2tw/working/'
         LoggedTask.define create_rank_hash: [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
@@ -1251,7 +1251,7 @@ namespace :tw do
           ap get_tw_rank_string
         end
 
-        desc 'time rake tw:project_import:sf_import:taxa:create_sf_taxa_misc_info user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:taxa:create_sf_taxa_misc_info user_id=1 data_directory=/~//src/onedb2tw/working/'
         LoggedTask.define create_sf_taxa_misc_info: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Running create_sf_taxa_misc_info...'

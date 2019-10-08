@@ -6,7 +6,7 @@ namespace :tw do
       namespace :media do
 
         # NOTE: Use argument 'no_images=1' if you want to create depictions without "uploading" the actual images (works much faster)
-        desc 'time rake tw:project_import:sf_import:media:images user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:media:images user_id=1 data_directory=/~//src/onedb2tw/working/'
         LoggedTask.define images: [:data_directory, :environment, :user_id] do |logger|
           # TODO: SourceID not imported!
 
@@ -299,7 +299,7 @@ namespace :tw do
         end
 
         # Following section now executed in sf_specimens.rake
-        # desc 'time rake tw:project_import:sf_import:media:specimen_to_taxon_name_ids user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        # desc 'time rake tw:project_import:sf_import:media:specimen_to_taxon_name_ids user_id=1 data_directory=/~//src/onedb2tw/working/'
         # LoggedTask.define specimen_to_taxon_name_ids: [:data_directory, :environment, :user_id] do |logger|
         #
         #   # First step is to make a SF.SpecimenID to SF.TaxonNameID hash
@@ -336,7 +336,7 @@ namespace :tw do
         # end
 
 
-        desc 'time rake tw:project_import:sf_import:media:create_otu_website_links user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:media:create_otu_website_links user_id=1 data_directory=/~//src/onedb2tw/working/'
         LoggedTask.define create_otu_website_links: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
 
           logger.info 'Running create_otu_website_links...'
@@ -408,13 +408,13 @@ namespace :tw do
           end
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/19_after_links` # `/Users/mbeckman/src/db_backup/19_after_links/`
+          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/19_after_links` # `/~//src/db_backup/19_after_links/`
           puts '** dumped 19_after_links **'
           #######################################################################################
         end
 
 
-        desc 'time rake tw:project_import:sf_import:media:create_common_names user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:media:create_common_names user_id=1 data_directory=/~//src/onedb2tw/working/'
         LoggedTask.define create_common_names: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Running create_common_names...'
@@ -467,7 +467,7 @@ namespace :tw do
           end
         end
 
-        desc 'time rake tw:project_import:sf_import:media:create_language_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:media:create_language_hash user_id=1 data_directory=/~//src/onedb2tw/working/'
         LoggedTask.define create_language_hash: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Running create_language_hash...'

@@ -5,7 +5,7 @@ namespace :tw do
       require 'logged_task'
       namespace :pre_cites do
 
-        desc 'time rake tw:project_import:sf_import:pre_cites:check_original_genus_ids user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:pre_cites:check_original_genus_ids user_id=1 data_directory=/Users/~//src/onedb2tw/working/'
         LoggedTask.define check_original_genus_ids: [:data_directory, :environment, :user_id] do |logger|
           # Though TW species groups, etc. have an original genus, SF ones do not: Do not infer it at this time
 
@@ -54,12 +54,12 @@ namespace :tw do
           end
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/12_after_orig_genus_ids/`
+          `rake tw:db:dump backup_directory=/Users/~//src/db_backup/12_after_orig_genus_ids/`
           puts '** dumped 12_after_orig_genus_ids **'
           #######################################################################################
         end
 
-        desc 'time rake tw:project_import:sf_import:pre_cites:create_cvts_for_citations user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:pre_cites:create_cvts_for_citations user_id=1 data_directory=/Users/~//src/onedb2tw/working/'
         LoggedTask.define create_cvts_for_citations: [:data_directory, :environment, :user_id] do |logger|
 
           # Create controlled vocabulary terms (CVTS) for NewNameStatus, TypeInfo, and CiteInfoFlags; CITES_CVTS below in all caps denotes constant
@@ -157,7 +157,7 @@ namespace :tw do
 
         end
 
-        desc 'time rake tw:project_import:sf_import:pre_cites:import_nomenclator_metadata user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:pre_cites:import_nomenclator_metadata user_id=1 data_directory=/Users/~//src/onedb2tw/working/'
         LoggedTask.define import_nomenclator_strings: [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
