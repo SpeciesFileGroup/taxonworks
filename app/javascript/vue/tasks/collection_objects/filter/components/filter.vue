@@ -19,7 +19,7 @@
 
     <spinner-component
       :full-screen="true"
-      :legend="`Loading DWCA table... ${ DWCACount } of ${ coList.length }`"
+      :legend="`Loading DWCA table... ${ DWCACount } of ${ coList.length } records`"
       :logo-size="{ width: '100px', height: '100px'}"
       v-if="loadingDWCA" 
     />
