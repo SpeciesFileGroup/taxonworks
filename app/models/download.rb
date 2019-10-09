@@ -43,10 +43,14 @@ class Download < ApplicationRecord
 
 
   def save_file
-    FileUtils.cp(self.file_path, Rails.root.join('downloads', self.filename))
+    FileUtils.cp(file_path, Rails.root.join('downloads', filename))
   end
 
   def set_file_path
-    self.file_path = "#{self.id}/#{self.filename}"
+    write_attribute(:file_path,  "#{id}/#{filename}")
+  end
+
+  def file
+    File.read(file_path)    
   end
 end
