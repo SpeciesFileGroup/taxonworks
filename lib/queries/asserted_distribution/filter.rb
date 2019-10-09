@@ -22,7 +22,7 @@ module Queries
         ::AssertedDistribution.arel_table
       end
 
-      def matching_asserted_distribution_attribute(attribute)
+      def asserted_distribution_attribute_equals(attribute)
         a = send(attribute)
         a.blank? ? nil : table[attribute].eq(a)
       end
@@ -32,8 +32,8 @@ module Queries
         clauses = []
        
         clauses += [
-          matching_asserted_distribution_attribute(:otu_id),
-          matching_asserted_distribution_attribute(:geographic_area_id),
+          asserted_distribution_attribute_equals(:otu_id),
+          asserted_distribution_attribute_equals(:geographic_area_id),
         ].compact
         
         return nil if clauses.empty?
