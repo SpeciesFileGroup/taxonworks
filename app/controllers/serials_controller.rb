@@ -90,7 +90,7 @@ class SerialsController < ApplicationController
 
   # GET /serials/download
   def download
-    send_data(Download.generate_csv(Serial.all),
+    send_data(Export::Download.generate_csv(Serial.all),
               type:     'text',
               filename: "serials_#{DateTime.now}.csv")
   end

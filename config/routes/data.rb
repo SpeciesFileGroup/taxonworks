@@ -210,6 +210,10 @@ resources :documents do
   concerns [:data_routes]
 end
 
+resources :downloads, except: [:edit, :show, :new, :create, :update] do
+  concerns [:data_routes]
+end
+
 resources :extracts do
   concerns [:data_routes]
 end
