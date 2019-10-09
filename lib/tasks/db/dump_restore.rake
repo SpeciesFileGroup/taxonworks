@@ -108,7 +108,7 @@ namespace :tw do
     private
 
     def file_name_timestamp(filename)
-      filename.match(/(\d\d\d\d.*).dump/)[1].to_s
+      filename.match(/.?_(\d\d\d\d.*).dump$/)[1].to_s
     end
 
     # This should just be done by restarting the server and making a new connection!
