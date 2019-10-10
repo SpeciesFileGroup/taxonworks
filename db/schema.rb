@@ -1445,22 +1445,6 @@ ActiveRecord::Schema.define(version: 2019_10_07_191438) do
     t.index ["updated_by_id"], name: "index_public_contents_on_updated_by_id"
   end
 
-  create_table "queued_batch_loads", force: :cascade do |t|
-    t.string "interpreter", null: false
-    t.string "action", null: false
-    t.string "state", null: false
-    t.jsonb "params", null: false
-    t.text "report"
-    t.bigint "project_id"
-    t.integer "created_by_id", null: false
-    t.integer "updated_by_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["created_by_id"], name: "index_queued_batch_loads_on_created_by_id"
-    t.index ["project_id"], name: "index_queued_batch_loads_on_project_id"
-    t.index ["updated_by_id"], name: "index_queued_batch_loads_on_updated_by_id"
-  end
-
   create_table "ranged_lot_categories", id: :serial, force: :cascade do |t|
     t.string "name", null: false
     t.integer "minimum_value", null: false
@@ -2134,7 +2118,6 @@ ActiveRecord::Schema.define(version: 2019_10_07_191438) do
   add_foreign_key "public_contents", "projects", name: "public_contents_project_id_fkey"
   add_foreign_key "public_contents", "users", column: "created_by_id", name: "public_contents_created_by_id_fkey"
   add_foreign_key "public_contents", "users", column: "updated_by_id", name: "public_contents_updated_by_id_fkey"
-  add_foreign_key "queued_batch_loads", "projects"
   add_foreign_key "ranged_lot_categories", "projects", name: "ranged_lot_categories_project_id_fkey"
   add_foreign_key "ranged_lot_categories", "users", column: "created_by_id", name: "ranged_lot_categories_created_by_id_fkey"
   add_foreign_key "ranged_lot_categories", "users", column: "updated_by_id", name: "ranged_lot_categories_updated_by_id_fkey"
