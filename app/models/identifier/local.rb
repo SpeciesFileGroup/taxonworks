@@ -38,8 +38,15 @@ class Identifier::Local < Identifier
 
   protected
 
+  # @return string
+  def delimiter
+    a = read_attribute(:delimiter)
+    return '' if a == 'NONE' 
+    [a, ' '].compact.first
+  end
+
   def set_cached
-    update_column(:cached, namespace.short_name + ' ' + identifier.to_s)
+    update_column(:cached, [namespace.verbatim_short_name, namespace.short_name].compact.first + delimiter + identifier.to_s)
   end
 
 end
