@@ -1,10 +1,9 @@
 scope :tasks do
-    scope :matrix_image do
-      scope :matrix_image, controller: 'tasks/matrix_image/matrix_image' do
-        get :index, as: 'index_matrix_image_task'
-      end
+  scope :matrix_image do
+    scope :matrix_image, controller: 'tasks/matrix_image/matrix_image' do
+      get :index, as: 'index_matrix_image_task'
     end
-
+  end
 
   scope :asserted_distribution do
     scope :new_asserted_distribution, controller: 'tasks/asserted_distribution/new_asserted_distribution' do
@@ -99,7 +98,7 @@ scope :tasks do
     scope :search_locality, controller: 'tasks/collecting_events/search_locality' do
       get 'index', as: 'index_search_locality_task'
     end 
- 
+
     scope :parse do
       scope :stepwise do
         scope :dates, controller: 'tasks/collecting_events/parse/stepwise/dates' do
