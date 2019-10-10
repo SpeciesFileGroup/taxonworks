@@ -31,22 +31,39 @@
 class Download < ApplicationRecord
   include Housekeeping
 
-  attribute :file_path # Virtual attribute
-
-  before_save :save_file
-  after_save :set_file_path
-  after_find :set_file_path
+  after_create :save_file
+  after_destroy :delete_file
 
   validates_presence_of :name
   validates_presence_of :filename
   validates_presence_of :expires
 
-
-  def save_file
-    FileUtils.cp(self.file_path, Rails.root.join('downloads', self.filename))
+  # Used as argument for :new.
+  def src_file_path=(path)
+    @src_file_path = path
   end
 
-  def set_file_path
-    self.file_path = "#{self.id}/#{self.filename}"
+  # Retrieves the full-path of stored file
+  def file_path
+    STORAGE_PATH.join(self.id.to_s, self.filename)
+  end
+
+  private
+
+  STORAGE_PATH = Rails.root.join('downloads').freeze
+
+  def dir_path
+    STORAGE_PATH.join(self.id.to_s)
+  end
+
+  def save_file
+    FileUtils.mkdir_p(dir_path)
+    FileUtils.cp(@src_file_path, file_path)
+  end
+
+  def delete_file
+    # Not using a single rm_rf just in case the path ends up outside intended directory
+    FileUtils.rm(file_path)
+    FileUtils.rmdir(dir_path)
   end
 end

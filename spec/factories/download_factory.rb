@@ -4,7 +4,7 @@ FactoryBot.define do
       name { "Sample File" }
       description { "A sample file for testing" }
       filename { "Sample.zip" }
-      file_path { Rails.root + 'spec/files/downloads/Sample.zip' }
+      src_file_path { Rails.root.join('spec/files/downloads/Sample.zip') }
       request { "/model/endpoint?params" }
       expires { 2.days.from_now }
       times_downloaded { 0 }
