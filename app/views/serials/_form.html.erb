@@ -17,11 +17,33 @@
       <br>
       <%= f.text_field :place_published %>
     </div>
+
     <div class="field">
-      <%= f.label :primary_language_id %>
+      <%= f.label :primary_language_id, 'Primary language' %>
       <br>
-      <%= f.number_field :primary_language_id %>
+      <%= render partial:  'workbench/elements/forms/ajax_select',
+        locals: {controller:  'languages',
+                 object:  'serial',
+                 method:  'primary_language_id',
+                 tag_id:  'primary_language_id_for_serial',
+                 display:  language_tag(@serial.language),
+                 size: 40} %>
     </div>
+
+    <div class="field">
+      <%= f.label :translated_from_serial_id, 'Translated from serial' %>
+      <br>
+      <%= render partial:  'workbench/elements/forms/ajax_select',
+        locals: {controller:  'serials',
+                 object:  'serial',
+                 method:  'translated_from_serial_id',
+                 tag_id:  'translated_from_serial_id_for_serial',
+                 display:  serial_tag(@serial.translated_from_serial),
+                 size: 40} %>
+    </div>
+
+
+
     <div class="field">
       <%= f.label :first_year_of_issue %>
       <br>
