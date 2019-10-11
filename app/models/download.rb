@@ -31,26 +31,46 @@
 class Download < ApplicationRecord
   include Housekeeping
 
-  attribute :file_path # Virtual attribute
-
-  before_save :save_file
-  after_save :set_file_path
-  after_find :set_file_path
+  after_create :save_file
+  after_destroy :delete_file
 
   validates_presence_of :name
   validates_presence_of :filename
   validates_presence_of :expires
 
 
+  # Gets the downloads storage path
+  def self.storage_path
+    STORAGE_PATH
+  end
+
+  # Used as argument for :new.
+  def src_file_path=(path)
+    @src_file_path = path
+  end
+
+  # Retrieves the full-path of stored file
+  def file_path
+    STORAGE_PATH.join(self.id.to_s, self.filename)
+  end
+
+  private
+
+  STORAGE_PATH = Rails.root.join(Rails.env.test? ? 'tmp' : '', 'downloads').freeze
+
+  def dir_path
+    STORAGE_PATH.join(self.id.to_s)
+  end
+
   def save_file
-    FileUtils.cp(file_path, Rails.root.join('downloads', filename))
+    FileUtils.mkdir_p(dir_path)
+    FileUtils.cp(@src_file_path, file_path)
   end
 
-  def set_file_path
-    write_attribute(:file_path,  "#{id}/#{filename}")
-  end
+  def delete_file
+    path = dir_path
+    raise "Download: dir_path not pointing inside storage path! Aborting deletion" unless path.to_s.start_with?(STORAGE_PATH.to_s)
 
-  def file
-    File.read(file_path)    
+    FileUtils.rm_rf(path)
   end
 end

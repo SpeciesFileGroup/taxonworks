@@ -1,7 +1,7 @@
 class DownloadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_download, only: [:show, :edit, :update, :destroy]
+  before_action :set_download, only: [:show, :download_file, :destroy]
 
   # GET /downloads
   # GET /downloads.json
@@ -10,9 +10,9 @@ class DownloadsController < ApplicationController
     render '/shared/data/all/index'
   end
 
-  # GET /downloads/new
-  def new
-    @download = Download.new
+  # GET /downloads/1
+  def show
+    download_file
   end
 
   # DELETE /downloads/1
@@ -25,9 +25,18 @@ class DownloadsController < ApplicationController
     end
   end
 
+  # GET /downloads/list
+  # GET /downloads/list.json
   def list
     @downloads = Download.order(:id).page(params[:page]).per(params[:per])
-  end  
+  end
+
+  # GET /downloads/1/download_file
+  def download_file
+    @download.increment!(:times_downloaded)
+    send_file @download.file_path
+  end
+
 
   private
     # Use callbacks to share common setup or constraints between actions.
@@ -37,6 +46,6 @@ class DownloadsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def download_params
-      params.require(:download).permit(:name, :description, :expires)
+      params.require(:download).permit()
     end
 end

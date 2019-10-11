@@ -28,8 +28,9 @@ RSpec.describe DownloadsController, type: :controller do
     sign_in
   }
 
+  # TODO: Avoid having to merge file_path when factory already provides this
   let(:valid_attributes) { 
-    strip_housekeeping_attributes(FactoryBot.build(:valid_download).attributes)
+    strip_housekeeping_attributes(FactoryBot.build(:valid_download).attributes.merge({ src_file_path: Rails.root.join('spec/files/downloads/Sample.zip') }))
   }
 
   # This should return the minimal set of values that should be in the session
@@ -56,7 +57,31 @@ RSpec.describe DownloadsController, type: :controller do
       get :index, params: {}, session: valid_session
       expect(assigns(:recent_objects)).to include(o)
     end
-  end  
+  end
+
+  describe "GET #show" do
+    # TODO: Most likely should display a page with info and download link, for now is an alias of #download_file.
+    it "sends the requested file" do
+      o = Download.create! valid_attributes
+      get :show, params: {id: o.to_param}, session: valid_session
+      expect(response.body).to eq(IO.binread(o.file_path))
+    end
+  end
+
+  describe "GET #download_file" do
+    let(:download) { Download.create! valid_attributes }
+
+    it "sends the requested file" do
+      get :download_file, params: {id: download.to_param}, session: valid_session
+      expect(response.body).to eq(IO.binread(download.file_path))
+    end
+
+    it "increments the download counter" do
+      old_count = download.times_downloaded
+      3.times { get :download_file, params: {id: download.to_param}, session: valid_session }
+      expect(download.reload.times_downloaded).to eq(old_count + 3)
+    end
+  end
 
   describe "DELETE #destroy" do
     it "destroys the requested download" do
