@@ -7,7 +7,7 @@ RSpec.describe Download, type: :model do
   }
 
   let(:download) { Download.create! valid_attributes }
-  let(:file_path) { Rails.root.join('downloads', download.id.to_s, download.filename) }
+  let(:file_path) { Download.storage_path.join(download.id.to_s, download.filename) }
 
   describe "#create" do
     it "stores a file in download directory" do
@@ -25,7 +25,7 @@ RSpec.describe Download, type: :model do
     context "on load" do
       it "points to storage location" do
         loaded = Download.find(download.id)
-        expect(download.file_path).to eq(Rails.root.join('downloads', loaded.id.to_s, loaded.filename))
+        expect(download.file_path).to eq(Download.storage_path.join(loaded.id.to_s, loaded.filename))
       end
     end
   end

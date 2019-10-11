@@ -38,6 +38,12 @@ class Download < ApplicationRecord
   validates_presence_of :filename
   validates_presence_of :expires
 
+
+  # Gets the downloads storage path
+  def self.storage_path
+    STORAGE_PATH
+  end
+
   # Used as argument for :new.
   def src_file_path=(path)
     @src_file_path = path
@@ -50,7 +56,7 @@ class Download < ApplicationRecord
 
   private
 
-  STORAGE_PATH = Rails.root.join('downloads').freeze
+  STORAGE_PATH = Rails.root.join(Rails.env.test? ? 'tmp' : '', 'downloads').freeze
 
   def dir_path
     STORAGE_PATH.join(self.id.to_s)
@@ -62,8 +68,9 @@ class Download < ApplicationRecord
   end
 
   def delete_file
-    # Not using a single rm_rf just in case the path ends up outside intended directory
-    FileUtils.rm(file_path)
-    FileUtils.rmdir(dir_path)
+    path = dir_path
+    raise "Download: dir_path not pointing inside storage path! Aborting deletion" unless path.to_s.start_with?(STORAGE_PATH.to_s)
+
+    FileUtils.rm_rf(path)
   end
 end
