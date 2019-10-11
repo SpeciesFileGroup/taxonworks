@@ -55,7 +55,7 @@ module Export::Coldp::Files::Name
           remarks_field(t),                                       # remarks
         ] 
 
-        Export::Coldp::Files::Reference.add_reference_rows([source], reference_csv) if reference_csv
+        Export::Coldp::Files::Reference.add_reference_rows([source].compact, reference_csv) if reference_csv
       end
     end
 

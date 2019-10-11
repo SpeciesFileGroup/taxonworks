@@ -112,20 +112,20 @@ module Export::Coldp::Files::Taxon
         sources = o.sources 
         
         csv << [
-          o.id,                     # ID
-          o.parent_otu.id,          # parentID
-          o.taxon_name.id,          # nameID
-          provisional(o),           # provisional
-          according_to(o),          # accordingTo
-          according_to_id(o),       # accordingToID
-          according_to_date(o),     # accordingToDate
-          reference_id(sources),    # referenceID
-          extinct(o),               # extinct
-          temporal_range_start(o),  # temporalRangeStart
-          temporal_range_end(o),    # temporalRangeEnd
-          lifezone(o),              # lifezone
-          link(o),                  # link
-          remarks(o)                # remarks
+          o.id,                      # ID
+          (o.parent_otu || nil)&.id, # parentID
+          o.taxon_name&.id,          # nameID
+          provisional(o),            # provisional
+          according_to(o),           # accordingTo
+          according_to_id(o),        # accordingToID
+          according_to_date(o),      # accordingToDate
+          reference_id(sources),     # referenceID
+          extinct(o),                # extinct
+          temporal_range_start(o),   # temporalRangeStart
+          temporal_range_end(o),     # temporalRangeEnd
+          lifezone(o),               # lifezone
+          link(o),                   # link
+          remarks(o)                 # remarks
         ]
 
         Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv) if reference_csv
