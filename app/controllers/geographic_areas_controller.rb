@@ -60,7 +60,7 @@ class GeographicAreasController < ApplicationController
       params.require(:latitude).to_f,
       params.require(:longitude).to_f
     )
-    render action: :index
+    render action: :autocomplete
   end
 
   private
