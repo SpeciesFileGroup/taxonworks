@@ -37,7 +37,7 @@ module Export
       # TODO: This will likely have to change, it is renamed on serving the file.
       zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_coldp.zip"
 
-      Zip::File.open(zipfile_name, Zip::File::CREATE) do |zipfile|
+      Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
         # Synonym doesn't have source
         # Name uses different params
         (FILETYPES - ['Name']).each do |ft| 
