@@ -30,7 +30,7 @@ RSpec.describe DownloadsController, type: :controller do
 
   # TODO: Avoid having to merge file_path when factory already provides this
   let(:valid_attributes) { 
-    strip_housekeeping_attributes(FactoryBot.build(:valid_download).attributes.merge({ src_file_path: Rails.root.join('spec/files/downloads/Sample.zip') }))
+    strip_housekeeping_attributes(FactoryBot.build(:valid_download).attributes.merge({ source_file_path: Rails.root.join('spec/files/downloads/Sample.zip') }))
   }
 
   # This should return the minimal set of values that should be in the session
@@ -77,9 +77,8 @@ RSpec.describe DownloadsController, type: :controller do
     end
 
     it "increments the download counter" do
-      old_count = download.times_downloaded
       3.times { get :download_file, params: {id: download.to_param}, session: valid_session }
-      expect(download.reload.times_downloaded).to eq(old_count + 3)
+      expect(download.reload.times_downloaded).to eq(3)
     end
   end
 

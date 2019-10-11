@@ -45,8 +45,8 @@ class Download < ApplicationRecord
   end
 
   # Used as argument for :new.
-  def src_file_path=(path)
-    @src_file_path = path
+  def source_file_path=(path)
+    @source_file_path = path
   end
 
   # Retrieves the full-path of stored file
@@ -63,12 +63,12 @@ class Download < ApplicationRecord
   STORAGE_PATH = Rails.root.join(Rails.env.test? ? 'tmp' : '', 'downloads').freeze
 
   def dir_path
-    STORAGE_PATH.join(self.id.to_s)
+    STORAGE_PATH.join(id.to_s)
   end
 
   def save_file
     FileUtils.mkdir_p(dir_path)
-    FileUtils.cp(@src_file_path, file_path)
+    FileUtils.cp(@source_file_path, file_path)
   end
 
   def delete_file

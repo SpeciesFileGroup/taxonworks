@@ -4,7 +4,7 @@ FactoryBot.define do
       name { Faker::Lorem.word }
       description { Faker::Lorem.sentence }
       filename { "#{Faker::Lorem.word}.zip" }
-      src_file_path { Rails.root.join('spec/files/downloads/Sample.zip') }
+      source_file_path { Rails.root.join('spec/files/downloads/Sample.zip') }
       request { "/model/endpoint?params" }
       expires { 2.days.from_now }
       times_downloaded { 0 }

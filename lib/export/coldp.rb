@@ -35,7 +35,7 @@ module Export
       ref_csv = CSV.new('temp_ref_csv')
 
       # TODO: This will likely have to change, it is renamed on serving the file.
-      zipfile_name = "/tmp/_#{SecureRandom.hex(8)}_coldp.zip"
+      zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_coldp.zip"
 
       Zip::File.open(zipfile_name, Zip::File::CREATE) do |zipfile|
         # Synonym doesn't have source
@@ -54,18 +54,18 @@ module Export
       
       # TODO: 
 
-      zipfile_name
+      zip_file_path
     end 
 
-    def self.download(otu, request = 'default')
-      filename = ::Export::Coldp.export(otu.id)
+    def self.download(otu, request = nil)
+      file_path = ::Export::Coldp.export(otu.id)
       name = "coldp_otu_id_#{otu.id}_#{DateTime.now}.zip"
 
       Download.create!(
         name: "ColDP Download for #{otu.otu_name} on #{Time.now}.",
         description: 'A zip file containing CoLDP formatted data.',
         filename: name,
-        src_file_path: filename,
+        source_file_path: file_path,
         request: request,
         expires: 2.days.from_now
       )

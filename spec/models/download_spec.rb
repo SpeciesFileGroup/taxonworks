@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe Download, type: :model do
   # TODO: Avoid having to merge file_path when factory already provides this
   let(:valid_attributes) { 
-    strip_housekeeping_attributes(FactoryBot.build(:valid_download).attributes.merge({ src_file_path: Rails.root.join('spec/files/downloads/Sample.zip') }))
+    strip_housekeeping_attributes(FactoryBot.build(:valid_download).attributes.merge({ source_file_path: Rails.root.join('spec/files/downloads/Sample.zip') }))
   }
 
   let(:download) { Download.create! valid_attributes }
