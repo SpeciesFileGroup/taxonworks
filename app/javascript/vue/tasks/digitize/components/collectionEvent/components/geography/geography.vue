@@ -42,7 +42,7 @@
               type="radio"
               :checked="areasByCoors[0].id == geographicArea"
               @click="selectGeographicArea(areasByCoors[0])">
-          {{ areasByCoors[0].name }} ({{ areasByCoors[0].data_origin }})
+            <span v-html="areasByCoors[0].label_html"/>
           </label>
         </p>
         <a 
@@ -60,6 +60,7 @@
         <div slot="body">
           <ul class="no_bullets">
             <li
+              class="separate-bottom"
               v-for="item in areasByCoors"
               :key="item.id">
               <label>
@@ -67,7 +68,7 @@
                   type="radio"
                   :checked="item.id == geographicArea"
                   @click="selectGeographicArea(item); showModal = false">
-              {{ item.name }} ({{ item.data_origin }})
+                <span v-html="item.label_html"/>
               </label>
             </li>
           </ul>
