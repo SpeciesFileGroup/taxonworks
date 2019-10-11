@@ -203,8 +203,7 @@ class GeographicArea < ApplicationRecord
   #   the finest geographic area in by latitude or longitude, sorted by area, only
   #   areas with shapes (geographic items) are matched
   def self.find_smallest_by_lat_long(latitude = 0.0, longitude = 0.0)
-    GeographicArea.
-      select("geographic_areas.*, geographic_area_hierarchies.generations, ST_Area(#{::GeographicItem::GEOMETRY_SQL.to_sql}) As sqft")
+    ::GeographicArea.select("geographic_areas.*, ST_Area(#{::GeographicItem::GEOMETRY_SQL.to_sql}) As sqft")
       .find_by_lat_long(
         latitude,
         longitude,
