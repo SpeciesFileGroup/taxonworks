@@ -1,5 +1,6 @@
 require 'zip'
 
+
 module Export
 
   # TODO: Explore https://github.com/frictionlessdata/datapackage-rb to ingest frictionless data,
@@ -55,6 +56,20 @@ module Export
 
       zipfile_name
     end 
+
+    def self.download(otu, request = 'default')
+      filename = ::Export::Coldp.export(otu.id)
+      name = "coldp_otu_id_#{otu.id}_#{DateTime.now}.zip"
+
+      Download.create!(
+        name: "ColDP Download for #{otu.otu_name} on #{Time.now}.",
+        description: 'A zip file containing CoLDP formatted data.',
+        filename: name,
+        src_file_path: filename,
+        request: request,
+        expires: 2.days.from_now
+      )
+    end
 
   end
 end

@@ -51,7 +51,11 @@ class Download < ApplicationRecord
 
   # Retrieves the full-path of stored file
   def file_path
-    STORAGE_PATH.join(self.id.to_s, self.filename)
+    STORAGE_PATH.join(id.to_s, filename)
+  end
+
+  def file
+    File.read(file_path)
   end
 
   private
