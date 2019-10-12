@@ -262,7 +262,7 @@ class TaxonNamesController < ApplicationController
         ]
       ],
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
-      taxon_name_classifications_attributes: [:id, :_destroy, :taxon_name_id, :type]
+      taxon_name_classifications_attributes: [:id, :_destroy, :type]
     )
   end
 
