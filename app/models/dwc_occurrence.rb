@@ -78,12 +78,13 @@ class DwcOccurrence < ApplicationRecord
 
   def self.by_collection_object_filter(collection_object_filter_query)
     q = collection_object_filter_query
-    t = ::DwcOccurrence.arel_table
-    q = q.join(t ,Arel::Nodes::OuterJoin).on(
-      t[:].eq().and(t[:].eq('CollectionObject'))
+    t = arel_table
+
+    q = q.join(t, Arel::Nodes::OuterJoin).on(
+      t[:dwc_occurrence_object_id].eq(q[:id]).and (t[:dwc_occurrence_object_type].eq('CollectionObject') )
     ) 
     
-    DwcOccurrence.join(collection_object_filter_query.join_sources)
+    joins(collection_object_filter_query.join_sources).all
   end
 
   def stale?

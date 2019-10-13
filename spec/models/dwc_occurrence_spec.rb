@@ -12,7 +12,7 @@ describe DwcOccurrence, type: :model, group: :darwin_core do
     let!(:c1) { Specimen.create! }
 
     specify '#by_collection_object_filter' do
-      a = Queries::CollectionObject::Filter.new(never_loaned: 'true')
+      a = Queries::CollectionObject::Filter.new(never_loaned: 'true').all
       expect(DwcOccurrence.by_collection_object_filter(a)).to contain_exactly(c1.id)
     end
   end
