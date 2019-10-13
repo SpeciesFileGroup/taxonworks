@@ -161,9 +161,9 @@ export default {
       let code = this.$store.getters[GetterNames.GetNomenclaturalCode]
       let statusList = this.$store.getters[GetterNames.GetStatusList][code]
       let statusType = Object.values(statusList.all).find(item => { return item.name.includes('not latin')})
-      this.taxon.taxon_name_classifications_attributes = {
+      this.taxon.taxon_name_classifications_attributes = [{
         type: statusType.type
-      }
+      }]
 
       this.$store.dispatch(ActionNames.CreateTaxonName, this.taxon)
       this.showModal = false
