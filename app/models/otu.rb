@@ -24,7 +24,7 @@
 class Otu < ApplicationRecord
   include Housekeeping
   include SoftValidation
-  #include Shared::AlternateValues   # 1/26/15 with MJY - not going to allow alternate values in Burlap
+  #include Shared::AlternateValues   # No alternate values on Name!! 
   include Shared::Citations          # TODO: have to think hard about this vs. using Nico's framework
   include Shared::DataAttributes
   include Shared::Identifiers
@@ -37,7 +37,7 @@ class Otu < ApplicationRecord
   include Shared::HasPapertrail
   include Shared::IsData
 
-  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents]
+  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes]
 
   belongs_to :taxon_name, inverse_of: :otus
 
@@ -100,12 +100,33 @@ class Otu < ApplicationRecord
     if o = Otu.joins(:taxon_name).find(otu_id)
       if rank_class.nil?
         joins(:taxon_name).where(taxon_name: o.taxon_name.self_and_descendants)
-        # with_taxon_name_id(o.taxon_name.self_and_descendants)
       else
         joins(:taxon_name).where(taxon_name: o.taxon_name.self_and_descendants.where( rank_class: rank_class))
-        # with_taxon_name_id(o.taxon_name.self_and_descendants.where(rank_class: rank_class))
       end
     else # no taxon name just return self in scope
+      Otu.where(id: otu_id)
+    end
+  end
+ 
+  # @return [Otu::ActiveRecord_Relation]
+  # 
+  # All OTUs that are synonymous/same/matching target, for either 
+  #    historical and pragmatic (i.e. share the same `taxon_name_id`), or 
+  #    nomenclatural reasons (are synonyms of the taxon name). Includes self.
+  #
+  def self.coordinate_otus(otu_id)
+    begin
+      i = Otu.joins(:taxon_name).find(otu_id)
+      j = i.taxon_name.cached_valid_taxon_name_id
+      o = Otu.arel_table
+      t = TaxonName.arel_table
+
+      q = o.join(t, Arel::Nodes::InnerJoin).on(
+        o[:taxon_name_id].eq( t[:id] ).and(t[:cached_valid_taxon_name_id].eq(j))
+      )
+
+      Otu.joins(q.join_sources) 
+    rescue ActiveRecord::RecordNotFound
       Otu.where(id: otu_id)
     end
   end
@@ -175,6 +196,12 @@ class Otu < ApplicationRecord
     new_otus
   end
 
+  # @return [Boolean]
+  #   whether or not this otu is coordinate (see coordinate_otus) with this otu
+  def coordinate_with?(otu_id)
+    Otu.coordinate_otus(otu_id).where(otus: {id: id}).any?
+  end
+
   # Hernán - this is extremely hacky, I'd like to
   # map core keys to procs, use yield:, use cached values,
   # add logic for has_many handling (e.g. identifiers) etc.
@@ -195,16 +222,18 @@ class Otu < ApplicationRecord
     core
   end
 
+  # TODO: Deprecate for helper method, HTML does not belong here
   def otu_name
     if !name.blank?
       name
-    elsif !self.taxon_name_id.nil?
-      self.taxon_name.cached_html_name_and_author_year
+    elsif !taxon_name_id.nil?
+      taxon_name.cached_html_name_and_author_year
     else
       nil
     end
   end
 
+  # TODO: move to helper method likely
   def distribution_geoJSON
     a_ds = Gis::GeoJSON.feature_collection(geographic_areas_from_asserted_distributions, :asserted_distributions)
     c_os = Gis::GeoJSON.feature_collection(collecting_events, :collecting_events_georeferences)
@@ -245,7 +274,6 @@ class Otu < ApplicationRecord
             .order(t['updated_at'])
         end
 
-    # z is a table alias 
     z = i.as('recent_t')
 
     j = case used_on
@@ -288,11 +316,11 @@ class Otu < ApplicationRecord
   end
 
   def sv_taxon_name
-    soft_validations.add(:taxon_name_id, 'Nomenclature (taxon name) is not assigned') if self.taxon_name_id.nil?
+    soft_validations.add(:taxon_name_id, 'Nomenclature (taxon name) is not assigned') if taxon_name_id.nil?
   end
 
   def sv_duplicate_otu
-    unless Otu.with_taxon_name_id(self.taxon_name_id).with_name(self.name).not_self(self).with_project_id(self.project_id).empty?
+    unless Otu.with_taxon_name_id(taxon_name_id).with_name(name).not_self(self).with_project_id(project_id).empty?
       m = "Another OTU with an identical nomenclature (taxon name) and name exists in this project"
       soft_validations.add(:taxon_name_id, m)
       soft_validations.add(:name, m )

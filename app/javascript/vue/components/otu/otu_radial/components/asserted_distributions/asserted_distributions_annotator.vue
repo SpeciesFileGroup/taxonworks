@@ -58,10 +58,10 @@
   import CRUD from '../../request/crud.js'
   import AnnotatorExtend from '../annotatorExtend.js'
   import TableList from './table.vue'
-  import DisplayList from '../../../displayList.vue'
+  import DisplayList from 'components/displayList.vue'
   import GeographicArea from './geographicArea.vue'
   import SourcePicker from './sourcePicker.vue'
-  import Spinner from '../../../spinner.vue'
+  import Spinner from 'components/spinner.vue'
 
   export default {
     mixins: [CRUD, AnnotatorExtend],

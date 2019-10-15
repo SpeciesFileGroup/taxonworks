@@ -1,12 +1,6 @@
 <template>
   <div v-if="taxonName">
     <h2>{{ title }}</h2>
-    <label>
-      <input
-        v-model="typicalUse"
-        type="checkbox">
-      Typical use
-    </label>
     <template
       v-for="(group, key, index) in ranks[taxonName.nomenclatural_code]">
       <div
@@ -33,6 +27,12 @@
         </ul>
       </div>
     </template>
+    <button
+      type="button"
+      class="button normal-input button-default separate-top"
+      @click="typicalUse = !typicalUse">
+      {{ typicalUse ? 'Show more ranks' : 'Show less ranks' }}
+    </button>
   </div>
 </template>
 

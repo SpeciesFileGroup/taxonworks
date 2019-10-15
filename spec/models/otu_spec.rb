@@ -9,7 +9,6 @@ describe Otu, type: :model, group: :otu do
     TaxonNameHierarchy.delete_all
   end
 
-  # foreign key relationships
   context 'associations' do
     context 'has many' do
       specify 'taxon determinations' do
@@ -26,45 +25,67 @@ describe Otu, type: :model, group: :otu do
     end
   end
 
-  context 'properties' do
-    specify 'name' do
-      expect(otu).to respond_to(:name)
-    end
+  specify 'without #name or #taxon_name_id is invalid' do
+    expect(otu.valid?).to be_falsey
+  end
+  
+  specify '#name' do
+    expect(otu).to respond_to(:name)
   end
 
-  context 'validation' do
-    specify 'otu without name and without taxon_name_id is invalid' do
-      expect(otu.valid?).to be_falsey
-    end
-    specify 'otu should require a name or taxon_name_id' do
-      otu.soft_validate(:taxon_name)
-      expect(otu.soft_validations.messages_on(:taxon_name_id).count).to eq(1)
-    end
-    specify 'duplicate OTU' do
-      o1 = FactoryBot.create(:otu, name: 'Aus')
-      o2 = FactoryBot.build_stubbed(:otu, name: 'Aus')
-      o1.soft_validate(:duplicate_otu)
-      expect(o1.soft_validations.messages_on(:taxon_name_id).empty?).to be_truthy
-      o2.soft_validate(:duplicate_otu)
-      expect(o2.soft_validations.messages_on(:taxon_name_id).count).to eq(1)
-    end
+  # TODO: Deprecate for helper method
+  specify '#otu_name should be the taxon name cached_html' do
+    expect(otu.otu_name).to eq(nil)
+
+    t = FactoryBot.create(:relationship_species)
+    t.reload
+    expect(t.valid?).to be_truthy
+
+    otu.taxon_name = t
+    expect(otu.otu_name).to eq('<i>Erythroneura vitis</i> McAtee, 1900')
+
+    otu.name = 'Foo'
+    expect(otu.otu_name).to eq('Foo')
   end
 
-  context 'when I create a new OTU' do
-    context 'and it only has taxon_name_id populated' do
-      specify 'its otu_name should be the taxon name cached_html' do
-        expect(otu.otu_name).to eq(nil)
+  context 'coordination' do
+    let!(:root) { FactoryBot.create(:root_taxon_name) }
+    let!(:g) { Protonym.create!(name: 'Aus', parent: root, rank_class: Ranks.lookup(:iczn, :genus)) }
+    let!(:s1) { Protonym.create!(name: 'bus', parent: g, rank_class: Ranks.lookup(:iczn, :species)) } # valid
+    let!(:s2) { Protonym.create!(name: 'cus', parent: g, rank_class: Ranks.lookup(:iczn, :species)) } # invalid
 
-        t = FactoryBot.create(:relationship_species)
-        t.reload
-        expect(t.valid?).to be_truthy
+    let!(:r) { TaxonNameRelationship::Iczn::Invalidating.create!(subject_taxon_name: s2, object_taxon_name: s1) }
 
-        otu.taxon_name = t
-        expect(otu.otu_name).to eq('<i>Erythroneura vitis</i> McAtee, 1900')
+    let!(:o1) { Otu.create!(taxon_name: s1) }
+    let!(:o2) { Otu.create!(taxon_name: s2) }
+    let!(:o3) { Otu.create!(name: 'none') }
 
-        otu.name = 'Foo'
-        expect(otu.otu_name).to eq('Foo')
-      end
+    specify '.coordinate_otus 1' do
+      expect(Otu.coordinate_otus(o1.id).map(&:id)).to contain_exactly(o1.id, o2.id)
+    end
+
+    specify '.coordinate_otus 2' do
+      expect(Otu.coordinate_otus(o2.id).map(&:id)).to contain_exactly(o1.id, o2.id)
+    end
+
+    specify '.coordinate_otus 3' do
+      expect(Otu.coordinate_otus(o3.id).map(&:id)).to contain_exactly(o3.id)
+    end
+
+    specify '#coordinate_with? 1' do
+      expect(o1.coordinate_with?(o1.id)).to be_truthy
+    end
+
+    specify '#coordinate_with? 2' do
+      expect(o1.coordinate_with?(o2.id)).to be_truthy
+    end
+
+    specify '#coordinate_with? 3' do
+      expect(o2.coordinate_with?(o1.id)).to be_truthy
+    end
+
+    specify '#coordinate_with? 4' do
+      expect(o3.coordinate_with?(o1.id)).to be_falsey
     end
   end
 

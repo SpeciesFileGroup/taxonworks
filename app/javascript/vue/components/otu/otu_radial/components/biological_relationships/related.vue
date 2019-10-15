@@ -56,10 +56,10 @@
 
 <script>
 
-  import OtuAutocomplete from '../../../otu/otu_picker/otu_picker.vue'
+  import OtuAutocomplete from 'components/otu/otu_picker/otu_picker.vue'
   import TagItem from '../shared/item_tag.vue'
   import SwitchComponent from '../shared/switch.vue'
-  import Autocomplete from '../../../autocomplete.vue'
+  import Autocomplete from 'components/autocomplete.vue'
   import CRUD from '../../request/crud'
 
   export default {

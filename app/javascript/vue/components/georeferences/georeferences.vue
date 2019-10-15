@@ -176,6 +176,7 @@ export default {
         this.georeferences.splice(this.georeferences.findIndex((item => {
           return item.id === geo.id
         })), 1)
+        this.$emit('onGeoreferences', this.georeferences)
         this.populateShapes()
       })
     },

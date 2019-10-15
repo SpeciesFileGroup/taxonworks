@@ -109,6 +109,10 @@ const GetOtu = function (id) {
   return ajaxCall('get', `/otus/${id}.json`)
 }
 
+const GetGeographicAreaByCoords = function (lat,long) {
+  return ajaxCall('get', `/geographic_areas/by_lat_long?latitude=${lat}&longitude=${long}`)
+}
+
 const GetTypes = function () {
   return ajaxCall('get', `/type_materials/type_types.json`)
 }
@@ -311,6 +315,7 @@ export {
   GetOtuSmartSelector,
   GetCollectingEventsSmartSelector,
   GetTypeDesignatorSmartSelector,
+  GetGeographicAreaByCoords,
   FilterCollectingEvent,
   GetTaxonDeterminationCO,
   GetNamespace,

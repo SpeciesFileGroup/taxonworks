@@ -449,3 +449,10 @@ export_coldp_task:
     - nomenclature
   status: prototype
   description: 'Preview, manage, and export CoLDP formatted data'
+index_browse_asserted_distributions_task:
+  hub: true
+  name: 'Browse asserted distributions'
+  related:
+  categories:
+  status: prototype
+  description: 'Browse through asserted distributions summarized by OTU.  Map, table, and CSV downloads.'

@@ -82,10 +82,6 @@ import data_attributesAnnotator from './components/data_attribute_annotator.vue'
 import alternate_valuesAnnotator from './components/alternate_value_annotator.vue'
 import citationsAnnotator from './components/citations/citation_annotator.vue'
 import protocol_relationshipsAnnotator from './components/protocol_annotator.vue'
-import biological_associationsAnnotator from './components/biological_relationships/biological_relationships_annotator.vue'
-import asserted_distributionsAnnotator from './components/asserted_distributions/asserted_distributions_annotator.vue'
-import common_namesAnnotator from './components/common_names/main.vue'
-import contentsAnnotator from './components/contents/main.vue'
 import attributionAnnotator from './components/attribution/main.vue'
 
 import Icons from './images/icons.js'
@@ -107,10 +103,6 @@ export default {
     identifiersAnnotator,
     tagsAnnotator,
     protocol_relationshipsAnnotator,
-    biological_associationsAnnotator,
-    asserted_distributionsAnnotator,
-    common_namesAnnotator,
-    contentsAnnotator,
     attributionAnnotator
   },
   props: {

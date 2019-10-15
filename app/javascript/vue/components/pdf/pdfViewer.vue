@@ -186,6 +186,10 @@ export default {
       document.addEventListener(this.eventLoadPDFName, (event) => {
         that.loadPDF(event)
         that.viewerActive = true
+        document.querySelector('[data-panel-name="pinboard"]').classList.remove("slice-panel-show")
+        document.querySelector('[data-panel-name="pinboard"]').classList.add("slice-panel-hide")
+        document.querySelector('[data-panel-name="pdfviewer"]').classList.remove("slice-panel-hide")
+        document.querySelector('[data-panel-name="pdfviewer"]').classList.add("slice-panel-show")
       })
       document.addEventListener('onSlidePanelClose', (event) => {
         if(event.detail.name == 'pdfviewer') {

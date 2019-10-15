@@ -39,8 +39,8 @@
 </template>
 
 <script>
-  import DefaultElement from '../../../getDefaultPin.vue'
-  import Autocomplete from '../../../autocomplete.vue'
+  import DefaultElement from 'components/getDefaultPin.vue'
+  import Autocomplete from 'components/autocomplete.vue'
 
   export default {
     components: {

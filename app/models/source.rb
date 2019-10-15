@@ -209,12 +209,13 @@ class Source < ApplicationRecord
   #  When true, cached values are not built
   attr_accessor :no_year_suffix_validation
 
-  has_many :asserted_distributions, through: :citations, source: :citation_object, source_type: 'AssertedDistribution'
-
   # Keep this order for citations/topics
   has_many :citations, inverse_of: :source, dependent: :restrict_with_error
   has_many :citation_topics, through: :citations, inverse_of: :source
   has_many :topics, through: :citation_topics, inverse_of: :sources
+
+  # !! must be below has_man :citations
+  has_many :asserted_distributions, through: :citations, source: :citation_object, source_type: 'AssertedDistribution'
 
   has_many :project_sources, dependent: :destroy
   has_many :projects, through: :project_sources

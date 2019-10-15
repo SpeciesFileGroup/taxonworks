@@ -16,12 +16,12 @@ RUN mkdir /app
 WORKDIR /app
 
 RUN wget -q \
-    'https://github.com/browserup/browserup-proxy/releases/download/v2.0.0/browserup-proxy-2.0.0.zip' \
-&&  unzip browserup-proxy-2.0.0.zip
+    'https://github.com/browserup/browserup-proxy/releases/download/v2.0.1/browserup-proxy-2.0.1.zip' \
+&&  unzip browserup-proxy-2.0.1.zip
 
 COPY Gemfile .
 
-RUN bundle install
+RUN bundle install -j3
 
 COPY . .
 

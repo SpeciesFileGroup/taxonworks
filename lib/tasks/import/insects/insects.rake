@@ -166,6 +166,7 @@ namespace :tw do
         handle_biocuration_classes_insects(@data1, @import)
         handle_biological_relationship_classes_insects(@data1, @import)
         handle_preparation_types_insects(@data1, @import)
+#begin
         handle_people_insects(@data1, @import)
         GC.start
         handle_taxa_insects(@data1, @import)
@@ -193,7 +194,6 @@ namespace :tw do
         index_specimen_records_from_neon(@data1, @import)
 
         puts "\nTotal collecting events to build: #{@redis.keys.count}."
-
         handle_associations_insects(@data1, @import)
         GC.start
         handle_loan_specimens_insects(@data1)
@@ -202,6 +202,7 @@ namespace :tw do
         handle_collection_profile_insects(@data1)
 
         handle_locality_images(@data1)
+#end
         handle_loan_images(@data1)
 
         puts "\n!! Unmatched localities: (#{@data1.unmatched_localities.keys.count}): " + @data1.unmatched_localities.keys.sort.join(', ')
@@ -1366,8 +1367,8 @@ namespace :tw do
                 end
                 unless host.blank?
                   BiologicalAssociation.create(biological_relationship: br,
-                                               biological_association_subject: specimen,
-                                               biological_association_object: host
+                                               biological_association_subject: host,
+                                               biological_association_object: specimen
                                               )
                 end
 
@@ -1627,7 +1628,6 @@ namespace :tw do
             print "\n#{row['Type']} relationship does not exist!\n"
           elsif br != :ignore
             direction = br['direction']
-            br = br['biological_relationship']
             specimen = nil
             related_specimen = nil
             otu = nil
@@ -1660,9 +1660,9 @@ namespace :tw do
               end
 
               if object && subject
-                BiologicalAssociation.create(biological_relationship: br,
-                                             biological_association_subject: object,
-                                             biological_association_object: subject
+                BiologicalAssociation.create(biological_relationship: br['biological_relationship'],
+                                             biological_association_subject: subject,
+                                             biological_association_object: object
                 )
               end
             end
@@ -1874,6 +1874,8 @@ namespace :tw do
           i += 1
           print "\r#{i}"
           otu = Identifier.where(project_id: $project_id, cached: 'Taxon Code ' + row['TaxonCode'].to_s, identifier_object_type: 'Otu').first.try(:identifier_object)
+          otu_id = nil
+          otu_id = otu.id if otu?
           
           room = find_or_create_room_insects(row, data)
 
@@ -1934,7 +1936,7 @@ namespace :tw do
 #          end
 
           cp = CollectionProfile.create!(container: container,
-                                   otu_id: otu,
+                                   otu_id: otu_id,
                                    conservation_status: row['ConservationStatus'],
                                    processing_state: row['ProcessingState'],
                                    container_condition: row['ContainerCondition'],
@@ -2000,13 +2002,14 @@ namespace :tw do
           name = file.match(/\/(\d*)[_-].*\.pdf$/)
           identifier = name.nil? ? nil : name[1]
           unless identifier.nil?
-            loan = Identifier.where(project_id: $project_id, cached: 'Invoice ' + identifier, identifier_object_type: 'Loan').first.try(:identifier_object)
+            loan = Identifier.where(project_id: $project_id, cached: 'INHS Invoice ' + identifier, identifier_object_type: 'Loan').first.try(:identifier_object)
             if loan.nil?
               print "\nInvoice with identifier #{identifier} does not exist\n"
             else
               # !! fix this, not testest
               #d1 = Document.create(document_file: File.open(file), documentation_attributes: [{documentation_object: loan, type: 'Documentation::LoanDocumentation'} ])
-              d1 = Document.create(document_file: File.open(file), documentation_attributes: [{documentation_object: loan} ])
+              d1 = Document.create(document_file: File.open(file))
+              d2 = Documentation.create(documentation_object: loan, document: d1)
             end
           end
         end

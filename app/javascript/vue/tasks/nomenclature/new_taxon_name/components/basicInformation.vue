@@ -53,6 +53,20 @@
       v-if="!taxon.id">
       <save-taxon-name class="normal-input button button-submit create-button"/>
     </div>
+    <modal-component 
+      v-if="showModal"
+      @close="showModal = false">
+      <h3 slot="header">Non latinized name</h3>
+      <div slot="body">
+        <p>Create this name and apply the non-latin status?</p>
+        <button
+          class="button normal-input button-submit"
+          type="button"
+          @click="createNonLatin">
+          Create
+        </button>
+      </div>
+    </modal-component>
   </form>
 </template>
 
@@ -60,6 +74,7 @@
 
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+import { ActionNames } from '../store/actions/actions'
 
 import SaveTaxonName from './saveTaxonName.vue'
 import ParentPicker from './parentPicker.vue'
@@ -67,6 +82,7 @@ import Expand from './expand.vue'
 import CheckExist from './findExistTaxonName.vue'
 import RankSelector from './rankSelector.vue'
 import HardValidation from './hardValidation.vue'
+import ModalComponent from 'components/modal'
 
 export default {
   components: {
@@ -75,14 +91,20 @@ export default {
     RankSelector,
     CheckExist,
     SaveTaxonName,
-    HardValidation
+    HardValidation,
+    ModalComponent
   },
   computed: {
     parent () {
       return this.$store.getters[GetterNames.GetParent]
     },
-    taxon () {
-      return this.$store.getters[GetterNames.GetTaxon]
+    taxon: {
+      get () {
+        return this.$store.getters[GetterNames.GetTaxon]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetTaxon)
+      }
     },
     validateInfo () {
       return (this.parent != undefined && 
@@ -104,7 +126,21 @@ export default {
   },
   data: function () {
     return {
-      expanded: true
+      expanded: true,
+      showModal: false
+    }
+  },
+  watch: {
+    errors: {
+      handler(newVal) {
+        console.log(newVal)
+        if(this.existError('name')) {
+          if(this.displayError('name').find(item => { return item.includes('must be latinized') })) {
+            this.showModal = true
+          }
+        }
+      },
+      deep: true
     }
   },
   mounted() {
@@ -120,6 +156,17 @@ export default {
       } else {
         return undefined
       }
+    },
+    createNonLatin() {
+      let code = this.$store.getters[GetterNames.GetNomenclaturalCode]
+      let statusList = this.$store.getters[GetterNames.GetStatusList][code]
+      let statusType = Object.values(statusList.all).find(item => { return item.name.includes('not latin')})
+      this.taxon.taxon_name_classifications_attributes = [{
+        type: statusType.type
+      }]
+
+      this.$store.dispatch(ActionNames.CreateTaxonName, this.taxon)
+      this.showModal = false
     }
   }
 }
