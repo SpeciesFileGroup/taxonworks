@@ -21,10 +21,30 @@
     opacity: 0.50;
     transform: translateY(100%) translateX(-50%);
   }
-  25% {
+  10% {
     transform: translateY(0%) translateX(-50%);
     opacity: 1;
-
+  }
+  76% {
+    transform: scale(1) translateX(-50%);
+  }
+  77%{
+    transform: scale(1.5) translateX(-33.5%);
+  }
+  80% {
+    transform: scale(1) translateX(-50%);
+  }
+  85% {
+    transform: translateY(0%) translateX(-50%);
+    opacity: 1;
+  }
+  95% {
+    transform: translateY(0%) translateX(-50%);
+    opacity: 1; 
+  }
+  100% {
+    opacity: 0.50;
+    transform: translateY(100%) translateX(-50%);
   }
 }
 
