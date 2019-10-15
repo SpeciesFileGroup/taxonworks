@@ -27,6 +27,7 @@ import Group from './geography/group.vue'
 import Collectors from './geography/collectors.vue'
 import Predicates from './geography/predicates.vue'
 import sortComponent from '../../shared/sortComponenets.vue'
+import TripCode from './geography/tripCode.vue'
 
 export default {
   mixins: [sortComponent],
@@ -39,12 +40,13 @@ export default {
     Dates,
     Times,
     Group,
-    Predicates
+    Predicates,
+    TripCode
   },
   data () {
     return {
       disableDraggable: false,
-      componentsOrder: ['Geography', 'Georeferences', 'Elevation', 'Dates', 'Times', 'Collectors', 'Group', 'Predicates'],
+      componentsOrder: ['Geography', 'Georeferences', 'Elevation', 'Dates', 'Times', 'Collectors', 'TripCode', 'Group', 'Predicates'],
       keyStorage: 'tasks::digitize::GeographyOrder'
     }
   },
