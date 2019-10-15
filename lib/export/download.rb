@@ -30,9 +30,9 @@ module Export::Download
       # If keys are not deterministic: .attributes.values_at(*column_names).collect{|v| Utilities::Strings.sanitize_for_csv(v) }
     end
 
-    Download.delete_columns(tbl, exclude_columns) if !exclude_columns.empty?
-    Download.trim_columns(tbl) if trim_columns
-    Download.trim_rows(tbl) if trim_rows
+    delete_columns(tbl, exclude_columns) if !exclude_columns.empty?
+    trim_columns(tbl) if trim_columns
+    trim_rows(tbl) if trim_rows
 
     # CSV::Converters are only available on read, not generate, so we can't use them here.
     tbl.to_csv(col_sep: "\t", encoding: Encoding::UTF_8)
