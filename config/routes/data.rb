@@ -220,6 +220,7 @@ resources :geographic_areas do
     post 'display_coordinates' # TODO should not be POST
     get 'display_coordinates', as: 'getdisplaycoordinates'
     get :select_options, defaults: {format: :json}
+    get :by_lat_long, defaults: {format: :json}
   end
 end
 

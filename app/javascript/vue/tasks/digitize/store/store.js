@@ -50,6 +50,12 @@ function makeInitialState () {
       identifier_object_type: 'CollectionObject',
       identifier: undefined
     },
+    collectingEventIdentifier: {
+      id: undefined,
+      namespace_id: undefined,
+      type: 'Identifier::Local::TripCode',
+      identifier: undefined
+    },
     collection_object: {
       id: undefined,
       global_id: undefined,
