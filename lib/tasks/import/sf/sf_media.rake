@@ -408,8 +408,9 @@ namespace :tw do
           end
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/19_after_links` # `~/src/db_backup/19_after_links/`
-          puts '** dumped 19_after_links **'
+          p = "#{@args[:backup_directory]}/19_after_links/"
+          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
+          puts "** dumped #{p} **"
           #######################################################################################
         end
 

@@ -54,8 +54,9 @@ namespace :tw do
           end
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/12_after_orig_genus_ids/`
-          puts '** dumped 12_after_orig_genus_ids **'
+          p = "#{@args[:backup_directory]}/12_after_orig_genus_ids/"
+          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
+          puts "** dumped #{p} **"
           #######################################################################################
         end
 

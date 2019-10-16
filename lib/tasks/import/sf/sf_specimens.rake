@@ -1284,8 +1284,9 @@ namespace :tw do
           ap get_tw_collecting_event_id
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/14_after_coll_events/`
-          puts '** dumped 14_after_coll_events **'
+          p = "#{@args[:backup_directory]}/14_after_coll_events/"
+          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
+          puts "** dumped #{p} **"
           #######################################################################################
         end
 
@@ -1368,8 +1369,9 @@ namespace :tw do
           ap get_sf_geo_level4
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/13_after_geo_level_4/`
-          puts '** dumped 13_after_geo_level_4 **'
+          p = "#{@args[:backup_directory]}/13_after_geo_level_4/"
+          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
+          puts "** dumped #{p} **"
           #######################################################################################
         end
 

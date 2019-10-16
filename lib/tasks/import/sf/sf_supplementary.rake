@@ -156,7 +156,7 @@ namespace :tw do
                 attribute_subject_id = get_tw_otu_id[sf_taxon_name_id]
                 attribute_subject_type = 'Otu'
               else
-                
+
                 logger.warn "SF.TaxonNameID = #{sf_taxon_name_id} not found and OTU not found"
                 next
               end
@@ -206,8 +206,9 @@ namespace :tw do
           end
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/18_after_scrutinies/`
-          puts '** dumped 18_after_scrutinies **'
+          p = "#{@args[:backup_directory]}/18_after_scrutinies/"
+          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
+          puts "** dumped #{p} **"
           #######################################################################################
         end
 

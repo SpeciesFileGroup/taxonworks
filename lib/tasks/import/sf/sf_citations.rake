@@ -176,8 +176,9 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           end
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/25_after_otu_citations/`
-          puts '** dumped 25_after_otu_citations **'
+          p = "#{@args[:backup_directory]}/25_after_otu_citations/"
+          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
+          puts "** dumped #{p} **"
           #######################################################################################
 
         end
@@ -1054,8 +1055,9 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           ap new_name_status
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/20_after_taxon_name_citations/`
-          puts '** dumped 20_after_taxon_name_citations **'
+          p = "#{@args[:backup_directory]}/20_after_taxon_name_citations/"
+          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
+          puts "** dumped #{p} **"
           #######################################################################################
         end
 
@@ -1078,8 +1080,9 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           end
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/21_after_create_combinations/`
-          puts '** dumped 21_after_create_combinations **'
+          p = "#{@args[:backup_directory]}/21_after_create_combinations/"
+          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
+          puts "** dumped #{p} **"
           #######################################################################################
         end
 

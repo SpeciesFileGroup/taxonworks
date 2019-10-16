@@ -407,8 +407,9 @@ namespace :tw do
           end
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/10_after_some_related_taxa/`
-          puts '** dumped 10_after_some_related_taxa **'
+          p = "#{@args[:backup_directory]}/10_after_some_related_taxa/"
+          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
+          puts "** dumped #{p} **"
           #######################################################################################
         end
 
@@ -495,8 +496,9 @@ namespace :tw do
           end
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/9_after_type_genera/`
-          puts '** dumped 9_after_type_genera **'
+          p = "#{@args[:backup_directory]}/9_after_type_genera/"
+          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
+          puts "** dumped #{p} **"
           #######################################################################################
         end
 
@@ -646,8 +648,9 @@ namespace :tw do
           end
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/8_after_type_species/`
-          puts '** dumped 8_after_type_species **'
+          p = "#{@args[:backup_directory]}/8_after_type_species/"
+          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
+          puts "** dumped #{p} **"
           #######################################################################################
         end
 
@@ -1094,8 +1097,9 @@ namespace :tw do
           ap get_taxon_name_otu_id
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/7_after_run_all_taxa/`
-          puts '** dumped 7_after_run_all_taxa **'
+          p = "#{@args[:backup_directory]}/7_after_run_all_taxa/"
+          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
+          puts "** dumped #{p} **"
           #######################################################################################
         end
 
@@ -1130,9 +1134,9 @@ namespace :tw do
           ap get_otu_sf_above_id
 
           #######################################################################################
-          # byebug
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/6_after_otus_hash/`
-          puts '** dumped 6_after_otus_hash **'
+          p = "#{@args[:backup_directory]}/6_after_otus_hash/"
+          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
+          puts "** dumped #{p} **"
           #######################################################################################
         end
 
