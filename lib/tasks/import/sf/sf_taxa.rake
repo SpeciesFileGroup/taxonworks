@@ -303,8 +303,9 @@ namespace :tw do
           end
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/11_after_status_flag_rels/`
-          puts '** dumped 11_after_status_flag_rels **'
+          p = "#{@args[:backup_directory]}/11_after_status_flag_rels/"
+          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
+          puts "** dumped #{p} **"
           #######################################################################################
         end
 
