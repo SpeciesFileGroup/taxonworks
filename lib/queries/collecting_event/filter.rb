@@ -57,7 +57,7 @@ module Queries
       
         @wkt = params[:wkt]
         @geo_json = params[:geo_json]
-        @radius = params[:wkt_radius].blank? ? 100 : params[:wkt_radius] 
+        @radius = params[:radius].blank? ? 100 : params[:radius] 
 
         @keyword_ids = params[:keyword_ids].blank? ? [] : params[:keyword_ids]
         @spatial_geographic_area_ids = params[:spatial_geographic_area_ids].blank? ? [] : params[:spatial_geographic_area_ids]
