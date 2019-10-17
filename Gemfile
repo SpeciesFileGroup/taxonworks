@@ -113,7 +113,7 @@ group :test, :development do
   gem 'byebug', '~> 11.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 5.0.1'
   gem 'selenium-webdriver', '~> 3.141'
-  gem 'geckodriver-helper', '~> 0.23.0'
+  gem 'geckodriver-helper', '~> 0.24.0'
   gem 'prawn', '~> 2.2.2'
 end
 
