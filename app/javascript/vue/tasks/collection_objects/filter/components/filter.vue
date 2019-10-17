@@ -178,6 +178,7 @@ export default {
         },
         geographic: {
           geo_json: undefined,
+          radius: undefined,
           spatial_geographic_areas: undefined,
           geographic_area_ids: []
         }

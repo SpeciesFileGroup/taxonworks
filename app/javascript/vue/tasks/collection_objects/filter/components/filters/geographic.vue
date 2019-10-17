@@ -98,7 +98,14 @@ export default {
     geojson: {
       handler (newVal) {
         if(newVal.length) {
-          this.geographic.geo_json = JSON.stringify({ type: "MultiPolygon", coordinates: newVal.map(feature => { return feature.geometry.coordinates }) })
+          if(newVal[0].properties.hasOwnProperty('radius')) {
+            this.geographic.radius = newVal[0].properties.radius
+            this.geographic.geo_json = JSON.stringify({ type: "Point", coordinates: newVal[0].geometry.coordinates })
+          }
+          else {
+            this.geographic.geo_json = JSON.stringify({ type: "MultiPolygon", coordinates: newVal.map(feature => { return feature.geometry.coordinates }) })
+            this.geographic.radius = undefined
+          }
         } else {
           this.geographic.geo_json = []
         }
@@ -119,7 +126,7 @@ export default {
   },
   methods: {
     addShape (shape) {
-      this.geojson.push(shape)
+      this.geojson = [shape]
     },
     removeGeoArea (index) {
       this.geographic.geographic_area_ids.splice(index, 1)
@@ -128,6 +135,9 @@ export default {
     addGeoArea (item) {
       this.geographic.geographic_area_ids.push(item.id)
       this.geographic_areas.push(item)
+    },
+    setShape(geojson) {
+      //this.geojson = geojson.length ? 
     }
   }
 }
