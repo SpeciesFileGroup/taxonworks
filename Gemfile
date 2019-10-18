@@ -18,7 +18,7 @@ gem 'redis', '~> 4.1.0'
 gem 'rdf', '~> 3.0'
 
 # System
-gem 'thor', '~> 0.19.4' # See https://github.com/rails/rails/issues/27229
+gem 'thor', '~> 0.20.3'
 gem 'rubyzip', '~> 2.0.0'
 gem 'daemons', '~> 1.3.1'
 gem 'tzinfo-data', '~> 1.2018.4'
@@ -74,7 +74,7 @@ gem 'csl', '~> 1.5.0'
 gem 'bibtex-ruby', '~> 5.0.0'
 gem 'citeproc-ruby', '~> 1.1.10'
 gem 'csl-styles', '~> 1.0.1.8'
-gem 'ref2bibtex', '~> 0.3.0'
+gem 'serrano', '~> 0.5.2'
 # gem 'latex-decode', '~> 0.2.2'
 gem 'pdf-reader', '~> 2.2'
 
