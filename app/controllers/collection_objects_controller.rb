@@ -293,11 +293,17 @@ class CollectionObjectsController < ApplicationController
       :identifier_start,
       :identifier_end,
       :identifier_exact,
+      :never_loaned,
+      :loaned,
+      :on_loan,
       otu_ids: [],
       keyword_ids: [],
       spatial_geographic_area_ids: [],
       collecting_event_ids: [],
       geographic_area_ids: [],
+      biocuration_class_ids: [],
+      biological_relationship_ids: []
+      
       #  keyword_ids: [],
       #  collecting_event: {
       #   :recent,
