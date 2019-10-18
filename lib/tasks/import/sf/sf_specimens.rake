@@ -696,8 +696,9 @@ namespace :tw do
           ap get_sf_taxon_name_id
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/17_after_collection_objects/`
-          puts '** dumped 17_after_collection_objects **'
+          p = "#{@args[:backup_directory]}/17_after_collection_objects/"
+          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
+          puts "** dumped #{p} **"
           #######################################################################################
         end
 
@@ -769,8 +770,9 @@ namespace :tw do
           ap get_sf_collect_event_metadata
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/16_after_col_events_metadata/`
-          puts '** dumped 16_after_col_events_metadata **'
+          p = "#{@args[:backup_directory]}/16_after_col_events_metadata/"
+          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
+          puts "** dumped #{p} **"
           #######################################################################################
         end
 
@@ -870,8 +872,9 @@ namespace :tw do
           ap get_sf_identification_metadata
 
           #######################################################################################
-          `rake tw:db:dump backup_directory=#{@args[:backup_directory]}/15_after_identification_metadata/`
-          puts '** dumped 15_after_identification_metadata **'
+          p = "#{@args[:backup_directory]}/15_after_identification_metadata/"
+          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
+          puts "** dumped #{p} **"
           #######################################################################################
         end
 

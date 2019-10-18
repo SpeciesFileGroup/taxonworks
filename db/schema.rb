@@ -366,8 +366,8 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
   end
 
   create_table "confidences", id: :serial, force: :cascade do |t|
-    t.integer "confidence_object_id", null: false
     t.string "confidence_object_type", null: false
+    t.integer "confidence_object_id", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -435,9 +435,7 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
     t.integer "revision_id"
-    t.bigint "language_id"
     t.index ["created_by_id"], name: "index_contents_on_created_by_id"
-    t.index ["language_id"], name: "index_contents_on_language_id"
     t.index ["otu_id"], name: "index_contents_on_otu_id"
     t.index ["project_id"], name: "index_contents_on_project_id"
     t.index ["revision_id"], name: "index_contents_on_revision_id"
@@ -592,25 +590,6 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
     t.index ["document_file_file_name"], name: "index_documents_on_document_file_file_name"
     t.index ["document_file_file_size"], name: "index_documents_on_document_file_file_size"
     t.index ["document_file_updated_at"], name: "index_documents_on_document_file_updated_at"
-  end
-
-  create_table "downloads", force: :cascade do |t|
-    t.string "name", null: false
-    t.string "description"
-    t.string "filename", null: false
-    t.string "request"
-    t.datetime "expires", null: false
-    t.integer "times_downloaded", default: 0, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer "created_by_id", null: false
-    t.integer "updated_by_id", null: false
-    t.bigint "project_id"
-    t.index ["created_by_id"], name: "index_downloads_on_created_by_id"
-    t.index ["filename"], name: "index_downloads_on_filename"
-    t.index ["project_id"], name: "index_downloads_on_project_id"
-    t.index ["request"], name: "index_downloads_on_request"
-    t.index ["updated_by_id"], name: "index_downloads_on_updated_by_id"
   end
 
   create_table "dwc_occurrences", id: :serial, force: :cascade do |t|
@@ -783,8 +762,8 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
     t.string "vernacularName"
     t.string "waterBody"
     t.string "year"
-    t.integer "dwc_occurrence_object_id"
     t.string "dwc_occurrence_object_type"
+    t.integer "dwc_occurrence_object_id"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id"
@@ -950,7 +929,6 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
     t.string "relation"
     t.integer "position"
     t.index ["created_by_id"], name: "index_identifiers_on_created_by_id"
-    t.index ["identifier"], name: "index_identifiers_on_identifier"
     t.index ["identifier_object_id", "identifier_object_type"], name: "index_identifiers_on_identifier_object_id_and_type"
     t.index ["namespace_id"], name: "index_identifiers_on_namespace_id"
     t.index ["project_id"], name: "index_identifiers_on_project_id"
@@ -1059,7 +1037,7 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
     t.datetime "updated_at", null: false
     t.string "recipient_honorific"
     t.string "recipient_country"
-    t.text "lender_address", default: "Lender's address not provided.", null: false
+    t.text "lender_address", null: false
     t.index ["created_by_id"], name: "index_loans_on_created_by_id"
     t.index ["project_id"], name: "index_loans_on_project_id"
     t.index ["updated_by_id"], name: "index_loans_on_updated_by_id"
@@ -1248,10 +1226,10 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
   end
 
   create_table "origin_relationships", id: :serial, force: :cascade do |t|
-    t.integer "old_object_id", null: false
     t.string "old_object_type", null: false
-    t.integer "new_object_id", null: false
+    t.integer "old_object_id", null: false
     t.string "new_object_type", null: false
+    t.integer "new_object_id", null: false
     t.integer "position"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1405,8 +1383,8 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
 
   create_table "protocol_relationships", id: :serial, force: :cascade do |t|
     t.integer "protocol_id", null: false
-    t.integer "protocol_relationship_object_id", null: false
     t.string "protocol_relationship_object_type", null: false
+    t.integer "protocol_relationship_object_id", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1956,7 +1934,6 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
   add_foreign_key "containers", "users", column: "created_by_id", name: "containers_created_by_id_fkey"
   add_foreign_key "containers", "users", column: "updated_by_id", name: "containers_updated_by_id_fkey"
   add_foreign_key "contents", "controlled_vocabulary_terms", column: "topic_id", name: "contents_topic_id_fkey"
-  add_foreign_key "contents", "languages"
   add_foreign_key "contents", "otus", name: "contents_otu_id_fkey"
   add_foreign_key "contents", "projects", name: "contents_project_id_fkey"
   add_foreign_key "contents", "users", column: "created_by_id", name: "contents_created_by_id_fkey"
@@ -1977,9 +1954,6 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
   add_foreign_key "documentation", "users", column: "updated_by_id"
   add_foreign_key "documents", "users", column: "created_by_id"
   add_foreign_key "documents", "users", column: "updated_by_id"
-  add_foreign_key "downloads", "projects"
-  add_foreign_key "downloads", "users", column: "created_by_id"
-  add_foreign_key "downloads", "users", column: "updated_by_id"
   add_foreign_key "dwc_occurrences", "projects"
   add_foreign_key "dwc_occurrences", "users", column: "created_by_id"
   add_foreign_key "dwc_occurrences", "users", column: "updated_by_id"
