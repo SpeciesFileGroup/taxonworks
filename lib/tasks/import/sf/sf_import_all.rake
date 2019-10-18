@@ -7,7 +7,7 @@ namespace :tw do
       desc 'time rake tw:project_import:sf_import:run_all_import_tasks user_id=1 data_directory=~/src/onedb2tw/working/'
       task run_all_import_tasks: [
 
-          # rake tw:db:restore_last backup_directory=../db_backup/0_pristine_tw_init_all/
+          # # rake tw:db:restore_last backup_directory=../db_backup/0_pristine_tw_init_all/
           #
           # 'start:list_skipped_file_ids',
           # 'start:create_users',
@@ -33,7 +33,7 @@ namespace :tw do
           # 'start:list_excluded_taxa',
           # 'start:create_sf_family_group_related_info',
           # 'start:create_source_roles',
-          # # '5_after_source_roles': 76m51.040s on 7 Nov 2018; 132m58.252s b1_ on 25 Nov 2018; 65m3.663s on 30 May 2019; 70m34.672s on 16 July 2019; 66m38.395s on 7 Aug 2019; 71m55.240s on 8 Oct 2019
+          # '5_after_source_roles': 76m51.040s on 7 Nov 2018; 132m58.252s b1_ on 25 Nov 2018; 65m3.663s on 30 May 2019; 70m34.672s on 16 July 2019; 66m38.395s on 7 Aug 2019; 71m55.240s on 8 Oct 2019
           # # 4, 5: 104m51.735s on 15 July 2019
           # #
           # 'taxa:create_sf_taxa_misc_info',
@@ -47,7 +47,7 @@ namespace :tw do
           # # '7_after_run_all_taxa': 298m12.627s on 8 Nov 2018; 347m33.882s on 13 June 2018; 427m0.242s on 16 July 2019; 447m56.323s on 8 Aug 2019; 432m46.254s on 6 Sep 2019
           # #
           # 'taxa:create_type_species',
-          # '8_after_type_species': 6m33.833s on 13 Nov 2018; no log summary appears at end
+          # # '8_after_type_species': 6m33.833s on 13 Nov 2018; no log summary appears at end
           # #
           # 'taxa:create_type_genera',
           # # '9_after_type_genera': 1m8.873ss on 13 Nov 2018
@@ -72,8 +72,8 @@ namespace :tw do
           # #
           # 'specimens:geographic_area_ids',
           # 'specimens:collecting_events',
-          # 14_after_coll_events': 235m50.824s for dumps 13 & 14 on 8 Feb 2019; 38m14.238s on 15 Nov 2018; 42m43.927s on 16 June 2018; 47m53.101s on 26 June 2018; 207m46.345s on 31 May 2019
-          # 12, 13, 14: 272m5.476s on 17 July 2019
+          # # 14_after_coll_events': 235m50.824s for dumps 13 & 14 on 8 Feb 2019; 38m14.238s on 15 Nov 2018; 42m43.927s on 16 June 2018; 47m53.101s on 26 June 2018; 207m46.345s on 31 May 2019
+          # # 12, 13, 14: 272m5.476s on 17 July 2019
 
           # 'specimens:import_sf_depos',
           # 'specimens:create_biocuration_classes',
@@ -85,13 +85,13 @@ namespace :tw do
           # #
           # 'specimens:get_ident_qualifier_from_nomenclator',
           # 'specimens:create_sf_loc_col_events_metadata',
-          # '16_after_col_events_metadata': 10m17.584s on 15 Nov 2018; 15-16 took 21m27.003s; 11m19.933s on 10 Sep 2019
-          # 15, 16: 21m24.452s on 18 July 2019
-          #
+          # # '16_after_col_events_metadata': 10m17.584s on 15 Nov 2018; 15-16 took 21m27.003s; 11m19.933s on 10 Sep 2019
+          # # 15, 16: 21m24.452s on 18 July 2019
+          # #
           # 'specimens:collection_objects',
           # # '17_after_collection_objects': 197m20.585s on 19 Mar 2019; 211m4.168s on 1 Feb 2019; 202m27.938s on 20 Nov 2018; 227m33.097s on 15 Nov 2018;
-          # 187m21.639s on 1 June 2019; 183m35.099s on 18 July 2019; 185m41.408s on 10 Sep 2019
-          #
+          # # 187m21.639s on 1 June 2019; 183m35.099s on 18 July 2019; 185m41.408s on 10 Sep 2019
+          # #
           # 'supplementary:taxon_info',
           # # 0m58.912s on 21 Nov 2018
           # 'supplementary:scrutiny_related',
@@ -101,25 +101,25 @@ namespace :tw do
           # 'media:create_common_names',
           # 'media:create_otu_website_links',
           # # 19_after_links: 18-19 took 19m3.097s on 2 June 2019
-          # 18, 19: 19m38.508s on 18 July 2019; 21m5.009s on 10 Sep 2019
+          # # 18, 19: 19m38.508s on 18 July 2019; 21m5.009s on 10 Sep 2019
           # # 15, 16, 17, 18, 19: 474m38.770s on 8-9 Aug 2019
           # #
-          'citations:create_citations',
+          # 'citations:create_citations',
           # # 20_after_taxon_citations: close to 10h (592m44.659s on 10 July 2015, 591m42.625s on 6 Sept 2018); 2023m53.988s (33.716666 hours) on 4 June 2019; 1982m48.521s on 20 July 2019; 2078m46.235s on 14 Sep 2019
           # #
-          'citations:create_combinations',
+          # 'citations:create_combinations',
           # # 21_after_create_combinations: 112m27.918s on 6 June 2019; 108m9.593s on 22 July 2019
           # #
-          'citations:create_otu_cites',
+          # 'citations:create_otu_cites',
           # # 25_after_otu_cites: 1m2.000s on 16 July 2018; 0m55.486s on 7 Sept 2018; 2m1.501s on 2 July 2019; 1m55.952s on 29 July 2019 (sans some attributes)
           # # 20, 21, 25: 2398m41.120s on 10 Aug 2019
           # # 21, 25: 131m12.529s on 16 Sep 2019
           # #
           # #
-          'last:filter_users'
+          # 'last:filter_users'
           # # '99_after_filter_users': 5m26.662s on 25 Feb 2019; 6m12.567s on 30 July 2019; 5m44.281s on 11 Aug 2019; 6m23.155s on 15 Sep 2019
-          #
-          # Total run time ~ 65 hours
+          # #
+          # # Total run time ~ 65 hours
 
       ] do
         puts 'Ran all tasks!'
