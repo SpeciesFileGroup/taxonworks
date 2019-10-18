@@ -33,7 +33,7 @@ namespace :tw do
           # 'start:list_excluded_taxa',
           # 'start:create_sf_family_group_related_info',
           # 'start:create_source_roles',
-          # '5_after_source_roles': 76m51.040s on 7 Nov 2018; 132m58.252s b1_ on 25 Nov 2018; 65m3.663s on 30 May 2019; 70m34.672s on 16 July 2019; 66m38.395s on 7 Aug 2019; 71m55.240s on 8 Oct 2019
+          # # '5_after_source_roles': 76m51.040s on 7 Nov 2018; 132m58.252s b1_ on 25 Nov 2018; 65m3.663s on 30 May 2019; 70m34.672s on 16 July 2019; 66m38.395s on 7 Aug 2019; 71m55.240s on 8 Oct 2019
           # # 4, 5: 104m51.735s on 15 July 2019
           # #
           # 'taxa:create_sf_taxa_misc_info',
@@ -53,8 +53,8 @@ namespace :tw do
           # # '9_after_type_genera': 1m8.873ss on 13 Nov 2018
           # #
           # 'taxa:create_some_related_taxa',
-          # '10_after_some_related_taxa': 3m2.116s on 13 Nov 2018
-          # 8, 9, 10: 10m46.204s on 17 July 2019; 432m46.254s 9 Sep 2019
+          # # '10_after_some_related_taxa': 3m2.116s on 13 Nov 2018
+          # # 8, 9, 10: 10m46.204s on 17 July 2019; 432m46.254s 9 Sep 2019
           # #
           # 'taxa:create_status_flag_relationships',
           # # '11_after_status_flag_rels': dumps 7-11 took 466m18.113s on 7 Feb 2019; 171m8.794s on 14 Nov 2018; 8-11 took 186m52.699s on 31 May 2019; 174m45.979s on 17 May 2019;
