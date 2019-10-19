@@ -7,12 +7,12 @@
   align-items: center;
   left: 50%;
   bottom: 0px;
-  transform: translateX(-50%);
+  transform:translate(-50%,105%);
   padding: $standard_padding;
   border-top: none;
   border-top-right-radius: 3px;
   border-top-left-radius: 3px;
-  animation: alert-show 3s ease;
+  animation: alert-show 10s ease;
 
   .alert-close {
     margin-left: standard_padding;

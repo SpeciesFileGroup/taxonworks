@@ -220,6 +220,7 @@ resources :geographic_areas do
     post 'display_coordinates' # TODO should not be POST
     get 'display_coordinates', as: 'getdisplaycoordinates'
     get :select_options, defaults: {format: :json}
+    get :by_lat_long, defaults: {format: :json}
   end
 end
 
@@ -439,6 +440,11 @@ resources :otu_page_layout_sections, only: [:create, :update, :destroy]
 match 'people/role_types', to: 'people#role_types', via: :get, method: :json
 resources :people do
   concerns [:data_routes]
+
+  collection do
+    get :select_options, defaults: {format: :json}
+  end
+
   member do
     get :similar, defaults: {format: :json}
     get :roles

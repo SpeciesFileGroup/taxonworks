@@ -19,7 +19,7 @@
 #
 # @!attribute translated_from_serial_id
 #   @return [Integer]
-#     @todo
+#     the id of the serial that this serial is a direct translation of 
 #
 # @!attribute publisher
 #   @return [String]
@@ -84,9 +84,10 @@ class Serial < ApplicationRecord
     return Serial.none if compared_string.blank?
 
     # Levenshtein in postgres requires all strings be 255 or fewer
-    order_str = Serial.send(:sanitize_sql_for_conditions,
-                            ["levenshtein(Substring(serials.#{column} from 0 for 250), ?)",
-                             compared_string[0..250]])
+    order_str = Serial.send(
+      :sanitize_sql_for_conditions,
+      ["levenshtein(Substring(serials.#{column} from 0 for 250), ?)",
+       compared_string[0..250]])
 
     Serial.where('id <> ?', self.to_param)
       .order(Arel.sql(order_str)) 
@@ -100,10 +101,11 @@ class Serial < ApplicationRecord
     if self.new_record?
       ret_val = Serial.exists?(name: self.name)
     else
-      name_str = ActiveRecord::Base.send(:sanitize_sql_array, 
-                                         ['name = ? AND NOT (id = ?)',
-                                          Utilities::Strings.escape_single_quote(self.name),
-                                          self.id])
+      name_str = ActiveRecord::Base.send(
+        :sanitize_sql_array, 
+        ['name = ? AND NOT (id = ?)',
+         Utilities::Strings.escape_single_quote(self.name),
+         self.id])
       ret_val  = Serial.where(name_str).to_a.size > 0
     end
 

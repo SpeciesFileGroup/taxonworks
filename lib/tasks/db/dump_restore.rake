@@ -99,12 +99,17 @@ namespace :tw do
     end
 
     task find_last: [:environment, :backup_directory] do
-      file = Dir[File.join(@args[:backup_directory], '*.dump')].sort.last
+      file = Dir[File.join(@args[:backup_directory], '*.dump')].sort{|a,b| file_name_timestamp(a) <=> file_name_timestamp(b)}.last
+      puts Rainbow("Last dump found: #{file}").purple
       raise TaxonWorks::Error, Rainbow("No dump has been found in #{@args[:backup_directory]}").red unless file
       @args[:file] = File.basename(file)
     end
 
     private
+
+    def file_name_timestamp(filename)
+      filename.match(/.?_(\d\d\d\d.*).dump$/)[1].to_s
+    end
 
     # This should just be done by restarting the server and making a new connection!
     def reset_indecies

@@ -157,16 +157,17 @@ namespace :tw do
 
         @import = Import.find_or_create_by(name: IMPORT_NAME)
         @import.metadata ||= {} 
-        
+
         handle_projects_and_users_insects(@data1, @import)
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
         handle_namespaces_insects(@data1, @import)
 
         handle_controlled_vocabulary_insects(@data1, @import)
+
         handle_biocuration_classes_insects(@data1, @import)
         handle_biological_relationship_classes_insects(@data1, @import)
         handle_preparation_types_insects(@data1, @import)
-#begin
+=begin        
         handle_people_insects(@data1, @import)
         GC.start
         handle_taxa_insects(@data1, @import)
@@ -196,6 +197,7 @@ namespace :tw do
         puts "\nTotal collecting events to build: #{@redis.keys.count}."
         handle_associations_insects(@data1, @import)
         GC.start
+=end
         handle_loan_specimens_insects(@data1)
         GC.start
         handle_letters_insects(@data1)
@@ -1795,14 +1797,27 @@ namespace :tw do
           i += 1
           print "\r#{i}"
           specimen = nil
-          invoice = data.loans[row['InvoiceID']]
-          unless row['Prefix'].blank? || row['CatalogNumber'].blank? || invoice.nil?
-            if row['Prefix'].downcase == 'loan invoice' && !data.loan_invoice_speciments[row['CatalogNumber']].nil?
-              #identifier = Identifier.where(namespace_id: @taxon_namespace.id, identifier: data.loan_invoice_speciments[row['CatalogNumber']]['TaxonCode'], project_id: $project_id)
-              #specimen = identifier.empty? ? nil : identifier.first.identifier_object
-
-         #     otu = Otu.with_project_id($project_id).with_identifier('Taxon Code ' + data.loan_invoice_speciments[row['CatalogNumber']]['TaxonCode'].to_s)
           
+
+
+          # New October 16
+          # invoice = data.loans[row['InvoiceID']]
+          invoice = Identifier.where(
+            project_id: $project_id, 
+            cached: 'INHS Invoice ' + row['InvoiceID'].to_s,
+            identifier_object_type: 'Loan' 
+          ).first.try(:identifier_object)
+
+          # end new October 16
+
+          unless row['Prefix'].blank? || row['CatalogNumber'].blank? || invoice.nil?
+
+            if row['Prefix'].downcase == 'loan invoice' && !data.loan_invoice_speciments[row['CatalogNumber']].nil?
+
+              #identifier = Identifier.where(namespace_id: @taxon_namespace.id, identifier: data.loan_invoice_speciments[row['CatalogNumber']]['TaxonCode'], project_id: $project_id)
+              # specimen = identifier.empty? ? nil : identifier.first.identifier_object
+              # otu = Otu.with_project_id($project_id).with_identifier('Taxon Code ' + data.loan_invoice_speciments[row['CatalogNumber']]['TaxonCode'].to_s)
+
               otu = Identifier.where(
                 project_id: $project_id, 
                 cached: 'Taxon Code ' + data.loan_invoice_speciments[row['CatalogNumber']]['TaxonCode'].to_s,
@@ -1819,22 +1834,27 @@ namespace :tw do
                 identifier_object_type: 'CollectionObject'
               ).first.try(:identifier_object)
 
-             # loan_item_object = identifier.empty? ? nil : identifier.first.identifier_object
+              # loan_item_object = identifier.empty? ? nil : identifier.first.identifier_object
               total = nil
             end
+
             l = LoanItem.create( loan: invoice,
-                              loan_item_object: loan_item_object,
-                              total: total,
-                              date_returned: time_from_field(row['DateReturned']),
-                              disposition: status[row['Status'].to_s.downcase]
-            )
+                                loan_item_object: loan_item_object,
+                                total: total,
+                                date_returned: time_from_field(row['DateReturned']),
+                                disposition: status[row['Status'].to_s.downcase]
+                               )
           end
         end
-        Loan.where(project_id: $project_id).select{|o| !o.date_closed.nil?}.select{|i| !i.loan_items.empty?}.each do |l|
-          date = l.loan_items.select{|o| !o.date_returned.nil?}.collect{|i| i.date_returned}
-          l.date_closed = date.sort.last unless date.empty?
-          l.save
+
+        Loan.where(project_id: $project_id).joins(:loan_items).select{|o| !o.date_closed.nil? }.each do |l|
+          date = l.loan_items.select{|o| !o.date_returned.nil? }.collect{|i| i.date_returned}
+          unless date.empty?
+            l.date_closed = date.sort.last
+            l.save
+          end
         end
+
       end
 
       def handle_letters_insects(data)
@@ -1846,7 +1866,14 @@ namespace :tw do
 
         ls.each_with_index do |row, i|
           print "\r#{i}"
-          invoice = data.loans[row['InvoiceID']]
+          # invoice = data.loans[row['InvoiceID']]
+          
+          invoice = Identifier.where(
+            project_id: $project_id, 
+            cached: 'INHS Invoice ' + row['InvoiceID'].to_s,
+            identifier_object_type: 'Loan' 
+          ).first.try(:identifier_object)
+
 
           unless row['Body'].to_s.squish.blank? || invoice.nil?
             note = row['Body'].to_s.squish

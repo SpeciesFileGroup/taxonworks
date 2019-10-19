@@ -168,7 +168,7 @@ export default {
 
       Promise.all(promises).then(() => { 
         if (rowId && position) {
-          this.findRow(rowId, Number(position))
+          this.findRow(rowId, Number(position)-1)
         } else {
           this.getRows(1)
         }
