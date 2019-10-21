@@ -16,7 +16,7 @@ services:
     stdin_open: true
     tty: true
   db:
-    image: mdillon/postgis:9.5
+    image: mdillon/postgis:10
     ports: 
       - "0.0.0.0:15432:5432"
     volumes:
