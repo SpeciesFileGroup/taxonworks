@@ -789,6 +789,8 @@ namespace :tw do
           file.each_with_index do |row, i|
             next if skipped_file_ids.include? row['FileID'].to_i
             sf_taxon_name_id = row['TaxonNameID']
+            # puts sf_taxon_name_id
+            # puts row['TaxonNameStr']
             sf_rank_id = row['RankID']
             next if excluded_taxa.include? sf_taxon_name_id
             next if sf_rank_id == '90' # TaxonNameID = 1221948, Name = Deletable, RankID = 90 == Life, FileID = 1
@@ -796,25 +798,28 @@ namespace :tw do
 
             project_id = get_tw_project_id[row['FileID']]
 
+
             # Note: sf_ref_id can be 0
-            if [22...44].include?(sf_rank_id.to_i)
+
+            if (22..44).include?(sf_rank_id.to_i)
+              # byebug
+
               # If family-group name, get RefID from family_group_related_info hash for family_taxon_name_author; value in tblTaxa is first use of this family_group name
-              ref_id = family_group_related_info[sf_taxon_name_id][family_author_ref_id]
+              if family_group_related_info[sf_taxon_name_id].nil?
+                logger.error "No family-group taxon (no type genus ID?): sf_taxon_name_id = #{sf_taxon_name_id} (error_counter = #{error_counter += 1})"
+              else
+                ref_id = family_group_related_info[sf_taxon_name_id]['family_author_ref_id']
+              end
             else
               ref_id = row['RefID'] # preserve this value; used intact below for creating taxon_name_author list if this is a contained ref
             end
 
-             if ref_id_containing_id_hash[ref_id].nil? # this RefID does not have a ContainingRefID
-              # containing_ref_id = '0'
+            if ref_id_containing_id_hash[ref_id].nil? # this RefID does not have a ContainingRefID
               use_this_ref_id = ref_id
-              add_different_authors = false
-              ## copy source_author list to taxon_name_author list
+              add_different_authors = false # copy source_author list to taxon_name_author list
             else
-              # containing_ref_id = ref_id_containing_id_hash[ref_id]
-              # use_this_ref_id = containing_ref_id
               use_this_ref_id = ref_id_containing_id_hash[ref_id]
-              add_different_authors = true
-              ## add taxon_name_authors for contained ref
+              add_different_authors = true # add taxon_name_authors for contained ref
             end
 
             # For ecology
@@ -834,7 +839,7 @@ namespace :tw do
               distribution_text = "* Distribution text: #{distribution}"
             end
 
-            logger.info "Working with TW.project_id: #{project_id} = SF.FileID #{row['FileID']}, SF.TaxonNameID #{sf_taxon_name_id} (count #{count_found += 1}) \n"
+            logger.info "Working with TW.project_id: #{project_id} = SF.FileID #{row['FileID']}, SF.TaxonNameID #{sf_taxon_name_id}, use_this_ref_id #{use_this_ref_id}, add_different_authors #{add_different_authors} (count #{count_found += 1}) \n"
 
             animalia_id = get_animalia_id[project_id.to_s]
 

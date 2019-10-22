@@ -43,8 +43,9 @@ namespace :tw do
           # 'taxa:create_otus_for_ill_formed_names_hash',
           # # '6_after_otus_hash': 0m55.165s on 8 Nov 2018; 3m20.635s on 30 May 2019; 3m21.575s on 16 July 2019; 2m59.249s on 8 Aug 2019
           # #
-          # 'taxa:create_all_sf_taxa_pass1',
+          'taxa:create_all_sf_taxa_pass1',
           # # '7_after_run_all_taxa': 298m12.627s on 8 Nov 2018; 347m33.882s on 13 June 2018; 427m0.242s on 16 July 2019; 447m56.323s on 8 Aug 2019; 432m46.254s on 6 Sep 2019
+          # # 6, 7: 431m19.588s on 18 Oct 2019
           # #
           # 'taxa:create_type_species',
           # # '8_after_type_species': 6m33.833s on 13 Nov 2018; no log summary appears at end
@@ -58,7 +59,6 @@ namespace :tw do
           # #
           # 'taxa:create_status_flag_relationships',
           # # '11_after_status_flag_rels': dumps 7-11 took 466m18.113s on 7 Feb 2019; 171m8.794s on 14 Nov 2018; 8-11 took 186m52.699s on 31 May 2019; 174m45.979s on 17 May 2019;
-          # # 183m32.701s 9 Sep 2019 (200 errors)
           # #
           # 'pre_cites:import_nomenclator_strings',
           # 'pre_cites:create_cvts_for_citations',
