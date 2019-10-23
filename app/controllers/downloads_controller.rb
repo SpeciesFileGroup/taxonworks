@@ -12,7 +12,7 @@ class DownloadsController < ApplicationController
 
   # GET /downloads/1
   def show
-    download_file
+
   end
 
   # DELETE /downloads/1

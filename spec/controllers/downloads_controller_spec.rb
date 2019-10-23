@@ -60,11 +60,10 @@ RSpec.describe DownloadsController, type: :controller do
   end
 
   describe "GET #show" do
-    # TODO: Most likely should display a page with info and download link, for now is an alias of #download_file.
-    it "sends the requested file" do
+    it 'assigns the requested download as @download' do
       o = Download.create! valid_attributes
       get :show, params: {id: o.to_param}, session: valid_session
-      expect(response.body).to eq(IO.binread(o.file_path))
+      expect(assigns(:download)).to eq(o)
     end
   end
 
