@@ -99,7 +99,7 @@ class CollectionObjectObservationsController < ApplicationController
 
   # GET /collection_object_observations/download
   def download
-    send_data(Download.generate_csv(CollectionObjectObservation.where(project_id: sessions_current_project_id)),
+    send_data(Export::Download.generate_csv(CollectionObjectObservation.where(project_id: sessions_current_project_id)),
               type: 'text',
               filename: "collection_object_observations_#{DateTime.now}.csv")
   end

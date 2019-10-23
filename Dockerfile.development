@@ -76,7 +76,7 @@ ENV PATH /root/.yarn/bin:$PATH
 ENV PATH $GEM_HOME/bin:$PATH
 ENV BUNDLE_APP_CONFIG $GEM_HOME
 
-RUN gem install bundler && \
+RUN gem install bundler -v 2.0.1 && \
     bundle config --global path "$GEM_HOME" && \
     bundle config --global bin "$GEM_HOME/bin" && \
     mkdir /app

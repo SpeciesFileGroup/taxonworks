@@ -46,6 +46,7 @@ config/initializers/vendor/better_errors.rb
 /bin/spring
 /bin/delayed_job
 
+/downloads
 /public/system
 /public/images/tmp
 /public/assets/

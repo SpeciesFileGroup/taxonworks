@@ -113,7 +113,7 @@ class CitationsController < ApplicationController
 
   # GET /citations/download
   def download
-    send_data Download.generate_csv(Citation.where(project_id: sessions_current_project_id)), type: 'text', filename: "citations_#{DateTime.now}.csv"
+    send_data Export::Download.generate_csv(Citation.where(project_id: sessions_current_project_id)), type: 'text', filename: "citations_#{DateTime.now}.csv"
   end
 
   private
