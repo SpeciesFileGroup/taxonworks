@@ -1,0 +1,26 @@
+<%= render("/shared/data/all/list/list_header", objects: @downloads) -%>
+
+<table class="tablesorter">
+  <thead>
+  <tr>
+    <%= fancy_th_tag(name: 'Name') -%>
+    <%= fancy_th_tag(name: 'Description') -%>
+    <%= fancy_th_tag(name: 'Expires') -%>
+    <%= fancy_th_tag(name: 'Times downloaded') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @downloads.each do |download| %>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= download.name %></td>
+          <td><%= download.description %></td>
+          <td>in <%= distance_of_time_in_words Time.now - download.expires %></td>
+          <td><%= download.times_downloaded %></td>
+          <%= fancy_metadata_cells_tag(download) -%>
+      <% end %>
+  <% end %>
+  </tbody>
+</table>

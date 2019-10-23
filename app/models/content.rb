@@ -36,6 +36,7 @@ class Content < ApplicationRecord
   belongs_to :otu, inverse_of: :contents
   belongs_to :topic, inverse_of: :contents
   has_one :public_content
+  belongs_to :language
 
   validates_uniqueness_of :topic, scope: [:otu]
 

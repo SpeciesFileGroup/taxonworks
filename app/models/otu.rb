@@ -76,7 +76,23 @@ class Otu < ApplicationRecord
     where('tnr1.biological_association_object_id IS NOT NULL OR tnr2.biological_association_object_id IS NOT NULL')
   }
 
-  # @param [Integer] otu_id
+
+  # @return [Otu, nil, false]
+  def parent_otu
+    return nil if taxon_name_id.blank?
+    taxon_name.ancestors.each do |a|
+      if a.otus.load.count == 1
+        return a.otus.first
+      elsif a.otus.count > 1
+        return false 
+      else
+        return nil
+      end
+    end
+    nil
+  end
+
+    # @param [Integer] otu_id
   # @param [String] rank_class
   # @return [Scope]
   #    Otu.joins(:taxon_name).where(taxon_name: q).to_sql
