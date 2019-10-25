@@ -19,6 +19,21 @@
           v-html="identifier.object_tag"/>
       </div>
       <div class="horizontal-left-content">
+      <tippy-component
+        v-if="hasChanges"
+        animation="scale"
+        placement="bottom"
+        size="small"
+        arrow-size="small"
+        :inertia="true"
+        :arrow="true"
+        :content="`<p>You have unsaved changes.</p>`">
+        <template v-slot:trigger>
+          <div
+            class="medium-icon separate-right"
+            data-icon="warning"/>
+        </template>
+      </tippy-component>
         <recent-component
           class="separate-right"
           @selected="loadCollectionObject($event.id)"/>
@@ -54,15 +69,48 @@
   import { GetterNames } from '../../store/getters/getters.js'
   import RecentComponent from './recent.vue'
   import GetMacKey from 'helpers/getMacKey.js'
+  import { TippyComponent } from 'vue-tippy'
 
   export default {
     components: {
       Autocomplete,
-      RecentComponent
+      RecentComponent,
+      TippyComponent
     },
     computed: {
       identifier() {
         return this.$store.getters[GetterNames.GetIdentifier]
+      },
+      collectionObject() {
+        return this.$store.getters[GetterNames.GetCollectionObject]
+      },
+      collectingEvent() {
+        return this.$store.getters[GetterNames.GetCollectionEvent]
+      },
+      settings: {
+        get () {
+          return this.$store.getters[GetterNames.GetSettings]
+        },
+        set (value) {
+          this.$store.commit(MutationNames.SetSettings, value)
+        }
+      },
+      hasChanges() {
+        return this.settings.lastChange > this.settings.lastSave
+      }
+    },
+    watch: {
+      collectionObject: {
+        handler(newVal) {
+          this.settings.lastChange = Date.now()
+        },
+        deep: true
+      },
+      collectingEvent: {
+        handler(newVal) {
+          this.settings.lastChange = Date.now()
+        },
+        deep: true
       }
     },
     methods: {

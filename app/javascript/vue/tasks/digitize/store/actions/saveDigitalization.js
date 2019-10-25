@@ -15,6 +15,7 @@ export default function ({ commit, dispatch, state }) {
         promises.push(dispatch(ActionNames.SaveIdentifier))
         Promise.all(promises).then(() => {
           state.settings.saving = false
+          state.settings.lastSave = Date.now()
           TW.workbench.alert.create('All records were successfully saved.', 'notice')
           resolve(true)
         }, () => {
