@@ -68,16 +68,27 @@ RSpec.describe DownloadsController, type: :controller do
   end
 
   describe "GET #download_file" do
-    let(:download) { Download.create! valid_attributes }
+    context "download has not expired yet" do
+      let(:download) { Download.create! valid_attributes }
 
-    it "sends the requested file" do
-      get :download_file, params: {id: download.to_param}, session: valid_session
-      expect(response.body).to eq(IO.binread(download.file_path))
+      it "sends the requested file" do
+        get :download_file, params: {id: download.to_param}, session: valid_session
+        expect(response.body).to eq(IO.binread(download.file_path))
+      end
+
+      it "increments the download counter" do
+        3.times { get :download_file, params: {id: download.to_param}, session: valid_session }
+        expect(download.reload.times_downloaded).to eq(3)
+      end
     end
 
-    it "increments the download counter" do
-      3.times { get :download_file, params: {id: download.to_param}, session: valid_session }
-      expect(download.reload.times_downloaded).to eq(3)
+    context "download has expired already" do
+      let(:download) { Download.create! valid_attributes.merge({ expires: 1.day.ago }) }
+
+      it "redirects to #show" do
+        get :download_file, params: {id: download.to_param}, session: valid_session
+        expect(response).to redirect_to(download_url)
+      end
     end
   end
 

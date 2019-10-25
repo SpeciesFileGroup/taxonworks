@@ -33,14 +33,18 @@ class DownloadsController < ApplicationController
 
   # GET /downloads/1/download_file
   def download_file
-    @download.increment!(:times_downloaded)
-    send_file @download.file_path
+    unless @download.expired?
+      @download.increment!(:times_downloaded)
+      send_file @download.file_path
+    else
+      redirect_to download_url
+    end
   end
 
   private
 
   def set_download
-    @download = Download.find(params[:id])
+    @download = Download.unscoped.find(params[:id])
   end
 
   def download_params
