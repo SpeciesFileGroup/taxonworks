@@ -93,6 +93,7 @@
         })
       },
       loadAssessionCode(object) {
+        this.$store.dispatch(ActionNames.ResetWithDefault)
         this.$store.dispatch(ActionNames.LoadDigitalization, object.identifier_object_id)
       },
       loadCollectionObject(id) {
