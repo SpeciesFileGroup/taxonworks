@@ -135,6 +135,13 @@ class Person < ApplicationRecord
     roles.reload.any?
   end
 
+  # @return Boolean
+  #   whether or not this Person is linked to any data in the project
+  def used_in_project?(project_id)
+    Role.where(person_id: id, project_id: project_id).any? || 
+      Source.joins(:project_sources, :roles).where(roles: {person_id: id}, project_sources: { project_id: project_id }).any?
+  end
+
   # @return [String]
   def name
     [first_name, prefix, last_name, suffix].compact.join(' ')
