@@ -10,7 +10,7 @@
   <%= @download.description %>
 </p>
 
-<% unless @download.expired? %>
+<% if @download.ready? %>
 <p>
   <strong>Status:</strong>
   Ready to download
@@ -32,6 +32,6 @@
 <% else %>
 <p>
   <strong>Status:</strong>
-  Download has expired and cannot be downloaded.
+  Download <%= @download.expired? ? "has expired and cannot be downloaded." : "creation is in progress..." %>
 </p>
 <% end %>
