@@ -53,7 +53,7 @@ describe 'Otus', type: :feature do
       end
 
       context 'downloading OTU table', js: true do
-        let!(:csv) { Download.generate_csv(Otu.where(project_id: @project.id)) }
+        let!(:csv) { Export::Download.generate_csv(Otu.where(project_id: @project.id)) }
 
         specify 'otus table can be downloaded as-is' do
           visit otus_path

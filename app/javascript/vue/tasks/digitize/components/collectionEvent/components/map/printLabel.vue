@@ -21,6 +21,13 @@
       </a>
     </div>
     <label>Print label</label>
+    <button 
+      @click="copyLabel"
+      class="button normal-input button-default"
+      type="button"
+      :disabled="!verbatimLabel">
+      Copy verbatim label
+    </button>
     <textarea
       v-model="printLabel"
       cols="45"
@@ -65,8 +72,16 @@ export default {
       set(value) {
         this.$store.commit(MutationNames.SetCollectionEventDocumentLabel, value)
       }
+    },
+    verbatimLabel() {
+      return this.$store.getters[GetterNames.GetCollectionEvent].verbatim_label
     }
   },
+  methods: {
+    copyLabel() {
+      this.printLabel = this.verbatimLabel
+    }
+  }
 }
 </script>
 <style scoped>

@@ -210,6 +210,15 @@ resources :documents do
   concerns [:data_routes]
 end
 
+resources :downloads, except: [:edit, :new, :create, :update] do
+  collection do
+    get 'list'
+  end
+  member do
+    get 'download_file'
+  end
+end
+
 resources :extracts do
   concerns [:data_routes]
 end
@@ -220,6 +229,7 @@ resources :geographic_areas do
     post 'display_coordinates' # TODO should not be POST
     get 'display_coordinates', as: 'getdisplaycoordinates'
     get :select_options, defaults: {format: :json}
+    get :by_lat_long, defaults: {format: :json}
   end
 end
 
@@ -386,8 +396,8 @@ resources :otus do
   resources :common_names, shallow: true, only: [:index], defaults: {format: :json}
 
   resources :contents, only: [:index]
-  collection do
 
+  collection do
     # TODO: this is get
     post :preview_data_attributes_batch_load
     post :create_data_attributes_batch_load
@@ -406,6 +416,11 @@ resources :otus do
 
     get :select_options, defaults: {format: :json}
   end
+
+  member do
+    get :navigation, defaults: {format: :json}
+  end
+
 end
 
 resources :otu_page_layouts do
@@ -434,6 +449,11 @@ resources :otu_page_layout_sections, only: [:create, :update, :destroy]
 match 'people/role_types', to: 'people#role_types', via: :get, method: :json
 resources :people do
   concerns [:data_routes]
+
+  collection do
+    get :select_options, defaults: {format: :json}
+  end
+
   member do
     get :similar, defaults: {format: :json}
     get :roles

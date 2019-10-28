@@ -11,7 +11,7 @@
 <% if @source.class == Source::Verbatim -%>
   <%= content_tag(:p, 'CrossRef did not find a match.', class: :failure) -%>
 <% else %>
-  <%= content_tag(:p, "CrossRef found a match above the default score #{Ref2bibtex.cutoff}.", class: :success, data: {help: "The score cutoff is somewhat arbitratry, and does not necessarily represent a good match."}) -%>
+  <%= content_tag(:p, "CrossRef found a match above the default score #{TaxonWorks::Vendor::Serrano.cutoff}.", class: :success, data: {help: "The score cutoff is somewhat arbitratry, and does not necessarily represent a good match."}) -%>
 <% end %>
 
 <hr/>

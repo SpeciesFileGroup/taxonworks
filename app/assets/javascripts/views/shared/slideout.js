@@ -39,8 +39,6 @@ Object.assign(TW.views.shared.slideout, {
 
 		document.body.addEventListener("click", function (event) {
 			if (event.target.getAttribute('data-pdfviewer')) {
-				$('[data-panel-name="pinboard"]').removeClass("slice-panel-show").addClass("slice-panel-hide");
-				$('[data-panel-name="pdfviewer"]').removeClass("slice-panel-hide").addClass("slice-panel-show");
 				document.dispatchEvent(new CustomEvent('pdfViewer:load', { detail: { url: event.target.getAttribute('data-pdfviewer') } } ));
 			}
 		});

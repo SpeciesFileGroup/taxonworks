@@ -1,10 +1,14 @@
 <template>
-  <div v-if="isInvalid && validTaxon && childrenList.length">
+  <div v-if="isInvalid && validTaxon">
     <spinner-component
       :full-screen="true"
       legend="Saving changes..."
       :logo-size="{ width: '100px', height: '100px'}"
       v-if="saving"/>
+    <spinner-component
+      legend="Loading..."
+      :logo-size="{ width: '100px', height: '100px'}"
+      v-if="isLoading"/>
     <div
       class="basic-information panel">
       <a
@@ -153,7 +157,8 @@ export default {
       showModal: false,
       moveInput: '',
       saving: false,
-      preSelected: []
+      preSelected: [],
+      isLoading: false
     }
   },
   watch: {
@@ -162,8 +167,10 @@ export default {
         if(newVal && newVal.id != newVal.cached_valid_taxon_name_id) {
           this.$http.get(`/taxon_names/${this.taxon.cached_valid_taxon_name_id}`).then(res => {
             this.validTaxon = res.body
-            this.$http.get(`/taxon_names?parent_id[]=${this.taxon.id}`).then(response => {
-              this.childrenList = response.body
+            this.isLoading = true
+            this.$http.get(`/taxon_names?taxon_name_id[]=${this.taxon.id}&descendants=true`).then(response => {
+              this.childrenList = response.body.filter(item => { return item.id != this.taxon.id })
+              this.isLoading = false
             })
           })
         }

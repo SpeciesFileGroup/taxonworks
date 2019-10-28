@@ -122,8 +122,7 @@ require 'namecase'
 #   The sponsoring institution of a technical report
 #
 # @!attribute journal
-#   @return[String] the name of the journal (serial) associated with this source
-#   @return [nil] means the attribute is not stored in the database.
+#   @return[String, nil] the name of the journal (serial) associated with this source
 #   BibTeX standard field (required for types: )(optional for types:)
 #   A TW required attribute (TW requires a value in one of the required attributes.)
 #   A journal name. Many BibTeX processors have standardized abbreviations for many journals
@@ -433,7 +432,7 @@ class Source::Bibtex < Source
 
   # @return [Array] journal, nil or name
   def journal
-    [read_attribute(:journal), (self.serial.blank? ? nil : self.serial.name)].compact.first
+    [read_attribute(:journal), (serial.blank? ? nil : serial.name)].compact.first
   end
 
   # @return [String]
@@ -608,7 +607,7 @@ class Source::Bibtex < Source
   #   the identifier of this type, relies on Identifier to enforce has_one for Global identifiers
   #   !! behaviour for Identifier::Local types may be unexpected
   def identifier_string_of_type(type_value)
-    identifiers.where(type: type_value).first.try(:identifier)
+    identifiers.where(type: type_value).first&.identifier
   end
 
  #endregion getters & setters
