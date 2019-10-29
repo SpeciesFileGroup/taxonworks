@@ -25,14 +25,9 @@ export default {
     }
   },
   mounted () {
-    if(!this.combination.placement.same) {
-      GetTaxonName(this.combination.placement.target_id).then(response => {
-        this.taxon = response
-      })
-      GetTaxonName(this.combination.placement.new_parent_id).then(response => {
-        this.parent = response
-      })
-    }
+    let protonyms = Object.values(this.combination.protonyms)
+      this.taxon = protonyms.find(item => { return item.id == this.combination.placement.target_id })
+      this.parent = protonyms.find(item => { return item.id == this.combination.placement.new_parent_id })
   },
   methods: {
     create () {
