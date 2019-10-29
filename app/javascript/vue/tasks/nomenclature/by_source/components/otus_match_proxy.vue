@@ -5,7 +5,15 @@
       :full-screen="true"
       legend="Loading..."
       :logo-size="{ width: '100px', height: '100px'}"/>
-    <h2>OTUs by match or proxy</h2>
+    <div class="flex-separate middle">
+      <h2>OTU summary</h2>
+      <span
+        class="cursor-pointer"
+        @click="otu_name_list = []"
+        data-icon="reset">
+        Reset
+      </span>
+    </div>
     <otu-table-component :list="otu_name_list"/>
   </div>
 </template>
@@ -55,13 +63,24 @@
         let promises = [];
         let runTime = Date.now()
         this.lastRun = runTime
-        this.otu_name_list = [];
         this.isLoading = true
 
         promises.push(this.processType(this.getIdsList(list), type))
 
         Promise.all(promises).then(lists => {
           if(this.lastRun == runTime) {
+
+            if(this.append) {
+              let concat = this.otu_id_list.concat(lists)
+                    
+              concat = concat.filter((item, index, self) =>
+                index === self.findIndex((i) => (
+                  i.id === item.id
+                ))
+              )
+              this.otu_id_list = concat
+            }
+            
             this.otu_id_list = [].concat.apply([], lists)
             this.isLoading = false
           }
