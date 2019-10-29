@@ -1,10 +1,12 @@
 <template>
   <div>
+    <spinner-component
+      v-if="showSpinner"/>
     <div class="flex-separate middle">
       <h2>OTUs</h2>
       <button
         @click="summarize"
-        :disabled="!sourceID"
+        :disabled="!sourceID || !otu_names_cites_list.length"
         class="button normal-input button-default">
         Summarize OTUs
       </button>
@@ -14,14 +16,14 @@
   </div>
 </template>
 <script>
-  import RadialAnnotator from 'components/annotator/annotator.vue'
-  import OtuRadial from 'components/otu/otu.vue'
+
+  import SpinnerComponent from 'components/spinner.vue'
   import TableComponent from './tables/table.vue'
+
   export default {
     components: {
-      RadialAnnotator,
       TableComponent,
-      OtuRadial
+      SpinnerComponent
     },
     props: {
       sourceID: {
@@ -35,7 +37,8 @@
     },
     data() {
       return {
-        otu_names_cites_list: []
+        otu_names_cites_list: [],
+        showSpinner: false
       }
     },
     watch: {
@@ -48,10 +51,10 @@
     },
     methods: {
       getCites() {
+        this.showSpinner = true
         this.$http.get('/citations.json?citation_object_type=Otu&source_id=' + this.sourceID).then(response => {
-          // build the tabular list, extracting the
+          this.showSpinner = false
           this.otu_names_cites_list = response.body;
-          this.$emit("otu_names_cites", this.otu_names_cites_list)
         })
       },
       addToList(citation) {

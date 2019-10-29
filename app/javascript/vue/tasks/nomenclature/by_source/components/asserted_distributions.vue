@@ -1,10 +1,12 @@
 <template>
   <div>
+    <spinner-component
+      v-if="showSpinner"/>
     <div class="flex-separate middle">
       <h2>Asserted distributions</h2>
       <button
         @click="summarize"
-        :disabled="!sourceID"
+        :disabled="!sourceID || !asserted_distributions_cites_list.length"
         class="button normal-input button-default">
         Summarize OTUs
       </button>
@@ -16,10 +18,12 @@
 <script>
 
 import TableComponent from './tables/table.vue'
+import SpinnerComponent from 'components/spinner.vue'
 
   export default {
     components: {
-      TableComponent
+      TableComponent,
+      SpinnerComponent
     },
     props: {
       sourceID: {
@@ -29,7 +33,8 @@ import TableComponent from './tables/table.vue'
     },
     data() {
       return {
-        asserted_distributions_cites_list: []
+        asserted_distributions_cites_list: [],
+        showSpinner: false
       }
     },
     watch: {
@@ -39,9 +44,10 @@ import TableComponent from './tables/table.vue'
     },
     methods: {
       getCites() {
+        this.showSpinner = true
         this.$http.get('/citations.json?citation_object_type=AssertedDistribution&source_id=' + this.sourceID).then(response => {
           this.asserted_distributions_cites_list = response.body;
-          this.$emit("distribution_cites", this.asserted_distributions_cites_list)
+          this.showSpinner = false
         })
       },
       summarize() {

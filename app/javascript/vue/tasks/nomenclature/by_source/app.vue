@@ -19,49 +19,31 @@
             :sourceID="sourceID"
             :newTaxon="newTaxonNameCitation"
             @summarize="summarize = $event"
-            @taxon_names_cites="lists.taxon_names_cites=$event"
-          />
-          <cite-taxon-name
-            :sourceID="sourceID"
-            :cite-taxon-list="lists.taxon_names_cites"
-            @summarize=""
-            @foundTaxon="newTaxonNameCitation=$event"
           />
           <taxon-name-relationships
             :sourceID="sourceID"
             @summarize="summarize = $event"
-            @taxon_relationship_cites="lists.taxon_relationship_cites=$event"
           />
           <taxon-name-classifications
             :sourceID="sourceID"
             @summarize="summarize = $event"
-            @taxon_classification_cites="lists.taxon_classification_cites=$event"
           />
           <biological-associations
             :sourceID="sourceID"
             @summarize="summarize = $event"
-            @biological_association_cites="lists.biological_association_cites=$event"
           />
           <asserted-distributions
             :sourceID="sourceID"
             @summarize="summarize = $event"
-            @distribution_cites="lists.distribution_cites=$event"
           />
           <otus-by-match
             :sourceID="sourceID"
             @summarize="summarize = $event"
-            @otu_names_cites="lists.otu_names_cites=$event"
           />
         </div>
         <div class="second-column separate-left">
           <otus-match-proxy
             :sourceID="sourceID"
-            :otu_names_cites="lists.otu_names_cites"
-            :taxon_names_cites="lists.taxon_names_cites"
-            :taxon_relationship_cites="lists.taxon_relationship_cites"
-            :taxon_classification_cites="lists.taxon_classification_cites"
-            :biological_association_cites="lists.biological_association_cites"
-            :distribution_cites="lists.distribution_cites"
             :summarize="summarize"
           />
         </div>
@@ -86,7 +68,6 @@
     components: {
       NomenSource,
       OtusByMatch,
-      CiteTaxonName,
       TaxonNames,
       TaxonNameRelationships,
       TaxonNameClassifications,

@@ -10,48 +10,19 @@
   </div>
 </template>
 <script>
-  // list items are annotatable OTUs
-  // update list when changes occur in any of the citation list items
-  import RadialAnnotator from 'components/annotator/annotator.vue'
-  import OtuRadial from 'components/otu/otu.vue'
+
   import OtuTableComponent from './tables/otu_table.vue'
   import Spinner from 'components/spinner.vue'
 
   export default {
     components: {
       OtuTableComponent,
-      RadialAnnotator,
-      OtuRadial,
       Spinner
     },
     props: {
       sourceID: {
         type: String,
         default: "0",
-      },
-      otu_names_cites: {
-        type: Array,
-        default: () => { return [] }
-      },
-      taxon_names_cites: {
-        type: Array,
-        default: () => { return [] }
-      },
-      taxon_relationship_cites: {
-        type: Array,
-        default: () => { return [] }
-      },
-      taxon_classification_cites: {
-        type: Array,
-        default: () => { return [] }
-      },
-      biological_association_cites: {
-        type: Array,
-        default: () => { return [] }
-      },
-      distribution_cites: {
-        type: Array,
-        default: () => { return [] }
       },
       updateOtus: {
         type: Boolean,

@@ -1,10 +1,12 @@
 <template>
   <div>
+    <spinner-component
+      v-if="showSpinner"/>
     <div class="flex-separate middle"> 
       <h2>Taxon name relationships</h2>
       <button
         @click="summarize"
-        :disabled="!sourceID"
+        :disabled="!sourceID || !taxon_relationship_cites_list.length"
         class="button normal-input button-default">
         Summarize OTUs
       </button>
@@ -16,10 +18,12 @@
 <script>
 
   import TableComponent from './tables/relationship_table.vue'
+  import SpinnerComponent from 'components/spinner.vue'
 
   export default {
     components: {
-      TableComponent
+      TableComponent,
+      SpinnerComponent
     },
     props: {
       sourceID: {
@@ -29,19 +33,21 @@
     },
     data() {
       return {
-        taxon_relationship_cites_list: []
+        taxon_relationship_cites_list: [],
+        showSpinner: false
       }
     },
     watch: {
       sourceID() {
-        this.getCites();
+        this.getCites()
       }
     },
     methods: {
       getCites() {
+        this.showSpinner = true
         this.$http.get('/citations.json?verbose_object=true&citation_object_type=TaxonNameRelationship&source_id=' + this.sourceID).then(response => {
           this.taxon_relationship_cites_list = response.body;
-          this.$emit("taxon_relationship_cites", this.taxon_relationship_cites_list)
+          this.showSpinner = false
         })
       },
       summarize() {

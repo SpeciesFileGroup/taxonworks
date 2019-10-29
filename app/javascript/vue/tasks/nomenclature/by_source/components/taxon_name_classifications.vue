@@ -1,10 +1,12 @@
 <template>
   <div>
+    <spinner-component
+      v-if="showSpinner"/>
     <div class="flex-separate middle">
       <h2>Taxon name classifications</h2>
       <button
         @click="summarize"
-        :disabled="!sourceID"
+        :disabled="!sourceID || !taxon_classification_cites_list.length"
         class="button normal-input button-default">
         Summarize OTUs
       </button>
@@ -17,10 +19,12 @@
 <script>
 
 import TableComponent from './tables/classification_table.vue'
+import SpinnerComponent from 'components/spinner.vue'
 
   export default {
     components: {
       TableComponent,
+      SpinnerComponent
     },
     props: {
       sourceID: {
@@ -30,7 +34,8 @@ import TableComponent from './tables/classification_table.vue'
     },
     data() {
       return {
-        taxon_classification_cites_list: []
+        taxon_classification_cites_list: [],
+        showSpinner: false
       }
     },
     watch: {
@@ -41,10 +46,10 @@ import TableComponent from './tables/classification_table.vue'
 
     methods: {
       getCites() {
+        this.showSpinner = true
         this.$http.get('/citations.json?verbose_object=true&citation_object_type=TaxonNameClassification&source_id=' + this.sourceID).then(response => {
-          // build the tabular list, extracting the
           this.taxon_classification_cites_list = response.body;
-          this.$emit("taxon_classification_cites", this.taxon_classification_cites_list)
+          this.showSpinner = false
         })
       },
       summarize() {
