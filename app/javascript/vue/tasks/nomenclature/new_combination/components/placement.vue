@@ -22,7 +22,7 @@ export default {
     create () {
       let data = {
         taxon_name: {
-          parent_id: this.combination.placement.current_parent_id
+          parent_id: this.combination.placement.parent_id
         }
       }
       CreatePlacement(this.combination.placement.target, data).then(response => {
