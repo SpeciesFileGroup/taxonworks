@@ -56,6 +56,10 @@
       updateOtus: {
         type: Boolean,
         default: false
+      },
+      summarize: {
+        type: Object,
+        default: undefined
       }
     },
     data() {
@@ -68,42 +72,22 @@
       }
     },
     watch: {
-      sourceID() {
-        this.getSourceOtus()
-      },
-      otu_names_cites() {
-        this.getSourceOtus()
-      },
-      taxon_names_cites() {
-        this.getSourceOtus()
-      },
-      taxon_relationship_cites() {
-        this.getSourceOtus()
-      },
-      taxon_classification_cites() {
-        this.getSourceOtus()
-      },
-      biological_association_cites() {
-        this.getSourceOtus()
-      },
-      distribution_cites() {
-        this.getSourceOtus()
+      summarize: { 
+        handler(newVal) {
+          this.getSourceOtus(newVal.type, newVal.list)
+        },
+        deep: true
       }
     },
     methods: {
-      getSourceOtus() {
+      getSourceOtus(type, list) {
         let promises = [];
         let runTime = Date.now()
         this.lastRun = runTime
         this.otu_name_list = [];
         this.isLoading = true
 
-        promises.push(this.processType(this.getIdsList(this.otu_names_cites), 'otu_ids'));
-        promises.push(this.processType(this.getIdsList(this.taxon_names_cites), 'taxon_name_ids'));
-        promises.push(this.processType(this.getIdsList(this.taxon_relationship_cites), 'taxon_name_relationship_ids'));
-        promises.push(this.processType(this.getIdsList(this.taxon_classification_cites), 'taxon_name_classification_ids'));
-        promises.push(this.processType(this.getIdsList(this.biological_association_cites), 'biological_association_ids'));
-        promises.push(this.processType(this.getIdsList(this.distribution_cites), 'asserted_distribution_ids'));
+        promises.push(this.processType(this.getIdsList(list), type))
 
         Promise.all(promises).then(lists => {
           if(this.lastRun == runTime) {

@@ -5,7 +5,6 @@
       <th>Is original</th>
       <th>Object</th>
       <th>Radial</th>
-      <th>Otu</th>
       <th>Delete</th>
     </tr>
     <row-components 

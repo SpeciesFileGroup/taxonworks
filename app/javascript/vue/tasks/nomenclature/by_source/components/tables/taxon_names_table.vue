@@ -6,7 +6,6 @@
       <th>Name</th>
       <th>Type</th>
       <th>Radial</th>
-      <th>Otu</th>
       <th>Delete</th>
     </tr>
     <taxon-names-row

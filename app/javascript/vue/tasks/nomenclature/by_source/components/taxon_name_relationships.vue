@@ -1,6 +1,14 @@
 <template>
   <div>
-    <h2>Taxon name relationships</h2>
+    <div class="flex-separate middle"> 
+      <h2>Taxon name relationships</h2>
+      <button
+        @click="summarize"
+        :disabled="!sourceID"
+        class="button normal-input button-default">
+        Summarize OTUs
+      </button>
+    </div>
     <table-component
       :list="taxon_relationship_cites_list"/>
   </div>
@@ -8,19 +16,15 @@
 <script>
 
   import TableComponent from './tables/relationship_table.vue'
-  import RadialAnnotator from 'components/annotator/annotator.vue'
-  import OtuRadial from 'components/otu/otu.vue'
 
   export default {
     components: {
-      TableComponent,
-      RadialAnnotator,
-      OtuRadial
+      TableComponent
     },
     props: {
       sourceID: {
         type: String,
-        default: '0'
+        default: undefined
       },
     },
     data() {
@@ -38,6 +42,12 @@
         this.$http.get('/citations.json?verbose_object=true&citation_object_type=TaxonNameRelationship&source_id=' + this.sourceID).then(response => {
           this.taxon_relationship_cites_list = response.body;
           this.$emit("taxon_relationship_cites", this.taxon_relationship_cites_list)
+        })
+      },
+      summarize() {
+        this.$emit('summarize', { 
+          type: 'taxon_name_relationship_ids', 
+          list: this.taxon_relationship_cites_list 
         })
       }
     },

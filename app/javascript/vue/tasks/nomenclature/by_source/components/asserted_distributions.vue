@@ -1,24 +1,30 @@
 <template>
   <div>
-    <h2>Asserted distributions</h2>
+    <div class="flex-separate middle">
+      <h2>Asserted distributions</h2>
+      <button
+        @click="summarize"
+        :disabled="!sourceID"
+        class="button normal-input button-default">
+        Summarize OTUs
+      </button>
+    </div>
     <table-component
       :list="asserted_distributions_cites_list"/>
   </div>
 </template>
 <script>
-  import TableComponent from './tables/table.vue'
-  import RadialAnnotator from 'components/annotator/annotator.vue'
-  import OtuRadial from 'components/otu/otu.vue'
+
+import TableComponent from './tables/table.vue'
+
   export default {
     components: {
-      TableComponent,
-      RadialAnnotator,
-      OtuRadial
+      TableComponent
     },
     props: {
       sourceID: {
         type: String,
-        default: "0"
+        default: undefined
       },
     },
     data() {
@@ -36,6 +42,12 @@
         this.$http.get('/citations.json?citation_object_type=AssertedDistribution&source_id=' + this.sourceID).then(response => {
           this.asserted_distributions_cites_list = response.body;
           this.$emit("distribution_cites", this.asserted_distributions_cites_list)
+        })
+      },
+      summarize() {
+        this.$emit('summarize', { 
+          type: 'asserted_distribution_ids', 
+          list: this.asserted_distributions_cites_list 
         })
       }
     },

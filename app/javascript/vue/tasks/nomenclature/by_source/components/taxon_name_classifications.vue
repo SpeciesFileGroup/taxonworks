@@ -1,25 +1,31 @@
 <template>
   <div>
-    <h2>Taxon name classifications</h2>
+    <div class="flex-separate middle">
+      <h2>Taxon name classifications</h2>
+      <button
+        @click="summarize"
+        :disabled="!sourceID"
+        class="button normal-input button-default">
+        Summarize OTUs
+      </button>
+    </div>
     <table-component
       :list="taxon_classification_cites_list"
     />
   </div>
 </template>
 <script>
-  import TableComponent from './tables/classification_table.vue'
-  import RadialAnnotator from 'components/annotator/annotator.vue'
-  import OtuRadial from 'components/otu/otu.vue'
+
+import TableComponent from './tables/classification_table.vue'
+
   export default {
     components: {
       TableComponent,
-      RadialAnnotator,
-      OtuRadial
     },
     props: {
       sourceID: {
         type: String,
-        default: "0"
+        default: undefined
       },
     },
     data() {
@@ -41,6 +47,12 @@
           this.$emit("taxon_classification_cites", this.taxon_classification_cites_list)
         })
       },
+      summarize() {
+        this.$emit('summarize', { 
+          type: 'taxon_name_classification_ids', 
+          list: this.taxon_classification_cites_list 
+        })
+      }
     },
   }
 </script>

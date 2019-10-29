@@ -1,6 +1,14 @@
 <template>
   <div>
-    <h2>OTUs</h2>
+    <div class="flex-separate middle">
+      <h2>OTUs</h2>
+      <button
+        @click="summarize"
+        :disabled="!sourceID"
+        class="button normal-input button-default">
+        Summarize OTUs
+      </button>
+    </div>
     <table-component
         :list="otu_names_cites_list"/>
   </div>
@@ -18,7 +26,7 @@
     props: {
       sourceID: {
         type: String,
-        default: "0"
+        default: undefined
       },
       newTaxon: {
         type: Object,
@@ -48,6 +56,12 @@
       },
       addToList(citation) {
         this.otu_names_cites_list.push(citation);
+      },
+      summarize() {
+        this.$emit('summarize', { 
+          type: 'otu_ids', 
+          list: this.otu_names_cites_list 
+        })
       }
     },
   }
