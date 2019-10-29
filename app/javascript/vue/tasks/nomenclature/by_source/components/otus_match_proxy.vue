@@ -123,16 +123,40 @@
       processType(list, type) {
         if(!list.length) return
         return new Promise((resolve, reject) => {
-          let params = {
-            [type]: list
-          };
-          console.log(params)
-          this.$http.get('/otus.json', { params: params }).then(response => {
-            response.body.forEach(this.addOtu);
-            resolve(response.body)
+          let promises = []
+          const maxSize = 50;
+          var i, j;
+          let chunkArray = []
+          for (i = 0, j = list.length; i < j; i += maxSize) {
+            if(list.length > i+maxSize) {
+              chunkArray.push(list.slice(i, i + maxSize))
+            }
+            else {
+              chunkArray.push(list.slice(i, list.length))
+            }
+          }
+          chunkArray.forEach(item => {
+            promises.push(this.$http.get('/otus.json', { params: { [type]: item } }).then(response => {
+              response.body.forEach(this.addOtu)
+            }))
           })
+
+          Promise.all(promises).then(response => {
+            resolve()
+          })
+
         })
-      }
+      },
+      getDWCATable(list) {
+        const IDS = list.map(item => { return item.id })
+        const chunk = IDS.length / this.perRequest
+        var i, j;
+        let chunkArray = []
+        for (i = 0,j = IDS.length; i < j; i += chunk) {
+            chunkArray.push(IDS.slice(i,i+chunk))
+        }
+        this.getDWCA(chunkArray)
+      },
     },
   }
 </script>
