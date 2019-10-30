@@ -35,3 +35,7 @@
   Download <%= @download.expired? ? "has expired and cannot be downloaded." : "creation is in progress..." %>
 </p>
 <% end %>
+
+<% unless @download.expired? or @download.ready? %>
+<script>setTimeout(location.reload.bind(location), 5000);</script>
+<% end %>

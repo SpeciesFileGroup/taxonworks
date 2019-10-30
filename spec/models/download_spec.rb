@@ -88,17 +88,27 @@ RSpec.describe Download, type: :model do
 
   describe "#ready?" do
     context "when not expired" do
-      it "is true when file is present" do
-        expect(download.ready?).to be_truthy
+      context "and created with file" do
+        it "is true when file is present" do
+          expect(download.ready?).to be_truthy
+        end
+
+        it "is false when the file is deleted" do
+          download.delete_file
+          expect(download.ready?).to be_falsey
+        end
       end
 
-      it "is false when created with no file" do
-        expect(download_no_file.ready?).to be_falsey
-      end
+      context "and created without file" do
+        it "is false when file is absent" do
+          expect(download_no_file.ready?).to be_falsey
+        end
 
-      it "is false when the file is deleted" do
-        download.delete_file
-        expect(download_no_file.ready?).to be_falsey
+        it "is true when file is added afterwards" do
+          download_no_file.source_file_path = Rails.root.join('spec/files/downloads/Sample.zip')
+          download_no_file.save!
+          expect(download_no_file.ready?).to be_truthy
+        end
       end
     end
     context "when expired" do

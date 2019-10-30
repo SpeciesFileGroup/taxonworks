@@ -33,7 +33,7 @@ class Download < ApplicationRecord
 
   default_scope { where('expires >= ?', Time.now) }
 
-  after_create :save_file
+  after_save :save_file
   after_destroy :delete_file
 
   validates_presence_of :name
