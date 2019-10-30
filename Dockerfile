@@ -72,11 +72,16 @@ RUN mkdir /etc/service/redis
 RUN cp /app/exe/redis /etc/service/redis/run
 RUN cp /app/config/docker/redis.conf /etc/redis/redis.conf
 
+## Setup delayed_job workers
+RUN mkdir /etc/service/delayed_job
+RUN cp /app/exe/delayed_job /etc/service/delayed_job/run
+
 RUN chown 9999:9999 /app/public
 RUN chown 9999:9999 /app/public/images/tmp
 RUN chown 9999:9999 /app/public/packs
 RUN chown 9999:9999 /app/log/
 RUN chown 9999:9999 /app/downloads
+RUN chown 9999:9999 /app/tmp/
 
 RUN touch /app/log/production.log
 RUN chown 9999:9999 /app/log/production.log
