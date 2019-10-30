@@ -1,64 +1,22 @@
 <template>
-  <div class="full_width">
+  <div
+    v-if="list"
+    class="full_width">
     <table class="full_width">
       <thead>
         <tr>
           <th
-            @click="sortTable('catalogNumber')">Catalogue number</th>
-          <th
-            @click="sortTable('repository')">Repository</th>
-          <th
-            @click="sortTable('family')">Family</th>
-          <th
-            @click="sortTable('genus')">Genus</th>
-          <th
-            @click="sortTable('species')">Species</th>
-          <th
-            @click="sortTable('country')">Country</th>
-          <th
-            @click="sortTable('state')">State</th>
-          <th
-            @click="sortTable('county')">County</th>
-          <th
-            @click="sortTable('locality')">Locality</th>
-          <th
-            @click="sortTable('latitude')">Latitude</th>
-          <th
-            @click="sortTable('longitude')">Longitude</th>
-          <th
-            @click="sortTable('updated_by')">Updated by</th>
-          <th
-            @click="sortTable('updated_at')">Last updated</th>
-          <th>Options</th>
+            v-for="item in list.column_headers"
+            @click="sortTable(item)">{{item}}</th>
         </tr>
       </thead>
       <tbody>
         <tr
           class="contextMenuCells"
           :class="{ even: index % 2 }"
-          v-for="(item, index) in list"
-          :key="item.id">
-          <td>{{ item.catalogNumber }}</td>
-          <td>{{ item.repository_id }}</td>
-          <td>{{ item.family }}</td>
-          <td>{{ item.genus }}</td>
-          <td>{{ item.scientificName }}</td>
-          <td>{{ item.country }}</td>
-          <td>{{ item.stateProvince }}</td>
-          <td>{{ item.county }}</td>
-          <td>{{ item.locality }}</td>
-          <td>{{ item.decimalLatitude }}</td>
-          <td>{{ item.decimalLongitude }}</td>
-          <td>{{ item.updated_by }}</td>
-          <td>{{ item.updated_at }}</td>
-          <td class="options-column">
-            <div class="horizontal-left-content">
-              <radial-object :global-id="item.global_id"/>
-              <radial-annotator
-                type="annotations"
-                :global-id="item.global_id"/>
-            </div>
-          </td>
+          v-for="(row, index) in list.data"
+          :key="row[0]">
+          <td v-for="item in row">{{ item }}</td>
         </tr>
       </tbody>
     </table>
@@ -81,8 +39,8 @@ export default {
   },
   props: {
     list: {
-      type: Array,
-      default: () => { return [] }
+      type: Object,
+      default: undefined
     }
   },
   data () {
@@ -99,7 +57,7 @@ export default {
           return (this.ascending ? 1 : -1)
         return 0
       }
-      this.list.sort(compare)
+      this.list.data.sort(compare)
       this.ascending = !this.ascending
     }
   }

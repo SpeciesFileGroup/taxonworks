@@ -52,7 +52,7 @@
           :class="{ 'separate-left': activeFilter }"
           :list="list"/>
         <h2
-          v-if="alreadySearch && !list.length"
+          v-if="alreadySearch && !list"
           class="subtle middle horizontal-center-content no-found-message">No records found.
         </h2>
       </div>
@@ -72,7 +72,7 @@ export default {
   },
   data () {
     return {
-      list: [],
+      list: undefined,
       urlRequest: '',
       activeFilter: true,
       activeJSONRequest: false,
@@ -83,19 +83,20 @@ export default {
   methods: {
     resetTask() {
       this.alreadySearch = false
-      this.list = []
+      this.list = undefined
       this.urlRequest = ''
     },
     loadList(newList) {
-      if(this.append) {
-        let concat = newList.concat(this.list)
+      if(this.append && this.list) {
+        let concat = newList.data.concat(this.list.data)
               
         concat = concat.filter((item, index, self) =>
           index === self.findIndex((i) => (
-            i.id === item.id
+            i[0] === item[0]
           ))
         )
-        this.list = concat
+        newList.data = concat
+        this.list = newList
       }
       else {
         this.list = newList
@@ -104,7 +105,7 @@ export default {
     },
     newSearch() {
       if(!this.append) {
-        this.list = []
+        this.list = undefined
       }
     }
   }

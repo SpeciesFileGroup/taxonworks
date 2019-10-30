@@ -1,7 +1,7 @@
 import ajaxCall from 'helpers/ajaxCall'
 
 const GetCollectionObjects = (params) => {
-  return ajaxCall('get', '/collection_objects.json', { params: params })
+  return ajaxCall('get', '/collection_objects/dwc_index', { params: params })
 }
 
 const GetUsers = () => {

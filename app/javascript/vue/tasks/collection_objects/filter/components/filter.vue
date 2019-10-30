@@ -19,7 +19,7 @@
 
     <spinner-component
       :full-screen="true"
-      :legend="`Loading DWCA table... ${ DWCACount } of ${ coList.length } records`"
+      :legend="`Loading DWCA table... ${ DWCACount } of ${ DWCASearch.length } records`"
       :logo-size="{ width: '100px', height: '100px'}"
       v-if="loadingDWCA" 
     />
@@ -95,7 +95,8 @@ export default {
       coList: [],
       usersList: [],
       loadingDWCA: false,
-      DWCACount: 0
+      DWCACount: 0,
+      DWCASearch: 0
     }
   },
   methods: {
@@ -113,10 +114,12 @@ export default {
       GetCollectionObjects(params).then(response => {
         this.coList = response.body
         this.DWCACount = 0
-        if(response.body.length) {
-          this.getDWCATable(response.body)
+        if(response.body.data.length) {
+          this.result = response.body.data
+          this.DWCASearch = response.body.data.filter(item => { return !this.isIndexed(item)})
+          this.getDWCATable(this.DWCASearch)
         } else {
-          this.$emit('result', [])
+          this.$emit('result', this.coList)
         }
         this.$emit('urlRequest', response.url)
         this.searching = false
@@ -204,7 +207,7 @@ export default {
       return tmp
     },
     getDWCATable(list) {
-      const IDS = list.map(item => { return item.id })
+      const IDS = list.map(item => { return item[0] })
       const chunk = IDS.length / this.perRequest
 
       var i, j;
@@ -214,6 +217,12 @@ export default {
       }
       this.getDWCA(chunkArray)
     },
+    isIndexed(object) {
+      object.splice(0,1)
+      return object.find((item) => {
+        return item != null
+      })
+    },
     getDWCA(ids) {
       if(ids.length) {
         //this.DWCACount = this.DWCACount + ids[0].length
@@ -221,11 +230,9 @@ export default {
         let promises = []
         ids[0].forEach(id => {
           promises.push(GetCODWCA(id).then(response => {
-            let dwcaObject = response.body
+            let dwcaRow = this.createDWCARow(response.body)
             this.DWCACount++
-            let user = this.usersList.find(user => { return user.user.id === dwcaObject.updated_by_id })
-            dwcaObject.updated_by = (user ? user.user.name : undefined)
-            this.result.push(Object.assign({}, dwcaObject, this.coList.find(item => { return dwcaObject.dwc_occurrence_object_id == item.id })))
+            this.coList.data[this.coList.data.findIndex(item => { return item[0] === id })] = dwcaRow
           }, (response) => {
             this.loadingDWCA = false
             TW.workbench.alert.create(`Error: ${response}`, 'warning')
@@ -233,12 +240,18 @@ export default {
         })
         Promise.all(promises).then(() => {
           ids.splice(0, 1)
-          this.$emit('result', this.result)
+          this.$emit('result', { column_headers: this.coList.column_headers, data: this.result })
           this.getDWCA(ids)
         })
       } else {
         this.loadingDWCA = false
       }
+    },
+    createDWCARow(item) {
+      let keys = Object.values(this.coList.column_headers)
+      return keys.map(key => {
+        return item[key]
+      })
     }
   }
 }
