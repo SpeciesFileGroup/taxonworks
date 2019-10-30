@@ -9,7 +9,7 @@ module Shared::IsDwcOccurrence
     attr_accessor :generate_dwc_occurrence
 
     has_one :dwc_occurrence, as: :dwc_occurrence_object
-   
+
     after_save :set_dwc_occurrence, if: -> { generate_dwc_occurrence }
 
     scope :dwc_indexed, -> {joins(:dwc_occurrence)}
@@ -20,7 +20,7 @@ module Shared::IsDwcOccurrence
     def dwc_attribute_vector
       t = ::DwcOccurrence.arel_table 
       k = self::DwcExtensions::DWC_OCCURRENCE_MAP.keys.sort
-      [ t[:id], t[:dwc_occurrence_object_id], t[:dwc_occurrence_object_type], *k.collect{|a| t[a]}   ]
+      [ t[:id], t[:dwc_occurrence_object_id], t[:dwc_occurrence_object_type], *k.collect{|a| t[a]} ]
     end
 
     def dwc_attribute_vector_names

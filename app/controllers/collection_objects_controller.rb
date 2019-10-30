@@ -30,14 +30,14 @@ class CollectionObjectsController < ApplicationController
   end
 
   def dwc_index
-    @objects = filtered_collection_objects.eager_load(:dwc_occurrence).pluck( ::CollectionObject.dwc_attribute_vector)
+    @objects = filtered_collection_objects.eager_load(:dwc_occurrence).pluck( ::CollectionObject.dwc_attribute_vector )
     @klass = ::CollectionObject
     render '/dwc_occurrences/dwc_index'
   end
 
   def dwc
     o = CollectionObject.find(params[:id])
-    o.set_dwc_occurrence # find or compute for
+    o.get_dwc_occurrence # find or compute for
     render json: o.dwc_occurrence_attribute_values
   end
 
@@ -256,7 +256,7 @@ class CollectionObjectsController < ApplicationController
 
   def set_collection_object
     @collection_object = CollectionObject.with_project_id(sessions_current_project_id).find(params[:id])
-    @recent_object     = @collection_object
+    @recent_object = @collection_object
   end
 
   def collection_object_params
@@ -273,7 +273,7 @@ class CollectionObjectsController < ApplicationController
 
   def batch_params
     params.permit(:file, :import_level, :source_id, :otu_id)
-        .merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
+      .merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
   def user_map
@@ -328,7 +328,7 @@ class CollectionObjectsController < ApplicationController
       #   keyword_ids: []
       # }
     )
-    
+
     a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
     a
   end 

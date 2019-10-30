@@ -5,6 +5,3 @@ end
 json.data do
   json.array! @objects
 end
-
-
-
