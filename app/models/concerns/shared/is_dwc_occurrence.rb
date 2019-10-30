@@ -19,8 +19,9 @@ module Shared::IsDwcOccurrence
   module ClassMethods
     def dwc_attribute_vector
       t = ::DwcOccurrence.arel_table 
+      s = self.arel_table
       k = self::DwcExtensions::DWC_OCCURRENCE_MAP.keys.sort
-      [ t[:id], t[:dwc_occurrence_object_id], t[:dwc_occurrence_object_type], *k.collect{|a| t[a]} ]
+      [ s[:id], t[:dwc_occurrence_object_id], t[:dwc_occurrence_object_type], *k.collect{|a| t[a]} ]
     end
 
     def dwc_attribute_vector_names

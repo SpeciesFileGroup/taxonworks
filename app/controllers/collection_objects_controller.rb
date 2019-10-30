@@ -30,7 +30,7 @@ class CollectionObjectsController < ApplicationController
   end
 
   def dwc_index
-    @objects = filtered_collection_objects.eager_load(:dwc_occurrence).pluck( ::CollectionObject.dwc_attribute_vector )
+    @objects = filtered_collection_objects.includes(:dwc_occurrence).all.pluck( ::CollectionObject.dwc_attribute_vector  )
     @klass = ::CollectionObject
     render '/dwc_occurrences/dwc_index'
   end
@@ -173,8 +173,9 @@ class CollectionObjectsController < ApplicationController
   end
 
   def create_simple_batch_load
-    if params[:file] && digested_cookie_exists?(params[:file].tempfile,
-                                                :batch_collection_objects_md5)
+    if params[:file] && digested_cookie_exists?(
+        params[:file].tempfile,
+        :batch_collection_objects_md5)
       @result = BatchLoad::Import::CollectionObjects.new(batch_params.merge(user_map))
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collection object-related object-sets were created."
