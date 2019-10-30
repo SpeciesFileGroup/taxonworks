@@ -1,5 +1,5 @@
 json.column_headers do
-  json.array! ['collection_object_id', 'dwc_occurrence_id'] + CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.sort
+  json.array! @klass.dwc_attribute_vector_names
 end
 
 json.data do

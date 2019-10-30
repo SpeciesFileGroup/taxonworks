@@ -22,10 +22,14 @@ module Shared::IsDwcOccurrence
       k = self::DwcExtensions::DWC_OCCURRENCE_MAP.keys.sort
       [ t[:id], t[:dwc_occurrence_object_id], t[:dwc_occurrence_object_type], *k.collect{|a| t[a]}   ]
     end
+
+    def dwc_attribute_vector_names
+      dwc_attribute_vector.collect{|a| a.name}
+    end
   end
 
   # @return [DwcOccurrence]
-  # always rebuilds
+  #   always rebuilds
   #  TODO:  !! Currently uses updater_id of this record, need to change that to be user-definable
   def set_dwc_occurrence
     if dwc_occurrence_persisted?
@@ -47,6 +51,8 @@ module Shared::IsDwcOccurrence
     a
   end
 
+  # @return [Array]
+  #   an array of the values presently computed for this occurrence
   def dwc_occurrence_attribute_values
     self.class.dwc_attribute_vector.collect{|a| a.name}.collect{|f| dwc_occurrence.send(f) }
   end

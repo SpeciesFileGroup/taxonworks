@@ -22,6 +22,7 @@ class CollectionObjectsController < ApplicationController
     end
   end
 
+  # DEPRECATED
   # GET /collection_objects/dwca/123 # SHOULD BE dwc
   def dwca
     @dwc_occurrence = CollectionObject.includes(:dwc_occurrence).find(params[:id]).get_dwc_occurrence # find or compute for
@@ -30,6 +31,7 @@ class CollectionObjectsController < ApplicationController
 
   def dwc_index
     @objects = filtered_collection_objects.eager_load(:dwc_occurrence).pluck( ::CollectionObject.dwc_attribute_vector)
+    @klass = ::CollectionObject
     render '/dwc_occurrences/dwc_index'
   end
 
