@@ -68,6 +68,13 @@ module Queries
       #   of biological_relationship_ids
       attr_accessor :biological_relationship_ids
 
+
+      # @return [True, False, nil]
+      #   true - index is built
+      #   false - index is not built
+      #   nil - not applied
+      attr_accessor :dwc_indexed
+
       # @param [Hash] args are permitted params
       def initialize(params)
         params.reject!{ |_k, v| v.blank? } # dump all entries with empty values
@@ -93,6 +100,8 @@ module Queries
         @biological_relationship_ids = params[:biological_relationship_ids] || []
 
         @collecting_event_query = Queries::CollectingEvent::Filter.new(params)
+
+        @dwc_indexed =  (params[:dwc_indexed]&.downcase == 'true' ? true : false) if !params[:dwc_indexed].nil?
 
         set_identifier(params)
         set_tags_params(params)
@@ -148,7 +157,14 @@ module Queries
         ::CollectionObject.on_loan
       end
 
-      # @return Scope
+      def dwc_indexed_facet 
+        return nil if dwc_indexed.nil?
+        dwc_indexed ?
+          ::CollectionObject.dwc_indexed :
+          ::CollectionObject.dwc_not_indexed
+      end
+
+    # @return Scope
       def collecting_event_ids_facet
         return nil if collecting_event_ids.empty?
         table[:collecting_event_id].eq_any(collecting_event_ids)
@@ -176,11 +192,7 @@ module Queries
 
       # @return [ActiveRecord::Relation]
       def and_clauses
-        clauses = [
-          collecting_event_ids_facet
-        ]
-
-        clauses.compact!
+        clauses = base_and_clauses
 
         return nil if clauses.empty?
 
@@ -191,25 +203,44 @@ module Queries
         a
       end
 
-      # @return [ActiveRecord::Relation]
-      def merge_clauses
-        clauses = collecting_event_merge_clauses + collecting_event_and_clauses
-        # from the simple filter
+      # @return [Array]
+      def base_and_clauses
+        clauses = []
+
+        clauses += [
+          collecting_event_ids_facet
+        ]
+        clauses.compact!
+        clauses
+      end
+
+
+      def base_merge_clauses
+        clauses = []
+        clauses += collecting_event_merge_clauses + collecting_event_and_clauses
+
         clauses += [
           otus_facet,
           ancestors_facet,
-          matching_keyword_ids, # See Queries::Concerns::Tags
+          matching_keyword_ids,   # See Queries::Concerns::Tags
           created_modified_facet, # See Queries::Concerns::Users
           identifier_between_facet,
           identifier_facet,
           loaned_facet,
           on_loan_facet,
+          dwc_indexed_facet,
           never_loaned_facet,
           biocuration_facet,
           biological_relationship_ids_facet
         ]
 
         clauses.compact!
+        clauses
+      end
+
+      # @return [ActiveRecord::Relation]
+      def merge_clauses
+        clauses = base_merge_clauses        
         return nil if clauses.empty?
         a = clauses.shift
         clauses.each do |b|

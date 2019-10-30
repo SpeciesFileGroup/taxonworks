@@ -211,6 +211,12 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       expect(query.all.map(&:id)).to contain_exactly(co2.id)
     end
 
+    specify '#tags on collecting_vent' do
+      t = FactoryBot.create(:valid_tag, tag_object: ce1)
+      query.collecting_event_query.keyword_ids = [t.keyword_id]
+      expect(query.all.map(&:id)).to contain_exactly(co1.id)
+    end
+
     context 'biological_relationships' do
       let!(:co3) { Specimen.create! }
       let!(:br) { FactoryBot.create(:valid_biological_association, biological_association_subject: co1) }
@@ -234,6 +240,23 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
         query.loaned = false
         expect(query.all.map(&:id)).to contain_exactly(co1.id)
       end
+    end
+
+    specify '#dwc_indexed 1' do
+      query.dwc_indexed = true
+      expect(query.all.map(&:id)).to contain_exactly()
+    end
+
+    specify '#dwc_indexed 2' do
+      query.dwc_indexed = true
+      co1.set_dwc_occurrence
+      expect(query.all.map(&:id)).to contain_exactly(co1.id)
+    end
+
+    specify '#dwc_indexed 2' do
+      co1.set_dwc_occurrence
+      query.dwc_indexed = false 
+      expect(query.all.map(&:id)).to contain_exactly(co2.id)
     end
 
     context 'loans' do
@@ -306,13 +329,13 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
         expect(query.all.map(&:id)).to contain_exactly(co2.id)
       end
 
-      specify 'identifier_exact' do
+      specify '#identifier_exact 1' do
         query.identifier_exact = true
         query.identifier = i2.cached
         expect(query.all.map(&:id)).to contain_exactly(co2.id)
       end
 
-      specify 'identifier_exact' do
+      specify '#identifier_exact 2' do
         query.identifier_exact = false 
         query.identifier = '1'
         expect(query.all.map(&:id)).to contain_exactly(co1.id)

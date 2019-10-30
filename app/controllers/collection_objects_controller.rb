@@ -17,9 +17,23 @@ class CollectionObjectsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @collection_objects = Queries::CollectionObject::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
+        @collection_objects = filtered_collection_objects
       }
     end
+  end
+
+  # GET /collection_objects/dwca/123 # SHOULD BE dwc
+  def dwca
+    @dwc_occurrence = CollectionObject.includes(:dwc_occurrence).find(params[:id]).get_dwc_occurrence # find or compute for
+    render json: @dwc_occurrence.to_json
+  end
+
+  def dwc_index
+    t = ::DwcOccurrence.arel_table 
+    s = ::CollectionObject.arel_table
+    k = ::CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys
+    @objects = filtered_collection_objects.eager_load(:dwc_occurrence).pluck(s[:id], t[:id], *k.collect{|a| t[a]} )
+    render '/dwc_occurrences/dwc_index'
   end
 
   # GET /collection_objects/1
@@ -92,11 +106,6 @@ class CollectionObjectsController < ApplicationController
         format.json { render json: @collection_object.errors, status: :unprocessable_entity }
       end
     end
-  end
-
-  def dwca
-    @dwc_occurrence = CollectionObject.includes(:dwc_occurrence).find(params[:id]).get_dwc_occurrence # find or compute for
-    render json: @dwc_occurrence.to_json
   end
 
   # DELETE /collection_objects/1
@@ -235,6 +244,10 @@ class CollectionObjectsController < ApplicationController
   end
 
   private
+
+  def filtered_collection_objects
+    Queries::CollectionObject::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
+  end
 
   def set_collection_object
     @collection_object = CollectionObject.with_project_id(sessions_current_project_id).find(params[:id])

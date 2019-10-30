@@ -96,6 +96,7 @@ resources :collection_objects do
   end
 
   collection do
+    get :dwc_index, defaults: {format: :json}
     post :preview_castor_batch_load # should be get
     post :create_castor_batch_load # should be get
     post :preview_buffered_batch_load

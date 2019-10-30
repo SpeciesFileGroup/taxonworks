@@ -47,7 +47,11 @@ class DwcOccurrence < ApplicationRecord
   belongs_to :dwc_occurrence_object, polymorphic: true
 
   def self.collection_objects_join
-    joins("JOIN collection_objects c on c.id = dwc_occurrences.dwc_occurrence_object_id AND dwc_occurrence_object_type = 'CollectionObject'")
+    a = arel_table
+    b = ::CollectionObject.arel_table 
+    j = a.join(b).on(a[:dwc_occurrence_object_type].eq('CollectionObject').and(a[:dwc_occurrence_object_id].eq(b[:id])))
+    joins(j.join_sources)
+#    joins("JOIN collection_objects on collection_objects.id = dwc_occurrences.dwc_occurrence_object_id AND dwc_occurrence_object_type = 'CollectionObject'")
   end
 
   before_validation :set_basis_of_record
@@ -77,14 +81,7 @@ class DwcOccurrence < ApplicationRecord
   end
 
   def self.by_collection_object_filter(collection_object_filter_query)
-    q = collection_object_filter_query
-    t = arel_table
-
-    q = q.join(t, Arel::Nodes::OuterJoin).on(
-      t[:dwc_occurrence_object_id].eq(q[:id]).and (t[:dwc_occurrence_object_type].eq('CollectionObject') )
-    ) 
-    
-    joins(collection_object_filter_query.join_sources).all
+    Queries::DwcOccurrence::Filter.new(collection_object_filter_query: collection_object_filter_query).all 
   end
 
   def stale?

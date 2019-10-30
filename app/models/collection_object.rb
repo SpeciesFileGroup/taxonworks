@@ -149,7 +149,7 @@ class CollectionObject < ApplicationRecord
 
   scope :with_sequence_name, ->(name) { joins(sequence_join_hack_sql).where(sequences: {name: name}) }
   scope :via_descriptor, ->(descriptor) { joins(sequence_join_hack_sql).where(sequences: {id: descriptor.sequences}) }
-  #
+
   # This is a hack, maybe related to a Rails 5.1 bug.
   # It returns the SQL that works in 5.0/4.2 that
   # links CollectionObject to Sequences:

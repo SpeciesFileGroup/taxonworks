@@ -14,7 +14,7 @@ json.placement do
   json.same combination.is_current_placement?
   json.target combination.protonyms&.last&.id
   json.current_parent_id combination&.protonyms&.last&.parent_id
-  json.parent_id  combination.protonyms&.second_to_last&.id
+  json.parent_id combination.protonyms&.second_to_last&.id
 end
 
 # TODO: move to shared

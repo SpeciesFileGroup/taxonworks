@@ -68,8 +68,6 @@ module Queries::Concerns::Identifiers
     )
   end
 
- 
-  
   def identifier_facet
     return nil if identifier.blank?
 

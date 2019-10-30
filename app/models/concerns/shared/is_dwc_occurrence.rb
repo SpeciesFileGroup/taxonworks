@@ -6,10 +6,14 @@ module Shared::IsDwcOccurrence
   included do
     delegate :persisted?, to: :dwc_occurrence, prefix: :dwc_occurrence, allow_nil: true
 
-    has_one :dwc_occurrence, as: :dwc_occurrence_object
-    
     attr_accessor :generate_dwc_occurrence
+
+    has_one :dwc_occurrence, as: :dwc_occurrence_object
+   
     after_save :set_dwc_occurrence, if: -> { generate_dwc_occurrence }
+
+    scope :dwc_indexed, -> {joins(:dwc_occurrence)}
+    scope :dwc_not_indexed, -> { includes(:dwc_occurrence).where(dwc_occurrences: {id: nil}) }
   end
 
   module ClassMethods
