@@ -90,6 +90,7 @@ resources :collection_objects do
   concerns [:data_routes]
 
   member do
+    get 'dwc', defaults: {format: :json}
     get 'depictions', constraints: {format: :html}
     get 'containerize'
     get 'dwca', defaults: {format: :json}

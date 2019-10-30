@@ -29,11 +29,14 @@ class CollectionObjectsController < ApplicationController
   end
 
   def dwc_index
-    t = ::DwcOccurrence.arel_table 
-    s = ::CollectionObject.arel_table
-    k = ::CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys
-    @objects = filtered_collection_objects.eager_load(:dwc_occurrence).pluck(s[:id], t[:id], *k.collect{|a| t[a]} )
+    @objects = filtered_collection_objects.eager_load(:dwc_occurrence).pluck( ::CollectionObject.dwc_attribute_vector)
     render '/dwc_occurrences/dwc_index'
+  end
+
+  def dwc
+    o = CollectionObject.find(params[:id])
+    o.set_dwc_occurrence # find or compute for
+    render json: o.dwc_occurrence_attribute_values
   end
 
   # GET /collection_objects/1

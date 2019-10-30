@@ -3,7 +3,7 @@ json.column_headers do
 end
 
 json.data do
-  json.partial! '/dwc_occurrences/dwc_occurrence', collection: @objects, as: :object
+  json.array! @objects
 end
 
 

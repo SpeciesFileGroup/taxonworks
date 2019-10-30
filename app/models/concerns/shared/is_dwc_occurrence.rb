@@ -17,6 +17,11 @@ module Shared::IsDwcOccurrence
   end
 
   module ClassMethods
+    def dwc_attribute_vector
+      t = ::DwcOccurrence.arel_table 
+      k = self::DwcExtensions::DWC_OCCURRENCE_MAP.keys.sort
+      [ t[:id], t[:dwc_occurrence_object_id], t[:dwc_occurrence_object_type], *k.collect{|a| t[a]}   ]
+    end
   end
 
   # @return [DwcOccurrence]
@@ -40,6 +45,10 @@ module Shared::IsDwcOccurrence
     a[:created_by_id] = created_by_id
     a[:updated_by_id] = updated_by_id
     a
+  end
+
+  def dwc_occurrence_attribute_values
+    self.class.dwc_attribute_vector.collect{|a| a.name}.collect{|f| dwc_occurrence.send(f) }
   end
 
   # @return [DwcOccurrence]
