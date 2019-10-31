@@ -124,26 +124,12 @@ scope :tasks do
   end
 
   scope :collection_objects do
-      scope :filter2, controller: 'tasks/collection_objects/filter2' do
-        get :index, as: 'index_filter2_task'
-      end
+    scope :filter2, controller: 'tasks/collection_objects/filter2' do
+      get :index, as: 'index_filter2_task'
+    end
 
     scope :browse, controller: 'tasks/collection_objects/browse' do
       get 'index', as: 'browse_collection_objects_task'
-    end
-
-    scope :filter, controller: 'tasks/collection_objects/filter' do
-      get 'index', as: 'collection_objects_filter_task' #'index_area_and_date_task'
-      get 'find', as: 'find_collection_objects_task' # 'find_area_and_date_task'
-      get 'set_area'  , as: 'set_area_for_collection_object_filter'
-      get 'set_date', as: 'set_date_for_collection_object_filter'
-      get 'set_otu', as: 'set_otu_for_collection_object_filter'
-      get 'set_id_range', as: 'set_id_range_for_collection_object_filter'
-      get 'set_user_date_range', as: 'set_user_date_range_for_collection_object_filter'
-      get 'get_dates_of_type', as: 'get_dates_type_of_for_collection_object_filter'
-      # get 'get_updated_at', as: 'get_updated_at_for_collection_object_filter'
-      get 'download', action: 'download', as: 'download_collection_object_filter_result'
-      post 'tag_all', action: 'tag_all', as: 'tag_all_collection_object_filter_result',  defaults: {format: :json}
     end
   end
 

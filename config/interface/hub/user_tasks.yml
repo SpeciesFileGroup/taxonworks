@@ -433,12 +433,3 @@ index_filter2_task:
     - collection_object
   status: prototype
   description: 'Filter collection objects, download or visualize results.'
-collection_objects_filter_task:
-  hub: true
-  name: 'Collection object filter'
-  related:
-  categories:
-    - collection_object
-  status: prototype
-  description: 'Find collection objects using an area, date range, taxon determination (OTU), applied identifier, or user/created date range.'
-
