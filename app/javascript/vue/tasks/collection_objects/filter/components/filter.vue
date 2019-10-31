@@ -117,7 +117,11 @@ export default {
         if(response.body.data.length) {
           this.result = response.body.data
           this.DWCASearch = response.body.data.filter(item => { return !this.isIndexed(item)})
-          this.getDWCATable(this.DWCASearch)
+          if (this.DWCASearch.length) {
+            this.getDWCATable(this.DWCASearch)
+          } else {
+            this.$emit('result', { column_headers: this.coList.column_headers, data: this.result })
+          }
         } else {
           this.$emit('result', this.coList)
         }
