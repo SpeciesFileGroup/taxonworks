@@ -107,7 +107,7 @@ gem 'chunky_png', '~> 1.3.11'
 gem 'namecase', '~> 2.0'
 
 group :test, :development do
-  gem 'faker', '~> 1.9.1'
+  gem 'faker', '~> 2.1', '>= 2.1.2'
   gem 'rspec-rails', '~> 3.6'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'byebug', '~> 11.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
