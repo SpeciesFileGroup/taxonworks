@@ -1,4 +1,4 @@
-FROM phusion/passenger-ruby25:0.9.35 AS base
+FROM phusion/passenger-ruby26:1.0.8 AS base
 MAINTAINER Matt Yoder
 ENV LAST_FULL_REBUILD 2018-08-10
 ARG BUNDLER_WORKERS=1
