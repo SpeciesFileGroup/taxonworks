@@ -12,8 +12,11 @@
         type="button"
         :class="{ 'button-default': !(selectedList.hasOwnProperty(item.id))}"
         class="button normal-input biocuration-toggle-button"
-        @click="selectFor(item)"
-        v-html="item.name"/>
+        @click="selectFor(item)">
+        <span
+          :style="{ 'background-color': item.css_color }"
+          v-html="item.object_tag"/>
+      </button>
     </template>
   </div>
 </template>

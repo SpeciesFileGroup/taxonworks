@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'rack-cors', '~> 1.0.1', require: 'rack/cors'
 
-ruby '2.5.1'
+ruby '2.6.3'
 
 gem 'bundler', '~> 2.0'
 
@@ -18,8 +18,8 @@ gem 'redis', '~> 4.1.0'
 gem 'rdf', '~> 3.0'
 
 # System
-gem 'thor', '~> 0.19.4' # See https://github.com/rails/rails/issues/27229
-gem 'rubyzip', '~> 1.2.2'
+gem 'thor', '~> 0.20.3'
+gem 'rubyzip', '~> 2.0.0'
 gem 'daemons', '~> 1.3.1'
 gem 'tzinfo-data', '~> 1.2018.4'
 gem 'psych', '~> 3.1.0'
@@ -74,7 +74,7 @@ gem 'csl', '~> 1.5.0'
 gem 'bibtex-ruby', '~> 5.0.0'
 gem 'citeproc-ruby', '~> 1.1.10'
 gem 'csl-styles', '~> 1.0.1.8'
-gem 'ref2bibtex', '~> 0.3.0'
+gem 'serrano', '~> 0.5.2'
 # gem 'latex-decode', '~> 0.2.2'
 gem 'pdf-reader', '~> 2.2'
 
@@ -106,17 +106,14 @@ gem 'logic_tools'
 gem 'chunky_png', '~> 1.3.11'
 gem 'namecase', '~> 2.0'
 
-# Deploy, deprecated soon
-gem 'capistrano-npm', '~> 1.0.2'
-
 group :test, :development do
-  gem 'faker', '~> 1.9.1'
+  gem 'faker', '~> 2.6.0'
   gem 'rspec-rails', '~> 3.6'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'byebug', '~> 11.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 5.0.1'
   gem 'selenium-webdriver', '~> 3.141'
-  gem 'geckodriver-helper', '~> 0.23.0'
+  gem 'geckodriver-helper', '~> 0.24.0'
   gem 'prawn', '~> 2.2.2'
 end
 
@@ -131,9 +128,9 @@ group :development do
   gem 'guard-rspec', '~> 4.7.3', require: false
 
   gem 'web-console', '~> 3.7.0'
-  gem 'rubocop', '~> 0.70'
-  gem 'rubocop-rails'
-  gem 'rubocop-rspec'
+  gem 'rubocop', '~> 0.76'
+  gem 'rubocop-rails', '~> 2.3'
+  gem 'rubocop-rspec', '~>1.36'
   gem 'brakeman', '~> 4.4.0', require: false
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'
 end

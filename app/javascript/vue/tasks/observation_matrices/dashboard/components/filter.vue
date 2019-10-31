@@ -10,8 +10,15 @@
       v-if="searching"
     />
     <div class="content">
+      <button 
+        class="button normal-input button-default full_width"
+        type="button"
+        @click="$emit('onSearch')">
+        Search
+      </button>
       <taxon-name v-model="taxonName"/>
       <otu-filter v-model="validity"/>
+      <combinations-filter/>
       <ranks-filter
         :taxon-name="taxonName"
         v-model="ranks"/>
@@ -25,10 +32,12 @@ import SpinnerComponent from 'components/spinner'
 import taxonName from './filters/taxonName'
 import RanksFilter from './filters/ranks'
 import OtuFilter from './filters/otus'
+import CombinationsFilter from './filters/combinations'
 
 export default {
   components: {
     SpinnerComponent,
+    CombinationsFilter,
     RanksFilter,
     OtuFilter,
     taxonName

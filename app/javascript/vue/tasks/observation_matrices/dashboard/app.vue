@@ -31,7 +31,8 @@
         @rankSelected="ranks = $event"
         @onTaxon="taxon = $event"
         @onValidity="validity = $event"
-        @reset="resetTask"/>
+        @reset="resetTask"
+        @onSearch="loadRankTable"/>
       <div class="full_width">
         <div
           v-show="Object.keys(rankTable).length"
@@ -40,10 +41,6 @@
             class="separate-right"
             :ranksSelected="ranks"
             :table-list="rankTable"/>
-          <table-fixed
-            v-if="false"
-            class="separate-left full_width"
-            :table-values="rankTable" />
         </div>
         <h3
           v-if="!Object.keys(rankTable).length"
@@ -58,7 +55,6 @@
 
 import FilterComponent from './components/filter.vue'
 import RankTable from './components/table'
-import TableFixed from './components/tableFixed'
 import JsonBar from './components/headerBar'
 
 import { GetRanksTable } from './request/resources'
@@ -70,7 +66,6 @@ export default {
   components: {
     FilterComponent,
     RankTable,
-    TableFixed,
     JsonBar
   },
   computed: {
@@ -81,6 +76,12 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetRankTable, value)
       }
+    },
+    combination () {
+      return this.$store.getters[GetterNames.GetCombinations]
+    },
+    rankList () {
+      return this.$store.getters[GetterNames.GetRanks]
     }
   },
   data () {
@@ -92,14 +93,14 @@ export default {
       jsonUrl: '',
       activeJson: false,
       validity: false,
-      limit: 1000
+      limit: 5000
     }
   },
   watch: {
     ranks: {
       handler (newVal) {
         if (newVal.length) {
-          this.loadRankTable()
+          //this.loadRankTable()
         }
       },
       deep: true
@@ -111,6 +112,11 @@ export default {
         }
       },
       deep: true
+    },
+    combination (newVal) {
+      if (this.taxon) {
+        //this.loadRankTable()
+      }
     }
   },
   methods: {
@@ -120,15 +126,35 @@ export default {
     loadRankTable () {
       const params = {
         ancestor_id: this.taxon.id,
-        ranks: this.ranks,
+        ranks: this.orderRanks(),
         fieldsets: this.fieldSet,
         validity: this.validity ? true : undefined,
+        combination: this.combination,
         limit: this.limit
       }
       GetRanksTable(this.taxon.id, params).then(response => {
         this.jsonUrl = response.url
         this.rankTable = response.body
       })
+    },
+    orderRanks() {
+      let rankNames = [...new Set(this.getRankNames(this.rankList))]
+      let ranksOrder = rankNames.filter(rank => {
+        return this.ranks.includes(rank)
+      })
+      return ranksOrder
+    },
+    getRankNames (list, nameList = []) {
+      for (var key in list) {
+        if (typeof list[key] === 'object') {
+          this.getRankNames(list[key], nameList)
+        } else {
+          if (key === 'name') {
+            nameList.push(list[key])
+          }
+        }
+      }
+      return nameList
     }
   }
 }

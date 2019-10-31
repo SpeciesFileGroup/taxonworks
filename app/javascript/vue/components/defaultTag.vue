@@ -1,38 +1,100 @@
 
 <template>
   <div v-if="keyId">
-    <div
+    <tippy-component
       v-if="!created"
-      class="default_tag_widget circle-button btn-tag-add"
-      @click="createTag()"/>
-    <div
+      animation="scale"
+      placement="bottom"
+      size="small"
+      arrow-size="small"
+      :inertia="true"
+      :arrow="true"
+      :content="`<p>Create tag: ${getDefaultElement().firstChild.firstChild.textContent}.${showCount ? `<br>Used already on more of ${countTag} objects</p>` : ''}`">
+      <template v-slot:trigger>
+        <div
+          class="default_tag_widget circle-button btn-tag-add"
+          @click="createTag()"/>
+      </template>
+    </tippy-component>
+
+    <tippy-component
       v-else
-      class="default_tag_widget circle-button btn-tag-delete"
-      @click="deleteTag()"/>
+      animation="scale"
+      placement="bottom"
+      size="small"
+      arrow-size="small"
+      :inertia="true"
+      :arrow="true"
+      :content="`<p>Remove tag: ${getDefaultElement().firstChild.firstChild.textContent}.${showCount ? `<br>Used already on more of ${countTag} objects</p>` : ''}`">
+      <template v-slot:trigger>
+        <div
+          class="default_tag_widget circle-button btn-tag-delete"
+          @click="deleteTag()"/>
+      </template>
+    </tippy-component>
   </div>
+  <div
+    v-else
+    class="btn-tag circle-button btn-disabled"/>
 </template>
 
 <script>
+import { TippyComponent } from 'vue-tippy'
+
 export default {
+  components: {
+    TippyComponent
+  },
   props: {
     globalId: {
       type: String
+    },
+    showCount: {
+      type: Boolean,
+      default: false
+    },
+    count: {
+      type: [Number, String],
+      default: undefined
     }
   },
   data: function () {
     return {
       tagItem: undefined,
       keyId: this.getDefault(),
-      created: false,
+      countTag: undefined,
+      created: false
     }
   },
-  mounted() {
+  watch: {
+    count: {
+      handler (newVal) {
+        this.countTag = newVal
+      },
+      immediate: true
+    }
+  },
+  mounted () {
     this.alreadyTagged()
+    document.addEventListener('pinboard:insert', (event) => {
+      const details = event.detail
+      console.log(details)
+      if (details.type === 'ControlledVocabularyTerm') {
+        this.keyId = this.getDefault()
+        if (this.showCount) {
+          this.getCount()
+        }
+        this.alreadyTagged()
+      }
+    })
   },
   methods: {
-    getDefault() {
-      let defaultTag = document.querySelector('[data-pinboard-section="Keywords"] [data-insert="true"]')
+    getDefault () {
+      const defaultTag = this.getDefaultElement()
       return defaultTag ? defaultTag.getAttribute('data-pinboard-object-id') : undefined
+    },
+    getDefaultElement () {
+      return document.querySelector('[data-pinboard-section="Keywords"] [data-insert="true"]')
     },
     alreadyTagged: function(element) {
       if(!this.keyId) return
@@ -42,12 +104,21 @@ export default {
         keyword_id: this.keyId
       }
       this.$http.get('/tags/exists', { params: params }).then(response => {
-        if(response.body) {
+        if (response.body) {
           this.created = true
-        }
-        else {
+        } else {
           this.created = false
         }
+      })
+    },
+    getCount () {
+      if (!this.keyId) return
+      const params = {
+        keyword_id: [this.keyId],
+        per: 100
+      }
+      this.$http.get('/tags', { params: params }).then(response => {
+        this.countTag = response.body.length
       })
     },
     createTag: function () {

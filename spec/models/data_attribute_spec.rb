@@ -35,10 +35,19 @@ describe DataAttribute, type: :model, group: :annotators do
         let!(:d1) { InternalAttribute.create(attribute_subject: o, predicate: p, value: 'abc' ) }
         let(:d2) { InternalAttribute.new(attribute_subject: o, predicate: p, value: 'abc' ) }
 
-        specify 'key/value is unique' do
+        specify 'key + value is unique' do
           expect(d2.valid?).to be_falsey
           expect(d2.errors.include?(:value)).to be_truthy
         end
+
+        specify 'key + different value is ??' do
+          d2.value = 'def'
+          expect(d2.valid?).to be_truthy
+          expect(d2.errors.include?(:value)).to be_falsey
+        end
+
+
+
       end
 
       context 'ImportAttribute' do

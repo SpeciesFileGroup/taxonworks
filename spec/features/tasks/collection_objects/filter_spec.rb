@@ -136,71 +136,71 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
           end
         end
 
-        describe 'select start and stop identifiers', js: true do
-          it 'should find the start and stop inputs' do
-            @ns1 = FactoryBot.create(:valid_namespace, creator: @user, updater: @user)
-            @ns2 = FactoryBot.create(:valid_namespace, creator: @user, updater: @user, short_name: 'PSUC_FEM')
-            3.times { FactoryBot.create(:valid_namespace, creator: @user, updater: @user) }
-            @ns3 = Namespace.third
-            2.times { FactoryBot.create(:valid_specimen, creator: @user, updater: @user, project: @project) }
-            FactoryBot.create(:identifier_local_import,
-                              identifier_object: Specimen.first,
-                              namespace: @ns3,
-                              identifier: 'First specimen', creator: @user, updater: @user, project: @project)
-            FactoryBot.create(:identifier_local_import,
-                              identifier_object: Specimen.second,
-                              namespace: @ns3,
-                              identifier: 'Second specimen', creator: @user, updater: @user, project: @project)
-            (1..10).each { |identifier|
-              sp = FactoryBot.create(:valid_specimen, creator: @user, updater: @user, project: @project)
-              id = FactoryBot.create(:identifier_local_catalog_number,
-                                     identifier_object: sp,
-                                     namespace: (identifier.even? ? @ns1 : @ns2),
-                                     identifier: identifier, creator: @user, updater: @user, project: @project)
-            }
+        # describe 'select start and stop identifiers', js: true do
+        # it 'should find the start and stop inputs' do
+        #   @ns1 = FactoryBot.create(:valid_namespace, creator: @user, updater: @user)
+        #   @ns2 = FactoryBot.create(:valid_namespace, creator: @user, updater: @user, short_name: 'PSUC_FEM')
+        #   3.times { FactoryBot.create(:valid_namespace, creator: @user, updater: @user) }
+        #   @ns3 = Namespace.third
+        #   2.times { FactoryBot.create(:valid_specimen, creator: @user, updater: @user, project: @project) }
+        #   FactoryBot.create(:identifier_local_import,
+        #                     identifier_object: Specimen.first,
+        #                     namespace: @ns3,
+        #                     identifier: 'First specimen', creator: @user, updater: @user, project: @project)
+        #   FactoryBot.create(:identifier_local_import,
+        #                     identifier_object: Specimen.second,
+        #                     namespace: @ns3,
+        #                     identifier: 'Second specimen', creator: @user, updater: @user, project: @project)
+        #   (1..10).each { |identifier|
+        #     sp = FactoryBot.create(:valid_specimen, creator: @user, updater: @user, project: @project)
+        #     id = FactoryBot.create(:identifier_local_catalog_number,
+        #                            identifier_object: sp,
+        #                            namespace: (identifier.even? ? @ns1 : @ns2),
+        #                            identifier: identifier, creator: @user, updater: @user, project: @project)
+        #   }
 
-            expect(Specimen.with_identifier('PSUC_FEM 1').count).to eq(1)
-            expect(Specimen.with_namespaced_identifier('PSUC_FEM', 2).count).to eq(0)
-            expect(Specimen.with_namespaced_identifier('PSUC_FEM', 3).count).to eq(1)
-            visit(collection_objects_filter_task_path)
+        #   expect(Specimen.with_identifier('PSUC_FEM 1').count).to eq(1)
+        #   expect(Specimen.with_namespaced_identifier('PSUC_FEM', 2).count).to eq(0)
+        #   expect(Specimen.with_namespaced_identifier('PSUC_FEM', 3).count).to eq(1)
+        #   visit(collection_objects_filter_task_path)
 
-            page.execute_script "$('#set_id_range')[0].scrollIntoView()"
+        #   page.execute_script "$('#set_id_range')[0].scrollIntoView()"
 
-            fill_in('id_range_start', with: '1')
-            fill_in('id_range_stop', with: '10')
+        #   fill_in('id_range_start', with: '1')
+        #   fill_in('id_range_stop', with: '10')
 
-            click_button('Set Identifier Range', { id: 'set_id_range' })
-            wait_for_ajax
-            expect(find('#id_range_count')).to have_content('10')
+        #   click_button('Set Identifier Range', { id: 'set_id_range' })
+        #   wait_for_ajax
+        #   expect(find('#id_range_count')).to have_content('10')
 
-            fill_in('id_range_start', with: '3')
-            fill_in('id_range_stop', with: '8')
+        #   fill_in('id_range_start', with: '3')
+        #   fill_in('id_range_stop', with: '8')
 
-            click_button('Set Identifier Range', { id: 'set_id_range' })
-            wait_for_ajax
-            expect(find('#id_range_count')).to have_content('6')
+        #   click_button('Set Identifier Range', { id: 'set_id_range' })
+        #   wait_for_ajax
+        #   expect(find('#id_range_count')).to have_content('6')
 
-            fill_in('id_range_start', with: '8')
-            fill_in('id_range_stop', with: '3')
+        #   fill_in('id_range_start', with: '8')
+        #   fill_in('id_range_stop', with: '3')
 
-            click_button('Set Identifier Range', { id: 'set_id_range' })
-            wait_for_ajax
-            expect(find('#id_range_count')).to have_content('0')
+        #   click_button('Set Identifier Range', { id: 'set_id_range' })
+        #   wait_for_ajax
+        #   expect(find('#id_range_count')).to have_content('0')
 
-            select('PS', from: 'id_namespace')
-            fill_in('id_range_start', with: '3')
-            fill_in('id_range_stop', with: '9')
+        #   select('PS', from: 'id_namespace')
+        #   fill_in('id_range_start', with: '3')
+        #   fill_in('id_range_stop', with: '9')
 
-            click_button('Set Identifier Range', { id: 'set_id_range' })
-            wait_for_ajax
-            expect(find('#id_range_count')).to have_content('4')
+        #   click_button('Set Identifier Range', { id: 'set_id_range' })
+        #   wait_for_ajax
+        #   expect(find('#id_range_count')).to have_content('4')
 
-            find('#find_area_and_date_commit').click
-            wait_for_ajax
-            expect(find('#paging_data')).to have_content('all 4')
+        #   find('#find_area_and_date_commit').click
+        #   wait_for_ajax
+        #   expect(find('#paging_data')).to have_content('all 4')
 
-          end
-        end
+        # end
+        #end
       end
 
       context 'with records specific to users and dates' do

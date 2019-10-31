@@ -209,12 +209,16 @@ class Source < ApplicationRecord
   #  When true, cached values are not built
   attr_accessor :no_year_suffix_validation
 
-  has_many :asserted_distributions, through: :citations, source: :citation_object, source_type: 'AssertedDistribution'
-  has_many :citation_topics, through: :citations, inverse_of: :source
+  # Keep this order for citations/topics
   has_many :citations, inverse_of: :source, dependent: :restrict_with_error
+  has_many :citation_topics, through: :citations, inverse_of: :source
+  has_many :topics, through: :citation_topics, inverse_of: :sources
+
+  # !! must be below has_man :citations
+  has_many :asserted_distributions, through: :citations, source: :citation_object, source_type: 'AssertedDistribution'
+
   has_many :project_sources, dependent: :destroy
   has_many :projects, through: :project_sources
-  has_many :topics, through: :citation_topics, inverse_of: :sources
 
   after_save :set_cached
 
@@ -328,6 +332,30 @@ class Source < ApplicationRecord
   # @return [Boolean]
   def is_in_project?(project_id)
     projects.where(id: project_id).any?
+  end
+
+  # @return [Source, false]
+  def clone
+    s = dup
+    m = "[CLONE of #{id}] "
+    begin
+      Source.transaction do |t|
+        roles.each do |r|
+          s.roles << Role.new(person: r.person, type: r.type, position: r.position )
+        end
+
+        case type
+        when 'Source::Verbatim'
+          s.verbatim = m + verbatim
+        when 'Source::Bibtex'
+          s.title = m + title
+        end
+
+        s.save!
+      end
+    rescue ActiveRecord::RecordInvalid
+    end
+    s
   end
 
   protected

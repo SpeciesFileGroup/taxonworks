@@ -137,7 +137,7 @@ class TaxonNamesController < ApplicationController
 
   # GET /taxon_names/download
   def download
-    send_data Download.generate_csv(
+    send_data Export::Download.generate_csv(
       TaxonName.where(project_id: sessions_current_project_id)
     ), type: 'text', filename: "taxon_names_#{DateTime.now}.csv"
   end
@@ -158,10 +158,13 @@ class TaxonNamesController < ApplicationController
   def rank_table
     @q = Queries::TaxonName::Tabular.new(
       ancestor_id: params.require(:ancestor_id),
-      project_id: sessions_current_project_id, 
       ranks: params.require(:ranks),
       fieldsets: params[:fieldsets],
-      limit: params[:limit]
+      limit: params[:limit],
+      validity: params[:validity],
+      combinations: params[:combinations],
+      project_id: sessions_current_project_id,
+      rank_data: params[:rank_data]
     )
   end
 
@@ -259,7 +262,7 @@ class TaxonNamesController < ApplicationController
         ]
       ],
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
-      taxon_name_classifications_attributes: [:id, :_destroy, :taxon_name_id, :type]
+      taxon_name_classifications_attributes: [:id, :_destroy, :type]
     )
   end
 

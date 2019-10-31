@@ -30,5 +30,5 @@
 <% if fields_for_object -%>
   <%= fields_for_object.hidden_field(method, id: "#{tag_id}_hidden_value" ) -%>
 <% else %>
-    <%= hidden_field(object, method, id: "#{tag_id}_hidden_value") -%>
+  <%= hidden_field(object, method, id: "#{tag_id}_hidden_value") -%>
 <% end %>

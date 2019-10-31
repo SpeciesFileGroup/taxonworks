@@ -14,8 +14,8 @@ ICZN_TAXON_NAME_CLASSIFICATION_NAMES = TaxonNameClassification::Iczn.descendants
 # Array of all ICN TaxonNameClassifications classes, as Strings
 ICN_TAXON_NAME_CLASSIFICATION_NAMES = TaxonNameClassification::Icn.descendants.collect { |d| d.to_s }.freeze
 
-# Array of all ICNB TaxonNameClassifications classes, as Strings
-ICNB_TAXON_NAME_CLASSIFICATION_NAMES = TaxonNameClassification::Icnp.descendants.collect { |d| d.to_s }.freeze
+# Array of all ICNP TaxonNameClassifications classes, as Strings
+ICNP_TAXON_NAME_CLASSIFICATION_NAMES = TaxonNameClassification::Icnp.descendants.collect { |d| d.to_s }.freeze
 
 TAXON_NAME_CLASSIFICATION_GENDER_CLASSES = TaxonNameClassification::Latinized::Gender.descendants.freeze
 
@@ -30,7 +30,7 @@ ICN_TAXON_NAME_CLASSIFICATION_HASH = (ICN_TAXON_NAME_CLASSIFICATION_NAMES + LATI
   |hsh, klass| hsh.merge(klass.constantize.name => klass)
 }.freeze
 
-ICNB_TAXON_NAME_CLASSIFICATION_HASH = (ICNB_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
+ICNP_TAXON_NAME_CLASSIFICATION_HASH = (ICNP_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
   |hsh, klass| hsh.merge(klass.constantize.name => klass)
 }.freeze
 
@@ -39,7 +39,7 @@ ICTV_TAXON_NAME_CLASSIFICATION_HASH = (ICTV_TAXON_NAME_CLASSIFICATION_NAMES + LA
 }.freeze
 
 # Array of all TaxonNameClassifications classes, as Strings
-TAXON_NAME_CLASSIFICATION_NAMES = (ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICTV_TAXON_NAME_CLASSIFICATION_NAMES + ICNB_TAXON_NAME_CLASSIFICATION_NAMES + ICZN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).freeze
+TAXON_NAME_CLASSIFICATION_NAMES = (ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICTV_TAXON_NAME_CLASSIFICATION_NAMES + ICNP_TAXON_NAME_CLASSIFICATION_NAMES + ICZN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).freeze
 
 # Array of all Unavailable and Invalid TaxonNameClassifications classes, as Strings
 TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID = [

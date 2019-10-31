@@ -1,6 +1,8 @@
 <template>
   <div>
-    <div class="radial-annotator">
+    <div
+      
+      class="radial-annotator">
       <modal
         v-if="display"
         @close="closeModal()">
@@ -54,6 +56,7 @@
         type="button"
         class="circle-button"
         :class="[buttonClass]"
+        @contextmenu.prevent="loadContextMenu"
         @click="displayAnnotator()">Radial annotator
       </span>
       <div
@@ -61,6 +64,11 @@
         class="circle-count button-submit middle">
         <span class="citation-count-text">{{ metadataCount }}</span>
       </div>
+      <context-menu
+        :metadata="metadata"
+        :global-id="globalId"
+        v-model="showContextMenu"
+        v-if="showContextMenu"/>
     </div>
   </div>
 </template>
@@ -82,11 +90,9 @@ import data_attributesAnnotator from './components/data_attribute_annotator.vue'
 import alternate_valuesAnnotator from './components/alternate_value_annotator.vue'
 import citationsAnnotator from './components/citations/citation_annotator.vue'
 import protocol_relationshipsAnnotator from './components/protocol_annotator.vue'
-import biological_associationsAnnotator from './components/biological_relationships/biological_relationships_annotator.vue'
-import asserted_distributionsAnnotator from './components/asserted_distributions/asserted_distributions_annotator.vue'
-import common_namesAnnotator from './components/common_names/main.vue'
-import contentsAnnotator from './components/contents/main.vue'
 import attributionAnnotator from './components/attribution/main.vue'
+
+import ContextMenu from './components/contextMenu'
 
 import Icons from './images/icons.js'
 
@@ -107,11 +113,8 @@ export default {
     identifiersAnnotator,
     tagsAnnotator,
     protocol_relationshipsAnnotator,
-    biological_associationsAnnotator,
-    asserted_distributionsAnnotator,
-    common_namesAnnotator,
-    contentsAnnotator,
-    attributionAnnotator
+    attributionAnnotator,
+    ContextMenu
   },
   props: {
     reload: {
@@ -159,7 +162,8 @@ export default {
       title: 'Radial annotator',
       menuOptions: [],
       defaultTag: undefined,
-      tagCreated: false
+      tagCreated: false,
+      showContextMenu: false
     }
   },
   computed: {
@@ -200,6 +204,10 @@ export default {
     }
   },
   methods: {
+    loadContextMenu() {
+      this.showContextMenu = true
+      this.loadMetadata()
+    },
     getDefault () {
       const defaultTag = document.querySelector('[data-pinboard-section="Keywords"] [data-insert="true"]')
       return defaultTag ? defaultTag.getAttribute('data-pinboard-object-id') : undefined
@@ -352,6 +360,7 @@ export default {
       display: flex;
       height: 600px;
       flex-direction: column;
+      overflow-y: scroll;
     }
     .radial-annotator-menu {
       padding-top: 1em;

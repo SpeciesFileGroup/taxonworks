@@ -76,10 +76,10 @@ class ContainersController < ApplicationController
   end
 
   def autocomplete
-    @containers = Queries::ContainerAutocompleteQuery.new(
+    @containers = Queries::Container::Autocomplete.new(
       params.require(:term), 
       {project_id: sessions_current_project_id}
-    ).result
+    ).autocomplete
   end
 
   private

@@ -89,7 +89,7 @@ module Queries
       attr_accessor :nomenclature_group
 
       # @return [Array, nil]
-      #   &nomenclature_code=Iczn|Icnb|Icn|Ictv
+      #   &nomenclature_code=Iczn|Icnp|Icn|Ictv
       attr_accessor :nomenclature_code
 
       # TODO: inverse is duplicated in autocomplete
@@ -162,7 +162,7 @@ module Queries
         ::TaxonName.where(
           ::TaxonNameHierarchy.where(
             ::TaxonNameHierarchy.arel_table[:descendant_id].eq(::TaxonName.arel_table[:id]).and(
-            ::TaxonNameHierarchy.arel_table[:ancestor_id].in(taxon_name_id))
+            ::TaxonNameHierarchy.arel_table[:ancestor_id].in(taxon_name_id)) # TODO- in is likely not the most optimal
           ).arel.exists
         )
       end

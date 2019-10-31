@@ -31,7 +31,7 @@
       <thead>
         <tr>
           <th 
-            v-if="isFiltered(header)"
+            v-if="renderFromPosition <= index"
             v-for="(header, index) in tableRanks.column_headers"
             @click="sortBy(header)">
             <span v-html="header.replace('_', '<br>')"/>
@@ -45,7 +45,7 @@
           class="contextMenuCells btn btn-neutral"
           :class="{ even: (index % 2)}">
           <template v-for="(header, hindex) in tableRanks.column_headers">
-            <td v-if="isFiltered(header)">
+            <td v-if="renderFromPosition <= hindex">
               {{ row[hindex] }}
             </td>
           </template>
@@ -92,7 +92,7 @@ export default {
   },
   data () {
     return {
-      show: ['cached'],
+      renderFromPosition: 4,
       rankNames: [],
       tableRanks: {},
       fieldset: [
@@ -122,7 +122,7 @@ export default {
       handler (newVal) {
         this.sorting = true
         setTimeout(() => {
-          this.tableRanks = this.orderRanksTable(newVal)
+          this.tableRanks = this.tableList
           this.$nextTick(() => {
             this.sorting = false
           })

@@ -167,6 +167,7 @@ namespace :tw do
         handle_family_ucd
         handle_genus_ucd
         handle_species_ucd
+#end
         handle_tstat_ucd
 
         handle_hknew_ucd
@@ -328,7 +329,6 @@ namespace :tw do
           puts 'from database'  
         end
       end
-
 
       def handle_master_ucd_families
         #TaxonCode
@@ -1248,7 +1248,6 @@ namespace :tw do
         end
       end
 
-
       def handle_references_ucd
         # - 0   RefCode   | varchar(15)  |
         # - 1   Author    | varchar(52)  |
@@ -1442,7 +1441,6 @@ namespace :tw do
         end
       end
 
-
       def combinations_codes_ucd
         combinations = {
           'CG' => 'Misspelt generic name, new combination for',
@@ -1501,7 +1499,6 @@ namespace :tw do
         end
       end
 
-
       def handle_family_ucd
         path = @args[:data_directory] + 'FAMTRIB.txt'
         print "\nHandling FAMTRIB\n"
@@ -1546,7 +1543,6 @@ namespace :tw do
           end
         end
       end
-
 
       def handle_genus_ucd
         path = @args[:data_directory] + 'GENUS.txt'
@@ -2129,11 +2125,16 @@ namespace :tw do
           'VO' => 'Variety, new status for',
         }.freeze
 
+        compared_with = {
+            'CF' => 'Compared with' # BIO REL
+        }
+
+        biological_relationship = BiologicalRelationship.find_or_create_by(name: 'compared with', inverted_name: 'reference for', project_id: Current.project_id)
+
         notes = {
           'FM' => 'Form',
           'FR' => 'Form, new status for',
           'PS' => 'Possible synonym of',
-          'CF' => 'Compared with',
           'CR' => 'New combination and replacement',
           'CV' => 'Request to ICZN for conservation of name',
           'CM' => 'Misspelt species name, compared with', # 'Misspelt species name, compared with',
@@ -2163,21 +2164,27 @@ namespace :tw do
           'SZ' => 'Superfamily',
           'TC' => 'Type species cited as',
           'VF' => 'Family of',
-          'VG' => 'Valid genus',
+          'VG' => 'Valid genus', # like VG
           'VI' => 'Valid subtribe of',
           'VR' => 'Variety',
-          'VS' => 'Valid species',
-          'VT' => 'Valid tribe of',
-          'VY' => 'Valid superfamily',
+          'VS' => 'Valid species',   # like VS
+          'VT' => 'Valid tribe of', # like VY
+          'VY' => 'Valid superfamily', # citations on protonym with note "VT: [note field]"
           'GQ' => 'Generic placement queried',
           'GR' => 'Generic placement queried, new combination for',
           'GI' => 'Generic placement incorrect',
           'IA' => 'Incorrect gender agreement of species name in',
         }.freeze
 
-        keywords = {
-          'status' => Predicate.find_or_create_by(name: 'Status:Defenition', definition: 'The verbatim value in Status#Defenition.', project_id: Current.project_id)
-        }.freeze
+        keywords = {}
+
+        notes.keys.each do |n|
+          keywords[n] = Predicate.find_or_create_by(name: n, definition: 'The status in UCD database: ' + notes[n], project_id: Current.project_id)
+        end
+
+#        keywords.merge!{
+#          }
+
 
         path = @args[:data_directory] + 'TSTAT.txt'
         print "\nHandling TSTAT\n"
@@ -2236,17 +2243,23 @@ namespace :tw do
             end
           end
 
+          # create predicates for status
           if !notes[row['Status']].nil? && !taxon.nil?
             nt = notes[row['Status']]
-            nt += ' ' + taxon1.cached_html.to_s + ' ' + taxon1.cached_author_year.to_s if taxon1
-            c = taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['status'], value: nt)
+            nt += ' ' + taxon1.cached.to_s + ' ' + taxon1.cached_author_year.to_s if taxon1
+            nt += ' ' + row['Notes'].to_s.gsub('|','_') unless row['Notes'].blank?
+
+            pred = keywords[row['Status']]
+            byebug if pred.nil? || pred.id.nil?
+            c = taxon.internal_attributes.find_or_create_by(controlled_vocabulary_term_id: pred.id, value: nt, project_id: Current.project_id)
+
 
             if !c.id.blank? # valid?
+              taxon.citations.create(source_id: ref, pages: row['PageRef'])
               if !ref2.nil? && !ref.nil?
-                taxon.citations.create(source_id: ref, pages: row['PageRef'], is_original: true) unless ref.nil?
-                c.citations.create(source_id: ref2, pages: row['PagesB']) unless ref2.nil?
+                c.citations.create(source_id: ref2, pages: row['PagesB'])
               else
-                c.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
+                c.citations.create(source_id: ref, pages: row['PageRef'])
               end
             else
               print "\n ERROR: Invalid status: TaxonCode: #{row['TaxonCode']}, Status: #{row['Status']}\n"
@@ -2261,12 +2274,43 @@ namespace :tw do
             #taxon = valid
             taxon = taxon.protonyms.last
           end
-          taxon.notes.create(text: row['Notes'].to_s.gsub('|','_') + ' ' + row['Code'].to_s) if !row['Notes'].blank? && !taxon.nil?
 
           if !taxon1.nil? && taxon1.type == 'Combination'
             #valid = TaxonName.find(taxon1.cached_valid_taxon_name_id)
             #taxon1 = valid
             taxon1 = taxon1.protonyms.last
+          end
+          taxon.notes.create(text: row['Notes'].to_s.gsub('|','_') + ' ' + row['Code'].to_s) if !row['Notes'].blank? && !taxon.nil? && notes[row['Status']].nil?
+
+          # create biological associations for CF status
+          if !compared_with[row['Status']].nil? && !taxon.nil? && !taxon1.nil?
+          otu1 = taxon1.otus.first
+          otu = taxon.otus.first
+          if otu.nil?
+            otu = Otu.find_or_create_by(taxon_name: taxon, project_id: Current.project_id)
+            @data.otus[row['TaxonCode']] = otu.id
+          end
+          if otu1.nil?
+            otu1 = Otu.find_or_create_by(taxon_name: taxon1, project_id: Current.project_id)
+            @data.otus[row['Code']] = otu1.id
+          end
+          c = BiologicalAssociation.find_or_create_by!(biological_relationship: biological_relationship,
+                                                          biological_association_subject: otu1,
+                                                          biological_association_object: otu,
+                                                          project_id: Current.project_id
+            )
+            if !c.id.blank? # valid?
+              taxon.citations.create(source_id: ref, pages: row['PageRef'])
+              if !ref2.nil? && !ref.nil?
+                c.citations.create(source_id: ref2, pages: row['PagesB'])
+              else
+                c.citations.create(source_id: ref, pages: row['PageRef'])
+              end
+            else
+              print "\n ERROR: Invalid status: TaxonCode: #{row['TaxonCode']}, Status: #{row['Status']}\n"
+              print "\n ERROR: Invalid status: Taxon1: #{taxon.try(:cached)}, Status: #{nt}\n"
+            end
+
           end
 
           if !relationship[row['Status']].nil? && !taxon.nil? && !taxon1.nil?
@@ -2277,11 +2321,11 @@ namespace :tw do
               if relationship[row['Status']].include?('TaxonNameRelationship::Iczn::Invalidating') && !c.nil?
                 c.update_column(:type, relationship[row['Status']])
               else
-                c2 = TaxonNameClassification.find_or_create_by(taxon_name: taxon, type: 'TaxonNameClassification::Iczn::Available::Valid') if @data.valid_taxon_codes[taxon.id] == 1
+                c2 = TaxonNameClassification.find_or_create_by(taxon_name: taxon, type: 'TaxonNameClassification::Iczn::Available::Valid', project_id: Current.project_id) if @data.valid_taxon_codes[taxon.id] == 1
                 if row['Status'] == 'MG' && taxon.rank_string == 'NomenclaturalRank::Iczn::GenusGroup::Genus'
-                  c = TaxonNameRelationship.find_or_create_by(subject_taxon_name: taxon, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
+                  c = TaxonNameRelationship.find_or_create_by(subject_taxon_name: taxon, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', project_id: Current.project_id)
                 else
-                  c = TaxonNameRelationship.find_or_create_by(subject_taxon_name: taxon, object_taxon_name: taxon1, type: relationship[row['Status']])
+                  c = TaxonNameRelationship.find_or_create_by(subject_taxon_name: taxon, object_taxon_name: taxon1, type: relationship[row['Status']], project_id: Current.project_id)
                 end
               end
 
@@ -2308,7 +2352,7 @@ namespace :tw do
           end
 
           if !classification[row['Status']].nil? && !taxon.nil?
-            c = TaxonNameClassification.find_or_create_by(taxon_name: taxon, type: classification[row['Status']])
+            c = TaxonNameClassification.find_or_create_by(taxon_name: taxon, type: classification[row['Status']], project_id: Current.project_id)
 
             if !c.id.blank?
               if !ref2.nil? && !ref.nil?

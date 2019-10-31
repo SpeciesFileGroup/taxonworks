@@ -123,7 +123,8 @@ module Queries::Concerns::Identifiers
     identifier_table[:cached].matches_any(a)
   end
 
-  #
+  # TODO: make generic autcomplete include for all methos optimized
+
   # Autocomplete for tables *referencing* identifiers
   # See lib/queries/identifiers/autocomplete for autocomplete for identifiers
   #

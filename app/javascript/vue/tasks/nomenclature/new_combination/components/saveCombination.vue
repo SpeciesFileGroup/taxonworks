@@ -64,6 +64,7 @@ export default {
         this.$emit('success', true)
         TW.workbench.alert.create('New combination was successfully created.', 'notice')
       }, (response) => {
+        this.$emit('processing', false)
         TW.workbench.alert.create(`Something went wrong: ${JSON.stringify(response.body)}`, 'error')
       })
     },

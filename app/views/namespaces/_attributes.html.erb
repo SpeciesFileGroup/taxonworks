@@ -18,3 +18,8 @@
   <%= @namespace.verbatim_short_name %>
 </p>
 
+<p>
+  <strong>Delimiter:</strong>
+  <%= @namespace.delimiter ? @namespace.delimiter : content_tag(:em, 'None provide, a single space will be used.')   %>
+</p>
+

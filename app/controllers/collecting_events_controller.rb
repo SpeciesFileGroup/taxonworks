@@ -50,7 +50,7 @@ class CollectingEventsController < ApplicationController
   def clone
     @collecting_event = @collecting_event.clone
     respond_to do |format|
-      format.html { redirect_to edit_collecting_event_path(@collecting_event), notice: 'Cloned successful, on new record.' }
+      format.html { redirect_to edit_collecting_event_path(@collecting_event), notice: 'Clone successful, on new record.' }
       format.json { render :show }
     end
   end
@@ -126,7 +126,7 @@ class CollectingEventsController < ApplicationController
 
   # GET /collecting_events/download
   def download
-    send_data(Download.generate_csv(CollectingEvent.where(project_id: sessions_current_project_id)),
+    send_data(Export::Download.generate_csv(CollectingEvent.where(project_id: sessions_current_project_id)),
               type: 'text',
               filename: "collecting_events_#{DateTime.now}.csv")
   end

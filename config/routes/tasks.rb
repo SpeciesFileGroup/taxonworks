@@ -1,10 +1,17 @@
 scope :tasks do
-    scope :matrix_image do
-      scope :matrix_image, controller: 'tasks/matrix_image/matrix_image' do
-        get :index, as: 'index_matrix_image_task'
-      end
-    end
 
+  scope :exports do
+    scope :coldp, controller: 'tasks/exports/coldp' do
+      get 'index', as: 'export_coldp_task'
+      get 'download', as: 'download_coldp_task'
+    end
+  end
+
+  scope :matrix_image do
+    scope :matrix_image, controller: 'tasks/matrix_image/matrix_image' do
+      get :index, as: 'index_matrix_image_task'
+    end
+  end
 
   scope :asserted_distribution do
     scope :new_asserted_distribution, controller: 'tasks/asserted_distribution/new_asserted_distribution' do
@@ -99,7 +106,7 @@ scope :tasks do
     scope :search_locality, controller: 'tasks/collecting_events/search_locality' do
       get 'index', as: 'index_search_locality_task'
     end 
- 
+
     scope :parse do
       scope :stepwise do
         scope :dates, controller: 'tasks/collecting_events/parse/stepwise/dates' do
@@ -256,6 +263,10 @@ scope :tasks do
   end
 
   scope :nomenclature do
+      scope :stats, controller: 'tasks/nomenclature/stats' do
+        get :index, as: 'index_stats_task'
+      end
+
     scope :new_combination, controller: 'tasks/nomenclature/new_combination' do
       get 'index', as: 'new_combination_task'
     end
@@ -307,6 +318,10 @@ scope :tasks do
   end
 
   scope :otus do
+      scope :browse_asserted_distributions, controller: 'tasks/otus/browse_asserted_distributions' do
+        get :index, as: 'index_browse_asserted_distributions_task'
+      end
+
     scope :browse, controller: 'tasks/otus/browse' do
       get '/(:otu_id)', action: :index, as: 'browse_otus_task'
     end
