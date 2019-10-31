@@ -55,7 +55,7 @@ module Shared::IsDwcOccurrence
   # @return [Array]
   #   an array of the values presently computed for this occurrence
   def dwc_occurrence_attribute_values
-    self.class.dwc_attribute_vector.collect{|a| a.name}.collect{|f| dwc_occurrence.send(f) }
+    [id, dwc_occurrence.id] + self.class.dwc_attribute_vector[2..-1].collect{|a| a.name}.collect{|f| dwc_occurrence.send(f) }
   end
 
   # @return [DwcOccurrence]

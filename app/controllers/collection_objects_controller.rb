@@ -36,9 +36,10 @@ class CollectionObjectsController < ApplicationController
   end
 
   def dwc
+    o = nil
     ActiveRecord::Base.connection_pool.with_connection do
       o = CollectionObject.find(params[:id])
-      o.get_dwc_occurrence # find or compute for
+      o.get_dwc_occurrence
     end
     render json: o.dwc_occurrence_attribute_values
   end
