@@ -64,6 +64,7 @@ RUN chmod +x /etc/my_init.d/init.sh && \
     mkdir /app/log && \
     mkdir /app/public/packs && \
     mkdir /app/public/images/tmp && \
+    mkdir /app/downloads && \
     chmod +x /app/public/images/tmp && \
     rm -f /etc/service/nginx/down
 
