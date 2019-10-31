@@ -867,7 +867,7 @@ class GeographicItem < ApplicationRecord
     # @return [Hash]
     #   as per #inferred_geographic_name_hierarchy but for Rgeo point
     def point_inferred_geographic_name_hierarchy(point)
-      GeographicItem.containing_point(point).ordered_by_area.limit(1).first.inferred_geographic_name_hierarchy
+      GeographicItem.containing_point(point).ordered_by_area.limit(1).first&.inferred_geographic_name_hierarchy
     end
 
     # @param [String] type_name ('polygon', 'point', 'line' [, 'circle'])
