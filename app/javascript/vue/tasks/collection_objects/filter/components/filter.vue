@@ -236,11 +236,9 @@ export default {
             let dwcaRow = this.createDWCARow(response.body)
             this.DWCACount++
             this.coList.data[this.coList.data.findIndex(item => { return item[0] === id })] = dwcaRow
-            resolve()
           }, (response) => {
             this.loadingDWCA = false
             TW.workbench.alert.create(`Error: ${response}`, 'warning')
-            reject()
           }))
         })
         Promise.all(promises).then(() => {
