@@ -218,9 +218,8 @@ export default {
       this.getDWCA(chunkArray)
     },
     isIndexed(object) {
-      object.splice(0,1)
-      return object.find((item) => {
-        return item != null
+      return object.find((item, index) => {
+        return item != null && index > 0
       })
     },
     getDWCA(ids) {
