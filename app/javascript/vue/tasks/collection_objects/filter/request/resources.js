@@ -42,11 +42,9 @@ const GetCODWCA = (id) => {
 
 const CreateTags = (keywordId, ids) => {
   return ajaxCall('post', `/tags/batch_create`, { 
-    params: {
-      object_type: 'CollectionObject',
-      keyword_id: keywordId,
-      object_ids: ids
-    }
+    object_type: 'CollectionObject',
+    keyword_id: keywordId,
+    object_ids: ids
   })
 }
 
