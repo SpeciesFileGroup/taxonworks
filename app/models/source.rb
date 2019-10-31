@@ -334,6 +334,30 @@ class Source < ApplicationRecord
     projects.where(id: project_id).any?
   end
 
+  # @return [Source, false]
+  def clone
+    s = dup
+    m = "[CLONE of #{id}] "
+    begin
+      Source.transaction do |t|
+        roles.each do |r|
+          s.roles << Role.new(person: r.person, type: r.type, position: r.position )
+        end
+
+        case type
+        when 'Source::Verbatim'
+          s.verbatim = m + verbatim
+        when 'Source::Bibtex'
+          s.title = m + title
+        end
+
+        s.save!
+      end
+    rescue ActiveRecord::RecordInvalid
+    end
+    s
+  end
+
   protected
 
   # Defined in subclasses
