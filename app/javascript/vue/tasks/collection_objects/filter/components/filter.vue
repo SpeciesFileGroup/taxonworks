@@ -233,9 +233,8 @@ export default {
         let promises = []
         ids[0].forEach(id => {
           promises.push(GetCODWCA(id).then(response => {
-            let dwcaRow = this.createDWCARow(response.body)
             this.DWCACount++
-            this.coList.data[this.coList.data.findIndex(item => { return item[0] === id })] = dwcaRow
+            this.$set(this.coList.data, this.coList.data.findIndex(item => { return item[0] === id }), response.body)
           }, (response) => {
             this.loadingDWCA = false
             TW.workbench.alert.create(`Error: ${response}`, 'warning')
@@ -249,12 +248,6 @@ export default {
       } else {
         this.loadingDWCA = false
       }
-    },
-    createDWCARow(item) {
-      let keys = Object.values(this.coList.column_headers)
-      return keys.map(key => {
-        return item[key]
-      })
     }
   }
 }
