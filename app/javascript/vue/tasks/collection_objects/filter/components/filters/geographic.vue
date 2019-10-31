@@ -9,7 +9,7 @@
       <div class="field">
         <autocomplete
           url="/geographic_areas/autocomplete"
-          label="label"
+          label="label_html"
           :clear-after="true"
           placeholder="Search a geographic area"
           param="term"
