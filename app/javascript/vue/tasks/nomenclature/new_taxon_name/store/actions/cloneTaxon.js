@@ -8,12 +8,14 @@ export default function ({ state }, copyValues) {
     rank_class: taxon.rank_string,
     type: 'Protonym',
     verbatim_author: copyValues.includes('verbatim_author') ? taxon.verbatim_author : undefined,
-    year_of_publication: copyValues.includes('verbatim_year') ? taxon.year_of_publication : undefined
+    year_of_publication: copyValues.includes('verbatim_year') ? taxon.year_of_publication : undefined,
+    roles_attributes: copyValues.includes('taxon_name_author_roles') ? taxon.taxon_name_author_roles.map(item => { return { person_id: item.person.id, type: 'TaxonNameAuthor' }}) : undefined,
   }
   if (copyValues.includes('origin_citation')) {
     if (taxon.origin_citation) {
       cloneTaxon.origin_citation_attributes = {
         source_id: taxon.origin_citation.source.id,
+        pages: taxon.origin_citation.pages,
         is_original: true
       }
     }

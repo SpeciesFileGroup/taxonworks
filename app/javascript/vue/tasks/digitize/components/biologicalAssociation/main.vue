@@ -1,6 +1,6 @@
 <template>
   <div>
-    <block-layout>
+    <block-layout :warning="!list.find(item => { return item['id'] })">
       <div slot="header">
         <h3>Biological Associations</h3>
       </div>

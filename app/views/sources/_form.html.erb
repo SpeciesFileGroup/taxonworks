@@ -1,5 +1,11 @@
-<%= form_for(@source, as: :source, url: (@source.new_record? ? sources_path : source_path(@source)), method: (@source.new_record? ? :post : :patch)) do |f| %>
+<% if @source.persisted? %>
+  <div class="actions" class="right_float" >
+    <%= button_to "Clone", { action: "clone", id: @source.id },
+      data: { confirm: "Clone this record? Changes will not be saved!" } %>
+  </div>
+<% end %>
 
+<%= form_for(@source, as: :source, url: (@source.new_record? ? sources_path : source_path(@source)), method: (@source.new_record? ? :post : :patch)) do |f| %>
 
   <%= render 'shared/errors', object: @source %>
 
@@ -65,15 +71,16 @@
       </div>
 
       <div class="field">
-        <%= f.label :serial %><br>
+        <%= f.label :serial_id %><br>
         <%= render partial: 'workbench/elements/forms/ajax_select',
-          locals:  {controller: 'serials',
-                    object: 'source',
-                    method: 'serial_id',
-                    tag_id: 'serial_id_for_source',
-                    size: '60',
-                    display:@source.respond_to?(:serial) ? serial_for_select(@source.serial) : nil} %>
+          locals: {controller: 'serials',
+                   object: 'source',
+                   method: 'serial_id',
+                   tag_id: 'serial_id_for_source',
+                   size: '60',
+                   display: @source.respond_to?(:serial) ? serial_for_select(@source.serial) : nil} %>
       </div>
+
 
       <div class="side_by_side_fields">
         <div class="field">
@@ -93,13 +100,13 @@
 
       <div class="field">
         <%= f.label :language_id %><br>
-        <%= render :partial => 'workbench/elements/forms/ajax_select',
-          locals:  {controller: 'languages',
+        <%= render partial: 'workbench/elements/forms/ajax_select',
+          locals: {controller: 'languages',
                     object: 'source',
                     method: 'language_id',
                     tag_id: 'language_id_for_source',
                     size: '60',
-                    display:@source.respond_to?(:source_language) ? language_tag(@source.source_language) : nil} %>
+                    display: @source.respond_to?(:source_language) ? language_tag(@source.source_language) : nil} %>
       </div>
     </div>
 

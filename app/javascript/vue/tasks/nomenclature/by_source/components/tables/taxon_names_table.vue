@@ -1,12 +1,11 @@
 <template>
   <table>
     <tr>
-      <th @click="sortByPages">Pages</th>
+      <th @click="sortTable('pages')">Pages</th>
       <th>Is original</th>
-      <th>Name</th>
+      <th @click="sortTable('citation_object.object_tag')">Name</th>
       <th>Type</th>
       <th>Radial</th>
-      <th>Otu</th>
       <th>Delete</th>
     </tr>
     <taxon-names-row
@@ -20,6 +19,7 @@
 <script>
 
   import TaxonNamesRow from './taxon_names_row.vue'
+  import SortArray from 'helpers/sortArray'
 
   export default {
     components: {
@@ -44,16 +44,9 @@
           this.list.splice(index, 1)
         }
       },
-      sortByPages() {
-        function compare(a, b) {
-          if (a.pages < b.pages)
-            return -1;
-          if (a.pages > b.pages)
-            return 1;
-          return 0;
-        }
-
-        this.list.sort(compare);
+      sortTable (sortProperty) {
+        this.list = SortArray(sortProperty, this.list, this.ascending)
+        this.ascending = !this.ascending
       }
     }
   }

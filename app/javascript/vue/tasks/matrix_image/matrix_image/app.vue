@@ -189,7 +189,7 @@ export default {
       })) {
         scrollParentToChild(document.querySelector('tbody'), document.querySelector(`[data-matrix-id="${rowId}"]`))
       } else {
-        const page = Math.ceil((position + 1) / this.maxPerPage)
+        const page = Math.ceil((position) / this.maxPerPage)
         this.getRows(page).then(() => {
           this.$nextTick(() => {
             scrollParentToChild(document.querySelector('tbody'), document.querySelector(`[data-matrix-id="${rowId}"]`))

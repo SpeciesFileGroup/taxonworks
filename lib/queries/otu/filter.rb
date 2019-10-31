@@ -107,6 +107,7 @@ module Queries
     end
 
     # @return [Scope]
+    # TODO: deprecate
     def result
       return ::Otu.none if applied_scopes.empty?
       a = ::Otu.all

@@ -15,13 +15,20 @@
     },
     methods: {
       loadPDF() {
-        let event = new CustomEvent('pdfviewer:loadpdf', {
-          detail: {
+        let details
+        if(this.pdf.hasOwnProperty('file_url')) {
+          details = {
+            url: this.pdf.file_url
+          }
+        } else {
+          details = {
             url: this.pdf.document.document_file,
             pageNumber: this.pdf.target_page
           }
-        })
-        document.dispatchEvent(event);
+        }
+        document.dispatchEvent(new CustomEvent('pdfViewer:load', {
+          detail: details
+        }));
       }
     }
   }

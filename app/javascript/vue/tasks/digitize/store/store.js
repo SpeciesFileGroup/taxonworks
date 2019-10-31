@@ -13,6 +13,8 @@ function makeInitialState () {
       saving: false,
       loading: false,
       increment: false,
+      lastSave: 0,
+      lastChange: 0,
       locked: {
         biocuration: false,
         identifier: false,
@@ -48,6 +50,12 @@ function makeInitialState () {
       type: 'Identifier::Local::CatalogNumber',
       identifier_object_id: undefined, 
       identifier_object_type: 'CollectionObject',
+      identifier: undefined
+    },
+    collectingEventIdentifier: {
+      id: undefined,
+      namespace_id: undefined,
+      type: 'Identifier::Local::TripCode',
       identifier: undefined
     },
     collection_object: {
