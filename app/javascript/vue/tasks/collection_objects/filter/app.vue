@@ -48,6 +48,14 @@
         @result="loadList"
         @reset="resetTask"/>
       <div class="full_width">
+        <div class="horizontal-left-content separate-left separate-bottom">
+          <tag-all
+            :ids="coIds"
+            class="separate-right"/>
+          <csv-button
+            :options="{ fields: csvFields }"
+            :list="list.data"/>
+        </div>
         <list-component
           :class="{ 'separate-left': activeFilter }"
           :list="list"/>
@@ -64,15 +72,34 @@
 
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
+import CsvButton from 'components/csvButton'
+import TagAll from './components/tagAll'
 
 export default {
   components: {
     FilterComponent,
-    ListComponent
+    ListComponent,
+    CsvButton,
+    TagAll
+  },
+  computed: {
+    csvFields () {
+      if (!Object.keys(this.list).length) return []
+      return this.list.column_headers.map((item, index) => {
+        return {
+          label: item,
+          value: (row, field) => row[index] || field.default,
+          default: ''
+        }
+      })
+    },
+    coIds () {
+      return Object.keys(this.list).length ? this.list.data.map(item => { return item[0] }) : []
+    }
   },
   data () {
     return {
-      list: undefined,
+      list: {},
       urlRequest: '',
       activeFilter: true,
       activeJSONRequest: false,
@@ -83,7 +110,7 @@ export default {
   methods: {
     resetTask() {
       this.alreadySearch = false
-      this.list = undefined
+      this.list = {}
       this.urlRequest = ''
     },
     loadList(newList) {
@@ -105,7 +132,7 @@ export default {
     },
     newSearch() {
       if(!this.append) {
-        this.list = undefined
+        this.list = {}
       }
     }
   }

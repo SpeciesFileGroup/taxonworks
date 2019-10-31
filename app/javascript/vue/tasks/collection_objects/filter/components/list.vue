@@ -16,7 +16,15 @@
           :class="{ even: index % 2 }"
           v-for="(row, index) in list.data"
           :key="row[0]">
-          <td v-for="item in row">{{ item }}</td>
+          <td v-for="(item, index) in row">
+            <a
+              v-if="index === 0"
+              :href="`/collection_objects/${item}`"
+              target="_blank">
+              {{ item }}
+            </a>
+            <span v-else>{{item}}</span>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -33,10 +41,6 @@ import RadialAnnotator from 'components/annotator/annotator'
 import RadialObject from 'components/radial_object/radialObject'
 
 export default {
-  components: {
-    RadialAnnotator,
-    RadialObject
-  },
   props: {
     list: {
       type: Object,

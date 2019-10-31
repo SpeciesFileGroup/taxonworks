@@ -40,6 +40,16 @@ const GetCODWCA = (id) => {
   return ajaxCall('get', `/collection_objects/${id}/dwc`)
 }
 
+const CreateTags = (keywordId, ids) => {
+  return ajaxCall('post', `/tags/batch_create`, { 
+    params: {
+      object_type: 'CollectionObject',
+      keyword_id: keywordId,
+      object_ids: ids
+    }
+  })
+}
+
 export {
   GetCollectionObjects,
   GetUsers,
@@ -50,5 +60,6 @@ export {
   GetTypes,
   GetBiologicalRelationships,
   GetBiocurations,
-  GetCODWCA
+  GetCODWCA,
+  CreateTags
 }
