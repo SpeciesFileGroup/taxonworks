@@ -425,11 +425,11 @@ index_dashboard_task:
   - matrix
   status: prototype
   description: 'Summarize observations across a nomenclaturally-based hierarchy.'
-index_filter2_task:
+collection_object_filter_task:
   hub: true
-  name: 'Collection object filter [refactor]'
+  name: 'Collection object filter'
   related:
   categories:
     - collection_object
   status: prototype
-  description: 'Filter collection objects, download or visualize results.'
+  description: 'Filter collection objects by many different facets, download or visualize results.'
