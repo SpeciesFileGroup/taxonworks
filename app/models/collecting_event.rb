@@ -336,7 +336,7 @@ class CollectingEvent < ApplicationRecord
     # @param [ActionController::Parameters] params in the style Rails of 'params'
     # @return [Scope] of selected collecting_events
     # TODO: ARELIZE, likely in lib/queries
-    def filter(params)
+    def filter_by(params)
       sql_string = ''
       unless params.blank? # not strictly necessary, but handy for debugging
         sql_string = Utilities::Dates.date_sql_from_params(params)

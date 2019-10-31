@@ -128,7 +128,7 @@ group :development do
   gem 'guard-rspec', '~> 4.7.3', require: false
 
   gem 'web-console', '~> 3.7.0'
-  gem 'rubocop', '~> 0.70'
+  gem 'rubocop', '~> 0.76'
   gem 'rubocop-rails'
   gem 'rubocop-rspec'
   gem 'brakeman', '~> 4.4.0', require: false
