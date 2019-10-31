@@ -5,26 +5,34 @@
     <table class="full_width">
       <thead>
         <tr>
-          <th
-            v-for="item in list.column_headers"
-            @click="sortTable(item)">{{item}}</th>
+          <th>Collection object</th>
+          <template
+            v-for="(item, index) in list.column_headers">
+            <th
+              v-if="index > 2"
+              @click="sortTable(item)">{{item}}
+            </th>
+          </template>
         </tr>
       </thead>
       <tbody>
         <tr
           class="contextMenuCells"
-          :class="{ even: index % 2 }"
-          v-for="(row, index) in list.data"
+          :class="{ even: indexR % 2 }"
+          v-for="(row, indexR) in list.data"
           :key="row[0]">
-          <td v-for="(item, index) in row">
+          <td>
             <a
-              v-if="index === 0"
-              :href="`/collection_objects/${item}`"
+              :href="`/collection_objects/${row[0]}`"
               target="_blank">
-              {{ item }}
+              Show
             </a>
-            <span v-else>{{item}}</span>
           </td>
+          <template v-for="(item, index) in row">
+            <td v-if="index > 2">
+              <span>{{item}}</span>
+            </td>
+          </template>
         </tr>
       </tbody>
     </table>
