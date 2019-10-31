@@ -19,7 +19,7 @@
 
     <spinner-component
       :full-screen="true"
-      :legend="`Loading DWCA table... ${ DWCACount } of ${ DWCASearch.length } records`"
+      :legend="`Building ${ DWCACount } ... ${ DWCASearch.length } unindexed records`"
       :logo-size="{ width: '100px', height: '100px'}"
       v-if="loadingDWCA" 
     />
@@ -236,9 +236,11 @@ export default {
             let dwcaRow = this.createDWCARow(response.body)
             this.DWCACount++
             this.coList.data[this.coList.data.findIndex(item => { return item[0] === id })] = dwcaRow
+            resolve()
           }, (response) => {
             this.loadingDWCA = false
             TW.workbench.alert.create(`Error: ${response}`, 'warning')
+            reject()
           }))
         })
         Promise.all(promises).then(() => {

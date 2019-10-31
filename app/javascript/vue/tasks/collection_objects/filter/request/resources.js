@@ -37,7 +37,7 @@ const GetBiocurations = () => {
 }
 
 const GetCODWCA = (id) => {
-  return ajaxCall('get', `/collection_objects/${id}/dwca`)
+  return ajaxCall('get', `/collection_objects/${id}/dwc`)
 }
 
 export {
