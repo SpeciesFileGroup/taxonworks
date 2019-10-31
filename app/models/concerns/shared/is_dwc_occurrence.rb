@@ -25,7 +25,7 @@ module Shared::IsDwcOccurrence
     end
 
     def dwc_attribute_vector_names
-      dwc_attribute_vector.collect{|a| a.name}
+      ["#{self.name.tableize}_id", 'dwc_occurrence_id'] + dwc_attribute_vector[2..-1].collect{|a| a.name}
     end
   end
 
