@@ -48,15 +48,32 @@
         @result="loadList"
         @reset="resetTask"/>
       <div class="full_width">
-        <div class="horizontal-left-content separate-left separate-bottom">
-          <tag-all
-            :ids="coIds"
-            class="separate-right"/>
-          <csv-button
-            :options="{ fields: csvFields }"
-            :list="list.data"/>
+        <div 
+          v-if="recordsFound"
+          class="horizontal-left-content separate-left separate-bottom">
+          <div class="horizontal-left-content">
+            <csv-button
+              :options="{ fields: csvFields }"
+              :list="list.data"/>
+            <span class="separate-left separate-right">|</span>
+            <button
+              v-if="ids.length"
+              type="button"
+              @click="ids = []"
+              class="button normal-input button-default">
+              Unselect all
+            </button>
+            <button
+              v-else
+              type="button"
+              @click="ids = coIds"
+              class="button normal-input button-default">
+              Select all
+            </button>
+          </div>
         </div>
         <list-component
+          v-model="ids"
           :class="{ 'separate-left': activeFilter }"
           :list="list"/>
         <h2
@@ -95,6 +112,9 @@ export default {
     },
     coIds () {
       return Object.keys(this.list).length ? this.list.data.map(item => { return item[0] }) : []
+    },
+    recordsFound() {
+      return Object.keys(this.list).length && this.list.data.length
     }
   },
   data () {
@@ -105,6 +125,7 @@ export default {
       activeJSONRequest: false,
       append: false,
       alreadySearch: false,
+      ids: []
     }
   },
   methods: {

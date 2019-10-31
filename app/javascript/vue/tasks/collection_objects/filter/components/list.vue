@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="list"
+    v-if="Object.keys(list).length"
     class="full_width">
     <table class="full_width">
       <thead>
@@ -10,9 +10,14 @@
             v-for="(item, index) in list.column_headers">
             <th
               v-if="index > 2"
-              @click="sortTable(item)">{{item}}
+              @click="sortTable(index)">{{item}}
             </th>
           </template>
+          <th>
+            <tag-all
+              :ids="ids"
+              class="separate-right"/>
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -33,6 +38,12 @@
               <span>{{item}}</span>
             </td>
           </template>
+          <td>
+            <input
+              v-model="ids"
+              :value="row[0]"
+              type="checkbox">
+          </td>
         </tr>
       </tbody>
     </table>
@@ -47,12 +58,30 @@
 
 import RadialAnnotator from 'components/annotator/annotator'
 import RadialObject from 'components/radial_object/radialObject'
+import TagAll from './tagAll'
 
 export default {
+  components: {
+    TagAll
+  },
   props: {
     list: {
       type: Object,
       default: undefined
+    },
+    value: {
+      type: Array,
+      default: []
+    }
+  },
+  computed: {
+    ids: {
+      get () {
+        return this.value
+      },
+      set (value) {
+        this.$emit('input', value)
+      }
     }
   },
   data () {
@@ -62,11 +91,12 @@ export default {
   },
   methods: {
     sortTable (sortProperty) {
+      let that = this
       function compare (a,b) {
         if (a[sortProperty] < b[sortProperty])
-          return (this.ascending ? -1 : 1)
+          return (that.ascending ? -1 : 1)
         if (a[sortProperty] > b[sortProperty])
-          return (this.ascending ? 1 : -1)
+          return (that.ascending ? 1 : -1)
         return 0
       }
       this.list.data.sort(compare)

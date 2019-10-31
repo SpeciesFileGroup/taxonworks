@@ -9,7 +9,7 @@
       type="button"
       @click="tagAll"
       :disabled="!keywordId || !ids.length">
-      Tag all
+      Tag
     </button>
   </div>
 </template>
