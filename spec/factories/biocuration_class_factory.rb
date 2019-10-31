@@ -9,8 +9,8 @@ FactoryBot.define do
 
   factory :biocuration_class, traits: [:housekeeping] do
     factory :valid_biocuration_class do
-      name { Faker::Lorem.characters(12) }
-      definition { Faker::Lorem.sentence(6, false, 3) }
+      name { Faker::Lorem.characters(number: 12) }
+      definition { Faker::Lorem.sentence(word_count: 6, supplemental: false, random_words_to_add: 3) }
     end
   end
 end
