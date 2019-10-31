@@ -88,7 +88,7 @@ class Tag < ApplicationRecord
     end
   end
 
-  def batch_create(keyword_id: nil, object_type: nil, object_ids: [], user_id: nil, project_id: nil)
+  def self.batch_create(keyword_id: nil, object_type: nil, object_ids: [], user_id: nil, project_id: nil)
     begin
       Tag.transaction do 
         object_ids.each do |id|
