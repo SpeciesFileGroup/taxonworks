@@ -544,6 +544,10 @@ resources :sources do
     post :create_bibtex_batch_load
     get :parse, defaults: {format: :json}
   end
+
+  member do
+    post :clone
+  end
 end
 
 resources :sqed_depictions, only: [] do

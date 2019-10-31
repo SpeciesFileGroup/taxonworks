@@ -33,11 +33,6 @@
       <radial-annotator :global-id="citation.citation_object.global_id"/>
     </td>
     <td>
-      <otu-radial
-        :taxon-id="citation.citation_object_id"
-        :redirect="false"/>
-    </td>
-    <td>
       <span
         class="button circle-button btn-delete"
         @click="removeMe()"/>

@@ -17,12 +17,12 @@ describe Identifier::Global::Doi, type: :model, group: :identifiers do
       end
 
       specify '10.12345/TaxonWorks-\d{45}' do
-        id.identifier = '10.12345/TaxonWorks-' + Faker::Number.number(45)
+        id.identifier = '10.12345/TaxonWorks-' + Faker::Number.number(digits: 10).to_s
         expect(id.valid?).to be_truthy
       end
 
       specify '10.1234.5678/TaxonWorks-\d{45}' do
-        id.identifier = '10.' + Faker::Number.decimal(4, 4) + '/TaxonWorks-' + Faker::Number.number(45)
+        id.identifier = '10.' + Faker::Number.decimal(l_digits: 4, r_digits: 4).to_s + '/TaxonWorks-' + Faker::Number.number(digits: 10).to_s
         expect(id.valid?).to be_truthy
       end
 

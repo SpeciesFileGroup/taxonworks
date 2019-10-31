@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'rack-cors', '~> 1.0.1', require: 'rack/cors'
 
-ruby '2.5.1'
+ruby '2.6.3'
 
 gem 'bundler', '~> 2.0'
 
@@ -107,7 +107,7 @@ gem 'chunky_png', '~> 1.3.11'
 gem 'namecase', '~> 2.0'
 
 group :test, :development do
-  gem 'faker', '~> 1.9.1'
+  gem 'faker', '~> 2.6.0'
   gem 'rspec-rails', '~> 3.6'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'byebug', '~> 11.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
@@ -128,9 +128,9 @@ group :development do
   gem 'guard-rspec', '~> 4.7.3', require: false
 
   gem 'web-console', '~> 3.7.0'
-  gem 'rubocop', '~> 0.70'
-  gem 'rubocop-rails'
-  gem 'rubocop-rspec'
+  gem 'rubocop', '~> 0.76'
+  gem 'rubocop-rails', '~> 2.3'
+  gem 'rubocop-rspec', '~>1.36'
   gem 'brakeman', '~> 4.4.0', require: false
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'
 end
