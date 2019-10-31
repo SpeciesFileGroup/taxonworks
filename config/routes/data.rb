@@ -544,6 +544,7 @@ resources :tags, except: [:edit, :show, :new] do
   collection do
     get :autocomplete
     post :tag_object_update
+    post :batch_create, defaults: {format: :json}
     post :batch_remove, defaults: {format: :json}
   end
 end
