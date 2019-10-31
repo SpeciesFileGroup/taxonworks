@@ -117,7 +117,7 @@ class TaxonNameClassificationsController < ApplicationController
 
   # GET /taxon_name_classifications/download
   def download
-    send_data Download.generate_csv(TaxonNameClassification.where(project_id: sessions_current_project_id)),
+    send_data Export::Download.generate_csv(TaxonNameClassification.where(project_id: sessions_current_project_id)),
       type: 'text', filename: "taxon_name_classifications_#{DateTime.now}.csv"
   end
 

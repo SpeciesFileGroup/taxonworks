@@ -10,7 +10,6 @@ const init = function () {
 
 const createTaxonName = function (taxon) {
   return new Promise(function (resolve, reject) {
-    console.log("Entra")
     Vue.http.post('/taxon_names.json', taxon).then(response => {
       TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully created.`, 'notice')
       return resolve(response.body)

@@ -84,7 +84,7 @@ namespace :tw do
   desc 'a default task to add a backup_directory_argument, include trailing slash'
   task backup_directory: [:environment] do
     default = Settings.backup_directory
-    @args   ||= {}
+    @args ||= {}
     if ENV['backup_directory'].blank?
       if default
         puts "No backup_directory passed, using default (#{default})"

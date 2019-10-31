@@ -19,6 +19,21 @@ describe Source::Verbatim, type: :model, group: :sources do
     end
   end
 
+  context '#clone' do
+    before do
+      verbatim_source.update(verbatim: 'This is verbatim')
+    end
+
+    specify 'persists' do
+      expect(verbatim_source.clone.persisted?).to be_truthy
+    end
+
+    specify 'labeled' do
+      a = verbatim_source.clone
+      expect(a.verbatim).to eq("[CLONE of #{verbatim_source.id}] " + verbatim_source.verbatim )
+    end
+  end
+
   context '#cached' do
     before { verbatim_source.verbatim = citation }
     specify 'is set from #verbatim' do

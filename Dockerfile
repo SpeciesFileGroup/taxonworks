@@ -1,6 +1,7 @@
 FROM phusion/passenger-ruby25:1.0.8 AS base
 MAINTAINER Matt Yoder
 ENV LAST_FULL_REBUILD 2018-08-10
+ARG BUNDLER_WORKERS=1
 
 # From Phusion
 ENV HOME /root
@@ -27,7 +28,8 @@ RUN apt-get update && \
       libpq-dev libproj-dev libgeos-dev libgeos++-dev \
       tesseract-ocr \
       cmake \
-      nodejs yarn && \
+      nodejs yarn \
+      redis-server libhiredis-dev && \
       apt clean && \ 
       rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/* 
 
@@ -49,7 +51,7 @@ ADD Gemfile.lock /app/
 
 WORKDIR /app
 
-RUN bundle install --without=development test
+RUN bundle install -j$BUNDLER_WORKERS --without=development test
 RUN npm install
 
 COPY . /app
@@ -62,13 +64,20 @@ RUN chmod +x /etc/my_init.d/init.sh && \
     mkdir /app/log && \
     mkdir /app/public/packs && \
     mkdir /app/public/images/tmp && \
+    mkdir /app/downloads && \
     chmod +x /app/public/images/tmp && \
     rm -f /etc/service/nginx/down
+
+## Setup Redis.
+RUN mkdir /etc/service/redis
+RUN cp /app/exe/redis /etc/service/redis/run
+RUN cp /app/config/docker/redis.conf /etc/redis/redis.conf
 
 RUN chown 9999:9999 /app/public
 RUN chown 9999:9999 /app/public/images/tmp
 RUN chown 9999:9999 /app/public/packs
 RUN chown 9999:9999 /app/log/
+RUN chown 9999:9999 /app/downloads
 
 RUN touch /app/log/production.log
 RUN chown 9999:9999 /app/log/production.log

@@ -33,6 +33,10 @@ export default {
       {
         label: 'New source from citation',
         url: '/tasks/bibliography/verbatim_reference/new'
+      },
+      {
+        label: 'Batch load',
+        url: '/sources/batch_load'
       }]
     }
   }

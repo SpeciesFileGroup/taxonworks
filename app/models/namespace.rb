@@ -48,6 +48,7 @@ class Namespace < ApplicationRecord
   validates_presence_of :name, :short_name
   validates_uniqueness_of :name, :short_name
 
+  # autosave rebuilds the .cache on related records
   has_many :identifiers, autosave: true, dependent: :restrict_with_error
 
   scope :used_on_klass, -> (klass) { joins(:identifiers).where(identifiers: {identifier_object_type: klass} ) }

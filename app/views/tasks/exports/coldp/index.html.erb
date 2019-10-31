@@ -1,0 +1,19 @@
+<h1> CoLDP exports </h1>
+<div> 
+  <%= form_tag(download_coldp_task_path, method: :get) do %>
+    <p> The Catalog of Life seeks to build a list of all <i> taxa </i> and their names. Scope your export to include those taxa (= OTUs) that are children, by proxy of the attached nomenclature, of this selected taxon (OTU). </p>
+
+    <div class="field">
+      <%= label_tag :otu, 'OTU', data: {help: 'The scope of the download is determined by this parent taxon. All children, by proxy of the taxon name attached to this OTU will be included in the export.'} %> <br>
+      <%= render partial: 'workbench/elements/forms/ajax_select', locals: {
+        controller: '/otus',
+        object: '',
+        method: 'otu_id',
+        tag_id: 'otu_id_for_coldp',
+        display: nil,
+        size: 20} %>
+    </div>
+
+    <%= submit_tag :Download, class: ['normal-input', :button, 'button-default'] -%>
+  <% end %>
+</div>

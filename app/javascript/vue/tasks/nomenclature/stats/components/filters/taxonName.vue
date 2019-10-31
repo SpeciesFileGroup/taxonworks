@@ -24,6 +24,9 @@
         }"
         @getItem="getTaxon"/>
     </div>
+    <span 
+      v-if="taxon"
+      v-html="taxon.object_tag"/>
   </div>
 </template>
 

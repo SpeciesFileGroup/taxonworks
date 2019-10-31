@@ -38,7 +38,7 @@ module TaxonNameRelationshipsHelper
     return nil if taxon_name_relationship.nil?
     # TODO: add original citation to relationship rendering
     content_tag(:span, [ taxon_name_relationship.subject_status.capitalize,
-                         link_to( original_taxon_name_tag( taxon_name_relationship.subject_taxon_name), send(target, taxon_name_relationship.subject_taxon_name)),
+                         link_to( original_taxon_name_tag( taxon_name_relationship.subject_taxon_name), send(target, taxon_name_id: taxon_name_relationship.subject_taxon_name.id)),
                          original_author_year(taxon_name_relationship.subject_taxon_name)].join(' ').html_safe, class: 'type_information'
                )
   end

@@ -21,9 +21,38 @@ describe Source::Bibtex, type: :model, group: :sources do
     BibTeX.open(Rails.root + 'spec/files/bibtex/Taenionema.bib')
   }
 
-  after(:all) {
-    Source.destroy_all
-  }
+  after(:all) { Source.destroy_all }
+
+  context '#clone' do
+    before do
+      bibtex.update(title: 'This is verbatim', bibtex_type: :article)
+    end
+
+    specify 'persists' do
+      expect(bibtex.clone.persisted?).to be_truthy
+    end
+
+    specify 'labeled' do
+      a = bibtex.clone
+      expect(a.title).to eq("[CLONE of #{bibtex.id}] " + bibtex.title)
+    end
+
+    context '#roles' do
+      let(:p1) { FactoryBot.create(:valid_person) }
+      let(:p2) { FactoryBot.create(:valid_person) }
+      let(:p3) { FactoryBot.create(:valid_person) }
+
+      before do
+        bibtex.roles << SourceAuthor.new(person: p1)
+        bibtex.roles << SourceAuthor.new(person: p2)
+        bibtex.roles << SourceEditor.new(person: p3)
+      end
+
+      specify 'are duplicated' do
+        expect(bibtex.clone.roles.count).to eq(3)
+      end
+    end
+  end
 
   context 'test bibtex-ruby gem capabilities we rely upon' do
     context 'using BibTeX bibliography' do

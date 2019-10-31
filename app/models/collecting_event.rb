@@ -1090,7 +1090,7 @@ class CollectingEvent < ApplicationRecord
     a.verbatim_label = [verbatim_label, "[CLONED FROM #{id}", "at #{Time.now}]"].compact.join(' ')
 
     collectors.each do |p|
-      a.collector_roles.build(person: p)
+      a.collector_roles.build(person: p, position: p.position)
     end
 
     begin

@@ -109,6 +109,11 @@ export default {
           lock: false
         },
         {
+          label: 'Persons',
+          value: 'taxon_name_author_roles',
+          lock: false
+        },
+        {
           label: 'Original combination relationships',
           value: 'original_combination',
           lock: false
