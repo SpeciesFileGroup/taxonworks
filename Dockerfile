@@ -1,12 +1,25 @@
-FROM phusion/passenger-ruby26:1.0.8 AS base
+FROM phusion/passenger-customizable:1.0.8 AS base
 MAINTAINER Matt Yoder
 ENV LAST_FULL_REBUILD 2018-08-10
 ARG BUNDLER_WORKERS=1
 
 # From Phusion
 ENV HOME /root
+
+# Ruby support
+RUN /pd_build/ruby-2.6.*.sh
+RUN bash -lc 'rvm --default use 2.6'
+
+# Set up nginx
 RUN rm /etc/nginx/sites-enabled/default
 ADD config/docker/nginx/gzip_max.conf /etc/nginx/conf.d/gzip_max.conf
+
+## Setup Redis.
+RUN /pd_build/redis.sh
+# Enable the Redis service.
+RUN rm -f /etc/service/redis/down
+# Workaround IPv6 problem (https://github.com/antirez/redis/issues/5055)
+RUN sed -i "s/bind .*/bind 127.0.0.1/g" /etc/redis/redis.conf
 
 # Update repos
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
@@ -18,7 +31,7 @@ RUN apt install wget
 RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main' >> /etc/apt/sources.list.d/pgdg.list
 RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
 
-# TaxonWorks dependancies
+# TaxonWorks dependencies
 RUN apt-get update && \
       apt-get install -y locales software-properties-common \ 
       postgresql-client-10 \
@@ -28,8 +41,7 @@ RUN apt-get update && \
       libpq-dev libproj-dev libgeos-dev libgeos++-dev \
       tesseract-ocr \
       cmake \
-      nodejs yarn \
-      redis-server libhiredis-dev && \
+      nodejs yarn && \
       apt clean && \ 
       rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/* 
 
@@ -67,11 +79,6 @@ RUN chmod +x /etc/my_init.d/init.sh && \
     mkdir /app/downloads && \
     chmod +x /app/public/images/tmp && \
     rm -f /etc/service/nginx/down
-
-## Setup Redis.
-RUN mkdir /etc/service/redis
-RUN cp /app/exe/redis /etc/service/redis/run
-RUN cp /app/config/docker/redis.conf /etc/redis/redis.conf
 
 RUN chown 9999:9999 /app/public
 RUN chown 9999:9999 /app/public/images/tmp
