@@ -5,6 +5,11 @@
     <table class="full_width">
       <thead>
         <tr>
+          <th>
+            <tag-all
+              :ids="ids"
+              class="separate-right"/>
+          </th>
           <th>Collection object</th>
           <template
             v-for="(item, index) in list.column_headers">
@@ -13,11 +18,6 @@
               @click="sortTable(index)">{{item}}
             </th>
           </template>
-          <th>
-            <tag-all
-              :ids="ids"
-              class="separate-right"/>
-          </th>
         </tr>
       </thead>
       <tbody>
@@ -26,6 +26,12 @@
           :class="{ even: indexR % 2 }"
           v-for="(row, indexR) in list.data"
           :key="row[0]">
+          <td>
+            <input
+              v-model="ids"
+              :value="row[0]"
+              type="checkbox">
+          </td>
           <td>
             <a
               :href="`/collection_objects/${row[0]}`"
@@ -38,12 +44,6 @@
               <span>{{item}}</span>
             </td>
           </template>
-          <td>
-            <input
-              v-model="ids"
-              :value="row[0]"
-              type="checkbox">
-          </td>
         </tr>
       </tbody>
     </table>
