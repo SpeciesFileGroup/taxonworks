@@ -98,7 +98,7 @@ module CollectionObject::DwcExtensions
   end
 
   def dwc_event_date
-    a = collecting_event.try(:time_date_range)
+    a = collecting_event.try(:date_range)
     a ? a.join('-') : nil
   end
 
