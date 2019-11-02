@@ -269,10 +269,10 @@ class CollectingEvent < ApplicationRecord
   validates_presence_of :end_date_month, if: -> { !end_date_day.nil? }
 
   validates :end_date_day, date_day: {year_sym: :end_date_year, month_sym: :end_date_month},
-    unless: -> { end_date_year.nil? || end_date_month.nil? }
+            unless: -> { end_date_year.nil? || end_date_month.nil? }
 
   validates :start_date_day, date_day: {year_sym: :start_date_year, month_sym: :start_date_month},
-    unless: -> { start_date_year.nil? || start_date_month.nil? }
+            unless: -> { start_date_year.nil? || start_date_month.nil? }
 
   soft_validate(:sv_minimally_check_for_a_label)
 
@@ -333,8 +333,7 @@ class CollectingEvent < ApplicationRecord
     # @param [ActionController::Parameters] params in the style Rails of 'params'
     # @return [Scope] of selected collecting_events
     # TODO: ARELIZE, likely in lib/queries
-    # TODO: completely deprecate for query filter (and rename, since filter is reserved)
-    def filter(params)
+    def filter_by(params)
       sql_string = ''
       unless params.blank? # not strictly necessary, but handy for debugging
         sql_string = Utilities::Dates.date_sql_from_params(params)
@@ -1083,8 +1082,8 @@ class CollectingEvent < ApplicationRecord
     a = dup
     a.verbatim_label = [verbatim_label, "[CLONED FROM #{id}", "at #{Time.now}]"].compact.join(' ')
 
-    collectors.each do |p|
-      a.collector_roles.build(person: p, position: p.position)
+    roles.each do |r|
+      a.collector_roles.build(person: r.person, position: r.position)
     end
 
     begin
