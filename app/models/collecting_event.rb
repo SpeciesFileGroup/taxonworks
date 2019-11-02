@@ -265,17 +265,14 @@ class CollectingEvent < ApplicationRecord
   validates :start_date_month, date_month: true
   validates :end_date_month, date_month: true
 
-  validates_presence_of :start_date_month,
-                        if: -> { !start_date_day.nil? }
-
-  validates_presence_of :end_date_month,
-                        if: -> { !end_date_day.nil? }
+  validates_presence_of :start_date_month, if: -> { !start_date_day.nil? }
+  validates_presence_of :end_date_month, if: -> { !end_date_day.nil? }
 
   validates :end_date_day, date_day: {year_sym: :end_date_year, month_sym: :end_date_month},
-            unless: -> { end_date_year.nil? || end_date_month.nil? }
+    unless: -> { end_date_year.nil? || end_date_month.nil? }
 
   validates :start_date_day, date_day: {year_sym: :start_date_year, month_sym: :start_date_month},
-            unless: -> { start_date_year.nil? || start_date_month.nil? }
+    unless: -> { start_date_year.nil? || start_date_month.nil? }
 
   soft_validate(:sv_minimally_check_for_a_label)
 
@@ -336,6 +333,7 @@ class CollectingEvent < ApplicationRecord
     # @param [ActionController::Parameters] params in the style Rails of 'params'
     # @return [Scope] of selected collecting_events
     # TODO: ARELIZE, likely in lib/queries
+    # TODO: completely deprecate for query filter (and rename, since filter is reserved)
     def filter(params)
       sql_string = ''
       unless params.blank? # not strictly necessary, but handy for debugging
@@ -450,49 +448,45 @@ class CollectingEvent < ApplicationRecord
   end
 
   # @return [Boolean]
+  #   has a fully defined date
   def has_start_date?
     !start_date_day.blank? && !start_date_month.blank? && !start_date_year.blank?
   end
 
   # @return [Boolean]
+  #   has a fully defined date
   def has_end_date?
     !end_date_day.blank? && !end_date_month.blank? && !end_date_year.blank?
   end
 
-  # @return [String]
-  def end_y_m_d_string
-    date = end_date
-    "#{'%4d' % date.year} #{'%02d' % date.month} #{'%02d' % date.day}" if has_end_date?
+  def some_start_date?
+    [start_date_day, start_date_month, start_date_year].compact.any?
   end
 
-  # @return [String]
-  def start_y_m_d_string
-    date = start_date
-    "#{'%4d' % date.year} #{'%02d' % date.month} #{'%02d' % date.day}" if has_start_date?
+  def some_end_date?
+    [end_date_day, end_date_month, end_date_year].compact.any?
   end
 
-  # @return [String]
-  def end_date_string
-    date_string(end_date)
-  end
-
-  # @return [String]
+  # @return [String, nil]
+  #   an umabigously formatted string with missing parts indicated by ??
   def start_date_string
-    date_string(start_date)
+    Utilities::Dates.from_parts(start_date_year, start_date_month, start_date_day) if some_start_date?
   end
 
-  # @param [Date]
-  # @return [String]
-  def date_string(text)
-    "#{'%02d' % text.day}/#{'%02d' % text.month}/#{'%4d' % text.year}" unless text.nil?
+  # @return [String, nil]
+  #   an umabigously formatted string with missing parts indicated by ??
+  def end_date_string
+    Utilities::Dates.from_parts(end_date_year, end_date_month, end_date_day) if some_end_date?
   end
 
   # @return [Time]
+  #   This is for the purposes of computation, not display!
   def end_date
     Utilities::Dates.nomenclature_date(end_date_day, end_date_month, end_date_year)
   end
 
   # @return [Time]
+  #   This is for the purposes of computation, not display! 
   def start_date
     Utilities::Dates.nomenclature_date(start_date_day, start_date_month, start_date_year)
   end
@@ -518,7 +512,7 @@ class CollectingEvent < ApplicationRecord
   # @return [Array]
   #   date_start and end if provided
   def date_range
-    [date_start, date_end].compact
+    [start_date_string, end_date_string].compact
   end
 
   # CollectingEvent.select {|d| !(d.verbatim_latitude.nil? || d.verbatim_longitude.nil?)}

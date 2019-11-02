@@ -43,7 +43,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
   end
 
   # TEMPLATE
-  # context 'some test' do
+  # context 'some test' d
   #   let(:search_start) { a }
   #   let(:search_end) { c }
   #
@@ -282,7 +282,6 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
   context 'partial_overlap ON (lenient)' do
 
 
-
     #       a        d
     #       *        *
     # ------s--------e---
@@ -405,4 +404,51 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
       end
     end
   end
+
+  # --- End stub tests ---
+
+  # Somehwhat helper like, but needed for compute/indexing etc. Probably should all go to helper module
+  context 'date formatting' do
+    specify '#has_start_date?' do
+      a = CollectingEvent.new(start_date_year: 2010, start_date_month: 2, start_date_day: 1)
+      expect(a.has_start_date?).to be_truthy 
+    end
+
+    specify '#has_end_date?' do
+      a = CollectingEvent.new(end_date_year: 2010, end_date_month: 2, end_date_day: 1)
+      expect(a.has_end_date?).to be_truthy 
+    end
+
+    specify '#some_end_date?' do
+      a = CollectingEvent.new(end_date_month: 2, end_date_day: 1)
+      expect(a.some_end_date?).to be_truthy 
+    end
+
+    specify '#some_start_date?' do
+      a = CollectingEvent.new(start_date_year: 2010)
+      expect(a.some_start_date?).to be_truthy 
+    end
+    
+    specify '#some_start_date?' do
+      a = CollectingEvent.new()
+      expect(a.some_start_date?).to be_falsey
+    end
+
+    specify '#start_date_string 1' do
+      a = CollectingEvent.new(start_date_year: 2010, start_date_month: 2)
+      expect(a.start_date_string).to eq('2010-02-??')
+    end 
+
+    specify '#start_date_string 2' do
+      a = CollectingEvent.new(start_date_month: 2)
+      expect(a.start_date_string).to eq('????-02-??')
+    end 
+
+    specify '#end_date_string 1' do
+      a = CollectingEvent.new(end_date_year: 2010, end_date_month: 2)
+      expect(a.end_date_string).to eq('2010-02-??')
+    end
+  end
+
+
 end

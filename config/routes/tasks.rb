@@ -132,11 +132,11 @@ scope :tasks do
 
   scope :collection_objects do
     scope :filter, controller: 'tasks/collection_objects/filter' do
-      get :index, as: 'collection_object_filter_task'
+      get '/', as: 'collection_objects_filter_task', action: :index
     end
 
     scope :browse, controller: 'tasks/collection_objects/browse' do
-      get 'index', as: 'browse_collection_objects_task'
+      get '/', as: 'browse_collection_objects_task', action: :index
     end
   end
 

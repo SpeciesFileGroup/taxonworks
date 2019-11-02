@@ -448,7 +448,7 @@ index_browse_asserted_distributions_task:
   categories:
   status: prototype
   description: 'Browse through asserted distributions summarized by OTU.  Map, table, and CSV downloads.'
-collection_object_filter_task:
+collection_objects_filter_task:
   hub: true
   name: 'Collection object filter'
   related:

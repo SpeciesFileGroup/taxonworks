@@ -343,8 +343,9 @@ class Source::Bibtex < Source
     if: -> { !month.blank? || !stated_year.blank? },
     message: 'is required when month or stated_year is provided'
 
-  validates :year, date_year: {min_year: 1000, max_year: Time.now.year + 2,
-                               message:  'must be an integer greater than 999 and no more than 2 years in the future'}
+  validates :year, date_year: {
+    min_year: 1000, max_year: Time.now.year + 2,
+    message: 'must be an integer greater than 999 and no more than 2 years in the future'}
 
   validates_presence_of :month,
     unless: -> { day.blank? },
