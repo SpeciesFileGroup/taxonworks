@@ -34,7 +34,7 @@
           </td>
           <td>
             <a
-              :href="`/collection_objects/${row[0]}`"
+              :href="`/tasks/collection_objects/browse?collection_object_id=${row[0]}`"
               target="_blank">
               Show
             </a>
