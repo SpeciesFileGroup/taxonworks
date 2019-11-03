@@ -170,14 +170,14 @@ module Utilities::Dates
   end
 
   # @return String
-  #   A date string unambiguosly formatted in yyyy-mm-dd.  Always includes all parts indicating
+  #   A date string unambiguosly formatted in yyyy/mm/dd.  Always includes all parts indicating
   #   not available parts with '?'
   def self.from_parts(y, m, d)
-    return '????-??-??' if y.nil? && m.nil? && d.nil?
+    return '????/??/??' if y.nil? && m.nil? && d.nil?
     [y ? "#{y}" : '????', 
      m ? "#{'%02d' % m}" : '??',
      d ? "#{'%02d' % d}" : '??'
-    ].join('-') 
+    ].join('/') 
   end
 
   # @params [year: integer]
