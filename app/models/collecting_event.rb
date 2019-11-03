@@ -1094,6 +1094,14 @@ class CollectingEvent < ApplicationRecord
     a
   end
 
+  # @return [String, nil]
+  #   a string used in DWC reportedBy and ultimately label generation
+  #   TODO: include initials when we find out a clean way of producing them
+  # yes it's a helper
+  def collector_names
+    [Utilities::Strings.authorship_sentence(collectors.collect{|a| a.last_name}), verbatim_collectors].compact.first
+  end
+
   protected
 
   def sql_tick_fix(item)

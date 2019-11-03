@@ -395,6 +395,21 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
    end 
   end
 
+  context 'roles' do
+
+    specify '#collector_names 1' do
+      collecting_event.verbatim_collectors = 'Smith & Jones'
+      expect(collecting_event.collector_names).to eq('Smith & Jones')
+    end
+
+    specify '#collector_names 2' do
+      a = FactoryBot.create(:valid_person, last_name: 'Smith') 
+      collecting_event.collectors << a
+      expect(collecting_event.collector_names).to eq(a.last_name)
+    end
+
+  end
+
   context 'concerns' do
     it_behaves_like 'citations'
     it_behaves_like 'data_attributes'

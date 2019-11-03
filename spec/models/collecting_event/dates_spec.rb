@@ -450,5 +450,4 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     end
   end
 
-
 end

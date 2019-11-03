@@ -103,6 +103,7 @@ class CollectionObject < ApplicationRecord
 
   # CollectingEvent delegations
   delegate :map_center, to: :collecting_event, prefix: :collecting_event, allow_nil: true
+  delegate :collectors, to: :collecting_event, prefix: :collecting_event, allow_nil: true
 
   # Repository delegations
   delegate :acronym, to: :repository, prefix: :repository, allow_nil: true

@@ -412,6 +412,7 @@ class Person < ApplicationRecord
   # @param [String] name_string
   # @return [Array] of Hashes
   #   use citeproc to parse strings
+  #   see also https://github.com/SpeciesFileGroup/taxonworks/issues/1161
   def self.parser(name_string)
     BibTeX::Entry.new(type: :book, author: name_string).parse_names.to_citeproc['author']
   end
