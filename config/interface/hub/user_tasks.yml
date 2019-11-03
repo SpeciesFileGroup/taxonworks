@@ -456,3 +456,11 @@ index_browse_asserted_distributions_task:
   categories:
   status: prototype
   description: 'Browse through asserted distributions summarized by OTU.  Map, table, and CSV downloads.'
+index_new_source_task:
+  hub: true
+  name: 'New source'
+  related:
+  categories:
+    - source
+  status: prototype
+  description: 'Add a sources of Verbatim, BibTeX or person via a number of methods.'

@@ -88,6 +88,10 @@ scope :tasks do
   end
 
   scope :sources do
+      scope :new_source, controller: 'tasks/sources/new_source' do
+        get :index, as: 'index_new_source_task'
+      end
+
     scope :hub, controller: 'tasks/sources/hub' do
       get :index, as: 'index_hub_task'
     end
