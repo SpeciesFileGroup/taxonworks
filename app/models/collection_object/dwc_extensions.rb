@@ -60,7 +60,7 @@ module CollectionObject::DwcExtensions
   end
 
   def dwc_institution_code
-    collection_object.repository.try(:acronym)
+    repository.try(:acronym)
   end
 
   def dwc_catalog_number
@@ -69,7 +69,7 @@ module CollectionObject::DwcExtensions
 
   # TODO: handle ranged lots
   def dwc_individual_count
-    collection_object.total
+    total
   end
 
   def dwc_country

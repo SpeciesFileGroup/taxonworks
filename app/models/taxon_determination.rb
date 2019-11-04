@@ -66,6 +66,7 @@ class TaxonDetermination < ApplicationRecord
   validates :month_made, date_month: true
   validates :day_made, date_day: {year_sym: :year_made, month_sym: :month_made}, unless: -> {year_made.nil? || month_made.nil?}
 
+  # Careful, position must be reset with :update_column!
   validates_uniqueness_of :position, scope: [:biological_collection_object_id, :project_id]
 
   before_save :set_made_fields_if_not_provided

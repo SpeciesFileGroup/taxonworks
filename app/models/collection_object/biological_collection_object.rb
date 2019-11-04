@@ -31,6 +31,7 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
     end
   end
 
+  # @return [Boolean]
   def reorder_determinations_by(attribute = :date)
     determinations = []
     if attribute == :date
@@ -39,17 +40,13 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
       determinations = taxon_determinations.order(attribute)
     end
 
-    determinations.each_with_index do |td, i|
-      td.position = i + 1
-    end
-
     begin
       TaxonDetermination.transaction do
-        determinations.each do |td|
-          td.save
+        determinations.each_with_index do |td, i|
+          td.update_column(:position, i + 1)
         end
       end
-    rescue ActiveRecord::RecordInvalid
+    rescue
       return false
     end
     return true
