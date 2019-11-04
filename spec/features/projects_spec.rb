@@ -182,10 +182,12 @@ describe 'Project Handling', type: :feature do
   end
 
   context 'with some projects created' do
-    before {
+    before do
       sign_in_user
-      5.times { factory_bot_create_for_user(:valid_project, @user)   } 
-    } 
+      3.times.each_with_index do |t, i|
+        Project.create!(name: "p#{i}", creator: @user, updater: @user)
+      end
+    end 
 
     describe 'GET /projects/list' do
       before {
