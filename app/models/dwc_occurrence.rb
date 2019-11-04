@@ -80,10 +80,6 @@ class DwcOccurrence < ApplicationRecord
     'Undefined'
   end
 
-  def self.by_collection_object_filter(collection_object_filter_query)
-    Queries::DwcOccurrence::Filter.new(collection_object_filter_query: collection_object_filter_query).all 
-  end
-
   def stale?
     dwc_occurrence_object.updated_at > updated_at
   end
