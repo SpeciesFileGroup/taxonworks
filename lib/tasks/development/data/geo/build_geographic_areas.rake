@@ -6,14 +6,14 @@ namespace :tw do
         desc 'Rebuilds the closure_tree indexing on GeographicAreas.'
         task rebuild_geographic_areas_nesting: [:environment, :geo_dev_init] do
           puts "\n\n#{Time.now.strftime "%H:%M:%S"}."
-          if $user_id.nil?
+          if Current.user_id.nil?
 
             u = User.order(:id).first
             if u.nil?
               # FactoryBot is not allowed in rake tasks
               u = User.create!(id: 1, email: 'test@example.com', name: 'Rake user', password: '12345678', self_created: true)
             end
-            $user_id = u.id
+            Current.user_id = u.id
           end
 
           GeographicArea.rebuild!
@@ -60,7 +60,7 @@ namespace :tw do
             @collision_count = 0
             @duplicate_names = []
 
-            i                               = add_item(
+            i = add_item(
               name:             earth.name,
               parent_names:     [],
               source_table:     'SFG',

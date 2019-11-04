@@ -9,9 +9,10 @@ module Housekeeping::Users
     belongs_to :creator, foreign_key: :created_by_id, class_name: 'User'
     belongs_to :updater, foreign_key: :updated_by_id, class_name: 'User'
 
-    # TODO: why do we need this plural scope?!
-    scope :created_by_user, ->(user) { where(created_by_id: User.get_user_id(user)) }
-    scope :updated_by_user, ->(user) { where(updated_by_id: User.get_user_id(user)) }
+#   scope :created_by_user, ->(user) { where(created_by_id: User.get_user_id(user) ) }
+#   scope :updated_by_user, ->(user) { where(updated_by_id: User.get_user_id(user) ) }
+
+    scope :created_or_updated_by, -> (user_id) { where(created_by_id: user_id).or(where(updated_by_id: user_id)) }
 
     unless_user = lambda { self.class.name == 'User' && self.self_created }
     validates :creator, presence: true, unless: unless_user # lambda, proc, or block
@@ -68,7 +69,7 @@ module Housekeeping::Users
   protected
 
   def set_created_by_id
-    self.created_by_id ||= Current.user_id || $user_id
+    self.created_by_id ||= Current.user_id
   end
 
   # TODO: This method _is not_ called in an 'after_save' operation (in User), so this deprecation warning
@@ -77,7 +78,7 @@ module Housekeeping::Users
   # WRT .changed? vs .saved_changes? Deprecation warning
   def set_updated_by_id
     if (changed? || new_record?) && !updated_by_id_changed? && by.blank?
-      self.updated_by_id = Current.user_id || $user_id
+      self.updated_by_id = Current.user_id
     end
   end
 

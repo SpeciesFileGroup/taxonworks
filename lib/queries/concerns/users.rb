@@ -50,7 +50,7 @@ module Queries::Concerns::Users
       q
     when 'created'
       q = base_query.created_in_date_range(s, e)
-      q = q.created_by_user(user_id) if user_id
+      q = q.where(created_by_id: user_id) if user_id
       q
     end
   end

@@ -66,8 +66,6 @@ namespace :tw do
       end
 
       @preparation_types = {}
-      #$project_id = nil
-      #$user_id = nil
       @repository = nil
       @invalid_collecting_event_index = {}
       @redis = Redis.new

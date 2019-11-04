@@ -6,7 +6,7 @@ branches:
     - dates
     - docker-travis
     - rails6
-    - cofilter2
+    - user_id
 env:
   global:
     - TEST_WORKERS=5
