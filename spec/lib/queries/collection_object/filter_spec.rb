@@ -299,8 +299,8 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     end
 
     context 'identifiers' do
-      let!(:n1) { Namespace.create!(name: 'First', short_name: 'second'}
-      let!(:n1) { Namespace.create!(name: 'Third', short_name: 'fourth'}
+      let!(:n1) { Namespace.create!(name: 'First', short_name: 'second')}
+      let!(:n2) { Namespace.create!(name: 'Third', short_name: 'fourth')}
 
       let!(:i1) { Identifier::Local::CatalogNumber.create!(namespace: n1, identifier: '123', identifier_object: co1) } 
       let!(:i2) { Identifier::Local::CatalogNumber.create!(namespace: n2, identifier: '453', identifier_object: co2) } 
@@ -338,7 +338,6 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       specify '#identifier_exact 2' do
         query.identifier_exact = false 
         query.identifier = '1'
-        byebug
         expect(query.all.map(&:id)).to contain_exactly(co1.id)
       end
     end
