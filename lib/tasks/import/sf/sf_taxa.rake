@@ -1183,7 +1183,7 @@ namespace :tw do
           # Can be run independently at any time after projects created BUT not after animalia species created (must restore to before)
 
           # user = User.find_by_email('mbeckman@illinois.edu')
-          # $user_id = user.id
+          # Current.user_id = user.id
 
           logger.info 'Running create_animalia_below_root...'
 

@@ -568,7 +568,7 @@ namespace :tw do
 
           # create mb as project member for each project -- comment out for Sandbox
           user = User.find_by_email('mbeckman@illinois.edu')
-          $user_id = user.id # not sure if this is really needed?
+          Current.user_id = user.id # not sure if this is really needed?
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
@@ -743,7 +743,7 @@ namespace :tw do
           # People: id, type, last_name, first_name, created_at, updated_at, suffix, prefix, created_by_id, updated_by_id, cached
 
           # @project = Project.find_by_name('Orthoptera Species File')
-          # $project_id = @project.id
+          # Current.project_id = @project.id
 =end
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
@@ -757,8 +757,8 @@ namespace :tw do
           person_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'tblPeople', short_name: 'SF PersonID')
 
           # No longer using InternalAttribute for following import values; using ImportAttribute instead since it doesn't require a project_id
-          # file_id = Predicate.find_or_create_by(name: 'FileID', definition: 'SpeciesFile.FileID', project_id: $project_id)
-          # person_roles = Predicate.find_or_create_by(name: 'Roles', definition: 'Bitmap of person roles', project_id: $project_id)
+          # file_id = Predicate.find_or_create_by(name: 'FileID', definition: 'SpeciesFile.FileID', project_id: Current.project_id)
+          # person_roles = Predicate.find_or_create_by(name: 'Roles', definition: 'Bitmap of person roles', project_id: Current.project_id)
           # example of internal attr:
           # person.data_attributes << InternalAttribute.new(predicate: person_roles, value: row['Role'])
           # person.identifiers.new(type: 'Identifier::Local::Import', namespace: person_namespace, identifier: sf_person_id)
@@ -878,7 +878,7 @@ namespace :tw do
 
           # create a ControlledVocabularyTerm of type Predicate (to be used in DataAttribute in User instance below)
           # predicates = {
-          #     'AuthUserID' => Predicate.find_or_create_by(name: 'AuthUserID', definition: 'Unique user name id', project_id: $project_id)
+          #     'AuthUserID' => Predicate.find_or_create_by(name: 'AuthUserID', definition: 'Unique user name id', project_id: Current.project_id)
           # }
           # Now that User is identifiable, we can use an identifier for the unique AuthUserID (vs. FileUserID)
           # Create Namespace for Identifier: Species File, tblAuthUsers, SF AuthUserID
