@@ -1,5 +1,4 @@
 import { MutationNames } from '../mutations/mutations'
-// import newSource from '../../const/source'
 import { GetSource } from '../../request/resources'
 
 export default ({ commit }, id) => {

@@ -8,7 +8,7 @@
       <bibtex-date/>
       <bibtex-serial/>
       <bibtex-volume/>
-      <bibtex-language/>
+      <bibtex-language-id/>
       <bibtex-chapter/>
       <bibtex-book-title/>
       <bibtex-edition/>
@@ -22,6 +22,7 @@
       <bibtex-school/>
       <bibtex-copyright/>
       <bibtex-translator/>
+      <bibtex-language/>
       <bibtex-abstract/>
       <bibtex-key/>
       <bibtex-url/>
@@ -41,6 +42,7 @@ import BibtexDate from './date'
 import BibtexSerial from './serial'
 import BibtexVolume from './volume'
 import BibtexLanguage from './language'
+import BibtexLanguageId from './languageId'
 import BibtexChapter from './chapter'
 import BibtexBookTitle from './booktitle'
 import BibtexEdition from './edition'
@@ -70,6 +72,7 @@ export default {
     BibtexSerial,
     BibtexVolume,
     BibtexLanguage,
+    BibtexLanguageId,
     BibtexChapter,
     BibtexBookTitle,
     BibtexEdition,
