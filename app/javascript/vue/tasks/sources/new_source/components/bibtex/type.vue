@@ -1,8 +1,10 @@
 <template>
-  <div>
+  <div class="field">
     <label>Bibtex type</label>
     <br>
-    <select v-model="bibtexType">
+    <select
+      class="normal-input"
+      v-model="bibtexType">
       <option
         v-for="item in list"
         :key="item"

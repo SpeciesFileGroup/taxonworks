@@ -1,7 +1,12 @@
 <template>
   <div>
     <h1>New source</h1>
-    <source-type/>
+    <div class="flex-separate">
+      <source-type class="separate-bottom"/>
+      <span
+        class="middle cursor-pointer"
+        data-icon="reset">Reset</span>
+    </div>
     <component :is="section"/>
   </div>
 </template>

@@ -1,7 +1,6 @@
 <template>
   <div>
-    <label>Type</label>
-    <ul class="no_bullets">
+    <ul class="no_bullets context-menu">
       <li
         v-for="type in types"
         :key="type.value">
@@ -13,7 +12,6 @@
             type="radio">
           {{ type.label }}
         </label>
-        
       </li>
     </ul>
   </div>
