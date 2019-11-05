@@ -16,7 +16,7 @@
     <div class="field separate-right">
       <label>Pages</label><br>
       <input
-        type="number"
+        type="text"
         v-model="source.pages">
     </div>
   </div>

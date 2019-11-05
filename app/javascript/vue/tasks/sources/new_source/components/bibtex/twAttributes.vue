@@ -1,12 +1,19 @@
 <template>
-  <div class="panel content">
-    <h2>Person</h2>
+  <div>
+    <h3>TW attributes</h3>
     <div class="field">
-      <label>Source source</label>
-      <role-picker
-        v-model="source.roles_attributes"
-        :autofocus="false"
-        role-type="SourceSource"/>
+      <label>Verbatim contents</label><br>
+      <textarea
+        type="text"
+        v-model="source.verbatim_contents">
+      </textarea>
+    </div>
+    <div class="field">
+      <label>Verbatim keywords</label><br>
+      <textarea
+        type="text"
+        v-model="source.verbatim_keywords">
+      </textarea>
     </div>
   </div>
 </template>
@@ -16,12 +23,7 @@
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 
-import RolePicker from 'components/role_picker.vue'
-
 export default {
-  components: {
-    RolePicker
-  },
   computed: {
     source: {
       get () {
