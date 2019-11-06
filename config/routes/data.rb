@@ -90,11 +90,14 @@ resources :collection_objects do
   concerns [:data_routes]
 
   member do
+    get 'dwc', defaults: {format: :json}
     get 'depictions', constraints: {format: :html}
     get 'containerize'
+    get 'dwca', defaults: {format: :json}
   end
 
   collection do
+    get :dwc_index, defaults: {format: :json}
     post :preview_castor_batch_load # should be get
     post :create_castor_batch_load # should be get
     post :preview_buffered_batch_load
@@ -124,6 +127,9 @@ resources :collecting_events do
   end
 
   collection do
+
+    get :attributes, defaults: {format: :json}
+
     get :select_options, defaults: {format: :json}
 
     post :preview_castor_batch_load
@@ -562,6 +568,7 @@ resources :tags, except: [:edit, :show, :new] do
   collection do
     get :autocomplete
     post :tag_object_update
+    post :batch_create, defaults: {format: :json}
     post :batch_remove, defaults: {format: :json}
   end
 end

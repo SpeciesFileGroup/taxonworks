@@ -1,6 +1,10 @@
 # A collection object that is classified as being biological in origin.
 #
 class CollectionObject::BiologicalCollectionObject < CollectionObject
+
+  # Belongs here (see also TaxonDetermination), added to CollectionObject
+  # include Shared::BiologicalAssociations
+
   is_origin_for 'Extract', 'CollectionObject::BiologicalCollectionObject'
 
   has_many :biocuration_classifications,  inverse_of: :biological_collection_object, dependent: :destroy
@@ -27,6 +31,7 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
     end
   end
 
+  # @return [Boolean]
   def reorder_determinations_by(attribute = :date)
     determinations = []
     if attribute == :date
@@ -35,21 +40,19 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
       determinations = taxon_determinations.order(attribute)
     end
 
-    determinations.each_with_index do |td, i|
-      td.position = i + 1
-    end
-
     begin
       TaxonDetermination.transaction do
-        determinations.each do |td|
-          td.save
+        determinations.each_with_index do |td, i|
+          td.update_column(:position, i + 1)
         end
       end
-    rescue ActiveRecord::RecordInvalid
+    rescue
       return false
     end
     return true
   end
+
+  protected 
 
   def sv_missing_determination
     soft_validations.add(:base, 'Determination is missing') if self.reload_current_taxon_determination.nil?

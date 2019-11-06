@@ -34,7 +34,9 @@ class Otu < ApplicationRecord
   include Shared::Loanable
   include Shared::Confidences
   include Shared::Observations 
+  include Shared::BiologicalAssociations 
   include Shared::HasPapertrail
+  
   include Shared::IsData
 
   GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes]

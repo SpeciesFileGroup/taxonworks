@@ -4,16 +4,20 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
 
   let(:query) { Queries::CollectingEvent::Filter.new({}) }
 
-  let!(:ce1) { CollectingEvent.create(verbatim_locality: 'Out there', start_date_year: 2010, start_date_month: 2, start_date_day: 18) }
+  let!(:ce1) { CollectingEvent.create(
+    verbatim_locality: 'Out there',
+    start_date_year: 2010,
+    start_date_month: 2,
+    start_date_day: 18) 
+  }
 
-  let!(:ce2) { CollectingEvent.create(verbatim_locality: 'Out there, under the stars', 
-                                      verbatim_trip_identifier: 'Foo manchu',
-                                      start_date_year: 2000, 
-                                      start_date_month: 2, 
-                                      start_date_day: 18,
-                                      print_label: 'THERE: under the stars:18-2-2000') }
-
-
+  let!(:ce2) { CollectingEvent.create(
+    verbatim_locality: 'Out there, under the stars', 
+    verbatim_trip_identifier: 'Foo manchu',
+    start_date_year: 2000, 
+    start_date_month: 2, 
+    start_date_day: 18,
+    print_label: 'THERE: under the stars:18-2-2000') }
 
   # let!(:namespace) { FactoryBot.create(:valid_namespace, short_name: 'Foo') }
   # let!(:i1) { Identifier::Local::TripCode.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
@@ -87,12 +91,19 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     end
   end
 
+  specify '#geographic_area_ids' do
+    ce1.update(geographic_area: FactoryBot.create(:valid_geographic_area))
+    query.geographic_area_ids = [ce1.geographic_area_id]
+    expect(query.all.map(&:id)).to contain_exactly(ce1.id)
+  end
+
   context 'geo' do
-    let(:point_lat) { '20.0' }
-    let(:point_long) { '20.0' }
+    let(:point_lat) { '10.0' }
+    let(:point_long) { '10.0' }
 
-    let(:factory_point) { RSPEC_GEO_FACTORY.point(point_lat, point_long) }
-
+   
+   # let(:factory_polygon) { RSPEC_GEO_FACTORY.polygon(point_lat, point_long) }
+   let(:factory_point) { RSPEC_GEO_FACTORY.point(point_lat, point_long) }
     let(:geographic_item) { GeographicItem::Point.create!( point: factory_point ) }
 
     let!(:point_georeference) {
@@ -102,28 +113,47 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
       )
     }
 
-    let(:point_shape) { 
-      s = geographic_item.to_geo_json_feature
-      s['properties'].merge!('radius' => 20)
-      s
+    let(:wkt_point) { 'POINT (10.0 10.0)'}
+    let(:wkt_polygon) { 'POLYGON ((5 5, 15 5, 15 15, 5 15, 5 5))'}
+    let(:wkt_multipolygon) { 'MULTIPOLYGON ( ((5 5, 15 5, 15 15, 5 15, 5 5)), ((20 35, 35 35, 40 40, 20 35)) )' }
+
+    let(:geo_json_polygon) {
+      '{ "type": "Polygon","coordinates": [[ [5.0, 5.0], [15.0, 5.0], [15.0, 15.0], [5.0, 15.0], [5.0, 5.0] ]] }' 
     }
 
-    specify '#shape (point)' do
-      query.shape = point_shape
+    specify '#wkt (POINT)' do
+      query.wkt = wkt_point
       expect(query.all.map(&:id)).to contain_exactly(ce1.id)
     end 
 
-    specify '#shape, combined 1' do
-      query.shape = point_shape
-      query.in_verbatim_locality = 'out'
+    specify '#wkt (POLYGON)' do
+      query.wkt = wkt_point
+      expect(query.all.map(&:id)).to contain_exactly(ce1.id)
+    end 
+
+    specify '#wkt (MULTIPOLYGON)' do
+      query.wkt = wkt_multipolygon
       expect(query.all.map(&:id)).to contain_exactly(ce1.id)
     end
 
-    specify '#shape, combined 2' do
-      query.shape = point_shape
-      query.in_verbatim_locality = 'RRRRAWR!'
-      expect(query.all.map(&:id)).to contain_exactly()
+    specify '#geo_json (POLYGON)' do
+      query.geo_json = geo_json_polygon
+      expect(query.all.map(&:id)).to contain_exactly(ce1.id)
     end
+
+
+
+  # specify '#shape, combined 1' do
+  #   query.shape = point_shape
+  #   query.in_verbatim_locality = 'out'
+  #   expect(query.all.map(&:id)).to contain_exactly(ce1.id)
+  # end
+
+  # specify '#shape, combined 2' do
+  #   query.shape = point_shape
+  #   query.in_verbatim_locality = 'RRRRAWR!'
+  #   expect(query.all.map(&:id)).to contain_exactly()
+  # end
   end
 
 end

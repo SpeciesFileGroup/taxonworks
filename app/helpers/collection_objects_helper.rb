@@ -5,8 +5,8 @@ module CollectionObjectsHelper
   def collection_object_tag(collection_object)
     return nil if collection_object.nil?
     str = [ collection_object.type ,
-      identifier_tag(collection_object.identifiers.first),
-      taxon_determination_tag(collection_object.taxon_determinations.order(:position).first)
+            identifier_tag(collection_object.identifiers.first),
+            taxon_determination_tag(collection_object.taxon_determinations.order(:position).first)
     ].compact.join(' ').html_safe
     str
   end
@@ -47,11 +47,10 @@ module CollectionObjectsHelper
     nil
   end
 
-
   # TODO: Isolate into own helper
-
+  # TODO: syncronize with class methods
   def dwc_occurrence_table_header_tag
-    content_tag(:tr, CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{|k| content_tag(:th, k)}.join.html_safe, class: [:error]) 
+    content_tag(:tr, CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{|k| content_tag(:th, k)}.join.html_safe, class: [:error])
   end
 
   def dwc_occurrence_table_body_tag(collection_objects)
@@ -69,11 +68,11 @@ module CollectionObjectsHelper
 
   def dwc_occurrence_table_row_stub(collection_object)
     r = collection_object.dwc_occurrence
-    if r 
+    if r
       dwc_occurrence_table_row_tag(r)
     else
       id = collection_object.to_param
-      content_tag(:tr, nil, id: "dwc_row_stub_#{id}", data: {'collection-object-id': id}, class: 'dwc_row_stub' ) 
+      content_tag(:tr, nil, id: "dwc_row_stub_#{id}", data: {'collection-object-id': id}, class: 'dwc_row_stub' )
     end
   end
 
@@ -81,7 +80,7 @@ module CollectionObjectsHelper
     o = metamorphosize_if(dwc_occurrence.dwc_occurrence_object)
     content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do
       [CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{|k| content_tag(:td, dwc_occurrence.send(k))}.join,
-       fancy_show_tag(o), 
+       fancy_show_tag(o),
        fancy_edit_tag(o)
       ].join.html_safe
     end

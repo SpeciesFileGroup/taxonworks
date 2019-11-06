@@ -16,5 +16,4 @@ json.array! @collection_objects do |c|
   json.container container_tag c.container
   json.biocuration c.biocuration_classes.pluck(:name).join(', ')
 
-
 end

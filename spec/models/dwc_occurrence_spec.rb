@@ -12,9 +12,9 @@ describe DwcOccurrence, type: :model, group: :darwin_core do
     context 'with a new instance' do
       before { dwc_occurrence.valid? } 
 
-    # specify '#basisOfRecord is required' do
-    #   expect(dwc_occurrence.errors.include?(:basisOfRecord)).to be_truthy
-    # end
+      # specify '#basisOfRecord is required' do
+      #   expect(dwc_occurrence.errors.include?(:basisOfRecord)).to be_truthy
+      # end
 
       specify '#dwc_occurrence_object is required' do
         expect(dwc_occurrence.errors.include?(:dwc_occurrence_object)).to be_truthy
