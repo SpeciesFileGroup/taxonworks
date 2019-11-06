@@ -1,13 +1,13 @@
 <template>
   <div class="horizontal-left-content">
     <div class="field separate-right">
-      <label>day</label><br>
+      <label>Day</label><br>
       <input
         type="number"
         v-model="source.day">
     </div>
     <div class="field separate-right">
-      <label>month</label><br>
+      <label>Month</label><br>
       <select
         class="normal-input"
         v-model="source.month">

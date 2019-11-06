@@ -3,13 +3,15 @@ import getVerbatim from './getVerbatim'
 import getBibtexType from './getBibtexType'
 import getSource from './getSource'
 import getPreferences from './getPreferences'
+import getSettings from './getSettings'
 
 const GetterNames = {
   GetType: 'getType',
   GetVerbatim: 'getVerbatim',
   GetBibtexType: 'getBibtexType',
   GetSource: 'getSource',
-  GetPreferences: 'getPreferences'
+  GetPreferences: 'getPreferences',
+  GetSettings: 'getSettings'
 }
 
 const GetterFunctions = {
@@ -17,7 +19,8 @@ const GetterFunctions = {
   [GetterNames.GetVerbatim]: getVerbatim,
   [GetterNames.GetBibtexType]: getBibtexType,
   [GetterNames.GetSource]: getSource,
-  [GetterNames.GetPreferences]: getPreferences
+  [GetterNames.GetPreferences]: getPreferences,
+  [GetterNames.GetSettings]: getSettings
 }
 
 export {

@@ -13,7 +13,13 @@ function makeInitialState () {
   return {
     settings: {
       saving: false,
-      loading: false
+      loading: false,
+      lock: {
+        type: false,
+        language_id: false,
+        serial_id: false,
+        bibtex_type: false
+      }
     },
     preferences: {
 

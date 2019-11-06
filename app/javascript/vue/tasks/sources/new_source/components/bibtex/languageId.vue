@@ -1,13 +1,17 @@
 <template>
   <div class="field">
     <label>Language</label>
-    <autocomplete
-      placeholder="Search a serial"
-      url="/languages/autocomplete"
-      param="term"
-      label="label_html"
-      display="label"
-      @getItem="source.language_id = $event.id"/>
+    <div class="horizontal-left-content">
+      <autocomplete
+        class="separate-right"
+        placeholder="Search a serial"
+        url="/languages/autocomplete"
+        param="term"
+        label="label_html"
+        display="label"
+        @getItem="source.language_id = $event.id"/>
+      <lock-component v-model="settings.lock.language_id"/>
+    </div>
   </div>
 </template>
 
@@ -16,11 +20,13 @@
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 
+import LockComponent from 'components/lock'
 import Autocomplete from 'components/autocomplete'
 
 export default {
   components: {
-    Autocomplete
+    Autocomplete,
+    LockComponent
   },
   computed: {
     source: {
@@ -29,6 +35,14 @@ export default {
       },
       set (value) {
         this.$store.commit(MutationNames.SetSource, value)
+      }
+    },
+    settings: {
+      get () {
+        return this.$store.getters[GetterNames.GetSettings]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSettings, value)
       }
     }
   }

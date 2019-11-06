@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="horizontal-left-content">
     <ul class="no_bullets context-menu">
       <li
         v-for="type in types"
@@ -14,6 +14,9 @@
         </label>
       </li>
     </ul>
+    <div class="separate-left">
+      <lock-component v-model="settings.lock.type"/>
+    </div>
   </div>
 </template>
 
@@ -22,7 +25,12 @@
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 
+import LockComponent from 'components/lock'
+
 export default {
+  components: {
+    LockComponent
+  },
   computed: {
     sourceType: {
       get () {
@@ -30,6 +38,14 @@ export default {
       },
       set (value) {
         this.$store.commit(MutationNames.SetType, value)
+      }
+    },
+    settings: {
+      get () {
+        return this.$store.getters[GetterNames.GetSettings]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSettings, value)
       }
     }
   },
