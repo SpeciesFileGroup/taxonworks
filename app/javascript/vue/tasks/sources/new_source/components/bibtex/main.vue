@@ -1,35 +1,18 @@
 <template>
   <div class="panel content">
     <h2>Bibtex</h2>
-    <div class="vue-new-source-task-bibtex">
-      <bibtex-type/>
-      <bibtex-title/>
-      <bibtex-authors/>
-      <bibtex-date/>
-      <bibtex-serial/>
-      <bibtex-volume/>
-      <bibtex-language-id/>
-      <bibtex-chapter/>
-      <bibtex-book-title/>
-      <bibtex-edition/>
-      <bibtex-series/>
-      <bibtex-source-editor/>
-      <bibtex-organization/>
-      <bibtex-institution/>
-      <bibtex-howpublished/>
-      <bibtex-publisher/>
-      <bibtex-address/>
-      <bibtex-school/>
-      <bibtex-copyright/>
-      <bibtex-translator/>
-      <bibtex-language/>
-      <bibtex-abstract/>
-      <bibtex-key/>
-      <bibtex-url/>
-      <bibtex-verbatim/>
-      <bibtex-crosslinks/>
-      <bibtex-tw-attributes/>
-    </div>
+    <draggable
+      class="vue-new-source-task-bibtex "
+      v-model="componentsOrder"
+      :options="{ disabled: disableDraggable }"
+      @end="updatePreferences">
+      <component
+        class="separate-bottom"
+        v-for="componentName in componentsOrder"
+        @onModal="setDraggable"
+        :key="componentName"
+        :is="componentName"/>
+    </draggable>
   </div>
 </template>
 
@@ -63,8 +46,16 @@ import BibtexVerbatim from './verbatimBibtex'
 import BibtexCrosslinks from './crosslinks'
 import BibtexTwAttributes from './twAttributes'
 
+import Draggable from 'vuedraggable'
+
+import { GetterNames } from '../../store/getters/getters'
+import { MutationNames } from '../../store/mutations/mutations'
+
+import { UpdateUserPreferences } from '../../request/resources'
+
 export default {
   components: {
+    Draggable,
     BibtexType,
     BibtexTitle,
     BibtexAuthors,
@@ -92,6 +83,47 @@ export default {
     BibtexVerbatim,
     BibtexCrosslinks,
     BibtexTwAttributes
+  },
+  computed: {
+    preferences: {
+      get() {
+        return this.$store.getters[GetterNames.GetPreferences]
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetPreferences, value)
+      }      
+    }
+  },
+  data () {
+    return {
+      disableDraggable: false,
+      componentsOrder: ['BibtexType', 'BibtexTitle', 'BibtexAuthors', 'BibtexDate', 'BibtexSerial', 'BibtexVolume', 'BibtexLanguageId', 'BibtexChapter', 'BibtexBookTitle', 'BibtexEdition', 'BibtexSeries', 'BibtexSourceEditor', 'BibtexOrganization', 'BibtexInstitution', 'BibtexHowpublished', 'BibtexPublisher', 'BibtexAddress', 'BibtexSchool', 'BibtexCopyright', 'BibtexTranslator', 'BibtexLanguage', 'BibtexAbstract', 'BibtexKey', 'BibtexUrl', 'BibtexVerbatim', 'BibtexCrosslinks', 'BibtexTwAttributes'],
+      keyStorage: 'tasks::newsource::bibtex'
+    }
+  },
+  watch: {
+    preferences: {
+      handler(newVal) {
+        if(this.preferences.layout[this.keyStorage] && this.componentsOrder.length == this.preferences.layout[this.keyStorage].length)
+          this.componentsOrder = this.preferences.layout[this.keyStorage]
+      },
+      deep: true
+    }
+  },
+  mounted () {
+    if(this.preferences.layout[this.keyStorage] && this.componentsOrder.length == this.preferences.layout[this.keyStorage].length)
+      this.componentsOrder = this.preferences.layout[this.keyStorage]
+  },
+  methods: {
+    setDraggable (mode) {
+      this.disableDraggable = mode
+    },
+    updatePreferences() {
+      UpdateUserPreferences(this.preferences.id, { [this.keyStorage]: this.componentsOrder }).then(response => {
+        this.preferences.layout = response.body.preferences
+        this.componentsOrder = response.body.preferences.layout[this.keyStorage]
+      })
+    }
   }
 }
 </script>

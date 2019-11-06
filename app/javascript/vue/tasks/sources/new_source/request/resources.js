@@ -12,8 +12,18 @@ const UpdateSource = (source) => {
   return ajaxCall('patch', `/sources/${source.id}`, { source: source })
 }
 
+const UpdateUserPreferences = function (id, data) {
+  return ajaxCall('patch', `/users/${id}.json`, { user: { layout: data } })
+}
+
+const GetUserPreferences = function () {
+  return ajaxCall('get', `/preferences.json`)
+}
+
 export {
   GetSource,
   CreateSource,
-  UpdateSource
+  UpdateSource,
+  UpdateUserPreferences,
+  GetUserPreferences
 }

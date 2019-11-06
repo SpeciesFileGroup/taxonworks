@@ -11,6 +11,12 @@
           Save
         </button>
         <button
+          :disabled="true"
+          class="button normal-input button-submit button-size"
+          type="button">
+          Clone
+        </button>
+        <button
           @click="reset"
           class="button normal-input button-default button-size separate-left"
           type="button">
@@ -30,8 +36,11 @@ import Verbatim from './components/verbatim/main'
 import Bibtex from './components/bibtex/main'
 import Human from './components/person/main'
 
+import { GetUserPreferences } from './request/resources'
+
 import { GetterNames } from './store/getters/getters'
 import { ActionNames } from './store/actions/actions'
+import { MutationNames } from './store/mutations/mutations'
 
 export default {
   components: {
@@ -41,9 +50,12 @@ export default {
     Human
   },
   computed: {
-    section() {
+    section () {
       const type = this.$store.getters[GetterNames.GetType]
       return type ? type.split('::')[1] : undefined
+    },
+    source () {
+      return this.$store.getters[GetterNames.GetSource]
     }
   },
   mounted () {
@@ -53,6 +65,10 @@ export default {
     if (/^\d+$/.test(sourceId)) {
       this.$store.dispatch(ActionNames.LoadSource, sourceId)
     }
+
+    GetUserPreferences().then(response => {
+      this.$store.commit(MutationNames.SetPreferences, response.body)
+    })
   },
   methods: {
     reset () {

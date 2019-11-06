@@ -15,6 +15,9 @@ function makeInitialState () {
       saving: false,
       loading: false
     },
+    preferences: {
+
+    },
     source: newSource()
   }
 }
