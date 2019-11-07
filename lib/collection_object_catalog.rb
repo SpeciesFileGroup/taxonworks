@@ -76,11 +76,18 @@ module CollectionObjectCatalog
                                                            start_date: i.created_at)
     end
 
-    o.loans.each do |l|
-      data.items << CollectionObjectCatalog::EntryItem.new(type: :sent_for_loan,
-                                                           object: l,
-                                                           start_date: l.date_sent.to_time) if l.date_sent
-      data.items << CollectionObjectCatalog::EntryItem.new(type: :returned_from_loan, object: l, start_date: l.date_closed.to_time) if l.date_closed
+    o.loan_items.each do |li|
+      data.items << CollectionObjectCatalog::EntryItem.new(
+        type: :sent_for_loan,
+        object: li.loan,
+        start_date: li.loan.date_sent.to_time
+      ) if li.loan.date_sent
+
+      data.items << CollectionObjectCatalog::EntryItem.new(
+        type: :returned_from_loan,
+        object: li.loan,
+        start_date: (li.returned? ? li.date_returned.to_time : li.loan.date_closed.to_time)
+      ) if li.loan.date_closed || li.returned?
     end
 
     o.tags.each do |t|
