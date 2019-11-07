@@ -60,14 +60,6 @@ describe TaxonDetermination, type: :model do
     specify '.current' do
       expect(TaxonDetermination.current.map(&:id)).to contain_exactly(b.id)
     end
-
-  end
-
-  specify 'if no _made value provided set the deterimination to Time.now' do
-    a = FactoryBot.create(:valid_taxon_determination)
-    expect(a.year_made).to eq(Time.now.year)
-    expect(a.month_made).to eq(Time.now.month)
-    expect(a.day_made).to eq(Time.now.day)
   end
 
   context 'acts_as_list ordering of determinations' do
