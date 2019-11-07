@@ -255,7 +255,10 @@ class CollectionObjectsController < ApplicationController
   private
 
   def filtered_collection_objects
-    Queries::CollectionObject::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
+    Queries::CollectionObject::Filter.
+      new(filter_params).all.where(project_id: sessions_current_project_id).
+      page(params[:page]).per(params[:per] || 500).
+      order('collection_objects.id')
   end
 
   def set_collection_object
@@ -280,6 +283,7 @@ class CollectionObjectsController < ApplicationController
       .merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
+  # TODO: not used?
   def user_map
     {
       user_header_map: {
