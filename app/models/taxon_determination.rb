@@ -69,8 +69,6 @@ class TaxonDetermination < ApplicationRecord
   # Careful, position must be reset with :update_column!
   validates_uniqueness_of :position, scope: [:biological_collection_object_id, :project_id]
 
-  before_save :set_made_fields_if_not_provided
-
   scope :current, -> { where(position: 1)}
   scope :historical, -> { where.not(position: 1)}
 
@@ -90,16 +88,6 @@ class TaxonDetermination < ApplicationRecord
   # @return [Boolean]
   def reject_otu(attributed)
     attributed['name'].blank? && attributed['taxon_name_id'].blank?
-  end
-
-  # @return [true]
-  def set_made_fields_if_not_provided
-    if self.year_made.blank? && self.month_made.blank? && self.day_made.blank?
-      self.year_made = Time.now.year
-      self.month_made = Time.now.month
-      self.day_made = Time.now.day
-    end
-    true
   end
 
 end
