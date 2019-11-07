@@ -315,6 +315,7 @@ class CollectionObjectsController < ApplicationController
       :identifier_start,
       :identifier_end,
       :identifier_exact,
+      :namespace_id,
       :never_loaned,
       :loaned,
       :on_loan,
