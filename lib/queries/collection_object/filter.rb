@@ -68,7 +68,6 @@ module Queries
       #   of biological_relationship_ids
       attr_accessor :biological_relationship_ids
 
-
       # @return [True, False, nil]
       #   true - index is built
       #   false - index is not built
@@ -226,6 +225,7 @@ module Queries
           created_modified_facet, # See Queries::Concerns::Users
           identifier_between_facet,
           identifier_facet,
+          identifier_namespace_facet,
           loaned_facet,
           on_loan_facet,
           dwc_indexed_facet,
