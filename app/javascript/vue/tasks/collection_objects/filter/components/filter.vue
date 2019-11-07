@@ -40,7 +40,7 @@
       <user-component 
         @onUserslist="usersList = $event"
         v-model="params.user"/>
-      <keywords-component v-model="params.keywords.keywords_id" />
+      <keywords-component v-model="params.keywords.keyword_ids" />
       <identifier-component v-model="params.identifier"/>
       <types-component v-model="params.types"/>
       <loan-component v-model="params.loans"/>
@@ -161,7 +161,7 @@ export default {
           namespace_id: undefined
         },
         keywords: {
-          keywords_id: []
+          keyword_ids: []
         },
         determination: {
           otu_ids: [],
