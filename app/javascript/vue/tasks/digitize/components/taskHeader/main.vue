@@ -113,6 +113,18 @@
         deep: true
       }
     },
+    mounted() {
+      window.addEventListener('scroll', () => {
+        let element = this.$el
+        if (element) {
+          if (((window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0) > 164)) {
+            element.classList.add('fixed-bar')
+          } else {
+            element.classList.remove('fixed-bar')
+          }
+        }
+      })
+    },
     methods: {
       getMacKey: GetMacKey,
       saveDigitalization() {
@@ -151,3 +163,11 @@
     }
   }
 </script>
+<style lang="scss" scoped>
+  .fixed-bar {
+    position: fixed;
+    top:0px;
+    width: calc(100%-52px);
+    z-index:200;
+  }
+</style>
