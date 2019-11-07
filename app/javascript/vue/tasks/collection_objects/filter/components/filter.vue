@@ -27,6 +27,7 @@
       <button 
         class="button button-default normal-input full_width"
         type="button"
+        :disabled="emptyParams"
         v-shortkey="[getMacKey, 'f']"
         @shortkey="searchForCollectionObjects"
         @click="searchForCollectionObjects">
@@ -84,6 +85,19 @@ export default {
   computed: {
     getMacKey () {
       return GetMacKey()
+    },
+    emptyParams() {
+      if (!this.params) return 
+      return !this.params.biocurations.biocuration_class_ids.length && 
+        !this.params.geographic.geographic_area_ids.length &&
+        !this.params.relationships.biological_relationship_ids.length &&
+        !this.params.types.is_type.length &&
+        !this.params.keywords.keyword_ids.length &&
+        !this.params.determination.otu_ids.length &&
+        !this.params.collectingEvents.collecting_event_ids.length &&
+        !Object.values(this.params.user).find(item => { return item != undefined }) &&
+        !Object.values(this.params.loans).find(item => { return item != undefined }) &&
+        !Object.values(this.params.identifier).find(item => { return item != undefined })
     }
   },
   data () {
@@ -105,6 +119,7 @@ export default {
       this.params = this.initParams()
     },
     searchForCollectionObjects () {
+      if(this.emptyParams) return
       if(this.loadingDWCA) return
       this.searching = true
       this.result = []
