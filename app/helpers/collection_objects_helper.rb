@@ -4,9 +4,9 @@ module CollectionObjectsHelper
   #   a descriptor including the identifier and determination
   def collection_object_tag(collection_object)
     return nil if collection_object.nil?
-    str = [ collection_object.type ,
-            identifier_tag(collection_object.identifiers.first),
-            taxon_determination_tag(collection_object.taxon_determinations.order(:position).first)
+    str = [collection_object.type,
+           identifier_tag(collection_object.identifiers.first),
+           taxon_determination_tag(collection_object.taxon_determinations.order(:position).first)
     ].compact.join(' ').html_safe
     str
   end
@@ -14,6 +14,12 @@ module CollectionObjectsHelper
   def collection_object_link(collection_object)
     return nil if collection_object.nil?
     link_to(collection_object_tag(collection_object).html_safe, collection_object.metamorphosize)
+  end
+
+  def label_for_collection_object(collection_object)
+    return nil if collection_object.nil?
+    [ 'CollectionObject ' + collection_object.id.to_s,
+      collection_object.identifiers.first&.cached].compact.join(', ')
   end
 
   def collection_object_autocomplete_tag(collection_object)
