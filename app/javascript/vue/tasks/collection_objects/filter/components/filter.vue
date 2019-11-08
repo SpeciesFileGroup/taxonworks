@@ -90,6 +90,7 @@ export default {
       if (!this.params) return 
       return !this.params.biocurations.biocuration_class_ids.length && 
         !this.params.geographic.geographic_area_ids.length &&
+        !this.params.geographic.geo_json &&
         !this.params.relationships.biological_relationship_ids.length &&
         !this.params.types.is_type.length &&
         !this.params.keywords.keyword_ids.length &&
