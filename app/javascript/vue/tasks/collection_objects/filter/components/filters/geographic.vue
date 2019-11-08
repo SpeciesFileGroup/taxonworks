@@ -98,7 +98,6 @@ export default {
     geojson: {
       handler (newVal) {
         if(newVal.length) {
-          this.geographic.geographic_area_ids = []
           if(newVal[0].properties.hasOwnProperty('radius')) {
             this.geographic.radius = newVal[0].properties.radius
             this.geographic.geo_json = JSON.stringify({ type: "Point", coordinates: newVal[0].geometry.coordinates })
@@ -134,8 +133,6 @@ export default {
       this.geographic_areas.splice(index, 1)
     },
     addGeoArea (item) {
-      this.geographic.geo_json = undefined
-      this.geographic.radius = undefined
       this.geographic.geographic_area_ids.push(item.id)
       this.geographic_areas.push(item)
     },
