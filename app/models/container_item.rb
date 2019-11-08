@@ -66,11 +66,11 @@ class ContainerItem < ApplicationRecord
       if parent
         parent.contained_object = object
       else
-        self.parent = ContainerItem.new(contained_object: object)
+        parent = ContainerItem.new(contained_object: object)
       end
 
       parent.save! if !parent.new_record?
-      self.save! unless self.new_record?
+      save! unless new_record?
     end
   end
 
@@ -81,11 +81,11 @@ class ContainerItem < ApplicationRecord
     if parent
       parent.contained_object = c 
     else
-      self.parent = ContainerItem.new(contained_object: c) 
+      parent = ContainerItem.new(contained_object: c) 
     end
 
     parent.save! if !parent.new_record?
-    self.save! unless self.new_record?
+    save! unless new_record?
   end
 
   # @return [container]
@@ -110,7 +110,7 @@ class ContainerItem < ApplicationRecord
   def object_fits_in_container
     if parent
       %w{x y z}.each do |coord|
-        c = self.send("disposition_#{coord}")
+        c = send("disposition_#{coord}")
         errors.add("disposition_#{coord}".to_sym, 'is larger than the container size') if c && parent.contained_object.send("size_#{coord}") < c
       end
     end

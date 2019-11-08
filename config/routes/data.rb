@@ -127,9 +127,7 @@ resources :collecting_events do
   end
 
   collection do
-
     get :attributes, defaults: {format: :json}
-
     get :select_options, defaults: {format: :json}
 
     post :preview_castor_batch_load
@@ -154,6 +152,7 @@ resources :common_names do
   concerns [:data_routes]
 end
 
+match 'containers/for', to: 'containers#for', via: :get, defaults: {format: :json}
 resources :containers do # , only: [:create, :update, :destroy] do
   concerns [:data_routes]
 end

@@ -71,13 +71,13 @@ module ContainersHelper
     return nil if container.nil?
 
     content_tag(:div, class: :draw_container) do
-      content_tag(:div) do
+      content_tag(:h3) do
         container_tag(container)
       end +
 
       content_tag(:div) do
         content_tag(:ul) do
-          container.container_items.collect { |a| content_tag(:li, container_item_tag(a)) }
+          container.container_items.collect{ |a| content_tag(:li, container_item_tag(a)) }.join('').html_safe
         end
       end
     end
@@ -86,5 +86,4 @@ module ContainersHelper
   def add_or_move_to_container_link(object)
     link_to( (object.contained? ? 'Move to another' : 'Add to' ) + ' container', containerize_collection_object_path(object) )
   end
-
 end
