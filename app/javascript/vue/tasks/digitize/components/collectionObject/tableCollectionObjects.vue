@@ -16,6 +16,7 @@
           <input
             type="number"
             class="total-size"
+            min="1"
             v-model="collectionObject.total">
         </td>
         <td class="lock-biocuration">
@@ -150,7 +151,7 @@ export default {
     width: 30px;
   }
   .total-size {
-    width: 50px;
+    width: 100px;
   }
 </style>
 
