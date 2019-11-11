@@ -66,10 +66,11 @@ class ContainerItem < ApplicationRecord
       if parent
         parent.contained_object = object
       else
-        parent = ContainerItem.new(contained_object: object)
+        # This self required?!
+        self.parent = ContainerItem.new(contained_object: object)
       end
 
-      parent.save! if !parent.new_record?
+      self.parent.save! if !parent.new_record?
       save! unless new_record?
     end
   end
@@ -81,17 +82,17 @@ class ContainerItem < ApplicationRecord
     if parent
       parent.contained_object = c 
     else
-      parent = ContainerItem.new(contained_object: c) 
+      self.parent = ContainerItem.new(contained_object: c) 
     end
 
-    parent.save! if !parent.new_record?
+    self.parent.save! if !parent.new_record?
     save! unless new_record?
   end
 
   # @return [container]
   #   the container for this ContainerItem
   def container
-    reload_parent.try(:contained_object) || Container.none
+    reload_parent.try(:contained_object)
   end
 
   # @return [GlobalID]
