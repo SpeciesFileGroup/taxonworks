@@ -51,6 +51,7 @@ class ContainerItem < ApplicationRecord
   validates_presence_of :contained_object
 
   validate :parent_contained_object_is_container
+  validate :container_is_not_a_sibling
   validate :contained_object_is_container_when_parent_id_is_blank
   validate :contained_object_is_unique
   validate :object_fits_in_container
@@ -62,15 +63,15 @@ class ContainerItem < ApplicationRecord
 
   # @params object [Container]
   def container=(object)
-    if object.metamorphosize.kind_of?(Container) # class.to_s == 'Container'
-      if parent
-        parent.contained_object = object
+    if object.metamorphosize.kind_of?(Container)
+      if self.parent
+        self.parent.contained_object = object
       else
         # This self required?!
         self.parent = ContainerItem.new(contained_object: object)
       end
 
-      self.parent.save! if !parent.new_record?
+      self.parent.save! if !self.parent.new_record?
       save! unless new_record?
     end
   end
@@ -78,21 +79,21 @@ class ContainerItem < ApplicationRecord
   # @param value [a Container#id]
   def container_id=(value)
     @container_id = value
-    c = Container.find(value)
+    c = Container.find(container_id)
     if parent
-      parent.contained_object = c 
+      self.parent.contained_object = c 
     else
       self.parent = ContainerItem.new(contained_object: c) 
     end
 
-    self.parent.save! if !parent.new_record?
+    self.parent.save! if !self.parent.new_record?
     save! unless new_record?
   end
 
-  # @return [container]
-  #   the container for this ContainerItem
+  # @return [Container, nil]
+  #   the immediate container for this ContainerItem
   def container
-    reload_parent.try(:contained_object)
+    parent.try(:contained_object)
   end
 
   # @return [GlobalID]
@@ -117,6 +118,12 @@ class ContainerItem < ApplicationRecord
     end
   end
 
+  def container_is_not_a_sibling
+    if container && siblings.pluck(:contained_object_type, :contained_object_id).include?(['Container', container.id])
+      errors.add(:base, 'Contained object is same as container.')
+    end
+  end
+
   def position_is_not_replicated
     if parent && (disposition_x || disposition_y || disposition_z)
       if ContainerItem.where.not(id: id).
@@ -131,7 +138,7 @@ class ContainerItem < ApplicationRecord
 
   # If the contained_object is a CollectionObject, it must have a parent container reference
   def contained_object_is_container_when_parent_id_is_blank
-    if parent_id.blank? && container_id.blank?
+    if parent_id.blank? && container_id.blank? && container.blank?
       errors.add(:parent_id, 'can only be blank if object is a container') if contained_object_type != 'Container'
     end
   end

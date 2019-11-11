@@ -89,25 +89,31 @@ describe ContainerItem, type: :model, group: :containers do
       end
     end
 
-    context '#container' do
-      let(:c1) { ContainerItem.create(contained_object: container1) }
-      let(:c2) { ContainerItem.create(contained_object: container1, parent: c1) }
+    context 'containers' do
+      # A parent container     ci1
+      #    A child container   ci2
+      #       A specimen       ci3 
+      
+      let(:ci1) { ContainerItem.create!(contained_object: container1) } 
+      let(:ci2) { ContainerItem.create!(contained_object: container2, parent: ci1) } 
+      let(:ci3) { ContainerItem.new(contained_object: o1) }
 
-      specify 'is defined by #parent' do
-        expect(c2.container.metamorphosize).to eq(c1.contained_object)
+      let(:o1) { Specimen.create! }
+
+      specify '#container is alias for parent.contained_object' do
+        ci3.update!(parent: ci2)
+        expect(o1.container.metamorphosize).to eq(container2)
       end
 
-      specify 'can be set with #container=' do
-        c1.container = container2
-        expect(c1.container.metamorphosize).to eq(container2)
+      specify '#container_id can set #container' do
+        ci3.update!(container_id: container2.id)
+        expect(ci3.container.metamorphosize).to eq(container2)
       end
-    end
 
-    context '#container_id' do
-      let(:c1) { ContainerItem.create!(contained_object: container1, container_id: container2.id) }
-
-      specify 'containerized by reference to id' do
-        expect(c1.container.id).to eq(container2.id)
+      specify '#container= can set container' do
+        ci3.container = container2
+        ci3.save!
+        expect(ci3.container.metamorphosize).to eq(container2)
       end
     end
 
