@@ -272,11 +272,9 @@ describe User, type: :model do
     end
   end
 
+  context 'concerns' do
+    it_behaves_like 'data_attributes'
+    it_behaves_like 'notable'
+    # it_behaves_like 'random_token_fields'
+  end
 end
-
-context 'concerns' do
-  it_behaves_like 'data_attributes'
-  it_behaves_like 'notable'
-  # it_behaves_like 'random_token_fields'
-end
-
