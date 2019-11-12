@@ -1,4 +1,5 @@
 const ActionNames = {
+  LoadContainer: 'loadContainer',
   GetTaxon: 'getTaxon',
   GetLabels: 'getLabels',
   GetIdentifier: 'getIdentifier',

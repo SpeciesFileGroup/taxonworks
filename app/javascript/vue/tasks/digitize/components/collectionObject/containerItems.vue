@@ -50,6 +50,9 @@ export default {
         this.$store.dispatch(ActionNames.AddToContainer, this.collectionObject)
         setTimeout(() => {
           that.newDigitalization()
+          this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
+            this.$store.dispatch(ActionNames.AddToContainer, this.collectionObject)
+          })
         }, 500)
       })
     },

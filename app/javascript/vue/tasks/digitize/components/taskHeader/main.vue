@@ -36,7 +36,7 @@
       </tippy-component>
         <recent-component
           class="separate-right"
-          @selected="loadCollectionObject($event.id)"/>
+          @selected="loadCollectionObject($event)"/>
         <button 
           type="button"
           v-shortkey="[getMacKey(), 's']"
@@ -156,9 +156,10 @@
         this.$store.dispatch(ActionNames.ResetWithDefault)
         this.$store.dispatch(ActionNames.LoadDigitalization, object.identifier_object_id)
       },
-      loadCollectionObject(id) {
+      loadCollectionObject(co) {
         this.resetStore()
-        this.$store.dispatch(ActionNames.LoadDigitalization, id)
+        this.$store.dispatch(ActionNames.LoadContainer, co.global_id)
+        this.$store.dispatch(ActionNames.LoadDigitalization, co.id)
       }
     }
   }
