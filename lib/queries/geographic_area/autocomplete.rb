@@ -11,6 +11,7 @@ module Queries
       # @return [Scope]
       def autocomplete 
         (
+          ::GeographicArea.where(id: query_string).all +
           ::GeographicArea.where(name: query_string).all +
           ::GeographicArea.joins(parent_child_join).where(Arel.sql(parent_child_where.to_sql)).limit(5).all +
           ::GeographicArea.where(Arel.sql(where_sql)).includes(:geographic_area_type, :geographic_items).order(Arel.sql('LENGTH(name)')).limit(dynamic_limit).all
