@@ -21,13 +21,12 @@
         </div>
 
         <div class="navigation-controls">
-          <%= link_to(content_tag(:span, 'Show', class: 'small-icon'), @collection_object.metamorphosize, class: 'navigation-item') -%>
-          <%= edit_object_link(@collection_object) -%>
+          <%= link_to('Edit (task)', comprehensive_collection_object_task_path( collection_object_id: @collection_object.id ), class: 'navigation-item') -%>
         </div>
 
         <div class="navigation-controls">
-          <%= link_to('Previous', browse_collection_objects_task_path( collection_object_id: previous_object(@collection_object) )) -%>
-          <%= link_to('Next', browse_collection_objects_task_path( collection_object_id: next_object(@collection_object) )) -%>
+          <%= link_to('Previous', browse_collection_objects_task_path( collection_object_id: previous_object(@collection_object) ),class: 'navigation-item') -%>
+          <%= link_to('Next', browse_collection_objects_task_path( collection_object_id: next_object(@collection_object) ), class: 'navigation-item') -%>
         </div>
 
         <div class="navigation-controls">
