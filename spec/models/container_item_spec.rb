@@ -115,6 +115,14 @@ describe ContainerItem, type: :model, group: :containers do
         ci3.save!
         expect(ci3.container.metamorphosize).to eq(container2)
       end
+
+      specify '#contained_object is not sibiling' do
+        c = FactoryBot.create(:valid_container)
+        a = Specimen.create!
+        b = Specimen.create!
+        ci1 = ContainerItem.create!(contained_object: a, container_id: c.id)
+        expect {ContainerItem.create!(contained_object: c, container_id: c.id)}.to raise_error ActiveRecord::RecordInvalid, `Contained object is already in a container_item`
+      end
     end
 
     context 'closure tree' do

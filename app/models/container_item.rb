@@ -51,7 +51,6 @@ class ContainerItem < ApplicationRecord
   validates_presence_of :contained_object
 
   validate :parent_contained_object_is_container
-  validate :container_is_not_a_sibling
   validate :contained_object_is_container_when_parent_id_is_blank
   validate :contained_object_is_unique
   validate :object_fits_in_container
@@ -115,12 +114,6 @@ class ContainerItem < ApplicationRecord
         c = send("disposition_#{coord}")
         errors.add("disposition_#{coord}".to_sym, 'is larger than the container size') if c && parent.contained_object.send("size_#{coord}") < c
       end
-    end
-  end
-
-  def container_is_not_a_sibling
-    if container && siblings.pluck(:contained_object_type, :contained_object_id).include?(['Container', container.id])
-      errors.add(:base, 'Contained object is same as container.')
     end
   end
 
