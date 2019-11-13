@@ -222,6 +222,17 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
           $($(this).children()).attr('data-icon', 'show');
         });
       }
+      else if($(this).attr('data-filter-hide-all')) {
+        document.querySelectorAll('[data-filter]').forEach(element => {
+          $($(element).children()).attr('data-icon', 'hide');
+          $($(element).attr('data-filter-font')).animate({
+            fontSize: '0px'
+          });
+
+          elementFilter($(element).attr('data-filter-row'), true)
+          $($(element).attr('data-filter')).hide(255);
+        })
+      }
       else {
         isActive($(this), 'active');
         if ($(this).children().attr('data-icon') == "show") {
