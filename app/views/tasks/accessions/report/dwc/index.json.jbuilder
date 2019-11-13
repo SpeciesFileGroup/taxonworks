@@ -3,7 +3,7 @@ json.array! @collection_objects do |c|
   json.id c.id
 
   json.partial! '/shared/data/all/metadata', object: c # maybe not, since uses object_tag
-  json.update_at time_ago_in_words(c.updated_at)
+  json.updated_at time_ago_in_words(c.updated_at)
   json.updater c.updater.name
 
   json.dwc_attributes do
