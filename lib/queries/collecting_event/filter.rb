@@ -38,8 +38,6 @@ module Queries
 
       # @return [True, nil]
       # Reference geographic areas to do a spatial query 
-      # 
-      # !! In fact we handle only 1 area at present, not multiple.
       attr_accessor :spatial_geographic_areas
 
       # @return [Array]
@@ -63,8 +61,10 @@ module Queries
 
         @keyword_ids = params[:keyword_ids].blank? ? [] : params[:keyword_ids]
 
+        # @spatial_geographic_area_ids = params[:spatial_geographic_areas].blank? ? [] : params[:spatial_geographic_area_ids]
 
         @spatial_geographic_areas = (params[:spatial_geographic_areas]&.downcase == 'true' ? true : false) if !params[:spatial_geographic_areas].nil?
+        
 
         @geographic_area_ids = params[:geographic_area_ids].blank? ? [] : params[:geographic_area_ids]
 
@@ -141,6 +141,13 @@ module Queries
         end
       end
 
+       # TODO: throttle by size?
+       def matching_spatial_via_geographic_area_ids
+          return nil unless spatial_geographic_areas && !geographic_area_ids.empty?
+          a = ::GeographicItem.default_by_geographic_area_ids(geographic_area_ids).ids 
+        ::CollectingEvent.joins(:geographic_items).where( ::GeographicItem.contained_by_where_sql( a ) )
+      end
+
       def matching_any_label
         return nil if in_labels.blank?
         t = "%#{in_labels}%"
@@ -179,6 +186,8 @@ module Queries
 
           wkt_facet,
           geo_json_facet,
+
+          matching_spatial_via_geographic_area_ids
         ].compact!
         clauses
       end
