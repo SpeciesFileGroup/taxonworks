@@ -35,7 +35,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
     }
 
     var taxonId = document.querySelector("#browse-view").getAttribute("data-taxon-id");
-    var taxonType = document.querySelector("[data-taxon-type]").getAttribute("data-taxon-type");
+    var taxonType = document.querySelector("[data-taxon-type]") ? document.querySelector("[data-taxon-type]").getAttribute("data-taxon-type") : undefined;
     var taxonStatus = document.querySelector('[data-status]') ? document.querySelector('[data-status]').getAttribute('data-status') : undefined;
 
     if(taxonType === 'Invalid' || taxonType === 'Combination' || taxonStatus === 'invalid') {
