@@ -10,7 +10,7 @@
           <%= previous_link(object) -%> 
           <%= next_link(object) -%>
         </div> 
-       
+
         <div class="navigation-controls border-bottom">
           <div class="content">
             <%= search_form_for_model(@data_model) %>
@@ -21,7 +21,7 @@
           <%= new_for_model_link(@data_model)  -%>
         </div>
 
-          <%= yield :additional_navigation -%>
+        <%= yield :additional_navigation -%>
       </div>
     </div>
 
@@ -33,23 +33,23 @@
             <span data-view="development">&nbsp;[ id: <%= object.id -%>, global_id: <%= CGI.escape(object.to_global_id.to_s) -%> ]</span>
           </div>
           <div class="flex-separate">
-          <ul class="context-menu">
-            <li><a data-icon="show" href="#" data-turbolinks="false" view-bottom>Development view</a></li>
-            <%= content_tag(:li, otus_radial(object)) if object.class.name === "Otu" %>
-          </ul>
-          <ul class="context-menu">
-            <li><%= radial_annotator(object) %></li>
-            <li><%= tag_default_icon(object) %></li>
-            <li><%= pin_item_to_pinboard_link(object, sessions_current_user) %></li>
-            <li><%= radial_object_tag(object) %></li>
-          </ul>
+            <ul class="context-menu">
+              <li><a data-icon="show" href="#" data-turbolinks="false" view-bottom>Development view</a></li>
+              <%= content_tag(:li, otus_radial(object)) if object.class.name === "Otu" %>
+            </ul>
+            <ul class="context-menu">
+              <li><%= radial_annotator(object) %></li>
+              <li><%= tag_default_icon(object) %></li>
+              <li><%= pin_item_to_pinboard_link(object, sessions_current_user) %></li>
+              <li><%= radial_object_tag(object) %></li>
+            </ul>
           </div>
         </div> 
 
         <div class="navigation-controls">
           <%= edit_object_link(object) if controller.respond_to?(:edit) -%>
           <%= destroy_object_link(object) if controller.respond_to?(:destroy) %>  
-       
+
           <div id="show_tasks_dropdown" class="navigation-item menu-drop">
             <span data-icon="task" class="small-icon">Tasks</span>
             <ul class="dropdown">
@@ -70,7 +70,7 @@
               <%= yield :report -%>
             </ul>
           </div>    
-     
+
         </div>        
       </div>    
       <div class="flex-wrap-row"> 
@@ -87,28 +87,28 @@
               </div>        
             </div>
           </div>
-       <div class="flex-wrap-row"> 
-        <div id="related-panel" class="panel separate-left separate-bottom">
-          <div class="content"> 
-            <div class="title-section">
-              <h2>Associated</h2>
+          <div class="flex-wrap-row"> 
+            <div id="related-panel" class="panel separate-left separate-bottom">
+              <div class="content"> 
+                <div class="title-section">
+                  <h2>Associated</h2>
+                </div>
+                <div class="information-panel">
+                  <%= yield :associated -%>
+                </div>
+              </div>
             </div>
-            <div class="information-panel">
-            <%= yield :associated -%>
+
+            <div id="validation-panel" class="panel separate-left separate-bottom">
+              <div class="content">
+                <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
+              </div>
             </div>
+
+            <%= annotations_summary_tag(object) -%>
+
           </div>
         </div>
-        
-        <div id="validation-panel" class="panel separate-left separate-bottom">
-          <div class="content">
-            <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
-          </div>
-        </div>
-
-       <%= annotations_summary_tag(object) -%>
-
-      </div>
-      </div>
       </div>
     </div>
   </div>

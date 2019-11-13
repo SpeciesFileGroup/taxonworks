@@ -10,7 +10,10 @@ describe ContainerItem, type: :model, group: :containers do
   let(:container2) { FactoryBot.create(:valid_container, name: 'Middle') }
 
   specify '#create' do
-    expect(ContainerItem.create!(container_id: container2.id, global_entity: specimen.to_global_id.to_s)).to be_truthy
+    expect(ContainerItem.create!(
+      container_id: container2.id,
+      global_entity: specimen.to_global_id.to_s
+    )).to be_truthy
   end
 
   # TODO: move to concern
@@ -99,6 +102,26 @@ describe ContainerItem, type: :model, group: :containers do
       let(:ci3) { ContainerItem.new(contained_object: o1) }
 
       let(:o1) { Specimen.create! }
+
+      specify '#parent is set via parent:' do
+        expect(ci2.parent_id).to be_truthy
+      end
+
+      specify '#parent is set via #container_id= 1' do
+        ci3.update!(container_id: container2.id)
+        expect(ci3.parent_id).to be_truthy
+      end
+
+      specify '#parent is set via #container_id 2' do
+        ci4 = ContainerItem.create!(contained_object: Specimen.create!, container_id: container2.id) 
+        expect(ci4.reload.parent_id).to be_truthy
+      end
+
+      specify '#parent is set via container_id when container has other specimens' do
+        ci3.update!(container_id: container2.id)
+        ci4 = ContainerItem.create!(contained_object: Specimen.create!, container_id: container2.id) 
+        expect(ci4.parent_id).to be_truthy
+      end
 
       specify '#container is alias for parent.contained_object' do
         ci3.update!(parent: ci2)
