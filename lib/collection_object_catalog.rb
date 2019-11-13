@@ -34,6 +34,37 @@ module CollectionObjectCatalog
     :collection_site_imaged, 
   ].freeze
 
+  FILTER_MAP = {
+    born: :life,
+    died: :life, 
+    collected_on: :collecting_event, 
+    determined: :taxon_determinations,
+    described: :observations,
+    given_identifier: :annotations,
+    georeferenced: :collecting_event, 
+    destroyed: :accessions,
+    placed_in_repository: :accessions, 
+    sent_for_loan: :loans, 
+    returned_from_loan: :loans,
+    updated_metadata: :annotations, 
+    added_note: :annotations, 
+    annotated: :annotations,
+    cited: :annotations, 
+    containerized: :accessions,
+    extracted_from: :lab,
+    sequenced: :lab,
+    dissected: :lab,
+    tagged: :annotations,
+    typified: nil, 
+    added_attribute: :annotations, 
+    biologically_classified: :annotations,
+    fossilized_between:  :collecting_event, 
+    imaged: :images, 
+    metadata_depicted: :images, 
+    collecting_event_metadata_depicted: :images,
+    collection_site_imaged: :collecting_event,  
+  }.freeze
+
   # rubocop:disable Metrics/MethodLength
   # @param [CollectionObject] collection_object
   # @return [CollectionObjectCatalog::CatalogEntry]
