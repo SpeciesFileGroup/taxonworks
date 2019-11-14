@@ -31,6 +31,8 @@
 class Download < ApplicationRecord
   include Housekeeping
 
+  default_scope { where('expires >= ?', Time.now) }
+
   after_create :save_file
   after_destroy :delete_file
 
@@ -51,11 +53,15 @@ class Download < ApplicationRecord
 
   # Retrieves the full-path of stored file
   def file_path
-    STORAGE_PATH.join(id.to_s, filename)
+    dir_path.join(filename)
   end
 
   def file
     File.read(file_path)
+  end
+
+  def expired?
+    expires < Time.now
   end
 
   private
@@ -63,7 +69,8 @@ class Download < ApplicationRecord
   STORAGE_PATH = Rails.root.join(Rails.env.test? ? 'tmp' : '', 'downloads').freeze
 
   def dir_path
-    STORAGE_PATH.join(id.to_s)
+    str = id.to_s
+    STORAGE_PATH.join(*str.rjust(9, '0').scan(/.../))
   end
 
   def save_file

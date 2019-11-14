@@ -13,6 +13,7 @@
         slot="body">
         <thead>
           <tr>
+            <th>Total</th>
             <th>Family</th>
             <th>Genus</th>
             <th>Scientific name</th>
@@ -25,6 +26,7 @@
             <th>Verbatim locality</th>
             <th>Date start</th>
             <th>Container</th>
+            <th>Update at</th>
           </tr>
         </thead>
         <tbody>
@@ -34,6 +36,7 @@
             class="contextMenuCells"
             :class="{ 'even': (index % 2 == 0) }"
             @click="sendCO(item)">
+            <td>{{ item.dwc_attributes.individualCount }}</td>
             <td>{{ item.dwc_attributes.family }}</td>
             <td>{{ item.dwc_attributes.genus }}</td>
             <td>{{ item.dwc_attributes.scientificName }}</td>
@@ -46,6 +49,7 @@
             <td>{{ item.dwc_attributes.verbatimLocality }}</td>
             <td>{{ item.dwc_attributes.eventDate }}</td>
             <td>{{ item.dwc_attributes.container }}</td>
+            <td>{{ item.updated_at }}</td>
           </tr>
         </tbody>
       </table>

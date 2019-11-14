@@ -51,150 +51,6 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
       expect(collecting_event.errors.include?(:verbatim_latitude)).to be_truthy
     end
 
-    specify 'start_date_year is valid as 4 digit integer' do
-      # You can also pass a string, casting is automatic
-      collecting_event.start_date_year = 1942
-      collecting_event.valid?
-      expect(collecting_event.errors[:start_date_year].size).to eq(0)
-    end
-
-    specify 'start_date_year is invalid as 3 digit integer' do
-      collecting_event.start_date_year = '194'
-      collecting_event.valid?
-      expect(collecting_event.errors.include?(:start_date_year)).to be_truthy
-    end
-
-    specify 'start_date_year is invalid as when > 5 years from the future' do
-      collecting_event.start_date_year = (Time.now.year + 6)
-      collecting_event.valid?
-      expect(collecting_event.errors.include?(:start_date_year)).to be_truthy
-    end
-
-    specify 'start_date_year is invalid when less than 1000' do
-      collecting_event.start_date_year = 999
-      collecting_event.valid?
-      expect(collecting_event.errors.include?(:start_date_year)).to be_truthy
-    end
-
-    specify 'end_date_year is valid as 4 digit integer' do
-      # You can also pass a string, casting is automatic
-      collecting_event.end_date_year = 1942
-      collecting_event.valid?
-      expect(collecting_event.errors[:end_date_year]).to eq([])
-    end
-
-    specify 'end_date_year is invalid as 3 digit integer' do
-      collecting_event.end_date_year = '194'
-      collecting_event.valid?
-      expect(collecting_event.errors.include?(:end_date_year)).to be_truthy
-    end
-
-    specify 'end_date_year is invalid as when > 5 years from the future' do
-      collecting_event.end_date_year = Time.now.year + 6
-      collecting_event.valid?
-      expect(collecting_event.errors.include?(:end_date_year)).to be_truthy
-    end
-
-    specify 'end_date_year is invalid when less than 1000' do
-      collecting_event.end_date_year = 999
-      collecting_event.valid?
-      expect(collecting_event.errors.include?(:end_date_year)).to be_truthy
-    end
-
-    specify 'start_date_month is invalid when not included in 1-12' do
-      ['ab', 'February', 13, 0].each do |m|
-        collecting_event.start_date_month = m
-        collecting_event.valid?
-        expect(collecting_event.errors.include?(:start_date_month)).to be_truthy
-      end
-    end
-
-    specify 'start_date_day is invalid when not an integer' do
-      collecting_event.start_date_day = 'a'
-      collecting_event.valid?
-      expect(collecting_event.errors.include?(:start_date_day)).to be_falsey
-    end
-
-    specify 'start_date_day is value bound by month' do
-      collecting_event.start_date_year  = '1945' # requires year for leaps
-      collecting_event.start_date_month = '2'
-      collecting_event.start_date_day   = '30'
-      collecting_event.valid?
-      expect(collecting_event.errors.include?(:start_date_day)).to be_truthy
-    end
-
-    specify 'start_date_month is invalid when nil AND start_date_day provided' do
-      collecting_event.start_date_day = 1
-      collecting_event.valid?
-      expect(collecting_event.errors.include?(:start_date_month)).to be_truthy
-    end
-
-    specify 'end_date_month is invalid when not included in 1-12' do
-      ['ab', 'February', 13, 0].each do |m|
-        collecting_event.end_date_month = m
-        collecting_event.valid?
-        expect(collecting_event.errors.include?(:end_date_month)).to be_truthy
-      end
-    end
-
-    specify 'end_date_day is invalid when not an integer' do
-      collecting_event.end_date_day = 'a'
-      collecting_event.valid?
-      expect(collecting_event.errors.include?(:end_date_day)).to be_falsey
-    end
-
-    specify 'end_date_day is value bound by month' do
-      collecting_event.end_date_year  = '1945' # requires year for leaps
-      collecting_event.end_date_month = '2'
-      collecting_event.end_date_day   = '30'
-      collecting_event.valid?
-      expect(collecting_event.errors.include?(:end_date_day)).to be_truthy
-    end
-
-    specify 'end_date_month is invalid when nil AND end_date_day provided' do
-      collecting_event.end_date_day = 1
-      collecting_event.valid?
-      expect(collecting_event.errors.include?(:end_date_month)).to be_truthy
-    end
-
-    specify 'end date is > start date when both are provided' do
-      message                           = 'End date is earlier than start date.'
-      collecting_event.start_date_day   = 2
-      collecting_event.start_date_month = 1
-      collecting_event.start_date_year  = 1
-
-      collecting_event.end_date_day   = 1
-      collecting_event.end_date_month = 1
-      collecting_event.end_date_year  = 1
-
-      expect(collecting_event.valid?).to be_falsey
-      expect(collecting_event.errors[:base].include?(message)).to be_truthy
-    end
-
-    specify 'end date is > start date when both are provided' do
-      message                           = 'End date is earlier than start date.'
-      collecting_event.start_date_day   = '26'
-      collecting_event.start_date_month = '6'
-      collecting_event.start_date_year  = '1970'
-
-      collecting_event.end_date_day = '24'
-      collecting_event.end_date_month = '7'
-      collecting_event.end_date_year  = '1970'
-
-      expect(collecting_event.valid?).to be_truthy
-      expect(collecting_event.errors[:base].include?(message)).to be_falsey
-    end
-
-    specify 'end date without start date' do
-      message                         = 'End date without start date.'
-      collecting_event.end_date_day   = 1
-      collecting_event.end_date_month = 1
-      collecting_event.end_date_year  = 1789
-
-      expect(collecting_event.valid?).to be_falsey
-      expect(collecting_event.errors[:base].include?(message)).to be_truthy
-    end
-
     specify 'maximum elevation is greater than minimum elevation when both provided' do
       message                            = 'Maximum elevation is lower than minimum elevation.'
       collecting_event.minimum_elevation = 2
@@ -274,7 +130,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
 
           collecting_event.save!
           expect(collecting_event.cached.blank?).to be_falsey
-          expect(collecting_event.cached.strip).to eq('01/01/1511-02/02/1522')
+          expect(collecting_event.cached.strip).to eq('1511/01/01-1522/02/02')
         end
 
         specify 'just start date' do
@@ -284,7 +140,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
 
           collecting_event.save!
           expect(collecting_event.cached.blank?).to be_falsey
-          expect(collecting_event.cached.strip).to eq('01/01/1511')
+          expect(collecting_event.cached.strip).to eq('1511/01/01')
         end
 
         specify 'just verbatim_label' do
@@ -294,7 +150,6 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
           expect(collecting_event.cached.blank?).to be_falsey
           expect(collecting_event.cached.strip).to eq('Just this thing.')
         end
-
       end
     end
   end
@@ -393,6 +248,19 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
       a = collecting_event.clone
       expect(a.collectors.count).to eq(1)
    end 
+  end
+
+  context 'roles' do
+    specify '#collector_names 1' do
+      collecting_event.verbatim_collectors = 'Smith & Jones'
+      expect(collecting_event.collector_names).to eq('Smith & Jones')
+    end
+
+    specify '#collector_names 2' do
+      a = FactoryBot.create(:valid_person, last_name: 'Smith') 
+      collecting_event.collectors << a
+      expect(collecting_event.collector_names).to eq(a.last_name)
+    end
   end
 
   context 'concerns' do

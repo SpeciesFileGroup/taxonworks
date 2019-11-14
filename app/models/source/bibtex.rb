@@ -322,14 +322,14 @@ class Source::Bibtex < Source
   belongs_to :source_language, class_name: 'Language', foreign_key: :language_id, inverse_of: :sources
 
   has_many :author_roles, -> { order('roles.position ASC') }, class_name: 'SourceAuthor',
-           as: :role_object, validate: true
+    as: :role_object, validate: true
 
   has_many :authors, -> { order('roles.position ASC') }, through: :author_roles, source: :person, validate: true
-  
+
   has_many :editor_roles, -> { order('roles.position ASC') }, class_name: 'SourceEditor',
-           as: :role_object, validate: true
+    as: :role_object, validate: true
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person, validate: true
- 
+
   accepts_nested_attributes_for :authors, :editors, :author_roles, :editor_roles, allow_destroy: true
 
   before_validation :create_authors, if: -> { !authors_to_create.nil? }
@@ -343,8 +343,9 @@ class Source::Bibtex < Source
     if: -> { !month.blank? || !stated_year.blank? },
     message: 'is required when month or stated_year is provided'
 
-  validates :year, date_year: {min_year: 1000, max_year: Time.now.year + 2,
-                               message:  'must be an integer greater than 999 and no more than 2 years in the future'}
+  validates :year, date_year: {
+    min_year: 1000, max_year: Time.now.year + 2,
+    message: 'must be an integer greater than 999 and no more than 2 years in the future'}
 
   validates_presence_of :month,
     unless: -> { day.blank? },

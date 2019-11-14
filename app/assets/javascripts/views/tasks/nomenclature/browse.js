@@ -35,7 +35,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
     }
 
     var taxonId = document.querySelector("#browse-view").getAttribute("data-taxon-id");
-    var taxonType = document.querySelector("[data-taxon-type]").getAttribute("data-taxon-type");
+    var taxonType = document.querySelector("[data-taxon-type]") ? document.querySelector("[data-taxon-type]").getAttribute("data-taxon-type") : undefined;
     var taxonStatus = document.querySelector('[data-status]') ? document.querySelector('[data-status]').getAttribute('data-status') : undefined;
 
     if(taxonType === 'Invalid' || taxonType === 'Combination' || taxonStatus === 'invalid') {
@@ -221,6 +221,17 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
           $($(this).attr('data-filter')).show(255);
           $($(this).children()).attr('data-icon', 'show');
         });
+      }
+      else if($(this).attr('data-filter-hide-all')) {
+        document.querySelectorAll('[data-filter]').forEach(element => {
+          $($(element).children()).attr('data-icon', 'hide');
+          $($(element).attr('data-filter-font')).animate({
+            fontSize: '0px'
+          });
+
+          elementFilter($(element).attr('data-filter-row'), true)
+          $($(element).attr('data-filter')).hide(255);
+        })
       }
       else {
         isActive($(this), 'active');

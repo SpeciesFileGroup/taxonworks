@@ -50,7 +50,7 @@ class CollectingEventsController < ApplicationController
   def clone
     @collecting_event = @collecting_event.clone
     respond_to do |format|
-      format.html { redirect_to edit_collecting_event_path(@collecting_event), notice: 'Cloned successful, on new record.' }
+      format.html { redirect_to edit_collecting_event_path(@collecting_event), notice: 'Clone successful, on new record.' }
       format.json { render :show }
     end
   end
@@ -94,6 +94,13 @@ class CollectingEventsController < ApplicationController
 
   def list
     @collecting_events = CollectingEvent.with_project_id(sessions_current_project_id).order(:id).page(params[:page])
+  end
+
+  def attributes
+    render json: ::CollectingEvent.columns.select{
+      |a| Queries::CollectingEvent::Filter::ATTRIBUTES.include?(
+        a.name)
+    }.collect{|b| {'name' => b.name, 'type' => b.type } }
   end
 
   # GET /collecting_events/search
@@ -246,18 +253,24 @@ class CollectingEventsController < ApplicationController
                                        project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
+
+
   def filter_params
+    # TODO: unify for use in CO
     params.permit(
       Queries::CollectingEvent::Filter::ATTRIBUTES,
       :in_labels,
       :in_verbatim_locality,
       :recent,
-      :shape,
-      :start_date,
-      :end_date,
+      :wkt,
+      :radius,
+      :geo_json,
+      :start_date, # used in date range
+      :end_date,   # used in date range
       :partial_overlap_dates,
       keyword_ids: [],
       spatial_geographic_area_ids: []
     )
   end
+
 end

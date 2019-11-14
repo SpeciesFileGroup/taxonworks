@@ -10,7 +10,10 @@ describe ContainerItem, type: :model, group: :containers do
   let(:container2) { FactoryBot.create(:valid_container, name: 'Middle') }
 
   specify '#create' do
-    expect(ContainerItem.create!(container_id: container2.id, global_entity: specimen.to_global_id.to_s)).to be_truthy
+    expect(ContainerItem.create!(
+      container_id: container2.id,
+      global_entity: specimen.to_global_id.to_s
+    )).to be_truthy
   end
 
   # TODO: move to concern
@@ -89,25 +92,59 @@ describe ContainerItem, type: :model, group: :containers do
       end
     end
 
-    context '#container' do
-      let(:c1) { ContainerItem.create(contained_object: container1) }
-      let(:c2) { ContainerItem.create(contained_object: container1, parent: c1) }
+    context 'containers' do
+      # A parent container     ci1
+      #    A child container   ci2
+      #       A specimen       ci3 
+      
+      let(:ci1) { ContainerItem.create!(contained_object: container1) } 
+      let(:ci2) { ContainerItem.create!(contained_object: container2, parent: ci1) } 
+      let(:ci3) { ContainerItem.new(contained_object: o1) }
 
-      specify 'is defined by #parent' do
-        expect(c2.container.metamorphosize).to eq(c1.contained_object)
+      let(:o1) { Specimen.create! }
+
+      specify '#parent is set via parent:' do
+        expect(ci2.parent_id).to be_truthy
       end
 
-      specify 'can be set with #container=' do
-        c1.container = container2
-        expect(c1.container.metamorphosize).to eq(container2)
+      specify '#parent is set via #container_id= 1' do
+        ci3.update!(container_id: container2.id)
+        expect(ci3.parent_id).to be_truthy
       end
-    end
 
-    context '#container_id' do
-      let(:c1) { ContainerItem.create!(contained_object: container1, container_id: container2.id) }
+      specify '#parent is set via #container_id 2' do
+        ci4 = ContainerItem.create!(contained_object: Specimen.create!, container_id: container2.id) 
+        expect(ci4.reload.parent_id).to be_truthy
+      end
 
-      specify 'containerized by reference to id' do
-        expect(c1.container.id).to eq(container2.id)
+      specify '#parent is set via container_id when container has other specimens' do
+        ci3.update!(container_id: container2.id)
+        ci4 = ContainerItem.create!(contained_object: Specimen.create!, container_id: container2.id) 
+        expect(ci4.parent_id).to be_truthy
+      end
+
+      specify '#container is alias for parent.contained_object' do
+        ci3.update!(parent: ci2)
+        expect(o1.container.metamorphosize).to eq(container2)
+      end
+
+      specify '#container_id can set #container' do
+        ci3.update!(container_id: container2.id)
+        expect(ci3.container.metamorphosize).to eq(container2)
+      end
+
+      specify '#container= can set container' do
+        ci3.container = container2
+        ci3.save!
+        expect(ci3.container.metamorphosize).to eq(container2)
+      end
+
+      specify '#contained_object is not sibiling' do
+        c = FactoryBot.create(:valid_container)
+        a = Specimen.create!
+        b = Specimen.create!
+        ci1 = ContainerItem.create!(contained_object: a, container_id: c.id)
+        expect {ContainerItem.create!(contained_object: c, container_id: c.id)}.to raise_error ActiveRecord::RecordInvalid, `Contained object is already in a container_item`
       end
     end
 

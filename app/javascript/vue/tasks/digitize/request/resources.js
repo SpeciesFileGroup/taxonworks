@@ -149,6 +149,10 @@ const UpdateCollectionEvent = function (data) {
   return ajaxCall('patch', `/collecting_events/${data.id}.json`, { collecting_event: data })
 }
 
+const GetContainer = function (globalId) {
+  return ajaxCall('get', `/containers/for`, { params: { global_id: globalId } })
+}
+
 const CreateContainer = function (data) {
   return ajaxCall('post', `/containers.json`, { container: data })
 }
@@ -359,5 +363,6 @@ export {
   DestroyBiologicalAssociation,
   CreateContainer,
   CreateContainerItem,
+  GetContainer,
   GetNamespacesSmartSelector
 }

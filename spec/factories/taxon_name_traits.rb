@@ -20,7 +20,7 @@ FactoryBot.define do
     #    p =  Protonym.where(parent_id: nil, project_id: $project_id)
     #    if p.blank?
     #      # !! Note the strategy, build, not create, and provide a dummy ID so that validation passes when TaxonName#parent.id is checked.
-    #      name = FactoryBot.build(:root_taxon_name) #  #  #  #  # , id: Faker::Number.number(5)
+    #      name = FactoryBot.build(:root_taxon_name) #  #  #  #  # , id: Faker::Number.number(digits: 5)
     #    else
     #      name = p.first
     #    end

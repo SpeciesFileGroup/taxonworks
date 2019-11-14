@@ -84,7 +84,7 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
           expect(s.identifiers.first.project.nil?).to be_falsey
         end
       end
-      
+
       context 'with community object and is_community_annotation == true' do
         specify 'with .build' do
           expect(serial.identifiers.count).to eq(0)
@@ -126,7 +126,6 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
           expect(s.identifiers.first.project.nil?).to be_truthy
         end
       end
-
     end
 
     specify 'has an identifier_object' do

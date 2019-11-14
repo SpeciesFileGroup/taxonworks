@@ -201,6 +201,28 @@ describe Tag, type: :model, group: [:annotators, :tags] do
     end 
   end
 
+  context '.batch_create' do
+    let(:k1) { FactoryBot.create(:valid_keyword) }
+    let(:o1) { Otu.create(name: 'a')}
+    let(:o2) { Otu.create(name: 'b')}
+    let(:o3) { Otu.create(name: 'b')}
+
+    specify 'params' do
+      expect(Tag.batch_create({object_type: 'Otu', object_ids: [o1.id, o2.id, o3.id], keyword_id: k1.id})).to be_truthy
+    end
+
+    specify 'creates' do
+      Tag.batch_create({object_type: 'Otu', object_ids: [o1.id, o2.id, o3.id], keyword_id: k1.id})
+      expect(Tag.count).to eq(3)
+    end
+
+    specify 'existing tags do not raise' do
+      Tag.create!(tag_object: o1, keyword: k1)
+      Tag.batch_create({object_type: 'Otu', object_ids: [o1.id, o2.id, o3.id], keyword_id: k1.id})
+      expect(Tag.count).to eq(3)
+    end
+  end
+
   context 'concerns' do
     it_behaves_like 'is_data'
   end

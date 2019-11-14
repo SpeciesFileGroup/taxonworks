@@ -19,9 +19,24 @@
           v-html="identifier.object_tag"/>
       </div>
       <div class="horizontal-left-content">
+      <tippy-component
+        v-if="hasChanges"
+        animation="scale"
+        placement="bottom"
+        size="small"
+        arrow-size="small"
+        :inertia="true"
+        :arrow="true"
+        :content="`<p>You have unsaved changes.</p>`">
+        <template v-slot:trigger>
+          <div
+            class="medium-icon separate-right"
+            data-icon="warning"/>
+        </template>
+      </tippy-component>
         <recent-component
           class="separate-right"
-          @selected="loadCollectionObject($event.id)"/>
+          @selected="loadCollectionObject($event)"/>
         <button 
           type="button"
           v-shortkey="[getMacKey(), 's']"
@@ -54,16 +69,61 @@
   import { GetterNames } from '../../store/getters/getters.js'
   import RecentComponent from './recent.vue'
   import GetMacKey from 'helpers/getMacKey.js'
+  import { TippyComponent } from 'vue-tippy'
 
   export default {
     components: {
       Autocomplete,
-      RecentComponent
+      RecentComponent,
+      TippyComponent
     },
     computed: {
       identifier() {
         return this.$store.getters[GetterNames.GetIdentifier]
+      },
+      collectionObject() {
+        return this.$store.getters[GetterNames.GetCollectionObject]
+      },
+      collectingEvent() {
+        return this.$store.getters[GetterNames.GetCollectionEvent]
+      },
+      settings: {
+        get () {
+          return this.$store.getters[GetterNames.GetSettings]
+        },
+        set (value) {
+          this.$store.commit(MutationNames.SetSettings, value)
+        }
+      },
+      hasChanges() {
+        return this.settings.lastChange > this.settings.lastSave
       }
+    },
+    watch: {
+      collectionObject: {
+        handler(newVal) {
+          this.settings.lastChange = Date.now()
+        },
+        deep: true
+      },
+      collectingEvent: {
+        handler(newVal) {
+          this.settings.lastChange = Date.now()
+        },
+        deep: true
+      }
+    },
+    mounted() {
+      window.addEventListener('scroll', () => {
+        let element = this.$el
+        if (element) {
+          if (((window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0) > 164)) {
+            element.classList.add('fixed-bar')
+          } else {
+            element.classList.remove('fixed-bar')
+          }
+        }
+      })
     },
     methods: {
       getMacKey: GetMacKey,
@@ -93,12 +153,22 @@
         })
       },
       loadAssessionCode(object) {
+        this.$store.dispatch(ActionNames.ResetWithDefault)
         this.$store.dispatch(ActionNames.LoadDigitalization, object.identifier_object_id)
       },
-      loadCollectionObject(id) {
+      loadCollectionObject(co) {
         this.resetStore()
-        this.$store.dispatch(ActionNames.LoadDigitalization, id)
+        this.$store.dispatch(ActionNames.LoadContainer, co.global_id)
+        this.$store.dispatch(ActionNames.LoadDigitalization, co.id)
       }
     }
   }
 </script>
+<style lang="scss" scoped>
+  .fixed-bar {
+    position: fixed;
+    top:0px;
+    width: calc(100%-52px);
+    z-index:200;
+  }
+</style>

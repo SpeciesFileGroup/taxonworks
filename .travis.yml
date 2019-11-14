@@ -1,4 +1,4 @@
-dist: xenial
+dist: bionic
 branches:
   only:
     - master
@@ -26,7 +26,7 @@ jobs:
           - $TRAVIS_BUILD_DIR/tmp/cache/webpacker
           - /home/travis/.rvm/
       rvm:
-        - 2.5.1
+        - 2.6.3
       bundler_args: --without development production
       addons:
         postgresql: "10"
@@ -48,12 +48,9 @@ jobs:
         - postgresql
       before_install:
         - nvm install 10.15.3
-        - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.7.0
-        - export PATH=$HOME/.yarn/bin:$PATH
-        - export BUNDLER_VERSION=$(tail -n1 Gemfile.lock | tr -d '[:space:]')
       install:
         - npm install
-        - gem install bundler --no-ri --no-rdoc -v $BUNDLER_VERSION
+        - gem install bundler
         - bundle install -j3 --without development production
       before_script:
         - echo ===[TEST_WORKER=$TEST_WORKER before_script $(date -u +%Y%m%d-%H%M%S)]===

@@ -126,7 +126,11 @@ module Workbench::SessionsHelper
   end
 
   def is_project_member?(user, project)
-    project.project_members.include?(user)
+    project.project_members.include?(user) # TODO - change to ID
+  end
+
+  def is_project_member_by_id(user_id, project_id)
+    ProjectMember.where(user_id: user_id, project_id: project_id).any?
   end
 
   def authorize_project_selection(user, project)
