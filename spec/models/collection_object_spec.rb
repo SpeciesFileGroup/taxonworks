@@ -493,7 +493,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
     describe 'with type and namespace (ns1)' do
       specify 'find some which exist' do
         expect(CollectionObject.with_identifier_type(type_cat_no)
-                 .with_identifier_namespace(ns1).map(&:id)).to contain_exactly(4, 6, 8, 10, 12)
+          .with_identifier_namespace(ns1).map(&:id)).to contain_exactly(4, 6, 8, 10, 12)
       end
     end
 
@@ -507,14 +507,14 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
     describe 'with type and namespace (ns2) and sorted' do
       specify 'find some which exist' do
         expect(CollectionObject.with_identifier_type(type_cat_no)
-                 .with_identifier_namespace(ns2)
-                 .with_identifiers_sorted.map(&:id)).to eq([3, 5, 7, 9, 11])
+          .with_identifier_namespace(ns2)
+          .with_identifiers_sorted.map(&:id)).to eq([3, 5, 7, 9, 11])
       end
     end
 
     describe 'with sorted identifiers' do
       specify 'without restriction' do
-        expect(CollectionObject.with_identifiers_sorted.map(&:id)).to eq([3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+        expect(CollectionObject.with_identifiers_sorted.map(&:id)).to eq([4, 6, 8, 10, 12, 3, 5, 7, 9, 11]) # nests within namespace and type
       end
     end
 
@@ -522,7 +522,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       describe 'sorted' do
         specify 'without namespace' do
           expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no).map(&:id))
-            .to eq([3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+            .to eq([4, 6, 8, 10, 12, 3, 5, 7, 9, 11])
         end
 
         specify 'with namespace' do
