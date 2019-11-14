@@ -23,6 +23,7 @@ module Export
     #   should return the full set of Otus (= Taxa in CoLDP) that are to
     #   be sent.
     # TODO: include options for validity, sets of tags, etc. 
+    # At present otus are a mix of valid and invalid
     def self.otus(otu_id)
       o = ::Otu.find(otu_id)
       return ::Otu.none if o.taxon_name_id.nil?
@@ -32,7 +33,9 @@ module Export
 
     def self.export(otu_id)
       otus = otus(otu_id)
-      ref_csv = CSV.new('temp_ref_csv')
+      ref_csv = CSV.new('temp_ref_csv', col_sep: "\t")
+
+      ref_csv << %w{ID citation	author year source details doi}
 
       # TODO: This will likely have to change, it is renamed on serving the file.
       zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_coldp.zip"

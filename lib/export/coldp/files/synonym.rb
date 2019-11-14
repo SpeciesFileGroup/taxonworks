@@ -11,9 +11,7 @@ module Export::Coldp::Files::Synonym
     # Last 3 of http://api.col.plus/vocab/taxonomicstatus
     def self.status(o, t)
       #'synonym'
-
       #'ambiguous synonym'
-
       #'missaplied'
 
       'synonym' 
@@ -23,13 +21,24 @@ module Export::Coldp::Files::Synonym
       nil 
     end
 
-    CSV.generate do |csv|
+    # taxonID - are all valid 
+    # nameID - are all invalid
+
+    CSV.generate(col_sep: "\t") do |csv|
+
+      csv << %w{taxonID nameID status remarks}
+
       otus.each do |o|
-        o.taxon_name.self_and_descendants.that_is_invalid.each do |t|
+        next unless o.taxon_name && !o.taxon_name.is_valid?
+
+        # This is an experiment
+        synonym_type = Otu.where(taxon_name_id: o.taxon_name.cached_valid_taxon_name_id).size > 1 ? 'ambiguous synonym' : 'synonym'
+
+        Otu.where(taxon_name_id: o.taxon_name.cached_valid_taxon_name_id).each do |votu|
           csv << [
-            o.id,
-            t.id,
-            status(o,t), 
+            votu.id,
+            o.taxon_name.id,
+            synonym_type, # Todo def status(taxon_name_id)
             remarks, 
           ]
         end
