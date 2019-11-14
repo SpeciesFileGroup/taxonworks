@@ -32,16 +32,11 @@ jobs:
         postgresql: "10"
         firefox: "latest"
         apt:
-          update: true
           packages:
             - imagemagick
             - libgeos-dev
             - libproj-dev
             - postgresql-10-postgis-2.4
-            - postgresql-10-postgis-2.4-scripts
-            - postgresql-10
-            - postgresql-client-10
-            - postgresql-contrib-10
       env:
           - TEST_WORKER=0
       services:
