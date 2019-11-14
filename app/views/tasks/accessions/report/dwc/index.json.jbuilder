@@ -6,7 +6,7 @@ json.array! @collection_objects do |c|
   json.updated_at time_ago_in_words(c.updated_at)
   json.updater c.updater.name
   json.container container_tag c.container
-  json.identifier_from_container collection_object_visualized_identifier(c).first == :container ? true : false
+  json.identifier_from_container collection_object_visualized_identifier(c)&.first == :container ? true : false
   json.biocuration c.biocuration_classes.pluck(:name).join(', ')
 
   json.dwc_attributes do
