@@ -107,7 +107,7 @@ module Export::Coldp::Files::Taxon
     # TODO tabs delimit
     CSV.generate do |csv|
       otus.each do |o|
-
+        next unless o.taxon_name && o.taxon_name.is_valid?
         # TODO: Use Otu.coordinate_otus to summarize accros different instances
         sources = o.sources 
         
