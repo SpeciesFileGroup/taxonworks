@@ -64,7 +64,7 @@ module Export
       file_path = ::Export::Coldp.export(otu.id)
       name = "coldp_otu_id_#{otu.id}_#{DateTime.now}.zip"
 
-      Download.create!(
+      ::Download.create!(
         name: "ColDP Download for #{otu.otu_name} on #{Time.now}.",
         description: 'A zip file containing CoLDP formatted data.',
         filename: name,
