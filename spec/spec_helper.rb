@@ -111,6 +111,7 @@ RSpec.configure do |config|
   config.after(:suite) do
     FileUtils.rm_rf( Rails.configuration.x.test_tmp_file_dir )
     Features::Downloads.clear_downloads # TODO if global than doesn't belong in Features 
+    FileUtils.rm_rf(Download.storage_path)
   end
 
   config.before(:each) do
@@ -122,6 +123,7 @@ RSpec.configure do |config|
     Capybara.current_driver  = Capybara.javascript_driver
     DatabaseCleaner.strategy = :truncation, {except: %w(spatial_ref_sys)}
     Features::Downloads.clear_downloads
+    FileUtils.rm_rf(Download.storage_path)
   end
 
   config.after(:each, js: true) do

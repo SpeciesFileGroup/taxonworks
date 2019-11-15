@@ -18,5 +18,13 @@ FactoryBot.define do
       expires { 1.second.ago }
       times_downloaded { 0 }
     end
+    factory :valid_download_no_file do
+      name { Faker::Lorem.word }
+      description { Faker::Lorem.sentence }
+      filename { "#{Faker::Lorem.word}.zip" }
+      request { "/model/endpoint?params" }
+      expires { 2.days.from_now }
+      times_downloaded { 0 }
+    end
   end
 end
