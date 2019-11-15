@@ -309,9 +309,15 @@ class Source < ApplicationRecord
       pinboard: Source.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a
     }
 
-    h[:recent] = Source.joins(:citations).where( citations: {project_id: project_id, updated_by_id: user_id}). # .joins(:citations)
-      used_recently(target).
-      limit(10).distinct.to_a
+    h[:recent] = (
+      Source.joins(:citations)
+      .where( citations: { project_id: project_id, updated_by_id: user_id } )
+      .used_recently(target)
+      .limit(5).distinct.to_a +
+    Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
+      .order('created_at DESC')
+      .limit(5).to_a
+    ).uniq
 
     h[:recent] ||= []
 
