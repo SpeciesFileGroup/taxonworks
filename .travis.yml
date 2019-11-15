@@ -75,7 +75,7 @@ jobs:
         - if [ "x$TRAVIS_TAG" != "x" ]; then export DOCKER_TAG=$TRAVIS_TAG; else export DOCKER_TAG=latest; fi
         - export REVISION=$(git rev-parse --short HEAD)
         - cd .travis
-        - docker build .. -t sfgrp/taxonworks:$DOCKER_TAG --build-arg REVISION=$REVISION --build-arg BUNDLER_WORKERS=3
+        - docker build .. -t sfgrp/taxonworks --build-arg REVISION=$REVISION --build-arg BUNDLER_WORKERS=3
         - docker-compose build --parallel
         - docker-compose up -d --no-build
         - docker-compose logs
@@ -86,6 +86,7 @@ jobs:
           [ "$TRAVIS_REPO_SLUG" == "SpeciesFileGroup/taxonworks" ] && \
           [ "$TRAVIS_EVENT_TYPE" == "push" ] && \
           docker login -u "$DOCKER_USER" -p "$DOCKER_PASS" && \
+          docker tag sfgrp/taxonworks:latest sfgrp/taxonworks:$DOCKER_TAG && \
           docker push sfgrp/taxonworks:$DOCKER_TAG
 notifications:
   email:
