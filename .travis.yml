@@ -3,7 +3,7 @@ branches:
   only:
     - master
     - development
-    - /v\d+\.\d+\.\d+/
+    - /\d+\.\d+\.\d+/
 env:
   global:
     - TEST_WORKERS=5
@@ -67,7 +67,7 @@ jobs:
       env:
         - TEST_WORKER=4
     - stage: deliver
-      if: (tag =~ /v\d+\.\d+\.\d+/) OR (branch = development)
+      if: (tag =~ /\d+\.\d+\.\d+/) OR (branch = development)
       language: minimal
       services:
         - docker
