@@ -63,7 +63,7 @@ class BiologicalRelationship < ApplicationRecord
   # @return [Hash] topics optimized for user selection
   def self.select_optimized(user_id, project_id)
     h = {
-      recent: BiologicalRelationship.where(project_id: project_id).used_recently.limit(10).distinct.to_a,
+      recent: BiologicalRelationship.joins(:biological_associations).where(biological_associations: {project_id: project_id, updated_by_id: user_id }).used_recently.limit(10).distinct.to_a,
       pinboard:  BiologicalRelationship.pinned_by(user_id).where(project_id: project_id).to_a
     }
 

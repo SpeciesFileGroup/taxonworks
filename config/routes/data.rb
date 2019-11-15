@@ -302,12 +302,19 @@ resources :languages, only: [] do
   collection do
     get 'autocomplete'
   end
+  collection do 
+    get :select_options, defaults: {format: :json}
+  end
 end
 
 resources :loans do
   concerns [:data_routes]
   member do
     get :recipient_form
+  end
+
+  collection do
+    get :select_options, defaults: {format: :json}
   end
 end
 
@@ -508,9 +515,11 @@ resources :repositories do
   end
 end
 
-# TODO: add exceptions
 resources :serials do
   concerns [:data_routes]
+  collection do
+    get :select_options, defaults: {format: :json}
+  end
 end
 
 resources :serial_chronologies, only: [:create, :update, :destroy]
