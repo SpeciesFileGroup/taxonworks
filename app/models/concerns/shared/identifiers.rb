@@ -10,11 +10,19 @@ module Shared::Identifiers
     has_many :identifiers, as: :identifier_object, validate: true, dependent: :destroy
     accepts_nested_attributes_for :identifiers, reject_if: :reject_identifiers, allow_destroy: true
     scope :with_identifier_type, ->(id_type) { includes(:identifiers).where('identifiers.type = ?', id_type).references(:identifiers) }
-    scope :with_identifier_namespace, ->(id_namespace) { includes(:identifiers).where('identifiers.namespace_id = ?', id_namespace.id).references(:identifiers) }
-    scope :with_identifiers_sorted, -> { includes(:identifiers)
+    scope :with_identifier_namespace, ->(id_namespace) { joins(:identifiers).where('identifiers.namespace_id = ?', id_namespace.id).references(:identifiers) }
+
+    # Careful, a potential security issue here
+    scope :with_identifiers_sorted, -> (o = 'ASC') { includes(:identifiers)
       .where("identifiers.identifier ~ '\^\\d\+\$'")
-      .order(Arel.sql('CAST(identifiers.identifier AS integer)'))
+      .order(Arel.sql("identifiers.type, identifiers.namespace_id, CAST(identifiers.identifier AS integer) #{o}"))
       .references(:identifiers) }
+
+ #  scope :with_identifiers_sorted_desc, -> { includes(:identifiers)
+ #    .where("identifiers.identifier ~ '\^\\d\+\$'")
+ #    .order(Arel.sql('identifiers.type, identifiers.namespace_id, CAST(identifiers.identifier AS integer) DESC'))
+ #    .references(:identifiers) }
+
     scope :with_identifier_type_and_namespace, ->(id_type, id_namespace = nil, sorted = true) { with_identifier_type_and_namespace_method(id_type, id_namespace, sorted) }
 
   end

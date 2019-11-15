@@ -16,7 +16,16 @@ module Export::Coldp::Files::Description
   end
 
   def self.generate(otus, reference_csv = nil )
-    CSV.generate do |csv|
+    CSV.generate(col_sep: "\t") do |csv|
+
+      csv << %w{ 
+        taxonID
+        category
+        description
+        language
+        referenceID
+      }
+
       otus.each do |o|
         o.contents.each do |c|
 

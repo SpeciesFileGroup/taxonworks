@@ -31,7 +31,27 @@ module Export::Coldp::Files::Name
   end
 
   def self.generate(otu, reference_csv = nil)
-    CSV.generate do |csv|
+    CSV.generate(col_sep: "\t") do |csv|
+
+      csv << %w{
+        ID
+        scientificName
+        authorship
+        rank
+        genus
+        infragenericEpithet
+        specificEpithet 
+        infraspecificEpithet
+        publishedInID
+        publishedInPage
+        publishedInYear
+        original
+        code
+        status
+        link
+        remarks
+      }
+
       otu.taxon_name.descendants.each do |t|
 
         source = t.source # published_in_id_field
@@ -52,7 +72,7 @@ module Export::Coldp::Files::Name
           code_field(t),                             # code 
           nil,                                       # status   http://api.col.plus/vocab/nomStatus
           nil,                                       # link (probably TW public or API)
-          remarks_field(t),                                       # remarks
+          remarks_field(t),                          # remarks
         ] 
 
         Export::Coldp::Files::Reference.add_reference_rows([source].compact, reference_csv) if reference_csv

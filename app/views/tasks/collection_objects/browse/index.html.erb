@@ -51,8 +51,12 @@
           <%= link_to('Next', browse_collection_objects_task_path( collection_object_id: next_object(@collection_object) ), class: 'navigation-item') -%>
         </div>
 
+        <div class="navigation-controls">
+          <%=  collection_object_browse_previous_by_identifier(@collection_object) -%>
+          <%=  collection_object_browse_next_by_identifier(@collection_object) -%>
 
-        <%# render('/taxon_names/classification_navigator', taxon_name: @taxon_name) -%>
+        </div>
+
         <%# render('/taxon_names/parent_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
       </div>
     </div>

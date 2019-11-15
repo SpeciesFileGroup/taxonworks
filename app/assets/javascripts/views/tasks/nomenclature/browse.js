@@ -224,6 +224,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
       }
       else if($(this).attr('data-filter-hide-all')) {
         document.querySelectorAll('[data-filter]').forEach(element => {
+          $(element).removeClass('active');
           $($(element).children()).attr('data-icon', 'hide');
           $($(element).attr('data-filter-font')).animate({
             fontSize: '0px'

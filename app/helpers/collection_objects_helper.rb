@@ -54,8 +54,8 @@ module CollectionObjectsHelper
   #    also checks virtual container for identifier by proxy
   def collection_object_visualized_identifier(collection_object)
     return nil if collection_object.nil?
-    i = collection_object.identifiers.first
-    return  [:collection_object, identifier_tag(i)]  if i
+    i = collection_object.identifiers&.first
+    return  [:collection_object, identifier_tag(i)] if i
     j = collection_object&.container&.identifiers&.first
     return [:container, identifier_tag(j)] if j
     nil
@@ -106,6 +106,27 @@ module CollectionObjectsHelper
        fancy_edit_tag(o)
       ].join.html_safe
     end
+  end
+
+
+  # @return [link_to]
+  #    this may not work for all identifier types, i.e. those with identifiers like `123.34` or `3434.33X` may not increment correctly
+  def collection_object_browse_previous_by_identifier(collection_object)
+    return nil if collection_object.nil?
+    o = CollectionObject.where(project_id: collection_object.project_id).where(['collection_objects.id < ?', collection_object.id]).with_identifiers_sorted('DESC').limit(1).first
+    return content_tag(:div, link_text, 'class' => 'navigation-item disable') if o.nil?
+    link_text = content_tag(:span, 'Previous by id', 'class' => 'small-icon icon-left', 'data-icon' => 'arrow-left')
+    link_to(link_text, browse_collection_objects_task_path(collection_object_id: o.id), data: {arrow: :previous, help: 'Sorts by identifier type, namespace, then an conversion of identifier into integer.  Will not work for all identifier types.'}, class: 'navigation-item')
+  end
+
+  # @return [link_to]
+  #   this may not work for all identifier types, i.e. those with identifiers like `123.34` or `3434.33X` may not increment correctly
+  def collection_object_browse_next_by_identifier(collection_object)
+    return nil if collection_object.nil?
+    o = CollectionObject.where(project_id: collection_object.project_id).where(['collection_objects.id > ?', collection_object.id]).with_identifiers_sorted.limit(1).first
+    return content_tag(:div, link_text, 'class' => 'navigation-item disable') if o.nil?
+    link_text = content_tag(:span, 'Next by id', 'class' => 'small-icon icon-right', 'data-icon' => 'arrow-right')
+    link_to(link_text, browse_collection_objects_task_path(collection_object_id: o.id), data: {arrow: :next, help: 'Sorts by identifier type, namespace, then an conversion of identifier into integer.  Will not work for all identifier types.'}, class:'navigation-item')
   end
 
 end

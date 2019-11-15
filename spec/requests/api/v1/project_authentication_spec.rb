@@ -27,7 +27,7 @@ describe 'ProjectAuthentication', type: :request do
     end
 
     context 'when project_token and project_id params in conflict' do
-      let!(:project2) { FactoryBot.create(:valid_project, by: user) }
+      let!(:project2) { FactoryBot.create(:valid_project, by: user, name: 'definitely not this') }
       before { get path, params: params.merge(project_token: project.api_access_token, project_id: project2.id) }
       it_behaves_like 'unauthorized response'
     end

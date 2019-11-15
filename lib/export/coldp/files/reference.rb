@@ -1,3 +1,5 @@
+
+# See https://github.com/Sp2000/coldp/blob/master/data/reference.tsv
 module Export::Coldp::Files::Reference
 
   # This default method dumps the whole of project sources,

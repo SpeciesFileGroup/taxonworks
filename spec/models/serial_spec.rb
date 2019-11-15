@@ -10,8 +10,10 @@ describe Serial, type: :model do
         expect(serial.language = Language.new).to be_truthy
       end
     end
+  end
 
-   #  ... include has many relationships here
+  specify '.select_optimized' do
+    expect(Serial.select_optimized(Current.user_id, Current.project_id)).to be_truthy
   end
 
   specify 'only name is required to be valid' do

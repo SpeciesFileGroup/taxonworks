@@ -46,7 +46,22 @@ module Export::Coldp::Files::VernacularName
 
   def self.generate(otus, reference_csv = nil )
     # TODO tabs delimit
-    CSV.generate do |csv|
+    CSV.generate(col_sep: "\t") do |csv|
+
+      # TODO: Biocuration attribuets on these two
+      # lifestage
+      # sex
+
+      csv << %w{
+        taxonID
+        name
+        transliteration
+        language
+        country
+        area
+        referenceID
+      }
+
       otus.each do |o|
         o.common_names.each do |n|
 
