@@ -23,6 +23,8 @@ module Queries
           autocomplete_exact_id,
           autocomplete_identifier_identifier_exact,
           autocomplete_identifier_cached_like,
+          autocomplete_identifier_matching_cached_fragments_anywhere,
+          autocomplete_by_role
         ]
         queries.compact!
 
@@ -61,6 +63,12 @@ module Queries
       def autocomplete_exact_date_received
         o = table[:date_received].eq(query_string)
         ::Loan.where(o.to_sql)
+      end
+
+      def autocomplete_by_role
+        r = Person.arel_table
+        o = r[:cached].matches('%' + query_string + '%')
+        ::Loan.joins(:people).where(roles: { type: ['LoanRecipient', 'LoanSupervisor']}).where(o.to_sql)
       end
 
       # @return [Scope]
