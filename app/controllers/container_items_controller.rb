@@ -23,7 +23,6 @@ class ContainerItemsController < ApplicationController
   # POST /container_items.json
   def create
     @container_item = ContainerItem.new(container_item_params)
-
     respond_to do |format|
       if @container_item.save
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container item was successfully created.')}
@@ -93,9 +92,11 @@ class ContainerItemsController < ApplicationController
     def container_item_params
       params.require(:container_item).permit(
         :global_entity,
-        :contained_object_id, :contained_object_type,
+        :contained_object_id,
+        :contained_object_type,
         :container_id,
-        :position, :parent_id, 
+        :position,
+        :parent_id, 
         :disposition)
     end
 end

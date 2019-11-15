@@ -32,10 +32,11 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
   end
 
   # @return [Boolean]
+  #   nil values are sent to the bottom
   def reorder_determinations_by(attribute = :date)
     determinations = []
     if attribute == :date
-      determinations = taxon_determinations.sort{|a, b| b.sort_date <=> a.sort_date }
+      determinations = taxon_determinations.sort{|a, b| (b.sort_date || Time.utc(1, 1))  <=> (a.sort_date || Time.utc(1,1)) }
     else
       determinations = taxon_determinations.order(attribute)
     end

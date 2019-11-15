@@ -288,6 +288,7 @@ class Source < ApplicationRecord
     # i is a select manager
     i = t.project(t['source_id'], t['created_at']).from(t)
       .where(t['created_at'].gt(1.weeks.ago))
+      .where(t['citation_object_type'].eq(used_on))
       .order(t['created_at'])
       .take(10)
       .distinct
@@ -308,7 +309,7 @@ class Source < ApplicationRecord
       pinboard: Source.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a
     }
 
-    h[:recent] = Source.joins(:citations).where(citations: {project_id: project_id}).
+    h[:recent] = Source.joins(:citations).where( citations: {project_id: project_id, updated_by_id: user_id}). # .joins(:citations)
       used_recently(target).
       limit(10).distinct.to_a
 

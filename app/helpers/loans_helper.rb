@@ -14,7 +14,6 @@ module LoansHelper
     render('/loans/quick_search_form')
   end
 
-
   def loan_status_tag(object)
     if object.has_loans? && object.has_been_loaned?
       content_tag(:h3, 'Loan status') + 

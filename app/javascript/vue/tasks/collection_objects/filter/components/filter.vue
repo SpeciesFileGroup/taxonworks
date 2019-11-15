@@ -27,6 +27,7 @@
       <button 
         class="button button-default normal-input full_width"
         type="button"
+        :disabled="emptyParams"
         v-shortkey="[getMacKey, 'f']"
         @shortkey="searchForCollectionObjects"
         @click="searchForCollectionObjects">
@@ -40,7 +41,7 @@
       <user-component 
         @onUserslist="usersList = $event"
         v-model="params.user"/>
-      <keywords-component v-model="params.keywords.keywords_id" />
+      <keywords-component v-model="params.keywords.keyword_ids" />
       <identifier-component v-model="params.identifier"/>
       <types-component v-model="params.types"/>
       <loan-component v-model="params.loans"/>
@@ -84,6 +85,20 @@ export default {
   computed: {
     getMacKey () {
       return GetMacKey()
+    },
+    emptyParams() {
+      if (!this.params) return 
+      return !this.params.biocurations.biocuration_class_ids.length && 
+        !this.params.geographic.geographic_area_ids.length &&
+        !this.params.geographic.geo_json &&
+        !this.params.relationships.biological_relationship_ids.length &&
+        !this.params.types.is_type.length &&
+        !this.params.keywords.keyword_ids.length &&
+        !this.params.determination.otu_ids.length &&
+        !this.params.collectingEvents.collecting_event_ids.length &&
+        !Object.values(this.params.user).find(item => { return item != undefined }) &&
+        !Object.values(this.params.loans).find(item => { return item != undefined }) &&
+        !Object.values(this.params.identifier).find(item => { return item != undefined })
     }
   },
   data () {
@@ -105,6 +120,7 @@ export default {
       this.params = this.initParams()
     },
     searchForCollectionObjects () {
+      if(this.emptyParams) return
       if(this.loadingDWCA) return
       this.searching = true
       this.result = []
@@ -161,7 +177,7 @@ export default {
           namespace_id: undefined
         },
         keywords: {
-          keywords_id: []
+          keyword_ids: []
         },
         determination: {
           otu_ids: [],

@@ -72,13 +72,6 @@ class Otu < ApplicationRecord
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
   scope :with_name, -> (name) { where(name: name) }
 
-  scope :with_biological_associations, -> {
-    joins("LEFT OUTER JOIN biological_associations tnr1 ON otus.id = tnr1.biological_association_subject_id AND tnr1.biological_association_object_type = 'Otu'").
-    joins("LEFT OUTER JOIN biological_associations tnr2 ON otus.id = tnr2.biological_association_object_id AND tnr2.biological_association_object_type = 'Otu'").
-    where('tnr1.biological_association_object_id IS NOT NULL OR tnr2.biological_association_object_id IS NOT NULL')
-  }
-
-
   # @return [Otu, nil, false]
   def parent_otu
     return nil if taxon_name_id.blank?

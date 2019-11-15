@@ -305,6 +305,11 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       let!(:i1) { Identifier::Local::CatalogNumber.create!(namespace: n1, identifier: '123', identifier_object: co1) } 
       let!(:i2) { Identifier::Local::CatalogNumber.create!(namespace: n2, identifier: '453', identifier_object: co2) } 
 
+      specify '#namespace_id' do
+        query.namespace_id = n1.id
+        expect(query.all.map(&:id)).to contain_exactly(co1.id)
+      end
+
       specify 'range 1' do
         query.identifier_start = '123'
         expect(query.all.map(&:id)).to contain_exactly(co1.id)
@@ -327,6 +332,13 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
         query.identifier_start = '120'
         query.identifier_end = '457'
         expect(query.all.map(&:id)).to contain_exactly(co2.id)
+      end
+
+      specify 'range 5' do
+        query.namespace_id = 999
+        query.identifier_start = '120'
+        query.identifier_end = '457'
+        expect(query.all.map(&:id)).to contain_exactly()
       end
 
       specify '#identifier_exact 1' do

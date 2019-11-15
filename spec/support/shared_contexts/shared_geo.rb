@@ -338,11 +338,13 @@ shared_context 'stuff for complex geo tests' do
   let(:shape_c2) { shape_c.geometry_n(1) }
   let(:shape_c3) { shape_c.geometry_n(2) }
 
-  let(:shape_d) { RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-33, 11, 0.0),
-                                                 RSPEC_GEO_FACTORY.point(-24, 4, 0.0),
-                                                 RSPEC_GEO_FACTORY.point(-26, 13, 0.0),
-                                                 RSPEC_GEO_FACTORY.point(-31, 4, 0.0),
-                                                 RSPEC_GEO_FACTORY.point(-33, 11, 0.0)]) }
+  let(:shape_d) { RSPEC_GEO_FACTORY.line_string(
+    [RSPEC_GEO_FACTORY.point(-33, 11, 0.0),
+     RSPEC_GEO_FACTORY.point(-24, 4, 0.0),
+     RSPEC_GEO_FACTORY.point(-26, 13, 0.0),
+     RSPEC_GEO_FACTORY.point(-38, 14, 0.0),      # point fixed
+     RSPEC_GEO_FACTORY.point(-33, 11, 0.0)]
+  )}
 
   let(:list_e1) { RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-19, 9, 0.0),
                                                  RSPEC_GEO_FACTORY.point(-9, 9, 0.0),
@@ -1069,11 +1071,12 @@ shared_context 'stuff for complex geo tests' do
   }
 
   let(:polygon_inner) {
-    RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(2.5, -2.5, 0.0),
-                                   RSPEC_GEO_FACTORY.point(7.5, -2.5, 0.0),
-                                   RSPEC_GEO_FACTORY.point(7.5, -7.5, 0.0),
-                                   RSPEC_GEO_FACTORY.point(2.5, -7.5, 0.0),
-                                   RSPEC_GEO_FACTORY.point(2.5, -2.5, 0.0)])
+    RSPEC_GEO_FACTORY.line_string(
+      [RSPEC_GEO_FACTORY.point(2.5, -2.5, 0.0),
+       RSPEC_GEO_FACTORY.point(7.5, -2.5, 0.0),
+       RSPEC_GEO_FACTORY.point(7.5, -7.5, 0.0),
+       RSPEC_GEO_FACTORY.point(2.5, -7.5, 0.0),
+       RSPEC_GEO_FACTORY.point(2.5, -2.5, 0.0)])
   }
 
   let(:err_b) { GeographicItem::Polygon.create!(polygon: RSPEC_GEO_FACTORY.polygon(polygon_inner), by: geo_user) }
@@ -1160,7 +1163,9 @@ shared_context 'stuff for complex geo tests' do
   let(:c3) { FactoryBot.create(:geographic_item_line_string, line_string: shape_c3, by: geo_user) } # 29
   let(:c) { FactoryBot.create(:geographic_item_multi_line_string,
                               multi_line_string: shape_c.as_binary, by: geo_user) } # 30
+  
   let(:d) { FactoryBot.create(:geographic_item_line_string, line_string: shape_d.as_binary, by: geo_user) }
+
   let(:b1) { FactoryBot.create(:geographic_item_polygon, polygon: shape_b_outer.as_binary, by: geo_user) } # 25
   let(:b2) { FactoryBot.create(:geographic_item_polygon, polygon: shape_b_inner.as_binary, by: geo_user) } # 26
   let(:e0) { e.geo_object } # a collection of polygons

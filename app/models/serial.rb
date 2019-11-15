@@ -29,6 +29,7 @@
 #   @return [String]
 #     the name of the serial
 #
+# TODO handle translations (which are simultaneous)
 class Serial < ApplicationRecord
   
   include Housekeeping::Users
@@ -62,16 +63,10 @@ class Serial < ApplicationRecord
 
   accepts_nested_attributes_for :alternate_values, reject_if: lambda { |av| av[:value].blank? }, allow_destroy: true
 
-  # TODO handle translations (which are simultaneous)
-
-  # Scopes, clustered by function
-  # select all serials with this name this will handled by
-  # TODO to be implemented include shared::scopes
-  # ^= scope :with_<attribute name>, ->(<search value>) {where <attribute name>:<search value>}
-
   validates_presence_of :name
-  # TODO validate language
-  #  language ID should be nil or in the language table - default language value of English will be set in view.
+
+  scope :used_recently, -> { joins(sources: [:project_sources]).where(sources: { created_at: 1.weeks.ago..Time.now } ) }
+
 
   soft_validate(:sv_duplicate?)
 
@@ -153,6 +148,17 @@ class Serial < ApplicationRecord
       out_array.push(succeeding) unless succeeding.empty?
     end
     return out_array
+  end
+
+  def self.select_optimized(user_id, project_id)
+    h = {
+      recent: (Serial.used_recently.where('project_sources.project_id = ? AND sources.updated_by_id = ?', project_id, user_id).distinct.limit(5).to_a +
+        Serial.recently_created.where(created_by_id: user_id).distinct.limit(5).to_a).uniq,
+      pinboard: Serial.pinned_by(user_id).pinned_in_project(project_id).to_a
+    }
+
+    h[:quick] = (Serial.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  + h[:recent][0..3]).uniq
+    h
   end
 
   protected

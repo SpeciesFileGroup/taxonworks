@@ -5,10 +5,10 @@ module Shared::Containable
 
   included do
 
-    # A Container that is !new_record, or a container_id
+    # A Container that is persisted, or a container_id
     attr_accessor :contained_in
 
-    after_save :contain, unless: -> {contained_in.blank?} #  || !contained_in_id.blank?
+    after_save :contain, unless: -> {contained_in.blank?}
 
     has_one :container_item, as: :contained_object, dependent: :destroy
     has_one :parent_container_item, through: :container_item, source: :parent, class_name: 'ContainerItem'
@@ -26,6 +26,11 @@ module Shared::Containable
     end
 
     put_in_container(c)
+  end
+
+  # @return Array
+  def contained_siblings
+    reload_container_item&.siblings&.map(&:contained_object) || []
   end
 
   # @return [Boolean]

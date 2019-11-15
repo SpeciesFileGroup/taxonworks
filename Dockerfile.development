@@ -9,8 +9,6 @@ RUN apt-get update && \
     rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
 
 # Update repos
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
-      echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
 
 RUN apt install wget
@@ -26,7 +24,7 @@ RUN apt-get update && \
                        libpq-dev libproj-dev libgeos-dev libgeos++-dev \
                        tesseract-ocr \
                        cmake \
-                       nodejs yarn && \
+                       nodejs && \
                        apt clean && \
                        rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
 #
@@ -72,7 +70,6 @@ ENV GEM_HOME /usr/local/bundle
 
 # cludge
 
-ENV PATH /root/.yarn/bin:$PATH 
 ENV PATH $GEM_HOME/bin:$PATH
 ENV BUNDLE_APP_CONFIG $GEM_HOME
 
