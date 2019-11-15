@@ -50,8 +50,9 @@ class Repository < ApplicationRecord
 
   def self.select_optimized(user_id, project_id)
     h = {
-      recent: Repository.used_in_project(project_id).used_recently.limit(10).distinct.to_a,
-      pinboard: Repository.pinned_by(user_id).pinned_in_project(project_id).to_a
+      recent: (Repository.used_in_project(project_id).where(collection_objects: {created_by_id: user_id}).used_recently.limit(10).distinct.to_a +
+               Repository.where(created_by_id: user_id, created_at: 3.hours.ago..Time.now).limit(5).to_a).uniq,
+    pinboard: Repository.pinned_by(user_id).pinned_in_project(project_id).to_a
     }
 
     h[:quick] = (Repository.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  + h[:recent][0..3]).uniq

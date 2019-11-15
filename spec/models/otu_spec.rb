@@ -171,9 +171,10 @@ describe Otu, type: :model, group: :otu do
       otu.save!
     end
 
+    let(:o2) { Otu.create(name: 'o2') }
     let(:s) { FactoryBot.create(:valid_specimen) }
     let!(:content) { FactoryBot.create(:valid_content, otu: otu) }
-    let!(:biological_association) { FactoryBot.create(:valid_biological_association, biological_association_object: otu) }
+    let!(:biological_association) { FactoryBot.create(:valid_biological_association, biological_association_subject: o2, biological_association_object: otu) }
     let!(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution, otu: otu) }
 
     specify ".used_recently('Content')" do
@@ -185,15 +186,15 @@ describe Otu, type: :model, group: :otu do
     end
 
     specify '.selected_optimized 1' do
-      expect(Otu.select_optimized(otu.created_by_id, otu.project_id, 'BiologicalAssociation') ).to include({recent: [otu]})
+      expect(Otu.select_optimized(otu.created_by_id, otu.project_id, 'BiologicalAssociation')[:recent].map(&:id) ).to contain_exactly(otu.id, o2.id)
     end
 
     specify '.selected_optimized 2' do
-      expect(Otu.select_optimized(otu.created_by_id, otu.project_id, 'Content')).to include({quick: [otu]})
+      expect(Otu.select_optimized(otu.created_by_id, otu.project_id, 'Content')[:quick].map(&:id)).to contain_exactly(otu.id, o2.id)
     end
 
     specify '.selected_optimized 3' do
-      expect(Otu.select_optimized(otu.created_by_id, otu.project_id, 'AssertedDistribution')).to include({quick: [otu]})
+      expect(Otu.select_optimized(otu.created_by_id, otu.project_id, 'AssertedDistribution')[:quick].map(&:id)).to contain_exactly(otu.id, o2.id)
     end
   end
 
