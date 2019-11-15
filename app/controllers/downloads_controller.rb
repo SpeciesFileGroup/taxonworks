@@ -33,7 +33,7 @@ class DownloadsController < ApplicationController
 
   # GET /downloads/1/download_file
   def download_file
-    unless @download.expired?
+    if @download.ready?
       @download.increment!(:times_downloaded)
       send_file @download.file_path
     else
