@@ -1,7 +1,7 @@
 class SourcesController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
-  before_action :set_source, only: [:show, :edit, :update, :destroy]
+  before_action :set_source, only: [:show, :edit, :update, :destroy, :clone]
 
   # GET /sources
   # GET /sources.json
@@ -29,6 +29,15 @@ class SourcesController < ApplicationController
   # GET /sources/new
   def new
     @source = Source.new
+  end
+
+  # POST /sources/1/clone.json
+  def clone
+    @source = @source.clone
+    respond_to do |format|
+      format.html { redirect_to edit_source_path(@source), notice: 'Clone successful, on new record.' }
+      format.json { render :show }
+    end
   end
 
   # GET /sources/1/edit
@@ -157,7 +166,7 @@ class SourcesController < ApplicationController
 
   # GET /sources/download
   def download
-    send_data Download.generate_csv(Source.all), type: 'text', filename: "sources_#{DateTime.now}.csv"
+    send_data Export::Download.generate_csv(Source.all), type: 'text', filename: "sources_#{DateTime.now}.csv"
   end
 
   private

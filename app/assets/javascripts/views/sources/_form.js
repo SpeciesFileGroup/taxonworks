@@ -39,6 +39,7 @@ Object.assign(TW.view.sources, {
       that.toggle_source_form_fields(this.value);
     });
   },
+
   toggle_source_form_fields: function (type_label) {
     var types = ['bibtex', 'verbatim', 'human'];
     var to_show = type_label.split('::')[1].toLowerCase();
@@ -60,15 +61,17 @@ Object.assign(TW.view.sources, {
       }
     });
 
+    // TODO: revisit
     // misc form cleanup (for ajax/selects)
     if (to_show != 'bibtex') {
       $('#source_bibtex_type').val("")
+      $('[name=source\\[serial_id\\]]').val("")
+      $('[name=source\\[language_id\\]]').val("")
     }
-    $('[name=source\\[serial_id\\]]').val("")
+
   }
 });
 
 document.addEventListener('turbolinks:load', (event) => {
   TW.view.sources.init();
-
 });

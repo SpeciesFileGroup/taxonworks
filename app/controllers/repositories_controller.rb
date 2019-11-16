@@ -78,16 +78,15 @@ class RepositoriesController < ApplicationController
   end
 
   def autocomplete
-
     @repositories = Queries::Repository::Autocomplete.new(params[:term]).all
 
     data = @repositories.collect do |t|
-      {id:              t.id,
-       label:           ApplicationController.helpers.repository_tag(t),
+      {id: t.id,
+       label: ApplicationController.helpers.repository_tag(t),
        response_values: {
          params[:method] => t.id
        },
-       label_html:      ApplicationController.helpers.repository_tag(t)
+       label_html: ApplicationController.helpers.repository_tag(t)
       }
     end
 
@@ -96,7 +95,7 @@ class RepositoriesController < ApplicationController
 
   # GET /repositories/download
   def download
-    send_data Download.generate_csv(Repository.all), type: 'text', filename: "repositories_#{DateTime.now}.csv"
+    send_data Export::Download.generate_csv(Repository.all), type: 'text', filename: "repositories_#{DateTime.now}.csv"
   end
 
   # GET /repositories/select_options

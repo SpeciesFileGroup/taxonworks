@@ -34,8 +34,18 @@ class Keyword < ControlledVocabularyTerm
   end
 
   def self.select_optimized(user_id, project_id, klass)
+    n = klass.tableize.to_sym
     h = {
-      recent: Keyword.where(project_id: project_id).used_on_klass(klass).used_recently.limit(10).distinct.to_a,
+      recent: (
+        Keyword.where(project_id: project_id, created_by_id: user_id, created_at: 1.day.ago..Time.now)
+        .limit(5)
+        .order(:name).to_a +
+        Keyword.joins(:tags)
+        .where(project_id: project_id, tags: {updated_by_id: user_id})
+        .used_on_klass(klass)
+        .used_recently.limit(5)
+        .distinct.to_a ).uniq, 
+
       pinboard: Keyword.pinned_by(user_id).where(project_id: project_id).to_a
     }
 

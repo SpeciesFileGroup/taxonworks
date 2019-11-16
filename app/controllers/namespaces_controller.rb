@@ -82,12 +82,12 @@ class NamespacesController < ApplicationController
 
   # GET /namespaces/download
   def download
-    send_data Download.generate_csv(Namespace.all), type: 'text', filename: "namespaces_#{DateTime.now}.csv"
+    send_data Export::Download.generate_csv(Namespace.all), type: 'text', filename: "namespaces_#{DateTime.now}.csv"
   end
 
-  # GET /namespaces/select_options
+  # GET /namespaces/select_options?klass=CollectionObject
   def select_options
-    @namespaces = Namespace.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:klass])
+    @namespaces = Namespace.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:klass))
   end
 
   def batch_load

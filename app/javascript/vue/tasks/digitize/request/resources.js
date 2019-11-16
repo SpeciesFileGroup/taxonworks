@@ -109,6 +109,10 @@ const GetOtu = function (id) {
   return ajaxCall('get', `/otus/${id}.json`)
 }
 
+const GetGeographicAreaByCoords = function (lat,long) {
+  return ajaxCall('get', `/geographic_areas/by_lat_long?latitude=${lat}&longitude=${long}`)
+}
+
 const GetTypes = function () {
   return ajaxCall('get', `/type_materials/type_types.json`)
 }
@@ -143,6 +147,10 @@ const UpdateIdentifier = function (data) {
 
 const UpdateCollectionEvent = function (data) {
   return ajaxCall('patch', `/collecting_events/${data.id}.json`, { collecting_event: data })
+}
+
+const GetContainer = function (globalId) {
+  return ajaxCall('get', `/containers/for`, { params: { global_id: globalId } })
 }
 
 const CreateContainer = function (data) {
@@ -311,6 +319,7 @@ export {
   GetOtuSmartSelector,
   GetCollectingEventsSmartSelector,
   GetTypeDesignatorSmartSelector,
+  GetGeographicAreaByCoords,
   FilterCollectingEvent,
   GetTaxonDeterminationCO,
   GetNamespace,
@@ -354,5 +363,6 @@ export {
   DestroyBiologicalAssociation,
   CreateContainer,
   CreateContainerItem,
+  GetContainer,
   GetNamespacesSmartSelector
 }

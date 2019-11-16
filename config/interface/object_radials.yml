@@ -47,19 +47,21 @@ Otu:
     - comprehensive_collection_object_task
     - otus_filter_task
     - cite_otus_task_task
+    - index_browse_asserted_distributions_task 
     - otu_distribution_data_task
     - index_editor_task
   config:
     recent: true
 CollectionObject:
   tasks:
+    - browse_collection_objects_task
     - collection_objects_filter_task
     - comprehensive_collection_object_task
     - report_dwc_task
-    - browse_collection_objects_task
     - build_biocuration_groups_task
   config: 
     recent: true
+  edit: comprehensive_collection_object_task
 Loan:
   tasks:
     - overdue_loans_task

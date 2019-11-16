@@ -1,17 +1,21 @@
 module GeoBuild
-  GI_LS01          = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-32, 21, 0.0),
+  GI_LS01= RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-32, 21, 0.0),
                                                     RSPEC_GEO_FACTORY.point(-25, 21, 0.0),
                                                     RSPEC_GEO_FACTORY.point(-25, 16, 0.0),
                                                     RSPEC_GEO_FACTORY.point(-21, 20, 0.0)])
-  GI_LS02          = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-32, 21, 0.0),
+
+  GI_LS02 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-32, 21, 0.0),
                                                     RSPEC_GEO_FACTORY.point(-25, 21, 0.0),
-                                                    RSPEC_GEO_FACTORY.point(-25, 16, 0.0),
-                                                    RSPEC_GEO_FACTORY.point(-21, 20, 0.0)])
-  GI_POINT_A       = RSPEC_GEO_FACTORY.point(-88.241413, 40.091655, 0.0)
-  GI_POINT_C       = RSPEC_GEO_FACTORY.point(-88.243386, 40.116402, 0.0)
-  GI_POINT_M       = RSPEC_GEO_FACTORY.point(-88.196736, 40.090091, 0.0)
-  GI_POINT_U       = RSPEC_GEO_FACTORY.point(-88.204517, 40.110037, 0.0)
-  GI_POLYGON       = RSPEC_GEO_FACTORY.polygon(GI_LS02)
+                                                    RSPEC_GEO_FACTORY.point(-25, 16, 0.0), # fixed invalid poly
+                                                    RSPEC_GEO_FACTORY.point(-29, 20, 0.0)
+  ])
+
+  GI_POINT_A = RSPEC_GEO_FACTORY.point(-88.241413, 40.091655, 0.0)
+  GI_POINT_C = RSPEC_GEO_FACTORY.point(-88.243386, 40.116402, 0.0)
+  GI_POINT_M = RSPEC_GEO_FACTORY.point(-88.196736, 40.090091, 0.0)
+  GI_POINT_U = RSPEC_GEO_FACTORY.point(-88.204517, 40.110037, 0.0)
+  GI_POLYGON = RSPEC_GEO_FACTORY.polygon(GI_LS02)
+
   GI_MULTI_POLYGON = RSPEC_GEO_FACTORY.multi_polygon(
     [RSPEC_GEO_FACTORY.polygon(
       RSPEC_GEO_FACTORY.line_string(

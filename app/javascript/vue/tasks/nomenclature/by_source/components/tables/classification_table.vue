@@ -1,9 +1,9 @@
 <template>
   <table>
     <tr>
-      <th @click="sortByPages">Pages</th>
+      <th @click="sortTable('pages')">Pages</th>
       <th>Is original</th>
-      <th>Object</th>
+      <th @click="sortTable('citation_object.object_tag')">Object</th>
       <th>Radial</th>
       <th>Otu</th>
       <th>Delete</th>
@@ -19,6 +19,7 @@
 <script>
 
 import RowComponents from './taxon_name_classification_row'
+import SortArray from 'helpers/sortArray'
 
 export default {
   components: {
@@ -37,16 +38,9 @@ export default {
         this.list.splice(index, 1)
       }
     },
-    sortByPages() {
-      function compare(a,b) {
-        if (a.pages < b.pages)
-          return -1;
-        if (a.pages > b.pages)
-          return 1;
-        return 0;
-      }
-
-      this.list.sort(compare);      
+    sortTable (sortProperty) {
+      this.list = SortArray(sortProperty, this.list, this.ascending)
+      this.ascending = !this.ascending
     }
   }
 }

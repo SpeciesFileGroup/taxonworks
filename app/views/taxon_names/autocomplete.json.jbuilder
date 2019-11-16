@@ -7,6 +7,6 @@ json.array! @taxon_names do |t|
     if params[:method]
       json.set! params[:method], t.id
     end
-  end 
+  end
 end
 

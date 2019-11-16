@@ -201,8 +201,8 @@ class Georeference < ApplicationRecord
 
   # @param [Array] of parameters in the style of 'params'
   # @return [Scope] of selected georeferences
-  def self.filter(params)
-    collecting_events = CollectingEvent.filter(params)
+  def self.filter_by(params)
+    collecting_events = CollectingEvent.filter_by(params)
 
     georeferences = Georeference.where('collecting_event_id in (?)', collecting_events.ids)
     georeferences

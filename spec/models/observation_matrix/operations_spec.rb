@@ -70,7 +70,7 @@ RSpec.describe ObservationMatrix, type: :model, group: :matrix do
   let!(:o20) { Observation.create!(collection_object: row_object4, descriptor: descriptor1, character_state: character_state1_2) }  
   let!(:o21) { Observation.create!(collection_object: row_object4, descriptor: descriptor2, character_state: character_state2_2) }
   let!(:o22) { Observation.create!(collection_object: row_object4, descriptor: descriptor3, character_state: character_state3_2) }  
-  let!(:o23) { Observation.create!(collection_object: row_object4, descriptor: descriptor4, continuous_unit: 0.01, continuous_unit: 'm' ) }  
+  let!(:o23) { Observation.create!(collection_object: row_object4, descriptor: descriptor4, continuous_value: 0.01, continuous_unit: 'm' ) }
 
   # row 5
   let!(:o24) { Observation.create!(collection_object: row_object5, descriptor: descriptor2, character_state: character_state2_1) }  

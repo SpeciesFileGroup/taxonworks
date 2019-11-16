@@ -1,3 +1,4 @@
+
 # A CollectionObject is on or more physical things that have been collected.  Enumerating how many things (@!total) is a task of the curator.
 #
 # A CollectiongObjects immediate disposition is handled through its relation to containers.  Containers can be nested, labeled, and interally subdivided as necessary.
@@ -73,8 +74,9 @@ class CollectionObject < ApplicationRecord
   include Shared::Confidences
   include Shared::ProtocolRelationships
   include Shared::HasPapertrail
-  include Shared::IsData
   include Shared::Observations
+  include Shared::BiologicalAssociations # Belongs in BiologicalCollectionObject ultimately
+  include Shared::IsData
   include SoftValidation
 
   include Shared::IsDwcOccurrence
@@ -101,6 +103,7 @@ class CollectionObject < ApplicationRecord
 
   # CollectingEvent delegations
   delegate :map_center, to: :collecting_event, prefix: :collecting_event, allow_nil: true
+  delegate :collectors, to: :collecting_event, prefix: :collecting_event, allow_nil: true
 
   # Repository delegations
   delegate :acronym, to: :repository, prefix: :repository, allow_nil: true
@@ -113,9 +116,6 @@ class CollectionObject < ApplicationRecord
   has_one :accession_provider, through: :accession_provider_role, source: :person
   has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object, dependent: :destroy
   has_one :deaccession_recipient, through: :deaccession_recipient_role, source: :person
-
-  has_many :biological_associations, as: :biological_association_subject, inverse_of: :biological_association_subject, dependent: :restrict_with_error
-  has_many :related_biological_associations, as: :biological_association_object, inverse_of: :biological_association_object, class_name: 'BiologicalAssociation'
 
   has_many :derived_collection_objects, inverse_of: :collection_object, dependent: :restrict_with_error
   has_many :collection_object_observations, through: :derived_collection_objects, inverse_of: :collection_objects
@@ -151,7 +151,7 @@ class CollectionObject < ApplicationRecord
 
   scope :with_sequence_name, ->(name) { joins(sequence_join_hack_sql).where(sequences: {name: name}) }
   scope :via_descriptor, ->(descriptor) { joins(sequence_join_hack_sql).where(sequences: {id: descriptor.sequences}) }
-  #
+
   # This is a hack, maybe related to a Rails 5.1 bug.
   # It returns the SQL that works in 5.0/4.2 that
   # links CollectionObject to Sequences:
@@ -235,7 +235,7 @@ class CollectionObject < ApplicationRecord
 
   def annotations
     h = annotations_hash
-    (h['biocuration classifications'] = self.biocuration_classes) if self.biological? && self.biocuration_classifications.load.any?
+    (h['biocuration classifications'] = biocuration_classes) if biological? && biocuration_classifications.load.any?
     h
   end
 
@@ -649,9 +649,13 @@ class CollectionObject < ApplicationRecord
     }
 
     if target
-      h[:recent] = CollectionObject.joins(target.tableize.to_sym).where(project_id: project_id).used_recently(target).limit(10).distinct.to_a
+      n = target.tableize.to_sym
+      h[:recent] = CollectionObject.joins(n)
+        .where(collection_objects: {project_id: project_id}, n => {updated_by_id: user_id})
+        .used_recently(target)
+        .limit(10).distinct.to_a
     else
-      h[:recent] = CollectionObject.where(project_id: project_id).order('updated_at DESC').limit(10).to_a
+      h[:recent] = CollectionObject.where(project_id: project_id, updated_by_id: user_id).order('updated_at DESC').limit(10).to_a
     end
 
     h[:quick] = (CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq 
@@ -717,5 +721,9 @@ class CollectionObject < ApplicationRecord
     # !! does not account for georeferences_attributes!
     reject
   end
-
 end
+
+require_dependency 'specimen'
+require_dependency 'lot'
+require_dependency 'ranged_lot'
+

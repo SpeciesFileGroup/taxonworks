@@ -1,7 +1,7 @@
 class OtusController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_otu, only: [:show, :edit, :update, :destroy, :collection_objects]
+  before_action :set_otu, only: [:show, :edit, :update, :destroy, :collection_objects, :navigation]
   after_action -> { set_pagination_headers(:otus) }, only: [:index], if: :json_request? 
 
   # GET /otus
@@ -34,6 +34,10 @@ class OtusController < ApplicationController
 
   def list
     @otus = Otu.with_project_id(sessions_current_project_id).page(params[:page]).per(params[:per])
+  end
+
+  # GET /otus/1/navigation.json
+  def navigation
   end
 
   # POST /otus
@@ -217,7 +221,7 @@ class OtusController < ApplicationController
 
   # GET /otus/download
   def download
-    send_data Download.generate_csv(Otu.where(project_id: sessions_current_project_id)),
+    send_data Export::Download.generate_csv(Otu.where(project_id: sessions_current_project_id)),
       type: 'text',
       filename: "otus_#{DateTime.now}.csv"
   end
@@ -228,6 +232,7 @@ class OtusController < ApplicationController
     @otu_ids  = Queries::Otu::Autocomplete.new(@otu_name, project_id: params.require(:project_id)).all.pluck(:id)
   end
 
+  # GET /otus/select_options?target=TaxonDetermination
   def select_options
     @otus = Otu.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
   end

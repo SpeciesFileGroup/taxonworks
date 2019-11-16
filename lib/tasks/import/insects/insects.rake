@@ -157,15 +157,17 @@ namespace :tw do
 
         @import = Import.find_or_create_by(name: IMPORT_NAME)
         @import.metadata ||= {} 
-        
+
         handle_projects_and_users_insects(@data1, @import)
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
         handle_namespaces_insects(@data1, @import)
 
         handle_controlled_vocabulary_insects(@data1, @import)
+
         handle_biocuration_classes_insects(@data1, @import)
         handle_biological_relationship_classes_insects(@data1, @import)
         handle_preparation_types_insects(@data1, @import)
+=begin        
         handle_people_insects(@data1, @import)
         GC.start
         handle_taxa_insects(@data1, @import)
@@ -193,15 +195,16 @@ namespace :tw do
         index_specimen_records_from_neon(@data1, @import)
 
         puts "\nTotal collecting events to build: #{@redis.keys.count}."
-
         handle_associations_insects(@data1, @import)
         GC.start
+=end
         handle_loan_specimens_insects(@data1)
         GC.start
         handle_letters_insects(@data1)
         handle_collection_profile_insects(@data1)
 
         handle_locality_images(@data1)
+#end
         handle_loan_images(@data1)
 
         puts "\n!! Unmatched localities: (#{@data1.unmatched_localities.keys.count}): " + @data1.unmatched_localities.keys.sort.join(', ')
@@ -1366,8 +1369,8 @@ namespace :tw do
                 end
                 unless host.blank?
                   BiologicalAssociation.create(biological_relationship: br,
-                                               biological_association_subject: specimen,
-                                               biological_association_object: host
+                                               biological_association_subject: host,
+                                               biological_association_object: specimen
                                               )
                 end
 
@@ -1627,7 +1630,6 @@ namespace :tw do
             print "\n#{row['Type']} relationship does not exist!\n"
           elsif br != :ignore
             direction = br['direction']
-            br = br['biological_relationship']
             specimen = nil
             related_specimen = nil
             otu = nil
@@ -1660,9 +1662,9 @@ namespace :tw do
               end
 
               if object && subject
-                BiologicalAssociation.create(biological_relationship: br,
-                                             biological_association_subject: object,
-                                             biological_association_object: subject
+                BiologicalAssociation.create(biological_relationship: br['biological_relationship'],
+                                             biological_association_subject: subject,
+                                             biological_association_object: object
                 )
               end
             end
@@ -1795,14 +1797,27 @@ namespace :tw do
           i += 1
           print "\r#{i}"
           specimen = nil
-          invoice = data.loans[row['InvoiceID']]
-          unless row['Prefix'].blank? || row['CatalogNumber'].blank? || invoice.nil?
-            if row['Prefix'].downcase == 'loan invoice' && !data.loan_invoice_speciments[row['CatalogNumber']].nil?
-              #identifier = Identifier.where(namespace_id: @taxon_namespace.id, identifier: data.loan_invoice_speciments[row['CatalogNumber']]['TaxonCode'], project_id: $project_id)
-              #specimen = identifier.empty? ? nil : identifier.first.identifier_object
-
-         #     otu = Otu.with_project_id($project_id).with_identifier('Taxon Code ' + data.loan_invoice_speciments[row['CatalogNumber']]['TaxonCode'].to_s)
           
+
+
+          # New October 16
+          # invoice = data.loans[row['InvoiceID']]
+          invoice = Identifier.where(
+            project_id: $project_id, 
+            cached: 'INHS Invoice ' + row['InvoiceID'].to_s,
+            identifier_object_type: 'Loan' 
+          ).first.try(:identifier_object)
+
+          # end new October 16
+
+          unless row['Prefix'].blank? || row['CatalogNumber'].blank? || invoice.nil?
+
+            if row['Prefix'].downcase == 'loan invoice' && !data.loan_invoice_speciments[row['CatalogNumber']].nil?
+
+              #identifier = Identifier.where(namespace_id: @taxon_namespace.id, identifier: data.loan_invoice_speciments[row['CatalogNumber']]['TaxonCode'], project_id: $project_id)
+              # specimen = identifier.empty? ? nil : identifier.first.identifier_object
+              # otu = Otu.with_project_id($project_id).with_identifier('Taxon Code ' + data.loan_invoice_speciments[row['CatalogNumber']]['TaxonCode'].to_s)
+
               otu = Identifier.where(
                 project_id: $project_id, 
                 cached: 'Taxon Code ' + data.loan_invoice_speciments[row['CatalogNumber']]['TaxonCode'].to_s,
@@ -1819,22 +1834,27 @@ namespace :tw do
                 identifier_object_type: 'CollectionObject'
               ).first.try(:identifier_object)
 
-             # loan_item_object = identifier.empty? ? nil : identifier.first.identifier_object
+              # loan_item_object = identifier.empty? ? nil : identifier.first.identifier_object
               total = nil
             end
+
             l = LoanItem.create( loan: invoice,
-                              loan_item_object: loan_item_object,
-                              total: total,
-                              date_returned: time_from_field(row['DateReturned']),
-                              disposition: status[row['Status'].to_s.downcase]
-            )
+                                loan_item_object: loan_item_object,
+                                total: total,
+                                date_returned: time_from_field(row['DateReturned']),
+                                disposition: status[row['Status'].to_s.downcase]
+                               )
           end
         end
-        Loan.where(project_id: $project_id).select{|o| !o.date_closed.nil?}.select{|i| !i.loan_items.empty?}.each do |l|
-          date = l.loan_items.select{|o| !o.date_returned.nil?}.collect{|i| i.date_returned}
-          l.date_closed = date.sort.last unless date.empty?
-          l.save
+
+        Loan.where(project_id: $project_id).joins(:loan_items).select{|o| !o.date_closed.nil? }.each do |l|
+          date = l.loan_items.select{|o| !o.date_returned.nil? }.collect{|i| i.date_returned}
+          unless date.empty?
+            l.date_closed = date.sort.last
+            l.save
+          end
         end
+
       end
 
       def handle_letters_insects(data)
@@ -1846,7 +1866,14 @@ namespace :tw do
 
         ls.each_with_index do |row, i|
           print "\r#{i}"
-          invoice = data.loans[row['InvoiceID']]
+          # invoice = data.loans[row['InvoiceID']]
+          
+          invoice = Identifier.where(
+            project_id: $project_id, 
+            cached: 'INHS Invoice ' + row['InvoiceID'].to_s,
+            identifier_object_type: 'Loan' 
+          ).first.try(:identifier_object)
+
 
           unless row['Body'].to_s.squish.blank? || invoice.nil?
             note = row['Body'].to_s.squish
@@ -1874,6 +1901,8 @@ namespace :tw do
           i += 1
           print "\r#{i}"
           otu = Identifier.where(project_id: $project_id, cached: 'Taxon Code ' + row['TaxonCode'].to_s, identifier_object_type: 'Otu').first.try(:identifier_object)
+          otu_id = nil
+          otu_id = otu.id if otu?
           
           room = find_or_create_room_insects(row, data)
 
@@ -1934,7 +1963,7 @@ namespace :tw do
 #          end
 
           cp = CollectionProfile.create!(container: container,
-                                   otu_id: otu,
+                                   otu_id: otu_id,
                                    conservation_status: row['ConservationStatus'],
                                    processing_state: row['ProcessingState'],
                                    container_condition: row['ContainerCondition'],
@@ -2000,13 +2029,14 @@ namespace :tw do
           name = file.match(/\/(\d*)[_-].*\.pdf$/)
           identifier = name.nil? ? nil : name[1]
           unless identifier.nil?
-            loan = Identifier.where(project_id: $project_id, cached: 'Invoice ' + identifier, identifier_object_type: 'Loan').first.try(:identifier_object)
+            loan = Identifier.where(project_id: $project_id, cached: 'INHS Invoice ' + identifier, identifier_object_type: 'Loan').first.try(:identifier_object)
             if loan.nil?
               print "\nInvoice with identifier #{identifier} does not exist\n"
             else
               # !! fix this, not testest
               #d1 = Document.create(document_file: File.open(file), documentation_attributes: [{documentation_object: loan, type: 'Documentation::LoanDocumentation'} ])
-              d1 = Document.create(document_file: File.open(file), documentation_attributes: [{documentation_object: loan} ])
+              d1 = Document.create(document_file: File.open(file))
+              d2 = Documentation.create(documentation_object: loan, document: d1)
             end
           end
         end

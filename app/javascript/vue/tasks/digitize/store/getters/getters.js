@@ -24,6 +24,7 @@ import getTaxonDeterminations from './getTaxonDeterminations'
 import getNamespaceSelected from './getNamespaceSelected'
 import getSubsequentialUses from './getSubsequentialUses'
 import getTmpData from './getTmpData'
+import getCollectingEventIdentifier from './getCollectingEventIdentifier'
 
 const GetterNames = {
   IsSaving: 'isSaving',
@@ -31,6 +32,7 @@ const GetterNames = {
   GetLocked: 'getLocked',
   GetSettings: 'getSettings',
   GetTaxonDetermination: 'getTaxonDetermination',
+  GetCollectingEventIdentifier: 'getCollectingEventIdentifier',
   GetCollectionEvent: 'getCollectionEvent',
   GetCollectionObject: 'getCollectionObject',
   GetCollectionObjects: 'getCollectionObjects',
@@ -61,6 +63,7 @@ const GetterFunctions = {
   [GetterNames.GetSettings]: getSettings,
   [GetterNames.GetTaxonDetermination]: getTaxonDetermination,
   [GetterNames.GetCollectionEventLabel]: getCollectionEventLabel,
+  [GetterNames.GetCollectingEventIdentifier]: getCollectingEventIdentifier,
   [GetterNames.GetCollectionEvent]: getCollectionEvent,
   [GetterNames.GetCollectionObject]: getCollectionObject,
   [GetterNames.GetCollectionObjects]: getCollectionObjects,

@@ -52,7 +52,7 @@
         v-if="showBottom"
         :title="buttonTitle"
         type="button"
-        class="circle-button"
+        class="circle-button button-default"
         :class="[buttonClass]"
         @click="displayAnnotator()">Radial annotator
       </span>
@@ -108,7 +108,7 @@ export default {
     },
     buttonClass: {
       type: String,
-      default: 'btn-radial'
+      default: 'btn-hexagon-w'
     },
     buttonTitle: {
       type: String,

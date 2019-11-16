@@ -6,16 +6,19 @@
       <div class="horizontal-left-content middle separate-bottom">
         <smart-selector 
           name="repository"
-          class="item"
+          class="item separate-right"
           v-model="view"
           :add-option="['search']"
           :options="options"/>
         <default-repository
-          class="separate-left"
+          class="separate-right"
           section="Repositories"
           @getId="repository = $event"
           @getLabel="repositorySelected = $event"
           type="Repository"/>
+        <lock-component
+          class="separate-left"
+          v-model="locked.collection_object.repository_id"/>
       </div>
       <ul
         class="no_bullets"
@@ -49,7 +52,6 @@
           <span
             class="circle-button button-default btn-undo"
             @click="repository = undefined"/>
-          <lock-component v-model="locked.collection_object.repository_id"/>
         </div>
       </template>
     </fieldset>

@@ -196,8 +196,18 @@ class GeographicArea < ApplicationRecord
     point = ActiveRecord::Base.send(:sanitize_sql_array, ['POINT(:long :lat)', long: longitude, lat: latitude])
     where_clause = "ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))" \
       " OR ST_Contains(multi_polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))"
-    retval = GeographicArea.joins(:geographic_items).where(where_clause)
-    retval
+    GeographicArea.joins(:geographic_items).where(where_clause)
+  end
+
+  # @return [Scope]
+  #   the finest geographic area in by latitude or longitude, sorted by area, only
+  #   areas with shapes (geographic items) are matched
+  def self.find_smallest_by_lat_long(latitude = 0.0, longitude = 0.0)
+    ::GeographicArea.select("geographic_areas.*, ST_Area(#{::GeographicItem::GEOMETRY_SQL.to_sql}) As sqft")
+      .find_by_lat_long(
+        latitude,
+        longitude,
+    ).joins(:descendant_hierarchies, :geographic_items).order('sqft').distinct
   end
 
   # @return [Scope] of areas which have at least one shape
@@ -424,12 +434,12 @@ class GeographicArea < ApplicationRecord
 
     case target
     when 'CollectingEvent'
-      h[:recent] = GeographicArea.joins(:collecting_events).where(collecting_events: {project_id: project_id}).
+      h[:recent] = GeographicArea.joins(:collecting_events).where(collecting_events: {project_id: project_id, updated_by_id: user_id}).
         used_recently('CollectingEvent').
         limit(10).distinct.to_a
     when 'AssertedDistribution'
       h[:recent] = GeographicArea.joins(:asserted_distributions).
-        where(asserted_distributions: {project_id: project_id}).
+        where(asserted_distributions: {project_id: project_id, updated_by_id: user_id}).
         used_recently('AssertedDistribution').
         limit(10).distinct.to_a
     end

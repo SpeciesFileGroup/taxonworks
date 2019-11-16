@@ -7,7 +7,7 @@ describe CollectionObjectsHelper, type: :helper do
   specify '#collection_object_tag' do
     assign(:collection_object, collection_object)
 
-    expect(helper.collection_object_tag(collection_object)).to eq(collection_object.type)
+    expect(helper.collection_object_tag(collection_object)).to match(collection_object.type)
   end
 
   specify '#collection_object_link' do

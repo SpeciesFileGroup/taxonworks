@@ -30,7 +30,7 @@ module Dwca::Packer
     # @return [CSV]
     #   the data as a CSV object
     def csv
-      Download.generate_csv(
+      Export::Download.generate_csv(
         scope.computed_columns,
         trim_columns: true,
         trim_rows: true,

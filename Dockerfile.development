@@ -9,8 +9,6 @@ RUN apt-get update && \
     rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
 
 # Update repos
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
-      echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
 
 RUN apt install wget
@@ -26,7 +24,7 @@ RUN apt-get update && \
                        libpq-dev libproj-dev libgeos-dev libgeos++-dev \
                        tesseract-ocr \
                        cmake \
-                       nodejs yarn && \
+                       nodejs && \
                        apt clean && \
                        rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
 #
@@ -51,7 +49,7 @@ RUN echo 'export RBENV_ROOT=/usr/local/rbenv' >> /root/.bashrc \
 ENV CONFIGURE_OPTS --disable-install-doc
 ENV PATH /usr/local/rbenv/bin:/usr/local/rbenv/shims:$PATH
 
-ENV RBENV_VERSION 2.5.1
+ENV RBENV_VERSION 2.6.3
 
 RUN eval "$(rbenv init -)"; rbenv install $RBENV_VERSION \
 &&  eval "$(rbenv init -)"; rbenv global $RBENV_VERSION \
@@ -72,11 +70,10 @@ ENV GEM_HOME /usr/local/bundle
 
 # cludge
 
-ENV PATH /root/.yarn/bin:$PATH 
 ENV PATH $GEM_HOME/bin:$PATH
 ENV BUNDLE_APP_CONFIG $GEM_HOME
 
-RUN gem install bundler && \
+RUN gem install bundler -v 2.0.1 && \
     bundle config --global path "$GEM_HOME" && \
     bundle config --global bin "$GEM_HOME/bin" && \
     mkdir /app

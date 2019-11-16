@@ -90,11 +90,14 @@ resources :collection_objects do
   concerns [:data_routes]
 
   member do
+    get 'dwc', defaults: {format: :json}
     get 'depictions', constraints: {format: :html}
     get 'containerize'
+    get 'dwca', defaults: {format: :json}
   end
 
   collection do
+    get :dwc_index, defaults: {format: :json}
     post :preview_castor_batch_load # should be get
     post :create_castor_batch_load # should be get
     post :preview_buffered_batch_load
@@ -124,6 +127,7 @@ resources :collecting_events do
   end
 
   collection do
+    get :attributes, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
 
     post :preview_castor_batch_load
@@ -148,6 +152,7 @@ resources :common_names do
   concerns [:data_routes]
 end
 
+match 'containers/for', to: 'containers#for', via: :get, defaults: {format: :json}
 resources :containers do # , only: [:create, :update, :destroy] do
   concerns [:data_routes]
 end
@@ -210,6 +215,15 @@ resources :documents do
   concerns [:data_routes]
 end
 
+resources :downloads, except: [:edit, :new, :create, :update] do
+  collection do
+    get 'list'
+  end
+  member do
+    get 'download_file'
+  end
+end
+
 resources :extracts do
   concerns [:data_routes]
 end
@@ -220,6 +234,7 @@ resources :geographic_areas do
     post 'display_coordinates' # TODO should not be POST
     get 'display_coordinates', as: 'getdisplaycoordinates'
     get :select_options, defaults: {format: :json}
+    get :by_lat_long, defaults: {format: :json}
   end
 end
 
@@ -287,12 +302,19 @@ resources :languages, only: [] do
   collection do
     get 'autocomplete'
   end
+  collection do 
+    get :select_options, defaults: {format: :json}
+  end
 end
 
 resources :loans do
   concerns [:data_routes]
   member do
     get :recipient_form
+  end
+
+  collection do
+    get :select_options, defaults: {format: :json}
   end
 end
 
@@ -386,8 +408,8 @@ resources :otus do
   resources :common_names, shallow: true, only: [:index], defaults: {format: :json}
 
   resources :contents, only: [:index]
-  collection do
 
+  collection do
     # TODO: this is get
     post :preview_data_attributes_batch_load
     post :create_data_attributes_batch_load
@@ -406,6 +428,11 @@ resources :otus do
 
     get :select_options, defaults: {format: :json}
   end
+
+  member do
+    get :navigation, defaults: {format: :json}
+  end
+
 end
 
 resources :otu_page_layouts do
@@ -434,6 +461,11 @@ resources :otu_page_layout_sections, only: [:create, :update, :destroy]
 match 'people/role_types', to: 'people#role_types', via: :get, method: :json
 resources :people do
   concerns [:data_routes]
+
+  collection do
+    get :select_options, defaults: {format: :json}
+  end
+
   member do
     get :similar, defaults: {format: :json}
     get :roles
@@ -483,9 +515,11 @@ resources :repositories do
   end
 end
 
-# TODO: add exceptions
 resources :serials do
   concerns [:data_routes]
+  collection do
+    get :select_options, defaults: {format: :json}
+  end
 end
 
 resources :serial_chronologies, only: [:create, :update, :destroy]
@@ -524,6 +558,10 @@ resources :sources do
     post :create_bibtex_batch_load
     get :parse, defaults: {format: :json}
   end
+
+  member do
+    post :clone
+  end
 end
 
 resources :sqed_depictions, only: [] do
@@ -538,6 +576,7 @@ resources :tags, except: [:edit, :show, :new] do
   collection do
     get :autocomplete
     post :tag_object_update
+    post :batch_create, defaults: {format: :json}
     post :batch_remove, defaults: {format: :json}
   end
 end

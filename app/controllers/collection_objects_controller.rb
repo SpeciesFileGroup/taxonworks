@@ -1,8 +1,9 @@
 class CollectionObjectsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_collection_object, only: [:show, :edit, :update, :destroy, :containerize,
-                                               :depictions, :images, :geo_json]
+  before_action :set_collection_object, only: [
+    :show, :edit, :update, :destroy, :containerize,
+    :depictions, :images, :geo_json]
 
   # GET /collecting_events
   # GET /collecting_events.json
@@ -16,9 +17,31 @@ class CollectionObjectsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @collection_objects = Queries::CollectionObject::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
+        @collection_objects = filtered_collection_objects
       }
     end
+  end
+
+  # DEPRECATED
+  # GET /collection_objects/dwca/123 # SHOULD BE dwc
+  def dwca
+    @dwc_occurrence = CollectionObject.includes(:dwc_occurrence).find(params[:id]).get_dwc_occurrence # find or compute for
+    render json: @dwc_occurrence.to_json
+  end
+
+  def dwc_index
+    @objects = filtered_collection_objects.includes(:dwc_occurrence).all.pluck( ::CollectionObject.dwc_attribute_vector  )
+    @klass = ::CollectionObject
+    render '/dwc_occurrences/dwc_index'
+  end
+
+  def dwc
+    o = nil
+    ActiveRecord::Base.connection_pool.with_connection do
+      o = CollectionObject.find(params[:id])
+      o.get_dwc_occurrence
+    end
+    render json: o.dwc_occurrence_attribute_values
   end
 
   # GET /collection_objects/1
@@ -134,7 +157,7 @@ class CollectionObjectsController < ApplicationController
 
   # GET /collection_objects/download
   def download
-    send_data Download.generate_csv(CollectionObject.where(project_id: sessions_current_project_id), header_converters: []), type: 'text', filename: "collection_objects_#{DateTime.now}.csv"
+    send_data Export::Download.generate_csv(CollectionObject.where(project_id: sessions_current_project_id), header_converters: []), type: 'text', filename: "collection_objects_#{DateTime.now}.csv"
   end
 
   # GET collection_objects/batch_load
@@ -153,8 +176,9 @@ class CollectionObjectsController < ApplicationController
   end
 
   def create_simple_batch_load
-    if params[:file] && digested_cookie_exists?(params[:file].tempfile,
-                                                :batch_collection_objects_md5)
+    if params[:file] && digested_cookie_exists?(
+        params[:file].tempfile,
+        :batch_collection_objects_md5)
       @result = BatchLoad::Import::CollectionObjects.new(batch_params.merge(user_map))
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collection object-related object-sets were created."
@@ -230,9 +254,16 @@ class CollectionObjectsController < ApplicationController
 
   private
 
+  def filtered_collection_objects
+    Queries::CollectionObject::Filter.
+      new(filter_params).all.where(project_id: sessions_current_project_id).
+      page(params[:page]).per(params[:per] || 500).
+      order('collection_objects.id')
+  end
+
   def set_collection_object
     @collection_object = CollectionObject.with_project_id(sessions_current_project_id).find(params[:id])
-    @recent_object     = @collection_object
+    @recent_object = @collection_object
   end
 
   def collection_object_params
@@ -249,9 +280,10 @@ class CollectionObjectsController < ApplicationController
 
   def batch_params
     params.permit(:file, :import_level, :source_id, :otu_id)
-        .merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
+      .merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
+  # TODO: not used?
   def user_map
     {
       user_header_map: {
@@ -261,11 +293,53 @@ class CollectionObjectsController < ApplicationController
         'start_year'  => 'start_date_year',
         'end_day'     => 'end_date_day',
         'end_month'   => 'end_date_month',
-        'end_year'    => 'end_date_year'}}
+        'end_year'    => 'end_date_year'}
+    }
   end
 
   def filter_params
-    params.permit(:recent)
+    a = params.permit(
+      :recent,
+      Queries::CollectingEvent::Filter::ATTRIBUTES,
+      :in_labels,
+      :in_verbatim_locality,
+      :geo_json,
+      :wkt,
+      :radius,
+      :start_date,
+      :end_date,
+      :partial_overlap_dates,
+      :ancestor_id, 
+      :current_determinations,
+      :validity,
+      :user_target,
+      :user_start_date,
+      :user_end_date,
+      :identifier,
+      :identifier_start,
+      :identifier_end,
+      :identifier_exact,
+      :namespace_id,
+      :never_loaned,
+      :loaned,
+      :on_loan,
+      :spatial_geographic_areas,
+      otu_ids: [],
+      keyword_ids: [],
+      collecting_event_ids: [],
+      geographic_area_ids: [],
+      biocuration_class_ids: [],
+      biological_relationship_ids: []
+      
+      #  keyword_ids: [],
+      #  collecting_event: {
+      #   :recent,
+      #   keyword_ids: []
+      # }
+    )
+
+    a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
+    a
   end 
 
 end

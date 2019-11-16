@@ -10,4 +10,3 @@ json.array! @geographic_areas do |g|
     end
   end 
 end
-

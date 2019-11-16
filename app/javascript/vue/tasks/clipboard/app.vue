@@ -83,6 +83,7 @@
             let position = document.activeElement.selectionStart
             let text = document.activeElement.value
             document.activeElement.value = text.substr(0, position) + this.clipboard[clipboardIndex] + text.substr(position)
+            document.activeElement.dispatchEvent(new CustomEvent("input"))
           }
         }
       },

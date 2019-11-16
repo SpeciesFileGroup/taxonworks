@@ -4,7 +4,7 @@
     <div data-section="<%= s -%>" class="data_section">
       <div class="cards-section">
         <% Hub::Data.visual_items_for(s).each do |i| %>
-          <div class="card-container">
+          <div class="card-container" tabindex="0">
             <%= data_card(i) -%>
           </div>
         <% end %>

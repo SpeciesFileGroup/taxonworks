@@ -28,7 +28,7 @@ module PinboardItemsHelper
       link_to('Remove', pinboard_item_path(pinboard_item), class: [ :remove, 'circle-button', 'button-delete' ], method: :delete, remote: true),
       insert_pinboard_item_link(pinboard_item)
     ]
-    options.push(source_document_viewer_option_tag(pinboard_item.pinned_object)) if pinboard_item.pinned_object.kind_of?(Source)
+    options.unshift(source_document_viewer_option_tag(pinboard_item.pinned_object)) if pinboard_item.pinned_object.kind_of?(Source)
 
     content_tag(:div, class: ['pinboard-dropdown']) do
       content_tag(:div, '', class: ['pinboard-menu-bar']) + 

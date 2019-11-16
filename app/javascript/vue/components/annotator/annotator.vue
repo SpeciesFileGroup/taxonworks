@@ -1,6 +1,8 @@
 <template>
   <div>
-    <div class="radial-annotator">
+    <div
+      
+      class="radial-annotator">
       <modal
         v-if="display"
         @close="closeModal()">
@@ -54,6 +56,7 @@
         type="button"
         class="circle-button"
         :class="[buttonClass]"
+        @contextmenu.prevent="loadContextMenu"
         @click="displayAnnotator()">Radial annotator
       </span>
       <div
@@ -61,6 +64,11 @@
         class="circle-count button-submit middle">
         <span class="citation-count-text">{{ metadataCount }}</span>
       </div>
+      <context-menu
+        :metadata="metadata"
+        :global-id="globalId"
+        v-model="showContextMenu"
+        v-if="showContextMenu"/>
     </div>
   </div>
 </template>
@@ -84,6 +92,8 @@ import citationsAnnotator from './components/citations/citation_annotator.vue'
 import protocol_relationshipsAnnotator from './components/protocol_annotator.vue'
 import attributionAnnotator from './components/attribution/main.vue'
 
+import ContextMenu from './components/contextMenu'
+
 import Icons from './images/icons.js'
 
 export default {
@@ -103,7 +113,8 @@ export default {
     identifiersAnnotator,
     tagsAnnotator,
     protocol_relationshipsAnnotator,
-    attributionAnnotator
+    attributionAnnotator,
+    ContextMenu
   },
   props: {
     reload: {
@@ -151,7 +162,8 @@ export default {
       title: 'Radial annotator',
       menuOptions: [],
       defaultTag: undefined,
-      tagCreated: false
+      tagCreated: false,
+      showContextMenu: false
     }
   },
   computed: {
@@ -192,6 +204,10 @@ export default {
     }
   },
   methods: {
+    loadContextMenu() {
+      this.showContextMenu = true
+      this.loadMetadata()
+    },
     getDefault () {
       const defaultTag = document.querySelector('[data-pinboard-section="Keywords"] [data-insert="true"]')
       return defaultTag ? defaultTag.getAttribute('data-pinboard-object-id') : undefined

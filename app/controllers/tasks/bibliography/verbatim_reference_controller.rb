@@ -10,7 +10,7 @@ class Tasks::Bibliography::VerbatimReferenceController < ApplicationController
       flash[:notice] = 'Provide a citation.'
       render :new and return
     else
-      @source = TaxonWorks::Vendor::Ref2bibtex.new_from_citation(citation: citation_param)
+      @source = TaxonWorks::Vendor::Serrano.new_from_citation(citation: citation_param)
     end
   end
 
@@ -26,7 +26,7 @@ class Tasks::Bibliography::VerbatimReferenceController < ApplicationController
   end
 
   def create_bibtex
-    @source = TaxonWorks::Vendor::Ref2bibtex.new_from_citation(citation: params[:in_cite])
+    @source = TaxonWorks::Vendor::Serrano.new_from_citation(citation: params[:in_cite])
     @source.project_sources_attributes = [{project_id: sessions_current_project_id}]
 
     if @source.save
