@@ -3,7 +3,7 @@ branches:
   only:
     - master
     - development
-    - /\d+\.\d+\.\d+/
+    - /v\d+\.\d+\.\d+/
 env:
   global:
     - TEST_WORKERS=5
@@ -72,7 +72,7 @@ jobs:
       services:
         - docker
       install:
-        - if [ "x$TRAVIS_TAG" != "x" ]; then export DOCKER_TAG=$TRAVIS_TAG; else export DOCKER_TAG=latest; fi
+        - if [ "x$TRAVIS_TAG" != "x" ]; then export DOCKER_TAG=$(echo $TRAVIS_TAG | cut -c2-); else export DOCKER_TAG=latest; fi
         - export REVISION=$(git rev-parse --short HEAD)
         - cd .travis
         - docker build .. -t sfgrp/taxonworks --build-arg REVISION=$REVISION --build-arg BUNDLER_WORKERS=3
