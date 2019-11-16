@@ -12,6 +12,7 @@ jobs:
   include:
     - &test-stage
       stage: test
+      if: NOT (tag =~ /\d+\.\d+\.\d+/)
       language: ruby
       cache:
         bundler: true
