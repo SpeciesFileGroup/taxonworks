@@ -3,10 +3,7 @@ branches:
   only:
     - master
     - development
-    - dates
-    - docker-travis
-    - rails6
-    - cofilter2
+    - /v\d+\.\d+\.\d+/
 env:
   global:
     - TEST_WORKERS=5
@@ -15,6 +12,7 @@ jobs:
   include:
     - &test-stage
       stage: test
+      if: NOT (tag =~ /\d+\.\d+\.\d+/)
       language: ruby
       cache:
         bundler: true
@@ -70,14 +68,15 @@ jobs:
       env:
         - TEST_WORKER=4
     - stage: deliver
-      if: branch = development
+      if: (tag =~ /\d+\.\d+\.\d+/) OR (branch = development)
       language: minimal
       services:
         - docker
       install:
+        - if [ "x$TRAVIS_TAG" != "x" ]; then export DOCKER_TAG=$(echo $TRAVIS_TAG | cut -c2-); else export DOCKER_TAG=latest; fi
         - export REVISION=$(git rev-parse --short HEAD)
         - cd .travis
-        - docker build .. -t sfgrp/taxonworks:latest --build-arg REVISION=$REVISION --build-arg BUNDLER_WORKERS=3
+        - docker build .. -t sfgrp/taxonworks --build-arg REVISION=$REVISION --build-arg BUNDLER_WORKERS=3
         - docker-compose build --parallel
         - docker-compose up -d --no-build
         - docker-compose logs
@@ -88,7 +87,8 @@ jobs:
           [ "$TRAVIS_REPO_SLUG" == "SpeciesFileGroup/taxonworks" ] && \
           [ "$TRAVIS_EVENT_TYPE" == "push" ] && \
           docker login -u "$DOCKER_USER" -p "$DOCKER_PASS" && \
-          docker push sfgrp/taxonworks:latest
+          docker tag sfgrp/taxonworks:latest sfgrp/taxonworks:$DOCKER_TAG && \
+          docker push sfgrp/taxonworks:$DOCKER_TAG
 notifications:
   email:
     recipients:

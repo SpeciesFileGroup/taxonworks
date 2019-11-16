@@ -283,7 +283,7 @@ class Otu < ApplicationRecord
     Otu.joins(j).distinct.limit(10)
   end
 
-  # @params target [String] one of nil, `AssertedDistribution`, `Content`, `BiologicalAssociation`, 'TaxonDetermination'
+  # @params target [String] required, one of nil, `AssertedDistribution`, `Content`, `BiologicalAssociation`, 'TaxonDetermination'
   # @return [Hash] otus optimized for user selection
   def self.select_optimized(user_id, project_id, target = nil)
     h = {
@@ -292,7 +292,16 @@ class Otu < ApplicationRecord
     }
 
     if target
-      h[:recent] = Otu.where(project_id: project_id).used_recently(target).limit(10).to_a
+      n = target.tableize.to_sym
+      h[:recent] = (
+        Otu.joins(n)
+        .where(project_id: project_id, n => {updated_by_id: user_id})
+        .used_recently(target)
+        .limit(10).to_a + 
+      Otu.where(project_id: project_id, created_by_id: user_id, created_at: 3.hours.ago..Time.now)
+        .order('updated_at DESC')
+        .limit(3).to_a
+      ).uniq
     else
       h[:recent] = Otu.where(project_id: project_id).order('updated_at DESC').limit(10).to_a
     end

@@ -459,9 +459,12 @@ class Person < ApplicationRecord
       pinboard: Person.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a
     }
 
-    h[:recent] = Person.joins(:roles).where(roles: {project_id: project_id, type: role_type}).
-      used_recently(role_type).
-      limit(10).distinct.to_a
+    h[:recent] = (
+      Person.joins(:roles)
+      .where(roles: {project_id: project_id, type: role_type, updated_by_id: user_id})
+      .used_recently(role_type).
+    limit(10).distinct.to_a +
+    Person.where(created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('created_at DESC').limit(6)).uniq
 
     h[:quick] = (Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a + h[:recent][0..3]).uniq
     h

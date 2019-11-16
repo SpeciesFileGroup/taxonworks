@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rack-cors', '~> 1.0.1', require: 'rack/cors'
+gem 'rack-cors', '~> 1.0.5', require: 'rack/cors'
 
 ruby '2.6.3'
 

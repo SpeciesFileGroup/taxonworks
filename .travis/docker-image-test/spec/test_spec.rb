@@ -52,6 +52,23 @@ describe "Docker image test", js: true do
     it "shows the revision matching git HEAD short hash (#{ENV['REVISION']})" do
       expect(page).to have_content(ENV['REVISION'])
     end
+
+    it "has the test project visible" do
+      expect(page).to have_content("test_project")
+    end
+  end
+
+  context 'when ColDP export is fired up' do
+    before(:each) do
+      click_on 'test_project'
+    end
+
+    it 'runs asynchronously' do
+      visit 'tasks/exports/coldp/download?otu_id=1'
+      expect(page).to have_content('Status: Download creation is in progress...')
+      sleep 10 # Wait for page to auto-refresh (download should be available by then)
+      expect(page).to have_content('Status: Ready to download')
+    end
   end
 
   context 'HTTP proxy' do

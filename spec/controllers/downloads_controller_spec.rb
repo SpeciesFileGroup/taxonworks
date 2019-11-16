@@ -32,6 +32,9 @@ RSpec.describe DownloadsController, type: :controller do
   let(:valid_attributes) { 
     strip_housekeeping_attributes(FactoryBot.build(:valid_download).attributes.merge({ source_file_path: Rails.root.join('spec/files/downloads/Sample.zip') }))
   }
+  let(:valid_attributes_no_file) {
+    strip_housekeeping_attributes(FactoryBot.build(:valid_download_no_file).attributes)
+  }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -68,7 +71,7 @@ RSpec.describe DownloadsController, type: :controller do
   end
 
   describe "GET #download_file" do
-    context "download has not expired yet" do
+    context "download is ready" do
       let(:download) { Download.create! valid_attributes }
 
       it "sends the requested file" do
@@ -82,11 +85,11 @@ RSpec.describe DownloadsController, type: :controller do
       end
     end
 
-    context "download has expired already" do
-      let(:download) { Download.create! valid_attributes.merge({ expires: 1.day.ago }) }
+    context "download is not ready" do
+      let(:download_no_file) { Download.create! valid_attributes_no_file }
 
       it "redirects to #show" do
-        get :download_file, params: {id: download.to_param}, session: valid_session
+        get :download_file, params: {id: download_no_file.to_param}, session: valid_session
         expect(response).to redirect_to(download_url)
       end
     end

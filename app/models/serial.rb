@@ -152,8 +152,15 @@ class Serial < ApplicationRecord
 
   def self.select_optimized(user_id, project_id)
     h = {
-      recent: (Serial.used_recently.where('project_sources.project_id = ? AND sources.updated_by_id = ?', project_id, user_id).distinct.limit(5).to_a +
-        Serial.recently_created.where(created_by_id: user_id).distinct.limit(5).to_a).uniq,
+      recent: (
+        Serial.used_recently
+        .where('project_sources.project_id = ? AND sources.updated_by_id = ?', project_id, user_id)
+        .distinct
+        .limit(5).to_a +
+      Serial.recently_created
+        .where(created_by_id: user_id)
+        .distinct
+        .limit(5).to_a).uniq,
       pinboard: Serial.pinned_by(user_id).pinned_in_project(project_id).to_a
     }
 

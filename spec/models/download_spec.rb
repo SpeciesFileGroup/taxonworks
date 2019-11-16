@@ -5,8 +5,12 @@ RSpec.describe Download, type: :model do
   let(:valid_attributes) { 
     strip_housekeeping_attributes(FactoryBot.build(:valid_download).attributes.merge({ source_file_path: Rails.root.join('spec/files/downloads/Sample.zip') }))
   }
+  let(:valid_attributes_no_file) {
+    strip_housekeeping_attributes(FactoryBot.build(:valid_download_no_file).attributes)
+  }
 
   let(:download) { Download.create! valid_attributes }
+  let(:download_no_file) { Download.create! valid_attributes_no_file }
   let(:file_path) { Download.storage_path.join(*download.id.to_s.rjust(9, '0').scan(/.../), download.filename) }
 
   describe "default scope" do
@@ -28,8 +32,10 @@ RSpec.describe Download, type: :model do
   end
 
   describe "#create" do
-    it "stores a file in download directory" do
-      expect(file_path.exist?).to be_truthy
+    context "when source_file_path provided" do
+      it "stores file in download directory" do
+        expect(file_path.exist?).to be_truthy
+      end
     end
   end
 
@@ -56,7 +62,7 @@ RSpec.describe Download, type: :model do
         expect(download.file_path).to eq(Download.storage_path.join('001', '234', '567', download.filename))
       end
 
-      xit "outermost directory is longer than the others when id >= 10^9" do
+      it "outermost directory is longer than the others when id >= 10^9" do
         download = Download.new(valid_attributes)
         download.id = 1234567890
         download.save!
@@ -77,6 +83,46 @@ RSpec.describe Download, type: :model do
       download.expires = 1.day.from_now
 
       expect(download.expired?).to be_falsey
+    end
+  end
+
+  describe "#ready?" do
+    context "when not expired" do
+      context "and created with file" do
+        it "is true when file is present" do
+          expect(download.ready?).to be_truthy
+        end
+
+        it "is false when the file is deleted" do
+          download.delete_file
+          expect(download.ready?).to be_falsey
+        end
+      end
+
+      context "and created without file" do
+        it "is false when file is absent" do
+          expect(download_no_file.ready?).to be_falsey
+        end
+
+        it "is true when file is added afterwards" do
+          download_no_file.source_file_path = Rails.root.join('spec/files/downloads/Sample.zip')
+          download_no_file.save!
+          expect(download_no_file.ready?).to be_truthy
+        end
+      end
+    end
+    context "when expired" do
+      it "it is false" do
+        download.expires = 1.second.ago
+        expect(download.ready?).to be_falsey
+      end
+    end
+  end
+
+  describe "#delete file" do
+    it "removes the file from storage" do
+      download.delete_file
+      expect(file_path.exist?).to be_falsey
     end
   end
 
