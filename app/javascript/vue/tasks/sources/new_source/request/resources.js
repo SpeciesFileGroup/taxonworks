@@ -20,10 +20,20 @@ const GetUserPreferences = function () {
   return ajaxCall('get', `/preferences.json`)
 }
 
+const GetSerialsSmart = function () {
+  return ajaxCall('get', `/serials/select_options`)
+}
+
+const GetLanguagesSmart = function () {
+  return ajaxCall('get', `/languages/select_options?klass=source`)
+}
+
 export {
   GetSource,
   CreateSource,
   UpdateSource,
   UpdateUserPreferences,
-  GetUserPreferences
+  GetUserPreferences,
+  GetSerialsSmart,
+  GetLanguagesSmart
 }
