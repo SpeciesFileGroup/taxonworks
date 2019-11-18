@@ -14,18 +14,15 @@ json.source_in_project source_in_project?(source)
 json.project_source_id project_source_for_source(source)&.id
 
 if source.type == 'Source::Bibtex'
-  json.authors do
-    source.authors.each do |p|
-      json.id p.id
-      json.partial! '/shared/data/all/metadata', object: p
-    end
+
+  json.authors(@source.authors) do |p|
+    json.id p.id
+    json.partial! '/shared/data/all/metadata', object: p
   end
-  
-  json.editors do 
-    source.editors.each do |p|
-      json.id p.id
-      json.partial! '/shared/data/all/metadata', object: p
-    end
+
+  json.editors(@source.editors) do |p|
+    json.id p.id
+    json.partial! '/shared/data/all/metadata', object: p
   end
 
 end
