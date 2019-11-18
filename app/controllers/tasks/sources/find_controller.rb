@@ -1,4 +1,4 @@
-class Tasks::Sources::BrowseController < ApplicationController
+class Tasks::Sources::FindController < ApplicationController
   include TaskControllerConfiguration
 
   # GET

@@ -101,8 +101,8 @@ scope :tasks do
     end
 
     scope :find, controller: 'tasks/sources/find' do
-      get '/', action: :index, as: 'find_sources_index_task'
-      get 'find', as: 'find_sources_task'
+      get '/', action: :index, as: 'find_sources_task'
+      get 'find', as: 'find_sources_query_task'
     end
   end
 
