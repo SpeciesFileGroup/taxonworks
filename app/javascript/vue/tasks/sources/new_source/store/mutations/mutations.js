@@ -4,6 +4,7 @@ import setBibtexType from './setBibtexType'
 import setSource from './setSource'
 import setPreferences from './setPreferences'
 import setSettings from './setSettings'
+import setRoles from './setRoles'
 
 const MutationNames = {
   SetType: 'setType',
@@ -11,7 +12,8 @@ const MutationNames = {
   SetBibtexType: 'setBibtexType',
   SetSource: 'setSource',
   SetPreferences: 'setPreferences',
-  SetSettings: 'setSettings'
+  SetSettings: 'setSettings',
+  SetRoles: 'setRoles'
 }
 
 const MutationFunctions = {
@@ -20,7 +22,8 @@ const MutationFunctions = {
   [MutationNames.SetBibtexType]: setBibtexType,
   [MutationNames.SetSource]: setSource,
   [MutationNames.SetPreferences]: setPreferences,
-  [MutationNames.SetSettings]: setSettings
+  [MutationNames.SetSettings]: setSettings,
+  [MutationNames.SetRoles]: setRoles
 }
 
 export {

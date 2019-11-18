@@ -1,8 +1,8 @@
 <template>
-  <div class="field">
-    <label>Language</label>
+  <div>
     <div class="horizontal-left-content">
-      <fieldset>
+      <fieldset class="full_width">
+        <legend>Language</legend>
         <smart-selector
           model="languages"
           klass="source"

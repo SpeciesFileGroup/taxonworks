@@ -7,7 +7,7 @@
       :options="{ disabled: disableDraggable }"
       @end="updatePreferences">
       <component
-        class="separate-bottom"
+        class="separate-bottom separate-right"
         v-for="componentName in componentsOrder"
         @onModal="setDraggable"
         :key="componentName"
@@ -104,15 +104,14 @@ export default {
   watch: {
     preferences: {
       handler(newVal) {
-        if(this.preferences.layout[this.keyStorage] && this.componentsOrder.length == this.preferences.layout[this.keyStorage].length)
-          this.componentsOrder = this.preferences.layout[this.keyStorage]
+        if(this.preferences.hasOwnProperty('layout')) {
+          if(this.preferences.layout[this.keyStorage] && this.componentsOrder.length == this.preferences.layout[this.keyStorage].length)
+            this.componentsOrder = this.preferences.layout[this.keyStorage]
+        }
       },
-      deep: true
+      deep: true,
+      immediate: true
     }
-  },
-  mounted () {
-    if(this.preferences.layout[this.keyStorage] && this.componentsOrder.length == this.preferences.layout[this.keyStorage].length)
-      this.componentsOrder = this.preferences.layout[this.keyStorage]
   },
   methods: {
     setDraggable (mode) {
@@ -142,6 +141,10 @@ export default {
 
     > div {
       margin-right: 14px;
+    }
+    
+    input {
+      width: 100%;
     }
   }
 </style>

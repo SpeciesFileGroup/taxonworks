@@ -1,7 +1,7 @@
 export default () => {
   return {
     id: undefined,
-    type: undefined,
+    type: 'Source::Bibtex',
     bibtex_type: undefined,
     verbatim: undefined,
     title: undefined,
@@ -42,6 +42,7 @@ export default () => {
     language_id: undefined,
     translator: undefined,
     year_suffix: undefined,
-    url: undefined
+    url: undefined,
+    roles_attributes: []
   }
 }

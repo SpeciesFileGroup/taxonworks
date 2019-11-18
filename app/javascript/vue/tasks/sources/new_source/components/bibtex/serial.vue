@@ -1,8 +1,8 @@
 <template>
-  <div class="field">
-    <label>Serial</label>
-    <div class="horizontal-left-content">
-      <fieldset>
+  <div>
+    <div class="horizontal-left-content full_width">
+      <fieldset class="full_width">
+        <legend>Serial</legend>
         <smart-selector
           model="serials"
           klass="source"
@@ -19,11 +19,15 @@
             @click="unset"/>
         </div>
       </fieldset>
-      <lock-component v-model="settings.lock.serial_id"/>
-      <default-pin
-        section="Serials"
-        type="serial"
-        @getId="getDefault"/>
+      <div class="vertical-content">
+        <lock-component
+          class="circle-button"
+          v-model="settings.lock.serial_id"/>
+        <default-pin
+          section="Serials"
+          type="serial"
+          @getId="getDefault"/>
+      </div>
     </div>
   </div>
 </template>
