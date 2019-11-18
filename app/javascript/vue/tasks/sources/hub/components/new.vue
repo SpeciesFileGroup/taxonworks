@@ -24,7 +24,7 @@ export default {
       tasks: [
       {
         label: 'New source',
-        url: '/sources/new'  
+        url: '/tasks/sources/new_source'  
       },
       {
         label: 'New source from Bibtex',
