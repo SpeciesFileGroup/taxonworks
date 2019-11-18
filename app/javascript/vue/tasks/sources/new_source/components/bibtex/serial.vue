@@ -20,6 +20,10 @@
         </div>
       </fieldset>
       <lock-component v-model="settings.lock.serial_id"/>
+      <default-pin
+        section="Serials"
+        type="serial"
+        @getId="getDefault"/>
     </div>
   </div>
 </template>
@@ -31,13 +35,15 @@ import { MutationNames } from '../../store/mutations/mutations'
 
 import LockComponent from 'components/lock'
 import SmartSelector from 'components/smartSelector'
+import DefaultPin from 'components/getDefaultPin'
 
 import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
     SmartSelector,
-    LockComponent
+    LockComponent,
+    DefaultPin
   },
   computed: {
     source: {
@@ -84,6 +90,11 @@ export default {
     unset () {
       this.selected = undefined
       this.source.serial_id = null
+    },
+    getDefault (id) {
+      AjaxCall('get', `/serials/${id}`).then(response => {
+        this.selected = response.body
+      })
     }
   }
 }
