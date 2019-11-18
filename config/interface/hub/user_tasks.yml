@@ -312,7 +312,7 @@ uniquify_people_task:
     - nomenclature
   status: stable 
   description: 'Find and merge redundant or duplicated people, e.g., from import.'
-index_individual_bibtex_source_task:
+new_bibtex_source_task:
   hub: true
   name: 'New source from BibTeX'
   related:
@@ -386,7 +386,7 @@ index_new_image_task:
     - collecting_event
     - collection_object
   status: prototype
-index_hub_task:
+source_hub_task:
   hub: true
   name: 'Source hub'
   related:
@@ -456,7 +456,7 @@ collection_objects_filter_task:
     - collection_object
   status: prototype
   description: 'Filter collection objects by many different facets, download or visualize results.'
-index_new_source_task:
+new_source_task:
    hub: true
    name: 'New source'
    related:

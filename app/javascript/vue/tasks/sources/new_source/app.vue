@@ -8,7 +8,9 @@
           v-if="source.id"
           :object-id="source.id"
           type="Source"/>
-        <radial-annotator :global-id="source.global_id"/>
+        <radial-annotator
+          v-if="source.id"
+          :global-id="source.global_id"/>
         <button
           @click="saveSource"
           class="button normal-input button-submit button-size separate-right separate-left"
