@@ -435,12 +435,12 @@ index_stats_task:
   description: 'Get counts of names as different ranks.'
 export_coldp_task:
   hub: true
-  name: 'CoLDP exports'
+  name: 'Catalogue of Life (CoLDP) exports'
   related:
   categories:
     - nomenclature
   status: prototype
-  description: 'Preview, manage, and export CoLDP formatted data'
+  description: 'Export a zip of text files in the Catalogue of Life CoLDP format.'
 index_browse_asserted_distributions_task:
   hub: true
   name: 'Browse asserted distributions'
