@@ -564,7 +564,7 @@ resources :sources do
   end
 end
 
-resources :sqed_depictions, only: [] do
+resources :sqed_depictions, only: [:update] do
   collection do
     get :metadata_options, defaults: {format: :json}
   end
