@@ -3,7 +3,11 @@
     <h1>New source</h1>
     <div class="flex-separate separate-bottom">
       <source-type/>
-      <div>
+      <div class="horizontal-right-content">
+        <pin-component
+          v-if="source.id"
+          :object-id="source.id"
+          type="Source"/>
         <button
           @click="saveSource"
           class="button normal-input button-submit button-size separate-right"
@@ -37,6 +41,8 @@ import Verbatim from './components/verbatim/main'
 import Bibtex from './components/bibtex/main'
 import Human from './components/person/main'
 
+import PinComponent from 'components/pin'
+
 import { GetUserPreferences } from './request/resources'
 
 import { GetterNames } from './store/getters/getters'
@@ -45,6 +51,7 @@ import { MutationNames } from './store/mutations/mutations'
 
 export default {
   components: {
+    PinComponent,
     SourceType,
     Verbatim,
     Bibtex,
@@ -86,6 +93,6 @@ export default {
 </script>
 <style scoped>
   .button-size {
-    width: 140px;
+    width: 100px;
   }
 </style>
