@@ -3,6 +3,7 @@ branches:
   only:
     - master
     - development
+    - rails6
     - /v\d+\.\d+\.\d+/
 env:
   global:
