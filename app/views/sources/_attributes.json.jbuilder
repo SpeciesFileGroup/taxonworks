@@ -17,6 +17,10 @@ if source.type == 'Source::Bibtex'
   json.authors do |a|
     a.array! source.authors, partial: '/shared/data/all/metadata', as: :object
   end
+
+  json.editors do |e|
+    a.array! source.editors, partial: '/shared/data/all/metadata', as: :object
+  end
 end
 
 json.documents do |d|
