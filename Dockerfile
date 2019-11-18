@@ -29,9 +29,14 @@ RUN apt-get update && \
       nodejs \
       redis-server libhiredis-dev && \
       apt clean && \ 
-      rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/* 
+      rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
 
 RUN locale-gen en_US.UTF-8
+
+# Set up ImageMagick
+RUN sed -i 's/name="disk" value="1GiB"/name="disk" value="8GiB"/' /etc/ImageMagick-6/policy.xml \
+&&  identify -list resource | grep Disk | grep 8GiB # Confirm the setting is active
+
 
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en

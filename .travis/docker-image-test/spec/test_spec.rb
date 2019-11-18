@@ -71,6 +71,14 @@ describe "Docker image test", js: true do
     end
   end
 
+  # TODO: Make this test inside taxonworks container (without installing anything extra).
+  #       This is currently self-tested in Dockerfile
+  # context 'ImageMagick settings' do
+  #   it 'has 8GiB of disk cache' do
+  #     expect(`identify -list resource | grep Disk`).to end_with('8GiB')
+  #   end
+  # end
+
   context 'HTTP proxy' do
     it 'has not recorded any error response' do
       errors = proxy.har.entries.select do |x|
