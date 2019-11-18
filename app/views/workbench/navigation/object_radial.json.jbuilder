@@ -16,6 +16,7 @@ json.tasks do
   if @data
     @data['tasks'].each do |t|
       json.set! t do
+        byebug
         json.name UserTasks::INDEXED_TASKS[t].name
         if @object
           json.path send("#{t}_path", "#{resource.singularize}_id" => @object.id)

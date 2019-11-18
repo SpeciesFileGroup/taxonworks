@@ -17,7 +17,7 @@ Source:
     - new_source_task
     - new_verbatim_reference_task
     - new_bibtex_source_task
-    - browse_source_task
+    - find_sources_index_task
     - nomenclature_by_source_task
   new: new_source_task
   edit: new_source_task

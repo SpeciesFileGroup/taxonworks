@@ -100,8 +100,8 @@ scope :tasks do
       get '/', action: :index, as: 'new_bibtex_source_task'
     end
 
-    scope :browse, controller: 'tasks/sources/browse' do
-      get '/', action: :index, as: 'browse_sources_task'
+    scope :find, controller: 'tasks/sources/find' do
+      get '/', action: :index, as: 'find_sources_index_task'
       get 'find', as: 'find_sources_task'
     end
   end
