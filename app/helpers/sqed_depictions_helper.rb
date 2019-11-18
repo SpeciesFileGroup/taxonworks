@@ -52,8 +52,9 @@ module SqedDepictionsHelper
   
   def sqed_previous_next_links(sqed_depiction)
     around = sqed_depiction.nearby_sqed_depictions(1, 1)
-    (link_to('Previous', sqed_depiction_breakdown_task_path(around[:before].first), 'data-turbolinks' => 'false') + ' | '.html_safe +
-     link_to('Next', sqed_depiction_breakdown_task_path(around[:after].first), 'data-turbolinks' => 'false')).html_safe
+    a = link_to('Previous', sqed_depiction_breakdown_task_path(around[:before].first), 'data-turbolinks' => 'false') if around[:before].any?
+    b = link_to('Next', sqed_depiction_breakdown_task_path(around[:after].first), 'data-turbolinks' => 'false') if around[:after].any?
+    [a,b].compact.join(' | ').html_safe 
   end
 
   def sqed_last_with_data_tag(project_id)
