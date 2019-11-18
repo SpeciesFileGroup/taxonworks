@@ -43,7 +43,7 @@ class DownloadsController < ApplicationController
   private
 
   def set_download
-    @download = Download.where(project_id: sessions_current_project_id).find(params[:id])
+    @download = Download.unscoped.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def download_params
