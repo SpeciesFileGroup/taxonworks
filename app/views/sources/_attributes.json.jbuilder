@@ -15,10 +15,12 @@ json.project_source_id project_source_for_source(source)&.id
 
 if source.type == 'Source::Bibtex'
   json.authors do |a|
+    json.id a.id
     a.array! source.authors, partial: '/shared/data/all/metadata', as: :object
   end
 
   json.editors do |e|
+    json.id e.id
     a.array! source.editors, partial: '/shared/data/all/metadata', as: :object
   end
 end
