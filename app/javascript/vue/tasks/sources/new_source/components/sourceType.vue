@@ -9,6 +9,7 @@
             v-model="sourceType"
             :value="type.value"
             name="source-type"
+            :disabled="source.id"
             type="radio">
           {{ type.label }}
         </label>
@@ -32,6 +33,9 @@ export default {
     LockComponent
   },
   computed: {
+    source () {
+      return this.$store.getters[GetterNames.GetSource]
+    },
     sourceType: {
       get () {
         return this.$store.getters[GetterNames.GetType]

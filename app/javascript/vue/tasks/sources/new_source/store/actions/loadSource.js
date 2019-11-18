@@ -11,6 +11,6 @@ export default ({ state, commit }, id) => {
     let people = authors.concat(editors)
 
     commit(MutationNames.SetRoles, people)
-    setParam('/tasks/sources/new_source/index', 'source_id', response.body.id)
+    setParam('/tasks/sources/new_source', 'source_id', response.body.id)
   })
 }

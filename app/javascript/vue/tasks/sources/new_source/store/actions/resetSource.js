@@ -10,5 +10,5 @@ export default ({ state, commit }) => {
   })
   
   commit(MutationNames.SetSource, source)
-  history.pushState(null, null, `/tasks/sources/new_source/index`)
+  history.pushState(null, null, `/tasks/sources/new_source`)
 }

@@ -7,7 +7,7 @@ export default ({ state, commit }) => {
   if(state.source.id) {
     UpdateSource(state.source).then(response => {
       commit(MutationNames.SetSource, response.body)
-      setParam('/tasks/sources/new_source/index', 'source_id', response.body.id)
+      setParam('/tasks/sources/new_source', 'source_id', response.body.id)
       let authors = state.source.author_roles
       let editors = state.source.editor_roles
       let people = authors.concat(editors)
@@ -18,7 +18,7 @@ export default ({ state, commit }) => {
   } else {
     CreateSource(state.source).then(response => {
       commit(MutationNames.SetSource, response.body)
-      setParam('/tasks/sources/new_source/index', 'source_id', response.body.id)
+      setParam('/tasks/sources/new_source', 'source_id', response.body.id)
       let authors = state.source.author_roles
       let editors = state.source.editor_roles
       let people = authors.concat(editors)
