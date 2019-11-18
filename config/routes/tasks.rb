@@ -88,20 +88,20 @@ scope :tasks do
   end
 
   scope :sources do
-      scope :new_source, controller: 'tasks/sources/new_source' do
-        get :index, as: 'index_new_source_task'
-      end
+    scope :new_source, controller: 'tasks/sources/new_source' do
+      get '/', action: :index, as: 'new_source_task'
+    end
 
     scope :hub, controller: 'tasks/sources/hub' do
-      get :index, as: 'index_hub_task'
+      get '/', action: :index, as: 'source_hub_task'
     end
 
     scope :individual_bibtex_source, controller: 'tasks/sources/individual_bibtex_source' do
-      get 'index', as: 'index_individual_bibtex_source_task'
+      get '/', action: :index, as: 'new_bibtex_source_task'
     end
 
     scope :browse, controller: 'tasks/sources/browse' do
-      get 'index', as: 'browse_sources_task'
+      get '/', action: :index, as: 'browse_sources_task'
       get 'find', as: 'find_sources_task'
     end
   end
