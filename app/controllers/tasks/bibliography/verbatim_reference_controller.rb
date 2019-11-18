@@ -11,6 +11,12 @@ class Tasks::Bibliography::VerbatimReferenceController < ApplicationController
       render :new and return
     else
       @source = TaxonWorks::Vendor::Serrano.new_from_citation(citation: citation_param)
+      respond_to do |format|
+        format.html {}
+        format.json do
+          render '/sources/show'
+        end
+      end
     end
   end
 

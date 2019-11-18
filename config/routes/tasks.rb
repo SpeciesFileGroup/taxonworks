@@ -90,6 +90,7 @@ scope :tasks do
   scope :sources do
     scope :new_source, controller: 'tasks/sources/new_source' do
       get '/', action: :index, as: 'new_source_task'
+      get 'crossref_preview', as: 'preview_source_from_crossref_task', defaults: {format: :json}
     end
 
     scope :hub, controller: 'tasks/sources/hub' do
@@ -193,7 +194,7 @@ scope :tasks do
   scope :bibliography do
     scope :verbatim_reference, controller: 'tasks/bibliography/verbatim_reference' do
       get 'new', as: 'new_verbatim_reference_task'
-      post 'preview', as: 'preview_verbatim_reference_task'
+      get 'preview', as: 'preview_verbatim_reference_task'
       post 'create_verbatim', as: 'create_verbatim_from_reference_task'
       post 'create_bibtex', as: 'create_bibtex_from_reference_task'
     end
