@@ -17,7 +17,7 @@ if source.type == 'Source::Bibtex'
   
   #TODO move to shared 
   json.author_roles(source.author_roles) do |role|
-    json.extract! role, :id, :position
+    json.extract! role, :id, :position, :type
     json.person do
       json.partial! '/people/base_attributes', person: role.person 
     end
@@ -25,7 +25,7 @@ if source.type == 'Source::Bibtex'
 
   #TODO move to shared 
   json.editor_roles(source.editor_roles) do |role|
-    json.extract! role, :id, :position
+    json.extract! role, :id, :position, :type
     json.person do
       json.partial! '/people/base_attributes', person: role.person 
     end
