@@ -32,6 +32,7 @@ jobs:
         apt:
           packages:
             - imagemagick
+            - tesseract-ocr
             - libgeos-dev
             - libproj-dev
             - postgresql-10-postgis-2.4
