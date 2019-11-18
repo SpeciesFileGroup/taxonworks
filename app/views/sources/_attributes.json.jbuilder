@@ -14,17 +14,22 @@ json.source_in_project source_in_project?(source)
 json.project_source_id project_source_for_source(source)&.id
 
 if source.type == 'Source::Bibtex'
-
-  json.authors(@source.authors) do |p|
-    json.id p.id
-    json.partial! '/shared/data/all/metadata', object: p
+  
+  #TODO move to shared 
+  json.author_roles(source.author_roles) do |role|
+    json.extract! role, :id, :position
+    json.person do
+      json.partial! '/people/base_attributes', person: role.person 
+    end
   end
 
-  json.editors(@source.editors) do |p|
-    json.id p.id
-    json.partial! '/shared/data/all/metadata', object: p
+  #TODO move to shared 
+  json.editor_roles(source.editor_roles) do |role|
+    json.extract! role, :id, :position
+    json.person do
+      json.partial! '/people/base_attributes', person: role.person 
+    end
   end
-
 end
 
 json.documents do |d|
