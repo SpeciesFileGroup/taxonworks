@@ -8,9 +8,10 @@
           v-if="source.id"
           :object-id="source.id"
           type="Source"/>
+        <radial-annotator :global-id="source.global_id"/>
         <button
           @click="saveSource"
-          class="button normal-input button-submit button-size separate-right"
+          class="button normal-input button-submit button-size separate-right separate-left"
           type="button">
           Save
         </button>
@@ -40,6 +41,7 @@ import SourceType from './components/sourceType'
 import Verbatim from './components/verbatim/main'
 import Bibtex from './components/bibtex/main'
 import Human from './components/person/main'
+import RadialAnnotator from 'components/annotator/annotator'
 
 import PinComponent from 'components/pin'
 
@@ -51,6 +53,7 @@ import { MutationNames } from './store/mutations/mutations'
 
 export default {
   components: {
+    RadialAnnotator,
     PinComponent,
     SourceType,
     Verbatim,
