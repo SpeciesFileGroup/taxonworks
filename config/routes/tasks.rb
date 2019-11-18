@@ -2,7 +2,7 @@ scope :tasks do
 
   scope :exports do
     scope :coldp, controller: 'tasks/exports/coldp' do
-      get 'index', as: 'export_coldp_task'
+      get '/', action: :index, as: 'export_coldp_task'
       get 'download', as: 'download_coldp_task'
     end
   end

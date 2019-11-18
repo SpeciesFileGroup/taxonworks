@@ -180,6 +180,7 @@ module TaxonWorks
         def authorship
           d = detail[RANK_MAP[finest_rank]]
           d = d.last if d.kind_of?(Array)
+          return nil unless d
           d[:basionymAuthorTeam]
         end
 
