@@ -11,7 +11,8 @@
           Save
         </button>
         <button
-          :disabled="true"
+          :disabled="!source.id"
+          @click="cloneSource"
           class="button normal-input button-submit button-size"
           type="button">
           Clone
@@ -76,6 +77,9 @@ export default {
     },
     saveSource () {
       this.$store.dispatch(ActionNames.SaveSource)
+    },
+    cloneSource () {
+      this.$store.dispatch(ActionNames.CloneSource)
     }
   }
 }

@@ -20,12 +20,8 @@ const GetUserPreferences = function () {
   return ajaxCall('get', `/preferences.json`)
 }
 
-const GetSerialsSmart = function () {
-  return ajaxCall('get', `/serials/select_options`)
-}
-
-const GetLanguagesSmart = function () {
-  return ajaxCall('get', `/languages/select_options?klass=source`)
+const CloneSource = function (id) {
+  return ajaxCall('post', `/sources/${id}/clone`)
 }
 
 export {
@@ -34,6 +30,5 @@ export {
   UpdateSource,
   UpdateUserPreferences,
   GetUserPreferences,
-  GetSerialsSmart,
-  GetLanguagesSmart
+  CloneSource
 }
