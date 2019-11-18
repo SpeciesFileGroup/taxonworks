@@ -20,7 +20,7 @@ gem 'rdf', '~> 3.0'
 gem 'thor', '~> 0.20.3'
 gem 'rubyzip', '~> 2.0.0'
 gem 'daemons', '~> 1.3.1'
-gem 'tzinfo-data', '~> 1.2018.4'
+gem 'tzinfo-data', '~> 1.2019', '>= 1.2019.3'
 gem 'psych', '~> 3.1.0'
 gem 'rmagick', '~> 4.0'
 
@@ -48,7 +48,7 @@ gem 'closure_tree', '~> 7.0'
 gem 'delayed_job_active_record', '~> 4.1.3'
 gem 'validates_timeliness', '~> 4.1', '>= 4.1.1'
 gem 'paper_trail', '~> 10.3', '>= 10.3.1'
-gem 'acts_as_list', '~> 0.9.12'
+gem 'acts_as_list', '~> 1.0'
 gem 'modularity', '~> 2.0.1' # Used!?
 gem 'paperclip', '~> 6.1.0'
 gem 'paperclip-meta', '~> 3.0'
@@ -56,10 +56,10 @@ gem 'shortener', '~> 0.8.0'
 
 # javascript
 gem 'sprockets-rails', '~> 3.2.0'
-gem 'sprockets', '~> 3.7.1'
+gem 'sprockets', '~> 3.7.2' # TODO: Cannot use '~> 4.0' (app fails to initialize properly)
 gem 'sprockets-es6', '~> 0.9.2', require: 'sprockets/es6'
 gem 'webpacker', '>= 4.0.x'
-gem 'uglifier', '~> 4.1.10'
+gem 'uglifier', '~> 4.2'
 
 gem 'jquery-rails', '~> 4.3.3'
 gem 'jquery-ui-rails', '~> 6.0.1'
@@ -78,8 +78,8 @@ gem 'serrano', '~> 0.5.2'
 gem 'pdf-reader', '~> 2.2'
 
 # UI/UX
-gem 'chartkick', '~> 3.2.0'
-gem 'groupdate', '~> 4.1.1'
+gem 'chartkick', '~> 3.3'
+gem 'groupdate', '~> 4.2'
 gem 'dropzonejs-rails', '~> 0.8.1'
 gem 'kaminari', '~> 1.1.1'
 gem 'best_in_place', '~> 3.1.1'
@@ -106,11 +106,11 @@ gem 'chunky_png', '~> 1.3.11'
 gem 'namecase', '~> 2.0'
 
 group :test, :development do
-  gem 'faker', '~> 2.6.0'
+  gem 'faker', '~> 2.7'
   gem 'rspec-rails', '~> 4.0.0.beta2'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'byebug', '~> 11.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
-  gem 'factory_bot_rails', '~> 5.0.1'
+  gem 'factory_bot_rails', '~> 5.1', '>= 5.1.1'
   gem 'selenium-webdriver', '~> 3.141'
   gem 'geckodriver-helper', '~> 0.24.0'
   gem 'prawn', '~> 2.2.2'
