@@ -137,11 +137,11 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
       end
 
       specify 'ordered by position' do
-        expect(o.taxon_determinations.order('taxon_determinations.position').map(&:year_made)).to eq([y, 1980, 1920])
+        expect(o.taxon_determinations.reload.order('taxon_determinations.position').map(&:year_made)).to eq([1980, 1920, nil])
       end
 
       specify '#current_taxon_determination' do
-        expect(o.current_taxon_determination.year_made).to eq(y)
+        expect(o.current_taxon_determination.year_made).to eq(1980)
       end
     end
   end

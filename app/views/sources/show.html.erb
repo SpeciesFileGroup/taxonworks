@@ -1,3 +1,9 @@
+<%= content_for :add do -%>
+  <ul class="no_bullets">
+    <%= content_tag(:li, link_to('Clone', clone_source_path(id: @source.id), method: :post, data: { confirm: 'Clone this record?' } )) %>
+  </ul>
+<% end %> 
+
 <%= content_for :report do %>
   <%= content_tag(:li, link_to('Citations by source', nomenclature_by_source_task_path(@source))) -%>
 <% end %> 
@@ -43,8 +49,8 @@
 <% end %>
 
 <%= content_for(:additional_navigation) do -%>
-  <div id="add_remove_source">
-    <%= add_source_to_project_form(@source)  -%>
+  <div id="add_remove_source" class="navigation-controls">
+    <span class="navigation-item"><%= add_source_to_project_form(@source) -%></span>
   </div>
 <% end %>
 

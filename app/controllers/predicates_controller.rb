@@ -17,6 +17,7 @@ class PredicatesController < ApplicationController
     render json: data
   end
 
+  # GET /predicates/select_options?klass=CollectionObject
   def select_options
     @predicates = Predicate.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:klass))
   end

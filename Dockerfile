@@ -1,4 +1,4 @@
-FROM phusion/passenger-ruby25:0.9.35 AS base
+FROM phusion/passenger-ruby26:1.0.8 AS base
 MAINTAINER Matt Yoder
 ENV LAST_FULL_REBUILD 2018-08-10
 ARG BUNDLER_WORKERS=1
@@ -9,8 +9,6 @@ RUN rm /etc/nginx/sites-enabled/default
 ADD config/docker/nginx/gzip_max.conf /etc/nginx/conf.d/gzip_max.conf
 
 # Update repos
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
-    echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
 
 # Until we move to update Ubuntu
@@ -28,12 +26,17 @@ RUN apt-get update && \
       libpq-dev libproj-dev libgeos-dev libgeos++-dev \
       tesseract-ocr \
       cmake \
-      nodejs yarn \
+      nodejs \
       redis-server libhiredis-dev && \
       apt clean && \ 
-      rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/* 
+      rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
 
 RUN locale-gen en_US.UTF-8
+
+# Set up ImageMagick
+RUN sed -i 's/name="disk" value="1GiB"/name="disk" value="8GiB"/' /etc/ImageMagick-6/policy.xml \
+&&  identify -list resource | grep Disk | grep 8GiB # Confirm the setting is active
+
 
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
@@ -64,6 +67,7 @@ RUN chmod +x /etc/my_init.d/init.sh && \
     mkdir /app/log && \
     mkdir /app/public/packs && \
     mkdir /app/public/images/tmp && \
+    mkdir /app/downloads && \
     chmod +x /app/public/images/tmp && \
     rm -f /etc/service/nginx/down
 
@@ -72,11 +76,16 @@ RUN mkdir /etc/service/redis
 RUN cp /app/exe/redis /etc/service/redis/run
 RUN cp /app/config/docker/redis.conf /etc/redis/redis.conf
 
+## Setup delayed_job workers
+RUN mkdir /etc/service/delayed_job
+RUN cp /app/exe/delayed_job /etc/service/delayed_job/run
+
 RUN chown 9999:9999 /app/public
 RUN chown 9999:9999 /app/public/images/tmp
 RUN chown 9999:9999 /app/public/packs
 RUN chown 9999:9999 /app/log/
 RUN chown 9999:9999 /app/downloads
+RUN chown 9999:9999 /app/tmp/
 
 RUN touch /app/log/production.log
 RUN chown 9999:9999 /app/log/production.log

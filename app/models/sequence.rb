@@ -47,7 +47,7 @@ class Sequence < ApplicationRecord
 
   has_many :related_sequence_relationships, class_name: 'SequenceRelationship', foreign_key: :object_sequence_id, inverse_of: :object_sequence # attributes of this sequence
   has_many :related_sequences, through: :related_sequence_relationships, source: :subject_sequence
-  has_many :gene_attributes, inverse_of: :sequences
+  has_many :gene_attributes, inverse_of: :sequence
 
   # has_many :descriptors, through: :gene_attributes, inverse_of: :sequences, as: 'Descriptor::Gene'
 
@@ -116,18 +116,25 @@ class Sequence < ApplicationRecord
     Sequence.joins(j).distinct.limit(10)
   end
 
-  # @params target [String] one of nil, `AssertedDistribution`, `Content`, `BiologicalAssociation`, 'TaxonDetermination'
+  # @params target [String] one of nil, 'SequenceRelationship', 'GeneAttribute'
   # @return [Hash] otus optimized for user selection
   def self.select_optimized(user_id, project_id, target = nil)
     h = {
+      recent: [],
       quick: [],
       pinboard: Sequence.pinned_by(user_id).where(project_id: project_id).to_a
     }
 
+    b = Sequence.where(project_id: project_id, created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('updated_at DESC')
+
     if target
-      h[:recent] = Sequence.where(project_id: project_id).used_recently(target).limit(10).to_a
+      a = target.tableize.to_sym
+      h[:recent] = (
+        b.limit(3).to_a + 
+        Sequence.joins(a).where(project_id: project_id, a => {created_by_id: user_id}).used_recently(target).limit(10).to_a
+      ).uniq
     else
-      h[:recent] = Sequence.where(project_id: project_id).order('updated_at DESC').limit(10).to_a
+      h[:recent] = b.limit(10).to_a
     end
 
     h[:quick] = (Sequence.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq

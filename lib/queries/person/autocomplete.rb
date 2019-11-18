@@ -83,6 +83,8 @@ module Queries
         queries = [
           autocomplete_exact_match,
           autocomplete_exact_inverted,
+          autocomplete_identifier_cached_exact,
+          autocomplete_identifier_identifier_exact,
           autocomplete_exact_last_name_match,
           autocomplete_ordered_wildcard_pieces_in_cached,
           autocomplete_cached_wildcard_anywhere, # in Queries::Query

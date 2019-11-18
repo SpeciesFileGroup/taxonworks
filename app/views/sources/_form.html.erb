@@ -1,3 +1,10 @@
+<% if @source.persisted? %>
+  <div class="actions" class="right_float" >
+    <%= button_to "Clone", { action: "clone", id: @source.id },
+      data: { confirm: "Clone this record? Changes will not be saved!" } %>
+  </div>
+<% end %>
+
 <%= form_for(@source, as: :source, url: (@source.new_record? ? sources_path : source_path(@source)), method: (@source.new_record? ? :post : :patch)) do |f| %>
 
   <%= render 'shared/errors', object: @source %>

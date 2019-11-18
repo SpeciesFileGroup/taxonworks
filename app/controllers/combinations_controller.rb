@@ -4,7 +4,7 @@ class CombinationsController < ApplicationController
   before_action :require_sign_in_and_project_selection
   before_action :set_combination, only: [:update, :edit, :update, :destroy, :show]
 
-  # GET /taxon_names.json
+  # GET /combinations.json
   def index
     @recent_objects = Combination.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(5)
   end

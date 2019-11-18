@@ -136,14 +136,6 @@ report_dwc_task:
   categories:
     - collection_object
     - collecting_event
-collection_objects_filter_task:
-  hub: true
-  name: 'Collection object filter'
-  related:
-  categories:
-    - collection_object
-  status: prototype
-  description: 'Find collection objects using an area, date range, taxon determination (OTU), applied identifier, or user/created date range.'
 otus_filter_task:
   hub: true
   name: 'OTU filter'
@@ -456,3 +448,12 @@ index_browse_asserted_distributions_task:
   categories:
   status: prototype
   description: 'Browse through asserted distributions summarized by OTU.  Map, table, and CSV downloads.'
+collection_objects_filter_task:
+  hub: true
+  name: 'Collection object filter'
+  related:
+  categories:
+    - collection_object
+  status: prototype
+  description: 'Filter collection objects by many different facets, download or visualize results.'
+

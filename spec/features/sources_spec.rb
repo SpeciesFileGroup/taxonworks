@@ -125,12 +125,11 @@ describe 'Sources', type: :feature, group: :sources do
         expect(page).to have_link('Edit') # edit & delete are active links
         click_link('Edit') # go to edit page
         expect(find_field('Title').value).to eq('Article Title')
-        click_link('Show') # return to show page
+        click_link('top_show') # return to show page
         expect(page).to have_link('Destroy')
       end
     end
   end
-
 
   context 'testing new source' do
     before {

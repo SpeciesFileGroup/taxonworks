@@ -18,43 +18,33 @@
           <taxon-names
             :sourceID="sourceID"
             :newTaxon="newTaxonNameCitation"
-            @taxon_names_cites="lists.taxon_names_cites=$event"
-          />
-          <cite-taxon-name
-            :sourceID="sourceID"
-            :cite-taxon-list="lists.taxon_names_cites"
-            @foundTaxon="newTaxonNameCitation=$event"
+            @summarize="summarize = $event"
           />
           <taxon-name-relationships
             :sourceID="sourceID"
-            @taxon_relationship_cites="lists.taxon_relationship_cites=$event"
+            @summarize="summarize = $event"
           />
           <taxon-name-classifications
             :sourceID="sourceID"
-            @taxon_classification_cites="lists.taxon_classification_cites=$event"
+            @summarize="summarize = $event"
           />
           <biological-associations
             :sourceID="sourceID"
-            @biological_association_cites="lists.biological_association_cites=$event"
+            @summarize="summarize = $event"
           />
           <asserted-distributions
             :sourceID="sourceID"
-            @distribution_cites="lists.distribution_cites=$event"
+            @summarize="summarize = $event"
           />
           <otus-by-match
             :sourceID="sourceID"
-            @otu_names_cites="lists.otu_names_cites=$event"
+            @summarize="summarize = $event"
           />
         </div>
         <div class="second-column separate-left">
           <otus-match-proxy
             :sourceID="sourceID"
-            :otu_names_cites="lists.otu_names_cites"
-            :taxon_names_cites="lists.taxon_names_cites"
-            :taxon_relationship_cites="lists.taxon_relationship_cites"
-            :taxon_classification_cites="lists.taxon_classification_cites"
-            :biological_association_cites="lists.biological_association_cites"
-            :distribution_cites="lists.distribution_cites"
+            :summarize="summarize"
           />
         </div>
       </div>
@@ -78,7 +68,6 @@
     components: {
       NomenSource,
       OtusByMatch,
-      CiteTaxonName,
       TaxonNames,
       TaxonNameRelationships,
       TaxonNameClassifications,
@@ -92,7 +81,8 @@
         sourceID: undefined,
         isLoading: false,
         newTaxonNameCitation: {},
-        lists: this.initStoreList()
+        lists: this.initStoreList(),
+        summarize: undefined
       }
     },
     methods: {

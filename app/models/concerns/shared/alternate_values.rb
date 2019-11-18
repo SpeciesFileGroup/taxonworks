@@ -7,7 +7,7 @@ module Shared::AlternateValues
     AlternateValue.related_foreign_keys.push self.name.foreign_key
 
     has_many :alternate_values, as: :alternate_value_object, validate: true, dependent: :destroy
-    has_many :alternate_value_langauges, as: :language, through: :alternate_values
+    has_many :alternate_value_languages, source: :language, through: :alternate_values
     
     # has_many :alternate_value_languages, through: :alternate_values, > {where(type: 'AlternateValue::Translation')}
 

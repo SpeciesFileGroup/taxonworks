@@ -16,7 +16,11 @@ module PeopleHelper
 
   def person_autocomplete_tag(person)
     return nil if person.nil?
-    person_tag(person) + ' ' + person_timeframe_tag(person) + ' ' + person_used_tag(person)
+    [ person_tag(person),
+      person_timeframe_tag(person),
+      person_used_tag(person),
+      person_project_membership_tag(person)
+    ].compact.join(' ')
   end
 
   def person_timeframe_tag(person)
@@ -29,6 +33,14 @@ module PeopleHelper
     'lived: ' + [person.year_born || '?', person.year_died || '?'].join('-') 
   end
 
+  def person_project_membership_tag(person)
+    if person && person.used_in_project?(sessions_current_project_id)
+      content_tag(:span, "In&nbsp;Project".html_safe, class: [:feedback, 'feedback-thin', 'feedback-success']) 
+    else
+      nil
+    end
+  end
+
   def person_active_tag(person)
     return ('active: ' + content_tag(:i, 'unknown')).html_safe if person.year_active_start.nil? && person.year_active_end.nil?
 
@@ -39,9 +51,15 @@ module PeopleHelper
   end
 
   def person_used_tag(person)
-    t = person.roles.load.count
-    content_tag(:span, class: [:feedback, 'feedback-thin', (t > 0 ? 'feedback-primary' : 'feedback-danger')] ) do
-      t > 0 ? "#{person.roles.size} #{"use".pluralize(t)}" : 'unused'
+    t = person.roles.load
+    a = ''
+    if t.count == 0
+      a += content_tag(:span, 'unused', class: [:feedback, 'feedback-thin', 'feedback-danger'] )
+    elsif t.count > 0
+      a = a + content_tag(:span, "#{person.roles.size} #{"use".pluralize(t)}", class: [:feedback, 'feedback-thin', 'feedback-primary'] ) + ' '
+      a = a + content_tag(:span, "#{person.roles.collect{|r| r.class.human_name}.uniq.join(', ')}", class: [:feedback, 'feedback-thin', 'feedback-secondary'] )
+    else
+      ''
     end
   end
 

@@ -6,7 +6,7 @@ class Tasks::Exports::ColdpController < ApplicationController
 
   def download
     @otu = Otu.where(project_id: sessions_current_project_id).find(params.require(:otu_id))
-    download = ::Export::Coldp.download(@otu, request.url)
+    download = ::Export::Coldp.download_async(@otu, request.url)
 
     redirect_to download_file_download_path(download)
   end

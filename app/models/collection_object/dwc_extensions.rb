@@ -19,7 +19,9 @@ module CollectionObject::DwcExtensions
     eventDate: :dwc_event_date,
     preparations: :dwc_preparations,
     institutionCode: :dwc_institution_code,
-    institutionID: :dwc_institution_id
+    institutionID: :dwc_institution_id,
+    recordedBy: :dwc_recorded_by,  
+    individualCount: :dwc_individual_count,
   }.freeze
 
   attr_accessor :taxonomy
@@ -53,8 +55,21 @@ module CollectionObject::DwcExtensions
 
   # !! lots of try now, see :delegate as a possible refactor - http://api.rubyonrails.org/classes/Module.html#method-i-delegate
 
+  def dwc_recorded_by
+    collecting_event.try(:collectors_string)
+  end
+
+  def dwc_institution_code
+    repository.try(:acronym)
+  end
+
   def dwc_catalog_number
     catalog_number_cached
+  end
+
+  # TODO: handle ranged lots
+  def dwc_individual_count
+    total
   end
 
   def dwc_country
@@ -98,7 +113,7 @@ module CollectionObject::DwcExtensions
   end
 
   def dwc_event_date
-    a = collecting_event.try(:time_date_range)
+    a = collecting_event.try(:date_range)
     a ? a.join('-') : nil
   end
 

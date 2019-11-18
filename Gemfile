@@ -1,12 +1,12 @@
 source 'https://rubygems.org'
 
-gem 'rack-cors', '~> 1.0.1', require: 'rack/cors'
+gem 'rack-cors', '~> 1.0.5', require: 'rack/cors'
 
 ruby '2.6.3'
 
 gem 'bundler', '~> 2.0'
 
-gem 'rake', '~> 12.0'
+gem 'rake', '~> 13.0'
 gem 'rails', '~> 6.0'
 gem 'pg', '~> 1.1'
 gem 'activerecord-postgis-adapter', '~> 6.0'
@@ -22,7 +22,7 @@ gem 'rubyzip', '~> 2.0.0'
 gem 'daemons', '~> 1.3.1'
 gem 'tzinfo-data', '~> 1.2018.4'
 gem 'psych', '~> 3.1.0'
-gem 'rmagick', '~> 3.0' # Sqed currently depends on this version (latest is 4.0)
+gem 'rmagick', '~> 4.0'
 
 # Geo
 gem 'ffi-geos', '~> 2.0.0'
@@ -89,7 +89,7 @@ gem 'waxy', '~> 0.1'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '0.4.0'
-gem 'sqed', '0.5.6'
+gem 'sqed', '0.5.8'
 gem 'dwc-archive', '~> 1.0.1'
 gem 'biodiversity', '~> 3.5.0'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
@@ -106,7 +106,7 @@ gem 'chunky_png', '~> 1.3.11'
 gem 'namecase', '~> 2.0'
 
 group :test, :development do
-  gem 'faker', '~> 2.1', '>= 2.1.2'
+  gem 'faker', '~> 2.6.0'
   gem 'rspec-rails', '~> 4.0.0.beta2'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'byebug', '~> 11.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
@@ -128,8 +128,8 @@ group :development do
 
   gem 'web-console', '~> 4.0', '>= 4.0.1'
   gem 'rubocop', '~> 0.70'
-  gem 'rubocop-rails'
-  gem 'rubocop-rspec'
+  gem 'rubocop-rails', '~> 2.3'
+  gem 'rubocop-rspec', '~>1.36'
   gem 'brakeman', '~> 4.6', '>= 4.6.1', require: false
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'
 end
