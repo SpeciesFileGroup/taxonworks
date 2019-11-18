@@ -13,10 +13,14 @@
 ---
 Source:
   tasks:
-    - index_hub_task
+    - source_hub_task
+    - new_source_task
     - new_verbatim_reference_task
+    - new_bibtex_source_task
+    - browse_source_task
     - nomenclature_by_source_task
-    - index_individual_bibtex_source_task
+  new: new_source_task
+  edit: new_source_task
   config:
     recent: true
 TaxonName:
