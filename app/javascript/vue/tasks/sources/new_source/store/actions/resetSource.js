@@ -9,6 +9,8 @@ export default ({ state, commit }) => {
     source[key] = locked[key] ? state.source[key] : undefined
   })
   
+  source.type = 'Source::Bibtex'
+  commit(MutationNames.SetSoftValidation, [])
   commit(MutationNames.SetSource, source)
   history.pushState(null, null, `/tasks/sources/new_source`)
 }
