@@ -25,6 +25,12 @@
           Clone
         </button>
         <button
+          class="button normal-input button-default button-size separate-left"
+          type="button"
+          @click="showModal = true">
+          CrossRef
+        </button>
+        <button
           @click="reset"
           class="button normal-input button-default button-size separate-left"
           type="button">
@@ -33,6 +39,9 @@
       </div>
     </div>
     <component :is="section"/>
+    <cross-ref
+      v-if="showModal"
+      @close="showModal = false"/>
   </div>
 </template>
 
@@ -40,6 +49,7 @@
 
 import SourceType from './components/sourceType'
 
+import CrossRef from './components/crossRef'
 import Verbatim from './components/verbatim/main'
 import Bibtex from './components/bibtex/main'
 import Human from './components/person/main'
@@ -60,7 +70,8 @@ export default {
     SourceType,
     Verbatim,
     Bibtex,
-    Human
+    Human,
+    CrossRef
   },
   computed: {
     section () {
@@ -69,6 +80,11 @@ export default {
     },
     source () {
       return this.$store.getters[GetterNames.GetSource]
+    }
+  },
+  data () {
+    return {
+      showModal: false
     }
   },
   mounted () {

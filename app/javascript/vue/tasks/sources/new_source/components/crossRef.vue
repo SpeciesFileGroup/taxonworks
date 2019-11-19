@@ -1,0 +1,83 @@
+<template>
+  <modal-component
+    @close="$emit('close', true)"
+    class="full_width">
+    <h3 slot="header">Create a source from a verbatim citation or DOI</h3>
+    <div slot="body">
+      <spinner-component
+        v-if="searching"
+        :full-screen="true"
+        legend="Searching..."/>
+      <ul>
+        <li> Submit either a DOI or full citation. </li>
+        <li> DOIs should be in the form of <pre>https://doi.org/10.1145/3274442</pre> or <pre>10.1145/3274442</pre> or <pre>doi:10.1145/3274442</pre> </li>
+        <li> The query will be resolved against <a href="https://www.crossref.org/">CrossRef</a>. </li>
+        <li> If there is a hit, then you will be given the option to import the parsed citation.  This is the BibTeX format. </li>
+        <li> If there is no hit, you have the option to import the record as a single field. This is the Verbatim format. </li>
+        <li> The created source is automatically added to the current project. </li>
+        <li> <em>Not all hits are correct!  Check that the result matches the query.</em> </li>
+      </ul>
+      <textarea 
+        class="full_width"
+        v-model="citation"
+        placeholder="DOI or citation to find...">
+      </textarea>
+      <div slot="footer">
+        <button
+          @click="getSource"
+          :disabled="!citation.length"
+          class="button normal-input button-default separate-top"
+          type="button">
+          Find
+        </button>
+      </div>
+    </div>
+  </modal-component>
+</template>
+
+<script>
+
+import AjaxCall from 'helpers/ajaxCall'
+import SpinnerComponent from 'components/spinner'
+import { MutationNames } from '../store/mutations/mutations'
+import ModalComponent from 'components/modal'
+
+export default {
+  components: {
+    ModalComponent,
+    SpinnerComponent
+  },
+  data () {
+    return {
+      citation: '',
+      searching: false
+    }
+  },
+  methods: {
+    getSource () {
+      this.searching = true
+      AjaxCall('get', `/tasks/sources/new_source/crossref_preview.json?citation=${this.citation}`).then(response => {
+        if(response.body.title) {
+          this.$store.commit(MutationNames.SetSource, response.body)
+          this.$emit('close', true)
+        }
+        else {
+          TW.workbench.alert.create('Nothing founded.', 'error')
+        }
+        this.searching = false
+      }, () => {
+        this.searching = false
+      })
+    }
+  }
+}
+</script>
+
+<style scoped>
+  /deep/ .modal-container {
+    width: 500px;
+  }
+  textarea {
+    height: 100px;
+  }
+</style>
