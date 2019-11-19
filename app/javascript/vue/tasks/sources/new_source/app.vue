@@ -21,6 +21,8 @@
           v-if="source.id"
           :global-id="source.global_id"/>
         <button
+          v-shortkey="[getMacKey(), 's']"
+          @shortkey="saveSource"
           @click="saveSource"
           class="button normal-input button-submit button-size separate-right separate-left"
           type="button">
@@ -28,6 +30,8 @@
         </button>
         <button
           :disabled="!source.id"
+          v-shortkey="[getMacKey(), 'c']"
+          @shortkey="cloneSource"
           @click="cloneSource"
           class="button normal-input button-submit button-size"
           type="button">
@@ -40,6 +44,8 @@
           CrossRef
         </button>
         <button
+          v-shortkey="[getMacKey(), 'n']"
+          @shortkey="reset"
           @click="reset"
           class="button normal-input button-default button-size separate-left"
           type="button">
@@ -66,6 +72,7 @@ import Verbatim from './components/verbatim/main'
 import Bibtex from './components/bibtex/main'
 import Human from './components/person/main'
 import RadialAnnotator from 'components/annotator/annotator'
+import GetMacKey from 'helpers/getMacKey'
 
 import PinComponent from 'components/pin'
 
@@ -123,7 +130,8 @@ export default {
     },
     cloneSource () {
       this.$store.dispatch(ActionNames.CloneSource)
-    }
+    },
+    getMacKey: GetMacKey
   }
 }
 </script>
