@@ -110,6 +110,10 @@ export default {
     }
   },
   mounted () {
+    TW.workbench.keyboard.createLegend(`${this.getMacKey()}+s`, 'Save', 'New source')
+    TW.workbench.keyboard.createLegend(`${this.getMacKey()}+n`, 'New', 'New source')
+    TW.workbench.keyboard.createLegend(`${this.getMacKey()}+c`, 'Clone source', 'New source')
+
     const urlParams = new URLSearchParams(window.location.search)
     const sourceId = urlParams.get('source_id')
 
