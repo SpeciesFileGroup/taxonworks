@@ -44,6 +44,12 @@
           CrossRef
         </button>
         <button
+          class="button normal-input button-default button-size separate-left"
+          type="button"
+          @click="showBibtex = true">
+          BibTeX
+        </button>
+        <button
           v-shortkey="[getMacKey(), 'n']"
           @shortkey="reset"
           @click="reset"
@@ -60,6 +66,9 @@
     <cross-ref
       v-if="showModal"
       @close="showModal = false"/>
+    <bibtex-button
+      v-if="showBibtex"
+      @close="showBibtex = false"/>
   </div>
 </template>
 
@@ -68,6 +77,7 @@
 import SourceType from './components/sourceType'
 
 import CrossRef from './components/crossRef'
+import BibtexButton from './components/bibtex'
 import Verbatim from './components/verbatim/main'
 import Bibtex from './components/bibtex/main'
 import Human from './components/person/main'
@@ -93,7 +103,8 @@ export default {
     Bibtex,
     Human,
     CrossRef,
-    RightSection
+    RightSection,
+    BibtexButton
   },
   computed: {
     section () {
@@ -106,7 +117,8 @@ export default {
   },
   data () {
     return {
-      showModal: false
+      showModal: false,
+      showBibtex: false
     }
   },
   mounted () {
