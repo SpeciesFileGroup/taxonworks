@@ -122,8 +122,8 @@ class CollectionObjectsController < ApplicationController
     @collection_object.destroy
     respond_to do |format|
       if @collection_object.destroyed?
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectionObject was successfully destroyed.')}
-        format.json {head :no_content}
+        format.html { redirect_to destroy_redirect, notice: 'CollectionObject was successfully destroyed.'}
+        format.json { head :no_content }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectionObject was not destroyed, ' + errors.messages)}
         format.json {render json: @collection_object.errors, status: :unprocessable_entity}
@@ -253,6 +253,18 @@ class CollectionObjectsController < ApplicationController
   end
 
   private
+
+  def destroy_redirect
+    if request.referer =~ /tasks\/collection_objects\/browse/
+      if o = @collection_object.next_by_identifier
+        browse_collection_objects_path(collection_object_id: o.id)
+      else
+        browse_collection_objects_path
+      end
+    else
+      collection_objects_path
+    end
+  end
 
   def filtered_collection_objects
     Queries::CollectionObject::Filter.
