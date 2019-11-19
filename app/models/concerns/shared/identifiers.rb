@@ -70,16 +70,16 @@ module Shared::Identifiers
       q = (!q.nil? ? q.with_identifiers_sorted(sorted) :  with_identifiers_sorted(sorted) ) if !sorted.blank?
       q 
     end
-
-    def identified?
-      self.identifiers.any?
-    end
-
-    protected
-
-    def reject_identifiers(attributed)
-      attributed['identifier'].blank? || attributed['type'].blank?
-    end
-
   end
+
+  def identified?
+    self.identifiers.any?
+  end
+
+  protected
+
+  def reject_identifiers(attributed)
+    attributed['identifier'].blank? || attributed['type'].blank?
+  end
+
 end
