@@ -4,8 +4,6 @@ let defaultLanguage = ''
 
 const getString = function(binding) {
 
-  //if(!Object.keys(modifiers).length && !binding.hasOwnProperty('expression')) return false
-
   let modifiers = binding.modifiers
   let string = languages[defaultLanguage]
   
@@ -14,7 +12,6 @@ const getString = function(binding) {
     expression.forEach(item => {
       string = string[item]
     })
-    console.log(string)
     return string
   }
 
