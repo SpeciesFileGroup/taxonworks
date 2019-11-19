@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3>TW attributes</h3>
+    <h3 v-help.section.BibTeX.attributes>TW attributes</h3>
     <div class="field">
       <label>Verbatim contents</label><br>
       <textarea

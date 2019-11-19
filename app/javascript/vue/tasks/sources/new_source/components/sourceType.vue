@@ -1,10 +1,10 @@
 <template>
-  <div class="horizontal-left-content">
+  <div class="horizontal-left-content field-options">
     <ul class="no_bullets context-menu">
       <li
         v-for="type in types"
         :key="type.value">
-        <label>
+        <label v-help="`section.sourceType.${type.label}`">
           <input
             v-model="sourceType"
             :value="type.value"
@@ -74,6 +74,8 @@ export default {
 }
 </script>
 
-<style>
-
+<style scoped>
+  .field-options {
+    width: 390px;
+  }
 </style>

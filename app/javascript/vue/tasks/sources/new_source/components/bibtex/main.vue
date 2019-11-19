@@ -1,6 +1,6 @@
 <template>
   <div class="panel content">
-    <h2>Bibtex</h2>
+    <h2>BibTeX</h2>
     <draggable
       class="vue-new-source-task-bibtex "
       v-model="componentsOrder"
@@ -129,7 +129,7 @@ export default {
 
 <style lang="scss">
   .vue-new-source-task-bibtex {
-    max-height: 700px;
+    max-height: 1000px;
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
@@ -143,7 +143,7 @@ export default {
       margin-right: 14px;
     }
     
-    input {
+    input[type="text"] {
       width: 100%;
     }
   }

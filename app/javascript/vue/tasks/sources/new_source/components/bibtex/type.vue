@@ -1,6 +1,6 @@
 <template>
   <div class="field">
-    <label>Bibtex type</label>
+    <label v-help.section.BibTeX.type>Type</label>
     <br>
     <div class="horizontal-left-content">
       <select

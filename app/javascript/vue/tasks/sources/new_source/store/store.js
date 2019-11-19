@@ -24,7 +24,8 @@ function makeInitialState () {
     preferences: {
 
     },
-    source: newSource()
+    source: newSource(),
+    softValidation: []
   }
 }
 

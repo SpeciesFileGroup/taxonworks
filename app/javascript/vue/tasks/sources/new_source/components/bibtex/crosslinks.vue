@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3>BibTeX crosslinks</h3>
+    <h3 v-help.section.BibTeX.crosslinks>BibTeX crosslinks</h3>
     <div class="field">
       <label>Doi</label><br>
       <input

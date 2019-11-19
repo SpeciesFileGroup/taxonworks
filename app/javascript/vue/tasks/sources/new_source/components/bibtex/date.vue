@@ -7,7 +7,7 @@
         v-model="source.day">
     </div>
     <div class="field separate-right">
-      <label>Month</label><br>
+      <label v-help.section.BibTeX.month>Month</label><br>
       <select
         class="normal-input"
         v-model="source.month">
@@ -20,19 +20,19 @@
       </select>
     </div>
     <div class="field separate-right">
-      <label>Year</label><br>
+      <label v-help.section.BibTeX.year>Year</label><br>
       <input
         type="number"
         v-model="source.year">
     </div>
     <div class="field separate-right">
-      <label>Year suffix</label><br>
+      <label v-help.section.BibTeX.yearSuffix>Year suffix</label><br>
       <input
         type="number"
         v-model="source.year_suffix">
     </div>
     <div class="field">
-      <label>Stated year</label><br>
+      <label v-help.section.BibTeX.yearStated>Stated year</label><br>
       <input
         type="number"
         v-model="source.stated_year">

@@ -4,6 +4,7 @@ import getBibtexType from './getBibtexType'
 import getSource from './getSource'
 import getPreferences from './getPreferences'
 import getSettings from './getSettings'
+import getSoftValidation from './getSoftValidation'
 
 const GetterNames = {
   GetType: 'getType',
@@ -11,7 +12,8 @@ const GetterNames = {
   GetBibtexType: 'getBibtexType',
   GetSource: 'getSource',
   GetPreferences: 'getPreferences',
-  GetSettings: 'getSettings'
+  GetSettings: 'getSettings',
+  GetSoftValidation: 'getSoftValidation'
 }
 
 const GetterFunctions = {
@@ -20,7 +22,8 @@ const GetterFunctions = {
   [GetterNames.GetBibtexType]: getBibtexType,
   [GetterNames.GetSource]: getSource,
   [GetterNames.GetPreferences]: getPreferences,
-  [GetterNames.GetSettings]: getSettings
+  [GetterNames.GetSettings]: getSettings,
+  [GetterNames.GetSoftValidation]: getSoftValidation
 }
 
 export {

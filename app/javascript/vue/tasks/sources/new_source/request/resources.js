@@ -24,11 +24,16 @@ const CloneSource = function (id) {
   return ajaxCall('post', `/sources/${id}/clone`)
 }
 
+const LoadSoftValidation = function (global_id) {
+  return ajaxCall('get', `/soft_validations/validate?global_id=${global_id}`)
+}
+
 export {
   GetSource,
   CreateSource,
   UpdateSource,
   UpdateUserPreferences,
   GetUserPreferences,
-  CloneSource
+  CloneSource,
+  LoadSoftValidation
 }

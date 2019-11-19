@@ -1,8 +1,17 @@
 <template>
   <div>
+    <div class="flex-separate middle">
     <h1>New source</h1>
+    <a href="/tasks/sources/hub">Back to source hub</a>
+    </div>
     <div class="flex-separate separate-bottom">
       <source-type/>
+      <div>
+        <span
+          v-if="source.id"
+          v-html="source.cached"/>
+        <span v-else>New record</span>
+      </div>
       <div class="horizontal-right-content">
         <pin-component
           v-if="source.id"
@@ -38,7 +47,10 @@
         </button>
       </div>
     </div>
-    <component :is="section"/>
+    <div class="horizontal-left-content align-start">
+      <component class="full_width" :is="section"/>
+      <right-section class="separate-left"/>
+    </div>
     <cross-ref
       v-if="showModal"
       @close="showModal = false"/>
@@ -63,6 +75,8 @@ import { GetterNames } from './store/getters/getters'
 import { ActionNames } from './store/actions/actions'
 import { MutationNames } from './store/mutations/mutations'
 
+import RightSection from './components/rightSection'
+
 export default {
   components: {
     RadialAnnotator,
@@ -71,7 +85,8 @@ export default {
     Verbatim,
     Bibtex,
     Human,
-    CrossRef
+    CrossRef,
+    RightSection
   },
   computed: {
     section () {

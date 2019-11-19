@@ -70,6 +70,7 @@ export default {
         if(response.body.title) {
           this.$store.commit(MutationNames.SetSource, response.body)
           this.$emit('close', true)
+          TW.workbench.alert.create('Found! (please check).', 'error')
         }
         else {
           this.found = false
