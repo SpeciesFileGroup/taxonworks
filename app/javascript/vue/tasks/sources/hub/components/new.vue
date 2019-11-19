@@ -31,10 +31,6 @@ export default {
         url: '/tasks/sources/individual_bibtex_source/index'
       },
       {
-        label: 'New source from citation',
-        url: '/tasks/bibliography/verbatim_reference/new'
-      },
-      {
         label: 'Batch load',
         url: '/sources/batch_load'
       }]
