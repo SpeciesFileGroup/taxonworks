@@ -22,13 +22,22 @@
         v-model="citation"
         placeholder="DOI or citation to find...">
       </textarea>
-      <div slot="footer">
+      <div
+        class="flex-separate separate-top"
+        slot="footer">
         <button
           @click="getSource"
           :disabled="!citation.length"
-          class="button normal-input button-default separate-top"
+          class="button normal-input button-default"
           type="button">
           Find
+        </button>
+        <button
+          v-if="!found"
+          @click="setVerbatim"
+          class="button normal-input button-default"
+          type="button">
+          Set as verbatim
         </button>
       </div>
     </div>
@@ -50,7 +59,8 @@ export default {
   data () {
     return {
       citation: '',
-      searching: false
+      searching: false,
+      found: true
     }
   },
   methods: {
@@ -62,12 +72,17 @@ export default {
           this.$emit('close', true)
         }
         else {
+          this.found = false
           TW.workbench.alert.create('Nothing found.', 'error')
         }
         this.searching = false
       }, () => {
         this.searching = false
       })
+    },
+    setVerbatim () {
+      this.$store.commit(MutationNames.SetSource, { type: 'Source::Verbatim', verbatim: this.citation })
+      this.$emit('close', true)
     }
   }
 }
