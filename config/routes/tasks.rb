@@ -191,15 +191,6 @@ scope :tasks do
     end
   end
 
-  scope :bibliography do
-    scope :verbatim_reference, controller: 'tasks/bibliography/verbatim_reference' do
-      get 'new', as: 'new_verbatim_reference_task'
-      post 'preview', as: 'preview_verbatim_reference_task'
-      post 'create_verbatim', as: 'create_verbatim_from_reference_task'
-      post 'create_bibtex', as: 'create_bibtex_from_reference_task'
-    end
-  end
-
   scope :biological_associations do
     scope :dot, controller: 'tasks/biological_associations/dot' do
       get 'by_project/:project_id', action: :project_dot_graph, as: :biological_associations_dot_graph_task
