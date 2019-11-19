@@ -9,26 +9,21 @@ module Shared::Identifiers
     # Validation happens on the parent side!
     has_many :identifiers, as: :identifier_object, validate: true, dependent: :destroy
     accepts_nested_attributes_for :identifiers, reject_if: :reject_identifiers, allow_destroy: true
-    scope :with_identifier_type, ->(id_type) { includes(:identifiers).where('identifiers.type = ?', id_type).references(:identifiers) }
-    scope :with_identifier_namespace, ->(id_namespace) { joins(:identifiers).where('identifiers.namespace_id = ?', id_namespace.id).references(:identifiers) }
 
+    scope :with_identifier_type, ->(identifier_type) { joins(:identifiers).where('identifiers.type = ?', identifier_type).references(:identifiers) }
+    scope :with_identifier_namespace, ->(namespace_id) { joins(:identifiers).where('identifiers.namespace_id = ?', namespace_id).references(:identifiers) }
+
+    # !! This only is able to match numeric identifiers, other results are excluded !!
     # Careful, a potential security issue here
     scope :with_identifiers_sorted, -> (o = 'ASC') { includes(:identifiers)
       .where("identifiers.identifier ~ '\^\\d\+\$'")
-      .order(Arel.sql("identifiers.type, identifiers.namespace_id, CAST(identifiers.identifier AS integer) #{o}"))
+      .order(Arel.sql("CAST(identifiers.identifier AS integer) #{o}"))
       .references(:identifiers) }
 
- #  scope :with_identifiers_sorted_desc, -> { includes(:identifiers)
- #    .where("identifiers.identifier ~ '\^\\d\+\$'")
- #    .order(Arel.sql('identifiers.type, identifiers.namespace_id, CAST(identifiers.identifier AS integer) DESC'))
- #    .references(:identifiers) }
-
-    scope :with_identifier_type_and_namespace, ->(id_type, id_namespace = nil, sorted = true) { with_identifier_type_and_namespace_method(id_type, id_namespace, sorted) }
-
+    scope :with_identifier_type_and_namespace, ->(identifier_type = nil, namespace_id = nil, sorted = nil) { with_identifier_type_and_namespace_method(identifier_type, namespace_id, sorted) }
   end
 
   module ClassMethods
-
     def of_type(type_name)
       where(type: type_name)
     end
@@ -64,24 +59,16 @@ module Shared::Identifiers
       self.joins(:identifiers).where(a.to_sql).references(:identifiers)
     end
 
-    def with_identifier_type_and_namespace_method(id_type, namespace, sorted)
-      if namespace.present?
-        if sorted
-          with_identifier_type(id_type)
-            .with_identifier_namespace(namespace)
-            .with_identifiers_sorted
-        else
-          with_identifier_type(id_type)
-            .with_identifier_namespace(namespace)
-        end
-      else
-        if sorted
-          with_identifier_type(id_type)
-            .with_identifiers_sorted
-        else
-          with_identifier_type(id_type)
-        end
-      end
+    # @param sorted ['ASC', 'DESC', nil]
+    # @param identifier_type [like 'Identifier::Local::TripCode', nil]
+    # @param namespace_id [Integer, nil]
+    # !! Note that adding a sort also adds a where clause that constrains results to those that have numeric identifier.identifier
+    def with_identifier_type_and_namespace_method(identifier_type, namespace_id, sorted = nil)
+      return self.none if identifier_type.blank? && namespace_id.blank? && sorted.blank?
+      q = with_identifier_type(identifier_type) if !identifier_type.blank?
+      q = (!q.nil? ? q.with_identifier_namespace(namespace_id) :  with_identifier_namespace(namespace_id) ) if !namespace_id.blank?
+      q = (!q.nil? ? q.with_identifiers_sorted(sorted) :  with_identifiers_sorted(sorted) ) if !sorted.blank?
+      q 
     end
   end
 

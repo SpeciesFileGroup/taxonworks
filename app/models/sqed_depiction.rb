@@ -38,6 +38,8 @@ class SqedDepiction < ApplicationRecord
   include Shared::Tags
   include Shared::Notes
 
+  attr_accessor :rebuild
+
   belongs_to :depiction
   has_one :image, through: :depiction
 
@@ -50,6 +52,16 @@ class SqedDepiction < ApplicationRecord
   validates_inclusion_of :has_border, in: [true, false]
 
   accepts_nested_attributes_for :depiction
+
+  after_save :recalculate, if: -> { rebuild }
+
+  def rebuild=(value)
+    @rebuild = value
+  end
+
+  def recalculate
+    preprocess(true)
+  end
 
   def extraction_metadata
     {
@@ -93,10 +105,6 @@ class SqedDepiction < ApplicationRecord
   def self.last_without_data(project_id)
     object = SqedDepiction.without_collection_object_data.with_project_id(project_id).order(:id).first
     object.nil? ? SqedDepiction.where(project_id: project_id).order(id: :asc).first : object
-  end
-
-  def self.last_with_data(project_id)
-
   end
 
   # @return [CollectionObject, nil]

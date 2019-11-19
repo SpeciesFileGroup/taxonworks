@@ -6,7 +6,7 @@ ruby '2.6.3'
 
 gem 'bundler', '~> 2.0'
 
-gem 'rake', '~> 12.0'
+gem 'rake', '~> 13.0'
 gem 'rails', '5.2.3'
 gem 'pg', '~> 1.1'
 gem 'activerecord-postgis-adapter', '~> 5.2.1'
@@ -23,7 +23,7 @@ gem 'rubyzip', '~> 2.0.0'
 gem 'daemons', '~> 1.3.1'
 gem 'tzinfo-data', '~> 1.2018.4'
 gem 'psych', '~> 3.1.0'
-gem 'rmagick', '~> 3.0'
+gem 'rmagick', '~> 4.0'
 
 # Geo
 gem 'ffi-geos', '~> 2.0.0'
@@ -90,7 +90,7 @@ gem 'waxy', '~> 0.1'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '0.4.0'
-gem 'sqed', '0.5.6'
+gem 'sqed', '0.5.8'
 gem 'dwc-archive', '~> 1.0.1'
 gem 'biodiversity', '~> 3.5.0'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
