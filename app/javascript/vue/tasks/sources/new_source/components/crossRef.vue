@@ -62,7 +62,7 @@ export default {
           this.$emit('close', true)
         }
         else {
-          TW.workbench.alert.create('Nothing founded.', 'error')
+          TW.workbench.alert.create('Nothing found.', 'error')
         }
         this.searching = false
       }, () => {
