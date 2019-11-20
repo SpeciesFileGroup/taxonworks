@@ -1,5 +1,4 @@
-# Orcid definition...
-#
+# ORCID iD - https://orcid.org/
 class Identifier::Global::Orcid < Identifier::Global
   validate :using_orcid_class
 
@@ -8,7 +7,7 @@ class Identifier::Global::Orcid < Identifier::Global
     unless identifier.nil?
       orcid = identifier.upcase
 
-      /^(?<preamble>http:\/\/){0,1}(?<domain>orcid\.org\/){1}(?<part_1>\d{4})-(?<part_2>\d{4})-(?<part_3>\d{4})-(?<part_4>\d{3})(?<last>.)$/i =~ orcid
+      /^(?<preamble>http[s]?:\/\/){0,1}(?<domain>orcid\.org\/){1}(?<part_1>\d{4})-(?<part_2>\d{4})-(?<part_3>\d{4})-(?<part_4>\d{3})(?<last>.)$/i =~ orcid
 
       if domain.nil? or part_1.nil? or part_2.nil? or part_3.nil? or part_4.nil? or last.nil?
         errors.add(:identifier, "'#{identifier}' is an improperly formed ORCID ID.")

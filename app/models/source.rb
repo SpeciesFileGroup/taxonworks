@@ -288,6 +288,7 @@ class Source < ApplicationRecord
     # i is a select manager
     i = t.project(t['source_id'], t['created_at']).from(t)
       .where(t['created_at'].gt(1.weeks.ago))
+      .where(t['citation_object_type'].eq(used_on))
       .order(t['created_at'])
       .take(10)
       .distinct
@@ -308,9 +309,15 @@ class Source < ApplicationRecord
       pinboard: Source.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a
     }
 
-    h[:recent] = Source.joins(:citations).where(citations: {project_id: project_id}).
-      used_recently(target).
-      limit(10).distinct.to_a
+    h[:recent] = (
+      Source.joins(:citations)
+      .where( citations: { project_id: project_id, updated_by_id: user_id } )
+      .used_recently(target)
+      .limit(5).distinct.to_a +
+    Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
+      .order('created_at DESC')
+      .limit(5).to_a
+    ).uniq
 
     h[:recent] ||= []
 
@@ -332,6 +339,30 @@ class Source < ApplicationRecord
   # @return [Boolean]
   def is_in_project?(project_id)
     projects.where(id: project_id).any?
+  end
+
+  # @return [Source, false]
+  def clone
+    s = dup
+    m = "[CLONE of #{id}] "
+    begin
+      Source.transaction do |t|
+        roles.each do |r|
+          s.roles << Role.new(person: r.person, type: r.type, position: r.position )
+        end
+
+        case type
+        when 'Source::Verbatim'
+          s.verbatim = m + verbatim
+        when 'Source::Bibtex'
+          s.title = m + title
+        end
+
+        s.save!
+      end
+    rescue ActiveRecord::RecordInvalid
+    end
+    s
   end
 
   protected

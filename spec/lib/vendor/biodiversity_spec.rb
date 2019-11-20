@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe TaxonWorks::Vendor::Biodiversity, type: :model, group: [:nomenclature] do
+describe ::TaxonWorks::Vendor::Biodiversity, type: :model, group: [:nomenclature] do
   context 'Result' do
 
     let(:result) { TaxonWorks::Vendor::Biodiversity::Result.new }
@@ -61,6 +61,17 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model, group: [:nomenclature] 
       end
 
       context 'author and year' do
+        specify '#author exception 1' do
+          result.name = 'TyphlocybaFicocyba icaria'
+          result.parse
+          expect(result.author).to eq(nil)
+        end
+
+        specify '#author exception 2' do
+          result.name = '(Zygina)%20nivea'
+          result.parse
+          expect(result.author).to eq(nil)
+        end
 
         specify '#author for genus' do
           result.name = 'Aus Smith and Jones, 1920'

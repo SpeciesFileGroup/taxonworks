@@ -1,7 +1,0 @@
-<h3><%= "#{count} total records - created on by" -%>
-  <% if (count < 1000) %> day <%= line_chart(objects.group_by_day("created_at").count) %>
-  <% elsif (count < 10000) %> week <%= line_chart(objects.group_by_week("created_at").count) %>
-  <% elsif (count < 100000) %> month <%= line_chart(objects.group_by_month("created_at").count) %>
-  <% else %> year <%= line_chart(objects.group_by_year("created_at").count) %>
-  <% end %>
-</h3>

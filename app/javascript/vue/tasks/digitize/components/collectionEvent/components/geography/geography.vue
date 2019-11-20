@@ -137,7 +137,7 @@
           if(convertDMS(newVal.verbatim_latitude) && convertDMS(newVal.verbatim_longitude)) {
             let that = this
             clearTimeout(this.ajaxCall)
-            this.ajaxCall = setTimeout(() => { that.getByCoords(newVal.verbatim_latitude, newVal.verbatim_longitude) }, this.delay)
+            this.ajaxCall = setTimeout(() => { that.getByCoords(convertDMS(newVal.verbatim_latitude), convertDMS(newVal.verbatim_longitude)) }, this.delay)
           }
         },
         deep: true

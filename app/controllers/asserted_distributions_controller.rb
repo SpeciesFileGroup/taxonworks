@@ -95,7 +95,7 @@ class AssertedDistributionsController < ApplicationController
 
   # GET /asserted_distributions/download
   def download
-    send_data(Download.generate_csv(AssertedDistribution.where(project_id: sessions_current_project_id)),
+    send_data(Export::Download.generate_csv(AssertedDistribution.where(project_id: sessions_current_project_id)),
               type: 'text',
               filename: "asserted_distributions_#{DateTime.now}.csv")
   end

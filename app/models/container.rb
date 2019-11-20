@@ -7,7 +7,6 @@
 #
 # @!attribute project_id
 #   @return [Integer]
-#   the project ID
 #
 # @!attribute name
 #   @return [String]

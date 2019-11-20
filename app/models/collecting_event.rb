@@ -265,11 +265,8 @@ class CollectingEvent < ApplicationRecord
   validates :start_date_month, date_month: true
   validates :end_date_month, date_month: true
 
-  validates_presence_of :start_date_month,
-                        if: -> { !start_date_day.nil? }
-
-  validates_presence_of :end_date_month,
-                        if: -> { !end_date_day.nil? }
+  validates_presence_of :start_date_month, if: -> { !start_date_day.nil? }
+  validates_presence_of :end_date_month, if: -> { !end_date_day.nil? }
 
   validates :end_date_day, date_day: {year_sym: :end_date_year, month_sym: :end_date_month},
             unless: -> { end_date_year.nil? || end_date_month.nil? }
@@ -296,7 +293,12 @@ class CollectingEvent < ApplicationRecord
 
     def select_optimized(user_id, project_id)
       h = {
-        recent: CollectingEvent.used_in_project(project_id).used_recently.limit(10).distinct.to_a,
+        recent: (CollectingEvent.used_in_project(project_id)
+          .where(collection_objects: {updated_by_id: user_id})
+          .used_recently
+          .limit(5)
+          .distinct.to_a + 
+        CollectingEvent.where(project_id: project_id, updated_by_id: user_id, created_at: 3.hours.ago..Time.now).limit(5).to_a).uniq,
         pinboard: CollectingEvent.pinned_by(user_id).pinned_in_project(project_id).to_a
       }
 
@@ -336,7 +338,7 @@ class CollectingEvent < ApplicationRecord
     # @param [ActionController::Parameters] params in the style Rails of 'params'
     # @return [Scope] of selected collecting_events
     # TODO: ARELIZE, likely in lib/queries
-    def filter(params)
+    def filter_by(params)
       sql_string = ''
       unless params.blank? # not strictly necessary, but handy for debugging
         sql_string = Utilities::Dates.date_sql_from_params(params)
@@ -450,49 +452,45 @@ class CollectingEvent < ApplicationRecord
   end
 
   # @return [Boolean]
+  #   has a fully defined date
   def has_start_date?
     !start_date_day.blank? && !start_date_month.blank? && !start_date_year.blank?
   end
 
   # @return [Boolean]
+  #   has a fully defined date
   def has_end_date?
     !end_date_day.blank? && !end_date_month.blank? && !end_date_year.blank?
   end
 
-  # @return [String]
-  def end_y_m_d_string
-    date = end_date
-    "#{'%4d' % date.year} #{'%02d' % date.month} #{'%02d' % date.day}" if has_end_date?
+  def some_start_date?
+    [start_date_day, start_date_month, start_date_year].compact.any?
   end
 
-  # @return [String]
-  def start_y_m_d_string
-    date = start_date
-    "#{'%4d' % date.year} #{'%02d' % date.month} #{'%02d' % date.day}" if has_start_date?
+  def some_end_date?
+    [end_date_day, end_date_month, end_date_year].compact.any?
   end
 
-  # @return [String]
-  def end_date_string
-    date_string(end_date)
-  end
-
-  # @return [String]
+  # @return [String, nil]
+  #   an umabigously formatted string with missing parts indicated by ??
   def start_date_string
-    date_string(start_date)
+    Utilities::Dates.from_parts(start_date_year, start_date_month, start_date_day) if some_start_date?
   end
 
-  # @param [Date]
-  # @return [String]
-  def date_string(text)
-    "#{'%02d' % text.day}/#{'%02d' % text.month}/#{'%4d' % text.year}" unless text.nil?
+  # @return [String, nil]
+  #   an umabigously formatted string with missing parts indicated by ??
+  def end_date_string
+    Utilities::Dates.from_parts(end_date_year, end_date_month, end_date_day) if some_end_date?
   end
 
   # @return [Time]
+  #   This is for the purposes of computation, not display!
   def end_date
     Utilities::Dates.nomenclature_date(end_date_day, end_date_month, end_date_year)
   end
 
   # @return [Time]
+  #   This is for the purposes of computation, not display! 
   def start_date
     Utilities::Dates.nomenclature_date(start_date_day, start_date_month, start_date_year)
   end
@@ -518,7 +516,7 @@ class CollectingEvent < ApplicationRecord
   # @return [Array]
   #   date_start and end if provided
   def date_range
-    [date_start, date_end].compact
+    [start_date_string, end_date_string].compact
   end
 
   # CollectingEvent.select {|d| !(d.verbatim_latitude.nil? || d.verbatim_longitude.nil?)}
@@ -1089,8 +1087,8 @@ class CollectingEvent < ApplicationRecord
     a = dup
     a.verbatim_label = [verbatim_label, "[CLONED FROM #{id}", "at #{Time.now}]"].compact.join(' ')
 
-    collectors.each do |p|
-      a.collector_roles.build(person: p)
+    roles.each do |r|
+      a.collector_roles.build(person: r.person, position: r.position)
     end
 
     begin
@@ -1099,6 +1097,14 @@ class CollectingEvent < ApplicationRecord
       return false
     end
     a
+  end
+
+  # @return [String, nil]
+  #   a string used in DWC reportedBy and ultimately label generation
+  #   TODO: include initials when we find out a clean way of producing them
+  # yes it's a helper
+  def collector_names
+    [Utilities::Strings.authorship_sentence(collectors.collect{|a| a.last_name}), verbatim_collectors].compact.first
   end
 
   protected

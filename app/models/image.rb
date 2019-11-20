@@ -223,6 +223,7 @@ class Image < ApplicationRecord
                        params[:height].to_i,
                        true
                       )
+    img.destroy!
     cropped
   end
 
@@ -230,7 +231,9 @@ class Image < ApplicationRecord
   # @return [Magick::Image]
   def self.resized(params)
     c = cropped(params)
-    c.resize(params[:new_width].to_i, params[:new_height].to_i)
+    resized = c.resize(params[:new_width].to_i, params[:new_height].to_i)
+    c.destroy!
+    resized
   end
 
   # @param [ActionController::Parameters] params
@@ -242,35 +245,38 @@ class Image < ApplicationRecord
 
     if box_ratio > 1
       if ratio > 1 # wide into wide
-        c.resize(params[:box_width ].to_i, (params[:box_height].to_f / ratio * box_ratio).to_i)
+        scaled = c.resize(params[:box_width ].to_i, (params[:box_height].to_f / ratio * box_ratio).to_i)
       else # tall into wide
-        c.resize((params[:box_width ].to_f * ratio / box_ratio).to_i, params[:box_height].to_i )
+        scaled = c.resize((params[:box_width ].to_f * ratio / box_ratio).to_i, params[:box_height].to_i )
       end
     else # <
       if ratio > 1 # wide into tall
-        c.resize(params[:box_width].to_i, (params[:box_height].to_f / ratio * box_ratio).to_i)
+        scaled = c.resize(params[:box_width].to_i, (params[:box_height].to_f / ratio * box_ratio).to_i)
       else # tall into tall
-        c.resize((params[:box_width ].to_f * ratio * box_ratio ).to_i, (params[:box_height].to_f ).to_i)
+        scaled = c.resize((params[:box_width ].to_f * ratio * box_ratio ).to_i, (params[:box_height].to_f ).to_i)
       end
     end
+    c.destroy!
+
+    scaled
   end
 
   # @param [ActionController::Parameters] params
-  # @return [Magick::Image]
+  # @return [String]
   def self.scaled_to_box_blob(params)
-    scaled_to_box(params).to_blob
+    self.to_blob!(scaled_to_box(params))
   end
 
   # @param [ActionController::Parameters] params
-  # @return [Magick::Image]
+  # @return [String]
   def self.resized_blob(params)
-    resized(params).to_blob
+    self.to_blob!(resized(params))
   end
 
   # @param [ActionController::Parameters] params
-  # @return [Magick::Image]
+  # @return [String]
   def self.cropped_blob(params)
-    cropped(params).to_blob
+    self.to_blob!(cropped(params))
   end
 
   protected
@@ -298,6 +304,16 @@ class Image < ApplicationRecord
       soft_validations.add(:image_file_fingerprint,
                            'This image is a duplicate of an image already stored.')
     end
+  end
+
+  private
+  # Converts image to blob and releases memory of img (image cannot be used afterwards)
+  # @param [Magick::Image] img
+  # @return [String]
+  def self.to_blob!(img)
+    blob = img.to_blob
+    img.destroy!
+    blob
   end
 
 end

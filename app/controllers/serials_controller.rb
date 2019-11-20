@@ -88,11 +88,17 @@ class SerialsController < ApplicationController
     ).autocomplete
   end
 
+  # GET /serials/select_options.json
+  def select_options
+    @serials = Serial.select_optimized(sessions_current_user_id, sessions_current_project_id)
+  end
+
   # GET /serials/download
   def download
-    send_data(Download.generate_csv(Serial.all),
-              type:     'text',
-              filename: "serials_#{DateTime.now}.csv")
+    send_data(
+      Export::Download.generate_csv(Serial.all),
+      type: 'text',
+      filename: "serials_#{DateTime.now}.csv")
   end
 
   private

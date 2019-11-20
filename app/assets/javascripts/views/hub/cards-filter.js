@@ -95,8 +95,10 @@ var CarrouselData = function (sec, rows, columns) {
 				if($(child).text().toLowerCase().indexOf(handleKey.toLowerCase()) > 0 || handleKey == "") {
 					//child.show();
 					child.removeClass('hide');
+					child.attr("tabindex", 0);
 				}
 				else {
+					child.removeAttr("tabindex");
 					child.addClass('hide');
 					//child.hide();
 				}
@@ -130,9 +132,11 @@ var CarrouselData = function (sec, rows, columns) {
 			child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
 			if(this.checkChildFilter(child.children().children(".filter_data"))) {
 				child.removeClass('hide');
+				child.attr("tabindex", 0);
 				find++;
 			}
 			else {
+				child.removeAttr("tabindex");
 				child.addClass('hide');
 			}
 		}

@@ -379,11 +379,13 @@ class TaxonName < ApplicationRecord
   #   like :species or 'genus'
   def ancestor_at_rank(rank)
     ancestors.with_rank_class(
-      Ranks.lookup(nomenclatural_code, rank)
+      Ranks.lookup(
+        is_combination? ? parent.nomenclatural_code : nomenclatural_code,
+        rank)
     ).first
   end
 
- # @return scope [TaxonName, nil] an ancestor at the specified rank
+  # @return scope [TaxonName, nil] an ancestor at the specified rank
   # @params rank [symbol|string|
   #   like :species or 'genus'
   def descendants_at_rank(rank)

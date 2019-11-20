@@ -94,6 +94,7 @@ class Project < ApplicationRecord
      ObservationMatrix
      Descriptor
      ProjectMember
+     Download
     }
   
   has_many :project_members, dependent: :restrict_with_error

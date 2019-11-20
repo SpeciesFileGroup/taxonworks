@@ -189,7 +189,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
         end
 
         specify 'closed line string' do
-          expect(RSPEC_GEO_FACTORY.polygon(d.geo_object).to_s).to eq('POLYGON ((-33.0 11.0 0.0, -24.0 4.0 0.0, -26.0 13.0 0.0, -31.0 4.0 0.0, -33.0 11.0 0.0))')
+          expect(RSPEC_GEO_FACTORY.polygon(d.geo_object).to_s).to eq('POLYGON ((-33.0 11.0 0.0, -24.0 4.0 0.0, -26.0 13.0 0.0, -38.0 14.0 0.0, -33.0 11.0 0.0))')
         end
       end
 

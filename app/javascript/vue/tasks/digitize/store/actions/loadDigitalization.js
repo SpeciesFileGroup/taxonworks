@@ -23,6 +23,8 @@ export default function ({ commit, dispatch, state }, coId) {
 
       Promise.all(promises).then(() => {
         state.settings.loading = false
+        state.settings.lastChange = Date.now()
+        state.settings.lastSave = Date.now()
         resolve()
       }, () => {
         state.settings.loading = false
