@@ -6,6 +6,7 @@
           <th
             :class="classSort('object_tag')"
             @click="sortTable('object_tag')">Object tag</th>
+          <th>Citations</th>
           <th>Options</th>
         </tr>
       </thead>
@@ -16,6 +17,11 @@
           <td>
             <span v-html="item.object_tag"/>
           </td> 
+          <td>
+            <template v-for="citation in item.citations">
+              <span :key="citation.id">{{ citation.citation_source_body }};</span>
+            </template>
+          </td>
           <td class="options-column">
             <div class="horizontal-left-content">
               <radial-object :global-id="item.global_id"/>
