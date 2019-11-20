@@ -113,7 +113,7 @@ export default {
     preferences: {
       handler(newVal) {
         if(this.preferences.hasOwnProperty('layout')) {
-          if(this.preferences.layout[this.keyStorage])
+          if(this.preferences.layout[this.keyStorage] && Object.keys(this.columns).every((key) => { return this.preferences.layout[this.keyStorage][key].length === this.columns[key].length }))
             this.columns = this.preferences.layout[this.keyStorage]
         }
       },
