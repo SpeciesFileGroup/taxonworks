@@ -2,13 +2,23 @@
   <div class="right-section">
     <div class="content">
       <ul class="no_bullets context-menu">
-        <li v-for="tab in tabs">
+        <li>
           <label>
             <input
               v-model="componentSelected"
-              :value="tab.value"
+              value="MatchesComponent"
               type="radio">
-            {{ tab.label }}
+            Matches
+          </label>
+        </li>
+        <li>
+          <label>
+            <input
+              v-model="componentSelected"
+              value="SoftValidation"
+              :disabled="!source.id"
+              type="radio">
+            Soft validation
           </label>
         </li>
       </ul>
@@ -21,11 +31,16 @@
 
 import SoftValidation from './softValidation'
 import MatchesComponent from './matches'
-
+import { GetterNames } from '../store/getters/getters'
 export default {
   components: {
     SoftValidation,
     MatchesComponent
+  },
+  computed: {
+    source () {
+      return this.$store.getters[GetterNames.GetSource]
+    }
   },
   data () {
     return {

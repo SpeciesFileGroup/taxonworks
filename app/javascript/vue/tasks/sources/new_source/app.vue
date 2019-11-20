@@ -24,6 +24,7 @@
           v-shortkey="[getMacKey(), 's']"
           @shortkey="saveSource"
           @click="saveSource"
+          :disabled="source.type === 'Source::Bibtex' && !source.bibtex_type"
           class="button normal-input button-submit button-size separate-right separate-left"
           type="button">
           Save
@@ -142,6 +143,7 @@ export default {
       this.$store.dispatch(ActionNames.ResetSource)
     },
     saveSource () {
+      if (this.source.type === 'Source::Bibtex' && !this.source.bibtex_type) return
       this.$store.dispatch(ActionNames.SaveSource)
     },
     cloneSource () {

@@ -1,8 +1,12 @@
 <template>
   <div
-    v-if="founded.length"
-    class="panel">
+    class="matches-panel">
+    <spinner-component
+      v-if="searching"
+      legend="Searching..."/>
     <display-list
+      class="panel"
+      v-if="founded.length"
       :list="founded"
       label="object_tag"
       :remove="false"
@@ -18,10 +22,12 @@ import { MutationNames } from '../store/mutations/mutations'
 import AjaxCall from 'helpers/ajaxCall'
 import recent from '../../../../components/radial_object/images/recent'
 import DisplayList from 'components/displayList'
+import SpinnerComponent from 'components/spinner'
 
 export default {
   components: {
-    DisplayList
+    DisplayList,
+    SpinnerComponent
   },
   computed: {
     source: {
@@ -38,13 +44,15 @@ export default {
       founded: [],
       oldVal: undefined,
       delay: 1000,
-      timer: undefined
+      timer: undefined,
+      searching: false
     }
   },
   watch: {
     source: {
       handler(newVal) {
         if (newVal.title != this.oldVal) {
+          this.searching = true
           clearTimeout(this.timer)
           if(newVal.title == undefined || newVal.title == '') {
             this.founded = []
@@ -63,8 +71,14 @@ export default {
     getRecent () {
       AjaxCall('get', `/sources?query_term=${this.source.title}&per=5`).then(response => {
         this.founded = response.body
-      })
+        this.searching = false
+      }, () => { this.searching = false })
     }
   }
 }
 </script>
+<style scoped>
+  .matches-panel {
+    min-height: 500px;
+  }
+</style>
