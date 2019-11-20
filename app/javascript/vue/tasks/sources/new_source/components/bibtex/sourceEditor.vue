@@ -6,7 +6,7 @@
       class="separate-bottom"
       :options="options"/>
     <div
-      v-if="view != 'new/Search'"
+      v-if="view && view != 'new/Search'"
       class="separate-bottom">
       <ul v-if="lists[view].length" class="no_bullets">
         <li
@@ -41,6 +41,9 @@ import RolePicker from 'components/role_picker.vue'
 import SmartSelector from 'components/switch'
 import AjaxCall from 'helpers/ajaxCall'
 
+import OrderSmart from 'helpers/smartSelector/orderSmartSelector'
+import SelectFirst from 'helpers/smartSelector/selectFirstSmartOption'
+
 export default {
   components: {
     RolePicker,
@@ -66,9 +69,10 @@ export default {
   mounted() {
     AjaxCall('get', `/people/select_options?role_type=SourceEditor`).then(response => {
       let result = response.body
-      this.options = Object.keys(result)
+      this.options = OrderSmart(Object.keys(result))
       this.lists = response.body
       this.options.push('new/Search')
+      this.view = SelectFirst(this.lists, this.options) ? SelectFirst(this.lists, this.options) : 'new/Search'
     })
   },
   methods: {
