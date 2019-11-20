@@ -95,6 +95,7 @@ export default {
         !this.params.types.is_type.length &&
         !this.params.keywords.keyword_ids.length &&
         !this.params.determination.otu_ids.length &&
+        !this.params.determination.ancestor_id &&
         !this.params.collectingEvents.collecting_event_ids.length &&
         !Object.values(this.params.user).find(item => { return item != undefined }) &&
         !Object.values(this.params.loans).find(item => { return item != undefined }) &&
