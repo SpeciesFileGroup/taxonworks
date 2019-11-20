@@ -20,6 +20,10 @@
         <radial-annotator
           v-if="source.id"
           :global-id="source.global_id"/>
+        <add-source
+          v-if="source.id"
+          :project_source_id="source.project_source_id"
+          :id="source.id"/>
         <button
           v-shortkey="[getMacKey(), 's']"
           @shortkey="saveSource"
@@ -84,6 +88,7 @@ import Bibtex from './components/bibtex/main'
 import Human from './components/person/main'
 import RadialAnnotator from 'components/annotator/annotator'
 import GetMacKey from 'helpers/getMacKey'
+import AddSource from 'components/addToProjectSource'
 
 import PinComponent from 'components/pin'
 
@@ -105,7 +110,8 @@ export default {
     Human,
     CrossRef,
     RightSection,
-    BibtexButton
+    BibtexButton,
+    AddSource
   },
   computed: {
     section () {
