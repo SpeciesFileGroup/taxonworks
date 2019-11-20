@@ -1,18 +1,22 @@
 <template>
   <div class="panel content">
     <h2>BibTeX</h2>
+    <div class="horizontal-left-content align-start">
     <draggable
-      class="vue-new-source-task-bibtex "
-      v-model="componentsOrder"
+      class="vue-new-source-task-bibtex full_width"
+      v-for="(column, key) in columns"
+      v-model="columns[key]"
+      :group="{ name: 'components' }"
       :options="{ disabled: disableDraggable }"
       @end="updatePreferences">
       <component
         class="separate-bottom separate-right"
-        v-for="componentName in componentsOrder"
+        v-for="componentName in column"
         @onModal="setDraggable"
         :key="componentName"
         :is="componentName"/>
     </draggable>
+    </div>
   </div>
 </template>
 
@@ -97,7 +101,11 @@ export default {
   data () {
     return {
       disableDraggable: false,
-      componentsOrder: ['BibtexType', 'BibtexTitle', 'BibtexAuthors', 'BibtexDate', 'BibtexSerial', 'BibtexVolume', 'BibtexLanguageId', 'BibtexChapter', 'BibtexBookTitle', 'BibtexEdition', 'BibtexSeries', 'BibtexSourceEditor', 'BibtexOrganization', 'BibtexInstitution', 'BibtexHowpublished', 'BibtexPublisher', 'BibtexAddress', 'BibtexSchool', 'BibtexCopyright', 'BibtexTranslator', 'BibtexLanguage', 'BibtexAbstract', 'BibtexKey', 'BibtexUrl', 'BibtexVerbatim', 'BibtexCrosslinks', 'BibtexTwAttributes'],
+      columns: {
+        componentsOrderOne: ['BibtexType', 'BibtexTitle', 'BibtexAuthors', 'BibtexDate', 'BibtexSerial', 'BibtexVolume', 'BibtexLanguageId', 'BibtexChapter', 'BibtexBookTitle', 'BibtexEdition', 'BibtexSeries',],
+        componentsOrderTwo: ['BibtexSourceEditor', 'BibtexOrganization', 'BibtexInstitution', 'BibtexHowpublished', 'BibtexPublisher', 'BibtexAddress', 'BibtexSchool', 'BibtexCopyright', 'BibtexTranslator', 'BibtexLanguage', 'BibtexAbstract', 'BibtexKey', 'BibtexUrl'],
+        componentsOrderThree: ['BibtexVerbatim', 'BibtexCrosslinks', 'BibtexTwAttributes'],
+      },
       keyStorage: 'tasks::newsource::bibtex'
     }
   },
@@ -105,8 +113,8 @@ export default {
     preferences: {
       handler(newVal) {
         if(this.preferences.hasOwnProperty('layout')) {
-          if(this.preferences.layout[this.keyStorage] && this.componentsOrder.length == this.preferences.layout[this.keyStorage].length)
-            this.componentsOrder = this.preferences.layout[this.keyStorage]
+          if(this.preferences.layout[this.keyStorage])
+            this.columns = this.preferences.layout[this.keyStorage]
         }
       },
       deep: true,
@@ -118,9 +126,9 @@ export default {
       this.disableDraggable = mode
     },
     updatePreferences() {
-      UpdateUserPreferences(this.preferences.id, { [this.keyStorage]: this.componentsOrder }).then(response => {
+      UpdateUserPreferences(this.preferences.id, { [this.keyStorage]: this.columns }).then(response => {
         this.preferences.layout = response.body.preferences
-        this.componentsOrder = response.body.preferences.layout[this.keyStorage]
+        this.columns = response.body.preferences.layout[this.keyStorage]
       })
     }
   }
@@ -129,7 +137,6 @@ export default {
 
 <style lang="scss">
   .vue-new-source-task-bibtex {
-    max-height: 1000px;
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
