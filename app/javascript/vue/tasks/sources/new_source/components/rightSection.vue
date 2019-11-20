@@ -20,10 +20,12 @@
 <script>
 
 import SoftValidation from './softValidation'
+import MatchesComponent from './matches'
 
 export default {
   components: {
-    SoftValidation
+    SoftValidation,
+    MatchesComponent
   },
   data () {
     return {
@@ -37,7 +39,7 @@ export default {
           value: 'SoftValidation'
         }
       ],
-      componentSelected: 'SoftValidation'
+      componentSelected: 'MatchesComponent'
     }
   }
 }

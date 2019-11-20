@@ -27,10 +27,6 @@ export default {
         url: '/tasks/sources/new_source'  
       },
       {
-        label: 'New source from Bibtex',
-        url: '/tasks/sources/individual_bibtex_source/index'
-      },
-      {
         label: 'Batch load',
         url: '/sources/batch_load'
       }]
