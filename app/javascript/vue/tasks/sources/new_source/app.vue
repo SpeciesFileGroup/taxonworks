@@ -5,25 +5,23 @@
     <a href="/tasks/sources/hub">Back to source hub</a>
     </div>
     <div class="flex-separate separate-bottom">
-      <source-type/>
-      <div>
+      <div class="middle">
         <span
           v-if="source.id"
           v-html="source.cached"/>
         <span v-else>New record</span>
+        <template v-if="source.id">
+          <pin-component
+            :object-id="source.id"
+            type="Source"/>
+          <radial-annotator :global-id="source.global_id"/>
+          <add-source
+            :project_source_id="source.project_source_id"
+            :id="source.id"/>
+        </template>
       </div>
       <div class="horizontal-right-content">
-        <pin-component
-          v-if="source.id"
-          :object-id="source.id"
-          type="Source"/>
-        <radial-annotator
-          v-if="source.id"
-          :global-id="source.global_id"/>
-        <add-source
-          v-if="source.id"
-          :project_source_id="source.project_source_id"
-          :id="source.id"/>
+
         <button
           v-shortkey="[getMacKey(), 's']"
           @shortkey="saveSource"
@@ -64,6 +62,7 @@
         </button>
       </div>
     </div>
+    <source-type/>
     <div class="horizontal-left-content align-start">
       <component class="full_width" :is="section"/>
       <right-section class="separate-left"/>
