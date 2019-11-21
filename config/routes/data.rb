@@ -298,7 +298,7 @@ resources :labels do
   # is data?
 end
 
-resources :languages, only: [] do
+resources :languages, only: [:show] do
   collection do
     get 'autocomplete'
   end
@@ -564,7 +564,7 @@ resources :sources do
   end
 end
 
-resources :sqed_depictions, only: [] do
+resources :sqed_depictions, only: [:update] do
   collection do
     get :metadata_options, defaults: {format: :json}
   end

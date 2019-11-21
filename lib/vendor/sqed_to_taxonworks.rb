@@ -102,6 +102,7 @@ module SqedToTaxonworks
     def cache_all
       cache_ocr
       cache_boundaries
+      sqed_depiction.touch
     end
 
     def ocr_for(layout_section_type)

@@ -662,6 +662,32 @@ class CollectionObject < ApplicationRecord
     h
   end
 
+  def next_by_identifier
+    if i = identifiers.order(:position).first
+    CollectionObject
+      .where(project_id: project_id)
+      .where.not(id: id) 
+      .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'ASC') 
+      .where(Arel.sql("CAST(identifiers.identifier AS integer) > #{i.identifier}"))
+      .limit(1).first
+    else
+      nil
+    end
+  end
+
+  def previous_by_identifier
+    if i = identifiers.order(:position).first
+    CollectionObject
+      .where(project_id: project_id)
+      .where.not(id: id) 
+      .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'DESC') 
+      .where(Arel.sql("CAST(identifiers.identifier AS integer) < #{i.identifier}"))
+      .limit(1).first
+    else
+      nil
+    end 
+  end
+
   protected
 
   def add_to_dwc_occurrence

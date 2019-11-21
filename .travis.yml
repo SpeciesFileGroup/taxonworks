@@ -3,6 +3,7 @@ branches:
   only:
     - master
     - development
+    - rails6
     - /v\d+\.\d+\.\d+/
 env:
   global:
@@ -32,6 +33,7 @@ jobs:
         apt:
           packages:
             - imagemagick
+            - tesseract-ocr
             - libgeos-dev
             - libproj-dev
             - postgresql-10-postgis-2.4

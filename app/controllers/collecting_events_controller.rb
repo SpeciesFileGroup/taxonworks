@@ -78,7 +78,7 @@ class CollectingEventsController < ApplicationController
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectingEvent was successfully destroyed.')}
         format.json {head :no_content}
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectingEvent was not destroyed, ' + errors.messages)}
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectingEvent was not destroyed: ' + @collecting_event.errors.full_messages.join('; '))}
         format.json {render json: @collecting_event.errors, status: :unprocessable_entity}
       end
     end

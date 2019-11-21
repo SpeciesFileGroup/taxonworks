@@ -3,7 +3,7 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
 
   before_action :set_sqed_depiction, except: [:todo_map]
 
-  # GET /tasks/accession/breakdown/depiction/:id
+  # GET /tasks/accession/breakdown/depiction/:id # id is a collection_object_id
   def index
     @result = SqedToTaxonworks::Result.new(
       depiction_id: @sqed_depiction.depiction.id,
@@ -50,7 +50,6 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
       notes_attributes: [:id, :text, :_destroy]
     )
   end
-
 
   def set_sqed_depiction
     @sqed_depiction = SqedDepiction.find(params[:id])
