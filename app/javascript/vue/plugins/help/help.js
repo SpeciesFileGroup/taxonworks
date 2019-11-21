@@ -2,10 +2,18 @@ let HelpSystem = {}
 let languages = {}
 let defaultLanguage = ''
 
-const getString = function(modifiers) {
-  if(!Object.keys(modifiers).length) return false
+const getString = function(binding) {
 
+  let modifiers = binding.modifiers
   let string = languages[defaultLanguage]
+  
+  if(binding.hasOwnProperty('expression')) {
+    let expression = binding.value.split('.')
+    expression.forEach(item => {
+      string = string[item]
+    })
+    return string
+  }
 
   for(let key in modifiers) {
     if(string.hasOwnProperty(key)) {
@@ -37,7 +45,7 @@ HelpSystem.install = function (Vue, options) {
   Vue.directive('help', {
     bind (el, binding, vnode, oldVnode) {
       if(languages.hasOwnProperty(defaultLanguage)) {
-        let description = getString(binding.modifiers)
+        let description = getString(binding)
         if(description) {
           el.setAttribute('data-help', description);
           setHelpPresent();

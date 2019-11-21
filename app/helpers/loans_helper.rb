@@ -2,7 +2,16 @@ module LoansHelper
 
   def loan_tag(loan)
     return nil if loan.nil?
-    [loan.id, loan.loan_recipients.collect{|a| a.name}.join(', '), loan.recipient_email, loan.date_sent, loan.recipient_address].delete_if{|b| b.blank? }.join(' - ').gsub(/\n/, '; ') 
+    [
+      content_tag(:span, (identifier_tag(loan_identifier(loan)) || loan.id), class: [:feedback, 'feedback-thin', 'feedback-primary']), 
+      loan.loan_recipients.collect{|a| a.name}.join(', '),
+      loan.recipient_email,
+      loan.date_sent,
+      loan.recipient_address].delete_if{|b| b.blank? }.join(' - ').gsub(/\n/, '; ').html_safe
+  end
+
+  def loan_identifier(loan)
+    loan.identifiers.where(type: 'Identifier::Local::LoanCode').first
   end
 
   def loan_link(loan)
@@ -13,7 +22,6 @@ module LoansHelper
   def loans_search_form
     render('/loans/quick_search_form')
   end
-
 
   def loan_status_tag(object)
     if object.has_loans? && object.has_been_loaned?

@@ -46,9 +46,9 @@
             </tr>
             <tr>
               <td>Verbatim</td>
-              <td><%= text_field_tag('start_date', test_start_date) %></td>
+              <td><%= text_field_tag('start_date', @collecting_event.start_date_string) %></td>
               <td><%= text_field_tag('verbatim_date', @collecting_event.verbatim_date) %></td>
-              <td><%= text_field_tag('end_date', test_end_date) %></td>
+              <td><%= text_field_tag('end_date', @collecting_event.end_date_string) %></td>
             </tr>
             <tr>
               <td></td>

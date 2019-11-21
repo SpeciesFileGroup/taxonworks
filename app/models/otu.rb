@@ -34,7 +34,9 @@ class Otu < ApplicationRecord
   include Shared::Loanable
   include Shared::Confidences
   include Shared::Observations 
+  include Shared::BiologicalAssociations 
   include Shared::HasPapertrail
+  
   include Shared::IsData
 
   GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes]
@@ -69,13 +71,6 @@ class Otu < ApplicationRecord
 
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
   scope :with_name, -> (name) { where(name: name) }
-
-  scope :with_biological_associations, -> {
-    joins("LEFT OUTER JOIN biological_associations tnr1 ON otus.id = tnr1.biological_association_subject_id AND tnr1.biological_association_object_type = 'Otu'").
-    joins("LEFT OUTER JOIN biological_associations tnr2 ON otus.id = tnr2.biological_association_object_id AND tnr2.biological_association_object_type = 'Otu'").
-    where('tnr1.biological_association_object_id IS NOT NULL OR tnr2.biological_association_object_id IS NOT NULL')
-  }
-
 
   # @return [Otu, nil, false]
   def parent_otu
@@ -288,7 +283,7 @@ class Otu < ApplicationRecord
     Otu.joins(j).distinct.limit(10)
   end
 
-  # @params target [String] one of nil, `AssertedDistribution`, `Content`, `BiologicalAssociation`, 'TaxonDetermination'
+  # @params target [String] required, one of nil, `AssertedDistribution`, `Content`, `BiologicalAssociation`, 'TaxonDetermination'
   # @return [Hash] otus optimized for user selection
   def self.select_optimized(user_id, project_id, target = nil)
     h = {
@@ -297,7 +292,16 @@ class Otu < ApplicationRecord
     }
 
     if target
-      h[:recent] = Otu.where(project_id: project_id).used_recently(target).limit(10).to_a
+      n = target.tableize.to_sym
+      h[:recent] = (
+        Otu.joins(n)
+        .where(project_id: project_id, n => {updated_by_id: user_id})
+        .used_recently(target)
+        .limit(10).to_a + 
+      Otu.where(project_id: project_id, created_by_id: user_id, created_at: 3.hours.ago..Time.now)
+        .order('updated_at DESC')
+        .limit(3).to_a
+      ).uniq
     else
       h[:recent] = Otu.where(project_id: project_id).order('updated_at DESC').limit(10).to_a
     end

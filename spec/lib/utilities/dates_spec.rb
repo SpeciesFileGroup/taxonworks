@@ -1,9 +1,39 @@
+# TODO: Extract all this to a gem
+
+# TODO: by definition of being in Utilities this shouldn't be required
 require 'rails_helper'
 
-describe 'Dates', group: [:collecting_events, :dates] do
+describe Utilities::Dates, group: [:collecting_events, :dates] do
+
+  let(:lib) { Utilities::Dates }
+
+  let(:today) { Time.zone.today.strftime('%Y-%m-%d') }
+
+  specify '.order_dates 1' do
+    a = %w{1932-01-11 1859-01-22}
+    expect(lib.order_dates(a[0], a[1])).to eq([a[1], a[0]]) 
+  end
+
+  specify '.order_dates 2' do
+    a = %w{1932/01/11 1859/01/22}
+    expect(lib.order_dates(a[0], a[1])).to eq([a[1], a[0]]) 
+  end
+
+  specify '.normalize_and_order_dates 1' do
+    a = %w{1932/01/11 1859/01/22}
+    expect(lib.normalize_and_order_dates(a[0], a[1])).to eq([a[1], a[0]]) 
+  end
+
+  specify '.normalize_and_order_dates 2' do
+    a = %w{1932/01/11 1859/01/22}
+    expect(lib.normalize_and_order_dates(a[0], nil)).to eq([ a[0], a[0] ]) 
+  end
+
+  specify '.normalize_and_order_dates 2' do
+    expect(lib.normalize_and_order_dates(nil, nil)).to eq([ Utilities::Dates::EARLIEST_DATE, today ]) 
+  end
 
   context 'date discovery and parsing' do
-
     context 'bad values' do
 
       specify 'truley bogus data' do
@@ -34,6 +64,7 @@ describe 'Dates', group: [:collecting_events, :dates] do
                              )
       end
     end
+    
     #done except failing on 'This is a test september 20 ,1944 - November 19 , 1945' (extra spaces)
     context 'single use case for dates hunt_dates' do
       use_case = {'Some text here,  5 V 2003, some more text after the date  ' =>
@@ -105,14 +136,12 @@ describe 'Dates', group: [:collecting_events, :dates] do
       }
     end
 
-
     context 'use one regex method at a time in hunt_dates against the set of its examples' do
       methods = Utilities::Dates::REGEXP_DATES.keys
       methods.each_with_index {|method, dex|
         this_hlp = Utilities::Dates::REGEXP_DATES[method][:hlp]
         matches = this_hlp.split(' | ')
         matches.each {|this_match|
-
 
           specify "method  #{method} should correctly match each  #{this_match} example listed in the hlp attribute " do
             this_case = Utilities::Dates.hunt_dates(this_match, [method])
@@ -170,7 +199,7 @@ describe 'Dates', group: [:collecting_events, :dates] do
                yyyy_month_dd_month_dd: {}
               }
       }
-      @entry    = 0
+      @entry = 0
 
       use_cases.each {|label, result|
         @entry += 1
@@ -183,4 +212,3 @@ describe 'Dates', group: [:collecting_events, :dates] do
     end
   end
 end
-# TODO: Extract all this to a gem

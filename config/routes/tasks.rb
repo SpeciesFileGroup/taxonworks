@@ -2,7 +2,7 @@ scope :tasks do
 
   scope :exports do
     scope :coldp, controller: 'tasks/exports/coldp' do
-      get 'index', as: 'export_coldp_task'
+      get '/', action: :index, as: 'export_coldp_task'
       get 'download', as: 'download_coldp_task'
     end
   end
@@ -88,17 +88,22 @@ scope :tasks do
   end
 
   scope :sources do
+    scope :new_source, controller: 'tasks/sources/new_source' do
+      get '/', action: :index, as: 'new_source_task'
+      get 'crossref_preview', as: 'preview_source_from_crossref_task', defaults: {format: :json}
+    end
+
     scope :hub, controller: 'tasks/sources/hub' do
-      get :index, as: 'index_hub_task'
+      get '/', action: :index, as: 'source_hub_task'
     end
 
     scope :individual_bibtex_source, controller: 'tasks/sources/individual_bibtex_source' do
-      get 'index', as: 'index_individual_bibtex_source_task'
+      get '/', action: :index, as: 'new_bibtex_source_task'
     end
 
-    scope :browse, controller: 'tasks/sources/browse' do
-      get 'index', as: 'browse_sources_task'
-      get 'find', as: 'find_sources_task'
+    scope :find, controller: 'tasks/sources/find' do
+      get '/', action: :index, as: 'find_sources_task'
+      get 'find', as: 'find_sources_query_task'
     end
   end
 
@@ -131,22 +136,12 @@ scope :tasks do
   end
 
   scope :collection_objects do
-    scope :browse, controller: 'tasks/collection_objects/browse' do
-      get 'index', as: 'browse_collection_objects_task'
+    scope :filter, controller: 'tasks/collection_objects/filter' do
+      get '/', as: 'collection_objects_filter_task', action: :index
     end
 
-    scope :filter, controller: 'tasks/collection_objects/filter' do
-      get 'index', as: 'collection_objects_filter_task' #'index_area_and_date_task'
-      get 'find', as: 'find_collection_objects_task' # 'find_area_and_date_task'
-      get 'set_area'  , as: 'set_area_for_collection_object_filter'
-      get 'set_date', as: 'set_date_for_collection_object_filter'
-      get 'set_otu', as: 'set_otu_for_collection_object_filter'
-      get 'set_id_range', as: 'set_id_range_for_collection_object_filter'
-      get 'set_user_date_range', as: 'set_user_date_range_for_collection_object_filter'
-      get 'get_dates_of_type', as: 'get_dates_type_of_for_collection_object_filter'
-      # get 'get_updated_at', as: 'get_updated_at_for_collection_object_filter'
-      get 'download', action: 'download', as: 'download_collection_object_filter_result'
-      post 'tag_all', action: 'tag_all', as: 'tag_all_collection_object_filter_result',  defaults: {format: :json}
+    scope :browse, controller: 'tasks/collection_objects/browse' do
+      get '/', as: 'browse_collection_objects_task', action: :index
     end
   end
 
@@ -193,15 +188,6 @@ scope :tasks do
       post 'create', as: 'create_simple_specimen_task'
       # needs a name to remove conflicts?
       get 'collecting_events', format: :js
-    end
-  end
-
-  scope :bibliography do
-    scope :verbatim_reference, controller: 'tasks/bibliography/verbatim_reference' do
-      get 'new', as: 'new_verbatim_reference_task'
-      post 'preview', as: 'preview_verbatim_reference_task'
-      post 'create_verbatim', as: 'create_verbatim_from_reference_task'
-      post 'create_bibtex', as: 'create_bibtex_from_reference_task'
     end
   end
 
@@ -357,6 +343,12 @@ scope :tasks do
   end
 
   scope :taxon_names do
+    scope :syncronize_otus, controller: 'tasks/taxon_names/syncronize_otus' do
+      get 'index', as: 'syncronize_otus_to_nomenclature_task'
+      post 'index', as: 'preview_syncronize_otus_to_nomenclature_task'
+      post 'syncronize', as: 'syncronize_otus_task' 
+    end
+
     scope :filter, controller: 'tasks/taxon_names/filter' do
       get :index, as: 'index_filter_task'
     end

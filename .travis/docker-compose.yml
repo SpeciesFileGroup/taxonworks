@@ -1,9 +1,7 @@
 version: "2.1"
 services:
   taxonworks:
-    build:
-      context: .
-      dockerfile: Dockerfile.taxonworks
+    build: ./docker-image-taxonworks
     container_name: tw_container
     depends_on:
       db:

@@ -1,0 +1,52 @@
+<template>
+  <div>
+    <h2>Biocurations</h2>
+    <ul class="no_bullets">
+      <li
+        v-for="item in biocurations"
+        :key="item.id">
+        <label>
+          <input
+            type="checkbox"
+            v-model="selectedBiocurations"
+            :value="item.id">
+            {{ item.name }}
+        </label>
+      </li>
+    </ul>
+  </div>
+</template>
+
+<script>
+
+import { GetBiocurations } from '../../request/resources'
+
+export default {
+  props: {
+    value: {
+      type: Array,
+      required: true
+    }
+  },
+  computed: {
+    selectedBiocurations: {
+      get () {
+        return this.value
+      },
+      set(value) {
+        this.$emit('input', value)
+      }
+    }
+  },
+  data () {
+    return {
+      biocurations: []
+    }
+  },
+  mounted () {
+    GetBiocurations().then(response => {
+      this.biocurations = response.body
+    })
+  }
+}
+</script>

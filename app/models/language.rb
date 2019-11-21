@@ -24,8 +24,11 @@ class Language < ApplicationRecord
   include Shared::IsData
   include Shared::IsApplicationData
 
-  has_many :serials, inverse_of: :language
-  has_many :sources, inverse_of: :source_language
+  has_many :serials, inverse_of: :language, foreign_key: :primary_language_id
+  has_many :sources, inverse_of: :source_language, class_name: 'Source::Bibtex'
+  
+  scope :used_recently_on_sources, -> { joins(sources: [:project_sources]).where(sources: { created_at: 1.weeks.ago..Time.now } ) }
+  scope :used_recently_on_serials, -> { joins(:serials).where(serials: { created_at: 1.weeks.ago..Time.now } ) }
 
   scope :with_english_name_containing, ->(name) {where('english_name ILIKE ?', "%#{name}%")}  # non-case sensitive comparison
 
@@ -45,6 +48,22 @@ class Language < ApplicationRecord
   def self.find_for_autocomplete(params)
     term = "#{params[:term]}%"
     where('english_name ILIKE ? OR english_name = ?', term, params[:term])
+  end
+
+  # @param klass ['source' || 'serial']
+  def self.select_optimized(user_id, project_id, klass = 'source')
+    recent = if klass == 'source'
+               Language.used_recently_on_sources.where('project_sources.project_id = ? AND sources.updated_by_id = ?', project_id, user_id).distinct.limit(10).to_a
+             elsif klass == 'serial'
+               Language.used_recently_on_serials.where('serials.updated_by_id = ?', user_id).distinct.limit(10).to_a
+             end
+    h = {
+      recent: recent,
+      pinboard: Language.pinned_by(user_id).pinned_in_project(project_id).to_a
+    }
+
+    h[:quick] = (Language.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  + h[:recent][0..3]).uniq
+    h
   end
 
 end

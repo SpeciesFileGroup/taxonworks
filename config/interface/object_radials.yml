@@ -13,10 +13,13 @@
 ---
 Source:
   tasks:
-    - index_hub_task
-    - new_verbatim_reference_task
+    - source_hub_task
+    - new_source_task
+    - new_bibtex_source_task
+    - find_sources_task
     - nomenclature_by_source_task
-    - index_individual_bibtex_source_task
+  new: new_source_task
+  edit: new_source_task
   config:
     recent: true
 TaxonName:
@@ -54,13 +57,14 @@ Otu:
     recent: true
 CollectionObject:
   tasks:
+    - browse_collection_objects_task
     - collection_objects_filter_task
     - comprehensive_collection_object_task
     - report_dwc_task
-    - browse_collection_objects_task
     - build_biocuration_groups_task
   config: 
     recent: true
+  edit: comprehensive_collection_object_task
 Loan:
   tasks:
     - overdue_loans_task

@@ -22,8 +22,6 @@ RUN rm -f /etc/service/redis/down
 RUN sed -i "s/bind .*/bind 127.0.0.1/g" /etc/redis/redis.conf
 
 # Update repos
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
-    echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
 
 # Until we move to update Ubuntu
@@ -41,11 +39,16 @@ RUN apt-get update && \
       libpq-dev libproj-dev libgeos-dev libgeos++-dev \
       tesseract-ocr \
       cmake \
-      nodejs yarn && \
+      nodejs && \
       apt clean && \ 
-      rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/* 
+      rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
 
 RUN locale-gen en_US.UTF-8
+
+# Set up ImageMagick
+RUN sed -i 's/name="disk" value="1GiB"/name="disk" value="8GiB"/' /etc/ImageMagick-6/policy.xml \
+&&  identify -list resource | grep Disk | grep 8GiB # Confirm the setting is active
+
 
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
@@ -80,11 +83,16 @@ RUN chmod +x /etc/my_init.d/init.sh && \
     chmod +x /app/public/images/tmp && \
     rm -f /etc/service/nginx/down
 
+## Setup delayed_job workers
+RUN mkdir /etc/service/delayed_job
+RUN cp /app/exe/delayed_job /etc/service/delayed_job/run
+
 RUN chown 9999:9999 /app/public
 RUN chown 9999:9999 /app/public/images/tmp
 RUN chown 9999:9999 /app/public/packs
 RUN chown 9999:9999 /app/log/
 RUN chown 9999:9999 /app/downloads
+RUN chown 9999:9999 /app/tmp/
 
 RUN touch /app/log/production.log
 RUN chown 9999:9999 /app/log/production.log

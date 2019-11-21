@@ -3,6 +3,7 @@
     <div class="middle flex-separate">
       <div class="horizontal-left-content">
         <autocomplete
+          class="separate-right"
           url="/identifiers/autocomplete"
           placeholder="Search"
           label="label_html"
@@ -13,10 +14,13 @@
             'identifier_object_types[]': ['CollectionObject'],
           }"
           min="1"/>
-        <span
-          class="separate-left"
-          v-if="identifier.id"
-          v-html="identifier.object_tag"/>
+        <template>
+          <span
+            class="separate-left"
+            v-if="collectionObject.id"
+            v-html="collectionObject.object_tag"/>
+          <span v-else>New record</span>
+        </template>
       </div>
       <div class="horizontal-left-content">
       <tippy-component
@@ -36,7 +40,7 @@
       </tippy-component>
         <recent-component
           class="separate-right"
-          @selected="loadCollectionObject($event.id)"/>
+          @selected="loadCollectionObject($event)"/>
         <button 
           type="button"
           v-shortkey="[getMacKey(), 's']"
@@ -113,6 +117,18 @@
         deep: true
       }
     },
+    mounted() {
+      window.addEventListener('scroll', () => {
+        let element = this.$el
+        if (element) {
+          if (((window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0) > 164)) {
+            element.classList.add('fixed-bar')
+          } else {
+            element.classList.remove('fixed-bar')
+          }
+        }
+      })
+    },
     methods: {
       getMacKey: GetMacKey,
       saveDigitalization() {
@@ -144,10 +160,19 @@
         this.$store.dispatch(ActionNames.ResetWithDefault)
         this.$store.dispatch(ActionNames.LoadDigitalization, object.identifier_object_id)
       },
-      loadCollectionObject(id) {
+      loadCollectionObject(co) {
         this.resetStore()
-        this.$store.dispatch(ActionNames.LoadDigitalization, id)
+        this.$store.dispatch(ActionNames.LoadContainer, co.global_id)
+        this.$store.dispatch(ActionNames.LoadDigitalization, co.id)
       }
     }
   }
 </script>
+<style lang="scss" scoped>
+  .fixed-bar {
+    position: fixed;
+    top:0px;
+    width: calc(100%-52px);
+    z-index:200;
+  }
+</style>

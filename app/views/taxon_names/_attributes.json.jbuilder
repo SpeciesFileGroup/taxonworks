@@ -4,7 +4,7 @@ json.partial! '/taxon_names/base_attributes', taxon_name: taxon_name
 if taxon_name.roles.any?
   json.taxon_name_author_roles do
     json.array! taxon_name.taxon_name_author_roles.each do |role|
-      json.extract! role, :id, :position
+      json.extract! role, :id, :position, :type
       json.person do
         json.partial! '/people/base_attributes', person: role.person 
       end

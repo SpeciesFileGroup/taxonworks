@@ -2,7 +2,7 @@
     <%= on_loan_tag(@container) -%>
 
     <h3> Container labels</h3>
-    <%= @container.print_label -%>
+    <%= @container.print_label || content_tag(:i, 'None.') -%>
 
     <h3> Nesting containers </h3>
     <% if @container.is_nested? -%>

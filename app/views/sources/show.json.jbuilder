@@ -1,2 +1,2 @@
-json.partial! 'attributes', source: @source 
+json.partial! '/sources/attributes', source: @source 
 

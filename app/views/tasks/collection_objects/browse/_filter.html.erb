@@ -1,21 +1,21 @@
 <div data-filter-slide="close">
 
-  <!---- first row ---->
   <div id="filterBrowse" class="navigation-controls filter">
-    <div class="navigation-item" data-filter=".added_attribute">
-      <span data-icon="show" class="small-icon">Added attribute</span>
-    </div> 
 
-    <div class="navigation-item" data-filter=".imaged">
-      <span data-icon="show" class="small-icon">Imaged</span>
-    </div>  
-                          
+  <% CollectionObjectCatalog::FILTER_MAP.values.compact.uniq.sort{|a,b| a.to_s <=> b.to_s}.each do |v| %>
+      <div class="navigation-item" data-filter=".<%= v.to_s -%>">
+        <span data-icon="show" class="small-icon"><%= v.to_s.humanize.capitalize %></span>
+      </div> 
+    <% end %>
+
     <div class="navigation-item" data-filter-reset="reset">
       <span data-icon="reset" class="small-icon">Reset</span>
     </div>
+    <div class="navigation-item" data-filter-hide-all="hide">
+      <span data-icon="hide" class="small-icon">Hide all</span>
+    </div>
   </div>
 
-  <!---- second row ---->
 </div>
 
 

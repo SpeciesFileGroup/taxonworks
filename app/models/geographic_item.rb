@@ -26,47 +26,60 @@ require 'rgeo'
 #   @return [String]
 #     Rails STI, determines the geography column as well
 #
+#
+#
+# Key methods in this giant library
+#
+# `#geo_object` - return a RGEO object representation
+#
+#
 class GeographicItem < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Shared::IsData
   include Shared::SharedAcrossProjects
 
-  # an internal variable for use in super calls, holds a geo_json hash (temporarily)
+  # @return [Hash, nil]
+  # An internal variable for use in super calls, holds a Hash in GeoJSON format (temporarily)
   attr_accessor :geometry
 
+  # @return [Boolean, RGeo object]
+  # @params value [Hash in GeoJSON format] ?! 
+  # TODO: WHY! boolean not nil, or object
+  # Used to build geographic items from a shape [ of what class ] !?
   attr_accessor :shape
 
-  DATA_TYPES = [:point,
-                :line_string,
-                :polygon,
-                :multi_point,
-                :multi_line_string,
-                :multi_polygon,
-                :geometry_collection].freeze
+  DATA_TYPES = [
+    :point,
+    :line_string,
+    :polygon,
+    :multi_point,
+    :multi_line_string,
+    :multi_polygon,
+    :geometry_collection].freeze
 
-  GEOMETRY_SQL = Arel::Nodes::Case.new(arel_table[:type])
-                     .when('GeographicItem::MultiPolygon').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:multi_polygon].as('geometry')]))
-                     .when('GeographicItem::Point').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:point].as('geometry')]))
-                     .when('GeographicItem::LineString').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:line_string].as('geometry')]))
-                     .when('GeographicItem::Polygon').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:polygon].as('geometry')]))
-                     .when('GeographicItem::MultiLineString').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:multi_line_string].as('geometry')]))
-                     .when('GeographicItem::MultiPoint').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:multi_point].as('geometry')]))
-                     .when('GeographicItem::GeometryCollection').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:geometry_collection].as('geometry')]))
-                     .freeze
+    GEOMETRY_SQL = Arel::Nodes::Case.new(arel_table[:type])
+      .when('GeographicItem::MultiPolygon').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:multi_polygon].as('geometry')]))
+      .when('GeographicItem::Point').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:point].as('geometry')]))
+      .when('GeographicItem::LineString').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:line_string].as('geometry')]))
+      .when('GeographicItem::Polygon').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:polygon].as('geometry')]))
+      .when('GeographicItem::MultiLineString').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:multi_line_string].as('geometry')]))
+      .when('GeographicItem::MultiPoint').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:multi_point].as('geometry')]))
+      .when('GeographicItem::GeometryCollection').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:geometry_collection].as('geometry')]))
+      .freeze
 
 
-  # "CASE geographic_items.type
-  #        WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
-  #        WHEN 'GeographicItem::Point' THEN point::geometry
-  #        WHEN 'GeographicItem::LineString' THEN line_string::geometry
-  #        WHEN 'GeographicItem::Polygon' THEN polygon::geometry
-  #        WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geometry
-  #        WHEN 'GeographicItem::MultiPoint' THEN multi_point::geometry
-  #        WHEN 'GeographicItem::GeometryCollection' THEN geometry_collection::geometry
-  #     END".freeze
+    # "CASE geographic_items.type
+    #        WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
+    #        WHEN 'GeographicItem::Point' THEN point::geometry
+    #        WHEN 'GeographicItem::LineString' THEN line_string::geometry
+    #        WHEN 'GeographicItem::Polygon' THEN polygon::geometry
+    #        WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geometry
+    #        WHEN 'GeographicItem::MultiPoint' THEN multi_point::geometry
+    #        WHEN 'GeographicItem::GeometryCollection' THEN geometry_collection::geometry
+    #     END".freeze
 
-  GEOGRAPHY_SQL = "CASE geographic_items.type
+    GEOGRAPHY_SQL = "CASE geographic_items.type
      WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon
      WHEN 'GeographicItem::Point' THEN point
      WHEN 'GeographicItem::LineString' THEN line_string
@@ -155,23 +168,23 @@ class GeographicItem < ApplicationRecord
           # now use method from collection_object_filter_query
           geographic_area_ids.each do |gaid|
             target_geographic_item_ids.push(GeographicArea.joins(:geographic_items)
-                                                .find(gaid)
-                                                .default_geographic_item.id)
+              .find(gaid)
+              .default_geographic_item.id)
           end
 
           # TODO: There probably is a better way to do this, but for now...
           f1 = project_id.present? ? finding.with_project_id(project_id) : finding
           case search_object_class
-            when /Collection/, /Collecting/
-              found = f1.joins(:geographic_items)
-                          .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
-            when /Asserted/
-              # TODO: Figure out how to see through this group of geographic_items to the ones which contain
-              # geographic_items which are associated with geographic_areas (as #default_geographic_items)
-              # which are associated with asserted_distributions
-              found = f1.joins(:geographic_area).joins(:geographic_items)
-                          .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
-            else
+          when /Collection/, /Collecting/
+            found = f1.joins(:geographic_items)
+              .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
+          when /Asserted/
+            # TODO: Figure out how to see through this group of geographic_items to the ones which contain
+            # geographic_items which are associated with geographic_areas (as #default_geographic_items)
+            # which are associated with asserted_distributions
+            found = f1.joins(:geographic_area).joins(:geographic_items)
+              .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
+          else
           end
         end
       else
@@ -203,16 +216,16 @@ class GeographicItem < ApplicationRecord
         radius = g_feature['radius']
 
         query = project_id.present? ?
-                    finding.with_project_id(project_id).joins(:geographic_items) :
-                    finding.joins(:geographic_items)
+          finding.with_project_id(project_id).joins(:geographic_items) :
+          finding.joins(:geographic_items)
 
         case shape_type
-          when 'point'
-            query.where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
-          when 'polygon', 'multipolygon'
-            query.where(GeographicItem.contained_by_wkt_sql(geometry))
-          else
-            query
+        when 'point'
+          query.where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
+        when 'polygon', 'multipolygon'
+          query.where(GeographicItem.contained_by_wkt_sql(geometry))
+        else
+          query
         end
       end
     end
@@ -428,11 +441,11 @@ class GeographicItem < ApplicationRecord
       crossing_ids.each do |id|
         # [61666, 61661, 61659, 61654, 61639]
         q1 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_AsText((SELECT polygon FROM geographic_items ' \
-            'WHERE id = ?))', id])
+                                                           'WHERE id = ?))', id])
         r = GeographicItem.where(
-            # GeographicItem.contained_by_wkt_shifted_sql(GeographicItem.find(id).geo_object.to_s)
-            GeographicItem.contained_by_wkt_shifted_sql(
-                ApplicationRecord.connection.execute(q1).first['st_astext'])
+          # GeographicItem.contained_by_wkt_shifted_sql(GeographicItem.find(id).geo_object.to_s)
+          GeographicItem.contained_by_wkt_shifted_sql(
+            ApplicationRecord.connection.execute(q1).first['st_astext'])
         ).to_a
         results.push(r)
       end
@@ -854,7 +867,7 @@ class GeographicItem < ApplicationRecord
     # @return [Hash]
     #   as per #inferred_geographic_name_hierarchy but for Rgeo point
     def point_inferred_geographic_name_hierarchy(point)
-      GeographicItem.containing_point(point).ordered_by_area.limit(1).first.inferred_geographic_name_hierarchy
+      GeographicItem.containing_point(point).ordered_by_area.limit(1).first&.inferred_geographic_name_hierarchy
     end
 
     # @param [String] type_name ('polygon', 'point', 'line' [, 'circle'])
@@ -900,150 +913,6 @@ class GeographicItem < ApplicationRecord
         AS g;", geographic_item_ids.flatten
       )
     end
-
-    # DEPRECATED
-    # def check_fix_wkt(wkt_string)
-    #   clean_string = wkt_string.downcase.gsub('(', '').gsub(')', '') #    # make the string convenient
-    #   if clean_string.include? 'polygon' #                                # to look for the case we are treating
-    #     coord_string = clean_string.gsub('polygon ', '') #                # synthesize a polygon feature -
-    # the hard way!
-    #     coordinates  = parse_wkt_coords(coord_string)
-    #     # check for anti-meridian crossing polygon
-    #     value        = '{"type": "Feature", "geometry": {"type": "Polygon",
-    # "coordinates": [' + coordinates + ']}, "properties": {}}'
-    #     # e.g., value: "{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[141.6796875,
-    # 68.46379955520322],[154.3359375,41.64007838467894],
-    # [-143.0859375,49.49667452747045],[141.6796875,68.46379955520322]]]},"properties":{}}"
-    #     feature      = RGeo::GeoJSON.decode(value, :json_parser => :json)
-    #     # e.g., feature: #<RGeo::GeoJSON::Feature:0x3fd189717f4c id=nil geom="POLYGON ((141.6796875
-    # 68.46379955520322, 154.3359375 41.64007838467894, -143.0859375 49.49667452747045,
-    # 141.6796875 68.46379955520322))">
-    #     geometry     = feature.geometry
-    #     geometry     = geometry.as_text
-    #     ob           = JSON.parse(value)
-    #     coords       = ob['geometry']['coordinates'][0] # get the coordinates
-    #
-    #     last_x  = nil; this_x = nil; anti_chrossed = false # initialize for anti-meridian detection
-    #     last_y  = nil; this_y = nil; bias_x = 360 #          # this section can be generalized for > 2 crossings
-    #     point_1 = nil; point_1_x = nil; point_1_y = nil;
-    #     point_2 = nil; point_2_x = nil; point_2_y = nil;
-    #     coords_1 = []; coords_2 = [];
-    #     coords.each_with_index { |point, index|
-    #       this_x = coords[index][0] #                   # get x value
-    #       this_y = coords[index][1] #                   # get y value
-    #       if (anti_meridian_check(last_x, this_x))
-    #         anti_chrossed = true #                      # set flag if detector triggers
-    #         bias_x        = -360 #                             # IF we are crossing from east to west
-    #         if (last_x < 0) #                           # we are crossing from west to east
-    #           bias_x = 360 #                            # reverse bias
-    #         end
-    #         delta_x = (this_x - last_x) - bias_x #      # assume west to east crossing for now
-    #         delta_y = this_y - last_y #                 # don't care if we cross the equator
-    #         if (point_1 == nil) #                       # if this is the first crossing
-    #           point_1   = index #                         # this is the point after which we insert
-    #           point_1_x = -180 #                        # terminus for western hemisphere
-    #           if last_x > 0 #                           # wrong assumption, reverse
-    #             point_1_x = -point_1_x
-    #           end
-    #           d_x       = point_1_x - last_x #                # distance from last point to terminus
-    #           point_1_y = last_y + d_x * delta_y / delta_x
-    #         else
-    #           point_2   = index
-    #           point_2_x = -point_1_x #                 # this is only true for the degenerate case of only 2 crossings
-    #           d_x       = point_2_x - last_x
-    #           point_2_y = last_y + d_x * delta_y / delta_x
-    #         end
-    #       end
-    #       last_x = this_x #                           # move to next line segment
-    #       last_y = this_y #                           # until polygon start point
-    #     }
-    #     if (anti_chrossed)
-    #       index_1 = 0; index_2 = 0 #                  # indices into the constructed semi-polygons
-    #       coords.each_with_index { |point, index|
-    #         if index < point_1 #                      # first phase, initial points before transit
-    #           coords_1[index] = point #               # just transcribe the points to polygon 1
-    #         end
-    #         if index == point_1 #                     # first transit
-    #           coords_1[point_1]     = [point_1_x, point_1_y] # truncate first polygon at anti-meridian
-    #           coords_1[point_1 + 1] = [point_1_x, point_2_y] # continue truncation with second intersection point
-    #           index_1               = index + 2 #                   # set up next insertion point for first polygon
-    #
-    #           coords_2[0] = [point_2_x, point_2_y] # begin polygon 2 with the mirror line in the opposite direction
-    #           coords_2[1] = [point_2_x, point_1_y] # then first intersection where x is fixed at anti-meridian
-    #           coords_2[2] = point #                    # continue second polygon with first point past transition
-    #           index_2     = 3 #                           # set up next insertion point
-    #         end
-    #         if index > point_1 && index < point_2 #   # continue second polygon from its stub
-    #           coords_2[index_2] = point #             # transcribe the next point(s)
-    #           index_2           = index_2 + 1
-    #         end
-    #         if index == point_2 #                     # second transit
-    #           coords_2[index_2] = [point_2_x, point_2_y] # # end the second polygon with the mirror line origin point
-    #           coords_1[index_1] = point #             # copy the current original point to the first polygon
-    #           index_1           = index_1 + 1 #                 # update its pointer, finished with polygon 2
-    #         end
-    #         if index > point_2 #                      # final phase, finish up polygon 1
-    #           coords_1[index_1] = point #             # transcribe any remaining points
-    #           index_1           = index_1 + 1 #                 # update its pointer until we reach the initial point
-    #         end
-    #       }
-    #
-    #       ob["geometry"]["type"]        = 'MultiPolygon'
-    #       ob["geometry"]["coordinates"] = [] #                     # replace the original coordinates
-    #       ob["geometry"]["coordinates"].push([]) #                     # replace the original coordinates
-    #       ob["geometry"]["coordinates"].push([]) #                     # replace the original coordinates
-    #       ob["geometry"]["coordinates"][0].push(coords_2) #                     # replace the original coordinates
-    #       ob["geometry"]["coordinates"][1].push(coords_1) #                     # append first coordinates with second
-    #       job        = ob.as_json.to_s.gsub('=>', ':') #                           # change back to a feature string
-    #       my_feature = RGeo::GeoJSON.decode(job, :json_parser => :json) #   # replicate "normal" steps above
-    #       geometry   = my_feature.geometry.as_text #                         # extract the WKT
-    #       geometry
-    #     else
-    #       wkt_string
-    #     end
-    #   else
-    #     wkt_string
-    #   end
-    # end
-
-    # DEPRECATED
-    # def anti_meridian_check(last_x, this_x) # returns true if anti-meridian crossed
-    #   if last_x
-    #     if last_x <= 0
-    #       if (((this_x >= 0 || this_x < -180))) # sign change from west to east
-    #         xm = (0.5 * (this_x - last_x)).abs # find intersection
-    #         if (xm > 90)
-    #           return true
-    #         end
-    #       end
-    #     end
-    #     if last_x >= 0
-    #       if (((this_x <= 0) || this_x > 180))
-    #         xm = (0.5 * (last_x - this_x)).abs
-    #         if (xm > 90)
-    #           return true
-    #         end
-    #       end
-    #     end
-    #   end
-    #   false
-    # end
-
-    # DEPRECATED
-    # def parse_wkt_coords(wkt_coords)
-    #   points      = wkt_coords.split(',')
-    #   coordinates = '['
-    #   points.each_with_index { |point, index|
-    #     pointxy     = point.split(' ')
-    #     coordinates += '[' + pointxy[0] + ', ' + pointxy[1] + ']'
-    #     if index < points.count - 1
-    #       coordinates += ', '
-    #     end
-    #   }
-    #   coordinates += ']'
-    #   coordinates
-    # end
-
   end # class << self
 
   # @return [Hash]
@@ -1103,6 +972,7 @@ class GeographicItem < ApplicationRecord
 
   # @return [Array]
   #   the lat, long, as STRINGs for the centroid of this geographic item
+  #  TODO:  Probably way to many decimals
   def center_coords
     r = GeographicItem.find_by_sql("Select split_part(ST_AsLatLonText(ST_Centroid(#{GeographicItem::GEOMETRY_SQL.to_sql}), " \
                     "'D.DDDDDD'), ' ', 1) latitude, split_part(ST_AsLatLonText(ST_Centroid" \
@@ -1171,7 +1041,7 @@ class GeographicItem < ApplicationRecord
     end
   end
 
-  # !!TODO: migrate these to use native column calls this to "native"
+  # !!TODO: migrate these to use native column calls 
 
   # @return [RGeo instance, nil]
   #  the Rgeo shape (See http://rubydoc.info/github/dazuma/rgeo/RGeo/Feature)
@@ -1227,24 +1097,27 @@ class GeographicItem < ApplicationRecord
     RGeo::GeoJSON.encode(geo_object).to_json
   end
 
-  # @return [GeoJSON hash]
-  #   raw Postgis (much faster)
+  # @return [Hash]
+  #   in GeoJSON format
+  #   Computed via "raw" PostGIS (much faster).
   def to_geo_json
-    JSON.parse(GeographicItem.connection.select_all("SELECT ST_AsGeoJSON(#{geo_object_type}::geometry) a " \
-                    "FROM geographic_items WHERE id=#{id};").first['a'])
+    JSON.parse(
+      GeographicItem.connection.select_all(
+        "SELECT ST_AsGeoJSON(#{geo_object_type}::geometry) a " \
+        "FROM geographic_items WHERE id=#{id};").first['a'])
   end
 
   # rubocop:disable Style/StringHashKeys
-  # @return [GeoJSON Feature] the shape as a GeoJSON Feature
+  # @return [Hash]
+  #   the shape as a GeoJSON Feature with some item metadata
   def to_geo_json_feature
     @geometry ||= to_geo_json
-    {
-      'type' => 'Feature',
-      'geometry' => geometry,
-      'properties' => {
-        'geographic_item' => {
-          'id' => id}
-      }
+    {'type' => 'Feature',
+     'geometry' => geometry,
+     'properties' => {
+       'geographic_item' => {
+         'id' => id}
+     }
     }
   end
   # rubocop:enable Style/StringHashKeys

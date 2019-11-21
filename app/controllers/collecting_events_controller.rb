@@ -78,7 +78,7 @@ class CollectingEventsController < ApplicationController
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectingEvent was successfully destroyed.')}
         format.json {head :no_content}
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectingEvent was not destroyed, ' + errors.messages)}
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectingEvent was not destroyed: ' + @collecting_event.errors.full_messages.join('; '))}
         format.json {render json: @collecting_event.errors, status: :unprocessable_entity}
       end
     end
@@ -94,6 +94,13 @@ class CollectingEventsController < ApplicationController
 
   def list
     @collecting_events = CollectingEvent.with_project_id(sessions_current_project_id).order(:id).page(params[:page])
+  end
+
+  def attributes
+    render json: ::CollectingEvent.columns.select{
+      |a| Queries::CollectingEvent::Filter::ATTRIBUTES.include?(
+        a.name)
+    }.collect{|b| {'name' => b.name, 'type' => b.type } }
   end
 
   # GET /collecting_events/search
@@ -246,18 +253,24 @@ class CollectingEventsController < ApplicationController
                                        project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
+
+
   def filter_params
+    # TODO: unify for use in CO
     params.permit(
       Queries::CollectingEvent::Filter::ATTRIBUTES,
       :in_labels,
       :in_verbatim_locality,
       :recent,
-      :shape,
-      :start_date,
-      :end_date,
+      :wkt,
+      :radius,
+      :geo_json,
+      :start_date, # used in date range
+      :end_date,   # used in date range
       :partial_overlap_dates,
       keyword_ids: [],
       spatial_geographic_area_ids: []
     )
   end
+
 end

@@ -44,7 +44,7 @@
         <autocomplete
           v-else
           url="/collection_objects/autocomplete"
-          label="label"
+          label="label_html"
           min="2"
           @getItem="sendRelated($event)"
           placeholder="Select a collection object"

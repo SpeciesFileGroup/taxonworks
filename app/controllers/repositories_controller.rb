@@ -78,16 +78,15 @@ class RepositoriesController < ApplicationController
   end
 
   def autocomplete
-
     @repositories = Queries::Repository::Autocomplete.new(params[:term]).all
 
     data = @repositories.collect do |t|
-      {id:              t.id,
-       label:           ApplicationController.helpers.repository_tag(t),
+      {id: t.id,
+       label: ApplicationController.helpers.repository_tag(t),
        response_values: {
          params[:method] => t.id
        },
-       label_html:      ApplicationController.helpers.repository_tag(t)
+       label_html: ApplicationController.helpers.repository_tag(t)
       }
     end
 
