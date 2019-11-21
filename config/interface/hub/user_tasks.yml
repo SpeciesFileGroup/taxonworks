@@ -457,4 +457,11 @@ new_source_task:
     - source
    status: prototype
    description: 'Add a sources of Verbatim, BibTeX or person via a number of methods.'
-
+syncronize_otus_to_nomenclature_task:
+  hub: true
+  name: 'Syncronize nomenclature and OTUs'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Batch create OTUs for nomenclature.  See reports of unmatched OTUs and Nomenclature.'

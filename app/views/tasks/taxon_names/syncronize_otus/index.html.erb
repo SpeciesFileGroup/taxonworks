@@ -1,0 +1,23 @@
+
+<h1> Task - Syncronize nomenclature to OTUS </h1>
+
+<%= form_tag(@otu) do |f| %>
+
+<div class="field">
+  <%= f.label :taxon_name %>
+  <br>
+  <%= render partial: '/workbench/elements/forms/ajax_select',
+    locals: {
+    controller: 'taxon_names',
+    object: '',
+    method:  'taxon_name_id',
+    tag_id:  'taxon_name_id_for_otu',
+    display:  taxon_name_autocomplete_selected_tag(@taxon_name),
+    size: 20} %>
+</div>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+
+<% end %>
