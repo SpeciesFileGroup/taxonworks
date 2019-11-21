@@ -288,6 +288,9 @@ class TaxonName < ApplicationRecord
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
   scope :with_cached_html, -> (html) { where(cached_html: html) } # WHY? - DEPRECATE for cached
 
+  scope :without_otus, -> { includes(:otus).where(otus: {id: nil}) }
+  scope :with_otus, -> { includes(:otus).where.not(otus: {id: nil}) }
+
   # @return Scope
   #   names that are not leaves
   def self.not_leaves
