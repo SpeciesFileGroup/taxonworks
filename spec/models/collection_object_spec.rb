@@ -458,8 +458,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
         :identifier_local_import,
         identifier_object: s1,
         identifier: 'QQQi1',
-        namespace: ns3,
-        identifier: 'First specimen')
+        namespace: ns3)
     }
 
     let!(:i2) {
@@ -467,8 +466,8 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
         :identifier_local_import,
         identifier: 'ZZZi2',
         identifier_object: s2,
-        namespace: ns3,
-        identifier: 'Second specimen')
+        namespace: ns3
+      )
     }
 
     (1..5).each do  |identifier|

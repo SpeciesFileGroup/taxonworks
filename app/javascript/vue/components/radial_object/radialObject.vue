@@ -227,7 +227,7 @@ export default {
                 if (window.location.pathname == this.metadata.resource_path) {
                   window.open(`/${window.location.pathname.split('/')[1]}`, '_self')
                 } else {
-                  window.location.reload()
+                  window.open(this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf('/')), '_self')
                 }
               }, () => {
                 TW.workbench.alert.create(`${this.metadata.type} could not be destroyed.`, 'error')

@@ -1,3 +1,6 @@
+  <h2> Please use the <%= link_to('New source task', new_source_task_path(source_id: @source.id)) %> to create sources, this form will deprecate shortly. </h2>
+
+
 <% if @source.persisted? %>
   <div class="actions" class="right_float" >
     <%= button_to "Clone", { action: "clone", id: @source.id },
