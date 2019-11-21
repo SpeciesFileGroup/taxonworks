@@ -298,7 +298,7 @@ resources :labels do
   # is data?
 end
 
-resources :languages, only: [] do
+resources :languages, only: [:show] do
   collection do
     get 'autocomplete'
   end

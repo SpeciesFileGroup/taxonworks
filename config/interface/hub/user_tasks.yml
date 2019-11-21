@@ -45,13 +45,6 @@ quick_verbatim_material_task:
   status: stable
 create_verbatim_material_task:
   name:
-new_verbatim_reference_task:
-  hub: true
-  name: 'New source from citation'
-  description: 'Create a new source by pasting in the full text of a citation. The citation will automatically be tested against Crossref and parsed into individual fields (BibTex) if possible.'
-  categories:
-    - source
-  status: prototype
 build_biocuration_groups_task:
   hub: true
   name: 'Manage biocuration classes and groups'
@@ -152,14 +145,14 @@ geographic_area_lookup_task:
     - collecting_event
   status: prototype
   description: 'Check the geographic area gazetteer to see if there are records matching a particular name with queries like "Illinois", or "Champaign:Illinois" or "Saskatchewan:Canada.'
-browse_sources_task:
+find_sources_task:
   hub: true
-  name: 'Browse sources'
+  name: 'Find sources'
   related:
   categories:
     - source
   status: prototype
-  description: 'List sources via a simple keyword/year based search.'
+  description: 'Find sources and list them via a simple keyword/year based search.'
 collecting_event_lat_long_task:
   hub: true
   name: 'Stepwise collecting event parser - Latitude/Longitude'
@@ -312,7 +305,7 @@ uniquify_people_task:
     - nomenclature
   status: stable 
   description: 'Find and merge redundant or duplicated people, e.g., from import.'
-index_individual_bibtex_source_task:
+new_bibtex_source_task:
   hub: true
   name: 'New source from BibTeX'
   related:
@@ -386,7 +379,7 @@ index_new_image_task:
     - collecting_event
     - collection_object
   status: prototype
-index_hub_task:
+source_hub_task:
   hub: true
   name: 'Source hub'
   related:
@@ -456,4 +449,12 @@ collection_objects_filter_task:
     - collection_object
   status: prototype
   description: 'Filter collection objects by many different facets, download or visualize results.'
+new_source_task:
+   hub: true
+   name: 'New source'
+   related:
+   categories:
+    - source
+   status: prototype
+   description: 'Add a sources of Verbatim, BibTeX or person via a number of methods.'
 

@@ -9,7 +9,7 @@
 <% end %> 
 
 <%= content_for :tasks do %>
-  <%= content_tag(:li, link_to('Source hub', index_hub_task_path(@source))) -%>
+  <%= content_tag(:li, link_to('Source hub', source_hub_task_path(source_id: @source))) -%>
 <% end %> 
 
 <%= content_for :associated do %>

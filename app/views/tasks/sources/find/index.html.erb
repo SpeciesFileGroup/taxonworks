@@ -1,4 +1,10 @@
-<h1> Browse sources </h1>
+<h1> Find sources </h1>
+
+<div class="flex-seperate">
+  <ul class="context-menu actions">
+    <li><%= link_to 'Source hub', source_hub_task_path -%></li>
+  </ul>
+</div>
 
 <%= form_tag find_sources_task_path, method: :get do |f| %>
   <div class="field">
