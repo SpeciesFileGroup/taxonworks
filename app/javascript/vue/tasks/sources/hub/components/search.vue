@@ -41,7 +41,7 @@ export default {
       },
       {
         label: 'Find sources',
-        url: '/tasks/sources/browse'
+        url: '/tasks/sources/find'
       }]
     }
   },

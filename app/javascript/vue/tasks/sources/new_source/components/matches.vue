@@ -51,7 +51,11 @@ export default {
   watch: {
     source: {
       handler(newVal) {
-        if (newVal.title != this.oldVal) {
+        console.log(newVal)
+        if(!newVal.title) {
+          clearTimeout(this.timer)
+          this.searching = false
+        } else if (newVal.title != this.oldVal) {
           this.searching = true
           clearTimeout(this.timer)
           if(newVal.title == undefined || newVal.title == '') {

@@ -17,7 +17,7 @@ const GetKeywordSmartSelector = () => {
 }
 
 const GetNamespacesSmartSelector = () => {
-  return ajaxCall('get', '/namespaces/select_options')
+  return ajaxCall('get', '/namespaces/select_options?klass=CollectionObject')
 }
 
 const GetCEAttributes = () => {

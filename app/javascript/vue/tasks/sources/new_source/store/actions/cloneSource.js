@@ -6,6 +6,12 @@ export default ({ state, commit }) => {
   CloneSource(state.source.id).then(response => {
     commit(MutationNames.SetSource, response.body)
 
+    let authors = state.source.author_roles
+    let editors = state.source.editor_roles
+    let people = authors.concat(editors)
+
+    commit(MutationNames.SetRoles, people)
+
     LoadSoftValidation(response.body.global_id).then(response => {
       commit(MutationNames.SetSoftValidation, response.body.validations.soft_validations)
     })

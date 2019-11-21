@@ -343,6 +343,12 @@ scope :tasks do
   end
 
   scope :taxon_names do
+    scope :syncronize_otus, controller: 'tasks/taxon_names/syncronize_otus' do
+      get 'index', as: 'syncronize_otus_to_nomenclature_task'
+      post 'index', as: 'preview_syncronize_otus_to_nomenclature_task'
+      post 'syncronize', as: 'syncronize_otus_task' 
+    end
+
     scope :filter, controller: 'tasks/taxon_names/filter' do
       get :index, as: 'index_filter_task'
     end
