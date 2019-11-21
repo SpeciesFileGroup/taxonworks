@@ -53,6 +53,7 @@ class TaxonDetermination < ApplicationRecord
   has_many :determiners, through: :determiner_roles, source: :person
 
   # validates :biological_collection_object, presence: true
+  #
   # validates :otu, presence: true
   # # TODO - probably bad, and preventing nested determinations, should just use DB validation
 
