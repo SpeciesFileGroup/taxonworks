@@ -1,12 +1,12 @@
 FactoryBot.define do
 
   trait :creator_and_updater do
-    created_by_id { Current.user_id }
-    updated_by_id { Current.user_id }
+    created_by_id { $factories_user.id }
+    updated_by_id { $factories_user.id }
   end
 
   trait :projects do
-    project_id { Current.project_id }
+    project_id { $factories_project.id }
   end
 
   trait :housekeeping do
