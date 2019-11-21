@@ -3,7 +3,7 @@ require 'rails_helper'
 describe Api::V1::BaseController, type: :request do
 
   context :index do
-    let!(:project) { Project.first }
+    let!(:project) { FactoryBot.create(:valid_project, :project_valid_token) } 
     let(:path) { '/api/v1/' }
 
     before { get path  }

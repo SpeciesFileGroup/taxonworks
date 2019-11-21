@@ -21,8 +21,8 @@ shared_examples_for 'unauthorized response' do
 end
 
 shared_examples_for 'secured by user and project token' do | factory, path |
+  let(:user) { FactoryBot.create(:valid_user, :user_valid_token) }
   let(:model) { FactoryBot.create(factory) }
-  let(:user) { User.first }
   let(:headers) { { "Authorization": 'Token ' + user.api_access_token } }
 
   context 'without a user token' do

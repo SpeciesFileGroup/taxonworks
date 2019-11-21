@@ -1,7 +1,7 @@
 if ActiveRecord::Base.connected?
 
   def root
-    t = TaxonName.where(project_id: $factories_project.id, parent_id: nil).limit(1).first
+    t = TaxonName.where(project_id: Current.project_id, parent_id: nil).limit(1).first
     t ? t : nil
   end
 

@@ -2,6 +2,8 @@ require 'rails_helper'
 
 describe 'Api::V1::Otus', type: :request do
 
+  let(:user) { FactoryBot.create(:valid_user, :user_valid_token) }
+
   context 'otu/index' do
 
     # let!(:otu) { Otu.create!(name: 'Foo') }

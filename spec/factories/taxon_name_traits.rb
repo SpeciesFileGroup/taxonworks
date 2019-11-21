@@ -9,7 +9,7 @@ FactoryBot.define do
   
   trait :parent_is_root do
     callback(:after_build, :before_create, :after_stub) do |protonym|
-      t = TaxonName.where(project_id: $factories_project.id, parent_id: nil).limit(1)
+      t = TaxonName.where(project_id: Current.project_id, parent_id: nil).limit(1)
       if t.any?
         protonym.parent = t.first
       else
