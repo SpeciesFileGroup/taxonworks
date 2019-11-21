@@ -4,11 +4,10 @@ module CollectionObjectsHelper
   #   a descriptor including the identifier and determination
   def collection_object_tag(collection_object)
     return nil if collection_object.nil?
-    str = [collection_object.type,
-           identifier_tag(collection_object.identifiers.first),
-           taxon_determination_tag(collection_object.taxon_determinations.order(:position).first)
-    ].compact.join(' ').html_safe
-    str
+    [collection_object.type,
+     collection_object_identifier_tag(collection_object),
+     taxon_determination_tag(collection_object.taxon_determinations.order(:position).first)
+    ].compact.join('&nbsp;').html_safe
   end
 
   def collection_object_link(collection_object)
@@ -41,10 +40,27 @@ module CollectionObjectsHelper
 
   def collection_object_identifier_tag(collection_object)
     return nil if collection_object.nil?
-    i = identifier_tag(collection_object.identifiers.first)
-    return content_tag(:span, i, class: [:feedback, 'feedback-thin', 'feedback-primary']) if i
+    t, i = collection_object_visualized_identifier(collection_object)
+
+    return content_tag(:span, i, class: [
+      :feedback,
+      'feedback-thin',
+      (t == :collection_object ? 'feedback-primary' : 'feedback-warning')
+    ]) if i
     content_tag(:span, 'no identifier assigned', class: [:feedback, 'feedback-thin', 'feedback-warning'])
   end
+
+  # @return [Array [Identifier, String (type)], nil]
+  #    also checks virtual container for identifier by proxy
+  def collection_object_visualized_identifier(collection_object)
+    return nil if collection_object.nil?
+    i = collection_object.identifiers&.first
+    return  [:collection_object, identifier_tag(i)] if i
+    j = collection_object&.container&.identifiers&.first
+    return [:container, identifier_tag(j)] if j
+    nil
+  end
+
 
   def collection_object_taxon_determination_tag(collection_object)
     return nil if collection_object.nil?
@@ -90,6 +106,33 @@ module CollectionObjectsHelper
        fancy_edit_tag(o)
       ].join.html_safe
     end
+  end
+
+
+  # @return [link_to]
+  #    this may not work for all identifier types, i.e. those with identifiers like `123.34` or `3434.33X` may not increment correctly
+  def collection_object_browse_previous_by_identifier(collection_object)
+    return nil if collection_object.nil?
+    o = collection_object.previous_by_identifier
+    return content_tag(:div, 'None', 'class' => 'navigation-item disable') if o.nil?
+    link_text = content_tag(:span, 'Previous by id', 'class' => 'small-icon icon-left', 'data-icon' => 'arrow-left')
+    link_to(link_text, browse_collection_objects_task_path(collection_object_id: o.id),
+            data: {arrow: :previous,
+                   'no-turbolinks' => 'true',
+                   help: 'Sorts by identifier type, namespace, then an conversion of identifier into integer.  Will not work for all identifier types.'}, class: 'navigation-item')
+  end
+
+  # @return [link_to]
+  #   this may not work for all identifier types, i.e. those with identifiers like `123.34` or `3434.33X` may not increment correctly
+  def collection_object_browse_next_by_identifier(collection_object)
+    return nil if collection_object.nil?
+    o = collection_object.next_by_identifier
+    return content_tag(:div, 'None', 'class' => 'navigation-item disable') if o.nil?
+    link_text = content_tag(:span, 'Next by id', 'class' => 'small-icon icon-right', 'data-icon' => 'arrow-right')
+    link_to(link_text, browse_collection_objects_task_path(collection_object_id: o.id),
+            data: {arrow: :next,
+                   'no-turbolinks' => 'false',
+                   help: 'Sorts by identifier type, namespace, then an conversion of identifier into integer.  Will not work for all identifier types.'}, class:'navigation-item')
   end
 
 end

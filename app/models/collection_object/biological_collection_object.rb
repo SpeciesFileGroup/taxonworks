@@ -36,7 +36,7 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
   def reorder_determinations_by(attribute = :date)
     determinations = []
     if attribute == :date
-      determinations = taxon_determinations.sort{|a, b| b.sort_date || Time.utc(1, 1)  <=> a.sort_date || Time.utc(1,1) }
+      determinations = taxon_determinations.sort{|a, b| (b.sort_date || Time.utc(1, 1))  <=> (a.sort_date || Time.utc(1,1)) }
     else
       determinations = taxon_determinations.order(attribute)
     end

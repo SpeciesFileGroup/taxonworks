@@ -12,7 +12,6 @@ class DownloadsController < ApplicationController
 
   # GET /downloads/1
   def show
-
   end
 
   # DELETE /downloads/1
@@ -28,12 +27,12 @@ class DownloadsController < ApplicationController
   # GET /downloads/list
   # GET /downloads/list.json
   def list
-    @downloads = Download.order(:id).page(params[:page]).per(params[:per])
+    @downloads = Download.where(project_id: sessions_current_project_id).order(:id).page(params[:page]).per(params[:per])
   end
 
   # GET /downloads/1/download_file
   def download_file
-    unless @download.expired?
+    if @download.ready?
       @download.increment!(:times_downloaded)
       send_file @download.file_path
     else
@@ -44,7 +43,7 @@ class DownloadsController < ApplicationController
   private
 
   def set_download
-    @download = Download.unscoped.find(params[:id])
+    @download = Download.unscoped.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def download_params

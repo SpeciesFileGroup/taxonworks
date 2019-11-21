@@ -105,9 +105,27 @@ module Export::Coldp::Files::Taxon
 
   def self.generate(otus, reference_csv = nil )
     # TODO tabs delimit
-    CSV.generate do |csv|
-      otus.each do |o|
+    CSV.generate(col_sep: "\t") do |csv|
 
+      csv << %w{
+        ID
+        parentID
+        nameID
+        provisional
+        accordingTo
+        accordingToID
+        accordingToDate
+        referenceID
+        extinct
+        temporalRangeStart
+        temporalRangeEnd
+        lifezone
+        link
+        remarks
+      } 
+
+      otus.each do |o|
+        next unless o.taxon_name && o.taxon_name.is_valid?
         # TODO: Use Otu.coordinate_otus to summarize accros different instances
         sources = o.sources 
         

@@ -3,7 +3,7 @@
     <li> Sqed depiction:  <%= link_to(@result.sqed_depiction.to_param, depiction_path(@result.sqed_depiction.depiction)) -%></li>
 
     <li><%= link_to('Next without data', sqed_depiction_breakdown_task_path(@result.sqed_depiction.next_without_data, @result.namespace_id), 'data-turbolinks' => 'false') -%>  </li>
-    <li><%= sqed_previous_next_links(@result.sqed_depiction) -%> </li>
+    <%= sqed_previous_next_links(@result.sqed_depiction) -%> 
     <li> <%= link_to('TODO map', sqed_depiction_breakdown_todo_map_task_path) -%> </li>
 
     <li>
@@ -14,7 +14,14 @@
       <% end %>
     </li>
 
-   <li><%= link_to('Buffered breakdown', collection_object_buffered_data_breakdown_task_path(@result.depiction.depiction_object),
-      'data-turbolinks' => false) -%> </li>
+    <li class="actions">
+      <%= button_to "Recalculate", { action: :update, controller: '/sqed_depictions', id: @sqed_depiction.id }, method: :patch,
+        data: { confirm: "Recalculate borders and OCR for buffered fields?  Existing changes will not be saved." } %>
+    </li>
+
+    <li><%= link_to(
+      'Buffered breakdown', collection_object_buffered_data_breakdown_task_path(@result.depiction.depiction_object),
+      'data-turbolinks' => false) -%>
+    </li>
   </ul>
 </div>

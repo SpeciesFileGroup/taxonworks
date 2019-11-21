@@ -8,7 +8,7 @@ class ContentsController < ApplicationController
   def index
     respond_to do |format|
       format.html do
-        @recent_objects = Content.where(project_id: sessions_current_project_id).recently_updated(10)
+        @recent_objects = Content.where(project_id: sessions_current_project_id).recently_updated.limit(10)
         render '/shared/data/all/index'
       end
       format.json {

@@ -649,13 +649,43 @@ class CollectionObject < ApplicationRecord
     }
 
     if target
-      h[:recent] = CollectionObject.joins(target.tableize.to_sym).where(project_id: project_id).used_recently(target).limit(10).distinct.to_a
+      n = target.tableize.to_sym
+      h[:recent] = CollectionObject.joins(n)
+        .where(collection_objects: {project_id: project_id}, n => {updated_by_id: user_id})
+        .used_recently(target)
+        .limit(10).distinct.to_a
     else
-      h[:recent] = CollectionObject.where(project_id: project_id).order('updated_at DESC').limit(10).to_a
+      h[:recent] = CollectionObject.where(project_id: project_id, updated_by_id: user_id).order('updated_at DESC').limit(10).to_a
     end
 
     h[:quick] = (CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq 
     h
+  end
+
+  def next_by_identifier
+    if i = identifiers.order(:position).first
+    CollectionObject
+      .where(project_id: project_id)
+      .where.not(id: id) 
+      .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'ASC') 
+      .where(Arel.sql("CAST(identifiers.identifier AS integer) > #{i.identifier}"))
+      .limit(1).first
+    else
+      nil
+    end
+  end
+
+  def previous_by_identifier
+    if i = identifiers.order(:position).first
+    CollectionObject
+      .where(project_id: project_id)
+      .where.not(id: id) 
+      .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'DESC') 
+      .where(Arel.sql("CAST(identifiers.identifier AS integer) < #{i.identifier}"))
+      .limit(1).first
+    else
+      nil
+    end 
   end
 
   protected

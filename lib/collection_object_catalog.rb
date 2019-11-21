@@ -31,8 +31,43 @@ module CollectionObjectCatalog
     :imaged, # == depicted
     :metadata_depicted,
     :collecting_event_metadata_depicted,
-    :collection_site_imaged, 
+    :collection_site_imaged,
+    :digital_record_created_by,
+    :digital_record_updated_by,
+    :biologically_associated,
   ].freeze
+
+  FILTER_MAP = {
+    born: :life,
+    died: :life, 
+    collected_on: :collecting_event, 
+    determined: :taxon_determinations,
+    described: :observations,
+    given_identifier: :annotations,
+    georeferenced: :collecting_event, 
+    destroyed: :accessions,
+    placed_in_repository: :accessions, 
+    sent_for_loan: :loans, 
+    returned_from_loan: :loans,
+    updated_metadata: :annotations, 
+    added_note: :annotations, 
+    annotated: :annotations,
+    cited: :annotations, 
+    containerized: :accessions,
+    extracted_from: :lab,
+    sequenced: :lab,
+    dissected: :lab,
+    tagged: :annotations,
+    typified: nil, 
+    added_attribute: :annotations, 
+    biologically_classified: :biology,
+    fossilized_between:  :collecting_event, 
+    imaged: :images, 
+    metadata_depicted: :images, 
+    collecting_event_metadata_depicted: :images,
+    collection_site_imaged: :collecting_event,  
+    biologically_associated: :biology,
+  }.freeze
 
   # rubocop:disable Metrics/MethodLength
   # @param [CollectionObject] collection_object
@@ -42,6 +77,15 @@ module CollectionObjectCatalog
     data = CollectionObjectCatalog::CatalogEntry.new(o)
 
     data.items << CollectionObjectCatalog::EntryItem.new(type: :collected_on, object: o.collecting_event, start_date: o.collecting_event.start_date, end_date: o.collecting_event.end_date) if o.collecting_event_id.present?
+
+    data.items << CollectionObjectCatalog::EntryItem.new(type: :digital_record_created_by, object: o.creator, start_date: o.created_at.to_time)
+    data.items << CollectionObjectCatalog::EntryItem.new(type: :digital_record_updated_by, object: o.updater, start_date: o.updated_at.to_time)
+
+    o.all_biological_associations.each do |a|
+      data.items << CollectionObjectCatalog::EntryItem.new(type: :biologically_associated,
+                                                           object: a,
+                                                           start_date: a.created_at )
+    end
 
     o.biocuration_classifications.each do |b|
       data.items << CollectionObjectCatalog::EntryItem.new(type: :biologically_classified,

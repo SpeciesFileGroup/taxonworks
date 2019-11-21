@@ -434,12 +434,12 @@ class GeographicArea < ApplicationRecord
 
     case target
     when 'CollectingEvent'
-      h[:recent] = GeographicArea.joins(:collecting_events).where(collecting_events: {project_id: project_id}).
+      h[:recent] = GeographicArea.joins(:collecting_events).where(collecting_events: {project_id: project_id, updated_by_id: user_id}).
         used_recently('CollectingEvent').
         limit(10).distinct.to_a
     when 'AssertedDistribution'
       h[:recent] = GeographicArea.joins(:asserted_distributions).
-        where(asserted_distributions: {project_id: project_id}).
+        where(asserted_distributions: {project_id: project_id, updated_by_id: user_id}).
         used_recently('AssertedDistribution').
         limit(10).distinct.to_a
     end

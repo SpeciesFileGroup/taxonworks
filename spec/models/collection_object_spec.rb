@@ -435,116 +435,185 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
     end
   end
 
-  context 'identifier scopes' do
-    let(:ns1) { Namespace.first }
-    let(:ns2) { Namespace.second }
+  # TODO: (Nearly) all this belongs in the Identifiers Concern specs !!!
+  context 'identifier scopes, related methods' do
+    let(:ns1) { FactoryBot.create(:valid_namespace) }
+    let(:ns2) { FactoryBot.create(:valid_namespace) }
+    let(:ns3) { FactoryBot.create(:valid_namespace) }
+    let(:ns4) { FactoryBot.create(:valid_namespace) }
+
     let(:type_cat_no) { 'Identifier::Local::CatalogNumber' }
 
-    let(:id_attributes) { {namespace:  nil,
-                           project_id: project_id,
-                           type:       nil,
-                           identifier: nil} }
-    before :all do
-      CollectionObject.delete_all
-      ActiveRecord::Base.connection.reset_pk_sequence!('collection_objects')
+    let(:id_attributes) {
+      { namespace:  nil,
+        project_id: project_id,
+        type: nil,
+        identifier: nil} }
 
-      3.times { FactoryBot.create(:valid_namespace) }
-      2.times { FactoryBot.create(:valid_specimen) }
-      FactoryBot.create(:identifier_local_import,
-                        identifier_object: Specimen.first,
-                        namespace:         Namespace.third,
-                        identifier:        'First specimen')
-      FactoryBot.create(:identifier_local_import,
-                        identifier_object: Specimen.second,
-                        namespace:         Namespace.third,
-                        identifier:        'Second specimen')
-      (1..10).each { |identifier|
-        sp = FactoryBot.create(:valid_specimen)
-        id = FactoryBot.create(:identifier_local_catalog_number,
-                               identifier_object: sp,
-                               namespace:         (identifier.even? ? Namespace.first : Namespace.second),
-                               identifier:        identifier)
-      }
+    let!(:s1) {Specimen.create}
+    let!(:s2) {Specimen.create}
+
+    let!(:i1) { 
+      FactoryBot.create(
+        :identifier_local_import,
+        identifier_object: s1,
+        identifier: 'QQQi1',
+        namespace: ns3,
+        identifier: 'First specimen')
+    }
+
+    let!(:i2) {
+      FactoryBot.create(
+        :identifier_local_import,
+        identifier: 'ZZZi2',
+        identifier_object: s2,
+        namespace: ns3,
+        identifier: 'Second specimen')
+    }
+
+    (1..5).each do  |identifier|
+      n = "sp_#{identifier}".to_sym
+      i = "id_#{identifier}".to_sym
+
+      let!(n){ Specimen.create!(id: 999 - identifier) } # Force strange id order so we don't assume anything
+      let!(i){ Identifier::Local::CatalogNumber.create!(
+        identifier_object: send(n),
+        namespace: (identifier.even? ? ns2 : ns1),
+        identifier: identifier) }
     end
 
-    after :all do
-      CollectionObject.destroy_all
-      Namespace.destroy_all
+    let(:evens) { [sp_2, sp_4] }
+    let(:odds) { [ sp_1, sp_3, sp_5] }
+
+    let(:all_specimens) { [s1, s2, sp_1, sp_2, sp_3, sp_4, sp_5]  }
+    let(:only_numeric_identifiers) { [ sp_1, sp_2, sp_3, sp_4, sp_5]  }
+
+  
+    # TODO: something not working still, likely need to create specimens out of order
+
+    specify '#next_by_identifier 1' do
+      expect(sp_1.next_by_identifier).to eq(sp_3)
     end
 
-    describe 'with identifier of type' do
+    specify '#next_by_identifier 2' do
+      expect(sp_2.next_by_identifier).to eq(sp_4)
+    end
+
+    specify '#next_by_identifier 3' do
+      expect(sp_4.next_by_identifier).to eq(nil)
+    end
+
+    specify '#previous_by_identifier 1' do
+      expect(sp_1.previous_by_identifier).to eq(nil)
+    end
+
+    specify '#previous_by_identifier 0' do
+      expect(sp_3.previous_by_identifier).to eq(sp_1)
+    end
+
+    specify '#previous_by_identifier 2' do
+      expect(sp_5.previous_by_identifier).to eq(sp_3)
+    end
+
+    specify '#previous_by_identifier 3' do
+      expect(sp_4.previous_by_identifier).to eq(sp_2)
+    end
+
+    specify '#next_by_identifier, no identifier' do 
+      collection_object.update!(total: 1) 
+      expect(collection_object.next_by_identifier).to eq(nil)
+    end
+
+    # TODO: below all generic identifier specs, move
+    describe '#with_identifier_type' do
       specify 'find some which exist' do
-        expect(CollectionObject.with_identifier_type(type_cat_no).count).to eq(10)
+        expect(CollectionObject.with_identifier_type(type_cat_no).count).to eq(5)
       end
+
       specify 'find none which do not exist' do
-        expect(CollectionObject.with_identifier_type('Identifier::Local:Aggravated::Battery').count).to eq(0)
+        expect(CollectionObject.with_identifier_type('Identifier::Local::Foo::Bar').count).to eq(0)
       end
+
       specify 'find some of another identifier type' do
         expect(CollectionObject.with_identifier_type('Identifier::Local::Import').count).to eq(2)
       end
     end
 
-    describe 'with namespace' do
+    describe '#with_identifier_namespace' do
       specify 'find some which exist' do
-        expect(CollectionObject.with_identifier_namespace(ns1).count).to eq(5)
+        expect(CollectionObject.with_identifier_namespace(ns1.id).count).to eq(3)
       end
     end
 
     describe 'with type and namespace (ns1)' do
       specify 'find some which exist' do
         expect(CollectionObject.with_identifier_type(type_cat_no)
-                 .with_identifier_namespace(ns1).map(&:id)).to contain_exactly(4, 6, 8, 10, 12)
+          .with_identifier_namespace(ns1.id)).to contain_exactly(*odds)
       end
     end
 
     describe 'with type and namespace (ns2)' do
       specify 'find some which exist' do
         expect(CollectionObject.with_identifier_type(type_cat_no)
-                 .with_identifier_namespace(ns2).map(&:id)).to contain_exactly(3, 5, 7, 9, 11)
+          .with_identifier_namespace(ns2.id)).to contain_exactly(*evens)
       end
     end
 
     describe 'with type and namespace (ns2) and sorted' do
       specify 'find some which exist' do
         expect(CollectionObject.with_identifier_type(type_cat_no)
-                 .with_identifier_namespace(ns2)
-                 .with_identifiers_sorted.map(&:id)).to eq([3, 5, 7, 9, 11])
+          .with_identifier_namespace(ns2.id)
+          .with_identifiers_sorted).to contain_exactly(*evens)
       end
     end
 
     describe 'with sorted identifiers' do
       specify 'without restriction' do
-        expect(CollectionObject.with_identifiers_sorted.map(&:id)).to eq([3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+        expect(CollectionObject.with_identifiers_sorted.map(&:id)).to eq( only_numeric_identifiers.map(&:id).sort.reverse ) 
       end
     end
 
     describe 'using combo method' do
-      describe 'sorted' do
-        specify 'without namespace' do
-          expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no).map(&:id))
-            .to eq([3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
-        end
-
-        specify 'with namespace' do
-          expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no, ns1).map(&:id))
-            .to eq([4, 6, 8, 10, 12])
-        end
+      specify 'no params' do
+        expect(CollectionObject.with_identifier_type_and_namespace(nil, nil, nil).map(&:id)).to contain_exactly() # .none
       end
 
-      describe 'unsorted' do
-        specify 'without namespace' do
-          expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no, nil, false).map(&:id))
-            .to contain_exactly(3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
-        end
-
-        specify 'with namespace' do
-          expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no, ns1, false).map(&:id))
-            .to contain_exactly(4, 6, 8, 10, 12)
-        end
+      specify 'with identifier_type' do
+        expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no).map(&:id))
+          .to contain_exactly(*only_numeric_identifiers.map(&:id))
       end
-    end
 
-    describe 'using combo method' do
+      specify 'with namespace_id' do
+        expect(CollectionObject.with_identifier_type_and_namespace(nil, ns2.id).map(&:id))
+          .to contain_exactly(*evens.map(&:id))
+      end
+
+      # !! Only numerics included, i.e. a `where` in this sort
+      specify 'with sort 1' do
+        expect(CollectionObject.with_identifier_type_and_namespace(nil, nil, 'DESC').collect{|a| a.identifiers.first.identifier.to_i})
+          .to eq([5,4,3,2,1])
+      end
+
+      specify 'with sort 2' do
+        expect(CollectionObject.with_identifier_type_and_namespace(nil, nil, 'ASC').collect{|a| a.identifiers.first.identifier.to_i})
+          .to eq([1,2,3,4,5])
+      end
+
+      specify 'with namespace_id, sort ASC' do
+        expect(CollectionObject.with_identifier_type_and_namespace(nil, ns2.id, 'ASC').map(&:id) ).to eq(evens.map(&:id).sort.reverse)
+      end
+
+      specify 'with namespace_id, sort DESC' do
+        expect(CollectionObject.with_identifier_type_and_namespace(nil, ns2.id, 'DESC').map(&:id)).to eq(evens.map(&:id).sort)
+      end
+
+      specify 'with identifier_type, namespace_id, sort DESC (all)' do
+        expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no, ns2.id, 'DESC').map(&:id)).to eq(evens.map(&:id).sort)
+      end
+
+      specify 'with identifier_type, namespace_id, sort DESC (none)' do
+        expect(CollectionObject.with_identifier_type_and_namespace('Some::Bad::Identifier', ns2.id, 'DESC').map(&:id)).to contain_exactly()
+      end
     end
   end
 

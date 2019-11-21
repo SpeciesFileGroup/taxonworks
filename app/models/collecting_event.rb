@@ -293,7 +293,12 @@ class CollectingEvent < ApplicationRecord
 
     def select_optimized(user_id, project_id)
       h = {
-        recent: CollectingEvent.used_in_project(project_id).used_recently.limit(10).distinct.to_a,
+        recent: (CollectingEvent.used_in_project(project_id)
+          .where(collection_objects: {updated_by_id: user_id})
+          .used_recently
+          .limit(5)
+          .distinct.to_a + 
+        CollectingEvent.where(project_id: project_id, updated_by_id: user_id, created_at: 3.hours.ago..Time.now).limit(5).to_a).uniq,
         pinboard: CollectingEvent.pinned_by(user_id).pinned_in_project(project_id).to_a
       }
 

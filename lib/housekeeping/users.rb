@@ -4,7 +4,7 @@ module Housekeeping::Users
 
   included do
     related_instances = self.name.demodulize.underscore.pluralize.to_sym # if 'One::Two::Three' then :threes
-    related_class     = self.name
+    related_class = self.name
 
     belongs_to :creator, foreign_key: :created_by_id, class_name: 'User'
     belongs_to :updater, foreign_key: :updated_by_id, class_name: 'User'
