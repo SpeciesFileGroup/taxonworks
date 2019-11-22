@@ -16,64 +16,65 @@
         </li>
       </ul>
     </div>
-    <div class="flex-separate separate-bottom">
-      <div class="middle">
-        <span
-          v-if="source.id"
-          v-html="source.cached"/>
-        <span v-else>New record</span>
-        <template v-if="source.id">
-          <pin-component
-            :object-id="source.id"
-            type="Source"/>
-          <radial-annotator :global-id="source.global_id"/>
-          <add-source
-            :project_source_id="source.project_source_id"
-            :id="source.id"/>
-        </template>
+    <nav-bar> 
+      <div class="flex-separate full_width">
+        <div class="middle">
+          <span
+            v-if="source.id"
+            v-html="source.cached"/>
+          <span v-else>New record</span>
+          <template v-if="source.id">
+            <pin-component
+              :object-id="source.id"
+              type="Source"/>
+            <radial-annotator :global-id="source.global_id"/>
+            <add-source
+              :project_source_id="source.project_source_id"
+              :id="source.id"/>
+          </template>
+        </div>
+        <div class="horizontal-right-content">
+          <button
+            v-shortkey="[getMacKey(), 's']"
+            @shortkey="saveSource"
+            @click="saveSource"
+            :disabled="source.type === 'Source::Bibtex' && !source.bibtex_type"
+            class="button normal-input button-submit button-size separate-right separate-left"
+            type="button">
+            Save
+          </button>
+          <button
+            :disabled="!source.id"
+            v-shortkey="[getMacKey(), 'c']"
+            @shortkey="cloneSource"
+            @click="cloneSource"
+            class="button normal-input button-submit button-size"
+            type="button">
+            Clone
+          </button>
+          <button
+            class="button normal-input button-default button-size separate-left"
+            type="button"
+            @click="showModal = true">
+            CrossRef
+          </button>
+          <button
+            class="button normal-input button-default button-size separate-left"
+            type="button"
+            @click="showBibtex = true">
+            BibTeX
+          </button>
+          <button
+            v-shortkey="[getMacKey(), 'n']"
+            @shortkey="reset"
+            @click="reset"
+            class="button normal-input button-default button-size separate-left"
+            type="button">
+            New
+          </button>
+        </div>
       </div>
-      <div class="horizontal-right-content">
-
-        <button
-          v-shortkey="[getMacKey(), 's']"
-          @shortkey="saveSource"
-          @click="saveSource"
-          :disabled="source.type === 'Source::Bibtex' && !source.bibtex_type"
-          class="button normal-input button-submit button-size separate-right separate-left"
-          type="button">
-          Save
-        </button>
-        <button
-          :disabled="!source.id"
-          v-shortkey="[getMacKey(), 'c']"
-          @shortkey="cloneSource"
-          @click="cloneSource"
-          class="button normal-input button-submit button-size"
-          type="button">
-          Clone
-        </button>
-        <button
-          class="button normal-input button-default button-size separate-left"
-          type="button"
-          @click="showModal = true">
-          CrossRef
-        </button>
-        <button
-          class="button normal-input button-default button-size separate-left"
-          type="button"
-          @click="showBibtex = true">
-          BibTeX
-        </button>
-        <button
-          v-shortkey="[getMacKey(), 'n']"
-          @shortkey="reset"
-          @click="reset"
-          class="button normal-input button-default button-size separate-left"
-          type="button">
-          New
-        </button>
-      </div>
-    </div>
+    </nav-bar>
     <source-type/>
     <div class="horizontal-left-content align-start">
       <component class="full_width" :is="section"/>
@@ -110,6 +111,7 @@ import { ActionNames } from './store/actions/actions'
 import { MutationNames } from './store/mutations/mutations'
 
 import RightSection from './components/rightSection'
+import NavBar from 'components/navBar'
 
 export default {
   components: {
@@ -122,7 +124,8 @@ export default {
     CrossRef,
     RightSection,
     BibtexButton,
-    AddSource
+    AddSource,
+    NavBar
   },
   computed: {
     section () {
