@@ -109,7 +109,7 @@ class TaxonNamesController < ApplicationController
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'TaxonName was successfully destroyed.')}
         format.json {head :no_content}
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'TaxonName was not destroyed, ' + errors.messages)}
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'TaxonName was not destroyed, ' + errors.full_messages.join('; '))}
         format.json {render json: @taxon_name.errors, status: :unprocessable_entity}
       end
     end
