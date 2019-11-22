@@ -5,6 +5,7 @@
       <autocomplete
         url="/taxon_names/autocomplete"
         param="term"
+        :add-params="{ 'type[]': 'Protonym' }"
         label="label_html"
         placeholder="Search a taxon name..."
         @getItem="loadTaxon"
