@@ -36,7 +36,7 @@ module TaxonDeterminationsHelper
   # @return [String]
   #   the date clause of the determination
   def taxon_determination_on(taxon_determination)
-    taxon_determination.date ? "on #{taxon_determination.date}" : nil
+    !taxon_determination.date.blank? ? "on #{taxon_determination.date}" : nil
   end
 
 end

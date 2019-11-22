@@ -25,6 +25,7 @@
       </ul>
     </div>
     <role-picker
+      ref="rolePicker"
       v-model="source.roles_attributes"
       :autofocus="false"
       :filter-by-role="true"
@@ -77,16 +78,16 @@ export default {
   },
   methods: {
     roleExist(id) {
-      return (this.roles.find((role) => {
+      return (this.source.roles_attributes.find((role) => {
         return !role.hasOwnProperty('_destroy') && role.hasOwnProperty('person') && role.person.id == id
       }) ? true : false)
     },
     addRole(person) {
-      if(!this.roleExist(role.id)) {
-        this.roles.push(this.createPerson(person, 'SourceEditor'))
+      if(!this.roleExist(person.id)) {
+        this.$refs.rolePicker.setPerson(this.createPerson(person, 'SourceEditor'))
       }
     },
-    createPerson (person, type) {
+    createPerson (person, roleType) {
       return {
         first_name: person.first_name,
         last_name: person.last_name,
