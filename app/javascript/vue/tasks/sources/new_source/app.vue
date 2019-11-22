@@ -1,8 +1,20 @@
 <template>
   <div>
     <div class="flex-separate middle">
-    <h1>New source</h1>
-    <a href="/tasks/sources/hub">Back to source hub</a>
+      <h1>New source</h1>
+      <ul class="context-menu">
+        <li>
+          <label>
+            <input
+              type="checkbox"
+              v-model="settings.sortable">
+            Sortable fields
+          </label>
+        </li>
+        <li>
+          <a href="/tasks/sources/hub">Back to source hub</a>
+        </li>
+      </ul>
     </div>
     <div class="flex-separate separate-bottom">
       <div class="middle">
@@ -119,6 +131,14 @@ export default {
     },
     source () {
       return this.$store.getters[GetterNames.GetSource]
+    },
+    settings: {
+      get () {
+        return this.$store.getters[GetterNames.GetSettings]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSettings, value)
+      }
     }
   },
   data () {
