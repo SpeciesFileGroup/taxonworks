@@ -24,10 +24,13 @@ export default {
     }
   },
   watch: {
-    otu(newVal) {
-      GetNomenclatureHistory(this.otu.taxon_name_id).then(response => {
-        this.nomenclatureHtml = response.body.html
-      })
+    otu: {
+      handler (newVal) {
+        GetNomenclatureHistory(this.otu.taxon_name_id).then(response => {
+          this.nomenclatureHtml = response.body.html
+        })
+      },
+      immediate: true
     }
   }
 }

@@ -28,12 +28,15 @@ export default {
     }
   },
   watch: {
-    otu(newVal) {
-      if(newVal) {
-        GetAssertedDistributions(newVal.id).then(response => {
-          this.assertedDistributions = response.body
-        })
-      }
+    otu: { 
+      handler (newVal) {
+        if(newVal) {
+          GetAssertedDistributions(newVal.id).then(response => {
+            this.assertedDistributions = response.body
+          })
+        }
+      },
+      immediate: true
     }
   }
 }
