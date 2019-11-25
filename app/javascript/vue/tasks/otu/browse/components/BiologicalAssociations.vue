@@ -28,12 +28,15 @@ export default {
     }
   },
   watch: {
-    otu(newVal) {
-      if(newVal) {
-        GetBiologicalAssociations(this.otu.global_id).then(response => {
-          this.biologicalAssociations = response.body
-        })
-      }
+    otu: {
+      handler (newVal) {
+        if(newVal) {
+          GetBiologicalAssociations(this.otu.global_id).then(response => {
+            this.biologicalAssociations = response.body
+          })
+        }
+      },
+      immediate: true
     }
   }
 }

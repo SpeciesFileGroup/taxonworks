@@ -6,16 +6,18 @@
       :logo-size="{ width: '100px', height: '100px'}"
       v-if="isLoading"
     />
-    <header-bar
-      :otu="otu" />
-    <div class="container">
-      <component
-        class="separate-bottom full_width"
-        v-for="component in section"
-        :key="component"
-        :otu="otu"
-        :is="component"/>
-    </div>
+    <template v-if="otu">
+      <header-bar
+        :otu="otu" />
+      <div class="container">
+        <component
+          class="separate-bottom full_width"
+          v-for="component in section"
+          :key="component"
+          :otu="otu"
+          :is="component"/>
+      </div>
+    </template>
   </div>
 </template>
 

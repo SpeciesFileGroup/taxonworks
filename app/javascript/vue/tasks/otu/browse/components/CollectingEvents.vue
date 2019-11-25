@@ -45,10 +45,13 @@ export default {
     }
   },
   watch: {
-    otu(newVal) {
-      GetCollectingEvents([this.otu.id]).then(response => {
-        this.collectingEvents = response.body
-      })
+    otu: {
+      handler (newVal) {
+        GetCollectingEvents([this.otu.id]).then(response => {
+          this.collectingEvents = response.body
+        })
+      },
+      immediate: true
     }
   }
 }

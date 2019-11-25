@@ -34,12 +34,15 @@ export default {
     }
   },
   watch: {
-    otu (newVal, oldVal) {
-      if (newVal) {
-        GetDepictions(newVal.id).then(response => {
-          this.figuresList = response.body
-        })
-      }
+    otu: { 
+      handler (newVal, oldVal) {
+        if (newVal) {
+          GetDepictions(newVal.id).then(response => {
+            this.figuresList = response.body
+          })
+        }
+      }, 
+      immediate: true
     }
   }
 }

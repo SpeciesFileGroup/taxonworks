@@ -31,12 +31,15 @@ export default {
     }
   },
   watch: {
-    otu(newVal) {
-      if(newVal) {
-        GetContent(this.otu.id).then(response => {
-          this.contents = response.body
-        })
-      }
+    otu: {
+      handler (newVal) {
+        if(newVal) {
+          GetContent(this.otu.id).then(response => {
+            this.contents = response.body
+          })
+        }
+      },
+      immediate: true
     }
   }
 }

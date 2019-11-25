@@ -1,31 +1,34 @@
 <template>
   <div class="panel header-bar separate-bottom">
     <div class="container content">
-      <ul class="breadcrumb_list">
-          <li
-            v-for="key in Object.keys(navigation.parents).reverse()"
-            :key="key"
-            class="breadcrumb_item">
-            <a
-              v-if="navigation.parents[key].length === 1"
-              :href="`/tasks/otus/browse/${navigation.parents[key][0].id}`">
-              {{key}}
-            </a>
-            <div
-              v-else
-              class="dropdown-otu">
-              <span>{{key}}</span>
-              <ul class="panel dropdown no_bullets">
-                <li v-for="otu in navigation.parents[key]"
-                :key="otu.id">
-                  <a :href="`/tasks/otus/browse/${otu.id}`">{{ otu.object_label }}</a>
-                </li>
-              </ul>
-            </div>
-          </li>
-          <li 
-            class="breadcrumb_item current_breadcrumb_position"
-            v-html="navigation.current_otu.object_label"/>
+      <ul
+        v-if="navigation"
+        class="breadcrumb_list">
+        <li
+          v-for="(item, key) in navigation.parents"
+          :key="key"
+          class="breadcrumb_item">
+          <a
+            v-if="item.length === 1"
+            :href="`/tasks/otus/browse/${item[0].id}`">
+            {{ key }}
+          </a>
+          <div
+            v-else
+            class="dropdown-otu">
+            <a>{{ key }}</a>
+            <ul class="panel dropdown no_bullets">
+              <li>Parents</li>
+              <li v-for="otu in item"
+              :key="otu.id">
+                <a :href="`/tasks/otus/browse/${otu.id}`">{{ otu.object_label }}</a>
+              </li>
+            </ul>
+          </div>
+        </li>
+        <li 
+          class="breadcrumb_item current_breadcrumb_position"
+          v-html="navigation.current_otu.object_label"/>
       </ul>
       <div class="horizontal-left-content middle">
         <h1

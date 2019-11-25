@@ -49,24 +49,27 @@ export default {
     }
   },
   watch: {
-    otu(newVal) {
-      if(newVal) {
-        GetIdentifiers(this.otu.id).then(response => {
-          this.identifiers = response.body
-        })
-        GetTags(this.otu.id).then(response => {
-          this.tags = response.body
-        })
-        GetNotes(this.otu.id).then(response => {
-          this.notes = response.body
-        })
-        GetCitations(this.otu.id).then(response => {
-          this.citations = response.body
-        })
-        GetDataAttributes(this.otu.id).then(response => {
-          this.dataAttributes = response.body
-        })
-      }
+    otu: {
+      handler(newVal) {
+        if(newVal) {
+          GetIdentifiers(this.otu.id).then(response => {
+            this.identifiers = response.body
+          })
+          GetTags(this.otu.id).then(response => {
+            this.tags = response.body
+          })
+          GetNotes(this.otu.id).then(response => {
+            this.notes = response.body
+          })
+          GetCitations(this.otu.id).then(response => {
+            this.citations = response.body
+          })
+          GetDataAttributes(this.otu.id).then(response => {
+            this.dataAttributes = response.body
+          })
+        }
+      },
+      immediate: true
     }
   }
 }
