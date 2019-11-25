@@ -11,6 +11,65 @@
 #   home: where requested, use this path rather than show
 #
 ---
+AssertedDistribution:
+  tasks:
+    - asserted_distributions_basic_endemism_task 
+    - new_asserted_distribution_from_map_task
+  config:
+    recent: true
+Combination:
+  tasks:
+    - browse_nomenclature_task
+    - new_combination_task
+    - otu_distribution_data_task
+  edit: new_combination_task
+  new: new_combination_task
+  config:
+    recent: true
+CollectionObject:
+  tasks:
+    - browse_collection_objects_task
+    - collection_objects_filter_task
+    - comprehensive_collection_object_task
+    - report_dwc_task
+    - build_biocuration_groups_task
+  config: 
+    recent: true
+  edit: comprehensive_collection_object_task
+GeographicArea:
+  tasks:
+    - asserted_distributions_basic_endemism_task 
+  config:
+    recent: false
+Loan:
+  tasks:
+    - overdue_loans_task
+    - edit_loan_task
+  config:
+    recent: true
+ObservationMatrix:
+  tasks:
+    - new_matrix_task
+    - new_descriptor_task
+    - observation_matrices_hub_task
+  config:
+    recent: true    
+Otu:
+  tasks:
+    - browse_otus_task
+    - comprehensive_collection_object_task
+    - otus_filter_task
+    - cite_otus_task_task
+    - index_browse_asserted_distributions_task 
+    - otu_distribution_data_task
+    - index_editor_task
+  config:
+    recent: true
+Person:
+  tasks:
+    - uniquify_people_task
+  config:
+    recent: true
 Source:
   tasks:
     - source_hub_task
@@ -31,55 +90,8 @@ TaxonName:
     - browse_otus_task
     - index_stats_task 
     - otu_distribution_data_task
+    - asserted_distributions_basic_endemism_task
   edit: new_taxon_name_task
   home: browse_nomenclature_task
-  config:
-    recent: true
-Combination:
-  tasks:
-    - browse_nomenclature_task
-    - new_combination_task
-    - otu_distribution_data_task
-  edit: new_combination_task
-  new: new_combination_task
-  config:
-    recent: true
-Otu:
-  tasks:
-    - browse_otus_task
-    - comprehensive_collection_object_task
-    - otus_filter_task
-    - cite_otus_task_task
-    - index_browse_asserted_distributions_task 
-    - otu_distribution_data_task
-    - index_editor_task
-  config:
-    recent: true
-CollectionObject:
-  tasks:
-    - browse_collection_objects_task
-    - collection_objects_filter_task
-    - comprehensive_collection_object_task
-    - report_dwc_task
-    - build_biocuration_groups_task
-  config: 
-    recent: true
-  edit: comprehensive_collection_object_task
-Loan:
-  tasks:
-    - overdue_loans_task
-    - edit_loan_task
-  config:
-    recent: true
-ObservationMatrix:
-  tasks:
-    - new_matrix_task
-    - new_descriptor_task
-    - observation_matrices_hub_task
-  config:
-    recent: true    
-Person:
-  tasks:
-    - uniquify_people_task
   config:
     recent: true

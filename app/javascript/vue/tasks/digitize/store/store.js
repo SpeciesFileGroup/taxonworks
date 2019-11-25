@@ -32,9 +32,10 @@ function makeInitialState () {
           month_made: false,
           day_made: false,
           dates: false,
-          roles_attributes: false,          
+          roles_attributes: false
         }
-      }
+      },
+      sortable: false
     },
     taxon_determination: {
       biological_collection_object_id: undefined,

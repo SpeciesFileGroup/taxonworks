@@ -6,7 +6,7 @@ class RepositoriesController < ApplicationController
   # GET /repositories
   # GET /repositories.json
   def index
-    @repositories   = Repository.limit(20)
+    @repositories = Repository.limit(20)
     @recent_objects = Repository.order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
@@ -79,18 +79,6 @@ class RepositoriesController < ApplicationController
 
   def autocomplete
     @repositories = Queries::Repository::Autocomplete.new(params[:term]).all
-
-    data = @repositories.collect do |t|
-      {id: t.id,
-       label: ApplicationController.helpers.repository_tag(t),
-       response_values: {
-         params[:method] => t.id
-       },
-       label_html: ApplicationController.helpers.repository_tag(t)
-      }
-    end
-
-    render json: data
   end
 
   # GET /repositories/download
