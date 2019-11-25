@@ -52,6 +52,14 @@ const GetCollectingEvents = function(ids) {
   return ajaxCall('get', '/collecting_events.json', { params: { otu_ids: ids } })
 }
 
+const GetCollectionObjects = function(ids) {
+  return ajaxCall('get', '/collection_objects.json', { params: { otu_ids: ids } })
+}
+
+const GetBreadCrumbNavigation = (id) => {
+  return ajaxCall('get', `/otus/${id}/breadcrumbs`)
+}
+
 export {
   GetOtu,
   GetDepictions,
@@ -65,5 +73,7 @@ export {
   GetConfidences,
   GetIdentifiers,
   GetNomenclatureHistory,
-  GetCollectingEvents
+  GetCollectingEvents,
+  GetCollectionObjects,
+  GetBreadCrumbNavigation
 }

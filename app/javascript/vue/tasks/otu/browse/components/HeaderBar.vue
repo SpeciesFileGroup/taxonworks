@@ -1,12 +1,32 @@
 <template>
   <div class="panel header-bar separate-bottom">
     <div class="container content">
-    <ul class="breadcrumb_list">
-        <li class="breadcrumb_item"><a href="/tasks/nomenclature/browse?taxon_name_id=1">Root</a></li>
-        <li class="breadcrumb_item"><a href="/tasks/nomenclature/browse?taxon_name_id=542432">Animalia</a></li>
-        <li class="breadcrumb_item"><a href="/tasks/nomenclature/browse?taxon_name_id=542433">Acanthocephala</a></li>
-        <li class="breadcrumb_item"><a href="/tasks/nomenclature/browse?taxon_name_id=542434">Archiacanthocephala</a></li>
-      <li class="breadcrumb_item current_breadcrumb_position">Oligacanthorhynchida</li></ul>
+      <ul class="breadcrumb_list">
+          <li
+            v-for="key in Object.keys(navigation.parents).reverse()"
+            :key="key"
+            class="breadcrumb_item">
+            <a
+              v-if="navigation.parents[key].length === 1"
+              :href="`/tasks/otus/browse/${navigation.parents[key][0].id}`">
+              {{key}}
+            </a>
+            <div
+              v-else
+              class="dropdown-otu">
+              <span>{{key}}</span>
+              <ul class="panel dropdown no_bullets">
+                <li v-for="otu in navigation.parents[key]"
+                :key="otu.id">
+                  <a :href="`/tasks/otus/browse/${otu.id}`">{{ otu.object_label }}</a>
+                </li>
+              </ul>
+            </div>
+          </li>
+          <li 
+            class="breadcrumb_item current_breadcrumb_position"
+            v-html="navigation.current_otu.object_label"/>
+      </ul>
       <div class="horizontal-left-content middle">
         <h1
           v-html="otu.object_tag"/>
@@ -26,6 +46,7 @@
 <script>
 
 import RadialAnnotator from 'components/annotator/annotator'
+import { GetBreadCrumbNavigation } from '../request/resources'
 
 export default {
   components: {
@@ -39,9 +60,21 @@ export default {
   },
   data () {
     return {
-      menu: ['Classification', 'Links', 'Distribution', 'Classification', 'Citations', 'Gallery', 'Specimen records', 'Type information']
+      menu: ['Classification', 'Links', 'Distribution', 'Classification', 'Citations', 'Gallery', 'Specimen records', 'Type information'],
+      navigation: undefined
+    }
+  },
+  watch: {
+    otu: {
+      handler (newVal) {
+        GetBreadCrumbNavigation(newVal.id).then(response => {
+          this.navigation = response.body
+        })
+      },
+      immediate: true
     }
   }
+
 }
 </script>
 
@@ -56,5 +89,17 @@ export default {
   }
   .breadcrumb_list {
     margin-bottom: 32px;
+  }
+
+  .dropdown {
+    display: none;
+    position: absolute;
+    padding: 12px;
+  }
+
+  .dropdown-otu:hover {
+    .dropdown {
+      display: block;
+    }
   }
 </style>
