@@ -226,6 +226,8 @@ class CollectingEvent < ApplicationRecord
   has_many :geo_locate_georeferences, class_name: 'Georeference::GeoLocate', dependent: :destroy
   has_many :gpx_georeferences, class_name: 'Georeference::GPX', dependent: :destroy
 
+  has_many :otus, through: :collection_objects
+
   after_create do 
     if with_verbatim_data_georeference
       generate_verbatim_data_georeference(true)
