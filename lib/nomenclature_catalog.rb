@@ -1,16 +1,28 @@
 module NomenclatureCatalog
   # @param [TaxonName] taxon_name
   # @return a complete list of citations pertinent to the taxonomic history
-  def self.data_for(taxon_name)
+  def self.data_for(taxon_name) # , otus = false)
     data = NomenclatureCatalog::CatalogEntry.new(taxon_name)
     v = taxon_name.valid_taxon_name
     base_names = v.historical_taxon_names
 
     base_names.each do |t|
 
+    # if otus
+    #   t.otus.each do |o|
+      #   o.coordinate_otus.each do |c|
+    #     o.citations.each do |c|
+    #       data.items << NomenclatureCatalog::EntryItem.new(
+    #         object: t, taxon_name: t, citation: c, nomenclature_date: c.source.cached_nomenclature_date)
+    #     end
+      #     end
+    # end
+
+
       t.citations.each do |c|
         data.items << NomenclatureCatalog::EntryItem.new(object: t , taxon_name: t, citation: c, nomenclature_date: c.source.cached_nomenclature_date)
       end
+
 
       data.items << NomenclatureCatalog::EntryItem.new(object: t, taxon_name: t, citation: nil, nomenclature_date: t.nomenclature_date) if !t.citations.load.any?
 
