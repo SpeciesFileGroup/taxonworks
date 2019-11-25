@@ -48,7 +48,7 @@ describe Otu, type: :model, group: :otu do
     expect(otu.otu_name).to eq('Foo')
   end
 
-  context 'coordination' do
+  context 'coordination and scope' do
     let!(:root) { FactoryBot.create(:root_taxon_name) }
     let!(:g) { Protonym.create!(name: 'Aus', parent: root, rank_class: Ranks.lookup(:iczn, :genus)) }
     let!(:s1) { Protonym.create!(name: 'bus', parent: g, rank_class: Ranks.lookup(:iczn, :species)) } # valid
@@ -59,6 +59,18 @@ describe Otu, type: :model, group: :otu do
     let!(:o1) { Otu.create!(taxon_name: s1) }
     let!(:o2) { Otu.create!(taxon_name: s2) }
     let!(:o3) { Otu.create!(name: 'none') }
+
+    specify '.descendant_of_taxon_name 1' do
+      expect(Otu.descendant_of_taxon_name(root.id)).to contain_exactly(o1, o2)
+    end
+
+    specify '.descendant_of_taxon_name 2' do
+      expect(Otu.descendant_of_taxon_name(s1.id)).to contain_exactly(o1, o2)
+    end
+
+    specify '.descendant_of_taxon_name 3' do
+      expect(Otu.descendant_of_taxon_name(s2.id)).to contain_exactly()
+    end
 
     specify '.coordinate_otus 1' do
       expect(Otu.coordinate_otus(o1.id).map(&:id)).to contain_exactly(o1.id, o2.id)

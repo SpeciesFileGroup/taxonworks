@@ -99,7 +99,7 @@ simple_specimen_task:
     - collection_object
     - collecting_event
   status: prototype
-new_asserted_distribution_task:
+new_asserted_distribution_from_map_task:
   hub: true
   name: 'New asserted distribution from map'
   description: 'Create asserted distributions by selecting OTUs and sources, then click a map to select a geographic area. OTU and source are lockable as defaults for the next record.'
@@ -356,7 +356,7 @@ index_print_labels_task:
     - collecting_event
   status: prototype
   description: 'Print and manage labels.'
-index_new_asserted_distribution_task:
+new_asserted_distribution_task:
   hub: true
   name: 'New asserted distribution'
   related:
@@ -465,3 +465,10 @@ syncronize_otus_to_nomenclature_task:
     - nomenclature
   status: prototype
   description: 'Batch create OTUs for nomenclature.  See reports of unmatched OTUs and Nomenclature.'
+asserted_distributions_basic_endemism_task:
+  hub: true
+  name: 'Asserted distributions - basic endemism'
+  related:
+  categories:
+  status: prototype
+  description: 'A simple 1 taxon and children, 1 geographic area summary that includes a check for endemism.  Targets asserted distributions only.'
