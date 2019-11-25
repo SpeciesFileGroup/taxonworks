@@ -87,7 +87,7 @@ module OtusHelper
   def parents_by_nomenclature(otu)
     above = [ ]
     if otu.taxon_name_id
-      otu.taxon_name.ancestors.that_is_valid.joins(:otus).each do |t|
+      otu.taxon_name.ancestors.that_is_valid.joins(:otus).distinct.reorder(`taxon_name_hierarchies.generations, taxon_names.cached_valid_taxon_name_id`).each do |t|
         above.push [t.cached, t.otus.to_a]
       end
     end
