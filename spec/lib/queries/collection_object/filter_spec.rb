@@ -244,19 +244,13 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
     specify '#dwc_indexed 1' do
       query.dwc_indexed = true
-      expect(query.all.map(&:id)).to contain_exactly()
-    end
-
-    specify '#dwc_indexed 2' do
-      query.dwc_indexed = true
-      co1.set_dwc_occurrence
-      expect(query.all.map(&:id)).to contain_exactly(co1.id)
+      expect(query.all.map(&:id)).to contain_exactly(co1.id, co2.id) # created by default
     end
 
     specify '#dwc_indexed 2' do
       co1.set_dwc_occurrence
       query.dwc_indexed = false 
-      expect(query.all.map(&:id)).to contain_exactly(co2.id)
+      expect(query.all.map(&:id)).to contain_exactly()
     end
 
     context 'loans' do
