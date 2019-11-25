@@ -6,7 +6,7 @@
         <smart-selector
           model="languages"
           klass="source"
-          label="name"
+          label="english_name"
           @selected="setSelected"/>
         <div
           class="middle separate-top"
