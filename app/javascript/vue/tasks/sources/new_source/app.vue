@@ -28,6 +28,7 @@
               :object-id="source.id"
               type="Source"/>
             <radial-annotator :global-id="source.global_id"/>
+            <radial-object :global-id="source.global_id"/>
             <add-source
               :project_source_id="source.project_source_id"
               :id="source.id"/>
@@ -99,6 +100,7 @@ import Verbatim from './components/verbatim/main'
 import Bibtex from './components/bibtex/main'
 import Human from './components/person/main'
 import RadialAnnotator from 'components/annotator/annotator'
+import RadialObject from 'components/radial_object/radialObject'
 import GetMacKey from 'helpers/getMacKey'
 import AddSource from 'components/addToProjectSource'
 
@@ -116,6 +118,7 @@ import NavBar from 'components/navBar'
 export default {
   components: {
     RadialAnnotator,
+    RadialObject,
     PinComponent,
     SourceType,
     Verbatim,
