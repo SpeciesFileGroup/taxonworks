@@ -1,7 +1,7 @@
 class OtusController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_otu, only: [:show, :edit, :update, :destroy, :collection_objects, :navigation]
+  before_action :set_otu, only: [:show, :edit, :update, :destroy, :collection_objects, :navigation, :breadcrumbs]
   after_action -> { set_pagination_headers(:otus) }, only: [:index], if: :json_request? 
 
   # GET /otus
@@ -38,6 +38,11 @@ class OtusController < ApplicationController
 
   # GET /otus/1/navigation.json
   def navigation
+  end
+
+  # GET /otus/1/navigation.json
+  def breadcrumbs 
+    render json: :not_found and return if @otu.nil?
   end
 
   # POST /otus
@@ -229,7 +234,7 @@ class OtusController < ApplicationController
   # GET api/v1/otus/by_name/:name?token=:token&project_id=:id
   def by_name
     @otu_name = params.require(:name)
-    @otu_ids  = Queries::Otu::Autocomplete.new(@otu_name, project_id: params.require(:project_id)).all.pluck(:id)
+    @otu_ids = Queries::Otu::Autocomplete.new(@otu_name, project_id: params.require(:project_id)).all.pluck(:id)
   end
 
   # GET /otus/select_options?target=TaxonDetermination
@@ -240,7 +245,7 @@ class OtusController < ApplicationController
   private
 
   def set_otu
-    @otu = Otu.with_project_id(sessions_current_project_id).find(params[:id])
+    @otu = Otu.where(project_id: sessions_current_project_id).find(params[:id])
     @recent_object = @otu
   end
 
@@ -270,10 +275,8 @@ class OtusController < ApplicationController
     )
   end
 
-  # rubocop:disable Style/StringHashKeys
   def user_map
     {user_header_map: {'otu' => 'otu_name'}}
   end
-  # rubocop:enable Style/StringHashKeys
 
 end

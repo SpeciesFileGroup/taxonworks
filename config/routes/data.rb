@@ -431,6 +431,7 @@ resources :otus do
 
   member do
     get :navigation, defaults: {format: :json}
+    get :breadcrumbs, defaults: {format: :json}
   end
 
 end
