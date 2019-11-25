@@ -699,12 +699,11 @@ class Source::Bibtex < Source
 
     b.year = year_with_suffix if !year_suffix.blank?
     b[:keywords] = verbatim_keywords     unless verbatim_keywords.blank?
+    b[:note] = concatenated_notes_string if !concatenated_notes_string.blank?
 
-    b[:note] = concatenated_notes_string if !concatenated_notes_string.blank? # see Notable
-    
     unless serial.nil?
       b[:journal] = serial.name
-      issns  = serial.identifiers.where(type: 'Identifier::Global::Issn') # of_type(:issn)
+      issns  = serial.identifiers.where(type: 'Identifier::Global::Issn')
       unless issns.empty?
         b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
       end
@@ -712,18 +711,18 @@ class Source::Bibtex < Source
 
     unless serial.nil?
       b[:journal] = serial.name
-      issns = serial.identifiers.where(type: 'Identifier::Global::Issn') # .of_type(:issn)
+      issns = serial.identifiers.where(type: 'Identifier::Global::Issn')
       unless issns.empty?
         b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
       end
     end
 
-    uris = identifiers.where(type: 'Identifier::Global::Uri') # of_type(:uri)
+    uris = identifiers.where(type: 'Identifier::Global::Uri')
     unless uris.empty?
       b[:url] = uris.first.identifier # TW only allows one URI per object
     end
 
-    isbns = identifiers.where(type: 'Identifier::Global::Isbn') #.of_type(:isbn)
+    isbns = identifiers.where(type: 'Identifier::Global::Isbn')
     unless isbns.empty?
       b[:isbn] = isbns.first.identifier # TW only allows one ISBN per object
     end
