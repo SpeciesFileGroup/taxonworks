@@ -1,19 +1,22 @@
 <template>
-  <div class="panel content">
-    <h3>Biological associations</h3>
+  <section-panel title="Biological associations">
     <ul class="no_bullets">
       <li v-for="biologicalAssociation in biologicalAssociations">
         <span v-html="biologicalAssociation.object_tag"/>
       </li>
     </ul>
-  </div>
+  </section-panel>
 </template>
 
 <script>
 
+import SectionPanel from './shared/sectionPanel'
 import { GetBiologicalAssociations } from '../request/resources.js'
 
 export default {
+  components: {
+    SectionPanel
+  },
   props: {
     otu: {
       type: Object

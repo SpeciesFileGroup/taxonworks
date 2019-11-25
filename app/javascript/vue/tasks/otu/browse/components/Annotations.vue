@@ -1,6 +1,5 @@
 <template>
-  <div class="panel content">
-    <h3>Annotations</h3>
+  <section-panel title="Annotations">
     <list-component
       v-if="citations.length"
       title="Citations"
@@ -20,18 +19,20 @@
     <list-component
       v-if="tags.length"
       title="Tags"
-      :list="tags"/>            
-  </div>
+      :list="tags"/>
+  </section-panel>
 </template>
 
 <script>
 
+import SectionPanel from './shared/sectionPanel'
 import ListComponent from './shared/list'
 import { GetIdentifiers, GetNotes, GetTags, GetCitations, GetDataAttributes } from '../request/resources.js'
 
 export default {
   components: {
-    ListComponent
+    ListComponent,
+    SectionPanel
   },
   props: {
     otu: {

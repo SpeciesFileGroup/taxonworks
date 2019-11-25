@@ -1,0 +1,59 @@
+<template>
+  <div>
+    <div class="flex-separate">
+      <span class="section-title">{{ title }}</span>
+      <div class="horizontal-left-content">
+        <div
+          class="option-box button-default cursor-pointer"
+          data-icon="w_expand"/>
+        <div class="option-box button-default cursor-pointer"/>
+        <div class="option-box button-default cursor-pointer">
+          <div class="hamburger-menu">
+            <div class="hamburger-menu-bar"/>
+            <div class="hamburger-menu-bar"/>
+            <div class="hamburger-menu-bar"/>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel content">
+      <slot></slot>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    title: {
+      type: String,
+      default: ''
+    }
+  }
+}
+</script>
+<style scoped>
+  .option-box {
+    position: relative;
+    width: 24px;
+    height: 24px;
+    margin:0 auto;
+    margin-left: 4px;
+    padding: 0px;
+    background-position: center;
+    background-size: 14px;
+  }
+  .hamburger-menu {
+    position: absolute;
+    left:50%;
+    top:50%;
+    transform: translate(-50%, -50%);
+  }
+  .hamburger-menu-bar {
+    width: 14px;
+    height: 2px;
+    background-color: #FFFFFF;
+    border-radius: 2px;
+    margin: 2px 0;
+  }
+</style>

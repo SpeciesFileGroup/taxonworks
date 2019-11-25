@@ -1,15 +1,18 @@
 <template>
-  <div class="panel content">
-    <h3>Nomenclature</h3>
+  <section-panel title="Nomenclature">
     <div v-html="nomenclatureHtml"/>
-  </div>
+  </section-panel>
 </template>
 
 <script>
 
+import SectionPanel from './shared/sectionPanel'
 import { GetNomenclatureHistory } from '../request/resources.js'
 
 export default {
+  components: {
+    SectionPanel
+  },
   props: {
     otu: {
       type: Object

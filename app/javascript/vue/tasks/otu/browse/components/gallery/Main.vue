@@ -1,14 +1,14 @@
 <template>
-  <div class="panel depiction-container content">
-    <div
-      class="flex-wrap-row "
-      v-if="figuresList.length">
-      <image-viewer
-        v-for="item in figuresList"
-        :key="item.id"
-        :depiction="item"/>
-    </div>
-  </div>
+    <section-panel title="Gallery">
+      <div
+        class="flex-wrap-row"
+        v-if="figuresList.length">
+        <image-viewer
+          v-for="item in figuresList"
+          :key="item.id"
+          :depiction="item"/>
+      </div>
+    </section-panel>
 </template>
 
 <script>
@@ -16,10 +16,12 @@
 import { GetDepictions } from '../../request/resources.js'
 
 import ImageViewer from './ImageViewer'
+import SectionPanel from '../shared/sectionPanel'
 
 export default {
   components: {
-    ImageViewer
+    ImageViewer,
+    SectionPanel
   },
   props: {
     otu: {

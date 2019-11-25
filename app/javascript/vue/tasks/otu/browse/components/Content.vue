@@ -1,20 +1,25 @@
 <template>
-  <div class="panel content">
-    <h3>Content</h3>
+  <section-panel title="Content">
     <ul class="no_bullets">
-      <li v-for="content in contents">
+      <li
+        v-for="content in contents"
+        :key="content.id">
         <span v-html="content.topic.name"/>
         <p v-html="content.text"/>
       </li>
     </ul>
-  </div>
+  </section-panel>
 </template>
 
 <script>
 
 import { GetContent } from '../request/resources.js'
+import SectionPanel from './shared/sectionPanel'
 
 export default {
+  components: {
+    SectionPanel
+  },
   props: {
     otu: {
       type: Object

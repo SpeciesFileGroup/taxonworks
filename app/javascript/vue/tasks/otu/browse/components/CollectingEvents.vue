@@ -1,21 +1,37 @@
 <template>
-  <div
-    class="panel content"
-    v-if="collectingEvents.length">
-    <h3>Collecting events</h3>
+  <section-panel title="Collecting events">
     <ul>
-      <li v-for="item in collectingEvents">
+      <li
+        v-for="(item, index) in collectingEvents"
+        :key="item.id"
+        v-if="index < max || showAll">
         <span v-html="item.object_tag"/>
       </li>
     </ul>
-  </div>
+    <template v-if="collectingEvents.length > max">
+      <a
+        v-if="!showAll"
+        class="cursor-pointer"
+        @click="showAll = true">Show all
+      </a> 
+      <a
+        v-else
+        class="cursor-pointer"
+        @click="showAll = false">Show less
+      </a>
+    </template>
+  </section-panel>
 </template>
 
 <script>
 
+import SectionPanel from './shared/sectionPanel'
 import { GetCollectingEvents } from '../request/resources.js'
 
 export default {
+  components: {
+    SectionPanel
+  },
   props: {
     otu: {
       type: Object
@@ -23,7 +39,9 @@ export default {
   },
   data() {
     return {
-      collectingEvents: []
+      collectingEvents: [],
+      max: 10,
+      showAll: false
     }
   },
   watch: {

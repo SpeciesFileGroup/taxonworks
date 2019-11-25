@@ -1,22 +1,20 @@
 <template>
-  <div>
+  <div id="browse-otu">
     <spinner-component
       :full-screen="true"
       legend="Loading..."
       :logo-size="{ width: '100px', height: '100px'}"
       v-if="isLoading"
     />
-    <h1>Otu browser</h1>
     <header-bar
       :otu="otu" />
-    <div>
-      <image-gallery :otu="otu"/>
-      <nomenclature-history :otu="otu"/>
-      <content-component :otu="otu"/>
-      <asserted-distribution :otu="otu"/>
-      <biological-associations :otu="otu"/>
-      <annotations-component :otu="otu"/>
-      <collecting-events :otu="otu"/>
+    <div class="container">
+      <component
+        class="separate-bottom full_width"
+        v-for="component in section"
+        :key="component"
+        :otu="otu"
+        :is="component"/>
     </div>
   </div>
 </template>
@@ -51,6 +49,7 @@ export default {
     return {
       isLoading: false,
       otu: undefined,
+      section: ['ImageGallery', 'NomenclatureHistory', 'ContentComponent', 'AssertedDistribution', 'BiologicalAssociations', 'AnnotationsComponent', 'CollectingEvents']
     }
   },
   mounted() {
@@ -67,3 +66,18 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+  #browse-otu {
+    .container {
+      margin: 0 auto;
+      width: 1240px;
+      min-width: auto;
+    }
+    .section-title {
+      text-transform: uppercase;
+      color: #888;
+      font-size: 14px;
+    }
+  }
+</style>

@@ -1,10 +1,15 @@
 <template>
-  <div>
-  </div>
+  <section-panel title="Collection objects">
+  </section-panel>
 </template>
 
 <script>
-export default {
 
+import SectionPanel from './shared/sectionPanel'
+
+export default {
+  components: {
+    SectionPanel
+  }
 }
 </script>

@@ -60,7 +60,11 @@
 
     [data-icon="expand"] {
       background-image: image-url("expand.svg");
-    }    
+    }
+
+    [data-icon="w_expand"] {
+      background-image: image-url("w_expand.svg");
+    }
 
     [data-icon="citation"] {
       background-image: image-url("citation.svg");
@@ -76,7 +80,11 @@
 
     [data-icon="contract"] {
       background-image: image-url("contract.svg");
-    }           
+    }
+    
+    [data-icon="w_contract"] {
+      background-image: image-url("w_contract.svg");
+    }    
 
     [data-icon="chain"] {
       background-image: image-url("chain.svg");
