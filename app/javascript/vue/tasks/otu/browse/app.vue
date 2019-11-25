@@ -9,14 +9,17 @@
     <template v-if="otu">
       <header-bar
         :otu="otu" />
-      <div class="container">
+      <draggable
+        class="container"
+        handle=".handle"
+        v-model="section">
         <component
           class="separate-bottom full_width"
           v-for="component in section"
           :key="component"
           :otu="otu"
           :is="component"/>
-      </div>
+      </draggable>
     </template>
   </div>
 </template>
@@ -32,6 +35,7 @@ import BiologicalAssociations from './components/BiologicalAssociations'
 import AnnotationsComponent from './components/Annotations'
 import NomenclatureHistory from './components/NomenclatureHistory'
 import CollectingEvents from './components/CollectingEvents'
+import Draggable from 'vuedraggable'
 
 import { GetOtu } from './request/resources.js'
 
@@ -45,7 +49,8 @@ export default {
     BiologicalAssociations,
     AnnotationsComponent,
     NomenclatureHistory,
-    CollectingEvents
+    CollectingEvents,
+    Draggable
   },
   data() {
     return {

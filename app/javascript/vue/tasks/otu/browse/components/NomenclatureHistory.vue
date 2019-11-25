@@ -26,9 +26,11 @@ export default {
   watch: {
     otu: {
       handler (newVal) {
-        GetNomenclatureHistory(this.otu.taxon_name_id).then(response => {
-          this.nomenclatureHtml = response.body.html
-        })
+        if(newVal && newVal.taxon_name_id) {
+          GetNomenclatureHistory(this.otu.taxon_name_id).then(response => {
+            this.nomenclatureHtml = response.body.html
+          })
+        }
       },
       immediate: true
     }

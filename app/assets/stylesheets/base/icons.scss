@@ -104,7 +104,11 @@
 
     [data-icon="scroll-v"] {
       background-image: image-url("scroll-v.svg");
-    }   
+    }
+
+    [data-icon="w_scroll-v"] {
+      background-image: image-url("w_scroll-v.svg");
+    }
 
     [data-icon="scroll-h"] {
       background-image: image-url("scroll-h.svg");
