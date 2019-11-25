@@ -92,7 +92,7 @@ module NomenclatureCatalog
       h
     end
 
-   protected
+    protected
 
     # @param [CatalogEntry] catalog_item
     # @return [Array]
