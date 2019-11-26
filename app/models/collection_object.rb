@@ -642,8 +642,9 @@ class CollectionObject < ApplicationRecord
     CollectionObject
       .where(project_id: project_id)
       .where.not(id: id) 
-      .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'ASC') 
-      .where(Arel.sql("CAST(identifiers.identifier AS integer) > #{i.identifier}"))
+      .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'ASC')
+      .where(Utilities::Strings.is_i?(i.identifier) ?
+        ["CAST(identifiers.identifier AS integer) > #{i.identifier}"] : ["identifiers.identifier > ?", i.identifier])
       .limit(1).first
     else
       nil
@@ -656,7 +657,8 @@ class CollectionObject < ApplicationRecord
       .where(project_id: project_id)
       .where.not(id: id) 
       .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'DESC') 
-      .where(Arel.sql("CAST(identifiers.identifier AS integer) < #{i.identifier}"))
+      .where(Utilities::Strings.is_i?(i.identifier) ?
+        ["CAST(identifiers.identifier AS integer) < #{i.identifier}"] : ["identifiers.identifier < ?", i.identifier])
       .limit(1).first
     else
       nil

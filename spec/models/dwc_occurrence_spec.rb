@@ -2,8 +2,11 @@ require 'rails_helper'
 
 describe DwcOccurrence, type: :model, group: :darwin_core do
 
-  let(:dwc_occurrence) { DwcOccurrence.new }
+  # This now creates a dwc_occurrence by default
   let(:collection_object) { FactoryBot.create(:valid_specimen) } 
+
+  let(:dwc_occurrence) { DwcOccurrence.new }
+
   let(:source_human) { FactoryBot.create(:valid_source_human) }
   let(:source_bibtex) { FactoryBot.create(:valid_source_bibtex) }
   let(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution) } 
@@ -26,8 +29,6 @@ describe DwcOccurrence, type: :model, group: :darwin_core do
 
       context '#collection_object' do      
         before do
-          dwc_occurrence.dwc_occurrence_object = collection_object
-          dwc_occurrence.save
           new_dwc_occurrence.dwc_occurrence_object = collection_object
           new_dwc_occurrence.valid?
         end
@@ -78,12 +79,8 @@ describe DwcOccurrence, type: :model, group: :darwin_core do
     end
 
     context 'helper methods' do
-      before do
-        dwc_occurrence.dwc_occurrence_object = collection_object
-        dwc_occurrence.save!
-      end
       specify '#stale?' do
-        expect(dwc_occurrence.stale?).to be_falsey
+        expect(collection_object.dwc_occurrence.stale?).to be_falsey
       end
     end
   end
