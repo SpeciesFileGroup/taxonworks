@@ -1,4 +1,19 @@
 scope :tasks do
+  scope :asserted_distributions do
+    scope :basic_endemism, controller: 'tasks/asserted_distributions/basic_endemism' do
+      get '/', action: :index, as: 'asserted_distributions_basic_endemism_task'
+    end
+
+    scope :new_asserted_distribution, controller: 'tasks/asserted_distributions/new_asserted_distribution' do
+      get '/', action: :index, as: 'new_asserted_distribution_task'
+    end
+
+    scope :new_from_map, controller: 'tasks/asserted_distributions/new_from_map' do
+      get 'new', action: 'new', as: 'new_asserted_distribution_from_map_task'
+      get 'generate_choices'
+      post 'create', action: 'create', as: 'create_asserted_distribution_from_map_task'
+    end
+  end
 
   scope :exports do
     scope :coldp, controller: 'tasks/exports/coldp' do
@@ -10,12 +25,6 @@ scope :tasks do
   scope :matrix_image do
     scope :matrix_image, controller: 'tasks/matrix_image/matrix_image' do
       get :index, as: 'index_matrix_image_task'
-    end
-  end
-
-  scope :asserted_distribution do
-    scope :new_asserted_distribution, controller: 'tasks/asserted_distribution/new_asserted_distribution' do
-      get :index, as: 'index_new_asserted_distribution_task'
     end
   end
 
@@ -220,12 +229,6 @@ scope :tasks do
     scope :geographic_area_lookup, controller: 'tasks/gis/geographic_area_lookup' do
       get 'index', as: 'geographic_area_lookup_task'
       get 'resolve', as: 'geographic_area_lookup_resolve_task', format: :js
-    end
-
-    scope :asserted_distribution, controller: 'tasks/gis/asserted_distribution' do
-      get 'new', action: 'new', as: 'new_asserted_distribution_task'
-      post 'create', action: 'create', as: 'create_asserted_distribution_task'
-      get 'generate_choices'
     end
   end
 

@@ -566,7 +566,7 @@ class GeographicItem < ApplicationRecord
     # @param [String] 'ASC' or 'DESC'
     # @return [Scope]
     def ordered_by_area(direction = 'ASC')
-      order("ST_Area(#{GeographicItem::GEOMETRY_SQL.to_sql}) #{direction}")
+      order(Arel.sql("ST_Area(#{GeographicItem::GEOMETRY_SQL.to_sql}) #{direction}"))
     end
 
     # @return [Scope]

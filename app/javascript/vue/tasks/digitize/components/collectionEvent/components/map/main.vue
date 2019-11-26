@@ -2,6 +2,7 @@
   <div class="digitize-map-layout">
     <draggable
       v-model="componentsOrder"
+      :disabled="!settings.sortable"
       @end="updatePreferences">
       <component
         class="separate-bottom"
@@ -20,6 +21,9 @@ import DepictionComponent from './depictions'
 import Draggable from 'vuedraggable'
 import sortComponent from '../../../shared/sortComponenets.vue'
 
+import { GetterNames } from '../../../../store/getters/getters'
+import { MutationNames } from '../../../../store/mutations/mutations'
+
 export default {
   mixins: [sortComponent],
   components: {
@@ -28,7 +32,17 @@ export default {
     PrintLabel,
     Draggable
   },
-  data() {
+  computed: {
+    settings: {
+      get () {
+        return this.$store.getters[GetterNames.GetSettings]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSettings, value)
+      }
+    }
+  },
+  data () {
     return {
       componentsOrder: [
         'LeafMap',
