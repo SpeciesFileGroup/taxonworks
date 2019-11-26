@@ -165,7 +165,7 @@ module Queries
 
       def matching_otu_ids
         return nil if otu_ids.empty?
-        joins(:otus).where(otu_id: otu_ids) #  table[:geographic_area_id].eq_any(geographic_area_ids)
+        ::CollectingEvent.joins(:otus).where(otus: {id: otu_ids}) #  table[:geographic_area_id].eq_any(geographic_area_ids)
       end
 
       def matching_verbatim_locality
@@ -182,7 +182,7 @@ module Queries
         clauses += [
           between_date_range,
           matching_geographic_area_ids,
-          matching_otu_ids,
+
           matching_any_label,
           matching_verbatim_locality,
         ].compact!
@@ -193,7 +193,7 @@ module Queries
       def base_merge_clauses
         clauses = [
           matching_keyword_ids,
-
+          matching_otu_ids,
           wkt_facet,
           geo_json_facet,
 
