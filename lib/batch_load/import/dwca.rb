@@ -25,7 +25,7 @@ module BatchLoad
       @collecting_events = {}
       @rows              = {}
       @row_objects       = {}
-      @parser            = ScientificNameParser.new
+      @parser            = ::Biodiversity::Parser
       @tasks_            = {
         make_ident: %w(catalognumber occurrenceid),
         make_prsn:  %w(georeferencedby),
@@ -706,7 +706,7 @@ module BatchLoad
 
       # find or create Protonym based on exact match of row['scientificname'] and taxon_names.cached
       # rubocop:disable Rails/SaveBang
-      t_n       = Protonym.find_or_create_by(cached: snp[:scientificName][:canonical], project_id: @project_id)
+      t_n       = Protonym.find_or_create_by(cached: snp[:canonicalName][:simple], project_id: @project_id)
       this_rank = row['taxonrank'].downcase.to_sym
       # rubocop:enable Rails/SaveBang
 
@@ -714,7 +714,7 @@ module BatchLoad
         case this_rank
           when :species
             begin # find or create genus
-              genus_name = snp[:scientificName][:details][0][:genus][:string]
+              genus_name = snp[:details][0][:genus][:value]
               @genus     = Protonym.find_or_create_by(name:       genus_name,
                                                       parent:     @family,
                                                       rank_class: Ranks.lookup(:iczn, :genus),
@@ -724,29 +724,29 @@ module BatchLoad
                 ret_val[:new_genus] = @genus
               end
             end
-            species        = snp[:scientificName][:details][0][:species]
+            species        = snp[:details][0][:specificEpithet]
             t_n.parent     = @genus
             t_n.rank_class = Ranks.lookup(:iczn, :species)
-            t_n.name       = species[:string]
+            t_n.name       = species[:value]
             # t_n.cached_author_year = snp[:scientificName][:details][0][:species][:authorship]
-            t_n.year_of_publication = species[:basionymAuthorTeam][:year].to_i
-            author_name             = species[:basionymAuthorTeam][:authorTeam]
+            t_n.year_of_publication = species[:authorship][:basionymAuthorship][:year][:value].to_i
+            author_name             = species[:authorship][:basionymAuthorship][:authors]
             if species[:authorship].include?('(')
               author_name = "(#{author_name})"
             end
             t_n.verbatim_author = author_name
             ret_val[:species]   = t_n
           when :genus
-            genus           = snp[:scientificName][:details][0][:uninomial]
+            genus           = snp[:details][0][:uninomial]
             t_n.parent      = @family
             t_n.rank_class  = Ranks.lookup(:iczn, :genus)
-            t_n.name        = genus[:string]
+            t_n.name        = genus[:value]
             ret_val[:genus] = t_n
           when :tribe
-            tribe           = snp[:scientificName][:details][0][:uninomial]
+            tribe           = snp[:details][0][:uninomial]
             t_n.parent      = @family
             t_n.rank_class  = Ranks.lookup(:iczn, :tribe)
-            t_n.name        = tribe[:string]
+            t_n.name        = tribe[:value]
             ret_val[:tribe] = t_n
           else
             raise "Unknown taxonRank #{this_rank}."

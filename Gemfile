@@ -92,7 +92,7 @@ gem 'waxy', '~> 0.1'
 gem 'taxonifi', '0.4.0'
 gem 'sqed', '0.5.8'
 gem 'dwc-archive', '~> 1.0.1'
-gem 'biodiversity', '~> 3.5.0'
+gem 'biodiversity', '~> 4.0', '>= 4.0.2'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 
 # Minor Utils/helpers

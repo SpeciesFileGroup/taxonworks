@@ -354,14 +354,16 @@ describe ::TaxonWorks::Vendor::Biodiversity, type: :model, group: [:nomenclature
 
           specify '#detail' do
             expect(result.detail).to include( { 
-              genus: { string: 'Aus'},
-              species: {
-                string: 'bus', 
-                authorship: 'Smith and Jones, 1920',
-                basionymAuthorTeam: {
-                  authorTeam: 'Smith and Jones', 
-                  author: ['Smith', 'Jones'], 
-                  year: '1920'}
+              genus: { value: 'Aus'},
+              specificEpithet: {
+                value: 'bus', 
+                authorship: {
+                  value: 'Smith & Jones 1920',
+                  basionymAuthorship: {
+                    year: { value: '1920'},
+                    authors: ['Smith', 'Jones']
+                  }
+                }
               }
             }) 
           end
