@@ -53,7 +53,7 @@ const GetCollectingEvents = function(ids) {
 }
 
 const GetCollectionObjects = function(ids) {
-  return ajaxCall('get', '/collection_objects.json', { params: { otu_ids: ids } })
+  return ajaxCall('get', '/collection_objects/dwc_index', { params: { otu_ids: ids, current_determinations: true } })
 }
 
 const GetBreadCrumbNavigation = (id) => {
