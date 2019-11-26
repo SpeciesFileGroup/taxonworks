@@ -6,7 +6,9 @@
         <div
           class="option-box button-default cursor-pointer"
           data-icon="w_expand"/>
-        <div class="option-box button-default cursor-pointer"/>
+        <div
+          data-icon="w_scroll-v"
+          class="option-box button-default cursor-pointer handle"/>
         <div class="option-box button-default cursor-pointer">
           <div class="hamburger-menu">
             <div class="hamburger-menu-bar"/>
@@ -34,9 +36,10 @@ export default {
 </script>
 <style scoped>
   .option-box {
+    top: 22px;
     position: relative;
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     margin:0 auto;
     margin-left: 4px;
     padding: 0px;
