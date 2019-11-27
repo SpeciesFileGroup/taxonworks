@@ -64,8 +64,9 @@ export default {
     }
   },
   mounted() {
+    let urlParams = new URLSearchParams(window.location.search)
 
-    let otuId = location.pathname.split('/')[4]
+    let otuId = urlParams.get('otu_id') ? urlParams.get('otu_id') : location.pathname.split('/')[4]
       if (/^\d+$/.test(otuId)) {
         GetOtu(otuId).then(response => {
           this.otu = response.body

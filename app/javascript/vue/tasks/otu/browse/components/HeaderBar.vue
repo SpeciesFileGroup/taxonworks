@@ -1,6 +1,16 @@
 <template>
   <div class="panel header-bar separate-bottom">
     <div class="container content">
+      <div class="flex-separate middle">
+        <h1>Browse taxa</h1>
+        <autocomplete
+          class="float_right"
+          url="/otus/autocomplete"
+          placeholder="Search a otu"
+          param="term"
+          @getItem="loadOtu"
+          label="label_html"/>
+      </div>
       <ul
         v-if="navigation"
         class="breadcrumb_list">
@@ -50,10 +60,12 @@
 
 import RadialAnnotator from 'components/annotator/annotator'
 import { GetBreadCrumbNavigation } from '../request/resources'
+import Autocomplete from 'components/autocomplete'
 
 export default {
   components: {
-    RadialAnnotator
+    RadialAnnotator,
+    Autocomplete
   },
   props: {
     otu: {
@@ -75,6 +87,11 @@ export default {
         })
       },
       immediate: true
+    }
+  },
+  methods: {
+    loadOtu(event) {
+      window.open(`/tasks/otus/browse?otu_id=${event.id}`, '_self')
     }
   }
 
