@@ -1,5 +1,5 @@
 <template>
-    <section-panel title="Gallery">
+    <section-panel title="Images">
       <div
         class="flex-wrap-row"
         v-if="figuresList.length">

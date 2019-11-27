@@ -4,13 +4,26 @@
       <ul
         class="no_bullets">
         <li
-          v-for="co in collectionObjects"
+          v-for="(co, index) in collectionObjects"
+          v-if="index < max || showAll"
           :key="co.id">
           <specimen-information
             :otu="otu"
             :specimen="co"/>
         </li>
       </ul>
+      <p v-if="collectionObjects.length > max">
+        <a
+          v-if="!showAll"
+          class="cursor-pointer"
+          @click="showAll = true">Show all
+        </a> 
+        <a
+          v-else
+          class="cursor-pointer"
+          @click="showAll = false">Show less
+        </a>
+      </p>
     </div>
   </section-panel>
 </template>
@@ -34,7 +47,9 @@ export default {
   },
   data () {
     return {
-      collectionObjects: undefined,
+      collectionObjects: [],
+      max: 5,
+      showAll: false
     }
   },
   watch: {
