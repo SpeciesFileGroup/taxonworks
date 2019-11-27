@@ -25,6 +25,8 @@ class SoftValidationsController < ApplicationController
 
   def get_object
     @object = GlobalID::Locator.locate(URI.decode(params[:global_id]))
+
+    raise ActiveRecord::RecordNotFound if @object.nil?
   end
 
 end
