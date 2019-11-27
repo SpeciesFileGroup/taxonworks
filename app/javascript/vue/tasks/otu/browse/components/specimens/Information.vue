@@ -5,7 +5,7 @@
       class="inline">
       <div
         :data-icon="expand ? 'w_less' : 'w_plus'"
-        class="expand-box separate-right"/><span v-if="type" v-html="`[${type}]`"/> <span class="separate-left">{{ ceLabel }}</span>
+        class="expand-box separate-right"/><span class="separate-left" v-if="type" v-html="`[${type}]`"/> <span class="separate-left">{{ ceLabel }}</span>
     </div>
     <div
       v-if="expand"

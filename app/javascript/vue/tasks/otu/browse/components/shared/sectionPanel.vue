@@ -6,7 +6,8 @@
       <div class="horizontal-left-content">
         <div
           class="option-box button-default cursor-pointer"
-          data-icon="w_expand"/>
+          @click="hidden = !hidden"
+          :data-icon="hidden ? 'w_expand' : 'w_contract'"/>
         <div
           data-icon="w_scroll-v"
           class="option-box button-default cursor-pointer handle"/>
@@ -19,7 +20,7 @@
         </div>
       </div>
     </div>
-      <slot></slot>
+      <slot v-if="!hidden"></slot>
     </div>
   </div>
 </template>
@@ -30,6 +31,11 @@ export default {
     title: {
       type: String,
       default: ''
+    }
+  },
+  data () {
+    return {
+      hidden: false
     }
   }
 }
