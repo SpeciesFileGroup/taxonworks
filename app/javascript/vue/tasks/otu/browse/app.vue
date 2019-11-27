@@ -37,6 +37,7 @@ import NomenclatureHistory from './components/NomenclatureHistory'
 import CollectingEvents from './components/CollectingEvents'
 import CollectionObjects from './components/CollectionObjects'
 import TypeSpecimens from './components/specimens/Type'
+import CommonNames from './components/CommonNames'
 import Draggable from 'vuedraggable'
 
 import { GetOtu } from './request/resources.js'
@@ -54,13 +55,14 @@ export default {
     CollectingEvents,
     CollectionObjects,
     TypeSpecimens,
+    CommonNames,
     Draggable
   },
   data() {
     return {
       isLoading: false,
       otu: undefined,
-      section: ['ImageGallery', 'NomenclatureHistory', 'TypeSpecimens', 'CollectionObjects', 'ContentComponent', 'AssertedDistribution', 'BiologicalAssociations', 'AnnotationsComponent', 'CollectingEvents']
+      section: ['ImageGallery', 'NomenclatureHistory', 'CommonNames', 'TypeSpecimens', 'CollectionObjects', 'ContentComponent', 'AssertedDistribution', 'BiologicalAssociations', 'AnnotationsComponent', 'CollectingEvents']
     }
   },
   mounted() {

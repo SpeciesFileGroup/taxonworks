@@ -52,6 +52,10 @@ const GetNomenclatureHistory = function (id) {
   return ajaxCall('get', `/taxon_names/${id}/catalog`)
 }
 
+const GetCommonNames = function(id) {
+  return ajaxCall('get', '/common_names.json', { params: { otu_id: id } })
+}
+
 const GetCollectingEvents = function(ids) {
   return ajaxCall('get', '/collecting_events.json', { params: { otu_ids: ids } })
 }
@@ -95,5 +99,6 @@ export {
   GetBreadCrumbNavigation,
   GetBiocurations,
   GetRepository,
-  GetTypeMaterials
+  GetTypeMaterials,
+  GetCommonNames
 }
