@@ -2,7 +2,7 @@
   <div>
     <div 
       @click="expand = !expand"
-      class="inline">
+      class="inline cursor-pointer">
       <div
         :data-icon="expand ? 'w_less' : 'w_plus'"
         class="expand-box separate-right"/><span class="separate-left" v-if="type" v-html="`[${type}]`"/> <span class="separate-left">{{ ceLabel }}</span>

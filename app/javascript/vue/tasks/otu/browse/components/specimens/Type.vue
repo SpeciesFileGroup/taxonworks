@@ -1,6 +1,8 @@
 <template>
   <section-panel title="Type specimens">
-    <div>
+    <div
+      v-if="types.length"
+      class="separate-top">
       <ul
         class="no_bullets">
         <li

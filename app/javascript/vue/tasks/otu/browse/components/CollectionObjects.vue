@@ -1,6 +1,8 @@
 <template>
   <section-panel title="Specimen records">
-    <div>
+    <div
+      v-if="collectionObjects.length"
+      class="separate-top">
       <ul
         class="no_bullets">
         <li
