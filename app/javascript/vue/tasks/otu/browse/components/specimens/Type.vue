@@ -1,14 +1,15 @@
 <template>
-  <section-panel title="Specimen records">
+  <section-panel title="Type specimens">
     <div>
       <ul
         class="no_bullets">
         <li
-          v-for="co in collectionObjects"
-          :key="co.id">
+          v-for="type in types"
+          :key="type.id">
           <specimen-information
             :otu="otu"
-            :specimen="co"/>
+            :type="type.object_tag"
+            :specimen="getSpecimen(type.biological_object_id)"/>
         </li>
       </ul>
     </div>
@@ -17,9 +18,9 @@
 
 <script>
 
-import SectionPanel from './shared/sectionPanel'
-import SpecimenInformation from './specimens/Information'
-import { GetCollectionObjects, GetTypeMaterials } from '../request/resources'
+import SectionPanel from '../shared/sectionPanel'
+import { GetTypeMaterials, GetCollectionObjects } from '../../request/resources.js'
+import SpecimenInformation from './Information'
 
 export default {
   components: {
@@ -28,29 +29,29 @@ export default {
   },
   props: {
     otu: {
-      type: Object,
-      required: true
+      type: Object
     }
   },
   data () {
     return {
-      collectionObjects: undefined,
+      types: [],
+      collectionObjects: []
     }
   },
   watch: {
     otu: {
-      handler (newVal) {
+      handler(newVal) {
         if(newVal) {
-          GetCollectionObjects({ otu_ids: [newVal.id], current_determinations: true }).then(response => {
+          GetCollectionObjects({ type_specimen_taxon_name_id: newVal.taxon_name_id }).then(response => {
             this.collectionObjects = response.body.data.map((item, index) => { return this.createObject(response.body, index) })
+            GetTypeMaterials(newVal.taxon_name_id).then(response => {
+              this.types = response.body
+            })
           })
         }
       },
       immediate: true
     }
-  },
-  mounted () {
-    
   },
   methods: {
     createObject(list, position) {
@@ -66,3 +67,7 @@ export default {
   }
 }
 </script>
+
+<style>
+
+</style>

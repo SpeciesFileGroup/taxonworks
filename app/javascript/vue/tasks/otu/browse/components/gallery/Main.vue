@@ -37,7 +37,7 @@ export default {
     otu: { 
       handler (newVal, oldVal) {
         if (newVal) {
-          GetDepictions(newVal.id).then(response => {
+          GetDepictions('otus', newVal.id).then(response => {
             this.figuresList = response.body
           })
         }

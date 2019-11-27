@@ -123,7 +123,15 @@
     }     
 
     [data-icon="add"] {
-      background-image: image-url("plus.svg");
+      background-image: image-url("add.svg");
+    }
+
+    [data-icon="w_plus"] {
+      background-image: image-url("bplus.svg");
+    }
+
+    [data-icon="w_less"] {
+      background-image: image-url("w_less.svg");
     }
 
     [data-icon="icons"] {

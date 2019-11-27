@@ -1,5 +1,6 @@
 <template>
   <div>
+    <div class="panel content">
     <div class="flex-separate">
       <span class="section-title">{{ title }}</span>
       <div class="horizontal-left-content">
@@ -18,7 +19,6 @@
         </div>
       </div>
     </div>
-    <div class="panel content">
       <slot></slot>
     </div>
   </div>
@@ -36,7 +36,6 @@ export default {
 </script>
 <style scoped>
   .option-box {
-    top: 22px;
     position: relative;
     width: 22px;
     height: 22px;

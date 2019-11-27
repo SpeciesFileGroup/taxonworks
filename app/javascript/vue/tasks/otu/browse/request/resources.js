@@ -4,8 +4,12 @@ const GetOtu = function (id) {
   return ajaxCall('get', `/otus/${id}.json`)
 }
 
-const GetDepictions = function (id) {
-  return ajaxCall('get', `/otus/${id}/depictions.json`)
+const GetBiocurations = (id) => {
+  return ajaxCall('get', `/biocuration_classifications.json?biological_collection_object_id=${id}`)
+}
+
+const GetDepictions = function (model, id) {
+  return ajaxCall('get', `/${model}/${id}/depictions.json`)
 }
 
 const GetNotes = function (id) {
@@ -16,8 +20,8 @@ const GetTags = function (id) {
   return ajaxCall('get', `/otus/${id}/tags.json`)
 }
 
-const GetCitations = function (id) {
-  return ajaxCall('get', `/otus/${id}/citations.json`)
+const GetCitations = function (model, id) {
+  return ajaxCall('get', `/${model}/${id}/citations.json`)
 }
 
 const GetConfidences = function (id) {
@@ -52,12 +56,24 @@ const GetCollectingEvents = function(ids) {
   return ajaxCall('get', '/collecting_events.json', { params: { otu_ids: ids } })
 }
 
-const GetCollectionObjects = function(ids) {
-  return ajaxCall('get', '/collection_objects/dwc_index', { params: { otu_ids: ids, current_determinations: true } })
+const GetCollectionObjects = function(params) {
+  return ajaxCall('get', '/collection_objects/dwc_index', { params: params })
+}
+
+const GetCollectionObject = function(id) {
+  return ajaxCall('get', `/collection_objects/${id}`)
+}
+
+const GetRepository = function(id) {
+  return ajaxCall('get', `/repositories/${id}`)
 }
 
 const GetBreadCrumbNavigation = (id) => {
   return ajaxCall('get', `/otus/${id}/breadcrumbs`)
+}
+
+const GetTypeMaterials = (id) => {
+  return ajaxCall('get', `/type_materials.json?protonym_id=${id}`)
 }
 
 export {
@@ -74,6 +90,10 @@ export {
   GetIdentifiers,
   GetNomenclatureHistory,
   GetCollectingEvents,
+  GetCollectionObject,
   GetCollectionObjects,
-  GetBreadCrumbNavigation
+  GetBreadCrumbNavigation,
+  GetBiocurations,
+  GetRepository,
+  GetTypeMaterials
 }

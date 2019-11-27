@@ -61,7 +61,7 @@ export default {
           GetNotes(this.otu.id).then(response => {
             this.notes = response.body
           })
-          GetCitations(this.otu.id).then(response => {
+          GetCitations('otus', this.otu.id).then(response => {
             this.citations = response.body
           })
           GetDataAttributes(this.otu.id).then(response => {
