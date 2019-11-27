@@ -5,10 +5,10 @@ namespace :tw do
     
     def initiate_project_and_users(project_name, user_email)
       user = User.create!(name: "Update #{user_email}", email: user_email, password: '3242341aas', password_confirmation: '3242341aas', self_created: true, is_flagged_for_password_reset: true)
-      $user_id = user.id
+      Current.user_id = user.id
 
       project = Project.find_or_create_by(name: project_name)
-      $project_id = project.id
+      Current.project_id = project.id
 
       project.users << user 
       [project, user]

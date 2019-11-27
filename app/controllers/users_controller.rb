@@ -98,7 +98,7 @@ class UsersController < ApplicationController
   def set_password
     @user = User.find_by_password_reset_token!(Utilities::RandomToken.digest(params[:token]))
 
-    Current.user_id = @user.id # $user_id = @user.id WHY?
+    Current.user_id = @user.id #  WHY?
 
     @user.require_password_presence
     

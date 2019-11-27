@@ -46,11 +46,11 @@ module Queries::Concerns::Users
     case user_target
     when 'modified'
       q = base_query.updated_in_date_range(s, e)
-      q = q.updated_by_user(user_id) if user_id
+      q = q.where(updated_by_id: user_id) if user_id
       q
     when 'created'
       q = base_query.created_in_date_range(s, e)
-      q = q.created_by_user(user_id) if user_id
+      q = q.where(created_by_id: user_id) if user_id
       q
     end
   end
