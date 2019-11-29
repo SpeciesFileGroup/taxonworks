@@ -66,10 +66,18 @@ class SourcesController < ApplicationController
   end
 
   def parse
-    if @source = new_source
+    error_message = 'Unknown'
+
+    begin
+      @source = new_source
+    rescue BibTeX::ParseError => e
+      error_message = e.message
+    end
+
+    if @source
       render '/sources/show'
     else
-      render json: {status: :failed}
+      render json: { status: :failed, error: error_message }
     end
   end
 
@@ -78,8 +86,9 @@ class SourcesController < ApplicationController
   def update
     respond_to do |format|
       if @source.update(source_params)
+        @source.reload
         format.html { redirect_to url_for(@source.metamorphosize), notice: 'Source was successfully updated.' }
-        format.json { head :no_content }
+        format.json { render :show, status: :ok, location: @source.metamorphosize }
       else
         format.html { render action: 'edit' }
         format.json { render json: @source.errors, status: :unprocessable_entity }

@@ -144,7 +144,7 @@ describe ContainerItem, type: :model, group: :containers do
         a = Specimen.create!
         b = Specimen.create!
         ci1 = ContainerItem.create!(contained_object: a, container_id: c.id)
-        expect {ContainerItem.create!(contained_object: c, container_id: c.id)}.to raise_error ActiveRecord::RecordInvalid, `Contained object is already in a container_item`
+        expect {ContainerItem.create!(contained_object: c, container_id: c.id)}.to raise_error ActiveRecord::RecordInvalid, 'Validation failed: Contained object is already in a container_item'
       end
     end
 

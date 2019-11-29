@@ -38,6 +38,10 @@ export default {
       {
         label: 'Alphabetical list of source authors',
         url: '/tasks/people/author'
+      },
+      {
+        label: 'Find sources',
+        url: '/tasks/sources/find'
       }]
     }
   },

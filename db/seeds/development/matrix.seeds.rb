@@ -8,8 +8,8 @@ user_id = project_id = ENV['project_id']
 raise 'provide project_id=123' if project_id.blank?
 raise 'provide user_id=123' if user_id.blank?
 
-$user_id = user_id 
-$project_id = project_id
+Current.user_id = user_id
+Current.project_id = project_id
 
 begin
   ApplicationRecord.transaction do 
@@ -82,7 +82,7 @@ begin
       m.observation_matrix_row_items << ObservationMatrixRowItem::SingleCollectionObject.new(collection_object: r)
     end 
 
-    puts Rainbow("in Project #{$project_id}").purple
+    puts Rainbow("in Project #{Current.project_id}").purple
     puts Rainbow("Built matrix with id #{m.id}, '#{n}'.").blue
     puts Rainbow("Built otus with ids #{[r1, r2, r3].collect{|z| z.id}.join(',')}.").blue
     puts Rainbow("Built collection objects with ids #{[r4, r5].collect{|z| z.id}.join(',')}.").blue

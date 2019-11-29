@@ -195,10 +195,10 @@ export default {
       return (this.taxon.verbatim_author || this.taxon.year_of_publication)
     },
     isAlreadyClone() {
-      if(this.citation.source.authors.length == 0) return true
+      if(this.citation.source.author_roles.length == 0) return true
 
-      let authorsId = this.citation.source.authors.map(author => {
-          return Number(author.object_url.split('/')[2])
+      let authorsId = this.citation.source.author_roles.map(author => {
+          return Number(author.person.id)
       })
 
       let personsIds = this.roles.map(role => {
@@ -272,10 +272,10 @@ export default {
         return role.person.id
       })
 
-      let authorsPerson = this.citation.source.authors.map(author => {
-        if(!personsIds.includes(Number(author.object_url.split('/')[2]))) {
+      let authorsPerson = this.citation.source.author_roles.map(author => {
+        if(!personsIds.includes(Number(author.person.id))) {
           return {
-            person_id: author.object_url.split('/')[2],
+            person_id: author.person.id,
             type: "TaxonNameAuthor"
           }
         }

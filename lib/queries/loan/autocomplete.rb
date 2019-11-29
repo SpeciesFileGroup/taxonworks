@@ -66,7 +66,7 @@ module Queries
       end
 
       def autocomplete_by_role
-        r = Person.arel_table
+        r = ::Person.arel_table
         o = r[:cached].matches('%' + query_string + '%')
         ::Loan.joins(:people).where(roles: { type: ['LoanRecipient', 'LoanSupervisor']}).where(o.to_sql)
       end

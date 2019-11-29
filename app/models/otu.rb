@@ -103,7 +103,7 @@ class Otu < ApplicationRecord
     end
   end
  
-  # @return [Otu::ActiveRecord_Relation]
+  # @return [Otu::ActiveRecordRelation]
   # 
   # All OTUs that are synonymous/same/matching target, for either 
   #    historical and pragmatic (i.e. share the same `taxon_name_id`), or 
@@ -124,6 +124,23 @@ class Otu < ApplicationRecord
     rescue ActiveRecord::RecordNotFound
       Otu.where(id: otu_id)
     end
+  end
+
+  # @return [Otu::ActiveRecordRelation]
+  #   if the Otu is a child, via synonymy or not, of the taxon name 
+  #   !! Invalid taxon_name_ids return nothing
+  #   !! Taxon names with synonyms return the OTUs of their synonyms
+  def self.descendant_of_taxon_name(taxon_name_id)
+    o = Otu.arel_table
+    t = TaxonName.arel_table
+    h = TaxonNameHierarchy.arel_table
+
+    q = o.join(t, Arel::Nodes::InnerJoin).on(
+      o[:taxon_name_id].eq( t[:id]))
+      .join(h, Arel::Nodes::InnerJoin).on(
+        t[:cached_valid_taxon_name_id].eq(h[:descendant_id]))
+      
+    Otu.joins(q.join_sources).where(h[:ancestor_id].eq(taxon_name_id).to_sql)
   end
 
   def current_collection_objects

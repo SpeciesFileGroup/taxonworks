@@ -392,13 +392,14 @@ class Source::Bibtex < Source
   end
 
   # Instantiates a Source::Bibtex instance from a BibTeX::Entry
-  # Note: note conversion is handled in note setter.
-  #       identifiers are handled in associated setter.
-  # !! Unrecognized attributes are added as import attributes.
+  # Note:
+  #    * note conversion is handled in note setter.
+  #    * identifiers are handled in associated setter.
+  #    * !! Unrecognized attributes are added as import attributes.
   #
   # Usage:
   #    a = BibTeX::Entry.new(bibtex_type: 'book', title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
-  #    b = Source::Bibtex.new(a)
+  #    b = Source::Bibtex.new_from_bibtex(a)
   #
   # @param [BibTex::Entry] bibtex_entry the BibTex::Entry to convert
   # @return [Source::BibTex.new] a new instance
@@ -608,7 +609,12 @@ class Source::Bibtex < Source
   #   the identifier of this type, relies on Identifier to enforce has_one for Global identifiers
   #   !! behaviour for Identifier::Local types may be unexpected
   def identifier_string_of_type(type_value)
-    identifiers.where(type: type_value).first&.identifier
+    # Also handle in memory
+    identifiers.each do |i|
+      return i.identifier if i.type == type_value
+    end
+    nil
+    # identifiers.where(type: type_value).first&.identifier
   end
 
  #endregion getters & setters
@@ -693,12 +699,11 @@ class Source::Bibtex < Source
 
     b.year = year_with_suffix if !year_suffix.blank?
     b[:keywords] = verbatim_keywords     unless verbatim_keywords.blank?
+    b[:note] = concatenated_notes_string if !concatenated_notes_string.blank?
 
-    b[:note] = concatenated_notes_string if !concatenated_notes_string.blank? # see Notable
-    
     unless serial.nil?
       b[:journal] = serial.name
-      issns  = serial.identifiers.where(type: 'Identifier::Global::Issn') # of_type(:issn)
+      issns  = serial.identifiers.where(type: 'Identifier::Global::Issn')
       unless issns.empty?
         b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
       end
@@ -706,18 +711,18 @@ class Source::Bibtex < Source
 
     unless serial.nil?
       b[:journal] = serial.name
-      issns = serial.identifiers.where(type: 'Identifier::Global::Issn') # .of_type(:issn)
+      issns = serial.identifiers.where(type: 'Identifier::Global::Issn')
       unless issns.empty?
         b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
       end
     end
 
-    uris = identifiers.where(type: 'Identifier::Global::Uri') # of_type(:uri)
+    uris = identifiers.where(type: 'Identifier::Global::Uri')
     unless uris.empty?
       b[:url] = uris.first.identifier # TW only allows one URI per object
     end
 
-    isbns = identifiers.where(type: 'Identifier::Global::Isbn') #.of_type(:isbn)
+    isbns = identifiers.where(type: 'Identifier::Global::Isbn')
     unless isbns.empty?
       b[:isbn] = isbns.first.identifier # TW only allows one ISBN per object
     end

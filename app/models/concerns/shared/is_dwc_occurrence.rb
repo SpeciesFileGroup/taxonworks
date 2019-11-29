@@ -6,11 +6,13 @@ module Shared::IsDwcOccurrence
   included do
     delegate :persisted?, to: :dwc_occurrence, prefix: :dwc_occurrence, allow_nil: true
 
-    attr_accessor :generate_dwc_occurrence
+    # @return Boolean, nil
+    #   when true prevents automatic dwc_index from being created
+    attr_accessor :no_dwc_occurrence
 
     has_one :dwc_occurrence, as: :dwc_occurrence_object
 
-    after_save :set_dwc_occurrence, if: -> { generate_dwc_occurrence }
+    after_save :set_dwc_occurrence, unless: -> { no_dwc_occurrence }
 
     scope :dwc_indexed, -> {joins(:dwc_occurrence)}
     scope :dwc_not_indexed, -> { includes(:dwc_occurrence).where(dwc_occurrences: {id: nil}) }
@@ -30,15 +32,14 @@ module Shared::IsDwcOccurrence
   end
 
   # @return [DwcOccurrence]
-  #   always rebuilds
-  #  TODO:  !! Currently uses updater_id of this record, need to change that to be user-definable
+  #   always touches the database
   def set_dwc_occurrence
     if dwc_occurrence_persisted?
-      dwc_occurrence.update(dwc_occurrence_attributes)
+      dwc_occurrence.update!(dwc_occurrence_attributes)
     else
       create_dwc_occurrence!(dwc_occurrence_attributes)
     end
-    dwc_occurrence
+    dwc_occurrence # .reload
   end
 
   def dwc_occurrence_attributes

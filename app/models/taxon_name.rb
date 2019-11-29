@@ -142,6 +142,7 @@ class TaxonName < ApplicationRecord
   include Shared::HasPapertrail
   include SoftValidation
   include Shared::IsData
+  include TaxonName::OtuSyncronization
 
   # Allows users to provide arbitrary annotations that "over-ride" rank string
   ALTERNATE_VALUES_FOR = [:rank_class].freeze # !! Don't even think about putting this on `name`
@@ -286,6 +287,9 @@ class TaxonName < ApplicationRecord
   scope :with_cached_valid_taxon_name_id, -> (cached_valid_taxon_name_id) {where(cached_valid_taxon_name_id: cached_valid_taxon_name_id)}
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
   scope :with_cached_html, -> (html) { where(cached_html: html) } # WHY? - DEPRECATE for cached
+
+  scope :without_otus, -> { includes(:otus).where(otus: {id: nil}) }
+  scope :with_otus, -> { includes(:otus).where.not(otus: {id: nil}) }
 
   # @return Scope
   #   names that are not leaves

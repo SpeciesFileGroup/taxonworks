@@ -24,15 +24,7 @@ export default {
       tasks: [
       {
         label: 'New source',
-        url: '/sources/new'  
-      },
-      {
-        label: 'New source from Bibtex',
-        url: '/tasks/sources/individual_bibtex_source/index'
-      },
-      {
-        label: 'New source from citation',
-        url: '/tasks/bibliography/verbatim_reference/new'
+        url: '/tasks/sources/new_source'  
       },
       {
         label: 'Batch load',

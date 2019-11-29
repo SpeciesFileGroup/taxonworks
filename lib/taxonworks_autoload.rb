@@ -5,6 +5,7 @@ module TaxonWorksAutoload
   # Order matters throughout this block (sigh)
   %w{
     /lib/vendor/**/*.rb
+    /lib/analysis/**/*.rb
     /config/routes/api.rb
   }.each do |path|
     a = Dir[Rails.root.to_s + path].sort

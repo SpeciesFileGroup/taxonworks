@@ -11,7 +11,7 @@ const ajaxCall = function (type, url, data = null) {
       return resolve(response)
     }, response => {
       console.log(response)
-      handleError(response)
+      handleError(response.body)
       return reject(response)
     })
   })
@@ -23,7 +23,8 @@ const handleError = function (json) {
   let errorMessage = ''
 
   errors.forEach(function (item) {
-    errorMessage += json[item].join('<br>')
+    console.log(item)
+    errorMessage += json[item].join('<br>') + '<br>'
   })
 
   TW.workbench.alert.create(errorMessage, 'error')

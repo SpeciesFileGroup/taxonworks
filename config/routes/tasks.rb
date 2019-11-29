@@ -1,4 +1,19 @@
 scope :tasks do
+  scope :asserted_distributions do
+    scope :basic_endemism, controller: 'tasks/asserted_distributions/basic_endemism' do
+      get '/', action: :index, as: 'asserted_distributions_basic_endemism_task'
+    end
+
+    scope :new_asserted_distribution, controller: 'tasks/asserted_distributions/new_asserted_distribution' do
+      get '/', action: :index, as: 'new_asserted_distribution_task'
+    end
+
+    scope :new_from_map, controller: 'tasks/asserted_distributions/new_from_map' do
+      get 'new', action: 'new', as: 'new_asserted_distribution_from_map_task'
+      get 'generate_choices'
+      post 'create', action: 'create', as: 'create_asserted_distribution_from_map_task'
+    end
+  end
 
   scope :exports do
     scope :coldp, controller: 'tasks/exports/coldp' do
@@ -10,12 +25,6 @@ scope :tasks do
   scope :matrix_image do
     scope :matrix_image, controller: 'tasks/matrix_image/matrix_image' do
       get :index, as: 'index_matrix_image_task'
-    end
-  end
-
-  scope :asserted_distribution do
-    scope :new_asserted_distribution, controller: 'tasks/asserted_distribution/new_asserted_distribution' do
-      get :index, as: 'index_new_asserted_distribution_task'
     end
   end
 
@@ -88,17 +97,22 @@ scope :tasks do
   end
 
   scope :sources do
+    scope :new_source, controller: 'tasks/sources/new_source' do
+      get '/', action: :index, as: 'new_source_task'
+      get 'crossref_preview', as: 'preview_source_from_crossref_task', defaults: {format: :json}
+    end
+
     scope :hub, controller: 'tasks/sources/hub' do
-      get :index, as: 'index_hub_task'
+      get '/', action: :index, as: 'source_hub_task'
     end
 
     scope :individual_bibtex_source, controller: 'tasks/sources/individual_bibtex_source' do
-      get 'index', as: 'index_individual_bibtex_source_task'
+      get '/', action: :index, as: 'new_bibtex_source_task'
     end
 
-    scope :browse, controller: 'tasks/sources/browse' do
-      get 'index', as: 'browse_sources_task'
-      get 'find', as: 'find_sources_task'
+    scope :find, controller: 'tasks/sources/find' do
+      get '/', action: :index, as: 'find_sources_task'
+      get 'find', as: 'find_sources_query_task'
     end
   end
 
@@ -186,15 +200,6 @@ scope :tasks do
     end
   end
 
-  scope :bibliography do
-    scope :verbatim_reference, controller: 'tasks/bibliography/verbatim_reference' do
-      get 'new', as: 'new_verbatim_reference_task'
-      post 'preview', as: 'preview_verbatim_reference_task'
-      post 'create_verbatim', as: 'create_verbatim_from_reference_task'
-      post 'create_bibtex', as: 'create_bibtex_from_reference_task'
-    end
-  end
-
   scope :biological_associations do
     scope :dot, controller: 'tasks/biological_associations/dot' do
       get 'by_project/:project_id', action: :project_dot_graph, as: :biological_associations_dot_graph_task
@@ -224,12 +229,6 @@ scope :tasks do
     scope :geographic_area_lookup, controller: 'tasks/gis/geographic_area_lookup' do
       get 'index', as: 'geographic_area_lookup_task'
       get 'resolve', as: 'geographic_area_lookup_resolve_task', format: :js
-    end
-
-    scope :asserted_distribution, controller: 'tasks/gis/asserted_distribution' do
-      get 'new', action: 'new', as: 'new_asserted_distribution_task'
-      post 'create', action: 'create', as: 'create_asserted_distribution_task'
-      get 'generate_choices'
     end
   end
 
@@ -347,6 +346,12 @@ scope :tasks do
   end
 
   scope :taxon_names do
+    scope :syncronize_otus, controller: 'tasks/taxon_names/syncronize_otus' do
+      get 'index', as: 'syncronize_otus_to_nomenclature_task'
+      post 'index', as: 'preview_syncronize_otus_to_nomenclature_task'
+      post 'syncronize', as: 'syncronize_otus_task' 
+    end
+
     scope :filter, controller: 'tasks/taxon_names/filter' do
       get :index, as: 'index_filter_task'
     end
