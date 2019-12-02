@@ -11,12 +11,15 @@
         <div
           class="middle separate-top"
           v-if="selected">
-          <span
-            class="separate-right"
-            v-html="selected.name"/>
-          <span
-            class="button-circle btn-undo button-default separate-left"
-            @click="unset"/>
+          <div class="horizontal-left-content">
+            <span
+              class="separate-right"
+              v-html="selected.name"/>
+            <radial-object :global-id="selected.global_id"/>
+            <span
+              class="button-circle btn-undo button-default separate-left"
+              @click="unset"/>
+          </div>
         </div>
       </fieldset>
       <div class="vertical-content">
@@ -40,6 +43,7 @@ import { MutationNames } from '../../store/mutations/mutations'
 import LockComponent from 'components/lock'
 import SmartSelector from 'components/smartSelector'
 import DefaultPin from 'components/getDefaultPin'
+import RadialObject from 'components/radial_object/radialObject'
 
 import AjaxCall from 'helpers/ajaxCall'
 
@@ -47,7 +51,8 @@ export default {
   components: {
     SmartSelector,
     LockComponent,
-    DefaultPin
+    DefaultPin,
+    RadialObject
   },
   computed: {
     source: {
