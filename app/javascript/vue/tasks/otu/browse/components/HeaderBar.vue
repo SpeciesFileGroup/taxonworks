@@ -1,16 +1,6 @@
 <template>
-  <div class="panel header-bar separate-bottom">
-    <div class="container content">
-      <div class="flex-separate middle">
-        <h1>Browse taxa</h1>
-        <autocomplete
-          class="float_right"
-          url="/otus/autocomplete"
-          placeholder="Search a otu"
-          param="term"
-          @getItem="loadOtu"
-          label="label_html"/>
-      </div>
+  <div class="panel separate-bottom">
+    <div class="content">
       <ul
         v-if="navigation"
         class="breadcrumb_list">
