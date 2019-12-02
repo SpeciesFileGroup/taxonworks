@@ -1,7 +1,7 @@
 class OtusController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_otu, only: [:show, :edit, :update, :destroy, :collection_objects, :navigation, :breadcrumbs]
+  before_action :set_otu, only: [:show, :edit, :update, :destroy, :collection_objects, :navigation, :breadcrumbs, :timeline]
   after_action -> { set_pagination_headers(:otus) }, only: [:index], if: :json_request? 
 
   # GET /otus
@@ -34,6 +34,11 @@ class OtusController < ApplicationController
 
   def list
     @otus = Otu.with_project_id(sessions_current_project_id).page(params[:page]).per(params[:per])
+  end
+
+  # GET /otus/1/timeline.json
+  def timeline
+    @catalog = Catalog::Timeline.new(targets: [@otu])
   end
 
   # GET /otus/1/navigation.json

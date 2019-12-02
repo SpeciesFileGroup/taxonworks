@@ -2,6 +2,11 @@
 # Each history_ method must generate a span
 module TaxonNames::CatalogHelper
 
+  def nomenclature_catalog_entry_item_tag(catalog_entry_item)
+    nomenclature_line_tag(catalog_entry_item, catalog_entry_item.base_object)
+  end
+
+  # TODO: rename reference_taxon_name
   def nomenclature_catalog_li_tag(nomenclature_catalog_item, reference_taxon_name, target = :browse_nomenclature_task_path)
     content_tag(
       :li,
@@ -11,6 +16,7 @@ module TaxonNames::CatalogHelper
     ) 
   end
 
+  # TODO: move to Catalog json data attributes helper
   def nomenclature_catalog_li_tag_data_attributes(nomenclature_catalog_item)
     n = nomenclature_catalog_item
     data = {
@@ -22,14 +28,14 @@ module TaxonNames::CatalogHelper
     data
   end
 
+  # TODO: rename reference_taxon_name
   def nomenclature_line_tag(nomenclature_catalog_item, reference_taxon_name, target = :browse_nomenclature_task_path)
     i = nomenclature_catalog_item
-    t = i.taxon_name
+    t = i.base_object # was taxon_name 
     c = i.citation
     r = reference_taxon_name
 
     [ 
-#      history_origin(i), 
       history_taxon_name(t, r, c, target),        # the subject, or protonym
       history_author_year(t, c),                  # author year of the subject, or protonym
       history_statuses(i),                        # TaxonNameClassification summary
@@ -39,14 +45,9 @@ module TaxonNames::CatalogHelper
       history_pages(c),                           #  pages for citation of related name
       history_citation_notes(c),                  # Notes on the citation
       history_topics(c),                          # Topics on the citation
-#      (i.object.class.name == 'Protonym' ? history_type_material(t, i.is_subsequent?) : nil), # Type material reference 
       history_type_material(i),
     ].compact.join.html_safe
   end
-
-# def history_origin(i)
-#   content_tag(:span, i.origin.humanize, class: ['history__origin', i.origin ])
-# end
 
   def history_taxon_name(taxon_name, r, c, target = nil)
     name = original_taxon_name_tag(taxon_name)
@@ -128,7 +129,7 @@ module TaxonNames::CatalogHelper
   #   A brief summary of the validity of the name (e.g. 'Valid')
   #     ... think this has to be refined, it doesn't quite make sense to show multiple status per relationship
   def history_statuses(i)
-    s = i.taxon_name.taxon_name_classifications_for_statuses
+    s = i.base_object.taxon_name_classifications_for_statuses
     return nil if (s.empty? || i.is_subsequent?)
     return nil if i.from_relationship?
 
@@ -183,7 +184,7 @@ module TaxonNames::CatalogHelper
 
   def history_type_material(entry_item)
     return nil if entry_item.object_class != 'Protonym' || entry_item.is_subsequent?
-    content_tag(:span, ' '.html_safe + type_taxon_name_relationship_tag(entry_item.taxon_name.type_taxon_name_relationship), class: 'history__type_information')
+    content_tag(:span, ' '.html_safe + type_taxon_name_relationship_tag(entry_item.base_object.type_taxon_name_relationship), class: 'history__type_information')
   end
 
   protected

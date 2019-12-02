@@ -430,6 +430,7 @@ resources :otus do
   end
 
   member do
+    get :timeline, defaults: {format: :json}
     get :navigation, defaults: {format: :json}
     get :breadcrumbs, defaults: {format: :json}
   end

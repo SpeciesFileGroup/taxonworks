@@ -93,5 +93,9 @@ module OtusHelper
     end
     above
   end
-  
+ 
+  def otu_catalog_entry_item_tag(catalog_entry_item)
+    otu_tag(catalog_entry_item.object)
+  end
+
 end

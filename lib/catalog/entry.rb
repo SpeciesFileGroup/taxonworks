@@ -1,0 +1,134 @@
+# A Catalog::Entry has many entry items.  Together CatalogEntrys form a Catalog
+class Catalog::Entry
+
+  # The target object for this entry
+  attr_accessor :object
+
+  # @return [Array]
+  # Each item is a line item in the Entry
+  attr_accessor :items
+
+  # @return [Array]
+  # All observed dates for this entry
+  attr_accessor :dates
+
+  # @return [Array]
+  # All Sources observed for this entry
+  attr_accessor :sources
+
+  # @return [Array]
+  # All Topics observed for this entry 
+  attr_accessor :topics
+
+  # @return [Array]
+  #   of strings, the array determines nesting order
+  #   all entries in the catalog should have `sorts` of the same length
+  attr_accessor :sort_order
+
+  def initialize(object, sort_order = [])
+    @object = object
+    @items = []
+    @sort_order = sort_order 
+    build
+  end
+
+  # Redefined in subclasses! 
+  # !! This is default only, it should be defined in subclasses.
+  def build
+    @items << Catalog::EntryItem.new(object: object, citation: object.origin_citation )
+  end
+
+  # @return [Array of NomenclatureCatalog::EntryItem]
+  #   sorted by date, then taxon name name as rendered for this item
+  def ordered_by_nomenclature_date
+    Catalog.chronological_item_sort(items)
+  end
+
+  # @param [Source] source
+  # @return [Array of Topics]
+  #   an extraction of all Topics referenced in citations that
+  #   were observed in this CatalogEntry for the source
+  #   TODO: SET/BUILD?
+  def topics_for_source(source)
+    topics = []
+    items.each do |i|
+      topics += i.object.topics if i.source == source
+    end
+    topics.uniq
+  end
+
+  # @return [Scope]
+  def topics
+    @topics ||= all_topics
+    @topics
+  end
+
+  # @return [Array]
+  def date_range
+    [dates.first, dates.last].compact
+  end
+
+  # @return [Scope]
+  def dates
+    @dates ||= all_dates
+    @dates
+  end
+
+  # @return [Scope]
+  def sources
+    @sources ||= all_sources
+    @sources
+  end
+
+  # @return [Hash]
+  def year_hash
+    h = {}
+    dates.each do |d|
+      if h[d.year]
+        h[d.year] += 1
+      else
+        h[d.year] = 1
+      end
+    end
+    h
+  end
+ 
+  def to_json
+    return {
+      item_count: items.count,
+    }
+  end
+
+  protected
+
+  # @return [Array of Source]
+  # !! Redefined in some subclasses
+  def all_sources 
+    items.collect{|i| i.source} || []
+  end
+
+  # @return [Array]
+  # Some duplication here 
+  def all_dates
+    d = []
+    sources.each do |s|
+      d.push s.nomenclature_date # was cached_nomenclature_date (a Date)
+    end
+
+    items.each do |i|
+      d.push i.nomenclature_date
+    end
+    
+    d.compact.uniq.sort
+  end
+
+  # @return [Array]
+  def all_topics
+    t = []
+    sources.each do |s|
+      t.push topics_for_source(s)
+    end
+    t.flatten.uniq.compact.sort
+  end
+
+end

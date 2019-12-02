@@ -66,7 +66,7 @@
               <div class="attributes"> 
                 <ul class="taxonomic_history">
                   <% @data.ordered_by_nomenclature_date.each do |c| -%>
-                    <%= nomenclature_catalog_li_tag(c, @data.reference_taxon_name, :browse_nomenclature_task_path) -%> 
+                    <%= nomenclature_catalog_li_tag(c, @data.object, :browse_nomenclature_task_path) -%> 
                   <% end %>
                 </ul>
                 <br/>
