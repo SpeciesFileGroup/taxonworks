@@ -10,16 +10,13 @@ module Otus::CatalogHelper
     c = i.citation
     r = reference_otu
 
-    [ 
-      history_otu(t, r, c) # , target),        # the subject, or protonym
- #    history_author_year(t, c),                  # author year of the subject, or protonym
- #    history_statuses(i),                        # TaxonNameClassification summary
- #    history_subject_original_citation(i),
- #    history_in(t, c),                           #  citation for related name
- #    history_pages(c),                           #  pages for citation of related name
- #    history_citation_notes(c),                  # Notes on the citation
- #    history_topics(c),                          # Topics on the citation
+    [ history_otu(t, r, c)        # the subject, or protonym
+      history_in(c.source),       # citation for related name
+      history_pages(c),           # pages for citation of related name
+      history_citation_notes(c),  # Notes on the citation
+      history_topics(c),          # Topics on the citation
     ].compact.join.html_safe
+
   end
 
   def history_otu(otu, r, c, target = nil)

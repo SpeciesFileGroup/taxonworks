@@ -25,7 +25,6 @@ module Lib::CatalogHelper
     return content_tag(:span,  content_tag(:em, ' in ') + source_author_year_tag(source), class: [:history__in])
   end
 
-
   protected
 
   # @return [String, nil]
@@ -34,7 +33,4 @@ module Lib::CatalogHelper
     return nil if citation.nil?
     'history__original_description' if citation.is_original? && object == citation.citation_object
   end
-
-
-
 end
