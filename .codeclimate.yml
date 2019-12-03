@@ -19,6 +19,8 @@ engines:
   rubocop:
     enabled: true
     channel: rubocop-0-76
+    config:
+      file: ".rubocop-codeclimate.yml"
 ratings:
   paths:
   - Gemfile.lock
