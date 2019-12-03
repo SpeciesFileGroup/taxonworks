@@ -49,7 +49,7 @@ const GetBiologicalAssociations = function (globalId) {
 }
 
 const GetNomenclatureHistory = function (id) {
-  return ajaxCall('get', `/taxon_names/${id}/catalog`)
+  return ajaxCall('get', `/otus/${id}/timeline.json`)
 }
 
 const GetCommonNames = function(id) {
