@@ -10,6 +10,7 @@ gem 'rake', '~> 13.0'
 gem 'rails', '5.2.3'
 gem 'pg', '~> 1.1'
 gem 'activerecord-postgis-adapter', '~> 5.2.1'
+gem 'transaction_retry', '~> 1.0', '>= 1.0.3'
 
 gem 'hiredis', '~> 0.6.1'
 gem 'redis', '~> 4.1.0'
