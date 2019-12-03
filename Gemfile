@@ -131,6 +131,8 @@ group :development do
   gem 'rubocop', '~> 0.76'
   gem 'rubocop-rails', '~> 2.3'
   gem 'rubocop-rspec', '~>1.36'
+  gem 'rubocop-faker', '~> 0.2.0'
+
   gem 'brakeman', '~> 4.4.0', require: false
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'
 end
