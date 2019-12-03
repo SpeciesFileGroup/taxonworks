@@ -13,6 +13,14 @@
           {{ item.label }}
         </label>
       </div>
+      <div class="separate-right">
+        <label>
+          <input
+            v-model="current"
+            type="checkbox"/>
+          Current
+        </label>
+      </div>
     </div>
     <div>
       <h3>Citations</h3>
@@ -71,7 +79,8 @@ export default {
           key: 'history-valid-name',
           value: true
         }
-      ]
+      ],
+      current: false
     }
   },
   watch: {
@@ -88,9 +97,9 @@ export default {
   },
   methods: {
     checkFilter (item) {
-      return this.filterSelected.every(filter => {
+      return (this.filterSelected.every(filter => {
         return item.data_attributes[filter.key] == filter.value
-      })
+      }) && (this.current ? item.data_attributes['history-object-id'] === this.nomenclature.reference_object_valid_taxon_name : true))
     },
     filterSource(source) {
       let globalIds = source[Object.keys(source)[0]].objects
