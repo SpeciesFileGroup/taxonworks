@@ -55,4 +55,22 @@ class Catalog
     t.uniq
   end
 
+  def sources
+    t = []
+    entries.each do |e|
+      t += e.sources
+    end
+    t.uniq
+  end
+
+  # TODO: optimize ;)
+  def objects_for_source(source)
+    d = []
+
+    items.each do |i|
+      d << i if i.in_source?(source)
+    end
+    d.uniq
+  end
+
 end

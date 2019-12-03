@@ -38,7 +38,7 @@ class Catalog::EntryItem
   def base_data_attributes
     {
       'history-origin' => origin,
-      'history-object-id' => object.id,
+      'history-object-id' => object.to_global_id.to_s,
     }
   end
 
@@ -92,6 +92,11 @@ class Catalog::EntryItem
       t += object.topics 
     end
     t.uniq
+  end
+
+  # TODO: optimize indecies so this is not needed.
+  def in_source?(target_source)
+    source == target_source
   end
 
   protected
