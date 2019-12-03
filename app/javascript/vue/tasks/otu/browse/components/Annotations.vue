@@ -1,10 +1,6 @@
 <template>
   <section-panel title="Annotations">
     <list-component
-      v-if="citations.length"
-      title="Citations"
-      :list="citations"/>
-    <list-component
       v-if="dataAttributes.length"
       title="Data attributes"
       :list="dataAttributes"/>
@@ -27,7 +23,7 @@
 
 import SectionPanel from './shared/sectionPanel'
 import ListComponent from './shared/list'
-import { GetIdentifiers, GetNotes, GetTags, GetCitations, GetDataAttributes } from '../request/resources.js'
+import { GetIdentifiers, GetNotes, GetTags, GetDataAttributes } from '../request/resources.js'
 
 export default {
   components: {
@@ -43,7 +39,6 @@ export default {
     return {
       identifiers: [],
       notes: [],
-      citations: [],
       dataAttributes: [],
       tags: []
     }
@@ -60,9 +55,6 @@ export default {
           })
           GetNotes(this.otu.id).then(response => {
             this.notes = response.body
-          })
-          GetCitations('otus', this.otu.id).then(response => {
-            this.citations = response.body
           })
           GetDataAttributes(this.otu.id).then(response => {
             this.dataAttributes = response.body
