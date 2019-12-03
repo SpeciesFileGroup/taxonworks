@@ -20,6 +20,7 @@
       <header-bar
         class="container separate-bottom"
         :otu="otu" />
+      <div class="separate-top separate-bottom"></div>
       <draggable
         class="container"
         handle=".handle"
