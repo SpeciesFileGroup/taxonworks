@@ -5,7 +5,10 @@ describe Catalog::Entry, group: :catalogs, type: :spinup do
  
   let!(:o) { Otu.create!(name: 'foo') }
   let!(:source) { FactoryBot.create(:valid_source_bibtex, year: 2019) }
-  let!(:citation) { Citation.create!(is_original: true, source: source, citation_object: o) }
+  let!(:topic1) { FactoryBot.create(:valid_topic, name: 'Juice') }
+  let!(:topic2) { FactoryBot.create(:valid_topic, name: 'Syrup') }
+  let!(:citation) { Citation.create!(is_original: true, source: source, citation_object: o, citation_topics_attributes: [{topic: topic1}, {topic: topic2} ]) }
+
   let(:catalog_entry) { Catalog::Entry.new(o) }
 
   specify '#items' do
@@ -25,7 +28,7 @@ describe Catalog::Entry, group: :catalogs, type: :spinup do
   end
 
   specify '#topics' do
-    expect(catalog_entry.topics).to eq([]) 
+    expect(catalog_entry.topics).to contain_exactly(topic1, topic2) 
   end
 
   specify '#date_range' do

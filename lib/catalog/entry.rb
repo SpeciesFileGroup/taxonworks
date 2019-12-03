@@ -52,7 +52,8 @@ class Catalog::Entry
   def topics_for_source(source)
     topics = []
     items.each do |i|
-      topics += i.object.topics if i.source == source
+      # topics += i.object.topics if i.source == source
+      topics += i.topics if i.source == source
     end
     topics.uniq
   end
@@ -122,7 +123,7 @@ class Catalog::Entry
     d.compact.uniq.sort
   end
 
-  # @return [Array]
+  # @return [Array of Topics]
   def all_topics
     t = []
     sources.each do |s|

@@ -47,4 +47,12 @@ class Catalog
     entry_items.sort{|a,b| [(a.nomenclature_date || now) ] <=> [(b.nomenclature_date || now) ] }
   end
 
+  def topics
+    t = []
+    entries.each do |e|
+      t += e.topics
+    end
+    t.uniq
+  end
+
 end

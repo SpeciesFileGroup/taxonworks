@@ -21,32 +21,9 @@ class Catalog::Nomenclature::Entry < Catalog::Entry
   end
 
   # @return [Array of EntryItems]
-  #    only those entry items that reference a TaxonNameRelationship
+  #   only those entry items that reference a TaxonNameRelationship
   def relationship_items
     items.select{|i| i.object_class =~ /TaxonNameRelationship/}
-  end
-
-  # @param [Source] source
-  # @return [Array of Topics]
-  #   an extraction of all Topics referenced in citations that
-  #   were observed in this CatalogEntry for the source
-  def topics_for_source(source)
-    topics = []
-    items.each do |i|
-      topics += i.object.topics if i.source == source
-    end
-    topics.uniq
-  end
-
-  # @return [Scope]
-  def topics
-    @topics ||= all_topics
-    @topics
-  end
-
-  # @return [Array]
-  def date_range
-    [dates.first, dates.last].compact
   end
 
   # @return [Scope]
@@ -56,7 +33,7 @@ class Catalog::Nomenclature::Entry < Catalog::Entry
   end
 
   # @param [TaxonName] taxon_name
-  def build # (taxon_name)
+  def build
     v = object.valid_taxon_name
     base_names = v.historical_taxon_names
     base_names.each do |t|
@@ -78,7 +55,6 @@ class Catalog::Nomenclature::Entry < Catalog::Entry
         end
 
         r.citations.each do |c|
-          # naked_protonym = false unless t.is_valid?
           items << Catalog::Nomenclature::EntryItem.new(
             object: r,
             base_object: r.subject_taxon_name,
@@ -99,7 +75,8 @@ class Catalog::Nomenclature::Entry < Catalog::Entry
     [object, catalog_item.base_object, catalog_item.other_name].compact.uniq
   end
 
-  # @return [Array]
+  # @return [Array of TaxonName]
+  #   a summary of all names referenced in this entry 
   def all_names
     n = [ object ]
     items.each do |i|

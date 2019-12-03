@@ -84,6 +84,16 @@ class Catalog::EntryItem
     end
   end
 
+  # @return [Array of Topic] 
+  #   the topics on this object for this Citation/Source combination *only*
+  def topics
+    t = []
+    if source
+      t += object.topics 
+    end
+    t.uniq
+  end
+
   protected
 
   # @return [String]

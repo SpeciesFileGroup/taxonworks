@@ -7,9 +7,17 @@ json.entries do
   end
 end
 
+json.topics do
+  json.array! @catalog.topics.collect{|t| {t.to_global_id.to_s => t.name} }
+end
+
 json.items do
   json.array! @catalog.items_chronologically do |i|
     json.data_attributes i.data_attributes
+
+    json.topics do
+      json.array! i.topics.collect{|t| t.to_global_id.to_s}
+    end
 
     json.label_html send(i.html_helper, i)
     json.nomenclature_date i.nomenclature_date

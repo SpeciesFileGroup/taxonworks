@@ -15,7 +15,18 @@ class Catalog::Otu::Entry < ::Catalog::Entry
   end
 
   def from_self
-    ::Otu.coordinate_otus(object.id).each do |o|
+    a = ::Otu.coordinate_otus(object.id).load
+
+    # It's just this OTU, and it's never been cited, 
+    # or cross-referenced to another name, etc.
+    if a.size == 1 && object.citations.none?
+      @items << Catalog::Otu::EntryItem.new(
+        object: object,
+        base_object: object,
+      )
+    end
+
+    a.each do |o|
       o.citations.each do |c|
         @items << Catalog::Otu::EntryItem.new(
           object: o,
