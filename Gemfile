@@ -7,7 +7,7 @@ ruby '2.6.3'
 gem 'bundler', '~> 2.0'
 
 gem 'rake', '~> 13.0'
-gem 'rails', '~> 6.0'
+gem 'rails', '~> 6.0.2.rc1'
 gem 'pg', '~> 1.1'
 gem 'activerecord-postgis-adapter', '~> 6.0'
 gem 'hiredis', '~> 0.6.1'
@@ -130,6 +130,7 @@ group :development do
   gem 'rubocop', '~> 0.70'
   gem 'rubocop-rails', '~> 2.3'
   gem 'rubocop-rspec', '~>1.36'
+  gem 'rubocop-faker', '~> 0.2.0'
   gem 'brakeman', '~> 4.6', '>= 4.6.1', require: false
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'
 end
