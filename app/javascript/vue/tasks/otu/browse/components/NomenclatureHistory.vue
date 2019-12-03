@@ -1,5 +1,5 @@
 <template>
-  <section-panel title="Nomenclature">
+  <section-panel title="Timeline">
     <div class="horizontal-left-content separate-top">
       <div
         v-for="item in filter"
@@ -93,7 +93,6 @@ export default {
       })
     },
     filterSource(source) {
-      console.log(source[Object.keys(source)[0]].objects)
       let globalIds = source[Object.keys(source)[0]].objects
       return this.nomenclature.items.find(item => {
         if (this.checkFilter(item)) {
