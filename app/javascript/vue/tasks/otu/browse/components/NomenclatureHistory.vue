@@ -15,12 +15,23 @@
       </div>
     </div>
     <div>
+      <h3>Citations</h3>
       <ul class="taxonomic_history">
         <li 
           v-for="item in nomenclature.items"
           v-if="checkFilter(item)">
           <span v-html="item.label_html"/>
         </li>
+      </ul>
+      <h3>References</h3>
+      <ul class="taxonomic_history">
+        <template v-for="source in nomenclature.sources">
+        <li 
+          v-for="item in source"
+          v-if="filterSource(source)">
+          <span v-html="item.cached"/>
+        </li>
+        </template>
       </ul>
     </div>
   </section-panel>
@@ -79,6 +90,15 @@ export default {
     checkFilter (item) {
       return this.filterSelected.every(filter => {
         return item.data_attributes[filter.key] == filter.value
+      })
+    },
+    filterSource(source) {
+      console.log(source[Object.keys(source)[0]].objects)
+      let globalIds = source[Object.keys(source)[0]].objects
+      return this.nomenclature.items.find(item => {
+        if (this.checkFilter(item)) {
+          return globalIds.includes(item.data_attributes['history-object-id'])
+        }
       })
     }
   }
