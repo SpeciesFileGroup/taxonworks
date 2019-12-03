@@ -8,7 +8,7 @@ json.entries do
 end
 
 json.topics do
-  json.array! @catalog.topics.collect{|t| {t.to_global_id.to_s => t.name} }
+  json.array! @catalog.topics.collect{|t| {t.to_global_id.to_s => { name: t.name, css_color: t.css_color} }}
 end
 
 json.items do
