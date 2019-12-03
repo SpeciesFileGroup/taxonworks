@@ -10,10 +10,10 @@ module Otus::CatalogHelper
     c = i.citation
     r = reference_otu
 
-    [ history_otu(t, r, c)        # the subject, or protonym
+    [ history_otu(t, r, c),        # the subject, or protonym
       history_in(c.source),       # citation for related name
       history_pages(c),           # pages for citation of related name
-      history_citation_notes(c),  # Notes on the citation
+      history_citation_notes(c), # Notes on the citation
       history_topics(c)           # Topics on the citation
     ].compact.join.html_safe
 
