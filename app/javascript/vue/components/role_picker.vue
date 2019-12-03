@@ -10,7 +10,7 @@
         min="2"
         @getInput="setInput"
         ref="autocomplete"
-        event-send="role_picker"
+        @getItem="addCreatedPerson"
         :clear-after="true"
         placeholder="Family name, given name"
         param="term"/>
@@ -124,25 +124,16 @@
         searchPerson: '',
         newNamePerson: '',
         person_attributes: this.makeNewPerson(),
-        roles_attributes: this.sortPosition(this.processedList(this.value))
+        roles_attributes: []
       }
-    },
-    mounted: function () {
-      this.$on('role_picker', function (item) {
-        if (!this.alreadyExist(item.object_id)) {
-          this.roles_attributes.push(this.addPerson(item))
-          this.$emit('input', this.roles_attributes)
-          this.$emit('create', this.addPerson(item))
-          this.person_attributes = this.makeNewPerson()
-        }
-      })
     },
     watch: {
       value: {
         handler(newVal) {
           this.roles_attributes = this.sortPosition(this.processedList(newVal))
         },
-        deep: true
+        deep: true,
+        immediate: true
       },
       searchPerson: function (newVal) {
         if (newVal.length > 0) {
@@ -165,8 +156,8 @@
         this.$refs.autocomplete.cleanInput()
       },
       getUrl(role) {
-        if (role.hasOwnProperty('person_id')) {
-          return `/people/${role.person_id}/edit`
+        if (role.hasOwnProperty('person_id') || role.hasOwnProperty('person')) {
+          return `/people/${role.hasOwnProperty('person_id') ? role.person_id : role.person.id}`
         } else {
           return '#'
         }
@@ -327,6 +318,18 @@
           last_name: this.getLastName(item.label),
           position: (this.roles_attributes.length + 1)
         }
+      },
+      addCreatedPerson: function (item) {
+        if (!this.alreadyExist(item.object_id)) {
+          this.roles_attributes.push(this.addPerson(item))
+          this.$emit('input', this.roles_attributes)
+          this.$emit('create', this.addPerson(item))
+          this.person_attributes = this.makeNewPerson()
+        }
+      },
+      setPerson: function (person) {
+        this.roles_attributes.push(person)
+        this.$emit('input', this.roles_attributes)
       }
     }
   }

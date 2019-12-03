@@ -39,10 +39,17 @@ describe TaxonWorks::Vendor::Serrano, type: :model, group: [:sources] do
         end
       end
 
-      specify 'naked_doi' do
+      specify 'naked_doi 1' do
         VCR.use_cassette('source_from_naked_doi') do
           s = TaxonWorks::Vendor::Serrano.new_from_citation(citation: naked_doi)
           expect(s.class).to eq(Source::Bibtex)
+        end
+      end
+
+      specify 'naked_doi sets DOI' do
+        VCR.use_cassette('source_from_naked_doi') do
+          s = TaxonWorks::Vendor::Serrano.new_from_citation(citation: naked_doi)
+          expect(s.doi).to eq(naked_doi)
         end
       end
 

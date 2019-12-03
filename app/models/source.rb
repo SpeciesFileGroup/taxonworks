@@ -214,7 +214,7 @@ class Source < ApplicationRecord
   has_many :citation_topics, through: :citations, inverse_of: :source
   has_many :topics, through: :citation_topics, inverse_of: :sources
 
-  # !! must be below has_man :citations
+  # !! must be below has_many :citations
   has_many :asserted_distributions, through: :citations, source: :citation_object, source_type: 'AssertedDistribution'
 
   has_many :project_sources, dependent: :destroy
@@ -224,7 +224,6 @@ class Source < ApplicationRecord
 
   validates_presence_of :type
   validates :type, inclusion: {in: ['Source::Bibtex', 'Source::Human', 'Source::Verbatim']} # TODO: not needed
-
   validate :validate_year_suffix, unless: -> { self.no_year_suffix_validation || (self.type != 'Source::Bibtex') }
 
   accepts_nested_attributes_for :project_sources, reject_if: :reject_project_sources

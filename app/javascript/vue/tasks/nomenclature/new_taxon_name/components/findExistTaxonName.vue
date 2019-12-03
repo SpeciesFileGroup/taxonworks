@@ -150,7 +150,7 @@ export default {
   }
 
   .find-taxonname-picker-width {
-    width: 510px;
+    width: 100%;
   }
 
   .find-taxonname-list {

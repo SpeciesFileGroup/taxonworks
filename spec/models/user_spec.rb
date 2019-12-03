@@ -6,7 +6,7 @@ describe User, type: :model do
                         password_confirmation: 'password',
                         email: 'user_model@example.com',
                         name: 'Bob'
-  ) }
+                       ) }
 
   subject { user }
 
@@ -46,7 +46,6 @@ describe User, type: :model do
         expect(user.hub_tab_order).to eq(DEFAULT_HUB_TAB_ORDER)
       end
     end
-
   end
 
   context 'authorization' do
@@ -73,15 +72,15 @@ describe User, type: :model do
 
     context 'when a project administrator' do
       before {
-        ProjectMember.create(project_id: $project_id, user: user, is_project_administrator: true)
+        ProjectMember.create(project_id: Current.project_id, user: user, is_project_administrator: true)
       }
 
       specify '#is_superuser(project)?' do
-        expect(user.is_superuser?(Project.find($project_id))).to be true
+        expect(user.is_superuser?(Project.find(Current.project_id))).to be true
       end
 
       specify '#administered_projects' do
-        expect(user.administered_projects).to contain_exactly(Project.find($project_id))
+        expect(user.administered_projects).to contain_exactly(Project.find(Current.project_id))
       end
 
       specify '#administers_projects?' do
@@ -229,7 +228,6 @@ describe User, type: :model do
 
     context 'add_recently_visited_to_footprint' do
 
-      # rubocop:disable Style/StringHashKeys
       specify 'with a route and no recent object' do
         user.add_recently_visited_to_footprint('/otus/')
         expect(user.footprints).to eq('recently_visited' => [{'/otus/' => {}}])
@@ -249,7 +247,6 @@ describe User, type: :model do
         expect(user.footprints).to eq('recently_visited' => [{object_route => {'object_type' => 'Otu',
                                                                                'object_id' => otu.id}}])
       end
-      # rubocop:enable Style/StringHashKeys
 
       specify 'current limit is 10 items' do
         (0..25).each do |i|
@@ -275,78 +272,9 @@ describe User, type: :model do
     end
   end
 
-  context 'finding user ids' do
-    let!(:u1) { FactoryBot.create(:valid_user, {name: 'Pat One', email: 'Pat1@work.com'}) }
-    let!(:u2) { FactoryBot.create(:valid_user, {name: 'Pat Two', email: 'Pat2@home.net'}) }
-    let!(:u3) { FactoryBot.create(:valid_user, {name: 'Pat Three', email: 'Pat3@work.net'}) }
-    let!(:u4) { FactoryBot.create(:valid_user, {name: 'Pat Four', email: 'Pat4@vacation.net'}) }
-
-    context 'find one user id' do
-      specify 'no user' do
-        expect(User.get_user_id('Pat2')).to eq(nil)
-      end
-
-      specify 'by full name' do
-        expect(User.get_user_id('Pat Two')).to eq(u2.id)
-      end
-
-      specify 'by email' do
-        expect(User.get_user_id('Pat1@work.com')).to eq(u1.id)
-      end
-
-      specify 'by id' do
-        expect(User.get_user_id(u1.id)).to eq(u1.id)
-      end
-
-      specify 'by id as string' do
-        expect(User.get_user_id(u1.id.to_s)).to eq(u1.id)
-      end
-
-      specify 'by User' do
-        expect(User.get_user_id(u4)).to eq(u4.id)
-      end
-    end
-
-    context 'find multiple user ids' do
-      specify 'no user' do
-        expect(User.get_user_ids('Ted', 'Mary', 'Sid')).to eq([])
-      end
-
-      specify 'by partial name' do
-        expect(User.get_user_ids('Two')).to eq([u2.id])
-        expect(User.get_user_ids('Pat')).to contain_exactly(u1.id, u2.id, u3.id, u4.id)
-      end
-
-      specify 'by partial email' do
-        expect(User.get_user_ids('.net')).to contain_exactly(u2.id, u3.id, u4.id)
-      end
-
-      specify 'by id' do
-        expect(User.get_user_ids(u4.id, u3.id, u1.id)).to contain_exactly(u1.id, u3.id, u4.id)
-      end
-
-      specify 'by User' do
-        expect(User.get_user_ids(u4, u2, u1)).to contain_exactly(u1.id, u2.id, u4.id)
-      end
-
-      specify 'by mixed input' do
-        expect(User.get_user_ids(u1.id, 'three', u2, 'vacation', 'at2@')).to contain_exactly(
-          u1.id,
-          u2.id,
-          u3.id,
-          u4.id)
-      end
-
-      specify 'by mixed input' do
-        expect(User.get_user_ids(u1.id, 'pat one', u1, 'work.com', 'at1@')).to contain_exactly(u1.id)
-      end
-    end
-  end
-
   context 'concerns' do
     it_behaves_like 'data_attributes'
     it_behaves_like 'notable'
     # it_behaves_like 'random_token_fields'
   end
-
 end

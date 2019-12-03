@@ -21,9 +21,8 @@ class Protonym < TaxonName
 
   FAMILY_GROUP_ENDINGS = %w{ini ina inae idae oidae odd ad oidea}.freeze
 
-  validates_presence_of :name
-  validates_presence_of :rank_class, message: 'is a required field'
   validates_presence_of :name, message: 'is a required field'
+  validates_presence_of :rank_class, message: 'is a required field'
 
   validate :validate_rank_class_class,
     :validate_parent_rank_is_higher,
@@ -732,7 +731,7 @@ class Protonym < TaxonName
   end
 
   def name_is_valid_format
-    rank_class.validate_name_format(self) if rank_class && rank_class.respond_to?(:validate_name_format) && !has_latinized_exceptions?
+    rank_class.validate_name_format(self) if name.present? && rank_class && rank_class.respond_to?(:validate_name_format) && !has_latinized_exceptions?
   end
 
   def create_otu

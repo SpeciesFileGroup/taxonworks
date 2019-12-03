@@ -127,9 +127,10 @@ group :development do
   gem 'guard-rspec', '~> 4.7.3', require: false
 
   gem 'web-console', '~> 4.0', '>= 4.0.1'
-  gem 'rubocop', '~> 0.70'
+  gem 'rubocop', '~> 0.76'
   gem 'rubocop-rails', '~> 2.3'
   gem 'rubocop-rspec', '~>1.36'
+  gem 'rubocop-faker', '~> 0.2.0'
   gem 'brakeman', '~> 4.6', '>= 4.6.1', require: false
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'
 end
