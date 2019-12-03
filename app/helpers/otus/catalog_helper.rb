@@ -14,7 +14,7 @@ module Otus::CatalogHelper
       history_in(c.source),       # citation for related name
       history_pages(c),           # pages for citation of related name
       history_citation_notes(c),  # Notes on the citation
-      history_topics(c),          # Topics on the citation
+      history_topics(c)           # Topics on the citation
     ].compact.join.html_safe
 
   end
