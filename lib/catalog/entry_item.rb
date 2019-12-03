@@ -1,13 +1,16 @@
 
 class Catalog::EntryItem
 
- # The focus of this entry item
-  # ?! is this an attribute of Catalog::Entry
-  attr_accessor :base_object # was taxon_name
+  # The focus of this entry item
+  #   This is not an attribute of Catalog::Entry (no!)
+  #      Entry -> taxon name 
+  #         EntryItem.object -> relationship
+  #         EntryItem.base_object -> synonym 
+  attr_accessor :base_object
 
   # The focus of this entry item
   attr_accessor :object
-  
+
   # Optional
   attr_accessor :citation
 
@@ -21,10 +24,7 @@ class Catalog::EntryItem
 
   # @param [Hash] args
   def initialize(object: nil, base_object: nil, citation: nil, nomenclature_date: nil, citation_date: nil)
-    raise if object.nil? # || base_object.nil? # will we always need double context? probably not
-     
-    # raise if nomenclature_date.nil? && !(object.class.to_s == 'Protonym' || 'Combination' || 'TaxonNameRelationship')
-
+    raise if object.nil?
     @object = object
     @base_object = base_object 
     @nomenclature_date = nomenclature_date
@@ -39,7 +39,14 @@ class Catalog::EntryItem
     {
       'history-origin' => origin,
       'history-object-id' => object.to_global_id.to_s,
+      'history-is-subsequent' => is_subsequent?
     }
+  end
+
+  # @return [Boolean]
+  def is_subsequent?
+    # object == taxon_name && !citation.try(:is_original?)
+    object == base_object && !citation.nil? && !citation.is_original?
   end
 
   # See Subclasses for extensions
@@ -66,10 +73,9 @@ class Catalog::EntryItem
       nil
     end
   end
-
-  # TODO: just base class ..
   
   # @return [String]
+  #  do not update with base_class
   def object_class
     object.class.name
   end

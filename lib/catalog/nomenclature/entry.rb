@@ -37,11 +37,12 @@ class Catalog::Nomenclature::Entry < Catalog::Entry
     v = object.valid_taxon_name
     base_names = v.historical_taxon_names
     base_names.each do |t|
+
+      items << Catalog::Nomenclature::EntryItem.new(object: t, base_object: t, citation: nil, nomenclature_date: t.nomenclature_date) if !t.citations.load.any? # TODO: base_object correct
+
       t.citations.each do |c|
         items << Catalog::Nomenclature::EntryItem.new(object: t, base_object: t, citation: c, nomenclature_date: c.source.cached_nomenclature_date) # TODO: base_object correct?
       end
-
-      items << Catalog::Nomenclature::EntryItem.new(object: t, base_object: t, citation: nil, nomenclature_date: t.nomenclature_date) if !t.citations.load.any? # TODO: base_object correct
 
       ::TaxonNameRelationship.where_subject_is_taxon_name(t).with_type_array(STATUS_TAXON_NAME_RELATIONSHIP_NAMES).each do |r|
 

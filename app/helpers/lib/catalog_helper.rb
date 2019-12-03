@@ -1,4 +1,4 @@
-# Shared helpers for catalog rendering.  Params should "generic".
+# Shared helpers for catalog rendering.  Params should "generic, i.e. targeting annotations almost exclusively."
 module Lib::CatalogHelper
 
   def history_topics(citation)
