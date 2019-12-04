@@ -39,6 +39,22 @@ describe Catalog::Entry, group: :catalogs, type: :spinup do
     expect(catalog_entry.year_hash).to eq({citation.source.year => 1}) 
   end
 
+  specify '#year_hash' do
+    expect(catalog_entry.year_hash).to eq({citation.source.year => 1}) 
+  end
+
+  specify '#first_item?' do
+    expect(catalog_entry.first_item?(items.first)).to be_truthy
+  end
+
+  specify '#original_citation_present?' do
+    expect(catalog_entry.original_citation_present?).to be_truthy
+  end
+
+  specify '#items_by_object' do
+    expect(catalog_entry.items_by_object(catalog.items.first.object)).to contain_exactly(items.first)
+  end
+
 end
 
 

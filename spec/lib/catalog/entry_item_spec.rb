@@ -45,7 +45,7 @@ describe Catalog::EntryItem, group: :catalogs, type: :spinup do
 
     specify '#cited?' do
       expect(entry_item2.cited?).to be_truthy
-    end  
+    end
   end
 
 end

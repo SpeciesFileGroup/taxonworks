@@ -22,6 +22,12 @@ class Catalog::EntryItem
 
   attr_accessor :to_html_method
 
+  # Computed/cached attributes, built on `build` of Entry
+
+  # @return [Boolean]
+  # See Entry#first_item?
+  attr_accessor :is_first
+
   # @param [Hash] args
   def initialize(object: nil, base_object: nil, citation: nil, nomenclature_date: nil, citation_date: nil)
     raise if object.nil?
@@ -39,14 +45,18 @@ class Catalog::EntryItem
     {
       'history-origin' => origin,
       'history-object-id' => object.to_global_id.to_s,
-      'history-is-subsequent' => is_subsequent?
+      'history-is-first' => is_first
     }
   end
 
   # @return [Boolean]
   def is_subsequent?
     # object == taxon_name && !citation.try(:is_original?)
-    object == base_object && !citation.nil? && !citation.is_original?
+    references_self && !citation.nil? && !citation.is_original?
+  end
+
+  def references_self?
+    object == base_object 
   end
 
   # See Subclasses for extensions

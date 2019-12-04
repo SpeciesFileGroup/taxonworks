@@ -8,6 +8,11 @@ class Catalog::Entry
   # Each item is a line item in the Entry
   attr_accessor :items
 
+  # @return [Hash]
+  #   { global_id => [EntryItem] }
+  # An index of all the EntryItems by global_id taken from "object"
+  attr_accessor :item_index
+
   # @return [Array]
   # All observed dates for this entry
   attr_accessor :dates
@@ -30,12 +35,53 @@ class Catalog::Entry
     @items = []
     @sort_order = sort_order 
     build
+    index_items
   end
 
   # Redefined in subclasses! 
   # !! This is default only, it should be defined in subclasses.
   def build
     @items << Catalog::EntryItem.new(object: object, citation: object.origin_citation )
+    true
+  end
+
+  def index_items
+    items.each do |i|
+      i.is_first = first_item?(i)
+    end
+    true
+  end
+
+
+  # @return Boolean
+  # Named "first` to avoid conflice with `citation#is_original`
+  # Returns true if
+  #   * it's the only item with this object
+  #   * the citation is_original
+  #   * there is no original citation in any item for this object, and it's the first in the list chronologically
+  # Inversely, returns false (in all other cases):
+  #   * its not the only one item with this object
+  #   * it doesn't have a citation that is_original
+  #   * there is no indication of the original citaiton, and the item isn't first in the list chronologically
+  def first_item?(item)
+    o = items_by_object(item.object)
+    return true if o.size == 1
+    return true if item.citation.is_original?
+    return true if !original_citation_present? && o.index(item) == 0
+
+   false
+  end
+
+  def original_citation_present?
+    items.each do |i|
+      return true if i.citation&.is_original
+    end
+    false
+  end
+
+  def items_by_object(object)
+    # TODO- replace with index?
+    Catalog.chronological_item_sort( items.select{|i| i.object == object} )
   end
 
   # @return [Array of NomenclatureCatalog::EntryItem]
@@ -98,6 +144,14 @@ class Catalog::Entry
     return {
       item_count: items.count,
     }
+  end
+
+  def is_subsequent_entry_item?(entry_item)
+    
+  end
+
+  def coordinate_entry_items
+
   end
 
   protected
