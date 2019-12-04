@@ -27,7 +27,7 @@ class Catalog::Nomenclature::EntryItem < ::Catalog::EntryItem
 
   def data_attributes
     base_data_attributes.merge(
-      'history-valid-protonym' => is_valid_name? 
+      'history-is-valid' => is_valid_name? 
     )
   end
 
