@@ -22,12 +22,25 @@
         </label>
       </div>
     </div>
+    <div class="horizontal-left-content separate-top">
+      <div
+        v-for="item in hideInfo"
+        :key="item.key"
+        class="separate-right">
+        <label>
+          <input
+            v-model="item.value"
+            type="checkbox"/>
+          {{ item.label }}
+        </label>
+      </div>
+    </div>
     <div>
       <h3>Citations</h3>
       <ul class="taxonomic_history">
         <li 
           v-for="item in nomenclature.items"
-          v-if="checkFilter(item)">
+          v-show="checkFilter(item)">
           <span v-html="item.label_html"/>
         </li>
       </ul>
@@ -36,7 +49,7 @@
         <template v-for="source in nomenclature.sources">
         <li 
           v-for="item in source"
-          v-if="filterSource(source)">
+          v-show="filterSource(source)">
           <span v-html="item.cached"/>
         </li>
         </template>
@@ -63,10 +76,25 @@ export default {
     return {
       nomenclature: '',
       filterSelected: [],
+      hideInfo: [{
+        label: 'Topics',
+        key: '.history__citation_topics',
+        value: true
+      },
+      {
+        label: 'Notes',
+        key: '.annotation__note',
+        value: true
+      },
+      {
+        label: 'Soft validation',
+        key: '.soft_validation_anchor',
+        value: true
+      }],
       filter: [
         {
           label: 'History',
-          key: 'history-is-subsequent',
+          key: 'history-is-first',
           value: true
         },
         {
@@ -93,6 +121,16 @@ export default {
         }
       },
       immediate: true
+    },
+    hideInfo: {
+      handler (newVal) {
+        this.hideInfo.forEach(item => {
+          document.querySelectorAll(item.key).forEach(element => {
+            item.value ? element.classList.remove('hidden') : element.classList.add('hidden')
+          })
+        })
+      },
+      deep: true
     }
   },
   methods: {
@@ -112,3 +150,8 @@ export default {
   }
 }
 </script>
+<style scoped>
+  .hidden {
+    display: none;
+  }
+</style>
