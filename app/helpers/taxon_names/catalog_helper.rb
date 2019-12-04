@@ -23,8 +23,8 @@ module TaxonNames::CatalogHelper
     data = {
       'history-origin' => n.origin,
       'history-object-id' => n.object.id,
-      'history-valid-name' => n.is_valid_name? && !n.is_subsequent?,
-      'history-is-subsequent' => n.is_subsequent?
+      'history-valid-name' => n.is_valid_name? && n.is_first, # is_subsequent?,
+      'history-is-subsequent' => !n.is_first # is_subsequent?
     }
     data
   end
@@ -118,7 +118,7 @@ module TaxonNames::CatalogHelper
   def history_statuses(nomenclature_catalog_entry_item)
     i = nomenclature_catalog_entry_item
     s = i.base_object.taxon_name_classifications_for_statuses
-    return nil if (s.empty? || i.is_subsequent?)
+    return nil if (s.empty? || !i.is_first) # is_subsequent?
     return nil if i.from_relationship?
 
     content_tag(:span, class: [:history__statuses]) do
@@ -166,7 +166,7 @@ module TaxonNames::CatalogHelper
   end
   
   def history_type_material(entry_item)
-    return nil if entry_item.object_class != 'Protonym' || entry_item.is_subsequent?
+    return nil if entry_item.object_class != 'Protonym' || !entry_item.is_first # is_subsequent?
     content_tag(:span, ' '.html_safe + type_taxon_name_relationship_tag(entry_item.base_object.type_taxon_name_relationship), class: 'history__type_information')
   end
 

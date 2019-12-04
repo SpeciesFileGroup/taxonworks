@@ -1,9 +1,6 @@
-
-# Is 1:1 with a Citation
 class Catalog::Nomenclature::EntryItem < ::Catalog::EntryItem
-  # @param [Hash] args
+  
   def initialize(object: nil, base_object: nil, citation: nil, nomenclature_date: nil, citation_date: nil) 
-    # raise if nomenclature_date.nil? && !%w{Protonym Combination TaxonNameRelationship}.include?(object.class.to_s)
     super
   end
 
@@ -23,22 +20,6 @@ class Catalog::Nomenclature::EntryItem < ::Catalog::EntryItem
     end
   end
 
-# # @return [String]
-# def origin
-#   case object_class
-#   when 'Protonym'
-#     'protonym'
-#   when 'Hybrid'
-#     'hybrid'
-#   when 'Combination'
-#     'combination'
-#   when /TaxonNameRelationship/
-#     'taxon_name_relationship'
-#   else
-#     'error'
-#   end
-# end
-
   # @return [Boolean]
   def is_valid_name?
     object_class == 'Protonym' && object.is_valid?
@@ -46,7 +27,7 @@ class Catalog::Nomenclature::EntryItem < ::Catalog::EntryItem
 
   def data_attributes
     base_data_attributes.merge(
-      'history-valid-name' => is_valid_name? && is_subsequent?
+      'history-valid-protonym' => is_valid_name? 
     )
   end
 

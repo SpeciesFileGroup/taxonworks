@@ -1,12 +1,11 @@
-
-# Filtering attributes
+# A Catalog::Timeline is a catalog that merges biolgological concepts (OTUs) with their nomenclature.
 #
-# data-
-#   origin: 'Original' Filter should be on 'otu' vs. everything else
-#   is_subsequent, 'Current' : if multiple citations, then true if is_original OR first in order if none is_original 
+# Filtering intent:
+#   Level 1: [Nomenclature, Protonym, OTU (biology)] - mutually exclusive
+#   Level 2 (All): [First, Valid]
 #
-#   valid: true if object is a valid name, or object is otu and linked to valid_name ?
-#
+# Visualizing intent:
+#   [Origin] tag
 class Catalog::Timeline < Catalog
 
   def build

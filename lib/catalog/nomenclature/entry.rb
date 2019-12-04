@@ -1,38 +1,16 @@
-# A Catalog Entry contains the metadata the nomenclatural history of a single "reference" taxon name.
-# Mutiple CatalogEntries would make up a catalog.
+# A Catalog::Entry that contains the nomenclatural history of a single TaxonName
+# Mutiple Catalog::Entries would make up a catalog.
 
-# EntryItems for this Entry must follow:
+# EntryItems for this Entry must follow the pattern:
 # * The `base_object` is always a TaxonName
 # * The `object` may be a Protony, TaxonNameRelationship, or Combination
+#
 class Catalog::Nomenclature::Entry < Catalog::Entry
-
-  # The taxon name being referenced in this entry (think of it as the header)
-  # attr_accessor :reference_taxon_name
 
   def initialize(taxon_name)
     super(taxon_name)
   end
 
-  # @return [Array of NomenclatureCatalog::EntryItem]
-  #   sorted by date, then taxon name name as rendered for this item
-  def ordered_by_nomenclature_date
-    now = Time.now
-    items.sort{|a,b| [(a.nomenclature_date || now), a.object_class, a.base_object.cached_original_combination.to_s ] <=> [(b.nomenclature_date || now), b.object_class, b.base_object.cached_original_combination.to_s ] }
-  end
-
-  # @return [Array of EntryItems]
-  #   only those entry items that reference a TaxonNameRelationship
-  def relationship_items
-    items.select{|i| i.object_class =~ /TaxonNameRelationship/}
-  end
-
-  # @return [Scope]
-  def names
-    @names ||= all_names
-    @names
-  end
-
-  # @param [TaxonName] taxon_name
   def build
     v = object.valid_taxon_name
     base_names = v.historical_taxon_names
@@ -66,6 +44,20 @@ class Catalog::Nomenclature::Entry < Catalog::Entry
     end
 
     true
+  end
+
+
+  # @return [Array of NomenclatureCatalog::EntryItem]
+  #   sorted by date, then taxon name name as rendered for this item
+  def ordered_by_nomenclature_date
+    now = Time.now
+    items.sort{|a,b| [(a.nomenclature_date || now), a.object_class, a.base_object.cached_original_combination.to_s ] <=> [(b.nomenclature_date || now), b.object_class, b.base_object.cached_original_combination.to_s ] }
+  end
+
+  # @return [Array]
+  def names
+    @names ||= all_names
+    @names
   end
 
   protected
@@ -109,6 +101,12 @@ class Catalog::Nomenclature::Entry < Catalog::Entry
   # @return [Array]
   def all_protonyms
     items.select{|i| i.origin == 'protonym' }
+  end
+
+  # @return [Array of EntryItems]
+  #   only those entry items that reference a TaxonNameRelationship
+  def relationship_items
+    items.select{|i| i.object_class =~ /TaxonNameRelationship/}
   end
 
 end

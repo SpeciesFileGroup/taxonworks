@@ -1,4 +1,4 @@
-# A Catalog::Entry has many entry items.  Together CatalogEntrys form a Catalog
+# A Catalog::Entry has many entry items.  Together Catalog::Entries form a Catalog
 class Catalog::Entry
 
   # The target object for this entry
@@ -52,7 +52,6 @@ class Catalog::Entry
     true
   end
 
-
   # @return Boolean
   # Named "first` to avoid conflice with `citation#is_original`
   # Returns true if
@@ -69,7 +68,7 @@ class Catalog::Entry
     return true if item.citation.is_original?
     return true if !original_citation_present? && o.index(item) == 0
 
-   false
+    false
   end
 
   def original_citation_present?
@@ -81,13 +80,13 @@ class Catalog::Entry
 
   def items_by_object(object)
     # TODO- replace with index?
-    Catalog.chronological_item_sort( items.select{|i| i.object == object} )
+    ::Catalog.chronological_item_sort( items.select{|i| i.object == object} )
   end
 
   # @return [Array of NomenclatureCatalog::EntryItem]
   #   sorted by date, then taxon name name as rendered for this item
   def ordered_by_nomenclature_date
-    Catalog.chronological_item_sort(items)
+    ::Catalog.chronological_item_sort(items)
   end
 
   # @param [Source] source

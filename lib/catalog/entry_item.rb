@@ -1,17 +1,13 @@
-
+# A Catalog::EntryItem corresponds to a single row in the catalog.  It can be thought of as a chronological entry typically 1:1 with some Citation.
 class Catalog::EntryItem
 
-  # The focus of this entry item
-  #   This is not an attribute of Catalog::Entry (no!)
-  #      Entry -> taxon name 
-  #         EntryItem.object -> relationship
-  #         EntryItem.base_object -> synonym 
+  # The visualized element of this entry item, e.g. the subject taxon name of a taxon name relationship
   attr_accessor :base_object
 
-  # The focus of this entry item
+  # The source of this entry item, e.g. a TaxonNameRelationship
   attr_accessor :object
 
-  # Optional
+  # Optional, should be provided explicitly 
   attr_accessor :citation
 
   # @return [Time, nil]
@@ -20,12 +16,15 @@ class Catalog::EntryItem
   # See also citation_date
   attr_accessor :nomenclature_date
 
+  # @return [Symbol]
+  #   a pointer to a method in /app/helpers 
   attr_accessor :to_html_method
 
+  #
   # Computed/cached attributes, built on `build` of Entry
-
+  #
   # @return [Boolean]
-  # See Entry#first_item?
+  #   See Catalog::Entry#first_item?
   attr_accessor :is_first
 
   # @param [Hash] args
@@ -49,11 +48,12 @@ class Catalog::EntryItem
     }
   end
 
-  # @return [Boolean]
-  def is_subsequent?
-    # object == taxon_name && !citation.try(:is_original?)
-    references_self && !citation.nil? && !citation.is_original?
-  end
+  # Deprecated for is_first
+  # # @return [Boolean]
+  # def is_subsequent?
+  #   # object == taxon_name && !citation.try(:is_original?)
+  #   references_self && !citation.nil? && !citation.is_original?
+  # end
 
   def references_self?
     object == base_object 
@@ -83,7 +83,7 @@ class Catalog::EntryItem
       nil
     end
   end
-  
+
   # @return [String]
   #  do not update with base_class
   def object_class

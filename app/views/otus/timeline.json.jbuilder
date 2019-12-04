@@ -16,12 +16,6 @@ json.topics do
   json.array! @catalog.topics.collect{|t| {t.to_global_id.to_s => { name: t.name, css_color: t.css_color} }}
 end
 
-json.sources do
-  json.array! @catalog.sources.collect{|s| { s.metamorphosize.to_global_id.to_s => { cached: s.cached, objects: @catalog.objects_for_source(s).collect{|o| o.object.to_global_id.to_s } }}}
-end
-
-
-
 json.items do
   json.array! @catalog.items_chronologically do |i|
     json.label_html send(i.html_helper, i)
@@ -31,4 +25,8 @@ json.items do
       json.array! i.topics.collect{|t| t.to_global_id.to_s}
     end
   end
+end
+
+json.sources do
+  json.array! @catalog.sources.collect{|s| { s.metamorphosize.to_global_id.to_s => { cached: s.cached, objects: @catalog.objects_for_source(s).collect{|o| o.object.to_global_id.to_s } }}}
 end

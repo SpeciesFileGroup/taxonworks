@@ -44,7 +44,7 @@ describe Catalog::Entry, group: :catalogs, type: :spinup do
   end
 
   specify '#first_item?' do
-    expect(catalog_entry.first_item?(items.first)).to be_truthy
+    expect(catalog_entry.first_item?(catalog_entry.items.first)).to be_truthy
   end
 
   specify '#original_citation_present?' do
@@ -52,7 +52,7 @@ describe Catalog::Entry, group: :catalogs, type: :spinup do
   end
 
   specify '#items_by_object' do
-    expect(catalog_entry.items_by_object(catalog.items.first.object)).to contain_exactly(items.first)
+    expect(catalog_entry.items_by_object(catalog_entry.items.first.object)).to contain_exactly(catalog_entry.items.first)
   end
 
 end
