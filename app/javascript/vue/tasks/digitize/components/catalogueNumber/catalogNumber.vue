@@ -77,11 +77,11 @@
             legend="Namespace and identifier needs to be set to be save."/> 
         </div>
         <span 
-          v-if="!namespaceSelected && identifier && identifier.length"
+          v-if="!namespace && identifier && identifier.length"
           style="color: red">Namespace is needed.</span>
         <span 
           v-if="existingIdentifier"
-          style="color: red">Identifier already exists, and it won't be save.</span>
+          style="color: red">Identifier already exists, and it won't be saved.</span>
       </div>
     </div>
   </div>
