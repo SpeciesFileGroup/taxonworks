@@ -77,7 +77,7 @@
         return {
           annotated_global_entity: decodeURIComponent(this.globalId),
           source_id: undefined,
-          is_original: false,
+          is_original: undefined,
           pages: undefined,
         }
       },

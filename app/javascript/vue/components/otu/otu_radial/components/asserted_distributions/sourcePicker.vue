@@ -29,11 +29,19 @@
       </template>
     </div>
     <div class="flex-separate">
-      <input
-        class="normal-input inline pages"
-        v-model="citation.pages"
-        placeholder="pages"
-        type="text">
+      <div>
+        <input
+          class="normal-input inline pages"
+          v-model="citation.pages"
+          placeholder="pages"
+          type="text">
+        <label class="inline middle">
+          <input
+            v-model="citation.is_original"
+            type="checkbox">
+          Is original
+        </label>
+      </div>
       <label class="inline middle">
         <input
           v-model="citation.is_absent"
@@ -87,6 +95,7 @@
           source_id: undefined,
           is_absent: false,
           pages: undefined,
+          is_original: undefined
         }
       },
       sendCitation() {
