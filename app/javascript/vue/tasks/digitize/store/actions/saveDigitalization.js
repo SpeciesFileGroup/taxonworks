@@ -7,6 +7,7 @@ export default function ({ commit, dispatch, state }) {
     dispatch(ActionNames.SaveCollectionEvent).then(() => {
       dispatch(ActionNames.SaveLabel)
       dispatch(ActionNames.SaveCollectionObject, state.collection_object).then((coCreated) => {
+        console.log("Entra")
         commit(MutationNames.SetCollectionObject, coCreated)
         commit(MutationNames.AddCollectionObject, coCreated)
         let promises = []
