@@ -1,25 +1,11 @@
 require 'rails_helper'
 
+# Vast majority of functionality is derived from related models. 
 describe Queries::Otu::Autocomplete, type: :model do
+  let!(:otu) { Otu.create(name: 'Test') }
+  let(:query) { Queries::Otu::Autocomplete.new('Test') }
 
-  let(:query) { Queries::Otu::Autocomplete.new('') }
-
-  context 'methods' do
-
-    specify '#authorship 1' do
-      query.query_string = 'Aus bus Smith'
-      expect(query.authorship).to eq('Smith') 
-    end
-
-    specify '#authorship 2' do
-      query.query_string = 'Aus bus 1'
-      expect(query.authorship).to eq(nil) 
-    end
-
-    specify '#authorship 3' do
-      query.query_string = 'Semiotellus species 1'
-      expect(query.authorship).to eq(nil) 
-    end
-  end 
-
+  specify 'named' do
+    expect(query.autocomplete).to include(otu)
+  end
 end
