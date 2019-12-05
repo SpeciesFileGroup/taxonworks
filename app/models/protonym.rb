@@ -656,7 +656,7 @@ class Protonym < TaxonName
     related_through_original_combination_relationships = []
     combination_relationships = []
 
-    TaxonName.transaction do
+    TaxonName.transaction_with_retry do
       if is_genus_or_species_rank?
         dependants = Protonym.descendants_of(self).to_a
         related_through_original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
