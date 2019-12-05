@@ -41,6 +41,7 @@ class PinboardItem < ApplicationRecord
   belongs_to :pinned_object, polymorphic: true, validate: true
 
   before_validation  :validate_is_cross_project
+
   validates_presence_of :user_id, :pinned_object_id, :pinned_object_type
   validates_uniqueness_of :user_id, scope: [ :pinned_object_id, :pinned_object_type, :project_id ]
 
