@@ -4,6 +4,10 @@ const GetSource = (id) => {
   return ajaxCall('get', `/sources/${id}`)
 }
 
+const GetRecentSources = () => {
+  return ajaxCall('get', `/sources?per=10}`)
+}
+
 const CreateSource = (source) => {
   return ajaxCall('post', `/sources`, { source: source })
 }
@@ -30,6 +34,7 @@ const LoadSoftValidation = function (global_id) {
 
 export {
   GetSource,
+  GetRecentSources,
   CreateSource,
   UpdateSource,
   UpdateUserPreferences,
