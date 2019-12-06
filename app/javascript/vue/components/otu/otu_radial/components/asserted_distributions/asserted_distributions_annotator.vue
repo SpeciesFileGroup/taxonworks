@@ -119,7 +119,6 @@
     methods: {
       createAsserted() {
         if(!this.existingArea) {
-          this.asserted_distribution.citations_attributes[0]['is_original'] = true
           this.create('/asserted_distributions.json', { asserted_distribution: this.asserted_distribution }).then(response => {
             this.addToList(response.body)
           })
@@ -172,7 +171,8 @@
           citations: [],
           citations_attributes: [{
             source_id: undefined,
-            pages: undefined
+            pages: undefined,
+            is_original: undefined
           }],
           is_absent: undefined
         }
@@ -180,7 +180,8 @@
       setSource(source) {
         this.asserted_distribution.citations_attributes[0].source_id = source.source_id
         this.asserted_distribution.citations_attributes[0].pages = source.pages
-        this.asserted_distribution.is_absent = source.is_absent
+        this.asserted_distribution.citations_attributes[0].is_absent = source.is_absent
+        this.asserted_distribution.citations_attributes[0].is_original = source.is_original
       }
     },
   }

@@ -283,7 +283,7 @@ class CollectionObjectsController < ApplicationController
       :total, :preparation_type_id, :repository_id,
       :ranged_lot_category_id, :collecting_event_id,
       :buffered_collecting_event, :buffered_determinations,
-      :buffered_other_labels, :deaccessioned_at, :deaccession_reason,
+      :buffered_other_labels, :accessioned_at, :deaccessioned_at, :deaccession_reason,
       :contained_in,
       collecting_event_attributes: [],  # needs to be filled out!
       data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]

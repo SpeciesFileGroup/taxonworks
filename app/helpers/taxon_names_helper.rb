@@ -24,6 +24,13 @@ module TaxonNamesHelper
     ].compact.join('&nbsp;').html_safe
   end
 
+  # @return [String]
+  #   no HTML inside <input>
+  def taxon_name_autocomplete_selected_tag(taxon_name)
+    return nil if taxon_name.nil?
+    [taxon_name.cached, taxon_name.cached_author_year].compact.join(' ')
+  end
+
   def taxon_name_rank_tag(taxon_name, css_class = [:feedback, 'feedback-info', 'feedback-thin'] )
     return nil if taxon_name.nil?
     content_tag(:span, taxon_name.rank || 'Combination', class: css_class)
@@ -143,13 +150,6 @@ module TaxonNamesHelper
   def original_taxon_name_link(taxon_name)
     return nil if taxon_name.nil?
     link_to(original_taxon_name_tag(taxon_name).html_safe, browse_nomenclature_task_path(taxon_name_id: taxon_name.id))
-  end
-
-  # @return [String]
-  #   no HTML inside <input>
-  def taxon_name_autocomplete_selected_tag(taxon_name)
-    return nil if taxon_name.nil?
-    [taxon_name.cached, taxon_name.cached_author_year].compact.join(' ') 
   end
 
   def taxon_name_for_select(taxon_name)

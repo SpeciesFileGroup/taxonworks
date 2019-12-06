@@ -36,7 +36,7 @@
         </div>
         </div>
         <div class="fields">
-          <%= o.hidden_field :id, value: f.object.try(:object_method).to_param, id: :selected_otu_id, name: "#{f.object_name}[#{field_name}]" -%>
+          <%= o.hidden_field :id, value: f.object.try(object_method).to_param, id: :selected_otu_id, name: "#{f.object_name}[#{field_name}]" -%>
 
           <div class="link">
             <%= link_to "Add", '#', id: 'otu_picker_add_ok', data: { turbolinks: false }, title: 'Add'  %>

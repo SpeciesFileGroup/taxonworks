@@ -344,5 +344,17 @@ module Queries
       base_query.where(a.to_sql).limit(20)
     end
 
+    # @return [ActiveRecord::Relation]
+    def autocomplete_exactly_named
+      return nil if query_string.blank?
+      base_query.where(exactly_named.to_sql).limit(20)
+    end
+
+    # @return [ActiveRecord::Relation]
+    def autocomplete_named
+      return nil if query_string.blank?
+      base_query.where(named.to_sql).limit(5)
+    end
+
   end
 end

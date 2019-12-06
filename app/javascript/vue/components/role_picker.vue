@@ -156,8 +156,8 @@
         this.$refs.autocomplete.cleanInput()
       },
       getUrl(role) {
-        if (role.hasOwnProperty('person_id')) {
-          return `/people/${role.person_id}/edit`
+        if (role.hasOwnProperty('person_id') || role.hasOwnProperty('person')) {
+          return `/people/${role.hasOwnProperty('person_id') ? role.person_id : role.person.id}`
         } else {
           return '#'
         }

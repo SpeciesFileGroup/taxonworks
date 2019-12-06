@@ -21,9 +21,11 @@ module Queries::Concerns::Identifiers
     #  matches .identifier
     attr_accessor :identifier_end
 
+    # USED?!
     # Match on cached
     attr_accessor :identifier
 
+    # USED?!
     # Match like or exact on cached 
     attr_accessor :identifier_exact
 

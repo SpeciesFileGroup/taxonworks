@@ -140,8 +140,20 @@ describe Queries::TaxonName::Autocomplete, type: :model do
     expect(query.autocomplete_wildcard_author_year_joined_pieces.first).to eq(species)
   end
 
+  context 'methods' do
+    specify '#authorship 1' do
+      query.query_string = 'Aus bus Smith'
+      expect(query.authorship).to eq('Smith')
+    end
 
+    specify '#authorship 2' do
+      query.query_string = 'Aus bus 1'
+      expect(query.authorship).to eq(nil)
+    end
 
-  # etc. ---
-
+    specify '#authorship 3' do
+      query.query_string = 'Semiotellus species 1'
+      expect(query.authorship).to eq(nil)
+    end
+  end
 end
