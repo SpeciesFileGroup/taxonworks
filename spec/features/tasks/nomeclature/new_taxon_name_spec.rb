@@ -25,9 +25,8 @@ describe 'New taxon name', type: :feature, group: :nomenclature do
         find('li', text: 'Root nomenclatural rank').hover.click 
         find('label', text: 'ICZN').click
         find('label', text: 'Genus').click
-
         click_button 'Create'
-        expect(page).to have_text('Qurious')
+        expect(page).to have_text('Edit taxon name')
       end
     end
   end
