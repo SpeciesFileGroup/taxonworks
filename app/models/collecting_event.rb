@@ -240,8 +240,10 @@ class CollectingEvent < ApplicationRecord
 
   def update_dwc_occurrences
     # reload is required!
-    collection_objects.reload.each do |o|
-      o.set_dwc_occurrence 
+    if collection_objects.count < 40
+      collection_objects.reload.each do |o|
+        o.set_dwc_occurrence
+      end
     end
   end
 

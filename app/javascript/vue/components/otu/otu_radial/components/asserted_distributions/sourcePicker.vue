@@ -26,6 +26,7 @@
           @click="cleanCitation"
           class="separate-left"
           data-icon="reset"/>
+        <lock-component v-model="lock"/>
       </template>
     </div>
     <div class="flex-separate">
@@ -55,11 +56,13 @@
 <script>
   import DefaultElement from 'components/getDefaultPin.vue'
   import Autocomplete from 'components/autocomplete.vue'
+  import LockComponent from 'components/lock'
 
   export default {
     components: {
       DefaultElement,
-      Autocomplete
+      Autocomplete,
+      LockComponent
     },
     props: {
       display: {
@@ -75,7 +78,8 @@
     data() {
       return {
         autocompleteLabel: undefined,
-        citation: this.newCitation()
+        citation: this.newCitation(),
+        lock: false
       }
     },
     watch: {
@@ -87,6 +91,9 @@
       },
       display(newVal) {
         this.autocompleteLabel = newVal
+      },
+      lock(newVal) {
+        this.$emit('lock', newVal)
       }
     },
     methods: {

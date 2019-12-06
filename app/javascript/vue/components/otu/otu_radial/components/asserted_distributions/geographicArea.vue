@@ -3,11 +3,14 @@
   <div>
     <fieldset>
       <legend>Geographic area</legend>
-      <switch-component
-        :options="Object.keys(smartGeographics)"
-        v-model="view"
-        :add-option="['search']"
-        name="switch-geographic"/>
+      <div class="horizontal-left-content">
+        <switch-component
+          class="separate-right"
+          :options="Object.keys(smartGeographics)"
+          v-model="view"
+          :add-option="['search']"
+          name="switch-geographic"/>
+      </div>
       <template v-if="smartGeographics[view]">
         <tag-item
           v-for="item in smartGeographics[view]"
@@ -36,13 +39,15 @@
   import SwitchComponent from '../shared/switch.vue'
   import Autocomplete from 'components/autocomplete.vue'
   import CRUD from '../../request/crud'
+  import LockComponent from 'components/lock'
 
   export default {
     mixins: [CRUD],
     components: {
       TagItem,
       SwitchComponent,
-      Autocomplete
+      Autocomplete,
+      LockComponent
     },
     props: {
       createdList: {
@@ -54,7 +59,13 @@
       return {
         view: undefined,
         smartGeographics: [],
-        selected: undefined
+        selected: undefined,
+        lock: false
+      }
+    },
+    watch: {
+      lock(newVal) {
+        this.$emit('lock', newVal)
       }
     },
     mounted() {

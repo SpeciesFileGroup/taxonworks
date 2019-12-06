@@ -14,6 +14,7 @@
       <source-picker
         @create="setSource"
         ref="source"
+        @lock="lockSource = $event"
         :display="displayLabel"/>
       <button
         type="button"
@@ -33,6 +34,7 @@
           :show-spinner="false"/>
         <geographic-area 
           class="separate-bottom"
+          @lock="lockGeo = $event"
           :created-list="list"
           @select="asserted_distribution.geographic_area_id = $event; createAsserted()"/>
       </div>
@@ -110,7 +112,9 @@
         asserted_distribution: this.newAsserted(),
         displayLabel: undefined,
         displayGeographic: undefined,
-        editTitle: undefined
+        editTitle: undefined,
+        lockSource: false,
+        lockGeo: false
       }
     },
     mounted() {
@@ -145,7 +149,9 @@
       },
       addToList(item) {
         this.editTitle = item.object_tag
-        this.$refs.source.cleanInput()
+        if(!this.lockSource) {
+          this.$refs.source.cleanInput()
+        }
         if(this.idIndex > -1) {
           this.$set(this.list, this.idIndex, item)
         }
@@ -167,9 +173,9 @@
         return { 
           id: undefined,
           otu_id: this.splittedGlobalId,
-          geographic_area_id: undefined,
+          geographic_area_id: this.lockGeo ? this.asserted_distribution.geographic_area_id : undefined,
           citations: [],
-          citations_attributes: [{
+          citations_attributes: this.lockSource ? this.asserted_distribution.citations_attributes : [{
             source_id: undefined,
             pages: undefined,
             is_original: undefined

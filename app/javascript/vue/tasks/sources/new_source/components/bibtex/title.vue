@@ -1,7 +1,9 @@
 <template>
   <div class="field">
     <label>Title</label><br>
-    <textarea v-model="source.title"></textarea>
+    <textarea 
+      id="title"
+      v-model="source.title"></textarea>
   </div>
 </template>
 

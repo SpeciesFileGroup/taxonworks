@@ -4,6 +4,7 @@
     <br>
     <div class="horizontal-left-content">
       <select
+        id="type"
         class="normal-input capitalize separate-right"
         v-model="bibtexType">
         <option

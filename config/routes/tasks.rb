@@ -271,7 +271,7 @@ scope :tasks do
     end
 
     scope :new_taxon_name, controller: 'tasks/nomenclature/new_taxon_name' do
-      get '(:id)', action: :index, as: 'new_taxon_name_task'
+      get '/', action: :index, as: 'new_taxon_name_task'
     end
 
     scope :catalog do
