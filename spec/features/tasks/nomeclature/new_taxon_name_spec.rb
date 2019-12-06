@@ -1,6 +1,13 @@
 require 'rails_helper'
 
 describe 'New taxon name', type: :feature, group: :nomenclature do
+  before do
+    ActionController::Base.allow_forgery_protection = true
+  end
+
+  after do
+    ActionController::Base.allow_forgery_protection = false
+  end
 
   context 'when signed in and a project is selected' do
     before { sign_in_user_and_select_project}
@@ -16,3 +23,4 @@ describe 'New taxon name', type: :feature, group: :nomenclature do
     end
   end
 end
+
