@@ -21,10 +21,12 @@
           <label v-help.section.basic.name>Name</label><br>
           <hard-validation field="name">
             <input
+              id="taxon-name"
               slot="body"
               ref="inputTaxonname"
               class="taxonName-input"
               type="text"
+              name="name"
               v-model="taxonName">
           </hard-validation>
         </div>
