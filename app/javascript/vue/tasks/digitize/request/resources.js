@@ -11,19 +11,20 @@ const ajaxCall = function (type, url, data = null) {
       return resolve(response.body)
     }, response => {
       console.log(response)
-      handleError(response.body)
+      handleError(response)
       return reject(response)
     })
   })
 }
 
 const handleError = function (json) {
-  if (typeof json !== 'object') return
-  let errors = Object.keys(json)
+  if ((typeof json !== 'object') || (json.status === 404)) return
+  let errors = Object.keys(json.body)
   let errorMessage = ''
 
+  if(errors.length === 1 && 'success') return
   errors.forEach(function (item) {
-    errorMessage += json[item].join('<br>')
+    errorMessage += json[item].join('<br>') + '<br>'
   })
 
   TW.workbench.alert.create(errorMessage, 'error')
