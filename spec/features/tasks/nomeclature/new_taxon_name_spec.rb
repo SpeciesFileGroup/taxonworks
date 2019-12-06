@@ -22,13 +22,13 @@ describe 'New taxon name', type: :feature, group: :nomenclature do
       specify 'add a name' do
         fill_in "taxon-name", with: 'Qurious'
         page.find('#parent-name input').fill_in(with: 'Root')
-        click_link 'Root'
+        find('li', text: 'Root nomenclatural rank').hover.click 
+        find('label', text: 'ICZN').click
+        find('label', text: 'Genus').click
 
-        #fill_autocomplete('[parent-name.input]', with: 'Root', select: @project.root_taxon_name.id)
         click_button 'Create'
         expect(page).to have_text('Qurious')
       end
     end
   end
 end
-
