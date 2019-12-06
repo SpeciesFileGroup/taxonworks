@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'New taxon name', type: :feature, group: :nomenclature do
+describe 'New taxon name', type: :feature, group: :sources do
 
   context 'when signed in and a project is selected' do
     before { sign_in_user_and_select_project}
@@ -10,7 +10,7 @@ describe 'New taxon name', type: :feature, group: :nomenclature do
 
       specify 'add a record' do
         select "article", :from => "type"
-        fill_in "title", with: 'Qurious' 
+        fill_in "title", with: 'Qurious'
         click_button 'Save'
       end
     end
