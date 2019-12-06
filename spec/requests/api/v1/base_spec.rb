@@ -4,7 +4,7 @@ describe Api::V1::BaseController, type: :request do
 
   context :index do
     let(:user) { FactoryBot.create(:valid_user, :user_valid_token) }
-    let!(:project) { FactoryBot.create(:valid_project, name: 'definitely something new, definitely', :project_valid_token, by: user) }
+    let!(:project) { FactoryBot.create(:valid_project, :project_valid_token, by: user, name: 'Something really new') }
     let(:path) { '/api/v1/' }
 
     before { get path  }
