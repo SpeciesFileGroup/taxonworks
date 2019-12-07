@@ -5,7 +5,7 @@ import Vue from 'vue'
 export default function ({ commit, state }) {
   return new Promise((resolve, reject) => {
     let identifier = state.identifier
-    if(state.collection_object.id && identifier.namespace_id && identifier.identifier) {
+    if(state.collection_object.id && identifier.namespace_id && identifier.identifier && state.saveIdentifier) {
       commit(MutationNames.SetIdentifierObjectId, state.container ? state.container.id : state.collection_object.id)
       if(identifier.id) {
         UpdateIdentifier(identifier).then(response => {

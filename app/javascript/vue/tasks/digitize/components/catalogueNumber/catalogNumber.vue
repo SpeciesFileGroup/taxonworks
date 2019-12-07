@@ -77,8 +77,11 @@
             legend="Namespace and identifier needs to be set to be save."/> 
         </div>
         <span 
+          v-if="!namespace && identifier && identifier.length"
+          style="color: red">Namespace is needed.</span>
+        <span 
           v-if="existingIdentifier"
-          style="color: red">Identifier already exists</span>
+          style="color: red">Identifier already exists, and it won't be saved.</span>
       </div>
     </div>
   </div>
@@ -188,6 +191,9 @@
       collectionObject(newVal, oldVal) {
         if (!newVal.id || newVal.id == oldVal.id) return
         this.loadSmartSelector()
+      },
+      existingIdentifier(newVal) {
+        this.settings.saveIdentifier = !newVal
       }
     },
     mounted() {

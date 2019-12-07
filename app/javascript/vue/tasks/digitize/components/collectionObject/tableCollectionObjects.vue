@@ -50,6 +50,7 @@
             :biocutarions-type="biocutarionsType"/>
         </td>
         <td class="horizontal-right-content">
+          <accession-metadata :collection-object="item"/>
           <radial-annotator :global-id="item.global_id"/>
           <button
             type="button"
@@ -77,6 +78,7 @@ import RadialAnnotator from '../../../../components/annotator/annotator.vue'
 import PinComponent from '../../../../components/pin.vue'
 import Bioclassification from './bioclassification.vue'
 import LockComponent from 'components/lock'
+import AccessionMetadata from './accession'
 
 import { GetBiocurationsTypes, GetBiocurationsGroupTypes } from '../../request/resources.js'
 
@@ -85,7 +87,8 @@ export default {
     LockComponent,
     RadialAnnotator,
     PinComponent,
-    Bioclassification
+    Bioclassification,
+    AccessionMetadata
   },
   computed: {
     locked: {

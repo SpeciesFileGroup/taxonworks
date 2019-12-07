@@ -4,15 +4,12 @@
       <div class="horizontal-left-content">
         <autocomplete
           class="separate-right"
-          url="/identifiers/autocomplete"
+          url="/collection_objects/autocomplete"
           placeholder="Search"
           label="label_html"
           param="term"
           :clear-after="true"
           @getItem="loadAssessionCode"
-          :add-params="{
-            'identifier_object_types[]': ['CollectionObject'],
-          }"
           min="1"/>
         <template>
           <span
@@ -148,7 +145,7 @@
       },
       loadAssessionCode(object) {
         this.$store.dispatch(ActionNames.ResetWithDefault)
-        this.$store.dispatch(ActionNames.LoadDigitalization, object.identifier_object_id)
+        this.$store.dispatch(ActionNames.LoadDigitalization, object.id)
       },
       loadCollectionObject(co) {
         this.resetStore()

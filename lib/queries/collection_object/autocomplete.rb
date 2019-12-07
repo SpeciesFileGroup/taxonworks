@@ -27,6 +27,11 @@ module Queries
         ::CollectionObject.arel_table
       end
 
+      # @return [Arel::Table]
+      def containers_table
+        ::Container.arel_table
+      end
+
       def autocomplete_taxon_name_determined_as
         t = taxon_name_table[:name].matches_any(terms).or(taxon_name_table[:cached].matches_any(terms) )
 
@@ -47,11 +52,25 @@ module Queries
           order('otus.name ASC').limit(10) 
       end
 
+      def autocomplete_in_container_by_identifier_cached_exact
+        q = identifier_table[:cached].eq(query_string)
+        ::CollectionObject.joins(container: [:identifiers])
+          .where(q.to_sql)
+      end
+
+      def autocomplete_in_container_by_identifier
+        q = identifier_table[:identifier].matches('%' + query_string + '%')
+        ::CollectionObject.joins(container: [:identifiers])
+          .where(q.to_sql)
+      end
+
       def base_queries
         queries = [
           autocomplete_identifier_cached_exact,
+          autocomplete_in_container_by_identifier_cached_exact,
           autocomplete_identifier_identifier_exact,
           autocomplete_exact_id, 
+          autocomplete_in_container_by_identifier,
           autocomplete_taxon_name_determined_as,
           autocomplete_otu_determined_as,
           autocomplete_identifier_cached_like,

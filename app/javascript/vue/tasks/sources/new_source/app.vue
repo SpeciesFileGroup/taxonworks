@@ -66,6 +66,12 @@
             BibTeX
           </button>
           <button
+            @click="showRecent = true"
+            class="button normal-input button-default button-size separate-left"
+            type="button">
+            Recent
+          </button>
+          <button
             v-shortkey="[getMacKey(), 'n']"
             @shortkey="reset"
             @click="reset"
@@ -77,6 +83,9 @@
       </div>
     </nav-bar>
     <source-type/>
+    <recent-component
+      v-if="showRecent"
+      @close="showRecent = false"/>
     <div class="horizontal-left-content align-start">
       <component class="full_width" :is="section"/>
       <right-section class="separate-left"/>
@@ -93,6 +102,7 @@
 <script>
 
 import SourceType from './components/sourceType'
+import RecentComponent from './components/recent'
 
 import CrossRef from './components/crossRef'
 import BibtexButton from './components/bibtex'
@@ -128,7 +138,8 @@ export default {
     RightSection,
     BibtexButton,
     AddSource,
-    NavBar
+    NavBar,
+    RecentComponent
   },
   computed: {
     section () {
@@ -150,7 +161,8 @@ export default {
   data () {
     return {
       showModal: false,
-      showBibtex: false
+      showBibtex: false,
+      showRecent: false
     }
   },
   mounted () {

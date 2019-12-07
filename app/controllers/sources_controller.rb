@@ -196,7 +196,6 @@ class SourcesController < ApplicationController
     params.permit(:query_term, :project_id, :recent, author_ids: [])
   end
 
-
   def set_source
     @source = Source.find(params[:id])
     @recent_object = @source
