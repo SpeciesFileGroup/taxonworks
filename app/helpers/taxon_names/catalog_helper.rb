@@ -168,7 +168,7 @@ module TaxonNames::CatalogHelper
   def history_type_material(entry_item)
     return nil if entry_item.object_class != 'Protonym' || !entry_item.is_first # is_subsequent?
     [ content_tag(:span, ' '.html_safe + type_taxon_name_relationship_tag(entry_item.base_object.type_taxon_name_relationship), class: 'history__type_information'),
-      history_in(entry_item.base_object.type_taxon_name_relationship.source)
+      history_in(entry_item.base_object&.type_taxon_name_relationship&.source)
     ].compact.join.html_safe
   end
 
