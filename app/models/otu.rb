@@ -43,12 +43,12 @@ class Otu < ApplicationRecord
 
   belongs_to :taxon_name, inverse_of: :otus
 
-  has_many :asserted_distributions, inverse_of: :otu
+  has_many :asserted_distributions, inverse_of: :otu, dependent: :restrict_with_error
 
-  has_many :biological_associations, as: :biological_association_subject, inverse_of: :biological_association_subject 
-  has_many :related_biological_associations, as: :biological_association_object, inverse_of: :biological_association_object, class_name: 'BiologicalAssociation'
+  has_many :biological_associations, as: :biological_association_subject, inverse_of: :biological_association_subject, dependent: :restrict_with_error
+  has_many :related_biological_associations, as: :biological_association_object, inverse_of: :biological_association_object, class_name: 'BiologicalAssociation', dependent: :restrict_with_error
 
-  has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy
+  has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy # TODO: change
   has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus
 
   has_many :extracts, through: :collection_objects, source: :derived_extracts
@@ -58,7 +58,7 @@ class Otu < ApplicationRecord
   has_many :collecting_events, -> { distinct }, through: :collection_objects
 
   has_many :common_names, dependent: :destroy
-  has_many :collection_profiles # @proceps dependent: what?
+  has_many :collection_profiles, dependent: :restrict_with_error  # @proceps dependent: what?
   has_many :contents, inverse_of: :otu, dependent: :destroy
   has_many :geographic_areas_from_asserted_distributions, through: :asserted_distributions, source: :geographic_area
   has_many :geographic_areas_from_collecting_events, through: :collecting_events, source: :geographic_area
@@ -66,7 +66,7 @@ class Otu < ApplicationRecord
 
   has_many :content_topics, through: :contents, source: :topic
 
-  has_many :observations, inverse_of: :otu
+  has_many :observations, inverse_of: :otu, dependent: :restrict_with_error
   has_many :descriptors, through: :observations
 
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
