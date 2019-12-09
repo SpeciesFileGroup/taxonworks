@@ -20,6 +20,18 @@ describe 'New taxon name', type: :feature, group: :nomenclature do
         click_button 'Create'
         expect(page).to have_text('Edit taxon name')
       end
+
+      context 'ctrl-t navigation' do
+        let!(:genus) { Protonym.create!(by: @user, project: @project, parent: root, name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus)) }
+        before { visit new_taxon_name_task_path(taxon_name_id: genus.id) }
+
+        specify 'ctrl-t navigates to Browse taxon name task' do
+          expect(page).to have_text('Edit taxon name')
+          page.find('body').send_keys([:control, 't'])
+          expect(page).to have_text('Browse nomenclature')
+        end
+      end
+
     end
   end
 end
