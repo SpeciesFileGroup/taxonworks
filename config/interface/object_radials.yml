@@ -36,6 +36,7 @@ CollectionObject:
   config: 
     recent: true
   edit: comprehensive_collection_object_task
+  new: comprehensive_collection_object_task
 GeographicArea:
   tasks:
     - asserted_distributions_basic_endemism_task 
@@ -92,6 +93,6 @@ TaxonName:
     - otu_distribution_data_task
     - asserted_distributions_basic_endemism_task
   edit: new_taxon_name_task
-  home: browse_nomenclature_task
+  new: new_taxon_name_task
   config:
     recent: true

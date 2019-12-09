@@ -32,6 +32,7 @@ module Queries
     # @param [Hash] args
     def initialize(string, project_id: nil, **keyword_args)
       @query_string = string
+      # @query_string = '' if !(string =~ /\S/)
       @options = keyword_args
       @project_id = project_id
       build_terms

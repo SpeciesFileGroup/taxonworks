@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::Base
 
   include Workbench::SessionsHelper
+  include SetExceptionNotificationData
 
   include Api::Intercept
   

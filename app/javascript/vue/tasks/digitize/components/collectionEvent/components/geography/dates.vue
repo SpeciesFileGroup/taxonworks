@@ -6,6 +6,7 @@
         <div class="separate-right">
           <label>Year</label>
           <input
+            id="start-date-year"
             type="text"
             maxlength="4"
             v-model="startYear">

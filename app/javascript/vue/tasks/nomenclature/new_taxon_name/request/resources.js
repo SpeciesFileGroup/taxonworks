@@ -37,7 +37,7 @@ const updateTaxonName = function (taxon) {
 
 const loadTaxonName = function (id) {
   return new Promise(function (resolve, reject) {
-    Vue.http.get(`/taxon_names/${id}`.json).then(response => {
+    Vue.http.get(`/taxon_names/${id}.json`).then(response => {
       return resolve(response.body)
     }, response => {
       TW.workbench.alert.create('There is no taxon name associated to that ID', 'error')

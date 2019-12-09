@@ -42,7 +42,7 @@
           <label class="middle uppercase">
             <input
               type="radio"
-              name="rankSelected"
+              name="nomenclatureCode"
               v-model="nomenclatureCode"
               :value="code">
             {{ code }}

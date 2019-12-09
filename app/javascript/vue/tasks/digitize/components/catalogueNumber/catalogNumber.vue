@@ -19,6 +19,7 @@
             <lock-component v-model="locked.identifier"/>
           </div>
           <autocomplete
+            id="namespace-autocomplete"
             v-show="view == 'search'"
             class="separate-right"
             url="/namespaces/autocomplete"
@@ -60,6 +61,7 @@
         <label>Identifier</label>
         <div class="horizontal-left-content field">
           <input
+            id="identifier-field"
             :class="{ 'validate-identifier': existingIdentifier }"
             type="text"
             @input="checkIdentifier"

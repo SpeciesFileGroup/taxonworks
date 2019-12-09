@@ -23,8 +23,7 @@ export default function ({ commit, state }, determination) {
       }
       else {
         CreateTaxonDetermination(taxon_determination).then(response => {
-          //commit(MutationNames.SetTaxonDetermination, response)
-          //commit(MutationNames.SetTaxonDetermination, TaxonDetermination())
+          state.collection_object.object_tag = response.collection_object.object_tag
           addToList(response)
           resolve(response)
         })
