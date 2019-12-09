@@ -15,7 +15,7 @@
         <td>
           <input
             type="number"
-            class="total-size"
+            class="total-size .co-total-count"
             min="1"
             v-model="collectionObject.total">
         </td>

@@ -2,6 +2,7 @@
   <div>
     <label>Locality</label>
     <textarea
+      id="verbatim-locality"
       rows="5"
       v-model="locality"/>
   </div>
