@@ -192,16 +192,17 @@ module TaxonNamesHelper
     when :edit_task
       path = case i
              when :taxon_name
-               new_taxon_name_task_path(t)
+               new_taxon_name_task_path(taxon_name_id: t.id)
              when :combination
-               new_combination_task_path(id: t.id, literal: URI.escape(t.cached))
+               new_combination_task_path(taxon_name_id: t.id, literal: URI.escape(t.cached))
              end
       link_to(
-        content_tag(:span, 'Edit (task)',
-                    'data-icon' => 'edit',
-                    class: 'small-icon'
-                   ),
-                   path, class: 'navigation-item', 'data-task' => 'new_taxon_name')
+        content_tag(
+          :span, 'Edit (task)',
+          'data-icon' => 'edit',
+          class: 'small-icon'
+        ),
+        path, class: 'navigation-item', 'data-task' => 'new_taxon_name')
     else
       link_to(content_tag(:span, 'Edit', 'data-icon' => 'edit', 'class' => 'small-icon'), send("edit_#{i}_path}", taxon_name.metamorphosize), 'class' => 'navigation-item')
     end
