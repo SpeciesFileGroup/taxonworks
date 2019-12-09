@@ -3,8 +3,8 @@ module SetExceptionNotificationData
 
   included do
     before_action do
-      user = User.find(Current.user_id) if Current.user_id
-      project = Project.find(Current.project_id) if Current.project_id
+      user = sessions_current_user
+      project = sessions_current_project
       data = {}
 
       data[:user] = { user_id: user&.id, user_email: user&.email }
