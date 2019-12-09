@@ -23,6 +23,7 @@ export default function ({ commit, state }) {
               response.identifier = state.identifier.identifier
             }
             commit(MutationNames.SetIdentifier, response)
+            state.collection_object.object_tag = state.identifier.identifier_object.object_tag
             state.identifiers.push(response)
             return resolve(response)
           })
