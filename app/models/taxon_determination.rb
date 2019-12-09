@@ -53,15 +53,10 @@ class TaxonDetermination < ApplicationRecord
   has_many :determiners, through: :determiner_roles, source: :person
 
   # validates :biological_collection_object, presence: true
-  #
-  # validates :otu, presence: true
-  # # TODO - probably bad, and preventing nested determinations, should just use DB validation
+  validates_presence_of :otu
 
   accepts_nested_attributes_for :determiners
   accepts_nested_attributes_for :determiner_roles, allow_destroy: true
-
-  # accepts_nested_attributes_for :biological_collection_object
-  accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: :reject_otu
 
   validates :year_made, date_year: { min_year: 1757, max_year: Time.now.year }
   validates :month_made, date_month: true
@@ -69,6 +64,8 @@ class TaxonDetermination < ApplicationRecord
 
   # Careful, position must be reset with :update_column!
   validates_uniqueness_of :position, scope: [:biological_collection_object_id, :project_id]
+
+  accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: :reject_otu
 
   scope :current, -> { where(position: 1)}
   scope :historical, -> { where.not(position: 1)}

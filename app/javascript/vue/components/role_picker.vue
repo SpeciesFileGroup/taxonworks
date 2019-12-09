@@ -306,6 +306,7 @@
         }
         this.roles_attributes.push(person)
         this.$emit('input', this.roles_attributes)
+        this.$refs.autocomplete.cleanInput()
         this.expandPerson = false
         this.person_attributes = this.makeNewPerson()
         this.$emit('create', person)

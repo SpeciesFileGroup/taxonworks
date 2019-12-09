@@ -6,6 +6,7 @@ export default function ({ commit, dispatch, state }, coId) {
     state.settings.loading = true
     dispatch(ActionNames.GetCollectionObject, coId).then((coObject) => {
       let promises = []
+      dispatch(ActionNames.LoadContainer, coObject.global_id)
       if(coObject.collecting_event_id)
         promises.push(dispatch(ActionNames.GetCollectionEvent, coObject.collecting_event_id))
 

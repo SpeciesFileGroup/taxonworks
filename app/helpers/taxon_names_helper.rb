@@ -24,6 +24,13 @@ module TaxonNamesHelper
     ].compact.join('&nbsp;').html_safe
   end
 
+  # @return [String]
+  #   no HTML inside <input>
+  def taxon_name_autocomplete_selected_tag(taxon_name)
+    return nil if taxon_name.nil?
+    [taxon_name.cached, taxon_name.cached_author_year].compact.join(' ')
+  end
+
   def taxon_name_rank_tag(taxon_name, css_class = [:feedback, 'feedback-info', 'feedback-thin'] )
     return nil if taxon_name.nil?
     content_tag(:span, taxon_name.rank || 'Combination', class: css_class)
@@ -145,13 +152,6 @@ module TaxonNamesHelper
     link_to(original_taxon_name_tag(taxon_name).html_safe, browse_nomenclature_task_path(taxon_name_id: taxon_name.id))
   end
 
-  # @return [String]
-  #   no HTML inside <input>
-  def taxon_name_autocomplete_selected_tag(taxon_name)
-    return nil if taxon_name.nil?
-    [taxon_name.cached, taxon_name.cached_author_year].compact.join(' ') 
-  end
-
   def taxon_name_for_select(taxon_name)
     taxon_name.name if taxon_name
   end
@@ -192,16 +192,17 @@ module TaxonNamesHelper
     when :edit_task
       path = case i
              when :taxon_name
-               new_taxon_name_task_path(t)
+               new_taxon_name_task_path(taxon_name_id: t.id)
              when :combination
-               new_combination_task_path(id: t.id, literal: URI.escape(t.cached))
+               new_combination_task_path(taxon_name_id: t.id, literal: URI.escape(t.cached))
              end
       link_to(
-        content_tag(:span, 'Edit (task)',
-                    'data-icon' => 'edit',
-                    class: 'small-icon'
-                   ),
-                   path, class: 'navigation-item', 'data-task' => 'new_taxon_name')
+        content_tag(
+          :span, 'Edit (task)',
+          'data-icon' => 'edit',
+          class: 'small-icon'
+        ),
+        path, class: 'navigation-item', 'data-task' => 'new_taxon_name')
     else
       link_to(content_tag(:span, 'Edit', 'data-icon' => 'edit', 'class' => 'small-icon'), send("edit_#{i}_path}", taxon_name.metamorphosize), 'class' => 'navigation-item')
     end

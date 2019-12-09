@@ -156,7 +156,7 @@ scope :tasks do
 
   scope :accessions do
     scope :comprehensive, controller: 'tasks/accessions/comprehensive' do
-      get 'index', as: 'comprehensive_collection_object_task'
+      get '/', action: :index, as: 'comprehensive_collection_object_task'
     end
 
     scope :report do
@@ -262,16 +262,16 @@ scope :tasks do
   end
 
   scope :nomenclature do
-      scope :stats, controller: 'tasks/nomenclature/stats' do
-        get :index, as: 'index_stats_task'
-      end
+    scope :stats, controller: 'tasks/nomenclature/stats' do
+      get '', action: :index, as: 'index_stats_task'
+    end
 
     scope :new_combination, controller: 'tasks/nomenclature/new_combination' do
-      get 'index', as: 'new_combination_task'
+      get '', action: :index, as: 'new_combination_task'
     end
 
     scope :new_taxon_name, controller: 'tasks/nomenclature/new_taxon_name' do
-      get '(:id)', action: :index, as: 'new_taxon_name_task'
+      get '', action: :index, as: 'new_taxon_name_task'
     end
 
     scope :catalog do

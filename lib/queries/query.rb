@@ -32,6 +32,7 @@ module Queries
     # @param [Hash] args
     def initialize(string, project_id: nil, **keyword_args)
       @query_string = string
+      # @query_string = '' if !(string =~ /\S/)
       @options = keyword_args
       @project_id = project_id
       build_terms
@@ -342,6 +343,18 @@ module Queries
       a = with_start_date 
       return nil if a.nil?
       base_query.where(a.to_sql).limit(20)
+    end
+
+    # @return [ActiveRecord::Relation]
+    def autocomplete_exactly_named
+      return nil if query_string.blank?
+      base_query.where(exactly_named.to_sql).limit(20)
+    end
+
+    # @return [ActiveRecord::Relation]
+    def autocomplete_named
+      return nil if query_string.blank?
+      base_query.where(named.to_sql).limit(5)
     end
 
   end

@@ -71,6 +71,10 @@ const GetRepository = function (id) {
   return ajaxCall('get', `/repositories/${id}.json`)
 }
 
+const LoadSoftvalidation = function (global_id) {
+  return ajaxCall('get', `/soft_validations/validate?global_id=${global_id}`)
+}
+
 const CreateTypeMaterial = function (data) {
   return ajaxCall('post', `/type_materials.json`, data)
 }
@@ -127,5 +131,6 @@ export {
   DestroyBiocuration,
   DestroyCitation,
   UpdateCollectionObject,
-  DestroyDepiction
+  DestroyDepiction,
+  LoadSoftvalidation
 }

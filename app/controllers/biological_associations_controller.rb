@@ -104,7 +104,8 @@ class BiologicalAssociationsController < ApplicationController
       :biological_association_object_id, :biological_association_object_type,
       :subject_global_id,
       :object_global_id,
-      origin_citation_attributes: [:id, :_destroy, :source_id, :pages]
+      origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
+      citations_attributes: [:id, :is_original, :_destroy, :source_id, :pages, :citation_object_id, :citation_object_type],
     )
   end
 end

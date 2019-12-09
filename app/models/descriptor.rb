@@ -30,7 +30,7 @@ class Descriptor < ApplicationRecord
 
   has_many :observations, inverse_of: :descriptor, dependent: :restrict_with_error
   has_many :otus, through: :observations, inverse_of: :descriptors
-  has_many :observation_matrix_column_items, inverse_of: :descriptor
+  has_many :observation_matrix_column_items, inverse_of: :descriptor, dependent: :destroy
   has_many :observation_matrix_columns, inverse_of: :descriptor
 
   has_many :observation_matrices, through: :observation_matrix_columns

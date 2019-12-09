@@ -26,14 +26,23 @@
           @click="cleanCitation"
           class="separate-left"
           data-icon="reset"/>
+        <lock-component v-model="lock"/>
       </template>
     </div>
     <div class="flex-separate">
-      <input
-        class="normal-input inline pages"
-        v-model="citation.pages"
-        placeholder="pages"
-        type="text">
+      <div>
+        <input
+          class="normal-input inline pages"
+          v-model="citation.pages"
+          placeholder="pages"
+          type="text">
+        <label class="inline middle">
+          <input
+            v-model="citation.is_original"
+            type="checkbox">
+          Is original
+        </label>
+      </div>
       <label class="inline middle">
         <input
           v-model="citation.is_absent"
@@ -47,11 +56,13 @@
 <script>
   import DefaultElement from 'components/getDefaultPin.vue'
   import Autocomplete from 'components/autocomplete.vue'
+  import LockComponent from 'components/lock'
 
   export default {
     components: {
       DefaultElement,
-      Autocomplete
+      Autocomplete,
+      LockComponent
     },
     props: {
       display: {
@@ -67,7 +78,8 @@
     data() {
       return {
         autocompleteLabel: undefined,
-        citation: this.newCitation()
+        citation: this.newCitation(),
+        lock: false
       }
     },
     watch: {
@@ -79,6 +91,9 @@
       },
       display(newVal) {
         this.autocompleteLabel = newVal
+      },
+      lock(newVal) {
+        this.$emit('lock', newVal)
       }
     },
     methods: {
@@ -87,6 +102,7 @@
           source_id: undefined,
           is_absent: false,
           pages: undefined,
+          is_original: undefined
         }
       },
       sendCitation() {

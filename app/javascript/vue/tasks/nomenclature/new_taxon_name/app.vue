@@ -247,7 +247,7 @@ export default {
       })
     },
     loadTaxon (taxon) {
-      window.open(`/tasks/nomenclature/new_taxon_name/${taxon.id}`, '_self')
+      window.open(`/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxon.id}`, '_self')
     }
   }
 }

@@ -9,7 +9,7 @@
       arrow-size="small"
       :inertia="true"
       :arrow="true"
-      :content="`<p>Create tag: ${getDefaultElement().firstChild.firstChild.textContent}.${showCount ? `<br>Used already on more of ${countTag} objects</p>` : ''}`">
+      :content="`<p>Create tag: ${getDefaultElement().firstChild.firstChild.textContent}.${showCount ? `<br>Used already on ${countTag} ${countTag > 200 ? 'or more' : '' } objects</p>` : ''}`">
       <template v-slot:trigger>
         <div
           class="default_tag_widget circle-button btn-tag-add"
@@ -25,7 +25,7 @@
       arrow-size="small"
       :inertia="true"
       :arrow="true"
-      :content="`<p>Remove tag: ${getDefaultElement().firstChild.firstChild.textContent}.${showCount ? `<br>Used already on more of ${countTag} objects</p>` : ''}`">
+      :content="`<p>Remove tag: ${getDefaultElement().firstChild.firstChild.textContent}.${showCount ? `<br>Used already on ${countTag} ${countTag > 200 ? 'or more' : '' } objects</p>` : ''}`">
       <template v-slot:trigger>
         <div
           class="default_tag_widget circle-button btn-tag-delete"

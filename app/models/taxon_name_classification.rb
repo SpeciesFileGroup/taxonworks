@@ -170,7 +170,7 @@ class TaxonNameClassification < ApplicationRecord
 
   def set_cached_names_for_taxon_names
     begin
-      TaxonName.transaction do
+      TaxonName.transaction_with_retry do
         t = taxon_name
 
         if type_name =~ /(Fossil|Hybrid|Candidatus)/

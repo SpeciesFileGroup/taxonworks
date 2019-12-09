@@ -10,6 +10,12 @@ export default function ({ commit, state }, data) {
 
     UpdateCollectionObject(state.type_material.collection_object.id, data.type_material.collection_object).then(response => {
       commit(MutationNames.SetCollectionObject, response)
+      LoadSoftvalidation(state.type_material.global_id).then(response => {
+        let validation = response.validations.soft_validations
+        LoadSoftvalidation(state.type_material.collection_object.global_id).then(response => {
+          commit(MutationNames.SetSoftValidation, validation.concat(response.validations.soft_validations))
+        })
+      })
       TW.workbench.alert.create('Type specimen was successfully updated.', 'notice')
       commit(MutationNames.SetSaving, false)
     })

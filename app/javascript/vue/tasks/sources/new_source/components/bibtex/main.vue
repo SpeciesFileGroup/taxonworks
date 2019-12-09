@@ -6,6 +6,7 @@
         class="vue-new-source-task-bibtex full_width"
         v-for="(column, key) in columns"
         v-model="columns[key]"
+        :key="key"
         :disabled="!sortable"
         :group="{ name: 'components' }"
         @end="updatePreferences">
