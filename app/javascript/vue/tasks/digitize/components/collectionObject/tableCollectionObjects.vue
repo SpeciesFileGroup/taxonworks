@@ -14,6 +14,8 @@
         v-show="!collectionObject.id">
         <td>
           <input
+            v-if="!collectionObject.id"
+            :data-index="0"
             type="number"
             class="total-size .co-total-count"
             min="1"
@@ -23,28 +25,29 @@
           <lock-component v-model="locked.biocuration"/>
         </td>
         <td>
-          <bioclassification 
+          <bioclassification
             :biocurations-groups="biocurationsGroups"
             :biocutarions-type="biocutarionsType"
-            :biological-id="collectionObject.id"/>          
+            :biological-id="collectionObject.id"/>
         </td>
         <td></td>
       </tr>
       <tr
-        v-for="item in collectionObjects"
+        v-for="(item, index) in collectionObjects"
         :key="item.id"
         class="list-complete-item"
         :class="{ 'highlight': isSelected(item) }">
         <td>
           <input
-            class="total-size"
+            :data-index="index"
+            class="total-size co-total-count"
             type="number"
             @change="updateCO(item)"
             v-model="item.total">
         </td>
         <td></td>
         <td>
-          <bioclassification 
+          <bioclassification
             :biological-id="item.id"
             :biocurations-groups="biocurationsGroups"
             :biocutarions-type="biocutarionsType"/>
