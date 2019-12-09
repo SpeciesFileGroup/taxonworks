@@ -255,6 +255,7 @@ GEM
     notiffany (0.1.3)
       nenv (~> 0.1)
       shellany (~> 0.0)
+    os (1.0.1)
     paper_trail (10.2.1)
       activerecord (>= 4.2, < 6.1)
       request_store (~> 1.1)
@@ -554,6 +555,7 @@ DEPENDENCIES
   logical_query_parser
   modularity (~> 2.0.1)
   namecase (~> 2.0)
+  os (~> 1.0, >= 1.0.1)
   paper_trail (~> 10.2.0)
   paperclip (~> 6.1.0)
   paperclip-meta (~> 3.0)

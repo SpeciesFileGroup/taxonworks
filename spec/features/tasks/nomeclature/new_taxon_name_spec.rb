@@ -7,7 +7,7 @@ describe 'New taxon name', type: :feature, group: :nomenclature do
     before { sign_in_user_and_select_project}
 
     context 'when I visit the task page', js: true do
-      let!(:root) { @project.send(:create_root_taxon_name) } 
+      let!(:root) { @project.send(:create_root_taxon_name) }
 
       before { visit new_taxon_name_task_path }
 
@@ -21,13 +21,13 @@ describe 'New taxon name', type: :feature, group: :nomenclature do
         expect(page).to have_text('Edit taxon name')
       end
 
-      context 'ctrl-t navigation' do
+      context "#{OS.mac? ? 'ctrl': 'alt'}-t navigation" do
         let!(:genus) { Protonym.create!(by: @user, project: @project, parent: root, name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus)) }
         before { visit new_taxon_name_task_path(taxon_name_id: genus.id) }
 
-        specify 'ctrl-t navigates to Browse taxon name task' do
+        specify "#{OS.mac? ? 'ctrl': 'alt'}-t navigates to Browse taxon name task" do
           expect(page).to have_text('Edit taxon name')
-          page.find('body').send_keys([:control, 't'])
+          page.find('body').send_keys([OS.mac? ? :control : :alt, 't'])
           expect(page).to have_text('Browse nomenclature')
         end
       end
