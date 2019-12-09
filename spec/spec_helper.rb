@@ -116,6 +116,7 @@ RSpec.configure do |config|
 
   config.before(:each) do
     DatabaseCleaner.strategy = :transaction
+    Faker::UniqueGenerator.clear # Clears used values for all generators
   end
 
   # Capybara requires truncation strategy!!
