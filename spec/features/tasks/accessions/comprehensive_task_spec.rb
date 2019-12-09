@@ -2,13 +2,13 @@ require 'rails_helper'
 
 describe 'Task - Comprehensive digitization', type: :feature, group: :collection_objects do
 
-  before do
-    ActionController::Base.allow_forgery_protection = true
-  end
+  # identifier-field, namespace-autocomplete
+  #  .co-total-count
+  # verbatim-locality, start-date-year, determination-otu, determination-add-button
 
-  after do
-    ActionController::Base.allow_forgery_protection = false
-  end
+  # within all('.page-header')[0] do
+  # ...
+  # end
 
   context 'when signed in and a project is selected' do
     before { sign_in_user_and_select_project}
@@ -31,13 +31,15 @@ describe 'Task - Comprehensive digitization', type: :feature, group: :collection
 
         specify 'adds catalog numbers' do
 
-          page.find('#catalog-number-namespace input').fill_in(with: 'INHS')
+          page.find('#namespace-autocomplete input').fill_in(with: 'INHS')
 
-          find('li', text: 'INHS ... TODO').hover.click 
+          find('li', text: 'INHS Ill Nat Hist Survey').hover.click 
 
-          fill_in "catalog-number-identifier", with: '1234'
+          fill_in "identifier-field", with: '1234'
           click_button 'Save'
 
+          expect(page).to_not have_text('New record')
+          expect(page).to_not have_text('no identifier assigned')
           expect(page).to have_text('INHS 1234')
         end
 
