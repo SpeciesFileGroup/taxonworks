@@ -1,5 +1,9 @@
 <template>
   <section-panel title="Timeline">
+    <switch-component
+      class="separate-top"
+      :options="tabs"
+      v-model="view"/>
     <div class="horizontal-left-content separate-top">
       <div
         v-for="item in filter"
@@ -62,10 +66,12 @@
 
 import SectionPanel from './shared/sectionPanel'
 import { GetNomenclatureHistory } from '../request/resources.js'
+import SwitchComponent from 'components/switch'
 
 export default {
   components: {
-    SectionPanel
+    SectionPanel,
+    SwitchComponent
   },
   props: {
     otu: {
@@ -74,6 +80,7 @@ export default {
   },
   data() {
     return {
+      tabs: ['All', 'Nomenclature', 'Protonym', 'OTU (Biology)'],
       nomenclature: '',
       filterSelected: [],
       hideInfo: [{
