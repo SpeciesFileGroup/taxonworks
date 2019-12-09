@@ -26,11 +26,10 @@ describe 'Task - Comprehensive digitization', type: :feature, group: :collection
         expect(page).to have_text('no identifier assigned')
       end
 
-      context 'adds catalog numbers' do
+      context 'catalog numbers' do
         let!(:n) { Namespace.create!(name: 'Ill Nat Hist Survey', short_name: 'INHS', by: @user) }
 
         specify 'adds catalog numbers' do
-
           page.find('#namespace-autocomplete input').fill_in(with: 'INHS')
 
           find('li', text: 'INHS Ill Nat Hist Survey').hover.click 
@@ -42,9 +41,26 @@ describe 'Task - Comprehensive digitization', type: :feature, group: :collection
           expect(page).to_not have_text('no identifier assigned')
           expect(page).to have_text('INHS 1234')
         end
-
       end
 
+      specify 'adds collecting events' do
+        fill_in "verbatim-locality", with: 'Somewhere over the rainbow'
+        click_button 'Save'
+        expect(page).to have_text('Sequential uses: 1')
+      end
+
+      context 'taxon determinations' do
+        let!(:o) { Otu.create!(name: 'Foo', by: @user, project: @project) } 
+
+        specify 'adds taxon determinations' do
+          page.find('#determination-otu input').fill_in(with: 'Foo')
+
+          find('li', text: 'Foo').hover.click 
+          click_button 'determination-add-button'
+          page.find('body').send_keys([OS.mac? ? :control : :alt, 's'])
+          expect(page).to have_text('determined as Foo')
+        end
+      end
     end
   end
 end
