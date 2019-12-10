@@ -148,4 +148,16 @@ RSpec.configure do |config|
     ActionController::Base.allow_forgery_protection = false
   end
 
+  # Verify DB is actually cleared. Retry if it isn't.
+  config.after(:each, type: :feature) do
+    DatabaseCleaner.clean
+    i = 0
+    while User.count > 0 && i <= 3
+      puts "DATABASE NOT YET CLEARED, RETRYING..."
+      sleep 2**i
+      DatabaseCleaner.clean
+      i += 1
+    end
+  end
+
 end
