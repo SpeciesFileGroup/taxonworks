@@ -220,7 +220,7 @@ export default {
         (this.tabSelected.label === 'All')) && 
         keys.every(key => {
           return this.filterSections[key].every(filter => {
-            return item.data_attributes[filter.key] !== filter.value
+            return filter.hasOwnProperty('attribute') || filter.attribute ? item.data_attributes[filter.key] !== filter.value : true
           })
         })
     },
