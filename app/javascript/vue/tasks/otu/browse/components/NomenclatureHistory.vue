@@ -1,31 +1,21 @@
 <template>
-  <section-panel title="Timeline">
-    <switch-component
-      class="separate-top"
-      :options="tabs"
-      v-model="view"/>
-    <div class="horizontal-left-content separate-top">
-      <div
-        v-for="item in filter"
-        :key="item.key"
-        class="separate-right">
-        <label>
-          <input
-            v-model="filterSelected"
-            :value="item"
-            type="checkbox"/>
-          {{ item.label }}
-        </label>
-      </div>
-      <div class="separate-right">
-        <label>
-          <input
-            v-model="current"
-            type="checkbox"/>
-          Current
-        </label>
-      </div>
+  <section-panel
+    title="Timeline"
+    @menu="showModal = true">
+    <div class="switch-radio separate-top">
+      <template v-for="(item, index) in filterTabs">
+        <input
+          v-model="tabSelected"
+          :id="`switch-filter-nomenclature-${index}`"
+          :key="index"
+          name="switch-filter-nomenclature-options"
+          type="radio"
+          class="normal-input button-active"
+          :value="item"> 
+        <label :for="`switch-filter-nomenclature-${index}`">{{ item.label }}</label>
+      </template>
     </div>
+
     <div class="horizontal-left-content separate-top">
       <div
         v-for="item in hideInfo"
@@ -59,6 +49,33 @@
         </template>
       </ul>
     </div>
+    <modal-component
+      v-if="showModal"
+      @close="showModal = false">
+      <h3 slot="header">Visualize</h3>
+      <div
+        class="flex-separate"
+        slot="body">
+        <div
+          v-for="(section, key) in filterSections"
+          :key="key">
+          <h4 class="capitalize separate-bottom">{{ key }}</h4>
+          <ul class="no_bullets">
+            <li
+              v-for="item in section"
+              :key="item.key"
+              class="separate-right">
+              <label>
+                <input
+                  v-model="item.value"
+                  type="checkbox"/>
+                {{ item.label }}
+              </label>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </modal-component>
   </section-panel>
 </template>
 
@@ -67,11 +84,13 @@
 import SectionPanel from './shared/sectionPanel'
 import { GetNomenclatureHistory } from '../request/resources.js'
 import SwitchComponent from 'components/switch'
+import ModalComponent from 'components/modal'
 
 export default {
   components: {
     SectionPanel,
-    SwitchComponent
+    SwitchComponent,
+    ModalComponent
   },
   props: {
     otu: {
@@ -80,29 +99,77 @@ export default {
   },
   data() {
     return {
-      tabs: ['All', 'Nomenclature', 'Protonym', 'OTU (Biology)'],
+      showModal: false,
+      filterSections: {
+        time: [
+          {
+            label: 'First',
+            key: 'history-is-first',
+            value: true,
+            attribute: true
+          },
+          {
+            label: 'End',
+            key: 'history-is-last',
+            value: true,
+            attribute: true
+          }
+        ],
+        topic: [
+          {
+            label: 'Show',
+            key: '.history__citation_topics',
+            value: true
+          }
+        ],
+        metadata: [
+          {
+            label: 'Notes',
+            key: '.annotation__note',
+            value: true
+          },
+          {
+            label: 'Soft validation',
+            key: '.soft_validation_anchor',
+            value: true
+          },
+          {
+            label: 'Valid',
+            key: 'history-is-valid',
+            value: true,
+            attribute: true
+          },
+          {
+            label: 'Invalid',
+            key: 'history-is-invalid',
+            value: true,
+            attribute: true
+          },
+          {
+            label: 'Cited',
+            key: 'data-is-cited',
+            value: true
+          }
+        ]
+      },
       nomenclature: '',
-      filterSelected: [],
-      hideInfo: [{
-        label: 'Topics',
-        key: '.history__citation_topics',
-        value: true
+      tabSelected: {
+        label: 'All',
+        key: '',
+        value: ''
       },
-      {
-        label: 'Notes',
-        key: '.annotation__note',
-        value: true
-      },
-      {
-        label: 'Soft validation',
-        key: '.soft_validation_anchor',
-        value: true
-      }],
-      filter: [
+      hideInfo: [],
+      filterTabs: [
         {
-          label: 'History',
-          key: 'history-is-first',
-          value: true
+          label: 'All',
+          key: '',
+          value: ''
+        },
+        {
+          label: 'Nomenclature',
+          key: 'history-origin',
+          value: 'otu',
+          equal: false
         },
         {
           label: 'Protonym',
@@ -110,9 +177,9 @@ export default {
           value: 'protonym'
         },
         {
-          label: 'Valid',
-          key: 'history-valid-name',
-          value: true
+          label: 'OTU (biology)',
+          key: 'history-origin',
+          value: 'otu'
         }
       ],
       current: false
@@ -129,11 +196,14 @@ export default {
       },
       immediate: true
     },
-    hideInfo: {
+    filterSections: {
       handler (newVal) {
-        this.hideInfo.forEach(item => {
-          document.querySelectorAll(item.key).forEach(element => {
-            item.value ? element.classList.remove('hidden') : element.classList.add('hidden')
+        const keys = Object.keys(newVal)
+        keys.forEach(key => {
+          newVal[key].forEach(item => {
+            document.querySelectorAll(item.key).forEach(element => {
+              item.value ? element.classList.remove('hidden') : element.classList.add('hidden')
+            })
           })
         })
       },
@@ -142,9 +212,17 @@ export default {
   },
   methods: {
     checkFilter (item) {
-      return (this.filterSelected.every(filter => {
-        return item.data_attributes[filter.key] == filter.value
-      }) && (this.current ? item.data_attributes['history-object-id'] === this.nomenclature.reference_object_valid_taxon_name : true))
+      const keys = Object.keys(this.filterSections)
+      return ((!this.tabSelected.hasOwnProperty('equal') && 
+        this.tabSelected.equal ?
+        item.data_attributes[this.tabSelected.key] === this.tabSelected.value : 
+        item.data_attributes[this.tabSelected.key] != this.tabSelected.value) || 
+        (this.tabSelected.label === 'All')) && 
+        keys.every(key => {
+          return this.filterSections[key].every(filter => {
+            return item.data_attributes[filter.key] !== filter.value
+          })
+        })
     },
     filterSource(source) {
       let globalIds = source[Object.keys(source)[0]].objects

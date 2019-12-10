@@ -11,7 +11,9 @@
         <div
           data-icon="w_scroll-v"
           class="option-box button-default cursor-pointer handle"/>
-        <div class="option-box button-default cursor-pointer">
+        <div
+          class="option-box button-default cursor-pointer"
+          @click="$emit('menu')">
           <div class="hamburger-menu">
             <div class="hamburger-menu-bar"/>
             <div class="hamburger-menu-bar"/>
