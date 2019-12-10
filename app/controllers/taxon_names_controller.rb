@@ -3,6 +3,7 @@ class TaxonNamesController < ApplicationController
 
   before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination]
   after_action -> { set_pagination_headers(:taxon_names) }, only: [:index, :api_index], if: :json_request?
+  
   # GET /taxon_names
   # GET /taxon_names.json
   def index
@@ -10,7 +11,6 @@ class TaxonNamesController < ApplicationController
       format.html do
         @recent_objects = TaxonName.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
-
       end
       format.json {
         @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
@@ -29,29 +29,6 @@ class TaxonNamesController < ApplicationController
   def api_show
     @taxon_name = TaxonName.where(project_id: sessions_current_project_id).find(params[:id])
     render '/taxon_names/api/show.json.jbuilder'
-  end
-
-  def filter_params
-    params.permit(
-      :name, :author, :year,
-      :leaves,
-      :exact,
-      :validity,
-      :descendants,
-      :updated_since,
-      :type_metadata,
-      :citations,
-      :otus,
-      :authors,
-      :nomenclature_group, # !! different than autocomplete
-      :nomenclature_code,
-      :taxon_name_type,
-      type: [],
-      taxon_name_id: [],
-      taxon_name_classification: [],
-      taxon_name_relationship_type: [],
-      taxon_name_relationship: []
-    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
   # GET /taxon_names/1
@@ -277,6 +254,30 @@ class TaxonNamesController < ApplicationController
         project_id: sessions_current_project_id
       ).to_h.symbolize_keys
   end
+
+  def filter_params
+    params.permit(
+      :name, :author, :year,
+      :leaves,
+      :exact,
+      :validity,
+      :descendants,
+      :updated_since,
+      :type_metadata,
+      :citations,
+      :otus,
+      :authors,
+      :nomenclature_group, # !! different than autocomplete
+      :nomenclature_code,
+      :taxon_name_type,
+      type: [],
+      taxon_name_id: [],
+      taxon_name_classification: [],
+      taxon_name_relationship_type: [],
+      taxon_name_relationship: []
+    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
+  end
+
 end
 
 require_dependency Rails.root.to_s + '/lib/batch_load/import/taxon_names/castor_interpreter.rb'
