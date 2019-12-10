@@ -106,6 +106,8 @@ RSpec.configure do |config|
 
     ApplicationRecord.connection.select_all('SELECT PostGIS_version() v').first['v'] =~ /(\d+.\d+)/
     PSQL_VERSION = $1.to_f
+    # Monitor Faker seed
+    puts "Faker random seed is #{Faker::Config.random.seed}."
   end
 
   config.after(:suite) do
