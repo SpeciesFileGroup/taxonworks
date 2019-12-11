@@ -213,7 +213,7 @@ export default {
   methods: {
     checkFilter (item) {
       const keys = Object.keys(this.filterSections)
-      return ((!this.tabSelected.hasOwnProperty('equal') && 
+      return ((!this.tabSelected.hasOwnProperty('equal') || 
         this.tabSelected.equal ?
         item.data_attributes[this.tabSelected.key] === this.tabSelected.value : 
         item.data_attributes[this.tabSelected.key] != this.tabSelected.value) || 
