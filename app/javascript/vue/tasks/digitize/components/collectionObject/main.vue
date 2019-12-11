@@ -229,7 +229,7 @@
         })
 
         let coDepictions = this.depictions.filter(depiction => {
-          return depiction.depiction_object.id == this.collectionObject.id
+          return depiction.depiction_object_id == co.id
         })
 
         depictionsRemovedDuplicate.forEach(depiction => {
