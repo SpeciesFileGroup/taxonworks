@@ -39,11 +39,12 @@
         </li>
       </ul>
       <h3>References</h3>
-      <ul class="taxonomic_history">
-        <template v-for="source in nomenclature.sources">
+      <ul
+        v-if="nomenclature"
+        class="taxonomic_history">
+        <template v-for="item in nomenclature.sources.list">
         <li 
-          v-for="item in source"
-          v-show="filterSource(source)">
+          v-show="filterSource(item)">
           <span v-html="item.cached"/>
         </li>
         </template>
@@ -56,15 +57,47 @@
       <div
         class="flex-separate"
         slot="body">
-        <div
-          v-for="(section, key) in filterSections"
-          :key="key">
-          <h4 class="capitalize separate-bottom">{{ key }}</h4>
+        <div>
+          <h4 class="capitalize separate-bottom">Time</h4>
           <ul class="no_bullets">
             <li
-              v-for="item in section"
-              :key="item.key"
+              class="separate-right"
+              v-for="(item, key) in filterSections.time"
+              :key="key">
+              <label>
+                <input
+                  v-model="item.value"
+                  type="checkbox"/>
+                {{ item.label }}
+              </label>
+            </li>
+          </ul>
+          <h4 class="capitalize separate-bottom">Year</h4>
+          <year-picker :years="nomenclature.sources.year_metadata"/>
+        </div>
+        <div>
+          <h4 class="capitalize separate-bottom">Topic</h4>
+          <ul class="no_bullets">
+            <li
+              v-for="(item, key) in filterSections.topic"
+              :key="key"
               class="separate-right">
+              <label>
+                <input
+                  v-model="item.value"
+                  type="checkbox"/>
+                {{ item.label }}
+              </label>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="capitalize separate-bottom">Metadata</h4>
+          <ul class="no_bullets">
+            <li
+              class="separate-right"
+              v-for="(item, key) in filterSections.metadata"
+              :key="key">
               <label>
                 <input
                   v-model="item.value"
@@ -85,12 +118,14 @@ import SectionPanel from './shared/sectionPanel'
 import { GetNomenclatureHistory } from '../request/resources.js'
 import SwitchComponent from 'components/switch'
 import ModalComponent from 'components/modal'
+import YearPicker from './nomenclature/yearsPick'
 
 export default {
   components: {
     SectionPanel,
     SwitchComponent,
-    ModalComponent
+    ModalComponent,
+    YearPicker
   },
   props: {
     otu: {
@@ -225,7 +260,7 @@ export default {
         })
     },
     filterSource(source) {
-      let globalIds = source[Object.keys(source)[0]].objects
+      let globalIds = source.objects
       return this.nomenclature.items.find(item => {
         if (this.checkFilter(item)) {
           return globalIds.includes(item.data_attributes['history-object-id'])
