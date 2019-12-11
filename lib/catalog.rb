@@ -88,11 +88,89 @@ class Catalog
   # TODO: optimize ;)
   def objects_for_source(source)
     d = []
-
     items.each do |i|
       d << i if i.in_source?(source)
     end
     d.uniq
+  end
+
+  # @return [Hash]
+  def sources_to_json
+    h = {
+      list: {},
+      year_metadata: ::Catalog.year_metadata(sources, items) 
+    }
+    
+    sources.each do |s|
+      h[:list][s.metamorphosize.to_global_id.to_s] = {
+        cached: s.cached,
+        objects: objects_for_source(s).collect{|o| o.object.to_global_id.to_s } 
+      }
+    end
+    h
+  end
+
+  def topics_to_json
+    h = {
+      list: {},
+      year_metadata: {} #  ::Catalog.topic_metadata(entries) 
+    }
+
+    topics.each do |t|
+      h[:list][t.metamorphosize.to_global_id.to_s] = {
+        name: t.name,
+        css_color: t.css_color,
+        objects: [] #  TODO!
+      }
+    end
+    h
+  end
+
+  def self.topic_metadata(entry_list)
+    h = {}
+    entry_list.each do |d|
+      if h[d.year]
+        h[d.year] += 1
+      else
+        h[d.year] = 1
+      end
+    end
+    h
+  end
+
+  # @return [Hash]
+  def self.year_metadata(source_list, item_list)
+    ::Catalog.year_hash(
+      ::Catalog.all_dates(source_list, item_list)
+    )
+  end
+
+  # @return [Hash]
+  def self.year_hash(date_list)
+    h = {}
+    date_list.each do |d|
+      if h[d.year]
+        h[d.year] += 1
+      else
+        h[d.year] = 1
+      end
+    end
+    h
+  end
+
+  # @return [Array]
+  #  do not uniq! used in counts
+  def self.all_dates(source_list, item_list)
+    d = []
+    source_list.each do |s|
+      d.push s.nomenclature_date # was cached_nomenclature_date (a Date)
+    end
+
+    item_list.each do |i|
+      d.push i.nomenclature_date
+    end
+
+    d.compact.uniq.sort
   end
 
 end
