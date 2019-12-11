@@ -47,6 +47,7 @@ jobs:
       install:
         - npm install
         - gem install bundler
+        - bundle config --local build.sassc --disable-march-tune-native
         - bundle install -j3 --without development production
       before_script:
         - echo ===[TEST_WORKER=$TEST_WORKER before_script $(date -u +%Y%m%d-%H%M%S)]===
