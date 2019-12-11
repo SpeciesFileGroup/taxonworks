@@ -81,10 +81,10 @@ module TaxonNamesHelper
   end
 
   # @return [String]
-  # removes parens
+  #   removes parens
   def original_author_year(taxon_name)
     return nil if taxon_name.nil? || taxon_name.cached_author_year.nil?
-    taxon_name.cached_author_year.gsub(/^\(|\)$/, '')
+    taxon_name.original_author_year || ''
   end
 
   # @return [String]

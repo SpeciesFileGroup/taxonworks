@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Users' do
+describe 'Users', type: :feature do
 
   # All users must sign in -- a user isn't a user until s/he signs in
   # When a worker signs in, what does he see, what can he do?  dashboard, what links?
@@ -248,7 +248,7 @@ describe 'Users' do
   end
 
   context 'when user is not signed in' do
-    before(:all) { spin_up_project_and_users }
+    before { spin_up_project_and_users }
     before { visit root_path }
 
     feature 'forgotten password reset' do
