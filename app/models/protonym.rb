@@ -141,6 +141,9 @@ class Protonym < TaxonName
 
   scope :is_species_or_genus_group, -> {  where("rank_class ILIKE '%speciesgroup%' OR rank_class ILIKE '%genusgroup%'")   }
 
+  scope :is_original_name, -> { where("cached_author_year NOT ILIKE '(%'") } 
+  scope :is_not_original_name, -> { where("cached_author_year ILIKE '(%'") } 
+
   # @return [Array of Strings]
   #   genera where the species was placed
   def all_generic_placements
@@ -397,7 +400,6 @@ class Protonym < TaxonName
   end
 
   def is_homonym_or_suppressed?
-
   end
 
   # @return [Boolean]
@@ -423,6 +425,12 @@ class Protonym < TaxonName
 
   def is_family_rank?
     FAMILY_RANK_NAMES.include?(rank_string)
+  end
+
+  # @return Boolean
+  #   could also be determined by parens in cached_author year
+  def is_original_name? 
+    cached_author_year =~ /\(/ ? false : true
   end
 
   def reduce_list_of_synonyms(list)

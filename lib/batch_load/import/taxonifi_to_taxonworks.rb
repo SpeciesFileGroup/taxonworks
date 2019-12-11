@@ -126,11 +126,11 @@ module BatchLoad
       taxonifi_name.authors.each_with_index do |a,i|
         suffix = a.suffix.join(' ') if !a.suffix.nil?
         author_attributes.push({
-                                 last_name:  a.last_name,
-                                 first_name: a.first_name,
-                                 prefix: a.initials_string,
-                                 suffix: suffix,
-                               })
+          last_name: a.last_name,
+          first_name: a.first_name,
+          prefix: a.initials_string,
+          suffix: suffix,
+        })
       end
       author_attributes
       # author_attributes.reverse

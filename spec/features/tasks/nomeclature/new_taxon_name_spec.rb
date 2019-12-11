@@ -13,7 +13,7 @@ describe 'New taxon name', type: :feature, group: :nomenclature do
 
       specify 'add a name' do
         fill_in "taxon-name", with: 'Qurious'
-        page.find('#parent-name input').fill_in(with: 'Root')
+        find('#parent-name input').fill_in(with: 'Root')
         find('li', text: 'Root nomenclatural rank').hover.click 
         find('label', text: 'ICZN').click
         find('label', text: 'Genus').click
@@ -27,7 +27,7 @@ describe 'New taxon name', type: :feature, group: :nomenclature do
 
         specify "#{OS.mac? ? 'ctrl': 'alt'}-t navigates to Browse taxon name task" do
           expect(page).to have_text('Edit taxon name')
-          page.find('body').send_keys([OS.mac? ? :control : :alt, 't'])
+          find('body').send_keys([OS.mac? ? :control : :alt, 't'])
           expect(page).to have_text('Browse nomenclature')
         end
       end

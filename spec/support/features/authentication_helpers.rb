@@ -3,13 +3,18 @@ module Features
   module AuthenticationHelpers
 
     def sign_in_with(email, password)
-      visit signin_path
-      find('#session_email').set(email)
-      find('#session_password').set(password)
-      # fill_in 'session[email]', with: email, id: 'session_email'
-      # fill_in 'session[password]', with: password, id: 'session_password'
-      click_button 'sign_in'
-      find_link('sign_out')  # TODO: check for Capybara bug fix down the road?
+      begin
+        visit signin_path
+        find('#session_email').set(email)
+        find('#session_password').set(password)
+        # fill_in 'session[email]', with: email, id: 'session_email'
+        # fill_in 'session[password]', with: password, id: 'session_password'
+        click_button 'sign_in'
+        find_link('sign_out')  # TODO: check for Capybara bug fix down the road?
+      rescue
+        puts page.body
+        raise
+      end
     end
 
     def select_a_project(project)

@@ -548,6 +548,14 @@ class TaxonName < ApplicationRecord
     [cached, cached_author_year].compact.join(' ')
   end
 
+  # @return [String, nil]
+  #   derived from cached_author_year
+  #   !! DO NOT USE IN building cached !!
+  #   See also app/helpers/taxon_names_helper
+  def original_author_year
+    cached_author_year&.gsub(/^\(|\)$/, '')
+  end
+
   # @return [Array of TaxonName] ancestors of type 'Protonym'
   def ancestor_protonyms
     Protonym.ancestors_of(self)

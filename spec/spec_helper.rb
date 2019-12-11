@@ -106,6 +106,10 @@ RSpec.configure do |config|
 
     ApplicationRecord.connection.select_all('SELECT PostGIS_version() v').first['v'] =~ /(\d+.\d+)/
     PSQL_VERSION = $1.to_f
+
+    Faker::Config.random = Random.new(ENV['FAKER_SEED'].to_i) if ENV['FAKER_SEED']
+    # Monitor Faker seed
+    puts "Faker random seed: #{Faker::Config.random.seed}"
   end
 
   config.after(:suite) do
@@ -116,6 +120,7 @@ RSpec.configure do |config|
 
   config.before(:each) do
     DatabaseCleaner.strategy = :transaction
+    Faker::UniqueGenerator.clear # Clears used values for all generators
   end
 
   # Capybara requires truncation strategy!!
@@ -145,6 +150,18 @@ RSpec.configure do |config|
   end
   config.after(:each, type: :feature) do
     ActionController::Base.allow_forgery_protection = false
+  end
+
+  # Verify DB is actually cleared. Retry if it isn't.
+  config.after(:each, type: :feature) do
+    DatabaseCleaner.clean
+    i = 0
+    while User.count > 0 && i <= 3
+      puts "DATABASE NOT YET CLEARED, RETRYING..."
+      sleep 2**i
+      DatabaseCleaner.clean
+      i += 1
+    end
   end
 
 end

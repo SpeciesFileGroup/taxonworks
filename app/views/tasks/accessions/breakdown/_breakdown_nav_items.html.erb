@@ -14,10 +14,12 @@
       <% end %>
     </li>
 
-    <li class="actions">
-      <%= button_to "Recalculate", { action: :update, controller: '/sqed_depictions', id: @sqed_depiction.id }, method: :patch,
-        data: { confirm: "Recalculate borders and OCR for buffered fields?  Existing changes will not be saved." } %>
-    </li>
+    <% if @sqed_depiction -%>
+      <li class="actions">
+        <%= button_to "Recalculate", { action: :update, controller: '/sqed_depictions', id: @sqed_depiction.id }, method: :patch,
+          data: { confirm: "Recalculate borders and OCR for buffered fields?  Existing changes will not be saved." } %>
+      </li>
+    <% end %>
 
     <li><%= link_to(
       'Buffered breakdown', collection_object_buffered_data_breakdown_task_path(@result.depiction.depiction_object),
