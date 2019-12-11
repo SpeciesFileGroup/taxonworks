@@ -115,13 +115,6 @@ export default {
             attribute: true
           }
         ],
-        topic: [
-          {
-            label: 'Show',
-            key: '.history__citation_topics',
-            value: true
-          }
-        ],
         metadata: [
           {
             label: 'Notes',
@@ -150,7 +143,14 @@ export default {
             key: 'data-is-cited',
             value: true
           }
-        ]
+        ],
+        topic: [
+          {
+            label: 'Show',
+            key: '.history__citation_topics',
+            value: true
+          }
+        ],
       },
       nomenclature: '',
       tabSelected: {
