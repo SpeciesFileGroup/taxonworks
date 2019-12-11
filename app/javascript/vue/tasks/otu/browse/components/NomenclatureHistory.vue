@@ -34,7 +34,7 @@
       <ul class="taxonomic_history">
         <li 
           v-for="item in nomenclature.items"
-          v-show="checkFilter(item)">
+          v-if="checkFilter(item)">
           <span v-html="item.label_html"/>
         </li>
       </ul>
@@ -73,7 +73,9 @@
             </li>
           </ul>
           <h4 class="capitalize separate-bottom">Year</h4>
-          <year-picker :years="nomenclature.sources.year_metadata"/>
+          <year-picker 
+            v-model.number="filterSections.year[0].value"
+            :years="nomenclature.sources.year_metadata"/>
         </div>
         <div>
           <h4 class="capitalize separate-bottom">Topic</h4>
@@ -140,16 +142,25 @@ export default {
           {
             label: 'First',
             key: 'history-is-first',
-            value: true,
-            attribute: true
+            value: false,
+            attribute: true,
+            equal: true
           },
           {
             label: 'End',
             key: 'history-is-last',
-            value: true,
-            attribute: true
+            value: false,
+            attribute: true,
+            equal: true
           }
         ],
+        year: [{
+          label: 'Year',
+          key: 'history-year',
+          value: undefined,
+          attribute: true,
+          equal: true
+        }],
         metadata: [
           {
             label: 'Notes',
@@ -255,17 +266,19 @@ export default {
         (this.tabSelected.label === 'All')) && 
         keys.every(key => {
           return this.filterSections[key].every(filter => {
-            return filter.hasOwnProperty('attribute') || filter.attribute ? item.data_attributes[filter.key] !== filter.value : true
+            if (filter.value === undefined) return true
+            return !filter.hasOwnProperty('attribute') || filter.attribute ? 
+            (filter.hasOwnProperty('equal') && filter.equal ? 
+            item.data_attributes[filter.key] === filter.value : 
+            item.data_attributes[filter.key] !== filter.value) : true
           })
         })
     },
     filterSource(source) {
       let globalIds = source.objects
-      return this.nomenclature.items.find(item => {
-        if (this.checkFilter(item)) {
-          return globalIds.includes(item.data_attributes['history-object-id'])
-        }
-      })
+      return (this.nomenclature.items.filter(item => { return this.checkFilter(item) }).find(item => {
+        return globalIds.includes(item.data_attributes['history-object-id']) 
+      }) != undefined)
     }
   }
 }

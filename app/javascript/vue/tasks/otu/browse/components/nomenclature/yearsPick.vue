@@ -3,17 +3,18 @@
     <ul class="no_bullets">
       <li
         class="full_width year-line"
-        v-for="(value, year) in years"
+        v-for="(count, year) in years"
+        @click="setYear(Number(year))"
         :key="year"
         :style="{
-          background: `linear-gradient(to right, #5D9ECE ${getSize(value)}%, transparent ${getSize(value)}% ${100-getSize(value)}%)`
+          background: `linear-gradient(to right, ${value === Number(year) ? '#F5F5F5' : '#5D9ECE'} ${getSize(count)}%, transparent ${getSize(count)}% ${100-getSize(count)}%)`
           }">
         <div
           class="full_width year-string"
           :style="{
-            background: `linear-gradient(to right, white ${getSize(value)}%, black ${getSize(value)}% ${100-getSize(value)}%)`,
+            background: `linear-gradient(to right, white ${getSize(count)}%, black ${getSize(count)}% ${100-getSize(count)}%)`,
             '-webkit-background-clip': 'text',
-            '-webkit-text-fill-color': 'transparent'
+            '-webkit-text-fill-color': value === Number(year) ? 'black' : 'transparent'
           }"
           >{{ year }}</div>
       </li>
@@ -27,24 +28,28 @@ export default {
     years: {
       type: Object,
       required: true
+    },
+    value: {
+      type: [Number, String],
+      default: undefined
     }
   },
   data () {
     return {
-      max: undefined
+      max: undefined,
     }
   },
   watch: {
     years: {
       handler(newVal) {
-        this.setYears(newVal)
+        this.max = Math.max(...Object.values(newVal))
       },
       immediate: true
     }
   },
   methods: {
-    setYears (years) {
-      this.max = Math.max(...Object.values(years))
+    setYear (year) {
+      this.$emit('input', this.value === year ? undefined : year)
     },
     getSize (value) {
       return (value / this.max) * 100
