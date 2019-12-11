@@ -48,6 +48,7 @@ class Catalog::Entry
   def index_items
     items.each do |i|
       i.is_first = first_item?(i)
+      i.is_last = last_item?(i)
     end
     true
   end
@@ -71,6 +72,19 @@ class Catalog::Entry
     false
   end
 
+  # @return Boolean
+  # Returns true if
+  #   * it's the only item with this object
+  #   * it's the last citation chronologically 
+  # Inversely, returns false in all other cases:
+  def last_item?(item)
+    o = items_by_object(item.object)
+    return true if o.size == 1
+    return true if o.last == item
+
+    false
+  end
+
   def original_citation_present?
     items.each do |i|
       return true if i.citation&.is_original
@@ -79,8 +93,7 @@ class Catalog::Entry
   end
 
   def items_by_object(object)
-    # TODO- replace with index?
-    ::Catalog.chronological_item_sort( items.select{|i| i.object == object} )
+    ::Catalog.chronological_item_sort( items.select{|i| i.object == object } )
   end
 
   # @return [Array of NomenclatureCatalog::EntryItem]

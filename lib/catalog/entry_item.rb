@@ -27,6 +27,10 @@ class Catalog::EntryItem
   #   See Catalog::Entry#first_item?
   attr_accessor :is_first
 
+  # @return [Boolean]
+  #   See Catalog::Entry#last_item?
+  attr_accessor :is_last
+
   # @param [Hash] args
   def initialize(object: nil, base_object: nil, citation: nil, nomenclature_date: nil, citation_date: nil)
     raise if object.nil?
@@ -44,8 +48,10 @@ class Catalog::EntryItem
     {
       'history-origin' => origin,
       'history-object-id' => object.to_global_id.to_s,
+      'history-year' => nomenclature_date&.year || 'unknown',
       'history-is-first' => is_first,
-      'history-year' => nomenclature_date&.year || 'unknown'
+      'history-is-last' => is_last, 
+      'history-is-cited' => (citation ? true : false),
     }
   end
 
