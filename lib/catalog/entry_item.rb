@@ -44,16 +44,10 @@ class Catalog::EntryItem
     {
       'history-origin' => origin,
       'history-object-id' => object.to_global_id.to_s,
-      'history-is-first' => is_first
+      'history-is-first' => is_first,
+      'history-year' => nomenclature_date&.year || 'unknown'
     }
   end
-
-  # Deprecated for is_first
-  # # @return [Boolean]
-  # def is_subsequent?
-  #   # object == taxon_name && !citation.try(:is_original?)
-  #   references_self && !citation.nil? && !citation.is_original?
-  # end
 
   def references_self?
     object == base_object 
@@ -105,7 +99,7 @@ class Catalog::EntryItem
   def topics
     t = []
     if source
-      t += object.topics 
+      t += citation.topics 
     end
     t.uniq
   end

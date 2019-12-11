@@ -112,27 +112,38 @@ class Catalog
 
   def topics_to_json
     h = {
-      list: {},
-      year_metadata: {} #  ::Catalog.topic_metadata(entries) 
+      list: {}
     }
 
+    year_data = ::Catalog.topic_year_metadata(items) 
+
     topics.each do |t|
-      h[:list][t.metamorphosize.to_global_id.to_s] = {
+      id = t.metamorphosize.to_global_id.to_s
+      h[:list][id] = {
         name: t.name,
         css_color: t.css_color,
-        objects: [] #  TODO!
+        year_metadata: year_data[id]
       }
     end
     h
   end
 
-  def self.topic_metadata(entry_list)
+  def self.topic_year_metadata(entry_item_list)
     h = {}
-    entry_list.each do |d|
-      if h[d.year]
-        h[d.year] += 1
-      else
-        h[d.year] = 1
+    entry_item_list.each do |i|
+      y = i.nomenclature_date&.year
+      y ||= 'unknown'
+      i.topics.each do |t|
+        id = t.metamorphosize.to_global_id.to_s
+        if h[id]
+          if h[id][y]
+            h[id][y] += 1
+          else
+            h[id][y] = 1
+          end
+        else
+          h[id] = {y => 1}
+        end
       end
     end
     h
