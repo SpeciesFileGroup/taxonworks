@@ -54,6 +54,7 @@ ADD Gemfile.lock /app/
 
 WORKDIR /app
 
+RUN bundle config --local build.sassc --disable-march-tune-native # https://github.com/sass/sassc-ruby/issues/146
 RUN bundle install -j$BUNDLER_WORKERS --without=development test
 RUN npm install
 
