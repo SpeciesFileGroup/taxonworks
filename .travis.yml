@@ -3,7 +3,6 @@ branches:
   only:
     - master
     - development
-    - rails6
     - page
     - /v\d+\.\d+\.\d+/
 env:
@@ -26,7 +25,7 @@ jobs:
           - $TRAVIS_BUILD_DIR/tmp/cache/webpacker
           - /home/travis/.rvm/
       rvm:
-        - 2.6.3
+        - 2.6.5
       bundler_args: --without development production
       addons:
         postgresql: "10"

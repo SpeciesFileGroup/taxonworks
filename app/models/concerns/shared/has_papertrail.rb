@@ -6,7 +6,7 @@ module Shared::HasPapertrail
   included do
     has_paper_trail on: [:update], ignore: [:created_at, :updated_at]
 
-    before_save(on: :update) do
+    before_update do
       PaperTrail.request.whodunnit = Current.user_id
     end
   end

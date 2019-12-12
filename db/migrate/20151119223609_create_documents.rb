@@ -3,7 +3,6 @@ class CreateDocuments < ActiveRecord::Migration[4.2]
   def change
     create_table :documents do |t|
       t.attachment :document_file, null: false, index: true
-      t.boolean 
       t.references :project, null: false
       t.integer :created_by_id, null: false
       t.integer :updated_by_id, null: false

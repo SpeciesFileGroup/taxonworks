@@ -1,12 +1,12 @@
 {
   "dependencies": {
-    "@ibm/plex": "^2.0.0",
+    "@ibm/plex": "^4.0.1",
     "@rails/webpacker": "^4.2.0",
     "babel-preset-stage-0": "^6.24.1",
     "browser-request": "^0.3.3",
     "file-loader": "^4.2.0",
     "json2csv": "^4.5.4",
-    "leaflet": "^1.5.1",
+    "leaflet": "^1.6.0",
     "leaflet.pm": "^2.2.0",
     "npm-check-updates": "^3.2.1",
     "parse-dms": "0.0.3",
@@ -35,7 +35,7 @@
     "eslint-plugin-node": "^10.0.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
-    "eslint-plugin-vue": "^5.2.3",
+    "eslint-plugin-vue": "^6.0.1",
     "increase-memory-limit": "^1.0.7",
     "raw-loader": "^3.1.0",
     "webpack-dev-server": "^3.9.0"

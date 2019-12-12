@@ -9,6 +9,13 @@ class NomenclaturalRank
   # self.descendants gets all descendant classes
   # self.subclasses gets immediate descendants
 
+
+  # @return class
+  #   this method calls Module#module_parent
+  def self.parent
+    self.module_parent
+  end
+
   # @return [ordered Array of NomenclaturalRank]
   #   for all direct descendants of this Class.
   # Used to build constants in config/initializers/constants/ranks.rb.

@@ -39,7 +39,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
       selected.each { |item_id|
         ce = CollectingEvent.find(item_id)
         unless ce.nil?
-          if ce.update_attributes(collecting_event_params)
+          if ce.update(collecting_event_params)
             ce.generate_verbatim_data_georeference(true) if generate_georeference?
           else
             any_failed = true
@@ -65,7 +65,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
     next_id = next_collecting_event_id
     ce      = current_collecting_event
     success = false
-    if ce.update_attributes(collecting_event_params)
+    if ce.update(collecting_event_params)
       ce.generate_verbatim_data_georeference(true) if generate_georeference?
       success = true
     end

@@ -84,7 +84,7 @@ describe CollectionProfile, type: :model do
     end
 
     context 'with indices set' do
-      before { collection_profile.update_attributes(indices) } 
+      before { collection_profile.update(indices) } 
       specify '#profile_indices when all set' do
         expect(collection_profile.collection_profile_indices.size).to eq(8)
       end
