@@ -99,7 +99,7 @@ GEM
       treetop (~> 1.6)
       unicode_utils (~> 1.4)
     brakeman (4.7.2)
-    builder (3.2.3)
+    builder (3.2.4)
     byebug (11.0.1)
     capybara (3.29.0)
       addressable
@@ -218,7 +218,7 @@ GEM
       turbolinks
     jquery-ui-rails (6.0.1)
       railties (>= 3.2.16)
-    json (2.2.0)
+    json (2.3.0)
     kaminari (1.1.1)
       activesupport (>= 4.1.0)
       kaminari-actionview (= 1.1.1)
@@ -281,7 +281,7 @@ GEM
     paperclip-meta (3.1.0)
       paperclip (>= 5.0)
     parallel (1.19.1)
-    parallel_tests (2.29.2)
+    parallel_tests (2.30.0)
       parallel
     parser (2.6.5.0)
       ast (~> 2.4.0)
