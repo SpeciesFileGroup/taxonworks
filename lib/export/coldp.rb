@@ -1,6 +1,5 @@
 require 'zip'
 
-
 module Export
 
   # TODO: Explore https://github.com/frictionlessdata/datapackage-rb to ingest frictionless data,
@@ -55,8 +54,6 @@ module Export
         ref_csv.close
       end
       
-      # TODO: 
-
       zip_file_path
     end 
 
@@ -82,9 +79,24 @@ module Export
         request: request,
         expires: 2.days.from_now
       )
+      
       ColdpCreateDownloadJob.perform_later(otu, download)
 
       download
+    end
+
+    # TODO - perhaps a utilities file --
+
+    def self.original_field(taxon_name)
+      (taxon_name.type == 'Protonym') && taxon_name.is_original_name?
+    end
+
+    # TaxonWorks does not keep a seperate ID for ICZN names 
+    #   that differ from their original combination.  Ultimately
+    #   if it moves to use a Combination::Original method then
+    #   we can use those IDs. The present rendering is a hack.
+    def self.current_taxon_name_id(taxon_name)
+      taxon_name.id.to_s + '/current'
     end
 
   end

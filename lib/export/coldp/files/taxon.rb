@@ -14,12 +14,7 @@
 # remarks
 #
 module Export::Coldp::Files::Taxon
-
-  # TODO: populate
-  def self.references(otus)
-    []
-  end
-  
+ 
   # return [Boolean, nil]
   #  TODO - reason in TW this is provision
   def self.provisional(otu)
