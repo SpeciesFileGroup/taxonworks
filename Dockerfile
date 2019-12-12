@@ -1,4 +1,4 @@
-FROM phusion/passenger-ruby26:1.0.8 AS base
+FROM phusion/passenger-ruby26:1.0.9 AS base
 MAINTAINER Matt Yoder
 ENV LAST_FULL_REBUILD 2018-08-10
 ARG BUNDLER_WORKERS=1
@@ -54,6 +54,7 @@ ADD Gemfile.lock /app/
 
 WORKDIR /app
 
+RUN bundle config --local build.sassc --disable-march-tune-native # https://github.com/sass/sassc-ruby/issues/146
 RUN bundle install -j$BUNDLER_WORKERS --without=development test
 RUN npm install
 

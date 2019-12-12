@@ -51,6 +51,14 @@ class GeographicArea < ApplicationRecord
   include Shared::IsData
   include Shared::IsApplicationData
 
+  # @return class
+  #   this method calls Module#module_parent
+  # TODO: This method can be placed elsewhere inside this class (or even removed if not used)
+  #       when https://github.com/ClosureTree/closure_tree/issues/346 is fixed.
+  def self.parent
+    self.module_parent
+  end
+
   has_closure_tree
 
   belongs_to :geographic_area_type, inverse_of: :geographic_areas
@@ -94,9 +102,11 @@ class GeographicArea < ApplicationRecord
 
   #  HashAggregate  (cost=100.89..100.97 rows=8 width=77)
   scope :ancestors_and_descendants_of, -> (geographic_area) do
-    a = GeographicArea.self_and_ancestors_of(geographic_area)
-    b = GeographicArea.descendants_of(geographic_area)
-    GeographicArea.from("((#{a.to_sql}) UNION (#{b.to_sql})) as geographic_areas")
+    scoping do
+      a = GeographicArea.self_and_ancestors_of(geographic_area)
+      b = GeographicArea.descendants_of(geographic_area)
+      GeographicArea.from("((#{a.to_sql}) UNION (#{b.to_sql})) as geographic_areas")
+    end
   end
 
   scope :with_name_like, lambda { |string|

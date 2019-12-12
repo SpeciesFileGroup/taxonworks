@@ -336,7 +336,7 @@ class CollectingEvent < ApplicationRecord
     # @param [CollectingEvent Scope] collecting_events
     # @return [Scope] without self (if included)
     # TODO: DRY, use general form of this
-    def excluding(collecting_events)
+    def not_including(collecting_events)
       where.not(id: collecting_events)
     end
 
@@ -633,7 +633,7 @@ class CollectingEvent < ApplicationRecord
 
     # @todo change 'id in (?)' to some other sql construct
     pieces = CollectingEvent.where(id: gr.flatten.map(&:id).uniq)
-    pieces.excluding(self)
+    pieces.not_including(self)
   end
 
   # @return [Scope]
@@ -659,7 +659,7 @@ class CollectingEvent < ApplicationRecord
 
     # @todo Directly map this
     pieces = CollectingEvent.where(id: ce.flatten.map(&:id).uniq)
-    pieces.excluding(self)
+    pieces.not_including(self)
   end
 
   # DEPRECATED for shared code
@@ -1005,7 +1005,7 @@ class CollectingEvent < ApplicationRecord
   #   4.  updated_on
   #   5.  id
   def next_without_georeference
-    CollectingEvent.excluding(self).
+    CollectingEvent.not_including(self).
       includes(:georeferences).
       where(project_id: self.project_id, georeferences: {collecting_event_id: nil}).
       order(:verbatim_locality, :geographic_area_id, :start_date_year, :updated_at, :id).

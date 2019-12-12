@@ -2,7 +2,7 @@
   <div class="depiction-thumb-container">
     <modal
       v-if="viewMode"
-      @close="viewMode = false"
+      @close="checkEdit"
       :container-style="{ width: ((fullSizeImage ? depiction.image.width : depiction.image.alternatives.medium.width) + 'px')}">
       <h3 slot="header">View</h3>
       <div slot="body">
@@ -80,7 +80,21 @@ export default {
   data: function () {
     return {
       fullSizeImage: false,
-      viewMode: false
+      viewMode: false,
+      editing: false
+    }
+  },
+  watch: {
+    viewMode(newVal) {
+      if(newVal) {
+        this.editing = false
+      }
+    },
+    depiction: {
+      handler(newVal) {
+        this.editing = true
+      },
+      deep: true
     }
   },
   methods: {
@@ -93,10 +107,20 @@ export default {
       }
       UpdateDepiction(this.depiction.id, depiction).then(response => {
         TW.workbench.alert.create('Depiction was successfully updated.', 'notice')
+        this.editing = false
       })
     },
     deleteDepiction () {
       this.$emit('delete', this.depiction)
+    },
+    checkEdit() {
+      if(this.editing) {
+        if(window.confirm('You have unsaved changes and they will be lost. Are you sure you want to close?')) {
+          this.viewMode = false
+        }
+      } else {
+        this.viewMode = false
+      }
     }
   }
 }

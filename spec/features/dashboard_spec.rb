@@ -42,7 +42,7 @@ describe 'Dashboard' do
       }
     end
 
-    context 'when click Sign out' do
+    context 'when click Sign out', js: true do
       before { click_link 'Sign out' }
 
       it 'should have sign out button' do

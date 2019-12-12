@@ -98,7 +98,7 @@ class OtusController < ApplicationController
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Otu was successfully destroyed.')}
         format.json {head :no_content}
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Otu was not destroyed, ' + errors.full_messages.join('; '))}
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Otu was not destroyed, ' + @otu.errors.full_messages.join('; '))}
         format.json {render json: @otu.errors, status: :unprocessable_entity}
       end
     end

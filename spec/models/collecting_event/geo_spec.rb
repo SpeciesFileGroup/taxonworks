@@ -56,7 +56,7 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
 
         context 'with a verbatim georeference' do
           before { [area_e, area_a].each
-          collecting_event.update_attributes!(
+          collecting_event.update!(
             verbatim_latitude:  '5.0',
             verbatim_longitude: '5.0'
           )
