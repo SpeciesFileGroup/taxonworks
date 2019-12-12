@@ -10,10 +10,12 @@
       <%= check_box_tag :is_absent, name: 'asserted_distribution[is_absent]' %> <%= label_tag('Absent?') %>
     </td>
     <td>
+      <span class="actions">
       <%= submit_tag("Create", 
                      id: "button_#{asserted_distribution.geographic_area.to_param}", 
-                     data: {geographic_area_id: asserted_distribution.geographic_area.to_param }
-                    ) %>
+                     data: {geographic_area_id: asserted_distribution.geographic_area.to_param },
+                    class: 'button'
+                    ) %></span>
     </td>
   </tr>
 </table>

@@ -3,7 +3,19 @@
     id="vue-all-in-one"
     v-shortkey="[getMacKey(), 'l']"
     @shortkey="setLockAll">
-    <h1>Comprehensive specimen digitization</h1>
+    <div class="flex-separate middle">
+      <h1>Comprehensive specimen digitization</h1>
+      <ul class="context-menu">
+        <li>
+          <label>
+            <input
+              type="checkbox"
+              v-model="settings.sortable">
+            Sortable fields
+          </label>
+        </li>
+      </ul>
+    </div>
     <spinner-component
       v-if="saving || loading"
       :full-screen="true"
@@ -52,6 +64,14 @@
       },
       loading() {
         return this.$store.getters[GetterNames.IsLoading]
+      },
+      settings: {
+        get () {
+          return this.$store.getters[GetterNames.GetSettings]
+        },
+        set (value) {
+          this.$store.commit(MutationNames.SetSettings, value)
+        }
       }
     },
     mounted() {

@@ -8,7 +8,6 @@ class CreateDwcOccurrence < ActiveRecord::Migration[4.2]
   def change
     create_table :dwc_occurrences do |t|
       t.string :acceptedNameUsage
-      t.string :acceptedNameUsage
       t.string :acceptedNameUsageID
       t.string :accessRights
       t.string :associatedMedia

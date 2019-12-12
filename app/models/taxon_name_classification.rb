@@ -61,6 +61,12 @@ class TaxonNameClassification < ApplicationRecord
     name.demodulize.underscore.humanize.downcase.gsub(/\d+/, ' \0 ').squish
   end
 
+  # @return class
+  #   this method calls Module#module_parent
+  def self.parent
+    self.module_parent
+  end
+
   # @return [String]
   #   the class name, "validated" against the known list of names
   def type_name
@@ -164,7 +170,7 @@ class TaxonNameClassification < ApplicationRecord
 
   def set_cached_names_for_taxon_names
     begin
-      TaxonName.transaction do
+      TaxonName.transaction_with_retry do
         t = taxon_name
 
         if type_name =~ /(Fossil|Hybrid|Candidatus)/

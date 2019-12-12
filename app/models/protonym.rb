@@ -21,9 +21,8 @@ class Protonym < TaxonName
 
   FAMILY_GROUP_ENDINGS = %w{ini ina inae idae oidae odd ad oidea}.freeze
 
-  validates_presence_of :name
-  validates_presence_of :rank_class, message: 'is a required field'
   validates_presence_of :name, message: 'is a required field'
+  validates_presence_of :rank_class, message: 'is a required field'
 
   validate :validate_rank_class_class,
     :validate_parent_rank_is_higher,
@@ -141,6 +140,9 @@ class Protonym < TaxonName
   scope :is_genus_group, -> { where("rank_class ILIKE '%genusgroup%'") }
 
   scope :is_species_or_genus_group, -> {  where("rank_class ILIKE '%speciesgroup%' OR rank_class ILIKE '%genusgroup%'")   }
+
+  scope :is_original_name, -> { where("cached_author_year NOT ILIKE '(%'") } 
+  scope :is_not_original_name, -> { where("cached_author_year ILIKE '(%'") } 
 
   # @return [Array of Strings]
   #   genera where the species was placed
@@ -398,7 +400,6 @@ class Protonym < TaxonName
   end
 
   def is_homonym_or_suppressed?
-
   end
 
   # @return [Boolean]
@@ -424,6 +425,12 @@ class Protonym < TaxonName
 
   def is_family_rank?
     FAMILY_RANK_NAMES.include?(rank_string)
+  end
+
+  # @return Boolean
+  #   could also be determined by parens in cached_author year
+  def is_original_name? 
+    cached_author_year =~ /\(/ ? false : true
   end
 
   def reduce_list_of_synonyms(list)
@@ -657,9 +664,9 @@ class Protonym < TaxonName
     related_through_original_combination_relationships = []
     combination_relationships = []
 
-    TaxonName.transaction do
+    TaxonName.transaction_with_retry do
       if is_genus_or_species_rank?
-        dependants = Protonym.descendants_of(self).to_a
+        dependants = Protonym.unscoped.descendants_of(self).to_a
         related_through_original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
         combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Combination')
       end
@@ -732,7 +739,7 @@ class Protonym < TaxonName
   end
 
   def name_is_valid_format
-    rank_class.validate_name_format(self) if rank_class && rank_class.respond_to?(:validate_name_format) && !has_latinized_exceptions?
+    rank_class.validate_name_format(self) if name.present? && rank_class && rank_class.respond_to?(:validate_name_format) && !has_latinized_exceptions?
   end
 
   def create_otu

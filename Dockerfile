@@ -1,4 +1,4 @@
-FROM phusion/passenger-customizable:1.0.8 AS base
+FROM phusion/passenger-customizable:1.0.9 AS base
 MAINTAINER Matt Yoder
 ENV LAST_FULL_REBUILD 2018-08-10
 ARG BUNDLER_WORKERS=1
@@ -8,7 +8,6 @@ ENV HOME /root
 
 # Ruby support
 RUN /pd_build/ruby-2.6.*.sh
-RUN bash -lc 'rvm --default use 2.6'
 
 # Set up nginx
 RUN rm /etc/nginx/sites-enabled/default
@@ -66,6 +65,7 @@ ADD Gemfile.lock /app/
 
 WORKDIR /app
 
+RUN bundle config --local build.sassc --disable-march-tune-native # https://github.com/sass/sassc-ruby/issues/146
 RUN bundle install -j$BUNDLER_WORKERS --without=development test
 RUN npm install
 

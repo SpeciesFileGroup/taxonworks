@@ -19,7 +19,9 @@ function makeInitialState () {
         language_id: false,
         serial_id: false,
         bibtex_type: false
-      }
+      },
+      addToSource: false,
+      sortable: false
     },
     preferences: {
 

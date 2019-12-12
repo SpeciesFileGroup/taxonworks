@@ -49,6 +49,7 @@
 import MapComponent from './map'
 import SpinnerComponent from 'components/spinner'
 import DisplayList from './list'
+import convertDMS from 'helpers/parseDMS.js'
 
 export default {
   components: {
@@ -189,7 +190,7 @@ export default {
         properties: {},
         geometry: {
           type: 'Point',
-          coordinates: [this.verbatimLng, this.verbatimLat]
+          coordinates: [convertDMS(this.verbatimLng), convertDMS(this.verbatimLat)]
         }
       }
       const data = {

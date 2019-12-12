@@ -199,19 +199,15 @@ class CollectingEvent < ApplicationRecord
   attr_accessor :with_verbatim_data_georeference
 
   # @return [Boolean]
+  #   When true, will not rebuild dwc_occurrence index.
+  #   See also Shared::IsDwcOccurrence
+  attr_accessor :no_dwc_occurrence
+
+  # @return [Boolean]
   #  When true, cached values are not built
   attr_accessor :no_cached
 
-  after_create {
-    if with_verbatim_data_georeference
-      generate_verbatim_data_georeference(true)
-    end
-  }
-
-  before_save :set_times_to_nil_if_form_provided_blank
-
-  after_save :cache_geographic_names, if: -> { !no_cached && saved_change_to_attribute?(:geographic_area_id) }
-  after_save :set_cached, if: -> { !no_cached }
+  # handle_asynchronously :update_dwc_occurrences, run_at: Proc.new { 20.seconds.from_now }
 
   belongs_to :geographic_area, inverse_of: :collecting_events
 
@@ -223,11 +219,33 @@ class CollectingEvent < ApplicationRecord
   has_many :collection_objects, inverse_of: :collecting_event, dependent: :restrict_with_error
   has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy
   has_many :collectors, through: :collector_roles, source: :person, inverse_of: :collecting_events
+  has_many :dwc_occurrences, through: :collection_objects
   has_many :georeferences, dependent: :destroy
   has_many :error_geographic_items, through: :georeferences, source: :error_geographic_item
   has_many :geographic_items, through: :georeferences # See also all_geographic_items, the union
   has_many :geo_locate_georeferences, class_name: 'Georeference::GeoLocate', dependent: :destroy
   has_many :gpx_georeferences, class_name: 'Georeference::GPX', dependent: :destroy
+
+  after_create do 
+    if with_verbatim_data_georeference
+      generate_verbatim_data_georeference(true)
+    end
+  end 
+
+  before_save :set_times_to_nil_if_form_provided_blank
+
+  after_save :cache_geographic_names, if: -> { !no_cached && saved_change_to_attribute?(:geographic_area_id) }
+  after_save :set_cached, unless: -> { no_cached }
+  after_save :update_dwc_occurrences , unless: -> { no_dwc_occurrence }
+
+  def update_dwc_occurrences
+    # reload is required!
+    if collection_objects.count < 40
+      collection_objects.reload.each do |o|
+        o.set_dwc_occurrence
+      end
+    end
+  end
 
   accepts_nested_attributes_for :verbatim_data_georeference
   accepts_nested_attributes_for :geo_locate_georeferences
@@ -316,7 +334,7 @@ class CollectingEvent < ApplicationRecord
     # @param [CollectingEvent Scope] collecting_events
     # @return [Scope] without self (if included)
     # TODO: DRY, use general form of this
-    def excluding(collecting_events)
+    def not_including(collecting_events)
       where.not(id: collecting_events)
     end
 
@@ -404,7 +422,7 @@ class CollectingEvent < ApplicationRecord
           puts "created for #{c.id}"
         else
           failed += 1
-          puts "failed for #{c.id}, #{g.errors.messages}"
+          puts "failed for #{c.id}, #{g.errors.full_messages.join('; ')}"
         end
       end
 
@@ -613,7 +631,7 @@ class CollectingEvent < ApplicationRecord
 
     # @todo change 'id in (?)' to some other sql construct
     pieces = CollectingEvent.where(id: gr.flatten.map(&:id).uniq)
-    pieces.excluding(self)
+    pieces.not_including(self)
   end
 
   # @return [Scope]
@@ -639,7 +657,7 @@ class CollectingEvent < ApplicationRecord
 
     # @todo Directly map this
     pieces = CollectingEvent.where(id: ce.flatten.map(&:id).uniq)
-    pieces.excluding(self)
+    pieces.not_including(self)
   end
 
   # DEPRECATED for shared code
@@ -985,7 +1003,7 @@ class CollectingEvent < ApplicationRecord
   #   4.  updated_on
   #   5.  id
   def next_without_georeference
-    CollectingEvent.excluding(self).
+    CollectingEvent.not_including(self).
       includes(:georeferences).
       where(project_id: self.project_id, georeferences: {collecting_event_id: nil}).
       order(:verbatim_locality, :geographic_area_id, :start_date_year, :updated_at, :id).

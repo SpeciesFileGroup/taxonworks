@@ -3,12 +3,11 @@
     <h2>Parsed</h2>
     <draggable
       v-model="componentsOrder"
-      :options="{ disabled: disableDraggable }"
+      :disabled="!settings.sortable"
       @end="updatePreferences">
       <component
         class="separate-bottom"
         v-for="componentName in componentsOrder"
-        @onModal="setDraggable"
         :key="componentName"
         :is="componentName"/>
     </draggable>
@@ -29,6 +28,9 @@ import Predicates from './geography/predicates.vue'
 import sortComponent from '../../shared/sortComponenets.vue'
 import TripCode from './geography/tripCode.vue'
 
+import { GetterNames } from '../../../store/getters/getters'
+import { MutationNames } from '../../../store/mutations/mutations'
+
 export default {
   mixins: [sortComponent],
   components: {
@@ -43,16 +45,20 @@ export default {
     Predicates,
     TripCode
   },
-  data () {
-    return {
-      disableDraggable: false,
-      componentsOrder: ['Geography', 'Georeferences', 'Elevation', 'Dates', 'Times', 'Collectors', 'TripCode', 'Group', 'Predicates'],
-      keyStorage: 'tasks::digitize::GeographyOrder'
+  computed: {
+    settings: {
+      get () {
+        return this.$store.getters[GetterNames.GetSettings]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSettings, value)
+      }
     }
   },
-  methods: {
-    setDraggable (mode) {
-      this.disableDraggable = mode
+  data () {
+    return {
+      componentsOrder: ['Geography', 'Georeferences', 'Elevation', 'Dates', 'Times', 'Collectors', 'TripCode', 'Group', 'Predicates'],
+      keyStorage: 'tasks::digitize::GeographyOrder'
     }
   }
 }

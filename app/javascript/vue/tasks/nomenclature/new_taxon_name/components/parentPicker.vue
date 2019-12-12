@@ -2,6 +2,7 @@
   <div>
     <div class="horizontal-left-content">
       <autocomplete
+        id="parent-name"
         url="/taxon_names/autocomplete"
         label="label_html"
         min="2"
@@ -41,7 +42,7 @@
           <label class="middle uppercase">
             <input
               type="radio"
-              name="rankSelected"
+              name="nomenclatureCode"
               v-model="nomenclatureCode"
               :value="code">
             {{ code }}

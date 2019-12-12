@@ -11,9 +11,6 @@
         <radial-annotator
           classs="separate-right"
           :global-id="collectionObject.global_id"/>
-        <radial-object
-          classs="separate-right"
-          :global-id="collectionObject.global_id"/>
         <default-tag
           classs="separate-right"
           :global-id="collectionObject.global_id"/>
@@ -229,7 +226,7 @@
         })
 
         let coDepictions = this.depictions.filter(depiction => {
-          return depiction.depiction_object.id == this.collectionObject.id
+          return depiction.depiction_object_id == co.id
         })
 
         depictionsRemovedDuplicate.forEach(depiction => {

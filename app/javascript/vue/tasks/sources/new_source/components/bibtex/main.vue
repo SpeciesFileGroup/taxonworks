@@ -2,20 +2,21 @@
   <div class="panel content">
     <h2>BibTeX</h2>
     <div class="horizontal-left-content align-start">
-    <draggable
-      class="vue-new-source-task-bibtex full_width"
-      v-for="(column, key) in columns"
-      v-model="columns[key]"
-      :group="{ name: 'components' }"
-      :options="{ disabled: disableDraggable }"
-      @end="updatePreferences">
-      <component
-        class="separate-bottom separate-right"
-        v-for="componentName in column"
-        @onModal="setDraggable"
-        :key="componentName"
-        :is="componentName"/>
-    </draggable>
+      <draggable
+        class="vue-new-source-task-bibtex full_width"
+        v-for="(column, key) in columns"
+        v-model="columns[key]"
+        :key="key"
+        :disabled="!sortable"
+        :group="{ name: 'components' }"
+        @end="updatePreferences">
+        <component
+          class="separate-bottom separate-right"
+          v-for="componentName in column"
+          @onModal="setDraggable"
+          :key="componentName"
+          :is="componentName"/>
+      </draggable>
     </div>
   </div>
 </template>
@@ -90,12 +91,15 @@ export default {
   },
   computed: {
     preferences: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetPreferences]
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetPreferences, value)
-      }      
+      }
+    },
+    sortable () {
+      return this.$store.getters[GetterNames.GetSettings].sortable
     }
   },
   data () {

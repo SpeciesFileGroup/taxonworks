@@ -25,4 +25,5 @@ export default function ({ commit, state }) {
   }
   commit(MutationNames.SetMaterialTab, 'new')
   commit(MutationNames.SetTypeMaterial, type_material)
+  commit(MutationNames.SetSoftValidation, [])
 }

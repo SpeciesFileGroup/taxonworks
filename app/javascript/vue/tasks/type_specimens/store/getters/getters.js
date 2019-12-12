@@ -15,6 +15,7 @@ import getCollectionObjectCollectionEventId from './getCollectionObjectCollectio
 import getCollectionObjectPreparationId from './getCollectionObjectPreparationId'
 import getCollectionObjectTotal from './getCollectionObjectTotal'
 import getTypeMaterials from './getTypeMaterials'
+import getSoftValidation from './getSoftValidation'
 
 const GetterNames = {
   GetBiologicalId: 'getBiologicalId',
@@ -32,7 +33,8 @@ const GetterNames = {
   GetCollectionObjectBufferedLabels: 'getCollectionObjectBufferedLabels',
   GetCollectionObjectCollectionEventId: 'getCollectionObjectCollectionEventId',
   GetCollectionObjectPreparationId: 'getCollectionObjectPreparationId',
-  GetCollectionObjectTotal: 'getCollectionObjectTotal'
+  GetCollectionObjectTotal: 'getCollectionObjectTotal',
+  GetSoftValidation: 'getSoftValidation'
 }
 
 const GetterFunctions = {
@@ -51,7 +53,8 @@ const GetterFunctions = {
   [GetterNames.GetCollectionObjectBufferedLabels]: getCollectionObjectBufferedLabels,
   [GetterNames.GetCollectionObjectCollectionEventId]: getCollectionObjectCollectionEventId,
   [GetterNames.GetCollectionObjectPreparationId]: getCollectionObjectPreparationId,
-  [GetterNames.GetCollectionObjectTotal]: getCollectionObjectTotal
+  [GetterNames.GetCollectionObjectTotal]: getCollectionObjectTotal,
+  [GetterNames.GetSoftValidation]: getSoftValidation
 }
 
 export {

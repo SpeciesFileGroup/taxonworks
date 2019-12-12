@@ -251,8 +251,8 @@ describe UsersController, type: :controller do
     
     context 'when token expired' do
       let!(:token) do
-        $user_id = 1
-        user = User.find_by_id($user_id)
+        Current.user_id = 1
+        user = User.find_by_id(Current.user_id)
         token = user.generate_password_reset_token
         user.save!
         token

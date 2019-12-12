@@ -125,7 +125,7 @@ class CollectionObjectsController < ApplicationController
         format.html { redirect_to destroy_redirect, notice: 'CollectionObject was successfully destroyed.'}
         format.json { head :no_content }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectionObject was not destroyed, ' + errors.messages)}
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectionObject was not destroyed, ' + errors.full_messages.join('; '))}
         format.json {render json: @collection_object.errors, status: :unprocessable_entity}
       end
     end
@@ -283,10 +283,11 @@ class CollectionObjectsController < ApplicationController
       :total, :preparation_type_id, :repository_id,
       :ranged_lot_category_id, :collecting_event_id,
       :buffered_collecting_event, :buffered_determinations,
-      :buffered_other_labels, :deaccessioned_at, :deaccession_reason,
+      :buffered_other_labels, :accessioned_at, :deaccessioned_at, :deaccession_reason,
       :contained_in,
       collecting_event_attributes: [],  # needs to be filled out!
-      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
+      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ],
+      identifiers_attributes: [:id, :_destroy, :identifier, :namespace_id, :type]
     )
   end
 
@@ -324,9 +325,10 @@ class CollectionObjectsController < ApplicationController
       :ancestor_id, 
       :current_determinations,
       :validity,
+      :user_id,
       :user_target,
-      :user_start_date,
-      :user_end_date,
+      :user_date_start,
+      :user_date_end,
       :identifier,
       :identifier_start,
       :identifier_end,

@@ -1,4 +1,4 @@
-class Tasks::Gis::AssertedDistributionController < ApplicationController
+class Tasks::AssertedDistributions::NewFromMapController < ApplicationController
   include TaskControllerConfiguration
 
   before_action :build_locks, only: [:new, :create, :generate_choices]

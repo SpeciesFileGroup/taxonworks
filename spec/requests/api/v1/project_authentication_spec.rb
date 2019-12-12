@@ -7,7 +7,7 @@ describe 'ProjectAuthentication', type: :request do
   let(:user) { FactoryBot.create(:valid_user) }
 
   context 'when token is valid' do
-    let(:project) { FactoryBot.create(:valid_project, :project_valid_token, by: user) }
+    let(:project) { FactoryBot.create(:valid_project, :project_valid_token, by: user, name: 'definitely not this either') }
     let(:params) { { project_token: project.api_access_token } }  # { {project_id: 1, format: :json} }
     let(:headers) { { "Project token": project.api_access_token } }
 

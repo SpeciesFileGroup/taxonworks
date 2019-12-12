@@ -1,3 +1,3 @@
 json.array!(@people) do |person|
- json.partial! 'attributes', person: person
+ json.partial! '/people/attributes', person: person
 end

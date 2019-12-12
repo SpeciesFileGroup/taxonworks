@@ -10,7 +10,7 @@ describe 'Notes', type: :feature do
     before {
       sign_in_user_and_select_project
       o = Otu.create!(name: 'Cow', by: @user, project: @project)
-      3.times { Note.create!( text: Faker::Lorem.sentence, note_object: o, by: @user, project: @project) }
+      3.times { Note.create!( text: Faker::Lorem.unique.sentence, note_object: o, by: @user, project: @project) }
     }
 
     describe 'GET /Notes' do

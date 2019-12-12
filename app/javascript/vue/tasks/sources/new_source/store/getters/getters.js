@@ -5,6 +5,7 @@ import getSource from './getSource'
 import getPreferences from './getPreferences'
 import getSettings from './getSettings'
 import getSoftValidation from './getSoftValidation'
+import getRoles from './getRoles'
 
 const GetterNames = {
   GetType: 'getType',
@@ -13,7 +14,8 @@ const GetterNames = {
   GetSource: 'getSource',
   GetPreferences: 'getPreferences',
   GetSettings: 'getSettings',
-  GetSoftValidation: 'getSoftValidation'
+  GetSoftValidation: 'getSoftValidation',
+  GetRoles: 'getRoles'
 }
 
 const GetterFunctions = {
@@ -23,7 +25,8 @@ const GetterFunctions = {
   [GetterNames.GetSource]: getSource,
   [GetterNames.GetPreferences]: getPreferences,
   [GetterNames.GetSettings]: getSettings,
-  [GetterNames.GetSoftValidation]: getSoftValidation
+  [GetterNames.GetSoftValidation]: getSoftValidation,
+  [GetterNames.GetRoles]: getRoles
 }
 
 export {

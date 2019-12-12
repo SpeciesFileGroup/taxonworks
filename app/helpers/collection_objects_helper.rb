@@ -23,9 +23,9 @@ module CollectionObjectsHelper
 
   def collection_object_autocomplete_tag(collection_object)
     return nil if collection_object.nil?
-    [collection_object.type,
-     collection_object_identifier_tag(collection_object),
-     collection_object_taxon_determination_tag(collection_object)
+    [
+      collection_object_identifier_tag(collection_object),
+      collection_object_taxon_determination_tag(collection_object)
     ].join(' ').html_safe 
   end
 
@@ -60,7 +60,6 @@ module CollectionObjectsHelper
     return [:container, identifier_tag(j)] if j
     nil
   end
-
 
   def collection_object_taxon_determination_tag(collection_object)
     return nil if collection_object.nil?

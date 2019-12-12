@@ -4,7 +4,13 @@ module Queries
 
     # @return [String]
     def where_sql
-      named.or(acronym).to_sql
+      a = [
+        named,
+        acronym
+      ].compact
+
+      return a.first.or(a.second) if a.size == 2
+      a 
     end
 
     # @return [Scope]
@@ -19,7 +25,7 @@ module Queries
 
     # @return [Arel::Nodes::Matches]
     def acronym
-      table[:acronym].matches_any(terms)
+      table[:acronym].matches_any(terms) unless !terms.any?
     end
   end
 end

@@ -37,7 +37,8 @@ function makeInitialState () {
       },
       type_designator_roles: []
     },
-    type_materials: []
+    type_materials: [],
+    softValidation: []
   }
 }
 
