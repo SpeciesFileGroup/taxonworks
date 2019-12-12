@@ -163,7 +163,7 @@ export default {
             equal: true
           },
           {
-            label: 'End',
+            label: 'Last',
             key: 'history-is-last',
             value: false,
             attribute: true,
