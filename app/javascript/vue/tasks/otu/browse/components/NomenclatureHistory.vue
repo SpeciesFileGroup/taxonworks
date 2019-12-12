@@ -175,14 +175,16 @@ export default {
           {
             label: 'Valid',
             key: 'history-is-valid',
-            value: true,
-            attribute: true
+            value: false,
+            attribute: true,
+            equal: true
           },
           {
             label: 'Invalid',
-            key: 'history-is-invalid',
-            value: true,
-            attribute: true
+            key: 'history-is-valid',
+            value: false,
+            attribute: true,
+            equal: false
           },
           {
             label: 'Cited',
@@ -266,7 +268,7 @@ export default {
         (this.tabSelected.label === 'All')) && 
         keys.every(key => {
           return this.filterSections[key].every(filter => {
-            if (filter.value === undefined) return true
+            if (filter.value === undefined || filter.value == false) return true
             return !filter.hasOwnProperty('attribute') || filter.attribute ? 
             (filter.hasOwnProperty('equal') && filter.equal ? 
             item.data_attributes[filter.key] === filter.value : 
