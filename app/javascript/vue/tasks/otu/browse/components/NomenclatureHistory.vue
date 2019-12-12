@@ -158,14 +158,14 @@ export default {
           {
             label: 'First',
             key: 'history-is-first',
-            value: false,
+            value: true,
             attribute: true,
             equal: true
           },
           {
             label: 'Last',
             key: 'history-is-last',
-            value: false,
+            value: true,
             attribute: true,
             equal: true
           }
@@ -181,27 +181,27 @@ export default {
           {
             label: 'Valid',
             key: 'history-is-valid',
-            value: false,
+            value: true,
             attribute: true,
             equal: true
           },
           {
             label: 'Invalid',
             key: 'history-is-valid',
-            value: false,
+            value: true,
             attribute: true,
             equal: false
           },
           {
             label: 'Cited',
             key: 'history-is-cited',
-            value: false,
+            value: true,
             equal: true
           },
           {
             label: 'Uncited',
             key: 'history-is-cited',
-            value: false,
+            value: true,
             equal: false
           }
         ],
@@ -293,7 +293,7 @@ export default {
         (this.tabSelected.label === 'All')) && 
         keys.every(key => {
           return this.filterSections[key].every(filter => {
-            if (filter.value === undefined || filter.value == false) return true
+            if (filter.value === undefined || filter.value == true) return true
             return !filter.hasOwnProperty('attribute') || filter.attribute ? 
             (filter.hasOwnProperty('equal') && filter.equal ? 
             item.data_attributes[filter.key] === filter.value : 
