@@ -78,10 +78,10 @@
             :years="nomenclature.sources.year_metadata"/>
         </div>
         <div>
-          <h4 class="capitalize separate-bottom">Topic</h4>
+          <h4 class="capitalize separate-bottom">Filter</h4>
           <ul class="no_bullets">
             <li
-              v-for="(item, key) in filterSections.topic"
+              v-for="(item, key) in filterSections.filter"
               :key="key"
               class="separate-right">
               <label>
@@ -94,12 +94,28 @@
           </ul>
         </div>
         <div>
-          <h4 class="capitalize separate-bottom">Metadata</h4>
+          <h4 class="capitalize separate-bottom">Show</h4>
           <ul class="no_bullets">
             <li
               class="separate-right"
-              v-for="(item, key) in filterSections.metadata"
+              v-for="(item, key) in filterSections.show"
               :key="key">
+              <label>
+                <input
+                  v-model="item.value"
+                  type="checkbox"/>
+                {{ item.label }}
+              </label>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="capitalize separate-bottom">Topic</h4>
+          <ul class="no_bullets">
+            <li
+              v-for="(item, key) in filterSections.topic"
+              :key="key"
+              class="separate-right">
               <label>
                 <input
                   v-model="item.value"
@@ -161,17 +177,7 @@ export default {
           attribute: true,
           equal: true
         }],
-        metadata: [
-          {
-            label: 'Notes',
-            key: '.annotation__note',
-            value: true
-          },
-          {
-            label: 'Soft validation',
-            key: '.soft_validation_anchor',
-            value: true
-          },
+        filter: [
           {
             label: 'Valid',
             key: 'history-is-valid',
@@ -188,7 +194,26 @@ export default {
           },
           {
             label: 'Cited',
-            key: 'data-is-cited',
+            key: 'history-is-cited',
+            value: false,
+            equal: true
+          },
+          {
+            label: 'Uncited',
+            key: 'history-is-cited',
+            value: false,
+            equal: false
+          }
+        ],
+        show: [
+          {
+            label: 'Notes',
+            key: '.annotation__note',
+            value: true
+          },
+          {
+            label: 'Soft validation',
+            key: '.soft_validation_anchor',
             value: true
           }
         ],
@@ -288,5 +313,8 @@ export default {
 <style scoped>
   .hidden {
     display: none;
+  }
+  /deep/ .modal-container {
+    width: 500px;
   }
 </style>
