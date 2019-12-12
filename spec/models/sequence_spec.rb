@@ -85,7 +85,7 @@ RSpec.describe Sequence, type: :model, group: [:dna] do
         end
 
         context 'basic use' do
-          before { sequence.update_attributes(sequence_type: 'DNA', sequence: 'ACGT') }
+          before { sequence.update(sequence_type: 'DNA', sequence: 'ACGT') }
           context 'setting attributes' do
             before do
               sequence.forward_primer_sequences = [ primer ]

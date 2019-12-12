@@ -131,12 +131,14 @@ module Protonym::Becomes
     # Note: technically a.destroy could hit this, but that should never happen.
     rescue ActiveRecord::RecordInvalid => e
       errors.add(:base, 'Combination failed to save: ' + c.errors.full_messages.join('; '))
-      z = becomes!(Protonym)
+      c = becomes!(Protonym)
     rescue
       raise
     end
 
     c 
+    # TODO: This fixes ./spec/models/combination/combination_spec.rb:62. But is returning `self` (or `z`) when fails trustworthy?
+    # self
   end
 
 end
