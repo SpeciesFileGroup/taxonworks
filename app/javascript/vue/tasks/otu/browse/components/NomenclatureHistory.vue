@@ -33,7 +33,7 @@
       <h3>Citations</h3>
       <ul class="taxonomic_history">
         <li 
-          v-for="item in nomenclature.items"
+          v-for="item in itemsList"
           v-if="checkFilter(item)">
           <span v-html="item.label_html"/>
         </li>
@@ -41,11 +41,18 @@
       <h3>References</h3>
       <ul
         v-if="nomenclature"
-        class="taxonomic_history">
-        <template v-for="item in nomenclature.sources.list">
-        <li 
+        class="no_bullets">
+        <template v-for="(item, key) in nomenclature.sources.list">
+        <li
+          :key="key"
           v-show="filterSource(item)">
-          <span v-html="item.cached"/>
+          <label>
+            <input
+              v-model="references"
+              :value="key"
+              type="checkbox">
+            <span v-html="item.cached"/>
+          </label>
         </li>
         </template>
       </ul>
@@ -150,8 +157,19 @@ export default {
       type: Object
     }
   },
+  computed: {
+    selectedReferences () {
+      return this.references.map(item => { return this.nomenclature.sources.list[item] })
+    },
+    itemsList () {
+      return this.references.length ? this.nomenclature.items.filter(item => {
+        return this.selectedReferences.find(ref => { return ref.objects.includes(item.data_attributes['history-object-id']) })
+      }) : this.nomenclature.items
+    }
+  },
   data() {
     return {
+      references: [],
       showModal: false,
       filterSections: {
         time: [
@@ -303,7 +321,7 @@ export default {
     },
     filterSource(source) {
       let globalIds = source.objects
-      return (this.nomenclature.items.filter(item => { return this.checkFilter(item) }).find(item => {
+      return (this.itemsList.filter(item => { return this.checkFilter(item) }).find(item => {
         return globalIds.includes(item.data_attributes['history-object-id']) 
       }) != undefined)
     }
