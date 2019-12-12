@@ -49,8 +49,7 @@
                   label="label_html"
                   :add-params="{
                     'type[]': 'Protonym',
-                    'nomenclature_group[]': 'SpeciesGroup',
-                    valid: true
+                    'nomenclature_group[]': 'SpeciesGroup'
                   }"/>
               </template>
               <ul
