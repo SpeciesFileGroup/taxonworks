@@ -11,9 +11,6 @@
         <radial-annotator
           classs="separate-right"
           :global-id="collectionObject.global_id"/>
-        <radial-object
-          classs="separate-right"
-          :global-id="collectionObject.global_id"/>
         <default-tag
           classs="separate-right"
           :global-id="collectionObject.global_id"/>

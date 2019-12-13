@@ -45,6 +45,9 @@ export default {
       if (this.getLabel) {
         this.$emit('getLabel', this.getLabel)
       }
+      if(this.getLabel && this.getDefault) {
+        this.$emit('getItem', { id: this.getDefault, label: this.getLabel })
+      }
     },
     checkForDefault: function () {
       let defaultElement = document.querySelector(`[data-pinboard-section="${this.section}"] [data-insert="true"]`)
