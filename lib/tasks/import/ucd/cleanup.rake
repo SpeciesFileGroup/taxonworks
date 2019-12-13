@@ -30,7 +30,24 @@ namespace :tw do
     namespace :ucd do
 
       # https://github.com/chalcid/jncdb/issues/18
-      task cleanup_identifiers: [:data_directory, :environment, :user_id, :project_id ] do
+      task cleanup_identifiers: [:environment, :user_id, :project_id ] do
+        begin
+          j = 0
+          Identifier::Local::Import.where(identifier_object_type: 'Source', project_id: Current.project_id).each do |i|
+            o = i.identifier_object
+            s = o.year_suffix
+              n = i.identifier[0..-2]
+            if s && !(i.identifier =~ /#{s}{2}$/) 
+
+              puts o.year_suffix + ' - ' + i.identifier + ' : ' + n
+              i.update!(identifier: n)
+              j += 1
+            end
+            j > 19 && break
+          end
+        rescue ActiveRecord::RecordInvalid
+          puts Rainbow("failed to save").red
+        end
       end
 
       # https://github.com/chalcid/jncdb/issues/9
@@ -45,6 +62,7 @@ namespace :tw do
 
       task add_pdfs: [:data_directory, :environment, :user_id, :project_id ] do
         i = 0
+        @user = User.find(Current.user_id)
         begin
         Dir["#{@args[:data_directory]}/*.*"].each do |f|
           n = f.split('/').last.split('.').first
@@ -55,11 +73,11 @@ namespace :tw do
                   puts Rainbow("#{n} has pdf").yellow 
                 else
                   d = Documentation.new(
-                    by: @user,
-                    project: @project,
+                    by: Current.user_id,
+                    project: Current.project_id,
                     document_attributes: {
                       by: @user,
-                      project: @project,
+                      project: project_id,
                       document_file: File.open(f) 
                     }, documentation_object: o
                   )
