@@ -76,7 +76,7 @@
       <div
         class="flex-separate"
         slot="body">
-        <div>
+        <div class="full_width">
           <h4 class="capitalize separate-bottom">Time</h4>
           <ul class="no_bullets">
             <li
@@ -96,7 +96,7 @@
             v-model.number="filterSections.year[0].value"
             :years="nomenclature.sources.year_metadata"/>
         </div>
-        <div>
+        <div class="full_width">
           <h4 class="capitalize separate-bottom">Filter</h4>
           <ul class="no_bullets">
             <li
@@ -112,7 +112,7 @@
             </li>
           </ul>
         </div>
-        <div>
+        <div class="full_width">
           <h4 class="capitalize separate-bottom">Show</h4>
           <ul class="no_bullets">
             <li
@@ -146,7 +146,7 @@
                 <input
                   v-model="showReferencesTopic"
                   type="checkbox"/>
-                References
+                On references
               </label>
             </li>
           </ul>
@@ -263,18 +263,18 @@ export default {
         show: [
           {
             label: 'Notes',
-            key: '.annotation__note',
-            value: true
+            key: '.history__citation_notes',
+            value: false
           },
           {
             label: 'Soft validation',
             key: '.soft_validation_anchor',
-            value: true
+            value: false
           }
         ],
         topic: [
           {
-            label: 'Citations',
+            label: 'On citations',
             key: '.history__citation_topics',
             value: true
           }
@@ -319,6 +319,9 @@ export default {
           this.isLoading = true
           GetNomenclatureHistory(this.otu.id).then(response => {
             this.nomenclature = response.body
+            this.$nextTick(() => {
+              this.filterDOM(this.filterSections)
+            })
             this.isLoading = false
           })
         }
@@ -327,19 +330,22 @@ export default {
     },
     filterSections: {
       handler (newVal) {
-        const keys = Object.keys(newVal)
-        keys.forEach(key => {
-          newVal[key].forEach(item => {
-            document.querySelectorAll(item.key).forEach(element => {
-              item.value ? element.classList.remove('hidden') : element.classList.add('hidden')
-            })
-          })
-        })
+        this.filterDOM(newVal)
       },
       deep: true
     }
   },
   methods: {
+    filterDOM (sections) {
+      const keys = Object.keys(sections)
+      keys.forEach(key => {
+        sections[key].forEach(item => {
+          document.querySelectorAll(item.key).forEach(element => {
+            item.value ? element.classList.remove('hidden') : element.classList.add('hidden')
+          })
+        })
+      })
+    },
     checkFilter (item) {
       const keys = Object.keys(this.filterSections)
       return ((!this.tabSelected.hasOwnProperty('equal') || 
@@ -382,7 +388,7 @@ export default {
     display: none;
   }
   /deep/ .modal-container {
-    width: 800px;
+    width: 900px;
   }
   .topic-section {
     overflow-y: scroll;
@@ -390,5 +396,9 @@ export default {
   }
   li {
     margin-top: 4px;
+  }
+
+  /deep/ .annotation__note {
+    display: inline;
   }
 </style>
