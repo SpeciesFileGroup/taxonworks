@@ -1,9 +1,14 @@
 # Shared helpers for catalog rendering.  Params should "generic, i.e. targeting annotations almost exclusively."
 module Lib::CatalogHelper
 
+  # @return [String, nil]
   def history_topics(citation)
     return nil if citation.nil?
-    content_tag(:span, Utilities::Strings.nil_wrap(' [', citation.citation_topics.collect{|t| t.topic.name}.join(', '), ']'), class: 'history__citation_topics')
+    if t = citation.citation_topics.collect{|t| controlled_vocabulary_term_pill_tag(t.topic)}.join.html_safe
+      content_tag(:span, t, class: 'history__citation_topics')
+    else
+      nil
+    end
   end
 
   # @return [String, nil]
