@@ -125,7 +125,7 @@ class CollectionObjectsController < ApplicationController
         format.html { redirect_to destroy_redirect, notice: 'CollectionObject was successfully destroyed.'}
         format.json { head :no_content }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectionObject was not destroyed, ' + errors.full_messages.join('; '))}
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectionObject was not destroyed, ' + @collection_object.errors.full_messages.join('; '))}
         format.json {render json: @collection_object.errors, status: :unprocessable_entity}
       end
     end
