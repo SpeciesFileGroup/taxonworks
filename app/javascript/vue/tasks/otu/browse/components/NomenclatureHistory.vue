@@ -1,8 +1,9 @@
 <template>
   <section-panel
     title="Timeline"
+    :spinner="isLoading"
     @menu="showModal = true">
-    <div class="switch-radio separate-top">
+    <div class="switch-radio separate-top separate-bottom">
       <template v-for="(item, index) in filterTabs">
         <input
           v-model="tabSelected"
@@ -14,20 +15,6 @@
           :value="item"> 
         <label :for="`switch-filter-nomenclature-${index}`">{{ item.label }}</label>
       </template>
-    </div>
-
-    <div class="horizontal-left-content separate-top">
-      <div
-        v-for="item in hideInfo"
-        :key="item.key"
-        class="separate-right">
-        <label>
-          <input
-            v-model="item.value"
-            type="checkbox"/>
-          {{ item.label }}
-        </label>
-      </div>
     </div>
     <div>
       <h3>Citations</h3>
@@ -70,6 +57,14 @@
               type="checkbox">
             <span v-html="item.cached"/>
           </label>
+          <template v-if="showReferencesTopic">
+            <span
+              v-for="(topic, index) in getSourceTopics(item).map(key => { return nomenclature.topics.list[key] })"
+              class="pill topic references_topics"
+              :key="index"
+              :style="{ 'background-color': topic.css_color }"
+              v-html="topic.name"/>
+          </template>
         </li>
         </template>
       </ul>
@@ -138,13 +133,35 @@
           <ul class="no_bullets">
             <li
               v-for="(item, key) in filterSections.topic"
-              :key="key"
-              class="separate-right">
+              :key="key">
               <label>
                 <input
                   v-model="item.value"
                   type="checkbox"/>
                 {{ item.label }}
+              </label>
+            </li>
+            <li>
+              <label>
+                <input
+                  v-model="showReferencesTopic"
+                  type="checkbox"/>
+                References
+              </label>
+            </li>
+          </ul>
+          <div class="separate-bottom"></div>
+          <ul
+            class="no_bullets topic-section">
+            <li 
+              v-for="(topic, key) in nomenclature.topics.list"
+              :key="key">
+              <label>
+                <input
+                  type="checkbox"
+                  :value="key"
+                  v-model="topicsSelected">
+                {{ topic.name }}
               </label>
             </li>
           </ul>
@@ -186,7 +203,10 @@ export default {
   },
   data() {
     return {
+      isLoading: true,
+      showReferencesTopic: false,
       references: [],
+      topicsSelected: [],
       showModal: false,
       filterSections: {
         time: [
@@ -254,7 +274,7 @@ export default {
         ],
         topic: [
           {
-            label: 'Show',
+            label: 'Citations',
             key: '.history__citation_topics',
             value: true
           }
@@ -289,16 +309,17 @@ export default {
           key: 'history-origin',
           value: 'otu'
         }
-      ],
-      current: false
+      ]
     }
   },
   watch: {
     otu: {
       handler (newVal) {
         if(newVal) {
+          this.isLoading = true
           GetNomenclatureHistory(this.otu.id).then(response => {
             this.nomenclature = response.body
+            this.isLoading = false
           })
         }
       },
@@ -334,13 +355,24 @@ export default {
             item.data_attributes[filter.key] === filter.value : 
             item.data_attributes[filter.key] !== filter.value) : true
           })
-        })
+        }) && 
+        (this.topicsSelected.length ? item.topics.some(topic => {
+          return this.topicsSelected.includes(topic)
+        }) : true)
     },
     filterSource(source) {
       let globalIds = source.objects
       return (this.itemsList.filter(item => { return this.checkFilter(item) }).find(item => {
         return globalIds.includes(item.data_attributes['history-object-id']) 
       }) != undefined)
+    },
+    getSourceTopics(source) {
+      let globalIds = source.objects
+      let topics = []
+      topics = this.itemsList.filter(item => { return this.checkFilter(item) }).filter(item => { return globalIds.includes(item.data_attributes['history-object-id']) }).map(item => {
+        return item.topics
+      })
+      return [...new Set([].concat(...topics))]
     }
   }
 }
@@ -350,6 +382,13 @@ export default {
     display: none;
   }
   /deep/ .modal-container {
-    width: 500px;
+    width: 800px;
+  }
+  .topic-section {
+    overflow-y: scroll;
+    max-height: 480px;
+  }
+  li {
+    margin-top: 4px;
   }
 </style>

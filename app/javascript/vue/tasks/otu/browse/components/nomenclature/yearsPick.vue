@@ -62,7 +62,7 @@ export default {
   .year-box {
     overflow-y: scroll;
     overflow-x: hidden;
-    max-height: 400px;
+    max-height: 450px;
   }
   .year-line {
     margin: 4px;

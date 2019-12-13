@@ -1,38 +1,51 @@
 <template>
   <div>
-    <div class="panel content">
-    <div class="flex-separate">
-      <span class="section-title">{{ title }}</span>
-      <div class="horizontal-left-content">
-        <div
-          class="option-box button-default cursor-pointer"
-          @click="hidden = !hidden"
-          :data-icon="hidden ? 'w_expand' : 'w_contract'"/>
-        <div
-          data-icon="w_scroll-v"
-          class="option-box button-default cursor-pointer handle"/>
-        <div
-          class="option-box button-default cursor-pointer"
-          @click="$emit('menu')">
-          <div class="hamburger-menu">
-            <div class="hamburger-menu-bar"/>
-            <div class="hamburger-menu-bar"/>
-            <div class="hamburger-menu-bar"/>
+    <spinner-component v-if="spinner"/>
+    <div class="panel">
+      <div class="content">
+        <div>
+          <div class="flex-separate">
+            <span class="section-title">{{ title }}</span>
+            <div class="horizontal-left-content">
+              <div
+                class="option-box button-default cursor-pointer"
+                @click="hidden = !hidden"
+                :data-icon="hidden ? 'w_expand' : 'w_contract'"/>
+              <div
+                data-icon="w_scroll-v"
+                class="option-box button-default cursor-pointer handle"/>
+              <div
+                class="option-box button-default cursor-pointer"
+                @click="$emit('menu')">
+                <div class="hamburger-menu">
+                  <div class="hamburger-menu-bar"/>
+                  <div class="hamburger-menu-bar"/>
+                  <div class="hamburger-menu-bar"/>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+        <slot v-if="!hidden"></slot>
       </div>
-    </div>
-      <slot v-if="!hidden"></slot>
     </div>
   </div>
 </template>
 
 <script>
+import SpinnerComponent from 'components/spinner'
 export default {
+  components: {
+    SpinnerComponent
+  },
   props: {
     title: {
       type: String,
       default: ''
+    },
+    spinner: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
