@@ -82,7 +82,7 @@ class Catalog
     entries.each do |e|
       t += e.sources
     end
-    t.uniq
+    t.uniq.sort{|a, b| (a.cached_nomenclature_date || Time.now) <=> (b.cached_nomenclature_date || Time.now)} 
   end
 
   # TODO: optimize ;)
@@ -104,6 +104,7 @@ class Catalog
     sources.each do |s|
       h[:list][s.metamorphosize.to_global_id.to_s] = {
         cached: s.cached,
+        year: s.cached_nomenclature_date&.year,
         objects: objects_for_source(s).collect{|o| o.object.to_global_id.to_s } 
       }
     end
