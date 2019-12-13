@@ -42,7 +42,24 @@
       <ul
         v-if="nomenclature"
         class="no_bullets">
-        <template v-for="(item, key) in nomenclature.sources.list">
+        <template
+          v-if="selectedReferences.length">
+          <li
+            v-for="item in references"
+            :key="item"
+            v-show="filterSource(nomenclature.sources.list[item])">
+            <label>
+              <input
+                v-model="references"
+                :value="item"
+                type="checkbox">
+              <span v-html="nomenclature.sources.list[item].cached"/>
+            </label>
+          </li>
+        </template>
+        <template 
+          v-else
+          v-for="(item, key) in nomenclature.sources.list">
         <li
           :key="key"
           v-show="filterSource(item)">
