@@ -174,9 +174,9 @@ class Catalog
   #  do not uniq! used in counts
   def self.all_dates(source_list, item_list)
     d = []
-    source_list.each do |s|
-      d.push s.nomenclature_date # was cached_nomenclature_date (a Date)
-    end
+     #source_list.each do |s|
+     #  d.push s.respond_to?(:nomenclature_date) ? s.nomenclature_date : nil # was cached_nomenclature_date (a Date)
+     #end
 
     item_list.each do |i|
       d.push i.nomenclature_date
