@@ -13,7 +13,7 @@ module ControlledVocabularyTermsHelper
       content_tag(:span, controlled_vocabulary_term.name),
       title: controlled_vocabulary_term.definition,
       class: ['pill', controlled_vocabulary_term.type.tableize.singularize],
-      style: ( controlled_vocabulary_term.css_color ? "background-color: #{ controlled_vocabulary_term.css_color}; color: #{ controlled_vocabulary_term.css_color}" : "background-color: #e5e5e5; color: #e5e5e5;" ),
+      style: ( controlled_vocabulary_term.css_color ? "background-color: #{ controlled_vocabulary_term.css_color}; color: #{ controlled_vocabulary_term.css_color}" : nil ),
       data: { 'global-id' => controlled_vocabulary_term.metamorphosize.to_global_id.to_s } )
   end
 
