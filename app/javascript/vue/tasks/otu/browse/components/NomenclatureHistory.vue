@@ -397,7 +397,9 @@ export default {
   li {
     margin-top: 4px;
   }
-
+  .references_topics {
+    color: black;
+  }
   /deep/ .annotation__note {
     display: inline;
   }
