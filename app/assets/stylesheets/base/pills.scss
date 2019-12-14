@@ -6,6 +6,15 @@
   padding: 3px;
   padding-left: 6px;
   padding-right: 6px;
+  isolation: isolate;
+  
+  > span {
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: inherit;
+    mix-blend-mode: normal;
+    filter: invert(1) brightness(4) grayscale(1);
+  }
 
   &.tag {
     border-top-left-radius: 0px;
