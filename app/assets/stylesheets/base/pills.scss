@@ -9,11 +9,8 @@
   isolation: isolate;
   
   > span {
-    background-clip: text;
-    -webkit-background-clip: text;
     color: inherit;
-    mix-blend-mode: normal;
-    filter: invert(1) brightness(4) grayscale(1);
+    filter: invert(1) brightness(2) grayscale(1) contrast(200%);
   }
 
   &.tag {
