@@ -22,7 +22,7 @@
 import AjaxCall from 'helpers/ajaxCall'
 import TableList from 'components/table_list'
 import SpinnerComponent from 'components/spinner'
-import { MutationNames } from '../store/mutations/mutations'
+import { ActionNames } from '../store/actions/actions'
 import ModalComponent from 'components/modal'
 
 import { GetRecentSources } from '../request/resources'
@@ -51,7 +51,7 @@ export default {
       })
     },
     setSource (source) {
-      this.$store.commit(MutationNames.SetSource, source)
+      this.$store.dispatch(ActionNames.LoadSource, source.id)
       this.$emit('close', true)
     }
   }
