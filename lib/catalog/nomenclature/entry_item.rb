@@ -35,13 +35,13 @@ class Catalog::Nomenclature::EntryItem < ::Catalog::EntryItem
       return object.id == base_object.id
     when 'Combination'
       object.combination_taxon_names.each do |p|
-        return true if p.id == object.id # maybe object?!
+        return true if p.id == base_object.id # maybe object?!
       end
       return false
     else
       if from_relationship?
         # Technically we only want misspellings here?
-        return true if object_class =~ /Misspelling/
+        return true if object.object_taxon_name.id == base_object.id && object_class =~ /Misspelling/
       end
       return false
     end 
