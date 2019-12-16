@@ -20,6 +20,7 @@
       </ul>
       <div v-else>
         <autocomplete
+          :id="`smart-selector-${model}-autocomplete`"
           class="separate-right"
           placeholder="Search..."
           :url="`/${model}/autocomplete`"
