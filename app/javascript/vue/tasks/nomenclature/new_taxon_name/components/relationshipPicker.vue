@@ -227,9 +227,9 @@ export default {
     },
     refresh: function () {
       let copyList = Object.assign({}, this.treeList[this.nomenclaturalCode])
-      this.objectLists.tree = Object.assign({}, copyList.tree)
-      this.objectLists.commonList = Object.assign({}, copyList.common)
-      this.objectLists.allList = Object.assign({}, copyList.all)
+      this.objectLists.tree = Object.assign({}, JSON.parse(JSON.stringify(copyList.tree)))
+      this.objectLists.commonList = Object.assign({}, JSON.parse(JSON.stringify(copyList.common)))
+      this.objectLists.allList = Object.assign({}, JSON.parse(JSON.stringify(copyList.all)))
       this.addType(this.objectLists.allList)
       this.objectLists.allList = Object.keys(this.objectLists.allList).map(key => this.objectLists.allList[key])
       this.getTreeList(this.objectLists.tree, copyList.all)
