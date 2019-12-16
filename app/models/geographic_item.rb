@@ -712,7 +712,7 @@ class GeographicItem < ApplicationRecord
           }.join(' or ')
           q = 'FALSE' if q.blank? # this will prevent the invocation of *ALL* of the GeographicItems, if there are
           # no GeographicItems in the request (see CollectingEvent.name_hash(types)).
-          where(q) # .excluding(geographic_items)
+          where(q) # .not_including(geographic_items)
       end
     end
 
@@ -748,7 +748,7 @@ class GeographicItem < ApplicationRecord
         else
           # column = points, geometry = square
           q = "ST_Contains(ST_GeomFromEWKT('srid=4326;#{geometry}'), #{column_name}::geometry)"
-          where(q) # .excluding(geographic_items)
+          where(q) # .not_including(geographic_items)
       end
     end
 
@@ -789,7 +789,7 @@ class GeographicItem < ApplicationRecord
             GeographicItem.reverse_containing_sql(column_name, geographic_item.to_param,
                                                   geographic_item.geo_object_type)
           }.join(' or ')
-          where(q) # .excluding(geographic_items)
+          where(q) # .not_including(geographic_items)
       end
     end
 
@@ -835,7 +835,7 @@ class GeographicItem < ApplicationRecord
 
     # @param [GeographicItem]
     # @return [Scope]
-    def excluding(geographic_items)
+    def not_including(geographic_items)
       where.not(id: geographic_items)
     end
 

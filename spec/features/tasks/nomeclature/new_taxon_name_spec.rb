@@ -21,17 +21,38 @@ describe 'New taxon name', type: :feature, group: :nomenclature do
         expect(page).to have_text('Edit taxon name')
       end
 
-      context "#{OS.mac? ? 'ctrl': 'alt'}-t navigation" do
+      context 'hotkeys' do
         let!(:genus) { Protonym.create!(by: @user, project: @project, parent: root, name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus)) }
         before { visit new_taxon_name_task_path(taxon_name_id: genus.id) }
 
-        specify "#{OS.mac? ? 'ctrl': 'alt'}-t navigates to Browse taxon name task" do
-          expect(page).to have_text('Edit taxon name')
-          find('body').send_keys([OS.mac? ? :control : :alt, 't'])
-          expect(page).to have_text('Browse nomenclature')
+        context "#{OS.mac? ? 'ctrl': 'alt'}-t navigation" do
+          specify "#{OS.mac? ? 'ctrl': 'alt'}-t navigates to Browse taxon name task" do
+            expect(page).to have_text('Edit taxon name')
+            find('body').send_keys([OS.mac? ? :control : :alt, 't'])
+            expect(page).to have_text('Browse nomenclature')
+          end
+        end
+
+        context "#{OS.mac? ? 'ctrl': 'alt'}-p navigation" do
+          specify "#{OS.mac? ? 'ctrl': 'alt'}-p creates new record with same parent" do
+            expect(page).to have_text('Edit taxon name')
+            find('body').send_keys([OS.mac? ? :control : :alt, 'p'])
+            expect(page).to have_text('New taxon name')
+            
+            expect(find('#parent-name input').value).to eq('Root')
+            find('#parent-name input').fill_in(with: 'Root')
+          end
+        end
+
+        context "#{OS.mac? ? 'ctrl': 'alt'}-d navigation" do
+          specify "#{OS.mac? ? 'ctrl': 'alt'}-t navigates to Browse taxon name task" do
+            expect(page).to have_text('Edit taxon name')
+            find('body').send_keys([OS.mac? ? :control : :alt, 'd'])
+            expect(page).to have_text('New taxon name')
+            expect(find('#parent-name input').value).to eq('Aus')
+          end
         end
       end
-
     end
   end
 end

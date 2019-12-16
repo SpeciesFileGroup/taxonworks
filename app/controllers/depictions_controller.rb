@@ -97,7 +97,7 @@ class DepictionsController < ApplicationController
   private 
 
   def set_depiction
-    @depiction = Depiction.find(params[:id])
+    @depiction = Depiction.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def depiction_params
