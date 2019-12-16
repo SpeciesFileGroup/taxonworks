@@ -159,11 +159,9 @@ class Catalog::Entry
   end
 
   def is_subsequent_entry_item?(entry_item)
-    
   end
 
   def coordinate_entry_items
-
   end
 
   protected
