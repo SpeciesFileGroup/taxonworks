@@ -102,7 +102,6 @@ export default {
     parent: {
       handler: function (val, oldVal) {
         if(oldVal) {
-          console.log("Entra")
           this.rankClass = undefined
           this.refresh()
         }

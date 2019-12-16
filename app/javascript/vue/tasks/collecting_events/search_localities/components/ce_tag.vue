@@ -75,7 +75,7 @@
           keyword_ids: tag_ids
         };
         this.isLoading = true;
-        this.$http.get('/collecting_events', { params: params }).then(response => {
+        this.$http.get('/collecting_events.json', { params: params }).then(response => {
           this.collectingEventList = response.body;
           this.$emit('jsonUrl', response.url)
           if(this.collectingEventList) {

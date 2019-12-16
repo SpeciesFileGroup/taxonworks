@@ -94,7 +94,7 @@ export default {
   },
   methods: {
     getObject(id) {
-      AjaxCall('get', `/${this.model}/${id}`).then(response => {
+      AjaxCall('get', `/${this.model}/${id}.json`).then(response => {
         this.$emit('selected', response.body)
       })
     }

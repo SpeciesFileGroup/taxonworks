@@ -67,7 +67,7 @@
   methods: {
     getSource() {
       if (this.sourceID) {
-        this.$http.get('/sources/' + this.sourceID + '.json').then(response => {
+        this.$http.get(`/sources/${this.sourceID}.json`).then(response => {
           this.source = response.body
           history.pushState(null, null, `/tasks/nomenclature/by_source?source_id=${this.source.id}`)
           this.$emit('sourceID', this.sourceID);
