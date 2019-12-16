@@ -1,16 +1,11 @@
 # A Catalog is a series of catalog entries, which in turn have entry items. The model more or less represents a two level 
 class Catalog
 
-  # Each Object is the basis for an Entry
+  # Each Object is the basis for a Catalog::Entry
   attr_accessor :catalog_targets
 
+  # Array of Catalog::Entry::
   attr_accessor :entries
-
-  # @return Boolean
-  attr_accessor :compile
-
-  # @return Boolean
-  attr_accessor :built
 
   def initialize(targets:)
     @catalog_targets = targets 
@@ -18,8 +13,9 @@ class Catalog
     build 
   end
 
+  # Handled in individual subclasses
   def build
-    @built = false
+    false
   end
 
   def reference_object_global_id
