@@ -38,7 +38,6 @@ export default {
     border-left: 4px solid #ff8c00;
   }
   .soft-validation-box {
-    width: 300px;
     background-color: #FFF9F9;
     .body {
      padding: 12px;
