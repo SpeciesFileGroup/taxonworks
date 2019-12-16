@@ -77,7 +77,7 @@ class CharacterStatesController < ApplicationController
 
   private
   def set_character_state
-    @character_state = CharacterState.find(params[:id])
+    @character_state = CharacterState.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def character_state_params

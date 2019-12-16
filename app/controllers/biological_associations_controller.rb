@@ -94,7 +94,7 @@ class BiologicalAssociationsController < ApplicationController
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_biological_association
-    @biological_association = BiologicalAssociation.find(params[:id])
+    @biological_association = BiologicalAssociation.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.
