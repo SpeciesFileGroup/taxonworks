@@ -34,6 +34,7 @@ namespace :tw do
         begin
           j = 0
           n = nil
+          errors = []
           Identifier::Local::Import.where(identifier_object_type: 'Source', project_id: Current.project_id).each do |i|
             o = i.identifier_object
             s = o.year_suffix
@@ -44,26 +45,34 @@ namespace :tw do
             end 
 
             case o.year_suffix
+            when nil
+              next 
             when 'a'
               if i.identifier =~ /a$/ 
                 puts Rainbow( o.year_suffix + ' - ' + i.identifier + ' : ' + n).purple
-                i.update!(identifier: n)
+                # i.update!(identifier: n)
               end
-            when nil
-              next 
             else
-              s = o.year_suffix
-              if i.identifier =~ /#{s}{#{l}}$/ 
+              if i.identifier =~ /#{s[0]}{#{l}}$/ 
                 n = i.identifier[0..-2]
-                puts Rainbow( o.year_suffix + ' - ' + i.identifier + ' : ' + n).purple
-                i.update!(identifier: n)
+                t = o.year_suffix + ' - ' + i.identifier + ' : ' + n
+                if s.length > 1 
+                  puts Rainbow(t ).yellow
+                  errors << n # i.identifier
+                else
+                  puts Rainbow(t ).purple
+                end
+                # i.update!(identifier: n)
               end
             end
+
             j += 1
           end
         rescue ActiveRecord::RecordInvalid
           puts Rainbow("failed to save #{n}").red
         end
+        puts '----'
+        puts errors.collect{|e| "* [ ] #{e}"}.join("\n")
       end
 
       # https://github.com/chalcid/jncdb/issues/9
