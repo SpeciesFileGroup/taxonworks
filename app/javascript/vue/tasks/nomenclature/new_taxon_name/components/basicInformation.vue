@@ -135,7 +135,6 @@ export default {
   watch: {
     errors: {
       handler(newVal) {
-        console.log(newVal)
         if(this.existError('name')) {
           if(this.displayError('name').find(item => { return item.includes('must be latinized') })) {
             this.showModal = true

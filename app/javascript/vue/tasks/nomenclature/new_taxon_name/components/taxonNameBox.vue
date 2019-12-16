@@ -139,7 +139,6 @@ export default {
     loadParent() {
       if(this.taxon.id && this.parent.id) {
         this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon).then((response) => {
-          console.log(response)
           window.open(`/tasks/nomenclature/new_taxon_name?taxon_name_id=${response.parent_id}`, '_self')
         })
       }
