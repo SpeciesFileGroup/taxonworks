@@ -81,7 +81,7 @@
           <ul class="no_bullets">
             <li
               class="separate-right"
-              v-for="(item, key) in filterSections.time"
+              v-for="(item, key) in filterSections.and.time"
               :key="key">
               <label>
                 <input
@@ -93,16 +93,16 @@
           </ul>
           <h4 class="capitalize separate-bottom">Year</h4>
           <year-picker 
-            v-model.number="filterSections.year[0].value"
+            v-model.number="filterSections.and.year[0].value"
             :years="nomenclature.sources.year_metadata"/>
         </div>
         <div class="full_width">
           <h4 class="capitalize separate-bottom">Filter</h4>
           <ul class="no_bullets">
             <li
-              v-for="(item, key) in filterSections.filter"
-              :key="key"
-              class="separate-right">
+              class="separate-right"
+              v-for="(item, key) in filterSections.and.current"
+              :key="key">
               <label>
                 <input
                   v-model="item.value"
@@ -111,6 +111,21 @@
               </label>
             </li>
           </ul>
+          <template v-for="section in filterSections.or">
+            <ul class="no_bullets">
+              <li
+                v-for="(item, key) in section"
+                :key="key"
+                class="separate-right">
+                <label>
+                  <input
+                    v-model="item.value"
+                    type="checkbox"/>
+                  {{ item.label }}
+                </label>
+              </li>
+            </ul>
+          </template>
         </div>
         <div class="full_width">
           <h4 class="capitalize separate-bottom">Show</h4>
@@ -127,8 +142,6 @@
               </label>
             </li>
           </ul>
-        </div>
-        <div>
           <h4 class="capitalize separate-bottom">Topic</h4>
           <ul class="no_bullets">
             <li
@@ -150,6 +163,8 @@
               </label>
             </li>
           </ul>
+        </div>
+        <div>
           <div class="separate-bottom"></div>
           <ul
             class="no_bullets topic-section">
@@ -209,57 +224,67 @@ export default {
       topicsSelected: [],
       showModal: false,
       filterSections: {
-        time: [
-          {
-            label: 'First',
-            key: 'history-is-first',
-            value: true,
+        and: {
+          current: [
+            {
+              label: 'Current name',
+              key: 'history-is-current-name',
+              value: false,
+              equal: true
+            }
+          ],
+          time: [
+            {
+              label: 'First',
+              key: 'history-is-first',
+              value: false,
+              equal: true
+            },
+            {
+              label: 'Last',
+              key: 'history-is-last',
+              value: false,
+              equal: true
+            }
+          ],
+          year: [{
+            label: 'Year',
+            key: 'history-year',
+            value: undefined,
             attribute: true,
             equal: true
-          },
-          {
-            label: 'Last',
-            key: 'history-is-last',
-            value: true,
-            attribute: true,
-            equal: true
-          }
-        ],
-        year: [{
-          label: 'Year',
-          key: 'history-year',
-          value: undefined,
-          attribute: true,
-          equal: true
-        }],
-        filter: [
-          {
-            label: 'Valid',
-            key: 'history-is-valid',
-            value: true,
-            attribute: true,
-            equal: true
-          },
-          {
-            label: 'Invalid',
-            key: 'history-is-valid',
-            value: true,
-            attribute: true,
-            equal: false
-          },
-          {
-            label: 'Cited',
-            key: 'history-is-cited',
-            value: true,
-            equal: true
-          },
-          {
-            label: 'Uncited',
-            key: 'history-is-cited',
-            value: true,
-            equal: false
-          }
-        ],
+          }]
+        },
+        or: {
+          valid: [
+            {
+              label: 'Valid',
+              key: 'history-is-valid',
+              value: false,
+              equal: true
+            },
+            {
+              label: 'Invalid',
+              key: 'history-is-valid',
+              value: false,
+              equal: false
+            }
+          ],
+          cite: [
+            {
+              label: 'Cited',
+              key: 'history-is-cited',
+              value: false,
+              equal: true
+            },
+            {
+              label: 'Uncited',
+              key: 'history-is-cited',
+              value: false,
+              equal: false
+            }
+          ]
+        },
         show: [
           {
             label: 'Notes',
@@ -320,7 +345,7 @@ export default {
           GetNomenclatureHistory(this.otu.id).then(response => {
             this.nomenclature = response.body
             this.$nextTick(() => {
-              this.filterDOM(this.filterSections)
+              this.filterDOM([].concat(this.filterSections.show, this.filterSections.topic))
             })
             this.isLoading = false
           })
@@ -330,41 +355,49 @@ export default {
     },
     filterSections: {
       handler (newVal) {
-        this.filterDOM(newVal)
+        this.$nextTick(() => {
+          this.filterDOM([].concat(this.filterSections.show, this.filterSections.topic))
+        })
       },
       deep: true
     }
   },
   methods: {
     filterDOM (sections) {
-      const keys = Object.keys(sections)
-      keys.forEach(key => {
-        sections[key].forEach(item => {
-          document.querySelectorAll(item.key).forEach(element => {
-            item.value ? element.classList.remove('hidden') : element.classList.add('hidden')
-          })
+      sections.forEach(item => {
+        document.querySelectorAll(item.key).forEach(element => {
+          item.value ? element.classList.remove('hidden') : element.classList.add('hidden')
         })
       })
     },
     checkFilter (item) {
-      const keys = Object.keys(this.filterSections)
-      return ((!this.tabSelected.hasOwnProperty('equal') || 
+      const keysAND = Object.keys(this.filterSections.and)
+      const keysOR = Object.keys(this.filterSections.or)
+      return (((!this.tabSelected.hasOwnProperty('equal') || 
         this.tabSelected.equal ?
         item.data_attributes[this.tabSelected.key] === this.tabSelected.value : 
         item.data_attributes[this.tabSelected.key] != this.tabSelected.value) || 
         (this.tabSelected.label === 'All')) && 
-        keys.every(key => {
-          return this.filterSections[key].every(filter => {
-            if (filter.value === undefined || filter.value == true) return true
-            return !filter.hasOwnProperty('attribute') || filter.attribute ? 
-            (filter.hasOwnProperty('equal') && filter.equal ? 
+        keysAND.every(key => {
+          if((this.filterSections.and[key].every(filter => { return filter.value === false }))) return true
+          return this.filterSections.and[key].every(filter => {
+            if (filter.value === undefined) return true
+            return (filter.equal ? 
             item.data_attributes[filter.key] === filter.value : 
-            item.data_attributes[filter.key] !== filter.value) : true
+            item.data_attributes[filter.key] !== filter.value)
           })
-        }) && 
+        }) &&
+        keysOR.every(key => {
+          return this.filterSections.or[key].some(filter => {
+            return (filter.equal ? 
+            item.data_attributes[filter.key] === filter.value : 
+            item.data_attributes[filter.key] !== filter.value)
+          })
+        })
+         && 
         (this.topicsSelected.length ? item.topics.some(topic => {
           return this.topicsSelected.includes(topic)
-        }) : true)
+        }) : true))
     },
     filterSource(source) {
       let globalIds = source.objects
