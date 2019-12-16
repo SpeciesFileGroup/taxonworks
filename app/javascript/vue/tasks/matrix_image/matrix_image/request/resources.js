@@ -17,15 +17,15 @@ const CreateDescriptor = (data) => {
 }
 
 const GetOtu = (id) => {
-  return ajaxCall('get', `/otus/${id}`)
+  return ajaxCall('get', `/otus/${id}.json`)
 }
 
 const GetCollectionObject = (id) => {
-  return ajaxCall('get', `/collection_objects/${id}`)
+  return ajaxCall('get', `/collection_objects/${id}.json`)
 }
 
 const GetDescriptor = (id) => {
-  return ajaxCall('get', `/descriptors/${id}`)
+  return ajaxCall('get', `/descriptors/${id}.json`)
 }
 
 const GetObservationMatrix = (id) => {
