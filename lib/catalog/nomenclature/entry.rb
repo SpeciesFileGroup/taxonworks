@@ -83,7 +83,7 @@ class Catalog::Nomenclature::Entry < ::Catalog::Entry
     else
       if object_class =~ /^TaxonNameRelationship/
         # Technically we only want misspellings here?
-        return true if item_object.object_taxon_name.id == reference_object.id
+        return true if item_object.subject_taxon_name.id == reference_object.id
       end
       return false
     end 
