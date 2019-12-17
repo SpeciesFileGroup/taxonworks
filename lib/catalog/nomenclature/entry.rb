@@ -26,7 +26,7 @@ class Catalog::Nomenclature::Entry < ::Catalog::Entry
           base_object: t,
           citation: nil,
           nomenclature_date: t.nomenclature_date,
-          current_name: matches_target)
+          current_target: matches_target)
       end
 
       t.citations.each do |c|
@@ -35,7 +35,7 @@ class Catalog::Nomenclature::Entry < ::Catalog::Entry
           base_object: t,
           citation: c,
           nomenclature_date: c.source.cached_nomenclature_date,
-          current_name: matches_target)
+          current_target: matches_target)
       end
 
       ::TaxonNameRelationship.where_subject_is_taxon_name(t).with_type_array(STATUS_TAXON_NAME_RELATIONSHIP_NAMES).each do |r|
@@ -48,7 +48,7 @@ class Catalog::Nomenclature::Entry < ::Catalog::Entry
             base_object: r.subject_taxon_name,
             citation: nil,
             nomenclature_date: r.subject_taxon_name.nomenclature_date,
-            current_name: matches_target
+            current_target: matches_target
           )
         end
 
@@ -58,7 +58,7 @@ class Catalog::Nomenclature::Entry < ::Catalog::Entry
             base_object: r.subject_taxon_name,
             citation: c,
             nomenclature_date: (c.try(:source).try(:cached_nomenclature_date) || r.subject_taxon_name.nomenclature_date),
-            current_name: matches_target
+            current_target: matches_target
           )
         end
       end

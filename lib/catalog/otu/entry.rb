@@ -24,19 +24,29 @@ class Catalog::Otu::Entry < ::Catalog::Entry
       @items << Catalog::Otu::EntryItem.new(
         object: object,
         base_object: object,
+        current_target: true # by definition?
       )
     end
 
     a.each do |o|
+      matches_target = entry_item_matches_target?(o, object)
+
       o.citations.each do |c|
         @items << Catalog::Otu::EntryItem.new(
           object: o,
           base_object: object,
           citation: c,
-          nomenclature_date: c.source&.cached_nomenclature_date
+          nomenclature_date: c.source&.cached_nomenclature_date,
+          current_target: matches_target
         )
       end
-    end 
+    end
+  end
+
+  # @return [Boolean]
+  #   this is the MM result
+  def entry_item_matches_target?(item_object, reference_object)
+    item_object.taxon_name_id == reference_object.taxon_name_id
   end
 
 end

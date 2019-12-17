@@ -31,13 +31,18 @@ class Catalog::EntryItem
   #   See Catalog::Entry#last_item?
   attr_accessor :is_last
 
+  # @return [Boolean]
+  #   does this match the target Entry
+  attr_accessor :matches_current_target
+
   # @param [Hash] args
-  def initialize(object: nil, base_object: nil, citation: nil, nomenclature_date: nil, citation_date: nil, **args)
+  def initialize(object: nil, base_object: nil, citation: nil, nomenclature_date: nil, citation_date: nil, current_target: nil)
     raise if object.nil?
     @object = object
     @base_object = base_object 
     @nomenclature_date = nomenclature_date
     @citation = citation
+    @matches_current_target = current_target
   end
 
   def html_helper
@@ -52,6 +57,7 @@ class Catalog::EntryItem
       'history-is-first' => is_first,
       'history-is-last' => is_last, 
       'history-is-cited' => (citation ? true : false),
+      'history-is-current-target' => matches_current_target
     }
   end
 

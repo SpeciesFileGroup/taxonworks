@@ -1,11 +1,7 @@
 class Catalog::Nomenclature::EntryItem < ::Catalog::EntryItem
 
-  # @return [Boolean]
-  #   does this match the target Entry 
-  attr_accessor :is_current_name
-
-  def initialize(object: nil, base_object: nil, citation: nil, nomenclature_date: nil, citation_date: nil, current_name: nil) 
-    @is_current_name = current_name
+  def initialize(object: nil, base_object: nil, citation: nil, nomenclature_date: nil, citation_date: nil, current_target: nil)
+    @matches_current_target = current_target
     super
   end
 
@@ -32,8 +28,7 @@ class Catalog::Nomenclature::EntryItem < ::Catalog::EntryItem
 
   def data_attributes
     base_data_attributes.merge(
-      'history-is-valid' => is_valid_name?,
-      'history-is-current-name' => is_current_name
+      'history-is-valid' => is_valid_name?
     )
   end
 

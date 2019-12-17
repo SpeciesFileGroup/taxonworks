@@ -31,6 +31,7 @@ class Catalog::Entry
   # @return [Array]
   #   of strings, the array determines nesting order
   #   all entries in the catalog should have `sorts` of the same length
+  #   !! Not yet implemented !!
   attr_accessor :sort_order
 
   def initialize(object, sort_order = [])
