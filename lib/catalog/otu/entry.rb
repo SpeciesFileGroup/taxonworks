@@ -1,8 +1,9 @@
 # A Catalog::Entry has many entry items.  Together CatalogEntrys form a Catalog
 class Catalog::Otu::Entry < ::Catalog::Entry
-  
+
   def initialize(otu)
     super(otu)
+    true
   end
 
   def build

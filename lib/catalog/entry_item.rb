@@ -32,7 +32,7 @@ class Catalog::EntryItem
   attr_accessor :is_last
 
   # @param [Hash] args
-  def initialize(object: nil, base_object: nil, citation: nil, nomenclature_date: nil, citation_date: nil)
+  def initialize(object: nil, base_object: nil, citation: nil, nomenclature_date: nil, citation_date: nil, **args)
     raise if object.nil?
     @object = object
     @base_object = base_object 

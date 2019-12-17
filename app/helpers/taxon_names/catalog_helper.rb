@@ -23,7 +23,7 @@ module TaxonNames::CatalogHelper
     data = {
       'history-origin' => n.origin,
       'history-object-id' => n.object.id,
-      'history-valid-name' => n.is_valid_name? && n.is_first, # is_subsequent?,
+      'history-valid-name' => (n.is_valid_name? && n.is_first), # marks the single current valid name for this record
       'history-is-subsequent' => !n.is_first # is_subsequent?
     }
     data

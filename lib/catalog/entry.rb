@@ -1,4 +1,7 @@
 # A Catalog::Entry has many entry items.  Together Catalog::Entries form a Catalog
+#
+# !! Make sure to add a dependency for all Entry types to the bottom of this file
+# !! or `build` may not inherit correctly (would otherwise need to be above `def initialize`
 class Catalog::Entry
 
   # The target object for this entry
@@ -66,7 +69,7 @@ class Catalog::Entry
   def first_item?(item)
     o = items_by_object(item.object)
     return true if o.size == 1
-    return true if item.citation.is_original?
+    return true if item.citation&.is_original?
     return true if !original_citation_present? && o.index(item) == 0
 
     false
@@ -195,5 +198,7 @@ class Catalog::Entry
     end
     t.flatten.uniq.compact.sort
   end
-
 end
+
+require_dependency Rails.root.to_s + '/lib/catalog/nomenclature/entry.rb'
+require_dependency Rails.root.to_s + '/lib/catalog/otu/entry.rb'
