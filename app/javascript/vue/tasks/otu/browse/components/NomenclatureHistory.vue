@@ -228,7 +228,7 @@ export default {
           current: [
             {
               label: 'Current name',
-              key: 'history-is-current-name',
+              key: 'history-is-current-target',
               value: false,
               equal: true
             }
