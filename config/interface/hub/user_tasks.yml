@@ -472,3 +472,11 @@ asserted_distributions_basic_endemism_task:
   categories:
   status: prototype
   description: 'A simple 1 taxon and children, 1 geographic area summary that includes a check for endemism.  Targets asserted distributions only.'
+collection_object_summary_task:
+  hub: true
+  name: 'Collection summary'
+  related:
+  categories:
+    - collection_object
+  status: prototype
+  description: 'Summary statistics for the collection(s) managed in this project'
