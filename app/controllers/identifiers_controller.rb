@@ -89,11 +89,7 @@ class IdentifiersController < ApplicationController
   def autocomplete
     render json: {} and return if params[:term].blank?
 
-    @identifiers = Queries::Identifier::Autocomplete.new(
-      project_id: sessions_current_project_id,
-      params.require(:term),
-      autocomplete_params.to_h   
-    ).autocomplete
+    @identifiers = Queries::Identifier::Autocomplete.new(params.require(:term), autocomplete_params).autocomplete
   end
 
   # GET /identifiers/download
