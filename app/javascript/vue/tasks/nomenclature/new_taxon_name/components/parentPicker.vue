@@ -2,7 +2,7 @@
   <div>
     <div class="horizontal-left-content">
       <autocomplete
-        :input_id="input_id"
+        input-id="parent-name"
         url="/taxon_names/autocomplete"
         label="label_html"
         min="2"
@@ -117,12 +117,6 @@ export default {
           this.validParent = response.body
         })
       }
-    }
-  },
-  props: {
-    input_id: {
-      type: String,
-      default: undefined
     }
   },
   methods: {

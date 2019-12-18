@@ -32,7 +32,7 @@
         </div>
         <div class="field separate-top">
           <label v-help.section.basic.parent for="parent-name">Parent</label>
-          <parent-picker input_id="parent-name"/>
+          <parent-picker/>
         </div>
         <rank-selector v-if="validateInfo"/>
         <hard-validation field="rank_class"/>
