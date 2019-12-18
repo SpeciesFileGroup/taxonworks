@@ -18,7 +18,7 @@ export default function ({ commit, state }) {
       if(collection_event.id) {
         UpdateCollectionEvent(collection_event).then(response => {
           commit(MutationNames.SetCollectionEvent, response)
-          if(state.collection_event.identifiers.length) {
+          if(state.collection_event.hasOwnProperty('identifiers') && state.collection_event.identifiers.length) {
             state.collectingEventIdentifier = state.collection_event.identifiers[0]
           }
           return resolve(response)
@@ -29,7 +29,7 @@ export default function ({ commit, state }) {
       else {
         CreateCollectionEvent(collection_event).then(response => {
           commit(MutationNames.SetCollectionEvent, response)
-          if(state.collection_event.identifiers.length) {
+          if(state.collection_event.hasOwnProperty('identifiers') && state.collection_event.identifiers.length) {
             state.collectingEventIdentifier = state.collection_event.identifiers[0]
           }
           return resolve(response)
