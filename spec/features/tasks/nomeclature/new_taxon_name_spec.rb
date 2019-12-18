@@ -12,8 +12,8 @@ describe 'New taxon name', type: :feature, group: :nomenclature do
       before { visit new_taxon_name_task_path }
 
       specify 'add a name' do
-        fill_in "taxon-name", with: 'Qurious'
-        find('#parent-name input').fill_in(with: 'Root')
+        fill_in "Name", with: 'Qurious'
+        fill_in 'Parent', with: 'Root'
         find('li', text: 'Root nomenclatural rank').hover.click 
         find('label', text: 'ICZN').click
         find('label', text: 'Genus').click
@@ -37,10 +37,7 @@ describe 'New taxon name', type: :feature, group: :nomenclature do
           specify "#{OS.mac? ? 'ctrl': 'alt'}-p creates new record with same parent" do
             expect(page).to have_text('Edit taxon name')
             find('body').send_keys([OS.mac? ? :control : :alt, 'p'])
-            expect(page).to have_text('New taxon name')
-            
-            expect(find('#parent-name input').value).to eq('Root')
-            find('#parent-name input').fill_in(with: 'Root')
+            expect(page).to have_field('Parent', with: 'Root')
           end
         end
 
@@ -48,8 +45,7 @@ describe 'New taxon name', type: :feature, group: :nomenclature do
           specify "#{OS.mac? ? 'ctrl': 'alt'}-t navigates to Browse taxon name task" do
             expect(page).to have_text('Edit taxon name')
             find('body').send_keys([OS.mac? ? :control : :alt, 'd'])
-            expect(page).to have_text('New taxon name')
-            expect(find('#parent-name input').value).to eq('Aus')
+            expect(page).to have_field('Parent', with: 'Aus')
           end
         end
       end

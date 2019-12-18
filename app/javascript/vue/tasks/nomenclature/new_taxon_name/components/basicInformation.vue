@@ -18,7 +18,7 @@
       v-show="expanded">
       <div class="column-left">
         <div class="field separate-right">
-          <label v-help.section.basic.name>Name</label><br>
+          <label v-help.section.basic.name for="taxon-name">Name</label><br>
           <hard-validation field="name">
             <input
               id="taxon-name"
@@ -31,8 +31,8 @@
           </hard-validation>
         </div>
         <div class="field separate-top">
-          <label v-help.section.basic.parent>Parent</label>
-          <parent-picker/>
+          <label v-help.section.basic.parent for="parent-name">Parent</label>
+          <parent-picker input_id="parent-name"/>
         </div>
         <rank-selector v-if="validateInfo"/>
         <hard-validation field="rank_class"/>
