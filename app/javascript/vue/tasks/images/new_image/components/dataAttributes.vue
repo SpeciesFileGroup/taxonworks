@@ -37,6 +37,7 @@
         class="button circle-button btn-undo button-default"
         @click="selected = undefined; dataAttribute.controlled_vocabulary_term_id = undefined"/>
     </div>
+    <label>Value</label>
     <textarea
       class="full_width"
       rows="5"

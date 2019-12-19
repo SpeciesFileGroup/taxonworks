@@ -8,7 +8,6 @@
       <h2>Staged image</h2>
       <div class="flex-separate">
         <pattern-component
-          class="separate-left"
           v-model="pattern"
           :patterns="extractionPatterns"
         />
@@ -36,6 +35,11 @@
             :style="{ 'background-color': sqed_depiction_attributes.boundary_color }"
             :class="{ hasBorder: sqed_depiction_attributes.has_border }"
           />
+          <div 
+            v-else
+            class="panel horizontal-center-content middle pattern-box">
+            <h3>Choose a pattern</h3>
+          </div>
         </div>
       </div>
       <div class="margin-large-top separate-bottom horizontal-left-content align-start">
@@ -167,5 +171,14 @@ export default {
 <style scoped>
   .hasBorder {
     border: 4px solid gray
+  }
+  .pattern-box {
+    height: 200px;
+    width: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #F5F5F5;
+    border-radius: 3px;
   }
 </style>
