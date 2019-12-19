@@ -5,28 +5,38 @@
       class="margin-medium-bottom"
       v-model="view"
       :options="tabs"/>
-    <template v-if="lists && view == 'all'">
-      <div class="flex-wrap-row margin-medium-top">
-        <button
-          v-for="attr in lists['all']"
-          :key="attr.id"
-          @click="setDataAttribute(attr.id, attr.name)"
-          class="button normal-input margin-small-right margin-small-bottom"
-          :class="{ 'button-default': dataAttribute.controlled_vocabulary_term_id != attr.id }"
-          type="button">
-          {{ attr.name }}
-        </button>
-      </div>
+    <template v-if="!selected">
+      <template v-if="lists && view == 'all'">
+        <div class="flex-wrap-row margin-medium-top">
+          <button
+            v-for="attr in lists['all']"
+            :key="attr.id"
+            @click="setDataAttribute(attr.id, attr.name)"
+            class="button normal-input margin-small-right margin-small-bottom"
+            :class="{ 'button-default': dataAttribute.controlled_vocabulary_term_id != attr.id }"
+            type="button">
+            {{ attr.name }}
+          </button>
+        </div>
+      </template>
+      <autocomplete
+        v-else
+        url="/predicates/autocomplete"
+        label="label"
+        min="2"
+        placeholder="Select a predicate"
+        @getItem="setDataAttribute($event.id, $event.label)"
+        class="separate-bottom"
+        param="term"/>
     </template>
-    <autocomplete
+    <div
       v-else
-      url="/predicates/autocomplete"
-      label="label"
-      min="2"
-      placeholder="Select a predicate"
-      @getItem="setDataAttribute($event.id, $event.label)"
-      class="separate-bottom"
-      param="term"/>
+      class="horizontal-left-content">
+      <span v-html="selected"/>
+      <span
+        class="button circle-button btn-undo button-default"
+        @click="selected = undefined; dataAttribute.controlled_vocabulary_term_id = undefined"/>
+    </div>
     <textarea
       class="full_width"
       rows="5"
@@ -88,7 +98,8 @@ export default {
       view: 'search',
       tabList: {},
       lists: undefined,
-      dataAttribute: this.newDataAttribute()
+      dataAttribute: this.newDataAttribute(),
+      selected: undefined
     }
   },
   mounted () {
@@ -129,6 +140,7 @@ export default {
       this.dataAttribute = this.newDataAttribute()
     },
     setDataAttribute (id, label) {
+      this.selected = label
       this.dataAttribute.label = label
       this.dataAttribute.controlled_vocabulary_term_id = id    
     },
