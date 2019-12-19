@@ -32,12 +32,6 @@
       </div>
     </div>
     <div class="separate-top separate-bottom">
-      <div class="flexbox separate-bottom">
-        <tags-component class="panel-section separate-right"/>
-        <data-attributes class="panel-section separate-left"/>
-      </div>
-    </div>
-    <div class="separate-top separate-bottom">
       <sqed-component/>
     </div>
   </div>
@@ -52,8 +46,6 @@ import PersonsSection from './components/personsSection'
 import DepicSome from './components/depicSome'
 import SqedComponent from './components/sqed/sqed'
 import DepictionComponent from './components/depiction'
-import TagsComponent from './components/tags'
-import DataAttributes from './components/dataAttributes'
 import { GetterNames } from './store/getters/getters.js'
 import { MutationNames } from './store/mutations/mutations.js'
 import { ActionNames } from './store/actions/actions.js'
@@ -66,9 +58,7 @@ export default {
     DepicSome,
     SpinnerComponent,
     SqedComponent,
-    DepictionComponent,
-    TagsComponent,
-    DataAttributes
+    DepictionComponent
   },
   computed: {
     images: {

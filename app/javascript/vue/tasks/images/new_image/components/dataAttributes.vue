@@ -1,7 +1,8 @@
 <template>
-  <div class="panel content">
+  <div>
     <h2>Data attributes</h2>
     <switch-component
+      class="margin-medium-bottom"
       v-model="view"
       :options="tabs"/>
     <template v-if="lists && view == 'all'">
@@ -26,7 +27,8 @@
       @getItem="setDataAttribute($event.id, $event.label)"
       class="separate-bottom"
       param="term"/>
-    <textarea 
+    <textarea
+      class="full_width"
       rows="5"
       v-model="dataAttribute.value"></textarea>
     <button

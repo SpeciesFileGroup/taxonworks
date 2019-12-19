@@ -41,6 +41,12 @@
           />
         </div>
       </div>
+      <div class="separate-top separate-bottom">
+        <div class="flexbox separate-bottom">
+          <tags-component class="panel-section separate-right"/>
+          <data-attributes class="panel-section separate-left"/>
+        </div>
+      </div>
       <div class="separate-top">
         <button
           type="button"
@@ -70,6 +76,9 @@ import LepStageLayout from './layouts/lep_stage'
 import VerticalSplitLayout from './layouts/vertical_split'
 import SpinnerComponent from 'components/spinner'
 
+import TagsComponent from '../tags'
+import DataAttributes from '../dataAttributes'
+
 import { GetSqedMetadata } from '../../request/resources.js'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
@@ -88,7 +97,9 @@ export default {
     HorizontalSplitLayout,
     HorizontalOffsetCrossLayout,
     VerticalSplitLayout,
-    SpinnerComponent
+    SpinnerComponent,
+    TagsComponent,
+    DataAttributes
   },
   computed: {
     componentExist() {

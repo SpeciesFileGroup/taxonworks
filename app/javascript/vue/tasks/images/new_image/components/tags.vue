@@ -1,5 +1,5 @@
 <template>
-  <div class="panel content">
+  <div>
     <h2>Tags</h2>
     <smart-selector
       autocomplete-url="/controlled_vocabulary_terms/autocomplete"
