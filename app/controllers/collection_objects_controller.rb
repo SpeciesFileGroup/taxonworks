@@ -287,6 +287,7 @@ class CollectionObjectsController < ApplicationController
       :contained_in,
       collecting_event_attributes: [],  # needs to be filled out!
       data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ],
+      tags_attributes: [:id, :_destroy, :keyword_id,  :annotated_global_entity],
       identifiers_attributes: [:id, :_destroy, :identifier, :namespace_id, :type]
     )
   end
