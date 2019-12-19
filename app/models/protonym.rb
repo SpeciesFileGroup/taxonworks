@@ -128,21 +128,55 @@ class Protonym < TaxonName
   # TODO, move to IsData or IsProjectData
   scope :with_project, -> (project_id) {where(project_id: project_id)}
 
-  # TODO: isn't this the way to do it now? (It does not work, may need extra investigation. DD)
-  #   scope :that_is_valid, -> {where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') }
-
-  # This was crazy!
-  # scope :that_is_valid, -> {
-  #   joins('LEFT OUTER JOIN taxon_name_relationships tnr ON taxon_names.id = tnr.subject_taxon_name_id').
-  #   where("taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type ILIKE 'TaxonNameRelationship::Iczn::Invalidating%' OR type ILIKE 'TaxonNameRelationship::Icn::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Icnp::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Ictv::Unaccepting%')")
-  # }
   scope :is_species_group, -> { where("rank_class ILIKE '%speciesgroup%'") }
   scope :is_genus_group, -> { where("rank_class ILIKE '%genusgroup%'") }
+  scope :is_family_group, -> { where("rank_class ILIKE '%family%'") }
 
   scope :is_species_or_genus_group, -> {  where("rank_class ILIKE '%speciesgroup%' OR rank_class ILIKE '%genusgroup%'")   }
 
   scope :is_original_name, -> { where("cached_author_year NOT ILIKE '(%'") } 
   scope :is_not_original_name, -> { where("cached_author_year ILIKE '(%'") } 
+
+  # @return [Protonym]
+  #   a name ready to become the root
+  def self.stub_root(project_id: nil, by: nil)
+    Protonym.new(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil, project_id: project_id, by: by)
+  end
+
+  def self.family_group_base(name_string)
+    name_string.match(/(^.*)(ini|ina|inae|idae|oidae|odd|ad|oidea)$/)
+    $1 || name_string
+  end
+
+  def self.family_group_name_at_rank(name_string, rank_string)
+    if name_string == family_group_base(name_string)
+      name_string
+    else
+      family_group_base(name_string) + Ranks.lookup(:iczn, rank_string).constantize.try(:valid_name_ending).to_s
+    end
+  end
+
+  # @param rank ['speciesgroup' or 'genusgroup' or 'family']
+  #    scope to names used in taxon determinations   
+  def self.names_at_rank_group_for_collection_objects(rank = 'speciesgroup')
+    h = ::TaxonNameHierarchy.arel_table
+    t = ::TaxonName.arel_table
+    t1 = ::TaxonName.arel_table.alias('tndet')
+    d = ::TaxonDetermination.arel_table
+    o = ::Otu.arel_table
+
+    q = t.join(h, Arel::Nodes::InnerJoin).on(
+      t[:id].eq(h[:ancestor_id])
+    ).join(t1, Arel::Nodes::InnerJoin).on(
+      h[:descendant_id].eq(t1[:id])
+    ).join(o, Arel::Nodes::InnerJoin).on(
+      t1[:id].eq(o[:id])
+    ).join(d, Arel::Nodes::InnerJoin).on(
+      o[:id].eq(d[:otu_id])
+    )
+
+    joins(q.join_sources).where(t[:rank_class].matches('%' + rank + '%').to_sql).distinct
+  end
 
   # @return [Array of Strings]
   #   genera where the species was placed
@@ -274,25 +308,6 @@ class Protonym < TaxonName
   #    all descendant and ancestor protonyms for this Protonym
   def ancestors_and_descendants
     Protonym.ancestors_and_descendants_of(self).not_self(self).to_a
-  end
-
-  # @return [Protonym]
-  #   a name ready to become the root
-  def self.stub_root(project_id: nil, by: nil)
-    Protonym.new(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil, project_id: project_id, by: by)
-  end
-
-  def self.family_group_base(name_string)
-    name_string.match(/(^.*)(ini|ina|inae|idae|oidae|odd|ad|oidea)$/)
-    $1 || name_string
-  end
-
-  def self.family_group_name_at_rank(name_string, rank_string)
-    if name_string == family_group_base(name_string)
-      name_string
-    else
-      family_group_base(name_string) + Ranks.lookup(:iczn, rank_string).constantize.try(:valid_name_ending).to_s
-    end
   end
 
   # @return [ TypeMaterial, [] ]  ?!

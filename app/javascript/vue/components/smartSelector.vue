@@ -1,9 +1,16 @@
 <template>
   <div>
-    <switch-components
-      class="separate-bottom"
-      v-model="view"
-      :options="options"/>
+    <div class="separate-bottom horizontal-left-content">
+      <switch-components
+        class="full_width"
+        v-model="view"
+        :options="options"/>
+      <default-pin
+        v-if="pinSection"
+        :section="pinSection"
+        @getId="getObject"
+        :type="pinType"/>
+    </div>
     <template>
       <ul
         v-if="view && view != 'search'"
@@ -41,11 +48,13 @@ import AjaxCall from 'helpers/ajaxCall'
 import Autocomplete from 'components/autocomplete'
 import OrderSmart from 'helpers/smartSelector/orderSmartSelector'
 import SelectFirst from 'helpers/smartSelector/selectFirstSmartOption'
+import DefaultPin from 'components/getDefaultPin'
 
 export default {
   components: {
     SwitchComponents,
-    Autocomplete
+    Autocomplete,
+    DefaultPin
   },
   props: {
     label: {
@@ -71,6 +80,14 @@ export default {
     clear: {
       type: Boolean,
       default: true
+    },
+    pinSection: {
+      type: String,
+      default: undefined
+    },
+    pinType: {
+      type: String,
+      default: undefined
     }
   },
   data () {
