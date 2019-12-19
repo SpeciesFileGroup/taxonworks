@@ -110,8 +110,7 @@ class DepictionsController < ApplicationController
       image_attributes: [
         :image_file,
         tags_attributes: [:id, :keyword_id, :_destroy],
-        identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy],
-        data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :value ]
+        identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy]
       ],
       sqed_depiction_attributes: [:id, :_destroy, :boundary_color, :boundary_finder, :has_border, :layout, metadata_map: {}]
     )
