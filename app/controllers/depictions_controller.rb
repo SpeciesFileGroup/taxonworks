@@ -109,9 +109,9 @@ class DepictionsController < ApplicationController
       :figure_label,
       image_attributes: [
         :image_file,
-        tags_attributes: [:id, :keyword_id, :annotated_global_entity, :_destroy],
+        tags_attributes: [:id, :keyword_id, :_destroy],
         identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy],
-        data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
+        data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :value ]
       ],
       sqed_depiction_attributes: [:id, :_destroy, :boundary_color, :boundary_finder, :has_border, :layout, metadata_map: {}]
     )
