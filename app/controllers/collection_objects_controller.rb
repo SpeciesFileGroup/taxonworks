@@ -286,7 +286,7 @@ class CollectionObjectsController < ApplicationController
       :buffered_other_labels, :accessioned_at, :deaccessioned_at, :deaccession_reason,
       :contained_in,
       collecting_event_attributes: [],  # needs to be filled out!
-      data_attributes_attributes: [ :id, :_destroy, :predicate_id, :type, :value ],
+      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :value ],
       tags_attributes: [:id, :_destroy, :keyword_id],
       identifiers_attributes: [:id, :_destroy, :identifier, :namespace_id, :type]
     )
