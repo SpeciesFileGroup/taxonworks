@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <h2>Data attributes</h2>
+  <fieldset>
+    <legend>Data attributes</legend>
     <switch-component
       class="margin-medium-bottom"
       v-model="view"
@@ -47,7 +47,7 @@
       row-key="controlled_vocabulary_term_id"
       @delete="removeDataAttribute"
       :attributes="['label', 'value']"/>
-  </div>
+  </fieldset>
 </template>
 
 <script>

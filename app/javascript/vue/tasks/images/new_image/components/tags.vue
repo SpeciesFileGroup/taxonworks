@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <h2>Tags</h2>
+  <fieldset>
+    <legend>Tags</legend>
     <smart-selector
       autocomplete-url="/controlled_vocabulary_terms/autocomplete"
       :autocomplete-params="{'type[]' : 'Keyword'}"
@@ -16,7 +16,7 @@
       :annotator="false"
       @delete="removeTag"
       :attributes="['object_tag']"/>
-  </div>
+  </fieldset>
 </template>
 
 <script>
