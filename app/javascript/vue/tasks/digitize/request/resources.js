@@ -118,6 +118,10 @@ const GetGeographicAreaByCoords = function (lat,long) {
   return ajaxCall('get', `/geographic_areas/by_lat_long?latitude=${lat}&longitude=${long}`)
 }
 
+const GetGeographicArea = function (id) {
+  return ajaxCall('get', `/geographic_areas/${id}.json`)
+}
+
 const GetTypes = function () {
   return ajaxCall('get', `/type_materials/type_types.json`)
 }
@@ -369,5 +373,6 @@ export {
   CreateContainer,
   CreateContainerItem,
   GetContainer,
-  GetNamespacesSmartSelector
+  GetNamespacesSmartSelector,
+  GetGeographicArea
 }
