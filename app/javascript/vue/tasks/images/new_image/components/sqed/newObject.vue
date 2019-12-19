@@ -1,15 +1,15 @@
 <template>
   <div>
-    <div class="horizontal-left-content align-start">
-      <taxon-determination class="separate-right"/>
-      <fieldset class="separate-left">
-        <legend>New object attributes</legend>
+    <fieldset>
+      <legend>New object attributes</legend>
+      <div class="separate-bottom">
         <label>Total</label>
         <input 
           type="number"
           v-model="collectionObject.total">
-      </fieldset>
-    </div>
+      </div>
+    </fieldset>
+    <taxon-determination class="separate-top"/>
   </div>
 </template>
 

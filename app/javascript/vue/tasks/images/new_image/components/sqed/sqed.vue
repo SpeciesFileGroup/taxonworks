@@ -7,9 +7,6 @@
     <div class="content">
       <h2>Staged image</h2>
       <div class="flex-separate">
-        <div class="separate-right">
-          <new-object class="separate-top"/>
-        </div>
         <pattern-component
           class="separate-left"
           v-model="pattern"
@@ -41,10 +38,11 @@
           />
         </div>
       </div>
-      <div class="separate-top separate-bottom">
-        <div class="flexbox separate-bottom">
-          <tags-component class="panel-section separate-right"/>
-          <data-attributes class="panel-section separate-left"/>
+      <div class="margin-large-top separate-bottom horizontal-left-content align-start">
+        <new-object/>
+        <div class="full_width separate-left">
+          <tags-component class="panel-section"/>
+          <data-attributes class="panel-section separate-top"/>
         </div>
       </div>
       <div class="separate-top">

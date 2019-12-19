@@ -84,8 +84,8 @@ export default {
   },
   data () {
     return {
-      tabs: ['all', 'new'],
-      view: 'new',
+      tabs: ['all', 'search'],
+      view: 'search',
       tabList: {},
       lists: undefined,
       dataAttribute: this.newDataAttribute()
