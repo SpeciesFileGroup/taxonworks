@@ -29,7 +29,7 @@ scope :tasks do
   end
 
   scope :browse_annotations, controller: 'tasks/browse_annotations' do
-    get 'index', as: 'browse_annotations_task'
+    get '/', action: :index, as: 'browse_annotations_task'
   end
 
   scope :citations do
