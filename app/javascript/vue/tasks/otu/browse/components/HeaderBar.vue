@@ -39,7 +39,7 @@
       </div>
       <ul class="context-menu no_bullets">
         <li v-for="item in menu">
-          <a>{{item}}</a>
+          <a data-turbolinks="false" :href="`#${item.replace(' ', '-').toLowerCase()}`">{{item}}</a>
         </li>
       </ul>
     </div>
@@ -65,7 +65,7 @@ export default {
   },
   data () {
     return {
-      menu: ['Classification', 'Links', 'Distribution', 'Classification', 'Citations', 'Gallery', 'Specimen records', 'Type information'],
+      menu: ['Timeline', 'Images', 'Common names', 'Asserted distributions', 'Content', 'Type specimens', 'Specimen records', 'Biological associations', 'Annotations', 'Collecting events'],
       navigation: undefined
     }
   },

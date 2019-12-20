@@ -1,5 +1,6 @@
 <template>
   <section-panel title="Content">
+    <a name="content"/>
     <div class="separate-top">
       <ul>
         <li

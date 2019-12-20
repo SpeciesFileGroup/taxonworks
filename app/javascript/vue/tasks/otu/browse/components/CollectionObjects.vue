@@ -1,5 +1,6 @@
 <template>
   <section-panel title="Specimen records">
+    <a name="specimen-records"/>
     <div
       v-if="collectionObjects.length"
       class="separate-top">

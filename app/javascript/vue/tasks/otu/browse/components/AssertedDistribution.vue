@@ -1,5 +1,6 @@
 <template>
   <section-panel title="Asserted distributions">
+    <a name="asserted-distributions"/>
     <ul class="no_bullets">
       <li v-for="assertedDistribution in assertedDistributions">
         <span v-html="assertedDistribution.geographic_area.name"/>

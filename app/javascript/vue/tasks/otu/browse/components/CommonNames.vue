@@ -1,6 +1,8 @@
 <template>
   <section-panel title="Common names">
+    <a name="common-names"/>
     <table-display 
+      v-if="commonNames.length"
       :list="commonNames"
       :header="['Name', 'Geographic area', 'Language', 'Start year', 'End year', '']"
       :destroy="false"

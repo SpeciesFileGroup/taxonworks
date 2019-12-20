@@ -1,5 +1,6 @@
 <template>
   <section-panel title="Collecting events">
+    <a name="collecting-events"/>
     <ul>
       <li
         v-for="(item, index) in collectingEvents"

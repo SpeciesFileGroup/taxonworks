@@ -1,5 +1,6 @@
 <template>
   <section-panel title="Annotations">
+    <a name="annotations"/>
     <list-component
       v-if="dataAttributes.length"
       title="Data attributes"

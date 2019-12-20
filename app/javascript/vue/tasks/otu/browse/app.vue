@@ -94,7 +94,7 @@ export default {
       isLoading: false,
       otu: undefined,
       navigate: undefined,
-      section: ['ImageGallery', 'NomenclatureHistory', 'CommonNames', 'TypeSpecimens', 'CollectionObjects', 'ContentComponent', 'AssertedDistribution', 'BiologicalAssociations', 'AnnotationsComponent', 'CollectingEvents']
+      section: ['NomenclatureHistory', 'ImageGallery', 'CommonNames', 'TypeSpecimens', 'CollectionObjects', 'ContentComponent', 'AssertedDistribution', 'BiologicalAssociations', 'AnnotationsComponent', 'CollectingEvents']
     }
   },
   mounted() {

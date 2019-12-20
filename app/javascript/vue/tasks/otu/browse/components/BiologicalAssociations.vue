@@ -1,5 +1,6 @@
 <template>
   <section-panel title="Biological associations">
+    <a name="biological-associations"/>
     <ul class="no_bullets">
       <li v-for="biologicalAssociation in biologicalAssociations">
         <span v-html="biologicalAssociation.object_tag"/>

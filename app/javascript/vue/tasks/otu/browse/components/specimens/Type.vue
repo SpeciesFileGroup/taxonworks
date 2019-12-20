@@ -1,5 +1,6 @@
 <template>
   <section-panel title="Type specimens">
+    <a name="type-specimens"/>
     <div
       v-if="types.length"
       class="separate-top">
