@@ -21,4 +21,3 @@ if object.respond_to?(:origin_citation) && object.origin_citation
 end
 
 json.partial! '/pinboard_items/pinned', object: object
-

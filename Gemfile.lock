@@ -366,6 +366,7 @@ GEM
     responders (3.0.0)
       actionpack (>= 5.0)
       railties (>= 5.0)
+    rgb (0.1.0)
     rgeo (2.1.1)
     rgeo-activerecord (6.2.1)
       activerecord (>= 5.0)
@@ -592,6 +593,7 @@ DEPENDENCIES
   redcarpet (~> 3.4)
   redis (~> 4.1.0)
   responders (~> 3.0)
+  rgb
   rgeo (~> 2.1)
   rgeo-geojson (~> 2.1, >= 2.1.1)
   rgeo-proj4 (~> 2.0)

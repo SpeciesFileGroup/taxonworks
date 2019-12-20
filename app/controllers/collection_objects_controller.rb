@@ -338,6 +338,7 @@ class CollectionObjectsController < ApplicationController
       :never_loaned,
       :loaned,
       :on_loan,
+      :type_specimen_taxon_name_id,
       :spatial_geographic_areas,
       otu_ids: [],
       keyword_ids: [],

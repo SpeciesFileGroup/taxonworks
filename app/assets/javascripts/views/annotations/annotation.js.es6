@@ -16,10 +16,12 @@ Object.assign(TW.views.annotations, {
 			var annotationDOMElement = document.querySelector(`[data-annotator-list-object-id="${metadata.object_id}"]`);
 
 			if(annotationDOMElement) {
-				annotations = that.getAnnotationOptions(metadata.url, Object.keys(metadata.annotation_types));
-				that.getLists(annotations).then(response => {
-					that.createAllLists(response, annotationDOMElement);
-				});
+				if(metadata.annotation_types) {
+					annotations = that.getAnnotationOptions(metadata.url, Object.keys(metadata.annotation_types));
+					that.getLists(annotations).then(response => {
+						that.createAllLists(response, annotationDOMElement);
+					});
+				}
 			}
 		});
 	},

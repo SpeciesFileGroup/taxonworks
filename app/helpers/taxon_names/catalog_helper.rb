@@ -1,7 +1,13 @@
-# Methods to generate catog entries
+# Helpers for catalog rendering.  See also helpers/lib/catalog_helper.rb
 # Each history_ method must generate a span
+#
 module TaxonNames::CatalogHelper
 
+  def nomenclature_catalog_entry_item_tag(catalog_entry_item) # may need reference_object
+    nomenclature_line_tag(catalog_entry_item, catalog_entry_item.base_object) # second param might be wrong!
+  end
+
+  # TODO: rename reference_taxon_name
   def nomenclature_catalog_li_tag(nomenclature_catalog_item, reference_taxon_name, target = :browse_nomenclature_task_path)
     content_tag(
       :li,
@@ -11,42 +17,38 @@ module TaxonNames::CatalogHelper
     ) 
   end
 
+  # TODO: move to Catalog json data attributes helper
   def nomenclature_catalog_li_tag_data_attributes(nomenclature_catalog_item)
     n = nomenclature_catalog_item
     data = {
       'history-origin' => n.origin,
       'history-object-id' => n.object.id,
-      'history-valid-name' => n.is_valid_name? && !n.is_subsequent?,
-      'history-is-subsequent' => n.is_subsequent?
+      'history-valid-name' => (n.is_valid_name? && n.is_first), # marks the single current valid name for this record
+      'history-is-subsequent' => !n.is_first # is_subsequent?
     }
     data
   end
 
-  def nomenclature_line_tag(nomenclature_catalog_item, reference_taxon_name, target = :browse_nomenclature_task_path)
-    i = nomenclature_catalog_item
-    t = i.taxon_name
+  # TODO: rename reference_taxon_name
+  def nomenclature_line_tag(nomenclature_catalog_entry_item, reference_taxon_name, target = :browse_nomenclature_task_path)
+    i = nomenclature_catalog_entry_item
+    t = i.base_object # was taxon_name 
     c = i.citation
     r = reference_taxon_name
 
     [ 
-#      history_origin(i), 
       history_taxon_name(t, r, c, target),        # the subject, or protonym
       history_author_year(t, c),                  # author year of the subject, or protonym
       history_statuses(i),                        # TaxonNameClassification summary
       history_subject_original_citation(i),
       history_other_name(i, r),                   # The TaxonNameRelaltionship
-      history_in(t, c),                           #  citation for related name
+      history_in_taxon_name(t, c),                           #  citation for related name
       history_pages(c),                           #  pages for citation of related name
       history_citation_notes(c),                  # Notes on the citation
       history_topics(c),                          # Topics on the citation
-#      (i.object.class.name == 'Protonym' ? history_type_material(t, i.is_subsequent?) : nil), # Type material reference 
       history_type_material(i),
     ].compact.join.html_safe
   end
-
-# def history_origin(i)
-#   content_tag(:span, i.origin.humanize, class: ['history__origin', i.origin ])
-# end
 
   def history_taxon_name(taxon_name, r, c, target = nil)
     name = original_taxon_name_tag(taxon_name)
@@ -96,13 +98,6 @@ module TaxonNames::CatalogHelper
   end
 
   # @return [String, nil]
-  #   any Notes on the citation in question 
-  def history_citation_notes(citation)
-    return nil if citation.nil? || !citation.notes.any?
-    content_tag(:span, citation.notes.collect{|n| note_tag(n)}.join.html_safe, class: 'history__citation_notes') 
-  end
-
-  # @return [String, nil]
   #   a parenthesized line item containing relationship and related name
   def history_other_name(catalog_item, reference_taxon_name)
     if catalog_item.from_relationship? 
@@ -118,18 +113,12 @@ module TaxonNames::CatalogHelper
   end
 
   # @return [String, nil]
-  #    pages from the citation, with prefixed :
-  def history_pages(citation)
-    return nil if citation.nil?
-    content_tag(:span, ": #{citation.pages}.", class: 'history__pages') if citation.pages
-  end
-
-  # @return [String, nil]
   #   A brief summary of the validity of the name (e.g. 'Valid')
   #     ... think this has to be refined, it doesn't quite make sense to show multiple status per relationship
-  def history_statuses(i)
-    s = i.taxon_name.taxon_name_classifications_for_statuses
-    return nil if (s.empty? || i.is_subsequent?)
+  def history_statuses(nomenclature_catalog_entry_item)
+    i = nomenclature_catalog_entry_item
+    s = i.base_object.taxon_name_classifications_for_statuses
+    return nil if (s.empty? || !i.is_first) # is_subsequent?
     return nil if i.from_relationship?
 
     content_tag(:span, class: [:history__statuses]) do
@@ -165,7 +154,7 @@ module TaxonNames::CatalogHelper
 
   # @return [String, nil]
   #    return the citation author/year if differeing from the taxon name author year 
-  def history_in(t, c)
+  def history_in_taxon_name(t, c)
     if c
       a = history_author_year_tag(t) 
       b = source_author_year_tag(c.source)
@@ -175,24 +164,12 @@ module TaxonNames::CatalogHelper
       end
     end
   end
-
-  def history_topics(citation)
-    return nil if citation.nil?
-    content_tag(:span, Utilities::Strings.nil_wrap(' [', citation.citation_topics.collect{|t| t.topic.name}.join(', '), ']'), class: 'history__citation_topics')
-  end
-
+  
   def history_type_material(entry_item)
-    return nil if entry_item.object_class != 'Protonym' || entry_item.is_subsequent?
-    content_tag(:span, ' '.html_safe + type_taxon_name_relationship_tag(entry_item.taxon_name.type_taxon_name_relationship), class: 'history__type_information')
-  end
-
-  protected
-
-  # @return [String, nil]
-  #    a computed css class, when provided indicates that the citation is the original citation for the taxon name provided
-  def original_citation_css(taxon_name, citation)
-    return nil if citation.nil?
-    'history__original_description' if citation.is_original? && taxon_name == citation.citation_object
+    return nil if entry_item.object_class != 'Protonym' || !entry_item.is_first # is_subsequent?
+    [ content_tag(:span, ' '.html_safe + type_taxon_name_relationship_tag(entry_item.base_object.type_taxon_name_relationship), class: 'history__type_information'),
+      history_in(entry_item.base_object&.type_taxon_name_relationship&.source)
+    ].compact.join.html_safe
   end
 
 end

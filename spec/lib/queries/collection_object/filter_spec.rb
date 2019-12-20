@@ -90,7 +90,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       end
     end
 
-    context 'determinations and hierarchical search' do
+    context 'determinations, types and hierarchical search' do
       let!(:co3) { Specimen.create! } # only determination
 
       let!(:root) { FactoryBot.create(:root_taxon_name) }
@@ -119,6 +119,15 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       let!(:td4) { FactoryBot.create(:valid_taxon_determination, biological_collection_object: co2, otu: o1) } # current
 
       let!(:td5) { FactoryBot.create(:valid_taxon_determination, biological_collection_object: co3, otu: o3) } # current
+
+      context 'type_material' do
+        let!(:tm) { TypeMaterial.create(material: co1, protonym: species1, type_type: 'holotype') }
+
+        specify '#type_specimen_taxon_name_id' do
+          query.type_specimen_taxon_name_id = species1.id
+          expect(query.all.map(&:id)).to contain_exactly(co1.id)
+        end
+      end
 
       specify 'all specimens ever determined as an Otu' do
         # current_deteriminations = nil

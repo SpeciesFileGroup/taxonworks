@@ -1,7 +1,7 @@
 class TaxonNamesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination]
+  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination, :catalog]
   after_action -> { set_pagination_headers(:taxon_names) }, only: [:index, :api_index], if: :json_request?
   
   # GET /taxon_names
@@ -211,6 +211,10 @@ class TaxonNamesController < ApplicationController
       query_string: params.require(:query_string),
       project_id: sessions_current_project_id
     ).result
+  end
+
+  def catalog
+    @data = NomenclatureCatalog.data_for(@taxon_name)
   end
 
   private

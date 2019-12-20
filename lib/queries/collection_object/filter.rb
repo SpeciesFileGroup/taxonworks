@@ -74,6 +74,9 @@ module Queries
       #   nil - not applied
       attr_accessor :dwc_indexed
 
+      # @return [Protonym#id, nil]
+      attr_accessor :type_specimen_taxon_name_id
+
       # @param [Hash] args are permitted params
       def initialize(params)
         params.reject!{ |_k, v| v.blank? } # dump all entries with empty values
@@ -85,7 +88,7 @@ module Queries
         @otu_ids = params[:otu_ids] || []
         @otu_descendants = (params[:otu_descendants]&.downcase == 'true' ? true : false) if !params[:otu_descendants].nil?
 
-        @ancestor_id = params[:ancestor_id]
+        @ancestor_id = params[:ancestor_id].blank? ? nil : params[:ancestor_id]
 
         @current_determinations = (params[:current_determinations]&.downcase == 'true' ? true : false) if !params[:current_determinations].nil?
         @validity = (params[:validity]&.downcase == 'true' ? true : false) if !params[:validity].nil?
@@ -101,6 +104,8 @@ module Queries
         @collecting_event_query = Queries::CollectingEvent::Filter.new(params)
 
         @dwc_indexed =  (params[:dwc_indexed]&.downcase == 'true' ? true : false) if !params[:dwc_indexed].nil?
+
+        @type_specimen_taxon_name_id = params[:type_specimen_taxon_name_id].blank? ? nil : params[:type_specimen_taxon_name_id]
 
         set_identifier(params)
         set_tags_params(params)
@@ -124,6 +129,11 @@ module Queries
       # @return [Arel::Table]
       def otu_table 
         ::Otu.arel_table
+      end
+
+      # @return [Arel::Table]
+      def type_materials_table 
+        ::TypeMaterial.arel_table
       end
 
       # @return [Arel::Table]
@@ -220,6 +230,7 @@ module Queries
 
         clauses += [
           otus_facet,
+          type_material_facet,
           ancestors_facet,
           matching_keyword_ids,   # See Queries::Concerns::Tags
           created_modified_facet, # See Queries::Concerns::Users
@@ -266,6 +277,18 @@ module Queries
 
         q = q.order(updated_at: :desc) if recent
         q
+      end
+
+      # @return [Scope]
+      def type_material_facet 
+        return nil if type_specimen_taxon_name_id.nil?
+
+        w = type_materials_table[:biological_object_id].eq(table[:id])
+          .and( type_materials_table[:protonym_id].eq(type_specimen_taxon_name_id) )
+
+        ::CollectionObject.where(
+          ::TypeMaterial.where(w).arel.exists
+        )
       end
 
       # @return [Scope]
