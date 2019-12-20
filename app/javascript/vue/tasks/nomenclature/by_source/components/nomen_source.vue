@@ -30,10 +30,10 @@
         :type="source.base_class"/>
     </span>
     <ul
-      v-if="source && source.authors.length"
+      v-if="source && source.author_roles.length"
       class="no_bullets">
       <li 
-        v-for="author in source.authors"
+        v-for="author in source.author_roles"
         :key="author.id">
         <a
           :href="`${author.object_url}`"
