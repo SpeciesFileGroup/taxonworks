@@ -32,7 +32,7 @@
       url="/controlled_vocabulary_terms/autocomplete"
       min="2"
       ref="autocomplete"
-      :add-params="{'of_type[]' : 'Keyword'}"
+      :add-params="{'type[]' : 'Keyword'}"
       param="term"
       placeholder="Select a tag"
       label="label"
