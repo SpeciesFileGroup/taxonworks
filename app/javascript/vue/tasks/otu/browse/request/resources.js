@@ -48,6 +48,10 @@ const GetBiologicalAssociations = function (globalId) {
   return ajaxCall('get', `/biological_associations?any_global_id=${globalId}`)
 }
 
+const GetNavigationOtu = (id) => {
+  return ajaxCall('get', `/otus/${id}/navigation`)
+}
+
 const GetNomenclatureHistory = function (id) {
   return ajaxCall('get', `/otus/${id}/timeline.json`)
 }
@@ -93,6 +97,7 @@ export {
   GetConfidences,
   GetIdentifiers,
   GetNomenclatureHistory,
+  GetNavigationOtu,
   GetCollectingEvents,
   GetCollectionObject,
   GetCollectionObjects,

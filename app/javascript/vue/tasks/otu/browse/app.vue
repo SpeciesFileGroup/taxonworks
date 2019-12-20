@@ -8,13 +8,30 @@
     />
     <div class="flex-separate middle container">
       <h1>Browse taxa</h1>
-      <autocomplete
-        class="float_right"
-        url="/otus/autocomplete"
-        placeholder="Search a otu"
-        param="term"
-        @getItem="loadOtu"
-        label="label_html"/>
+      <div class="horizontal-left-content">
+        <ul
+          v-if="navigate"
+          class="no_bullets">
+          <li v-for="item in navigate.previous_otus">
+            <a :href="`/tasks/otus/browse?otu_id=${item.id}`" v-html="item.object_tag"/>
+          </li>
+        </ul>
+        <autocomplete
+          class="float_right separate-left separate-right"
+          url="/otus/autocomplete"
+          placeholder="Search a otu"
+          param="term"
+          :clear-after="true"
+          @getItem="loadOtu"
+          label="label_html"/>
+        <ul
+          v-if="navigate"
+          class="no_bullets">
+          <li v-for="item in navigate.next_otus">
+            <a :href="`/tasks/otus/browse?otu_id=${item.id}`" v-html="item.object_tag"/>
+          </li>
+        </ul>
+      </div>
     </div>
     <template v-if="otu">
       <header-bar
@@ -53,7 +70,7 @@ import CommonNames from './components/CommonNames'
 import Autocomplete from 'components/autocomplete'
 import Draggable from 'vuedraggable'
 
-import { GetOtu } from './request/resources.js'
+import { GetOtu, GetNavigationOtu } from './request/resources.js'
 
 export default {
   components: {
@@ -76,6 +93,7 @@ export default {
     return {
       isLoading: false,
       otu: undefined,
+      navigate: undefined,
       section: ['ImageGallery', 'NomenclatureHistory', 'CommonNames', 'TypeSpecimens', 'CollectionObjects', 'ContentComponent', 'AssertedDistribution', 'BiologicalAssociations', 'AnnotationsComponent', 'CollectingEvents']
     }
   },
@@ -87,6 +105,9 @@ export default {
         GetOtu(otuId).then(response => {
           this.otu = response.body
           this.isLoading = false
+        })
+        GetNavigationOtu(otuId).then(response => {
+          this.navigate = response.body
         })
       } else {
         this.isLoading = false
