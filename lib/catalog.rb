@@ -78,7 +78,7 @@ class Catalog
     entries.each do |e|
       t += e.sources
     end
-    t.uniq.sort{|a, b| (a.cached_nomenclature_date || Time.now) <=> (b.cached_nomenclature_date || Time.now)}.compact
+    t.uniq.sort{|a, b| (a&.cached_nomenclature_date || Time.now) <=> (b&.cached_nomenclature_date || Time.now)}.compact
   end
 
   # TODO: optimize ;)
