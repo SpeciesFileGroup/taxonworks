@@ -12,8 +12,8 @@ describe 'New taxon name', type: :feature, group: :nomenclature do
       before { visit new_taxon_name_task_path }
 
       specify 'add a name' do
-        fill_in "taxon-name", with: 'Qurious'
-        find('#parent-name input').fill_in(with: 'Root')
+        fill_in "Name", with: 'Qurious'
+        fill_in 'Parent', with: 'Root'
         find('li', text: 'Root nomenclatural rank').hover.click 
         find('label', text: 'ICZN').click
         find('label', text: 'Genus').click
@@ -21,17 +21,34 @@ describe 'New taxon name', type: :feature, group: :nomenclature do
         expect(page).to have_text('Edit taxon name')
       end
 
-      context "#{OS.mac? ? 'ctrl': 'alt'}-t navigation" do
+      context 'hotkeys' do
         let!(:genus) { Protonym.create!(by: @user, project: @project, parent: root, name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus)) }
         before { visit new_taxon_name_task_path(taxon_name_id: genus.id) }
 
-        specify "#{OS.mac? ? 'ctrl': 'alt'}-t navigates to Browse taxon name task" do
-          expect(page).to have_text('Edit taxon name')
-          find('body').send_keys([OS.mac? ? :control : :alt, 't'])
-          expect(page).to have_text('Browse nomenclature')
+        context "#{OS.mac? ? 'ctrl': 'alt'}-t navigation" do
+          specify "#{OS.mac? ? 'ctrl': 'alt'}-t navigates to Browse taxon name task" do
+            expect(page).to have_text('Edit taxon name')
+            find('body').send_keys([OS.mac? ? :control : :alt, 't'])
+            expect(page).to have_text('Browse nomenclature')
+          end
+        end
+
+        context "#{OS.mac? ? 'ctrl': 'alt'}-p navigation" do
+          specify "#{OS.mac? ? 'ctrl': 'alt'}-p creates new record with same parent" do
+            expect(page).to have_text('Edit taxon name')
+            find('body').send_keys([OS.mac? ? :control : :alt, 'p'])
+            expect(page).to have_field('Parent', with: 'Root')
+          end
+        end
+
+        context "#{OS.mac? ? 'ctrl': 'alt'}-d navigation" do
+          specify "#{OS.mac? ? 'ctrl': 'alt'}-t navigates to Browse taxon name task" do
+            expect(page).to have_text('Edit taxon name')
+            find('body').send_keys([OS.mac? ? :control : :alt, 'd'])
+            expect(page).to have_field('Parent', with: 'Aus')
+          end
         end
       end
-
     end
   end
 end

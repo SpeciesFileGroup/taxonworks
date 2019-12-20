@@ -1,12 +1,14 @@
 <template>
   <div>
-    <h3>New object attributes</h3>
-    <div class="separate-bottom">
-      <label>Total</label>
-      <input 
-        type="number"
-        v-model="collectionObject.total">
-    </div>
+    <fieldset>
+      <legend>New object attributes</legend>
+      <div class="separate-bottom">
+        <label>Total</label>
+        <input 
+          type="number"
+          v-model="collectionObject.total">
+      </div>
+    </fieldset>
     <taxon-determination class="separate-top"/>
   </div>
 </template>

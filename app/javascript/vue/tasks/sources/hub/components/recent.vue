@@ -23,7 +23,7 @@
           class="list-complete-item">
           <td>
             <a
-              :href="`/sources/${item.id}`"
+              :href="`/tasks/sources/new_source?source_id=${item.id}`"
               v-html="item.object_tag"/>
           </td>
           <td> {{ item.year }} </td>

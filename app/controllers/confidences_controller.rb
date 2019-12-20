@@ -109,7 +109,7 @@ class ConfidencesController < ApplicationController
   private
 
   def set_confidence
-    @confidence = Confidence.find(params[:id])
+    @confidence = Confidence.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def confidence_params

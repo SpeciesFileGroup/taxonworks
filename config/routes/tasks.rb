@@ -29,7 +29,7 @@ scope :tasks do
   end
 
   scope :browse_annotations, controller: 'tasks/browse_annotations' do
-    get 'index', as: 'browse_annotations_task'
+    get '/', action: :index, as: 'browse_annotations_task'
   end
 
   scope :citations do
@@ -145,6 +145,10 @@ scope :tasks do
   end
 
   scope :collection_objects do
+      scope :summary, controller: 'tasks/collection_objects/summary' do
+        get '/', action: :index, as: 'collection_object_summary_task'
+      end
+
     scope :filter, controller: 'tasks/collection_objects/filter' do
       get '/', as: 'collection_objects_filter_task', action: :index
     end

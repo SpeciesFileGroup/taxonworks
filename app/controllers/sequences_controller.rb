@@ -181,7 +181,7 @@ class SequencesController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_sequence
-      @sequence = Sequence.find(params[:id])
+      @sequence = Sequence.where(project_id: sessions_current_project_id).find(params[:id])
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

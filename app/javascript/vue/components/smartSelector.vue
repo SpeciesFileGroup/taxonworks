@@ -1,9 +1,16 @@
 <template>
   <div>
-    <switch-components
-      class="separate-bottom"
-      v-model="view"
-      :options="options"/>
+    <div class="separate-bottom horizontal-left-content">
+      <switch-components
+        class="full_width"
+        v-model="view"
+        :options="options"/>
+      <default-pin
+        v-if="pinSection"
+        :section="pinSection"
+        @getId="getObject"
+        :type="pinType"/>
+    </div>
     <template>
       <ul
         v-if="view && view != 'search'"
@@ -20,10 +27,12 @@
       </ul>
       <div v-else>
         <autocomplete
+          :id="`smart-selector-${model}-autocomplete`"
           class="separate-right"
           placeholder="Search..."
-          :url="`/${model}/autocomplete`"
+          :url="autocompleteUrl ? autocompleteUrl : `/${model}/autocomplete`"
           param="term"
+          :add-params="autocompleteParams"
           label="label_html"
           :clear-after="clear"
           display="label"
@@ -40,16 +49,30 @@ import AjaxCall from 'helpers/ajaxCall'
 import Autocomplete from 'components/autocomplete'
 import OrderSmart from 'helpers/smartSelector/orderSmartSelector'
 import SelectFirst from 'helpers/smartSelector/selectFirstSmartOption'
+import DefaultPin from 'components/getDefaultPin'
 
 export default {
   components: {
     SwitchComponents,
-    Autocomplete
+    Autocomplete,
+    DefaultPin
   },
   props: {
     label: {
       type: String,
       default: 'object_tag'
+    },
+    autocompleteParams: {
+      type: Object,
+      default: undefined
+    },
+    autocompleteUrl: {
+      type: String,
+      default: undefined
+    },
+    getUrl: {
+      type: String,
+      default: undefined
     },
     model: {
       type: String,
@@ -70,6 +93,14 @@ export default {
     clear: {
       type: Boolean,
       default: true
+    },
+    pinSection: {
+      type: String,
+      default: undefined
+    },
+    pinType: {
+      type: String,
+      default: undefined
     }
   },
   data () {
@@ -94,7 +125,7 @@ export default {
   },
   methods: {
     getObject(id) {
-      AjaxCall('get', `/${this.model}/${id}`).then(response => {
+      AjaxCall('get', this.getUrl ? `${this.getUrl}${id}.json` : `/${this.model}/${id}.json`).then(response => {
         this.$emit('selected', response.body)
       })
     }

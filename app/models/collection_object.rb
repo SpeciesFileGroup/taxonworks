@@ -199,24 +199,6 @@ class CollectionObject < ApplicationRecord
     breakdown
   end
 
-  # @return [Identifier::Local::CatalogNumber, nil]
-  #   the first (position) catalog number for this collection object
-  def preferred_catalog_number
-    Identifier::Local::CatalogNumber.where(identifier_object: self).first
-  end
-
-  # return [Boolean]
-  #    True if instance is a subclass of BiologicalCollectionObject
-  def biological?
-    self.class <= BiologicalCollectionObject ? true : false
-  end
-
-  def annotations
-    h = annotations_hash
-    (h['biocuration classifications'] = biocuration_classes) if biological? && biocuration_classifications.load.any?
-    h
-  end
-
   # TODO: Deprecate.  Used?!
   # @param [Scope] scope of selected CollectionObjects
   # @param [Hash] col_defs selected headers and types
@@ -272,7 +254,6 @@ class CollectionObject < ApplicationRecord
       end
     end
   end
-
 
   # TODO: this should be refactored to be collection object centric AFTER
   # it is spec'd
@@ -548,29 +529,6 @@ class CollectionObject < ApplicationRecord
     joins(:collecting_event).where(q.between_date_range.to_sql)
   end
 
-  def sv_missing_accession_fields
-    soft_validations.add(:accessioned_at, 'Date is not selected') if self.accessioned_at.nil? && !self.accession_provider.nil?
-    soft_validations.add(:base, 'Provider is not selected') if !self.accessioned_at.nil? && self.accession_provider.nil?
-  end
-
-  def sv_missing_deaccession_fields
-    soft_validations.add(:deaccessioned_at, 'Date is not selected') if self.deaccessioned_at.nil? && !self.deaccession_reason.blank?
-    soft_validations.add(:base, 'Recipient is not selected') if self.deaccession_recipient.nil? && self.deaccession_reason && self.deaccessioned_at
-    soft_validations.add(:deaccession_reason, 'Reason is is not defined') if self.deaccession_reason.blank? && self.deaccession_recipient && self.deaccessioned_at
-  end
-
-  def sv_missing_collecting_event
-    # see biological_collection_object
-  end
-
-  def sv_missing_preparation_type
-    # see biological_collection_object
-  end
-
-  def sv_missing_repository
-    # WHY? -  see biological_collection_object
-  end
-
   # @param used_on [String] required, one of `TaxonDetermination`, `BiologicalAssociation`
   # @return [Scope]
   #    the max 10 most recently used collection_objects, as `used_on`
@@ -663,6 +621,47 @@ class CollectionObject < ApplicationRecord
     else
       nil
     end 
+  end
+
+  # @return [Identifier::Local::CatalogNumber, nil]
+  #   the first (position) catalog number for this collection object
+  def preferred_catalog_number
+    Identifier::Local::CatalogNumber.where(identifier_object: self).first
+  end
+
+  # return [Boolean]
+  #    True if instance is a subclass of BiologicalCollectionObject
+  def biological?
+    self.class <= BiologicalCollectionObject ? true : false
+  end
+
+  def annotations
+    h = annotations_hash
+    (h['biocuration classifications'] = biocuration_classes) if biological? && biocuration_classifications.load.any?
+    h
+  end
+
+  def sv_missing_accession_fields
+    soft_validations.add(:accessioned_at, 'Date is not selected') if self.accessioned_at.nil? && !self.accession_provider.nil?
+    soft_validations.add(:base, 'Provider is not selected') if !self.accessioned_at.nil? && self.accession_provider.nil?
+  end
+
+  def sv_missing_deaccession_fields
+    soft_validations.add(:deaccessioned_at, 'Date is not selected') if self.deaccessioned_at.nil? && !self.deaccession_reason.blank?
+    soft_validations.add(:base, 'Recipient is not selected') if self.deaccession_recipient.nil? && self.deaccession_reason && self.deaccessioned_at
+    soft_validations.add(:deaccession_reason, 'Reason is is not defined') if self.deaccession_reason.blank? && self.deaccession_recipient && self.deaccessioned_at
+  end
+
+  def sv_missing_collecting_event
+    # see biological_collection_object
+  end
+
+  def sv_missing_preparation_type
+    # see biological_collection_object
+  end
+
+  def sv_missing_repository
+    # WHY? -  see biological_collection_object
   end
 
   protected

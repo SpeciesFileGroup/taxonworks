@@ -4,9 +4,11 @@ module CollectionObjectsHelper
   #   a descriptor including the identifier and determination
   def collection_object_tag(collection_object)
     return nil if collection_object.nil?
-    [collection_object.type,
-     collection_object_identifier_tag(collection_object),
-     taxon_determination_tag(collection_object.taxon_determinations.order(:position).first)
+    [
+      collection_object_deaccession_tag(collection_object), 
+      collection_object.type,
+      collection_object_identifier_tag(collection_object),
+      taxon_determination_tag(collection_object.taxon_determinations.order(:position).first)
     ].compact.join('&nbsp;').html_safe
   end
 
@@ -23,9 +25,8 @@ module CollectionObjectsHelper
 
   def collection_object_autocomplete_tag(collection_object)
     return nil if collection_object.nil?
-    [
-      collection_object_identifier_tag(collection_object),
-      collection_object_taxon_determination_tag(collection_object)
+    [collection_object_identifier_tag(collection_object),
+     collection_object_taxon_determination_tag(collection_object)
     ].join(' ').html_safe 
   end
 
@@ -49,6 +50,18 @@ module CollectionObjectsHelper
     ]) if i
     content_tag(:span, 'no identifier assigned', class: [:feedback, 'feedback-thin', 'feedback-warning'])
   end
+
+  def collection_object_deaccession_tag(collection_object)
+    return nil if collection_object.nil? || (collection_object.deaccession_reason.blank? && collection_object.deaccessioned_at.nil?)
+    msg = ['SPECIMEN DEACCESSIONED"', collection_object.deaccession_reason, collection_object.deaccessioned_at&.year].compact.join(' - ')
+    content_tag(:span, collection_object , class: [
+      :feedback,
+      'feedback-thin',
+      'feedback-warning'
+    ])
+  end
+
+
 
   # @return [Array [Identifier, String (type)], nil]
   #    also checks virtual container for identifier by proxy

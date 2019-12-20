@@ -65,6 +65,9 @@ export default {
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
     },
+    parent () {
+      return this.$store.getters[GetterNames.GetParent]
+    },
     ranks () {
       return this.$store.getters[GetterNames.GetAllRanks]
     },
@@ -92,6 +95,16 @@ export default {
     ranks: {
       handler: function (val, oldVal) {
         this.refresh()
+      },
+      deep: true,
+      immediate: true
+    },
+    parent: {
+      handler: function (val, oldVal) {
+        if(oldVal) {
+          this.rankClass = undefined
+          this.refresh()
+        }
       },
       deep: true,
       immediate: true

@@ -16,7 +16,6 @@ module Queries
   class Query
     include Arel::Nodes
 
-    # Maybe doesn't belong here
     include Queries::Concerns::Identifiers 
 
     attr_accessor :query_string

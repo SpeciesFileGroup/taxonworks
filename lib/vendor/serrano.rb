@@ -31,6 +31,7 @@ module TaxonWorks
       # 4)  doi with preamble, e.g., 'http://dx.doi.org/10.3897/zookeys.20.205' or
       #                              'https://doi.org/10.3897/zookeys.20.205'.
       def self.new_from_citation(citation: nil)
+        citation&.strip!
         return false if citation.length < 6
 
         # check string encoding, if not UTF-8, check if compatible with UTF-8,
