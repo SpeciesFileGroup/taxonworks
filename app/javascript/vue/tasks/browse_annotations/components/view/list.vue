@@ -34,11 +34,14 @@ export default {
         Confidence: {
           attributes: ['base_class', 'confidence_object_type', ['annotated_object', 'object_tag'], ['confidence_level', 'object_tag'], 'value', 'object_attribute','created_by', 'created_at']
         },
+        DataAttribute: {
+          attributes: ['base_class', 'attribute_subject_type', ['annotated_object', 'object_tag'], ['controlled_vocabulary_term', 'name'], ['controlled_vocabulary_term', 'definition'], ['controlled_vocabulary_term', 'type'], 'created_by', 'created_at']
+        },
         Note: {
           attributes: ['base_class', 'note_object_type', ['annotated_object', 'object_tag'], 'annotation', 'text', 'object_attribute', 'created_by', 'created_at']
         },
-        Alternate_value: {
-          attributes: ['base_class', 'alternate_value_object_type', ['annotated_object', 'object_tag'], 'annotation', ['alternate_value', 'type'], 'value', 'attribute_column', 'created_by', 'created_at']
+        AlternateValue: {
+          attributes: ['base_class', 'alternate_value_object_type', ['annotated_object', 'object_tag'], 'type', 'object_tag', 'value', 'created_by', 'created_at']
         },
         ImportAttribute: {
           attributes: ['base_class', 'attribute_subject_type', ['annotated_object', 'object_tag'], 'predicate_name', 'value', 'object_attribute', 'created_by', 'created_at']
