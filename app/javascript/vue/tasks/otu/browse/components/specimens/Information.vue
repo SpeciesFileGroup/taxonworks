@@ -5,13 +5,13 @@
       class="inline cursor-pointer">
       <div
         :data-icon="expand ? 'w_less' : 'w_plus'"
-        class="expand-box separate-right"/><span class="separate-left" v-if="type" v-html="`[${type}]`"/> <span class="separate-left">{{ ceLabel }}</span>
+        class="expand-box button-default separate-right"/><span class="separate-left" v-if="type" v-html="`[${type}]`"/> <span class="separate-left">{{ ceLabel }}</span>
     </div>
     <div
       v-if="expand"
       class="content">
       <span class="middle">
-        <span class="mark-box separate-right"/> Specimen
+        <span class="mark-box button-default separate-right"/> Specimen
       </span>
       <ul class="no_bullets">
         <li>
@@ -25,7 +25,7 @@
         </li>
       </ul>
       <h3 class="middle">
-        <span class="mark-box separate-right"/> Images
+        <span class="mark-box button-default separate-right"/> Images
       </h3>
       <div class="horizontal-left-content">
         <image-viewer 
@@ -124,7 +124,6 @@ export default {
     width: 18px;
     height: 18px;
     padding: 0px;
-    background-color: #457F5D;
     background-size: 10px;
     background-position: center;
   }
@@ -133,6 +132,5 @@ export default {
     width: 10px;
     height: 10px;
     padding: 0px;
-    background-color: #457F5D;
   }
 </style>
