@@ -33,9 +33,14 @@
       <div class="horizontal-left-content middle">
         <h1
           v-html="otu.object_tag"/>
-        <radial-annotator
-          :global-id="otu.global_id"
-          type="annotations"/>
+        <div class="horizontal-left-content">
+          <radial-annotator
+            :global-id="otu.global_id"
+            type="annotations"/>
+          <radial-object
+            :global-id="otu.global_id"
+            type="annotations"/>
+        </div>
       </div>
       <ul class="context-menu no_bullets">
         <li v-for="item in menu">
@@ -49,12 +54,14 @@
 <script>
 
 import RadialAnnotator from 'components/annotator/annotator'
+import RadialObject from 'components/radial_object/radialObject.vue'
 import { GetBreadCrumbNavigation } from '../request/resources'
 import Autocomplete from 'components/autocomplete'
 
 export default {
   components: {
     RadialAnnotator,
+    RadialObject,
     Autocomplete
   },
   props: {
