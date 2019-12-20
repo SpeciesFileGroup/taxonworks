@@ -28,6 +28,9 @@ export default {
     return {
       header: ['Type', 'Object type', 'Object', 'Annotation', 'Value', 'Object attribute', 'Created by', 'Created at', ''],
       types: {
+        Attribution: {
+          attributes: ['base_class', 'attribution_object_type', ['annotated_object', 'object_tag'], 'object_tag', '', '', 'created_by', 'created_at']
+        },
         Tag: {
           attributes: ['base_class', 'tag_object_type', ['annotated_object', 'object_tag'], ['keyword', 'object_tag'], 'value', 'object_attribute', 'created_by', 'created_at']
         },
@@ -35,13 +38,13 @@ export default {
           attributes: ['base_class', 'confidence_object_type', ['annotated_object', 'object_tag'], ['confidence_level', 'object_tag'], 'value', 'object_attribute','created_by', 'created_at']
         },
         DataAttribute: {
-          attributes: ['base_class', 'attribute_subject_type', ['annotated_object', 'object_tag'], ['controlled_vocabulary_term', 'name'], ['controlled_vocabulary_term', 'definition'], ['controlled_vocabulary_term', 'type'], 'created_by', 'created_at']
+          attributes: ['base_class', 'attribute_subject_type', ['annotated_object', 'object_tag'], ['controlled_vocabulary_term', 'name'], ['controlled_vocabulary_term', 'definition'], '', 'created_by', 'created_at']
         },
         Note: {
           attributes: ['base_class', 'note_object_type', ['annotated_object', 'object_tag'], 'annotation', 'text', 'object_attribute', 'created_by', 'created_at']
         },
         AlternateValue: {
-          attributes: ['base_class', 'alternate_value_object_type', ['annotated_object', 'object_tag'], 'type', 'object_tag', 'value', 'created_by', 'created_at']
+          attributes: ['base_class', 'alternate_value_object_type', ['annotated_object', 'object_tag'], 'type', 'object_tag', 'alternate_value_object_attribute', 'created_by', 'created_at']
         },
         ImportAttribute: {
           attributes: ['base_class', 'attribute_subject_type', ['annotated_object', 'object_tag'], 'predicate_name', 'value', 'object_attribute', 'created_by', 'created_at']
