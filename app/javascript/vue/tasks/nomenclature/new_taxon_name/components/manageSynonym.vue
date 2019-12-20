@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isInvalid && validTaxon">
+  <div v-if="isInvalid && validTaxon && childrenList.length">
     <spinner-component
       :full-screen="true"
       legend="Saving changes..."
