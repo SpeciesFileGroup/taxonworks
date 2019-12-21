@@ -5,6 +5,8 @@
         <h3>Collection Object</h3>
       </div>
       <div
+        v-shortkey="[getMacKey(), 't']"
+        @shortkey="openBrowse"
         slot="options"
         v-if="collectionObject.id"
         class="horizontal-left-content">
@@ -254,6 +256,11 @@
       },
       removeAllDepictionsByImageId(depiction) {
         this.$store.dispatch(ActionNames.RemoveDepictionsByImageId, depiction)
+      },
+      openBrowse () {
+        if (this.collectionObject.id) {
+          window.open(`/tasks/collection_objects/browse?collection_object_id=${this.collectionObject.id}`, '_self')
+        }
       }
     }
   }
