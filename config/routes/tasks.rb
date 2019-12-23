@@ -29,7 +29,7 @@ scope :tasks do
   end
 
   scope :browse_annotations, controller: 'tasks/browse_annotations' do
-    get 'index', as: 'browse_annotations_task'
+    get '/', action: :index, as: 'browse_annotations_task'
   end
 
   scope :citations do
@@ -321,9 +321,9 @@ scope :tasks do
   end
 
   scope :otus do
-      scope :browse_asserted_distributions, controller: 'tasks/otus/browse_asserted_distributions' do
-        get :index, as: 'index_browse_asserted_distributions_task'
-      end
+    scope :browse_asserted_distributions, controller: 'tasks/otus/browse_asserted_distributions' do
+      get :index, as: 'index_browse_asserted_distributions_task'
+    end
 
     scope :browse, controller: 'tasks/otus/browse' do
       get '/(:otu_id)', action: :index, as: 'browse_otus_task'

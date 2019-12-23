@@ -2,7 +2,7 @@ class PredicatesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   def autocomplete
-    predicates = Queries::ControlledVocabularyTerm::Autocomplete.new(params[:term], project_id: sessions_current_project_id, of_type: ['Predicate']).autocomplete
+    predicates = Queries::ControlledVocabularyTerm::Autocomplete.new(params[:term], project_id: sessions_current_project_id, type: ['Predicate']).autocomplete
 
     data = predicates.collect do |t|
       str = t.name + ': ' + t.definition

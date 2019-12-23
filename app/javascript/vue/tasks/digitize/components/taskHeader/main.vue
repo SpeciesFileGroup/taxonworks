@@ -12,9 +12,10 @@
           @getItem="loadAssessionCode"
           min="1"/>
         <template>
-          <span
+          <a
             class="separate-left"
             v-if="collectionObject.id"
+            :href="`/tasks/collection_objects/browse?collection_object_id=${collectionObject.id}`"
             v-html="collectionObject.object_tag"/>
           <span v-else>New record</span>
         </template>

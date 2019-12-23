@@ -1,0 +1,48 @@
+.pill {
+  background-color: #e5e5e5;
+  margin: 4px;
+  padding: 4px;
+  border-radius: 8px;
+  padding: 3px;
+  padding-left: 6px;
+  padding-right: 6px;
+  isolation: isolate;
+  
+  > span {
+    color: inherit;
+    font-weight: 100;
+    filter: invert(1) brightness(2) grayscale(1) contrast(1000%);
+  }
+
+  &.tag {
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+  }
+  &.topic {
+    color: #e5e5e5;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+  }
+  &.alternate_value {
+    border-top-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+  }
+  &.data_attribute {
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+  }
+  &.biocuration {
+    border-top-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+  }
+  &.confidences {
+    border-top-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+  }
+  &.note {
+    border-top-left-radius: 0px;
+    border-radius: 0px;
+  }
+}

@@ -5,7 +5,7 @@ const GetSource = (id) => {
 }
 
 const GetRecentSources = () => {
-  return ajaxCall('get', `/sources.json?per=10}`)
+  return ajaxCall('get', `/sources.json?per=10&recent=true`)
 }
 
 const CreateSource = (source) => {

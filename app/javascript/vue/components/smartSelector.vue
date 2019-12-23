@@ -30,8 +30,9 @@
           :id="`smart-selector-${model}-autocomplete`"
           class="separate-right"
           placeholder="Search..."
-          :url="`/${model}/autocomplete`"
+          :url="autocompleteUrl ? autocompleteUrl : `/${model}/autocomplete`"
           param="term"
+          :add-params="autocompleteParams"
           label="label_html"
           :clear-after="clear"
           display="label"
@@ -60,6 +61,18 @@ export default {
     label: {
       type: String,
       default: 'object_tag'
+    },
+    autocompleteParams: {
+      type: Object,
+      default: undefined
+    },
+    autocompleteUrl: {
+      type: String,
+      default: undefined
+    },
+    getUrl: {
+      type: String,
+      default: undefined
     },
     model: {
       type: String,
@@ -112,7 +125,7 @@ export default {
   },
   methods: {
     getObject(id) {
-      AjaxCall('get', `/${this.model}/${id}.json`).then(response => {
+      AjaxCall('get', this.getUrl ? `${this.getUrl}${id}.json` : `/${this.model}/${id}.json`).then(response => {
         this.$emit('selected', response.body)
       })
     }

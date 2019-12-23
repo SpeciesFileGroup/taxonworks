@@ -85,6 +85,7 @@
         list: [],
         documentation: this.newDocumentation(),
         dropzone: {
+          timeout: 0,
           paramName: 'documentation[document_attributes][document_file]',
           url: '/documentation',
           headers: {

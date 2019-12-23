@@ -13,7 +13,7 @@
         v-model="source.month">
         <option
           v-for="(month, index) in months"
-          :value="(index + 1)"
+          :value="month.substring(0,3).toLowerCase()"
           :key="month">
           {{ month }}
         </option>

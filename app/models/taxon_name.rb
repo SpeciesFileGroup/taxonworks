@@ -451,6 +451,8 @@ class TaxonName < ApplicationRecord
     try(:source).try(:year)
   end
 
+  # !! Overrides Shared::Citations#nomenclature_date
+  #
   # @return [Time]
   #   effective date of publication, used to determine nomenclatural priority
   def nomenclature_date

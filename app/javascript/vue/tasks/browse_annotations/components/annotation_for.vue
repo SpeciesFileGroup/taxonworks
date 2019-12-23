@@ -1,9 +1,10 @@
 <template>
   <div>
+    <spinner-component v-if="isLoading"/>
     <smart-selector
+      class="separate-bottom"
       :options="tabs"
       name="annotation"
-      :add-option="moreOptions"
       v-model="view"/>
     <template v-if="view">
       <button
@@ -23,12 +24,14 @@
 
 <script>
   import smartSelector from 'components/switch.vue'
+  import SpinnerComponent from 'components/spinner.vue'
   import OrderSmartSelector from 'helpers/smartSelector/orderSmartSelector'
   import SelectFirstSmartOption from 'helpers/smartSelector/selectFirstSmartOption'
 
   export default {
     components: {
-      smartSelector
+      smartSelector,
+      SpinnerComponent
     },
     props: {
       selectOptionsUrl: {
@@ -50,7 +53,6 @@
         this.list = {}           // clear the displayable lists
         this.view = undefined    // delelect which view of the displayable list
         this.tabs = []           // clear the tabs in the smart selector
-        this.moreOptions = []
       },
       onModel(newVal) {
         this.selectedList = {}
@@ -66,9 +68,9 @@
       return {
         list: {},
         tabs: [],
-        moreOptions: [],
         view: undefined,
-        selectedList: {}
+        selectedList: {},
+        isLoading: false
       }
     },
     methods: {
@@ -83,15 +85,17 @@
         this.$emit('selected_for', this.selectedList)
       },
       getSelectOptions(onModel) {
+        this.isLoading = true
         this.$http.get(this.selectOptionsUrl, {params: {klass: this.onModel}}).then(response => {
           this.tabs = OrderSmartSelector(Object.keys(response.body))
           this.list = response.body
           this.$http.get(this.allSelectOptionUrl).then(response => {
             if(response.body.length) {
-              this.moreOptions = ['all']
+              this.tabs.push('all')
             }
             this.$set(this.list, 'all', response.body)
             this.view = SelectFirstSmartOption(this.list, this.tabs)
+            this.isLoading = false
           })
         })
       }
