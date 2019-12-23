@@ -514,8 +514,8 @@ class CollectionObject < ApplicationRecord
     end
 
     retval = CollectionObject.joins(:collecting_event)
-               .where(collecting_events_clause)
-               .where(area_objects_clause)
+      .where(collecting_events_clause)
+      .where(area_objects_clause)
     retval
   end
 
@@ -597,13 +597,13 @@ class CollectionObject < ApplicationRecord
 
   def next_by_identifier
     if i = identifiers.order(:position).first
-    CollectionObject
-      .where(project_id: project_id)
-      .where.not(id: id) 
-      .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'ASC')
-      .where(Utilities::Strings.is_i?(i.identifier) ?
-        ["CAST(identifiers.identifier AS integer) > #{i.identifier}"] : ["identifiers.identifier > ?", i.identifier])
-      .limit(1).first
+      CollectionObject
+        .where(project_id: project_id)
+        .where.not(id: id)
+        .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'ASC')
+        .where(Utilities::Strings.is_i?(i.identifier) ?
+               ["CAST(identifiers.identifier AS bigint) > #{i.identifier}"] : ["identifiers.identifier > ?", i.identifier])
+        .first
     else
       nil
     end
@@ -611,13 +611,13 @@ class CollectionObject < ApplicationRecord
 
   def previous_by_identifier
     if i = identifiers.order(:position).first
-    CollectionObject
-      .where(project_id: project_id)
-      .where.not(id: id) 
-      .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'DESC') 
-      .where(Utilities::Strings.is_i?(i.identifier) ?
-        ["CAST(identifiers.identifier AS integer) < #{i.identifier}"] : ["identifiers.identifier < ?", i.identifier])
-      .limit(1).first
+      CollectionObject
+        .where(project_id: project_id)
+        .where.not(id: id)
+        .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'DESC')
+        .where(Utilities::Strings.is_i?(i.identifier) ?
+               ["CAST(identifiers.identifier AS bigint) < #{i.identifier}"] : ["identifiers.identifier < ?", i.identifier])
+        .first
     else
       nil
     end 

@@ -16,11 +16,13 @@ module Shared::Identifiers
     # !! This only is able to match numeric identifiers, other results are excluded !!
     # Careful, a potential security issue here
     scope :with_identifiers_sorted, -> (o = 'ASC') { includes(:identifiers)
-      .where("identifiers.identifier ~ '\^\\d\+\$'")
-      .order(Arel.sql("CAST(identifiers.identifier AS integer) #{o}"))
+      .where("LENGTH(identifier) < 10 AND identifiers.identifier ~ '\^\\d{1,9}\$'")
+      .order(Arel.sql("CAST(identifiers.identifier AS bigint) #{o}"))
       .references(:identifiers) }
 
-    scope :with_identifier_type_and_namespace, ->(identifier_type = nil, namespace_id = nil, sorted = nil) { with_identifier_type_and_namespace_method(identifier_type, namespace_id, sorted) }
+    scope :with_identifier_type_and_namespace, ->(identifier_type = nil, namespace_id = nil, sorted = nil) { 
+      with_identifier_type_and_namespace_method(identifier_type, namespace_id, sorted)
+    }
   end
 
   module ClassMethods
