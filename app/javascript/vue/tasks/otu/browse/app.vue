@@ -67,6 +67,7 @@ import CollectingEvents from './components/CollectingEvents'
 import CollectionObjects from './components/CollectionObjects'
 import TypeSpecimens from './components/specimens/Type'
 import CommonNames from './components/CommonNames'
+import Childs from './components/Childs'
 import Autocomplete from 'components/autocomplete'
 import Draggable from 'vuedraggable'
 
@@ -87,14 +88,15 @@ export default {
     TypeSpecimens,
     CommonNames,
     Autocomplete,
-    Draggable
+    Draggable,
+    Childs
   },
   data() {
     return {
       isLoading: false,
       otu: undefined,
       navigate: undefined,
-      section: ['NomenclatureHistory', 'ImageGallery', 'CommonNames', 'TypeSpecimens', 'CollectionObjects', 'ContentComponent', 'AssertedDistribution', 'BiologicalAssociations', 'AnnotationsComponent', 'CollectingEvents']
+      section: ['Childs', 'NomenclatureHistory', 'ImageGallery', 'CommonNames', 'TypeSpecimens', 'CollectionObjects', 'ContentComponent', 'AssertedDistribution', 'BiologicalAssociations', 'AnnotationsComponent', 'CollectingEvents']
     }
   },
   mounted() {

@@ -72,7 +72,7 @@ export default {
   },
   data () {
     return {
-      menu: ['Timeline', 'Images', 'Common names', 'Asserted distributions', 'Content', 'Type specimens', 'Specimen records', 'Biological associations', 'Annotations', 'Collecting events'],
+      menu: ['Descendants', 'Timeline', 'Images', 'Common names', 'Asserted distributions', 'Content', 'Type specimens', 'Specimen records', 'Biological associations', 'Annotations', 'Collecting events'],
       navigation: undefined
     }
   },
