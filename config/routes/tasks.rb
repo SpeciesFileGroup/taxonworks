@@ -145,6 +145,10 @@ scope :tasks do
   end
 
   scope :collection_objects do
+      scope :slide_breakdown, controller: 'tasks/collection_objects/slide_breakdown' do
+        get :index, as: 'index_slide_breakdown_task'
+      end
+
       scope :summary, controller: 'tasks/collection_objects/summary' do
         get '/', action: :index, as: 'collection_object_summary_task'
       end

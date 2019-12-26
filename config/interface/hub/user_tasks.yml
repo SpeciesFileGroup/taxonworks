@@ -480,3 +480,11 @@ collection_object_summary_task:
     - collection_object
   status: prototype
   description: 'Summary statistics for the collection(s) managed in this project'
+index_slide_breakdown_task:
+  hub: true
+  name: 'Slide breakdown'
+  related:
+  categories:
+    - collection_object
+  status: prototype
+  description: 'Break images of slide folders down into individual collection object depictions.'
