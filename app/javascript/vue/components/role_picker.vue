@@ -1,19 +1,26 @@
 <template>
   <div>
     <div class="horizontal-left-content align-start">
-      <autocomplete
-        :autofocus="autofocus"
-        class="separate-right"
-        url="/people/autocomplete"
-        label="label_html"
-        display="label"
-        min="2"
-        @getInput="setInput"
-        ref="autocomplete"
-        event-send="role_picker"
-        :clear-after="true"
-        placeholder="Family name, given name"
-        param="term"/>
+      <div class="horizontal-left-content">
+        <autocomplete
+          :autofocus="autofocus"
+          class="separate-right"
+          url="/people/autocomplete"
+          label="label_html"
+          display="label"
+          min="2"
+          @getInput="setInput"
+          ref="autocomplete"
+          @getItem="addCreatedPerson"
+          :clear-after="true"
+          placeholder="Family name, given name"
+          param="term"/>
+        <default-pin
+          class="button-circle"
+          type="People"
+          @getItem="addCreatedPerson({ object_id: $event.id, label: $event.label })"
+          section="People"/>
+      </div>
       <div
         class="flex-wrap-column separate-left"
         v-if="searchPerson.length > 0">
@@ -78,10 +85,16 @@
         class="list-complete-item flex-separate middle"
         v-for="(role, index) in roles_attributes"
         v-if="!role.hasOwnProperty('_destroy') && filterRole(role)">
-        <a
-          :href="getUrl(role)"
-          target="_blank"
-          v-html="getLabel(role)"/>
+        <template>
+          <a
+            v-if="(role.hasOwnProperty('person_id') || role.hasOwnProperty('person'))"
+            :href="getUrl(role)"
+            target="_blank"
+            v-html="getLabel(role)"/>
+          <span
+            v-else
+            v-html="getLabel(role)"/>
+        </template>
         <span
           class="circle-button btn-delete"
           @click="removePerson(index)"/>
@@ -94,11 +107,13 @@
 
   import Autocomplete from './autocomplete.vue'
   import Draggable from 'vuedraggable'
+  import DefaultPin from './getDefaultPin'
 
   export default {
     components: {
       Autocomplete,
-      Draggable
+      Draggable,
+      DefaultPin
     },
     props: {
       roleType: {
@@ -124,25 +139,16 @@
         searchPerson: '',
         newNamePerson: '',
         person_attributes: this.makeNewPerson(),
-        roles_attributes: this.sortPosition(this.processedList(this.value))
+        roles_attributes: []
       }
-    },
-    mounted: function () {
-      this.$on('role_picker', function (item) {
-        if (!this.alreadyExist(item.object_id)) {
-          this.roles_attributes.push(this.addPerson(item))
-          this.$emit('input', this.roles_attributes)
-          this.$emit('create', this.addPerson(item))
-          this.person_attributes = this.makeNewPerson()
-        }
-      })
     },
     watch: {
       value: {
         handler(newVal) {
           this.roles_attributes = this.sortPosition(this.processedList(newVal))
         },
-        deep: true
+        deep: true,
+        immediate: true
       },
       searchPerson: function (newVal) {
         if (newVal.length > 0) {
@@ -165,8 +171,8 @@
         this.$refs.autocomplete.cleanInput()
       },
       getUrl(role) {
-        if (role.hasOwnProperty('person_id')) {
-          return `/people/${role.person_id}/edit`
+        if (role.hasOwnProperty('person_id') || role.hasOwnProperty('person')) {
+          return `/people/${role.hasOwnProperty('person_id') ? role.person_id : role.person.id}`
         } else {
           return '#'
         }
@@ -315,6 +321,7 @@
         }
         this.roles_attributes.push(person)
         this.$emit('input', this.roles_attributes)
+        this.$refs.autocomplete.cleanInput()
         this.expandPerson = false
         this.person_attributes = this.makeNewPerson()
         this.$emit('create', person)
@@ -327,6 +334,18 @@
           last_name: this.getLastName(item.label),
           position: (this.roles_attributes.length + 1)
         }
+      },
+      addCreatedPerson: function (item) {
+        if (!this.alreadyExist(item.object_id)) {
+          this.roles_attributes.push(this.addPerson(item))
+          this.$emit('input', this.roles_attributes)
+          this.$emit('create', this.addPerson(item))
+          this.person_attributes = this.makeNewPerson()
+        }
+      },
+      setPerson: function (person) {
+        this.roles_attributes.push(person)
+        this.$emit('input', this.roles_attributes)
       }
     }
   }

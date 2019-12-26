@@ -52,7 +52,7 @@ const GetSequenceSmartSelector = () => {
 }
 
 const GetSequence = (id) => {
-  return ajaxCall('get', `/sequences/${id}`)
+  return ajaxCall('get', `/sequences/${id}.json`)
 }
 
 export {

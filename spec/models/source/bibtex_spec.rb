@@ -1,6 +1,5 @@
 require 'rails_helper'
 
-# rubocop:disable Rails/SaveBang
 describe Source::Bibtex, type: :model, group: :sources do
 
   let(:bibtex) { FactoryBot.build(:source_bibtex) }
@@ -21,9 +20,38 @@ describe Source::Bibtex, type: :model, group: :sources do
     BibTeX.open(Rails.root + 'spec/files/bibtex/Taenionema.bib')
   }
 
-  after(:all) {
-    Source.destroy_all
-  }
+  after(:all) { Source.destroy_all }
+
+  context '#clone' do
+    before do
+      bibtex.update(title: 'This is verbatim', bibtex_type: :article)
+    end
+
+    specify 'persists' do
+      expect(bibtex.clone.persisted?).to be_truthy
+    end
+
+    specify 'labeled' do
+      a = bibtex.clone
+      expect(a.title).to eq("[CLONE of #{bibtex.id}] " + bibtex.title)
+    end
+
+    context '#roles' do
+      let(:p1) { FactoryBot.create(:valid_person) }
+      let(:p2) { FactoryBot.create(:valid_person) }
+      let(:p3) { FactoryBot.create(:valid_person) }
+
+      before do
+        bibtex.roles << SourceAuthor.new(person: p1)
+        bibtex.roles << SourceAuthor.new(person: p2)
+        bibtex.roles << SourceEditor.new(person: p3)
+      end
+
+      specify 'are duplicated' do
+        expect(bibtex.clone.roles.count).to eq(3)
+      end
+    end
+  end
 
   context 'test bibtex-ruby gem capabilities we rely upon' do
     context 'using BibTeX bibliography' do
@@ -152,9 +180,9 @@ describe Source::Bibtex, type: :model, group: :sources do
             author = {August Brauer},
             title = {Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer.}
           }"
-        a               = BibTeX.parse(citation_string).convert(:latex)
-        entry           = a.first
-        src             = Source::Bibtex.new_from_bibtex(entry)
+        a = BibTeX.parse(citation_string).convert(:latex)
+        entry = a.first
+        src = Source::Bibtex.new_from_bibtex(entry)
         expect(src.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution. Available from: http://dx.doi.org/10.5962/bhl.title.1086.')
       end
 
@@ -566,25 +594,44 @@ describe Source::Bibtex, type: :model, group: :sources do
           expect(l_src.cached).to eq('Thomas, D., Fowler, C. &amp; Hunt, A. (1920) Article with multiple authors. <i>Journal of Test Articles</i>.')
         end
       end
-
     end
 
-    specify 'the url must be valid' do
-      src = FactoryBot.build(:valid_source_bibtex)
-      err = '] is not a valid URL'
-      expect(src.valid?).to be_truthy # nil url is valid
-      src.url = 'bad url'
-      expect(src.valid?).to be_falsey
-      expect(src.errors.messages[:url].include?('[' + src.url + err)).to be_truthy
-      src.url = 'http://speciesfile.org'
-      expect(src.valid?).to be_truthy
-      src.url = 'speciesfile.org'
-      expect(src.valid?).to be_falsey
-      expect(src.errors.messages[:url].include?('[' + src.url + err)).to be_truthy
-      src.url = 'https://google.com'
-      expect(src.valid?).to be_truthy
-      src.url = 'ftp://test.edu'
-      expect(src.valid?).to be_truthy
+    context '#url' do
+      let(:src) { Source::Bibtex.new } 
+      specify 'validation 1' do
+        src.valid?
+        expect(src.errors.messages[:url]).to be_empty
+      end
+
+      specify 'validation 2' do
+        src.url = 'bad url'
+        expect(src.valid?).to be_falsey
+        expect(src.errors.messages[:url]).to_not be_empty
+      end
+
+      # TODO: needs only a single check, URL format should be
+      # tested in a generic library
+      %w{http://speciesfile.org https://duckduckgo.com ftp://test.edu}.each do |u|
+        specify "#{u} is valid" do
+          src.url = u 
+          src.valid?
+          expect(src.errors.messages[:url]).to be_empty
+        end
+      end
+
+      context 'default values' do
+        before { src.update!(bibtex_type: :article, title: 'Not a book', year: 1920) }
+
+        specify 'are empty' do
+          expect(src.reload.url).to be_falsey
+        end
+
+        specify 'not overwritten on save' do
+          u = 'http://funstuff.com'
+          src.update!(url: u)
+          expect(src.reload.url).to eq(u)
+        end
+      end
     end
   end
 
@@ -1005,8 +1052,7 @@ describe Source::Bibtex, type: :model, group: :sources do
   end
 
   context 'class methods' do
-
-    context '#new_from_bibtex' do
+    context '.new_from_bibtex' do
       let(:citation_string) { %q(@book{international_commission_on_zoological_nomenclature_international_1999,
                                     address = {London},
                                     edition = {Fourth},
@@ -1025,11 +1071,11 @@ describe Source::Bibtex, type: :model, group: :sources do
       before { a.save }
 
       specify 'import keys for non-recognized attributes' do
-        expect(a.import_attributes.map(&:import_predicate)).to contain_exactly('urldate', 'type') #  eq('urldate')
+        expect(a.import_attributes.map(&:import_predicate)).to contain_exactly('urldate', 'type')
       end
 
       specify 'values for import predicates' do
-        expect(a.import_attributes.map(&:value)).to contain_exactly('2010-12-06', 'Journal Article') #  eq('urldate')
+        expect(a.import_attributes.map(&:value)).to contain_exactly('2010-12-06', 'Journal Article')
       end
     end
 
@@ -1140,7 +1186,6 @@ describe Source::Bibtex, type: :model, group: :sources do
   end
 
   context 'nested attributes' do
-    #let(:b){Source::Bibtex.new}
     let(:person1) { Person::Unvetted.create!(last_name: 'un') }
     let(:person2) { Person::Unvetted.create!(last_name: 'deux') }
     let(:person3) { Person::Unvetted.create!(last_name: 'trois') }
@@ -1224,16 +1269,20 @@ describe Source::Bibtex, type: :model, group: :sources do
 
       context 'with three authors, deleting the middle author role maintains position' do
         before { b.update(three_author_params) }
-        let(:params) { {
-          author_roles_attributes: [{id: b.roles.second.id, _destroy: 1}]
-        } }
+        let(:params) {
+          { author_roles_attributes: [{id: b.roles.second.id, _destroy: 1}]} 
+        }
+
         specify 'three authors exist' do
           expect(b.authors.reload.size).to eq(3)
         end
+
         specify 'update updates position' do
           expect(b.authors.reload.count).to eq(3)
           expect(b.authority_name).to eq('Un, Deux & Trois')
+          
           b.update(params)
+
           expect(b.authors.reload.count).to eq(2)
           expect(b.authority_name).to eq('Un & Trois')
           expect(b.roles.reload.first.position).to eq(1)
@@ -1258,4 +1307,5 @@ describe Source::Bibtex, type: :model, group: :sources do
       end
     end
   end
+
 end

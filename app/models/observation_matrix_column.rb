@@ -32,7 +32,7 @@ class ObservationMatrixColumn < ApplicationRecord
 
   after_initialize :set_reference_count
 
-  acts_as_list
+  acts_as_list scope: [:observation_matrix_id, :project_id]
 
   validates_presence_of :observation_matrix, :descriptor
   validates_uniqueness_of :descriptor_id, scope: [:observation_matrix_id, :project_id]

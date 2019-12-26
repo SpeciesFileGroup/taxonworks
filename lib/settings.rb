@@ -28,6 +28,7 @@ module Settings
 
   @@sandbox_mode = false
   @@sandbox_commit_sha = nil
+  @@sandbox_short_commit_sha = nil
   @@sandbox_commit_date = nil
 
   @@selenium_settings = {}
@@ -101,6 +102,11 @@ module Settings
     @@sandbox_commit_sha
   end
 
+  # @return [String]
+  def self.sandbox_short_commit_sha
+    @@sandbox_short_commit_sha
+  end
+
   # @return [Date]
   def self.sandbox_commit_date
     @@sandbox_commit_date
@@ -160,7 +166,9 @@ module Settings
     invalid = settings.keys - EXCEPTION_NOTIFICATION_SETTINGS
     raise Error, "#{invalid} are not valid settings for exception_notification" unless invalid.empty?
 
-    settings[:exception_recipients] =  settings[:exception_recipients].split(',') unless settings[:exception_recipients].class == Array || settings[:exception_recipients].blank?
+    settings[:exception_recipients] = settings[:exception_recipients].split(',') unless settings[:exception_recipients].class == Array || settings[:exception_recipients].blank?
+
+    settings[:sections] = %w{github_link request session environment backtrace}
 
     raise Error, ':exception_recipients must be an Array' unless settings[:exception_recipients].class == Array
 
@@ -175,6 +183,7 @@ module Settings
       if settings[:sandbox_mode] == true
         @@sandbox_mode = true
         @@sandbox_commit_sha = TaxonworksNet.commit_sha
+        @@sandbox_short_commit_sha = TaxonworksNet.commit_sha.try(:slice!, 0, 12)
         @@sandbox_commit_date = TaxonworksNet.commit_date
       end
     end

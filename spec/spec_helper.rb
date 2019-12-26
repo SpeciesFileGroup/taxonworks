@@ -106,22 +106,29 @@ RSpec.configure do |config|
 
     ApplicationRecord.connection.select_all('SELECT PostGIS_version() v').first['v'] =~ /(\d+.\d+)/
     PSQL_VERSION = $1.to_f
+
+    Faker::Config.random = Random.new(ENV['FAKER_SEED'].to_i) if ENV['FAKER_SEED']
+    # Monitor Faker seed
+    puts "Faker random seed: #{Faker::Config.random.seed}"
   end
 
   config.after(:suite) do
     FileUtils.rm_rf( Rails.configuration.x.test_tmp_file_dir )
     Features::Downloads.clear_downloads # TODO if global than doesn't belong in Features 
+    FileUtils.rm_rf(Download.storage_path)
   end
 
   config.before(:each) do
     DatabaseCleaner.strategy = :transaction
+    Faker::UniqueGenerator.clear # Clears used values for all generators
   end
 
   # Capybara requires truncation strategy!!
   config.before(:each, js: true) do
     Capybara.current_driver  = Capybara.javascript_driver
     DatabaseCleaner.strategy = :truncation, {except: %w(spatial_ref_sys)}
-    Features::Downloads.clear_downloads
+    Features::Downloads.clear_downloads # TODO, this should be downloads: true strategy to eliminate need to call everytime
+    FileUtils.rm_rf(Download.storage_path)
   end
 
   config.after(:each, js: true) do
@@ -137,5 +144,24 @@ RSpec.configure do |config|
     DatabaseCleaner.clean
   end
 
+  # Enable CSRF protection for feature tests by default
+  config.before(:each, type: :feature) do
+    ActionController::Base.allow_forgery_protection = true
+  end
+  config.after(:each, type: :feature) do
+    ActionController::Base.allow_forgery_protection = false
+  end
+
+  # Verify DB is actually cleared. Retry if it isn't.
+  config.after(:each, type: :feature) do
+    DatabaseCleaner.clean
+    i = 0
+    while User.count > 0 && i <= 3
+      puts "DATABASE NOT YET CLEARED, RETRYING..."
+      sleep 2**i
+      DatabaseCleaner.clean
+      i += 1
+    end
+  end
 
 end

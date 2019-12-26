@@ -88,11 +88,17 @@ class SerialsController < ApplicationController
     ).autocomplete
   end
 
+  # GET /serials/select_options.json
+  def select_options
+    @serials = Serial.select_optimized(sessions_current_user_id, sessions_current_project_id)
+  end
+
   # GET /serials/download
   def download
-    send_data(Download.generate_csv(Serial.all),
-              type:     'text',
-              filename: "serials_#{DateTime.now}.csv")
+    send_data(
+      Export::Download.generate_csv(Serial.all),
+      type: 'text',
+      filename: "serials_#{DateTime.now}.csv")
   end
 
   private
@@ -107,21 +113,23 @@ class SerialsController < ApplicationController
   end
 
   def serial_params
-    params.require(:serial).permit(:name,
-                                   :publisher,
-                                   :place_published,
-                                   :primary_language_id,
-                                   :first_year_of_issue,
-                                   :last_year_of_issue,
-                                   alternate_values_attributes: [
-                                     :id,
-                                     :value,
-                                     :type,
-                                     :language_id,
-                                     :alternate_value_object_type,
-                                     :alternate_value_object_id,
-                                     :alternate_value_object_attribute,
-                                     :_destroy
-                                   ])
+    params.require(:serial).permit(
+      :name,
+      :publisher,
+      :place_published,
+      :primary_language_id,
+      :first_year_of_issue,
+      :last_year_of_issue,
+      :translated_from_serial_id,
+      alternate_values_attributes: [
+        :id,
+        :value,
+        :type,
+        :language_id,
+        :alternate_value_object_type,
+        :alternate_value_object_id,
+        :alternate_value_object_attribute,
+        :_destroy
+      ])
   end
 end

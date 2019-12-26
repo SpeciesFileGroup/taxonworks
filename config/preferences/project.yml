@@ -18,3 +18,5 @@ default_hub_tab_order: # not ported
   - tasks
   - data
   - favorite
+documents: 
+  default_loan_policy: 

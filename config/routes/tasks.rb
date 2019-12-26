@@ -1,13 +1,35 @@
 scope :tasks do
+  scope :asserted_distributions do
+    scope :basic_endemism, controller: 'tasks/asserted_distributions/basic_endemism' do
+      get '/', action: :index, as: 'asserted_distributions_basic_endemism_task'
+    end
 
-  scope :asserted_distribution do
-    scope :new_asserted_distribution, controller: 'tasks/asserted_distribution/new_asserted_distribution' do
-      get :index, as: 'index_new_asserted_distribution_task'
+    scope :new_asserted_distribution, controller: 'tasks/asserted_distributions/new_asserted_distribution' do
+      get '/', action: :index, as: 'new_asserted_distribution_task'
+    end
+
+    scope :new_from_map, controller: 'tasks/asserted_distributions/new_from_map' do
+      get 'new', action: 'new', as: 'new_asserted_distribution_from_map_task'
+      get 'generate_choices'
+      post 'create', action: 'create', as: 'create_asserted_distribution_from_map_task'
+    end
+  end
+
+  scope :exports do
+    scope :coldp, controller: 'tasks/exports/coldp' do
+      get '/', action: :index, as: 'export_coldp_task'
+      get 'download', as: 'download_coldp_task'
+    end
+  end
+
+  scope :matrix_image do
+    scope :matrix_image, controller: 'tasks/matrix_image/matrix_image' do
+      get :index, as: 'index_matrix_image_task'
     end
   end
 
   scope :browse_annotations, controller: 'tasks/browse_annotations' do
-    get 'index', as: 'browse_annotations_task'
+    get '/', action: :index, as: 'browse_annotations_task'
   end
 
   scope :citations do
@@ -32,7 +54,7 @@ scope :tasks do
 
   scope :descriptors do
     scope :new_descriptor, controller: 'tasks/descriptors/new_descriptor' do
-      get '(:id)', action: :index, as: 'new_descriptor_task'
+      get '(:descriptor_id)', action: :index, as: 'new_descriptor_task'
     end
   end
 
@@ -75,17 +97,22 @@ scope :tasks do
   end
 
   scope :sources do
+    scope :new_source, controller: 'tasks/sources/new_source' do
+      get '/', action: :index, as: 'new_source_task'
+      get 'crossref_preview', as: 'preview_source_from_crossref_task', defaults: {format: :json}
+    end
+
     scope :hub, controller: 'tasks/sources/hub' do
-      get :index, as: 'index_hub_task'
+      get '/', action: :index, as: 'source_hub_task'
     end
 
     scope :individual_bibtex_source, controller: 'tasks/sources/individual_bibtex_source' do
-      get 'index', as: 'index_individual_bibtex_source_task'
+      get '/', action: :index, as: 'new_bibtex_source_task'
     end
 
-    scope :browse, controller: 'tasks/sources/browse' do
-      get 'index', as: 'browse_sources_task'
-      get 'find', as: 'find_sources_task'
+    scope :find, controller: 'tasks/sources/find' do
+      get '/', action: :index, as: 'find_sources_task'
+      get 'find', as: 'find_sources_query_task'
     end
   end
 
@@ -93,7 +120,7 @@ scope :tasks do
     scope :search_locality, controller: 'tasks/collecting_events/search_locality' do
       get 'index', as: 'index_search_locality_task'
     end 
- 
+
     scope :parse do
       scope :stepwise do
         scope :dates, controller: 'tasks/collecting_events/parse/stepwise/dates' do
@@ -118,28 +145,22 @@ scope :tasks do
   end
 
   scope :collection_objects do
-    scope :browse, controller: 'tasks/collection_objects/browse' do
-      get 'index', as: 'browse_collection_objects_task'
-    end
+      scope :summary, controller: 'tasks/collection_objects/summary' do
+        get '/', action: :index, as: 'collection_object_summary_task'
+      end
 
     scope :filter, controller: 'tasks/collection_objects/filter' do
-      get 'index', as: 'collection_objects_filter_task' #'index_area_and_date_task'
-      get 'find', as: 'find_collection_objects_task' # 'find_area_and_date_task'
-      get 'set_area'  , as: 'set_area_for_collection_object_filter'
-      get 'set_date', as: 'set_date_for_collection_object_filter'
-      get 'set_otu', as: 'set_otu_for_collection_object_filter'
-      get 'set_id_range', as: 'set_id_range_for_collection_object_filter'
-      get 'set_user_date_range', as: 'set_user_date_range_for_collection_object_filter'
-      get 'get_dates_of_type', as: 'get_dates_type_of_for_collection_object_filter'
-      # get 'get_updated_at', as: 'get_updated_at_for_collection_object_filter'
-      get 'download', action: 'download', as: 'download_collection_object_filter_result'
-      post 'tag_all', action: 'tag_all', as: 'tag_all_collection_object_filter_result',  defaults: {format: :json}
+      get '/', as: 'collection_objects_filter_task', action: :index
+    end
+
+    scope :browse, controller: 'tasks/collection_objects/browse' do
+      get '/', as: 'browse_collection_objects_task', action: :index
     end
   end
 
   scope :accessions do
     scope :comprehensive, controller: 'tasks/accessions/comprehensive' do
-      get 'index', as: 'comprehensive_collection_object_task'
+      get '/', action: :index, as: 'comprehensive_collection_object_task'
     end
 
     scope :report do
@@ -183,15 +204,6 @@ scope :tasks do
     end
   end
 
-  scope :bibliography do
-    scope :verbatim_reference, controller: 'tasks/bibliography/verbatim_reference' do
-      get 'new', as: 'new_verbatim_reference_task'
-      post 'preview', as: 'preview_verbatim_reference_task'
-      post 'create_verbatim', as: 'create_verbatim_from_reference_task'
-      post 'create_bibtex', as: 'create_bibtex_from_reference_task'
-    end
-  end
-
   scope :biological_associations do
     scope :dot, controller: 'tasks/biological_associations/dot' do
       get 'by_project/:project_id', action: :project_dot_graph, as: :biological_associations_dot_graph_task
@@ -217,23 +229,10 @@ scope :tasks do
     end
   end
 
-  scope :gis, controller: 'tasks/gis/locality' do
-    get 'nearby(/:id)', action: 'nearby', as: 'nearby_locality_task'
-    get 'within(/:id)', action: 'within', as: 'within_locality_task'
-    get 'new_list', action: 'new_list', as: 'new_list_task'
-    post 'list' # , action: 'list', as: 'locatity_list_task'
-  end
-
   scope :gis do
     scope :geographic_area_lookup, controller: 'tasks/gis/geographic_area_lookup' do
       get 'index', as: 'geographic_area_lookup_task'
       get 'resolve', as: 'geographic_area_lookup_resolve_task', format: :js
-    end
-
-    scope :asserted_distribution, controller: 'tasks/gis/asserted_distribution' do
-      get 'new', action: 'new', as: 'new_asserted_distribution_task'
-      post 'create', action: 'create', as: 'create_asserted_distribution_task'
-      get 'generate_choices'
     end
   end
 
@@ -267,12 +266,16 @@ scope :tasks do
   end
 
   scope :nomenclature do
+    scope :stats, controller: 'tasks/nomenclature/stats' do
+      get '', action: :index, as: 'index_stats_task'
+    end
+
     scope :new_combination, controller: 'tasks/nomenclature/new_combination' do
-      get 'index', as: 'new_combination_task'
+      get '', action: :index, as: 'new_combination_task'
     end
 
     scope :new_taxon_name, controller: 'tasks/nomenclature/new_taxon_name' do
-      get '(:id)', action: :index, as: 'new_taxon_name_task'
+      get '', action: :index, as: 'new_taxon_name_task'
     end
 
     scope :catalog do
@@ -282,7 +285,7 @@ scope :tasks do
     end
 
     scope :browse, controller: 'tasks/nomenclature/browse' do
-      get '(:id)', action: :index, as: 'browse_nomenclature_task'
+      get '', action: :index, as: 'browse_nomenclature_task'
     end
 
     scope :by_source, controller: 'tasks/nomenclature/by_source' do
@@ -291,9 +294,13 @@ scope :tasks do
   end
 
   scope :observation_matrices do
+      scope :dashboard, controller: 'tasks/observation_matrices/dashboard' do
+        get :index, as: 'index_dashboard_task'
+      end
+
 
     scope :view, controller: 'tasks/observation_matrices/view' do
-      get '(:id)', as: 'observation_matrix_view_task', action: :index
+      get '(:observation_matrix_id)', as: 'observation_matrix_view_task', action: :index
     end
 
     scope :observation_matrix_hub, controller: 'tasks/observation_matrices/observation_matrix_hub' do
@@ -302,9 +309,9 @@ scope :tasks do
     end
 
     scope :new_matrix, controller: 'tasks/observation_matrices/new_matrix' do
-      get 'observation_matrix_row_item_metadata', as: 'observation_matrix_row_item_metdata', defaults: {format: :json}
+      get 'observation_matrix_row_item_metadata', as: 'observation_matrix_row_item_metadata', defaults: {format: :json}
       get 'observation_matrix_column_item_metadata', as: 'observation_matrix_column_item_metdata', defaults: {format: :json}
-      get '(:id)', action: :index, as: 'new_matrix_task'
+      get '(:observation_matrix_id)', action: :index, as: 'new_matrix_task'
     end
 
     scope :row_coder, controller: 'tasks/observation_matrices/row_coder' do
@@ -314,6 +321,10 @@ scope :tasks do
   end
 
   scope :otus do
+    scope :browse_asserted_distributions, controller: 'tasks/otus/browse_asserted_distributions' do
+      get :index, as: 'index_browse_asserted_distributions_task'
+    end
+
     scope :browse, controller: 'tasks/otus/browse' do
       get '/(:otu_id)', action: :index, as: 'browse_otus_task'
     end
@@ -339,6 +350,12 @@ scope :tasks do
   end
 
   scope :taxon_names do
+    scope :syncronize_otus, controller: 'tasks/taxon_names/syncronize_otus' do
+      get 'index', as: 'syncronize_otus_to_nomenclature_task'
+      post 'index', as: 'preview_syncronize_otus_to_nomenclature_task'
+      post 'syncronize', as: 'syncronize_otus_task' 
+    end
+
     scope :filter, controller: 'tasks/taxon_names/filter' do
       get :index, as: 'index_filter_task'
     end

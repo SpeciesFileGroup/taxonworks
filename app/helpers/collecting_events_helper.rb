@@ -43,7 +43,7 @@ module CollectingEventsHelper
   #   summary of date data
   def date_range_tag(collecting_event)
     return if collecting_event.nil?
-    [collecting_event.start_date_string, collecting_event.end_date_string].compact.join('-')
+    [collecting_event.start_date_string, collecting_event.end_date_string].compact.join(' - ')
   end
 
   # @return [String, nil]

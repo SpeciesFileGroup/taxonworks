@@ -7,23 +7,28 @@ const ajaxCall = function (type, url, data = null) {
   Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
   return new Promise(function (resolve, reject) {
     Vue.http[type](url, data).then(response => {
-      console.log(response)
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(response)
+      }
       return resolve(response.body)
     }, response => {
-      console.log(response)
-      handleError(response.body)
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(response)
+      }
+      handleError(response)
       return reject(response)
     })
   })
 }
 
 const handleError = function (json) {
-  if (typeof json !== 'object') return
-  let errors = Object.keys(json)
+  if ((typeof json !== 'object') || (json.status === 404)) return
+  let errors = Object.keys(json.body)
   let errorMessage = ''
 
+  if(errors.length === 1 && 'success') return
   errors.forEach(function (item) {
-    errorMessage += json[item].join('<br>')
+    errorMessage += json[item].join('<br>') + '<br>'
   })
 
   TW.workbench.alert.create(errorMessage, 'error')
@@ -42,7 +47,7 @@ const GetIdentifiersFromCO = function (id) {
 }
 
 const GetLabelsFromCE = function (id) {
-  return ajaxCall('get', `/labels?label_object_id=${id}&label_object_type=CollectingEvent`)
+  return ajaxCall('get', `/labels.json?label_object_id=${id}&label_object_type=CollectingEvent`)
 }
 
 const GetRecentCollectionObjects = function () {
@@ -55,6 +60,10 @@ const UpdateUserPreferences = function (id, data) {
 
 const GetRepositorySmartSelector = function () {
   return ajaxCall('get', `/repositories/select_options`)
+}
+
+const GetSourceSmartSelector = function () {
+  return ajaxCall('get', `/sources/select_options`)
 }
 
 const GetNamespacesSmartSelector = function () {
@@ -70,7 +79,7 @@ const GetCollectingEventsSmartSelector = function () {
 }
 
 const GetTypeDesignatorSmartSelector = function () {
-  return ajaxCall('get', `/people/select_options?role_type=TypeDesignator`)
+  return ajaxCall('get', `/people/select_options`)
 }
 
 const FilterCollectingEvent = function (params) {
@@ -103,6 +112,14 @@ const GetTypeMaterialCO = function (id) {
 
 const GetOtu = function (id) {
   return ajaxCall('get', `/otus/${id}.json`)
+}
+
+const GetGeographicAreaByCoords = function (lat,long) {
+  return ajaxCall('get', `/geographic_areas/by_lat_long?latitude=${lat}&longitude=${long}`)
+}
+
+const GetGeographicArea = function (id) {
+  return ajaxCall('get', `/geographic_areas/${id}.json`)
 }
 
 const GetTypes = function () {
@@ -139,6 +156,10 @@ const UpdateIdentifier = function (data) {
 
 const UpdateCollectionEvent = function (data) {
   return ajaxCall('patch', `/collecting_events/${data.id}.json`, { collecting_event: data })
+}
+
+const GetContainer = function (globalId) {
+  return ajaxCall('get', `/containers/for`, { params: { global_id: globalId } })
 }
 
 const CreateContainer = function (data) {
@@ -298,6 +319,7 @@ export {
   GetCollectorsSmartSelector,
   GetRepositorySmartSelector,
   GetGeographicSmartSelector,
+  GetSourceSmartSelector,
   GetTaxonDeterminatorSmartSelector,
   GetBiologicalRelationshipsSmartSelector,
   GetBiologicalRelationships,
@@ -306,6 +328,7 @@ export {
   GetOtuSmartSelector,
   GetCollectingEventsSmartSelector,
   GetTypeDesignatorSmartSelector,
+  GetGeographicAreaByCoords,
   FilterCollectingEvent,
   GetTaxonDeterminationCO,
   GetNamespace,
@@ -349,5 +372,7 @@ export {
   DestroyBiologicalAssociation,
   CreateContainer,
   CreateContainerItem,
-  GetNamespacesSmartSelector
+  GetContainer,
+  GetNamespacesSmartSelector,
+  GetGeographicArea
 }

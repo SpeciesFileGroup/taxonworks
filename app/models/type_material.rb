@@ -1,3 +1,5 @@
+# TODO: Rename the insane column names here
+#
 # TypeMaterial links CollectionObjects to Protonyms.  It is the single direct relationship between nomenclature and collection objects in TaxonWorks (all other name/collection object relationships coming through OTUs).
 # TypeMaterial is based on specific rules of nomenclature, it only includes those types (e.g. "holotype") that are specifically goverened (e.g. "topotype" is not allowed).
 #
@@ -63,10 +65,7 @@ class TypeMaterial < ApplicationRecord
 
   belongs_to :material, foreign_key: :biological_object_id, class_name: 'CollectionObject', inverse_of: :type_designations
   belongs_to :protonym
-  has_many :type_designator_roles, class_name: 'TypeDesignator', as: :role_object
-  has_many :type_designators, through: :type_designator_roles, source: :person
 
-  accepts_nested_attributes_for :type_designators, :type_designator_roles, allow_destroy: true
   accepts_nested_attributes_for :material, allow_destroy: true
 
   scope :where_protonym, -> (taxon_name) { where(protonym_id: taxon_name) }

@@ -10,7 +10,6 @@ module Queries
   #    User.includes(:addresses).where("addresses.country = ?", "Poland").references(:addresses)
   #
 
-  # Lots of optimization possible, at minimum this is nice for nested OR
   class Otu::Autocomplete < Queries::Query
 
     def base_query
@@ -18,25 +17,21 @@ module Queries
     end
 
     # @return [Arel::Table]
-    def taxon_name_table
-      ::TaxonName.arel_table
-    end
-
-    # @return [Arel::Table]
     def table
       ::Otu.arel_table
     end
 
-    # @return [Array]
-    #   TODO: optimize limits
-    def autocomplete
+    def base_queries
       queries = [
-        autocomplete_or_clauses,
+        autocomplete_exactly_named,
+        autocomplete_exact_id,
         autocomplete_identifier_cached_exact,
         autocomplete_identifier_identifier_exact,
+        autocomplete_named,
+        autocomplete_via_taxon_name_autocomplete,
         autocomplete_identifier_cached_like,
       ]
-        
+
       queries.compact!
 
       return [] if queries.nil?
@@ -47,7 +42,11 @@ module Queries
         a ||= q 
         updated_queries[i] = a
       end
+    end
 
+    # @return [Array]
+    def autocomplete
+      updated_queries = base_queries      
       result = []
       updated_queries.each do |q|
         result += q.to_a
@@ -58,58 +57,9 @@ module Queries
     end
 
     # @return [Scope]
-    def or_clauses
-      clauses = [
-        named,
-        taxon_name_named,
-        taxon_name_author_year_matches,
-        with_id,
-      ].compact
-
-      a = clauses.shift
-      clauses.each do |b|
-        a = a.or(b)
-      end
-      a
-    end
-
-    # @return [Scope]
-    def where_sql
-      with_project_id.and(or_clauses).to_sql
-    end
-
-    # @return [Scope]
-    def autocomplete_or_clauses
-      ::Otu.includes(:taxon_name).where(where_sql).references(:taxon_names).order(name: :asc).limit(50).order('taxon_names.cached ASC')
-    end
-
-    # @return [Arel::Nodes::Matches]
-    def taxon_name_named
-      taxon_name_table[:cached].matches_any(terms)
-    end
-
-    # @return [Arel::Nodes::Matches]
-    def taxon_name_author_year_matches
-      a = authorship
-      return nil if a.nil?
-      taxon_name_table[:cached_author_year].matches(a)
-    end
-
-    # @return [String]
-    def authorship
-      parser = ScientificNameParser.new
-      a = parser.parse(query_string)
-      b = a[:scientificName]
-      return nil if b.nil? or b[:details].nil?
-
-      b[:details].each do |detail|
-        detail.each_value do |v|
-          if v.kind_of?(Hash) && v[:authorship]
-            return v[:authorship]
-          end
-        end
-      end
-      nil
+    def autocomplete_via_taxon_name_autocomplete
+      taxon_names = Queries::TaxonName::Autocomplete.new(query_string, project_id: project_id).autocomplete
+      ::Otu.joins(:taxon_name).where(taxon_name: taxon_names).references(:taxon_names).limit(40).order(Arel.sql('char_length(otus.name), char_length(taxon_names.cached), taxon_names.cached ASC'))
     end
 
   end

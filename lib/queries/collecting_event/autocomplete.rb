@@ -31,9 +31,9 @@ module Queries
       def autocomplete_verbatim_locality_wildcard_end_starting_year
         a = years 
         return nil if query_string.length < 7 || a.empty?
-        base_query.where( 
-                         table[:start_date_year].eq_any(a).
-                         and( table[:verbatim_locality].matches(fragments.join))
+        base_query.where(
+          table[:start_date_year].eq_any(a).
+          and( table[:verbatim_locality].matches(fragments.join))
           .to_sql)
           .limit(20)
       end
@@ -43,18 +43,18 @@ module Queries
       def autocomplete
         queries = [
           autocomplete_exact_id,
-          autocomplete_verbatim_trip_identifier_match,
           autocomplete_identifier_cached_exact,
           autocomplete_identifier_identifier_exact,
+          autocomplete_identifier_cached_like,
+
+          autocomplete_verbatim_trip_identifier_match,
           autocomplete_start_date_wild_card(:verbatim_locality), 
           autocomplete_start_date_wild_card(:cached),
 
           autocomplete_start_date,
-
           autocomplete_verbatim_locality_wildcard_end,
           autocomplete_verbatim_locality_wildcard_end_starting_year,
           autocomplete_cached_wildcard_anywhere,
-          autocomplete_identifier_cached_like,
 
           # others?
           # - verbatim locality exact match (?) start date

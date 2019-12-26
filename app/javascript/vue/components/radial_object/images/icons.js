@@ -4,6 +4,7 @@ import trashIcon from './trash'
 import editIcon from './edit'
 import recentIcon from './recent'
 import allTasksIcon from './allTasks'
+import pin from './pin'
 
 const Icons = {
   Show: showIcon,
@@ -11,7 +12,8 @@ const Icons = {
   Destroy: trashIcon,
   Edit: editIcon,
   Recent: recentIcon,
-  AllTasks: allTasksIcon
+  AllTasks: allTasksIcon,
+  Pin: pin
 }
 
 export default Icons

@@ -1,8 +1,9 @@
 class TaxonNamesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination]
+  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination, :catalog]
   after_action -> { set_pagination_headers(:taxon_names) }, only: [:index, :api_index], if: :json_request?
+  
   # GET /taxon_names
   # GET /taxon_names.json
   def index
@@ -10,7 +11,6 @@ class TaxonNamesController < ApplicationController
       format.html do
         @recent_objects = TaxonName.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
-
       end
       format.json {
         @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
@@ -31,27 +31,6 @@ class TaxonNamesController < ApplicationController
     render '/taxon_names/api/show.json.jbuilder'
   end
 
-  def filter_params
-    params.permit(
-      :name, :author, :year,
-      :leaves,
-      :exact,
-      :validity,
-      :descendants,
-      :updated_since,
-      :type_metadata,
-      :citations,
-      :otus,
-      :nomenclature_group, # !! different than autocomplete
-      :nomenclature_code,
-      type: [],
-      parent_id: [],
-      taxon_name_classification: [],
-      taxon_name_relationship_type: [],
-      taxon_name_relationship: []
-    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
-  end
-
   # GET /taxon_names/1
   # GET /taxon_names/1.json
   def show
@@ -65,17 +44,6 @@ class TaxonNamesController < ApplicationController
   # GET /taxon_names/1/edit
   def edit
     @taxon_name.source = Source.new if !@taxon_name.source
-  end
-
-  def random
-    redirect_to browse_nomenclature_task_path(
-      id: TaxonName.where(project_id: sessions_current_project_id).order('random()').limit(1).pluck(:id).first # TODO: migrate to taxon_name_id: 123
-    )
-  end
-
-  # GET /taxon_names/select_options
-  def select_options
-    @taxon_names = TaxonName.select_optimized(sessions_current_user_id, sessions_current_project_id)
   end
 
   # POST /taxon_names
@@ -118,7 +86,7 @@ class TaxonNamesController < ApplicationController
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'TaxonName was successfully destroyed.')}
         format.json {head :no_content}
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'TaxonName was not destroyed, ' + errors.messages)}
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'TaxonName was not destroyed, ' + @taxon_name.errors.full_messages.join('; '))}
         format.json {render json: @taxon_name.errors, status: :unprocessable_entity}
       end
     end
@@ -146,7 +114,7 @@ class TaxonNamesController < ApplicationController
 
   # GET /taxon_names/download
   def download
-    send_data Download.generate_csv(
+    send_data Export::Download.generate_csv(
       TaxonName.where(project_id: sessions_current_project_id)
     ), type: 'text', filename: "taxon_names_#{DateTime.now}.csv"
   end
@@ -156,6 +124,30 @@ class TaxonNamesController < ApplicationController
 
   def ranks
     render json: RANKS_JSON.to_json
+  end
+
+  def random
+    redirect_to browse_nomenclature_task_path(
+      taxon_name_id: TaxonName.where(project_id: sessions_current_project_id).order('random()').limit(1).pluck(:id).first
+    )
+  end
+
+  def rank_table
+    @q = Queries::TaxonName::Tabular.new(
+      ancestor_id: params.require(:ancestor_id),
+      ranks: params.require(:ranks),
+      fieldsets: params[:fieldsets],
+      limit: params[:limit],
+      validity: params[:validity],
+      combinations: params[:combinations],
+      project_id: sessions_current_project_id,
+      rank_data: params[:rank_data]
+    )
+  end
+
+  # GET /taxon_names/select_options
+  def select_options
+    @taxon_names = TaxonName.select_optimized(sessions_current_user_id, sessions_current_project_id)
   end
 
   def preview_simple_batch_load
@@ -221,6 +213,10 @@ class TaxonNamesController < ApplicationController
     ).result
   end
 
+  def catalog
+    @data = NomenclatureCatalog.data_for(@taxon_name)
+  end
+
   private
 
   def set_taxon_name
@@ -246,7 +242,8 @@ class TaxonNamesController < ApplicationController
           :last_name, :first_name, :suffix, :prefix
         ]
       ],
-      origin_citation_attributes: [:id, :_destroy, :source_id, :pages]
+      origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
+      taxon_name_classifications_attributes: [:id, :_destroy, :type]
     )
   end
 
@@ -261,6 +258,30 @@ class TaxonNamesController < ApplicationController
         project_id: sessions_current_project_id
       ).to_h.symbolize_keys
   end
+
+  def filter_params
+    params.permit(
+      :name, :author, :year,
+      :leaves,
+      :exact,
+      :validity,
+      :descendants,
+      :updated_since,
+      :type_metadata,
+      :citations,
+      :otus,
+      :authors,
+      :nomenclature_group, # !! different than autocomplete
+      :nomenclature_code,
+      :taxon_name_type,
+      type: [],
+      taxon_name_id: [],
+      taxon_name_classification: [],
+      taxon_name_relationship_type: [],
+      taxon_name_relationship: []
+    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
+  end
+
 end
 
 require_dependency Rails.root.to_s + '/lib/batch_load/import/taxon_names/castor_interpreter.rb'

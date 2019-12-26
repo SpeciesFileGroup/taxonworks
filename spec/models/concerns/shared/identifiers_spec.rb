@@ -29,9 +29,21 @@ describe 'Identifiable', type: :model do
       let!(:n2) {FactoryBot.create(:valid_namespace, name: namespace_name2) }
       let!(:n3) {FactoryBot.create(:valid_namespace, short_name: namespace_name3) }
 
-      let!(:identifier1) { FactoryBot.create(:valid_identifier, identifier_object: identifiable_instance, identifier: '123', namespace: n1) }
-      let!(:identifier2) { FactoryBot.create(:valid_identifier, identifier_object: identifiable_instance, identifier: '456', namespace: n2) }
-      let!(:identifier3) { FactoryBot.create(:valid_identifier, identifier_object: identifiable_instance, identifier: '789', namespace: n3) }
+      let!(:identifier1) { Identifier::Local::CatalogNumber.create!( identifier_object: identifiable_instance, identifier: '123', namespace: n1) }
+      let!(:identifier2) { Identifier::Local::CatalogNumber.create!( identifier_object: identifiable_instance, identifier: '456', namespace: n2) }
+      let!(:identifier3) { Identifier::Local::CatalogNumber.create!( identifier_object: identifiable_instance, identifier: '789', namespace: n3) }
+
+      specify '#with_identifier_type_and_namespace' do
+        expect(identifiable_class.with_identifier_type_and_namespace('Identifier::Local::CatalogNumber', n1.id)).to contain_exactly(identifiable_instance)
+      end
+
+      specify '.with_identifiers_sorted' do
+        expect(identifiable_class.with_identifiers_sorted.to_a).to be_truthy
+      end
+
+      specify '#identifiers' do
+        expect(identifiable_instance.identifiers).to contain_exactly(identifier1, identifier2, identifier3)
+      end
 
       specify '#identified?' do
         expect(identifiable_instance.identified?).to eq(true)

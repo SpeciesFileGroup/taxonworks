@@ -30,7 +30,7 @@ class Descriptor < ApplicationRecord
 
   has_many :observations, inverse_of: :descriptor, dependent: :restrict_with_error
   has_many :otus, through: :observations, inverse_of: :descriptors
-  has_many :observation_matrix_column_items, inverse_of: :descriptor
+  has_many :observation_matrix_column_items, inverse_of: :descriptor, dependent: :destroy
   has_many :observation_matrix_columns, inverse_of: :descriptor
 
   has_many :observation_matrices, through: :observation_matrix_columns
@@ -45,10 +45,13 @@ class Descriptor < ApplicationRecord
     type == 'Descriptor::Qualitative'
   end
 
+  def presence_absence?
+    type == 'Descriptor::PresenceAbsence'
+  end
+
   def gene?
     type == 'Descriptor::Gene'
   end
- 
 
   protected
 
@@ -65,7 +68,6 @@ class Descriptor < ApplicationRecord
   def sv_short_name_is_short
     soft_validations.add(:short_name, 'should likely be less than 12 characters long') if short_name && short_name.length > 12
   end
-
 end
 
 Dir[Rails.root.to_s + '/app/models/descriptor/**/*.rb'].each { |file| require_dependency file }

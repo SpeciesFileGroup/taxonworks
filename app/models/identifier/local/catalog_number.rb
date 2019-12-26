@@ -1,8 +1,8 @@
-# The Identifier that identifies a collection object. Examples include barcodes.
+# The Identifier that identifies a collection object. Examples include barcodes printed on labels.
 #
 # Does *not* imply an accessioning process.
 #
-# @todo Validate scope to CollectionObject
+# @TODO Validate scope to CollectionObject
 #
 class Identifier::Local::CatalogNumber < Identifier::Local
 end

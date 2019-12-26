@@ -122,8 +122,7 @@ require 'namecase'
 #   The sponsoring institution of a technical report
 #
 # @!attribute journal
-#   @return[String] the name of the journal (serial) associated with this source
-#   @return [nil] means the attribute is not stored in the database.
+#   @return[String, nil] the name of the journal (serial) associated with this source
 #   BibTeX standard field (required for types: )(optional for types:)
 #   A TW required attribute (TW requires a value in one of the required attributes.)
 #   A journal name. Many BibTeX processors have standardized abbreviations for many journals
@@ -289,14 +288,20 @@ require 'namecase'
 #   A TW required attribute for certain bibtex_types (TW requires a value in one of the required attributes.)
 #
 # @!attribute author
-#   @return [String] the list of author names in BibTeX format
-#   @return [nil] means the attribute is not stored in the database.
-#   BibTeX standard field (required for types: )(optional for types:)
-#   A TW required attribute (TW requires a value in one of any of the required attributes.)
-#   The name(s) of the author(s), in the format described in the LaTeX book. Names should be formatted as
-#   "Last name, FirstName MiddleName". FirstName and MiddleName can be initials. If there are multiple authors,
-#   each author name should be separated by the word " and ". It should be noted that all the names before the
+#   @return [String, nil] author names preferably rendered in BibTeX format,
+#   "Last name, FirstName MiddleName". FirstName and MiddleName can be initials. 
+#   Additional authors are joined with ` and `. All names before the
 #   comma are treated as a single last name.
+#
+#   The contents of `author` follow the following rules:
+#   * `author` (a) and `authors` (People) (b) can both be used to generate the author string
+#   * if a & !b then `author` = a verbatim (and therefor may not match the BibTeX format)
+#   * if !a & b then `author` = b, collected and rendered in BibTeX format
+#   * if a & b then `author` = b, collected and rendered in BibTeX format on each update.  !! Updates to `author` directly will be overwritten !!
+#   `author` is automatically populated from `authors` if the latter is provided
+#   !! This is different behavious from TaxonName, where `verbatim_author` has priority over taxon_name_author (People) in rendering.
+#
+#   See also `cached_author_author_string` 
 #
 class Source::Bibtex < Source
 
@@ -312,16 +317,19 @@ class Source::Bibtex < Source
   IGNORE_IDENTICAL = IGNORE_SIMILAR.dup.freeze
 
   belongs_to :serial, inverse_of: :sources
+
+  # handle conflict with BibTex language field.
   belongs_to :source_language, class_name: 'Language', foreign_key: :language_id, inverse_of: :sources
-  # above to handle clash with bibtex language field.
 
   has_many :author_roles, -> { order('roles.position ASC') }, class_name: 'SourceAuthor',
-           as: :role_object, validate: true
-  has_many :authors, -> { order('roles.position ASC') },
-           through: :author_roles, source: :person, validate: true
+    as: :role_object, validate: true
+
+  has_many :authors, -> { order('roles.position ASC') }, through: :author_roles, source: :person, validate: true
+
   has_many :editor_roles, -> { order('roles.position ASC') }, class_name: 'SourceEditor',
-           as: :role_object, validate: true # ditto for self.editor & self.editors
+    as: :role_object, validate: true
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person, validate: true
+
   accepts_nested_attributes_for :authors, :editors, :author_roles, :editor_roles, allow_destroy: true
 
   before_validation :create_authors, if: -> { !authors_to_create.nil? }
@@ -335,8 +343,9 @@ class Source::Bibtex < Source
     if: -> { !month.blank? || !stated_year.blank? },
     message: 'is required when month or stated_year is provided'
 
-  validates :year, date_year: {min_year: 1000, max_year: Time.now.year + 2,
-                               message:  'must be an integer greater than 999 and no more than 2 years in the future'}
+  validates :year, date_year: {
+    min_year: 1000, max_year: Time.now.year + 2,
+    message: 'must be an integer greater than 999 and no more than 2 years in the future'}
 
   validates_presence_of :month,
     unless: -> { day.blank? },
@@ -383,13 +392,14 @@ class Source::Bibtex < Source
   end
 
   # Instantiates a Source::Bibtex instance from a BibTeX::Entry
-  # Note: note conversion is handled in note setter.
-  #       identifiers are handled in associated setter.
-  # !! Unrecognized attributes are added as import attributes.
+  # Note:
+  #    * note conversion is handled in note setter.
+  #    * identifiers are handled in associated setter.
+  #    * !! Unrecognized attributes are added as import attributes.
   #
   # Usage:
   #    a = BibTeX::Entry.new(bibtex_type: 'book', title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
-  #    b = Source::Bibtex.new(a)
+  #    b = Source::Bibtex.new_from_bibtex(a)
   #
   # @param [BibTex::Entry] bibtex_entry the BibTex::Entry to convert
   # @return [Source::BibTex.new] a new instance
@@ -424,7 +434,7 @@ class Source::Bibtex < Source
 
   # @return [Array] journal, nil or name
   def journal
-    [read_attribute(:journal), (self.serial.blank? ? nil : self.serial.name)].compact.first
+    [read_attribute(:journal), (serial.blank? ? nil : serial.name)].compact.first
   end
 
   # @return [String]
@@ -599,7 +609,12 @@ class Source::Bibtex < Source
   #   the identifier of this type, relies on Identifier to enforce has_one for Global identifiers
   #   !! behaviour for Identifier::Local types may be unexpected
   def identifier_string_of_type(type_value)
-    identifiers.where(type: type_value).first.try(:identifier)
+    # Also handle in memory
+    identifiers.each do |i|
+      return i.identifier if i.type == type_value
+    end
+    nil
+    # identifiers.where(type: type_value).first&.identifier
   end
 
  #endregion getters & setters
@@ -646,7 +661,7 @@ class Source::Bibtex < Source
     Utilities::Dates.nomenclature_date(day, Utilities::Dates.month_index(month), year)
   end
 
-  # @return [Date]
+  # @return [Date || Time] <sigh>
   #  An memoizer, getter for cached_nomenclature_date, computes if not .persisted?
   def cached_nomenclature_date
     if !persisted?
@@ -655,7 +670,6 @@ class Source::Bibtex < Source
       read_attribute(:cached_nomenclature_date)
     end
   end
-
 
   # not used - move to a helper method if we want something not persisted
   def bibtex_bibliography_for_zootaxa
@@ -684,12 +698,11 @@ class Source::Bibtex < Source
 
     b.year = year_with_suffix if !year_suffix.blank?
     b[:keywords] = verbatim_keywords     unless verbatim_keywords.blank?
+    b[:note] = concatenated_notes_string if !concatenated_notes_string.blank?
 
-    b[:note] = concatenated_notes_string if !concatenated_notes_string.blank? # see Notable
-    
     unless serial.nil?
       b[:journal] = serial.name
-      issns  = serial.identifiers.where(type: 'Identifier::Global::Issn') # of_type(:issn)
+      issns  = serial.identifiers.where(type: 'Identifier::Global::Issn')
       unless issns.empty?
         b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
       end
@@ -697,18 +710,18 @@ class Source::Bibtex < Source
 
     unless serial.nil?
       b[:journal] = serial.name
-      issns = serial.identifiers.where(type: 'Identifier::Global::Issn') # .of_type(:issn)
+      issns = serial.identifiers.where(type: 'Identifier::Global::Issn')
       unless issns.empty?
         b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
       end
     end
 
-    uris = identifiers.where(type: 'Identifier::Global::Uri') # of_type(:uri)
+    uris = identifiers.where(type: 'Identifier::Global::Uri')
     unless uris.empty?
       b[:url] = uris.first.identifier # TW only allows one URI per object
     end
 
-    isbns = identifiers.where(type: 'Identifier::Global::Isbn') #.of_type(:isbn)
+    isbns = identifiers.where(type: 'Identifier::Global::Isbn')
     unless isbns.empty?
       b[:isbn] = isbns.first.identifier # TW only allows one ISBN per object
     end
@@ -719,14 +732,24 @@ class Source::Bibtex < Source
     end
 
     # Over-ride `author` and `editor` if there
-    b.author = compute_bibtex_names('authors') if authors.load.any? # unless (!authors.load.any? && author.blank?)
-    b.editor = compute_bibtex_names('editors') if editors.load.any? # unless (!editors.load.any? && editor.blank?)
+    b.author = compute_bibtex_names('author') if author_roles.load.any? # unless (!authors.load.any? && author.blank?)
+    b.editor = compute_bibtex_names('editor') if editor_roles.load.any? # unless (!editors.load.any? && editor.blank?)
 
     b.key = id unless new_record?
     b
   end
 
-  # rubocop:enable Metrics/MethodLength
+  # @return [String, nil]
+  #  priority is Person, string
+  #  !! Not the cached value !! 
+  def get_author
+    a = authors.load
+    if a.any?
+      compute_bibtex_names('author')
+    else
+      author.blank? ? nil : author
+    end
+  end
 
   # Namecase all elements of all names
   def namecase_bibtex_entry(bibtex_entry)
@@ -778,7 +801,8 @@ class Source::Bibtex < Source
 
   # @return [String, nil]
   #   last names formatted as displayed in nomenclatural authority (iczn), prioritizes
-  #   normalized People before BibTeX author
+  #   normalized People before BibTeX `author`
+  #   !! This is NOT a legal BibTeX format  !!
   def authority_name(reload = true)
     reload ? authors.reload : authors.load
 
@@ -799,11 +823,12 @@ class Source::Bibtex < Source
 
   # @param [String] type either `author` or `editor`
   # @return [String]
-  #   The bibtex version of the name strings created from People
+  #   The BibTeX version of the name strings created from People
   #   BibTeX format is 'lastname, firstname and lastname, firstname and lastname, firstname'
-  #   This only references People, i.e. `authors` and `editors`. Do not adapt to reference the BibTeX attributes `author` or `editor`
+  #   This only references People, i.e. `authors` and `editors`.
+  #   !! Do not adapt to reference the BibTeX attributes `author` or `editor`
   def compute_bibtex_names(role_type)
-    send(role_type).collect{ |a| a.bibtex_name }.join(' and ')
+    send("#{role_type}_roles").collect{ |a| a.person.bibtex_name }.join(' and ')
   end
 
   # @return [Ignored]
@@ -826,8 +851,8 @@ class Source::Bibtex < Source
     if errors.empty?
       attributes_to_update = {}
 
-      attributes_to_update[:author] = compute_bibtex_names('authors') if authors.reload.size > 0
-      attributes_to_update[:editor] = compute_bibtex_names('editors') if editors.reload.size > 0
+      attributes_to_update[:author] = compute_bibtex_names('author') if authors.reload.size > 0
+      attributes_to_update[:editor] = compute_bibtex_names('editor') if editors.reload.size > 0
 
       c = cached_string('html')
       if stated_year && year && stated_year != year

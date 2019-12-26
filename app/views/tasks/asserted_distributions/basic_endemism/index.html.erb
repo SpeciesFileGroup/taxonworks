@@ -1,0 +1,57 @@
+
+
+<h1> Task - Asserted distributions basic endemism </h1>
+
+<%= form_tag( asserted_distributions_basic_endemism_task_path(), method: :get)  do -%>
+
+  <div class="field">
+    <%= label_tag 'Taxon name' %>
+    <br>
+    <%= render partial: 'workbench/elements/forms/ajax_select',
+      locals:  {controller: '/taxon_names',
+                object: '',
+                method:  'taxon_name_id',
+                tag_id:  'taxon_name_id_for_query',
+                display:  '',
+                size: 20} %>
+  </div>
+
+  <div class="field">
+    <%= label_tag 'Geographic area' %>
+    <br>
+    <%= render 'workbench/elements/forms/ajax_select',
+      controller: '/geographic_areas',
+      object:  '',
+      method:  'geographic_area_id',
+      tag_id:  'geographic_area_id_for_query',
+      display:  '' ,
+      size:  40
+    %>
+  </div>
+
+    <%= submit_tag 'Set scope', class: 'button-default'  %>
+<% end %>
+
+<h2> Scope: <%= taxon_name_tag(@taxon_name) -%> for <%= geographic_area_tag(@geographic_area) -%> </h2>
+
+<table>
+  <tr>
+    <th>Family </th>
+    <th>Subfamily</th>
+    <th>Genus</th>
+    <th>Name</th>
+    <th>Endemic</th>
+    <th>Map</th>
+  </tr>
+  <% @data.keys.sort{|a,b| a.cached <=> b.cached}.each do |t| -%>
+    <tr>
+      <%= content_tag(:td, object_tag(t.ancestor_at_rank(:family))) -%>
+      <%= content_tag(:td, object_tag(t.ancestor_at_rank(:subfamily))) -%>
+      <%= content_tag(:td, object_tag(t.ancestor_at_rank(:genus))) -%>
+      <%= content_tag(:td, taxon_name_browse_link(t)) -%>
+      <%= content_tag(:td, !@data[t]) -%>
+      <%= content_tag(:td, link_to('map', index_browse_asserted_distributions_task_path(otu_id: t.otus.first.id) )) -%> <!--- HACK, not right as it's not inclusive enough ---!>
+    </tr>
+  <% end %>
+</table>
+

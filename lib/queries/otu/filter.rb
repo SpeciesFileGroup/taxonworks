@@ -107,6 +107,7 @@ module Queries
     end
 
     # @return [Scope]
+    # TODO: deprecate
     def result
       return ::Otu.none if applied_scopes.empty?
       a = ::Otu.all
@@ -143,8 +144,6 @@ module Queries
       (::Otu.joins(:collection_objects)
         .where(collection_objects: {id: ::CollectionObject.joins(:geographic_items)
         .where(gi_sql).distinct})).distinct)
-
-
     end
 
     # @return [Scope]

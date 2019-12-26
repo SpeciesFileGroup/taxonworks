@@ -1,16 +1,16 @@
 <%= content_for :associated do -%>
 
-  <% if @container_item.siblings -%>
+  <% if @container_item.siblings && @container_item.parent -%>
     <h3> Also in container </h3>
     <ul>
     <% @container_item.siblings.each do |c| -%>
-      <%= content_tag :li, container_item_tag(c) -%>
+      <%= content_tag :li, c.id  -%>
     <% end %>
     </ul>
+  <% else %>
+    <i> This object is uncontained. </i>
   <% end %>
-  
 
 <% end %> 
-
 
 <%= render('shared/data/project/show', object: @container_item) -%>

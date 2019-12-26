@@ -1,17 +1,22 @@
 <div class="attributes">
   <p>
     <strong>Container:</strong>
-    <%= container_tag(@container_item.container) %>
+    <%= container_link(@container_item.container) %>
   </p>
 
   <p>
     <strong>Contained object:</strong>
-    <%= object_tag(@container_item.contained_object) %>
+    <%= object_link(@container_item.contained_object) %>
   </p>
 
   <p>
     <strong>Contained object type:</strong>
     <%= @container_item.contained_object_type %>
+  </p>
+
+  <p>
+    <strong>Parent:</strong>
+    <%= container_item_tag(@container_item.parent) %>
   </p>
 
   <p>

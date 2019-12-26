@@ -95,6 +95,9 @@ class Loan < ApplicationRecord
   has_many :loan_recipients, through: :loan_recipient_roles, source: :person
   has_many :loan_supervisors, through: :loan_supervisor_roles, source: :person
 
+  # THis is not defined in HasRoles
+  has_many :people, through: :roles
+
   not_super = lambda {!supervisor_email.blank?}
   validates :supervisor_email, format: {with: User::VALID_EMAIL_REGEX}, if: not_super
   validates :recipient_email, format: {with: User::VALID_EMAIL_REGEX}, if: not_super

@@ -1,18 +1,28 @@
 <template>
-  <div v-if="latitude && longitude">
-    <div style="height: 10%; overflow: auto;">
-      Map verification
+  <div>
+    <template v-if="collectionEvent.verbatim_latitude && collectionEvent.verbatim_longitude">
+      <div v-if="latitude && longitude">
+        <div style="height: 10%; overflow: auto;">
+          Map verification
+        </div>
+        <l-map style="height: 300px; width:100%" :zoom="zoom" :center="center">
+          <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
+          <l-marker :lat-lng="marker"></l-marker>
+        </l-map>
+      </div>
+      <div
+        v-else
+        class="panel aligner middle"
+        style="height: 300px; align-items: center; width:310px; text-align: center;">
+        <h3>Verbatim latitude/longitude unparsable or incomplete, location preview unavailable.' (perhaps with warning triangle).</h3>
+      </div>
+    </template>
+    <div
+      v-else
+      class="panel aligner"
+      style="height: 300px; align-items: center; width:310px; text-align: center;">
+      <h3>Provide verbatim latitude/longitude to preview location on map.</h3>
     </div>
-    <l-map style="height: 300px; width:100%" :zoom="zoom" :center="center">
-      <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
-      <l-marker :lat-lng="marker"></l-marker>
-    </l-map>
-  </div>
-  <div
-    v-else
-    class="panel aligner"
-    style="height: 300px; align-items: center; width:310px">
-    <h3>Unparsable, can not preview point</h3>
   </div>
 </template>
 

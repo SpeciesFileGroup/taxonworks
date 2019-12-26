@@ -52,7 +52,11 @@ export default {
     return {
       autocomplete_type: {
         Otu: '/otus/autocomplete',
-        CollectionObject: '/collection_objects/autocomplete'
+        CollectionObject: '/collection_objects/autocomplete',
+      },
+      types: {
+        Otu: 'ObservationMatrixRowItem::SingleOtu',
+        CollectionObject: 'ObservationMatrixRowItem::SingleCollectionObject',
       },
       type: 'Otu',
       objectId: undefined,
@@ -62,7 +66,7 @@ export default {
     createRowItem() {
       let data = {
         observation_matrix_id: this.matrix.id,
-        type: (this.type === 'Otu' ? 'ObservationMatrixRowItem::SingleOtu' : 'ObservationMatrixRowItem::SingleCollectionObject'),
+        type: this.types[this.type]
       }
 
       data[(this.type === 'Otu' ? 'otu_id' : 'collection_object_id')] = this.objectId

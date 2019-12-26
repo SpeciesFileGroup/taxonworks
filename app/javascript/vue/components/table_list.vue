@@ -13,7 +13,7 @@
         tag="tbody">
         <tr
           v-for="item in list"
-          :key="item.id"
+          :key="rowKey ? item[rowKey] : item.id"
           class="list-complete-item">
           <td
             v-for="attr in attributes"
@@ -61,6 +61,10 @@
         default: () => {
           return []
         }
+      },
+      rowKey: {
+        type: String,
+        default: undefined
       },
       destroy: {
         type: Boolean,
@@ -119,7 +123,6 @@
 </script>
 <style lang="scss">
   .vue-table-container {
-    overflow-y: scroll;
     padding: 0px;
     position: relative;
   }

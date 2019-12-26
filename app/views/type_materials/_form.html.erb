@@ -1,8 +1,6 @@
 <%= form_for(@type_material) do |f| %>
   <%= render 'shared/errors', object: @type_material %>
 
-  <%= render(partial: '/people/role_picker', locals: {role: TypeDesignator.new(), object: @type_material, f: f}) %>
-
   <div class="field">
     <%= f.label :protonym_id %><br>
     <%= render :partial => 'workbench/elements/forms/ajax_select',

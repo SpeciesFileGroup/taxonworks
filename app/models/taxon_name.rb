@@ -126,6 +126,13 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #   Stores a taxon_name_id of a valid taxon_name based on taxon_name_ralationships and taxon_name_classifications.
 #
 class TaxonName < ApplicationRecord
+  # @return class
+  #   this method calls Module#module_parent
+  # TODO: This method can be placed elsewhere inside this class (or even removed if not used)
+  #       when https://github.com/ClosureTree/closure_tree/issues/346 is fixed.
+  def self.parent
+    self.module_parent
+  end
 
   has_closure_tree
 
@@ -142,6 +149,7 @@ class TaxonName < ApplicationRecord
   include Shared::HasPapertrail
   include SoftValidation
   include Shared::IsData
+  include TaxonName::OtuSyncronization
 
   # Allows users to provide arbitrary annotations that "over-ride" rank string
   ALTERNATE_VALUES_FOR = [:rank_class].freeze # !! Don't even think about putting this on `name`
@@ -198,6 +206,8 @@ class TaxonName < ApplicationRecord
   has_one :source_classified_as, through: :source_classified_as_relationship, source: :object_taxon_name
 
   has_many :otus, inverse_of: :taxon_name, dependent: :restrict_with_error
+  has_many :taxon_determinations, through: :otus
+  has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object
   has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id, dependent: :restrict_with_error, inverse_of: :object_taxon_name
 
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object, dependent: :destroy
@@ -233,9 +243,11 @@ class TaxonName < ApplicationRecord
 
   # Includes taxon_name, doesn't order result
   scope :ancestors_and_descendants_of, -> (taxon_name) do
-    a = TaxonName.self_and_ancestors_of(taxon_name)
-    b = TaxonName.descendants_of(taxon_name)
-    TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
+    scoping do
+      a = TaxonName.self_and_ancestors_of(taxon_name)
+      b = TaxonName.descendants_of(taxon_name)
+      TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
+    end
   end
 
   scope :with_rank_class, -> (rank_class_name) { where(rank_class: rank_class_name) }
@@ -248,6 +260,8 @@ class TaxonName < ApplicationRecord
   scope :as_subject_with_taxon_name_relationship, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where(taxon_name_relationships: {type: taxon_name_relationship}) }
   scope :as_subject_with_taxon_name_relationship_base, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "#{taxon_name_relationship}%").references(:taxon_name_relationships) }
   scope :as_subject_without_taxon_name_relationship_base, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where('(taxon_name_relationships.type NOT LIKE ?) OR (taxon_name_relationships.subject_taxon_name_id IS NULL)', "#{taxon_name_relationship}%").references(:taxon_name_relationships) }
+  scope :as_subject_with_taxon_name_relationship_array, -> (taxon_name_relationship_name_array) { includes(:taxon_name_relationships).where('(taxon_name_relationships.type IN (?)) OR (taxon_name_relationships.subject_taxon_name_id IS NULL)', "#{taxon_name_relationship_name_array}%").references(:taxon_name_relationships) }
+  scope :as_subject_without_taxon_name_relationship_array, -> (taxon_name_relationship_name_array) { includes(:taxon_name_relationships).where('(taxon_name_relationships.type NOT IN (?)) OR (taxon_name_relationships.subject_taxon_name_id IS NULL)', "#{taxon_name_relationship_name_array}%").references(:taxon_name_relationships) }
   scope :as_subject_with_taxon_name_relationship_containing, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "%#{taxon_name_relationship}%").references(:taxon_name_relationships) }
   scope :as_object_with_taxon_name_relationship, -> (taxon_name_relationship) { includes(:related_taxon_name_relationships).where(taxon_name_relationships: {type: taxon_name_relationship}) }
   scope :as_object_with_taxon_name_relationship_base, -> (taxon_name_relationship) { includes(:related_taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "#{taxon_name_relationship}%").references(:related_taxon_name_relationships) }
@@ -284,6 +298,9 @@ class TaxonName < ApplicationRecord
   scope :with_cached_valid_taxon_name_id, -> (cached_valid_taxon_name_id) {where(cached_valid_taxon_name_id: cached_valid_taxon_name_id)}
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
   scope :with_cached_html, -> (html) { where(cached_html: html) } # WHY? - DEPRECATE for cached
+
+  scope :without_otus, -> { includes(:otus).where(otus: {id: nil}) }
+  scope :with_otus, -> { includes(:otus).where.not(otus: {id: nil}) }
 
   # @return Scope
   #   names that are not leaves
@@ -358,6 +375,41 @@ class TaxonName < ApplicationRecord
     Ranks.valid?(r) ? r.safe_constantize : r
   end
 
+  def self.foo(rank_classes)
+    from <<-SQL.strip_heredoc
+      ( SELECT *, rank() 
+           OVER ( 
+               PARTITION BY rank_class, parent_id 
+               ORDER BY generations asc, name
+            ) AS rn
+         FROM taxon_names 
+         INNER JOIN "taxon_name_hierarchies" ON "taxon_names"."id" = "taxon_name_hierarchies"."descendant_id"
+         WHERE #{rank_classes.collect{|c| "rank_class = '#{c}'" }.join(' OR ')}
+         ) as taxon_names 
+    SQL
+  end
+
+  # @return [TaxonName, nil] an ancestor at the specified rank
+  # @params rank [symbol|string|
+  #   like :species or 'genus'
+  def ancestor_at_rank(rank)
+    ancestors.with_rank_class(
+      Ranks.lookup(
+        is_combination? ? parent.nomenclatural_code : nomenclatural_code,
+        rank)
+    ).first
+  end
+
+  # @return scope [TaxonName, nil] an ancestor at the specified rank
+  # @params rank [symbol|string|
+  #   like :species or 'genus'
+  def descendants_at_rank(rank)
+    return TaxonName.none if nomenclatural_code.blank? # Root names
+    descendants.with_rank_class(
+      Ranks.lookup(nomenclatural_code, rank)
+    )
+  end
+
   # @return [Array]
   #   all TaxonNameRelationships where this taxon is an object or subject.
   def all_taxon_name_relationships
@@ -399,6 +451,8 @@ class TaxonName < ApplicationRecord
     try(:source).try(:year)
   end
 
+  # !! Overrides Shared::Citations#nomenclature_date
+  #
   # @return [Time]
   #   effective date of publication, used to determine nomenclatural priority
   def nomenclature_date
@@ -459,7 +513,7 @@ class TaxonName < ApplicationRecord
 
   # @return [Scope]
   def taxon_name_classifications_for_statuses
-    taxon_name_classifications.with_type_array(ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICNB_TAXON_NAME_CLASSIFICATION_NAMES + ICTV_TAXON_NAME_CLASSIFICATION_NAMES)
+    taxon_name_classifications.with_type_array(ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICNP_TAXON_NAME_CLASSIFICATION_NAMES + ICTV_TAXON_NAME_CLASSIFICATION_NAMES)
   end
 
   # @return [Array of String]
@@ -494,16 +548,17 @@ class TaxonName < ApplicationRecord
   end
 
   # @return [String] combination of cached and cached_author_year.
- def cached_name_and_author_year
-   [cached, cached_author_year].compact.join(' ')
- end
+  def cached_name_and_author_year
+    [cached, cached_author_year].compact.join(' ')
+  end
 
-  # @return [TaxonName, nil] an ancestor at the specified rank
- def ancestor_at_rank(rank)
-   ancestors.with_rank_class(
-     Ranks.lookup(nomenclatural_code, rank)
-   ).first
- end
+  # @return [String, nil]
+  #   derived from cached_author_year
+  #   !! DO NOT USE IN building cached !!
+  #   See also app/helpers/taxon_names_helper
+  def original_author_year
+    cached_author_year&.gsub(/^\(|\)$/, '')
+  end
 
   # @return [Array of TaxonName] ancestors of type 'Protonym'
   def ancestor_protonyms
@@ -835,7 +890,11 @@ class TaxonName < ApplicationRecord
     end
 
     if data['genus'].nil?
-      data['genus'] = [nil, '[GENUS NOT SPECIFIED]']
+      if original_genus
+        data['genus'] = [nil, "[#{original_genus&.name}]"]
+      else
+        data['genus'] = [nil, '[GENUS NOT SPECIFIED]']
+      end
     end
     
     if data['species'].nil? && (!data['subspecies'].nil? || !data['variety'].nil? || !data['subvariety'].nil? || !data['form'].nil? || !data['subform'].nil?)
@@ -856,7 +915,7 @@ class TaxonName < ApplicationRecord
   # @return [String]
   #  a monomial if names is above genus, or a full epithet if below.
   def get_full_name
-    return verbatim_name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string) && !verbatim_name.nil?
+    return name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
     return name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
     return name if rank_class =~ /Ictv/
     return verbatim_name if !verbatim_name.nil? && type == 'Combination'
@@ -873,14 +932,17 @@ class TaxonName < ApplicationRecord
      
   def get_full_name_html(name = nil)
     name = get_full_name if name.nil? 
-    return name unless is_italicized?
-    n = name 
+    n = name
     # n = verbatim_name.blank? ? name : verbatim_name
     return  "\"<i>Candidatus</i> #{n}\"" if is_candidatus?
-    v = Utilities::Italicize.taxon_name(n)
-    v = '† ' + v if is_fossil?
-    v = '× ' + v if is_hybrid?
-    v
+    if !n.blank? && is_hybrid?
+      w = n.split(' ')
+      w[-1] = ('×' + w[-1]).gsub('×(', '(×')
+      n = w.join(' ')
+    end
+    n = Utilities::Italicize.taxon_name(n) if is_italicized?
+    n = '† ' + n if is_fossil?
+    n
   end
 
   def genus_name_elements(*args)
@@ -1000,7 +1062,7 @@ class TaxonName < ApplicationRecord
     end
 
     unless misapplication.empty? || m_obj.author_string.blank?
-      ay += ' nec ' + [m_obj.author_string]
+      ay += ' non ' + [m_obj.author_string]
       t  += ['(' + m_obj.year_integer.to_s + ')'] unless m_obj.year_integer.nil?
       ay = t.compact.join(' ')
     end
@@ -1046,7 +1108,7 @@ class TaxonName < ApplicationRecord
     obj = misapplication.empty? ? nil : misapplication.first.object_taxon_name
 
     unless misapplication.empty? || obj.author_string.blank?
-      ay += ' nec ' + ([obj.author_string] + [obj.year_integer]).compact.join(', ')
+      ay += ' non ' + ([obj.author_string] + [obj.year_integer]).compact.join(', ')
     end
 
     if SPECIES_RANK_NAMES_ICZN.include?(taxon.rank_string)
@@ -1256,7 +1318,8 @@ class TaxonName < ApplicationRecord
           (nomenclatural_code == :icnp && name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
           (nomenclatural_code == :icn && name =~  /^[a-zA-Z]*-[a-zA-Z]*$/) ||
           (nomenclatural_code == :icn && name =~  /^[a-zA-Z]*\s×\s[a-zA-Z]*$/) ||
-          (nomenclatural_code == :icn && name =~  /^×\s[a-zA-Z]*$/) ||
+          (nomenclatural_code == :icn && name =~  /^[a-zA-Z]*\s×[a-zA-Z]*$/) ||
+          (nomenclatural_code == :icn && name =~  /^×[a-zA-Z]*$/) ||
           (nomenclatural_code == :ictv)
         correct_name_format = true
       end
@@ -1297,8 +1360,9 @@ class TaxonName < ApplicationRecord
         if matchdata
           minP = matchdata[1] ? matchdata[1].to_i : matchdata[3].to_i
           maxP = matchdata[2] ? matchdata[2].to_i : matchdata[3].to_i
+          minP = 1 if minP == maxP && maxP.to_s == self.source.pages && %w{book booklet manual mastersthesis phdthesis techreport}.include?(self.source.bibtex_type)
           unless (maxP && minP && minP <= self.origin_citation.pages.to_i && maxP >= self.origin_citation.pages.to_i)
-            soft_validations.add(:base, 'Original citation is out of the source page range')
+            soft_validations.add(:base, "Original citation is out of the source page range")
           end
         end
       end

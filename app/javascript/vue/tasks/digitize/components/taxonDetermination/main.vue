@@ -22,6 +22,7 @@
             v-if="view == 'new/Search' && !otuId"
             class="horizontal-left-content">
             <otu-picker
+              id="determination-otu"
               @getItem="otuId = $event.id; otuSelected = $event.label_html"/> 
             <pin-default
               class="separate-left"
@@ -127,6 +128,7 @@
       </div>
       <button
         type="button"
+        id="determination-add-button"
         :disabled="!otuId"
         class="button normal-input button-submit separate-top"
         @click="addDetermination">Add</button>

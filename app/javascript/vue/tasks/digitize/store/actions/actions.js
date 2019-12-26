@@ -1,6 +1,7 @@
 import ActionNames from './actionNames'
 
 import loadDigitalization from './loadDigitalization'
+import loadContainer from './loadContainer'
 import getTaxon from './getTaxon'
 import getLabels from './getLabels'
 import getNamespace from './getNamespace'
@@ -36,6 +37,7 @@ import removeTypeMaterial from './removeTypeMaterial'
 const ActionFunctions = {
   [ActionNames.AddToContainer]: addToContainer,
   [ActionNames.LoadDigitalization]: loadDigitalization,
+  [ActionNames.LoadContainer]: loadContainer,
   [ActionNames.GetTaxon]: getTaxon,
   [ActionNames.GetLabels]: getLabels,
   [ActionNames.GetNamespace]: getNamespace,

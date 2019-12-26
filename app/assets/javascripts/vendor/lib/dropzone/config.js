@@ -5,6 +5,7 @@ _init_dropzone_for_images = function init_dropzone_for_images() {
     Dropzone.options.basicImages = {
       paramName: "image[image_file]", // The name that will be used to transfer the file
       maxFilesize: 100,
+      timeout: 0,
       dictDefaultMessage: "Drag and drop images here or click to upload.",
       success: function(file, dataUrl) {
         $(file.previewElement).wrap('<a href="/images/'+dataUrl.id+'"></a>');
@@ -24,6 +25,7 @@ _init_dropzone_for_depictions = function init_dropzone_for_depictions() {
     Dropzone.options.depictionImages = {
       paramName: "depiction[image_attributes][image_file]", // The name that will be used to transfer the file
       maxFilesize: 100,
+      timeout: 0,
       accept: function(file, done) {
         done();
       }
@@ -43,6 +45,7 @@ _init_dropzone_for_task_simple_specimen = function init_dropzone_for_task_simple
       paramName: "specimen[image_array]",
       maxFiles: 100,
       maxFilesize: 100,
+      timeout: 0,
       previewsContainer: '#dropzone_previews',
 
       // The setting up of the dropzone

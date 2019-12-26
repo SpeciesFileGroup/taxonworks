@@ -79,7 +79,7 @@ class ExtractsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_extract
-      @extract = Extract.find(params[:id])
+      @extract = Extract.where(project_id: sessions_current_project_id).find(params[:id])
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

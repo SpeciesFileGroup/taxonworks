@@ -154,7 +154,7 @@
       GetCollectingEventsSmartSelector().then(response => {
         this.tabs = orderSmartSelector(Object.keys(response))
         this.lists = response
-        this.view = selectFirstSmartOption(response, this.tabs)
+        this.view = selectFirstSmartOption(response, this.tabs) ? selectFirstSmartOption(response, this.tabs) : 'search'
       })
     },
     methods: {

@@ -8,7 +8,7 @@ class ContentsController < ApplicationController
   def index
     respond_to do |format|
       format.html do
-        @recent_objects = Content.where(project_id: sessions_current_project_id).recently_updated(10)
+        @recent_objects = Content.where(project_id: sessions_current_project_id).recently_updated.limit(10)
         render '/shared/data/all/index'
       end
       format.json {
@@ -109,7 +109,7 @@ class ContentsController < ApplicationController
   # GET /contents/download
   def download
     send_data(
-      Download.generate_csv(Content.where(project_id: sessions_current_project_id)),
+      Export::Download.generate_csv(Content.where(project_id: sessions_current_project_id)),
       type: 'text',
       filename: "contents_#{DateTime.now}.csv")
   end

@@ -2,32 +2,28 @@
 
 <table class="tablesorter">
   <thead>
-  <tr>
-    <%= fancy_th_tag(name: 'Cached') -%>
-    <%= fancy_th_tag(name: 'Verbatim keywords') -%>
-    <%= fancy_th_tag(name: 'Language') -%>
-    <%= fancy_th_tag(name: 'Abstract') -%>
-    <%= fancy_th_tag(name: 'Type') -%>
-    <%= fancy_th_tag(name: 'Bibtex type') -%>
-    <%= fancy_th_tag(name: 'Documents', group: 'housekeeping') -%>
-    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
-    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
-  </tr>
+    <tr>
+      <%= fancy_th_tag(name: 'Cached') -%>
+      <%= fancy_th_tag(name: 'Language') -%>
+      <%= fancy_th_tag(name: 'Type') -%>
+      <%= fancy_th_tag(name: 'Bibtex type') -%>
+      <%= fancy_th_tag(name: 'Documents', group: 'housekeeping') -%>
+      <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+      <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+    </tr>
   </thead>
 
   <tbody>
-  <% @sources.each do |source| %>
+    <% @sources.each do |source| %>
       <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
-          <td><%= source.cached %></td>
-          <td><%= source.verbatim_keywords %></td>
-          <td><%= source.respond_to?(:source_language) && language_tag(source.source_language) %></td>
-          <td><%= source.abstract %></td>
-          <td><%= source.type %></td>
-          <td><%= source.bibtex_type %></td>
-          <td><%= documentation_links(source) -%></td>
-          <%= fancy_metadata_cells_tag(source) -%>
+        <td><%= source.cached.html_safe %></td>
+        <td><%= source.respond_to?(:source_language) && language_tag(source.source_language) %></td>
+        <td><%= source.type %></td>
+        <td><%= source.bibtex_type %></td>
+        <td><%= documentation_links(source) -%></td>
+        <%= fancy_metadata_cells_tag(source) -%>
       <% end %>
-  <% end %>
+    <% end %>
   </tbody>
 </table>
 

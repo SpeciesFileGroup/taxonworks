@@ -8,7 +8,7 @@
 <script>
 
   import L from 'leaflet'
-  import LeafletDraw from 'leaflet-draw'
+  import 'leaflet.pm'
 
   delete L.Icon.Default.prototype._getIconUrl
 
@@ -200,63 +200,48 @@
         }
 
         if (this.drawControls) {
-          this.mapObject.addControl(new L.Control.Draw({
-            edit: {
-              featureGroup: this.drawnItems,
-              poly: {
-                allowIntersection: false
-              },
-              edit: true
-            },
-            draw: {
-              polygon: {
-                allowIntersection: false,
-                showArea: true
-              },
-              marker: false,
-              circlemarker: false,
-              circle: true,
-              polyline: false
-            }
-          }));
+          this.mapObject.pm.addControls({
+            position: 'topleft',
+            drawCircle: true,
+            drawMarker: false,
+            drawPolyline: false,
+            drawPolygon: true,
+            drawRectangle: true,
+            editMode: true,
+            dragMode: true,
+            cutPolygon: false,
+            removalMode: true
+          });
           this.mapObject.addControl(this.drawnItems);
         }
       },
       handleEvents() {
         let that = this
-        this.mapObject.on(L.Draw.Event.CREATED, function (e) {
-          var layer = e.layer;
-          var geoJsonLayer = layer.toGeoJSON()
+        this.mapObject.on('pm:create', (e) => {
+          var layer = e.layer
+          var geoJsonLayer = this.convertGeoJSONWithPointRadius(layer)
 
           if (e.layerType === 'circle') {
             geoJsonLayer.properties.radius = layer.getRadius()
           }
+          layer.on('pm:edit', (event) => {
+            that.editedLayer(event)
+          })
           that.$emit('shapeCreated', layer)
           that.$emit('geoJsonLayerCreated', geoJsonLayer)
           that.drawnItems.addLayer(layer.setStyle({color: "#444400", fillColor: "#888800"}))
-        });
-
-        this.mapObject.on('draw:edited', (e) => {
-          var layers = e.layers
-
-          that.$emit('shapesEdited', layers)
-          that.$emit('geoJsonLayersEdited', that.convertGeoJSONWithPointRadius(layers))
         })
       },
       removeLayers() {
         this.drawnItems.clearLayers()
       },
-      convertGeoJSONWithPointRadius(layerArray) {
-        let arrayLayers = []
+      convertGeoJSONWithPointRadius (layer) {
+        const layerJson = layer.toGeoJSON()
+        if (typeof layer.getRadius === 'function') {
+          layerJson.properties.radius = layer.getRadius()
+        }
 
-        layerArray.eachLayer(layer => {
-          let layerJson = layer.toGeoJSON()
-          if (typeof layer.getRadius === 'function') {
-            layerJson.properties.radius = layer.getRadius()
-          }
-          arrayLayers.push(layerJson)
-        })
-        return arrayLayers
+        return layerJson
       },
       toGeoJSON() {
         return this.convertGeoJSONWithPointRadius(this.drawnItems)
@@ -294,10 +279,17 @@
       },
       onMyFeatures(feature, layer) {
         layer.on({
+          'pm:edit': this.editedLayer,
           mouseover: this.highlightFeature,
           mouseout: this.resetHighlight,
           click: this.zoomToFeature
         });
+      },
+      editedLayer (e) {
+        var layer = e.target
+
+        this.$emit('shapesEdited', layer)
+        this.$emit('geoJsonLayersEdited', this.convertGeoJSONWithPointRadius(layer))
       },
       highlightFeature(e) {
         let layer = e.target;

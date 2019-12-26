@@ -50,4 +50,48 @@ module OtusHelper
     content_tag(:div, '', 'data-global-id' => object.to_global_id.to_s, 'data-otu-radial' => 'true')
   end
 
+  # @return [Array]
+  #   of OTUs
+  def next_otus(otu)
+    if otu.taxon_name_id
+      if t = otu.taxon_name.next_sibling&.otus
+        t 
+      else
+        []
+      end
+    else 
+      Otu.where(project_id: otu.id).where('id > ?', otu.id).all
+    end 
+  end
+
+  def previous_otus(otu)
+    if otu.taxon_name_id
+      if t = otu.taxon_name.previous_sibling&.otus
+        t 
+      else
+        []
+      end
+    else 
+      Otu.where(project_id: otu.id).where('id < ?', otu.id).all
+    end 
+  end
+
+  def parent_otus(otu)
+    if otu.taxon_name_id
+      otu.taxon_name.parent.otus.all
+    else
+      [] 
+    end 
+  end
+
+  def parents_by_nomenclature(otu)
+    above = [ ]
+    if otu.taxon_name_id
+      otu.taxon_name.ancestors.select('taxon_names.*, taxon_name_hierarchies.generations').that_is_valid.joins(:otus).distinct.reorder('taxon_name_hierarchies.generations DESC, taxon_names.cached_valid_taxon_name_id').each do |t|
+        above.push [t.cached, t.otus.to_a]
+      end
+    end
+    above
+  end
+
 end

@@ -119,6 +119,12 @@ class TaxonNameRelationship < ApplicationRecord
     []
   end
 
+  # @return class
+  #   this method calls Module#module_parent
+  def self.parent
+    self.module_parent
+  end
+
   # @return [Array of NomenclatureRank]
   #   the valid ranks to which the subject name can belong, set in subclasses. (left side)
   def self.valid_subject_ranks
@@ -264,7 +270,7 @@ class TaxonNameRelationship < ApplicationRecord
 
   def validate_subject_and_object_share_code
     if object_taxon_name.type  == 'Protonym' && subject_taxon_name.type == 'Protonym'
-      errors.add(:object_taxon_name_id, 'The related taxon is not in the same monenclatural group (ICZN, ICN, ICNB, ICTV') if subject_taxon_name.rank_class.try(:nomenclatural_code) != object_taxon_name.rank_class.try(:nomenclatural_code)
+      errors.add(:object_taxon_name_id, 'The related taxon is not in the same monenclatural group (ICZN, ICN, ICNP, ICTV') if subject_taxon_name.rank_class.try(:nomenclatural_code) != object_taxon_name.rank_class.try(:nomenclatural_code)
     end
   end
 

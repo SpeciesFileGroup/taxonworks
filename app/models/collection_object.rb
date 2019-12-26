@@ -1,3 +1,4 @@
+
 # A CollectionObject is on or more physical things that have been collected.  Enumerating how many things (@!total) is a task of the curator.
 #
 # A CollectiongObjects immediate disposition is handled through its relation to containers.  Containers can be nested, labeled, and interally subdivided as necessary.
@@ -60,6 +61,7 @@ class CollectionObject < ApplicationRecord
 
   include GlobalID::Identification
   include Housekeeping
+
   include Shared::Citations
   include Shared::Containable
   include Shared::DataAttributes
@@ -73,12 +75,13 @@ class CollectionObject < ApplicationRecord
   include Shared::Confidences
   include Shared::ProtocolRelationships
   include Shared::HasPapertrail
-  include Shared::IsData
   include Shared::Observations
+  include Shared::IsData
   include SoftValidation
-
   include Shared::IsDwcOccurrence
   include CollectionObject::DwcExtensions
+
+  include CollectionObject::BiologicalExtensions
 
   ignore_whitespace_on(:buffered_collecting_event, :buffered_determinations, :buffered_other_labels)
   is_origin_for 'CollectionObject', 'Extract', 'AssertedDistribution'
@@ -86,21 +89,12 @@ class CollectionObject < ApplicationRecord
   CO_OTU_HEADERS      = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
   BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze
 
-  # @return [Boolean]
-  #  When true, cached values are not built
-  attr_accessor :no_cached
-
-  after_save :add_to_dwc_occurrence, unless: -> { self.no_cached }
-
-  # Otu delegations
-  delegate :name, to: :current_otu, prefix: :otu, allow_nil: true # could be Otu#otu_name?
-  delegate :id, to: :current_otu, prefix: :otu, allow_nil: true
-
   # Identifier delegations
   delegate :cached, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
 
   # CollectingEvent delegations
   delegate :map_center, to: :collecting_event, prefix: :collecting_event, allow_nil: true
+  delegate :collectors, to: :collecting_event, prefix: :collecting_event, allow_nil: true
 
   # Repository delegations
   delegate :acronym, to: :repository, prefix: :repository, allow_nil: true
@@ -114,19 +108,9 @@ class CollectionObject < ApplicationRecord
   has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object, dependent: :destroy
   has_one :deaccession_recipient, through: :deaccession_recipient_role, source: :person
 
-  has_many :biological_associations, as: :biological_association_subject, inverse_of: :biological_association_subject, dependent: :restrict_with_error
-  has_many :related_biological_associations, as: :biological_association_object, inverse_of: :biological_association_object, class_name: 'BiologicalAssociation'
-
   has_many :derived_collection_objects, inverse_of: :collection_object, dependent: :restrict_with_error
   has_many :collection_object_observations, through: :derived_collection_objects, inverse_of: :collection_objects
   has_many :sqed_depictions, through: :depictions, dependent: :restrict_with_error
-
-  # This is a problem, but here for the foreseeable future for nested attributes purporses.
-  has_many :taxon_determinations, foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object, dependent: :destroy
-  has_many :otus, through: :taxon_determinations, inverse_of: :collection_objects
-  has_many :taxon_names, through: :otus
-
-  has_many :type_designations, class_name: 'TypeMaterial', foreign_key: :biological_object_id, inverse_of: :material, dependent: :restrict_with_error
 
   belongs_to :collecting_event, inverse_of: :collection_objects
   belongs_to :preparation_type, inverse_of: :collection_objects
@@ -136,8 +120,6 @@ class CollectionObject < ApplicationRecord
   has_many :georeferences, through: :collecting_event
   has_many :geographic_items, through: :georeferences
 
-  accepts_nested_attributes_for :otus, allow_destroy: true, reject_if: :reject_otus
-  accepts_nested_attributes_for :taxon_determinations, allow_destroy: true, reject_if: :reject_taxon_determinations
   accepts_nested_attributes_for :collecting_event, allow_destroy: true, reject_if: :reject_collecting_event
 
   validates_presence_of :type
@@ -151,7 +133,7 @@ class CollectionObject < ApplicationRecord
 
   scope :with_sequence_name, ->(name) { joins(sequence_join_hack_sql).where(sequences: {name: name}) }
   scope :via_descriptor, ->(descriptor) { joins(sequence_join_hack_sql).where(sequences: {id: descriptor.sequences}) }
-  #
+
   # This is a hack, maybe related to a Rails 5.1 bug.
   # It returns the SQL that works in 5.0/4.2 that
   # links CollectionObject to Sequences:
@@ -217,34 +199,7 @@ class CollectionObject < ApplicationRecord
     breakdown
   end
 
-  # @return [Identifier::Local::CatalogNumber, nil]
-  #   the first (position) catalog number for this collection object
-  def preferred_catalog_number
-    Identifier::Local::CatalogNumber.where(identifier_object: self).first
-  end
-
-  # see BiologicalCollectionObject
-  def missing_determination
-  end
-
-  # return [Boolean]
-  #    True if instance is a subclass of BiologicalCollectionObject
-  def biological?
-    self.class <= BiologicalCollectionObject ? true : false
-  end
-
-  def annotations
-    h = annotations_hash
-    (h['biocuration classifications'] = self.biocuration_classes) if self.biological? && self.biocuration_classifications.load.any?
-    h
-  end
-
-  # @param [String] rank
-  # @return [String] if a determination exists, and the Otu in the determination has a taxon name then return the taxon name at the rank supplied
-  def name_at_rank_string(rank)
-    current_taxon_name.try(:ancestor_at_rank, rank).try(:cached_html)
-  end
-
+  # TODO: Deprecate.  Used?!
   # @param [Scope] scope of selected CollectionObjects
   # @param [Hash] col_defs selected headers and types
   # @param [Hash] table_data (optional)
@@ -299,7 +254,6 @@ class CollectionObject < ApplicationRecord
       end
     end
   end
-
 
   # TODO: this should be refactored to be collection object centric AFTER
   # it is spec'd
@@ -373,10 +327,12 @@ class CollectionObject < ApplicationRecord
     retval
   end
 
+  # TODO: deprecate
   def self.selected_column_names
-    @selected_column_names = {ce: {in: {}, im: {}},
-                              co: {in: {}, im: {}},
-                              bc: {in: {}, im: {}}
+    @selected_column_names = {
+      ce: {in: {}, im: {}},
+      co: {in: {}, im: {}},
+      bc: {in: {}, im: {}}
     } if @selected_column_names.nil?
     @selected_column_names
   end
@@ -558,8 +514,8 @@ class CollectionObject < ApplicationRecord
     end
 
     retval = CollectionObject.joins(:collecting_event)
-               .where(collecting_events_clause)
-               .where(area_objects_clause)
+      .where(collecting_events_clause)
+      .where(area_objects_clause)
     retval
   end
 
@@ -571,29 +527,6 @@ class CollectionObject < ApplicationRecord
     allow_partial = (partial_overlap.downcase == 'off' ? false : true) # TODO: Just get the correct values from the form!
     q = Queries::CollectingEvent::Filter.new(start_date: search_start_date, end_date: search_end_date, partial_overlap_dates: allow_partial)
     joins(:collecting_event).where(q.between_date_range.to_sql)
-  end
-
-  def sv_missing_accession_fields
-    soft_validations.add(:accessioned_at, 'Date is not selected') if self.accessioned_at.nil? && !self.accession_provider.nil?
-    soft_validations.add(:base, 'Provider is not selected') if !self.accessioned_at.nil? && self.accession_provider.nil?
-  end
-
-  def sv_missing_deaccession_fields
-    soft_validations.add(:deaccessioned_at, 'Date is not selected') if self.deaccessioned_at.nil? && !self.deaccession_reason.blank?
-    soft_validations.add(:base, 'Recipient is not selected') if self.deaccession_recipient.nil? && self.deaccession_reason && self.deaccessioned_at
-    soft_validations.add(:deaccession_reason, 'Reason is is not defined') if self.deaccession_reason.blank? && self.deaccession_recipient && self.deaccessioned_at
-  end
-
-  def sv_missing_collecting_event
-    # see biological_collection_object
-  end
-
-  def sv_missing_preparation_type
-    # see biological_collection_object
-  end
-
-  def sv_missing_repository
-    # see biological_collection_object
   end
 
   # @param used_on [String] required, one of `TaxonDetermination`, `BiologicalAssociation`
@@ -649,22 +582,89 @@ class CollectionObject < ApplicationRecord
     }
 
     if target
-      h[:recent] = CollectionObject.joins(target.tableize.to_sym).where(project_id: project_id).used_recently(target).limit(10).distinct.to_a
+      n = target.tableize.to_sym
+      h[:recent] = CollectionObject.joins(n)
+        .where(collection_objects: {project_id: project_id}, n => {updated_by_id: user_id})
+        .used_recently(target)
+        .limit(10).distinct.to_a
     else
-      h[:recent] = CollectionObject.where(project_id: project_id).order('updated_at DESC').limit(10).to_a
+      h[:recent] = CollectionObject.where(project_id: project_id, updated_by_id: user_id).order('updated_at DESC').limit(10).to_a
     end
 
     h[:quick] = (CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq 
     h
   end
 
-  protected
-
-  def add_to_dwc_occurrence
-    get_dwc_occurrence
+  def next_by_identifier
+    if i = identifiers.order(:position).first
+      CollectionObject
+        .where(project_id: project_id)
+        .where.not(id: id)
+        .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'ASC')
+        .where(Utilities::Strings.is_i?(i.identifier) ?
+               ["CAST(identifiers.identifier AS bigint) > #{i.identifier}"] : ["identifiers.identifier > ?", i.identifier])
+        .first
+    else
+      nil
+    end
   end
 
-  handle_asynchronously :add_to_dwc_occurrence, run_at: Proc.new { 20.seconds.from_now }
+  def previous_by_identifier
+    if i = identifiers.order(:position).first
+      CollectionObject
+        .where(project_id: project_id)
+        .where.not(id: id)
+        .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'DESC')
+        .where(Utilities::Strings.is_i?(i.identifier) ?
+               ["CAST(identifiers.identifier AS bigint) < #{i.identifier}"] : ["identifiers.identifier < ?", i.identifier])
+        .first
+    else
+      nil
+    end 
+  end
+
+  # @return [Identifier::Local::CatalogNumber, nil]
+  #   the first (position) catalog number for this collection object
+  def preferred_catalog_number
+    Identifier::Local::CatalogNumber.where(identifier_object: self).first
+  end
+
+  # return [Boolean]
+  #    True if instance is a subclass of BiologicalCollectionObject
+  def biological?
+    self.class <= BiologicalCollectionObject ? true : false
+  end
+
+  def annotations
+    h = annotations_hash
+    (h['biocuration classifications'] = biocuration_classes) if biological? && biocuration_classifications.load.any?
+    h
+  end
+
+  def sv_missing_accession_fields
+    soft_validations.add(:accessioned_at, 'Date is not selected') if self.accessioned_at.nil? && !self.accession_provider.nil?
+    soft_validations.add(:base, 'Provider is not selected') if !self.accessioned_at.nil? && self.accession_provider.nil?
+  end
+
+  def sv_missing_deaccession_fields
+    soft_validations.add(:deaccessioned_at, 'Date is not selected') if self.deaccessioned_at.nil? && !self.deaccession_reason.blank?
+    soft_validations.add(:base, 'Recipient is not selected') if self.deaccession_recipient.nil? && self.deaccession_reason && self.deaccessioned_at
+    soft_validations.add(:deaccession_reason, 'Reason is is not defined') if self.deaccession_reason.blank? && self.deaccession_recipient && self.deaccessioned_at
+  end
+
+  def sv_missing_collecting_event
+    # see biological_collection_object
+  end
+
+  def sv_missing_preparation_type
+    # see biological_collection_object
+  end
+
+  def sv_missing_repository
+    # WHY? -  see biological_collection_object
+  end
+
+  protected
 
   def check_that_both_of_category_and_total_are_not_present
     errors.add(:ranged_lot_category_id, 'Both ranged_lot_category and total can not be set') if !ranged_lot_category_id.blank? && !total.blank?
@@ -717,5 +717,9 @@ class CollectionObject < ApplicationRecord
     # !! does not account for georeferences_attributes!
     reject
   end
-
 end
+
+require_dependency 'specimen'
+require_dependency 'lot'
+require_dependency 'ranged_lot'
+
