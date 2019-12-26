@@ -917,7 +917,7 @@ class TaxonName < ApplicationRecord
   def get_full_name
     return name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
     return name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
-    return name if rank_class =~ /Ictv/
+    return name if rank_class.to_s =~ /Ictv/
     return verbatim_name if !verbatim_name.nil? && type == 'Combination'
     
     d = full_name_hash
