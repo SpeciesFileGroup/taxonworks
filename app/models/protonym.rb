@@ -577,7 +577,7 @@ class Protonym < TaxonName
 
     # Weird, why?
     # DD: in ICTV the species name is "Potato spindle tuber viroid", the genus name is only used for classification...
-    return e[:species] if rank_class =~ /Ictv/
+    return e[:species] if rank_class.to_s =~ /Ictv/
 
     p = TaxonName::COMBINATION_ELEMENTS.inject([]){|ary, r| ary.push(e[r]) } 
     
