@@ -253,9 +253,9 @@ class Combination < TaxonName
   #    if name is provided then cached must match (i.e. verbatim_name if provided must also match)
   def self.match_exists?(name = nil, **keyword_args)
     if name.blank?
-      a = find_by_protonym_ids(keyword_args).first
+      a = find_by_protonym_ids(**keyword_args).first
     else
-      a = find_by_protonym_ids(keyword_args).where(cached: name).first
+      a = find_by_protonym_ids(**keyword_args).where(cached: name).first
     end
     a ? a : false
   end
@@ -453,13 +453,13 @@ class Combination < TaxonName
   end
 
   def is_unique
-    if a = Combination.match_exists?(verbatim_name, protonym_ids_params)
+    if a = Combination.match_exists?(verbatim_name, **protonym_ids_params)
       errors.add(:base, 'Combination exists.') if a.id != id
     end
   end
 
   def does_not_exist_as_original_combination
-    if a = Combination.matching_protonyms(get_full_name, protonym_ids_params)
+    if a = Combination.matching_protonyms(get_full_name, **protonym_ids_params)
       errors.add(:base, "Combination exists as protonym(s) with matching original combination: #{a.all.pluck(:cached).join(', ')}.") if a.any?
     end
   end

@@ -86,7 +86,7 @@ class SequenceRelationshipsController < ApplicationController
 
   def preview_primers_batch_load
     if params[:file]
-      @result = BatchLoad::Import::SequenceRelationships::PrimersInterpreter.new(batch_params)
+      @result = BatchLoad::Import::SequenceRelationships::PrimersInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :Primers_sequences_md5)
       render 'sequence_relationships/batch_load/primers/preview'
     else
@@ -97,7 +97,7 @@ class SequenceRelationshipsController < ApplicationController
 
   def create_primers_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Primers_sequences_md5)
-      @result = BatchLoad::Import::SequenceRelationships::PrimersInterpreter.new(batch_params)
+      @result = BatchLoad::Import::SequenceRelationships::PrimersInterpreter.new(**batch_params)
       if @result.create!
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} " \
                             'sequence relationships were created.'

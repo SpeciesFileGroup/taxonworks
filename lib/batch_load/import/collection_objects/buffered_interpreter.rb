@@ -9,7 +9,7 @@ module BatchLoad
       @otu_id = args.delete(:otu_id)
       @source = @source_id.present? ? Source.find(@source_id) : nil
       @otu = @otu_id.present? ? Otu.find(@otu_id) : nil
-      super(args)
+      super(**args)
     end
 
     # rubocop:disable Metrics/MethodLength
