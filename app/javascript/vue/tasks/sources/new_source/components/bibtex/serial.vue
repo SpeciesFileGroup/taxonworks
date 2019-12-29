@@ -4,6 +4,7 @@
       <fieldset class="full_width">
         <legend>Serial</legend>
         <smart-selector
+          input-id="serials-autocomplete"
           model="serials"
           klass="source"
           label="name"
