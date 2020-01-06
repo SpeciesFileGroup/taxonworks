@@ -94,7 +94,7 @@
   import SmartSelector from 'components/switch.vue'
   import { GetterNames } from '../../../../store/getters/getters.js'
   import { MutationNames } from '../../../../store/mutations/mutations.js'
-  import { GetGeographicSmartSelector, GetGeographicAreaByCoords } from '../../../../request/resources.js'
+  import { GetGeographicSmartSelector, GetGeographicAreaByCoords, GetGeographicArea } from '../../../../request/resources.js'
   import OrderSmartSelector from 'helpers/smartSelector/orderSmartSelector'
   import convertDMS from '../../../../helpers/parseDMS.js'
   import ModalComponent from 'components/modal'
@@ -134,10 +134,16 @@
     watch: {
       collectingEvent: {
         handler(newVal, oldVal) {
-          if(convertDMS(newVal.verbatim_latitude) && convertDMS(newVal.verbatim_longitude)) {
-            let that = this
-            clearTimeout(this.ajaxCall)
-            this.ajaxCall = setTimeout(() => { that.getByCoords(convertDMS(newVal.verbatim_latitude), convertDMS(newVal.verbatim_longitude)) }, this.delay)
+          if(newVal.geographic_area_id) {
+            GetGeographicArea(newVal.geographic_area_id).then(response => {
+              this.selectGeographicArea(response)
+            })
+          } else {
+            if(convertDMS(newVal.verbatim_latitude) && convertDMS(newVal.verbatim_longitude)) {
+              let that = this
+              clearTimeout(this.ajaxCall)
+              this.ajaxCall = setTimeout(() => { that.getByCoords(convertDMS(newVal.verbatim_latitude), convertDMS(newVal.verbatim_longitude)) }, this.delay)
+            }
           }
         },
         deep: true

@@ -15,6 +15,7 @@ function makeInitialState () {
       increment: false,
       lastSave: 0,
       lastChange: 0,
+      saveIdentifier: true,
       locked: {
         biocuration: false,
         identifier: false,

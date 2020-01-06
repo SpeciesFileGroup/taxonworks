@@ -66,10 +66,18 @@ class SourcesController < ApplicationController
   end
 
   def parse
-    if @source = new_source
+    error_message = 'Unknown'
+
+    begin
+      @source = new_source
+    rescue BibTeX::ParseError => e
+      error_message = e.message
+    end
+
+    if @source
       render '/sources/show'
     else
-      render json: {status: :failed}
+      render json: { status: :failed, error: error_message }
     end
   end
 
@@ -187,7 +195,6 @@ class SourcesController < ApplicationController
   def filter_params
     params.permit(:query_term, :project_id, :recent, author_ids: [])
   end
-
 
   def set_source
     @source = Source.find(params[:id])

@@ -41,7 +41,7 @@
         </thead>
 
         <tbody>
-          <%= h(@loan.notes.collect{|n| content_tag(:tr, content_tag(:td, n.text))}.join).html_safe -%>
+          <%= (@loan.notes.collect{|n| content_tag(:tr, content_tag(:td, n.text))}.join).html_safe -%>
         </tbody>
       </table>
 

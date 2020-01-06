@@ -51,7 +51,6 @@ export default {
   watch: {
     source: {
       handler(newVal) {
-        console.log(newVal)
         if(!newVal.title) {
           clearTimeout(this.timer)
           this.searching = false

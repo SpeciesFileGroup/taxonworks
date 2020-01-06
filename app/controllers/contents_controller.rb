@@ -119,7 +119,7 @@ class ContentsController < ApplicationController
   def filtered_content
     p =  params.permit(:otu_id, :topic_id, :hours_ago, :most_recent_updates).to_h.symbolize_keys
     p[:most_recent_updates] = 10 if p.empty?
-    Queries::ContentFilterQuery.new(p)
+    Queries::ContentFilterQuery.new(**p)
       .all
       .with_project_id(sessions_current_project_id)
   end

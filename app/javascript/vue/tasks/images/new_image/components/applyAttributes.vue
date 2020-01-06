@@ -1,6 +1,6 @@
 <template>
   <div class="panel content">
-    <h2>Use the options below to build attributions and depictions, then apply it to your images.</h2>
+    <h2>Use the options below to build attributions and depictions, then <i>Apply</i> them to your images.</h2>
     <div class="flexbox">
       <div class="separate-right">
         <div class="horizontal-left-content separate-bottom">

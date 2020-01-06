@@ -7,23 +7,28 @@ const ajaxCall = function (type, url, data = null) {
   Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
   return new Promise(function (resolve, reject) {
     Vue.http[type](url, data).then(response => {
-      console.log(response)
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(response)
+      }
       return resolve(response.body)
     }, response => {
-      console.log(response)
-      handleError(response.body)
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(response)
+      }
+      handleError(response)
       return reject(response)
     })
   })
 }
 
 const handleError = function (json) {
-  if (typeof json !== 'object') return
-  let errors = Object.keys(json)
+  if ((typeof json !== 'object') || (json.status === 404)) return
+  let errors = Object.keys(json.body)
   let errorMessage = ''
 
+  if(errors.length === 1 && 'success') return
   errors.forEach(function (item) {
-    errorMessage += json[item].join('<br>')
+    errorMessage += json[item].join('<br>') + '<br>'
   })
 
   TW.workbench.alert.create(errorMessage, 'error')
@@ -42,7 +47,7 @@ const GetIdentifiersFromCO = function (id) {
 }
 
 const GetLabelsFromCE = function (id) {
-  return ajaxCall('get', `/labels?label_object_id=${id}&label_object_type=CollectingEvent`)
+  return ajaxCall('get', `/labels.json?label_object_id=${id}&label_object_type=CollectingEvent`)
 }
 
 const GetRecentCollectionObjects = function () {
@@ -111,6 +116,10 @@ const GetOtu = function (id) {
 
 const GetGeographicAreaByCoords = function (lat,long) {
   return ajaxCall('get', `/geographic_areas/by_lat_long?latitude=${lat}&longitude=${long}`)
+}
+
+const GetGeographicArea = function (id) {
+  return ajaxCall('get', `/geographic_areas/${id}.json`)
 }
 
 const GetTypes = function () {
@@ -364,5 +373,6 @@ export {
   CreateContainer,
   CreateContainerItem,
   GetContainer,
-  GetNamespacesSmartSelector
+  GetNamespacesSmartSelector,
+  GetGeographicArea
 }

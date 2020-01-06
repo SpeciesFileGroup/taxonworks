@@ -161,7 +161,7 @@ export default {
         biological_relationship_id: this.biologicalRelationship.id,
         object_global_id: (this.flip ? this.globalId : this.biologicalRelation.global_id),
         subject_global_id: (this.flip ? this.biologicalRelation.global_id : this.globalId),
-        origin_citation_attributes: this.citation
+        citations_attributes: [this.citation]
       }
 
       this.create('/biological_associations.json', { biological_association: data }).then(response => {
@@ -179,7 +179,7 @@ export default {
       }
 
       if (this.citation) {
-        data.origin_citation_attributes = this.citation
+        data.citations_attributes = [this.citation]
       }
 
       this.update(`/biological_associations/${data.id}.json`, { biological_association: data }).then(response => {

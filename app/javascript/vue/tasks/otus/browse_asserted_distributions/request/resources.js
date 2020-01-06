@@ -5,7 +5,7 @@ const GetOtuAssertedDistribution = (data) => {
 }
 
 const GetOtu = (id) => {
-  return ajaxCall('get', `/otus/${id}`)
+  return ajaxCall('get', `/otus/${id}.json`)
 }
 
 const GetNavigationOtu = (id) => {

@@ -14,7 +14,7 @@ describe Identifier::Global::Uri, type: :model, group: :identifiers do
       end
 
       specify 'any old word' do
-        id.identifier = Faker::Lorem.word
+        id.identifier = Faker::Lorem.unique.word
         expect(id.valid?).to be_falsey
         expect(id.errors.messages[:identifier][0]).to eq('No URI detected.')
       end

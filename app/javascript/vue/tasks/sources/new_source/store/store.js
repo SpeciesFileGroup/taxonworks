@@ -20,6 +20,7 @@ function makeInitialState () {
         serial_id: false,
         bibtex_type: false
       },
+      addToSource: false,
       sortable: false
     },
     preferences: {

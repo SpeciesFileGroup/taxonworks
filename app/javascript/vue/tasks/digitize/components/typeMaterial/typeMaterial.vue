@@ -49,8 +49,7 @@
                   label="label_html"
                   :add-params="{
                     'type[]': 'Protonym',
-                    'nomenclature_group[]': 'SpeciesGroup',
-                    valid: true
+                    'nomenclature_group[]': 'SpeciesGroup'
                   }"/>
               </template>
               <ul
@@ -227,8 +226,10 @@ export default {
     taxonIdFormOtu (newVal) {
       if (newVal) {
         GetTaxon(newVal).then(response => {
-          this.listsTaxon.quick.unshift(response)
-          this.viewTaxon = 'quick'
+          if(response.type == 'Protonym' && response.rank_string.indexOf('SpeciesGroup') > -1) {
+            this.listsTaxon.quick.unshift(response)
+            this.viewTaxon = 'quick'
+          }
         })
       }
     },

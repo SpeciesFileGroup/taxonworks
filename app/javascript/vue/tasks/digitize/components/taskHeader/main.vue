@@ -4,20 +4,18 @@
       <div class="horizontal-left-content">
         <autocomplete
           class="separate-right"
-          url="/identifiers/autocomplete"
+          url="/collection_objects/autocomplete"
           placeholder="Search"
           label="label_html"
           param="term"
           :clear-after="true"
           @getItem="loadAssessionCode"
-          :add-params="{
-            'identifier_object_types[]': ['CollectionObject'],
-          }"
           min="1"/>
         <template>
-          <span
+          <a
             class="separate-left"
             v-if="collectionObject.id"
+            :href="`/tasks/collection_objects/browse?collection_object_id=${collectionObject.id}`"
             v-html="collectionObject.object_tag"/>
           <span v-else>New record</span>
         </template>
@@ -148,7 +146,7 @@
       },
       loadAssessionCode(object) {
         this.$store.dispatch(ActionNames.ResetWithDefault)
-        this.$store.dispatch(ActionNames.LoadDigitalization, object.identifier_object_id)
+        this.$store.dispatch(ActionNames.LoadDigitalization, object.id)
       },
       loadCollectionObject(co) {
         this.resetStore()

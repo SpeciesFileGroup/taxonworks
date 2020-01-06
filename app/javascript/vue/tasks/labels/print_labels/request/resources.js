@@ -31,7 +31,7 @@ const handleError = function (json) {
 }
 
 const GetLabels = function () {
-  return ajaxCall('get', '/labels')
+  return ajaxCall('get', '/labels.json')
 }
 
 const UpdateLabel = function (label) {

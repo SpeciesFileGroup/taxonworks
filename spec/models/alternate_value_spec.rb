@@ -145,12 +145,13 @@ describe AlternateValue, group: :annotators do
 
       specify 'when using <<' do
         o    = FactoryBot.create(:valid_serial, name: 'The Serial')
-        altv = AlternateValue.new(type:                             'AlternateValue::AlternateSpelling',
-                                  value:                            'Blorf',
-                                  alternate_value_object_attribute: 'name',
-                                  created_by_id: $user_id,
-                                  is_community_annotation: true
-                                 )
+        altv = AlternateValue.new(
+          type: 'AlternateValue::AlternateSpelling',
+          value: 'Blorf',
+          alternate_value_object_attribute: 'name',
+          created_by_id: Current.project_id,
+          is_community_annotation: true
+        )
         o.alternate_values << altv
         expect(o.valid?).to be_truthy
         expect(o.save).to be_truthy

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe TaxonDetermination, type: :model do
+describe TaxonDetermination, type: :model, group: [:collection_objects] do
 
   let(:taxon_determination) {TaxonDetermination.new}
   let(:otu) { Otu.create!(name: 'Foo')  }
@@ -97,7 +97,7 @@ describe TaxonDetermination, type: :model do
             }}]}
       }
 
-      let(:s) { Specimen.create(nested_attributes) }
+      let(:s) { Specimen.create!(nested_attributes) }
 
       specify 'both otu_id and empty_otu_attributes works' do
         expect(s.taxon_determinations.reload.count).to eq(1)
@@ -106,7 +106,7 @@ describe TaxonDetermination, type: :model do
     end
 
     specify 'with an empty otu_id does not raise or create' do
-      expect(Specimen.create(taxon_determinations_attributes: [{otu_id: ''}])).to be_truthy
+      expect(Specimen.create!(taxon_determinations_attributes: [{otu_id: ''}])).to be_truthy
     end
   end
 

@@ -145,14 +145,6 @@ geographic_area_lookup_task:
     - collecting_event
   status: prototype
   description: 'Check the geographic area gazetteer to see if there are records matching a particular name with queries like "Illinois", or "Champaign:Illinois" or "Saskatchewan:Canada.'
-find_sources_task:
-  hub: true
-  name: 'Find sources'
-  related:
-  categories:
-    - source
-  status: prototype
-  description: 'Find sources and list them via a simple keyword/year based search.'
 collecting_event_lat_long_task:
   hub: true
   name: 'Stepwise collecting event parser - Latitude/Longitude'
@@ -305,14 +297,6 @@ uniquify_people_task:
     - nomenclature
   status: stable 
   description: 'Find and merge redundant or duplicated people, e.g., from import.'
-new_bibtex_source_task:
-  hub: true
-  name: 'New source from BibTeX'
-  related:
-  categories:
-    - source
-  status: prototype
-  description: 'Parse a captured BibTeX string into a new source'
 index_search_locality_task:
   hub: true
   name: 'Filter collecting events'
@@ -387,6 +371,30 @@ source_hub_task:
     - source
   status: prototype
   description: 'A centralized hub unifying access to the different means of creating and managing sources.'
+new_source_task:
+  hub: true
+  name: 'New source'
+  related:
+  categories:
+   - source
+  status: prototype
+  description: 'Add a sources of Verbatim, BibTeX or person via a number of methods.'  
+find_sources_task:
+  hub: true
+  name: 'Find sources'
+  related:
+  categories:
+    - source
+  status: prototype
+  description: 'Find sources and list them via a simple keyword/year based search.'  
+new_bibtex_source_task:
+  hub: true
+  name: 'New source from BibTeX'
+  related:
+  categories:
+    - source
+  status: prototype
+  description: 'Parse a captured BibTeX string into a new source'
 index_filter_task:
   hub: true
   name: 'Filter nomenclature'
@@ -449,14 +457,6 @@ collection_objects_filter_task:
     - collection_object
   status: prototype
   description: 'Filter collection objects by many different facets, download or visualize results.'
-new_source_task:
-   hub: true
-   name: 'New source'
-   related:
-   categories:
-    - source
-   status: prototype
-   description: 'Add a sources of Verbatim, BibTeX or person via a number of methods.'
 syncronize_otus_to_nomenclature_task:
   hub: true
   name: 'Syncronize nomenclature and OTUs'
@@ -472,3 +472,11 @@ asserted_distributions_basic_endemism_task:
   categories:
   status: prototype
   description: 'A simple 1 taxon and children, 1 geographic area summary that includes a check for endemism.  Targets asserted distributions only.'
+collection_object_summary_task:
+  hub: true
+  name: 'Collection summary'
+  related:
+  categories:
+    - collection_object
+  status: prototype
+  description: 'Summary statistics for the collection(s) managed in this project'

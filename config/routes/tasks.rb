@@ -29,7 +29,7 @@ scope :tasks do
   end
 
   scope :browse_annotations, controller: 'tasks/browse_annotations' do
-    get 'index', as: 'browse_annotations_task'
+    get '/', action: :index, as: 'browse_annotations_task'
   end
 
   scope :citations do
@@ -145,6 +145,10 @@ scope :tasks do
   end
 
   scope :collection_objects do
+      scope :summary, controller: 'tasks/collection_objects/summary' do
+        get '/', action: :index, as: 'collection_object_summary_task'
+      end
+
     scope :filter, controller: 'tasks/collection_objects/filter' do
       get '/', as: 'collection_objects_filter_task', action: :index
     end
@@ -156,7 +160,7 @@ scope :tasks do
 
   scope :accessions do
     scope :comprehensive, controller: 'tasks/accessions/comprehensive' do
-      get 'index', as: 'comprehensive_collection_object_task'
+      get '/', action: :index, as: 'comprehensive_collection_object_task'
     end
 
     scope :report do
@@ -262,16 +266,16 @@ scope :tasks do
   end
 
   scope :nomenclature do
-      scope :stats, controller: 'tasks/nomenclature/stats' do
-        get :index, as: 'index_stats_task'
-      end
+    scope :stats, controller: 'tasks/nomenclature/stats' do
+      get '', action: :index, as: 'index_stats_task'
+    end
 
     scope :new_combination, controller: 'tasks/nomenclature/new_combination' do
-      get 'index', as: 'new_combination_task'
+      get '', action: :index, as: 'new_combination_task'
     end
 
     scope :new_taxon_name, controller: 'tasks/nomenclature/new_taxon_name' do
-      get '(:id)', action: :index, as: 'new_taxon_name_task'
+      get '', action: :index, as: 'new_taxon_name_task'
     end
 
     scope :catalog do
@@ -317,9 +321,9 @@ scope :tasks do
   end
 
   scope :otus do
-      scope :browse_asserted_distributions, controller: 'tasks/otus/browse_asserted_distributions' do
-        get :index, as: 'index_browse_asserted_distributions_task'
-      end
+    scope :browse_asserted_distributions, controller: 'tasks/otus/browse_asserted_distributions' do
+      get :index, as: 'index_browse_asserted_distributions_task'
+    end
 
     scope :browse, controller: 'tasks/otus/browse' do
       get '/(:otu_id)', action: :index, as: 'browse_otus_task'

@@ -43,12 +43,12 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     let(:first_role_id) {name.taxon_name_author_roles.first.id }
     
     specify '#author_string 1' do
-      name.update_attributes(taxon_name_author_roles_attributes: [{_destroy: true, id: first_role_id}, {person: p2}])
+      name.update(taxon_name_author_roles_attributes: [{_destroy: true, id: first_role_id}, {person: p2}])
       expect(name.author_string).to eq('Jones')
     end
 
    specify '#author_string 2' do
-     name.update_attributes(roles_attributes: [{_destroy: true, id: first_role_id}, {type: 'TaxonNameAuthor', person: p2}])
+     name.update(roles_attributes: [{_destroy: true, id: first_role_id}, {type: 'TaxonNameAuthor', person: p2}])
      expect(name.author_string).to eq('Jones')
    end
   end

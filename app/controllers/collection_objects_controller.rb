@@ -125,7 +125,7 @@ class CollectionObjectsController < ApplicationController
         format.html { redirect_to destroy_redirect, notice: 'CollectionObject was successfully destroyed.'}
         format.json { head :no_content }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectionObject was not destroyed, ' + errors.full_messages.join('; '))}
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectionObject was not destroyed, ' + @collection_object.errors.full_messages.join('; '))}
         format.json {render json: @collection_object.errors, status: :unprocessable_entity}
       end
     end
@@ -198,7 +198,7 @@ class CollectionObjectsController < ApplicationController
 
   def preview_castor_batch_load
     if params[:file]
-      @result = BatchLoad::Import::CollectionObjects::CastorInterpreter.new(batch_params)
+      @result = BatchLoad::Import::CollectionObjects::CastorInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :Castor_collection_objects_md5)
       render 'collection_objects/batch_load/castor/preview'
     else
@@ -209,7 +209,7 @@ class CollectionObjectsController < ApplicationController
 
   def create_castor_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Castor_collection_objects_md5)
-      @result = BatchLoad::Import::CollectionObjects::CastorInterpreter.new(batch_params)
+      @result = BatchLoad::Import::CollectionObjects::CastorInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} items were created."
         render 'collection_objects/batch_load/castor/create' and return
@@ -224,7 +224,7 @@ class CollectionObjectsController < ApplicationController
 
   def preview_buffered_batch_load
     if params[:file]
-      @result = BatchLoad::Import::CollectionObjects::BufferedInterpreter.new(batch_params)
+      @result = BatchLoad::Import::CollectionObjects::BufferedInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :Buffered_collection_objects_md5)
       render 'collection_objects/batch_load/buffered/preview'
     else
@@ -235,7 +235,7 @@ class CollectionObjectsController < ApplicationController
 
   def create_buffered_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Buffered_collection_objects_md5)
-      @result = BatchLoad::Import::CollectionObjects::BufferedInterpreter.new(batch_params)
+      @result = BatchLoad::Import::CollectionObjects::BufferedInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} items were created."
         render 'collection_objects/batch_load/buffered/create' and return
@@ -283,10 +283,12 @@ class CollectionObjectsController < ApplicationController
       :total, :preparation_type_id, :repository_id,
       :ranged_lot_category_id, :collecting_event_id,
       :buffered_collecting_event, :buffered_determinations,
-      :buffered_other_labels, :deaccessioned_at, :deaccession_reason,
+      :buffered_other_labels, :accessioned_at, :deaccessioned_at, :deaccession_reason,
       :contained_in,
       collecting_event_attributes: [],  # needs to be filled out!
-      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
+      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :value ],
+      tags_attributes: [:id, :_destroy, :keyword_id],
+      identifiers_attributes: [:id, :_destroy, :identifier, :namespace_id, :type]
     )
   end
 
@@ -324,9 +326,10 @@ class CollectionObjectsController < ApplicationController
       :ancestor_id, 
       :current_determinations,
       :validity,
+      :user_id,
       :user_target,
-      :user_start_date,
-      :user_end_date,
+      :user_date_start,
+      :user_date_end,
       :identifier,
       :identifier_start,
       :identifier_end,
@@ -335,6 +338,7 @@ class CollectionObjectsController < ApplicationController
       :never_loaned,
       :loaned,
       :on_loan,
+      :type_specimen_taxon_name_id,
       :spatial_geographic_areas,
       otu_ids: [],
       keyword_ids: [],
@@ -343,7 +347,6 @@ class CollectionObjectsController < ApplicationController
       biocuration_class_ids: [],
       biological_relationship_ids: []
       
-      #  keyword_ids: [],
       #  collecting_event: {
       #   :recent,
       #   keyword_ids: []

@@ -199,24 +199,6 @@ class CollectionObject < ApplicationRecord
     breakdown
   end
 
-  # @return [Identifier::Local::CatalogNumber, nil]
-  #   the first (position) catalog number for this collection object
-  def preferred_catalog_number
-    Identifier::Local::CatalogNumber.where(identifier_object: self).first
-  end
-
-  # return [Boolean]
-  #    True if instance is a subclass of BiologicalCollectionObject
-  def biological?
-    self.class <= BiologicalCollectionObject ? true : false
-  end
-
-  def annotations
-    h = annotations_hash
-    (h['biocuration classifications'] = biocuration_classes) if biological? && biocuration_classifications.load.any?
-    h
-  end
-
   # TODO: Deprecate.  Used?!
   # @param [Scope] scope of selected CollectionObjects
   # @param [Hash] col_defs selected headers and types
@@ -272,7 +254,6 @@ class CollectionObject < ApplicationRecord
       end
     end
   end
-
 
   # TODO: this should be refactored to be collection object centric AFTER
   # it is spec'd
@@ -533,8 +514,8 @@ class CollectionObject < ApplicationRecord
     end
 
     retval = CollectionObject.joins(:collecting_event)
-               .where(collecting_events_clause)
-               .where(area_objects_clause)
+      .where(collecting_events_clause)
+      .where(area_objects_clause)
     retval
   end
 
@@ -546,29 +527,6 @@ class CollectionObject < ApplicationRecord
     allow_partial = (partial_overlap.downcase == 'off' ? false : true) # TODO: Just get the correct values from the form!
     q = Queries::CollectingEvent::Filter.new(start_date: search_start_date, end_date: search_end_date, partial_overlap_dates: allow_partial)
     joins(:collecting_event).where(q.between_date_range.to_sql)
-  end
-
-  def sv_missing_accession_fields
-    soft_validations.add(:accessioned_at, 'Date is not selected') if self.accessioned_at.nil? && !self.accession_provider.nil?
-    soft_validations.add(:base, 'Provider is not selected') if !self.accessioned_at.nil? && self.accession_provider.nil?
-  end
-
-  def sv_missing_deaccession_fields
-    soft_validations.add(:deaccessioned_at, 'Date is not selected') if self.deaccessioned_at.nil? && !self.deaccession_reason.blank?
-    soft_validations.add(:base, 'Recipient is not selected') if self.deaccession_recipient.nil? && self.deaccession_reason && self.deaccessioned_at
-    soft_validations.add(:deaccession_reason, 'Reason is is not defined') if self.deaccession_reason.blank? && self.deaccession_recipient && self.deaccessioned_at
-  end
-
-  def sv_missing_collecting_event
-    # see biological_collection_object
-  end
-
-  def sv_missing_preparation_type
-    # see biological_collection_object
-  end
-
-  def sv_missing_repository
-    # WHY? -  see biological_collection_object
   end
 
   # @param used_on [String] required, one of `TaxonDetermination`, `BiologicalAssociation`
@@ -639,13 +597,13 @@ class CollectionObject < ApplicationRecord
 
   def next_by_identifier
     if i = identifiers.order(:position).first
-    CollectionObject
-      .where(project_id: project_id)
-      .where.not(id: id) 
-      .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'ASC')
-      .where(Utilities::Strings.is_i?(i.identifier) ?
-        ["CAST(identifiers.identifier AS integer) > #{i.identifier}"] : ["identifiers.identifier > ?", i.identifier])
-      .limit(1).first
+      CollectionObject
+        .where(project_id: project_id)
+        .where.not(id: id)
+        .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'ASC')
+        .where(Utilities::Strings.is_i?(i.identifier) ?
+               ["CAST(identifiers.identifier AS bigint) > #{i.identifier}"] : ["identifiers.identifier > ?", i.identifier])
+        .first
     else
       nil
     end
@@ -653,16 +611,57 @@ class CollectionObject < ApplicationRecord
 
   def previous_by_identifier
     if i = identifiers.order(:position).first
-    CollectionObject
-      .where(project_id: project_id)
-      .where.not(id: id) 
-      .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'DESC') 
-      .where(Utilities::Strings.is_i?(i.identifier) ?
-        ["CAST(identifiers.identifier AS integer) < #{i.identifier}"] : ["identifiers.identifier < ?", i.identifier])
-      .limit(1).first
+      CollectionObject
+        .where(project_id: project_id)
+        .where.not(id: id)
+        .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'DESC')
+        .where(Utilities::Strings.is_i?(i.identifier) ?
+               ["CAST(identifiers.identifier AS bigint) < #{i.identifier}"] : ["identifiers.identifier < ?", i.identifier])
+        .first
     else
       nil
     end 
+  end
+
+  # @return [Identifier::Local::CatalogNumber, nil]
+  #   the first (position) catalog number for this collection object
+  def preferred_catalog_number
+    Identifier::Local::CatalogNumber.where(identifier_object: self).first
+  end
+
+  # return [Boolean]
+  #    True if instance is a subclass of BiologicalCollectionObject
+  def biological?
+    self.class <= BiologicalCollectionObject ? true : false
+  end
+
+  def annotations
+    h = annotations_hash
+    (h['biocuration classifications'] = biocuration_classes) if biological? && biocuration_classifications.load.any?
+    h
+  end
+
+  def sv_missing_accession_fields
+    soft_validations.add(:accessioned_at, 'Date is not selected') if self.accessioned_at.nil? && !self.accession_provider.nil?
+    soft_validations.add(:base, 'Provider is not selected') if !self.accessioned_at.nil? && self.accession_provider.nil?
+  end
+
+  def sv_missing_deaccession_fields
+    soft_validations.add(:deaccessioned_at, 'Date is not selected') if self.deaccessioned_at.nil? && !self.deaccession_reason.blank?
+    soft_validations.add(:base, 'Recipient is not selected') if self.deaccession_recipient.nil? && self.deaccession_reason && self.deaccessioned_at
+    soft_validations.add(:deaccession_reason, 'Reason is is not defined') if self.deaccession_reason.blank? && self.deaccession_recipient && self.deaccessioned_at
+  end
+
+  def sv_missing_collecting_event
+    # see biological_collection_object
+  end
+
+  def sv_missing_preparation_type
+    # see biological_collection_object
+  end
+
+  def sv_missing_repository
+    # WHY? -  see biological_collection_object
   end
 
   protected

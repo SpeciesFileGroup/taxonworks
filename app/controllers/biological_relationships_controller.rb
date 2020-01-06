@@ -98,7 +98,7 @@ class BiologicalRelationshipsController < ApplicationController
   end
 
   def set_biological_relationship
-    @biological_relationship = BiologicalRelationship.find(params[:id])
+    @biological_relationship = BiologicalRelationship.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def biological_relationship_params

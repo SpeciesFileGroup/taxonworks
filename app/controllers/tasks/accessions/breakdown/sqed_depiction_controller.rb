@@ -36,7 +36,7 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
   end
 
   def todo_map
-    @sqed_depictions = SqedDepiction.with_project_id(sessions_current_project_id).order(:id).page(params[:page]).per(100)
+    @sqed_depictions = SqedDepiction.where(project_id: sessions_current_project_id).order(:id).page(params[:page]).per(100)
   end
 
   protected
@@ -52,7 +52,7 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
   end
 
   def set_sqed_depiction
-    @sqed_depiction = SqedDepiction.find(params[:id])
+    @sqed_depiction = SqedDepiction.where(project_id: sessions_current_project_id).find(params[:id])
     @sqed_depiction.preprocess
   end
 

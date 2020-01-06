@@ -1,12 +1,17 @@
 
+# Helpers
 
-Helper Descriptions
-===================
+## Directory Organization
+* All rails model related and the standard application helpers are at /.  
+* Workbench related helpers (general functionality, including styling, layout etc.) are at /workbench.
+* Helpers related to vendor plugins are in /plugins (e.g. Papertrail)
+* All other helpers are nested in helpers/lib/
+
+## Helper Descriptions
 
 See individual headers at https://github.com/SpeciesFileGroup/taxonworks/tree/master/app/helpers
 
-Code Organization
-=================
+## Code Organization
 
 TODO: Go over patterns, clean up where no longer pertinent.
 
@@ -76,10 +81,4 @@ class <Model>Helper
   
 end
 ```
-
-Directory Organization
-======================
-* All rails model related and the standard application helpers are at /.  
-* Workbench related helpers (general functionality, including styling, layout etc.) are at /workbench.
-* Helpers related to vendor plugins are in /plugins (e.g. Papertrail)
 

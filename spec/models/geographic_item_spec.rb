@@ -754,17 +754,17 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           before { [b, p0, p1, p2, p3, p11, p12, p13, p18, p19].each }
 
           specify ' three things inside k' do
-            expect(GeographicItem.is_contained_by('any', k).excluding(k).to_a)
+            expect(GeographicItem.is_contained_by('any', k).not_including(k).to_a)
               .to contain_exactly(p1, p2, p3)
           end
 
           specify 'one thing outside k' do
-            expect(GeographicItem.is_contained_by('any', p4).excluding(p4).to_a).to eq([])
+            expect(GeographicItem.is_contained_by('any', p4).not_including(p4).to_a).to eq([])
           end
 
           specify 'three things inside and one thing outside k' do
             pieces = GeographicItem.is_contained_by('any',
-                                                    [e2, k]).excluding([k, e2]).to_a
+                                                    [e2, k]).not_including([k, e2]).to_a
             expect(pieces).to contain_exactly(p0, p1, p2, p3, p12, p13) # , @p12c
 
           end
@@ -779,13 +779,13 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
 
           specify 'one thing (p19) inside a polygon (b) with interior, and another inside ' \
                   'the interior which is NOT included (p18)' do
-            expect(GeographicItem.is_contained_by('any', b).excluding(b).to_a).to eq([p19])
+            expect(GeographicItem.is_contained_by('any', b).not_including(b).to_a).to eq([p19])
           end
 
           specify 'three things inside two things. Notice that the outer ring of b ' \
                   'is co-incident with b1, and thus "contained".' do
             expect(GeographicItem.is_contained_by('any',
-                                                  [b1, b2]).excluding([b1, b2]).to_a)
+                                                  [b1, b2]).not_including([b1, b2]).to_a)
               .to contain_exactly(p18, p19, b)
           end
 
@@ -798,12 +798,12 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           end
         end
 
-        context '::excluding([])' do
+        context '::not_including([])' do
           before { [p1, p4, p17, r2024, r2022, r2020, p10].each { |object| object } }
 
           specify 'drop specifc item[s] from any scope (list of objects.)' do
             # @p2 would have been in the list, except for the exclude
-            expect(GeographicItem.excluding([p2])
+            expect(GeographicItem.not_including([p2])
                      .ordered_by_shortest_distance_from('point', p3)
                      .limit(3).to_a)
               .to eq([p1, p4, p17])
@@ -811,7 +811,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
 
           specify 'drop specifc item[s] from any scope (list of objects.)' do
             # @p2 would *not* have been in the list anyway
-            expect(GeographicItem.excluding([p2])
+            expect(GeographicItem.not_including([p2])
                      .ordered_by_longest_distance_from('point', p3)
                      .limit(3).to_a)
               .to eq([r2024, r2022, r2020])
@@ -819,14 +819,14 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
 
           specify 'drop specifc item[s] from any scope (list of objects.)' do
             # @r2022 would have been in the list, except for the exclude
-            expect(GeographicItem.excluding([r2022])
+            expect(GeographicItem.not_including([r2022])
                      .ordered_by_longest_distance_from('point', p3)
                      .limit(3).to_a)
               .to eq([r2024, r2020, p10])
           end
         end
 
-        # specify '::excluding_self to drop self from any list of objects' do
+        # specify '::not_including_self to drop self from any list of objects' do
         #   skip 'construction of scenario'
         # expect(GeographicItem.ordered_by_shortest_distance_from('point', @p7).limit(5)).to_a).to eq([@p2, @p1, @p4])
         # end
@@ -917,8 +917,8 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             # This seems to be the reason these two objects *might* be in either order. Thus, one of the two
             # is excluded to prevent it from confusing the order (farthest first) of the appearance of the objects.
             expect(GeographicItem.ordered_by_longest_distance_from('multi_polygon', p3)
-                     .excluding(new_box_e)
-                     .limit(3).to_a)
+                     .not_including(new_box_e)
+                     .limit(3).to_a) # TODO: Limit is being called over an array. Check whether this is a gem/rails bug or we need to update code.
               .to eq([g, new_box_a, new_box_b])
           end
 
