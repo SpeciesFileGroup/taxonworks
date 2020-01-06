@@ -39,7 +39,7 @@ class Otu < ApplicationRecord
   
   include Shared::IsData
 
-  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes]
+  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes, :taxon_determinations]
 
   belongs_to :taxon_name, inverse_of: :otus
 
@@ -253,7 +253,7 @@ class Otu < ApplicationRecord
     Gis::GeoJSON.aggregation([a_ds, c_os, c_es], :distribution)
   end
 
-  # @param used_on [String] required, one of `AssertedDistribution`, `Content`, `BiologicalAssociation`
+  # @param used_on [String] required, one of `AssertedDistribution`, `Content`, `BiologicalAssociation`, `TaxonDetermination`
   # @return [Scope]
   #   the max 10 most recently used otus, as `used_on`
   def self.used_recently(used_on = '')
@@ -266,6 +266,8 @@ class Otu < ApplicationRecord
           BiologicalAssociation.arel_table
         when 'TaxonDetermination'
           TaxonDetermination.arel_table
+        else
+          return Otu.none
         end
 
     p = Otu.arel_table 
