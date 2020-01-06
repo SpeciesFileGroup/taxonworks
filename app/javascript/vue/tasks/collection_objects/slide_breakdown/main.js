@@ -1,9 +1,9 @@
 import Vue from 'vue'
 import App from './app.vue'
 
-function init (){
+function init () {
   new Vue({
-    el: '#vue-task',
+    el: '#vue-task-slide-breakdown',
     render: function (createElement) {
       return createElement(App)
     }
@@ -11,7 +11,7 @@ function init (){
 }
 
 document.addEventListener('turbolinks:load', () => {
-  if (document.querySelector('#vue-task')) {
+  if (document.querySelector('#vue-task-slide-breakdown')) {
     init()
   }
 })
