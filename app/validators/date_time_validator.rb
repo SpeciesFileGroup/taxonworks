@@ -42,7 +42,7 @@ class DateTimeValidator < ActiveModel::EachValidator
     min_value = @min_value.respond_to?(:call) ? @min_value.call : @min_value
     max_value = @max_value.respond_to?(:call) ? @max_value.call : @max_value
 
-    message ||= options.fetch(:message, "must be an integer between #{min_value} and #{max_value}")
+    message ||= @message || options.fetch(:message, "must be an integer between #{min_value} and #{max_value}")
     @allow_blank ||= options.fetch(:allow_blank, true)
 
     if !@allow_blank && value.nil?
