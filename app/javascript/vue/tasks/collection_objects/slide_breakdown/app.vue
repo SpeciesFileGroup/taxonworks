@@ -112,9 +112,7 @@ export default {
       })
     },
     getPosition (line, next) {
-      let nLine = line 
-      let nNext = next 
-      return (nNext ? nLine + ((nNext - nLine) / 2) : nLine) + this.buttonSize
+      return (next ? line + ((next - line) / 2) : line) + this.buttonSize
     }
   }
 }
