@@ -20,17 +20,17 @@
           v-model="vlines"
         />
       </template>
-      <sled 
-        class="sled-viewer"
-        :vertical-lines="vlines"
-        :horizontal-lines="hlines"
-        :image-width="image.width"
-        :image-height="image.height"
-        :line-weight="lineWeight"
-        :scale="scaleForScreen"
-        :file-image="fileImage"
-        @onComputeCells="processCells">
-      </sled>
+      <div  class="sled-viewer">
+        <sled 
+          :vertical-lines="vlines"
+          :horizontal-lines="hlines"
+          :image-width="image.width"
+          :image-height="image.height"
+          :line-weight="lineWeight"
+          :scale="scaleForScreen"
+          :file-image="fileImage"
+          @onComputeCells="processCells"/>
+      </div>
     </div>
   </div>
 </template>
@@ -38,13 +38,15 @@
 <script>
 
 import Sled from '@sfgrp/sled'
-import { GetImage } from './request/resource'
+import { GetImage, ProcessOCR } from './request/resource'
 import AddLine from './components/AddLine'
+import CellComponent from './components/Cell'
 
 export default {
   components: {
     Sled,
-    AddLine
+    AddLine,
+    CellComponent
   },
   computed: {
     scaleForScreen () {
@@ -55,8 +57,8 @@ export default {
   },
   data () {
     return {
-      vlines: [30,50,90],
-      hlines: [30,80,70, 90,400],
+      vlines: [],
+      hlines: [],
       image: {
         width: 0,
         height: 0
@@ -65,20 +67,24 @@ export default {
       scale: 1,
       fileImage: undefined,
       isLoading: false,
-      buttonSize: 20
+      buttonSize: 20,
+      imageId: undefined,
+      cells: [],
+      selectedCells: []
     }
   },
   mounted () {
     let urlParams = new URLSearchParams(window.location.search)
-    let imageId = urlParams.get('image_id')
+    this.imageId = urlParams.get('image_id')
 
-    if (/^\d+$/.test(imageId)) {
-      this.loadImage(imageId)
+    if (/^\d+$/.test(this.imageId)) {
+      this.loadImage(this.imageId)
     }
   },
   methods: {
     processCells(cells) {
       console.log(cells)
+      this.cells = cells
     },
     loadImage(imageId) {
       GetImage(imageId).then(response => {
@@ -113,6 +119,11 @@ export default {
     },
     getPosition (line, next) {
       return (next ? line + ((next - line) / 2) : line) + this.buttonSize
+    },
+    getOCR (id, x, y, height, width) {
+      ProcessOCR(id, x, y, height, width).then(response => {
+        console.log(response)
+      })
     }
   }
 }
@@ -122,6 +133,7 @@ export default {
     position: relative;
   }
   .sled-viewer {
+    position: relative;
     margin-left: 30px;
     margin-top: 50px;
   }
