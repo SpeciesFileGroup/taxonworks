@@ -97,7 +97,7 @@ class OriginRelationshipsController < ApplicationController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_origin_relationship
-    @origin_relationship = OriginRelationship.find(params[:id])
+    @origin_relationship = OriginRelationship.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

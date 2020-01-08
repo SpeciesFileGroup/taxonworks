@@ -5,13 +5,12 @@
         <h3>Collection Object</h3>
       </div>
       <div
+        v-shortkey="[getMacKey(), 't']"
+        @shortkey="openBrowse"
         slot="options"
         v-if="collectionObject.id"
         class="horizontal-left-content">
         <radial-annotator
-          classs="separate-right"
-          :global-id="collectionObject.global_id"/>
-        <radial-object
           classs="separate-right"
           :global-id="collectionObject.global_id"/>
         <default-tag
@@ -229,7 +228,7 @@
         })
 
         let coDepictions = this.depictions.filter(depiction => {
-          return depiction.depiction_object.id == this.collectionObject.id
+          return depiction.depiction_object_id == co.id
         })
 
         depictionsRemovedDuplicate.forEach(depiction => {
@@ -257,6 +256,11 @@
       },
       removeAllDepictionsByImageId(depiction) {
         this.$store.dispatch(ActionNames.RemoveDepictionsByImageId, depiction)
+      },
+      openBrowse () {
+        if (this.collectionObject.id) {
+          window.open(`/tasks/collection_objects/browse?collection_object_id=${this.collectionObject.id}`, '_self')
+        }
       }
     }
   }

@@ -87,7 +87,7 @@ class AttributionsController < ApplicationController
   private
 
   def set_attribution
-    @attribution = Attribution.find(params[:id])
+    @attribution = Attribution.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def attribution_params

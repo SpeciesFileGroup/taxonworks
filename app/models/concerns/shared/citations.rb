@@ -80,17 +80,17 @@ module Shared::Citations
       #    Arel::Nodes::OuterJoin.new(join.left, join.right)
       #  end
 
-
       # was
       #      joins("LEFT OUTER JOIN citations ON #{related_table_name}.id = citations.citation_object_id LEFT OUTER
       # JOIN sources ON citations.source_id = sources.id").
       #      where("citations.citation_object_type = '#{related_class}' OR citations.citation_object_type is null").
-      join_str = ActiveRecord::Base.send(:sanitize_sql_array,
-                                         ["LEFT OUTER JOIN citations ON #{related_table_name}.id = " \
-                                          'citations.citation_object_id ' \
-                                          'AND citations.citation_object_type = ? LEFT OUTER JOIN sources ' \
-                                          'ON citations.source_id = sources.id',
-                                          related_class])
+      join_str = ActiveRecord::Base.send(
+        :sanitize_sql_array,
+        ["LEFT OUTER JOIN citations ON #{related_table_name}.id = " \
+         'citations.citation_object_id ' \
+         'AND citations.citation_object_type = ? LEFT OUTER JOIN sources ' \
+         'ON citations.source_id = sources.id',
+         related_class])
       joins(join_str).group(r).order(func2)
     end
 
@@ -103,16 +103,6 @@ module Shared::Citations
     validates_associated :citations
   end
 
-  def origin_citation_source_id
-    if origin_citation && origin_citation.source_id.blank?
-      errors.add(:base, 'the origin citation must have a source')
-    end
-  end
-
-  def sources_by_topic_id(topic_id)
-    Source.joins(:citation_topics).where(citations: {citation_object: self}, citation_topics: {topic_id: topic_id}) 
-  end
-
   class_methods do
     def oldest_by_citation
       order_by_oldest_source_first.to_a.first
@@ -121,6 +111,25 @@ module Shared::Citations
     def youngest_by_citation
       order_by_youngest_source_first.to_a.first
     end
+  end
+
+  # See Source::Bibtex for context
+  # !! Over-riden in various places.
+  # @return [Time, nil]
+  def nomenclature_date
+    if source && source.is_bibtex?
+      source.nomenclature_date
+    end
+  end
+
+  def origin_citation_source_id
+    if origin_citation && origin_citation.source_id.blank?
+      errors.add(:base, 'the origin citation must have a source')
+    end
+  end
+
+  def sources_by_topic_id(topic_id)
+    Source.joins(:citation_topics).where(citations: {citation_object: self}, citation_topics: {topic_id: topic_id}) 
   end
 
   # @return [Boolean]

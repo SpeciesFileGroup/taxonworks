@@ -1,5 +1,5 @@
 <template>
-  <radial-annotator
+  <otu-radial
     :id="id"
     type="graph"
     buttonClass="btn-hexagon-w button-default"
@@ -8,11 +8,11 @@
 </template>
 <script>
 
-  import RadialAnnotator from 'components/annotator/annotator.vue'
+  import OtuRadial from 'components/otu/otu_radial/radial.vue'
 
   export default {
     components: {
-      RadialAnnotator
+      OtuRadial
     },
     props: {
       id: {

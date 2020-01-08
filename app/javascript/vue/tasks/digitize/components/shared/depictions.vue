@@ -82,17 +82,18 @@ export default {
     }
   },
   watch: {
-    objectValue (newVal, oldVal) {
+    objectValue (newVal, oldVal) {      
       if (newVal.id && (newVal.id != oldVal.id)) {
         this.$refs.depiction.setOption('autoProcessQueue', true)
         this.$refs.depiction.processQueue()
-          this.getDepictions(newVal.id).then(response => {
-            this.figuresList = response
-          })
-
+        this.getDepictions(newVal.id).then(response => {
+          this.figuresList = response
+        })
       } else {
-        this.figuresList = []
-        this.$refs.depiction.setOption('autoProcessQueue', false)
+        if(!newVal.id) {
+          this.figuresList = []
+          this.$refs.depiction.setOption('autoProcessQueue', false)
+        }
       }
     }
   },

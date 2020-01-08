@@ -15,9 +15,7 @@
     <div class="panel basic-information">
       <div class="content header">
         <h3
-          v-if="taxon.id"
-          v-shortkey="[getMacKey(), 'p']"
-          @shortkey="loadParent()"          
+          v-if="taxon.id"       
           class="flex-separate middle">
           <a
             v-shortkey="[getMacKey(), 't']"
@@ -141,7 +139,6 @@ export default {
     loadParent() {
       if(this.taxon.id && this.parent.id) {
         this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon).then((response) => {
-          console.log(response)
           window.open(`/tasks/nomenclature/new_taxon_name?taxon_name_id=${response.parent_id}`, '_self')
         })
       }

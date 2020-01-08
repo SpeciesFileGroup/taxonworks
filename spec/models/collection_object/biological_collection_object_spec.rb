@@ -137,11 +137,11 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
       end
 
       specify 'ordered by position' do
-        expect(o.taxon_determinations.order('taxon_determinations.position').map(&:year_made)).to eq([y, 1980, 1920])
+        expect(o.taxon_determinations.reload.order('taxon_determinations.position').map(&:year_made)).to eq([1980, 1920, nil])
       end
 
       specify '#current_taxon_determination' do
-        expect(o.current_taxon_determination.year_made).to eq(y)
+        expect(o.current_taxon_determination.year_made).to eq(1980)
       end
     end
   end
@@ -173,66 +173,6 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
     specify 'repository missing' do
       o.soft_validate(:missing_repository)
       expect(o.soft_validations.messages_on(:repository_id).count).to eq(1)
-    end
-  end
-
-  context 'finding collection objects by identifier' do
-    let(:ns1) {Namespace.first}
-    let(:ns2) {Namespace.second}
-
-    let(:id_attributes) {
-      {namespace:  nil,
-       project_id: project_id,
-       type:       nil,
-       identifier: nil}}
-    
-    before do
-      2.times {FactoryBot.create(:valid_namespace)}
-      2.times {FactoryBot.create(:valid_specimen)}
-      (1..10).each {|identifier|
-        sp = FactoryBot.create(:valid_specimen)
-        FactoryBot.create(
-          :identifier_local_catalog_number,
-          identifier_object: sp,
-          namespace: (identifier.even? ? ns1 : ns2),
-          identifier: identifier)
-      }
-    end
-
-    describe 'with namespace' do
-      specify 'uses Local::CatalogNumber' do
-        this_id = id_attributes.merge({namespace:  ns1,
-                                       type:       'Identifier::Local::CatalogNumber',
-                                       identifier: '1'})
-        pile = CollectionObject.with_project_id(project_id)
-          .includes(:identifiers)
-          .where('identifiers.type = ?', 'Identifier::Local::CatalogNumber')
-          .where('identifiers.namespace_id = ?', ns1.id)
-          .order(Arel.sql("CAST(coalesce(identifiers.identifier, '0') AS integer) DESC"))
-          .references(:identifiers)
-
-        expect(pile.collect {|item| item.identifiers.first.identifier}).to eq(['10', '8', '6', '4', '2'])
-        expect(pile.count).to eq(5)
-      end
-
-    end
-
-    describe 'without namespace' do
-      specify 'uses Local::CatalogNumber' do
-        this_id = id_attributes.merge(
-          {namespace: ns1,
-           type: 'Identifier::Local::CatalogNumber',
-           identifier: '1'})
-        pile = CollectionObject.with_project_id(project_id)
-          .includes(:identifiers)
-          .where('identifiers.type = ?', 'Identifier::Local::CatalogNumber')
-          .order(Arel.sql("CAST(coalesce(identifiers.identifier, '0') AS integer) DESC"))
-          .references(:identifiers)
-
-        expect(pile.collect {|item| item.identifiers.first.identifier}).to eq(['10', '9', '8', '7', '6',
-                                                                               '5', '4', '3', '2', '1'])
-        expect(pile.count).to eq(10)
-      end
     end
   end
 

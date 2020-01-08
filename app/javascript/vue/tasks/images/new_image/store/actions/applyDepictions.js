@@ -22,6 +22,14 @@ export default function({ state, commit }) {
   state.settings.saving = true
   if(createNewCOForStage()) {
     state.imagesCreated.forEach(item => {
+      state.collection_object.data_attributes_attributes = state.data_attributes.map(item => { 
+        return { 
+          controlled_vocabulary_term_id: item.controlled_vocabulary_term_id,
+          type: item.type,
+          value: item.value 
+        }
+      })
+      state.collection_object.tags_attributes = state.tags.map(tag => { return { keyword_id: tag.id }})
       promises.push(CreateCollectionObject(state.collection_object).then(response => {
         let data = {
           depiction_object_id: response.body.id,
@@ -51,6 +59,7 @@ export default function({ state, commit }) {
           depiction_object_type: object.base_class,
           image_id: item.id,
           caption: state.depiction.caption.length ? state.depiction.caption : undefined,
+
           sqed_depiction_attributes: (validateSqed(state.sqed) && state.objectsForDepictions.length == 1 && object.base_class == 'CollectionObject') ? state.sqed : undefined
         }
 

@@ -17,6 +17,10 @@ describe Language, type: :model do
     end
   end
 
+  specify '.select_optimized' do
+    expect(Language.select_optimized(Current.user_id, Current.project_id)).to be_truthy
+  end
+
   context 'find values' do
     let!(:eng) { FactoryBot.create(:english) }
     let!(:rus) { FactoryBot.create(:russian) }

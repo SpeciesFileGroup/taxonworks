@@ -34,7 +34,7 @@
     },
     methods: {
       loadOtu(id) {
-        this.$http.get('/otus/' + id).then(response => {
+        this.$http.get(`/otus/${id}.json`).then(response => {
           this.$store.commit(MutationNames.SetOtuSelected, response.body)
         })        
       },

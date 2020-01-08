@@ -126,6 +126,13 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #   Stores a taxon_name_id of a valid taxon_name based on taxon_name_ralationships and taxon_name_classifications.
 #
 class TaxonName < ApplicationRecord
+  # @return class
+  #   this method calls Module#module_parent
+  # TODO: This method can be placed elsewhere inside this class (or even removed if not used)
+  #       when https://github.com/ClosureTree/closure_tree/issues/346 is fixed.
+  def self.parent
+    self.module_parent
+  end
 
   has_closure_tree
 
@@ -142,6 +149,7 @@ class TaxonName < ApplicationRecord
   include Shared::HasPapertrail
   include SoftValidation
   include Shared::IsData
+  include TaxonName::OtuSyncronization
 
   # Allows users to provide arbitrary annotations that "over-ride" rank string
   ALTERNATE_VALUES_FOR = [:rank_class].freeze # !! Don't even think about putting this on `name`
@@ -198,6 +206,8 @@ class TaxonName < ApplicationRecord
   has_one :source_classified_as, through: :source_classified_as_relationship, source: :object_taxon_name
 
   has_many :otus, inverse_of: :taxon_name, dependent: :restrict_with_error
+  has_many :taxon_determinations, through: :otus
+  has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object
   has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id, dependent: :restrict_with_error, inverse_of: :object_taxon_name
 
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object, dependent: :destroy
@@ -233,9 +243,11 @@ class TaxonName < ApplicationRecord
 
   # Includes taxon_name, doesn't order result
   scope :ancestors_and_descendants_of, -> (taxon_name) do
-    a = TaxonName.self_and_ancestors_of(taxon_name)
-    b = TaxonName.descendants_of(taxon_name)
-    TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
+    scoping do
+      a = TaxonName.self_and_ancestors_of(taxon_name)
+      b = TaxonName.descendants_of(taxon_name)
+      TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
+    end
   end
 
   scope :with_rank_class, -> (rank_class_name) { where(rank_class: rank_class_name) }
@@ -286,6 +298,9 @@ class TaxonName < ApplicationRecord
   scope :with_cached_valid_taxon_name_id, -> (cached_valid_taxon_name_id) {where(cached_valid_taxon_name_id: cached_valid_taxon_name_id)}
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
   scope :with_cached_html, -> (html) { where(cached_html: html) } # WHY? - DEPRECATE for cached
+
+  scope :without_otus, -> { includes(:otus).where(otus: {id: nil}) }
+  scope :with_otus, -> { includes(:otus).where.not(otus: {id: nil}) }
 
   # @return Scope
   #   names that are not leaves
@@ -379,11 +394,13 @@ class TaxonName < ApplicationRecord
   #   like :species or 'genus'
   def ancestor_at_rank(rank)
     ancestors.with_rank_class(
-      Ranks.lookup(nomenclatural_code, rank)
+      Ranks.lookup(
+        is_combination? ? parent.nomenclatural_code : nomenclatural_code,
+        rank)
     ).first
   end
 
- # @return scope [TaxonName, nil] an ancestor at the specified rank
+  # @return scope [TaxonName, nil] an ancestor at the specified rank
   # @params rank [symbol|string|
   #   like :species or 'genus'
   def descendants_at_rank(rank)
@@ -434,6 +451,8 @@ class TaxonName < ApplicationRecord
     try(:source).try(:year)
   end
 
+  # !! Overrides Shared::Citations#nomenclature_date
+  #
   # @return [Time]
   #   effective date of publication, used to determine nomenclatural priority
   def nomenclature_date
@@ -533,6 +552,14 @@ class TaxonName < ApplicationRecord
     [cached, cached_author_year].compact.join(' ')
   end
 
+  # @return [String, nil]
+  #   derived from cached_author_year
+  #   !! DO NOT USE IN building cached !!
+  #   See also app/helpers/taxon_names_helper
+  def original_author_year
+    cached_author_year&.gsub(/^\(|\)$/, '')
+  end
+
   # @return [Array of TaxonName] ancestors of type 'Protonym'
   def ancestor_protonyms
     Protonym.ancestors_of(self)
@@ -598,7 +625,7 @@ class TaxonName < ApplicationRecord
   # @return [Boolean]
   #   true if this name has a TaxonNameClassification of hybrid
   def is_hybrid?
-    taxon_name_classifications.any? { |x| /Hybrid/ =~ x.type }
+    taxon_name_classifications.where_taxon_name(self).with_type_contains('Hybrid').any?
   end
 
   # @return [True|False]
@@ -890,7 +917,7 @@ class TaxonName < ApplicationRecord
   def get_full_name
     return name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
     return name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
-    return name if rank_class =~ /Ictv/
+    return name if rank_class.to_s =~ /Ictv/
     return verbatim_name if !verbatim_name.nil? && type == 'Combination'
     
     d = full_name_hash
@@ -1115,7 +1142,7 @@ class TaxonName < ApplicationRecord
 
   # @return [Boolean]
   def parent_is_set?
-    !parent_id.nil? || parent #(parent && parent.persisted?)
+    !parent_id.nil? || (parent && parent.persisted?)
   end
 
   def next_sibling

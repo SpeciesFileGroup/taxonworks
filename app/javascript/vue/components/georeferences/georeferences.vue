@@ -49,6 +49,7 @@
 import MapComponent from './map'
 import SpinnerComponent from 'components/spinner'
 import DisplayList from './list'
+import convertDMS from 'helpers/parseDMS.js'
 
 export default {
   components: {
@@ -132,6 +133,9 @@ export default {
         this.$refs.leaflet.addGeoJsonLayer(response.body.geo_json)
         this.$emit('created', response.body)
         this.$emit('onGeoreferences', this.georeferences)
+      }, response => {
+        this.showSpinner = false
+        TW.workbench.alert.create(response.bodyText, 'error')
       })
     },
     updateGeoreference (shape) {
@@ -176,6 +180,7 @@ export default {
         this.georeferences.splice(this.georeferences.findIndex((item => {
           return item.id === geo.id
         })), 1)
+        this.$emit('onGeoreferences', this.georeferences)
         this.populateShapes()
       })
     },
@@ -185,7 +190,7 @@ export default {
         properties: {},
         geometry: {
           type: 'Point',
-          coordinates: [this.verbatimLng, this.verbatimLat]
+          coordinates: [convertDMS(this.verbatimLng), convertDMS(this.verbatimLat)]
         }
       }
       const data = {
@@ -201,6 +206,9 @@ export default {
         this.georeferences.push(response.body)
         this.populateShapes()
         this.$emit('created', response.body)
+      }, response => {
+        this.showSpinner = false
+        TW.workbench.alert.create(response.bodyText, 'error')
       })
     }
   }

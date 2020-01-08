@@ -1,4 +1,5 @@
 require 'rake'
+require 'securerandom'
 
 namespace :tw do
   namespace :db do
@@ -27,7 +28,7 @@ namespace :tw do
         end
 
         database = ApplicationRecord.connection.current_database
-        path  = File.join(@args[:backup_directory], @args[:server_name] + '_' + Time.now.utc.strftime('%Y-%m-%d_%H%M%S%Z') + '.dump')
+        path  = File.join(@args[:backup_directory], [  SecureRandom.hex(8), @args[:server_name], Time.now.utc.strftime('%Y-%m-%d_%H%M%S%Z')].join('_') + '.dump')
 
         puts Rainbow("Dumping #{database} to #{path}").yellow
 
@@ -98,12 +99,17 @@ namespace :tw do
     end
 
     task find_last: [:environment, :backup_directory] do
-      file = Dir[File.join(@args[:backup_directory], '*.dump')].sort.last
+      file = Dir[File.join(@args[:backup_directory], '*.dump')].sort{|a,b| file_name_timestamp(a) <=> file_name_timestamp(b)}.last
+      puts Rainbow("Last dump found: #{file}").purple
       raise TaxonWorks::Error, Rainbow("No dump has been found in #{@args[:backup_directory]}").red unless file
       @args[:file] = File.basename(file)
     end
 
     private
+
+    def file_name_timestamp(filename)
+      filename.match(/.?_(\d\d\d\d.*).dump$/)[1].to_s
+    end
 
     # This should just be done by restarting the server and making a new connection!
     def reset_indecies

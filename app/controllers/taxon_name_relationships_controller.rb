@@ -95,7 +95,7 @@ class TaxonNameRelationshipsController < ApplicationController
 
   # GET /taxon_name_relationships/download
   def download
-    send_data Download.generate_csv(TaxonNameRelationship.where(project_id: sessions_current_project_id)),
+    send_data Export::Download.generate_csv(TaxonNameRelationship.where(project_id: sessions_current_project_id)),
               type: 'text', filename: "taxon_name_relationships_#{DateTime.now}.csv"
   end
 
@@ -123,7 +123,7 @@ class TaxonNameRelationshipsController < ApplicationController
 
   def filter_sql
     h = params.permit(:taxon_name_id, :as_object, :as_subject, of_type: []).to_h.symbolize_keys
-    Queries::TaxonNameRelationshipsFilterQuery.new(h).where_sql
+    Queries::TaxonNameRelationshipsFilterQuery.new(**h).where_sql
   end
 
 end

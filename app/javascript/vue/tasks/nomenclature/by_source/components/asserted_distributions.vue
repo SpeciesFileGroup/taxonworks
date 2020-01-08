@@ -1,29 +1,40 @@
 <template>
   <div>
-    <h2>Asserted distributions</h2>
+    <spinner-component
+      v-if="showSpinner"/>
+    <div class="flex-separate middle">
+      <h2>Asserted distributions</h2>
+      <button
+        @click="summarize"
+        :disabled="!sourceID || !asserted_distributions_cites_list.length"
+        class="button normal-input button-default">
+        Summarize OTUs
+      </button>
+    </div>
     <table-component
       :list="asserted_distributions_cites_list"/>
   </div>
 </template>
 <script>
-  import TableComponent from './tables/table.vue'
-  import RadialAnnotator from 'components/annotator/annotator.vue'
-  import OtuRadial from 'components/otu/otu.vue'
+
+import TableComponent from './tables/table.vue'
+import SpinnerComponent from 'components/spinner.vue'
+
   export default {
     components: {
       TableComponent,
-      RadialAnnotator,
-      OtuRadial
+      SpinnerComponent
     },
     props: {
       sourceID: {
         type: String,
-        default: "0"
+        default: undefined
       },
     },
     data() {
       return {
-        asserted_distributions_cites_list: []
+        asserted_distributions_cites_list: [],
+        showSpinner: false
       }
     },
     watch: {
@@ -33,9 +44,16 @@
     },
     methods: {
       getCites() {
+        this.showSpinner = true
         this.$http.get('/citations.json?citation_object_type=AssertedDistribution&source_id=' + this.sourceID).then(response => {
           this.asserted_distributions_cites_list = response.body;
-          this.$emit("distribution_cites", this.asserted_distributions_cites_list)
+          this.showSpinner = false
+        })
+      },
+      summarize() {
+        this.$emit('summarize', { 
+          type: 'asserted_distribution_ids', 
+          list: this.asserted_distributions_cites_list 
         })
       }
     },

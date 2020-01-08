@@ -1,30 +1,41 @@
 <template>
   <div>
-    <h2>Taxon name classifications</h2>
+    <spinner-component
+      v-if="showSpinner"/>
+    <div class="flex-separate middle">
+      <h2>Taxon name classifications</h2>
+      <button
+        @click="summarize"
+        :disabled="!sourceID || !taxon_classification_cites_list.length"
+        class="button normal-input button-default">
+        Summarize OTUs
+      </button>
+    </div>
     <table-component
       :list="taxon_classification_cites_list"
     />
   </div>
 </template>
 <script>
-  import TableComponent from './tables/classification_table.vue'
-  import RadialAnnotator from 'components/annotator/annotator.vue'
-  import OtuRadial from 'components/otu/otu.vue'
+
+import TableComponent from './tables/classification_table.vue'
+import SpinnerComponent from 'components/spinner.vue'
+
   export default {
     components: {
       TableComponent,
-      RadialAnnotator,
-      OtuRadial
+      SpinnerComponent
     },
     props: {
       sourceID: {
         type: String,
-        default: "0"
+        default: undefined
       },
     },
     data() {
       return {
-        taxon_classification_cites_list: []
+        taxon_classification_cites_list: [],
+        showSpinner: false
       }
     },
     watch: {
@@ -35,12 +46,18 @@
 
     methods: {
       getCites() {
+        this.showSpinner = true
         this.$http.get('/citations.json?verbose_object=true&citation_object_type=TaxonNameClassification&source_id=' + this.sourceID).then(response => {
-          // build the tabular list, extracting the
           this.taxon_classification_cites_list = response.body;
-          this.$emit("taxon_classification_cites", this.taxon_classification_cites_list)
+          this.showSpinner = false
         })
       },
+      summarize() {
+        this.$emit('summarize', { 
+          type: 'taxon_name_classification_ids', 
+          list: this.taxon_classification_cites_list 
+        })
+      }
     },
   }
 </script>

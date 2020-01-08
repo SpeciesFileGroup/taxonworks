@@ -1,0 +1,41 @@
+<h1>Download</h1>
+
+<p>
+  <strong>Name:</strong>
+  <%= @download.name %>
+</p>
+
+<p>
+  <strong>Description:</strong>
+  <%= @download.description %>
+</p>
+
+<% if @download.ready? %>
+<p>
+  <strong>Status:</strong>
+  Ready to download
+</p>
+
+<p>
+  <strong>Expires:</strong>
+  <%= distance_of_time_in_words Time.now - @download.expires %>
+</p>
+
+<p>
+  <strong>Times downloaded:</strong>
+  <%= @download.times_downloaded %>
+</p>
+
+<p>
+  <%= link_to("Download", download_file_download_path(@download), target: "_blank") %>
+</p>
+<% else %>
+<p>
+  <strong>Status:</strong>
+  Download <%= @download.expired? ? "has expired and cannot be downloaded." : "creation is in progress..." %>
+</p>
+<% end %>
+
+<% unless @download.expired? or @download.ready? %>
+<script>setTimeout(location.reload.bind(location), 5000);</script>
+<% end %>

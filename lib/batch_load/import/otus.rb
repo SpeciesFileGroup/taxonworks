@@ -11,7 +11,7 @@ module BatchLoad
     # @param [Hash] args
     def initialize(**args)
       @otus = {}
-      super(args)
+      super(**args)
     end
 
     # @return [Integer]

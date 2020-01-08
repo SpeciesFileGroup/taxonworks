@@ -18,7 +18,7 @@
             :key="item.id"
             class="list-complete-item">
             <td v-html="item.biological_relationship.name"/>
-            <td v-html="item.subject.object_tag"/>
+            <td v-html="item.object.object_tag"/>
             <td v-html="getCitationString(item)"/>
             <td class="vue-table-options">
               <radial-annotator :global-id="item.global_id"/>

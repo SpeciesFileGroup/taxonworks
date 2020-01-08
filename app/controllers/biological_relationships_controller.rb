@@ -12,7 +12,7 @@ class BiologicalRelationshipsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @biological_relationships = BiologicalRelationship.where(filter_sql).with_project_id(sessions_current_project_id).order(:name)
+        @biological_relationships = BiologicalRelationship.with_project_id(sessions_current_project_id).order(:name)
       }
     end
   end
@@ -98,7 +98,7 @@ class BiologicalRelationshipsController < ApplicationController
   end
 
   def set_biological_relationship
-    @biological_relationship = BiologicalRelationship.find(params[:id])
+    @biological_relationship = BiologicalRelationship.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def biological_relationship_params

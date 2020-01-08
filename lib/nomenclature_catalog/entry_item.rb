@@ -22,7 +22,7 @@ module NomenclatureCatalog
     # @param [Hash] args
     def initialize(object: nil, taxon_name: nil, citation: nil, nomenclature_date: nil, citation_date: nil)
       raise if object.nil? || taxon_name.nil?
-      raise if nomenclature_date.nil? && !(object.class.to_s == 'Protonym' || 'Combination' || 'TaxonNameRelationship')
+      # raise if nomenclature_date.nil? && !(object.class.to_s == 'Protonym' || 'Combination' || 'TaxonNameRelationship')
 
       @object = object
       @taxon_name = taxon_name
@@ -59,6 +59,7 @@ module NomenclatureCatalog
     def from_relationship?
       object_class =~ /^TaxonNameRelationship/
     end
+
 
     # @return [Boolean]
     def is_subsequent?

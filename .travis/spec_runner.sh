@@ -50,6 +50,6 @@ echo ${SPECS_TO_RUN[$TEST_WORKER]} | grep -qv "spec/features/" || \
 NODE_OPTIONS="--max-old-space-size=4096" bundle exec rake assets:precompile
 
 echo "[TEST_WORKER=$TEST_WORKER specs set] ${SPECS_TO_RUN[$TEST_WORKER]}"
-bundle exec rspec ${SPECS_TO_RUN[$TEST_WORKER]}
+bundle exec rspec --force-color ${SPECS_TO_RUN[$TEST_WORKER]}
 
 report_cleanup

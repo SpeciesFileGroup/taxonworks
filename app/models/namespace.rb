@@ -48,6 +48,7 @@ class Namespace < ApplicationRecord
   validates_presence_of :name, :short_name
   validates_uniqueness_of :name, :short_name
 
+  # autosave rebuilds the .cache on related records
   has_many :identifiers, autosave: true, dependent: :restrict_with_error
 
   scope :used_on_klass, -> (klass) { joins(:identifiers).where(identifiers: {identifier_object_type: klass} ) }
@@ -56,7 +57,13 @@ class Namespace < ApplicationRecord
 
   def self.select_optimized(user_id, project_id, klass)
     h = {
-      recent: Namespace.used_on_klass(klass).used_in_project(project_id).used_recently.limit(10).distinct.to_a,
+      recent: (
+        Namespace.used_on_klass(klass)
+        .where(identifiers: {updated_by_id: user_id})
+        .used_in_project(project_id)
+        .used_recently
+        .limit(6).distinct.to_a + 
+      Namespace.where(created_by_id: user_id, created_at: (3.hours.ago..Time.now)).limit(5)).uniq,
       pinboard: Namespace.pinned_by(user_id).pinned_in_project(project_id).to_a
     }
 

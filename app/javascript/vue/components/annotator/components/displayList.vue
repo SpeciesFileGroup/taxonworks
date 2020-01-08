@@ -12,8 +12,8 @@
         v-html="displayName(item)"/>
       <div class="list-controls">
         <pdf-button
-          v-if="pdf && item.hasOwnProperty('target_document')"
-          :pdf="item.target_document"/>
+          v-if="pdf && pdfExist(item)"
+          :pdf="pdfExist(item)"/>
         <radial-annotator
           v-if="annotator"
           :global-id="item.global_id"/>
@@ -81,6 +81,15 @@
         if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
           this.$emit('delete', item)
         }
+      },
+      pdfExist(item) {
+        if (item.hasOwnProperty('target_document')) {
+          return item.target_document
+        }
+        if(item.hasOwnProperty('document')) {
+          return item.document
+        }
+        return undefined
       }
     }
   }

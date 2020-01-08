@@ -162,7 +162,7 @@ module Queries
         ::TaxonName.where(
           ::TaxonNameHierarchy.where(
             ::TaxonNameHierarchy.arel_table[:descendant_id].eq(::TaxonName.arel_table[:id]).and(
-            ::TaxonNameHierarchy.arel_table[:ancestor_id].in(taxon_name_id))
+            ::TaxonNameHierarchy.arel_table[:ancestor_id].in(taxon_name_id)) # TODO- in is likely not the most optimal
           ).arel.exists
         )
       end

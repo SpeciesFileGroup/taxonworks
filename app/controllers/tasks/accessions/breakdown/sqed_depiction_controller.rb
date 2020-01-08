@@ -3,7 +3,7 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
 
   before_action :set_sqed_depiction, except: [:todo_map]
 
-  # GET /tasks/accession/breakdown/depiction/:id
+  # GET /tasks/accession/breakdown/depiction/:id # id is a collection_object_id
   def index
     @result = SqedToTaxonworks::Result.new(
       depiction_id: @sqed_depiction.depiction.id,
@@ -36,7 +36,7 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
   end
 
   def todo_map
-    @sqed_depictions = SqedDepiction.with_project_id(sessions_current_project_id).order(:id).page(params[:page]).per(100)
+    @sqed_depictions = SqedDepiction.where(project_id: sessions_current_project_id).order(:id).page(params[:page]).per(100)
   end
 
   protected
@@ -51,9 +51,8 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
     )
   end
 
-
   def set_sqed_depiction
-    @sqed_depiction = SqedDepiction.find(params[:id])
+    @sqed_depiction = SqedDepiction.where(project_id: sessions_current_project_id).find(params[:id])
     @sqed_depiction.preprocess
   end
 

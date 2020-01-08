@@ -1,7 +1,7 @@
 FactoryBot.define do
 
   trait :random_name do
-    # Could be Faker.characters(10)
+    # Could be Faker.characters(number: 10)
     name { Utilities::Strings.random_string(10) }
   end
 

@@ -53,6 +53,7 @@
     <display-list
       label="object_tag"
       :list="list"
+      :pdf="true"
       @delete="removeItem"
       class="list"/>
   </div>
@@ -61,16 +62,16 @@
 
   import CRUD from '../request/crud.js'
   import annotatorExtend from '../components/annotatorExtend.js'
-  import autocomplete from '../../autocomplete.vue'
-  import dropzone from '../../dropzone.vue'
-  import displayList from './displayList.vue'
+  import Autocomplete from '../../autocomplete.vue'
+  import Dropzone from '../../dropzone.vue'
+  import DisplayList from './displayList.vue'
 
   export default {
     mixins: [CRUD, annotatorExtend],
     components: {
-      displayList,
-      autocomplete,
-      dropzone
+      DisplayList,
+      Autocomplete,
+      Dropzone
     },
     computed: {
       validateFields() {
@@ -84,6 +85,7 @@
         list: [],
         documentation: this.newDocumentation(),
         dropzone: {
+          timeout: 0,
           paramName: 'documentation[document_attributes][document_file]',
           url: '/documentation',
           headers: {

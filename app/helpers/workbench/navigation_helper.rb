@@ -1,12 +1,9 @@
 # Methods for 1) generating paths; or 2) generating links.
 module Workbench::NavigationHelper
-
-  NO_NEW_FORMS = %w{Attribution ObservationMatrixRow ObservationMatrixColumn Note Tag Citation Identifier DataAttribute AlternateValue GeographicArea ContainerItem ProtocolRelationship}.freeze
-
+  NO_NEW_FORMS = %w{Attribution ObservationMatrixRow ObservationMatrixColumn Note Tag Citation Identifier DataAttribute AlternateValue GeographicArea ContainerItem ProtocolRelationship Download}.freeze
   NOT_DATA_PATHS = %w{/project /administration /user}.freeze
 
   # Slideout panels
-
   def slideouts
     if sessions_current_project && sessions_signed_in? && on_workbench?
       [ slideout_pinboard, 
@@ -32,7 +29,6 @@ module Workbench::NavigationHelper
   end
 
   # @return [Boolean]
-  # 
   def on_workbench?
     !(request.path =~ /#{NOT_DATA_PATHS.join('|')}/)
   end
@@ -55,6 +51,7 @@ module Workbench::NavigationHelper
     content_tag(:span, (previous_link(instance) + ' | ' + next_link(instance)).html_safe)
   end
 
+  # Used in show/REST
   # A previous record link.
   def previous_link(instance, text: 'Previous', target: nil)
     link_text = content_tag(:span, text,  'data-icon' => 'arrow-left', 'class' => 'small-icon')
@@ -68,6 +65,7 @@ module Workbench::NavigationHelper
     link_to(link_text, target, 'data-arrow' => 'back', 'class' => 'navigation-item')
   end
 
+  # Used in show/REST
   # A next record link.
   def next_link(instance, text: 'Next', target: nil)
     link_text = content_tag(:span, text, 'class' => 'small-icon icon-right', 'data-icon' => 'arrow-right')
@@ -214,21 +212,6 @@ module Workbench::NavigationHelper
     end
   end
 
-=begin
-DEPRECATED FOR RADIAL
-  def annotate_links(object: nil)
-    [content_tag(:li, add_alternate_value_link(object: object)),
-     content_tag(:li, add_citation_link(object: object)),
-     content_tag(:li, add_data_attribute_link(object: object)),
-     content_tag(:li, add_identifier_link(object: object)),
-     content_tag(:li, add_note_link(object: object)),
-     content_tag(:li, add_tag_link(object: object)),
-     content_tag(:li, add_confidence_link(object: object)),
-     content_tag(:li, add_protocol_link(object: object))
-    ].compact.join.html_safe
-  end
-=end
-
   def safe_object_from_attributes(hsh)
     if hsh['object_type'] && hsh['object_type']
       begin
@@ -267,7 +250,6 @@ DEPRECATED FOR RADIAL
 
   def a_to_z_links(targets = [])
     letters = targets.empty? ? a_to_z_range : a_to_z_range.to_a & targets
-
     content_tag(:div, class: 'navigation-bar-left', id: 'alphabet_nav') do
       content_tag(:ul, class: 'left_justified_navbar context-menu') do
         letters.collect{|l| content_tag(:li, link_to("#{l}", "\##{l}")) }.join.html_safe
@@ -300,6 +282,5 @@ DEPRECATED FOR RADIAL
       object_link(object)
     end
   end
-
 
 end

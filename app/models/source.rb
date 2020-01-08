@@ -209,18 +209,21 @@ class Source < ApplicationRecord
   #  When true, cached values are not built
   attr_accessor :no_year_suffix_validation
 
-  has_many :asserted_distributions, through: :citations, source: :citation_object, source_type: 'AssertedDistribution'
-  has_many :citation_topics, through: :citations, inverse_of: :source
+  # Keep this order for citations/topics
   has_many :citations, inverse_of: :source, dependent: :restrict_with_error
+  has_many :citation_topics, through: :citations, inverse_of: :source
+  has_many :topics, through: :citation_topics, inverse_of: :sources
+
+  # !! must be below has_many :citations
+  has_many :asserted_distributions, through: :citations, source: :citation_object, source_type: 'AssertedDistribution'
+
   has_many :project_sources, dependent: :destroy
   has_many :projects, through: :project_sources
-  has_many :topics, through: :citation_topics, inverse_of: :sources
 
   after_save :set_cached
 
   validates_presence_of :type
   validates :type, inclusion: {in: ['Source::Bibtex', 'Source::Human', 'Source::Verbatim']} # TODO: not needed
-
   validate :validate_year_suffix, unless: -> { self.no_year_suffix_validation || (self.type != 'Source::Bibtex') }
 
   accepts_nested_attributes_for :project_sources, reject_if: :reject_project_sources
@@ -284,6 +287,7 @@ class Source < ApplicationRecord
     # i is a select manager
     i = t.project(t['source_id'], t['created_at']).from(t)
       .where(t['created_at'].gt(1.weeks.ago))
+      .where(t['citation_object_type'].eq(used_on))
       .order(t['created_at'])
       .take(10)
       .distinct
@@ -304,9 +308,15 @@ class Source < ApplicationRecord
       pinboard: Source.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a
     }
 
-    h[:recent] = Source.joins(:citations).where(citations: {project_id: project_id}).
-      used_recently(target).
-      limit(10).distinct.to_a
+    h[:recent] = (
+      Source.joins(:citations)
+      .where( citations: { project_id: project_id, updated_by_id: user_id } )
+      .used_recently(target)
+      .limit(5).distinct.to_a +
+    Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
+      .order('created_at DESC')
+      .limit(5).to_a
+    ).uniq
 
     h[:recent] ||= []
 
@@ -328,6 +338,30 @@ class Source < ApplicationRecord
   # @return [Boolean]
   def is_in_project?(project_id)
     projects.where(id: project_id).any?
+  end
+
+  # @return [Source, false]
+  def clone
+    s = dup
+    m = "[CLONE of #{id}] "
+    begin
+      Source.transaction do |t|
+        roles.each do |r|
+          s.roles << Role.new(person: r.person, type: r.type, position: r.position )
+        end
+
+        case type
+        when 'Source::Verbatim'
+          s.verbatim = m + verbatim
+        when 'Source::Bibtex'
+          s.title = m + title
+        end
+
+        s.save!
+      end
+    rescue ActiveRecord::RecordInvalid
+    end
+    s
   end
 
   protected

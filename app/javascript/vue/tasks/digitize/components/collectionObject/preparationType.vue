@@ -2,8 +2,10 @@
   <div>
     <h2>Preparation</h2>
     <div class="horizontal-left-content align-start">
-      <ul class="no_bullets preparation-list">
-        <li v-for="type in coTypes">
+      <ul
+        v-for="itemsGroup in coTypes.chunk(Math.ceil(coTypes.length/3))"
+        class="no_bullets preparation-list">
+        <li v-for="type in itemsGroup">
           <label>
             <input
               type="radio"

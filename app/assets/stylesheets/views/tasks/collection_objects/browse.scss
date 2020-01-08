@@ -1,0 +1,9 @@
+#filterBrowse {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  .navigation-item {
+    min-width: 200px;
+    width: inherit;
+    flex-grow: 1;
+  }
+}

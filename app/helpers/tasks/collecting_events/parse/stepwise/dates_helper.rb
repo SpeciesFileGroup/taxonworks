@@ -77,9 +77,9 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
               when 1 #'Match'
                 item_data = content_tag(:vl, pieces.join(' '))
               when 2 # 'Start Date'
-                item_data = item.start_y_m_d_string
+                item_data = item.start_date_string
               when 3 # 'End Date'
-                item_data = item.end_y_m_d_string
+                item_data = item.end_date_string
               when 4 #'Verbatim Date'
                 item_data = content_tag(:vd, item.verbatim_date, data: {help: item.verbatim_label})
                 no_verbatim_date = !item.verbatim_date.blank?
@@ -100,14 +100,6 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
     end
 
     content_tag(:table, thead.concat(tbody), {id: 'matching_table', border: '1'}).html_safe
-  end
-
-  def test_start_date # what is "test" about this?
-    @collecting_event.start_y_m_d_string unless @collecting_event.nil?
-  end
-
-  def test_end_date
-    @collecting_event.end_y_m_d_string unless @collecting_event.nil?
   end
 
   def show_ce_vl(collecting_event)

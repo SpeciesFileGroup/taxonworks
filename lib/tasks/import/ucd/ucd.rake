@@ -2247,6 +2247,7 @@ namespace :tw do
           if !notes[row['Status']].nil? && !taxon.nil?
             nt = notes[row['Status']]
             nt += ' ' + taxon1.cached.to_s + ' ' + taxon1.cached_author_year.to_s if taxon1
+            nt += ' ' + row['Notes'].to_s.gsub('|','_') unless row['Notes'].blank?
 
             pred = keywords[row['Status']]
             byebug if pred.nil? || pred.id.nil?
@@ -2279,7 +2280,7 @@ namespace :tw do
             #taxon1 = valid
             taxon1 = taxon1.protonyms.last
           end
-          taxon.notes.create(text: row['Notes'].to_s.gsub('|','_') + ' ' + row['Code'].to_s) if !row['Notes'].blank? && !taxon.nil?
+          taxon.notes.create(text: row['Notes'].to_s.gsub('|','_') + ' ' + row['Code'].to_s) if !row['Notes'].blank? && !taxon.nil? && notes[row['Status']].nil?
 
           # create biological associations for CF status
           if !compared_with[row['Status']].nil? && !taxon.nil? && !taxon1.nil?

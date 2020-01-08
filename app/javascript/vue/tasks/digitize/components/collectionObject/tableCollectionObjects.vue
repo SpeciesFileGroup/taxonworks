@@ -14,41 +14,46 @@
         v-show="!collectionObject.id">
         <td>
           <input
+            v-if="!collectionObject.id"
+            :data-index="0"
             type="number"
-            class="total-size"
+            class="total-size .co-total-count"
+            min="1"
             v-model="collectionObject.total">
         </td>
         <td class="lock-biocuration">
           <lock-component v-model="locked.biocuration"/>
         </td>
         <td>
-          <bioclassification 
+          <bioclassification
             :biocurations-groups="biocurationsGroups"
             :biocutarions-type="biocutarionsType"
-            :biological-id="collectionObject.id"/>          
+            :biological-id="collectionObject.id"/>
         </td>
         <td></td>
       </tr>
       <tr
-        v-for="item in collectionObjects"
+        v-for="(item, index) in collectionObjects"
         :key="item.id"
         class="list-complete-item"
         :class="{ 'highlight': isSelected(item) }">
         <td>
           <input
-            class="total-size"
+            :data-index="index"
+            class="total-size co-total-count"
             type="number"
             @change="updateCO(item)"
             v-model="item.total">
         </td>
         <td></td>
         <td>
-          <bioclassification 
+          <bioclassification
             :biological-id="item.id"
             :biocurations-groups="biocurationsGroups"
             :biocutarions-type="biocutarionsType"/>
         </td>
         <td class="horizontal-right-content">
+          <accession-metadata :collection-object="item"/>
           <radial-annotator :global-id="item.global_id"/>
           <button
             type="button"
@@ -76,6 +81,7 @@ import RadialAnnotator from '../../../../components/annotator/annotator.vue'
 import PinComponent from '../../../../components/pin.vue'
 import Bioclassification from './bioclassification.vue'
 import LockComponent from 'components/lock'
+import AccessionMetadata from './accession'
 
 import { GetBiocurationsTypes, GetBiocurationsGroupTypes } from '../../request/resources.js'
 
@@ -84,7 +90,8 @@ export default {
     LockComponent,
     RadialAnnotator,
     PinComponent,
-    Bioclassification
+    Bioclassification,
+    AccessionMetadata
   },
   computed: {
     locked: {
@@ -150,7 +157,7 @@ export default {
     width: 30px;
   }
   .total-size {
-    width: 50px;
+    width: 100px;
   }
 </style>
 

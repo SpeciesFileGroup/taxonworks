@@ -1,27 +1,31 @@
 <%= form_for(@namespace) do |f| %>
-    <%= render 'shared/errors', object: @namespace %>
+  <%= render 'shared/errors', object: @namespace %>
 
-    <div class="field">
-      <%= f.label :institution, 'Institution (or person responsible for minting this namespace)' %>
-      <br>
-      <%= f.text_field :institution, size: 100 %>
-    </div>
-    <div class="field">
-      <%= f.label :name, 'Full name (e.g., collection name or URL; must be unique among all namespaces)' %>
-      <br>
-      <%= f.text_field :name, size: 100 %>
-    </div>
-    <div class="field">
-      <%= f.label :short_name, 'Short name or abbreviation (must be unique among all namespaces)' %>
-      <br>
-      <%= f.text_field :short_name %>
-    </div>
-    <div class="field">
-      <%= f.label :verbatim_short_name, 'Verbatim short name (since short names must be unique, use a verbatim short name to indicate the physical and/or historical recorded value)' %>
-      <%= content_tag(:span, 'Provide only if short_name is not unique', class: [:warning, ]) -%><br>
-      <%= f.text_field :verbatim_short_name %>
-    </div>
-    <div class="actions">
-      <%= f.submit %>
-    </div>
+  <div class="field">
+    <%= f.label :institution, 'Institution (or person responsible for minting this namespace)' %>
+    <br>
+    <%= f.text_field :institution, size: 100 %>
+  </div>
+  <div class="field">
+    <%= f.label :name, '', data: {help: 'The fully spelled out version of the acronym or abbreviation.'} %><br>
+    <%= f.text_field :name, size: 100, placeholder: 'Like "Illinois Natural History Survey"'  %>
+  </div>
+  <div class="field">
+    <%= f.label :short_name, '', data: {help: 'Short name or abbreviation, the actual value seen on the identifier.'} %>
+    <br>
+    <%= f.text_field :short_name,placeholder: 'Like "INHS"' %>
+  </div>
+  <div class="field">
+    <%= f.label :verbatim_short_name, '', data: {help: 'Since short names must be unique, use a "Verbatim short name" to indicate the physically recorded value and/or historical recorded value. When provided this is term used to build the identifier, while the short name is used to select the namespace.'} %>
+    <p> <%= content_tag(:span, 'Provide only if "Short name" is not unique', class: [:feedback, 'feedback-thin','feedback-warning' ]) -%></p>
+    <%= f.text_field :verbatim_short_name, placeholder: 'Like "INHS"' %>
+  </div>
+  <div class="field">
+    <%= f.label :delimiter, '', data: {help: "Delimiter, i.e. characters joining the namespace to the identifier. A space is used if none is provided. Use all caps \"NONE\" to ommit joining character. E.g.: the '-' in 'ABC-123'."} %>
+    <br>
+    <%= f.text_field :delimiter, size: 6, placeholder: 'Like "-"' %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
 <% end %>

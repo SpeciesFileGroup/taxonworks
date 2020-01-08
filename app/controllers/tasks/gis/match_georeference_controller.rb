@@ -10,7 +10,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   def filtered_collecting_events
     message = ''
-    @collecting_events = CollectingEvent.with_project_id(sessions_current_project_id).filter(params)
+    @collecting_events = CollectingEvent.with_project_id(sessions_current_project_id).filter_by(params)
 
     if @collecting_events.blank?
       message = 'no collecting events selected'
@@ -83,7 +83,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   def filtered_georeferences
     message = ''
-    @georeferences = Georeference.with_project_id(sessions_current_project_id).filter(params)
+    @georeferences = Georeference.with_project_id(sessions_current_project_id).filter_by(params)
     if @georeferences.blank?
       message = 'no georeferences found'
     end

@@ -1,6 +1,6 @@
 <%= content_for :add do -%>
   <ul class="no_bullets">
-    <%= content_tag(:li, link_to('Clone', clone_collecting_event_path(id: @collecting_event.id), method: :post, data: { confirm: 'Clone this record? Changes will not be saved!' } )) %>
+    <%= content_tag(:li, link_to('Clone', clone_collecting_event_path(id: @collecting_event.id), method: :post, data: { confirm: 'Clone this record?' } )) %>
     <%= content_tag(:li, link_to('Add Google map georeference', new_georeferences_google_map_path(georeference: {collecting_event_id: @collecting_event.to_param}), 'data-turbolinks' => false)) %>
   </ul>
 <% end %>

@@ -2,6 +2,8 @@ require 'rails_helper'
 
 describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
+  let(:collecting_event) { CollectingEvent.new }
+
   let!(:never_found) { CollectingEvent.create!(verbatim_label: 'Nope') }
   let(:county) { FactoryBot.create(:valid_geographic_area_stack) }
   let(:state) { county.parent }
@@ -43,7 +45,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
   end
 
   # TEMPLATE
-  # context 'some test' do
+  # context 'some test' d
   #   let(:search_start) { a }
   #   let(:search_end) { c }
   #
@@ -64,7 +66,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     }
 
     specify 'returns one (strict), ordered' do
-      expect(CollectingEvent.in_date_range(params.merge(partial_overlap: 'OfF')).order(:id)).to contain_exactly(ce1)
+      expect(CollectingEvent.in_date_range(**params.merge(partial_overlap: 'OfF')).order(:id)).to contain_exactly(ce1)
     end
 
     specify 'using just the sql, ordered' do
@@ -88,11 +90,11 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     }
 
     specify 'returns one (strict)' do
-      expect(CollectingEvent.in_date_range(params.merge(partial_overlap: 'OfF'))).to contain_exactly(ce1)
+      expect(CollectingEvent.in_date_range(**params.merge(partial_overlap: 'OfF'))).to contain_exactly(ce1)
     end
 
     specify 'returns one (lenient)' do
-      expect(CollectingEvent.in_date_range(params.merge(partial_overlap: 'on'))).to contain_exactly(ce1)
+      expect(CollectingEvent.in_date_range(**params.merge(partial_overlap: 'on'))).to contain_exactly(ce1)
     end
 
   end
@@ -112,7 +114,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     }
 
     specify 'returns one' do
-      expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
+      expect(CollectingEvent.in_date_range(**params)).to contain_exactly(ce1)
     end
   end
 
@@ -132,7 +134,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     }
 
     specify 'returns both' do
-      expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1, ce2)
+      expect(CollectingEvent.in_date_range(**params)).to contain_exactly(ce1, ce2)
     end
   end
 
@@ -150,7 +152,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
       let!(:ce1) { CollectingEvent.create!(parse_stubs(a, d).merge(verbatim_label: "#{a} -- #{d}")) }
 
       specify 'returns none' do
-        expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
+        expect(CollectingEvent.in_date_range(**params)).to contain_exactly(ce1)
       end
     end
 
@@ -164,7 +166,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
       let!(:ce1) { CollectingEvent.create!(parse_stubs(a, d).merge(verbatim_label: "#{a} -- #{d}")) }
 
       specify 'returns none' do
-        expect(CollectingEvent.in_date_range(params)).to contain_exactly()
+        expect(CollectingEvent.in_date_range(**params)).to contain_exactly()
       end
     end
 
@@ -180,7 +182,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(b, c).merge(verbatim_label: "#{b} -- #{c}")) }
 
         specify 'returns one' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly(ce1)
         end
       end
 
@@ -194,7 +196,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(b, d).merge(verbatim_label: "#{b} -- #{d}")) }
 
         specify 'returns none' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly()
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly()
         end
       end
 
@@ -208,7 +210,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(b, nil).merge(verbatim_label: "#{b} -- nil")) }
 
         specify 'returns one' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly(ce1)
         end
       end
     end
@@ -225,7 +227,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(a, c).merge(verbatim_label: "#{a} -- #{c}")) }
 
         specify 'returns none' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly()
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly()
         end
       end
 
@@ -242,7 +244,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(a, d).merge(verbatim_label: "#{a} -- #{d}")) }
 
         specify 'returns none' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly()
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly()
         end
       end
 
@@ -256,7 +258,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(c, d).merge(verbatim_label: "#{c} -- #{d}")) }
 
         specify 'returns none' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly()
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly()
         end
       end
 
@@ -270,7 +272,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(c, nil).merge(verbatim_label: "#{c} -- nil")) }
 
         specify 'returns none' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly()
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly()
         end
       end
     end
@@ -280,7 +282,6 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
   # ----
 
   context 'partial_overlap ON (lenient)' do
-
 
 
     #       a        d
@@ -294,7 +295,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
       let!(:ce1) { CollectingEvent.create!(parse_stubs(a, d).merge(verbatim_label: "#{a} -- #{d}")) }
 
       specify 'returns none' do
-        expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
+        expect(CollectingEvent.in_date_range(**params)).to contain_exactly(ce1)
       end
     end
 
@@ -311,7 +312,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(b, c).merge(verbatim_label: "#{b} -- #{c}")) }
 
         specify 'returns' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly(ce1)
         end
       end
 
@@ -325,7 +326,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(b, d).merge(verbatim_label: "#{b} -- #{d}")) }
 
         specify 'returns' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly(ce1)
         end
       end
 
@@ -339,7 +340,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(b, nil).merge(verbatim_label: "#{b} -- nil")) }
 
         specify 'returns' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly(ce1)
         end
       end
     end
@@ -356,7 +357,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(a, c).merge(verbatim_label: "#{a} -- #{c}")) }
 
         specify 'returns one' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly(ce1)
         end
       end
     end
@@ -371,7 +372,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
       let!(:ce1) { CollectingEvent.create!(parse_stubs(a, d).merge(verbatim_label: "#{a} -- #{d}")) }
 
       specify 'returns one' do
-        expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
+        expect(CollectingEvent.in_date_range(**params)).to contain_exactly(ce1)
       end
     end
 
@@ -386,7 +387,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(c, d).merge(verbatim_label: "#{c} -- #{d}")) }
 
         specify 'returns none' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly()
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly()
         end
       end
 
@@ -400,9 +401,203 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(c, nil).merge(verbatim_label: "#{c} -- nil")) }
 
         specify 'returns none' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly()
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly()
         end
       end
     end
   end
+
+  # --- End stub tests ---
+
+  # Somehwhat helper like, but needed for compute/indexing etc. Probably should all go to helper module
+  context 'date formatting' do
+    specify '#has_start_date?' do
+      a = CollectingEvent.new(start_date_year: 2010, start_date_month: 2, start_date_day: 1)
+      expect(a.has_start_date?).to be_truthy 
+    end
+
+    specify '#has_end_date?' do
+      a = CollectingEvent.new(end_date_year: 2010, end_date_month: 2, end_date_day: 1)
+      expect(a.has_end_date?).to be_truthy 
+    end
+
+    specify '#some_end_date?' do
+      a = CollectingEvent.new(end_date_month: 2, end_date_day: 1)
+      expect(a.some_end_date?).to be_truthy 
+    end
+
+    specify '#some_start_date?' do
+      a = CollectingEvent.new(start_date_year: 2010)
+      expect(a.some_start_date?).to be_truthy 
+    end
+    
+    specify '#some_start_date?' do
+      a = CollectingEvent.new()
+      expect(a.some_start_date?).to be_falsey
+    end
+
+    specify '#start_date_string 1' do
+      a = CollectingEvent.new(start_date_year: 2010, start_date_month: 2)
+      expect(a.start_date_string).to eq('2010/02/??')
+    end 
+
+    specify '#start_date_string 2' do
+      a = CollectingEvent.new(start_date_month: 2)
+      expect(a.start_date_string).to eq('????/02/??')
+    end 
+
+    specify '#end_date_string 1' do
+      a = CollectingEvent.new(end_date_year: 2010, end_date_month: 2)
+      expect(a.end_date_string).to eq('2010/02/??')
+    end
+  end
+
+  # Attribute validation
+  specify 'start_date_year is valid as 4 digit integer' do
+    # You can also pass a string, casting is automatic
+    collecting_event.start_date_year = 1942
+    collecting_event.valid?
+    expect(collecting_event.errors[:start_date_year].size).to eq(0)
+  end
+
+  specify 'start_date_year is invalid as 3 digit integer' do
+    collecting_event.start_date_year = '194'
+    collecting_event.valid?
+    expect(collecting_event.errors.include?(:start_date_year)).to be_truthy
+  end
+
+  specify 'start_date_year is invalid as when > 5 years from the future' do
+    collecting_event.start_date_year = (Time.now.year + 6)
+    collecting_event.valid?
+    expect(collecting_event.errors.include?(:start_date_year)).to be_truthy
+  end
+
+  specify 'start_date_year is invalid when less than 1000' do
+    collecting_event.start_date_year = 999
+    collecting_event.valid?
+    expect(collecting_event.errors.include?(:start_date_year)).to be_truthy
+  end
+
+  specify 'end_date_year is valid as 4 digit integer' do
+    # You can also pass a string, casting is automatic
+    collecting_event.end_date_year = 1942
+    collecting_event.valid?
+    expect(collecting_event.errors[:end_date_year]).to eq([])
+  end
+
+  specify 'end_date_year is invalid as 3 digit integer' do
+    collecting_event.end_date_year = '194'
+    collecting_event.valid?
+    expect(collecting_event.errors.include?(:end_date_year)).to be_truthy
+  end
+
+  specify 'end_date_year is invalid as when > 5 years from the future' do
+    collecting_event.end_date_year = Time.now.year + 6
+    collecting_event.valid?
+    expect(collecting_event.errors.include?(:end_date_year)).to be_truthy
+  end
+
+  specify 'end_date_year is invalid when less than 1000' do
+    collecting_event.end_date_year = 999
+    collecting_event.valid?
+    expect(collecting_event.errors.include?(:end_date_year)).to be_truthy
+  end
+
+  specify 'start_date_month is invalid when not included in 1-12' do
+    ['ab', 'February', 13, 0].each do |m|
+      collecting_event.start_date_month = m
+      collecting_event.valid?
+      expect(collecting_event.errors.include?(:start_date_month)).to be_truthy
+    end
+  end
+
+  specify 'start_date_day is invalid when not an integer' do
+    collecting_event.start_date_day = 'a'
+    collecting_event.valid?
+    expect(collecting_event.errors.include?(:start_date_day)).to be_falsey
+  end
+
+  specify 'start_date_day is value bound by month' do
+    collecting_event.start_date_year  = '1945' # requires year for leaps
+    collecting_event.start_date_month = '2'
+    collecting_event.start_date_day   = '30'
+    collecting_event.valid?
+    expect(collecting_event.errors.include?(:start_date_day)).to be_truthy
+  end
+
+  specify 'start_date_month is invalid when nil AND start_date_day provided' do
+    collecting_event.start_date_day = 1
+    collecting_event.valid?
+    expect(collecting_event.errors.include?(:start_date_month)).to be_truthy
+  end
+
+  specify 'end_date_month is invalid when not included in 1-12' do
+    ['ab', 'February', 13, 0].each do |m|
+      collecting_event.end_date_month = m
+      collecting_event.valid?
+      expect(collecting_event.errors.include?(:end_date_month)).to be_truthy
+    end
+  end
+
+  specify 'end_date_day is invalid when not an integer' do
+    collecting_event.end_date_day = 'a'
+    collecting_event.valid?
+    expect(collecting_event.errors.include?(:end_date_day)).to be_falsey
+  end
+
+  specify 'end_date_day is value bound by month' do
+    collecting_event.end_date_year  = '1945' # requires year for leaps
+    collecting_event.end_date_month = '2'
+    collecting_event.end_date_day   = '30'
+    collecting_event.valid?
+    expect(collecting_event.errors.include?(:end_date_day)).to be_truthy
+  end
+
+  specify 'end_date_month is invalid when nil AND end_date_day provided' do
+    collecting_event.end_date_day = 1
+    collecting_event.valid?
+    expect(collecting_event.errors.include?(:end_date_month)).to be_truthy
+  end
+
+  specify 'end date is > start date when both are provided' do
+    message                           = 'End date is earlier than start date.'
+    collecting_event.start_date_day   = 2
+    collecting_event.start_date_month = 1
+    collecting_event.start_date_year  = 1
+
+    collecting_event.end_date_day   = 1
+    collecting_event.end_date_month = 1
+    collecting_event.end_date_year  = 1
+
+    expect(collecting_event.valid?).to be_falsey
+    expect(collecting_event.errors[:base].include?(message)).to be_truthy
+  end
+
+  specify 'end date is > start date when both are provided' do
+    message                           = 'End date is earlier than start date.'
+    collecting_event.start_date_day   = '26'
+    collecting_event.start_date_month = '6'
+    collecting_event.start_date_year  = '1970'
+
+    collecting_event.end_date_day = '24'
+    collecting_event.end_date_month = '7'
+    collecting_event.end_date_year  = '1970'
+
+    expect(collecting_event.valid?).to be_truthy
+    expect(collecting_event.errors[:base].include?(message)).to be_falsey
+  end
+
+  specify 'end date without start date' do
+    message                         = 'End date without start date.'
+    collecting_event.end_date_day   = 1
+    collecting_event.end_date_month = 1
+    collecting_event.end_date_year  = 1789
+
+    expect(collecting_event.valid?).to be_falsey
+    expect(collecting_event.errors[:base].include?(message)).to be_truthy
+  end
+
+
+
+
 end

@@ -32,6 +32,24 @@ module Queries
         roles_table[:project_id].eq(project_id)
       end
 
+      def autocomplete_alternate_spelling_last_name
+        a = ::AlternateValue.arel_table
+        w = a[:value].matches('%' + query_string + '%')
+          .and(a[:type].eq('AlternateValue::AlternateSpelling'))
+          .and(a[:alternate_value_object_attribute]).eq('last_name')
+      
+        query_base.joins(:alternate_values).where(w.to_sql)
+      end
+
+      def autocomplete_alternate_spelling_first_name
+        a = ::AlternateValue.arel_table
+        w = a[:value].matches('%' + query_string + '%')
+          .and(a[:type].eq('AlternateValue::AlternateSpelling'))
+          .and(a[:alternate_value_object_attribute]).eq('first_name')
+
+        query_base.joins(:alternate_values).where(w.to_sql)
+      end
+
       # @return [Scope]
       def autocomplete_exact_match
         base_query.where(
@@ -83,7 +101,11 @@ module Queries
         queries = [
           autocomplete_exact_match,
           autocomplete_exact_inverted,
+          autocomplete_identifier_cached_exact,
+          autocomplete_identifier_identifier_exact,
           autocomplete_exact_last_name_match,
+          autocomplete_alternate_spelling_last_name,
+          autocomplete_alternate_spelling_first_name,
           autocomplete_ordered_wildcard_pieces_in_cached,
           autocomplete_cached_wildcard_anywhere, # in Queries::Query
           autocomplete_cached

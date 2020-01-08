@@ -1,71 +1,97 @@
-language: ruby 
-cache:
-  bundler: true
-  directories:
-    - $TRAVIS_BUILD_DIR/node_modules
-    - $TRAVIS_BUILD_DIR/spec/fixtures/vcr_cassettes
-    - $TRAVIS_BUILD_DIR/public/packs-test
-    - $TRAVIS_BUILD_DIR/public/assets
-    - $TRAVIS_BUILD_DIR/tmp/cache/webpacker
-    - /home/travis/.rvm/ 
-dist: xenial
-# sudo: required
-rvm:
-  - 2.5.1
-bundler_args: --without development production
+dist: bionic
 branches:
   only:
     - master
     - development
-    - dates
-    - docker-travis
-    - build-with-assets
-    - rails6
-addons:
-  postgresql: "10"
-  firefox: "latest"
-  apt:
-    update: true 
-    packages:
-      - imagemagick
-      - libgeos-dev
-      - libproj-dev
-      - postgresql-10-postgis-2.4
-      - postgresql-10-postgis-2.4-scripts
-      - postgresql-10
-      - postgresql-client-10
-      - postgresql-contrib-10
+    - page
+    - /v\d+\.\d+\.\d+/
 env:
   global:
     - TEST_WORKERS=5
     - COVERALLS_PARALLEL=true
-  matrix:
-    - TEST_WORKER=0
-    - TEST_WORKER=1
-    - TEST_WORKER=2
-    - TEST_WORKER=3
-    - TEST_WORKER=4
-services:
-  - postgresql
-before_install:
-  - nvm install 10.15.3
-  - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.7.0
-  - export PATH=$HOME/.yarn/bin:$PATH
-  - export BUNDLER_VERSION=$(tail -n1 Gemfile.lock | tr -d '[:space:]')
-install:
-  - npm install
-  - gem install bundler --no-ri --no-rdoc -v $BUNDLER_VERSION
-  - bundle install --without development production
-before_script:
-  - echo ===[TEST_WORKER=$TEST_WORKER before_script $(date -u +%Y%m%d-%H%M%S)]===
-  - cp config/application_settings.yml.travis config/application_settings.yml
-  - cp config/database.yml.travis config/database.yml
-  - cp config/secrets.yml.example config/secrets.yml
-  - mkdir -p tmp/downloads
-  - bundle exec rake db:create RAILS_ENV=test # database user by default is `travis` 
-  - bundle exec rake db:migrate RAILS_ENV=test
-script:
-  - .travis/spec_runner.sh
+jobs:
+  include:
+    - &test-stage
+      stage: test
+      if: NOT (tag =~ /\d+\.\d+\.\d+/)
+      language: ruby
+      cache:
+        bundler: true
+        directories:
+          - $TRAVIS_BUILD_DIR/node_modules
+          - $TRAVIS_BUILD_DIR/spec/fixtures/vcr_cassettes
+          - $TRAVIS_BUILD_DIR/public/packs-test
+          - $TRAVIS_BUILD_DIR/public/assets
+          - $TRAVIS_BUILD_DIR/tmp/cache/webpacker
+          - /home/travis/.rvm/
+      rvm:
+        - 2.6.5
+      bundler_args: --without development production
+      addons:
+        postgresql: "10"
+        firefox: "latest"
+        apt:
+          packages:
+            - imagemagick
+            - tesseract-ocr
+            - libgeos-dev
+            - libproj-dev
+            - postgresql-10-postgis-2.4
+      env:
+          - TEST_WORKER=0
+      services:
+        - postgresql
+      before_install:
+        - nvm install 10.15.3
+      install:
+        - npm install
+        - gem install bundler
+        - bundle config --local build.sassc --disable-march-tune-native
+        - bundle install -j3 --without development production
+      before_script:
+        - echo ===[TEST_WORKER=$TEST_WORKER before_script $(date -u +%Y%m%d-%H%M%S)]===
+        - cp config/application_settings.yml.travis config/application_settings.yml
+        - cp config/database.yml.travis config/database.yml
+        - cp config/secrets.yml.example config/secrets.yml
+        - mkdir -p tmp/downloads
+        - bundle exec rake db:create RAILS_ENV=test # database user by default is `travis`
+        - bundle exec rake db:migrate RAILS_ENV=test
+      script:
+        - .travis/spec_runner.sh
+    - <<: *test-stage
+      env:
+        - TEST_WORKER=1
+    - <<: *test-stage
+      env:
+        - TEST_WORKER=2
+    - <<: *test-stage
+      env:
+        - TEST_WORKER=3
+    - <<: *test-stage
+      env:
+        - TEST_WORKER=4
+    - stage: deliver
+      if: (tag =~ /\d+\.\d+\.\d+/) OR (branch = development)
+      language: minimal
+      services:
+        - docker
+      install:
+        - if [ "x$TRAVIS_TAG" != "x" ]; then export DOCKER_TAG=$(echo $TRAVIS_TAG | cut -c2-); else export DOCKER_TAG=latest; fi
+        - export REVISION=$(git rev-parse --short HEAD)
+        - cd .travis
+        - docker build .. -t sfgrp/taxonworks --build-arg REVISION=$REVISION --build-arg BUNDLER_WORKERS=3
+        - docker-compose build --parallel
+        - docker-compose up -d --no-build
+        - docker-compose logs
+      script:
+        - docker-compose exec test bundle exec rspec -fd && docker-compose exec taxonworks redis-cli ping
+      after_success:
+        - |
+          [ "$TRAVIS_REPO_SLUG" == "SpeciesFileGroup/taxonworks" ] && \
+          [ "$TRAVIS_EVENT_TYPE" == "push" ] && \
+          docker login -u "$DOCKER_USER" -p "$DOCKER_PASS" && \
+          docker tag sfgrp/taxonworks:latest sfgrp/taxonworks:$DOCKER_TAG && \
+          docker push sfgrp/taxonworks:$DOCKER_TAG
 notifications:
   email:
     recipients:

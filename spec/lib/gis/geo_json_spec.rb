@@ -33,17 +33,16 @@ describe Gis::GeoJSON, type: :model, group: [:geo, :shared_geo] do
 
   let(:multilinestring) { RSPEC_GEO_FACTORY.multi_line_string([list_box_a, list_box_b]) }
 
-  let(:polygon) { RSPEC_GEO_FACTORY.polygon(polygon_outer, [polygon_inner]) }
-
   let(:polygon_outer) {
     RSPEC_GEO_FACTORY.line_string(
         [RSPEC_GEO_FACTORY.point(1, -1, 0.0),
          RSPEC_GEO_FACTORY.point(9, -1, 0.0),
          RSPEC_GEO_FACTORY.point(9, -9, 0.0),
-         RSPEC_GEO_FACTORY.point(9, -1, 0.0),
+         RSPEC_GEO_FACTORY.point(1, -9, 0.0), # fixed bad point
          RSPEC_GEO_FACTORY.point(1, -1, 0.0)])
   }
 
+  let(:polygon) { RSPEC_GEO_FACTORY.polygon(polygon_outer, [polygon_inner]) }
 
   let(:polygon_b) { FactoryBot.create(:geographic_item_polygon, polygon: polygon.as_binary, by: geo_user) }
 
@@ -119,7 +118,7 @@ describe Gis::GeoJSON, type: :model, group: [:geo, :shared_geo] do
                              'features' => [{ 'type' => 'Feature',
                                               'geometry' => { 'type' => 'Polygon',
                                                               'coordinates' => [[[1, -1, 0], [9, -1, 0],
-                                                                                 [9, -9, 0], [9, -1, 0],
+                                                                                 [9, -9, 0], [1, -9, 0],
                                                                                  [1, -1, 0]],
                                                                                 [[2.5, -2.5, 0], [7.5, -2.5, 0],
                                                                                  [7.5, -7.5, 0], [2.5, -7.5, 0],
@@ -158,7 +157,7 @@ describe Gis::GeoJSON, type: :model, group: [:geo, :shared_geo] do
                              'features' => [{ 'type' => 'Feature',
                                               'geometry' => { 'type' => 'MultiPolygon',
                                                               'coordinates' => [[[[1, -1, 0], [9, -1, 0],
-                                                                                  [9, -9, 0], [9, -1, 0], [1, -1, 0]]],
+                                                                                  [9, -9, 0], [1, -9, 0], [1, -1, 0]]],
                                                                                 [[[2.5, -2.5, 0], [7.5, -2.5, 0],
                                                                                   [7.5, -7.5, 0], [2.5, -7.5, 0],
                                                                                   [2.5, -2.5, 0]]]] },

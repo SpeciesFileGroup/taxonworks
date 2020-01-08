@@ -63,7 +63,8 @@
           <autocomplete
             min="2"
             placeholder="Select loan item"
-            label="label"
+            label="label_html"
+            display="label"
             :disabled="!loan_item.loan_item_object_type"
             @getItem="loan_item.loan_item_object_id = $event.id"
             :url="autocomplete_type[loan_item.loan_item_object_type]"

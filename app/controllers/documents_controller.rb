@@ -83,7 +83,7 @@ class DocumentsController < ApplicationController
   private
 
   def set_document
-    @document = Document.find(params[:id])
+    @document = Document.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def document_params

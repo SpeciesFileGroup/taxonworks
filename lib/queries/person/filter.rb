@@ -85,7 +85,9 @@ module Queries
       end
 
       def levenshtein_distance(attribute, value)
-        Arel::Nodes::NamedFunction.new("levenshtein", [table[attribute], Arel::Nodes::SqlLiteral.new("'#{value}'")] )
+        value = "'" + value.gsub(/'/, "''") + "'"
+        a = ApplicationRecord.sanitize_sql(value) 
+        Arel::Nodes::NamedFunction.new("levenshtein", [table[attribute], Arel::Nodes::SqlLiteral.new(a) ] )
       end
 
     end
