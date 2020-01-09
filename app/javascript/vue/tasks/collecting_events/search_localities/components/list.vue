@@ -47,7 +47,7 @@
         :class="{'ce-row': highlightId == item.id}"
         @mouseover="$emit('mouseover', item)"
       >
-        <td>{{ item.id }}</td>
+        <td><a :href="`/collecting_events/${item.id}`">{{ item.id }}</a></td>
         <td class="my-column">
           <a
             :href="`/collecting_events/${item.id}`"
