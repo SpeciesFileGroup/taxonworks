@@ -19,6 +19,8 @@ export default function ({ commit, state }, determination) {
           //commit(MutationNames.SetTaxonDetermination, response)
           addToList(response)
           resolve(response)
+        }, (response) => {
+          reject(response)
         })
       }
       else {
@@ -26,6 +28,8 @@ export default function ({ commit, state }, determination) {
           state.collection_object.object_tag = response.collection_object.object_tag
           addToList(response)
           resolve(response)
+        }, (response) => {
+          reject(response)
         })
       }
     }
