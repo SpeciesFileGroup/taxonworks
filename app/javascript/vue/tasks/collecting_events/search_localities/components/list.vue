@@ -47,11 +47,10 @@
         :class="{'ce-row': highlightId == item.id}"
         @mouseover="$emit('mouseover', item)"
       >
-        <td><a :href="`/collecting_events/${item.id}`">{{ item.id }}</a></td>
+        <td><a :href="`/tasks/collecting_events/browse?collecting_event_id=${item.id}`">{{ item.id }}</a></td>
         <td class="my-column">
           <a
-            :href="`/collecting_events/${item.id}`"
-            target="_blank"
+            :href="`/tasks/collecting_events/browse?collecting_event_id=${item.id}`"
             v-html="item.verbatim_locality"
           />
         </td>

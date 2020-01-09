@@ -1,6 +1,7 @@
 <template>
   <div id="vue_new_combination">
     <h1>New combination</h1>
+    <span data-icon="warning"><i>At present this task is only configured for ICZN names.</i></span>
     <spinner
       legend="Loading new combination..."
       :full-screen="true"
