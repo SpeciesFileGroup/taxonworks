@@ -1,35 +1,45 @@
 <template>
   <div>
     <h1>Slide tray breakdown</h1>
-    <div class="sled-panel">
-      <template
-        v-for="(hline, index) in hlines"
-        v-if="index < hlines.length-1">
-        <add-line
-          :style="{ top: `${getPosition(hline, hlines[index+1]) / scaleForScreen}px` }"
-          :position="getPosition(hline, hlines[index+1])"
-          v-model="hlines"
-        />
-      </template>
-      <template
-        v-for="(vline, index) in vlines"
-        v-if="index < vlines.length-1">
-        <add-line
-          :style="{ left: `${getPosition(vline, vlines[index+1]) / scaleForScreen}px`, top: `-30px` }"
-          :position="getPosition(vline, vlines[index+1])"
-          v-model="vlines"
-        />
-      </template>
-      <div  class="sled-viewer">
-        <sled 
-          :vertical-lines="vlines"
-          :horizontal-lines="hlines"
-          :image-width="image.width"
-          :image-height="image.height"
-          :line-weight="lineWeight"
-          :scale="scaleForScreen"
-          :file-image="fileImage"
-          @onComputeCells="processCells"/>
+    <div class="horizontal-left-content align-start">
+      <div
+        class="sled-panel"
+        style="width: 50%;">
+        <template
+          v-for="(hline, index) in hlines"
+          v-if="index < hlines.length-1">
+          <add-line
+            :style="{ top: `${getPosition(hline, hlines[index+1]) / scaleForScreen}px` }"
+            :position="getPosition(hline, hlines[index+1])"
+            v-model="hlines"
+          />
+        </template>
+        <template
+          v-for="(vline, index) in vlines"
+          v-if="index < vlines.length-1">
+          <add-line
+            :style="{ left: `${getPosition(vline, vlines[index+1]) / scaleForScreen}px`, top: `10px` }"
+            :position="getPosition(vline, vlines[index+1])"
+            v-model="vlines"
+          />
+        </template>
+        <div  class="sled-viewer">
+          <sled 
+            :vertical-lines="vlines"
+            :horizontal-lines="hlines"
+            :image-width="image.width"
+            :image-height="image.height"
+            :line-weight="lineWeight"
+            :scale="scaleForScreen"
+            :file-image="fileImage"
+            @onComputeCells="processCells"/>
+        </div>
+      </div>
+      <div style="width: 50%;">
+        <switch-component
+          v-model="view"
+          :options="tabs"/>
+        <assign-component class="margin-large-top"/>
       </div>
     </div>
   </div>
@@ -38,15 +48,17 @@
 <script>
 
 import Sled from '@sfgrp/sled'
-import { GetImage, ProcessOCR } from './request/resource'
+import { GetImage } from './request/resource'
 import AddLine from './components/AddLine'
-import CellComponent from './components/Cell'
+import SwitchComponent from 'components/switch'
+import AssignComponent from './components/Assign/Main'
 
 export default {
   components: {
     Sled,
     AddLine,
-    CellComponent
+    SwitchComponent,
+    AssignComponent
   },
   computed: {
     scaleForScreen () {
@@ -70,7 +82,9 @@ export default {
       buttonSize: 20,
       imageId: undefined,
       cells: [],
-      selectedCells: []
+      selectedCells: [],
+      tabs: ['assign', 'overview metadata', 'review'],
+      view: undefined
     }
   },
   mounted () {
@@ -83,7 +97,6 @@ export default {
   },
   methods: {
     processCells(cells) {
-      console.log(cells)
       this.cells = cells
     },
     loadImage(imageId) {
@@ -120,11 +133,6 @@ export default {
     getPosition (line, next) {
       return (next ? line + ((next - line) / 2) : line) + this.buttonSize
     },
-    getOCR (id, x, y, height, width) {
-      ProcessOCR(id, x, y, height, width).then(response => {
-        console.log(response)
-      })
-    }
   }
 }
 </script>

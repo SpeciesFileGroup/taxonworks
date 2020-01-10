@@ -27,6 +27,7 @@
       </ul>
       <div v-else>
         <autocomplete
+          v-if="autocomplete"
           :id="`smart-selector-${model}-autocomplete`"
           class="separate-right"
           placeholder="Search..."
@@ -38,6 +39,8 @@
           display="label"
           @getItem="getObject($event.id)"/>
       </div>
+      <slot>
+      </slot>
     </template>
   </div>
 </template>
@@ -66,6 +69,10 @@ export default {
       type: Object,
       default: undefined
     },
+    autocomplete: {
+      type: Boolean,
+      default: true
+    },
     autocompleteUrl: {
       type: String,
       default: undefined
@@ -79,6 +86,10 @@ export default {
       default: undefined
     },
     klass: {
+      type: String,
+      default: undefined
+    },
+    target: {
       type: String,
       default: undefined
     },
@@ -111,7 +122,7 @@ export default {
     }
   },
   mounted () {
-    AjaxCall('get', `/${this.model}/select_options`, { params: { klass: this.klass } }).then(response => {
+    AjaxCall('get', `/${this.model}/select_options`, { params: { klass: this.klass, target: this.target } }).then(response => {
       this.options = OrderSmart(Object.keys(response.body))
       this.lists = response.body
       this.view = SelectFirst(this.lists, this.options)
