@@ -289,7 +289,7 @@ export default {
   methods: {
     roleExist(id) {
       return (this.roles.find((role) => {
-        return !role.hasOwnProperty('_destroy') && role.hasOwnProperty('person') && role.person.id == id
+        return !role.hasOwnProperty('_destroy') && role.person_id == id
       }) ? true : false)
     },
     addRole(role) {
