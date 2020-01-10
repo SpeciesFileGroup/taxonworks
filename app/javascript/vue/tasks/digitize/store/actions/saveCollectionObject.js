@@ -1,5 +1,6 @@
 import { CreateCollectionObject, UpdateCollectionObject } from '../../request/resources'
 import { MutationNames } from '../../store/mutations/mutations'
+import SetParam from 'helpers/setParam'
 
 export default function ({ commit, state }, co) {
   return new Promise((resolve, reject) => {
@@ -15,6 +16,7 @@ export default function ({ commit, state }, co) {
     else {
       CreateCollectionObject(collection_object).then(response => {
         commit(MutationNames.SetSubsequentialUses, (state.subsequentialUses + 1))
+        SetParam('/tasks/accessions/comprehensive', 'collecting_event_id', response.id)
         return resolve(response)
       }, (response) => {
         return reject(response)
