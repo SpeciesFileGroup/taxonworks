@@ -73,9 +73,9 @@
             class="separate-bottom">
             <ul class="no_bullets">
               <li
-                v-for="item in listsDeterminator[viewDeterminer]"
+                v-for="(item, index) in listsDeterminator[viewDeterminer]"
                 v-if="!roleExist(item.id)"
-                :key="item.id"
+                :key="index"
                 :value="item.id">
                 <label>
                   <input
@@ -98,19 +98,19 @@
         <div class="separate-right">
           <label>Year</label>
           <input
-            type="text"
+            type="number"
             v-model="year">
         </div>
         <div class="separate-right separate-left">
           <label>Month</label>
           <input
-            type="text"
+            type="number"
             v-model="month">
         </div>
         <div class="separate-left">
           <label>Day</label>
           <input
-            type="text"
+            type="number"
             v-model="day">
         </div>
         <div>
@@ -301,11 +301,13 @@ export default {
       this.$store.dispatch(ActionNames.SaveDetermination)
     },
     addDetermination() {
-      let taxonDetermination = this.$store.getters[GetterNames.GetTaxonDetermination]
 
-      if(this.list.find((determination) => { return determination.otu_id == taxonDetermination.otu_id })) { return }
-      taxonDetermination.object_tag = `${this.otuSelected}`
-      this.$store.commit(MutationNames.AddTaxonDetermination, taxonDetermination)
+      if(this.list.find((determination) => { 
+          return determination.otu_id === this.taxonDetermination.otu_id && (determination.year_made === this.year) 
+        })
+      ) { return }
+      this.taxonDetermination.object_tag = `${this.otuSelected}`
+      this.$store.commit(MutationNames.AddTaxonDetermination, this.taxonDetermination)
       this.$store.commit(MutationNames.NewTaxonDetermination)
     },
     removeTaxonDetermination(determination) {
@@ -328,7 +330,7 @@ export default {
     }
     .date-fields {
       input {
-        max-width: 60px;
+        max-width: 80px;
       }
     }
       .vue-autocomplete-input {

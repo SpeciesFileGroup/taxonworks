@@ -16,7 +16,7 @@ export default function ({ commit, state }, co) {
     else {
       CreateCollectionObject(collection_object).then(response => {
         commit(MutationNames.SetSubsequentialUses, (state.subsequentialUses + 1))
-        SetParam('/tasks/accessions/comprehensive', 'collecting_event_id', response.id)
+        SetParam('/tasks/accessions/comprehensive', 'collection_object_id', response.id)
         return resolve(response)
       }, (response) => {
         return reject(response)
