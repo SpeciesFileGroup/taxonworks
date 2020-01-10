@@ -11,6 +11,7 @@
       class="separate-bottom">
       <ul v-if="lists[view].length" class="no_bullets">
         <li
+          class="horizontal-left-content"
           v-for="item in lists[view]"
           :key="item.id"
           v-if="!roleExist(item.id)">
