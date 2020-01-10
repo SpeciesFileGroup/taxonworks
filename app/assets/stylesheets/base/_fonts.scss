@@ -20,6 +20,8 @@ $font_normal: 13px;
 $font_subtitle: 14px;
 $font_title: 16px;
 
+$font_light: 300;
+
 .micro_type {
 }
 
@@ -28,19 +30,21 @@ $font_title: 16px;
 }
 
 .font-light {
-  font-weight: 300;
+  font-weight: $font_light;
 }
 
+/* no longer used unless Rails generated
 .regular_type {
   font-size: 14pt;
+}
+*/
+
+.normal_type {
+  font-size: $font_normal;
 }
 
 .large_type {
   font-size: 18pt;
-}
-
-.normal_type {
-  font-size: $font_normal;
 }
 
 .subtitle_type {
