@@ -101,7 +101,7 @@ module Utilities::Strings
   #   whitespace split, then any string containing a digit eliminated
   def self.alphabetic_strings(string)
     return [] if string.nil? || string.length == 0
-    string.split(/\s/).select{|b| !(b =~ /\d/) }
+    string.split(/\W/).select{|b| !(b =~ /\d/) }
   end
 
 
