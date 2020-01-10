@@ -149,7 +149,7 @@ module Queries
     # @return [String]
     #   if `foo, and 123 and stuff` then %foo%and%123%and%stuff%
     def wildcard_pieces
-      '%' + query_string.gsub(/[\s]+/, '%') + '%'
+      '%' + query_string.gsub(/[\W]+/, '%') + '%'
     end
 
     # @return [Integer]
