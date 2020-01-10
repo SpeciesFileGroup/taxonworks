@@ -78,6 +78,7 @@
       let coId = location.pathname.split('/')[4]
       let urlParams = new URLSearchParams(window.location.search)
       let coIdParam = urlParams.get('collection_object_id')
+      let ceIdParam = urlParams.get('collecting_event_id')
 
       this.addShortcutsDescription()
 
@@ -90,6 +91,8 @@
       }
       else if (/^\d+$/.test(coIdParam)) {
         this.$store.dispatch(ActionNames.LoadDigitalization, coIdParam)
+      } else if (/^\d+$/.test(ceIdParam)) {
+        this.$store.dispatch(ActionNames.GetCollectionEvent, ceIdParam)
       }
     },
     methods: {

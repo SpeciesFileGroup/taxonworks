@@ -22,7 +22,7 @@
             v-if="view == 'new/Search' && !otuId"
             class="horizontal-left-content">
             <otu-picker
-              id="determination-otu"
+              input-id="determination-otu-autocomplete"
               @getItem="otuId = $event.id; otuSelected = $event.label_html"/> 
             <pin-default
               class="separate-left"

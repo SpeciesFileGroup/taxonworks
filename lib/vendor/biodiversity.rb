@@ -389,7 +389,7 @@ module TaxonWorks
         #    the Combination, if it exists
         def combination_exists?
           if is_unambiguous?
-            Combination.match_exists?(combination.protonym_ids_params) # TODO: pass name?
+            Combination.match_exists?(**combination.protonym_ids_params) # TODO: pass name?
           else
             false
           end

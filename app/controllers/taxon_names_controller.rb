@@ -3,7 +3,7 @@ class TaxonNamesController < ApplicationController
 
   before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination, :catalog]
   after_action -> { set_pagination_headers(:taxon_names) }, only: [:index, :api_index], if: :json_request?
-  
+
   # GET /taxon_names
   # GET /taxon_names.json
   def index
@@ -104,7 +104,7 @@ class TaxonNamesController < ApplicationController
     render json: {} and return if params[:term].blank?
     @taxon_names = Queries::TaxonName::Autocomplete.new(
       params[:term],
-      autocomplete_params.to_h
+      **autocomplete_params
     ).autocomplete
   end
 
@@ -152,7 +152,7 @@ class TaxonNamesController < ApplicationController
 
   def preview_simple_batch_load
     if params[:file]
-      @result = BatchLoad::Import::TaxonifiToTaxonworks.new(batch_params)
+      @result = BatchLoad::Import::TaxonifiToTaxonworks.new(**batch_params)
       digest_cookie(params[:file].tempfile, :simple_taxon_names_md5)
       render 'taxon_names/batch_load/simple/preview'
     else
@@ -163,7 +163,7 @@ class TaxonNamesController < ApplicationController
 
   def create_simple_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :simple_taxon_names_md5)
-      @result =  BatchLoad::Import::TaxonifiToTaxonworks.new(batch_params)
+      @result =  BatchLoad::Import::TaxonifiToTaxonworks.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} taxon names were created."
         render 'taxon_names/batch_load/simple/create' and return
@@ -178,7 +178,7 @@ class TaxonNamesController < ApplicationController
 
   def preview_castor_batch_load
     if params[:file]
-      @result = BatchLoad::Import::TaxonNames::CastorInterpreter.new(batch_params)
+      @result = BatchLoad::Import::TaxonNames::CastorInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :Castor_taxon_names_md5)
       render 'taxon_names/batch_load/castor/preview'
     else
@@ -189,7 +189,7 @@ class TaxonNamesController < ApplicationController
 
   def create_castor_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Castor_taxon_names_md5)
-      @result = BatchLoad::Import::TaxonNames::CastorInterpreter.new(batch_params)
+      @result = BatchLoad::Import::TaxonNames::CastorInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} items were created."
         render 'taxon_names/batch_load/castor/create' and return
@@ -209,7 +209,8 @@ class TaxonNamesController < ApplicationController
   def parse
     @result = TaxonWorks::Vendor::Biodiversity::Result.new(
       query_string: params.require(:query_string),
-      project_id: sessions_current_project_id
+      project_id: sessions_current_project_id,
+      nomenclature_code: :iczn # !! TODO:
     ).result
   end
 

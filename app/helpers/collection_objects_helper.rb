@@ -61,8 +61,6 @@ module CollectionObjectsHelper
     ])
   end
 
-
-
   # @return [Array [Identifier, String (type)], nil]
   #    also checks virtual container for identifier by proxy
   def collection_object_visualized_identifier(collection_object)
@@ -120,7 +118,6 @@ module CollectionObjectsHelper
     end
   end
 
-
   # @return [link_to]
   #    this may not work for all identifier types, i.e. those with identifiers like `123.34` or `3434.33X` may not increment correctly
   def collection_object_browse_previous_by_identifier(collection_object)
@@ -128,10 +125,11 @@ module CollectionObjectsHelper
     o = collection_object.previous_by_identifier
     return content_tag(:div, 'None', 'class' => 'navigation-item disable') if o.nil?
     link_text = content_tag(:span, 'Previous by id', 'class' => 'small-icon icon-left', 'data-icon' => 'arrow-left')
-    link_to(link_text, browse_collection_objects_task_path(collection_object_id: o.id),
-            data: {arrow: :previous,
-                   'no-turbolinks' => 'true',
-                   help: 'Sorts by identifier type, namespace, then an conversion of identifier into integer.  Will not work for all identifier types.'}, class: 'navigation-item')
+    link_to(link_text, browse_collection_objects_task_path(collection_object_id: o.id), data: {
+      arrow: :previous,
+      'no-turbolinks' => 'true',
+      help: 'Sorts by identifier type, namespace, then an conversion of identifier into integer.  Will not work for all identifier types.'},
+      class: 'navigation-item')
   end
 
   # @return [link_to]

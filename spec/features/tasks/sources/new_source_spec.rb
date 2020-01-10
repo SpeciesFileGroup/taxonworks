@@ -21,7 +21,7 @@ describe 'New taxon name', type: :feature, group: :sources do
         specify 'add a record' do
           select "article", :from => "type"
           fill_in "title", with: 'Qurious'
-          find('#smart-selector-serials-autocomplete input').fill_in(with: 'Journal stuff and things')
+          fill_in "serials-autocomplete", with: "Journal stuff and things"
           find('li', text: 'Journal stuff and things').hover.click 
           click_button 'Save'
           expect(page).to_not have_text('New record')

@@ -297,7 +297,7 @@ uniquify_people_task:
     - nomenclature
   status: stable 
   description: 'Find and merge redundant or duplicated people, e.g., from import.'
-index_search_locality_task:
+filter_collecting_events_task:
   hub: true
   name: 'Filter collecting events'
   related:
@@ -479,4 +479,11 @@ collection_object_summary_task:
   categories:
     - collection_object
   status: prototype
-  description: 'Summary statistics for the collection(s) managed in this project'
+browse_collecting_events_task:
+  hub: true
+  name: 'Browse collecting events'
+  related:
+  categories:
+    - collecting_event 
+  status: prototype
+  description: 'View individual collecting events and their related.'

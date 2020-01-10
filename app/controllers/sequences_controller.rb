@@ -98,7 +98,7 @@ class SequencesController < ApplicationController
 
   def preview_genbank_batch_file_load 
     if params[:files] 
-      @result = BatchFileLoad::Import::Sequences::GenbankInterpreter.new(batch_params)
+      @result = BatchFileLoad::Import::Sequences::GenbankInterpreter.new(**batch_params)
       digest_cookie(params[:files][0].tempfile, :batch_file_load_genbank_sequences_md5)
       render 'sequences/batch_file_load/genbank/preview'
     else
@@ -109,7 +109,7 @@ class SequencesController < ApplicationController
 
   def create_genbank_batch_file_load
     if params[:files] && digested_cookie_exists?(params[:files][0].tempfile, :batch_file_load_genbank_sequences_md5)
-      @result = BatchFileLoad::Import::Sequences::GenbankInterpreter.new(batch_params)
+      @result = BatchFileLoad::Import::Sequences::GenbankInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully processed #{@result.total_files_processed} file(s), #{@result.total_records_created} sequences were created."
         render 'sequences/batch_file_load/genbank/create' and return
@@ -124,7 +124,7 @@ class SequencesController < ApplicationController
 
   def preview_genbank_batch_load 
     if params[:file] 
-      @result = BatchLoad::Import::Sequences::GenbankInterpreter.new(batch_params)
+      @result = BatchLoad::Import::Sequences::GenbankInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :Genbank_sequences_md5)
       render 'sequences/batch_load/genbank/preview'
     else
@@ -135,7 +135,7 @@ class SequencesController < ApplicationController
 
   def create_genbank_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Genbank_sequences_md5)
-      @result = BatchLoad::Import::Sequences::GenbankInterpreter.new(batch_params)
+      @result = BatchLoad::Import::Sequences::GenbankInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} sequences were created."
         render 'sequences/batch_load/genbank/create' and return
@@ -150,7 +150,7 @@ class SequencesController < ApplicationController
 
   def preview_primers_batch_load 
     if params[:file] 
-      @result = BatchLoad::Import::Sequences::PrimersInterpreter.new(batch_params)
+      @result = BatchLoad::Import::Sequences::PrimersInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :Primers_sequences_md5)
       render 'sequences/batch_load/primers/preview'
     else
@@ -161,7 +161,7 @@ class SequencesController < ApplicationController
 
   def create_primers_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Primers_sequences_md5)
-      @result = BatchLoad::Import::Sequences::PrimersInterpreter.new(batch_params)
+      @result = BatchLoad::Import::Sequences::PrimersInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} sequences were created."
         render 'sequences/batch_load/primers/create' and return

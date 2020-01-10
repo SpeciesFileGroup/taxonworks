@@ -66,7 +66,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     }
 
     specify 'returns one (strict), ordered' do
-      expect(CollectingEvent.in_date_range(params.merge(partial_overlap: 'OfF')).order(:id)).to contain_exactly(ce1)
+      expect(CollectingEvent.in_date_range(**params.merge(partial_overlap: 'OfF')).order(:id)).to contain_exactly(ce1)
     end
 
     specify 'using just the sql, ordered' do
@@ -90,11 +90,11 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     }
 
     specify 'returns one (strict)' do
-      expect(CollectingEvent.in_date_range(params.merge(partial_overlap: 'OfF'))).to contain_exactly(ce1)
+      expect(CollectingEvent.in_date_range(**params.merge(partial_overlap: 'OfF'))).to contain_exactly(ce1)
     end
 
     specify 'returns one (lenient)' do
-      expect(CollectingEvent.in_date_range(params.merge(partial_overlap: 'on'))).to contain_exactly(ce1)
+      expect(CollectingEvent.in_date_range(**params.merge(partial_overlap: 'on'))).to contain_exactly(ce1)
     end
 
   end
@@ -114,7 +114,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     }
 
     specify 'returns one' do
-      expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
+      expect(CollectingEvent.in_date_range(**params)).to contain_exactly(ce1)
     end
   end
 
@@ -134,7 +134,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     }
 
     specify 'returns both' do
-      expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1, ce2)
+      expect(CollectingEvent.in_date_range(**params)).to contain_exactly(ce1, ce2)
     end
   end
 
@@ -152,7 +152,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
       let!(:ce1) { CollectingEvent.create!(parse_stubs(a, d).merge(verbatim_label: "#{a} -- #{d}")) }
 
       specify 'returns none' do
-        expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
+        expect(CollectingEvent.in_date_range(**params)).to contain_exactly(ce1)
       end
     end
 
@@ -166,7 +166,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
       let!(:ce1) { CollectingEvent.create!(parse_stubs(a, d).merge(verbatim_label: "#{a} -- #{d}")) }
 
       specify 'returns none' do
-        expect(CollectingEvent.in_date_range(params)).to contain_exactly()
+        expect(CollectingEvent.in_date_range(**params)).to contain_exactly()
       end
     end
 
@@ -182,7 +182,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(b, c).merge(verbatim_label: "#{b} -- #{c}")) }
 
         specify 'returns one' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly(ce1)
         end
       end
 
@@ -196,7 +196,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(b, d).merge(verbatim_label: "#{b} -- #{d}")) }
 
         specify 'returns none' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly()
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly()
         end
       end
 
@@ -210,7 +210,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(b, nil).merge(verbatim_label: "#{b} -- nil")) }
 
         specify 'returns one' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly(ce1)
         end
       end
     end
@@ -227,7 +227,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(a, c).merge(verbatim_label: "#{a} -- #{c}")) }
 
         specify 'returns none' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly()
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly()
         end
       end
 
@@ -244,7 +244,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(a, d).merge(verbatim_label: "#{a} -- #{d}")) }
 
         specify 'returns none' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly()
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly()
         end
       end
 
@@ -258,7 +258,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(c, d).merge(verbatim_label: "#{c} -- #{d}")) }
 
         specify 'returns none' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly()
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly()
         end
       end
 
@@ -272,7 +272,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(c, nil).merge(verbatim_label: "#{c} -- nil")) }
 
         specify 'returns none' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly()
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly()
         end
       end
     end
@@ -295,7 +295,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
       let!(:ce1) { CollectingEvent.create!(parse_stubs(a, d).merge(verbatim_label: "#{a} -- #{d}")) }
 
       specify 'returns none' do
-        expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
+        expect(CollectingEvent.in_date_range(**params)).to contain_exactly(ce1)
       end
     end
 
@@ -312,7 +312,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(b, c).merge(verbatim_label: "#{b} -- #{c}")) }
 
         specify 'returns' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly(ce1)
         end
       end
 
@@ -326,7 +326,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(b, d).merge(verbatim_label: "#{b} -- #{d}")) }
 
         specify 'returns' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly(ce1)
         end
       end
 
@@ -340,7 +340,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(b, nil).merge(verbatim_label: "#{b} -- nil")) }
 
         specify 'returns' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly(ce1)
         end
       end
     end
@@ -357,7 +357,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(a, c).merge(verbatim_label: "#{a} -- #{c}")) }
 
         specify 'returns one' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly(ce1)
         end
       end
     end
@@ -372,7 +372,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
       let!(:ce1) { CollectingEvent.create!(parse_stubs(a, d).merge(verbatim_label: "#{a} -- #{d}")) }
 
       specify 'returns one' do
-        expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
+        expect(CollectingEvent.in_date_range(**params)).to contain_exactly(ce1)
       end
     end
 
@@ -387,7 +387,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(c, d).merge(verbatim_label: "#{c} -- #{d}")) }
 
         specify 'returns none' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly()
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly()
         end
       end
 
@@ -401,7 +401,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(c, nil).merge(verbatim_label: "#{c} -- nil")) }
 
         specify 'returns none' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly()
+          expect(CollectingEvent.in_date_range(**params)).to contain_exactly()
         end
       end
     end

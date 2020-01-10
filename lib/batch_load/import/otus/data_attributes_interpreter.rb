@@ -27,7 +27,7 @@ module BatchLoad
       source_id = args.delete(:source_id)
       @source = Source.find(source_id) if source_id.present?
       @create_citation = @source.present?
-      super(args)
+      super(**args)
     end
 
     # rubocop:disable Metrics/MethodLength
