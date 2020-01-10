@@ -41,6 +41,8 @@ module Utilities::Strings
 
   # @param [String] string
   # @return [String]
+  #   increments the *first* integer encountered in the string, wrapping it
+  #   in *only* the immediate non integer strings before and after (see tests)
   def self.increment_contained_integer(string)
     string =~ /([^\d]*)(\d+)([^\d]*)/
     a, b, c = $1, $2, $3
@@ -61,6 +63,7 @@ module Utilities::Strings
   #   whether the string is an integer (positive or negative)
   # see http://stackoverflow.com/questions/1235863/test-if-a-string-is-basically-an-integer-in-quotes-using-ruby
   # Note:  Might checkout CSV::Converters constants to see how they handle this
+  # Allows '02' ... hmm
   def self.is_i?(string)
     /\A[-+]?\d+\z/ === string
   end
@@ -68,7 +71,8 @@ module Utilities::Strings
   # @param [String] string
   # @return [String, param]
   #   the goal is to sanitizie an individual string such that it is usable in *TAB* delimited, UTF-8, column.  See Download
-  #   TODO: Likely need to handle quotes
+  #   TODO: Likely need to handle quotes, and write better UTF compliancy tests
+  #   ~~ Technically \n is allowed!
   def self.sanitize_for_csv(string)
     return string if string.blank?
     string.to_s.gsub(/\n|\t/, ' ')
@@ -86,7 +90,7 @@ module Utilities::Strings
 
   # @param last_names [Array]
   # @return [String, nil]
-  # TODO: DEPRECATE
+  # TODO: DEPRECATE (doesn't belong here because to_sentence is Rails?
   def self.authorship_sentence(last_names = [])
     return nil if last_names.empty?
     last_names.to_sentence(two_words_connector: ' & ', last_word_connector: ' & ')
@@ -94,16 +98,16 @@ module Utilities::Strings
 
   # @param string [String]
   # @return [Array]
-  #   array of whitespace split strings, with any string containing a digit eliminated
+  #   whitespace split, then any string containing a digit eliminated
   def self.alphabetic_strings(string)
     return [] if string.nil? || string.length == 0
-    a = string.gsub(/[^a-zA-Z]/, ' ').split(/\s+/)
-    a.empty? ? [] : a
+    string.split(/\s/).select{|b| !(b =~ /\d/) }
   end
 
 
   # @param string [String]
   # @return [String, false]
+  #   !! this is a bad sign, you should know your encoding *before* it gets to needing this
   def self.encode_with_utf8(string)
     return false if string.nil?
     if Encoding.compatible?('test'.encode(Encoding::UTF_8), string) 
@@ -112,6 +116,34 @@ module Utilities::Strings
       false
     end
   end
+
+  # @return [Array]
+  def self.years(string)
+    return [] if string.nil?
+    string.scan(/\d{4}/).to_a.uniq
+  end
+
+  # @return [String, nil]
+  #   the immediately following letter recognized as coming directly past the first year
+  #     `Smith, 1920a. ... ` returns `a`
+  def self.year_letter(string)
+    string.match(/\d{4}([a-zAZ]+)/).to_a.last
+  end
+
+  # @return [Array]
+  #   of strings representing integers
+  def self.integers(string)
+    return [] if string.nil? || string.length == 0
+    string.split(/\s+/).select{|t| is_i?(t)}
+  end
+
+  # @return [Boolean]
+  #   true if the query string only contains integers
+  def self.only_integers?(string)
+    !(string =~ /[^\d\s]/i) && !integers(string).empty?
+  end
+
+
 
 end
 
