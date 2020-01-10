@@ -103,7 +103,7 @@ module Queries
 
     # @return [String, nil]
     def year_letter
-      Utilities::Strings.years(query_string)
+      Utilities::Strings.year_letter(query_string)
     end
 
     # @return [Array]
