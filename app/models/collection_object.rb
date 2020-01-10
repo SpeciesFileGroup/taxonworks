@@ -595,34 +595,6 @@ class CollectionObject < ApplicationRecord
     h
   end
 
-  def next_by_identifier
-    if i = identifiers.order(:position).first
-      CollectionObject
-        .where(project_id: project_id)
-        .where.not(id: id)
-        .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'ASC')
-        .where(Utilities::Strings.is_i?(i.identifier) ?
-               ["CAST(identifiers.identifier AS bigint) > #{i.identifier}"] : ["identifiers.identifier > ?", i.identifier])
-        .first
-    else
-      nil
-    end
-  end
-
-  def previous_by_identifier
-    if i = identifiers.order(:position).first
-      CollectionObject
-        .where(project_id: project_id)
-        .where.not(id: id)
-        .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'DESC')
-        .where(Utilities::Strings.is_i?(i.identifier) ?
-               ["CAST(identifiers.identifier AS bigint) < #{i.identifier}"] : ["identifiers.identifier < ?", i.identifier])
-        .first
-    else
-      nil
-    end 
-  end
-
   # @return [Identifier::Local::CatalogNumber, nil]
   #   the first (position) catalog number for this collection object
   def preferred_catalog_number

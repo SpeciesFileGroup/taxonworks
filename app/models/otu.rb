@@ -72,22 +72,12 @@ class Otu < ApplicationRecord
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
   scope :with_name, -> (name) { where(name: name) }
 
-  # @return [Otu, nil, false]
-  def parent_otu
-    return nil if taxon_name_id.blank?
-    taxon_name.ancestors.each do |a|
-      if a.otus.load.count == 1
-        return a.otus.first
-      elsif a.otus.count > 1
-        return false 
-      else
-        return nil
-      end
-    end
-    nil
+  # @return Scope
+  def self.alphabetically
+    includes(:taxon_name).select('otus.*, taxon_names.cached').references(:taxon_names).order('taxon_names.cached ASC')
   end
 
-    # @param [Integer] otu_id
+  # @param [Integer] otu_id
   # @param [String] rank_class
   # @return [Scope]
   #    Otu.joins(:taxon_name).where(taxon_name: q).to_sql
@@ -153,6 +143,21 @@ class Otu < ApplicationRecord
   soft_validate(:sv_duplicate_otu, set: :duplicate_otu)
 
   accepts_nested_attributes_for :common_names, allow_destroy: true
+
+  # @return [Otu, nil, false]
+  def parent_otu
+    return nil if taxon_name_id.blank?
+    taxon_name.ancestors.each do |a|
+      if a.otus.load.count == 1
+        return a.otus.first
+      elsif a.otus.count > 1
+        return false 
+      else
+        return nil
+      end
+    end
+    nil
+  end
 
   # @return [Array]
   #   all bilogical associations this Otu is part of
