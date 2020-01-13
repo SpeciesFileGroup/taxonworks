@@ -13,10 +13,11 @@
     <modal-component
       class="modal-georeferences"
       @close="onModal"
-      v-if="show">
+      v-show="show">
       <h3 slot="header">Georeferences</h3>
       <div slot="body">
         <georeferences
+          :show="show"
           @onGeoreferences="count = $event.length"
           :zoom="5"
           :lat="lat"
@@ -49,6 +50,13 @@ export default {
     },
     lng() {
       return parseFloat(this.collectingEvent.verbatim_longitude)
+    }
+  },
+  watch: {
+    collectingEvent(newVal) {
+      if(!newVal.id) {
+        this.count = 0
+      }
     }
   },
   data () {

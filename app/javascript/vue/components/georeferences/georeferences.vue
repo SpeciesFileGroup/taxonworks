@@ -15,12 +15,14 @@
         :legend="!collectingEventId ? 'Need collecting event ID' : 'Saving...'"/>
       <map-component 
         ref="leaflet"
+        v-if="show"
         :height="height"
         :width="width"
         :geojson="shapes['features']"
         :lat="lat"
         :lng="lng"
         :zoom="zoom"
+        :fit-bounds="true"
         :resize="true"
         :draw-controls="true"
         :draw-polyline="false"
@@ -29,6 +31,9 @@
         @geoJsonLayersEdited="updateGeoreference($event)"
         @geoJsonLayerCreated="saveGeoreference($event)"/>
     </div>
+    <manually-component
+      class="margin-medium-top"
+      @create="saveGeoreference"/>
     <button
       type="button"
       v-if="verbatimLat && verbatimLng"
@@ -50,17 +55,19 @@ import MapComponent from './map'
 import SpinnerComponent from 'components/spinner'
 import DisplayList from './list'
 import convertDMS from 'helpers/parseDMS.js'
+import ManuallyComponent from './manuallyComponent.vue'
 
 export default {
   components: {
     MapComponent,
     SpinnerComponent,
-    DisplayList
+    DisplayList,
+    ManuallyComponent
   },
   props: {
     collectingEventId: {
       type: [String, Number],
-      required: true,
+      default: undefined,
     },
     height: {
       type: String,
@@ -91,6 +98,10 @@ export default {
     zoom: {
       type: Number,
       default: 1
+    },
+    show: {
+      type: Boolean,
+      default: true
     }
   },
   computed: {
@@ -113,8 +124,15 @@ export default {
       }
     }
   },
-  mounted () {
-    this.getGeoreferences()
+  watch: {
+    collectingEventId: {
+      handler (newVal) {
+        if (newVal) {
+          this.getGeoreferences()
+        }
+      },
+      immediate: true
+    }
   },
   methods: {
     saveGeoreference (shape) {
@@ -129,6 +147,9 @@ export default {
       this.showSpinner = true
       this.$http.post('/georeferences.json', data).then(response => {
         this.showSpinner = false
+        if(response.body.error_radius) {
+          response.body.geo_json.properties.radius = response.body.error_radius
+        }
         this.georeferences.push(response.body)
         this.$refs.leaflet.addGeoJsonLayer(response.body.geo_json)
         this.$emit('created', response.body)

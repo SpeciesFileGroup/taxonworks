@@ -273,12 +273,7 @@ export default {
     },
     geoJSON (geoJsonFeatures) {
       if (!Array.isArray(geoJsonFeatures) || geoJsonFeatures.length === 0) return
-
       this.addGeoJsonLayer(geoJsonFeatures)
-
-      if (this.fitBounds) {
-        this.mapObject.fitBounds(this.drawnItems.getBounds())
-      }
     },
     addGeoJsonLayer (geoJsonLayers) {
       const that = this
@@ -295,6 +290,9 @@ export default {
           return shape
         }
       }).addTo(this.drawnItems)
+      if (this.fitBounds) {
+        this.mapObject.fitBounds(this.drawnItems.getBounds())
+      }
     },
     getRandomColor() {
       const letters = '0123456789ABCDEF'
