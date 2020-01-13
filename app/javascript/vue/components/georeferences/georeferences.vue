@@ -102,6 +102,10 @@ export default {
     show: {
       type: Boolean,
       default: true
+    },
+    geographicArea: {
+      type: Object,
+      default: undefined
     }
   },
   computed: {
@@ -132,6 +136,21 @@ export default {
         }
       },
       immediate: true
+    },
+    geographicArea: {
+      handler(newVal) {
+        if(newVal) {
+          let index = this.shapes.features.findIndex(item => {
+            return item.properties.hasOwnProperty('geographic_area')
+          })
+          if(index > -1) {
+            this.shapes.features.splice(index, 1)
+          }
+          this.shapes.features.push(newVal)
+        }
+      },
+      immediate: true,
+      deep: true
     }
   },
   methods: {

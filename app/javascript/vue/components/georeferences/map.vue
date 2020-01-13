@@ -283,6 +283,13 @@ export default {
           index = index + 1
           return that.randomShapeStyle(index)
         },
+        filter: function (feature) {
+          if(feature.properties.hasOwnProperty('geographic_area')) {
+            L.GeoJSON.geometryToLayer(feature, Object.assign({}, that.randomShapeStyle(index), { pmIgnore: true })).addTo(that.drawnItems)
+            return false 
+          }
+          return true
+        },
         onEachFeature: this.onMyFeatures,
         pointToLayer: function (feature, latlng) {
           let shape = (feature.properties.hasOwnProperty('radius') ? that.addJsonCircle(feature) : L.marker(latlng))
@@ -290,6 +297,7 @@ export default {
           return shape
         }
       }).addTo(this.drawnItems)
+      
       if (this.fitBounds) {
         this.mapObject.fitBounds(this.drawnItems.getBounds())
       }
@@ -327,6 +335,7 @@ export default {
         'pm:edit': this.editedLayer,
         click: this.zoomToFeature
       })
+      layer.pm.disable()
     },
     zoomToFeature (e) {
       const layer = e.target
