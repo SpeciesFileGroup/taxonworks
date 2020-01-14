@@ -13,14 +13,16 @@
     <modal-component
       class="modal-georeferences"
       @close="onModal"
-      v-if="show">
+      v-show="show">
       <h3 slot="header">Georeferences</h3>
       <div slot="body">
         <georeferences
+          :show="show"
           @onGeoreferences="count = $event.length"
           :zoom="5"
           :lat="lat"
           :lng="lng"
+          :geographic-area="geoArea"
           :verbatim-lat="collectingEvent.verbatim_latitude"
           :verbatim-lng="collectingEvent.verbatim_longitude"
           :collecting-event-id="collectingEvent.id"/>
@@ -33,6 +35,7 @@
 
 import ModalComponent from 'components/modal'
 import Georeferences from 'components/georeferences/georeferences'
+import { GetGeographicArea } from '../../../../request/resources'
 import { GetterNames } from '../../../../store/getters/getters.js'
 
 export default {
@@ -51,10 +54,31 @@ export default {
       return parseFloat(this.collectingEvent.verbatim_longitude)
     }
   },
+  watch: {
+    collectingEvent: {
+      handler (newVal, oldVal) {
+        if(!newVal.id) {
+          this.count = 0
+        }
+        if(newVal.geographic_area_id) {
+          GetGeographicArea(newVal.geographic_area_id).then(response => { 
+            if(response.shape) {
+              this.geoArea = response.shape
+            }
+          })
+        } else {
+          this.geoArea = undefined
+        }
+      },
+      deep: true,
+      immediate: true
+    }
+  },
   data () {
     return {
       show: false,
-      count: 0
+      count: 0,
+      geoArea: undefined
     }
   },
   methods: {

@@ -54,11 +54,7 @@ module OtusHelper
   #   of OTUs
   def next_otus(otu)
     if otu.taxon_name_id
-      if t = otu.taxon_name.next_sibling&.otus
-        t 
-      else
-        []
-      end
+      otu.taxon_name.next_sibling&.otus || []
     else 
       Otu.where(project_id: otu.id).where('id > ?', otu.id).all
     end 
@@ -66,22 +62,14 @@ module OtusHelper
 
   def previous_otus(otu)
     if otu.taxon_name_id
-      if t = otu.taxon_name.previous_sibling&.otus
-        t 
-      else
-        []
-      end
+      otu.taxon_name.previous_sibling&.otus || []
     else 
       Otu.where(project_id: otu.id).where('id < ?', otu.id).all
     end 
   end
 
   def parent_otus(otu)
-    if otu.taxon_name_id
-      otu.taxon_name.parent.otus.all
-    else
-      [] 
-    end 
+    otu.taxon_name&.parent&.otus&.all || []
   end
 
   def parents_by_nomenclature(otu)

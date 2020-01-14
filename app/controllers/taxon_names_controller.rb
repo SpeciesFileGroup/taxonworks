@@ -210,7 +210,7 @@ class TaxonNamesController < ApplicationController
     @result = TaxonWorks::Vendor::Biodiversity::Result.new(
       query_string: params.require(:query_string),
       project_id: sessions_current_project_id,
-      nomenclature_code: :iczn # !! TODO:
+      code: :iczn # !! TODO:
     ).result
   end
 
