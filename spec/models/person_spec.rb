@@ -61,6 +61,73 @@ describe Person, type: :model, group: [:sources, :people] do
     end
   end
 
+  context 'select_optimized' do 
+    before do
+      person.update!(last_name: 'Smith', first_name: 'Jones')
+    end
+
+    context 'no roles' do
+      specify ':recent' do
+        a = Person.select_optimized(Current.user_id, Current.project_id, nil)
+        expect(a[:recent].map(&:id)).to contain_exactly(person.id)
+      end
+
+      specify ':quick' do
+        a = Person.select_optimized(Current.user_id, Current.project_id, nil)
+        expect(a[:quick].map(&:id)).to contain_exactly(person.id)
+      end
+    end
+
+    context 'roles' do
+      before do
+        person.update!(created_at: 10.years.ago, updated_at: 10.years.ago)
+      end
+
+      context 'Collector' do
+        let!(:ce){ CollectingEvent.create!(verbatim_locality: 'Ocean', collector_roles_attributes: [{person: person}]) }
+        specify '.used_recently' do
+          expect(Person.used_recently('Collector').map(&:id)).to contain_exactly(person.id)
+        end
+
+        specify '.joins.used_recently.where()' do
+          expect(Person.joins(:roles).used_recently('Collector').where(roles: {project_id: Current.project_id, updated_by_id: Current.user_id}).map(&:id)).to contain_exactly(person.id)
+        end
+
+        specify ':recent' do
+          a = Person.select_optimized(Current.user_id, Current.project_id, 'Collector')
+          expect(a[:recent].map(&:id)).to contain_exactly(person.id)
+        end
+
+        specify ':quick' do
+          a = Person.select_optimized(Current.user_id, Current.project_id, 'Collector')
+          expect(a[:quick].map(&:id)).to contain_exactly(person.id)
+        end
+      end
+ 
+     # Should be identical, sanity check 
+      context 'Determiner' do
+        let!(:td){ TaxonDetermination.create!(biological_collection_object: Specimen.create!, otu: Otu.create!(name: 'foo'), determiner_roles_attributes: [person: person]) }
+
+        specify '.used_recently' do
+          expect( Person.joins(:roles).where(roles: {project_id: Current.project_id, updated_by_id: Current.user_id} ).used_recently('Determiner').limit(10).map(&:id)).to contain_exactly(person.id)
+        end
+
+        specify ':recent' do
+          a = Person.select_optimized(Current.user_id, Current.project_id, 'Determiner')
+          expect(a[:recent].map(&:id)).to contain_exactly(person.id)
+        end
+
+        specify ':quick' do
+          a = Person.select_optimized(Current.user_id, Current.project_id, 'Determiner')
+          expect(a[:quick].map(&:id)).to contain_exactly(person.id)
+        end
+
+      end
+
+    end
+  end
+
+
   context 'NameCase()' do
     specify '#1' do
       person.update(
