@@ -156,7 +156,7 @@
     methods: {
       clearSelection() {
         this.selected = undefined
-        this.geographicArea = undefined
+        this.geographicArea = null
       },
       GetSmartSelector() {
         GetGeographicSmartSelector().then(response => {
