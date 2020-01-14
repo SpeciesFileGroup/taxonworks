@@ -58,6 +58,9 @@ export default {
       set(value) {
         this.$store.commit(MutationNames.SetCollectionEventRoles, value)
       }
+    },
+    collectionObject() {
+      return this.$store.getters[GetterNames.GetCollectionObject]
     }
   },
   data() {
@@ -65,6 +68,13 @@ export default {
       options: [],
       view: 'new/Search',
       lists: undefined
+    }
+  },
+  watch: {
+    collectionObject(newVal) {
+      if(!newVal.id) {
+        this.GetSmartSelector()
+      }
     }
   },
   mounted() {

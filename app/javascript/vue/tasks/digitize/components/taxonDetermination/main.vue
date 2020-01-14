@@ -251,6 +251,9 @@ export default {
   watch: {
     collectionObject(newVal) {
       this.$refs.rolepicker.reset()
+      if(!newVal.id) {
+        this.loadSmartSelectors()
+      }
     },
     otuId(newVal) {
       if(newVal) {
@@ -272,21 +275,23 @@ export default {
     if (/^\d+$/.test(otuId)) {
       this.otuId = otuId
     }
-
-    GetOtuSmartSelector().then(response => {
-      this.options = orderSmartSelector(Object.keys(response))
-      this.options.push('new/Search')
-      this.lists = response
-      this.view = selectFirstSmartOption(response, this.options)
-    })
-    GetTaxonDeterminatorSmartSelector().then(response => {
-      this.optionsDeterminer = orderSmartSelector(Object.keys(response))
-      this.optionsDeterminer.push('new/Search')
-      this.listsDeterminator = response
-      this.viewDeterminer = selectFirstSmartOption(response, this.optionsDeterminer)
-    })
+    this.loadSmartSelectors()
   },
   methods: {
+    loadSmartSelectors() {
+      GetOtuSmartSelector().then(response => {
+        this.options = orderSmartSelector(Object.keys(response))
+        this.options.push('new/Search')
+        this.lists = response
+        this.view = selectFirstSmartOption(response, this.options)
+      })
+      GetTaxonDeterminatorSmartSelector().then(response => {
+        this.optionsDeterminer = orderSmartSelector(Object.keys(response))
+        this.optionsDeterminer.push('new/Search')
+        this.listsDeterminator = response
+        this.viewDeterminer = selectFirstSmartOption(response, this.optionsDeterminer)
+      })
+    },
     roleExist(id) {
       return (this.roles.find((role) => {
         return !role.hasOwnProperty('_destroy') && role.person_id == id
