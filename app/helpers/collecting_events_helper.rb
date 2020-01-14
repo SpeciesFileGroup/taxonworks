@@ -21,7 +21,7 @@ module CollectingEventsHelper
       collecting_event_collectors_tag(collecting_event),
       collecting_event_coordinates_tag(collecting_event),
       collecting_event_method_habitat_tag(collecting_event),
-    ].compact.join(join_string)
+    ].compact.join(join_string).html_safe
   end
 
   def collecting_event_identifiers_tag(collecting_event)
