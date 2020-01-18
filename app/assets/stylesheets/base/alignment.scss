@@ -23,6 +23,18 @@ br.clear_both {
   vertical-align: middle
 }
 
+.position-relative {
+  position: relative;
+}
+
+.position-absolute {
+  position: absolute;
+}
+
+.position-fixed {
+  position: fixed;
+}
+
 // Lifted from http://zerosixthree.se/vertical-align-anything-with-just-3-lines-of-css/
 @mixin vertical-align {
   position: relative;

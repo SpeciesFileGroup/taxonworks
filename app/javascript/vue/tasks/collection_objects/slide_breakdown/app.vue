@@ -1,47 +1,62 @@
 <template>
   <div>
     <h1>Slide tray breakdown</h1>
-    <div class="horizontal-left-content align-start">
-      <div
-        class="sled-panel"
-        style="width: 50%;">
-        <template
-          v-for="(hline, index) in hlines"
-          v-if="index < hlines.length-1">
-          <add-line
-            :style="{ top: `${getPosition(hline, hlines[index+1]) / scaleForScreen}px` }"
-            :position="getPosition(hline, hlines[index+1])"
-            v-model="hlines"
-          />
-        </template>
-        <template
-          v-for="(vline, index) in vlines"
-          v-if="index < vlines.length-1">
-          <add-line
-            :style="{ left: `${getPosition(vline, vlines[index+1]) / scaleForScreen}px`, top: `10px` }"
-            :position="getPosition(vline, vlines[index+1])"
-            v-model="vlines"
-          />
-        </template>
-        <div  class="sled-viewer">
-          <sled 
-            :vertical-lines="vlines"
-            :horizontal-lines="hlines"
-            :image-width="image.width"
-            :image-height="image.height"
-            :line-weight="lineWeight"
-            :scale="scaleForScreen"
-            :file-image="fileImage"
-            @onComputeCells="processCells"/>
+    <template v-if="imageId">
+      <div class="horizontal-left-content align-start">
+        
+        <div
+          class="position-relative"
+          style="width: 50%;">
+          <template
+            v-for="(hline, index) in hlines"
+            v-if="index < hlines.length-1">
+            <add-line
+              :style="{ 
+                top: `${getButtonPosition(hlines, index, style.viewer.marginTop)}px`,
+                transform: 'translateY(-50%)'
+              }"
+              :position="getPosition(hline, hlines[index+1])"
+              v-model="hlines"
+            />
+          </template>
+          <template
+            v-for="(vline, index) in vlines"
+            v-if="index < vlines.length-1">
+            <add-line
+              :style="{ 
+                left: `${getButtonPosition(vlines, index, style.viewer.marginLeft)}px`,
+                transform: 'translateX(-50%)',
+                top: `10px`
+              }"
+              :position="getPosition(vline, vlines[index+1])"
+              v-model="vlines"
+            />
+          </template>
+          <div :style="style.viewer">
+            <sled 
+              ref="sled"
+              :vertical-lines="vlines"
+              :horizontal-lines="hlines"
+              :image-width="image.width"
+              :image-height="image.height"
+              :line-weight="lineWeight"
+              :autosize="true"
+              :file-image="fileImage"
+              @onComputeCells="processCells"/>
+          </div>
+        </div>
+        <div style="width: 50%;">
+          <switch-component
+            v-model="view"
+            :options="tabs"/>
+          <assign-component class="margin-large-top"/>
         </div>
       </div>
-      <div style="width: 50%;">
-        <switch-component
-          v-model="view"
-          :options="tabs"/>
-        <assign-component class="margin-large-top"/>
-      </div>
-    </div>
+    </template>
+    <upload-image
+      class="full_width margin-large-top"
+      v-else
+      @created="imageId = $event.id"/>
   </div>
 </template>
 
@@ -52,20 +67,15 @@ import { GetImage } from './request/resource'
 import AddLine from './components/AddLine'
 import SwitchComponent from 'components/switch'
 import AssignComponent from './components/Assign/Main'
+import UploadImage from './components/UploadImage'
 
 export default {
   components: {
     Sled,
     AddLine,
     SwitchComponent,
-    AssignComponent
-  },
-  computed: {
-    scaleForScreen () {
-      let scaleHeight = window.outerHeight < this.image.height ? this.image.height / window.outerHeight : 1
-      let scaleWidth = window.outerWidth < this.image.width ? this.image.width / window.outerWidth : 1
-      return scaleHeight > scaleWidth ? scaleHeight : scaleWidth
-    }
+    AssignComponent,
+    UploadImage
   },
   data () {
     return {
@@ -79,21 +89,33 @@ export default {
       scale: 1,
       fileImage: undefined,
       isLoading: false,
-      buttonSize: 20,
       imageId: undefined,
       cells: [],
       selectedCells: [],
       tabs: ['assign', 'overview metadata', 'review'],
-      view: undefined
+      view: undefined,
+      style: {
+        viewer: {
+          position: 'relative',
+          marginLeft: '30px',
+          marginTop: '50px'
+        }
+      },
+    }
+  },
+  watch: {
+    imageId: {
+      handler(newVal) {
+        if (/^\d+$/.test(newVal)) {
+          this.loadImage(newVal)
+        }
+      },
+      immediate: true
     }
   },
   mounted () {
     let urlParams = new URLSearchParams(window.location.search)
     this.imageId = urlParams.get('image_id')
-
-    if (/^\d+$/.test(this.imageId)) {
-      this.loadImage(this.imageId)
-    }
   },
   methods: {
     processCells(cells) {
@@ -131,18 +153,17 @@ export default {
       })
     },
     getPosition (line, next) {
-      return (next ? line + ((next - line) / 2) : line) + this.buttonSize
+      return (next ? line + ((next - line ) / 2) : line)
     },
+    scaleForScreen () {
+      let element = this.$refs.sled.$el.getBoundingClientRect()
+      let scaleHeight = element.height < this.image.height && element.height > 0 ? this.image.height / element.height : 1
+      let scaleWidth = element.width < this.image.width && element.width > 0 ? this.image.width / element.width : 1
+      return scaleHeight > scaleWidth ? scaleHeight : scaleWidth
+    },
+    getButtonPosition(lines, index, margin) {
+      return this.getPosition(lines[index], lines[index+1]) / this.scaleForScreen() + parseInt(margin)
+    }
   }
 }
 </script>
-<style scoped>
-  .sled-panel {
-    position: relative;
-  }
-  .sled-viewer {
-    position: relative;
-    margin-left: 30px;
-    margin-top: 50px;
-  }
-</style>
