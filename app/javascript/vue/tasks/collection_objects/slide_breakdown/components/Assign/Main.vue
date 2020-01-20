@@ -1,5 +1,6 @@
 <template>
   <div class="panel content">
+    <h2>Assign</h2>
     <metadata-component class="margin-medium-bottom"/>
     <catalog-number class="margin-medium-bottom"/>
     <taxon-determination class="margin-medium-bottom"/>

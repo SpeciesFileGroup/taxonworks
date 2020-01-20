@@ -45,11 +45,15 @@
               @onComputeCells="processCells"/>
           </div>
         </div>
-        <div style="width: 50%;">
+        <div
+          class="margin-medium-left"
+          style="width: 50%;">
           <switch-component
             v-model="view"
             :options="tabs"/>
-          <assign-component class="margin-large-top"/>
+          <component
+            class="margin-large-top"
+            :is="componentSelected"/>
         </div>
       </div>
     </template>
@@ -68,6 +72,8 @@ import AddLine from './components/AddLine'
 import SwitchComponent from 'components/switch'
 import AssignComponent from './components/Assign/Main'
 import UploadImage from './components/UploadImage'
+import ReviewComponent from './components/Review'
+import OverviewMetadataComponent from './components/Overview'
 
 export default {
   components: {
@@ -75,7 +81,14 @@ export default {
     AddLine,
     SwitchComponent,
     AssignComponent,
+    ReviewComponent,
+    OverviewMetadataComponent,
     UploadImage
+  },
+  computed: {
+    componentSelected () {
+      return `${this.view.toPascalCase().replace(' ', '')}Component`
+    }
   },
   data () {
     return {
@@ -92,8 +105,8 @@ export default {
       imageId: undefined,
       cells: [],
       selectedCells: [],
-      tabs: ['assign', 'overview metadata', 'review'],
-      view: undefined,
+      tabs: ['Assign', 'Overview metadata', 'Review'],
+      view: 'Assign',
       style: {
         viewer: {
           position: 'relative',
