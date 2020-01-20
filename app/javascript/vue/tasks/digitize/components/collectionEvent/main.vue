@@ -49,6 +49,7 @@
               @click="cloneCE">
               Clone
             </button>
+            <a :href="`/tasks/collecting_events/browse?collecting_event_id=${collectingEvent.id}`">Browse</a>
           </div>
           <component
             :is="actualComponent"

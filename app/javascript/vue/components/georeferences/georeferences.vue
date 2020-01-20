@@ -15,12 +15,14 @@
         :legend="!collectingEventId ? 'Need collecting event ID' : 'Saving...'"/>
       <map-component 
         ref="leaflet"
+        v-if="show"
         :height="height"
         :width="width"
         :geojson="shapes['features']"
         :lat="lat"
         :lng="lng"
         :zoom="zoom"
+        :fit-bounds="true"
         :resize="true"
         :draw-controls="true"
         :draw-polyline="false"
@@ -29,14 +31,22 @@
         @geoJsonLayersEdited="updateGeoreference($event)"
         @geoJsonLayerCreated="saveGeoreference($event)"/>
     </div>
-    <button
-      type="button"
-      v-if="verbatimLat && verbatimLng"
-      :disabled="verbatimGeoreferenceAlreadyCreated"
-      @click="createVerbatimShape"
-      class="button normal-input button-submit separate-bottom separate-top">
-      Create georeference from verbatim 
-    </button>
+    <div class="horizontal-left-content margin-medium-top margin-medium-bottom">
+      <manually-component
+        class="margin-small-right"
+        @create="saveGeoreference"/>
+      <geolocate-component
+        class="margin-small-right"
+        @create="createGEOLocate"/>
+      <button
+        type="button"
+        v-if="verbatimLat && verbatimLng"
+        :disabled="verbatimGeoreferenceAlreadyCreated"
+        @click="createVerbatimShape"
+        class="button normal-input button-submit separate-bottom separate-top">
+        Create georeference from verbatim 
+      </button>
+    </div>
     <display-list
       :list="georeferences"
       @delete="removeGeoreference"
@@ -50,17 +60,21 @@ import MapComponent from './map'
 import SpinnerComponent from 'components/spinner'
 import DisplayList from './list'
 import convertDMS from 'helpers/parseDMS.js'
+import ManuallyComponent from './manuallyComponent'
+import GeolocateComponent from './geolocateComponent'
 
 export default {
   components: {
     MapComponent,
     SpinnerComponent,
-    DisplayList
+    DisplayList,
+    ManuallyComponent,
+    GeolocateComponent
   },
   props: {
     collectingEventId: {
       type: [String, Number],
-      required: true,
+      default: undefined,
     },
     height: {
       type: String,
@@ -91,6 +105,14 @@ export default {
     zoom: {
       type: Number,
       default: 1
+    },
+    show: {
+      type: Boolean,
+      default: true
+    },
+    geographicArea: {
+      type: Object,
+      default: undefined
     }
   },
   computed: {
@@ -113,8 +135,30 @@ export default {
       }
     }
   },
-  mounted () {
-    this.getGeoreferences()
+  watch: {
+    collectingEventId: {
+      handler (newVal) {
+        if (newVal) {
+          this.getGeoreferences()
+        }
+      },
+      immediate: true
+    },
+    geographicArea: {
+      handler(newVal) {
+        if(newVal) {
+          let index = this.shapes.features.findIndex(item => {
+            return item.properties.hasOwnProperty('geographic_area')
+          })
+          if(index > -1) {
+            this.shapes.features.splice(index, 1)
+          }
+          this.shapes.features.push(newVal)
+        }
+      },
+      immediate: true,
+      deep: true
+    }
   },
   methods: {
     saveGeoreference (shape) {
@@ -129,6 +173,9 @@ export default {
       this.showSpinner = true
       this.$http.post('/georeferences.json', data).then(response => {
         this.showSpinner = false
+        if(response.body.error_radius) {
+          response.body.geo_json.properties.radius = response.body.error_radius
+        }
         this.georeferences.push(response.body)
         this.$refs.leaflet.addGeoJsonLayer(response.body.geo_json)
         this.$emit('created', response.body)
@@ -202,6 +249,23 @@ export default {
       }
       this.showSpinner = true
       this.$http.post('/georeferences.json', data).then(response => {
+        this.showSpinner = false
+        this.georeferences.push(response.body)
+        this.populateShapes()
+        this.$emit('created', response.body)
+      }, response => {
+        this.showSpinner = false
+        TW.workbench.alert.create(response.bodyText, 'error')
+      })
+    },
+    createGEOLocate(iframe_data) {
+
+      this.showSpinner = true
+      this.$http.post('/georeferences.json', { georeference: {
+          iframe_response: iframe_data,
+          collecting_event_id: this.collectingEventId,
+          type: 'Georeference::GeoLocate'
+        }}).then(response => {
         this.showSpinner = false
         this.georeferences.push(response.body)
         this.populateShapes()

@@ -6,6 +6,7 @@
       label="label"
       @getItem="getCollectingEvent($event.id)"
       placeholder="Search..."
+      :clear-after="true"
       param="term"/>
   </div>
 </template>

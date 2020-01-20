@@ -15,6 +15,8 @@ export default function ({ commit, state }) {
           })
           Vue.set(state.identifiers, index, response)
           return resolve(response)
+        }, (response) => {
+          reject(response)
         })
       } else {
         if (!state.identifiers.length) {
@@ -26,6 +28,8 @@ export default function ({ commit, state }) {
             state.collection_object.object_tag = state.identifier.identifier_object.object_tag
             state.identifiers.push(response)
             return resolve(response)
+          }, (response) => {
+            reject(response)
           })
         } else {
           return resolve()

@@ -4,6 +4,8 @@
       <thead>
         <tr>
           <th>Georeference ID</th>
+          <th>Shape</th>
+          <th>Error radius</th>
           <th>Type</th>
           <th></th>
         </tr>
@@ -17,6 +19,8 @@
           class="list-complete-item">
           <td>{{ item.id }}</td>
           <td>{{ item.geo_json.geometry.type }}</td>
+          <td>{{ item.error_radius }}</td>
+          <td>{{ item.type }}</td>
           <td class="vue-table-options">
             <radial-annotator
               :global-id="item.global_id"/>

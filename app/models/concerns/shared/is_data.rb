@@ -20,6 +20,12 @@ module Shared::IsData
       self < Shared::SharedAcrossProjects ? true : false
     end
 
+    # @return [Array] of strings of only the non-cached and non-housekeeping column names
+    def data_attributes
+      column_names.reject { |c| %w{id project_id created_by_id updated_by_id created_at updated_at}
+        .include?(c) || c =~ /^cached/ }
+    end
+
     # @return [Boolean]
     #   use update vs. a set of ids, but require the update to pass for all or none
     def batch_update_attribute(ids: [], attribute: nil, value: nil)

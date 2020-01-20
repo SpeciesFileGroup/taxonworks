@@ -28,6 +28,7 @@
       <div v-else>
         <autocomplete
           :id="`smart-selector-${model}-autocomplete`"
+          :input-id="inputId"
           class="separate-right"
           placeholder="Search..."
           :url="autocompleteUrl ? autocompleteUrl : `/${model}/autocomplete`"
@@ -67,6 +68,10 @@ export default {
       default: undefined
     },
     autocompleteUrl: {
+      type: String,
+      default: undefined
+    },
+    inputId: {
       type: String,
       default: undefined
     },

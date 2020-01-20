@@ -174,7 +174,6 @@ export default {
           this.rankLists = response.data.protonyms
           this.parseRanks = response.data.parse
           this.searching = false
-          console.log(response);
           this.otherMatches = response.other_matches
           this.$nextTick(() => {
             if (response.data.unambiguous) {
