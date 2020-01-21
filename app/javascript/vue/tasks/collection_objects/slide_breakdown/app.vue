@@ -51,9 +51,12 @@
           <switch-component
             v-model="view"
             :options="tabs"/>
-          <component
-            class="margin-large-top"
-            :is="componentSelected"/>
+          <div class="flex-separate margin-large-top">
+            <component
+              class="full_width margin-medium-right"
+              :is="componentSelected"/>
+            <summary-component class="full_width"/>
+          </div>
         </div>
       </div>
     </template>
@@ -74,6 +77,7 @@ import AssignComponent from './components/Assign/Main'
 import UploadImage from './components/UploadImage'
 import ReviewComponent from './components/Review'
 import OverviewMetadataComponent from './components/Overview'
+import SummaryComponent from './components/Summary'
 
 export default {
   components: {
@@ -83,7 +87,8 @@ export default {
     AssignComponent,
     ReviewComponent,
     OverviewMetadataComponent,
-    UploadImage
+    UploadImage,
+    SummaryComponent
   },
   computed: {
     componentSelected () {
