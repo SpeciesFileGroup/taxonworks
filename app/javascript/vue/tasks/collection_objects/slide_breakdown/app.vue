@@ -42,6 +42,7 @@
               :line-weight="lineWeight"
               :autosize="true"
               :file-image="fileImage"
+              @resize="scale = scaleForScreen()"
               @onComputeCells="processCells"/>
           </div>
         </div>
@@ -112,6 +113,8 @@ export default {
       selectedCells: [],
       tabs: ['Assign', 'Overview metadata', 'Review'],
       view: 'Assign',
+      observeContainer: undefined,
+      scale: 1,
       style: {
         viewer: {
           position: 'relative',
@@ -180,7 +183,7 @@ export default {
       return scaleHeight > scaleWidth ? scaleHeight : scaleWidth
     },
     getButtonPosition(lines, index, margin) {
-      return this.getPosition(lines[index], lines[index+1]) / this.scaleForScreen() + parseInt(margin)
+      return this.getPosition(lines[index], lines[index+1]) / this.scale + parseInt(margin)
     }
   }
 }
