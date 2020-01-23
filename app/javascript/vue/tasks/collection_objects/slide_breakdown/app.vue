@@ -41,6 +41,7 @@
               :image-height="image.height"
               :line-weight="lineWeight"
               :autosize="true"
+              :metadata-assignment="{ test: 'Test label' }"
               :file-image="fileImage"
               @resize="scale = scaleForScreen()"
               @onComputeCells="processCells"/>
@@ -56,7 +57,9 @@
             <component
               class="full_width margin-medium-right"
               :is="componentSelected"/>
-            <summary-component class="full_width"/>
+            <summary-component
+              @update="createSled"
+              class="full_width"/>
           </div>
         </div>
       </div>
@@ -71,7 +74,7 @@
 <script>
 
 import Sled from '@sfgrp/sled'
-import { GetImage } from './request/resource'
+import { GetImage, CreateSledImages } from './request/resource'
 import AddLine from './components/AddLine'
 import SwitchComponent from 'components/switch'
 import AssignComponent from './components/Assign/Main'
@@ -110,7 +113,6 @@ export default {
       isLoading: false,
       imageId: undefined,
       cells: [],
-      selectedCells: [],
       tabs: ['Assign', 'Overview metadata', 'Review'],
       view: 'Assign',
       observeContainer: undefined,
@@ -141,6 +143,20 @@ export default {
   methods: {
     processCells(cells) {
       this.cells = cells
+    },
+    createSled () {
+      const data = {
+        sled_image: {
+          image_id: this.imageId,
+          metadata: this.cells
+        },
+        collection_object: {
+          total: 1
+        }
+      }
+      CreateSledImages(data).then(response => {
+        console.log(response)
+      })
     },
     loadImage(imageId) {
       GetImage(imageId).then(response => {

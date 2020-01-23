@@ -3,6 +3,7 @@
     <h2>Summary</h2>
     <div class="horizontal-left-content">
       <button
+        @click="$emit('update')"
         type="button"
         class="button normal-input button-submit margin-medium-right full_width">
         Update
