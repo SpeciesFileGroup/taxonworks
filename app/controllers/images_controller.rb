@@ -141,7 +141,8 @@ class ImagesController < ApplicationController
   def image_params
     params.require(:image).permit(
       :image_file, :rotate,
-      citations_attributes: [:id, :is_original, :_destroy, :source_id, :pages, :citation_object_id, :citation_object_type]
+      citations_attributes: [:id, :is_original, :_destroy, :source_id, :pages, :citation_object_id, :citation_object_type],
+      sled_image_attributes: [:id, :_destroy, :metadata, :object_layout]
     )
   end
 end

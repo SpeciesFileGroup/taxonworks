@@ -24,9 +24,8 @@ module Shared::Depictions
 
   protected
 
-  # Not tested!
   def reject_depictions(attributed)
-    attributed['image_attributes'].blank? ||  attributed['image_attributes']['image_file'].blank?
+    attributed['image_id'].blank? 
   end
 
   def reject_images(attributed)

@@ -288,7 +288,14 @@ class CollectionObjectsController < ApplicationController
       collecting_event_attributes: [],  # needs to be filled out!
       data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :value ],
       tags_attributes: [:id, :_destroy, :keyword_id],
-      identifiers_attributes: [:id, :_destroy, :identifier, :namespace_id, :type]
+      identifiers_attributes: [:id, :_destroy, :identifier, :namespace_id, :type],
+      taxon_determinations_attributes: [
+        :id, :_destroy, :otu_id, :year_made, :month_made, :day_made, 
+        roles_attributes: [
+          :id, :_destroy, :type, :person_id, :position,
+          person_attributes: [:last_name, :first_name, :suffix, :prefix]
+        ]
+      ]
     )
   end
 

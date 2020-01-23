@@ -26,9 +26,20 @@
 #      If true then this depiction depicts data that describes the entity, rather than the entity itself.
 #      For example, a CollectionObject depiction of a insect, vs. a picture of some text that says "the specimen is blue"
 #
+# @!attribute sled_image_id
+#   @return [Integer]
+#      If present this depiction was derived from sled
+#
+# @!attribute sled_image_x_position
+#   @return [Integer]
+#      Not null if sled_image_is present.  The column (top left 0,0) derived from
+#
+# @!attribute sled_image_y_position
+#   @return [Integer]
+#      Not null if sled_image_is present.  The row (top left 0,0) derived from
+#
+#
 class Depiction < ApplicationRecord
-  # TODO: add position scoping
-
   include Housekeeping
   include Shared::Tags
   include Shared::DataAttributes
@@ -39,13 +50,28 @@ class Depiction < ApplicationRecord
   acts_as_list scope: [:project_id, :depiction_object_type, :depiction_object_id]
 
   belongs_to :image, inverse_of: :depictions
+  belongs_to :sled_image, inverse_of: :depictions
   has_one :sqed_depiction, dependent: :destroy
 
   accepts_nested_attributes_for :image
-
   accepts_nested_attributes_for :sqed_depiction, allow_destroy: true
 
   # This seems OK given specs, though similar validations in other concerns have created headaches.
   validates_presence_of :depiction_object
+
+  validate :sled_param_collision, if: Proc.new {|n| n.sled_image_id}
+
+  def from_sled?
+    !sled_image_id.nil?
+  end
+
+  protected
+
+  def sled_param_collision
+    if sled_image.cells.include?([sled_image_x_position, sled_image_y_position])
+      errors.add(:sled_image_x_position, 'Position is taken')
+      errors.add(:sled_image_y_position, 'Position is taken')
+    end
+  end 
 
 end

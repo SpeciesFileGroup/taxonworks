@@ -49,6 +49,8 @@ class Image < ApplicationRecord
   include Shared::IsData
   include SoftValidation
 
+  include Image::Sled
+
   attr_accessor :rotate
 
   MISSING_IMAGE_PATH = '/public/images/missing.jpg'.freeze
@@ -74,6 +76,8 @@ class Image < ApplicationRecord
   validates_attachment_size :image_file, greater_than: 1.kilobytes
 
   soft_validate(:sv_duplicate_image?)
+
+  accepts_nested_attributes_for :sled_image, allow_destroy: true
 
   # @return [Boolean]
   def has_duplicate?

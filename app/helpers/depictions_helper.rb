@@ -11,5 +11,4 @@ module DepictionsHelper
     object_link(depiction.depiction_object.metamorphosize)
   end
 
-
 end

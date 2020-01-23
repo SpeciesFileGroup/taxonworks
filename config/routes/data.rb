@@ -552,6 +552,8 @@ resources :sequence_relationships do
   end
 end
 
+resources :sled_images, only: [:update, :create, :destroy]
+
 resources :sources do
   concerns [:data_routes]
   collection do

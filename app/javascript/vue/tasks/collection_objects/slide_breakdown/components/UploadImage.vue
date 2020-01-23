@@ -41,7 +41,7 @@ export default {
       this.$emit('created',response)
     },
     sending: function (file, xhr, formData) {
-      formData.append('image[sled_image_attributes][metadata]', JSON.stringify([]))
+      formData.append('image[sled_image_attributes][metadata]', '[]')
     },
   }
 }

@@ -57,8 +57,7 @@
 #   @return [Date]
 #   The date when the object was removed from tracking.  If provide then Repository must be null?! TODO: resolve
 #
-class CollectionObject < ApplicationRecord
-
+class CollectionObject < ApplicationRecord 
   include GlobalID::Identification
   include Housekeeping
 
