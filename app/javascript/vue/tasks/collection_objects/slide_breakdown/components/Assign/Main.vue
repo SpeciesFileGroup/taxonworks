@@ -5,6 +5,7 @@
     <catalog-number class="margin-medium-bottom"/>
     <taxon-determination class="margin-medium-bottom"/>
     <container-component class="margin-medium-bottom"/>
+    <collecting-event class="margin-medium-bottom"/>
     <tag-component class="margin-medium-bottom"/>
     <note-component class="margin-medium-bottom"/>
   </div>
@@ -18,6 +19,7 @@ import ContainerComponent from './Container'
 import NoteComponent from './Note'
 import TagComponent from './Tag'
 import TaxonDetermination from './TaxonDetermination'
+import CollectingEvent from './CollectingEvent'
 
 export default {
   components: {
@@ -26,11 +28,8 @@ export default {
     ContainerComponent,
     NoteComponent,
     TagComponent,
-    TaxonDetermination
+    TaxonDetermination,
+    CollectingEvent
   }
 }
 </script>
-
-<style>
-
-</style>
