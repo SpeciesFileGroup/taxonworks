@@ -4,23 +4,19 @@ class SledImagesController < ApplicationController
   # POST /sled_images.json
   def create
     @sled_image = SledImage.new(sled_image_params)
-    respond_to do |format|
-      if @sled_image.save
-        format.json { render :show, status: :created, location: @sled_image }
-      else
-        format.json { render json: @sled_image.errors, status: :unprocessable_entity }
-      end
+    if @sled_image.save
+       render :show, status: :created, location: @sled_image
+    else
+      render json: @sled_image.errors, status: :unprocessable_entity
     end
   end
 
   # PATCH/PUT /sled_images/1.json
   def update
-    respond_to do |format|
-      if @sled_image.update(sled_image_params)
-        format.json { render :show, status: :ok, location: @sled_image }
-      else
-        format.json { render json: @sled_image.errors, status: :unprocessable_entity }
-      end
+    if @sled_image.update(sled_image_params)
+      render :show, status: :ok, location: @sled_image
+    else
+      render json: @sled_image.errors, status: :unprocessable_entity
     end
   end
 
@@ -53,11 +49,11 @@ class SledImagesController < ApplicationController
     params[:collection_object]&.permit(
       :collecting_event_id,
       identifiers_attributes: [:namespace_id, :identifier, :type],
-      notes_attributes: [:text], 
+      notes_attributes: [:text],
       tags_attributes: [:id, :_destroy, :keyword_id],
       data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :value ], # not implemented
       taxon_determinations_attributes: [
-        :id, :_destroy, :otu_id, :year_made, :month_made, :day_made, 
+        :id, :_destroy, :otu_id, :year_made, :month_made, :day_made,
         roles_attributes: [
           :id, :_destroy, :type, :person_id, :position,
           person_attributes: [:last_name, :first_name, :suffix, :prefix]
