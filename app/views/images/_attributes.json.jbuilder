@@ -23,5 +23,6 @@ json.alternatives do
   end
 end
 
-
-
+if @image.sled_image
+  json.sled_image_id @image.sled_image.id
+end

@@ -55,6 +55,9 @@ class Image < ApplicationRecord
 
   MISSING_IMAGE_PATH = '/public/images/missing.jpg'.freeze
 
+
+  has_one :sled_image, dependent: :destroy
+
   has_many :depictions, inverse_of: :image, dependent: :restrict_with_error
   
   has_many :collection_objects, through: :depictions, source: :depiction_object, source_type: 'CollectionObject'
