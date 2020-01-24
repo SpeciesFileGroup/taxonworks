@@ -102,6 +102,7 @@ class TaxonNamesController < ApplicationController
 
   def autocomplete
     render json: {} and return if params[:term].blank?
+
     @taxon_names = Queries::TaxonName::Autocomplete.new(
       params[:term],
       **autocomplete_params
@@ -226,7 +227,10 @@ class TaxonNamesController < ApplicationController
   end
 
   def autocomplete_params
-    params.permit(:valid, :exact, :no_leaves, type: [], parent_id: [], nomenclature_group: []).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
+    params.permit(
+      :valid, :exact, :no_leaves,
+      type: [], parent_id: [], nomenclature_group: []
+    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
   def taxon_name_params
