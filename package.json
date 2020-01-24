@@ -2,7 +2,7 @@
   "dependencies": {
     "@ibm/plex": "^4.0.2",
     "@rails/webpacker": "^4.2.2",
-    "@sfgrp/sled": "^0.3.9",
+    "@sfgrp/sled": "^0.4.0",
     "babel-preset-stage-0": "^6.24.1",
     "browser-request": "^0.3.3",
     "file-loader": "^5.0.2",
@@ -22,7 +22,7 @@
     "vue-resource": "^1.5.1",
     "vue-shortkey": "^3.1.7",
     "vue-template-compiler": "^2.6.11",
-    "vue-tippy": "^4.3.0",
+    "vue-tippy": "^4.3.1",
     "vue2-leaflet": "^2.4.2",
     "vuedraggable": "^2.23.2",
     "vuex": "^3.1.2",

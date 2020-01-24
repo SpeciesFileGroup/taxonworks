@@ -4,11 +4,11 @@ const GetImage = (id) => {
   return ajaxCall('get', `/images/${id}.json`)
 }
 
-const CreateSledImages = (data) => {
-  return ajaxCall('post', '/sled_images.json', data)
+const UpdateSledImage = (id, data) => {
+  return ajaxCall('patch', `/sled_images/${id}.json`, data)
 }
 
 export {
   GetImage,
-  CreateSledImages
+  UpdateSledImage
 }

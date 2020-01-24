@@ -19,7 +19,7 @@
           v-for="item in lists[view]"
           :key="item.id">
           <label
-            @click="$emit('selected', item)">
+            @click.prevent="sendObject(item)">
             <input type="radio">
             <span v-html="item[label]"/>
           </label>
@@ -29,7 +29,6 @@
         <autocomplete
           v-if="autocomplete"
           :id="`smart-selector-${model}-autocomplete`"
-          class="separate-right"
           placeholder="Search..."
           :url="autocompleteUrl ? autocompleteUrl : `/${model}/autocomplete`"
           param="term"
@@ -139,6 +138,9 @@ export default {
       AjaxCall('get', this.getUrl ? `${this.getUrl}${id}.json` : `/${this.model}/${id}.json`).then(response => {
         this.$emit('selected', response.body)
       })
+    },
+    sendObject(item) {
+      this.$emit('selected', item)
     }
   }
 }

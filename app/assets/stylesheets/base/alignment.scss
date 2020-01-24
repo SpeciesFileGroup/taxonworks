@@ -35,6 +35,18 @@ br.clear_both {
   position: fixed;
 }
 
+.display-block {
+  display: block;
+}
+
+.dislay-inline {
+  display: inline;
+}
+
+.display-flex {
+  display: flex;
+}
+
 // Lifted from http://zerosixthree.se/vertical-align-anything-with-just-3-lines-of-css/
 @mixin vertical-align {
   position: relative;

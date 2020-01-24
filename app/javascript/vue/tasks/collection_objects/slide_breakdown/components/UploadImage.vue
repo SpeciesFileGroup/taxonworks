@@ -1,14 +1,16 @@
 <template>
-  <div class="panel content full-width">
-    <dropzone
-      class="dropzone-card separate-bottom"
-      @vdropzone-success="success"
-      @vdropzone-sending="sending"
-      ref="imageDropzone"
-      id="image-dropzone"
-      url="/images"
-      :use-custom-dropzone-options="true"
-      :dropzone-options="dropzone"/>
+  <div class="panel  full-width">
+    <div class="content">
+      <dropzone
+        class="dropzone-card"
+        @vdropzone-success="success"
+        @vdropzone-sending="sending"
+        ref="imageDropzone"
+        id="image-dropzone"
+        url="/images"
+        :use-custom-dropzone-options="true"
+        :dropzone-options="dropzone"/>
+    </div>
   </div>
 </template>
 
