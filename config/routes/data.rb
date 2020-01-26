@@ -552,7 +552,7 @@ resources :sequence_relationships do
   end
 end
 
-resources :sled_images, only: [:update, :create, :destroy], defaults: {format: :json} do
+resources :sled_images, only: [:update, :create, :destroy, :show], defaults: {format: :json} do
 end
 
 resources :sources do

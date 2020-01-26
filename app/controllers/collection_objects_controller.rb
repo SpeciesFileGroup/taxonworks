@@ -198,7 +198,7 @@ class CollectionObjectsController < ApplicationController
 
   def preview_castor_batch_load
     if params[:file]
-      @result = BatchLoad::Import::CollectionObjects::CastorInterpreter.new(batch_params)
+      @result = BatchLoad::Import::CollectionObjects::CastorInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :Castor_collection_objects_md5)
       render 'collection_objects/batch_load/castor/preview'
     else
@@ -209,7 +209,7 @@ class CollectionObjectsController < ApplicationController
 
   def create_castor_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Castor_collection_objects_md5)
-      @result = BatchLoad::Import::CollectionObjects::CastorInterpreter.new(batch_params)
+      @result = BatchLoad::Import::CollectionObjects::CastorInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} items were created."
         render 'collection_objects/batch_load/castor/create' and return
@@ -224,7 +224,7 @@ class CollectionObjectsController < ApplicationController
 
   def preview_buffered_batch_load
     if params[:file]
-      @result = BatchLoad::Import::CollectionObjects::BufferedInterpreter.new(batch_params)
+      @result = BatchLoad::Import::CollectionObjects::BufferedInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :Buffered_collection_objects_md5)
       render 'collection_objects/batch_load/buffered/preview'
     else
@@ -235,7 +235,7 @@ class CollectionObjectsController < ApplicationController
 
   def create_buffered_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Buffered_collection_objects_md5)
-      @result = BatchLoad::Import::CollectionObjects::BufferedInterpreter.new(batch_params)
+      @result = BatchLoad::Import::CollectionObjects::BufferedInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} items were created."
         render 'collection_objects/batch_load/buffered/create' and return
@@ -288,14 +288,7 @@ class CollectionObjectsController < ApplicationController
       collecting_event_attributes: [],  # needs to be filled out!
       data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :value ],
       tags_attributes: [:id, :_destroy, :keyword_id],
-      identifiers_attributes: [:id, :_destroy, :identifier, :namespace_id, :type],
-      taxon_determinations_attributes: [
-        :id, :_destroy, :otu_id, :year_made, :month_made, :day_made, 
-        roles_attributes: [
-          :id, :_destroy, :type, :person_id, :position,
-          person_attributes: [:last_name, :first_name, :suffix, :prefix]
-        ]
-      ]
+      identifiers_attributes: [:id, :_destroy, :identifier, :namespace_id, :type]
     )
   end
 
@@ -342,6 +335,8 @@ class CollectionObjectsController < ApplicationController
       :identifier_end,
       :identifier_exact,
       :namespace_id,
+      :sled_image_id,
+      :depicted,
       :never_loaned,
       :loaned,
       :on_loan,

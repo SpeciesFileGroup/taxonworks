@@ -37,7 +37,27 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     # let!(:namespace) { FactoryBot.create(:valid_namespace, short_name: 'Foo') }
     # let!(:i1) { Identifier::Local::TripCode.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
     # let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
-   
+  
+    specify '#depicted' do
+     t = FactoryBot.create(:valid_depiction, depiction_object: co1)
+      query.depicted = true
+      expect(query.all.map(&:id)).to contain_exactly(co1.id)
+    end
+
+    specify '#sled_image_id' do
+      m =  {
+        "index": 0,
+        "upperCorner": {"x":0, "y":0},
+        "lowerCorner": {"x":2459.5, "y":1700.75},
+        "row": 0,
+        "column": 0
+      }
+
+      t = SledImage.create!(image: FactoryBot.create(:valid_image), metadata: [ m ], collection_object_params: {total: 1})
+      query.sled_image_id = t.id
+      expect(query.all.map.size).to eq(1)
+    end
+
     specify '#collecting_event_query' do
       expect(query.collecting_event_query.class.name).to eq('Queries::CollectingEvent::Filter')
     end

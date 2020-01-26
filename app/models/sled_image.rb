@@ -72,6 +72,27 @@ class SledImage < ApplicationRecord
     end
   end
 
+  def summary
+    m = []
+    metadata.each do |s|
+      c = s['column'].to_i
+      r = s['row'].to_i
+      m[r] ||= []
+      d = depiction_for(s)
+      m[r][c] = {
+        depiction_id: d&.id,
+        collection_object_id: d&.depiction_object_id,
+        identifier: d&.depiction_object&.identifiers&.first&.cached
+      }
+    end
+    m
+  end
+
+  def depiction_for(section)
+    x,y = section['column'], section['row']
+    depictions.where(sled_image_x_position: x, sled_image_y_position: y).first
+  end
+
   private
 
   def destroy_related
@@ -148,7 +169,16 @@ class SledImage < ApplicationRecord
     begin
       metadata.each do |i|
         p = collection_object_params.merge(
-          depictions_attributes: [{image_id: image_id, svg_clip: svg_clip(i)} ]
+          depictions_attributes: [
+            {
+              sled_image_id: id,
+              image_id: image_id,
+              svg_clip: svg_clip(i),
+              sled_image_x_position: i['column'],
+              sled_image_y_position: i['row']
+              
+            }
+          ]
         )
         c = CollectionObject.new(p)
         if c.identifiers.first
@@ -173,11 +203,6 @@ class SledImage < ApplicationRecord
         end
       end
     end
-  end
-
-  def depiction_for(section)
-    x,y = section['column'], section['row']
-    depictions.where(sled_image_x_position: x, sled_image_y_position: y).first
   end
 
   def set_cached

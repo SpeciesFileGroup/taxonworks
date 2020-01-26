@@ -59,19 +59,10 @@ class Depiction < ApplicationRecord
   # This seems OK given specs, though similar validations in other concerns have created headaches.
   validates_presence_of :depiction_object
 
-  validate :sled_param_collision, if: Proc.new {|n| n.sled_image_id}
+  validates_uniqueness_of :sled_image_id, scope: [:project_id, :sled_image_x_position, :sled_image_y_position], allow_nil: true, if: Proc.new {|n| !n.sled_image_id.nil?}
 
   def from_sled?
     !sled_image_id.nil?
   end
-
-  protected
-
-  def sled_param_collision
-    if sled_image.cells.include?([sled_image_x_position, sled_image_y_position])
-      errors.add(:sled_image_x_position, 'Position is taken')
-      errors.add(:sled_image_y_position, 'Position is taken')
-    end
-  end 
 
 end

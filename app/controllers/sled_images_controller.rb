@@ -1,6 +1,10 @@
 class SledImagesController < ApplicationController
   before_action :set_sled_image, only: [:update, :create, :destroy]
 
+  def show
+    @sled_image = SledImage.where(project_id: sessions_current_project_id).find(params[:id])
+  end
+
   # POST /sled_images.json
   def create
     @sled_image = SledImage.new(sled_image_params)

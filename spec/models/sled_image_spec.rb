@@ -82,6 +82,29 @@ RSpec.describe SledImage, type: :model, group: :image do
       tags_attributes: [ { keyword_id: keyword.id } ]
     }}
 
+  context '#summary' do
+    before do
+      sled_image.update!(
+        metadata: metadata,
+        image: image,
+        collection_object_params: collection_object_params
+      )
+    end
+
+    specify 'depiction_id' do
+      expect(sled_image.summary[0][0].dig(:depiction_id)).to be_truthy
+    end
+
+    specify 'collection_object_id' do
+      expect(sled_image.summary[0][0].dig(:collection_object_id)).to be_truthy
+    end
+
+    specify 'identifier' do
+      expect(sled_image.summary[0][0].dig(:identifier)).to be_truthy
+    end
+
+  end
+
   context 'writing objects' do
     before do
       sled_image.update!(
@@ -104,7 +127,7 @@ RSpec.describe SledImage, type: :model, group: :image do
     end
 
     specify 'depictions' do
-      expect(Depiction.all.count).to eq(9)
+      expect(Depiction.where(sled_image: sled_image).all.count).to eq(9)
     end
 
     specify 'tags' do
@@ -124,7 +147,6 @@ RSpec.describe SledImage, type: :model, group: :image do
       sled_image.destroy
       expect(CollectionObject.all.reload.count).to eq(0)
     end
-
   end
 
   specify '#new_collection_object' do
