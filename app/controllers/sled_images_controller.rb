@@ -1,8 +1,7 @@
 class SledImagesController < ApplicationController
-  before_action :set_sled_image, only: [:update, :create, :destroy]
+  before_action :set_sled_image, only: [:update, :create, :destroy, :show]
 
   def show
-    @sled_image = SledImage.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   # POST /sled_images.json
@@ -17,6 +16,7 @@ class SledImagesController < ApplicationController
 
   # PATCH/PUT /sled_images/1.json
   def update
+    byebug
     if @sled_image.update(sled_image_params)
       render :show, status: :ok, location: @sled_image
     else
@@ -37,13 +37,18 @@ class SledImagesController < ApplicationController
   private
 
   def set_sled_image
-    @sled_image = SledImage.find(params[:id])
+    @sled_image = SledImage.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def sled_image_params
-    params.permit(
-      :image_id, :metadata, :object_layout,
-      :step_identifier_on
+    params.require(:sled_image).permit( :image_id,
+      :step_identifier_on,
+      metadata: [
+        :index, :row, :column, :metadata,
+        lowerCorner: [:x, :y],
+        upperCorner: [:x, :y]
+      ],
+      object_layout: {} # todo
     ).merge(
       collection_object_params: collection_object_params
     )
@@ -51,6 +56,7 @@ class SledImagesController < ApplicationController
 
   def collection_object_params
     params[:collection_object]&.permit(
+      :total,
       :collecting_event_id,
       identifiers_attributes: [:namespace_id, :identifier, :type],
       notes_attributes: [:text],
