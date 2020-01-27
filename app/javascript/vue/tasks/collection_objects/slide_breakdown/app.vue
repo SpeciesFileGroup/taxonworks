@@ -77,7 +77,7 @@
 <script>
 
 import Sled from '@sfgrp/sled'
-import { GetImage } from './request/resource'
+import { GetImage, GetSledImage } from './request/resource'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 import { ActionNames } from './store/actions/actions'
@@ -183,6 +183,10 @@ export default {
               that.fileImage = dataUrl
               that.vlines = [0, that.image.width]
               that.hlines = [0 ,that.image.height]
+
+              GetSledImage(response.body.sled_image_id).then(response => {
+                this.sledImage = response.body
+              })
               this.isLoading = false
             }
 
