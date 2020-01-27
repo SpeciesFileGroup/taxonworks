@@ -57,12 +57,17 @@
             v-model="view"
             :options="tabs"/>
           <div class="flex-separate margin-large-top">
-            <component
-              class="full_width margin-medium-right"
-              :is="componentSelected"/>
+            <div class="full_width">
+              <spinner-component
+                v-if="disabledPanel"
+                :show-legend="false"
+                :show-spinner="false"/>
+              <component
+                :is="componentSelected"/>
+            </div>
             <summary-component
               @update="createSled"
-              class="full_width"/>
+              class="full_width margin-medium-left"/>
           </div>
         </div>
       </div>
@@ -104,6 +109,10 @@ export default {
     SpinnerComponent
   },
   computed: {
+    disabledPanel () {
+      let sled = this.$store.getters[GetterNames.GetSledImage]
+      return sled && sled['summary'] && sled.summary.length
+    },
     componentSelected () {
       return `${this.view.toPascalCase().replace(' ', '')}Component`
     },
@@ -186,6 +195,11 @@ export default {
 
               GetSledImage(response.body.sled_image_id).then(response => {
                 this.sledImage = response.body
+                //cells
+                if(response.body.metadata.length) {
+                  this.setLines(response.body.metadata)
+                  this.$refs.sled.cells = response.body.metadata
+                }
               })
               this.isLoading = false
             }
@@ -202,6 +216,18 @@ export default {
     },
     getButtonPosition(lines, index, margin) {
       return this.getPosition(lines[index], lines[index+1]) / this.scale + parseInt(margin)
+    },
+    setLines(cells) {
+      let xlines = []
+      let ylines = []
+      cells.forEach(cell => {
+        xlines.push(cell.lowerCorner.x)
+        ylines.push(cell.lowerCorner.y)
+        xlines.push(cell.upperCorner.x)
+        ylines.push(cell.upperCorner.y)
+      })
+      this.vlines = [...new Set(xlines)]
+      this.hlines = [...new Set(ylines)]
     }
   }
 }

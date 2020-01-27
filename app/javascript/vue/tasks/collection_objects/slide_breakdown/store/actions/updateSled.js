@@ -1,4 +1,5 @@
 import { UpdateSledImage } from '../../request/resource'
+import { MutationNames } from '../mutations/mutations'
 
 export default ({ state, commit }) => {
   let co = state.collection_object
@@ -13,6 +14,6 @@ export default ({ state, commit }) => {
     collection_object: co
   }
   UpdateSledImage(state.image.sled_image_id, data).then(response => {
-    console.log(response)
+    commit(MutationNames.SetSledImage, response.body)
   })
 }

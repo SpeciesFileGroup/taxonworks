@@ -14,12 +14,21 @@
         Update and next
       </button>
     </div>
+    {{ summary }}
   </div>
 </template>
 
 <script>
-export default {
 
+import { GetterNames } from '../store/getters/getters'
+
+export default {
+  computed: {
+    summary() {
+      let sled = this.$store.getters[GetterNames.GetSledImage]
+      return sled['summary']
+    }
+  }
 }
 </script>
 
