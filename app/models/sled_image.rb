@@ -38,15 +38,12 @@ class SledImage < ApplicationRecord
   has_many :depictions, through: :image
   has_many :collection_objects, through: :depictions, source: :depiction_object, source_type: 'CollectionObject'
 
-#  before_destroy :destroy_collection_objects, if: Proc.new{|n| n.nuke == 'nuke'}
-  before_destroy :destroy_related # depictions
+  before_destroy :destroy_related
 
   validates_presence_of :image
   validates_uniqueness_of :image_id
 
-  # check for metadata etc., process if provide
-  after_save :set_cached, unless: Proc.new {|n| n.metadata&.empty? || errors.any? }
-
+  after_save :set_cached, unless: Proc.new {|n| n.metadata&.empty? || errors.any? } # must be before process
   after_save :process, unless: Proc.new { |n| n.metadata&.empty? }
 
   # zero beers
@@ -172,6 +169,7 @@ class SledImage < ApplicationRecord
               sled_image_id: id,
               image_id: image_id,
               svg_clip: svg_clip(i),
+              svg_view_box: svg_view_box(i),
               sled_image_x_position: i['column'],
               sled_image_y_position: i['row']
 
@@ -195,7 +193,7 @@ class SledImage < ApplicationRecord
     else
       # At this point we only allow coordinate updates
       metadata.each do |i|
-        next if i['metadata'].nil?
+        next if !i['metadata'].nil?
         if d = depiction_for(i)
           d.update_columns(
             svg_clip: svg_clip(i),
