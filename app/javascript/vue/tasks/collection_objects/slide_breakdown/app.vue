@@ -12,7 +12,7 @@
           style="width: 50%;">
           <template
             v-for="(hline, index) in hlines"
-            v-if="index < hlines.length-1">
+            v-if="index < hlines.length-1 && !disabledPanel">
             <add-line
               :style="{ 
                 top: `${getButtonPosition(hlines, index, style.viewer.marginTop)}px`,
@@ -24,7 +24,7 @@
           </template>
           <template
             v-for="(vline, index) in vlines"
-            v-if="index < vlines.length-1">
+            v-if="index < vlines.length-1 && !disabledPanel">
             <add-line
               :style="{ 
                 left: `${getButtonPosition(vlines, index, style.viewer.marginLeft)}px`,
