@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_01_15_185735) do
+ActiveRecord::Schema.define(version: 2020_01_27_192528) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -517,6 +517,7 @@ ActiveRecord::Schema.define(version: 2020_01_15_185735) do
     t.bigint "sled_image_id"
     t.integer "sled_image_x_position"
     t.integer "sled_image_y_position"
+    t.string "svg_view_box"
     t.index ["created_by_id"], name: "index_depictions_on_created_by_id"
     t.index ["depiction_object_id"], name: "index_depictions_on_depiction_object_id"
     t.index ["depiction_object_type"], name: "index_depictions_on_depiction_object_type"

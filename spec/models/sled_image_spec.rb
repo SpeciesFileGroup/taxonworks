@@ -236,7 +236,11 @@ RSpec.describe SledImage, type: :model, group: :image do
     end
 
     specify '#svg_clip' do
-      expect(sled_image.send(:svg_clip, sled_image.metadata[0] )).to eq('<clipPath><rect x="0.0" y="0.0" width="2459.5" height="1700.75" /></clipPath>')
+      expect(sled_image.send(:svg_clip, sled_image.metadata[0] )).to eq('<rect x="0.0" y="0.0" width="2459.5" height="1700.75" />')
+    end
+
+    specify '#view_box' do
+      expect(sled_image.send(:svg_view_box, sled_image.metadata[0] )).to eq('0.0 0.0 2459.5 1700.75')
     end
 
     specify '#total("rows")' do

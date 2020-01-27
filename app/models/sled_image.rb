@@ -4,15 +4,13 @@
 #
 # A section is verbatim from sled
 #
-# @!attribute metadata 
+# @!attribute metadata
 #   @return [JSON]
-#     position coordinates  
+#     position coordinates
 #
 # @!attribute object_layout
 #   @return [JSON]
 #      ROI metadata per metadata type, expandable to all sled sections
-#
-# 
 #
 class SledImage < ApplicationRecord
   include Housekeeping
@@ -26,15 +24,15 @@ class SledImage < ApplicationRecord
   #  defaults to 'column', used only to compute object identifiers
   attr_accessor :step_identifier_on #row, column
 
-  # If assigned to 'nuke', and .destroy, then will 
+  # If assigned to 'nuke', and .destroy, then will
   # additionall destroy all related collection objects
   attr_accessor :nuke
 
-  # Internal processing 
+  # Internal processing
   attr_accessor :_first_identifier, :_row_total, :_column_total
- 
+
   # A nil value occurs when `!section.metadata.nil?`
-  attr_accessor :_identifier_matrix  
+  attr_accessor :_identifier_matrix
 
   belongs_to :image
   has_many :depictions, through: :image
@@ -48,16 +46,16 @@ class SledImage < ApplicationRecord
 
   # check for metadata etc., process if provide
   after_save :set_cached, unless: Proc.new {|n| n.metadata&.empty? || errors.any? }
-  
+
   after_save :process, unless: Proc.new { |n| n.metadata&.empty? }
 
-  # zero beers 
+  # zero beers
   def total(direction = 'row')
-    i = nil 
+    i = nil
     metadata.each do |o|
       i = o[direction] if i.nil? || (!i.nil? && o[direction] > i)
     end
-    i 
+    i
   end
 
   def metadata=(value)
@@ -100,7 +98,7 @@ class SledImage < ApplicationRecord
       collection_objects.reload.each do |d|
         d.destroy
       end
-    end 
+    end
 
     depictions.each do |d|
       d.destroy
@@ -131,7 +129,7 @@ class SledImage < ApplicationRecord
 
   def get_identifier_matrix
     m = []
-    i = _first_identifier 
+    i = _first_identifier
     metadata.each do |s|
       if !s['metadata'].blank?
         i += 1
@@ -142,7 +140,7 @@ class SledImage < ApplicationRecord
       r = s['row'].to_i
       m[r] ||= []
       inc = r + c - i
-      
+
       v = nil
       case step_identifier_on || 'column'
       when 'row'
@@ -176,7 +174,7 @@ class SledImage < ApplicationRecord
               svg_clip: svg_clip(i),
               sled_image_x_position: i['column'],
               sled_image_y_position: i['row']
-              
+
             }
           ]
         )
@@ -199,7 +197,10 @@ class SledImage < ApplicationRecord
       metadata.each do |i|
         next if i['metadata'].nil?
         if d = depiction_for(i)
-          d.update_column(:svg_clip, svg_clip(i))
+          d.update_columns(
+            svg_clip: svg_clip(i),
+            svg_view_box: svg_view_box(i)
+          )
         end
       end
     end
@@ -217,11 +218,21 @@ class SledImage < ApplicationRecord
     metadata.count
   end
 
+  # x1, y1, y1, y2
+  def coordinates(section)
+    [
+      section['upperCorner']['x'].to_f, section['upperCorner']['y'].to_f ,
+      section['lowerCorner']['x'].to_f, section['lowerCorner']['y'].to_f]
+  end
+
+  def svg_view_box(section)
+    x1, y1, x2, y2 = coordinates(section)
+    [x1, y1, x2 - x1, y2 - y1].join(' ')
+  end
+
   def svg_clip(section)
-    a = section
-    x, y = a['upperCorner']['x'].to_f, a['upperCorner']['y'].to_f
-    w, h = a['lowerCorner']['x'].to_f, a['lowerCorner']['y'].to_f
-    "<clipPath><rect x=\"#{x}\" y=\"#{y}\" width=\"#{x + w}\" height=\"#{y +h}\" /></clipPath>"
+    x1, y1, x2, y2 = coordinates(section)
+    "<rect x=\"#{x1}\" y=\"#{y1}\" width=\"#{x2 - x1}\" height=\"#{y2 - y1}\" />"
   end
 
 end

@@ -21,6 +21,11 @@
 #   @return [xml, nil]
 #     a clipping mask to isolate some portion of the picture
 #
+# @!attribute svg_view_box
+#   @return [String, nil]
+#     sets the clipping box, identical dimensions to clip for rectangles
+#
+
 # @!attribute is_metadata_depiction
 #   @return [Boolean, nil]
 #      If true then this depiction depicts data that describes the entity, rather than the entity itself.
@@ -37,7 +42,6 @@
 # @!attribute sled_image_y_position
 #   @return [Integer]
 #      Not null if sled_image_is present.  The row (top left 0,0) derived from
-#
 #
 class Depiction < ApplicationRecord
   include Housekeeping
