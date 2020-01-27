@@ -59,7 +59,7 @@ class Image < ApplicationRecord
   has_one :sled_image, dependent: :destroy
 
   has_many :depictions, inverse_of: :image, dependent: :restrict_with_error
-  
+
   has_many :collection_objects, through: :depictions, source: :depiction_object, source_type: 'CollectionObject'
   has_many :otus, through: :depictions, source: :depiction_object, source_type: 'Otu'
   has_many :taxon_names, through: :otus
@@ -224,12 +224,12 @@ class Image < ApplicationRecord
     img = Magick::Image.read(image.image_file.path(:original)).first
 
     cropped = img.crop(
-                       params[:x].to_i,
-                       params[:y].to_i,
-                       params[:width].to_i,
-                       params[:height].to_i,
-                       true
-                      )
+      params[:x].to_i,
+      params[:y].to_i,
+      params[:width].to_i,
+      params[:height].to_i,
+      true
+    )
     img.destroy!
     cropped
   end
@@ -250,17 +250,29 @@ class Image < ApplicationRecord
     ratio = c.columns.to_f / c.rows.to_f
     box_ratio = params[:box_width].to_f / params[:box_height].to_f
 
+    # TODO: special considerations for 1:1?
+
     if box_ratio > 1
       if ratio > 1 # wide into wide
-        scaled = c.resize(params[:box_width ].to_i, (params[:box_height].to_f / ratio * box_ratio).to_i)
+        scaled = c.resize(
+          params[:box_width].to_i,
+          (params[:box_height].to_f / ratio * box_ratio).to_i
+        )
       else # tall into wide
-        scaled = c.resize((params[:box_width ].to_f * ratio / box_ratio).to_i, params[:box_height].to_i )
+        scaled = c.resize(
+          (params[:box_width ].to_f * ratio / box_ratio).to_i,
+          params[:box_height].to_i )
       end
     else # <
       if ratio > 1 # wide into tall
-        scaled = c.resize(params[:box_width].to_i, (params[:box_height].to_f / ratio * box_ratio).to_i)
-      else # tall into tall
-        scaled = c.resize((params[:box_width ].to_f * ratio * box_ratio ).to_i, (params[:box_height].to_f ).to_i)
+        scaled = c.resize(
+          params[:box_width].to_i,
+          (params[:box_height].to_f / ratio * box_ratio).to_i)
+      else # tall into tall # TODO: or 1:1?!
+        scaled = c.resize(
+          (params[:box_width ].to_f * ratio * box_ratio ).to_i,
+          (params[:box_height].to_f ).to_i
+        )
       end
     end
     c.destroy!
@@ -308,8 +320,9 @@ class Image < ApplicationRecord
   # @return [Object]
   def sv_duplicate_image?
     if has_duplicate?
-      soft_validations.add(:image_file_fingerprint,
-                           'This image is a duplicate of an image already stored.')
+      soft_validations.add(
+        :image_file_fingerprint,
+        'This image is a duplicate of an image already stored.')
     end
   end
 

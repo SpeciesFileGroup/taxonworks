@@ -225,12 +225,12 @@ class SledImage < ApplicationRecord
 
   def svg_view_box(section)
     x1, y1, x2, y2 = coordinates(section)
-    [x1, y1, x2 - x1, y2 - y1].join(' ')
+    [x1, y1, x1 + x2, y1 + y2].join(' ')
   end
 
   def svg_clip(section)
     x1, y1, x2, y2 = coordinates(section)
-    "<rect x=\"#{x1}\" y=\"#{y1}\" width=\"#{x2 - x1}\" height=\"#{y2 - y1}\" />"
+    "<rect x=\"#{x1}\" y=\"#{y1}\" width=\"#{x1 + x2}\" height=\"#{y1 + y2}\" />"
   end
 
 end

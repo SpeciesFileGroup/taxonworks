@@ -1,6 +1,6 @@
 <p>
-<strong>Depiction object:</strong>
-<%= object_link( @depiction.depiction_object.metamorphosize) %>
+  <strong>Depiction object:</strong>
+  <%= object_link( @depiction.depiction_object.metamorphosize) %>
 </p>
 
 <p>
@@ -11,11 +11,49 @@
   </div>
 </p>
 
+<div class="attribute_set" data-title="Caption etc.">
+  <p>
+    <strong>Caption</strong>
+    <%= @depiction.caption -%>
+  </p>
+
+  <p>
+    <strong>Figure label</strong>
+    <%= @depiction.figure_label-%>
+  </p>
+</div>
+
 <p>
-<strong>Is metadata depiction</strong>
-<%= @depiction.is_metadata_depiction -%>
+  <strong>Is metadata depiction</strong>
+  <%= @depiction.is_metadata_depiction -%>
 </p>
 
+<div class="attribute_set" data-title="SVG">
+  <p>
+    <strong>SVG clip</strong>
+    <%= @depiction.svg_clip -%>
+  </p>
 
+  <p>
+    <strong>SVG View box</strong>
+    <%= @depiction.svg_view_box -%>
+  </p>
+</div>
 
+<div class="attribute_set" data-title="Sled">
+  <p>
+    <strong>Sled image id</strong>
+    <%= @depiction.sled_image_id -%>
+  </p>
+
+  <p>
+    <strong>Sled image x position</strong>
+    <%= @depiction.sled_image_x_position -%>
+  </p>
+
+  <p>
+    <strong>Sled image x position</strong>
+    <%= @depiction.sled_image_y_position -%>
+  </p>
+</div>
 

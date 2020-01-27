@@ -24,8 +24,7 @@
 # @!attribute svg_view_box
 #   @return [String, nil]
 #     sets the clipping box, identical dimensions to clip for rectangles
-#
-
+# 
 # @!attribute is_metadata_depiction
 #   @return [Boolean, nil]
 #      If true then this depiction depicts data that describes the entity, rather than the entity itself.
@@ -67,6 +66,15 @@ class Depiction < ApplicationRecord
 
   def from_sled?
     !sled_image_id.nil?
+  end
+
+  def sled_thumb_path
+    if from_sled?
+      x, y, h, w = svg_view_box.split(' ')
+      "#{image_id}/scale_to_box/#{x.to_i}/#{y.to_i}/#{w.to_i}/#{h.to_i}/100/100"
+    else
+      raise 'This is not a sled derived depiction'
+    end
   end
 
 end
