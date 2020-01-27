@@ -16,7 +16,6 @@ class SledImagesController < ApplicationController
 
   # PATCH/PUT /sled_images/1.json
   def update
-    byebug
     if @sled_image.update(sled_image_params)
       render :show, status: :ok, location: @sled_image
     else
