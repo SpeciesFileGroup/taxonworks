@@ -127,16 +127,18 @@ class SledImage < ApplicationRecord
   def get_identifier_matrix
     m = []
     i = _first_identifier
+
+    j = 0
     metadata.each do |s|
       if !s['metadata'].blank?
-        i += 1
+        j += 1
         next
       end
 
       c = s['column'].to_i
       r = s['row'].to_i
       m[r] ||= []
-      inc = r + c - i
+      inc = r + c + i - j
 
       v = nil
       case step_identifier_on || 'column'

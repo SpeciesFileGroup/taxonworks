@@ -186,6 +186,12 @@ RSpec.describe SledImage, type: :model, group: :image do
       sled_image.step_identifier_on = 'column'
       expect(sled_image.send(:identifier_for, sled_image.metadata[2]) ).to eq(6)
     end
+
+    specify 'starting from non 0' do
+      sled_image.step_identifier_on = 'row'
+      sled_image.collection_object_params[:identifiers_attributes][0][:identifier] = 997
+      expect(sled_image.send(:_identifier_matrix)).to contain_exactly([997,998,999], [1000,1001,1002], [1003,1004,1005])
+    end
   end
 
   specify '#metadata (update, Array)' do
