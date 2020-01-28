@@ -1,10 +1,23 @@
 <template>
   <fieldset>
     <legend>Catalogue numbers</legend>
+    <ul class="no_bullets">
+      <li v-for="item in steps">
+        <label>
+          <input
+            type="radio"
+            name="step"
+            v-model="sledImage.step_identifier_on"
+            :value="item.value">
+          {{ item.label }}
+        </label>
+      </li>
+    </ul>
     <smart-selector
-    model="namespaces"
-    klass="CollectionObject"
-    @selected="setValue"/>
+      class="margin-medium-top"
+      model="namespaces"
+      klass="CollectionObject"
+      @selected="setValue"/>
     <p
       v-if="identifier.namespace_id"
       class="middle">
@@ -42,6 +55,14 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetIdentifier, value)
       }
+    },
+    sledImage: {
+      get () {
+        return this.$store.getters[GetterNames.GetSledImage]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSledImage, value)
+      }
     }
   },
   data () {
@@ -49,7 +70,21 @@ export default {
       tabs: [],
       lists: undefined,
       view: undefined,
-      label: undefined
+      label: undefined,
+      steps: [
+        {
+          label: 'none',
+          value: undefined
+        },
+        {
+          label: 'down -> across',
+          value: 'column'
+        },
+        {
+          label: 'across -> down',
+          value: 'row'
+        }
+      ]
     }
   },
   created () {
