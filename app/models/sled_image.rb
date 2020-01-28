@@ -196,7 +196,7 @@ class SledImage < ApplicationRecord
         if d = depiction_for(i)
           d.update_columns(
             svg_clip: svg_clip(i),
-            svg_view_box: svg_view_box(i)
+            svg_view_box: svg_view_box(i),
           )
         end
       end
@@ -215,21 +215,27 @@ class SledImage < ApplicationRecord
     metadata.count
   end
 
-  # x1, y1, y1, y2
+  # x1, y1, x2, y2
   def coordinates(section)
     [
-      section['upperCorner']['x'].to_f, section['upperCorner']['y'].to_f ,
+      section['upperCorner']['x'].to_f, section['upperCorner']['y'].to_f,
       section['lowerCorner']['x'].to_f, section['lowerCorner']['y'].to_f]
   end
 
+
   def svg_view_box(section)
+    view_box_values(section).join(' ')
+  end
+
+  # @return top left x, top left y, height, width
+  def view_box_values(section)
     x1, y1, x2, y2 = coordinates(section)
-    [x1, y1, x1 + x2, y1 + y2].join(' ')
+    [x1, y1, x2 - x1, y2 - y1]
   end
 
   def svg_clip(section)
-    x1, y1, x2, y2 = coordinates(section)
-    "<rect x=\"#{x1}\" y=\"#{y1}\" width=\"#{x1 + x2}\" height=\"#{y1 + y2}\" />"
+    x, y, h, w = view_box_values(section)
+    "<rect x=\"#{x}\" y=\"#{y}\" width=\"#{h}\" height=\"#{w}\" />"
   end
 
 end
