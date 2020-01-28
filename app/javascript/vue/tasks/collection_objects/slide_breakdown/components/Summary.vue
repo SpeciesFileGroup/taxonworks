@@ -6,13 +6,16 @@
         @click="$emit('update')"
         type="button"
         class="button normal-input button-submit margin-medium-right full_width">
-        Update
+        {{ sledImage.id ? 'Update' : 'Create' }}
       </button>
       <button
         type="button"
-        class="button normal-input button-submit full_width">
-        Update and next
+        class="button normal-input button-submit margin-medium-right full_width">
+        {{ sledImage.id ? 'Update' : 'Create' }} and next
       </button>
+      <nuke-component
+        class="inline full_width"
+        @confirm="updateSled"/>
     </div>
     {{ summary }}
   </div>
@@ -21,13 +24,33 @@
 <script>
 
 import { GetterNames } from '../store/getters/getters'
+import { ActionNames } from '../store/actions/actions'
+import { MutationNames } from '../store/mutations/mutations'
+
+import NukeComponent from './Nuke'
 
 export default {
+  components: {
+    NukeComponent
+  },
   computed: {
     summary() {
       let sled = this.$store.getters[GetterNames.GetSledImage]
       return sled['summary']
-    }
+    },
+    sledImage: {
+      get () {
+        return this.$store.getters[GetterNames.GetSledImage]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSledImage, value)
+      }
+    },
+  },
+  methods: {
+    updateSled () {
+      this.$store.dispatch(ActionNames.Nuke)
+    },
   }
 }
 </script>

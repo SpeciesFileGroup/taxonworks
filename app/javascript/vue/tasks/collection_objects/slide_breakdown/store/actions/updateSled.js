@@ -1,4 +1,4 @@
-import { UpdateSledImage } from '../../request/resource'
+import { UpdateSledImage, CreateSledImage } from '../../request/resource'
 import { MutationNames } from '../mutations/mutations'
 
 export default ({ state, commit }) => {
@@ -13,7 +13,14 @@ export default ({ state, commit }) => {
     sled_image: state.sled_image,
     collection_object: co
   }
-  UpdateSledImage(state.image.sled_image_id, data).then(response => {
-    commit(MutationNames.SetSledImage, response.body)
-  })
+  if(state.sled_image.id) {
+    UpdateSledImage(state.sled_image.id, data).then(response => {
+      commit(MutationNames.SetSledImage, response.body)
+    })
+  } else {
+    data.sled_image.image_id = state.image.id
+    CreateSledImage(data).then(response => {
+      commit(MutationNames.SetSledImage, response.body)
+    })
+  }
 }

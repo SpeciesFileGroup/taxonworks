@@ -5,6 +5,8 @@ import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
 
+import SledImage from '../const/sledImage'
+
 Vue.use(Vuex)
 
 function makeInitialState () {
@@ -19,12 +21,7 @@ function makeInitialState () {
       data_attributes_attributes: [],
       taxon_determinations_attributes: []
     },
-    sled_image: {
-      image_id: undefined,
-      metadata: undefined,
-      object_layout: undefined,
-      step_identifier_on: undefined,
-    },
+    sled_image: SledImage(),
     identifier: {
       id: undefined,
       namespace_id: undefined,
