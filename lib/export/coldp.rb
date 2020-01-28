@@ -88,6 +88,7 @@ module Export
 
     # TODO - perhaps a utilities file --
 
+    # @return [Boolean]
     def self.original_field(taxon_name)
       (taxon_name.type == 'Protonym') && taxon_name.is_original_name?
     end
