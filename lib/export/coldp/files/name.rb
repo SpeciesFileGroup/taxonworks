@@ -52,23 +52,24 @@ module Export::Coldp::Files::Name
 
   # Is never a Combination, handles original combination
   def self.add_current_combination(t, csv)
+    e = t.original_combination_elements
     csv << [
-      ::Export::Coldp.current_taxon_name_id(t), # ID
-      t.cached_original_combination,            # scientificName
-      t.cached_author_year,                     # authorship
-      t.rank,                                   # rank
-      t.ancestor_at_rank('genus')&.cached,      # genus                 #! TODO: FIX!
-      t.ancestor_at_rank('subgenus')&.cached,   # infragenericEpithet   #! TODO: FIX!
-      t.ancestor_at_rank('species')&.cached,    # specificEpithet       #! TODO: FIX!
-      t.ancestor_at_rank('subspecies')&.cached, # infraspecificEpithet  #! TODO: FIX!
-      nil,                                      # publishedInID   |
-      nil,                                      # publishedInPage |-- Decisions is that these add to Synonym table
-      nil,                                      # publishedInYear |
-      false,                                    # original
-      code_field(t),                            # code
-      nil,                                      # status https://api.catalogue.life/vocab/nomStatus
-      nil,                                      # link (probably TW public or API)
-      remarks_field(t),                         # remarks
+      ::Export::Coldp.current_taxon_name_id(t),                               # ID
+      t.cached_original_combination,                                          # scientificName
+      t.cached_author_year,                                                   # authorship
+      t.rank,                                                                 # rank
+      (e[:genus] =~ /NOT SPECIFIED/) ? nil : e[:genus]&.join(' '),            # genus
+      (e[:subgenus] =~ /NOT SPECIFIED/) ? nil : e[:subgenus]&.join(' '),      # subgenus
+      (e[:species] =~ /NOT SPECIFIED/) ? nil : e[:species]&.join(' '),        # species
+      (e[:subspecies] =~ /NOT SPECIFIED/) ? nil : e[:subspecies]&.join(' '),  # subspecies
+      nil,                                                                    # publishedInID   |
+      nil,                                                                    # publishedInPage |-- Decisions is that these add to Synonym table
+      nil,                                                                    # publishedInYear |
+      false,                                                                  # original
+      code_field(t),                                                          # code
+      nil,                                                                    # status https://api.catalogue.life/vocab/nomStatus
+      nil,                                                                    # link (probably TW public or API)
+      remarks_field(t),                                                       # remarks
     ]
   end
 

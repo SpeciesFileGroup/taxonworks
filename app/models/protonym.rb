@@ -578,7 +578,10 @@ class Protonym < TaxonName
 
     # Weird, why?
     # DD: in ICTV the species name is "Potato spindle tuber viroid", the genus name is only used for classification...
-    return e[:species] if rank_class.to_s =~ /Ictv/
+    #
+    # @proceps: then we should exclude or alter elements before we get to this point, not here, so that the renderer still works, exceptions at this point are bad
+    # and this didn't do what you think it did, it's was returning an Array of two things
+    return e[:species][1] if rank_class.to_s =~ /Ictv/
 
     p = TaxonName::COMBINATION_ELEMENTS.inject([]){|ary, r| ary.push(e[r]) }
 
