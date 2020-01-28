@@ -60,7 +60,7 @@ class SledImagesController < ApplicationController
       identifiers_attributes: [:namespace_id, :identifier, :type],
       notes_attributes: [:text],
       tags_attributes: [:id, :_destroy, :keyword_id],
-      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :value ], # not implemented
+      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :value ], # not yet implemented
       taxon_determinations_attributes: [
         :id, :_destroy, :otu_id, :year_made, :month_made, :day_made,
         roles_attributes: [

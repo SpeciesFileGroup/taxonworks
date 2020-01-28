@@ -172,7 +172,6 @@ class SledImage < ApplicationRecord
               svg_view_box: svg_view_box(i),
               sled_image_x_position: i['column'],
               sled_image_y_position: i['row']
-
             }
           ]
         )

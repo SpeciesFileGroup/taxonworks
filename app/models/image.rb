@@ -55,6 +55,10 @@ class Image < ApplicationRecord
 
   MISSING_IMAGE_PATH = '/public/images/missing.jpg'.freeze
 
+  DEFAULT_SIZES = {
+    thumb: { width: 100, height: 100 },
+    medium: { width: 300, height: 300 }
+  }.freeze
 
   has_one :sled_image, dependent: :destroy
 
@@ -68,10 +72,13 @@ class Image < ApplicationRecord
 
   # also using https://github.com/teeparham/paperclip-meta
   has_attached_file :image_file,
-    styles: {medium: ['300x300>', :jpg], thumb: ['100x100>', :png]},
-    default_url: MISSING_IMAGE_PATH,
-    filename_cleaner:  Utilities::CleanseFilename,
-    processors: [:rotator]
+    styles: {
+    thumb: [ "#{DEFAULT_SIZES[:thumb][:width]}x#{DEFAULT_SIZES[:thumb][:height]}>", :png ] ,
+    medium: [ "#{DEFAULT_SIZES[:medium][:width]}x#{DEFAULT_SIZES[:medium][:height]}>", :jpg ]
+  },
+  default_url: MISSING_IMAGE_PATH,
+  filename_cleaner: Utilities::CleanseFilename,
+  processors: [:rotator]
 
   #:restricted_characters => /[^A-Za-z0-9\.]/,
   validates_attachment_content_type :image_file, content_type: /\Aimage\/.*\Z/

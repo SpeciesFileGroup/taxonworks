@@ -2,10 +2,8 @@ module DepictionsHelper
 
   def depiction_tag(depiction, size: :thumb)
     return nil if depiction.nil?
-    # TODO: fork clipped versus not here?!
-
     if depiction.from_sled?
-      depictions_sled_tag(depiction)
+      depictions_sled_tag(depiction, size: size)
       # depiction_svg_tag(depiction)
     else
       image_tag(depiction.image.image_file.url(:thumb)) + ' ' + image_context_depiction_tag(depiction)
@@ -17,6 +15,8 @@ module DepictionsHelper
     object_link(depiction.depiction_object.metamorphosize)
   end
 
+  # !! NOT USED
+  #
   def depiction_svg_tag(depiction)
     anchor = "clip_#{depiction.id}"
     content_tag(:svg, {foo: nil, "viewBox" => depiction.svg_view_box, xmlns: "http://www.w3.org/2000/svg", 'xmlns:xlink' => "http://www.w3.org/1999/xlink"}) do
@@ -26,8 +26,8 @@ module DepictionsHelper
     end
   end
 
-  def depictions_sled_tag(depiction)
-    image_tag(depiction.sled_thumb_path) + ' ' + image_context_depiction_tag(depiction)
+  def depictions_sled_tag(depiction, size: :thumb)
+    image_tag(depiction.sled_extraction_path(size)) + ' ' + image_context_depiction_tag(depiction)
   end
 
 end
