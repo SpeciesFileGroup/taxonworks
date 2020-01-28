@@ -131,6 +131,9 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetImage, value)
       }
+    },
+    identifier () {
+      return this.$store.getters[GetterNames.GetIdentifier]
     }
   },
   data () {
@@ -152,6 +155,20 @@ export default {
           marginTop: '50px'
         }
       }
+    }
+  },
+  watch: {
+    identifier: {
+      handler(newVal) {
+        this.$refs.sled.cells = this.setIdentifiers(this.sledImage.metadata)
+      },
+      deep: true
+    },
+    sledImage: {
+      handler(newVal) {
+        this.$refs.sled.cells = this.setIdentifiers(this.sledImage.metadata)
+      },
+      deep: true
     }
   },
   mounted () {
@@ -192,16 +209,20 @@ export default {
               that.fileImage = dataUrl
               that.vlines = [0, that.image.width]
               that.hlines = [0 ,that.image.height]
-
-              GetSledImage(response.body.sled_image_id).then(response => {
-                this.sledImage = response.body
-                //cells
-                if(response.body.metadata.length) {
-                  this.setLines(response.body.metadata)
-                  this.$refs.sled.cells = response.body.metadata
-                }
-              })
-              this.isLoading = false
+              if(response.body.sled_image_id) {
+                GetSledImage(response.body.sled_image_id).then(response => {
+                  this.sledImage = response.body
+                  this.isLoading = false
+                  if(response.body.metadata.length) {
+                    this.setLines(this.setIdentifiers(response.body.metadata, response.body.summary))
+                    
+                    this.$refs.sled.cells = response.body.metadata
+                  }
+                })
+              }
+              else {
+                this.isLoading = false
+              }
             }
 
             image.src = dataUrl
@@ -228,6 +249,32 @@ export default {
       })
       this.vlines = [...new Set(xlines)]
       this.hlines = [...new Set(ylines)]
+    },
+    setIdentifiers (metadata, summary = undefined) {
+      if(summary) {
+        return metadata.map(cell => {
+          cell.textfield = summary[cell.row][cell.column].identifier
+          return cell
+        })
+      }
+      else {
+        let identifier = Number(this.identifier.identifier)
+
+        return metadata.map((cell, index) => {
+          if(this.identifier.namespace_id && this.identifier.identifier) {
+            let c = cell.column
+            let r = cell.row
+
+            let inc = r + c + identifier
+            cell.textfield = (
+              this.sledImage.step_identifier_on == 'row' ? 
+              `${this.identifier.label} ${(r * (this.vlines.length-2)) + inc}` : 
+              `${this.identifier.label} ${(c * (this.hlines.length-2)) + inc}`
+            )
+          }
+          return cell
+        })
+      }
     }
   }
 }

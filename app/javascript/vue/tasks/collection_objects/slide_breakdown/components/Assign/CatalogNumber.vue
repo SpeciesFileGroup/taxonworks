@@ -23,7 +23,7 @@
       class="middle">
       <span
         class="margin-small-right"
-        v-html="label"/>
+        v-html="identifier.label"/>
       <span
         class="button-circle button-default btn-undo"
         @click="resetIdentifier"/>
@@ -70,7 +70,6 @@ export default {
       tabs: [],
       lists: undefined,
       view: undefined,
-      label: undefined,
       steps: [
         {
           label: 'none',
@@ -93,13 +92,13 @@ export default {
   methods: {
     setValue(value) {
       this.identifier.namespace_id = value.id
-      this.label = value.name
+      this.identifier.label = value.name
     },
     resetIdentifier () {
-      this.label = undefined
       this.identifier = {
         id: undefined,
         identifier: undefined,
+        label: undefined,
         namespace_id: undefined,
         type: "Identifier::Local::CatalogNumber",
         identifier_object_id: undefined,

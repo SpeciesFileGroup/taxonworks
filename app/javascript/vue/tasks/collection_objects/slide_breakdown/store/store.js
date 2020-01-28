@@ -25,6 +25,7 @@ function makeInitialState () {
     identifier: {
       id: undefined,
       namespace_id: undefined,
+      label: undefined,
       identifier: undefined,
       type: "Identifier::Local::CatalogNumber",
       identifier_object_id: undefined,
