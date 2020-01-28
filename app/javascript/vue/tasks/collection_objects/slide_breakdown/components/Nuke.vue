@@ -2,6 +2,7 @@
   <div>
     <button
       type="button"
+      :disabled="disabled"
       class="button normal-input button-delete full_width"
       @click="showModal = true">Nuke
     </button>
@@ -39,6 +40,12 @@ import ModalComponent from 'components/modal.vue'
 export default {
   components: {
     ModalComponent
+  },
+  props: {
+    disabled: {
+      type: Boolean,
+      default: false
+    }
   },
   computed: {
     checkInput () {

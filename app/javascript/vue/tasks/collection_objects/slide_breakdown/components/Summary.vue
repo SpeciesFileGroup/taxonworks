@@ -14,6 +14,7 @@
         {{ sledImage.id ? 'Update' : 'Create' }} and next
       </button>
       <nuke-component
+        :disabled="!sledImage.id"
         class="inline full_width"
         @confirm="updateSled"/>
     </div>
