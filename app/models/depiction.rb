@@ -73,7 +73,7 @@ class Depiction < ApplicationRecord
     box_height = Image::DEFAULT_SIZES[size][:height]
 
     if from_sled?
-      x, y, h, w = svg_view_box.split(' ')
+      x, y, w, h = svg_view_box.split(' ')
       "#{image_id}/scale_to_box/#{x.to_i}/#{y.to_i}/#{w.to_i}/#{h.to_i}/#{box_width}/#{box_height}"
     else
       raise 'This is not a sled derived depiction'
