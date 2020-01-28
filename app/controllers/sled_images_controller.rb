@@ -1,5 +1,5 @@
 class SledImagesController < ApplicationController
-  before_action :set_sled_image, only: [:update, :create, :destroy, :show]
+  before_action :set_sled_image, only: [:update, :destroy, :show]
 
   def show
   end
