@@ -14,7 +14,7 @@
 # remarks
 #
 module Export::Coldp::Files::Taxon
- 
+
   # return [Boolean, nil]
   #  TODO - reason in TW this is provision
   def self.provisional(otu)
@@ -22,15 +22,15 @@ module Export::Coldp::Files::Taxon
     # incertae sedis
     # unresolved homonym, without replacement
     #
-    #    
+    #
     #
     # * if two OTUs for same name are in OTU set then both have to be provisional
     # * missaplication (?)
-    nil 
+    nil
   end
 
   # AttributionEditor
-  #    * crawl attribution for inference on higher/lower 
+  #    * crawl attribution for inference on higher/lower
   #    * UI/methods to assign/spam/visualize throught
   #    * project preference (!! should project preferences has reference ids? !!)
   # according to is the curator responsible for this OTU, comma delimited list of curators
@@ -44,13 +44,13 @@ module Export::Coldp::Files::Taxon
     nil
   end
 
-  # Potentially reference 
-  #    Confidence level 
+  # Potentially reference
+  #    Confidence level
   #       confidence_validated_at (last time this confidence level was deemed OK)
   def self.according_to_date(otu)
     # a) Dynamic - !! most recent update_at stamp for *any* OTU tied data -> this is a big grind: if so add cached_touched_on_date to Otu
     # b) modify Confidence level to include date
-    # c) review what SFs does in their model 
+    # c) review what SFs does in their model
     nil
   end
 
@@ -73,8 +73,8 @@ module Export::Coldp::Files::Taxon
   def self.extinct(otu)
   end
 
-  # Derive from a default Predicate 
-  #   when predicate created create URI to 
+  # Derive from a default Predicate
+  #   when predicate created create URI to
   #      http://api.col.plus/vocab/lifezone
   def self.lifezone(otu)
     # http://api.col.plus/vocab/lifezone
@@ -90,7 +90,7 @@ module Export::Coldp::Files::Taxon
     otu.notes.pluck(:text).join('|')
   end
 
-  # "supporting the taxonomic concept" 
+  # "supporting the taxonomic concept"
   # Potentially- all other Citations tied to Otu, what exactly supports a concept?
   def self.reference_id(sources)
     i = sources.pluck(:id)
@@ -98,7 +98,7 @@ module Export::Coldp::Files::Taxon
     nil
   end
 
-  def self.generate(otus, reference_csv = nil )
+  def self.generate(otus, root_otu_id = nil, reference_csv = nil )
     # TODO tabs delimit
     CSV.generate(col_sep: "\t") do |csv|
 
@@ -117,16 +117,18 @@ module Export::Coldp::Files::Taxon
         lifezone
         link
         remarks
-      } 
+      }
 
       otus.each do |o|
         next unless o.taxon_name && o.taxon_name.is_valid?
         # TODO: Use Otu.coordinate_otus to summarize accros different instances
-        sources = o.sources 
-        
+        sources = o.sources
+
+        parent_id = (root_otu_id == o.id ? nil : (o.parent_otu || nil)&.id )
+
         csv << [
           o.id,                      # ID
-          (o.parent_otu || nil)&.id, # parentID
+          parent_id, # parentID
           o.taxon_name&.id,          # nameID
           provisional(o),            # provisional
           according_to(o),           # accordingTo

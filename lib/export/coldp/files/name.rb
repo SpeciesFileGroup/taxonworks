@@ -33,7 +33,6 @@ module Export::Coldp::Files::Name
   # @return Boolean
   #    true if original combination of the protonym
 
-
   def self.authorship_field(taxon_name, original)
     original ? taxon_name.original_author_year : taxon_name.cached_author_year
   end
@@ -95,7 +94,7 @@ module Export::Coldp::Files::Name
         remarks
       }
 
-      otu.taxon_name.descendants.each do |t|
+      otu.taxon_name.self_and_descendants.each do |t|
         source = t.source # published_in_id_field
 
         original = Export::Coldp.original_field(t)
