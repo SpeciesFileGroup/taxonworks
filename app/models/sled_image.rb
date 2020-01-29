@@ -88,6 +88,10 @@ class SledImage < ApplicationRecord
     depictions.where(sled_image_x_position: x, sled_image_y_position: y).first
   end
 
+  def step_identifier_on
+    @step_identifier_on ||= 'column'
+  end
+
   private
 
   def destroy_related
@@ -124,24 +128,59 @@ class SledImage < ApplicationRecord
     @_identifier_matrix ||= get_identifier_matrix
   end
 
-  def get_identifier_matrix
-    m = []
-    i = _first_identifier
-
-    j = 0
+  def identity_matrix
+    i = []
     metadata.each do |s|
-      if !s['metadata'].blank?
-        j += 1
-        next
+      r = s['row'].to_i
+      c = s['column'].to_i
+      i[r] ||= []
+      i[r][c] = s['metadata'].blank? ? 0 : 1
+    end
+    i
+  end
+
+  def increment_matrix
+    i = []
+    j = identity_matrix
+    k = 0
+    case step_identifier_on
+    when 'row'
+      (0.._row_total).each do |r|
+        (0.._column_total).each do |c|
+          k += j[r][c]
+          i[r] ||= []
+          i[r][c] = (j[r][c] == 1 ? 0 : k)
+        end
       end
 
-      c = s['column'].to_i
-      r = s['row'].to_i
-      m[r] ||= []
-      inc = r + c + i - j
+    when 'column'
+      (0.._column_total).each do |c|
+        (0.._row_total).each do |r|
+          k += j[r][c]
+          i[r] ||= []
+          i[r][c] = (j[r][c] == 1 ? 0 : k)
+        end
+      end
+    end
+    i
+  end
 
+  def get_identifier_matrix
+    @step_identifier_on ||= 'column'
+    i = increment_matrix
+
+    m = []
+
+    metadata.each do |s|
+      r = s['row'].to_i
+      c = s['column'].to_i
+      m[r] ||= []
+      m[r][c] = nil if !s['metadata'].blank?
+      next if !s['metadata'].blank?
+
+      inc = r + c - i[r][c] + _first_identifier
       v = nil
-      case step_identifier_on || 'column'
+      case step_identifier_on
       when 'row'
         v = (r * _column_total) + inc
       when 'column'

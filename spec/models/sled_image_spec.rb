@@ -74,7 +74,7 @@ RSpec.describe SledImage, type: :model, group: :image do
   let(:namespace) { FactoryBot.create(:valid_namespace) }
   let(:keyword) { FactoryBot.create(:valid_keyword) }
 
-  let(:collection_object_params) { 
+  let(:collection_object_params) {
     {
       total: 1,
       identifiers_attributes: [ {identifier: 0, type: 'Identifier::Local::CatalogNumber', namespace_id: namespace.id} ] ,
@@ -170,11 +170,26 @@ RSpec.describe SledImage, type: :model, group: :image do
       expect(sled_image.send(:_identifier_matrix)).to contain_exactly([0,3,6], [1,4,7], [2,5,8])
     end
 
-    specify 'by column, gaps' do
+    specify 'by column, gaps 1' do
       sled_image.step_identifier_on = 'column'
       sled_image.metadata[0]['metadata'] = 'foo'
       sled_image.metadata[8]['metadata'] = 'foo'
-      expect(sled_image.send(:_identifier_matrix)).to contain_exactly([nil,2,5], [0,3,6], [1,4])
+      expect(sled_image.send(:_identifier_matrix)).to contain_exactly([nil,2,5], [0,3,6], [1,4, nil])
+    end
+
+    specify 'by column, gaps 2' do
+      sled_image.step_identifier_on = 'column'
+      sled_image.metadata[1]['metadata'] = 'foo'
+      sled_image.metadata[4]['metadata'] = 'foo'
+
+      expect(sled_image.send(:_identifier_matrix)).to contain_exactly([0,nil,4], [1,nil,5], [2,3,6])
+    end
+
+    specify 'by row, gaps 2' do
+      sled_image.step_identifier_on = 'row'
+      sled_image.metadata[3]['metadata'] = 'foo'
+      sled_image.metadata[4]['metadata'] = 'foo'
+      expect(sled_image.send(:_identifier_matrix)).to contain_exactly([0,1,2], [nil,nil, 3], [4,5,6])
     end
 
     specify '#identifier_for 1' do
