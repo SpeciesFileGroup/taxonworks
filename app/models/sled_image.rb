@@ -166,7 +166,6 @@ class SledImage < ApplicationRecord
   end
 
   def get_identifier_matrix
-    @step_identifier_on ||= 'column'
     i = increment_matrix
 
     m = []
