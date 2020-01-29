@@ -250,6 +250,35 @@ export default {
       this.vlines = [...new Set(xlines)]
       this.hlines = [...new Set(ylines)]
     },
+    convertToMatrix(metadata) {
+      let i = []
+
+      metadata.forEach(cell => {
+        let r = cell.row
+        let c = cell.column
+        if(!i[r]) { i[r] = []}
+        i[r][c] = cell.metadata != null ? 0 : 1
+      })
+      return i
+    },
+    metadataCount (matrix, c, r) {
+      let inc = 0
+      for(let i = 0; i <= c; i++) {
+        for(let j = 0; j <= matrix.length-1; j++) {
+          if(i == c) {
+            if(matrix[j][i] == 0 && j <= r) {
+              inc++
+            }
+          }
+          else {
+            if(matrix[j][i] == 0) {
+              inc++
+            }
+          }
+        }
+      }
+      return inc
+    },
     setIdentifiers (metadata, summary = undefined) {
       if(summary) {
         return metadata.map(cell => {
@@ -259,18 +288,18 @@ export default {
       }
       else {
         let identifier = Number(this.identifier.identifier)
-
+        let matrix = this.convertToMatrix(metadata)
         return metadata.map((cell, index) => {
           if(this.identifier.namespace_id && this.identifier.identifier) {
-            let c = cell.column
-            let r = cell.row
+              let c = cell.column
+              let r = cell.row
+              let inc = r + c + identifier
 
-            let inc = r + c + identifier
-            cell.textfield = (
-              this.sledImage.step_identifier_on == 'row' ? 
-              `${this.identifier.label} ${(r * (this.vlines.length-2)) + inc}` : 
-              `${this.identifier.label} ${(c * (this.hlines.length-2)) + inc}`
-            )
+              cell.textfield = (
+                this.sledImage.step_identifier_on == 'row' ? 
+                `${this.identifier.label} ${(r * (this.vlines.length-2)) + inc}` : 
+                `${this.identifier.label} ${(c * (this.hlines.length-2)) + inc - this.metadataCount(matrix, c, r)}`
+              )
           }
           return cell
         })
