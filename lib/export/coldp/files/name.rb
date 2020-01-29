@@ -1,4 +1,4 @@
-# See 
+# See
 # * https://api.catalogue.life/vocab/rank
 # * https://github.com/SpeciesFileGroup/taxonworks/issues/1040
 module Export::Coldp::Files::Name
@@ -12,7 +12,7 @@ module Export::Coldp::Files::Name
       'ICN'
     when :icnp
       'ICNP'
-    when :ictv 
+    when :ictv
       'ICVCN' # doublecheck
     end
   end
@@ -33,7 +33,6 @@ module Export::Coldp::Files::Name
   # @return Boolean
   #    true if original combination of the protonym
 
-
   def self.authorship_field(taxon_name, original)
     original ? taxon_name.original_author_year : taxon_name.cached_author_year
   end
@@ -46,31 +45,32 @@ module Export::Coldp::Files::Name
     case taxon_name.type
     when 'Combination'
       'chresonym'
-    else 
+    else
       nil
-    end 
+    end
   end
 
-  # Is never a Combination
+  # Is never a Combination, handles original combination
   def self.add_current_combination(t, csv)
+    e = t.original_combination_elements
     csv << [
-      ::Export::Coldp.current_taxon_name_id(t), # ID
-      t.cached_original_combination,            # scientificName
-      t.cached_author_year,                     # authorship
-      t.rank,                                   # rank 
-      t.ancestor_at_rank('genus')&.cached,      # genus
-      t.ancestor_at_rank('subgenus')&.cached,   # infragenericEpithet
-      t.ancestor_at_rank('species')&.cached,    # specificEpithet 
-      t.ancestor_at_rank('subspecies')&.cached, # infraspecificEpithet
-      nil,                                      # publishedInID   |
-      nil,                                      # publishedInPage |-- Decisions is that these add to Synonym table
-      nil,                                      # publishedInYear |
-      false,                                    # original 
-      code_field(t),                            # code 
-      nil,                                      # status https://api.catalogue.life/vocab/nomStatus
-      nil,                                      # link (probably TW public or API)
-      remarks_field(t),                         # remarks
-    ] 
+      ::Export::Coldp.current_taxon_name_id(t),                               # ID
+      t.cached_original_combination,                                          # scientificName
+      t.cached_author_year,                                                   # authorship
+      t.rank,                                                                 # rank
+      (e[:genus] =~ /NOT SPECIFIED/) ? nil : e[:genus]&.join(' '),            # genus
+      (e[:subgenus] =~ /NOT SPECIFIED/) ? nil : e[:subgenus]&.join(' '),      # subgenus
+      (e[:species] =~ /NOT SPECIFIED/) ? nil : e[:species]&.join(' '),        # species
+      (e[:subspecies] =~ /NOT SPECIFIED/) ? nil : e[:subspecies]&.join(' '),  # subspecies
+      nil,                                                                    # publishedInID   |
+      nil,                                                                    # publishedInPage |-- Decisions is that these add to Synonym table
+      nil,                                                                    # publishedInYear |
+      false,                                                                  # original
+      code_field(t),                                                          # code
+      nil,                                                                    # status https://api.catalogue.life/vocab/nomStatus
+      nil,                                                                    # link (probably TW public or API)
+      remarks_field(t),                                                       # remarks
+    ]
   end
 
   def self.generate(otu, reference_csv = nil)
@@ -83,7 +83,7 @@ module Export::Coldp::Files::Name
         rank
         genus
         infragenericEpithet
-        specificEpithet 
+        specificEpithet
         infraspecificEpithet
         publishedInID
         publishedInPage
@@ -95,7 +95,7 @@ module Export::Coldp::Files::Name
         remarks
       }
 
-      otu.taxon_name.descendants.each do |t|
+      otu.taxon_name.self_and_descendants.each do |t|
         source = t.source # published_in_id_field
 
         original = Export::Coldp.original_field(t)
@@ -104,22 +104,22 @@ module Export::Coldp::Files::Name
           t.id,                                      # ID
           t.cached,                                  # scientificName
           authorship_field(t, original),             # authorship
-          t.rank,                                    # rank 
+          t.rank,                                    # rank
           t.ancestor_at_rank('genus')&.cached,       # genus
           t.ancestor_at_rank('subgenus')&.cached,    # infragenericEpithet
-          t.ancestor_at_rank('species')&.cached,     # specificEpithet 
+          t.ancestor_at_rank('species')&.cached,     # specificEpithet
           t.ancestor_at_rank('subspecies')&.cached,  # infraspecificEpithet
           source&.id,                                # publishedInID
           source&.pages,                             # publishedInPage
           t.year_of_publication,                     # publishedInYear
-          original,                                  # original 
-          code_field(t),                             # code 
+          original,                                  # original
+          code_field(t),                             # code
           nom_status_field(t),                       # nomStatus
           nil,                                       # link (probably TW public or API)
           remarks_field(t),                          # remarks
-        ] 
+        ]
 
-        add_current_combination(t, csv) if !original
+        add_current_combination(t, csv) if !original && !t.cached_original_combination.blank?
 
         Export::Coldp::Files::Reference.add_reference_rows([source].compact, reference_csv) if reference_csv
       end

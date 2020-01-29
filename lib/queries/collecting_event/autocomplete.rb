@@ -15,6 +15,12 @@ module Queries
         ::CollectingEvent.select('collecting_events.*')
       end
 
+      def autocomplete_verbatim_label_md5
+        return nil if query_string.length < 4
+        md5 = Utilities::Strings.generate_md5(query_string) 
+        base_query.where( table[:md5_of_verbatim_label].eq(md5)).limit(3)
+      end
+
       def autocomplete_matching_collectors
         return nil if no_terms?
         matching_person_cached(:collector).limit(20)
@@ -74,10 +80,10 @@ module Queries
       def autocomplete
         queries = [
           autocomplete_exact_id,
-          autocomplete_identifier_cached_exact,
+          autocomplete_verbatim_label_md5,
           autocomplete_identifier_identifier_exact,
+          autocomplete_identifier_cached_exact,
           autocomplete_identifier_cached_like.limit(4),
-
           autocomplete_verbatim_trip_identifier_match,
           autocomplete_start_or_end_date,
           autocomplete_start_date_wild_card(:verbatim_locality), 
@@ -89,7 +95,7 @@ module Queries
           autocomplete_verbatim_habitat,
           autocomplete_verbatim_locality_wildcard_end,
           autocomplete_verbatim_locality_wildcard_end_starting_year,
-
+          
           autocomplete_cached_wildcard_anywhere,
         ]
 

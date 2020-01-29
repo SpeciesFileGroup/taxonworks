@@ -47,8 +47,8 @@
         </div>
 
         <div class="navigation-controls">
-          <%= link_to('Previous', browse_collecting_events_task_path( collecting_event_id: previous_object(@collecting_event) ),class: 'navigation-item') -%>
-          <%= link_to('Next', browse_collecting_events_task_path( collecting_event_id: next_object(@collecting_event) ), class: 'navigation-item') -%>
+          <%= link_to('Previous', browse_collecting_events_task_path( collecting_event_id: @collecting_event.previous ),class: 'navigation-item') -%>
+          <%= link_to('Next', browse_collecting_events_task_path( collecting_event_id: @collecting_event.next ), class: 'navigation-item') -%>
         </div>
 
         <div class="navigation-controls">

@@ -19,6 +19,7 @@ end
 
 scope :metadata, controller: 'metadata', only: [:index] do
   get 'object_radial/', action: :object_radial, defaults: {format: :json}
+  get 'object_navigation/:global_id', action: :object_navigation, defaults: {format: :json}
   get '(/:klass)', action: :index, defaults: {format: :json}
 end
 
