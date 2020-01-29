@@ -13,6 +13,22 @@ describe 'New taxon name', type: :feature, group: :sources do
         fill_in "title", with: 'Qurious'
         click_button 'Save'
       end
+
+      context 'serials' do
+        let!(:serial) { Serial.create!(name: 'Journal stuff and things', by: @user) }
+
+
+        specify 'add a record' do
+          select "article", :from => "type"
+          fill_in "title", with: 'Qurious'
+          fill_in "serials-autocomplete", with: "Journal stuff and things"
+          find('li', text: 'Journal stuff and things').hover.click 
+          click_button 'Save'
+          expect(page).to_not have_text('New record')
+          expect(page).to have_text('Remove from project')
+        end
+      end
+
     end
   end
 end

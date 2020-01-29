@@ -86,7 +86,7 @@ class SequenceRelationshipsController < ApplicationController
 
   def preview_primers_batch_load
     if params[:file]
-      @result = BatchLoad::Import::SequenceRelationships::PrimersInterpreter.new(batch_params)
+      @result = BatchLoad::Import::SequenceRelationships::PrimersInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :Primers_sequences_md5)
       render 'sequence_relationships/batch_load/primers/preview'
     else
@@ -97,7 +97,7 @@ class SequenceRelationshipsController < ApplicationController
 
   def create_primers_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Primers_sequences_md5)
-      @result = BatchLoad::Import::SequenceRelationships::PrimersInterpreter.new(batch_params)
+      @result = BatchLoad::Import::SequenceRelationships::PrimersInterpreter.new(**batch_params)
       if @result.create!
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} " \
                             'sequence relationships were created.'
@@ -112,12 +112,11 @@ class SequenceRelationshipsController < ApplicationController
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
+
   def set_sequence_relationship
-    @sequence_relationship = SequenceRelationship.find(params[:id])
+    @sequence_relationship = SequenceRelationship.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def sequence_relationship_params
     params.require(:sequence_relationship).permit(:subject_sequence_id, :type,
                                                   :object_sequence_id, :created_by_id, :updated_by_id, :project_id)

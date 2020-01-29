@@ -17,7 +17,7 @@
           v-for="item in list"
           :key="item.id"
           class="list-complete-item">
-          <td v-html="item.biological_relationship.name"/>
+          <td v-html="item.biological_association_object_id === metadata.object_id ? item.biological_relationship.inverted_name : item.biological_relationship.name"/>
           <td v-html="getSubjectOrObject(item)"/>
           <td>{{ item.biological_association_object_id === metadata.object_id }}</td>
           <td v-html="getCitationString(item)"/>

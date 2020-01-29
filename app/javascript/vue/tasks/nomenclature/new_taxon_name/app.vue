@@ -44,7 +44,7 @@
           </div>
           <div
             class="new-taxon-name-block"
-            v-if="showForThisGroup(['GenusGroup'], getTaxon)">
+            v-if="showForThisGroup(['GenusGroup', 'FamilyGroup'], getTaxon)">
             <spinner
               :show-spinner="false"
               :show-legend="false"

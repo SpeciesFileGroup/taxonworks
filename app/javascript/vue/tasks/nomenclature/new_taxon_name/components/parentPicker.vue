@@ -2,7 +2,7 @@
   <div>
     <div class="horizontal-left-content">
       <autocomplete
-        id="parent-name"
+        input-id="parent-name"
         url="/taxon_names/autocomplete"
         label="label_html"
         min="2"
@@ -113,7 +113,7 @@ export default {
     },
     parent(newVal) {
       if(newVal && newVal.id != newVal.cached_valid_taxon_name_id) {
-        this.$http.get(`/taxon_names/${newVal.cached_valid_taxon_name_id}`).then(response => {
+        this.$http.get(`/taxon_names/${newVal.cached_valid_taxon_name_id}.json`).then(response => {
           this.validParent = response.body
         })
       }
@@ -132,7 +132,7 @@ export default {
     },
     parentSelected(id, saveToo = false) {
       this.$store.commit(MutationNames.SetParentId, id)
-      this.$http.get(`/taxon_names/${id}`).then(response => {
+      this.$http.get(`/taxon_names/${id}.json`).then(response => {
         if (response.body.parent_id != null) {
           this.$store.commit(MutationNames.SetNomenclaturalCode, response.body.nomenclatural_code)
           this.setParentRank(response.body)

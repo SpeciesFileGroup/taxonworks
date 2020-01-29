@@ -4,5 +4,3 @@ shared_examples 'is_data' do
     expect(described_class.ancestors.map(&:name).include?('Shared::IsData')).to be true
   end
 end
-
-

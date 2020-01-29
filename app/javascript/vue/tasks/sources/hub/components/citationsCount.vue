@@ -1,7 +1,7 @@
 <template>
   <a
     class="citation-count"
-    :href="`/tasks/nomenclature/by_source/${sourceId}`">
+    :href="`/tasks/nomenclature/by_source?source_id=${sourceId}`">
     <span class="button-data circle-button btn-citation">
       <span class="circle-count button-default middle">{{ citations.length }} </span>
     </span>

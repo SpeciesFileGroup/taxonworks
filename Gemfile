@@ -86,6 +86,7 @@ gem 'best_in_place', '~> 3.1.1'
 gem 'redcarpet', '~> 3.4'
 gem 'sassc-rails', '~> 2.1.0'
 gem 'waxy', '~> 0.1'
+gem 'rgb'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '0.4.0'
@@ -104,6 +105,9 @@ gem 'logical_query_parser'
 gem 'logic_tools'
 gem 'chunky_png', '~> 1.3.11'
 gem 'namecase', '~> 2.0'
+
+# www 
+gem 'wikidata-client', '~> 0.0.12', require: 'wikidata' 
 
 group :test, :development do
   gem 'faker', '~> 2.7'

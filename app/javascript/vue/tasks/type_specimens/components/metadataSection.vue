@@ -42,7 +42,13 @@
             min="2"
             placeholder="Select a source"
             @getItem="citation.source_id = $event.id; showSource = $event.label_html"/>
+          <default-pinned
+            section="Sources"
+            type="Source"
+            @getLabel="showSource = $event"
+            @getId="citation.source_id = $event"/>
           <input
+            class="separate-left"
             type="text"
             v-model="citation.pages"
             placeholder="Pages">
@@ -74,6 +80,7 @@
 import Expand from './expand.vue'
 import Autocomplete from 'components/autocomplete.vue'
 import Spinner from 'components/spinner.vue'
+import DefaultPinned from 'components/getDefaultPin'
 
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
@@ -83,7 +90,8 @@ export default {
   components: {
     Autocomplete,
     Spinner,
-    Expand
+    Expand,
+    DefaultPinned
   },
   computed: {
     citation: {

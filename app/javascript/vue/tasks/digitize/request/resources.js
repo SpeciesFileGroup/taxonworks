@@ -47,7 +47,7 @@ const GetIdentifiersFromCO = function (id) {
 }
 
 const GetLabelsFromCE = function (id) {
-  return ajaxCall('get', `/labels?label_object_id=${id}&label_object_type=CollectingEvent`)
+  return ajaxCall('get', `/labels.json?label_object_id=${id}&label_object_type=CollectingEvent`)
 }
 
 const GetRecentCollectionObjects = function () {
@@ -116,6 +116,10 @@ const GetOtu = function (id) {
 
 const GetGeographicAreaByCoords = function (lat,long) {
   return ajaxCall('get', `/geographic_areas/by_lat_long?latitude=${lat}&longitude=${long}`)
+}
+
+const GetGeographicArea = function (id) {
+  return ajaxCall('get', `/geographic_areas/${id}.json`)
 }
 
 const GetTypes = function () {
@@ -369,5 +373,6 @@ export {
   CreateContainer,
   CreateContainerItem,
   GetContainer,
-  GetNamespacesSmartSelector
+  GetNamespacesSmartSelector,
+  GetGeographicArea
 }

@@ -19,7 +19,7 @@
             <lock-component v-model="locked.identifier"/>
           </div>
           <autocomplete
-            id="namespace-autocomplete"
+            input-id="namespace-autocomplete"
             v-show="view == 'search'"
             class="separate-right"
             url="/namespaces/autocomplete"

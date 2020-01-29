@@ -20,4 +20,11 @@ describe 'Exception notification', type: :feature do
     expect(ActionMailer::Base.deliveries.last.body).to match(/:project_id=>\d+, :project_name=>"My Project"/)
   end
 
+  it 'includes a link to GitHub when REVISION is available' do
+    sign_in_user_and_select_project
+    allow(TaxonworksNet).to receive(:commit_sha).and_return("badc0de")
+    (visit crash_test_path) rescue nil
+    expect(ActionMailer::Base.deliveries.last.body).to include("https://github.com/SpeciesFileGroup/taxonworks/blob/badc0de/app/controllers/crash_test_controller.rb#L4")
+  end
+
 end

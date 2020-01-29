@@ -93,13 +93,14 @@ module BatchLoad
     # @return [CSV, nil]
     def csv
       begin
-        @csv ||= CSV.parse(@file.tempfile.read.force_encoding('utf-8'), {
+        @csv ||= CSV.parse(
+          @file.tempfile.read.force_encoding('utf-8'),
           headers: true,
           header_converters: [:downcase,
                               lambda { |h| h.strip },
                               lambda { |h| user_map(h) }],
-        col_sep: "\t",
-        encoding: 'UTF-8'})
+          col_sep: "\t",
+          encoding: 'UTF-8')
 
         #  rescue Encoding::UndefinedConversionError => e
 

@@ -33,6 +33,12 @@
             @click="setActualDateForStart">
             Now
           </button>
+          <button
+            type="button"
+            class="button normal-input button-default"
+            @click="cloneDate">
+            Clone
+          </button>
         </div>
       </div>
     </div>
@@ -142,7 +148,13 @@ export default {
       this.endDay = today.getDate()
       this.endMonth = today.getMonth() + 1
       this.endYear = today.getFullYear()
-    }
+    },
+    cloneDate() {
+      let today = new Date()
+      this.endDay = this.startDay
+      this.endMonth = this.startMonth
+      this.endYear = this.startYear
+    },    
   }
 }
 </script>

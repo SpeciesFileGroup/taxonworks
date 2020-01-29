@@ -31,7 +31,7 @@
         })
       },
       setOtu(item) {
-        this.$http.get(`/otus/${item.citation_object_id}`).then(response => {
+        this.$http.get(`/otus/${item.citation_object_id}.json`).then(response => {
           this.$store.commit(MutationNames.SetOtuSelected, response.body)
         })
       }

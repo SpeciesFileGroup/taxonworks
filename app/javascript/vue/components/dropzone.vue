@@ -54,6 +54,10 @@
       headers: {
         type: Object
       },
+      timeout: {
+        type: Number,
+        default: 0
+      },
       language: {
         type: Object,
         default: function () {
@@ -126,6 +130,7 @@
       if (!this.useCustomDropzoneOptions) {
         this.dropzone = new Dropzone(element, {
           clickable: this.clickable,
+          timeout: this.timeout,
           thumbnailWidth: this.thumbnailWidth,
           thumbnailHeight: this.thumbnailHeight,
           maxFiles: this.maxNumberOfFiles,

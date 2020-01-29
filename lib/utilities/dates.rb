@@ -3,7 +3,7 @@
 #  - use && not `and` ?
 module Utilities::Dates
 
-  EARLIEST_DATE = '1700/01/10'.freeze # Reconcile with in-app 
+  EARLIEST_DATE = '1700/01/10'.freeze # Reconcile with in-app
 
   LONG_MONTHS = %w{january february march april may june july august september october november december}.freeze
   SHORT_MONTHS = %w{jan feb mar apr may jun jul aug sep oct nov dec}.freeze
@@ -56,7 +56,6 @@ module Utilities::Dates
         end
       end
     end
-
 
   REGEXP_DATES = {
       month_dd_yyyy_2: {reg: /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]\s?(\d\d?)[\.;,]?[\s\.,\/](\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})\s?[-\u2013\/]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]\s?(\d\d?)[\.;,]?[\s,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
@@ -174,10 +173,10 @@ module Utilities::Dates
   #   not available parts with '?'
   def self.from_parts(y, m, d)
     return '????/??/??' if y.nil? && m.nil? && d.nil?
-    [y ? "#{y}" : '????', 
+    [y ? "#{y}" : '????',
      m ? "#{'%02d' % m}" : '??',
      d ? "#{'%02d' % d}" : '??'
-    ].join('/') 
+    ].join('/')
   end
 
   # @params [year: integer]
@@ -225,9 +224,10 @@ module Utilities::Dates
     st_m = (!st_month.blank? and st_year.blank?)
     st_y = (st_month.blank? and !st_year.blank?)
     st_blank = (st_year.blank? and st_month.blank? and st_day.blank?)
-    st_full = (!st_year.blank? and !st_month.blank? and !st_day.blank?)
-    st_partial = (!st_blank and (st_year.blank? or st_month.blank? or st_day.blank?))
-    start_time = fix_time(st_year, st_month, st_day) if st_full
+    # st_full = (!st_year.blank? and !st_month.blank? and !st_day.blank?)
+
+    # st_partial = (!st_blank and (st_year.blank? or st_month.blank? or st_day.blank?))
+    # start_time = fix_time(st_year, st_month, st_day) if st_full
 
     # processing end date data
     end_year, end_month, end_day = params['end_date_year'], params['end_date_month'], params['end_date_day']
@@ -239,9 +239,10 @@ module Utilities::Dates
     end_m = (!end_month.blank? and end_year.blank?)
     end_y = (end_month.blank? and !end_year.blank?)
     end_blank = (end_year.blank? and end_month.blank? and end_day.blank?)
-    end_full = (!end_year.blank? and !end_month.blank? and !end_day.blank?)
-    end_partial = (!end_blank and (end_year.blank? or end_month.blank? or end_day.blank?))
-    end_time = fix_time(end_year, end_month, end_day) if end_full
+
+    # end_full = (!end_year.blank? and !end_month.blank? and !end_day.blank?)
+    # end_partial = (!end_blank and (end_year.blank? or end_month.blank? or end_day.blank?))
+    # end_time = fix_time(end_year, end_month, end_day) if end_full
 
     sql_string = ''
     # if all the date information is blank, skip the date testing
@@ -286,7 +287,7 @@ module Utilities::Dates
     end
     sql_string
   end
-  
+
   # Pass integers
   # @param [Integer] hour
   # @param [Integer] minute
@@ -300,7 +301,7 @@ module Utilities::Dates
     [h, m, s].compact.join(':')
   end
 
-  private_class_method
+  private
 
   # @param [String] sql
   # @param [Integer] st_year
@@ -371,7 +372,7 @@ module Utilities::Dates
 
   # @return [String]
   def self.today
-    Time.zone.today.strftime('%Y-%m-%d') 
+    Time.zone.today.strftime('%Y-%m-%d')
   end
 
   # @param [Array] label of strings
@@ -439,8 +440,6 @@ module Utilities::Dates
   def self.hunt_dates(label, filters = REGEXP_DATES.keys)
     trials = {}
     filters.each_with_index {|kee, dex|
-      # filters.each_with_index { |kee, dex|
-      kee_string = kee.to_s.upcase
       trials[kee] = {}
       matches = label.to_enum(:scan, REGEXP_DATES[kee][:reg]).map {Regexp.last_match}
       unless matches.blank?

@@ -95,7 +95,7 @@ class BiologicalAssociationsGraphsController < ApplicationController
   private
   
   def set_biological_associations_graph
-    @biological_associations_graph = BiologicalAssociationsGraph.find(params[:id])
+    @biological_associations_graph = BiologicalAssociationsGraph.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def biological_associations_graph_params

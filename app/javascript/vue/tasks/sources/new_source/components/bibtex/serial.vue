@@ -4,6 +4,7 @@
       <fieldset class="full_width">
         <legend>Serial</legend>
         <smart-selector
+          input-id="serials-autocomplete"
           model="serials"
           klass="source"
           label="name"
@@ -82,7 +83,7 @@ export default {
       handler(newVal, oldVal) {
         if(newVal && newVal.serial_id) {
           if(!oldVal || oldVal.serial_id != newVal.serial_id) {
-            AjaxCall('get', `/serials/${newVal.serial_id}`).then(response => {
+            AjaxCall('get', `/serials/${newVal.serial_id}.json`).then(response => {
               this.selected = response.body
             })
           }
@@ -101,7 +102,7 @@ export default {
       this.source.serial_id = null
     },
     getDefault (id) {
-      AjaxCall('get', `/serials/${id}`).then(response => {
+      AjaxCall('get', `/serials/${id}.json`).then(response => {
         this.selected = response.body
       })
     }

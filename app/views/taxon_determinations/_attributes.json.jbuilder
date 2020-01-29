@@ -21,3 +21,10 @@ if taxon_determination.roles.any?
   end
 end 
 
+json.collection_object do
+  json.partial! '/shared/data/all/metadata', object: taxon_determination.biological_collection_object
+end
+
+json.otu do
+  json.partial! '/shared/data/all/metadata', object: taxon_determination.otu
+end

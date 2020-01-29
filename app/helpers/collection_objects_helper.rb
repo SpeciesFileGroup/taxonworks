@@ -4,9 +4,11 @@ module CollectionObjectsHelper
   #   a descriptor including the identifier and determination
   def collection_object_tag(collection_object)
     return nil if collection_object.nil?
-    [collection_object.type,
-     collection_object_identifier_tag(collection_object),
-     taxon_determination_tag(collection_object.taxon_determinations.order(:position).first)
+    [
+      collection_object_deaccession_tag(collection_object), 
+      collection_object.type,
+      collection_object_identifier_tag(collection_object),
+      taxon_determination_tag(collection_object.taxon_determinations.order(:position).first)
     ].compact.join('&nbsp;').html_safe
   end
 
@@ -23,9 +25,8 @@ module CollectionObjectsHelper
 
   def collection_object_autocomplete_tag(collection_object)
     return nil if collection_object.nil?
-    [
-      collection_object_identifier_tag(collection_object),
-      collection_object_taxon_determination_tag(collection_object)
+    [collection_object_identifier_tag(collection_object),
+     collection_object_taxon_determination_tag(collection_object)
     ].join(' ').html_safe 
   end
 
@@ -48,6 +49,16 @@ module CollectionObjectsHelper
       (t == :collection_object ? 'feedback-primary' : 'feedback-warning')
     ]) if i
     content_tag(:span, 'no identifier assigned', class: [:feedback, 'feedback-thin', 'feedback-warning'])
+  end
+
+  def collection_object_deaccession_tag(collection_object)
+    return nil if collection_object.nil? || (collection_object.deaccession_reason.blank? && collection_object.deaccessioned_at.nil?)
+    msg = ['SPECIMEN DEACCESSIONED"', collection_object.deaccession_reason, collection_object.deaccessioned_at&.year].compact.join(' - ')
+    content_tag(:span, collection_object , class: [
+      :feedback,
+      'feedback-thin',
+      'feedback-warning'
+    ])
   end
 
   # @return [Array [Identifier, String (type)], nil]
@@ -107,7 +118,6 @@ module CollectionObjectsHelper
     end
   end
 
-
   # @return [link_to]
   #    this may not work for all identifier types, i.e. those with identifiers like `123.34` or `3434.33X` may not increment correctly
   def collection_object_browse_previous_by_identifier(collection_object)
@@ -115,10 +125,11 @@ module CollectionObjectsHelper
     o = collection_object.previous_by_identifier
     return content_tag(:div, 'None', 'class' => 'navigation-item disable') if o.nil?
     link_text = content_tag(:span, 'Previous by id', 'class' => 'small-icon icon-left', 'data-icon' => 'arrow-left')
-    link_to(link_text, browse_collection_objects_task_path(collection_object_id: o.id),
-            data: {arrow: :previous,
-                   'no-turbolinks' => 'true',
-                   help: 'Sorts by identifier type, namespace, then an conversion of identifier into integer.  Will not work for all identifier types.'}, class: 'navigation-item')
+    link_to(link_text, browse_collection_objects_task_path(collection_object_id: o.id), data: {
+      arrow: :previous,
+      'no-turbolinks' => 'true',
+      help: 'Sorts by identifier type, namespace, then an conversion of identifier into integer.  Will not work for all identifier types.'},
+      class: 'navigation-item')
   end
 
   # @return [link_to]

@@ -127,7 +127,7 @@ RSpec.configure do |config|
   config.before(:each, js: true) do
     Capybara.current_driver  = Capybara.javascript_driver
     DatabaseCleaner.strategy = :truncation, {except: %w(spatial_ref_sys)}
-    Features::Downloads.clear_downloads
+    Features::Downloads.clear_downloads # TODO, this should be downloads: true strategy to eliminate need to call everytime
     FileUtils.rm_rf(Download.storage_path)
   end
 

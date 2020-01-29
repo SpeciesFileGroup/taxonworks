@@ -297,7 +297,7 @@ uniquify_people_task:
     - nomenclature
   status: stable 
   description: 'Find and merge redundant or duplicated people, e.g., from import.'
-index_search_locality_task:
+filter_collecting_events_task:
   hub: true
   name: 'Filter collecting events'
   related:
@@ -472,3 +472,18 @@ asserted_distributions_basic_endemism_task:
   categories:
   status: prototype
   description: 'A simple 1 taxon and children, 1 geographic area summary that includes a check for endemism.  Targets asserted distributions only.'
+collection_object_summary_task:
+  hub: true
+  name: 'Collection summary'
+  related:
+  categories:
+    - collection_object
+  status: prototype
+browse_collecting_events_task:
+  hub: true
+  name: 'Browse collecting events'
+  related:
+  categories:
+    - collecting_event 
+  status: prototype
+  description: 'View individual collecting events and their related.'

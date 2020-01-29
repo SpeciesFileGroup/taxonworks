@@ -139,6 +139,11 @@ export default {
           value: 'CollectionObject',
           label: 'Collection object',
           url: '/collection_objects/autocomplete'
+        },
+        {
+          value: 'TaxonName',
+          label: 'Taxon name',
+          url: '/taxon_names/autocomplete'
         }
       ],
       isDataDepiction: false,

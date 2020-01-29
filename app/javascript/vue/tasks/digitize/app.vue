@@ -78,6 +78,7 @@
       let coId = location.pathname.split('/')[4]
       let urlParams = new URLSearchParams(window.location.search)
       let coIdParam = urlParams.get('collection_object_id')
+      let ceIdParam = urlParams.get('collecting_event_id')
 
       this.addShortcutsDescription()
 
@@ -90,6 +91,8 @@
       }
       else if (/^\d+$/.test(coIdParam)) {
         this.$store.dispatch(ActionNames.LoadDigitalization, coIdParam)
+      } else if (/^\d+$/.test(ceIdParam)) {
+        this.$store.dispatch(ActionNames.GetCollectionEvent, ceIdParam)
       }
     },
     methods: {
@@ -99,6 +102,7 @@
         TW.workbench.keyboard.createLegend(`${this.getMacKey()}+p`, 'Add to container', 'Comprehensive digitization task')
         TW.workbench.keyboard.createLegend(`${this.getMacKey()}+l`, 'Lock all', 'Comprehensive digitization task')
         TW.workbench.keyboard.createLegend(`${this.getMacKey()}+r`, 'Reset all', 'Comprehensive digitization task')
+        TW.workbench.keyboard.createLegend(`${this.getMacKey()}+t`, 'Browse collection object', 'Comprehensive digitization task')
       },
       getMacKey: GetMacKey,
       setLockAll() {

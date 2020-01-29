@@ -29,7 +29,7 @@ scope :tasks do
   end
 
   scope :browse_annotations, controller: 'tasks/browse_annotations' do
-    get 'index', as: 'browse_annotations_task'
+    get '/', action: :index, as: 'browse_annotations_task'
   end
 
   scope :citations do
@@ -117,9 +117,13 @@ scope :tasks do
   end
 
   scope :collecting_events do
-    scope :search_locality, controller: 'tasks/collecting_events/search_locality' do
-      get 'index', as: 'index_search_locality_task'
-    end 
+    scope :browse, controller: 'tasks/collecting_events/browse' do
+      get '/', action: :index, as: 'browse_collecting_events_task'
+    end
+
+    scope :filter, controller: 'tasks/collecting_events/filter' do
+      get '/', action: :index, as: 'filter_collecting_events_task'
+    end
 
     scope :parse do
       scope :stepwise do
@@ -145,6 +149,10 @@ scope :tasks do
   end
 
   scope :collection_objects do
+      scope :summary, controller: 'tasks/collection_objects/summary' do
+        get '/', action: :index, as: 'collection_object_summary_task'
+      end
+
     scope :filter, controller: 'tasks/collection_objects/filter' do
       get '/', as: 'collection_objects_filter_task', action: :index
     end
@@ -317,9 +325,9 @@ scope :tasks do
   end
 
   scope :otus do
-      scope :browse_asserted_distributions, controller: 'tasks/otus/browse_asserted_distributions' do
-        get :index, as: 'index_browse_asserted_distributions_task'
-      end
+    scope :browse_asserted_distributions, controller: 'tasks/otus/browse_asserted_distributions' do
+      get :index, as: 'index_browse_asserted_distributions_task'
+    end
 
     scope :browse, controller: 'tasks/otus/browse' do
       get '/(:otu_id)', action: :index, as: 'browse_otus_task'
@@ -349,7 +357,7 @@ scope :tasks do
     scope :syncronize_otus, controller: 'tasks/taxon_names/syncronize_otus' do
       get 'index', as: 'syncronize_otus_to_nomenclature_task'
       post 'index', as: 'preview_syncronize_otus_to_nomenclature_task'
-      post 'syncronize', as: 'syncronize_otus_task' 
+      post 'syncronize', as: 'syncronize_otus_task'
     end
 
     scope :filter, controller: 'tasks/taxon_names/filter' do

@@ -50,6 +50,9 @@ module Queries
       #   values are ATTRIBUTES that should be wildcarded
       attr_accessor :collecting_event_wildcards
 
+      # @return [Array]
+      attr_accessor :otu_ids
+
       def initialize(params)
         @in_labels = params[:in_labels]
         @in_verbatim_locality = params[:in_verbatim_locality]
@@ -64,9 +67,10 @@ module Queries
         # @spatial_geographic_area_ids = params[:spatial_geographic_areas].blank? ? [] : params[:spatial_geographic_area_ids]
 
         @spatial_geographic_areas = (params[:spatial_geographic_areas]&.downcase == 'true' ? true : false) if !params[:spatial_geographic_areas].nil?
-        
 
         @geographic_area_ids = params[:geographic_area_ids].blank? ? [] : params[:geographic_area_ids]
+
+        @otu_ids = params[:otu_ids].blank? ? [] : params[:otu_ids]
 
         @collecting_event_wildcards = params[:collecting_event_wildcards] || []
 
@@ -159,6 +163,11 @@ module Queries
         table[:geographic_area_id].eq_any(geographic_area_ids)
       end
 
+      def matching_otu_ids
+        return nil if otu_ids.empty?
+        ::CollectingEvent.joins(:otus).where(otus: {id: otu_ids}) #  table[:geographic_area_id].eq_any(geographic_area_ids)
+      end
+
       def matching_verbatim_locality
         return nil if in_verbatim_locality.blank?
         t = "%#{in_verbatim_locality}%"
@@ -173,6 +182,7 @@ module Queries
         clauses += [
           between_date_range,
           matching_geographic_area_ids,
+
           matching_any_label,
           matching_verbatim_locality,
         ].compact!
@@ -183,7 +193,7 @@ module Queries
       def base_merge_clauses
         clauses = [
           matching_keyword_ids,
-
+          matching_otu_ids,
           wkt_facet,
           geo_json_facet,
 

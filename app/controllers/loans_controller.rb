@@ -72,7 +72,7 @@ class LoansController < ApplicationController
 
   def list
     @loans = Loan.includes(:identifiers).with_project_id(sessions_current_project_id)
-      .order(Arel.sql("CAST(coalesce(identifiers.identifier, '0') AS integer) DESC")).references(:identifiers).page(params[:page]) #.per(10) #.per(3)
+      .order(Arel.sql("LENGTH(identifier), identifier")).references(:identifiers).page(params[:page]) #.per(10) #.per(3)
   end
 
   def search

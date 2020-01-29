@@ -4,6 +4,7 @@ class Tasks::Sources::NewSourceController < ApplicationController
   def index
   end
 
+  # GET /sources/new_source/crossref_preview.json
   def crossref_preview
     if citation_param.blank?
       render json: :invalid_request

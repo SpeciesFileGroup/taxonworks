@@ -73,7 +73,7 @@
         this.selected = person
       },
       selectPerson(person) {
-        this.$http.get('/people/' + person.id.toString() + '.json').then(response => {
+        this.$http.get(`/people/${person.id.toString()}.json`).then(response => {
           this.selectedPerson = response.body;
           this.$emit('input', this.selectedPerson);
         })

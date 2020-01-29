@@ -89,7 +89,7 @@ class DocumentationController < ApplicationController
   private
 
   def set_documentation
-    @documentation = Documentation.find(params[:id])
+    @documentation = Documentation.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def documentation_params

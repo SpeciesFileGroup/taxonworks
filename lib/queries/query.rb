@@ -1,25 +1,27 @@
-require 'date'
-
-# See
+# A module for composing Queries.
+#
+# For insights, etc. see:
 #  http://www.slideshare.net/camerondutro/advanced-arel-when-activerecord-just-isnt-enough
 #  https://github.com/rails/arel
 #  http://robots.thoughtbot.com/using-arel-to-compose-sql-queries
 #  https://github.com/rails/arel/blob/master/lib/arel/predications.rb
+#
 #  And this:
 #    http://blog.arkency.com/2013/12/rails4-preloading/
 #    User.includes(:addresses).where("addresses.country = ?", "Poland").references(:addresses)
 #
 # TODO: Define #all as a stub (Array or AR)
 #
-#
 module Queries
   class Query
     include Arel::Nodes
 
-    # Maybe doesn't belong here
     include Queries::Concerns::Identifiers 
 
+    # @return [String, nil]
+    #   the initial, unparsed value
     attr_accessor :query_string
+    
     attr_accessor :terms
     attr_accessor :project_id
 
@@ -32,7 +34,6 @@ module Queries
     # @param [Hash] args
     def initialize(string, project_id: nil, **keyword_args)
       @query_string = string
-      # @query_string = '' if !(string =~ /\S/)
       @options = keyword_args
       @project_id = project_id
       build_terms
@@ -40,12 +41,14 @@ module Queries
 
     # @return [Array]
     #   the results of the query as ActiveRecord objects
+    # TODO: deprecate? probably unused
     def result
       []
     end
 
     # @return [Scope]
     # stub
+    # TODO: deprecate? probably unused
     def scope
       where('1 = 2')
     end
@@ -60,6 +63,10 @@ module Queries
     # @return [Array]
     def terms
       @terms ||= build_terms
+    end
+
+    def no_terms?
+      @terms.none?
     end
 
     # @return [Array]
@@ -90,29 +97,24 @@ module Queries
     end
 
     # @return [Array]
-    #   those strings that represent years
     def years
-      query_string.scan(/\d{4}/).to_a.uniq
+      Utilities::Strings.years(query_string)
     end
 
     # @return [String, nil]
-    #    the first letter recognized as coming directly past the first year
-    #      `Smith, 1920a. ... ` returns `a`
     def year_letter
-      query_string.match(/\d{4}([a-zAZ]+)/).to_a.last
+      Utilities::Strings.year_letter(query_string)
     end
 
     # @return [Array]
     #   of strings representing integers
     def integers
-      return [] if query_string.blank?
-      query_string.split(/\s+/).select{|t| Utilities::Strings.is_i?(t)}
+      Utilities::Strings.integers(query_string)
     end
 
     # @return [Boolean]
-    #   true if the query string only contains integers
     def only_integers?
-      !(query_string =~ /[^\d\s]/i) && !integers.empty?
+      Utilities::Strings.only_integers?(query_string)
     end
 
     # @return [Array]
@@ -129,6 +131,7 @@ module Queries
 
     # @return [Array]
     #   split on whitespace
+    # TODO: used?!
     def pieces
       query_string.split(/\s+/)
     end
@@ -146,12 +149,7 @@ module Queries
     # @return [String]
     #   if `foo, and 123 and stuff` then %foo%and%123%and%stuff%
     def wildcard_pieces
-      '%' + query_string.gsub(/[\s\W]+/, '%') + '%'
-    end
-
-    # @return [String]
-    def no_digits
-      query_string.gsub(/\d/, '').strip
+      '%' + query_string.gsub(/[\W]+/, '%') + '%'
     end
 
     # @return [Integer]
@@ -202,32 +200,6 @@ module Queries
       end
     end
 
-    # @return [Date.new, nil]
-    def simple_date
-      begin
-        Date.parse(query_string)
-      rescue ArgumentError
-        return nil
-      end
-    end
-
-    def with_start_date
-      if d = simple_date
-        r = []
-        r.push(table[:start_date_day].eq(d.day)) if d.day
-        r.push(table[:start_date_month].eq(d.month)) if d.month
-        r.push(table[:start_date_year].eq(d.year)) if d.year
-
-        q = r.pop
-        r.each do |z|
-          q = q.and(z)
-        end
-        q
-      else
-        nil
-      end
-    end
-
     # @return [Arel::Nodes::Matches]
     def named
       table[:name].matches_any(terms) if terms.any?
@@ -257,11 +229,8 @@ module Queries
     # @return [ActiveRecord::Relation, nil]
     #   cached matches full query string wildcarded
     def cached
-      if !terms.empty?
-        table[:cached].matches_any(terms)
-      else
-        nil
-      end
+      return nil if no_terms?
+      table[:cached].matches_any(terms)
     end
 
     # @return [Arel::Nodes::Matches]
@@ -307,20 +276,24 @@ module Queries
     #
     # Autocomplete
     #
+    # !! All methods must return nil of a scope
 
     # @return [Array]
     #   default the autocomplete result to all
+    #   TODO: eliminate
     def autocomplete
       all.to_a
     end
 
     # @return [ActiveRecord::Relation]
     def autocomplete_exact_id
+      return nil if no_terms?
       base_query.where(id: query_string).limit(1)
     end
 
     # @return [ActiveRecord::Relation]
     def autocomplete_ordered_wildcard_pieces_in_cached
+      return nil if no_terms?
       base_query.where(match_ordered_wildcard_pieces_in_cached.to_sql).limit(5)
     end
 
@@ -334,26 +307,22 @@ module Queries
 
     # @return [ActiveRecord::Relation]
     def autocomplete_cached
-      a = cached
-      return nil if a.nil?
-      base_query.where(a.to_sql).limit(20)
-    end
-
-    def autocomplete_start_date
-      a = with_start_date 
-      return nil if a.nil?
-      base_query.where(a.to_sql).limit(20)
+      if a = cached
+        base_query.where(a.to_sql).limit(20)
+      else
+        nil
+      end
     end
 
     # @return [ActiveRecord::Relation]
     def autocomplete_exactly_named
-      return nil if query_string.blank?
+      return nil if no_terms?
       base_query.where(exactly_named.to_sql).limit(20)
     end
 
     # @return [ActiveRecord::Relation]
     def autocomplete_named
-      return nil if query_string.blank?
+      return nil if no_terms?
       base_query.where(named.to_sql).limit(5)
     end
 
