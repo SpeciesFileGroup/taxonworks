@@ -159,12 +159,14 @@ class SledImage < ApplicationRecord
 
   def process
     depictions.any? ?  syncronize : create_objects
+    true
   end
 
   def create_objects
     return true unless !collection_object_params.nil?
     begin
       metadata.each do |i|
+        next unless i['metadata'].blank?
         p = collection_object_params.merge(
           depictions_attributes: [
             {
@@ -183,9 +185,11 @@ class SledImage < ApplicationRecord
         end
         c.save!
       end
-    rescue ActiveRecord::RecordInvalid
+    rescue ActiveRecord::RecordInvalid => e
+      errors.add(:base, e.message)
       raise
     end
+    true
   end
 
   def syncronize
@@ -203,6 +207,7 @@ class SledImage < ApplicationRecord
         end
       end
     end
+    true
   end
 
   def set_cached
