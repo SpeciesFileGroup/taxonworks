@@ -16,7 +16,6 @@
     </div>
     <template v-if="image">
       <div class="horizontal-left-content align-start">
-        
         <div
           class="position-relative"
           style="width: 50%;">
@@ -56,7 +55,7 @@
               :autosize="true"
               :metadata-assignment="{ test: 'Test label' }"
               :file-image="fileImage"
-              :locked="sledImage.id != undefined"
+              :locked="sledImage.summary.length > 0"
               @resize="scale = $event.scale"
               @onComputeCells="processCells"/>
           </div>
