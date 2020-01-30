@@ -16,6 +16,7 @@ class SledImage < ApplicationRecord
   include Housekeeping
   include Shared::Tags
   include Shared::Notes
+  include Shared::IsData
 
   # Stubs coming from UI
   attr_accessor :collection_object_params # note, tag, deterimination
