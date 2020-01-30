@@ -18,3 +18,4 @@ json.array! @collection_objects do |c|
   end
 
 end
+

@@ -98,6 +98,7 @@ resources :collection_objects do
 
   collection do
     get :dwc_index, defaults: {format: :json}
+    get :report, defaults: {format: :json}
     post :preview_castor_batch_load # should be get
     post :create_castor_batch_load # should be get
     post :preview_buffered_batch_load
