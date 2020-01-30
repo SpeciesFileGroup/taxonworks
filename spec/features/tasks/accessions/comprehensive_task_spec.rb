@@ -30,11 +30,11 @@ describe 'Task - Comprehensive digitization', type: :feature, group: :collection
         let!(:n) { Namespace.create!(name: 'Ill Nat Hist Survey', short_name: 'INHS', by: @user) }
 
         specify 'adds catalog numbers' do
-          page.find('#namespace-autocomplete input').fill_in(with: 'INHS')
+          fill_in('namespace-autocomplete', with: 'INHS')
 
           find('li', text: 'INHS Ill Nat Hist Survey').hover.click 
 
-          fill_in "identifier-field", with: '1234'
+          fill_in("identifier-field", with: '1234')
           click_button 'Save'
 
           expect(page).to_not have_text('New record')
@@ -53,7 +53,7 @@ describe 'Task - Comprehensive digitization', type: :feature, group: :collection
         let!(:o) { Otu.create!(name: 'Foo', by: @user, project: @project) } 
 
         specify 'adds taxon determinations' do
-          page.find('#determination-otu input').fill_in(with: 'Foo')
+          fill_in('determination-otu-autocomplete', with: 'Foo')
 
           find('li', text: 'Foo').hover.click 
           click_button 'determination-add-button'

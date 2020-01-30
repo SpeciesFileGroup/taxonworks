@@ -6,7 +6,7 @@ module BatchLoad
     def initialize(**args)
       @collecting_events = {}
       @ce_namespace = args.delete(:ce_namespace)
-      super(args)
+      super(**args)
     end
 
 

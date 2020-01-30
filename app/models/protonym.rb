@@ -1,5 +1,5 @@
 # Nested ness of this should get all the relationships?
-require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'  
+require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #
 # Force the loading of TaxonNameRelationships in all worlds.  This allows us to edit without restarting in development.
 # Dir[Rails.root.to_s + '/app/models/taxon_name_relationship/**/*.rb'].sort.each {|file| require_dependency file }
@@ -26,6 +26,7 @@ class Protonym < TaxonName
 
   validate :validate_rank_class_class,
     :validate_parent_rank_is_higher,
+    :validate_child_rank_is_equal_or_lower,
     :check_new_rank_class,
     :check_new_parent_class,
     :validate_source_type,
@@ -134,8 +135,8 @@ class Protonym < TaxonName
 
   scope :is_species_or_genus_group, -> {  where("rank_class ILIKE '%speciesgroup%' OR rank_class ILIKE '%genusgroup%'")   }
 
-  scope :is_original_name, -> { where("cached_author_year NOT ILIKE '(%'") } 
-  scope :is_not_original_name, -> { where("cached_author_year ILIKE '(%'") } 
+  scope :is_original_name, -> { where("cached_author_year NOT ILIKE '(%'") }
+  scope :is_not_original_name, -> { where("cached_author_year ILIKE '(%'") }
 
   # @return [Protonym]
   #   a name ready to become the root
@@ -157,7 +158,7 @@ class Protonym < TaxonName
   end
 
   # @param rank ['speciesgroup' or 'genusgroup' or 'family']
-  #    scope to names used in taxon determinations   
+  #    scope to names used in taxon determinations
   def self.names_at_rank_group_for_collection_objects(rank = 'speciesgroup')
     h = ::TaxonNameHierarchy.arel_table
     t = ::TaxonName.arel_table
@@ -444,7 +445,7 @@ class Protonym < TaxonName
 
   # @return Boolean
   #   could also be determined by parens in cached_author year
-  def is_original_name? 
+  def is_original_name?
     cached_author_year =~ /\(/ ? false : true
   end
 
@@ -539,7 +540,7 @@ class Protonym < TaxonName
 
   # @return [Boolean]
   #   Wraps set_original_combination with result from Biodiversity parse
-  #   !!You must can optionally pre-calculate a disambiguated protonym if you wish to use one. 
+  #   !!You must can optionally pre-calculate a disambiguated protonym if you wish to use one.
   # @param biodiversity_result [ Biodiversity.result ]
   # @param relationship_housekeeping [Hash] like `{project_id: 22, created_by_id: 2}`
   def build_original_combination_from_biodiversity(biodiversity_result, relationship_housekeeping = {})
@@ -559,9 +560,9 @@ class Protonym < TaxonName
     return false if combination.nil?
     combination.protonyms_by_rank.each do |rank, p|
       send("original_#{rank}=", p)
-    end 
+    end
 
-    if !relationship_housekeeping.empty? 
+    if !relationship_housekeeping.empty?
       combination.protonyms_by_rank.each do |rank, p|
         r = send("original_#{rank}_relationship")
         r.write_attributes(relationship_housekeeping)
@@ -573,25 +574,28 @@ class Protonym < TaxonName
   def get_original_combination
     return verbatim_name if !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string) && !verbatim_name.nil?
     e = original_combination_elements
-    return nil if e.none? 
+    return nil if e.none?
 
     # Weird, why?
     # DD: in ICTV the species name is "Potato spindle tuber viroid", the genus name is only used for classification...
-    return e[:species] if rank_class =~ /Ictv/
+    #
+    # @proceps: then we should exclude or alter elements before we get to this point, not here, so that the renderer still works, exceptions at this point are bad
+    # and this didn't do what you think it did, it's was returning an Array of two things
+    return e[:species][1] if rank_class.to_s =~ /Ictv/
 
-    p = TaxonName::COMBINATION_ELEMENTS.inject([]){|ary, r| ary.push(e[r]) } 
-    
+    p = TaxonName::COMBINATION_ELEMENTS.inject([]){|ary, r| ary.push(e[r]) }
+
     s = p.flatten.compact.join(' ')
     s.blank? ? nil : s
   end
 
   def original_combination_elements
-    elements = { } 
+    elements = { }
     return elements if rank.blank?
 
     this_rank = rank.to_sym
 
-    # Why this? 
+    # Why this?
     #   We need to apply gender to "internal" names for original combinations, everything
     #   but the last name
     # DD: if we have subspecies, the species name should be used not in the original form,
@@ -602,7 +606,7 @@ class Protonym < TaxonName
     r = original_combination_relationships.reload.sort{|a,b| ORIGINAL_COMBINATION_RANKS.index(a.type) <=> ORIGINAL_COMBINATION_RANKS.index(b.type) }
 
     # get gender from first
-    gender = original_genus&.gender_name # r.first.subject_taxon_name.gender_name 
+    gender = original_genus&.gender_name # r.first.subject_taxon_name.gender_name
 
     # apply gender to everything but the last
     total = r.count - 1
@@ -619,7 +623,7 @@ class Protonym < TaxonName
     # DD: we do not require it, it is optional
     if !r.empty? && r.collect{|i| i.subject_taxon_name}.last.lowest_rank_coordinated_taxon.id != lowest_rank_coordinated_taxon.id
       if elements[this_rank].nil?
-        elements[this_rank] = [original_name] 
+        elements[this_rank] = [original_name]
       end
     end
 
@@ -644,7 +648,7 @@ class Protonym < TaxonName
     n = verbatim_name.nil? ? name_with_misspelling(nil) : verbatim_name
     n = "(#{n})" if n && rank_name == 'subgenus'
     n
-  end 
+  end
 
   def get_original_combination_html
     return  "\"<i>Candidatus</i> #{get_original_combination}\"" if is_candidatus?
@@ -710,10 +714,11 @@ class Protonym < TaxonName
       end
 
       # Update values in Combinations
-      combination_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
-        i.update_columns(
-          cached: i.get_full_name,
-          cached_html: i.get_full_name_html)
+      combination_relationships.collect{|i| i.object_taxon_name}.uniq.each do |j|
+        j.update_columns(
+          cached: j.get_full_name,
+          cached_html: j.get_full_name_html,
+          cached_author_year: j.get_author_and_year)
       end
 
       classified_as_relationships.collect{|i| i.subject_taxon_name}.uniq.each do |i|
@@ -782,6 +787,29 @@ class Protonym < TaxonName
 
   def validate_rank_class_class
     errors.add(:rank_class, 'Rank not found') unless RANKS.include?(rank_string)
+  end
+
+  def validate_child_rank_is_equal_or_lower
+    if parent && !rank_class.blank? && rank_string != 'NomenclaturalRank'
+      if rank_class_changed?
+        a = children.where(type: 'Protonym').pluck(:rank_class)
+        v = RANKS.index(rank_string)
+        a.each do |b|
+          if v >= RANKS.index(b)
+            errors.add(:rank_class, "The rank of this taxon (#{rank_name}) should be higher than the ranks of children")
+            break
+          end
+        end
+      end
+    end
+  end
+
+  def validate_parent_rank_is_higher
+    if parent && !rank_class.blank? && rank_string != 'NomenclaturalRank'
+      if RANKS.index(rank_string) <= RANKS.index(parent.rank_string)
+        errors.add(:parent_id, "The parent rank (#{parent.rank_class.rank_name}) is not higher than the rank (#{rank_name}) of this taxon")
+      end
+    end
   end
 
   def set_cached

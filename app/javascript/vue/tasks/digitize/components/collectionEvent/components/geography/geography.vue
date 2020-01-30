@@ -139,6 +139,7 @@
               this.selectGeographicArea(response)
             })
           } else {
+            this.selected = undefined
             if(convertDMS(newVal.verbatim_latitude) && convertDMS(newVal.verbatim_longitude)) {
               let that = this
               clearTimeout(this.ajaxCall)
@@ -155,7 +156,7 @@
     methods: {
       clearSelection() {
         this.selected = undefined
-        this.geographicArea = undefined
+        this.geographicArea = null
       },
       GetSmartSelector() {
         GetGeographicSmartSelector().then(response => {

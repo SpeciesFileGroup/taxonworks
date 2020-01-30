@@ -8,7 +8,7 @@ module GPXToCSV
   def self.gpx_to_csv(gpx_file, csv_options = {col_sep: "\t", headers: true, encoding: 'UTF-8', write_headers: true})
     gpx_headers = %w(name geojson start_date end_date minimum_elevation maximum_elevation)
 
-    csv_string = CSV.generate(csv_options) do |csv|
+    csv_string = CSV.generate(**csv_options) do |csv|
       csv << gpx_headers
       geo_feature = {'type': 'Feature', 'geometry': '{}'}
 
@@ -73,7 +73,7 @@ module GPXToCSV
                 max_elev]
       end
     end
-    csv = CSV.parse(csv_string, csv_options)
+    csv = CSV.parse(csv_string, **csv_options)
     csv
   end
 end

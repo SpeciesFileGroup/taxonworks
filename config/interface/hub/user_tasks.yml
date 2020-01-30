@@ -12,7 +12,7 @@
 #   name* - a friendly human readable name describing the task
 #   description - a sentence or two further defining what the task will do for the user
 #   hub - true if this tasks should appear at the hub, these tasks MAY NOT require parameters
-#   categories - an array of one ore more of [nomenclature, source, collection_object, collecting_event, biology, matrix, dna]
+#   categories - an array of one ore more of [nomenclature, source, collection_object, collecting_event, biology, matrix, dna, image]
 #   status - one of [complete, stable, prototype,  unknown (default) ]
 #               complete: users can expect the interfaces to remain in their present form
 #               stable: primary elements are complete, but minor changes (CSS, feedback etc.) may change
@@ -297,7 +297,7 @@ uniquify_people_task:
     - nomenclature
   status: stable 
   description: 'Find and merge redundant or duplicated people, e.g., from import.'
-index_search_locality_task:
+filter_collecting_events_task:
   hub: true
   name: 'Filter collecting events'
   related:
@@ -480,11 +480,20 @@ collection_object_summary_task:
     - collection_object
   status: prototype
   description: 'Summary statistics for the collection(s) managed in this project'
-index_slide_breakdown_task:
+browse_collecting_events_task:
   hub: true
-  name: 'Slide breakdown'
+  name: 'Browse collecting events'
+  related:
+  categories:
+    - collecting_event 
+  status: prototype
+  description: 'View individual collecting events and their related.'
+slide_breakdown_task:
+  hub: true
+  name: 'Grid digitizer'
   related:
   categories:
     - collection_object
   status: prototype
-  description: 'Break images of slide folders down into individual collection object depictions.'
+  description: 'Break images of collection objects in a grid (e.g. slide folders) into individual collection objects and their depictions.'
+

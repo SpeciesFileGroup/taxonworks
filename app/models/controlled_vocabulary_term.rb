@@ -31,6 +31,7 @@ class ControlledVocabularyTerm < ApplicationRecord
   include Shared::HasPapertrail
   include Shared::IsData
   # include Shared::Taggable <- NO!!
+  include SoftValidation
 
   acts_as_list scope: [:project_id, :type]
 

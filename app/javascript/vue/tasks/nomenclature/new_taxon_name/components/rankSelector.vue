@@ -102,7 +102,9 @@ export default {
     parent: {
       handler: function (val, oldVal) {
         if(oldVal) {
-          this.rankClass = undefined
+          if(!this.taxon.id) {
+            this.rankClass = undefined
+          }
           this.refresh()
         }
       },
@@ -112,7 +114,7 @@ export default {
   },
   methods: {
     refresh: function () {
-      if (this.rankClass == undefined) {
+      if (this.rankClass == undefined && !this.taxon.id) {
         if (this.rankGroup) {
           this.ranks[this.childOfParent[this.rankGroup]].find(item => {
             if (this.defaultRanks.indexOf(item.name) >= 0) {

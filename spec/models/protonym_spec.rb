@@ -27,17 +27,48 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     before { protonym.valid? }
 
     context 'rank_class' do
-      specify 'is validly_published when a NomenclaturalRank subclass' do
+      specify 'is valid when a NomenclaturalRank subclass' do
         protonym.rank_class = Ranks.lookup(:iczn, 'order')
-        protonym.name       = 'Aaa'
+        protonym.name = 'Aaa'
         protonym.valid?
         expect(protonym.errors.include?(:rank_class)).to be_falsey
       end
 
-      specify 'is invalidly_published when not a NomenclaturalRank subclass' do
+      specify 'is invalid when not a NomenclaturalRank subclass' do
         protonym.rank_class = 'foo'
         protonym.valid?
         expect(protonym.errors.include?(:rank_class)).to be_truthy
+      end
+
+      specify 'parent rank is higher' do
+        protonym.update(rank_class: Ranks.lookup(:iczn, 'Genus'), name: 'Aus')
+        protonym.parent = @species
+        protonym.valid?
+        expect(protonym.errors.include?(:parent_id)).to be_truthy
+      end
+
+      specify 'child rank is lower' do
+        phylum = FactoryBot.create(:iczn_phylum)
+        kingdom = phylum.ancestor_at_rank('kingdom')
+        kingdom.rank_class = Ranks.lookup(:iczn, 'subphylum')
+        kingdom.valid?
+        expect(kingdom.errors.include?(:rank_class)).to be_truthy
+      end
+
+      specify 'a new taxon rank in the same group' do
+        t = FactoryBot.create(:iczn_kingdom)
+        t.rank_class = Ranks.lookup(:iczn, 'genus')
+        t.valid?
+        expect(t.errors.include?(:rank_class)).to be_truthy
+      end
+
+      specify 'a parent from different project' do
+        t = FactoryBot.create(:iczn_kingdom)
+        t.valid?
+        expect(t.errors.include?(:project_id)).to be_falsey
+        t.project_id = 1000
+        t.valid?
+        expect(t.errors.include?(:project_id)).to be_truthy
       end
     end
 

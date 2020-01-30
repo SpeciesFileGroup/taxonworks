@@ -6,8 +6,8 @@ module Workbench::NavigationHelper
   # Slideout panels
   def slideouts
     if sessions_current_project && sessions_signed_in? && on_workbench?
-      [ slideout_pinboard, 
-      slideout_pdf_viewer, 
+      [ slideout_pinboard,
+      slideout_pdf_viewer,
       slideout_clipboard ].join.html_safe
     end
   end
@@ -21,11 +21,11 @@ module Workbench::NavigationHelper
   end
 
   def slideout_recent
-    render(partial: '/shared/data/slideout/recent') 
+    render(partial: '/shared/data/slideout/recent')
   end
 
   def slideout_pdf_viewer
-    render(partial: '/shared/data/slideout/document')  
+    render(partial: '/shared/data/slideout/document')
   end
 
   # @return [Boolean]
@@ -55,7 +55,7 @@ module Workbench::NavigationHelper
   # A previous record link.
   def previous_link(instance, text: 'Previous', target: nil)
     link_text = content_tag(:span, text,  'data-icon' => 'arrow-left', 'class' => 'small-icon')
-    link_object = previous_object(instance)
+    link_object = instance.previous
     return content_tag(:div, link_text, 'class' => 'navigation-item disable') if link_object.nil?
     if target.nil?
       target ||= link_object.metamorphosize
@@ -69,7 +69,7 @@ module Workbench::NavigationHelper
   # A next record link.
   def next_link(instance, text: 'Next', target: nil)
     link_text = content_tag(:span, text, 'class' => 'small-icon icon-right', 'data-icon' => 'arrow-right')
-    link_object = next_object(instance)
+    link_object = instance.next
     return content_tag(:div, link_text, 'class' => 'navigation-item disable') if link_object.nil?
     if target.nil?
       target ||= link_object.metamorphosize
@@ -77,26 +77,6 @@ module Workbench::NavigationHelper
       target = send(target, id: link_object.id)
     end
     link_to(link_text, target, 'data-arrow' => 'next', 'class' => 'navigation-item')
-  end
-
-  # Next ordered by ID, no wrapping
-  def next_object(object)
-    base = object.class.base_class.order(id: :asc).where(['id > ?', object.id]).limit(1)
-    if object.respond_to?(:project_id)
-      base.with_project_id(object.project_id).first
-    else
-      base.first
-    end
-  end
-
-  # Previous ordered by ID, no wrapping
-  def previous_object(object)
-    base = object.class.base_class.order(id: :desc).where(['id < ?', object.id]).limit(1)
-    if object.respond_to?(:project_id)
-      base.with_project_id(object.project_id).first
-    else
-      base.first
-    end
   end
 
   def new_path_for_model(model)
@@ -176,8 +156,8 @@ module Workbench::NavigationHelper
   #  true if the current user has permissions to edit the object in question (does not test whether it is actually editable)
   def user_can_edit?(object)
     #  sessions_current_user.is_administrator? || user_is_creator?(object)
-    # TODO review 
-    true 
+    # TODO review
+    true
   end
 
   # return [Boolean]

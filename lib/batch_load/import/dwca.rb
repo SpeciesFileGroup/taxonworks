@@ -40,7 +40,7 @@ module BatchLoad
         make_ce:    %w(decimallatitude decimallongitude coordinateuncertaintyinmeters eventdate locationremarks recordedby geodeticdatum countrycode stateprovince county municipality locality)
       }.freeze
 
-      super(args)
+      super(**args)
     end
 
     # @return [Hash]

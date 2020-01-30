@@ -183,7 +183,6 @@ class TaxonName < ApplicationRecord
 
   validate :validate_rank_class_class,
     # :check_format_of_name,
-    :validate_parent_rank_is_higher,
     :validate_parent_from_the_same_project,
     :validate_parent_is_set,
     :check_new_rank_class,
@@ -917,7 +916,7 @@ class TaxonName < ApplicationRecord
   def get_full_name
     return name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
     return name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
-    return name if rank_class =~ /Ictv/
+    return name if rank_class.to_s =~ /Ictv/
     return verbatim_name if !verbatim_name.nil? && type == 'Combination'
     
     d = full_name_hash
@@ -1236,18 +1235,6 @@ class TaxonName < ApplicationRecord
   def validate_parent_is_set
     if !(rank_class == NomenclaturalRank) && !(type == 'Combination')
       errors.add(:parent_id, 'is not selected') if !parent_is_set?  # parent_id.blank? && (parent.blank? || !parent.persisted?)
-    end
-  end
-
-  def validate_parent_rank_is_higher
-    if parent && !rank_class.blank? && rank_string != 'NomenclaturalRank'
-      if RANKS.index(rank_string) <= RANKS.index(parent.rank_string)
-        errors.add(:parent_id, "The parent rank (#{parent.rank_class.rank_name}) is not higher than the rank (#{rank_name}) of this taxon")
-      end
-
-      if (rank_class != rank_class_was) && children && !children.empty? && RANKS.index(rank_string) >= children.collect { |r| RANKS.index(r.rank_string).to_i }.max
-        errors.add(:rank_class, "The rank of this taxon (#{rank_name}) should be higher than the ranks of children")
-      end
     end
   end
 

@@ -9,11 +9,11 @@ describe BatchLoad::Import::Otus, type: :model do
   let(:project) { Project.find(1) }
 
   let(:setup) {
-    csv1 = CSV.read(file_name, {
+    csv1 = CSV.read(file_name,
       headers:           true,
       header_converters: :downcase,
       col_sep:           "\t",
-      encoding:          'UTF-8'})
+      encoding:          'UTF-8')
 
     csv1.each do |row|
       ident = row[0]

@@ -84,7 +84,7 @@ class SerialsController < ApplicationController
 
     @serials = Queries::Serial::Autocomplete.new(
       params[:term],
-      autocomplete_params
+      **autocomplete_params
     ).autocomplete
   end
 
