@@ -35,48 +35,97 @@ namespace :tw do
           j = 0
           n = nil
           errors = []
-          Identifier::Local::Import.where(identifier_object_type: 'Source', project_id: Current.project_id).each do |i|
+          Identifier::Local::Import.where(identifier_object_type: 'Source', project_id: Current.project_id).find_each do |i|
             o = i.identifier_object
-            s = o.year_suffix
-            l = s.length if s
+            
+            next if o.year_suffix.nil?
 
-            if l  
-              n = i.identifier[0..((l + 1) * -1)]
-            end 
+            stripped_identifier = nil
+            parts = i.identifier.split(/\d+/)
+            year = i.identifier.match(/\d+/).to_s
 
-            case o.year_suffix
-            when nil
-              next 
-            when 'a'
-              if i.identifier =~ /a$/ 
-                puts Rainbow( o.year_suffix + ' - ' + i.identifier + ' : ' + n).purple
-                # i.update!(identifier: n)
-              end
-            else
-              if i.identifier =~ /#{s[0]}{#{l}}$/ 
-                n = i.identifier[0..-2]
-                t = o.year_suffix + ' - ' + i.identifier + ' : ' + n
-                if s.length > 1 
-                  puts Rainbow(t ).yellow
-                  errors << n # i.identifier
-                else
-                  puts Rainbow(t ).purple
-                end
-                # i.update!(identifier: n)
-              end
+            stripped_identifier = parts[0] + year
+            current_suffix = parts.size == 2 ? parts[1] : '' 
+
+            print Rainbow( o.year_suffix + ' / ' + current_suffix +  ' : ').purple
+            print Rainbow(i.identifier).red
+            print ' : ' 
+            print Rainbow(stripped_identifier).yellow
+            print ' : '   
+
+            new_identifier = stripped_identifier + o.year_suffix
+
+            if ((current_suffix == o.year_suffix) && (current_suffix != 'a')) || ( (o.year_suffix == 'a') && (stripped_identifier == i.identifier))
+              e = "#{i.identifier} is current"
+              puts Rainbow(e).gray
+              
+              # First pass uncomment
+              # errors.push e + ' (may be an error)'
+              next
             end
 
+            case o.year_suffix
+            when 'a'
+              new_identifier = stripped_identifier
+            else
+              new_identifier = stripped_identifier + o.year_suffix
+            end
+
+            print Rainbow(new_identifier).green
+            print "\n"
+
+            i.update(identifier: new_identifier)
+
+            # Second pass uncomment
+            # errors.push "* [] odd format #{i.identifier}"
             j += 1
           end
-        rescue ActiveRecord::RecordInvalid
-          puts Rainbow("failed to save #{n}").red
+        rescue ActiveRecord::RecordInvalid => e
+          a = "failed to save #{i.id} - #{e.error}"
+          errors.push a
+          puts Rainbow(a).red
         end
+       
+        puts Rainbow("Done. Updated #{j} records.").gold
+
         puts '----'
         puts errors.collect{|e| "* [ ] #{e}"}.join("\n")
       end
 
-      # https://github.com/chalcid/jncdb/issues/9
-      task cleanup_italics_in_source_titles: [:data_directory, :environment, :user_id, :project_id ] do
+      def pipes_to_i(string)
+        s = ''
+        open = true
+        string.scan(/./).each do |l|
+          if l == '|'
+            s << (open ? '<i>' : '</i>')
+            open = !open
+          else
+            s << l
+          end
+        end
+        s
+      end
+
+      # https://github.com/chalcid/jncdb/issues/9 + 
+      #  rake tw:project_import:ucd:cleanup_italics_in_source_titles project_id=16 user_id=1 
+      task cleanup_italics_in_source_titles: [:environment, :user_id, :project_id ] do
+        errors = []
+        begin
+          Source.joins(:project_sources).where(project_sources: {project_id: Current.project_id}).where("title ilike '%|%'").find_each do |s|
+            errors.push("#{s.id} : #{s.title}") if (s.title.scan('|').count % 2) != 0
+            # puts Rainbow(s.title).red
+            a = pipes_to_i(s.title)
+            # puts Rainbow(a).green
+
+            s.update(title: a)
+          end
+        rescue ActiveRecord::RecordInvalid => e
+          errors.push "#{s.id} - invalid title after translate"
+        end
+
+        puts
+        print "----\n* [ ] "
+        puts errors.join("\n* [ ] ")
       end
 
       task cleanup_host_based_otus: [:data_directory, :environment, :user_id, :project_id ] do
