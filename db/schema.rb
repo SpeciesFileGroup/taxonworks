@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_10_10_200049) do
+ActiveRecord::Schema.define(version: 2020_01_27_192528) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -514,11 +514,16 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
     t.string "figure_label"
     t.boolean "is_metadata_depiction"
     t.xml "svg_clip"
+    t.bigint "sled_image_id"
+    t.integer "sled_image_x_position"
+    t.integer "sled_image_y_position"
+    t.string "svg_view_box"
     t.index ["created_by_id"], name: "index_depictions_on_created_by_id"
     t.index ["depiction_object_id"], name: "index_depictions_on_depiction_object_id"
     t.index ["depiction_object_type"], name: "index_depictions_on_depiction_object_type"
     t.index ["image_id"], name: "index_depictions_on_image_id"
     t.index ["project_id"], name: "index_depictions_on_project_id"
+    t.index ["sled_image_id"], name: "index_depictions_on_sled_image_id"
     t.index ["updated_by_id"], name: "index_depictions_on_updated_by_id"
   end
 
@@ -1572,6 +1577,24 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
     t.index ["url"], name: "index_shortened_urls_on_url"
   end
 
+  create_table "sled_images", force: :cascade do |t|
+    t.bigint "image_id", null: false
+    t.jsonb "metadata"
+    t.jsonb "object_layout"
+    t.integer "cached_total_rows"
+    t.integer "cached_total_columns"
+    t.integer "cached_total_collection_objects", default: 0, null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.bigint "project_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["created_by_id"], name: "index_sled_images_on_created_by_id"
+    t.index ["image_id"], name: "index_sled_images_on_image_id"
+    t.index ["project_id"], name: "index_sled_images_on_project_id"
+    t.index ["updated_by_id"], name: "index_sled_images_on_updated_by_id"
+  end
+
   create_table "sources", id: :serial, force: :cascade do |t|
     t.integer "serial_id"
     t.string "address"
@@ -1969,6 +1992,7 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
   add_foreign_key "data_attributes", "projects", name: "data_attributes_project_id_fkey"
   add_foreign_key "data_attributes", "users", column: "created_by_id", name: "data_attributes_created_by_id_fkey"
   add_foreign_key "data_attributes", "users", column: "updated_by_id", name: "data_attributes_updated_by_id_fkey"
+  add_foreign_key "depictions", "sled_images"
   add_foreign_key "descriptors", "projects"
   add_foreign_key "descriptors", "users", column: "created_by_id"
   add_foreign_key "descriptors", "users", column: "updated_by_id"
@@ -2147,6 +2171,9 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
   add_foreign_key "serials", "serials", column: "translated_from_serial_id", name: "serials_translated_from_serial_id_fkey"
   add_foreign_key "serials", "users", column: "created_by_id", name: "serials_created_by_id_fkey"
   add_foreign_key "serials", "users", column: "updated_by_id", name: "serials_updated_by_id_fkey"
+  add_foreign_key "sled_images", "projects"
+  add_foreign_key "sled_images", "users", column: "created_by_id"
+  add_foreign_key "sled_images", "users", column: "updated_by_id"
   add_foreign_key "sources", "languages", name: "sources_language_id_fkey"
   add_foreign_key "sources", "serials", name: "sources_serial_id_fkey"
   add_foreign_key "sources", "users", column: "created_by_id", name: "sources_created_by_id_fkey"

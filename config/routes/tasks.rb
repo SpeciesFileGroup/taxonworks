@@ -149,8 +149,8 @@ scope :tasks do
   end
 
   scope :collection_objects do
-      scope :slide_breakdown, controller: 'tasks/collection_objects/slide_breakdown' do
-        get :index, as: 'index_slide_breakdown_task'
+      scope :grid_digitize, controller: 'tasks/collection_objects/grid_digitize' do
+        get :index, as: 'grid_digitize_task'
       end
 
       scope :summary, controller: 'tasks/collection_objects/summary' do
