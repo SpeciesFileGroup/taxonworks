@@ -26,7 +26,7 @@
         v-html="identifier.label"/>
       <span
         class="button-circle button-default btn-undo"
-        @click="resetIdentifier"/>
+        @click="removeNamespace"/>
     </p>
     <div class="horizontal-left-content">
       <div class="margin-small-top margin-small-right full_width">
@@ -127,6 +127,10 @@ export default {
         identifier_object_id: undefined,
         identifier_object_type: 'CollectionObject'
       }
+    },
+    removeNamespace() {
+      this.identifier.namespace_id = undefined
+      this.identifier.label = undefined
     }
   }
 }

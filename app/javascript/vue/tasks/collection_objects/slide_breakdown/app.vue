@@ -295,7 +295,7 @@ export default {
       return inc
     },
     setIdentifiers (metadata, summary = undefined) {
-      if(summary) {
+      if(summary && summary.length) {
         return metadata.map(cell => {
           cell.textfield = summary[cell.row][cell.column].identifier
           return cell
@@ -324,7 +324,12 @@ export default {
             return cell
           })
         }
-        return metadata
+        else {
+          return metadata.map((cell) => {
+            cell.textfield = undefined
+            return cell
+          })
+        }
       }
     }
   }
