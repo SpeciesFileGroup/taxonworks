@@ -35,6 +35,7 @@ namespace :tw do
           j = 0
           n = nil
           errors = []
+
           Identifier::Local::Import.where(identifier_object_type: 'Source', project_id: Current.project_id).find_each do |i|
             o = i.identifier_object
             
@@ -85,8 +86,9 @@ namespace :tw do
           errors.push a
           puts Rainbow(a).red
         end
-       
-        puts Rainbow("Done. Updated #{j} records.").gold
+      
+        t = Identifier::Local::Import.where(identifier_object_type: 'Source', project_id: Current.project_id).all.count 
+        puts Rainbow("Done. Updated #{j} of #{t} records.").gold
 
         puts '----'
         puts errors.collect{|e| "* [ ] #{e}"}.join("\n")
