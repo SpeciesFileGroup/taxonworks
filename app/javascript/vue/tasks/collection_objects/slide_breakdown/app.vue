@@ -3,7 +3,17 @@
     <spinner-component
       :full-screen="true"
       v-if="isLoading"/>
-    <h1>Slide tray breakdown</h1>
+    <div class="flex-separate middle">
+      <h1>Grid digitizer</h1>
+      <ul class="context-menu">
+        <li>
+          Previous
+        </li>
+        <li>
+          Next
+        </li>
+      </ul>
+    </div>
     <template v-if="image">
       <div class="horizontal-left-content align-start">
         
@@ -83,7 +93,7 @@
 <script>
 
 import Sled from '@sfgrp/sled'
-import { GetImage, GetSledImage } from './request/resource'
+import { GetImage, GetSledImage, NavigationSled } from './request/resource'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 import { ActionNames } from './store/actions/actions'
@@ -148,6 +158,10 @@ export default {
       cells: [],
       tabs: ['Assign', 'Overview metadata', 'Review'],
       view: 'Assign',
+      navigation: {
+        next: undefined,
+        previous: undefined
+      },
       scale: 1,
       style: {
         viewer: {
@@ -213,6 +227,9 @@ export default {
               if(response.body.sled_image_id) {
                 GetSledImage(response.body.sled_image_id).then(response => {
                   this.sledImage = response.body
+                  NavigationSled(this.sledImage.global_id).then(response => {
+                    this.navigation = response.headers.map
+                  })
                   this.isLoading = false
                   if(response.body.metadata.length) {
                     this.setLines(this.setIdentifiers(response.body.metadata, response.body.summary))

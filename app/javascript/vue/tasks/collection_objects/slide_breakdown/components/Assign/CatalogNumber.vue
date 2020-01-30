@@ -28,11 +28,22 @@
         class="button-circle button-default btn-undo"
         @click="resetIdentifier"/>
     </p>
-    <div class="margin-small-top">
-      <label class="display-block">Identifier</label>
-      <input
-        v-model="identifier.identifier"
-        type="text">
+    <div class="horizontal-left-content">
+      <div class="margin-small-top margin-small-right full_width">
+        <label class="display-block">Identifier</label>
+        <input
+          class="full_width"
+          v-model="identifier.identifier"
+          type="number">
+      </div>
+      <div class="margin-small-top margin-small-left full_width">
+        <label class="display-block">End</label>
+        <input
+          class="full_width"
+          :value="incremented"
+          disabled="true"
+          type="number">
+      </div>
     </div>
   </fieldset>
 </template>
@@ -63,6 +74,18 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetSledImage, value)
       }
+    },
+    incremented () {
+      if(!this.identifier.identifier) return undefined
+      
+      let inc = 0
+
+      this.sledImage.metadata.forEach(item => {
+        if(item.metadata == null) {
+          inc ++
+        }
+      })
+      return (Number(this.identifier.identifier) + inc + (inc == 0 ? 0 : -1))
     }
   },
   data () {

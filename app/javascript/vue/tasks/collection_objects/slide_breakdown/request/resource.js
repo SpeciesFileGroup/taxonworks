@@ -20,10 +20,15 @@ const NukeSledImage = (id) => {
   return ajaxCall('delete', `/sled_images/${id}.json`, { nuke: 'nuke' })
 }
 
+const NavigationSled = (globalId) => {
+  return ajaxCall('get', `/metadata/object_navigation/${encodeURIComponent(globalId)}`)
+}
+
 export {
   GetImage,
   GetSledImage,
   UpdateSledImage,
   NukeSledImage,
-  CreateSledImage
+  CreateSledImage,
+  NavigationSled
 }

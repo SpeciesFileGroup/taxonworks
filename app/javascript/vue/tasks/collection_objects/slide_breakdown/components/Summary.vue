@@ -47,6 +47,16 @@ export default {
         this.$store.commit(MutationNames.SetSledImage, value)
       }
     },
+    countCO () {
+      let count = 0
+      
+      this.sledImage.metadata.forEach(cell => {
+        if(cell.metadata == null) {
+          count++
+        }
+      })
+      return count
+    }
   },
   methods: {
     updateSled () {
