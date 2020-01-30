@@ -70,13 +70,14 @@
           <div class="flex-separate margin-large-top">
             <div class="full_width">
               <spinner-component
-                v-if="disabledPanel"
+                v-if="disabledPanel && view == 'Assign'"
                 :show-legend="false"
                 :show-spinner="false"/>
               <component
                 :is="componentSelected"/>
             </div>
             <summary-component
+              v-if="view != 'Review'"
               @update="createSled"
               class="full_width margin-medium-left"/>
           </div>
@@ -181,7 +182,7 @@ export default {
     },
     sledImage: {
       handler(newVal) {
-        this.$refs.sled.cells = this.setIdentifiers(this.sledImage.metadata)
+        this.$refs.sled.cells = this.setIdentifiers(this.sledImage.metadata, newVal.summary)
       },
       deep: true
     }

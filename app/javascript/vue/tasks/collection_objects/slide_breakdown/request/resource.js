@@ -24,11 +24,16 @@ const NavigationSled = (globalId) => {
   return ajaxCall('get', `/metadata/object_navigation/${encodeURIComponent(globalId)}`)
 }
 
+const Report = (id) => {
+  return ajaxCall('get', `/collection_objects/report.json`, { params: { sled_image_id: id } })
+}
+
 export {
   GetImage,
   GetSledImage,
   UpdateSledImage,
   NukeSledImage,
   CreateSledImage,
-  NavigationSled
+  NavigationSled,
+  Report
 }

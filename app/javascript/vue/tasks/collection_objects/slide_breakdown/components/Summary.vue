@@ -18,7 +18,17 @@
         class="inline full_width"
         @confirm="updateSled"/>
     </div>
-    {{ summary }}
+    <ul v-if="!sledImage.id">
+      <li v-if="countCO > 0">
+        <span>{{countCO}} collection object will be created.</span>
+      </li>
+      <li v-if="collectionObject.taxon_determinations_attributes.length">
+        <span>Taxon determination will be added</span>
+      </li>
+      <li v-if="identifier.namespace_id && identifier.identifier">
+        <span>Catalogue number will be added.</span>
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -46,6 +56,14 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetSledImage, value)
       }
+    },
+    identifier: {
+      get () {
+        return this.$store.getters[GetterNames.GetIdentifier]
+      }
+    },
+    collectionObject () {
+      return this.$store.getters[GetterNames.GetCollectionObject]
     },
     countCO () {
       let count = 0

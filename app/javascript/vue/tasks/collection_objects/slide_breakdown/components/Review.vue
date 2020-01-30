@@ -1,43 +1,99 @@
 <template>
   <div class="panel content">
+    <spinner-component
+      v-if="isLoading"
+      :show-spinner="false"/>
     <h2>Existing data</h2>
+    <div style="overflow-x: scroll">
     <table>
       <thead>
         <tr>
-          <th>Identifier</th>
           <th>Total</th>
+          <th>Family</th>
+          <th>Genus</th>
+          <th>Scientific name</th>
+          <th>Identifier</th>
+          <th>Biocuration attributes</th>
+          <th>Level 1</th>
+          <th>Level 2</th>
+          <th>Level 3</th>
+          <th>Verbatim locality</th>
+          <th>Date start</th>
+          <th>Container</th>
+          <th>Update at</th>
           <th>Radial annotator</th>
           <th>Edit</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="item in list">
-          <td>{{ item.object_tag }}</td>
-          <td>{{ item.total }}</td>
+        <tr
+          v-for="(item, index) in list"
+          :key="item.id"
+          class="contextMenuCells"
+          :class="{ 'even': (index % 2 == 0) }"
+          @click="sendCO(item)">
+          <td>{{ item.dwc_attributes.individualCount }}</td>
+          <td>{{ item.dwc_attributes.family }}</td>
+          <td>{{ item.dwc_attributes.genus }}</td>
+          <td>{{ item.dwc_attributes.scientificName }}</td>
+          <template>
+            <td 
+              v-if="item.identifier_from_container"
+              v-html="item.object_tag"/>
+            <td v-else>{{ item.dwc_attributes.catalogNumber}}</td>
+          </template>
+          <td>{{ item.biocuration }}</td>
+          <td>{{ item.dwc_attributes.country }}</td>
+          <td>{{ item.dwc_attributes.stateProvince }}</td>
+          <td>{{ item.dwc_attributes.county }}</td>
+          <td>{{ item.dwc_attributes.verbatimLocality }}</td>
+          <td>{{ item.dwc_attributes.eventDate }}</td>
+          <td v-html="item.container"/>
+          <td>{{ item.updated_at }}</td>
           <td>
             <radial-annotator :global-id="item.global_id"/>
           </td>
           <td>
-            <span class="button circle-button btn-edit"/>
+            <a 
+              class="button circle-button btn-edit"
+              :href="`/tasks/accessions/comprehensive?collection_object_id=${item.id}`"/>
           </td>
         </tr>
       </tbody>
     </table>
+    </div>
   </div>
 </template>
 
 <script>
 
 import RadialAnnotator from 'components/annotator/annotator'
+import { Report } from '../request/resource'
+import { GetterNames } from '../store/getters/getters'
+import sledImage from '../const/sledImage'
+import SpinnerComponent from 'components/spinner'
 
 export default {
   components: {
-    RadialAnnotator
+    RadialAnnotator,
+    SpinnerComponent
   },
-  props: {
-    list: {
-      type: Array,
-      default: () => { return [] }
+  computed: {
+    sledImage () {
+      return this.$store.getters[GetterNames.GetSledImage]
+    }
+  },
+  data () {
+    return {
+      list: [],
+      isLoading: false
+    }
+  },
+  mounted() {
+    if(this.sledImage.id) {
+      Report(this.sledImage.id).then(response => {
+        this.list = response.body
+      })
     }
   }
 }

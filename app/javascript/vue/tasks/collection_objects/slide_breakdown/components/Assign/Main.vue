@@ -1,8 +1,8 @@
 <template>
   <div class="panel content">
-    <h2>Assign</h2>
-    <metadata-component class="margin-medium-bottom"/>
-    <catalog-number class="margin-medium-bottom"/>
+    <h2>Object metadata</h2>
+    <span>Added to all collection objects accordingly</span>
+    <catalog-number class="margin-medium-bottom margin-medium-top"/>
     <taxon-determination class="margin-medium-bottom"/>
     <container-component class="margin-medium-bottom"/>
     <collecting-event class="margin-medium-bottom"/>
@@ -13,7 +13,6 @@
 
 <script>
 
-import MetadataComponent from './Metadata'
 import CatalogNumber from './CatalogNumber'
 import ContainerComponent from './Container'
 import NoteComponent from './Note'
@@ -23,7 +22,6 @@ import CollectingEvent from './CollectingEvent'
 
 export default {
   components: {
-    MetadataComponent,
     CatalogNumber,
     ContainerComponent,
     NoteComponent,
