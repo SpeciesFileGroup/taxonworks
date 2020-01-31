@@ -2,7 +2,7 @@
   "dependencies": {
     "@ibm/plex": "^4.0.2",
     "@rails/webpacker": "^4.2.2",
-    "@sfgrp/sled": "^0.4.3",
+    "@sfgrp/sled": "^0.4.4",
     "babel-preset-stage-0": "^6.24.1",
     "browser-request": "^0.3.3",
     "file-loader": "^5.0.2",
