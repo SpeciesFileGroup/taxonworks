@@ -40,8 +40,10 @@ module PaginationHeaders
 
       n = o.next&.id&.to_s
       p = o.previous&.id&.to_s
-      ni = o.next_by_identifier&.id&.to_s
-      np = o.previous_by_identifier&.id&.to_s
+      if o.respond_to?(:next_by_identifier)
+        ni = o.next_by_identifier&.id&.to_s
+        np = o.previous_by_identifier&.id&.to_s
+      end
       response.set_header('Navigation-Next', n) if n
       response.set_header('Navigation-Previous', p) if p
       response.set_header('Navigation-Next-By-Identifier', ni) if ni
