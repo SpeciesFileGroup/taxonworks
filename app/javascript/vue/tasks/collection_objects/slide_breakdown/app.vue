@@ -309,7 +309,7 @@ export default {
         let r = cell.row
         let c = cell.column
         if(!i[r]) { i[r] = [] }
-        i[r][c] = cell.metadata != 'none' ? 0 : 1
+        i[r][c] = cell.metadata != null ? 0 : 1
       })
       return i
     },

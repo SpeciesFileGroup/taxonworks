@@ -28,6 +28,12 @@
       <li v-if="identifier.namespace_id && identifier.identifier">
         <span>Catalogue number will be added.</span>
       </li>
+      <li v-if="collectionObject.tags_attributes.length">
+        <span>{{ collectionObject.tags_attributes.length }} tags will be added.</span>
+      </li>
+      <li v-if="collectionObject.notes_attributes.length">
+        <span>{{ collectionObject.notes_attributes.length }} notes will be added.</span>
+      </li>
     </ul>
   </div>
 </template>
