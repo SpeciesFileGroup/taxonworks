@@ -6,6 +6,7 @@
     <modal-component
       v-if="show"
       @close="show = false">
+      <h3 slot="header">Quick grid</h3>
       <fieldset slot="body">
         <legend>Quick grid</legend>
         <div class="flex-separate middle">

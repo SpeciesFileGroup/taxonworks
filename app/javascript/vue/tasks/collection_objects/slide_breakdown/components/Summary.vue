@@ -6,19 +6,19 @@
         @click="$emit('update')"
         type="button"
         class="button normal-input button-submit margin-medium-right full_width">
-        {{ sledImage.summary.length ? 'Update' : 'Create' }}
+        {{ summary.length ? 'Update' : 'Create' }}
       </button>
       <button
         type="button"
         class="button normal-input button-submit margin-medium-right full_width">
-        {{ sledImage.summary.length ? 'Update' : 'Create' }} and next
+        {{ summary.length ? 'Update' : 'Create' }} and next
       </button>
       <nuke-component
         :disabled="!sledImage.id"
         class="inline full_width"
         @confirm="updateSled"/>
     </div>
-    <ul v-if="sledImage.metadata.length > 0">
+    <ul v-if="sledImage.metadata.length > 0 && summary.length === 0">
       <li v-if="countCO > 0">
         <span>{{countCO}} collection object will be created.</span>
       </li>
@@ -46,8 +46,7 @@ export default {
   },
   computed: {
     summary() {
-      let sled = this.$store.getters[GetterNames.GetSledImage]
-      return sled['summary']
+      return this.$store.getters[GetterNames.GetSledImage].summary
     },
     sledImage: {
       get () {

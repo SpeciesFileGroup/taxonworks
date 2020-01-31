@@ -2,7 +2,8 @@
   <div>
     <spinner-component
       :full-screen="true"
-      v-if="isLoading"/>
+      :legend="isSaving ? 'Saving...' : 'Loading...'"
+      v-if="isLoading || isSaving"/>
     <div class="flex-separate middle">
       <h1>Grid digitizer</h1>
       <ul class="context-menu">
@@ -20,6 +21,7 @@
           class="position-relative"
           style="width: 50%;">
           <quick-grid
+            v-if="!disabledPanel"
             :width="image.width"
             :height="image.height"
             @grid="setGrid"/>
@@ -128,7 +130,7 @@ export default {
   computed: {
     disabledPanel () {
       let sled = this.$store.getters[GetterNames.GetSledImage]
-      return sled && sled['summary'] && sled.summary.length
+      return sled && sled['summary'] && sled.summary.length > 0
     },
     componentSelected () {
       return `${this.view.toPascalCase().replace(' ', '')}Component`
@@ -161,6 +163,7 @@ export default {
       scale: 1,
       fileImage: undefined,
       isLoading: false,
+      isSaving: false,
       tabs: ['Assign', 'Overview metadata', 'Review'],
       view: 'Assign',
       metadata: {
@@ -215,7 +218,10 @@ export default {
       this.sledImage.metadata = cells
     },
     createSled () {
-      this.$store.dispatch(ActionNames.UpdateSled)
+      this.isSaving = true
+      this.$store.dispatch(ActionNames.UpdateSled).then(() => {
+        this.isSaving = false
+      })
     },
     setGrid (grid) {
       this.vlines = grid.vlines
