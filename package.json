@@ -2,7 +2,7 @@
   "dependencies": {
     "@ibm/plex": "^4.0.2",
     "@rails/webpacker": "^4.2.2",
-    "@sfgrp/sled": "^0.4.1",
+    "@sfgrp/sled": "^0.4.3",
     "babel-preset-stage-0": "^6.24.1",
     "browser-request": "^0.3.3",
     "file-loader": "^5.0.2",
@@ -39,7 +39,7 @@
     "eslint-plugin-vue": "^6.1.2",
     "increase-memory-limit": "^1.0.7",
     "raw-loader": "^4.0.0",
-    "webpack-dev-server": "^3.10.1"
+    "webpack-dev-server": "^3.10.2"
   },
   "scripts": {
     "webpack-test": "RAILS_ENV=test node_modules/.bin/webpack --progress --config config/webpack/test.js",
