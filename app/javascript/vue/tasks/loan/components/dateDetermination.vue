@@ -13,9 +13,10 @@
       <autocomplete
         min="2"
         placeholder="Select an OTU"
-        label="label"
+        label="label_html"
         @getItem="determination.otu_id = $event.id"
         url="/otus/autocomplete"
+        display="label"
         param="term"/>
     </div>
     <div class="field">
@@ -80,7 +81,7 @@ export default {
         return []
       },
       set (value) {
-        determination.roles_attributes
+        this.determination.roles_attributes
       }
     }
   },
@@ -109,7 +110,7 @@ export default {
       })
       Promise.all(promises).then(() => {
         this.$store.commit(MutationNames.SetSaving, false)
-        TW.workbench.alert.create('Loan item was successfully created.', 'notice')
+        TW.workbench.alert.create('Loan item was successfully updated.', 'notice')
       })
     }
   }
