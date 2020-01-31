@@ -53,7 +53,7 @@
               :image-height="image.height"
               :line-weight="lineWeight"
               :autosize="true"
-              :metadata-assignment="{ test: 'Test label' }"
+              :metadata-assignment="metadata"
               :file-image="fileImage"
               :locked="sledImage.summary.length > 0"
               @resize="scale = $event.scale"
@@ -157,6 +157,18 @@ export default {
       isLoading: false,
       tabs: ['Assign', 'Overview metadata', 'Review'],
       view: 'Assign',
+      metadata: {
+        annotated_specimen: 'Annotated specimen',
+        collecting_event_labels: 'Collecting event labels',
+        curator_metadata: 'Curator metadata',
+        determination_labels: 'Determination labels',
+        identifier: 'Identifier',
+        image_registration: 'Image registration',
+        other_labels: 'Other labels',
+        labels: 'Labels',
+        specimen: 'Specimen',
+        stage: 'Stage'
+      },
       navigation: {
         next: undefined,
         previous: undefined
