@@ -6,12 +6,12 @@
         @click="$emit('update')"
         type="button"
         class="button normal-input button-submit margin-medium-right full_width">
-        {{ sledImage.id ? 'Update' : 'Create' }}
+        {{ sledImage.summary.length ? 'Update' : 'Create' }}
       </button>
       <button
         type="button"
         class="button normal-input button-submit margin-medium-right full_width">
-        {{ sledImage.id ? 'Update' : 'Create' }} and next
+        {{ sledImage.summary.length ? 'Update' : 'Create' }} and next
       </button>
       <nuke-component
         :disabled="!sledImage.id"
