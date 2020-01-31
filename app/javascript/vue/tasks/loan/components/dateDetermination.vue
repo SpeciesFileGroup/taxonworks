@@ -50,7 +50,6 @@
 
 import { createTaxonDetermination } from '../request/resources'
 import { MutationNames } from '../store/mutations/mutations'
-import autocomplete from 'components/autocomplete.vue'
 import rolePicker from 'components/role_picker.vue'
 import OtuPicker from 'components/otu/otu_picker/otu_picker'
 
