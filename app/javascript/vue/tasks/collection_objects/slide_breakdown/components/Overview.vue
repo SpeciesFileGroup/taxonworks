@@ -1,7 +1,7 @@
 <template>
   <div class="panel content">
     <h2>Layout metadata</h2>
-    <h4>Added to the sled depiction record.</h4>
+    <h4>Under development</h4>
   </div>
 </template>
 

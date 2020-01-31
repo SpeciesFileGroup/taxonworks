@@ -155,7 +155,6 @@ export default {
       scale: 1,
       fileImage: undefined,
       isLoading: false,
-      cells: [],
       tabs: ['Assign', 'Overview metadata', 'Review'],
       view: 'Assign',
       navigation: {
@@ -180,8 +179,8 @@ export default {
       deep: true
     },
     sledImage: {
-      handler(newVal) {
-        this.$refs.sled.cells = this.setIdentifiers(this.sledImage.metadata, newVal.summary)
+      handler(newVal, oldVal) {
+        this.$refs.sled.cells = this.setIdentifiers(newVal.metadata, newVal.summary)
       },
       deep: true
     }
@@ -226,14 +225,19 @@ export default {
               that.hlines = [0 ,that.image.height]
               if(response.body.sled_image_id) {
                 GetSledImage(response.body.sled_image_id).then(response => {
-                  this.sledImage = response.body
+                  if(response.body.metadata.length) {
+                    this.sledImage = response.body
+                  } else {
+                    response.body.metadata = this.sledImage.metadata
+                    this.sledImage = response.body
+                  }
+                  
                   NavigationSled(this.sledImage.global_id).then(response => {
                     this.navigation = response.headers.map
                   })
                   this.isLoading = false
                   if(response.body.metadata.length) {
                     this.setLines(this.setIdentifiers(response.body.metadata, response.body.summary))
-                    
                     this.$refs.sled.cells = response.body.metadata
                   }
                 })
