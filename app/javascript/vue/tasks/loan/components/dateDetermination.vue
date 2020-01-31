@@ -10,14 +10,9 @@
     </div>
     <div class="field">
       <label>OTU</label>
-      <autocomplete
-        min="2"
-        placeholder="Select an OTU"
-        label="label_html"
-        @getItem="determination.otu_id = $event.id"
-        url="/otus/autocomplete"
-        display="label"
-        param="term"/>
+      <otu-picker
+        :clear-after="true"
+        @getItem="determination.otu_id = $event.id"/>
     </div>
     <div class="field">
       <label>Date made</label>
@@ -57,10 +52,11 @@ import { createTaxonDetermination } from '../request/resources'
 import { MutationNames } from '../store/mutations/mutations'
 import autocomplete from 'components/autocomplete.vue'
 import rolePicker from 'components/role_picker.vue'
+import OtuPicker from 'components/otu/otu_picker/otu_picker'
 
 export default {
   components: {
-    autocomplete,
+    OtuPicker,
     rolePicker
   },
   props: {
