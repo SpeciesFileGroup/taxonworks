@@ -19,6 +19,10 @@
         <div
           class="position-relative"
           style="width: 50%;">
+          <quick-grid
+            :width="image.width"
+            :height="image.height"
+            @grid="setGrid"/>
           <template
             v-for="(hline, index) in hlines"
             v-if="index < hlines.length-1 && !disabledPanel">
@@ -106,6 +110,7 @@ import ReviewComponent from './components/Review'
 import OverviewMetadataComponent from './components/Overview'
 import SummaryComponent from './components/Summary'
 import SpinnerComponent from 'components/spinner'
+import QuickGrid from './components/grid/Quick'
 
 export default {
   components: {
@@ -117,7 +122,8 @@ export default {
     OverviewMetadataComponent,
     UploadImage,
     SummaryComponent,
-    SpinnerComponent
+    SpinnerComponent,
+    QuickGrid
   },
   computed: {
     disabledPanel () {
@@ -210,6 +216,10 @@ export default {
     },
     createSled () {
       this.$store.dispatch(ActionNames.UpdateSled)
+    },
+    setGrid (grid) {
+      this.vlines = grid.vlines
+      this.hlines = grid.hlines
     },
     loadImage(imageId) {
       this.isLoading = true

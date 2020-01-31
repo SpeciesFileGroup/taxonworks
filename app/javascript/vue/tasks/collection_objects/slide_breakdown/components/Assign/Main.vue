@@ -1,7 +1,7 @@
 <template>
   <div class="panel content">
     <h2>Object metadata</h2>
-    <span>Added to all collection objects accordingly</span>
+    <span><i>Added to all collection objects accordingly</i></span>
     <catalog-number class="margin-medium-bottom margin-medium-top"/>
     <taxon-determination class="margin-medium-bottom"/>
     <container-component class="margin-medium-bottom"/>
