@@ -38,6 +38,7 @@
             <th>Collection object status</th>
             <th>Total</th>
             <th>Pin</th>
+            <th>Radial</th>
             <th>Delete</th>
           </tr>
         </thead>
@@ -68,6 +69,9 @@
                 :type="item.loan_item_object_type"/>
             </td>
             <td>
+              <radial-annotator :global-id="item.global_id"/>
+            </td>
+            <td>
               <span
                 class="circle-button btn-delete"
                 @click="deleteItem(item)">Remove
@@ -89,12 +93,14 @@
   import Spinner from 'components/spinner.vue'
   import Expand from './expand.vue'
   import PinComponent from 'components/pin.vue'
+  import RadialAnnotator from 'components/annotator/annotator'
 
   export default {
     components: {
       Spinner,
       Expand,
-      PinComponent
+      PinComponent,
+      RadialAnnotator
     },
     computed: {
       list() {
