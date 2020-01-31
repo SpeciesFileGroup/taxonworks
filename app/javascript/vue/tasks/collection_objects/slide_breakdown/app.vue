@@ -221,6 +221,8 @@ export default {
       this.isSaving = true
       this.$store.dispatch(ActionNames.UpdateSled).then(() => {
         this.isSaving = false
+      }, () => {
+        this.isSaving = false
       })
     },
     setGrid (grid) {
