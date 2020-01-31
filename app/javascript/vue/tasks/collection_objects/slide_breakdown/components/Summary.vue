@@ -18,7 +18,7 @@
         class="inline full_width"
         @confirm="updateSled"/>
     </div>
-    <ul v-if="!sledImage.id">
+    <ul v-if="sledImage.metadata.length > 0">
       <li v-if="countCO > 0">
         <span>{{countCO}} collection object will be created.</span>
       </li>
