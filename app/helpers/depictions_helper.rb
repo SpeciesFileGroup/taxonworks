@@ -6,7 +6,10 @@ module DepictionsHelper
       depictions_sled_tag(depiction, size: size)
       # depiction_svg_tag(depiction)
     else
-      image_tag(depiction.image.image_file.url(:thumb)) + ' ' + image_context_depiction_tag(depiction)
+      content_tag(:figure) do
+        image_tag(depiction.image.image_file.url(size)) +
+        content_tag(:figcaption,  image_context_depiction_tag(depiction))
+      end
     end
   end
 
@@ -27,7 +30,10 @@ module DepictionsHelper
   end
 
   def depictions_sled_tag(depiction, size: :thumb)
-    image_tag(depiction.sled_extraction_path(size)) + ' ' + image_context_depiction_tag(depiction)
+    content_tag(:figure) do
+      image_tag(depiction.sled_extraction_path(size)) +
+        content_tag(:figcaption,  image_context_depiction_tag(depiction))
+    end
   end
 
 end

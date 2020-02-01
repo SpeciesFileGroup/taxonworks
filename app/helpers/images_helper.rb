@@ -36,8 +36,7 @@ module ImagesHelper
     if object.depictions.any?
       object.depictions.collect{|a|
         content_tag(:div, class: [:easyzoom, 'easyzoom--overlay'])  do
-          link_to(image_tag(a.image.image_file.url(:medium)), a.image.image_file.url())
-          
+          link_to( depiction_tag(a, size: :medium), a.image.image_file.url())
         end
       }.join.html_safe
     end
