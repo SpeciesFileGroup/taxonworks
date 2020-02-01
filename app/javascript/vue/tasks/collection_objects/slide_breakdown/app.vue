@@ -83,7 +83,7 @@
     <upload-image
       class="full_width margin-large-top"
       v-else
-      @created="loadImage($event.id)"/>
+      @created="createImage($event.id)"/>
   </div>
 </template>
 
@@ -227,6 +227,11 @@ export default {
     }
   },
   methods: {
+    createImage(imageId) {
+      this.loadImage(imageId).then(response => {
+         this.loadSled(response.sled_image_id)
+      })
+    },
     processCells (cells) {
       this.sledImage.metadata = cells
     },
