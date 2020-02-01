@@ -31,7 +31,11 @@ function makeInitialState () {
       identifier_object_id: undefined,
       identifier_object_type: 'CollectionObject'
     },
-    image: undefined
+    image: undefined,
+    navigation: {
+      previous: undefined,
+      next: undefined
+    }
   }
 }
 

@@ -9,9 +9,17 @@
         {{ summary.length ? 'Update' : 'Create' }}
       </button>
       <button
+        @click="$emit('updateNext', Number(navigate.next))"
+        :disabled="!navigate.next"
         type="button"
         class="button normal-input button-submit margin-medium-right full_width">
         {{ summary.length ? 'Update' : 'Create' }} and next
+      </button>
+      <button
+        @click="$emit('updateNew')"
+        type="button"
+        class="button normal-input button-submit margin-medium-right full_width">
+        {{ summary.length ? 'Update' : 'Create' }} and new
       </button>
       <nuke-component
         :disabled="!sledImage.id"
@@ -51,6 +59,9 @@ export default {
     NukeComponent
   },
   computed: {
+    navigate () {
+      return this.$store.getters[GetterNames.GetNavigation]
+    },
     summary() {
       return this.$store.getters[GetterNames.GetSledImage].summary
     },

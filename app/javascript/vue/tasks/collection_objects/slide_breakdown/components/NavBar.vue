@@ -8,7 +8,6 @@
         <span v-else>New record</span>
         <template v-if="sledImage.id">
           <radial-annotator :global-id="sledImage.global_id"/>
-          <radial-object :global-id="sledImage.global_id"/>
         </template>
       </div>
       <div class="horizontal-right-content">
@@ -44,27 +43,26 @@
 <script>
 
 import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
 import { NavigationSled } from '../request/resource'
 import RadialAnnotator from 'components/annotator/annotator'
-import RadialObject from 'components/radial_object/radialObject'
 import NavBar from 'components/navBar'
 
 export default {
   components: {
     NavBar,
-    RadialAnnotator,
-    RadialObject
+    RadialAnnotator
   },
   computed: {
     sledImage () {
       return this.$store.getters[GetterNames.GetSledImage]
-    }
-  },
-  data () {
-    return {
-      navigation: {
-        next: undefined,
-        previous: undefined
+    },
+    navigation: {
+      get () {
+        return this.$store.getters[GetterNames.GetNavigation]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetNavigation, value)
       }
     }
   },

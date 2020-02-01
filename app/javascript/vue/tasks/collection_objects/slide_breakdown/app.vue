@@ -75,6 +75,8 @@
             <summary-component
               v-if="view != 'Review'"
               @update="createSled"
+              @updateNew="createSled(true)"
+              @updateNext="createSled(true, $event)"
               class="full_width margin-medium-left"/>
           </div>
         </div>
@@ -235,10 +237,18 @@ export default {
     processCells (cells) {
       this.sledImage.metadata = cells
     },
-    createSled () {
+    createSled (load = false, id = undefined) {
       this.isSaving = true
       this.$store.dispatch(ActionNames.UpdateSled).then(() => {
         this.isSaving = false
+        if(load) {
+          if(Number.isInteger(id)) {
+            window.open(`/tasks/collection_objects/grid_digitize/index?sled_image_id=${id}`, '_self')
+          }
+          else {
+            window.open('/tasks/collection_objects/grid_digitize/index', '_self')
+          }
+        }
       }, () => {
         this.isSaving = false
       })
