@@ -8,6 +8,8 @@
     <table>
       <thead>
         <tr>
+          <th>Radial annotator</th>
+          <th>Edit</th>
           <th>Total</th>
           <th>Family</th>
           <th>Genus</th>
@@ -21,8 +23,6 @@
           <th>Date start</th>
           <th>Container</th>
           <th>Update at</th>
-          <th>Radial annotator</th>
-          <th>Edit</th>
         </tr>
       </thead>
       <tbody>
@@ -32,6 +32,12 @@
           class="contextMenuCells"
           :class="{ 'even': (index % 2 == 0) }"
           @click="sendCO(item)">
+          <td>
+            <radial-annotator :global-id="item.global_id"/>
+          </td>
+          <td>
+            <radial-object :global-id="item.global_id"/>
+          </td>
           <td>{{ item.dwc_attributes.individualCount }}</td>
           <td>{{ item.dwc_attributes.family }}</td>
           <td>{{ item.dwc_attributes.genus }}</td>
@@ -50,14 +56,6 @@
           <td>{{ item.dwc_attributes.eventDate }}</td>
           <td v-html="item.container"/>
           <td>{{ item.updated_at }}</td>
-          <td>
-            <radial-annotator :global-id="item.global_id"/>
-          </td>
-          <td>
-            <a 
-              class="button circle-button btn-edit"
-              :href="`/tasks/accessions/comprehensive?collection_object_id=${item.id}`"/>
-          </td>
         </tr>
       </tbody>
     </table>
@@ -68,6 +66,7 @@
 <script>
 
 import RadialAnnotator from 'components/annotator/annotator'
+import RadialObject from 'components/radial_object/radialObject'
 import { Report } from '../request/resource'
 import { GetterNames } from '../store/getters/getters'
 import sledImage from '../const/sledImage'
@@ -76,7 +75,8 @@ import SpinnerComponent from 'components/spinner'
 export default {
   components: {
     RadialAnnotator,
-    SpinnerComponent
+    SpinnerComponent,
+    RadialObject
   },
   computed: {
     sledImage () {
@@ -91,8 +91,12 @@ export default {
   },
   mounted() {
     if(this.sledImage.id) {
+      this.isLoading = true
       Report(this.sledImage.id).then(response => {
+        this.isLoading = false
         this.list = response.body
+      }, () => {
+        this.isLoading = false
       })
     }
   }

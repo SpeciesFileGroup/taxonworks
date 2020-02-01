@@ -4,17 +4,8 @@
       :full-screen="true"
       :legend="isSaving ? 'Saving...' : 'Loading...'"
       v-if="isLoading || isSaving"/>
-    <div class="flex-separate middle">
-      <h1>Grid digitizer</h1>
-      <ul class="context-menu">
-        <li>
-          Previous
-        </li>
-        <li>
-          Next
-        </li>
-      </ul>
-    </div>
+    <h1>Grid digitizer</h1>
+    <nav-bar/>
     <template v-if="image">
       <div class="horizontal-left-content align-start">
         <div
@@ -99,7 +90,7 @@
 <script>
 
 import Sled from '@sfgrp/sled'
-import { GetImage, GetSledImage, NavigationSled } from './request/resource'
+import { GetImage, GetSledImage } from './request/resource'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 import { ActionNames } from './store/actions/actions'
@@ -113,6 +104,7 @@ import OverviewMetadataComponent from './components/Overview'
 import SummaryComponent from './components/Summary'
 import SpinnerComponent from 'components/spinner'
 import QuickGrid from './components/grid/Quick'
+import NavBar from './components/NavBar'
 
 export default {
   components: {
@@ -125,7 +117,8 @@ export default {
     UploadImage,
     SummaryComponent,
     SpinnerComponent,
-    QuickGrid
+    QuickGrid,
+    NavBar
   },
   computed: {
     disabledPanel () {
@@ -178,10 +171,6 @@ export default {
         specimen: 'Specimen',
         stage: 'Stage'
       },
-      navigation: {
-        next: undefined,
-        previous: undefined
-      },
       scale: 1,
       style: {
         viewer: {
@@ -209,12 +198,36 @@ export default {
   mounted () {
     let urlParams = new URLSearchParams(window.location.search)
     let imageId = urlParams.get('image_id')
+    let sledId = urlParams.get('sled_image_id')
     if(imageId && /^\d+$/.test(imageId)) {
-      this.loadImage(imageId)
+      this.loadImage(imageId).then(response => {
+         this.loadSled(response.sled_image_id)
+      })
+    }
+    if(sledId && /^\d+$/.test(sledId)) {
+      GetSledImage(sledId).then(sledResponse => {
+        this.loadImage(sledResponse.body.image_id).then(response => {
+          if(sledResponse.body.metadata.length) {
+            this.sledImage = sledResponse.body
+          }
+          else {
+            sledResponse.body.metadata = this.sledImage.metadata
+            this.sledImage = sledResponse.body
+          }
+          if(sledResponse.body.metadata.length) {
+            this.setLines(this.setIdentifiers(sledResponse.body.metadata, sledResponse.body.summary))
+            this.$refs.sled.cells = sledResponse.body.metadata
+          }
+
+          this.isLoading = false
+        }, () => {
+          this.isLoading = false
+        })
+      })
     }
   },
   methods: {
-    processCells(cells) {
+    processCells (cells) {
       this.sledImage.metadata = cells
     },
     createSled () {
@@ -229,61 +242,66 @@ export default {
       this.vlines = grid.vlines
       this.hlines = grid.hlines
     },
-    loadImage(imageId) {
-      this.isLoading = true
-      GetImage(imageId).then(response => {
-        
-        let that = this
-        let ajaxRequest = new XMLHttpRequest()
-        
-        this.image = response.body
-        ajaxRequest.open('GET', response.body.image_file_url)
-        ajaxRequest.responseType = 'blob'
-        ajaxRequest.onload = () => {
-          let blob = ajaxRequest.response
-          let fr = new FileReader()
+    loadSled (sledId) {
+      new Promise((resolve, reject) => {
+        GetSledImage(sledId).then(response => {
+          if(response.body.metadata.length) {
+            this.sledImage = response.body
+          }
+          else {
+            response.body.metadata = this.sledImage.metadata
+            this.sledImage = response.body
+          }
+          if(response.body.metadata.length) {
+            this.setLines(this.setIdentifiers(response.body.metadata, response.body.summary))
+            this.$refs.sled.cells = response.body.metadata
+          }
 
-          fr.onloadend = () => {
-            let dataUrl = fr.result
-            let image = new Image
+          this.isLoading = false
+          resolve(response)
+        }, (resolve) => {
+          reject(resolve)
+        })
+      })
+    },
+    loadImage (imageId) {
+      return new Promise((resolve, reject) => {
+        this.isLoading = true
+        GetImage(imageId).then(response => {
+          
+          let that = this
+          let ajaxRequest = new XMLHttpRequest()
+          
+          this.image = response.body
+          ajaxRequest.open('GET', response.body.image_file_url)
+          ajaxRequest.responseType = 'blob'
+          ajaxRequest.onload = () => {
+            let blob = ajaxRequest.response
+            let fr = new FileReader()
 
-            image.onload = () => {
-              that.image.width = image.width
-              that.image.height = image.height
-              that.fileImage = dataUrl
-              that.vlines = [0, that.image.width]
-              that.hlines = [0 ,that.image.height]
-              if(response.body.sled_image_id) {
-                GetSledImage(response.body.sled_image_id).then(response => {
-                  if(response.body.metadata.length) {
-                    this.sledImage = response.body
-                  } else {
-                    response.body.metadata = this.sledImage.metadata
-                    this.sledImage = response.body
-                  }
-                  
-                  NavigationSled(this.sledImage.global_id).then(response => {
-                    this.navigation = response.headers.map
-                  })
-                  this.isLoading = false
-                  if(response.body.metadata.length) {
-                    this.setLines(this.setIdentifiers(response.body.metadata, response.body.summary))
-                    this.$refs.sled.cells = response.body.metadata
-                  }
-                })
-              }
-              else {
+            fr.onloadend = () => {
+              let dataUrl = fr.result
+              let image = new Image
+
+              image.onload = () => {
+                that.image.width = image.width
+                that.image.height = image.height
+                that.fileImage = dataUrl
+                that.vlines = [0, that.image.width]
+                that.hlines = [0 ,that.image.height]
                 this.isLoading = false
+                resolve(response.body)
               }
-            }
 
-            image.src = dataUrl
+              image.src = dataUrl
+            };
+            fr.readAsDataURL(blob)
           };
-          fr.readAsDataURL(blob)
-        };
-        ajaxRequest.send()
-      }, () => {
-        this.isLoading = false
+          ajaxRequest.send()
+        }, () => {
+          this.isLoading = false
+          reject()
+        })
       })
     },
     getPosition (line, next) {
