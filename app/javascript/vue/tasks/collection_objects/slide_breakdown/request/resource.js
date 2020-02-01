@@ -17,7 +17,7 @@ const CreateSledImage = (data) => {
 }
 
 const NukeSledImage = (id) => {
-  return ajaxCall('delete', `/sled_images/${id}.json`, { nuke: 'nuke' })
+  return ajaxCall('delete', `/sled_images/${id}.json`, { params: { nuke: 'nuke' } })
 }
 
 const NavigationSled = (globalId) => {

@@ -282,6 +282,8 @@ export default {
           fr.readAsDataURL(blob)
         };
         ajaxRequest.send()
+      }, () => {
+        this.isLoading = false
       })
     },
     getPosition (line, next) {
