@@ -5,10 +5,7 @@
 
 <p>
   <strong>Image:</strong>
-
-  <div class="easyzoom easyzoom--overlay">
-    <%= link_to( image_tag(@depiction.image.image_file.url, 'class' => 'imageZoom'), @depiction.image.image_file.url ) %>
-  </div>
+  <%= link_to( depiction_tag(@depiction, size: :original), @depiction.image.image_file.url ) %>
 </p>
 
 <div class="attribute_set" data-title="Caption etc.">
@@ -43,7 +40,7 @@
 <div class="attribute_set" data-title="Sled">
   <p>
     <strong>Sled image id</strong>
-    <%= @depiction.sled_image_id -%>
+    <%= link_to(@depiction.sled_image_id, grid_digitize_task_path(sled_image_id: @depiction.sled_image_id)) -%>
   </p>
 
   <p>

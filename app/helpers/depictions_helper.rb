@@ -8,14 +8,14 @@ module DepictionsHelper
     else
       content_tag(:figure) do
         image_tag(depiction.image.image_file.url(size)) +
-        content_tag(:figcaption,  image_context_depiction_tag(depiction))
+          content_tag(:figcaption, image_context_depiction_tag(depiction))
       end
     end
   end
 
   def image_context_depiction_tag(depiction)
     return nil if depiction.nil?
-    object_link(depiction.depiction_object.metamorphosize)
+    object_tag(depiction.depiction_object.metamorphosize)
   end
 
   # !! NOT USED
