@@ -6,7 +6,6 @@
       animation="scale"
       placement="bottom"
       size="small"
-      arrow-size="small"
       :inertia="true"
       :arrow="true"
       :content="`<p>Create tag: ${getDefaultElement().firstChild.firstChild.textContent}.${showCount ? `<br>Used already on ${countTag} ${countTag > 200 ? 'or more' : '' } objects</p>` : ''}`">
@@ -22,7 +21,6 @@
       animation="scale"
       placement="bottom"
       size="small"
-      arrow-size="small"
       :inertia="true"
       :arrow="true"
       :content="`<p>Remove tag: ${getDefaultElement().firstChild.firstChild.textContent}.${showCount ? `<br>Used already on ${countTag} ${countTag > 200 ? 'or more' : '' } objects</p>` : ''}`">

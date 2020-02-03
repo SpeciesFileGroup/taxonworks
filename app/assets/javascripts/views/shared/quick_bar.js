@@ -17,7 +17,7 @@ Object.assign(TW.views.shared.quick_bar, {
 			$('body').append("<div class='button-collapse-header'></div>");
 		}
 
-		Mousetrap.bind('alt+ctrl+h', function(e) {
+		Mousetrap.bind((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')+ '+h', function(e) {
 			window.location = "/hub";
 		});			
 
