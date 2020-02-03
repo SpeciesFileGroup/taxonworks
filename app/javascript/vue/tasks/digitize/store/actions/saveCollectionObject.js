@@ -10,6 +10,7 @@ export default function ({ commit, state }, co) {
       UpdateCollectionObject(collection_object).then(response => {
         return resolve(response)
       }, (response) => {
+        TW.workbench.alert.create(JSON.stringify(Object.keys(response.body).map(key => { return response.body[key] }).join('<br>')), 'error')
         return reject(response)
       })
     }
@@ -19,6 +20,7 @@ export default function ({ commit, state }, co) {
         SetParam('/tasks/accessions/comprehensive', 'collection_object_id', response.id)
         return resolve(response)
       }, (response) => {
+        TW.workbench.alert.create(JSON.stringify(Object.keys(response.body).map(key => { return response.body[key] }).join('<br>')), 'error')
         return reject(response)
       })
     }
