@@ -37,6 +37,7 @@ import ModalComponent from 'components/modal'
 import Georeferences from 'components/georeferences/georeferences'
 import { GetGeographicArea } from '../../../../request/resources'
 import { GetterNames } from '../../../../store/getters/getters.js'
+import { ActionNames } from '../../../../store/actions/actions'
 
 export default {
   components: {
@@ -61,7 +62,7 @@ export default {
           this.count = 0
         }
         if(newVal.geographic_area_id) {
-          GetGeographicArea(newVal.geographic_area_id).then(response => { 
+          GetGeographicArea(newVal.geographic_area_id).then(response => {
             if(response.shape) {
               this.geoArea = response.shape
             }
@@ -83,8 +84,10 @@ export default {
   },
   methods: {
     onModal () {
-      this.show = !this.show
-      this.$emit('onModal', this.show)
+      this.$store.dispatch(ActionNames.SaveCollectionEvent, this.collectingEvent).then(() => {
+        this.show = !this.show
+        this.$emit('onModal', this.show)
+      })
     }
   }
 }

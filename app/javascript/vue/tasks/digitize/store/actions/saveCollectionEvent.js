@@ -35,7 +35,6 @@ export default function ({ commit, state }) {
           return resolve(response)
         }, (response) => {
           TW.workbench.alert.create(JSON.stringify(Object.keys(response.body).map(key => { return response.body[key] }).join('<br>')), 'error')
-          console.log(response)
           reject(response)
         })
       }

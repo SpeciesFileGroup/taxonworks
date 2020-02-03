@@ -8,7 +8,7 @@
 <script>
 
   import L from 'leaflet'
-  import 'leaflet.pm'
+  import '@geoman-io/leaflet-geoman-free'
 
   delete L.Icon.Default.prototype._getIconUrl
 
