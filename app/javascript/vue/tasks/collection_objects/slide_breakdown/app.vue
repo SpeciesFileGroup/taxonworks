@@ -370,22 +370,24 @@ export default {
         })
       }
       else {
-        if(this.identifier.namespace_id && this.identifier.identifier) {
+        if (this.identifier.namespace_id && this.identifier.identifier) {
           let identifier = Number(this.identifier.identifier)
           let matrix = this.convertToMatrix(metadata)
+          let decrease = 0
 
           return metadata.map((cell) => {
             let c = cell.column
             let r = cell.row
             let inc = r + c + identifier
-            
-            if(cell.metadata) {
+
+            if (cell.metadata) {
+              decrease++
               cell.textfield = undefined
             }
             else {
               cell.textfield = (
-                this.sledImage.step_identifier_on == 'row' ? 
-                `${this.identifier.label} ${(r * (this.vlines.length-2)) + inc}` : 
+                this.sledImage.step_identifier_on == 'row' ?
+                `${this.identifier.label} ${(r * (this.vlines.length-2)) + inc - decrease}` :
                 `${this.identifier.label} ${(c * (this.hlines.length-2)) + inc - this.metadataCount(matrix, c, r)}`
               )
             }
