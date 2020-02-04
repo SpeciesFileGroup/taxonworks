@@ -170,7 +170,7 @@ module CollectionObjectsHelper
     a.stroke = 'grey'
     a.link_title = "#{o.id.to_s} created #{time_ago_in_words(o.created_at)} ago by #{user_tag(o.creator)}"
 
-    c = Waxy::Render::Svg::Canvas.new(600, 400)
+    c = Waxy::Render::Svg::Canvas.new(22, 22)
     c.body << Waxy::Render::Svg.rectangle(layout, [a], 0)
     c.to_svg
   end
