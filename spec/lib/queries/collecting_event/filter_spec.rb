@@ -58,6 +58,20 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     expect(query.all).to contain_exactly()
   end
 
+  specify 'md5 1' do
+    ce2.update(verbatim_label: 'QQQQ')
+    query.md5_verbatim_label = true
+    query.in_labels = 'QQQ'
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify 'md5 2' do
+    ce2.update(verbatim_label: 'QQQQ')
+    query.md5_verbatim_label = true
+    query.in_labels = 'QQQQ'
+    expect(query.all.map(&:id)).to contain_exactly(ce2.id)
+  end
+
   specify 'between date range 1' do
     query.start_date = '1999-1-1'
     query.end_date = '2001-1-1'

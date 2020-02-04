@@ -94,6 +94,7 @@ resources :collection_objects do
     get 'depictions', constraints: {format: :html}
     get 'containerize'
     get 'dwca', defaults: {format: :json}
+    get 'metadata_badge', defaults: {format: :json}
   end
 
   collection do
