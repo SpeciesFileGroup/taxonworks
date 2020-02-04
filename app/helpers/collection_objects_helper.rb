@@ -151,8 +151,8 @@ module CollectionObjectsHelper
 
     layout = Waxy::Geometry::Layout.new(
       Waxy::Geometry::Orientation::LAYOUT_POINTY,
-      Waxy::Geometry::Point.new(20,20), # size
-      Waxy::Geometry::Point.new(20,20), # start
+      Waxy::Geometry::Point.new(14,14), # size
+      Waxy::Geometry::Point.new(14,14), # start
       0 # padding
     )
 
@@ -170,7 +170,7 @@ module CollectionObjectsHelper
     a.stroke = 'grey'
     a.link_title = "#{o.id.to_s} created #{time_ago_in_words(o.created_at)} ago by #{user_tag(o.creator)}"
 
-    c = Waxy::Render::Svg::Canvas.new(22, 22)
+    c = Waxy::Render::Svg::Canvas.new(28, 28)
     c.body << Waxy::Render::Svg.rectangle(layout, [a], 0)
     c.to_svg
   end
