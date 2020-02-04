@@ -9,9 +9,9 @@
     <modal-component
       v-show="showModal"
       @close="showModal = false">
-      <h3 slot="header">Nuke collection objects</h3>
+      <h3 slot="header">Destroy collection objects</h3>
       <div slot="body">
-        <p>Are you sure you want to proceed? Type "{{ checkWord }}" to proceed.</p>
+        <p>This will destroy all collection objects created. Are you sure you want to proceed? Type "{{ checkWord }}" to proceed.</p>
         <input
           type="text"
           class="full_width"

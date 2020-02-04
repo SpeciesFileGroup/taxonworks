@@ -17,6 +17,8 @@
       class="margin-medium-top"
       model="namespaces"
       klass="CollectionObject"
+      pin-section="Namespaces"
+      pin-type="Namespace"
       @selected="setValue"/>
     <p
       v-if="identifier.namespace_id"
