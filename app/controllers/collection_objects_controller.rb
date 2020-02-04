@@ -319,6 +319,7 @@ class CollectionObjectsController < ApplicationController
       :recent,
       Queries::CollectingEvent::Filter::ATTRIBUTES,
       :in_labels,
+      :md5_verbatim_label,
       :in_verbatim_locality,
       :geo_json,
       :wkt,

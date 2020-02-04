@@ -164,8 +164,9 @@ module Queries
       end
 
       def matching_verbatim_label_md5
-        return nil if in_labels.blank? || !md5_verbatim_label
+        return nil unless md5_verbatim_label && !in_labels.blank?
         md5 = ::Utilities::Strings.generate_md5(in_labels) 
+
         table[:md5_of_verbatim_label].eq(md5)
       end
 
