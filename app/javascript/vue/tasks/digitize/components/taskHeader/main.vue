@@ -22,7 +22,11 @@
             v-html="collectionObject.object_tag"/>
           <span v-else>New record</span>
         </template>
-        <div v-if="collectionObject.id">
+      </div>
+      <div class="horizontal-left-content">
+        <div 
+          class="margin-medium-right"
+          v-if="collectionObject.id">
           <ul class="context-menu">
             <li>
               <span
@@ -40,8 +44,6 @@
             </li>
           </ul>
         </div>
-      </div>
-      <div class="horizontal-left-content">
         <tippy-component
           v-if="hasChanges"
           animation="scale"
