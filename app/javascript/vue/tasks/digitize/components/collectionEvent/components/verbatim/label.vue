@@ -11,13 +11,27 @@
       @close="showModal = false">
       <h3 slot="header">Collecting events match</h3>
       <div slot="body">
-        <table-component
-          :list="CEFounded"
-          :edit="true"
-          :destroy="false"
-          :annotator="false"
-          @edit="loadCE"
-          :attributes="['object_tag']"/>
+        <i>As edited this Collecting Event is invalid: a matching verbatim label has been found.</i>
+        <table class="full_width">
+          <thead>
+            <tr>
+              <th>Label</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="item in CEFounded"
+              :key="item.id">
+              <td v-html="item.object_tag">
+              <td class="horizontal-right-content">
+                <span
+                  class="button btn-edit circle-button button-default"
+                  @click="loadCE(item)"/>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </modal-component>
   </div>
@@ -72,3 +86,8 @@ export default {
   }
 }
 </script>
+<style lang="scss" scoped>
+  /deep/ .modal-container {
+    max-width: 500px;
+  }
+</style>
