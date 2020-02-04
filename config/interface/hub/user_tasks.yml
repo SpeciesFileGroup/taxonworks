@@ -487,3 +487,11 @@ browse_collecting_events_task:
     - collecting_event 
   status: prototype
   description: 'View individual collecting events and their related.'
+biological_relationship_composer_task:
+  hub: true
+  name: 'Compose biological relationships'
+  related:
+  categories:
+    - biology
+  status: prototype
+  description: 'Define and add properties to biological relationships, e.g. things like "host/paraiste".'

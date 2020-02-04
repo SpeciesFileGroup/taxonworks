@@ -214,6 +214,12 @@ scope :tasks do
     end
   end
 
+  scope :biological_relationships do
+    scope :composer, controller: 'tasks/biological_relationships/composer' do
+      get '/', action: :index, as: 'biological_relationship_composer_task'
+    end
+  end
+
   scope :contents, controller: 'tasks/content/preview' do
     get 'otu_content_for_layout/:otu_id', action: :otu_content_for_layout, as: 'preview_otu_content_for_layout'
     get ':otu_id', action: 'otu_content', as: 'preview_otu_content'
