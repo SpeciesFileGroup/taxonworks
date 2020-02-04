@@ -14,7 +14,7 @@
         <table-component
           :list="CEFounded"
           :edit="true"
-          :delete="false"
+          :destroy="false"
           :annotator="false"
           @edit="loadCE"
           :attributes="['object_tag']"/>
