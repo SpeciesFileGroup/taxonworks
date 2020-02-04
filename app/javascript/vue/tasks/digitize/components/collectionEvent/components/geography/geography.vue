@@ -128,12 +128,15 @@
         showModal: false,
         delay: 1000,
         areasByCoors: [],
-        ajaxCall: undefined
+        ajaxCall: undefined,
+        geoId: undefined
       }
     },
     watch: {
       collectingEvent: {
         handler(newVal, oldVal) {
+          if (this.geoId && newVal && newVal.geographic_area_id === this.geoId) return
+          this.geoId = newVal.geographic_area_id
           if(newVal.geographic_area_id) {
             GetGeographicArea(newVal.geographic_area_id).then(response => {
               this.selectGeographicArea(response)
@@ -146,9 +149,9 @@
               this.ajaxCall = setTimeout(() => { that.getByCoords(convertDMS(newVal.verbatim_latitude), convertDMS(newVal.verbatim_longitude)) }, this.delay)
             }
           }
-        },
-        deep: true
-      }
+        }
+      },
+      deep: true
     },
     mounted () {
       this.GetSmartSelector()

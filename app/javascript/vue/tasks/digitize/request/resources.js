@@ -54,6 +54,10 @@ const GetRecentCollectionObjects = function () {
   return ajaxCall('get', `/tasks/accessions/report/dwc.json?per=10`)
 }
 
+const GetCEMd5Label = function (label) {
+  return ajaxCall('get', `/collecting_events`, { params: { md5_verbatim_label: true, in_labels: label } })
+}
+
 const UpdateUserPreferences = function (id, data) {
   return ajaxCall('patch', `/users/${id}.json`, { user: { layout: data } })
 }
@@ -307,6 +311,7 @@ const DestroyBiologicalAssociation = function (id) {
 }
 
 export {
+  GetCEMd5Label,
   CheckForExistingIdentifier,
   CloneCollectionEvent,
   GetLabelsFromCE,

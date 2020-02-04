@@ -61,6 +61,8 @@ export default {
         if(!newVal.id) {
           this.count = 0
         }
+        if (this.geoId && newVal && newVal.geographic_area_id === this.geoId) return
+        this.geoId = newVal.geographic_area_id
         if(newVal.geographic_area_id) {
           GetGeographicArea(newVal.geographic_area_id).then(response => {
             if(response.shape) {
@@ -79,7 +81,8 @@ export default {
     return {
       show: false,
       count: 0,
-      geoArea: undefined
+      geoArea: undefined,
+      geoId: undefined
     }
   },
   methods: {
