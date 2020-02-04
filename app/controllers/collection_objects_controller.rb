@@ -3,7 +3,7 @@ class CollectionObjectsController < ApplicationController
 
   before_action :set_collection_object, only: [
     :show, :edit, :update, :destroy, :containerize,
-    :depictions, :images, :geo_json]
+    :depictions, :images, :geo_json, :metadata_badge]
 
   # GET /collecting_events
   # GET /collecting_events.json
@@ -52,6 +52,9 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects/depictions/1
   # GET /collection_objects/depictions/1.json
   def depictions
+  end
+
+  def metadata_badge
   end
 
   # GET /collection_objects/1/images
@@ -316,6 +319,7 @@ class CollectionObjectsController < ApplicationController
       :recent,
       Queries::CollectingEvent::Filter::ATTRIBUTES,
       :in_labels,
+      :md5_verbatim_label,
       :in_verbatim_locality,
       :geo_json,
       :wkt,

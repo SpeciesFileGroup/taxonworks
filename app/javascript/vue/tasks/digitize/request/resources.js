@@ -38,6 +38,10 @@ const GetUserPreferences = function () {
   return ajaxCall('get', `/preferences.json`)
 }
 
+const GetSoftValidation = function (globalId) {
+  return ajaxCall('get', `/soft_validations/validate`, { params: { global_id: globalId } })
+}
+
 const CheckForExistingIdentifier = function (namespaceId, identifier) {
   return ajaxCall('get', `/identifiers.json?type=Identifier::Local::CatalogNumber&namespace_id=${namespaceId}&identifier=${identifier}`)
 }
@@ -52,6 +56,10 @@ const GetLabelsFromCE = function (id) {
 
 const GetRecentCollectionObjects = function () {
   return ajaxCall('get', `/tasks/accessions/report/dwc.json?per=10`)
+}
+
+const GetCEMd5Label = function (label) {
+  return ajaxCall('get', `/collecting_events`, { params: { md5_verbatim_label: true, in_labels: label } })
 }
 
 const UpdateUserPreferences = function (id, data) {
@@ -307,6 +315,8 @@ const DestroyBiologicalAssociation = function (id) {
 }
 
 export {
+  GetCEMd5Label,
+  GetSoftValidation,
   CheckForExistingIdentifier,
   CloneCollectionEvent,
   GetLabelsFromCE,

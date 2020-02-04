@@ -50,6 +50,7 @@
     <display-list
       :list="georeferences"
       @delete="removeGeoreference"
+      @updateGeo="updateRadius"
       label="object_tag"/>
   </div>
 </template>
@@ -144,23 +145,27 @@ export default {
       },
       immediate: true
     },
-    geographicArea: {
-      handler(newVal) {
-        if(newVal) {
-          let index = this.shapes.features.findIndex(item => {
-            return item.properties.hasOwnProperty('geographic_area')
-          })
-          if(index > -1) {
-            this.shapes.features.splice(index, 1)
-          }
-          this.shapes.features.push(newVal)
-        }
-      },
-      immediate: true,
-      deep: true
+    show () {
+      this.getGeoreferences()
     }
   },
   methods: {
+    updateRadius(shape) {
+      const georeference = {
+        id: shape.id,
+        error_radius: shape.error_radius
+      }
+      this.showSpinner = true
+     
+      this.$http.patch(`/georeferences/${shape.id}.json`, { georeference: georeference }).then(response => {
+        this.showSpinner = false
+        this.$emit('updated', response.body)
+        this.getGeoreferences()
+      }, (response) => {
+        TW.workbench.alert.create(response.bodyText, 'error')
+        this.showSpinner = false
+      })
+    },
     saveGeoreference (shape) {
       const data = {
         georeference: {
@@ -215,6 +220,9 @@ export default {
     },
     populateShapes() {
       this.shapes.features = []
+      if(this.geographicArea) {
+        this.shapes.features.unshift(this.geographicArea)
+      }
       this.georeferences.forEach(geo => {
         if (geo.error_radius != null) {
           geo.geo_json.properties.radius = geo.error_radius
