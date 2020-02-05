@@ -52,6 +52,7 @@
 <script>
 
 import ModalComponent from 'components/modal'
+import ScaleValue from 'helpers/scale'
 import { GetUserPreferences, UpdateUserPreferences } from '../../request/resource'
 
 export default {
@@ -66,6 +67,14 @@ export default {
     width: {
       type: Number,
       required: true
+    },
+    verticalLines: {
+      type: Array,
+      default: []
+    },
+    horizontalLines: {
+      type: Array,
+      default: []
     }
   },
   data () {
@@ -84,7 +93,11 @@ export default {
       this.preferences = response.body
       let sizes = this.preferences.layout[this.configString]
       if(sizes) {
-        this.setGrid(sizes.rows, sizes.columns)
+        let grid = {
+          vlines: sizes.columns.map(column => column * this.width),
+          hlines: sizes.rows.map(row => row * this.height)
+        }
+        this.$emit('onLines', grid)
       }
     })
   },
@@ -111,8 +124,18 @@ export default {
       this.rows = rows
       this.createGrid()
     },
+    scaleSize(size, lines) {
+      let scale = []
+      for(let i = 0; i <= lines; i++) {
+        scale.push(i / size)
+      }
+      return scale
+    },
     saveGrid() {
-      UpdateUserPreferences(this.preferences.id, { [this.configString]: { columns: this.columns, rows: this.rows } }).then(response => {
+      let columns = this.verticalLines.map(line => { return ScaleValue(line, 0, this.width, 0, 1) })
+      let rows = this.horizontalLines.map(line => { return ScaleValue(line, 0, this.height, 0, 1) })
+
+      UpdateUserPreferences(this.preferences.id, { [this.configString]: { columns: columns, rows: rows } }).then(response => {
         this.preferences = response.body
         TW.workbench.alert.create('Preferences was successfully updated.', 'notice')
       })

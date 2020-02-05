@@ -15,6 +15,9 @@
             v-if="!disabledPanel"
             :width="image.width"
             :height="image.height"
+            :vertical-lines="vlines"
+            :horizontal-lines="hlines"
+            @onLines="setGrid"
             @grid="setGrid"/>
           <template
             v-for="(hline, index) in hlines"
