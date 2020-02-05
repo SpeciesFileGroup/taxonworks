@@ -28,10 +28,6 @@
           <button
             class="button normal-input button-default"
             @click="createGrid">Set</button>
-          <button
-            class="button normal-input button-submit margin-small-left"
-            @click="saveGrid"
-            >Save</button>
         </div>
           <div class="horizontal-left-content margin-medium-left">
             <button
@@ -52,8 +48,6 @@
 <script>
 
 import ModalComponent from 'components/modal'
-import ScaleValue from 'helpers/scale'
-import { GetUserPreferences, UpdateUserPreferences } from '../../request/resource'
 
 export default {
   components: {
@@ -67,37 +61,14 @@ export default {
     width: {
       type: Number,
       required: true
-    },
-    verticalLines: {
-      type: Array,
-      default: []
-    },
-    horizontalLines: {
-      type: Array,
-      default: []
     }
   },
   data () {
     return {
       rows: 1,
       columns: 1,
-      show: false,
-      preferences: undefined,
-      configString: 'tasks::griddigitize::quickgrid'
+      show: false
     }
-  },
-  mounted () {
-    GetUserPreferences().then(response => {
-      this.preferences = response.body
-      let sizes = this.preferences.layout[this.configString]
-      if(sizes) {
-        let grid = {
-          vlines: sizes.columns.map(column => column * this.width),
-          hlines: sizes.rows.map(row => row * this.height)
-        }
-        this.$emit('onLines', grid)
-      }
-    })
   },
   methods: {
     createGrid () {
@@ -128,15 +99,6 @@ export default {
         scale.push(i / size)
       }
       return scale
-    },
-    saveGrid() {
-      let columns = this.verticalLines.map(line => { return ScaleValue(line, 0, this.width, 0, 1) })
-      let rows = this.horizontalLines.map(line => { return ScaleValue(line, 0, this.height, 0, 1) })
-
-      UpdateUserPreferences(this.preferences.id, { [this.configString]: { columns: columns, rows: rows } }).then(response => {
-        this.preferences = response.body
-        TW.workbench.alert.create('Preferences was successfully updated.', 'notice')
-      })
     }
   }
 }

@@ -95,7 +95,8 @@
 <script>
 
 import Sled from '@sfgrp/sled'
-import { GetImage, GetSledImage } from './request/resource'
+import ScaleValue from 'helpers/scale'
+import { GetImage, GetSledImage, GetUserPreferences, UpdateUserPreferences } from './request/resource'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 import { ActionNames } from './store/actions/actions'
@@ -110,6 +111,7 @@ import SummaryComponent from './components/Summary'
 import SpinnerComponent from 'components/spinner'
 import QuickGrid from './components/grid/Quick'
 import NavBar from './components/NavBar'
+
 
 export default {
   components: {
@@ -164,6 +166,8 @@ export default {
       isSaving: false,
       tabs: ['Assign', 'Overview metadata', 'Review'],
       view: 'Assign',
+      configString: 'tasks::griddigitize::quickgrid',
+      preferences: undefined,
       metadata: {
         annotated_specimen: 'Annotated specimen',
         collecting_event_labels: 'Collecting event labels',
@@ -232,6 +236,24 @@ export default {
     }
   },
   methods: {
+    loadPreferences () {
+      GetUserPreferences().then(response => {
+        this.preferences = response.body
+        let sizes = this.preferences.layout[this.configString]
+        if(sizes) {
+          this.vlines = sizes.columns.map(column => column * this.image.width),
+          this.hlines = sizes.rows.map(row => row * this.image.height)
+        }
+      })
+    },
+    savePreferences () {
+      let columns = this.vlines.map(line => { return ScaleValue(line, 0, this.image.width, 0, 1) })
+      let rows = this.hlines.map(line => { return ScaleValue(line, 0, this.image.height, 0, 1) })
+
+      UpdateUserPreferences(this.preferences.id, { [this.configString]: { columns: columns, rows: rows } }).then(response => {
+        this.preferences = response.body
+      })
+    },
     createImage(imageId) {
       this.loadImage(imageId).then(response => {
          this.loadSled(response.sled_image_id)
@@ -242,6 +264,7 @@ export default {
     },
     createSled (load = false, id = undefined) {
       this.isSaving = true
+      this.savePreferences()
       this.$store.dispatch(ActionNames.UpdateSled).then(() => {
         this.isSaving = false
         if(load) {
@@ -309,6 +332,7 @@ export default {
                 that.vlines = [0, that.image.width]
                 that.hlines = [0 ,that.image.height]
                 this.isLoading = false
+                this.loadPreferences()
                 resolve(response.body)
               }
 
