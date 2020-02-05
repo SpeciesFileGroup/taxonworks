@@ -32,8 +32,6 @@
             class="button normal-input button-submit margin-small-left"
             @click="saveGrid"
             >Save</button>
-          
-
         </div>
           <div class="horizontal-left-content margin-medium-left">
             <button
@@ -114,7 +112,10 @@ export default {
       this.createGrid()
     },
     saveGrid() {
-      UpdateUserPreferences(this.preferences.id, { [this.configString]: { columns: this.columns, rows: this.rows } })
+      UpdateUserPreferences(this.preferences.id, { [this.configString]: { columns: this.columns, rows: this.rows } }).then(response => {
+        this.preferences = response.body
+        TW.workbench.alert.create('Preferences was successfully updated.', 'notice')
+      })
     }
   }
 }
