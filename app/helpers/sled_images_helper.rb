@@ -1,6 +1,5 @@
 module SledImagesHelper
 
-
   def sled_image_tag(sled_image)
     return nil if sled_image.nil?
     content_tag(:span, "sled image: #{sled_image.id}")

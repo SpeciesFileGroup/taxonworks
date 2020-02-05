@@ -25,11 +25,11 @@ module Shared::Depictions
   protected
 
   def reject_depictions(attributed)
-    attributed['image_id'].blank? 
+    attributed['image_id'].blank? && !attributed['images_attributes'].nil?
   end
 
   def reject_images(attributed)
-    attributed['image_file'].blank? 
+    attributed['image_file'].blank?
   end
 
 end
