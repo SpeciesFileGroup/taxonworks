@@ -79,8 +79,6 @@ export default {
   },
   data () {
     return {
-      vlines: [],
-      hlines: [],
       rows: 1,
       columns: 1,
       show: false,
@@ -106,10 +104,10 @@ export default {
       let wSize = this.width/this.columns
       let hSize = this.height/this.rows
   
-      this.vlines = this.segments(wSize, this.columns)
-      this.hlines = this.segments(hSize, this.rows)
+      let vlines = this.segments(wSize, this.columns)
+      let hlines = this.segments(hSize, this.rows)
 
-      this.$emit('grid', { vlines: this.vlines, hlines: this.hlines })
+      this.$emit('grid', { vlines: vlines, hlines: hlines })
     },
     segments (size, parts) {
       let segments = []
