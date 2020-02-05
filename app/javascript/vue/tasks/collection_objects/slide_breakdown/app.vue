@@ -254,6 +254,7 @@ export default {
       })
     },
     setGrid (grid) {
+      if(this.sledImage.summary.length) return
       this.vlines = grid.vlines
       this.hlines = grid.hlines
     },
