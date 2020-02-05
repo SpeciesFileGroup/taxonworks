@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@geoman-io/leaflet-geoman-free": "^2.3.0",
     "@ibm/plex": "^4.0.2",
     "@rails/webpacker": "^4.2.2",
     "@sfgrp/sled": "^0.4.4",
@@ -8,7 +9,6 @@
     "file-loader": "^5.0.2",
     "json2csv": "^4.5.4",
     "leaflet": "^1.6.0",
-    "leaflet.pm": "^2.2.0",
     "npm-check-updates": "^4.0.1",
     "parse-dms": "0.0.3",
     "pdfjs-dist": "^2.2.228",

@@ -28,6 +28,14 @@ const Report = (id) => {
   return ajaxCall('get', `/collection_objects/report.json`, { params: { sled_image_id: id } })
 }
 
+const GetUserPreferences = function () {
+  return ajaxCall('get', `/preferences.json`)
+}
+
+const UpdateUserPreferences = function (id, data) {
+  return ajaxCall('patch', `/users/${id}.json`, { user: { layout: data } })
+}
+
 export {
   GetImage,
   GetSledImage,
@@ -35,5 +43,7 @@ export {
   NukeSledImage,
   CreateSledImage,
   NavigationSled,
-  Report
+  Report,
+  GetUserPreferences,
+  UpdateUserPreferences
 }

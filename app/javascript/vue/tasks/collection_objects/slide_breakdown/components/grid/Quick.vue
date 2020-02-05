@@ -30,6 +30,7 @@
             @click="createGrid">Set</button>
           <button
             class="button normal-input button-submit margin-small-left"
+            @click="saveGrid"
             >Save</button>
           
 
@@ -53,6 +54,7 @@
 <script>
 
 import ModalComponent from 'components/modal'
+import { GetUserPreferences, UpdateUserPreferences } from '../../request/resource'
 
 export default {
   components: {
@@ -74,8 +76,19 @@ export default {
       hlines: [],
       rows: 1,
       columns: 1,
-      show: false
+      show: false,
+      preferences: undefined,
+      configString: 'tasks::griddigitize::quickgrid'
     }
+  },
+  mounted () {
+    GetUserPreferences().then(response => {
+      this.preferences = response.body
+      let sizes = this.preferences.layout[this.configString]
+      if(sizes) {
+        this.setGrid(sizes.rows, sizes.columns)
+      }
+    })
   },
   methods: {
     createGrid () {
@@ -99,6 +112,9 @@ export default {
       this.columns = columns
       this.rows = rows
       this.createGrid()
+    },
+    saveGrid() {
+      UpdateUserPreferences(this.preferences.id, { [this.configString]: { columns: this.columns, rows: this.rows } })
     }
   }
 }
