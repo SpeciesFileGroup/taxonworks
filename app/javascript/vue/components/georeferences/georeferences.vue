@@ -50,6 +50,7 @@
     <display-list
       :list="georeferences"
       @delete="removeGeoreference"
+      @updateGeo="updateRadius"
       label="object_tag"/>
   </div>
 </template>
@@ -149,6 +150,22 @@ export default {
     }
   },
   methods: {
+    updateRadius(shape) {
+      const georeference = {
+        id: shape.id,
+        error_radius: shape.error_radius
+      }
+      this.showSpinner = true
+     
+      this.$http.patch(`/georeferences/${shape.id}.json`, { georeference: georeference }).then(response => {
+        this.showSpinner = false
+        this.$emit('updated', response.body)
+        this.getGeoreferences()
+      }, (response) => {
+        TW.workbench.alert.create(response.bodyText, 'error')
+        this.showSpinner = false
+      })
+    },
     saveGeoreference (shape) {
       const data = {
         georeference: {

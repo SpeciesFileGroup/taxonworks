@@ -11,6 +11,9 @@
           :clear-after="true"
           @getItem="loadAssessionCode($event.id)"
           min="1"/>
+        <soft-validation
+          v-if="collectionObject.id"
+          class="margin-small-left margin-small-right"/>
         <template>
           <a
             class="separate-left"
@@ -19,7 +22,11 @@
             v-html="collectionObject.object_tag"/>
           <span v-else>New record</span>
         </template>
-        <div v-if="collectionObject.id">
+      </div>
+      <div class="horizontal-left-content">
+        <div 
+          class="margin-medium-right"
+          v-if="collectionObject.id">
           <ul class="context-menu">
             <li>
               <span
@@ -37,8 +44,6 @@
             </li>
           </ul>
         </div>
-      </div>
-      <div class="horizontal-left-content">
         <tippy-component
           v-if="hasChanges"
           animation="scale"
@@ -91,13 +96,15 @@
   import { TippyComponent } from 'vue-tippy'
   import NavBar from 'components/navBar'
   import AjaxCall from 'helpers/ajaxCall'
+  import SoftValidation from './softValidation'
 
   export default {
     components: {
       Autocomplete,
       RecentComponent,
       TippyComponent,
-      NavBar
+      NavBar,
+      SoftValidation
     },
     computed: {
       identifier() {
@@ -131,9 +138,9 @@
     },
     watch: {
       collectionObject: {
-        handler(newVal) {
+        handler(newVal, oldVal) {
           this.settings.lastChange = Date.now()
-          if(newVal.id) {
+          if(newVal.id && oldVal.id != newVal.id) {
             AjaxCall('get', `/metadata/object_navigation/${encodeURIComponent(newVal.global_id)}`).then(response => {
               this.navigation.next = response.headers.map['navigation-next']
               this.navigation.previous = response.headers.map['navigation-previous']

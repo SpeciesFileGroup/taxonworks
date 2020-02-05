@@ -38,6 +38,10 @@ const GetUserPreferences = function () {
   return ajaxCall('get', `/preferences.json`)
 }
 
+const GetSoftValidation = function (globalId) {
+  return ajaxCall('get', `/soft_validations/validate`, { params: { global_id: globalId } })
+}
+
 const CheckForExistingIdentifier = function (namespaceId, identifier) {
   return ajaxCall('get', `/identifiers.json?type=Identifier::Local::CatalogNumber&namespace_id=${namespaceId}&identifier=${identifier}`)
 }
@@ -312,6 +316,7 @@ const DestroyBiologicalAssociation = function (id) {
 
 export {
   GetCEMd5Label,
+  GetSoftValidation,
   CheckForExistingIdentifier,
   CloneCollectionEvent,
   GetLabelsFromCE,
