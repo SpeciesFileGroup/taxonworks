@@ -92,13 +92,6 @@ export default {
       this.columns = columns
       this.rows = rows
       this.createGrid()
-    },
-    scaleSize(size, lines) {
-      let scale = []
-      for(let i = 0; i <= lines; i++) {
-        scale.push(i / size)
-      }
-      return scale
     }
   }
 }
