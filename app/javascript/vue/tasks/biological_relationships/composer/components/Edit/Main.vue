@@ -2,9 +2,10 @@
   <div class="flex-wrap-column middle">
     <h2>Edit</h2>
     <button
+      @click="createBiologicalRelationship"
       type="button"
       class="button normal-input button-submit">
-      Update
+      Create
     </button>
 
     <div class="flex-separate full_width middle">
@@ -31,6 +32,7 @@
 
 import PropertyBox from './PropertyBox'
 import RelationshipBox from './Relationship'
+import { CreateBiologicalRelationship } from '../../request/resource'
 
 export default {
   components: {
@@ -77,6 +79,17 @@ export default {
       this.object = this.subject
       this.subject = tmp
       this.flip = !this.flip
+    },
+    createBiologicalRelationship() {
+      const object = { type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType', biological_property_id: this.object.id }
+      const subject = { type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType', biological_property_id: this.subject.id }
+      
+      let data = this.biological_relationship
+      
+      data.biological_relationship_types = [subject, object]
+      CreateBiologicalRelationship(data).then(response => {
+        console.log(response)
+      })
     }
   }
 }
