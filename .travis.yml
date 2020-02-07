@@ -28,7 +28,7 @@ jobs:
         - 2.6.5
       bundler_args: --without development production
       addons:
-        postgresql: "10"
+        postgresql: "12"
         firefox: "latest"
         apt:
           packages:
@@ -36,7 +36,7 @@ jobs:
             - tesseract-ocr
             - libgeos-dev
             - libproj-dev
-            - postgresql-10-postgis-2.4
+            - postgresql-12-postgis-2.5
       env:
           - TEST_WORKER=0
       services:
