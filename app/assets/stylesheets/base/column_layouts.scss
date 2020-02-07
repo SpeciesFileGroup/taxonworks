@@ -43,6 +43,11 @@ http://flexboxin5.com/
   justify-content: space-between;
 }
 
+.flex-around {
+  display: flex;
+  justify-content: space-around;
+}
+
 .separate-top {
   margin-top: $standard_padding*0.5;
 }

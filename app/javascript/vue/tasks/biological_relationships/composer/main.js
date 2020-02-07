@@ -3,7 +3,7 @@ import App from './app.vue'
 
 function init (){
   new Vue({
-    el: '#vue-task',
+    el: '#vue-task-biological-relationships',
     render: function (createElement) {
       return createElement(App)
     }
@@ -11,7 +11,7 @@ function init (){
 }
 
 document.addEventListener('turbolinks:load', () => {
-  if (document.querySelector('#vue-task')) {
+  if (document.querySelector('#vue-task-biological-relationships')) {
     init()
   }
 })
