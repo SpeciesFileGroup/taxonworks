@@ -28,6 +28,10 @@
 #   @return [Integer]
 #   the project ID
 #
+# @!attribute is_boolean 
+#   @return [Boolean, nil]
+#     whether the Download should be shared on the API 
+#
 class Download < ApplicationRecord
   include Housekeeping
 
@@ -39,7 +43,6 @@ class Download < ApplicationRecord
   validates_presence_of :name
   validates_presence_of :filename
   validates_presence_of :expires
-
 
   # Gets the downloads storage path
   def self.storage_path
