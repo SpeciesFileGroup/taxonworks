@@ -36,7 +36,7 @@ jobs:
             - tesseract-ocr
             - libgeos-dev
             - libproj-dev
-            - postgresql-12-postgis-2.5
+            - postgresql-12-postgis-3.0
       env:
           - TEST_WORKER=0
       services:
