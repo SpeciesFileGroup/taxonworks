@@ -54,11 +54,10 @@ export default {
       object: undefined,
       subject: undefined,
       biological_relationship: {
-        name: undefined, 
-        inverted_name: undefined, 
-        is_transitive: undefined, 
-        is_reflexive: undefined ,
-        biological_relationship_types: []
+        name: undefined,
+        inverted_name: undefined,
+        is_transitive: undefined,
+        is_reflexive: undefined
       }
     }
   },
@@ -86,7 +85,7 @@ export default {
       
       let data = this.biological_relationship
       
-      data.biological_relationship_types = [subject, object]
+      data.biological_relationship_types_attributes = [subject, object]
       CreateBiologicalRelationship(data).then(response => {
         console.log(response)
       })

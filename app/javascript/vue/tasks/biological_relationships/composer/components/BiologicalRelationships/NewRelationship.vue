@@ -61,9 +61,9 @@ export default {
   data () {
     return {
       biologicalRelationship: {
-        name: undefined, 
-        inverted_name: undefined, 
-        is_transitive: undefined, 
+        name: undefined,
+        inverted_name: undefined,
+        is_transitive: undefined,
         is_reflexive: undefined
       },
       showModal: false
