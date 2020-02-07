@@ -32,7 +32,7 @@
 
 import PropertyBox from './PropertyBox'
 import RelationshipBox from './Relationship'
-import { CreateBiologicalRelationship } from '../../request/resource'
+import { CreateBiologicalRelationship, UpdateBiologicalRelationship } from '../../request/resource'
 
 export default {
   components: {
@@ -47,7 +47,7 @@ export default {
   },
   computed: {
     validate () {
-      return this.object && this.subject && this.biological_relationship.name
+      return this.object && this.subject && this.biological_relationship.name && this.biological_relationship.id
     }
   },
   data () {
@@ -61,6 +61,7 @@ export default {
   watch: {
     biologicalRelationship: {
       handler (newVal) {
+        this.biological_relationship.id = newVal.id
         this.biological_relationship.name = newVal.name
         this.biological_relationship.inverted_name = newVal.inverted_name
         this.biological_relationship.is_transitive = newVal.is_transitive
@@ -86,7 +87,7 @@ export default {
       let data = this.biological_relationship
       
       data.biological_relationship_types_attributes = [subject, object]
-      CreateBiologicalRelationship(data).then(response => {
+      UpdateBiologicalRelationship(data).then(response => {
         this.reset()
         TW.workbench.alert.create('Biological relationship was successfully created.', 'notice')
       })

@@ -16,10 +16,14 @@ const GetProperties = () => {
   return ajaxCall('get', '/controlled_vocabulary_terms.json', { params: { 'type[]': 'BiologicalProperty' }})
 }
 
+const UpdateBiologicalRelationship = (data) => {
+  return ajaxCall('patch', `/biological_relationships/${data.id}.json`, { biological_relationship: data })
+}
 
 export {
   CreateBiologicalRelationship,
   CreateProperty,
   GetBiologicalRelationships,
-  GetProperties
+  GetProperties,
+  UpdateBiologicalRelationship
 }
