@@ -40,6 +40,9 @@ class BiologicalRelationship < ApplicationRecord
 
   has_many :biological_associations, inverse_of: :biological_relationship
 
+
+  accepts_nested_attributes_for :biological_relationship_types, allow_destroy: :true
+
   # @return [Scope]
   #    the max 10 most recently used biological relationships 
   def self.used_recently
