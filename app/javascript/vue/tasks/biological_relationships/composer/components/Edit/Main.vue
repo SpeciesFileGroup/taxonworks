@@ -9,13 +9,13 @@
     </button>
 
     <div class="flex-separate full_width middle">
-        <property-box
-          v-model="subject"/>
-        <relationship-box 
-          :flip="flip"
-          v-model="biological_relationship"/>
-        <property-box
-          v-model="object"/>
+      <property-box
+        v-model="subject"/>
+      <relationship-box 
+        :flip="flip"
+        v-model="biological_relationship"/>
+      <property-box
+        v-model="object"/>
     </div>
     <div class="flex-wrap-column middle margin-medium-top">
       <div
@@ -63,7 +63,7 @@ export default {
   },
   watch: {
     biologicalRelationship: {
-      handler(newVal) {
+      handler (newVal) {
         this.biological_relationship.name = newVal.name
         this.biological_relationship.inverted_name = newVal.inverted_name
         this.biological_relationship.is_transitive = newVal.is_transitive
@@ -73,13 +73,13 @@ export default {
   },
   methods: {
     flipValues () {
-      let tmp = this.object
+      const tmp = this.object
       
       this.object = this.subject
       this.subject = tmp
       this.flip = !this.flip
     },
-    createBiologicalRelationship() {
+    createBiologicalRelationship () {
       const object = { type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType', biological_property_id: this.object.id }
       const subject = { type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType', biological_property_id: this.subject.id }
       
@@ -94,25 +94,25 @@ export default {
 }
 </script>
 
-<style>
-.flip-container {
-  height: 70px;
-  width: 80px;
-  padding: 0px;
-  background-size: 60px !important;
-  background-position: center;
-}
-.flip-container:hover {
+<style lang="scss" scoped>
+  .flip-container {
+    height: 70px;
+    width: 70px;
+    padding: 0px;
+    background-size: 60px !important;
+    background-position: center;
+  }
+  .flip-container:hover {
     animation-name: spin;
     animation-duration: 1000ms;
     animation-iteration-count: infinite;
     animation-timing-function: linear;
-}
-    @keyframes spin { 
-        from { 
-            transform: rotate(0deg); 
-        } to { 
-            transform: rotate(360deg); 
-        }
+  }
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    } to {
+      transform: rotate(360deg);
     }
+  }
 </style>
