@@ -4,8 +4,9 @@
     <button
       @click="createBiologicalRelationship"
       type="button"
+      :disabled="!validate"
       class="button normal-input button-submit">
-      Create
+      Update
     </button>
 
     <div class="flex-separate full_width middle">
@@ -23,7 +24,6 @@
         class="flip-container cursor-pointer"
         data-icon="reset"/>
       Flip
-    </div>
     </div>
   </div>
 </template>
@@ -46,19 +46,16 @@ export default {
     }
   },
   computed: {
-
+    validate () {
+      return this.object && this.subject && this.biological_relationship.name
+    }
   },
   data () {
     return {
       flip: false,
       object: undefined,
       subject: undefined,
-      biological_relationship: {
-        name: undefined,
-        inverted_name: undefined,
-        is_transitive: undefined,
-        is_reflexive: undefined
-      }
+      biological_relationship: undefined
     }
   },
   watch: {
@@ -70,6 +67,9 @@ export default {
         this.biological_relationship.is_reflexive = newVal.is_reflexive
       }
     }
+  },
+  created () {
+    this.reset()
   },
   methods: {
     flipValues () {
@@ -87,8 +87,20 @@ export default {
       
       data.biological_relationship_types_attributes = [subject, object]
       CreateBiologicalRelationship(data).then(response => {
-        console.log(response)
+        this.reset()
+        TW.workbench.alert.create('Biological relationship was successfully created.', 'notice')
       })
+    },
+    reset () {
+      this.biological_relationship = {
+        id: undefined,
+        name: undefined,
+        inverted_name: undefined,
+        is_transitive: undefined,
+        is_reflexive: undefined
+      }
+      this.object = undefined
+      this.subject = undefined
     }
   }
 }
