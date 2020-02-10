@@ -1,19 +1,19 @@
 <template>
   <div class="middle flex-wrap-column">
-    <div class="margin-medium-left margin-medium-right margin-large-top flex-wrap-column middle" v-if="value">
+    <div class="margin-medium-left margin-medium-right horizontal-left-content middle" v-if="value">
       <template v-if="flip">
         <input
           type="text"
           v-model="biologicalRelationship.inverted_name">
         <br>
-        <span class="disabled"> {{ biologicalRelationship.name }}</span>
+        <span class="disabled margin-small-left"> {{ biologicalRelationship.name }}</span>
       </template>
       <template v-else>
         <input
           type="text"
           v-model="biologicalRelationship.name">
         <br>
-        <span class="disabled">{{ biologicalRelationship.inverted_name }}</span>
+        <span class="disabled margin-small-left">{{ biologicalRelationship.inverted_name }}</span>
       </template>
     </div>
     <template v-else>
