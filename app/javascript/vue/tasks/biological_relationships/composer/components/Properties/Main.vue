@@ -1,12 +1,11 @@
 <template>
-  <div >
+  <div>
     <h2>Properties</h2>
     <new-property @create="addProperty"/>
-    <table>
+    <table class="full_width">
       <thead>
         <tr>
           <th>Name</th>
-          <th>Inverted name</th>
           <th></th>
         </tr>
       </thead>
@@ -20,7 +19,6 @@
           v-for="item in list"
           :key="item.id">
           <td>{{ item.name }}</td>
-          <td>{{ item.inverted_name }}</td>
           <td></td>
         </tr>
       </draggable>
@@ -57,7 +55,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>

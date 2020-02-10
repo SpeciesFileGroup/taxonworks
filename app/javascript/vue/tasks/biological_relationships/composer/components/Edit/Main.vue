@@ -2,14 +2,14 @@
   <div class="flex-wrap-column middle">
     <h2>Edit</h2>
     <button
-      @click="createBiologicalRelationship"
+      @click="saveBiologicalRelationship"
       type="button"
       :disabled="!validate"
       class="button normal-input button-submit">
-      Update
+      {{ biological_relationship.id ? 'Update' : 'Create' }}
     </button>
 
-    <div class="flex-separate full_width middle">
+    <div class="horizontal-center-content full_width middle margin-small-top">
       <property-box
         v-model="subject"/>
       <relationship-box 
@@ -18,7 +18,9 @@
       <property-box
         v-model="object"/>
     </div>
-    <div class="flex-wrap-column middle margin-medium-top">
+    <div
+      v-if="biological_relationship.id"
+      class="flex-wrap-column middle margin-medium-top">
       <div
         @click="flipValues"
         class="flip-container cursor-pointer"
@@ -47,25 +49,21 @@ export default {
   },
   computed: {
     validate () {
-      return this.object && this.subject && this.biological_relationship.name && this.biological_relationship.id
+      return this.biological_relationship.name
     }
   },
   data () {
     return {
       flip: false,
-      object: undefined,
-      subject: undefined,
+      object: [],
+      subject: [],
       biological_relationship: undefined
     }
   },
   watch: {
     biologicalRelationship: {
       handler (newVal) {
-        this.biological_relationship.id = newVal.id
-        this.biological_relationship.name = newVal.name
-        this.biological_relationship.inverted_name = newVal.inverted_name
-        this.biological_relationship.is_transitive = newVal.is_transitive
-        this.biological_relationship.is_reflexive = newVal.is_reflexive
+        this.setBiologicalRelationship(newVal)
       }
     }
   },
@@ -73,24 +71,44 @@ export default {
     this.reset()
   },
   methods: {
+    setBiologicalRelationship(newVal) {
+      this.biological_relationship.id = newVal.id
+      this.biological_relationship.name = newVal.name
+      this.biological_relationship.inverted_name = newVal.inverted_name
+      this.biological_relationship.is_transitive = newVal.is_transitive
+      this.biological_relationship.is_reflexive = newVal.is_reflexive
+      this.object = newVal.object_biological_properties.map(item => { item.created = true; return item })
+      this.subject = newVal.subject_biological_properties.map(item => { item.created = true; return item })
+    },
     flipValues () {
+      if (!this.biologicalRelationship.id) return
       const tmp = this.object
       
       this.object = this.subject
       this.subject = tmp
       this.flip = !this.flip
     },
-    createBiologicalRelationship () {
-      const object = { type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType', biological_property_id: this.object.id }
-      const subject = { type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType', biological_property_id: this.subject.id }
+    saveBiologicalRelationship () {
+      const object = this.object.filter(item => { return !item['created'] }).map(item => { return { type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType', biological_property_id: item.id } })
+      const subject = this.subject.filter(item => { return !item['created'] }).map(item => { return { type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType', biological_property_id: item.id } })
       
       let data = this.biological_relationship
       
-      data.biological_relationship_types_attributes = [subject, object]
-      UpdateBiologicalRelationship(data).then(response => {
-        this.reset()
-        TW.workbench.alert.create('Biological relationship was successfully created.', 'notice')
-      })
+      data.biological_relationship_types_attributes = subject.concat(object)
+      if(data.id) {
+        UpdateBiologicalRelationship(data).then(response => {
+          this.$emit('update', response.body)
+          this.reset()
+          TW.workbench.alert.create('Biological relationship was successfully updated.', 'notice')
+        })
+      }
+      else {
+        CreateBiologicalRelationship(data).then(response => {
+          this.setBiologicalRelationship(response.body)
+          this.$emit('update', response.body)
+          TW.workbench.alert.create('Biological relationship was successfully created.', 'notice')
+        })
+      }
     },
     reset () {
       this.biological_relationship = {
@@ -100,8 +118,8 @@ export default {
         is_transitive: undefined,
         is_reflexive: undefined
       }
-      this.object = undefined
-      this.subject = undefined
+      this.object = []
+      this.subject = []
     }
   }
 }

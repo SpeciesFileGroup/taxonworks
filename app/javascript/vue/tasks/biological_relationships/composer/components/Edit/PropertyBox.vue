@@ -1,13 +1,13 @@
 <template>
-  <div class="panel content relationship-box flex-wrap-column middle">
-    <span v-if="!property.length">Drop property</span>
+  <div class="panel content relationship-box horizontal-left-content item middle">
+    <span v-if="!properties.length">Drop property</span>
     <draggable
-      v-model="property"
-      @add="added"
+      v-model="properties"
       :group="{ name: 'property', put: true }"
-      class="item item1 column-medium horizontal-center-content full_width middle">
+      class="item item1 column-medium flex-wrap-column full_width middle">
       <span
-        v-for="item in property"
+        class="pill property"
+        v-for="item in properties"
         v-html="item.name"/>
     </draggable>
   </div>
@@ -23,28 +23,23 @@ export default {
   },
   props: {
     value: {
-      type: Object,
-      default: undefined
+      type: Array,
+      required: true
+    }
+  },
+  computed: {
+    properties: {
+      get () {
+        return this.value
+      },
+      set (value) {
+        this.$emit('input', value)
+      }
     }
   },
   data () {
     return {
       property: []
-    }
-  },
-  watch: {
-    value(newVal) {
-      if(newVal)
-        this.property = [newVal]
-      else
-        this.property = []
-    }
-  },
-  methods: {
-    added (event) {
-      if(this.property.length === 2)
-        this.property.splice(0,1)
-      this.$emit('input', this.property[0])
     }
   }
 }
@@ -53,6 +48,7 @@ export default {
 <style lang="scss" scoped>
   .relationship-box {
     width: 200px;
-    height: 80px;
+    min-height: 80px;
+    max-width: 200px;
   }
 </style>

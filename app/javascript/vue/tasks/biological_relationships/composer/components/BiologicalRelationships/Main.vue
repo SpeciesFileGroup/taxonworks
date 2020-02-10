@@ -1,8 +1,8 @@
 <template>
   <div>
     <h2>Relationships</h2>
-    <new-relationship @create="addProperty"/>
-    <table>
+    <new-relationship @create="addRelationship"/>
+    <table class="full_width">
       <thead>
         <tr>
           <th>Name</th>
@@ -44,8 +44,13 @@ export default {
     })
   },
   methods: {
-    addProperty (property) {
-      this.list.unshift(property)
+    addRelationship (relationship) {
+      let index = this.list.findIndex(item => { return item.id === relationship.id })
+      if (index > -1) {
+        this.$set(this.list, index, relationship)
+      } else {
+        this.list.unshift(relationship)
+      }
     }
   }
 }

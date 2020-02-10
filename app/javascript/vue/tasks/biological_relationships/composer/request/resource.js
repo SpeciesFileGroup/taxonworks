@@ -20,10 +20,15 @@ const UpdateBiologicalRelationship = (data) => {
   return ajaxCall('patch', `/biological_relationships/${data.id}.json`, { biological_relationship: data })
 }
 
+const GetBiologicalAssociations = (id) => {
+  return ajaxCall('get', '/biological_associations.json', { params: { biological_relationship_id: id, per: 10 } })
+}
+
 export {
   CreateBiologicalRelationship,
   CreateProperty,
   GetBiologicalRelationships,
   GetProperties,
-  UpdateBiologicalRelationship
+  UpdateBiologicalRelationship,
+  GetBiologicalAssociations
 }
