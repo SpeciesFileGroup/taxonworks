@@ -34,6 +34,10 @@ const handleError = function (json) {
   TW.workbench.alert.create(errorMessage, 'error')
 }
 
+const GetProjectPreferences = function () {
+  return ajaxCall('get', `/project_preferences.json`)
+}
+
 const GetUserPreferences = function () {
   return ajaxCall('get', `/preferences.json`)
 }
@@ -315,6 +319,7 @@ const DestroyBiologicalAssociation = function (id) {
 }
 
 export {
+  GetProjectPreferences,
   GetCEMd5Label,
   GetSoftValidation,
   CheckForExistingIdentifier,

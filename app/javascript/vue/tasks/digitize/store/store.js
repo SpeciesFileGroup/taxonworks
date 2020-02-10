@@ -136,6 +136,7 @@ function makeInitialState () {
       label_object_id: undefined, 
       label_object_type: "CollectingEvent"
     },
+    geographicArea: undefined,
     tmpData: {
       otu: undefined
     },
@@ -144,6 +145,7 @@ function makeInitialState () {
     materialTypes: [],
     determinations: [],
     preferences: {},
+    project_preferences: undefined,
     container: undefined,
     containerItems: [],
     collection_objects: [],

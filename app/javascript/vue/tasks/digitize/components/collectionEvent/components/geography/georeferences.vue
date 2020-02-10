@@ -22,7 +22,7 @@
           :zoom="5"
           :lat="lat"
           :lng="lng"
-          :geographic-area="geoArea"
+          :geographic-area="geographicArea"
           :verbatim-lat="collectingEvent.verbatim_latitude"
           :verbatim-lng="collectingEvent.verbatim_longitude"
           :collecting-event-id="collectingEvent.id"/>
@@ -53,6 +53,10 @@ export default {
     },
     lng() {
       return parseFloat(this.collectingEvent.verbatim_longitude)
+    },
+    geographicArea () {
+      if(!this.$store.getters[GetterNames.GetGeographicArea]) return
+      return this.$store.getters[GetterNames.GetGeographicArea]['shape']
     }
   },
   watch: {
@@ -60,17 +64,6 @@ export default {
       handler (newVal, oldVal) {
         if(!newVal.id) {
           this.count = 0
-        }
-        if (this.geoId && newVal && newVal.geographic_area_id === this.geoId) return
-        this.geoId = newVal.geographic_area_id
-        if(newVal.geographic_area_id) {
-          GetGeographicArea(newVal.geographic_area_id).then(response => {
-            if(response.shape) {
-              this.geoArea = response.shape
-            }
-          })
-        } else {
-          this.geoArea = undefined
         }
       },
       deep: true,
@@ -80,9 +73,7 @@ export default {
   data () {
     return {
       show: false,
-      count: 0,
-      geoArea: undefined,
-      geoId: undefined
+      count: 0
     }
   },
   methods: {
