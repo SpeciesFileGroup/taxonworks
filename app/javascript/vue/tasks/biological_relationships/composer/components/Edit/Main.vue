@@ -24,7 +24,7 @@
       <div
         @click="flipValues"
         class="flip-container cursor-pointer"
-        data-icon="reset"/>
+        data-icon="swap"/>
       Flip
     </div>
   </div>
@@ -136,14 +136,15 @@ export default {
   .flip-container:hover {
     animation-name: spin;
     animation-duration: 1000ms;
-    animation-iteration-count: infinite;
-    animation-timing-function: linear;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+    //animation-timing-function: linear;
   }
   @keyframes spin {
     from {
-      transform: rotate(0deg);
+      transform: rotateY(0deg);
     } to {
-      transform: rotate(360deg);
+      transform: rotateY(180deg);
     }
   }
 </style>
