@@ -127,24 +127,10 @@ export default {
 
 <style lang="scss" scoped>
   .flip-container {
-    height: 70px;
-    width: 70px;
+    height: 35px;
+    width: 35px;
     padding: 0px;
-    background-size: 60px !important;
+    background-size: 35px !important;
     background-position: center;
-  }
-  .flip-container:hover {
-    animation-name: spin;
-    animation-duration: 1000ms;
-    animation-iteration-count: 1;
-    animation-fill-mode: forwards;
-    //animation-timing-function: linear;
-  }
-  @keyframes spin {
-    from {
-      transform: rotateY(0deg);
-    } to {
-      transform: rotateY(180deg);
-    }
   }
 </style>
