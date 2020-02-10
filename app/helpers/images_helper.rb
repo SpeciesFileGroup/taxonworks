@@ -42,4 +42,13 @@ module ImagesHelper
     end
   end
 
+  def image_display_url(image)
+    case image.image_file_content_type
+    when 'image/tiff'
+      "/images/#{image.id}/extract/0/0/#{image.height}/#{image.width}"
+    else
+      root_url + image.image_file.url[1..-1]
+    end
+  end
+
 end
