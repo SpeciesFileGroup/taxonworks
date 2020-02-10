@@ -10,7 +10,7 @@
         </div>
         <div>
           <label>Name</label><br>
-          <p class="disabled margin-small-top"> {{ biologicalRelationship.name }}</p>
+          <p class="disabled margin-small-top" v-html="biologicalRelationship.name ? biologicalRelationship.name : '<i>None</i>'"/>
         </div>
       </template>
       <template v-else>
@@ -22,7 +22,7 @@
         </div>
         <div>
           <label>Inverted name</label><br>
-          <p class="disabled margin-small-top">{{ biologicalRelationship.inverted_name }}</p>
+          <p class="disabled margin-small-top" v-html="biologicalRelationship.inverted_name ? biologicalRelationship.inverted_name : '<i>None</i>'"/>
         </div>
       </template>
     </div>

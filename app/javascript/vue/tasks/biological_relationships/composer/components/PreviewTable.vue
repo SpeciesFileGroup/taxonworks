@@ -18,7 +18,7 @@
           :key="item.id">
           <td v-html="item.subject.object_tag"></td>
           <td></td>
-          <td v-html="item.object_tag"></td>
+          <td v-html="item.biological_relationship.object_tag"></td>
           <td></td>
           <td v-html="item.object.object_tag"></td>
         </tr>
