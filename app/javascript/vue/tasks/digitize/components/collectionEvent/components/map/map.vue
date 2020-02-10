@@ -57,7 +57,7 @@ export default {
     return {
       zoom:8,
       center: L.latLng(0, 0),
-      url:'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+      url:'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       attribution:'&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
       marker: L.latLng(0, 0),
       width: '100%',
