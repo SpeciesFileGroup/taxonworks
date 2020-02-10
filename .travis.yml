@@ -27,8 +27,10 @@ jobs:
       rvm:
         - 2.6.5
       bundler_args: --without development production
+      services:
+        - postgresql
       addons:
-        postgresql: "11"
+        postgresql: "12"
         firefox: "latest"
         apt:
           packages:
@@ -36,7 +38,12 @@ jobs:
             - tesseract-ocr
             - libgeos-dev
             - libproj-dev
-            - postgresql-11-postgis-2.5
+      before_install:
+        - sudo apt-get update
+        - sudo apt-get --yes remove postgresql\*
+        - sudo apt-get install -y postgresql-12-postgis-3
+        - sudo cp /etc/postgresql/{9.6,12}/main/pg_hba.conf
+        - sudo service postgresql restart 12
       env:
           - TEST_WORKER=0
       before_install:
@@ -48,6 +55,9 @@ jobs:
         - bundle install -j3 --without development production
       before_script:
         - echo ===[TEST_WORKER=$TEST_WORKER before_script $(date -u +%Y%m%d-%H%M%S)]===
+        - psql --version
+        - psql -c 'CREATE DATABASE {{your database name here}};' -U postgres
+        - psql -c 'CREATE ROLE travis SUPERUSER LOGIN CREATEDB;' -U postgres
         - cp config/application_settings.yml.travis config/application_settings.yml
         - cp config/database.yml.travis config/database.yml
         - cp config/secrets.yml.example config/secrets.yml
