@@ -16,7 +16,7 @@ class BiologicalAssociationsController < ApplicationController
           .new(filter_params)
           .all
           .where(project_id: sessions_current_project_id)
-          .page(params[:page] || 1).per(500)
+          .page(params[:page] || 1).per(params[:per] || 500)
       }
     end
   end
