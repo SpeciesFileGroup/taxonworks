@@ -23,7 +23,6 @@
     "vue-shortkey": "^3.1.7",
     "vue-template-compiler": "^2.6.11",
     "vue-tippy": "^4.3.1",
-    "vue2-leaflet": "^2.4.2",
     "vuedraggable": "^2.23.2",
     "vuex": "^3.1.2",
     "webpack-cli": "^3.3.10"
