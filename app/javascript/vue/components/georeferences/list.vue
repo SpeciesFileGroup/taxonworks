@@ -4,6 +4,8 @@
       <thead>
         <tr>
           <th>Georeference ID</th>
+          <th>Shape</th>
+          <th>Error radius</th>
           <th>Type</th>
           <th></th>
         </tr>
@@ -17,6 +19,13 @@
           class="list-complete-item">
           <td>{{ item.id }}</td>
           <td>{{ item.geo_json.geometry.type }}</td>
+          
+          <td>
+            <edit-in-place 
+              v-model="item.error_radius"
+              @end="$emit('updateGeo', item)"/>
+          </td>
+          <td>{{ item.type }}</td>
           <td class="vue-table-options">
             <radial-annotator
               :global-id="item.global_id"/>
@@ -34,10 +43,12 @@
 <script>
 
 import RadialAnnotator from 'components/annotator/annotator.vue'
+import EditInPlace from 'components/editInPlace'
 
 export default {
   components: {
-    RadialAnnotator
+    RadialAnnotator,
+    EditInPlace
   },
   props: {
     list: {

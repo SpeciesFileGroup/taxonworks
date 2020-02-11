@@ -10,13 +10,9 @@
     </div>
     <div class="field">
       <label>OTU</label>
-      <autocomplete
-        min="2"
-        placeholder="Select an OTU"
-        label="label"
-        @getItem="determination.otu_id = $event.id"
-        url="/otus/autocomplete"
-        param="term"/>
+      <otu-picker
+        :clear-after="true"
+        @getItem="determination.otu_id = $event.id"/>
     </div>
     <div class="field">
       <label>Date made</label>
@@ -54,12 +50,12 @@
 
 import { createTaxonDetermination } from '../request/resources'
 import { MutationNames } from '../store/mutations/mutations'
-import autocomplete from 'components/autocomplete.vue'
 import rolePicker from 'components/role_picker.vue'
+import OtuPicker from 'components/otu/otu_picker/otu_picker'
 
 export default {
   components: {
-    autocomplete,
+    OtuPicker,
     rolePicker
   },
   props: {
@@ -80,7 +76,7 @@ export default {
         return []
       },
       set (value) {
-        determination.roles_attributes
+        this.determination.roles_attributes
       }
     }
   },
@@ -109,7 +105,7 @@ export default {
       })
       Promise.all(promises).then(() => {
         this.$store.commit(MutationNames.SetSaving, false)
-        TW.workbench.alert.create('Loan item was successfully created.', 'notice')
+        TW.workbench.alert.create('Loan item was successfully updated.', 'notice')
       })
     }
   }

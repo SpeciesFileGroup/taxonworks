@@ -43,9 +43,17 @@
     },
     mounted: function () {
       let that = this
-      let loanId = location.pathname.split('/')[4]
+      let id = location.pathname.split('/')[4]
+      let urlParams = new URLSearchParams(window.location.search)
+      let loanId = urlParams.get('loan_id')
+
       if (/^\d+$/.test(loanId)) {
         that.$store.dispatch(ActionNames.LoadLoan, loanId).then(response => {
+        }, () => {
+          window.location.href = '/tasks/loans/edit_loan/'
+        })
+      } else if (/^\d+$/.test(id)) {
+        that.$store.dispatch(ActionNames.LoadLoan, id).then(response => {
         }, () => {
           window.location.href = '/tasks/loans/edit_loan/'
         })

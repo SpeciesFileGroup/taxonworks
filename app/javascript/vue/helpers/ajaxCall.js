@@ -15,7 +15,8 @@ const ajaxCall = function (type, url, data = null) {
       if (process.env.NODE_ENV !== 'production') {
         console.log(response)
       }
-      handleError(response.body)
+      if(response.status != 404)
+        handleError(response.body)
       return reject(response)
     })
   })

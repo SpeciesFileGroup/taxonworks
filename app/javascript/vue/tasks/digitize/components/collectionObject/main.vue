@@ -75,9 +75,11 @@
             :show-spinner="false"
             legend="Locked until first save"/>
           <predicates-component
+            v-if="projectPreferences"
             :object-id="collectionObject.id"
             object-type="CollectionObject"
             model="CollectionObject"
+            :modelPreferences="projectPreferences.model_predicate_sets.CollectionObject"
             @onUpdate="setAttributes"
           />
         </div>
@@ -132,6 +134,9 @@
         set(value) {
           this.$store.commit(MutationNames.SetPreferences, value)
         }
+      },
+      projectPreferences () {
+        return this.$store.getters[GetterNames.GetProjectPreferences]
       },
       collectionObject () {
         return this.$store.getters[GetterNames.GetCollectionObject]

@@ -41,7 +41,7 @@
   import CollectionEventLayout from './components/collectionEvent/main.vue'
   import TypeMaterial from './components/typeMaterial/typeMaterial.vue'
   import BiologicalAssociation from './components/biologicalAssociation/main.vue'
-  import { GetUserPreferences } from './request/resources.js'
+  import { GetUserPreferences, GetProjectPreferences } from './request/resources.js'
   import { MutationNames } from './store/mutations/mutations.js'
   import { ActionNames } from './store/actions/actions.js'
   import { GetterNames } from './store/getters/getters.js'
@@ -78,6 +78,7 @@
       let coId = location.pathname.split('/')[4]
       let urlParams = new URLSearchParams(window.location.search)
       let coIdParam = urlParams.get('collection_object_id')
+      let ceIdParam = urlParams.get('collecting_event_id')
 
       this.addShortcutsDescription()
 
@@ -85,11 +86,17 @@
         this.$store.commit(MutationNames.SetPreferences, response)
       })
 
+      GetProjectPreferences().then(response => {
+        this.$store.commit(MutationNames.SetProjectPreferences, response)
+      })
+
       if (/^\d+$/.test(coId)) {
         this.$store.dispatch(ActionNames.LoadDigitalization, coId)
       }
       else if (/^\d+$/.test(coIdParam)) {
         this.$store.dispatch(ActionNames.LoadDigitalization, coIdParam)
+      } else if (/^\d+$/.test(ceIdParam)) {
+        this.$store.dispatch(ActionNames.GetCollectionEvent, ceIdParam)
       }
     },
     methods: {

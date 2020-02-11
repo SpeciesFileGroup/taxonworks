@@ -128,7 +128,7 @@ class NamespacesController < ApplicationController
   end
 
   def namespace_params
-    params.require(:namespace).permit(:institution, :name, :short_name, :verbatim_short_name)
+    params.require(:namespace).permit(:institution, :name, :short_name, :verbatim_short_name, :delimiter)
   end
 
   def batch_params

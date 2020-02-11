@@ -5,7 +5,7 @@
     tag="ul">
     <li
       v-for="item in list"
-      :key="setKey ? item[setKey] : item.id"
+      :key="setKey ? item[setKey] : item.hasOwnProperty('id') ? item.id : JSON.stringify(item)"
       class="list-complete-item flex-separate middle"
       :class="{ 'highlight': checkHighlight(item) }">
       <span

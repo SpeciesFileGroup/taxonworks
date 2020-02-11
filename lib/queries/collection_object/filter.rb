@@ -74,8 +74,17 @@ module Queries
       #   nil - not applied
       attr_accessor :dwc_indexed
 
+      # @return [True, False, nil]
+      #   true - index is built
+      #   false - index is not built
+      #   nil - not applied
+      attr_accessor :depicted
+
       # @return [Protonym#id, nil]
       attr_accessor :type_specimen_taxon_name_id
+
+      # @return [SledImage#id, nil]
+      attr_accessor :sled_image_id
 
       # @param [Hash] args are permitted params
       def initialize(params)
@@ -107,6 +116,9 @@ module Queries
 
         @type_specimen_taxon_name_id = params[:type_specimen_taxon_name_id].blank? ? nil : params[:type_specimen_taxon_name_id]
 
+        @sled_image_id = params[:sled_image_id].blank? ? nil : params[:sled_image_id]
+        @depicted = (params[:depicted]&.downcase == 'true' ? true : false) if !params[:depicted].nil?
+
         set_identifier(params)
         set_tags_params(params)
         set_user_dates(params)
@@ -137,6 +149,11 @@ module Queries
       end
 
       # @return [Arel::Table]
+      def depiction_table 
+        ::Depiction.arel_table
+      end
+
+      # @return [Arel::Table]
       def taxon_determination_table 
         ::TaxonDetermination.arel_table
       end
@@ -144,6 +161,16 @@ module Queries
       def biocuration_facet
         return nil if biocuration_class_ids.empty?
         ::CollectionObject::BiologicalCollectionObject.joins(:biocuration_classifications).where(biocuration_classifications: {biocuration_class_id: biocuration_class_ids}) 
+      end
+
+      def depicted_facet 
+        return nil if !depicted
+        ::CollectionObject::BiologicalCollectionObject.joins(:depictions) 
+      end
+
+      def sled_image_facet 
+        return nil if sled_image_id.nil?
+        ::CollectionObject::BiologicalCollectionObject.joins(:depictions).where("depictions.sled_image_id = ?", sled_image_id)
       end
 
       def biological_relationship_ids_facet
@@ -242,7 +269,9 @@ module Queries
           dwc_indexed_facet,
           never_loaned_facet,
           biocuration_facet,
-          biological_relationship_ids_facet
+          biological_relationship_ids_facet,
+          sled_image_facet,
+          depicted_facet,
         ]
 
         clauses.compact!

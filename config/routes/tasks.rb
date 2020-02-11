@@ -117,9 +117,13 @@ scope :tasks do
   end
 
   scope :collecting_events do
-    scope :search_locality, controller: 'tasks/collecting_events/search_locality' do
-      get 'index', as: 'index_search_locality_task'
-    end 
+    scope :browse, controller: 'tasks/collecting_events/browse' do
+      get '/', action: :index, as: 'browse_collecting_events_task'
+    end
+
+    scope :filter, controller: 'tasks/collecting_events/filter' do
+      get '/', action: :index, as: 'filter_collecting_events_task'
+    end
 
     scope :parse do
       scope :stepwise do
@@ -145,6 +149,10 @@ scope :tasks do
   end
 
   scope :collection_objects do
+      scope :grid_digitize, controller: 'tasks/collection_objects/grid_digitize' do
+        get :index, as: 'grid_digitize_task'
+      end
+
       scope :summary, controller: 'tasks/collection_objects/summary' do
         get '/', action: :index, as: 'collection_object_summary_task'
       end
@@ -353,7 +361,7 @@ scope :tasks do
     scope :syncronize_otus, controller: 'tasks/taxon_names/syncronize_otus' do
       get 'index', as: 'syncronize_otus_to_nomenclature_task'
       post 'index', as: 'preview_syncronize_otus_to_nomenclature_task'
-      post 'syncronize', as: 'syncronize_otus_task' 
+      post 'syncronize', as: 'syncronize_otus_task'
     end
 
     scope :filter, controller: 'tasks/taxon_names/filter' do

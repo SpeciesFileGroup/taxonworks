@@ -94,10 +94,12 @@ resources :collection_objects do
     get 'depictions', constraints: {format: :html}
     get 'containerize'
     get 'dwca', defaults: {format: :json}
+    get 'metadata_badge', defaults: {format: :json}
   end
 
   collection do
     get :dwc_index, defaults: {format: :json}
+    get :report, defaults: {format: :json}
     post :preview_castor_batch_load # should be get
     post :create_castor_batch_load # should be get
     post :preview_buffered_batch_load
@@ -215,7 +217,7 @@ resources :documents do
   concerns [:data_routes]
 end
 
-resources :downloads, except: [:edit, :new, :create, :update] do
+resources :downloads, except: [:edit, :new, :create] do
   collection do
     get 'list'
   end
@@ -550,6 +552,9 @@ resources :sequence_relationships do
     post :preview_primers_batch_load
     post :create_primers_batch_load
   end
+end
+
+resources :sled_images, only: [:update, :create, :destroy, :show], defaults: {format: :json} do
 end
 
 resources :sources do

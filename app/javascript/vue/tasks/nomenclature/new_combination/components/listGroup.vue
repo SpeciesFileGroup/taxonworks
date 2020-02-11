@@ -151,9 +151,11 @@ export default {
             this.expanded = false
           } else {
             this.rankChoose = newVal.find(item => {
-              return this.acceptTaxonIds.includes(item.id) || (this.selected && this.selected.id)
+              return this.acceptTaxonIds.includes(item.id) || (!this.acceptTaxonIds.length && (this.selected && this.selected.id))
             })
-            this.expanded = true
+            if(!this.rankChoose) {
+              this.expanded = true
+            }
           }
           this.displaySearch = false
         }

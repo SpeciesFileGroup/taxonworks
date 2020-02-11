@@ -19,6 +19,9 @@ export default function ({ commit, state }, determination) {
           //commit(MutationNames.SetTaxonDetermination, response)
           addToList(response)
           resolve(response)
+        }, (response) => {
+          TW.workbench.alert.create(JSON.stringify(Object.keys(response.body).map(key => { return response.body[key] }).join('<br>')), 'error')
+          reject(response)
         })
       }
       else {
@@ -26,6 +29,9 @@ export default function ({ commit, state }, determination) {
           state.collection_object.object_tag = response.collection_object.object_tag
           addToList(response)
           resolve(response)
+        }, (response) => {
+          TW.workbench.alert.create(JSON.stringify(Object.keys(response.body).map(key => { return response.body[key] }).join('<br>')), 'error')
+          reject(response)
         })
       }
     }

@@ -5,7 +5,7 @@ module CollectionObjectsHelper
   def collection_object_tag(collection_object)
     return nil if collection_object.nil?
     [
-      collection_object_deaccession_tag(collection_object), 
+      collection_object_deaccession_tag(collection_object),
       collection_object.type,
       collection_object_identifier_tag(collection_object),
       taxon_determination_tag(collection_object.taxon_determinations.order(:position).first)
@@ -27,7 +27,7 @@ module CollectionObjectsHelper
     return nil if collection_object.nil?
     [collection_object_identifier_tag(collection_object),
      collection_object_taxon_determination_tag(collection_object)
-    ].join(' ').html_safe 
+    ].join(' ').html_safe
   end
 
   def collection_objects_search_form
@@ -61,8 +61,6 @@ module CollectionObjectsHelper
     ])
   end
 
-
-
   # @return [Array [Identifier, String (type)], nil]
   #    also checks virtual container for identifier by proxy
   def collection_object_visualized_identifier(collection_object)
@@ -88,14 +86,14 @@ module CollectionObjectsHelper
   end
 
   def dwc_occurrence_table_body_tag(collection_objects)
-    collection_objects.collect do |c| 
+    collection_objects.collect do |c|
       dwc_occurrence_table_row_stub(c).html_safe
-    end.join.html_safe 
+    end.join.html_safe
   end
 
-  def dwc_table(collection_objects) 
+  def dwc_table(collection_objects)
     content_tag(:table) do
-      dwc_occurrence_table_header_tag + 
+      dwc_occurrence_table_header_tag +
         dwc_occurrence_table_body_tag(collection_objects)
     end
   end
@@ -120,7 +118,6 @@ module CollectionObjectsHelper
     end
   end
 
-
   # @return [link_to]
   #    this may not work for all identifier types, i.e. those with identifiers like `123.34` or `3434.33X` may not increment correctly
   def collection_object_browse_previous_by_identifier(collection_object)
@@ -128,10 +125,11 @@ module CollectionObjectsHelper
     o = collection_object.previous_by_identifier
     return content_tag(:div, 'None', 'class' => 'navigation-item disable') if o.nil?
     link_text = content_tag(:span, 'Previous by id', 'class' => 'small-icon icon-left', 'data-icon' => 'arrow-left')
-    link_to(link_text, browse_collection_objects_task_path(collection_object_id: o.id),
-            data: {arrow: :previous,
-                   'no-turbolinks' => 'true',
-                   help: 'Sorts by identifier type, namespace, then an conversion of identifier into integer.  Will not work for all identifier types.'}, class: 'navigation-item')
+    link_to(link_text, browse_collection_objects_task_path(collection_object_id: o.id), data: {
+      arrow: :previous,
+      'no-turbolinks' => 'true',
+      help: 'Sorts by identifier type, namespace, then an conversion of identifier into integer.  Will not work for all identifier types.'},
+      class: 'navigation-item')
   end
 
   # @return [link_to]
@@ -145,6 +143,36 @@ module CollectionObjectsHelper
             data: {arrow: :next,
                    'no-turbolinks' => 'false',
                    help: 'Sorts by identifier type, namespace, then an conversion of identifier into integer.  Will not work for all identifier types.'}, class:'navigation-item')
+  end
+
+  def collection_object_metadata_badge(collection_object)
+    return nil if collection_object.nil?
+    o = collection_object
+
+    layout = Waxy::Geometry::Layout.new(
+      Waxy::Geometry::Orientation::LAYOUT_POINTY,
+      Waxy::Geometry::Point.new(14,14), # size
+      Waxy::Geometry::Point.new(14,14), # start
+      0 # padding
+    )
+
+    s = [
+      (o.identifiers.any? ? 1 : 0),
+      (o.taxon_determinations.any? ? 1 : 0),
+      (o.collecting_event&.map_center.nil? ? 0 : 1),
+      (o.collecting_event_id ? 1 : 0),
+      (o.buffered_determinations.blank? ? 0 : 1),
+      (o.buffered_other_labels.blank? ? 0 : 1),
+    ]
+
+    a = Waxy::Meta.new
+    a.size = s
+    a.stroke = 'grey'
+    a.link_title = "#{o.id.to_s} created #{time_ago_in_words(o.created_at)} ago by #{user_tag(o.creator)}"
+
+    c = Waxy::Render::Svg::Canvas.new(28, 28)
+    c.body << Waxy::Render::Svg.rectangle(layout, [a], 0)
+    c.to_svg
   end
 
 end

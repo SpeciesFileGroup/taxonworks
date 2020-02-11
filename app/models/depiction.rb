@@ -17,9 +17,32 @@
 #   @return [Integer]
 #     the project ID
 #
+# @!attribute svg_clip
+#   @return [xml, nil]
+#     a clipping mask to isolate some portion of the picture
+#
+# @!attribute svg_view_box
+#   @return [String, nil]
+#     sets the clipping box, identical dimensions to clip for rectangles
+# 
+# @!attribute is_metadata_depiction
+#   @return [Boolean, nil]
+#      If true then this depiction depicts data that describes the entity, rather than the entity itself.
+#      For example, a CollectionObject depiction of a insect, vs. a picture of some text that says "the specimen is blue"
+#
+# @!attribute sled_image_id
+#   @return [Integer]
+#      If present this depiction was derived from sled
+#
+# @!attribute sled_image_x_position
+#   @return [Integer]
+#      Not null if sled_image_is present.  The column (top left 0,0) derived from
+#
+# @!attribute sled_image_y_position
+#   @return [Integer]
+#      Not null if sled_image_is present.  The row (top left 0,0) derived from
+#
 class Depiction < ApplicationRecord
-  # TODO: add position scoping
-
   include Housekeeping
   include Shared::Tags
   include Shared::DataAttributes
@@ -30,13 +53,39 @@ class Depiction < ApplicationRecord
   acts_as_list scope: [:project_id, :depiction_object_type, :depiction_object_id]
 
   belongs_to :image, inverse_of: :depictions
+  belongs_to :sled_image, inverse_of: :depictions
   has_one :sqed_depiction, dependent: :destroy
 
   accepts_nested_attributes_for :image
-
   accepts_nested_attributes_for :sqed_depiction, allow_destroy: true
 
   # This seems OK given specs, though similar validations in other concerns have created headaches.
   validates_presence_of :depiction_object
+
+  validates_uniqueness_of :sled_image_id, scope: [:project_id, :sled_image_x_position, :sled_image_y_position], allow_nil: true, if: Proc.new {|n| !n.sled_image_id.nil?}
+
+  def from_sled?
+    !sled_image_id.nil?
+  end
+
+  def sled_extraction_path(size = :thumb)
+    if from_sled?
+      x, y, w, h = svg_view_box.split(' ')
+
+      box_width, box_height = nil, nil
+      case size
+      when :thumb, :medium
+        box_width = Image::DEFAULT_SIZES[size][:width]
+        box_height = Image::DEFAULT_SIZES[size][:height]
+      when :original
+        box_width = w.to_i 
+        box_height = h.to_i
+      end
+
+      "#{image_id}/scale_to_box/#{x.to_i}/#{y.to_i}/#{w.to_i}/#{h.to_i}/#{box_width}/#{box_height}"
+    else
+      raise 'This is not a sled derived depiction'
+    end
+  end
 
 end
