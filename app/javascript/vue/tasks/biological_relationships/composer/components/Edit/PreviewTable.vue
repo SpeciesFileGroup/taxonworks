@@ -10,7 +10,7 @@
             <br>
             Subject
           </th>
-          <th>Relationships</th>
+          <th>Relationship</th>
           <th>
             {{ objectString }}
             <br>

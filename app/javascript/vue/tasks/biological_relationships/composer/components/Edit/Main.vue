@@ -28,8 +28,8 @@
       Flip
     </div>
     <preview-table
-      :subject-string="subjectString"
-      :object-string="objectString"
+      :subject-string="flip ? objectString : subjectString"
+      :object-string="flip ? subjectString : objectString"
       :biological-relationship="biologicalRelationship"/>
   </div>
 </template>
@@ -112,7 +112,6 @@ export default {
       if(data.id) {
         UpdateBiologicalRelationship(data).then(response => {
           this.$emit('update', response.body)
-          this.reset()
           TW.workbench.alert.create('Biological relationship was successfully updated.', 'notice')
         })
       }

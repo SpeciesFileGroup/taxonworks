@@ -1,6 +1,6 @@
 <template>
-  <div class="middle flex-wrap-column">
-    <div class="margin-medium-left margin-medium-right horizontal-left-content middle align-start" v-if="value">
+  <div class="flex-wrap-column margin-medium-left margin-medium-right">
+    <div class="horizontal-left-content middle align-start" v-if="value">
       <template v-if="flip">
         <div class="margin-small-right">
           <label>Inverted name</label><br>
@@ -33,6 +33,19 @@
           disabled="true">
       </div>
     </template>
+
+    <label>
+      <input
+        type="checkbox"
+        v-model="biologicalRelationship.is_transitive">
+        Is transitive
+    </label>
+    <label>
+      <input
+        type="checkbox"
+        v-model="biologicalRelationship.is_reflexive">
+        Is reflexive
+    </label>
   </div>
 </template>
 
