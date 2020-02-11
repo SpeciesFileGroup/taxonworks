@@ -4,11 +4,17 @@
     <draggable
       v-model="properties"
       :group="{ name: 'property', put: true }"
-      class="item item1 column-medium flex-wrap-column full_width middle">
-      <span
-        class="pill property"
-        v-for="item in properties"
-        v-html="item.name"/>
+      class="item item1 column-medium flex-wrap-column full_width ">
+      <div
+        v-for="(item, index) in properties" class="horizontal-left-content"
+        v-if="!item['_destroy']">
+        <span
+          class="cursor-pointer button circle-button btn-delete"
+          @click="removeProperty(index)"/>
+        <span
+          class="pill property"
+          v-html="item['biological_property'] ? item.biological_property.name : item.name"/>
+      </div>
     </draggable>
   </div>
 </template>
@@ -40,6 +46,16 @@ export default {
   data () {
     return {
       property: []
+    }
+  },
+  methods: {
+    removeProperty(index) {
+      if(this.properties[index]['created']) {
+        this.$set(this.properties[index], '_destroy', true)
+      }
+      else {
+        this.properties.splice(index, 1)
+      }
     }
   }
 }

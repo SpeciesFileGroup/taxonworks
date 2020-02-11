@@ -11,7 +11,6 @@
           class="full_width"
           :biological-relationship="selected"
           @update="addRelationship"/>
-        <preview-table :biological-relationship="selected"/>
       </div>
       <properties-component class="tables-relationship-properties"/>
     </div>
@@ -23,14 +22,13 @@
 import BiologicalRelationships from './components/BiologicalRelationships/Main'
 import PropertiesComponent from './components/Properties/Main'
 import EditComponent from './components/Edit/Main'
-import PreviewTable from './components/PreviewTable'
+
 
 export default {
   components: {
     BiologicalRelationships,
     EditComponent,
     PropertiesComponent,
-    PreviewTable
   },
   data () {
     return {

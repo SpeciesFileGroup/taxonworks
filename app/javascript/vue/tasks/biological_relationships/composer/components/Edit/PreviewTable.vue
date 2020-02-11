@@ -5,11 +5,17 @@
       v-if="list.length">
       <thead>
         <tr>
-          <th>Subject</th>
-          <th>Properties</th>
+          <th>
+            {{ subjectString }}
+            <br>
+            Subject
+          </th>
           <th>Relationships</th>
-          <th>Properties</th>
-          <th>Object</th>
+          <th>
+            {{ objectString }}
+            <br>
+            Object
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -17,9 +23,7 @@
           v-for="item in list"
           :key="item.id">
           <td v-html="item.subject.object_tag"></td>
-          <td></td>
           <td v-html="item.biological_relationship.object_tag"></td>
-          <td></td>
           <td v-html="item.object.object_tag"></td>
         </tr>
       </tbody>
@@ -29,12 +33,20 @@
 
 <script>
 
-import { GetBiologicalAssociations } from '../request/resource'
+import { GetBiologicalAssociations } from '../../request/resource'
 
 export default {
   props: {
     biologicalRelationship: {
       type: Object,
+      default: undefined
+    },
+    subjectString: {
+      type: String,
+      default: undefined
+    },
+    objectString: {
+      type: String,
       default: undefined
     }
   },
