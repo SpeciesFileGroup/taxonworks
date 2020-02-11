@@ -101,8 +101,8 @@ export default {
       this.flip = !this.flip
     },
     saveBiologicalRelationship () {
-      const object = this.object.filter(item => { return !item['created'] }).map(item => { return { type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType', biological_property_id: item.biological_property_id } })
-      const subject = this.subject.filter(item => { return !item['created'] }).map(item => { return { type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType', biological_property_id: item.biological_property_id } })
+      const object = this.object.filter(item => { return !item['created'] }).map(item => { return { type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType', biological_property_id: item.hasOwnProperty('biological_property_id') ? item.biological_property_id : item.id } })
+      const subject = this.subject.filter(item => { return !item['created'] }).map(item => { return { type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType', biological_property_id: item.hasOwnProperty('biological_property_id') ? item.biological_property_id : item.id } })
       const removed = this.getDestroyed(this.subject).concat(this.getDestroyed(this.object))
       
       let data = this.biological_relationship
