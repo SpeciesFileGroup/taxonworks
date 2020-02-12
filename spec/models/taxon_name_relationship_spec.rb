@@ -430,7 +430,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
 
       specify 'subjective synonyms should have different type specimen' do
         type_material1 = FactoryBot.create(:valid_type_material, protonym: s1)
-        type_material2 = FactoryBot.create(:valid_type_material, biological_object_id: type_material1.biological_object_id, protonym: s2)
+        type_material2 = FactoryBot.create(:valid_type_material, collection_object_id: type_material1.collection_object_id, protonym: s2)
         r  = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
         r.soft_validate(:specific_relationship)
         expect(r.soft_validations.messages_on(:type).size).to eq(1)
@@ -438,7 +438,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
 
       specify 'objective synonyms have same type specimen' do
         type_material1 = FactoryBot.create(:valid_type_material, protonym: s1)
-        type_material2 = FactoryBot.create(:valid_type_material, biological_object_id: type_material1.biological_object_id, protonym: s2)
+        type_material2 = FactoryBot.create(:valid_type_material, collection_object_id: type_material1.collection_object_id, protonym: s2)
         r  = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
         r.soft_validate(:specific_relationship)
         expect(r.soft_validations.messages_on(:type).empty?).to be_truthy
@@ -650,7 +650,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         s1             = FactoryBot.create(:relationship_species, parent: genus)
         s2             = FactoryBot.create(:relationship_species, parent: genus)
         type_material1 = FactoryBot.create(:valid_type_material, protonym: s1)
-        type_material2 = FactoryBot.create(:valid_type_material, biological_object_id: type_material1.biological_object_id, protonym: s2)
+        type_material2 = FactoryBot.create(:valid_type_material, collection_object_id: type_material1.collection_object_id, protonym: s2)
         r              = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
         r.soft_validate(:not_specific_relationship)
         expect(r.soft_validations.messages_on(:type).size).to eq(1)

@@ -12,7 +12,7 @@
           <specimen-information
             :otu="otu"
             :type="type.object_tag"
-            :specimen="getSpecimen(type.biological_object_id)"/>
+            :specimen="getSpecimen(type.collection_object_id)"/>
         </li>
       </ul>
     </div>

@@ -124,7 +124,7 @@ function makeInitialState () {
       global_id: undefined,
       protonym_id: undefined,
       taxon: undefined,
-      biological_object_id: undefined,
+      collection_object_id: undefined,
       type_type: undefined,
       collection_object: undefined,
       origin_citation_attributes: undefined

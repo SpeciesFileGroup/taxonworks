@@ -16,7 +16,7 @@ module CollectionObject::BiologicalExtensions
     has_many :otus, through: :taxon_determinations, inverse_of: :collection_objects
     has_many :taxon_names, through: :otus
 
-    has_many :type_designations, class_name: 'TypeMaterial', foreign_key: :biological_object_id, inverse_of: :material, dependent: :restrict_with_error
+    has_many :type_designations, class_name: 'TypeMaterial', foreign_key: :collection_object_id, inverse_of: :collection_object, dependent: :restrict_with_error
 
     has_one :current_taxon_determination, -> {order(:position)}, class_name: 'TaxonDetermination', foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object
     has_one :current_otu, through: :current_taxon_determination, source: :otu

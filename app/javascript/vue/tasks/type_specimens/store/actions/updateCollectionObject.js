@@ -3,7 +3,7 @@ import { UpdateTypeMaterial, UpdateCollectionObject } from '../../request/resour
 
 export default function ({ commit, state }, data) {
   commit(MutationNames.SetSaving, true)
-  delete data.type_material.material_attributes
+  delete data.type_material.collection_object_attributes
   UpdateTypeMaterial(data.type_material.id, data).then(response => {
     commit(MutationNames.AddTypeMaterial, response)
     commit(MutationNames.SetTypeMaterial, response)

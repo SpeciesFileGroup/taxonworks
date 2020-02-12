@@ -74,7 +74,7 @@ class TypeMaterial < ApplicationRecord
   scope :syntypes, -> {where(type_type: %w{syntype syntypes}).order('collection_object_id')}
   scope :primary_with_protonym_array, -> (base_array) {select('type_type, collection_object_id').group('type_type, collection_object_id').where("type_materials.type_type IN ('neotype', 'lectotype', 'holotype', 'syntype', 'syntypes') AND type_materials.protonym_id IN (?)", base_array ) }
 
-  validates_presence_of :type_type, :protonym_id, :collection_object_id
+
   validate :check_type_type
   validate :check_protonym_rank
 
@@ -82,6 +82,8 @@ class TypeMaterial < ApplicationRecord
   soft_validate(:sv_type_source, set: :type_source)
 
   accepts_nested_attributes_for :collection_object, allow_destroy: true
+
+  validates_presence_of :type_type, :protonym_id, :collection_object_id
 
   # TODO: really should be validating uniqueness at this point, it's type material, not garbage records
 

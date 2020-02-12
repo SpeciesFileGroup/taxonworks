@@ -2,13 +2,11 @@ require 'rails_helper'
 
 describe TypeMaterial, type: :model, group: :nomenclature do
 
-  after(:all) {
-    TypeMaterial.delete_all
-    CollectionObject.delete_all
-  }
+  let(:root) { FactoryBot.create(:root_taxon_name) }
+  let(:genus) { Protonym.create!(name: 'Aus', parent: root, rank_class: Ranks.lookup(:iczn, :genus)) }
+  let(:species) { Protonym.create!(name: 'aus', parent: genus, rank_class: Ranks.lookup(:iczn, :species)) }
 
   let(:type_material) {TypeMaterial.new}
-  let(:protonym) { FactoryBot.create(:relationship_species) }
 
   context 'associations' do
     context 'belongs to' do
@@ -16,7 +14,7 @@ describe TypeMaterial, type: :model, group: :nomenclature do
         expect(type_material.protonym = Protonym.new).to be_truthy
       end
       specify 'material' do
-        expect(type_material.material = Specimen.new).to be_truthy
+        expect(type_material.collection_object = Specimen.new).to be_truthy
       end
     end
 
@@ -38,8 +36,8 @@ describe TypeMaterial, type: :model, group: :nomenclature do
         expect(validated_type_material.errors.include?(:protonym_id)).to be_truthy
       end
 
-      specify 'biological_object_id' do
-        expect(validated_type_material.errors.include?(:biological_object_id)).to be_truthy
+      specify 'collection_object_id' do
+        expect(validated_type_material.errors.include?(:collection_object_id)).to be_truthy
       end
 
       specify 'type_type' do
@@ -51,7 +49,7 @@ describe TypeMaterial, type: :model, group: :nomenclature do
   context 'general' do
     context 'Protonym restrictions and linkages' do
       let(:iczn_type) { 
-        FactoryBot.build(:type_material, protonym: FactoryBot.build(:relationship_species, parent: nil))
+        FactoryBot.build(:type_material, protonym: species)
       }
 
       let(:icn_type) {
@@ -79,7 +77,7 @@ describe TypeMaterial, type: :model, group: :nomenclature do
       end
 
       specify 'protonym not a species 1' do
-        t = FactoryBot.build(:valid_type_material, protonym: FactoryBot.build(:relationship_genus, parent: nil))
+        t = FactoryBot.build(:valid_type_material, protonym: genus)
         t.valid?
         expect(t.errors.include?(:protonym_id)).to be_truthy
       end
@@ -87,9 +85,7 @@ describe TypeMaterial, type: :model, group: :nomenclature do
   end
 
   context 'methods' do
-    let(:iczn_type) {
-      FactoryBot.build(:valid_type_material)
-    }
+    let(:iczn_type) { FactoryBot.build(:valid_type_material) }
 
     let(:icn_type) {
       FactoryBot.build(:valid_type_material, protonym: FactoryBot.build(:icn_species))
@@ -107,36 +103,35 @@ describe TypeMaterial, type: :model, group: :nomenclature do
   end
 
   context 'nested attributes' do
-    let!(:a) { TypeMaterial.create!(
-      protonym: protonym,
+    let!(:a) { TypeMaterial.new(
+      protonym: species,
       type_type: 'holotype',
-      material_attributes: {total: 1, buffered_collecting_event: 'Not far from the moon.'}) 
+      collection_object_attributes: {total: 1, buffered_collecting_event: 'Not far from the moon.'}) 
     }
 
     specify 'creates collection object' do
-      expect(a.material.id).to be_truthy
+      byebug
+      expect(a.collection_object.id).to be_truthy
     end
   end
 
   context 'soft validation' do
-    let!(:species) {FactoryBot.create(:relationship_species) }
     let!(:iczn_type) {FactoryBot.create(:valid_type_material, protonym: species) }
     let!(:iczn_lectotype) {FactoryBot.create(:valid_type_material, protonym: species, type_type: 'lectotype') }
-    let(:t) {FactoryBot.create(:valid_type_material, protonym: species)  }
     let(:source1) {FactoryBot.create(:valid_source_bibtex, year: 2000)}
     let(:source2) {FactoryBot.create(:valid_source_bibtex, year: 2017)}
 
     context 'only one primary type' do
       specify 'for neotype' do
-        t.type_type = 'neotype' 
-        t.soft_validate(:single_primary_type)
-        expect(t.soft_validations.messages_on(:type_type).count).to eq(1)
+        iczn_type.type_type = 'neotype' 
+        iczn_type.soft_validate(:single_primary_type)
+        expect(iczn_type.soft_validations.messages_on(:type_type).count).to eq(1)
       end
 
       specify 'for syntype' do
-        t.type_type = 'syntypes'
-        t.soft_validate(:single_primary_type)
-        expect(t.soft_validations.messages_on(:type_type).count).to eq(1)
+        iczn_type.type_type = 'syntypes'
+        iczn_type.soft_validate(:single_primary_type)
+        expect(iczn_type.soft_validations.messages_on(:type_type).count).to eq(1)
       end
     end
 
