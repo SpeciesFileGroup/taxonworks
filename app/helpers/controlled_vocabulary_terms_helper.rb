@@ -3,12 +3,6 @@ module ControlledVocabularyTermsHelper
   def controlled_vocabulary_term_tag(controlled_vocabulary_term)
     return nil if controlled_vocabulary_term.nil?
     # content_tag(:span, color_tag(controlled_vocabulary_term.css_color, controlled_vocabulary_term.name), title: controlled_vocabulary_term.definition, class: 'cvt-tag')
-    controlled_vocabulary_term_pill_tag(controlled_vocabulary_term)
-  end
-
-  # TODO: potentially use as _tag
-  def controlled_vocabulary_term_pill_tag(controlled_vocabulary_term)
-    return nil if controlled_vocabulary_term.nil?
     content_tag(
       :span,
       content_tag(:span, controlled_vocabulary_term.name),
