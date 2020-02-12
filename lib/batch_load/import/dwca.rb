@@ -732,8 +732,8 @@ module BatchLoad
             t_n.rank_class = Ranks.lookup(:iczn, :species)
             t_n.name       = species[:value]
             # t_n.cached_author_year = snp[:scientificName][:details][0][:species][:authorship]
-            t_n.year_of_publication = species[:authorship][:basionymAuthorship][:year][:value].to_i
-            author_name             = species[:authorship][:basionymAuthorship][:authors]
+            t_n.year_of_publication = (species.dig(:authorship, :basionymAuthorship, :year, :value).try(:scan, /\d+/) || []).first
+            author_name             = species.dig(:authorship, :basionymAuthorship, :authors)
             if species[:authorship].include?('(')
               author_name = "(#{author_name})"
             end
