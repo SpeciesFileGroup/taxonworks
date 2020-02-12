@@ -42,7 +42,7 @@ export default {
     GetBiologicalRelationships().then(response => {
       this.list = response.body
       const urlParams = new URLSearchParams(window.location.search)
-      const relationshipIdParam = Number(urlParams.get('relationship_id'))
+      const relationshipIdParam = Number(urlParams.get('biological_relationship_id'))
 
       if (/^\d+$/.test(relationshipIdParam)) {
         const relationship = this.list.find(item => { return item.id === relationshipIdParam })
