@@ -20,7 +20,7 @@ class ObservationMatrixRow < ApplicationRecord
 
   after_initialize :set_reference_count
 
-  validates_presence_of :observation_matrix_id
+  validates_presence_of :observation_matrix
   validate :otu_and_collection_object_blank
   validate :otu_and_collection_object_given
   

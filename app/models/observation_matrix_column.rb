@@ -34,7 +34,7 @@ class ObservationMatrixColumn < ApplicationRecord
 
   acts_as_list scope: [:observation_matrix_id, :project_id]
 
-  validates_presence_of :observation_matrix_id, :descriptor_id
+  validates_presence_of :observation_matrix, :descriptor
   validates_uniqueness_of :descriptor_id, scope: [:observation_matrix_id, :project_id]
 
   # @param array [Array]

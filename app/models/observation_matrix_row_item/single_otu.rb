@@ -2,7 +2,7 @@ class ObservationMatrixRowItem::SingleOtu < ObservationMatrixRowItem
 
   belongs_to :otu
 
-  validates_presence_of :otu_id
+  validates_presence_of :otu
   validates_uniqueness_of :otu_id, scope: [:observation_matrix_id]
 
   def self.subclass_attributes

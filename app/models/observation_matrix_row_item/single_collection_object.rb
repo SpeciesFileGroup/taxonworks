@@ -2,7 +2,7 @@ class ObservationMatrixRowItem::SingleCollectionObject < ObservationMatrixRowIte
 
   belongs_to :collection_object
 
-  validates_presence_of :collection_object_id
+  validates_presence_of :collection_object
   validates_uniqueness_of :collection_object_id, scope: [:observation_matrix_id]
 
   def self.subclass_attributes

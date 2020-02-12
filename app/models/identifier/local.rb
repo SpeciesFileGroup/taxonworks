@@ -22,7 +22,10 @@
 #
 class Identifier::Local < Identifier
 
+  # This must exist, rather than namespace: true, because we don't have database side not null in the model.  We also don't accept nested
+  # namespaces in this belongs to.
   validates :namespace_id, presence: true
+
   validates_uniqueness_of :identifier, scope: [:namespace_id, :project_id, :type], message: lambda { |error, attributes| "#{attributes[:value]} already taken"}
 
   # Exact match on identifier + namespace

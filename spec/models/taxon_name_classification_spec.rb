@@ -38,8 +38,8 @@ describe TaxonNameClassification, type: :model, group: [:nomenclature] do
     context 'requires' do
       before { taxon_name_classification.valid? }
 
-      specify 'taxon_name_id' do
-        expect(taxon_name_classification.errors.include?(:taxon_name_id)).to be_truthy
+      specify 'taxon_name' do
+        expect(taxon_name_classification.errors.include?(:taxon_name)).to be_truthy
       end
 
       specify 'type' do

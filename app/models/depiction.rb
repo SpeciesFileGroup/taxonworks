@@ -59,7 +59,7 @@ class Depiction < ApplicationRecord
   accepts_nested_attributes_for :image
   accepts_nested_attributes_for :sqed_depiction, allow_destroy: true
 
-  validates_presence_of :depiction_object_id, :depiction_object_type
+  validates_presence_of :depiction_object
   validates_uniqueness_of :sled_image_id, scope: [:project_id, :sled_image_x_position, :sled_image_y_position], allow_nil: true, if: Proc.new {|n| !n.sled_image_id.nil?}
 
   def from_sled?

@@ -34,7 +34,7 @@ class ObservationMatrixColumnItem < ApplicationRecord
 
   #  belongs_to :controlled_vocabulary_term (belongs elsewhere)
 
-  validates_presence_of :observation_matrix_id
+  validates_presence_of :observation_matrix
   validate :type_is_subclassed
   validate :other_subclass_attributes_not_set
 

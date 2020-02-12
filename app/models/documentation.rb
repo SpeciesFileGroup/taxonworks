@@ -44,7 +44,7 @@ class Documentation < ApplicationRecord
   belongs_to :documentation_object, polymorphic: true
   belongs_to :document, inverse_of: :documentation
 
-  validates_presence_of :document_id
+  validates_presence_of :document
 
   accepts_nested_attributes_for :document
   accepts_nested_attributes_for :documentation_object

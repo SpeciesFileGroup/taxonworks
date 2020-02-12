@@ -41,7 +41,7 @@ class SledImage < ApplicationRecord
 
   before_destroy :destroy_related
 
-  validates_presence_of :image_id
+  validates_presence_of :image
   validates_uniqueness_of :image_id
 
   after_save :set_cached, unless: Proc.new {|n| n.metadata&.empty? || errors.any? } # must be before process

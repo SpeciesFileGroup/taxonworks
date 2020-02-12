@@ -38,7 +38,7 @@ module CollectionObject::BiologicalExtensions
 
   # @return [Boolean]
   def reject_taxon_determinations(attributed)
-    attributed['otu_id'].blank?
+    attributed['otu_id'].blank? && attributed[:otu]&.id.blank?
   end
 
   def reject_otus(attributed)

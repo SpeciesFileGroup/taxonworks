@@ -28,8 +28,8 @@ class SequenceRelationship < ApplicationRecord
   belongs_to :subject_sequence, class_name: 'Sequence', inverse_of: :sequence_relationships
   belongs_to :object_sequence, class_name: 'Sequence', inverse_of: :related_sequence_relationships
 
-  validates_presence_of :subject_sequence_id
-  validates_presence_of :object_sequence_id
+  validates_presence_of :subject_sequence
+  validates_presence_of :object_sequence
   validates_presence_of :type
 
 end

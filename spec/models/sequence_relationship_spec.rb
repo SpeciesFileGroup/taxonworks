@@ -10,12 +10,12 @@ RSpec.describe SequenceRelationship, type: :model, group: [:dna]  do
         sequence_relationship.valid?
       }
       
-      specify 'subject_sequence_id' do
-        expect(sequence_relationship.errors.include?(:subject_sequence_id)).to be_truthy
+      specify 'subject_sequence' do
+        expect(sequence_relationship.errors.include?(:subject_sequence)).to be_truthy
       end
 
       specify 'object_sequence' do
-        expect(sequence_relationship.errors.include?(:object_sequence_id)).to be_truthy
+        expect(sequence_relationship.errors.include?(:object_sequence)).to be_truthy
       end
 
       specify 'type' do
