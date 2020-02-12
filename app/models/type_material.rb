@@ -7,7 +7,7 @@
 #   @return [Integer]
 #     the protonym in question
 #
-# @!attribute biological_object_id
+# @!attribute collection_object_id
 #   @return [Integer]
 #     the CollectionObject
 #
@@ -36,7 +36,7 @@ class TypeMaterial < ApplicationRecord
   include SoftValidation
 
   # Keys are valid values for type_type, values are
-  # required Class for material
+  # required Class for BiologicalCollectionObject 
   ICZN_TYPES = {
     'holotype' =>  Specimen,
     'paratype' => Specimen,
@@ -63,26 +63,25 @@ class TypeMaterial < ApplicationRecord
       'isosyntypes' => Lot
   }.freeze
 
-  # TODO: CHANGE THIS RELATIONSHIP AND IT'S HORRIBLE attribute name `biological_object_id`
-  belongs_to :material, foreign_key: :biological_object_id, class_name: 'CollectionObject', inverse_of: :type_designations
+  belongs_to :collection_object, inverse_of: :type_designations
   belongs_to :protonym, inverse_of: :type_materials
 
   scope :where_protonym, -> (taxon_name) { where(protonym_id: taxon_name) }
   scope :with_type_string, -> (base_string) { where('type_type LIKE ?', "#{base_string}" ) }
   scope :with_type_array, -> (base_array) { where('type_type IN (?)', base_array ) }
 
-  scope :primary, -> {where(type_type: %w{neotype lectotype holotype}).order('biological_object_id')}
-  scope :syntypes, -> {where(type_type: %w{syntype syntypes}).order('biological_object_id')}
-  scope :primary_with_protonym_array, -> (base_array) {select('type_type, biological_object_id').group('type_type, biological_object_id').where("type_materials.type_type IN ('neotype', 'lectotype', 'holotype', 'syntype', 'syntypes') AND type_materials.protonym_id IN (?)", base_array ) }
+  scope :primary, -> {where(type_type: %w{neotype lectotype holotype}).order('collection_object_id')}
+  scope :syntypes, -> {where(type_type: %w{syntype syntypes}).order('collection_object_id')}
+  scope :primary_with_protonym_array, -> (base_array) {select('type_type, collection_object_id').group('type_type, collection_object_id').where("type_materials.type_type IN ('neotype', 'lectotype', 'holotype', 'syntype', 'syntypes') AND type_materials.protonym_id IN (?)", base_array ) }
 
-  validates_presence_of :type_type, :protonym_id, :biological_object_id
+  validates_presence_of :type_type, :protonym_id, :collection_object_id
   validate :check_type_type
   validate :check_protonym_rank
 
   soft_validate(:sv_single_primary_type, set: :single_primary_type)
   soft_validate(:sv_type_source, set: :type_source)
 
-  accepts_nested_attributes_for :material, allow_destroy: true
+  accepts_nested_attributes_for :collection_object, allow_destroy: true
 
   # TODO: really should be validating uniqueness at this point, it's type material, not garbage records
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_07_031013) do
+ActiveRecord::Schema.define(version: 2020_02_12_151008) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -1833,14 +1833,14 @@ ActiveRecord::Schema.define(version: 2020_02_07_031013) do
 
   create_table "type_materials", id: :serial, force: :cascade do |t|
     t.integer "protonym_id", null: false
-    t.integer "biological_object_id", null: false
+    t.integer "collection_object_id", null: false
     t.string "type_type", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["biological_object_id"], name: "index_type_materials_on_biological_object_id"
+    t.index ["collection_object_id"], name: "index_type_materials_on_collection_object_id"
     t.index ["created_by_id"], name: "index_type_materials_on_created_by_id"
     t.index ["project_id"], name: "index_type_materials_on_project_id"
     t.index ["protonym_id"], name: "index_type_materials_on_protonym_id"
@@ -2210,7 +2210,7 @@ ActiveRecord::Schema.define(version: 2020_02_07_031013) do
   add_foreign_key "taxon_names", "taxon_names", column: "parent_id", name: "taxon_names_parent_id_fkey"
   add_foreign_key "taxon_names", "users", column: "created_by_id", name: "taxon_names_created_by_id_fkey"
   add_foreign_key "taxon_names", "users", column: "updated_by_id", name: "taxon_names_updated_by_id_fkey"
-  add_foreign_key "type_materials", "collection_objects", column: "biological_object_id", name: "type_materials_biological_object_id_fkey"
+  add_foreign_key "type_materials", "collection_objects", name: "type_materials_biological_object_id_fkey"
   add_foreign_key "type_materials", "projects", name: "type_materials_project_id_fkey"
   add_foreign_key "type_materials", "taxon_names", column: "protonym_id", name: "type_materials_protonym_id_fkey"
   add_foreign_key "type_materials", "users", column: "created_by_id", name: "type_materials_created_by_id_fkey"

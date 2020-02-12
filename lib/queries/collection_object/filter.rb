@@ -312,7 +312,7 @@ module Queries
       def type_material_facet 
         return nil if type_specimen_taxon_name_id.nil?
 
-        w = type_materials_table[:biological_object_id].eq(table[:id])
+        w = type_materials_table[:collection_object_id].eq(table[:id])
           .and( type_materials_table[:protonym_id].eq(type_specimen_taxon_name_id) )
 
         ::CollectionObject.where(
