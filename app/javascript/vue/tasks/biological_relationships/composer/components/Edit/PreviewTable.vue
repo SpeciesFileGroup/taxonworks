@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="margin-large-top">
+    <h2 class="margin-large-top">Examples</h2>
     <table
       class="full_width"
       v-if="list.length">
@@ -28,6 +29,7 @@
         </tr>
       </tbody>
     </table>
+    <i v-else>None</i>
   </div>
 </template>
 
