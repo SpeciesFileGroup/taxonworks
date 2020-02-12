@@ -12,8 +12,7 @@
           class="cursor-pointer button circle-button btn-delete"
           @click="removeProperty(index)"/>
         <span
-          class="pill property"
-          v-html="item['biological_property'] ? item.biological_property.name : item.name"/>
+          v-html="item['biological_property'] ? item.biological_property.object_tag : item.object_tag"/>
       </div>
     </draggable>
   </div>

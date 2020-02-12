@@ -28,10 +28,25 @@
             rows="5">
           </textarea>
         </div>
+        <div class="field">
+          <label>URI</label>
+          <br>
+          <input
+            class="full_width"
+            v-model="controlVocabularyTerm.uri"
+            type="text">
+        </div>
+        <div class="field">
+          <label>CSS color</label>
+          <br>
+          <input
+            v-model="controlVocabularyTerm.css_color"
+            type="color">
+        </div>
         <button
           class="button normal-input button-submit"
-          @click="create">
-          Create
+          @click="save">
+          Save
         </button>
       </div>
     </modal-component>
@@ -40,7 +55,7 @@
 
 <script>
 
-import { CreateProperty } from '../../request/resource'
+import { CreateProperty, UpdateProperty } from '../../request/resource'
 import ModalComponent from 'components/modal'
 
 export default {
@@ -49,20 +64,39 @@ export default {
   },
   data () {
     return {
-      controlVocabularyTerm: {
-        type: 'BiologicalProperty',
-        name: undefined,
-        definition: undefined
-      },
+      controlVocabularyTerm: this.resetCVT(),
       showModal: false
     }
   },
   methods: {
-    create() {
-      CreateProperty(this.controlVocabularyTerm).then(response => {
-        this.$emit('create', response.body)
-        this.showModal = false
-      })
+    save() {
+      if(this.controlVocabularyTerm.id) {
+        UpdateProperty(this.controlVocabularyTerm).then(response => {
+          this.$emit('update', response.body)
+          this.showModal = false
+          this.controlVocabularyTerm = this.resetCVT()
+        })
+      } else {
+        CreateProperty(this.controlVocabularyTerm).then(response => {
+          this.$emit('create', response.body)
+          this.showModal = false
+          this.controlVocabularyTerm = this.resetCVT()
+        })
+      }
+    },
+    resetCVT () {
+      return {
+        id: undefined,
+        type: 'BiologicalProperty',
+        name: undefined,
+        definition: undefined,
+        uri: undefined,
+        css_color: undefined
+      }
+    },
+    setProperty (property) {
+      this.controlVocabularyTerm = property
+      this.showModal = true
     }
   }
 }

@@ -8,6 +8,10 @@ const CreateProperty = (data) => {
   return ajaxCall('post', '/controlled_vocabulary_terms', { controlled_vocabulary_term: data })
 }
 
+const UpdateProperty = (data) => {
+  return ajaxCall('patch', `/controlled_vocabulary_terms/${data.id}.json`, { controlled_vocabulary_term: data })
+}
+
 const GetBiologicalRelationships = () => {
   return ajaxCall('get', '/biological_relationships.json')
 }
@@ -27,6 +31,7 @@ const GetBiologicalAssociations = (id) => {
 export {
   CreateBiologicalRelationship,
   CreateProperty,
+  UpdateProperty,
   GetBiologicalRelationships,
   GetProperties,
   UpdateBiologicalRelationship,

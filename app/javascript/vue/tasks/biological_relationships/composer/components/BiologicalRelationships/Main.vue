@@ -7,7 +7,6 @@
         <tr>
           <th>Name</th>
           <th>Inverted name</th>
-          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -17,7 +16,6 @@
           @click="$emit('selected', item)">
           <td>{{ item.name }}</td>
           <td>{{ item.inverted_name }}</td>
-          <td></td>
         </tr>
       </tbody>
     </table>
@@ -60,6 +58,7 @@ export default {
       } else {
         this.list.unshift(relationship)
       }
+      this.$emit('selected', relationship)
     }
   }
 }
