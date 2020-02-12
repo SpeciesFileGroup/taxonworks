@@ -36,8 +36,8 @@ describe TypeMaterial, type: :model, group: :nomenclature do
         expect(validated_type_material.errors.include?(:protonym_id)).to be_truthy
       end
 
-      specify 'collection_object_id' do
-        expect(validated_type_material.errors.include?(:collection_object_id)).to be_truthy
+      specify 'collection_object' do
+        expect(validated_type_material.errors.include?(:collection_object)).to be_truthy
       end
 
       specify 'type_type' do
@@ -103,14 +103,13 @@ describe TypeMaterial, type: :model, group: :nomenclature do
   end
 
   context 'nested attributes' do
-    let!(:a) { TypeMaterial.new(
+    let!(:a) { TypeMaterial.create!(
       protonym: species,
       type_type: 'holotype',
       collection_object_attributes: {total: 1, buffered_collecting_event: 'Not far from the moon.'}) 
     }
 
     specify 'creates collection object' do
-      byebug
       expect(a.collection_object.id).to be_truthy
     end
   end

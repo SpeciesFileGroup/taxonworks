@@ -62,7 +62,7 @@ class Protonym < TaxonName
 
   has_many :combinations, through: :combination_relationships, source: :object_taxon_name
 
-  has_many :type_materials, class_name: 'TypeMaterial'
+  has_many :type_materials, class_name: 'TypeMaterial', inverse_of: :protonym 
 
   TaxonNameRelationship.descendants.each do |d|
     if d.respond_to?(:assignment_method)

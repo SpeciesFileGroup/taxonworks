@@ -63,7 +63,7 @@ class TypeMaterial < ApplicationRecord
       'isosyntypes' => Lot
   }.freeze
 
-  belongs_to :collection_object, inverse_of: :type_designations
+  belongs_to :collection_object, foreign_key: :collection_object_id, class_name: 'CollectionObject', inverse_of: :type_designations
   belongs_to :protonym, inverse_of: :type_materials
 
   scope :where_protonym, -> (taxon_name) { where(protonym_id: taxon_name) }
@@ -74,7 +74,6 @@ class TypeMaterial < ApplicationRecord
   scope :syntypes, -> {where(type_type: %w{syntype syntypes}).order('collection_object_id')}
   scope :primary_with_protonym_array, -> (base_array) {select('type_type, collection_object_id').group('type_type, collection_object_id').where("type_materials.type_type IN ('neotype', 'lectotype', 'holotype', 'syntype', 'syntypes') AND type_materials.protonym_id IN (?)", base_array ) }
 
-
   validate :check_type_type
   validate :check_protonym_rank
 
@@ -83,7 +82,10 @@ class TypeMaterial < ApplicationRecord
 
   accepts_nested_attributes_for :collection_object, allow_destroy: true
 
-  validates_presence_of :type_type, :protonym_id, :collection_object_id
+  validates_presence_of :type_type, :protonym_id
+
+  # !! breaks nested attributes if validated as collection_object_id.  Seems to be belongs_to only related.
+  validates_presence_of :collection_object
 
   # TODO: really should be validating uniqueness at this point, it's type material, not garbage records
 
