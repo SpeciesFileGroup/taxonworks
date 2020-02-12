@@ -20,13 +20,14 @@
     </div>
     <div
       v-if="biological_relationship.id"
-      class="flex-wrap-column middle margin-medium-top">
+      class="flex-wrap-column middle margin-medium-top margin-large-bottom">
       <div
         @click="flipValues"
         class="flip-container cursor-pointer"
         data-icon="swap"/>
       Flip
     </div>
+    <h2 class="margin-large-top">Examples</h2>
     <preview-table
       :subject-string="flip ? objectString : subjectString"
       :object-string="flip ? subjectString : objectString"
