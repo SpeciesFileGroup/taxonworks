@@ -41,6 +41,15 @@ export default {
   mounted () {
     GetBiologicalRelationships().then(response => {
       this.list = response.body
+      const urlParams = new URLSearchParams(window.location.search)
+      const relationshipIdParam = Number(urlParams.get('relationship_id'))
+
+      if (/^\d+$/.test(relationshipIdParam)) {
+        const relationship = this.list.find(item => { return item.id === relationshipIdParam })
+        if (relationship) {
+          this.$emit('selected', relationship)
+        }
+      }
     })
   },
   methods: {
