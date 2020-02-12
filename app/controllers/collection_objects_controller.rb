@@ -3,7 +3,7 @@ class CollectionObjectsController < ApplicationController
 
   before_action :set_collection_object, only: [
     :show, :edit, :update, :destroy, :containerize,
-    :depictions, :images, :geo_json, :metadata_badge]
+    :depictions, :images, :geo_json, :metadata_badge, :biocuration_classifications]
 
   # GET /collecting_events
   # GET /collecting_events.json
@@ -20,6 +20,11 @@ class CollectionObjectsController < ApplicationController
         @collection_objects = filtered_collection_objects
       }
     end
+  end
+
+  def biocuration_classifications
+    @biocuration_classifications = @collection_object.biocuration_classifications
+   render '/biocuration_classifications/index' 
   end
 
   # DEPRECATED

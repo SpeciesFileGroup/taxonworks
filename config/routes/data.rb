@@ -93,6 +93,9 @@ resources :collection_objects do
   resources :taxon_determinations, shallow: true, only: [:index], defaults: {format: :json}
 
   member do
+    # pseudo shallow
+    get 'biocuration_classifications', defaults: {format: :json}
+
     get 'dwc', defaults: {format: :json}
     get 'depictions', constraints: {format: :html}
     get 'containerize'
