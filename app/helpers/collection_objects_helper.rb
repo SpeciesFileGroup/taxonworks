@@ -17,6 +17,10 @@ module CollectionObjectsHelper
     link_to(collection_object_tag(collection_object).html_safe, collection_object.metamorphosize)
   end
 
+  def collection_object_radial_tag(collection_object)
+    content_tag(:span, '', data: { 'global-id' => collection_object.to_global_id.to_s, 'collection-object-radial' => 'true'})
+  end
+
   def label_for_collection_object(collection_object)
     return nil if collection_object.nil?
     [ 'CollectionObject ' + collection_object.id.to_s,
