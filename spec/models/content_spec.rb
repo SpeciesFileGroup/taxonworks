@@ -10,14 +10,14 @@ describe Content, type: :model do
     before { content.valid?}
 
     context 'requires' do
-      specify 'topic' do
-        expect(content.errors.include?(:topic)).to be_truthy
+      specify 'topic_id' do
+        expect(content.errors.include?(:topic_id)).to be_truthy
       end
       specify 'text' do
         expect(content.errors.include?(:text)).to be_truthy
       end
-      specify 'text' do
-        expect(content.errors.include?(:otu)).to be_truthy
+      specify 'otu_id' do
+        expect(content.errors.include?(:otu_id)).to be_truthy
       end
     end
 

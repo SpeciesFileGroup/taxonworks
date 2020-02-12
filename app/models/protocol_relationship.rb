@@ -12,5 +12,5 @@ class ProtocolRelationship < ApplicationRecord
   # incompatibility with polymorphic objects)
   # validates_presence_of :protocol_relationship_object_id, :protocol_relationship_object_type
 
-  validates_presence_of :protocol
+  validates_presence_of :protocol_id
 end

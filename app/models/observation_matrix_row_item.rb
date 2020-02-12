@@ -31,7 +31,7 @@ class ObservationMatrixRowItem < ApplicationRecord
   belongs_to :otu, inverse_of: :observation_matrix_row_items
   belongs_to :collection_object, inverse_of: :observation_matrix_row_items
 
-  validates_presence_of :observation_matrix
+  validates_presence_of :observation_matrix_id
   validate :type_is_subclassed
   validate :other_subclass_attributes_not_set, if: -> {!type.blank?}
 

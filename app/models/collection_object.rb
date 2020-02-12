@@ -656,27 +656,6 @@ class CollectionObject < ApplicationRecord
     true
   end
 
-  def reject_otus(attributed)
-    a = attributed['taxon_name_id']
-    b = attributed['name']
-    a.blank? && b.blank?
-  end
-
-  # @return [Boolean]
-  def reject_taxon_determinations(attributed)
-    a = attributed['otu_id']
-    b = attributed['otu']
-    c = attributed['otu_attributes']
-    d = true
-    if c
-      d = c['name'].blank? && c['taxon_name_id'].blank? && c['taxon_name'].blank?
-    end
-
-    return true if a.blank? && b.blank? && d
-    return true if a.present? && b.present? && c.present?
-    false
-  end
-
   def reject_collecting_event(attributed)
     reject = true
     CollectingEvent.data_attributes.each do |a|

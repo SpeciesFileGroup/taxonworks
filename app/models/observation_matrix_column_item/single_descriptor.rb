@@ -2,7 +2,7 @@ class ObservationMatrixColumnItem::SingleDescriptor < ObservationMatrixColumnIte
 
   belongs_to :descriptor
   
-  validates_presence_of :descriptor
+  validates_presence_of :descriptor_id
   validates_uniqueness_of :descriptor_id, scope: [:observation_matrix_id]
 
   def self.subclass_attributes

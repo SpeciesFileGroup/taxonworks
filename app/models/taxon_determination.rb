@@ -53,7 +53,7 @@ class TaxonDetermination < ApplicationRecord
   has_many :determiners, through: :determiner_roles, source: :person
 
   # validates :biological_collection_object, presence: true
-  validates_presence_of :otu
+  validates_presence_of :otu_id, :biological_collection_object_id
 
   accepts_nested_attributes_for :determiners
   accepts_nested_attributes_for :determiner_roles, allow_destroy: true

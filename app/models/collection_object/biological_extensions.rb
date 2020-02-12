@@ -36,5 +36,16 @@ module CollectionObject::BiologicalExtensions
     current_taxon_name.try(:ancestor_at_rank, rank).try(:cached_html)
   end
 
+  # @return [Boolean]
+  def reject_taxon_determinations(attributed)
+    attributed['otu_id'].blank?
+  end
+
+  def reject_otus(attributed)
+    a = attributed['taxon_name_id']
+    b = attributed['name']
+    a.blank? && b.blank?
+  end
+
 end
 

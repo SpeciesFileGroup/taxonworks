@@ -25,7 +25,6 @@ describe TypeMaterial, type: :model, group: :nomenclature do
         expect(type_material.source = Source::Bibtex.new).to be_truthy
       end
     end
-   
   end
 
   context 'validations' do
@@ -35,12 +34,12 @@ describe TypeMaterial, type: :model, group: :nomenclature do
         type_material
       }
 
-      specify 'protonym' do
-        expect(validated_type_material.errors.include?(:protonym)).to be_truthy
+      specify 'protonym_id' do
+        expect(validated_type_material.errors.include?(:protonym_id)).to be_truthy
       end
 
-      specify 'material' do
-        expect(validated_type_material.errors.include?(:material)).to be_truthy
+      specify 'biological_object_id' do
+        expect(validated_type_material.errors.include?(:biological_object_id)).to be_truthy
       end
 
       specify 'type_type' do
@@ -79,13 +78,10 @@ describe TypeMaterial, type: :model, group: :nomenclature do
         expect(icn_type.errors.include?(:type_type)).to be_falsey
       end
 
-      specify 'protonym not a species' do
+      specify 'protonym not a species 1' do
         t = FactoryBot.build(:valid_type_material, protonym: FactoryBot.build(:relationship_genus, parent: nil))
         t.valid?
         expect(t.errors.include?(:protonym_id)).to be_truthy
-        t.protonym = FactoryBot.build(:relationship_species, parent: nil)
-        t.valid?
-        expect(t.errors.include?(:protonym_id)).to be_falsey
       end
     end
   end
@@ -111,7 +107,12 @@ describe TypeMaterial, type: :model, group: :nomenclature do
   end
 
   context 'nested attributes' do
-    let!(:a) { TypeMaterial.create!(protonym: protonym, material_attributes: {total: 1, buffered_collecting_event: 'Not far from the moon.'} , type_type: 'holotype') }
+    let!(:a) { TypeMaterial.create!(
+      protonym: protonym,
+      type_type: 'holotype',
+      material_attributes: {total: 1, buffered_collecting_event: 'Not far from the moon.'}) 
+    }
+
     specify 'creates collection object' do
       expect(a.material.id).to be_truthy
     end
