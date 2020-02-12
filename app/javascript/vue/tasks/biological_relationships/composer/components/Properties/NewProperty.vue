@@ -3,7 +3,7 @@
     <button
       class="button normal-input button-submit"
       type="button"
-      @click="showModal = true">
+      @click="openModal">
       New
     </button>
     <modal-component
@@ -69,6 +69,10 @@ export default {
     }
   },
   methods: {
+    openModal () {
+      this.showModal = true
+      this.controlVocabularyTerm = this.resetCVT()
+    },
     save() {
       if(this.controlVocabularyTerm.id) {
         UpdateProperty(this.controlVocabularyTerm).then(response => {
