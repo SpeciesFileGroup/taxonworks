@@ -5,20 +5,20 @@
       <button
         @click="$emit('update')"
         type="button"
-        class="button normal-input button-submit margin-medium-right full_width">
+        class="button button-input button-submit margin-medium-right full_width">
         {{ summary.length ? 'Update' : 'Create' }}
       </button>
       <button
         @click="$emit('updateNext', Number(navigate.next))"
         :disabled="!navigate.next"
         type="button"
-        class="button normal-input button-submit margin-medium-right full_width">
+        class="button button-input button-submit margin-medium-right full_width">
         {{ summary.length ? 'Update' : 'Create' }} and next
       </button>
       <button
         @click="$emit('updateNew')"
         type="button"
-        class="button normal-input button-submit margin-medium-right full_width">
+        class="button button-input button-submit margin-medium-right full_width">
         {{ summary.length ? 'Update' : 'Create' }} and new
       </button>
       <nuke-component
@@ -101,5 +101,7 @@ export default {
 </script>
 
 <style>
-
+  .button-input {
+    min-height: 28px;
+  }
 </style>
