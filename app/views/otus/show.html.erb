@@ -11,4 +11,8 @@
   <%= on_loan_tag(@otu) -%>
 <% end %>
 
+<%= content_for :icon_navigation do -%>
+  <%= content_tag(:li, otus_radial(@otu) )   %>
+<% end %>
+
 <%= render(partial: 'shared/data/project/show', locals: {object: @otu}) -%>

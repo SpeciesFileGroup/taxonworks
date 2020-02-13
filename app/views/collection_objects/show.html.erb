@@ -15,5 +15,11 @@
   <p> See <%= link_to('Browse collection object', browse_collection_objects_task_path(collection_object_id: @collection_object.id)) -%>. <p>
 <% end %>
 
+<%= content_for :icon_navigation do -%>
+  <%= content_tag(:li, collection_object_radial_tag(@collection_object) )   %>
+<% end %>
+
+
+
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @collection_object}) -%>
