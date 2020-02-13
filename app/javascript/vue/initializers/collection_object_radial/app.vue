@@ -2,7 +2,6 @@
   <collection-object-radial
     :id="id"
     type="graph"
-    buttonClass="btn-hexagon-w button-default"
     :global-id="globalId"/>
 </template>
 <script>

@@ -104,7 +104,7 @@ export default {
     },
     buttonClass: {
       type: String,
-      default: 'btn-hexagon-w'
+      default: 'btn-co-radial'
     },
     buttonTitle: {
       type: String,
