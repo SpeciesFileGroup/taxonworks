@@ -59,7 +59,7 @@ const updateTaxonRelationship = function (relationship) {
     Vue.http.patch(`/taxon_name_relationships/${relationship.taxon_name_relationship.id}`, relationship).then(response => {
       return resolve(response.body)
     }, response => {
-      console.log(response)
+      return reject(response)
     })
   })
 }
