@@ -40,7 +40,7 @@ module BatchLoad
         make_ce:    %w(decimallatitude decimallongitude coordinateuncertaintyinmeters eventdate locationremarks recordedby geodeticdatum countrycode stateprovince county municipality locality)
       }.freeze
 
-      super(args)
+      super(**args)
     end
 
     # @return [Hash]
@@ -369,18 +369,21 @@ module BatchLoad
 
 # only for use in a TaxonWorks rails console
     def _setup
-      $project    = Project.where(name: 'BatchLoad Test').first
-      $project_id = $project.id
-      $user       = User.find(185)
-      $user_id    = $user.id
-      @root       = Protonym.find_or_create_by(name:       'Root',
-                                               rank_class: 'NomenclaturalRank',
-                                               parent_id:  nil,
-                                               project_id: $project_id)
-      @animalia   = Protonym.find_or_create_by(name:       'Animalia',
-                                               parent_id:  @root.id,
-                                               rank_class: Ranks.lookup(:iczn, :kingdom),
-                                               project_id: $project_id)
+  
+      project = Project.where(name: 'BatchLoad Test').first
+   
+      Current.project_id = project.id
+    
+      user = User.find(185)
+     
+      Current.user_id = user.id
+
+      @root = Protonym.find_or_create_by(name:       'Root',
+                                         rank_class: 'NomenclaturalRank',
+                                         parent_id:  nil)
+      @animalia = Protonym.find_or_create_by(name:       'Animalia',
+                                             parent_id:  @root.id,
+                                             rank_class: Ranks.lookup(:iczn, :kingdom))
     end
 
     # @param [CSV::Row] row

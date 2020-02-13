@@ -141,7 +141,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       type2 = FactoryBot.create(:valid_type_material, protonym: species2)
       species1.reload
       expect(species1.has_same_primary_type(species2)).to be_falsey
-      type2.biological_object_id = type1.biological_object_id
+      type2.collection_object_id = type1.collection_object_id
       type2.save
       species1.reload
       expect(species1.has_same_primary_type(species2)).to be_truthy

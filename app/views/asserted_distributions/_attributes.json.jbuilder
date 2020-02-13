@@ -14,4 +14,7 @@ end
 
 json.geographic_area do
   json.partial! '/geographic_areas/attributes', geographic_area: asserted_distribution.geographic_area
+  if params[:geo_json] 
+    json.geo_json asserted_distribution.geographic_area.to_geo_json_feature 
+  end
 end

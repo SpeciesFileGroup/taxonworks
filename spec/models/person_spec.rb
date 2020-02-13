@@ -61,6 +61,73 @@ describe Person, type: :model, group: [:sources, :people] do
     end
   end
 
+  context 'select_optimized' do 
+    before do
+      person.update!(last_name: 'Smith', first_name: 'Jones')
+    end
+
+    context 'no roles' do
+      specify ':recent' do
+        a = Person.select_optimized(Current.user_id, Current.project_id, nil)
+        expect(a[:recent].map(&:id)).to contain_exactly(person.id)
+      end
+
+      specify ':quick' do
+        a = Person.select_optimized(Current.user_id, Current.project_id, nil)
+        expect(a[:quick].map(&:id)).to contain_exactly(person.id)
+      end
+    end
+
+    context 'roles' do
+      before do
+        person.update!(created_at: 10.years.ago, updated_at: 10.years.ago)
+      end
+
+      context 'Collector' do
+        let!(:ce){ CollectingEvent.create!(verbatim_locality: 'Ocean', collector_roles_attributes: [{person: person}]) }
+        specify '.used_recently' do
+          expect(Person.used_recently('Collector').map(&:id)).to contain_exactly(person.id)
+        end
+
+        specify '.joins.used_recently.where()' do
+          expect(Person.joins(:roles).used_recently('Collector').where(roles: {project_id: Current.project_id, updated_by_id: Current.user_id}).map(&:id)).to contain_exactly(person.id)
+        end
+
+        specify ':recent' do
+          a = Person.select_optimized(Current.user_id, Current.project_id, 'Collector')
+          expect(a[:recent].map(&:id)).to contain_exactly(person.id)
+        end
+
+        specify ':quick' do
+          a = Person.select_optimized(Current.user_id, Current.project_id, 'Collector')
+          expect(a[:quick].map(&:id)).to contain_exactly(person.id)
+        end
+      end
+ 
+     # Should be identical, sanity check 
+      context 'Determiner' do
+        let!(:td){ TaxonDetermination.create!(biological_collection_object: Specimen.create!, otu: Otu.create!(name: 'foo'), determiner_roles_attributes: [person: person]) }
+
+        specify '.used_recently' do
+          expect( Person.joins(:roles).where(roles: {project_id: Current.project_id, updated_by_id: Current.user_id} ).used_recently('Determiner').limit(10).map(&:id)).to contain_exactly(person.id)
+        end
+
+        specify ':recent' do
+          a = Person.select_optimized(Current.user_id, Current.project_id, 'Determiner')
+          expect(a[:recent].map(&:id)).to contain_exactly(person.id)
+        end
+
+        specify ':quick' do
+          a = Person.select_optimized(Current.user_id, Current.project_id, 'Determiner')
+          expect(a[:quick].map(&:id)).to contain_exactly(person.id)
+        end
+
+      end
+
+    end
+  end
+
+
   context 'NameCase()' do
     specify '#1' do
       person.update(
@@ -190,10 +257,6 @@ describe Person, type: :model, group: [:sources, :people] do
 
       specify '#taxon_name_author' do
         expect(person).to respond_to(:authored_taxon_names)
-      end
-
-      specify '#type_designations' do
-        expect(person).to respond_to(:type_material)
       end
 
       specify '#georeferences' do
@@ -535,14 +598,7 @@ describe Person, type: :model, group: [:sources, :people] do
           taxon_name.taxon_name_authors << vp
           expect(vp.is_taxon_name_author?).to be_truthy
         end
-
-        specify 'is_type_designator?' do
-          expect(vp.is_type_designator?).to be_falsey
-          type_material = FactoryBot.create(:valid_type_material)
-          type_material.type_designators << vp
-          expect(vp.is_type_designator?).to be_truthy
-        end
-
+        
         specify 'is_georeferencer?' do
           expect(vp.is_georeferencer?).to be_falsey
           gr1.georeferencers << vp

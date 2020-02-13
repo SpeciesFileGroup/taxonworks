@@ -18,5 +18,21 @@ module DescriptorsHelper
     z = [descriptor.short_name, descriptor.name].compact.first
     link_to(z, new_descriptor_task_path(descriptor.metamorphosize), data: {help: descriptor.name})
   end
+ 
+  # @return [String]
+  #   the column/descriptor name presented in the exported matrix 
+  def descriptor_matrix_label(descriptor)
+    descriptor.name.gsub(/[\W]/ , "_")
+  end
+
+  # @return [String, nil]
+  #   state labels formatted for matrix export
+  def descriptor_matrix_character_states_label(descriptor)
+    if descriptor.qualitative?
+      descriptor.character_states.map{|state| state.name.gsub(/[\W]/ , "_")}.join(" ")
+    else 
+      nil
+    end
+  end
 
 end

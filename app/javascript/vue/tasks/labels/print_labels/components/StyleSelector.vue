@@ -15,11 +15,22 @@
         </label>
       </li>
     </ul>
+    <div
+      v-show="value == 'custom_style'"
+      class="separate-top">
+      <custom-style @onNewStyle="$emit('onNewStyle', $event)"/>
+    </div>
   </div>
 </template>
 
 <script>
+
+import CustomStyle from './customStyle'
+
 export default {
+  components: {
+    CustomStyle
+  },
   props: {
     value: {
       type: String,
@@ -39,6 +50,10 @@ export default {
       {
         label: '4 dram Alchohol vial',
         value: 'ce_lbl_4_dram_ETOH'
+      },
+      {
+        label: 'Custom style',
+        value: 'custom_style'
       }]
     }
   },

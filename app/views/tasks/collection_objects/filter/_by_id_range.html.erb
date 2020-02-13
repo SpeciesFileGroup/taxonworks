@@ -1,8 +1,0 @@
-<%= form_tag(set_id_range_for_collection_object_filter_url, id: 'set_id_range_form', remote: true) do %>
-    Namespace (optional):<br>
-    <%= namespace_select_tag(:id_namespace) -%><br>
-    Range:<br>
-    Start: <%= text_field_tag(:id_range_start) -%>
-    Stop: <%= text_field_tag(:id_range_stop) -%><br>
-    <%= submit_tag('Set Identifier Range', id: 'set_id_range') %>
-<% end %>

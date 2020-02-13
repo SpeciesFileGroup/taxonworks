@@ -23,4 +23,7 @@ class TaxonNameRelationship::Typification::Genus::Tautonomy < TaxonNameRelations
     :type_species_by_tautonomy
   end
 
+  def sv_not_specific_relationship
+    soft_validations.add(:type, 'Please specify if the tautonomy is absolute or Linnaean')
+  end
 end

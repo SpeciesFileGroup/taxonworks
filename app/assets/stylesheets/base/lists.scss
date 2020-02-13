@@ -1,3 +1,12 @@
+.object_tag_list {
+  padding-left: 1em;
+  li {
+    line-height: $font_normal + $font_normal - 3;
+    padding-left: 1em;
+    text-indent: -1em;
+  }
+}
+
 .list-arrow {
   li {
     background-image: none;
@@ -20,10 +29,9 @@
   li {
     padding: 5px;
     padding-left: $standard_padding*1.5;
-    margin:0px;
+    margin: 0px;
   }
 }
-
 
 .breadcrumb_list {
   display: flex;
@@ -51,6 +59,8 @@
   margin: 0;
   padding: 0;
 }
+
+// TODO: remove for shared pallette
 
 .green {
   color: green;

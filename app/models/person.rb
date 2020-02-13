@@ -103,7 +103,6 @@ class Person < ApplicationRecord
   has_many :collector_roles, class_name: 'Collector', dependent: :restrict_with_error, inverse_of: :person
   has_many :determiner_roles, class_name: 'Determiner', dependent: :restrict_with_error, inverse_of: :person
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', dependent: :restrict_with_error, inverse_of: :person
-  has_many :type_designator_roles, class_name: 'TypeDesignator', dependent: :restrict_with_error, inverse_of: :person
   has_many :georeferencer_roles, class_name: 'Georeferencer', dependent: :restrict_with_error, inverse_of: :person
 
   # has_many :sources, through: :roles # TODO: test and confirm dependent
@@ -114,7 +113,6 @@ class Person < ApplicationRecord
   has_many :collecting_events, through: :collector_roles, source: :role_object, source_type: 'CollectingEvent', inverse_of: :collectors
   has_many :taxon_determinations, through: :determiner_roles, source: :role_object, source_type: 'TaxonDetermination', inverse_of: :determiners
   has_many :authored_taxon_names, through: :taxon_name_author_roles, source: :role_object, source_type: 'TaxonName', inverse_of: :taxon_name_authors
-  has_many :type_material, through: :type_designator_roles, source: :role_object, source_type: 'TypeMaterial', inverse_of: :type_designators
   has_many :georeferences, through: :georeferencer_roles, source: :role_object, source_type: 'Georeference', inverse_of: :georeferencers
 
   scope :created_before, -> (time) { where('created_at < ?', time) }
@@ -135,6 +133,13 @@ class Person < ApplicationRecord
   #   !! overwrites IsData#is_in_use?
   def is_in_use?
     roles.reload.any?
+  end
+
+  # @return Boolean
+  #   whether or not this Person is linked to any data in the project
+  def used_in_project?(project_id)
+    Role.where(person_id: id, project_id: project_id).any? || 
+      Source.joins(:project_sources, :roles).where(roles: {person_id: id}, project_sources: { project_id: project_id }).any?
   end
 
   # @return [String]
@@ -170,7 +175,7 @@ class Person < ApplicationRecord
   #
   def merge_with(person_id)
     return false if person_id == id
-    if r_person = Person.find(person_id) # get the new (merged into self) person
+    if r_person = Person.find(person_id) # get the person to merge to this person
       begin
         ApplicationRecord.transaction do
           # !! Role.where(person_id: r_person.id).update(person_id: id) is BAAAD
@@ -178,7 +183,7 @@ class Person < ApplicationRecord
           # !! Role#vet_person, etc.
           # update merge person's roles to old
           Role.where(person_id: r_person.id).each do |r|
-            r.update(person_id: id) 
+            return false unless r.update(person_id: id) 
           end
 
           roles.reload
@@ -380,11 +385,6 @@ class Person < ApplicationRecord
   end
 
   # @return [Boolean]
-  def is_type_designator?
-    type_designator_roles.any?
-  end
-
-  # @return [Boolean]
   def is_georeferencer?
     georeferencer_roles.any?
   end
@@ -412,6 +412,7 @@ class Person < ApplicationRecord
   # @param [String] name_string
   # @return [Array] of Hashes
   #   use citeproc to parse strings
+  #   see also https://github.com/SpeciesFileGroup/taxonworks/issues/1161
   def self.parser(name_string)
     BibTeX::Entry.new(type: :book, author: name_string).parse_names.to_citeproc['author']
   end
@@ -453,19 +454,27 @@ class Person < ApplicationRecord
   # @params Role [String] one the available roles
   # @return [Hash] geographic_areas optimized for user selection
   def self.select_optimized(user_id, project_id, role_type = 'SourceAuthor')
+
+#    byebug if role_type == 'Determiner'
+
     h = {
-      quick:    [],
+      quick: [],
       pinboard: Person.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a
     }
 
-    h[:recent] = Person.joins(:roles).where(roles: {project_id: project_id, type: role_type}).
-      used_recently(role_type).
-      limit(10).distinct.to_a
+    role_params = { updated_by_id: user_id }
+
+    unless %w{SourceAuthor SourceEditor SourceSource}.include?(role_type)
+      role_params[:project_id] = project_id
+    end
+
+    h[:recent] = (
+      Person.joins(:roles).where(roles: role_params).used_recently(role_type).limit(10).distinct.to_a +
+      Person.where(created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('created_at DESC').limit(6).to_a).uniq
 
     h[:quick] = (Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a + h[:recent][0..3]).uniq
     h
   end
-
 
   protected
 

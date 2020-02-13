@@ -28,7 +28,6 @@ class ImagesController < ApplicationController
   # POST /images.json
   def create
     @image = Image.new(image_params)
-
     respond_to do |format|
       if @image.save
         format.html { redirect_to @image, notice: 'Image was successfully created.' }
@@ -89,7 +88,7 @@ class ImagesController < ApplicationController
 
   # GET /images/download
   def download
-    send_data(Download.generate_csv(Image.where(project_id: sessions_current_project_id)),
+    send_data(Export::Download.generate_csv(Image.where(project_id: sessions_current_project_id)),
               type: 'text',
               filename: "images_#{DateTime.now}.csv")
   end
@@ -133,17 +132,16 @@ class ImagesController < ApplicationController
 
   private
 
-  # Use callbacks to share common setup or constraints between actions.
   def set_image
     @image = Image.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @image
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def image_params
     params.require(:image).permit(
       :image_file, :rotate,
-      citations_attributes: [:id, :is_original, :_destroy, :source_id, :pages, :citation_object_id, :citation_object_type]
+      citations_attributes: [:id, :is_original, :_destroy, :source_id, :pages, :citation_object_id, :citation_object_type],
+      sled_image_attributes: [:id, :_destroy, :metadata, :object_layout]
     )
   end
 end

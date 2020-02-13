@@ -1,0 +1,5 @@
+#!/bin/sh
+set -e
+
+cd /app
+exec chpst -u app env QUEUE=coldp_export /usr/bin/bundle exec rails jobs:work

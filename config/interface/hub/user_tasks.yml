@@ -12,7 +12,7 @@
 #   name* - a friendly human readable name describing the task
 #   description - a sentence or two further defining what the task will do for the user
 #   hub - true if this tasks should appear at the hub, these tasks MAY NOT require parameters
-#   categories - an array of one ore more of [nomenclature, source, collection_object, collecting_event, biology, matrix, dna]
+#   categories - an array of one ore more of [nomenclature, source, collection_object, collecting_event, biology, matrix, dna, image]
 #   status - one of [complete, stable, prototype,  unknown (default) ]
 #               complete: users can expect the interfaces to remain in their present form
 #               stable: primary elements are complete, but minor changes (CSS, feedback etc.) may change
@@ -20,28 +20,6 @@
 #               unknown: task has not been classified
 #
 ---
-nearby_locality_task:
-  hub: true
-  name: 'Nearby collecting events'
-  related:
-    - collecting_events
-    - geographic_areas
-  categories:
-    - collecting_event
-  status: prototype
-  description: 'Find collecting events within a selected radius.'
-new_list_task:
-  hub: true
-  name: 'Alphabetical list of localities by area.'
-  related:
-    - collecting_events
-    - geographic_areas
-  categories:
-    - collecting_event
-  status: prototype
-  description: 'Find collecting events within a selected area.'
-within_locality_task:
-  name:
 similar_serials_task:
   hub: true
   name: 'Similar serials'
@@ -67,13 +45,6 @@ quick_verbatim_material_task:
   status: stable
 create_verbatim_material_task:
   name:
-new_verbatim_reference_task:
-  hub: true
-  name: 'New source from citation'
-  description: 'Create a new source by pasting in the full text of a citation. The citation will automatically be tested against Crossref and parsed into individual fields (BibTex) if possible.'
-  categories:
-    - source
-  status: prototype
 build_biocuration_groups_task:
   hub: true
   name: 'Manage biocuration classes and groups'
@@ -111,7 +82,7 @@ author_list_task:
   description: 'Display all source authors with links to source list.'
   categories:
     - source
-  status: prototype
+  status: stable 
 sqed_depiction_breakdown_todo_map_task:
   hub: true
   name: 'Collection object image breakdown TODO list'
@@ -119,6 +90,7 @@ sqed_depiction_breakdown_todo_map_task:
   categories:
     - collecting_event
     - collection_object
+    - image
   status: stable
 simple_specimen_task:
   hub: true
@@ -128,7 +100,7 @@ simple_specimen_task:
     - collection_object
     - collecting_event
   status: prototype
-new_asserted_distribution_task:
+new_asserted_distribution_from_map_task:
   hub: true
   name: 'New asserted distribution from map'
   description: 'Create asserted distributions by selecting OTUs and sources, then click a map to select a geographic area. OTU and source are lockable as defaults for the next record.'
@@ -158,14 +130,6 @@ report_dwc_task:
   categories:
     - collection_object
     - collecting_event
-collection_objects_filter_task:
-  hub: true
-  name: 'Collection object filter'
-  related:
-  categories:
-    - collection_object
-  status: prototype
-  description: 'Find collection objects using an area, date range, taxon determination (OTU), applied identifier, or user/created date range.'
 otus_filter_task:
   hub: true
   name: 'OTU filter'
@@ -182,14 +146,6 @@ geographic_area_lookup_task:
     - collecting_event
   status: prototype
   description: 'Check the geographic area gazetteer to see if there are records matching a particular name with queries like "Illinois", or "Champaign:Illinois" or "Saskatchewan:Canada.'
-browse_sources_task:
-  hub: true
-  name: 'Browse sources'
-  related:
-  categories:
-    - source
-  status: prototype
-  description: 'List sources via a simple keyword/year based search.'
 collecting_event_lat_long_task:
   hub: true
   name: 'Stepwise collecting event parser - Latitude/Longitude'
@@ -311,7 +267,7 @@ browse_annotations_task:
     - nomenclature
     - matrix
     - dna
-  status: prototype
+  status: stable 
   description: 'Filter data by annotations (e.g. Notes, Data attributes).  Delete or create additional annotations on filtered objects.  Generate JSON request based on annotations.'
 new_descriptor_task:
   hub: true
@@ -340,17 +296,9 @@ uniquify_people_task:
   categories:
     - source
     - nomenclature
-  status: prototype
+  status: stable 
   description: 'Find and merge redundant or duplicated people, e.g., from import.'
-index_individual_bibtex_source_task:
-  hub: true
-  name: 'New source from BibTeX'
-  related:
-  categories:
-    - source
-  status: prototype
-  description: 'Parse a captured BibTeX string into a new source'
-index_search_locality_task:
+filter_collecting_events_task:
   hub: true
   name: 'Filter collecting events'
   related:
@@ -393,7 +341,7 @@ index_print_labels_task:
     - collecting_event
   status: prototype
   description: 'Print and manage labels.'
-index_new_asserted_distribution_task:
+new_asserted_distribution_task:
   hub: true
   name: 'New asserted distribution'
   related:
@@ -416,7 +364,7 @@ index_new_image_task:
     - collecting_event
     - collection_object
   status: prototype
-index_hub_task:
+source_hub_task:
   hub: true
   name: 'Source hub'
   related:
@@ -424,18 +372,139 @@ index_hub_task:
     - source
   status: prototype
   description: 'A centralized hub unifying access to the different means of creating and managing sources.'
+new_source_task:
+  hub: true
+  name: 'New source'
+  related:
+  categories:
+   - source
+  status: prototype
+  description: 'Add a sources of Verbatim, BibTeX or person via a number of methods.'  
+find_sources_task:
+  hub: true
+  name: 'Find sources'
+  related:
+  categories:
+    - source
+  status: prototype
+  description: 'Find sources and list them via a simple keyword/year based search.'  
+new_bibtex_source_task:
+  hub: true
+  name: 'New source from BibTeX'
+  related:
+  categories:
+    - source
+  status: prototype
+  description: 'Parse a captured BibTeX string into a new source'
 index_filter_task:
   hub: true
   name: 'Filter nomenclature'
   related:
   categories:
     - nomenclature
-  status: prototype
+  status: stable 
   description: 'Search and filter taxon names. Download CSV.  Generate JSON paths for offline use.'
 visualize_confidences_task:
   hub: true
   name: 'Visualize confidences.'
   related:
   categories:
-  status: prototype
+  status: stable 
   description: 'See a graph of confidences applied per data type.'
+index_matrix_image_task:
+  hub: true
+  name: 'Image matrix'
+  related:
+  categories:
+    - matrix
+    - image
+  status: prototype
+  description: 'Code a special type of image-based matrix by organizing images into a matrix.  Uses media-type descriptors.'
+index_dashboard_task:
+  hub: true
+  name: 'Observation matrices dashboard'
+  related:
+  categories:
+    - matrix
+  status: prototype
+  description: 'Summarize observations across a nomenclaturally-based hierarchy.'
+index_stats_task:
+  hub: true
+  name: 'Nomenclature stats'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Get counts of names as different ranks.'
+export_coldp_task:
+  hub: true
+  name: 'Catalogue of Life (CoLDP) exports'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Export a zip of text files in the Catalogue of Life CoLDP format.'
+index_browse_asserted_distributions_task:
+  hub: true
+  name: 'Browse asserted distributions'
+  related:
+  categories:
+  status: prototype
+  description: 'Browse through asserted distributions summarized by OTU.  Map, table, and CSV downloads.'
+collection_objects_filter_task:
+  hub: true
+  name: 'Collection object filter'
+  related:
+  categories:
+    - collection_object
+  status: prototype
+  description: 'Filter collection objects by many different facets, download or visualize results.'
+syncronize_otus_to_nomenclature_task:
+  hub: true
+  name: 'Syncronize nomenclature and OTUs'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Batch create OTUs for nomenclature.  See reports of unmatched OTUs and Nomenclature.'
+asserted_distributions_basic_endemism_task:
+  hub: true
+  name: 'Asserted distributions - basic endemism'
+  related:
+  categories:
+  status: prototype
+  description: 'A simple 1 taxon and children, 1 geographic area summary that includes a check for endemism.  Targets asserted distributions only.'
+collection_object_summary_task:
+  hub: true
+  name: 'Collection summary'
+  related:
+  categories:
+    - collection_object
+  status: prototype
+  description: 'Summary statistics for the collection(s) managed in this project'
+browse_collecting_events_task:
+  hub: true
+  name: 'Browse collecting events'
+  related:
+  categories:
+    - collecting_event 
+  status: prototype
+  description: 'View individual collecting events and their related.'
+biological_relationship_composer_task:
+  hub: true
+  name: 'Compose biological relationships'
+  related:
+  categories:
+    - biology
+  status: prototype
+  description: 'Define and add properties to biological relationships, e.g. things like "host/paraiste".'
+grid_digitize_task:
+  hub: true
+  name: 'Grid digitizer'
+  related:
+  categories:
+    - collection_object
+    - image
+  status: prototype
+  description: 'Break images of collection objects in a grid (e.g. slide folders) into individual collection objects and their depictions.'
+

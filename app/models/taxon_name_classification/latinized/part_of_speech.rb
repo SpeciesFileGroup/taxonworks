@@ -42,4 +42,10 @@ class TaxonNameClassification::Latinized::PartOfSpeech < TaxonNameClassification
       )
     end
   end
+
+  def validate_uniqueness_of_latinized
+    if TaxonNameClassification::Latinized::PartOfSpeech.where(taxon_name_id: self.taxon_name_id).not_self(self).any?
+      errors.add(:taxon_name_id, 'The Part of speech is already selected')
+    end
+  end
 end

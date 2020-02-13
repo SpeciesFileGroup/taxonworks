@@ -70,6 +70,7 @@
   import QualitativeComponent from './components/character/character.vue'
   import ContinuousComponent from './components/units/units.vue'
   import PreviewComponent from './components/preview/preview.vue'
+  import GeneComponent from './components/gene/gene.vue'
   import { CreateDescriptor, UpdateDescriptor, DeleteDescriptor, LoadDescriptor } from './request/resources'
 
   export default {
@@ -79,6 +80,7 @@
       DefinitionComponent,
       ContinuousComponent,
       PreviewComponent,
+      GeneComponent,
       Spinner
     },
     computed: {

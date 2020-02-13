@@ -95,7 +95,7 @@ class ProtocolRelationshipsController < ApplicationController
   private
   
   def set_protocol_relationship
-    @protocol_relationship = ProtocolRelationship.find(params[:id])
+    @protocol_relationship = ProtocolRelationship.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def protocol_relationship_params

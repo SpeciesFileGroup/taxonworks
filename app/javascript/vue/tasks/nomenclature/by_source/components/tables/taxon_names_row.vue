@@ -33,11 +33,6 @@
       <radial-annotator :global-id="citation.citation_object.global_id"/>
     </td>
     <td>
-      <otu-radial
-        :taxon-id="citation.citation_object_id"
-        :redirect="false"/>
-    </td>
-    <td>
       <span
         class="button circle-button btn-delete"
         @click="removeMe()"/>
@@ -83,7 +78,7 @@
     },
     methods: {
       showObject() {
-        return `/tasks/nomenclature/browse/${this.citation.citation_object_id}`
+        return `/tasks/nomenclature/browse?taxon_name_id=${this.citation.citation_object_id}`
       },
       nameAuthorYear() {
           let taxon = this.citation.citation_object;

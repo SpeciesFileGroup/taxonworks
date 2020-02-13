@@ -28,7 +28,7 @@ module HubHelper
   end
 
   def data_card(data)
-    content_tag(:div, tabindex: 0, class: 'data_card') do  
+    content_tag(:div, class: 'data_card') do  
       content_tag(:div, '') +
       content_tag(:div, '', 
                   data.categories.inject({}){|hsh,c| hsh.merge!("data-category-#{c}" => 'true') }.merge(class: [:filter_data, :middle, 'card-categories', "#{data.status}", data.shared_css, data.application_css].flatten.join(' '), "data-category-#{data.status}" => 'true')

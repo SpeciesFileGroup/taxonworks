@@ -2,6 +2,8 @@
 TaxonWorks::Application.configure do 
   # Settings specified here will take precedence over those in config/application.rb.
 
+  config.file_watcher = ActiveSupport::FileUpdateChecker
+
   # In the development environment your application's code is reloaded on
   # every request. This slows down response time but is perfect for development
   # since you don't have to restart the web server when you make code changes.
@@ -22,8 +24,7 @@ TaxonWorks::Application.configure do
 
   # Raise an error on page load if there are pending migrations
   config.active_record.migration_error = :page_load
-
-
+  
   # http://guides.rubyonrails.org/v5.1/configuring.html#configuring-assets
   # Assets 
 
@@ -32,8 +33,10 @@ TaxonWorks::Application.configure do
   # number of complex assets.
   config.assets.debug = false # false # true if you are stuck
   #config.assets.quiet = false # is true by default
-  #config.assets.raise_runtime_errors = true
+  config.assets.raise_runtime_errors = true
 
+  # Needed to make webpacker not use yarn
+  config.webpacker.check_yarn_integrity = false
 
   config.action_mailer.default_url_options = { host: 'localhost:3000' }
 

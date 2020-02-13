@@ -26,4 +26,15 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic < TaxonNameRel
     :icn_homotypic_synonym
   end
 
+  def sv_objective_synonym_relationship
+    s = self.subject_taxon_name
+    o = self.object_taxon_name
+    if (s.type_taxon_name != o.type_taxon_name ) || !s.has_same_primary_type(o)
+      soft_validations.add(:type, "Homotypic synonyms #{s.cached_html} and #{o.cached_html} should have the same type")
+    end
+  end
+
+  def sv_not_specific_relationship
+    true
+  end
 end

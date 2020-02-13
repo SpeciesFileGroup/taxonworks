@@ -1,27 +1,25 @@
 <%= form_for(@type_material) do |f| %>
   <%= render 'shared/errors', object: @type_material %>
 
-  <%= render(partial: '/people/role_picker', locals: {role: TypeDesignator.new(), object: @type_material, f: f}) %>
-
   <div class="field">
     <%= f.label :protonym_id %><br>
-    <%= render :partial => 'workbench/elements/forms/ajax_select',
-               :locals  => {:controller => 'taxon_names',
-                            :object     => 'type_material',
-                            :method     => 'protonym_id',
-                            :tag_id     => 'protonym_id_for_type_material',
-                            :display    => object_tag(@type_material.protonym),
-                            :size       => 20} %>
+    <%= render partial: 'workbench/elements/forms/ajax_select',
+      locals: {controller: 'taxon_names',
+               object: 'type_material',
+               method: 'protonym_id',
+               tag_id: 'protonym_id_for_type_material',
+               display: label_for_taxon_name(@type_material.protonym),
+               size: 60} %>
   </div>
   <div class="field">
-    <%= f.label :biological_object_id, 'Material' %><br>
-    <%= render :partial => 'workbench/elements/forms/ajax_select',
-               :locals  => {:controller => 'collection_objects',
-                            :object     => 'type_material',
-                            :method     => 'biological_object_id',
-                            :tag_id     => 'biological_object_id_for_type_material',
-                            :display    => collection_object_tag(@type_material.material),
-                            :size       => 20} %>
+    <%= f.label :collection_object_id, 'Material' %><br>
+    <%= render partial: 'workbench/elements/forms/ajax_select',
+      locals: {controller: 'collection_objects',
+               object: 'type_material',
+               method: 'collection_object_id',
+               tag_id: 'collection_object_id_for_type_material',
+               display: label_for_collection_object(@type_material.collection_object),
+               size:  20} %>
   </div>
 
   <div class="field">
@@ -29,24 +27,24 @@
     <%= f.select :type_type, options_for_type_type_select  %>
   </div>
 
-    <%= f.fields_for :origin_citation, @type_material.origin_citation do |s| -%>
-      <div class="field">
-        <%= s.label :source %>
-        <br>
-        <%= render( partial: 'workbench/elements/forms/ajax_select', locals:
-                   {controller: 'sources',
-                    related_object: @type_material.source,
-                    object: 'type_material[origin_citation_attributes]',
-                    method: 'source_id',
-                    tag_id: 'source_id_for_original_citation_taxon_name',
-                    size: '50%',
-                    display: source_tag(@type_material.source)}) 
-                  %>
+  <%= f.fields_for :origin_citation, @type_material.origin_citation do |s| -%>
+    <div class="field">
+      <%= s.label :source %>
+      <br>
+      <%= render( partial: 'workbench/elements/forms/ajax_select', locals:
+                 {controller: 'sources',
+                  related_object: @type_material.source,
+                  object: 'type_material[origin_citation_attributes]',
+                  method: 'source_id',
+                  tag_id: 'source_id_for_original_citation_taxon_name',
+                  size: '50%',
+                  display: source_tag(@type_material.source)})
+                %>
     </div>
   <% end %>
 
 
- <div class="actions">
+  <div class="actions">
     <%= f.submit %>
   </div>
 <% end %>

@@ -50,7 +50,7 @@ export default {
         },
         { 
           label: 'ICNP (bacteria)',
-          value: 'Icnb'
+          value: 'Icnp'
         },
         { 
           label: 'ICTV (viruses)',

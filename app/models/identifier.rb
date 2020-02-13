@@ -50,9 +50,9 @@ class Identifier < ApplicationRecord
   include Housekeeping # TODO: potential circular dependency constraint when this is before above.
   include Shared::IsData
 
-  after_save :set_cached
+  after_save :set_cached, unless: Proc.new {|n| errors.any? }
   
-  belongs_to :namespace # only applies to Identifier::Local, here for create purposes
+  belongs_to :namespace, inverse_of: :identifiers  # only applies to Identifier::Local, here for create purposes
 
   # Please DO NOT include the following:
   #   validates :identifier_object, presence: true
@@ -61,10 +61,6 @@ class Identifier < ApplicationRecord
 
   # TODO: DRY to IsData? Test. 
   scope :with_type_string, -> (base_string) {where('type LIKE ?', "#{base_string}")}
-
-  def self.find_for_autocomplete(params)
-    where('identifier LIKE ?', "#{params[:term]}%")
-  end
 
   # @return [String, Identifer]
   def self.prototype_identifier(project_id, created_by_id)

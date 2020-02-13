@@ -113,9 +113,10 @@ class ControlledVocabularyTermsController < ApplicationController
 
   # GET /controlled_vocabulary_terms/download
   def download
-    send_data(Download.generate_csv(ControlledVocabularyTerm.where(project_id: sessions_current_project_id)),
-              type: 'text',
-              filename: "controlled_vocabulary_terms_#{DateTime.now}.csv")
+    send_data(
+      Export::Download.generate_csv(ControlledVocabularyTerm.where(project_id: sessions_current_project_id)),
+      type: 'text',
+      filename: "controlled_vocabulary_terms_#{DateTime.now}.csv")
   end
 
   # GET /controlled_vocabulary_terms/1/tagged_objects
@@ -135,7 +136,10 @@ class ControlledVocabularyTermsController < ApplicationController
   end
 
   def filter_params
-    params.permit(type: [], id: []).to_h.symbolize_keys.merge!(project_id: sessions_current_project_id)
+    params.permit(
+      type: [],
+      id: []
+    ).to_h.symbolize_keys.merge!(project_id: sessions_current_project_id)
   end
 
 end

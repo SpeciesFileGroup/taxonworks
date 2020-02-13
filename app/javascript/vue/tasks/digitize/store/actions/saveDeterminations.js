@@ -12,6 +12,8 @@ export default function ({ commit, dispatch, state }) {
 
     Promise.all(promises).then(() => {
       resolve()
+    }, () => {
+      reject()
     }) 
 
   })

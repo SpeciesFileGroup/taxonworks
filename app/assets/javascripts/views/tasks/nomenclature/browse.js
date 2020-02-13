@@ -34,12 +34,26 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
       }
     }
 
-    TW.workbench.keyboard.createShortcut((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + "+t", "Edit taxon name", "Browse nomenclature", function () {
-      var taxonId = $("#browse-view").attr("data-taxon-id");
-      if (/^\d+$/.test(taxonId)) {
-        window.open('/tasks/nomenclature/new_taxon_name/' + taxonId, '_self');
-      }
-    });
+    var taxonId = document.querySelector("#browse-view").getAttribute("data-taxon-id");
+    var taxonType = document.querySelector("[data-taxon-type]") ? document.querySelector("[data-taxon-type]").getAttribute("data-taxon-type") : undefined;
+    var taxonStatus = document.querySelector('[data-status]') ? document.querySelector('[data-status]').getAttribute('data-status') : undefined;
+
+    if(taxonType === 'Invalid' || taxonType === 'Combination' || taxonStatus === 'invalid') {
+      document.querySelector('#browse-nomenclature-taxon-name').classList.add('feedback-warning');
+    }
+
+    if(taxonType == 'Combination')
+      $('.edit-taxon-name').attr('href', '/tasks/nomenclature/new_combination?taxon_name_id=' + taxonId);
+    if(!document.querySelector('#browse-collection-object')) {
+      TW.workbench.keyboard.createShortcut((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + "+t", "Edit taxon name", "Browse nomenclature", function () {
+        if (/^\d+$/.test(taxonId)) {
+          if(taxonType == 'Combination')
+            window.open('/tasks/nomenclature/new_combination?taxon_name_id=' + taxonId, '_self');
+          else
+            window.open('/tasks/nomenclature/new_taxon_name?taxon_name_id=' + taxonId, '_self');
+        }
+      });
+    }
 
     $('.filter .open').on('click', function () {
       $(this).css('transform', 'rotate(' + ($(this).rotationInfo().deg + 180) + 'deg)');
@@ -208,6 +222,18 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
           $($(this).attr('data-filter')).show(255);
           $($(this).children()).attr('data-icon', 'show');
         });
+      }
+      else if($(this).attr('data-filter-hide-all')) {
+        document.querySelectorAll('[data-filter]').forEach(element => {
+          $(element).removeClass('active');
+          $($(element).children()).attr('data-icon', 'hide');
+          $($(element).attr('data-filter-font')).animate({
+            fontSize: '0px'
+          });
+
+          elementFilter($(element).attr('data-filter-row'), true)
+          $($(element).attr('data-filter')).hide(255);
+        })
       }
       else {
         isActive($(this), 'active');

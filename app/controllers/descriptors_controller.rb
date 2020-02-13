@@ -103,7 +103,7 @@ class DescriptorsController < ApplicationController
 
   def preview_modify_gene_descriptor_batch_load
     if params[:file]
-      @result = BatchLoad::Import::Descriptors::ModifyGeneDescriptorInterpreter.new(batch_params)
+      @result = BatchLoad::Import::Descriptors::ModifyGeneDescriptorInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :modify_gene_descriptor_batch_load_descriptors_md5)
       render 'descriptors/batch_load/modify_gene_descriptor/preview'
     else
@@ -115,7 +115,7 @@ class DescriptorsController < ApplicationController
   def create_modify_gene_descriptor_batch_load
     if params[:file] && digested_cookie_exists?(params[:file]
       .tempfile, :modify_gene_descriptor_batch_load_descriptors_md5)
-      @result = BatchLoad::Import::Descriptors::ModifyGeneDescriptorInterpreter.new(batch_params)
+      @result = BatchLoad::Import::Descriptors::ModifyGeneDescriptorInterpreter.new(**batch_params)
       if @result.create!
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} " \
           'Gene Descriptors were modified.'
@@ -144,7 +144,8 @@ class DescriptorsController < ApplicationController
     params.require(:descriptor).permit(
       :name, :short_name, :key_name, :description_name,
       :description, :position, :type, :gene_attribute_logic, :default_unit,
-      character_states_attributes: [:id, :descriptor_id, :_destroy, :label, :name, :position, :description_name, :key_name]
+      character_states_attributes: [:id, :descriptor_id, :_destroy, :label, :name, :position, :description_name, :key_name],
+      gene_attributes_attributes: [:id, :_destroy, :sequence_id, :sequence_relationship_type, :controlled_vocabulary_term_id, :position ]
     )
   end
 

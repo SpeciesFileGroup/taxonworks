@@ -70,6 +70,7 @@ resources :citations do # except: [:show]
   concerns [:data_routes]
 end
 
+get 'confidences/exists', to: 'confidences#exists', defaults: {format: :json}
 resources :confidences do # , except: [:edit, :show]
   concerns [:data_routes]
   collection do
@@ -89,11 +90,16 @@ resources :collection_objects do
   concerns [:data_routes]
 
   member do
+    get 'dwc', defaults: {format: :json}
     get 'depictions', constraints: {format: :html}
     get 'containerize'
+    get 'dwca', defaults: {format: :json}
+    get 'metadata_badge', defaults: {format: :json}
   end
 
   collection do
+    get :dwc_index, defaults: {format: :json}
+    get :report, defaults: {format: :json}
     post :preview_castor_batch_load # should be get
     post :create_castor_batch_load # should be get
     post :preview_buffered_batch_load
@@ -119,9 +125,11 @@ resources :collecting_events do
   get :autocomplete_collecting_event_verbatim_locality, on: :collection
   member do
     get :card
+    post :clone
   end
 
   collection do
+    get :attributes, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
 
     post :preview_castor_batch_load
@@ -146,6 +154,7 @@ resources :common_names do
   concerns [:data_routes]
 end
 
+match 'containers/for', to: 'containers#for', via: :get, defaults: {format: :json}
 resources :containers do # , only: [:create, :update, :destroy] do
   concerns [:data_routes]
 end
@@ -208,6 +217,15 @@ resources :documents do
   concerns [:data_routes]
 end
 
+resources :downloads, except: [:edit, :new, :create] do
+  collection do
+    get 'list'
+  end
+  member do
+    get 'download_file'
+  end
+end
+
 resources :extracts do
   concerns [:data_routes]
 end
@@ -218,6 +236,7 @@ resources :geographic_areas do
     post 'display_coordinates' # TODO should not be POST
     get 'display_coordinates', as: 'getdisplaycoordinates'
     get :select_options, defaults: {format: :json}
+    get :by_lat_long, defaults: {format: :json}
   end
 end
 
@@ -231,7 +250,7 @@ resources :geographic_area_types
 
 resources :geographic_items
 
-resources :georeferences, only: [:index, :destroy, :new, :show, :edit] do
+resources :georeferences, only: [:index, :destroy, :new, :create, :show, :edit, :update] do
   concerns [:data_routes]
 end
 
@@ -281,9 +300,12 @@ resources :labels do
   # is data?
 end
 
-resources :languages, only: [] do
+resources :languages, only: [:show] do
   collection do
     get 'autocomplete'
+  end
+  collection do 
+    get :select_options, defaults: {format: :json}
   end
 end
 
@@ -291,6 +313,10 @@ resources :loans do
   concerns [:data_routes]
   member do
     get :recipient_form
+  end
+
+  collection do
+    get :select_options, defaults: {format: :json}
   end
 end
 
@@ -311,8 +337,8 @@ resources :namespaces do
 
   concerns [:data_routes]
 end
-match 'observation_matrices/row/', to: 'observation_matrices#row', via: :get, method: :json
 
+match 'observation_matrices/row/', to: 'observation_matrices#row', via: :get, method: :json
 resources :observation_matrices do
   concerns [:data_routes]
 
@@ -320,6 +346,18 @@ resources :observation_matrices do
   resources :observation_matrix_rows, shallow: true, only: [:index], defaults: {format: :json}
   resources :observation_matrix_row_items, shallow: true, only: [:index], defaults: {format: :json}
   resources :observation_matrix_column_items, shallow: true, only: [:index], defaults: {format: :json}
+
+  member do 
+    get :nexml, defaults: {format: :rdf}
+    get :tnt
+    get :nexus
+   #  get :csv
+   #  get :biom
+
+   get :reorder_rows, defaults: {format: :json}
+   get :reorder_columns, defaults: {format: :json}
+  end 
+
 end
 
 resources :observation_matrix_columns, only: [:index, :show] do
@@ -372,8 +410,8 @@ resources :otus do
   resources :common_names, shallow: true, only: [:index], defaults: {format: :json}
 
   resources :contents, only: [:index]
-  collection do
 
+  collection do
     # TODO: this is get
     post :preview_data_attributes_batch_load
     post :create_data_attributes_batch_load
@@ -392,6 +430,13 @@ resources :otus do
 
     get :select_options, defaults: {format: :json}
   end
+
+  member do
+    get :timeline, defaults: {format: :json}
+    get :navigation, defaults: {format: :json}
+    get :breadcrumbs, defaults: {format: :json}
+  end
+
 end
 
 resources :otu_page_layouts do
@@ -420,6 +465,11 @@ resources :otu_page_layout_sections, only: [:create, :update, :destroy]
 match 'people/role_types', to: 'people#role_types', via: :get, method: :json
 resources :people do
   concerns [:data_routes]
+
+  collection do
+    get :select_options, defaults: {format: :json}
+  end
+
   member do
     get :similar, defaults: {format: :json}
     get :roles
@@ -469,9 +519,11 @@ resources :repositories do
   end
 end
 
-# TODO: add exceptions
 resources :serials do
   concerns [:data_routes]
+  collection do
+    get :select_options, defaults: {format: :json}
+  end
 end
 
 resources :serial_chronologies, only: [:create, :update, :destroy]
@@ -480,6 +532,8 @@ resources :sequences do
   concerns [:data_routes]
 
   collection do
+    get :select_options, defaults: {format: :json}
+    
     post :preview_genbank_batch_file_load
     post :create_genbank_batch_file_load
 
@@ -500,6 +554,9 @@ resources :sequence_relationships do
   end
 end
 
+resources :sled_images, only: [:update, :create, :destroy, :show], defaults: {format: :json} do
+end
+
 resources :sources do
   concerns [:data_routes]
   collection do
@@ -508,23 +565,28 @@ resources :sources do
     post :create_bibtex_batch_load
     get :parse, defaults: {format: :json}
   end
+
+  member do
+    post :clone
+  end
 end
 
-resources :sqed_depictions, only: [] do
+resources :sqed_depictions, only: [:update] do
   collection do
     get :metadata_options, defaults: {format: :json}
   end
 end
 
+get 'tags/exists', to: 'tags#exists', defaults: {format: :json}
 resources :tags, except: [:edit, :show, :new] do
   concerns [:data_routes]
   collection do
     get :autocomplete
     post :tag_object_update
+    post :batch_create, defaults: {format: :json}
     post :batch_remove, defaults: {format: :json}
   end
 end
-get 'tags/exists', to: 'tags#exists', defaults: {format: :json}
 
 resources :tagged_section_keywords, only: [:create, :update, :destroy]
 
@@ -551,11 +613,15 @@ resources :taxon_names do
 
     get :parse, defaults: {format: :json}
     get :random
+
+    get :rank_table, defaults: {format: :json}
   end
 
   member do
     get :browse
     get :original_combination, defaults: {format: :json}
+
+    get :catalog, defaults: {format: :json}
   end
 end
 

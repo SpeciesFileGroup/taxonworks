@@ -82,12 +82,12 @@ class NamespacesController < ApplicationController
 
   # GET /namespaces/download
   def download
-    send_data Download.generate_csv(Namespace.all), type: 'text', filename: "namespaces_#{DateTime.now}.csv"
+    send_data Export::Download.generate_csv(Namespace.all), type: 'text', filename: "namespaces_#{DateTime.now}.csv"
   end
 
-  # GET /namespaces/select_options
+  # GET /namespaces/select_options?klass=CollectionObject
   def select_options
-    @namespaces = Namespace.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:klass])
+    @namespaces = Namespace.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:klass))
   end
 
   def batch_load
@@ -95,7 +95,7 @@ class NamespacesController < ApplicationController
 
   def preview_simple_batch_load 
     if params[:file] 
-      @result = BatchLoad::Import::Namespaces::SimpleInterpreter.new(batch_params)
+      @result = BatchLoad::Import::Namespaces::SimpleInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :Simple_namespaces_md5)
       render 'namespaces/batch_load/simple/preview'
     else
@@ -106,7 +106,7 @@ class NamespacesController < ApplicationController
 
   def create_simple_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Simple_namespaces_md5)
-      @result = BatchLoad::Import::Namespaces::SimpleInterpreter.new(batch_params)
+      @result = BatchLoad::Import::Namespaces::SimpleInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} namespaces were created."
         render 'namespaces/batch_load/simple/create' and return
@@ -128,7 +128,7 @@ class NamespacesController < ApplicationController
   end
 
   def namespace_params
-    params.require(:namespace).permit(:institution, :name, :short_name, :verbatim_short_name)
+    params.require(:namespace).permit(:institution, :name, :short_name, :verbatim_short_name, :delimiter)
   end
 
   def batch_params

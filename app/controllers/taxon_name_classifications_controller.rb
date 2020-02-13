@@ -46,7 +46,7 @@ class TaxonNameClassificationsController < ApplicationController
   def update
     respond_to do |format|
       if @taxon_name_classification.update(taxon_name_classification_params)
-        @taxon_name_classification.reload
+        @taxon_name_classification = TaxonNameClassification.find(@taxon_name_classification.id)
         format.html { redirect_back(fallback_location: (request.referer || root_path),
                                     notice:            'Taxon name classification was successfully updated.') }
         format.json { render :show, status: :ok, location: @taxon_name_classification.metamorphosize }
@@ -117,7 +117,7 @@ class TaxonNameClassificationsController < ApplicationController
 
   # GET /taxon_name_classifications/download
   def download
-    send_data Download.generate_csv(TaxonNameClassification.where(project_id: session_current_project_id)),
+    send_data Export::Download.generate_csv(TaxonNameClassification.where(project_id: sessions_current_project_id)),
       type: 'text', filename: "taxon_name_classifications_#{DateTime.now}.csv"
   end
 

@@ -42,4 +42,7 @@ class TaxonNameRelationship::Typification::Genus < TaxonNameRelationship::Typifi
     true
   end
 
+  def sv_not_specific_relationship
+   soft_validations.add(:type, 'Please specify if the type designation is original or subsequent')
+  end
 end

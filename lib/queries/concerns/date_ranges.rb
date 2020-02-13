@@ -1,6 +1,9 @@
+require 'date'
 
-# See spec/models/collecting_event/dates_spec.rb for the current test coverage
-# 
+# For specs see
+#   spec/models/collecting_event/dates_spec.rb
+#   spec/lib/queries/collecting_event/autocomplete_spec.rb
+#
 # TODO: isolate code to a gem
 module Queries::Concerns::DateRanges
   extend ActiveSupport::Concern
@@ -37,7 +40,6 @@ module Queries::Concerns::DateRanges
     self.start_date = params[:start_date] unless params[:start_date].blank?
     self.end_date = params[:end_date] unless params[:end_date].blank?
 
-
     @partial_overlap_dates = params[:partial_overlap_dates]
     @partial_overlap_dates = true if @partial_overlap_dates.nil?
   end
@@ -62,7 +64,7 @@ module Queries::Concerns::DateRanges
     table[:start_date_day].lteq(start_day)
   end
 
-  def earlier_start_month 
+  def earlier_start_month
     table[:start_date_month].lt(start_month)
   end
 
@@ -90,7 +92,7 @@ module Queries::Concerns::DateRanges
     table[:end_date_year].gt(end_year)
   end
 
-  def end_month_between 
+  def end_month_between
     table[:start_date_month].between((1)..(end_month - 1))
   end
 
@@ -105,7 +107,7 @@ module Queries::Concerns::DateRanges
     )
   end
 
-  def date_range_in_same_year 
+  def date_range_in_same_year
     # - true == blank later on
     (start_year == end_year) or (end_year - start_year < 2) # test for whole years between date extent
   end
@@ -147,11 +149,10 @@ module Queries::Concerns::DateRanges
       .and( table[:start_date_month].lt(end_month).or( table[:start_date_month].eq(end_month).and(table[:start_date_day].lteq(end_day)) ))
   end
 
-  
   # Reflects origin variable, rename to clarify
   def st_string
-    a = nil 
-    if start_year == end_year 
+    a = nil
+    if start_year == end_year
       a = start_year_present.and(part_1s.and(part_3s))
     else
       a = start_year_present.and(part_1s.or(part_3s))
@@ -159,13 +160,13 @@ module Queries::Concerns::DateRanges
 
     a = a.or(start_year_between) if !date_range_in_same_year
     a
-  end 
+  end
 
   # Reflects origin variable, rename to clarify
   def part_1e
     empty_end_year.and(st_string).
       or((equal_end_year.and(end_month_between.or(equal_end_month.and(equal_or_earlier_end_day)))))
-  end 
+  end
 
   # Reflects origin variable, rename to clarify
   def part_3e
@@ -173,7 +174,7 @@ module Queries::Concerns::DateRanges
       table[:end_date_month].gt(start_month).or(table[:end_date_month].eq(start_month).and(table[:end_date_day].gteq(start_day)))
     )
   end
-  
+
   # Reflects origin variable, rename to clarify
   def en_string
     q = part_1e
@@ -189,15 +190,76 @@ module Queries::Concerns::DateRanges
   end
 
   # @return [Scope, nil]
-  def between_date_range 
+  def between_date_range
     return nil unless use_date_range?
     q = st_string
 
     if partial_overlap_dates
       q = q.or(en_string).or(on_or_before_start_date.and(on_or_after_end_date) )
     else
-      q = q.and(en_string) 
+      q = q.and(en_string)
     end
     q
   end
+
+  # --- Methods below are not part of the between date_range code
+  # @return [Date.new, nil]
+  def simple_date
+    begin
+      Date.parse(query_string)
+    rescue ArgumentError
+      return nil
+    end
+  end
+
+  def with_start_date
+    if d = simple_date
+      r = []
+      r.push(table[:start_date_day].eq(d.day)) if d.day
+      r.push(table[:start_date_month].eq(d.month)) if d.month
+      r.push(table[:start_date_year].eq(d.year)) if d.year
+
+      q = r.pop
+      r.each do |z|
+        q = q.and(z)
+      end
+      q
+    else
+      nil
+    end
+  end
+
+  def with_parsed_date(t = :start)
+    if d = simple_date
+      r = []
+      r.push(table["#{t}_date_day".to_sym].eq(d.day)) if d.day
+      r.push(table["#{t}_date_month".to_sym].eq(d.month)) if d.month
+      r.push(table["#{t}_date_year".to_sym].eq(d.year)) if d.year
+
+      q = r.pop
+      r.each do |z|
+        q = q.and(z)
+      end
+      q
+    else
+      nil
+    end
+  end
+
+  def autocomplete_start_date
+    if a = with_start_date
+      base_query.where(a.to_sql).limit(20)
+    else
+      nil
+    end
+  end
+  
+  def autocomplete_start_or_end_date
+    if a = with_parsed_date
+      base_query.where(a.or(with_parsed_date(:end)).to_sql).limit(20)
+    else
+      nil
+    end
+  end
+
 end

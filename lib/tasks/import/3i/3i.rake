@@ -121,7 +121,7 @@ namespace :tw do
         @relationship_classes = {
             0 => '', ### valid
             1 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Heterotypic',   #### ::Homotypic or ::Heterotypic
-            2 => '', ### OriginalMonotypy combination
+            2 => '', ### Original combination
             3 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary',
             4 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary', #### or 'Secondary::Secondary1961'
             5 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym', ## Preocupied
@@ -262,7 +262,6 @@ namespace :tw do
           end
 
         end
-
       end
 
       def main_build_loop_3i
@@ -1220,7 +1219,7 @@ namespace :tw do
             CommonName.create!(otu: find_taxon_3i(row['Parent']).otus.first, name: row['Name'], language: lng)
 #          elsif row['Status'] == '13' && row['Rank'] == '0' # Nomen nudum
 #            tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: 'TaxonNameRelationship::Iczn::Invalidating')
-          elsif row['Status'] == '2' || !row['OriginalCombinationOf'].blank? ### OriginalMonotypy combination
+          elsif row['Status'] == '2' || !row['OriginalCombinationOf'].blank? ### Original combination
             taxon = find_taxon_3i(row['OriginalCombinationOf']) || find_taxon_3i(row['Parent'])
             if taxon.blank?
               byebug
@@ -1893,7 +1892,7 @@ namespace :tw do
               type = @type_type_3i[row['Type'].downcase]
               unless type.nil?
                 type = type + 's' if o.type == 'Lot'
-                tm = TypeMaterial.create(protonym_id: otu.taxon_name_id, material: o, type_type: type )
+                tm = TypeMaterial.create(protonym_id: otu.taxon_name_id, collection_object: o, type_type: type )
                 o.tags.find_or_create_by!(keyword: @data.keywords['Allotype']) if row['Type'] == 'Allotype'
                 if tm.id.nil?
                   o.data_attributes.create(type: 'ImportAttribute', import_predicate: 'type_material_error', value: 'Type material was not created. There are some inconsistensies.')

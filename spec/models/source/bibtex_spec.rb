@@ -1,6 +1,5 @@
 require 'rails_helper'
 
-# rubocop:disable Rails/SaveBang
 describe Source::Bibtex, type: :model, group: :sources do
 
   let(:bibtex) { FactoryBot.build(:source_bibtex) }
@@ -21,9 +20,38 @@ describe Source::Bibtex, type: :model, group: :sources do
     BibTeX.open(Rails.root + 'spec/files/bibtex/Taenionema.bib')
   }
 
-  after(:all) {
-    Source.destroy_all
-  }
+  after(:all) { Source.destroy_all }
+
+  context '#clone' do
+    before do
+      bibtex.update(title: 'This is verbatim', bibtex_type: :article)
+    end
+
+    specify 'persists' do
+      expect(bibtex.clone.persisted?).to be_truthy
+    end
+
+    specify 'labeled' do
+      a = bibtex.clone
+      expect(a.title).to eq("[CLONE of #{bibtex.id}] " + bibtex.title)
+    end
+
+    context '#roles' do
+      let(:p1) { FactoryBot.create(:valid_person) }
+      let(:p2) { FactoryBot.create(:valid_person) }
+      let(:p3) { FactoryBot.create(:valid_person) }
+
+      before do
+        bibtex.roles << SourceAuthor.new(person: p1)
+        bibtex.roles << SourceAuthor.new(person: p2)
+        bibtex.roles << SourceEditor.new(person: p3)
+      end
+
+      specify 'are duplicated' do
+        expect(bibtex.clone.roles.count).to eq(3)
+      end
+    end
+  end
 
   context 'test bibtex-ruby gem capabilities we rely upon' do
     context 'using BibTeX bibliography' do
@@ -152,10 +180,10 @@ describe Source::Bibtex, type: :model, group: :sources do
             author = {August Brauer},
             title = {Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer.}
           }"
-        a               = BibTeX.parse(citation_string).convert(:latex)
-        entry           = a.first
-        src             = Source::Bibtex.new_from_bibtex(entry)
-        expect(src.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution. Available from: http://dx.doi.org/10.5962/bhl.title.1086.')
+        a = BibTeX.parse(citation_string).convert(:latex)
+        entry = a.first
+        src = Source::Bibtex.new_from_bibtex(entry)
+        expect(src.cached_string('text')).to start_with('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution. Available from: http://dx.doi.org/10.5962/bhl.title.1086')
       end
 
       # input = 'Grubbs; Baumann & DeWalt. 2014. A review of the Nearctic genus Prostoia (Ricker) (Plecoptera: Nemouridae), with the description of a new species and a surprising range extension for P. hallasi Kondratieff and Kirchner. Zookeys. '
@@ -196,15 +224,14 @@ describe Source::Bibtex, type: :model, group: :sources do
         let(:serial1) { FactoryBot.create(:valid_serial) } # create so serial1 has an ID
 
         specify 'serial gets converted properly to bibtex #journal' do
-          expect(src.valid?).to be_truthy
-          src.soft_validate()
+          src.soft_validate(:sv_missing_required_bibtex_fields)
           expect(src.soft_valid?).to be_truthy
           expect(src.journal).to eq('Journal of Test Articles')
           src.journal = nil
           src.soft_validate()
-          expect(src.soft_validations.messages).to include 'This article is missing a journal name or serial.'
+          expect(src.soft_validations.messages).to include 'This article is missing a journal name.'
           src.update(serial: serial1)
-          src.soft_validate()
+          src.soft_validate(:sv_missing_required_bibtex_fields)
           expect(src.soft_valid?).to be_truthy
           bib = src.to_bibtex
           expect(bib.journal).to eq(serial1.name)
@@ -216,10 +243,20 @@ describe Source::Bibtex, type: :model, group: :sources do
           expect(serial1.save).to be_truthy
           src.serial = serial1
           expect(src.save).to be_truthy
-          src.soft_validate()
+          src.soft_validate(:sv_missing_required_bibtex_fields)
           expect(src.soft_valid?).to be_truthy
           bib = src.to_bibtex
           expect(bib.issn).to eq(serial1.identifiers.where(type: 'Identifier::Global::Issn').first.identifier)
+        end
+
+        specify 'missing roles' do
+          src.soft_validate(:missing_roles)
+          expect(src.soft_validations.messages_on(:base)).to include('Author roles are not selected.')
+          person = FactoryBot.create(:person, first_name: 'J.', last_name: 'McDonald')
+          src.authors << person
+          src.save
+          src.soft_validate(:missing_roles)
+          expect(src.soft_validations.messages_on(:base)).to_not include('Author roles are not selected.')
         end
       end
 
@@ -230,8 +267,6 @@ describe Source::Bibtex, type: :model, group: :sources do
           url = FactoryBot.build(:uri_identifier)
           src.identifiers << url
           expect(src.save).to be_truthy
-          src.soft_validate()
-          expect(src.soft_valid?).to be_truthy
           bib = src.to_bibtex
           expect(bib[:url]).to eq(src.identifiers.where(type: 'Identifier::Global::Uri').first.identifier)
         end
@@ -240,8 +275,6 @@ describe Source::Bibtex, type: :model, group: :sources do
           isbn = FactoryBot.build(:isbn_identifier)
           src.identifiers << isbn
           expect(src.save).to be_truthy
-          src.soft_validate()
-          expect(src.soft_valid?).to be_truthy
           bib = src.to_bibtex
           expect(bib[:isbn]).to eq(src.identifiers.where(type: 'Identifier::Global::Isbn').first.identifier)
         end
@@ -250,13 +283,10 @@ describe Source::Bibtex, type: :model, group: :sources do
           doi = FactoryBot.build(:doi_identifier)
           src.identifiers << doi
           expect(src.save).to be_truthy
-          src.soft_validate()
-          expect(src.soft_valid?).to be_truthy
           bib = src.to_bibtex
           expect(bib[:doi]).to eq(src.identifiers.where(type: 'Identifier::Global::Doi').first.identifier)
         end
       end
-
     end
 
     context 'validate bibtex' do
@@ -369,7 +399,7 @@ describe Source::Bibtex, type: :model, group: :sources do
         expect(source_bibtex.errors.messages[:year].include?(error_msg)).to be_truthy
         source_bibtex.soft_validate
         expect(source_bibtex.soft_validations.messages_on(:year).empty?).to be_falsey
-        expect(source_bibtex.soft_validations.messages).to include 'This year is prior to the 1700s'
+        expect(source_bibtex.soft_validations.messages).to include 'This year is prior to the 1700s.'
         source_bibtex.year = 1700
         expect(source_bibtex.valid?).to be_truthy
         source_bibtex.soft_validate
@@ -486,7 +516,7 @@ describe Source::Bibtex, type: :model, group: :sources do
         end
 
         specify 'which equals...(currently failing due to problems with citeproc)' do
-          expect(l_src.cached).to eq('Person, T. (1700) I am a soft valid article. Journal of Test Articles.')
+          expect(l_src.cached).to eq('Person, T. (1700) I am a soft valid article. <i>Journal of Test Articles</i>.')
         end
 
         specify 'cached author should be set' do
@@ -561,28 +591,47 @@ describe Source::Bibtex, type: :model, group: :sources do
         end
 
         specify 'cached string should be correct' do
-          expect(l_src.cached).to eq('Thomas, D., Fowler, C. & Hunt, A. (1920) Article with multiple authors. Journal of Test Articles.')
+          expect(l_src.cached).to eq('Thomas, D., Fowler, C. &amp; Hunt, A. (1920) Article with multiple authors. <i>Journal of Test Articles</i>.')
+        end
+      end
+    end
+
+    context '#url' do
+      let(:src) { Source::Bibtex.new } 
+      specify 'validation 1' do
+        src.valid?
+        expect(src.errors.messages[:url]).to be_empty
+      end
+
+      specify 'validation 2' do
+        src.url = 'bad url'
+        expect(src.valid?).to be_falsey
+        expect(src.errors.messages[:url]).to_not be_empty
+      end
+
+      # TODO: needs only a single check, URL format should be
+      # tested in a generic library
+      %w{http://speciesfile.org https://duckduckgo.com ftp://test.edu}.each do |u|
+        specify "#{u} is valid" do
+          src.url = u 
+          src.valid?
+          expect(src.errors.messages[:url]).to be_empty
         end
       end
 
-    end
+      context 'default values' do
+        before { src.update!(bibtex_type: :article, title: 'Not a book', year: 1920) }
 
-    specify 'the url must be valid' do
-      src = FactoryBot.build(:valid_source_bibtex)
-      err = '] is not a valid URL'
-      expect(src.valid?).to be_truthy # nil url is valid
-      src.url = 'bad url'
-      expect(src.valid?).to be_falsey
-      expect(src.errors.messages[:url].include?('[' + src.url + err)).to be_truthy
-      src.url = 'http://speciesfile.org'
-      expect(src.valid?).to be_truthy
-      src.url = 'speciesfile.org'
-      expect(src.valid?).to be_falsey
-      expect(src.errors.messages[:url].include?('[' + src.url + err)).to be_truthy
-      src.url = 'https://google.com'
-      expect(src.valid?).to be_truthy
-      src.url = 'ftp://test.edu'
-      expect(src.valid?).to be_truthy
+        specify 'are empty' do
+          expect(src.reload.url).to be_falsey
+        end
+
+        specify 'not overwritten on save' do
+          u = 'http://funstuff.com'
+          src.update!(url: u)
+          expect(src.reload.url).to eq(u)
+        end
+      end
     end
   end
 
@@ -910,34 +959,34 @@ describe Source::Bibtex, type: :model, group: :sources do
         context 'check cached strings after update' do
           specify 'authors' do
             src1 = FactoryBot.create(:soft_valid_bibtex_source_article)
-            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. Journal of Test Articles.')
+            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. <i>Journal of Test Articles</i>.')
             expect(src1.cached_author_string).to eq('Person')
 
             src1.authors << vp1
-            expect(src1.reload.cached).to eq('Smith (1700) I am a soft valid article. Journal of Test Articles.')
+            expect(src1.reload.cached).to eq('Smith (1700) I am a soft valid article. <i>Journal of Test Articles</i>.')
             expect(src1.cached_author_string).to eq('Smith')
 
             src1.authors << vp2
-            expect(src1.reload.cached).to eq('Smith & Von Adams, J. (1700) I am a soft valid article. Journal of Test Articles.')
+            expect(src1.reload.cached).to eq('Smith &amp; Von Adams, J. (1700) I am a soft valid article. <i>Journal of Test Articles</i>.')
             expect(src1.cached_author_string).to eq('Smith & Von Adams')
           end
 
           specify 'editors' do
             src1 = FactoryBot.create(:src_editor)
-            expect(src1.cached).to eq('Person, T. ed. (1700) I am a soft valid article. Journal of Test Articles.')
+            expect(src1.cached).to eq('Person, T. ed. (1700) I am a soft valid article. <i>Journal of Test Articles</i>.')
             src1.editors << vp1
-            expect(src1.reload.cached).to eq('Smith ed. (1700) I am a soft valid article. Journal of Test Articles.')
+            expect(src1.reload.cached).to eq('Smith ed. (1700) I am a soft valid article. <i>Journal of Test Articles</i>.')
 
             src1.editors << vp2
-            expect(src1.reload.cached).to eq('Smith & Von Adams, J. eds. (1700) I am a soft valid article. Journal of Test Articles.')
+            expect(src1.reload.cached).to eq('Smith &amp; Von Adams, J. eds. (1700) I am a soft valid article. <i>Journal of Test Articles</i>.')
           end
 
           specify 'stated_year' do
             src1 = FactoryBot.create(:soft_valid_bibtex_source_article)
             src1.update(stated_year: '1699')
-            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. Journal of Test Articles.')
+            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. <i>Journal of Test Articles</i>. [1699]')
             src1.update(volume: '25')
-            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. Journal of Test Articles 25.')
+            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. <i>Journal of Test Articles</i> 25. [1699]')
           end
 
         end
@@ -1003,8 +1052,7 @@ describe Source::Bibtex, type: :model, group: :sources do
   end
 
   context 'class methods' do
-
-    context '#new_from_bibtex' do
+    context '.new_from_bibtex' do
       let(:citation_string) { %q(@book{international_commission_on_zoological_nomenclature_international_1999,
                                     address = {London},
                                     edition = {Fourth},
@@ -1023,11 +1071,11 @@ describe Source::Bibtex, type: :model, group: :sources do
       before { a.save }
 
       specify 'import keys for non-recognized attributes' do
-        expect(a.import_attributes.map(&:import_predicate)).to contain_exactly('urldate', 'type') #  eq('urldate')
+        expect(a.import_attributes.map(&:import_predicate)).to contain_exactly('urldate', 'type')
       end
 
       specify 'values for import predicates' do
-        expect(a.import_attributes.map(&:value)).to contain_exactly('2010-12-06', 'Journal Article') #  eq('urldate')
+        expect(a.import_attributes.map(&:value)).to contain_exactly('2010-12-06', 'Journal Article')
       end
     end
 
@@ -1118,7 +1166,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       expect(source_bibtex.valid?).to be_truthy
       source_bibtex.soft_validate()
       expect(source_bibtex.soft_validations.messages_on(:year).empty?).to be_falsey
-      expect(source_bibtex.soft_validations.messages).to include 'This year is prior to the 1700s'
+      expect(source_bibtex.soft_validations.messages).to include 'This year is prior to the 1700s.'
       source_bibtex.year = 1700
       source_bibtex.save
       source_bibtex.soft_validate()
@@ -1138,7 +1186,6 @@ describe Source::Bibtex, type: :model, group: :sources do
   end
 
   context 'nested attributes' do
-    #let(:b){Source::Bibtex.new}
     let(:person1) { Person::Unvetted.create!(last_name: 'un') }
     let(:person2) { Person::Unvetted.create!(last_name: 'deux') }
     let(:person3) { Person::Unvetted.create!(last_name: 'trois') }
@@ -1222,16 +1269,20 @@ describe Source::Bibtex, type: :model, group: :sources do
 
       context 'with three authors, deleting the middle author role maintains position' do
         before { b.update(three_author_params) }
-        let(:params) { {
-          author_roles_attributes: [{id: b.roles.second.id, _destroy: 1}]
-        } }
+        let(:params) {
+          { author_roles_attributes: [{id: b.roles.second.id, _destroy: 1}]} 
+        }
+
         specify 'three authors exist' do
           expect(b.authors.reload.size).to eq(3)
         end
+
         specify 'update updates position' do
           expect(b.authors.reload.count).to eq(3)
           expect(b.authority_name).to eq('Un, Deux & Trois')
+          
           b.update(params)
+
           expect(b.authors.reload.count).to eq(2)
           expect(b.authority_name).to eq('Un & Trois')
           expect(b.roles.reload.first.position).to eq(1)
@@ -1256,4 +1307,5 @@ describe Source::Bibtex, type: :model, group: :sources do
       end
     end
   end
+
 end

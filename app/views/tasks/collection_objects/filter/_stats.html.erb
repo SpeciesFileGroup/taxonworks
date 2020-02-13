@@ -1,3 +1,0 @@
-<h3><%= "#{count} total records - by start date year" -%>
-  <%= line_chart(objects.group_by_year("date(cast(collecting_events.start_date_year AS TEXT) || '/01/01')", time_zone: false).count) %>
-</h3>

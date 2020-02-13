@@ -10,11 +10,11 @@ class ObservationMatrixRowItem::TaggedRowItem < ObservationMatrixRowItem
   end
 
   def otus
-    Tag.where(keyword: controlled_vocabulary_term, tag_object_type: 'Otu').map(&:tag_object)
+    Otu.joins(:tags).where(tags: {keyword: controlled_vocabulary_term})
   end
 
   def collection_objects
-    Tag.where(keyword: controlled_vocabulary_term, tag_object_type: 'CollectionObject').map(&:tag_object)
+    CollectionObject.joins(:tags).where(tags: {keyword: controlled_vocabulary_term})
   end
 
   def matrix_row_item_object

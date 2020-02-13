@@ -3,16 +3,16 @@ require 'rails_helper'
 RSpec.describe PinboardItem do
   let(:pinboard_item) { PinboardItem.new }
 
-  specify 'bad pinboard_item_type' do
-    pinboard_item.pinned_object_type = 'People'
+  specify 'good pinboard_item_type subclass' do
+    pinboard_item.pinned_object_type = 'Keyword'
     pinboard_item.valid?
-    expect(pinboard_item.errors.messages.keys).to include(:pinned_object_type)
+    expect(pinboard_item.errors.messages.keys).to_not include(:pinned_object_type)
   end
 
   specify 'bad pinboard_item_type' do
-    pinboard_item.pinned_object_type = 'Otu'
-    pinboard_item.valid?
-    expect(pinboard_item.errors.messages.keys).to_not include(:pinned_object_type)
+    p = FactoryBot.create(:valid_pinboard_item)
+    p.pinned_object_type = 'Foo'
+    expect {p.save!}.to raise_error NameError, 'uninitialized constant Foo'
   end
 
   context 'associations' do

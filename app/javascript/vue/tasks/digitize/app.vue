@@ -3,7 +3,19 @@
     id="vue-all-in-one"
     v-shortkey="[getMacKey(), 'l']"
     @shortkey="setLockAll">
-    <h1>Comprehensive specimen digitization</h1>
+    <div class="flex-separate middle">
+      <h1>Comprehensive specimen digitization</h1>
+      <ul class="context-menu">
+        <li>
+          <label>
+            <input
+              type="checkbox"
+              v-model="settings.sortable">
+            Sortable fields
+          </label>
+        </li>
+      </ul>
+    </div>
     <spinner-component
       v-if="saving || loading"
       :full-screen="true"
@@ -14,11 +26,11 @@
     <div class="horizontal-left-content align-start separate-top main-panel">
       <div class="separate-right left-section">
         <taxon-determination-layout class="separate-bottom"/>
+        <biological-association class="separate-bottom separate-top"/>
         <type-material class="separate-top"/>
       </div>
       <collection-event-layout class="separate-left item ce-section"/>
     </div>
-    <task-header/>
   </div>
 </template>
 
@@ -28,7 +40,8 @@
   import TaxonDeterminationLayout from './components/taxonDetermination/main.vue'
   import CollectionEventLayout from './components/collectionEvent/main.vue'
   import TypeMaterial from './components/typeMaterial/typeMaterial.vue'
-  import { GetUserPreferences } from './request/resources.js'
+  import BiologicalAssociation from './components/biologicalAssociation/main.vue'
+  import { GetUserPreferences, GetProjectPreferences } from './request/resources.js'
   import { MutationNames } from './store/mutations/mutations.js'
   import { ActionNames } from './store/actions/actions.js'
   import { GetterNames } from './store/getters/getters.js'
@@ -41,6 +54,7 @@
       CollectionObject,
       TypeMaterial,
       TaxonDeterminationLayout,
+      BiologicalAssociation,
       CollectionEventLayout,
       SpinnerComponent,
     },
@@ -50,12 +64,21 @@
       },
       loading() {
         return this.$store.getters[GetterNames.IsLoading]
+      },
+      settings: {
+        get () {
+          return this.$store.getters[GetterNames.GetSettings]
+        },
+        set (value) {
+          this.$store.commit(MutationNames.SetSettings, value)
+        }
       }
     },
     mounted() {
       let coId = location.pathname.split('/')[4]
       let urlParams = new URLSearchParams(window.location.search)
       let coIdParam = urlParams.get('collection_object_id')
+      let ceIdParam = urlParams.get('collecting_event_id')
 
       this.addShortcutsDescription()
 
@@ -63,11 +86,17 @@
         this.$store.commit(MutationNames.SetPreferences, response)
       })
 
+      GetProjectPreferences().then(response => {
+        this.$store.commit(MutationNames.SetProjectPreferences, response)
+      })
+
       if (/^\d+$/.test(coId)) {
         this.$store.dispatch(ActionNames.LoadDigitalization, coId)
       }
       else if (/^\d+$/.test(coIdParam)) {
         this.$store.dispatch(ActionNames.LoadDigitalization, coIdParam)
+      } else if (/^\d+$/.test(ceIdParam)) {
+        this.$store.dispatch(ActionNames.GetCollectionEvent, ceIdParam)
       }
     },
     methods: {
@@ -77,6 +106,7 @@
         TW.workbench.keyboard.createLegend(`${this.getMacKey()}+p`, 'Add to container', 'Comprehensive digitization task')
         TW.workbench.keyboard.createLegend(`${this.getMacKey()}+l`, 'Lock all', 'Comprehensive digitization task')
         TW.workbench.keyboard.createLegend(`${this.getMacKey()}+r`, 'Reset all', 'Comprehensive digitization task')
+        TW.workbench.keyboard.createLegend(`${this.getMacKey()}+t`, 'Browse collection object', 'Comprehensive digitization task')
       },
       getMacKey: GetMacKey,
       setLockAll() {

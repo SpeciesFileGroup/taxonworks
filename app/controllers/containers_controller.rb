@@ -15,6 +15,15 @@ class ContainersController < ApplicationController
   def show
   end
 
+  # GET /containers/for/global_id
+  def for
+    object = GlobalID::Locator.locate(params.require(:global_id))
+    @container = object.respond_to?(:containable?) ? object.container : nil
+    render(json: { 'message' => 'Record not found' }, status: :unauthorized) if !object.is_community? && object.project_id != sessions_current_project_id
+    render(json: { success: false}, status: :not_found) and return if @container.nil?
+    render :show
+  end
+
   # GET /containers/new
   def new
     @container = Container.new
@@ -62,7 +71,7 @@ class ContainersController < ApplicationController
   def destroy
     @container.destroy
     respond_to do |format|
-      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container was successfully destroyed.')}
+      format.html {redirect_back(fallback_location: containers_path, notice: 'Container was successfully destroyed.')}
       format.json { head :no_content }
     end
   end
@@ -76,10 +85,10 @@ class ContainersController < ApplicationController
   end
 
   def autocomplete
-    @containers = Queries::ContainerAutocompleteQuery.new(
+    @containers = Queries::Container::Autocomplete.new(
       params.require(:term), 
       {project_id: sessions_current_project_id}
-    ).result
+    ).autocomplete
   end
 
   private

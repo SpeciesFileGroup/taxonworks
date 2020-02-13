@@ -22,4 +22,7 @@ class TaxonNameRelationship::Typification::Genus::Tautonomy::Absolute < TaxonNam
     :type_species_by_absolute_tautonomy
   end
 
+  def sv_not_specific_relationship
+    true
+  end
 end

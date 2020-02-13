@@ -38,7 +38,7 @@
           title="Page"
           size="4"
           min="1"
-          v-model="page"
+          v-model="showPage"
           tabindex="15"
           max="0">
         <span id="numPages" class="toolbarLabel"></span>
@@ -81,10 +81,20 @@ export default {
   computed: {
     styleWidth() {
       return this.width != 400 ? { width: `${this.width}px` } : undefined
+    },
+    showPage: {
+      get() {
+        return this.displayPage
+      },
+      set(value) {
+        this.displayPage = Number(value)
+        this.page = Number(value)
+      }
     }
   },
   data () {
     return {
+      displayPage: 1,
       page: 1,
       numPages: 0,
       pdfdata: undefined,
@@ -94,7 +104,9 @@ export default {
       width: 400,
       viewerActive: false,
       cursorPosition: undefined,
-      textCopy: ''
+      textCopy: '',
+      noTrigger: false,
+      checkScroll: undefined
     }
   },
   mounted() {
@@ -110,9 +122,15 @@ export default {
       }
     },
     page(p) {
-      if(p > 0 && p <= this.numPages) {
-        if (window.pageYOffset <= this.findPos(document.getElementById(p)) || (document.getElementById(p + 1) && window.pageYOffset >= this.findPos(document.getElementById(p + 1)))) {
-          document.getElementById(p).scrollIntoView()
+      if(this.noTrigger) {
+        this.noTrigger = false
+      }
+      else {
+        if(p > 0 && p <= this.numPages) {
+          let containerPosition = Math.abs(document.querySelector('#viewer').getBoundingClientRect().y) + 120
+          if ((containerPosition <= this.findPos(document.getElementById(p)) || p == 1) || (document.getElementById(p + 1) && containerPosition >= this.findPos(document.getElementById(p + 1)))) {
+            document.getElementById(p).scrollIntoView()
+          }
         }
       }
     },
@@ -125,46 +143,36 @@ export default {
       this.width = style
     },
     setPage(value) {
-      this.page = this.page + value
+      this.showPage = Number(this.page) + Number(value)
     },
     setScale(value) {
       this.scale = this.scale + value
     },
     getPdf (url) {
       var self = this
+      
       self.pdfdata = PdfViewer.createLoadingTask(url)
       self.pdfdata.then(pdf => {
         self.numPages = pdf.numPages
-        window.onscroll = function () {
-          changePage()
-          stickyNav()
+        document.querySelector('#pdfViewerContainer').onscroll = (event) => {
+          changePage(event)
         }
 
-        // Get the offset position of the navbar
-        // var sticky = document.getElementById('buttons')[0].offsetTop
-
-        // Add the sticky class to the self.$refs.nav when you reach its scroll position. Remove "sticky" when you leave the scroll position
-        function stickyNav () {
-          /*
-          if (window.pageYOffset >= sticky) {
-            $('#buttons')[0].classList.remove("hidden")
-          } else {
-            $('#buttons')[0].classList.add("hidden")
-          }
-          */
-        }
-
-        function changePage () {
+        function changePage (event) {
           var i = 1
           var count = Number(pdf.numPages)
-          do {
-            if (window.pageYOffset >= self.findPos(document.getElementById(i)) && window.pageYOffset <= self.findPos(document.getElementById(i + 1))) {
-              self.page = i
+          if(count > 1) {
+            let containerPosition = Math.abs(document.querySelector('#viewer').getBoundingClientRect().y) + 120
+
+            do {
+              if (containerPosition >= self.findPos(document.getElementById(i)) && containerPosition <= self.findPos(document.getElementById(i + 1))) {
+                self.displayPage = i
+              }
+              i++
+            } while (i < count)
+            if (containerPosition >= self.findPos(document.getElementById(i))) {
+              self.displayPage = i
             }
-            i++
-          } while (i < count)
-          if (window.pageYOffset >= self.findPos(document.getElementById(i))) {
-            self.page = i
           }
         }
       })
@@ -178,6 +186,10 @@ export default {
       document.addEventListener(this.eventLoadPDFName, (event) => {
         that.loadPDF(event)
         that.viewerActive = true
+        document.querySelector('[data-panel-name="pinboard"]').classList.remove("slice-panel-show")
+        document.querySelector('[data-panel-name="pinboard"]').classList.add("slice-panel-hide")
+        document.querySelector('[data-panel-name="pdfviewer"]').classList.remove("slice-panel-hide")
+        document.querySelector('[data-panel-name="pdfviewer"]').classList.add("slice-panel-show")
       })
       document.addEventListener('onSlidePanelClose', (event) => {
         if(event.detail.name == 'pdfviewer') {
@@ -206,9 +218,9 @@ export default {
         }
       })
 
-      $('#viewer').mouseup(function () {
-        that.textCopy = that.getSelectedText();
-      });
+      document.querySelector('#viewer').addEventListener('mouseup', () => {
+        that.textCopy = that.getSelectedText()
+      })
 
       document.addEventListener('dblclick', (event) => {
         let name = event.target.nodeName
@@ -229,6 +241,7 @@ export default {
       return '';
     },
     loadPDF(event) {
+      this.showPage = 1
       this.getPdf(event.detail.url)
     }
   }

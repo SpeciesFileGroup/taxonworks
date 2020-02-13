@@ -2,6 +2,7 @@ class ObservationMatrixRowsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_matrix_row, only: [:show]
+  after_action -> { set_pagination_headers(:observation_matrix_rows) }, only: [:index], if: :json_request?
 
   # GET /observation_matrix_rows.json
   def index
@@ -11,7 +12,7 @@ class ObservationMatrixRowsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @observation_matrix_rows = ObservationMatrixRow.where(filter_params).where(project_id: sessions_current_project_id)
+        @observation_matrix_rows = ObservationMatrixRow.where(filter_params).where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per])
       }
     end
   end
@@ -29,6 +30,14 @@ class ObservationMatrixRowsController < ApplicationController
   def sort
     ObservationMatrixRow.sort(params.require(:ids))
     head :no_content 
+  end
+
+  def autocomplete
+    @observation_matrix_rows = Queries::ObservationMatrixRow::Autocomplete.new(
+      params.require(:term),
+      project_id: sessions_current_project_id,
+      observation_matrix_id: params[:observation_matrix_id]
+    ).autocomplete
   end
 
   private

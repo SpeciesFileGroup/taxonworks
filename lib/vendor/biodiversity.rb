@@ -23,6 +23,8 @@ module TaxonWorks
         attr_accessor :name
 
         # how to match
+        #   `ranked`: return names at that queried rank only (e.g. only match a subgenus to rank subgenus
+        #   `groups`: return names at Group level (species or genus), i.e. a subgenus name in query will match genus OR subgenus in database
         attr_accessor :mode
 
         # project to query against
@@ -61,12 +63,7 @@ module TaxonWorks
         #   a memoized combiantion with only unambiguous elements 
         attr_reader :combination
 
-        # query_string:
-        #
-        # mode:
-        #   ranked: return names at that queried rank only (e.g. only match a subgenus to rank subgenus
-        #   groups: return names at Group level (species or genus), i.e. a subgenus name in query will match genus OR subgenus in database
-        def initialize(query_string: nil, project_id: nil, code: :iczn, match_mode: :groups)
+       def initialize(query_string: nil, project_id: nil, code: :iczn, match_mode: :groups)
           @project_id = project_id
           @name = query_string
           @nomenclature_code = code
@@ -180,6 +177,7 @@ module TaxonWorks
         def authorship
           d = detail[RANK_MAP[finest_rank]]
           d = d.last if d.kind_of?(Array)
+          return nil unless d
           d[:basionymAuthorTeam]
         end
 
@@ -388,7 +386,7 @@ module TaxonWorks
         #    the Combination, if it exists
         def combination_exists?
           if is_unambiguous?
-            Combination.match_exists?(combination.protonym_ids_params) # TODO: pass name?
+            Combination.match_exists?(**combination.protonym_ids_params) # TODO: pass name?
           else
             false
           end
@@ -398,13 +396,17 @@ module TaxonWorks
           if a = parse_result[:scientificName] 
             if b = a[:positions]
               c = b.select{|k,v| v[0] == 'author_word'}.keys.min
-              p = [name.length, c].compact.min 
+              p = [name.length, c].compact.min
             end
           end
         end
 
         def name_without_author_year
-          name[0..author_word_position - 1].strip 
+          pos = author_word_position
+          # author_word doesn't point to parens if any
+          offset = pos > 0 && '(' == name[pos-1] ? 2 : 1
+
+          name[0..pos - offset].strip
         end
 
         # @return [Hash]

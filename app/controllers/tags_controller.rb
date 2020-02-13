@@ -43,7 +43,7 @@ class TagsController < ApplicationController
     respond_to do |format|
       if @tag.save
         format.html { redirect_to url_for(@tag.tag_object.metamorphosize),
-                      notice: 'Tag was successfully created.' }
+                      notice: "Tag #{@tag.keyword.name} was successfully created." }
         format.json { render action: 'show', status: :created, location: @tag }
       else
         format.html {
@@ -99,13 +99,24 @@ class TagsController < ApplicationController
 
   # GET /tags/download
   def download
-    send_data Download.generate_csv(Tag.where(project_id: sessions_current_project_id)),
+    send_data Export::Download.generate_csv(Tag.where(project_id: sessions_current_project_id)),
       type: 'text', filename: "tags_#{DateTime.now}.csv"
   end
 
   # POST /tags/batch_remove?keyword_id=123&klass=456
   def batch_remove
     if Tag.batch_remove(params.require(:keyword_id), params.require(:klass))
+      render json: {success: true}
+    else
+      render json: {success: false}
+    end
+  end
+
+  # POST /tags/batch_create.json?keyword_id=123&object_type=CollectionObject&object_ids[]=123
+  def batch_create
+    if Tag.batch_create(
+        params.permit(:keyword_id, :object_type, object_ids: []).to_h.merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).symbolize_keys
+    )
       render json: {success: true}
     else
       render json: {success: false}

@@ -1,7 +1,7 @@
 class CollectingEventsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_collecting_event, only: [:show, :edit, :update, :destroy, :card]
+  before_action :set_collecting_event, only: [:show, :edit, :update, :destroy, :card, :clone]
 
   # GET /collecting_events
   # GET /collecting_events.json
@@ -46,6 +46,15 @@ class CollectingEventsController < ApplicationController
     end
   end
 
+  # POST /collecting_events/1/clone.json
+  def clone
+    @collecting_event = @collecting_event.clone
+    respond_to do |format|
+      format.html { redirect_to edit_collecting_event_path(@collecting_event), notice: 'Clone successful, on new record.' }
+      format.json { render :show }
+    end
+  end
+
   # PATCH/PUT /collecting_events/1
   # PATCH/PUT /collecting_events/1.json
   def update
@@ -65,8 +74,13 @@ class CollectingEventsController < ApplicationController
   def destroy
     @collecting_event.destroy
     respond_to do |format|
-      format.html { redirect_to collecting_events_url }
-      format.json { head :no_content }
+      if @collecting_event.destroyed?
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectingEvent was successfully destroyed.')}
+        format.json {head :no_content}
+      else
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectingEvent was not destroyed: ' + @collecting_event.errors.full_messages.join('; '))}
+        format.json {render json: @collecting_event.errors, status: :unprocessable_entity}
+      end
     end
   end
 
@@ -80,6 +94,13 @@ class CollectingEventsController < ApplicationController
 
   def list
     @collecting_events = CollectingEvent.with_project_id(sessions_current_project_id).order(:id).page(params[:page])
+  end
+
+  def attributes
+    render json: ::CollectingEvent.columns.select{
+      |a| Queries::CollectingEvent::Filter::ATTRIBUTES.include?(
+        a.name)
+    }.collect{|b| {'name' => b.name, 'type' => b.type } }
   end
 
   # GET /collecting_events/search
@@ -105,7 +126,7 @@ class CollectingEventsController < ApplicationController
 
   # GET /collecting_events/download
   def download
-    send_data(Download.generate_csv(CollectingEvent.where(project_id: sessions_current_project_id)),
+    send_data(Export::Download.generate_csv(CollectingEvent.where(project_id: sessions_current_project_id)),
               type: 'text',
               filename: "collecting_events_#{DateTime.now}.csv")
   end
@@ -116,7 +137,7 @@ class CollectingEventsController < ApplicationController
 
   def preview_simple_batch_load
     if params[:file]
-      @result = BatchLoad::Import::CollectingEvents.new(batch_params)
+      @result = BatchLoad::Import::CollectingEvents.new(**batch_params)
       digest_cookie(params[:file].tempfile, :batch_collecting_events_md5)
       render 'collecting_events/batch_load/simple/preview'
     else
@@ -127,7 +148,7 @@ class CollectingEventsController < ApplicationController
 
   def create_simple_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :batch_collecting_events_md5)
-      @result = BatchLoad::Import::CollectingEvent.new(batch_params)
+      @result = BatchLoad::Import::CollectingEvent.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collecting events were created."
         render 'collecting_events/batch_load/simple/create' and return
@@ -142,7 +163,7 @@ class CollectingEventsController < ApplicationController
 
   def preview_castor_batch_load
     if params[:file]
-      @result = BatchLoad::Import::CollectingEvents::CastorInterpreter.new(batch_params)
+      @result = BatchLoad::Import::CollectingEvents::CastorInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :Castor_collecting_events_md5)
       render 'collecting_events/batch_load/castor/preview'
     else
@@ -153,7 +174,7 @@ class CollectingEventsController < ApplicationController
 
   def create_castor_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Castor_collecting_events_md5)
-      @result = BatchLoad::Import::CollectingEvents::CastorInterpreter.new(batch_params)
+      @result = BatchLoad::Import::CollectingEvents::CastorInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collecting events were created."
         render 'collecting_events/batch_load/castor/create' and return
@@ -168,7 +189,7 @@ class CollectingEventsController < ApplicationController
 
   def preview_gpx_batch_load
     if params[:file]
-      @result = BatchLoad::Import::CollectingEvents::GpxInterpreter.new(batch_params)
+      @result = BatchLoad::Import::CollectingEvents::GpxInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :gpx_batch_load_collecting_events_md5)
       render 'collecting_events/batch_load/gpx/preview'
       # render '/shared/data/all/batch_load/preview'
@@ -180,7 +201,7 @@ class CollectingEventsController < ApplicationController
 
   def create_gpx_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :gpx_batch_load_collecting_events_md5)
-      @result = BatchLoad::Import::CollectingEvents::GpxInterpreter.new(batch_params)
+      @result = BatchLoad::Import::CollectingEvents::GpxInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collecting events w/georeferences were created."
         render 'collecting_events/batch_load/gpx/create' and return
@@ -233,17 +254,23 @@ class CollectingEventsController < ApplicationController
   end
 
   def filter_params
+    # TODO: unify for use in CO
     params.permit(
       Queries::CollectingEvent::Filter::ATTRIBUTES,
       :in_labels,
+      :md5_verbatim_label,
       :in_verbatim_locality,
       :recent,
-      :shape,
-      :start_date,
-      :end_date,
+      :wkt,
+      :radius,
+      :geo_json,
+      :start_date, # used in date range
+      :end_date,   # used in date range
       :partial_overlap_dates,
       keyword_ids: [],
-      spatial_geographic_area_ids: []
+      spatial_geographic_area_ids: [],
+      otu_ids: [],
     )
   end
+
 end

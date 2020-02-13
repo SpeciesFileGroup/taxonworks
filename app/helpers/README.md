@@ -1,12 +1,17 @@
 
+# Helpers
 
-Helper Descriptions
-===================
+## Directory Organization
+* All rails model related and the standard application helpers are at /.  
+* Workbench related helpers (general functionality, including styling, layout etc.) are at /workbench.
+* Helpers related to vendor plugins are in /plugins (e.g. Papertrail)
+* All other helpers are nested in helpers/lib/
+
+## Helper Descriptions
 
 See individual headers at https://github.com/SpeciesFileGroup/taxonworks/tree/master/app/helpers
 
-Code Organization
-=================
+## Code Organization
 
 TODO: Go over patterns, clean up where no longer pertinent.
 
@@ -52,11 +57,19 @@ class <Model>Helper
   end
 
   # Return a link_to(model_path) using model_short_tag
-  def model_short_link(mobject)
+  def <model_name>_short_link(object)
   end
 
   # Return a content_tag(:li, <model>_tag(object))
-  def model_select_item(mobject)
+  def <model_name>_select_item(mobject)
+  end
+
+  # Return a label to be used in autocomplete dropdown lists
+  # May (usually) contain HTML.
+  # Note that HTML inputs do not support HTML, so you 
+  # likely want to create <model_name>_label to go with this.
+  # Typically used in ../views/../autocomplete.json
+  def <model_name>_autocomplete_tag(object)
   end
 
   # Return a String
@@ -68,10 +81,4 @@ class <Model>Helper
   
 end
 ```
-
-Directory Organization
-======================
-* All rails model related and the standard application helpers are at /.  
-* Workbench related helpers (general functionality, including styling, layout etc.) are at /workbench.
-* Helpers related to vendor plugins are in /plugins (e.g. Papertrail)
 

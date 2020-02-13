@@ -11,6 +11,7 @@ class TaxonNameClassification::Icn::EffectivelyPublished < TaxonNameClassificati
     true
   end
 
-
-
+  def sv_not_specific_classes
+    soft_validations.add(:type, 'Please specify if the name is Validly or Invalidly Published')
+  end
 end

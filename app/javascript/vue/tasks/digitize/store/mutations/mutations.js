@@ -1,3 +1,4 @@
+import setGeographicArea from './setGeographicArea'
 import setSubsequentialUses from './setSubsequentialUses'
 
 import setLocked from './setLocked'
@@ -80,9 +81,11 @@ import setCollectionEventMinimumElevation from './CollectionEvent/setCollectionE
 import setCollectionEventMaxMa from './CollectionEvent/setCollectionEventMaxMa'
 import setCollectionEventMinMa from './CollectionEvent/setCollectionEventMinMa'
 import setCollectionEventRoles from './CollectionEvent/setCollectionEventRoles'
+import setCollectionEventIdentifier from './CollectionEvent/setCollectionEventIdentifier'
 
 import setTypeMaterial from './TypeMaterial/setTypeMaterial'
 import setTypeMaterials from './TypeMaterial/setTypeMaterials'
+import setTypeMaterialCitation from './TypeMaterial/setTypeMaterialCitation'
 import setTypeMaterialBiologicalObjectId from './TypeMaterial/setTypeMaterialBiologicalObjectId'
 import setTypeMaterialCollectionObject from './TypeMaterial/setTypeMaterialCollectionObject'
 import setTypeMaterialCollectionObjectId from './TypeMaterial/setTypeMaterialCollectionObjectId'
@@ -114,9 +117,11 @@ import setTaxonDeterminationDay from './TaxonDetermination/setTaxonDetermination
 import setTaxonDeterminationRoles from './TaxonDetermination/setTaxonDeterminationRoles'
 
 import setTmpDataOtu from './tmpData/setTmpDataOtu'
+import setProjectPreferences from './setProjectPreferences'
 
 const MutationNames = {
 
+  SetGeographicArea: 'setGeographicArea',
   SetTmpDataOtu: 'setTmpDataOtu',
   SetSubsequentialUses: 'setSubsequentialUses',
 
@@ -163,6 +168,7 @@ const MutationNames = {
 
   SetTypeMaterial: 'setTypeMaterial',
   SetTypeMaterials: 'setTypeMaterials',
+  SetTypeMaterialCitation: 'setTypeMaterialCitation',
   SetTypeMaterialBiologicalObjectId: 'setTypeMaterialBiologicalObjectId',
   SetTypeMaterialCollectionObject: 'setTypeMaterialCollectionObject',
   SetTypeMaterialCollectionObjectId: 'setTypeMaterialCollectionObjectId',
@@ -212,6 +218,7 @@ const MutationNames = {
   SetCollectionEventMaxMa: 'setCollectionEventMaxMa',
   SetCollectionEventMinMa: 'setCollectionEventMinMa',
   SetCollectionEventRoles: 'setCollectionEventRoles',
+  SetCollectionEventIdentifier: 'setCollectionEventIdentifier',
 
   SetCollectionObjectDataAttributes: 'setCollectionObjectDataAttributes',
   SetCollectionObjectTypes: 'setCollectionObjectTypes',
@@ -231,10 +238,13 @@ const MutationNames = {
   SetCollectionObjectPreparationId: 'setCollectionObjectPreparationId',
   SetCollectionObjectRangeLotId: 'setCollectionObjectRangeLotId',
   SetCollectionObjectRepositoryId: 'setCollectionObjectRepositoryId',
-  SetCollectionObjectTotal: 'setCollectionObjectTotal'  
+  SetCollectionObjectTotal: 'setCollectionObjectTotal',
+  SetProjectPreferences: 'setProjectPreferences'
 }
 
 const MutationFunctions = {
+  [MutationNames.SetProjectPreferences]: setProjectPreferences,
+  [MutationNames.SetGeographicArea]: setGeographicArea,
   [MutationNames.SetTmpDataOtu]: setTmpDataOtu,
   [MutationNames.SetSubsequentialUses]: setSubsequentialUses,
 
@@ -276,6 +286,7 @@ const MutationFunctions = {
 
   [MutationNames.SetTypeMaterial]: setTypeMaterial,
   [MutationNames.SetTypeMaterials]: setTypeMaterials,
+  [MutationNames.SetTypeMaterialCitation]: setTypeMaterialCitation,
   [MutationNames.SetTypeMaterialBiologicalObjectId]: setTypeMaterialBiologicalObjectId,
   [MutationNames.SetTypeMaterialCollectionObject]: setTypeMaterialCollectionObject,
   [MutationNames.SetTypeMaterialCollectionObjectId]: setTypeMaterialCollectionObjectId,
@@ -325,6 +336,7 @@ const MutationFunctions = {
   [MutationNames.SetCollectionEventMaxMa]: setCollectionEventMaxMa,
   [MutationNames.SetCollectionEventMinMa]: setCollectionEventMinMa,
   [MutationNames.SetCollectionEventRoles]: setCollectionEventRoles,
+  [MutationNames.SetCollectionEventIdentifier]: setCollectionEventIdentifier,
 
   [MutationNames.SetCollectionObject]: setCollectionObject,
   [MutationNames.SetCollectionObjectDataAttributes]: setCollectionObjectDataAttributes,

@@ -38,7 +38,7 @@ namespace :tw do
         @relationship_classes = {
             0 => '', ### valid
             1 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective',   #### ::Objective or ::Subjective
-            2 => '', ### OriginalMonotypy combination
+            2 => '', ### Original combination
             3 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary',
             4 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary', #### or 'Secondary::Secondary1961'
             5 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym', ## Preocupied
@@ -143,10 +143,7 @@ namespace :tw do
 
         handle_projects_and_users_odonata
 
-#        $project_id = 16
-#        $user_id = 1
-        raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
-#        @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id) if @root.blank?
+        raise 'Current.project_id or Current.user_id not set.'  if Current.project_id.nil? || Current.user_id.nil?
 
         handle_controlled_vocabulary_odonata
         handle_references_odonata
@@ -164,7 +161,7 @@ namespace :tw do
         email = 'arboridia@gmail.com'
         project_name = 'Odonata'
         user_name = 'Odonata Import'
-        $user_id, $project_id = nil, nil
+        Current.user_id, Current.project_id = nil, nil
         project1 = Project.where(name: project_name).first
         project_name = project_name + ' ' + Time.now.to_s  unless project1.nil?
 
@@ -172,8 +169,8 @@ namespace :tw do
           print "from database.\n"
           project = Project.where(name: project_name).first
           user = User.where(email: email).first
-          $project_id = project.id
-          $user_id = user.id
+          Current.project_id = project.id
+          Current.user_id = user.id
         else
           print "as newly parsed.\n"
 
@@ -184,7 +181,7 @@ namespace :tw do
           else
             user = user.first
           end
-          $user_id = user.id
+          Current.user_id = user.id
 
           project = nil
 
@@ -192,13 +189,14 @@ namespace :tw do
             project = Project.create(name: project_name)
           end
 
-          $project_id = project.id
+          Current.project_Id = project.id
+          
           pm = ProjectMember.create(user: user, project: project, is_project_administrator: true)
 
           @import.metadata['project_and_users'] = true
         end
 
-        @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id)
+        @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: Current.project_id)
         #@data.keywords['odonata_imported'] = Keyword.find_or_create_by(name: 'odonata_imported', definition: 'Imported from odonata database.')
       end
 
@@ -206,12 +204,12 @@ namespace :tw do
         print "\nHandling CV \n"
 
         @data.keywords.merge!(
-            'questionable' => Keyword.find_or_create_by(name: 'OriginalMonotypy genus is questionable', definition: 'OriginalMonotypy genus is questionable', project_id: $project_id),
-            'ref_id' => Namespace.find_or_create_by(institution: 'Odonata', name: 'Odonata_ref_ID', short_name: 'ref_ID'),
-            'accession_number' => Namespace.find_or_create_by(institution: 'Odonata', name: 'Odonata_accession_number', short_name: 'accession_number'),
-            'Key' => Namespace.find_or_create_by(institution: 'Odonota', name: 'Odonata_taxon_ID', short_name: 'taxon_ID'),
-            'Synonym' => Namespace.find_or_create_by(institution: 'Odonota', name: 'Odonata_synonym_ID', short_name: 'synonym_ID'),
-            'CN' => Namespace.find_or_create_by(institution: 'Odonota', name: 'Odonata_common_name_ID', short_name: 'common_name_ID'),
+          'questionable' => Keyword.find_or_create_by(name: 'OriginalMonotypy genus is questionable', definition: 'Original genus is questionable', project_id: Current.project_id),
+          'ref_id' => Namespace.find_or_create_by(institution: 'Odonata', name: 'Odonata_ref_ID', short_name: 'ref_ID'),
+          'accession_number' => Namespace.find_or_create_by(institution: 'Odonata', name: 'Odonata_accession_number', short_name: 'accession_number'),
+          'Key' => Namespace.find_or_create_by(institution: 'Odonota', name: 'Odonata_taxon_ID', short_name: 'taxon_ID'),
+          'Synonym' => Namespace.find_or_create_by(institution: 'Odonota', name: 'Odonata_synonym_ID', short_name: 'synonym_ID'),
+          'CN' => Namespace.find_or_create_by(institution: 'Odonota', name: 'Odonata_common_name_ID', short_name: 'common_name_ID'),
         )
       end
 
@@ -526,9 +524,7 @@ namespace :tw do
         print "\nHandling distribution\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true)
-        conf = ConfidenceLevel.find_or_create_by(name: 'Questionable', definition: 'Asserted Distribution is Questionable', project_id: $project_id).id,
-
-
+        conf = ConfidenceLevel.find_or_create_by(name: 'Questionable', definition: 'Asserted Distribution is Questionable', project_id: Current.project_id).id,
             source = Source::Verbatim.find_or_create_by!(verbatim: 'Odonata database')
         i = 0
         file.each do |row|
@@ -542,8 +538,8 @@ namespace :tw do
             ad = AssertedDistribution.find_or_create_by(
                 otu: otu,
                 geographic_area: ga,
-                project_id: $project_id )
-            c = ad.citations.new(source_id: source.id, project_id: $project_id)
+                project_id: Current.project_id)
+            c = ad.citations.new(source_id: source.id, project_id: Current.project_id)
             ad.save
             byebug if ad.id.nil?
             ad.confidences.create(confidence_level_id: conf) if row['Questionable'] = '?'
@@ -601,11 +597,11 @@ namespace :tw do
       end
 
       def find_taxon_id_odonata(key)
-        @data.taxon_index[key.to_s] || Identifier.where(cached: 'taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
+        @data.taxon_index[key.to_s] || Identifier.where(cached: 'taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: Current.project_id).limit(1).pluck(:identifier_object_id).first
       end
 
       def find_taxon_odonata(key)
-        Identifier.find_by(cached: 'taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).try(:identifier_object)
+        Identifier.find_by(cached: 'taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: Current.project_id).try(:identifier_object)
       end
 
       def find_original_genus_odonata(genus)
@@ -614,9 +610,9 @@ namespace :tw do
           return g unless g.nil?
         end
 
-        g = Protonym.find_by(name: genus, rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus', project_id: $project_id)
+        g = Protonym.find_by(name: genus, rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus', project_id: Current.project_id)
         if g.nil?
-          o = Protonym.find_by(name: 'Odonata', rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Order', project_id: $project_id)
+          o = Protonym.find_by(name: 'Odonata', rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Order', project_id: Current.project_id)
           g = Protonym.create!(name: genus.gsub('?', ''), parent: o, rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus')
           g.tags.create(keyword: @data.keywords['questionable']) if genus.include?('?')
         end
@@ -624,11 +620,10 @@ namespace :tw do
         return nil
       end
 
-
       def find_otu_odonata(key)
         otu = nil
 
-        r = Identifier.find_by(cached: 'taxon_ID ' + key.to_s, project_id: $project_id)
+        r = Identifier.find_by(cached: 'taxon_ID ' + key.to_s, project_id: Current.project_id)
         return nil if r.nil?
         if r.identifier_object_type == 'TaxonName'
           r.identifier_object.otus.first
@@ -653,7 +648,7 @@ namespace :tw do
         fixed = 0
         print "\nApply soft validation fixes to taxa 1st pass \n"
         i = 0
-        TaxonName.where(project_id: $project_id).find_each do |t|
+        TaxonName.where(project_id: Current.project_id).find_each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
@@ -665,7 +660,7 @@ namespace :tw do
         end
         print "\nApply soft validation fixes to relationships \n"
         i = 0
-        TaxonNameRelationship.where(project_id: $project_id).find_each do |t|
+        TaxonNameRelationship.where(project_id: Current.project_id).find_each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
@@ -676,7 +671,7 @@ namespace :tw do
         end
         print "\nApply soft validation fixes to taxa 2nd pass \n"
         i = 0
-        TaxonName.where(project_id: $project_id).find_each do |t|
+        TaxonName.where(project_id: Current.project_id).find_each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate

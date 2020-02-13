@@ -19,6 +19,10 @@ import setTaxonDeterminations from './setTaxonDeterminations'
 import setSource from './setSource'
 import setDepictionCaption from './setDepictionCaption'
 import addCitation from './addCitation'
+import addTag from './addTag'
+import setTags from './setTags'
+import addDataAttribute from './addDataAttribute'
+import setDataAttributes from './setDataAttributes'
 
 const MutationNames = {
   AddAttribution: 'addAttribution',
@@ -41,7 +45,11 @@ const MutationNames = {
   SetCollectionObject: 'setCollectionObject',
   SetTaxonDeterminations: 'setTaxonDeterminations',
   SetSource: 'setSource',
-  SetDepictionCaption: 'setDepictionCaption'
+  SetDepictionCaption: 'setDepictionCaption',
+  SetTags: 'setTags',
+  AddTag: 'addTag',
+  SetDataAttributes: 'setDataAttributes',
+  AddDataAttribute: 'addDataAtributte',
 }
 
 const MutationFunctions = {
@@ -65,7 +73,11 @@ const MutationFunctions = {
   [MutationNames.SetCollectionObject]: setCollectionObject,
   [MutationNames.SetTaxonDeterminations]: setTaxonDeterminations,
   [MutationNames.SetSource]: setSource,
-  [MutationNames.SetDepictionCaption]: setDepictionCaption
+  [MutationNames.SetDepictionCaption]: setDepictionCaption,
+  [MutationNames.SetTags]: setTags,
+  [MutationNames.AddTag]: addTag,
+  [MutationNames.SetDataAttributes]: setDataAttributes,
+  [MutationNames.AddDataAttribute]: addDataAttribute
 }
 
 export {

@@ -41,7 +41,7 @@ describe 'Authentication', type: :feature do
       sign_in_user
     end
 
-    it 'should log user out' do
+    it 'should log user out', js: true do
       click_link 'Sign out'
       expect(subject).to have_button('Sign in')
       expect(subject).not_to have_link('Sign out', href: signout_path)

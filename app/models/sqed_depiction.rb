@@ -38,18 +38,29 @@ class SqedDepiction < ApplicationRecord
   include Shared::Tags
   include Shared::Notes
 
+  attr_accessor :rebuild
+
   belongs_to :depiction
   has_one :image, through: :depiction
 
   has_one :collection_object, through: :depiction, source_type: 'CollectionObject', source: :depiction_object 
 
-  validates_presence_of  :depiction
-  validates_presence_of  :metadata_map, :boundary_color
+  validates_presence_of  :depiction_id, :metadata_map, :boundary_color
   validates_inclusion_of :layout, in: SqedConfig::LAYOUTS.keys.map(&:to_s)
   validates_inclusion_of :boundary_finder, in: %w{Sqed::BoundaryFinder::ColorLineFinder Sqed::BoundaryFinder::Cross}
   validates_inclusion_of :has_border, in: [true, false]
 
   accepts_nested_attributes_for :depiction
+
+  after_save :recalculate, if: -> { rebuild }
+
+  def rebuild=(value)
+    @rebuild = value
+  end
+
+  def recalculate
+    preprocess(true)
+  end
 
   def extraction_metadata
     {
@@ -93,10 +104,6 @@ class SqedDepiction < ApplicationRecord
   def self.last_without_data(project_id)
     object = SqedDepiction.without_collection_object_data.with_project_id(project_id).order(:id).first
     object.nil? ? SqedDepiction.where(project_id: project_id).order(id: :asc).first : object
-  end
-
-  def self.last_with_data(project_id)
-
   end
 
   # @return [CollectionObject, nil]

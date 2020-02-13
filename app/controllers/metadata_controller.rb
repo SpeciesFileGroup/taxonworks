@@ -1,6 +1,8 @@
 class MetadataController < ApplicationController
   before_action :require_sign_in_and_project_selection
 
+  after_action -> {set_object_navigation_headers(:object)}, only: [:object_navigation], if: :json_request?
+
   def index
     @klass = params[:klass]
     render '/shared/data/metadata/index'
@@ -13,6 +15,11 @@ class MetadataController < ApplicationController
     render '/workbench/navigation/object_radial'
   end
 
+  def object_navigation
+    @object = GlobalID::Locator.locate(params.require(:global_id))
+    render json: {status: 200} 
+  end
+
   protected
 
   def get_klass
@@ -23,10 +30,8 @@ class MetadataController < ApplicationController
       @object = nil
     else
       @object = GlobalID::Locator.locate(params.require(:global_id))
-      @klass = @object.class.base_class.name
+      @klass = OBJECT_RADIALS[@object.class.name] ? @object.class.name : @object.class.base_class.name
     end
   end
-
-
 
 end

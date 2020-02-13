@@ -3,7 +3,7 @@
 class Georeference::GeoLocate < Georeference
   attr_accessor :api_response, :iframe_response
 
-  API_HOST       = 'www.museum.tulane.edu'.freeze
+  API_HOST       = 'www.geo-locate.org'.freeze
   API_PATH       = '/webservices/geolocatesvcv2/glcwrap.aspx?'.freeze
   EMBED_PATH     = '/web/webgeoreflight.aspx?'.freeze
   EMBED_HOST     = 'www.geo-locate.org'.freeze
@@ -72,7 +72,7 @@ class Georeference::GeoLocate < Georeference
       test_grs = []
     else
       test_grs = GeographicItem::Point
-                   .where("point = ST_GeographyFromText('POINT(? ? ?)::geography')", x.to_f, y.to_f, z.to_f)
+                   .where("point = ST_GeographyFromText('POINT(? ? ?)')", x.to_f, y.to_f, z.to_f)
                    # .where(['ST_Z(point::geometry) = ?', z.to_f])
     end
     if test_grs.empty? # put a new one in the array
@@ -123,8 +123,9 @@ class Georeference::GeoLocate < Georeference
   # @return [Array]
   # parsing the four possible bits of a response into an array
   def self.parse_iframe_result(response_string)
-    lat, long, error_radius, uncertainty_polygon = response_string.split('|')
-    uncertainty_points                           = nil
+    s = unify_response_string(response_string)
+    lat, long, error_radius, uncertainty_polygon = s.split('|')
+    uncertainty_points = nil
     unless uncertainty_polygon.nil?
       if uncertainty_polygon =~ /unavailable/i # todo: there are many more possible error conditions
         uncertainty_points = nil
@@ -133,6 +134,13 @@ class Georeference::GeoLocate < Georeference
       end
     end
     [lat, long, error_radius, uncertainty_points]
+  end
+
+  # TODO: move ti iframe getter/setter
+  def self.unify_response_string(response_string)
+    response_string.gsub!(/[\t]/, '|')
+    response_string.gsub!(/\s+/, '|')
+    response_string
   end
 
   # Build a georeference starting with a set of request parameters.
@@ -199,7 +207,7 @@ class Georeference::GeoLocate < Georeference
       @succeeded = nil
     end
 
-    # "http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=United States of
+    # "http://www.geo-locate.org/web/webgeoreflight.aspx?country=United States of
     # America&state=Illinois&locality=Champaign&points=40.091622
     # |-88.241179|Champaign|low|7000&georef=run|false|false|true|true|false|false|false|0&gc=Tester"
     # @return [String] a string to invoke as an api call to hunt for a particular place.

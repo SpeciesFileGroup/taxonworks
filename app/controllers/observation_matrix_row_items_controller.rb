@@ -98,17 +98,18 @@ class ObservationMatrixRowItemsController < ApplicationController
 
   def filter_params
     params.permit(
-      :observation_matrix_id, :otu_id, :controlled_vocabulary_term_id, :collection_object_id, :type)
+      :observation_matrix_id, :otu_id, :controlled_vocabulary_term_id, :collection_object_id, :type, :taxon_name_id)
   end
 
   def set_observation_matrix_row_item
-    @observation_matrix_row_item = ObservationMatrixRowItem.find(params[:id])
+    @observation_matrix_row_item = ObservationMatrixRowItem.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def observation_matrix_row_item_params
     params.require(:observation_matrix_row_item).permit(
       :observation_matrix_id, :type,
       :collection_object_id, :otu_id,
+      :taxon_name_id,
       :controlled_vocabulary_term_id, :type, :position)
   end
 end

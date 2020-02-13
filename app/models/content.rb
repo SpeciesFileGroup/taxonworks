@@ -36,12 +36,10 @@ class Content < ApplicationRecord
   belongs_to :otu, inverse_of: :contents
   belongs_to :topic, inverse_of: :contents
   has_one :public_content
+  belongs_to :language
 
-  validates_uniqueness_of :topic, scope: [:otu]
-
-  validates_presence_of :text
-  validates :topic, presence: true
-  validates :otu, presence: true
+  validates_uniqueness_of :topic_id, scope: [:otu_id]
+  validates_presence_of :text, :topic_id, :otu_id
 
   # scope :for_otu_page_layout, -> (otu_page_layout_id) {
   #   where('otu_page_layout_id = ?', otu_page_layout.od)

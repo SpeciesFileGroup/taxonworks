@@ -1,7 +1,7 @@
 class SourcesController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
-  before_action :set_source, only: [:show, :edit, :update, :destroy]
+  before_action :set_source, only: [:show, :edit, :update, :destroy, :clone]
 
   # GET /sources
   # GET /sources.json
@@ -26,13 +26,23 @@ class SourcesController < ApplicationController
   def show
   end
 
-  # GET /sources/new
-  def new
-    @source = Source.new
+  # POST /sources/1/clone.json
+  def clone
+    @source = @source.clone
+    respond_to do |format|
+      format.html { redirect_to edit_source_path(@source), notice: 'Clone successful, on new record.' }
+      format.json { render :show }
+    end
   end
 
   # GET /sources/1/edit
   def edit
+    redirect_to new_source_task_path(source_id: @source.id), notice: 'Editing in new interface.'
+  end
+
+  # GET /sources/new
+  def new
+    redirect_to new_source_task_path, notice: "Redirected to new interface."
   end
 
   # POST /sources
@@ -57,10 +67,18 @@ class SourcesController < ApplicationController
   end
 
   def parse
-    if @source = new_source
+    error_message = 'Unknown'
+
+    begin
+      @source = new_source
+    rescue BibTeX::ParseError => e
+      error_message = e.message
+    end
+
+    if @source
       render '/sources/show'
     else
-      render json: {status: :failed}
+      render json: { status: :failed, error: error_message }
     end
   end
 
@@ -69,8 +87,9 @@ class SourcesController < ApplicationController
   def update
     respond_to do |format|
       if @source.update(source_params)
+        @source.reload
         format.html { redirect_to url_for(@source.metamorphosize), notice: 'Source was successfully updated.' }
-        format.json { head :no_content }
+        format.json { render :show, status: :ok, location: @source.metamorphosize }
       else
         format.html { render action: 'edit' }
         format.json { render json: @source.errors, status: :unprocessable_entity }
@@ -157,7 +176,7 @@ class SourcesController < ApplicationController
 
   # GET /sources/download
   def download
-    send_data Download.generate_csv(Source.all), type: 'text', filename: "sources_#{DateTime.now}.csv"
+    send_data Export::Download.generate_csv(Source.all), type: 'text', filename: "sources_#{DateTime.now}.csv"
   end
 
   private
@@ -177,7 +196,6 @@ class SourcesController < ApplicationController
   def filter_params
     params.permit(:query_term, :project_id, :recent, author_ids: [])
   end
-
 
   def set_source
     @source = Source.find(params[:id])

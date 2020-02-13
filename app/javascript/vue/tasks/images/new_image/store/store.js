@@ -41,7 +41,9 @@ function makeInitialState () {
       caption: ''
     },
     source: undefined,
-    citations: []
+    citations: [],
+    tags: [],
+    data_attributes: []
   }
 }
 

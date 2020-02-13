@@ -10,7 +10,7 @@
 #
 ---
 Core: # a Section
-  Otu:  
+  Otu:
     status: :stable
     related_models:
       - TaxonName
@@ -153,6 +153,8 @@ Supporting:
     categories:
       - collection_object
       - collecting_event
+  Download:
+    status: prototype
   Extract:
     status: :prototype
     related_models:

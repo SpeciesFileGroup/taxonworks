@@ -77,17 +77,17 @@ class SequencesController < ApplicationController
   end
 
   def autocomplete
-    @sequences = Sequence.where(project_id: sessions_current_project_id).where('sequence ILIKE ?', "#{params[:term]}%")
-
+    t = "#{params[:term]}%"
+    @sequences = Sequence.where(project_id: sessions_current_project_id).where('sequence ILIKE ? OR name ILIKE ?', t, t)
     data = @sequences.collect do |t|
-      {id:              t.id,
-       label:           t.sequence,
-       gid:             t.to_global_id.to_s,
+      l = [t.name, t.sequence[0..10]].compact.join(': ')
+      {id: t.id,
+       label: l, 
+       gid: t.to_global_id.to_s,
        response_values: {
          params[:method] => t.id
        },
-       label_html:      t.sequence
-      }
+       label_html: l      }
     end
 
     render json: data
@@ -98,7 +98,7 @@ class SequencesController < ApplicationController
 
   def preview_genbank_batch_file_load 
     if params[:files] 
-      @result = BatchFileLoad::Import::Sequences::GenbankInterpreter.new(batch_params)
+      @result = BatchFileLoad::Import::Sequences::GenbankInterpreter.new(**batch_params)
       digest_cookie(params[:files][0].tempfile, :batch_file_load_genbank_sequences_md5)
       render 'sequences/batch_file_load/genbank/preview'
     else
@@ -109,7 +109,7 @@ class SequencesController < ApplicationController
 
   def create_genbank_batch_file_load
     if params[:files] && digested_cookie_exists?(params[:files][0].tempfile, :batch_file_load_genbank_sequences_md5)
-      @result = BatchFileLoad::Import::Sequences::GenbankInterpreter.new(batch_params)
+      @result = BatchFileLoad::Import::Sequences::GenbankInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully processed #{@result.total_files_processed} file(s), #{@result.total_records_created} sequences were created."
         render 'sequences/batch_file_load/genbank/create' and return
@@ -124,7 +124,7 @@ class SequencesController < ApplicationController
 
   def preview_genbank_batch_load 
     if params[:file] 
-      @result = BatchLoad::Import::Sequences::GenbankInterpreter.new(batch_params)
+      @result = BatchLoad::Import::Sequences::GenbankInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :Genbank_sequences_md5)
       render 'sequences/batch_load/genbank/preview'
     else
@@ -135,7 +135,7 @@ class SequencesController < ApplicationController
 
   def create_genbank_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Genbank_sequences_md5)
-      @result = BatchLoad::Import::Sequences::GenbankInterpreter.new(batch_params)
+      @result = BatchLoad::Import::Sequences::GenbankInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} sequences were created."
         render 'sequences/batch_load/genbank/create' and return
@@ -150,7 +150,7 @@ class SequencesController < ApplicationController
 
   def preview_primers_batch_load 
     if params[:file] 
-      @result = BatchLoad::Import::Sequences::PrimersInterpreter.new(batch_params)
+      @result = BatchLoad::Import::Sequences::PrimersInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :Primers_sequences_md5)
       render 'sequences/batch_load/primers/preview'
     else
@@ -161,7 +161,7 @@ class SequencesController < ApplicationController
 
   def create_primers_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Primers_sequences_md5)
-      @result = BatchLoad::Import::Sequences::PrimersInterpreter.new(batch_params)
+      @result = BatchLoad::Import::Sequences::PrimersInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} sequences were created."
         render 'sequences/batch_load/primers/create' and return
@@ -174,10 +174,14 @@ class SequencesController < ApplicationController
     render :batch_load
   end
 
+  def select_options
+    @sequences = Sequence.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target])
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_sequence
-      @sequence = Sequence.find(params[:id])
+      @sequence = Sequence.where(project_id: sessions_current_project_id).find(params[:id])
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

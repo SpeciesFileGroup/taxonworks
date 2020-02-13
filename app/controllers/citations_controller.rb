@@ -77,7 +77,7 @@ class CitationsController < ApplicationController
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation was successfully destroyed.')}
         format.json {head :no_content}
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation was not destroyed, ' + errors.messages)}
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation was not destroyed, ' + @citation.errors.full_messages.join('; '))}
         format.json {render json: @citation.errors, status: :unprocessable_entity}
       end
     end
@@ -113,7 +113,7 @@ class CitationsController < ApplicationController
 
   # GET /citations/download
   def download
-    send_data Download.generate_csv(Citation.where(project_id: sessions_current_project_id)), type: 'text', filename: "citations_#{DateTime.now}.csv"
+    send_data Export::Download.generate_csv(Citation.where(project_id: sessions_current_project_id)), type: 'text', filename: "citations_#{DateTime.now}.csv"
   end
 
   private

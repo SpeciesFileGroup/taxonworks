@@ -60,6 +60,7 @@
 # @!attribute month
 #   @return [String]
 #    see https://en.wikipedia.org/wiki/BibTeX#Field_types
+#      stored as a three letter value, see ::VALID_BIBTEX_MONTHS
 #
 # @!attribute note
 #   @return [String]
@@ -129,11 +130,12 @@
 #
 # @!attribute stated_year
 #   @return [String]
-#   @todo
+#    See source/bibtex.rb
+#    TODO: Why is this character but year is int?
 #
 # @!attribute day
 #   @return [Integer]
-#   @todo
+#     the calendar day (1-31)
 ##
 # @!attribute isbn
 #   @return [String]
@@ -203,23 +205,28 @@ class Source < ApplicationRecord
   ALTERNATE_VALUES_FOR = [:address, :annote, :booktitle, :edition, :editor, :institution, :journal, :note, :organization,
                           :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url].freeze
 
-  has_many :citations, inverse_of: :source, dependent: :restrict_with_error
-  
-  has_many :citation_topics, through: :citations, inverse_of: :source
+  # @return [Boolean]
+  #  When true, cached values are not built
+  attr_accessor :no_year_suffix_validation
 
-  has_many :topics, through: :citation_topics, inverse_of: :sources 
+  # Keep this order for citations/topics
+  has_many :citations, inverse_of: :source, dependent: :restrict_with_error
+  has_many :citation_topics, through: :citations, inverse_of: :source
+  has_many :topics, through: :citation_topics, inverse_of: :sources
+
+  # !! must be below has_many :citations
   has_many :asserted_distributions, through: :citations, source: :citation_object, source_type: 'AssertedDistribution'
+
   has_many :project_sources, dependent: :destroy
   has_many :projects, through: :project_sources
 
   after_save :set_cached
 
   validates_presence_of :type
-  validates :type, inclusion: {in: ['Source::Bibtex', 'Source::Human', 'Source::Verbatim']}
-  validate :validate_year_suffix
+  validates :type, inclusion: {in: ['Source::Bibtex', 'Source::Human', 'Source::Verbatim']} # TODO: not needed
+  validate :validate_year_suffix, unless: -> { self.no_year_suffix_validation || (self.type != 'Source::Bibtex') }
 
   accepts_nested_attributes_for :project_sources, reject_if: :reject_project_sources
-
 
   # Redirect type here
   # @param [String] file
@@ -231,7 +238,7 @@ class Source < ApplicationRecord
       sources = []
       bibliography.each do |record|
         a = Source::Bibtex.new_from_bibtex(record)
-        a.soft_validate() # why?
+#        a.soft_validate() # why?
         sources.push(a)
       end
       return sources, nil
@@ -257,7 +264,7 @@ class Source < ApplicationRecord
             if a.save
               valid += 1
             end
-            a.soft_validate()
+#            a.soft_validate()
           else
             # error_msg = a.errors.messages.to_s
           end
@@ -270,23 +277,6 @@ class Source < ApplicationRecord
     return {records: sources, count: valid}
   end
 
-  # @return [Array]
-  #    objects this source is linked to through citations
-  def cited_objects
-    self.citations.collect { |t| t.citation_object }
-  end
-
-  # @return [Boolean]
-  def is_bibtex?
-    type == 'Source::Bibtex'
-  end
-
-  # @return [Boolean]
-  def is_in_project?(project_id)
-    projects.where(id: project_id).any?
-  end
-
-
   # @param used_on [String] a model name 
   # @return [Scope]
   #    the max 10 most recently used (1 week, could parameterize) TaxonName, as used 
@@ -297,6 +287,7 @@ class Source < ApplicationRecord
     # i is a select manager
     i = t.project(t['source_id'], t['created_at']).from(t)
       .where(t['created_at'].gt(1.weeks.ago))
+      .where(t['citation_object_type'].eq(used_on))
       .order(t['created_at'])
       .take(10)
       .distinct
@@ -317,14 +308,60 @@ class Source < ApplicationRecord
       pinboard: Source.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a
     }
 
-    h[:recent] = Source.joins(:citations).where(citations: {project_id: project_id}).
-      used_recently(target).
-      limit(10).distinct.to_a
+    h[:recent] = (
+      Source.joins(:citations)
+      .where( citations: { project_id: project_id, updated_by_id: user_id } )
+      .used_recently(target)
+      .limit(5).distinct.to_a +
+    Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
+      .order('created_at DESC')
+      .limit(5).to_a
+    ).uniq
 
     h[:recent] ||= []
 
     h[:quick] = ( Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a + h[:recent][0..3]).uniq
     h
+  end
+
+  # @return [Array]
+  #    objects this source is linked to through citations
+  def cited_objects
+    self.citations.collect { |t| t.citation_object }
+  end
+
+  # @return [Boolean]
+  def is_bibtex?
+    type == 'Source::Bibtex'
+  end
+
+  # @return [Boolean]
+  def is_in_project?(project_id)
+    projects.where(id: project_id).any?
+  end
+
+  # @return [Source, false]
+  def clone
+    s = dup
+    m = "[CLONE of #{id}] "
+    begin
+      Source.transaction do |t|
+        roles.each do |r|
+          s.roles << Role.new(person: r.person, type: r.type, position: r.position )
+        end
+
+        case type
+        when 'Source::Verbatim'
+          s.verbatim = m + verbatim
+        when 'Source::Bibtex'
+          s.title = m + title
+        end
+
+        s.save!
+      end
+    rescue ActiveRecord::RecordInvalid
+    end
+    s
   end
 
   protected
@@ -342,13 +379,14 @@ class Source < ApplicationRecord
   end
 
   def validate_year_suffix
-    unless year_suffix.blank?
-      if self.id
-        s = Source.where(author: author, year: year, year_suffix: year_suffix).not_self(self).first
+      a = get_author 
+    unless year_suffix.blank? || year.blank? || a.blank?
+      if new_record?
+        s = Source.where(author: a, year: year, year_suffix: year_suffix).first
       else
-        s = Source.where(author: author, year: year, year_suffix: year_suffix).first
+        s = Source.where(author: a, year: year, year_suffix: year_suffix).not_self(self).first
       end
-      errors.add(:year_suffix, 'is already used') unless s.nil?
+      errors.add(:year_suffix, " '#{year_suffix}' is already used for #{a} #{year}") unless s.nil?
     end
   end
 

@@ -12,6 +12,19 @@ module Shared::Loanable
   end
 
   module ClassMethods
+
+    def loaned
+      joins(:loan_items)
+    end
+
+    def on_loan
+      joins(:loan_items).where(loan_items: { date_returned: nil })
+    end 
+
+    def never_loaned
+      includes(:loan_items).where(loan_items: {id: nil}) 
+    end
+  
   end
 
   def on_loan?
@@ -26,6 +39,7 @@ module Shared::Loanable
     loans.count 
   end
 
+  # Should just be check of loan_items 
   def has_been_loaned?
     times_loaned > 0
   end

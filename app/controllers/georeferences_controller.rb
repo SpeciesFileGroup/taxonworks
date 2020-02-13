@@ -90,8 +90,6 @@ class GeoreferencesController < ApplicationController
         format.html {
           redirect_to collecting_event_path(@georeference.collecting_event), notice: 'Georeference was successfully created.'
         }
-        #         redirect_to url_for(@georeference.metamorphosize),
-        #                     notice: "Georeference name '#{@georeference.name}' was successfully created." }
         format.json { render :show, status: :created, location: @georeference.metamorphosize }
       else
         format.html { render action: :new }
@@ -106,18 +104,17 @@ class GeoreferencesController < ApplicationController
 
   # PATCH/PUT /georeferences/1
   # PATCH/PUT /georeferences/1.json
-  #  def update
-  #    respond_to do |format|
-  #      if @georeference.update(georeference_params)
-  #
-  #        format.html { redirect_to @georeference.metamorphosize, notice: 'Georeference was successfully updated.' }
-  #        format.json { head :no_content }
-  #      else
-  #        format.html { render action: :edit} #  "/georeferences/#{@georeference.method_name}/edit"}
-  #        format.json { render json: @georeference.errors, status: :unprocessable_entity }
-  #      end
-  #    end
-  #  end
+  def update
+    respond_to do |format|
+      if @georeference.update(georeference_params)
+        format.html { redirect_to @georeference.metamorphosize, notice: 'Georeference was successfully updated.' }
+        format.json { render :show, status: :ok, location: @georeference.metamorphosize }
+      else
+        format.html { render action: :edit} #  "/georeferences/#{@georeference.method_name}/edit"}
+        format.json { render json: @georeference.errors, status: :unprocessable_entity }
+      end
+    end
+  end
 
   # DELETE /georeferences/1
   # DELETE /georeferences/1.json
@@ -131,9 +128,10 @@ class GeoreferencesController < ApplicationController
 
   # GET /georeferences/download
   def download
-    send_data(Download.generate_csv(Georeference.where(project_id: sessions_current_project_id)),
-              type:     'text',
-              filename: "georeferences_#{DateTime.now}.csv")
+    send_data(
+      Export::Download.generate_csv(Georeference.where(project_id: sessions_current_project_id)),
+      type: 'text',
+      filename: "georeferences_#{DateTime.now}.csv")
   end
 
   private

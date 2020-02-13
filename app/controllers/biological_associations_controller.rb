@@ -16,7 +16,7 @@ class BiologicalAssociationsController < ApplicationController
           .new(filter_params)
           .all
           .where(project_id: sessions_current_project_id)
-          .page(params[:page] || 1).per(500)
+          .page(params[:page] || 1).per(params[:per] || 500)
       }
     end
   end
@@ -94,7 +94,7 @@ class BiologicalAssociationsController < ApplicationController
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_biological_association
-    @biological_association = BiologicalAssociation.find(params[:id])
+    @biological_association = BiologicalAssociation.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.
@@ -104,7 +104,8 @@ class BiologicalAssociationsController < ApplicationController
       :biological_association_object_id, :biological_association_object_type,
       :subject_global_id,
       :object_global_id,
-      origin_citation_attributes: [:id, :_destroy, :source_id, :pages]
+      origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
+      citations_attributes: [:id, :is_original, :_destroy, :source_id, :pages, :citation_object_id, :citation_object_type],
     )
   end
 end

@@ -1,31 +1,23 @@
 <%= content_for :add do -%>
-    <ul class="no_bullets">
-      <%= content_tag(:li, link_to('Add Google map georeference', new_georeferences_google_map_path(georeference: {collecting_event_id: @collecting_event.to_param}), 'data-turbolinks' => false)) %>
-    </ul>
+  <ul class="no_bullets">
+    <%= content_tag(:li, link_to('Clone', clone_collecting_event_path(id: @collecting_event.id), method: :post, data: { confirm: 'Clone this record?' } )) %>
+    <%= content_tag(:li, link_to('Add Google map georeference', new_georeferences_google_map_path(georeference: {collecting_event_id: @collecting_event.to_param}), 'data-turbolinks' => false)) %>
+  </ul>
 <% end %>
-
-<%= content_for :report do -%>
-    <% if @collecting_event.georeferences.any? %>
-        <ul class="no_bullets">
-          <%= content_tag(:li, link_to('Nearby', nearby_locality_task_path(@collecting_event.to_param, nearby_distance: 5000))) %>
-        </ul>
-    <% end %>
-<% end %>
-
 
 <%= content_for :associated do %>
-    <% if @collecting_event.georeferences.any? %>
-        <h3>Georeferences</h3>
-        <%= simple_map(@collecting_event.georeferences) -%>
-    <% end %>
-    <% if @collecting_event.collectors.any? %>
-        <h3>Collectors</h3>
-        <ul>
-          <% @collecting_event.collectors.each do |collector| %>
-              <%= content_tag(:li, object_link(collector)) %>
-          <% end %>
-        </ul>
-    <% end %>
+  <% if @collecting_event.georeferences.any? %>
+    <h3>Georeferences</h3>
+    <%= simple_map(@collecting_event.georeferences) -%>
+  <% end %>
+  <% if @collecting_event.collectors.any? %>
+    <h3>Collectors</h3>
+    <ul>
+      <% @collecting_event.collectors.each do |collector| %>
+        <%= content_tag(:li, object_link(collector)) %>
+      <% end %>
+    </ul>
+  <% end %>
 <% end %>
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @collecting_event}) -%>

@@ -35,10 +35,9 @@ module TokenAuthentication
     @sessions_current_project = Project.find_by_api_access_token(t) if t
 
     if @sessions_current_project
-      # check for agreement between provided values 
+      # check for agreement between provided values
       return false if params[:project_id] && @sessions_current_project.id != params[:project_id]&.to_i
       return false if request.headers['project_id'] && @sessions_current_project.id != request.headers['project_id']&.to_i
-
       @sessions_current_project
     else
       false
@@ -47,6 +46,13 @@ module TokenAuthentication
 
   def intercept_project
     if not project_token_authenticate
+      render(json: {success: false}, status: :unauthorized) && return
+    end
+    true
+  end
+
+  def intercept_user_or_project
+    if not (project_token_authenticate or token_authenticate)
       render(json: {success: false}, status: :unauthorized) && return
     end
     true

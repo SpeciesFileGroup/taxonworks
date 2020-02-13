@@ -3,7 +3,6 @@
 #
 # Thanks to https://neanderslob.com/2015/11/03/polymorphic-associations-the-smart-way-using-global-ids/ for global_entity.
 #
-#
 # @!attribute loan_id
 #   @return [Integer]
 #   Id of the loan

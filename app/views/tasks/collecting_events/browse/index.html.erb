@@ -1,0 +1,140 @@
+<h1 class="task_header"> Browse collecting events</h1>
+
+<div id="browse-view" data-collection-object-id="<%= @collecting_event.id %>">
+  <div id="browse-collection-object" class="panel content">
+    <div class="flex-separate middle">
+
+      <div class="middle">
+        <div class="separate-right">
+          <%= form_tag(browse_collecting_events_task_path, method: :get) do %>
+            <%= render  'workbench/elements/forms/ajax_select',
+              controller: '/collecting_events',
+              object: '',
+              method: 'collecting_event_id',
+              send_select: true,
+              tag_id: 'collecting_event_id_for_browse_collecting_event'
+            %>
+        <% end %>
+        </div>
+
+        <div class="separate-left separate-right">
+          <%# render('/taxon_names/breadcrumb_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
+        </div>
+      </div>
+
+      <span class="right_float flex-separate">
+        <ul class="context-menu">
+          <li><%= radial_annotator(@collecting_event) %></li>
+          <li><%= confidence_default_icon(@collecting_event) %></li>
+          <li><%= tag_default_icon(@collecting_event) %></li>
+          <li><%= pin_item_to_pinboard_link(@collecting_event, sessions_current_user) %></li>
+          <li><%= radial_object_tag(@collecting_event) %></li>
+        </ul>
+      </span>
+    </div>
+  </div>
+
+  <div id="show" class="panels-container">
+    <div class="item item1">
+      <div class="panel separate-right">
+
+        <div class="title nav-line">
+          Navigate
+        </div>
+
+        <div class="navigation-controls">
+          <%= link_to('Edit', edit_collecting_event_path(  @collecting_event ), class: 'navigation-item') -%>
+        </div>
+
+        <div class="navigation-controls">
+          <%= link_to('Previous', browse_collecting_events_task_path( collecting_event_id: @collecting_event.previous ),class: 'navigation-item') -%>
+          <%= link_to('Next', browse_collecting_events_task_path( collecting_event_id: @collecting_event.next ), class: 'navigation-item') -%>
+        </div>
+
+        <div class="navigation-controls">
+          <%=  collecting_event_browse_previous_by_identifier(@collecting_event) -%>
+          <%=  collecting_event_browse_next_by_identifier(@collecting_event) -%>
+        </div>
+      </div>
+    </div>
+
+    <div class="item item2 separate-bottom">
+      <div class="flexbox separate-bottom">
+        <div class="panel separate-left separate-right">
+          <div id="browse-nomenclature-taxon-name" class="content subtitle filter middle">
+            <%= content_tag(:p, collecting_event_tag(@collecting_event), class: 'item center_text name', style: 'line-height: 23px;') -%>
+          </div>
+
+          <!--
+            <div class="horizontal-center-content filter">
+            <div id="filterBrowse_button" class="circle-button open"></div>
+            </div>
+
+            <%# render 'filter' %>
+          -->
+
+          <div class="content">
+            <div class="collecting_event_history">
+              <i> Ultimately a timeline of events related to this collecting event.</i>
+              <%#= collecting_event_history_table(@data) -%>
+            </div>
+          </div>
+
+          <div class="flexbox separate-bottom">
+            <div class="content">
+              <%= collecting_event_autocomplete_tag(@collecting_event).html_safe %>
+              <br>
+
+              <%= @collecting_event.similar.count -%>
+
+            </div>
+<div class="content">
+              <%= simple_map(@collecting_event.georeferences) -%>
+            </div>
+          </div>
+        </div>
+
+        <div id="third-column">
+          <div class="flex-wrap-row">
+            <div class="panel separate-left">
+
+              <div class="content">
+                <h2> Summary </h2>
+                <ul class="no_bullets">
+                  <%= content_tag(:li, 'Total collection objects: ' + @collecting_event.collection_objects.count.to_s) -%>
+                </ul>
+
+                <h2> OTUs </h2>
+                <ul class="no_bullet">
+                  <%= @collecting_event.otus.alphabetically.distinct.collect{ |o| content_tag(:li, link_to(otu_tag(o), browse_otus_task_path(otu_id: o.id))) }.join.html_safe -%>
+                </ul>
+              </div>
+
+              <div class="content">
+                <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: @collecting_event}) -%>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <% if @collecting_event.depictions.any? %>
+        <div>
+          <div id="depiction-panel" class="panel content separate-left">
+            <h2> Depictions </h2>
+            <div class="horizontal-left-content flexbox">
+              <%= thumb_list_tag(@collecting_event) -%>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <div>
+        <%= dwc_table(@collecting_event.collection_objects.limit(500)) -%>
+      </div>
+
+    </div>
+
+  </div>
+</div>

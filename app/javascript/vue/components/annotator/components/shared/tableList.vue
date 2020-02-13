@@ -1,5 +1,5 @@
 <template>
-  <div class="vue-table-container">
+  <div class="vue-table-container-shared">
     <table class="vue-table">
       <thead>
         <tr>
@@ -116,8 +116,7 @@
   }
 </script>
 <style lang="scss" scoped>
-  .vue-table-container {
-    overflow-y: scroll;
+  .vue-table-container-shared {
     padding: 0px;
     position: relative;
   }

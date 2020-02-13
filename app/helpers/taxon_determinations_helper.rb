@@ -30,13 +30,13 @@ module TaxonDeterminationsHelper
   #   the "by" clause of the determination
   def taxon_determination_by(taxon_determination)
     names = taxon_determination.determiners.collect{|d| d.last_name }.to_sentence
-    names.blank? ? nil : "by #{names}}"
+    names.blank? ? nil : "by #{names}"
   end
 
   # @return [String]
   #   the date clause of the determination
   def taxon_determination_on(taxon_determination)
-    taxon_determination.date ? "on #{taxon_determination.date}" : nil
+    !taxon_determination.date.blank? ? "on #{taxon_determination.date}" : nil
   end
 
 end

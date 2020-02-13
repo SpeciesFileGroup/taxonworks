@@ -10,14 +10,15 @@ export default function ({ commit, dispatch, state }) {
         commit(MutationNames.SetCollectionObject, coCreated)
         commit(MutationNames.AddCollectionObject, coCreated)
         let promises = []
-        promises.push(dispatch(ActionNames.SaveDeterminations))
         promises.push(dispatch(ActionNames.SaveTypeMaterial))
         promises.push(dispatch(ActionNames.SaveIdentifier))
+        promises.push(dispatch(ActionNames.SaveDeterminations))
         Promise.all(promises).then(() => {
           state.settings.saving = false
-          TW.workbench.alert.create('All records was successfully saved.', 'notice')
+          state.settings.lastSave = Date.now()
+          TW.workbench.alert.create('All records were successfully saved.', 'notice')
           resolve(true)
-        }, ()=> {
+        }, () => {
           TW.workbench.alert.create('There was an error trying to save.', 'alert')
           state.settings.saving = false
         })

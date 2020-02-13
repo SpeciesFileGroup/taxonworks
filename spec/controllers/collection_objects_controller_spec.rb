@@ -248,6 +248,7 @@ describe ::CollectionObjectsController, type: :controller do
     end
 
     it 'redirects to the collection_objects list' do
+      request.env['HTTP_REFERER'] = collection_objects_url
       collection_object = CollectionObject.create! valid_attributes
       delete :destroy, params: {id: collection_object.to_param}, session: valid_session
       expect(response).to redirect_to(collection_objects_url)

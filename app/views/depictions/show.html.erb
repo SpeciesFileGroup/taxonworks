@@ -20,8 +20,10 @@
     <p><strong>Result boundary coordinates:</strong>
       <%= @depiction.sqed_depiction.result_boundary_coordinates %>
     </p>
+
+    <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: @depiction.sqed_depiction} -%>
+    
   <% end %>
 <% end %>
+
 <%= render(partial: 'shared/data/project/show', locals: {object: @depiction}) -%>
-
-

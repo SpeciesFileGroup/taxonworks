@@ -15,24 +15,33 @@
       v-if="searching" 
     />
     <div class="content">
-      <taxon-name-component
-        v-model="params.taxon"
-        @onSearch="searchForTaxonNames" 
-      />
+      <button 
+        class="button button-default normal-input full_width"
+        type="button"
+        v-shortkey="[getMacKey, 'f']"
+        @shortkey="searchForTaxonNames()"
+        @click="searchForTaxonNames">
+        Search
+      </button>
+      <taxon-name-component v-model="params.taxon"/>
       <precision-component v-model="params.base.exact" />
-      <scope-component v-model="params.base.parent_id"/>
+      <scope-component v-model="params.base.taxon_name_id"/>
       <related-component
         v-model="params.base.descendants"
-        :taxon-name="params.base.parent_id"/>
+        :taxon-name="params.base.taxon_name_id"/>
 
       <rank-component v-model="params.base.nomenclature_group"/>
       <code-component v-model="params.base.nomenclature_code"/>
       <validity-component v-model="params.base.validity" />
+      <taxon-name-type-component v-model="params.base.taxon_name_type"/>
       <relationships-component v-model="params.base.taxon_name_relationship"/>
       <status-component v-model="params.base.taxon_name_classification"/>
+      <in-relationship-component v-model="params.base.taxon_name_relationship_type"/>
       <updated-component v-model="params.base.updated_since"/>
+      <children-component v-model="params.base.leaves"/>
       <metadata-component v-model="params.base.type_metadata" />
       <citations-component v-model="params.base.citations"/>
+      <authors-component v-model="params.base.authors"/>
       <otus-component v-model="params.base.otus"/>
     </div>
   </div>
@@ -47,15 +56,20 @@ import ValidityComponent from './filters/validity'
 import RelatedComponent from './filters/related'
 import CitationsComponent from './filters/citations'
 import OtusComponent from './filters/otus'
+import AuthorsComponent from './filters/authors'
 import MetadataComponent from './filters/type_metadata'
 import RelationshipsComponent from './filters/relationships'
 import ScopeComponent from './filters/scope'
 import StatusComponent from './filters/status'
 import RankComponent from './filters/nomenclature_group'
 import CodeComponent from './filters/nomenclature_code'
+import ChildrenComponent from './filters/children'
+import InRelationshipComponent from './filters/in_relationship'
+import TaxonNameTypeComponent from './filters/taxon_name_type'
 
 import { GetTaxonNames } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
+import GetMacKey from 'helpers/getMacKey.js'
 
 export default {
   components: {
@@ -72,7 +86,16 @@ export default {
     RelationshipsComponent,
     SpinnerComponent,
     ScopeComponent,
-    StatusComponent
+    StatusComponent,
+    ChildrenComponent,
+    InRelationshipComponent,
+    AuthorsComponent,
+    TaxonNameTypeComponent
+  },
+  computed: {
+    getMacKey() {
+      return GetMacKey()
+    }
   },
   data() {
     return {
@@ -88,7 +111,7 @@ export default {
     },
     searchForTaxonNames() {
       this.searching = true
-      let params = Object.assign({}, this.params.taxon, this.params.related, this.params.base)
+      let params = Object.assign({}, this.filterEmptyParams(this.params.taxon), this.params.related, this.params.base)
       params.updated_since = params.updated_since ? this.setDays(params.updated_since) : undefined
 
       GetTaxonNames(params).then(response => {
@@ -106,22 +129,26 @@ export default {
     initParams() {
       return {
         taxon: {
-          name: '',
+          name: undefined,
           author: undefined,
           year: undefined
         },
         base: {
+          taxon_name_type: undefined,
           exact: undefined,
           updated_since: undefined,
           validity: undefined,
           type_metadata: undefined,
           citations: undefined,
           otus: undefined,
+          authors: undefined,
           descendants: undefined,
           nomenclature_group: undefined,
           nomenclature_code: undefined,
-          parent_id: [],
+          leaves: undefined,
+          taxon_name_id: [],
           taxon_name_relationship: [],
+          taxon_name_relationship_type: [],
           taxon_name_classification: []
         }
       }
@@ -130,6 +157,15 @@ export default {
       var date = new Date();
       date.setDate(date.getDate() - days);
       return date.toISOString().slice(0,10);
+    },
+    filterEmptyParams(object) {
+      let keys = Object.keys(object)
+      keys.forEach(key => {
+        if(object[key] === '') {
+          delete object[key]
+        }
+      })
+      return object
     }
   }
 }

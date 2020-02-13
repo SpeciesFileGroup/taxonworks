@@ -14,8 +14,16 @@
         <input class="normal-input" type="text" v-model="depiction.figure_label" placeholder="Label">
       </div>
       <textarea class="normal-input separate-bottom" type="text" v-model="depiction.caption" placeholder="Caption"/>
-
+      <label>
+        <input
+          type="checkbox"
+          v-model="depiction.is_metadata_depiction">
+          Is data depiction
+      </label>
       <div class="separate-top separate-bottom">
+        <p>
+          <h4>Move to</h4>
+        </p>
         <ul class="no_bullets">
           <li
             v-for="type in objectTypes"
@@ -59,19 +67,33 @@
 
       <div>
         <button type="button" class="normal-input button button-submit" @click="updateFigure()">Update</button>
-        <button type="button" class="normal-input button button-default" @click="depiction = undefined">New</button>
+        <button type="button" class="normal-input button button-default" @click="depiction = undefined">Back</button>
       </div>
     </div>
     <div v-else>
       <dropzone class="dropzone-card separate-bottom" @vdropzone-sending="sending" @vdropzone-success="success" ref="figure" id="figure" url="/depictions" :use-custom-dropzone-options="true" :dropzone-options="dropzone"/>
-      <display-list label="object_tag" :list="list" :edit="true" @edit="depiction = $event" @delete="removeItem" class="list"/>
+      <label>
+        <input
+          type="checkbox"
+          v-model="isDataDepiction">
+        Is data depiction
+      </label>
+      <table-list
+        :attributes="['object_tag','is_metadata_depiction']"
+        :header="['Image', 'Is data', '']"
+        :list="list"
+        :edit="true"
+        :destroy="true"
+        @edit="depiction = $event"
+        @delete="removeItem"
+        class="list"/>
     </div>
   </div>
 </template>
 <script>
 
 import CRUD from '../request/crud.js'
-import displayList from './displayList.vue'
+import TableList from '../../table_list'
 import dropzone from '../../dropzone.vue'
 import annotatorExtend from '../components/annotatorExtend.js'
 import Autocomplete from 'components/autocomplete'
@@ -81,7 +103,7 @@ export default {
   mixins: [CRUD, annotatorExtend],
   components: {
     dropzone,
-    displayList,
+    TableList,
     Autocomplete,
     OtuPicker
   },
@@ -117,8 +139,14 @@ export default {
           value: 'CollectionObject',
           label: 'Collection object',
           url: '/collection_objects/autocomplete'
+        },
+        {
+          value: 'TaxonName',
+          label: 'Taxon name',
+          url: '/taxon_names/autocomplete'
         }
       ],
+      isDataDepiction: false,
       selectedType: undefined,
       selectedObject: undefined
     }
@@ -130,6 +158,7 @@ export default {
     },
     'sending': function (file, xhr, formData) {
       formData.append('depiction[annotated_global_entity]', decodeURIComponent(this.globalId))
+      formData.append('depiction[is_metadata_depiction]', this.isDataDepiction)
     },
     updateFigure () {
       if(this.updateObjectType) {

@@ -552,7 +552,7 @@ namespace :tw do
                                     end
 
                         TypeMaterial.create!(protonym_id: get_tw_taxon_name_id[identification['type_taxon_name_id']], # tw_taxon_name_id
-                                             material: o, # = collection_object/biological_collection_object
+                                             collection_object: o, # = collection_object/biological_collection_object
                                              type_type: type_kind,
                                              project_id: project_id)
                         # puts "type_material created for '#{type_kind}'"

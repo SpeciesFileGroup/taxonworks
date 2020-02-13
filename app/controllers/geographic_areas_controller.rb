@@ -23,7 +23,7 @@ class GeographicAreasController < ApplicationController
 
   def display_coordinates
     @asserted_distribution = AssertedDistribution.new
-    @json_coors            = params.to_json
+    @json_coors = params.to_json
     render partial: '/asserted_distributions/quick_form'
   end
 
@@ -45,12 +45,22 @@ class GeographicAreasController < ApplicationController
 
   # GET /geographic_areas/download
   def download
-    send_data Download.generate_csv(GeographicArea.all, type: 'text', filename: "geographic_areas_#{DateTime.now}.csv")
+    send_data Export::Download.generate_csv(GeographicArea.all, type: 'text', filename: "geographic_areas_#{DateTime.now}.csv")
   end
 
   # GET /geographic_areas/select_options.json
   def select_options
     @geographic_areas = GeographicArea.select_optimized(sessions_current_user_id, sessions_current_project_id, params.permit(:target)[:target])
+  end
+
+  # !! Almost certain @mjy did similar somewhere else too !!
+  # GET /geographic_areas/by_lat_long.json?latitude=0.0&longitude=10.1
+  def by_lat_long
+    @geographic_areas = GeographicArea.find_smallest_by_lat_long(
+      params.require(:latitude).to_f,
+      params.require(:longitude).to_f
+    )
+    render action: :autocomplete
   end
 
   private

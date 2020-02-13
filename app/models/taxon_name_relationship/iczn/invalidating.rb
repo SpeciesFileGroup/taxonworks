@@ -78,4 +78,7 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
     false
   end
 
+  def sv_not_specific_relationship
+    soft_validations.add(:type, 'Please specify the reason for the name being Invalid') unless self.subject_taxon_name.classification_invalid_or_unavailable?
+  end
 end

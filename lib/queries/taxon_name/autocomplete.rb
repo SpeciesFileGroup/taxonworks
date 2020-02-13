@@ -4,7 +4,7 @@ module Queries
     class Autocomplete < Queries::Query
 
       # @return [Array, nil]
-      #   &nomenclature_group[]=<<Iczn|Icnb|Icn>::<Higher|Family|Genus|Species>>
+      #   &nomenclature_group[]=<<Iczn|Icnp|Icn>::<Higher|Family|Genus|Species>>
       attr_accessor :nomenclature_group
 
       # @return [Boolean, nil]
@@ -30,7 +30,7 @@ module Queries
 
       # @return [Boolean]
       #   &no_leaves=<"true"|"false">
-      #   if 'true' then no taxon names with parents will be found 
+      #   if 'true' then only names with descendents will be returned
       attr_accessor :no_leaves
 
       # @param [Hash] args
@@ -39,7 +39,7 @@ module Queries
         @valid = valid == 'true' ? true : (valid == 'false' ? false : nil)
         @type = type
         @parent_id = parent_id
-        @no_leaves = exact == 'true' ? true : (exact == 'false' ? false : nil)
+        @no_leaves = no_leaves == 'true' ? true : (no_leaves == 'false' ? false : nil)
         @exact = exact == 'true' ? true : (exact == 'false' ? false : nil)
         super
       end
@@ -157,6 +157,12 @@ module Queries
       end
 
       # @return [Scope]
+      def autocomplete_wildcard_cached_original_combination
+        a = table[:cached_original_combination].matches(wildcard_pieces)
+        base_query.where(a.to_sql).order('cached_author_year ASC').limit(20)
+      end
+
+      # @return [Scope]
       def autocomplete_exact_name_and_year
         a = alphabetic_strings
         b = years
@@ -248,12 +254,29 @@ module Queries
       def autocomplete_wildcard_joined_strings
         return nil if alphabetic_strings.empty?
         a = table[:cached].matches("%#{alphabetic_strings.join('%')}%")
-        base_query.where(a.to_sql).limit(1)
+        base_query.where(a.to_sql).limit(10)
       end
 
-      # rubocop:disable Metrics/MethodLength
-      # @return [Array]
-      def autocomplete
+      # @return [Arel::Nodes::Matches]
+      def autocomplete_taxon_name_author_year_matches
+        a = authorship
+        return nil if a.nil?
+        base_query.where(table[:cached_author_year].matches(a).to_sql).limit(10)
+      end
+
+      # Used in new taxon name, for example
+      def exact_autocomplete
+        [
+          autocomplete_exact_cached,
+          autocomplete_exact_cached_original_combination,
+          autocomplete_exact_name_and_year,
+          autocomplete_top_name,
+          autocomplete_top_cached,
+          autocomplete_cached_end_wildcard
+        ]
+      end
+
+      def comprehensive_autocomplete
         z = genus_species
 
         queries = [
@@ -272,28 +295,32 @@ module Queries
           autocomplete_cached_name_end_wildcard,
           autocomplete_cached_wildcard_whitespace,
           autocomplete_name_author_year_fragment,
+          autocomplete_taxon_name_author_year_matches,
           autocomplete_cached_author_year,
           autocomplete_wildcard_joined_strings,
-          autocomplete_wildcard_author_year_joined_pieces
+          autocomplete_wildcard_author_year_joined_pieces,
+          autocomplete_wildcard_cached_original_combination
         ]
+      end
+
+      # rubocop:disable Metrics/MethodLength
+      # @return [Array]
+      def autocomplete
+        queries = (exact ? exact_autocomplete : comprehensive_autocomplete)
         queries.compact!
 
-        updated_queries = []
+        result = []
+
         queries.each_with_index do |q,i|
           a = q
           a = q.where(project_id: project_id) if project_id
-          a = a.where(and_clauses.to_sql) if and_clauses
+          a = a.where(and_clauses.to_sql) if and_clauses # TODO: duplicates clauses like exact!!
           a = a.not_leaves if no_leaves
-          updated_queries[i] = a
-        end
-
-        result = []
-        updated_queries.each do |q|
-          result += q.to_a
-          result.uniq!
+          result += a.to_a
           break if result.count > 19
         end
-
+        
+        result.uniq!
         result[0..19]
       end
       # rubocop:enable Metrics/MethodLength
@@ -319,7 +346,7 @@ module Queries
       def base_query
         ::TaxonName.select('taxon_names.*, char_length(taxon_names.cached)').
           includes(:ancestor_hierarchies).
-          order(Arel.sql('char_length(taxon_names.cached), taxon_Names.cached ASC'))
+          order(Arel.sql('char_length(taxon_names.cached), taxon_names.cached ASC'))
       end
 
       # @return [Arel::Table]
@@ -335,6 +362,23 @@ module Queries
       # @return [Arel::Nodes::Matches]
       def with_cached_author_year
         table[:cached_author_year].matches_any(terms)
+      end
+
+      # @return [String]
+      def authorship
+        parser = ScientificNameParser.new
+        a = parser.parse(query_string)
+        b = a[:scientificName]
+        return nil if b.nil? or b[:details].nil?
+
+        b[:details].each do |detail|
+          detail.each_value do |v|
+            if v.kind_of?(Hash) && v[:authorship]
+              return v[:authorship]
+            end
+          end
+        end
+        nil
       end
 
       # Note this overwrites the commonly used Geo parent/child!

@@ -17,6 +17,10 @@ module Housekeeping::Timestamps
     scope :updated_in_date_range, ->(start, u_end) {
       where(updated_at: DateTime.parse(start.to_s)..DateTime.parse(u_end.to_s))
     }
+
+    scope :recently_created, -> (range = 1.weeks.ago..Time.now) { where(created_at: range) }
+    scope :recently_updated, -> (range = 1.weeks.ago..Time.now) { where(updated_at: range) }
+
   end
 
   module ClassMethods

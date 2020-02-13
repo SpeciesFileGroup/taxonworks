@@ -67,19 +67,29 @@ module Workbench::SessionsHelper
   end
 
   def sessions_current_project_id=(project_id)
-    session[:project_id] = project_id
+    if @api_request
+      @sessions_current_project = Project.find(project_id)
+    else
+      session[:project_id] = project_id
+    end
+    project_id
   end
 
   def sessions_current_project_id
-    session[:project_id]
+    if @api_request
+      return @sessions_current_project.id if @sessions_current_project
+    else
+      session[:project_id]
+    end
   end
 
   def sessions_current_project
     return nil unless sessions_current_project_id
-   if @sessions_current_project.nil? || @sessions_current_project.id != sessions_current_project_id
-     @sessions_current_project = Project.find(sessions_current_project_id)
-   end
-     @sessions_current_project
+
+    if @sessions_current_project.nil? || @sessions_current_project.id != sessions_current_project_id
+      @sessions_current_project = Project.find(sessions_current_project_id)
+    end
+      @sessions_current_project
   end
 
   def sessions_select_project(project)
@@ -88,7 +98,11 @@ module Workbench::SessionsHelper
   end
 
   def sessions_clear_selected_project
-    session[:project_id] = nil
+    if @api_request
+      @sessions_current_project = nil
+    else
+      session[:project_id] = nil
+    end
   end
 
   # Authorization methods
@@ -112,7 +126,11 @@ module Workbench::SessionsHelper
   end
 
   def is_project_member?(user, project)
-    project.project_members.include?(user)
+    project.project_members.include?(user) # TODO - change to ID
+  end
+
+  def is_project_member_by_id(user_id, project_id)
+    ProjectMember.where(user_id: user_id, project_id: project_id).any?
   end
 
   def authorize_project_selection(user, project)
@@ -129,8 +147,8 @@ module Workbench::SessionsHelper
 
   def require_sign_in_and_project_selection
     # TODO: account for permitted token based projects 
-    unless sessions_signed_in? && sessions_project_selected?
-      respond_to do |format| 
+    unless (sessions_signed_in? or @api_request) && sessions_project_selected?
+      respond_to do |format|
         format.html { redirect_to root_url, notice: 'Whoa there, sign in and select a project first.'  }
         format.json { render(json: {success: false}, status: :unauthorized) && return } # TODO: bad request, not unauthorized
       end
@@ -186,12 +204,11 @@ module Workbench::SessionsHelper
   end
 
   def project_settings_link
-    (sessions_project_selected? && is_superuser?) ? link_to('Project', project_path(sessions_current_project)) : nil
+    (sessions_project_selected? && is_superuser?) ? link_to('Project', project_path(sessions_current_project), data: {project_id: sessions_current_project_id}) : nil
   end
 
   def administration_link
     sessions_current_user.is_administrator? ? link_to('Administration', administration_path) : nil
   end
-
 
 end

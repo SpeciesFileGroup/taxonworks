@@ -20,9 +20,19 @@ describe Source::Human, type: :model, group: [:people, :sources] do
   end
 
   context 'validation' do
-    before { source_human.save }
     specify 'at least one person is provided' do
+      source_human.save
       expect(source_human.errors.include?(:base)).to be_truthy
+    end
+
+    specify 'specifying as typed role is OK' do
+      source_human.source_source_roles.build(person: franklin)
+      expect(source_human.save).to be_truthy
+    end
+
+    specify 'specifying as role is OK' do
+      source_human.roles.build(person: franklin, type: 'SourceSource')
+      expect(source_human.save).to be_truthy
     end
   end
 

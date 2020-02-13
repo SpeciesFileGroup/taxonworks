@@ -9,7 +9,7 @@ module Queries
 
     # @return [Scope]
     def all
-      ::TypeMaterial.includes(:protonym, material: [:identifiers] ).where(where_sql).references(:taxon_names).limit(dynamic_limit).all
+      ::TypeMaterial.includes(:protonym, collection_object: [:identifiers] ).where(where_sql).references(:taxon_names).limit(dynamic_limit).all
     end
 
     # @return [Arel::Table]

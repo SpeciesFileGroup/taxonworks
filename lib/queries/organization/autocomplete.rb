@@ -12,13 +12,6 @@ module Queries
         ::Organization.select('organizations.*')
       end
 
-#     def autocomplete_start_date_wild_card(field = :verbatim_locality) 
-#       a = with_start_date 
-#       b = fragments
-#       return nil if a.nil? || b.empty? || field.nil?
-#       base_query.where( a.and(table[field].matches(b.join)).to_sql).limit(20)
-#     end
-
       def autocomplete_name_wildcard_end
         return nil if query_string.length < 2 
         base_query.where( table[:name].matches(query_string + '%').to_sql).limit(20)

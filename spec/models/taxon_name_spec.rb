@@ -101,46 +101,13 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         expect(taxon_name.errors.include?(:type)).to be_truthy
       end
 
-      context 'proper taxon rank' do
-        specify 'parent rank is higher' do
-          taxon_name.update(rank_class: Ranks.lookup(:iczn, 'Genus'), name: 'Aus')
-          taxon_name.parent = @species
-          taxon_name.valid?
-          expect(taxon_name.errors.include?(:parent_id)).to be_truthy
-        end
-
-        specify 'child rank is lower' do
-          phylum             = FactoryBot.create(:iczn_phylum)
-          kingdom            = phylum.ancestor_at_rank('kingdom')
-          kingdom.rank_class = Ranks.lookup(:iczn, 'subphylum')
-          kingdom.valid?
-          expect(kingdom.errors.include?(:rank_class)).to be_truthy
-        end
-
-        specify 'a new taxon rank in the same group' do
-          t            = FactoryBot.create(:iczn_kingdom)
-          t.rank_class = Ranks.lookup(:iczn, 'genus')
-          t.valid?
-          expect(t.errors.include?(:rank_class)).to be_truthy
-        end
-
-        specify 'a parent from different project' do
-          t            = FactoryBot.create(:iczn_kingdom)
-          t.valid?
-          expect(t.errors.include?(:project_id)).to be_falsey
-          t.project_id = 1000
-          t.valid?
-          expect(t.errors.include?(:project_id)).to be_truthy
-      end
-      end
-
       context 'source' do
         specify 'when provided, is type Source::Bibtex' do
-          h                 = FactoryBot.build(:source_human)
+          h  = FactoryBot.build(:source_human)
           taxon_name.source = h
           taxon_name.valid?
           expect(taxon_name.errors.include?(:base)).to be_truthy
-          b                 = FactoryBot.build(:source_bibtex)
+          b = FactoryBot.build(:source_bibtex)
           taxon_name.source = b
           taxon_name.valid?
 
@@ -162,7 +129,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             sp  = FactoryBot.create(:iczn_species, verbatim_author: 'Smith', year_of_publication: 2000, parent: @genus)
             sp.iczn_set_as_misapplication_of = @species
             expect(sp.save).to be_truthy
-            expect(sp.cached_author_year).to eq('Smith, 2000 nec McAtee, 1830')
+            expect(sp.cached_author_year).to eq('Smith, 2000 non McAtee, 1830')
           end
 
           specify 'ICZN combination' do
@@ -243,7 +210,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             expect(g.reload.get_full_name_html).to eq('<i>Errorneura</i> [sic]')
             
             expect(@subspecies.get_original_combination).to eq('Errorneura [sic] [SPECIES NOT SPECIFIED] vitata')
-            expect(@subspecies.get_original_combination_html).to eq('<i>Errorneura</i> [sic] <i></i>[SPECIES NOT SPECIFIED] <i>vitata</i>')
+            expect(@subspecies.get_original_combination_html).to eq('<i>Errorneura</i> [sic] [SPECIES NOT SPECIFIED] <i>vitata</i>')
             expect(@subspecies.get_author_and_year).to eq ('(McAtee, 1900)')
           end
 
