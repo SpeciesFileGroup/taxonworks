@@ -23,7 +23,7 @@
       </button>
       <nuke-component
         :disabled="!sledImage.id"
-        class="inline full_width"
+        class="inline"
         @confirm="updateSled"/>
     </div>
     <ul v-if="sledImage.metadata.length > 0 && summary.length === 0">
