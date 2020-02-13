@@ -240,10 +240,23 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       expect(query.all.map(&:id)).to contain_exactly(co2.id)
     end
 
-    specify '#tags on collecting_vent' do
+    specify '#tags on collection_object' do
+      t = FactoryBot.create(:valid_tag, tag_object: co1)
+      query.keyword_ids = [t.keyword_id]
+      expect(query.all.map(&:id)).to contain_exactly(co1.id)
+    end
+
+    specify '#tags on collecting_event' do
       t = FactoryBot.create(:valid_tag, tag_object: ce1)
       query.collecting_event_query.keyword_ids = [t.keyword_id]
       expect(query.all.map(&:id)).to contain_exactly(co1.id)
+    end
+
+    specify '#tags on collection_object 2' do
+      t = FactoryBot.create(:valid_tag, tag_object: co1)
+      p = {keyword_ids: [t.keyword_id]}
+      q = Queries::CollectionObject::Filter.new(p)
+      expect(q.all.map(&:id)).to contain_exactly(co1.id)
     end
 
     context 'biological_relationships' do

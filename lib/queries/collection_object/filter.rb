@@ -110,7 +110,8 @@ module Queries
 
         @biological_relationship_ids = params[:biological_relationship_ids] || []
 
-        @collecting_event_query = Queries::CollectingEvent::Filter.new(params)
+        # This needs to be params[:collecting_event], for now, exclude keyword_ids ... (and!?)
+        @collecting_event_query = Queries::CollectingEvent::Filter.new(params.select{|a,b| a.to_sym != :keyword_ids} )
 
         @dwc_indexed =  (params[:dwc_indexed]&.downcase == 'true' ? true : false) if !params[:dwc_indexed].nil?
 
@@ -249,7 +250,6 @@ module Queries
         clauses.compact!
         clauses
       end
-
 
       def base_merge_clauses
         clauses = []
