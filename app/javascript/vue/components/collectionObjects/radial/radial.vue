@@ -38,7 +38,7 @@
             </h3>
             <component
               class="radial-annotator-container"
-              :is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"
+              :is="(currentAnnotator ? currentAnnotator + 'Component' : undefined)"
               :type="currentAnnotator"
               :url="url"
               :metadata="metadata"
@@ -69,15 +69,12 @@
 import RadialMenu from 'components/radialMenu.vue'
 import Modal from 'components/modal.vue'
 import Spinner from 'components/spinner.vue'
+import data_attributesComponent from './components/data_attribute/data_attribute_annotator.vue'
+import biological_associationsComponent from './components/biological_relationships/biological_relationships_annotator.vue'
+import biocuration_classificationsComponent from './components/biocurations/biocurations'
+import taxon_determinationsComponent from './components/taxon_determinations/taxon_determinations'
 
 import CRUD from './request/crud'
-
-import data_attributesAnnotator from './components/data_attribute/data_attribute_annotator.vue'
-import biological_associationsAnnotator from './components/biological_relationships/biological_relationships_annotator.vue'
-import asserted_distributionsAnnotator from './components/asserted_distributions/asserted_distributions_annotator.vue'
-import common_namesAnnotator from './components/common_names/main.vue'
-import contentsAnnotator from './components/contents/main.vue'
-
 import Icons from './images/icons.js'
 
 export default {
@@ -87,11 +84,10 @@ export default {
     RadialMenu,
     Modal,
     Spinner,
-    data_attributesAnnotator,
-    biological_associationsAnnotator,
-    asserted_distributionsAnnotator,
-    common_namesAnnotator,
-    contentsAnnotator,
+    data_attributesComponent,
+    biological_associationsComponent,
+    biocuration_classificationsComponent,
+    taxon_determinationsComponent
   },
   props: {
     reload: {
@@ -136,7 +132,7 @@ export default {
       url: undefined,
       globalIdSaved: undefined,
       metadata: undefined,
-      title: 'Otu radial',
+      title: 'Collection object radial',
       menuOptions: [],
       defaultTag: undefined,
       tagCreated: false
@@ -297,69 +293,3 @@ export default {
   }
 }
 </script>
-<style lang="scss">
-
-  .radial-annotator {
-    position: relative;
-    .view-title {
-      font-size: 18px;
-      font-weight: 300;
-    }
-    .modal-close {
-      top: 30px;
-      right: 20px;
-    }
-    .modal-mask {
-      background-color: rgba(0, 0, 0, 0.7);
-    }
-    .modal-container {
-      box-shadow: none;
-      background-color: transparent;
-    }
-    .modal-container {
-      min-width: 1024px;
-      width: 1200px;
-    }
-    .radial-annotator-template {
-      border-radius: 3px;
-      background: #FFFFFF;
-      padding: 1em;
-      width: 100%;
-      max-width: 100%;
-      min-height: 600px;
-    }
-    .radial-annotator-container {
-      display: flex;
-      height: 600px;
-      flex-direction: column;
-      overflow-y: scroll;
-    }
-    .radial-annotator-menu {
-      padding-top: 1em;
-      padding-bottom: 1em;
-      width: 700px;
-      min-height: 650px;
-    }
-    .annotator-buttons-list {
-      overflow-y: scroll;
-    }
-    .save-annotator-button {
-      width: 100px;
-    }
-    .circle-count {
-      bottom: -6px;
-    }
-  }
-
-  .tag_button {
-    padding-left: 12px;
-    padding-right: 8px;
-    width: auto !important;
-    min-width: auto !important;
-    cursor: pointer;
-    margin: 2px;
-    border: none;
-    border-top-left-radius: 15px;
-    border-bottom-left-radius: 15px;
-  }
-</style>
