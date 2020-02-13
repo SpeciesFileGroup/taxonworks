@@ -9,7 +9,7 @@ module ControlledVocabularyTermsHelper
       title: controlled_vocabulary_term.definition,
       class: ['pill', controlled_vocabulary_term.type.tableize.singularize],
       style: ( controlled_vocabulary_term.css_color ? "background-color: #{ controlled_vocabulary_term.css_color}; color: #{ controlled_vocabulary_term.css_color}" : nil ),
-      data: { 'global-id' => controlled_vocabulary_term.metamorphosize.to_global_id.to_s } )
+      data: { 'global-id' => (controlled_vocabulary_term.persisted? ? controlled_vocabulary_term.metamorphosize.to_global_id.to_s : nil) } )
   end
 
   def controlled_vocabulary_term_link(controlled_vocabulary_term)
