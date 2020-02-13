@@ -141,7 +141,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       let!(:td5) { FactoryBot.create(:valid_taxon_determination, biological_collection_object: co3, otu: o3) } # current
 
       context 'type_material' do
-        let!(:tm) { TypeMaterial.create(material: co1, protonym: species1, type_type: 'holotype') }
+        let!(:tm) { TypeMaterial.create(collection_object: co1, protonym: species1, type_type: 'holotype') }
 
         specify '#type_specimen_taxon_name_id' do
           query.type_specimen_taxon_name_id = species1.id
@@ -240,10 +240,23 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       expect(query.all.map(&:id)).to contain_exactly(co2.id)
     end
 
-    specify '#tags on collecting_vent' do
+    specify '#tags on collection_object' do
+      t = FactoryBot.create(:valid_tag, tag_object: co1)
+      query.keyword_ids = [t.keyword_id]
+      expect(query.all.map(&:id)).to contain_exactly(co1.id)
+    end
+
+    specify '#tags on collecting_event' do
       t = FactoryBot.create(:valid_tag, tag_object: ce1)
       query.collecting_event_query.keyword_ids = [t.keyword_id]
       expect(query.all.map(&:id)).to contain_exactly(co1.id)
+    end
+
+    specify '#tags on collection_object 2' do
+      t = FactoryBot.create(:valid_tag, tag_object: co1)
+      p = {keyword_ids: [t.keyword_id]}
+      q = Queries::CollectionObject::Filter.new(p)
+      expect(q.all.map(&:id)).to contain_exactly(co1.id)
     end
 
     context 'biological_relationships' do

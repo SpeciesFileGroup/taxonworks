@@ -17,7 +17,7 @@
           </a>
           <radial-annotator
             v-if="typeMaterial.id"
-            :global-id="getCollectionObject.global_id" 
+            :global-id="typeMaterial.collection_object.global_id" 
           />
           <expand v-model="displayBody" />
         </div>

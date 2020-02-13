@@ -26,11 +26,6 @@ class SourcesController < ApplicationController
   def show
   end
 
-  # GET /sources/new
-  def new
-    @source = Source.new
-  end
-
   # POST /sources/1/clone.json
   def clone
     @source = @source.clone
@@ -42,6 +37,12 @@ class SourcesController < ApplicationController
 
   # GET /sources/1/edit
   def edit
+    redirect_to new_source_task_path(source_id: @source.id), notice: 'Editing in new interface.'
+  end
+
+  # GET /sources/new
+  def new
+    redirect_to new_source_task_path, notice: "Redirected to new interface."
   end
 
   # POST /sources

@@ -42,7 +42,7 @@ describe BatchLoad::Import::Otus, type: :model do
   end
 
   specify '#processed_rows' do
-    expect(import.processed_rows.count).to eq(8)
+    expect(import.processed_rows.count).to eq(7) # now skips empties
   end
 
   specify '#processed_rows' do

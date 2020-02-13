@@ -7,8 +7,8 @@ RSpec.describe Observation::Qualitative, type: :model, group: :matrix do
 
   context 'validation' do
     before { observation.valid? }
-    specify '#character_state required' do
-      expect(observation.errors.include?(:character_state)).to be_truthy
+    specify '#character_state_id required' do
+      expect(observation.errors.include?(:character_state_id)).to be_truthy
     end
 
     context 'duplication' do

@@ -586,7 +586,7 @@ module Protonym::SoftValidationExtensions
         if !types2.empty?
           new_type_material = []
           types2.each do |t|
-            new_type_material.push({type_type: t.type_type, protonym_id: self.id, biological_object_id: t.biological_object_id, source: t.source})
+            new_type_material.push({type_type: t.type_type, protonym_id: self.id, collection_object_id: t.collection_object_id, source: t.source})
           end
           self.type_materials.build(new_type_material)
           fixed = true
@@ -680,7 +680,7 @@ module Protonym::SoftValidationExtensions
         if types1.empty? && !types2.empty?
           new_type_material = []
           types2.each do |t|
-            new_type_material.push({type_type: t.type_type, protonym_id: t.protonym_id, biological_object_id: t.biological_object_id, source: t.source})
+            new_type_material.push({type_type: t.type_type, protonym_id: t.protonym_id, collection_object_id: t.collection_object_id, source: t.source})
           end
           self.type_materials.build(new_type_material)
           fixed = true
@@ -740,10 +740,10 @@ module Protonym::SoftValidationExtensions
         s = self.type_materials
         unless s.empty?
           s.primary.each do |t|
-            soft_validations.add(:base, 'Primary type repository is not set') if t.material.try(:repository).nil?
+            soft_validations.add(:base, 'Primary type repository is not set') if t.collection_object.try(:repository).nil?
           end
           s.syntypes.each do |t|
-            soft_validations.add(:base, 'Syntype repository is not set') if t.material.try(:repository).nil?
+            soft_validations.add(:base, 'Syntype repository is not set') if t.collection_object.try(:repository).nil?
           end
         end
       end
@@ -834,7 +834,7 @@ module Protonym::SoftValidationExtensions
           if rank_string =~ /Species/
             primary_types = self.get_primary_type
             unless primary_types.empty?
-              p                 = primary_types.collect {|t| t.biological_object_id}
+              p                 = primary_types.collect {|t| t.collection_object_id}
               possible_synonyms = Protonym.with_type_material_array(p).without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self).with_project(self.project_id)
 #              possible_synonyms = Protonym.with_type_material_array(p).that_is_valid.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self).with_project(self.project_id)
             end

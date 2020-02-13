@@ -8,8 +8,8 @@ RSpec.describe SqedDepiction, type: :model do
   context 'validation' do
     before { sqed_depiction.valid? }
 
-    specify 'depiction is required' do
-      expect(sqed_depiction.errors.include?(:depiction)).to be_truthy
+    specify 'depiction_id is required' do
+      expect(sqed_depiction.errors.include?(:depiction_id)).to be_truthy
     end
 
     specify 'Foo is not a valid layout' do
