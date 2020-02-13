@@ -100,7 +100,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
   .button-input {
     min-height: 28px;
   }
