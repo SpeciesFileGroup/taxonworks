@@ -141,7 +141,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       let!(:td5) { FactoryBot.create(:valid_taxon_determination, biological_collection_object: co3, otu: o3) } # current
 
       context 'type_material' do
-        let!(:tm) { TypeMaterial.create(material: co1, protonym: species1, type_type: 'holotype') }
+        let!(:tm) { TypeMaterial.create(collection_object: co1, protonym: species1, type_type: 'holotype') }
 
         specify '#type_specimen_taxon_name_id' do
           query.type_specimen_taxon_name_id = species1.id
