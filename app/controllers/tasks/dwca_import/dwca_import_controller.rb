@@ -14,14 +14,20 @@ class Tasks::DwcaImport::DwcaImportController < ApplicationController
     FileUtils.mkdir_p(base_path)
     File.write(source_path, params[:upload][:file].tempfile.read)
     
-    redirect_to action: :workbench, id: id
+    render json: { id: id, name: params[:name], core_table: stub }
   end
 
   # GET
   def workbench
-    base_path = Rails.root.join('dwca-storage', Current.project_id.to_s, params[:id])
-    source_path = base_path.join('source.csv')
+    #base_path = Rails.root.join('dwca-storage', Current.project_id.to_s, params[:id])
+    #source_path = base_path.join('source.csv')
 
-    render json: {file: File.read(source_path), name: params[:name]}.to_json
+    render json: { id: id, name: params[:name], core_table: mock }
+  end
+
+private
+
+  def mock
+    File.read(Rails.root.join('spec/files/dwca/dwca_sample.json'))
   end
 end
