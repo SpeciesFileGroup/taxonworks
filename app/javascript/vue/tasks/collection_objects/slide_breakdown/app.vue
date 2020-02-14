@@ -315,7 +315,7 @@ export default {
           let ajaxRequest = new XMLHttpRequest()
           
           this.image = response.body
-          ajaxRequest.open('GET', response.body.image_file_url)
+          ajaxRequest.open('GET', response.body.image_display_url)
           ajaxRequest.responseType = 'blob'
           ajaxRequest.onload = () => {
             let blob = ajaxRequest.response
