@@ -77,6 +77,8 @@ import biological_associationsAnnotator from './components/biological_relationsh
 import asserted_distributionsAnnotator from './components/asserted_distributions/asserted_distributions_annotator.vue'
 import common_namesAnnotator from './components/common_names/main.vue'
 import contentsAnnotator from './components/contents/main.vue'
+import biocuration_classificationsAnnotator from './components/biocurations/biocurations'
+import taxon_determinationsAnnotator from './components/taxon_determinations/taxon_determinations'
 
 import Icons from './images/icons.js'
 
@@ -92,6 +94,8 @@ export default {
     asserted_distributionsAnnotator,
     common_namesAnnotator,
     contentsAnnotator,
+    biocuration_classificationsAnnotator,
+    taxon_determinationsAnnotator
   },
   props: {
     reload: {
@@ -112,7 +116,7 @@ export default {
     },
     buttonTitle: {
       type: String,
-      default: 'Radial annotator'
+      default: 'Quick forms'
     },
     showCount: {
       type: Boolean,
