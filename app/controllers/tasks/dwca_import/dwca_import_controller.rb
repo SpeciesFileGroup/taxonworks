@@ -22,14 +22,13 @@ class Tasks::DwcaImport::DwcaImportController < ApplicationController
     #base_path = Rails.root.join('dwca-storage', Current.project_id.to_s, params[:id])
     #source_path = base_path.join('source.csv')
 
-    render json: { id: id, name: params[:name], core_table: mock }
+    render json: { id: params[:id], name: "Mocked import", core_table: mock }
   end
 
 private
 
   def mock
-    File.read(Rails.root.join('spec/files/dwca/dwca_sample.json'))
-    render json: {file: File.read(source_path), name: params[:dwc_import][:name]}.to_json
+    JSON.parse(File.read(Rails.root.join('spec/files/dwca/dwca_sample.json')))
   end
 
   def dwc_import_params
