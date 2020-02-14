@@ -12,7 +12,7 @@ class Tasks::DwcaImport::DwcaImportController < ApplicationController
     source_path = base_path.join('source.csv')
     
     FileUtils.mkdir_p(base_path)
-    File.write(source_path, params[:upload][:file].tempfile.read)
+    File.write(source_path, params[:dwc_import][:file].tempfile.read)
     
     redirect_to action: :workbench, id: id
   end
@@ -22,6 +22,12 @@ class Tasks::DwcaImport::DwcaImportController < ApplicationController
     base_path = Rails.root.join('dwca-storage', Current.project_id.to_s, params[:id])
     source_path = base_path.join('source.csv')
 
-    render json: {file: File.read(source_path), name: params[:name]}.to_json
+    render json: {file: File.read(source_path), name: params[:dwc_import][:name]}.to_json
+  end
+
+  def dwc_import_params
+    params.require(:dwc_import).permit(
+      :file, :name
+    )
   end
 end
