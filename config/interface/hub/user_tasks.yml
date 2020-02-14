@@ -507,4 +507,11 @@ grid_digitize_task:
     - image
   status: prototype
   description: 'Break images of collection objects in a grid (e.g. slide folders) into individual collection objects and their depictions.'
-
+basic_nomenclature_task:
+  hub: true
+  name: 'Download nomenclature (basic)'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Download (also generate for API) a CSV table of the nomenclature with just the name, and a subset of the hierarchy'
