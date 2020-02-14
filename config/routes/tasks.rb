@@ -18,11 +18,11 @@ scope :tasks do
   scope :exports do
     scope :coldp, controller: 'tasks/exports/coldp' do
       get '/', action: :index, as: 'export_coldp_task'
-      get 'basic_download', as: 'download_coldp_task'
+      get 'download', as: 'download_coldp_task'
     end
 
     scope :nomenclature, controller: 'tasks/exports/nomenclature' do
-      get 'basic', action: :basic, as: 'export_basic_nomenclature'
+      get 'basic', action: :basic, as: 'export_basic_nomenclature_task'
       get 'download_basic', as: 'download_basic_nomenclature_task'
     end
   end
