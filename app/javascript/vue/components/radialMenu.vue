@@ -126,7 +126,7 @@ export default {
     loadIcons: function () {
       const that = this
       this.menu.forEach(function (item, index) {
-        if (item.hasOwnProperty('icon') && item.icon) {
+        if (item.hasOwnProperty('icon') && item.icon && item.icon['url']) {
           that.icons[index] = that.loadIcon(item)
         }
       })
