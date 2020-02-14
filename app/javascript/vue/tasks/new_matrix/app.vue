@@ -72,7 +72,7 @@ import NewMatrix from './components/newMatrix/newMatrix'
 import TablesComponent from './components/tables/view'
 import RowsFixed from './components/rows/fixed'
 import columnsFixed from './components/columns/fixed'
-import RadialAnnotator from '../../components/annotator/annotator'
+import RadialAnnotator from 'components/radials/annotator/annotator'
 
 import rowsDynamic from './components/rows/dynamic'
 import columnDynamic from './components/columns/dynamic'

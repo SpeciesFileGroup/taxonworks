@@ -65,8 +65,8 @@
 
 <script>
 
-import RadialAnnotator from 'components/annotator/annotator'
-import RadialObject from 'components/radial_object/radialObject'
+import RadialAnnotator from 'components/radials/annotator/annotator'
+import RadialObject from 'components/radials/navigation/radial'
 import { Report } from '../request/resource'
 import { GetterNames } from '../store/getters/getters'
 import sledImage from '../const/sledImage'

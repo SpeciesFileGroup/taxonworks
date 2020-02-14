@@ -37,9 +37,9 @@
 
 <script>
 
-  import RadialAnnotator from 'components/annotator/annotator'
+  import RadialAnnotator from 'components/radials/annotator/annotator'
   import Pin from 'components/pin'
-  import RadialObject from 'components/radial_object/radialObject'
+  import RadialObject from 'components/radials/navigation/radial'
 
   export default {
     components: {

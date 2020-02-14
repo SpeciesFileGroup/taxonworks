@@ -56,8 +56,8 @@
 
 <script>
 
-import RadialAnnotator from 'components/annotator/annotator'
-import RadialObject from 'components/radial_object/radialObject'
+import RadialAnnotator from 'components/radials/annotator/annotator'
+import RadialObject from 'components/radials/navigation/radial'
 import TagAll from './tagAll'
 
 export default {

@@ -20,7 +20,6 @@
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import AjaxCall from 'helpers/ajaxCall'
-import recent from '../../../../components/radial_object/images/recent'
 import DisplayList from 'components/displayList'
 import SpinnerComponent from 'components/spinner'
 

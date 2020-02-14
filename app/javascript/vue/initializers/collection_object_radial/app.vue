@@ -7,7 +7,7 @@
 </template>
 <script>
 
-  import CollectionObjectRadial from 'components/otu/otu_radial/radial.vue'
+  import CollectionObjectRadial from 'components/radials/object/radial.vue'
 
   export default {
     components: {

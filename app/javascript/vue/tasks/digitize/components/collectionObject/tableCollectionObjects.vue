@@ -100,7 +100,7 @@
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions.js'
-import RadialAnnotator from '../../../../components/annotator/annotator.vue'
+import RadialAnnotator from '../../../../components/radials/annotator/annotator.vue'
 import PinComponent from '../../../../components/pin.vue'
 import Bioclassification from './bioclassification.vue'
 import LockComponent from 'components/lock'

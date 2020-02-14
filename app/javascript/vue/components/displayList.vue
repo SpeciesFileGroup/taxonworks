@@ -37,8 +37,8 @@
 </template>
 <script>
 
-import RadialAnnotator from './annotator/annotator.vue'
-import RadialObject from './radial_object/radialObject.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialObject from 'components/radials/navigation/radial.vue'
 
 export default {
   components: {

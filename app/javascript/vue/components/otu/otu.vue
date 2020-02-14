@@ -47,7 +47,7 @@
 
   import Modal from '../modal.vue'
   import Spinner from '../spinner.vue'
-  import OtuRadial from './otu_radial/radial'
+  import OtuRadial from 'components/radials/object/radial'
   import { GetOtus, CreateOtu } from './request/resources'
 
   export default {

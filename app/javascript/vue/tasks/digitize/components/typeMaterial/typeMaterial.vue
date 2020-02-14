@@ -158,7 +158,7 @@ import BlockLayout from '../../../../components/blockLayout.vue'
 import SmartSelector from 'components/switch.vue'
 import orderSmartSelector from '../../helpers/orderSmartSelector.js'
 import selectFirstSmartOption from '../../helpers/selectFirstSmartOption'
-import RadialAnnotator from 'components/annotator/annotator'
+import RadialAnnotator from 'components/radials/annotator/annotator'
 
 export default {
   components: {
