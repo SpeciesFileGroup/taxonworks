@@ -1,5 +1,8 @@
 <template>
   <tr>
+    <td v-for="column in row">
+      {{ column }}
+    </td>
   </tr>
 </template>
 
@@ -7,7 +10,7 @@
 export default {
   props: {
     row: {
-      type: Object,
+      type: Array,
       required: true
     }
   }

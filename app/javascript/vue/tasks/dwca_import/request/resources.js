@@ -1,4 +1,4 @@
-import AjaxCall from 'helpers/AjaxCall'
+import AjaxCall from 'helpers/ajaxCall'
 
 const GetImport = (id) => {
   return AjaxCall('get', `/tasks/dwca_import/${id}/workbench`)
