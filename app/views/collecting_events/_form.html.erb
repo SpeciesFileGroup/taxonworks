@@ -1,8 +1,30 @@
 <% if @collecting_event.persisted? %>
-  <div class="actions" class="right_float" >
-    <%= button_to "Clone", { action: "clone", id: @collecting_event.id },
-      data: { confirm: "Clone this record? Changes will not be saved!" } %>
-  </div>
+  <ul class="context-menu">
+    <li> <%= collecting_event_tag(@collecting_event) -%>
+    <li class="actions">
+      <%= button_to "Clone", { action: "clone", id: @collecting_event.id },
+        data: { confirm: "Clone this record? Changes will not be saved!" },
+        class: 'actions' %>
+    </li>
+
+    <%= content_tag(:li, link_to("Browse",
+      { action: :index, controller: 'tasks/collecting_events/browse', collecting_event_id: @collecting_event.id },
+      data: { confirm: "Browse this record? Changes will not be saved!" })) %>
+
+  <%= content_tag(:li, link_to( "Show", collecting_event_path(@collecting_event),
+      data: { confirm: "Leave this record? Changes will not be saved!"})) %>
+
+  <%= content_tag(:li, link_to( "New collection object",
+      { action: :index, controller: 'tasks/accessions/comprehensive', collecting_event_id: @collecting_event.id },
+      data: { confirm: "Leave this record? Changes will not be saved!"})) %>
+
+  <%= content_tag(:li, link_to( "New", new_collecting_event_path,
+      data: { confirm: "Leave this record? Changes will not be saved!"})) %>
+  
+  <%= content_tag(:li, radial_annotator(@collecting_event)) -%>
+
+  </ul>
+  <br/> 
 <% end %>
 
 <%= form_for(@collecting_event, html: {id: :collecting_event_form}) do |f| %>
@@ -75,7 +97,7 @@
           <br>
           <%= f.text_field :verbatim_trip_identifier,  size: 35 %>
         </div>
-     
+
         <div class="field">
           <%= f.label :verbatim_elevation %>
           <br>

@@ -90,8 +90,6 @@ class GeoreferencesController < ApplicationController
         format.html {
           redirect_to collecting_event_path(@georeference.collecting_event), notice: 'Georeference was successfully created.'
         }
-        #         redirect_to url_for(@georeference.metamorphosize),
-        #                     notice: "Georeference name '#{@georeference.name}' was successfully created." }
         format.json { render :show, status: :created, location: @georeference.metamorphosize }
       else
         format.html { render action: :new }
@@ -130,9 +128,10 @@ class GeoreferencesController < ApplicationController
 
   # GET /georeferences/download
   def download
-    send_data(Export::Download.generate_csv(Georeference.where(project_id: sessions_current_project_id)),
-              type:     'text',
-              filename: "georeferences_#{DateTime.now}.csv")
+    send_data(
+      Export::Download.generate_csv(Georeference.where(project_id: sessions_current_project_id)),
+      type: 'text',
+      filename: "georeferences_#{DateTime.now}.csv")
   end
 
   private

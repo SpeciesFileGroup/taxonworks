@@ -562,7 +562,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         s1 = FactoryBot.create(:relationship_species, name: 'bus', parent: @genus)
         s2 = FactoryBot.create(:relationship_species, name: 'cus', parent: @genus)
         t1 = FactoryBot.create(:valid_type_material, protonym: s1, type_type: 'holotype')
-        t2 = FactoryBot.create(:valid_type_material, protonym: s2, type_type: 'neotype', biological_object_id: t1.biological_object_id)
+        t2 = FactoryBot.create(:valid_type_material, protonym: s2, type_type: 'neotype', collection_object_id: t1.collection_object_id)
         expect(s1.save).to be_truthy
         expect(s2.save).to be_truthy
         s1.soft_validate(:homotypic_synonyms)

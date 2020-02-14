@@ -6,6 +6,7 @@
     <%= fancy_th_tag(name: 'Name') -%>
     <%= fancy_th_tag(name: 'Type') -%>
     <%= fancy_th_tag(name: 'Definition') -%>
+    <%= fancy_th_tag(name: 'Uri') -%>
     <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
     <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
@@ -14,9 +15,10 @@
   <tbody>
   <% @controlled_vocabulary_terms.each do |controlled_vocabulary_term| %>
       <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
-          <td><%= controlled_vocabulary_term.name %></td>
+          <td><%= controlled_vocabulary_term_tag(controlled_vocabulary_term) %></td>
           <td><%= controlled_vocabulary_term.type %></td>
           <td><%= controlled_vocabulary_term.definition %></td>
+          <td><%= controlled_vocabulary_term.uri %></td>
           <%= fancy_metadata_cells_tag(controlled_vocabulary_term) -%>
       <% end %>
   <% end %>

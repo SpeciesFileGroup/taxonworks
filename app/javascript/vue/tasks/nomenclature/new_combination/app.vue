@@ -1,6 +1,7 @@
 <template>
   <div id="vue_new_combination">
     <h1>New combination</h1>
+    <span data-icon="warning"><i>At present this task is only configured for ICZN names.</i></span>
     <spinner
       legend="Loading new combination..."
       :full-screen="true"
@@ -63,6 +64,7 @@ export default {
   },
   methods: {
     setTaxon (event) {
+      this.accept_taxon_name_ids = []
       this.taxon = event
     },
     resetInput () {
@@ -70,6 +72,8 @@ export default {
       this.$refs.inputSearch.focusInput()
     },
     editCombination (combination) {
+      let keys = Object.keys(combination.protonyms)
+      this.accept_taxon_name_ids = keys.map(key => { return combination.protonyms[key].id })
       this.$refs.combination.editCombination(combination.name_string, combination)
       this.$refs.inputSearch.disabledButton(true)
     },
@@ -102,7 +106,8 @@ export default {
       if (/^\d+$/.test(combinationId)) {
         this.loading = true
         GetCombination(combinationId).then(response => {
-          console.log(response)
+          let keys = Object.keys(response.protonyms)
+          this.accept_taxon_name_ids = keys.map(key => { return response.protonyms[key].id })
           this.editCombination(response)
           this.loading = false
         }, () => {

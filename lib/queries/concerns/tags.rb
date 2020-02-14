@@ -1,4 +1,4 @@
-# Helpers for queries that reference Identifier
+# Helpers for queries that reference Tags
 module Queries::Concerns::Tags
 
   extend ActiveSupport::Concern

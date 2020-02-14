@@ -15,12 +15,14 @@
         :legend="!collectingEventId ? 'Need collecting event ID' : 'Saving...'"/>
       <map-component 
         ref="leaflet"
+        v-if="show"
         :height="height"
         :width="width"
         :geojson="shapes['features']"
         :lat="lat"
         :lng="lng"
         :zoom="zoom"
+        :fit-bounds="true"
         :resize="true"
         :draw-controls="true"
         :draw-polyline="false"
@@ -29,17 +31,26 @@
         @geoJsonLayersEdited="updateGeoreference($event)"
         @geoJsonLayerCreated="saveGeoreference($event)"/>
     </div>
-    <button
-      type="button"
-      v-if="verbatimLat && verbatimLng"
-      :disabled="verbatimGeoreferenceAlreadyCreated"
-      @click="createVerbatimShape"
-      class="button normal-input button-submit separate-bottom separate-top">
-      Create georeference from verbatim 
-    </button>
+    <div class="horizontal-left-content margin-medium-top margin-medium-bottom">
+      <manually-component
+        class="margin-small-right"
+        @create="saveGeoreference"/>
+      <geolocate-component
+        class="margin-small-right"
+        @create="createGEOLocate"/>
+      <button
+        type="button"
+        v-if="verbatimLat && verbatimLng"
+        :disabled="verbatimGeoreferenceAlreadyCreated"
+        @click="createVerbatimShape"
+        class="button normal-input button-submit separate-bottom separate-top">
+        Create georeference from verbatim 
+      </button>
+    </div>
     <display-list
       :list="georeferences"
       @delete="removeGeoreference"
+      @updateGeo="updateRadius"
       label="object_tag"/>
   </div>
 </template>
@@ -50,17 +61,21 @@ import MapComponent from './map'
 import SpinnerComponent from 'components/spinner'
 import DisplayList from './list'
 import convertDMS from 'helpers/parseDMS.js'
+import ManuallyComponent from './manuallyComponent'
+import GeolocateComponent from './geolocateComponent'
 
 export default {
   components: {
     MapComponent,
     SpinnerComponent,
-    DisplayList
+    DisplayList,
+    ManuallyComponent,
+    GeolocateComponent
   },
   props: {
     collectingEventId: {
       type: [String, Number],
-      required: true,
+      default: undefined,
     },
     height: {
       type: String,
@@ -91,6 +106,14 @@ export default {
     zoom: {
       type: Number,
       default: 1
+    },
+    show: {
+      type: Boolean,
+      default: true
+    },
+    geographicArea: {
+      type: Object,
+      default: undefined
     }
   },
   computed: {
@@ -113,10 +136,36 @@ export default {
       }
     }
   },
-  mounted () {
-    this.getGeoreferences()
+  watch: {
+    collectingEventId: {
+      handler (newVal) {
+        if (newVal) {
+          this.getGeoreferences()
+        }
+      },
+      immediate: true
+    },
+    show () {
+      this.getGeoreferences()
+    }
   },
   methods: {
+    updateRadius(shape) {
+      const georeference = {
+        id: shape.id,
+        error_radius: shape.error_radius
+      }
+      this.showSpinner = true
+     
+      this.$http.patch(`/georeferences/${shape.id}.json`, { georeference: georeference }).then(response => {
+        this.showSpinner = false
+        this.$emit('updated', response.body)
+        this.getGeoreferences()
+      }, (response) => {
+        TW.workbench.alert.create(response.bodyText, 'error')
+        this.showSpinner = false
+      })
+    },
     saveGeoreference (shape) {
       const data = {
         georeference: {
@@ -129,6 +178,9 @@ export default {
       this.showSpinner = true
       this.$http.post('/georeferences.json', data).then(response => {
         this.showSpinner = false
+        if(response.body.error_radius) {
+          response.body.geo_json.properties.radius = response.body.error_radius
+        }
         this.georeferences.push(response.body)
         this.$refs.leaflet.addGeoJsonLayer(response.body.geo_json)
         this.$emit('created', response.body)
@@ -168,6 +220,9 @@ export default {
     },
     populateShapes() {
       this.shapes.features = []
+      if(this.geographicArea) {
+        this.shapes.features.unshift(this.geographicArea)
+      }
       this.georeferences.forEach(geo => {
         if (geo.error_radius != null) {
           geo.geo_json.properties.radius = geo.error_radius
@@ -202,6 +257,23 @@ export default {
       }
       this.showSpinner = true
       this.$http.post('/georeferences.json', data).then(response => {
+        this.showSpinner = false
+        this.georeferences.push(response.body)
+        this.populateShapes()
+        this.$emit('created', response.body)
+      }, response => {
+        this.showSpinner = false
+        TW.workbench.alert.create(response.bodyText, 'error')
+      })
+    },
+    createGEOLocate(iframe_data) {
+
+      this.showSpinner = true
+      this.$http.post('/georeferences.json', { georeference: {
+          iframe_response: iframe_data,
+          collecting_event_id: this.collectingEventId,
+          type: 'Georeference::GeoLocate'
+        }}).then(response => {
         this.showSpinner = false
         this.georeferences.push(response.body)
         this.populateShapes()

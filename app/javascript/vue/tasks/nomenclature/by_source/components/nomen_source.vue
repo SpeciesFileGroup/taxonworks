@@ -45,9 +45,9 @@
 <script>
 
   import Autocomplete from "components/autocomplete";
-  import RadialAnnotator from "components/annotator/annotator.vue";
+  import RadialAnnotator from "components/radials/annotator/annotator.vue";
   import PinComponent from "components/pin.vue"
-  import RadialObject from "components/radial_object/radialObject.vue"
+  import RadialObject from "components/radials/navigation/radial.vue"
   import DefaultSource from 'components/getDefaultPin'
 
   export default {

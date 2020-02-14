@@ -40,9 +40,9 @@ class TypeMaterialsController < ApplicationController
     respond_to do |format|
       if @type_material.save
         msg = "Type material (#{@type_material.type_type}) " \
-            "for #{@type_material.protonym.cached} was successfully created."
+          "for #{@type_material.protonym.cached} was successfully created."
         format.html { redirect_to @type_material,
-                                  notice: msg }
+                      notice: msg }
         format.json { render :show, status: :created, location: @type_material }
       else
         format.html { render :new }
@@ -95,7 +95,7 @@ class TypeMaterialsController < ApplicationController
       {id: t.id,
        label: ApplicationController.helpers.type_material_tag(t),
        response_values: {
-           params[:method] => t.id
+         params[:method] => t.id
        },
        label_html: ApplicationController.helpers.type_material_tag(t)
       }
@@ -119,7 +119,7 @@ class TypeMaterialsController < ApplicationController
   private
 
   def filter_params
-    params.permit(:protonym_id, :biological_object_id, :type_type)
+    params.permit(:protonym_id, :collection_object_id, :type_type)
   end
 
   def set_type_material
@@ -129,12 +129,12 @@ class TypeMaterialsController < ApplicationController
 
   def type_material_params
     params.require(:type_material).permit(
-        :protonym_id, :biological_object_id, :type_type,
-        roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
-        origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
-        material_attributes: [
-          :id, :buffered_collecting_event, :buffered_other_labels, :buffered_determinations,
-          :total, :collecting_event_id, :preparation_type_id, :repository_id]
+      :protonym_id, :collection_object_id, :type_type,
+      roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
+      origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
+      collection_object_attributes: [
+        :id, :buffered_collecting_event, :buffered_other_labels, :buffered_determinations,
+        :total, :collecting_event_id, :preparation_type_id, :repository_id]
     )
   end
 end

@@ -8,7 +8,8 @@ IDENTIFIERS_JSON = {
     common: [  
       'Identifier::Global::Doi',
       'Identifier::Global::Orcid',
-      'Identifier::Global::Lsid' 
+      'Identifier::Global::Lsid', 
+      'Identifier::Global::Wikidata' 
     ]
   }, 
   local: {

@@ -1,5 +1,5 @@
 .pill {
-  background-color: #e5e5e5;
+  background-color: #b3b3b3;
   margin: 4px;
   padding: 4px;
   border-radius: 8px;
@@ -10,11 +10,10 @@
   
   > span {
     color: inherit;
-    font-weight: 100;
     filter: invert(1) brightness(2) grayscale(1) contrast(1000%);
   }
 
-  &.tag {
+  &.tag, &.keyword {
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
   }
@@ -27,7 +26,7 @@
     border-top-right-radius: 0px;
     border-bottom-left-radius: 0px;
   }
-  &.data_attribute {
+  &.data_attribute, &.predicate {
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
     border-bottom-right-radius: 0px;
@@ -37,12 +36,17 @@
     border-bottom-left-radius: 0px;
     border-bottom-right-radius: 0px;
   }
-  &.confidences {
+  &.confidence_level {
     border-top-left-radius: 0px;
     border-bottom-right-radius: 0px;
   }
   &.note {
     border-top-left-radius: 0px;
     border-radius: 0px;
+  }
+  &.biological_property {
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
   }
 }

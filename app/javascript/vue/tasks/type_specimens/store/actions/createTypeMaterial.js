@@ -7,8 +7,8 @@ export default function ({ commit, state }) {
 
     commit(MutationNames.SetSaving, true)
     if (state.settings.materialTab != 'existing') {
-      type_material.biological_object_id = undefined
-      type_material.material_attributes = state.type_material.collection_object
+      type_material.collection_object_id = undefined
+      type_material.collection_object_attributes = state.type_material.collection_object_attributes
     }
     CreateTypeMaterial({ type_material: type_material }).then(response => {
       TW.workbench.alert.create('Type specimen was successfully created.', 'notice')

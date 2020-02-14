@@ -165,8 +165,8 @@ import Autocomplete from 'components/autocomplete.vue'
 import RolePicker from 'components/role_picker.vue'
 import DefaultElement from 'components/getDefaultPin.vue'
 import Expand from './expand.vue'
-import RadialAnnotator from 'components/annotator/annotator.vue'
-import RadialObject from 'components/radial_object/radialObject'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialObject from 'components/radials/navigation/radial'
 
 export default {
   components: {

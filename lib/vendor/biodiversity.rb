@@ -23,6 +23,8 @@ module TaxonWorks
         attr_accessor :name
 
         # how to match
+        #   `ranked`: return names at that queried rank only (e.g. only match a subgenus to rank subgenus
+        #   `groups`: return names at Group level (species or genus), i.e. a subgenus name in query will match genus OR subgenus in database
         attr_accessor :mode
 
         # project to query against
@@ -61,12 +63,7 @@ module TaxonWorks
         #   a memoized combiantion with only unambiguous elements 
         attr_reader :combination
 
-        # query_string:
-        #
-        # mode:
-        #   ranked: return names at that queried rank only (e.g. only match a subgenus to rank subgenus
-        #   groups: return names at Group level (species or genus), i.e. a subgenus name in query will match genus OR subgenus in database
-        def initialize(query_string: nil, project_id: nil, code: :iczn, match_mode: :groups)
+       def initialize(query_string: nil, project_id: nil, code: :iczn, match_mode: :groups)
           @project_id = project_id
           @name = query_string
           @nomenclature_code = code

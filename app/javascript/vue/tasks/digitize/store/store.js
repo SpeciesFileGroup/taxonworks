@@ -124,7 +124,7 @@ function makeInitialState () {
       global_id: undefined,
       protonym_id: undefined,
       taxon: undefined,
-      biological_object_id: undefined,
+      collection_object_id: undefined,
       type_type: undefined,
       collection_object: undefined,
       origin_citation_attributes: undefined
@@ -136,6 +136,7 @@ function makeInitialState () {
       label_object_id: undefined, 
       label_object_type: "CollectingEvent"
     },
+    geographicArea: undefined,
     tmpData: {
       otu: undefined
     },
@@ -144,6 +145,7 @@ function makeInitialState () {
     materialTypes: [],
     determinations: [],
     preferences: {},
+    project_preferences: undefined,
     container: undefined,
     containerItems: [],
     collection_objects: [],

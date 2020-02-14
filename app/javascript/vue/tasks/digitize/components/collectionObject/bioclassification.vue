@@ -64,13 +64,11 @@ export default {
     return {
       addQueue: [],
       createdBiocutarions: [],
-      delay: 500
+      delay: 500,
+      tags: []
     }
   },
   watch: {
-    biocutarionsType() {
-      this.splitGroups()
-    },
     biologicalId: {
       handler (newVal, oldVal) {
         if((this.locked.biocuration) && newVal == undefined) {
@@ -106,23 +104,6 @@ export default {
     getCreatedBiocurationIds() {
       return this.createdBiocutarions.map(item => {
         return item.biocuration_class_id 
-      })
-    },
-    splitGroups() {
-      let that = this
-      this.biocurationsGroups.forEach((item, index) => {
-        GetBiocurationsTags(item.id).then(response =>{
-          let tmpArray = []
-          response.forEach(item => {
-            that.biocutarionsType.forEach(itemClass => {
-              if(itemClass.id == item.tag_object_id) {
-                tmpArray.push(itemClass)
-                return
-              }
-            })
-          })
-          that.$set(that.biocurationsGroups[index], 'list', tmpArray)
-        })         
       })
     },
     addToQueue (biocuration) {

@@ -8,7 +8,7 @@
 </template>
 <script>
 
-  import OtuRadial from 'components/otu/otu_radial/radial.vue'
+  import OtuRadial from 'components/radials/object/radial.vue'
 
   export default {
     components: {

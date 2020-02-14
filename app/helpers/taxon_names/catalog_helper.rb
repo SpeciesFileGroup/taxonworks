@@ -75,7 +75,7 @@ module TaxonNames::CatalogHelper
   # @return [String]
   #   the name, or citation author year, prioritized by original/new with punctuation
   def history_author_year(taxon_name, citation) 
-    return content_tag(:span, ' Source is verbatim, requires parsing', class: :warning) if citation.try(:source).try(:type) == 'Source::Verbatim'
+    return content_tag(:span, 'Source is verbatim, requires parsing', class: 'feedback feedback-thin feedback-warning') if citation.try(:source).try(:type) == 'Source::Verbatim'
     str =  history_author_year_tag(taxon_name) 
     str.blank? ? nil : 
       content_tag(:span, ' ' + str, class: [:history_author_year])

@@ -212,7 +212,7 @@
       },
       removePerson: function (index) {
         if(this.roles_attributes[index].hasOwnProperty('id') && this.roles_attributes[index].id) {
-          this.$set(this.roles_attributes[index], '_destroy', true)
+          this.$set(this.roles_attributes, index, {id: this.roles_attributes[index].id, _destroy: true })
           this.$emit('input', this.roles_attributes)
           this.$emit('delete', this.roles_attributes[index])
         }

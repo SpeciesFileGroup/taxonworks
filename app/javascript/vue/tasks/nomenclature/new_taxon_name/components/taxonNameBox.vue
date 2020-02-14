@@ -53,8 +53,8 @@
 <script>
 
 import OtuRadial from 'components/otu/otu.vue'
-import RadialAnnotator from 'components/annotator/annotator.vue'
-import RadialObject from 'components/radial_object/radialObject.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialObject from 'components/radials/navigation/radial.vue'
 import DefaultConfidence from 'components/defaultConfidence.vue'
 import PinObject from 'components/pin.vue'
 

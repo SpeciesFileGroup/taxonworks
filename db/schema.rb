@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_10_10_200049) do
+ActiveRecord::Schema.define(version: 2020_02_12_151008) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -366,8 +366,8 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
   end
 
   create_table "confidences", id: :serial, force: :cascade do |t|
-    t.string "confidence_object_type", null: false
     t.integer "confidence_object_id", null: false
+    t.string "confidence_object_type", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -513,11 +513,17 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
     t.text "caption"
     t.string "figure_label"
     t.boolean "is_metadata_depiction"
+    t.xml "svg_clip"
+    t.bigint "sled_image_id"
+    t.integer "sled_image_x_position"
+    t.integer "sled_image_y_position"
+    t.string "svg_view_box"
     t.index ["created_by_id"], name: "index_depictions_on_created_by_id"
     t.index ["depiction_object_id"], name: "index_depictions_on_depiction_object_id"
     t.index ["depiction_object_type"], name: "index_depictions_on_depiction_object_type"
     t.index ["image_id"], name: "index_depictions_on_image_id"
     t.index ["project_id"], name: "index_depictions_on_project_id"
+    t.index ["sled_image_id"], name: "index_depictions_on_sled_image_id"
     t.index ["updated_by_id"], name: "index_depictions_on_updated_by_id"
   end
 
@@ -559,8 +565,8 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
   end
 
   create_table "documentation", id: :serial, force: :cascade do |t|
-    t.string "documentation_object_type", null: false
     t.integer "documentation_object_id", null: false
+    t.string "documentation_object_type", null: false
     t.integer "document_id", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -578,7 +584,7 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
   create_table "documents", id: :serial, force: :cascade do |t|
     t.string "document_file_file_name", null: false
     t.string "document_file_content_type", null: false
-    t.bigint "document_file_file_size", null: false
+    t.integer "document_file_file_size", null: false
     t.datetime "document_file_updated_at", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -606,6 +612,7 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.bigint "project_id"
+    t.boolean "is_public"
     t.index ["created_by_id"], name: "index_downloads_on_created_by_id"
     t.index ["filename"], name: "index_downloads_on_filename"
     t.index ["project_id"], name: "index_downloads_on_project_id"
@@ -783,8 +790,8 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
     t.string "vernacularName"
     t.string "waterBody"
     t.string "year"
-    t.string "dwc_occurrence_object_type"
     t.integer "dwc_occurrence_object_id"
+    t.string "dwc_occurrence_object_type"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id"
@@ -950,6 +957,7 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
     t.string "relation"
     t.integer "position"
     t.index ["created_by_id"], name: "index_identifiers_on_created_by_id"
+    t.index ["identifier"], name: "index_identifiers_on_identifier"
     t.index ["identifier_object_id", "identifier_object_type"], name: "index_identifiers_on_identifier_object_id_and_type"
     t.index ["namespace_id"], name: "index_identifiers_on_namespace_id"
     t.index ["project_id"], name: "index_identifiers_on_project_id"
@@ -968,7 +976,7 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
     t.datetime "updated_at", null: false
     t.string "image_file_file_name"
     t.string "image_file_content_type"
-    t.bigint "image_file_file_size"
+    t.integer "image_file_file_size"
     t.datetime "image_file_updated_at"
     t.integer "updated_by_id", null: false
     t.text "image_file_meta"
@@ -1028,8 +1036,8 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
     t.integer "project_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "loan_item_object_type"
     t.integer "loan_item_object_id"
+    t.string "loan_item_object_type"
     t.integer "total"
     t.string "disposition"
     t.index ["created_by_id"], name: "index_loan_items_on_created_by_id"
@@ -1058,7 +1066,7 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
     t.datetime "updated_at", null: false
     t.string "recipient_honorific"
     t.string "recipient_country"
-    t.text "lender_address", null: false
+    t.text "lender_address", default: "Lender's address not provided.", null: false
     t.index ["created_by_id"], name: "index_loans_on_created_by_id"
     t.index ["project_id"], name: "index_loans_on_project_id"
     t.index ["updated_by_id"], name: "index_loans_on_updated_by_id"
@@ -1247,10 +1255,10 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
   end
 
   create_table "origin_relationships", id: :serial, force: :cascade do |t|
-    t.string "old_object_type", null: false
     t.integer "old_object_id", null: false
-    t.string "new_object_type", null: false
+    t.string "old_object_type", null: false
     t.integer "new_object_id", null: false
+    t.string "new_object_type", null: false
     t.integer "position"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1331,8 +1339,8 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
   end
 
   create_table "pinboard_items", id: :serial, force: :cascade do |t|
-    t.string "pinned_object_type", null: false
     t.integer "pinned_object_id", null: false
+    t.string "pinned_object_type", null: false
     t.integer "user_id", null: false
     t.integer "project_id", null: false
     t.integer "position", null: false
@@ -1396,7 +1404,7 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
     t.datetime "updated_at", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.jsonb "preferences", default: "{}", null: false
+    t.jsonb "preferences", default: {}, null: false
     t.string "api_access_token"
     t.index ["created_by_id"], name: "index_projects_on_created_by_id"
     t.index ["updated_by_id"], name: "index_projects_on_updated_by_id"
@@ -1404,8 +1412,8 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
 
   create_table "protocol_relationships", id: :serial, force: :cascade do |t|
     t.integer "protocol_id", null: false
-    t.string "protocol_relationship_object_type", null: false
     t.integer "protocol_relationship_object_id", null: false
+    t.string "protocol_relationship_object_type", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1570,6 +1578,24 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
     t.index ["url"], name: "index_shortened_urls_on_url"
   end
 
+  create_table "sled_images", force: :cascade do |t|
+    t.bigint "image_id", null: false
+    t.jsonb "metadata"
+    t.jsonb "object_layout"
+    t.integer "cached_total_rows"
+    t.integer "cached_total_columns"
+    t.integer "cached_total_collection_objects", default: 0, null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.bigint "project_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["created_by_id"], name: "index_sled_images_on_created_by_id"
+    t.index ["image_id"], name: "index_sled_images_on_image_id"
+    t.index ["project_id"], name: "index_sled_images_on_project_id"
+    t.index ["updated_by_id"], name: "index_sled_images_on_updated_by_id"
+  end
+
   create_table "sources", id: :serial, force: :cascade do |t|
     t.integer "serial_id"
     t.string "address"
@@ -1636,8 +1662,8 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
     t.string "boundary_finder", null: false
     t.boolean "has_border", null: false
     t.string "layout", null: false
-    t.jsonb "metadata_map", default: "{}", null: false
-    t.jsonb "specimen_coordinates", default: "{}", null: false
+    t.jsonb "metadata_map", default: {}, null: false
+    t.jsonb "specimen_coordinates", default: {}, null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1807,14 +1833,14 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
 
   create_table "type_materials", id: :serial, force: :cascade do |t|
     t.integer "protonym_id", null: false
-    t.integer "biological_object_id", null: false
+    t.integer "collection_object_id", null: false
     t.string "type_type", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["biological_object_id"], name: "index_type_materials_on_biological_object_id"
+    t.index ["collection_object_id"], name: "index_type_materials_on_collection_object_id"
     t.index ["created_by_id"], name: "index_type_materials_on_created_by_id"
     t.index ["project_id"], name: "index_type_materials_on_project_id"
     t.index ["protonym_id"], name: "index_type_materials_on_protonym_id"
@@ -1967,6 +1993,7 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
   add_foreign_key "data_attributes", "projects", name: "data_attributes_project_id_fkey"
   add_foreign_key "data_attributes", "users", column: "created_by_id", name: "data_attributes_created_by_id_fkey"
   add_foreign_key "data_attributes", "users", column: "updated_by_id", name: "data_attributes_updated_by_id_fkey"
+  add_foreign_key "depictions", "sled_images"
   add_foreign_key "descriptors", "projects"
   add_foreign_key "descriptors", "users", column: "created_by_id"
   add_foreign_key "descriptors", "users", column: "updated_by_id"
@@ -2145,6 +2172,9 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
   add_foreign_key "serials", "serials", column: "translated_from_serial_id", name: "serials_translated_from_serial_id_fkey"
   add_foreign_key "serials", "users", column: "created_by_id", name: "serials_created_by_id_fkey"
   add_foreign_key "serials", "users", column: "updated_by_id", name: "serials_updated_by_id_fkey"
+  add_foreign_key "sled_images", "projects"
+  add_foreign_key "sled_images", "users", column: "created_by_id"
+  add_foreign_key "sled_images", "users", column: "updated_by_id"
   add_foreign_key "sources", "languages", name: "sources_language_id_fkey"
   add_foreign_key "sources", "serials", name: "sources_serial_id_fkey"
   add_foreign_key "sources", "users", column: "created_by_id", name: "sources_created_by_id_fkey"
@@ -2180,7 +2210,7 @@ ActiveRecord::Schema.define(version: 2019_10_10_200049) do
   add_foreign_key "taxon_names", "taxon_names", column: "parent_id", name: "taxon_names_parent_id_fkey"
   add_foreign_key "taxon_names", "users", column: "created_by_id", name: "taxon_names_created_by_id_fkey"
   add_foreign_key "taxon_names", "users", column: "updated_by_id", name: "taxon_names_updated_by_id_fkey"
-  add_foreign_key "type_materials", "collection_objects", column: "biological_object_id", name: "type_materials_biological_object_id_fkey"
+  add_foreign_key "type_materials", "collection_objects", name: "type_materials_biological_object_id_fkey"
   add_foreign_key "type_materials", "projects", name: "type_materials_project_id_fkey"
   add_foreign_key "type_materials", "taxon_names", column: "protonym_id", name: "type_materials_protonym_id_fkey"
   add_foreign_key "type_materials", "users", column: "created_by_id", name: "type_materials_created_by_id_fkey"

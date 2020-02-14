@@ -183,7 +183,6 @@ class TaxonName < ApplicationRecord
 
   validate :validate_rank_class_class,
     # :check_format_of_name,
-    :validate_parent_rank_is_higher,
     :validate_parent_from_the_same_project,
     :validate_parent_is_set,
     :check_new_rank_class,
@@ -449,6 +448,19 @@ class TaxonName < ApplicationRecord
   def year_integer
     return year_of_publication if !year_of_publication.nil?
     try(:source).try(:year)
+  end
+
+  # @return String, nil
+  #  # virtual attribute, to ultimately be fixed in db
+  def cached_year
+    a = cached_author_year&.match(/\d{4}/)
+    a ? a[0] : nil
+  end
+
+  # @return String, nil
+  #  # virtual attribute, to ultimately be fixed in db
+  def cached_author
+    cached_author_year&.gsub(/,\s\d+/, '')
   end
 
   # !! Overrides Shared::Citations#nomenclature_date
@@ -844,7 +856,6 @@ class TaxonName < ApplicationRecord
     if self.new_record?
       ancestors_through_parents
     else
-
       self.self_and_ancestors.reload.to_a.reverse ## .self_and_ancestors returns empty array!!!!!!!
     end
   end
@@ -861,6 +872,14 @@ class TaxonName < ApplicationRecord
       data.push([rank] + send(method, i, gender)) if self.respond_to?(method)
     end
     data
+  end
+
+  def ancestor_hash
+    h = {}
+    safe_self_and_ancestors.each do |n|
+      h[n.rank] = n.name
+    end
+    h
   end
 
   # @!return [ { rank => [prefix, name] }
@@ -1236,18 +1255,6 @@ class TaxonName < ApplicationRecord
   def validate_parent_is_set
     if !(rank_class == NomenclaturalRank) && !(type == 'Combination')
       errors.add(:parent_id, 'is not selected') if !parent_is_set?  # parent_id.blank? && (parent.blank? || !parent.persisted?)
-    end
-  end
-
-  def validate_parent_rank_is_higher
-    if parent && !rank_class.blank? && rank_string != 'NomenclaturalRank'
-      if RANKS.index(rank_string) <= RANKS.index(parent.rank_string)
-        errors.add(:parent_id, "The parent rank (#{parent.rank_class.rank_name}) is not higher than the rank (#{rank_name}) of this taxon")
-      end
-
-      if (rank_class != rank_class_was) && children && !children.empty? && RANKS.index(rank_string) >= children.collect { |r| RANKS.index(r.rank_string).to_i }.max
-        errors.add(:rank_class, "The rank of this taxon (#{rank_name}) should be higher than the ranks of children")
-      end
     end
   end
 

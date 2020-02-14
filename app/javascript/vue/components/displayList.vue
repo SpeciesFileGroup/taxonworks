@@ -5,7 +5,7 @@
     tag="ul">
     <li
       v-for="item in list"
-      :key="setKey ? item[setKey] : item.id"
+      :key="setKey ? item[setKey] : item.hasOwnProperty('id') ? item.id : JSON.stringify(item)"
       class="list-complete-item flex-separate middle"
       :class="{ 'highlight': checkHighlight(item) }">
       <span
@@ -37,8 +37,8 @@
 </template>
 <script>
 
-import RadialAnnotator from './annotator/annotator.vue'
-import RadialObject from './radial_object/radialObject.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialObject from 'components/radials/navigation/radial.vue'
 
 export default {
   components: {

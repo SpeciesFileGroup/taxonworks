@@ -8,6 +8,7 @@ export default function ({ commit, state }) {
   keys.forEach(key => {
     newCO[key] = locked[key] ? state.collection_object[key] : undefined
   })
+  history.pushState(null, null, `/tasks/accessions/comprehensive`)
   commit(MutationNames.SetCollectionObject, newCO)
   commit(MutationNames.NewTypeMaterial)
 }

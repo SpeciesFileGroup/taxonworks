@@ -30,8 +30,6 @@ module BatchLoad
       super(**args)
     end
 
-    # rubocop:disable Metrics/MethodLength
-    # rubocop:disable Metrics/BlockNesting
     # @return [Integer] total data lines
     def build_da_for_otus
       @total_data_lines = 0
@@ -47,7 +45,7 @@ module BatchLoad
         parse_result = BatchLoad::RowParse.new
         parse_result.objects[:otu] = []
         parse_result.objects[:data_attribute] = []
-        parse_result.objects[:citation] = [] # if create_citation
+        parse_result.objects[:citation] = []  # if create_citation
         parse_result.objects[:predicate] = [] # unless import_klass
         @processed_rows[i] = parse_result
 
@@ -61,18 +59,17 @@ module BatchLoad
           if import_klass
             new_da_attributes[:import_predicate] = predicate
           else
-            new_cvt = Predicate.find_or_initialize_by(name: predicate,
-                                                      definition: "Imported from #{file.original_filename}",
-                                                      project_id: real_project_id)
-            # new_da_attributes[:controlled_vocabulary_term_id] =
-            #     ias.item.blank? ? new_predicate&.id : ias.item.controlled_vocabulary_term_id
+            new_cvt = Predicate.find_or_initialize_by(
+              name: predicate,
+              definition: "Imported from #{file.original_filename}",
+              project_id: real_project_id)
           end
           new_da = att_klass.new(new_da_attributes)
 
           otus = BatchLoad::ColumnResolver.otu(row)
           find_name = row['otuname']
+
           if otus.no_matches? # can't find any by that name
-            # find_name = row['otuname']
             otus.assign(Otu.new(name: find_name, project_id: real_project_id))
           end
 
@@ -127,7 +124,6 @@ module BatchLoad
       @total_lines = i
     end
 
-    # rubocop:enable Metrics/MethodLength
     # Remove new objects which are not wanted, per args
     # @return [Boolean] true
     def create
@@ -152,14 +148,12 @@ module BatchLoad
               processed_row.objects[:citation] = []
             end
           end
-        else  # wipe out all objects
+        else # wipe out all objects
           processed_row.objects.each_key { |kee| processed_row.objects[kee] = [] }
         end
       end
       super
     end
-
-    # rubocop:enable Metrics/BlockNesting
 
     # @return [Boolean] true if build process has run
     def build

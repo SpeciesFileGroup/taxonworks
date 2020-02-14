@@ -47,11 +47,10 @@
         :class="{'ce-row': highlightId == item.id}"
         @mouseover="$emit('mouseover', item)"
       >
-        <td>{{ item.id }}</td>
+        <td><a :href="`/tasks/collecting_events/browse?collecting_event_id=${item.id}`">{{ item.id }}</a></td>
         <td class="my-column">
           <a
-            :href="`/collecting_events/${item.id}`"
-            target="_blank"
+            :href="`/tasks/collecting_events/browse?collecting_event_id=${item.id}`"
             v-html="item.verbatim_locality"
           />
         </td>
@@ -86,8 +85,8 @@
 
 <script>
 
-import RadialAnnotator from 'components/annotator/annotator'
-import ObjectAnnotator from 'components/radial_object/radialObject'
+import RadialAnnotator from 'components/radials/annotator/annotator'
+import ObjectAnnotator from 'components/radials/navigation/radial'
 import PinComponent from "components/pin.vue"
 import CheckboxComponent from './checkboxComponent'
 

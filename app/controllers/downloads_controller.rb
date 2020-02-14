@@ -1,7 +1,7 @@
 class DownloadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_download, only: [:show, :download_file, :destroy]
+  before_action :set_download, only: [:show, :download_file, :destroy, :update]
 
   # GET /downloads
   # GET /downloads.json
@@ -24,6 +24,13 @@ class DownloadsController < ApplicationController
     end
   end
 
+  # PATCH /downloads/1
+  # PATCH /downloads/1.json
+  def update 
+    @download.update(download_params)
+    render action: :show
+  end
+
   # GET /downloads/list
   # GET /downloads/list.json
   def list
@@ -40,6 +47,14 @@ class DownloadsController < ApplicationController
     end
   end
 
+  def api_file
+    send_file @download.file_path
+  end
+
+  def api_show
+    render '/downloads/api/index.json.jbuilder'
+  end
+
   private
 
   def set_download
@@ -47,6 +62,6 @@ class DownloadsController < ApplicationController
   end
 
   def download_params
-    params.require(:download).permit()
+    params.require(:download).permit(:is_public)
   end
 end
