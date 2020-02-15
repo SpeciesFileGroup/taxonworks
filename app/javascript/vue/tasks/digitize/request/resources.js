@@ -34,8 +34,16 @@ const handleError = function (json) {
   TW.workbench.alert.create(errorMessage, 'error')
 }
 
+const GetProjectPreferences = function () {
+  return ajaxCall('get', `/project_preferences.json`)
+}
+
 const GetUserPreferences = function () {
   return ajaxCall('get', `/preferences.json`)
+}
+
+const GetSoftValidation = function (globalId) {
+  return ajaxCall('get', `/soft_validations/validate`, { params: { global_id: globalId } })
 }
 
 const CheckForExistingIdentifier = function (namespaceId, identifier) {
@@ -52,6 +60,10 @@ const GetLabelsFromCE = function (id) {
 
 const GetRecentCollectionObjects = function () {
   return ajaxCall('get', `/tasks/accessions/report/dwc.json?per=10`)
+}
+
+const GetCEMd5Label = function (label) {
+  return ajaxCall('get', `/collecting_events`, { params: { md5_verbatim_label: true, in_labels: label } })
 }
 
 const UpdateUserPreferences = function (id, data) {
@@ -107,7 +119,7 @@ const GetTaxonDeterminationCO = function (id) {
 }
 
 const GetTypeMaterialCO = function (id) {
-  return ajaxCall('get', `/type_materials.json?biological_object_id=${id}`)
+  return ajaxCall('get', `/type_materials.json?collection_object_id=${id}`)
 }
 
 const GetOtu = function (id) {
@@ -307,6 +319,9 @@ const DestroyBiologicalAssociation = function (id) {
 }
 
 export {
+  GetProjectPreferences,
+  GetCEMd5Label,
+  GetSoftValidation,
   CheckForExistingIdentifier,
   CloneCollectionEvent,
   GetLabelsFromCE,

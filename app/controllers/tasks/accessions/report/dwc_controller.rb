@@ -7,6 +7,8 @@ class Tasks::Accessions::Report::DwcController < ApplicationController
       format.html do
         @collection_objects = CollectionObject.order(:id).includes(:dwc_occurrence).with_project_id(sessions_current_project_id).page(params[:page]).per(params[:per] || 30)
       end
+
+      # TODO: this is replaced with /collection_objects/report
       format.json {
         # TEMPORARY HACK! To be resolved with proper filter params at some points
         # Currently only used in digitize recent modal

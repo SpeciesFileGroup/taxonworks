@@ -2,7 +2,7 @@ class Observation::Qualitative < Observation
  
   belongs_to :character_state
   
-  validates_presence_of :character_state
+  validates_presence_of :character_state_id
   validate :character_state_is_unique
 
   protected

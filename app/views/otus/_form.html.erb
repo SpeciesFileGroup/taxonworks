@@ -4,19 +4,20 @@
   <div class="field">
     <%= f.label :name %>
     <br>
-    <%= f.text_field :name %>
+    <%= f.text_field :name, size: 60 %>
   </div>
 
   <div class="field">
     <%= f.label :taxon_name %>
     <br>
     <%= render partial: 'workbench/elements/forms/ajax_select',
-      locals:  {controller:  'taxon_names',
-                object: 'otu',
-                method:  'taxon_name_id',
-                tag_id:  'taxon_name_id_for_otu',
-                display:  taxon_name_autocomplete_selected_tag(@otu.taxon_name),
-                size: 20} %>
+      locals: {
+      controller:  'taxon_names',
+      object: 'otu',
+      method:  'taxon_name_id',
+      tag_id:  'taxon_name_id_for_otu',
+      display:  taxon_name_autocomplete_selected_tag(@otu.taxon_name),
+      size: 60} %>
   </div>
 
   <div class="actions">

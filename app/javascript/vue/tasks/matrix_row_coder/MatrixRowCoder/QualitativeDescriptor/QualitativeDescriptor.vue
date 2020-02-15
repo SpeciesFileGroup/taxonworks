@@ -32,7 +32,7 @@ import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
 
 import summaryView from '../SummaryView/SummaryView.vue'
-import RadialAnnotator from 'components/annotator/annotator'
+import RadialAnnotator from 'components/radials/annotator/annotator'
 
 import descriptorDetails from '../DescriptorDetails/DescriptorDetails.vue'
 

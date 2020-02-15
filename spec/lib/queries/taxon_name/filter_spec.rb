@@ -109,13 +109,13 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
   specify '#type_metadata 3' do
     query.type_metadata = true
     query.name = species.name
-    TypeMaterial.create!(protonym: species, type_type: 'holotype', material:  FactoryBot.create(:valid_specimen)) 
+    TypeMaterial.create!(protonym: species, type_type: 'holotype', collection_object:  FactoryBot.create(:valid_specimen)) 
     expect(query.all.map(&:id)).to contain_exactly(species.id)  
   end
 
   specify '#type_metadata 4' do
     query.type_metadata = false 
-    TypeMaterial.create!(protonym: species, type_type: 'holotype', material:  FactoryBot.create(:valid_specimen)) 
+    TypeMaterial.create!(protonym: species, type_type: 'holotype', collection_object:  FactoryBot.create(:valid_specimen)) 
     expect(query.all.map(&:id)).to contain_exactly(root.id, genus.id, original_genus.id)  
   end
 
@@ -221,7 +221,7 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
   specify 'all filters combined' do
     Citation.create!(citation_object: species, source: FactoryBot.create(:valid_source))
     Otu.create!(taxon_name: species)
-    TypeMaterial.create!(protonym: species, type_type: 'holotype', material: FactoryBot.create(:valid_specimen))
+    TypeMaterial.create!(protonym: species, type_type: 'holotype', collection_object: FactoryBot.create(:valid_specimen))
     TaxonNameClassification::Iczn::Available.create!(taxon_name: species)
     TaxonNameRelationship::Typification::Genus.create!(subject_taxon_name_id: species.id, object_taxon_name_id: genus.id)
     species.update(updated_at: '2050/1/1')

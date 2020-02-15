@@ -1,3 +1,4 @@
+import setGeographicArea from './setGeographicArea'
 import setSubsequentialUses from './setSubsequentialUses'
 
 import setLocked from './setLocked'
@@ -116,9 +117,11 @@ import setTaxonDeterminationDay from './TaxonDetermination/setTaxonDetermination
 import setTaxonDeterminationRoles from './TaxonDetermination/setTaxonDeterminationRoles'
 
 import setTmpDataOtu from './tmpData/setTmpDataOtu'
+import setProjectPreferences from './setProjectPreferences'
 
 const MutationNames = {
 
+  SetGeographicArea: 'setGeographicArea',
   SetTmpDataOtu: 'setTmpDataOtu',
   SetSubsequentialUses: 'setSubsequentialUses',
 
@@ -235,10 +238,13 @@ const MutationNames = {
   SetCollectionObjectPreparationId: 'setCollectionObjectPreparationId',
   SetCollectionObjectRangeLotId: 'setCollectionObjectRangeLotId',
   SetCollectionObjectRepositoryId: 'setCollectionObjectRepositoryId',
-  SetCollectionObjectTotal: 'setCollectionObjectTotal'  
+  SetCollectionObjectTotal: 'setCollectionObjectTotal',
+  SetProjectPreferences: 'setProjectPreferences'
 }
 
 const MutationFunctions = {
+  [MutationNames.SetProjectPreferences]: setProjectPreferences,
+  [MutationNames.SetGeographicArea]: setGeographicArea,
   [MutationNames.SetTmpDataOtu]: setTmpDataOtu,
   [MutationNames.SetSubsequentialUses]: setSubsequentialUses,
 

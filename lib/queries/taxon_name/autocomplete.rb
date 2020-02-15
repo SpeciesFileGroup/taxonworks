@@ -39,7 +39,7 @@ module Queries
         @valid = valid == 'true' ? true : (valid == 'false' ? false : nil)
         @type = type
         @parent_id = parent_id
-        @no_leaves = exact == 'true' ? true : (exact == 'false' ? false : nil)
+        @no_leaves = no_leaves == 'true' ? true : (no_leaves == 'false' ? false : nil)
         @exact = exact == 'true' ? true : (exact == 'false' ? false : nil)
         super
       end
@@ -264,9 +264,19 @@ module Queries
         base_query.where(table[:cached_author_year].matches(a).to_sql).limit(10)
       end
 
-      # rubocop:disable Metrics/MethodLength
-      # @return [Array]
-      def autocomplete
+      # Used in new taxon name, for example
+      def exact_autocomplete
+        [
+          autocomplete_exact_cached,
+          autocomplete_exact_cached_original_combination,
+          autocomplete_exact_name_and_year,
+          autocomplete_top_name,
+          autocomplete_top_cached,
+          autocomplete_cached_end_wildcard
+        ]
+      end
+
+      def comprehensive_autocomplete
         z = genus_species
 
         queries = [
@@ -291,6 +301,12 @@ module Queries
           autocomplete_wildcard_author_year_joined_pieces,
           autocomplete_wildcard_cached_original_combination
         ]
+      end
+
+      # rubocop:disable Metrics/MethodLength
+      # @return [Array]
+      def autocomplete
+        queries = (exact ? exact_autocomplete : comprehensive_autocomplete)
         queries.compact!
 
         result = []
@@ -298,7 +314,7 @@ module Queries
         queries.each_with_index do |q,i|
           a = q
           a = q.where(project_id: project_id) if project_id
-          a = a.where(and_clauses.to_sql) if and_clauses
+          a = a.where(and_clauses.to_sql) if and_clauses # TODO: duplicates clauses like exact!!
           a = a.not_leaves if no_leaves
           result += a.to_a
           break if result.count > 19
@@ -350,15 +366,15 @@ module Queries
 
       # @return [String]
       def authorship
-        parser = ScientificNameParser.new
+        parser = ::Biodiversity::Parser
         a = parser.parse(query_string)
-        b = a[:scientificName]
+        b = a
         return nil if b.nil? or b[:details].nil?
 
         b[:details].each do |detail|
           detail.each_value do |v|
             if v.kind_of?(Hash) && v[:authorship]
-              return v[:authorship]
+              return v[:authorship][:value]
             end
           end
         end

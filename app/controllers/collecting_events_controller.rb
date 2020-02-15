@@ -253,13 +253,12 @@ class CollectingEventsController < ApplicationController
                                        project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
-
-
   def filter_params
     # TODO: unify for use in CO
     params.permit(
       Queries::CollectingEvent::Filter::ATTRIBUTES,
       :in_labels,
+      :md5_verbatim_label,
       :in_verbatim_locality,
       :recent,
       :wkt,

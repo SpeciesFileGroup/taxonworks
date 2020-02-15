@@ -3,6 +3,7 @@
     <div class="flex-separate middle">
       <h1>{{ (getTaxon.id ? 'Edit' : 'New') }} taxon name</h1>
       <autocomplete
+        class="autocomplete-search-bar"
         url="/taxon_names/autocomplete"
         param="term"
         :add-params="{ 'type[]': 'Protonym' }"
@@ -259,6 +260,12 @@ export default {
     margin: 0 auto;
     margin-top: 1em;
     max-width: 1240px;
+
+    .autocomplete-search-bar {
+      input {
+        width: 500px;
+      }
+    }
 
     .cleft, .cright {
       min-width: 350px;

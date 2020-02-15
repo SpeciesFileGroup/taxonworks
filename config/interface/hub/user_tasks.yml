@@ -12,7 +12,7 @@
 #   name* - a friendly human readable name describing the task
 #   description - a sentence or two further defining what the task will do for the user
 #   hub - true if this tasks should appear at the hub, these tasks MAY NOT require parameters
-#   categories - an array of one ore more of [nomenclature, source, collection_object, collecting_event, biology, matrix, dna]
+#   categories - an array of one ore more of [nomenclature, source, collection_object, collecting_event, biology, matrix, dna, image]
 #   status - one of [complete, stable, prototype,  unknown (default) ]
 #               complete: users can expect the interfaces to remain in their present form
 #               stable: primary elements are complete, but minor changes (CSS, feedback etc.) may change
@@ -90,6 +90,7 @@ sqed_depiction_breakdown_todo_map_task:
   categories:
     - collecting_event
     - collection_object
+    - image
   status: stable
 simple_specimen_task:
   hub: true
@@ -416,6 +417,7 @@ index_matrix_image_task:
   related:
   categories:
     - matrix
+    - image
   status: prototype
   description: 'Code a special type of image-based matrix by organizing images into a matrix.  Uses media-type descriptors.'
 index_dashboard_task:
@@ -479,6 +481,7 @@ collection_object_summary_task:
   categories:
     - collection_object
   status: prototype
+  description: 'Summary statistics for the collection(s) managed in this project'
 browse_collecting_events_task:
   hub: true
   name: 'Browse collecting events'
@@ -487,3 +490,28 @@ browse_collecting_events_task:
     - collecting_event 
   status: prototype
   description: 'View individual collecting events and their related.'
+biological_relationship_composer_task:
+  hub: true
+  name: 'Compose biological relationships'
+  related:
+  categories:
+    - biology
+  status: prototype
+  description: 'Define and add properties to biological relationships, e.g. things like "host/paraiste".'
+grid_digitize_task:
+  hub: true
+  name: 'Grid digitizer'
+  related:
+  categories:
+    - collection_object
+    - image
+  status: prototype
+  description: 'Break images of collection objects in a grid (e.g. slide folders) into individual collection objects and their depictions.'
+export_basic_nomenclature_task:
+  hub: true
+  name: 'Download nomenclature (basic)'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Download (also generate for API) a CSV table of the nomenclature with just the name, and a subset of the hierarchy'

@@ -28,7 +28,9 @@
       </div>
       <div v-if="!taxonRelation">
         <hard-validation field="object_taxon_name_id">
-          <div slot="body">
+          <div
+            class="horizontal-left-content"
+            slot="body">
             <autocomplete
               url="/taxon_names/autocomplete"
               label="label_html"
@@ -38,72 +40,99 @@
               placeholder="Search taxon name for the new relationship..."
               :add-params="{ type: 'Protonym', 'nomenclature_group[]': getRankGroup }"
               param="term"/>
+            <button
+              v-if="Object.keys(insertaeSedis).includes(nomenclaturalCode)"
+              type="button"
+              class="button normal-input button-default margin-small-left"
+              @click="setInsertaeSedis">
+              Set to parent
+            </button>
           </div>
         </hard-validation>
       </div>
-      <div v-else>
-        <tree-display
-          :tree-list="treeList"
-          :parent="parent"
-          :object-lists="objectLists"
-          :show-modal="showModal"
-          valid-property="valid_subject_ranks"
-          @selected="addEntry"
-          mutation-name-add="AddTaxonRelationship"
-          mutation-name-modal="SetModalRelationship"
-          name-module="Relationship"
-          display-name="subject_status_tag"/>
-        <div class="switch-radio">
-          <input
-            name="relationship-picker-options"
-            id="relationship-picker-common"
-            checked
-            type="radio"
-            class="normal-input button-active"
-            @click="showAdvance = false">
-          <label for="relationship-picker-common">Common</label>
-          <input
-            name="relationship-picker-options"
-            id="relationship-picker-advanced"
-            type="radio"
-            class="normal-input"
-            @click="showAdvance = true">
-          <label for="relationship-picker-advanced">Advanced</label>
-          <input
-            name="relationship-picker-options"
-            id="relationship-picker-showall"
-            type="radio"
-            class="normal-input"
-            @click="activeModal(true)">
-          <label for="relationship-picker-showall">Show all</label>
+      <template v-else>
+        <div v-if="isInsertaeSedis">
+          <p class="inline">
+            <span v-html="taxonLabel"/>
+            <span
+              type="button"
+              title="Undo"
+              class="circle-button button-default btn-undo"
+              @click="taxonRelation = undefined"/>
+          </p>
+          <ul class="no_bullets">
+            <li @click="addEntry(insertaeSedis[nomenclaturalCode])">
+              <label>
+                <input type="radio">
+                Insertae sedis
+              </label>
+            </li>
+          </ul>
         </div>
-        <p class="inline">
-          <span v-html="taxonLabel"/>
-          <span
-            type="button"
-            title="Undo"
-            class="circle-button button-default btn-undo"
-            @click="taxonRelation = undefined"/>
-        </p>
-        <div class="separate-top">
-          <autocomplete
-            v-if="showAdvance"
-            :array-list="objectLists.allList"
-            label="subject_status_tag"
-            min="3"
-            time="0"
-            placeholder="Search"
-            event-send="autocompleteRelationshipSelected"
-            @getItem="addEntry"
-            param="term"/>
-          <list-common
-            v-if="!showAdvance"
-            :object-lists="objectLists.commonList"
-            @addEntry="addEntry"
-            display="subject_status_tag"
-            :list-created="GetRelationshipsCreated"/>
+        <div v-else>
+          <tree-display
+            :tree-list="treeList"
+            :parent="parent"
+            :object-lists="objectLists"
+            :show-modal="showModal"
+            valid-property="valid_subject_ranks"
+            @selected="addEntry"
+            mutation-name-add="AddTaxonRelationship"
+            mutation-name-modal="SetModalRelationship"
+            name-module="Relationship"
+            display-name="subject_status_tag"/>
+          <div class="switch-radio">
+            <input
+              name="relationship-picker-options"
+              id="relationship-picker-common"
+              checked
+              type="radio"
+              class="normal-input button-active"
+              @click="showAdvance = false">
+            <label for="relationship-picker-common">Common</label>
+            <input
+              name="relationship-picker-options"
+              id="relationship-picker-advanced"
+              type="radio"
+              class="normal-input"
+              @click="showAdvance = true">
+            <label for="relationship-picker-advanced">Advanced</label>
+            <input
+              name="relationship-picker-options"
+              id="relationship-picker-showall"
+              type="radio"
+              class="normal-input"
+              @click="activeModal(true)">
+            <label for="relationship-picker-showall">Show all</label>
+          </div>
+          <p class="inline">
+            <span v-html="taxonLabel"/>
+            <span
+              type="button"
+              title="Undo"
+              class="circle-button button-default btn-undo"
+              @click="taxonRelation = undefined"/>
+          </p>
+          <div class="separate-top">
+            <autocomplete
+              v-if="showAdvance"
+              :array-list="objectLists.allList"
+              label="subject_status_tag"
+              min="3"
+              time="0"
+              placeholder="Search"
+              event-send="autocompleteRelationshipSelected"
+              @getItem="addEntry"
+              param="term"/>
+            <list-common
+              v-if="!showAdvance"
+              :object-lists="objectLists.commonList"
+              @addEntry="addEntry"
+              display="subject_status_tag"
+              :list-created="GetRelationshipsCreated"/>
+          </div>
         </div>
-      </div>
+      </template>
       <list-entrys
         @update="loadTaxonRelationships"
         @addCitation="setRelationship"
@@ -191,7 +220,12 @@ export default {
       editMode: undefined,
       options: [],
       lists: undefined,
-      view: 'search'
+      view: 'search',
+      isInsertaeSedis: false,
+      insertaeSedis: {
+        iczn: { type: 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement' },
+        ictv: { type: 'TaxonNameRelationship::Ictv::Accepting::UncertainPlacement' }
+      }
     }
   },
   watch: {
@@ -203,17 +237,11 @@ export default {
       immediate: true
     }
   },
-  mounted() {
-    /*
-    GetTaxonNameSmartSelector().then(response => {
-      this.options = orderSmartSelector(Object.keys(response))
-      this.options.push('search')
-      this.lists = response
-      this.view = selectFirstSmartOption(response, this.options)
-    })
-    */
-  },
   methods: {
+    setInsertaeSedis: function () {
+      this.isInsertaeSedis = true
+      this.taxonRelation = this.parent
+    },
     loadTaxonRelationships: function () {
       this.$store.dispatch(ActionNames.LoadTaxonRelationships, this.taxon.id)
     },
@@ -272,6 +300,7 @@ export default {
           this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
         })
       }
+      this.isInsertaeSedis = false
     },
     closeEdit() {
       this.editMode = undefined

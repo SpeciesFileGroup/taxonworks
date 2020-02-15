@@ -28,3 +28,7 @@ class BiologicalRelationshipType < ApplicationRecord
   validates :biological_property, presence: true
   validates :biological_relationship, presence: true
 end
+
+
+Dir[Rails.root.to_s + '/app/models/biological_relationship_type/**/*.rb'].each { |file| require_dependency file }
+

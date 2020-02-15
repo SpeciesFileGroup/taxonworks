@@ -450,6 +450,19 @@ class TaxonName < ApplicationRecord
     try(:source).try(:year)
   end
 
+  # @return String, nil
+  #  # virtual attribute, to ultimately be fixed in db
+  def cached_year
+    a = cached_author_year&.match(/\d{4}/)
+    a ? a[0] : nil
+  end
+
+  # @return String, nil
+  #  # virtual attribute, to ultimately be fixed in db
+  def cached_author
+    cached_author_year&.gsub(/,\s\d+/, '')
+  end
+
   # !! Overrides Shared::Citations#nomenclature_date
   #
   # @return [Time]
@@ -843,7 +856,6 @@ class TaxonName < ApplicationRecord
     if self.new_record?
       ancestors_through_parents
     else
-
       self.self_and_ancestors.reload.to_a.reverse ## .self_and_ancestors returns empty array!!!!!!!
     end
   end
@@ -860,6 +872,14 @@ class TaxonName < ApplicationRecord
       data.push([rank] + send(method, i, gender)) if self.respond_to?(method)
     end
     data
+  end
+
+  def ancestor_hash
+    h = {}
+    safe_self_and_ancestors.each do |n|
+      h[n.rank] = n.name
+    end
+    h
   end
 
   # @!return [ { rank => [prefix, name] }

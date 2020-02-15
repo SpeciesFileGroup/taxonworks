@@ -20,6 +20,7 @@ export default function ({ commit, state }, determination) {
           addToList(response)
           resolve(response)
         }, (response) => {
+          TW.workbench.alert.create(JSON.stringify(Object.keys(response.body).map(key => { return response.body[key] }).join('<br>')), 'error')
           reject(response)
         })
       }
@@ -29,6 +30,7 @@ export default function ({ commit, state }, determination) {
           addToList(response)
           resolve(response)
         }, (response) => {
+          TW.workbench.alert.create(JSON.stringify(Object.keys(response.body).map(key => { return response.body[key] }).join('<br>')), 'error')
           reject(response)
         })
       }

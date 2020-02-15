@@ -19,7 +19,12 @@
           class="list-complete-item">
           <td>{{ item.id }}</td>
           <td>{{ item.geo_json.geometry.type }}</td>
-          <td>{{ item.error_radius }}</td>
+          
+          <td>
+            <edit-in-place 
+              v-model="item.error_radius"
+              @end="$emit('updateGeo', item)"/>
+          </td>
           <td>{{ item.type }}</td>
           <td class="vue-table-options">
             <radial-annotator
@@ -37,11 +42,13 @@
 </template>
 <script>
 
-import RadialAnnotator from 'components/annotator/annotator.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import EditInPlace from 'components/editInPlace'
 
 export default {
   components: {
-    RadialAnnotator
+    RadialAnnotator,
+    EditInPlace
   },
   props: {
     list: {

@@ -22,7 +22,7 @@
           :zoom="5"
           :lat="lat"
           :lng="lng"
-          :geographic-area="geoArea"
+          :geographic-area="geographicArea"
           :verbatim-lat="collectingEvent.verbatim_latitude"
           :verbatim-lng="collectingEvent.verbatim_longitude"
           :collecting-event-id="collectingEvent.id"/>
@@ -37,6 +37,7 @@ import ModalComponent from 'components/modal'
 import Georeferences from 'components/georeferences/georeferences'
 import { GetGeographicArea } from '../../../../request/resources'
 import { GetterNames } from '../../../../store/getters/getters.js'
+import { ActionNames } from '../../../../store/actions/actions'
 
 export default {
   components: {
@@ -52,6 +53,10 @@ export default {
     },
     lng() {
       return parseFloat(this.collectingEvent.verbatim_longitude)
+    },
+    geographicArea () {
+      if(!this.$store.getters[GetterNames.GetGeographicArea]) return
+      return this.$store.getters[GetterNames.GetGeographicArea]['shape']
     }
   },
   watch: {
@@ -59,15 +64,6 @@ export default {
       handler (newVal, oldVal) {
         if(!newVal.id) {
           this.count = 0
-        }
-        if(newVal.geographic_area_id) {
-          GetGeographicArea(newVal.geographic_area_id).then(response => { 
-            if(response.shape) {
-              this.geoArea = response.shape
-            }
-          })
-        } else {
-          this.geoArea = undefined
         }
       },
       deep: true,
@@ -77,14 +73,15 @@ export default {
   data () {
     return {
       show: false,
-      count: 0,
-      geoArea: undefined
+      count: 0
     }
   },
   methods: {
     onModal () {
-      this.show = !this.show
-      this.$emit('onModal', this.show)
+      this.$store.dispatch(ActionNames.SaveCollectionEvent, this.collectingEvent).then(() => {
+        this.show = !this.show
+        this.$emit('onModal', this.show)
+      })
     }
   }
 }

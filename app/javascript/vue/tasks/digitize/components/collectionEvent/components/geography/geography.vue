@@ -116,6 +116,14 @@
       },
       collectingEvent() {
         return this.$store.getters[GetterNames.GetCollectionEvent]
+      },
+      geographicAreaShape: { 
+        get () {
+          return this.$store.getters[GetterNames.GetGeographicArea]
+        },
+        set (value) {
+          this.$store.commit(MutationNames.SetGeographicArea, value)
+        }
       }
     },
     data() {
@@ -128,15 +136,19 @@
         showModal: false,
         delay: 1000,
         areasByCoors: [],
-        ajaxCall: undefined
+        ajaxCall: undefined,
+        geoId: undefined
       }
     },
     watch: {
       collectingEvent: {
         handler(newVal, oldVal) {
+          if (this.geoId && newVal && newVal.geographic_area_id === this.geoId) return
+          this.geoId = newVal.geographic_area_id
           if(newVal.geographic_area_id) {
             GetGeographicArea(newVal.geographic_area_id).then(response => {
               this.selectGeographicArea(response)
+              this.geographicAreaShape = response
             })
           } else {
             this.selected = undefined
@@ -146,9 +158,10 @@
               this.ajaxCall = setTimeout(() => { that.getByCoords(convertDMS(newVal.verbatim_latitude), convertDMS(newVal.verbatim_longitude)) }, this.delay)
             }
           }
-        },
-        deep: true
-      }
+        }
+      },
+      deep: true,
+      immediate: true
     },
     mounted () {
       this.GetSmartSelector()
@@ -157,6 +170,7 @@
       clearSelection() {
         this.selected = undefined
         this.geographicArea = null
+        this.geographicAreaShape = undefined
       },
       GetSmartSelector() {
         GetGeographicSmartSelector().then(response => {

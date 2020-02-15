@@ -4,10 +4,10 @@ export default function ({ commit, state }) {
   const type_material = {
     id: undefined,
     protonym_id: state.type_material.protonym_id,
-    biological_object_id: undefined,
+    collection_object_id: undefined,
     type_type: undefined,
     roles_attributes: [],
-    collection_object: {
+    collection_object_attributes: {
       id: undefined,
       total: 1,
       preparation_type_id: undefined,

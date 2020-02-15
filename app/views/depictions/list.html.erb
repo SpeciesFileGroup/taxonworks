@@ -14,7 +14,7 @@
   <% @depictions.each do |depiction| %>
       <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
           <td><%= object_tag(depiction.depiction_object.metamorphosize) %></td>
-          <td><%= image_tag(depiction.image.image_file.url(:thumb)) %></td>
+          <td><%= depiction_tag(depiction, size: :thumb) %></td>
           <%= fancy_metadata_cells_tag(depiction) -%>
       <% end %>
   <% end %>

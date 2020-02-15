@@ -19,7 +19,7 @@
           v-for="item in lists[view]"
           :key="item.id">
           <label
-            @click="$emit('selected', item)">
+            @click.prevent="sendObject(item)">
             <input type="radio">
             <span v-html="item[label]"/>
           </label>
@@ -27,6 +27,7 @@
       </ul>
       <div v-else>
         <autocomplete
+          v-if="autocomplete"
           :id="`smart-selector-${model}-autocomplete`"
           :input-id="inputId"
           class="separate-right"
@@ -39,6 +40,8 @@
           display="label"
           @getItem="getObject($event.id)"/>
       </div>
+      <slot>
+      </slot>
     </template>
   </div>
 </template>
@@ -67,6 +70,10 @@ export default {
       type: Object,
       default: undefined
     },
+    autocomplete: {
+      type: Boolean,
+      default: true
+    },
     autocompleteUrl: {
       type: String,
       default: undefined
@@ -84,6 +91,10 @@ export default {
       default: undefined
     },
     klass: {
+      type: String,
+      default: undefined
+    },
+    target: {
       type: String,
       default: undefined
     },
@@ -116,7 +127,7 @@ export default {
     }
   },
   mounted () {
-    AjaxCall('get', `/${this.model}/select_options`, { params: { klass: this.klass } }).then(response => {
+    AjaxCall('get', `/${this.model}/select_options`, { params: { klass: this.klass, target: this.target } }).then(response => {
       this.options = OrderSmart(Object.keys(response.body))
       this.lists = response.body
       this.view = SelectFirst(this.lists, this.options)
@@ -133,6 +144,9 @@ export default {
       AjaxCall('get', this.getUrl ? `${this.getUrl}${id}.json` : `/${this.model}/${id}.json`).then(response => {
         this.$emit('selected', response.body)
       })
+    },
+    sendObject(item) {
+      this.$emit('selected', item)
     }
   }
 }

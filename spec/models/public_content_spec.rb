@@ -9,8 +9,8 @@ describe PublicContent, type: :model do
     }
 
     context 'requires' do
-      specify 'topic' do
-        expect(public_content.errors.include?(:topic)).to be_truthy
+      specify 'topic_id' do
+        expect(public_content.errors.include?(:topic_id)).to be_truthy
       end
       specify 'text' do
         expect(public_content.errors.include?(:text)).to be_truthy

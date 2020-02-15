@@ -2,9 +2,9 @@ module ImagesHelper
 
   # !! Rails already provides image_tag, i.e. it is not required here.
 
-  def image_link(image)
+  def image_link(image, size: :thumb)
     return nil if image.nil?
-    link_to(image_tag(image.image_file.url(:thumb)), image)
+    link_to(image_tag(image.image_file.url(size)), image)
   end
 
   def images_search_form
@@ -36,10 +36,18 @@ module ImagesHelper
     if object.depictions.any?
       object.depictions.collect{|a|
         content_tag(:div, class: [:easyzoom, 'easyzoom--overlay'])  do
-          link_to(image_tag(a.image.image_file.url(:medium)), a.image.image_file.url())
-          
+          link_to( depiction_tag(a, size: :medium), a.image.image_file.url())
         end
       }.join.html_safe
+    end
+  end
+
+  def image_display_url(image)
+    case image.image_file_content_type
+    when 'image/tiff'
+      "/images/#{image.id}/extract/0/0/#{image.height}/#{image.width}"
+    else
+      root_url + image.image_file.url[1..-1]
     end
   end
 

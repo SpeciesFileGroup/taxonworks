@@ -11,6 +11,7 @@ module Shared::IsData
     include Levenshtein
     include Annotation
     include Scopes
+    include Navigation
   end
 
   module ClassMethods

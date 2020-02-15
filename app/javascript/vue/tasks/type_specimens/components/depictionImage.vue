@@ -69,7 +69,7 @@
 
 import Modal from 'components/modal.vue'
 import { UpdateDepiction } from '../request/resources'
-import RadialAnnotator from 'components/annotator/annotator'
+import RadialAnnotator from 'components/radials/annotator/annotator'
 
 export default {
   components: {
