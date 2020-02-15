@@ -18,7 +18,7 @@ gem 'rdf', '~> 3.0'
 
 # System
 gem 'thor', '~> 0.20.3'
-gem 'rubyzip', '~> 2.0.0'
+gem 'rubyzip', '~> 2.2.0'
 gem 'daemons', '~> 1.3.1'
 gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
 gem 'psych', '~> 3.1.0'
@@ -146,7 +146,7 @@ end
 group :test do
   gem 'rspec', '~> 3.6'
   gem 'coveralls', '~> 0.8.22', require: false
-  # gem 'capybara', '~> 3.18'
+  gem 'capybara', '~> 3.18'
   gem 'timecop', '~> 0.9.1'
   gem 'webmock', '~> 3.8' # , '>= 3.6.2'
   gem 'vcr', '~> 5.1'
