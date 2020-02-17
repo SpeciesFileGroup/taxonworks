@@ -2,9 +2,12 @@
 <template>
   <div id="vue-task-dwca-import-new">
     <h1>DwC-A file upload</h1>
-    <table-component
-      :table="dwcImport.core_table"
-      v-if="dwcImport"/>
+    <div
+      v-if="dwcImport"
+      class="overflow-scroll">
+      <table-component
+        :table="dwcImport.core_table"/>
+    </div>
     <new-import v-else/>
   </div>
 </template>
