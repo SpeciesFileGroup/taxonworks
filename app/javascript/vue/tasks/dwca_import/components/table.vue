@@ -10,8 +10,10 @@
       </tr>
     </thead>
     <tbody>
-      <row-component 
-        v-for="row in table.rows"
+      <row-component
+        v-for="(row, index) in table.rows"
+        class="contextMenuCells"
+        :class="{ 'even': (index % 2 == 0) }"
         :row="row"/>
     </tbody>
   </table>
