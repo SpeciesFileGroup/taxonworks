@@ -173,7 +173,11 @@ class TaxonName < ApplicationRecord
   #   When true cached values are not built
   attr_accessor :no_cached
 
-  after_save :create_new_combination_if_absent
+  # TODO: this was not implemented and tested properly
+  # I think the intent is *before* save, i.e. the name will change
+  # to a new cached value, so let's record the old one
+  #  after_save :create_new_combination_if_absent
+ 
   after_save :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
   after_save :set_cached_warnings, if: Proc.new {|n| n.no_cached }
 
@@ -296,7 +300,6 @@ class TaxonName < ApplicationRecord
   scope :with_parent_id, -> (parent_id) {where(parent_id: parent_id)}
   scope :with_cached_valid_taxon_name_id, -> (cached_valid_taxon_name_id) {where(cached_valid_taxon_name_id: cached_valid_taxon_name_id)}
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
-  scope :with_cached_html, -> (html) { where(cached_html: html) } # WHY? - DEPRECATE for cached
 
   scope :without_otus, -> { includes(:otus).where(otus: {id: nil}) }
   scope :with_otus, -> { includes(:otus).where.not(otus: {id: nil}) }
@@ -738,31 +741,33 @@ class TaxonName < ApplicationRecord
     return n
   end
 
-  def create_new_combination_if_absent
-    return true unless type == 'Protonym'
-    if !TaxonName.with_cached_html(cached_html).count == 0
-      begin
-        TaxonName.transaction do
-          c = Combination.new
-          safe_self_and_ancestors.each do |i|
-            case i.rank
-              when 'genus'
-                c.genus = i
-              when 'subgenus'
-                c.subgenus = i
-              when 'species'
-                c.species = i
-              when 'subspecies'
-                c.subspecies = i
-            end
-          end
-          c.save
-        end
-      rescue
-      end
-      false
-    end
-  end
+  # def create_new_combination_if_absent
+  # return true unless type == 'Protonym'
+  # if !TaxonName.with_cached_html(cached_html).count == 0 (was intent to make this always fail?!)
+  #  
+  #  if TaxonName.where(cached: cached, project_id: project_id).any?
+  #    begin
+  #      TaxonName.transaction do
+  #        c = Combination.new
+  #        safe_self_and_ancestors.each do |i|
+  #          case i.rank
+  #            when 'genus'
+  #              c.genus = i
+  #            when 'subgenus'
+  #              c.subgenus = i
+  #            when 'species'
+  #              c.species = i
+  #            when 'subspecies'
+  #              c.subspecies = i
+  #          end
+  #        end
+  #        c.save
+  #      end
+  #    rescue
+  #    end
+  #    false
+  #  end
+  # end
 
   def clear_cached(update: false)
     assign_attributes(
