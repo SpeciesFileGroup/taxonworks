@@ -32,7 +32,7 @@ module DepictionsHelper
   def depictions_sled_tag(depiction, size: :thumb)
     content_tag(:figure) do
       image_tag(depiction.sled_extraction_path(size)) +
-        content_tag(:figcaption,  image_context_depiction_tag(depiction))
+        content_tag(:figcaption, image_context_depiction_tag(depiction))
     end
   end
 

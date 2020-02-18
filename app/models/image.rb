@@ -229,6 +229,7 @@ class Image < ApplicationRecord
     image = Image.find(params[:id])
     img = Magick::Image.read(image.image_file.path(:original)).first
 
+    # img.crop(x, y, width, height, true)
     cropped = img.crop(
       params[:x].to_i,
       params[:y].to_i,
