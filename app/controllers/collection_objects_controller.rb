@@ -37,7 +37,10 @@ class CollectionObjectsController < ApplicationController
 
   # Render DWC fields *only*
   def dwc_index
-    @objects = filtered_collection_objects.includes(:dwc_occurrence).all.pluck( ::CollectionObject.dwc_attribute_vector  )
+    objects = filtered_collection_objects.includes(:dwc_occurrence).all
+    assign_pagination(objects) 
+      
+    @objects = objects.pluck( ::CollectionObject.dwc_attribute_vector  )
     @klass = ::CollectionObject
     render '/dwc_occurrences/dwc_index'
   end
