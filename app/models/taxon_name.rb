@@ -195,6 +195,8 @@ class TaxonName < ApplicationRecord
     :validate_one_root_per_project
 
   validates_presence_of :type, message: 'is not specified'
+  
+  validates :year_of_publication, date_year: {min_year: 1000, max_year: Time.now.year + 5}
 
   # TODO: move some of these down to Protonym when they don't apply to Combination
 
