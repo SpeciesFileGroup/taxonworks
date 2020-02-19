@@ -122,7 +122,7 @@ module Queries
      #end
 
       def wkt_facet
-        return nil if wkt.nil?
+        return nil if wkt.blank?
         a = RGeo::WKRep::WKTParser.new
         b = a.parse(wkt)
         spatial_query(b.geometry_type.to_s, wkt) 
@@ -250,7 +250,7 @@ module Queries
         elsif b
           q = b.distinct
         else
-          q = ::CollectingEvent.all
+          q = ::CollectingEvent.includes(:identifiers, :roles, :pinboard_items, :geographic_area, georeferences: [:geographic_item, :error_geographic_item]).all
         end
         
         q = q.order(updated_at: :desc).limit(recent) if recent
