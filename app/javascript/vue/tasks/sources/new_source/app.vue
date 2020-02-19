@@ -35,6 +35,11 @@
           </template>
         </div>
         <div class="horizontal-right-content">
+          <span
+            v-if="unsave"
+            class="medium-icon margin-small-right"
+            title="You have unsaved changes."
+            data-icon="warning"/>
           <button
             v-shortkey="[getMacKey(), 's']"
             @shortkey="saveSource"
@@ -156,6 +161,10 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetSettings, value)
       }
+    },
+    unsave() {
+      let settings = this.$store.getters[GetterNames.GetSettings]
+      return settings.lastSave < settings.lastEdit
     }
   },
   data () {
@@ -163,6 +172,14 @@ export default {
       showModal: false,
       showBibtex: false,
       showRecent: false
+    }
+  },
+  watch: {
+    source: { 
+      handler () {
+        this.settings.lastEdit = Date.now()
+      },
+      deep: true
     }
   },
   mounted () {
