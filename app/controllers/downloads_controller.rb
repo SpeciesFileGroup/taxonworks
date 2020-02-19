@@ -1,7 +1,7 @@
 class DownloadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_download, only: [:show, :download_file, :destroy, :update]
+  before_action :set_download, only: [:show, :download_file, :destroy, :update, :api_file, :api_show]
 
   # GET /downloads
   # GET /downloads.json
@@ -26,7 +26,7 @@ class DownloadsController < ApplicationController
 
   # PATCH /downloads/1
   # PATCH /downloads/1.json
-  def update 
+  def update
     @download.update(download_params)
     render action: :show
   end
@@ -47,12 +47,17 @@ class DownloadsController < ApplicationController
     end
   end
 
+  def api_index
+    @downloads = Download.where(is_public: true, project_id: sessions_current_project_id) # .page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
+    render '/downloads/api/index.json.jbuilder'
+  end
+
   def api_file
     send_file @download.file_path
   end
 
   def api_show
-    render '/downloads/api/index.json.jbuilder'
+    render '/downloads/api/show.json.jbuilder'
   end
 
   private

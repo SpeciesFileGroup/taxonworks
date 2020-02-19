@@ -31,9 +31,9 @@ namespace :api, defaults: {format: :json} do
       get '/taxon_names/autocomplete', to: '/taxon_names#autocomplete'
       get '/taxon_names/:id', to: '/taxon_names#api_show'
 
-
       get '/downloads/:id', to: '/downloads/#api_show'
       get '/downloads/:id/file', to: '/downloads/#api_file'
+      get '/downloads', to: '/downloads#api_index'
     end
 
     # Authenticate membership at the data controller level
