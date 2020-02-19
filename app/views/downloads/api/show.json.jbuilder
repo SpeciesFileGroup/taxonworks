@@ -1,1 +1,1 @@
-json.partial! '/downloads/attributes', download: @download
+json.partial! '/downloads/api/attributes', download: @download
