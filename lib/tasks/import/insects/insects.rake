@@ -1519,7 +1519,7 @@ namespace :tw do
               type = TYPE_TYPE[row['Type'].downcase]
               unless type.nil?
                 type = type + 's' if o.type == 'Lot'
-                tm = TypeMaterial.create(protonym_id: otu.taxon_name_id, material: o, type_type: type )
+                tm = TypeMaterial.create(protonym_id: otu.taxon_name_id, collection_object: o, type_type: type )
                 if !tm.id.blank? # tm.valid?
                   tm.data_attributes.create(type: 'InternalAttribute', controlled_vocabulary_term_id: data.keywords['TypeName'], value: row['TypeName']) unless row['TypeName'].blank?
                 else

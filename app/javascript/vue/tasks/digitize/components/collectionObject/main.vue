@@ -75,9 +75,11 @@
             :show-spinner="false"
             legend="Locked until first save"/>
           <predicates-component
+            v-if="projectPreferences"
             :object-id="collectionObject.id"
             object-type="CollectionObject"
             model="CollectionObject"
+            :modelPreferences="projectPreferences.model_predicate_sets.CollectionObject"
             @onUpdate="setAttributes"
           />
         </div>
@@ -101,8 +103,8 @@
   import { MutationNames } from '../../store/mutations/mutations.js'
   import { ActionNames } from '../../store/actions/actions'
   import BlockLayout from 'components/blockLayout.vue'
-  import RadialAnnotator from 'components/annotator/annotator.vue'
-  import RadialObject from 'components/radial_object/radialObject.vue'
+  import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+  import RadialObject from 'components/radials/navigation/radial.vue'
   import PredicatesComponent from 'components/custom_attributes/predicates/predicates'
   import DefaultTag from 'components/defaultTag.vue'
 
@@ -132,6 +134,9 @@
         set(value) {
           this.$store.commit(MutationNames.SetPreferences, value)
         }
+      },
+      projectPreferences () {
+        return this.$store.getters[GetterNames.GetProjectPreferences]
       },
       collectionObject () {
         return this.$store.getters[GetterNames.GetCollectionObject]

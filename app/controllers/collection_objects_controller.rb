@@ -3,7 +3,8 @@ class CollectionObjectsController < ApplicationController
 
   before_action :set_collection_object, only: [
     :show, :edit, :update, :destroy, :containerize,
-    :depictions, :images, :geo_json, :metadata_badge]
+    :depictions, :images, :geo_json, :metadata_badge, :biocuration_classifications]
+  after_action -> { set_pagination_headers(:collection_objects) }, only: [:index], if: :json_request?
 
   # GET /collecting_events
   # GET /collecting_events.json
@@ -22,6 +23,11 @@ class CollectionObjectsController < ApplicationController
     end
   end
 
+  def biocuration_classifications
+    @biocuration_classifications = @collection_object.biocuration_classifications
+   render '/biocuration_classifications/index' 
+  end
+
   # DEPRECATED
   # GET /collection_objects/dwca/123 # SHOULD BE dwc
   def dwca
@@ -29,12 +35,17 @@ class CollectionObjectsController < ApplicationController
     render json: @dwc_occurrence.to_json
   end
 
+  # Render DWC fields *only*
   def dwc_index
-    @objects = filtered_collection_objects.includes(:dwc_occurrence).all.pluck( ::CollectionObject.dwc_attribute_vector  )
+    objects = filtered_collection_objects.includes(:dwc_occurrence).all
+    assign_pagination(objects) 
+      
+    @objects = objects.pluck( ::CollectionObject.dwc_attribute_vector  )
     @klass = ::CollectionObject
     render '/dwc_occurrences/dwc_index'
   end
 
+  # GET /collection_objects/dwc/123 
   def dwc
     o = nil
     ActiveRecord::Base.connection_pool.with_connection do
@@ -42,6 +53,12 @@ class CollectionObjectsController < ApplicationController
       o.get_dwc_occurrence
     end
     render json: o.dwc_occurrence_attribute_values
+  end
+
+  # Intent is DWC fields + quick summary fields for reports
+  # !! As currently implemented rebuilds DWC all 
+  def report
+    @collection_objects = filtered_collection_objects.includes(:dwc_occurrence)
   end
 
   # GET /collection_objects/1
@@ -339,6 +356,8 @@ class CollectionObjectsController < ApplicationController
       :identifier_end,
       :identifier_exact,
       :namespace_id,
+      :sled_image_id,
+      :depicted,
       :never_loaned,
       :loaned,
       :on_loan,

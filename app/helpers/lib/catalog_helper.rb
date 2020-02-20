@@ -4,7 +4,7 @@ module Lib::CatalogHelper
   # @return [String, nil]
   def history_topics(citation)
     return nil if citation.nil?
-    if t = citation.citation_topics.collect{|t| controlled_vocabulary_term_pill_tag(t.topic)}.join.html_safe
+    if t = citation.citation_topics.collect{|t| controlled_vocabulary_term_tag(t.topic)}.join.html_safe
       content_tag(:span, t, class: 'history__citation_topics')
     else
       nil

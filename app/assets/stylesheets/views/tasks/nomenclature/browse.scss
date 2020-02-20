@@ -1,5 +1,10 @@
 #browse-view {
-  
+
+  .nav-column {
+    width: 400px;
+    min-width: 270px
+  } 
+
   #third-column {
     max-width: 400px;
   }
@@ -14,8 +19,8 @@
   }
   .ui-autocomplete-input {
     box-sizing: border-box !important;
-    min-width: 240px !important;
-    max-width: 240px !important;
+    min-width: 300px !important;
+    max-width: 300px !important;
   }
 
   @media screen and (min-width: 980px) {

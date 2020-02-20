@@ -180,7 +180,11 @@
 
     [data-icon="reset"] {
       background-image: image-url("restart.svg");
-    }        
+    }  
+    
+    [data-icon="swap"] {
+      background-image: image-url("swap.svg");
+    }  
 
     [data-icon="task"] {
       background-image: image-url("task.svg");

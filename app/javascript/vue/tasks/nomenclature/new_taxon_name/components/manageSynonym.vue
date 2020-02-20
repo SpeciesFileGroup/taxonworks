@@ -123,7 +123,7 @@
 <script>
 
 import { GetterNames } from '../store/getters/getters'
-import RadialAnnotator from 'components/annotator/annotator'
+import RadialAnnotator from 'components/radials/annotator/annotator'
 import Expand from './expand.vue'
 import ModalComponent from 'components/modal'
 import SpinnerComponent from 'components/spinner'

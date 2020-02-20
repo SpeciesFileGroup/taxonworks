@@ -1,8 +1,10 @@
 <template>
   <predicates-component
+    v-if="projectPreferences"
     :object-id="collectingEvent.id"
     object-type="CollectingEvent"
     model="CollectingEvent"
+    :modelPreferences="projectPreferences.model_predicate_sets.CollectingEvent"
     @onUpdate="setAttributes"
   />
 </template>
@@ -20,6 +22,9 @@ export default {
   computed: {
     collectingEvent() {
       return this.$store.getters[GetterNames.GetCollectionEvent]
+    },
+    projectPreferences () {
+      return this.$store.getters[GetterNames.GetProjectPreferences]
     }
   },
   methods: {

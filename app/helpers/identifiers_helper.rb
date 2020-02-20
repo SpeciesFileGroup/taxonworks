@@ -3,7 +3,7 @@ module IdentifiersHelper
   # @return [String, nil]
   def identifier_tag(identifier)
     return nil if identifier.nil? || identifier.new_record?
-    "#{identifier.cached} (#{identifier.type.demodulize.titleize.humanize})".html_safe
+    content_tag(:span, identifier.cached, title: identifier.type.demodulize.titleize.humanize)
   end
 
   # @return [String, nil]

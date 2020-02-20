@@ -20,6 +20,11 @@ scope :tasks do
       get '/', action: :index, as: 'export_coldp_task'
       get 'download', as: 'download_coldp_task'
     end
+
+    scope :nomenclature, controller: 'tasks/exports/nomenclature' do
+      get 'basic', action: :basic, as: 'export_basic_nomenclature_task'
+      get 'download_basic', as: 'download_basic_nomenclature_task'
+    end
   end
 
   scope :matrix_image do
@@ -149,6 +154,10 @@ scope :tasks do
   end
 
   scope :collection_objects do
+      scope :grid_digitize, controller: 'tasks/collection_objects/grid_digitize' do
+        get :index, as: 'grid_digitize_task'
+      end
+
       scope :summary, controller: 'tasks/collection_objects/summary' do
         get '/', action: :index, as: 'collection_object_summary_task'
       end
@@ -214,6 +223,12 @@ scope :tasks do
     end
   end
 
+  scope :biological_relationships do
+    scope :composer, controller: 'tasks/biological_relationships/composer' do
+      get '/', action: :index, as: 'biological_relationship_composer_task'
+    end
+  end
+
   scope :contents, controller: 'tasks/content/preview' do
     get 'otu_content_for_layout/:otu_id', action: :otu_content_for_layout, as: 'preview_otu_content_for_layout'
     get ':otu_id', action: 'otu_content', as: 'preview_otu_content'
@@ -270,6 +285,10 @@ scope :tasks do
   end
 
   scope :nomenclature do
+      scope :match, controller: 'tasks/nomenclature/match' do
+        get :index, as: 'match_nomenclature_task'
+      end
+
     scope :stats, controller: 'tasks/nomenclature/stats' do
       get '', action: :index, as: 'index_stats_task'
     end

@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="Object.keys(list).length"
-    class="full_width">
+    class="full_width overflow-scroll">
     <table class="full_width">
       <thead>
         <tr>
@@ -56,8 +56,8 @@
 
 <script>
 
-import RadialAnnotator from 'components/annotator/annotator'
-import RadialObject from 'components/radial_object/radialObject'
+import RadialAnnotator from 'components/radials/annotator/annotator'
+import RadialObject from 'components/radials/navigation/radial'
 import TagAll from './tagAll'
 
 export default {
@@ -115,5 +115,8 @@ export default {
   }
   .options-column {
     width: 130px;
+  }
+  .overflow-scroll {
+    overflow: scroll;
   }
 </style>

@@ -4,7 +4,7 @@ export default function() {
     global_id: undefined,
     protonym_id: undefined,
     taxon: undefined,
-    biological_object_id: undefined,
+    collection_object_id: undefined,
     type_type: undefined,
     roles_attributes: [],
     collection_object: undefined,

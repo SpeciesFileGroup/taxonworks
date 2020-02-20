@@ -25,6 +25,8 @@ import getNamespaceSelected from './getNamespaceSelected'
 import getSubsequentialUses from './getSubsequentialUses'
 import getTmpData from './getTmpData'
 import getCollectingEventIdentifier from './getCollectingEventIdentifier'
+import getGeographicArea from './getGeographicArea'
+import getProjectPreferences from './getProjectPreferences'
 
 const GetterNames = {
   IsSaving: 'isSaving',
@@ -37,6 +39,7 @@ const GetterNames = {
   GetCollectionObject: 'getCollectionObject',
   GetCollectionObjects: 'getCollectionObjects',
   GetCollectionEventLabel: 'getCollectionEventLabel',
+  GetGeographicArea: 'getGeographicArea',
   GetTypeMaterial: 'getTypeMaterial',
   GetTypeMaterials: 'getTypeMaterials',
   GetDepictions: 'getDepictions',
@@ -53,7 +56,8 @@ const GetterNames = {
   GetTaxonDeterminations: 'GetTaxonDeterminations',
   GetNamespaceSelected: 'getNamespaceSelected',
   GetSubsequentialUses: 'getSubsequentialUses',
-  getTmpData: 'getTmpData'
+  GetTmpData: 'getTmpData',
+  GetProjectPreferences: 'getProjectPreferences'
 }
 
 const GetterFunctions = {
@@ -62,6 +66,7 @@ const GetterFunctions = {
   [GetterNames.GetLocked]: getLocked,
   [GetterNames.GetSettings]: getSettings,
   [GetterNames.GetTaxonDetermination]: getTaxonDetermination,
+  [GetterNames.GetGeographicArea]: getGeographicArea,
   [GetterNames.GetCollectionEventLabel]: getCollectionEventLabel,
   [GetterNames.GetCollectingEventIdentifier]: getCollectingEventIdentifier,
   [GetterNames.GetCollectionEvent]: getCollectionEvent,
@@ -83,7 +88,8 @@ const GetterFunctions = {
   [GetterNames.GetTaxonDeterminations]: getTaxonDeterminations,
   [GetterNames.GetNamespaceSelected]: getNamespaceSelected,
   [GetterNames.GetSubsequentialUses]: getSubsequentialUses,
-  [GetterNames.GetTmpData]: getTmpData
+  [GetterNames.GetTmpData]: getTmpData,
+  [GetterNames.GetProjectPreferences]: getProjectPreferences
 }
 
 export {

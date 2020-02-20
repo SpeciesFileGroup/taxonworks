@@ -28,6 +28,7 @@ class Project < ApplicationRecord
   # Used in nuke order (not available in production UI), but 
   # ultimately also for dumping records
   MANIFEST = %w{
+     SledImage
      Label
      Attribution
      DwcOccurrence

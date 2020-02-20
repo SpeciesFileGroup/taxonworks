@@ -58,7 +58,7 @@ describe 'Task - Comprehensive digitization', type: :feature, group: :collection
           find('li', text: 'Foo').hover.click 
           click_button 'determination-add-button'
           page.find('body').send_keys([OS.mac? ? :control : :alt, 's'])
-          expect(page).to have_text('determined as Foo')
+          expect(page).to have_text('det. Foo')
         end
       end
     end

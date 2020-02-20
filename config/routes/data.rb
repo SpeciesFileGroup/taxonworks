@@ -89,7 +89,13 @@ end
 resources :collection_objects do
   concerns [:data_routes]
 
+  resources :biological_associations, shallow: true, only: [:index], defaults: {format: :json}
+  resources :taxon_determinations, shallow: true, only: [:index], defaults: {format: :json}
+
   member do
+    # pseudo shallow
+    get 'biocuration_classifications', defaults: {format: :json}
+
     get 'dwc', defaults: {format: :json}
     get 'depictions', constraints: {format: :html}
     get 'containerize'
@@ -99,6 +105,7 @@ resources :collection_objects do
 
   collection do
     get :dwc_index, defaults: {format: :json}
+    get :report, defaults: {format: :json}
     post :preview_castor_batch_load # should be get
     post :create_castor_batch_load # should be get
     post :preview_buffered_batch_load
@@ -216,7 +223,7 @@ resources :documents do
   concerns [:data_routes]
 end
 
-resources :downloads, except: [:edit, :new, :create, :update] do
+resources :downloads, except: [:edit, :new, :create] do
   collection do
     get 'list'
   end
@@ -551,6 +558,9 @@ resources :sequence_relationships do
     post :preview_primers_batch_load
     post :create_primers_batch_load
   end
+end
+
+resources :sled_images, only: [:update, :create, :destroy, :show], defaults: {format: :json} do
 end
 
 resources :sources do

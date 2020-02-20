@@ -73,7 +73,6 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
 
     let(:s) {Specimen.create!(otus_attributes: [{name: 'one'}, {name: 'two'}])}
     let(:t) {Specimen.create!(taxon_determinations_attributes: [{otu: Otu.create(name: 'abc')}, {otu_id: otu.id}])}
-    let(:u) {Specimen.create!(taxon_determinations_attributes: [{otu_attributes: {name: 'King Kong'}}])}
 
     context 'via otus_attributes' do
       specify 'creates otus' do
@@ -93,10 +92,6 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
       specify 'creates taxon_determinations' do
         expect(s.taxon_determinations.count).to eq(2)
       end
-    end
-
-    specify 'creates taxon_determinations via both nested attributes' do
-      expect(u.taxon_determinations.count).to eq(1)
     end
 
     specify 'can be destroyed' do

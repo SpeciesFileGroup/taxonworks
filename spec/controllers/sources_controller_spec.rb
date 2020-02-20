@@ -55,7 +55,7 @@ describe SourcesController, type: :controller do
   describe 'GET new' do
     it 'assigns a new source as @source' do
       get :new, params: {}, session: valid_session
-      expect(assigns(:source)).to be_a_new(Source)
+      expect(response).to redirect_to(new_source_task_path)
     end
   end
 

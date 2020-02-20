@@ -123,8 +123,9 @@ class Georeference::GeoLocate < Georeference
   # @return [Array]
   # parsing the four possible bits of a response into an array
   def self.parse_iframe_result(response_string)
-    lat, long, error_radius, uncertainty_polygon = response_string.split('|')
-    uncertainty_points                           = nil
+    s = unify_response_string(response_string)
+    lat, long, error_radius, uncertainty_polygon = s.split('|')
+    uncertainty_points = nil
     unless uncertainty_polygon.nil?
       if uncertainty_polygon =~ /unavailable/i # todo: there are many more possible error conditions
         uncertainty_points = nil
@@ -133,6 +134,13 @@ class Georeference::GeoLocate < Georeference
       end
     end
     [lat, long, error_radius, uncertainty_points]
+  end
+
+  # TODO: move ti iframe getter/setter
+  def self.unify_response_string(response_string)
+    response_string.gsub!(/[\t]/, '|')
+    response_string.gsub!(/\s+/, '|')
+    response_string
   end
 
   # Build a georeference starting with a set of request parameters.

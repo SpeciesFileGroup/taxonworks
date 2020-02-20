@@ -36,6 +36,8 @@ class Documentation < ApplicationRecord
   # These are all handled on the database side as not-null constraints
   # They can't be validated because we use accepts_nested_attributes
   # validates_presence_of :documentation_object_type, :documentation_object_id, :document_id
+  # TODO: above is probably bs
+  # 
   # We catch invalid statements with this around:
   around_save :catch_statement_invalid
 

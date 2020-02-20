@@ -46,7 +46,6 @@ describe 'Depictions', type: :model, group: [:images] do
   end
 
   context 'create with nested depiction' do
-    
     specify 'works by nesting image_attributes' do
       expect(TestDepictionable.create!(
         depictions_attributes: [{image_attributes: image_attributes}]

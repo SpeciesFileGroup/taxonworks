@@ -18,10 +18,10 @@ function makeInitialState () {
     type_material: {
       id: undefined,
       protonym_id: undefined,
-      biological_object_id: undefined,
+      collection_object_id: undefined,
       type_type: undefined,
       roles_attributes: [],
-      collection_object: {
+      collection_object_attributes: {
         id: undefined,
         total: 1,
         preparation_type_id: undefined,

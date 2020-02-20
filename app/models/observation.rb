@@ -25,7 +25,7 @@ class Observation < ApplicationRecord
   after_initialize :convert_observation_object_global_id
   before_validation :set_type_from_descriptor
 
-  validates_presence_of :descriptor, :type
+  validates_presence_of :descriptor_id, :type
   validate :otu_or_collection_object_set
   validate :type_matches_descriptor
 

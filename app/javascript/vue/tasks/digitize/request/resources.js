@@ -34,6 +34,10 @@ const handleError = function (json) {
   TW.workbench.alert.create(errorMessage, 'error')
 }
 
+const GetProjectPreferences = function () {
+  return ajaxCall('get', `/project_preferences.json`)
+}
+
 const GetUserPreferences = function () {
   return ajaxCall('get', `/preferences.json`)
 }
@@ -115,7 +119,7 @@ const GetTaxonDeterminationCO = function (id) {
 }
 
 const GetTypeMaterialCO = function (id) {
-  return ajaxCall('get', `/type_materials.json?biological_object_id=${id}`)
+  return ajaxCall('get', `/type_materials.json?collection_object_id=${id}`)
 }
 
 const GetOtu = function (id) {
@@ -315,6 +319,7 @@ const DestroyBiologicalAssociation = function (id) {
 }
 
 export {
+  GetProjectPreferences,
   GetCEMd5Label,
   GetSoftValidation,
   CheckForExistingIdentifier,

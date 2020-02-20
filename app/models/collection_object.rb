@@ -58,7 +58,6 @@
 #   The date when the object was removed from tracking.  If provide then Repository must be null?! TODO: resolve
 #
 class CollectionObject < ApplicationRecord
-
   include GlobalID::Identification
   include Housekeeping
 
@@ -88,6 +87,8 @@ class CollectionObject < ApplicationRecord
 
   CO_OTU_HEADERS      = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
   BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze
+
+  GRAPH_ENTRY_POINTS = [:biological_associations, :data_attributes, :taxon_determinations, :biocuration_classifications]
 
   # Identifier delegations
   delegate :cached, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
@@ -533,17 +534,17 @@ class CollectionObject < ApplicationRecord
   # @return [Scope]
   #    the max 10 most recently used collection_objects, as `used_on`
   def self.used_recently(used_on = '')
-    t = case used_on 
+    t = case used_on
         when 'TaxonDetermination'
           TaxonDetermination.arel_table
         when 'BiologicalAssociation'
           BiologicalAssociation.arel_table
         end
 
-    p = CollectionObject.arel_table 
+    p = CollectionObject.arel_table
 
     # i is a select manager
-    i = case used_on 
+    i = case used_on
         when 'BiologicalAssociation'
           t.project(t['biological_association_subject_id'], t['updated_at']).from(t)
             .where(
@@ -558,13 +559,13 @@ class CollectionObject < ApplicationRecord
             .order(t['updated_at'])
         end
 
-    # z is a table alias 
+    # z is a table alias
     z = i.as('recent_t')
 
     j = case used_on
-        when 'BiologicalAssociation' 
+        when 'BiologicalAssociation'
           Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
-            z['biological_association_subject_id'].eq(p['id'])  
+            z['biological_association_subject_id'].eq(p['id'])
           ))
         else
           Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['biological_collection_object_id'].eq(p['id']))) # !! note it's not biological_collection_object_id
@@ -591,7 +592,7 @@ class CollectionObject < ApplicationRecord
       h[:recent] = CollectionObject.where(project_id: project_id, updated_by_id: user_id).order('updated_at DESC').limit(10).to_a
     end
 
-    h[:quick] = (CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq 
+    h[:quick] = (CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq
     h
   end
 
@@ -655,27 +656,6 @@ class CollectionObject < ApplicationRecord
       self.type = 'RangedLot'
     end
     true
-  end
-
-  def reject_otus(attributed)
-    a = attributed['taxon_name_id']
-    b = attributed['name']
-    a.blank? && b.blank?
-  end
-
-  # @return [Boolean]
-  def reject_taxon_determinations(attributed)
-    a = attributed['otu_id']
-    b = attributed['otu']
-    c = attributed['otu_attributes']
-    d = true
-    if c
-      d = c['name'].blank? && c['taxon_name_id'].blank? && c['taxon_name'].blank?
-    end
-
-    return true if a.blank? && b.blank? && d
-    return true if a.present? && b.present? && c.present?
-    false
   end
 
   def reject_collecting_event(attributed)

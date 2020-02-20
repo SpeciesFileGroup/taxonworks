@@ -96,7 +96,7 @@ export default {
   watch: {
     lastSave: {
       handler(newVal) {
-        if(this.collectionObject.id) {
+        if(newVal && this.collectionObject.id) {
           this.getBadge(this.collectionObject.id)
         }
       },

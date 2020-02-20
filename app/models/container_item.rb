@@ -57,7 +57,7 @@ class ContainerItem < ApplicationRecord
   belongs_to :contained_object, polymorphic: true
 
   # !! this will prevent accepts_nested assignments if we add this
-  validates_presence_of :contained_object
+  validates_presence_of :contained_object_id
 
   validate :parent_contained_object_is_container
   validate :contained_object_is_container_when_parent_id_is_blank

@@ -20,7 +20,6 @@
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import AjaxCall from 'helpers/ajaxCall'
-import recent from '../../../../components/radial_object/images/recent'
 import DisplayList from 'components/displayList'
 import SpinnerComponent from 'components/spinner'
 
@@ -37,6 +36,9 @@ export default {
       set (value) {
         return this.$store.commit(MutationNames.SetSource, value)
       }
+    },
+    saving () {
+      return this.$store.getters[GetterNames.GetSettings].saving
     }
   },
   data () {
@@ -68,11 +70,23 @@ export default {
       },
       deep: true,
       immediate: true
+    },
+    saving (newVal) {
+      if(!newVal) {
+        this.getRecent ()
+      }
     }
   },
   methods: {
     getRecent () {
+      this.searching = true
       AjaxCall('get', `/sources?query_term=${this.source.title}&per=5`).then(response => {
+        if(this.source.id) {
+          let index = response.body.findIndex(item => { return item.id === this.source.id })
+          if(index > -1) {
+            response.body.splice(index, 1)
+          }
+        }
         this.founded = response.body
         this.searching = false
       }, () => { this.searching = false })

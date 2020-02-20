@@ -173,7 +173,11 @@ class TaxonName < ApplicationRecord
   #   When true cached values are not built
   attr_accessor :no_cached
 
-  after_save :create_new_combination_if_absent
+  # TODO: this was not implemented and tested properly
+  # I think the intent is *before* save, i.e. the name will change
+  # to a new cached value, so let's record the old one
+  #  after_save :create_new_combination_if_absent
+ 
   after_save :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
   after_save :set_cached_warnings, if: Proc.new {|n| n.no_cached }
 
@@ -191,6 +195,8 @@ class TaxonName < ApplicationRecord
     :validate_one_root_per_project
 
   validates_presence_of :type, message: 'is not specified'
+  
+  validates :year_of_publication, date_year: {min_year: 1000, max_year: Time.now.year + 5}
 
   # TODO: move some of these down to Protonym when they don't apply to Combination
 
@@ -296,7 +302,6 @@ class TaxonName < ApplicationRecord
   scope :with_parent_id, -> (parent_id) {where(parent_id: parent_id)}
   scope :with_cached_valid_taxon_name_id, -> (cached_valid_taxon_name_id) {where(cached_valid_taxon_name_id: cached_valid_taxon_name_id)}
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
-  scope :with_cached_html, -> (html) { where(cached_html: html) } # WHY? - DEPRECATE for cached
 
   scope :without_otus, -> { includes(:otus).where(otus: {id: nil}) }
   scope :with_otus, -> { includes(:otus).where.not(otus: {id: nil}) }
@@ -448,6 +453,19 @@ class TaxonName < ApplicationRecord
   def year_integer
     return year_of_publication if !year_of_publication.nil?
     try(:source).try(:year)
+  end
+
+  # @return String, nil
+  #  # virtual attribute, to ultimately be fixed in db
+  def cached_year
+    a = cached_author_year&.match(/\d{4}/)
+    a ? a[0] : nil
+  end
+
+  # @return String, nil
+  #  # virtual attribute, to ultimately be fixed in db
+  def cached_author
+    cached_author_year&.gsub(/,\s\d+/, '')
   end
 
   # !! Overrides Shared::Citations#nomenclature_date
@@ -725,31 +743,33 @@ class TaxonName < ApplicationRecord
     return n
   end
 
-  def create_new_combination_if_absent
-    return true unless type == 'Protonym'
-    if !TaxonName.with_cached_html(cached_html).count == 0
-      begin
-        TaxonName.transaction do
-          c = Combination.new
-          safe_self_and_ancestors.each do |i|
-            case i.rank
-              when 'genus'
-                c.genus = i
-              when 'subgenus'
-                c.subgenus = i
-              when 'species'
-                c.species = i
-              when 'subspecies'
-                c.subspecies = i
-            end
-          end
-          c.save
-        end
-      rescue
-      end
-      false
-    end
-  end
+  # def create_new_combination_if_absent
+  # return true unless type == 'Protonym'
+  # if !TaxonName.with_cached_html(cached_html).count == 0 (was intent to make this always fail?!)
+  #  
+  #  if TaxonName.where(cached: cached, project_id: project_id).any?
+  #    begin
+  #      TaxonName.transaction do
+  #        c = Combination.new
+  #        safe_self_and_ancestors.each do |i|
+  #          case i.rank
+  #            when 'genus'
+  #              c.genus = i
+  #            when 'subgenus'
+  #              c.subgenus = i
+  #            when 'species'
+  #              c.species = i
+  #            when 'subspecies'
+  #              c.subspecies = i
+  #          end
+  #        end
+  #        c.save
+  #      end
+  #    rescue
+  #    end
+  #    false
+  #  end
+  # end
 
   def clear_cached(update: false)
     assign_attributes(
@@ -843,7 +863,6 @@ class TaxonName < ApplicationRecord
     if self.new_record?
       ancestors_through_parents
     else
-
       self.self_and_ancestors.reload.to_a.reverse ## .self_and_ancestors returns empty array!!!!!!!
     end
   end
@@ -860,6 +879,14 @@ class TaxonName < ApplicationRecord
       data.push([rank] + send(method, i, gender)) if self.respond_to?(method)
     end
     data
+  end
+
+  def ancestor_hash
+    h = {}
+    safe_self_and_ancestors.each do |n|
+      h[n.rank] = n.name
+    end
+    h
   end
 
   # @!return [ { rank => [prefix, name] }
