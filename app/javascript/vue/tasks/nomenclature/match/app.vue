@@ -25,7 +25,23 @@
       </div>
 
       <div class="full_width margin-small-left">
+        <navbar-component>
+          <ul class="no_bullets context-menu">
+            <li
+              class="capitalize"
+              v-for="item in show">
+              <label>
+                <input
+                  type="radio"
+                  :value="item"
+                  v-model="filter">
+                  {{ item }}
+              </label>
+            </li>
+          </ul>
+        </navbar-component>
         <line-component
+          v-if="filterView(match)"
           class="margin-small-bottom"
           v-for="(match, key) in matches"
           :name="key"
@@ -41,12 +57,14 @@ import InputComponent from './components/InputComponent'
 import LineComponent from './components/LineComponent'
 import { GetTaxonName } from './request/resources'
 import SpinnerComponent from 'components/spinner'
+import NavbarComponent from 'components/navBar'
 
 export default {
   components: {
     InputComponent,
     LineComponent,
-    SpinnerComponent
+    SpinnerComponent,
+    NavbarComponent
   },
   data () {
     return {
@@ -54,6 +72,8 @@ export default {
       maxPerCall: 1,
       exact: false,
       isLoading: false,
+      show: ['matches', 'unmatches', 'both'],
+      filter: 'both',
       matches: {}
     }
   },
@@ -86,6 +106,16 @@ export default {
       this.matches = {}
       this.isLoading = true
       this.GetMatches(0)
+    },
+    filterView (record) {
+      switch(this.filter) {
+        case 'matches':
+          return record.length
+        case 'unmatches':
+          return !record.length
+        default:
+          return true
+      }
     }
   }
 }
