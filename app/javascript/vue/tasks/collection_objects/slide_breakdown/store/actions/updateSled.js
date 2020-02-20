@@ -6,7 +6,7 @@ export default ({ state, commit }) => {
     let co = state.collection_object
     const identifier = state.identifier
 
-    if(identifier.namespace_id && identifier.identifier) {
+    if(identifier.namespace_id && identifier.identifier && state.sled_image.step_identifier_on) {
       co.identifiers_attributes = [identifier]
     }
     
