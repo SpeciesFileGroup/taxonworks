@@ -146,6 +146,15 @@ export default {
   },
   mounted() {
     this.$refs.inputTaxonname.focus()
+    let urlParams = new URLSearchParams(window.location.search)
+    let name = urlParams.get('name')
+
+    if (name) {
+      this.taxonName = ''
+      this.$nextTick(() => {
+        this.taxonName = name
+      })
+    }
   },
   methods: {
     existError: function (type) {
