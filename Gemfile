@@ -89,7 +89,7 @@ gem 'waxy', '~> 0.1'
 gem 'rgb'
 
 # "Bio" and SFG gems
-gem 'taxonifi', '0.5.1'
+gem 'taxonifi', '0.5.2'
 gem 'sqed', '0.5.8'
 gem 'dwc-archive', '~> 1.0.1'
 #gem 'biodiversity', '~> 4.0', '>= 4.0.2'
@@ -110,7 +110,7 @@ gem 'namecase', '~> 2.0'
 gem 'wikidata-client', '~> 0.0.12', require: 'wikidata' 
 
 group :test, :development do
-  gem 'faker', '~> 2.10'
+  gem 'faker', '~> 2.Nomenclature10'
   gem 'rspec-rails', '~> 4.0.0.beta2'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
