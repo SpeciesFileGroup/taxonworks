@@ -45,7 +45,7 @@ module ImagesHelper
   def image_display_url(image)
     case image.image_file_content_type
     when 'image/tiff'
-      "/images/#{image.id}/extract/0/0/#{image.height}/#{image.width}"
+      "/images/#{image.id}/extract/0/0/#{image.width}/#{image.height}"
     else
       root_url + image.image_file.url[1..-1]
     end

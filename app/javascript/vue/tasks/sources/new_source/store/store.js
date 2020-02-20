@@ -14,6 +14,8 @@ function makeInitialState () {
     settings: {
       saving: false,
       loading: false,
+      lastSave: 0,
+      lastEdit: 0,
       lock: {
         type: false,
         language_id: false,

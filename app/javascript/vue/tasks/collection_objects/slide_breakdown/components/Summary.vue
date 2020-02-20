@@ -22,7 +22,7 @@
         {{ summary.length ? 'Update' : 'Create' }} and new
       </button>
       <nuke-component
-        :disabled="!sledImage.id"
+        :disabled="summary.length === 0"
         class="inline"
         @confirm="updateSled"/>
     </div>
@@ -33,7 +33,7 @@
       <li v-if="collectionObject.taxon_determinations_attributes.length">
         <span>Taxon determination will be added</span>
       </li>
-      <li v-if="identifier.namespace_id && identifier.identifier">
+      <li v-if="identifier.namespace_id && identifier.identifier && sledImage.step_identifier_on">
         <span>Catalogue number will be added.</span>
       </li>
       <li v-if="collectionObject.tags_attributes.length">

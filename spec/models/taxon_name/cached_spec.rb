@@ -37,7 +37,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     context 'clean slate' do
       context 'everything empty' do
         specify 'nothing there' do
-          expect(TaxonName.with_cached_html('<i>Erythroneura vitis</i>').count).to eq(0)
+          expect(TaxonName.where(cached_html: '<i>Erythroneura vitis</i>').count).to eq(0)
         end
       end
 
@@ -150,7 +150,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         end
 
         specify 'can be found' do
-          expect(TaxonName.with_cached_html('<i>Erythroneura vitis</i>').count).to eq(1)
+          expect(TaxonName.where(cached_html: '<i>Erythroneura vitis</i>').count).to eq(1)
         end
       end
 

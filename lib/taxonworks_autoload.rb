@@ -3,6 +3,7 @@
 # Some models require their subclasses at the end of their definition.
 module TaxonWorksAutoload
   # Order matters throughout this block (sigh)
+
   %w{
     /lib/vendor/**/*.rb
     /lib/analysis/**/*.rb
