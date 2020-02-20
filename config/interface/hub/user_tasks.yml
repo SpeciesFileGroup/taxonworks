@@ -515,3 +515,11 @@ export_basic_nomenclature_task:
     - nomenclature
   status: prototype
   description: 'Download (also generate for API) a CSV table of the nomenclature with just the name, and a subset of the hierarchy'
+match_nomenclature_task:
+  hub: true
+  name: 'Match names'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'TODO: Task description'
