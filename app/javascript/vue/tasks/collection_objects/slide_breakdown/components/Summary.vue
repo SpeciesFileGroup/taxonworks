@@ -22,7 +22,7 @@
         {{ summary.length ? 'Update' : 'Create' }} and new
       </button>
       <nuke-component
-        :disabled="!sledImage.id"
+        :disabled="summary.length === 0"
         class="inline"
         @confirm="updateSled"/>
     </div>
