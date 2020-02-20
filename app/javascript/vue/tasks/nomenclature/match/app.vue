@@ -72,7 +72,7 @@ export default {
       maxPerCall: 1,
       exact: false,
       isLoading: false,
-      show: ['matches', 'unmatches', 'both'],
+      show: ['matches', 'unmatched', 'both'],
       filter: 'both',
       matches: {}
     }
@@ -111,7 +111,7 @@ export default {
       switch(this.filter) {
         case 'matches':
           return record.length
-        case 'unmatches':
+        case 'unmatched':
           return !record.length
         default:
           return true

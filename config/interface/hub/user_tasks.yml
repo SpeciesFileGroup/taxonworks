@@ -522,4 +522,4 @@ match_nomenclature_task:
   categories:
     - nomenclature
   status: prototype
-  description: 'TODO: Task description'
+  description: 'A quick and dirty batch based check to see if names are in the system.'
