@@ -45,7 +45,8 @@ class SqedDepiction < ApplicationRecord
 
   has_one :collection_object, through: :depiction, source_type: 'CollectionObject', source: :depiction_object 
 
-  validates_presence_of  :depiction_id, :metadata_map, :boundary_color
+  validates_presence_of :depiction
+  validates_presence_of  :metadata_map, :boundary_color
   validates_inclusion_of :layout, in: SqedConfig::LAYOUTS.keys.map(&:to_s)
   validates_inclusion_of :boundary_finder, in: %w{Sqed::BoundaryFinder::ColorLineFinder Sqed::BoundaryFinder::Cross}
   validates_inclusion_of :has_border, in: [true, false]
