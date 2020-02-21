@@ -89,7 +89,7 @@ gem 'waxy', '~> 0.1'
 gem 'rgb'
 
 # "Bio" and SFG gems
-gem 'taxonifi', '0.5.3'
+gem 'taxonifi', :github => 'LocoDelAssembly/taxonifi', :branch => 'patch-1' # '0.5.3'
 gem 'sqed', '0.5.8'
 gem 'dwc-archive', '~> 1.0.1'
 #gem 'biodiversity', '~> 4.0', '>= 4.0.2'
