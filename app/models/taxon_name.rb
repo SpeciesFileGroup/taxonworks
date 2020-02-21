@@ -1295,19 +1295,13 @@ class TaxonName < ApplicationRecord
     true
   end
 
+  # Note- prior version prevented groups from moving when set in error, and was far too strict
   def check_new_rank_class
-    # rank_class_was is a AR macro
-
     if (rank_class != rank_class_was) && !rank_class_was.nil?
 
       if rank_class_was == 'NomenclaturalRank' && rank_class_changed?
         errors.add(:rank_class, 'Root can not have a new rank')
         return
-      end
-
-      old_rank_group = rank_class_was.safe_constantize.parent
-      if type == 'Protonym' && rank_class.parent != old_rank_group
-        errors.add(:rank_class, "A new taxon rank (#{rank_name}) should be in the #{old_rank_group.rank_name} rank group")
       end
     end
   end
