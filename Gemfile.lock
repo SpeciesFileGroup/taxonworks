@@ -1,4 +1,12 @@
 GIT
+  remote: https://github.com/LocoDelAssembly/taxonifi.git
+  revision: 91aeb7278826f5a03589fe0065b143ac51ef0a0b
+  branch: patch-1
+  specs:
+    taxonifi (0.5.3)
+      require_all (~> 3.0)
+
+GIT
   remote: https://github.com/james2m/seedbank
   revision: 58d19b0c5c2afd139b3d395f2a516dd399eef57b
   specs:
@@ -466,8 +474,6 @@ GEM
       rmagick (~> 4.0)
       rtesseract (~> 3.0.4)
     sync (0.5.0)
-    taxonifi (0.5.2)
-      require_all (~> 3.0)
     term-ansicolor (1.7.1)
       tins (~> 1.0)
     terrapin (0.6.0)
@@ -622,7 +628,7 @@ DEPENDENCIES
   sprockets-es6 (~> 0.9.2)
   sprockets-rails (~> 3.2.0)
   sqed (= 0.5.8)
-  taxonifi (= 0.5.2)
+  taxonifi!
   term-ansicolor (~> 1.6)
   thor (~> 0.20.3)
   timecop (~> 0.9.1)
@@ -641,4 +647,4 @@ RUBY VERSION
    ruby 2.6.5p114
 
 BUNDLED WITH
-   2.0.2
+   2.1.4
