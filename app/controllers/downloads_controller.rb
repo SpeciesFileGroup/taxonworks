@@ -53,7 +53,12 @@ class DownloadsController < ApplicationController
   end
 
   def api_file
-    send_file @download.file_path
+    if @download.ready?
+      @download.increment!(:times_downloaded)
+      send_file @download.file_path
+    else
+      render json: { success: false }
+    end
   end
 
   def api_show
