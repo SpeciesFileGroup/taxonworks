@@ -1,7 +1,7 @@
 class BasicNomenclatureCreateDownloadJob < ApplicationJob
   queue_as :basic_nomenclature_export
 
-  def perform(taxon_Name, download)
+  def perform(taxon_name, download)
     begin
       download.source_file_path = ::Export::BasicNomenclature.export(taxon_name.id)
       download.save
