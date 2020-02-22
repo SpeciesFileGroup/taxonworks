@@ -70,7 +70,7 @@ module Export
       )
     end
 
-    def self.download_async(otu, request = nil)
+    def self.download_async(taxon_name, request = nil)
       download = ::Download.create!(
         name: "Basic nomenclature for #{taxon_name.cached} on #{Time.now}.",
         description: 'A zip file containing a simple CSV export of nomenclature.',
@@ -80,7 +80,7 @@ module Export
         expires: 2.days.from_now
      )
 
-      ColdpCreateDownloadJob.perform_later(otu, download)
+      BasicNomenclatureCreateDownloadJob.perform_later(taxon_name, download)
 
       download
     end
