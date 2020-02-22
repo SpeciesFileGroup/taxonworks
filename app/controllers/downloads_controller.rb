@@ -1,7 +1,8 @@
 class DownloadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_download, only: [:show, :download_file, :destroy, :update, :api_file, :api_show]
+  before_action :set_download, only: [:show, :download_file, :destroy, :update]
+  before_action :set_download_api, only: [:api_file, :api_show]
 
   # GET /downloads
   # GET /downloads.json
@@ -69,6 +70,10 @@ class DownloadsController < ApplicationController
 
   def set_download
     @download = Download.unscoped.where(project_id: sessions_current_project_id).find(params[:id])
+  end
+
+  def set_download_api
+    @download = Download.unscoped.where(is_public: true, project_id: sessions_current_project_id).find(params[:id])
   end
 
   def download_params
