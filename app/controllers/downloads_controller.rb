@@ -55,23 +55,15 @@ class DownloadsController < ApplicationController
 
   def api_file
     if @download.ready?
-      if  @download.is_public
       @download.increment!(:times_downloaded)
       send_file @download.file_path
-      else
-        render json: { status: :not_found }
-      end
     else
       render json: { success: false }
     end
   end
 
   def api_show
-    if @download.is_public
-      render '/downloads/api/show.json.jbuilder'
-    else
-      render json: { status: :not_found }
-    end
+    render '/downloads/api/show.json.jbuilder'
   end
 
   private
