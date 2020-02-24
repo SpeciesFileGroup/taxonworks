@@ -10,18 +10,18 @@ git clone https://github.com/strukturag/libheif.git
 cd libde265/
 ./autogen.sh
 ./configure
-make
+make -j3
 make install
 cd /usr/src/libheif/
 ./autogen.sh
 ./configure
-make
- make install
+make -j3
+make install
 cd /usr/src/
 wget https://www.imagemagick.org/download/ImageMagick.tar.gz
 tar xf ImageMagick.tar.gz
 cd ImageMagick-7*
 ./configure --with-heic=yes
-make -j16
+make -j3
 make install
 ldconfig
