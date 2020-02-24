@@ -6,7 +6,7 @@
       <label>Determiner</label>
       <role-picker
         v-model="roles"
-        role-type="TaxonDeterminer"/>
+        role-type="Determiner"/>
     </div>
     <div class="field">
       <label>OTU</label>
@@ -83,12 +83,12 @@ export default {
       return this.determination.otu_id &&
 						this.list.length
     },
-    roles: {
-      get () {
-        return []
+    roles: { 
+      get() {
+        return this.determination.roles_attributes
       },
       set (value) {
-        this.determination.roles_attributes
+        this.determination.roles_attributes = value
       }
     }
   },
