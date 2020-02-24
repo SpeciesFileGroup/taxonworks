@@ -22,8 +22,7 @@ RUN apt-get update && \
       postgresql-client-10 \
       git gcc build-essential \
       libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev libcurl4-openssl-dev \
-      pkg-config imagemagick libmagickcore-dev libmagickwand-dev \
-      libpq-dev libproj-dev libgeos-dev libgeos++-dev \
+      pkg-config libpq-dev libproj-dev libgeos-dev libgeos++-dev \
       tesseract-ocr \
       cmake \
       nodejs \
@@ -35,11 +34,6 @@ RUN apt-get update && \
 
 RUN locale-gen en_US.UTF-8
 
-# Set up ImageMagick
-RUN sed -i 's/name="disk" value="1GiB"/name="disk" value="8GiB"/' /etc/ImageMagick-6/policy.xml \
-&&  identify -list resource | grep Disk | grep 8GiB # Confirm the setting is active
-
-
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
@@ -48,6 +42,14 @@ ENV RAILS_ENV production
 RUN echo 'gem: --no-rdoc --no-ri >> "$HOME/.gemrc"'
 RUN gem update --system
 RUN gem install bundler
+
+ADD exe/install-imagemagick7.sh /app/exe/
+
+# Set up ImageMagick
+RUN /app/exe/install-imagemagick7.sh
+#RUN sed -i 's/name="disk" value="1GiB"/name="disk" value="8GiB"/' /etc/ImageMagick-7/policy.xml \
+#&&  identify -list resource | grep Disk | grep 8GiB # Confirm the setting is active
+
 
 ADD package.json /app/
 ADD package-lock.json /app/

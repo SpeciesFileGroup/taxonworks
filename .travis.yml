@@ -45,7 +45,7 @@ jobs:
         - wget https://gitlab.com/gogna/gnparser/uploads/643872fc2c63d9218e5612c5f545c511/gnparser-v0.13.0-linux.tar.gz
         - sudo tar xvf gnparser-v0.13.0-linux.tar.gz -C /usr/local/bin
         - which gnparser
-        - .travis/install-imagemagick7.sh
+        - sudo exe/install-imagemagick7.sh
       install:
         - npm install
         - gem install bundler
