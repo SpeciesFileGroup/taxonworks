@@ -14,7 +14,7 @@ export default function ({ dispatch, commit, state }, status) {
         type: status.type
       }
     }
-    new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
       console.log(newClassification)
       createTaxonStatus(newClassification).then(response => {
         Object.defineProperty(response, 'type', { value: status.type })
