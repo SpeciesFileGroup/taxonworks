@@ -1,17 +1,15 @@
 GIT
-  remote: https://github.com/GlobalNamesArchitecture/biodiversity.git
-  revision: 39737324621700166616a858222b669769253ca6
-  branch: 19-memleak
-  specs:
-    biodiversity (4.0.3)
-      ffi (~> 1.11)
-
-GIT
   remote: https://github.com/james2m/seedbank
   revision: 58d19b0c5c2afd139b3d395f2a516dd399eef57b
   specs:
     seedbank (0.5.0)
       rake (>= 10.0)
+
+PATH
+  remote: biodiversity
+  specs:
+    biodiversity (4.0.3)
+      ffi (~> 1.11)
 
 GEM
   remote: https://rubygems.org/
