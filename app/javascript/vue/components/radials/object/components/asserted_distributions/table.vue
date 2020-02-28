@@ -4,6 +4,8 @@
       <thead>
         <tr>
           <th>Geographic area</th>
+          <th>Type</th>
+          <th>Parent</th>
           <th></th>
         </tr>
       </thead>
@@ -18,6 +20,12 @@
             <span 
               :class="{ absent: item.is_absent }"
               v-html="item.geographic_area.name"/>
+          </td>
+          <td>
+            <span> {{ item.geographic_area.geographic_area_type.name }} </span>
+          </td>
+          <td>
+            <span> {{ item.geographic_area.parent.name }} </span>
           </td>
           <td class="vue-table-options">
             <citation-count
