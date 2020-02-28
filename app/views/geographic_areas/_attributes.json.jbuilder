@@ -9,3 +9,7 @@ json.shape geographic_area.to_geo_json_feature
 json.geographic_area_type do
   json.extract! geographic_area.geographic_area_type, :id, :name
 end
+
+json.parent do
+  json.extract! geographic_area.parent, :name
+end
