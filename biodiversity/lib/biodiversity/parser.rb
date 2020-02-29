@@ -25,39 +25,32 @@ module Biodiversity
     ffi_lib File.join(__dir__, '..', '..', 'clib', platform, 'libgnparser.so')
     POINTER_SIZE = FFI.type_size(:pointer)
 
-    attach_function(:parse_go, :ParseToString, %i[string string], :strptr)
-    attach_function(:free_mem, :FreeMemory, %i[pointer], :void)
+    callback(:parser_callback, %i[string], :void)
+
+    attach_function(:parse_go, :ParseToString,
+                    %i[string string parser_callback], :void)
     attach_function(:parse_ary_go, :ParseAryToStrings,
-                    %i[pointer int string pointer], :void)
+                    %i[pointer int string parser_callback], :void)
 
     def self.parse(name, simple = false)
       format = simple ? 'simple' : 'compact'
-      p_out = parse_go(name, format)
-      parsed = p_out[0]
-      # CLib.free(p_out[1])
-      free_mem(p_out[1])
+
+      parsed = nil
+      parse_go(name, format) { |str| parsed = str }
       output(parsed, simple)
     end
 
     def self.parse_ary(ary, simple = false)
       format = simple ? 'simple' : 'compact'
       in_ptr = FFI::MemoryPointer.new(:pointer, ary.length)
+
       in_ptr.write_array_of_pointer(
         ary.map { |s| FFI::MemoryPointer.from_string(s) }
       )
-      out_var = FFI::MemoryPointer.new(:pointer)
-      parse_ary_go(in_ptr, ary.length, format, out_var)
 
-      out_var.read_pointer
-             .get_array_of_string(0, ary.length)
-             .each_with_object([]) do |prsd, a|
-        a << output(prsd, simple)
-      end
-    ensure
-      out_var.read_pointer.get_array_of_pointer(0, ary.length).each do |p|
-        CLib.free(p)
-      end
-      CLib.free(out_var.read_pointer)
+      out_ary = []
+      parse_ary_go(in_ptr, ary.length, format) { |str| out_ary << output(str, simple) }
+      out_ary
     end
 
     def self.output(parsed, simple)
